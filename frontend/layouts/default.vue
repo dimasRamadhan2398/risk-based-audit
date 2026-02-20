@@ -16,7 +16,10 @@
               </NuxtLink>
             </div>
           </div>
-          <div class="hidden sm:ml-6 sm:flex sm:items-center">
+          <UDropdownMenu :items="items" class="my-4" variant="soft" size="lg">
+            <UButton icon="i-lucide-menu" color="secondary" variant="outline"></UButton>
+          </UDropdownMenu>
+          <!-- <div class="hidden sm:ml-6 sm:flex sm:items-center">
             <div class="ml-3 relative flex items-center space-x-4">
               <button
                 @click="toggleLocale"
@@ -32,7 +35,7 @@
                 Logout
               </button>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </nav>
@@ -45,15 +48,42 @@
 <script setup lang="ts">
 import { useAuthStore } from "~/stores/auth";
 import { useI18n } from "~/composables/useI18n";
+import type { DropdownMenuItem } from "@nuxt/ui";
 
 const authStore = useAuthStore();
 const { locale, setLocale } = useI18n();
 
-const toggleLocale = () => {
-  setLocale(locale.value === "en" ? "id" : "en");
-};
-
 const handleLogout = async () => {
   await authStore.logout();
 };
+
+const items = [
+    {
+      label: 'Language',
+      icon: 'language',
+      slot: "language" as const,
+      children: [
+        [
+          {
+            label: 'English',
+            onClick: () => setLocale('en')
+          },
+          {
+            label: 'Indonesia',
+            onClick: () => setLocale('id')
+          },
+        ],
+      ]
+    },
+    {
+      label: 'Settings',
+      icon: 'setting',
+    },
+    {
+      label: 'Sign Out',
+      color: "error",
+      icon: 'logout',
+      onClick: handleLogout
+    },
+] satisfies DropdownMenuItem[]
 </script>

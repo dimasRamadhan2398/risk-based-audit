@@ -38,12 +38,17 @@
     <template #body>
       <div class="overflow-x-auto">
         <UTable :data="tableData" :columns="tableColumns"> </UTable>
+        <div v-if="!quarterlyActive" class="min-h-max flex items-center text-center flex-row justify-center">
+          <UButton variant="solid" icon="add" :ui="{
+            leadingIcon: `font-bold`
+          }">Add Risk Control</UButton>
+        </div>
       </div>
     </template>
     <template #footer>
       <div></div>
       <UButton @click="handleSubmit" color="primary"
-        >Submit Risk Profile</UButton
+        >Close</UButton
       >
     </template>
   </UModal>
@@ -51,11 +56,14 @@
 <script setup lang="ts">
 import { toRaw } from "vue";
 import type { TableColumn, TabsItem } from "@nuxt/ui";
-import type { Quarter, ResidualFields } from "~/types/common";
+import { riskColor, type Quarter, type ResidualFields } from "~/types/common";
+
+const UBadge = resolveComponent("UBadge");
 
 const props = defineProps<{
   isOpen: boolean;
   riskData: any;
+  quarterlyActive: boolean;
 }>();
 
 interface riskData {
@@ -66,6 +74,7 @@ interface riskData {
 }
 
 const riskData = ref<RiskListItem>(props.riskData);
+const quarterlyActive = ref(props.quarterlyActive);
 
 watch(
   () => props.riskData,
@@ -77,6 +86,15 @@ watch(
   },
   { immediate: true },
 );
+
+watch(
+  () => props.quarterlyActive,
+  (newValue) => {
+    quarterlyActive.value = newValue;
+    console.log(newValue);
+  },
+  { immediate: true },
+)
 
 interface RiskDetailTableRow {
   no: string;
@@ -140,54 +158,6 @@ const formattedRiskData = computed<RiskDetailTableRow>(() => {
 
 // Sample table data
 const tableData = computed(() => [formattedRiskData.value]);
-
-// const impactLevelItems = computed(() => [
-//   {
-//     value: 1,
-//     label: "1 - Very Low",
-//   },
-//   {
-//     value: 2,
-//     label: "2 - Low",
-//   },
-//   {
-//     value: 3,
-//     label: "3 - Moderate",
-//   },
-//   {
-//     value: 4,
-//     label: "4 - High",
-//   },
-//   {
-//     value: 5,
-//     label: "5 - Very High",
-//   },
-// ]);
-
-// const possibilityLevelItems = computed(() => [
-//   {
-//     value: 1,
-//     label: "1 - Rare",
-//   },
-//   {
-//     value: 2,
-//     label: "2 - Unlikely",
-//   },
-//   {
-//     value: 3,
-//     label: "3 - Possible",
-//   },
-//   {
-//     value: 4,
-//     label: "4 - Very Likely",
-//   },
-//   {
-//     value: 5,
-//     label: "5 - Almost Certain",
-//   },
-// ]);
-
-const quarterlyActive = ref(false);
 const riskProfileStore = useRiskProfileStore();
 const tabActiveIndex = ref(0);
 
@@ -276,7 +246,7 @@ const closeModal = () => {
 // });
 
 const handleSubmit = () => {
-  confirmRiskProfile();
+  closeModal();
 };
 
 const tableColumns: TableColumn<RiskDetailTableRow>[] = [
@@ -483,9 +453,20 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 rawObject.impact_q1,
                 rawObject.possibility_q1,
               );
-              return getRiskLevelOptions().findLast(
+              var label = getRiskLevelOptions().findLast(
                 (opt, index) => opt.value === result,
               )?.label;
+
+              const selectedColor = Object.entries(riskColor).find(([key]) => {
+                const clearedKey = label?.replace(/\s+\d+$/, "");
+                return clearedKey === key;
+              })?.[1];
+          
+              return h(
+                UBadge,
+                { class: "capitalize", variant: "soft", color: selectedColor },
+                () => label,
+              );
             },
             meta: {
               class: {
@@ -503,9 +484,21 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 rawObject.impact_q2,
                 rawObject.possibility_q2,
               );
-              return getRiskLevelOptions().findLast(
+                          
+              var label = getRiskLevelOptions().findLast(
                 (opt, index) => opt.value === result,
               )?.label;
+
+              const selectedColor = Object.entries(riskColor).find(([key]) => {
+                const clearedKey = label?.replace(/\s+\d+$/, "");
+                return clearedKey === key;
+              })?.[1];
+          
+              return h(
+                UBadge,
+                { class: "capitalize", variant: "soft", color: selectedColor },
+                () => label,
+              );
             },
             meta: {
               class: {
@@ -523,9 +516,20 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 rawObject.impact_q3,
                 rawObject.possibility_q3,
               );
-              return getRiskLevelOptions().findLast(
+              var label = getRiskLevelOptions().findLast(
                 (opt, index) => opt.value === result,
               )?.label;
+
+              const selectedColor = Object.entries(riskColor).find(([key]) => {
+                const clearedKey = label?.replace(/\s+\d+$/, "");
+                return clearedKey === key;
+              })?.[1];
+          
+              return h(
+                UBadge,
+                { class: "capitalize", variant: "soft", color: selectedColor },
+                () => label,
+              );
             },
             meta: {
               class: {
@@ -543,9 +547,21 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 rawObject.impact_q4,
                 rawObject.possibility_q4,
               );
-              return getRiskLevelOptions().findLast(
+              
+              var label = getRiskLevelOptions().findLast(
                 (opt, index) => opt.value === result,
               )?.label;
+
+              const selectedColor = Object.entries(riskColor).find(([key]) => {
+                const clearedKey = label?.replace(/\s+\d+$/, "");
+                return clearedKey === key;
+              })?.[1];
+          
+              return h(
+                UBadge,
+                { class: "capitalize", variant: "soft", color: selectedColor },
+                () => label,
+              );
             },
             meta: {
               class: {

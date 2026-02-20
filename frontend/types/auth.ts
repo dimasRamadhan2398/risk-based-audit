@@ -13,6 +13,7 @@ export enum UserRole {
   ADMIN = "admin",
   AUDITOR = "auditor",
   DEPARTMENT_HEAD = "department_head",
+  AUDITEE = "auditee",
   VIEWER = "viewer",
 }
 

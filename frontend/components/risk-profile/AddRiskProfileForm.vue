@@ -121,7 +121,7 @@
     </template>
     <template #footer>
       <div></div>
-      <UButton @click="handleSubmit" color="primary">Add Risk Profile</UButton>
+      <UButton @click="handleSubmit" color="primary">"Confirm Risk Profile</UButton>
     </template>
   </UModal>
 </template>
@@ -157,6 +157,14 @@ watch(props, () => {
         },
       );
     }
+  }else{
+    riskProfile.value = {
+      risk_name: "",
+      risk_category: "",
+      impact_level: 1,
+      possibility_level: 1,
+    }
+    quarterlyActive.value = false;
   }
 });
 
@@ -244,8 +252,8 @@ const tabItems = ref<TabsItem[]>([
 const riskProfile = ref<RiskProfile>({
   risk_name: "",
   risk_category: "",
-  impact_level: 1,
-  possibility_level: 1,
+  impact_level: 4,
+  possibility_level: 4,
 });
 
 const quarterlyRiskProfiles = ref<RiskProfile[]>([
@@ -270,16 +278,48 @@ const quarterlyRiskProfiles = ref<RiskProfile[]>([
 const quarterlyActive = ref(false);
 const tabActiveIndex = ref(0);
 
-const currentImpactLevel = ref<number>(
-  quarterlyActive.value
-    ? quarterlyRiskProfiles.value![tabActiveIndex.value]!.impact_level
-    : riskProfile.value.impact_level,
-);
+const tabActive = computed({
+  get: () => tabActiveIndex.value.toString(),
+  set: (value: string | number) => {
+    tabActiveIndex.value =
+      typeof value === "string" ? parseInt(value, 10) : value;
+  },
+});
 
-const currentPossibilityLevel = ref<number>(
-  quarterlyActive.value
-    ? quarterlyRiskProfiles.value![tabActiveIndex.value]!.possibility_level
-    : riskProfile.value.possibility_level,
+watch(tabActive, (value) => {
+  console.log(value);
+})
+
+const currentImpactLevel = computed<number>(
+  {
+    get: () =>
+      quarterlyActive.value
+        ? quarterlyRiskProfiles.value![tabActiveIndex.value]!.impact_level
+        : riskProfile.value.impact_level,
+    set: (value: number) => {
+      if (quarterlyActive.value) {
+        quarterlyRiskProfiles.value![tabActiveIndex.value]!.impact_level = value;
+      } else {
+        riskProfile.value.impact_level = value;
+      }
+    },
+  }
+)
+
+const currentPossibilityLevel = computed<number>(
+    {
+    get: () =>
+      quarterlyActive.value
+        ? quarterlyRiskProfiles.value![tabActiveIndex.value]!.possibility_level
+        : riskProfile.value.possibility_level,
+    set: (value: number) => {
+      if (quarterlyActive.value) {
+        quarterlyRiskProfiles.value![tabActiveIndex.value]!.possibility_level = value;
+      } else {
+        riskProfile.value.possibility_level = value;
+      }
+    },
+  }
 );
 
 // // Sync values when switching between quarterly/non-quarterly or changing tabs
@@ -324,14 +364,6 @@ const closeModal = () => {
     possibility_level: 1,
   };
 };
-
-const tabActive = computed({
-  get: () => tabActiveIndex.value.toString(),
-  set: (value: string | number) => {
-    tabActiveIndex.value =
-      typeof value === "string" ? parseInt(value, 10) : value;
-  },
-});
 
 const handleSubmit = () => {
   addRiskProfile();

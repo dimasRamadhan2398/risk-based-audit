@@ -41,4 +41,10 @@ export const MenuList = [
     icon: "plan",
     description: "Strategic planning audit",
   },
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: "setting",
+    description: "Manage RBIA settings",
+  },
 ];
