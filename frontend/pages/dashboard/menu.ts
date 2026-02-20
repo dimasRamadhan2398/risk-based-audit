@@ -41,4 +41,10 @@ export const MenuList = [
     icon: "plan",
     description: "Surat Tugas Audit",
   },
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: "setting",
+    description: "Manage RBIA settings",
+  },
 ];

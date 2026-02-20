@@ -26,7 +26,7 @@
             variant="solid"
             color="primary"
             size="sm"
-            @click="isAddRiskProfileFormOpen = true"
+            @click="onAddRisk"
           >
           </UButton>
         </div>
@@ -37,11 +37,7 @@
       <UTable
         :data="data"
         :columns="columns"
-        :pagination-options="{
-          getPaginationRowModel: getPaginationRowModel(),
-        }"
-      >
-      </UTable>
+      />
     </div>
     <template #footer>
       <div class="relative flex flex-col gap-4">
@@ -57,7 +53,24 @@
           >
           </UButton>
         </div>
-        <UTable :data="riskData" :columns="priorityRiskListColumn"> </UTable>
+        <UTable
+          ref="table"
+          :data="riskData"
+          :columns="priorityRiskListColumn"
+          :pagination-options="{
+            getPaginationRowModel: getPaginationRowModel(),
+          }"
+          v-model:pagination-state="pagination"
+        />
+        <div class="flex flex-row items-end justify-end">
+          <UPagination
+            active-variant="solid"
+            :page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+            :total="riskData.length"
+            @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+          />
+        </div>
       </div>
     </template>
   </UCard>
@@ -74,23 +87,26 @@
   <DetailRiskProfileForm
     v-model:isOpen="isDetailRiskProfileModalOpen"
     v-model:riskData="selectedRiskValueRaw"
+    v-model:quarterlyActive="isQuarterlyActive"
   />
   <InformationRiskProfile v-model:isOpen="isInformationRiskProfileModalOpen" />
 </template>
 
 <script setup lang="ts">
+import { getPaginationRowModel } from '@tanstack/vue-table'
 import type { TableColumn } from "@nuxt/ui";
 import AddRiskProfileForm from "~/components/risk-profile/AddRiskProfileForm.vue";
 import DeleteConfirmationRiskItem from "~/components/risk-profile/DeleteConfirmationRiskItem.vue";
 import { useRiskProfileStore, type RiskListItem } from "~/stores/profile-risk";
 import DetailRiskProfileForm from "~/components/risk-profile/DetailRiskProfileForm.vue";
-import { riskColor, riskColorStyling } from "~/types/common";
-import { getPaginationRowModel } from "@tanstack/vue-table";
+import { riskColor } from "~/types/common";
 import InformationRiskProfile from "~/components/risk-profile/InformationRiskProfile.vue";
 
 const props = defineProps<{
   risks: [];
 }>();
+
+const table = useTemplateRef('table')
 
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
@@ -112,38 +128,66 @@ const onEditMode = ref(false);
 const data = computed(() => riskProfileStore.getRiskMatrix);
 const riskData = computed(() => riskProfileStore.getRiskList);
 
-const selectedRiskName = ref("");
-const selectedRiskId = ref("");
-const selectedRiskValue = ref({} as RiskListItem);
+const riskState = ref(riskProfileStore.riskState)
 
 const selectedRiskValueRaw = computed(() => {
-  return toRaw(selectedRiskValue.value);
+  const raw = toRaw(selectedRiskValue.value);
+  return raw === null ? undefined : raw;
 });
+
+// Computed with getters/setters that sync with store
+const selectedRiskId = computed({
+  get: () => riskState.value.selectedRiskId,
+  set: (value: string) => riskProfileStore.setSelectedRiskId(value),
+});
+
+const selectedRiskName = computed({
+  get: () => riskState.value.selectedRiskName,
+  set: (value: string) => riskProfileStore.setSelectedRiskName(value),
+});
+
+const selectedRiskValue = computed({
+  get: () => riskState.value.selectedRiskValue,
+  set: (value: RiskListItem | null) => riskProfileStore.setSelectedRiskValue(value),
+});
+
+const isQuarterlyActive = computed(() => {
+  if (!selectedRiskValueRaw.value) {
+    return false;
+  }
+  const length = selectedRiskValueRaw.value.list_residual_risks.length;
+  if(length < 4){
+    return false;
+  }
+  return true;
+})
 
 const pagination = ref({
   pageIndex: 0,
-  pageSize: 1,
+  pageSize: 0,
 });
 
 watch(riskData, () => {
   pagination.value = {
     pageIndex: 0,
-    pageSize: Math.floor(riskData.value.length / 10) + 1,
+    pageSize: 10,
   };
 });
 
-// // Fetch risk profiles on mount
-// onMounted(async () => {
-//   await riskProfileStore.fetchRiskProfiles();
-// });
+const onAddRisk = () => {
+  isAddRiskProfileFormOpen.value = true
+  onEditMode.value = false
+}
 
-watch(riskData, () => {
-  console.log(riskData.value.length);
-});
+const cleanData = () => {
+  selectedRiskId.value = "";
+  selectedRiskName.value = "";
+  selectedRiskValue.value = null;
+}
 
 const getRiskCellValue = (risk: any) => {
-  var selectedColor = Object.entries(riskColor).find(([key, value]) => {
-    var clearedKey = risk.getValue().replace(/\s+\d+$/, "");
+  const selectedColor = Object.entries(riskColor).find(([key]) => {
+    const clearedKey = risk.getValue().replace(/\s+\d+$/, "");
     return clearedKey === key;
   })?.[1];
 
@@ -190,6 +234,7 @@ const columns: TableColumn<Object>[] = [
     meta: {
       class: {
         th: "text-center font-semibold bg-primary text-secondary-900",
+        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
       },
     },
   },
@@ -200,6 +245,7 @@ const columns: TableColumn<Object>[] = [
     meta: {
       class: {
         th: "text-center font-semibold bg-primary text-secondary-900",
+        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
       },
     },
   },
@@ -210,6 +256,7 @@ const columns: TableColumn<Object>[] = [
     meta: {
       class: {
         th: "text-center font-semibold bg-primary text-secondary-900",
+        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
       },
     },
   },
@@ -220,6 +267,7 @@ const columns: TableColumn<Object>[] = [
     meta: {
       class: {
         th: "text-center font-semibold bg-primary text-secondary-900",
+        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
       },
     },
   },

@@ -60,9 +60,17 @@ export interface ImpactLikelihoodExplanation {
   likelihood: string;
 }
 
+export interface RiskActiveState{
+  selectedRiskName: string;
+  selectedRiskId: string;
+  selectedRiskValue: RiskListItem | null;
+}
+
 interface RiskProfileState {
+  registeredRisk: RiskListItem[];
   riskMatrix: RiskMatrixCell[];
   riskList: RiskListItem[];
+  riskState: RiskActiveState;
   impactLikelihoodExplanation: ImpactLikelihoodExplanation[];
   loading: boolean;
   error: string | null;
@@ -70,6 +78,12 @@ interface RiskProfileState {
 
 export const useRiskProfileStore = defineStore("risk-profile", {
   state: (): RiskProfileState => ({
+    riskState: {
+      selectedRiskName: "",
+      selectedRiskId: "",
+      selectedRiskValue: null
+    },
+    registeredRisk: [],
     riskMatrix: [
       {
         name: "Hampir Pasti Terjadi",
@@ -218,6 +232,96 @@ export const useRiskProfileStore = defineStore("risk-profile", {
         latest_possibility_level: 5,
         conclusion: "",
       },
+      {
+        risk_id: "FIN-003",
+        risk_name: "Kenaikan Harga Bahan Baku",
+        risk_category: "Financial",
+        risk_level: "Moderate to High",
+        list_residual_risks: [{ impact_level: 4, possibility_level: 4 }],
+        latest_impact_level: 4,
+        latest_possibility_level: 4,
+        conclusion: "",
+      },
+      {
+        risk_id: "OPS-003",
+        risk_name: "Kerusakan Peralatan Produksi",
+        risk_category: "Operational",
+        risk_level: "Moderate",
+        list_residual_risks: [{ impact_level: 3, possibility_level: 3 }],
+        latest_impact_level: 3,
+        latest_possibility_level: 3,
+        conclusion: "",
+      },
+      {
+        risk_id: "COM-002",
+        risk_name: "Ketidakpatuhan Pajak",
+        risk_category: "Compliance",
+        risk_level: "High",
+        list_residual_risks: [{ impact_level: 5, possibility_level: 3 }],
+        latest_impact_level: 5,
+        latest_possibility_level: 3,
+        conclusion: "",
+      },
+      {
+        risk_id: "STR-002",
+        risk_name: "Kegagalan Inovasi Produk",
+        risk_category: "Strategic",
+        risk_level: "Moderate",
+        list_residual_risks: [{ impact_level: 4, possibility_level: 3 }],
+        latest_impact_level: 4,
+        latest_possibility_level: 3,
+        conclusion: "",
+      },
+      {
+        risk_id: "SEC-002",
+        risk_name: "Kebocoran Data Pelanggan",
+        risk_category: "Security",
+        risk_level: "High",
+        list_residual_risks: [{ impact_level: 5, possibility_level: 4 }],
+        latest_impact_level: 5,
+        latest_possibility_level: 4,
+        conclusion: "",
+      },
+      {
+        risk_id: "REP-002",
+        risk_name: "Krisis Hubungan Masyarakat",
+        risk_category: "Reputational",
+        risk_level: "Moderate to High",
+        list_residual_risks: [{ impact_level: 4, possibility_level: 4 }],
+        latest_impact_level: 4,
+        latest_possibility_level: 4,
+        conclusion: "",
+      },
+      {
+        risk_id: "ENV-002",
+        risk_name: "Pembuangan Limbah Tidak Sesuai Standar",
+        risk_category: "Environmental",
+        risk_level: "High",
+        list_residual_risks: [{ impact_level: 5, possibility_level: 3 }],
+        latest_impact_level: 5,
+        latest_possibility_level: 3,
+        conclusion: "",
+      },
+      {
+        risk_id: "HR-002",
+        risk_name: "Kekurangan Tenaga Kerja Terampil",
+        risk_category: "Human Resources",
+        risk_level: "Moderate",
+        list_residual_risks: [{ impact_level: 3, possibility_level: 4 }],
+        latest_impact_level: 3,
+        latest_possibility_level: 4,
+        conclusion: "",
+      },
+      {
+        risk_id: "LEG-001",
+        risk_name: "Sengketa Kekayaan Intelektual",
+        risk_category: "Legal",
+        risk_level: "Moderate to High",
+        list_residual_risks: [{ impact_level: 4, possibility_level: 4 }],
+        latest_impact_level: 4,
+        latest_possibility_level: 4,
+        conclusion: "",
+      },
     ],
     impactLikelihoodExplanation: [
       {
@@ -236,11 +340,13 @@ export const useRiskProfileStore = defineStore("risk-profile", {
     ],
     loading: false,
     error: null,
+
   }),
 
   getters: {
     getRiskMatrix: (state) => state.riskMatrix,
     getRiskList: (state) => state.riskList,
+    getRiskState: (state) => state.riskState,
     isLoading: (state) => state.loading,
     getError: (state) => state.error,
 
@@ -260,6 +366,8 @@ export const useRiskProfileStore = defineStore("risk-profile", {
     },
     getImpactLikelihoodExplanation: (state) =>
       state.impactLikelihoodExplanation,
+
+    getRegisteredRisks: (state) => state.registeredRisk
   },
 
   actions: {
@@ -440,6 +548,28 @@ export const useRiskProfileStore = defineStore("risk-profile", {
 
     clearError() {
       this.error = null;
+    },
+
+    setSelectedRiskId(id: string) {
+      this.riskState.selectedRiskId = id;
+    },
+
+    setSelectedRiskName(name: string) {
+      this.riskState.selectedRiskName = name;
+    },
+
+    setSelectedRiskValue(risk: RiskListItem | null) {
+      this.riskState.selectedRiskValue = risk;
+      if (risk) {
+        this.riskState.selectedRiskId = risk.risk_id;
+        this.riskState.selectedRiskName = risk.risk_name;
+      }
+    },
+
+    clearSelectedRisk() {
+      this.riskState.selectedRiskId = "";
+      this.riskState.selectedRiskName = "";
+      this.riskState.selectedRiskValue = null;
     },
   },
 });

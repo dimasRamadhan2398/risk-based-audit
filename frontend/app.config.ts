@@ -12,13 +12,17 @@ export default defineAppConfig({
       check: "heroicons:check",
       loading: "heroicons:arrow-path",
       charter: "heroicons:clipboard-document-list",
-      warning:"heroicons:exclamation-triangle",
+      warning: "heroicons:exclamation-triangle",
       alert: "heroicons:alert-circle",
-      calendar:"heroicons:calendar",
-      download:"heroicons:arrow-down-tray",
+      calendar: "heroicons:calendar",
+      download: "heroicons:arrow-down-tray",
       // navigation
       chevronDown: "heroicons:chevron-down",
+      chevronRight: "heroicons:chevron-right",
       chevronUp: "heroicons:chevron-up",
+      logout: "lucide:log-out",
+      setting: "lucide:settings",
+      language: "lucide:languages",
 
       // actions
       add: "heroicons:plus",
@@ -65,7 +69,7 @@ export default defineAppConfig({
         variant: {
           solid: "",
           outline: "",
-          soft: "",
+          soft: "bg-primary-200 text-primary-900",
           subtle: "",
         },
         size: {
@@ -118,7 +122,7 @@ export default defineAppConfig({
         {
           color: "primary",
           variant: "soft",
-          class: "bg-primary/10 text-primary",
+          class: "bg-primary-500/50 text-primary-600",
         },
         {
           color: "primary",
@@ -592,12 +596,85 @@ export default defineAppConfig({
         },
       ],
     },
+    progress: {
+      variants: {
+        animation: {
+          carousel: "",
+          "carousel-inverse": "",
+          swing: "",
+          elastic: "",
+        },
+        color: {
+          primary: {
+            indicator: "bg-primary",
+            steps: "text-primary",
+          },
+          secondary: {
+            indicator: "bg-secondary",
+            steps: "text-secondary",
+          },
+          success: {
+            indicator: "bg-success",
+            steps: "text-success",
+          },
+          info: {
+            indicator: "bg-info",
+            steps: "text-info",
+          },
+          warning: {
+            indicator: "bg-warning",
+            steps: "text-warning",
+          },
+          error: {
+            indicator: "bg-error",
+            steps: "text-error",
+          },
+          neutral: {
+            indicator: "bg-inverted",
+            steps: "text-inverted",
+          },
+        },
+        size: {
+          "2xs": {
+            status: "text-xs",
+            steps: "text-xs",
+          },
+          xs: {
+            status: "text-xs",
+            steps: "text-xs",
+          },
+          sm: {
+            status: "text-sm",
+            steps: "text-sm",
+          },
+          md: {
+            status: "text-sm",
+            steps: "text-sm",
+          },
+          lg: {
+            status: "text-sm",
+            steps: "text-sm",
+          },
+          xl: {
+            status: "text-base",
+            steps: "text-base",
+          },
+          "2xl": {
+            status: "text-base",
+            steps: "text-base",
+          },
+        },
+      },
+    },
     button: {
       block: {
         true: {
           base: "w-full justify-center",
           trailingIcon: "ms-auto",
         },
+      },
+      slots: {
+        leadingIcon: 'shrink-0 font-semibold',
       },
       size: {
         xs: {

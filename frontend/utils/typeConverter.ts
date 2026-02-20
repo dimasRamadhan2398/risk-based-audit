@@ -53,3 +53,7 @@ export const arrayToString = (arr: any[], separator: string = ', '): string => {
 export const stringToArray = (str: string, separator: string = ','): string[] => {
   return str.split(separator).map(s => s.trim()).filter(Boolean)
 }
+
+export const doubleToPercentage = (value: number): string => {
+  return `${parseFloat((value * 100).toFixed(2))}%`
+}

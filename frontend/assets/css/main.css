@@ -122,12 +122,20 @@ h1 {
   @apply text-xl font-bold text-gray-900 tracking-wide;
 }
 
+h2 {
+  @apply text-xl font-bold text-gray-900 tracking-normal;
+}
+
+h4 {
+  @apply text-lg font-semibold text-gray-700 tracking-normal;
+}
+
 h5 {
   @apply text-base font-semibold text-gray-700 tracking-normal;
 }
 
 h6 {
-  @apply text-base font-normal text-gray-700 tracking-wide;
+  @apply text-sm font-normal text-gray-700 tracking-wide;
 }
 
 .card-title {

@@ -10,6 +10,8 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@vueuse/nuxt",
     "@nuxt/image",
+    "nuxt-charts",
+    "nuxt-chatgpt",
   ],
   routeRules: {
     "/dashboard": {
