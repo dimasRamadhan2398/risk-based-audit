@@ -66,6 +66,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       code: form.code,
       name: form.name,
       type: form.type,
+      detail: form.detail,
       selectedMonths: form.selectedMonths.sort((a,b) => a-b),
       quarters: quarters,
       auditorCount: form.auditorCount,
@@ -87,7 +88,17 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     if (isDuplicate) throw new Error('Kode Kegiatan sudah digunakan data lain!')
 
     if (index !== -1) {
-      plans.value[index] = { ...plans.value[index], ...updatedData }
+      const quarters = calculateQuarters(updatedData.selectedMonths)
+      const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
+      const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
+
+      plans.value[index] = { 
+        ...plans.value[index], 
+        ...updatedData,
+        quarters: quarters,
+        totalMandays: totalMandays,
+        supervisorName: supervisor?.name || 'Unknown'
+      }
     }
   }
 

@@ -37,9 +37,9 @@ export const MenuList = [
   },
   {
     name: "Surat Tugas Audit",
-    href: "/strategic-audit-plan",
+    href: "/audit-work",
     icon: "plan",
-    description: "Strategic planning audit",
+    description: "Surat Tugas Audit",
   },
   {
     name: "Settings",

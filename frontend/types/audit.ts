@@ -119,16 +119,17 @@ export interface CharterFormState {
 
 export interface AnnualAuditPlan {
   id?: string;
-  code: string; // Kode Kegiatan (e.g., ASR-01)
-  name: string; // Nama Kegiatan
-  type: AuditType; // Kategori (Bisa custom, jadi string)
-  selectedMonths: number[]; // 0=Jan, 11=Dec
-  quarters?: string[]; // Calculated: ['Q1', 'Q2']
-  auditorCount: number; // Jumlah Auditor (1-10)
-  daysPerAuditor: number; // Durasi per auditor
-  totalMandays?: number; // Calculated: count * days
-  supervisorId: string; // ID Supervisor
-  supervisorName?: string; // Nama Supervisor
+  code: string;        // Kode Kegiatan (e.g., ASR-01)
+  name: string;        // Nama Kegiatan
+  type: AuditType;    // Kategori (Bisa custom, jadi string)
+  detail: string;
+  selectedMonths: number[];  // 0=Jan, 11=Dec
+  quarters?: string[];        // Calculated: ['Q1', 'Q2']
+  auditorCount: number;      // Jumlah Auditor (1-10)
+  daysPerAuditor: number;    // Durasi per auditor
+  totalMandays?: number;      // Calculated: count * days
+  supervisorId: string;      // ID Supervisor
+  supervisorName?: string;    // Nama Supervisor
   year: string;
   notes?: string;
   status: AuditStatus;
@@ -144,6 +145,7 @@ export interface AnnualPlanForm {
   code: string;
   name: string;
   type: AuditType;
+  detail: string;
   selectedMonths: number[];
   status: AuditStatus;
   auditorCount: number;
@@ -206,4 +208,52 @@ export interface AuditDataState {
   auditExecutionStatus: AuditExecutionStatus[];
   atrReports: AtrReport[];
   recentFindings:  RecentFinding[];
+}
+
+
+export type RiskTaxonomy = 'Strategic' | 'Operational' | 'Financial' | 'IT';
+export type TestResult = 'Pass' | 'Fail' | 'N/A';
+export type RCACategory = 'People' | 'Process' | 'Policy' | 'System' | 'External';
+
+export interface TestStep {
+  id: string
+  description: string
+}
+
+export interface AuditWorkingItem {
+  id: string;
+  auditWorkingName: string;
+  results: Record<string, TestResult>;
+  isEffective: boolean;
+}
+
+export interface AuditWorkingForm {
+  assignmentNumber: string;
+  teamMembers: string;
+  processName: string;
+  activityName: string;
+  period: string;
+  riskDescription: string;
+  riskTaxonomy: RiskTaxonomy;
+  appName: string;
+  populationSize: number;
+  testSteps: TestStep[];
+  items: AuditWorkingItem[];
+  findingTitle: string;
+  condition: string;
+  criteria: string;
+  cause: string;
+  effect: string;
+  evidenceFile: File | null
+  rcaCategory: RCACategory;
+  why1: string;
+  why2: string;
+  why3: string;
+  rootCauseConclusion: string;
+  auditeeResponse: string;
+  actionPlan: string;
+  targetDate: string;
+  pic: string;
+  approver: string;
+  status: 'Draft' | 'Review' | 'Final';
 }

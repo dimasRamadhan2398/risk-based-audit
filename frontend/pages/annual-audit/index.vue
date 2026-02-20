@@ -1,7 +1,9 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto space-y-6">
     <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white"> Annual Audit Plan</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white"> 
+        Annual Audit Plan
+      </h1>
       <UButton
         label="New Audit Plan" 
         @click="openModal()"
@@ -26,6 +28,30 @@
             <UBadge color="primary" variant="soft" size="md" class="mt-1">
               {{ row.original.type }}
             </UBadge>
+          </div>
+          <div class="max-w-[250px] text-sm text-gray-600 dark:text-gray-400">
+            <template v-if="!isDetailLongText(row.original.detail!)">
+              <span class="italic">{{ row.original.detail || '-' }}</span>
+            </template>
+
+            <template v-else>
+              <span class="italic whitespace-normal break-words">
+                {{ expandedDetailRows.has(row.original.id!) 
+                  ? row.original.detail 
+                  : row.original.detail?.slice(0, 50) + '...' 
+                }}
+              </span>
+              
+              <UButton
+                :label="expandedDetailRows.has(row.original.id!) ? 'Show Less' : 'Read More'"
+                variant="link"
+                size="xs"
+                :padded="false"
+                color="primary"
+                class="ml-1 font-bold underline"
+                @click="toggleDetailReadMore(row.original.id!)"
+              />
+            </template>
           </div>
         </template>
 
@@ -62,12 +88,47 @@
         <template #supervisorName-data="{ row }">
           <span class="font-bold text-gray-800 dark:text-gray-200">{{ row.original.supervisorId || '-' }}</span>
         </template>
-        
-        <template #notes-data="{ row }">
-          <span class="text-gray-500 italic truncate max-w-[200px] block" :title="row.original.notes">
-            {{ row.original.notes || '-' }}
-          </span>
+
+        <template #notes-cell="{ row }">
+          <div class="max-w-[250px] text-sm text-gray-600 dark:text-gray-400">
+            <template v-if="!isNotesLongText(row.original.notes!)">
+              <span class="italic">{{ row.original.notes || '-' }}</span>
+            </template>
+
+            <template v-else>
+              <span class="italic whitespace-normal break-words">
+                {{ expandedNotesRows.has(row.original.id!) 
+                  ? row.original.notes 
+                  : row.original.notes?.slice(0, 50) + '...' 
+                }}
+              </span>
+              
+              <UButton
+                :label="expandedNotesRows.has(row.original.id!) ? 'Show Less' : 'Read More'"
+                variant="link"
+                size="xs"
+                :padded="false"
+                color="primary"
+                class="ml-1 font-bold underline"
+                @click="toggleNotesReadMore(row.original.id!)"
+              />
+            </template>
+          </div>
         </template>
+
+        <template #actions-cell="{ row }">
+          <div>
+            <UButton
+              label="Edit"
+              icon="i-heroicons-pencil-square"
+              color="primary"
+              variant="ghost"
+              size="lg"
+              @click="handleEdit(row.original)"
+            />
+          </div>
+        </template>
+      
       </UTable>
     </UCard>
 
@@ -126,7 +187,23 @@
                         <option value="Follow-Up Audit">Follow-up Audit</option>
                       </select>
                     </UFormField>
-                  </div>      
+                  </div>
+                  <UFormField
+                      label="Activity Detail"
+                      size="lg"
+                    >
+                      <UTextarea 
+                        v-model="form.detail" 
+                        maxlength="500"
+                        :rows="5"
+                        class="w-full"
+                        autoresize
+                      ></UTextarea>
+                      <div class="flex justify-between mt-1">
+                        <span class="text-xs text-gray-400">Describe Audit Activity Plan here.</span>
+                        <span class="text-xs text-gray-400">{{ form.detail!.length }}/500</span>
+                      </div>
+                    </UFormField>     
                 </div>
 
                 <div class="space-y-4">
@@ -270,13 +347,11 @@
             
               <div class="px-6 py-4 bg-secondary-50 dark:bg-secondary-900 border-t border-secondary-200 dark:border-secondary-700 rounded-b-xl flex justify-end gap-3">
                 <UButton 
+                  :label="isEditing ? 'Update Plan' : 'Save Plan'" 
                   color="primary" 
-                  @click="handleSubmit" 
                   :disabled="!!quarterAlert || utilizationData.color === 'red'"
-                  class="px-6 py-2 font-bold shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Save Annual Plan
-                </UButton>
+                  @click="handleSubmit" 
+                />
               </div>
             
             </div>
@@ -298,7 +373,6 @@ const showModal = ref(false)
 
 // Constants
 const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const currentYear = new Date().getFullYear()
 
 const columns: TableColumn<AnnualAuditPlan>[] = [
   // { accessorKey: 'code', header: 'Code' },
@@ -311,30 +385,43 @@ const columns: TableColumn<AnnualAuditPlan>[] = [
   { accessorKey: 'auditor', header: 'Total Auditor' },
   { accessorKey: 'totalMandays', header: 'Mandays Duration' },
   { accessorKey: 'supervisorName', header: 'Supervisor' },
-  { accessorKey: 'notes', header: 'Notes' }
+  { accessorKey: 'notes', header: 'Notes' },
+  { accessorKey: 'actions', header: 'Actions' }
 ]
 
-const auditTypeItems = computed(() => Object.values(AuditType).map(type => ({ value: type, label: type })))
-const annualAuditItems = ref<SelectMenuItem[]>([
-  {
-    label: 'Backlog'
-  },
-  {
-    label: 'Todo'
-  },
-  {
-    label: 'In Progress'
-  },
-  {
-    label: 'Done'
+const isEditing = ref(false)
+const editingId = ref<string | null>(null)
+
+// State untuk menyimpan ID baris yang sedang "Read More"
+const expandedNotesRows = ref(new Set<string>())
+  const expandedDetailRows = ref(new Set<string>())
+
+const toggleNotesReadMore = (id: string) => {
+  if (expandedNotesRows.value.has(id)) {
+    expandedNotesRows.value.delete(id)
+  } else {
+    expandedNotesRows.value.add(id)
   }
-])
+}
+
+const toggleDetailReadMore = (id: string) => {
+  if (expandedDetailRows.value.has(id)) {
+    expandedDetailRows.value.delete(id)
+  } else {
+    expandedDetailRows.value.add(id)
+  }
+}
+
+// Helper untuk mengecek apakah teks lebih dari 100 karakter
+const isNotesLongText = (text: string) => text && text.length > 100
+const isDetailLongText = (text: string) => text && text.length > 100
 
 // Form State
 const form = reactive<AnnualPlanForm>({
   code: '',
   name: '',
   type: AuditType.ASSURANCE,
+  detail: '',
   selectedMonths: [],
   auditorCount: 2,
   daysPerAuditor: 5,
@@ -382,15 +469,21 @@ const toggleMonth = (idx: number) => {
 }
 
 const openModal = () => {
+  isEditing.value = false
+  editingId.value = null
+  
   // Reset Form
-  form.code = ''
-  form.name = ''
-  form.selectedMonths = []
-  form.notes = ''
-  form.supervisorId = ''
-  form.auditorCount = 2
-  form.daysPerAuditor = 5
-  form.year = ''
+  Object.assign(form, {
+    code: '',
+    name: '',
+    type: AuditType.ASSURANCE,
+    selectedMonths: [],
+    auditorCount: 2,
+    daysPerAuditor: 5,
+    supervisorId: '',
+    notes: '',
+    year: ''
+  })
   showModal.value = true
 }
 
@@ -407,8 +500,39 @@ const handleSubmit = () => {
     return
   }
 
-  store.addPlan({ ...form })
-  alert("Data Rencana Audit Berhasil Disimpan!")
+  if (isEditing.value && editingId.value) {
+    // Mode EDIT
+    store.updatePlan(editingId.value, { ...form })
+    alert("Data Rencana Audit Berhasil Diperbarui!")
+  } else {
+    // Mode ADD
+    store.addPlan({ ...form })
+    alert("Data Rencana Audit Berhasil Disimpan!")
+  }
+
   closeModal()
 }
+
+const handleEdit = (plan: any) => {
+  isEditing.value = true
+  editingId.value = plan.id
+  
+  // Isi form dengan data yang dipilih
+  Object.assign(form, {
+    code: plan.code,
+    name: plan.name,
+    type: plan.type,
+    selectedMonths: [...plan.selectedMonths], // Gunakan spread agar tidak reaktif terhubung langsung
+    auditorCount: plan.auditorCount,
+    daysPerAuditor: plan.daysPerAuditor,
+    supervisorId: plan.supervisorId,
+    notes: plan.notes || '',
+    status: plan.status,
+    isActive: plan.isActive,
+    year: plan.year
+  })
+  
+  showModal.value = true
+}
+
 </script>
