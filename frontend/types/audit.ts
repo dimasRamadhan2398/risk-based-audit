@@ -8,9 +8,6 @@ export enum AuditType {
   INVESTIGATION = "Investigation",
   QUALITY_ASSURANCE_REVIEW = "Quality Assurance Review",
   FOLLOWUP_AUDIT = "Follow-Up Audit",
-  OPERASIONAL = "Operasional",
-  FINANCIAL = "Financial",
-  IT = "IT",
 }
 
 export enum AuditStatus {
@@ -210,50 +207,82 @@ export interface AuditDataState {
   recentFindings:  RecentFinding[];
 }
 
+// 1. Definisikan Array-nya terlebih dahulu
+export const TEST_RESULT_OPTIONS = ['Pass', 'Fail', 'N/A'] as const;
+export const RCA_CATEGORY_OPTIONS = ['People', 'Process', 'Policy', 'System', 'External'] as const;
 
-export type RiskTaxonomy = 'Strategic' | 'Operational' | 'Financial' | 'IT';
-export type TestResult = 'Pass' | 'Fail' | 'N/A';
-export type RCACategory = 'People' | 'Process' | 'Policy' | 'System' | 'External';
+// 2. Ambil Tipe-nya dari Array tersebut (Otomatis sinkron)
+export type TestResult = typeof TEST_RESULT_OPTIONS[number] | undefined;
+export type RCACategory = typeof RCA_CATEGORY_OPTIONS[number];
 
-export interface TestStep {
-  id: string
-  description: string
+export interface SampleItem {
+  id: number;
+  dokumen: string;
+  l1: TestResult;
+  l2: TestResult;
+  l3: TestResult;
 }
 
-export interface AuditWorkingItem {
-  id: string;
-  auditWorkingName: string;
-  results: Record<string, TestResult>;
-  isEffective: boolean;
+export interface RCAItem {
+  id: number;
+  kategori: RCACategory;
+  w1: string;
+  w2: string;
+  w3: string;
 }
 
-export interface AuditWorkingForm {
-  assignmentNumber: string;
-  teamMembers: string;
-  processName: string;
-  activityName: string;
-  period: string;
-  riskDescription: string;
-  riskTaxonomy: RiskTaxonomy;
-  appName: string;
-  populationSize: number;
-  testSteps: TestStep[];
-  items: AuditWorkingItem[];
-  findingTitle: string;
-  condition: string;
-  criteria: string;
-  cause: string;
-  effect: string;
-  evidenceFile: File | null
-  rcaCategory: RCACategory;
-  why1: string;
-  why2: string;
-  why3: string;
-  rootCauseConclusion: string;
-  auditeeResponse: string;
-  actionPlan: string;
-  targetDate: string;
+export interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+}
+
+// export interface WorkingPaperItem {
+//   id: string;
+//   // Header & Referensi
+//   paperNumber: string;
+//   auditPurpose: string;
+//   businessProcess: string;
+//   auditPeriod: string;
+//   location: string;
+//   teamMembers: string;
+//   // results: Record<string, TestResult>;
+//   // isEffective: boolean;
+// }
+
+export interface WorkingPaperForm {
+  // F-01: Referensi Penugasan
+  suratTugas: string;
+  tujuanAudit: string;
+  prosesBisnis: string;
+  periodeStart: string;
+  periodeEnd: string;
+  lokasi: string;
+  teamMembers: TeamMember[];
+
+  // F-02: Risk Profile
+  resiko: string;
+  taksonomi: string;
+  tingkatResiko: string;
+  deskripsiKontrol: string;
+
+  // F-03: Uji Sampel
+  populasi: number | null;
+  jmlSampel: number | null;
+  samples: SampleItem[];
+  kesimpulan: string;
+
+  // F-04: AOI & RCA
+  kondisi: string;
+  kriteria: string;
+  dampak: string;
+  buktiFile: File | null; // Untuk upload file
+  rcaList: RCAItem[];
+
+  // F-05: Action Plan
+  rekomendasi: string;
+  tanggapan: string;
+  deskripsiAction: string;
   pic: string;
-  approver: string;
-  status: 'Draft' | 'Review' | 'Final';
+  periodAction: string;
 }

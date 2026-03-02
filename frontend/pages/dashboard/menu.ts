@@ -36,10 +36,10 @@ export const MenuList = [
     description: "Strategic planning audit",
   },
   {
-    name: "Surat Tugas Audit",
-    href: "/audit-work",
+    name: "Kertas Kerja Audit",
+    href: "/working-paper",
     icon: "plan",
-    description: "Surat Tugas Audit",
+    description: "Kertas Kerja Audit",
   },
   {
     name: "Settings",

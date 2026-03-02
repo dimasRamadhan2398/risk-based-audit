@@ -8,6 +8,13 @@ export enum RiskLevel {
   HIGH = 'high'
 }
 
+export enum RiskTaxonomy { 
+  Strategic = 'Strategic',
+  Operational = 'Operational',
+  Financial = 'Financial',
+  IT = 'IT'
+
+}
 export enum ImpactLevel {
   VERY_LOW = 1,
   LOW = 2,

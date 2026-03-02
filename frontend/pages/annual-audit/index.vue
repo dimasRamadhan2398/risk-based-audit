@@ -364,7 +364,7 @@
 </template>
 
 <script setup lang="ts">
-import type { TableColumn, SelectMenuItem } from '@nuxt/ui'
+import type { TableColumn } from '@nuxt/ui'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { AuditStatus, AuditType, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
 
