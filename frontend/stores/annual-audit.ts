@@ -1,6 +1,6 @@
 // stores/annual-plan.ts
 import { defineStore } from 'pinia'
-import { AuditStatus, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
+import { AnnualAuditPlanStatus, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
@@ -64,9 +64,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const newPlan: AnnualAuditPlan = {
       id: Date.now().toString(),
       code: form.code,
-      name: form.name,
-      type: form.type,
-      detail: form.detail,
+      activities: [...form.activities],
+      // name: form.name, 
+      // type: form.type, 
+      // department: form.department, 
+      status: form.status,
       selectedMonths: form.selectedMonths.sort((a,b) => a-b),
       quarters: quarters,
       auditorCount: form.auditorCount,
@@ -75,7 +77,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       supervisorId: form.supervisorId,
       supervisorName: supervisor?.name || 'Unknown',
       notes: form.notes,
-      status: AuditStatus.PLANNED,
       year: form.year,
       isActive: form.isActive    
     }
@@ -93,8 +94,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
 
       plans.value[index] = { 
-        ...plans.value[index], 
         ...updatedData,
+        activities: [...updatedData.activities],
         quarters: quarters,
         totalMandays: totalMandays,
         supervisorName: supervisor?.name || 'Unknown'

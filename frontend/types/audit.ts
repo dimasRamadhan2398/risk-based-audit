@@ -19,6 +19,41 @@ export enum AuditStatus {
   CANCELLED = "Cancelled",
 }
 
+export enum AnnualAuditPlanStatus {
+  DONE = "Done",
+  WORK_IN_PROGRESS = "Work In Progress",
+  NOT_AVAILABLE = "Not Available"
+}
+
+export enum FindingSeverity {
+  LOW = "Low",
+  MEDIUM = "Medium",
+  HIGH = "High",
+  CRITICAL = "Critical",
+}
+
+export enum FindingStatus {
+  OPEN = "Open",
+  IN_PROGRESS = "In Progress",
+  RESOLVED = "Resolved",
+  CLOSED = "Closed",
+}
+
+export enum AuditDepartment {
+  IT = "IT",
+  FINANCE = "Finance",
+  HR = "HR",
+  OPS = "Ops"
+}
+
+// 1. Definisikan Array-nya terlebih dahulu
+export const TEST_RESULT_OPTIONS = ['Pass', 'Fail', 'N/A'] as const;
+export const RCA_CATEGORY_OPTIONS = ['People', 'Process', 'Policy', 'System', 'External'] as const;
+
+// 2. Ambil Tipe-nya dari Array tersebut (Otomatis sinkron)
+export type TestResult = typeof TEST_RESULT_OPTIONS[number] | undefined;
+export type RCACategory = typeof RCA_CATEGORY_OPTIONS[number];
+
 export interface AuditPlan {
   id: string;
   year: number;
@@ -77,20 +112,6 @@ export interface AuditFinding {
   updatedAt: string;
 }
 
-export enum FindingSeverity {
-  LOW = "Low",
-  MEDIUM = "Medium",
-  HIGH = "High",
-  CRITICAL = "Critical",
-}
-
-export enum FindingStatus {
-  OPEN = "Open",
-  IN_PROGRESS = "In Progress",
-  RESOLVED = "Resolved",
-  CLOSED = "Closed",
-}
-
 export interface AuditCharter {
   id: string;
   title: string;
@@ -114,12 +135,20 @@ export interface CharterFormState {
   file: File | null;
 }
 
+export interface AuditActivities {
+  name: string;
+  type: AuditType;
+  department: AuditDepartment;
+}
+
 export interface AnnualAuditPlan {
   id?: string;
-  code: string;        // Kode Kegiatan (e.g., ASR-01)
-  name: string;        // Nama Kegiatan
-  type: AuditType;    // Kategori (Bisa custom, jadi string)
-  detail: string;
+  code: string; 
+  activities: AuditActivities[];
+  // name: string;
+  // type: AuditType;
+  // department: AuditDepartment;     
+  status: AnnualAuditPlanStatus;
   selectedMonths: number[];  // 0=Jan, 11=Dec
   quarters?: string[];        // Calculated: ['Q1', 'Q2']
   auditorCount: number;      // Jumlah Auditor (1-10)
@@ -129,7 +158,6 @@ export interface AnnualAuditPlan {
   supervisorName?: string;    // Nama Supervisor
   year: string;
   notes?: string;
-  status: AuditStatus;
   isActive: boolean; // Status Aktif/Non-aktif
   isUsed?: boolean; // Flag untuk cek apakah sudah dipakai di RKAT (Simulasi)
   //auditUniverse: string;  Unit/Area yang diaudit
@@ -140,11 +168,12 @@ export interface AnnualAuditPlan {
 export interface AnnualPlanForm {
   id?: string;
   code: string;
-  name: string;
-  type: AuditType;
-  detail: string;
+  activities: AuditActivities[];
+  // name: string;
+  // type: AuditType;
+  // department: AuditDepartment;
+  status: AnnualAuditPlanStatus;
   selectedMonths: number[];
-  status: AuditStatus;
   auditorCount: number;
   daysPerAuditor: number;
   supervisorId: string;
@@ -207,14 +236,6 @@ export interface AuditDataState {
   recentFindings:  RecentFinding[];
 }
 
-// 1. Definisikan Array-nya terlebih dahulu
-export const TEST_RESULT_OPTIONS = ['Pass', 'Fail', 'N/A'] as const;
-export const RCA_CATEGORY_OPTIONS = ['People', 'Process', 'Policy', 'System', 'External'] as const;
-
-// 2. Ambil Tipe-nya dari Array tersebut (Otomatis sinkron)
-export type TestResult = typeof TEST_RESULT_OPTIONS[number] | undefined;
-export type RCACategory = typeof RCA_CATEGORY_OPTIONS[number];
-
 export interface SampleItem {
   id: number;
   dokumen: string;
@@ -236,19 +257,6 @@ export interface TeamMember {
   name: string;
   role: string;
 }
-
-// export interface WorkingPaperItem {
-//   id: string;
-//   // Header & Referensi
-//   paperNumber: string;
-//   auditPurpose: string;
-//   businessProcess: string;
-//   auditPeriod: string;
-//   location: string;
-//   teamMembers: string;
-//   // results: Record<string, TestResult>;
-//   // isEffective: boolean;
-// }
 
 export interface WorkingPaperForm {
   // F-01: Referensi Penugasan
