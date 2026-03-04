@@ -1,6 +1,6 @@
 import type { SelectOption } from '~/types/common'
 import { RiskLevel, ImpactLevel, PossibilityLevel } from '~/types/risk'
-import { AuditType, AuditStatus, FindingSeverity } from '~/types/audit'
+import { AuditCategory, AuditStatus, FindingSeverity } from '~/types/audit'
 
 /**
  * Convert enum to select options
@@ -57,12 +57,12 @@ export const getPossibilityLevelOptions = (): SelectOption[] => {
 /**
  * Get audit type options
  */
-export const getAuditTypeOptions = (): SelectOption[] => {
-  return enumToOptions(AuditType, {
-    [AuditType.ASSURANCE]: 'Assurance',
-    [AuditType.SPECIAL]: 'Special',
-    [AuditType.SPECIFIC_REASON]: 'Specific Reason',
-    [AuditType.INVESTIGATION]: 'Investigation'
+export const getAuditCategoryOptions = (): SelectOption[] => {
+  return enumToOptions(AuditCategory, {
+    [AuditCategory.ASSURANCE]: 'Assurance',
+    [AuditCategory.SPECIAL_AUDIT]: 'Special Audit',
+    [AuditCategory.SPECIFIC_REASON]: 'Specific Reason',
+    [AuditCategory.INVESTIGATION]: 'Investigation'
   })
 }
 

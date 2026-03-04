@@ -1,9 +1,119 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import type { WorkingPaperForm, SampleItem } from '~/types/audit'
-import { RCA_CATEGORY_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
+import { RCA_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
+
+  const fileInput = ref<HTMLInputElement | null>(null)
+
+  // Picu klik pada input file yang tersembunyi
+  const triggerUpload = () => {
+    fileInput.value?.click()
+  }
+
+  // Handle perubahan file
+  const onFileChange = (e: Event) => {
+    const target = e.target as HTMLInputElement
+    const files = target.files
+
+    if (files && files[0]) {
+      const file = files[0]
+      
+      // Validasi Ukuran (Contoh: 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Ukuran file terlalu besar! Maksimal 10MB.')
+        return
+      }
+
+      // Simpan ke Store
+      form.buktiFile = file
+      console.log('File terpilih:', file.name)
+    }
+  }
+
+  // Hapus file
+  const removeFile = () => {
+    form.buktiFile = null
+    if (fileInput.value) {
+      fileInput.value.value = '' // Reset input agar bisa upload file yang sama lagi
+    }
+  }
+
+  // Fungsi untuk mendapatkan daftar anggota yang tersedia untuk baris tertentu
+  const getAvailableMembers = (currentIndex: number) => {
+    // 1. Ambil semua nama yang sudah dipilih di baris-baris LAIN
+    const selectedNames = form.teamMembers
+      .filter((_, index) => index !== currentIndex) // Kecualikan baris yang sedang aktif
+      .map(member => member.name)
+      .filter(name => !!name) // Hanya ambil yang sudah ada isinya
+
+    // 2. Filter master list PIC agar tidak menyertakan nama yang sudah dipilih di baris lain
+    return options.pic.filter(pic => !selectedNames.includes(pic))
+  }
+
+  const isDateError = computed(() => {
+    // Jika salah satu tanggal belum diisi, jangan anggap error dulu
+    if (!form.periodeStart || !form.periodeEnd) return false
+    
+    const start = new Date(form.periodeStart)
+    const end = new Date(form.periodeEnd)
+    
+    // Return true jika tanggal akhir LEBIH KECIL dari tanggal mulai
+    return end < start
+  })
+
+  // Opsional: Pesan error dinamis
+  const dateErrorMessage = computed(() => {
+    return isDateError.value ? "Tanggal akhir tidak boleh sebelum tanggal mulai" : false
+  })
+
+  // Tabs Configuration
+  const tabs = [
+    { label: 'Header', slot: 'f01', icon: 'i-heroicons-document-text' },
+    { label: 'Profil Resiko', slot: 'f02', icon: 'i-heroicons-shield-exclamation' },
+    { label: 'Uji Sampel', slot: 'f03', icon: 'i-heroicons-table-cells' },
+    { label: 'AOI & RCA', slot: 'f04', icon: 'i-heroicons-magnifying-glass-circle' },
+    { label: 'Action Plan', slot: 'f05', icon: 'i-heroicons-check-badge' }
+  ]
+
+  const columnsF01 = [
+    { accessorKey: 'suratTugas', header: 'Surat Tugas' },
+    { accessorKey: 'prosesBisnis', header: 'Proses Bisnis' },
+    { accessorKey: 'periode', header: 'Periode' },
+    { accessorKey: 'lokasi', header: 'Lokasi' },
+    { accessorKey: 'teamMembers', header: 'Team' }
+  ]
+
+  const columnsF02 = [
+    { accessorKey: 'resiko', header: 'Resiko' },
+    { accessorKey: 'taksonomi', header: 'Taksonomi' },
+    { accessorKey: 'tingkatResiko', header: 'Tingkat Resiko' },
+    { accessorKey: 'deskripsiKontrol', header: 'Deskripsi Kontrol' }
+  ]
+
+  const columnsF03 = [
+    { accessorKey: 'populasi', header: 'Populasi' },
+    { accessorKey: 'jmlSampel', header: 'Jumlah Sample' },
+    { accessorKey: 'samples', header: 'Daftar Sampel' },
+    { accessorKey: 'kesimpulan', header: 'Kesimpulan' }
+  ]
+
+  const columnsF04 = [
+    { accessorKey: 'kondisi', header: 'Kondisi' },
+    { accessorKey: 'kriteria', header: 'Kriteria' },
+    { accessorKey: 'dampak', header: 'Dampak' },
+    { accessorKey: 'rcaList', header: 'Root Cause' },
+    { accessorKey: 'buktiFile', header: 'Dokumen Bukti' },
+  ]
+
+  const columnsF05 = [
+    { accessorKey: 'rekomendasi', header: 'Rekomendasi' },
+    { accessorKey: 'tanggapan', header: 'Tanggapan Auditee' },
+    { accessorKey: 'deskripsiAction', header: 'Deskripsi' },
+    { accessorKey: 'pic', header: 'PIC' },
+    { accessorKey: 'periodAction', header: 'Target Selesai' }
+  ]
   // --- STATE ---
   const form = reactive<WorkingPaperForm>({
     suratTugas: '',
@@ -33,7 +143,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     dampak: '',
     buktiFile: null,
     rcaList: [
-      { id: Date.now(), kategori: 'People', w1: '', w2: '', w3: '' }
+      { id: Date.now(), method: 'People', w1: '', w2: '', w3: '' }
     ],
     
     rekomendasi: '',
@@ -136,7 +246,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const addRCA = () => {
     form.rcaList.push({
       id: Date.now(),
-      kategori: 'People',
+      method: 'People',
       w1: '',
       w2: '',
       w3: ''
@@ -168,13 +278,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     resiko: ['R-01: Kebocoran Data', 'R-02: Fraud Pengadaan', 'R-03: Keterlambatan Vendor'],
     pic: ['Dimas - IT', 'Budi - Keuangan', 'Siti - SDM'],
     testResult: [...TEST_RESULT_OPTIONS], 
-    rcaCategory: [...RCA_CATEGORY_OPTIONS],
+    rcaMethod: [...RCA_METHOD_OPTIONS],
   }
 
   return {
-    form, options,
+    form, options, dateErrorMessage, isDateError, tabs,
+    columnsF01, columnsF02, columnsF03, columnsF04, columnsF05,
     savedF01, savedF02, savedF03, savedF04, savedF05,
     saveF01, saveF02, saveF03, saveF04, saveF05,
-    addSample, removeSample, addRCA, removeRCA, checkSampleStatus, addTeamMember, removeTeamMember
+    addSample, removeSample, addRCA, removeRCA, triggerUpload, onFileChange,
+    checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile
   }
 })

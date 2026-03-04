@@ -1,8 +1,134 @@
 // stores/charter.ts
+import type { TableColumn } from '@nuxt/ui';
 import { defineStore } from 'pinia'
 import type { AuditCharter, CharterFormState } from '~/types/audit'
 
 export const useCharterStore = defineStore('charter', () => {
+
+  // Modal State
+  const showModal = ref(false);
+  const errorMsg = ref("");
+
+  const isEditing = ref(false);
+  const editingId = ref<string | null>(null);
+
+  const columns: TableColumn<AuditCharter>[] = [
+    { accessorKey: "version", header: "Version" },
+    { accessorKey: "title", header: "Charter Name" },
+    { accessorKey: "date", header: "Date" },
+    { accessorKey: "approvedBy", header: "Approved By" },
+    { accessorKey: "uploadedBy", header: "Uploaded By" },
+    { accessorKey: "fileName", header: "Actions" },
+    { accessorKey: "actions", header: "" },
+  ];
+
+  // Form State
+  const form = reactive<CharterFormState>({
+    title: "",
+    version: "", // Tidak perlu diisi user
+    date: new Date().toISOString().split("T")[0] || "",
+    uploadedBy: "Dimas (HIA)",
+    approvedBy: "",
+    isActive: true,
+    file: null,
+  });
+
+  const handleFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+
+    // Ambil file dengan aman menggunakan optional chaining
+    // target.files?[0] akan return 'File | undefined'
+    const file = target.files?.[0];
+
+    // GUARD CLAUSE (PENTING):
+    // Jika file undefined, langsung berhenti.
+    // Setelah baris ini, TypeScript tahu 'file' pasti bertipe 'File' (bukan undefined).
+    if (!file) return;
+
+    // --- Mulai Validasi ---
+
+    // Validasi Ukuran (Max 5MB)
+    // Sekarang 'file.size' aman diakses karena file dijamin ada
+    if (file.size > 5 * 1024 * 1024) {
+      errorMsg.value = "File terlalu besar! Maksimal 5MB.";
+      form.file = null;
+      // Reset input value agar user bisa pilih file ulang
+      target.value = "";
+      return;
+    }
+
+    // Validasi Tipe
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      errorMsg.value = "Format file tidak valid. Gunakan PDF atau DOCX.";
+      form.file = null;
+      target.value = "";
+      return;
+    }
+
+    // Jika lolos semua audit
+    errorMsg.value = "";
+    form.file = file;
+  };
+
+  // Submit Handler
+  const handleSubmit = () => {
+    // Validasi File: Wajib jika mode ADD, Opsional jika mode EDIT
+    if (!isEditing.value && !form.file) {
+      errorMsg.value = "Mohon upload file charter.";
+      return;
+    }
+
+    if (isEditing.value && editingId.value) {
+      // MODE EDIT
+      updateCharter(editingId.value, { ...form });
+      alert("Audit Charter berhasil diperbarui!");
+    } else {
+      // MODE ADD
+      addCharter({ ...form });
+      alert("Audit Charter berhasil diupload!");
+    }
+
+    closeModal();
+  };
+
+  const closeModal = () => {
+    showModal.value = false;
+    errorMsg.value = "";
+    isEditing.value = false; // Reset mode edit
+    editingId.value = null;
+
+    // Reset Form
+    form.title = "";
+    form.version = "";
+    form.date = new Date().toISOString().split("T")[0] || "";
+    form.approvedBy = "";
+    form.isActive = false;
+    form.file = null;
+  };
+
+  const handleEdit = (charter: any) => {
+    isEditing.value = true;
+    editingId.value = charter.id;
+    showModal.value = true;
+
+    // Isi form dengan data lama
+    form.title = charter.title;
+    form.version = charter.version;
+    form.date = charter.date;
+    form.uploadedBy = charter.uploadedBy;
+    form.approvedBy = charter.approvedBy;
+    form.isActive = charter.isActive;
+    form.file = null; // Reset file input karena file tidak wajib diisi saat edit
+
+    // Reset error
+    errorMsg.value = "";
+  };
   // Mock Data
   const charters = ref<AuditCharter[]>([
     {
@@ -118,12 +244,16 @@ export const useCharterStore = defineStore('charter', () => {
     // Sort ulang history jika perlu (opsional)
   }
 
+  // Meta & Stores
+  definePageMeta({
+    layout: "default",
+    // middleware: 'auth' // Aktifkan jika middleware auth sudah siap
+  });
+
   return {
-    charters,
-    activeCharter,
-    historyCharters,
-    nextVersion, // <--- Export ini supaya bisa ditampilkan di UI
-    addCharter,
-    updateCharter
+    charters,activeCharter,historyCharters,nextVersion, showModal, 
+    columns, form, isEditing, errorMsg, 
+    addCharter,updateCharter, handleEdit, 
+    handleSubmit, closeModal, handleFileChange
   }
 })

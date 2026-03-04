@@ -1,6 +1,6 @@
 // Audit Types
 
-export enum AuditType {
+export enum AuditCategory {
   ASSURANCE = "Assurance",
   SPECIAL_AUDIT = "Special Audit",
   SPECIFIC_REASON = "Specific Reason",
@@ -46,13 +46,17 @@ export enum AuditDepartment {
   OPS = "Ops"
 }
 
+export type IdentitasOrganisasi = 'SKAI' | 'DAI' | 'CAE';
+export type PeranTim = 'Penanggung Jawab' | 'Pengawas' | 'Ketua' | 'Anggota';
+export type SuratTugasStatus = 'Draft' | 'Waiting Approval' | 'Published' | 'Archived';
+
 // 1. Definisikan Array-nya terlebih dahulu
 export const TEST_RESULT_OPTIONS = ['Pass', 'Fail', 'N/A'] as const;
-export const RCA_CATEGORY_OPTIONS = ['People', 'Process', 'Policy', 'System', 'External'] as const;
+export const RCA_METHOD_OPTIONS = ['People', 'Process', 'Policy', 'System', 'External'] as const;
 
 // 2. Ambil Tipe-nya dari Array tersebut (Otomatis sinkron)
 export type TestResult = typeof TEST_RESULT_OPTIONS[number] | undefined;
-export type RCACategory = typeof RCA_CATEGORY_OPTIONS[number];
+export type RCAMethod = typeof RCA_METHOD_OPTIONS[number];
 
 export interface AuditPlan {
   id: string;
@@ -64,7 +68,7 @@ export interface AuditPlan {
 
 export interface AuditActivity {
   id: string;
-  type: AuditType;
+  category: AuditCategory;
   title: string;
   subject: string;
   auditUniverse: string;
@@ -137,17 +141,14 @@ export interface CharterFormState {
 
 export interface AuditActivities {
   name: string;
-  type: AuditType;
+  category: AuditCategory;
   department: AuditDepartment;
 }
 
 export interface AnnualAuditPlan {
   id?: string;
   code: string; 
-  activities: AuditActivities[];
-  // name: string;
-  // type: AuditType;
-  // department: AuditDepartment;     
+  activities: AuditActivities[];    
   status: AnnualAuditPlanStatus;
   selectedMonths: number[];  // 0=Jan, 11=Dec
   quarters?: string[];        // Calculated: ['Q1', 'Q2']
@@ -169,9 +170,6 @@ export interface AnnualPlanForm {
   id?: string;
   code: string;
   activities: AuditActivities[];
-  // name: string;
-  // type: AuditType;
-  // department: AuditDepartment;
   status: AnnualAuditPlanStatus;
   selectedMonths: number[];
   auditorCount: number;
@@ -246,7 +244,7 @@ export interface SampleItem {
 
 export interface RCAItem {
   id: number;
-  kategori: RCACategory;
+  method: RCAMethod;
   w1: string;
   w2: string;
   w3: string;
@@ -293,4 +291,33 @@ export interface WorkingPaperForm {
   deskripsiAction: string;
   pic: string;
   periodAction: string;
+}
+
+export interface SuratTugasTim {
+  nama: string;
+  peran: string;
+}
+
+// Struktur Form Input (Sama persis dengan v-model di UI)
+export interface SuratTugasForm {
+  judulAudit: string;
+  dipimpinOleh: string;
+  category: AuditCategory;
+  tahunAudit: string;
+  timAudit: string;
+  periodeMulai: string;  // Format YYYY-MM-DD
+  periodeSelesai: string; // Format YYYY-MM-DD
+  unitKerja: string;
+  listAnggota: SuratTugasTim[];
+  listTujuan: string[];
+  listRuangLingkup: string[];
+  listTembusan: string[];
+}
+
+// Struktur Data Utama di Database/Store
+export interface SuratTugas extends SuratTugasForm {
+  id: string;
+  nomorSurat: string; // Di-generate otomatis oleh Store (F-01)
+  status: SuratTugasStatus;
+  createdAt: string;
 }
