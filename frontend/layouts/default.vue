@@ -57,6 +57,10 @@ const handleLogout = async () => {
   await authStore.logout();
 };
 
+const navigateSetting = () => {
+  navigateTo("/settings");
+}
+
 const items = [
     {
       label: 'Language',
@@ -78,6 +82,7 @@ const items = [
     {
       label: 'Settings',
       icon: 'setting',
+      to: "/settings"
     },
     {
       label: 'Sign Out',

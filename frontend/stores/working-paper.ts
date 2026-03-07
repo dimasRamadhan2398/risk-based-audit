@@ -78,41 +78,41 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   ]
 
   const columnsF01 = [
-    { accessorKey: 'suratTugas', header: 'Surat Tugas' },
-    { accessorKey: 'prosesBisnis', header: 'Proses Bisnis' },
-    { accessorKey: 'periode', header: 'Periode' },
-    { accessorKey: 'lokasi', header: 'Lokasi' },
+    { accessorKey: 'assignmentLetter', header: 'Assignment Letter' },
+    { accessorKey: 'businessProcess', header: 'Business Process' },
+    { accessorKey: 'period', header: 'Period' },
+    { accessorKey: 'location', header: 'Location' },
     { accessorKey: 'teamMembers', header: 'Team' }
   ]
 
   const columnsF02 = [
-    { accessorKey: 'resiko', header: 'Resiko' },
-    { accessorKey: 'taksonomi', header: 'Taksonomi' },
-    { accessorKey: 'tingkatResiko', header: 'Tingkat Resiko' },
-    { accessorKey: 'deskripsiKontrol', header: 'Deskripsi Kontrol' }
+    { accessorKey: 'risk', header: 'Risk' },
+    { accessorKey: 'taxonomy', header: 'Taxonomy' },
+    { accessorKey: 'riskLevel', header: 'Risk Level' },
+    { accessorKey: 'controlDescription', header: 'Control Description' }
   ]
 
   const columnsF03 = [
-    { accessorKey: 'populasi', header: 'Populasi' },
-    { accessorKey: 'jmlSampel', header: 'Jumlah Sample' },
-    { accessorKey: 'samples', header: 'Daftar Sampel' },
-    { accessorKey: 'kesimpulan', header: 'Kesimpulan' }
+    { accessorKey: 'population', header: 'Population' },
+    { accessorKey: 'sampleSize', header: 'Sample Size' },
+    { accessorKey: 'samples', header: 'Sample List' },
+    { accessorKey: 'conclusion', header: 'Conclusion' }
   ]
 
   const columnsF04 = [
-    { accessorKey: 'kondisi', header: 'Kondisi' },
-    { accessorKey: 'kriteria', header: 'Kriteria' },
-    { accessorKey: 'dampak', header: 'Dampak' },
-    { accessorKey: 'rcaList', header: 'Root Cause' },
-    { accessorKey: 'buktiFile', header: 'Dokumen Bukti' },
+    { accessorKey: 'condition', header: 'Condition' },
+    { accessorKey: 'criteria', header: 'Criteria' },
+    { accessorKey: 'impact', header: 'Impact' },
+    { accessorKey: 'rootCause', header: 'Root Cause' },
+    { accessorKey: 'evidenceFile', header: 'Evidence Document' },
   ]
 
   const columnsF05 = [
-    { accessorKey: 'rekomendasi', header: 'Rekomendasi' },
-    { accessorKey: 'tanggapan', header: 'Tanggapan Auditee' },
-    { accessorKey: 'deskripsiAction', header: 'Deskripsi' },
+    { accessorKey: 'recommendation', header: 'Recommendation' },
+    { accessorKey: 'response', header: 'Auditee Response' },
+    { accessorKey: 'actionDescription', header: 'Description' },
     { accessorKey: 'pic', header: 'PIC' },
-    { accessorKey: 'periodAction', header: 'Target Selesai' }
+    { accessorKey: 'targetDate', header: 'Target Date' }
   ]
   // --- STATE ---
   const form = reactive<WorkingPaperForm>({
@@ -272,11 +272,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const options = {
-    suratTugas: ['ST-001/2026', 'ST-002/2026'],
-    prosesBisnis: ['Pengadaan Barang', 'Keuangan', 'SDM', 'Operasional IT'],
-    lokasi: ['Kantor Pusat', 'Cabang Jakarta', 'Cabang Bandung'],
-    resiko: ['R-01: Kebocoran Data', 'R-02: Fraud Pengadaan', 'R-03: Keterlambatan Vendor'],
-    pic: ['Dimas - IT', 'Budi - Keuangan', 'Siti - SDM'],
+    assignmentLetter: ['ST-001/2026', 'ST-002/2026'],
+    businessProcess: ['Procurement', 'Finance', 'HR', 'IT Operations'],
+    location: ['Head Office', 'Jakarta Branch', 'Bandung Branch'],
+    risk: ['R-01: Data Leakage', 'R-02: Fraud Pengadaan', 'R-03: Keterlambatan Vendor'],
+    pic: ['Dimas - IT', 'Budi - Finance', 'Siti - HR'],
     testResult: [...TEST_RESULT_OPTIONS], 
     rcaMethod: [...RCA_METHOD_OPTIONS],
   }

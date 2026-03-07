@@ -20,12 +20,7 @@
       <div class="flex justify-between flex-row w-full">
         <h5>Detail Risk Data</h5>
         <div class="gap-4 flex flex-row">
-          <UButton
-            label="Edit"
-            icon="edit"
-            color="secondary"
-            variant="outline"
-          ></UButton>
+          <UButton label="Edit" icon="edit" color="secondary" variant="outline"></UButton>
           <UButton
             color="primary"
             variant="outline"
@@ -38,18 +33,24 @@
     <template #body>
       <div class="overflow-x-auto">
         <UTable :data="tableData" :columns="tableColumns"> </UTable>
-        <div v-if="!quarterlyActive" class="min-h-max flex items-center text-center flex-row justify-center">
-          <UButton variant="solid" icon="add" :ui="{
-            leadingIcon: `font-bold`
-          }">Add Risk Control</UButton>
+        <div
+          v-if="!quarterlyActive"
+          class="min-h-max flex items-center text-center flex-row justify-center"
+        >
+          <UButton
+            variant="solid"
+            icon="add"
+            :ui="{
+              leadingIcon: `font-bold`,
+            }"
+            >Add Risk Control</UButton
+          >
         </div>
       </div>
     </template>
     <template #footer>
       <div></div>
-      <UButton @click="handleSubmit" color="primary"
-        >Close</UButton
-      >
+      <UButton @click="handleSubmit" color="primary">Close</UButton>
     </template>
   </UModal>
 </template>
@@ -461,7 +462,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 const clearedKey = label?.replace(/\s+\d+$/, "");
                 return clearedKey === key;
               })?.[1];
-          
+
               return h(
                 UBadge,
                 { class: "capitalize", variant: "soft", color: selectedColor },
@@ -484,7 +485,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 rawObject.impact_q2,
                 rawObject.possibility_q2,
               );
-                          
+
               var label = getRiskLevelOptions().findLast(
                 (opt, index) => opt.value === result,
               )?.label;
@@ -493,7 +494,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 const clearedKey = label?.replace(/\s+\d+$/, "");
                 return clearedKey === key;
               })?.[1];
-          
+
               return h(
                 UBadge,
                 { class: "capitalize", variant: "soft", color: selectedColor },
@@ -524,7 +525,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 const clearedKey = label?.replace(/\s+\d+$/, "");
                 return clearedKey === key;
               })?.[1];
-          
+
               return h(
                 UBadge,
                 { class: "capitalize", variant: "soft", color: selectedColor },
@@ -547,7 +548,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 rawObject.impact_q4,
                 rawObject.possibility_q4,
               );
-              
+
               var label = getRiskLevelOptions().findLast(
                 (opt, index) => opt.value === result,
               )?.label;
@@ -556,7 +557,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
                 const clearedKey = label?.replace(/\s+\d+$/, "");
                 return clearedKey === key;
               })?.[1];
-          
+
               return h(
                 UBadge,
                 { class: "capitalize", variant: "soft", color: selectedColor },

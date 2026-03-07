@@ -48,6 +48,18 @@ export const MenuList = [
     description: "Kertas Kerja Audit",
   },
   {
+    name: "Audit Fieldwork",
+    href: "/audit-fieldwork",
+    icon: "plan",
+    description: "Manage Audit Fieldworks",
+  },
+  {
+    name: "Quality Assurance Review",
+    href: "/quality-assurance",
+    icon: "plan",
+    description: "Manage Quality Assurance Reports",
+  },
+  {
     name: "Settings",
     href: "/settings",
     icon: "setting",

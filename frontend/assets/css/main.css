@@ -35,16 +35,15 @@
 
   /* Success Colors */
   --color-success-50: #fafee6;
-  --color-success-100: #f4fdcd;
-  --color-success-200: #e6fb9c;
-  --color-success-300: #d1f46a;
-  --color-success-400: #bbea45;
-  --color-success-500: #9bdd0d;
-  --color-success-600: #7ebe09;
-  --color-success-700: #649f06;
-  --color-success-800: #4c8004;
-  --color-success-900: #3b6a02;
-  --color-success-950: #2a4d01;
+  --color-success-100: #D1FBD4;
+  --color-success-200: #A5F8B3;
+  --color-success-300: #75EC95;
+  --color-success-400: #50D983;
+  --color-success-500: #1fc16b;
+  --color-success-600: #16A568;
+  --color-success-700: #0F8A62;
+  --color-success-800: #096F58;
+  --color-success-900: #055C51;
 
   /* Info Colors */
   --color-info-50: #e5fffb;
@@ -138,6 +137,10 @@ h6 {
   @apply text-sm font-normal text-gray-700 tracking-wide;
 }
 
+p {
+  @apply text-sm font-normal text-black tracking-wide;
+}
+
 .card-title {
   @apply text-lg font-semibold text-neutral-700 tracking-wide truncate;
 }
@@ -159,6 +162,14 @@ h6 {
 }
 .input-field {
   @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border dark:bg-gray-700 dark:border-gray-600 dark:text-white transition;
+}
+
+.wrapper-vertical-center{
+  @apply p-8 flex flex-col items-center text-center w-full gap-4
+}
+
+.wrapper-vertical-expanded{
+  @apply p-8 flex flex-col items-start text-start w-full gap-4
 }
 
 @layer utilities {

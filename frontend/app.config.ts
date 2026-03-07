@@ -9,6 +9,7 @@ export default defineAppConfig({
     aliases: {
       // basic UI
       close: "heroicons:x-mark",
+      clock: "heroicons:clock",
       check: "heroicons:check",
       loading: "heroicons:arrow-path",
       charter: "heroicons:clipboard-document-list",
@@ -16,6 +17,7 @@ export default defineAppConfig({
       alert: "heroicons:alert-circle",
       calendar: "heroicons:calendar",
       download: "heroicons:arrow-down-tray",
+      pin: "heroicons:map-pin",
       // navigation
       chevronDown: "heroicons:chevron-down",
       chevronRight: "heroicons:chevron-right",
@@ -31,6 +33,7 @@ export default defineAppConfig({
       import: "heroicons:document-arrow-up",
       plan: "lucide:target",
       info: "heroicons:information-circle",
+      copy: "heroicons:document-duplicate"
     },
   },
   theme: {
@@ -39,10 +42,146 @@ export default defineAppConfig({
   },
 
   ui: {
+    accordion: {
+      slots: {
+        root: 'w-full gap-4 flex flex-col',
+        item: 'border-all border-2 p-2 border-neutral-500 last:border-b-2 rounded-xl pl-4',
+        header: 'flex',
+        trigger: 'group flex-1 flex items-center gap-1.5 font-medium text-sm py-3.5 focus-visible:outline-primary min-w-0',
+        content: 'data-[state=open]:animate-[accordion-down_200ms_ease-out] data-[state=closed]:animate-[accordion-up_200ms_ease-out] overflow-hidden focus:outline-none p-2',
+        body: 'text-sm',
+        leadingIcon: 'shrink-0 size-5 text-secondary',
+        trailingIcon: 'shrink-0 size-5 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 text-black',
+        label: 'text-start wrap-break-word text-black'
+      },
+      variants: {
+        disabled: {
+          true: {
+            trigger: 'cursor-not-allowed opacity-75'
+          }
+        }
+      }
+    },
+    alert: {
+      slots: {
+        root: 'relative overflow-hidden w-full rounded-lg p-4 flex gap-2.5',
+        wrapper: 'min-w-0 flex-1 flex flex-col',
+        title: 'font-semibold text-lg',
+        description: 'text-sm opacity-90 tracking-wide font-medium',
+        icon: 'shrink-0 size-7',
+        avatar: 'shrink-0',
+        avatarSize: '2xl',
+        actions: 'flex flex-wrap gap-1.5 shrink-0',
+        close: 'p-0'
+      },
+      variants: {
+        color: {
+          primary: '',
+          secondary: '',
+          success: '',
+          info: '',
+          warning: '',
+          error: '',
+          neutral: ''
+        },
+        variant: {
+          solid: '',
+          outline: '',
+          soft: '',
+          subtle: ''
+        },
+        orientation: {
+          horizontal: {
+            root: 'items-center',
+            actions: 'items-center'
+          },
+          vertical: {
+            root: 'items-start',
+            actions: 'items-start mt-2.5'
+          }
+        },
+        title: {
+          true: {
+            description: 'mt-1'
+          }
+        }
+      },
+      compoundVariants: [
+        {
+          color: 'primary',
+          variant: 'solid',
+          class: {
+            root: 'bg-primary text-inverted'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'outline',
+          class: {
+            root: 'text-primary ring ring-inset ring-primary/25'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'soft',
+          class: {
+            root: 'bg-primary/10 text-primary'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'subtle',
+          class: {
+            root: 'bg-primary/10 text-primary ring ring-inset ring-primary/25'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'subtle',
+          class: {
+            root: 'ring-info/10 bg-info-700/20 text-black',
+            icon: "text-info-700 font-bold",
+            description: "text-info-700"
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'solid',
+          class: {
+            root: 'text-inverted bg-inverted'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'outline',
+          class: {
+            root: 'text-highlighted bg-default ring ring-inset ring-default'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'soft',
+          class: {
+            root: 'text-highlighted bg-elevated/50'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'subtle',
+          class: {
+            root: 'text-highlighted bg-elevated/50 ring ring-inset ring-accented'
+          }
+        }
+      ],
+      defaultVariants: {
+        color: 'primary',
+        variant: 'solid'
+      }
+    },
     badge: {
       slots: {
         base: "font-medium inline-flex items-center",
-        label: "truncate",
+        label: "truncate font-semibold py-1 px-2",
         leadingIcon: "shrink-0",
         leadingAvatar: "shrink-0",
         leadingAvatarSize: "",
@@ -128,6 +267,21 @@ export default defineAppConfig({
           color: "primary",
           variant: "subtle",
           class: "bg-primary/10 text-primary ring ring-inset ring-primary/25",
+        },
+        {
+          color: 'success',
+          variant: 'solid',
+          class: "bg-success-600 text-highlighted",
+        },
+        {
+          color: 'success',
+          variant: 'subtle',
+          class: "text-success-600 ring-success/100 bg-success-100",
+        },
+        {
+          color: 'success',
+          variant: 'soft',
+          class: "text-success-500 ring-success/100 bg-success-200/20 border-none rounded-xl",
         },
         {
           color: "successDark",
@@ -481,12 +635,12 @@ export default defineAppConfig({
     formField: {
       slots: {
         root: "",
-        wrapper: "",
+        wrapper: '',
         labelWrapper:
-          "flex content-start items-start justify-start min-w-[50%]",
-        label: "block font-medium text-default text-black min-w-max",
-        container: "relative ",
-        description: "text-muted",
+          "flex flex-shrink-1 content-start items-start justify-between",
+        label: "block font-medium text-default text-black min-w-24",
+        container: "relative flex-1 min-w-0",
+        description: "text-muted ",
         error: "mt-2 text-error",
         hint: "text-muted",
         help: "mt-2 text-muted",
@@ -519,7 +673,7 @@ export default defineAppConfig({
             container: "mt-1",
           },
           horizontal: {
-            root: "flex flex-row justify-between place-items-baseline gap-32",
+            root: "flex flex-row justify-between place-items-baseline",
           },
         },
       },
@@ -527,6 +681,227 @@ export default defineAppConfig({
         size: "md",
         orientation: "vertical",
       },
+    },
+    input: {
+      slots: {
+        root: 'relative inline-flex items-center w-full flex flex-1',
+        base: [
+          'w-full rounded-md border-0 appearance-none placeholder:text-dimmed focus:outline-none disabled:cursor-not-allowed disabled:opacity-75',
+          'transition-colors'
+        ],
+        leading: 'absolute inset-y-0 start-0 flex items-center',
+        leadingIcon: 'shrink-0 text-dimmed',
+        leadingAvatar: 'shrink-0',
+        leadingAvatarSize: '',
+        trailing: 'absolute inset-y-0 end-0 flex items-center',
+        trailingIcon: 'shrink-0 text-dimmed'
+      },
+      variants: {
+        fieldGroup: {
+          horizontal: {
+            root: 'group has-focus-visible:z-[1]',
+            base: 'group-not-only:group-first:rounded-e-none group-not-only:group-last:rounded-s-none group-not-last:group-not-first:rounded-none'
+          },
+          vertical: {
+            root: 'group has-focus-visible:z-[1]',
+            base: 'group-not-only:group-first:rounded-b-none group-not-only:group-last:rounded-t-none group-not-last:group-not-first:rounded-none'
+          }
+        },
+        size: {
+          xs: {
+            base: 'px-2 py-1 text-sm/4 gap-1',
+            leading: 'ps-2',
+            trailing: 'pe-2',
+            leadingIcon: 'size-4',
+            leadingAvatarSize: '3xs',
+            trailingIcon: 'size-4'
+          },
+          sm: {
+            base: 'px-2.5 py-1.5 text-sm/4 gap-1.5',
+            leading: 'ps-2.5',
+            trailing: 'pe-2.5',
+            leadingIcon: 'size-4',
+            leadingAvatarSize: '3xs',
+            trailingIcon: 'size-4'
+          },
+          md: {
+            base: 'px-2.5 py-1.5 text-base/5 gap-1.5',
+            leading: 'ps-2.5',
+            trailing: 'pe-2.5',
+            leadingIcon: 'size-5',
+            leadingAvatarSize: '2xs',
+            trailingIcon: 'size-5'
+          },
+          lg: {
+            base: 'px-3 py-2 text-base/5 gap-2',
+            leading: 'ps-3',
+            trailing: 'pe-3',
+            leadingIcon: 'size-5',
+            leadingAvatarSize: '2xs',
+            trailingIcon: 'size-5'
+          },
+          xl: {
+            base: 'px-3 py-2 text-base gap-2',
+            leading: 'ps-3',
+            trailing: 'pe-3',
+            leadingIcon: 'size-6',
+            leadingAvatarSize: 'xs',
+            trailingIcon: 'size-6'
+          }
+        },
+        variant: {
+          outline: 'text-highlighted bg-default ring ring-inset ring-accented',
+          soft: 'text-highlighted bg-elevated/50 hover:bg-elevated focus:bg-elevated disabled:bg-elevated/50',
+          subtle: 'text-highlighted bg-elevated ring ring-inset ring-accented',
+          ghost: 'text-highlighted bg-transparent hover:bg-elevated focus:bg-elevated disabled:bg-transparent dark:disabled:bg-transparent',
+          none: 'text-highlighted bg-transparent'
+        },
+        color: {
+          primary: '',
+          secondary: '',
+          success: '',
+          info: '',
+          warning: '',
+          error: '',
+          neutral: ''
+        },
+        leading: {
+          true: ''
+        },
+        trailing: {
+          true: ''
+        },
+        loading: {
+          true: ''
+        },
+        highlight: {
+          true: ''
+        },
+        fixed: {
+          false: ''
+        },
+        type: {
+          file: 'file:me-1.5 file:font-medium file:text-muted file:outline-none'
+        }
+      },
+      compoundVariants: [
+        {
+          color: 'primary',
+          variant: [
+            'outline',
+            'subtle'
+          ],
+          class: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary'
+        },
+        {
+          color: 'primary',
+          highlight: true,
+          class: 'ring ring-inset ring-primary'
+        },
+        {
+          color: 'neutral',
+          variant: [
+            'outline',
+            'subtle'
+          ],
+          class: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-inverted'
+        },
+        {
+          color: 'neutral',
+          highlight: true,
+          class: 'ring ring-inset ring-inverted'
+        },
+        {
+          leading: true,
+          size: 'xs',
+          class: 'ps-7'
+        },
+        {
+          leading: true,
+          size: 'sm',
+          class: 'ps-8'
+        },
+        {
+          leading: true,
+          size: 'md',
+          class: 'ps-9'
+        },
+        {
+          leading: true,
+          size: 'lg',
+          class: 'ps-10'
+        },
+        {
+          leading: true,
+          size: 'xl',
+          class: 'ps-11'
+        },
+        {
+          trailing: true,
+          size: 'xs',
+          class: 'pe-7'
+        },
+        {
+          trailing: true,
+          size: 'sm',
+          class: 'pe-8'
+        },
+        {
+          trailing: true,
+          size: 'md',
+          class: 'pe-9'
+        },
+        {
+          trailing: true,
+          size: 'lg',
+          class: 'pe-10'
+        },
+        {
+          trailing: true,
+          size: 'xl',
+          class: 'pe-11'
+        },
+        {
+          loading: true,
+          leading: true,
+          class: {
+            leadingIcon: 'animate-spin'
+          }
+        },
+        {
+          loading: true,
+          leading: false,
+          trailing: true,
+          class: {
+            trailingIcon: 'animate-spin'
+          }
+        },
+        {
+          fixed: false,
+          size: 'xs',
+          class: 'md:text-xs'
+        },
+        {
+          fixed: false,
+          size: 'sm',
+          class: 'md:text-xs'
+        },
+        {
+          fixed: false,
+          size: 'md',
+          class: 'md:text-sm'
+        },
+        {
+          fixed: false,
+          size: 'lg',
+          class: 'md:text-sm'
+        }
+      ],
+      defaultVariants: {
+        size: 'md',
+        color: 'primary',
+        variant: 'outline'
+      }
     },
     main: {
       base: "min-h-[calc(100vh-var(--ui-header-height))] max-w-8xl px-24 py-16",
@@ -595,6 +970,352 @@ export default defineAppConfig({
           },
         },
       ],
+    },
+    navigationMenu: {
+      slots: {
+        root: 'relative flex gap-1.5 [&>div]:min-w-0',
+        list: 'isolate min-w-0',
+        label: 'w-full flex items-center gap-1.5 font-semibold text-xs/5 text-highlighted px-2.5 py-1.5',
+        item: 'min-w-0 py-1',
+        link: 'group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none dark:focus-visible:outline-none focus-visible:before:ring-inset focus-visible:before:ring-2 rounded-xl',
+        linkLeadingIcon: 'shrink-0 size-5',
+        linkLeadingAvatar: 'shrink-0',
+        linkLeadingAvatarSize: '2xs',
+        linkLeadingChipSize: 'sm',
+        linkTrailing: 'group ms-auto inline-flex gap-1.5 items-center',
+        linkTrailingBadge: 'shrink-0',
+        linkTrailingBadgeSize: 'sm',
+        linkTrailingIcon: 'size-5 transform shrink-0 group-data-[state=open]:rotate-180 transition-transform duration-200',
+        linkLabel: 'truncate',
+        linkLabelExternalIcon: 'inline-block size-3 align-top text-dimmed',
+        childList: 'isolate',
+        childLabel: 'text-xs text-highlighted',
+        childItem: '',
+        childLink: 'group relative size-full flex items-start text-start text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none dark:focus-visible:outline-none focus-visible:before:ring-inset focus-visible:before:ring-2',
+        childLinkWrapper: 'min-w-0',
+        childLinkIcon: 'size-5 shrink-0',
+        childLinkLabel: 'truncate',
+        childLinkLabelExternalIcon: 'inline-block size-3 align-top text-dimmed',
+        childLinkDescription: 'text-muted',
+        separator: 'px-2 h-px bg-border',
+        viewportWrapper: 'absolute top-full left-0 flex w-full',
+        viewport: 'relative overflow-hidden bg-default shadow-lg rounded-md ring ring-default h-(--reka-navigation-menu-viewport-height) w-full transition-[width,height,left] duration-200 origin-[top_center] data-[state=open]:animate-[scale-in_100ms_ease-out] data-[state=closed]:animate-[scale-out_100ms_ease-in] z-[1]',
+        content: '',
+        indicator: 'absolute data-[state=visible]:animate-[fade-in_100ms_ease-out] data-[state=hidden]:animate-[fade-out_100ms_ease-in] data-[state=hidden]:opacity-0 bottom-0 z-[2] w-(--reka-navigation-menu-indicator-size) translate-x-(--reka-navigation-menu-indicator-position) flex h-2.5 items-end justify-center overflow-hidden transition-[translate,width] duration-200',
+        arrow: 'relative top-[50%] size-2.5 rotate-45 border border-default bg-default z-[1] rounded-xs'
+      },
+      variants: {
+        color: {
+          primary: {
+            link: 'focus-visible:before:ring-white',
+            childLink: 'focus-visible:before:ring-white'
+          },
+          secondary: {
+            link: 'focus-visible:before:ring-secondary',
+            childLink: 'focus-visible:before:ring-secondary'
+          },
+          success: {
+            link: 'focus-visible:before:ring-success',
+            childLink: 'focus-visible:before:ring-success'
+          },
+          info: {
+            link: 'focus-visible:before:ring-info',
+            childLink: 'focus-visible:before:ring-info'
+          },
+          warning: {
+            link: 'focus-visible:before:ring-warning',
+            childLink: 'focus-visible:before:ring-warning'
+          },
+          error: {
+            link: 'focus-visible:before:ring-error',
+            childLink: 'focus-visible:before:ring-error'
+          },
+          neutral: {
+            link: 'focus-visible:before:ring-inverted',
+            childLink: 'focus-visible:before:ring-inverted'
+          }
+        },
+        highlightColor: {
+          primary: '',
+          secondary: '',
+          success: '',
+          info: '',
+          warning: '',
+          error: '',
+          neutral: ''
+        },
+        variant: {
+          pill: '',
+          link: ''
+        },
+        orientation: {
+          horizontal: {
+            root: 'items-center justify-between',
+            list: 'flex items-center',
+            item: 'py-2',
+            link: 'px-2.5 py-1.5 before:inset-x-px before:inset-y-0',
+            childList: 'grid p-2',
+            childLink: 'px-3 py-2 gap-2 before:inset-x-px before:inset-y-0',
+            childLinkLabel: 'font-medium',
+            content: 'absolute top-0 left-0 w-full max-h-[70vh] overflow-y-auto'
+          },
+          vertical: {
+            root: 'flex-col',
+            link: 'flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0',
+            childLabel: 'px-1.5 py-0.5',
+            childLink: 'p-1.5 gap-1.5 before:inset-y-px before:inset-x-0'
+          }
+        },
+        contentOrientation: {
+          horizontal: {
+            viewportWrapper: 'justify-center',
+            content: 'data-[motion=from-start]:animate-[enter-from-left_200ms_ease] data-[motion=from-end]:animate-[enter-from-right_200ms_ease] data-[motion=to-start]:animate-[exit-to-left_200ms_ease] data-[motion=to-end]:animate-[exit-to-right_200ms_ease]'
+          },
+          vertical: {
+            viewport: 'sm:w-(--reka-navigation-menu-viewport-width) left-(--reka-navigation-menu-viewport-left)'
+          }
+        },
+        active: {
+          true: {
+            childLink: 'before:bg-elevated text-white',
+            childLinkIcon: 'text-default'
+          },
+          false: {
+            link: 'text-muted',
+            linkLeadingIcon: 'text-dimmed',
+            childLink: [
+              'hover:before:bg-elevated/50 text-default hover:text-highlighted',
+              'transition-colors before:transition-colors'
+            ],
+            childLinkIcon: [
+              'text-dimmed group-hover:text-default',
+              'transition-colors'
+            ]
+          }
+        },
+        disabled: {
+          true: {
+            link: 'cursor-not-allowed opacity-75'
+          }
+        },
+        highlight: {
+          true: ''
+        },
+        level: {
+          true: ''
+        },
+        collapsed: {
+          true: ''
+        }
+      },
+      compoundVariants: [
+        {
+          orientation: 'horizontal',
+          contentOrientation: 'horizontal',
+          class: {
+            childList: 'grid-cols-2 gap-2'
+          }
+        },
+        {
+          orientation: 'horizontal',
+          contentOrientation: 'vertical',
+          class: {
+            childList: 'gap-1',
+            content: 'w-60'
+          }
+        },
+        {
+          orientation: 'vertical',
+          collapsed: false,
+          class: {
+            childList: 'ms-5 border-s border-default',
+            childItem: 'ps-1.5 -ms-px',
+            content: 'data-[state=open]:animate-[collapsible-down_200ms_ease-out] data-[state=closed]:animate-[collapsible-up_200ms_ease-out] overflow-hidden'
+          }
+        },
+        {
+          orientation: 'vertical',
+          collapsed: true,
+          class: {
+            link: 'px-1.5',
+            linkLabel: 'hidden',
+            linkTrailing: 'hidden',
+            content: 'shadow-sm rounded-sm min-h-6 p-1'
+          }
+        },
+        {
+          orientation: 'horizontal',
+          highlight: true,
+          class: {
+            link: [
+              'after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full',
+              'after:transition-colors'
+            ]
+          }
+        },
+        {
+          orientation: 'vertical',
+          highlight: true,
+          level: true,
+          class: {
+            link: [
+              'after:absolute after:-start-1.5 after:inset-y-0.5 after:block after:w-px after:rounded-full',
+              'after:transition-colors'
+            ]
+          }
+        },
+        {
+          disabled: false,
+          active: false,
+          variant: 'pill',
+          class: {
+            link: [
+              'hover:text-highlighted hover:before:bg-elevated/50',
+              'transition-colors before:transition-colors'
+            ],
+            linkLeadingIcon: [
+              'group-hover:text-default',
+              'transition-colors'
+            ]
+          }
+        },
+        {
+          disabled: false,
+          active: false,
+          variant: 'pill',
+          orientation: 'horizontal',
+          class: {
+            link: 'data-[state=open]:text-highlighted',
+            linkLeadingIcon: 'group-data-[state=open]:text-default'
+          }
+        },
+        {
+          disabled: false,
+          variant: 'pill',
+          highlight: true,
+          orientation: 'horizontal',
+          class: {
+            link: 'data-[state=open]:before:bg-elevated/50'
+          }
+        },
+        {
+          disabled: false,
+          variant: 'pill',
+          highlight: false,
+          active: false,
+          orientation: 'horizontal',
+          class: {
+            link: 'data-[state=open]:before:bg-elevated/50'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'pill',
+          active: true,
+          class: {
+            link: 'text-primary',
+            linkLeadingIcon: 'text-primary group-data-[state=open]:text-primary'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'pill',
+          active: true,
+          class: {
+            link: 'text-highlighted',
+            linkLeadingIcon: 'text-highlighted group-data-[state=open]:text-highlighted'
+          }
+        },
+        {
+          variant: 'pill',
+          active: true,
+          highlight: false,
+          class: {
+            link: 'before:bg-elevated'
+          }
+        },
+        {
+          variant: 'pill',
+          active: true,
+          highlight: true,
+          disabled: false,
+          class: {
+            linkLeadingIcon: 'group-data-[state=open]:text-default text-highlighted',
+            link: [
+              'hover:before:bg-elevated/50',
+              "bg-primary",
+              'text-highlighted',
+              'before:transition-colors'
+            ]
+          }
+        },
+        {
+          disabled: false,
+          active: false,
+          variant: 'link',
+          class: {
+            link: [
+              'hover:text-highlighted',
+              'transition-colors'
+            ],
+            linkLeadingIcon: [
+              'group-hover:text-default',
+              'transition-colors'
+            ]
+          }
+        },
+        {
+          disabled: false,
+          active: false,
+          variant: 'link',
+          orientation: 'horizontal',
+          class: {
+            link: 'data-[state=open]:text-highlighted',
+            linkLeadingIcon: 'group-data-[state=open]:text-default'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'link',
+          active: true,
+          class: {
+            link: 'text-primary',
+            linkLeadingIcon: 'text-primary group-data-[state=open]:text-primary'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'link',
+          active: true,
+          class: {
+            link: 'text-highlighted',
+            linkLeadingIcon: 'text-highlighted group-data-[state=open]:text-highlighted'
+          }
+        },
+        {
+          highlightColor: 'primary',
+          highlight: true,
+          level: true,
+          active: true,
+          class: {
+            link: 'after:bg-primary'
+          }
+        },
+        {
+          highlightColor: 'neutral',
+          highlight: true,
+          level: true,
+          active: true,
+          class: {
+            link: 'after:bg-inverted'
+          }
+        }
+      ],
+      defaultVariants: {
+        color: 'primary',
+        highlightColor: 'primary',
+        variant: 'pill'
+      }
     },
     progress: {
       variants: {
@@ -666,6 +1387,121 @@ export default defineAppConfig({
         },
       },
     },
+    switch: {
+      slots: {
+        root: 'relative flex items-start',
+        base: [
+          'inline-flex items-center shrink-0 rounded-full border-2 border-transparent focus-visible:outline-2 focus-visible:outline-offset-2 data-[state=unchecked]:bg-accented',
+          'transition-[background] duration-200'
+        ],
+        container: 'flex items-center',
+        thumb: 'group pointer-events-none rounded-full bg-default shadow-lg ring-0 transition-transform duration-200 data-[state=unchecked]:translate-x-0 data-[state=unchecked]:rtl:-translate-x-0 flex items-center justify-center',
+        icon: [
+          'absolute shrink-0 group-data-[state=unchecked]:text-dimmed opacity-0 size-10/12',
+          'transition-[color,opacity] duration-200'
+        ],
+        wrapper: 'ms-2',
+        label: 'block font-medium text-default',
+        description: 'text-muted'
+      },
+      variants: {
+        color: {
+          primary: {
+            base: 'data-[state=checked]:bg-primary focus-visible:outline-primary',
+            icon: 'group-data-[state=checked]:text-primary'
+          },
+          secondary: {
+            base: 'data-[state=checked]:bg-secondary focus-visible:outline-secondary',
+            icon: 'group-data-[state=checked]:text-secondary'
+          },
+          success: {
+            base: 'data-[state=checked]:bg-success focus-visible:outline-success',
+            icon: 'group-data-[state=checked]:text-success'
+          },
+          info: {
+            base: 'data-[state=checked]:bg-info focus-visible:outline-info',
+            icon: 'group-data-[state=checked]:text-info'
+          },
+          warning: {
+            base: 'data-[state=checked]:bg-warning focus-visible:outline-warning',
+            icon: 'group-data-[state=checked]:text-warning'
+          },
+          error: {
+            base: 'data-[state=checked]:bg-error focus-visible:outline-error',
+            icon: 'group-data-[state=checked]:text-error'
+          },
+          neutral: {
+            base: 'data-[state=checked]:bg-inverted focus-visible:outline-inverted',
+            icon: 'group-data-[state=checked]:text-highlighted'
+          }
+        },
+        size: {
+          xs: {
+            base: 'w-7',
+            container: 'h-4',
+            thumb: 'size-3 data-[state=checked]:translate-x-3 data-[state=checked]:rtl:-translate-x-3',
+            wrapper: 'text-xs'
+          },
+          sm: {
+            base: 'w-8',
+            container: 'h-4',
+            thumb: 'size-3.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:rtl:-translate-x-3.5',
+            wrapper: 'text-xs'
+          },
+          md: {
+            base: 'w-9',
+            container: 'h-5',
+            thumb: 'size-4 data-[state=checked]:translate-x-4 data-[state=checked]:rtl:-translate-x-4',
+            wrapper: 'text-sm'
+          },
+          lg: {
+            base: 'w-10',
+            container: 'h-5',
+            thumb: 'size-4.5 data-[state=checked]:translate-x-4.5 data-[state=checked]:rtl:-translate-x-4.5',
+            wrapper: 'text-sm'
+          },
+          xl: {
+            base: 'w-11',
+            container: 'h-6',
+            thumb: 'size-5 data-[state=checked]:translate-x-5 data-[state=checked]:rtl:-translate-x-5',
+            wrapper: 'text-base'
+          }
+        },
+        checked: {
+          true: {
+            icon: 'group-data-[state=checked]:opacity-100'
+          }
+        },
+        unchecked: {
+          true: {
+            icon: 'group-data-[state=unchecked]:opacity-100'
+          }
+        },
+        loading: {
+          true: {
+            icon: 'animate-spin'
+          }
+        },
+        required: {
+          true: {
+            label: "after:content-['*'] after:ms-0.5 after:text-error"
+          }
+        },
+        disabled: {
+          true: {
+            root: 'opacity-75',
+            base: 'cursor-not-allowed',
+            label: 'cursor-not-allowed',
+            description: 'cursor-not-allowed'
+          }
+        }
+      },
+      defaultVariants: {
+        color: 'primary',
+        size: 'md'
+      }
+    },
+
     button: {
       block: {
         true: {
@@ -744,6 +1580,12 @@ export default defineAppConfig({
           variant: "link",
           class:
             "text-primary hover:text-primary/75 active:text-primary/75 disabled:text-primary aria-disabled:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
+        },
+        {
+          color: "error",
+          variant: "ghost",
+          class:
+            "text-error-500 bg-transparent font-semibold",
         },
         {
           color: "neutral",

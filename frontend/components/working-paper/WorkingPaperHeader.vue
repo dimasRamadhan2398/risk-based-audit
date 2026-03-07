@@ -1,27 +1,27 @@
 <template>
     <UCard class="mt-4 shadow-sm p-8">
         <div class="justify-between items-center mb-10">
-        <h2 class="text-xl text-center font-bold text-gray-800 dark:text-white">Referensi Penugasan</h2>
+        <h2 class="text-xl text-center font-bold text-gray-800 dark:text-white">Assignment Reference</h2>
         </div>
 
         <div class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Nomor Surat Tugas <span class="text-red-500">*</span></label>
-            <USelectMenu class="md:col-span-3" v-model="store.form.suratTugas" :items="store.options.suratTugas" placeholder="Pilih Nomor Surat Tugas" />
+            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Assignment Letter No <span class="text-red-500">*</span></label>
+            <USelectMenu class="md:col-span-3" v-model="store.form.suratTugas" :items="store.options.assignmentLetter" placeholder="Select Assignment Letter Number" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Tujuan Audit <span class="text-red-500">*</span></label>
-            <UInput class="md:col-span-3" v-model="store.form.tujuanAudit" disabled placeholder="(Otomatis terisi saat mengisi surat tugas)" />
+            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Audit Objective <span class="text-red-500">*</span></label>
+            <UInput class="md:col-span-3" v-model="store.form.tujuanAudit" disabled placeholder="(Auto-filled from assignment letter)" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Proses Bisnis <span class="text-red-500">*</span></label>
-            <USelectMenu class="md:col-span-3" v-model="store.form.prosesBisnis" :items="store.options.prosesBisnis" placeholder="Pilih Proses Bisnis" />
+            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Business Process <span class="text-red-500">*</span></label>
+            <USelectMenu class="md:col-span-3" v-model="store.form.prosesBisnis" :items="store.options.businessProcess" placeholder="Select Business Process" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Periode Audit <span class="text-red-500">*</span></label>
+            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Audit Period <span class="text-red-500">*</span></label>
             <div class="md:col-span-3">
             <UFormField :error="store.dateErrorMessage">
                 <div class="flex items-center gap-4 w-full">
@@ -48,24 +48,24 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Lokasi Cabang <span class="text-red-500">*</span></label>
-            <USelectMenu class="md:col-span-3" v-model="store.form.lokasi" :items="store.options.lokasi" placeholder="Pilih lokasi" />
+            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Branch Location <span class="text-red-500">*</span></label>
+            <USelectMenu class="md:col-span-3" v-model="store.form.lokasi" :items="store.options.location" placeholder="Select location" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Tim Audit</label>
+            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2">Audit Team</label>
             <div class="md:col-span-3 space-y-4">
 
             <div v-for="(member, index) in store.form.teamMembers" :key="member.id" class="flex gap-2 items-center">
                 <div class="grid grid-cols-2 gap-2 flex-1">
-                <USelectMenu 
-                    v-model="member.name" 
-                    :items="store.getAvailableMembers(index)" 
-                    placeholder="Pilih Nama Anggota"
+                <USelectMenu
+                    v-model="member.name"
+                    :items="store.getAvailableMembers(index)"
+                    placeholder="Select Team Member"
                 />
-                <UInput 
-                    v-model="member.role" 
-                    placeholder="Jabatan (ex: Ketua Tim)" 
+                <UInput
+                    v-model="member.role"
+                    placeholder="Position (e.g. Team Lead)"
                 />
                 </div>
 
@@ -82,7 +82,7 @@
                 color="primary" 
                 variant="soft"
                 icon="i-heroicons-plus" 
-                label="Tambah Anggota Audit" 
+                label="Add Team Member" 
                 @click="store.addTeamMember()"
             />
             </div>

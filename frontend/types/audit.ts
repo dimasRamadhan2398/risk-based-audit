@@ -294,30 +294,31 @@ export interface WorkingPaperForm {
 }
 
 export interface SuratTugasTim {
-  nama: string;
-  peran: string;
+  name: string;
+  role: string;
 }
 
 // Struktur Form Input (Sama persis dengan v-model di UI)
 export interface SuratTugasForm {
-  judulAudit: string;
-  dipimpinOleh: string;
+  auditTitle: string;
+  leader: string;
   category: AuditCategory;
-  tahunAudit: string;
-  timAudit: string;
-  periodeMulai: string;  // Format YYYY-MM-DD
-  periodeSelesai: string; // Format YYYY-MM-DD
-  unitKerja: string;
-  listAnggota: SuratTugasTim[];
-  listTujuan: string[];
-  listRuangLingkup: string[];
-  listTembusan: string[];
+  auditYear: string;
+  auditTeam: string;
+  startPeriod: string;  // Format YYYY-MM-DD
+  finishPeriod: string; // Format YYYY-MM-DD
+  workingUnit: string;
+  membersList: SuratTugasTim[];
+  purposeList: string[];
+  scopeList: string[];
+  ccList: string[];
 }
 
 // Struktur Data Utama di Database/Store
 export interface SuratTugas extends SuratTugasForm {
   id: string;
-  nomorSurat: string; // Di-generate otomatis oleh Store (F-01)
+  letterNumber: string; // Di-generate otomatis oleh Store (F-01)
+  executionPeriod: string;
   status: SuratTugasStatus;
   createdAt: string;
 }

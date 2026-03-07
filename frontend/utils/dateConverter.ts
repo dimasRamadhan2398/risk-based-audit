@@ -12,6 +12,16 @@ export const formatDate = (date: string | Date, formatStr: string = 'yyyy-MM-dd'
   }
 }
 
+export const formatTime = (date: Date): string => {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
 /**
  * Convert date to display format
  */
