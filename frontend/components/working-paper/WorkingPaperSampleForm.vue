@@ -1,28 +1,32 @@
 <template>
-    <div class="mt-4 space-y-6">
-        <UCard class="mt-4 shadow-sm p-8">
-        <h2 class="text-xl text-center font-bold text-gray-800 dark:text-white mb-10">Populasi & Sampel</h2>
+    <Teleport to="body">
+      <div v-if="store.showModalF03" class="fixed inset-0 bg-gray-900/60 flex items-center justify-center p-4">
+        <div class="bg-secondary-50 dark:bg-secondary-300 rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
+        <UForm @submit.prevent="store.handleSubmitF03">
+
+        <div class="px-6 py-4 border-b border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-900 rounded-t-xl flex justify-between items-center">
+            <UIcon name="charter" class=" text-primary-500" size="32"></UIcon>
+            <h3 class="text-lg font-bold text-secondary-900 dark:text-white">Samples</h3>
+            <UIcon name="close" @click="store.closeModalF03" class="text-primary-400 hover:text-primary-600 text-2xl">&times;</UIcon>
+        </div>
+        <div class="space-y-6 m-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-full">
             <UFormField label="Total Populasi" required>
-            <UInput type="number" v-model="store.form.populasi" placeholder="Ex: 100" class="w-full"/>
+            <UInput type="number" v-model="store.sampleForm.population" placeholder="Ex: 100" class="w-full"/>
             </UFormField>
             <UFormField label="Jumlah Sampel yang Diuji" required>
-            <UInput type="number" v-model="store.form.jmlSampel" placeholder="Ex: 10" class="w-full"/>
+            <UInput type="number" v-model="store.sampleForm.sampleSize" placeholder="Ex: 10" class="w-full"/>
             </UFormField>
         </div>
-
-        <div class="justify-between items-center mt-10">
-            <h2 class="text-xl text-center font-bold text-gray-800 dark:text-white">Matriks Pengujian Kontrol</h2>
-        </div>
         
-        <div class="space-y-6 mt-6">
-            <div v-for="(sampel, index) in store.form.samples" :key="sampel.id" class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 relative bg-white dark:bg-gray-800">
+        
+            <div v-for="(sampel, index) in store.sampleForm.samples" :key="sampel.id" class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 relative bg-white dark:bg-gray-800">
             <h3 class="text-lg font-bold mb-4">Sampel {{ index + 1 }}</h3>
             
             <div class="space-y-4 max-w-full">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                 <label class="font-semibold text-sm">Nama Dokumen <span class="text-red-500">*</span></label>
-                <UInput class="md:col-span-3" v-model="sampel.dokumen" placeholder="Ex: PO-2026-001" />
+                <UInput class="md:col-span-3" v-model="sampel.document" placeholder="Ex: PO-2026-001" />
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                 <label class="font-semibold text-sm">Langkah 1 <span class="text-red-500">*</span></label>
@@ -50,53 +54,26 @@
             </div>
             </div>
             <UButton color="primary" icon="i-heroicons-plus" variant="soft" label="Tambah Sampel" @click="store.addSample" />
-        </div>
+        
 
-        <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full">
             <label class="font-semibold text-sm mt-2">Kesimpulan</label>
-            <UTextarea class="md:col-span-3" v-model="store.form.kesimpulan" :rows="4" placeholder="Ketik kontrol pengamanan / SOP yang sedang dievaluasi di lapangan..." />
+            <UTextarea class="md:col-span-3" v-model="store.sampleForm.conclusion" :rows="4" placeholder="Ketik kontrol pengamanan / SOP yang sedang dievaluasi di lapangan..." />
         </div>
 
         <div class="flex justify-end pt-10 border-gray-100 dark:border-gray-800">
-            <UButton label="Simpan" color="primary" icon="i-heroicons-document-check" @click="store.saveF03()" />
+            <UButton 
+                :label="store.isEditingF03 ? 'Update Data' : 'Submit'" 
+                color="primary"
+                @click="store.handleSubmitF03" 
+            />
         </div>
-        </UCard>
-
-        <UCard class="shadow-sm mt-10">
-        <div class="p-4 border-b border-gray-300 dark:border-gray-600">
-            <h3 class="font-bold text-gray-700 dark:text-gray-200">Data Pengujian Kontrol</h3>
         </div>
-        <UTable :data="store.savedF03" :columns="store.columnsF03" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
-            <template #samples-cell="{ row }">
-            <div class="flex flex-col gap-2 max-w-md">
-                <div 
-                v-for="s in row.original.samples" 
-                :key="s.id" 
-                class="text-sm p-2 border rounded bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                >
-                <div class="flex justify-between font-bold mb-1">
-                    <span>{{ s.dokumen || 'Tanpa Nama Dokumen' }}</span>
-                    <UBadge 
-                    :color="store.checkSampleStatus(s) ? 'success' : 'error'" 
-                    size="md" 
-                    variant="subtle"
-                    >
-                    {{ store.checkSampleStatus(s) ? 'Efektif' : 'Tidak Efektif' }}
-                    </UBadge>
-                </div>
-                <div class="text-sm text-gray-500 italic">
-                    L1: {{ s.l1 || '-' }} | L2: {{ s.l2 || '-' }} | L3: {{ s.l3 || '-' }}
-                </div>
-                </div>
-                
-                <span v-if="!row.original.samples?.length" class="text-gray-400 italic text-xs">
-                Tidak ada data sampel
-                </span>
-            </div>
-            </template>
-        </UTable>
-        </UCard>
+    </UForm>
     </div>
+    </div>
+    </Teleport>
+
 </template>
 
 <script setup lang="ts">

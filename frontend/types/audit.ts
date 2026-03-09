@@ -46,17 +46,17 @@ export enum AuditDepartment {
   OPS = "Ops"
 }
 
-export type IdentitasOrganisasi = 'SKAI' | 'DAI' | 'CAE';
-export type PeranTim = 'Penanggung Jawab' | 'Pengawas' | 'Ketua' | 'Anggota';
-export type SuratTugasStatus = 'Draft' | 'Waiting Approval' | 'Published' | 'Archived';
+export type OrganizationIdentity = 'SKAI' | 'DAI' | 'CAE';
+export type TeamRole = 'Person Responsible' | 'Supervisor' | 'Head Member' | 'Member';
+export type AssignmentLetterStatus = 'Draft' | 'Waiting Approval' | 'Published' | 'Archived';
 
 // 1. Definisikan Array-nya terlebih dahulu
 export const TEST_RESULT_OPTIONS = ['Pass', 'Fail', 'N/A'] as const;
-export const RCA_METHOD_OPTIONS = ['People', 'Process', 'Policy', 'System', 'External'] as const;
+export const ROOT_CAUSE_METHOD_OPTIONS = ['People', 'Process', 'Policy', 'System', 'External'] as const;
 
 // 2. Ambil Tipe-nya dari Array tersebut (Otomatis sinkron)
 export type TestResult = typeof TEST_RESULT_OPTIONS[number] | undefined;
-export type RCAMethod = typeof RCA_METHOD_OPTIONS[number];
+export type RootCauseMethod = typeof ROOT_CAUSE_METHOD_OPTIONS[number];
 
 export interface AuditPlan {
   id: string;
@@ -150,17 +150,17 @@ export interface AnnualAuditPlan {
   code: string; 
   activities: AuditActivities[];    
   status: AnnualAuditPlanStatus;
-  selectedMonths: number[];  // 0=Jan, 11=Dec
-  quarters?: string[];        // Calculated: ['Q1', 'Q2']
-  auditorCount: number;      // Jumlah Auditor (1-10)
-  daysPerAuditor: number;    // Durasi per auditor
+  selectedMonths: number[];  
+  quarters?: string[];       
+  auditorCount: number;      
+  daysPerAuditor: number;  
   totalMandays?: number;      // Calculated: count * days
-  supervisorId: string;      // ID Supervisor
-  supervisorName?: string;    // Nama Supervisor
+  supervisorId: string;      
+  supervisorName?: string;   
   year: string;
   notes?: string;
-  isActive: boolean; // Status Aktif/Non-aktif
-  isUsed?: boolean; // Flag untuk cek apakah sudah dipakai di RKAT (Simulasi)
+  isActive: boolean; 
+  isUsed?: boolean; 
   //auditUniverse: string;  Unit/Area yang diaudit
   //auditCycle: string;     e.g., "Annually", "2 Years"
   //lastAudit: string;      Tahun terakhir audit
@@ -236,15 +236,15 @@ export interface AuditDataState {
 
 export interface SampleItem {
   id: number;
-  dokumen: string;
+  document: string;
   l1: TestResult;
   l2: TestResult;
   l3: TestResult;
 }
 
-export interface RCAItem {
+export interface RootCauseItem {
   id: number;
-  method: RCAMethod;
+  method: RootCauseMethod;
   w1: string;
   w2: string;
   w3: string;
@@ -256,50 +256,102 @@ export interface TeamMember {
   role: string;
 }
 
-export interface WorkingPaperForm {
-  // F-01: Referensi Penugasan
-  suratTugas: string;
-  tujuanAudit: string;
-  prosesBisnis: string;
-  periodeStart: string;
-  periodeEnd: string;
-  lokasi: string;
+export interface WorkingPaperHeader {
+  id?: string;
+  assignmentLetterId: string;
+  auditPurpose: string;
+  businessProcess: string;
+  period: string;
+  location: string;
   teamMembers: TeamMember[];
+}
 
-  // F-02: Risk Profile
-  resiko: string;
-  taksonomi: string;
-  tingkatResiko: string;
-  deskripsiKontrol: string;
+export interface WorkingPaperHeaderForm {
+  id?: string;
+  assignmentLetterId: string;
+  auditPurpose: string;
+  businessProcess: string;
+  periodStart: string;
+  periodEnd: string;
+  location: string;
+  teamMembers: TeamMember[];
+}
 
-  // F-03: Uji Sampel
-  populasi: number | null;
-  jmlSampel: number | null;
+export interface WorkingPaperRisk {
+  id?: string;
+  risk: string;
+  taxonomy: string;
+  riskLevel: string;
+  controlDescription: string;
+}
+
+export interface WorkingPaperRiskForm {
+  id?: string;
+  risk: string;
+  taxonomy: string;
+  riskLevel: string;
+  controlDescription: string;
+}
+
+export interface WorkingPaperSample {
+  id?: string;
+  population: number | null;
+  sampleSize: number | null;
   samples: SampleItem[];
-  kesimpulan: string;
+  conclusion: string;
+}
 
-  // F-04: AOI & RCA
-  kondisi: string;
-  kriteria: string;
-  dampak: string;
-  buktiFile: File | null; // Untuk upload file
-  rcaList: RCAItem[];
+export interface WorkingPaperSampleForm {
+  id?: string;
+  population: number | null;
+  sampleSize: number | null;
+  samples: SampleItem[];
+  conclusion: string;
+}
 
-  // F-05: Action Plan
-  rekomendasi: string;
-  tanggapan: string;
-  deskripsiAction: string;
+export interface WorkingPaperCause {
+  id?: string;
+  condition: string;
+  criteria: string;
+  impact: string;
+  evidenceFile: File | null; 
+  rootCause: RootCauseItem[];
+}
+
+export interface WorkingPaperCauseForm {
+  id?: string;
+  condition: string;
+  criteria: string;
+  impact: string;
+  evidenceFile: File | null; // Untuk upload file
+  rootCause: RootCauseItem[];
+}
+
+export interface WorkingPaperPlan {
+  id?: string;
+  recommendation: string;
+  response: string;
+  actionDescription: string;
   pic: string;
   periodAction: string;
 }
 
-export interface SuratTugasTim {
+export interface WorkingPaperPlanForm {
+  id?: string;
+  recommendation: string;
+  response: string;
+  actionDescription: string;
+  pic: string;
+  periodAction: string;
+}
+
+export interface TeamAssignmentLetter {
   name: string;
   role: string;
 }
 
 // Struktur Form Input (Sama persis dengan v-model di UI)
-export interface SuratTugasForm {
+export interface AssignmentLetterForm {
   auditTitle: string;
   leader: string;
   category: AuditCategory;
@@ -308,17 +360,17 @@ export interface SuratTugasForm {
   startPeriod: string;  // Format YYYY-MM-DD
   finishPeriod: string; // Format YYYY-MM-DD
   workingUnit: string;
-  membersList: SuratTugasTim[];
+  membersList: TeamAssignmentLetter[];
   purposeList: string[];
   scopeList: string[];
   ccList: string[];
 }
 
 // Struktur Data Utama di Database/Store
-export interface SuratTugas extends SuratTugasForm {
+export interface AssignmentLetter extends AssignmentLetterForm {
   id: string;
   letterNumber: string; // Di-generate otomatis oleh Store (F-01)
   executionPeriod: string;
-  status: SuratTugasStatus;
+  status: AssignmentLetterStatus;
   createdAt: string;
 }

@@ -42,10 +42,10 @@ export const MenuList = [
     description: "Surat Tugas Audit",
   },
   {
-    name: "Kertas Kerja Audit",
+    name: "Audit Working Paper",
     href: "/working-paper",
     icon: "plan",
-    description: "Kertas Kerja Audit",
+    description: "Audit Working Paper",
   },
   {
     name: "Audit Fieldwork",

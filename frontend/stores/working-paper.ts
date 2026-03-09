@@ -1,7 +1,13 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
-import type { WorkingPaperForm, SampleItem } from '~/types/audit'
-import { RCA_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
+import type { WorkingPaperHeaderForm, WorkingPaperRiskForm, WorkingPaperSampleForm, 
+              WorkingPaperCauseForm, WorkingPaperPlanForm, SampleItem, WorkingPaperHeader,
+              WorkingPaperRisk,
+              WorkingPaperSample,
+              WorkingPaperCause,
+              WorkingPaperPlan,
+              } from '~/types/audit'
+import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
 
@@ -22,19 +28,19 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       
       // Validasi Ukuran (Contoh: 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        alert('Ukuran file terlalu besar! Maksimal 10MB.')
+        alert('File size too large! Maximum 10MB.')
         return
       }
 
       // Simpan ke Store
-      form.buktiFile = file
-      console.log('File terpilih:', file.name)
+      causeForm.evidenceFile = file
+      console.log('File chosen:', file.name)
     }
   }
 
   // Hapus file
   const removeFile = () => {
-    form.buktiFile = null
+    causeForm.evidenceFile = null
     if (fileInput.value) {
       fileInput.value.value = '' // Reset input agar bisa upload file yang sama lagi
     }
@@ -43,7 +49,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   // Fungsi untuk mendapatkan daftar anggota yang tersedia untuk baris tertentu
   const getAvailableMembers = (currentIndex: number) => {
     // 1. Ambil semua nama yang sudah dipilih di baris-baris LAIN
-    const selectedNames = form.teamMembers
+    const selectedNames = headerForm.teamMembers
       .filter((_, index) => index !== currentIndex) // Kecualikan baris yang sedang aktif
       .map(member => member.name)
       .filter(name => !!name) // Hanya ambil yang sudah ada isinya
@@ -54,10 +60,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const isDateError = computed(() => {
     // Jika salah satu tanggal belum diisi, jangan anggap error dulu
-    if (!form.periodeStart || !form.periodeEnd) return false
+    if (!headerForm.periodStart || !headerForm.periodEnd) return false
     
-    const start = new Date(form.periodeStart)
-    const end = new Date(form.periodeEnd)
+    const start = new Date(headerForm.periodStart)
+    const end = new Date(headerForm.periodEnd)
     
     // Return true jika tanggal akhir LEBIH KECIL dari tanggal mulai
     return end < start
@@ -65,38 +71,41 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // Opsional: Pesan error dinamis
   const dateErrorMessage = computed(() => {
-    return isDateError.value ? "Tanggal akhir tidak boleh sebelum tanggal mulai" : false
+    return isDateError.value ? "The end date cannot be before the start date." : false
   })
 
   // Tabs Configuration
   const tabs = [
     { label: 'Header', slot: 'f01', icon: 'i-heroicons-document-text' },
-    { label: 'Profil Resiko', slot: 'f02', icon: 'i-heroicons-shield-exclamation' },
-    { label: 'Uji Sampel', slot: 'f03', icon: 'i-heroicons-table-cells' },
+    { label: 'Risk Profile', slot: 'f02', icon: 'i-heroicons-shield-exclamation' },
+    { label: 'Test Sample', slot: 'f03', icon: 'i-heroicons-table-cells' },
     { label: 'AOI & RCA', slot: 'f04', icon: 'i-heroicons-magnifying-glass-circle' },
     { label: 'Action Plan', slot: 'f05', icon: 'i-heroicons-check-badge' }
   ]
 
   const columnsF01 = [
-    { accessorKey: 'assignmentLetter', header: 'Assignment Letter' },
+    { accessorKey: 'assignmentLetterId', header: 'Assignment Letter' },
     { accessorKey: 'businessProcess', header: 'Business Process' },
     { accessorKey: 'period', header: 'Period' },
     { accessorKey: 'location', header: 'Location' },
-    { accessorKey: 'teamMembers', header: 'Team' }
+    { accessorKey: 'teamMembers', header: 'Team' },
+    { accessorKey: 'actions', header: 'Action' }
   ]
 
   const columnsF02 = [
     { accessorKey: 'risk', header: 'Risk' },
     { accessorKey: 'taxonomy', header: 'Taxonomy' },
     { accessorKey: 'riskLevel', header: 'Risk Level' },
-    { accessorKey: 'controlDescription', header: 'Control Description' }
+    { accessorKey: 'controlDescription', header: 'Control Description' },
+    { accessorKey: 'actions', header: 'Action' }
   ]
 
   const columnsF03 = [
     { accessorKey: 'population', header: 'Population' },
     { accessorKey: 'sampleSize', header: 'Sample Size' },
     { accessorKey: 'samples', header: 'Sample List' },
-    { accessorKey: 'conclusion', header: 'Conclusion' }
+    { accessorKey: 'conclusion', header: 'Conclusion' },
+    { accessorKey: 'actions', header: 'Action' }
   ]
 
   const columnsF04 = [
@@ -105,6 +114,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     { accessorKey: 'impact', header: 'Impact' },
     { accessorKey: 'rootCause', header: 'Root Cause' },
     { accessorKey: 'evidenceFile', header: 'Evidence Document' },
+    { accessorKey: 'actions', header: 'Action' }
   ]
 
   const columnsF05 = [
@@ -112,117 +122,547 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     { accessorKey: 'response', header: 'Auditee Response' },
     { accessorKey: 'actionDescription', header: 'Description' },
     { accessorKey: 'pic', header: 'PIC' },
-    { accessorKey: 'targetDate', header: 'Target Date' }
+    { accessorKey: 'periodAction', header: 'Target Selesai' },
+    { accessorKey: 'actions', header: 'Actions' },
   ]
   // --- STATE ---
-  const form = reactive<WorkingPaperForm>({
-    suratTugas: '',
-    tujuanAudit: '',
-    prosesBisnis: '',
-    periodeStart: '',
-    periodeEnd: '',
-    lokasi: '',
+  const headerForm = reactive<WorkingPaperHeaderForm>({
+    assignmentLetterId: '',
+    auditPurpose: '',
+    businessProcess: '',
+    periodStart: '',
+    periodEnd: '',
+    location: '',
     teamMembers: [
       { id: Date.now(), name: '', role: '' } // Inisialisasi 1 baris kosong
     ],
-    
-    resiko: '',
-    taksonomi: '',
-    tingkatResiko: '',
-    deskripsiKontrol: '',
-    
-    populasi: null,
-    jmlSampel: null,
+  })
+
+  const riskForm = reactive<WorkingPaperRiskForm>({
+    risk: '',
+    taxonomy: '',
+    riskLevel: '',
+    controlDescription: '',
+  })
+
+  const sampleForm = reactive<WorkingPaperSampleForm>({
+    population: null,
+    sampleSize: null,
     samples: [
-      { id: Date.now(), dokumen: '', l1: undefined, l2: undefined, l3: undefined }
+      { id: Date.now(), document: '', l1: undefined, l2: undefined, l3: undefined }
     ],
-    kesimpulan: '',
-    
-    kondisi: '',
-    kriteria: '',
-    dampak: '',
-    buktiFile: null,
-    rcaList: [
+    conclusion: '',
+  })
+
+  const causeForm = reactive<WorkingPaperCauseForm>({
+    condition: '',
+    criteria: '',
+    impact: '',
+    evidenceFile: null,
+    rootCause: [
       { id: Date.now(), method: 'People', w1: '', w2: '', w3: '' }
     ],
-    
-    rekomendasi: '',
-    tanggapan: '',
-    deskripsiAction: '',
+  })
+
+  const planForm = reactive<WorkingPaperPlanForm>({
+    recommendation: '',
+    response: '',
+    actionDescription: '',
     pic: '',
     periodAction: ''
   })
 
-  const savedF01 = ref<any[]>([])
-  const savedF02 = ref<any[]>([])
-  const savedF03 = ref<any[]>([])
-  const savedF04 = ref<any[]>([])
-  const savedF05 = ref<any[]>([])
+  const dataF01 = ref<WorkingPaperHeader[]>([])
+  const dataF02 = ref<WorkingPaperRisk[]>([])
+  const dataF03 = ref<WorkingPaperSample[]>([])
+  const dataF04 = ref<WorkingPaperCause[]>([])
+  const dataF05 = ref<WorkingPaperPlan[]>([])
 
-  const saveF01 = () => {
-    savedF01.value.push({
-      id: Date.now(),
-      suratTugas: form.suratTugas,
-      prosesBisnis: form.prosesBisnis,
-      periode: `${form.periodeStart} s/d ${form.periodeEnd}`,
-      lokasi: form.lokasi,
-      teamMembers: form.teamMembers
-    })
-    alert('Data Referensi Penugasan Berhasil Disimpan!')
+  const isEditingF01 = ref(false)
+  const isEditingF02 = ref(false)
+  const isEditingF03 = ref(false)
+  const isEditingF04 = ref(false)
+  const isEditingF05 = ref(false)
+  const editingIdF01 = ref<string | null>(null)
+  const editingIdF02 = ref<string | null>(null)
+  const editingIdF03 = ref<string | null>(null)
+  const editingIdF04 = ref<string | null>(null)
+  const editingIdF05 = ref<string | null>(null)
+  const showModalF01 = ref(false)
+  const showModalF02 = ref(false)
+  const showModalF03 = ref(false)
+  const showModalF04 = ref(false)
+  const showModalF05 = ref(false)
+  const closeModalF01 = () => showModalF01.value = false
+  const closeModalF02 = () => showModalF02.value = false
+  const closeModalF03 = () => showModalF03.value = false
+  const closeModalF04 = () => showModalF04.value = false
+  const closeModalF05 = () => showModalF05.value = false
+
+  const addF01 = (headerForm: WorkingPaperHeaderForm) => {
+    const auditPeriod = `${headerForm.periodStart} s/d ${headerForm.periodEnd}`
+
+    const newHeader: WorkingPaperHeader = {
+      id: Date.now().toString(),
+      assignmentLetterId: headerForm.assignmentLetterId,
+      auditPurpose: headerForm.auditPurpose,
+      businessProcess: headerForm.businessProcess,
+      period: auditPeriod,
+      location: headerForm.location,
+      teamMembers: headerForm.teamMembers
+    }
+    dataF01.value.unshift(newHeader)
+    
   }
 
-  const saveF02 = () => {
-    savedF02.value.push({
-      id: Date.now(),
-      resiko: form.resiko,
-      taksonomi: form.taksonomi || 'Operational', // Mock fallback
-      tingkatResiko: form.tingkatResiko || 'High',
-      deskripsiKontrol: form.deskripsiKontrol
-    })
-    alert('Data Risk Profile Berhasil Disimpan!')
+  const updateF01 = (id: string, updatedHeaderData: WorkingPaperHeaderForm) => {
+    const index = dataF01.value.findIndex(p => p.id === id)
+    const isDuplicate = dataF01.value.some(a => a.assignmentLetterId === updatedHeaderData.assignmentLetterId && a.id !== id)
+    const auditPeriod = `${updatedHeaderData.periodStart} s/d ${updatedHeaderData.periodEnd}`
+    const existingHeader = dataF01.value[index]!
+    
+    if (isDuplicate) throw new Error('The assignment letter has been used for other data!')
+    if (index === -1) return
+    
+    dataF01.value[index] = { 
+      ...updatedHeaderData,
+      id: existingHeader.id,
+      period: auditPeriod,
+    }
+    
   }
 
-  const saveF03 = () => {
-    savedF03.value.push({
-      id: Date.now(),
-      populasi: form.populasi,
-      jmlSampel: form.jmlSampel,
-      samples: form.samples,
-      kesimpulan: form.kesimpulan
-    })
-    alert('Data Risk Profile Berhasil Disimpan!')
+  const deleteF01 = (id: string) => {
+    const header = dataF01.value.find(a => a.id === id)
+    if (!header) return
+
+      if (isEditingF01.value && editingIdF01.value) {
+        if (confirm('Are you sure you want to delete permanently?')) {
+        dataF01.value = dataF01.value.filter(a => a.id !== id)
+      
+      } else {
+        if (confirm('Are you sure you want to delete permanently?')) {
+        dataF01.value = dataF01.value.filter(a => a.id !== id)
+        }
+      }
+      
+    }
   }
 
-  const saveF04 = () => {
-    savedF04.value.push({
-      id: Date.now(),
-      kondisi: form.kondisi,
-      kriteria: form.kriteria,
-      dampak: form.dampak,
-      buktiFile: form.buktiFile,
-      rcaList: form.rcaList.map(rca => ({ ...rca })),
-      jmlRCA: form.rcaList.length
+  const openModalF01 = () => {
+    isEditingF01.value = false
+    editingIdF01.value = null
+    
+    // Reset Form
+    Object.assign(headerForm, {
+      assignmentLetterId: '',
+      auditPurpose: '',
+      businessProcess: '',
+      periodStart: '',
+      periodEnd: '',
+      location: '',
+      teamMembers: []
     })
-    alert('Data AOI & RCA Berhasil Disimpan!')
+    showModalF01.value = true
   }
 
-  const saveF05 = () => {
-    savedF05.value.push({
-      id: Date.now(),
-      rekomendasi: form.rekomendasi,
-      tanggapan: form.tanggapan,
-      deskripsiAction: form.deskripsiAction,
-      pic: form.pic,
-      periodAction: form.periodAction
+  const handleSubmitF01 = () => {
+
+    if (isEditingF01.value && editingIdF01.value) {
+      // Mode EDIT
+      updateF01(editingIdF01.value, { ...headerForm })
+      alert("Header Data Updated Successfully!")
+    } else {
+      // Mode ADD
+      addF01({ ...headerForm })
+      alert("Header Data Successfully Saved!")
+    }
+
+    closeModalF01()
+  }
+
+  const handleEditF01 = (header: any) => {
+    isEditingF01.value = true
+    editingIdF01.value = header.id
+    
+    headerForm.auditPurpose = header.auditPurpose,
+    headerForm.businessProcess = header.businessProcess,
+    headerForm.periodStart = header.periodStart,
+    headerForm.periodEnd = header.periodEnd,
+    headerForm.location = header.location,
+    headerForm.teamMembers = header.teamMembers
+    
+    showModalF01.value = true
+  }
+
+  const handleDeleteF01 = (id: string | undefined) => {
+    if (!id) return
+      try {
+        // 2. Panggil fungsi hapus di store
+        deleteF01(id)
+        
+      } catch (error) {
+        alert('Failed to delete data: ' + error)
+      }
+  }
+
+  const addF02 = (riskForm: WorkingPaperRiskForm) => {
+    const newRisk: WorkingPaperRisk = {
+      id: Date.now().toString(),
+      risk: riskForm.risk,
+      taxonomy: riskForm.taxonomy || 'Operational',
+      riskLevel: riskForm.riskLevel || 'High',
+      controlDescription: riskForm.controlDescription
+    }
+    dataF02.value.unshift(newRisk)
+  }
+
+  const updateF02 = (id: string, updatedRiskData: WorkingPaperRiskForm) => {
+    const index = dataF02.value.findIndex(p => p.id === id)
+    const existingRisk = dataF02.value[index]!
+    if (index === -1) return
+    
+    dataF02.value[index] = { 
+      ...updatedRiskData,
+      id: existingRisk.id
+    }
+    
+  }
+
+  const deleteF02 = (id: string) => {
+    const risk = dataF02.value.find(a => a.id === id)
+    if (!risk) return
+
+      if (confirm('Are you sure you want to delete permanently??')) {
+        dataF02.value = dataF02.value.filter(a => a.id !== id)
+      }
+  }
+
+  const openModalF02 = () => {
+    isEditingF02.value = false
+    editingIdF02.value = null
+    
+    // Reset Form
+    Object.assign(riskForm, {
+      risk: '',
+      taxonomy: '',
+      riskLevel: '',
+      controlDescription: ''
     })
-    alert('Data Action Plan Berhasil Disimpan!')
+    showModalF02.value = true
+  }
+
+  const handleSubmitF02 = () => {
+
+    if (isEditingF02.value && editingIdF02.value) {
+      // Mode EDIT
+      updateF02(editingIdF02.value, { ...riskForm })
+      alert("Risk Data Updated Successfully!")
+    } else {
+      // Mode ADD
+      addF02({ ...riskForm })
+      alert("Risk Data Successfully Saved!")
+    }
+
+    closeModalF02()
+  }
+
+  const handleEditF02 = (risk: any) => {
+    isEditingF02.value = true
+    editingIdF02.value = risk.id
+    
+    // Isi form dengan data yang dipilih
+    riskForm.risk = risk.risk,
+    riskForm.taxonomy = risk.taxonomy,
+    riskForm.riskLevel = risk.riskLevel,
+    riskForm.controlDescription = risk.controlDescription
+    
+    showModalF02.value = true
+  }
+
+  const handleDeleteF02 = (id: string | undefined) => {
+    if (!id) return
+      try {
+        // 2. Panggil fungsi hapus di store
+        deleteF02(id)
+        
+      } catch (error) {
+        alert('Failed to delete data: ' + error)
+      }
+  }
+
+  const addF03 = (sampleForm: WorkingPaperSampleForm) => {
+    const newSample: WorkingPaperSample = {
+      id: Date.now().toString(),
+      population: sampleForm.population,
+      sampleSize: sampleForm.sampleSize,
+      samples: [...sampleForm.samples],
+      conclusion: sampleForm.conclusion
+    }
+    dataF03.value.unshift(newSample)
+  
+  }
+
+  const updateF03 = (id: string, updatedData: WorkingPaperSampleForm) => {
+    const index = dataF03.value.findIndex(p => p.id === id)
+    const existingSample = dataF03.value[index]!
+    if (index === -1) return
+    
+    dataF03.value[index] = { 
+      ...updatedData,
+      id: existingSample.id,
+      samples: [...updatedData.samples]
+    }
+    
+  }
+
+  const deleteF03 = (id: string) => {
+    const sample = dataF03.value.find(a => a.id === id)
+    if (!sample) return
+
+      if (confirm('Are you sure you want to delete permanently?')) {
+        dataF03.value = dataF03.value.filter(a => a.id !== id)
+      
+    }
+  }
+
+  const openModalF03 = () => {
+    isEditingF03.value = false
+    editingIdF03.value = null
+    
+    // Reset Form
+    Object.assign(sampleForm, {
+      population: 0,
+      sampleSize: 0,
+      samples: [],
+      conclusion: ''
+    })
+    showModalF03.value = true
+  }
+
+  const handleSubmitF03 = () => {
+
+    if (isEditingF03.value && editingIdF03.value) {
+      // Mode EDIT
+      updateF03(editingIdF03.value, { ...sampleForm })
+      alert("Sample Data Successfully Updated!")
+    } else {
+      // Mode ADD
+      addF03({ ...sampleForm })
+      alert("Sample Data Successfully Saved!")
+    }
+
+    closeModalF03()
+  }
+
+  const handleEditF03 = (sample: any) => {
+    isEditingF03.value = true
+    editingIdF03.value = sample.id
+    
+    sampleForm.population = sample.population,
+    sampleForm.sampleSize = sample.sampleSize,
+    sampleForm.samples = sample.samples.map((act: any) => ({ ...act })),
+    sampleForm.conclusion = sample.conclusion
+    
+    showModalF03.value = true
+  }
+
+  const handleDeleteF03 = (id: string | undefined) => {
+    if (!id) return
+      try {
+        // 2. Panggil fungsi hapus di store
+        deleteF03(id)
+        
+      } catch (error) {
+        alert('Failed to delete data: ' + error)
+      }
+  }
+
+  const addF04 = (causeForm: WorkingPaperCauseForm) => {
+    const newCause: WorkingPaperCause = {
+      id: Date.now().toString(),
+      condition: causeForm.condition,
+      criteria: causeForm.criteria,
+      impact: causeForm.impact,
+      evidenceFile: causeForm.evidenceFile,
+      rootCause: causeForm.rootCause.map(rca => ({ ...rca }))
+    }
+    dataF04.value.unshift(newCause)
+  }
+
+  const updateF04 = (id: string, updatedCauseData: WorkingPaperCauseForm) => {
+    const index = dataF04.value.findIndex(p => p.id === id)
+    const existingCause = dataF04.value[index]!
+    if (index === -1) return
+    
+    dataF04.value[index] = { 
+      ...updatedCauseData,
+      id: existingCause.id,
+      rootCause: [...updatedCauseData.rootCause]
+    }
+    
+  }
+
+  const deleteF04 = (id: string) => {
+    const cause = dataF04.value.find(a => a.id === id)
+    if (!cause) return
+
+      if (confirm('Are you sure you want to delete permanently??')) {
+        dataF04.value = dataF04.value.filter(a => a.id !== id)
+      
+    }
+  }
+
+  const openModalF04 = () => {
+    isEditingF04.value = false
+    editingIdF04.value = null
+    
+    // Reset Form
+    Object.assign(causeForm, {
+      condition: '',
+      criteria: '',
+      impact: '',
+      evidenceFile: null,
+      rootCause: []
+    })
+    showModalF04.value = true
+  }
+
+  const handleSubmitF04 = () => {
+
+    if (isEditingF04.value && editingIdF04.value) {
+      // Mode EDIT
+      updateF04(editingIdF04.value, { ...causeForm })
+      alert("Root Cause Data Successfully Updated!")
+    } else {
+      // Mode ADD
+      addF04({ ...causeForm })
+      alert("Root Cause Data Successfully Saved!")
+    }
+
+    closeModalF04()
+  }
+
+  const handleEditF04 = (cause: any) => {
+    isEditingF04.value = true
+    editingIdF04.value = cause.id
+    
+      causeForm.condition = cause.condition,
+      causeForm.criteria = cause.criteria,
+      causeForm.impact = cause.impact,
+      causeForm.evidenceFile = cause.evidenceFile,
+      causeForm.rootCause = cause.rootCause.map((rca: any) => ({ ...rca }))
+    
+    
+    showModalF04.value = true
+  }
+
+  const handleDeleteF04 = (id: string | undefined) => {
+    if (!id) return
+      try {
+        // 2. Panggil fungsi hapus di store
+        deleteF04(id)
+        
+      } catch (error) {
+        alert('Failed to delete data: ' + error)
+      }
+  }
+
+  const addF05 = (planForm: WorkingPaperPlanForm) => {
+    const newPlan: WorkingPaperPlan = {
+      id: Date.now().toString(),
+      recommendation: planForm.recommendation,
+      response: planForm.response,
+      actionDescription: planForm.actionDescription,
+      pic: planForm.pic,
+      periodAction: planForm.periodAction
+    }
+    dataF05.value.unshift(newPlan)
+    
+  }
+
+  const updateF05 = (id: string, updatedPlanData: WorkingPaperPlanForm) => {
+    const index = dataF05.value.findIndex(p => p.id === id)
+    const existingPlan = dataF05.value[index]!
+    if (index === -1) return
+    
+    dataF05.value[index] = { 
+      ...updatedPlanData,
+      id: existingPlan.id
+    }
+    
+  }
+
+  const deleteF05 = (id: string) => {
+    const plan = dataF05.value.find(a => a.id === id)
+    if (!plan) return
+
+      if (confirm('Are you sure you want to delete permanently?')) {
+        dataF05.value = dataF05.value.filter(a => a.id !== id)
+      
+    }
+  }
+
+  const openModalF05 = () => {
+    isEditingF05.value = false
+    editingIdF05.value = null
+    
+    // Reset Form
+    Object.assign(planForm, {
+      recommendation: '',
+      response: '',
+      actionDescription: '',
+      pic: '',
+      periodAction: ''
+    })
+    showModalF05.value = true
+  }
+
+  const handleSubmitF05 = () => {
+
+    if (isEditingF05.value && editingIdF05.value) {
+      // Mode EDIT
+      updateF05(editingIdF05.value, { ...planForm })
+      alert("Action Plan Data Successfully Updated!")
+    } else {
+      // Mode ADD
+      addF05({ ...planForm })
+      alert("Action Plan Data Successfully Saved!")
+    }
+
+    closeModalF05()
+  }
+
+  const handleEditF05 = (plan: any) => {
+    isEditingF05.value = true
+    editingIdF05.value = plan.id
+    
+    planFormrecommendation: plan.recommendation,
+    planForm.response = plan.tanggapanresponse,
+    planForm.actionDescription = plan.actionDescription,
+    planForm.pic = plan.pic,
+    planForm.periodAction = plan.periodAction
+    
+    
+    showModalF05.value = true
+  }
+
+  const handleDeleteF05 = (id: string | undefined) => {
+    if (!id) return
+      try {
+        // 2. Panggil fungsi hapus di store
+        deleteF05(id)
+        
+      } catch (error) {
+        alert('Failed to delete data: ' + error)
+      }
   }
 
   // --- ACTIONS: Uji Sampel (F-03) ---
   const addSample = () => {
-    form.samples.push({
+    sampleForm.samples.push({
       id: Date.now(),
-      dokumen: '',
+      document: '',
       l1: undefined,
       l2: undefined,
       l3: undefined
@@ -230,7 +670,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const removeSample = (index: number) => {
-    form.samples.splice(index, 1)
+    sampleForm.samples.splice(index, 1)
   }
 
   // --- GETTERS: Cek Efektivitas Sampel ---
@@ -243,8 +683,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   // --- ACTIONS: Root Cause (F-04) ---
-  const addRCA = () => {
-    form.rcaList.push({
+  const addRootCause = () => {
+    causeForm.rootCause.push({
       id: Date.now(),
       method: 'People',
       w1: '',
@@ -253,12 +693,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     })
   }
 
-  const removeRCA = (index: number) => {
-    form.rcaList.splice(index, 1)
+  const removeRootCause = (index: number) => {
+    causeForm.rootCause.splice(index, 1)
   }
 
   const addTeamMember = () => {
-    form.teamMembers.push({
+    headerForm.teamMembers.push({
       id: Date.now(),
       name: '',
       role: ''
@@ -266,8 +706,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const removeTeamMember = (index: number) => {
-    if (form.teamMembers.length > 1) {
-      form.teamMembers.splice(index, 1)
+    if (headerForm.teamMembers.length > 1) {
+      headerForm.teamMembers.splice(index, 1)
     }
   }
 
@@ -278,15 +718,24 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     risk: ['R-01: Data Leakage', 'R-02: Fraud Pengadaan', 'R-03: Keterlambatan Vendor'],
     pic: ['Dimas - IT', 'Budi - Finance', 'Siti - HR'],
     testResult: [...TEST_RESULT_OPTIONS], 
-    rcaMethod: [...RCA_METHOD_OPTIONS],
+    rootCauseMethod: [...ROOT_CAUSE_METHOD_OPTIONS],
   }
 
   return {
-    form, options, dateErrorMessage, isDateError, tabs,
+    headerForm, riskForm, sampleForm, causeForm, planForm, 
+    options, dateErrorMessage, isDateError, tabs,
     columnsF01, columnsF02, columnsF03, columnsF04, columnsF05,
-    savedF01, savedF02, savedF03, savedF04, savedF05,
-    saveF01, saveF02, saveF03, saveF04, saveF05,
-    addSample, removeSample, addRCA, removeRCA, triggerUpload, onFileChange,
+    showModalF01, showModalF02, showModalF03, showModalF04, showModalF05,
+    isEditingF01, isEditingF02, isEditingF03, isEditingF04, isEditingF05,
+    dataF01, dataF02, dataF03, dataF04, dataF05,
+    updateF01, updateF02, updateF03, updateF04, updateF05,
+    deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,
+    openModalF01, openModalF02, openModalF03, openModalF04, openModalF05,
+    closeModalF01, closeModalF02, closeModalF03, closeModalF04, closeModalF05,
+    handleSubmitF01, handleSubmitF02, handleSubmitF03, handleSubmitF04, handleSubmitF05,
+    handleEditF01, handleEditF02, handleEditF03, handleEditF04, handleEditF05,
+    handleDeleteF01, handleDeleteF02, handleDeleteF03, handleDeleteF04, handleDeleteF05,
+    addSample, removeSample, addRootCause, removeRootCause, triggerUpload, onFileChange,
     checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile
   }
 })

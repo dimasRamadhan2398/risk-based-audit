@@ -196,9 +196,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       activities: [ // Reset array activities kembali ke 1 baris kosong
         { name: '', category: AuditCategory.ASSURANCE, department: AuditDepartment.IT }
       ],
-      // name: '',
-      // category: AuditCategory.ASSURANCE,
-      // department: AuditDepartment.IT,
       status: AnnualAuditPlanStatus.NOT_AVAILABLE,
       selectedMonths: [],
       auditorCount: 2,
@@ -241,18 +238,18 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     editingId.value = plan.id
     
     // Isi form dengan data yang dipilih
-    Object.assign(form, {
-      code: plan.code,
-      activities: plan.activities.map((act: any) => ({ ...act })),
-      status: plan.status,
-      selectedMonths: [...plan.selectedMonths], // Gunakan spread agar tidak reaktif terhubung langsung
-      auditorCount: plan.auditorCount,
-      daysPerAuditor: plan.daysPerAuditor,
-      supervisorId: plan.supervisorId,
-      notes: plan.notes || '',
-      isActive: plan.isActive,
-      year: plan.year
-    })
+    
+    form.code = plan.code,
+    form.activities = plan.activities.map((act: any) => ({ ...act })),
+    form.status = plan.status,
+    form.selectedMonths = [...plan.selectedMonths], // Gunakan spread agar tidak reaktif terhubung langsung
+    form.auditorCount = plan.auditorCount,
+    form.daysPerAuditor = plan.daysPerAuditor,
+    form.supervisorId = plan.supervisorId,
+    form.notes = plan.notes || '',
+    form.isActive = plan.isActive,
+    form.year = plan.year
+    
     
     showModal.value = true
   }
@@ -326,7 +323,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const addPlan = (form: AnnualPlanForm) => {
     // 1. Calculate Quarters (F-02)
     const quarters = calculateQuarters(form.selectedMonths)
-
+ 
     // 2. Calculate Resource (F-03)
     const totalMandays = form.auditorCount * form.daysPerAuditor
     const supervisor = supervisors.value.find(s => s.id === form.supervisorId)
@@ -354,20 +351,22 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const index = plans.value.findIndex(p => p.id === id)
     const isDuplicate = plans.value.some(a => a.code === updatedData.code && a.id !== id)
     if (isDuplicate) throw new Error('Kode Kegiatan sudah digunakan data lain!')
+    if (index === -1) return
 
-    if (index !== -1) {
-      const quarters = calculateQuarters(updatedData.selectedMonths)
-      const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
-      const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
+    const quarters = calculateQuarters(updatedData.selectedMonths)
+    const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
+    const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
+    const existingPlan = plans.value[index]!
 
-      plans.value[index] = { 
-        ...updatedData,
-        activities: [...updatedData.activities],
-        quarters: quarters,
-        totalMandays: totalMandays,
-        supervisorName: supervisor?.name || 'Unknown'
-      }
+    plans.value[index] = { 
+      ...updatedData,
+      id: existingPlan.id,
+      activities: [...updatedData.activities],
+      quarters: quarters,
+      totalMandays: totalMandays,
+      supervisorName: supervisor?.name || 'Unknown'
     }
+    
   }
 
   const deletePlan = (id: string) => {

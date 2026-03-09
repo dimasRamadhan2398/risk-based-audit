@@ -14,7 +14,7 @@
                 </div>
 
                 
-                <div class="p-6 overflow-y-auto space-y-8">  
+                <div class="p-6 overflow-y-auto space-y-4">  
                 <div class="space-y-4">
                 <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b pb-2">1. Activity Detail</h4>
                 
