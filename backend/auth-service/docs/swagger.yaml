@@ -1,0 +1,906 @@
+swagger: "2.0"
+info:
+  description: "Authentication and Authorization microservice for Risk-Based Internal Audit System"
+  title: "Auth Service API"
+  termsOfService: "https://swagger.io/terms/"
+  contact:
+    name: "API Support"
+    email: "support@riskbasedaudit.com"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+  version: "1.0.0"
+host: "localhost:8001"
+basePath: "/"
+paths:
+  /api/v1/auth/login:
+    post:
+      description: "Authenticate a user with email and password"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "Authentication"
+      summary: "User Login"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Login credentials"
+          required: true
+          schema:
+            $ref: "#/definitions/LoginRequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/LoginResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/auth/register:
+    post:
+      description: "Register a new user with email and password"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "Authentication"
+      summary: "User Registration"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Registration details"
+          required: true
+          schema:
+            $ref: "#/definitions/RegisterRequest"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "409":
+          description: "Conflict"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/auth/logout:
+    post:
+      security:
+        - Bearer: []
+      description: "Logout the current user and invalidate the token"
+      produces:
+        - "application/json"
+      tags:
+        - "Authentication"
+      summary: "User Logout"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/auth/change-password:
+    post:
+      security:
+        - Bearer: []
+      description: "Change the current user's password"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "Authentication"
+      summary: "Change Password"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Password change details"
+          required: true
+          schema:
+            $ref: "#/definitions/ChangePasswordRequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/auth/me:
+    get:
+      security:
+        - Bearer: []
+      description: "Get the current authenticated user's information"
+      produces:
+        - "application/json"
+      tags:
+        - "Authentication"
+      summary: "Get Current User"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/UserInfoResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/users:
+    get:
+      security:
+        - Bearer: []
+      description: "Get a paginated list of users with optional filters"
+      produces:
+        - "application/json"
+      tags:
+        - "Users"
+      summary: "List Users"
+      parameters:
+        - name: "page"
+          in: "query"
+          type: "integer"
+          default: 1
+          description: "Page number"
+        - name: "page_size"
+          in: "query"
+          type: "integer"
+          default: 10
+          description: "Number of items per page"
+        - name: "search"
+          in: "query"
+          type: "string"
+          description: "Search query"
+        - name: "department"
+          in: "query"
+          type: "string"
+          description: "Filter by department"
+        - name: "is_active"
+          in: "query"
+          type: "boolean"
+          description: "Filter by active status"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/UsersListResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      security:
+        - Bearer: []
+      description: "Create a new user"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "Users"
+      summary: "Create User"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User creation details"
+          required: true
+          schema:
+            $ref: "#/definitions/CreateUserRequest"
+      responses:
+        "201":
+          description: "Created"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/users/{id}:
+    get:
+      security:
+        - Bearer: []
+      description: "Get a user by ID"
+      produces:
+        - "application/json"
+      tags:
+        - "Users"
+      summary: "Get User"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "User ID (UUID)"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/UserResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      security:
+        - Bearer: []
+      description: "Update a user by ID"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "Users"
+      summary: "Update User"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "User ID (UUID)"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "User update details"
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateUserRequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      security:
+        - Bearer: []
+      description: "Delete a user by ID"
+      produces:
+        - "application/json"
+      tags:
+        - "Users"
+      summary: "Delete User"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "User ID (UUID)"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/mfa/status:
+    get:
+      security:
+        - Bearer: []
+      description: "Get the current user's MFA status"
+      produces:
+        - "application/json"
+      tags:
+        - "MFA"
+      summary: "Get MFA Status"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/MFAStatusResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/mfa/enroll:
+    post:
+      security:
+        - Bearer: []
+      description: "Initiate MFA enrollment"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "MFA"
+      summary: "Enroll MFA"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "MFA enrollment details"
+          required: true
+          schema:
+            $ref: "#/definitions/MFASetupRequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/mfa/verify:
+    post:
+      security:
+        - Bearer: []
+      description: "Verify MFA code and enable MFA"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "MFA"
+      summary: "Verify MFA"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "MFA verification code"
+          required: true
+          schema:
+            $ref: "#/definitions/VerifyMFARequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/mfa/disable:
+    post:
+      security:
+        - Bearer: []
+      description: "Disable MFA for the current user"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "MFA"
+      summary: "Disable MFA"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Password confirmation to disable MFA"
+          required: true
+          schema:
+            $ref: "#/definitions/DisableMFARequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/mfa/email-code:
+    post:
+      security:
+        - Bearer: []
+      description: "Send MFA verification code via email"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "MFA"
+      summary: "Send Email MFA Code"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Email address for MFA code"
+          required: true
+          schema:
+            $ref: "#/definitions/EmailCodeRequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/mfa/verify-email-code:
+    post:
+      security:
+        - Bearer: []
+      description: "Verify MFA email code and enable MFA"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "MFA"
+      summary: "Verify Email MFA Code"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Email verification code"
+          required: true
+          schema:
+            $ref: "#/definitions/VerifyEmailCodeRequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/devices:
+    get:
+      security:
+        - Bearer: []
+      description: "Get list of trusted devices for the current user"
+      produces:
+        - "application/json"
+      tags:
+        - "Trusted Devices"
+      summary: "Get Trusted Devices"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/TrustedDevicesResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/devices/enroll:
+    post:
+      security:
+        - Bearer: []
+      description: "Generate enrollment QR code for a new trusted device"
+      produces:
+        - "application/json"
+      tags:
+        - "Trusted Devices"
+      summary: "Enroll Trusted Device"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/TrustedDeviceEnrollResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/devices/enroll/verify/{token}:
+    post:
+      security:
+        - Bearer: []
+      description: "Verify enrollment token and complete device enrollment"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      tags:
+        - "Trusted Devices"
+      summary: "Verify Device Enrollment"
+      parameters:
+        - name: "token"
+          in: "path"
+          description: "Enrollment verification token"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Device name for the trusted device"
+          required: true
+          schema:
+            $ref: "#/definitions/TrustedDeviceRequest"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /api/v1/devices/{device_id}:
+    delete:
+      security:
+        - Bearer: []
+      description: "Unenroll a trusted device"
+      produces:
+        - "application/json"
+      tags:
+        - "Trusted Devices"
+      summary: "Unenroll Trusted Device"
+      parameters:
+        - name: "device_id"
+          in: "path"
+          description: "Device ID (UUID)"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+definitions:
+  LoginRequest:
+    type: "object"
+    required:
+      - "email"
+      - "password"
+    properties:
+      email:
+        type: "string"
+        example: "user@example.com"
+      password:
+        type: "string"
+        example: "password123"
+  LoginResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+      data:
+        type: "object"
+        properties:
+          access_token:
+            type: "string"
+          refresh_token:
+            type: "string"
+          expires_in:
+            type: "integer"
+          token_type:
+            type: "string"
+            example: "Bearer"
+  RegisterRequest:
+    type: "object"
+    required:
+      - "email"
+      - "password"
+      - "name"
+    properties:
+      email:
+        type: "string"
+        example: "user@example.com"
+      password:
+        type: "string"
+        example: "password123"
+      name:
+        type: "string"
+        example: "John Doe"
+      role:
+        type: "string"
+        example: "user"
+  ChangePasswordRequest:
+    type: "object"
+    required:
+      - "current_password"
+      - "new_password"
+    properties:
+      current_password:
+        type: "string"
+        example: "oldpassword123"
+      new_password:
+        type: "string"
+        example: "newpassword123"
+  UserInfo:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      username:
+        type: "string"
+      roles:
+        type: "array"
+        items:
+          type: "string"
+  UserInfoResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+      data:
+        $ref: "#/definitions/UserInfo"
+  CreateUserRequest:
+    type: "object"
+    required:
+      - "email"
+      - "password"
+      - "name"
+    properties:
+      email:
+        type: "string"
+        example: "user@example.com"
+      password:
+        type: "string"
+        example: "password123"
+      name:
+        type: "string"
+        example: "John Doe"
+      role:
+        type: "string"
+        example: "user"
+      department_id:
+        type: "string"
+        example: "550e8400-e29b-41d4-a716-446655440000"
+  UpdateUserRequest:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        example: "John Doe Updated"
+      email:
+        type: "string"
+        example: "newemail@example.com"
+      role:
+        type: "string"
+        example: "admin"
+      department_id:
+        type: "string"
+        example: "550e8400-e29b-41d4-a716-446655440000"
+      is_active:
+        type: "boolean"
+        example: true
+  UserResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      email:
+        type: "string"
+      name:
+        type: "string"
+      role:
+        type: "string"
+      is_active:
+        type: "boolean"
+      created_at:
+        type: "string"
+        format: "date-time"
+      updated_at:
+        type: "string"
+        format: "date-time"
+  UsersListResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+      data:
+        type: "object"
+        properties:
+          users:
+            type: "array"
+            items:
+              $ref: "#/definitions/UserResponse"
+          pagination:
+            type: "object"
+            properties:
+              page:
+                type: "integer"
+              page_size:
+                type: "integer"
+              total:
+                type: "integer"
+              total_pages:
+                type: "integer"
+  MFASetupRequest:
+    type: "object"
+    required:
+      - "mfa_type"
+    properties:
+      mfa_type:
+        type: "string"
+        enum:
+          - "totp"
+          - "email"
+        example: "totp"
+  VerifyMFARequest:
+    type: "object"
+    required:
+      - "code"
+    properties:
+      code:
+        type: "string"
+        example: "123456"
+  DisableMFARequest:
+    type: "object"
+    required:
+      - "password"
+    properties:
+      password:
+        type: "string"
+        example: "password123"
+  EmailCodeRequest:
+    type: "object"
+    required:
+      - "email"
+    properties:
+      email:
+        type: "string"
+        example: "user@example.com"
+  VerifyEmailCodeRequest:
+    type: "object"
+    required:
+      - "code"
+    properties:
+      code:
+        type: "string"
+        example: "123456"
+  MFAStatusResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+      data:
+        type: "object"
+        properties:
+          enabled:
+            type: "boolean"
+          mfa_type:
+            type: "string"
+          setup_at:
+            type: "string"
+            format: "date-time"
+  TrustedDeviceRequest:
+    type: "object"
+    required:
+      - "device_name"
+    properties:
+      device_name:
+        type: "string"
+        example: "My MacBook Pro"
+  TrustedDeviceResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      device_name:
+        type: "string"
+      device_type:
+        type: "string"
+      trusted:
+        type: "boolean"
+      last_used_at:
+        type: "string"
+        format: "date-time"
+      created_at:
+        type: "string"
+        format: "date-time"
+  TrustedDevicesResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/TrustedDeviceResponse"
+  TrustedDeviceEnrollResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+      data:
+        type: "object"
+        properties:
+          qr_code:
+            type: "string"
+          secret:
+            type: "string"
+          enrollment_token:
+            type: "string"
+  SuccessResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+  ErrorResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+      error:
+        type: "object"
+        properties:
+          code:
+            type: "string"
+          message:
+            type: "string"
+          details:
+            type: "string"
+securityDefinitions:
+  Bearer:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    description: "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
