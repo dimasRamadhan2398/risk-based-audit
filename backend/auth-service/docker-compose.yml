@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  # Zookeeper (required for Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: rb_audit_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - rb_audit_network
+
+  # Kafka Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: rb_audit_kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_PORT: 29092
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAIN:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAIN
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_NUM_PARTITIONS: 3
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - rb_audit_network
+
+  # Kafka UI (optional - for managing/monitoring Kafka)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: rb_audit_kafka_ui
+    depends_on:
+      - kafka
+    ports:
+      - "8085:8080"
+    environment:
+      TZ: Asia/Jakarta
+      KAFKA_CLUSTERS_0_NAME: rb_audit
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - rb_audit_network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: rb_audit_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rb_audit
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rb_audit_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: rb_audit_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rb_audit_network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rb_audit_auth_service
+    ports:
+      - "8001:8001"
+    environment:
+      - SERVER_PORT=8001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=rb_audit
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  zookeeper_data:
+  kafka_data:
+
+networks:
+  rb_audit_network:
+    driver: bridge
