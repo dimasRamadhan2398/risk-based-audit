@@ -1,7 +1,7 @@
 // stores/annual-plan.ts
 import type { TableColumn } from '@nuxt/ui';
 import { defineStore } from 'pinia'
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
@@ -23,7 +23,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
-    // --- STATE UNTUK MODAL VIEW ---
+  // --- STATE UNTUK MODAL VIEW ---
   const showViewModal = ref(false)
   const selectedPlan = ref<any>(null)
 
@@ -34,28 +34,29 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
   const statusOptions = ['Done', 'Work In Progress', 'Not Available']
-  // Asumsi Anda menggunakan Object.values(AuditDepartment) jika berupa enum, atau array manual
-  const departmentOptions = ['Finance', 'IT', 'Operations', 'HR', 'Compliance'] // Sesuaikan dengan enum Anda
+  const departmentOptions = ['Finance', 'IT', 'Operations', 'HR', 'Compliance']
+  const categoryOptions = ['Assurance', 'Special Audit', 'Specific Reason', 'Consulting Services', 'Follow-Up Audit', 'Investigation', 'Quality Assurance Review']
+  const yearOptions = ['2026', '2027', '2028', '2029', '2030']
 
   // --- COMPUTED: FILTER DATA ---
   // --- 3. UPDATE FILTERED PLANS ---
   const filteredPlans = computed(() => {
-  // 1. TAMBAHKAN .value DI SINI
-  return plans.value.filter(plan => {
-      
-    // 2. Opsional tapi disarankan: gunakan optional chaining (?.) untuk mencegah error jika activities kosong/undefined
-    const matchCode = !searchCode.value || 
-      plan.code.toLowerCase().includes(searchCode.value.toLowerCase()) || 
-      plan.activities?.some(act => act.name.toLowerCase().includes(searchCode.value.toLowerCase()))
-      
-    const matchDept = !selectedDepartment.value || 
-      plan.activities?.some(act => act.department === selectedDepartment.value)
-    
-    const matchStatus = !selectedStatus.value || plan.status === selectedStatus.value
+    // 1. TAMBAHKAN .value DI SINI
+    return plans.value.filter(plan => {
 
-    return matchCode && matchDept && matchStatus
+      // 2. Opsional tapi disarankan: gunakan optional chaining (?.) untuk mencegah error jika activities kosong/undefined
+      const matchCode = !searchCode.value ||
+        plan.code.toLowerCase().includes(searchCode.value.toLowerCase()) ||
+        plan.activities?.some(act => act.name.toLowerCase().includes(searchCode.value.toLowerCase()))
+
+      const matchDept = !selectedDepartment.value ||
+        plan.activities?.some(act => act.department === selectedDepartment.value)
+
+      const matchStatus = !selectedStatus.value || plan.status === selectedStatus.value
+
+      return matchCode && matchDept && matchStatus
+    })
   })
-})
 
   // Fungsi Reset Filter
   const clearFilters = () => {
@@ -74,6 +75,12 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     showViewModal.value = false
     setTimeout(() => { selectedPlan.value = null }, 200) // Delay agar transisi tidak flicker
   }
+
+  watch(showViewModal, (isOpen) => {
+    if (!isOpen) {
+      setTimeout(() => { selectedPlan.value = null }, 200)
+    }
+  })
 
   const handleEditFromView = (plan: any) => {
     closeViewModal() // Tutup modal detail
@@ -189,7 +196,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const openModal = () => {
     isEditing.value = false
     editingId.value = null
-    
+
     // Reset Form
     Object.assign(form, {
       code: '',
@@ -236,39 +243,39 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const handleEdit = (plan: any) => {
     isEditing.value = true
     editingId.value = plan.id
-    
+
     // Isi form dengan data yang dipilih
-    
+
     form.code = plan.code,
-    form.activities = plan.activities.map((act: any) => ({ ...act })),
-    form.status = plan.status,
-    form.selectedMonths = [...plan.selectedMonths], // Gunakan spread agar tidak reaktif terhubung langsung
-    form.auditorCount = plan.auditorCount,
-    form.daysPerAuditor = plan.daysPerAuditor,
-    form.supervisorId = plan.supervisorId,
-    form.notes = plan.notes || '',
-    form.isActive = plan.isActive,
-    form.year = plan.year
-    
-    
+      form.activities = plan.activities.map((act: any) => ({ ...act })),
+      form.status = plan.status,
+      form.selectedMonths = [...plan.selectedMonths], // Gunakan spread agar tidak reaktif terhubung langsung
+      form.auditorCount = plan.auditorCount,
+      form.daysPerAuditor = plan.daysPerAuditor,
+      form.supervisorId = plan.supervisorId,
+      form.notes = plan.notes || '',
+      form.isActive = plan.isActive,
+      form.year = plan.year
+
+
     showModal.value = true
   }
 
   const handleDelete = (id: string | undefined) => {
     if (!id) return
-      try {
-        // 2. Panggil fungsi hapus di store
-        deletePlan(id)
-        
-        // 3. Tutup modal detail setelah berhasil menghapus
-        closeViewModal()
-        
-        // 4. (Opsional) Tambahkan notifikasi sukses menggunakan Nuxt UI Toast
-        // toast.add({ title: 'Sukses', description: 'Rencana audit telah dihapus.', color: 'green' })
-        
-      } catch (error) {
-        alert('Gagal menghapus data: ' + error)
-      }
+    try {
+      // 2. Panggil fungsi hapus di store
+      deletePlan(id)
+
+      // 3. Tutup modal detail setelah berhasil menghapus
+      closeViewModal()
+
+      // 4. (Opsional) Tambahkan notifikasi sukses menggunakan Nuxt UI Toast
+      // toast.add({ title: 'Sukses', description: 'Rencana audit telah dihapus.', color: 'green' })
+
+    } catch (error) {
+      alert('Gagal menghapus data: ' + error)
+    }
   }
 
   const supervisors = ref([
@@ -308,9 +315,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const checkScheduleGaps = (months: number[]) => {
     if (months.length === 0) return "Wajib pilih minimal 1 bulan."
     // Logic simple: Cek apakah bulan loncat (misal Jan & Mar dipilih, Feb kosong)
-    const sorted = [...months].sort((a,b) => a-b)
+    const sorted = [...months].sort((a, b) => a - b)
     for (let i = 0; i < sorted.length - 1; i++) {
-      if (sorted[i+1]! - sorted[i]! > 1) {
+      if (sorted[i + 1]! - sorted[i]! > 1) {
         return "⚠️ Warning: Ada gap bulan kosong. Pastikan continuous coverage jika diperlukan."
       }
     }
@@ -323,7 +330,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const addPlan = (form: AnnualPlanForm) => {
     // 1. Calculate Quarters (F-02)
     const quarters = calculateQuarters(form.selectedMonths)
- 
+
     // 2. Calculate Resource (F-03)
     const totalMandays = form.auditorCount * form.daysPerAuditor
     const supervisor = supervisors.value.find(s => s.id === form.supervisorId)
@@ -333,7 +340,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       code: form.code,
       activities: [...form.activities],
       status: form.status,
-      selectedMonths: form.selectedMonths.sort((a,b) => a-b),
+      selectedMonths: form.selectedMonths.sort((a, b) => a - b),
       quarters: quarters,
       auditorCount: form.auditorCount,
       daysPerAuditor: form.daysPerAuditor,
@@ -342,7 +349,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       supervisorName: supervisor?.name || 'Unknown',
       notes: form.notes,
       year: form.year,
-      isActive: form.isActive    
+      isActive: form.isActive
     }
     plans.value.unshift(newPlan)
   }
@@ -358,7 +365,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
     const existingPlan = plans.value[index]!
 
-    plans.value[index] = { 
+    plans.value[index] = {
       ...updatedData,
       id: existingPlan.id,
       activities: [...updatedData.activities],
@@ -366,7 +373,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       totalMandays: totalMandays,
       supervisorName: supervisor?.name || 'Unknown'
     }
-    
+
   }
 
   const deletePlan = (id: string) => {
@@ -385,7 +392,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   return {
     // State
-    plans, supervisors, monthsList, statusOptions, departmentOptions,
+    plans, supervisors, monthsList, statusOptions, departmentOptions, categoryOptions, yearOptions,
     showModal, isEditing, editingId, showViewModal, selectedPlan,
     searchCode, selectedDepartment, selectedStatus, form, columns,
     progressAudit, getStatusColor,

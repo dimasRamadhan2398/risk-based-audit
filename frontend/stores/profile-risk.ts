@@ -42,7 +42,7 @@ export class RiskPointModel implements RiskPoint {
   constructor(
     public impact_level: number,
     public possibility_level: number,
-  ) {}
+  ) { }
 
   get risk_level(): number {
     return this.impact_level * this.possibility_level;
@@ -60,7 +60,7 @@ export interface ImpactLikelihoodExplanation {
   likelihood: string;
 }
 
-export interface RiskActiveState{
+export interface RiskActiveState {
   selectedRiskName: string;
   selectedRiskId: string;
   selectedRiskValue: RiskListItem | null;
@@ -133,9 +133,9 @@ export const useRiskProfileStore = defineStore("risk-profile", {
         risk_category: "Financial",
         risk_level: "High",
         list_residual_risks: [
-          { impact_level: 5, possibility_level: 5 },
-          { impact_level: 4, possibility_level: 3 },
-          { impact_level: 4, possibility_level: 4 },
+          { impact_level: 5, possibility_level: 0 },
+          { impact_level: 4, possibility_level: 0 },
+          { impact_level: 0, possibility_level: 4 },
           { impact_level: 5, possibility_level: 2 },
         ],
         latest_impact_level: 5,

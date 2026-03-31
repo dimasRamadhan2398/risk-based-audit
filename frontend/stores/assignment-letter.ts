@@ -1,13 +1,13 @@
 // stores/assignment-letter.ts
 import type { TableColumn } from '@nuxt/ui';
 import { defineStore } from 'pinia'
-import { type SuratTugas, type SuratTugasForm, type SuratTugasStatus, AuditCategory } from '~/types/audit'
+import { type AssignmentLetter, type AssignmentLetterForm, type AssignmentLetterStatus, AuditCategory } from '~/types/audit'
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
-  assignmentLetterList: SuratTugas[];
-  form: SuratTugasForm;
-  columns: TableColumn<SuratTugas>[];
+  assignmentLetterList: AssignmentLetter[];
+  form: AssignmentLetterForm;
+  columns: TableColumn<AssignmentLetter>[];
   options: {
     auditTeam: string[];
     workingUnit: string[];
@@ -15,14 +15,14 @@ export interface AssignmentLetterState {
   };
 }
 
-export const useAssignmentLetterStore = defineStore('surat-tugas', {
+export const useAssignmentLetterStore = defineStore('assignment-letter', {
   state: (): AssignmentLetterState => ({
     isModalOpen: false,
     assignmentLetterList: [
       {
         id: crypto.randomUUID(),
         letterNumber: 'ST-001/SKAI/2026',
-        status: 'Published' as SuratTugasStatus,
+        status: 'Published' as AssignmentLetterStatus,
         createdAt: new Date().toISOString(),
         auditTitle: 'Real Auditore',
         leader: 'Zeta Ramadhani',
@@ -34,11 +34,11 @@ export const useAssignmentLetterStore = defineStore('surat-tugas', {
         workingUnit: 'Finance',
         executionPeriod: '2026-03-01 to 2026-03-31',
         membersList: [
-          { name: 'Zeta Ramadhani',   role: 'Chairperson' },
-          { name: 'Budi Santoso',     role: 'Supervisor' },
-          { name: 'Rina Wulandari',   role: 'Member' },
-          { name: 'Andi Firmansyah',  role: 'Member' },
-          { name: 'Dewi Kusumawati',  role: 'Person in Charge' }
+          { name: 'Zeta Ramadhani', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' },
+          { name: 'Rina Wulandari', role: 'Member' },
+          { name: 'Andi Firmansyah', role: 'Member' },
+          { name: 'Dewi Kusumawati', role: 'Person in Charge' }
         ],
         purposeList: [
           'Menilai efektivitas pengendalian internal pada divisi keuangan',
@@ -77,34 +77,36 @@ export const useAssignmentLetterStore = defineStore('surat-tugas', {
       ccList: ['President Director']
     },
     columns: [
-      { accessorKey: 'letterNumber',    header: 'Letter Number' },
+      { accessorKey: 'letterNumber', header: 'Letter Number' },
       { accessorKey: 'assignmentTitle', header: 'Audit Title / Object' },
-      { accessorKey: 'workingUnit',     header: 'Work Unit' },
+      { accessorKey: 'workingUnit', header: 'Work Unit' },
       { accessorKey: 'executionPeriod', header: 'Execution Period' },
-      { accessorKey: 'auditTeam',       header: 'Audit Team' },
-      { accessorKey: 'status',          header: 'Status' }
+      { accessorKey: 'auditTeam', header: 'Audit Team' },
+      { accessorKey: 'status', header: 'Status' },
+      // { accessorKey: 'actions', header: 'Action' }
     ],
     options: {
       auditTeam: ['SKAI', 'DAI', 'CAE'],
       workingUnit: ['Production', 'Marketing', 'Finance'],
       role: ['Person in Charge', 'Supervisor', 'Chairperson', 'Member'],
     }
+
   }),
 
   // ==========================================
   // GETTERS
   // ==========================================
   getters: {
-    getColumns:              (state) => state.columns,
+    getColumns: (state) => state.columns,
     getAssignmentLetterList: (state) => state.assignmentLetterList,
-    getForm:                 (state) => state.form,
-    getOptions:              (state) => state.options,
+    getForm: (state) => state.form,
+    getOptions: (state) => state.options,
 
     // dateError moved here as a getter — computed equivalent in Options API store
     dateError: (state): string | null => {
       if (state.form.startPeriod && state.form.finishPeriod) {
         const start = new Date(state.form.startPeriod)
-        const end   = new Date(state.form.finishPeriod)
+        const end = new Date(state.form.finishPeriod)
         if (end < start) {
           return "Error: End date cannot be before start date."
         }
@@ -124,7 +126,7 @@ export const useAssignmentLetterStore = defineStore('surat-tugas', {
 
     // ── LETTER NUMBER GENERATOR ──
     generateNomorSurat(auditTeam: string, year: string): string {
-      const nextCount  = this.assignmentLetterList.length + 1
+      const nextCount = this.assignmentLetterList.length + 1
       const paddedCount = nextCount.toString().padStart(3, '0')
       return `ST-${paddedCount}/${auditTeam}/${year}`
     },
@@ -132,18 +134,18 @@ export const useAssignmentLetterStore = defineStore('surat-tugas', {
     // ── MODAL CONTROLS ──
     openModal() {
       Object.assign(this.form, {
-        auditTitle:  '',
-        leader:      '',
-        category:    AuditCategory.ASSURANCE,
-        auditYear:   new Date().getFullYear().toString(),
-        auditTeam:   'SKAI',
+        auditTitle: '',
+        leader: '',
+        category: AuditCategory.ASSURANCE,
+        auditYear: new Date().getFullYear().toString(),
+        auditTeam: 'SKAI',
         startPeriod: '',
-        finishPeriod:'',
+        finishPeriod: '',
         workingUnit: '',
         membersList: [{ name: '', role: 'Chairperson' }],
         purposeList: [''],
-        scopeList:   [''],
-        ccList:      ['President Director']
+        scopeList: [''],
+        ccList: ['President Director']
       })
       this.isModalOpen = true
     },
@@ -174,23 +176,23 @@ export const useAssignmentLetterStore = defineStore('surat-tugas', {
 
       // 4. Build & save entry
       this.assignmentLetterList.unshift({
-        id:              crypto.randomUUID(),
-        letterNumber:    this.generateNomorSurat(this.form.auditTeam, this.form.auditYear),
-        status:          'Draft',
-        createdAt:       new Date().toISOString(),
-        auditTitle:      this.form.auditTitle,
-        leader:          this.form.leader,
-        category:        this.form.category as AuditCategory,
-        auditYear:       this.form.auditYear,
-        auditTeam:       this.form.auditTeam,
-        startPeriod:     this.form.startPeriod,
-        finishPeriod:    this.form.finishPeriod,
-        workingUnit:     this.form.workingUnit,
+        id: crypto.randomUUID(),
+        letterNumber: this.generateNomorSurat(this.form.auditTeam, this.form.auditYear),
+        status: 'Draft',
+        createdAt: new Date().toISOString(),
+        auditTitle: this.form.auditTitle,
+        leader: this.form.leader,
+        category: this.form.category as AuditCategory,
+        auditYear: this.form.auditYear,
+        auditTeam: this.form.auditTeam,
+        startPeriod: this.form.startPeriod,
+        finishPeriod: this.form.finishPeriod,
+        workingUnit: this.form.workingUnit,
         executionPeriod: `${this.form.startPeriod} to ${this.form.finishPeriod}`,
-        membersList:     JSON.parse(JSON.stringify(this.form.membersList)),
-        purposeList:     JSON.parse(JSON.stringify(this.form.purposeList)),
-        scopeList:       JSON.parse(JSON.stringify(this.form.scopeList)),
-        ccList:          JSON.parse(JSON.stringify(this.form.ccList))
+        membersList: JSON.parse(JSON.stringify(this.form.membersList)),
+        purposeList: JSON.parse(JSON.stringify(this.form.purposeList)),
+        scopeList: JSON.parse(JSON.stringify(this.form.scopeList)),
+        ccList: JSON.parse(JSON.stringify(this.form.ccList))
       })
 
       // 5. Close modal
@@ -198,14 +200,14 @@ export const useAssignmentLetterStore = defineStore('surat-tugas', {
     },
 
     // ── CRUD ACTIONS ──
-    addSuratTugas(form: SuratTugasForm) {
-      const newEntry: SuratTugas = {
+    addAssignmentLetter(form: AssignmentLetterForm) {
+      const newEntry: AssignmentLetter = {
         ...form,
-        id:              crypto.randomUUID(),
-        letterNumber:    this.generateNomorSurat(form.auditTeam, form.auditYear),
+        id: crypto.randomUUID(),
+        letterNumber: this.generateNomorSurat(form.auditTeam, form.auditYear),
         executionPeriod: `${form.startPeriod} to ${form.finishPeriod}`,
-        status:          'Draft',
-        createdAt:       new Date().toISOString()
+        status: 'Draft',
+        createdAt: new Date().toISOString()
       }
       this.assignmentLetterList.unshift(newEntry)
     },
@@ -214,7 +216,7 @@ export const useAssignmentLetterStore = defineStore('surat-tugas', {
       this.assignmentLetterList = this.assignmentLetterList.filter(s => s.id !== id)
     },
 
-    changeStatus(id: string, status: SuratTugasStatus) {
+    changeStatus(id: string, status: AssignmentLetterStatus) {
       const surat = this.assignmentLetterList.find(s => s.id === id)
       if (surat) {
         surat.status = status

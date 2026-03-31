@@ -147,20 +147,20 @@ export interface AuditActivities {
 
 export interface AnnualAuditPlan {
   id?: string;
-  code: string; 
-  activities: AuditActivities[];    
+  code: string;
+  activities: AuditActivities[];
   status: AnnualAuditPlanStatus;
-  selectedMonths: number[];  
-  quarters?: string[];       
-  auditorCount: number;      
-  daysPerAuditor: number;  
+  selectedMonths: number[];
+  quarters?: string[];
+  auditorCount: number;
+  daysPerAuditor: number;
   totalMandays?: number;      // Calculated: count * days
-  supervisorId: string;      
-  supervisorName?: string;   
+  supervisorId?: string;
+  supervisorName?: string;
   year: string;
   notes?: string;
-  isActive: boolean; 
-  isUsed?: boolean; 
+  isActive: boolean;
+  isUsed?: boolean;
   //auditUniverse: string;  Unit/Area yang diaudit
   //auditCycle: string;     e.g., "Annually", "2 Years"
   //lastAudit: string;      Tahun terakhir audit
@@ -174,7 +174,7 @@ export interface AnnualPlanForm {
   selectedMonths: number[];
   auditorCount: number;
   daysPerAuditor: number;
-  supervisorId: string;
+  supervisorId?: string;
   notes?: string;
   year: string;
   isActive: boolean;
@@ -211,13 +211,13 @@ export interface AtrReport {
   status: string;
 }
 
-export interface AuditExecutionStatus{
+export interface AuditExecutionStatus {
   id: number;
   name: string;
   percentage: number;
 }
 
-export interface RecentFinding{
+export interface RecentFinding {
   id: number;
   audit_finding: string;
   audit_category: string;
@@ -231,7 +231,7 @@ export interface AuditDataState {
   auditCategories: AuditCategoryRisk[];
   auditExecutionStatus: AuditExecutionStatus[];
   atrReports: AtrReport[];
-  recentFindings:  RecentFinding[];
+  recentFindings: RecentFinding[];
 }
 
 export interface SampleItem {
@@ -314,7 +314,7 @@ export interface WorkingPaperCause {
   condition: string;
   criteria: string;
   impact: string;
-  evidenceFile: File | null; 
+  evidenceFile: File | null;
   rootCause: RootCauseItem[];
 }
 

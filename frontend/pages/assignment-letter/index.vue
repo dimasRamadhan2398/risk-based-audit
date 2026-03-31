@@ -15,16 +15,16 @@
       />
     </div>
 
-    <SuratTugasTable />
+    <AssignmentLetterTable />
 
-    <SuratTugasForm />
+    <AssignmentLetterForm />
 
   </div>
 </template>
 
 <script setup lang="ts">
-import SuratTugasForm from '~/components/surat-tugas/SuratTugasForm.vue';
-import SuratTugasTable from '~/components/surat-tugas/SuratTugasTable.vue';
+import AssignmentLetterForm from '~/components/assignment-letter/AssignmentLetterForm.vue';
+import AssignmentLetterTable from '~/components/assignment-letter/AssignmentLetterTable.vue';
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 const store = useAssignmentLetterStore()

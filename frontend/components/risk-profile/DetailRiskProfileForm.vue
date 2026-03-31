@@ -31,8 +31,15 @@
       </div>
     </template>
     <template #body>
-      <div class="overflow-x-auto">
-        <UTable :data="tableData" :columns="tableColumns"> </UTable>
+      <div class="overflow-x-auto space-y-4">
+        <UTable :data="tableData" :columns="tableColumns" />
+
+        <AddRiskMitigationForm 
+          v-model:open="isMitigationModalOpen" 
+          :riskData="riskData" 
+          :quarterlyActive="quarterlyActive" 
+        />
+
         <div
           v-if="!quarterlyActive"
           class="min-h-max flex items-center text-center flex-row justify-center"
@@ -40,11 +47,10 @@
           <UButton
             variant="solid"
             icon="add"
-            :ui="{
-              leadingIcon: `font-bold`,
-            }"
-            >Add Risk Control</UButton
+            :ui="{ leadingIcon: `font-bold` }"
           >
+            Add Risk Control
+          </UButton>
         </div>
       </div>
     </template>
@@ -58,8 +64,11 @@
 import { toRaw } from "vue";
 import type { TableColumn, TabsItem } from "@nuxt/ui";
 import { riskColor, type Quarter, type ResidualFields } from "~/types/common";
+import AddRiskMitigationForm from "./addRiskMitigationForm.vue";
 
 const UBadge = resolveComponent("UBadge");
+const isMitigationModalOpen = ref(false);
+const UButton = resolveComponent("UButton");
 
 const props = defineProps<{
   isOpen: boolean;
@@ -316,6 +325,23 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             header: "Q1",
             cell: (risk: any) => {
               const rawObject = toRaw(risk.row.original);
+              
+              // Jika nilainya 0, render UButton
+              if (rawObject.impact_q1 === 0) {
+                return h(UButton, {
+                  label: "Add", // Gunakan teks pendek agar sel tabel tidak melebar
+                  icon: "add",
+                  size: "xs",
+                  color: "secondary",
+                  variant: "outline",
+                  // Ketika di-klik, buka modal form mitigasi
+                  onClick: () => {
+                    isMitigationModalOpen.value = true;
+                  }
+                });
+              }
+              
+              // Jika nilainya bukan 0, tampilkan angka aslinya
               return rawObject.impact_q1;
             },
             meta: {
@@ -330,6 +356,23 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             header: "Q2",
             cell: (risk: any) => {
               const rawObject = toRaw(risk.row.original);
+              
+              // Jika nilainya 0, render UButton
+              if (rawObject.impact_q2 === 0) {
+                return h(UButton, {
+                  label: "Add", // Gunakan teks pendek agar sel tabel tidak melebar
+                  icon: "add",
+                  size: "xs",
+                  color: "secondary",
+                  variant: "outline",
+                  // Ketika di-klik, buka modal form mitigasi
+                  onClick: () => {
+                    isMitigationModalOpen.value = true;
+                  }
+                });
+              }
+              
+              // Jika nilainya bukan 0, tampilkan angka aslinya
               return rawObject.impact_q2;
             },
             meta: {
@@ -344,6 +387,23 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             header: "Q3",
             cell: (risk: any) => {
               const rawObject = toRaw(risk.row.original);
+              
+              // Jika nilainya 0, render UButton
+              if (rawObject.impact_q3 === 0) {
+                return h(UButton, {
+                  label: "Add", // Gunakan teks pendek agar sel tabel tidak melebar
+                  icon: "add",
+                  size: "xs",
+                  color: "secondary",
+                  variant: "outline",
+                  // Ketika di-klik, buka modal form mitigasi
+                  onClick: () => {
+                    isMitigationModalOpen.value = true;
+                  }
+                });
+              }
+              
+              // Jika nilainya bukan 0, tampilkan angka aslinya
               return rawObject.impact_q3;
             },
             meta: {
@@ -358,6 +418,23 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             header: "Q4",
             cell: (risk: any) => {
               const rawObject = toRaw(risk.row.original);
+              
+              // Jika nilainya 0, render UButton
+              if (rawObject.impact_q4 === 0) {
+                return h(UButton, {
+                  label: "Add", // Gunakan teks pendek agar sel tabel tidak melebar
+                  icon: "add",
+                  size: "xs",
+                  color: "secondary",
+                  variant: "outline",
+                  // Ketika di-klik, buka modal form mitigasi
+                  onClick: () => {
+                    isMitigationModalOpen.value = true;
+                  }
+                });
+              }
+              
+              // Jika nilainya bukan 0, tampilkan angka aslinya
               return rawObject.impact_q4;
             },
             meta: {
@@ -383,6 +460,23 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             header: "Q1",
             cell: (risk: any) => {
               const rawObject = toRaw(risk.row.original);
+              
+              // Jika nilainya 0, render UButton
+              if (rawObject.possibility_q1 === 0) {
+                return h(UButton, {
+                  label: "Add", // Gunakan teks pendek agar sel tabel tidak melebar
+                  icon: "add",
+                  size: "xs",
+                  color: "secondary",
+                  variant: "outline",
+                  // Ketika di-klik, buka modal form mitigasi
+                  onClick: () => {
+                    isMitigationModalOpen.value = true;
+                  }
+                });
+              }
+              
+              // Jika nilainya bukan 0, tampilkan angka aslinya
               return rawObject.possibility_q1;
             },
             meta: {
@@ -397,6 +491,23 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             header: "Q2",
             cell: (risk: any) => {
               const rawObject = toRaw(risk.row.original);
+              
+              // Jika nilainya 0, render UButton
+              if (rawObject.possibility_q2 === 0) {
+                return h(UButton, {
+                  label: "Add", // Gunakan teks pendek agar sel tabel tidak melebar
+                  icon: "add",
+                  size: "xs",
+                  color: "secondary",
+                  variant: "outline",
+                  // Ketika di-klik, buka modal form mitigasi
+                  onClick: () => {
+                    isMitigationModalOpen.value = true;
+                  }
+                });
+              }
+              
+              // Jika nilainya bukan 0, tampilkan angka aslinya
               return rawObject.possibility_q2;
             },
             meta: {
@@ -411,6 +522,23 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             header: "Q3",
             cell: (risk: any) => {
               const rawObject = toRaw(risk.row.original);
+              
+              // Jika nilainya 0, render UButton
+              if (rawObject.possibility_q3 === 0) {
+                return h(UButton, {
+                  label: "Add", // Gunakan teks pendek agar sel tabel tidak melebar
+                  icon: "add",
+                  size: "xs",
+                  color: "secondary",
+                  variant: "outline",
+                  // Ketika di-klik, buka modal form mitigasi
+                  onClick: () => {
+                    isMitigationModalOpen.value = true;
+                  }
+                });
+              }
+              
+              // Jika nilainya bukan 0, tampilkan angka aslinya
               return rawObject.possibility_q3;
             },
             meta: {
@@ -425,6 +553,23 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             header: "Q4",
             cell: (risk: any) => {
               const rawObject = toRaw(risk.row.original);
+              
+              // Jika nilainya 0, render UButton
+              if (rawObject.possibility_q4 === 0) {
+                return h(UButton, {
+                  label: "Add", // Gunakan teks pendek agar sel tabel tidak melebar
+                  icon: "add",
+                  size: "xs",
+                  color: "secondary",
+                  variant: "outline",
+                  // Ketika di-klik, buka modal form mitigasi
+                  onClick: () => {
+                    isMitigationModalOpen.value = true;
+                  }
+                });
+              }
+              
+              // Jika nilainya bukan 0, tampilkan angka aslinya
               return rawObject.possibility_q4;
             },
             meta: {

@@ -1,22 +1,12 @@
 <template>
-    <Teleport to="body">
-      <div
-        v-if="store.showModal"
-        class="relative z-[9999]"
-        aria-labelledby="modal-title"
-        role="dialog"
-        aria-modal="true"
+    
+      <UModal
+        v-model:open="store.showModal"
+        :dismissible="false"
+        class="w-full sm:max-w-4xl"
       >
-        <div
-          class="fixed inset-0 bg-gray-100 bg-opacity-75 transition-opacity"
-        ></div>
-        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-          <div
-            class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
-          >
-            <div
-              class="relative transform overflow-hidden rounded-lg bg-secondary-100 dark:bg-secondary-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
-            >
+      <div></div>
+            <template #content>
               <UForm @submit.prevent="store.handleSubmit">
                 <div
                   class="bg-secondary-50 dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
@@ -116,32 +106,15 @@
                       class="block text-sm font-medium"
                       size="lg"
                     >
-                      <div class="flex items-center gap-4">
-                        <label class="inline-flex items-center">
-                          <input
-                            type="radio"
-                            v-model="store.form.isActive"
-                            :value="true"
-                            class="form-radio text-primary-600"
-                          />
-                          <span
-                            class="ml-2 text-sm text-gray-700 dark:text-gray-300"
-                            >Active</span
-                          >
-                        </label>
-                        <label class="inline-flex items-center">
-                          <input
-                            type="radio"
-                            v-model="store.form.isActive"
-                            :value="false"
-                            class="form-radio text-primary-600"
-                          />
-                          <span
-                            class="ml-2 text-sm text-gray-700 dark:text-gray-300"
-                            >Inactive</span
-                          >
-                        </label>
-                      </div>
+                      <URadioGroup
+                        v-model="store.form.isActive"
+                        :items="[
+                          { label: 'Active', value: true },
+                          { label: 'Inactive', value: false }
+                        ]"
+                        orientation="horizontal"
+                        class="mt-2"
+                      />
                     </UFormField>
 
                     <UFormField
@@ -181,11 +154,9 @@
                   </UButton>
                 </div>
               </UForm>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+            </template>
+      </UModal>
+    
 </template>
 
 <script setup lang="ts">

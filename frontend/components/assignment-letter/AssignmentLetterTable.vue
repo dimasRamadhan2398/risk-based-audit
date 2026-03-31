@@ -32,6 +32,27 @@
           </UBadge>
         </template>
 
+        <!-- <template #actions-cell="{ row }">
+            <div class="flex gap-2">
+            <UButton 
+                size="md" 
+                color="warning" 
+                variant="soft" 
+                icon="i-heroicons-pencil-square" 
+                @click="store.handleEditF04(row.original)" 
+                title="Edit"
+            />
+            <UButton 
+                size="md" 
+                color="error" 
+                variant="soft" 
+                icon="i-heroicons-trash" 
+                @click="store.handleDeleteF04(row.original.id)" 
+                title="Hapus"
+            />
+            </div>
+        </template> -->
+
       </UTable>
     </UCard>
 </template>

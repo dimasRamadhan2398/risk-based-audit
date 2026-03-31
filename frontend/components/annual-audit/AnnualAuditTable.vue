@@ -1,5 +1,5 @@
 <template>
-    <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
+    <UCard class="rounded-xl shadow overflow-y-auto" variant="soft" color="primary">
       <UTable
         :data="store.filteredPlans"    
         :columns="store.columns"
