@@ -101,6 +101,24 @@ import { useRiskProfileStore, type RiskListItem } from "~/stores/profile-risk";
 import DetailRiskProfileForm from "~/components/risk-profile/DetailRiskProfileForm.vue";
 import { riskColor } from "~/types/common";
 import InformationRiskProfile from "~/components/risk-profile/InformationRiskProfile.vue";
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+onMounted(() => {
+  // Cek apakah ada instruksi untuk membuka detail dari halaman mitigasi
+  const riskIdToOpen = route.query.openDetail as string
+  
+  if (riskIdToOpen) {
+    const risk = riskProfileStore.getRiskById(riskIdToOpen)
+    if (risk) {
+      // Set data risiko yang dipilih ke state store/local
+      riskProfileStore.setSelectedRiskValue(risk)
+      // Buka modal secara otomatis
+      isDetailRiskProfileModalOpen.value = true
+    }
+  }
+})
 
 const props = defineProps<{
   risks: [];

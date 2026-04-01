@@ -8,7 +8,7 @@ export enum RiskLevel {
   HIGH = 'high'
 }
 
-export enum RiskTaxonomy { 
+export enum RiskTaxonomy {
   Strategic = 'Strategic',
   Operational = 'Operational',
   Financial = 'Financial',
@@ -64,22 +64,33 @@ export interface RiskProfileItem {
   riskLevel: RiskLevel
 }
 
+// export type MitigationStatus = 'planned' | 'in_progress' | 'completed' | 'overdue';
+
 export interface RiskMitigation {
   id: string
   riskId: string
-  title: string
-  description: string
-  status: MitigationStatus
-  responsiblePerson: string
-  targetDate: string
-  completionDate?: string
-  createdAt: string
-  updatedAt: string
+  actionPlan: string;
+  supervisor: string;
+  pic: string;
+  start_date: string;
+  end_date: string;
+  //status: MitigationStatus;
+  notes?: string;
 }
 
-export enum MitigationStatus {
-  PLANNED = 'planned',
-  IN_PROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  OVERDUE = 'overdue'
+export interface RiskMitigationForm {
+  actionPlan: string;
+  supervisor: string;
+  pic: string;
+  start_date: string;
+  end_date: string;
+  //status: MitigationStatus;
+  notes: string;
 }
+
+// export enum MitigationStatus {
+//   PLANNED = 'planned',
+//   IN_PROGRESS = 'in_progress',
+//   COMPLETED = 'completed',
+//   OVERDUE = 'overdue'
+// }
