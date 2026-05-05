@@ -20,7 +20,6 @@
       <div class="flex justify-between flex-row w-full">
         <h5>Detail Risk Data</h5>
         <div class="gap-4 flex flex-row">
-          <UButton label="Edit" icon="edit" color="secondary" variant="outline"></UButton>
           <UButton
             color="primary"
             variant="outline"
@@ -34,7 +33,7 @@
       <div class="overflow-x-auto space-y-4">
         <UTable :data="tableData" :columns="tableColumns" />
 
-        <div class="flex flex-col items-center gap-4 py-4 border-t border-gray-100 dark:border-gray-800">
+        <div class="flex flex-col items-center gap-4 py-4 border-t border-gray-100 ">
           <p class="text-sm text-gray-500 italic">Klik tombol di bawah untuk mengelola langkah mitigasi</p>
           
           <UButton
@@ -294,7 +293,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center",
       },
     },
   },
@@ -308,7 +307,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center",
       },
     },
   },
@@ -322,7 +321,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center",
       },
     },
   },
@@ -331,7 +330,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center",
       },
     },
     columns: [
@@ -340,7 +339,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
         meta: {
           class: {
             th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-            td: "text-center place-self-center text-black",
+            td: "text-center place-self-center",
           },
         },
         columns: [
@@ -354,7 +353,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center",
               },
             },
           },
@@ -368,7 +367,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center",
               },
             },
           },
@@ -382,7 +381,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center",
               },
             },
           },
@@ -396,7 +395,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center",
               },
             },
           },
@@ -407,7 +406,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
         meta: {
           class: {
             th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-            td: "text-center place-self-center text-black",
+            td: "text-center place-self-center",
           },
         },
         columns: [
@@ -421,7 +420,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center",
               },
             },
           },
@@ -435,7 +434,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center",
               },
             },
           },
@@ -449,7 +448,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center ",
               },
             },
           },
@@ -463,7 +462,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center ",
               },
             },
           },
@@ -474,7 +473,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
         meta: {
           class: {
             th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-            td: "text-center place-self-center text-black",
+            td: "text-center place-self-center ",
           },
         },
         columns: [
@@ -505,7 +504,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center ",
               },
             },
           },
@@ -537,7 +536,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center ",
               },
             },
           },
@@ -568,7 +567,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center ",
               },
             },
           },
@@ -600,7 +599,7 @@ const tableColumns: TableColumn<RiskDetailTableRow>[] = [
             meta: {
               class: {
                 th: "bg-primary text-secondary-900 text-center px-2 py-3 text-xs font-medium uppercase",
-                td: "text-center text-black",
+                td: "text-center ",
               },
             },
           },

@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-2 gap-4">
     <div>
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+      <label class="block text-sm font-medium text-gray-700"
         >Activity ID</label
       >
       <input
@@ -13,7 +13,7 @@
       />
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+      <label class="block text-sm font-medium text-gray-700"
         >Letter Number</label
       >
       <input

@@ -37,7 +37,7 @@
               <tr v-for="permission in item.permissions" :key="permission.id" class="border-b border-gray-100 hover:bg-gray-50">
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-3">
-                    <span class="font-medium text-black">{{ permission.module }}</span>
+                    <span class="font-medium ">{{ permission.module }}</span>
                   </div>
                 </td>
                 <td class="py-3 px-4 text-gray-600">{{ permission.description }}</td>

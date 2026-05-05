@@ -5,11 +5,11 @@
 
         <template #content>
         <UForm :state="store.planForm" @submit.prevent="store.handleSubmitF05">
-        <div class="bg-secondary-50 dark:bg-secondary-300 rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
+        <div class="bg-secondary-50  rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
 
-        <div class="px-6 py-4 border-b border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-900 rounded-t-xl flex justify-between items-center">
+        <div class="px-6 py-4 border-b border-secondary-200  bg-secondary-50  rounded-t-xl flex justify-between items-center">
             <UIcon name="charter" class=" text-primary-500" size="32"></UIcon>
-            <h3 class="text-lg font-bold text-secondary-900 dark:text-white">Rekomendasi & Tanggapan</h3>
+            <h3 class="text-lg font-bold text-secondary-900 ">Rekomendasi & Tanggapan</h3>
             <UIcon name="close" @click="store.closeModalF05" class="text-primary-400 hover:text-primary-600 text-2xl">&times;</UIcon>
         </div>
         
@@ -24,7 +24,7 @@
             <UTextarea class="md:col-span-3" v-model="store.planForm.response" :rows="3" placeholder="Ex: Kami setuju, update akan dilakukan di Q3..." />
             </div>
 
-            <h2 class="text-xl text-center font-bold text-gray-800 dark:text-white mb-6">Detail Rencana Aksi (Action Plan)</h2>
+            <h2 class="text-xl text-center font-bold text-gray-800  mb-6">Detail Rencana Aksi (Action Plan)</h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
             <UFormField label="Deskripsi Action" class="font-semibold text-sm" />
             <UInput class="md:col-span-3" v-model="store.planForm.actionDescription" placeholder="Ex: Staf lupa meminta TTD Manager" />
@@ -41,7 +41,7 @@
             </div>
         
 
-        <div class="flex justify-end pt-10 border-gray-100 dark:border-gray-800">
+        <div class="flex justify-end pt-10 border-gray-100">
             <UButton 
                 :label="store.isEditingF05 ? 'Update Data' : 'Submit'" 
                 color="primary"

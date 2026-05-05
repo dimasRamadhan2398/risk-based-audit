@@ -5,12 +5,12 @@
         <template #content>
         
         <UForm :state="store.causeForm" @submit.prevent="store.handleSubmitF04">
-        <div class="bg-secondary-50 dark:bg-secondary-300 rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
+        <div class="bg-[var(--bg-main)] rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto border border-[var(--border-main)] transition-colors duration-300">
 
-        <div class="px-6 py-4 border-b border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-900 rounded-t-xl flex justify-between items-center">
-            <UIcon name="charter" class=" text-primary-500" size="32"></UIcon>
-            <h3 class="text-lg font-bold text-secondary-900 dark:text-white">Analisis Akar Penyebab</h3>
-            <UIcon name="close" @click="store.closeModalF04" class="text-primary-400 hover:text-primary-600 text-2xl">&times;</UIcon>
+        <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center transition-colors duration-300">
+            <UIcon name="charter" class="text-primary-500 " size="32"></UIcon>
+            <h3 class="text-lg font-bold text-[var(--text-main)]">Analisis Akar Penyebab</h3>
+            <UIcon name="close" @click="store.closeModalF04" class="text-[var(--text-muted)] hover:text-[var(--text-main)] text-2xl cursor-pointer"></UIcon>
         </div>
         
         <div class="space-y-6 m-6">
@@ -50,8 +50,8 @@
             <UTextarea class="md:col-span-3" v-model="store.causeForm.impact" :rows="3" placeholder="Ex: Potensi fraud atau pembelian fiktif yang dapat merugikan keuangan..." />
             </div>
 
-            <h2 class="text-xl text-center font-bold text-gray-800 dark:text-white mb-6">Analisa Akar Masalah</h2>
-            <div v-for="(rca, index) in store.causeForm.rootCause" :key="rca.id" class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 bg-white dark:bg-gray-800">
+            <h2 class="text-xl text-center font-bold text-gray-800  mb-6">Analisa Akar Masalah</h2>
+            <div v-for="(rca, index) in store.causeForm.rootCause" :key="rca.id" class="border border-gray-200  rounded-xl p-6 ">
             
             <div class="pb-6 flex justify-between">
                 <h3 class="text-lg font-bold">Analisis {{ index + 1 }}</h3>
@@ -83,7 +83,7 @@
 
             <UButton color="primary" icon="i-heroicons-plus" variant="soft" label="Tambah Analisa Akar Masalah" @click="store.addRootCause" />
         
-        <div class="flex justify-end p-6 border-gray-100 dark:border-gray-800">
+        <div class="flex justify-end p-6 border-gray-100">
             <UButton 
                 :label="store.isEditingF04 ? 'Update Data' : 'Submit'" 
                 color="primary"

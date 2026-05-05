@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto space-y-6">
     <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white"> 
+      <h1 class="text-2xl font-bold text-gray-900 "> 
         Annual Audit Plan
       </h1>
       <UButton

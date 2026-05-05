@@ -1,11 +1,11 @@
 <template>
     <UCard
       v-if="store.activeCharter"
-      class="bg-white relative group"
+      class="relative group"
       variant="soft"
     >
       <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 class="text-2xl font-bold text-gray-900">
           Active Audit Charter
         </h1>
         <UButton
@@ -17,7 +17,7 @@
         </UButton>
       </div>
 
-      <div class="border-t border-gray-400 dark:border-gray-700 my-4"></div>
+      <div class="border-t border-gray-400  my-4"></div>
 
       <div class="flex justify-between items-start">
         <div>
@@ -28,37 +28,37 @@
             color="success"
           >
           </UBadge>
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 class="text-3xl font-bold text-[var(--text-main)] mb-4">
             {{ store.activeCharter.title }}
           </h2>
           <div class="flex items-center gap-4 text-sm text-gray-500 mb-6">
             <UBadge class="rounded inline-block" size="lg" color="error">
               v{{ store.activeCharter.version }}
             </UBadge>
-            <UIcon name="calendar" size="md" class="text-primary-400"></UIcon>
+            <UIcon name="calendar" size="md"></UIcon>
             <span class="flex items-center gap-1">{{
               store.activeCharter.date
             }}</span>
-            <UIcon name="charter" size="md" class="text-primary-400"></UIcon>
+            <UIcon name="charter" size="md"></UIcon>
             <span class="flex items-center gap-1">{{
               store.activeCharter.fileName
             }}</span>
           </div>
 
-          <div class="grid grid-cols-2 bg-gray-50 gap-8 mb-6 p-4 rounded-lg">
+          <div class="grid grid-cols-2 bg-[var(--bg-surface)] gap-8 mb-6 p-4 rounded-lg transition-colors duration-300">
             <div>
-              <p class="text-xs text-gray-600 uppercase tracking-wider">
+              <p class="text-xs text-[var(--text-muted)] uppercase tracking-wider">
                 Uploaded By
               </p>
-              <p class="font-medium text-black">
+              <p class="font-medium text-[var(--text-main)]">
                 {{ store.activeCharter.uploadedBy }}
               </p>
             </div>
             <div>
-              <p class="text-xs text-gray-600 uppercase tracking-wider">
+              <p class="text-xs text-[var(--text-muted)] uppercase tracking-wider">
                 Approved By
               </p>
-              <p class="font-medium text-black">
+              <p class="font-medium text-[var(--text-main)]">
                 {{ store.activeCharter.approvedBy }}
               </p>
             </div>
@@ -97,8 +97,8 @@
     </UCard>
 
     <div>
-      <UCard class="bg-white relative group" variant="soft">
-        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
+      <UCard class=" relative group" variant="soft">
+        <h3 class="text-lg font-semibold text-gray-700  mb-4">
           History Audit Charter
         </h3>
         <UTable
@@ -111,27 +111,27 @@
           class="w-full text-sm text-left"
         >
           <template #version-data="{ row }">
-            <span class="font-bold text-gray-800 dark:text-gray-200">{{
+            <span class="font-bold text-gray-800 ">{{
               row.original.version
             }}</span>
           </template>
           <template #title-data="{ row }">
-            <span class="font-bold text-gray-800 dark:text-gray-200">{{
+            <span class="font-bold text-gray-800 ">{{
               row.original.title
             }}</span>
           </template>
           <template #date-data="{ row }">
-            <span class="font-bold text-gray-800 dark:text-gray-200">{{
+            <span class="font-bold text-gray-800 ">{{
               row.original.date
             }}</span>
           </template>
           <template #approvedBy-data="{ row }">
-            <span class="font-bold text-gray-800 dark:text-gray-200">{{
+            <span class="font-bold text-gray-800 ">{{
               row.original.approvedBy
             }}</span>
           </template>
           <template #uploadedBy-data="{ row }">
-            <span class="font-bold text-gray-800 dark:text-gray-200">{{
+            <span class="font-bold text-gray-800 ">{{
               row.original.uploadedBy
             }}</span>
           </template>

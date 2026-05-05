@@ -1,9 +1,9 @@
 <template>
-  <div class="p-6 max-w-7xl mx-auto space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <div class="p-6 max-w-7xl mx-auto space-y-6 bg-gray-50 min-h-screen">
     
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Working Paper</h1>
+        <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper</h1>
         <p class="text-sm text-gray-500">Digital Working Paper System</p>
       </div>
     </div>
@@ -13,7 +13,7 @@
       <template #f01="{ item }">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Working Paper Header</h1>
+            <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Header</h1>
           </div>
           <UButton 
             label="Buat Kertas Kerja" 
@@ -34,7 +34,7 @@
       <template #f02="{ item }">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Working Paper Risk</h1>
+            <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Risk</h1>
           </div>
           <UButton 
             label="Buat Kertas Kerja" 
@@ -55,7 +55,7 @@
       <template #f03="{ item }">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Working Paper Sample</h1>
+            <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Sample</h1>
           </div>
           <UButton 
             label="Buat Kertas Kerja" 
@@ -75,7 +75,7 @@
       <template #f04="{ item }">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Working Paper Cause Analysis</h1>
+            <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Cause Analysis</h1>
           </div>
           <UButton 
             label="Buat Kertas Kerja" 
@@ -95,7 +95,7 @@
       <template #f05="{ item }">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Working Paper Action Plan</h1>
+            <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Action Plan</h1>
           </div>
           <UButton 
             label="Buat Kertas Kerja" 

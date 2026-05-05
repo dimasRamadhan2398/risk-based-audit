@@ -9,10 +9,6 @@
         <template #activity-cell="{ row }">
           <div class="py-2">
             <div class="font-bold text-gray-600">{{ row.original.code }}</div>
-            <!-- <div class="font-medium text-gray-900 dark:text-white">{{row.original.name }}</div>
-            <UBadge color="primary" variant="soft" size="md" class="mt-1">
-              {{ row.original.category }}
-            </UBadge> -->
           </div>
         </template>
 
@@ -78,33 +74,6 @@
             />
           </div>
         </template>
-
-        <!-- <template #notes-cell="{ row }">
-          <div class="max-w-[250px] text-sm text-gray-600 dark:text-gray-400">
-            <template v-if="!isNotesLongText(row.original.notes!)">
-              <span class="italic">{{ row.original.notes || '-' }}</span>
-            </template>
-
-            <template v-else>
-              <span class="italic whitespace-normal break-words">
-                {{ expandedNotesRows.has(row.original.id!) 
-                  ? row.original.notes 
-                  : row.original.notes?.slice(0, 50) + '...' 
-                }}
-              </span>
-              
-              <UButton
-                :label="expandedNotesRows.has(row.original.id!) ? 'Show Less' : 'Read More'"
-                variant="link"
-                size="xs"
-                :padded="false"
-                color="primary"
-                class="ml-1 font-bold underline"
-                @click="toggleNotesReadMore(row.original.id!)"
-              />
-            </template>
-          </div>
-        </template> -->
       
       </UTable>
     </UCard>

@@ -3,17 +3,16 @@
       <UModal
         v-model:open="store.showModal"
         :dismissible="false"
-        class="w-full sm:max-w-4xl"
+        class="w-full sm:max-w-4xl bg-secondary-100"
       >
-      <div></div>
             <template #content>
               <UForm @submit.prevent="store.handleSubmit">
                 <div
-                  class="bg-secondary-50 dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
+                  class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
                 >
                   <div class="flex justify-between items-center">
                     <h3
-                      class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4"
+                      class="text-lg leading-6 font-medium mb-4"
                       id="modal-title"
                     >
                       Upload New Charter
@@ -21,7 +20,7 @@
                     <UIcon
                       name="close"
                       @click="store.closeModal"
-                      class="text-primary-400 hover:text-primary-600 text-2xl"
+                      class="text-2xl"
                       >&times;</UIcon
                     >
                   </div>
@@ -48,12 +47,13 @@
                         label="Versi (Auto)"
                         class="block text-sm font-medium"
                         size="lg"
+                        disabled
                       >
                         <div
-                          class="mt-1 block w-full rounded-md border border-gray-200 bg-gray-200 p-2 text-gray-600 sm:text-sm font-bold"
+                          class="mt-1 block w-full rounded-md border border-secondary-200 bg-neutral-300 text-primary-900 p-2 sm:text-sm font-bold"
                         >
                           <span v-if="store.isEditing">{{ store.form.version }}</span>
-                          <span v-else class="text-primary-600"
+                          <span v-else 
                             >v{{ store.nextVersion }}</span
                           >
                         </div>
@@ -80,7 +80,7 @@
                         size="lg"
                       >
                         <div
-                          class="mt-1 block w-full rounded-md border border-gray-200 bg-gray-200 p-2 text-gray-600 sm:text-sm font-bold"
+                          class="mt-1 block w-full rounded-md border border-secondary-200 bg-neutral-300 text-primary-900 p-2 sm:text-sm font-bold"
                         >
                           <span>{{ store.form.uploadedBy }}</span>
                         </div>
@@ -133,7 +133,7 @@
 
                       <div
                         v-if="store.form.file"
-                        class="mt-2 flex items-center gap-2 text-sm text-primary-600 bg-primary-50 p-2 rounded"
+                        class="mt-2 flex items-center gap-2 text-sm p-2 rounded"
                       >
                         <UIcon name="i-heroicons-document" />
                         <span class="font-bold">{{ store.form.file.name }}</span>
@@ -143,7 +143,7 @@
                   </div>
                 </div>
                 <div
-                  class="bg-secondary-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"
+                  class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"
                 >
                   <UButton
                     type="submit"

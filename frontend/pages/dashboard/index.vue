@@ -4,25 +4,21 @@
     <UCard variant="soft">
       <template #header>
         <div class="flex flex-col gap-2">
-          <h1 class="text-3xl font-bold text-gray-900">
-            {{ t("dashboard.title") }}
+          <h1 class="text-3xl font-bold text-[var(--text-main)]">
+            Dashboard
           </h1>
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-[var(--text-muted)]">
             Enterprise Risk Management and Internal Audit Platform
           </p>
         </div>
       </template>
     </UCard>
 
-    <UCard>
-      <template #header>
-              <h4 class="text-black font-semibold">Risk Management Statistics</h4>
-      </template>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <UCard variant="outline" class="relative overflow-hidden">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <UCard>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div>
                 <p class="text-sm font-medium text-gray-600">Total Risks</p>
                 <p class="text-3xl font-bold text-gray-900 mt-1">24</p>
               </div>
@@ -91,12 +87,11 @@
           </div>
         </UCard>
       </div>
-    </UCard>
 
     <!-- Statistics Cards -->
     <UCard>
       <template #header>
-        <h4 class="text-black font-semibold">Audit Statistics</h4>
+        <h4 class=" font-semibold">Audit Statistics</h4>
       </template>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <UCard variant="outline" class="relative overflow-hidden">
@@ -196,7 +191,7 @@
         <UCard variant="soft" class="flex-1" :ui="{ header: 'px-0 pt-0 pb-4' }">
           <template #header>
             <div
-              class="flex items-center justify-between px-6 border-b border-black py-4 -mx-6"
+              class="flex items-center justify-between px-6 border-b  py-4 -mx-6"
             >
               <h2 class="text-xl font-semibold text-gray-900">
                 Risk Heat Map
@@ -262,7 +257,7 @@
         <UCard variant="soft" class="flex-1 min-h-[27rem]" :ui="{ header: 'px-0 pt-0 pb-4', body: 'p-0' }">
           <template #header>
             <div
-              class="flex items-center justify-between px-6 border-b border-black py-4 -mx-6"
+              class="flex items-center justify-between px-6 border-b  py-4 -mx-6"
             >
               <h2 class="text-xl font-semibold text-gray-900">
                 Registered Risk
@@ -279,7 +274,7 @@
         <UCard variant="soft" :ui="{ header: 'px-0 pt-0 pb-4' }">
           <template #header>
             <div
-              class="flex items-center justify-between px-6 border-b border-black py-4 -mx-6"
+              class="flex items-center justify-between px-6 border-b  py-4 -mx-6"
             >
               <h2 class="text-xl font-semibold text-gray-900">
                 Audit Planning Coverage
@@ -299,7 +294,7 @@
               </div>
               <UProgress v-model="progressModel" color="secondary" />
               </div>
-              <div class="flex flex-row text-black font-semibold gap-32 flex-wrap px-4 justify-around">
+              <div class="flex flex-row  font-semibold gap-32 flex-wrap px-4 justify-around">
                 <div class="flex flex-row gap-16">
                   <p>Planned Audits</p>
                   <p>{{ auditCoverage.plannedAudits }}</p>
@@ -318,7 +313,7 @@
         </UCard>
         <UCard variant="soft">
           <template #header>
-            <div class="flex flex-row justify-between min-h-full text-black">
+            <div class="flex flex-row justify-between min-h-full ">
               <h2>Inherent vs Residual Risk by Department</h2>
               <USelect v-model="activeYear" :options="yearlyFilters" />
             </div>
@@ -358,7 +353,7 @@
         </template>
         <DonutChart :data="atrDonut.map((item) => item.value)" :height="400" :categories="atrCategories" :radius="10" :hide-legend="false" :type="DonutType.Full" :padding="{ top: 0, left: 0, right: 0, bottom: 0}" :arc-width="20" :legend-position="LegendPosition.TopRight" :legend-style=legendStyle :pad-angle="0">
           <div class="text-center">
-            <div class="font-semibold text-black">
+            <div class="font-semibold ">
               <span class="text-xl">{{ atrDonut[0]!.value }}%</span>  Completed
             </div>
           </div>
@@ -414,46 +409,6 @@
     </UCard>
   </div>
 
-    <!-- Quick Actions Menu -->
-    <UCard variant="soft">
-      <template #header>
-        <div class="flex flex-col gap-1">
-          <h2 class="text-xl font-semibold text-gray-900">Quick Actions</h2>
-          <p class="text-sm text-gray-600">Access key modules and features</p>
-        </div>
-      </template>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div v-for="(item, index) in menuList" :key="index">
-          <NuxtLink :to="item.href">
-            <UCard
-              variant="outline"
-              class="hover:shadow-lg transition-all duration-200 hover:border-primary-400 cursor-pointer group"
-            >
-              <div class="flex items-center gap-4">
-                <div
-                  class="rounded-lg bg-primary-100 p-3 group-hover:bg-primary-200 transition-colors"
-                >
-                  <UIcon :name="item.icon" class="text-primary-600 size-6" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <h3 class="font-semibold text-gray-900 truncate">
-                    {{ item.name }}
-                  </h3>
-                  <p class="text-sm text-gray-600 truncate">
-                    {{ item.description }}
-                  </p>
-                </div>
-                <UIcon
-                  name="chevron-right"
-                  class="text-gray-400 group-hover:text-primary-600 transition-colors"
-                />
-              </div>
-            </UCard>
-          </NuxtLink>
-        </div>
-      </div>
-    </UCard>
-
     <!-- Recent Activity & Overview -->
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <!-- Recent Risk Profiles -->
@@ -478,7 +433,7 @@
           <div
             v-for="i in 4"
             :key="i"
-            class="flex items-center justify-between p-3 rounded-lg bg-white border border-gray-200 hover:border-primary-300 transition-colors"
+            class="flex items-center justify-between p-3 rounded-lg  border border-gray-200 hover:border-primary-300 transition-colors"
           >
             <div class="flex items-center gap-3">
               <div
@@ -522,7 +477,7 @@
           <div
             v-for="i in 4"
             :key="i"
-            class="flex items-center justify-between p-3 rounded-lg bg-white border border-gray-200 hover:border-primary-300 transition-colors"
+            class="flex items-center justify-between p-3 rounded-lg  border border-gray-200 hover:border-primary-300 transition-colors"
           >
             <div class="flex items-center gap-3">
               <div
@@ -547,7 +502,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "~/composables/useI18n";
-import { MenuList } from "./menu";
+// import { MenuList } from "./menu";
 
 definePageMeta({
   middleware: "auth",
@@ -557,7 +512,7 @@ const { t } = useI18n();
 
 const riskDataStore = useRiskProfileStore();
 const auditDataStore = useAuditDataStore();
-const menuList = ref(MenuList);
+// const menuList = ref(MenuList);
 const progressModel = ref(50);
 
 const auditMainStats = computed(() => auditDataStore.getAuditMainStats);
@@ -710,7 +665,7 @@ const tableColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -721,7 +676,7 @@ const tableColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -732,7 +687,7 @@ const tableColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -743,7 +698,7 @@ const tableColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -754,7 +709,7 @@ const tableColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   }
@@ -768,12 +723,12 @@ const registeredRiskColumns = [
     header: 'ID',
 
     cell: (row: any) => {
-      return h('p', { class: 'text-black font-medium text-center' }, row.index + 1);
+      return h('p', { class: ' font-medium text-center' }, row.index + 1);
     },
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -795,7 +750,7 @@ const registeredRiskColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-left",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -816,7 +771,7 @@ const registeredRiskColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-left",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -843,7 +798,7 @@ const auditTableColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-left",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -854,7 +809,7 @@ const auditTableColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-center w-[120%]",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -864,7 +819,7 @@ const auditTableColumns = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
     cell: (row : any ) => {

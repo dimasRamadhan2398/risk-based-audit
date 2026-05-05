@@ -30,7 +30,7 @@
         <UAccordion :items="filteredFaqs" multiple variant="subtle" color="primary">
           <template #default="{ item, open }">
             <UButton color="neutral" variant="ghost" class="w-full justify-between">                                                                                                                      
-              <span class="font-medium text-black">{{ item.label }}</span>                                                                                                                      
+              <span class="font-medium ">{{ item.label }}</span>                                                                                                                      
               <UIcon :name="open ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5" />
             </UButton>
           </template>

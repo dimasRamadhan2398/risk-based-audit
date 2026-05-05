@@ -51,8 +51,8 @@ export default defineAppConfig({
         content: 'data-[state=open]:animate-[accordion-down_200ms_ease-out] data-[state=closed]:animate-[accordion-up_200ms_ease-out] overflow-hidden focus:outline-none p-2',
         body: 'text-sm',
         leadingIcon: 'shrink-0 size-5 text-secondary',
-        trailingIcon: 'shrink-0 size-5 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 text-black',
-        label: 'text-start wrap-break-word text-black'
+        trailingIcon: 'shrink-0 size-5 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200',
+        label: 'text-start wrap-break-word'
       },
       variants: {
         disabled: {
@@ -139,7 +139,7 @@ export default defineAppConfig({
           color: 'info',
           variant: 'subtle',
           class: {
-            root: 'ring-info/10 bg-info-700/20 text-black',
+            root: 'ring-info/10 bg-info-700/20',
             icon: "text-info-700 font-bold",
             description: "text-info-700"
           }
@@ -427,7 +427,7 @@ export default defineAppConfig({
         indicator: "flex items-center justify-center size-full text-inverted",
         icon: "shrink-0 size-full",
         wrapper: "w-full",
-        label: "block text-black",
+        label: "block",
         description: "text-muted",
       },
       variants: {
@@ -594,28 +594,28 @@ export default defineAppConfig({
     },
 
     container: {
-      base: "max-w-(--ui-container) w-full space-y-8 bg-neutral-200 px-8 py-4 rounded-xl z-100 block relative shadow-xl",
+      base: "max-w-(--ui-container) w-full space-y-8 bg-[var(--bg-surface)] px-8 py-4 rounded-xl z-100 block relative shadow-xl border border-[var(--border-main)] transition-all duration-300",
     },
     card: {
       slots: {
-        root: "rounded-lg overflow-hidden",
-        header: "p-4 sm:px-6 border-none",
-        body: "p-4 sm:p-6 border-none",
-        footer: "p-4 sm:px-6 border-none",
+        root: "rounded-xl overflow-hidden border border-[var(--border-main)] transition-all duration-300",
+        header: "p-4 sm:px-6 border-b border-[var(--border-main)] bg-[var(--bg-surface)]",
+        body: "p-4 sm:p-6",
+        footer: "p-4 sm:px-6 border-t border-[var(--border-main)] bg-[var(--bg-surface)]",
       },
       variants: {
         variant: {
           solid: {
-            root: "bg-inverted text-inverted",
+            root: "bg-[var(--bg-main)] text-[var(--text-main)]",
           },
           outline: {
-            root: "from-secondary-50 to-secondary-100 bg-gradient-to-r ring-2 from ring ring-primary-500 divide-y divide-default",
+            root: "bg-[var(--bg-main)] border border-[var(--border-main)]",
           },
           soft: {
-            root: "bg-secondary-50 rounded-xl z-100 block relative shadow-xl",
+            root: "bg-[var(--bg-surface)] rounded-xl z-100 block relative shadow-lg",
           },
           subtle: {
-            root: "bg-elevated/50 ring ring-default divide-y divide-default",
+            root: "bg-[var(--bg-surface)]/50 ring ring-[var(--border-main)] divide-y divide-[var(--border-main)]",
           },
         },
       },
@@ -638,12 +638,12 @@ export default defineAppConfig({
         wrapper: '',
         labelWrapper:
           "flex flex-shrink-1 content-start items-start justify-between",
-        label: "block font-medium text-default text-black min-w-24",
+        label: "block font-medium text-[var(--text-main)] min-w-24",
         container: "relative flex-1 min-w-0",
-        description: "text-muted ",
-        error: "mt-2 text-error",
-        hint: "text-muted",
-        help: "mt-2 text-muted",
+        description: "text-[var(--text-muted)] ",
+        error: "mt-2 text-error-500 dark:text-error-400",
+        hint: "text-[var(--text-muted)]",
+        help: "mt-2 text-[var(--text-muted)]",
       },
       variants: {
         size: {
@@ -915,7 +915,7 @@ export default defineAppConfig({
         wrapper: "",
         body: "flex-1 p-4 sm:p-6",
         footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6",
-        title: "text-highlighted font-semibold text-2xl text-black",
+        title: "text-highlighted font-semibold text-2xl",
         description: "mt-1 text-muted text-sm",
         close: "absolute top-4 end-4",
       },
@@ -1077,7 +1077,7 @@ export default defineAppConfig({
         },
         active: {
           true: {
-            childLink: 'before:bg-elevated text-white',
+            childLink: 'before:bg-elevated',
             childLinkIcon: 'text-default'
           },
           false: {

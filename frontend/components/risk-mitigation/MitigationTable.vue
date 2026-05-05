@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center">
       <div class="flex items-center gap-3">
         <UIcon name="i-heroicons-clipboard-document-check" class="text-primary-600 text-2xl" />
-        <h3 class="text-lg font-bold text-gray-800 dark:text-white">Daftar Rencana Mitigasi</h3>
+        <h3 class="text-lg font-bold text-gray-800">Daftar Rencana Mitigasi</h3>
       </div>
       <UButton 
         label="Tambah Mitigasi" 
@@ -14,7 +14,7 @@
       />
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+    <div class="bg-[var(--bg-main)]  border border-[var(--border-main)] rounded-xl overflow-hidden shadow-sm transition-colors duration-300">
       <UTable :data="filteredMitigations" :columns="columns">
         <!-- <template #status-data="{ row }">
           <UBadge :color="getStatusColor(row.original.status)" variant="soft" class="font-bold">
@@ -24,8 +24,8 @@
 
         <template #period-cell="{ row }">
           <div class="flex flex-col text-xs">
-            <span class="text-gray-500 font-medium">Mulai: {{ row.original.start_date }}</span>
-            <span class="text-primary-600 font-bold">Selesai: {{ row.original.end_date }}</span>
+            <span class="text-[var(--text-muted)] font-medium">Mulai: {{ row.original.start_date }}</span>
+            <span class="text-primary-600  font-bold">Selesai: {{ row.original.end_date }}</span>
           </div>
         </template>
 

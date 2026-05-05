@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col md:flex-row gap-4 mb-4 bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+    <div class="flex flex-col md:flex-row gap-4 mb-4  p-4 rounded-xl shadow-sm border border-gray-100 ">
       <UInput 
         v-model="store.searchCode" 
         icon="i-heroicons-magnifying-glass" 

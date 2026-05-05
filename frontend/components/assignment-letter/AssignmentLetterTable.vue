@@ -7,13 +7,13 @@
         class="w-full text-sm"
       >
         <template #letterNumber-cell="{ row }">
-          <span class="font-bold text-orange-600 dark:text-orange-400">
+          <span class="font-bold text-orange-600 ">
             {{ row.original.letterNumber }}
           </span>
         </template>
 
         <template #executionPeriod-cell="{ row }">
-          <div class="flex items-center gap-1 text-gray-600 dark:text-gray-300">
+          <div class="flex items-center gap-1 text-gray-600 ">
             <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
             <span>{{ row.original.executionPeriod }}</span>
           </div>
@@ -21,7 +21,7 @@
 
         <template #auditTeam-cell="{ row }">
           <div class="flex flex-col">
-            <span class="font-bold text-gray-800 dark:text-gray-200">{{ row.original.leader }} (PIC)</span>
+            <span class="font-bold text-gray-800 ">{{ row.original.leader }} (PIC)</span>
             <span class="text-xs text-gray-500">{{ row.original.auditTeam }}</span>
           </div>
         </template>

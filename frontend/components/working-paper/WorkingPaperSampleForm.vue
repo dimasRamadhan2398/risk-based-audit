@@ -5,11 +5,11 @@
 
         <template #content>
         <UForm :state="store.sampleForm" @submit.prevent="store.handleSubmitF03">
-        <div class="bg-secondary-50 dark:bg-secondary-300 rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
-        <div class="px-6 py-4 border-b border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-900 rounded-t-xl flex justify-between items-center">
-            <UIcon name="charter" class=" text-primary-500" size="32"></UIcon>
-            <h3 class="text-lg font-bold text-secondary-900 dark:text-white">Samples</h3>
-            <UIcon name="close" @click="store.closeModalF03" class="text-primary-400 hover:text-primary-600 text-2xl">&times;</UIcon>
+        <div class="bg-[var(--bg-main)] rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto border border-[var(--border-main)] transition-colors duration-300">
+        <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center transition-colors duration-300">
+            <UIcon name="charter" class="text-primary-500 " size="32"></UIcon>
+            <h3 class="text-lg font-bold text-[var(--text-main)]">Samples</h3>
+            <UIcon name="close" @click="store.closeModalF03" class="text-[var(--text-muted)] hover:text-[var(--text-main)] text-2xl cursor-pointer"></UIcon>
         </div>
         <div class="space-y-6 m-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-full">
@@ -22,7 +22,7 @@
         </div>
         
         
-            <div v-for="(sampel, index) in store.sampleForm.samples" :key="sampel.id" class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 relative bg-white dark:bg-gray-800">
+            <div v-for="(sampel, index) in store.sampleForm.samples" :key="sampel.id" class="border border-gray-200  rounded-xl p-6 relative">
             <div class="mb-4 flex justify-between items-center">
                 <h3 class="text-lg font-bold">Sampel {{ index + 1 }}</h3>
                 <UIcon name="i-heroicons-trash" color="error" variant="ghost" @click="store.removeSample(index)" />                
@@ -62,7 +62,7 @@
             <UTextarea class="md:col-span-3" v-model="store.sampleForm.conclusion" :rows="4" placeholder="Ketik kontrol pengamanan / SOP yang sedang dievaluasi di lapangan..." />
         </div>
 
-        <div class="flex justify-end p-6 border-gray-100 dark:border-gray-800">
+        <div class="flex justify-end p-6 border-gray-100">
             <UButton 
                 :label="store.isEditingF03 ? 'Update Data' : 'Submit'" 
                 color="primary"

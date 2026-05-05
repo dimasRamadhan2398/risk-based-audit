@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
-import type { WorkingPaperHeaderForm, WorkingPaperRiskForm, WorkingPaperSampleForm, 
-              WorkingPaperCauseForm, WorkingPaperPlanForm, SampleItem, WorkingPaperHeader,
-              WorkingPaperRisk,
-              WorkingPaperSample,
-              WorkingPaperCause,
-              WorkingPaperPlan,
-              } from '~/types/audit'
+import type {
+  WorkingPaperHeaderForm, WorkingPaperRiskForm, WorkingPaperSampleForm,
+  WorkingPaperCauseForm, WorkingPaperPlanForm, SampleItem, WorkingPaperHeader,
+  WorkingPaperRisk,
+  WorkingPaperSample,
+  WorkingPaperCause,
+  WorkingPaperPlan,
+} from '~/types/audit'
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
@@ -25,7 +26,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     if (files && files[0]) {
       const file = files[0]
-      
+
       // Validasi Ukuran (Contoh: 10MB)
       if (file.size > 10 * 1024 * 1024) {
         alert('File size too large! Maximum 10MB.')
@@ -61,10 +62,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const isDateError = computed(() => {
     // Jika salah satu tanggal belum diisi, jangan anggap error dulu
     if (!headerForm.periodStart || !headerForm.periodEnd) return false
-    
+
     const start = new Date(headerForm.periodStart)
     const end = new Date(headerForm.periodEnd)
-    
+
     // Return true jika tanggal akhir LEBIH KECIL dari tanggal mulai
     return end < start
   })
@@ -94,7 +95,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const columnsF02 = [
     { accessorKey: 'risk', header: 'Risk' },
-    { accessorKey: 'taxonomy', header: 'Taxonomy' },
+    { accessorKey: 'taxonomy', header: 'Risk Category' },
     { accessorKey: 'riskLevel', header: 'Risk Level' },
     { accessorKey: 'controlDescription', header: 'Control Description' },
     { accessorKey: 'actions', header: 'Action' }
@@ -212,7 +213,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       teamMembers: headerForm.teamMembers
     }
     dataF01.value.unshift(newHeader)
-    
+
   }
 
   const updateF01 = (id: string, updatedHeaderData: WorkingPaperHeaderForm) => {
@@ -220,39 +221,39 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     const isDuplicate = dataF01.value.some(a => a.assignmentLetterId === updatedHeaderData.assignmentLetterId && a.id !== id)
     const auditPeriod = `${updatedHeaderData.periodStart} s/d ${updatedHeaderData.periodEnd}`
     const existingHeader = dataF01.value[index]!
-    
+
     if (isDuplicate) throw new Error('The assignment letter has been used for other data!')
     if (index === -1) return
-    
-    dataF01.value[index] = { 
+
+    dataF01.value[index] = {
       ...updatedHeaderData,
       id: existingHeader.id,
       period: auditPeriod,
     }
-    
+
   }
 
   const deleteF01 = (id: string) => {
     const header = dataF01.value.find(a => a.id === id)
     if (!header) return
 
-      if (isEditingF01.value && editingIdF01.value) {
-        if (confirm('Are you sure you want to delete permanently?')) {
+    if (isEditingF01.value && editingIdF01.value) {
+      if (confirm('Are you sure you want to delete permanently?')) {
         dataF01.value = dataF01.value.filter(a => a.id !== id)
-      
+
       } else {
         if (confirm('Are you sure you want to delete permanently?')) {
-        dataF01.value = dataF01.value.filter(a => a.id !== id)
+          dataF01.value = dataF01.value.filter(a => a.id !== id)
         }
       }
-      
+
     }
   }
 
   const openModalF01 = () => {
     isEditingF01.value = false
     editingIdF01.value = null
-    
+
     // Reset Form
     Object.assign(headerForm, {
       assignmentLetterId: '',
@@ -284,26 +285,26 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const handleEditF01 = (header: any) => {
     isEditingF01.value = true
     editingIdF01.value = header.id
-    
+
     headerForm.auditPurpose = header.auditPurpose,
-    headerForm.businessProcess = header.businessProcess,
-    headerForm.periodStart = header.periodStart,
-    headerForm.periodEnd = header.periodEnd,
-    headerForm.location = header.location,
-    headerForm.teamMembers = header.teamMembers
-    
+      headerForm.businessProcess = header.businessProcess,
+      headerForm.periodStart = header.periodStart,
+      headerForm.periodEnd = header.periodEnd,
+      headerForm.location = header.location,
+      headerForm.teamMembers = header.teamMembers
+
     showModalF01.value = true
   }
 
   const handleDeleteF01 = (id: string | undefined) => {
     if (!id) return
-      try {
-        // 2. Panggil fungsi hapus di store
-        deleteF01(id)
-        
-      } catch (error) {
-        alert('Failed to delete data: ' + error)
-      }
+    try {
+      // 2. Panggil fungsi hapus di store
+      deleteF01(id)
+
+    } catch (error) {
+      alert('Failed to delete data: ' + error)
+    }
   }
 
   const addF02 = (riskForm: WorkingPaperRiskForm) => {
@@ -321,27 +322,27 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     const index = dataF02.value.findIndex(p => p.id === id)
     const existingRisk = dataF02.value[index]!
     if (index === -1) return
-    
-    dataF02.value[index] = { 
+
+    dataF02.value[index] = {
       ...updatedRiskData,
       id: existingRisk.id
     }
-    
+
   }
 
   const deleteF02 = (id: string) => {
     const risk = dataF02.value.find(a => a.id === id)
     if (!risk) return
 
-      if (confirm('Are you sure you want to delete permanently??')) {
-        dataF02.value = dataF02.value.filter(a => a.id !== id)
-      }
+    if (confirm('Are you sure you want to delete permanently??')) {
+      dataF02.value = dataF02.value.filter(a => a.id !== id)
+    }
   }
 
   const openModalF02 = () => {
     isEditingF02.value = false
     editingIdF02.value = null
-    
+
     // Reset Form
     Object.assign(riskForm, {
       risk: '',
@@ -370,25 +371,25 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const handleEditF02 = (risk: any) => {
     isEditingF02.value = true
     editingIdF02.value = risk.id
-    
+
     // Isi form dengan data yang dipilih
     riskForm.risk = risk.risk,
-    riskForm.taxonomy = risk.taxonomy,
-    riskForm.riskLevel = risk.riskLevel,
-    riskForm.controlDescription = risk.controlDescription
-    
+      riskForm.taxonomy = risk.taxonomy,
+      riskForm.riskLevel = risk.riskLevel,
+      riskForm.controlDescription = risk.controlDescription
+
     showModalF02.value = true
   }
 
   const handleDeleteF02 = (id: string | undefined) => {
     if (!id) return
-      try {
-        // 2. Panggil fungsi hapus di store
-        deleteF02(id)
-        
-      } catch (error) {
-        alert('Failed to delete data: ' + error)
-      }
+    try {
+      // 2. Panggil fungsi hapus di store
+      deleteF02(id)
+
+    } catch (error) {
+      alert('Failed to delete data: ' + error)
+    }
   }
 
   const addF03 = (sampleForm: WorkingPaperSampleForm) => {
@@ -400,36 +401,36 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       conclusion: sampleForm.conclusion
     }
     dataF03.value.unshift(newSample)
-  
+
   }
 
   const updateF03 = (id: string, updatedData: WorkingPaperSampleForm) => {
     const index = dataF03.value.findIndex(p => p.id === id)
     const existingSample = dataF03.value[index]!
     if (index === -1) return
-    
-    dataF03.value[index] = { 
+
+    dataF03.value[index] = {
       ...updatedData,
       id: existingSample.id,
       samples: [...updatedData.samples]
     }
-    
+
   }
 
   const deleteF03 = (id: string) => {
     const sample = dataF03.value.find(a => a.id === id)
     if (!sample) return
 
-      if (confirm('Are you sure you want to delete permanently?')) {
-        dataF03.value = dataF03.value.filter(a => a.id !== id)
-      
+    if (confirm('Are you sure you want to delete permanently?')) {
+      dataF03.value = dataF03.value.filter(a => a.id !== id)
+
     }
   }
 
   const openModalF03 = () => {
     isEditingF03.value = false
     editingIdF03.value = null
-    
+
     // Reset Form
     Object.assign(sampleForm, {
       population: 0,
@@ -458,24 +459,24 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const handleEditF03 = (sample: any) => {
     isEditingF03.value = true
     editingIdF03.value = sample.id
-    
+
     sampleForm.population = sample.population,
-    sampleForm.sampleSize = sample.sampleSize,
-    sampleForm.samples = sample.samples.map((act: any) => ({ ...act })),
-    sampleForm.conclusion = sample.conclusion
-    
+      sampleForm.sampleSize = sample.sampleSize,
+      sampleForm.samples = sample.samples.map((act: any) => ({ ...act })),
+      sampleForm.conclusion = sample.conclusion
+
     showModalF03.value = true
   }
 
   const handleDeleteF03 = (id: string | undefined) => {
     if (!id) return
-      try {
-        // 2. Panggil fungsi hapus di store
-        deleteF03(id)
-        
-      } catch (error) {
-        alert('Failed to delete data: ' + error)
-      }
+    try {
+      // 2. Panggil fungsi hapus di store
+      deleteF03(id)
+
+    } catch (error) {
+      alert('Failed to delete data: ' + error)
+    }
   }
 
   const addF04 = (causeForm: WorkingPaperCauseForm) => {
@@ -494,29 +495,29 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     const index = dataF04.value.findIndex(p => p.id === id)
     const existingCause = dataF04.value[index]!
     if (index === -1) return
-    
-    dataF04.value[index] = { 
+
+    dataF04.value[index] = {
       ...updatedCauseData,
       id: existingCause.id,
       rootCause: [...updatedCauseData.rootCause]
     }
-    
+
   }
 
   const deleteF04 = (id: string) => {
     const cause = dataF04.value.find(a => a.id === id)
     if (!cause) return
 
-      if (confirm('Are you sure you want to delete permanently??')) {
-        dataF04.value = dataF04.value.filter(a => a.id !== id)
-      
+    if (confirm('Are you sure you want to delete permanently??')) {
+      dataF04.value = dataF04.value.filter(a => a.id !== id)
+
     }
   }
 
   const openModalF04 = () => {
     isEditingF04.value = false
     editingIdF04.value = null
-    
+
     // Reset Form
     Object.assign(causeForm, {
       condition: '',
@@ -546,26 +547,26 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const handleEditF04 = (cause: any) => {
     isEditingF04.value = true
     editingIdF04.value = cause.id
-    
-      causeForm.condition = cause.condition,
+
+    causeForm.condition = cause.condition,
       causeForm.criteria = cause.criteria,
       causeForm.impact = cause.impact,
       causeForm.evidenceFile = cause.evidenceFile,
       causeForm.rootCause = cause.rootCause.map((rca: any) => ({ ...rca }))
-    
-    
+
+
     showModalF04.value = true
   }
 
   const handleDeleteF04 = (id: string | undefined) => {
     if (!id) return
-      try {
-        // 2. Panggil fungsi hapus di store
-        deleteF04(id)
-        
-      } catch (error) {
-        alert('Failed to delete data: ' + error)
-      }
+    try {
+      // 2. Panggil fungsi hapus di store
+      deleteF04(id)
+
+    } catch (error) {
+      alert('Failed to delete data: ' + error)
+    }
   }
 
   const addF05 = (planForm: WorkingPaperPlanForm) => {
@@ -578,35 +579,35 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       periodAction: planForm.periodAction
     }
     dataF05.value.unshift(newPlan)
-    
+
   }
 
   const updateF05 = (id: string, updatedPlanData: WorkingPaperPlanForm) => {
     const index = dataF05.value.findIndex(p => p.id === id)
     const existingPlan = dataF05.value[index]!
     if (index === -1) return
-    
-    dataF05.value[index] = { 
+
+    dataF05.value[index] = {
       ...updatedPlanData,
       id: existingPlan.id
     }
-    
+
   }
 
   const deleteF05 = (id: string) => {
     const plan = dataF05.value.find(a => a.id === id)
     if (!plan) return
 
-      if (confirm('Are you sure you want to delete permanently?')) {
-        dataF05.value = dataF05.value.filter(a => a.id !== id)
-      
+    if (confirm('Are you sure you want to delete permanently?')) {
+      dataF05.value = dataF05.value.filter(a => a.id !== id)
+
     }
   }
 
   const openModalF05 = () => {
     isEditingF05.value = false
     editingIdF05.value = null
-    
+
     // Reset Form
     Object.assign(planForm, {
       recommendation: '',
@@ -636,26 +637,26 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const handleEditF05 = (plan: any) => {
     isEditingF05.value = true
     editingIdF05.value = plan.id
-    
+
     planFormrecommendation: plan.recommendation,
-    planForm.response = plan.tanggapanresponse,
-    planForm.actionDescription = plan.actionDescription,
-    planForm.pic = plan.pic,
-    planForm.periodAction = plan.periodAction
-    
-    
+      planForm.response = plan.tanggapanresponse,
+      planForm.actionDescription = plan.actionDescription,
+      planForm.pic = plan.pic,
+      planForm.periodAction = plan.periodAction
+
+
     showModalF05.value = true
   }
 
   const handleDeleteF05 = (id: string | undefined) => {
     if (!id) return
-      try {
-        // 2. Panggil fungsi hapus di store
-        deleteF05(id)
-        
-      } catch (error) {
-        alert('Failed to delete data: ' + error)
-      }
+    try {
+      // 2. Panggil fungsi hapus di store
+      deleteF05(id)
+
+    } catch (error) {
+      alert('Failed to delete data: ' + error)
+    }
   }
 
   // --- ACTIONS: Uji Sampel (F-03) ---
@@ -715,14 +716,59 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     assignmentLetter: ['ST-001/2026', 'ST-002/2026'],
     businessProcess: ['Procurement', 'Finance', 'HR', 'IT Operations'],
     location: ['Head Office', 'Jakarta Branch', 'Bandung Branch'],
-    risk: ['R-01: Data Leakage', 'R-02: Fraud Pengadaan', 'R-03: Keterlambatan Vendor'],
+    risk: [
+      'FIN-001: Fluktuasi Nilai Tukar Mata Uang',
+      'OPS-001: Gangguan Sistem IT',
+      'COM-001: Ketidakpatuhan Regulasi GDPR',
+      'STR-001: Perubahan Strategi Kompetitor',
+      'OPS-002: Kegagalan Rantai Pasokan',
+      'FIN-002: Risiko Kredit Pelanggan',
+      'SEC-001: Serangan Siber dan Ransomware',
+      'REP-001: Penurunan Reputasi Brand',
+      'ENV-001: Dampak Perubahan Iklim',
+      'HR-001: Retensi Talenta Kunci',
+      'OPS-003: Kegagalan Peralatan Kritis',
+      'FIN-003: Kenaikan Suku Bunga',
+      'COM-002: Perubahan Regulasi Pajak',
+      'STR-002: Disrupsi Teknologi',
+      'SEC-002: Kebocoran Data Pelanggan',
+      'REP-002: Krisis Reputasi Media Sosial',
+      'ENV-002: Bencana Alam Lokal',
+      'HR-002: Konflik Industrial',
+      'OPS-004: Keterlambatan Proyek Konstruksi',
+      'FIN-004: Penipuan Internal',
+      'COM-003: Perubahan Regulasi Lingkungan',
+      'STR-003: Kegagalan Merger & Akuisisi',
+      'SEC-003: Pencurian Kekayaan Intelektual',
+      'REP-003: Ulasan Negatif Pelanggan',
+      'ENV-003: Kenaikan Biaya Energi',
+      'HR-003: Kesenjangan Keterampilan',
+      'OPS-005: Kegagalan Sistem Logistik',
+      'FIN-005: Penurunan Pendapatan',
+      'COM-004: Perubahan Regulasi Pasar',
+      'STR-004: Kegagalan Inovasi Produk',
+      'SEC-004: Pelanggaran Privasi Data',
+      'REP-004: Tuduhan Etika Bisnis',
+      'ENV-004: Kerusakan Reputasi Akibat Polusi',
+      'HR-004: Korupsi dan Penipuan Internal',
+      'OPS-006: Kegagalan Sistem Keamanan Fisik',
+      'FIN-006: Penipuan Pelanggan',
+      'COM-005: Perubahan Regulasi Pasar',
+      'STR-005: Kegagalan Inovasi Produk',
+      'SEC-005: Pelanggaran Privasi Data',
+      'REP-005: Tuduhan Etika Bisnis',
+      'ENV-005: Kerusakan Reputasi Akibat Polusi',
+      'HR-005: Korupsi dan Penipuan Internal',
+      'OPS-007: Kegagalan Sistem Keamanan Fisik',
+      'FIN-007: Penipuan Pelanggan',
+    ],
     pic: ['Dimas - IT', 'Budi - Finance', 'Siti - HR'],
-    testResult: [...TEST_RESULT_OPTIONS], 
+    testResult: [...TEST_RESULT_OPTIONS],
     rootCauseMethod: [...ROOT_CAUSE_METHOD_OPTIONS],
   }
 
   return {
-    headerForm, riskForm, sampleForm, causeForm, planForm, 
+    headerForm, riskForm, sampleForm, causeForm, planForm,
     options, dateErrorMessage, isDateError, tabs,
     columnsF01, columnsF02, columnsF03, columnsF04, columnsF05,
     showModalF01, showModalF02, showModalF03, showModalF04, showModalF05,

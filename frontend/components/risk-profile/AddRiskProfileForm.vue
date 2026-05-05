@@ -9,6 +9,7 @@
       onClick: closeModal,
     }"
     variant="default"
+    class="w-full sm:max-w-4xl bg-secondary-100"
     scrollable
     dismissible
   >
@@ -25,7 +26,7 @@
               :ui="{
                 root: 'wrap-break-word flex flex-row flex-1 w-full basis-0.5',
                 container: ' gap-4 items-start max-w-full',
-                label: 'block font-medium text-black min-w-24 max-w-24',
+                label: 'block font-medium min-w-24 max-w-24',
               }"
             >
               <UInput
@@ -64,7 +65,7 @@
               :ui="{
                 root: 'wrap-break-word flex flex-row flex-1 w-full',
                 container: ' gap-4 items-start max-w-full',
-                label: 'block font-medium text-black min-w-24 max-w-24',
+                label: 'block font-medium min-w-24 max-w-24',
               }"
             >
               <UInput

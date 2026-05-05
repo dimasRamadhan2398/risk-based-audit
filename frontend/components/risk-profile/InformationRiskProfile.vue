@@ -54,7 +54,7 @@ const columns: ColumnDef<Object>[] = [
     meta: {
       class: {
         th: "text-center font-semibold bg-primary text-secondary-900 text-center",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },
@@ -75,7 +75,7 @@ const columns: ColumnDef<Object>[] = [
     meta: {
       class: {
         th: "font-semibold bg-primary text-secondary-900",
-        td: "text-black font-medium text-center",
+        td: " font-medium text-center",
       },
     },
   },

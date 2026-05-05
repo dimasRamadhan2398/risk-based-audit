@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-black"
+    class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
   >
     <div
       class="absolute bg-[url('../../../assets/images/audits/bg-login.jpg')] bg-cover bg-center bg-transparent w-full h-full block opacity-10 z-20"
@@ -27,7 +27,7 @@
         <UFormField :label="t('auth.email')" name="email">
           <UInput
             id="email-address"
-            class="w-full border-black"
+            class="w-full"
             name="email"
             type="email"
             v-model="state.email"

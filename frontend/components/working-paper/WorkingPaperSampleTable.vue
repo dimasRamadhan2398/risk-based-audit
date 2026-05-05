@@ -8,7 +8,7 @@
                 <div 
                 v-for="s in row.original.samples" 
                 :key="s.id" 
-                class="text-sm p-2 border rounded bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                class="text-sm p-2 border rounded bg-gray-50  border-gray-200 "
                 >
                 <div class="flex justify-between font-bold mb-1">
                     <span>{{ s.document || 'Tanpa Nama Dokumen' }}</span>

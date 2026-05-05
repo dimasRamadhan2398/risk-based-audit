@@ -301,7 +301,7 @@ const priorityRiskListColumn: TableColumn<RiskListItem>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center ",
       },
     },
   },
@@ -314,7 +314,7 @@ const priorityRiskListColumn: TableColumn<RiskListItem>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center ",
       },
     },
   },
@@ -327,7 +327,7 @@ const priorityRiskListColumn: TableColumn<RiskListItem>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center ",
       },
     },
   },
@@ -340,7 +340,7 @@ const priorityRiskListColumn: TableColumn<RiskListItem>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center ",
       },
     },
   },
@@ -353,7 +353,7 @@ const priorityRiskListColumn: TableColumn<RiskListItem>[] = [
     meta: {
       class: {
         th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center text-black",
+        td: "text-center place-self-center ",
       },
     },
   },

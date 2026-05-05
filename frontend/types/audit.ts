@@ -374,3 +374,77 @@ export interface AssignmentLetter extends AssignmentLetterForm {
   status: AssignmentLetterStatus;
   createdAt: string;
 }
+
+// --- Audit Activity Plan Types ---
+
+export interface PlannedAuditActivity {
+  id?: string;
+  auditName: string;
+  auditor: string;
+  area: string;
+  executionStatus: string;
+  riskLevel: string;
+  duration: number;
+  priority: string;
+  numberOfAuditors: number;
+  estimatedSchedule: string;
+}
+
+export interface ResourceAuditor {
+  id?: string;
+  name: string;
+  position: string;
+  department: string;
+  availability: string;
+}
+
+export interface ActivityPlanBudget {
+  totalEstimatedCost: number;
+  totalAllocatedBudget: number;
+  budgetNotes: string;
+}
+
+export interface ActivityPlanReview {
+  creatorName: string;
+  creatorPosition: string;
+  approverName: string;
+  approverPosition: string;
+  approvalDate: string;
+  additionalNotes: string;
+}
+
+export interface ActivityPlanFormState {
+  planTitle: string;
+  planYear: string;
+  planPeriodStart: string;
+  planPeriodEnd: string;
+  department: string;
+  createdBy: string;
+  creationDate: string;
+  plannedActivities: PlannedAuditActivity[];
+  resourceAuditors: ResourceAuditor[];
+  budget: ActivityPlanBudget;
+  review: ActivityPlanReview;
+}
+
+export interface ActivityPlan extends ActivityPlanFormState {
+  id: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface KPITargetYear {
+  year: number;
+  value: string;
+}
+
+export interface StrategicAuditPlan {
+  id: number;
+  number: string;
+  objectives: string;
+  kpi: string;
+  characteristicData: string;
+  kpiTarget: KPITargetYear[];
+  unit: string;
+}
+

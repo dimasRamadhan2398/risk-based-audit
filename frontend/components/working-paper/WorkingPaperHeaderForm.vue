@@ -5,31 +5,31 @@
         <template #content>
         
         <UForm :state="store.headerForm" @submit.prevent="store.handleSubmitF01">
-        <div class="bg-secondary-50 dark:bg-secondary-300 rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
-        <div class="px-6 py-4 border-b border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-900 rounded-t-xl flex justify-between items-center">
+        <div class="bg-secondary-50  rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
+        <div class="px-6 py-4 border-b border-secondary-200  bg-secondary-50  rounded-t-xl flex justify-between items-center">
             <UIcon name="charter" class=" text-primary-500" size="32"></UIcon>
-            <h3 class="text-lg font-bold text-secondary-900 dark:text-white">Assignment Reference</h3>
+            <h3 class="text-lg font-bold text-secondary-900 ">Assignment Reference</h3>
             <UIcon name="close" @click="store.closeModalF01" class="text-primary-400 hover:text-primary-600 text-2xl">&times;</UIcon>
         </div>
 
         <div class="space-y-6 m-6">
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Assignment Letter" class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2" />
+            <UFormField label="Assignment Letter" class="font-semibold text-sm text-gray-700  mt-2" />
             <USelectMenu class="md:col-span-3" v-model="store.headerForm.assignmentLetterId" :items="store.options.assignmentLetter" placeholder="Choose Assignment Letter" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Audit Purpose" class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2" />
+            <UFormField label="Audit Purpose" class="font-semibold text-sm text-gray-700  mt-2" />
             <UInput class="md:col-span-3" v-model="store.headerForm.auditPurpose" disabled placeholder="(Automatically filled in when filling out the assignment letter)" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Business Process" class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2" />
+            <UFormField label="Business Process" class="font-semibold text-sm text-gray-700  mt-2" />
             <USelectMenu class="md:col-span-3" v-model="store.headerForm.businessProcess" :items="store.options.businessProcess" placeholder="Choose Business Process" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Audit Period" class="font-semibold text-sm text-gray-700 dark:text-gray-300" />
+            <UFormField label="Audit Period" class="font-semibold text-sm text-gray-700 " />
             <div class="md:col-span-3">
             <UFormField :error="store.dateErrorMessage">
                 <div class="flex items-center gap-4 w-full">
@@ -56,12 +56,12 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Location" class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2" />
+            <UFormField label="Location" class="font-semibold text-sm text-gray-700  mt-2" />
             <USelectMenu class="md:col-span-3" v-model="store.headerForm.location" :items="store.options.location" placeholder="Choose Location" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Team" class="font-semibold text-sm text-gray-700 dark:text-gray-300 mt-2" />
+            <UFormField label="Team" class="font-semibold text-sm text-gray-700  mt-2" />
             <div class="md:col-span-3 space-y-4">
 
             <div v-for="(member, index) in store.headerForm.teamMembers" :key="member.id" class="flex gap-2 items-center">
@@ -97,7 +97,7 @@
         </div>
         
 
-        <div class="flex justify-end p-6 border-gray-100 dark:border-gray-800">
+        <div class="flex justify-end p-6 border-gray-100 ">
             <UButton 
                 :label="store.isEditingF01 ? 'Update Data' : 'Submit'" 
                 color="primary"

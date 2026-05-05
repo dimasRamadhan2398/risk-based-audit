@@ -5,13 +5,13 @@
 
     <template #content>
       <UForm :state="store.form" @submit.prevent="() => store.handleSubmit(props.currentRiskId)">
-        <div class="relative bg-white dark:bg-gray-900 rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
           
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-xl flex justify-between items-center">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white">
+          <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center">
+            <h3 class="text-lg font-bold text-[var(--text-main)]">
               {{ store.isEditing ? 'Edit Rencana Mitigasi' : 'Tambah Rencana Mitigasi' }}
             </h3>
-            <UIcon name="close" @click="store.closeForm" class="text-gray-400 hover:text-gray-600 text-2xl cursor-pointer">&times;</UIcon>
+            <UIcon name="close" @click="store.closeForm" class="text-[var(--text-muted)] hover:text-[var(--text-main)] text-2xl cursor-pointer">&times;</UIcon>
           </div>
 
           <div class="p-6 overflow-y-auto space-y-5">
@@ -38,17 +38,13 @@
                 </UFormField>
             </div>
 
-            <!-- <UFormField label="Status" required>
-              <USelectMenu v-model="store.form.status" :items="store.statusOptions" placeholder="Pilih Status" class="input-field bg-white w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500" required />
-            </UFormField> -->
-
             <UFormField label="Keterangan / Catatan Tambahan">
               <UTextarea v-model="store.form.notes" :rows="2" placeholder="Catatan opsional..." class="w-full" />
             </UFormField>
 
           </div>
       
-          <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-xl flex justify-end gap-3">
+          <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end gap-3">
             <UButton label="Batal" color="neutral" variant="outline" @click="store.closeForm" />
             <UButton :label="store.isEditing ? 'Simpan Perubahan' : 'Simpan Mitigasi'" color="primary" type="submit" />
           </div>
