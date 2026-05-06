@@ -1,4 +1,5 @@
 // Audit Types
+import type { RiskLevel, RiskTaxonomy } from "./risk";
 
 export enum AuditCategory {
   ASSURANCE = "Assurance",
@@ -280,16 +281,16 @@ export interface WorkingPaperHeaderForm {
 export interface WorkingPaperRisk {
   id?: string;
   risk: string;
-  taxonomy: string;
-  riskLevel: string;
+  taxonomy: RiskTaxonomy;
+  riskLevel: RiskLevel;
   controlDescription: string;
 }
 
 export interface WorkingPaperRiskForm {
   id?: string;
   risk: string;
-  taxonomy: string;
-  riskLevel: string;
+  taxonomy: RiskTaxonomy;
+  riskLevel: RiskLevel;
   controlDescription: string;
 }
 
@@ -380,21 +381,21 @@ export interface AssignmentLetter extends AssignmentLetterForm {
 export interface PlannedAuditActivity {
   id?: string;
   auditName: string;
-  auditor: string;
-  area: string;
-  executionStatus: string;
-  riskLevel: string;
+  auditee: string;
+  category: AuditCategory;
+  riskLevel: RiskLevel;
   duration: number;
   priority: string;
   numberOfAuditors: number;
   estimatedSchedule: string;
+  budgetEstimation: string;
 }
 
 export interface ResourceAuditor {
   id?: string;
   name: string;
   position: string;
-  department: string;
+  competence: string;
   availability: string;
 }
 
@@ -418,7 +419,7 @@ export interface ActivityPlanFormState {
   planYear: string;
   planPeriodStart: string;
   planPeriodEnd: string;
-  department: string;
+  department: AuditDepartment;
   createdBy: string;
   creationDate: string;
   plannedActivities: PlannedAuditActivity[];
@@ -447,4 +448,3 @@ export interface StrategicAuditPlan {
   kpiTarget: KPITargetYear[];
   unit: string;
 }
-

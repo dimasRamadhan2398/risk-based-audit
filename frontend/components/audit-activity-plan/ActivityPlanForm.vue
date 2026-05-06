@@ -6,7 +6,7 @@
       <!-- Header -->
       <div class="flex items-center justify-between p-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] z-10 sticky top-0 rounded-t-xl transition-colors duration-300">
         <h3 class="text-xl font-bold text-[var(--text-main)]">
-          {{ store.isEditMode ? 'Edit' : 'Buat' }} Rencana Aktivitas Audit
+          {{ store.isEditMode ? 'Edit' : 'Buat' }} Audit Activity Plan
         </h3>
         <UButton
           color="neutral"
@@ -21,45 +21,50 @@
       <div class="flex-1 overflow-y-auto p-4 space-y-6">
         <UForm :state="store.formState" @submit="store.savePlan" class="space-y-6">
           
-          <!-- Informasi Dasar Perencanaan -->
+          <!-- Basic Planning Information -->
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
               <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium">Informasi Dasar Perencanaan</h3>
+                <h3 class="text-lg font-medium">Basic Planning Information</h3>
               </div>
             </template>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormGroup label="Judul Rencana Aktivitas Audit" required>
-                <UInput v-model="store.formState.planTitle" placeholder="Rencana Audit Kantor Tahun 2024" />
-              </UFormGroup>
-              <UFormGroup label="Tahun Perencanaan" required>
-                <UInput v-model="store.formState.planYear" />
-              </UFormGroup>
-              <UFormGroup label="Periode Perencanaan" required class="col-span-1 md:col-span-2">
+              <UFormField label="Title of Audit Activity Plan" required>
+                <UInput v-model="store.formState.planTitle" placeholder="Audit of the Year 2024" class="w-full"/>
+              </UFormField>
+              <UFormField label="Planning Year" required>
+                <UInput v-model="store.formState.planYear" class="w-full"/>
+              </UFormField>
+              <UFormField label="Planning Period" required class="col-span-1 md:col-span-2 w-full">
                 <div class="flex items-center gap-2">
-                  <UInput v-model="store.formState.planPeriodStart" type="date" class="flex-1" />
+                  <UInput v-model="store.formState.planPeriodStart" type="date" class="flex-1 w-full" />
                   <span class="text-gray-500">s/d</span>
-                  <UInput v-model="store.formState.planPeriodEnd" type="date" class="flex-1" />
+                  <UInput v-model="store.formState.planPeriodEnd" type="date" class="flex-1 w-full" />
                 </div>
-              </UFormGroup>
-              <UFormGroup label="Departemen/Unit Audit" required>
-                <UInput v-model="store.formState.department" placeholder="Risk Audit IT" />
-              </UFormGroup>
-              <UFormGroup label="Dibuat Oleh" required>
-                <UInput v-model="store.formState.createdBy" readonly />
-              </UFormGroup>
-              <UFormGroup label="Tanggal Pembuatan" required>
-                <UInput v-model="store.formState.creationDate" type="date" readonly />
-              </UFormGroup>
+              </UFormField>
+              <UFormField label="Department/Unit of Audit" required>
+                <USelectMenu 
+                v-model="store.formState.department" 
+                placeholder="Risk Audit IT" 
+                class="w-full" 
+                :items="Object.values(AuditDepartment)" 
+                />
+              </UFormField>
+              <UFormField label="Created By">
+                <UInput v-model="store.formState.createdBy" class="w-full" />
+              </UFormField>
             </div>
+            <UFormField label="Creation Date" class="pt-4">
+              <UInput v-model="store.formState.creationDate" type="date" class="w-full" readonly />
+            </UFormField>
           </UCard>
 
-          <!-- Aktivitas Audit yang Direncanakan -->
+          <!-- Planned Audit Activities -->
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
               <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium">Aktivitas Audit yang Direncanakan</h3>
-                <UButton color="warning" variant="solid" icon="i-heroicons-plus" label="Tambah Aktivitas Audit" @click="store.addPlannedActivity" />
+                <h3 class="text-lg font-medium">Planned Audit Activities</h3>
+                <UButton color="warning" variant="solid" icon="i-heroicons-plus" label="Add Audit Activity" @click="store.addPlannedActivity" />
               </div>
             </template>
 
@@ -72,68 +77,87 @@
                   class="absolute top-2 right-2"
                   @click="store.removePlannedActivity(index)"
                 />
-                <h4 class="font-medium mb-4">Aktivitas Audit #{{ index + 1 }}</h4>
+                <h4 class="font-medium mb-4">Audit Activity {{ index + 1 }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormGroup label="Nama Audit" required>
-                    <UInput v-model="activity.auditName" placeholder="Audit IT Q1" />
-                  </UFormGroup>
-                  <UFormGroup label="Auditor" required>
-                    <UInput v-model="activity.auditor" placeholder="Jamil" />
-                  </UFormGroup>
-                  <UFormGroup label="Area/Unit" class="col-span-1 md:col-span-2">
-                    <UInput v-model="activity.area" placeholder="Unit IT" />
-                  </UFormGroup>
-                  <UFormGroup label="Status Pelaksanaan">
-                    <USelect v-model="activity.executionStatus" :options="['Planned', 'In Progress', 'Completed']" />
-                  </UFormGroup>
-                  <UFormGroup label="Tingkat Risiko">
-                    <USelect v-model="activity.riskLevel" :options="['Rendah', 'Sedang', 'Tinggi']" />
-                  </UFormGroup>
-                  <UFormGroup label="Durasi (hari)">
-                    <UInput v-model="activity.duration" type="number" />
-                  </UFormGroup>
-                  <UFormGroup label="Prioritas">
-                    <USelect v-model="activity.priority" :options="['Low', 'Medium', 'High']" />
-                  </UFormGroup>
-                  <UFormGroup label="Jumlah Auditor">
-                    <UInput v-model="activity.numberOfAuditors" type="number" />
-                  </UFormGroup>
-                  <UFormGroup label="Estimasi Jadwal/Waktu">
-                    <UInput v-model="activity.estimatedSchedule" type="date" />
-                  </UFormGroup>
+                  <UFormField label="Title of Audit Activity" required>
+                    <UInput v-model="activity.auditName" placeholder="Audit IT Q1" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Auditee" required>
+                    <UInput v-model="activity.auditee" placeholder="Jamil" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Category" class="col-span-1 md:col-span-2">
+                    <USelectMenu
+                      v-model="activity.category"
+                      :items="Object.values(AuditCategory)"
+                      placeholder="Select Category"
+                      class="w-full"
+                    />
+                  </UFormField>
+                  <UFormField label="Risk Level">
+                    <USelectMenu
+                      v-model="activity.riskLevel"
+                      :items="store.riskLevelOptions"
+                      value-key="value"
+                      label-key="label"
+                      placeholder="Select risk level"
+                      class="w-full"
+                    />
+                  </UFormField>
+                  <UFormField label="Duration (days)">
+                    <UInput v-model="activity.duration" type="number" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Priority">
+                    <USelectMenu 
+                      v-model="activity.priority" 
+                      :items="store.priorityOptions" 
+                      value-key="value" 
+                      label-key="label" 
+                      placeholder="Select priority" 
+                      class="w-full"
+                    />
+                  </UFormField>
+                  <UFormField label="Number of Auditors">
+                    <UInput v-model="activity.numberOfAuditors" type="number" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Estimated Schedule/Time">
+                    <UInput v-model="activity.estimatedSchedule" type="date" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Budget Estimation">
+                    <UInput v-model="activity.budgetEstimation" type="number" class="w-full"/>
+                  </UFormField>
                 </div>
               </div>
               
               <div v-if="store.formState.plannedActivities.length === 0" class="text-center text-gray-500 py-4">
-                Belum ada aktivitas audit yang ditambahkan.
+                No audit activities have been added yet.
               </div>
 
               <div class="mt-4 border-t pt-4">
-                <h4 class="font-medium mb-2">Ringkasan Aktivitas</h4>
+                <h4 class="font-medium mb-2">Summary of Activities</h4>
                 <div class="grid grid-cols-3 gap-4 text-center">
                   <div class="bg-red-50 text-red-600 rounded-lg p-2  ">
-                    <div class="text-xs font-semibold">Risiko Tinggi</div>
-                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => a.riskLevel === 'Tinggi').length }}</div>
+                    <div class="text-xs font-semibold">High Risk</div>
+                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => String(a.riskLevel) === 'High').length }}</div>
                   </div>
                   <div class="bg-yellow-50 text-yellow-600 rounded-lg p-2  ">
-                    <div class="text-xs font-semibold">Risiko Sedang</div>
-                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => a.riskLevel === 'Sedang').length }}</div>
+                    <div class="text-xs font-semibold">Medium Risk</div>
+                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => String(a.riskLevel) === 'Medium').length }}</div>
                   </div>
                   <div class="bg-green-50 text-green-600 rounded-lg p-2  ">
-                    <div class="text-xs font-semibold">Risiko Rendah</div>
-                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => a.riskLevel === 'Rendah').length }}</div>
+                    <div class="text-xs font-semibold">Low Risk</div>
+                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => String(a.riskLevel) === 'Low').length }}</div>
                   </div>
                 </div>
               </div>
             </div>
           </UCard>
 
-          <!-- Sumber Daya & Budget -->
+          <!-- Resources & Budget -->
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
               <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium">Sumber Daya & Budget</h3>
-                <UButton color="warning" variant="solid" icon="i-heroicons-plus" label="Tambah Auditor" @click="store.addResourceAuditor" />
+                <h3 class="text-lg font-medium">Resources & Budget</h3>
+                <UButton color="warning" variant="solid" icon="i-heroicons-plus" label="Add Auditor" @click="store.addResourceAuditor" />
               </div>
             </template>
             
@@ -146,83 +170,84 @@
                   class="absolute top-2 right-2"
                   @click="store.removeResourceAuditor(index)"
                 />
-                <h4 class="font-medium mb-4">Auditor #{{ index + 1 }}</h4>
+                <h4 class="font-medium mb-4">Auditor {{ index + 1 }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormGroup label="Nama">
-                    <UInput v-model="auditor.name" placeholder="Jamil" />
-                  </UFormGroup>
-                  <UFormGroup label="Posisi">
-                    <UInput v-model="auditor.position" placeholder="IT Auditor" />
-                  </UFormGroup>
-                  <UFormGroup label="Departemen">
-                    <UInput v-model="auditor.department" />
-                  </UFormGroup>
-                  <UFormGroup label="Ketersediaan">
-                    <UInput v-model="auditor.availability" />
-                  </UFormGroup>
+                  <UFormField label="Name">
+                    <UInput v-model="auditor.name" placeholder="Jamil" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Position">
+                    <UInput v-model="auditor.position" placeholder="IT Auditor" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Competence">
+                    <UInput v-model="auditor.competence" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Availability">
+                    <UInput v-model="auditor.availability" placeholder="Available" class="w-full"/>
+                  </UFormField>
                 </div>
               </div>
 
               <div class="mt-6 border-t pt-4">
-                <h4 class="font-medium mb-4">Perencanaan Anggaran</h4>
+                <h4 class="font-medium mb-4">Budget Planning</h4>
                 <div class="grid grid-cols-1 gap-4">
-                  <UFormGroup label="Total Estimasi Biaya Aktivitas">
-                    <UInput v-model="store.formState.budget.totalEstimatedCost" type="number" />
-                  </UFormGroup>
-                  <UFormGroup label="Total Budget yang Dialokasikan">
-                    <UInput v-model="store.formState.budget.totalAllocatedBudget" type="number" />
-                  </UFormGroup>
-                  <UFormGroup label="Catatan Anggaran">
-                    <UTextarea v-model="store.formState.budget.budgetNotes" />
-                  </UFormGroup>
+                  <UFormField label="Total Estimated Activity Cost">
+                    <UInput v-model="store.formState.budget.totalEstimatedCost" type="number" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Total Budget Allocated">
+                    <UInput v-model="store.formState.budget.totalAllocatedBudget" type="number" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Budget Notes">
+                    <UTextarea v-model="store.formState.budget.budgetNotes" class="w-full"/>
+                  </UFormField>
                 </div>
               </div>
             </div>
           </UCard>
 
-          <!-- Review & Persetujuan -->
+          <!-- Review & Approval -->
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
               <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium">Review & Persetujuan</h3>
+                <h3 class="text-lg font-medium">Review & Approval</h3>
               </div>
             </template>
             <div class="space-y-6">
               <div>
-                <h4 class="font-medium mb-2">Dibuat Oleh</h4>
+                <h4 class="font-medium mb-2">Created By</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormGroup label="Nama Pembuat" required>
-                    <UInput v-model="store.formState.review.creatorName" />
-                  </UFormGroup>
-                  <UFormGroup label="Jabatan" required>
-                    <UInput v-model="store.formState.review.creatorPosition" />
-                  </UFormGroup>
+                  <UFormField label="Creator Name" required>
+                    <UInput v-model="store.formState.review.creatorName" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Creator Position" required>
+                    <UInput v-model="store.formState.review.creatorPosition" class="w-full"/>
+                  </UFormField>
                 </div>
               </div>
               <div class="border-t pt-4">
-                <h4 class="font-medium mb-2">Disetujui Oleh</h4>
+                <h4 class="font-medium mb-2">Approved By</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormGroup label="Nama Penyetuju" required>
-                    <UInput v-model="store.formState.review.approverName" />
-                  </UFormGroup>
-                  <UFormGroup label="Jabatan" required>
-                    <UInput v-model="store.formState.review.approverPosition" />
-                  </UFormGroup>
-                  <UFormGroup label="Tanggal Persetujuan" required>
-                    <UInput v-model="store.formState.review.approvalDate" type="date" />
-                  </UFormGroup>
-                  <UFormGroup label="Catatan Tambahan" class="col-span-1 md:col-span-2">
-                    <UTextarea v-model="store.formState.review.additionalNotes" />
-                  </UFormGroup>
+                  <UFormField label="Approver Name" required>
+                    <UInput v-model="store.formState.review.approverName" class="w-full"/>
+                  </UFormField>
+                  <UFormField label="Approver Position" required>
+                    <UInput v-model="store.formState.review.approverPosition" class="w-full"/>
+                  </UFormField>
                 </div>
+                <UFormField label="Approval Date" class="pt-4" required>
+                  <UInput v-model="store.formState.review.approvalDate" type="date" class="w-full"/>
+                </UFormField>
+                <UFormField label="Additional Notes" class="col-span-1 md:col-span-2 pt-4">
+                  <UTextarea v-model="store.formState.review.additionalNotes" class="w-full"/>
+                </UFormField>
+                
               </div>
             </div>
           </UCard>
 
           <!-- Buttons -->
           <div class="flex justify-end gap-3 pb-6">
-            <UButton label="Batal" color="neutral" variant="ghost" @click="store.closeModal" />
-            <UButton type="submit" :label="store.isEditMode ? 'Simpan Perubahan' : 'Buat Rencana'" color="warning" />
+            <UButton label="Cancel" color="neutral" variant="ghost" @click="store.closeModal" />
+            <UButton type="submit" :label="store.isEditMode ? 'Update' : 'Create'" color="warning" />
           </div>
 
         </UForm>
@@ -234,6 +259,7 @@
 
 <script setup lang="ts">
 import { useActivityPlanStore } from '~/stores/activity-plan'
+import { AuditCategory, AuditDepartment } from '~/types/audit';
 
 const store = useActivityPlanStore()
 </script>

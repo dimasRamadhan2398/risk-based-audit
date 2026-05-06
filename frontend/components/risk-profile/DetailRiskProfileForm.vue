@@ -37,7 +37,7 @@
           <p class="text-sm text-gray-500 italic">Klik tombol di bawah untuk mengelola langkah mitigasi</p>
           
           <UButton
-            label="Buka Halaman Mitigasi Risiko"
+            label="Open Mitigation Risk & Control"
             icon="i-heroicons-shield-check"
             color="primary"
             variant="solid"

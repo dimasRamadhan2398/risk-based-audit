@@ -9,44 +9,67 @@
           
           <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center">
             <h3 class="text-lg font-bold text-[var(--text-main)]">
-              {{ store.isEditing ? 'Edit Rencana Mitigasi' : 'Tambah Rencana Mitigasi' }}
+              {{ store.isEditing ? 'Edit Mitigation & Control Plan' : 'Tambah Mitigation & Control Plan' }}
             </h3>
             <UIcon name="close" @click="store.closeForm" class="text-[var(--text-muted)] hover:text-[var(--text-main)] text-2xl cursor-pointer">&times;</UIcon>
           </div>
 
           <div class="p-6 overflow-y-auto space-y-5">
             
-            <UFormField label="Aktivitas Mitigasi" required>
-              <UInput v-model="store.form.actionPlan" placeholder="Jelaskan langkah mitigasi secara detail..." class="w-full" required />
+            <UFormField label="Risk Event" required>
+              <UTextarea v-model="store.form.riskEvent" placeholder="Explain the risks in detail..." class="w-full" required />
+            </UFormField>
+            
+            <UFormField label="Mitigation Plan & Controls" required>
+              <UInput v-model="store.form.mitigationPlan" placeholder="Explain the mitigation plan and controls in detail..." class="w-full" required />
             </UFormField>
 
             <UFormField label="Supervisor" required>
-              <UInput v-model="store.form.supervisor" placeholder="Masukkan nama supervisor..." class="w-full" required />
+              <USelectMenu 
+              :items="store.supervisorOptions" 
+              v-model="store.form.supervisor" 
+              placeholder="Enter supervisor's name..." 
+              class="w-full" 
+              required />
             </UFormField>
             
             <UFormField label="PIC" required>
-              <UInput v-model="store.form.pic" placeholder="Masukkan nama PIC..." class="w-full" required />
+              <USelectMenu 
+              :items="store.picOptions" 
+              v-model="store.form.pic" 
+              placeholder="Enter PIC's name..." 
+              class="w-full" 
+              required />
+            </UFormField>
+
+            <UFormField label="Unit In Charge" required>
+              <USelectMenu 
+              :items="store.unitInChargeOptions" 
+              v-model="store.form.unitInCharge" 
+              placeholder="Enter unit in charge..." 
+              class="w-full" 
+              required />
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormField label="Tanggal Mulai" required>
+                <UFormField label="Start Date" required>
                     <UInput v-model="store.form.start_date" type="date" icon="i-heroicons-calendar" required />
                 </UFormField>
 
-                <UFormField label="Tanggal Berakhir" required>
+                <UFormField label="End Date" required>
                     <UInput v-model="store.form.end_date" type="date" icon="i-heroicons-calendar-days" required />
                 </UFormField>
             </div>
 
-            <UFormField label="Keterangan / Catatan Tambahan">
-              <UTextarea v-model="store.form.notes" :rows="2" placeholder="Catatan opsional..." class="w-full" />
+            <UFormField label="Additional Notes">
+              <UTextarea v-model="store.form.notes" :rows="2" placeholder="Optional notes..." class="w-full" />
             </UFormField>
 
           </div>
       
           <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end gap-3">
-            <UButton label="Batal" color="neutral" variant="outline" @click="store.closeForm" />
-            <UButton :label="store.isEditing ? 'Simpan Perubahan' : 'Simpan Mitigasi'" color="primary" type="submit" />
+            <UButton label="Cancel" color="neutral" variant="outline" @click="store.closeForm" />
+            <UButton :label="store.isEditing ? 'Save Changes' : 'Save Mitigation'" color="primary" type="submit" />
           </div>
       
         </div>

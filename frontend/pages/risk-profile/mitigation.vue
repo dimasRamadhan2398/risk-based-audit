@@ -3,14 +3,14 @@
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Rencana Mitigasi Resiko</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Risk Mitigation Plan</h1>
         <p><strong>Risk ID:</strong> {{ currentRiskId }} - {{ currentRiskName }}</p>
       </div>
       <UButton
         icon="i-heroicons-arrow-left"
         variant="ghost"
         color="neutral"
-        label="Kembali ke Detail"
+        label="Back to Detail"
         @click="goBack"
       />
     </div>

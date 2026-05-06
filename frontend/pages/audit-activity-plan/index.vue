@@ -1,32 +1,41 @@
 <template>
-  <div class="p-6 max-w-7xl mx-auto space-y-6">
+  <div class="space-y-6">
+    <!-- Header Section -->
+    <UCard variant="soft">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-2">
+            <h1 class="text-3xl font-bold text-[var(--text-main)]">
+              Audit Activity Plan
+            </h1>
+            <p class="text-sm text-[var(--text-muted)]">
+              Manage and review annual audit activity plans.
+            </p>
+          </div>
+          <UButton
+            icon="i-heroicons-plus"
+            label="Buat Rencana"
+            variant="solid"
+            color="primary"
+            size="sm"
+            @click="store.openModal()"
+          />
+        </div>
+      </template>
+    </UCard>
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900 ">Audit Activity Plan</h1>
-      </div>
-      <UButton
-        label="Create Audit Activity Plan"
-        icon="i-heroicons-plus"
-        color="primary"
-        size="lg"
-        class="font-bold shadow-md"
-        @click="store.openModal"
-      />
-    </div>
-
-    <!-- Table Component -->
-    <ActivityPlanTable />
-
-    <!-- Form Modal Component -->
+    <!-- Modals (These must be in the template to be shown) -->
     <ActivityPlanForm />
-
+    
+    <!-- Data Table -->
+    <ActivityPlanTable />
   </div>
+  
 </template>
 
 <script setup lang="ts">
-import ActivityPlanForm from '~/components/audit-activity-plan/ActivityPlanForm.vue';
-import ActivityPlanTable from '~/components/audit-activity-plan/ActivityPlanTable.vue';
+import ActivityPlanForm from '~/components/audit-activity-plan/ActivityPlanForm.vue'
+import ActivityPlanTable from '~/components/audit-activity-plan/ActivityPlanTable.vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
 
 const store = useActivityPlanStore()

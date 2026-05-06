@@ -5,7 +5,7 @@
       v-model:open="store.isAddModalOpen"
       :title="store.isEditMode ? 'Edit Strategic Objective' : 'Add Strategic Objective'"
       :ui="{
-        content: 'bg-secondary-50',
+        content: 'bg-secondary-100',
         title: 'text-highlighted font-semibold text-2xl ',
       }"
     >

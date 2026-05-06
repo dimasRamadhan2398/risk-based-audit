@@ -7,8 +7,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     // State
     const isAddModalOpen = ref(false);
     const isEditMode = ref(false);
-    const activeTab = ref(0);
-    const selectedYear = ref(new Date().getFullYear());
 
     // Form Data
     const form = ref<Partial<StrategicAuditPlan>>({
@@ -19,23 +17,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         kpiTarget: [],
         unit: "",
     });
-
-    // Year Options
-    const yearOptions = computed(() => {
-        const currentYear = new Date().getFullYear();
-        return Array.from({ length: 6 }, (_, i) => ({
-            value: currentYear + i,
-            label: `${currentYear + i} - ${currentYear + i + 4}`,
-        }));
-    });
-
-    // Tab Items
-    const tabItems = [
-        { label: "Q1" },
-        { label: "Q2" },
-        { label: "Q3" },
-        { label: "Q4" },
-    ];
 
     // Sifat Data Options
     const characteristicDataOptions = [
@@ -100,45 +81,30 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             accessorKey: "number",
             header: "No.",
             cell: (row) => row.getValue(),
-            meta: {
-                class: {
-                    th: "bg-primary text-secondary-900 text-center w-16",
-                    td: "text-center font-semibold text-gray-900",
-                },
-            },
+            // meta: {
+            //     class: {
+            //         th: "bg-primary border-rounded text-secondary-900 text-center w-16",
+            //         td: "text-center font-semibold text-gray-900",
+            //     },
+            // },
         },
         {
             accessorKey: "objectives",
             header: "Corporate Strategic Objectives",
             cell: (row) => row.getValue(),
-            meta: {
-                class: {
-                    th: "bg-primary text-secondary-900",
-                    td: "text-gray-700",
-                },
-            },
+
         },
         {
             accessorKey: "kpi",
             header: "KPI",
             cell: (row) => row.getValue(),
-            meta: {
-                class: {
-                    th: "bg-primary text-secondary-900",
-                    td: "text-gray-700",
-                },
-            },
+
         },
         {
             accessorKey: "characteristicData",
             header: "Characteristic Data",
             cell: (row) => row.getValue(),
-            meta: {
-                class: {
-                    th: "bg-primary text-secondary-900 text-center",
-                    td: "text-center",
-                },
-            },
+
         },
         {
             accessorKey: "kpiTarget",
@@ -150,34 +116,19 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                     targets.map(t => h('div', { class: 'text-xs' }, `${t.year}: ${t.value} ${unit}`))
                 );
             },
-            meta: {
-                class: {
-                    th: "bg-primary text-secondary-900",
-                    td: "text-gray-700",
-                },
-            },
+
         },
         {
             accessorKey: "unit",
             header: "Unit",
             cell: (row) => row.getValue(),
-            meta: {
-                class: {
-                    th: "bg-primary text-secondary-900",
-                    td: "text-gray-700",
-                },
-            },
+
         },
         {
             accessorKey: "actions",
             header: "Actions",
             cell: "actions-cell",
-            meta: {
-                class: {
-                    th: "bg-primary text-secondary-900 text-center",
-                    td: "text-center",
-                },
-            },
+
         },
     ];
 

@@ -12,16 +12,18 @@ export const useMitigationStore = defineStore('mitigation', () => {
 
     // Data Master untuk Dropdown
     const picOptions = ['Dimas', 'Budi', 'Caca', 'Dedi', 'Eka', 'Fahmi']
-    //const statusOptions: MitigationStatus[] = ['planned', 'in_progress', 'completed', 'overdue']
+    const supervisorOptions = ['Dimas', 'Budi', 'Caca', 'Dedi', 'Eka', 'Fahmi']
+    const unitInChargeOptions = ['Sales', 'Marketing', 'Product Development', 'Operasional', 'Financial']
 
     // Form State
     const form = reactive<RiskMitigationForm>({
-        actionPlan: '',
+        riskEvent: '',
+        mitigationPlan: '',
         supervisor: '',
         pic: '',
+        unitInCharge: '',
         start_date: '',
         end_date: '',
-        //status: 'planned',
         notes: ''
     })
 
@@ -37,24 +39,26 @@ export const useMitigationStore = defineStore('mitigation', () => {
             isEditing.value = true
             editingId.value = data.id
             Object.assign(form, {
-                actionPlan: data.actionPlan,
+                riskEvent: data.riskEvent,
+                mitigationPlan: data.mitigationPlan,
                 supervisor: data.supervisor,
                 pic: data.pic,
+                unitInCharge: data.unitInCharge,
                 start_date: data.start_date,
                 end_date: data.end_date,
-                //status: data.status,
                 notes: data.notes || ''
             })
         } else {
             isEditing.value = false
             editingId.value = null
             Object.assign(form, {
-                actionPlan: '',
+                riskEvent: '',
+                mitigationPlan: '',
                 supervisor: '',
                 pic: '',
+                unitInCharge: '',
                 start_date: '',
                 end_date: '',
-                //status: 'Open',
                 notes: ''
             })
         }
@@ -90,7 +94,8 @@ export const useMitigationStore = defineStore('mitigation', () => {
     }
 
     return {
-        mitigations, isFormOpen, isEditing, form, picOptions, getMitigationsByRiskId,
+        mitigations, isFormOpen, isEditing, form, getMitigationsByRiskId,
+        supervisorOptions, unitInChargeOptions, picOptions,
         openForm, closeForm, handleSubmit, deleteMitigation,
     }
 })

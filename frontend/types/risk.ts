@@ -64,33 +64,26 @@ export interface RiskProfileItem {
   riskLevel: RiskLevel
 }
 
-// export type MitigationStatus = 'planned' | 'in_progress' | 'completed' | 'overdue';
-
 export interface RiskMitigation {
   id: string
   riskId: string
-  actionPlan: string;
-  supervisor: string;
-  pic: string;
-  start_date: string;
-  end_date: string;
-  //status: MitigationStatus;
-  notes?: string;
+  riskEvent: string
+  mitigationPlan: string
+  supervisor: string
+  pic: string
+  unitInCharge: string
+  start_date: string
+  end_date: string
+  notes?: string
 }
 
 export interface RiskMitigationForm {
-  actionPlan: string;
-  supervisor: string;
-  pic: string;
-  start_date: string;
-  end_date: string;
-  //status: MitigationStatus;
-  notes: string;
+  riskEvent: string
+  mitigationPlan: string
+  supervisor: string
+  pic: string
+  unitInCharge: string
+  start_date: string
+  end_date: string
+  notes: string
 }
-
-// export enum MitigationStatus {
-//   PLANNED = 'planned',
-//   IN_PROGRESS = 'in_progress',
-//   COMPLETED = 'completed',
-//   OVERDUE = 'overdue'
-// }

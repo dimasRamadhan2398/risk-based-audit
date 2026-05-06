@@ -3,10 +3,10 @@
     <div class="flex justify-between items-center">
       <div class="flex items-center gap-3">
         <UIcon name="i-heroicons-clipboard-document-check" class="text-primary-600 text-2xl" />
-        <h3 class="text-lg font-bold text-gray-800">Daftar Rencana Mitigasi</h3>
+        <h3 class="text-lg font-bold text-gray-800">Risk Mitigation & Controls</h3>
       </div>
       <UButton 
-        label="Tambah Mitigasi" 
+        label="Add Mitigation Plan" 
         icon="i-heroicons-plus" 
         color="primary" 
         class="font-bold shadow-md"
@@ -16,16 +16,10 @@
 
     <div class="bg-[var(--bg-main)]  border border-[var(--border-main)] rounded-xl overflow-hidden shadow-sm transition-colors duration-300">
       <UTable :data="filteredMitigations" :columns="columns">
-        <!-- <template #status-data="{ row }">
-          <UBadge :color="getStatusColor(row.original.status)" variant="soft" class="font-bold">
-            {{ row.original.status }}
-          </UBadge>
-        </template> -->
-
         <template #period-cell="{ row }">
           <div class="flex flex-col text-xs">
-            <span class="text-[var(--text-muted)] font-medium">Mulai: {{ row.original.start_date }}</span>
-            <span class="text-primary-600  font-bold">Selesai: {{ row.original.end_date }}</span>
+            <span class="text-[var(--text-muted)] font-medium">Start: {{ row.original.start_date }}</span>
+            <span class="text-primary-600  font-bold">End: {{ row.original.end_date }}</span>
           </div>
         </template>
 
@@ -39,7 +33,7 @@
         <template #empty-state>
           <div class="flex flex-col items-center justify-center py-10 text-gray-400">
             <UIcon name="i-heroicons-inbox" class="text-4xl mb-2" />
-            <p>Belum ada rencana mitigasi yang ditambahkan.</p>
+            <p>No risk mitigation plans have been added yet.</p>
           </div>
         </template>
 
@@ -64,22 +58,14 @@ const filteredMitigations = computed(() => {
 
 // Definisi Kolom Tabel
 const columns = [
-  { accessorKey: 'actionPlan', header: 'Aktivitas' },
-  { accessorKey: 'supervisor', header: 'Supervisor' },
+  { accessorKey: 'riskEvent', header: 'Risk Event' },
+  { accessorKey: 'mitigationPlan', header: 'Risk Mitigations & Controls' },
+  { accessorKey: 'period', header: 'Timeline' },
   { accessorKey: 'pic', header: 'PIC' },
-  { accessorKey: 'period', header: 'Jadwal' },
-  // { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'notes', header: 'Catatan' },
-  { accessorKey: 'actions', header: 'Aksi', meta: { class: { td: 'text-center', th: 'text-center' } } },
+  { accessorKey: 'unitInCharge', header: 'Unit in Charge' },
+  { accessorKey: 'supervisor', header: 'Supervisor' },
+  { accessorKey: 'notes', header: 'Notes' },
+  { accessorKey: 'actions', header: 'Actions', meta: { class: { td: 'text-center', th: 'text-center' } } },
 ]
 
-// Helper fungsi untuk warna status
-// const getStatusColor = (status: string) => {
-//   switch (status) {
-//     case 'Completed': return 'success'
-//     case 'In Progress': return 'primary'
-//     case 'Delayed': return 'error'
-//     default: return 'neutral' // Open
-//   }
-// }
 </script>

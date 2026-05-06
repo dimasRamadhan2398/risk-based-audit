@@ -1,10 +1,7 @@
 <template>
-    <!-- Year Tabs -->
     <UCard variant="soft">
         <!-- Strategic Objectives Table -->
           <UTable :data="store.strategicObjectives" :columns="store.columns">
-            
-
             <template #actions-cell="{ row }">
               <UDropdownMenu
                 :items="store.getRowActions(row)"
@@ -24,7 +21,6 @@
 
 <script setup lang="ts">
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
-import { ref, computed } from 'vue'
 
 const store = useStrategicPlanStore()
 

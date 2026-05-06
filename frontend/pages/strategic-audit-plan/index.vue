@@ -1,6 +1,5 @@
 <template>
   <div class="space-y-6">
-
     <!-- Header Section -->
     <UCard variant="soft">
       <template #header>
