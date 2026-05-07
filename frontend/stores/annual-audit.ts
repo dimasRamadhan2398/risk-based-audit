@@ -7,10 +7,58 @@ import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAudit
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const showModal = ref(false)
+  const errorMsg = ref("")
   const progressAudit = ref(50);
 
   // Constants
   const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const attachmentCategoryOptions = ['Plan', 'Evidence', 'Charter', 'Other']
+  const open = ref(false)
+
+  const approvalStepperItems = ref([
+    {
+      slot: 'draft' as const,
+      label: 'Draft',
+      description: 'Audit Staff',
+      icon: 'i-lucide-check'
+    }, {
+      slot: 'review' as const,
+      label: 'Under Review',
+      description: 'Audit Manager',
+      icon: 'i-lucide-clock'
+    }, {
+      slot: 'approval' as const,
+      label: 'Pending Approval',
+      description: 'Chief Audit Executive',
+      icon: 'i-lucide-clock'
+    }, {
+      slot: 'approved' as const,
+      label: 'Approved',
+      description: 'System',
+      icon: 'i-lucide-check-circle'
+    }
+  ]) as any;
+
+  const handleDownload = (plan: any) => {
+    if (!plan) return;
+
+    const dataStr = JSON.stringify(plan, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = `${plan.code}-annual-audit-plan.json`;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  defineShortcuts({
+    o: () => open.value = !open.value
+  })
 
   const columns: TableColumn<AnnualAuditPlan>[] = [
     { accessorKey: 'activity', header: 'Activity' },
@@ -33,9 +81,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const selectedStatus = ref<string | undefined>(undefined)
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
-  const statusOptions = ['Done', 'Work In Progress', 'Not Available']
-  const departmentOptions = ['Finance', 'IT', 'Operations', 'HR', 'Compliance']
-  const categoryOptions = ['Assurance', 'Special Audit', 'Specific Reason', 'Consulting Services', 'Follow-Up Audit', 'Investigation', 'Quality Assurance Review']
   const yearOptions = ['2026', '2027', '2028', '2029', '2030']
 
   // --- COMPUTED: FILTER DATA ---
@@ -129,6 +174,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   // Form State
   const form = reactive<AnnualPlanForm>({
     code: '',
+    version: 'v1.0',
+    revisionHistory: [],
     activities: [
       { name: '', category: AuditCategory.ASSURANCE, department: AuditDepartment.IT }
     ],
@@ -137,7 +184,14 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     auditorCount: 2,
     daysPerAuditor: 5,
     supervisorId: '',
+    attachmentCategory: '',
+    attachmentUploadedBy: '',
+    attachmentUploadDate: '',
+    file: [],
     notes: '',
+    staffApprovalNote: '',
+    managerApprovalNote: '',
+    chiefApprovalNote: '',
     isActive: true,
     year: ''
   })
@@ -166,6 +220,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       return "Beban kerja Triwulan I terlalu tinggi (>40%). Mohon ratakan jadwal."
     }
     return null
+  })
+
+  const supervisorOptions = computed(() => {
+    return supervisors.value.map(s => ({
+      id: s.id,
+      label: `${s.name} (Workload: ${s.workload})`
+    }))
   })
 
   // --- ACTIONS ---
@@ -200,6 +261,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     // Reset Form
     Object.assign(form, {
       code: '',
+      version: 'v1.0',
+      revisionHistory: [],
       activities: [ // Reset array activities kembali ke 1 baris kosong
         { name: '', category: AuditCategory.ASSURANCE, department: AuditDepartment.IT }
       ],
@@ -209,6 +272,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       daysPerAuditor: 5,
       supervisorId: '',
       notes: '',
+      staffApprovalNote: '',
+      managerApprovalNote: '',
+      chiefApprovalNote: '',
+      file: [],
+      attachmentCategory: '',
+      attachmentUploadedBy: '',
+      attachmentUploadDate: '',
       year: ''
     })
     showModal.value = true
@@ -217,6 +287,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const closeModal = () => showModal.value = false
 
   const handleSubmit = () => {
+    // if (!isEditing.value && (!form.file || form.file.length === 0)) {
+    //   errorMsg.value = "Mohon upload file charter.";
+    //   return;
+    // }
+
     // F-04: Final Validation
     if (form.selectedMonths.length === 0) {
       alert("⚠️ Wajib memilih minimal 1 bulan pelaksanaan.")
@@ -247,6 +322,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     // Isi form dengan data yang dipilih
 
     form.code = plan.code,
+      form.version = plan.version || 'v1.0',
+      form.revisionHistory = plan.revisionHistory ? [...plan.revisionHistory] : [],
       form.activities = plan.activities.map((act: any) => ({ ...act })),
       form.status = plan.status,
       form.selectedMonths = [...plan.selectedMonths], // Gunakan spread agar tidak reaktif terhubung langsung
@@ -254,6 +331,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       form.daysPerAuditor = plan.daysPerAuditor,
       form.supervisorId = plan.supervisorId,
       form.notes = plan.notes || '',
+      form.file = [],
+      form.attachmentCategory = '',
+      form.attachmentUploadedBy = '',
+      form.attachmentUploadDate = '',
       form.isActive = plan.isActive,
       form.year = plan.year
 
@@ -270,13 +351,53 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       // 3. Tutup modal detail setelah berhasil menghapus
       closeViewModal()
 
-      // 4. (Opsional) Tambahkan notifikasi sukses menggunakan Nuxt UI Toast
-      // toast.add({ title: 'Sukses', description: 'Rencana audit telah dihapus.', color: 'green' })
-
     } catch (error) {
       alert('Gagal menghapus data: ' + error)
     }
   }
+
+  const handleFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+
+    // Ambil file dengan aman menggunakan optional chaining
+    // target.files?[0] akan return 'File | undefined'
+    const file = target.files?.[0];
+
+    // GUARD CLAUSE (PENTING):
+    // Jika file undefined, langsung berhenti.
+    // Setelah baris ini, TypeScript tahu 'file' pasti bertipe 'File' (bukan undefined).
+    if (!file) return;
+
+    // --- Mulai Validasi ---
+
+    // Validasi Ukuran (Max 5MB)
+    // Sekarang 'file.size' aman diakses karena file dijamin ada
+    if (file.size > 5 * 1024 * 1024) {
+      errorMsg.value = "File terlalu besar! Maksimal 5MB.";
+      form.file = null;
+      // Reset input value agar user bisa pilih file ulang
+      target.value = "";
+      return;
+    }
+
+    // Validasi Tipe
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      errorMsg.value = "Format file tidak valid. Gunakan PDF atau DOCX.";
+      form.file = null;
+      target.value = "";
+      return;
+    }
+
+    // Jika lolos semua audit
+    errorMsg.value = "";
+    form.file = [file];
+  };
 
   const supervisors = ref([
     { id: 'S01', name: 'Budi Santoso (Mgr)', workload: 5 },
@@ -338,6 +459,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const newPlan: AnnualAuditPlan = {
       id: Date.now().toString(),
       code: form.code,
+      version: 'v1.0',
+      revisionHistory: [],
       activities: [...form.activities],
       status: form.status,
       selectedMonths: form.selectedMonths.sort((a, b) => a - b),
@@ -349,6 +472,14 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       supervisorName: supervisor?.name || 'Unknown',
       notes: form.notes,
       year: form.year,
+      attachmentCategory: form.attachmentCategory,
+      attachments: form.file?.map(f => ({
+        name: f.name,
+        size: `${(f.size / 1024 / 1024).toFixed(2)} MB`,
+        url: URL.createObjectURL(f)
+      })) || [],
+      attachmentUploadedBy: form.attachmentUploadedBy,
+      attachmentUploadDate: form.attachmentUploadDate,
       isActive: form.isActive
     }
     plans.value.unshift(newPlan)
@@ -371,7 +502,16 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       activities: [...updatedData.activities],
       quarters: quarters,
       totalMandays: totalMandays,
-      supervisorName: supervisor?.name || 'Unknown'
+      supervisorName: supervisor?.name || 'Unknown',
+      attachmentCategory: updatedData.attachmentCategory,
+      // Jika ada file baru, ganti. Jika tidak, pertahankan yang lama.
+      attachments: (updatedData.file && updatedData.file.length > 0)
+        ? updatedData.file.map(f => ({
+          name: f.name,
+          size: `${(f.size / 1024 / 1024).toFixed(2)} MB`,
+          url: URL.createObjectURL(f)
+        }))
+        : existingPlan.attachments,
     }
 
   }
@@ -390,17 +530,100 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
+  const createRevision = (planId: string, changesNote: string, user: string) => {
+    const plan = plans.value.find(p => p.id === planId)
+    if (!plan) return
+
+    const currentVersion = plan.version || 'v1.0'
+    const parts = currentVersion.replace('v', '').split('.')
+    const minor = parseInt(parts[1] || '0')
+    const newVersion = `v${parts[0]}.${minor + 1}`
+
+    const historyEntry = {
+      date: new Date().toISOString().split('T')[0] || '',
+      version: newVersion,
+      changes: changesNote,
+      user: user
+    }
+
+    plan.version = newVersion
+    plan.status = AnnualAuditPlanStatus.NOT_AVAILABLE
+    if (!plan.revisionHistory) plan.revisionHistory = []
+    plan.revisionHistory.unshift(historyEntry)
+
+    if (selectedPlan.value && selectedPlan.value.id === planId) {
+      selectedPlan.value.version = newVersion
+      selectedPlan.value.status = AnnualAuditPlanStatus.NOT_AVAILABLE
+      selectedPlan.value.revisionHistory = plan.revisionHistory
+    }
+
+    alert(`Revised RKAT created (Version ${newVersion}).`)
+  }
+
+  const updatePlanStatus = (id: string, status: AnnualAuditPlanStatus) => {
+    const plan = plans.value.find(p => p.id === id)
+    if (plan) {
+      plan.status = status
+    }
+  }
+
+  const handleStaffApprove = () => {
+    if (selectedPlan.value) {
+      selectedPlan.value.status = AnnualAuditPlanStatus.WORK_IN_PROGRESS
+      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.WORK_IN_PROGRESS)
+    }
+  }
+
+  const handleStaffReject = () => {
+    if (selectedPlan.value) {
+      selectedPlan.value.staffApprovalNote = ''
+    }
+  }
+
+  const handleManagerApprove = () => {
+    if (selectedPlan.value) {
+      selectedPlan.value.status = AnnualAuditPlanStatus.PENDING_APPROVAL
+      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.PENDING_APPROVAL)
+    }
+  }
+
+  const handleManagerReject = () => {
+    if (selectedPlan.value) {
+      selectedPlan.value.status = AnnualAuditPlanStatus.NOT_AVAILABLE
+      selectedPlan.value.managerApprovalNote = ''
+      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.NOT_AVAILABLE)
+    }
+  }
+
+  const handleChiefApprove = () => {
+    if (selectedPlan.value) {
+      selectedPlan.value.status = AnnualAuditPlanStatus.DONE
+      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.DONE)
+    }
+  }
+
+  const handleChiefReject = () => {
+    if (selectedPlan.value) {
+      selectedPlan.value.status = AnnualAuditPlanStatus.WORK_IN_PROGRESS
+      selectedPlan.value.chiefApprovalNote = ''
+      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.WORK_IN_PROGRESS)
+    }
+  }
+
   return {
     // State
-    plans, supervisors, monthsList, statusOptions, departmentOptions, categoryOptions, yearOptions,
-    showModal, isEditing, editingId, showViewModal, selectedPlan,
-    searchCode, selectedDepartment, selectedStatus, form, columns,
-    progressAudit, getStatusColor,
+    plans, supervisors, monthsList, yearOptions, supervisorOptions, attachmentCategoryOptions,
+    showModal, isEditing, editingId, showViewModal, selectedPlan, progressAudit, approvalStepperItems,
+    searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg,
+
     // Computed
     filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
     computedQuarters,
     // Actions
-    clearFilters, openViewModal, closeViewModal, toggleMonth, addActivity, removeActivity,
-    openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName
+    clearFilters, openViewModal, closeViewModal, toggleMonth, addActivity, removeActivity, handleDownload,
+    openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
+    getStatusColor, handleFileChange,
+    handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
+    createRevision
   }
 })

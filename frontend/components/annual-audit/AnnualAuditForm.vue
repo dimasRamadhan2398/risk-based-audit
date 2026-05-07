@@ -1,5 +1,5 @@
 <template>
-    <UModal v-model:open="store.showModal" :dismissible="false" class="w-full sm:max-w-4xl">
+    <UModal v-model:open="store.showModal" dismissible class="w-full sm:max-w-4xl">
         <template #content>
         <UForm :state="store.form" @submit.prevent="store.handleSubmit">
             <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh] border border-[var(--border-main)] transition-colors duration-300">
@@ -19,7 +19,8 @@
                                 <UFormField label="Status" size="lg">
                                     <USelectMenu 
                                     v-model="store.form.status" 
-                                    :items="store.statusOptions" 
+                                    :items="Object.values(AnnualAuditPlanStatus)" 
+                                    placeholder="Select Status"
                                     class="w-full"/>
                                 </UFormField>
 
@@ -64,12 +65,12 @@
                                             />
                                         </UFormField>
 
-                                        <UFormField label="Activity Category" size="lg">
-                                            <USelectMenu v-model="activity.category" :items="store.categoryOptions" class="w-full" />
+                                        <UFormField label="Category" size="lg">
+                                            <USelectMenu v-model="activity.category" :items="Object.values(AuditCategory)" class="w-full" />
                                         </UFormField>
 
                                         <UFormField label="Department" size="lg">
-                                            <USelectMenu v-model="activity.department" :items="store.departmentOptions" class="w-full" />
+                                            <USelectMenu v-model="activity.department" :items="Object.values(AuditDepartment)" class="w-full" />
                                         </UFormField>
                                     </div>
                                 </UCard>
@@ -149,7 +150,7 @@
                                 <USelectMenu 
                                     :model-value="(store.form.supervisorId as any)"
                                     @update:model-value="(val: any) => store.form.supervisorId = val"
-                                    :items="supervisorOptions" 
+                                    :items="store.supervisorOptions" 
                                     value-key="id"
                                     option-key="label"
                                     placeholder="-- Choose Supervisor --"
@@ -205,6 +206,43 @@
                                 </div>
                             </UFormField>
                         </div>
+
+                        <div class="space-y-4">
+                            <h4 class="text-sm uppercase tracking-wide text-gray-500 font-bold border-b pb-2">5. Attachment</h4>
+                            <UFormField label="Attachment Category">
+                                <USelectMenu v-model="store.form.attachmentCategory" :items="store.attachmentCategoryOptions" value-key="id" option-key="label" class="w-full"/>
+                            </UFormField>
+                            <UFormField
+                                label="Attachment Uploaded By"
+                                class="block text-sm font-medium"
+                                size="lg"
+                            >
+                                <UInput
+                                    v-model="store.form.attachmentUploadedBy"
+                                    placeholder="Attachment Uploaded By"
+                                    class="w-full"
+                                />
+                            </UFormField>
+                            <UFormField label="Attachment Upload Date">
+                                <UInput type="date" v-model="store.form.attachmentUploadDate" class="w-full"/>
+                            </UFormField>
+                            <UFormField
+                                label="Upload your Attachment here"
+                                size="lg"
+                            >
+                                <UFileUpload
+                                    v-model="store.form.file"
+                                    layout="list"
+                                    multiple
+                                    label="Drop your attachments here"
+                                    description="You can upload multiple files (max. 2MB each)"
+                                    class="w-full"
+                                    :ui="{
+                                        base: 'min-h-48'
+                                    }"
+                                />
+                            </UFormField>
+                        </div>
                     </div>
     
                 <div class="px-6 py-4 bg-secondary-50  border-t border-secondary-200  rounded-b-xl flex justify-end gap-3">
@@ -226,14 +264,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
+import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment } from '~/types/audit'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
 
-const supervisorOptions = computed(() => {
-  return store.supervisors.map(s => ({
-    id: s.id,
-    label: `${s.name} (Workload: ${s.workload})`
-  }))
-})
 </script>

@@ -23,6 +23,7 @@ export enum AuditStatus {
 export enum AnnualAuditPlanStatus {
   DONE = "Done",
   WORK_IN_PROGRESS = "Work In Progress",
+  PENDING_APPROVAL = "Pending Approval",
   NOT_AVAILABLE = "Not Available"
 }
 
@@ -126,7 +127,7 @@ export interface AuditCharter {
   approvedBy: string;
   isActive: boolean;
   fileName?: string;
-  fileUrl?: string; // Simulasi URL file
+  fileUrl?: string;
   fileSize?: string;
 }
 
@@ -146,9 +147,19 @@ export interface AuditActivities {
   department: AuditDepartment;
 }
 
+export interface RevisionHistory {
+  date: string;
+  version: string;
+  changes: string;
+  user: string;
+}
+
 export interface AnnualAuditPlan {
   id?: string;
   code: string;
+  version?: string;
+  parentPlanId?: string;
+  revisionHistory?: RevisionHistory[];
   activities: AuditActivities[];
   status: AnnualAuditPlanStatus;
   selectedMonths: number[];
@@ -160,16 +171,26 @@ export interface AnnualAuditPlan {
   supervisorName?: string;
   year: string;
   notes?: string;
+  attachmentCategory: string;
+  attachmentUploadedBy: string;
+  attachmentUploadDate: string;
+  attachments?: AnnualAuditAttachment[];
   isActive: boolean;
   isUsed?: boolean;
-  //auditUniverse: string;  Unit/Area yang diaudit
-  //auditCycle: string;     e.g., "Annually", "2 Years"
-  //lastAudit: string;      Tahun terakhir audit
+}
+
+export interface AnnualAuditAttachment {
+  name: string;
+  size: string; // e.g., "2.5 MB"
+  url: string; // URL objek lokal atau URL unduhan dari server
 }
 
 export interface AnnualPlanForm {
   id?: string;
   code: string;
+  version?: string;
+  parentPlanId?: string;
+  revisionHistory?: RevisionHistory[];
   activities: AuditActivities[];
   status: AnnualAuditPlanStatus;
   selectedMonths: number[];
@@ -178,10 +199,15 @@ export interface AnnualPlanForm {
   supervisorId?: string;
   notes?: string;
   year: string;
+  attachmentCategory: string;
+  attachmentUploadedBy: string;
+  attachmentUploadDate: string;
+  attachments?: AnnualAuditAttachment[];
+  file: File[] | null;
+  staffApprovalNote: string;
+  managerApprovalNote: string;
+  chiefApprovalNote: string;
   isActive: boolean;
-  // auditUniverse: string;
-  // auditCycle: string;
-  // lastAudit: string;
 }
 
 export interface AuditMainStats {
@@ -324,7 +350,7 @@ export interface WorkingPaperCauseForm {
   condition: string;
   criteria: string;
   impact: string;
-  evidenceFile: File | null; // Untuk upload file
+  evidenceFile: File | null;
   rootCause: RootCauseItem[];
 }
 

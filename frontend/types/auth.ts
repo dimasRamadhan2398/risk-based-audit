@@ -15,6 +15,9 @@ export enum UserRole {
   DEPARTMENT_HEAD = "department_head",
   AUDITEE = "auditee",
   VIEWER = "viewer",
+  AUDIT_STAFF = "audit_staff",
+  AUDIT_MANAGER = "audit_manager",
+  CHIEF_AUDIT_EXECUTIVE = "chief_audit_executive",
 }
 
 export interface LoginCredentials {

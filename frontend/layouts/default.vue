@@ -19,32 +19,27 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/risk-profile'
   }, 
   {
-    label: '3. Risk Mitigation Control',
-    icon: 'i-lucide-calendar',
-    to: '/risk-mitigation-control'
-  },
-  {
-    label: '4. Strategic Plan Internal Audit',
+    label: '3. Strategic Plan Internal Audit',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
   },
   {
-    label: '5. Annual Audit Plan',
+    label: '4. Annual Audit Plan',
     icon: 'i-lucide-users',
     to: '/annual-audit',
   },
   {
-    label: '6. Audit Activity Plan',
+    label: '5. Audit Activity Plan',
     icon: 'i-lucide-users',
     to: '/audit-activity-plan'
   }, 
   {
-    label: '7. Assignment Letter',
+    label: '6. Assignment Letter',
     icon: 'i-lucide-users',
     to: '/assignment-letter',
   },
   {
-    label: '8. Working Papers',
+    label: '7. Working Papers',
     icon: 'i-lucide-users',
     to: '/working-paper',
     children :[
@@ -56,12 +51,12 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '9. Audit Result Report',
+    label: '8. Audit Result Report',
     icon: 'i-lucide-users',
     to: '/audit-result-report',
   }, 
   {
-    label: '10. Dashboard',
+    label: '9. Dashboard',
     icon: 'i-lucide-users',
     to: '/dashboard' 
   },
