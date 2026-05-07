@@ -474,3 +474,5 @@ export interface StrategicAuditPlan {
   kpiTarget: KPITargetYear[];
   unit: string;
 }
+
+
