@@ -1,6 +1,5 @@
 import type { TableColumn } from "@nuxt/ui";
-import type { StrategicAuditPlan, KPITargetYear } from "~/types/audit";
-import { h } from 'vue'; // Import the 'h' function
+import type { StrategicAuditPlan } from "~/types/audit";
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
@@ -8,127 +7,192 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const isAddModalOpen = ref(false);
     const isEditMode = ref(false);
 
-    // Form Data
-    const form = ref<Partial<StrategicAuditPlan>>({
-        number: "",
-        objectives: "",
-        kpi: "",
-        characteristicData: "",
-        kpiTarget: [],
-        unit: "",
+    // Unit options for dropdown
+    const unitOptions = [
+        { label: 'Percentage (%)', value: '%' },
+        { label: 'Rupiah (Rp)', value: 'Rp' },
+        { label: 'Amount', value: 'Amount' },
+        { label: 'Score', value: 'Score' },
+        { label: 'Hour', value: 'Hour' },
+        { label: 'Day', value: 'Day' },
+    ];
+
+    // Year range for dropdowns
+    const currentYear = new Date().getFullYear();
+    const yearOptions = Array.from({ length: 20 }, (_, i) => {
+        const year = currentYear - 5 + i;
+        return { label: String(year), value: year };
     });
 
-    // Sifat Data Options
-    const characteristicDataOptions = [
-        { label: "HIG", value: "hig" },
-        { label: "HIB", value: "hib" },
-    ];
+    // Form Data
+    const form = ref<Partial<StrategicAuditPlan>>({
+        code: '',
+        strategicObjective: '',
+        kpi: '',
+        unit: '',
+        hibHig: 'HIG',
+        periodType: 'Quartal',
+        selectedPeriod: 'Q1',
+        yearStart: currentYear,
+        yearEnd: currentYear + 4,
+        actual: '',
+        target: '',
+        calculation: '',
+        status: '',
+    });
+
+    // Computed: available periods based on periodType
+    const availablePeriods = computed(() => {
+        if (form.value.periodType === 'Quartal') {
+            return ['Q1', 'Q2', 'Q3', 'Q4'];
+        } else {
+            const yearStart = form.value.yearStart || currentYear;
+            const yearEnd = form.value.yearEnd || currentYear + 4;
+            const years: string[] = [];
+            for (let y = yearStart; y <= yearEnd; y++) {
+                years.push(String(y));
+            }
+            return years;
+        }
+    });
+
+    // Computed: Hitungan (calculation based on actual and target)
+    const computedCalculation = computed(() => {
+        const actual = parseFloat(form.value.actual || '0');
+        const target = parseFloat(form.value.target || '0');
+        if (target === 0) return '';
+        const result = (1 - (actual / target)) * 100;
+        return `${result.toFixed(2)}%`;
+    });
+
+    // Computed: Keterangan based on HIB/HIG and hitungan
+    const computedStatus = computed(() => {
+        const actual = parseFloat(form.value.actual || '0');
+        const target = parseFloat(form.value.target || '0');
+        if (target === 0 || !form.value.actual || !form.value.target) return '';
+
+        const ratio = actual / target;
+        if (form.value.hibHig === 'HIG') {
+            // High is Good: higher actual is better
+            if (ratio >= 1) return 'Good';
+            if (ratio >= 0.7) return 'Moderate';
+            return 'Poor';
+        } else {
+            // High is Bad: lower actual is better
+            if (ratio <= 1) return 'Good';
+            if (ratio <= 1.3) return 'Moderate';
+            return 'Poor';
+        }
+    });
 
     // Mock Data
     const strategicObjectives = ref<StrategicAuditPlan[]>([
         {
             id: 1,
-            number: "1",
-            objectives: "Enhance operational efficiency across all departments",
-            kpi: "Cost reduction ratio",
-            characteristicData: "HIG",
-            kpiTarget: [
-                { year: 2025, value: "5" },
-                { year: 2026, value: "10" },
-                { year: 2027, value: "15" }
-            ],
-            unit: "%",
+            code: 'SO-IA01',
+            strategicObjective: 'Enhance Operational Efficiency',
+            kpi: 'Revenue Operational Cost',
+            unit: '%',
+            hibHig: 'HIG',
+            periodType: 'Quartal',
+            selectedPeriod: 'Q1',
+            actual: '100',
+            target: '300',
+            calculation: '33.33%',
+            status: 'Poor',
         },
         {
             id: 2,
-            number: "2",
-            objectives: "Strengthen internal control systems",
-            kpi: "Control effectiveness score",
-            characteristicData: "HIG",
-            kpiTarget: [
-                { year: 2025, value: "85" },
-                { year: 2026, value: "90" }
-            ],
-            unit: "%",
+            code: 'SO-IA02',
+            strategicObjective: 'Strengthen Internal Control',
+            kpi: 'Customer Satisfaction Index',
+            unit: 'Score',
+            hibHig: 'HIG',
+            periodType: 'Yearly',
+            selectedPeriod: '2025',
+            yearStart: 2022,
+            yearEnd: 2026,
+            actual: '85',
+            target: '90',
+            calculation: '94.44%',
+            status: 'Good',
         },
         {
             id: 3,
-            number: "3",
-            objectives: "Improve risk management practices",
-            kpi: "Risk response time",
-            characteristicData: "HIB",
-            kpiTarget: [
-                { year: 2025, value: "48" }
-            ],
-            unit: "Hours",
-        },
-        {
-            id: 4,
-            number: "4",
-            objectives: "Enhance compliance with regulations",
-            kpi: "Compliance audit score",
-            characteristicData: "HIG",
-            kpiTarget: [
-                { year: 2025, value: "100" }
-            ],
-            unit: "Score",
+            code: 'SO-IA03',
+            strategicObjective: 'Improve Compliance',
+            kpi: 'Audit Response Time',
+            unit: 'Hour',
+            hibHig: 'HIB',
+            periodType: 'Quartal',
+            selectedPeriod: 'Q2',
+            actual: '24',
+            target: '48',
+            calculation: '50.00%',
+            status: 'Good',
         },
     ]);
 
     // Table Columns
     const columns: TableColumn<StrategicAuditPlan>[] = [
         {
-            accessorKey: "number",
-            header: "No.",
+            accessorKey: 'code',
+            header: 'Objective ID',
             cell: (row) => row.getValue(),
-            // meta: {
-            //     class: {
-            //         th: "bg-primary border-rounded text-secondary-900 text-center w-16",
-            //         td: "text-center font-semibold text-gray-900",
-            //     },
-            // },
         },
         {
-            accessorKey: "objectives",
-            header: "Corporate Strategic Objectives",
+            accessorKey: 'strategicObjective',
+            header: 'Strategic Objective',
             cell: (row) => row.getValue(),
-
         },
         {
-            accessorKey: "kpi",
-            header: "KPI",
+            accessorKey: 'kpi',
+            header: 'KPI',
             cell: (row) => row.getValue(),
-
         },
         {
-            accessorKey: "characteristicData",
-            header: "Characteristic Data",
+            accessorKey: 'unit',
+            header: 'Unit',
             cell: (row) => row.getValue(),
-
         },
         {
-            accessorKey: "kpiTarget",
-            header: "KPI Target",
+            accessorKey: 'hibHig',
+            header: 'HIB/HIG',
+            cell: (row) => row.getValue(),
+        },
+        {
+            accessorKey: 'periodType',
+            header: 'Period',
             cell: (row) => {
-                const targets = row.getValue() as KPITargetYear[];
-                const unit = row.row.original.unit;
-                return h('div', { class: 'flex flex-col gap-1' },
-                    targets.map(t => h('div', { class: 'text-xs' }, `${t.year}: ${t.value} ${unit}`))
-                );
+                const periodType = row.getValue() as string;
+                const period = row.row.original.selectedPeriod;
+                return `${periodType} - ${period}`;
             },
-
         },
         {
-            accessorKey: "unit",
-            header: "Unit",
+            accessorKey: 'actual',
+            header: 'Actual',
             cell: (row) => row.getValue(),
-
         },
         {
-            accessorKey: "actions",
-            header: "Actions",
-            cell: "actions-cell",
-
+            accessorKey: 'target',
+            header: 'Target',
+            cell: (row) => row.getValue(),
+        },
+        {
+            accessorKey: 'calculation',
+            header: 'Calculation',
+            cell: (row) => row.getValue(),
+        },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+            cell: (row) => row.getValue(),
+        },
+        {
+            accessorKey: 'actions',
+            header: 'Actions',
+            cell: 'actions-cell',
         },
     ];
 
@@ -150,32 +214,34 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     ];
 
     // Methods
+    const resetForm = () => {
+        form.value = {
+            code: '',
+            strategicObjective: '',
+            kpi: '',
+            unit: '',
+            hibHig: 'HIG',
+            periodType: 'Quartal',
+            selectedPeriod: 'Q1',
+            yearStart: currentYear,
+            yearEnd: currentYear + 4,
+            actual: '',
+            target: '',
+            calculation: '',
+            status: '',
+        };
+    };
+
     const openModal = () => {
         isEditMode.value = false;
-
-        // Reset Form
-        form.value = {
-            number: '',
-            objectives: '',
-            kpi: '',
-            characteristicData: '',
-            kpiTarget: [],
-            unit: '',
-        };
+        resetForm();
         isAddModalOpen.value = true;
-    }
+    };
 
     const closeModal = () => {
         isAddModalOpen.value = false;
         isEditMode.value = false;
-        form.value = {
-            number: "",
-            objectives: "",
-            kpi: "",
-            characteristicData: "",
-            kpiTarget: [],
-            unit: "",
-        };
+        resetForm();
     };
 
     const handleEdit = (item: any) => {
@@ -185,30 +251,18 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm("Are you sure you want to delete this strategic objective?")) {
+        if (confirm("Are you sure you want to delete this Strategic Plan?")) {
             strategicObjectives.value = strategicObjectives.value.filter(
                 (item) => item.id !== id
             );
         }
     };
 
-    const addKpiTargetYear = () => {
-        if (!form.value.kpiTarget) {
-            form.value.kpiTarget = [];
-        }
-        const currentYear = new Date().getFullYear();
-        const nextYear = form.value.kpiTarget.length > 0
-            ? Math.max(...form.value.kpiTarget.map(t => t.year)) + 1
-            : currentYear;
-
-        form.value.kpiTarget.push({ year: nextYear, value: "" });
-    };
-
-    const removeKpiTargetYear = (index: number) => {
-        form.value.kpiTarget?.splice(index, 1);
-    };
-
     const handleSubmit = () => {
+        // Set computed fields before saving
+        form.value.calculation = computedCalculation.value;
+        form.value.status = computedStatus.value;
+
         if (isEditMode.value) {
             const index = strategicObjectives.value.findIndex(
                 (item) => item.id === form.value.id,
@@ -220,15 +274,33 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             strategicObjectives.value.push({
                 ...form.value,
                 id: Date.now(),
-                status: "In Progress",
             } as StrategicAuditPlan);
         }
         closeModal();
     };
 
+    // When periodType changes, reset selectedPeriod
+    watch(() => form.value.periodType, (newType) => {
+        if (newType === 'Quartal') {
+            form.value.selectedPeriod = 'Q1';
+        } else {
+            form.value.selectedPeriod = String(form.value.yearStart || currentYear);
+        }
+    });
+
+    // When yearStart or yearEnd changes for Yearly, reset selectedPeriod if needed
+    watch([() => form.value.yearStart, () => form.value.yearEnd], () => {
+        if (form.value.periodType === 'Yearly') {
+            const periods = availablePeriods.value;
+            if (!periods.includes(form.value.selectedPeriod || '')) {
+                form.value.selectedPeriod = periods[0] || '';
+            }
+        }
+    });
+
     return {
-        columns, strategicObjectives, isAddModalOpen, isEditMode, form, characteristicDataOptions,
+        columns, strategicObjectives, isAddModalOpen, isEditMode, form,
+        unitOptions, yearOptions, availablePeriods, computedCalculation, computedStatus,
         getRowActions, openModal, closeModal, handleEdit, handleDelete, handleSubmit,
-        addKpiTargetYear, removeKpiTargetYear
-    }
+    };
 });

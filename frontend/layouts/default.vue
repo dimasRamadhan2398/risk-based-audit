@@ -9,6 +9,11 @@ const route = useRoute()
 // 1. Simpan data menu dalam variabel mentah (raw data)
 const rawItems: NavigationMenuItem[][] = [[
   {
+    label: 'Dashboard',
+    icon: 'i-lucide-users',
+    to: '/dashboard' 
+  },
+  {
     label: '1. Audit Charter',
     icon: 'charter',
     to: '/audit-charter'
@@ -55,11 +60,7 @@ const rawItems: NavigationMenuItem[][] = [[
     icon: 'i-lucide-users',
     to: '/audit-result-report',
   }, 
-  {
-    label: '9. Dashboard',
-    icon: 'i-lucide-users',
-    to: '/dashboard' 
-  },
+  
 ]]
 
 // 2. Gunakan Computed agar menu bereaksi setiap kali pengguna pindah halaman

@@ -1,6 +1,6 @@
 <template>
     <UCard variant="soft">
-        <!-- Strategic Objectives Table -->
+        <!-- Strategic KPI Table -->
           <UTable :data="store.strategicObjectives" :columns="store.columns">
             <template #actions-cell="{ row }">
               <UDropdownMenu
@@ -15,6 +15,19 @@
                 />
               </UDropdownMenu>
             </template>
+
+            <!-- Custom cell for status with color coding -->
+            <template #status-cell="{ row }">
+              <span
+                :class="{
+                  'text-green-600 font-semibold': row.original.status === 'Good',
+                  'text-yellow-600 font-semibold': row.original.status === 'Moderate',
+                  'text-red-600 font-semibold': row.original.status === 'Poor',
+                }"
+              >
+                {{ row.original.status || '-' }}
+              </span>
+            </template>
           </UTable>
     </UCard>
 </template>
@@ -23,5 +36,4 @@
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 
 const store = useStrategicPlanStore()
-
 </script>

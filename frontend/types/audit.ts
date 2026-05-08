@@ -465,14 +465,23 @@ export interface KPITargetYear {
   value: string;
 }
 
+export type HibHigType = 'HIG' | 'HIB';
+export type PeriodType = 'Quartal' | 'Yearly';
+export type QuarterType = 'Q1' | 'Q2' | 'Q3' | 'Q4';
+
 export interface StrategicAuditPlan {
   id: number;
-  number: string;
-  objectives: string;
+  code: string;
+  strategicObjective: string;
   kpi: string;
-  characteristicData: string;
-  kpiTarget: KPITargetYear[];
   unit: string;
+  hibHig: HibHigType;
+  periodType: PeriodType;
+  selectedPeriod: string; // Q1-Q4 for Quartal, or year string for Yearly
+  yearStart?: number;
+  yearEnd?: number;
+  actual: string;
+  target: string;
+  calculation: string;
+  status: string;
 }
-
-

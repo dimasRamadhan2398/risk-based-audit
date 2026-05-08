@@ -10,12 +10,12 @@
                 Strategic Plan Internal Audit
               </h1>
               <p class="text-sm text-[var(--text-muted)]">
-                5 Year Strategic Planning for Risk-Based Audit
+                Strategic Planning for Risk-Based Audit
               </p>
             </div>
             <UButton
               icon="add"
-              label="Add Strategic Objective"
+              label="Add Strategic Plan"
               variant="solid"
               color="primary"
               size="sm"
