@@ -1,10 +1,4 @@
 import { defineStore } from "pinia";
-import type {
-  RiskProfile,
-  RiskProfileItem,
-  ImpactLevel,
-  PossibilityLevel,
-} from "~/types/risk";
 import { generatedRiskProfileId } from "~/utils/structuredId";
 import {
   getPrompt,
@@ -74,6 +68,264 @@ interface RiskProfileState {
   impactLikelihoodExplanation: ImpactLikelihoodExplanation[];
   loading: boolean;
   error: string | null;
+}
+
+export const branches = [
+  'Head Office',
+  'Jakarta Branch',
+  'Surabaya Branch',
+  'Bandung Branch',
+  'Bali Branch'
+]
+
+export const riskData = [
+  {
+    id: 'FIN-001',
+    name: 'Financial Fraud / Corruption',
+    impact: 5,
+    likelihood: 5,
+    severity: 98,
+    category: 'Financial',
+    branch: 'Head Office',
+    description: 'Fraudulent financial activities including embezzlement, bribery, and accounting manipulation.'
+  },
+  {
+    id: 'SEC-001',
+    name: 'Cybersecurity Breach',
+    impact: 5,
+    likelihood: 4,
+    severity: 95,
+    category: 'Technology',
+    branch: 'Jakarta Branch',
+    description: 'Unauthorized access to critical systems, data theft, or ransomware attacks on infrastructure.'
+  },
+  {
+    id: 'COM-001',
+    name: 'Regulatory Non-Compliance',
+    impact: 4,
+    likelihood: 4,
+    severity: 88,
+    category: 'Compliance',
+    branch: 'Surabaya Branch',
+    description: 'Failure to adhere to government regulations, industry standards, or legal requirements.'
+  },
+  {
+    id: 'GOV-001',
+    name: 'Abuse of Power / Authority',
+    impact: 5,
+    likelihood: 5,
+    severity: 92,
+    category: 'Governance',
+    branch: 'Head Office',
+    description: 'Misuse of managerial or executive authority for personal gain or organizational harm.'
+  },
+  {
+    id: 'OPS-001',
+    name: 'Supply Chain Disruption',
+    impact: 4,
+    likelihood: 3,
+    severity: 72,
+    category: 'Operations',
+    branch: 'Bandung Branch',
+    description: 'Critical interruptions in the supply chain due to vendor failures, logistics, or global events.'
+  },
+  {
+    id: 'COM-002',
+    name: 'Data Privacy Violation',
+    impact: 5,
+    likelihood: 3,
+    severity: 85,
+    category: 'Compliance',
+    branch: 'Bali Branch',
+    description: 'Breaches of customer or employee data privacy, violating GDPR/local data protection laws.'
+  },
+  {
+    id: 'FIN-002',
+    name: 'Market Volatility Exposure',
+    impact: 3,
+    likelihood: 4,
+    severity: 65,
+    category: 'Financial',
+    branch: 'Jakarta Branch',
+    description: 'Financial losses due to unpredictable market fluctuations, currency risks, or commodity prices.'
+  },
+  {
+    id: 'HR-001',
+    name: 'Talent Attrition / Brain Drain',
+    impact: 3,
+    likelihood: 3,
+    severity: 50,
+    category: 'Human Resources',
+    branch: 'Head Office',
+    description: 'Loss of key employees and institutional knowledge affecting operational continuity.'
+  },
+  {
+    id: 'STR-001',
+    name: 'Reputational Damage',
+    impact: 4,
+    likelihood: 2,
+    severity: 75,
+    category: 'Strategic',
+    branch: 'Surabaya Branch',
+    description: 'Significant brand damage due to public scandals, social media crises, or product failures.'
+  },
+  {
+    id: 'COM-003',
+    name: 'Environmental Compliance Failure',
+    impact: 3,
+    likelihood: 2,
+    severity: 55,
+    category: 'Compliance',
+    branch: 'Bandung Branch',
+    description: 'Violations of environmental regulations leading to fines, shutdowns, or cleanup obligations.'
+  },
+  {
+    id: 'TEC-001',
+    name: 'Operational System Failure',
+    impact: 4,
+    likelihood: 3,
+    severity: 70,
+    category: 'Technology',
+    branch: 'Bali Branch',
+    description: 'Critical failure in core business systems causing operational downtime and revenue loss.'
+  },
+  {
+    id: 'FIN-003',
+    name: 'Insider Trading',
+    impact: 5,
+    likelihood: 2,
+    severity: 90,
+    category: 'Financial',
+    branch: 'Head Office',
+    description: 'Illegal trading of securities based on material, non-public information by employees.'
+  },
+  {
+    id: 'HR-002',
+    name: 'Workplace Safety Incident',
+    impact: 3,
+    likelihood: 2,
+    severity: 58,
+    category: 'Human Resources',
+    branch: 'Surabaya Branch',
+    description: 'Accidents or hazardous conditions leading to employee injury or regulatory action.'
+  },
+  {
+    id: 'OPS-002',
+    name: 'Third-Party Vendor Risk',
+    impact: 2,
+    likelihood: 3,
+    severity: 40,
+    category: 'Operations',
+    branch: 'Jakarta Branch',
+    description: 'Risks arising from outsourced vendors failing to meet service, security, or compliance standards.'
+  },
+  {
+    id: 'STR-002',
+    name: 'Intellectual Property Theft',
+    impact: 4,
+    likelihood: 2,
+    severity: 78,
+    category: 'Strategic',
+    branch: 'Bandung Branch',
+    description: 'Unauthorized copying, use, or distribution of company trade secrets and proprietary technology.'
+  },
+  {
+    id: 'OPS-003',
+    name: 'Natural Disaster Impact',
+    impact: 5,
+    likelihood: 1,
+    severity: 60,
+    category: 'Operations',
+    branch: 'Bali Branch',
+    description: 'Disruption from earthquakes, floods, hurricanes, or other catastrophic natural events.'
+  },
+  {
+    id: 'FIN-004',
+    name: 'Interest Rate Fluctuation',
+    impact: 2,
+    likelihood: 4,
+    severity: 35,
+    category: 'Financial',
+    branch: 'Head Office',
+    description: 'Exposure to changing interest rates affecting debt servicing and investment returns.'
+  },
+  {
+    id: 'STR-003',
+    name: 'Political / Geopolitical Risk',
+    impact: 3,
+    likelihood: 3,
+    severity: 52,
+    category: 'Strategic',
+    branch: 'Jakarta Branch',
+    description: 'Business disruption from political instability, sanctions, trade wars, or regime changes.'
+  },
+  {
+    id: 'OPS-004',
+    name: 'Product Liability',
+    impact: 4,
+    likelihood: 1,
+    severity: 68,
+    category: 'Operations',
+    branch: 'Surabaya Branch',
+    description: 'Legal liability from defective products causing harm to consumers or businesses.'
+  },
+  {
+    id: 'OPS-005',
+    name: 'Pandemic / Health Crisis',
+    impact: 5,
+    likelihood: 2,
+    severity: 82,
+    category: 'Operations',
+    branch: 'Head Office',
+    description: 'Widespread health emergencies causing workforce disruption and operational shutdowns.'
+  }
+]
+
+export const categoryIcons: Record<string, string> = {
+  'Financial': '💰',
+  'Technology': '🔒',
+  'Compliance': '📋',
+  'Governance': '🏛️',
+  'Operations': '⚙️',
+  'Human Resources': '👥',
+  'Strategic': '🎯',
+  'Security': '🛡️',
+  'Reputational': '🌟',
+  'Environmental': '🌱',
+  'Legal': '⚖️'
+}
+
+export const impactLabels: Record<number, string> = {
+  1: 'Very Low',
+  2: 'Low',
+  3: 'Moderate',
+  4: 'High',
+  5: 'Very High'
+}
+
+export const likelihoodLabels: Record<number, string> = {
+  1: 'Very Rare',
+  2: 'Unlikely',
+  3: 'Possible',
+  4: 'Likely',
+  5: 'Almost Certain'
+}
+
+export const riskLevelConfig: Record<string, { label: string, color: string, bg: string, cellBg: string, priority: boolean }> = {
+  'Low': { label: 'LOW', color: '#166534', bg: '#dcfce7', cellBg: 'rgba(34, 80, 52, 0.55)', priority: false },
+  'Low to Moderate': { label: 'LOW TO MODERATE', color: '#3f6212', bg: '#ecfccb', cellBg: 'rgba(72, 90, 30, 0.55)', priority: false },
+  'Moderate': { label: 'MODERATE', color: '#854d0e', bg: '#fef9c3', cellBg: 'rgba(100, 90, 20, 0.55)', priority: true },
+  'Moderate to High': { label: 'MODERATE TO HIGH', color: '#fff', bg: '#f97316', cellBg: 'rgba(140, 40, 40, 0.55)', priority: true },
+  'High': { label: 'HIGH', color: '#fff', bg: '#ef4444', cellBg: 'rgba(160, 30, 30, 0.60)', priority: true }
+}
+
+export function getRiskLevel(likelihood: number, impact: number): string {
+  const riskScore = impact * likelihood;
+  if (riskScore <= 4) return "Low";
+  if (riskScore <= 10) return "Low to Moderate";
+  if (riskScore <= 15) return "Moderate";
+  if (riskScore <= 20) return "Moderate to High";
+  return "High";
 }
 
 export const useRiskProfileStore = defineStore("risk-profile", {

@@ -1,448 +1,162 @@
 <template>
   <UCard variant="soft">
     <template #header>
-      <div class="flex flex-row items-stretch justify-between gap-8">
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-row items-center">
-            <h1 class="text-3xl font-bold text-gray-900">Risk Profile</h1>
-            <UButton
-              icon="info"
-              size="md"
-              color="primary"
-              variant="ghost"
-              class="hover:cursor-pointer"
-              @click="isInformationRiskProfileModalOpen = true"
-            />
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-2">
+        <!-- Title & Subtitle Section -->
+        <div class="flex items-center gap-5">
+          <div class="p-4 bg-primary-500/10 dark:bg-primary-500/20 text-primary-500 rounded-2xl shadow-lg border border-primary-500/20">
+            <UIcon name="i-lucide-layout-grid" class="w-8 h-8" />
           </div>
-          <h6>
-            Daftar risiko prioritas perusahaan dengan tingkat dampak dan
-            kemungkinan
-          </h6>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Corporate Risk Profile</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Interactive Risk Heat Map — Fiscal Year {{ currentYear }}</p>
+          </div>
         </div>
-        <div class="self-start">
-          <UButton
-            icon="add"
-            label="Tambah Risiko"
-            variant="solid"
-            color="primary"
-            size="sm"
+        
+        <!-- Stats & Actions Section -->
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="stats-box">
+              <span class="stats-value">{{ totalRisks }}</span>
+              <span class="stats-label">TOTAL RISKS</span>
+            </div>
+            <div class="stats-box priority">
+              <span class="stats-value text-orange-500">{{ priorityCount }}</span>
+              <span class="stats-label text-orange-500/80">PRIORITY</span>
+            </div>
+          </div>
+          
+          <UButton 
+            icon="i-lucide-plus" 
+            color="primary" 
+            size="xl" 
+            class="px-6 rounded-xl shadow-lg shadow-primary-500/20 hover:scale-105 transition-transform"
             @click="onAddRisk"
           >
+            Tambah Risiko
           </UButton>
         </div>
       </div>
     </template>
-    <div class="relative flex flex-col gap-4">
-      <h5>Matriks Resiko</h5>
-      <UTable
-        :data="data"
-        :columns="columns"
-      />
-    </div>
-    <template #footer>
-      <div class="relative flex flex-col gap-4">
-        <div class="flex flex-row items-stretch justify-between gap-8">
-          <h5>List Resiko</h5>
-          <UButton
-            label="Import"
-            variant="solid"
-            color="primary"
-            size="sm"
-            icon="import"
-            @click="isAddRiskProfileFormOpen = true"
-          >
-          </UButton>
+
+    <!-- Content Area: Filter, Hint, and Legend -->
+    <div class="space-y-6 px-2 mb-8">
+      <!-- Row 1: Hint & Filter -->
+      <div class="flex flex-col lg:flex-row gap-4 items-stretch">
+        <div class="flex-1 p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-700/50 flex items-start gap-3">
+          <UIcon name="i-lucide-lightbulb" class="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" />
+          <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+            <span class="font-bold text-primary-500">Hint:</span> Drag and drop risks to update their status. If multiple risks land in the same cell, they will automatically be prioritized and stacked based on their inherent severity weight.
+          </p>
         </div>
-        <UTable
-          ref="table"
-          :data="riskData"
-          :columns="priorityRiskListColumn"
-          :pagination-options="{
-            getPaginationRowModel: getPaginationRowModel(),
-          }"
-          v-model:pagination-state="pagination"
-        />
-        <div class="flex flex-row items-end justify-end">
-          <UPagination
-            active-variant="solid"
-            :page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
-            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-            :total="riskData.length"
-            @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+        
+        <div class="w-full lg:w-80 p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-700/50 flex flex-col justify-center gap-2">
+          <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Filter Branch/Dept:</label>
+          <USelectMenu 
+            v-model="selectedBranch" 
+            :options="branchOptions" 
+            class="w-full"
+            size="md"
+            variant="none"
+            :ui="{ 
+              base: 'bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-700 shadow-inner rounded-lg' 
+            }"
           />
         </div>
       </div>
-    </template>
+
+      <!-- Row 2: Legend -->
+      <div class="p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-700/50">
+        <div class="flex flex-wrap items-center gap-y-4 gap-x-8">
+          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Risk Levels</span>
+          <div class="flex flex-wrap items-center gap-6">
+            <div v-for="(config, key) in riskLevelConfig" :key="key" class="flex items-center gap-2 group">
+              <span class="w-4 h-4 rounded shadow-sm border border-black/10 dark:border-white/10" :style="{ background: config.bg }"></span>
+              <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ config.label }}</span>
+              <UBadge v-if="config.priority" color="primary" variant="soft" size="xs" class="ml-1 text-[9px] font-bold tracking-tighter uppercase px-1.5 py-0">Priority</UBadge>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <RiskHeatMap ref="heatMapRef" :branch="selectedBranch" />
+
   </UCard>
-  <AddRiskProfileForm
-    v-model:isOpen="isAddRiskProfileFormOpen"
-    v-model:editMode="onEditMode"
-    v-model:riskData="selectedRiskValueRaw"
-  />
-  <DeleteConfirmationRiskItem
-    v-model:isOpen="isDeleteRiskProfileModalOpen"
-    v-model:riskName="selectedRiskName"
-    v-model:riskId="selectedRiskId"
-  />
-  <DetailRiskProfileForm
-    v-model:isOpen="isDetailRiskProfileModalOpen"
-    v-model:riskData="selectedRiskValueRaw"
-    v-model:quarterlyActive="isQuarterlyActive"
-  />
-  <InformationRiskProfile v-model:isOpen="isInformationRiskProfileModalOpen" />
 </template>
 
 <script setup lang="ts">
-import { getPaginationRowModel } from '@tanstack/vue-table'
-import type { TableColumn } from "@nuxt/ui";
-import AddRiskProfileForm from "~/components/risk-profile/AddRiskProfileForm.vue";
-import DeleteConfirmationRiskItem from "~/components/risk-profile/DeleteConfirmationRiskItem.vue";
-import { useRiskProfileStore, type RiskListItem } from "~/stores/profile-risk";
-import DetailRiskProfileForm from "~/components/risk-profile/DetailRiskProfileForm.vue";
-import { riskColor } from "~/types/common";
-import InformationRiskProfile from "~/components/risk-profile/InformationRiskProfile.vue";
-import { useRoute } from 'vue-router'
+import { ref, computed } from 'vue'
+import RiskHeatMap from '~/components/risk-profile/RiskHeatMap.vue'
+import { 
+  riskData, 
+  branches, 
+  riskLevelConfig, 
+  getRiskLevel,
+  useRiskProfileStore 
+} from '~/stores/profile-risk'
 
-const route = useRoute()
+const currentYear = new Date().getFullYear()
+const selectedBranch = ref('All Branches')
+const branchOptions = computed(() => ['All Branches', ...branches])
+const heatMapRef = ref<InstanceType<typeof RiskHeatMap> | null>(null)
 
-onMounted(() => {
-  // Cek apakah ada instruksi untuk membuka detail dari halaman mitigasi
-  const riskIdToOpen = route.query.openDetail as string
-  
-  if (riskIdToOpen) {
-    const risk = riskProfileStore.getRiskById(riskIdToOpen)
-    if (risk) {
-      // Set data risiko yang dipilih ke state store/local
-      riskProfileStore.setSelectedRiskValue(risk)
-      // Buka modal secara otomatis
-      isDetailRiskProfileModalOpen.value = true
-    }
-  }
+const store = useRiskProfileStore()
+
+// For the UI counts - showing summary of all data
+const totalRisks = computed(() => riskData.length)
+const priorityCount = computed(() => {
+  return riskData.filter(r => {
+    const level = getRiskLevel(r.likelihood, r.impact)
+    return riskLevelConfig[level]?.priority || false
+  }).length
 })
-
-const props = defineProps<{
-  risks: [];
-}>();
-
-const table = useTemplateRef('table')
-
-const UBadge = resolveComponent("UBadge");
-const UDropdownMenu = resolveComponent("UDropdownMenu");
-const UButton = resolveComponent("UButton");
-
-const { copy } = useClipboard();
-const toast = useToast();
-
-const riskProfileStore = useRiskProfileStore();
-
-const isAddRiskProfileFormOpen = ref(false);
-const isDeleteRiskProfileModalOpen = ref(false);
-const isDetailRiskProfileModalOpen = ref(false);
-const isInformationRiskProfileModalOpen = ref(false);
-
-const onEditMode = ref(false);
-
-// Use store data instead of local refs
-const data = computed(() => riskProfileStore.getRiskMatrix);
-const riskData = computed(() => riskProfileStore.getRiskList);
-
-const riskState = ref(riskProfileStore.riskState)
-
-const selectedRiskValueRaw = computed(() => {
-  const raw = toRaw(selectedRiskValue.value);
-  return raw === null ? undefined : raw;
-});
-
-// Computed with getters/setters that sync with store
-const selectedRiskId = computed({
-  get: () => riskState.value.selectedRiskId,
-  set: (value: string) => riskProfileStore.setSelectedRiskId(value),
-});
-
-const selectedRiskName = computed({
-  get: () => riskState.value.selectedRiskName,
-  set: (value: string) => riskProfileStore.setSelectedRiskName(value),
-});
-
-const selectedRiskValue = computed({
-  get: () => riskState.value.selectedRiskValue,
-  set: (value: RiskListItem | null) => riskProfileStore.setSelectedRiskValue(value),
-});
-
-const isQuarterlyActive = computed(() => {
-  if (!selectedRiskValueRaw.value) {
-    return false;
-  }
-  const length = selectedRiskValueRaw.value.list_residual_risks.length;
-  if(length < 4){
-    return false;
-  }
-  return true;
-})
-
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 0,
-});
-
-watch(riskData, () => {
-  pagination.value = {
-    pageIndex: 0,
-    pageSize: 10,
-  };
-});
 
 const onAddRisk = () => {
-  isAddRiskProfileFormOpen.value = true
-  onEditMode.value = false
-}
-
-const cleanData = () => {
-  selectedRiskId.value = "";
-  selectedRiskName.value = "";
-  selectedRiskValue.value = null;
-}
-
-const getRiskCellValue = (risk: any) => {
-  const selectedColor = Object.entries(riskColor).find(([key]) => {
-    const clearedKey = risk.getValue().replace(/\s+\d+$/, "");
-    return clearedKey === key;
-  })?.[1];
-
-  return h(
-    UBadge,
-    { class: "capitalize", variant: "soft", color: selectedColor },
-    () => risk.getValue(),
-  );
-};
-
-const deleteRisk = (id: string) => {
-  selectedRiskId.value = id;
-  isDeleteRiskProfileModalOpen.value = true;
-};
-const columns: TableColumn<Object>[] = [
-  {
-    accessorKey: "name",
-    header: "Impact/Likelihood",
-    cell: (risk: any) => {
-      return risk.getValue();
-    },
-    meta: {
-      class: {
-        th: "text-center font-semibold bg-primary text-secondary-900",
-        td: "text-center font-semibold bg-primary text-secondary-900 bg-primary",
-      },
-    },
-  },
-  {
-    accessorKey: "riskId1",
-    header: "1 Sangat Rendah",
-    cell: getRiskCellValue,
-    meta: {
-      class: {
-        th: "text-center font-semibold bg-primary text-secondary-900",
-        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
-      },
-    },
-  },
-  {
-    accessorKey: "riskId2",
-    header: "2 Rendah",
-    cell: getRiskCellValue,
-    meta: {
-      class: {
-        th: "text-center font-semibold bg-primary text-secondary-900",
-        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
-      },
-    },
-  },
-  {
-    accessorKey: "riskId3",
-    header: "3 Moderat",
-    cell: getRiskCellValue,
-    meta: {
-      class: {
-        th: "text-center font-semibold bg-primary text-secondary-900",
-        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
-      },
-    },
-  },
-  {
-    accessorKey: "riskId4",
-    header: "4 Tinggi",
-    cell: getRiskCellValue,
-    meta: {
-      class: {
-        th: "text-center font-semibold bg-primary text-secondary-900",
-        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
-      },
-    },
-  },
-  {
-    accessorKey: "riskId5",
-    header: "5 Sangat Tinggi",
-    cell: getRiskCellValue,
-    meta: {
-      class: {
-        th: "text-center font-semibold bg-primary text-secondary-900",
-        td: "text-center font-semibold [&:nth-child(2):has(td:nth-child(2))]:bg-primary",
-      },
-    },
-  },
-];
-
-const priorityRiskListColumn: TableColumn<RiskListItem>[] = [
-  {
-    accessorKey: "risk_id",
-    header: "Risk ID",
-    cell: (risk: any) => {
-      return risk.getValue();
-    },
-    meta: {
-      class: {
-        th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center ",
-      },
-    },
-  },
-  {
-    accessorKey: "risk_name",
-    header: "Risk Name",
-    cell: (risk: any) => {
-      return risk.getValue();
-    },
-    meta: {
-      class: {
-        th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center ",
-      },
-    },
-  },
-  {
-    accessorKey: "risk_category",
-    header: "Risk Category",
-    cell: (risk: any) => {
-      return risk.getValue();
-    },
-    meta: {
-      class: {
-        th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center ",
-      },
-    },
-  },
-  {
-    accessorKey: "latest_impact_level",
-    header: "Impact Level",
-    cell: (risk: any) => {
-      return risk.getValue();
-    },
-    meta: {
-      class: {
-        th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center ",
-      },
-    },
-  },
-  {
-    accessorKey: "latest_possibility_level",
-    header: "Possibility Level",
-    cell: (risk: any) => {
-      return risk.getValue();
-    },
-    meta: {
-      class: {
-        th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center ",
-      },
-    },
-  },
-  {
-    accessorKey: "risk_level",
-    header: "Risk Level",
-    cell: getRiskCellValue,
-    meta: {
-      class: {
-        th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "place-self-center text-center",
-      },
-    },
-  },
-  {
-    accessorKey: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      return h(
-        UDropdownMenu,
-        {
-          content: {
-            align: "end",
-          },
-          items: getRowItems(row),
-          "aria-label": "Actions dropdown",
-        },
-        () =>
-          h(UButton, {
-            icon: "i-lucide-ellipsis-vertical",
-            color: "primary",
-            variant: "ghost",
-            "aria-label": "Actions dropdown",
-          }),
-      );
-    },
-    meta: {
-      class: {
-        th: "bg-primary text-secondary-900 text-center place-self-center px-6 py-3 mx-auto text-xs leading-4 font-medium uppercase tracking-wider",
-        td: "text-center place-self-center",
-      },
-    },
-  },
-];
-
-function getRowItems(row: any) {
-  return [
-    {
-      type: "label",
-      label: "Actions",
-    },
-    {
-      label: "Copy Risk ID",
-      onSelect() {
-        copy(row.original.risk_id);
-
-        toast.add({
-          title: "Risk ID copied to clipboard!",
-          color: "success",
-          icon: "i-lucide-circle-check",
-        });
-      },
-    },
-    {
-      type: "separator",
-    },
-    {
-      label: "Details",
-      onSelect() {
-        selectedRiskValue.value = row.original;
-        isDetailRiskProfileModalOpen.value = true;
-        onEditMode.value = false;
-      },
-    },
-    {
-      label: "Edit",
-      onSelect() {
-        selectedRiskValue.value = row.original;
-        isAddRiskProfileFormOpen.value = true;
-        onEditMode.value = true;
-      },
-    },
-    {
-      label: "Delete",
-      onSelect() {
-        selectedRiskName.value = row.original.risk_name;
-        deleteRisk(row.original.risk_id);
-      },
-    },
-  ];
+  heatMapRef.value?.openAddModal()
 }
 </script>
+
+<style scoped>
+@reference "tailwindcss";
+
+.stats-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  height: 4rem;
+  background-color: rgb(249 250 251);
+  border-radius: 0.75rem;
+  border-width: 1px;
+  border-color: rgb(229 231 235);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+:is(.dark .stats-box) {
+  background-color: rgb(31 41 55 / 0.6);
+  border-color: rgb(55 65 81);
+}
+
+.stats-box.priority {
+  border-color: rgb(249 115 22 / 0.3);
+  background-color: rgb(249 115 22 / 0.05);
+}
+
+.stats-value {
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stats-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgb(107 114 128);
+  text-transform: uppercase;
+}
+</style>
