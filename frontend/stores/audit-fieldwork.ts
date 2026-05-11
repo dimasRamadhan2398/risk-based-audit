@@ -172,6 +172,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     file: null as File | null
   })
   const showInterviewModal = ref(false)
+  const isEditingInterview = ref(false)
+  const isReadOnlyInterview = ref(false)
+  const editingInterviewId = ref<number | null>(null)
 
   const openInterviewModal = () => {
     if (!selectedAssignmentLetter.value) {
@@ -179,7 +182,30 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       return
     }
     resetInterviewForm()
+    isEditingInterview.value = false
+    isReadOnlyInterview.value = false
+    editingInterviewId.value = null
     showInterviewModal.value = true
+  }
+
+  const editInterview = (item: InterviewItem) => {
+    isEditingInterview.value = true
+    isReadOnlyInterview.value = false
+    editingInterviewId.value = item.id
+    interviewForm.interviewee = item.interviewee
+    interviewForm.intervieweePosition = item.intervieweePosition
+    interviewForm.interviewer = item.interviewer
+    interviewForm.interviewerPosition = item.interviewerPosition
+    interviewForm.date = item.date
+    interviewForm.topic = item.topic
+    interviewForm.file = item.file
+    showInterviewModal.value = true
+  }
+
+  const viewInterview = (item: InterviewItem) => {
+    editInterview(item)
+    isEditingInterview.value = false
+    isReadOnlyInterview.value = true
   }
 
   const resetInterviewForm = () => {
@@ -205,16 +231,34 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const saveInterview = () => {
-    if (!selectedAssignmentLetter.value) return
+    if (!selectedAssignmentLetter.value || isReadOnlyInterview.value) return
     ensureDataExists()
-    fieldworkData.value[selectedAssignmentLetter.value]!.interviews.push({
-      id: Date.now(),
-      assignmentLetterId: selectedAssignmentLetter.value,
-      ...interviewForm
-    })
+
+    if (isEditingInterview.value && editingInterviewId.value) {
+      const index = fieldworkData.value[selectedAssignmentLetter.value]!.interviews.findIndex(i => i.id === editingInterviewId.value)
+      if (index !== -1) {
+        const existing = fieldworkData.value[selectedAssignmentLetter.value]!.interviews[index];
+        if (existing) {
+          fieldworkData.value[selectedAssignmentLetter.value]!.interviews[index] = {
+            ...existing,
+            ...interviewForm,
+            id: existing.id,
+            assignmentLetterId: existing.assignmentLetterId
+          };
+        }
+      }
+      alert('Interview data updated successfully!')
+    } else {
+      fieldworkData.value[selectedAssignmentLetter.value]!.interviews.push({
+        id: Date.now(),
+        assignmentLetterId: selectedAssignmentLetter.value,
+        ...interviewForm
+      })
+      alert('Interview data saved successfully!')
+    }
+
     showInterviewModal.value = false
     resetInterviewForm()
-    alert('Interview data saved successfully!')
   }
 
   const deleteInterview = (index: number) => {
@@ -231,6 +275,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     file: null as File | null
   })
   const showObservationModal = ref(false)
+  const isEditingObservation = ref(false)
+  const isReadOnlyObservation = ref(false)
+  const editingObservationId = ref<number | null>(null)
 
   const openObservationModal = () => {
     if (!selectedAssignmentLetter.value) {
@@ -238,7 +285,28 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       return
     }
     resetObservationForm()
+    isEditingObservation.value = false
+    isReadOnlyObservation.value = false
+    editingObservationId.value = null
     showObservationModal.value = true
+  }
+
+  const editObservation = (item: ObservationItem) => {
+    isEditingObservation.value = true
+    isReadOnlyObservation.value = false
+    editingObservationId.value = item.id
+    observationForm.activity = item.activity
+    observationForm.location = item.location
+    observationForm.date = item.date
+    observationForm.observer = item.observer
+    observationForm.file = item.file
+    showObservationModal.value = true
+  }
+
+  const viewObservation = (item: ObservationItem) => {
+    editObservation(item)
+    isEditingObservation.value = false
+    isReadOnlyObservation.value = true
   }
 
   const resetObservationForm = () => {
@@ -262,16 +330,34 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const saveObservation = () => {
-    if (!selectedAssignmentLetter.value) return
+    if (!selectedAssignmentLetter.value || isReadOnlyObservation.value) return
     ensureDataExists()
-    fieldworkData.value[selectedAssignmentLetter.value]!.observations.push({
-      id: Date.now(),
-      assignmentLetterId: selectedAssignmentLetter.value,
-      ...observationForm
-    })
+
+    if (isEditingObservation.value && editingObservationId.value) {
+      const index = fieldworkData.value[selectedAssignmentLetter.value]!.observations.findIndex(o => o.id === editingObservationId.value)
+      if (index !== -1) {
+        const existing = fieldworkData.value[selectedAssignmentLetter.value]!.observations[index]
+        if (existing) {
+          fieldworkData.value[selectedAssignmentLetter.value]!.observations[index] = {
+            ...existing,
+            ...observationForm,
+            id: existing.id,
+            assignmentLetterId: existing.assignmentLetterId
+          };
+        }
+      }
+      alert('Observation data updated successfully!')
+    } else {
+      fieldworkData.value[selectedAssignmentLetter.value]!.observations.push({
+        id: Date.now(),
+        assignmentLetterId: selectedAssignmentLetter.value,
+        ...observationForm
+      })
+      alert('Observation data saved successfully!')
+    }
+
     showObservationModal.value = false
     resetObservationForm()
-    alert('Observation data saved successfully!')
   }
 
   const deleteObservation = (index: number) => {
@@ -287,6 +373,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     file: null as File | null
   })
   const showDocumentModal = ref(false)
+  const isEditingDocument = ref(false)
+  const isReadOnlyDocument = ref(false)
+  const editingDocumentId = ref<number | null>(null)
 
   const openDocumentModal = () => {
     if (!selectedAssignmentLetter.value) {
@@ -294,7 +383,27 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       return
     }
     resetDocumentForm()
+    isEditingDocument.value = false
+    isReadOnlyDocument.value = false
+    editingDocumentId.value = null
     showDocumentModal.value = true
+  }
+
+  const editDocument = (item: DocumentItem) => {
+    isEditingDocument.value = true
+    isReadOnlyDocument.value = false
+    editingDocumentId.value = item.id
+    documentForm.documentName = item.documentName
+    documentForm.description = item.description
+    documentForm.requiredDate = item.requiredDate
+    documentForm.file = item.file
+    showDocumentModal.value = true
+  }
+
+  const viewDocument = (item: DocumentItem) => {
+    editDocument(item)
+    isEditingDocument.value = false
+    isReadOnlyDocument.value = true
   }
 
   const resetDocumentForm = () => {
@@ -317,16 +426,34 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const saveDocument = () => {
-    if (!selectedAssignmentLetter.value) return
+    if (!selectedAssignmentLetter.value || isReadOnlyDocument.value) return
     ensureDataExists()
-    fieldworkData.value[selectedAssignmentLetter.value]!.documents.push({
-      id: Date.now(),
-      assignmentLetterId: selectedAssignmentLetter.value,
-      ...documentForm
-    })
+
+    if (isEditingDocument.value && editingDocumentId.value) {
+      const index = fieldworkData.value[selectedAssignmentLetter.value]!.documents.findIndex(d => d.id === editingDocumentId.value)
+      if (index !== -1) {
+        const existing = fieldworkData.value[selectedAssignmentLetter.value]!.documents[index]
+        if (existing) {
+          fieldworkData.value[selectedAssignmentLetter.value]!.documents[index] = {
+            ...existing,
+            ...documentForm,
+            id: existing.id,
+            assignmentLetterId: existing.assignmentLetterId
+          };
+        }
+      }
+      alert('Document data updated successfully!')
+    } else {
+      fieldworkData.value[selectedAssignmentLetter.value]!.documents.push({
+        id: Date.now(),
+        assignmentLetterId: selectedAssignmentLetter.value,
+        ...documentForm
+      })
+      alert('Document data saved successfully!')
+    }
+
     showDocumentModal.value = false
     resetDocumentForm()
-    alert('Document data saved successfully!')
   }
 
   const deleteDocument = (index: number) => {
@@ -342,6 +469,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     description: ''
   })
   const showSampleModal = ref(false)
+  const isEditingSample = ref(false)
+  const isReadOnlySample = ref(false)
+  const editingSampleId = ref<number | null>(null)
 
   const openSampleModal = () => {
     if (!selectedAssignmentLetter.value) {
@@ -349,7 +479,27 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       return
     }
     resetSampleForm()
+    isEditingSample.value = false
+    isReadOnlySample.value = false
+    editingSampleId.value = null
     showSampleModal.value = true
+  }
+
+  const editSample = (item: SampleItem) => {
+    isEditingSample.value = true
+    isReadOnlySample.value = false
+    editingSampleId.value = item.id
+    sampleForm.documentName = item.documentName
+    sampleForm.documentNumber = item.documentNumber
+    sampleForm.date = item.date
+    sampleForm.description = item.description
+    showSampleModal.value = true
+  }
+
+  const viewSample = (item: SampleItem) => {
+    editSample(item)
+    isEditingSample.value = false
+    isReadOnlySample.value = true
   }
 
   const resetSampleForm = () => {
@@ -360,16 +510,34 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const saveSample = () => {
-    if (!selectedAssignmentLetter.value) return
+    if (!selectedAssignmentLetter.value || isReadOnlySample.value) return
     ensureDataExists()
-    fieldworkData.value[selectedAssignmentLetter.value]!.samples.push({
-      id: Date.now(),
-      assignmentLetterId: selectedAssignmentLetter.value,
-      ...sampleForm
-    })
+
+    if (isEditingSample.value && editingSampleId.value) {
+      const index = fieldworkData.value[selectedAssignmentLetter.value]!.samples.findIndex(s => s.id === editingSampleId.value)
+      if (index !== -1) {
+        const existing = fieldworkData.value[selectedAssignmentLetter.value]!.samples[index]
+        if (existing) {
+          fieldworkData.value[selectedAssignmentLetter.value]!.samples[index] = {
+            ...existing,
+            ...sampleForm,
+            id: existing.id,
+            assignmentLetterId: existing.assignmentLetterId
+          };
+        }
+      }
+      alert('Sample data updated successfully!')
+    } else {
+      fieldworkData.value[selectedAssignmentLetter.value]!.samples.push({
+        id: Date.now(),
+        assignmentLetterId: selectedAssignmentLetter.value,
+        ...sampleForm
+      })
+      alert('Sample data saved successfully!')
+    }
+
     showSampleModal.value = false
     resetSampleForm()
-    alert('Sample data saved successfully!')
   }
 
   const deleteSample = (index: number) => {
@@ -391,6 +559,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     dueDate: ''
   })
   const showTestControlModal = ref(false)
+  const isEditingTestControl = ref(false)
+  const isReadOnlyTestControl = ref(false)
+  const editingTestControlId = ref<number | null>(null)
 
   const openTestControlModal = () => {
     if (!selectedAssignmentLetter.value) {
@@ -398,7 +569,33 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       return
     }
     resetTestControlForm()
+    isEditingTestControl.value = false
+    isReadOnlyTestControl.value = false
+    editingTestControlId.value = null
     showTestControlModal.value = true
+  }
+
+  const editTestControl = (item: TestControlItem) => {
+    isEditingTestControl.value = true
+    isReadOnlyTestControl.value = false
+    editingTestControlId.value = item.id
+    testControlForm.controlName = item.controlName
+    testControlForm.controlDescription = item.controlDescription
+    testControlForm.controlType = item.controlType
+    testControlForm.testProcedure = item.testProcedure
+    testControlForm.testResult = item.testResult
+    testControlForm.finding = item.finding
+    testControlForm.recommendation = item.recommendation
+    testControlForm.mitigationPlan = item.mitigationPlan
+    testControlForm.pic = item.pic
+    testControlForm.dueDate = item.dueDate
+    showTestControlModal.value = true
+  }
+
+  const viewTestControl = (item: TestControlItem) => {
+    editTestControl(item)
+    isEditingTestControl.value = false
+    isReadOnlyTestControl.value = true
   }
 
   const resetTestControlForm = () => {
@@ -415,16 +612,34 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const saveTestControl = () => {
-    if (!selectedAssignmentLetter.value) return
+    if (!selectedAssignmentLetter.value || isReadOnlyTestControl.value) return
     ensureDataExists()
-    fieldworkData.value[selectedAssignmentLetter.value]!.testControls.push({
-      id: Date.now(),
-      assignmentLetterId: selectedAssignmentLetter.value,
-      ...testControlForm
-    })
+
+    if (isEditingTestControl.value && editingTestControlId.value) {
+      const index = fieldworkData.value[selectedAssignmentLetter.value]!.testControls.findIndex(tc => tc.id === editingTestControlId.value)
+      if (index !== -1) {
+        const existing = fieldworkData.value[selectedAssignmentLetter.value]!.testControls[index]
+        if (existing) {
+          fieldworkData.value[selectedAssignmentLetter.value]!.testControls[index] = {
+            ...existing,
+            ...testControlForm,
+            id: existing.id,
+            assignmentLetterId: existing.assignmentLetterId
+          };
+        }
+      }
+      alert('Test Control data updated successfully!')
+    } else {
+      fieldworkData.value[selectedAssignmentLetter.value]!.testControls.push({
+        id: Date.now(),
+        assignmentLetterId: selectedAssignmentLetter.value,
+        ...testControlForm
+      })
+      alert('Test Control data saved successfully!')
+    }
+
     showTestControlModal.value = false
     resetTestControlForm()
-    alert('Test Control data saved successfully!')
   }
 
   const deleteTestControl = (index: number) => {
@@ -463,34 +678,54 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     // Interview
     interviewForm,
     showInterviewModal,
+    isEditingInterview,
+    isReadOnlyInterview,
     openInterviewModal,
+    editInterview,
+    viewInterview,
     handleInterviewFileChange,
     saveInterview,
     deleteInterview,
     // Observation
     observationForm,
     showObservationModal,
+    isEditingObservation,
+    isReadOnlyObservation,
     openObservationModal,
+    editObservation,
+    viewObservation,
     handleObservationFileChange,
     saveObservation,
     deleteObservation,
     // Document
     documentForm,
     showDocumentModal,
+    isEditingDocument,
+    isReadOnlyDocument,
     openDocumentModal,
+    editDocument,
+    viewDocument,
     handleDocumentFileChange,
     saveDocument,
     deleteDocument,
     // Sample
     sampleForm,
     showSampleModal,
+    isEditingSample,
+    isReadOnlySample,
     openSampleModal,
+    editSample,
+    viewSample,
     saveSample,
     deleteSample,
     // Test Control
     testControlForm,
     showTestControlModal,
+    isEditingTestControl,
+    isReadOnlyTestControl,
     openTestControlModal,
+    editTestControl,
+    viewTestControl,
     saveTestControl,
     deleteTestControl,
     // Statistics

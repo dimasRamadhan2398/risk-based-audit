@@ -3,32 +3,35 @@
     <!-- Header with Add Button -->
     <div class="flex justify-between items-center">
       <div>
-        <h3 class="text-lg font-semibold">Jadwal Observasi</h3>
-        <p class="text-sm text-gray-500">Kelola jadwal observasi lapangan</p>
+        <h3 class="text-lg font-semibold">Observation Schedule</h3>
+        <p class="text-sm text-gray-500">Manage observation schedule in the field</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" label="Tambah Observasi" @click="store.openObservationModal()" />
+      <UButton color="primary" icon="i-heroicons-plus" label="Add Observation" @click="store.openObservationModal()" />
     </div>
 
     <!-- Observation List -->
     <UCard v-if="store.observations.length > 0" :ui="{ body: 'p-4' }">
       <UTable :data="store.observations" :columns="columns">
         <template #activity-cell="{ row }">
-          <span class="font-medium">{{ row.activity }}</span>
+          <span class="font-medium">{{ row.original.activity }}</span>
         </template>
         <template #location-cell="{ row }">
-          <UBadge color="neutral" variant="subtle">{{ row.location }}</UBadge>
+          <UBadge color="neutral" variant="subtle">{{ row.original.location }}</UBadge>
         </template>
         <template #observer-cell="{ row }">
-          <span>{{ row.observer }}</span>
+          <span>{{ row.original.observer }}</span>
         </template>
         <template #file-cell="{ row }">
-          <UButton v-if="row.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.file.name }}
+          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
+            {{ row.original.file.name }}
           </UButton>
           <span v-else class="text-gray-400 text-sm">-</span>
         </template>
-        <template #actions-cell="{ index }">
-          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteObservation(index)" />
+        <template #actions-cell="{ row }">
+          <div class="flex items-center">
+            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editObservation(row.original)" />
+            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteObservation(row.index)" />
+          </div>
         </template>
       </UTable>
     </UCard>
@@ -36,8 +39,8 @@
     <!-- Empty State -->
     <div v-else class="text-center py-8">
       <UIcon name="i-heroicons-eye" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">Belum ada data observasi</p>
-      <UButton color="primary" variant="soft" class="mt-2" label="Tambah Observasi" @click="store.openObservationModal()" />
+      <p class="text-gray-500">No observation data yet</p>
+      <UButton color="primary" variant="soft" class="mt-2" label="Add Observation" @click="store.openObservationModal()" />
     </div>
 
     <!-- Observation Modal -->
@@ -46,27 +49,27 @@
         <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <template #header>
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">Form Observasi</h3>
+              <h3 class="text-lg font-semibold">{{ store.isEditingObservation ? 'Edit Observation' : 'Observation Form' }}</h3>
               <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showObservationModal = false" />
             </div>
           </template>
 
           <UForm @submit.prevent="store.saveObservation()" class="space-y-4">
-            <UFormField label=" Aktivitas yang Diobservasi" required>
-              <UInput v-model="store.observationForm.activity" placeholder="Contoh: Proses Pengadaan Barang" required />
+            <UFormField label="Activity Observed" required>
+              <UInput v-model="store.observationForm.activity" placeholder="Example: Procurement Process" required />
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Lokasi Observasi" required>
-                <UInput v-model="store.observationForm.location" placeholder="Contoh: Gudang Pusat" required />
+              <UFormField label="Observation Location" required>
+                <UInput v-model="store.observationForm.location" placeholder="Example: Central Warehouse" required />
               </UFormField>
-              <UFormField label="Tanggal Observasi" required>
+              <UFormField label="Observation Date" required>
                 <UInput v-model="store.observationForm.date" type="date" required />
               </UFormField>
             </div>
 
-            <UFormField label="Observer (Pelaksana Observasi)" required>
-              <UInput v-model="store.observationForm.observer" placeholder="Nama lengkap observer" required />
+            <UFormField label="Observer" required>
+              <UInput v-model="store.observationForm.observer" placeholder="Full name of observer" required />
             </UFormField>
 
             <UFormField label="Upload File (PDF/DOCX)">
@@ -86,8 +89,8 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Batal" @click="store.showObservationModal = false" />
-              <UButton color="primary" label="Simpan" @click="store.saveObservation()" />
+              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showObservationModal = false" />
+              <UButton color="primary" :label="store.isEditingObservation ? 'Update' : 'Submit'" @click="store.saveObservation()" />
             </div>
           </template>
         </UCard>
@@ -102,11 +105,11 @@ import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 const store = useAuditFieldworkStore()
 
 const columns = [
-  { accessorKey: 'activity', header: 'Aktivitas' },
-  { accessorKey: 'location', header: 'Lokasi' },
-  { accessorKey: 'date', header: 'Tanggal' },
+  { accessorKey: 'activity', header: 'Activity' },
+  { accessorKey: 'location', header: 'Location' },
+  { accessorKey: 'date', header: 'Date' },
   { accessorKey: 'observer', header: 'Observer' },
   { accessorKey: 'file', header: 'File' },
-  { accessorKey: 'actions', header: '' }
+  { accessorKey: 'actions', header: 'Actions' }
 ]
 </script>

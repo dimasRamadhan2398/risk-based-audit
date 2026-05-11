@@ -3,10 +3,9 @@
     <!-- Header with Add Button -->
     <div class="flex justify-between items-center p-4">
       <div>
-        <h2 class="text-lg font-semibold">Daftar Interview</h2>
-        <p class="text-sm text-gray-500">Kelola daftar interview dengan interviewee dan interviewer</p>
+        <h2 class="text-lg font-semibold">Interview List</h2>
+        <p class="text-sm text-gray-500">Manage interview list with interviewees and interviewers</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" label="Tambah Interview" @click="store.openInterviewModal()" />
     </div>
 
     <!-- Interview List -->
@@ -14,27 +13,30 @@
       <UTable :data="store.interviews" :columns="columns">
         <template #interviewee-cell="{ row }">
           <div>
-            <p class="font-medium">{{ row.interviewee }}</p>
-            <p class="text-xs text-gray-500">{{ row.intervieweePosition }}</p>
+            <p class="font-medium">{{ row.original.interviewee }}</p>
+            <p class="text-xs text-gray-500">{{ row.original.intervieweePosition }}</p>
           </div>
         </template>
         <template #interviewer-cell="{ row }">
           <div>
-            <p class="font-medium">{{ row.interviewer }}</p>
-            <p class="text-xs text-gray-500">{{ row.interviewerPosition }}</p>
+            <p class="font-medium">{{ row.original.interviewer }}</p>
+            <p class="text-xs text-gray-500">{{ row.original.interviewerPosition }}</p>
           </div>
         </template>
         <template #topic-cell="{ row }">
-          <UBadge color="primary" variant="subtle">{{ row.topic }}</UBadge>
+          <UBadge color="primary" variant="subtle">{{ row.original.topic }}</UBadge>
         </template>
         <template #file-cell="{ row }">
-          <UButton v-if="row.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.file.name }}
+          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
+            {{ row.original.file.name }}
           </UButton>
           <span v-else class="text-gray-400 text-sm">-</span>
         </template>
-        <template #actions-cell="{ index }">
-          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteInterview(index)" />
+        <template #actions-cell="{ row }">
+          <div class="flex items-center">
+            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editInterview(row.original)" />
+            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteInterview(row.index)" />
+          </div>
         </template>
       </UTable>
     </UCard>
@@ -42,8 +44,8 @@
     <!-- Empty State -->
     <div v-else class="text-center py-8">
       <UIcon name="i-heroicons-microphone" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">Belum ada data interview</p>
-      <UButton color="primary" variant="soft" class="mt-2" label="Tambah Interview" @click="store.openInterviewModal()" />
+      <p class="text-gray-500">No interview data yet</p>
+      <UButton color="primary" variant="soft" class="mt-2" label="Add First Interview" @click="store.openInterviewModal()" />
     </div>
 
     <!-- Interview Modal -->
@@ -52,48 +54,52 @@
         <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <template #header>
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">Form Interview</h3>
+              <h3 class="text-lg font-semibold">{{ store.isEditingInterview ? 'Edit Interview' : 'Add New Interview' }}</h3>
               <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showInterviewModal = false" />
             </div>
           </template>
 
           <UForm @submit.prevent="store.saveInterview()" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Interviewee (Nama yang diinterview)" required>
+              <UFormField label="Interviewee" required>
                 <USelectMenu
                   v-model="store.interviewForm.interviewee"
                   :items="store.memberOptions"
-                  placeholder="Pilih nama dari tim audit"
+                  value-key="value"
+                  placeholder="Select Auditee"
                   :disabled="!store.hasSelectedAssignmentLetter"
+                  class="w-full"
                   required
                 />
               </UFormField>
-              <UFormField label="Jabatan Interviewee" required>
-                <USelectMenu v-model="store.interviewForm.intervieweePosition" :items="store.options.positions" placeholder="Pilih jabatan" required />
+              <UFormField label="Interviewee Position" required>
+                <USelectMenu v-model="store.interviewForm.intervieweePosition" :items="store.options.positions" placeholder="Select Auditee Position" required class="w-full" />
               </UFormField>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Interviewer (Pewawancara)" required>
+              <UFormField label="Interviewer" required>
                 <USelectMenu
                   v-model="store.interviewForm.interviewer"
                   :items="store.memberOptions"
-                  placeholder="Pilih nama dari tim audit"
+                  value-key="value"
+                  placeholder="Select Interviewer"
                   :disabled="!store.hasSelectedAssignmentLetter"
+                  class="w-full"
                   required
                 />
               </UFormField>
-              <UFormField label="Jabatan Interviewer" required>
-                <USelectMenu v-model="store.interviewForm.interviewerPosition" :items="store.options.positions" placeholder="Pilih jabatan" required />
+              <UFormField label="Interviewer Position" required>
+                <USelectMenu v-model="store.interviewForm.interviewerPosition" :items="store.options.positions" placeholder="Select Interviewer Position" required class="w-full" />
               </UFormField>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Tanggal Interview" required>
-                <UInput v-model="store.interviewForm.date" type="date" required />
+              <UFormField label="Interview Date" required>
+                <UInput v-model="store.interviewForm.date" type="date" required class="w-full"/>
               </UFormField>
-              <UFormField label="Topik Interview" required>
-                <USelectMenu v-model="store.interviewForm.topic" :items="store.options.auditTopics" placeholder="Pilih topik" required />
+              <UFormField label="Interview Topic" required>
+                <USelectMenu v-model="store.interviewForm.topic" :items="store.options.auditTopics" placeholder="Select Interview Topic" required class="w-full" />
               </UFormField>
             </div>
 
@@ -114,8 +120,8 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Batal" @click="store.showInterviewModal = false" />
-              <UButton color="primary" label="Simpan" @click="store.saveInterview()" />
+              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showInterviewModal = false" />
+              <UButton color="primary" :label="store.isEditingInterview ? 'Update' : 'Submit'" @click="store.saveInterview()" />
             </div>
           </template>
         </UCard>
@@ -131,10 +137,12 @@ const store = useAuditFieldworkStore()
 
 const columns = [
   { accessorKey: 'interviewee', header: 'Interviewee' },
+  { accessorKey: 'intervieweePosition', header: 'Interviewee Position' },
   { accessorKey: 'interviewer', header: 'Interviewer' },
-  { accessorKey: 'date', header: 'Tanggal' },
-  { accessorKey: 'topic', header: 'Topik' },
+  { accessorKey: 'interviewerPosition', header: 'Interviewer Position' },
+  { accessorKey: 'date', header: 'Date' },
+  { accessorKey: 'topic', header: 'Topic' },
   { accessorKey: 'file', header: 'File' },
-  { accessorKey: 'actions', header: '' }
+  { accessorKey: 'actions', header: 'Actions' }
 ]
 </script>

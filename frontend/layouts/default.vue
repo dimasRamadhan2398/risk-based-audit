@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { label } from 'happy-dom/lib/PropertySymbol.js'
 
 // Gunakan useRoute untuk mendapatkan URL saat ini
 const route = useRoute()
@@ -44,15 +45,15 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/assignment-letter',
   },
   {
-    label: '7. Working Papers',
+    label: '7. Audit Field Work',
     icon: 'i-lucide-users',
-    to: '/working-paper',
-    children :[
+    to: '/audit-fieldwork',
+    children: [
       {
-        label: 'Audit Field Work',
+        label: 'Working Paper',
         icon: 'i-lucide-users',
-        to: '/audit-fieldwork'
-      }
+        to: '/working-paper',
+      },
     ]
   },
   {
