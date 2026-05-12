@@ -60,7 +60,12 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '8. Audit Result Report',
     icon: 'i-lucide-users',
     to: '/audit-result-report',
-  }, 
+  },
+  {
+    label: 'Analytics',
+    icon: 'i-lucide-pie-chart',
+    to: '/analytics',
+  },
   
 ]]
 
