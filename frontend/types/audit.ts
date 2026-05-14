@@ -485,3 +485,20 @@ export interface StrategicAuditPlan {
   calculation: string;
   status: string;
 }
+
+export interface ActionTakenReport {
+  id: string
+  auditRef: string
+  title: string
+  department: AuditDepartment
+  deadline: string
+  status: AuditStatus
+  auditObject?: string
+  findingCategory?: AuditCategory
+  condition?: string
+  criteria?: string
+  recommendation?: string
+  pic?: string
+  attachment?: string
+  progressDescription?: string
+}

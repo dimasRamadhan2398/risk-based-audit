@@ -716,7 +716,7 @@ const tableColumns = [
   }
 ]
 
-const registeredRiskHeatMap = computed(() => riskDataStore.getRegisteredRisks)
+const registeredRiskHeatMap = computed(() => riskDataStore.risks)
 
 const registeredRiskColumns = [
   {
@@ -743,8 +743,8 @@ const registeredRiskColumns = [
         class: 'flex items-start gap-2'
       }, [
           h('div', undefined, [
-          h('h5', { class: 'font-medium text-highlighted' }, `${rawObject.risk_name}`), 
-          h('p', { class: 'text-left' }, `${rawObject.risk_category}`),
+          h('h5', { class: 'font-medium text-highlighted' }, `${rawObject.name}`), 
+          h('p', { class: 'text-left' }, `${rawObject.category}`),
         ])
       ])
     },
@@ -756,7 +756,7 @@ const registeredRiskColumns = [
     },
   },
   {
-    accessorKey: 'latest_residual_risk',
+    accessorKey: 'severity',
     header: 'Latest Residual Risk',
     cell: (row : any) => {
       const rawObject = toRaw(row.row.original);
@@ -764,8 +764,8 @@ const registeredRiskColumns = [
         class: 'flex items-start gap-2'
       }, [
           h('div', undefined, [
-          h('h5', { class: 'font-medium text-highlighted' }, `${rawObject.audit_finding}`), 
-          h('p', { class: 'text-left' }, `${rawObject.audit_category}`),
+          h('h5', { class: 'font-medium text-highlighted' }, `${rawObject.severity}`), 
+          h('p', { class: 'text-left' }, `Score: ${rawObject.impact * rawObject.likelihood}`),
         ])
       ])
     },

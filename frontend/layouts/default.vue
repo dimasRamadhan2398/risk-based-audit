@@ -62,7 +62,17 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/audit-result-report',
   },
   {
-    label: 'Analytics',
+    label: '9. Action Taken Report',
+    icon: 'i-lucide-users',
+    to: '/action-taken-report',
+  },
+  {
+    label: '10. Quality Assurance Review',
+    icon: 'i-lucide-shield-check',
+    to: '/quality-assurance',
+  },
+  {
+    label: '11. Analytics',
     icon: 'i-lucide-pie-chart',
     to: '/analytics',
   },
