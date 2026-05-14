@@ -1,91 +1,95 @@
 <template>
   <UTooltip 
-    class="max-w-xs p-0" 
+    :ui="{ content: 'max-w-[320px] p-0' }"
     :popper="{ placement: 'top' }"
   >
-    <div
-      :id="`risk-badge-${risk.id}`"
-      draggable="true"
-      @dragstart="onDragStart"
-      @dragend="onDragEnd"
-      class="risk-badge relative flex items-center justify-center rounded-full text-xs font-bold cursor-grab active:cursor-grabbing transition-transform hover:scale-125 select-none"
-      :class="[
-        isPriority ? 'ring-2 ring-red-400 ring-offset-1 ring-offset-gray-900' : '',
-        isDragging ? 'opacity-50 scale-95' : ''
-      ]"
-      :style="{ 
-        backgroundColor: badgeColor, 
-        color: '#fff', 
-        zIndex: zIndex,
-        minWidth: '34px',
-        padding: typeof risk.id === 'string' && risk.id.length > 2 ? '0 8px' : '0',
-        height: '34px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
-      }"
-    >
-      <span>{{ risk.id }}</span>
-      
-      <span 
-        v-if="isPriority" 
-        class="absolute inset-0 rounded-full animate-ping opacity-75 pointer-events-none" 
-        :style="{ backgroundColor: badgeColor }"
-      ></span>
-    </div>
-
     <template #content>
-      <div class="p-3 space-y-3 w-64 text-sm">
-        <div class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-2">
-          <span class="text-lg">{{ categoryIcon }}</span>
-          <span class="font-bold text-gray-900 dark:text-white">{{ risk.name }}</span>
-        </div>
-
-        <div class="space-y-1.5 text-xs">
-          <div class="flex justify-between items-center">
-            <span class="text-gray-500 dark:text-gray-400">Risk ID</span>
-            <span class="font-medium text-gray-900 dark:text-white">#{{ risk.id }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-gray-500 dark:text-gray-400">Category</span>
-            <span class="font-medium text-gray-900 dark:text-white">{{ risk.category }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-gray-500 dark:text-gray-400">Impact</span>
-            <span class="font-medium text-gray-900 dark:text-white">{{ impactLabels[risk.impact] }} ({{ risk.impact }})</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-gray-500 dark:text-gray-400">Likelihood</span>
-            <span class="font-medium text-gray-900 dark:text-white">{{ likelihoodLabels[risk.likelihood] }} ({{ risk.likelihood }})</span>
-          </div>
-          
-          <div class="flex justify-between items-center">
-            <span class="text-gray-500 dark:text-gray-400">Severity</span>
-            <div class="flex items-center gap-2 w-24">
-              <UMeter :value="risk.severity" :max="100" size="xs" color="orange" class="flex-1" />
-              <span class="font-medium text-gray-900 dark:text-white">{{ risk.severity }}</span>
+      <div class="p-4 space-y-4 rounded-lg shadow-xl bg-neutral-50 border border-primary-900">
+        <div class="flex items-center gap-3 pb-3 border-b border-primary-900">
+          <span class="text-xl">{{ categoryIcon }}</span>
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-bold truncate">
+              {{ risk.name }}
+            </h4>
+            <div class="text-[10px] font-mono font-bold uppercase tracking-wider">
+              #{{ formattedId }}
             </div>
           </div>
+        </div>
 
-          <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-            <span class="text-gray-500 dark:text-gray-400">Status</span>
-            <UBadge :color="isPriority ? 'error' : 'success'" variant="subtle" size="xs">
-              {{ isPriority ? '⚠ Priority Risk' : '✓ Monitored' }}
-            </UBadge>
+        <div class="grid grid-cols-2 gap-y-3 gap-x-4">
+          <div class="space-y-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider">Category</div>
+            <div class="text-xs font-medium">{{ risk.category }}</div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider">Status</div>
+            <div>
+              <UBadge 
+                :color="isPriority ? 'error' : 'success'" 
+                variant="subtle" 
+                size="sm"
+                class="font-bold"
+              >
+                {{ isPriority ? 'Priority' : 'Monitored' }}
+              </UBadge>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider">Impact</div>
+            <div class="text-xs">{{ impactLabels[risk.impact] }} ({{ risk.impact }})</div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider">Likelihood</div>
+            <div class="text-xs">{{ likelihoodLabels[risk.likelihood] }} ({{ risk.likelihood }})</div>
           </div>
         </div>
 
-        <p class="text-xs text-gray-600 dark:text-gray-300 mt-2 bg-gray-50 dark:bg-gray-800/50 p-2 rounded-md">
-          {{ risk.description || 'Tidak ada deskripsi tersedia.' }}
-        </p>
+        <div class="space-y-2 pt-2 border-t border-primary-900">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Severity Weight</span>
+            <span class="text-xs font-bold">{{ risk.severity }}%</span>
+          </div>
+          <UProgress 
+            :value="risk.severity" 
+            size="sm" 
+            color="primary"
+            :ui="{ progress: { background: 'bg-gradient-to-r from-success-500 via-warning-500 to-error-500' } }"
+          />
+        </div>
+
+        <div v-if="risk.description" class="pt-3 border-t border-primary-900">
+          <p class="text-[11px] leading-relaxed italic">
+            {{ risk.description }}
+          </p>
+        </div>
       </div>
     </template>
+
+    <div
+      :id="`risk-badge-${risk.id}`"
+      :class="[
+        'relative w-9 h-9 rounded-full flex items-center justify-center shrink-0 select-none cursor-grab transition-all duration-200 ease-in-out',
+        'shadow-[0_4px_12px_rgba(0,0,0,0.4)]',
+        'hover:scale-[1.15] hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)] hover:ring-4 hover:ring-white/15',
+        'active:cursor-grabbing active:scale-105',
+        { 'ring-2 ring-white/20': isPriority, 'opacity-40 scale-90': isDragging }
+      ]"
+      :style="{ backgroundColor: config.color, zIndex: props.zIndex }"
+      :draggable="true"
+      @dragstart="onDragStart"
+      @dragend="onDragEnd"
+    >
+      <span class="text-[13px] font-extrabold text-white [text-shadow:0_2px_4px_rgba(0,0,0,0.4)] leading-none">{{ risk.id }}</span>
+      <div v-if="isPriority" class="absolute -inset-1 rounded-full border-2 pointer-events-none animate-badge-pulse" :style="{ borderColor: config.color }"></div>
+    </div>
   </UTooltip>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed } from 'vue'
-import { getRiskLevel, riskLevelConfig, impactLabels, likelihoodLabels, categoryIcons } from '~/stores/profile-risk'
+import { useRiskProfileStore, riskLevelConfig, categoryIcons, impactLabels, likelihoodLabels } from '~/stores/risk-profile'
 
-// Definisikan tipe untuk props jika menggunakan TypeScript
 const props = defineProps({
   risk: {
     type: Object,
@@ -99,44 +103,28 @@ const props = defineProps({
 
 const emit = defineEmits(['drag-start', 'drag-end'])
 
-// State untuk dragging, state showTooltip sudah dihapus karena ditangani otomatis oleh UTooltip
+const store = useRiskProfileStore()
 const isDragging = ref(false)
 
-// Computed logic
-const riskLevel = computed(() => getRiskLevel(props.risk.likelihood, props.risk.impact))
-const config = computed(() => {
-  return riskLevelConfig[riskLevel.value] || { label: 'Unknown', color: '#000', bg: '#eee', cellBg: '#333', priority: false }
-})
-const isPriority = computed(() => config.value?.priority || false)
+const riskLevel = computed(() => store.getRiskLevel(props.risk.likelihood, props.risk.impact))
+const config = computed(() => riskLevelConfig[riskLevel.value])
+const isPriority = computed(() => config.value.priority)
 const categoryIcon = computed(() => categoryIcons[props.risk.category] || '📌')
 
-// Badge color: vivid circle colors for visibility on dark grid
-const badgeColor = computed(() => {
-  const score = props.risk.likelihood * props.risk.impact
-  if (score <= 4) return '#22c55e'       // green
-  if (score <= 10) return '#84cc16'      // lime
-  if (score <= 15) return '#eab308'      // yellow
-  if (score <= 20) return '#f97316'      // orange
-  return '#ef4444'                        // red
-})
+const formattedId = computed(() => store.getFormattedId(props.risk))
 
-// Drag Handlers
-function onDragStart(e: DragEvent) {
+function onDragStart(e) {
   isDragging.value = true
-  if (!e.dataTransfer) return
-
   e.dataTransfer.effectAllowed = 'move'
   e.dataTransfer.setData('application/json', JSON.stringify(props.risk))
 
-  // Custom drag image logic
-  const target = e.target as HTMLElement
-  const el = target.cloneNode(true) as HTMLElement
+  // Create drag ghost image
+  const el = e.target.cloneNode(true)
   el.style.position = 'absolute'
   el.style.top = '-1000px'
   el.style.opacity = '0.9'
   el.style.transform = 'scale(1.2)'
   document.body.appendChild(el)
-  
   e.dataTransfer.setDragImage(el, 18, 18)
   setTimeout(() => document.body.removeChild(el), 0)
 
@@ -147,4 +135,17 @@ function onDragEnd() {
   isDragging.value = false
   emit('drag-end', props.risk)
 }
+
 </script>
+
+<style>
+/* We define the animation here because it's specific to this component.
+   It could also be added to tailwind.config.js for global use. */
+@keyframes badge-pulse {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+.animate-badge-pulse {
+  animation: badge-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+</style>

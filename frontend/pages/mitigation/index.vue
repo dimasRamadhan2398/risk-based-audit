@@ -4,7 +4,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Risk Mitigation Plan</h1>
-        <p><strong>Risk ID:</strong> {{ currentRiskId }} - {{ currentRiskName }}</p>
+        <p><strong>Risk ID:</strong> {{ riskProfileStore.getFormattedId(currentRisk) }} - {{ currentRiskName }}</p>
       </div>
       <UButton
         icon="i-heroicons-arrow-left"
@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
 import { ref, onMounted, computed } from 'vue'
-import { useRiskProfileStore } from '~/stores/profile-risk'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 import MitigationTable from '~/components/risk-mitigation/MitigationTable.vue'
 import MitigationForm from '~/components/risk-mitigation/MitigationForm.vue'
 
@@ -46,7 +46,7 @@ const currentRisk = computed(() => {
 })
 
 // Properti pembantu untuk menampilkan nama risiko
-const currentRiskName = computed(() => currentRisk.value?.risk_name || '-')
+const currentRiskName = computed(() => currentRisk.value?.name || '-')
 
 const goBack = () => {
   // Navigasi balik ke index sambil membawa ID risiko di query
@@ -74,4 +74,3 @@ const goBack = () => {
   
 // })
 </script>
-

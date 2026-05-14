@@ -213,7 +213,7 @@
           <UButton
             :label="store.isEditMode ? 'Update' : 'Submit'"
             variant="solid"
-            class="bg-orange-500 hover:bg-orange-600 text-white"
+            color="primary"
             @click="store.handleSubmit"
           />
         </div>

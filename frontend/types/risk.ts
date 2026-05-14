@@ -1,10 +1,8 @@
-// Risk Management Types
-
 export enum RiskLevel {
   LOW = 'low',
-  LOW_TO_MODERATE = 'low_to_moderate',
+  LOW_MODERATE = 'low-moderate',
   MODERATE = 'moderate',
-  MODERATE_TO_HIGH = 'moderate_to_high',
+  MODERATE_HIGH = 'moderate-high',
   HIGH = 'high'
 }
 
@@ -15,6 +13,29 @@ export enum RiskTaxonomy {
   IT = 'IT'
 
 }
+
+export interface Risk {
+  id: string
+  risk_name: string
+  category: string
+  impact: number // 1-5
+  likelihood: number // 1-5
+  severity: number // 1-100
+  description: string
+  department?: string
+}
+
+export interface RiskForm {
+  id: string
+  risk_name: string
+  category: string
+  impact: number // 1-5
+  likelihood: number // 1-5
+  severity: number // 1-100
+  description: string
+  department?: string
+}
+
 export enum ImpactLevel {
   VERY_LOW = 1,
   LOW = 2,
@@ -29,39 +50,6 @@ export enum PossibilityLevel {
   POSSIBLE = 3,
   LIKELY = 4,
   VERY_LIKELY = 5
-}
-
-export interface RiskItem {
-  id: string
-  title: string
-  description: string
-  impactLevel: ImpactLevel
-  possibilityLevel: PossibilityLevel
-  riskLevel: RiskLevel
-  quarter: number
-  year: number
-  department?: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface RiskProfile {
-  id: string
-  organizationId?: string
-  departmentId?: string
-  year: number
-  quarter: number
-  risks: RiskProfileItem[]
-  createdAt: string
-  updatedAt: string
-}
-
-export interface RiskProfileItem {
-  riskId: string
-  index: number
-  impactLevel: ImpactLevel
-  possibilityLevel: PossibilityLevel
-  riskLevel: RiskLevel
 }
 
 export interface RiskMitigation {

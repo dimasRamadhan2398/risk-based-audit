@@ -11,7 +11,7 @@ import type {
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 import { useAuditFieldworkStore } from './audit-fieldwork'
 import { computed } from 'vue'
-import { RiskLevel, RiskTaxonomy } from '~/types/risk'
+import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import type { StepperItem } from '@nuxt/ui'
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
