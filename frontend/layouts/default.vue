@@ -28,6 +28,13 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '3. Strategic Plan Internal Audit',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
+    children: [
+      {
+        label: 'KPI Performance',
+        icon: 'i-lucide-users',
+        to: '/kpi-performance',
+      },
+    ]
   },
   {
     label: '4. Annual Audit Plan',
@@ -67,12 +74,17 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/action-taken-report',
   },
   {
-    label: '10. Quality Assurance Review',
+    label: '10. Audit Execution Status',
+    icon: 'i-lucide-users',
+    to: '/audit-execution-status',
+  },
+  {
+    label: '11. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
   },
   {
-    label: '11. Analytics',
+    label: 'Analytics',
     icon: 'i-lucide-pie-chart',
     to: '/analytics',
   },
