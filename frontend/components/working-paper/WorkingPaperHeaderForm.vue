@@ -25,7 +25,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
             <UFormField label="Business Process" class="font-semibold text-sm text-gray-700  mt-2" />
-            <USelectMenu class="md:col-span-3" v-model="store.headerForm.businessProcess" :items="store.options.businessProcess" placeholder="Choose Business Process" />
+            <UInput class="md:col-span-3" v-model="store.headerForm.businessProcess"  placeholder="Choose Business Process" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">

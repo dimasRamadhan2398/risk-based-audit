@@ -20,10 +20,10 @@
           <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-600">Total Risks</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">24</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ totalRisks }}</p>
               </div>
               <div class="rounded-lg bg-primary-100 p-3">
-                <UIcon name="info" class="text-primary-600 size-6" />
+                <UIcon name="i-lucide-shield" class="text-primary-600 size-6" />
               </div>
             </div>
           </template>
@@ -38,10 +38,10 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">High Risk</p>
-                <p class="text-3xl font-bold text-red-600 mt-1">5</p>
+                <p class="text-3xl font-bold text-red-600 mt-1">{{ highRisks }}</p>
               </div>
               <div class="rounded-lg bg-red-100 p-3">
-                <UIcon name="warning" class="text-red-600 size-6" />
+                <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-6" />
               </div>
             </div>
           </template>
@@ -56,15 +56,15 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Audit Plans</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">8</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ auditPlansCount }}</p>
               </div>
               <div class="rounded-lg bg-blue-100 p-3">
-                <UIcon name="plan" class="text-blue-600 size-6" />
+                <UIcon name="i-lucide-calendar" class="text-blue-600 size-6" />
               </div>
             </div>
           </template>
           <div class="flex items-center gap-2 text-sm">
-            <span class="text-blue-600">2 active</span>
+            <span class="text-blue-600">Active</span>
             <span class="text-gray-500">this quarter</span>
           </div>
         </UCard>
@@ -74,15 +74,15 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Completed</p>
-                <p class="text-3xl font-bold text-green-600 mt-1">15</p>
+                <p class="text-3xl font-bold text-green-600 mt-1">{{ completedAuditsCount }}</p>
               </div>
               <div class="rounded-lg bg-green-100 p-3">
-                <UIcon name="check" class="text-green-600 size-6" />
+                <UIcon name="i-lucide-check-circle" class="text-green-600 size-6" />
               </div>
             </div>
           </template>
           <div class="flex items-center gap-2 text-sm">
-            <span class="text-green-600">↑ 8</span>
+            <span class="text-green-600">Updated</span>
             <span class="text-gray-500">this month</span>
           </div>
         </UCard>
@@ -104,7 +104,7 @@
                 </p>
               </div>
               <div class="rounded-lg bg-primary-100 p-1 center">
-                <UIcon name="info" class="text-primary-600 size-6" />
+                <UIcon name="i-lucide-info" class="text-primary-600 size-6" />
               </div>
             </div>
           </template>
@@ -126,7 +126,7 @@
                 </p>
               </div>
               <div class="rounded-lg bg-orange-100 p-3">
-                <UIcon name="warning" class="text-orange-600 size-6" />
+                <UIcon name="i-lucide-alert-triangle" class="text-orange-600 size-6" />
               </div>
             </div>
           </template>
@@ -150,7 +150,7 @@
                 </p>
               </div>
               <div class="rounded-lg bg-blue-100 p-3">
-                <UIcon name="plan" class="text-blue-600 size-6" />
+                <UIcon name="i-lucide-play" class="text-blue-600 size-6" />
               </div>
             </div>
           </template>
@@ -172,7 +172,7 @@
                 </p>
               </div>
               <div class="rounded-lg bg-green-100 p-3">
-                <UIcon name="check" class="text-green-600 size-6" />
+                <UIcon name="i-lucide-check-square" class="text-green-600 size-6" />
               </div>
             </div>
           </template>
@@ -196,9 +196,7 @@
               <h2 class="text-xl font-semibold text-gray-900">
                 Risk Heat Map
               </h2>
-              <h6 class="text-xl font-semibold text-gray-900">
-                Configure
-              </h6>
+              <UButton to="/risk-profile" variant="ghost" color="neutral">Configure</UButton>
             </div>
           </template> 
           <div class="flex flex-col gap-2">
@@ -262,9 +260,7 @@
               <h2 class="text-xl font-semibold text-gray-900">
                 Registered Risk
               </h2>
-              <h6 class="text-xl font-semibold text-gray-900">
-                Configure
-              </h6>
+              <UButton to="/risk-profile" variant="ghost" color="neutral">Configure</UButton>
             </div>
           </template> 
           <UTable :data="registeredRiskHeatMap" :columns="registeredRiskColumns" :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data yang dimasukkan ke Risk Heat Map.' }" class="w-full text-sm text-left" />
@@ -279,9 +275,7 @@
               <h2 class="text-xl font-semibold text-gray-900">
                 Audit Planning Coverage
               </h2>
-              <h6 class="text-xl font-semibold text-gray-900">
-                View Full Plan
-              </h6>
+              <UButton to="/annual-audit" variant="ghost" color="neutral">Configure</UButton>
             </div>
           </template>
           <template #default>
@@ -347,14 +341,14 @@
               <h5>Action Taken Report</h5>
             </div>
             <div>
-              <h6>View Details</h6>
+              <UButton to="/action-taken-report" variant="ghost" color="neutral">View Details</UButton>
             </div>
           </div>
         </template>
-        <DonutChart :data="atrDonut.map((item) => item.value)" :height="400" :categories="atrCategories" :radius="10" :hide-legend="false" :type="DonutType.Full" :padding="{ top: 0, left: 0, right: 0, bottom: 0}" :arc-width="20" :legend-position="LegendPosition.TopRight" :legend-style=legendStyle :pad-angle="0">
+        <DonutChart :data="atrDonutData.map((item) => item.value)" :height="400" :categories="atrCategories" :radius="10" :hide-legend="false" :type="(DonutType.Full as any)" :padding="{ top: 0, left: 0, right: 0, bottom: 0}" :arc-width="20" :legend-position="(LegendPosition.TopRight as any)" :legend-style=legendStyle :pad-angle="0">
           <div class="text-center">
             <div class="font-semibold ">
-              <span class="text-xl">{{ atrDonut[0]!.value }}%</span>  Completed
+              <span class="text-xl">{{ atrDonutData[0]!.value }}%</span>  Completed
             </div>
           </div>
         </DonutChart>
@@ -368,11 +362,11 @@
                <h5>Action Taken Reports (ATR)</h5>
              </div>
              <div>
-               <h6>View Full Report</h6>
+               <UButton to="/action-taken-report" variant="ghost" color="neutral">View Full Report</UButton>
              </div>
            </div>
           </template>
-        <UTable :data="tableData" :columns="tableColumns" :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data rencana audit.' }" class="w-full text-sm text-left" />
+        <UTable :data="atrTableData" :columns="tableColumns" :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data rencana audit.' }" class="w-full text-sm text-left" />
       </UCard>
     </div>
   </div>
@@ -385,14 +379,14 @@
           <UBadge color="primary" label="Q4 2025" variant="soft"></UBadge>
         </div>
       </template>
-      <div v-for="(item, index) in auditExecutionStatus" :key="index">
+      <div v-for="(item, index) in dashboardExecutionStatus" :key="index">
         <div class="gap-4 flex flex-col pb-6">
           <div class="flex flex-row justify-between">
             <h3 class="text-lg font-semibold text-gray-900">
               {{ item.name }}
             </h3>
             <p class="text-sm text-gray-600">
-              {{ doubleToPercentage(item.percentage) }}
+              {{ item.percentage }}%
             </p>
           </div>
           <UProgress v-model="item.percentage" color="secondary" />
@@ -405,7 +399,7 @@
           <h2 class="text-xl font-semibold text-gray-900">Recent Finding Issues</h2>
         </div>
       </template>
-      <UTable :data="auditFindingData" :columns="auditTableColumns"></UTable>
+      <UTable :data="recentFindingsData" :columns="auditTableColumns"></UTable>
     </UCard>
   </div>
 
@@ -422,7 +416,7 @@
               <p class="text-sm text-gray-600">Latest risk assessments</p>
             </div>
             <UButton
-              icon="chevron-right"
+              icon="i-lucide-chevron-right"
               variant="ghost"
               color="primary"
               to="/risk-profile"
@@ -431,8 +425,8 @@
         </template>
         <div class="space-y-3">
           <div
-            v-for="i in 4"
-            :key="i"
+            v-for="(risk, index) in riskProfileStore.risks.slice(0, 4)"
+            :key="risk.id"
             class="flex items-center justify-between p-3 rounded-lg  border border-gray-200 hover:border-primary-300 transition-colors"
           >
             <div class="flex items-center gap-3">
@@ -440,17 +434,19 @@
                 class="rounded-full bg-primary-100 w-10 h-10 flex items-center justify-center"
               >
                 <span class="text-sm font-semibold text-primary-700">{{
-                  i
+                  index + 1
                 }}</span>
               </div>
               <div>
                 <p class="font-medium text-gray-900">
-                  Operational Risk {{ i }}
+                  {{ risk.name }}
                 </p>
-                <p class="text-sm text-gray-500">Updated 2 days ago</p>
+                <p class="text-sm text-gray-500">{{ risk.category }}</p>
               </div>
             </div>
-            <UBadge color="warning" variant="soft">Medium</UBadge>
+            <UBadge :color="risk.impact * risk.likelihood > 15 ? 'red' : 'warning'" variant="soft">
+               {{ risk.impact * risk.likelihood > 15 ? 'High' : 'Medium' }}
+            </UBadge>
           </div>
         </div>
       </UCard>
@@ -466,33 +462,36 @@
               <p class="text-sm text-gray-600">Scheduled audit activities</p>
             </div>
             <UButton
-              icon="chevron-right"
+              icon="i-lucide-chevron-right"
               variant="ghost"
               color="primary"
-              to="/strategic-audit-plan"
+              to="/annual-audit"
             />
           </div>
         </template>
         <div class="space-y-3">
           <div
-            v-for="i in 4"
-            :key="i"
+            v-for="plan in annualPlanStore.plans.slice(0, 4)"
+            :key="plan.id"
             class="flex items-center justify-between p-3 rounded-lg  border border-gray-200 hover:border-primary-300 transition-colors"
           >
             <div class="flex items-center gap-3">
               <div
                 class="rounded-lg bg-blue-100 w-10 h-10 flex items-center justify-center"
               >
-                <UIcon name="plan" class="text-blue-600 size-5" />
+                <UIcon name="i-lucide-calendar" class="text-blue-600 size-5" />
               </div>
               <div>
-                <p class="font-medium text-gray-900">Q{{ i }} Audit Plan</p>
+                <p class="font-medium text-gray-900">{{ plan.code }}</p>
                 <p class="text-sm text-gray-500">
-                  Starting in {{ i * 7 }} days
+                  Status: {{ plan.status }}
                 </p>
               </div>
             </div>
             <UBadge color="info" variant="soft">Scheduled</UBadge>
+          </div>
+          <div v-if="annualPlanStore.plans.length === 0" class="text-center py-4 text-gray-500 text-sm">
+             No upcoming audits scheduled.
           </div>
         </div>
       </UCard>
@@ -502,7 +501,13 @@
 
 <script setup lang="ts">
 import { useI18n } from "~/composables/useI18n";
-// import { MenuList } from "./menu";
+import { useRiskProfileStore } from "~/stores/risk-profile";
+import { useAnnualPlanStore } from "~/stores/annual-audit";
+import { useActionTakenReportStore } from "~/stores/action-taken-report";
+import { useAuditExecutionStore } from "~/stores/audit-execution";
+import { useAuditResultReportStore } from "~/stores/audit-result-report";
+import { RiskLevel } from "~/types/risk";
+import { AuditStatus } from "~/types/audit";
 
 definePageMeta({
   middleware: "auth",
@@ -510,18 +515,62 @@ definePageMeta({
 
 const { t } = useI18n();
 
-const riskDataStore = useRiskProfileStore();
-const auditDataStore = useAuditDataStore();
-// const menuList = ref(MenuList);
-const progressModel = ref(50);
+const riskProfileStore = useRiskProfileStore();
+const annualPlanStore = useAnnualPlanStore();
+const atrStore = useActionTakenReportStore();
+const auditExecutionStore = useAuditExecutionStore();
+const auditResultStore = useAuditResultReportStore();
 
-const auditMainStats = computed(() => auditDataStore.getAuditMainStats);
-const auditMainStatsLastMonth = computed(
-  () => auditDataStore.getAuditMainStatsLastMonth,
-);
-const auditCoverage = computed(() => auditDataStore.getAuditCoverage);
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
+
+// Constants for Charts
+const DonutType = {
+  Full: 'full',
+  Half: 'half'
+};
+
+const LegendPosition = {
+  Top: 'top',
+  Bottom: 'bottom',
+  Left: 'left',
+  Right: 'right',
+  TopRight: 'top-right'
+};
+
+// Stats for Header
+const totalRisks = computed(() => riskProfileStore.risks.length);
+const highRisks = computed(() => 
+  riskProfileStore.risks.filter(r => 
+    riskProfileStore.getRiskLevel(r.likelihood, r.impact) === RiskLevel.HIGH
+  ).length
+);
+const auditPlansCount = computed(() => annualPlanStore.plans.length);
+const completedAuditsCount = computed(() => 
+  annualPlanStore.plans.filter(p => p.status === 'Done').length
+);
+
+// Audit Statistics (Section 2)
+const plannedAuditCount = computed(() => 
+  annualPlanStore.plans.filter(p => p.status !== 'Done').length
+);
+const openFindingsCount = computed(() => 
+  atrStore.reportList.filter(r => r.status !== AuditStatus.COMPLETED).length
+);
+const executionStatusPercent = computed(() => {
+  const executions = auditExecutionStore.auditExecutions;
+  if (executions.length === 0) return 0;
+  return executions.reduce((sum, e) => sum + e.progress, 0) / (executions.length * 100);
+});
+const atrCompliancePercent = computed(() => (atrStore.stats.donePercent / 100) || 0);
+
+// For Trends (keep mockup logic for now as we don't have historical data easily accessible)
+const auditMainStats = computed(() => ({
+  plannedAudit: plannedAuditCount.value,
+  openFinding: openFindingsCount.value,
+  executionStatus: executionStatusPercent.value,
+  atrCompliance: atrCompliancePercent.value,
+}));
 
 // Helper function to calculate trend
 const calculateTrend = (
@@ -557,45 +606,64 @@ const calculateTrend = (
   }
 };
 
+// Mock last month for trends
+const auditMainStatsLastMonth = {
+  plannedAudit: 25,
+  openFinding: 12,
+  executionStatus: 0.7,
+  atrCompliance: 0.8,
+};
+
 // Computed properties for each metric's trend
 const plannedAuditTrend = computed(() =>
   calculateTrend(
-    auditMainStats.value.plannedAudit,
-    auditMainStatsLastMonth.value.plannedAudit,
+    plannedAuditCount.value,
+    auditMainStatsLastMonth.plannedAudit,
   ),
 );
 
 const openFindingTrend = computed(() =>
   calculateTrend(
-    auditMainStats.value.openFinding,
-    auditMainStatsLastMonth.value.openFinding,
+    openFindingsCount.value,
+    auditMainStatsLastMonth.openFinding,
   ),
 );
 
 const executionStatusTrend = computed(() =>
   calculateTrend(
-    auditMainStats.value.executionStatus * 100,
-    auditMainStatsLastMonth.value.executionStatus * 100,
+    executionStatusPercent.value * 100,
+    auditMainStatsLastMonth.executionStatus * 100,
   ),
 );
 
 const atrComplianceTrend = computed(() =>
   calculateTrend(
-    auditMainStats.value.atrCompliance * 100,
-    auditMainStatsLastMonth.value.atrCompliance * 100,
+    atrCompliancePercent.value * 100,
+    auditMainStatsLastMonth.atrCompliance * 100,
   ),
 );
 
 // Risk graph
 const riskCategories = {
-  inherentRisk: { name: "Inherent Risk", color: "#ff5c02" }, // red-500
-  residualRisk: { name: "Residual Risk", color: "#4d00ff" }, // green-500
+  inherentRisk: { name: "Inherent Risk", color: "#ff5c02" },
+  residualRisk: { name: "Residual Risk", color: "#4d00ff" },
 };
 
-const mainRiskData = computed(() => auditDataStore.getRiskData);
+// Simplified risk data for bar chart based on real risk data
+const mainRiskData = computed(() => {
+  const departments = ['Finance', 'IT', 'Operations', 'Legal', 'HR'];
+  return departments.map(dept => {
+    const deptRisks = riskProfileStore.risks.filter(r => r.category === dept || (dept === 'IT' && r.category === 'Technology'));
+    return {
+      name: dept,
+      inherentRisk: deptRisks.reduce((sum, r) => sum + (r.impact * r.likelihood), 0) / (deptRisks.length || 1),
+      residualRisk: deptRisks.reduce((sum, r) => sum + (r.impact * r.likelihood * 0.6), 0) / (deptRisks.length || 1), // Mocking residual as 60% of inherent
+    }
+  });
+});
 
-const yearlyFilters = computed(() => auditDataStore.getDropdownYear);
-const activeYear = ref(new Date().getFullYear());
+const yearlyFilters = [2024, 2025, 2026];
+const activeYear = ref(2026);
 const xFormatter = (x: number): string => `${mainRiskData.value[x]?.name}`
 const tooltipTitleFormatter = (x: any): string => `${x.name}`
 
@@ -604,25 +672,12 @@ const label = {
   yLabel: "Risk Score",
 }
 
-onMounted(() => {
-  auditDataStore.fetchAuditData();
-});
-
-//Action Taken Report
-const atrDonut = [
-  {
-    name: "Completed",
-    value: 90,
-  },
-  {
-    name: "In Progress",
-    value: 5,
-  },
-  {
-    name: "Overdue",
-    value: 5,
-  },
-]
+// ATR Data
+const atrDonutData = computed(() => [
+  { name: "Completed", value: atrStore.stats.donePercent },
+  { name: "In Progress", value: atrStore.stats.wipPercent },
+  { name: "Overdue", value: atrStore.stats.latePercent },
+]);
 
 const atrCategories = {
   primary: {
@@ -651,212 +706,125 @@ const legendStyle : Record<string, string> =
       borderRadius: '8px'
   }
 
-const tableData = computed(() => {
-  return auditDataStore.getAtrReports
-})
-
-const auditExecutionStatus = computed(() => auditDataStore.getAuditExecutionStatus)
+const atrTableData = computed(() => {
+  return atrStore.reportList.map(r => ({
+    id: r.auditRef,
+    name: r.title,
+    owner: r.pic || '-',
+    date: r.deadline,
+    status: r.status
+  })).slice(0, 5);
+});
 
 const tableColumns = [
-  {
-    accessorKey: 'id',
-    header: 'Audit ID',
-        cell: (info: { getValue: () => any; }) => info.getValue(),
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: " font-medium text-center",
-      },
-    },
-  },
-  {
-    accessorKey: 'name',
-    header: 'Action Item',
-        cell: (info: { getValue: () => any; }) => info.getValue(),
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: " font-medium text-center",
-      },
-    },
-  },
-  {
-    accessorKey: 'owner',
-    header: 'Owner',
-        cell: (info: { getValue: () => any; }) => info.getValue(),
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: " font-medium text-center",
-      },
-    },
-  },
-  {
-    accessorKey: 'date',
-    header: 'Due Date',
-        cell: (info: { getValue: () => any; }) => info.getValue(),
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: " font-medium text-center",
-      },
-    },
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-        cell: (info: { getValue: () => any; }) => info.getValue(),
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: " font-medium text-center",
-      },
-    },
-  }
+  { accessorKey: 'id', header: 'Audit ID' },
+  { accessorKey: 'name', header: 'Action Item' },
+  { accessorKey: 'owner', header: 'Owner' },
+  { accessorKey: 'date', header: 'Due Date' },
+  { accessorKey: 'status', header: 'Status' }
 ]
 
-const registeredRiskHeatMap = computed(() => riskDataStore.getRegisteredRisks)
+const registeredRiskHeatMap = computed(() => riskProfileStore.risks.slice(0, 5))
 
 const registeredRiskColumns = [
   {
     id: 'id',
     header: 'ID',
-
     cell: (row: any) => {
-      return h('p', { class: ' font-medium text-center' }, row.index + 1);
-    },
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: " font-medium text-center",
-      },
+      const risk = row.row.original
+      const formattedId = riskProfileStore.getFormattedId(risk)
+      // Menggunakan font-mono agar konsisten dengan tampilan di RiskHeatMap
+      return h('p', { class: 'font-medium text-center font-mono' }, formattedId)
     },
   },
   {
-    accessorKey: 'risk_name',
+    accessorKey: 'name',
     header: 'Risk Name',
-
     cell: (row : any) => {
-      const rawObject = toRaw(row.row.original);
-      return h('div', {
-        class: 'flex items-start gap-2'
-      }, [
-          h('div', undefined, [
-          h('h5', { class: 'font-medium text-highlighted' }, `${rawObject.risk_name}`), 
-          h('p', { class: 'text-left' }, `${rawObject.risk_category}`),
-        ])
+      const rawObject = row.row.original;
+      return h('div', { class: 'flex flex-col' }, [
+        h('span', { class: 'font-bold' }, rawObject.name),
+        h('span', { class: 'text-xs text-gray-500' }, rawObject.category)
       ])
-    },
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-left",
-        td: " font-medium text-center",
-      },
-    },
+    }
   },
   {
-    accessorKey: 'latest_residual_risk',
-    header: 'Latest Residual Risk',
+    accessorKey: 'severity',
+    header: 'Score',
     cell: (row : any) => {
-      const rawObject = toRaw(row.row.original);
-      return h('p', {
-        class: 'flex items-start gap-2'
-      }, [
-          h('div', undefined, [
-          h('h5', { class: 'font-medium text-highlighted' }, `${rawObject.audit_finding}`), 
-          h('p', { class: 'text-left' }, `${rawObject.audit_category}`),
-        ])
-      ])
-    },
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-left",
-        td: " font-medium text-center",
-      },
-    },
-  },
+      const rawObject = row.row.original;
+      return h('span', { class: 'font-bold' }, rawObject.impact * rawObject.likelihood)
+    }
+  }
 ]
 
-const auditFindingData = computed(() => auditDataStore.getRecentFindings)
+// Audit Coverage
+const auditCoverage = computed(() => ({
+  plannedAudits: plannedAuditCount.value,
+  completedAudits: completedAuditsCount.value,
+  remainingAudits: annualPlanStore.plans.filter(p => p.status === 'Not Available' || p.status === 'Work In Progress').length
+}));
+const progressModel = computed(() => {
+  const total = annualPlanStore.plans.length;
+  if (total === 0) return 0;
+  return Math.round((completedAuditsCount.value / total) * 100);
+});
+
+// Audit Execution
+const dashboardExecutionStatus = computed(() => {
+  return auditExecutionStore.auditExecutions.map(e => ({
+    name: e.name,
+    percentage: e.progress
+  })).slice(0, 3);
+});
+
+// Recent Findings
+const recentFindingsData = computed(() => {
+  return auditResultStore.reportList.map(r => ({
+    audit_finding: r.reportTitle,
+    audit_category: r.overallRating,
+    severity: r.findingsCount > 5 ? 'High' : r.findingsCount > 2 ? 'Medium' : 'Low'
+  })).slice(0, 3);
+});
 
 const auditTableColumns = [
   {
     accessorKey: 'audit_finding',
     header: 'Audit Finding',
-
     cell: (row : any) => {
-      const rawObject = toRaw(row.row.original);
-      return h('div', {
-        class: 'flex items-start gap-2'
-      }, [
-          h('div', undefined, [
-          h('h5', { class: 'font-medium text-highlighted' }, `${rawObject.audit_finding}`), 
-          h('p', { class: 'text-left' }, `${rawObject.audit_category}`),
-        ])
+      const rawObject = row.row.original;
+      return h('div', { class: 'flex flex-col' }, [
+        h('span', { class: 'font-bold' }, rawObject.audit_finding),
+        h('span', { class: 'text-xs text-gray-500' }, rawObject.audit_category)
       ])
-    },
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-left",
-        td: " font-medium text-center",
-      },
-    },
+    }
   },
   {
     accessorKey: 'severity',
     header: 'Severity',
-        cell: (info: { getValue: () => any; }) => info.getValue(),
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-center w-[120%]",
-        td: " font-medium text-center",
-      },
-    },
-  },
-  {
-    id: 'actions',
-    header: 'Action',
-    meta: {
-      class: {
-        th: "font-semibold bg-primary text-secondary-900 text-center",
-        td: " font-medium text-center",
-      },
-    },
-    cell: (row : any ) => {
-       return h(UButton, {
-            icon: 'chevronRight',
-            color: 'primary',
-            size: 'xl',
-            variant: 'ghost',
-            'aria-label': 'Actions dropdown'
-          })
+    cell: (row: any) => {
+      const severity = row.getValue();
+      return h(UBadge, {
+        color: severity === 'High' ? 'red' : severity === 'Medium' ? 'orange' : 'green',
+        variant: 'soft'
+      }, () => severity)
     }
   }
 ]
 
-const getRiskLevel = (impact: number, probability: number): string => {
-  const score = impact * probability;
-  if (score <= 3) return "Low";
-  if (score <= 6) return "Low to Moderate";
-  if (score <= 9) return "Moderate";
-  if (score <= 12) return "Moderate to High";
-  return "High";
-};
-
 const getHeatMapCellColor = (x: number, y: number): string => {
-  // y is inverted (5 at top = probability 5, 1 at bottom = probability 1)
   const probability = 6 - y;
   const impact = x;
-  const riskLevel = getRiskLevel(impact, probability);
-
-  const colorMap: Record<string, string> = {
-    "Low": "bg-success-400 hover:bg-success-500 cursor-pointer transition-colors",
-    "Low to Moderate": "bg-success-600 hover:bg-success-700 cursor-pointer transition-colors",
-    "Moderate": "bg-warning-500 hover:bg-warning-600 cursor-pointer transition-colors",
-    "Moderate to High": "bg-primary-400 hover:bg-primary-500 cursor-pointer transition-colors",
-    "High": "bg-error-500 hover:bg-error-600 cursor-pointer transition-colors",
-  };
-
-  return colorMap[riskLevel] || "bg-gray-200";
+  const level = riskProfileStore.getRiskLevel(probability, impact);
+  switch (level) {
+    case RiskLevel.HIGH: return 'bg-red-500';
+    case RiskLevel.MODERATE_HIGH: return 'bg-orange-500';
+    case RiskLevel.MODERATE: return 'bg-yellow-500';
+    case RiskLevel.LOW_MODERATE: return 'bg-green-600';
+    case RiskLevel.LOW: return 'bg-green-400';
+    default: return 'bg-gray-100';
+  }
 };
+
+const getRiskLevel = (x: number, y: number) => riskProfileStore.getRiskLevel(y, x);
 </script>

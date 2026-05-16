@@ -3,32 +3,35 @@
     <!-- Header with Add Button -->
     <div class="flex justify-between items-center">
       <div>
-        <h3 class="text-lg font-semibold">Pengumpulan Dokumen</h3>
-        <p class="text-sm text-gray-500">Kelola dokumen yang dibutuhkan untuk pelaksanaan audit</p>
+        <h3 class="text-lg font-semibold">Document Collections</h3>
+        <p class="text-sm text-gray-500">Manage documents required for audit implementation</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" label="Tambah Dokumen" @click="store.openDocumentModal()" />
+      <UButton color="primary" icon="i-heroicons-plus" label="Add Document" @click="store.openDocumentModal()" />
     </div>
 
     <!-- Document List -->
     <UCard v-if="store.documents.length > 0" :ui="{ body: 'p-4' }">
       <UTable :data="store.documents" :columns="columns">
         <template #documentName-cell="{ row }">
-          <span class="font-medium">{{ row.documentName }}</span>
+          <span class="font-medium">{{ row.original.documentName }}</span>
         </template>
         <template #description-cell="{ row }">
-          <span class="text-sm text-gray-600">{{ row.description }}</span>
+          <span class="text-sm text-gray-600">{{ row.original.description }}</span>
         </template>
         <template #requiredDate-cell="{ row }">
-          <UBadge color="warning" variant="subtle">{{ row.requiredDate }}</UBadge>
+          <UBadge color="warning" variant="subtle">{{ row.original.requiredDate }}</UBadge>
         </template>
         <template #file-cell="{ row }">
-          <UButton v-if="row.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.file.name }}
+          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
+            {{ row.original.file.name }}
           </UButton>
           <span v-else class="text-gray-400 text-sm">-</span>
         </template>
-        <template #actions-cell="{ index }">
-          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteDocument(index)" />
+        <template #actions-cell="{ row }">
+          <div class="flex items-center">
+            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editDocument(row.original)" />
+            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteDocument(row.index)" />
+          </div>
         </template>
       </UTable>
     </UCard>
@@ -36,8 +39,8 @@
     <!-- Empty State -->
     <div v-else class="text-center py-8">
       <UIcon name="i-heroicons-document-duplicate" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">Belum ada dokumen yang diminta</p>
-      <UButton color="primary" variant="soft" class="mt-2" label="Tambah Dokumen" @click="store.openDocumentModal()" />
+      <p class="text-gray-500">No documents collected yet</p>
+      <UButton color="primary" variant="soft" class="mt-2" label="Add Document" @click="store.openDocumentModal()" />
     </div>
 
     <!-- Document Modal -->
@@ -46,26 +49,24 @@
         <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <template #header>
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">Form Pengumpulan Dokumen</h3>
+              <h3 class="text-lg font-semibold">{{ store.isEditingDocument ? 'Edit Document' : 'Document Collection Form' }}</h3>
               <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showDocumentModal = false" />
             </div>
           </template>
 
           <UForm @submit.prevent="store.saveDocument()" class="space-y-4">
-            <UFormField label="Nama Dokumen" required>
-              <UInput v-model="store.documentForm.documentName" placeholder="Contoh: SOP Pengadaan Barang" required />
+            <UFormField label="Document Name" required>
+              <UInput v-model="store.documentForm.documentName" placeholder="Example: SOP Procurement" class="w-full" required />
             </UFormField>
 
-            <UFormField label="Deskripsi Dokumen" required>
-              <UTextarea v-model="store.documentForm.description" placeholder="Jelaskan kegunaan dan scope dokumen ini" required />
+            <UFormField label="Document Description" required>
+              <UTextarea v-model="store.documentForm.description" placeholder="Describe the purpose and scope of this document" class="w-full" required />
             </UFormField>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Tanggal Diperlukan" required>
-                <UInput v-model="store.documentForm.requiredDate" type="date" required />
-              </UFormField>
-            </div>
-
+            <UFormField label="Required Date" required>
+              <UInput v-model="store.documentForm.requiredDate" type="date" class="w-full" required />
+            </UFormField>
+          
             <UFormField label="Upload File (PDF/DOCX/XLSX)">
               <UInput
                 type="file"
@@ -83,8 +84,8 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Batal" @click="store.showDocumentModal = false" />
-              <UButton color="primary" label="Simpan" @click="store.saveDocument()" />
+              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showDocumentModal = false" />
+              <UButton color="primary" :label="store.isEditingDocument ? 'Update' : 'Submit'" @click="store.saveDocument()" />
             </div>
           </template>
         </UCard>
@@ -99,10 +100,10 @@ import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 const store = useAuditFieldworkStore()
 
 const columns = [
-  { accessorKey: 'documentName', header: 'Nama Dokumen' },
-  { accessorKey: 'description', header: 'Deskripsi' },
-  { accessorKey: 'requiredDate', header: 'Tgl Diperlukan' },
+  { accessorKey: 'documentName', header: 'Document Name' },
+  { accessorKey: 'description', header: 'Description' },
+  { accessorKey: 'requiredDate', header: 'Required Date' },
   { accessorKey: 'file', header: 'File' },
-  { accessorKey: 'actions', header: '' }
+  { accessorKey: 'actions', header: 'Actions' }
 ]
 </script>

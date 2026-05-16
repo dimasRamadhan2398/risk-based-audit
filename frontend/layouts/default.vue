@@ -2,9 +2,11 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { useAuthStore } from '~/stores/auth'
 
 // Gunakan useRoute untuk mendapatkan URL saat ini
 const route = useRoute()
+const authStore = useAuthStore()
 
 // 1. Simpan data menu dalam variabel mentah (raw data)
 const rawItems: NavigationMenuItem[][] = [[
@@ -27,11 +29,25 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '3. Strategic Plan Internal Audit',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
+    children: [
+      {
+        label: 'KPI Performance',
+        icon: 'i-lucide-users',
+        to: '/kpi-performance',
+      },
+    ]
   },
   {
     label: '4. Annual Audit Plan',
     icon: 'i-lucide-users',
     to: '/annual-audit',
+    children: [
+      {
+        label: 'Audit Execution Status',
+        icon: 'i-lucide-users',
+        to: '/audit-execution-status',
+      }
+    ]
   },
   {
     label: '5. Audit Activity Plan',
@@ -44,22 +60,38 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/assignment-letter',
   },
   {
-    label: '7. Working Papers',
+    label: '7. Audit Field Work',
     icon: 'i-lucide-users',
-    to: '/working-paper',
-    children :[
+    to: '/audit-fieldwork',
+    children: [
       {
-        label: 'Audit Field Work',
+        label: 'Working Paper',
         icon: 'i-lucide-users',
-        to: '/audit-fieldwork'
-      }
+        to: '/working-paper',
+      },
     ]
   },
   {
     label: '8. Audit Result Report',
     icon: 'i-lucide-users',
     to: '/audit-result-report',
-  }, 
+  },
+  {
+    label: '9. Action Taken Report',
+    icon: 'i-lucide-users',
+    to: '/action-taken-report',
+  },
+  
+  {
+    label: '11. Quality Assurance Review',
+    icon: 'i-lucide-shield-check',
+    to: '/quality-assurance',
+  },
+  {
+    label: 'Analytics',
+    icon: 'i-lucide-pie-chart',
+    to: '/analytics',
+  },
   
 ]]
 
@@ -83,6 +115,32 @@ const items = computed<NavigationMenuItem[][]>(() => {
     })
   })
 })
+
+const userDropdownItems = computed(() => [
+  [
+    {
+      label: authStore.getUser?.fullName || 'User',
+      slot: 'account',
+      disabled: true
+    }
+  ],
+  [
+    {
+      label: 'Settings',
+      icon: 'i-lucide-settings',
+      to: '/settings'
+    }
+  ],
+  [
+    {
+      label: 'Logout',
+      icon: 'i-lucide-log-out',
+      onSelect: async () => {
+        await authStore.logout()
+      }
+    }
+  ]
+])
 </script>
 
 <template>
@@ -139,7 +197,24 @@ const items = computed<NavigationMenuItem[][]>(() => {
     <template #header>
         <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)]">
           <h1 class="text-xl font-semibold text-[var(--text-main)]">RBIA System</h1>
-          <UColorModeButton />
+          <div class="flex items-center gap-4">
+            <UColorModeButton />
+            <UButton v-if="!authStore.isLoggedIn" to="/auth/login" color="primary" variant="solid">Login</UButton>
+            <UDropdownMenu v-else :items="userDropdownItems">
+              <UAvatar :alt="authStore.getUser?.fullName || 'User'" size="md" />
+              
+              <template #account-item="{ item }">
+                <div class="text-left">
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    {{ item.label }}
+                  </p>
+                  <p class="text-xs text-gray-500 truncate">
+                    {{ authStore.getUser?.email }}
+                  </p>
+                </div>
+              </template>
+            </UDropdownMenu>
+          </div>
         </div>
     </template>
     <template #body>

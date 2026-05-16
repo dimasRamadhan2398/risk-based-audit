@@ -9,8 +9,13 @@ import type {
   WorkingPaperPlan,
 } from '~/types/audit'
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
+import { useAuditFieldworkStore } from './audit-fieldwork'
+import { computed } from 'vue'
+import { RiskLevel, RiskTaxonomy } from '../types/risk'
+import type { StepperItem } from '@nuxt/ui'
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
+  const fieldworkStore = useAuditFieldworkStore()
 
   const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -84,6 +89,35 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     { label: 'Action Plan', slot: 'f05', icon: 'i-heroicons-check-badge' }
   ]
 
+  const workingItems = [
+    {
+      slot: 'f01' as const,
+      title: 'Header',
+      description: 'Add your header',
+      icon: 'i-lucide-house'
+    }, {
+      slot: 'f02' as const,
+      title: 'Risk Profile',
+      description: 'Add your risk profile',
+      icon: 'i-lucide-shield'
+    }, {
+      slot: 'f03' as const,
+      title: 'Test Sample',
+      description: 'Add your test sample',
+      icon: 'i-lucide-table'
+    }, {
+      slot: 'f04' as const,
+      title: 'AOI & RCA',
+      description: 'Add your AOI & RCA',
+      icon: 'i-lucide-file-search'
+    }, {
+      slot: 'f05' as const,
+      title: 'Action Plan',
+      description: 'Add your action plan',
+      icon: 'i-lucide-check'
+    }
+  ] satisfies StepperItem[]
+
   const columnsF01 = [
     { accessorKey: 'assignmentLetterId', header: 'Assignment Letter' },
     { accessorKey: 'businessProcess', header: 'Business Process' },
@@ -141,8 +175,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const riskForm = reactive<WorkingPaperRiskForm>({
     risk: '',
-    taxonomy: '',
-    riskLevel: '',
+    taxonomy: RiskTaxonomy.Financial,
+    riskLevel: RiskLevel.HIGH,
     controlDescription: '',
   })
 
@@ -178,6 +212,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const dataF03 = ref<WorkingPaperSample[]>([])
   const dataF04 = ref<WorkingPaperCause[]>([])
   const dataF05 = ref<WorkingPaperPlan[]>([])
+
+  const filteredDataF01 = computed(() => {
+    if (!fieldworkStore.selectedAssignmentLetter) return dataF01.value
+    return dataF01.value.filter(wp => wp.assignmentLetterId === fieldworkStore.selectedAssignmentLetter)
+  })
 
   const isEditingF01 = ref(false)
   const isEditingF02 = ref(false)
@@ -256,13 +295,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     // Reset Form
     Object.assign(headerForm, {
-      assignmentLetterId: '',
+      assignmentLetterId: fieldworkStore.selectedAssignmentLetter || '',
       auditPurpose: '',
       businessProcess: '',
       periodStart: '',
       periodEnd: '',
       location: '',
-      teamMembers: []
+      teamMembers: [
+        { id: Date.now(), name: '', role: '' }
+      ]
     })
     showModalF01.value = true
   }
@@ -713,7 +754,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const options = {
-    assignmentLetter: ['ST-001/2026', 'ST-002/2026'],
+    get assignmentLetter() {
+      return fieldworkStore.publishedAssignmentLetters
+    },
     businessProcess: ['Procurement', 'Finance', 'HR', 'IT Operations'],
     location: ['Head Office', 'Jakarta Branch', 'Bandung Branch'],
     risk: [
@@ -769,11 +812,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   return {
     headerForm, riskForm, sampleForm, causeForm, planForm,
-    options, dateErrorMessage, isDateError, tabs,
+    options, dateErrorMessage, isDateError, tabs, workingItems,
     columnsF01, columnsF02, columnsF03, columnsF04, columnsF05,
     showModalF01, showModalF02, showModalF03, showModalF04, showModalF05,
     isEditingF01, isEditingF02, isEditingF03, isEditingF04, isEditingF05,
     dataF01, dataF02, dataF03, dataF04, dataF05,
+    filteredDataF01,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,
     openModalF01, openModalF02, openModalF03, openModalF04, openModalF05,

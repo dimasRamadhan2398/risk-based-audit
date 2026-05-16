@@ -115,7 +115,7 @@
   --ui-warning: var(--ui-color-warning-500);
   --ui-error: var(--ui-color-error-500);
   --ui-container: var(--breakpoint-lg);
-  
+
   --bg-main: #ffffff;
   --bg-surface: #f9fafb;
   --text-main: #111827;
@@ -143,15 +143,27 @@ body {
   font-family: var(--font-sans);
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   @apply font-bold text-[var(--text-main)] tracking-tight transition-colors duration-300;
 }
 
-h1 { @apply text-2xl; }
-h2 { @apply text-xl; }
-h3 { @apply text-lg; }
+h1 {
+  @apply text-2xl;
+}
 
-h4, h5, h6 {
+h2 {
+  @apply text-xl;
+}
+
+h3 {
+  @apply text-lg;
+}
+
+h4,
+h5,
+h6 {
   @apply font-semibold text-[var(--text-muted)] tracking-normal transition-colors duration-300;
 }
 
@@ -175,11 +187,11 @@ p {
   @apply block w-full rounded-md border-[var(--border-main)] bg-[var(--bg-surface)] text-[var(--text-main)] shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2 border transition-all duration-300;
 }
 
-.wrapper-vertical-center{
+.wrapper-vertical-center {
   @apply p-8 flex flex-col items-center text-center w-full gap-4
 }
 
-.wrapper-vertical-expanded{
+.wrapper-vertical-expanded {
   @apply p-8 flex flex-col items-start text-start w-full gap-4
 }
 
@@ -188,4 +200,3 @@ p {
     background-image: var(--image-audit-bg);
   }
 }
-

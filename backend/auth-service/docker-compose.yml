@@ -121,6 +121,18 @@ services:
       - rb_audit_network
     restart: unless-stopped
 
+  # Analytics Service
+  analytics-service:
+    build:
+      context: ../analytics-service
+      dockerfile: Dockerfile
+    container_name: rb_audit_analytics_service
+    ports:
+      - "8084:8084"
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:

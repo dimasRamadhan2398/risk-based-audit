@@ -485,3 +485,48 @@ export interface StrategicAuditPlan {
   calculation: string;
   status: string;
 }
+
+export interface ActionTakenReport {
+  id: string
+  auditRef: AnnualAuditPlan['code']
+  title: string
+  department: AuditDepartment
+  deadline: string
+  status: AuditStatus
+  auditObject?: string
+  findingCategory?: AuditCategory
+  condition?: string
+  criteria?: string
+  recommendation?: string
+  pic?: string
+  attachment?: string
+  progressDescription?: string
+}
+
+export interface AuditExecution {
+  id: string
+  ref: ActionTakenReport['auditRef']
+  name: ActionTakenReport['title']
+  category: AuditCategory
+  progress: number
+  lead_auditor: string
+  status: AuditStatus
+  status_detail?: 'Late' | 'On Time'
+  sample_data_test_controls?: {
+    progress: number
+    description: string
+  }
+  working_papers?: {
+    condition: string
+    criteria: string
+  }
+  action_plan_improvements?: {
+    recommendation: string
+    deadline: string
+    pic: string
+  }
+  latest_update_progress?: {
+    attachment: string
+    description: string
+  }
+}

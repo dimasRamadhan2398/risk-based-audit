@@ -8,9 +8,9 @@
       </div>
     </div>
 
-    <UTabs :items="store.tabs" class="w-full">
+    <UStepper :items="store.workingItems" class="w-full">
       
-      <template #f01="{ item }">
+      <template #f01>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Header</h1>
@@ -31,7 +31,7 @@
 
       </template>
 
-      <template #f02="{ item }">
+      <template #f02>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Risk</h1>
@@ -52,7 +52,7 @@
         
       </template>
 
-      <template #f03="{ item }">
+      <template #f03>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Sample</h1>
@@ -72,7 +72,7 @@
         <WorkingPaperSampleForm />
       </template>
 
-      <template #f04="{ item }">
+      <template #f04>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Cause Analysis</h1>
@@ -92,7 +92,7 @@
         <WorkingPaperCauseForm />
       </template>
 
-      <template #f05="{ item }">
+      <template #f05>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper Action Plan</h1>
@@ -111,11 +111,13 @@
 
         <WorkingPaperPlanForm />
       </template>
-    </UTabs>
+    </UStepper>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+import { onMounted } from 'vue'
 import WorkingPaperCauseForm from '~/components/working-paper/WorkingPaperCauseForm.vue';
 import WorkingPaperCauseTable from '~/components/working-paper/WorkingPaperCauseTable.vue';
 import WorkingPaperHeaderForm from '~/components/working-paper/WorkingPaperHeaderForm.vue';
@@ -130,5 +132,24 @@ import { useWorkingPaperStore } from '~/stores/working-paper'
 
 // Panggil Store
 const store = useWorkingPaperStore()
+const route = useRoute()
 
+onMounted(() => {
+  const { id, action } = route.query
+  
+  if (action === 'create') {
+    store.openModalF01()
+  } else if (id && action === 'edit') {
+    const wp = store.dataF01.find(item => item.id === id)
+    if (wp) {
+      store.handleEditF01(wp)
+    }
+  } else if (id) {
+    // Optional: handle view mode if exists
+    const wp = store.dataF01.find(item => item.id === id)
+    if (wp) {
+      store.handleEditF01(wp) // Use edit modal for viewing for now
+    }
+  }
+})
 </script>

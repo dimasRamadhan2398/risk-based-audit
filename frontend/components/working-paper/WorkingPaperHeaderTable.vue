@@ -2,7 +2,7 @@
     <div class="mt-4 space-y-6">
     <UCard class="shadow-sm mt-10">
         
-        <UTable :data="store.dataF01" :columns="store.columnsF01" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }" >
+        <UTable :data="store.filteredDataF01" :columns="store.columnsF01" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }" >
         
         <template #teamMembers-cell="{ row }">
             <div class="flex flex-wrap gap-1">

@@ -57,11 +57,62 @@
         </template>
 
         <template #tab06>
-          <div class="text-center py-8">
-            <UIcon name="i-heroicons-document-text" class="size-16 text-gray-300 mx-auto mb-4" />
-            <h3 class="text-lg font-semibold text-gray-700">Working Papers</h3>
-            <p class="text-gray-500 mt-2">Manage working papers through separate menu</p>
-            <UButton color="primary" variant="soft" class="mt-4" label="Open Working Papers" to="/working-paper" />
+          <div class="space-y-4">
+            <div class="flex justify-between items-center p-4">
+              <div>
+                <h2 class="text-lg font-semibold text-gray-900">Working Papers</h2>
+                <p class="text-sm text-gray-500">Working papers associated with {{ store.selectedAssignmentLetter }}</p>
+              </div>
+            </div>
+
+            <div v-if="filteredWorkingPapers.length > 0" class="mx-4">
+              <UCard :ui="{ body: 'p-0', root: 'ring-1 ring-gray-200 shadow-sm' }">
+                <UTable :data="filteredWorkingPapers" :columns="workingPaperColumns">
+                  <template #actions-cell="{ row }">
+                    <div class="flex gap-2">
+                      <UButton
+                        icon="i-heroicons-eye"
+                        size="sm"
+                        color="neutral"
+                        variant="ghost"
+                        :to="`/working-paper?id=${row.original.id}`"
+                        title="View Details"
+                      />
+                      <UButton
+                        icon="i-heroicons-pencil-square"
+                        size="sm"
+                        color="primary"
+                        variant="ghost"
+                        :to="`/working-paper?id=${row.original.id}&action=edit`"
+                        title="Edit"
+                      />
+                      <UButton
+                        icon="i-heroicons-trash"
+                        size="sm"
+                        color="error"
+                        variant="ghost"
+                        @click="wpStore.deleteF01(row.original.id!)"
+                        title="Delete"
+                      />
+                    </div>
+                  </template>
+                </UTable>
+              </UCard>
+            </div>
+
+            <div v-else class="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 mx-4">
+              <UIcon name="i-heroicons-document-text" class="size-16 text-gray-300 mx-auto mb-4" />
+              <h3 class="text-lg font-semibold text-gray-700">No Working Papers Found</h3>
+              <p class="text-gray-500 mt-2 max-w-md mx-auto mb-6">
+                There are no working papers created for assignment letter <span class="font-medium text-gray-900">{{ store.selectedAssignmentLetter }}</span> yet.
+              </p>
+              <UButton 
+                color="primary" 
+                icon="i-heroicons-plus" 
+                label="Create First Working Paper" 
+                to="/working-paper?action=create" 
+              />
+            </div>
           </div>
         </template>
       </UTabs>
@@ -81,6 +132,23 @@
 
 <script setup lang="ts">
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useWorkingPaperStore } from '~/stores/working-paper'
+import { computed } from 'vue'
 
 const store = useAuditFieldworkStore()
+const wpStore = useWorkingPaperStore()
+
+const filteredWorkingPapers = computed(() => {
+  if (!store.selectedAssignmentLetter) return []
+  return wpStore.dataF01.filter(wp => wp.assignmentLetterId === store.selectedAssignmentLetter)
+})
+
+const workingPaperColumns = [
+  { accessorKey: 'businessProcess', header: 'Business Process' },
+  { accessorKey: 'period', header: 'Period' },
+  { accessorKey: 'riskLevel', header: 'Risk Level' },
+  { accessorKey: 'rootCause', header: 'Root Cause' },
+  { accessorKey: 'location', header: 'Location' },
+  { accessorKey: 'actions', header: 'Actions' }
+]
 </script>
