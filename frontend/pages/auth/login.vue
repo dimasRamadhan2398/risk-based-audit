@@ -73,6 +73,7 @@
           <p class="text-sm text-gray-600">
             {{ t("auth.noAccount") }} {{ t("auth.contactAdmin") }}
           </p>
+          <UButton variant="ghost" to="/auth/forgot-password">Forgot Password?</UButton>
         </div>
       </UForm>
     </UContainer>
