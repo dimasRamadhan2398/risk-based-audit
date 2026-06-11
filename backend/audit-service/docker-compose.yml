@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # Master Service
+  audit-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rb_audit_audit_service
+    command: sh -c "./audit migrate up && ./audit serve"
+    ports:
+      - "8002:8002"
+    environment:
+      - SERVER_PORT=8003
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=admin_rbia
+      - DB_PASSWORD=12345678
+      - DB_NAME=audit_service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    
+  redis_data:
+  zookeeper_data:
+  kafka_data:
+
+networks:
+  rb_audit_network:
+    driver: bridge

@@ -1,0 +1,27 @@
+# admin — full access
+p, admin, /*, *
+
+# auditor — read audits, manage audit findings
+p, auditor, /audits,          GET
+p, auditor, /audits/*,        GET
+p, auditor, /audits/*,        PUT
+p, auditor, /audits/*/findings, POST
+p, auditor, /reports,         GET
+p, auditor, /reports/*,       GET
+
+# department_head — view own department audits, respond to findings
+p, department_head, /audits,          GET
+p, department_head, /audits/*,        GET
+p, department_head, /findings/*,      PUT
+p, department_head, /reports,         GET
+
+# auditee — view assigned audits, submit responses
+p, auditee, /audits/*,        GET
+p, auditee, /findings/*,      GET
+p, auditee, /findings/*/response, POST
+
+# viewer — read only
+p, viewer, /audits,           GET
+p, viewer, /audits/*,         GET
+p, viewer, /reports,          GET
+p, viewer, /reports/*,        GET

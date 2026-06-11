@@ -1,0 +1,40 @@
+server:
+  port: 8001
+  mode: release  # debug, release
+  read_timeout: 60
+
+database:
+  host: postgres
+  port: 5432
+  username: admin_rbia
+  password: 12345678
+  name: auth_service
+  sslmode: disable
+
+redis:
+  host: redis
+  port: 6379
+  password: ""
+  db: 0
+
+jwt:
+  secret: fec20f8c86f9c2657ef2423d6859c9b1355472e995d512753a710575fd4c3cd5
+  expiry_hour: 24
+
+log:
+  level: info  # debug, info, warn, error
+  format: json  # json, console
+
+kafka:
+  enabled: true
+  brokers:
+    - "kafka:9092"
+  topic: "service-logs"
+  service_name: "auth-service"
+
+app:
+  app_name: risk-based-internal-audit
+  app_env: development
+  signature_key: a3f8c2d1e4b5a6f7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1
+  rate_limiter_max: 100
+  rate_limiter_time: 1

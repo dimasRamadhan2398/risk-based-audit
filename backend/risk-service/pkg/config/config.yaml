@@ -1,0 +1,8 @@
+database:
+  host: localhost
+  port: 5432
+  name: risk_db
+  username: postgres
+  password: postgres
+  sslmode: disable
+
