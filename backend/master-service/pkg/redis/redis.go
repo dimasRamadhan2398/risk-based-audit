@@ -1,0 +1,29 @@
+package redis
+
+import (
+	"context"
+	"fmt"
+	"master-service/pkg/config"
+
+	"github.com/redis/go-redis/v9"
+)
+
+type Client struct {
+	*redis.Client
+}
+
+// NewRedisConnection creates a new Redis connection
+func NewRedisConnection(cfg *config.RedisConfig) (*Client, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		Password: cfg.Password,
+		DB:       cfg.DB,
+	})
+
+	ctx := context.Background()
+	if err := client.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("failed to connect to redis: %w", err)
+	}
+
+	return &Client{Client: client}, nil
+}

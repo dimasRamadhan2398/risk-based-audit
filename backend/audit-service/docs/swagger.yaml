@@ -1,0 +1,1044 @@
+definitions:
+  models.ActivityPlanResponse:
+    properties:
+      annual_plan_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      objective:
+        type: string
+      planned_end:
+        type: string
+      planned_start:
+        type: string
+      project_code:
+        type: string
+      scope:
+        type: string
+      status:
+        type: string
+      target_unit_id:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.AssignmentStatus:
+    enum:
+    - pending
+    - assigned
+    - accepted
+    - completed
+    - rejected
+    type: string
+    x-enum-varnames:
+    - AssignmentStatusPending
+    - AssignmentStatusAssigned
+    - AssignmentStatusAccepted
+    - AssignmentStatusCompleted
+    - AssignmentStatusRejected
+  models.AuditAssignmentResponse:
+    properties:
+      assignment_title:
+        type: string
+      audit_plan_id:
+        type: string
+      auditor_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      start_date:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.AuditCharterResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      filename:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      title:
+        type: string
+      updated_at:
+        type: string
+      version:
+        type: string
+    type: object
+  models.AuditMandateResponse:
+    properties:
+      created_at:
+        type: string
+      effective_date:
+        type: string
+      expiry_date:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      legal_basis:
+        type: string
+      mandate_source:
+        type: string
+      reference_number:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.CreateActivityPlanRequest:
+    properties:
+      annual_plan_id:
+        type: string
+      objective:
+        type: string
+      planned_end:
+        type: string
+      planned_start:
+        type: string
+      project_code:
+        maxLength: 50
+        type: string
+      scope:
+        type: string
+      status:
+        maxLength: 50
+        type: string
+      target_unit_id:
+        type: string
+      title:
+        maxLength: 255
+        type: string
+    required:
+    - annual_plan_id
+    - planned_end
+    - planned_start
+    - project_code
+    - target_unit_id
+    - title
+    type: object
+  models.CreateAuditAssignmentRequest:
+    properties:
+      assignment_title:
+        maxLength: 200
+        type: string
+      audit_plan_id:
+        type: string
+      auditor_id:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      notes:
+        type: string
+      start_date:
+        type: string
+    required:
+    - assignment_title
+    - audit_plan_id
+    - auditor_id
+    type: object
+  models.CreateAuditCharterRequest:
+    properties:
+      content:
+        type: string
+      filename:
+        maxLength: 200
+        type: string
+      title:
+        maxLength: 200
+        type: string
+      version:
+        maxLength: 20
+        type: string
+    required:
+    - content
+    - filename
+    - title
+    - version
+    type: object
+  models.CreateAuditMandateRequest:
+    properties:
+      effective_date:
+        type: string
+      expiry_date:
+        type: string
+      legal_basis:
+        type: string
+      mandate_source:
+        maxLength: 100
+        type: string
+      reference_number:
+        maxLength: 100
+        type: string
+      title:
+        maxLength: 200
+        type: string
+    required:
+    - effective_date
+    - reference_number
+    - title
+    type: object
+  models.UpdateActivityPlanRequest:
+    properties:
+      objective:
+        type: string
+      planned_end:
+        type: string
+      planned_start:
+        type: string
+      scope:
+        type: string
+      status:
+        maxLength: 50
+        type: string
+      target_unit_id:
+        type: string
+      title:
+        maxLength: 255
+        type: string
+    type: object
+  models.UpdateAssignmentStatusRequest:
+    properties:
+      status:
+        $ref: '#/definitions/models.AssignmentStatus'
+    required:
+    - status
+    type: object
+  models.UpdateAuditAssignmentRequest:
+    properties:
+      assignment_title:
+        maxLength: 200
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      notes:
+        type: string
+      start_date:
+        type: string
+    type: object
+  models.UpdateAuditCharterRequest:
+    properties:
+      content:
+        type: string
+      filename:
+        maxLength: 200
+        type: string
+      title:
+        maxLength: 200
+        type: string
+    type: object
+  models.UpdateAuditMandateRequest:
+    properties:
+      effective_date:
+        type: string
+      expiry_date:
+        type: string
+      is_active:
+        type: boolean
+      legal_basis:
+        type: string
+      mandate_source:
+        maxLength: 100
+        type: string
+      title:
+        maxLength: 200
+        type: string
+    type: object
+  response.ErrorDetail:
+    properties:
+      code:
+        type: string
+      details:
+        type: string
+      message:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/response.ErrorDetail'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/audit-activities:
+    get:
+      description: Get a list of audit activities with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Annual Plan ID filter
+        in: query
+        name: annual_plan_id
+        type: string
+      - description: Target Unit ID filter
+        in: query
+        name: target_unit_id
+        type: string
+      - description: Status filter
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: List Audit Activities
+      tags:
+      - audit-activities
+    post:
+      consumes:
+      - application/json
+      description: Create a new audit activity
+      parameters:
+      - description: Create audit activity request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateActivityPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Create Audit Activity
+      tags:
+      - audit-activities
+  /api/v1/audit-activities/{id}:
+    delete:
+      description: Delete an audit activity
+      parameters:
+      - description: Audit Activity ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Delete Audit Activity
+      tags:
+      - audit-activities
+    get:
+      description: Get an audit activity by ID
+      parameters:
+      - description: Audit Activity ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ActivityPlanResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Audit Activity
+      tags:
+      - audit-activities
+    put:
+      consumes:
+      - application/json
+      description: Update an audit activity
+      parameters:
+      - description: Audit Activity ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update audit activity request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateActivityPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Update Audit Activity
+      tags:
+      - audit-activities
+  /api/v1/audit-activities/project:
+    get:
+      description: Get an audit activity by project code
+      parameters:
+      - description: Project Code
+        in: query
+        name: project_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ActivityPlanResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Audit Activity By Project Code
+      tags:
+      - audit-activities
+  /api/v1/audit-assignments:
+    get:
+      description: Get a list of audit assignments with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Auditor ID filter
+        in: query
+        name: auditor_id
+        type: string
+      - description: Audit Plan ID filter
+        in: query
+        name: audit_plan_id
+        type: string
+      - description: Status filter
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: List Audit Assignments
+      tags:
+      - audit-assignments
+    post:
+      consumes:
+      - application/json
+      description: Create a new audit assignment
+      parameters:
+      - description: Create audit assignment request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAuditAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Create Audit Assignment
+      tags:
+      - audit-assignments
+  /api/v1/audit-assignments/{id}:
+    delete:
+      description: Delete an audit assignment
+      parameters:
+      - description: Audit Assignment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Delete Audit Assignment
+      tags:
+      - audit-assignments
+    get:
+      description: Get an audit assignment by ID
+      parameters:
+      - description: Audit Assignment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuditAssignmentResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Audit Assignment
+      tags:
+      - audit-assignments
+    put:
+      consumes:
+      - application/json
+      description: Update an audit assignment
+      parameters:
+      - description: Audit Assignment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update audit assignment request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAuditAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Update Audit Assignment
+      tags:
+      - audit-assignments
+  /api/v1/audit-assignments/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update the status of an audit assignment
+      parameters:
+      - description: Audit Assignment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update status request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAssignmentStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Update Assignment Status
+      tags:
+      - audit-assignments
+  /api/v1/audit-assignments/audit-plan/{audit_plan_id}:
+    get:
+      description: Get audit assignments by audit plan ID
+      parameters:
+      - description: Audit Plan ID
+        in: path
+        name: audit_plan_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Get Assignments By Audit Plan
+      tags:
+      - audit-assignments
+  /api/v1/audit-assignments/auditor/{auditor_id}:
+    get:
+      description: Get audit assignments by auditor ID
+      parameters:
+      - description: Auditor ID
+        in: path
+        name: auditor_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Get Assignments By Auditor
+      tags:
+      - audit-assignments
+  /api/v1/audit-charters:
+    get:
+      description: Get a list of audit charters with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Active status filter
+        in: query
+        name: is_active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: List Audit Charters
+      tags:
+      - audit-charters
+    post:
+      consumes:
+      - application/json
+      description: Create a new audit charter
+      parameters:
+      - description: Create audit charter request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAuditCharterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Create Audit Charter
+      tags:
+      - audit-charters
+  /api/v1/audit-charters/{id}:
+    delete:
+      description: Delete an audit charter
+      parameters:
+      - description: Audit Charter ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Delete Audit Charter
+      tags:
+      - audit-charters
+    get:
+      description: Get an audit charter by ID
+      parameters:
+      - description: Audit Charter ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuditCharterResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Audit Charter
+      tags:
+      - audit-charters
+    put:
+      consumes:
+      - application/json
+      description: Update an audit charter
+      parameters:
+      - description: Audit Charter ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update audit charter request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAuditCharterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Update Audit Charter
+      tags:
+      - audit-charters
+  /api/v1/audit-charters/{id}/activate:
+    post:
+      description: Set an audit charter as the active charter
+      parameters:
+      - description: Audit Charter ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Set Active Audit Charter
+      tags:
+      - audit-charters
+  /api/v1/audit-charters/active:
+    get:
+      description: Get the active audit charter
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuditCharterResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Active Audit Charter
+      tags:
+      - audit-charters
+  /api/v1/audit-charters/version:
+    get:
+      description: Get an audit charter by version
+      parameters:
+      - description: Version
+        in: query
+        name: version
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuditCharterResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Audit Charter By Version
+      tags:
+      - audit-charters
+  /api/v1/audit-mandates:
+    get:
+      description: Get a list of audit mandates with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Active status filter
+        in: query
+        name: is_active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: List Audit Mandates
+      tags:
+      - audit-mandates
+    post:
+      consumes:
+      - application/json
+      description: Create a new audit mandate
+      parameters:
+      - description: Create audit mandate request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAuditMandateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Create Audit Mandate
+      tags:
+      - audit-mandates
+  /api/v1/audit-mandates/{id}:
+    delete:
+      description: Delete an audit mandate
+      parameters:
+      - description: Audit Mandate ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Delete Audit Mandate
+      tags:
+      - audit-mandates
+    get:
+      description: Get an audit mandate by ID
+      parameters:
+      - description: Audit Mandate ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuditMandateResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Audit Mandate
+      tags:
+      - audit-mandates
+    put:
+      consumes:
+      - application/json
+      description: Update an audit mandate
+      parameters:
+      - description: Audit Mandate ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update audit mandate request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAuditMandateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Update Audit Mandate
+      tags:
+      - audit-mandates
+  /api/v1/audit-mandates/active:
+    get:
+      description: Get the active audit mandate
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuditMandateResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Active Audit Mandate
+      tags:
+      - audit-mandates
+  /api/v1/audit-mandates/reference:
+    get:
+      description: Get an audit mandate by reference number
+      parameters:
+      - description: Reference Number
+        in: query
+        name: reference
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuditMandateResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get Audit Mandate By Reference
+      tags:
+      - audit-mandates
+swagger: "2.0"

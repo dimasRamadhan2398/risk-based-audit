@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: rb_audit_postgres_master
+    environment:
+      POSTGRES_USER: admin_rbia
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: master_service
+    ports:
+      - "5433:5433" # Changed host port to 5433 to avoid port clash if auth_service DB is also running!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # FIX 2: Changed to check 'master_service' instead of 'auth_service'
+      test: ["CMD-SHELL", "pg_isready -U admin_rbia -d master_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rb_audit_network    
+
+  master-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rb_audit_master_service
+    command: sh -c "./master migrate up && ./master serve"
+    ports:
+      - "8002:8002"
+    environment:
+      - SERVER_PORT=8002
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=admin_rbia
+      - DB_PASSWORD=12345678
+      - DB_NAME=master_service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # FIX 3: Removed redis and kafka from depends_on since they aren't in this file
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  # Removed unused volume declarations for redis, zookeeper, kafka here
+
+networks:
+  rb_audit_network:
+    external: true # Assuming you want to connect to the shared network from the Auth/Kafka setup

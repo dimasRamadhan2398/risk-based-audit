@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # Zookeeper (required for Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: rb_audit_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - rb_audit_network
+
+  # Kafka Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: rb_audit_kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAIN://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAIN:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAIN
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_NUM_PARTITIONS: 3
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - rb_audit_network
+
+  # Kafka UI (optional - for managing/monitoring Kafka)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: rb_audit_kafka_ui
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8085:8080"
+    environment:
+      TZ: Asia/Jakarta
+      KAFKA_CLUSTERS_0_NAME: rb_audit
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - rb_audit_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: rb_audit_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rb_audit_network
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    ports:
+      - "5540:5540"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - rb_audit_network
+
+volumes:
+  redis_data:
+  zookeeper_data:
+  kafka_data:
+
+networks:
+  rb_audit_network:
+    name: rb_audit_network
+    driver: bridge
