@@ -18,8 +18,13 @@ var (
 	cfg        *config.Config
 )
 
+// var rootCmd = &cobra.Command{
+// 	Use:   "migrate",
+// 	Short: "Database migration commands for risk-service",
+// }
+
 var rootCmd = &cobra.Command{
-	Use:   "migrate",
+	Use:   "risk",
 	Short: "Database migration commands for risk-service",
 }
 

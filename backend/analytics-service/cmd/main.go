@@ -4,9 +4,12 @@ import (
 	"log"
 
 	"analytics-service/routes"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+// "analytics-service/cmd/docs"
 
 func main() {
 	r := gin.Default()

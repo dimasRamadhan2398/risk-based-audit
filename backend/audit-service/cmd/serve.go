@@ -19,8 +19,12 @@ import (
 	svcCharter "audit-service/services/audit_charter"
 	svcMandate "audit-service/services/audit_mandate"
 
+	docs "audit-service/docs"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // serveCmd represents the serve command
@@ -118,6 +122,16 @@ func runServe(cmd *cobra.Command, args []string) error {
 			"service": "audit-service",
 		})
 	})
+
+	docs.SwaggerInfo.Title = "Audit Service API"
+	docs.SwaggerInfo.Description = "API documentation for Audit Service"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8002"
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http"}
+
+	// Swagger UI endpoint
+	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Initialize route handler
 	routeHandler := routes.NewRouteHandler(engine, authMiddleware)

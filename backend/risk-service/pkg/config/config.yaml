@@ -1,8 +1,8 @@
 database:
-  host: localhost
+  host: postgres
   port: 5432
-  name: risk_db
-  username: postgres
-  password: postgres
+  username: admin_rbia
+  password: 12345678
+  name: risk_service
   sslmode: disable
 

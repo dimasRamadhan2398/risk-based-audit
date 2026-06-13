@@ -11,7 +11,7 @@ import (
 // RegisterRoutes wires all HTTP routes for the master-service.
 func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry) {
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		c.JSON(http.StatusOK, gin.H{"service": "master-service", "status": "ok"})
 	})
 
 	api := router.Group("/api/v1")

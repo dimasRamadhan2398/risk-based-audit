@@ -162,4 +162,8 @@ import { useCharterStore } from '~/stores/charter'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useCharterStore()
+
+onMounted(async () => {
+  await store.fetchCharters()
+})
 </script>
