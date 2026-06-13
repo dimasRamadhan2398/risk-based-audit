@@ -82,7 +82,7 @@ func (s *Seeder) SeedRoles() error {
 			Name:        "AUDITOR",
 			Description: "Internal Auditor",
 			Permissions: []models.Permission{
-				permissions[0], // view_users
+				permissions[0],  // view_users
 				permissions[6],  // view_companies
 				permissions[8],  // view_departments
 				permissions[10], // view_employees
@@ -144,6 +144,7 @@ func (s *Seeder) SeedUsers() error {
 
 	users := []models.User{
 		{
+			EmployeeID:   "EMP001",
 			Username:     "admin",
 			Email:        "admin@company.com",
 			PasswordHash: string(hashedPassword),
@@ -153,6 +154,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
+			EmployeeID:   "EMP002",
 			Username:     "auditor",
 			Email:        "auditor@company.com",
 			PasswordHash: string(hashedPassword),
@@ -162,6 +164,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
+			EmployeeID:   "EMP003",
 			Username:     "dept_head",
 			Email:        "depthead@company.com",
 			PasswordHash: string(hashedPassword),
@@ -171,6 +174,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
+			EmployeeID:   "EMP004",
 			Username:     "auditee",
 			Email:        "auditee@company.com",
 			PasswordHash: string(hashedPassword),
@@ -180,6 +184,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
+			EmployeeID:   "EMP005",
 			Username:     "viewer",
 			Email:        "viewer@company.com",
 			PasswordHash: string(hashedPassword),
@@ -193,8 +198,8 @@ func (s *Seeder) SeedUsers() error {
 	// Create users if they don't exist
 	for i := range users {
 		var existing models.User
-		
-		if err := s.DB.Where("username = ?", users[i].Username).First(&existing).Error;err == gorm.ErrRecordNotFound {
+
+		if err := s.DB.Where("username = ?", users[i].Username).First(&existing).Error; err == gorm.ErrRecordNotFound {
 			if err := s.DB.Create(&users[i]).Error; err != nil {
 				return fmt.Errorf("failed to create user %s: %w", users[i].Username, err)
 			}
@@ -203,11 +208,11 @@ func (s *Seeder) SeedUsers() error {
 
 	// Fetch all roles
 	var (
-		adminRole      models.Role
-		auditorRole    models.Role
-		deptHeadRole   models.Role
-		auditeeRole    models.Role
-		viewerRole     models.Role
+		adminRole    models.Role
+		auditorRole  models.Role
+		deptHeadRole models.Role
+		auditeeRole  models.Role
+		viewerRole   models.Role
 	)
 
 	roles := map[string]*models.Role{

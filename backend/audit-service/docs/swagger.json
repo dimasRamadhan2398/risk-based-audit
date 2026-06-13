@@ -1,0 +1,1664 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/api/v1/audit-activities": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a list of audit activities with pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-activities"
+                ],
+                "summary": "List Audit Activities",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Annual Plan ID filter",
+                        "name": "annual_plan_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Target Unit ID filter",
+                        "name": "target_unit_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status filter",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new audit activity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-activities"
+                ],
+                "summary": "Create Audit Activity",
+                "parameters": [
+                    {
+                        "description": "Create audit activity request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateActivityPlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-activities/project": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get an audit activity by project code",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-activities"
+                ],
+                "summary": "Get Audit Activity By Project Code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Code",
+                        "name": "project_code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ActivityPlanResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-activities/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get an audit activity by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-activities"
+                ],
+                "summary": "Get Audit Activity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Activity ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ActivityPlanResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an audit activity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-activities"
+                ],
+                "summary": "Update Audit Activity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Activity ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update audit activity request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateActivityPlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete an audit activity",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-activities"
+                ],
+                "summary": "Delete Audit Activity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Activity ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-assignments": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a list of audit assignments with pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-assignments"
+                ],
+                "summary": "List Audit Assignments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auditor ID filter",
+                        "name": "auditor_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Audit Plan ID filter",
+                        "name": "audit_plan_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status filter",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new audit assignment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-assignments"
+                ],
+                "summary": "Create Audit Assignment",
+                "parameters": [
+                    {
+                        "description": "Create audit assignment request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAuditAssignmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-assignments/audit-plan/{audit_plan_id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get audit assignments by audit plan ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-assignments"
+                ],
+                "summary": "Get Assignments By Audit Plan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Plan ID",
+                        "name": "audit_plan_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-assignments/auditor/{auditor_id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get audit assignments by auditor ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-assignments"
+                ],
+                "summary": "Get Assignments By Auditor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auditor ID",
+                        "name": "auditor_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-assignments/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get an audit assignment by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-assignments"
+                ],
+                "summary": "Get Audit Assignment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Assignment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.AuditAssignmentResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an audit assignment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-assignments"
+                ],
+                "summary": "Update Audit Assignment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Assignment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update audit assignment request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateAuditAssignmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete an audit assignment",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-assignments"
+                ],
+                "summary": "Delete Audit Assignment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Assignment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-assignments/{id}/status": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update the status of an audit assignment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-assignments"
+                ],
+                "summary": "Update Assignment Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Assignment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update status request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateAssignmentStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-charters": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a list of audit charters with pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-charters"
+                ],
+                "summary": "List Audit Charters",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Active status filter",
+                        "name": "is_active",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new audit charter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-charters"
+                ],
+                "summary": "Create Audit Charter",
+                "parameters": [
+                    {
+                        "description": "Create audit charter request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAuditCharterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-charters/active": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get the active audit charter",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-charters"
+                ],
+                "summary": "Get Active Audit Charter",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.AuditCharterResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-charters/version": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get an audit charter by version",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-charters"
+                ],
+                "summary": "Get Audit Charter By Version",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Version",
+                        "name": "version",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.AuditCharterResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-charters/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get an audit charter by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-charters"
+                ],
+                "summary": "Get Audit Charter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Charter ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.AuditCharterResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an audit charter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-charters"
+                ],
+                "summary": "Update Audit Charter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Charter ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update audit charter request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateAuditCharterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete an audit charter",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-charters"
+                ],
+                "summary": "Delete Audit Charter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Charter ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-charters/{id}/activate": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Set an audit charter as the active charter",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-charters"
+                ],
+                "summary": "Set Active Audit Charter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Charter ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-mandates": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a list of audit mandates with pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-mandates"
+                ],
+                "summary": "List Audit Mandates",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Active status filter",
+                        "name": "is_active",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new audit mandate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-mandates"
+                ],
+                "summary": "Create Audit Mandate",
+                "parameters": [
+                    {
+                        "description": "Create audit mandate request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAuditMandateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-mandates/active": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get the active audit mandate",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-mandates"
+                ],
+                "summary": "Get Active Audit Mandate",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.AuditMandateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-mandates/reference": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get an audit mandate by reference number",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-mandates"
+                ],
+                "summary": "Get Audit Mandate By Reference",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Reference Number",
+                        "name": "reference",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.AuditMandateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit-mandates/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get an audit mandate by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-mandates"
+                ],
+                "summary": "Get Audit Mandate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Mandate ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.AuditMandateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an audit mandate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-mandates"
+                ],
+                "summary": "Update Audit Mandate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Mandate ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update audit mandate request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateAuditMandateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete an audit mandate",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit-mandates"
+                ],
+                "summary": "Delete Audit Mandate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Mandate ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.ActivityPlanResponse": {
+            "type": "object",
+            "properties": {
+                "annual_plan_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "objective": {
+                    "type": "string"
+                },
+                "planned_end": {
+                    "type": "string"
+                },
+                "planned_start": {
+                    "type": "string"
+                },
+                "project_code": {
+                    "type": "string"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "target_unit_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AssignmentStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "assigned",
+                "accepted",
+                "completed",
+                "rejected"
+            ],
+            "x-enum-varnames": [
+                "AssignmentStatusPending",
+                "AssignmentStatusAssigned",
+                "AssignmentStatusAccepted",
+                "AssignmentStatusCompleted",
+                "AssignmentStatusRejected"
+            ]
+        },
+        "models.AuditAssignmentResponse": {
+            "type": "object",
+            "properties": {
+                "assignment_title": {
+                    "type": "string"
+                },
+                "audit_plan_id": {
+                    "type": "string"
+                },
+                "auditor_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AuditCharterResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AuditMandateResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "effective_date": {
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "legal_basis": {
+                    "type": "string"
+                },
+                "mandate_source": {
+                    "type": "string"
+                },
+                "reference_number": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateActivityPlanRequest": {
+            "type": "object",
+            "required": [
+                "annual_plan_id",
+                "planned_end",
+                "planned_start",
+                "project_code",
+                "target_unit_id",
+                "title"
+            ],
+            "properties": {
+                "annual_plan_id": {
+                    "type": "string"
+                },
+                "objective": {
+                    "type": "string"
+                },
+                "planned_end": {
+                    "type": "string"
+                },
+                "planned_start": {
+                    "type": "string"
+                },
+                "project_code": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "target_unit_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "models.CreateAuditAssignmentRequest": {
+            "type": "object",
+            "required": [
+                "assignment_title",
+                "audit_plan_id",
+                "auditor_id"
+            ],
+            "properties": {
+                "assignment_title": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "audit_plan_id": {
+                    "type": "string"
+                },
+                "auditor_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateAuditCharterRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "filename",
+                "title",
+                "version"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "version": {
+                    "type": "string",
+                    "maxLength": 20
+                }
+            }
+        },
+        "models.CreateAuditMandateRequest": {
+            "type": "object",
+            "required": [
+                "effective_date",
+                "reference_number",
+                "title"
+            ],
+            "properties": {
+                "effective_date": {
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "type": "string"
+                },
+                "legal_basis": {
+                    "type": "string"
+                },
+                "mandate_source": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "reference_number": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200
+                }
+            }
+        },
+        "models.UpdateActivityPlanRequest": {
+            "type": "object",
+            "properties": {
+                "objective": {
+                    "type": "string"
+                },
+                "planned_end": {
+                    "type": "string"
+                },
+                "planned_start": {
+                    "type": "string"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "target_unit_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "models.UpdateAssignmentStatusRequest": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/models.AssignmentStatus"
+                }
+            }
+        },
+        "models.UpdateAuditAssignmentRequest": {
+            "type": "object",
+            "properties": {
+                "assignment_title": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateAuditCharterRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200
+                }
+            }
+        },
+        "models.UpdateAuditMandateRequest": {
+            "type": "object",
+            "properties": {
+                "effective_date": {
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "legal_basis": {
+                    "type": "string"
+                },
+                "mandate_source": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200
+                }
+            }
+        },
+        "response.ErrorDetail": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "$ref": "#/definitions/response.ErrorDetail"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

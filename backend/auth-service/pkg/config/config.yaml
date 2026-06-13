@@ -3,16 +3,30 @@ server:
   mode: release  # debug, release
   read_timeout: 60
 
+# database:
+#   host: localhost
+#   port: 5432
+#   username: admin_rbia
+#   password: 12345678
+#   name: auth_service
+#   sslmode: disable
+
+# redis:
+#   host: localhost
+#   port: 6379
+#   password: ""
+#   db: 0
+
 database:
-  host: localhost
-  port: 5432
-  username: admin_rbia
-  password: 12345678
-  name: auth_service
+  host: 127.0.0.1
+  port: 5433
+  username: postgres
+  password: postgres
+  name: rb_audit
   sslmode: disable
 
 redis:
-  host: localhost
+  host: 127.0.0.1
   port: 6379
   password: ""
   db: 0
@@ -25,10 +39,18 @@ log:
   level: info  # debug, info, warn, error
   format: json  # json, console
 
+# kafka:
+#   enabled: true
+#   brokers:
+#     - "localhost:9092"
+#   topic: "service-logs"
+#   service_name: "auth-service"
+
+
 kafka:
   enabled: true
   brokers:
-    - "localhost:9092"
+    - "127.0.0.1:9092"
   topic: "service-logs"
   service_name: "auth-service"
 

@@ -8,7 +8,7 @@ database:
   port: 5432
   username: admin_rbia
   password: 12345678
-  name: auth_service
+  name: audit_service
   sslmode: disable
 
 redis:
@@ -30,7 +30,7 @@ kafka:
   brokers:
     - "kafka:9092"
   topic: "service-logs"
-  service_name: "auth-service"
+  service_name: "audit-service"
 
 app:
   app_name: risk-based-internal-audit
