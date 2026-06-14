@@ -1,7 +1,11 @@
 package controllers
 
 import (
+	"encoding/base64"
+	"net/http"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"audit-service/models"
 	"audit-service/pkg/response"
@@ -21,6 +25,7 @@ type AuditCharterControllerInterface interface {
 	GetActiveCharter(c *gin.Context)
 	ListCharters(c *gin.Context)
 	SetActiveCharter(c *gin.Context)
+	DownloadCharter(c *gin.Context)
 }
 
 // AuditCharterController handles audit charter HTTP requests
@@ -251,6 +256,65 @@ func (ctrl *AuditCharterController) SetActiveCharter(c *gin.Context) {
 	}
 
 	response.OK(c, "Audit charter set as active successfully", nil)
+}
+
+// DownloadCharter downloads an audit charter file
+// @Summary Download Audit Charter
+// @Description Download an audit charter file by ID
+// @Tags audit-charters
+// @Produce json
+// @Security Bearer
+// @Param id path string true "Audit Charter ID"
+// @Success 200 {file} binary
+// @Router /api/v1/audit-charters/{id}/download [get]
+func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		response.BadRequest(c, "Invalid audit charter ID")
+		return
+	}
+
+	result, err := ctrl.service.GetCharter(c.Request.Context(), id)
+	if err != nil {
+		ctrl.handleError(c, err)
+		return
+	}
+
+	// Decode base64 content
+	content, err := base64.StdEncoding.DecodeString(result.Content)
+	if err != nil {
+		response.InternalServerError(c, "Failed to decode charter content")
+		return
+	}
+
+	// Determine content type from filename extension
+	filename := result.Filename
+	ext := strings.ToLower(filepath.Ext(filename))
+	contentType := getContentType(ext)
+
+	// Set response headers for file download
+	c.Header("Content-Disposition", "attachment; filename="+filename)
+	c.Header("Content-Type", contentType)
+	c.Data(http.StatusOK, contentType, content)
+}
+
+// getContentType returns the MIME type based on file extension
+func getContentType(ext string) string {
+	switch ext {
+	case ".pdf":
+		return "application/pdf"
+	case ".docx":
+		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+	case ".doc":
+		return "application/msword"
+	case ".txt":
+		return "text/plain"
+	case ".html", ".htm":
+		return "text/html"
+	default:
+		return "application/octet-stream"
+	}
 }
 
 // handleError handles service errors

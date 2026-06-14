@@ -204,14 +204,25 @@ export const useCharterStore = defineStore('charter', () => {
   }
 
   /**
+   * Helper to convert a File to base64 string.
+   */
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
+        const base64 = (reader.result as string).split(',')[1]
+        resolve(base64)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  /**
    * POST /api/v1/audit-charters
    *
-   * Ini masih CRUD JSON / metadata.
-   * Belum upload file PDF asli.
-   *
-   * Upload file PDF asli nanti perlu endpoint multipart/form-data
-   * di backend, misalnya:
-   * POST /api/v1/audit-charters/upload
+   * Uploads the audit charter with the PDF file encoded as base64.
    */
   const addCharter = async (form: CharterFormState) => {
     loading.value = true
@@ -224,14 +235,20 @@ export const useCharterStore = defineStore('charter', () => {
       const year = new Date(form.date).getFullYear()
       const fileExt = form.file?.name.split('.').pop() || 'pdf'
 
-      // Gunakan autoVersion untuk penamaan file
+      // Generate filename based on version and year
       const generatedFileName = form.file?.name || `audit-charter-v${autoVersion}_${year}.${fileExt}`
+
+      // Convert file to base64 if a file is selected
+      let fileContent = ''
+      if (form.file) {
+        fileContent = await fileToBase64(form.file)
+      }
 
       const payload = {
         filename: generatedFileName,
         version: autoVersion,
         title: form.title,
-        content: form.approvedBy || '',
+        content: fileContent, // Send base64-encoded file content
         is_active: form.isActive,
       }
 
@@ -253,9 +270,8 @@ export const useCharterStore = defineStore('charter', () => {
   /**
    * PUT /api/v1/audit-charters/:id
    *
-   * Ini juga masih update JSON / metadata.
-   * Jika form.file diisi, saat ini yang dikirim baru filename,
-   * bukan file binary.
+   * Updates the audit charter. If a new file is uploaded, it will be
+   * encoded as base64 and sent as the content field.
    */
   const updateCharter = async (id: string, form: CharterFormState) => {
     loading.value = true
@@ -266,12 +282,22 @@ export const useCharterStore = defineStore('charter', () => {
 
       const existingCharter = charters.value.find(c => c.id === id)
 
-      const payload = {
+      // Convert new file to base64 if a file is selected
+      let fileContent: string | undefined
+      if (form.file) {
+        fileContent = await fileToBase64(form.file)
+      }
+
+      const payload: any = {
         filename: form.file?.name || existingCharter?.fileName || undefined,
         version: form.version,
         title: form.title,
-        content: form.approvedBy || '',
         is_active: form.isActive,
+      }
+
+      // Only include content if a new file was uploaded
+      if (fileContent) {
+        payload.content = fileContent
       }
 
       await $fetch(`${baseUrl}/audit-charters/${id}`, {
@@ -313,23 +339,50 @@ export const useCharterStore = defineStore('charter', () => {
     }
   }
 
+  /**
+   * GET /api/v1/audit-charters/:id/download
+   *
+   * Downloads the audit charter file by ID.
+   */
+  const downloadCharter = async (id: string, filename: string) => {
+    loading.value = true
+    errorMsg.value = ''
+
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      console.log(`${baseUrl}/audit-charters/${id}/download`)
+
+      // Gunakan $fetch bawaan Nuxt agar konfigurasi global (seperti Auth Token) terbawa
+      // Tambahkan responseType: 'blob' untuk membaca stream file biner
+      const blob = await $fetch<Blob>(`${baseUrl}/audit-charters/${id}/download`, {
+        method: 'GET',
+        responseType: 'blob'
+      })
+
+      // Proses konversi blob menjadi URL dan inisiasi unduhan (browser)
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error: any) {
+      console.error('Failed to download audit charter:', error)
+      errorMsg.value = 'Gagal mengunduh file Audit Charter.'
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Submit Handler
   const handleSubmit = async () => {
-    /**
-     * Catatan:
-     * Saat ini endpoint backend yang dipakai masih POST JSON,
-     * belum upload file multipart/form-data.
-     *
-     * Jadi validasi file wajib untuk mode ADD sementara dibuat warning saja,
-     * agar CRUD JSON bisa dites dulu dari frontend.
-     *
-     * Nanti setelah endpoint upload PDF sudah dibuat,
-     * validasi ini bisa dikembalikan menjadi wajib.
-     */
+    // File is required for new charter uploads (since we now actually upload the PDF)
     if (!isEditing.value && !form.file) {
-      console.warn('File belum dikirim karena endpoint upload PDF belum dibuat.')
-      // errorMsg.value = 'Mohon upload file charter.'
-      // return
+      errorMsg.value = 'Mohon upload file charter.'
+      return
     }
 
     try {
@@ -413,6 +466,7 @@ export const useCharterStore = defineStore('charter', () => {
     addCharter,
     updateCharter,
     deleteCharter,
+    downloadCharter,
 
     handleEdit,
     handleSubmit,

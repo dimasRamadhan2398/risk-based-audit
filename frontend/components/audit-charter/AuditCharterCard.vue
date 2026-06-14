@@ -66,7 +66,7 @@
         </div>
       </div>
       <div class="sm:flex sm:flex-row-reverse gap-4">
-        <UButton icon="download" size="md" color="primary" variant="solid">
+        <UButton icon="download" size="md" color="primary" variant="solid" @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter')">
           Download
         </UButton>
         <UButton
@@ -136,7 +136,7 @@
             }}</span>
           </template>
           <template #fileName-cell="{ row }">
-            <UButton icon="download" color="primary" size="md">
+            <UButton icon="download" color="primary" size="md" @click="store.downloadCharter(row.original.id, row.original.fileName || 'audit-charter')">
               {{ row.original.fileName }}
             </UButton>
           </template>

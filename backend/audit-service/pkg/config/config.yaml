@@ -1,6 +1,6 @@
 server:
   port: 8001
-  mode: release  # debug, release
+  mode: debug  # debug, release
   read_timeout: 60
 
 database:
