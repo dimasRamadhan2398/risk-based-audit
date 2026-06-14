@@ -18,6 +18,12 @@ const error = ref('')
 const reportData = ref<any>(null)
 const predictData = ref<any>(null)
 
+// New AI State
+const riskScoreData = ref<any>(null)
+const anomalyData = ref<any>(null)
+const textAnalysisData = ref<any>(null)
+const perfTrendData = ref<any>(null)
+
 // Chart Configurations
 const lineChartData = ref<{ labels: string[], datasets: any[] }>({
   labels: [],
@@ -71,8 +77,14 @@ const fetchAnalytics = async () => {
       model_accuracy: 0.87
     }
 
+    // New AI Dummy Data
+    const dummyRiskScore = { risk_score: 0.85, feature_importance: { kpi_data: 0.5, previous_findings: 0.3, master_data: 0.2 } }
+    const dummyAnomaly = { is_anomaly: true, anomaly_score: -0.75 }
+    const dummyTextAnalysis = { risk_category: "High Risk", confidence: 0.92, sentiment: "Negative" }
+    const dummyPerfTrend = { predicted_performance: 0.45, trend: "Deteriorating" }
+
     // Use Nuxt useFetch with fallback to dummy data
-    const [resReport, resPredict] = await Promise.all([
+    const [resReport, resPredict, resRisk, resAnomaly, resText, resPerf] = await Promise.all([
       $fetch(`${ANALYTICS_API_URL}/report`).catch(e => {
         console.warn('Backend /report failed, using dummy data', e)
         return { data: dummyReportData }
@@ -80,11 +92,31 @@ const fetchAnalytics = async () => {
       $fetch(`${ANALYTICS_API_URL}/predict`).catch(e => {
         console.warn('Backend /predict failed, using dummy data', e)
         return { data: dummyPredictData }
+      }),
+      $fetch(`${ANALYTICS_API_URL}/risk-score`).catch(e => {
+        console.warn('Backend /risk-score failed, using dummy data', e)
+        return { data: dummyRiskScore }
+      }),
+      $fetch(`${ANALYTICS_API_URL}/anomaly`).catch(e => {
+        console.warn('Backend /anomaly failed, using dummy data', e)
+        return { data: dummyAnomaly }
+      }),
+      $fetch(`${ANALYTICS_API_URL}/text-analysis`, { method: 'POST', body: { text: "Simulated finding report..." } }).catch(e => {
+        console.warn('Backend /text-analysis failed, using dummy data', e)
+        return { data: dummyTextAnalysis }
+      }),
+      $fetch(`${ANALYTICS_API_URL}/performance-trend`, { method: 'POST', body: { historical_data: [0.8, 0.82, 0.85, 0.81, 0.79] } }).catch(e => {
+        console.warn('Backend /performance-trend failed, using dummy data', e)
+        return { data: dummyPerfTrend }
       })
     ])
 
     reportData.value = (resReport as any)?.data || dummyReportData
     predictData.value = (resPredict as any)?.data || dummyPredictData
+    riskScoreData.value = (resRisk as any)?.data || dummyRiskScore
+    anomalyData.value = (resAnomaly as any)?.data || dummyAnomaly
+    textAnalysisData.value = (resText as any)?.data || dummyTextAnalysis
+    perfTrendData.value = (resPerf as any)?.data || dummyPerfTrend
 
     setupCharts()
   } catch (err: any) {
@@ -203,6 +235,43 @@ onMounted(() => {
           <div class="h-64 flex justify-center">
             <Doughnut v-if="doughnutChartData.datasets.length" :data="doughnutChartData" :options="{ responsive: true, maintainAspectRatio: false }" />
           </div>
+        </UCard>
+      </div>
+
+      <!-- New AI Model Insights -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <UCard>
+          <div class="text-gray-500 text-sm flex items-center gap-1"><UIcon name="i-lucide-activity" /> XGBoost Risk Score</div>
+          <div class="text-3xl font-bold mt-2" :class="riskScoreData?.risk_score > 0.7 ? 'text-rose-500' : 'text-emerald-500'">
+            {{ (riskScoreData?.risk_score * 100).toFixed(0) }}%
+          </div>
+          <div class="mt-2 text-xs text-gray-500">
+            Top Factor: <span class="font-semibold">{{ Object.entries(riskScoreData?.feature_importance || {}).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] }}</span>
+          </div>
+        </UCard>
+
+        <UCard>
+          <div class="text-gray-500 text-sm flex items-center gap-1"><UIcon name="i-lucide-search" /> Isolation Forest</div>
+          <div class="text-lg font-bold mt-2" :class="anomalyData?.is_anomaly ? 'text-amber-500' : 'text-emerald-500'">
+            {{ anomalyData?.is_anomaly ? 'Anomaly Detected' : 'Normal Data' }}
+          </div>
+          <div class="mt-2 text-xs text-gray-500">Score: {{ anomalyData?.anomaly_score?.toFixed(2) }}</div>
+        </UCard>
+
+        <UCard>
+          <div class="text-gray-500 text-sm flex items-center gap-1"><UIcon name="i-lucide-file-text" /> IndoBERT Text NLP</div>
+          <div class="text-lg font-bold mt-2" :class="textAnalysisData?.risk_category === 'High Risk' ? 'text-rose-500' : 'text-blue-500'">
+            {{ textAnalysisData?.risk_category }}
+          </div>
+          <div class="mt-2 text-xs text-gray-500">Sentiment: {{ textAnalysisData?.sentiment }} ({{ (textAnalysisData?.confidence * 100).toFixed(0) }}%)</div>
+        </UCard>
+
+        <UCard>
+          <div class="text-gray-500 text-sm flex items-center gap-1"><UIcon name="i-lucide-trending-up" /> LSTM Performance</div>
+          <div class="text-lg font-bold mt-2" :class="perfTrendData?.trend === 'Deteriorating' ? 'text-rose-500' : 'text-emerald-500'">
+            {{ perfTrendData?.trend }}
+          </div>
+          <div class="mt-2 text-xs text-gray-500">Predicted Perf: {{ (perfTrendData?.predicted_performance * 100).toFixed(0) }}%</div>
         </UCard>
       </div>
 
