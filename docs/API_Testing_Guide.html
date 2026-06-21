@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBIA Master Service API Testing Guide</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #1a5276;
+            border-bottom: 3px solid #1a5276;
+            padding-bottom: 10px;
+            page-break-after: avoid;
+        }
+        h2 {
+            color: #2874a6;
+            border-bottom: 2px solid #2874a6;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            page-break-after: avoid;
+        }
+        h3 {
+            color: #5499c7;
+            page-break-after: avoid;
+        }
+        h4 {
+            color: #5d6d7e;
+            page-break-after: avoid;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            page-break-inside: avoid;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #2874a6;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        pre {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 13px;
+            page-break-inside: avoid;
+        }
+        .endpoint {
+            background-color: #e8f4f8;
+            border-left: 4px solid #1a5276;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .method {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: white;
+            margin-right: 10px;
+        }
+        .method-get { background-color: #28a745; }
+        .method-post { background-color: #007bff; }
+        .method-put { background-color: #ffc107; color: #333; }
+        .method-delete { background-color: #dc3545; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 15px;
+        }
+        .toc li {
+            margin-bottom: 5px;
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .checklist {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #dee2e6;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            color: #6c757d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<h1>RBIA Master Service API Testing Guide</h1>
+
+<p><strong>Project:</strong> Risk-Based Internal Audit (RBIA)<br>
+<strong>Service:</strong> Master Service<br>
+<strong>Date:</strong> June 2026<br>
+<strong>Version:</strong> 1.0</p>
+
+<hr>
+
+<h2>Table of Contents</h2>
+<div class="toc">
+    <ul>
+        <li><a href="#overview">1. Overview</a></li>
+        <li><a href="#prerequisites">2. Prerequisites</a></li>
+        <li><a href="#base-url">3. API Base URL</a></li>
+        <li><a href="#department">4. Department Endpoints</a>
+            <ul>
+                <li><a href="#dept-list">4.1 List Departments (Paginated)</a></li>
+                <li><a href="#dept-get">4.2 Get Department by ID</a></li>
+                <li><a href="#dept-create">4.3 Create Department</a></li>
+                <li><a href="#dept-update">4.4 Update Department</a></li>
+                <li><a href="#dept-delete">4.5 Delete Department</a></li>
+            </ul>
+        </li>
+        <li><a href="#employee">5. Employee Endpoints</a>
+            <ul>
+                <li><a href="#emp-list">5.1 List Employees (Paginated)</a></li>
+                <li><a href="#emp-get">5.2 Get Employee by ID</a></li>
+                <li><a href="#emp-create">5.3 Create Employee</a></li>
+                <li><a href="#emp-update">5.4 Update Employee</a></li>
+                <li><a href="#emp-delete">5.5 Delete Employee</a></li>
+            </ul>
+        </li>
+        <li><a href="#errors">6. Error Responses</a></li>
+        <li><a href="#postman">7. Postman Collection Import</a></li>
+        <li><a href="#workflow">8. Testing Workflow</a></li>
+    </ul>
+</div>
+
+<hr>
+
+<h2 id="overview">1. Overview</h2>
+
+<p>This document provides comprehensive testing guides for the Master Service API, specifically covering <strong>Employee</strong> and <strong>Department</strong> CRUD (Create, Read, Update, Delete) operations with pagination support.</p>
+
+<h3>Base URL</h3>
+<pre><code>http://localhost:8002/api/v1</code></pre>
+
+<hr>
+
+<h2 id="prerequisites">2. Prerequisites</h2>
+
+<div class="checklist">
+    <p>Before testing the API, ensure the following:</p>
+    <ul>
+        <li>✅ <strong>PostgreSQL is running</strong> on port 5432</li>
+        <li>✅ <strong>Database `master_service`** exists</li>
+        <li>✅ <strong>Run database migrations:</strong></li>
+    </ul>
+</div>
+
+<pre><code>cd backend/master-service
+go run cmd/migrate.go migrate</code></pre>
+
+<div class="info-box">
+    <strong>Start the master service:</strong><br>
+    <code>go run cmd/serve.go serve</code>
+</div>
+
+<h4>Required Reference Data:</h4>
+<ul>
+    <li>Companies (for Department & Employee)</li>
+    <li>Job Roles (for Employee)</li>
+    <li>Departments (for Employee relationships)</li>
+</ul>
+
+<hr>
+
+<h2 id="base-url">3. API Base URL</h2>
+
+<table>
+    <tr>
+        <th>Environment</th>
+        <th>URL</th>
+    </tr>
+    <tr>
+        <td>Local Development</td>
+        <td><code>http://localhost:8002/api/v1</code></td>
+    </tr>
+    <tr>
+        <td>Docker</td>
+        <td><code>http://localhost:8003/api/v1</code></td>
+    </tr>
+</table>
+
+<h3>Health Check Endpoint</h3>
+<div class="endpoint">
+    <span class="method method-get">GET</span> <code>{{baseUrl}}/../health</code>
+</div>
+
+<pre><code>{
+  "service": "master-service",
+  "status": "ok"
+}</code></pre>
+
+<hr>
+
+<h2 id="department">4. Department Endpoints</h2>
+
+<!-- 4.1 List Departments -->
+<h3 id="dept-list">4.1 List Departments (Paginated)</h3>
+
+<div class="endpoint">
+    <span class="method method-get">GET</span> <code>{{baseUrl}}/departments</code>
+</div>
+
+<h4>Query Parameters:</h4>
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Default</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>page</code></td>
+        <td>int</td>
+        <td>No</td>
+        <td>1</td>
+        <td>Page number</td>
+    </tr>
+    <tr>
+        <td><code>page_size</code></td>
+        <td>int</td>
+        <td>No</td>
+        <td>10</td>
+        <td>Items per page</td>
+    </tr>
+    <tr>
+        <td><code>search</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>-</td>
+        <td>Search by code, name, or description</td>
+    </tr>
+</table>
+
+<h4>Example Request:</h4>
+<pre><code>GET {{baseUrl}}/departments?page=1&page_size=10</code></pre>
+
+<h4>Expected Response (200 OK):</h4>
+<pre><code>{
+  "success": true,
+  "message": "Departments fetched successfully",
+  "data": {
+    "departments": [
+      {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "department_code": "DEPT001",
+        "department_name": "Finance Department",
+        "department_description": "Handles all financial operations",
+        "level": 1,
+        "is_active": true,
+        "company_id": "...",
+        "pic_id": "...",
+        "created_at": "2024-01-15T10:30:00Z",
+        "updated_at": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "page_size": 10,
+      "total": 5,
+      "total_pages": 1
+    }
+  }
+}</code></pre>
+
+<!-- 4.2 Get Department by ID -->
+<h3 id="dept-get">4.2 Get Department by ID</h3>
+
+<div class="endpoint">
+    <span class="method method-get">GET</span> <code>{{baseUrl}}/departments/:id</code>
+</div>
+
+<h4>Example Request:</h4>
+<pre><code>GET {{baseUrl}}/departments/123e4567-e89b-12d3-a456-426614174000</code></pre>
+
+<h4>Expected Response (200 OK):</h4>
+<pre><code>{
+  "success": true,
+  "message": "Department fetched successfully",
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "department_code": "DEPT001",
+    "department_name": "Finance Department",
+    ...
+  }
+}</code></pre>
+
+<!-- 4.3 Create Department -->
+<h3 id="dept-create">4.3 Create Department</h3>
+
+<div class="endpoint">
+    <span class="method method-post">POST</span> <code>{{baseUrl}}/departments</code>
+</div>
+
+<h4>Headers:</h4>
+<pre><code>Content-Type: application/json</code></pre>
+
+<h4>Request Body:</h4>
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>department_code</code></td>
+        <td>string</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Unique department code (e.g., "DEPT001")</td>
+    </tr>
+    <tr>
+        <td><code>department_name</code></td>
+        <td>string</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Department name</td>
+    </tr>
+    <tr>
+        <td><code>pic_id</code></td>
+        <td>UUID</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Person in Charge ID</td>
+    </tr>
+    <tr>
+        <td><code>level</code></td>
+        <td>int</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Department level</td>
+    </tr>
+    <tr>
+        <td><code>company_id</code></td>
+        <td>UUID</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Company ID</td>
+    </tr>
+    <tr>
+        <td><code>department_description</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>Department description</td>
+    </tr>
+    <tr>
+        <td><code>business_unit_id</code></td>
+        <td>UUID</td>
+        <td>No</td>
+        <td>Business Unit ID</td>
+    </tr>
+    <tr>
+        <td><code>is_active</code></td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>Active status (default: true)</td>
+    </tr>
+</table>
+
+<h4>Example Request:</h4>
+<pre><code>POST {{baseUrl}}/departments
+{
+  "department_code": "DEPT001",
+  "department_name": "Finance Department",
+  "department_description": "Handles all financial operations",
+  "pic_id": "123e4567-e89b-12d3-a456-426614174001",
+  "level": 1,
+  "company_id": "123e4567-e89b-12d3-a456-426614174002",
+  "business_unit_id": "123e4567-e89b-12d3-a456-426614174003",
+  "is_active": true
+}</code></pre>
+
+<h4>Expected Response (201 Created):</h4>
+<pre><code>{
+  "success": true,
+  "message": "Department created successfully",
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "department_code": "DEPT001",
+    ...
+  }
+}</code></pre>
+
+<!-- 4.4 Update Department -->
+<h3 id="dept-update">4.4 Update Department</h3>
+
+<div class="endpoint">
+    <span class="method method-put">PUT</span> <code>{{baseUrl}}/departments/:id</code>
+</div>
+
+<div class="info-box">
+    <strong>Note:</strong> All fields are <strong>optional</strong> - only include fields you want to update.
+</div>
+
+<h4>Example Request:</h4>
+<pre><code>PUT {{baseUrl}}/departments/123e4567-e89b-12d3-a456-426614174000
+{
+  "department_name": "Updated Finance Department",
+  "department_description": "Updated description",
+  "level": 2,
+  "is_active": false
+}</code></pre>
+
+<h4>Expected Response (200 OK):</h4>
+<pre><code>{
+  "success": true,
+  "message": "Department updated successfully",
+  "data": { ... }
+}</code></pre>
+
+<!-- 4.5 Delete Department -->
+<h3 id="dept-delete">4.5 Delete Department</h3>
+
+<div class="endpoint">
+    <span class="method method-delete">DELETE</span> <code>{{baseUrl}}/departments/:id</code>
+</div>
+
+<h4>Example Request:</h4>
+<pre><code>DELETE {{baseUrl}}/departments/123e4567-e89b-12d3-a456-426614174000</code></pre>
+
+<h4>Expected Response (200 OK):</h4>
+<pre><code>{
+  "success": true,
+  "message": "Department deleted successfully",
+  "data": null
+}</code></pre>
+
+<hr>
+
+<h2 id="employee">5. Employee Endpoints</h2>
+
+<!-- 5.1 List Employees -->
+<h3 id="emp-list">5.1 List Employees (Paginated)</h3>
+
+<div class="endpoint">
+    <span class="method method-get">GET</span> <code>{{baseUrl}}/employees</code>
+</div>
+
+<h4>Query Parameters:</h4>
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Default</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>page</code></td>
+        <td>int</td>
+        <td>No</td>
+        <td>1</td>
+        <td>Page number</td>
+    </tr>
+    <tr>
+        <td><code>page_size</code></td>
+        <td>int</td>
+        <td>No</td>
+        <td>10</td>
+        <td>Items per page</td>
+    </tr>
+    <tr>
+        <td><code>search</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>-</td>
+        <td>Search by employee_code, full_name, or email</td>
+    </tr>
+</table>
+
+<h4>Example Request:</h4>
+<pre><code>GET {{baseUrl}}/employees?page=1&page_size=10</code></pre>
+
+<!-- 5.2 Get Employee by ID -->
+<h3 id="emp-get">5.2 Get Employee by ID</h3>
+
+<div class="endpoint">
+    <span class="method method-get">GET</span> <code>{{baseUrl}}/employees/:id</code>
+</div>
+
+<h4>Example Request:</h4>
+<pre><code>GET {{baseUrl}}/employees/123e4567-e89b-12d3-a456-426614174000</code></pre>
+
+<!-- 5.3 Create Employee -->
+<h3 id="emp-create">5.3 Create Employee</h3>
+
+<div class="endpoint">
+    <span class="method method-post">POST</span> <code>{{baseUrl}}/employees</code>
+</div>
+
+<h4>Headers:</h4>
+<pre><code>Content-Type: application/json</code></pre>
+
+<h4>Request Body:</h4>
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>employee_code</code></td>
+        <td>string</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Unique employee code (e.g., "EMP001")</td>
+    </tr>
+    <tr>
+        <td><code>full_name</code></td>
+        <td>string</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Employee's full name</td>
+    </tr>
+    <tr>
+        <td><code>email</code></td>
+        <td>string</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Valid email address</td>
+    </tr>
+    <tr>
+        <td><code>company_id</code></td>
+        <td>UUID</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Company ID</td>
+    </tr>
+    <tr>
+        <td><code>department_id</code></td>
+        <td>UUID</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Department ID</td>
+    </tr>
+    <tr>
+        <td><code>job_role_id</code></td>
+        <td>UUID</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Job Role ID</td>
+    </tr>
+    <tr>
+        <td><code>level_grade</code></td>
+        <td>int</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Employee level/grade</td>
+    </tr>
+    <tr>
+        <td><code>join_date</code></td>
+        <td>string</td>
+        <td><span class="success">✅ Yes</span></td>
+        <td>Join date (format: YYYY-MM-DD)</td>
+    </tr>
+    <tr>
+        <td><code>phone</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>Phone number</td>
+    </tr>
+    <tr>
+        <td><code>work_location_id</code></td>
+        <td>UUID</td>
+        <td>No</td>
+        <td>Work Location ID</td>
+    </tr>
+    <tr>
+        <td><code>manager_id</code></td>
+        <td>UUID</td>
+        <td>No</td>
+        <td>Manager's Employee ID</td>
+    </tr>
+    <tr>
+        <td><code>residence_address</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>Home address</td>
+    </tr>
+    <tr>
+        <td><code>residence_city</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>City</td>
+    </tr>
+    <tr>
+        <td><code>residence_province</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>Province</td>
+    </tr>
+    <tr>
+        <td><code>residence_postal_code</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>Postal code</td>
+    </tr>
+    <tr>
+        <td><code>is_active</code></td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>Active status (default: true)</td>
+    </tr>
+</table>
+
+<h4>Example Request:</h4>
+<pre><code>POST {{baseUrl}}/employees
+{
+  "employee_code": "EMP001",
+  "full_name": "John Doe",
+  "email": "john.doe@company.com",
+  "phone": "081234567890",
+  "company_id": "123e4567-e89b-12d3-a456-426614174001",
+  "department_id": "123e4567-e89b-12d3-a456-426614174002",
+  "job_role_id": "123e4567-e89b-12d3-a456-426614174003",
+  "level_grade": 5,
+  "work_location_id": "123e4567-e89b-12d3-a456-426614174004",
+  "manager_id": "123e4567-e89b-12d3-a456-426614174005",
+  "residence_address": "Jl. Sudirman No. 123",
+  "residence_city": "Jakarta",
+  "residence_province": "DKI Jakarta",
+  "residence_postal_code": "12190",
+  "is_active": true,
+  "join_date": "2024-01-15"
+}</code></pre>
+
+<!-- 5.4 Update Employee -->
+<h3 id="emp-update">5.4 Update Employee</h3>
+
+<div class="endpoint">
+    <span class="method method-put">PUT</span> <code>{{baseUrl}}/employees/:id</code>
+</div>
+
+<div class="info-box">
+    <strong>Note:</strong> All fields are <strong>optional</strong> - only include fields you want to update.
+</div>
+
+<h4>Example Request:</h4>
+<pre><code>PUT {{baseUrl}}/employees/123e4567-e89b-12d3-a456-426614174000
+{
+  "full_name": "Jane Doe",
+  "email": "jane.doe@company.com",
+  "phone": "089876543210",
+  "level_grade": 6,
+  "is_active": true
+}</code></pre>
+
+<!-- 5.5 Delete Employee -->
+<h3 id="emp-delete">5.5 Delete Employee</h3>
+
+<div class="endpoint">
+    <span class="method method-delete">DELETE</span> <code>{{baseUrl}}/employees/:id</code>
+</div>
+
+<h4>Example Request:</h4>
+<pre><code>DELETE {{baseUrl}}/employees/123e4567-e89b-12d3-a456-426614174000</code></pre>
+
+<hr>
+
+<h2 id="errors">6. Error Responses</h2>
+
+<h3>400 Bad Request (Validation Error)</h3>
+<pre><code>{
+  "success": false,
+  "error": {
+    "code": "BAD_REQUEST",
+    "message": "Key: 'CreateEmployeeRequest.Email' Error:Field validation for 'email' failed",
+    "details": ""
+  }
+}</code></pre>
+
+<h3>404 Not Found</h3>
+<pre><code>{
+  "success": false,
+  "error": {
+    "code": "RECORD_NOT_FOUND",
+    "message": "Record not found",
+    "details": ""
+  }
+}</code></pre>
+
+<h3>409 Conflict (Duplicate Code)</h3>
+<pre><code>{
+  "success": false,
+  "error": {
+    "code": "DEPARTMENT_CODE_ALREADY_EXISTS",
+    "message": "Department code already exists",
+    "details": ""
+  }
+}</code></pre>
+
+<h3>409 Conflict (Duplicate Email)</h3>
+<pre><code>{
+  "success": false,
+  "error": {
+    "code": "EMPLOYEE_EMAIL_ALREADY_EXISTS",
+    "message": "Employee email already exists",
+    "details": ""
+  }
+}</code></pre>
+
+<hr>
+
+<h2 id="postman">7. Postman Collection Import</h2>
+
+<h3>Steps to Import:</h3>
+<ol>
+    <li>Open <strong>Postman</strong> application</li>
+    <li>Click <strong>Import</strong> button (top-left)</li>
+    <li>Select <strong>File</strong> tab</li>
+    <li>Drag and drop or browse to select:<br>
+        <code>docs/Postman_Collection_RBIA_Master_Service.json</code></li>
+    <li>Click <strong>Continue</strong></li>
+    <li>Review the collection details and click <strong>Import</strong></li>
+</ol>
+
+<h3>Collection Features:</h3>
+<ul>
+    <li>✅ All CRUD endpoints for Department and Employee</li>
+    <li>✅ Pre-configured environment variable: <code>{{baseUrl}}</code></li>
+    <li>✅ Sample request bodies</li>
+    <li>✅ Auto-save created IDs to collection variables</li>
+    <li>✅ Test scripts for validation</li>
+</ul>
+
+<h3>Environment Variables Setup:</h3>
+<table>
+    <tr>
+        <th>Variable</th>
+        <th>Initial Value</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>baseUrl</code></td>
+        <td><code>http://localhost:8002/api/v1</code></td>
+        <td>API base URL</td>
+    </tr>
+    <tr>
+        <td><code>departmentId</code></td>
+        <td>(empty)</td>
+        <td>Auto-saved after Create</td>
+    </tr>
+    <tr>
+        <td><code>employeeId</code></td>
+        <td>(empty)</td>
+        <td>Auto-saved after Create</td>
+    </tr>
+</table>
+
+<hr>
+
+<h2 id="workflow">8. Testing Workflow</h2>
+
+<h3>Department CRUD Flow:</h3>
+<ol>
+    <li><strong>POST Create</strong> → Copy the returned "id"</li>
+    <li><strong>GET by ID</strong> → Use the copied ID: <code>GET /departments/{{departmentId}}</code></li>
+    <li><strong>PUT Update</strong> → Use the copied ID: <code>PUT /departments/{{departmentId}}</code></li>
+    <li><strong>DELETE</strong> → Use the copied ID: <code>DELETE /departments/{{departmentId}}</code></li>
+</ol>
+
+<h3>Employee CRUD Flow:</h3>
+<ol>
+    <li><strong>POST Create</strong> → Copy the returned "id"</li>
+    <li><strong>GET by ID</strong> → Use the copied ID: <code>GET /employees/{{employeeId}}</code></li>
+    <li><strong>PUT Update</strong> → Use the copied ID: <code>PUT /employees/{{employeeId}}</code></li>
+    <li><strong>DELETE</strong> → Use the copied ID: <code>DELETE /employees/{{employeeId}}</code></li>
+</ol>
+
+<h3>Pagination Testing:</h3>
+<ol>
+    <li>Create 15+ records</li>
+    <li>Test page 1 with page_size=5:<br>
+        <code>GET /departments?page=1&page_size=5</code><br>
+        → Should return first 5 items</li>
+    <li>Test page 2:<br>
+        <code>GET /departments?page=2&page_size=5</code><br>
+        → Should return items 6-10</li>
+    <li>Test search:<br>
+        <code>GET /departments?search=finance</code><br>
+        → Should filter results matching "finance"</li>
+</ol>
+
+<h3>Validation Testing:</h3>
+<ol>
+    <li>Test required fields:<br>
+        <code>POST</code> with missing required fields → Should return <span class="error">400 Bad Request</span></li>
+    <li>Test duplicate code:<br>
+        <code>POST</code> with existing <code>department_code</code> → Should return <span class="error">409 Conflict</span></li>
+    <li>Test invalid UUID:<br>
+        <code>GET /departments/invalid-uuid</code> → Should return <span class="error">400 Bad Request</span></li>
+</ol>
+
+<hr>
+
+<h2>Additional Notes</h2>
+
+<h3>Soft Delete</h3>
+<p>Both Department and Employee use <strong>soft delete</strong> - records are marked as deleted but not physically removed from the database. They will not appear in list queries but can be found in the database if needed.</p>
+
+<h3>Pagination</h3>
+<ul>
+    <li>Default page size: 10</li>
+    <li>Maximum page size: 100</li>
+    <li>Search is case-insensitive and matches partial strings</li>
+</ul>
+
+<h3>UUID Format</h3>
+<p>All ID references must be valid UUIDs in the format:</p>
+<pre><code>123e4567-e89b-12d3-a456-426614174000</code></pre>
+
+<hr>
+
+<div class="footer">
+    <p><strong>Document generated:</strong> June 2026<br>
+    <strong>Project:</strong> Risk-Based Internal Audit (RBIA)<br>
+    <strong>Service:</strong> Master Service API</p>
+    <p>For support, please refer to:<br>
+    <code>docs/overview.MD</code> | <code>docs/requirements.MD</code> | <code>backend/master-service/</code></p>
+</div>
+
+</body>
+</html>

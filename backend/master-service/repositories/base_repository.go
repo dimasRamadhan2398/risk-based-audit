@@ -20,7 +20,7 @@ func NewBaseRepository(db *gorm.DB) *BaseRepository {
 // Create creates a new record
 func (r *BaseRepository) Create(entity interface{}) error {
 	if err := r.DB.Create(entity).Error; err != nil {
-		return apperrors.ErrDatabase
+		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
 	}
 	return nil
 }
@@ -36,7 +36,7 @@ func (r *BaseRepository) CreateTx(tx *gorm.DB, entity interface{}) error {
 // Update updates a record
 func (r *BaseRepository) Update(entity interface{}) error {
 	if err := r.DB.Save(entity).Error; err != nil {
-		return apperrors.ErrDatabase
+		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
 	}
 	return nil
 }

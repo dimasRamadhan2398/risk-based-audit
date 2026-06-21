@@ -22,6 +22,11 @@ type DepartmentRepositoryInterface interface {
 	FindAll() ([]*models.Department, error)
 	FindMany(offset, limit int, search string) ([]*models.Department, error)
 	Count(search string) (int64, error)
+	CompanyExists(id uuid.UUID) (bool, error)
+	BusinessUnitExists(id uuid.UUID) (bool, error)
+	BusinessUnitBelongsToCompany(businessUnitID uuid.UUID, companyID uuid.UUID) (bool, error)
+	EmployeeExists(id uuid.UUID) (bool, error)
+	EmployeeBelongsToCompany(employeeID uuid.UUID, companyID uuid.UUID) (bool, error)
 }
 
 // DepartmentRepository handles company data operations
@@ -134,4 +139,48 @@ func (r *DepartmentRepository) Count(search string) (int64, error) {
 	}
 
 	return count, nil
+}
+
+func (r *DepartmentRepository) CompanyExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Company{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *DepartmentRepository) BusinessUnitExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.BusinessUnit{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *DepartmentRepository) BusinessUnitBelongsToCompany(businessUnitID uuid.UUID, companyID uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.BusinessUnit{}).
+		Where("id = ? AND company_id = ?", businessUnitID, companyID).
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *DepartmentRepository) EmployeeExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Employee{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *DepartmentRepository) EmployeeBelongsToCompany(employeeID uuid.UUID, companyID uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Employee{}).
+		Where("id = ? AND company_id = ?", employeeID, companyID).
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

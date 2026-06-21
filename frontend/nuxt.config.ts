@@ -78,6 +78,7 @@ export default defineNuxtConfig({
       apiBase: process.env.API_BASE_URL || "http://localhost:3001/api",
       analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || "http://localhost:8084/api/analytics",
       auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || 'http://localhost:8002/api/v1',
+      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || 'http://localhost:8002/api/v1',
     },
   },
 

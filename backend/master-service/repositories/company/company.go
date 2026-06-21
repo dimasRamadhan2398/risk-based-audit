@@ -22,6 +22,7 @@ type CompanyRepositoryInterface interface {
 	FindAll() ([]*models.Company, error)
 	FindMany(offset, limit int, search string) ([]*models.Company, error)
 	Count(search string) (int64, error)
+	LocationExists(id uuid.UUID) (bool, error)
 }
 
 // CompanyRepository handles company data operations
@@ -128,4 +129,13 @@ func (r *CompanyRepository) Count(search string) (int64, error) {
 	}
 
 	return count, nil
+}
+
+// LocationExists checks if a location exists by ID
+func (r *CompanyRepository) LocationExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Location{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

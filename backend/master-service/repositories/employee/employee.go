@@ -17,11 +17,18 @@ type EmployeeRepositoryInterface interface {
 	Update(employee *models.Employee) error
 	Delete(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*models.Employee, error)
-	FindByName(name string) (*models.Employee, error)
-	FindByResourceAndAction(resource, action string) (*models.Employee, error)
+	FindByCode(code string) (*models.Employee, error)
+	FindByEmail(email string) (*models.Employee, error)
 	FindAll() ([]*models.Employee, error)
 	FindMany(offset, limit int, search string) ([]*models.Employee, error)
 	Count(search string) (int64, error)
+	CompanyExists(id uuid.UUID) (bool, error)
+	DepartmentExists(id uuid.UUID) (bool, error)
+	DepartmentBelongsToCompany(departmentID uuid.UUID, companyID uuid.UUID) (bool, error)
+	JobRoleExists(id uuid.UUID) (bool, error)
+	LocationExists(id uuid.UUID) (bool, error)
+	EmployeeExists(id uuid.UUID) (bool, error)
+	EmployeeBelongsToCompany(employeeID uuid.UUID, companyID uuid.UUID) (bool, error)
 }
 
 // EmployeeRepository handles employee data operations
@@ -63,10 +70,10 @@ func (r *EmployeeRepository) FindByID(id uuid.UUID) (*models.Employee, error) {
 	return &employee, nil
 }
 
-// FindByName finds a employee by name
-func (r *EmployeeRepository) FindByName(name string) (*models.Employee, error) {
+// FindByCode finds a employee by employee code
+func (r *EmployeeRepository) FindByCode(code string) (*models.Employee, error) {
 	var employee models.Employee
-	if err := r.GetDB().Where("name = ?", name).First(&employee).Error; err != nil {
+	if err := r.GetDB().Where("employee_code = ?", code).First(&employee).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, apperrors.ErrNotFound
 		}
@@ -75,10 +82,10 @@ func (r *EmployeeRepository) FindByName(name string) (*models.Employee, error) {
 	return &employee, nil
 }
 
-// FindByResourceAndAction finds a employee by resource and action
-func (r *EmployeeRepository) FindByResourceAndAction(resource, action string) (*models.Employee, error) {
+// FindByEmail finds a employee by email
+func (r *EmployeeRepository) FindByEmail(email string) (*models.Employee, error) {
 	var employee models.Employee
-	if err := r.GetDB().Where("resource = ? AND action = ?", resource, action).First(&employee).Error; err != nil {
+	if err := r.GetDB().Where("email = ?", email).First(&employee).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, apperrors.ErrNotFound
 		}
@@ -103,10 +110,10 @@ func (r *EmployeeRepository) FindMany(offset, limit int, search string) ([]*mode
 
 	if search != "" {
 		searchPattern := "%" + search + "%"
-		query = query.Where("name LIKE ? OR resource LIKE ? OR action LIKE ?", searchPattern, searchPattern, searchPattern)
+		query = query.Where("employee_code LIKE ? OR full_name LIKE ? OR email LIKE ?", searchPattern, searchPattern, searchPattern)
 	}
 
-	if err := query.Offset(offset).Limit(limit).Find(&employees).Error; err != nil {
+	if err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&employees).Error; err != nil {
 		return nil, err
 	}
 
@@ -120,7 +127,7 @@ func (r *EmployeeRepository) Count(search string) (int64, error) {
 
 	if search != "" {
 		searchPattern := "%" + search + "%"
-		query = query.Where("name LIKE ? OR resource LIKE ? OR action LIKE ?", searchPattern, searchPattern, searchPattern)
+		query = query.Where("employee_code LIKE ? OR full_name LIKE ? OR email LIKE ?", searchPattern, searchPattern, searchPattern)
 	}
 
 	if err := query.Count(&count).Error; err != nil {
@@ -128,4 +135,64 @@ func (r *EmployeeRepository) Count(search string) (int64, error) {
 	}
 
 	return count, nil
+}
+
+func (r *EmployeeRepository) CompanyExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Company{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *EmployeeRepository) DepartmentExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Department{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *EmployeeRepository) DepartmentBelongsToCompany(departmentID uuid.UUID, companyID uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Department{}).
+		Where("id = ? AND company_id = ?", departmentID, companyID).
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *EmployeeRepository) JobRoleExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.JobRole{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *EmployeeRepository) LocationExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Location{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *EmployeeRepository) EmployeeExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Employee{}).Where("id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *EmployeeRepository) EmployeeBelongsToCompany(employeeID uuid.UUID, companyID uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.GetDB().Model(&models.Employee{}).
+		Where("id = ? AND company_id = ?", employeeID, companyID).
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
