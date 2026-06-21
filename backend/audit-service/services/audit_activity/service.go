@@ -47,7 +47,7 @@ func (s *AuditActivityService) CreateActivity(ctx context.Context, req *models.C
 		status = "PLANNED"
 	}
 
-	activity := &models.ActivityPlan{
+	activity := &models.AuditActivity{
 		AnnualPlanID: req.AnnualPlanID,
 		TargetUnitID: req.TargetUnitID,
 		ProjectCode:  req.ProjectCode,
@@ -163,7 +163,7 @@ func (s *AuditActivityService) ListActivities(ctx context.Context, req *models.L
 }
 
 // toResponse converts an audit activity model to a response DTO
-func (s *AuditActivityService) toResponse(activity *models.ActivityPlan) *models.ActivityPlanResponse {
+func (s *AuditActivityService) toResponse(activity *models.AuditActivity) *models.ActivityPlanResponse {
 	return &models.ActivityPlanResponse{
 		ID:           activity.ID.String(),
 		AnnualPlanID: activity.AnnualPlanID.String(),

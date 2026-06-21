@@ -92,6 +92,23 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.AuditAssignment{},
 		&models.AuditAnnual{},
 		&models.ActivityPlan{},
+		&models.AuditActivity{},
+		&models.StrategicPlan{},
+		&models.AssignmentLetter{},
+		&models.AuditExecution{},
+		&models.FieldworkInterview{},
+		&models.FieldworkObservation{},
+		&models.FieldworkDocument{},
+		&models.FieldworkSample{},
+		&models.FieldworkTestControl{},
+		&models.WorkingPaperHeader{},
+		&models.WorkingPaperRisk{},
+		&models.WorkingPaperSample{},
+		&models.WorkingPaperCause{},
+		&models.WorkingPaperPlan{},
+		&models.WorkingPaper{},
+		&models.AuditResultReport{},
+		&models.ActionTakenReport{},
 	}
 
 	if migrateDryRun {
@@ -105,34 +122,12 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 	// Run migrations
 	logger.Info("Running GORM AutoMigrate...")
 
-	logger.Info("  Migrating: audit_charters")
-	if err := db.AutoMigrate(&models.AuditCharter{}); err != nil {
-		logger.Fatal("Failed to migrate audit_charters", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("  Migrating: audit_mandates")
-	if err := db.AutoMigrate(&models.AuditMandate{}); err != nil {
-		logger.Fatal("Failed to migrate audit_mandates", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("  Migrating: audit_assignments")
-	if err := db.AutoMigrate(&models.AuditAssignment{}); err != nil {
-		logger.Fatal("Failed to migrate audit_assignments", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("  Migrating: audit_annuals")
-	if err := db.AutoMigrate(&models.AuditAnnual{}); err != nil {
-		logger.Fatal("Failed to migrate audit_annuals", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("  Migrating: activity_plans")
-	if err := db.AutoMigrate(&models.ActivityPlan{}); err != nil {
-		logger.Fatal("Failed to migrate activity_plans", logger.LogField("error", err))
-		return err
+	for _, m := range auditModels {
+		logger.Info(fmt.Sprintf("  Migrating model: %T", m))
+		if err := db.AutoMigrate(m); err != nil {
+			logger.Fatal(fmt.Sprintf("Failed to migrate model %T", m), logger.LogField("error", err))
+			return err
+		}
 	}
 
 	logger.Info("Database migration completed successfully!")
@@ -155,7 +150,24 @@ func runMigrateDown(cmd *cobra.Command, args []string) error {
 
 	// Drop tables in reverse order of dependencies
 	tablesToDrop := []string{
+		"action_taken_reports",
+		"audit_result_reports",
+		"working_paper_plans",
+		"working_paper_causes",
+		"working_paper_samples",
+		"working_paper_risks",
+		"working_paper_headers",
+		"working_papers",
+		"fieldwork_test_controls",
+		"fieldwork_samples",
+		"fieldwork_documents",
+		"fieldwork_observations",
+		"fieldwork_interviews",
+		"audit_executions",
+		"assignment_letters",
+		"strategic_plans",
 		"activity_plans",
+		"audit_activities",
 		"audit_annuals",
 		"audit_assignments",
 		"audit_mandates",
@@ -198,6 +210,23 @@ func runMigrateStatus(cmd *cobra.Command, args []string) error {
 		"audit_assignments",
 		"audit_annuals",
 		"activity_plans",
+		"audit_activities",
+		"strategic_plans",
+		"assignment_letters",
+		"audit_executions",
+		"fieldwork_interviews",
+		"fieldwork_observations",
+		"fieldwork_documents",
+		"fieldwork_samples",
+		"fieldwork_test_controls",
+		"working_papers",
+		"working_paper_headers",
+		"working_paper_risks",
+		"working_paper_samples",
+		"working_paper_causes",
+		"working_paper_plans",
+		"audit_result_reports",
+		"action_taken_reports",
 	}
 
 	logger.Info(fmt.Sprintf("\nDatabase: %s", cfg.Database.Name))

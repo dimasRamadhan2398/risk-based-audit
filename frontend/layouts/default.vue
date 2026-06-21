@@ -81,6 +81,12 @@ const rawItems: NavigationMenuItem[][] = [[
     icon: 'i-lucide-users',
     to: '/action-taken-report',
   },
+
+  {
+    label: '10. Consulting Service',
+    icon: 'i-lucide-users',
+    to: '/consulting-service',
+  },
   
   {
     label: '11. Quality Assurance Review',

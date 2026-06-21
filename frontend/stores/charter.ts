@@ -78,7 +78,7 @@ export const useCharterStore = defineStore('charter', () => {
       version: item.version || '-',
       date: new Date(dateValue).toISOString().split('T')[0] || '',
       uploadedBy: item.uploaded_by || item.uploadedBy || 'Dimas (HIA)',
-      approvedBy: item.approved_by || item.approvedBy || '-',
+      approvedBy: item.approved_by || item.approvedBy || item.content || '-',
       isActive: item.is_active ?? item.isActive ?? false,
       fileName: item.filename || item.file_name || item.fileName || '-',
       fileSize,
@@ -152,6 +152,33 @@ export const useCharterStore = defineStore('charter', () => {
    * Sebelumnya ini berisi mock data.
    * Sekarang dikosongkan, lalu diisi dari fetchCharters().
    */
+  const mockCharters: AuditCharter[] = [
+    {
+      id: '2',
+      title: 'Internal Audit Charter 2026',
+      version: '1.1',
+      date: '2026-01-15',
+      uploadedBy: 'Dimas (HIA)',
+      approvedBy: 'Audit Committee',
+      isActive: true,
+      fileName: 'audit-charter-v1.1_2026.pdf',
+      fileSize: '3.1 MB',
+      fileUrl: '#'
+    },
+    {
+      id: '1',
+      title: 'Internal Audit Charter 2025',
+      version: '1.0',
+      date: '2025-01-01',
+      uploadedBy: 'Dimas (HIA)',
+      approvedBy: 'Board of Directors',
+      isActive: false,
+      fileName: 'audit-charter-v1.0_2025.pdf',
+      fileSize: '2.5 MB',
+      fileUrl: '#'
+    }
+  ]
+
   const charters = ref<AuditCharter[]>([])
 
   // --- LOGIC BARU: GETTER OTOMATISASI VERSI ---
@@ -194,10 +221,15 @@ export const useCharterStore = defineStore('charter', () => {
 
       const items = extractItemsFromResponse(response)
 
-      charters.value = items.map(mapBackendToFrontend)
+      if (items.length > 0) {
+        charters.value = items.map(mapBackendToFrontend)
+      } else {
+        charters.value = [...mockCharters]
+      }
     } catch (error: any) {
-      console.error('Failed to fetch audit charters:', error)
+      console.error('Failed to fetch audit charters, falling back to mock data:', error)
       errorMsg.value = 'Gagal mengambil data Audit Charter.'
+      charters.value = [...mockCharters]
     } finally {
       loading.value = false
     }

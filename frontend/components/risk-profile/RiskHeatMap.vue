@@ -150,7 +150,7 @@
                   <!-- Cell Labels -->
                   <div class="absolute inset-x-2 top-2 flex justify-between items-start pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity">
                     <span class="text-[8px] font-black uppercase tracking-tighter max-w-[60%] leading-none">{{ riskLevelConfig[getRiskLevel(l, i)].label }}</span>
-                    <span class="text-[10px] font-black">{{ l * i }}</span>
+                    <span class="text-[10px] font-black">{{ getRiskScore(l, i) }}</span>
                   </div>
 
                   <!-- Badges Container -->
@@ -232,7 +232,7 @@
                     {{ riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].label }}
                   </div>
                   <div class="text-2xl font-black leading-tight">
-                    {{ risk.likelihood * risk.impact }}
+                    {{ getRiskScore(risk.likelihood, risk.impact) }}
                   </div>
                 </div>
 
@@ -417,7 +417,7 @@ import {
 } from '~/stores/risk-profile'
 
 const store = useRiskProfileStore()
-const { getRiskLevel } = store
+const { getRiskLevel, getRiskScore } = store
 const toast = useToast()
 
 // Local state for UI that doesn't need to be in the store (or mapping store state)
@@ -508,8 +508,8 @@ const priorityRisks = computed(() => {
       return riskLevelConfig[level].priority
     })
     .sort((a, b) => {
-      const scoreA = a.likelihood * a.impact
-      const scoreB = b.likelihood * b.impact
+      const scoreA = getRiskScore(a.likelihood, a.impact)
+      const scoreB = getRiskScore(b.likelihood, b.impact)
       if (scoreB !== scoreA) return scoreB - scoreA
       return b.severity - a.severity
     })

@@ -1,0 +1,23 @@
+$kind: http-request
+name: Create Observation
+method: POST
+url: '{{auth_base_url}}/api/v1/audit-fieldwork/observations'
+order: 4000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "assignmentLetterId": "ST-001/SKAI/2026",
+      "activity": "Cash counting",
+      "location": "Finance Office",
+      "date": "2026-03-15",
+      "observer": "Zeta Ramadhani"
+    }

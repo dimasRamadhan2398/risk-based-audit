@@ -50,12 +50,25 @@ func (s *AuditCharterService) CreateCharter(ctx context.Context, req *models.Cre
 		Version:  req.Version,
 		Title:    req.Title,
 		Content:  req.Content,
-		IsActive: false,
+		IsActive: req.IsActive != nil && *req.IsActive,
 	}
 
 	if err := s.repo.Create(charter); err != nil {
 		s.LogError("Failed to create audit charter", logger.LogField("error", err))
 		return nil, errors.ErrInternalServer
+	}
+
+	if charter.IsActive {
+		// Deactivate others
+		allCharters, err := s.repo.FindMany(0, 1000, "", nil)
+		if err == nil {
+			for _, c := range allCharters {
+				if c.ID != charter.ID && c.IsActive {
+					c.IsActive = false
+					_ = s.repo.Update(c)
+				}
+			}
+		}
 	}
 
 	s.LogInfo("Audit charter created", logger.LogField("id", charter.ID))
@@ -78,10 +91,26 @@ func (s *AuditCharterService) UpdateCharter(ctx context.Context, id uuid.UUID, r
 	if req.Content != nil {
 		charter.Content = *req.Content
 	}
+	if req.IsActive != nil {
+		charter.IsActive = *req.IsActive
+	}
 
 	if err := s.repo.Update(charter); err != nil {
 		s.LogError("Failed to update audit charter", logger.LogField("error", err))
 		return nil, errors.ErrInternalServer
+	}
+
+	if charter.IsActive {
+		// Deactivate others
+		allCharters, err := s.repo.FindMany(0, 1000, "", nil)
+		if err == nil {
+			for _, c := range allCharters {
+				if c.ID != id && c.IsActive {
+					c.IsActive = false
+					_ = s.repo.Update(c)
+				}
+			}
+		}
 	}
 
 	s.LogInfo("Audit charter updated", logger.LogField("id", charter.ID))

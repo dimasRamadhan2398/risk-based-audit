@@ -39,4 +39,5 @@ import ActivityPlanTable from '~/components/audit-activity-plan/ActivityPlanTabl
 import { useActivityPlanStore } from '~/stores/activity-plan'
 
 const store = useActivityPlanStore()
+store.fetchPlans()
 </script>

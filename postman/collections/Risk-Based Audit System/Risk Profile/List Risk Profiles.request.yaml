@@ -1,0 +1,19 @@
+$kind: http-request
+name: List Risk Profiles
+method: GET
+url: '{{auth_base_url}}/api/v1/risk-profiles'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+queryParams:
+  - key: branch
+    value: ''
+  - key: category
+    value: ''
+  - key: page
+    value: '1'
+  - key: page_size
+    value: '10'

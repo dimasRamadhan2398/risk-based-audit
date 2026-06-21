@@ -76,23 +76,23 @@ export const riskLevelConfig = {
 const initialRiskData = [
   {
     id: 1,
-    name: 'Financial Fraud / Corruption',
+    name: 'Target pendapatan dan laba tidak tercapai',
     impact: 5,
-    likelihood: 5,
+    likelihood: 4,
     severity: 98,
     category: 'Financial',
     branch: 'Head Office',
-    description: 'Fraudulent financial activities including embezzlement, bribery, and accounting manipulation.'
+    description: 'Terget pendapatan tidak tercapai karena kinerja tim marketing yang kurang maksimal dan strategi marketing yang tidak efektif.'
   },
   {
     id: 2,
-    name: 'Cybersecurity Breach',
+    name: 'Target efisiensi biaya operasional dan umum tidak tercapai',
     impact: 5,
     likelihood: 4,
     severity: 95,
-    category: 'Technology',
-    branch: 'Jakarta Branch',
-    description: 'Unauthorized access to critical systems, data theft, or ransomware attacks on infrastructure.'
+    category: 'Financial',
+    branch: 'Head Office',
+    description: 'Target efisiensi biaya operasional dan umum tidak tercapai karena kinerja tim keuangan yang kurang maksimal dan strategi keuangan yang tidak efektif.'
   },
   {
     id: 3,
@@ -287,7 +287,8 @@ const branches = [
 // --- Store Definition ---
 
 export const useRiskProfileStore = defineStore('risk-profile', () => {
-  const risks = ref(initialRiskData.map(r => ({ ...r })))
+  const config = useRuntimeConfig()
+  const risks = ref<any[]>([])
   const branchesList = ref(branches)
 
   // UI State
@@ -296,6 +297,45 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   const isFormOpen = ref(false)
   const isDetailOpen = ref(false)
   const modalMode = ref('preview')
+
+  const getRiskServiceBaseUrl = () => {
+    return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
+  }
+
+  // Load risks from backend
+  const fetchRisks = async () => {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risks`)
+      if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
+        risks.value = response.data.map((r: any, idx: number) => ({
+          ...r,
+          displayId: idx + 1
+        }))
+      } else {
+        risks.value = initialRiskData.map((r: any, idx: number) => ({
+          ...r,
+          displayId: idx + 1
+        }))
+      }
+    } catch (error) {
+      console.error('Failed to fetch risks, falling back to mock data:', error)
+      risks.value = initialRiskData.map((r: any, idx: number) => ({
+        ...r,
+        displayId: idx + 1
+      }))
+    }
+  }
+
+  // Fetch immediately
+  fetchRisks()
+
+  // Helper to re-map display IDs after changes
+  const updateDisplayIds = () => {
+    risks.value.forEach((r: any, idx: number) => {
+      r.displayId = idx + 1
+    })
+  }
 
   // Helpers
   const getRiskLevel = (likelihood?: number, impact?: number): RiskLevel => {
@@ -310,10 +350,22 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     return matrix[likelihood]?.[impact] || RiskLevel.LOW
   }
 
+  const getRiskScore = (likelihood?: number, impact?: number): number => {
+    if (!likelihood || !impact) return 0
+    const matrix: Record<number, Record<number, number>> = {
+      5: { 1: 7, 2: 12, 3: 17, 4: 22, 5: 25 },
+      4: { 1: 4, 2: 9, 3: 14, 4: 19, 5: 24 },
+      3: { 1: 3, 2: 8, 3: 13, 4: 18, 5: 23 },
+      2: { 1: 2, 2: 6, 3: 11, 4: 16, 5: 21 },
+      1: { 1: 1, 2: 5, 3: 10, 4: 15, 5: 20 }
+    }
+    return matrix[likelihood]?.[impact] || 0
+  }
+
   const getFormattedId = (risk: any): string => {
     if (!risk) return 'RSK-000'
     const prefix = categoryPrefixes[risk.category] || 'RSK'
-    const idStr = String(risk.id || 0).padStart(3, '0')
+    const idStr = String(risk.displayId || risk.id || 0).padStart(3, '0')
     return `${prefix}-${idStr}`
   }
 
@@ -339,26 +391,60 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     isDetailOpen.value = true
   }
 
-  function addRisk(newRiskData: any) {
-    // Find the highest existing ID to generate the next one
-    const maxId = risks.value.reduce((max, risk) => (risk.id > max ? risk.id : max), 0)
-
-    const newRiskWithId = {
-      ...newRiskData,
-      id: maxId + 1
+  async function addRisk(newRiskData: any) {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risks`, {
+        method: 'POST',
+        body: newRiskData
+      })
+      if (response && response.success) {
+        const createdRisk = {
+          ...response.data,
+          displayId: risks.value.length + 1
+        }
+        risks.value.push(createdRisk)
+      }
+    } catch (error) {
+      console.error('Failed to add risk:', error)
     }
-    risks.value.push(newRiskWithId)
   }
 
-  function updateRisk(updatedRisk: any) {
-    const idx = risks.value.findIndex(r => r.id === updatedRisk.id)
-    if (idx !== -1) {
-      risks.value[idx] = { ...updatedRisk }
+  async function updateRisk(updatedRisk: any) {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risks/${updatedRisk.id}`, {
+        method: 'PUT',
+        body: updatedRisk
+      })
+      if (response && response.success) {
+        const idx = risks.value.findIndex(r => r.id === updatedRisk.id)
+        if (idx !== -1) {
+          const displayId = risks.value[idx].displayId
+          risks.value[idx] = {
+            ...response.data,
+            displayId
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update risk:', error)
     }
   }
 
-  function deleteRisk(id: number) {
-    risks.value = risks.value.filter(r => r.id !== id)
+  async function deleteRisk(id: string | number) {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risks/${id}`, {
+        method: 'DELETE'
+      })
+      if (response && response.success) {
+        risks.value = risks.value.filter(r => r.id !== id)
+        updateDisplayIds()
+      }
+    } catch (error) {
+      console.error('Failed to delete risk:', error)
+    }
   }
 
   return {
@@ -370,6 +456,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     isDetailOpen,
     modalMode,
     getRiskLevel,
+    getRiskScore,
     getFormattedId,
     getRiskById,
     openAddModal,
@@ -377,6 +464,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     openPreviewModal,
     addRisk,
     updateRisk,
-    deleteRisk
+    deleteRisk,
+    fetchRisks
   }
 })

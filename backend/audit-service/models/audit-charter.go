@@ -25,12 +25,14 @@ type CreateAuditCharterRequest struct {
 	Version  string `json:"version" binding:"required" validate:"required,max=20"`
 	Title    string `json:"title" binding:"required" validate:"required,max=200"`
 	Content  string `json:"content" binding:"required" validate:"required"`
+	IsActive *bool  `json:"is_active"`
 }
 
 type UpdateAuditCharterRequest struct {
 	Filename *string `json:"filename" validate:"omitempty,max=200"`
 	Title    *string `json:"title" validate:"omitempty,max=200"`
 	Content  *string `json:"content"`
+	IsActive *bool   `json:"is_active"`
 }
 
 type ListAuditChartersRequest struct {

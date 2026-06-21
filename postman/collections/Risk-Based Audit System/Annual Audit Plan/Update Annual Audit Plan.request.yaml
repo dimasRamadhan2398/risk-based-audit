@@ -1,0 +1,24 @@
+$kind: http-request
+name: Update Annual Audit Plan
+method: PUT
+url: '{{auth_base_url}}/api/v1/annual-audit-plans/:id'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: plan-id-here
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "code": "AAP-2026-001",
+      "status": "in_progress",
+      "notes": "Updated notes"
+    }

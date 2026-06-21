@@ -1,0 +1,23 @@
+$kind: http-request
+name: Create Sample
+method: POST
+url: '{{auth_base_url}}/api/v1/audit-fieldwork/samples'
+order: 8000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "assignmentLetterId": "ST-001/SKAI/2026",
+      "documentName": "Invoice",
+      "documentNumber": "INV-001",
+      "date": "2026-03-01",
+      "description": "Sample invoice for testing"
+    }

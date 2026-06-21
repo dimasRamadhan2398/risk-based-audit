@@ -1,0 +1,10 @@
+$kind: http-request
+name: List Action Taken Reports
+method: GET
+url: '{{auth_base_url}}/api/v1/action-taken-reports'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

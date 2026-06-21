@@ -4,7 +4,7 @@ import { AuditCategory, AuditDepartment, AuditStatus, type ActionTakenReport } f
 
 export const useActionTakenReportStore = defineStore('action-taken-report', () => {
   // State
-  const reportList = ref<ActionTakenReport[]>([
+  const mockReports: ActionTakenReport[] = [
     {
       id: '1',
       auditRef: 'AUD-2023-009',
@@ -85,8 +85,9 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       attachment: 'Foto_Fisik.jpg',
       progressDescription: 'Masih dalam penghitungan ulang. Kendala: Kurang personil shift malam.'
     }
-  ])
+  ]
 
+  const reportList = ref<ActionTakenReport[]>([...mockReports])
   const searchQuery = ref('')
   const selectedDepartment = ref('')
   const selectedStatus = ref('')
@@ -94,11 +95,49 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
   const showModal = ref(false)
   const selectedReport = ref<ActionTakenReport | null>(null)
 
+  const loading = ref(false)
+  const errorMsg = ref('')
+
+  const getAuditServiceBaseUrl = () => {
+    const config = useRuntimeConfig()
+    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  }
+
+  const fetchReports = async () => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/action-taken-reports`, { method: 'GET' })
+      let items: ActionTakenReport[] = []
+      if (response && Array.isArray(response.items)) {
+        items = response.items
+      } else if (Array.isArray(response)) {
+        items = response
+      }
+
+      if (items.length > 0) {
+        reportList.value = items
+      } else {
+        reportList.value = mockReports
+      }
+    } catch (error) {
+      console.error('Failed to fetch action taken reports:', error)
+      errorMsg.value = 'Failed to load action taken reports.'
+      reportList.value = mockReports
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Load on init
+  fetchReports()
+
   // Computed
   const filteredReports = computed(() => {
     return reportList.value.filter(report => {
-      const matchesSearch = report.auditRef.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+      const matchesSearch = (report.auditRef?.toLowerCase() || '').includes(searchQuery.value.toLowerCase()) ||
+        (report.title?.toLowerCase() || '').includes(searchQuery.value.toLowerCase())
       const matchesDept = !selectedDepartment.value || report.department === selectedDepartment.value
       const matchesStatus = !selectedStatus.value || report.status === selectedStatus.value
       return matchesSearch && matchesDept && matchesStatus
@@ -107,6 +146,13 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
 
   const stats = computed(() => {
     const total = reportList.value.length
+    if (total === 0) {
+      return {
+        donePercent: 0,
+        wipPercent: 0,
+        latePercent: 0
+      }
+    }
     const done = reportList.value.filter(r => r.status === AuditStatus.COMPLETED).length
     const wip = reportList.value.filter(r => r.status === AuditStatus.IN_PROGRESS).length
     const late = reportList.value.filter(r => r.status === AuditStatus.CANCELLED).length
@@ -117,7 +163,6 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       latePercent: Math.round((late / total) * 100)
     }
   })
-
 
   // Actions
   const openDetail = (report: ActionTakenReport) => {
@@ -140,6 +185,9 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
     filteredReports,
     stats,
     openDetail,
-    closeModal
+    closeModal,
+    loading,
+    errorMsg,
+    fetchReports
   }
 })

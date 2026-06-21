@@ -98,7 +98,7 @@ const items = computed(() => {
       <UTable
         :columns="columns"
         :data="items"
-        @select="(_e, row) => store.openDetail(row as any)"
+        @select="(row: any) => store.openDetail(row.original || row)"
         class="w-full"
         :ui="{ 
           thead: 'bg-gray-100 dark:bg-gray-800/50',

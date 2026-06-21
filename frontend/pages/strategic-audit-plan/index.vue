@@ -43,5 +43,6 @@ import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 
 // Inisialisasi Store
 const store = useStrategicPlanStore()
+store.fetchStrategicPlans()
 
 </script>

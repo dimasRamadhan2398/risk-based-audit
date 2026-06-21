@@ -6,9 +6,9 @@ server:
 database:
   host: postgres
   port: 5432
-  username: admin_rbia
-  password: 12345678
-  name: audit_service
+  username: postgres
+  password: postgres
+  name: rb_audit
   sslmode: disable
 
 redis:

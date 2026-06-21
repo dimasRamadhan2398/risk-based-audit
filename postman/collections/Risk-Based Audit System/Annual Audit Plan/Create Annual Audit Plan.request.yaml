@@ -1,0 +1,33 @@
+$kind: http-request
+name: Create Annual Audit Plan
+method: POST
+url: '{{auth_base_url}}/api/v1/annual-audit-plans'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "code": "AAP-2026-001",
+      "activities": [
+        {
+          "name": "Financial Audit",
+          "category": "assurance",
+          "department": "Finance"
+        }
+      ],
+      "status": "not_available",
+      "selectedMonths": [0, 1, 2],
+      "auditorCount": 2,
+      "daysPerAuditor": 5,
+      "supervisorId": "S01",
+      "notes": "Q1 audit plan",
+      "year": "2026"
+    }

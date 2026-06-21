@@ -118,11 +118,13 @@ func autoMigrate(db *gorm.DB) error {
 		&models.RiskStrategyMap{},
 		&models.RiskApprovalLog{},
 		&models.ActionPlan{},
+		&models.RiskMitigation{},
 	)
 }
 
 func dropAllTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
+		&models.RiskMitigation{},
 		&models.ActionPlan{},
 		&models.RiskApprovalLog{},
 		&models.RiskStrategyMap{},

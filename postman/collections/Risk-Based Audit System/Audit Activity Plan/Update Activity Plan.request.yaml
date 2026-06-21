@@ -1,0 +1,22 @@
+$kind: http-request
+name: Update Activity Plan
+method: PUT
+url: '{{auth_base_url}}/api/v1/audit-activity-plans/:id'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: plan-id-here
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "planTitle": "Updated IT Audit Activity Plan 2026"
+    }

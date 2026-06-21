@@ -1,0 +1,21 @@
+$kind: http-request
+name: List Users
+method: GET
+url: '{{auth_base_url}}/api/v1/users'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+queryParams:
+  - key: page
+    value: '1'
+  - key: page_size
+    value: '10'
+  - key: search
+    value: ''
+  - key: department
+    value: ''
+  - key: is_active
+    value: 'true'

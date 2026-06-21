@@ -1,0 +1,37 @@
+$kind: http-request
+name: Update Audit Charter
+method: PUT
+url: '{{auth_base_url}}/api/v1/audit-charters/:id'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: '1'
+body:
+  type: formdata
+  content:
+    - key: title
+      type: text
+      value: ''
+    - key: version
+      type: text
+      value: ''
+    - key: date
+      type: text
+      value: ''
+    - key: uploadedBy
+      type: text
+      value: ''
+    - key: approvedBy
+      type: text
+      value: ''
+    - key: isActive
+      type: text
+      value: ''
+    - key: file
+      type: file
+      src: ''

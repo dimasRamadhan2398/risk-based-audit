@@ -1,0 +1,30 @@
+$kind: http-request
+name: Create Working Paper Header
+method: POST
+url: '{{auth_base_url}}/api/v1/working-papers/headers'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "assignmentLetterId": "ST-001/SKAI/2026",
+      "auditPurpose": "Assess financial controls",
+      "businessProcess": "Financial Reporting",
+      "periodStart": "2026-01-01",
+      "periodEnd": "2026-03-31",
+      "location": "Head Office",
+      "teamMembers": [
+        {
+          "name": "Zeta Ramadhani",
+          "role": "Lead Auditor"
+        }
+      ]
+    }

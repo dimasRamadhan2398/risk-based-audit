@@ -7,7 +7,66 @@ import (
 	"gorm.io/gorm"
 )
 
+type PlannedActivity struct {
+	ID                string `json:"id"`
+	AuditName         string `json:"auditName"`
+	Auditee           string `json:"auditee"`
+	Category          string `json:"category"`
+	RiskLevel         string `json:"riskLevel"`
+	Duration          int    `json:"duration"`
+	Priority          string `json:"priority"`
+	NumberOfAuditors  int    `json:"numberOfAuditors"`
+	EstimatedSchedule string `json:"estimatedSchedule"`
+	BudgetEstimation  string `json:"budgetEstimation"`
+}
+
+type ResourceAuditor struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Position     string `json:"position"`
+	Competence   string `json:"competence"`
+	Availability string `json:"availability"`
+}
+
+type PlanBudget struct {
+	TotalEstimatedCost   float64 `json:"totalEstimatedCost"`
+	TotalAllocatedBudget float64 `json:"totalAllocatedBudget"`
+	BudgetNotes          string  `json:"budgetNotes"`
+}
+
+type PlanReview struct {
+	CreatorName      string `json:"creatorName"`
+	CreatorPosition  string `json:"creatorPosition"`
+	ApproverName     string `json:"approverName"`
+	ApproverPosition string `json:"approverPosition"`
+	ApprovalDate     string `json:"approvalDate"`
+	AdditionalNotes  string `json:"additionalNotes"`
+}
+
 type ActivityPlan struct {
+	ID                uuid.UUID         `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	PlanTitle         string            `gorm:"type:varchar(255)" json:"planTitle"`
+	PlanYear          string            `gorm:"type:varchar(50)" json:"planYear"`
+	PlanPeriodStart   string            `gorm:"type:varchar(100)" json:"planPeriodStart"`
+	PlanPeriodEnd     string            `gorm:"type:varchar(100)" json:"planPeriodEnd"`
+	Department        string            `gorm:"type:varchar(255)" json:"department"`
+	CreatedBy         string            `gorm:"type:varchar(255)" json:"createdBy"`
+	CreationDate      string            `gorm:"type:varchar(100)" json:"creationDate"`
+	PlannedActivities []PlannedActivity `gorm:"serializer:json" json:"plannedActivities"`
+	ResourceAuditors  []ResourceAuditor `gorm:"serializer:json" json:"resourceAuditors"`
+	Budget            PlanBudget        `gorm:"serializer:json" json:"budget"`
+	Review            PlanReview        `gorm:"serializer:json" json:"review"`
+	Status            string            `gorm:"type:varchar(50);default:'PLANNED'" json:"status"`
+	CreatedAt         time.Time         `json:"created_at"`
+	UpdatedAt         time.Time         `json:"updated_at"`
+	DeletedAt         gorm.DeletedAt    `gorm:"index" json:"-"`
+}
+
+func (ActivityPlan) TableName() string {
+	return "activity_plans"
+}
+
+type AuditActivity struct {
 	ID           uuid.UUID   `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	AnnualPlanID uuid.UUID   `gorm:"type:uuid;not null;index" json:"annual_plan_id"`
 	AnnualPlan   AuditAnnual `gorm:"foreignKey:AnnualPlanID" json:"annual_plan"`
@@ -27,6 +86,10 @@ type ActivityPlan struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+func (AuditActivity) TableName() string {
+	return "audit_activities"
 }
 
 // Request DTOs

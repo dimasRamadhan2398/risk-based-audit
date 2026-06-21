@@ -1,13 +1,15 @@
+import { defineStore } from 'pinia';
+import { ref, computed, watch } from 'vue';
 import type { TableColumn } from "@nuxt/ui";
 import type { StrategicAuditPlan } from "~/types/audit";
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
-    // State
     const isAddModalOpen = ref(false);
     const isEditMode = ref(false);
+    const loading = ref(false);
+    const errorMsg = ref('');
 
-    // Unit options for dropdown
     const unitOptions = [
         { label: 'Percentage (%)', value: '%' },
         { label: 'Rupiah (Rp)', value: 'Rp' },
@@ -17,14 +19,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         { label: 'Day', value: 'Day' },
     ];
 
-    // Year range for dropdowns
     const currentYear = new Date().getFullYear();
     const yearOptions = Array.from({ length: 20 }, (_, i) => {
         const year = currentYear - 5 + i;
         return { label: String(year), value: year };
     });
 
-    // Form Data
     const form = ref<Partial<StrategicAuditPlan>>({
         code: '',
         strategicObjective: '',
@@ -41,7 +41,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         status: '',
     });
 
-    // Computed: available periods based on periodType
     const availablePeriods = computed(() => {
         if (form.value.periodType === 'Quartal') {
             return ['Q1', 'Q2', 'Q3', 'Q4'];
@@ -56,41 +55,47 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         }
     });
 
-    // Computed: Hitungan (calculation based on actual and target)
     const computedCalculation = computed(() => {
         const actual = parseFloat(form.value.actual || '0');
         const target = parseFloat(form.value.target || '0');
-        if (target === 0) return '';
-        const result = (1 - (actual / target)) * 100;
+        if (!form.value.actual || !form.value.target) return '';
+
+        let result = 0;
+        if (form.value.hibHig === 'HIG') {
+            if (target === 0) return '';
+            result = (actual / target) * 100;
+        } else {
+            if (actual === 0) return '';
+            result = (target / actual) * 100;
+        }
+        
         return `${result.toFixed(2)}%`;
     });
 
-    // Computed: Keterangan based on HIB/HIG and hitungan
     const computedStatus = computed(() => {
         const actual = parseFloat(form.value.actual || '0');
         const target = parseFloat(form.value.target || '0');
-        if (target === 0 || !form.value.actual || !form.value.target) return '';
+        if (!form.value.actual || !form.value.target) return '';
 
-        const ratio = actual / target;
+        let ratio = 0;
         if (form.value.hibHig === 'HIG') {
-            // High is Good: higher actual is better
-            if (ratio >= 1) return 'Good';
-            if (ratio >= 0.7) return 'Moderate';
-            return 'Poor';
+            if (target === 0) return '';
+            ratio = actual / target;
         } else {
-            // High is Bad: lower actual is better
-            if (ratio <= 1) return 'Good';
-            if (ratio <= 1.3) return 'Moderate';
-            return 'Poor';
+            if (actual === 0) return '';
+            ratio = target / actual;
         }
+
+        if (ratio >= 1) return 'Good';
+        if (ratio >= 0.7) return 'Moderate';
+        return 'Poor';
     });
 
-    // Mock Data
-    const strategicObjectives = ref<StrategicAuditPlan[]>([
+    const mockObjectives: StrategicAuditPlan[] = [
         {
             id: 1,
             code: 'SO-IA01',
-            strategicObjective: 'Enhance Operational Efficiency',
+            strategicObjective: 'Improve Audit Efficiency',
             kpi: 'Revenue Operational Cost',
             unit: '%',
             hibHig: 'HIG',
@@ -131,9 +136,47 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             calculation: '50.00%',
             status: 'Good',
         },
-    ]);
+    ];
 
-    // Table Columns
+    const strategicObjectives = ref<StrategicAuditPlan[]>([...mockObjectives]);
+
+    const getAuditServiceBaseUrl = () => {
+        const config = useRuntimeConfig()
+        return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+    }
+
+    const fetchStrategicPlans = async () => {
+        loading.value = true;
+        errorMsg.value = '';
+        try {
+            const baseUrl = getAuditServiceBaseUrl();
+            const response: any = await $fetch(`${baseUrl}/strategic-plans`, {
+                method: 'GET'
+            });
+            let items: StrategicAuditPlan[] = [];
+            if (response && Array.isArray(response.items)) {
+                items = response.items;
+            } else if (Array.isArray(response)) {
+                items = response;
+            }
+
+            if (items.length > 0) {
+                strategicObjectives.value = items;
+            } else {
+                strategicObjectives.value = mockObjectives;
+            }
+        } catch (error: any) {
+            console.error('Failed to fetch strategic plans:', error);
+            errorMsg.value = 'Failed to load strategic plans.';
+            strategicObjectives.value = mockObjectives;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    // Load on init
+    fetchStrategicPlans();
+
     const columns: TableColumn<StrategicAuditPlan>[] = [
         {
             accessorKey: 'code',
@@ -143,51 +186,35 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         {
             accessorKey: 'strategicObjective',
             header: 'Strategic Objective',
-            cell: (row) => row.getValue(),
         },
         {
             accessorKey: 'kpi',
-            header: 'KPI',
-            cell: (row) => row.getValue(),
+            header: 'KPI Name',
         },
         {
             accessorKey: 'unit',
             header: 'Unit',
-            cell: (row) => row.getValue(),
         },
         {
-            accessorKey: 'hibHig',
-            header: 'HIB/HIG',
-            cell: (row) => row.getValue(),
-        },
-        {
-            accessorKey: 'periodType',
+            accessorKey: 'selectedPeriod',
             header: 'Period',
-            cell: (row) => {
-                const periodType = row.getValue() as string;
-                const period = row.row.original.selectedPeriod;
-                return `${periodType} - ${period}`;
-            },
-        },
-        {
-            accessorKey: 'actual',
-            header: 'Actual',
-            cell: (row) => row.getValue(),
         },
         {
             accessorKey: 'target',
             header: 'Target',
-            cell: (row) => row.getValue(),
+        },
+        {
+            accessorKey: 'actual',
+            header: 'Actual',
         },
         {
             accessorKey: 'calculation',
-            header: 'Calculation',
-            cell: (row) => row.getValue(),
+            header: 'Hitungan',
         },
         {
             accessorKey: 'status',
-            header: 'Status',
-            cell: (row) => row.getValue(),
+            header: 'Keterangan',
+            cell: 'status-cell',
         },
         {
             accessorKey: 'actions',
@@ -213,7 +240,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         ],
     ];
 
-    // Methods
     const resetForm = () => {
         form.value = {
             code: '',
@@ -250,36 +276,53 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         isAddModalOpen.value = true;
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm("Are you sure you want to delete this Strategic Plan?")) {
-            strategicObjectives.value = strategicObjectives.value.filter(
-                (item) => item.id !== id
-            );
+    const handleDelete = async (id: number | string) => {
+        if (!confirm("Are you sure you want to delete this Strategic Plan?")) return;
+        loading.value = true;
+        errorMsg.value = '';
+        try {
+            const baseUrl = getAuditServiceBaseUrl();
+            await $fetch(`${baseUrl}/strategic-plans/${id}`, {
+                method: 'DELETE'
+            });
+            await fetchStrategicPlans();
+        } catch (error: any) {
+            console.error('Failed to delete strategic plan:', error);
+            errorMsg.value = 'Failed to delete strategic plan.';
+        } finally {
+            loading.value = false;
         }
     };
 
-    const handleSubmit = () => {
-        // Set computed fields before saving
+    const handleSubmit = async () => {
         form.value.calculation = computedCalculation.value;
         form.value.status = computedStatus.value;
-
-        if (isEditMode.value) {
-            const index = strategicObjectives.value.findIndex(
-                (item) => item.id === form.value.id,
-            );
-            if (index !== -1) {
-                strategicObjectives.value[index] = { ...form.value } as StrategicAuditPlan;
+        
+        loading.value = true;
+        errorMsg.value = '';
+        try {
+            const baseUrl = getAuditServiceBaseUrl();
+            if (isEditMode.value) {
+                await $fetch(`${baseUrl}/strategic-plans/${form.value.id}`, {
+                    method: 'PUT',
+                    body: form.value
+                });
+            } else {
+                await $fetch(`${baseUrl}/strategic-plans`, {
+                    method: 'POST',
+                    body: form.value
+                });
             }
-        } else {
-            strategicObjectives.value.push({
-                ...form.value,
-                id: Date.now(),
-            } as StrategicAuditPlan);
+            closeModal();
+            await fetchStrategicPlans();
+        } catch (error: any) {
+            console.error('Failed to save strategic plan:', error);
+            errorMsg.value = 'Failed to save strategic plan.';
+        } finally {
+            loading.value = false;
         }
-        closeModal();
     };
 
-    // When periodType changes, reset selectedPeriod
     watch(() => form.value.periodType, (newType) => {
         if (newType === 'Quartal') {
             form.value.selectedPeriod = 'Q1';
@@ -288,8 +331,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         }
     });
 
-    // When yearStart or yearEnd changes for Yearly, reset selectedPeriod if needed
-    watch([() => form.value.yearStart, () => form.value.yearEnd], () => {
+    watch([(() => form.value.yearStart), (() => form.value.yearEnd)], () => {
         if (form.value.periodType === 'Yearly') {
             const periods = availablePeriods.value;
             if (!periods.includes(form.value.selectedPeriod || '')) {
@@ -302,5 +344,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         columns, strategicObjectives, isAddModalOpen, isEditMode, form,
         unitOptions, yearOptions, availablePeriods, computedCalculation, computedStatus,
         getRowActions, openModal, closeModal, handleEdit, handleDelete, handleSubmit,
+        fetchStrategicPlans, loading, errorMsg
     };
 });

@@ -8,6 +8,8 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   const isModalOpen = ref(false);
   const isViewModalOpen = ref(false);
   const isEditMode = ref(false);
+  const loading = ref(false);
+  const errorMsg = ref('');
 
   const executionStatusOptions = [
     { label: "Planned", value: "planned" },
@@ -15,7 +17,6 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     { label: "Completed", value: "completed" }
   ];
 
-  // Helper untuk memformat key enum menjadi label yang mudah dibaca
   const formatEnumKey = (key: string) => {
     return key
       .split('_')
@@ -23,7 +24,6 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       .join(' ');
   };
 
-  // Buat opsi secara dinamis dari enum RiskLevel untuk konsistensi
   const riskLevelOptions = Object.entries(RiskLevel).map(([key, value]) => ({
     label: formatEnumKey(key),
     value: value,
@@ -64,14 +64,20 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
 
   const plans = ref<ActivityPlan[]>([]);
   const selectedPlan = ref<ActivityPlan | null>(null);
+
+  const getAuditServiceBaseUrl = () => {
+    const config = useRuntimeConfig()
+    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  }
+
   const filteredPlans = computed(() => {
     return plans.value.map(plan => ({
       ...plan,
       period: `${plan.planPeriodStart} - ${plan.planPeriodEnd}`,
-      totalActivity: plan.plannedActivities.length,
-      totalAuditor: plan.resourceAuditors.length,
-      budgetEstimation: plan.budget.totalEstimatedCost,
-      budgetAllocated: plan.budget.totalAllocatedBudget,
+      totalActivity: (plan.plannedActivities || []).length,
+      totalAuditor: (plan.resourceAuditors || []).length,
+      budgetEstimation: plan.budget?.totalEstimatedCost || 0,
+      budgetAllocated: plan.budget?.totalAllocatedBudget || 0,
     }));
   });
 
@@ -87,6 +93,27 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     { accessorKey: 'createdBy', header: 'Created By' },
     { accessorKey: 'actions', header: 'Actions' }
   ]
+
+  const fetchPlans = async () => {
+    loading.value = true;
+    errorMsg.value = '';
+    try {
+      const baseUrl = getAuditServiceBaseUrl();
+      const response: any = await $fetch(`${baseUrl}/activity-plans`, {
+        method: 'GET'
+      });
+      if (response && Array.isArray(response.items)) {
+        plans.value = response.items;
+      } else if (Array.isArray(response)) {
+        plans.value = response;
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch activity plans:', error);
+      errorMsg.value = 'Failed to load activity plans.';
+    } finally {
+      loading.value = false;
+    }
+  }
 
   function openModal() {
     isEditMode.value = false;
@@ -115,29 +142,49 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     isModalOpen.value = true;
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this activity plan?")) {
-      plans.value = plans.value.filter(
-        (item) => item.id !== id
-      );
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this activity plan?")) return;
+    loading.value = true;
+    errorMsg.value = '';
+    try {
+      const baseUrl = getAuditServiceBaseUrl();
+      await $fetch(`${baseUrl}/activity-plans/${id}`, {
+        method: 'DELETE'
+      });
+      await fetchPlans();
+    } catch (error: any) {
+      console.error('Failed to delete activity plan:', error);
+      errorMsg.value = 'Failed to delete activity plan.';
+    } finally {
+      loading.value = false;
     }
   };
 
-  function savePlan() {
-    if (isEditMode.value) {
-      const index = plans.value.findIndex(p => p.id === (formState.value as ActivityPlan).id);
-      if (index !== -1) {
-        plans.value[index] = { ...formState.value, id: (formState.value as ActivityPlan).id, status: 'Updated', createdAt: (formState.value as ActivityPlan).createdAt } as ActivityPlan;
+  const savePlan = async () => {
+    loading.value = true;
+    errorMsg.value = '';
+    try {
+      const baseUrl = getAuditServiceBaseUrl();
+      if (isEditMode.value) {
+        const planId = (formState.value as ActivityPlan).id;
+        await $fetch(`${baseUrl}/activity-plans/${planId}`, {
+          method: 'PUT',
+          body: formState.value
+        });
+      } else {
+        await $fetch(`${baseUrl}/activity-plans`, {
+          method: 'POST',
+          body: formState.value
+        });
       }
-    } else {
-      plans.value.push({
-        ...formState.value,
-        id: Date.now().toString(),
-        status: 'Submitted',
-        createdAt: new Date().toISOString()
-      });
+      closeModal();
+      await fetchPlans();
+    } catch (error: any) {
+      console.error('Failed to save activity plan:', error);
+      errorMsg.value = 'Failed to save activity plan.';
+    } finally {
+      loading.value = false;
     }
-    closeModal();
   }
 
   function addPlannedActivity() {
@@ -177,6 +224,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     isModalOpen, isViewModalOpen, isEditMode, priorityOptions, riskLevelOptions,
     formState, plans, selectedPlan, columns, filteredPlans,
     openModal, closeModal, openViewModal, closeViewModal, handleEdit, handleDelete, savePlan,
-    addPlannedActivity, removePlannedActivity, addResourceAuditor, removeResourceAuditor
+    addPlannedActivity, removePlannedActivity, addResourceAuditor, removeResourceAuditor,
+    fetchPlans, loading, errorMsg
   };
 });

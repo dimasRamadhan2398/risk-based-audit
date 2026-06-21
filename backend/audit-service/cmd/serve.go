@@ -134,7 +134,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Initialize route handler
-	routeHandler := routes.NewRouteHandler(engine, authMiddleware)
+	routeHandler := routes.NewRouteHandler(engine, authMiddleware, db)
 	routeHandler.SetRegistry(routeRegistry)
 	routeHandler.RegisterRoutes()
 

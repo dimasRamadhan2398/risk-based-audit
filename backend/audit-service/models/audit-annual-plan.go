@@ -15,7 +15,7 @@ type AuditAnnual struct {
 	Status      string         `gorm:"type:varchar(50);default:'DRAFT'" json:"status"` // e.g., DRAFT, PENDING_APPROVAL, APPROVED, CLOSED
 
 	// Activity Plans linked to this Annual Plan
-	ActivityPlans []ActivityPlan `gorm:"foreignKey:AnnualPlanID" json:"activity_plans,omitempty"`
+	ActivityPlans []AuditActivity `gorm:"foreignKey:AnnualPlanID" json:"activity_plans,omitempty"`
 
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

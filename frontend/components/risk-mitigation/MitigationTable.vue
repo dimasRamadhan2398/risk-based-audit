@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 
 const store = useMitigationStore()
@@ -51,6 +51,12 @@ const store = useMitigationStore()
 const props = defineProps<{
   currentRiskId: string
 }>()
+
+watchEffect(() => {
+  if (props.currentRiskId) {
+    store.fetchMitigations(props.currentRiskId)
+  }
+})
 
 const filteredMitigations = computed(() => {
   return store.getMitigationsByRiskId(props.currentRiskId)

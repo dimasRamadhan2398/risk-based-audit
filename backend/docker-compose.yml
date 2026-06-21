@@ -78,6 +78,7 @@ services:
       - kafka
     ports:
       - "8001:8001"
+    command: sh -c "./auth --config ./pkg/config/config.yaml migrate up && ./auth --config ./pkg/config/config.yaml serve"
     # volumes:
     #   - ./auth-service/pkg/config/config.docker.yaml:/app/pkg/config/config.yaml:ro
     networks:
@@ -110,6 +111,7 @@ services:
       - kafka
     ports:
       - "8002:8001"
+    command: sh -c "./audit migrate up && ./audit serve"
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -125,6 +127,7 @@ services:
       - kafka
     ports:
       - "8003:8002"
+    command: sh -c "./master migrate up && ./master serve"
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -140,6 +143,7 @@ services:
       - kafka
     ports:
       - "8004:8002"
+    command: sh -c "./risk up && ./risk serve"
     networks:
       - rb_audit_network
     restart: unless-stopped
