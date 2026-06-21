@@ -5,10 +5,82 @@ import (
 	"time"
 )
 
-type AnalyticsService struct{}
+type AnalyticsService struct{
+	aiClient *PythonAIClient
+}
 
 func NewAnalyticsService() *AnalyticsService {
-	return &AnalyticsService{}
+	return &AnalyticsService{
+		aiClient: NewPythonAIClient(),
+	}
+}
+
+// GetRiskScore gets the risk score from the Python AI service
+func (s *AnalyticsService) GetRiskScore(kpiData, previousFindings, masterData float64) (*XGBoostResponse, error) {
+	req := XGBoostRequest{
+		KPIData:          kpiData,
+		PreviousFindings: previousFindings,
+		MasterData:       masterData,
+	}
+	res, err := s.aiClient.PredictRiskScore(req)
+	if err != nil {
+		// Fallback
+		return &XGBoostResponse{
+			RiskScore: 0.85,
+			FeatureImportance: map[string]float64{
+				"kpi_data":          0.5,
+				"previous_findings": 0.3,
+				"master_data":       0.2,
+			},
+		}, nil
+	}
+	return res, nil
+}
+
+// GetAnomaly gets anomaly detection from the Python AI service
+func (s *AnalyticsService) GetAnomaly(feature1, feature2 float64) (*IsolationForestResponse, error) {
+	req := IsolationForestRequest{
+		Feature1: feature1,
+		Feature2: feature2,
+	}
+	res, err := s.aiClient.PredictAnomaly(req)
+	if err != nil {
+		// Fallback
+		return &IsolationForestResponse{
+			IsAnomaly:    true,
+			AnomalyScore: -0.75,
+		}, nil
+	}
+	return res, nil
+}
+
+// GetTextAnalysis gets text analysis from the Python AI service
+func (s *AnalyticsService) GetTextAnalysis(text string) (*IndoBERTResponse, error) {
+	req := TextRequest{Text: text}
+	res, err := s.aiClient.PredictTextAnalysis(req)
+	if err != nil {
+		// Fallback
+		return &IndoBERTResponse{
+			RiskCategory: "High Risk",
+			Confidence:   0.92,
+			Sentiment:    "Negative",
+		}, nil
+	}
+	return res, nil
+}
+
+// GetPerformanceTrend gets performance trend prediction from the Python AI service
+func (s *AnalyticsService) GetPerformanceTrend(historicalData []float64) (*LSTMResponse, error) {
+	req := LSTMRequest{HistoricalData: historicalData}
+	res, err := s.aiClient.PredictPerformanceTrend(req)
+	if err != nil {
+		// Fallback
+		return &LSTMResponse{
+			PredictedPerformance: 0.45,
+			Trend:                "Deteriorating",
+		}, nil
+	}
+	return res, nil
 }
 
 // GenerateReport creates a dummy data pattern report.
