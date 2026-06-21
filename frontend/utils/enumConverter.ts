@@ -21,9 +21,9 @@ export const enumToOptions = <T extends Record<string, string>>(
 export const getRiskLevelOptions = (): SelectOption[] => {
   return enumToOptions(RiskLevel, {
     [RiskLevel.LOW]: 'Low',
-    [RiskLevel.LOW_TO_MODERATE]: 'Low to Moderate',
+    [RiskLevel.LOW_MODERATE]: 'Low to Moderate',
     [RiskLevel.MODERATE]: 'Moderate',
-    [RiskLevel.MODERATE_TO_HIGH]: 'Moderate to High',
+    [RiskLevel.MODERATE_HIGH]: 'Moderate to High',
     [RiskLevel.HIGH]: 'High'
   })
 }
@@ -99,11 +99,11 @@ export const calculateRiskLevel = (
   impact: ImpactLevel,
   possibility: PossibilityLevel
 ): RiskLevel => {
-  const score = impact * possibility
+  const score = Number(impact) * Number(possibility)
 
   if (score <= 4) return RiskLevel.LOW
-  if (score <= 8) return RiskLevel.LOW_TO_MODERATE
+  if (score <= 8) return RiskLevel.LOW_MODERATE
   if (score <= 12) return RiskLevel.MODERATE
-  if (score <= 16) return RiskLevel.MODERATE_TO_HIGH
+  if (score <= 16) return RiskLevel.MODERATE_HIGH
   return RiskLevel.HIGH
 }
