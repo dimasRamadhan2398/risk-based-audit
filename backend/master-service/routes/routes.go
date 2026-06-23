@@ -18,6 +18,26 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	})
 
 	api := router.Group("/api/v1")
+
+	// Organizational structure
+	companies := api.Group("/companies")
+	{
+		companies.GET("", controller.GetCompany().FindAll)
+		companies.GET("/:id", controller.GetCompany().FindById)
+		companies.POST("", controller.GetCompany().Create)
+		companies.PUT("/:id", controller.GetCompany().Update)
+		companies.DELETE("/:id", controller.GetCompany().Delete)
+	}
+
+	businessUnits := api.Group("/business-units")
+	{
+		businessUnits.GET("", controller.GetBusinessUnit().FindAll)
+		businessUnits.GET("/:id", controller.GetBusinessUnit().FindById)
+		businessUnits.POST("", controller.GetBusinessUnit().Create)
+		businessUnits.PUT("/:id", controller.GetBusinessUnit().Update)
+		businessUnits.DELETE("/:id", controller.GetBusinessUnit().Delete)
+	}
+
 	departments := api.Group("/departments")
 	{
 		departments.GET("", controller.GetDepartment().FindAll)
