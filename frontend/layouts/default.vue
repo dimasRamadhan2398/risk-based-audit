@@ -161,8 +161,8 @@ const userDropdownItems = computed(() => [
     :ui="{ footer: 'border-t border-default' }"
   >
     <template #header="{ collapsed }">
-      <Logo v-if="!collapsed" class="h-5 w-auto shrink-0" />
-      <UIcon v-else name="i-simple-icons-nuxtdotjs" class="size-5 text-primary mx-auto" />
+      <Logo v-if="!collapsed" class="h-8 w-auto shrink-0" hide-subtitle text-class="text-xl" />
+      <Logo v-else icon-only class="h-6 w-auto mx-auto" />
       <UDashboardSidebarCollapse variant="subtle" />
     </template>
 
