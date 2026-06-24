@@ -9,8 +9,9 @@
     <UContainer
       class="max-w-md w-full space-y-8 bg-neutral-400 px-8 py-4 rounded-xl z-40 block relative shadow-2xl"
     >
-      <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      <div class="flex flex-col items-center">
+        <Logo class="mb-4"  />
+        <h2 class="mt-2 text-center text-3xl font-extrabold text-gray-900">
           {{ t("auth.login.title") }}
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
