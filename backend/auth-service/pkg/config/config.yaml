@@ -54,6 +54,13 @@ kafka:
   topic: "service-logs"
   service_name: "auth-service"
 
+smtp:
+  host: "sandbox.smtp.mailtrap.io"
+  port: 2525
+  username: "" # Fill with Mailtrap username
+  password: "" # Fill with Mailtrap password
+  from: "no-reply@rbia.com"
+
 app:
   app_name: risk-based-internal-audit
   app_env: development
