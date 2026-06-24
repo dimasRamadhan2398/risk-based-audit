@@ -5,6 +5,7 @@ import (
 	"auth-service/repositories"
 
 	authServices "auth-service/services/auth"
+	emailServices "auth-service/services/email"
 	mfaServices "auth-service/services/mfa"
 	trustedDevicesServices "auth-service/services/trusted-devices"
 	userServices "auth-service/services/user"
@@ -20,9 +21,14 @@ func (r *Registry) GetAuthService() authServices.AuthServiceInterface {
 	return authServices.NewAuthService(r.repository.GetUserRepository(), r.repository.GetCacheRepository().GetClient(), r.repository.GetConfig(), r.repository.GetKafkaProducer())
 }
 
+// GetEmailService implements IServiceRegistry.
+func (r *Registry) GetEmailService() emailServices.EmailServiceInterface {
+	return emailServices.NewEmailService(&r.repository.GetConfig().SMTP, r.repository.GetConfig().App.AppName)
+}
+
 // GetMfaService implements IServiceRegistry.
 func (r *Registry) GetMfaService() mfaServices.MfaServiceInterface {
-	return mfaServices.NewMfaService(r.repository.GetMFASetupRepository(), r.repository.GetUserRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient())
+	return mfaServices.NewMfaService(r.repository.GetMFASetupRepository(), r.repository.GetUserRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient(), r.GetEmailService())
 }
 
 // GetUserService implements IServiceRegistry.
@@ -40,6 +46,7 @@ type IServiceRegistry interface {
 	GetUserService() userServices.UserServiceInterface
 	GetMfaService() mfaServices.MfaServiceInterface
 	GetTrustedDevicesService() trustedDevicesServices.TrustedDevicesServiceInterface
+	GetEmailService() emailServices.EmailServiceInterface
 }
 func NewServiceRegistry(repository repositories.IRepositoryRegistry) IServiceRegistry {
 	return &Registry{repository: repository}

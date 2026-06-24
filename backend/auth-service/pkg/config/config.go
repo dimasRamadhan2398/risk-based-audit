@@ -31,6 +31,7 @@ type Config struct {
 	Kafka            KafkaConfig         `mapstructure:"kafka"`
 	KafkaConsumer    KafkaConsumerConfig `mapstructure:"kafka_consumer"`
 	App              AppMeta             `mapstructure:"app"      json:"app"`
+	SMTP             SMTPConfig          `mapstructure:"smtp"`
 }
 
 type AppMeta struct {
@@ -76,6 +77,14 @@ type LogConfig struct {
 	Format string `mapstructure:"format"` // json, console
 }
 
+type SMTPConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	From     string `mapstructure:"from"`
+}
+
 func setDefaults() {
 	viper.SetDefault("app.appName", "Risk Based Internal Audit Auth Service")
 	viper.SetDefault("app.appEnv", "development")
@@ -101,6 +110,8 @@ func setDefaults() {
 	viper.SetDefault("kafka_consumer.topics", []string{"events"})
 	viper.SetDefault("kafka_consumer.version", "3.6.0")
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
+	viper.SetDefault("smtp.host", "sandbox.smtp.mailtrap.io")
+	viper.SetDefault("smtp.port", 2525)
 }
 
 func Load(configPath string) (*Config, error) {
