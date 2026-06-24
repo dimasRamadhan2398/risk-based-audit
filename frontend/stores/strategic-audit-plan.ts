@@ -27,14 +27,16 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const form = ref<Partial<StrategicAuditPlan>>({
         code: '',
-        strategicObjective: '',
+        corporateStrategicObjective: '',
         kpi: '',
-        unit: '',
-        hibHig: 'HIG',
+        unitOfMeasurement: '',
+        dataType: 'HIG',
         periodType: 'Quartal',
         selectedPeriod: 'Q1',
         yearStart: currentYear,
         yearEnd: currentYear + 4,
+        kpiTargets: {},
+        internalAuditSO: '',
         actual: '',
         target: '',
         calculation: '',
@@ -61,7 +63,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         if (!form.value.actual || !form.value.target) return '';
 
         let result = 0;
-        if (form.value.hibHig === 'HIG') {
+        if (form.value.dataType === 'HIG') {
             if (target === 0) return '';
             result = (actual / target) * 100;
         } else {
@@ -78,7 +80,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         if (!form.value.actual || !form.value.target) return '';
 
         let ratio = 0;
-        if (form.value.hibHig === 'HIG') {
+        if (form.value.dataType === 'HIG') {
             if (target === 0) return '';
             ratio = actual / target;
         } else {
@@ -93,14 +95,16 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const mockObjectives: StrategicAuditPlan[] = [
         {
-            id: 1,
+            id: '1',
             code: 'SO-IA01',
-            strategicObjective: 'Improve Audit Efficiency',
+            corporateStrategicObjective: 'Improve Audit Efficiency',
             kpi: 'Revenue Operational Cost',
-            unit: '%',
-            hibHig: 'HIG',
+            unitOfMeasurement: '%',
+            dataType: 'HIG',
             periodType: 'Quartal',
             selectedPeriod: 'Q1',
+            kpiTargets: { 2024: '300', 2025: '350', 2026: '400', 2027: '450', 2028: '500' },
+            internalAuditSO: 'Optimize resource allocation',
             actual: '100',
             target: '300',
             calculation: '33.33%',
@@ -184,7 +188,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             cell: (row) => row.getValue(),
         },
         {
-            accessorKey: 'strategicObjective',
+            accessorKey: 'corporateStrategicObjective',
             header: 'Strategic Objective',
         },
         {
@@ -192,7 +196,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             header: 'KPI Name',
         },
         {
-            accessorKey: 'unit',
+            accessorKey: 'unitOfMeasurement',
             header: 'Unit',
         },
         {
@@ -243,14 +247,16 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const resetForm = () => {
         form.value = {
             code: '',
-            strategicObjective: '',
+            corporateStrategicObjective: '',
             kpi: '',
-            unit: '',
-            hibHig: 'HIG',
+            unitOfMeasurement: '',
+            dataType: 'HIG',
             periodType: 'Quartal',
             selectedPeriod: 'Q1',
             yearStart: currentYear,
             yearEnd: currentYear + 4,
+            kpiTargets: {},
+            internalAuditSO: '',
             actual: '',
             target: '',
             calculation: '',

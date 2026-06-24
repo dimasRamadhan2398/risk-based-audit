@@ -9,6 +9,8 @@ import (
 
 type ActionTakenReport struct {
 	ID                  uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	AuditFindingID      *uuid.UUID     `gorm:"type:uuid;index" json:"audit_finding_id"`
+	AuditFinding        *AuditFinding  `gorm:"foreignKey:AuditFindingID" json:"audit_finding"`
 	AuditRef            string         `gorm:"type:varchar(100);not null" json:"auditRef"`
 	Title               string         `gorm:"type:varchar(255);not null" json:"title"`
 	Department          string         `gorm:"type:varchar(100)" json:"department"`

@@ -245,10 +245,13 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
       const impact = (assessment && assessment[`impact_${periodKey}`]) ? assessment[`impact_${periodKey}`] : risk.impact
       const likelihood = (assessment && assessment[`likelihood_${periodKey}`]) ? assessment[`likelihood_${periodKey}`] : risk.likelihood
 
+      const riskLevel = assessment ? assessment[`risk_level_${periodKey}`] : 'Low'
+
       return {
         ...risk,
         impact: impact || 3,
-        likelihood: likelihood || 3
+        likelihood: likelihood || 3,
+        riskLevel: riskLevel || 'Low'
       }
     })
   })
@@ -386,7 +389,8 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
           ast = {
             year: selectedYear.value,
             impact_q1: rawRisk.impact || 3, impact_q2: rawRisk.impact || 3, impact_q3: rawRisk.impact || 3, impact_q4: rawRisk.impact || 3,
-            likelihood_q1: rawRisk.likelihood || 3, likelihood_q2: rawRisk.likelihood || 3, likelihood_q3: rawRisk.likelihood || 3, likelihood_q4: rawRisk.likelihood || 3
+            likelihood_q1: rawRisk.likelihood || 3, likelihood_q2: rawRisk.likelihood || 3, likelihood_q3: rawRisk.likelihood || 3, likelihood_q4: rawRisk.likelihood || 3,
+            risk_level_q1: 'Low', risk_level_q2: 'Low', risk_level_q3: 'Low', risk_level_q4: 'Low'
           }
           assessments.push(ast)
         }
@@ -398,6 +402,9 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
           }
           if (updatedRisk[`likelihood_${q}`] !== undefined) {
             ast[`likelihood_${q}`] = updatedRisk[`likelihood_${q}`]
+          }
+          if (updatedRisk[`risk_level_${q}`] !== undefined) {
+            ast[`risk_level_${q}`] = updatedRisk[`risk_level_${q}`]
           }
         })
 

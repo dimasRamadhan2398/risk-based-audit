@@ -18,6 +18,10 @@ type RiskAssessment struct {
 	LikelihoodQ2   int       `gorm:"type:int;default:0" json:"likelihood_q2"`
 	LikelihoodQ3   int       `gorm:"type:int;default:0" json:"likelihood_q3"`
 	LikelihoodQ4   int       `gorm:"type:int;default:0" json:"likelihood_q4"`
+	RiskLevelQ1    string    `gorm:"type:varchar(50)" json:"risk_level_q1"`
+	RiskLevelQ2    string    `gorm:"type:varchar(50)" json:"risk_level_q2"`
+	RiskLevelQ3    string    `gorm:"type:varchar(50)" json:"risk_level_q3"`
+	RiskLevelQ4    string    `gorm:"type:varchar(50)" json:"risk_level_q4"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }
