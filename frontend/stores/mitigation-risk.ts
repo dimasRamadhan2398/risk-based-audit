@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import type { RiskMitigation, RiskMitigationForm } from '~/types/risk'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 
 export const useMitigationStore = defineStore('mitigation', () => {
     // --- STATE ---
@@ -98,9 +99,13 @@ export const useMitigationStore = defineStore('mitigation', () => {
         loading.value = true
         errorMsg.value = ''
         try {
+            const riskProfileStore = useRiskProfileStore()
+            const risk = riskProfileStore.getRiskById(currentRiskId)
+            const riskName = risk ? risk.name : 'Risk Mitigation'
             const baseUrl = getRiskServiceBaseUrl()
             const payload = {
                 ...form,
+                riskEvent: form.riskEvent || riskName,
                 riskId: currentRiskId,
                 start_date: form.start_date ? new Date(form.start_date).toISOString() : undefined,
                 end_date: form.end_date ? new Date(form.end_date).toISOString() : undefined
@@ -122,6 +127,32 @@ export const useMitigationStore = defineStore('mitigation', () => {
         } catch (error: any) {
             console.error('Failed to save mitigation:', error)
             errorMsg.value = 'Failed to save mitigation.'
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const updateMitigationMonitoring = async (id: string, monitoring: any[], currentRiskId: string) => {
+        loading.value = true
+        errorMsg.value = ''
+        try {
+            const baseUrl = getRiskServiceBaseUrl()
+            const existing = mitigations.value.find(m => m.id === id)
+            if (!existing) return
+            
+            const payload = {
+                ...existing,
+                monitoring
+            }
+            
+            await $fetch(`${baseUrl}/mitigations/${id}`, {
+                method: 'PUT',
+                body: payload
+            })
+            await fetchMitigations(currentRiskId)
+        } catch (error: any) {
+            console.error('Failed to update monitoring:', error)
+            errorMsg.value = 'Failed to update monitoring.'
         } finally {
             loading.value = false
         }
@@ -149,6 +180,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
         mitigations, isFormOpen, isEditing, form, getMitigationsByRiskId,
         supervisorOptions, unitInChargeOptions, picOptions,
         openForm, closeForm, handleSubmit, deleteMitigation, fetchMitigations,
+        updateMitigationMonitoring,
         loading, errorMsg
     }
 })

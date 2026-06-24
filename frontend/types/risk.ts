@@ -14,26 +14,42 @@ export enum RiskTaxonomy {
 
 }
 
+export interface RiskAssessment {
+  id?: string
+  risk_register_id?: string
+  year: number
+  impact_q1: number
+  impact_q2: number
+  impact_q3: number
+  impact_q4: number
+  likelihood_q1: number
+  likelihood_q2: number
+  likelihood_q3: number
+  likelihood_q4: number
+}
+
 export interface Risk {
   id: string
-  risk_name: string
+  name: string
   category: string
   impact: number // 1-5
   likelihood: number // 1-5
   severity: number // 1-100
   description: string
-  department?: string
+  branch?: string
+  assessments?: RiskAssessment[]
 }
 
 export interface RiskForm {
-  id: string
-  risk_name: string
+  id?: string
+  name: string
   category: string
   impact: number // 1-5
   likelihood: number // 1-5
   severity: number // 1-100
   description: string
-  department?: string
+  branch?: string
+  assessments?: RiskAssessment[]
 }
 
 export enum ImpactLevel {
@@ -63,6 +79,7 @@ export interface RiskMitigation {
   start_date: string
   end_date: string
   notes?: string
+  monitoring?: any[]
 }
 
 export interface RiskMitigationForm {
@@ -74,4 +91,5 @@ export interface RiskMitigationForm {
   start_date: string
   end_date: string
   notes: string
+  monitoring?: any[]
 }

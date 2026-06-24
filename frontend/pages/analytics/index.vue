@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { format } from 'date-fns'
 import { Line, Bar, Doughnut, Scatter } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -32,6 +33,9 @@ import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler)
 
 // ─── Data ───────────────────────────────────────────────────────────────────
+const config = useRuntimeConfig()
+const ANALYTICS_API_URL = config.public.analyticsApiBase
+
 const xgboost = useXGBoostData()
 const isolation = useIsolationForestData()
 const nlp = useIndoBERTData()
@@ -484,7 +488,7 @@ const keywordColor = (category: string): BadgeColor => {
     <div class="relative mb-8 p-6 rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 shadow-2xl shadow-indigo-500/20 overflow-hidden">
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGg2MHY2MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zMCAwdjYwTTAgMzBoNjAiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCBmaWmdPSJ1cmwoI2cpIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+')] opacity-50" />
       <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
+        <UCard class="flex items-center gap-4">
           <div class="w-14 h-14 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
             <UIcon name="i-heroicons-cpu-chip" class="w-8 h-8 text-white" />
           </div>

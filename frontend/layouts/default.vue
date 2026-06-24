@@ -202,7 +202,7 @@ const userDropdownItems = computed(() => [
   <UDashboardPanel>
     <template #header>
         <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)]">
-          <h1 class="text-xl font-semibold text-[var(--text-main)]">RBIA System</h1>
+          <h1 class="text-xl font-semibold text-[var(--text-main)]">AUDITSPHERE</h1>
           <div class="flex items-center gap-4">
             <UColorModeButton />
             <UButton v-if="!authStore.isLoggedIn" to="/auth/login" color="primary" variant="solid">Login</UButton>
