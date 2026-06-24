@@ -109,6 +109,8 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.WorkingPaper{},
 		&models.AuditResultReport{},
 		&models.ActionTakenReport{},
+		&models.KPIAchievement{},
+		&models.WorkPlanRealization{},
 	}
 
 	if migrateDryRun {
@@ -151,6 +153,8 @@ func runMigrateDown(cmd *cobra.Command, args []string) error {
 	// Drop tables in reverse order of dependencies
 	tablesToDrop := []string{
 		"action_taken_reports",
+		"work_plan_realizations",
+		"kpi_achievements",
 		"audit_result_reports",
 		"working_paper_plans",
 		"working_paper_causes",
@@ -227,6 +231,8 @@ func runMigrateStatus(cmd *cobra.Command, args []string) error {
 		"working_paper_plans",
 		"audit_result_reports",
 		"action_taken_reports",
+		"kpi_achievements",
+		"work_plan_realizations",
 	}
 
 	logger.Info(fmt.Sprintf("\nDatabase: %s", cfg.Database.Name))

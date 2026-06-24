@@ -116,6 +116,7 @@ func (WorkingPaperPlan) TableName() string {
 type WorkingPaper struct {
 	ID             uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	ActivityPlanID uuid.UUID      `gorm:"type:uuid;not null;index" json:"activity_plan_id"`
+	ActivityPlan   AuditActivity  `gorm:"foreignKey:ActivityPlanID" json:"activity_plan"`
 	PreparedByID   uuid.UUID      `gorm:"type:uuid;not null" json:"prepared_by_id"`
 	ReviewedByID   *uuid.UUID     `gorm:"type:uuid" json:"reviewed_by_id"`
 	PaperCode      string         `gorm:"type:varchar(50);uniqueIndex;not null" json:"paper_code"`

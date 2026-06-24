@@ -19,7 +19,8 @@ const (
 type AuditFinding struct {
 	ID               uuid.UUID       `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	ActivityPlanID   uuid.UUID       `gorm:"type:uuid;not null;index" json:"activity_plan_id"`
-	
+	ActivityPlan     AuditActivity   `gorm:"foreignKey:ActivityPlanID" json:"activity_plan"`
+
 	// Optional: A finding is usually derived from a specific working paper
 	WorkingPaperID   *uuid.UUID      `gorm:"type:uuid;index" json:"working_paper_id"`
 	WorkingPaper     *WorkingPaper   `gorm:"foreignKey:WorkingPaperID" json:"working_paper,omitempty"`
