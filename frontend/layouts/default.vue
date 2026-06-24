@@ -26,7 +26,7 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/risk-profile'
   }, 
   {
-    label: '3. Strategic Plan Internal Audit',
+    label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
     children: [
