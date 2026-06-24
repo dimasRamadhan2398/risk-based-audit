@@ -165,6 +165,10 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+
+      // Transform planned activities to match backend expectations if needed
+      // but for now we follow existing structure and just ensure fields are there
+
       if (isEditMode.value) {
         const planId = (formState.value as ActivityPlan).id;
         await $fetch(`${baseUrl}/activity-plans/${planId}`, {
@@ -172,10 +176,26 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
           body: formState.value
         });
       } else {
+        // Also save to audit-activities if they are separate in backend
         await $fetch(`${baseUrl}/activity-plans`, {
           method: 'POST',
           body: formState.value
         });
+
+        for (const act of formState.value.plannedActivities) {
+           await $fetch(`${baseUrl}/audit-activities`, {
+             method: 'POST',
+             body: {
+                title: act.auditName,
+                engagement_subject: act.auditee,
+                audit_type: act.category,
+                justification: act.priority, // or mapped differently
+                audit_purpose: 'Standard Audit',
+                team_size: act.numberOfAuditors,
+                status: 'PLANNED'
+             }
+           });
+        }
       }
       closeModal();
       await fetchPlans();

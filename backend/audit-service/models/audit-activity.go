@@ -74,10 +74,19 @@ type AuditActivity struct {
 	// Link to Master Data: Which unit is being audited?
 	TargetUnitID uuid.UUID `gorm:"type:uuid;not null;index" json:"target_unit_id"`
 
-	ProjectCode string `gorm:"type:varchar(50);uniqueIndex;not null" json:"project_code"`
-	Title       string `gorm:"type:varchar(255);not null" json:"title"`
-	Objective   string `gorm:"type:text" json:"objective"`
-	Scope       string `gorm:"type:text" json:"scope"`
+	ProjectCode     string    `gorm:"type:varchar(50);uniqueIndex;not null" json:"project_code"`
+	Title           string    `gorm:"type:varchar(255);not null" json:"title"`
+	AuditType       string    `gorm:"type:varchar(100)" json:"audit_type"` // e.g., Assurance, Special, Investigation
+	AuditUniverseID uuid.UUID `gorm:"type:uuid" json:"audit_universe_id"`
+	Justification   string    `gorm:"type:text" json:"justification"`
+	AuditPurpose    string    `gorm:"type:text" json:"audit_purpose"`
+	AuditFocus      string    `gorm:"type:text" json:"audit_focus"`
+	TeamSize        int       `gorm:"type:int" json:"team_size"`
+	TotalMandays    int       `gorm:"type:int" json:"total_mandays"`
+	TeamLeaderID    uuid.UUID `gorm:"type:uuid" json:"team_leader_id"`
+
+	Objective string `gorm:"type:text" json:"objective"`
+	Scope     string `gorm:"type:text" json:"scope"`
 
 	PlannedStart time.Time `json:"planned_start"`
 	PlannedEnd   time.Time `json:"planned_end"`

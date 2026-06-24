@@ -1,8 +1,19 @@
 <script setup lang="ts">
-const cards = [
+import { usePerformanceStore } from '~/stores/performance'
+import { computed } from 'vue'
+
+const store = usePerformanceStore()
+
+const completionRate = computed(() => {
+  if (store.workPlanRealizations.length === 0) return '97%'
+  const avg = store.workPlanRealizations.reduce((acc, curr) => acc + curr.realization_rate, 0) / store.workPlanRealizations.length
+  return `${avg.toFixed(0)}%`
+})
+
+const cards = computed(() => [
   {
     title: 'Audit Completion Rate',
-    value: '97%',
+    value: completionRate.value,
     target: '90%',
     trend: '6.9% from last month',
     trendUp: true,
