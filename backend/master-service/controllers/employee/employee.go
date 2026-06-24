@@ -19,6 +19,9 @@ type EmployeeController struct {
 	employeeSvc employeeSvc.EmployeeServiceInterface
 }
 func NewEmployeeController(employeeSvc employeeSvc.EmployeeServiceInterface, validator *validations.Validator) EmployeeControllerInterface {
+	if validator == nil {
+		validator = validations.New()
+	}
 	return &EmployeeController{BaseController: base.NewBaseController(validator), employeeSvc: employeeSvc}
 }
 func (d *EmployeeController) FindAll(ctx *gin.Context) {

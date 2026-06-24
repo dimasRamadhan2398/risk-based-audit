@@ -4,6 +4,8 @@ import (
 	"master-service/pkg/base"
 	apperrors "master-service/pkg/errors"
 	repo "master-service/repositories/company"
+	"strings"
+
 	"github.com/google/uuid"
 )
 type CompanyServiceInterface interface {
@@ -16,6 +18,19 @@ type CompanyServiceInterface interface {
 type CompanyService struct { companyRepo repo.ICompanyRepository }
 func NewCompanyService(companyRepo repo.ICompanyRepository) CompanyServiceInterface { return &CompanyService{companyRepo: companyRepo} }
 func (s *CompanyService) Create(ctx *base.BaseService, company *models.Company) (*models.Company, error) {
+	if s.companyRepo == nil {
+		return nil, apperrors.Wrap("SERVICE_UNAVAILABLE", "Company repository is unavailable", 500, nil)
+	}
+	if company == nil {
+		return nil, apperrors.Wrap("INVALID_REQUEST", "Company payload is required", 400, nil)
+	}
+
+	company.CompanyCode = strings.TrimSpace(company.CompanyCode)
+	company.CompanyName = strings.TrimSpace(company.CompanyName)
+	if company.CompanyCode == "" {
+		return nil, apperrors.Wrap("VALIDATION_ERROR", "Company code is required", 400, nil)
+	}
+
 	if _, err := s.companyRepo.FindByCode(company.CompanyCode); err == nil {
 		return nil, apperrors.Wrap("COMPANY_CODE_ALREADY_EXISTS", "Company code already exists", 409, nil)
 	} else if err != apperrors.ErrNotFound {
@@ -52,6 +67,13 @@ func (s *CompanyService) FindById(ctx *base.BaseService, id string) (*models.Com
 	return company, nil
 }
 func (s *CompanyService) Update(ctx *base.BaseService, id string, company *models.Company) (*models.Company, error) {
+	if s.companyRepo == nil {
+		return nil, apperrors.Wrap("SERVICE_UNAVAILABLE", "Company repository is unavailable", 500, nil)
+	}
+	if company == nil {
+		return nil, apperrors.Wrap("INVALID_REQUEST", "Company payload is required", 400, nil)
+	}
+
 	companyID, err := uuid.Parse(id)
 	if err != nil { return nil, apperrors.Wrap("INVALID_COMPANY_ID", "Invalid company ID format", 400, err) }
 	existingCompany, err := s.companyRepo.FindByID(companyID)

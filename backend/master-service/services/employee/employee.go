@@ -5,6 +5,7 @@ import (
 	"master-service/pkg/base"
 	apperrors "master-service/pkg/errors"
 	repo "master-service/repositories/employee"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -28,6 +29,22 @@ func NewEmployeeService(employeeRepo repo.IEmployeeRepository) EmployeeServiceIn
 }
 
 func (s *EmployeeService) Create(ctx *base.BaseService, employee *models.Employee) (*models.Employee, error) {
+	if s.employeeRepo == nil {
+		return nil, apperrors.Wrap("SERVICE_UNAVAILABLE", "Employee repository is unavailable", 500, nil)
+	}
+	if employee == nil {
+		return nil, apperrors.Wrap("INVALID_REQUEST", "Employee payload is required", 400, nil)
+	}
+
+	employee.EmployeeCode = strings.TrimSpace(employee.EmployeeCode)
+	employee.Email = strings.TrimSpace(strings.ToLower(employee.Email))
+	if employee.EmployeeCode == "" {
+		return nil, apperrors.Wrap("VALIDATION_ERROR", "Employee code is required", 400, nil)
+	}
+	if employee.Email == "" {
+		return nil, apperrors.Wrap("VALIDATION_ERROR", "Employee email is required", 400, nil)
+	}
+
 	if _, err := s.employeeRepo.FindByCode(employee.EmployeeCode); err == nil {
 		return nil, apperrors.Wrap("EMPLOYEE_CODE_ALREADY_EXISTS", "Employee code already exists", 409, nil)
 	} else if err != apperrors.ErrNotFound {
@@ -101,6 +118,22 @@ func (s *EmployeeService) FindById(ctx *base.BaseService, id string) (*models.Em
 }
 
 func (s *EmployeeService) Update(ctx *base.BaseService, id string, employee *models.Employee) (*models.Employee, error) {
+	if s.employeeRepo == nil {
+		return nil, apperrors.Wrap("SERVICE_UNAVAILABLE", "Employee repository is unavailable", 500, nil)
+	}
+	if employee == nil {
+		return nil, apperrors.Wrap("INVALID_REQUEST", "Employee payload is required", 400, nil)
+	}
+
+	employee.EmployeeCode = strings.TrimSpace(employee.EmployeeCode)
+	employee.Email = strings.TrimSpace(strings.ToLower(employee.Email))
+	if employee.EmployeeCode == "" {
+		return nil, apperrors.Wrap("VALIDATION_ERROR", "Employee code is required", 400, nil)
+	}
+	if employee.Email == "" {
+		return nil, apperrors.Wrap("VALIDATION_ERROR", "Employee email is required", 400, nil)
+	}
+
 	employeeID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, apperrors.Wrap("INVALID_EMPLOYEE_ID", "Invalid employee ID format", 400, err)

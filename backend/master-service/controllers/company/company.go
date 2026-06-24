@@ -19,6 +19,9 @@ type CompanyController struct {
 	companySvc companySvc.CompanyServiceInterface
 }
 func NewCompanyController(companySvc companySvc.CompanyServiceInterface, validator *validations.Validator) CompanyControllerInterface {
+	if validator == nil {
+		validator = validations.New()
+	}
 	return &CompanyController{BaseController: base.NewBaseController(validator), companySvc: companySvc}
 }
 func (d *CompanyController) FindAll(ctx *gin.Context) {
