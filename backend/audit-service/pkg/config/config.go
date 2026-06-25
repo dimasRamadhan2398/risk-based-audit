@@ -23,14 +23,21 @@ type KafkaConsumerConfig struct {
 }
 
 type Config struct {
-	Server           ServerConfig        `mapstructure:"server"`
-	Database         DatabaseConfig      `mapstructure:"database"`
-	Redis            RedisConfig         `mapstructure:"redis"`
-	JWT              JWTConfig           `mapstructure:"jwt"`
-	Log              LogConfig           `mapstructure:"log"`
-	Kafka            KafkaConfig         `mapstructure:"kafka"`
-	KafkaConsumer    KafkaConsumerConfig `mapstructure:"kafka_consumer"`
-	App              AppMeta             `mapstructure:"app"      json:"app"`
+	Server        ServerConfig        `mapstructure:"server"`
+	Database      DatabaseConfig      `mapstructure:"database"`
+	Redis         RedisConfig         `mapstructure:"redis"`
+	JWT           JWTConfig           `mapstructure:"jwt"`
+	Log           LogConfig           `mapstructure:"log"`
+	Kafka         KafkaConfig         `mapstructure:"kafka"`
+	KafkaConsumer KafkaConsumerConfig `mapstructure:"kafka_consumer"`
+	ImageKit      ImageKitConfig      `mapstructure:"imagekit"`
+	App           AppMeta             `mapstructure:"app"      json:"app"`
+}
+
+type ImageKitConfig struct {
+	PublicKey   string `mapstructure:"public_key"`
+	PrivateKey  string `mapstructure:"private_key"`
+	UrlEndpoint string `mapstructure:"url_endpoint"`
 }
 
 type AppMeta struct {
