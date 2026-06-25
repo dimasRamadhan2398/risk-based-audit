@@ -94,6 +94,7 @@ func (s *MfaService) SetupMFA(ctx context.Context, userID uuid.UUID, mfaType mod
 		if err != nil {
 			return nil, apperrors.Wrap("GENERATE_SECRET_FAILED", "Failed to generate secret", 500, nil)
 		}
+		mfa.SecretKey = secret
 		response.Secret = secret
 		response.QRCodeURL = generateTOTPURL(user.Email, secret, "auth-service")
 	case models.MFATypeEmail:
