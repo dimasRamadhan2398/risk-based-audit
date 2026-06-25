@@ -279,4 +279,10 @@ func (h *RouteHandler) RegisterRoutes() {
 		actionTakenReports.PUT("/:id", crud.Update(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
 		actionTakenReports.DELETE("/:id", crud.Delete(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
 	}
+
+	// 19. Media routes
+	media := apiV1.Group("/media")
+	{
+		media.POST("/upload", h.registry.Media.Upload)
+	}
 }
