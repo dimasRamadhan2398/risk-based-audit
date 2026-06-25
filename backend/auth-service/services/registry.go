@@ -18,7 +18,14 @@ type Registry struct {
 
 // NewAuthService implements IServiceRegistry.
 func (r *Registry) GetAuthService() authServices.AuthServiceInterface {
-	return authServices.NewAuthService(r.repository.GetUserRepository(), r.repository.GetCacheRepository().GetClient(), r.repository.GetConfig(), r.repository.GetKafkaProducer())
+	return authServices.NewAuthService(
+		r.repository.GetUserRepository(),
+		r.repository.GetMFASetupRepository(),
+		r.repository.GetTrustedDeviceRepository(),
+		r.repository.GetCacheRepository().GetClient(),
+		r.repository.GetConfig(),
+		r.repository.GetKafkaProducer(),
+	)
 }
 
 // GetEmailService implements IServiceRegistry.

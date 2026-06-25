@@ -128,8 +128,12 @@ const handleLogin = async (event: FormSubmitEvent<Schema>) => {
   error.value = "";
 
   try {
-    await authStore.loginDummy(event.data);
-    router.push("/dashboard");
+    const result = await authStore.login(event.data);
+    if (result.mfaRequired) {
+      router.push("/auth/mfa-login");
+    } else {
+      router.push("/dashboard");
+    }
   } catch (err: any) {
     error.value = err.message || t("auth.login.error");
   } finally {
