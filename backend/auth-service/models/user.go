@@ -20,6 +20,8 @@ type User struct {
 	IsActive  bool      `gorm:"default:true" json:"is_active"`
 	Roles     []Role    `gorm:"many2many:user_roles;" json:"roles"`
 	LockedUntil     *time.Time     `json:"locked_until,omitempty"` 
+	LastLoginFingerprint string    `gorm:"type:varchar(255)" json:"last_login_fingerprint"`
+	LastLoginAt     *time.Time     `json:"last_login_at"`
 	TrustedDevices []TrustedDevice `gorm:"foreignKey:UserID" json:"trusted_devices"`
 	MFASetup *MFASetup `gorm:"foreignKey:UserID" json:"mfa_setup"`
 	CreatedAt time.Time `json:"created_at"`

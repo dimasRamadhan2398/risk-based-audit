@@ -10,6 +10,9 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  mfaRequired: boolean;
+  mfaToken: string | null;
+  isNewDevice: boolean;
   _initialized: boolean;
 }
 
@@ -18,6 +21,9 @@ export const useAuthStore = defineStore("auth", {
     user: null,
     token: null,
     isAuthenticated: false,
+    mfaRequired: false,
+    mfaToken: null,
+    isNewDevice: false,
     _initialized: false,
   }),
 
@@ -70,7 +76,7 @@ export const useAuthStore = defineStore("auth", {
       const config = useRuntimeConfig();
 
       try {
-        const response = await $fetch<{ user: User; token: string }>(
+        const response = await $fetch<any>(
           `${config.public.apiBase}/auth/login`,
           {
             method: "POST",
@@ -78,19 +84,82 @@ export const useAuthStore = defineStore("auth", {
           },
         );
 
-        this.user = response.user;
-        this.token = response.token;
+        const data = response.data || response;
+
+        if (data.mfa_required) {
+          this.mfaRequired = true;
+          this.mfaToken = data.mfa_token;
+          this.isNewDevice = data.is_new_device;
+          return { mfaRequired: true };
+        }
+
+        this.user = data.user;
+        this.token = data.token;
         this.isAuthenticated = true;
+        this.isNewDevice = data.is_new_device;
 
         // Store token in cookie
         const tokenCookie = useCookie("auth-token", {
           maxAge: credentials.rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24, // 30 days or 1 day
         });
-        tokenCookie.value = response.token;
+        tokenCookie.value = data.token;
 
-        return response;
+        const userCookie = useCookie("auth-user", {
+          maxAge: credentials.rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24,
+        });
+        userCookie.value = JSON.stringify(data.user);
+
+        return data;
       } catch (error: any) {
         throw new Error(error.data?.message || "Login failed");
+      }
+    },
+
+    async verifyMFALogin(code: string, trustDevice: boolean = false) {
+      const config = useRuntimeConfig();
+
+      // Basic device info (ideally use a library for fingerprinting)
+      const deviceInfo = {
+        device_fingerprint: btoa(navigator.userAgent), // Simple fingerprint for now
+        device_name: navigator.platform,
+        device_type: "Web Browser",
+      };
+
+      try {
+        const response = await $fetch<any>(
+          `${config.public.apiBase}/auth/verify-mfa-login`,
+          {
+            method: "POST",
+            body: {
+              mfa_token: this.mfaToken,
+              code: code,
+              trust_device: trustDevice,
+              ...deviceInfo
+            },
+          },
+        );
+
+        const data = response.data || response;
+
+        this.user = data.user;
+        this.token = data.token;
+        this.isAuthenticated = true;
+        this.mfaRequired = false;
+        this.mfaToken = null;
+
+        const tokenCookie = useCookie("auth-token", {
+          maxAge: 60 * 60 * 24 * 30, // 30 days
+        });
+        tokenCookie.value = data.token;
+
+        const userCookie = useCookie("auth-user", {
+          maxAge: 60 * 60 * 24 * 30,
+        });
+        userCookie.value = JSON.stringify(data.user);
+
+        return data;
+      } catch (error: any) {
+        throw new Error(error.data?.message || "MFA verification failed");
       }
     },
 

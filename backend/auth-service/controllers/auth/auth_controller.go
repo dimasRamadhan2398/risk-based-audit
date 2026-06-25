@@ -34,6 +34,7 @@ func getUserAgent(c *gin.Context) string {
 // AuthControllerInterface defines the auth controller interface
 type AuthControllerInterface interface {
 	Login(c *gin.Context)
+	VerifyMFALogin(c *gin.Context)
 	Register(c *gin.Context)
 	Logout(c *gin.Context)
 	ChangePassword(c *gin.Context)
@@ -76,6 +77,35 @@ func (ctrl *AuthController) Login(c *gin.Context) {
 	userAgent := getUserAgent(c)
 
 	result, err := ctrl.authService.Login(c.Request.Context(), &req, ipAddress, userAgent)
+	if err != nil {
+		appErr, ok := err.(*apperrors.AppError)
+		if ok {
+			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		} else {
+			response.InternalServerError(c, err.Error())
+		}
+		return
+	}
+
+	if result.MFARequired {
+		response.OK(c, "MFA required", result)
+		return
+	}
+
+	response.OK(c, "Login successful", result)
+}
+
+// VerifyMFALogin handles MFA verification during login
+func (ctrl *AuthController) VerifyMFALogin(c *gin.Context) {
+	var req models.VerifyMFALoginRequest
+	if !ctrl.ValidateRequest(c, &req) {
+		return
+	}
+
+	ipAddress := getClientIP(c)
+	userAgent := getUserAgent(c)
+
+	result, err := ctrl.authService.VerifyMFALogin(c.Request.Context(), &req, ipAddress, userAgent)
 	if err != nil {
 		appErr, ok := err.(*apperrors.AppError)
 		if ok {
