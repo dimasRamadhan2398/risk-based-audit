@@ -109,6 +109,7 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.WorkingPaper{},
 		&models.AuditResultReport{},
 		&models.ActionTakenReport{},
+		&models.ImportedWorkingPaper{},
 	}
 
 	if migrateDryRun {
@@ -150,6 +151,7 @@ func runMigrateDown(cmd *cobra.Command, args []string) error {
 
 	// Drop tables in reverse order of dependencies
 	tablesToDrop := []string{
+		"imported_working_papers",
 		"action_taken_reports",
 		"audit_result_reports",
 		"working_paper_plans",
@@ -205,6 +207,7 @@ func runMigrateStatus(cmd *cobra.Command, args []string) error {
 
 	// Expected audit tables
 	expectedTables := []string{
+		"imported_working_papers",
 		"audit_charters",
 		"audit_mandates",
 		"audit_assignments",

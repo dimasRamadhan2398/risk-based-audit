@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"audit-service/controllers"
 	"audit-service/controllers/crud"
 	"audit-service/models"
 	"audit-service/pkg/middleware"
@@ -247,6 +248,16 @@ func (h *RouteHandler) RegisterRoutes() {
 		workingPapers.POST("", crud.Create(h.db, "WorkingPaper", func() interface{} { return &models.WorkingPaper{} }))
 		workingPapers.PUT("/:id", crud.Update(h.db, "WorkingPaper", func() interface{} { return &models.WorkingPaper{} }))
 		workingPapers.DELETE("/:id", crud.Delete(h.db, "WorkingPaper", func() interface{} { return &models.WorkingPaper{} }))
+	}
+
+	// 16b. Imported Working Papers
+	importedWorkingPaperCtrl := controllers.NewImportedWorkingPaperController(h.db)
+	importedWorkingPapers := apiV1.Group("/working-papers/imports")
+	{
+		importedWorkingPapers.GET("", importedWorkingPaperCtrl.List)
+		importedWorkingPapers.POST("", importedWorkingPaperCtrl.Import)
+		importedWorkingPapers.DELETE("/:id", importedWorkingPaperCtrl.Delete)
+		importedWorkingPapers.GET("/:id/download", importedWorkingPaperCtrl.Download)
 	}
 
 	// 17. Audit Result Reports

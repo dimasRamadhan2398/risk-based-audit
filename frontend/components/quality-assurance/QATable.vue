@@ -26,7 +26,9 @@
         </template>
 
         <template #result-cell="{ row }: { row: any }">
-          <span class="font-bold">{{ row.original.result }}</span>
+          <span class="font-bold">
+            {{ row.original.type === 'QAR' ? formatOverallConclusion(row.original.result) : row.original.result }}
+          </span>
         </template>
 
         <template #status-cell="{ row }: { row: any }">
@@ -80,4 +82,19 @@
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
+
+const formatOverallConclusion = (result: string) => {
+  if (!result) return '-'
+  const res = result.trim().toLowerCase()
+  if (res === 'g/c*' || res === 'gc' || res.includes('generally')) {
+    return 'Generally Conforms'
+  }
+  if (res === 'fc' || res.includes('fully')) {
+    return 'Fully Conforms'
+  }
+  if (res === 'dnc' || res.includes('does not') || res.includes('doesnot')) {
+    return 'Does Not Conform'
+  }
+  return result
+}
 </script>

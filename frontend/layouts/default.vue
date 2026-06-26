@@ -65,9 +65,14 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/audit-fieldwork',
     children: [
       {
-        label: 'Working Paper',
-        icon: 'i-lucide-users',
+        label: 'Create Working Paper',
+        icon: 'i-lucide-file-plus',
         to: '/working-paper',
+      },
+      {
+        label: 'Import Working Paper',
+        icon: 'i-lucide-upload',
+        to: '/import-working-paper',
       },
     ]
   },
@@ -202,7 +207,7 @@ const userDropdownItems = computed(() => [
   <UDashboardPanel>
     <template #header>
         <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)]">
-          <h1 class="text-xl font-semibold text-[var(--text-main)]">AUDITSPHERE</h1>
+          <Logo class="h-6 w-auto mx-auto text-2xl" />
           <div class="flex items-center gap-4">
             <UColorModeButton />
             <UButton v-if="!authStore.isLoggedIn" to="/auth/login" color="primary" variant="solid">Login</UButton>
