@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/rb-audit/shared"
 	"time"
 
 	"github.com/google/uuid"
@@ -43,7 +42,7 @@ type AuditFinding struct {
 	Status           string          `gorm:"type:varchar(50);default:'OPEN'" json:"status"` // OPEN, RESOLVED, CLOSED, OVERDUE
 
 	// Evidence for the finding
-	Evidence         *shared.MediaAttachment `gorm:"type:jsonb" json:"evidence,omitempty"`
+	Evidence         *MediaAttachment `gorm:"type:jsonb" json:"evidence,omitempty"`
 
 	CreatedAt        time.Time       `json:"created_at"`
 	UpdatedAt        time.Time       `json:"updated_at"`

@@ -21,6 +21,21 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rb_audit_network
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    ports:
+      - "5540:5540"
+    depends_on:
+      redis:
+        condition: service_healthy
     networks:
       - rb_audit_network
 
@@ -32,6 +47,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
     networks:
       - rb_audit_network
 
@@ -42,15 +59,26 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENERS: PLAIN://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAIN:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAIN
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_NUM_PARTITIONS: 3
     volumes:
       - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     networks:
       - rb_audit_network
 
@@ -58,12 +86,15 @@ services:
     image: provectuslabs/kafka-ui:latest
     container_name: rb_audit_kafka_ui
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8085:8080"
     environment:
-      KAFKA_CLUSTERS_0_NAME: rb-audit
+      TZ: Asia/Jakarta
+      KAFKA_CLUSTERS_0_NAME: rb_audit
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     networks:
       - rb_audit_network
 
@@ -73,14 +104,15 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_auth_service
     depends_on:
-      - postgres
-      - redis
-      - kafka
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8001:8001"
     command: sh -c "./auth --config ./pkg/config/config.yaml migrate up && ./auth --config ./pkg/config/config.yaml serve"
-    # volumes:
-    #   - ./auth-service/pkg/config/config.docker.yaml:/app/pkg/config/config.yaml:ro
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -91,9 +123,12 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_analytics_service
     depends_on:
-      - postgres
-      - redis
-      - kafka
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8084:8084"
     networks:
@@ -106,9 +141,12 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_audit_service
     depends_on:
-      - postgres
-      - redis
-      - kafka
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8002:8001"
     command: sh -c "./audit migrate up && ./audit serve"
@@ -122,9 +160,12 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_master_service
     depends_on:
-      - postgres
-      - redis
-      - kafka
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8003:8002"
     command: sh -c "./master migrate up && ./master serve"
@@ -138,9 +179,12 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_risk_service
     depends_on:
-      - postgres
-      - redis
-      - kafka
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8004:8002"
     command: sh -c "./risk up && ./risk serve"
@@ -151,6 +195,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  zookeeper_data:
   kafka_data:
 
 networks:

@@ -1,9 +1,9 @@
 package media
 
 import (
+	"audit-service/models"
 	"audit-service/pkg/config"
 	"context"
-	"github.com/rb-audit/shared"
 	"io"
 	"time"
 
@@ -26,7 +26,7 @@ func NewImageKitProvider(cfg *config.ImageKitConfig) *ImageKitProvider {
 	}
 }
 
-func (p *ImageKitProvider) Upload(ctx context.Context, file io.Reader, fileName string, folder string) (*shared.MediaAttachment, error) {
+func (p *ImageKitProvider) Upload(ctx context.Context, file io.Reader, fileName string, folder string) (*models.MediaAttachment, error) {
 	resp, err := p.client.Files.Upload(ctx, imagekit.FileUploadParams{
 		File:     file,
 		FileName: fileName,
@@ -36,7 +36,7 @@ func (p *ImageKitProvider) Upload(ctx context.Context, file io.Reader, fileName 
 		return nil, err
 	}
 
-	return &shared.MediaAttachment{
+	return &models.MediaAttachment{
 		FileID:     resp.FileID,
 		FileName:   resp.Name,
 		FilePath:   resp.URL,

@@ -12,7 +12,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/imagekit-developer/imagekit-go/v2 v2.8.0
-	github.com/rb-audit/shared v0.0.0-00010101000000-000000000000
+
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v1.8.0
@@ -170,4 +170,4 @@ require (
 	modernc.org/sqlite v1.42.2 // indirect
 )
 
-replace github.com/rb-audit/shared => ../shared
+

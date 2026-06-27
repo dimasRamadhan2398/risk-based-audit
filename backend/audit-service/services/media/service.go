@@ -1,15 +1,15 @@
 package media
 
 import (
+	"audit-service/models"
 	"audit-service/pkg/media"
 	"audit-service/services/base"
 	"context"
-	"github.com/rb-audit/shared"
 	"io"
 )
 
 type MediaServiceInterface interface {
-	UploadFile(ctx context.Context, file io.Reader, fileName string, folder string) (*shared.MediaAttachment, error)
+	UploadFile(ctx context.Context, file io.Reader, fileName string, folder string) (*models.MediaAttachment, error)
 	DeleteFile(ctx context.Context, fileID string) error
 }
 
@@ -25,7 +25,7 @@ func NewMediaService(provider *media.ImageKitProvider) MediaServiceInterface {
 	}
 }
 
-func (s *MediaService) UploadFile(ctx context.Context, file io.Reader, fileName string, folder string) (*shared.MediaAttachment, error) {
+func (s *MediaService) UploadFile(ctx context.Context, file io.Reader, fileName string, folder string) (*models.MediaAttachment, error) {
 	return s.provider.Upload(ctx, file, fileName, folder)
 }
 
