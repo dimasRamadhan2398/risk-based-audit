@@ -110,6 +110,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 		log.Printf("Warning: Seeding failed: %v", err)
 	}
 
+	// Seed initial appetite statements if empty
+	if err := seedInitialAppetite(db); err != nil {
+		log.Printf("Warning: Appetite seeding failed: %v", err)
+	}
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -605,6 +610,110 @@ func runServe(cmd *cobra.Command, args []string) error {
 		}
 	})
 
+	// GET & POST risk appetites
+	mux.HandleFunc("/api/v1/risk-appetite", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(w, r)
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		switch r.Method {
+		case http.MethodGet:
+			var appetites []models.RiskAppetite
+			if err := db.Order("created_at desc").Find(&appetites).Error; err != nil {
+				writeError(w, http.StatusInternalServerError, "DB_ERROR", "Failed to query risk appetites: "+err.Error())
+				return
+			}
+			writeJSON(w, http.StatusOK, appetites)
+
+		case http.MethodPost:
+			var req models.RiskAppetite
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid request body: "+err.Error())
+				return
+			}
+
+			req.ID = uuid.New()
+			if req.Status == "" {
+				req.Status = models.RiskAppetiteStatusDraft
+			}
+
+			if err := db.Create(&req).Error; err != nil {
+				writeError(w, http.StatusInternalServerError, "DB_ERROR", "Failed to create risk appetite: "+err.Error())
+				return
+			}
+
+			writeJSON(w, http.StatusCreated, req)
+
+		default:
+			writeError(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Method not allowed")
+		}
+	})
+
+	// PUT & DELETE risk appetites by ID
+	mux.HandleFunc("/api/v1/risk-appetite/", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(w, r)
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		idStr := strings.TrimPrefix(r.URL.Path, "/api/v1/risk-appetite/")
+		appID, err := uuid.Parse(idStr)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, "INVALID_ID", "Invalid risk appetite ID format")
+			return
+		}
+
+		switch r.Method {
+		case http.MethodPut:
+			var req models.RiskAppetite
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid request body: "+err.Error())
+				return
+			}
+
+			var appetite models.RiskAppetite
+			if err := db.First(&appetite, "id = ?", appID).Error; err != nil {
+				writeError(w, http.StatusNotFound, "NOT_FOUND", "Risk appetite not found")
+				return
+			}
+
+			// Update fields
+			appetite.Statement = req.Statement
+			appetite.ThresholdLimit = req.ThresholdLimit
+			appetite.Status = req.Status
+
+			if err := db.Save(&appetite).Error; err != nil {
+				writeError(w, http.StatusInternalServerError, "DB_ERROR", "Failed to update risk appetite: "+err.Error())
+				return
+			}
+
+			writeJSON(w, http.StatusOK, appetite)
+
+		case http.MethodDelete:
+			var appetite models.RiskAppetite
+			if err := db.First(&appetite, "id = ?", appID).Error; err != nil {
+				writeError(w, http.StatusNotFound, "NOT_FOUND", "Risk appetite not found")
+				return
+			}
+
+			if err := db.Delete(&appetite).Error; err != nil {
+				writeError(w, http.StatusInternalServerError, "DB_ERROR", "Failed to delete risk appetite: "+err.Error())
+				return
+			}
+
+			writeJSON(w, http.StatusOK, map[string]interface{}{
+				"success": true,
+				"message": "Risk appetite deleted successfully",
+			})
+
+		default:
+			writeError(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Method not allowed")
+		}
+	})
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8002"
@@ -878,5 +987,36 @@ func seedInitialRisks(db *gorm.DB) error {
 	}
 
 	log.Println("Seeding finished successfully.")
+	return nil
+}
+
+func seedInitialAppetite(db *gorm.DB) error {
+	var count int64
+	db.Model(&models.RiskAppetite{}).Count(&count)
+	if count > 0 {
+		return nil
+	}
+
+	log.Println("Seeding initial risk appetite statements...")
+	seeds := []models.RiskAppetite{
+		{
+			ID:             uuid.New(),
+			Statement:      "Risiko tingkat Low dan Low to Moderate dapat diterima dan tidak perlu dilakukan mitigasi risiko.",
+			ThresholdLimit: 10.00,
+			Status:         models.RiskAppetiteStatusApproved,
+		},
+		{
+			ID:             uuid.New(),
+			Statement:      "Risiko tingkat Moderate, Moderate to High, dan High harus ditangani dengan melakukan mitigasi risiko yang tepat untuk menurunkan tingkat risiko.",
+			ThresholdLimit: 15.00,
+			Status:         models.RiskAppetiteStatusApproved,
+		},
+	}
+
+	for _, s := range seeds {
+		if err := db.Create(&s).Error; err != nil {
+			return err
+		}
+	}
 	return nil
 }

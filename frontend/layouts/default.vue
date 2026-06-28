@@ -23,7 +23,19 @@ const rawItems: NavigationMenuItem[][] = [[
   {
     label: '2. Risk Profile',
     icon: 'i-lucide-inbox',
-    to: '/risk-profile'
+    to: '/risk-profile',
+    children: [
+      {
+        label: 'Corporate Risk Profile',
+        icon: 'i-lucide-users',
+        to: '/risk-profile',
+      },
+      {
+        label: 'Risk Appetite Statement',
+        icon: 'i-lucide-clipboard-check',
+        to: '/risk-appetite',
+      },
+    ]
   }, 
   {
     label: '3. Strategic Plan Internal Audit',

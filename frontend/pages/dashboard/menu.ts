@@ -24,6 +24,12 @@ export const MenuList = [
     description: "Organization & department risk profiles",
   },
   {
+    name: "Risk Appetite Statement",
+    href: "/risk-appetite",
+    icon: "charter",
+    description: "Manage risk appetite thresholds and mitigation requirements",
+  },
+  {
     name: "Internal Audit",
     href: "/internal-audit",
     icon: "charter",

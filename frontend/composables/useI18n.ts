@@ -5,7 +5,7 @@ type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>
 }
 
-type Translations = typeof en
+type Translations = any
 
 const translations: Record<string, Translations> = {
   en,

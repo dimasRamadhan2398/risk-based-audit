@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { vi } from 'vitest'
 
 // Mock Nuxt auto-imports

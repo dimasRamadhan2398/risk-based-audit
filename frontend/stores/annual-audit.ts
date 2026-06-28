@@ -74,11 +74,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // --- STATE UNTUK FILTER ---
   const searchCode = ref('')
-  const selectedDepartment = ref<string | undefined>(undefined)
-  const selectedStatus = ref<string | undefined>(undefined)
+  const selectedDepartment = ref<AuditDepartment | undefined>(undefined)
+  const selectedStatus = ref<AnnualAuditPlanStatus | undefined>(undefined)
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
   const yearOptions = ['2026', '2027', '2028', '2029', '2030']
+  const departmentOptions = Object.values(AuditDepartment)
+  const statusOptions = Object.values(AnnualAuditPlanStatus)
 
   // --- COMPUTED: FILTER DATA ---
   const filteredPlans = computed(() => {
@@ -593,7 +595,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading,
     filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
     computedQuarters,
-    clearFilters, openViewModal, closeViewModal, toggleMonth, addActivity, removeActivity, handleDownload,
+    clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
+    toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
     getStatusColor, handleFileChange, fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
