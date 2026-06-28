@@ -49,5 +49,8 @@ temp/
 # Docker
 .dockerignore
 
+# Compiled binary
+auth
+
 # Migration files (if you want to version control them, remove this line)
 # migrations/*.sql
