@@ -8,8 +8,10 @@ import (
 	ctrlAssignment "audit-service/controllers/audit_assignment"
 	ctrlCharter "audit-service/controllers/audit_charter"
 	ctrlMandate "audit-service/controllers/audit_mandate"
+	ctrlMedia "audit-service/controllers/media"
 	"audit-service/pkg/database"
 	"audit-service/pkg/logger"
+	"audit-service/pkg/media"
 	"audit-service/pkg/middleware"
 	"audit-service/pkg/redis"
 	"audit-service/repositories"
@@ -18,6 +20,7 @@ import (
 	svcAssignment "audit-service/services/audit_assignment"
 	svcCharter "audit-service/services/audit_charter"
 	svcMandate "audit-service/services/audit_mandate"
+	svcMedia "audit-service/services/media"
 
 	docs "audit-service/docs"
 
@@ -85,17 +88,34 @@ func runServe(cmd *cobra.Command, args []string) error {
 	auditAssignmentRepo := repositories.NewAuditAssignmentRepository(baseRepo)
 	auditActivityRepo := repositories.NewAuditActivityRepository(baseRepo)
 
+	// Initialize Media Provider
+	var mediaProvider media.MediaProvider
+	if cfg.GDrive.Enabled {
+		var err error
+		mediaProvider, err = media.NewGDriveProvider(&cfg.GDrive)
+		if err != nil {
+			logger.Fatal("Failed to initialize Google Drive provider", logger.LogField("error", err))
+			return err
+		}
+		logger.Info("Using Google Drive as media provider")
+	} else {
+		mediaProvider = media.NewImageKitProvider(&cfg.ImageKit)
+		logger.Info("Using ImageKit as media provider")
+	}
+
 	// Initialize services
 	auditCharterSvc := svcCharter.NewAuditCharterService(auditCharterRepo)
 	auditMandateSvc := svcMandate.NewAuditMandateService(auditMandateRepo)
 	auditAssignmentSvc := svcAssignment.NewAuditAssignmentService(auditAssignmentRepo)
 	auditActivitySvc := svcActivity.NewAuditActivityService(auditActivityRepo)
+	mediaSvc := svcMedia.NewMediaService(mediaProvider)
 
 	// Initialize controllers
-	auditCharterCtrl := ctrlCharter.NewAuditCharterController(auditCharterSvc)
+	auditCharterCtrl := ctrlCharter.NewAuditCharterController(auditCharterSvc, mediaSvc)
 	auditMandateCtrl := ctrlMandate.NewAuditMandateController(auditMandateSvc)
 	auditAssignmentCtrl := ctrlAssignment.NewAuditAssignmentController(auditAssignmentSvc)
 	auditActivityCtrl := ctrlActivity.NewAuditActivityController(auditActivitySvc)
+	mediaCtrl := ctrlMedia.NewMediaController(mediaSvc)
 
 	// Initialize route registry
 	routeRegistry := routes.NewRouteRegistry()
@@ -103,6 +123,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	routeRegistry.SetAuditMandateController(auditMandateCtrl)
 	routeRegistry.SetAuditAssignmentController(auditAssignmentCtrl)
 	routeRegistry.SetAuditActivityController(auditActivityCtrl)
+	routeRegistry.SetMediaController(mediaCtrl)
 
 	// Initialize middleware
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)

@@ -38,7 +38,7 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   }, 
   {
-    label: '3. Strategic Plan Internal Audit',
+    label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
     children: [
@@ -242,6 +242,17 @@ const userDropdownItems = computed(() => [
     </template>
     <template #body>
       <div class="min-h-screen bg-[var(--bg-main)] min-w-max transition-colors duration-300">
+        <div v-if="authStore.isNewDevice" class="max-w-7xl mx-auto p-4 pb-0">
+          <UAlert
+            icon="i-lucide-alert-triangle"
+            color="warning"
+            variant="solid"
+            title="Security Warning"
+            description="Your account was recently accessed from a new device. If this wasn't you, please change your password immediately."
+            :closable="true"
+            @close="authStore.isNewDevice = false"
+          />
+        </div>
         <UMain class="max-w-7xl mx-auto">
           <slot />
         </UMain>

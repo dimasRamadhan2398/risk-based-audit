@@ -8,8 +8,11 @@ import (
 
 // LoginRequest represents a login request
 type LoginRequest struct {
-	Username string `json:"username" binding:"required" validate:"required,min=3,max=50"`
-	Password string `json:"password" binding:"required" validate:"required,min=6"`
+	Username          string `json:"username" binding:"required" validate:"required,min=3,max=50"`
+	Password          string `json:"password" binding:"required" validate:"required,min=6"`
+	DeviceFingerprint string `json:"device_fingerprint"`
+	DeviceName        string `json:"device_name"`
+	DeviceType        string `json:"device_type"`
 }
 
 // RegisterRequest represents a register request
@@ -24,9 +27,12 @@ type RegisterRequest struct {
 
 // LoginResponse represents a login response
 type LoginResponse struct {
-	Token     string   `json:"token"`
-	ExpiresAt int64    `json:"expires_at"`
-	User      UserInfo `json:"user"`
+	Token       string   `json:"token,omitempty"`
+	ExpiresAt   int64    `json:"expires_at,omitempty"`
+	User        UserInfo `json:"user,omitempty"`
+	MFARequired bool     `json:"mfa_required"`
+	MFAToken    string   `json:"mfa_token,omitempty"`
+	IsNewDevice bool     `json:"is_new_device"`
 }
 
 // UserInfo represents user information
@@ -132,6 +138,15 @@ type EmailCodeRequest struct {
 	Email string `json:"email" binding:"required" validate:"required,email"`
 }
 
+type VerifyMFALoginRequest struct {
+	MFAToken          string `json:"mfa_token" binding:"required"`
+	Code              string `json:"code" binding:"required"`
+	DeviceFingerprint string `json:"device_fingerprint"`
+	DeviceName        string `json:"device_name"`
+	DeviceType        string `json:"device_type"`
+	TrustDevice       bool   `json:"trust_device"`
+}
+
 type TrustedDeviceRequest struct {
 	DeviceFingerprint string `json:"device_fingerprint" binding:"required" validate:"required"`
 	DeviceName        string `json:"device_name" binding:"required" validate:"required"`
@@ -183,4 +198,18 @@ type PaginatedResponse struct {
     Total  int64       `json:"total"`
     Offset int         `json:"offset"`
     Limit  int         `json:"limit"`
+}
+
+// AcceptConfidentialityRequest represents the body for accepting a confidentiality agreement
+type AcceptConfidentialityRequest struct {
+	AgreementType string `json:"agreement_type" binding:"required"`
+	Title         string `json:"title" binding:"required"`
+	Content       string `json:"content" binding:"required"`
+	Version       string `json:"version" binding:"required"`
+}
+
+// ConfidentialityStatusResponse represents the status check response
+type ConfidentialityStatusResponse struct {
+	HasAccepted bool   `json:"has_accepted"`
+	AcceptedAt  string `json:"accepted_at,omitempty"`
 }

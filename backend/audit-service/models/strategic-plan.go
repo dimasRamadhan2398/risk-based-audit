@@ -18,6 +18,8 @@ type StrategicPlan struct {
 	SelectedPeriod     string         `gorm:"type:varchar(50)" json:"selectedPeriod"`
 	YearStart          int            `gorm:"type:int" json:"yearStart"`
 	YearEnd            int            `gorm:"type:int" json:"yearEnd"`
+	KPITargets         map[int]string `gorm:"serializer:json" json:"kpiTargets"`
+	InternalAuditSO    string         `gorm:"type:text" json:"internalAuditSO"`
 	Actual             string         `gorm:"type:varchar(100)" json:"actual"`
 	Target             string         `gorm:"type:varchar(100)" json:"target"`
 	Calculation        string         `gorm:"type:varchar(100)" json:"calculation"`

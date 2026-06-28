@@ -146,39 +146,6 @@ export const useCharterStore = defineStore('charter', () => {
     form.file = file
   }
 
-  /**
-   * Data Audit Charter dari backend.
-   *
-   * Sebelumnya ini berisi mock data.
-   * Sekarang dikosongkan, lalu diisi dari fetchCharters().
-   */
-  const mockCharters: AuditCharter[] = [
-    {
-      id: '2',
-      title: 'Internal Audit Charter 2026',
-      version: '1.1',
-      date: '2026-01-15',
-      uploadedBy: 'Dimas (HIA)',
-      approvedBy: 'Audit Committee',
-      isActive: true,
-      fileName: 'audit-charter-v1.1_2026.pdf',
-      fileSize: '3.1 MB',
-      fileUrl: '#'
-    },
-    {
-      id: '1',
-      title: 'Internal Audit Charter 2025',
-      version: '1.0',
-      date: '2025-01-01',
-      uploadedBy: 'Dimas (HIA)',
-      approvedBy: 'Board of Directors',
-      isActive: false,
-      fileName: 'audit-charter-v1.0_2025.pdf',
-      fileSize: '2.5 MB',
-      fileUrl: '#'
-    }
-  ]
-
   const charters = ref<AuditCharter[]>([])
 
   // --- LOGIC BARU: GETTER OTOMATISASI VERSI ---
@@ -224,12 +191,12 @@ export const useCharterStore = defineStore('charter', () => {
       if (items.length > 0) {
         charters.value = items.map(mapBackendToFrontend)
       } else {
-        charters.value = [...mockCharters]
+        charters.value = []
       }
     } catch (error: any) {
-      console.error('Failed to fetch audit charters, falling back to mock data:', error)
+      console.error('Failed to fetch audit charters:', error)
       errorMsg.value = 'Gagal mengambil data Audit Charter.'
-      charters.value = [...mockCharters]
+      charters.value = []
     } finally {
       loading.value = false
     }
@@ -240,36 +207,37 @@ export const useCharterStore = defineStore('charter', () => {
    *
    * Ini masih CRUD JSON / metadata.
    * Belum upload file PDF asli.
-   *
-   * Upload file PDF asli nanti perlu endpoint multipart/form-data
-   * di backend, misalnya:
-   * POST /api/v1/audit-charters/upload
+   * Uploads file binary to Google Drive first, then saves charter metadata.
    */
+  const itemFileSizeToBytes = (sizeStr: string | undefined): number => {
+    if (!sizeStr || sizeStr === '-') return 0
+    if (sizeStr.includes(' MB')) {
+      return Math.round(parseFloat(sizeStr.replace(' MB', '')) * 1024 * 1024)
+    }
+    return parseFloat(sizeStr) || 0
+  }
+
   const addCharter = async (form: CharterFormState) => {
     loading.value = true
     errorMsg.value = ''
 
     try {
       const baseUrl = getAuditServiceBaseUrl()
-
       const autoVersion = nextVersion.value
-      const year = new Date(form.date).getFullYear()
-      const fileExt = form.file?.name.split('.').pop() || 'pdf'
 
-      // Gunakan autoVersion untuk penamaan file
-      const generatedFileName = form.file?.name || `audit-charter-v${autoVersion}_${year}.${fileExt}`
-
-      const payload = {
-        filename: generatedFileName,
-        version: autoVersion,
-        title: form.title,
-        content: form.approvedBy || '',
-        is_active: form.isActive,
+      const formData = new FormData()
+      if (form.file) {
+        formData.append('file', form.file)
       }
+      formData.append('title', form.title)
+      formData.append('version', autoVersion)
+      formData.append('approvedBy', form.approvedBy || '')
+      formData.append('isActive', String(form.isActive))
+      formData.append('date', form.date)
 
       await $fetch(`${baseUrl}/audit-charters`, {
         method: 'POST',
-        body: payload,
+        body: formData,
       })
 
       await fetchCharters()
@@ -285,9 +253,7 @@ export const useCharterStore = defineStore('charter', () => {
   /**
    * PUT /api/v1/audit-charters/:id
    *
-   * Ini juga masih update JSON / metadata.
-   * Jika form.file diisi, saat ini yang dikirim baru filename,
-   * bukan file binary.
+   * Updates metadata and optional new file binary.
    */
   const updateCharter = async (id: string, form: CharterFormState) => {
     loading.value = true
@@ -296,19 +262,19 @@ export const useCharterStore = defineStore('charter', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
 
-      const existingCharter = charters.value.find(c => c.id === id)
-
-      const payload = {
-        filename: form.file?.name || existingCharter?.fileName || undefined,
-        version: form.version,
-        title: form.title,
-        content: form.approvedBy || '',
-        is_active: form.isActive,
+      const formData = new FormData()
+      if (form.file) {
+        formData.append('file', form.file)
       }
+      formData.append('title', form.title)
+      formData.append('version', form.version || '')
+      formData.append('approvedBy', form.approvedBy || '')
+      formData.append('isActive', String(form.isActive))
+      formData.append('date', form.date)
 
       await $fetch(`${baseUrl}/audit-charters/${id}`, {
         method: 'PUT',
-        body: payload,
+        body: formData,
       })
 
       await fetchCharters()
@@ -347,21 +313,9 @@ export const useCharterStore = defineStore('charter', () => {
 
   // Submit Handler
   const handleSubmit = async () => {
-    /**
-     * Catatan:
-     * Saat ini endpoint backend yang dipakai masih POST JSON,
-     * belum upload file multipart/form-data.
-     *
-     * Jadi validasi file wajib untuk mode ADD sementara dibuat warning saja,
-     * agar CRUD JSON bisa dites dulu dari frontend.
-     *
-     * Nanti setelah endpoint upload PDF sudah dibuat,
-     * validasi ini bisa dikembalikan menjadi wajib.
-     */
     if (!isEditing.value && !form.file) {
-      console.warn('File belum dikirim karena endpoint upload PDF belum dibuat.')
-      // errorMsg.value = 'Mohon upload file charter.'
-      // return
+      errorMsg.value = 'Mohon upload file charter.'
+      return
     }
 
     try {

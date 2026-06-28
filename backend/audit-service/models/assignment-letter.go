@@ -25,6 +25,9 @@ type AssignmentLetter struct {
 	FinishPeriod    string         `gorm:"type:varchar(100)" json:"finishPeriod"`
 	WorkingUnit     string         `gorm:"type:varchar(255)" json:"workingUnit"`
 	ExecutionPeriod string         `gorm:"type:varchar(255)" json:"executionPeriod"`
+	AuditPurpose    string         `gorm:"type:text" json:"auditPurpose"`
+	LetterDate      *time.Time     `json:"letterDate"`
+	CAESignature    string         `gorm:"type:text" json:"caeSignature"`
 	MembersList     []LetterMember `gorm:"serializer:json" json:"membersList"`
 	PurposeList     []string       `gorm:"serializer:json" json:"purposeList"`
 	ScopeList       []string       `gorm:"serializer:json" json:"scopeList"`

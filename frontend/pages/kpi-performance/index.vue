@@ -4,8 +4,20 @@ import KpiSummaryCards from '~/components/kpi-performance/KpiSummaryCards.vue'
 import KpiCharts from '~/components/kpi-performance/KpiCharts.vue'
 import KpiDetailedTable from '~/components/kpi-performance/KpiDetailedTable.vue'
 
-const year = ref('2026')
+import { usePerformanceStore } from '~/stores/performance'
+import { watch } from 'vue'
+
+const perfStore = usePerformanceStore()
+const year = ref('2024')
 const yearOptions = ['2024', '2025', '2026', '2027']
+
+perfStore.fetchKPIAchievements(parseInt(year.value))
+perfStore.fetchWorkPlanRealizations(parseInt(year.value))
+
+watch(year, (newYear) => {
+  perfStore.fetchKPIAchievements(parseInt(newYear))
+  perfStore.fetchWorkPlanRealizations(parseInt(newYear))
+})
 
 const exportPDF = () => {
   useToast().add({

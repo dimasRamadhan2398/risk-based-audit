@@ -2,6 +2,7 @@ package controllers
 
 import (
 	authCtrl "auth-service/controllers/auth"
+	confidentialityCtrl "auth-service/controllers/confidentiality"
 	mfaCtrl "auth-service/controllers/mfa"
 	userCtrl "auth-service/controllers/user"
 	trustedDevicesCtrl "auth-service/controllers/trusted-devices"
@@ -19,6 +20,7 @@ type IControllerRegistry interface {
 	GetUser() userCtrl.UserControllerInterface
 	GetMfa() mfaCtrl.MfaControllerInterface
 	GetTrustedDevices() trustedDevicesCtrl.TrustedDevicesControllerInterface
+	GetConfidentiality() confidentialityCtrl.ConfidentialityControllerInterface
 }
 
 func NewControllerRegistry(service services.IServiceRegistry, validator *validations.Validator) IControllerRegistry {
@@ -42,4 +44,8 @@ func (r *Registry) GetMfa() mfaCtrl.MfaControllerInterface {
 
 func (r *Registry) GetTrustedDevices() trustedDevicesCtrl.TrustedDevicesControllerInterface {
 	return trustedDevicesCtrl.NewTrustedDevicesController(r.validator, r.service.GetTrustedDevicesService())
+}
+
+func (r *Registry) GetConfidentiality() confidentialityCtrl.ConfidentialityControllerInterface {
+	return confidentialityCtrl.NewConfidentialityController(r.validator, r.service.GetConfidentialityService())
 }
