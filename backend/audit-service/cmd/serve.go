@@ -88,18 +88,30 @@ func runServe(cmd *cobra.Command, args []string) error {
 	auditAssignmentRepo := repositories.NewAuditAssignmentRepository(baseRepo)
 	auditActivityRepo := repositories.NewAuditActivityRepository(baseRepo)
 
-	// Initialize ImageKit Provider
-	ikProvider := media.NewImageKitProvider(&cfg.ImageKit)
+	// Initialize Media Provider
+	var mediaProvider media.MediaProvider
+	if cfg.GDrive.Enabled {
+		var err error
+		mediaProvider, err = media.NewGDriveProvider(&cfg.GDrive)
+		if err != nil {
+			logger.Fatal("Failed to initialize Google Drive provider", logger.LogField("error", err))
+			return err
+		}
+		logger.Info("Using Google Drive as media provider")
+	} else {
+		mediaProvider = media.NewImageKitProvider(&cfg.ImageKit)
+		logger.Info("Using ImageKit as media provider")
+	}
 
 	// Initialize services
 	auditCharterSvc := svcCharter.NewAuditCharterService(auditCharterRepo)
 	auditMandateSvc := svcMandate.NewAuditMandateService(auditMandateRepo)
 	auditAssignmentSvc := svcAssignment.NewAuditAssignmentService(auditAssignmentRepo)
 	auditActivitySvc := svcActivity.NewAuditActivityService(auditActivityRepo)
-	mediaSvc := svcMedia.NewMediaService(ikProvider)
+	mediaSvc := svcMedia.NewMediaService(mediaProvider)
 
 	// Initialize controllers
-	auditCharterCtrl := ctrlCharter.NewAuditCharterController(auditCharterSvc)
+	auditCharterCtrl := ctrlCharter.NewAuditCharterController(auditCharterSvc, mediaSvc)
 	auditMandateCtrl := ctrlMandate.NewAuditMandateController(auditMandateSvc)
 	auditAssignmentCtrl := ctrlAssignment.NewAuditAssignmentController(auditAssignmentSvc)
 	auditActivityCtrl := ctrlActivity.NewAuditActivityController(auditActivitySvc)

@@ -51,6 +51,8 @@ func (s *AuditCharterService) CreateCharter(ctx context.Context, req *models.Cre
 		Title:    req.Title,
 		Content:  req.Content,
 		IsActive: req.IsActive != nil && *req.IsActive,
+		FileUrl:  req.FileUrl,
+		FileSize: req.FileSize,
 	}
 
 	if err := s.repo.Create(charter); err != nil {
@@ -93,6 +95,12 @@ func (s *AuditCharterService) UpdateCharter(ctx context.Context, id uuid.UUID, r
 	}
 	if req.IsActive != nil {
 		charter.IsActive = *req.IsActive
+	}
+	if req.FileUrl != nil {
+		charter.FileUrl = *req.FileUrl
+	}
+	if req.FileSize != nil {
+		charter.FileSize = *req.FileSize
 	}
 
 	if err := s.repo.Update(charter); err != nil {
@@ -224,6 +232,8 @@ func (s *AuditCharterService) toResponse(charter *models.AuditCharter) *models.A
 		Title:     charter.Title,
 		Content:   charter.Content,
 		IsActive:  charter.IsActive,
+		FileUrl:   charter.FileUrl,
+		FileSize:  charter.FileSize,
 		CreatedAt: charter.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt: charter.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}

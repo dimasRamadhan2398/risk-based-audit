@@ -199,3 +199,17 @@ type PaginatedResponse struct {
     Offset int         `json:"offset"`
     Limit  int         `json:"limit"`
 }
+
+// AcceptConfidentialityRequest represents the body for accepting a confidentiality agreement
+type AcceptConfidentialityRequest struct {
+	AgreementType string `json:"agreement_type" binding:"required"`
+	Title         string `json:"title" binding:"required"`
+	Content       string `json:"content" binding:"required"`
+	Version       string `json:"version" binding:"required"`
+}
+
+// ConfidentialityStatusResponse represents the status check response
+type ConfidentialityStatusResponse struct {
+	HasAccepted bool   `json:"has_accepted"`
+	AcceptedAt  string `json:"accepted_at,omitempty"`
+}

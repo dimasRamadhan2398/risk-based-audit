@@ -5,6 +5,7 @@ import (
 	"auth-service/repositories"
 
 	authServices "auth-service/services/auth"
+	confidentialityServices "auth-service/services/confidentiality"
 	emailServices "auth-service/services/email"
 	mfaServices "auth-service/services/mfa"
 	trustedDevicesServices "auth-service/services/trusted-devices"
@@ -48,12 +49,18 @@ func (r *Registry) GetTrustedDevicesService() trustedDevicesServices.TrustedDevi
 	return trustedDevicesServices.NewTrustedDevicesService(r.repository.GetTrustedDeviceRepository(), r.repository.GetUserRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient())
 }
 
+// GetConfidentialityService implements IServiceRegistry.
+func (r *Registry) GetConfidentialityService() confidentialityServices.ConfidentialityServiceInterface {
+	return confidentialityServices.NewConfidentialityService(r.repository.GetConfidentialityAgreementRepository())
+}
+
 type IServiceRegistry interface {
 	GetAuthService() authServices.AuthServiceInterface
 	GetUserService() userServices.UserServiceInterface
 	GetMfaService() mfaServices.MfaServiceInterface
 	GetTrustedDevicesService() trustedDevicesServices.TrustedDevicesServiceInterface
 	GetEmailService() emailServices.EmailServiceInterface
+	GetConfidentialityService() confidentialityServices.ConfidentialityServiceInterface
 }
 func NewServiceRegistry(repository repositories.IRepositoryRegistry) IServiceRegistry {
 	return &Registry{repository: repository}

@@ -15,10 +15,10 @@ type MediaServiceInterface interface {
 
 type MediaService struct {
 	*base.BaseService
-	provider *media.ImageKitProvider
+	provider media.MediaProvider
 }
 
-func NewMediaService(provider *media.ImageKitProvider) MediaServiceInterface {
+func NewMediaService(provider media.MediaProvider) MediaServiceInterface {
 	return &MediaService{
 		BaseService: base.NewBaseService(),
 		provider:    provider,

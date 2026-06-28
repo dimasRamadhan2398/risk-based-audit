@@ -15,7 +15,7 @@ type ImageKitProvider struct {
 	client imagekit.Client
 }
 
-func NewImageKitProvider(cfg *config.ImageKitConfig) *ImageKitProvider {
+func NewImageKitProvider(cfg *config.ImageKitConfig) MediaProvider {
 	client := imagekit.NewClient(
 		option.WithPrivateKey(cfg.PrivateKey),
 		option.WithBaseURL(cfg.UrlEndpoint),
