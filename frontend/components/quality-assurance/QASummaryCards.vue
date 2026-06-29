@@ -44,8 +44,8 @@
           </div>
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-gray-500 font-medium">Compliance Opinion</span>
-              <span class="font-bold">{{ (store.summary.qar as any).result === 'G/C*' ? 'Generally Confirm' : (store.summary.qar as any).result }}</span>
+              <span class="text-gray-500 font-medium">Overall Conclusion</span>
+              <span class="font-bold">{{ formatOverallConclusion((store.summary.qar as any).result) }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-500 font-medium">Cycle</span>
@@ -112,4 +112,18 @@ import { useQualityAssuranceStore, QAStatus } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
 
+const formatOverallConclusion = (result: string) => {
+  if (!result) return '-'
+  const res = result.trim().toLowerCase()
+  if (res === 'g/c*' || res === 'gc' || res.includes('generally')) {
+    return 'Generally Conforms'
+  }
+  if (res === 'fc' || res.includes('fully')) {
+    return 'Fully Conforms'
+  }
+  if (res === 'dnc' || res.includes('does not') || res.includes('doesnot')) {
+    return 'Does Not Conform'
+  }
+  return result
+}
 </script>

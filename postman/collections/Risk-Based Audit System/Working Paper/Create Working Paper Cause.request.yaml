@@ -1,0 +1,30 @@
+$kind: http-request
+name: Create Working Paper Cause
+method: POST
+url: '{{auth_base_url}}/api/v1/working-papers/causes'
+order: 8000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "condition": "Cash discrepancy found",
+      "criteria": "SOP Finance No. 01",
+      "impact": "Financial loss of 5%",
+      "rootCause": [
+        {
+          "id": 1,
+          "method": "People",
+          "w1": "Lack of training",
+          "w2": "No supervision",
+          "w3": "High turnover"
+        }
+      ]
+    }

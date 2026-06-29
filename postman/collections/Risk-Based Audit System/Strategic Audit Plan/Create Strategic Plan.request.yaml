@@ -1,0 +1,29 @@
+$kind: http-request
+name: Create Strategic Plan
+method: POST
+url: '{{auth_base_url}}/api/v1/strategic-audit-plans'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "code": "SO-IA01",
+      "strategicObjective": "Enhance Operational Efficiency",
+      "kpi": "Revenue Operational Cost",
+      "unit": "%",
+      "hibHig": "HIG",
+      "periodType": "Quartal",
+      "selectedPeriod": "Q1",
+      "yearStart": 2026,
+      "yearEnd": 2030,
+      "actual": "100",
+      "target": "300"
+    }

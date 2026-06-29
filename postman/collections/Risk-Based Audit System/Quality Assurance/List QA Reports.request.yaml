@@ -1,0 +1,17 @@
+$kind: http-request
+name: List QA Reports
+method: GET
+url: '{{auth_base_url}}/api/v1/quality-assurance'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+queryParams:
+  - key: type
+    value: ''
+  - key: status
+    value: ''
+  - key: period
+    value: ''

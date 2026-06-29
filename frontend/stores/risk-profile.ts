@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { RiskLevel, ImpactLevel, PossibilityLevel } from '~/types/risk'
 
 // --- Constants (Exported for components) ---
@@ -76,203 +76,133 @@ export const riskLevelConfig = {
 const initialRiskData = [
   {
     id: 1,
-    name: 'Financial Fraud / Corruption',
+    name: 'Target pendapatan dan laba tidak tercapai',
     impact: 5,
-    likelihood: 5,
+    likelihood: 4,
     severity: 98,
     category: 'Financial',
     branch: 'Head Office',
-    description: 'Fraudulent financial activities including embezzlement, bribery, and accounting manipulation.'
+    description: 'Terget pendapatan tidak tercapai karena kinerja tim marketing yang kurang maksimal dan strategi marketing yang tidak efektif.',
+    assessments: [
+      { year: 2026, impact_q1: 5, impact_q2: 4, impact_q3: 3, impact_q4: 2, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 2 }
+    ]
   },
   {
     id: 2,
-    name: 'Cybersecurity Breach',
+    name: 'Target efisiensi biaya operasional dan umum tidak tercapai',
     impact: 5,
     likelihood: 4,
     severity: 95,
-    category: 'Technology',
-    branch: 'Jakarta Branch',
-    description: 'Unauthorized access to critical systems, data theft, or ransomware attacks on infrastructure.'
+    category: 'Financial',
+    branch: 'Head Office',
+    description: 'Target efisiensi biaya operasional dan umum tidak tercapai karena kinerja tim keuangan yang kurang maksimal dan strategi keuangan yang tidak efektif.',
+    assessments: [
+      { year: 2026, impact_q1: 5, impact_q2: 4, impact_q3: 3, impact_q4: 2, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 3, likelihood_q4: 2 }
+    ]
   },
   {
     id: 3,
-    name: 'Regulatory Non-Compliance',
-    impact: 4,
+    name: 'Ancaman terhadap Cyber Security dan perlindungan data pribadi',
+    impact: 5,
     likelihood: 4,
     severity: 88,
-    category: 'Compliance',
-    branch: 'Surabaya Branch',
-    description: 'Failure to adhere to government regulations, industry standards, or legal requirements.'
+    category: 'Technology',
+    branch: 'Head Office',
+    description: 'Ancaman terhadap cyber security dan kebocoran data pelanggan/karyawan.',
+    assessments: [
+      { year: 2026, impact_q1: 5, impact_q2: 4, impact_q3: 3, impact_q4: 2, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 2 }
+    ]
   },
   {
     id: 4,
-    name: 'Abuse of Power / Authority',
-    impact: 5,
-    likelihood: 5,
+    name: 'Terjadinya fraud',
+    impact: 4,
+    likelihood: 4,
     severity: 92,
-    category: 'Governance',
+    category: 'Financial',
     branch: 'Head Office',
-    description: 'Misuse of managerial or executive authority for personal gain or organizational harm.'
+    description: 'Penyalahgunaan wewenang atau kecurangan keuangan di lingkungan internal.',
+    assessments: [
+      { year: 2026, impact_q1: 4, impact_q2: 3, impact_q3: 2, impact_q4: 1, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 1 }
+    ]
   },
   {
     id: 5,
-    name: 'Supply Chain Disruption',
+    name: 'Implementasi teknologi dan digitalisasi tidak berhasil',
     impact: 4,
     likelihood: 3,
     severity: 72,
-    category: 'Operations',
-    branch: 'Bandung Branch',
-    description: 'Critical interruptions in the supply chain due to vendor failures, logistics, or global events.'
+    category: 'Technology',
+    branch: 'Bali Branch',
+    description: 'Kegagalan implementasi sistem baru yang menghambat operasional.',
+    assessments: [
+      { year: 2026, impact_q1: 4, impact_q2: 3, impact_q3: 2, impact_q4: 2, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 2 }
+    ]
   },
   {
     id: 6,
-    name: 'Data Privacy Violation',
-    impact: 5,
+    name: 'Pengembangan kompetensi karyawan tidak terlaksana sesuai rencana',
+    impact: 4,
     likelihood: 3,
-    severity: 85,
-    category: 'Compliance',
-    branch: 'Bali Branch',
-    description: 'Breaches of customer or employee data privacy, violating GDPR/local data protection laws.'
+    severity: 58,
+    category: 'Human Resources',
+    branch: 'Head Office',
+    description: 'Kesenjangan keahlian karyawan akibat program training tidak berjalan.',
+    assessments: [
+      { year: 2026, impact_q1: 4, impact_q2: 3, impact_q3: 2, impact_q4: 2, likelihood_q1: 3, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 2 }
+    ]
   },
   {
     id: 7,
-    name: 'Market Volatility Exposure',
-    impact: 3,
-    likelihood: 4,
-    severity: 65,
-    category: 'Financial',
-    branch: 'Jakarta Branch',
-    description: 'Financial losses due to unpredictable market fluctuations, currency risks, or commodity prices.'
-  },
-  {
-    id: 8,
     name: 'Talent Attrition / Brain Drain',
     impact: 3,
     likelihood: 3,
     severity: 50,
     category: 'Human Resources',
     branch: 'Head Office',
-    description: 'Loss of key employees and institutional knowledge affecting operational continuity.'
+    description: 'Loss of key employees and institutional knowledge affecting operational continuity.',
+    assessments: [
+      { year: 2026, impact_q1: 3, impact_q2: 3, impact_q3: 3, impact_q4: 3, likelihood_q1: 3, likelihood_q2: 3, likelihood_q3: 3, likelihood_q4: 3 }
+    ]
   },
   {
-    id: 9,
+    id: 8,
     name: 'Reputational Damage',
     impact: 4,
     likelihood: 2,
     severity: 75,
     category: 'Strategic',
     branch: 'Surabaya Branch',
-    description: 'Significant brand damage due to public scandals, social media crises, or product failures.'
+    description: 'Significant brand damage due to public scandals, social media crises, or product failures.',
+    assessments: [
+      { year: 2026, impact_q1: 4, impact_q2: 4, impact_q3: 4, impact_q4: 4, likelihood_q1: 2, likelihood_q2: 2, likelihood_q3: 2, likelihood_q4: 2 }
+    ]
   },
   {
-    id: 10,
+    id: 9,
     name: 'Environmental Compliance Failure',
     impact: 3,
     likelihood: 2,
     severity: 55,
     category: 'Compliance',
     branch: 'Bandung Branch',
-    description: 'Violations of environmental regulations leading to fines, shutdowns, or cleanup obligations.'
+    description: 'Violations of environmental regulations leading to fines, shutdowns, or cleanup obligations.',
+    assessments: [
+      { year: 2026, impact_q1: 3, impact_q2: 3, impact_q3: 3, impact_q4: 3, likelihood_q1: 2, likelihood_q2: 2, likelihood_q3: 2, likelihood_q4: 2 }
+    ]
   },
   {
-    id: 11,
+    id: 10,
     name: 'Operational System Failure',
     impact: 4,
     likelihood: 3,
     severity: 70,
     category: 'Technology',
     branch: 'Bali Branch',
-    description: 'Critical failure in core business systems causing operational downtime and revenue loss.'
-  },
-  {
-    id: 12,
-    name: 'Insider Trading',
-    impact: 5,
-    likelihood: 2,
-    severity: 90,
-    category: 'Financial',
-    branch: 'Head Office',
-    description: 'Illegal trading of securities based on material, non-public information by employees.'
-  },
-  {
-    id: 13,
-    name: 'Workplace Safety Incident',
-    impact: 3,
-    likelihood: 2,
-    severity: 58,
-    category: 'Human Resources',
-    branch: 'Surabaya Branch',
-    description: 'Accidents or hazardous conditions leading to employee injury or regulatory action.'
-  },
-  {
-    id: 14,
-    name: 'Third-Party Vendor Risk',
-    impact: 2,
-    likelihood: 3,
-    severity: 40,
-    category: 'Operations',
-    branch: 'Jakarta Branch',
-    description: 'Risks arising from outsourced vendors failing to meet service, security, or compliance standards.'
-  },
-  {
-    id: 15,
-    name: 'Intellectual Property Theft',
-    impact: 4,
-    likelihood: 2,
-    severity: 78,
-    category: 'Strategic',
-    branch: 'Bandung Branch',
-    description: 'Unauthorized copying, use, or distribution of company trade secrets and proprietary technology.'
-  },
-  {
-    id: 16,
-    name: 'Natural Disaster Impact',
-    impact: 5,
-    likelihood: 1,
-    severity: 60,
-    category: 'Operations',
-    branch: 'Bali Branch',
-    description: 'Disruption from earthquakes, floods, hurricanes, or other catastrophic natural events.'
-  },
-  {
-    id: 17,
-    name: 'Interest Rate Fluctuation',
-    impact: 2,
-    likelihood: 4,
-    severity: 35,
-    category: 'Financial',
-    branch: 'Head Office',
-    description: 'Exposure to changing interest rates affecting debt servicing and investment returns.'
-  },
-  {
-    id: 18,
-    name: 'Political / Geopolitical Risk',
-    impact: 3,
-    likelihood: 3,
-    severity: 52,
-    category: 'Strategic',
-    branch: 'Jakarta Branch',
-    description: 'Business disruption from political instability, sanctions, trade wars, or regime changes.'
-  },
-  {
-    id: 19,
-    name: 'Product Liability',
-    impact: 4,
-    likelihood: 1,
-    severity: 68,
-    category: 'Operations',
-    branch: 'Surabaya Branch',
-    description: 'Legal liability from defective products causing harm to consumers or businesses.'
-  },
-  {
-    id: 20,
-    name: 'Pandemic / Health Crisis',
-    impact: 5,
-    likelihood: 2,
-    severity: 82,
-    category: 'Operations',
-    branch: 'Head Office',
-    description: 'Widespread health emergencies causing workforce disruption and operational shutdowns.'
+    description: 'Critical failure in core business systems causing operational downtime and revenue loss.',
+    assessments: [
+      { year: 2026, impact_q1: 4, impact_q2: 4, impact_q3: 4, impact_q4: 4, likelihood_q1: 3, likelihood_q2: 3, likelihood_q3: 3, likelihood_q4: 3 }
+    ]
   }
 ]
 
@@ -287,7 +217,8 @@ const branches = [
 // --- Store Definition ---
 
 export const useRiskProfileStore = defineStore('risk-profile', () => {
-  const risks = ref(initialRiskData.map(r => ({ ...r })))
+  const config = useRuntimeConfig()
+  const rawRisks = ref<any[]>([])
   const branchesList = ref(branches)
 
   // UI State
@@ -296,6 +227,69 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   const isFormOpen = ref(false)
   const isDetailOpen = ref(false)
   const modalMode = ref('preview')
+
+  // Year & Quarter State
+  const selectedYear = ref(2026)
+  const selectedPeriod = ref('Q1')
+
+  const getRiskServiceBaseUrl = () => {
+    return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
+  }
+
+  // Dynamic mapped risks based on selectedYear and selectedPeriod
+  const risks = computed(() => {
+    return rawRisks.value.map(risk => {
+      const assessment = risk.assessments?.find((a: any) => a.year === selectedYear.value)
+      const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', etc.
+
+      const impact = (assessment && assessment[`impact_${periodKey}`]) ? assessment[`impact_${periodKey}`] : risk.impact
+      const likelihood = (assessment && assessment[`likelihood_${periodKey}`]) ? assessment[`likelihood_${periodKey}`] : risk.likelihood
+
+      const riskLevel = assessment ? assessment[`risk_level_${periodKey}`] : 'Low'
+
+      return {
+        ...risk,
+        impact: impact || 3,
+        likelihood: likelihood || 3,
+        riskLevel: riskLevel || 'Low'
+      }
+    })
+  })
+
+  // Load risks from backend
+  const fetchRisks = async () => {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risks`)
+      if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
+        rawRisks.value = response.data.map((r: any, idx: number) => ({
+          ...r,
+          displayId: idx + 1
+        }))
+      } else {
+        rawRisks.value = initialRiskData.map((r: any, idx: number) => ({
+          ...r,
+          displayId: idx + 1
+        }))
+      }
+    } catch (error) {
+      console.error('Failed to fetch risks, falling back to mock data:', error)
+      rawRisks.value = initialRiskData.map((r: any, idx: number) => ({
+        ...r,
+        displayId: idx + 1
+      }))
+    }
+  }
+
+  // Fetch immediately
+  fetchRisks()
+
+  // Helper to re-map display IDs after changes
+  const updateDisplayIds = () => {
+    rawRisks.value.forEach((r: any, idx: number) => {
+      r.displayId = idx + 1
+    })
+  }
 
   // Helpers
   const getRiskLevel = (likelihood?: number, impact?: number): RiskLevel => {
@@ -310,10 +304,22 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     return matrix[likelihood]?.[impact] || RiskLevel.LOW
   }
 
+  const getRiskScore = (likelihood?: number, impact?: number): number => {
+    if (!likelihood || !impact) return 0
+    const matrix: Record<number, Record<number, number>> = {
+      5: { 1: 7, 2: 12, 3: 17, 4: 22, 5: 25 },
+      4: { 1: 4, 2: 9, 3: 14, 4: 19, 5: 24 },
+      3: { 1: 3, 2: 8, 3: 13, 4: 18, 5: 23 },
+      2: { 1: 2, 2: 6, 3: 11, 4: 16, 5: 21 },
+      1: { 1: 1, 2: 5, 3: 10, 4: 15, 5: 20 }
+    }
+    return matrix[likelihood]?.[impact] || 0
+  }
+
   const getFormattedId = (risk: any): string => {
     if (!risk) return 'RSK-000'
     const prefix = categoryPrefixes[risk.category] || 'RSK'
-    const idStr = String(risk.id || 0).padStart(3, '0')
+    const idStr = String(risk.displayId || risk.id || 0).padStart(3, '0')
     return `${prefix}-${idStr}`
   }
 
@@ -339,29 +345,133 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     isDetailOpen.value = true
   }
 
-  function addRisk(newRiskData: any) {
-    // Find the highest existing ID to generate the next one
-    const maxId = risks.value.reduce((max, risk) => (risk.id > max ? risk.id : max), 0)
+  async function addRisk(newRiskData: any) {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risks`, {
+        method: 'POST',
+        body: newRiskData
+      })
+      
+      const isSuccess = response && (response.success || response.id)
+      const responseData = response.data || response
 
-    const newRiskWithId = {
-      ...newRiskData,
-      id: maxId + 1
+      if (isSuccess) {
+        const createdRisk = {
+          ...newRiskData, // Keep intended local data like assessments
+          ...responseData,
+          assessments: newRiskData.assessments, // Force keep nested assessments if backend drops it
+          displayId: rawRisks.value.length + 1
+        }
+        rawRisks.value.push(createdRisk)
+      }
+    } catch (error) {
+      console.error('Failed to add risk:', error)
     }
-    risks.value.push(newRiskWithId)
   }
 
-  function updateRisk(updatedRisk: any) {
-    const idx = risks.value.findIndex(r => r.id === updatedRisk.id)
-    if (idx !== -1) {
-      risks.value[idx] = { ...updatedRisk }
+  async function updateRisk(updatedRisk: any) {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+
+      // Find raw risk to copy assessments
+      const rawRisk = rawRisks.value.find(r => String(r.id) === String(updatedRisk.id))
+      let payload = { ...updatedRisk }
+
+      if (rawRisk) {
+        // Copy raw assessments
+        const assessments = rawRisk.assessments ? JSON.parse(JSON.stringify(rawRisk.assessments)) : []
+
+        // Find or create assessment for selectedYear
+        let ast = assessments.find((a: any) => a.year === selectedYear.value)
+        const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', 'q3', 'q4'
+        if (!ast) {
+          ast = {
+            year: selectedYear.value,
+            impact_q1: rawRisk.impact || 3, impact_q2: rawRisk.impact || 3, impact_q3: rawRisk.impact || 3, impact_q4: rawRisk.impact || 3,
+            likelihood_q1: rawRisk.likelihood || 3, likelihood_q2: rawRisk.likelihood || 3, likelihood_q3: rawRisk.likelihood || 3, likelihood_q4: rawRisk.likelihood || 3,
+            risk_level_q1: 'Low', risk_level_q2: 'Low', risk_level_q3: 'Low', risk_level_q4: 'Low'
+          }
+          assessments.push(ast)
+        }
+
+        // Copy explicitly mapped quarterly values from updatedRisk
+        ['q1', 'q2', 'q3', 'q4'].forEach(q => {
+          if (updatedRisk[`impact_${q}`] !== undefined) {
+            ast[`impact_${q}`] = updatedRisk[`impact_${q}`]
+          }
+          if (updatedRisk[`likelihood_${q}`] !== undefined) {
+            ast[`likelihood_${q}`] = updatedRisk[`likelihood_${q}`]
+          }
+          if (updatedRisk[`risk_level_${q}`] !== undefined) {
+            ast[`risk_level_${q}`] = updatedRisk[`risk_level_${q}`]
+          }
+        })
+
+        // Fallback for drag-and-drop which only updates base impact/likelihood
+        if (updatedRisk[`impact_${periodKey}`] === undefined && updatedRisk.impact !== undefined) {
+          ast[`impact_${periodKey}`] = updatedRisk.impact
+        }
+        if (updatedRisk[`likelihood_${periodKey}`] === undefined && updatedRisk.likelihood !== undefined) {
+          ast[`likelihood_${periodKey}`] = updatedRisk.likelihood
+        }
+
+        // Attach assessments to payload
+        payload.assessments = assessments
+      }
+
+      // Optimistic local update
+      const idx = rawRisks.value.findIndex(r => String(r.id) === String(updatedRisk.id))
+      if (idx !== -1) {
+        const newRawRisks = [...rawRisks.value]
+        newRawRisks[idx] = {
+          ...payload,
+          displayId: newRawRisks[idx].displayId
+        }
+        rawRisks.value = newRawRisks
+      }
+
+      try {
+        const response: any = await $fetch(`${baseUrl}/risks/${updatedRisk.id}`, {
+          method: 'PUT',
+          body: payload
+        })
+        if (response && response.success) {
+          if (idx !== -1) {
+            const newRawRisks = [...rawRisks.value]
+            newRawRisks[idx] = {
+              ...response.data,
+              ...payload,
+              displayId: newRawRisks[idx].displayId
+            }
+            rawRisks.value = newRawRisks
+          }
+        }
+      } catch (error) {
+        console.error('Failed to update risk on backend (using local fallback):', error)
+      }
+    } catch (error) {
+      console.error('Failed to update risk:', error)
     }
   }
 
-  function deleteRisk(id: number) {
-    risks.value = risks.value.filter(r => r.id !== id)
+  async function deleteRisk(id: string | number) {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risks/${id}`, {
+        method: 'DELETE'
+      })
+      if (response && response.success) {
+        rawRisks.value = rawRisks.value.filter(r => String(r.id) !== String(id))
+        updateDisplayIds()
+      }
+    } catch (error) {
+      console.error('Failed to delete risk:', error)
+    }
   }
 
   return {
+    rawRisks,
     risks,
     branches: branchesList,
     selectedBranch,
@@ -369,7 +479,10 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     isFormOpen,
     isDetailOpen,
     modalMode,
+    selectedYear,
+    selectedPeriod,
     getRiskLevel,
+    getRiskScore,
     getFormattedId,
     getRiskById,
     openAddModal,
@@ -377,6 +490,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     openPreviewModal,
     addRisk,
     updateRisk,
-    deleteRisk
+    deleteRisk,
+    fetchRisks
   }
 })

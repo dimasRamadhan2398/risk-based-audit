@@ -47,11 +47,11 @@ export default defineNuxtConfig({
         },
       ],
       link: [
-        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "icon", type: "image/png", href: "/favicon.png" },
         // Google Fonts
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
+          href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap",
         },
       ],
       script: [
@@ -77,8 +77,10 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.API_BASE_URL || "http://localhost:3001/api",
       analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || "http://localhost:8084/api/analytics",
+      authServiceBaseUrl: process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL || 'http://localhost:8001/api/v1',
       auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || 'http://localhost:8002/api/v1',
-      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || 'http://localhost:8002/api/v1',
+      riskServiceBaseUrl: process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL || 'http://localhost:8004/api/v1',
+      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || 'http://localhost:8003/api/v1',
     },
   },
 

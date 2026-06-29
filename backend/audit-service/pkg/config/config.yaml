@@ -6,9 +6,9 @@ server:
 database:
   host: postgres
   port: 5432
-  username: admin_rbia
-  password: 12345678
-  name: audit_service
+  username: postgres
+  password: postgres
+  name: rb_audit
   sslmode: disable
 
 redis:
@@ -38,3 +38,14 @@ app:
   signature_key: a3f8c2d1e4b5a6f7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1
   rate_limiter_max: 100
   rate_limiter_time: 1
+
+gdrive:
+  enabled: true
+  auth_mode: "service_account" # "service_account" or "oauth2"
+  credentials_json_path: ""
+  credentials_json: '{"type": "service_account", "project_id": "auditsphere-risk-based", "private_key_id": "3480820ccb4f59725cb11bba433be6de876dfa49", "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCkvikB80B1Uzqg\nlTP9ULkMfmCZGykzGSAPiLKiEwBuHE5IE+CLsfP3Dox1ZnytEybPq8yF2p1L+Xc6\nJyxlWsihAkS2l+bhzkn/s4JJimlXJVtBwqkEsy1rgx9JIxR2xpoPAWW+kaHIJFUp\nRLucB31aaJWh1o2tkpXgth9YJGCemexOrfh4FSM5DEa0gX5q4vKBcGgMkdsHRboQ\nV5mLR42P3WnAWBJV3mpExWmnlMAWUxX3OXkMcQO/PZN3sIzKSNrNkt4VdO9I5geD\nYXjTBrTYyofiUBgyP4bYh2EFaEM7PiLR0+MmpRR6cCVch8qK3T0Uc+1l0YnIuHS4\nocX4eYwNAgMBAAECggEAHvKoMnkXcVLuzw7oYtyAvtOY4vpCvZopNzHXWPIX4ReJ\nLyoowyVtbsp5YW6c2kigQGAGPlkItqaJGtAUG4A382NBNEoJ8f52UUZQIe+SBXB7\nmblvVfYxAKLzxCIGbJ+3fj0ld2zVRwtoQiXq1o9joZHHFk1/dQ12AW5FKiI/UlvL\n3Dzk2BhxrZOHOw9c8DP2Wsz1HeKJNeJyWugdfVO1v22s4sXW6QS94H+6VSrgII14\n4UsXs1PWio5VyEQ6jdf+dcZpN0ZtULBpq/LSdobAM1crtFYwqjcdutWKVDopO0p3\nq4gLqcxMnOSWJiC4x95jEzEW11tIMCt//CknCG8dIwKBgQDVnE9KiHrZ5PYuKjA+\n6hUMBb6HXnUySXdT710nyueWah5IAMiRWvZ4Ej5v5D0vcCcjRjrdNDv4rGkq7AWR\ntJLVso5R51qlhkmNESDp0k1mdPQV8WeI9NcrQGetY1352yKitU/YeiaCm4JZg9Uq\ns8hrXdDp4Ly0AIwl2/TpwDxoGwKBgQDFb04oQRuDRPG+CNLQFFYzcfJRkllvz2+Y\nmQ0met5DlOvHi/+L0QZOjrFLRqjUn/EigtVavdcUcXll9w5YuiVCW5hJOzhv2gJ5\nQOi/zE8pJZWcHDk/uixxOHfCUWx5hh/TiQMbbSB1wQC3sWvgTF/VSczBkv1eXY+A\nI7Fbprju9wKBgEyFSy5DB+dIixvshw3yowmEgUVTBB64jKOnyrI3kJCkgSaACVlw\nwXwv5OgGVhjJT2vme63ESXuCn8X9eN1CV5tv9GXIwAMtwOlk6mp4qLt8R/gYW2OH\nehEHaFyHjSG1a4nn86tzzpnZBW/1twYuEyzLFczCcjb1Pz9MtUaLU9hjAoGAUy7e\nIx+rU9dMcuCM0ZZ/6xTrH2slu3IOdqClZb0GwDqSTHSzqlja62Y7VJfkshDhK8Ur\n1xt87uQQXeGFbeSfpiGpO9FzqcyUljm+1nBiOdfX/Pn3NN5fsyQzcO+VYG4eIqXr\nZTbJIlO61aou5UXIari5SCWCEqwgtcBUDWVlLWkCgYA1uAZZlQ7DSJisaCoB1YoD\nSw8Ll3AhuI7I00aVFjd4lthHpDxMTGN37qCkVnvSqKp0ujDiMnDc4+BJMGYx5KOo\noL6RILil8fP3Lqh5BhP5/8BskGDWNIsYLozcs7yV1K/gDA68W80Z3ScaYP11DAwE\nontJz7X9yd6zA/qxNgbkyQ==\n-----END PRIVATE KEY-----\n", "client_email": "auditsphere-staging-service@auditsphere-risk-based.iam.gserviceaccount.com", "client_id": "102391963349370602138", "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://oauth2.googleapis.com/token", "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/auditsphere-staging-service%40auditsphere-risk-based.iam.gserviceaccount.com", "universe_domain": "googleapis.com"}'
+  client_id: ""
+  client_secret: ""
+  refresh_token: ""
+  default_folder_id: ""
+

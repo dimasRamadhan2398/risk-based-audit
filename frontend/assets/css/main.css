@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 @theme static {
-  --font-sans: "Space-Grotesk", sans-serif;
+  --font-sans: "Space Grotesk", sans-serif;
   --font-serif: "Instrument Serif", serif;
 
   /* Primary Colors */

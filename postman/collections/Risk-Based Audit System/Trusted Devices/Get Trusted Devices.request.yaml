@@ -1,0 +1,10 @@
+$kind: http-request
+name: Get Trusted Devices
+method: GET
+url: '{{auth_base_url}}/api/v1/devices'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

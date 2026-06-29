@@ -46,6 +46,7 @@ func (r *Registry) Serve() {
 	r.users()
 	r.mfa()
 	r.trustedDevices()
+	r.confidentiality()
 }
 
 // auth registers auth routes
@@ -53,6 +54,7 @@ func (r *Registry) auth() {
 	auth := r.group.Group("/auth")
 	{
 		auth.POST("/login", r.controller.GetAuth().Login)
+		auth.POST("/verify-mfa-login", r.controller.GetAuth().VerifyMFALogin)
 		auth.POST("/register", r.controller.GetAuth().Register)
 
 		// Protected routes
@@ -102,5 +104,15 @@ func (r *Registry) users() {
 		users.GET("/:id", r.controller.GetUser().GetUser)
 		users.PUT("/:id", r.controller.GetUser().UpdateUser)
 		users.DELETE("/:id", r.controller.GetUser().DeleteUser)
+	}
+}
+
+// confidentiality registers confidentiality agreement routes
+func (r *Registry) confidentiality() {
+	confidentiality := r.group.Group("/confidentiality")
+	confidentiality.Use(r.authMiddleware.Authenticate())
+	{
+		confidentiality.GET("/status", r.controller.GetConfidentiality().GetStatus)
+		confidentiality.POST("/accept", r.controller.GetConfidentiality().Accept)
 	}
 }

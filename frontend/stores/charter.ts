@@ -78,7 +78,7 @@ export const useCharterStore = defineStore('charter', () => {
       version: item.version || '-',
       date: new Date(dateValue).toISOString().split('T')[0] || '',
       uploadedBy: item.uploaded_by || item.uploadedBy || 'Dimas (HIA)',
-      approvedBy: item.approved_by || item.approvedBy || '-',
+      approvedBy: item.approved_by || item.approvedBy || item.content || '-',
       isActive: item.is_active ?? item.isActive ?? false,
       fileName: item.filename || item.file_name || item.fileName || '-',
       fileSize,
@@ -146,12 +146,6 @@ export const useCharterStore = defineStore('charter', () => {
     form.file = file
   }
 
-  /**
-   * Data Audit Charter dari backend.
-   *
-   * Sebelumnya ini berisi mock data.
-   * Sekarang dikosongkan, lalu diisi dari fetchCharters().
-   */
   const charters = ref<AuditCharter[]>([])
 
   // --- LOGIC BARU: GETTER OTOMATISASI VERSI ---
@@ -194,10 +188,15 @@ export const useCharterStore = defineStore('charter', () => {
 
       const items = extractItemsFromResponse(response)
 
-      charters.value = items.map(mapBackendToFrontend)
+      if (items.length > 0) {
+        charters.value = items.map(mapBackendToFrontend)
+      } else {
+        charters.value = []
+      }
     } catch (error: any) {
       console.error('Failed to fetch audit charters:', error)
       errorMsg.value = 'Gagal mengambil data Audit Charter.'
+      charters.value = []
     } finally {
       loading.value = false
     }
@@ -222,39 +221,39 @@ export const useCharterStore = defineStore('charter', () => {
   /**
    * POST /api/v1/audit-charters
    *
-   * Uploads the audit charter with the PDF file encoded as base64.
+   * Ini masih CRUD JSON / metadata.
+   * Belum upload file PDF asli.
+   * Uploads file binary to Google Drive first, then saves charter metadata.
    */
+  const itemFileSizeToBytes = (sizeStr: string | undefined): number => {
+    if (!sizeStr || sizeStr === '-') return 0
+    if (sizeStr.includes(' MB')) {
+      return Math.round(parseFloat(sizeStr.replace(' MB', '')) * 1024 * 1024)
+    }
+    return parseFloat(sizeStr) || 0
+  }
+
   const addCharter = async (form: CharterFormState) => {
     loading.value = true
     errorMsg.value = ''
 
     try {
       const baseUrl = getAuditServiceBaseUrl()
-
       const autoVersion = nextVersion.value
-      const year = new Date(form.date).getFullYear()
-      const fileExt = form.file?.name.split('.').pop() || 'pdf'
 
-      // Generate filename based on version and year
-      const generatedFileName = form.file?.name || `audit-charter-v${autoVersion}_${year}.${fileExt}`
-
-      // Convert file to base64 if a file is selected
-      let fileContent = ''
+      const formData = new FormData()
       if (form.file) {
-        fileContent = await fileToBase64(form.file)
+        formData.append('file', form.file)
       }
-
-      const payload = {
-        filename: generatedFileName,
-        version: autoVersion,
-        title: form.title,
-        content: fileContent, // Send base64-encoded file content
-        is_active: form.isActive,
-      }
+      formData.append('title', form.title)
+      formData.append('version', autoVersion)
+      formData.append('approvedBy', form.approvedBy || '')
+      formData.append('isActive', String(form.isActive))
+      formData.append('date', form.date)
 
       await $fetch(`${baseUrl}/audit-charters`, {
         method: 'POST',
-        body: payload,
+        body: formData,
       })
 
       await fetchCharters()
@@ -270,8 +269,7 @@ export const useCharterStore = defineStore('charter', () => {
   /**
    * PUT /api/v1/audit-charters/:id
    *
-   * Updates the audit charter. If a new file is uploaded, it will be
-   * encoded as base64 and sent as the content field.
+   * Updates metadata and optional new file binary.
    */
   const updateCharter = async (id: string, form: CharterFormState) => {
     loading.value = true
@@ -280,29 +278,19 @@ export const useCharterStore = defineStore('charter', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
 
-      const existingCharter = charters.value.find(c => c.id === id)
-
-      // Convert new file to base64 if a file is selected
-      let fileContent: string | undefined
+      const formData = new FormData()
       if (form.file) {
-        fileContent = await fileToBase64(form.file)
+        formData.append('file', form.file)
       }
-
-      const payload: any = {
-        filename: form.file?.name || existingCharter?.fileName || undefined,
-        version: form.version,
-        title: form.title,
-        is_active: form.isActive,
-      }
-
-      // Only include content if a new file was uploaded
-      if (fileContent) {
-        payload.content = fileContent
-      }
+      formData.append('title', form.title)
+      formData.append('version', form.version || '')
+      formData.append('approvedBy', form.approvedBy || '')
+      formData.append('isActive', String(form.isActive))
+      formData.append('date', form.date)
 
       await $fetch(`${baseUrl}/audit-charters/${id}`, {
         method: 'PUT',
-        body: payload,
+        body: formData,
       })
 
       await fetchCharters()
@@ -379,7 +367,6 @@ export const useCharterStore = defineStore('charter', () => {
 
   // Submit Handler
   const handleSubmit = async () => {
-    // File is required for new charter uploads (since we now actually upload the PDF)
     if (!isEditing.value && !form.file) {
       errorMsg.value = 'Mohon upload file charter.'
       return

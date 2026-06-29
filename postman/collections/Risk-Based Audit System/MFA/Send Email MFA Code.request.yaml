@@ -1,0 +1,19 @@
+$kind: http-request
+name: Send Email MFA Code
+method: POST
+url: '{{auth_base_url}}/api/v1/mfa/email-code'
+order: 5000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "user@example.com"
+    }

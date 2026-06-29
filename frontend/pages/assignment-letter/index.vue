@@ -28,5 +28,6 @@ import AssignmentLetterTable from '~/components/assignment-letter/AssignmentLett
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 const store = useAssignmentLetterStore()
+store.fetchAssignmentLetters()
 
 </script>

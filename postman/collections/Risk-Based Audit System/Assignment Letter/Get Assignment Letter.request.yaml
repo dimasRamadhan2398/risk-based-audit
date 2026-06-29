@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get Assignment Letter
+method: GET
+url: '{{auth_base_url}}/api/v1/assignment-letters/:id'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: letter-id-here

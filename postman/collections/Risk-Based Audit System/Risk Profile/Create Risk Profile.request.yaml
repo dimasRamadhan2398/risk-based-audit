@@ -1,0 +1,25 @@
+$kind: http-request
+name: Create Risk Profile
+method: POST
+url: '{{auth_base_url}}/api/v1/risk-profiles'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Financial Fraud / Corruption",
+      "impact": 5,
+      "likelihood": 5,
+      "severity": 98,
+      "category": "Financial",
+      "branch": "Head Office",
+      "description": "Fraudulent financial activities including embezzlement, bribery, and accounting manipulation."
+    }

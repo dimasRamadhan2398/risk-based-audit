@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
+import { usePerformanceStore } from '~/stores/performance'
 
 const store = useStrategicPlanStore()
+const perfStore = usePerformanceStore()
 
 const search = ref('')
 const category = ref()
@@ -80,7 +82,23 @@ const tableData = computed(() => {
 })
 
 const filteredData = computed(() => {
-  let data = tableData.value
+  let data = [...tableData.value]
+
+  // Add data from perfStore
+  perfStore.kpiAchievements.forEach(kpi => {
+     data.push({
+        id: kpi.id,
+        metric: kpi.kpi_name,
+        category: 'Corporate',
+        target: `${kpi.target}`,
+        actual: `${kpi.actual}`,
+        gap: `${(kpi.actual - kpi.target).toFixed(1)}`,
+        gapIsPositive: kpi.actual >= kpi.target,
+        status: kpi.achievement_rate >= 100 ? 'Exceeded' : (kpi.achievement_rate >= 80 ? 'On Track' : 'Needs Attention'),
+        statusColor: kpi.achievement_rate >= 100 ? 'bg-secondary-500' : (kpi.achievement_rate >= 80 ? 'bg-emerald-500' : 'bg-red-500'),
+        rawPeriod: kpi.year.toString()
+     })
+  })
 
   if (search.value) {
     data = data.filter((item: any) => item.metric.toLowerCase().includes(search.value.toLowerCase()))

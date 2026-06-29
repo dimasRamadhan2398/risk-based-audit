@@ -1,0 +1,10 @@
+$kind: http-request
+name: List Audit Charters
+method: GET
+url: '{{auth_base_url}}/api/v1/audit-charters'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

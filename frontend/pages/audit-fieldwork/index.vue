@@ -133,10 +133,16 @@
 <script setup lang="ts">
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useWorkingPaperStore } from '~/stores/working-paper'
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 
 const store = useAuditFieldworkStore()
 const wpStore = useWorkingPaperStore()
+
+watchEffect(() => {
+  if (store.selectedAssignmentLetter) {
+    store.fetchAllFieldworkData(store.selectedAssignmentLetter)
+  }
+})
 
 const filteredWorkingPapers = computed(() => {
   if (!store.selectedAssignmentLetter) return []

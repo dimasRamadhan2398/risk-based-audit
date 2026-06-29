@@ -42,10 +42,16 @@ export const MenuList = [
     description: "Assignment Letter",
   },
   {
-    name: "Audit Working Paper",
+    name: "Create Working Paper",
     href: "/working-paper",
     icon: "plan",
-    description: "Audit Working Paper",
+    description: "Create and manage audit working papers step by step",
+  },
+  {
+    name: "Import Working Paper",
+    href: "/import-working-paper",
+    icon: "plan",
+    description: "Import reference working papers for auditor guidelines",
   },
   {
     name: "Audit Fieldwork",

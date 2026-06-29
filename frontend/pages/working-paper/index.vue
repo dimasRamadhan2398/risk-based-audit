@@ -3,8 +3,8 @@
     
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 ">Audit Working Paper</h1>
-        <p class="text-sm text-gray-500">Digital Working Paper System</p>
+        <h1 class="text-2xl font-bold text-gray-900 ">Create Working Paper</h1>
+        <p class="text-sm text-gray-500">Create and manage audit working papers step by step</p>
       </div>
     </div>
 

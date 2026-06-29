@@ -10,12 +10,12 @@ import (
 
 // AuditActivityRepositoryInterface defines the audit activity repository interface
 type AuditActivityRepositoryInterface interface {
-	Create(activity *models.ActivityPlan) error
-	Update(activity *models.ActivityPlan) error
+	Create(activity *models.AuditActivity) error
+	Update(activity *models.AuditActivity) error
 	Delete(id uuid.UUID) error
-	FindByID(id uuid.UUID) (*models.ActivityPlan, error)
-	FindByProjectCode(projectCode string) (*models.ActivityPlan, error)
-	FindMany(offset, limit int, search string, annualPlanID *uuid.UUID, targetUnitID *uuid.UUID, status *string) ([]*models.ActivityPlan, error)
+	FindByID(id uuid.UUID) (*models.AuditActivity, error)
+	FindByProjectCode(projectCode string) (*models.AuditActivity, error)
+	FindMany(offset, limit int, search string, annualPlanID *uuid.UUID, targetUnitID *uuid.UUID, status *string) ([]*models.AuditActivity, error)
 	Count(search string, annualPlanID *uuid.UUID, targetUnitID *uuid.UUID, status *string) (int64, error)
 }
 
@@ -32,7 +32,7 @@ func NewAuditActivityRepository(baseRepo *BaseRepository) AuditActivityRepositor
 }
 
 // Create creates a new audit activity
-func (r *AuditActivityRepository) Create(activity *models.ActivityPlan) error {
+func (r *AuditActivityRepository) Create(activity *models.AuditActivity) error {
 	if err := r.DB.Create(activity).Error; err != nil {
 		return apperrors.ErrDatabase
 	}
@@ -40,7 +40,7 @@ func (r *AuditActivityRepository) Create(activity *models.ActivityPlan) error {
 }
 
 // Update updates an audit activity
-func (r *AuditActivityRepository) Update(activity *models.ActivityPlan) error {
+func (r *AuditActivityRepository) Update(activity *models.AuditActivity) error {
 	if err := r.DB.Save(activity).Error; err != nil {
 		return apperrors.ErrDatabase
 	}
@@ -49,7 +49,7 @@ func (r *AuditActivityRepository) Update(activity *models.ActivityPlan) error {
 
 // Delete deletes an audit activity (soft delete)
 func (r *AuditActivityRepository) Delete(id uuid.UUID) error {
-	result := r.DB.Delete(&models.ActivityPlan{}, "id = ?", id)
+	result := r.DB.Delete(&models.AuditActivity{}, "id = ?", id)
 	if result.Error != nil {
 		return apperrors.ErrDatabase
 	}
@@ -60,8 +60,8 @@ func (r *AuditActivityRepository) Delete(id uuid.UUID) error {
 }
 
 // FindByID finds an audit activity by ID
-func (r *AuditActivityRepository) FindByID(id uuid.UUID) (*models.ActivityPlan, error) {
-	var activity models.ActivityPlan
+func (r *AuditActivityRepository) FindByID(id uuid.UUID) (*models.AuditActivity, error) {
+	var activity models.AuditActivity
 	if err := r.DB.First(&activity, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, apperrors.ErrNotFound
@@ -72,8 +72,8 @@ func (r *AuditActivityRepository) FindByID(id uuid.UUID) (*models.ActivityPlan, 
 }
 
 // FindByProjectCode finds an audit activity by project code
-func (r *AuditActivityRepository) FindByProjectCode(projectCode string) (*models.ActivityPlan, error) {
-	var activity models.ActivityPlan
+func (r *AuditActivityRepository) FindByProjectCode(projectCode string) (*models.AuditActivity, error) {
+	var activity models.AuditActivity
 	if err := r.DB.Where("project_code = ?", projectCode).First(&activity).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, apperrors.ErrNotFound
@@ -84,9 +84,9 @@ func (r *AuditActivityRepository) FindByProjectCode(projectCode string) (*models
 }
 
 // FindMany finds multiple audit activities with filters
-func (r *AuditActivityRepository) FindMany(offset, limit int, search string, annualPlanID *uuid.UUID, targetUnitID *uuid.UUID, status *string) ([]*models.ActivityPlan, error) {
-	var activities []*models.ActivityPlan
-	query := r.DB.Model(&models.ActivityPlan{})
+func (r *AuditActivityRepository) FindMany(offset, limit int, search string, annualPlanID *uuid.UUID, targetUnitID *uuid.UUID, status *string) ([]*models.AuditActivity, error) {
+	var activities []*models.AuditActivity
+	query := r.DB.Model(&models.AuditActivity{})
 
 	if search != "" {
 		searchPattern := "%" + search + "%"
@@ -115,7 +115,7 @@ func (r *AuditActivityRepository) FindMany(offset, limit int, search string, ann
 // Count counts audit activities with filters
 func (r *AuditActivityRepository) Count(search string, annualPlanID *uuid.UUID, targetUnitID *uuid.UUID, status *string) (int64, error) {
 	var count int64
-	query := r.DB.Model(&models.ActivityPlan{})
+	query := r.DB.Model(&models.AuditActivity{})
 
 	if search != "" {
 		searchPattern := "%" + search + "%"

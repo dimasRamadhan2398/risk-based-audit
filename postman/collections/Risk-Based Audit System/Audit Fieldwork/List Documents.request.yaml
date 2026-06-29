@@ -1,0 +1,13 @@
+$kind: http-request
+name: List Documents
+method: GET
+url: '{{auth_base_url}}/api/v1/audit-fieldwork/documents'
+order: 5000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+queryParams:
+  - key: assignment_letter_id
+    value: ''

@@ -63,7 +63,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		middleware.RecoveryMiddleware(),
 		middleware.CORSMiddleware(),
 	)
-	routes.RegisterRoutes(router, controllerRegistry)
+	routes.RegisterRoutes(router, controllerRegistry, db)
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	logger.Info("Starting master-service server", zap.String("addr", addr))

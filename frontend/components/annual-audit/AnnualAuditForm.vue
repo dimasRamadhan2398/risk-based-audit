@@ -123,7 +123,7 @@
                         <div class="space-y-4">
                             <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b pb-2">3. Auditor</h4>
             
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-primary-50  rounded-lg border border-primary-200 ">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-primary-50 rounded-lg border border-primary-200 ">
                             <UFormField label="Number of Auditors (1-10)" size="lg"
                             >
                                 <UInput v-model.number="store.form.auditorCount" type="number" min="1" max="10" class="w-full"/>
@@ -137,7 +137,7 @@
                                 <UInput v-model.number="store.form.daysPerAuditor" type="number" min="1" />
                             </UFormField>
 
-                            <UBadge class=" p-3 rounded border text-center flex flex-col justify-center">
+                            <UBadge class=" p-3 rounded text-center bg-white flex flex-col justify-center">
                                 <span class="text-xs text-gray-500 uppercase">Total Mandays</span>
                                 <span class="text-2xl font-bold text-primary-600">{{ store.totalMandays }}</span>
                                 <span class="text-xs text-gray-400">= {{ store.form.auditorCount }} person × {{ store.form.daysPerAuditor }} day</span>
