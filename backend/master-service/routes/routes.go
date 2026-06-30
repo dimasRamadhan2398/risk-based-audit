@@ -136,4 +136,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusOK, gin.H{"success": true, "message": "QA report deleted"})
 		})
 	}
+
+	// Vision, Mission & Goals routes
+	vmgs := api.Group("/vision-mission-goals")
+	{
+		vmgs.GET("", controller.GetVisionMissionGoals().List)
+		vmgs.GET("/:id", controller.GetVisionMissionGoals().FindById)
+		vmgs.GET("/company/:companyId", controller.GetVisionMissionGoals().FindByCompany)
+		vmgs.POST("", controller.GetVisionMissionGoals().Create)
+		vmgs.PUT("/:id", controller.GetVisionMissionGoals().Update)
+		vmgs.DELETE("/:id", controller.GetVisionMissionGoals().Delete)
+	}
 }

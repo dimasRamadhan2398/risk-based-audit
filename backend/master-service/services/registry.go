@@ -29,6 +29,7 @@ import (
 	riskLevelRepo "master-service/repositories/risk_level"
 	riskMatrixCellRepo "master-service/repositories/risk_matrix_cell"
 	riskRegisterRepo "master-service/repositories/risk_register"
+	vmgsRepo "master-service/repositories/vision_mission_goals"
 	annualAuditPlanSvc "master-service/services/annual_audit_plan"
 	auditFindingSvc "master-service/services/audit_finding"
 	auditIssueSvc "master-service/services/audit_issue"
@@ -55,6 +56,7 @@ import (
 	riskLevelSvc "master-service/services/risk_level"
 	riskMatrixCellSvc "master-service/services/risk_matrix_cell"
 	riskRegisterSvc "master-service/services/risk_register"
+	vmgsSvc "master-service/services/vision_mission_goals"
 )
 
 type IServiceRegistry interface {
@@ -84,6 +86,7 @@ type IServiceRegistry interface {
 	GetRiskLevel() riskLevelSvc.RiskLevelServiceInterface
 	GetRiskMatrixCell() riskMatrixCellSvc.RiskMatrixCellServiceInterface
 	GetRiskRegister() riskRegisterSvc.RiskRegisterServiceInterface
+	GetVisionMissionGoals() vmgsSvc.VisionMissionGoalsServiceInterface
 }
 
 type Registry struct {
@@ -113,6 +116,7 @@ type Registry struct {
 	riskLevel           riskLevelSvc.RiskLevelServiceInterface
 	riskMatrixCell      riskMatrixCellSvc.RiskMatrixCellServiceInterface
 	riskRegister        riskRegisterSvc.RiskRegisterServiceInterface
+	visionMissionGoals  vmgsSvc.VisionMissionGoalsServiceInterface
 }
 
 func NewServiceRegistry(db *gorm.DB) IServiceRegistry {
@@ -143,11 +147,8 @@ func NewServiceRegistry(db *gorm.DB) IServiceRegistry {
 		riskLevel:           riskLevelSvc.NewRiskLevelService(riskLevelRepo.NewRiskLevelRepository(db)),
 		riskMatrixCell:      riskMatrixCellSvc.NewRiskMatrixCellService(riskMatrixCellRepo.NewRiskMatrixCellRepository(db)),
 		riskRegister:        riskRegisterSvc.NewRiskRegisterService(riskRegisterRepo.NewRiskRegisterRepository(db)),
+		visionMissionGoals:  vmgsSvc.NewVisionMissionGoalsService(vmgsRepo.NewVisionMissionGoalsRepository(db)),
 	}
-}
-
-func (r *Registry) GetCompany() companySvc.CompanyServiceInterface {
-	return r.company
 }
 
 func (r *Registry) GetAnnualAuditPlan() annualAuditPlanSvc.AnnualAuditPlanServiceInterface {
@@ -199,4 +200,8 @@ func (r *Registry) GetRiskMatrixCell() riskMatrixCellSvc.RiskMatrixCellServiceIn
 }
 func (r *Registry) GetRiskRegister() riskRegisterSvc.RiskRegisterServiceInterface {
 	return r.riskRegister
+}
+
+func (r *Registry) GetVisionMissionGoals() vmgsSvc.VisionMissionGoalsServiceInterface {
+	return r.visionMissionGoals
 }
