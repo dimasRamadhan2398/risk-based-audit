@@ -1,12 +1,12 @@
 <template>
     
-      <UModal v-model:open="store.showModalF01" :dismissible="false" class="w-full sm:max-w-4xl">
+      <UModal v-model:open="store.showModalF01" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
         <div></div>
         <template #content>
         
         <UForm :state="store.headerForm" @submit.prevent="store.handleSubmitF01">
-        <div class="bg-secondary-50  rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
-        <div class="px-6 py-4 border-b border-secondary-200  bg-secondary-50  rounded-t-xl flex justify-between items-center">
+        <div class="rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
+        <div class="px-6 py-4 border-b border-secondary-200  rounded-t-xl flex justify-between items-center">
             <UIcon name="charter" class=" text-primary-500" size="32"></UIcon>
             <h3 class="text-lg font-bold text-secondary-900 ">Assignment Reference</h3>
             <UIcon name="close" @click="store.closeModalF01" class="text-primary-400 hover:text-primary-600 text-2xl">&times;</UIcon>

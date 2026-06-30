@@ -1,5 +1,5 @@
 <template>
-    <UModal v-model:open="store.showModal" scrollable>
+    <UModal v-model:open="store.showModal" scrollable :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
       <template #content>
         <UCard :ui="{ 
           header: 'px-6 py-4',

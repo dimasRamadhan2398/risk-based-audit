@@ -17,6 +17,8 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     { accessorKey: 'reportName', header: 'Report Name', sortable: true },
     { accessorKey: 'result', header: 'Result/Score', sortable: true },
     { accessorKey: 'status', header: 'Status', sortable: true },
+    { accessorKey: 'conductedBy', header: 'Conducted By', sortable: true },
+    { accessorKey: 'viewReport', header: 'View Report' },
     { accessorKey: 'actions', header: 'Action' }
   ]
 
@@ -35,6 +37,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       case QAType.REGULAR: return 'bg-amber-400'
       case QAType.SAIV: return 'bg-blue-500'
       case QAType.QAR: return 'bg-gray-100 border'
+      case QAType.IACM: return 'bg-indigo-500'
       default: return 'bg-gray-300'
     }
   }
@@ -56,6 +59,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     periodQuarter: '',
     periodYear: '',
     status: QAStatus.IN_PROGRESS,
+    conductedBy: '',
     result: '',
     internalEvaluator: '',
     attachment: null as File | null | undefined
@@ -74,6 +78,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       periodQuarter: '',
       periodYear: '',
       status: QAStatus.IN_PROGRESS,
+      conductedBy: '',
       result: '',
       internalEvaluator: '',
       attachment: null
@@ -88,6 +93,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       reportName: 'Operational Efficiency Q3',
       result: '8.7/10',
       status: QAStatus.COMPLETED,
+      conductedBy: 'Internal Audit Team A',
       assessmentTitle: 'RSA - Audit 2025 Q3',
       internalEvaluator: 'Internal Audit Team A',
       attachment: {
@@ -103,6 +109,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       reportName: 'Self Assessment GIAS \'22-24',
       result: '92%',
       status: QAStatus.COMPLETED,
+      conductedBy: 'PT Independent Consultant X',
       assessmentTitle: 'SAIV - Cycle 2025',
       validator: 'PT Independent Consultant X',
       attachment: {
@@ -118,6 +125,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       reportName: 'External QAR (IPPF 2027)',
       result: 'G/C*',
       status: QAStatus.COMPLETED,
+      conductedBy: 'Deloitte Independent Consultant',
       assessmentTitle: 'QAR - Year 2025',
       validator: 'Deloitte Independent Consultant',
       attachment: {
@@ -143,6 +151,16 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       result: '6.9/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q1'
+    },
+    {
+      id: '6',
+      type: QAType.IACM,
+      period: 'Year 2025',
+      reportName: 'BUMN IACM Assessment 2025',
+      result: '4',
+      status: QAStatus.COMPLETED,
+      conductedBy: 'BPKP / Kementerian BUMN',
+      assessmentTitle: 'BUMN IACM Assessment 2025'
     }
   ]
 
@@ -183,6 +201,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       reportName: newReport.assessmentTitle,
       result: newReport.result,
       status: newReport.status,
+      conductedBy: newReport.conductedBy,
       assessmentTitle: newReport.assessmentTitle,
       internalEvaluator: newReport.internalEvaluator,
       attachment: newReport.attachment ? {
@@ -225,11 +244,73 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const selectedStatus = ref('')
 
   const isFormOpen = ref(false)
+  const isImportOpen = ref(false)
   const isDetailOpen = ref(false)
   const selectedReport = ref<QAReport | null>(null)
 
+  const openImportModal = () => {
+    isImportOpen.value = true
+    errorMsg.value = ''
+  }
+
+  const closeImportModal = () => {
+    isImportOpen.value = false
+  }
+
+  const importQARReport = async (payload: {
+    assessmentTitle: string
+    type: string
+    periodQuarter: string
+    periodYear: string
+    result: string
+    status: string
+    conductedBy: string
+    validator: string
+    fileName: string
+    fileType: string
+    fileContent: string // base64
+  }) => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/quality-assurance/import`, {
+        method: 'POST',
+        body: payload
+      })
+      await fetchReports()
+      closeImportModal()
+      return response
+    } catch (error: any) {
+      console.error('Failed to import QAR report:', error)
+      errorMsg.value = error.data?.message || 'Failed to import QAR report.'
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const downloadAttachment = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response], { type: response.type || 'application/octet-stream' })
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = fileName
+      link.click()
+      window.URL.revokeObjectURL(link.href)
+    } catch (error) {
+      console.error('Failed to download QAR attachment:', error)
+    }
+  }
+
   const filteredReports = computed(() => {
     return reports.value.filter(report => {
+      if (report.isImported) return false
+      
       const matchesSearch = (report.reportName || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         (report.assessmentTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
       const matchesType = !selectedType.value || report.type === selectedType.value
@@ -239,15 +320,21 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     })
   })
 
+  const importedReports = computed(() => {
+    return reports.value.filter(report => report.isImported)
+  })
+
   const summary = computed(() => {
     const regular = reports.value.filter(r => r.type === QAType.REGULAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
     const qar = reports.value.filter(r => r.type === QAType.QAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
     const saiv = reports.value.filter(r => r.type === QAType.SAIV).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const iacm = reports.value.filter(r => r.type === QAType.IACM).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
 
     return {
       regular: regular || { result: '-', period: '-', status: QAStatus.PLANNED },
       qar: qar || { result: '-', period: '-', status: QAStatus.PLANNED },
-      saiv: saiv || { result: '-', period: '-', status: QAStatus.PLANNED }
+      saiv: saiv || { result: '-', period: '-', status: QAStatus.PLANNED },
+      iacm: iacm || { result: '-', period: '-', status: QAStatus.PLANNED }
     }
   })
 
@@ -271,6 +358,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       periodQuarter: periodParts[0] || '',
       periodYear: periodParts[1] || '2025',
       status: selectedReport.value.status,
+      conductedBy: selectedReport.value.conductedBy || '',
       result: selectedReport.value.result,
       internalEvaluator: selectedReport.value.internalEvaluator,
       attachment: null
@@ -315,9 +403,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   }
 
   return {
-    reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isDetailOpen, columns,
-    selectedReport, filteredReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
-    handleFileUpload, saveReport, openForm, closeForm, openDetail, closeDetail, getStatusColor, getTypeIconColor,
+    reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isImportOpen, isDetailOpen, columns,
+    selectedReport, filteredReports, importedReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
+    handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor,
     editReport, isEditing, deleteReport, fetchReports, loading, errorMsg
   }
 })

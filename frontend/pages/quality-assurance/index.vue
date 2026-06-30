@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import QAAddModal from '~/components/quality-assurance/QAAddModal.vue';
+
 import QAFilters from '~/components/quality-assurance/QAFilters.vue';
 import QASummaryCards from '~/components/quality-assurance/QASummaryCards.vue'
 import QATable from '~/components/quality-assurance/QATable.vue';
@@ -22,13 +23,16 @@ const store = useQualityAssuranceStore()
           Monitoring Compliance to Global Standards (IPPF 2027 & GIAS 2024)
         </p>
       </div>
-      <UButton
-        color="primary"
-        label="Add Report"
-        icon="i-lucide-plus"
-        class="px-6 py-2.5 font-bold rounded-lg shadow-lg"
-        @click="store.openForm"
-      />
+      <div class="flex items-center gap-3">
+
+        <UButton
+          color="primary"
+          label="Add Report"
+          icon="i-lucide-plus"
+          class="px-6 py-2.5 font-bold rounded-lg shadow-lg"
+          @click="store.openForm"
+        />
+      </div>
     </div>
 
     <!-- Summary Cards -->

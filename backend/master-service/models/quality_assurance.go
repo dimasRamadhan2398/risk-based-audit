@@ -11,15 +11,18 @@ type QAReportAttachment struct {
 	Name       string `json:"name"`
 	Size       string `json:"size"`
 	UploadedAt string `json:"uploadedAt"`
+	FilePath   string `json:"filePath,omitempty"`
 }
 
 type QAReport struct {
 	ID                uuid.UUID           `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	Type              string              `gorm:"type:varchar(100);not null" json:"type"`
+	IsImported        bool                `gorm:"default:false" json:"isImported"`
 	Period            string              `gorm:"type:varchar(50);not null" json:"period"`
 	ReportName        string              `gorm:"type:varchar(255);not null" json:"reportName"`
 	Result            string              `gorm:"type:varchar(100);not null" json:"result"`
 	Status            string              `gorm:"type:varchar(50);default:'Planned'" json:"status"`
+	ConductedBy       string              `gorm:"type:varchar(255)" json:"conductedBy,omitempty"`
 	AssessmentTitle   string              `gorm:"type:varchar(255)" json:"assessmentTitle"`
 	Validator         string              `gorm:"type:varchar(255)" json:"validator,omitempty"`
 	InternalEvaluator string              `gorm:"type:varchar(255)" json:"internalEvaluator,omitempty"`

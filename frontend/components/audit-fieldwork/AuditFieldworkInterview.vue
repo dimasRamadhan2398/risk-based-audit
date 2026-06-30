@@ -50,7 +50,7 @@
 
     <!-- Interview Modal -->
     <Teleport to="body">
-      <div v-if="store.showInterviewModal" class="fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-4">
+      <div v-if="store.showInterviewModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <template #header>
             <div class="flex items-center justify-between">

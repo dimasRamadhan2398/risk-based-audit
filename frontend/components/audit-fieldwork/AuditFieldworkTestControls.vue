@@ -52,7 +52,7 @@
 
     <!-- Test Control Modal -->
     <Teleport to="body">
-      <div v-if="store.showTestControlModal" class="fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-4">
+      <div v-if="store.showTestControlModal" class="fixed inset-0   -gray-900/60 z-50 flex items-center justify-center p-4">
         <UCard class="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <template #header>
             <div class="flex items-center justify-between">
@@ -65,7 +65,7 @@
 
           <UForm @submit.prevent="store.saveTestControl()" class="space-y-4">
             <!-- Control Information -->
-            <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+            <div class="  -gray-50 p-4 rounded-lg space-y-4">
               <h4 class="font-medium text-gray-700">Control Information</h4>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField label="Control Name" required>
@@ -81,7 +81,7 @@
             </div>
 
             <!-- Test Procedure -->
-            <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+            <div class="  -gray-50 p-4 rounded-lg space-y-4">
               <h4 class="font-medium text-gray-700">Test Procedure</h4>
               <UFormField label="Test Steps" required>
                 <UTextarea v-model="store.testControlForm.testProcedure" placeholder="Describe the steps taken to test this control" class="w-full" :disabled="store.isReadOnlyTestControl" required />
@@ -94,7 +94,7 @@
             </div>
 
             <!-- Finding and Recommendation -->
-            <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+            <div class="  -gray-50 p-4 rounded-lg space-y-4">
               <h4 class="font-medium text-gray-700">Finding and Recommendation</h4>
               <UFormField label="Finding">
                 <UTextarea v-model="store.testControlForm.finding" placeholder="Describe the finding from the test (if any)" class="w-full" :disabled="store.isReadOnlyTestControl" />
@@ -105,7 +105,7 @@
             </div>
 
             <!-- Mitigation Plan -->
-            <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+            <div class="  -gray-50 p-4 rounded-lg space-y-4">
               <h4 class="font-medium text-gray-700">Mitigation Plan</h4>
               <UFormField label="Mitigation Plan">
                 <UTextarea v-model="store.testControlForm.mitigationPlan" placeholder="Describe the mitigation plan for addressing control weaknesses" class="w-full" :disabled="store.isReadOnlyTestControl" />

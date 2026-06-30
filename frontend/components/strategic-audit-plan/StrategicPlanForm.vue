@@ -3,11 +3,7 @@
     <UModal
       v-model:open="store.isAddModalOpen"
       title="Strategic Plan Information"
-      :ui="{
-        content: 'bg-white sm:max-w-xl',
-        title: 'text-gray-900 font-semibold text-2xl',
-        body: 'text-gray-900',
-      }"
+      :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
     >
       <template #body>
         <UForm :state="store.form" @submit.prevent="store.handleSubmit">
@@ -31,7 +27,7 @@
                 Strategic Objective <span class="text-orange-500">*</span>
               </label>
               <UTextarea
-                v-model="store.form.strategicObjective"
+                v-model="store.form.corporateStrategicObjective"
                 placeholder="Ex: Enhance Operational Efficiency"
                 :rows="2"
                 class="w-full"
@@ -54,7 +50,7 @@
             <div class="form-row">
               <label class="form-label">Unit</label>
               <USelectMenu
-                v-model="store.form.unit"
+                v-model="store.form.unitOfMeasurement"
                 :items="store.unitOptions"
                 value-key="value"
                 placeholder="Select Unit"
@@ -71,7 +67,7 @@
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
-                    v-model="store.form.hibHig"
+                    v-model="store.form.dataType"
                     value="HIG"
                     class="accent-orange-500 w-4 h-4"
                   />
@@ -80,7 +76,7 @@
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
-                    v-model="store.form.hibHig"
+                    v-model="store.form.dataType"
                     value="HIB"
                     class="accent-orange-500 w-4 h-4"
                   />

@@ -57,7 +57,12 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       approverPosition: '',
       approvalDate: '',
       additionalNotes: ''
-    }
+    },
+    attachmentCategory: '',
+    attachmentUploadedBy: '',
+    attachmentUploadDate: '',
+    attachments: [],
+    file: []
   });
 
   const formState = ref<ActivityPlanFormState>(getInitialFormState());
@@ -86,11 +91,9 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     { accessorKey: 'planYear', header: 'Year' },
     { accessorKey: 'period', header: 'Period' },
     { accessorKey: 'department', header: 'Department/Unit' },
-    { accessorKey: 'totalActivity', header: 'Total Auditor Team' },
-    { accessorKey: 'totalAuditor', header: 'Total Auditor' },
-    { accessorKey: 'budgetEstimation', header: 'Budget Estimation' },
-    { accessorKey: 'budgetAllocated', header: 'Budget Allocated' },
-    { accessorKey: 'createdBy', header: 'Created By' },
+    { accessorKey: 'riskName', header: 'Risk Name' },
+    { accessorKey: 'riskLevel', header: 'Risk Level' },
+    { accessorKey: 'attachments', header: 'Attachment' },
     { accessorKey: 'actions', header: 'Actions' }
   ]
 
@@ -169,17 +172,29 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       // Transform planned activities to match backend expectations if needed
       // but for now we follow existing structure and just ensure fields are there
 
+      const fileList = formState.value.file && formState.value.file.length > 0 
+        ? formState.value.file.map((f: any) => ({
+            name: f.name,
+            size: Math.round(f.size / 1024) + ' KB',
+            url: '#'
+          }))
+        : [];
+
+      const payload = {
+        ...formState.value,
+        attachments: isEditMode.value ? (formState.value.attachments || []).concat(fileList) : fileList
+      };
+
       if (isEditMode.value) {
         const planId = (formState.value as ActivityPlan).id;
         await $fetch(`${baseUrl}/activity-plans/${planId}`, {
           method: 'PUT',
-          body: formState.value
+          body: payload
         });
       } else {
-        // Also save to audit-activities if they are separate in backend
         await $fetch(`${baseUrl}/activity-plans`, {
           method: 'POST',
-          body: formState.value
+          body: payload
         });
 
         for (const act of formState.value.plannedActivities) {
@@ -240,11 +255,51 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     formState.value.resourceAuditors.splice(index, 1);
   }
 
+  const attachmentCategoryOptions = ['Plan', 'Evidence', 'Charter', 'Other'];
+
+  const handleFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      errorMsg.value = "File terlalu besar! Maksimal 5MB.";
+      formState.value.file = null;
+      target.value = "";
+      return;
+    }
+
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      errorMsg.value = "Format file tidak valid. Gunakan PDF atau DOCX.";
+      formState.value.file = null;
+      target.value = "";
+      return;
+    }
+
+    errorMsg.value = "";
+    formState.value.file = [file];
+  };
+
+  const getRiskLevelColor = (level?: string) => {
+    if (!level) return 'neutral'
+    const lvl = level.toLowerCase()
+    if (lvl.includes('high')) return 'error'
+    if (lvl.includes('mod') || lvl.includes('medium')) return 'warning'
+    if (lvl.includes('low')) return 'success'
+    return 'neutral'
+  }
+
   return {
     isModalOpen, isViewModalOpen, isEditMode, priorityOptions, riskLevelOptions,
     formState, plans, selectedPlan, columns, filteredPlans,
     openModal, closeModal, openViewModal, closeViewModal, handleEdit, handleDelete, savePlan,
     addPlannedActivity, removePlannedActivity, addResourceAuditor, removeResourceAuditor,
-    fetchPlans, loading, errorMsg
+    fetchPlans, loading, errorMsg, getRiskLevelColor, attachmentCategoryOptions, handleFileChange
   };
 });

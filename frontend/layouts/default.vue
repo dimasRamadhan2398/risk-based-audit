@@ -64,7 +64,19 @@ const rawItems: NavigationMenuItem[][] = [[
   {
     label: '5. Audit Activity Plan',
     icon: 'i-lucide-users',
-    to: '/audit-activity-plan'
+    to: '/audit-activity-plan',
+    children: [
+      {
+        label: 'Create Activity Plan Document',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/audit-activity-plan',
+      },
+      {
+        label: 'Upload Activity Plan Document',
+        icon: 'i-lucide-upload',
+        to: '/audit-activity-plan/upload',
+      }
+    ]
   }, 
   {
     label: '6. Assignment Letter',
@@ -109,6 +121,18 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '11. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
+    children: [
+      {
+        label: 'Create QAR Report',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/quality-assurance',
+      },
+      {
+        label: 'Import QAR Report',
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import',
+      }
+    ]
   },
   {
     label: 'Analytics',

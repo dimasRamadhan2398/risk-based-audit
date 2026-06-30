@@ -112,7 +112,7 @@
         <div class="pt-2">
           <UButton
             variant="ghost"
-            color="red"
+            color="error"
             class="font-bold border border-red-500/20 hover:bg-red-500/10 rounded-xl"
             @click="showDisableModal = true"
           >
@@ -163,7 +163,7 @@
               Batalkan
             </UButton>
             <UButton
-              color="red"
+              color="error"
               class="rounded-xl text-white font-bold"
               :loading="loading"
               @click="handleDisable"
@@ -223,7 +223,7 @@ const handleSetup = async () => {
     toast.add({
       title: 'Setup Gagal',
       description: err.data?.message || err.message || 'Gagal memulai setup MFA.',
-      color: 'danger',
+      color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
   } finally {
@@ -255,7 +255,7 @@ const handleVerifySetup = async () => {
     toast.add({
       title: 'Verifikasi Gagal',
       description: err.data?.message || err.message || 'Kode verifikasi tidak valid.',
-      color: 'danger',
+      color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
   } finally {
@@ -287,7 +287,7 @@ const handleDisable = async () => {
     toast.add({
       title: 'Gagal Menonaktifkan',
       description: err.data?.message || err.message || 'Password yang Anda masukkan salah.',
-      color: 'danger',
+      color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
   } finally {

@@ -1,5 +1,5 @@
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <!-- Reguler Asesmen -->
       <UCard class="border-2 border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
         <div class="space-y-4">
@@ -104,6 +104,41 @@
           />
         </div>
       </UCard>
+
+      <!-- BUMN IACM (IACM SCALE) -->
+      <UCard class="border-2 border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
+        <div class="space-y-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-4 h-4 rounded-full bg-indigo-500"></div>
+            <h3 class="text-lg font-bold">BUMN IACM Assessment</h3>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500 font-medium">Capability Level</span>
+              <span class="font-bold text-indigo-600 text-lg">{{ (store.summary.iacm as any).result }} / 5</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500 font-medium">Period</span>
+              <span class="font-bold">{{ (store.summary.iacm as any).period }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500 font-medium">Status</span>
+              <div class="flex items-center space-x-2">
+                <div :class="['w-3 h-3 rounded-full', store.getStatusColor((store.summary.iacm as any).status)]"></div>
+                <span class="font-bold text-sm">{{ (store.summary.iacm as any).status }}</span>
+              </div>
+            </div>
+          </div>
+          <UButton
+            variant="ghost"
+            color="neutral"
+            label="View History"
+            icon="i-lucide-chevron-right"
+            trailing
+            class="p-0 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          />
+        </div>
+      </UCard>
     </div>
 </template>
 
@@ -116,13 +151,16 @@ const formatOverallConclusion = (result: string) => {
   if (!result) return '-'
   const res = result.trim().toLowerCase()
   if (res === 'g/c*' || res === 'gc' || res.includes('generally')) {
-    return 'Generally Conforms'
+    return 'Generally Conformed'
   }
-  if (res === 'fc' || res.includes('fully')) {
-    return 'Fully Conforms'
+  if (res === 'fc' || res.includes('fully') || res.includes('conformance')) {
+    return 'Fully Conformance'
+  }
+  if (res === 'pc' || res.includes('partially')) {
+    return 'Partially Conform'
   }
   if (res === 'dnc' || res.includes('does not') || res.includes('doesnot')) {
-    return 'Does Not Conform'
+    return 'Does not Conform'
   }
   return result
 }

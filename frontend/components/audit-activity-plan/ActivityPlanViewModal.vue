@@ -1,9 +1,9 @@
 <template>
-  <UModal v-model:open="store.isViewModalOpen" class="sm:max-w-4xl">
+  <UModal v-model:open="store.isViewModalOpen" class="sm:max-w-4xl bg-[var(--bg-main)] border-[var(--border-main)]">
     <template #content>
-    <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh] border border-[var(--border-main)]">
+    <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh] border">
       <!-- Header -->
-      <div class="flex items-center justify-between p-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] sticky top-0 rounded-t-xl z-10">
+      <div class="flex items-center justify-between p-4 sticky top-0 rounded-t-xl z-10">
         <h3 class="text-xl font-bold text-[var(--text-main)]">
           Detail Rencana Aktivitas Audit
         </h3>
@@ -84,6 +84,33 @@
                 </div>
             </div>
         </UCard>
+
+        <!-- Attachments -->
+        <UCard v-if="store.selectedPlan.attachmentCategory">
+            <template #header>
+                <h4 class="text-lg font-medium">Attachment</h4>
+            </template>
+            <div class="space-y-3 text-sm">
+                <div class="flex"><strong class="w-48 shrink-0">Kategori File:</strong> <span>{{ store.selectedPlan.attachmentCategory }}</span></div>
+                <div class="flex"><strong class="w-48 shrink-0">Diupload Oleh:</strong> <span>{{ store.selectedPlan.attachmentUploadedBy }}</span></div>
+                <div class="flex"><strong class="w-48 shrink-0">Tanggal Upload:</strong> <span>{{ store.selectedPlan.attachmentUploadDate }}</span></div>
+                
+                <div class="pt-2">
+                  <strong class="block mb-2 text-gray-700">Uploaded Files:</strong>
+                  <ul v-if="store.selectedPlan.attachments?.length" class="list-disc list-inside space-y-2">
+                    <li v-for="(file, index) in store.selectedPlan.attachments" :key="index" class="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                      <div class="flex items-center gap-2">
+                        <UIcon name="i-heroicons-document-text" class="text-gray-500" />
+                        <span class="font-semibold text-gray-800">{{ file.name }}</span>
+                        <UBadge color="neutral" variant="soft" size="xs">{{ file.size }}</UBadge>
+                      </div>
+                      <UButton :to="file.url" target="_blank" icon="i-heroicons-arrow-down-tray" size="sm" color="primary" variant="link" label="Download" />
+                    </li>
+                  </ul>
+                  <p v-else class="text-gray-500 italic mt-2">No files attached.</p>
+                </div>
+            </div>
+        </UCard>
       </div>
       <div v-else class="flex items-center justify-center h-32">
         <p class="text-gray-500">Memuat data...</p>
@@ -107,6 +134,7 @@ const plannedActivitiesColumns = [
   { accessorKey: 'auditName', header: 'Nama Audit' },
   { accessorKey: 'auditee', header: 'Auditee' },
   { accessorKey: 'category', header: 'Kategori' },
+  { accessorKey: 'riskName', header: 'Risk Name' },
   { accessorKey: 'riskLevel', header: 'Level Risiko' },
   { accessorKey: 'duration', header: 'Durasi (hari)' },
   { accessorKey: 'priority', header: 'Prioritas' },

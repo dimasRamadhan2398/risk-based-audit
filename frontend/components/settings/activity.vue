@@ -108,7 +108,7 @@
                 <UButton
                   label="Hapus"
                   variant="ghost"
-                  color="danger"
+                  color="error"
                   size="sm"
                   @click="confirmRelease(device.id, device.deviceName)"
                 />
@@ -233,7 +233,7 @@ const handleReleaseConfirm = async () => {
     toast.add({
       title: "Gagal Menghapus",
       description: err.message || "Gagal menghapus perangkat terpercaya.",
-      color: "danger",
+      color: "error",
       icon: "i-lucide-alert-triangle",
     })
   }

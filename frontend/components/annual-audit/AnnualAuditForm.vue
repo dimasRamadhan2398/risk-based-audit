@@ -1,10 +1,10 @@
 <template>
-    <UModal v-model:open="store.showModal" dismissible class="w-full sm:max-w-4xl">
+    <UModal v-model:open="store.showModal" dismissible class="w-full sm:max-w-4xl bg-[var(--bg-main)] border-[var(--border-main)]">
         <template #content>
         <UForm :state="store.form" @submit.prevent="store.handleSubmit">
-            <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh] border border-[var(--border-main)] transition-colors duration-300">
+            <div class="relative  rounded-xl shadow-2xl flex flex-col max-h-[90vh] transition-colors duration-300">
         
-                    <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center transition-colors duration-300">
+                    <div class="px-6 py-4 border-b rounded-t-xl flex justify-between items-center transition-colors duration-300">
                         <UIcon name="charter" class="text-primary-500 " size="32"></UIcon>
                         <h3 class="text-lg font-bold text-[var(--text-main)]">Annual Audit Form</h3>
                         <UIcon name="close" @click="store.closeModal" class="text-primary-400 hover:text-primary-600  text-2xl cursor-pointer"></UIcon>
@@ -39,7 +39,7 @@
                                 <UCard 
                                     v-for="(activity, index) in store.form.activities" 
                                     :key="index" 
-                                    class="relative bg-gray-50 "
+                                    class="relative"
                                 >
                                     
                                     <div class="flex justify-between items-center mb-4 border-b border-gray-200  pb-2">
@@ -70,7 +70,48 @@
                                         </UFormField>
 
                                         <UFormField label="Department" size="lg">
-                                            <USelectMenu v-model="activity.department" :items="Object.values(AuditDepartment)" class="w-full" />
+                                            <USelectMenu 
+                                                v-model="activity.department" 
+                                                :items="Object.values(AuditDepartment)" 
+                                                class="w-full" 
+                                                @update:model-value="() => { activity.riskName = ''; activity.riskLevel = ''; }"
+                                            />
+                                        </UFormField>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 mt-4">
+                                        <UFormField label="Associated Risk (Based on Risk Profile)" size="lg">
+                                            <USelectMenu 
+                                                :model-value="getFilteredRisksForDept(activity.department).find(r => r.name === activity.riskName)"
+                                                @update:model-value="(val: any) => { 
+                                                    activity.riskName = val ? val.name : ''; 
+                                                    activity.riskLevel = val ? val.riskLevel : ''; 
+                                                }"
+                                                :items="getFilteredRisksForDept(activity.department)"
+                                                option-key="name"
+                                                placeholder="-- Select Risk --"
+                                                class="w-full"
+                                            >
+                                                <template #item="{ item }">
+                                                    <div class="flex items-center gap-2 max-w-full">
+                                                        <span 
+                                                            class="w-2.5 h-2.5 rounded-full shrink-0" 
+                                                            :style="{ backgroundColor: getRiskLevelColorHex(item.riskLevel) }"
+                                                        ></span>
+                                                        <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel }}]</span>
+                                                        <span class="truncate text-xs">{{ item.name }}</span>
+                                                    </div>
+                                                </template>
+                                            </USelectMenu>
+                                        </UFormField>
+
+                                        <UFormField label="Risk Level" size="lg">
+                                            <div class="mt-2">
+                                                <UBadge v-if="activity.riskLevel" :color="getRiskLevelColor(activity.riskLevel)" size="lg" variant="solid">
+                                                    {{ activity.riskLevel }}
+                                                </UBadge>
+                                                <span v-else class="text-gray-400 text-sm">-</span>
+                                            </div>
                                         </UFormField>
                                     </div>
                                 </UCard>
@@ -98,22 +139,22 @@
                                     <div v-for="(month, idx) in store.monthsList" :key="idx" 
                                         @click="store.toggleMonth(idx)"
                                         class="cursor-pointer border rounded-lg p-2 text-center text-xs font-semibold transition select-none"
-                                        :class="store.form.selectedMonths.includes(idx) ? 'bg-secondary-600  border-secondary-600 shadow-md transform scale-105' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'"
+                                        :class="store.form.selectedMonths.includes(idx) ? 'border-secondary-600 shadow-md transform scale-105' : 'text-gray-500'"
                                     >
                                     {{ month }}
                                     </div>
                                 </div>
 
-                                <div v-if="store.scheduleWarning" class="flex items-center gap-2 text-warning-600 bg-warning-50 p-4 m-4 rounded-lg text-sm border border-warning-200">
+                                <div v-if="store.scheduleWarning" class="flex items-center gap-2 text-warning-600 p-4 m-4 rounded-lg text-sm border border-warning-200">
                                     <UIcon name="warning" class=" text-warning-500"></UIcon>
                                     {{ store.scheduleWarning }}
                                 </div>
-                                    <div v-if="store.quarterAlert" class="flex items-center gap-2 text-error-600 bg-red-50 p-4 m-4 rounded-lg text-sm border border-error-200">
+                                    <div v-if="store.quarterAlert" class="flex items-center gap-2 text-error-600 p-4 m-4 rounded-lg text-sm border border-error-200">
                                     <UIcon name="alert" class=" text-error-500"></UIcon>
                                     {{ store.quarterAlert }}
                                 </div>
             
-                                <div class="text-sm text-gray-600 bg-gray-50 p-4 m-4 rounded border">
+                                <div class="text-sm text-gray-600 p-4 m-4 rounded border">
                                     <span class="font-bold">Distribusi Triwulan:</span> 
                                         {{ store.computedQuarters.length ? store.computedQuarters.join(', ') : '-' }}
                                 </div>
@@ -123,7 +164,7 @@
                         <div class="space-y-4">
                             <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b pb-2">3. Auditor</h4>
             
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-primary-50 rounded-lg border border-primary-200 ">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 rounded-lg border border-primary-200 ">
                             <UFormField label="Number of Auditors (1-10)" size="lg"
                             >
                                 <UInput v-model.number="store.form.auditorCount" type="number" min="1" max="10" class="w-full"/>
@@ -137,7 +178,7 @@
                                 <UInput v-model.number="store.form.daysPerAuditor" type="number" min="1" />
                             </UFormField>
 
-                            <UBadge class=" p-3 rounded text-center bg-white flex flex-col justify-center">
+                            <UBadge class=" p-3 rounded text-center flex flex-col justify-center">
                                 <span class="text-xs text-gray-500 uppercase">Total Mandays</span>
                                 <span class="text-2xl font-bold text-primary-600">{{ store.totalMandays }}</span>
                                 <span class="text-xs text-gray-400">= {{ store.form.auditorCount }} person × {{ store.form.daysPerAuditor }} day</span>
@@ -169,7 +210,7 @@
                                         {{ store.utilizationData.msg }}
                                     </span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5 ">
+                                <div class="w-full rounded-full h-2.5 ">
                                     <div class="h-2.5 rounded-full transition-all duration-500" 
                                         :class="{
                                         'bg-success-500': store.utilizationData.color === 'green',
@@ -245,7 +286,7 @@
                         </div>
                     </div>
     
-                <div class="px-6 py-4 bg-secondary-50  border-t border-secondary-200  rounded-b-xl flex justify-end gap-3">
+                <div class="px-6 py-4 border-t border-secondary-200  rounded-b-xl flex justify-end gap-3">
                     <UButton 
                         :label="store.isEditing ? 'Update Plan' : 'Save Plan'" 
                         color="primary" 
@@ -264,9 +305,44 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment } from '~/types/audit'
 
-// Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
+const riskStore = useRiskProfileStore()
 
+riskStore.fetchRisks()
+
+const getFilteredRisksForDept = (dept: string) => {
+  if (!riskStore.risks || riskStore.risks.length === 0) {
+    return []
+  }
+  return riskStore.risks.filter(r => {
+    if (dept === 'IT') return r.category === 'Technology'
+    if (dept === 'Finance') return r.category === 'Financial'
+    if (dept === 'HR') return r.category === 'Human Resources'
+    if (dept === 'Ops') return ['Operations', 'Compliance', 'Strategic', 'Governance'].includes(r.category)
+    return true
+  })
+}
+
+const getRiskLevelColorHex = (level?: string) => {
+  if (!level) return '#9E9E9E'
+  const lvl = level.toLowerCase()
+  if (lvl.includes('high')) return '#F44336'
+  if (lvl.includes('moderate to high')) return '#FF9800'
+  if (lvl.includes('moderate')) return '#FFC107'
+  if (lvl.includes('low to moderate')) return '#8BC34A'
+  if (lvl.includes('low')) return '#4CAF50'
+  return '#9E9E9E'
+}
+
+const getRiskLevelColor = (level?: string) => {
+  if (!level) return 'neutral'
+  const lvl = level.toLowerCase()
+  if (lvl.includes('high')) return 'error'
+  if (lvl.includes('mod') || lvl.includes('medium')) return 'warning'
+  if (lvl.includes('low')) return 'success'
+  return 'neutral'
+}
 </script>

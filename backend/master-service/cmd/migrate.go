@@ -235,6 +235,7 @@ func autoMigrate(db *gorm.DB) error {
 		&models.AuditUniverse{},
 		&models.AuditWorkpaper{},
 		&models.QAReport{},
+		&models.ConsultingService{},
 	)
 }
 

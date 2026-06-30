@@ -3,7 +3,7 @@
       <UModal
         v-model:open="store.showModal"
         :dismissible="false"
-        class="w-full sm:max-w-4xl bg-secondary-100"
+        class="w-full sm:max-w-4xl bg-[var(--bg-main)] border-[var(--border-main)]"
       >
             <template #content>
               <UForm @submit.prevent="store.handleSubmit">
@@ -50,7 +50,7 @@
                         disabled
                       >
                         <div
-                          class="mt-1 block w-full rounded-md border border-secondary-200 bg-neutral-300 text-primary-900 p-2 sm:text-sm font-bold"
+                          class="mt-1 block w-full rounded-md border border-secondary-200 text-primary-900 p-2 sm:text-sm font-bold"
                         >
                           <span v-if="store.isEditing">{{ store.form.version }}</span>
                           <span v-else 
@@ -80,7 +80,7 @@
                         size="lg"
                       >
                         <div
-                          class="mt-1 block w-full rounded-md border border-secondary-200 bg-neutral-300 text-primary-900 p-2 sm:text-sm font-bold"
+                          class="mt-1 block w-full rounded-md border border-secondary-200 text-primary-900 p-2 sm:text-sm font-bold"
                         >
                           <span>{{ store.form.uploadedBy }}</span>
                         </div>

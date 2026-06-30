@@ -150,6 +150,8 @@ export interface AuditActivities {
   name: string;
   category: AuditCategory;
   department: AuditDepartment;
+  riskName?: string;
+  riskLevel?: string;
 }
 
 export interface RevisionHistory {
@@ -417,6 +419,7 @@ export interface PlannedAuditActivity {
   auditName: string;
   auditee: string;
   category: AuditCategory;
+  riskName?: string;
   riskLevel: RiskLevel;
   duration: number;
   priority: string;
@@ -460,6 +463,11 @@ export interface ActivityPlanFormState {
   resourceAuditors: ResourceAuditor[];
   budget: ActivityPlanBudget;
   review: ActivityPlanReview;
+  attachmentCategory?: string;
+  attachmentUploadedBy?: string;
+  attachmentUploadDate?: string;
+  attachments?: AnnualAuditAttachment[];
+  file?: File[] | null;
 }
 
 export interface ActivityPlan extends ActivityPlanFormState {

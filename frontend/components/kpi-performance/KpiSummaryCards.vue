@@ -51,7 +51,7 @@ const cards = computed(() => [
     iconColor: 'text-orange-500',
     iconBg: 'bg-orange-100 dark:bg-orange-900/30'
   }
-]
+])
 </script>
 
 <template>

@@ -1,11 +1,11 @@
 <template>
-  <UModal v-model:open="store.showModal" dismissible class="w-full sm:max-w-2xl">
+  <UModal v-model:open="store.showModal" dismissible :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
     <template #content>
       <div class="flex flex-col h-full max-h-[90vh]">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center">
+        <div class="px-6 py-4 border-b border-gray-200 rounded-t-xl flex justify-between items-center">
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-primary-100 rounded-lg">
+            <div class="p-2 rounded-lg">
               <UIcon name="i-heroicons-document-text" class="text-primary-600 size-6" />
             </div>
             <h3 class="text-lg font-bold text-gray-900">
