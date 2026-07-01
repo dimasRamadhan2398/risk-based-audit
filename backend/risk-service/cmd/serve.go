@@ -6,13 +6,16 @@ import (
 	"os"
 
 	"risk-service/controllers"
+	"risk-service/models"
 	"risk-service/pkg/database"
 	"risk-service/repositories"
 	"risk-service/routes"
 	"risk-service/services"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
+	"gorm.io/gorm"
 )
 
 var serveCmd = &cobra.Command{
