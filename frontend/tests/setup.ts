@@ -21,7 +21,7 @@ global.useCookie = vi.fn(() => ({
 }))
 global.useRuntimeConfig = vi.fn(() => ({
   public: {
-    apiBase: 'http://localhost:3001/api'
+    apiBase: 'http://localhost:8080/api/v1'
   }
 }))
 global.ref = (val: any) => ({ value: val })

@@ -141,7 +141,6 @@
 
         <!-- Device info chip -->
         <div class="mt-6 flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
-          <span>🔒</span>
           <span>Koneksi terenkripsi · {{ deviceInfo.deviceName }}</span>
         </div>
 
@@ -220,7 +219,13 @@ const handleLogin = async (event: FormSubmitEvent<Schema>) => {
     }
   }
   catch (err: any) {
-    error.value = err.message || 'Terjadi kesalahan saat login. Coba lagi.'
+    let errMsg = err.message || 'Terjadi kesalahan saat login. Coba lagi.'
+    if (errMsg.includes('Failed to fetch') || errMsg.includes('fetch failed')) {
+      errMsg = 'Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.'
+    } else if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized') || errMsg.toLowerCase().includes('invalid credentials')) {
+      errMsg = 'Username atau password salah.'
+    }
+    error.value = errMsg
   }
   finally {
     loading.value = false

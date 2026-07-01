@@ -8,7 +8,7 @@ database:
   port: 5432
   username: postgres
   password: postgres
-  name: rb_audit
+  name: rb_audit_auth_service
   sslmode: disable
 
 redis:

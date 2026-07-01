@@ -1,3 +1,5 @@
+name: rb_audit_backend
+
 services:
   postgres:
     image: postgres:16
@@ -11,6 +13,7 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-multiple-databases.sql:/docker-entrypoint-initdb.d/init-multiple-databases.sql
     networks:
       - rb_audit_network
 
@@ -74,11 +77,11 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:29092 --list || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 10
-      start_period: 30s
+      start_period: 60s
     networks:
       - rb_audit_network
 
@@ -112,7 +115,7 @@ services:
         condition: service_healthy
     ports:
       - "8001:8001"
-    command: sh -c "./auth --config ./pkg/config/config.yaml migrate up && ./auth --config ./pkg/config/config.yaml serve"
+    command: sh -c "./auth --config ./pkg/config/config.yaml seed && ./auth --config ./pkg/config/config.yaml serve"
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -149,7 +152,7 @@ services:
         condition: service_healthy
     ports:
       - "8002:8001"
-    command: sh -c "./audit migrate up && ./audit serve"
+    command: sh -c "./audit seed && ./audit serve"
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -168,7 +171,7 @@ services:
         condition: service_healthy
     ports:
       - "8003:8002"
-    command: sh -c "./master migrate up && ./master serve"
+    command: sh -c "./master seed && ./master serve"
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -192,11 +195,63 @@ services:
       - rb_audit_network
     restart: unless-stopped
 
+  python-ai:
+    build:
+      context: ./python-ai
+      dockerfile: Dockerfile
+    container_name: rb_audit_python_ai
+    ports:
+      - "8005:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - python_ai_models:/app/models
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+
+  kong:
+    image: kong:3.4
+    container_name: rb_audit_kong
+    volumes:
+      - ./kong:/usr/local/kong/declarative
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8080, 0.0.0.0:8443 ssl http2
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl http2
+      KONG_LOG_LEVEL: info
+      KONG_PLUGINS: bundled
+      KONG_NGINX_WORKER_PROCESSES: 1
+      KONG_NGINX_PROXY_BUFFERING: "off"
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "8001:8001"
+      - "8444:8444"
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+    depends_on:
+      - auth-service
+      - audit-service
+      - master-service
+      - risk-service
+      - analytics-service
+      - python-ai
+
 volumes:
   postgres_data:
   redis_data:
   zookeeper_data:
   kafka_data:
+  python_ai_models:
 
 networks:
   rb_audit_network:

@@ -6,22 +6,76 @@ services:
     image: postgres:16-alpine
     container_name: rb_audit_postgres_master
     environment:
-      POSTGRES_USER: admin_rbia
-      POSTGRES_PASSWORD: 12345678
-      POSTGRES_DB: master_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rb_audit_master_service
     ports:
-      - "5433:5433" # Changed host port to 5433 to avoid port clash if auth_service DB is also running!
+      - "5435:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      # FIX 2: Changed to check 'master_service' instead of 'auth_service'
-      test: ["CMD-SHELL", "pg_isready -U admin_rbia -d master_service"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rb_audit_master_service"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - rb_audit_network    
+      - rb_audit_network
 
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: rb_audit_redis_master
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rb_audit_network
+
+  # Zookeeper (required for Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: rb_audit_zookeeper_master
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2183:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - rb_audit_network
+
+  # Kafka Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: rb_audit_kafka_master
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9092"
+      - "29094:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAIN:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAIN://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092,OUTSIDE://localhost:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAIN
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_NUM_PARTITIONS: 3
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - rb_audit_network
+
+  # Master Service
   master-service:
     build:
       context: .
@@ -29,29 +83,34 @@ services:
     container_name: rb_audit_master_service
     command: sh -c "./master migrate up && ./master serve"
     ports:
-      - "8002:8002"
+      - "8003:8002"
     environment:
       - SERVER_PORT=8002
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=admin_rbia
-      - DB_PASSWORD=12345678
-      - DB_NAME=master_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=rb_audit_master_service
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - KAFKA_BROKERS=kafka:29092
     depends_on:
       postgres:
         condition: service_healthy
-      # FIX 3: Removed redis and kafka from depends_on since they aren't in this file
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - rb_audit_network
     restart: unless-stopped
 
 volumes:
   postgres_data:
-  # Removed unused volume declarations for redis, zookeeper, kafka here
+  redis_data:
+  zookeeper_data:
+  kafka_data:
 
 networks:
   rb_audit_network:
-    external: true # Assuming you want to connect to the shared network from the Auth/Kafka setup
+    driver: bridge

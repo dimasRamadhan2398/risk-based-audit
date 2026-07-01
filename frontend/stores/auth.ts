@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', {
         return data
       }
       catch (error: any) {
-        const msg = error?.data?.message || error?.message || 'Login failed'
+        const msg = error?.data?.error?.message || error?.data?.message || error?.message || 'Login failed'
         throw new Error(msg)
       }
     },
@@ -107,7 +107,7 @@ export const useAuthStore = defineStore('auth', {
         return data
       }
       catch (error: any) {
-        const msg = error?.data?.message || error?.message || 'MFA verification failed'
+        const msg = error?.data?.error?.message || error?.data?.message || error?.message || 'MFA verification failed'
         throw new Error(msg)
       }
     },
@@ -206,7 +206,7 @@ export const useAuthStore = defineStore('auth', {
         }
       }
       catch (error: any) {
-        throw new Error(error.data?.message || 'Failed to update profile')
+        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to update profile')
       }
     },
 
@@ -325,7 +325,7 @@ export const useAuthStore = defineStore('auth', {
         )
       }
       catch (error: any) {
-        throw new Error(error.data?.message || 'Failed to remove device')
+        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to remove device')
       }
     },
 
@@ -338,7 +338,7 @@ export const useAuthStore = defineStore('auth', {
         })
       }
       catch (error: any) {
-        throw new Error(error.data?.message || 'Failed to send reset email')
+        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to send reset email')
       }
     },
 
@@ -351,7 +351,7 @@ export const useAuthStore = defineStore('auth', {
         })
       }
       catch (error: any) {
-        throw new Error(error.data?.message || 'Failed to reset password')
+        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to reset password')
       }
     },
   },

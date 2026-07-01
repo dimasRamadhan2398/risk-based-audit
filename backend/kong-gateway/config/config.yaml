@@ -1,0 +1,124 @@
+server:
+  port: 8080
+  mode: release
+  read_timeout: 60
+  write_timeout: 60
+
+upstream:
+  services:
+    # Auth Service
+    - name: auth-service
+      url: http://auth-service:8001
+      prefix: /api/auth
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+      timeout: 30
+      retry_count: 3
+      health_check:
+        enabled: true
+        interval: 30
+        timeout: 5
+
+    # Audit Service
+    - name: audit-service
+      url: http://audit-service:8001
+      prefix: /api/audit
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+      timeout: 30
+      retry_count: 3
+      health_check:
+        enabled: true
+        interval: 30
+        timeout: 5
+
+    # Master Service
+    - name: master-service
+      url: http://master-service:8002
+      prefix: /api/master
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+      timeout: 30
+      retry_count: 3
+      health_check:
+        enabled: true
+        interval: 30
+        timeout: 5
+
+    # Risk Service
+    - name: risk-service
+      url: http://risk-service:8002
+      prefix: /api/risk
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+      timeout: 30
+      retry_count: 3
+      health_check:
+        enabled: true
+        interval: 30
+        timeout: 5
+
+    # Analytics Service
+    - name: analytics-service
+      url: http://analytics-service:8084
+      prefix: /api/analytics
+      methods: ["GET", "POST", "OPTIONS"]
+      timeout: 60
+      retry_count: 2
+      health_check:
+        enabled: true
+        interval: 30
+        timeout: 5
+
+    # Python AI Service
+    - name: python-ai-service
+      url: http://python-ai:8000
+      prefix: /api/ai
+      methods: ["GET", "POST", "OPTIONS"]
+      timeout: 120
+      retry_count: 1
+      health_check:
+        enabled: true
+        interval: 30
+        timeout: 10
+
+auth:
+  enabled: true
+  jwt_secret: "your-secret-key-change-in-production"
+  skip_paths:
+    - /health
+    - /healthz
+    - /ready
+    - /metrics
+  token_header: "Authorization"
+  token_prefix: "Bearer"
+
+cors:
+  allow_origins:
+    - "*"
+  allow_methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - PATCH
+    - OPTIONS
+  allow_headers:
+    - Origin
+    - Content-Type
+    - Accept
+    - Authorization
+    - X-Requested-With
+    - X-Api-Key
+  expose_headers:
+    - Content-Length
+    - Content-Type
+    - X-Request-Id
+  allow_credentials: true
+  max_age: 3600
+
+rate_limit:
+  enabled: true
+  requests_per_min: 100
+  burst_size: 20
+  cleanup_interval: 60
+
+log:
+  level: info
+  format: json

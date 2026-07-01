@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # Python AI Service
+  python-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rb_audit_python_ai
+    ports:
+      - "8005:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - models_data:/app/models
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+
+volumes:
+  models_data:
+
+networks:
+  rb_audit_network:
+    driver: bridge
