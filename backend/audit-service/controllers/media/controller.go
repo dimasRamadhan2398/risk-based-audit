@@ -4,6 +4,7 @@ import (
 	"audit-service/pkg/response"
 	"audit-service/services/media"
 	"net/http"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,4 +36,10 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 	}
 
 	response.Success(c, http.StatusOK, "File uploaded successfully", attachment)
+}
+
+func (ctrl *MediaController) Download(c *gin.Context) {
+	id := c.Param("id")
+	filePath := filepath.Join("uploads", id)
+	c.File(filePath)
 }

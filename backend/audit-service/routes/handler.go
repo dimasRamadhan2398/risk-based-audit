@@ -270,6 +270,16 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditResultReports.DELETE("/:id", crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 	}
 
+	// 17b. Executive Summary Reports
+	executiveSummaries := apiV1.Group("/executive-summaries")
+	{
+		executiveSummaries.GET("", crud.List(h.db, "ExecutiveSummary", func() interface{} { return &[]models.ExecutiveSummary{} }))
+		executiveSummaries.GET("/:id", crud.GetByID(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+		executiveSummaries.POST("", crud.Create(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+		executiveSummaries.PUT("/:id", crud.Update(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+		executiveSummaries.DELETE("/:id", crud.Delete(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+	}
+
 	// 18. Action Taken Reports
 	actionTakenReports := apiV1.Group("/action-taken-reports")
 	{
@@ -284,5 +294,6 @@ func (h *RouteHandler) RegisterRoutes() {
 	media := apiV1.Group("/media")
 	{
 		media.POST("/upload", h.registry.Media.Upload)
+		media.GET("/download/:id", h.registry.Media.Download)
 	}
 }

@@ -112,6 +112,7 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.ImportedWorkingPaper{},
 		&models.KPIAchievement{},
 		&models.WorkPlanRealization{},
+		&models.ExecutiveSummary{},
 	}
 
 	if migrateDryRun {

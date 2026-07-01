@@ -214,7 +214,7 @@ services:
     image: kong:3.4
     container_name: rb_audit_kong
     volumes:
-      - ./kong:/usr/local/kong/declarative
+      - ./kong-gateway:/usr/local/kong/declarative
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
@@ -223,11 +223,10 @@ services:
       KONG_LOG_LEVEL: info
       KONG_PLUGINS: bundled
       KONG_NGINX_WORKER_PROCESSES: 1
-      KONG_NGINX_PROXY_BUFFERING: "off"
     ports:
       - "8080:8080"
       - "8443:8443"
-      - "8001:8001"
+      - "8006:8001"
       - "8444:8444"
     healthcheck:
       test: ["CMD", "kong", "health"]
