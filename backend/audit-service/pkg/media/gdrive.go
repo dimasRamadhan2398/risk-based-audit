@@ -4,8 +4,10 @@ import (
 	"audit-service/models"
 	"audit-service/pkg/config"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -25,7 +27,20 @@ func NewGDriveProvider(cfg *config.GDriveConfig) (MediaProvider, error) {
 
 	if cfg.AuthMode == "service_account" {
 		if cfg.CredentialsJSON != "" {
-			opts = append(opts, option.WithCredentialsJSON([]byte(cfg.CredentialsJSON)))
+			var creds map[string]interface{}
+			if err := json.Unmarshal([]byte(cfg.CredentialsJSON), &creds); err == nil {
+				if pk, ok := creds["private_key"].(string); ok {
+					// Clean literal \n sequences into real newlines inside the parsed private key string
+					creds["private_key"] = strings.ReplaceAll(pk, `\n`, "\n")
+				}
+				if cleanedJSON, err := json.Marshal(creds); err == nil {
+					opts = append(opts, option.WithCredentialsJSON(cleanedJSON))
+				} else {
+					opts = append(opts, option.WithCredentialsJSON([]byte(cfg.CredentialsJSON)))
+				}
+			} else {
+				opts = append(opts, option.WithCredentialsJSON([]byte(cfg.CredentialsJSON)))
+			}
 		} else if cfg.CredentialsJSONPath != "" {
 			opts = append(opts, option.WithCredentialsFile(cfg.CredentialsJSONPath))
 		}

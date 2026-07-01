@@ -106,19 +106,34 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/audit-result-report',
   },
   {
-    label: '9. Action Taken Report',
+    label: '9. Executive Summary Report',
+    icon: 'i-lucide-file-text',
+    to: '/executive-summary',
+    children: [
+      {
+        label: 'Compilation & Narrative',
+        icon: 'i-lucide-clipboard-list',
+        to: '/executive-summary',
+      },
+      {
+        label: 'Matriks Induk Temuan',
+        icon: 'i-lucide-table',
+        to: '/executive-summary/matriks',
+      }
+    ]
+  },
+  {
+    label: '10. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
   },
-
   {
-    label: '10. Consulting Service',
+    label: '11. Consulting Service',
     icon: 'i-lucide-users',
     to: '/consulting-service',
   },
-  
   {
-    label: '11. Quality Assurance Review',
+    label: '12. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [

@@ -1,0 +1,4 @@
+CREATE DATABASE rb_audit_auth_service;
+CREATE DATABASE rb_audit_risk_service;
+CREATE DATABASE rb_audit_audit_service;
+CREATE DATABASE rb_audit_master_service;
