@@ -273,22 +273,30 @@ export const useAuthStore = defineStore('auth', {
 
     /** Restore session from cookies on app init */
     async fetchUser() {
-      const tokenCookie = useCookie('auth-token')
-      const userCookie = useCookie('auth-user')
+      const tokenCookie = useCookie<string | null>('auth-token')
+      const userCookie = useCookie<any>('auth-user')
+
+      console.log('[AuthStore] fetchUser() cookies read: token =', tokenCookie.value ? 'present' : 'missing', 'user =', typeof userCookie.value, userCookie.value)
 
       if (!tokenCookie.value || !userCookie.value) {
+        console.log('[AuthStore] fetchUser() failed: one or both cookies are missing.')
         this._initialized = true
         return
       }
 
       try {
-        const user = JSON.parse(userCookie.value)
+        let user = userCookie.value
+        if (typeof user === 'string') {
+          user = JSON.parse(user)
+        }
         this.user = user
         this.token = tokenCookie.value
         this.isAuthenticated = true
         this._initialized = true
+        console.log('[AuthStore] Session successfully restored for user:', this.user?.username)
       }
-      catch {
+      catch (err) {
+        console.error('[AuthStore] Failed to restore session from cookie:', err)
         this._initialized = true
         this._clearState()
       }

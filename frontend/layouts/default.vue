@@ -78,8 +78,20 @@ const rawItems: NavigationMenuItem[][] = [[
   },
   {
     label: '8. Audit Result Report',
-    icon: 'i-lucide-users',
+    icon: 'i-lucide-file-text',
     to: '/audit-result-report',
+    children: [
+      {
+        label: 'Result Reports',
+        icon: 'i-lucide-list',
+        to: '/audit-result-report',
+      },
+      {
+        label: 'Executive Summary',
+        icon: 'i-lucide-presentation',
+        to: '/audit-result-report/executive-summary',
+      }
+    ]
   },
   {
     label: '9. Action Taken Report',
