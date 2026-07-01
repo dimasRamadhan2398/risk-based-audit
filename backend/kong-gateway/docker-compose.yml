@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # Kong Gateway Service
+  kong-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rb_audit_kong_gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - GIN_MODE=release
+    volumes:
+      - ./config:/app/config:ro
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  # No persistent volumes needed for gateway
+
+networks:
+  rb_audit_network:
+    external: true

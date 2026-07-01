@@ -6,7 +6,7 @@ import { useAuthStore } from '~/stores/auth'
 vi.mock('#app', () => ({
   useRuntimeConfig: () => ({
     public: {
-      apiBase: 'http://localhost:3001/api'
+      apiBase: 'http://localhost:8080/api/v1'
     }
   }),
   useCookie: vi.fn(() => ({

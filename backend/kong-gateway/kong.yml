@@ -1,0 +1,80 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: auth-service
+    url: http://auth-service:8001
+    routes:
+      - name: auth-routes-v1
+        paths:
+          - /api/v1/auth
+          - /api/v1/users
+          - /api/v1/mfa
+          - /api/v1/devices
+          - /api/v1/confidentiality
+        strip_path: false
+
+  - name: auth-service-legacy-mfa
+    url: http://auth-service:8001/api/v1/mfa
+    routes:
+      - name: auth-route-legacy-mfa
+        paths:
+          - /api/mfa
+        strip_path: true
+
+  - name: auth-service-legacy-devices
+    url: http://auth-service:8001/api/v1/devices
+    routes:
+      - name: auth-route-legacy-devices
+        paths:
+          - /api/devices
+        strip_path: true
+
+  - name: audit-service
+    url: http://audit-service:8001
+    routes:
+      - name: audit-routes
+        paths:
+          - /api/v1/audit-charters
+          - /api/v1/audit-mandates
+          - /api/v1/audit-assignments
+          - /api/v1/audit-activities
+          - /api/v1/annual-audit-plans
+          - /api/v1/activity-plans
+          - /api/v1/strategic-plans
+          - /api/v1/assignment-letters
+          - /api/v1/audit-executions
+          - /api/v1/fieldwork
+          - /api/v1/working-papers
+          - /api/v1/audit-result-reports
+          - /api/v1/action-taken-reports
+          - /api/v1/media
+        strip_path: false
+
+  - name: master-service
+    url: http://master-service:8002
+    routes:
+      - name: master-routes
+        paths:
+          - /api/v1/companies
+          - /api/v1/business-units
+          - /api/v1/departments
+          - /api/v1/quality-assurance
+        strip_path: false
+
+  - name: risk-service
+    url: http://risk-service:8002
+    routes:
+      - name: risk-routes
+        paths:
+          - /api/v1/risks
+          - /api/v1/mitigations
+        strip_path: false
+
+  - name: analytics-service
+    url: http://analytics-service:8084
+    routes:
+      - name: analytics-routes
+        paths:
+          - /api/analytics
+        strip_path: false
