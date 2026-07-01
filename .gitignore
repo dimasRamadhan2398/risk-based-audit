@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Google Drive credentials
+gdrive-credentials.json
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
