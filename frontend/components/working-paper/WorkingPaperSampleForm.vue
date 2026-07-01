@@ -1,6 +1,6 @@
 <template>
     
-      <UModal v-model:open="store.showModalF03" :dismissible="false" class="w-full sm:max-w-4xl">
+      <UModal v-model:open="store.showModalF03" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
         <div></div>
 
         <template #content>

@@ -110,6 +110,7 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.AuditResultReport{},
 		&models.ActionTakenReport{},
 		&models.ImportedWorkingPaper{},
+		&models.UploadedPlanDocument{},
 		&models.KPIAchievement{},
 		&models.WorkPlanRealization{},
 		&models.ExecutiveSummary{},

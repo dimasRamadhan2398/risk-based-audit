@@ -14,14 +14,14 @@
 
           <UTable :rows="devices" :columns="columns">
             <template #created_at-data="{ row }">
-              {{ new Date(row.created_at).toLocaleDateString() }}
+              {{ new Date(row.original.created_at).toLocaleDateString() }}
             </template>
             <template #actions-data="{ row }">
               <UButton
-                color="red"
+                color="error"
                 variant="ghost"
                 icon="i-lucide-trash"
-                @click="handleRemove(row.id)"
+                @click="handleRemove(row.original.id)"
               />
             </template>
           </UTable>
@@ -50,18 +50,27 @@
 <script setup lang="ts">
 import QRCode from 'qrcode'
 
+import type { TableColumn } from '@nuxt/ui'
+
+interface Device {
+  id: string
+  device_name: string
+  ip_address: string
+  created_at: string
+}
+
 const config = useRuntimeConfig()
-const devices = ref([])
+const devices = ref<Device[]>([])
 const showQRModal = ref(false)
 const qrData = ref<any>(null)
 const qrCodeDataURL = ref('')
 const toast = useToast()
 
-const columns = [
-  { key: 'device_name', label: 'Device' },
-  { key: 'ip_address', label: 'IP Address' },
-  { key: 'created_at', label: 'Added On' },
-  { key: 'actions', label: '' }
+const columns: TableColumn<Device>[] = [
+  { accessorKey: 'device_name', header: 'Device' },
+  { accessorKey: 'ip_address', header: 'IP Address' },
+  { accessorKey: 'created_at', header: 'Added On' },
+  { accessorKey: 'actions', header: '' }
 ]
 
 const fetchDevices = async () => {
@@ -80,7 +89,7 @@ const handleGenerateQR = async () => {
     }
     showQRModal.value = true
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'red' })
+    toast.add({ title: 'Error', description: err.message, color: 'error' })
   }
 }
 
@@ -92,7 +101,7 @@ const handleRemove = async (id: string) => {
     toast.add({ title: 'Device removed' })
     await fetchDevices()
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'red' })
+    toast.add({ title: 'Error', description: err.message, color: 'error' })
   }
 }
 

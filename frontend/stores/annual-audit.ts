@@ -60,6 +60,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const columns: TableColumn<AnnualAuditPlan>[] = [
     { accessorKey: 'activity', header: 'Activity' },
     { accessorKey: 'department', header: 'Department' },
+    { accessorKey: 'riskName', header: 'Risk Name' },
+    { accessorKey: 'riskLevel', header: 'Risk Level' },
     { accessorKey: 'timeline', header: 'Timeline' },
     { accessorKey: 'progress', header: 'Progress' },
     { accessorKey: 'status', header: 'Status' },
@@ -74,11 +76,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // --- STATE UNTUK FILTER ---
   const searchCode = ref('')
-  const selectedDepartment = ref<string | undefined>(undefined)
-  const selectedStatus = ref<string | undefined>(undefined)
+  const selectedDepartment = ref<AuditDepartment | undefined>(undefined)
+  const selectedStatus = ref<AnnualAuditPlanStatus | undefined>(undefined)
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
   const yearOptions = ['2026', '2027', '2028', '2029', '2030']
+  const departmentOptions = Object.values(AuditDepartment)
+  const statusOptions = Object.values(AnnualAuditPlanStatus)
 
   // --- COMPUTED: FILTER DATA ---
   const filteredPlans = computed(() => {
@@ -138,6 +142,15 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       case 'Not Available': return 'bg-gray-400'
       default: return 'bg-gray-200'
     }
+  }
+
+  const getRiskLevelColor = (level?: string) => {
+    if (!level) return 'neutral'
+    const lvl = level.toLowerCase()
+    if (lvl.includes('high')) return 'error'
+    if (lvl.includes('mod') || lvl.includes('medium')) return 'warning'
+    if (lvl.includes('low')) return 'success'
+    return 'neutral'
   }
 
   // State untuk menyimpan ID baris yang sedang "Read More"
@@ -441,7 +454,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       notes: form.notes,
       year: parseInt(form.year) || 2026,
       attachmentCategory: form.attachmentCategory,
-      attachments: [],
+      attachments: form.file && form.file.length > 0 ? form.file.map((f: any) => ({
+        name: f.name,
+        size: Math.round(f.size / 1024) + ' KB',
+        url: '#'
+      })) : [],
       attachmentUploadedBy: form.attachmentUploadedBy,
       attachmentUploadDate: form.attachmentUploadDate,
       isActive: form.isActive
@@ -461,12 +478,19 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
     const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
 
+    const fileList = updatedData.file && updatedData.file.length > 0 ? updatedData.file.map((f: any) => ({
+      name: f.name,
+      size: Math.round(f.size / 1024) + ' KB',
+      url: '#'
+    })) : []
+
     const payload = {
       ...updatedData,
       quarters: quarters,
       totalMandays: totalMandays,
       supervisorName: supervisor?.name || 'Unknown',
-      year: parseInt(updatedData.year) || 2026
+      year: parseInt(updatedData.year) || 2026,
+      attachments: (updatedData.attachments || []).concat(fileList)
     }
 
     await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
@@ -593,10 +617,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading,
     filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
     computedQuarters,
-    clearFilters, openViewModal, closeViewModal, toggleMonth, addActivity, removeActivity, handleDownload,
+    clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
+    toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
     getStatusColor, handleFileChange, fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
-    createRevision
+    createRevision, getRiskLevelColor
   }
 })

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-7xl mx-auto space-y-6 bg-gray-50 min-h-screen">
+  <div class="p-6 max-w-7xl mx-auto space-y-6 min-h-screen">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <div>
@@ -9,9 +9,9 @@
     </div>
 
     <!-- Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="flex flex-col gap-10">
       <!-- Import Form Card -->
-      <div class="lg:col-span-1 space-y-6">
+      <div class="w-full space-y-6">
         <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200">
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -52,7 +52,7 @@
                     ? 'border-primary bg-primary-50' 
                     : form.fileName 
                       ? 'border-green-400 bg-green-50' 
-                      : 'border-gray-300 hover:border-primary bg-white'
+                      : 'border-gray-300 hover:border-primary'
                 ]"
               >
                 <input 
@@ -130,8 +130,8 @@
           </div>
 
           <!-- Empty State -->
-          <div v-else-if="store.importedPapers.length === 0" class="py-16 text-center space-y-4 bg-white rounded-lg">
-            <div class="inline-flex p-4 bg-gray-100 rounded-full text-gray-400">
+          <div v-else-if="store.importedPapers.length === 0" class="py-16 text-center space-y-4 rounded-lg">
+            <div class="inline-flex p-4 rounded-full text-gray-400">
               <UIcon name="i-heroicons-folder-open" class="w-12 h-12" />
             </div>
             <div class="max-w-xs mx-auto">

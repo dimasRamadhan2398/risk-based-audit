@@ -1,14 +1,14 @@
 <template>
     
-      <UModal v-model:open="store.isModalOpen" :dismissible="false" class="w-full sm:max-w-4xl">
+      <UModal v-model:open="store.isModalOpen" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
         <div></div>
         <template #content>
         <UForm 
         :state="store.form"
         @submit.prevent="store.handleSubmit"
         >
-        <div class="relative bg-secondary-50  rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
-          <div class="flex justify-between items-center p-6 border-b border-gray-100  bg-secondary-50 /50">
+        <div class="relative  rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+          <div class="flex justify-between items-center p-6 border-b border-gray-100">
             <h2 class="text-xl font-bold text-gray-800  flex items-center gap-2">
               <UIcon name="i-heroicons-document-plus" class="w-6 h-6 text-orange-500" />
               Add Assignment Letter
@@ -128,7 +128,7 @@
 
           </div>
 
-          <div class="p-6 border-t border-gray-100  bg-secondary-50 /50 flex justify-end items-center gap-4">
+          <div class="p-6 border-t border-gray-100 flex justify-end items-center gap-4">
             <!-- <UButton label="Cancel" color="neutral" variant="soft" @click="store.closeModal" class="font-bold text-gray-500 hover:text-gray-700 px-4 py-2" /> -->
             <UButton label="Save Assignment Letter" color="primary" size="lg" class="font-bold px-8 shadow-md" @click="store.handleSubmit" />
           </div>

@@ -41,11 +41,10 @@ app:
 
 gdrive:
   enabled: true
-  auth_mode: "service_account" # "service_account" or "oauth2"
-  credentials_json_path: ""
-  credentials_json: '{"type":"service_account","project_id":"auditsphere-risk-based","private_key_id":"e830f8817958852c3cc381e8247912a653268605","private_key":"-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDKenXSkxCXNKyY\ngB4wwOvmPfuVT0649fwHDq9J2YbwC3/DTc9dtaAP0tEw2ethUEsgTvVRUoa4lmts\nNiGNF6+nqiOBet9Qr4MKFjfXj857bGFwiLqQWdUYaRShyK1RWuQGJMQ6PVqIoDnn\n0Jt4tQLXV1WQN8Uja/pbj8mTrZj7llun0izTkPyu85vwwdeAgk0OfN2oY+2CWJOt\nPgmXuOsHYE6xqaHORQFzTRWdJ1s4R1exbVhVP/5c+JOcqHQfDPp7MKS+LzDCe5Pj\nh2s15LCvmePfZgaUlQg7HR3PipEt8BwaMZFw/nTTPHtx8/b6/pyZUi8SnQMFxSNe\nIeXRe5yNAgMBAAECggEARfX3RQmcl2pTYqQOCnF2cQkkpywOetk/ul6IEZ/QQJvw\nitaVWn85rY39yv/ZFThNpP2zROSbeSc8OdkgUaSIBIpEl2YRyErEn9UaeWiOg1Xo\n+x27PMpVV4hjYR06SZx6ombMyITPhdq69068kYIV17ss7NZgTwNtr3pov5ahf/gQ\nGjXKcHPeSacwHKRdoP5iIKzcO/AsG32eX3r39aqBdo7z7WmuLtLt9LzkS/4r4FuZ\nCLkK6+2JQQD2VY9YHMMunUea2nX1byC5oyCp5vTO/aBPz2qDWab+IZeBf8/ij+2Q\nP3H8eIGbgmT3W0zTitrz3/pIoOZ43ee02VYRgJKPrwKBgQDn2jLkUJYJsHUnvC6+\nwheYY1FcXBufD5ML7LOAcTWoIzZ7I+2BVJ5/HKzxVwlqE6h/rphrS+u34hT9bqDf\nxN+duusx5UlN3sj9QHJ4IKkwONgGhx7U+5JT/oUwljZ/PlR7W0DUAFHEAgWM3a4x\ny/nlYOetMNicOpDy841hvLBE2wKBgQDfkRKpg09viY2znMNpcofcQ6vUxC+pIBJb\nK0ZsOYF9lkWNb1EsVZMIZh2IWq/kqt6lUKZovl7n4L2TJ8mBqeGIxKe7+sx2TtRM\nJh9SWx5edWt7hjUV4whwLyrB2RmeOskxAWO50pOU6/UNyi3fdeKMgp2iQI9X5Rpq\nhkGSW6pstwKBgQCWjiVwBzh20EQzakq8ipMB3LSPkixJjLaDDtC9PkaGiV8udXUb\n/5PwnPFcwpUVcfCAASNuwV0vCjtxGq6SwGgpJ6DkxKxmSZ4gfgIXKbZT3wXAr2uB\nCF/L9UIN++0lkZcQh4BAaniuHFX4VFdydK8wmU24NDjksk8/xJHxfrLD8wKBgQDC\nTRVJGgRpzcTHu5DiDlYhivbGHhPGC0eo0L2NxZTTD003lO2ZeG4nOIimPxrrw81p\nI+Tc18coA9z/De9Fr92BvliBOYGFuREtdVx3eRW1xps5afStJvnodjXU79gh+rls\ny+ZeU7NMFJ6P841Wzt+sesCBiVaLb2Q7/J70kpJVlQKBgAev9qgdUnHSgiTwYIg2\n3+xmTvC88Xp7klEyx6sI+Yu8zxlrw8EPWvidmnFzpHQup4LTEQxsI/ONbbsTL9z6\nx55qHx55J3h8cKfsHoouE57seO7dZQpdOa/MdxeFVrurHeTzb83lU4DwW+QNUZlO\nY8W/cF/dJ820o/j2zxXWdAzB\n-----END PRIVATE KEY-----\n","client_email":"auditsphere-staging-service@auditsphere-risk-based.iam.gserviceaccount.com","client_id":"102391963349370602138","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/auditsphere-staging-service%40auditsphere-risk-based.iam.gserviceaccount.com","universe_domain":"googleapis.com"}'
+  auth_mode: "service_account"
+  credentials_json_path: "./pkg/config/gdrive-credentials.json"
+  credentials_json: ""
   client_id: ""
   client_secret: ""
   refresh_token: ""
   default_folder_id: ""
-

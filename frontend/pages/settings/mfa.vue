@@ -40,7 +40,7 @@
 
         <div v-else class="space-y-4">
           <p class="text-gray-600">Two-factor authentication is currently enabled for your account.</p>
-          <UButton color="red" variant="subtle" @click="showDisableModal = true">Disable MFA</UButton>
+          <UButton color="error" variant="subtle" @click="showDisableModal = true">Disable MFA</UButton>
         </div>
       </UCard>
 
@@ -54,7 +54,7 @@
           <template #footer>
             <div class="flex justify-end gap-3">
               <UButton color="neutral" variant="ghost" @click="showDisableModal = false">Cancel</UButton>
-              <UButton color="red" :loading="loading" @click="handleDisable">Confirm Disable</UButton>
+              <UButton color="error" :loading="loading" @click="handleDisable">Confirm Disable</UButton>
             </div>
           </template>
         </UCard>
@@ -94,7 +94,7 @@ const handleSetup = async () => {
       qrCodeDataURL.value = await QRCode.toDataURL(setupData.value.qr_code_url)
     }
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'red' })
+    toast.add({ title: 'Error', description: err.message, color: 'error' })
   }
 }
 
@@ -112,7 +112,7 @@ const handleVerifySetup = async () => {
     setupData.value = null
     await fetchStatus()
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'red' })
+    toast.add({ title: 'Error', description: err.message, color: 'error' })
   } finally {
     loading.value = false
   }
@@ -130,7 +130,7 @@ const handleDisable = async () => {
     password.value = ''
     await fetchStatus()
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'red' })
+    toast.add({ title: 'Error', description: err.message, color: 'error' })
   } finally {
     loading.value = false
   }

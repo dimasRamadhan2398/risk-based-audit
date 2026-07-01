@@ -1,13 +1,13 @@
 <template>
-  <UModal v-model:open="store.isFormOpen" :dismissible="false" :ui="{ content: 'sm:max-w-2xl' }">
+  <UModal v-model:open="store.isFormOpen" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
     
     <div></div>
 
     <template #content>
       <UForm :state="store.form" @submit.prevent="() => store.handleSubmit(props.currentRiskId)">
-        <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
           
-          <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center">
+          <div class="px-6 py-4 rounded-t-xl flex justify-between items-center">
             <h3 class="text-lg font-bold text-[var(--text-main)]">
               {{ store.isEditing ? 'Edit Mitigation & Control Plan' : 'Tambah Mitigation & Control Plan' }}
             </h3>
@@ -64,7 +64,7 @@
 
           </div>
       
-          <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end gap-3">
+          <div class="px-6 py-4 rounded-b-xl flex justify-end gap-3">
             <UButton label="Cancel" color="neutral" variant="outline" @click="store.closeForm" />
             <UButton :label="store.isEditing ? 'Save Changes' : 'Save Mitigation'" color="primary" type="submit" />
           </div>

@@ -1,5 +1,5 @@
 <template>
-    <UModal v-model:open="store.isFormOpen" scrollable>
+    <UModal v-model:open="store.isFormOpen" scrollable class="w-full sm:max-w-2xl bg-[var(--bg-main)] border-[var(--border-main)]">
       <template #content>
         <UCard :ui="{ header: 'px-6 py-4', body: 'px-6 py-6', footer: 'px-6 py-4' }">
           <template #header>
@@ -58,7 +58,32 @@
                   <USelectMenu v-model="store.newReport.status" :items="store.qaStatuses" placeholder="Select Status" class="w-full"/>
                 </UFormField>
                 <UFormField label="Result/Score" required>
-                  <UInput v-model="store.newReport.result" placeholder="9" class="w-full"/>
+                  <USelectMenu 
+                    v-if="store.newReport.type === QAType.IACM"
+                    v-model="store.newReport.result" 
+                    :items="['1', '2', '3', '4', '5']" 
+                    placeholder="Select Score (1-5)" 
+                    class="w-full"
+                  />
+                  <USelectMenu 
+                    v-else-if="store.newReport.type === QAType.QAR"
+                    v-model="store.newReport.result" 
+                    :items="['Does not Conform', 'Partially Conform', 'Generally Conformed', 'Fully Conformance']" 
+                    placeholder="Select Conformance" 
+                    class="w-full"
+                  />
+                  <UInput 
+                    v-else-if="store.newReport.type === QAType.REGULAR"
+                    v-model="store.newReport.result" 
+                    placeholder="Ex: 8.5/10" 
+                    class="w-full"
+                  />
+                  <UInput 
+                    v-else
+                    v-model="store.newReport.result" 
+                    placeholder="Ex: 92%" 
+                    class="w-full"
+                  />
                 </UFormField>
               </div>
             </div>
@@ -66,9 +91,14 @@
             <!-- Section 4 -->
             <div class="space-y-4">
               <h4 class="font-bold text-gray-700">4. Special Details</h4>
-              <UFormField label="Internal Evaluator">
-                <UInput v-model="store.newReport.internalEvaluator" placeholder="Team Name / Lead Auditor..." class="w-full"/>
-              </UFormField>
+              <div class="grid grid-cols-2 gap-4">
+                <UFormField label="Conducted By">
+                  <UInput v-model="store.newReport.conductedBy" placeholder="Ex: PT Nama Perusahaan" class="w-full"/>
+                </UFormField>
+                <UFormField label="Internal Evaluator">
+                  <UInput v-model="store.newReport.internalEvaluator" placeholder="Team Name / Lead Auditor..." class="w-full"/>
+                </UFormField>
+              </div>
             </div>
 
             <!-- Section 5 -->
@@ -101,7 +131,7 @@
 
 <script setup lang="ts">
 
-import { useQualityAssuranceStore } from '~/stores/quality-assurance'
+import { useQualityAssuranceStore, QAType } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
 

@@ -29,7 +29,7 @@
             v-model:open="isAddModalOpen"
             title="Add New Corporate Risk" 
             description="Enter the details of the new risk to be added to the heatmap."
-            :ui="{ content: 'sm:max-w-2xl' }"
+            :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
           >
             <UButton 
               icon="i-heroicons-plus"
@@ -353,7 +353,7 @@
                     <UModal 
                       :title="`Risk Detail: # ${store.getFormattedId(risk)}`"
                       description="Complete assessment data and categorization for this risk event."
-                      :ui="{ width: 'sm:max-w-lg' }"
+                      :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
                     >
                       <UButton
                         icon="i-heroicons-eye"

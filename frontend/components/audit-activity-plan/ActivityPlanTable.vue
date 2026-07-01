@@ -6,6 +6,51 @@
       :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data rencana audit.' }"
       class="w-full text-sm text-left"
     >
+      <template #riskName-cell="{ row }">
+        <div class="flex flex-col gap-1">
+          <div 
+            v-for="(act, idx) in getOriginal(row).plannedActivities" 
+            :key="idx"
+            class="text-xs font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
+            :title="act.riskName"
+          >
+            {{ act.riskName || '-' }}
+          </div>
+        </div>
+      </template>
+
+      <template #riskLevel-cell="{ row }">
+        <div class="flex gap-1 flex-wrap">
+          <UBadge 
+            v-for="(act, idx) in getOriginal(row).plannedActivities" 
+            :key="idx"
+            :color="store.getRiskLevelColor ? store.getRiskLevelColor(act.riskLevel) : 'neutral'"
+            variant="soft"
+            size="md"
+          >
+            {{ act.riskLevel || '-' }}
+          </UBadge>
+        </div>
+      </template>
+
+      <template #attachments-cell="{ row }">
+        <div class="flex items-center gap-1">
+          <UButton
+            v-if="getOriginal(row).attachments?.length"
+            v-for="(file, idx) in getOriginal(row).attachments"
+            :key="idx"
+            :to="file.url"
+            target="_blank"
+            icon="i-heroicons-document-arrow-down"
+            color="primary"
+            variant="ghost"
+            size="sm"
+            :title="file.name"
+          />
+          <span v-else class="text-gray-400 text-xs">-</span>
+        </div>
+      </template>
+
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-2">
           <UButton
@@ -13,7 +58,7 @@
             color="primary"
             variant="ghost"
             size="sm"
-            @click="store.openViewModal(row.original)"
+            @click="store.openViewModal(getOriginal(row))"
           />
           
           <UButton
@@ -21,7 +66,7 @@
             color="primary"
             variant="ghost"
             size="sm"
-            @click="store.handleEdit(row.original)"
+            @click="store.handleEdit(getOriginal(row))"
           />
 
           <UButton
@@ -29,7 +74,7 @@
             color="error"
             variant="ghost"
             size="sm"
-            @click="store.handleDelete(row.original.id)"
+            @click="store.handleDelete(getOriginal(row).id)"
           />
         </div>
       </template>
@@ -46,4 +91,5 @@ import { useActivityPlanStore } from '~/stores/activity-plan'
 import ActivityPlanViewModal from '~/components/audit-activity-plan/ActivityPlanViewModal.vue'
 
 const store = useActivityPlanStore()
+const getOriginal = (row: any) => row.original as any
 </script>

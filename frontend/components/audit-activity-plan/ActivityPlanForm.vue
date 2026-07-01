@@ -1,10 +1,10 @@
 <template>
-  <UModal v-model:open="store.isModalOpen" class="w-full sm:max-w-4xl">
+  <UModal v-model:open="store.isModalOpen" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
     <div></div>
     <template #content>
-    <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh] border border-[var(--border-main)] transition-colors duration-300">
+    <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh] transition-colors duration-300">
       <!-- Header -->
-      <div class="flex items-center justify-between p-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] z-10 sticky top-0 rounded-t-xl transition-colors duration-300">
+      <div class="flex items-center justify-between p-4 z-10 sticky top-0 rounded-t-xl transition-colors duration-300">
         <h3 class="text-xl font-bold text-[var(--text-main)]">
           {{ store.isEditMode ? 'Edit' : 'Buat' }} Audit Activity Plan
         </h3>
@@ -93,6 +93,31 @@
                       class="w-full"
                     />
                   </UFormField>
+                  <UFormField label="Associated Risk (Based on Risk Profile)" class="col-span-1 md:col-span-2">
+                    <USelectMenu
+                      :model-value="getFilteredRisksForDept(store.formState.department).find(r => r.name === activity.riskName)"
+                      @update:model-value="(val: any) => {
+                        activity.riskName = val ? val.name : '';
+                        activity.riskLevel = val ? val.riskLevel : '';
+                      }"
+                      :items="getFilteredRisksForDept(store.formState.department)"
+                      option-key="name"
+                      placeholder="-- Select Risk Profile --"
+                      class="w-full"
+                    >
+                      <template #item="{ item }">
+                        <div class="flex items-center gap-2 max-w-full">
+                          <span 
+                            class="w-2.5 h-2.5 rounded-full shrink-0" 
+                            :style="{ backgroundColor: getRiskLevelColorHex(item.riskLevel) }"
+                          ></span>
+                          <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel }}]</span>
+                          <span class="truncate text-xs">{{ item.name }}</span>
+                        </div>
+                      </template>
+                    </USelectMenu>
+                  </UFormField>
+
                   <UFormField label="Risk Level">
                     <USelectMenu
                       v-model="activity.riskLevel"
@@ -137,15 +162,15 @@
                 <div class="grid grid-cols-3 gap-4 text-center">
                   <div class="bg-red-50 text-red-600 rounded-lg p-2  ">
                     <div class="text-xs font-semibold">High Risk</div>
-                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => String(a.riskLevel) === 'High').length }}</div>
+                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'High').length }}</div>
                   </div>
                   <div class="bg-yellow-50 text-yellow-600 rounded-lg p-2  ">
                     <div class="text-xs font-semibold">Medium Risk</div>
-                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => String(a.riskLevel) === 'Medium').length }}</div>
+                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Medium').length }}</div>
                   </div>
                   <div class="bg-green-50 text-green-600 rounded-lg p-2  ">
                     <div class="text-xs font-semibold">Low Risk</div>
-                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter(a => String(a.riskLevel) === 'Low').length }}</div>
+                    <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Low').length }}</div>
                   </div>
                 </div>
               </div>
@@ -244,6 +269,37 @@
             </div>
           </UCard>
 
+          <!-- Attachment -->
+          <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
+            <template #header>
+              <h3 class="text-lg font-medium">Attachment</h3>
+            </template>
+            <div class="space-y-4">
+              <UFormField label="Attachment Category">
+                <USelectMenu v-model="store.formState.attachmentCategory" :items="store.attachmentCategoryOptions" class="w-full"/>
+              </UFormField>
+              <UFormField label="Attachment Uploaded By">
+                <UInput v-model="store.formState.attachmentUploadedBy" placeholder="Example: Auditor" class="w-full" />
+              </UFormField>
+              <UFormField label="Attachment Upload Date">
+                <UInput type="date" v-model="store.formState.attachmentUploadDate" class="w-full"/>
+              </UFormField>
+              <UFormField label="Upload your Attachment here" size="lg">
+                <UFileUpload
+                  v-model="store.formState.file"
+                  layout="list"
+                  multiple
+                  label="Drop your attachments here"
+                  description="You can upload multiple files (max. 2MB each)"
+                  class="w-full"
+                  :ui="{
+                    base: 'min-h-48'
+                  }"
+                />
+              </UFormField>
+            </div>
+          </UCard>
+
           <!-- Buttons -->
           <div class="flex justify-end gap-3 pb-6">
             <UButton label="Cancel" color="neutral" variant="ghost" @click="store.closeModal" />
@@ -259,7 +315,35 @@
 
 <script setup lang="ts">
 import { useActivityPlanStore } from '~/stores/activity-plan'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 import { AuditCategory, AuditDepartment } from '~/types/audit';
 
 const store = useActivityPlanStore()
+const riskStore = useRiskProfileStore()
+
+riskStore.fetchRisks()
+
+const getFilteredRisksForDept = (dept: string) => {
+  if (!riskStore.risks || riskStore.risks.length === 0) {
+    return []
+  }
+  return riskStore.risks.filter(r => {
+    if (dept === 'IT') return r.category === 'Technology'
+    if (dept === 'Finance') return r.category === 'Financial'
+    if (dept === 'HR') return r.category === 'Human Resources'
+    if (dept === 'Ops') return ['Operations', 'Compliance', 'Strategic', 'Governance'].includes(r.category)
+    return true
+  })
+}
+
+const getRiskLevelColorHex = (level?: string) => {
+  if (!level) return '#9E9E9E'
+  const lvl = level.toLowerCase()
+  if (lvl.includes('high')) return '#F44336'
+  if (lvl.includes('moderate to high')) return '#FF9800'
+  if (lvl.includes('moderate')) return '#FFC107'
+  if (lvl.includes('low to moderate')) return '#8BC34A'
+  if (lvl.includes('low')) return '#4CAF50'
+  return '#9E9E9E'
+}
 </script>

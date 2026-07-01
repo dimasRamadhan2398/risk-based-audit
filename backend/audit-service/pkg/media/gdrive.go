@@ -23,8 +23,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	_ "crypto/sha256" // ensure SHA256 is registered
+
+	"github.com/google/uuid"
 )
 
 // GDriveProvider implements MediaProvider using the Drive REST API directly (no SDK).

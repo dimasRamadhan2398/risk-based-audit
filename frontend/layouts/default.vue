@@ -23,7 +23,19 @@ const rawItems: NavigationMenuItem[][] = [[
   {
     label: '2. Risk Profile',
     icon: 'i-lucide-inbox',
-    to: '/risk-profile'
+    to: '/risk-profile',
+    children: [
+      {
+        label: 'Corporate Risk Profile',
+        icon: 'i-lucide-users',
+        to: '/risk-profile',
+      },
+      {
+        label: 'Risk Appetite Statement',
+        icon: 'i-lucide-clipboard-check',
+        to: '/risk-appetite',
+      },
+    ]
   }, 
   {
     label: '3. Strategic Audit Plan',
@@ -52,7 +64,19 @@ const rawItems: NavigationMenuItem[][] = [[
   {
     label: '5. Audit Activity Plan',
     icon: 'i-lucide-users',
-    to: '/audit-activity-plan'
+    to: '/audit-activity-plan',
+    children: [
+      {
+        label: 'Create Activity Plan Document',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/audit-activity-plan',
+      },
+      {
+        label: 'Upload Activity Plan Document',
+        icon: 'i-lucide-upload',
+        to: '/audit-activity-plan/upload',
+      }
+    ]
   }, 
   {
     label: '6. Assignment Letter',
@@ -94,21 +118,48 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '9. Action Taken Report',
+    label: '9. Executive Summary Report',
+    icon: 'i-lucide-file-text',
+    to: '/executive-summary',
+    children: [
+      {
+        label: 'Compilation & Narrative',
+        icon: 'i-lucide-clipboard-list',
+        to: '/executive-summary',
+      },
+      {
+        label: 'Matriks Induk Temuan',
+        icon: 'i-lucide-table',
+        to: '/executive-summary/matriks',
+      }
+    ]
+  },
+  {
+    label: '10. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
   },
-
   {
-    label: '10. Consulting Service',
+    label: '11. Consulting Service',
     icon: 'i-lucide-users',
     to: '/consulting-service',
   },
-  
   {
-    label: '11. Quality Assurance Review',
+    label: '12. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
+    children: [
+      {
+        label: 'Create QAR Report',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/quality-assurance',
+      },
+      {
+        label: 'Import QAR Report',
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import',
+      }
+    ]
   },
   {
     label: 'Analytics',

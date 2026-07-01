@@ -26,6 +26,33 @@
           </div>
         </template>
 
+        <template #riskName-cell="{ row }">
+          <div class="flex flex-col gap-1">
+            <div 
+              v-for="(act, idx) in row.original.activities" 
+              :key="idx"
+              class="text-xs font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
+              :title="act.riskName"
+            >
+              {{ act.riskName || '-' }}
+            </div>
+          </div>
+        </template>
+
+        <template #riskLevel-cell="{ row }">
+          <div class="flex gap-1 flex-wrap">
+            <UBadge 
+              v-for="(act, idx) in row.original.activities" 
+              :key="idx"
+              :color="store.getRiskLevelColor ? store.getRiskLevelColor(act.riskLevel) : 'neutral'"
+              variant="soft"
+              size="md"
+            >
+              {{ act.riskLevel || '-' }}
+            </UBadge>
+          </div>
+        </template>
+
         <template #timeline-cell="{ row }">
           <div class="font-bold text-primary-600 mr-1">{{ row.original.year }}</div>
           <UBadge v-for="q in row.original.quarters" :key="q" color="primary" variant="subtle" size="md">

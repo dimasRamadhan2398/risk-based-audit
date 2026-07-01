@@ -13,7 +13,9 @@
         <template #type-cell="{ row }: { row: any }">
           <div class="flex items-center space-x-2">
             <div :class="['w-4 h-4 rounded-full', store.getTypeIconColor(row.original.type)]"></div>
-            <span class="text-sm font-medium">{{ row.original.type === QAType.REGULAR ? 'Regular' : (row.original.type === QAType.SAIV ? 'SAIV' : 'QAR') }}</span>
+            <span class="text-sm font-medium">
+              {{ row.original.type === QAType.REGULAR ? 'Regular' : (row.original.type === QAType.SAIV ? 'SAIV' : (row.original.type === QAType.IACM ? 'BUMN IACM' : 'QAR')) }}
+            </span>
           </div>
         </template>
 
@@ -27,7 +29,7 @@
 
         <template #result-cell="{ row }: { row: any }">
           <span class="font-bold">
-            {{ row.original.type === 'QAR' ? formatOverallConclusion(row.original.result) : row.original.result }}
+            {{ row.original.type === QAType.QAR ? formatOverallConclusion(row.original.result) : row.original.result }}
           </span>
         </template>
 
@@ -36,6 +38,24 @@
             <div :class="['w-4 h-4 rounded-full', store.getStatusColor(row.original.status)]"></div>
             <span class="text-sm font-medium">{{ row.original.status }}</span>
           </div>
+        </template>
+
+        <template #conductedBy-cell="{ row }">
+          <span class="font-medium text-gray-700 dark:text-gray-300">{{ row.original.conductedBy || '-' }}</span>
+        </template>
+
+        <template #viewReport-cell="{ row }">
+          <UButton
+            v-if="row.original.attachment?.filePath"
+            icon="i-lucide-file-text"
+            label="View"
+            color="neutral"
+            variant="subtle"
+            size="sm"
+            class="font-bold border border-gray-200 dark:border-gray-700"
+            @click="openReportFile(row.original)"
+          />
+          <span v-else class="text-xs text-gray-400 font-medium italic">No File</span>
         </template>
 
         <template #actions-cell="{ row }">
@@ -79,21 +99,31 @@
 </template>
 
 <script setup lang="ts">
-import { useQualityAssuranceStore } from '~/stores/quality-assurance'
+import { useQualityAssuranceStore, QAType } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
+
+const openReportFile = (row: any) => {
+  if (row.attachment && row.attachment.filePath) {
+    const baseUrl = store.getMasterServiceBaseUrl()
+    window.open(`${baseUrl}/quality-assurance/${row.id}/download`, '_blank')
+  }
+}
 
 const formatOverallConclusion = (result: string) => {
   if (!result) return '-'
   const res = result.trim().toLowerCase()
   if (res === 'g/c*' || res === 'gc' || res.includes('generally')) {
-    return 'Generally Conforms'
+    return 'Generally Conformed'
   }
-  if (res === 'fc' || res.includes('fully')) {
-    return 'Fully Conforms'
+  if (res === 'fc' || res.includes('fully') || res.includes('conformance')) {
+    return 'Fully Conformance'
+  }
+  if (res === 'pc' || res.includes('partially')) {
+    return 'Partially Conform'
   }
   if (res === 'dnc' || res.includes('does not') || res.includes('doesnot')) {
-    return 'Does Not Conform'
+    return 'Does not Conform'
   }
   return result
 }

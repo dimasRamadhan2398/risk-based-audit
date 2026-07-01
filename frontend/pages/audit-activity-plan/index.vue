@@ -12,14 +12,17 @@
               Manage and review annual audit activity plans.
             </p>
           </div>
-          <UButton
-            icon="i-heroicons-plus"
-            label="Buat Rencana"
-            variant="solid"
-            color="primary"
-            size="sm"
-            @click="store.openModal()"
-          />
+          <div class="flex items-center gap-2">
+
+            <UButton
+              icon="i-heroicons-plus"
+              label="Buat Rencana"
+              variant="solid"
+              color="primary"
+              size="sm"
+              @click="store.openModal()"
+            />
+          </div>
         </div>
       </template>
     </UCard>

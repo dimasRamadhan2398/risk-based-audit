@@ -1,13 +1,13 @@
 <template>
     
-      <UModal v-model:open="store.showModalF04" :dismissible="false" class="w-full sm:max-w-4xl">
+      <UModal v-model:open="store.showModalF04" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
         <div></div>
         <template #content>
         
         <UForm :state="store.causeForm" @submit.prevent="store.handleSubmitF04">
-        <div class="bg-[var(--bg-main)] rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto border border-[var(--border-main)] transition-colors duration-300">
+        <div class=" rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto  transition-colors duration-300">
 
-        <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center transition-colors duration-300">
+        <div class="px-6 py-4 rounded-t-xl flex justify-between items-center transition-colors duration-300">
             <UIcon name="charter" class="text-primary-500 " size="32"></UIcon>
             <h3 class="text-lg font-bold text-[var(--text-main)]">Analisis Akar Penyebab</h3>
             <UIcon name="close" @click="store.closeModalF04" class="text-[var(--text-muted)] hover:text-[var(--text-main)] text-2xl cursor-pointer"></UIcon>

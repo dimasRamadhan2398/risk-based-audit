@@ -34,6 +34,9 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         startPeriod: '2026-03-01',
         finishPeriod: '2026-03-31',
         workingUnit: 'Finance',
+        auditPurpose: 'Annual Audit',
+        letterDate: '2026-01-01',
+        caeSignature: 'System',
         executionPeriod: '2026-03-01 to 2026-03-31',
         membersList: [
           { name: 'Zeta Ramadhani', role: 'Chairperson' },
@@ -138,6 +141,9 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           startPeriod: '2026-03-01',
           finishPeriod: '2026-03-31',
           workingUnit: 'Finance',
+          auditPurpose: 'Annual Audit',
+          letterDate: '2026-01-01',
+          caeSignature: 'System',
           executionPeriod: '2026-03-01 to 2026-03-31',
           membersList: [
             { name: 'Zeta Ramadhani', role: 'Chairperson' },

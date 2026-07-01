@@ -13,7 +13,7 @@
         <UButton
           variant="outline"
           color="neutral"
-          class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm font-medium"
+          class="  border border-slate-200 text-slate-700 hover: -50 shadow-sm font-medium"
           :loading="isSyncing"
           @click="handleSync"
         >
@@ -33,7 +33,7 @@
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Card 1: Total Risks -->
       <div
-        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Total Risks</p>
@@ -56,7 +56,7 @@
 
       <!-- Card 2: High Risk -->
       <div
-        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">High Risk</p>
@@ -75,7 +75,7 @@
 
       <!-- Card 3: Audit Plans -->
       <div
-        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Audit Plans</p>
@@ -96,7 +96,7 @@
 
       <!-- Card 4: Completed -->
       <div
-        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Completed</p>
@@ -119,14 +119,14 @@
     </div>
 
     <!-- Audit Statistics Section (Second Row) -->
-    <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+    <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-bold text-slate-800">Audit Statistics</h3>
       </div>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Planned Audits -->
         <div
-          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
         >
           <div class="flex justify-between items-start">
             <span class="text-xs font-semibold text-slate-500">Planned Audits</span>
@@ -147,7 +147,7 @@
 
         <!-- Open Findings -->
         <div
-          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
         >
           <div class="flex justify-between items-start">
             <span class="text-xs font-semibold text-slate-500">Open Findings</span>
@@ -168,7 +168,7 @@
 
         <!-- Execution Status -->
         <div
-          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
         >
           <div class="flex justify-between items-start">
             <span class="text-xs font-semibold text-slate-500">Execution Status</span>
@@ -189,7 +189,7 @@
 
         <!-- ATR Compliance -->
         <div
-          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
         >
           <div class="flex justify-between items-start">
             <span class="text-xs font-semibold text-slate-500">ATR Compliance</span>
@@ -214,7 +214,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- Inherent vs Residual Risk by Department Chart -->
       <div
-        class="lg:col-span-8 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-8   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
       >
         <div>
           <div class="flex items-center justify-between mb-6">
@@ -225,7 +225,7 @@
               v-model="activeYear"
               :options="yearlyFilters"
               size="sm"
-              class="w-24 bg-white"
+              class="w-24  "
             />
           </div>
           <div class="h-[350px] w-full">
@@ -264,7 +264,7 @@
 
       <!-- Action Taken Report Donut Chart -->
       <div
-        class="lg:col-span-4 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-4   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
       >
         <div>
           <div class="flex items-center justify-between mb-6">
@@ -302,7 +302,7 @@
             >
           </div>
           <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+            <span class="w-2.5 h-2.5 rounded-full  -400"></span>
             <span class="text-[11px] font-semibold text-slate-600"
               >In Progress ({{ atrStore.stats.wipPercent }}%)</span
             >
@@ -318,7 +318,7 @@
     </div>
 
     <!-- Risk Heat Map & Registered Risk (Fourth Row) -->
-    <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+    <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-bold text-slate-900 tracking-tight">Risk Profiles</h2>
         <UButton to="/risk-profile" variant="ghost" color="neutral" size="sm"
@@ -329,7 +329,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <!-- Heat Map Grid on the left -->
         <div
-          class="lg:col-span-5 flex flex-col items-center bg-slate-50/50 border border-slate-100 rounded-2xl p-6"
+          class="lg:col-span-5 flex flex-col items-center  -50/50 border border-slate-100 rounded-2xl p-6"
         >
           <h4 class="text-sm font-semibold text-slate-700 mb-6 w-full text-left">
             Risk Heat Map
@@ -393,7 +393,7 @@
         </div>
 
         <!-- Registered Risks Table on the right -->
-        <div class="lg:col-span-7 bg-white border border-slate-100 rounded-2xl p-6">
+        <div class="lg:col-span-7   border border-slate-100 rounded-2xl p-6">
           <h4 class="text-sm font-semibold text-slate-700 mb-4">Registered Risks</h4>
           <UTable
             :data="registeredRiskHeatMap"
@@ -412,7 +412,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- Audit Planning Coverage -->
       <div
-        class="lg:col-span-4 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-4   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
       >
         <div>
           <div class="flex items-center justify-between mb-6">
@@ -461,7 +461,7 @@
 
       <!-- Action Taken Reports Table -->
       <div
-        class="lg:col-span-8 bg-white border border-slate-100 shadow-sm rounded-2xl p-6"
+        class="lg:col-span-8   border border-slate-100 shadow-sm rounded-2xl p-6"
       >
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-bold text-slate-800">Action Taken Reports (ATR)</h3>
@@ -484,7 +484,7 @@
     <!-- Sixth Row: Audit Execution Status & Recent Finding Issues -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Audit Execution Status -->
-      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-bold text-slate-900 tracking-tight">
             Audit Execution Status
@@ -513,7 +513,7 @@
       </div>
 
       <!-- Recent Finding Issues -->
-      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6">
+      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold text-slate-900 tracking-tight">
             Recent Finding Issues
@@ -530,7 +530,7 @@
     <!-- Seventh Row: Recent Risk Profiles & Upcoming Audits -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Recent Risk Profiles -->
-      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-lg font-bold text-slate-800">Recent Risk Profiles</h3>
@@ -548,7 +548,7 @@
           <div
             v-for="(risk, index) in riskProfileStore.risks.slice(0, 4)"
             :key="risk.id"
-            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50/50 transition-all duration-200"
+            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover: -50/50 transition-all duration-200"
           >
             <div class="flex items-center gap-3">
               <div
@@ -576,7 +576,7 @@
       </div>
 
       <!-- Upcoming Audits -->
-      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-lg font-bold text-slate-800">Upcoming Audits</h3>
@@ -594,7 +594,7 @@
           <div
             v-for="plan in annualPlanStore.plans.slice(0, 4)"
             :key="plan.id"
-            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50/50 transition-all duration-200"
+            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover: -50/50 transition-all duration-200"
           >
             <div class="flex items-center gap-3">
               <div class="rounded-lg bg-sky-50 w-8 h-8 flex items-center justify-center">

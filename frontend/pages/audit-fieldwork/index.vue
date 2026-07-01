@@ -100,7 +100,7 @@
               </UCard>
             </div>
 
-            <div v-else class="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 mx-4">
+            <div v-else class="text-center py-12 rounded-xl border-2 border-dashed border-gray-200 mx-4">
               <UIcon name="i-heroicons-document-text" class="size-16 text-gray-300 mx-auto mb-4" />
               <h3 class="text-lg font-semibold text-gray-700">No Working Papers Found</h3>
               <p class="text-gray-500 mt-2 max-w-md mx-auto mb-6">

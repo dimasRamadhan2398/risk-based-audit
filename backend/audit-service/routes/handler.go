@@ -260,6 +260,16 @@ func (h *RouteHandler) RegisterRoutes() {
 		importedWorkingPapers.GET("/:id/download", importedWorkingPaperCtrl.Download)
 	}
 
+	// 16c. Uploaded Plan Documents
+	uploadedPlanDocumentCtrl := controllers.NewUploadedPlanDocumentController(h.db)
+	uploadedPlanDocuments := apiV1.Group("/uploaded-plan-documents")
+	{
+		uploadedPlanDocuments.GET("", uploadedPlanDocumentCtrl.List)
+		uploadedPlanDocuments.POST("", uploadedPlanDocumentCtrl.Upload)
+		uploadedPlanDocuments.DELETE("/:id", uploadedPlanDocumentCtrl.Delete)
+		uploadedPlanDocuments.GET("/:id/download", uploadedPlanDocumentCtrl.Download)
+	}
+
 	// 17. Audit Result Reports
 	auditResultReports := apiV1.Group("/audit-result-reports")
 	{

@@ -1,5 +1,5 @@
 <template>
-    <UModal v-model:open="store.showViewModal" dismissible class="w-full sm:max-w-5xl">
+    <UModal v-model:open="store.showViewModal" dismissible class="w-full sm:max-w-5xl bg-[var(--bg-main)] border-[var(--border-main)]">
       <template #content>
         <div v-if="store.selectedPlan" class="relative   rounded-xl shadow-2xl flex flex-col max-h-[95vh] overflow-y-auto p-8">
           <template v-if="store.selectedPlan">
@@ -87,6 +87,19 @@
                       <span class="font-semibold text-gray-800  flex items-center gap-1">
                         {{ activity.department }}
                       </span>
+                    </div>
+
+                    <div class="flex items-start">
+                      <span class="font-bold text-gray-600  w-44 text-sm">Associated Risk</span>
+                      <span class="font-semibold text-gray-800  flex-1">{{ activity.riskName || '-' }}</span>
+                    </div>
+
+                    <div class="flex items-center">
+                      <span class="font-bold text-gray-600  w-44 text-sm">Risk Level</span>
+                      <UBadge v-if="activity.riskLevel" size="md" :color="store.getRiskLevelColor ? store.getRiskLevelColor(activity.riskLevel) : 'neutral'" variant="soft">
+                        {{ activity.riskLevel }}
+                      </UBadge>
+                      <span v-else class="text-gray-400 text-sm">-</span>
                     </div>
                   </UCard>
 
@@ -208,7 +221,7 @@
                   class="w-full"
                 >
                   <template #draft>
-                    <UFormField v-if="authStore.user?.role === UserRole.AUDIT_STAFF" label="Audit Staff Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
+                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.AUDIT_STAFF)" label="Audit Staff Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
                       <UTextarea v-model="store.selectedPlan.staffApprovalNote" placeholder="Write your note or reason to approve" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleStaffApprove()">Approve</UButton>
@@ -221,7 +234,7 @@
                   </template>
 
                   <template #review>
-                    <UFormField v-if="authStore.user?.role === UserRole.AUDIT_MANAGER" label="Audit Manager Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
+                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.AUDIT_MANAGER)" label="Audit Manager Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
                       <UTextarea v-model="store.selectedPlan.managerApprovalNote" placeholder="Write your note or reason to approve" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleManagerApprove()">Approve</UButton>
@@ -234,7 +247,7 @@
                   </template>
 
                   <template #approval>
-                    <UFormField v-if="authStore.user?.role === UserRole.CHIEF_AUDIT_EXECUTIVE" label="Chief Audit Executive Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
+                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.CHIEF_AUDIT_EXECUTIVE)" label="Chief Audit Executive Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
                       <UTextarea v-model="store.selectedPlan.chiefApprovalNote" placeholder="Write your note or reason to approve" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleChiefApprove()">Approve</UButton>

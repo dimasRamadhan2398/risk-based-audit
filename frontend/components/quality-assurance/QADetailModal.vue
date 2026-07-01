@@ -1,5 +1,5 @@
 <template>
-    <UModal v-model:open="store.isDetailOpen" scrollable>
+    <UModal v-model:open="store.isDetailOpen" scrollable class="w-full sm:max-w-2xl bg-[var(--bg-main)] border-[var(--border-main)]">
       <template #content>
         <UCard :ui="{ header: 'px-6 py-4', body: 'px-6 py-6', footer: 'px-6 py-4' }">
           <template #header>
@@ -59,7 +59,7 @@
                 <div class="grid grid-cols-3 gap-4">
                   <p class="font-bold text-gray-700">Result/Score</p>
                   <p class="col-span-2 text-xl font-bold">
-                    {{ store.selectedReport?.type === 'QAR' ? formatOverallConclusion(store.selectedReport?.result!) : store.selectedReport?.result }}
+                    {{ store.selectedReport?.type === QAType.QAR ? formatOverallConclusion(store.selectedReport?.result!) : store.selectedReport?.result }}
                   </p>
                 </div>
                 <div class="grid grid-cols-3 gap-4">
@@ -73,10 +73,14 @@
             </div>
 
             <!-- Section 3 -->
-            <div class="space-y-4" v-if="store.selectedReport?.validator || store.selectedReport?.internalEvaluator">
+            <div class="space-y-4" v-if="store.selectedReport?.validator || store.selectedReport?.internalEvaluator || store.selectedReport?.conductedBy">
               <h4 class="text-lg font-bold text-gray-900 dark:text-white">3. Special Details</h4>
               <div class="p-6 border border-gray-100 dark:border-gray-800 rounded-xl space-y-6">
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-3 gap-4" v-if="store.selectedReport?.conductedBy">
+                  <p class="font-bold text-gray-700">Conducted By:</p>
+                  <p class="col-span-2 font-bold text-orange-500">{{ store.selectedReport?.conductedBy }}</p>
+                </div>
+                <div class="grid grid-cols-3 gap-4" v-if="store.selectedReport?.validator || store.selectedReport?.internalEvaluator">
                   <p class="font-bold text-gray-700">{{ store.selectedReport?.validator ? 'Professional Consultant (KAP) / Validator:' : 'Internal Evaluator:' }}</p>
                   <p class="col-span-2 font-bold">{{ store.selectedReport?.validator || store.selectedReport?.internalEvaluator }}</p>
                 </div>
@@ -87,16 +91,31 @@
             <div class="space-y-4">
               <h4 class="text-lg font-bold text-gray-900 dark:text-white">4. Supporting Documents</h4>
               <div class="p-4 border border-gray-100 dark:border-gray-800 rounded-xl flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
-                 <div class="flex items-center space-x-3">
+                 <div class="flex items-center space-x-3" v-if="store.selectedReport?.attachment">
                     <UIcon name="i-lucide-file-text" class="size-8 text-gray-400" />
                     <div class="space-y-0.5">
-                      <p class="font-bold text-sm">{{ store.selectedReport?.attachment?.name || 'Final_Report.pdf' }}</p>
-                      <p class="text-xs text-gray-500">{{ store.selectedReport?.attachment?.size || '1.2 MB' }} • Uploaded</p>
+                      <p class="font-bold text-sm">{{ store.selectedReport.attachment.name }}</p>
+                      <p class="text-xs text-gray-500">{{ store.selectedReport.attachment.size }} • Uploaded</p>
                     </div>
                  </div>
-                 <div class="flex items-center space-x-2">
-                    <UButton icon="i-lucide-eye" label="Preview Dokumen" color="neutral" variant="ghost" size="sm" class="font-bold" />
-                    <UButton icon="i-lucide-download" label="Unduh" color="neutral" variant="ghost" size="sm" class="font-bold" />
+                 <div class="flex items-center space-x-3" v-else>
+                    <UIcon name="i-lucide-file-text" class="size-8 text-gray-400" />
+                    <div class="space-y-0.5">
+                      <p class="font-bold text-sm text-gray-400">Tidak ada lampiran</p>
+                      <p class="text-xs text-gray-400">No document attached</p>
+                    </div>
+                 </div>
+                 <div class="flex items-center space-x-2" v-if="store.selectedReport?.attachment">
+                    <UButton 
+                      v-if="store.selectedReport.attachment.filePath"
+                      icon="i-lucide-download" 
+                      label="Unduh" 
+                      color="neutral" 
+                      variant="ghost" 
+                      size="sm" 
+                      class="font-bold" 
+                      @click="store.downloadAttachment(store.selectedReport.id, store.selectedReport.attachment.name)"
+                    />
                  </div>
               </div>
             </div>
@@ -108,6 +127,7 @@
 
 <script setup lang="ts">
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
+import { QAType } from '~/types/quality-assurance'
 
 const store = useQualityAssuranceStore()
 
@@ -115,13 +135,16 @@ const formatOverallConclusion = (result: string) => {
   if (!result) return '-'
   const res = result.trim().toLowerCase()
   if (res === 'g/c*' || res === 'gc' || res.includes('generally')) {
-    return 'Generally Conforms'
+    return 'Generally Conformed'
   }
-  if (res === 'fc' || res.includes('fully')) {
-    return 'Fully Conforms'
+  if (res === 'fc' || res.includes('fully') || res.includes('conformance')) {
+    return 'Fully Conformance'
+  }
+  if (res === 'pc' || res.includes('partially')) {
+    return 'Partially Conform'
   }
   if (res === 'dnc' || res.includes('does not') || res.includes('doesnot')) {
-    return 'Does Not Conform'
+    return 'Does not Conform'
   }
   return result
 }

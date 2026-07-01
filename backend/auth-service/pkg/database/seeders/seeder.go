@@ -188,6 +188,16 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
+			EmployeeID:   "EMP007",
+			Username:     "new_dept_head",
+			Email:        "new_dept_head@company.com",
+			PasswordHash: string(hashedPassword),
+			FullName:     "New Department Head",
+			Phone:        "+6281234567897",
+			Department:   "Finance",
+			IsActive:     true,
+		},
+		{
 			EmployeeID:   "EMP004",
 			Username:     "auditee",
 			Email:        "auditee@company.com",
@@ -247,19 +257,21 @@ func (s *Seeder) SeedUsers() error {
 
 	// Fetch all users
 	var (
-		adminUser    models.User
-		auditorUser  models.User
-		deptHeadUser models.User
-		auditeeUser  models.User
-		viewerUser   models.User
+		adminUser       models.User
+		auditorUser     models.User
+		deptHeadUser    models.User
+		newDeptHeadUser models.User
+		auditeeUser     models.User
+		viewerUser      models.User
 	)
 
 	userRoleMap := map[string]*models.User{
-		"admin":     &adminUser,
-		"auditor":   &auditorUser,
-		"dept_head": &deptHeadUser,
-		"auditee":   &auditeeUser,
-		"viewer":    &viewerUser,
+		"admin":         &adminUser,
+		"auditor":       &auditorUser,
+		"dept_head":     &deptHeadUser,
+		"new_dept_head": &newDeptHeadUser,
+		"auditee":       &auditeeUser,
+		"viewer":        &viewerUser,
 	}
 
 	for username, user := range userRoleMap {
@@ -276,6 +288,7 @@ func (s *Seeder) SeedUsers() error {
 		{&adminUser, &adminRole},
 		{&auditorUser, &auditorRole},
 		{&deptHeadUser, &deptHeadRole},
+		{&newDeptHeadUser, &deptHeadRole},
 		{&auditeeUser, &auditeeRole},
 		{&viewerUser, &viewerRole},
 	}
