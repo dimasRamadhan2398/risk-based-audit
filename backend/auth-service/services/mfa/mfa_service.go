@@ -19,6 +19,7 @@ import (
 	"auth-service/pkg/redis"
 	"auth-service/pkg/utils"
 	"auth-service/repositories"
+	"auth-service/services/email"
 
 	"github.com/google/uuid"
 )
@@ -36,10 +37,11 @@ type MfaServiceInterface interface {
 
 // MfaService handles MFA operations
 type MfaService struct {
-	mfaRepo    repositories.MFASetupRepositoryInterface
-	userRepo   repositories.UserRepositoryInterface
-	publisher 	pkgKafka.IEventPublisher
-	redis      *redis.Client
+	mfaRepo      repositories.MFASetupRepositoryInterface
+	userRepo     repositories.UserRepositoryInterface
+	publisher    pkgKafka.IEventPublisher
+	redis        *redis.Client
+	emailService email.EmailServiceInterface
 }
 
 // NewMfaService creates a new MFA service
@@ -48,12 +50,14 @@ func NewMfaService(
 	userRepo repositories.UserRepositoryInterface,
 	publisher pkgKafka.IEventPublisher,
 	rdb *redis.Client,
+	emailService email.EmailServiceInterface,
 ) MfaServiceInterface {
 	return &MfaService{
-		mfaRepo:  mfaRepo,
-		userRepo: userRepo,
-		publisher: publisher,
-		redis:    rdb,
+		mfaRepo:      mfaRepo,
+		userRepo:     userRepo,
+		publisher:    publisher,
+		redis:        rdb,
+		emailService: emailService,
 	}
 }
 
@@ -90,6 +94,7 @@ func (s *MfaService) SetupMFA(ctx context.Context, userID uuid.UUID, mfaType mod
 		if err != nil {
 			return nil, apperrors.Wrap("GENERATE_SECRET_FAILED", "Failed to generate secret", 500, nil)
 		}
+		mfa.SecretKey = secret
 		response.Secret = secret
 		response.QRCodeURL = generateTOTPURL(user.Email, secret, "auth-service")
 	case models.MFATypeEmail:
@@ -256,9 +261,16 @@ func (s *MfaService) GenerateEmailCode(ctx context.Context, userID uuid.UUID, em
 		return apperrors.Wrap("STORE_CODE_FAILED", "Failed to store code", 500, nil)
 	}
 
-	// TODO: Send email with the code
-	// For now, we'll log it (in production, integrate with email service)
-	fmt.Printf("MFA Email Code for user %s: %s\n", userID.String(), code)
+	// Send email with the code
+	if s.emailService != nil {
+		_, err := s.emailService.SendOTPEmail(ctx, email, code, ipAddress, "Unknown Device")
+		if err != nil {
+			return err
+		}
+	} else {
+		// For now, we'll log it if email service is not available
+		fmt.Printf("MFA Email Code for user %s: %s\n", userID.String(), code)
+	}
 
 	// Publish MFA code generation event
 	if s.publisher != nil {

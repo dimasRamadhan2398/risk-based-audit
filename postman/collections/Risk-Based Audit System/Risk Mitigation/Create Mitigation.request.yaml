@@ -1,0 +1,27 @@
+$kind: http-request
+name: Create Mitigation
+method: POST
+url: '{{auth_base_url}}/api/v1/risk-mitigations'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "riskId": "1",
+      "riskEvent": "Financial Fraud",
+      "mitigationPlan": "Implement dual control",
+      "supervisor": "Budi",
+      "pic": "Dimas",
+      "unitInCharge": "Financial",
+      "start_date": "2026-01-01",
+      "end_date": "2026-12-31",
+      "notes": "Priority mitigation"
+    }

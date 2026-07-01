@@ -4,6 +4,7 @@ import AuditExecutionDetailModal from '~/components/audit-execution/AuditExecuti
 import { AuditCategory, AuditDepartment, AuditStatus } from '~/types/audit'
 
 const store = useAuditExecutionStore()
+store.fetchAuditExecutions()
 const { auditExecutions, getSummary } = storeToRefs(store)
 
 const search = ref('')

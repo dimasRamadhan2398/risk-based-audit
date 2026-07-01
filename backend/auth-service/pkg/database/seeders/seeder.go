@@ -123,6 +123,20 @@ func (s *Seeder) SeedRoles() error {
 				permissions[8], // view_departments
 			},
 		},
+		{
+			Name:        "EXECUTIVE",
+			Description: "Executive management with high-level access",
+			Permissions: []models.Permission{
+				permissions[0],  // view_users
+				permissions[4],  // view_roles
+				permissions[6],  // view_companies
+				permissions[8],  // view_departments
+				permissions[10], // view_employees
+				permissions[12], // view_risk_register
+				permissions[16], // view_audit_charter
+				permissions[19], // view_system_logs
+			},
+		},
 	}
 
 	for i := range roles {
@@ -208,11 +222,12 @@ func (s *Seeder) SeedUsers() error {
 
 	// Fetch all roles
 	var (
-		adminRole    models.Role
-		auditorRole  models.Role
-		deptHeadRole models.Role
-		auditeeRole  models.Role
-		viewerRole   models.Role
+		adminRole     models.Role
+		auditorRole   models.Role
+		deptHeadRole  models.Role
+		auditeeRole   models.Role
+		viewerRole    models.Role
+		executiveRole models.Role
 	)
 
 	roles := map[string]*models.Role{
@@ -221,6 +236,7 @@ func (s *Seeder) SeedUsers() error {
 		"DEPARTMENT_HEAD": &deptHeadRole,
 		"AUDITEE":         &auditeeRole,
 		"VIEWER":          &viewerRole,
+		"EXECUTIVE":       &executiveRole,
 	}
 
 	for name, role := range roles {

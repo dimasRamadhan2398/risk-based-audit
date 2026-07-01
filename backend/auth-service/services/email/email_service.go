@@ -3,13 +3,11 @@ package email
 import (
 	"context"
 	"fmt"
-	"net/mail"
-	"strings"
+	"net/smtp"
 	"time"
 
+	"auth-service/pkg/config"
 	apperrors "auth-service/pkg/errors"
-
-	resend "github.com/resend/resend-go/v2"
 )
 
 type EmailServiceInterface interface {
@@ -18,61 +16,64 @@ type EmailServiceInterface interface {
 	SendSpecificEmail(ctx context.Context, toEmail string, subject string, body string) (bool, error)
 
 	SendNewDeviceTrustedEmail(email, username, deviceName, ipAddress string) error
-	SendDeviceRemovedEmail(email, username, deviceName, ipAddress string) error
+	SendDeviceRemovedEmail(email, deviceName, ipAddress, location string) error
 }
 
 type EmailService struct {
-	client    *resend.Client
-	fromEmail string
-	appName   string
+	config  *config.SMTPConfig
+	appName string
+}
+
+func NewEmailService(cfg *config.SMTPConfig, appName string) EmailServiceInterface {
+	return &EmailService{
+		config:  cfg,
+		appName: appName,
+	}
+}
+
+func (e *EmailService) sendEmail(to []string, subject, body string) error {
+	addr := fmt.Sprintf("%s:%d", e.config.Host, e.config.Port)
+	auth := smtp.PlainAuth("", e.config.Username, e.config.Password, e.config.Host)
+
+	msg := []byte(fmt.Sprintf("To: %s\r\n"+
+		"Subject: %s\r\n"+
+		"\r\n"+
+		"%s\r\n", to[0], subject, body))
+
+	err := smtp.SendMail(addr, auth, e.config.From, to, msg)
+	if err != nil {
+		return apperrors.Wrap("EMAIL_SEND_ERROR", "Error sending email", 500, err)
+	}
+	return nil
 }
 
 // SendDeviceRemovedEmail implements EmailServiceInterface.
 func (e *EmailService) SendDeviceRemovedEmail(email string, deviceName string, ipAddress string, location string) error {
-	params := &resend.SendEmailRequest{
-		From:    e.fromEmail,
-		To:      []string{email},
-		Subject: "Device Removed",
-		Text:    "Device " + deviceName + " removed in " + location + " by " + ipAddress,
-	}
-
-	_, err := e.client.Emails.Send(params)
-	if err != nil {
-		return apperrors.Wrap("EMAIL_SEND_ERROR", "Error sending email", 500, err)
-	}
-
-	return nil
+	subject := "Device Removed"
+	body := "Device " + deviceName + " removed in " + location + " by " + ipAddress
+	return e.sendEmail([]string{email}, subject, body)
 }
 
 // SendNewDeviceTrustedEmail implements EmailServiceInterface.
 func (e *EmailService) SendNewDeviceTrustedEmail(email string, username string, deviceName string, ipAddress string) error {
-	params := &resend.SendEmailRequest{
-		From:    e.fromEmail,
-		To:      []string{email},
-		Subject: "New Device Enrolled",
-		Text:    "Device " + deviceName + " enrolled by " + username + " in " + ipAddress,
-	}
-
-	_, err := e.client.Emails.Send(params)
-	if err != nil {
-		return apperrors.Wrap("EMAIL_SEND_ERROR", err.Error(), 500, err)
-	}
-
-	return nil
+	subject := "New Device Enrolled"
+	body := "Device " + deviceName + " enrolled by " + username + " in " + ipAddress
+	return e.sendEmail([]string{email}, subject, body)
 }
 
 // SendPromotionEmail implements EmailServiceInterface.
 func (e *EmailService) SendPromotionEmail(ctx context.Context, email string, subject string, body string) (bool, error) {
-	panic("unimplemented")
+	err := e.sendEmail([]string{email}, subject, body)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // SendOTPEmail implements EmailServiceInterface.
 func (e *EmailService) SendOTPEmail(ctx context.Context, toEmail string, otp string, ipAddress string, userAgent string) (bool, error) {
-	params := &resend.SendEmailRequest{
-		From:    e.fromEmail,
-		To:      []string{toEmail},
-		Subject: "OTP Verification New Login Device",
-		Text:    fmt.Sprintf(`Hello,
+	subject := "OTP Verification New Login Device"
+	body := fmt.Sprintf(`Hello,
 
 We detected a login attempt to your account from a new device.
 
@@ -93,76 +94,21 @@ If you did NOT initiate this request, please ignore this email or secure your ac
 For your security, never share this OTP with anyone.
 
 Best regards,  
-Your Security Team
-`, ipAddress, userAgent, time.Now().Format("02 Jan 2006 15:04:05"), otp),
-	}
+%s Security Team
+`, ipAddress, userAgent, time.Now().Format("02 Jan 2006 15:04:05"), otp, e.appName)
 
-	//idempotency key (add this if no rate limiter)
-	// options := &resend.SendEmailOptions{
-
-	// }
-
-	_, err := e.client.Emails.SendWithContext(ctx, params)
+	err := e.sendEmail([]string{toEmail}, subject, body)
 	if err != nil {
-		return false, apperrors.Wrap("EMAIL_SEND_ERROR", "Error sending email", 500, err)
+		return false, err
 	}
-
 	return true, nil
 }
 
-// SendPromotionEmail implements EmailServiceInterface.
+// SendSpecificEmail implements EmailServiceInterface.
 func (e *EmailService) SendSpecificEmail(ctx context.Context, toEmail string, subject string, body string) (bool, error) {
-	params := &resend.SendEmailRequest{
-		From:    e.fromEmail,
-		To:      []string{toEmail},
-		Subject: subject,
-		Text:    body,
-	}
-
-	//idempotency key (add this if no rate limiter)
-	// options := &resend.SendEmailOptions{
-
-	// }
-
-	_, err := e.client.Emails.SendWithContext(ctx, params)
+	err := e.sendEmail([]string{toEmail}, subject, body)
 	if err != nil {
-		return false, apperrors.Wrap("EMAIL_SEND_ERROR", "Error sending email", 500, err)
+		return false, err
 	}
-
 	return true, nil
-}
-
-func NewEmailService(apiKey string, fromEmail string, appName string) EmailServiceInterface {
-	safeFromEmail := buildSafeFromEmail(fromEmail, appName)
-
-	return &EmailService{
-		client:    resend.NewClient(apiKey),
-		fromEmail: safeFromEmail,
-		appName:   appName,
-	}
-}
-
-func buildSafeFromEmail(fromEmail, appName string) string {
-	defaultAppName := strings.TrimSpace(appName)
-	if defaultAppName == "" {
-		defaultAppName = "Risk Based Internal Audit"
-	}
-
-	defaultFrom := fmt.Sprintf("%s <onboarding@resend.dev>", defaultAppName)
-	candidate := strings.TrimSpace(fromEmail)
-	if candidate == "" {
-		return defaultFrom
-	}
-
-	parsed, err := mail.ParseAddress(candidate)
-	if err != nil {
-		return defaultFrom
-	}
-
-	parts := strings.Split(strings.ToLower(parsed.Address), "@")
-	if len(parts) != 2 || parts[1] == "example.com" {
-		return defaultFrom
-	}
-
-	return candidate
 }

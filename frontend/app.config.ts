@@ -598,7 +598,7 @@ export default defineAppConfig({
     },
     card: {
       slots: {
-        root: "rounded-xl overflow-hidden border border-[var(--border-main)] transition-all duration-300",
+        root: "rounded-xl overflow-hidden border-2 border-slate-300 transition-all duration-300 shadow-md hover:shadow-lg",
         header: "p-4 sm:px-6 border-b border-[var(--border-main)] bg-[var(--bg-surface)]",
         body: "p-4 sm:p-6",
         footer: "p-4 sm:px-6 border-t border-[var(--border-main)] bg-[var(--bg-surface)]",

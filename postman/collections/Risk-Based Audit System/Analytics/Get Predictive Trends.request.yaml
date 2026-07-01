@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Predictive Trends
+method: GET
+url: '{{analytics_base_url}}/api/analytics/predict'
+order: 2000

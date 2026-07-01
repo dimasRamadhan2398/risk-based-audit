@@ -3,6 +3,13 @@ import { ref, computed, reactive } from 'vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
+  const loading = ref(false)
+  const errorMsg = ref('')
+
+  const getMasterServiceBaseUrl = () => {
+    const config = useRuntimeConfig()
+    return config.public.masterServiceBaseUrl || 'http://localhost:8003/api/v1'
+  }
 
   const columns = [
     { accessorKey: 'type', header: 'QA Type', sortable: true },
@@ -73,43 +80,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     })
   }
 
-  const saveReport = () => {
-    if (!newReport.assessmentTitle || !newReport.result) return
-
-    const reportData = {
-      type: newReport.type,
-      period: `${newReport.periodQuarter} ${newReport.periodYear}`.trim() || '2025',
-      reportName: newReport.assessmentTitle,
-      result: newReport.result,
-      status: newReport.status,
-      assessmentTitle: newReport.assessmentTitle,
-      internalEvaluator: newReport.internalEvaluator,
-      attachment: newReport.attachment ? {
-        name: newReport.attachment.name,
-        size: Math.round(newReport.attachment.size / 1024) + ' KB',
-        uploadedAt: new Date().toISOString().split('T')[0] || ''
-      } : (isEditing.value ? selectedReport.value?.attachment : undefined)
-    }
-
-    if (isEditing.value && selectedReport.value) {
-      const index = reports.value.findIndex(r => r.id === selectedReport.value!.id)
-      if (index !== -1) {
-        reports.value[index] = { ...reports.value[index], ...reportData }
-      }
-    } else {
-      const report: QAReport = {
-        id: (reports.value.length + 1).toString(),
-        ...reportData as any
-      }
-      reports.value.unshift(report)
-    }
-
-    resetForm()
-    isEditing.value = false
-    closeForm()
-  }
-
-  const reports = ref<QAReport[]>([
+  const mockReports: QAReport[] = [
     {
       id: '1',
       type: QAType.REGULAR,
@@ -173,7 +144,80 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q1'
     }
-  ])
+  ]
+
+  const fetchReports = async () => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/quality-assurance`, {
+        method: 'GET'
+      })
+      if (Array.isArray(response) && response.length > 0) {
+        reports.value = response
+      } else {
+        reports.value = mockReports
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch QA reports:', error)
+      errorMsg.value = 'Failed to fetch quality assurance reports.'
+      reports.value = mockReports
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Load on init
+  fetchReports()
+
+
+  const saveReport = async () => {
+    if (!newReport.assessmentTitle || !newReport.result) return
+    loading.value = true
+    errorMsg.value = ''
+
+    const reportData = {
+      type: newReport.type,
+      period: `${newReport.periodQuarter} ${newReport.periodYear}`.trim() || '2025',
+      reportName: newReport.assessmentTitle,
+      result: newReport.result,
+      status: newReport.status,
+      assessmentTitle: newReport.assessmentTitle,
+      internalEvaluator: newReport.internalEvaluator,
+      attachment: newReport.attachment ? {
+        name: newReport.attachment.name,
+        size: Math.round(newReport.attachment.size / 1024) + ' KB',
+        uploadedAt: new Date().toISOString().split('T')[0] || ''
+      } : (isEditing.value ? selectedReport.value?.attachment : undefined)
+    }
+
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      if (isEditing.value && selectedReport.value) {
+        await $fetch(`${baseUrl}/quality-assurance/${selectedReport.value.id}`, {
+          method: 'PUT',
+          body: reportData
+        })
+      } else {
+        await $fetch(`${baseUrl}/quality-assurance`, {
+          method: 'POST',
+          body: reportData
+        })
+      }
+      resetForm()
+      isEditing.value = false
+      closeForm()
+      await fetchReports()
+    } catch (error: any) {
+      console.error('Failed to save QA report:', error)
+      errorMsg.value = 'Failed to save Quality Assurance report.'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const reports = ref<QAReport[]>([...mockReports])
 
   const searchQuery = ref('')
   const selectedType = ref('')
@@ -186,19 +230,19 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   const filteredReports = computed(() => {
     return reports.value.filter(report => {
-      const matchesSearch = report.reportName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.assessmentTitle.toLowerCase().includes(searchQuery.value.toLowerCase())
+      const matchesSearch = (report.reportName || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        (report.assessmentTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
       const matchesType = !selectedType.value || report.type === selectedType.value
-      const matchesPeriod = !selectedPeriod.value || report.period.includes(selectedPeriod.value)
+      const matchesPeriod = !selectedPeriod.value || (report.period || '').includes(selectedPeriod.value)
       const matchesStatus = !selectedStatus.value || report.status === selectedStatus.value
       return matchesSearch && matchesType && matchesPeriod && matchesStatus
     })
   })
 
   const summary = computed(() => {
-    const regular = reports.value.filter(r => r.type === QAType.REGULAR).sort((a, b) => b.period.localeCompare(a.period))[0]
-    const qar = reports.value.filter(r => r.type === QAType.QAR).sort((a, b) => b.period.localeCompare(a.period))[0]
-    const saiv = reports.value.filter(r => r.type === QAType.SAIV).sort((a, b) => b.period.localeCompare(a.period))[0]
+    const regular = reports.value.filter(r => r.type === QAType.REGULAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const qar = reports.value.filter(r => r.type === QAType.QAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const saiv = reports.value.filter(r => r.type === QAType.SAIV).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
 
     return {
       regular: regular || { result: '-', period: '-', status: QAStatus.PLANNED },
@@ -220,11 +264,11 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     isEditing.value = true
     
     // Populate form
-    const periodParts = selectedReport.value.period.split(' ')
+    const periodParts = (selectedReport.value.period || '').split(' ')
     Object.assign(newReport, {
       type: selectedReport.value.type,
       assessmentTitle: selectedReport.value.assessmentTitle,
-      periodQuarter: periodParts[0],
+      periodQuarter: periodParts[0] || '',
       periodYear: periodParts[1] || '2025',
       status: selectedReport.value.status,
       result: selectedReport.value.result,
@@ -250,13 +294,23 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     selectedReport.value = null
   }
 
-  const deleteReport = () => {
+  const deleteReport = async () => {
     if (!selectedReport.value) return
-    
-    const index = reports.value.findIndex(r => r.id === selectedReport.value!.id)
-    if (index !== -1) {
-      reports.value.splice(index, 1)
+    if (!confirm('Apakah Anda yakin ingin menghapus laporan Quality Assurance ini?')) return
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      await $fetch(`${baseUrl}/quality-assurance/${selectedReport.value.id}`, {
+        method: 'DELETE'
+      })
       closeDetail()
+      await fetchReports()
+    } catch (error: any) {
+      console.error('Failed to delete QA report:', error)
+      errorMsg.value = 'Failed to delete Quality Assurance report.'
+    } finally {
+      loading.value = false
     }
   }
 
@@ -264,7 +318,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isDetailOpen, columns,
     selectedReport, filteredReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
     handleFileUpload, saveReport, openForm, closeForm, openDetail, closeDetail, getStatusColor, getTypeIconColor,
-    editReport, isEditing, deleteReport
+    editReport, isEditing, deleteReport, fetchReports, loading, errorMsg
   }
 })
 export { QAType, QAStatus }

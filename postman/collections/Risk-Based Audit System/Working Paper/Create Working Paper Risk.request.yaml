@@ -1,0 +1,22 @@
+$kind: http-request
+name: Create Working Paper Risk
+method: POST
+url: '{{auth_base_url}}/api/v1/working-papers/risks'
+order: 4000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "risk": "Financial Fraud",
+      "taxonomy": "Financial",
+      "riskLevel": "High",
+      "controlDescription": "Dual approval required for all transactions"
+    }

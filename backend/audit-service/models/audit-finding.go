@@ -19,7 +19,8 @@ const (
 type AuditFinding struct {
 	ID               uuid.UUID       `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	ActivityPlanID   uuid.UUID       `gorm:"type:uuid;not null;index" json:"activity_plan_id"`
-	
+	ActivityPlan     AuditActivity   `gorm:"foreignKey:ActivityPlanID" json:"activity_plan"`
+
 	// Optional: A finding is usually derived from a specific working paper
 	WorkingPaperID   *uuid.UUID      `gorm:"type:uuid;index" json:"working_paper_id"`
 	WorkingPaper     *WorkingPaper   `gorm:"foreignKey:WorkingPaperID" json:"working_paper,omitempty"`
@@ -39,6 +40,9 @@ type AuditFinding struct {
 
 	Severity         FindingSeverity `gorm:"type:varchar(20);not null" json:"severity"`
 	Status           string          `gorm:"type:varchar(50);default:'OPEN'" json:"status"` // OPEN, RESOLVED, CLOSED, OVERDUE
+
+	// Evidence for the finding
+	Evidence         *MediaAttachment `gorm:"type:jsonb" json:"evidence,omitempty"`
 
 	CreatedAt        time.Time       `json:"created_at"`
 	UpdatedAt        time.Time       `json:"updated_at"`

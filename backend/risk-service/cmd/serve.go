@@ -1,11 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
 
+	"risk-service/controllers"
+	"risk-service/pkg/database"
+	"risk-service/repositories"
+	"risk-service/routes"
+	"risk-service/services"
+
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
 
@@ -20,33 +26,56 @@ func init() {
 }
 
 func runServe(cmd *cobra.Command, args []string) error {
-	mux := http.NewServeMux()
+	if err := initConfig(); err != nil {
+		return err
+	}
+	if err := initLogger(); err != nil {
+		return err
+	}
 
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]interface{}{
-			"status":  "ok",
-			"service": "risk-service",
-		})
-	})
+	db, err := database.NewPostgresConnection(&cfg.Database)
+	if err != nil {
+		log.Printf("Failed to connect to database: %v", err)
+		return err
+	}
 
-	mux.HandleFunc("/api/v1/risks", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			writeJSON(w, http.StatusOK, map[string]interface{}{
-				"success": true,
-				"message": "Risks fetched successfully",
-				"data":    []interface{}{},
-			})
-		default:
-			writeJSON(w, http.StatusMethodNotAllowed, map[string]interface{}{
-				"success": false,
-				"error": map[string]interface{}{
-					"code":    "METHOD_NOT_ALLOWED",
-					"message": "Method not allowed",
-				},
-			})
+	// Seed initial risks if the DB is empty
+	if err := seedInitialRisks(db); err != nil {
+		log.Printf("Warning: Seeding failed: %v", err)
+	}
+
+	r := gin.Default()
+
+	r.Use(func(c *gin.Context) {
+		origin := c.GetHeader("Origin")
+		if origin != "" {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		}
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusOK)
+			return
+		}
+		c.Next()
 	})
+
+	// Initialize Layers
+	riskRepo := repositories.NewRiskRepository(db)
+	mitigationRepo := repositories.NewMitigationRepository(db)
+
+	riskServ := services.NewRiskService(riskRepo)
+	mitigationServ := services.NewMitigationService(mitigationRepo)
+
+	riskCtrl := controllers.NewRiskController(riskServ)
+	mitigationCtrl := controllers.NewMitigationController(mitigationServ)
+
+	// Register Routes
+	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, &r.RouterGroup)
+	riskRoute.Run()
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -56,14 +85,5 @@ func runServe(cmd *cobra.Command, args []string) error {
 	addr := ":" + port
 	log.Printf("Starting risk-service HTTP server on %s", addr)
 
-	return http.ListenAndServe(addr, mux)
-}
-
-func writeJSON(w http.ResponseWriter, statusCode int, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-
-	if err := json.NewEncoder(w).Encode(payload); err != nil {
-		log.Printf("failed to write json response: %v", err)
-	}
+	return r.Run(addr)
 }

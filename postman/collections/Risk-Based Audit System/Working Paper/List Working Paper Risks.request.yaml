@@ -1,0 +1,10 @@
+$kind: http-request
+name: List Working Paper Risks
+method: GET
+url: '{{auth_base_url}}/api/v1/working-papers/risks'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

@@ -1,0 +1,29 @@
+$kind: http-request
+name: Create Test Control
+method: POST
+url: '{{auth_base_url}}/api/v1/audit-fieldwork/test-controls'
+order: 10000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "assignmentLetterId": "ST-001/SKAI/2026",
+      "controlName": "Authorization Control",
+      "controlDescription": "All transactions require dual approval",
+      "controlType": "Preventive",
+      "testProcedure": "Review approval logs",
+      "testResult": "Effective",
+      "finding": "No issues found",
+      "recommendation": "Continue current practice",
+      "mitigationPlan": "N/A",
+      "pic": "Zeta Ramadhani",
+      "dueDate": "2026-04-01"
+    }

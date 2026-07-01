@@ -80,7 +80,7 @@
       @dragstart="onDragStart"
       @dragend="onDragEnd"
     >
-      <span class="text-[13px] font-extrabold text-white [text-shadow:0_2px_4px_rgba(0,0,0,0.4)] leading-none">{{ risk.id }}</span>
+      <span class="text-[13px] font-extrabold text-white [text-shadow:0_2px_4px_rgba(0,0,0,0.4)] leading-none">{{ risk.displayId || risk.id }}</span>
       <div v-if="isPriority" class="absolute -inset-1 rounded-full border-2 pointer-events-none animate-badge-pulse" :style="{ borderColor: config.color }"></div>
     </div>
   </UTooltip>

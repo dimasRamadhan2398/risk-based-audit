@@ -234,11 +234,13 @@ func autoMigrate(db *gorm.DB) error {
 		&models.RiskIndicatorLog{},
 		&models.AuditUniverse{},
 		&models.AuditWorkpaper{},
+		&models.QAReport{},
 	)
 }
 
 func dropAllTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
+		&models.QAReport{},
 		&models.AuditWorkpaper{},
 		&models.RiskIndicatorLog{},
 		&models.RiskIndicator{},

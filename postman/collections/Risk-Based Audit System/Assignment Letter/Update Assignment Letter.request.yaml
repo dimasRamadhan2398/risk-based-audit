@@ -1,0 +1,23 @@
+$kind: http-request
+name: Update Assignment Letter
+method: PUT
+url: '{{auth_base_url}}/api/v1/assignment-letters/:id'
+order: 4000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: letter-id-here
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "auditTitle": "Updated Audit Title",
+      "status": "Published"
+    }

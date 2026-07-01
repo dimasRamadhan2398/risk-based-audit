@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Analytics Report
+method: GET
+url: '{{analytics_base_url}}/api/analytics/report'
+order: 1000

@@ -1,0 +1,25 @@
+$kind: http-request
+name: Create Audit Result Report
+method: POST
+url: '{{auth_base_url}}/api/v1/audit-result-reports'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "assignmentLetterId": "ST-001/SKAI/2026",
+      "reportTitle": "Audit Report - Financial Operations 2026",
+      "executiveSummary": "The financial operations are generally effective.",
+      "overallRating": "Satisfactory",
+      "reportDate": "2026-04-15",
+      "status": "Draft",
+      "findingsCount": 3
+    }

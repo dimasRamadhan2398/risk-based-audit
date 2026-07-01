@@ -3,7 +3,13 @@ import { fileURLToPath } from "node:url";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true,
+    },
+  },
   modules: [
     "@pinia/nuxt",
     "@nuxt/ui",
@@ -47,11 +53,11 @@ export default defineNuxtConfig({
         },
       ],
       link: [
-        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "icon", type: "image/png", href: "/favicon.png" },
         // Google Fonts
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
+          href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap",
         },
       ],
       script: [
@@ -75,9 +81,12 @@ export default defineNuxtConfig({
 
     // Public keys (exposed to client)
     public: {
-      apiBase: process.env.API_BASE_URL || "http://localhost:3001/api",
-      analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || "http://localhost:8084/api/analytics",
-      auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || 'http://localhost:8002/api/v1',
+      apiBase: process.env.API_BASE_URL || "http://localhost:8080/api/v1",
+      analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || "http://localhost:8080/api/analytics",
+      authServiceBaseUrl: process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL || 'http://localhost:8080/api/v1',
+      auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || 'http://localhost:8080/api/v1',
+      riskServiceBaseUrl: process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL || 'http://localhost:8080/api/v1',
+      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || 'http://localhost:8080/api/v1',
     },
   },
 

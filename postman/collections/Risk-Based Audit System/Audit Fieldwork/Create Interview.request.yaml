@@ -1,0 +1,25 @@
+$kind: http-request
+name: Create Interview
+method: POST
+url: '{{auth_base_url}}/api/v1/audit-fieldwork/interviews'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "assignmentLetterId": "ST-001/SKAI/2026",
+      "interviewee": "John Doe",
+      "intervieweePosition": "Manager",
+      "interviewer": "Zeta Ramadhani",
+      "interviewerPosition": "Auditor",
+      "date": "2026-03-15",
+      "topic": "Internal Control"
+    }

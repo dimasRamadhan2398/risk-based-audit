@@ -1,0 +1,27 @@
+$kind: http-request
+name: Update Audit Execution
+method: PUT
+url: '{{auth_base_url}}/api/v1/audit-executions/:id'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: '1'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "progress": 75,
+      "status": "in_progress",
+      "latest_update_progress": {
+        "description": "Audit in progress",
+        "attachment": "report.pdf"
+      }
+    }

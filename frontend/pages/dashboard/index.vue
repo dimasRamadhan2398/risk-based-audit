@@ -1,511 +1,635 @@
 <template>
-  <div class="space-y-6">
+  <div class="p-4 md:p-6 space-y-8 min-h-screen">
     <!-- Header Section -->
-    <UCard variant="soft">
-      <template #header>
-        <div class="flex flex-col gap-2">
-          <h1 class="text-3xl font-bold text-[var(--text-main)]">
-            Dashboard
-          </h1>
-          <p class="text-sm text-[var(--text-muted)]">
-            Enterprise Risk Management and Internal Audit Platform
-          </p>
-        </div>
-      </template>
-    </UCard>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+        <p class="text-sm text-slate-500 mt-1.5">
+          Welcome back, {{ authStore.getUser?.fullName || "Andi" }}. Here's your risk &
+          audit performance overview.
+        </p>
+      </div>
+      <div>
+        <UButton
+          variant="outline"
+          color="neutral"
+          class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm font-medium"
+          :loading="isSyncing"
+          @click="handleSync"
+        >
+          <template #leading>
+            <UIcon
+              name="i-lucide-rotate-cw"
+              :class="{ 'animate-spin': isSyncing }"
+              class="size-4"
+            />
+          </template>
+          Sync
+        </UButton>
+      </div>
+    </div>
 
+    <!-- Main Metrics Cards Section (First Row) -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-gray-600">Total Risks</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">{{ totalRisks }}</p>
-              </div>
-              <div class="rounded-lg bg-primary-100 p-3">
-                <UIcon name="i-lucide-shield" class="text-primary-600 size-6" />
-              </div>
-            </div>
-          </template>
-          <div class="flex items-center gap-2 text-sm">
-            <span class="text-green-600">↑ 12%</span>
-            <span class="text-gray-500">from last month</span>
+      <!-- Card 1: Total Risks -->
+      <div
+        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+      >
+        <div class="flex justify-between items-start">
+          <p class="text-sm font-semibold text-slate-500">Total Risks</p>
+          <div class="rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center">
+            <UIcon name="i-lucide-shield" class="text-indigo-600 size-5" />
           </div>
-        </UCard>
-
-        <UCard variant="outline">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">High Risk</p>
-                <p class="text-3xl font-bold text-red-600 mt-1">{{ highRisks }}</p>
-              </div>
-              <div class="rounded-lg bg-red-100 p-3">
-                <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-6" />
-              </div>
-            </div>
-          </template>
-          <div class="flex items-center gap-2 text-sm">
-            <span class="text-red-600">↑ 3</span>
-            <span class="text-gray-500">requires attention</span>
-          </div>
-        </UCard>
-
-        <UCard variant="outline">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Audit Plans</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">{{ auditPlansCount }}</p>
-              </div>
-              <div class="rounded-lg bg-blue-100 p-3">
-                <UIcon name="i-lucide-calendar" class="text-blue-600 size-6" />
-              </div>
-            </div>
-          </template>
-          <div class="flex items-center gap-2 text-sm">
-            <span class="text-blue-600">Active</span>
-            <span class="text-gray-500">this quarter</span>
-          </div>
-        </UCard>
-
-        <UCard variant="outline">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Completed</p>
-                <p class="text-3xl font-bold text-green-600 mt-1">{{ completedAuditsCount }}</p>
-              </div>
-              <div class="rounded-lg bg-green-100 p-3">
-                <UIcon name="i-lucide-check-circle" class="text-green-600 size-6" />
-              </div>
-            </div>
-          </template>
-          <div class="flex items-center gap-2 text-sm">
-            <span class="text-green-600">Updated</span>
-            <span class="text-gray-500">this month</span>
-          </div>
-        </UCard>
-      </div>
-
-    <!-- Statistics Cards -->
-    <UCard>
-      <template #header>
-        <h4 class=" font-semibold">Audit Statistics</h4>
-      </template>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <UCard variant="outline" class="relative overflow-hidden">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Planned Audits</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">
-                  {{ auditMainStats.plannedAudit }}
-                </p>
-              </div>
-              <div class="rounded-lg bg-primary-100 p-1 center">
-                <UIcon name="i-lucide-info" class="text-primary-600 size-6" />
-              </div>
-            </div>
-          </template>
-          <div class="flex items-center gap-2 text-sm">
-            <span :class="plannedAuditTrend.color">
-              {{ plannedAuditTrend.icon }} {{ plannedAuditTrend.value }}
-            </span>
-            <span class="text-gray-500">from last month</span>
-          </div>
-        </UCard>
-
-        <UCard variant="outline">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Open Findings</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">
-                  {{ auditMainStats.openFinding }}
-                </p>
-              </div>
-              <div class="rounded-lg bg-orange-100 p-3">
-                <UIcon name="i-lucide-alert-triangle" class="text-orange-600 size-6" />
-              </div>
-            </div>
-          </template>
-          <div class="flex items-center gap-2 text-sm">
-            <span :class="openFindingTrend.color">
-              {{ openFindingTrend.icon }} {{ openFindingTrend.value }}
-            </span>
-            <span class="text-gray-500">from last month</span>
-          </div>
-        </UCard>
-
-        <UCard variant="outline">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">
-                  Execution Status
-                </p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">
-                  {{ (auditMainStats.executionStatus * 100).toFixed(0) }}%
-                </p>
-              </div>
-              <div class="rounded-lg bg-blue-100 p-3">
-                <UIcon name="i-lucide-play" class="text-blue-600 size-6" />
-              </div>
-            </div>
-          </template>
-          <div class="flex items-center gap-2 text-sm">
-            <span :class="executionStatusTrend.color">
-              {{ executionStatusTrend.icon }} {{ executionStatusTrend.value }}
-            </span>
-            <span class="text-gray-500">from last month</span>
-          </div>
-        </UCard>
-
-        <UCard variant="outline">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">ATR Compliance</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">
-                  {{ (auditMainStats.atrCompliance * 100).toFixed(0) }}%
-                </p>
-              </div>
-              <div class="rounded-lg bg-green-100 p-3">
-                <UIcon name="i-lucide-check-square" class="text-green-600 size-6" />
-              </div>
-            </div>
-          </template>
-          <div class="flex items-center gap-2 text-sm">
-            <span :class="atrComplianceTrend.color">
-              {{ atrComplianceTrend.icon }} {{ atrComplianceTrend.value }}
-            </span>
-            <span class="text-gray-500">from last month</span>
-          </div>
-        </UCard>
-      </div>
-    </UCard>
-
-    <div class="flex flex-row gap-8 flex-nowrap items-stretch">
-      <div class="basis-3/12 w-full min-w-fit min-h-full gap-2 flex flex-col h-full">
-        <UCard variant="soft" class="flex-1" :ui="{ header: 'px-0 pt-0 pb-4' }">
-          <template #header>
-            <div
-              class="flex items-center justify-between px-6 border-b  py-4 -mx-6"
-            >
-              <h2 class="text-xl font-semibold text-gray-900">
-                Risk Heat Map
-              </h2>
-              <UButton to="/risk-profile" variant="ghost" color="neutral">Configure</UButton>
-            </div>
-          </template> 
-          <div class="flex flex-col gap-2">
-            <!-- Y-axis label -->
-            <!-- Heat map grid -->
-            <div class="flex flex-row gap-4 items-center mr-24">
-              <div class="flex flex-col items-center">
-                <span class="text-xs font-medium text-gray-600 mb-1" style="transform: rotate(270deg);">
-                Probability
-                </span>
-              </div>
-              <div class="min-w-full flex flex-col gap-4">
-                <div class="grid grid-cols-5 gap-1 flex-1">
-                  <template v-for="y in 5" :key="y">
-                    <template v-for="x in 5" :key="`${x}-${y}`">
-                      <div
-                        class="aspect-square flex items-center justify-center text-xs font-semibold rounded"
-                        :class="getHeatMapCellColor(x, y)"
-                        :title="`Impact: ${x}, Probability: ${6-y}, Risk: ${getRiskLevel(x, 6-y)}`"
-                      >
-                      </div>
-                    </template>
-                  </template>
-                </div>
-                <div class="flex justify-center">
-                  <span class="text-xs font-medium text-gray-600">Impact</span>
-                </div>
-              </div>
-            </div>
-            <!-- X-axis label -->
-            <!-- Legend -->
-            <div class="flex flex-wrap justify-center gap-2 mt-2">
-              <div class="flex items-center gap-1">
-                <div class="w-3 h-3 rounded bg-success-400"></div>
-                <span class="text-xs text-gray-600">Low</span>
-              </div>
-              <div class="flex items-center gap-1">
-                <div class="w-3 h-3 rounded bg-success-600"></div>
-                <span class="text-xs text-gray-600">Low-Mod</span>
-              </div>
-              <div class="flex items-center gap-1">
-                <div class="w-3 h-3 rounded bg-warning-500"></div>
-                <span class="text-xs text-gray-600">Moderate</span>
-              </div>
-              <div class="flex items-center gap-1">
-                <div class="w-3 h-3 rounded bg-primary-400"></div>
-                <span class="text-xs text-gray-600">Mod-High</span>
-              </div>
-              <div class="flex items-center gap-1">
-                <div class="w-3 h-3 rounded bg-error-500"></div>
-                <span class="text-xs text-gray-600">High</span>
-              </div>
-            </div>
-          </div>
-        </UCard>
-        <UCard variant="soft" class="flex-1 min-h-[27rem]" :ui="{ header: 'px-0 pt-0 pb-4', body: 'p-0' }">
-          <template #header>
-            <div
-              class="flex items-center justify-between px-6 border-b  py-4 -mx-6"
-            >
-              <h2 class="text-xl font-semibold text-gray-900">
-                Registered Risk
-              </h2>
-              <UButton to="/risk-profile" variant="ghost" color="neutral">Configure</UButton>
-            </div>
-          </template> 
-          <UTable :data="registeredRiskHeatMap" :columns="registeredRiskColumns" :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data yang dimasukkan ke Risk Heat Map.' }" class="w-full text-sm text-left" />
-        </UCard>
-      </div>
-      <div class="basis-9/12 w-full min-w-fit gap-8 flex flex-col h-full">
-        <UCard variant="soft" :ui="{ header: 'px-0 pt-0 pb-4' }">
-          <template #header>
-            <div
-              class="flex items-center justify-between px-6 border-b  py-4 -mx-6"
-            >
-              <h2 class="text-xl font-semibold text-gray-900">
-                Audit Planning Coverage
-              </h2>
-              <UButton to="/annual-audit" variant="ghost" color="neutral">Configure</UButton>
-            </div>
-          </template>
-          <template #default>
-            <div class="h-fit flex flex-col gap-8">
-              <div class="gap-2">
-                <div class="self-end text-end">
-                <h5 class="text-lg font-semibold text-secondary-600! mb-2">
-                  {{ progressModel }}% Completed
-                </h5>
-              </div>
-              <UProgress v-model="progressModel" color="secondary" />
-              </div>
-              <div class="flex flex-row  font-semibold gap-32 flex-wrap px-4 justify-around">
-                <div class="flex flex-row gap-16">
-                  <p>Planned Audits</p>
-                  <p>{{ auditCoverage.plannedAudits }}</p>
-                </div class="flex flex-row">
-                <div class="flex flex-row gap-16">
-                  <p>Completed Audits</p>
-                  <p>{{ auditCoverage.completedAudits }}</p>
-                </div class="flex flex-row">
-                <div class="flex flex-row gap-16">
-                  <p>Remaining</p>
-                  <p>{{ auditCoverage.remainingAudits }}</p>
-                </div class="flex flex-row">
-              </div>
-            </div>
-          </template>
-        </UCard>
-        <UCard variant="soft">
-          <template #header>
-            <div class="flex flex-row justify-between min-h-full ">
-              <h2>Inherent vs Residual Risk by Department</h2>
-              <USelect v-model="activeYear" :options="yearlyFilters" />
-            </div>
-          </template>
-          <BarChart
-            :data="mainRiskData"
-            :categories="riskCategories"
-            :x-formatter="xFormatter"
-            :y-axis="['inherentRisk', 'residualRisk']"
-            :radius="4"
-            :height="500"
-            :padding="{
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 4
-            }"
-            :tooltip-title-formatter="tooltipTitleFormatter"
-            :x-label=label.xLabel
-            :y-label=label.yLabel
-          />
-        </UCard>
-      </div>
-    </div>
-    <div class="flex flex-row gap-8 flex-nowrap items-stretch flex-2">
-    <div class="flex-1/2">
-      <UCard>
-        <template #header>
-          <div class="flex flex-row gap-8 justify-between items-center">
-            <div>
-              <h5>Action Taken Report</h5>
-            </div>
-            <div>
-              <UButton to="/action-taken-report" variant="ghost" color="neutral">View Details</UButton>
-            </div>
-          </div>
-        </template>
-        <DonutChart :data="atrDonutData.map((item) => item.value)" :height="400" :categories="atrCategories" :radius="10" :hide-legend="false" :type="(DonutType.Full as any)" :padding="{ top: 0, left: 0, right: 0, bottom: 0}" :arc-width="20" :legend-position="(LegendPosition.TopRight as any)" :legend-style=legendStyle :pad-angle="0">
-          <div class="text-center">
-            <div class="font-semibold ">
-              <span class="text-xl">{{ atrDonutData[0]!.value }}%</span>  Completed
-            </div>
-          </div>
-        </DonutChart>
-      </UCard>
-    </div>
-    <div class="flex-1/2 min-h-96">
-      <UCard class="flex-1/2 min-h-full">
-        <template #header>
-           <div class="flex flex-row gap-8 justify-between items-center">
-             <div>
-               <h5>Action Taken Reports (ATR)</h5>
-             </div>
-             <div>
-               <UButton to="/action-taken-report" variant="ghost" color="neutral">View Full Report</UButton>
-             </div>
-           </div>
-          </template>
-        <UTable :data="atrTableData" :columns="tableColumns" :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data rencana audit.' }" class="w-full text-sm text-left" />
-      </UCard>
-    </div>
-  </div>
-
-  <div class="flex flex-row gap-8 flex-nowrap">
-    <UCard class="basis-1/2">
-      <template #header>
-        <div class="flex flex-row gap-1 justify-between">
-          <h2 class="text-xl font-semibold text-gray-900">Audit Execution Status</h2>
-          <UBadge color="primary" label="Q4 2025" variant="soft"></UBadge>
         </div>
-      </template>
-      <div v-for="(item, index) in dashboardExecutionStatus" :key="index">
-        <div class="gap-4 flex flex-col pb-6">
-          <div class="flex flex-row justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
-              {{ item.name }}
-            </h3>
-            <p class="text-sm text-gray-600">
-              {{ item.percentage }}%
+        <div class="mt-2">
+          <h3 class="text-3xl font-bold text-slate-900 tracking-tight">
+            {{ totalRisks }}
+          </h3>
+          <div
+            class="flex items-center gap-1 text-xs font-semibold text-emerald-500 mt-1"
+          >
+            <span>↑ 12%</span>
+            <span class="text-slate-400 font-normal">from last month</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: High Risk -->
+      <div
+        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+      >
+        <div class="flex justify-between items-start">
+          <p class="text-sm font-semibold text-slate-500">High Risk</p>
+          <div class="rounded-xl bg-red-50 p-2.5 flex items-center justify-center">
+            <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-5" />
+          </div>
+        </div>
+        <div class="mt-2">
+          <h3 class="text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
+          <div class="flex items-center gap-1 text-xs font-semibold text-red-500 mt-1">
+            <span>↑ 3</span>
+            <span class="text-slate-400 font-normal">requires attention</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Audit Plans -->
+      <div
+        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+      >
+        <div class="flex justify-between items-start">
+          <p class="text-sm font-semibold text-slate-500">Audit Plans</p>
+          <div class="rounded-xl bg-sky-50 p-2.5 flex items-center justify-center">
+            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5" />
+          </div>
+        </div>
+        <div class="mt-2">
+          <h3 class="text-3xl font-bold text-slate-900 tracking-tight">
+            {{ auditPlansCount }}
+          </h3>
+          <div class="flex items-center gap-1 text-xs font-semibold text-sky-500 mt-1">
+            <span>Active</span>
+            <span class="text-slate-400 font-normal">this quarter</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Completed -->
+      <div
+        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+      >
+        <div class="flex justify-between items-start">
+          <p class="text-sm font-semibold text-slate-500">Completed</p>
+          <div class="rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center">
+            <UIcon name="i-lucide-check-circle" class="text-emerald-600 size-5" />
+          </div>
+        </div>
+        <div class="mt-2">
+          <h3 class="text-3xl font-bold text-emerald-600 tracking-tight">
+            {{ completedAuditsCount }}
+          </h3>
+          <div
+            class="flex items-center gap-1 text-xs font-semibold text-emerald-500 mt-1"
+          >
+            <span>Updated</span>
+            <span class="text-slate-400 font-normal">this month</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit Statistics Section (Second Row) -->
+    <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-800">Audit Statistics</h3>
+      </div>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Planned Audits -->
+        <div
+          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+        >
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold text-slate-500">Planned Audits</span>
+            <div class="rounded-lg bg-indigo-50 p-1.5 flex items-center justify-center">
+              <UIcon name="i-lucide-info" class="text-indigo-600 size-4" />
+            </div>
+          </div>
+          <div class="mt-1">
+            <h4 class="text-2xl font-bold text-slate-900">
+              {{ auditMainStats.plannedAudit }}
+            </h4>
+            <p class="text-[11px] mt-1" :class="plannedAuditTrend.color">
+              {{ plannedAuditTrend.icon }} {{ plannedAuditTrend.value }}
+              <span class="text-slate-400 font-normal">from last month</span>
             </p>
           </div>
-          <UProgress v-model="item.percentage" color="secondary" />
+        </div>
+
+        <!-- Open Findings -->
+        <div
+          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+        >
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold text-slate-500">Open Findings</span>
+            <div class="rounded-lg bg-amber-50 p-1.5 flex items-center justify-center">
+              <UIcon name="i-lucide-alert-triangle" class="text-amber-600 size-4" />
+            </div>
+          </div>
+          <div class="mt-1">
+            <h4 class="text-2xl font-bold text-slate-900">
+              {{ auditMainStats.openFinding }}
+            </h4>
+            <p class="text-[11px] mt-1" :class="openFindingTrend.color">
+              {{ openFindingTrend.icon }} {{ openFindingTrend.value }}
+              <span class="text-slate-400 font-normal">from last month</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Execution Status -->
+        <div
+          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+        >
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold text-slate-500">Execution Status</span>
+            <div class="rounded-lg bg-sky-50 p-1.5 flex items-center justify-center">
+              <UIcon name="i-lucide-play" class="text-sky-600 size-4" />
+            </div>
+          </div>
+          <div class="mt-1">
+            <h4 class="text-2xl font-bold text-slate-900">
+              {{ (auditMainStats.executionStatus * 100).toFixed(0) }}%
+            </h4>
+            <p class="text-[11px] mt-1" :class="executionStatusTrend.color">
+              {{ executionStatusTrend.icon }} {{ executionStatusTrend.value }}
+              <span class="text-slate-400 font-normal">from last month</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- ATR Compliance -->
+        <div
+          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+        >
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold text-slate-500">ATR Compliance</span>
+            <div class="rounded-lg bg-emerald-50 p-1.5 flex items-center justify-center">
+              <UIcon name="i-lucide-check-square" class="text-emerald-600 size-4" />
+            </div>
+          </div>
+          <div class="mt-1">
+            <h4 class="text-2xl font-bold text-slate-900">
+              {{ (auditMainStats.atrCompliance * 100).toFixed(0) }}%
+            </h4>
+            <p class="text-[11px] mt-1" :class="atrComplianceTrend.color">
+              {{ atrComplianceTrend.icon }} {{ atrComplianceTrend.value }}
+              <span class="text-slate-400 font-normal">from last month</span>
+            </p>
+          </div>
         </div>
       </div>
-    </UCard>
-    <UCard class="basis-1/2">
-      <template #header>
-        <div class="flex flex-row gap-1 justify-between">
-          <h2 class="text-xl font-semibold text-gray-900">Recent Finding Issues</h2>
-        </div>
-      </template>
-      <UTable :data="recentFindingsData" :columns="auditTableColumns"></UTable>
-    </UCard>
-  </div>
+    </div>
 
-    <!-- Recent Activity & Overview -->
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <!-- Recent Risk Profiles -->
-      <UCard variant="soft">
-        <template #header>
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900">
-                Recent Risk Profiles
-              </h3>
-              <p class="text-sm text-gray-600">Latest risk assessments</p>
-            </div>
-            <UButton
-              icon="i-lucide-chevron-right"
-              variant="ghost"
-              color="primary"
-              to="/risk-profile"
+    <!-- Charts Section (Third Row) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Inherent vs Residual Risk by Department Chart -->
+      <div
+        class="lg:col-span-8 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+      >
+        <div>
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-slate-800">
+              Inherent vs Residual Risk by Department
+            </h3>
+            <USelect
+              v-model="activeYear"
+              :options="yearlyFilters"
+              size="sm"
+              class="w-24 bg-white"
             />
           </div>
-        </template>
+          <div class="h-[350px] w-full">
+            <BarChart
+              :data="mainRiskData"
+              :categories="riskCategories"
+              :x-formatter="xFormatter"
+              :y-axis="['inherentRisk', 'residualRisk']"
+              :radius="6"
+              :height="350"
+              :hide-legend="true"
+              :x-axis-config="{
+                tickTextColor: '#64748b',
+                tickTextFontSize: '11px',
+              }"
+              :y-axis-config="{
+                tickTextColor: '#64748b',
+                tickTextFontSize: '11px',
+              }"
+              :padding="{ top: 10, right: 10, bottom: 10, left: 10 }"
+            />
+          </div>
+        </div>
+        <!-- Custom Legend -->
+        <div class="flex justify-center gap-6 mt-4 border-t border-slate-50 pt-4">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#ff5c02]"></span>
+            <span class="text-xs font-semibold text-slate-600">Inherent Risk</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#4d00ff]"></span>
+            <span class="text-xs font-semibold text-slate-600">Residual Risk</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Taken Report Donut Chart -->
+      <div
+        class="lg:col-span-4 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+      >
+        <div>
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-slate-800">Action Taken Report</h3>
+            <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
+              >Details</UButton
+            >
+          </div>
+          <div class="h-[220px] w-full relative flex items-center justify-center">
+            <DonutChart
+              :data="atrDonutData.map((item) => item.value)"
+              :categories="atrCategories"
+              :radius="8"
+              :arc-width="26"
+              :height="220"
+              :hide-legend="true"
+            >
+              <div class="text-center flex flex-col items-center justify-center">
+                <span class="text-xl font-bold text-slate-900 leading-tight"
+                  >{{ atrStore.stats.donePercent }}%</span
+                >
+                <span class="text-[10px] text-slate-500 font-medium">Completed</span>
+              </div>
+            </DonutChart>
+          </div>
+        </div>
+        <!-- Custom Legend -->
+        <div
+          class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 px-2 border-t border-slate-50 pt-4"
+        >
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#4d00ff]"></span>
+            <span class="text-[11px] font-semibold text-slate-600"
+              >Completed ({{ atrStore.stats.donePercent }}%)</span
+            >
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+            <span class="text-[11px] font-semibold text-slate-600"
+              >In Progress ({{ atrStore.stats.wipPercent }}%)</span
+            >
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#ff5c02]"></span>
+            <span class="text-[11px] font-semibold text-slate-600"
+              >Overdue ({{ atrStore.stats.latePercent }}%)</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Heat Map & Registered Risk (Fourth Row) -->
+    <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Risk Profiles</h2>
+        <UButton to="/risk-profile" variant="ghost" color="neutral" size="sm"
+          >Configure</UButton
+        >
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Heat Map Grid on the left -->
+        <div
+          class="lg:col-span-5 flex flex-col items-center bg-slate-50/50 border border-slate-100 rounded-2xl p-6"
+        >
+          <h4 class="text-sm font-semibold text-slate-700 mb-6 w-full text-left">
+            Risk Heat Map
+          </h4>
+          <div class="flex flex-row gap-4 items-center">
+            <!-- Y-axis label -->
+            <div class="flex flex-col items-center">
+              <span
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wider origin-center -rotate-90 whitespace-nowrap"
+              >
+                Probability
+              </span>
+            </div>
+            <!-- Heat map grid -->
+            <div class="flex flex-col gap-2">
+              <div class="grid grid-cols-5 gap-1.5">
+                <template v-for="y in 5" :key="y">
+                  <template v-for="x in 5" :key="`${x}-${y}`">
+                    <div
+                      class="w-10 h-10 flex items-center justify-center text-xs font-semibold rounded shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                      :class="getHeatMapCellColor(x, y)"
+                      :title="`Impact: ${x}, Probability: ${6 - y}, Risk: ${getRiskLevel(
+                        x,
+                        6 - y
+                      )}`"
+                    ></div>
+                  </template>
+                </template>
+              </div>
+              <div class="flex justify-center mt-1">
+                <span
+                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                  >Impact</span
+                >
+              </div>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div class="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mt-6 max-w-[320px]">
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded bg-green-400"></div>
+              <span class="text-[11px] font-medium text-slate-600">Low</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded bg-green-600"></div>
+              <span class="text-[11px] font-medium text-slate-600">Low-Mod</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded bg-yellow-500"></div>
+              <span class="text-[11px] font-medium text-slate-600">Moderate</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded bg-orange-500"></div>
+              <span class="text-[11px] font-medium text-slate-600">Mod-High</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded bg-red-500"></div>
+              <span class="text-[11px] font-medium text-slate-600">High</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Registered Risks Table on the right -->
+        <div class="lg:col-span-7 bg-white border border-slate-100 rounded-2xl p-6">
+          <h4 class="text-sm font-semibold text-slate-700 mb-4">Registered Risks</h4>
+          <UTable
+            :data="registeredRiskHeatMap"
+            :columns="registeredRiskColumns"
+            :empty-state="{
+              icon: 'i-heroicons-circle-stack-20-solid',
+              label: 'Belum ada data yang dimasukkan ke Risk Heat Map.',
+            }"
+            class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Fifth Row: Audit Coverage & Action Taken Reports Table -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Audit Planning Coverage -->
+      <div
+        class="lg:col-span-4 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+      >
+        <div>
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-slate-800">Audit Planning Coverage</h3>
+            <UButton to="/annual-audit" variant="ghost" color="neutral" size="sm"
+              >Configure</UButton
+            >
+          </div>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-semibold text-slate-500">Overall Progress</span>
+              <h5 class="text-base font-bold text-indigo-600">
+                {{ progressModel }}% Completed
+              </h5>
+            </div>
+            <UProgress
+              :model-value="progressModel"
+              color="secondary"
+              class="h-2 rounded"
+            />
+          </div>
+        </div>
+        <div
+          class="grid grid-cols-3 gap-2 border-t border-slate-50 pt-6 mt-6 text-center"
+        >
+          <div>
+            <p class="text-[11px] text-slate-400 font-semibold uppercase">Planned</p>
+            <h4 class="text-lg font-bold text-slate-800 mt-1">
+              {{ auditCoverage.plannedAudits }}
+            </h4>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400 font-semibold uppercase">Completed</p>
+            <h4 class="text-lg font-bold text-slate-800 mt-1">
+              {{ auditCoverage.completedAudits }}
+            </h4>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400 font-semibold uppercase">Remaining</p>
+            <h4 class="text-lg font-bold text-slate-800 mt-1">
+              {{ auditCoverage.remainingAudits }}
+            </h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Taken Reports Table -->
+      <div
+        class="lg:col-span-8 bg-white border border-slate-100 shadow-sm rounded-2xl p-6"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold text-slate-800">Action Taken Reports (ATR)</h3>
+          <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
+            >View Full Report</UButton
+          >
+        </div>
+        <UTable
+          :data="atrTableData"
+          :columns="tableColumns"
+          :empty-state="{
+            icon: 'i-heroicons-circle-stack-20-solid',
+            label: 'Belum ada data rencana audit.',
+          }"
+          class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
+        />
+      </div>
+    </div>
+
+    <!-- Sixth Row: Audit Execution Status & Recent Finding Issues -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Audit Execution Status -->
+      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight">
+            Audit Execution Status
+          </h2>
+          <UBadge color="primary" label="Q4 2025" variant="soft"></UBadge>
+        </div>
+        <div class="space-y-5">
+          <div
+            v-for="(item, index) in dashboardExecutionStatus"
+            :key="index"
+            class="space-y-2"
+          >
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-semibold text-slate-700">
+                {{ item.name }}
+              </h3>
+              <p class="text-xs font-bold text-indigo-600">{{ item.percentage }}%</p>
+            </div>
+            <UProgress
+              :model-value="item.percentage"
+              color="secondary"
+              class="h-1.5 rounded"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Finding Issues -->
+      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight">
+            Recent Finding Issues
+          </h2>
+        </div>
+        <UTable
+          :data="recentFindingsData"
+          :columns="auditTableColumns"
+          class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
+        />
+      </div>
+    </div>
+
+    <!-- Seventh Row: Recent Risk Profiles & Upcoming Audits -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Recent Risk Profiles -->
+      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-slate-800">Recent Risk Profiles</h3>
+            <p class="text-xs text-slate-400 mt-1">Latest risk assessments</p>
+          </div>
+          <UButton
+            icon="i-lucide-chevron-right"
+            variant="ghost"
+            color="primary"
+            to="/risk-profile"
+            size="sm"
+          />
+        </div>
         <div class="space-y-3">
           <div
             v-for="(risk, index) in riskProfileStore.risks.slice(0, 4)"
             :key="risk.id"
-            class="flex items-center justify-between p-3 rounded-lg  border border-gray-200 hover:border-primary-300 transition-colors"
+            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50/50 transition-all duration-200"
           >
             <div class="flex items-center gap-3">
               <div
-                class="rounded-full bg-primary-100 w-10 h-10 flex items-center justify-center"
+                class="rounded-full bg-indigo-50 w-8 h-8 flex items-center justify-center"
               >
-                <span class="text-sm font-semibold text-primary-700">{{
-                  index + 1
-                }}</span>
+                <span class="text-xs font-bold text-indigo-700">{{ index + 1 }}</span>
               </div>
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="text-sm font-bold text-slate-800">
                   {{ risk.name }}
                 </p>
-                <p class="text-sm text-gray-500">{{ risk.category }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">{{ risk.category }}</p>
               </div>
             </div>
-            <UBadge :color="risk.impact * risk.likelihood > 15 ? 'red' : 'warning'" variant="soft">
-               {{ risk.impact * risk.likelihood > 15 ? 'High' : 'Medium' }}
+            <UBadge
+              :color="risk.impact * risk.likelihood > 15 ? 'red' : 'warning'"
+              variant="soft"
+              size="sm"
+              class="font-semibold"
+            >
+              {{ risk.impact * risk.likelihood > 15 ? "High" : "Medium" }}
             </UBadge>
           </div>
         </div>
-      </UCard>
+      </div>
 
       <!-- Upcoming Audits -->
-      <UCard variant="soft">
-        <template #header>
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900">
-                Upcoming Audits
-              </h3>
-              <p class="text-sm text-gray-600">Scheduled audit activities</p>
-            </div>
-            <UButton
-              icon="i-lucide-chevron-right"
-              variant="ghost"
-              color="primary"
-              to="/annual-audit"
-            />
+      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-slate-800">Upcoming Audits</h3>
+            <p class="text-xs text-slate-400 mt-1">Scheduled audit activities</p>
           </div>
-        </template>
+          <UButton
+            icon="i-lucide-chevron-right"
+            variant="ghost"
+            color="primary"
+            to="/annual-audit"
+            size="sm"
+          />
+        </div>
         <div class="space-y-3">
           <div
             v-for="plan in annualPlanStore.plans.slice(0, 4)"
             :key="plan.id"
-            class="flex items-center justify-between p-3 rounded-lg  border border-gray-200 hover:border-primary-300 transition-colors"
+            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50/50 transition-all duration-200"
           >
             <div class="flex items-center gap-3">
-              <div
-                class="rounded-lg bg-blue-100 w-10 h-10 flex items-center justify-center"
-              >
-                <UIcon name="i-lucide-calendar" class="text-blue-600 size-5" />
+              <div class="rounded-lg bg-sky-50 w-8 h-8 flex items-center justify-center">
+                <UIcon name="i-lucide-calendar" class="text-sky-600 size-4" />
               </div>
               <div>
-                <p class="font-medium text-gray-900">{{ plan.code }}</p>
-                <p class="text-sm text-gray-500">
-                  Status: {{ plan.status }}
-                </p>
+                <p class="text-sm font-bold text-slate-800">{{ plan.code }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Status: {{ plan.status }}</p>
               </div>
             </div>
-            <UBadge color="info" variant="soft">Scheduled</UBadge>
+            <UBadge color="info" variant="soft" size="sm" class="font-semibold"
+              >Scheduled</UBadge
+            >
           </div>
-          <div v-if="annualPlanStore.plans.length === 0" class="text-center py-4 text-gray-500 text-sm">
-             No upcoming audits scheduled.
+          <div
+            v-if="annualPlanStore.plans.length === 0"
+            class="text-center py-6 text-slate-400 text-sm"
+          >
+            No upcoming audits scheduled.
           </div>
         </div>
-      </UCard>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from "vue";
 import { useI18n } from "~/composables/useI18n";
 import { useRiskProfileStore } from "~/stores/risk-profile";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
 import { useActionTakenReportStore } from "~/stores/action-taken-report";
 import { useAuditExecutionStore } from "~/stores/audit-execution";
 import { useAuditResultReportStore } from "~/stores/audit-result-report";
+import { useAuthStore } from "~/stores/auth";
 import { RiskLevel } from "~/types/risk";
 import { AuditStatus } from "~/types/audit";
 
@@ -520,51 +644,47 @@ const annualPlanStore = useAnnualPlanStore();
 const atrStore = useActionTakenReportStore();
 const auditExecutionStore = useAuditExecutionStore();
 const auditResultStore = useAuditResultReportStore();
+const authStore = useAuthStore();
 
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 
-// Constants for Charts
-const DonutType = {
-  Full: 'full',
-  Half: 'half'
-};
-
-const LegendPosition = {
-  Top: 'top',
-  Bottom: 'bottom',
-  Left: 'left',
-  Right: 'right',
-  TopRight: 'top-right'
+// Sync state and action simulation
+const isSyncing = ref(false);
+const handleSync = async () => {
+  isSyncing.value = true;
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  isSyncing.value = false;
 };
 
 // Stats for Header
 const totalRisks = computed(() => riskProfileStore.risks.length);
-const highRisks = computed(() => 
-  riskProfileStore.risks.filter(r => 
-    riskProfileStore.getRiskLevel(r.likelihood, r.impact) === RiskLevel.HIGH
-  ).length
+const highRisks = computed(
+  () =>
+    riskProfileStore.risks.filter(
+      (r) => riskProfileStore.getRiskLevel(r.likelihood, r.impact) === RiskLevel.HIGH
+    ).length
 );
 const auditPlansCount = computed(() => annualPlanStore.plans.length);
-const completedAuditsCount = computed(() => 
-  annualPlanStore.plans.filter(p => p.status === 'Done').length
+const completedAuditsCount = computed(
+  () => annualPlanStore.plans.filter((p) => p.status === "Done").length
 );
 
 // Audit Statistics (Section 2)
-const plannedAuditCount = computed(() => 
-  annualPlanStore.plans.filter(p => p.status !== 'Done').length
+const plannedAuditCount = computed(
+  () => annualPlanStore.plans.filter((p) => p.status !== "Done").length
 );
-const openFindingsCount = computed(() => 
-  atrStore.reportList.filter(r => r.status !== AuditStatus.COMPLETED).length
+const openFindingsCount = computed(
+  () => atrStore.reportList.filter((r) => r.status !== AuditStatus.COMPLETED).length
 );
 const executionStatusPercent = computed(() => {
   const executions = auditExecutionStore.auditExecutions;
   if (executions.length === 0) return 0;
   return executions.reduce((sum, e) => sum + e.progress, 0) / (executions.length * 100);
 });
-const atrCompliancePercent = computed(() => (atrStore.stats.donePercent / 100) || 0);
+const atrCompliancePercent = computed(() => atrStore.stats.donePercent / 100 || 0);
 
-// For Trends (keep mockup logic for now as we don't have historical data easily accessible)
+// For Trends
 const auditMainStats = computed(() => ({
   plannedAudit: plannedAuditCount.value,
   openFinding: openFindingsCount.value,
@@ -575,10 +695,10 @@ const auditMainStats = computed(() => ({
 // Helper function to calculate trend
 const calculateTrend = (
   current: number,
-  previous: number,
+  previous: number
 ): { icon: string; value: string; color: string } => {
   if (previous === 0) {
-    return { icon: "", value: "N/A", color: "text-gray-500" };
+    return { icon: "", value: "N/A", color: "text-slate-400" };
   }
 
   const difference = current - previous;
@@ -601,7 +721,7 @@ const calculateTrend = (
     return {
       icon: "-",
       value: "0%",
-      color: "text-gray-500",
+      color: "text-slate-400",
     };
   }
 };
@@ -616,34 +736,28 @@ const auditMainStatsLastMonth = {
 
 // Computed properties for each metric's trend
 const plannedAuditTrend = computed(() =>
-  calculateTrend(
-    plannedAuditCount.value,
-    auditMainStatsLastMonth.plannedAudit,
-  ),
+  calculateTrend(plannedAuditCount.value, auditMainStatsLastMonth.plannedAudit)
 );
 
 const openFindingTrend = computed(() =>
-  calculateTrend(
-    openFindingsCount.value,
-    auditMainStatsLastMonth.openFinding,
-  ),
+  calculateTrend(openFindingsCount.value, auditMainStatsLastMonth.openFinding)
 );
 
 const executionStatusTrend = computed(() =>
   calculateTrend(
     executionStatusPercent.value * 100,
-    auditMainStatsLastMonth.executionStatus * 100,
-  ),
+    auditMainStatsLastMonth.executionStatus * 100
+  )
 );
 
 const atrComplianceTrend = computed(() =>
   calculateTrend(
     atrCompliancePercent.value * 100,
-    auditMainStatsLastMonth.atrCompliance * 100,
-  ),
+    auditMainStatsLastMonth.atrCompliance * 100
+  )
 );
 
-// Risk graph
+// Risk graph categories
 const riskCategories = {
   inherentRisk: { name: "Inherent Risk", color: "#ff5c02" },
   residualRisk: { name: "Residual Risk", color: "#4d00ff" },
@@ -651,26 +765,26 @@ const riskCategories = {
 
 // Simplified risk data for bar chart based on real risk data
 const mainRiskData = computed(() => {
-  const departments = ['Finance', 'IT', 'Operations', 'Legal', 'HR'];
-  return departments.map(dept => {
-    const deptRisks = riskProfileStore.risks.filter(r => r.category === dept || (dept === 'IT' && r.category === 'Technology'));
+  const departments = ["Finance", "IT", "Operations", "Legal", "HR"];
+  return departments.map((dept) => {
+    const deptRisks = riskProfileStore.risks.filter(
+      (r) => r.category === dept || (dept === "IT" && r.category === "Technology")
+    );
     return {
       name: dept,
-      inherentRisk: deptRisks.reduce((sum, r) => sum + (r.impact * r.likelihood), 0) / (deptRisks.length || 1),
-      residualRisk: deptRisks.reduce((sum, r) => sum + (r.impact * r.likelihood * 0.6), 0) / (deptRisks.length || 1), // Mocking residual as 60% of inherent
-    }
+      inherentRisk:
+        deptRisks.reduce((sum, r) => sum + r.impact * r.likelihood, 0) /
+        (deptRisks.length || 1),
+      residualRisk:
+        deptRisks.reduce((sum, r) => sum + r.impact * r.likelihood * 0.6, 0) /
+        (deptRisks.length || 1), // Mocking residual as 60% of inherent
+    };
   });
 });
 
 const yearlyFilters = [2024, 2025, 2026];
 const activeYear = ref(2026);
-const xFormatter = (x: number): string => `${mainRiskData.value[x]?.name}`
-const tooltipTitleFormatter = (x: any): string => `${x.name}`
-
-const label = {
-  xLabel: "Department",
-  yLabel: "Risk Score",
-}
+const xFormatter = (x: number): string => `${mainRiskData.value[x]?.name}`;
 
 // ATR Data
 const atrDonutData = computed(() => [
@@ -680,89 +794,71 @@ const atrDonutData = computed(() => [
 ]);
 
 const atrCategories = {
-  primary: {
-    name: 'Completed',
-    color: 'var(--color-secondary-500)'
-  },
-  secondary: {
-    name: 'In Progress',
-    color: 'var(--color-neutral-500)'
-  },
-  tertiary: {
-    name: 'Overdue',
-    color: 'var(--color-primary-500)'
-  },
-}
-
-const legendStyle : Record<string, string> = 
-  {
-      fontSize: '14px',
-      fontWeight: '600',
-      color: '#374151',
-      marginTop: '0px',
-      padding: '10px',
-      marginBottom: '24px',
-      backgroundColor: '#f9fafb',
-      borderRadius: '8px'
-  }
+  completed: { name: "Completed", color: "#4d00ff" },
+  inProgress: { name: "In Progress", color: "#94a3b8" },
+  overdue: { name: "Overdue", color: "#ff5c02" },
+};
 
 const atrTableData = computed(() => {
-  return atrStore.reportList.map(r => ({
-    id: r.auditRef,
-    name: r.title,
-    owner: r.pic || '-',
-    date: r.deadline,
-    status: r.status
-  })).slice(0, 5);
+  return atrStore.reportList
+    .map((r) => ({
+      id: r.auditRef,
+      name: r.title,
+      owner: r.pic || "-",
+      date: r.deadline,
+      status: r.status,
+    }))
+    .slice(0, 5);
 });
 
 const tableColumns = [
-  { accessorKey: 'id', header: 'Audit ID' },
-  { accessorKey: 'name', header: 'Action Item' },
-  { accessorKey: 'owner', header: 'Owner' },
-  { accessorKey: 'date', header: 'Due Date' },
-  { accessorKey: 'status', header: 'Status' }
-]
+  { accessorKey: "id", header: "Audit ID" },
+  { accessorKey: "name", header: "Action Item" },
+  { accessorKey: "owner", header: "Owner" },
+  { accessorKey: "date", header: "Due Date" },
+  { accessorKey: "status", header: "Status" },
+];
 
-const registeredRiskHeatMap = computed(() => riskProfileStore.risks.slice(0, 5))
+const registeredRiskHeatMap = computed(() => riskProfileStore.risks.slice(0, 5));
 
 const registeredRiskColumns = [
   {
-    id: 'id',
-    header: 'ID',
+    id: "id",
+    header: "ID",
     cell: (row: any) => {
-      const risk = row.row.original
-      const formattedId = riskProfileStore.getFormattedId(risk)
-      // Menggunakan font-mono agar konsisten dengan tampilan di RiskHeatMap
-      return h('p', { class: 'font-medium text-center font-mono' }, formattedId)
+      const risk = row.row.original;
+      const formattedId = riskProfileStore.getFormattedId(risk);
+      return h("p", { class: "font-medium text-center font-mono" }, formattedId);
     },
   },
   {
-    accessorKey: 'name',
-    header: 'Risk Name',
-    cell: (row : any) => {
+    accessorKey: "name",
+    header: "Risk Name",
+    cell: (row: any) => {
       const rawObject = row.row.original;
-      return h('div', { class: 'flex flex-col' }, [
-        h('span', { class: 'font-bold' }, rawObject.name),
-        h('span', { class: 'text-xs text-gray-500' }, rawObject.category)
-      ])
-    }
+      return h("div", { class: "flex flex-col" }, [
+        h("span", { class: "font-bold" }, rawObject.name),
+        h("span", { class: "text-xs text-slate-400" }, rawObject.category),
+      ]);
+    },
   },
   {
-    accessorKey: 'severity',
-    header: 'Score',
-    cell: (row : any) => {
+    accessorKey: "severity",
+    header: "Score",
+    cell: (row: any) => {
       const rawObject = row.row.original;
-      return h('span', { class: 'font-bold' }, rawObject.impact * rawObject.likelihood)
-    }
-  }
-]
+      return h("span", { class: "font-bold" }, rawObject.impact * rawObject.likelihood);
+    },
+  },
+];
 
 // Audit Coverage
 const auditCoverage = computed(() => ({
   plannedAudits: plannedAuditCount.value,
   completedAudits: completedAuditsCount.value,
-  remainingAudits: annualPlanStore.plans.filter(p => p.status === 'Not Available' || p.status === 'Work In Progress').length
+  remainingAudits: annualPlanStore.plans.filter(
+    (p) => p.status === "Not Available" || p.status === "Work In Progress"
+  ).length,
 }));
 const progressModel = computed(() => {
   const total = annualPlanStore.plans.length;
@@ -772,57 +868,71 @@ const progressModel = computed(() => {
 
 // Audit Execution
 const dashboardExecutionStatus = computed(() => {
-  return auditExecutionStore.auditExecutions.map(e => ({
-    name: e.name,
-    percentage: e.progress
-  })).slice(0, 3);
+  return auditExecutionStore.auditExecutions
+    .map((e) => ({
+      name: e.name,
+      percentage: e.progress,
+    }))
+    .slice(0, 3);
 });
 
 // Recent Findings
 const recentFindingsData = computed(() => {
-  return auditResultStore.reportList.map(r => ({
-    audit_finding: r.reportTitle,
-    audit_category: r.overallRating,
-    severity: r.findingsCount > 5 ? 'High' : r.findingsCount > 2 ? 'Medium' : 'Low'
-  })).slice(0, 3);
+  return auditResultStore.reportList
+    .map((r) => ({
+      audit_finding: r.reportTitle,
+      audit_category: r.overallRating,
+      severity: r.findingsCount > 5 ? "High" : r.findingsCount > 2 ? "Medium" : "Low",
+    }))
+    .slice(0, 3);
 });
 
 const auditTableColumns = [
   {
-    accessorKey: 'audit_finding',
-    header: 'Audit Finding',
-    cell: (row : any) => {
+    accessorKey: "audit_finding",
+    header: "Audit Finding",
+    cell: (row: any) => {
       const rawObject = row.row.original;
-      return h('div', { class: 'flex flex-col' }, [
-        h('span', { class: 'font-bold' }, rawObject.audit_finding),
-        h('span', { class: 'text-xs text-gray-500' }, rawObject.audit_category)
-      ])
-    }
+      return h("div", { class: "flex flex-col" }, [
+        h("span", { class: "font-bold" }, rawObject.audit_finding),
+        h("span", { class: "text-xs text-slate-400" }, rawObject.audit_category),
+      ]);
+    },
   },
   {
-    accessorKey: 'severity',
-    header: 'Severity',
+    accessorKey: "severity",
+    header: "Severity",
     cell: (row: any) => {
       const severity = row.getValue();
-      return h(UBadge, {
-        color: severity === 'High' ? 'red' : severity === 'Medium' ? 'orange' : 'green',
-        variant: 'soft'
-      }, () => severity)
-    }
-  }
-]
+      return h(
+        UBadge,
+        {
+          color: severity === "High" ? "red" : severity === "Medium" ? "orange" : "green",
+          variant: "soft",
+        },
+        () => severity
+      );
+    },
+  },
+];
 
 const getHeatMapCellColor = (x: number, y: number): string => {
   const probability = 6 - y;
   const impact = x;
   const level = riskProfileStore.getRiskLevel(probability, impact);
   switch (level) {
-    case RiskLevel.HIGH: return 'bg-red-500';
-    case RiskLevel.MODERATE_HIGH: return 'bg-orange-500';
-    case RiskLevel.MODERATE: return 'bg-yellow-500';
-    case RiskLevel.LOW_MODERATE: return 'bg-green-600';
-    case RiskLevel.LOW: return 'bg-green-400';
-    default: return 'bg-gray-100';
+    case RiskLevel.HIGH:
+      return "bg-red-500";
+    case RiskLevel.MODERATE_HIGH:
+      return "bg-orange-500";
+    case RiskLevel.MODERATE:
+      return "bg-yellow-500";
+    case RiskLevel.LOW_MODERATE:
+      return "bg-green-600";
+    case RiskLevel.LOW:
+      return "bg-green-400";
+    default:
+      return "bg-gray-100";
   }
 };
 

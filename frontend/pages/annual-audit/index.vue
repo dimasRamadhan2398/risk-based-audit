@@ -35,5 +35,6 @@ import { useAnnualPlanStore } from '~/stores/annual-audit'
 
 // Inisialisasi Store
 const store = useAnnualPlanStore()
+store.fetchPlans()
 
 </script>

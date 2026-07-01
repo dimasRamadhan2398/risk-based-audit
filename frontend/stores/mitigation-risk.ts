@@ -1,7 +1,7 @@
-// stores/mitigation.ts
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import type { RiskMitigation, RiskMitigationForm } from '~/types/risk'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 
 export const useMitigationStore = defineStore('mitigation', () => {
     // --- STATE ---
@@ -9,6 +9,13 @@ export const useMitigationStore = defineStore('mitigation', () => {
     const isFormOpen = ref(false)
     const isEditing = ref(false)
     const editingId = ref<string | null>(null)
+    const loading = ref(false)
+    const errorMsg = ref('')
+
+    const getRiskServiceBaseUrl = () => {
+        const config = useRuntimeConfig()
+        return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
+    }
 
     // Data Master untuk Dropdown
     const picOptions = ['Dimas', 'Budi', 'Caca', 'Dedi', 'Eka', 'Fahmi']
@@ -28,12 +35,31 @@ export const useMitigationStore = defineStore('mitigation', () => {
     })
 
     // --- GETTERS ---
-    // Menambahkan fungsi untuk memfilter mitigasi berdasarkan ID risiko yang sedang dibuka
     const getMitigationsByRiskId = computed(() => {
         return (risk_id: string) => mitigations.value.filter(m => m.riskId === risk_id)
     })
 
     // --- ACTIONS ---
+    const fetchMitigations = async (riskId?: string) => {
+        loading.value = true
+        errorMsg.value = ''
+        try {
+            const baseUrl = getRiskServiceBaseUrl()
+            const url = riskId ? `${baseUrl}/mitigations?riskId=${riskId}` : `${baseUrl}/mitigations`
+            const response: any = await $fetch(url, { method: 'GET' })
+            if (response && response.success && Array.isArray(response.data)) {
+                mitigations.value = response.data
+            } else if (Array.isArray(response)) {
+                mitigations.value = response
+            }
+        } catch (error: any) {
+            console.error('Failed to fetch mitigations:', error)
+            errorMsg.value = 'Failed to load mitigations.'
+        } finally {
+            loading.value = false
+        }
+    }
+
     const openForm = (data?: RiskMitigation) => {
         if (data) {
             isEditing.value = true
@@ -44,8 +70,8 @@ export const useMitigationStore = defineStore('mitigation', () => {
                 supervisor: data.supervisor,
                 pic: data.pic,
                 unitInCharge: data.unitInCharge,
-                start_date: data.start_date,
-                end_date: data.end_date,
+                start_date: data.start_date ? data.start_date.split('T')[0] : '',
+                end_date: data.end_date ? data.end_date.split('T')[0] : '',
                 notes: data.notes || ''
             })
         } else {
@@ -69,33 +95,92 @@ export const useMitigationStore = defineStore('mitigation', () => {
         isFormOpen.value = false
     }
 
-    const handleSubmit = (currentRiskId: string) => {
-        if (isEditing.value && editingId.value) {
-            // Update data
-            const index = mitigations.value.findIndex(m => m.id === editingId.value)
-            if (index !== -1) {
-                mitigations.value[index] = { ...form, id: editingId.value, riskId: currentRiskId }
-            }
-        } else {
-            // Tambah data baru (Mock ID)
-            mitigations.value.push({
+    const handleSubmit = async (currentRiskId: string) => {
+        loading.value = true
+        errorMsg.value = ''
+        try {
+            const riskProfileStore = useRiskProfileStore()
+            const risk = riskProfileStore.getRiskById(currentRiskId)
+            const riskName = risk ? risk.name : 'Risk Mitigation'
+            const baseUrl = getRiskServiceBaseUrl()
+            const payload = {
                 ...form,
-                id: `MIT-${Date.now()}`,
-                riskId: currentRiskId
-            })
+                riskEvent: form.riskEvent || riskName,
+                riskId: currentRiskId,
+                start_date: form.start_date ? new Date(form.start_date).toISOString() : undefined,
+                end_date: form.end_date ? new Date(form.end_date).toISOString() : undefined
+            }
+
+            if (isEditing.value && editingId.value) {
+                await $fetch(`${baseUrl}/mitigations/${editingId.value}`, {
+                    method: 'PUT',
+                    body: payload
+                })
+            } else {
+                await $fetch(`${baseUrl}/mitigations`, {
+                    method: 'POST',
+                    body: payload
+                })
+            }
+            closeForm()
+            await fetchMitigations(currentRiskId)
+        } catch (error: any) {
+            console.error('Failed to save mitigation:', error)
+            errorMsg.value = 'Failed to save mitigation.'
+        } finally {
+            loading.value = false
         }
-        closeForm()
     }
 
-    const deleteMitigation = (id: string) => {
-        if (confirm('Apakah Anda yakin ingin menghapus rencana mitigasi ini?')) {
-            mitigations.value = mitigations.value.filter(m => m.id !== id)
+    const updateMitigationMonitoring = async (id: string, monitoring: any[], currentRiskId: string) => {
+        loading.value = true
+        errorMsg.value = ''
+        try {
+            const baseUrl = getRiskServiceBaseUrl()
+            const existing = mitigations.value.find(m => m.id === id)
+            if (!existing) return
+            
+            const payload = {
+                ...existing,
+                monitoring
+            }
+            
+            await $fetch(`${baseUrl}/mitigations/${id}`, {
+                method: 'PUT',
+                body: payload
+            })
+            await fetchMitigations(currentRiskId)
+        } catch (error: any) {
+            console.error('Failed to update monitoring:', error)
+            errorMsg.value = 'Failed to update monitoring.'
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const deleteMitigation = async (id: string, currentRiskId?: string) => {
+        if (!confirm('Apakah Anda yakin ingin menghapus rencana mitigasi ini?')) return
+        loading.value = true
+        errorMsg.value = ''
+        try {
+            const baseUrl = getRiskServiceBaseUrl()
+            await $fetch(`${baseUrl}/mitigations/${id}`, {
+                method: 'DELETE'
+            })
+            await fetchMitigations(currentRiskId)
+        } catch (error: any) {
+            console.error('Failed to delete mitigation:', error)
+            errorMsg.value = 'Failed to delete mitigation.'
+        } finally {
+            loading.value = false
         }
     }
 
     return {
         mitigations, isFormOpen, isEditing, form, getMitigationsByRiskId,
         supervisorOptions, unitInChargeOptions, picOptions,
-        openForm, closeForm, handleSubmit, deleteMitigation,
+        openForm, closeForm, handleSubmit, deleteMitigation, fetchMitigations,
+        updateMitigationMonitoring,
+        loading, errorMsg
     }
 })

@@ -70,19 +70,24 @@ export interface AuditPlan {
 
 export interface AuditActivity {
   id: string;
-  category: AuditCategory;
+  annualPlanId: string;
+  targetUnitId: string;
+  projectCode: string;
   title: string;
-  subject: string;
-  auditUniverse: string;
+  engagementSubject: string;
+  auditType: string;
+  auditUniverseId: string;
   justification: string;
-  purpose: string;
-  focus: string;
-  scheduleStart: string;
-  scheduleEnd: string;
+  auditPurpose: string;
+  auditFocus: string;
+  plannedStart: string;
+  plannedEnd: string;
   teamSize: number;
-  totalManDays: number;
-  teamLeader: string;
+  totalMandays: number;
+  teamLeaderId: string;
   status: AuditStatus;
+  objective: string;
+  scope: string;
 }
 
 export interface AuditAssignment {
@@ -387,6 +392,9 @@ export interface AssignmentLetterForm {
   startPeriod: string;  // Format YYYY-MM-DD
   finishPeriod: string; // Format YYYY-MM-DD
   workingUnit: string;
+  auditPurpose: string;
+  letterDate?: string;
+  caeSignature?: string;
   membersList: TeamAssignmentLetter[];
   purposeList: string[];
   scopeList: string[];
@@ -470,16 +478,18 @@ export type PeriodType = 'Quartal' | 'Yearly';
 export type QuarterType = 'Q1' | 'Q2' | 'Q3' | 'Q4';
 
 export interface StrategicAuditPlan {
-  id: number;
+  id: string;
   code: string;
-  strategicObjective: string;
+  corporateStrategicObjective: string;
   kpi: string;
-  unit: string;
-  hibHig: HibHigType;
+  unitOfMeasurement: string;
+  dataType: HibHigType;
   periodType: PeriodType;
   selectedPeriod: string; // Q1-Q4 for Quartal, or year string for Yearly
   yearStart?: number;
   yearEnd?: number;
+  kpiTargets: Record<number, string>;
+  internalAuditSO: string;
   actual: string;
   target: string;
   calculation: string;

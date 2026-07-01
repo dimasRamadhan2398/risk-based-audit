@@ -1,0 +1,23 @@
+$kind: http-request
+name: Create Working Paper Action Plan
+method: POST
+url: '{{auth_base_url}}/api/v1/working-papers/action-plans'
+order: 10000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "recommendation": "Implement daily reconciliation",
+      "response": "Agreed, will implement by Q2",
+      "actionDescription": "Daily cash reconciliation process",
+      "pic": "Finance Manager",
+      "periodAction": "2026-06-30"
+    }

@@ -43,6 +43,7 @@ type RiskRegister struct {
 	OverrideJustification string             `gorm:"type:text" json:"override_justification"`
 	FinalRiskLevel        RiskFinalLevel     `gorm:"type:varchar(20);not null" json:"final_risk_level"`
 	Status                RiskRegisterStatus `gorm:"type:varchar(20);default:'PENDING'" json:"status"`
+	Assessments           []RiskAssessment   `gorm:"foreignKey:RiskRegisterID;constraint:OnDelete:CASCADE" json:"assessments"`
 	CreatedAt             time.Time          `json:"created_at"`
 	UpdatedAt             time.Time          `json:"updated_at"`
 	DeletedAt             gorm.DeletedAt     `gorm:"index" json:"-"`

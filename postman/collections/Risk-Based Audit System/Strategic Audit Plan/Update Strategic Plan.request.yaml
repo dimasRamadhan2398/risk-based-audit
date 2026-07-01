@@ -1,0 +1,30 @@
+$kind: http-request
+name: Update Strategic Plan
+method: PUT
+url: '{{auth_base_url}}/api/v1/strategic-audit-plans/:id'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: '1'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "code": "SO-IA01",
+      "strategicObjective": "Enhance Operational Efficiency",
+      "kpi": "Revenue Operational Cost",
+      "unit": "%",
+      "hibHig": "HIG",
+      "periodType": "Quartal",
+      "selectedPeriod": "Q1",
+      "actual": "150",
+      "target": "300"
+    }

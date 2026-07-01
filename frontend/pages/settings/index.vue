@@ -52,6 +52,11 @@
             <SettingsGeneral />
           </div>
 
+          <!-- Two-Factor Authentication (MFA) Section -->
+          <div v-if="activeTab === 'mfa'">
+            <SettingsMfa />
+          </div>
+
           <!-- Activity Section -->
           <div v-if="activeTab === 'activity'">
             <SettingsActivity />
@@ -106,6 +111,13 @@ const links = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === "settings",
   },
   {
+    label: "Security (MFA)",
+    icon: "i-lucide-shield-check",
+    slot: "mfa" as const,
+    onClick: () => activeTab.value = "mfa",
+    active: activeTab.value === "mfa",
+  },
+  {
     label: "Activity",
     icon: "i-lucide-clock",
     slot: "activity" as const,
@@ -132,6 +144,7 @@ const currentPageTitle = computed(() => {
   const titles = {
     profile: "My Profile",
     settings: "Settings",
+    mfa: "Two-Factor Authentication",
     activity: "Activity",
     permissions: "Permissions",
     faq: "FAQ",

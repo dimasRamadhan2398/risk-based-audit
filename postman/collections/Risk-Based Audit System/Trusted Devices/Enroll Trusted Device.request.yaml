@@ -1,0 +1,10 @@
+$kind: http-request
+name: Enroll Trusted Device
+method: POST
+url: '{{auth_base_url}}/api/v1/devices/enroll'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

@@ -1,0 +1,22 @@
+$kind: http-request
+name: Verify Device Enrollment
+method: POST
+url: '{{auth_base_url}}/api/v1/devices/enroll/verify/:token'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: token
+    value: enrollment-token-here
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "device_name": "My MacBook Pro"
+    }

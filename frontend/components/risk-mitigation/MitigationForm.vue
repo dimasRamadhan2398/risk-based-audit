@@ -16,10 +16,7 @@
 
           <div class="p-6 overflow-y-auto space-y-5">
             
-            <UFormField label="Risk Event" required>
-              <UTextarea v-model="store.form.riskEvent" placeholder="Explain the risks in detail..." class="w-full" required />
-            </UFormField>
-            
+
             <UFormField label="Mitigation Plan & Controls" required>
               <UInput v-model="store.form.mitigationPlan" placeholder="Explain the mitigation plan and controls in detail..." class="w-full" required />
             </UFormField>

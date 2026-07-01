@@ -213,6 +213,44 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const dataF04 = ref<WorkingPaperCause[]>([])
   const dataF05 = ref<WorkingPaperPlan[]>([])
 
+  const getAuditServiceBaseUrl = () => {
+    const config = useRuntimeConfig()
+    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  }
+
+  const loading = ref(false)
+  const errorMsg = ref('')
+
+  const fetchAllData = async () => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      
+      const resF01: any = await $fetch(`${baseUrl}/working-papers/headers`, { method: 'GET' })
+      dataF01.value = resF01?.items || resF01?.data || resF01 || []
+
+      const resF02: any = await $fetch(`${baseUrl}/working-papers/risks`, { method: 'GET' })
+      dataF02.value = resF02?.items || resF02?.data || resF02 || []
+
+      const resF03: any = await $fetch(`${baseUrl}/working-papers/samples`, { method: 'GET' })
+      dataF03.value = resF03?.items || resF03?.data || resF03 || []
+
+      const resF04: any = await $fetch(`${baseUrl}/working-papers/causes`, { method: 'GET' })
+      dataF04.value = resF04?.items || resF04?.data || resF04 || []
+
+      const resF05: any = await $fetch(`${baseUrl}/working-papers/plans`, { method: 'GET' })
+      dataF05.value = resF05?.items || resF05?.data || resF05 || []
+    } catch (error) {
+      console.error('Failed to fetch working papers:', error)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Fetch on initialization
+  fetchAllData()
+
   const filteredDataF01 = computed(() => {
     if (!fieldworkStore.selectedAssignmentLetter) return dataF01.value
     return dataF01.value.filter(wp => wp.assignmentLetterId === fieldworkStore.selectedAssignmentLetter)
@@ -239,11 +277,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const closeModalF04 = () => showModalF04.value = false
   const closeModalF05 = () => showModalF05.value = false
 
-  const addF01 = (headerForm: WorkingPaperHeaderForm) => {
+  const addF01 = async (headerForm: WorkingPaperHeaderForm) => {
     const auditPeriod = `${headerForm.periodStart} s/d ${headerForm.periodEnd}`
-
-    const newHeader: WorkingPaperHeader = {
-      id: Date.now().toString(),
+    const newHeader = {
       assignmentLetterId: headerForm.assignmentLetterId,
       auditPurpose: headerForm.auditPurpose,
       businessProcess: headerForm.businessProcess,
@@ -251,41 +287,39 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       location: headerForm.location,
       teamMembers: headerForm.teamMembers
     }
-    dataF01.value.unshift(newHeader)
-
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/headers`, {
+      method: 'POST',
+      body: newHeader
+    })
+    await fetchAllData()
   }
 
-  const updateF01 = (id: string, updatedHeaderData: WorkingPaperHeaderForm) => {
-    const index = dataF01.value.findIndex(p => p.id === id)
-    const isDuplicate = dataF01.value.some(a => a.assignmentLetterId === updatedHeaderData.assignmentLetterId && a.id !== id)
+  const updateF01 = async (id: string, updatedHeaderData: WorkingPaperHeaderForm) => {
     const auditPeriod = `${updatedHeaderData.periodStart} s/d ${updatedHeaderData.periodEnd}`
-    const existingHeader = dataF01.value[index]!
-
-    if (isDuplicate) throw new Error('The assignment letter has been used for other data!')
-    if (index === -1) return
-
-    dataF01.value[index] = {
-      ...updatedHeaderData,
-      id: existingHeader.id,
+    const payload = {
+      assignmentLetterId: updatedHeaderData.assignmentLetterId,
+      auditPurpose: updatedHeaderData.auditPurpose,
+      businessProcess: updatedHeaderData.businessProcess,
       period: auditPeriod,
+      location: updatedHeaderData.location,
+      teamMembers: updatedHeaderData.teamMembers
     }
-
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/headers/${id}`, {
+      method: 'PUT',
+      body: payload
+    })
+    await fetchAllData()
   }
 
-  const deleteF01 = (id: string) => {
-    const header = dataF01.value.find(a => a.id === id)
-    if (!header) return
-
-    if (isEditingF01.value && editingIdF01.value) {
-      if (confirm('Are you sure you want to delete permanently?')) {
-        dataF01.value = dataF01.value.filter(a => a.id !== id)
-
-      } else {
-        if (confirm('Are you sure you want to delete permanently?')) {
-          dataF01.value = dataF01.value.filter(a => a.id !== id)
-        }
-      }
-
+  const deleteF01 = async (id: string) => {
+    if (confirm('Are you sure you want to delete permanently?')) {
+      const baseUrl = getAuditServiceBaseUrl()
+      await $fetch(`${baseUrl}/working-papers/headers/${id}`, {
+        method: 'DELETE'
+      })
+      await fetchAllData()
     }
   }
 
@@ -308,75 +342,90 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     showModalF01.value = true
   }
 
-  const handleSubmitF01 = () => {
-
-    if (isEditingF01.value && editingIdF01.value) {
-      // Mode EDIT
-      updateF01(editingIdF01.value, { ...headerForm })
-      alert("Header Data Updated Successfully!")
-    } else {
-      // Mode ADD
-      addF01({ ...headerForm })
-      alert("Header Data Successfully Saved!")
+  const handleSubmitF01 = async () => {
+    try {
+      if (isEditingF01.value && editingIdF01.value) {
+        await updateF01(editingIdF01.value, { ...headerForm })
+        alert("Header Data Updated Successfully!")
+      } else {
+        await addF01({ ...headerForm })
+        alert("Header Data Successfully Saved!")
+      }
+      closeModalF01()
+    } catch (error: any) {
+      alert("Failed to save data: " + error.message)
     }
-
-    closeModalF01()
   }
 
   const handleEditF01 = (header: any) => {
     isEditingF01.value = true
     editingIdF01.value = header.id
 
-    headerForm.auditPurpose = header.auditPurpose,
-      headerForm.businessProcess = header.businessProcess,
-      headerForm.periodStart = header.periodStart,
-      headerForm.periodEnd = header.periodEnd,
-      headerForm.location = header.location,
-      headerForm.teamMembers = header.teamMembers
+    let start = ""
+    let end = ""
+    if (header.period && header.period.includes(" s/d ")) {
+      const parts = header.period.split(" s/d ")
+      start = parts[0] || ""
+      end = parts[1] || ""
+    }
+
+    headerForm.assignmentLetterId = header.assignmentLetterId
+    headerForm.auditPurpose = header.auditPurpose
+    headerForm.businessProcess = header.businessProcess
+    headerForm.periodStart = start
+    headerForm.periodEnd = end
+    headerForm.location = header.location
+    headerForm.teamMembers = header.teamMembers ? header.teamMembers.map((m: any) => ({ ...m })) : []
 
     showModalF01.value = true
   }
 
-  const handleDeleteF01 = (id: string | undefined) => {
+  const handleDeleteF01 = async (id: string | undefined) => {
     if (!id) return
     try {
-      // 2. Panggil fungsi hapus di store
-      deleteF01(id)
-
+      await deleteF01(id)
     } catch (error) {
       alert('Failed to delete data: ' + error)
     }
   }
 
-  const addF02 = (riskForm: WorkingPaperRiskForm) => {
-    const newRisk: WorkingPaperRisk = {
-      id: Date.now().toString(),
+  const addF02 = async (riskForm: WorkingPaperRiskForm) => {
+    const newRisk = {
       risk: riskForm.risk,
       taxonomy: riskForm.taxonomy || 'Operational',
       riskLevel: riskForm.riskLevel || 'High',
       controlDescription: riskForm.controlDescription
     }
-    dataF02.value.unshift(newRisk)
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/risks`, {
+      method: 'POST',
+      body: newRisk
+    })
+    await fetchAllData()
   }
 
-  const updateF02 = (id: string, updatedRiskData: WorkingPaperRiskForm) => {
-    const index = dataF02.value.findIndex(p => p.id === id)
-    const existingRisk = dataF02.value[index]!
-    if (index === -1) return
-
-    dataF02.value[index] = {
-      ...updatedRiskData,
-      id: existingRisk.id
+  const updateF02 = async (id: string, updatedRiskData: WorkingPaperRiskForm) => {
+    const payload = {
+      risk: updatedRiskData.risk,
+      taxonomy: updatedRiskData.taxonomy || 'Operational',
+      riskLevel: updatedRiskData.riskLevel || 'High',
+      controlDescription: updatedRiskData.controlDescription
     }
-
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/risks/${id}`, {
+      method: 'PUT',
+      body: payload
+    })
+    await fetchAllData()
   }
 
-  const deleteF02 = (id: string) => {
-    const risk = dataF02.value.find(a => a.id === id)
-    if (!risk) return
-
-    if (confirm('Are you sure you want to delete permanently??')) {
-      dataF02.value = dataF02.value.filter(a => a.id !== id)
+  const deleteF02 = async (id: string) => {
+    if (confirm('Are you sure you want to delete permanently?')) {
+      const baseUrl = getAuditServiceBaseUrl()
+      await $fetch(`${baseUrl}/working-papers/risks/${id}`, {
+        method: 'DELETE'
+      })
+      await fetchAllData()
     }
   }
 
@@ -387,84 +436,86 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     // Reset Form
     Object.assign(riskForm, {
       risk: '',
-      taxonomy: '',
-      riskLevel: '',
+      taxonomy: 'Operational',
+      riskLevel: 'High',
       controlDescription: ''
     })
     showModalF02.value = true
   }
 
-  const handleSubmitF02 = () => {
-
-    if (isEditingF02.value && editingIdF02.value) {
-      // Mode EDIT
-      updateF02(editingIdF02.value, { ...riskForm })
-      alert("Risk Data Updated Successfully!")
-    } else {
-      // Mode ADD
-      addF02({ ...riskForm })
-      alert("Risk Data Successfully Saved!")
+  const handleSubmitF02 = async () => {
+    try {
+      if (isEditingF02.value && editingIdF02.value) {
+        await updateF02(editingIdF02.value, { ...riskForm })
+        alert("Risk Data Updated Successfully!")
+      } else {
+        await addF02({ ...riskForm })
+        alert("Risk Data Successfully Saved!")
+      }
+      closeModalF02()
+    } catch (error: any) {
+      alert("Failed to save data: " + error.message)
     }
-
-    closeModalF02()
   }
 
   const handleEditF02 = (risk: any) => {
     isEditingF02.value = true
     editingIdF02.value = risk.id
 
-    // Isi form dengan data yang dipilih
-    riskForm.risk = risk.risk,
-      riskForm.taxonomy = risk.taxonomy,
-      riskForm.riskLevel = risk.riskLevel,
-      riskForm.controlDescription = risk.controlDescription
+    riskForm.risk = risk.risk
+    riskForm.taxonomy = risk.taxonomy
+    riskForm.riskLevel = risk.riskLevel
+    riskForm.controlDescription = risk.controlDescription
 
     showModalF02.value = true
   }
 
-  const handleDeleteF02 = (id: string | undefined) => {
+  const handleDeleteF02 = async (id: string | undefined) => {
     if (!id) return
     try {
-      // 2. Panggil fungsi hapus di store
-      deleteF02(id)
-
+      await deleteF02(id)
     } catch (error) {
       alert('Failed to delete data: ' + error)
     }
   }
 
-  const addF03 = (sampleForm: WorkingPaperSampleForm) => {
-    const newSample: WorkingPaperSample = {
-      id: Date.now().toString(),
+  const addF03 = async (sampleForm: WorkingPaperSampleForm) => {
+    const newSample = {
       population: sampleForm.population,
       sampleSize: sampleForm.sampleSize,
-      samples: [...sampleForm.samples],
+      samples: sampleForm.samples,
       conclusion: sampleForm.conclusion
     }
-    dataF03.value.unshift(newSample)
-
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/samples`, {
+      method: 'POST',
+      body: newSample
+    })
+    await fetchAllData()
   }
 
-  const updateF03 = (id: string, updatedData: WorkingPaperSampleForm) => {
-    const index = dataF03.value.findIndex(p => p.id === id)
-    const existingSample = dataF03.value[index]!
-    if (index === -1) return
-
-    dataF03.value[index] = {
-      ...updatedData,
-      id: existingSample.id,
-      samples: [...updatedData.samples]
+  const updateF03 = async (id: string, updatedData: WorkingPaperSampleForm) => {
+    const payload = {
+      population: updatedData.population,
+      sampleSize: updatedData.sampleSize,
+      samples: updatedData.samples,
+      conclusion: updatedData.conclusion
     }
-
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/samples/${id}`, {
+      method: 'PUT',
+      body: payload
+    })
+    await fetchAllData()
   }
 
-  const deleteF03 = (id: string) => {
-    const sample = dataF03.value.find(a => a.id === id)
-    if (!sample) return
-
+  const deleteF03 = async (id: string) => {
     if (confirm('Are you sure you want to delete permanently?')) {
-      dataF03.value = dataF03.value.filter(a => a.id !== id)
-
+      const baseUrl = getAuditServiceBaseUrl()
+      await $fetch(`${baseUrl}/working-papers/samples/${id}`, {
+        method: 'DELETE'
+      })
+      await fetchAllData()
     }
   }
 
@@ -482,76 +533,81 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     showModalF03.value = true
   }
 
-  const handleSubmitF03 = () => {
-
-    if (isEditingF03.value && editingIdF03.value) {
-      // Mode EDIT
-      updateF03(editingIdF03.value, { ...sampleForm })
-      alert("Sample Data Successfully Updated!")
-    } else {
-      // Mode ADD
-      addF03({ ...sampleForm })
-      alert("Sample Data Successfully Saved!")
+  const handleSubmitF03 = async () => {
+    try {
+      if (isEditingF03.value && editingIdF03.value) {
+        await updateF03(editingIdF03.value, { ...sampleForm })
+        alert("Sample Data Successfully Updated!")
+      } else {
+        await addF03({ ...sampleForm })
+        alert("Sample Data Successfully Saved!")
+      }
+      closeModalF03()
+    } catch (error: any) {
+      alert("Failed to save data: " + error.message)
     }
-
-    closeModalF03()
   }
 
   const handleEditF03 = (sample: any) => {
     isEditingF03.value = true
     editingIdF03.value = sample.id
 
-    sampleForm.population = sample.population,
-      sampleForm.sampleSize = sample.sampleSize,
-      sampleForm.samples = sample.samples.map((act: any) => ({ ...act })),
-      sampleForm.conclusion = sample.conclusion
+    sampleForm.population = sample.population
+    sampleForm.sampleSize = sample.sampleSize
+    sampleForm.samples = sample.samples ? sample.samples.map((s: any) => ({ ...s })) : []
+    sampleForm.conclusion = sample.conclusion
 
     showModalF03.value = true
   }
 
-  const handleDeleteF03 = (id: string | undefined) => {
+  const handleDeleteF03 = async (id: string | undefined) => {
     if (!id) return
     try {
-      // 2. Panggil fungsi hapus di store
-      deleteF03(id)
-
+      await deleteF03(id)
     } catch (error) {
       alert('Failed to delete data: ' + error)
     }
   }
 
-  const addF04 = (causeForm: WorkingPaperCauseForm) => {
-    const newCause: WorkingPaperCause = {
-      id: Date.now().toString(),
+  const addF04 = async (causeForm: WorkingPaperCauseForm) => {
+    const newCause = {
       condition: causeForm.condition,
       criteria: causeForm.criteria,
       impact: causeForm.impact,
-      evidenceFile: causeForm.evidenceFile,
-      rootCause: causeForm.rootCause.map(rca => ({ ...rca }))
+      evidenceFile: causeForm.evidenceFile ? causeForm.evidenceFile.name : '',
+      rootCause: causeForm.rootCause
     }
-    dataF04.value.unshift(newCause)
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/causes`, {
+      method: 'POST',
+      body: newCause
+    })
+    await fetchAllData()
   }
 
-  const updateF04 = (id: string, updatedCauseData: WorkingPaperCauseForm) => {
-    const index = dataF04.value.findIndex(p => p.id === id)
-    const existingCause = dataF04.value[index]!
-    if (index === -1) return
-
-    dataF04.value[index] = {
-      ...updatedCauseData,
-      id: existingCause.id,
-      rootCause: [...updatedCauseData.rootCause]
+  const updateF04 = async (id: string, updatedCauseData: WorkingPaperCauseForm) => {
+    const payload = {
+      condition: updatedCauseData.condition,
+      criteria: updatedCauseData.criteria,
+      impact: updatedCauseData.impact,
+      evidenceFile: updatedCauseData.evidenceFile ? updatedCauseData.evidenceFile.name : '',
+      rootCause: updatedCauseData.rootCause
     }
-
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/causes/${id}`, {
+      method: 'PUT',
+      body: payload
+    })
+    await fetchAllData()
   }
 
-  const deleteF04 = (id: string) => {
-    const cause = dataF04.value.find(a => a.id === id)
-    if (!cause) return
-
-    if (confirm('Are you sure you want to delete permanently??')) {
-      dataF04.value = dataF04.value.filter(a => a.id !== id)
-
+  const deleteF04 = async (id: string) => {
+    if (confirm('Are you sure you want to delete permanently?')) {
+      const baseUrl = getAuditServiceBaseUrl()
+      await $fetch(`${baseUrl}/working-papers/causes/${id}`, {
+        method: 'DELETE'
+      })
+      await fetchAllData()
     }
   }
 
@@ -570,78 +626,82 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     showModalF04.value = true
   }
 
-  const handleSubmitF04 = () => {
-
-    if (isEditingF04.value && editingIdF04.value) {
-      // Mode EDIT
-      updateF04(editingIdF04.value, { ...causeForm })
-      alert("Root Cause Data Successfully Updated!")
-    } else {
-      // Mode ADD
-      addF04({ ...causeForm })
-      alert("Root Cause Data Successfully Saved!")
+  const handleSubmitF04 = async () => {
+    try {
+      if (isEditingF04.value && editingIdF04.value) {
+        await updateF04(editingIdF04.value, { ...causeForm })
+        alert("Root Cause Data Successfully Updated!")
+      } else {
+        await addF04({ ...causeForm })
+        alert("Root Cause Data Successfully Saved!")
+      }
+      closeModalF04()
+    } catch (error: any) {
+      alert("Failed to save data: " + error.message)
     }
-
-    closeModalF04()
   }
 
   const handleEditF04 = (cause: any) => {
     isEditingF04.value = true
     editingIdF04.value = cause.id
 
-    causeForm.condition = cause.condition,
-      causeForm.criteria = cause.criteria,
-      causeForm.impact = cause.impact,
-      causeForm.evidenceFile = cause.evidenceFile,
-      causeForm.rootCause = cause.rootCause.map((rca: any) => ({ ...rca }))
-
+    causeForm.condition = cause.condition
+    causeForm.criteria = cause.criteria
+    causeForm.impact = cause.impact
+    causeForm.evidenceFile = cause.evidenceFile ? new File([], cause.evidenceFile) : null
+    causeForm.rootCause = cause.rootCause ? cause.rootCause.map((rca: any) => ({ ...rca })) : []
 
     showModalF04.value = true
   }
 
-  const handleDeleteF04 = (id: string | undefined) => {
+  const handleDeleteF04 = async (id: string | undefined) => {
     if (!id) return
     try {
-      // 2. Panggil fungsi hapus di store
-      deleteF04(id)
-
+      await deleteF04(id)
     } catch (error) {
       alert('Failed to delete data: ' + error)
     }
   }
 
-  const addF05 = (planForm: WorkingPaperPlanForm) => {
-    const newPlan: WorkingPaperPlan = {
-      id: Date.now().toString(),
+  const addF05 = async (planForm: WorkingPaperPlanForm) => {
+    const newPlan = {
       recommendation: planForm.recommendation,
       response: planForm.response,
       actionDescription: planForm.actionDescription,
       pic: planForm.pic,
       periodAction: planForm.periodAction
     }
-    dataF05.value.unshift(newPlan)
-
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/plans`, {
+      method: 'POST',
+      body: newPlan
+    })
+    await fetchAllData()
   }
 
-  const updateF05 = (id: string, updatedPlanData: WorkingPaperPlanForm) => {
-    const index = dataF05.value.findIndex(p => p.id === id)
-    const existingPlan = dataF05.value[index]!
-    if (index === -1) return
-
-    dataF05.value[index] = {
-      ...updatedPlanData,
-      id: existingPlan.id
+  const updateF05 = async (id: string, updatedPlanData: WorkingPaperPlanForm) => {
+    const payload = {
+      recommendation: updatedPlanData.recommendation,
+      response: updatedPlanData.response,
+      actionDescription: updatedPlanData.actionDescription,
+      pic: updatedPlanData.pic,
+      periodAction: updatedPlanData.periodAction
     }
-
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/working-papers/plans/${id}`, {
+      method: 'PUT',
+      body: payload
+    })
+    await fetchAllData()
   }
 
-  const deleteF05 = (id: string) => {
-    const plan = dataF05.value.find(a => a.id === id)
-    if (!plan) return
-
+  const deleteF05 = async (id: string) => {
     if (confirm('Are you sure you want to delete permanently?')) {
-      dataF05.value = dataF05.value.filter(a => a.id !== id)
-
+      const baseUrl = getAuditServiceBaseUrl()
+      await $fetch(`${baseUrl}/working-papers/plans/${id}`, {
+        method: 'DELETE'
+      })
+      await fetchAllData()
     }
   }
 
@@ -660,41 +720,38 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     showModalF05.value = true
   }
 
-  const handleSubmitF05 = () => {
-
-    if (isEditingF05.value && editingIdF05.value) {
-      // Mode EDIT
-      updateF05(editingIdF05.value, { ...planForm })
-      alert("Action Plan Data Successfully Updated!")
-    } else {
-      // Mode ADD
-      addF05({ ...planForm })
-      alert("Action Plan Data Successfully Saved!")
+  const handleSubmitF05 = async () => {
+    try {
+      if (isEditingF05.value && editingIdF05.value) {
+        await updateF05(editingIdF05.value, { ...planForm })
+        alert("Action Plan Data Successfully Updated!")
+      } else {
+        await addF05({ ...planForm })
+        alert("Action Plan Data Successfully Saved!")
+      }
+      closeModalF05()
+    } catch (error: any) {
+      alert("Failed to save data: " + error.message)
     }
-
-    closeModalF05()
   }
 
   const handleEditF05 = (plan: any) => {
     isEditingF05.value = true
     editingIdF05.value = plan.id
 
-    planFormrecommendation: plan.recommendation,
-      planForm.response = plan.tanggapanresponse,
-      planForm.actionDescription = plan.actionDescription,
-      planForm.pic = plan.pic,
-      planForm.periodAction = plan.periodAction
-
+    planForm.recommendation = plan.recommendation
+    planForm.response = plan.response || plan.tanggapanresponse || ""
+    planForm.actionDescription = plan.actionDescription
+    planForm.pic = plan.pic
+    planForm.periodAction = plan.periodAction
 
     showModalF05.value = true
   }
 
-  const handleDeleteF05 = (id: string | undefined) => {
+  const handleDeleteF05 = async (id: string | undefined) => {
     if (!id) return
     try {
-      // 2. Panggil fungsi hapus di store
-      deleteF05(id)
-
+      await deleteF05(id)
     } catch (error) {
       alert('Failed to delete data: ' + error)
     }
@@ -826,6 +883,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     handleEditF01, handleEditF02, handleEditF03, handleEditF04, handleEditF05,
     handleDeleteF01, handleDeleteF02, handleDeleteF03, handleDeleteF04, handleDeleteF05,
     addSample, removeSample, addRootCause, removeRootCause, triggerUpload, onFileChange,
-    checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile
+    checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile,
+    loading, errorMsg, fetchAllData
   }
 })

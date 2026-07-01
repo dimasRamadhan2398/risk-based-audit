@@ -1,0 +1,13 @@
+$kind: http-request
+name: Delete QA Report
+method: DELETE
+url: '{{auth_base_url}}/api/v1/quality-assurance/:id'
+order: 4000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: qa-id-here

@@ -5,6 +5,8 @@ import (
 	"auth-service/repositories"
 
 	authServices "auth-service/services/auth"
+	confidentialityServices "auth-service/services/confidentiality"
+	emailServices "auth-service/services/email"
 	mfaServices "auth-service/services/mfa"
 	trustedDevicesServices "auth-service/services/trusted-devices"
 	userServices "auth-service/services/user"
@@ -17,12 +19,24 @@ type Registry struct {
 
 // NewAuthService implements IServiceRegistry.
 func (r *Registry) GetAuthService() authServices.AuthServiceInterface {
-	return authServices.NewAuthService(r.repository.GetUserRepository(), r.repository.GetCacheRepository().GetClient(), r.repository.GetConfig(), r.repository.GetKafkaProducer())
+	return authServices.NewAuthService(
+		r.repository.GetUserRepository(),
+		r.repository.GetMFASetupRepository(),
+		r.repository.GetTrustedDeviceRepository(),
+		r.repository.GetCacheRepository().GetClient(),
+		r.repository.GetConfig(),
+		r.repository.GetKafkaProducer(),
+	)
+}
+
+// GetEmailService implements IServiceRegistry.
+func (r *Registry) GetEmailService() emailServices.EmailServiceInterface {
+	return emailServices.NewEmailService(&r.repository.GetConfig().SMTP, r.repository.GetConfig().App.AppName)
 }
 
 // GetMfaService implements IServiceRegistry.
 func (r *Registry) GetMfaService() mfaServices.MfaServiceInterface {
-	return mfaServices.NewMfaService(r.repository.GetMFASetupRepository(), r.repository.GetUserRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient())
+	return mfaServices.NewMfaService(r.repository.GetMFASetupRepository(), r.repository.GetUserRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient(), r.GetEmailService())
 }
 
 // GetUserService implements IServiceRegistry.
@@ -35,11 +49,18 @@ func (r *Registry) GetTrustedDevicesService() trustedDevicesServices.TrustedDevi
 	return trustedDevicesServices.NewTrustedDevicesService(r.repository.GetTrustedDeviceRepository(), r.repository.GetUserRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient())
 }
 
+// GetConfidentialityService implements IServiceRegistry.
+func (r *Registry) GetConfidentialityService() confidentialityServices.ConfidentialityServiceInterface {
+	return confidentialityServices.NewConfidentialityService(r.repository.GetConfidentialityAgreementRepository())
+}
+
 type IServiceRegistry interface {
 	GetAuthService() authServices.AuthServiceInterface
 	GetUserService() userServices.UserServiceInterface
 	GetMfaService() mfaServices.MfaServiceInterface
 	GetTrustedDevicesService() trustedDevicesServices.TrustedDevicesServiceInterface
+	GetEmailService() emailServices.EmailServiceInterface
+	GetConfidentialityService() confidentialityServices.ConfidentialityServiceInterface
 }
 func NewServiceRegistry(repository repositories.IRepositoryRegistry) IServiceRegistry {
 	return &Registry{repository: repository}

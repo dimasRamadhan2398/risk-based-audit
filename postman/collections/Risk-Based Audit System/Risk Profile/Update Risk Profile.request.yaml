@@ -1,0 +1,28 @@
+$kind: http-request
+name: Update Risk Profile
+method: PUT
+url: '{{auth_base_url}}/api/v1/risk-profiles/:id'
+order: 4000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+pathVariables:
+  - key: id
+    value: '1'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Financial Fraud / Corruption",
+      "impact": 5,
+      "likelihood": 5,
+      "severity": 98,
+      "category": "Financial",
+      "branch": "Head Office",
+      "description": "Updated description."
+    }

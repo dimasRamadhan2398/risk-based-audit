@@ -6,6 +6,7 @@ import (
 	"audit-service/models"
 	"audit-service/pkg/response"
 	svcCharter "audit-service/services/audit_charter"
+	svcMedia "audit-service/services/media"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -25,13 +26,18 @@ type AuditCharterControllerInterface interface {
 
 // AuditCharterController handles audit charter HTTP requests
 type AuditCharterController struct {
-	service svcCharter.AuditCharterServiceInterface
+	service  svcCharter.AuditCharterServiceInterface
+	mediaSvc svcMedia.MediaServiceInterface
 }
 
 // NewAuditCharterController creates a new audit charter controller
-func NewAuditCharterController(service svcCharter.AuditCharterServiceInterface) AuditCharterControllerInterface {
+func NewAuditCharterController(
+	service svcCharter.AuditCharterServiceInterface,
+	mediaSvc svcMedia.MediaServiceInterface,
+) AuditCharterControllerInterface {
 	return &AuditCharterController{
-		service: service,
+		service:  service,
+		mediaSvc: mediaSvc,
 	}
 }
 
@@ -47,9 +53,47 @@ func NewAuditCharterController(service svcCharter.AuditCharterServiceInterface) 
 // @Router /api/v1/audit-charters [post]
 func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 	var req models.CreateAuditCharterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
-		return
+
+	contentType := c.ContentType()
+	if contentType == "multipart/form-data" {
+		title := c.PostForm("title")
+		version := c.PostForm("version")
+		content := c.PostForm("approvedBy")
+		if content == "" {
+			content = c.PostForm("approved_by")
+		}
+		isActiveStr := c.PostForm("isActive")
+		if isActiveStr == "" {
+			isActiveStr = c.PostForm("is_active")
+		}
+		isActive := isActiveStr == "true"
+
+		// Process file upload
+		file, header, err := c.Request.FormFile("file")
+		if err != nil {
+			response.BadRequest(c, "File is required for creating a charter")
+			return
+		}
+		defer file.Close()
+
+		attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
+		if err != nil {
+			response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", err.Error())
+			return
+		}
+
+		req.Title = title
+		req.Version = version
+		req.Filename = header.Filename
+		req.Content = content
+		req.IsActive = &isActive
+		req.FileUrl = attachment.FilePath
+		req.FileSize = attachment.FileSize
+	} else {
+		if err := c.ShouldBindJSON(&req); err != nil {
+			response.BadRequest(c, err.Error())
+			return
+		}
 	}
 
 	result, err := ctrl.service.CreateCharter(c.Request.Context(), &req)
@@ -81,9 +125,42 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 	}
 
 	var req models.UpdateAuditCharterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
-		return
+	contentType := c.ContentType()
+	if contentType == "multipart/form-data" {
+		title := c.PostForm("title")
+		content := c.PostForm("approvedBy")
+		if content == "" {
+			content = c.PostForm("approved_by")
+		}
+		isActiveStr := c.PostForm("isActive")
+		if isActiveStr == "" {
+			isActiveStr = c.PostForm("is_active")
+		}
+		isActive := isActiveStr == "true"
+
+		req.Title = &title
+		req.Content = &content
+		req.IsActive = &isActive
+
+		// Process optional file upload
+		file, header, err := c.Request.FormFile("file")
+		if err == nil { // file is present
+			defer file.Close()
+			attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
+			if err != nil {
+				response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", err.Error())
+				return
+			}
+			filename := header.Filename
+			req.Filename = &filename
+			req.FileUrl = &attachment.FilePath
+			req.FileSize = &attachment.FileSize
+		}
+	} else {
+		if err := c.ShouldBindJSON(&req); err != nil {
+			response.BadRequest(c, err.Error())
+			return
+		}
 	}
 
 	result, err := ctrl.service.UpdateCharter(c.Request.Context(), id, &req)

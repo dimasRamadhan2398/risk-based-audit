@@ -1,0 +1,10 @@
+$kind: http-request
+name: List Working Paper Action Plans
+method: GET
+url: '{{auth_base_url}}/api/v1/working-papers/action-plans'
+order: 9000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

@@ -58,7 +58,9 @@
               <div class="p-6 border border-gray-100 dark:border-gray-800 rounded-xl space-y-6">
                 <div class="grid grid-cols-3 gap-4">
                   <p class="font-bold text-gray-700">Result/Score</p>
-                  <p class="col-span-2 text-xl font-bold">{{ store.selectedReport?.result }}</p>
+                  <p class="col-span-2 text-xl font-bold">
+                    {{ store.selectedReport?.type === 'QAR' ? formatOverallConclusion(store.selectedReport?.result!) : store.selectedReport?.result }}
+                  </p>
                 </div>
                 <div class="grid grid-cols-3 gap-4">
                   <p class="font-bold text-gray-700">Status</p>
@@ -108,4 +110,19 @@
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
+
+const formatOverallConclusion = (result: string) => {
+  if (!result) return '-'
+  const res = result.trim().toLowerCase()
+  if (res === 'g/c*' || res === 'gc' || res.includes('generally')) {
+    return 'Generally Conforms'
+  }
+  if (res === 'fc' || res.includes('fully')) {
+    return 'Fully Conforms'
+  }
+  if (res === 'dnc' || res.includes('does not') || res.includes('doesnot')) {
+    return 'Does Not Conform'
+  }
+  return result
+}
 </script>

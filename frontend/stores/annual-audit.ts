@@ -9,6 +9,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
   const errorMsg = ref("")
   const progressAudit = ref(50);
+  const loading = ref(false)
 
   // Constants
   const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -56,10 +57,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     window.URL.revokeObjectURL(url);
   };
 
-  defineShortcuts({
-    o: () => open.value = !open.value
-  })
-
   const columns: TableColumn<AnnualAuditPlan>[] = [
     { accessorKey: 'activity', header: 'Activity' },
     { accessorKey: 'department', header: 'Department' },
@@ -84,18 +81,14 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const yearOptions = ['2026', '2027', '2028', '2029', '2030']
 
   // --- COMPUTED: FILTER DATA ---
-  // --- 3. UPDATE FILTERED PLANS ---
   const filteredPlans = computed(() => {
-    // 1. TAMBAHKAN .value DI SINI
     return plans.value.filter(plan => {
-
-      // 2. Opsional tapi disarankan: gunakan optional chaining (?.) untuk mencegah error jika activities kosong/undefined
       const matchCode = !searchCode.value ||
-        plan.code.toLowerCase().includes(searchCode.value.toLowerCase()) ||
-        plan.activities?.some(act => act.name.toLowerCase().includes(searchCode.value.toLowerCase()))
+        (plan.code || '').toLowerCase().includes(searchCode.value.toLowerCase()) ||
+        (plan.activities || []).some(act => (act.name || '').toLowerCase().includes(searchCode.value.toLowerCase()))
 
       const matchDept = !selectedDepartment.value ||
-        plan.activities?.some(act => act.department === selectedDepartment.value)
+        (plan.activities || []).some(act => act.department === selectedDepartment.value)
 
       const matchStatus = !selectedStatus.value || plan.status === selectedStatus.value
 
@@ -118,7 +111,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const closeViewModal = () => {
     showViewModal.value = false
-    setTimeout(() => { selectedPlan.value = null }, 200) // Delay agar transisi tidak flicker
+    setTimeout(() => { selectedPlan.value = null }, 200)
   }
 
   watch(showViewModal, (isOpen) => {
@@ -128,8 +121,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   })
 
   const handleEditFromView = (plan: any) => {
-    closeViewModal() // Tutup modal detail
-    handleEdit(plan) // Buka modal edit bawaan form
+    closeViewModal()
+    handleEdit(plan)
   }
 
   const getSupervisorName = (id: string) => {
@@ -197,23 +190,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   })
 
   // --- COMPUTED LOGIC (Real-time Validation) ---
-
-  // F-03: Auto Calculate Mandays
   const totalMandays = computed(() => form.auditorCount * form.daysPerAuditor)
-
-  // F-03: Supervisor Check
   const selectedSupervisor = computed(() => supervisors.value.find(s => s.id === form.supervisorId))
-
-  // F-03: Utilization Check
   const utilizationData = computed(() => checkUtilization(totalMandays.value))
-
-  // F-02: Schedule Logic
   const computedQuarters = computed(() => calculateQuarters(form.selectedMonths))
-
   const scheduleWarning = computed(() => checkScheduleGaps(form.selectedMonths))
 
   const quarterAlert = computed(() => {
-    // F-02: Alert jika Q1 > 40% (Simplifikasi: jika user pilih semua bulan Q1 dan hanya sedikit bulan lain)
     const q1Count = form.selectedMonths.filter(m => m <= 2).length
     const totalCount = form.selectedMonths.length
     if (totalCount > 0 && (q1Count / totalCount) > 0.4 && totalCount > 3) {
@@ -228,8 +211,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       label: `${s.name} (Workload: ${s.workload})`
     }))
   })
-
-  // --- ACTIONS ---
 
   const toggleMonth = (idx: number) => {
     if (form.selectedMonths.includes(idx)) {
@@ -248,7 +229,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   }
 
   const removeActivity = (index: number) => {
-    // Cegah penghapusan jika hanya tersisa 1 aktivitas
     if (form.activities.length > 1) {
       form.activities.splice(index, 1)
     }
@@ -258,12 +238,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     isEditing.value = false
     editingId.value = null
 
-    // Reset Form
     Object.assign(form, {
       code: '',
       version: 'v1.0',
       revisionHistory: [],
-      activities: [ // Reset array activities kembali ke 1 baris kosong
+      activities: [
         { name: '', category: AuditCategory.ASSURANCE, department: AuditDepartment.IT }
       ],
       status: AnnualAuditPlanStatus.NOT_AVAILABLE,
@@ -286,13 +265,35 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const closeModal = () => showModal.value = false
 
-  const handleSubmit = () => {
-    // if (!isEditing.value && (!form.file || form.file.length === 0)) {
-    //   errorMsg.value = "Mohon upload file charter.";
-    //   return;
-    // }
+  const getAuditServiceBaseUrl = () => {
+    const config = useRuntimeConfig()
+    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  }
 
-    // F-04: Final Validation
+  const plans = ref<AnnualAuditPlan[]>([])
+
+  const fetchPlans = async () => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/annual-audit-plans`, {
+        method: 'GET'
+      })
+      if (response && Array.isArray(response.items)) {
+        plans.value = response.items
+      } else if (Array.isArray(response)) {
+        plans.value = response
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch annual plans:', error)
+      errorMsg.value = 'Gagal mengambil rencana audit tahunan.'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const handleSubmit = async () => {
     if (form.selectedMonths.length === 0) {
       alert("⚠️ Wajib memilih minimal 1 bulan pelaksanaan.")
       return
@@ -302,55 +303,49 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       return
     }
 
-    if (isEditing.value && editingId.value) {
-      // Mode EDIT
-      updatePlan(editingId.value, { ...form })
-      alert("Data Rencana Audit Berhasil Diperbarui!")
-    } else {
-      // Mode ADD
-      addPlan({ ...form })
-      alert("Data Rencana Audit Berhasil Disimpan!")
+    try {
+      if (isEditing.value && editingId.value) {
+        await updatePlan(editingId.value, { ...form })
+        alert("Data Rencana Audit Berhasil Diperbarui!")
+      } else {
+        await addPlan({ ...form })
+        alert("Data Rencana Audit Berhasil Disimpan!")
+      }
+      closeModal()
+    } catch (err: any) {
+      alert("Gagal menyimpan data: " + err.message)
     }
-
-    closeModal()
   }
 
   const handleEdit = (plan: any) => {
     isEditing.value = true
     editingId.value = plan.id
 
-    // Isi form dengan data yang dipilih
-
-    form.code = plan.code,
-      form.version = plan.version || 'v1.0',
-      form.revisionHistory = plan.revisionHistory ? [...plan.revisionHistory] : [],
-      form.activities = plan.activities.map((act: any) => ({ ...act })),
-      form.status = plan.status,
-      form.selectedMonths = [...plan.selectedMonths], // Gunakan spread agar tidak reaktif terhubung langsung
-      form.auditorCount = plan.auditorCount,
-      form.daysPerAuditor = plan.daysPerAuditor,
-      form.supervisorId = plan.supervisorId,
-      form.notes = plan.notes || '',
-      form.file = [],
-      form.attachmentCategory = '',
-      form.attachmentUploadedBy = '',
-      form.attachmentUploadDate = '',
-      form.isActive = plan.isActive,
-      form.year = plan.year
-
+    form.code = plan.code
+    form.version = plan.version || 'v1.0'
+    form.revisionHistory = plan.revisionHistory ? [...plan.revisionHistory] : []
+    form.activities = plan.activities.map((act: any) => ({ ...act }))
+    form.status = plan.status
+    form.selectedMonths = [...plan.selectedMonths]
+    form.auditorCount = plan.auditorCount
+    form.daysPerAuditor = plan.daysPerAuditor
+    form.supervisorId = plan.supervisorId
+    form.notes = plan.notes || ''
+    form.file = []
+    form.attachmentCategory = plan.attachmentCategory || ''
+    form.attachmentUploadedBy = plan.attachmentUploadedBy || ''
+    form.attachmentUploadDate = plan.attachmentUploadDate || ''
+    form.isActive = plan.isActive
+    form.year = plan.year || ''
 
     showModal.value = true
   }
 
-  const handleDelete = (id: string | undefined) => {
+  const handleDelete = async (id: string | undefined) => {
     if (!id) return
     try {
-      // 2. Panggil fungsi hapus di store
-      deletePlan(id)
-
-      // 3. Tutup modal detail setelah berhasil menghapus
+      await deletePlan(id)
       closeViewModal()
-
     } catch (error) {
       alert('Gagal menghapus data: ' + error)
     }
@@ -358,29 +353,16 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
-
-    // Ambil file dengan aman menggunakan optional chaining
-    // target.files?[0] akan return 'File | undefined'
     const file = target.files?.[0];
-
-    // GUARD CLAUSE (PENTING):
-    // Jika file undefined, langsung berhenti.
-    // Setelah baris ini, TypeScript tahu 'file' pasti bertipe 'File' (bukan undefined).
     if (!file) return;
 
-    // --- Mulai Validasi ---
-
-    // Validasi Ukuran (Max 5MB)
-    // Sekarang 'file.size' aman diakses karena file dijamin ada
     if (file.size > 5 * 1024 * 1024) {
       errorMsg.value = "File terlalu besar! Maksimal 5MB.";
       form.file = null;
-      // Reset input value agar user bisa pilih file ulang
       target.value = "";
       return;
     }
 
-    // Validasi Tipe
     const allowedTypes = [
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -394,21 +376,18 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       return;
     }
 
-    // Jika lolos semua audit
     errorMsg.value = "";
     form.file = [file];
   };
 
   const supervisors = ref([
     { id: 'S01', name: 'Budi Santoso (Mgr)', workload: 5 },
-    { id: 'S02', name: 'Siti Aminah (Snr)', workload: 8 }, // Overloaded
+    { id: 'S02', name: 'Siti Aminah (Snr)', workload: 8 },
     { id: 'S03', name: 'John Doe (Mgr)', workload: 2 },
   ])
 
-  // Mock Team Capacity (F-03 Logic)
-  // Available = Total Auditor (misal 10) * 220 hari * 70%
-  const TEAM_CAPACITY_PER_YEAR = 10 * 220 * 0.7 // 1540 Mandays
-  // F-02: Auto-grouping Quarters
+  const TEAM_CAPACITY_PER_YEAR = 10 * 220 * 0.7
+  
   const calculateQuarters = (months: number[]) => {
     const qSet = new Set<string>()
     months.forEach(m => {
@@ -420,10 +399,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     return Array.from(qSet).sort()
   }
 
-  // F-03: Utilization Check
-  // Returns: { status: 'Green'|'Yellow'|'Red', percent: number, message: string }
   const checkUtilization = (additionalMandays: number) => {
-    const currentUsed = plans.value.reduce((sum, p) => sum + p.totalMandays!, 0)
+    const currentUsed = plans.value.reduce((sum, p) => sum + (p.totalMandays || 0), 0)
     const totalAfterAdd = currentUsed + additionalMandays
     const utilization = (totalAfterAdd / TEAM_CAPACITY_PER_YEAR) * 100
 
@@ -432,10 +409,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     return { color: 'green', percent: utilization, msg: '🟢 Optimal (60-80%)' }
   }
 
-  // F-04: Validate Schedule Gaps
   const checkScheduleGaps = (months: number[]) => {
     if (months.length === 0) return "Wajib pilih minimal 1 bulan."
-    // Logic simple: Cek apakah bulan loncat (misal Jan & Mar dipilih, Feb kosong)
     const sorted = [...months].sort((a, b) => a - b)
     for (let i = 0; i < sorted.length - 1; i++) {
       if (sorted[i + 1]! - sorted[i]! > 1) {
@@ -445,23 +420,16 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     return null
   }
 
-  const plans = ref<AnnualAuditPlan[]>([])
-
-  // Actions
-  const addPlan = (form: AnnualPlanForm) => {
-    // 1. Calculate Quarters (F-02)
+  const addPlan = async (form: AnnualPlanForm) => {
     const quarters = calculateQuarters(form.selectedMonths)
-
-    // 2. Calculate Resource (F-03)
     const totalMandays = form.auditorCount * form.daysPerAuditor
     const supervisor = supervisors.value.find(s => s.id === form.supervisorId)
 
-    const newPlan: AnnualAuditPlan = {
-      id: Date.now().toString(),
+    const payload = {
       code: form.code,
       version: 'v1.0',
       revisionHistory: [],
-      activities: [...form.activities],
+      activities: form.activities,
       status: form.status,
       selectedMonths: form.selectedMonths.sort((a, b) => a - b),
       quarters: quarters,
@@ -471,66 +439,66 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       supervisorId: form.supervisorId,
       supervisorName: supervisor?.name || 'Unknown',
       notes: form.notes,
-      year: form.year,
+      year: parseInt(form.year) || 2026,
       attachmentCategory: form.attachmentCategory,
-      attachments: form.file?.map(f => ({
-        name: f.name,
-        size: `${(f.size / 1024 / 1024).toFixed(2)} MB`,
-        url: URL.createObjectURL(f)
-      })) || [],
+      attachments: [],
       attachmentUploadedBy: form.attachmentUploadedBy,
       attachmentUploadDate: form.attachmentUploadDate,
       isActive: form.isActive
     }
-    plans.value.unshift(newPlan)
+
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/annual-audit-plans`, {
+      method: 'POST',
+      body: payload
+    })
+    await fetchPlans()
   }
 
-  const updatePlan = (id: string, updatedData: AnnualPlanForm) => {
-    const index = plans.value.findIndex(p => p.id === id)
-    const isDuplicate = plans.value.some(a => a.code === updatedData.code && a.id !== id)
-    if (isDuplicate) throw new Error('Kode Kegiatan sudah digunakan data lain!')
-    if (index === -1) return
-
+  const updatePlan = async (id: string, updatedData: AnnualPlanForm) => {
+    const baseUrl = getAuditServiceBaseUrl()
     const quarters = calculateQuarters(updatedData.selectedMonths)
     const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
     const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
-    const existingPlan = plans.value[index]!
 
-    plans.value[index] = {
+    const payload = {
       ...updatedData,
-      id: existingPlan.id,
-      activities: [...updatedData.activities],
       quarters: quarters,
       totalMandays: totalMandays,
       supervisorName: supervisor?.name || 'Unknown',
-      attachmentCategory: updatedData.attachmentCategory,
-      // Jika ada file baru, ganti. Jika tidak, pertahankan yang lama.
-      attachments: (updatedData.file && updatedData.file.length > 0)
-        ? updatedData.file.map(f => ({
-          name: f.name,
-          size: `${(f.size / 1024 / 1024).toFixed(2)} MB`,
-          url: URL.createObjectURL(f)
-        }))
-        : existingPlan.attachments,
+      year: parseInt(updatedData.year) || 2026
     }
 
+    await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+      method: 'PUT',
+      body: payload
+    })
+    await fetchPlans()
   }
 
-  const deletePlan = (id: string) => {
+  const deletePlan = async (id: string) => {
     const plan = plans.value.find(a => a.id === id)
     if (!plan) return
 
+    const baseUrl = getAuditServiceBaseUrl()
     if (plan.isUsed) {
-      alert('Data ini sudah digunakan dalam RKAT. Hanya status yang akan dinonaktifkan.')
-      plan.isActive = false // Soft Delete / Deactivate
+      // Soft deactivate
+      const payload = { ...plan, isActive: false }
+      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+        method: 'PUT',
+        body: payload
+      })
     } else {
-      if (confirm('Apakah Anda yakin ingin menghapus permanen?')) {
-        plans.value = plans.value.filter(a => a.id !== id)
+      if (confirm('Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?')) {
+        await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+          method: 'DELETE'
+        })
       }
     }
+    await fetchPlans()
   }
 
-  const createRevision = (planId: string, changesNote: string, user: string) => {
+  const createRevision = async (planId: string, changesNote: string, user: string) => {
     const plan = plans.value.find(p => p.id === planId)
     if (!plan) return
 
@@ -546,31 +514,42 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       user: user
     }
 
-    plan.version = newVersion
-    plan.status = AnnualAuditPlanStatus.NOT_AVAILABLE
-    if (!plan.revisionHistory) plan.revisionHistory = []
-    plan.revisionHistory.unshift(historyEntry)
+    const revisionHistory = plan.revisionHistory ? [...plan.revisionHistory] : []
+    revisionHistory.unshift(historyEntry)
 
-    if (selectedPlan.value && selectedPlan.value.id === planId) {
-      selectedPlan.value.version = newVersion
-      selectedPlan.value.status = AnnualAuditPlanStatus.NOT_AVAILABLE
-      selectedPlan.value.revisionHistory = plan.revisionHistory
+    const payload = {
+      ...plan,
+      version: newVersion,
+      status: AnnualAuditPlanStatus.NOT_AVAILABLE,
+      revisionHistory: revisionHistory
     }
 
+    const baseUrl = getAuditServiceBaseUrl()
+    await $fetch(`${baseUrl}/annual-audit-plans/${planId}`, {
+      method: 'PUT',
+      body: payload
+    })
+    await fetchPlans()
     alert(`Revised RKAT created (Version ${newVersion}).`)
   }
 
-  const updatePlanStatus = (id: string, status: AnnualAuditPlanStatus) => {
+  const updatePlanStatus = async (id: string, status: AnnualAuditPlanStatus) => {
     const plan = plans.value.find(p => p.id === id)
-    if (plan) {
-      plan.status = status
-    }
+    if (!plan) return
+
+    const baseUrl = getAuditServiceBaseUrl()
+    const payload = { ...plan, status: status }
+    await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+      method: 'PUT',
+      body: payload
+    })
+    await fetchPlans()
   }
 
-  const handleStaffApprove = () => {
+  const handleStaffApprove = async () => {
     if (selectedPlan.value) {
-      selectedPlan.value.status = AnnualAuditPlanStatus.WORK_IN_PROGRESS
-      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.WORK_IN_PROGRESS)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.WORK_IN_PROGRESS)
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
 
@@ -580,49 +559,43 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
-  const handleManagerApprove = () => {
+  const handleManagerApprove = async () => {
     if (selectedPlan.value) {
-      selectedPlan.value.status = AnnualAuditPlanStatus.PENDING_APPROVAL
-      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.PENDING_APPROVAL)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.PENDING_APPROVAL)
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
 
-  const handleManagerReject = () => {
+  const handleManagerReject = async () => {
     if (selectedPlan.value) {
-      selectedPlan.value.status = AnnualAuditPlanStatus.NOT_AVAILABLE
-      selectedPlan.value.managerApprovalNote = ''
-      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.NOT_AVAILABLE)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.NOT_AVAILABLE)
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
 
-  const handleChiefApprove = () => {
+  const handleChiefApprove = async () => {
     if (selectedPlan.value) {
-      selectedPlan.value.status = AnnualAuditPlanStatus.DONE
-      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.DONE)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.DONE)
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
 
-  const handleChiefReject = () => {
+  const handleChiefReject = async () => {
     if (selectedPlan.value) {
-      selectedPlan.value.status = AnnualAuditPlanStatus.WORK_IN_PROGRESS
-      selectedPlan.value.chiefApprovalNote = ''
-      updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.WORK_IN_PROGRESS)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.WORK_IN_PROGRESS)
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
 
   return {
-    // State
     plans, supervisors, monthsList, yearOptions, supervisorOptions, attachmentCategoryOptions,
     showModal, isEditing, editingId, showViewModal, selectedPlan, progressAudit, approvalStepperItems,
-    searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg,
-
-    // Computed
+    searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading,
     filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
     computedQuarters,
-    // Actions
     clearFilters, openViewModal, closeViewModal, toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
-    getStatusColor, handleFileChange,
+    getStatusColor, handleFileChange, fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
     createRevision
   }

@@ -138,14 +138,13 @@ func (m *MfaController) EnrollMFA(ctx *gin.Context) {
 
 	ipAddress := getClientIP(ctx)
 
-	if _, err := m.mfaService.SetupMFA(ctx.Request.Context(), id, req.MFAType, ipAddress); err != nil {
+	result, err := m.mfaService.SetupMFA(ctx.Request.Context(), id, req.MFAType, ipAddress)
+	if err != nil {
 		m.RespondError(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "MFA enrollment initiated successfully",
-	})
+	response.Success(ctx, http.StatusOK, "MFA enrollment initiated successfully", result)
 }
 
 // GetMFAStatus implements MfaControllerInterface.

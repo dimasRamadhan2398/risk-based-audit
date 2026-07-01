@@ -1,3 +1,3 @@
 package routes
 
-func Register() {}
+// Placeholder registry file (unused after refactor)

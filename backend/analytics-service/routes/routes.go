@@ -12,5 +12,9 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		api.GET("/report", analyticsController.GetReport)
 		api.GET("/predict", analyticsController.GetPredictiveTrends)
+		api.GET("/risk-score", analyticsController.GetRiskScore)
+		api.GET("/anomaly", analyticsController.GetAnomaly)
+		api.POST("/text-analysis", analyticsController.GetTextAnalysis)
+		api.POST("/performance-trend", analyticsController.GetPerformanceTrend)
 	}
 }

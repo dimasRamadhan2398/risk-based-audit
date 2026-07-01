@@ -1,0 +1,35 @@
+$kind: http-request
+name: Create Assignment Letter
+method: POST
+url: '{{auth_base_url}}/api/v1/assignment-letters'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "auditTitle": "Financial Audit 2026",
+      "leader": "Zeta Ramadhani",
+      "category": "assurance",
+      "auditYear": "2026",
+      "auditTeam": "SKAI",
+      "startPeriod": "2026-03-01",
+      "finishPeriod": "2026-03-31",
+      "workingUnit": "Finance",
+      "membersList": [
+        {
+          "name": "Zeta Ramadhani",
+          "role": "Chairperson"
+        }
+      ],
+      "purposeList": ["Assess internal controls"],
+      "scopeList": ["Financial reporting Q1-Q4 2025"],
+      "ccList": ["President Director"]
+    }

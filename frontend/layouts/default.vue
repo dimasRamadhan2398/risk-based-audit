@@ -26,7 +26,7 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/risk-profile'
   }, 
   {
-    label: '3. Strategic Plan Internal Audit',
+    label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
     children: [
@@ -65,9 +65,14 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/audit-fieldwork',
     children: [
       {
-        label: 'Working Paper',
-        icon: 'i-lucide-users',
+        label: 'Create Working Paper',
+        icon: 'i-lucide-file-plus',
         to: '/working-paper',
+      },
+      {
+        label: 'Import Working Paper',
+        icon: 'i-lucide-upload',
+        to: '/import-working-paper',
       },
     ]
   },
@@ -80,6 +85,12 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '9. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
+  },
+
+  {
+    label: '10. Consulting Service',
+    icon: 'i-lucide-users',
+    to: '/consulting-service',
   },
   
   {
@@ -155,8 +166,8 @@ const userDropdownItems = computed(() => [
     :ui="{ footer: 'border-t border-default' }"
   >
     <template #header="{ collapsed }">
-      <Logo v-if="!collapsed" class="h-5 w-auto shrink-0" />
-      <UIcon v-else name="i-simple-icons-nuxtdotjs" class="size-5 text-primary mx-auto" />
+      <Logo v-if="!collapsed" class="h-8 w-auto shrink-0" hide-subtitle text-class="text-xl" />
+      <Logo v-else icon-only class="h-6 w-auto mx-auto" />
       <UDashboardSidebarCollapse variant="subtle" />
     </template>
 
@@ -196,7 +207,7 @@ const userDropdownItems = computed(() => [
   <UDashboardPanel>
     <template #header>
         <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)]">
-          <h1 class="text-xl font-semibold text-[var(--text-main)]">RBIA System</h1>
+          <Logo class="h-6 w-auto mx-auto text-2xl" />
           <div class="flex items-center gap-4">
             <UColorModeButton />
             <UButton v-if="!authStore.isLoggedIn" to="/auth/login" color="primary" variant="solid">Login</UButton>
@@ -219,6 +230,17 @@ const userDropdownItems = computed(() => [
     </template>
     <template #body>
       <div class="min-h-screen bg-[var(--bg-main)] min-w-max transition-colors duration-300">
+        <div v-if="authStore.isNewDevice" class="max-w-7xl mx-auto p-4 pb-0">
+          <UAlert
+            icon="i-lucide-alert-triangle"
+            color="warning"
+            variant="solid"
+            title="Security Warning"
+            description="Your account was recently accessed from a new device. If this wasn't you, please change your password immediately."
+            :closable="true"
+            @close="authStore.isNewDevice = false"
+          />
+        </div>
         <UMain class="max-w-7xl mx-auto">
           <slot />
         </UMain>
