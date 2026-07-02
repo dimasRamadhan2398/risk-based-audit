@@ -86,7 +86,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       const baseUrl = getAuditServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/audit-result-reports`, { method: 'GET' })
       let items: AuditResultReport[] = []
-      if (response && Array.isArray(response.items)) {
+      if (response && response.data && Array.isArray(response.data.items)) {
+                items = response.data.items;
+            } else if (response && response.data && Array.isArray(response.data.items)) {
+                items = response.data.items;
+            } else if (response && Array.isArray(response.items)) {
         items = response.items
       } else if (Array.isArray(response)) {
         items = response

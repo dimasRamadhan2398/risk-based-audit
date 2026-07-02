@@ -15,7 +15,7 @@
                       class="text-lg leading-6 font-medium mb-4"
                       id="modal-title"
                     >
-                      Upload New Charter
+                      {{ store.isEditing ? 'Edit Audit Charter' : 'Upload New Charter' }}
                     </h3>
                     <UIcon
                       name="close"

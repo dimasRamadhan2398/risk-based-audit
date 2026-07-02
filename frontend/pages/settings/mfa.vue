@@ -65,8 +65,10 @@
 
 <script setup lang="ts">
 import QRCode from 'qrcode'
+import { useAuthStore } from '~/stores/auth'
 
 const config = useRuntimeConfig()
+const authStore = useAuthStore()
 const mfaStatus = ref<any>(null)
 const setupData = ref<any>(null)
 const qrCodeDataURL = ref('')
@@ -77,16 +79,21 @@ const password = ref('')
 const toast = useToast()
 
 const fetchStatus = async () => {
+  if (!authStore.token) return
   try {
-    const { data } = await $fetch<any>(`${config.public.apiBase}/mfa/status`)
+    const { data } = await $fetch<any>(`${config.public.authServiceBaseUrl}/mfa/status`, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
     mfaStatus.value = data
   } catch (err) {}
 }
 
 const handleSetup = async () => {
+  if (!authStore.token) return
   try {
-    const response = await $fetch<any>(`${config.public.apiBase}/mfa/enroll`, {
+    const response = await $fetch<any>(`${config.public.authServiceBaseUrl}/mfa/enroll`, {
       method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.token}` },
       body: { mfa_type: 'TOTP' }
     })
     setupData.value = response.data
@@ -94,35 +101,38 @@ const handleSetup = async () => {
       qrCodeDataURL.value = await QRCode.toDataURL(setupData.value.qr_code_url)
     }
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'error' })
+    toast.add({ title: 'Error', description: err.data?.message || err.message, color: 'error' })
   }
 }
 
-// I should probably fix EnrollMFA to return the data.
 onMounted(fetchStatus)
 
 const handleVerifySetup = async () => {
+  if (!authStore.token) return
   loading.value = true
   try {
-    await $fetch(`${config.public.apiBase}/mfa/verify`, {
+    await $fetch(`${config.public.authServiceBaseUrl}/mfa/verify`, {
       method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.token}` },
       body: { code: verificationCode.value }
     })
     toast.add({ title: 'Success', description: 'MFA enabled successfully' })
     setupData.value = null
     await fetchStatus()
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'error' })
+    toast.add({ title: 'Error', description: err.data?.message || err.message, color: 'error' })
   } finally {
     loading.value = false
   }
 }
 
 const handleDisable = async () => {
+  if (!authStore.token) return
   loading.value = true
   try {
-    await $fetch(`${config.public.apiBase}/mfa/disable`, {
+    await $fetch(`${config.public.authServiceBaseUrl}/mfa/disable`, {
       method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.token}` },
       body: { password: password.value }
     })
     toast.add({ title: 'Success', description: 'MFA disabled successfully' })
@@ -130,7 +140,7 @@ const handleDisable = async () => {
     password.value = ''
     await fetchStatus()
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'error' })
+    toast.add({ title: 'Error', description: err.data?.message || err.message, color: 'error' })
   } finally {
     loading.value = false
   }

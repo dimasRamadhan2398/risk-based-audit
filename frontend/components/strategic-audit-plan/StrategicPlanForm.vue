@@ -27,7 +27,7 @@
                 Strategic Objective <span class="text-orange-500">*</span>
               </label>
               <UTextarea
-                v-model="store.form.corporateStrategicObjective"
+                v-model="store.form.strategicObjective"
                 placeholder="Ex: Enhance Operational Efficiency"
                 :rows="2"
                 class="w-full"
@@ -50,7 +50,7 @@
             <div class="form-row">
               <label class="form-label">Unit</label>
               <USelectMenu
-                v-model="store.form.unitOfMeasurement"
+                v-model="store.form.unit"
                 :items="store.unitOptions"
                 value-key="value"
                 placeholder="Select Unit"

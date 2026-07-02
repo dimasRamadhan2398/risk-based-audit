@@ -182,8 +182,12 @@ export const useCharterStore = defineStore('charter', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
 
+      const authStore = useAuthStore()
       const response: any = await $fetch(`${baseUrl}/audit-charters`, {
         method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
       })
 
       const items = extractItemsFromResponse(response)
@@ -235,8 +239,12 @@ export const useCharterStore = defineStore('charter', () => {
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
+      const authStore = useAuthStore()
       await $fetch(`${baseUrl}/audit-charters`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        },
         body: formData,
       })
 
@@ -272,8 +280,12 @@ export const useCharterStore = defineStore('charter', () => {
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
+      const authStore = useAuthStore()
       await $fetch(`${baseUrl}/audit-charters/${id}`, {
         method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        },
         body: formData,
       })
 
@@ -297,8 +309,12 @@ export const useCharterStore = defineStore('charter', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
 
+      const authStore = useAuthStore()
       await $fetch(`${baseUrl}/audit-charters/${id}`, {
         method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
       })
 
       await fetchCharters()

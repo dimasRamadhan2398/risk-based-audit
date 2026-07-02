@@ -26,7 +26,7 @@
           color="primary" 
           icon="i-heroicons-plus" 
           label="Tambah Baris Temuan" 
-          @click="store.addMatriksRow"
+          @click="addMatriksRow"
         />
       </div>
     </div>
@@ -36,24 +36,20 @@
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 text-sm">
         <div class="flex items-center gap-2">
           <UIcon 
-            :name="store.isSyncWarning ? 'i-heroicons-exclamation-triangle' : 'i-heroicons-check-circle'" 
-            class="size-5 shrink-0"
-            :class="store.isSyncWarning ? 'text-amber-500' : 'text-green-500'"
+            name="i-heroicons-check-circle" 
+            class="size-5 shrink-0 text-green-500"
           />
           <div>
-            <span class="font-semibold">Status Validasi Sinkronisasi:</span>
-            <span v-if="store.isSyncWarning" class="text-amber-700 ml-1">
-              Data tidak sinkron! Jumlah baris temuan per level risiko di matriks tidak sama dengan input Section II.
-            </span>
-            <span v-else class="text-green-700 ml-1">
-              Data sinkron dengan Section II ringkasan eksekutif!
+            <span class="font-semibold">Informasi Sinkronisasi:</span>
+            <span class="text-green-700 ml-1">
+              Sinkronisasi data otomatis dengan Section II ringkasan eksekutif.
             </span>
           </div>
         </div>
         <div class="flex gap-4 text-xs font-semibold text-gray-600 bg-white p-2 rounded-lg border">
           <div>Matriks: <span class="text-error-600 font-bold">{{ countMatriksByRisk('Tinggi') }} Tinggi</span>, <span class="text-warning-600 font-bold">{{ countMatriksByRisk('Sedang') }} Sedang</span>, <span class="text-success-600 font-bold">{{ countMatriksByRisk('Rendah') }} Rendah</span></div>
           <div class="text-gray-300">|</div>
-          <div>Ringkasan II: <span class="text-error-600 font-bold">{{ store.activeReport.risikoTinggi }} Tinggi</span>, <span class="text-warning-600 font-bold">{{ store.activeReport.risikoSedang }} Sedang</span>, <span class="text-success-600 font-bold">{{ store.activeReport.risikoRendah }} Rendah</span></div>
+          <div>Ringkasan II: <span class="text-error-600 font-bold">{{ store.form.risikoTinggi }} Tinggi</span>, <span class="text-warning-600 font-bold">{{ store.form.risikoSedang }} Sedang</span>, <span class="text-success-600 font-bold">{{ store.form.risikoRendah }} Rendah</span></div>
         </div>
       </div>
     </UCard>
@@ -80,7 +76,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 bg-white">
-          <tr v-for="(row, idx) in store.activeReport.matriksFindings" :key="idx">
+          <tr v-for="(row, idx) in store.form.matriksKompilasi" :key="idx">
             <!-- Row Number -->
             <td class="px-3 py-2 text-gray-500 font-medium align-top pt-3.5">{{ idx + 1 }}</td>
             
@@ -157,7 +153,7 @@
                   @click="triggerFileInput(idx)"
                 />
                 <span class="text-[10px] text-gray-500 font-medium truncate block max-w-[120px]">
-                  {{ row.buktiTl || 'No Attachment' }}
+                  {{ row.buktiTL || 'No Attachment' }}
                 </span>
               </div>
             </td>
@@ -169,13 +165,13 @@
                 variant="ghost" 
                 icon="i-heroicons-trash" 
                 size="xs" 
-                @click="store.removeMatriksRow(idx)"
+                @click="removeMatriksRow(idx)"
               />
             </td>
           </tr>
 
           <!-- Empty State -->
-          <tr v-if="store.activeReport.matriksFindings.length === 0">
+          <tr v-if="store.form.matriksKompilasi.length === 0">
             <td colspan="14" class="text-center py-16 text-gray-400">
               <UIcon name="i-heroicons-table-cells" class="size-16 text-gray-200 mx-auto mb-4" />
               <h3 class="text-md font-semibold text-gray-600">Matriks Temuan Kosong</h3>
@@ -216,7 +212,28 @@ const fileInputs = ref<HTMLInputElement[]>([])
 const divisionOptions = ['OP', 'IT', 'FIN', 'HR', 'LEGAL', 'ENG', 'K3']
 
 const countMatriksByRisk = (risk: 'Tinggi' | 'Sedang' | 'Rendah') => {
-  return store.activeReport.matriksFindings.filter(f => f.nilaiRisiko === risk).length
+  return store.form.matriksKompilasi.filter(f => f.nilaiRisiko === risk).length
+}
+
+const addMatriksRow = () => {
+  store.form.matriksKompilasi.push({
+    nomor: `00${store.form.matriksKompilasi.length + 1}/SPI/2026`,
+    division: 'OP',
+    unitKerja: '',
+    prosesBisnis: '',
+    judulTemuan: '',
+    nilaiRisiko: 'Sedang',
+    rekomendasi: '',
+    dueDate: new Date().toISOString().split('T')[0],
+    picUnit: '',
+    progres: 0,
+    status: 'In Progress',
+    buktiTL: ''
+  })
+}
+
+const removeMatriksRow = (idx: number) => {
+  store.form.matriksKompilasi.splice(idx, 1)
 }
 
 const triggerFileInput = (idx: number) => {
@@ -229,35 +246,27 @@ const triggerFileInput = (idx: number) => {
 const handleBuktiChange = (e: Event, idx: number) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
-    store.activeReport.matriksFindings[idx].buktiTl = target.files[0].name
+    store.form.matriksKompilasi[idx].buktiTL = target.files[0].name
   }
 }
 
 const handleImportExcel = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
-    // Simulate importing Excel row compilation
     alert(`File Excel "${target.files[0].name}" berhasil diimpor! Menghasilkan 3 temuan kompilasi baru.`);
-    store.activeReport.matriksFindings.push(
-      { nomor: '101/SPI/2026', division: 'OP', unitKerja: 'Production Line Unit 2', prosesBisnis: 'Quality Control', judulTemuan: 'Suhu Boiler Tidak Stabil', nilaiRisiko: 'Tinggi', rekomendasi: 'Kalibrasi thermostat boiler', dueDate: '2026-06-30', picUnit: 'Manager Produksi', progres: 10, status: 'In Progress', buktiTl: '' },
-      { nomor: '102/SPI/2026', division: 'IT', unitKerja: 'Database Administration Unit', prosesBisnis: 'Backup Recovery', judulTemuan: 'Backup Log Harian Gagal', nilaiRisiko: 'Sedang', rekomendasi: 'Ubah schedule task ke storage sekunder', dueDate: '2026-07-15', picUnit: 'Head of DB', progres: 50, status: 'In Progress', buktiTl: '' },
-      { nomor: '103/SPI/2026', division: 'K3', unitKerja: 'Safety & Environment Division', prosesBisnis: 'K3 Lapangan', judulTemuan: 'Signage Evakuasi Kusam', nilaiRisiko: 'Rendah', rekomendasi: 'Pasang signage reflektif baru', dueDate: '2026-08-31', picUnit: 'Safety Inspector', progres: 100, status: 'Closed', buktiTl: 'Signage_Invoice.pdf' }
+    store.form.matriksKompilasi.push(
+      { nomor: '101/SPI/2026', division: 'OP', unitKerja: 'Production Line Unit 2', prosesBisnis: 'Quality Control', judulTemuan: 'Suhu Boiler Tidak Stabil', nilaiRisiko: 'Tinggi', rekomendasi: 'Kalibrasi thermostat boiler', dueDate: '2026-06-30', picUnit: 'Manager Produksi', progres: 10, status: 'In Progress', buktiTL: '' },
+      { nomor: '102/SPI/2026', division: 'IT', unitKerja: 'Database Administration Unit', prosesBisnis: 'Backup Recovery', judulTemuan: 'Backup Log Harian Gagal', nilaiRisiko: 'Sedang', rekomendasi: 'Ubah schedule task ke storage sekunder', dueDate: '2026-07-15', picUnit: 'Head of DB', progres: 50, status: 'In Progress', buktiTL: '' },
+      { nomor: '103/SPI/2026', division: 'K3', unitKerja: 'Safety & Environment Division', prosesBisnis: 'K3 Lapangan', judulTemuan: 'Signage Evakuasi Kusam', nilaiRisiko: 'Rendah', rekomendasi: 'Pasang signage reflektif baru', dueDate: '2026-08-31', picUnit: 'Safety Inspector', progres: 100, status: 'Closed', buktiTL: 'Signage_Invoice.pdf' }
     );
   }
 }
 
 const saveMatriks = () => {
-  if (store.isSyncWarning) {
-    if (!confirm('Peringatan: Data matriks saat ini tidak sinkron dengan data statistik Section II. Apakah Anda ingin melanjutkan penyimpanan?')) {
-      return
-    }
-  }
-
-  // If storing changes inside current editing report, save it back to main store list
-  if (store.editingId) {
-    const idx = store.reports.findIndex(r => r.id === store.editingId)
+  if (store.isEditing && store.currentSummary) {
+    const idx = store.summaryList.findIndex(r => r.id === store.currentSummary!.id)
     if (idx !== -1) {
-      store.reports[idx].matriksFindings = JSON.parse(JSON.stringify(store.activeReport.matriksFindings))
+      store.summaryList[idx].matriksKompilasi = JSON.parse(JSON.stringify(store.form.matriksKompilasi))
     }
   }
   
@@ -265,8 +274,8 @@ const saveMatriks = () => {
   navigateTo('/executive-summary')
 }
 
-// Automatically seed a default item if store active report has no findings yet (facilitates initial edit screen UX)
-if (store.activeReport.matriksFindings.length === 0) {
-  store.addMatriksRow()
+// Automatically seed a default item if store form has no findings yet (facilitates initial edit screen UX)
+if (store.form.matriksKompilasi.length === 0) {
+  addMatriksRow()
 }
 </script>

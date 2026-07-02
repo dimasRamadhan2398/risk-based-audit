@@ -27,10 +27,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const form = ref<Partial<StrategicAuditPlan>>({
         code: '',
-        corporateStrategicObjective: '',
+        strategicObjective: '',
         kpi: '',
-        unitOfMeasurement: '',
-        dataType: 'HIG',
+        unit: '',
+        hibHig: 'HIG',
         periodType: 'Quartal',
         selectedPeriod: 'Q1',
         yearStart: currentYear,
@@ -63,7 +63,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         if (!form.value.actual || !form.value.target) return '';
 
         let result = 0;
-        if (form.value.dataType === 'HIG') {
+        if (form.value.hibHig === 'HIG') {
             if (target === 0) return '';
             result = (actual / target) * 100;
         } else {
@@ -80,7 +80,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         if (!form.value.actual || !form.value.target) return '';
 
         let ratio = 0;
-        if (form.value.dataType === 'HIG') {
+        if (form.value.hibHig === 'HIG') {
             if (target === 0) return '';
             ratio = actual / target;
         } else {
@@ -97,10 +97,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         {
             id: '1',
             code: 'SO-IA01',
-            corporateStrategicObjective: 'Improve Audit Efficiency',
+            strategicObjective: 'Improve Audit Efficiency',
             kpi: 'Revenue Operational Cost',
-            unitOfMeasurement: '%',
-            dataType: 'HIG',
+            unit: '%',
+            hibHig: 'HIG',
             periodType: 'Quartal',
             selectedPeriod: 'Q1',
             kpiTargets: { 2024: '300', 2025: '350', 2026: '400', 2027: '450', 2028: '500' },
@@ -113,10 +113,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         {
             id: '2',
             code: 'SO-IA02',
-            corporateStrategicObjective: 'Strengthen Internal Control',
+            strategicObjective: 'Strengthen Internal Control',
             kpi: 'Customer Satisfaction Index',
-            unitOfMeasurement: 'Score',
-            dataType: 'HIG',
+            unit: 'Score',
+            hibHig: 'HIG',
             kpiTargets: {},
             internalAuditSO: '',
             periodType: 'Yearly',
@@ -131,10 +131,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         {
             id: '3',
             code: 'SO-IA03',
-            corporateStrategicObjective: 'Improve Compliance',
+            strategicObjective: 'Improve Compliance',
             kpi: 'Audit Response Time',
-            unitOfMeasurement: 'Hour',
-            dataType: 'HIB',
+            unit: 'Hour',
+            hibHig: 'HIB',
             kpiTargets: {},
             internalAuditSO: '',
             periodType: 'Quartal',
@@ -162,7 +162,9 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                 method: 'GET'
             });
             let items: StrategicAuditPlan[] = [];
-            if (response && Array.isArray(response.items)) {
+            if (response && response.data && Array.isArray(response.data.items)) {
+                items = response.data.items;
+            } else if (response && Array.isArray(response.items)) {
                 items = response.items;
             } else if (Array.isArray(response)) {
                 items = response;
@@ -171,12 +173,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             if (items.length > 0) {
                 strategicObjectives.value = items;
             } else {
-                strategicObjectives.value = mockObjectives;
+                strategicObjectives.value = [];
             }
         } catch (error: any) {
             console.error('Failed to fetch strategic plans:', error);
             errorMsg.value = 'Failed to load strategic plans.';
-            strategicObjectives.value = mockObjectives;
+            strategicObjectives.value = [];
         } finally {
             loading.value = false;
         }
@@ -192,7 +194,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             cell: (row) => row.getValue(),
         },
         {
-            accessorKey: 'corporateStrategicObjective',
+            accessorKey: 'strategicObjective',
             header: 'Strategic Objective',
         },
         {
@@ -200,7 +202,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             header: 'KPI Name',
         },
         {
-            accessorKey: 'unitOfMeasurement',
+            accessorKey: 'unit',
             header: 'Unit',
         },
         {
@@ -251,10 +253,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const resetForm = () => {
         form.value = {
             code: '',
-            corporateStrategicObjective: '',
+            strategicObjective: '',
             kpi: '',
-            unitOfMeasurement: '',
-            dataType: 'HIG',
+            unit: '',
+            hibHig: 'HIG',
             periodType: 'Quartal',
             selectedPeriod: 'Q1',
             yearStart: currentYear,

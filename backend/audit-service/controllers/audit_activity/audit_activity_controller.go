@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"audit-service/models"
+	pkgErrors "audit-service/pkg/errors"
 	"audit-service/pkg/response"
 	svcActivity "audit-service/services/audit_activity"
 
@@ -223,7 +224,7 @@ func (ctrl *AuditActivityController) ListActivities(c *gin.Context) {
 
 // handleError handles service errors
 func (ctrl *AuditActivityController) handleError(c *gin.Context, err error) {
-	if appErr, ok := err.(*response.AppError); ok {
+	if appErr, ok := err.(*pkgErrors.AppError); ok {
 		response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
 		return
 	}

@@ -1,16 +1,12 @@
 export default defineNuxtPlugin(async () => {
+  const authStore = useAuthStore()
+
+  // Restore session from cookies on app initialization
+  await authStore.fetchUser()
+
   return {
     provide: {
-      authStore: useAuthStore(),
+      authStore,
     },
-  };
-});
-
-//   const authStore = useAuthStore();
-
-//   // Fetch user on app init (e.g., from API or localStorage)
-//   await authStore.fetchUser();
-
-//   // Mark as initialized to avoid redundant fetches
-//   authStore.$patch({ _initialized: true });
-// },
+  }
+})
