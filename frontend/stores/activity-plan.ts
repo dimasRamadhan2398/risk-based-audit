@@ -106,10 +106,8 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
         method: 'GET'
       });
       if (response && response.data && Array.isArray(response.data.items)) {
-                items = response.data.items;
-            } else if (response && response.data && Array.isArray(response.data.items)) {
-                items = response.data.items;
-            } else if (response && Array.isArray(response.items)) {
+        plans.value = response.data.items
+      } else if (response && Array.isArray(response.items)) {
         plans.value = response.items;
       } else if (Array.isArray(response)) {
         plans.value = response;

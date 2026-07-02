@@ -267,11 +267,9 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         })
         let items: AuditExecution[] = []
         if (response && response.data && Array.isArray(response.data.items)) {
-                items = response.data.items;
-            } else if (response && response.data && Array.isArray(response.data.items)) {
-                items = response.data.items;
-            } else if (response && Array.isArray(response.items)) {
-          items = response.items
+        items = response.data.items
+      } else if (response && Array.isArray(response.items)) {
+        items = response.items
         } else if (Array.isArray(response)) {
           items = response
         }
