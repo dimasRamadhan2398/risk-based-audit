@@ -12,6 +12,10 @@ import os
 app = FastAPI()
 MODEL_DIR = "models"
 
+# --- Set device for PyTorch models (IndoBERT) ---
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"Using device: {device}")
+
 # --- Dummy inference functions for fallback ---
 def dummy_xgboost():
     return {"risk_score": 0.85, "feature_importance": {"kpi_data": 0.5, "previous_findings": 0.3, "master_data": 0.2}}
@@ -55,6 +59,7 @@ try:
     if os.path.exists(os.path.join(MODEL_DIR, "indobert_model")):
         indobert_tokenizer = AutoTokenizer.from_pretrained(os.path.join(MODEL_DIR, "indobert_tokenizer"))
         indobert_model = AutoModelForSequenceClassification.from_pretrained(os.path.join(MODEL_DIR, "indobert_model"))
+        indobert_model.to(device) # Move model to the selected device (GPU or CPU)
 except Exception as e:
     print(f"Failed to load IndoBERT: {e}")
 
@@ -125,7 +130,10 @@ def predict_text_analysis(req: TextRequest):
         return dummy_indobert()
 
     try:
-        inputs = indobert_tokenizer(req.text, return_tensors="pt", truncation=True, padding=True)
+        inputs = indobert_tokenizer(req.text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+        # Move inputs to the same device as the model
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
         outputs = indobert_model(**inputs)
         probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
         pred_class = torch.argmax(probs, dim=-1).item()

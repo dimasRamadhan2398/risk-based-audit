@@ -1,8 +1,9 @@
 import os
 import numpy as np
 
-# Use the CPU only to prevent CUDA segfaults
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# TensorFlow will automatically use a GPU if available (and CUDA is installed).
+# Commenting out the line below allows for GPU acceleration.
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential

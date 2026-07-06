@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import xgboost as xgb
+import torch
 from sklearn.ensemble import IsolationForest
 import pickle
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -18,7 +19,9 @@ def train_xgboost():
     X = np.random.rand(100, 3)
     y = np.random.rand(100)
 
-    model = xgb.XGBRegressor(objective='reg:squarederror')
+    # Use GPU if available, otherwise fallback to CPU
+    tree_method = 'gpu_hist' if torch.cuda.is_available() else 'auto'
+    model = xgb.XGBRegressor(objective='reg:squarederror', tree_method=tree_method)
     model.fit(X, y)
 
     model.save_model(os.path.join(MODEL_DIR, "xgboost_model.json"))
