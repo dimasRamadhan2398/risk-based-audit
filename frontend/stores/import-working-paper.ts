@@ -31,6 +31,8 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       const response: any = await $fetch(`${baseUrl}/working-papers/imports`, { method: 'GET' })
       if (response && Array.isArray(response.data)) {
         importedPapers.value = response.data
+      } if (response && response.data && Array.isArray(response.data.items)) {
+        importedPapers.value = response.data.items
       } else if (response && Array.isArray(response.items)) {
         importedPapers.value = response.items
       } else if (Array.isArray(response)) {

@@ -1,0 +1,1011 @@
+Teks Input (Kutipan dari Laporan Audit),TARGET: Kategori Risiko,TARGET: Sentimen,TARGET: Skor Keparahan (1-100)
+"1. Ditemukan kelemahan signifikan dalam prosedur otorisasi pembayaran kas besar. Terdapat 5 transaksi senilai total Rp 1.2 Miliar yang tidak memiliki persetujuan ganda dari direksi, meningkatkan risiko penyalahgunaan dana.",Financial,Negative,90
+"2. Hasil penetration testing mengungkapkan 3 kerentanan kritis (SQL Injection, RCE) pada aplikasi e-banking yang belum diperbaiki sejak audit terakhir. Ini membuka celah bagi peretas untuk mengakses data nasabah.",Technology,Negative,95
+"3. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan untuk 15% nasabah berisiko tinggi. Dokumentasi identitas tidak lengkap, berpotensi melanggar regulasi anti pencucian uang.",Compliance,Negative,75
+"4. Proses tender pengadaan barang telah mengikuti SOP, namun ditemukan keterlambatan dalam evaluasi penawaran rata-rata selama 5 hari kerja, yang dapat mempengaruhi timeline proyek.",Operations,Neutral,60
+"5. Program pelatihan 'Cybersecurity Awareness' menunjukkan peningkatan kompetensi karyawan. Hasil pre-post assessment menunjukkan kenaikan skor rata-rata sebesar 45%, memperkuat pertahanan lini pertama.",Human Resources,Positive,20
+6. Fungsi whistle-blowing system (WBS) belum berjalan efektif. Tidak ada laporan yang masuk dalam 6 bulan terakhir dan survei internal menunjukkan 70% karyawan tidak merasa aman untuk melapor.,Governance,Negative,85
+"7. Rencana ekspansi pasar ke wilayah Kalimantan telah didukung oleh studi kelayakan yang komprehensif. Namun, proyeksi ROI terlihat lebih rendah 5% dari target awal.",Strategic,Neutral,40
+"8. NPL (Non-Performing Loan) ratio untuk segmen kredit mikro meningkat 2.3% YoY, mengindikasikan penurunan kualitas aset dan potensi kerugian kredit yang lebih tinggi dari proyeksi.",Financial,Negative,78
+9. Implementasi sistem manajemen inventaris baru berhasil menurunkan tingkat selisih stok (stock opname) dari 1.5% menjadi 0.4%. Efisiensi operasional gudang meningkat signifikan.,Operations,Positive,15
+"10. Prosedur backup data untuk server database CRM tidak diuji secara berkala. Tes restorasi terakhir dilakukan lebih dari 6 bulan yang lalu, meningkatkan risiko kehilangan data permanen.",Technology,Negative,65
+11. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Financial,Positive,93
+12. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,34
+13. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Operations,Negative,49
+14. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Strategic,Positive,94
+15. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Compliance,Negative,94
+16. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Neutral,63
+17. Hasil penetration testing telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Operations,Negative,30
+18. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Compliance,Positive,15
+19. Program pelatihan karyawan tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Governance,Neutral,18
+20. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Compliance,Neutral,52
+21. Prosedur backup data untuk server tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Strategic,Positive,43
+22. Prosedur backup data untuk server telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Technology,Negative,53
+23. Proses tender pengadaan barang tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Positive,50
+24. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Operations,Positive,10
+25. Proses tender pengadaan barang telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Compliance,Negative,94
+26. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,39
+27. Rencana ekspansi pasar tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Technology,Neutral,76
+28. Program pelatihan karyawan tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Technology,Positive,74
+29. Program pelatihan karyawan menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Financial,Negative,89
+30. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Strategic,Positive,95
+31. Prosedur backup data untuk server telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,46
+32. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Financial,Negative,10
+33. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Financial,Neutral,95
+34. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Operations,Positive,56
+35. Hasil penetration testing tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Strategic,Neutral,62
+36. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Operations,Negative,16
+37. Hasil penetration testing tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Strategic,Negative,95
+38. Rencana ekspansi pasar telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Financial,Negative,39
+39. Implementasi sistem manajemen inventaris tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Positive,65
+40. Hasil penetration testing tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Negative,12
+41. Hasil penetration testing tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Compliance,Neutral,90
+42. Program pelatihan karyawan menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Human Resources,Negative,79
+43. Rencana ekspansi pasar tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Financial,Negative,80
+44. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Operations,Positive,84
+45. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,21
+46. Program pelatihan karyawan tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Human Resources,Neutral,73
+47. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Human Resources,Neutral,62
+48. Rencana ekspansi pasar tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,78
+49. Proses tender pengadaan barang tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Financial,Neutral,81
+50. Proses tender pengadaan barang tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Negative,94
+51. Program pelatihan karyawan tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,91
+52. Hasil penetration testing menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Positive,23
+53. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,49
+54. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Technology,Neutral,27
+55. Program pelatihan karyawan telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Neutral,26
+56. Prosedur backup data untuk server telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Technology,Neutral,34
+57. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,93
+58. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Negative,79
+59. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Technology,Neutral,53
+60. Hasil penetration testing tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,27
+61. Proses tender pengadaan barang tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,55
+62. Program pelatihan karyawan telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Technology,Negative,58
+63. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Operations,Neutral,27
+64. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Operations,Positive,92
+65. Implementasi sistem manajemen inventaris tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Positive,62
+66. Prosedur backup data untuk server tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Financial,Positive,42
+67. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,22
+68. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Positive,17
+69. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Financial,Neutral,55
+70. Prosedur backup data untuk server tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Neutral,25
+71. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Governance,Negative,18
+72. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Compliance,Negative,55
+73. Prosedur backup data untuk server telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Governance,Negative,58
+74. Program pelatihan karyawan telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Operations,Positive,15
+75. Implementasi sistem manajemen inventaris telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Compliance,Negative,83
+76. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Compliance,Neutral,72
+77. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Governance,Negative,43
+78. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,90
+79. Hasil penetration testing tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Strategic,Positive,44
+80. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,15
+81. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,60
+82. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,51
+83. Program pelatihan karyawan menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Positive,55
+84. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,74
+85. Proses tender pengadaan barang menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Strategic,Positive,27
+86. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Governance,Neutral,16
+87. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,49
+88. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Positive,63
+89. Rencana ekspansi pasar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Strategic,Positive,79
+90. Prosedur backup data untuk server telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Compliance,Positive,13
+91. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,68
+92. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,83
+93. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Negative,52
+94. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Governance,Negative,39
+95. Proses tender pengadaan barang menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,83
+96. Proses tender pengadaan barang tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Neutral,23
+97. Program pelatihan karyawan menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Technology,Negative,73
+98. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Negative,57
+99. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,53
+100. Implementasi sistem manajemen inventaris telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Governance,Neutral,20
+101. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Compliance,Negative,92
+102. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Negative,84
+103. Program pelatihan karyawan tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Negative,14
+104. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Governance,Neutral,10
+105. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Compliance,Negative,49
+106. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Technology,Neutral,36
+107. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Positive,13
+108. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,66
+109. Program pelatihan karyawan tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Financial,Positive,86
+110. Program pelatihan karyawan telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Financial,Neutral,47
+111. Proses tender pengadaan barang telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Strategic,Positive,87
+112. Proses tender pengadaan barang menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Compliance,Negative,71
+113. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Operations,Negative,43
+114. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Technology,Negative,38
+115. Proses tender pengadaan barang tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,68
+116. Program pelatihan karyawan telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Human Resources,Negative,30
+117. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,25
+118. Proses tender pengadaan barang menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Financial,Negative,52
+119. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Positive,27
+120. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Technology,Negative,37
+121. Proses tender pengadaan barang tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Human Resources,Positive,24
+122. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Positive,16
+123. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Compliance,Positive,83
+124. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Compliance,Positive,40
+125. Rencana ekspansi pasar menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Technology,Negative,93
+126. Program pelatihan karyawan tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Negative,50
+127. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,19
+128. Implementasi sistem manajemen inventaris telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Governance,Negative,12
+129. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Positive,22
+130. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Governance,Neutral,29
+131. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Compliance,Negative,14
+132. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,28
+133. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Strategic,Positive,82
+134. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Governance,Positive,87
+135. Rencana ekspansi pasar menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Technology,Positive,81
+136. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,42
+137. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Governance,Positive,10
+138. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Compliance,Positive,15
+139. Proses tender pengadaan barang tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Financial,Neutral,83
+140. Prosedur backup data untuk server tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Human Resources,Negative,16
+141. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Strategic,Positive,77
+142. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Governance,Negative,85
+143. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Positive,87
+144. Implementasi sistem manajemen inventaris telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,71
+145. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,93
+146. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Human Resources,Positive,78
+147. Prosedur backup data untuk server telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Governance,Neutral,59
+148. Prosedur backup data untuk server tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Neutral,66
+149. Program pelatihan karyawan menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,51
+150. Rencana ekspansi pasar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Operations,Positive,33
+151. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Compliance,Positive,85
+152. Proses tender pengadaan barang tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Technology,Neutral,36
+153. Program pelatihan karyawan tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,25
+154. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Positive,59
+155. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Strategic,Negative,71
+156. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Financial,Negative,81
+157. Proses tender pengadaan barang telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Financial,Positive,63
+158. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Human Resources,Negative,29
+159. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Compliance,Negative,62
+160. Program pelatihan karyawan tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Financial,Neutral,58
+161. Proses tender pengadaan barang tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Human Resources,Neutral,61
+162. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,47
+163. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,11
+164. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Operations,Negative,35
+165. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Technology,Negative,42
+166. Rencana ekspansi pasar tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Neutral,59
+167. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,85
+168. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Governance,Negative,12
+169. Prosedur backup data untuk server menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,18
+170. Implementasi sistem manajemen inventaris tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Compliance,Positive,82
+171. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Governance,Negative,51
+172. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Operations,Neutral,73
+173. Hasil penetration testing menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Technology,Negative,83
+174. Proses tender pengadaan barang tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Governance,Positive,40
+175. Prosedur backup data untuk server tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,67
+176. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Positive,53
+177. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Operations,Negative,23
+178. Program pelatihan karyawan tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Technology,Neutral,38
+179. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Operations,Positive,85
+180. Prosedur backup data untuk server tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Operations,Positive,79
+181. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Operations,Positive,92
+182. Proses tender pengadaan barang tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Technology,Positive,39
+183. Hasil penetration testing tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Operations,Negative,75
+184. Program pelatihan karyawan tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Strategic,Positive,85
+185. Hasil penetration testing menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,60
+186. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Human Resources,Neutral,60
+187. Proses tender pengadaan barang telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Technology,Positive,29
+188. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Human Resources,Neutral,60
+189. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Positive,92
+190. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,72
+191. Hasil penetration testing tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Compliance,Negative,15
+192. Prosedur backup data untuk server telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,12
+193. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Operations,Negative,12
+194. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Financial,Negative,71
+195. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Financial,Neutral,76
+196. Prosedur backup data untuk server tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Operations,Neutral,92
+197. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,58
+198. Hasil penetration testing tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Technology,Negative,68
+199. Rencana ekspansi pasar menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Strategic,Negative,14
+200. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Strategic,Neutral,59
+201. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Negative,44
+202. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Financial,Positive,86
+203. Prosedur backup data untuk server tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Technology,Negative,93
+204. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Technology,Negative,49
+205. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,81
+206. Rencana ekspansi pasar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,23
+207. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Governance,Negative,20
+208. Proses tender pengadaan barang telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Compliance,Negative,65
+209. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,13
+210. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,33
+211. Hasil penetration testing tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,90
+212. Program pelatihan karyawan menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Human Resources,Neutral,93
+213. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Operations,Positive,41
+214. Program pelatihan karyawan tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Financial,Negative,56
+215. Hasil penetration testing telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Governance,Negative,19
+216. Hasil penetration testing menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,44
+217. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Human Resources,Negative,94
+218. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Financial,Positive,31
+219. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Strategic,Neutral,84
+220. Program pelatihan karyawan tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Governance,Neutral,83
+221. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Governance,Neutral,47
+222. Prosedur backup data untuk server tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Operations,Negative,63
+223. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Governance,Positive,49
+224. Implementasi sistem manajemen inventaris telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Financial,Negative,71
+225. Hasil penetration testing tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Positive,77
+226. Program pelatihan karyawan tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Neutral,86
+227. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,11
+228. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Technology,Neutral,19
+229. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,54
+230. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,32
+231. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Negative,79
+232. Prosedur backup data untuk server telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Compliance,Neutral,59
+233. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,53
+234. Hasil penetration testing belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Compliance,Positive,87
+235. Hasil penetration testing belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,58
+236. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,80
+237. Implementasi sistem manajemen inventaris tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Financial,Positive,56
+238. Program pelatihan karyawan telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Strategic,Positive,51
+239. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Neutral,23
+240. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Operations,Neutral,56
+241. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Human Resources,Neutral,33
+242. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Strategic,Positive,61
+243. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Strategic,Positive,17
+244. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Operations,Negative,62
+245. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,66
+246. Proses tender pengadaan barang menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Technology,Positive,35
+247. Hasil penetration testing belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,41
+248. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Financial,Positive,12
+249. Program pelatihan karyawan tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Compliance,Negative,14
+250. Program pelatihan karyawan menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Operations,Negative,50
+251. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Neutral,87
+252. Rencana ekspansi pasar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Negative,53
+253. Proses tender pengadaan barang tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Governance,Negative,78
+254. Proses tender pengadaan barang menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,81
+255. Prosedur backup data untuk server menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,38
+256. Proses tender pengadaan barang tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,63
+257. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,82
+258. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Operations,Positive,77
+259. Hasil penetration testing tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Positive,93
+260. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Negative,72
+261. Proses tender pengadaan barang telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Compliance,Positive,59
+262. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,35
+263. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Strategic,Positive,47
+264. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Compliance,Neutral,29
+265. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Compliance,Positive,26
+266. Implementasi sistem manajemen inventaris tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Governance,Neutral,73
+267. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Financial,Neutral,79
+268. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,86
+269. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Governance,Neutral,19
+270. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Negative,25
+271. Prosedur backup data untuk server telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Technology,Neutral,74
+272. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Financial,Negative,28
+273. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Human Resources,Neutral,29
+274. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Strategic,Positive,65
+275. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,76
+276. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Positive,21
+277. Rencana ekspansi pasar telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Compliance,Positive,24
+278. Proses tender pengadaan barang tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Operations,Negative,38
+279. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Governance,Positive,48
+280. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,46
+281. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Technology,Positive,73
+282. Prosedur backup data untuk server menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Strategic,Positive,73
+283. Hasil penetration testing belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,52
+284. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Financial,Negative,74
+285. Hasil penetration testing tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Strategic,Positive,24
+286. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,35
+287. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Negative,90
+288. Program pelatihan karyawan tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,25
+289. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,10
+290. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Technology,Positive,88
+291. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Governance,Positive,66
+292. Implementasi sistem manajemen inventaris tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Strategic,Neutral,58
+293. Prosedur backup data untuk server tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Operations,Positive,62
+294. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Compliance,Positive,48
+295. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,31
+296. Proses tender pengadaan barang menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Compliance,Negative,17
+297. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Strategic,Positive,68
+298. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Technology,Negative,20
+299. Implementasi sistem manajemen inventaris telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Technology,Negative,82
+300. Program pelatihan karyawan menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Technology,Negative,90
+301. Program pelatihan karyawan tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Governance,Positive,33
+302. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Technology,Positive,46
+303. Rencana ekspansi pasar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Strategic,Positive,31
+304. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Technology,Negative,93
+305. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Strategic,Negative,28
+306. Prosedur backup data untuk server menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Positive,78
+307. Proses tender pengadaan barang menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Negative,84
+308. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Neutral,61
+309. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Governance,Positive,82
+310. Proses tender pengadaan barang tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Financial,Negative,44
+311. Rencana ekspansi pasar tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Technology,Neutral,88
+312. Program pelatihan karyawan tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Compliance,Negative,53
+313. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Human Resources,Negative,55
+314. Rencana ekspansi pasar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,73
+315. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Governance,Positive,14
+316. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Human Resources,Positive,84
+317. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Financial,Neutral,43
+318. Program pelatihan karyawan menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Operations,Negative,63
+319. Proses tender pengadaan barang menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Technology,Neutral,52
+320. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Governance,Negative,95
+321. Rencana ekspansi pasar telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Neutral,26
+322. Rencana ekspansi pasar tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Neutral,27
+323. Proses tender pengadaan barang tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Financial,Negative,14
+324. Program pelatihan karyawan menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,84
+325. Hasil penetration testing belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Positive,28
+326. Implementasi sistem manajemen inventaris tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Neutral,73
+327. Prosedur backup data untuk server menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Technology,Positive,83
+328. Rencana ekspansi pasar menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Operations,Negative,80
+329. Program pelatihan karyawan telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,75
+330. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,46
+331. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Negative,61
+332. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,27
+333. Program pelatihan karyawan tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Neutral,53
+334. Program pelatihan karyawan menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Strategic,Neutral,49
+335. Proses tender pengadaan barang menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Compliance,Neutral,57
+336. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Operations,Negative,20
+337. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Operations,Negative,73
+338. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Strategic,Positive,27
+339. Prosedur backup data untuk server telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Financial,Negative,77
+340. Program pelatihan karyawan menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Financial,Positive,43
+341. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Operations,Positive,49
+342. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Governance,Negative,11
+343. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Governance,Neutral,25
+344. Program pelatihan karyawan tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Compliance,Positive,19
+345. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Technology,Positive,63
+346. Implementasi sistem manajemen inventaris telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Strategic,Positive,21
+347. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Operations,Negative,39
+348. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Technology,Neutral,89
+349. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Financial,Positive,23
+350. Proses tender pengadaan barang menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Financial,Negative,85
+351. Program pelatihan karyawan tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Human Resources,Negative,45
+352. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Governance,Positive,56
+353. Rencana ekspansi pasar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Technology,Negative,56
+354. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Neutral,73
+355. Rencana ekspansi pasar menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Operations,Negative,39
+356. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Governance,Neutral,21
+357. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,86
+358. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Technology,Positive,39
+359. Rencana ekspansi pasar menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,35
+360. Prosedur backup data untuk server menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Operations,Neutral,86
+361. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Technology,Negative,17
+362. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Strategic,Positive,34
+363. Rencana ekspansi pasar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Negative,95
+364. Proses tender pengadaan barang telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Technology,Negative,54
+365. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Neutral,34
+366. Prosedur backup data untuk server tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Positive,39
+367. Hasil penetration testing tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Financial,Positive,40
+368. Hasil penetration testing telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Human Resources,Negative,73
+369. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Neutral,70
+370. Program pelatihan karyawan telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Financial,Negative,58
+371. Proses tender pengadaan barang tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Technology,Positive,77
+372. Prosedur backup data untuk server tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Technology,Negative,94
+373. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Positive,81
+374. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,22
+375. Hasil penetration testing telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Governance,Positive,75
+376. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Strategic,Neutral,74
+377. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Compliance,Positive,24
+378. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Operations,Negative,34
+379. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Financial,Positive,74
+380. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Governance,Negative,53
+381. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,32
+382. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Neutral,32
+383. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,49
+384. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Neutral,86
+385. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Positive,72
+386. Prosedur backup data untuk server menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,49
+387. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Operations,Positive,23
+388. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Technology,Negative,75
+389. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Financial,Neutral,36
+390. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,28
+391. Hasil penetration testing menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Technology,Neutral,41
+392. Program pelatihan karyawan tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Compliance,Negative,35
+393. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Operations,Negative,41
+394. Rencana ekspansi pasar menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Operations,Neutral,45
+395. Proses tender pengadaan barang menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Neutral,27
+396. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Human Resources,Positive,21
+397. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Human Resources,Negative,33
+398. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Operations,Neutral,61
+399. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Compliance,Neutral,39
+400. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,38
+401. Prosedur backup data untuk server tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Positive,61
+402. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Financial,Neutral,74
+403. Prosedur backup data untuk server menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Neutral,21
+404. Prosedur backup data untuk server telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Strategic,Negative,66
+405. Prosedur backup data untuk server tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Compliance,Positive,12
+406. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Governance,Negative,90
+407. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Neutral,52
+408. Prosedur backup data untuk server menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,38
+409. Proses tender pengadaan barang menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Compliance,Positive,51
+410. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Compliance,Positive,88
+411. Prosedur backup data untuk server tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,53
+412. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,45
+413. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Positive,81
+414. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Positive,80
+415. Rencana ekspansi pasar telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Strategic,Negative,16
+416. Hasil penetration testing tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Compliance,Positive,47
+417. Program pelatihan karyawan menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,23
+418. Proses tender pengadaan barang tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Negative,87
+419. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,73
+420. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,79
+421. Hasil penetration testing menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Compliance,Positive,54
+422. Prosedur backup data untuk server tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Compliance,Positive,85
+423. Prosedur backup data untuk server telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,72
+424. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Financial,Positive,33
+425. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,59
+426. Implementasi sistem manajemen inventaris tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Strategic,Negative,35
+427. Rencana ekspansi pasar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Financial,Negative,80
+428. Hasil penetration testing tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Technology,Negative,39
+429. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Financial,Positive,61
+430. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Negative,10
+431. Program pelatihan karyawan tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,48
+432. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Operations,Negative,62
+433. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Human Resources,Negative,75
+434. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Governance,Negative,60
+435. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Compliance,Neutral,43
+436. Program pelatihan karyawan tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,26
+437. Proses tender pengadaan barang menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Governance,Negative,63
+438. Prosedur backup data untuk server tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Technology,Positive,50
+439. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,71
+440. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Technology,Positive,82
+441. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,32
+442. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Operations,Positive,88
+443. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Governance,Negative,88
+444. Proses tender pengadaan barang tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,43
+445. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Negative,53
+446. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Human Resources,Positive,29
+447. Program pelatihan karyawan tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Compliance,Neutral,49
+448. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Governance,Neutral,62
+449. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Technology,Negative,23
+450. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Positive,83
+451. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Negative,28
+452. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Financial,Positive,72
+453. Prosedur backup data untuk server tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Operations,Positive,23
+454. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Negative,19
+455. Rencana ekspansi pasar telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Technology,Positive,29
+456. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Technology,Negative,11
+457. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Compliance,Neutral,26
+458. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Positive,82
+459. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Neutral,20
+460. Proses tender pengadaan barang menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Technology,Neutral,32
+461. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Neutral,11
+462. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Negative,32
+463. Proses tender pengadaan barang telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Negative,12
+464. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Compliance,Positive,21
+465. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Human Resources,Neutral,59
+466. Proses tender pengadaan barang tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Strategic,Negative,59
+467. Rencana ekspansi pasar tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Financial,Positive,56
+468. Hasil penetration testing tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,64
+469. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Human Resources,Neutral,85
+470. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Governance,Negative,45
+471. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Compliance,Neutral,55
+472. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,22
+473. Prosedur backup data untuk server tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Positive,80
+474. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Negative,92
+475. Rencana ekspansi pasar telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Positive,53
+476. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Negative,84
+477. Program pelatihan karyawan telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Financial,Positive,71
+478. Hasil penetration testing tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Governance,Negative,46
+479. Implementasi sistem manajemen inventaris tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Compliance,Neutral,89
+480. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Positive,60
+481. Proses tender pengadaan barang telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,27
+482. Hasil penetration testing menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Technology,Positive,25
+483. Implementasi sistem manajemen inventaris tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,75
+484. Rencana ekspansi pasar menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Strategic,Positive,14
+485. Prosedur backup data untuk server telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Governance,Negative,67
+486. Implementasi sistem manajemen inventaris telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Negative,69
+487. Hasil penetration testing telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Governance,Positive,11
+488. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Governance,Negative,46
+489. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Compliance,Positive,44
+490. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Technology,Negative,29
+491. Hasil penetration testing tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Technology,Positive,32
+492. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Operations,Negative,56
+493. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Operations,Positive,21
+494. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,74
+495. Hasil penetration testing telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Neutral,18
+496. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Financial,Negative,21
+497. Hasil penetration testing tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,70
+498. Proses tender pengadaan barang telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Neutral,59
+499. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Governance,Negative,33
+500. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Financial,Positive,90
+501. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Compliance,Neutral,94
+502. Program pelatihan karyawan telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,77
+503. Hasil penetration testing belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Negative,10
+504. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Strategic,Positive,59
+505. Proses tender pengadaan barang menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,34
+506. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,37
+507. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Negative,40
+508. Hasil penetration testing telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Financial,Neutral,62
+509. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Strategic,Positive,81
+510. Prosedur backup data untuk server tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Compliance,Neutral,42
+511. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Positive,12
+512. Proses tender pengadaan barang tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Technology,Negative,11
+513. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Financial,Positive,25
+514. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Human Resources,Negative,46
+515. Hasil penetration testing tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Governance,Negative,85
+516. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,21
+517. Proses tender pengadaan barang tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Human Resources,Negative,55
+518. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,15
+519. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Strategic,Positive,85
+520. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Neutral,76
+521. Prosedur backup data untuk server tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Strategic,Negative,39
+522. Hasil penetration testing belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Financial,Negative,51
+523. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Governance,Negative,52
+524. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Operations,Positive,14
+525. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Strategic,Neutral,67
+526. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Neutral,27
+527. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Technology,Positive,57
+528. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Technology,Neutral,19
+529. Program pelatihan karyawan tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Governance,Negative,33
+530. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Positive,56
+531. Hasil penetration testing menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Technology,Negative,26
+532. Hasil penetration testing menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Governance,Neutral,74
+533. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Positive,31
+534. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Compliance,Positive,68
+535. Prosedur backup data untuk server tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Positive,43
+536. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Operations,Positive,77
+537. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Financial,Positive,79
+538. Program pelatihan karyawan telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,55
+539. Proses tender pengadaan barang tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Human Resources,Positive,28
+540. Proses tender pengadaan barang telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Governance,Neutral,56
+541. Rencana ekspansi pasar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Compliance,Positive,47
+542. Prosedur backup data untuk server menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Technology,Neutral,78
+543. Program pelatihan karyawan tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Positive,79
+544. Hasil penetration testing tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Compliance,Negative,72
+545. Hasil penetration testing belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Compliance,Neutral,56
+546. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,64
+547. Implementasi sistem manajemen inventaris tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,58
+548. Program pelatihan karyawan tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Technology,Neutral,81
+549. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,50
+550. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,19
+551. Program pelatihan karyawan tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Human Resources,Neutral,38
+552. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Technology,Neutral,50
+553. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Technology,Positive,32
+554. Hasil penetration testing tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Human Resources,Negative,35
+555. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Technology,Negative,43
+556. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Strategic,Positive,65
+557. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Operations,Positive,63
+558. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Operations,Negative,52
+559. Program pelatihan karyawan telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Strategic,Positive,45
+560. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Technology,Negative,67
+561. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Technology,Positive,20
+562. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Technology,Neutral,31
+563. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Positive,10
+564. Proses tender pengadaan barang tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Negative,20
+565. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Financial,Negative,42
+566. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Governance,Positive,91
+567. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Operations,Positive,38
+568. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Neutral,43
+569. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Financial,Neutral,82
+570. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Financial,Neutral,19
+571. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,77
+572. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Operations,Positive,41
+573. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Technology,Positive,55
+574. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Neutral,83
+575. Hasil penetration testing tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Technology,Neutral,11
+576. Rencana ekspansi pasar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Technology,Negative,52
+577. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,58
+578. Prosedur backup data untuk server tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Governance,Neutral,95
+579. Program pelatihan karyawan telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,58
+580. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Financial,Positive,33
+581. Rencana ekspansi pasar menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,68
+582. Rencana ekspansi pasar telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Human Resources,Positive,84
+583. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Operations,Neutral,92
+584. Hasil penetration testing tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,75
+585. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Positive,79
+586. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Human Resources,Negative,71
+587. Proses tender pengadaan barang tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,15
+588. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Neutral,81
+589. Implementasi sistem manajemen inventaris tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,56
+590. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Governance,Positive,33
+591. Hasil penetration testing menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Technology,Negative,93
+592. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Compliance,Positive,22
+593. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,11
+594. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,10
+595. Prosedur backup data untuk server menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Positive,78
+596. Rencana ekspansi pasar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,25
+597. Rencana ekspansi pasar tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Financial,Positive,61
+598. Proses tender pengadaan barang tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Governance,Neutral,92
+599. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Governance,Positive,18
+600. Prosedur backup data untuk server telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Financial,Negative,68
+601. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Governance,Positive,34
+602. Hasil penetration testing belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,35
+603. Program pelatihan karyawan tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Governance,Negative,87
+604. Rencana ekspansi pasar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Financial,Neutral,37
+605. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Operations,Positive,72
+606. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Technology,Positive,86
+607. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,38
+608. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Financial,Positive,68
+609. Hasil penetration testing tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Technology,Negative,59
+610. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Strategic,Positive,62
+611. Hasil penetration testing tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Technology,Neutral,59
+612. Implementasi sistem manajemen inventaris telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Operations,Negative,59
+613. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Operations,Positive,12
+614. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,28
+615. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Negative,56
+616. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Negative,50
+617. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Negative,29
+618. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,83
+619. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Operations,Neutral,44
+620. Hasil penetration testing tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Human Resources,Neutral,54
+621. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,67
+622. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Operations,Neutral,74
+623. Prosedur backup data untuk server telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Technology,Neutral,17
+624. Program pelatihan karyawan menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,42
+625. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,86
+626. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,40
+627. Proses tender pengadaan barang tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Governance,Positive,24
+628. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Financial,Positive,88
+629. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Financial,Neutral,95
+630. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Strategic,Negative,34
+631. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Operations,Negative,79
+632. Program pelatihan karyawan menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Neutral,44
+633. Hasil penetration testing telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Strategic,Positive,72
+634. Hasil penetration testing menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Human Resources,Negative,75
+635. Prosedur backup data untuk server telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Financial,Negative,75
+636. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Positive,91
+637. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Positive,53
+638. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Operations,Positive,23
+639. Hasil penetration testing tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,61
+640. Rencana ekspansi pasar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Positive,10
+641. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Financial,Positive,20
+642. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,24
+643. Prosedur backup data untuk server tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Governance,Negative,49
+644. Prosedur backup data untuk server telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Human Resources,Negative,52
+645. Rencana ekspansi pasar tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Operations,Negative,36
+646. Prosedur backup data untuk server menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Human Resources,Neutral,59
+647. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Strategic,Negative,36
+648. Proses tender pengadaan barang tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Technology,Neutral,65
+649. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Technology,Positive,55
+650. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Technology,Neutral,63
+651. Rencana ekspansi pasar tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Operations,Neutral,29
+652. Rencana ekspansi pasar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Technology,Negative,74
+653. Rencana ekspansi pasar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Technology,Positive,32
+654. Proses tender pengadaan barang tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Compliance,Neutral,42
+655. Hasil penetration testing telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,41
+656. Program pelatihan karyawan telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Financial,Negative,45
+657. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,95
+658. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Neutral,81
+659. Implementasi sistem manajemen inventaris telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Negative,57
+660. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Technology,Negative,80
+661. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,62
+662. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,47
+663. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,63
+664. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Governance,Neutral,45
+665. Rencana ekspansi pasar telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Operations,Negative,71
+666. Program pelatihan karyawan menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Financial,Positive,38
+667. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Financial,Positive,25
+668. Program pelatihan karyawan tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Strategic,Positive,70
+669. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,45
+670. Rencana ekspansi pasar telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Strategic,Positive,53
+671. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Governance,Positive,94
+672. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Positive,34
+673. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Financial,Neutral,30
+674. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Governance,Negative,70
+675. Implementasi sistem manajemen inventaris telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Technology,Negative,51
+676. Prosedur backup data untuk server tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Governance,Neutral,29
+677. Hasil penetration testing telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Technology,Positive,46
+678. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Governance,Negative,72
+679. Program pelatihan karyawan telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,24
+680. Program pelatihan karyawan tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Governance,Positive,43
+681. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Negative,78
+682. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Financial,Positive,46
+683. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Operations,Positive,62
+684. Proses tender pengadaan barang telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,44
+685. Prosedur backup data untuk server telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Human Resources,Positive,71
+686. Hasil penetration testing telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Neutral,61
+687. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Governance,Positive,42
+688. Hasil penetration testing menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Compliance,Negative,29
+689. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Operations,Negative,26
+690. Prosedur backup data untuk server telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Governance,Positive,66
+691. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Technology,Positive,39
+692. Rencana ekspansi pasar tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Governance,Positive,70
+693. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Compliance,Neutral,74
+694. Prosedur backup data untuk server menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Operations,Negative,60
+695. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Operations,Neutral,10
+696. Program pelatihan karyawan menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Compliance,Negative,47
+697. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Neutral,86
+698. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Positive,67
+699. Implementasi sistem manajemen inventaris tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Operations,Neutral,74
+700. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,77
+701. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Human Resources,Neutral,33
+702. Prosedur backup data untuk server menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Financial,Positive,20
+703. Prosedur backup data untuk server telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Compliance,Positive,32
+704. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Financial,Positive,16
+705. Rencana ekspansi pasar telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,67
+706. Proses tender pengadaan barang tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Negative,35
+707. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Compliance,Positive,52
+708. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Financial,Positive,16
+709. Program pelatihan karyawan telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Human Resources,Positive,64
+710. Hasil penetration testing tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,46
+711. Proses tender pengadaan barang tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,90
+712. Program pelatihan karyawan menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Technology,Neutral,51
+713. Proses tender pengadaan barang menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Neutral,37
+714. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Human Resources,Negative,87
+715. Hasil penetration testing tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Governance,Negative,10
+716. Program pelatihan karyawan telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Governance,Positive,85
+717. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,82
+718. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Operations,Positive,56
+719. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Strategic,Positive,86
+720. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,46
+721. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Operations,Positive,20
+722. Hasil penetration testing belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Operations,Neutral,47
+723. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,24
+724. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,37
+725. Program pelatihan karyawan menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Financial,Negative,24
+726. Rencana ekspansi pasar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Strategic,Positive,31
+727. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Negative,86
+728. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Financial,Negative,75
+729. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,33
+730. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Human Resources,Negative,15
+731. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Positive,18
+732. Proses tender pengadaan barang telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Positive,77
+733. Hasil penetration testing telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Operations,Negative,46
+734. Prosedur backup data untuk server telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Operations,Positive,31
+735. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Compliance,Positive,11
+736. Program pelatihan karyawan telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,48
+737. Prosedur backup data untuk server tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Compliance,Neutral,11
+738. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,77
+739. Proses tender pengadaan barang menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,27
+740. Program pelatihan karyawan tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Financial,Negative,27
+741. Implementasi sistem manajemen inventaris tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Negative,71
+742. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Negative,22
+743. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Technology,Negative,52
+744. Hasil penetration testing menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Governance,Positive,23
+745. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,85
+746. Hasil penetration testing telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Governance,Positive,64
+747. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Negative,52
+748. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Positive,86
+749. Hasil penetration testing menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Human Resources,Neutral,15
+750. Proses tender pengadaan barang menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Human Resources,Neutral,72
+751. Prosedur backup data untuk server telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,18
+752. Rencana ekspansi pasar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Negative,93
+753. Program pelatihan karyawan tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Strategic,Neutral,49
+754. Proses tender pengadaan barang menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Technology,Neutral,89
+755. Prosedur backup data untuk server tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Compliance,Neutral,19
+756. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Human Resources,Neutral,22
+757. Hasil penetration testing telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Technology,Negative,35
+758. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Operations,Neutral,15
+759. Implementasi sistem manajemen inventaris telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Compliance,Positive,90
+760. Prosedur backup data untuk server tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,92
+761. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Positive,47
+762. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Operations,Positive,18
+763. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Strategic,Neutral,16
+764. Hasil penetration testing tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Human Resources,Positive,46
+765. Implementasi sistem manajemen inventaris tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Strategic,Neutral,89
+766. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Positive,87
+767. Prosedur backup data untuk server telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Strategic,Positive,81
+768. Proses tender pengadaan barang tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,72
+769. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Human Resources,Neutral,15
+770. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,54
+771. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,40
+772. Rencana ekspansi pasar menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Operations,Positive,38
+773. Prosedur backup data untuk server telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,34
+774. Prosedur backup data untuk server menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Governance,Positive,82
+775. Rencana ekspansi pasar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,15
+776. Hasil penetration testing tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Operations,Neutral,76
+777. Rencana ekspansi pasar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Compliance,Positive,89
+778. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,85
+779. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Technology,Positive,12
+780. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Financial,Positive,20
+781. Implementasi sistem manajemen inventaris tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Neutral,63
+782. Hasil penetration testing tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Technology,Negative,81
+783. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Governance,Positive,78
+784. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Financial,Negative,91
+785. Prosedur backup data untuk server tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Negative,20
+786. Program pelatihan karyawan telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Strategic,Positive,72
+787. Hasil penetration testing menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Strategic,Positive,86
+788. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Operations,Negative,16
+789. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Strategic,Positive,46
+790. Program pelatihan karyawan tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Technology,Neutral,50
+791. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Governance,Positive,73
+792. Prosedur backup data untuk server menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Operations,Negative,65
+793. Proses tender pengadaan barang tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Technology,Neutral,75
+794. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Human Resources,Negative,42
+795. Prosedur backup data untuk server tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Financial,Positive,12
+796. Proses tender pengadaan barang telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Financial,Positive,34
+797. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Governance,Negative,76
+798. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Compliance,Positive,60
+799. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,55
+800. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,22
+801. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Positive,89
+802. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Governance,Positive,10
+803. Hasil penetration testing menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,91
+804. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Neutral,47
+805. Program pelatihan karyawan tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Financial,Negative,89
+806. Program pelatihan karyawan tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Strategic,Neutral,63
+807. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Financial,Neutral,46
+808. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Financial,Positive,60
+809. Prosedur backup data untuk server telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Technology,Positive,79
+810. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Technology,Neutral,34
+811. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Financial,Negative,64
+812. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,92
+813. Prosedur backup data untuk server telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Negative,81
+814. Hasil penetration testing telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,42
+815. Rencana ekspansi pasar telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Human Resources,Neutral,65
+816. Program pelatihan karyawan telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,26
+817. Proses tender pengadaan barang tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Operations,Neutral,48
+818. Program pelatihan karyawan telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Negative,95
+819. Rencana ekspansi pasar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Neutral,17
+820. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Negative,20
+821. Implementasi sistem manajemen inventaris telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,94
+822. Program pelatihan karyawan tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,47
+823. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Negative,14
+824. Proses tender pengadaan barang menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Negative,22
+825. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Operations,Neutral,63
+826. Rencana ekspansi pasar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Neutral,30
+827. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Neutral,91
+828. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Financial,Negative,53
+829. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,22
+830. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Operations,Negative,95
+831. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,45
+832. Proses tender pengadaan barang telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Compliance,Positive,61
+833. Rencana ekspansi pasar telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Financial,Neutral,30
+834. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,72
+835. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Strategic,Positive,51
+836. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Technology,Negative,55
+837. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,47
+838. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Compliance,Positive,52
+839. Prosedur KYC (Know Your Customer) menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Governance,Positive,18
+840. Rencana ekspansi pasar telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Governance,Positive,46
+841. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Operations,Negative,95
+842. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Financial,Positive,59
+843. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Negative,60
+844. Implementasi sistem manajemen inventaris tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Negative,31
+845. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Operations,Negative,34
+846. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,47
+847. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Human Resources,Negative,42
+848. Proses tender pengadaan barang telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,17
+849. Prosedur backup data untuk server tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Governance,Positive,52
+850. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Financial,Negative,23
+851. Prosedur backup data untuk server telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Operations,Negative,45
+852. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Human Resources,Negative,25
+853. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,71
+854. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Governance,Negative,23
+855. Hasil penetration testing tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Human Resources,Negative,94
+856. Program pelatihan karyawan telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Negative,28
+857. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,65
+858. Prosedur otorisasi pembayaran kas besar menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Financial,Positive,52
+859. Program pelatihan karyawan tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Operations,Positive,75
+860. Rencana ekspansi pasar menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Technology,Neutral,55
+861. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Technology,Neutral,60
+862. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Governance,Positive,77
+863. Proses tender pengadaan barang telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Compliance,Positive,47
+864. Implementasi sistem manajemen inventaris tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Governance,Negative,42
+865. Implementasi sistem manajemen inventaris telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Human Resources,Neutral,52
+866. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Strategic,Positive,76
+867. Implementasi sistem manajemen inventaris telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Technology,Negative,22
+868. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Negative,37
+869. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Financial,Neutral,14
+870. Prosedur backup data untuk server tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Operations,Negative,14
+871. Hasil penetration testing menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Technology,Neutral,61
+872. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Compliance,Negative,47
+873. Rencana ekspansi pasar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Governance,Negative,35
+874. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Financial,Positive,37
+875. Rencana ekspansi pasar tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Human Resources,Neutral,72
+876. Program pelatihan karyawan telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Human Resources,Negative,91
+877. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Financial,Positive,12
+878. Rencana ekspansi pasar telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Technology,Positive,43
+879. Prosedur backup data untuk server tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Financial,Neutral,94
+880. Proses tender pengadaan barang tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Compliance,Negative,30
+881. Program pelatihan karyawan belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Governance,Negative,25
+882. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,66
+883. Hasil penetration testing belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Compliance,Positive,84
+884. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Technology,Neutral,73
+885. Prosedur otorisasi pembayaran kas besar tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Financial,Positive,88
+886. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Operations,Positive,81
+887. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Governance,Neutral,30
+888. Hasil penetration testing belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Technology,Negative,80
+889. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,86
+890. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Governance,Neutral,22
+891. Program pelatihan karyawan menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Operations,Neutral,50
+892. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Compliance,Positive,79
+893. Rencana ekspansi pasar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Operations,Positive,31
+894. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Human Resources,Neutral,30
+895. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Technology,Positive,49
+896. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Strategic,Positive,82
+897. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Strategic,Neutral,20
+898. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Governance,Neutral,62
+899. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,14
+900. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,91
+901. Program pelatihan karyawan tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Technology,Positive,68
+902. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Strategic,Neutral,30
+903. NPL (Non-Performing Loan) ratio menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Neutral,65
+904. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Governance,Positive,78
+905. Rencana ekspansi pasar tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,17
+906. Proses tender pengadaan barang menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Technology,Negative,62
+907. Prosedur backup data untuk server tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Strategic,Neutral,60
+908. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Governance,Positive,87
+909. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Strategic,Positive,84
+910. Proses tender pengadaan barang menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Financial,Neutral,62
+911. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Positive,26
+912. Proses tender pengadaan barang tidak diuji secara berkala. Ini berdampak positif pada perusahaan.,Governance,Neutral,10
+913. Rencana ekspansi pasar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Compliance,Neutral,65
+914. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Operations,Neutral,69
+915. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Neutral,33
+916. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,84
+917. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,71
+918. Hasil penetration testing belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Compliance,Positive,90
+919. Program pelatihan karyawan tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Positive,61
+920. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Neutral,40
+921. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Technology,Neutral,61
+922. NPL (Non-Performing Loan) ratio tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Financial,Negative,60
+923. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Operations,Neutral,31
+924. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,50
+925. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,55
+926. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Human Resources,Neutral,25
+927. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Potensi kerugian finansial dapat terjadi.,Compliance,Positive,41
+928. Prosedur backup data untuk server tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Operations,Neutral,89
+929. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,21
+930. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Strategic,Negative,66
+931. Fungsi whistle-blowing system (WBS) menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Strategic,Neutral,47
+932. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Strategic,Positive,20
+933. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Compliance,Negative,60
+934. Prosedur backup data untuk server telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Operations,Negative,46
+935. Implementasi sistem manajemen inventaris menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Compliance,Neutral,37
+936. Rencana ekspansi pasar tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,86
+937. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Human Resources,Positive,39
+938. Implementasi sistem manajemen inventaris telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Human Resources,Negative,46
+939. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Technology,Neutral,40
+940. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Financial,Neutral,95
+941. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Negative,89
+942. Rencana ekspansi pasar tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Technology,Positive,54
+943. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Positive,93
+944. Proses tender pengadaan barang tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Financial,Negative,38
+945. Hasil penetration testing belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Strategic,Positive,27
+946. Hasil penetration testing tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Governance,Positive,73
+947. Prosedur backup data untuk server tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Compliance,Positive,10
+948. Program pelatihan karyawan telah mengikuti SOP. Hal ini meningkatkan risiko operasional.,Governance,Negative,72
+949. Proses tender pengadaan barang tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Compliance,Neutral,55
+950. Prosedur backup data untuk server telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Technology,Positive,93
+951. Proses tender pengadaan barang telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Operations,Negative,25
+952. Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Compliance,Negative,39
+953. Program pelatihan karyawan tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Human Resources,Positive,32
+954. Proses tender pengadaan barang menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Financial,Negative,87
+955. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Operations,Negative,39
+956. Program pelatihan karyawan tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Financial,Neutral,80
+957. Prosedur KYC (Know Your Customer) tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Compliance,Positive,73
+958. Proses tender pengadaan barang telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Operations,Neutral,78
+959. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Technology,Positive,46
+960. Rencana ekspansi pasar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Financial,Positive,93
+961. Prosedur KYC (Know Your Customer) tidak diuji secara berkala. Hal ini meningkatkan risiko operasional.,Financial,Neutral,77
+962. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Compliance,Positive,80
+963. Hasil penetration testing menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Technology,Neutral,84
+964. Fungsi whistle-blowing system (WBS) belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Human Resources,Neutral,24
+965. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,32
+966. Prosedur KYC (Know Your Customer) telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Strategic,Positive,93
+967. Hasil penetration testing belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Technology,Negative,64
+968. Program pelatihan karyawan telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Governance,Neutral,48
+969. Prosedur backup data untuk server tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Negative,84
+970. Prosedur backup data untuk server telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Governance,Negative,19
+971. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,43
+972. Proses tender pengadaan barang belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Human Resources,Neutral,19
+973. Prosedur backup data untuk server tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Positive,80
+974. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,92
+975. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Human Resources,Negative,47
+976. Rencana ekspansi pasar telah mengikuti SOP. Kepatuhan terhadap regulasi membaik.,Technology,Positive,80
+977. Fungsi whistle-blowing system (WBS) telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Compliance,Neutral,34
+978. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Hal ini meningkatkan risiko operasional.,Strategic,Neutral,28
+979. Implementasi sistem manajemen inventaris telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Compliance,Positive,78
+980. Fungsi whistle-blowing system (WBS) tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Compliance,Positive,27
+981. Hasil penetration testing telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Governance,Positive,94
+982. Prosedur backup data untuk server belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Operations,Neutral,94
+983. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Technology,Positive,14
+984. Proses tender pengadaan barang tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Strategic,Positive,55
+985. Implementasi sistem manajemen inventaris belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Human Resources,Positive,25
+986. Rencana ekspansi pasar menunjukkan hasil positif. Ini berdampak positif pada perusahaan.,Strategic,Neutral,81
+987. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Risiko kehilangan data semakin tinggi.,Governance,Negative,55
+988. Program pelatihan karyawan tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Technology,Positive,38
+989. Program pelatihan karyawan menunjukkan hasil positif. Hal ini meningkatkan risiko operasional.,Financial,Neutral,75
+990. NPL (Non-Performing Loan) ratio tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Financial,Positive,94
+991. Proses tender pengadaan barang tidak berjalan efektif. Potensi kerugian finansial dapat terjadi.,Technology,Neutral,45
+992. Prosedur backup data untuk server tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Governance,Negative,65
+993. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Kepatuhan terhadap regulasi membaik.,Human Resources,Positive,80
+994. Implementasi sistem manajemen inventaris tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Operations,Negative,32
+995. Hasil penetration testing tidak berjalan efektif. Kepatuhan terhadap regulasi membaik.,Technology,Positive,93
+996. Rencana ekspansi pasar belum sepenuhnya dilaksanakan. Risiko kehilangan data semakin tinggi.,Compliance,Negative,38
+997. Hasil penetration testing tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Governance,Negative,10
+998. NPL (Non-Performing Loan) ratio belum sepenuhnya dilaksanakan. Ini berdampak positif pada perusahaan.,Compliance,Positive,57
+999. Fungsi whistle-blowing system (WBS) tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Strategic,Neutral,24
+1000. Implementasi sistem manajemen inventaris telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Operations,Positive,23
+1001. Prosedur otorisasi pembayaran kas besar telah mengikuti SOP. Ini berdampak positif pada perusahaan.,Strategic,Positive,48
+1002. Rencana ekspansi pasar tidak berjalan efektif. Ini berdampak positif pada perusahaan.,Operations,Positive,56
+1003. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,80
+1004. Proses tender pengadaan barang tidak diuji secara berkala. Kepatuhan terhadap regulasi membaik.,Technology,Negative,70
+1005. Rencana ekspansi pasar menunjukkan hasil positif. Risiko kehilangan data semakin tinggi.,Financial,Positive,65
+1006. Prosedur otorisasi pembayaran kas besar tidak diuji secara berkala. Potensi kerugian finansial dapat terjadi.,Operations,Negative,27
+1007. Implementasi sistem manajemen inventaris tidak berjalan efektif. Risiko kehilangan data semakin tinggi.,Strategic,Negative,80
+1008. NPL (Non-Performing Loan) ratio telah mengikuti SOP. Potensi kerugian finansial dapat terjadi.,Strategic,Negative,21
+1009. Prosedur otorisasi pembayaran kas besar belum sepenuhnya dilaksanakan. Potensi kerugian finansial dapat terjadi.,Technology,Neutral,36
+1010. Rencana ekspansi pasar tidak diuji secara berkala. Risiko kehilangan data semakin tinggi.,Strategic,Neutral,87

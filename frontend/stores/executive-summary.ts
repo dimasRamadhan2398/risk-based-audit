@@ -39,7 +39,7 @@ export interface ExecutiveSummary {
   nomorDokumen: string
   dokumenPath: string
   status: 'Draft' | 'Approved' | 'Rejected'
-  
+
   // Section I
   narrative: string
 
@@ -76,7 +76,7 @@ export interface ExecutiveSummary {
 export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const summaryList = ref<ExecutiveSummary[]>([])
   const currentSummary = ref<ExecutiveSummary | null>(null)
-  
+
   const showModal = ref(false)
   const isEditing = ref(false)
   const isViewing = ref(false)
@@ -166,7 +166,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       const baseUrl = getAuditServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/executive-summaries`, { method: 'GET' })
       let items: any[] = []
-      if (response && Array.isArray(response.items)) {
+      if (response && response.data && Array.isArray(response.data.items)) {
+        items = response.data.items
+      } else if (response && Array.isArray(response.items)) {
         items = response.items
       } else if (Array.isArray(response)) {
         items = response
@@ -221,7 +223,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     isEditing.value = false
     isViewing.value = false
     currentSummary.value = null
-    
+
     // Set default month based on selected quarter
     let defaultMonth = 'Januari'
     if (quarterNum === 2) defaultMonth = 'April'
@@ -280,7 +282,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const payload = serializeSummaryForBackend(form)
-      
+
       if (isEditing.value && currentSummary.value) {
         await $fetch(`${baseUrl}/executive-summaries/${currentSummary.value.id}`, {
           method: 'PUT',

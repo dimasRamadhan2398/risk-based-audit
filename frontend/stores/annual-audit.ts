@@ -293,7 +293,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       const response: any = await $fetch(`${baseUrl}/annual-audit-plans`, {
         method: 'GET'
       })
-      if (response && Array.isArray(response.items)) {
+      if (response && response.data && Array.isArray(response.data.items)) {
+        plans.value = response.data.items
+      } else if (response && Array.isArray(response.items)) {
         plans.value = response.items
       } else if (Array.isArray(response)) {
         plans.value = response

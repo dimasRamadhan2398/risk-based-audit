@@ -223,10 +223,11 @@ services:
       KONG_LOG_LEVEL: info
       KONG_PLUGINS: bundled
       KONG_NGINX_WORKER_PROCESSES: 1
+      KONG_NGINX_PROXY_PROXY_BUFFERING: "off"
     ports:
       - "8080:8080"
       - "8443:8443"
-      - "8006:8001"
+      - "8009:8001"
       - "8444:8444"
     healthcheck:
       test: ["CMD", "kong", "health"]

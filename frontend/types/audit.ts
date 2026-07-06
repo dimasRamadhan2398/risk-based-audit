@@ -488,10 +488,10 @@ export type QuarterType = 'Q1' | 'Q2' | 'Q3' | 'Q4';
 export interface StrategicAuditPlan {
   id: string;
   code: string;
-  corporateStrategicObjective: string;
+  strategicObjective: string;
   kpi: string;
-  unitOfMeasurement: string;
-  dataType: HibHigType;
+  unit: string;
+  hibHig: HibHigType;
   periodType: PeriodType;
   selectedPeriod: string; // Q1-Q4 for Quartal, or year string for Yearly
   yearStart?: number;

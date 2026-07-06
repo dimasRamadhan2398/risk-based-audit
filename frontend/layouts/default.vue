@@ -135,17 +135,17 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '10. Action Taken Report',
+    label: '9. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
   },
   {
-    label: '11. Consulting Service',
+    label: '10. Consulting Service',
     icon: 'i-lucide-users',
     to: '/consulting-service',
   },
   {
-    label: '12. Quality Assurance Review',
+    label: '11. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [

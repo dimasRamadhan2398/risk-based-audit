@@ -55,6 +55,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	defer logger.Sync()
 
 	logger.Info("Starting Audit Service", logger.LogField("port", cfg.Server.Port))
+	fmt.Printf("GDrive Enabled Config Value: %v\n", cfg.GDrive.Enabled)
 
 	// Set Gin mode
 	if cfg.Server.Mode == "release" {
@@ -99,8 +100,8 @@ func runServe(cmd *cobra.Command, args []string) error {
 		}
 		logger.Info("Using Google Drive as media provider")
 	} else {
-		mediaProvider = media.NewImageKitProvider(&cfg.ImageKit)
-		logger.Info("Using ImageKit as media provider")
+		mediaProvider = media.NewLocalProvider()
+		logger.Info("Using Local Dummy Provider as media provider")
 	}
 
 	// Initialize services
@@ -135,6 +136,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 	engine.Use(gin.Recovery())
 	engine.Use(middleware.CORSMiddleware())
 	engine.Use(middleware.LoggerMiddleware())
+
+	// Serve static uploads
+	engine.Static("/uploads", "./uploads")
 
 	// Health check endpoint
 	engine.GET("/health", func(c *gin.Context) {

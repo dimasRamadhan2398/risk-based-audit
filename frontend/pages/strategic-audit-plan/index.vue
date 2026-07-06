@@ -29,6 +29,17 @@
     <!-- Add/Edit Modal -->
     <StrategicPlanForm />
 
+    <!-- Error Alert -->
+    <UAlert
+      v-if="store.errorMsg"
+      title="Error"
+      :description="store.errorMsg"
+      color="red"
+      variant="soft"
+      icon="i-lucide-alert-circle"
+      class="mb-4"
+    />
+
     <!-- Strategic Plan Table -->
     <StrategicPlanTable />
 
