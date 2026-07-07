@@ -16,6 +16,16 @@ type RiskProfile struct {
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
+
+	// Risk scoring fields
+	Impact         int          `gorm:"not null" json:"impact"`
+	Likelihood     int          `gorm:"not null" json:"likelihood"`
+	RiskScore      int          `gorm:"not null" json:"risk_score"`   // Impact × Likelihood
+	SeverityWeight float64      `gorm:"type:decimal(5,4)" json:"severity_weight"`
+
+	// Relation to RiskLevel
+	RiskLevelID *uuid.UUID `gorm:"type:uuid;index" json:"risk_level_id"`
+	RiskLevel   *RiskLevel `gorm:"foreignKey:RiskLevelID" json:"risk_level,omitempty"`
 }
 
 func (RiskProfile) TableName() string {

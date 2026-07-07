@@ -49,6 +49,7 @@ func (s *Seeder) RunAll() error {
 		{"RiskIndicatorLogs", s.SeedRiskIndicatorLogs},
 		{"AuditUniverse", s.SeedAuditUniverse},
 		{"AuditWorkpapers", s.SeedAuditWorkpapers},
+		{"VisionMissionGoals", s.SeedVisionMissionGoals},
 	}
 
 	for _, seeder := range seeders {
@@ -1409,6 +1410,187 @@ func (s *Seeder) SeedAuditWorkpapers() error {
 			return err
 		}
 	}
+	return nil
+}
+
+func (s *Seeder) SeedVisionMissionGoals() error {
+	// Get company AIFL-HQ
+	company, err := getByName[models.Company](s.DB, "company_code", "AIFL-HQ")
+	if err != nil {
+		return err
+	}
+
+	// Seeder 1: Draft VMG (Belum Approved)
+	seeds := []models.VisionMissionGoals{
+		{
+			CompanyID:      company.ID,
+			Period:         "2026 - 2031",
+			EffectiveDate:  timePtr(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Vision:         "Menjadi perusahaan investasi terkemuka di Asia Tenggara dengan pertumbuhan berkelanjutan dan tata kelola perusahaan yang excellent.",
+			Mission:        "1. Menyediakan layanan investasi berkualitas tinggi dengan fokus pada keberlanjutan\n2. Mengembangkan SDM yang profesional dan berintegritas\n3. Menerapkan teknologi digital untuk meningkatkan efisiensi operasional\n4. Menjaga kepatuhan terhadap regulasi dan standar etika bisnis",
+			Version:        "v1.0",
+			Status:         models.VmgStatusDraft,
+			Notes:          "Draft awal untuk periode 2026-2031, menunggu review dari Direksi",
+			CreatedBy:      "Ahmad Wijaya",
+			ModifiedBy:     "Ahmad Wijaya",
+			Goals: []models.VmgGoal{
+				{
+					GoalCode:           "G-001",
+					GoalName:           "Peningkatan Revenue",
+					GoalDescription:     "Meningkatkan pendapatan perusahaan secara konsisten setiap tahun",
+					StrategicObjective:  "SO-001: Growth & Profitability",
+					KPI:                "Pendapatan per Tahun",
+					Target:             "15%",
+					Unit:               "%",
+					BaselineYear:       "2025",
+					BaselineValue:      "Rp 500 Miliar",
+				},
+				{
+					GoalCode:           "G-002",
+					GoalName:           "Efisiensi Biaya Operasional",
+					GoalDescription:     "Mengurangi biaya operasional tanpa mengorbankan kualitas layanan",
+					StrategicObjective:  "SO-002: Operational Excellence",
+					KPI:                "Rasio Biaya terhadap Pendapatan",
+					Target:             "25%",
+					Unit:               "%",
+					BaselineYear:       "2025",
+					BaselineValue:      "30%",
+				},
+				{
+					GoalCode:           "G-003",
+					GoalName:           "Kepuasan Pelanggan",
+					GoalDescription:     "Meningkatkan indeks kepuasan pelanggan",
+					StrategicObjective:  "SO-003: Customer Satisfaction",
+					KPI:                "Customer Satisfaction Index",
+					Target:             "85%",
+					Unit:               "%",
+					BaselineYear:       "2025",
+					BaselineValue:      "75%",
+				},
+			},
+		},
+	}
+
+	// Seeder 2: Published VMG dari periode sebelumnya
+	effectiveDate := timePtr(time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC))
+	seeds = append(seeds, models.VisionMissionGoals{
+		CompanyID:      company.ID,
+		Period:         "2021 - 2025",
+		EffectiveDate:  effectiveDate,
+		Vision:         "Menjadi perusahaan investasi terkemuka di Indonesia dengan pertumbuhan berkelanjutan.",
+		Mission:        "1. Memberikan nilai tambah bagi shareholder\n2. Mengembangkan SDM yang kompeten\n3. Meningkatkan efisiensi operasional melalui digitalisasi",
+		Version:        "v1.0",
+		Status:         models.VmgStatusPublished,
+		Notes:          "VMG periode 2021-2025 yang sudah selesai",
+		CreatedBy:      "Budi Santoso",
+		ModifiedBy:     "Budi Santoso",
+		Goals: []models.VmgGoal{
+			{
+				GoalCode:           "G-001",
+				GoalName:           "Pencapaian Target Penjualan",
+				GoalDescription:     "Mencapai target penjualan yang ditetapkan",
+				StrategicObjective:  "SO-001: Sales Growth",
+				KPI:                "Total Penjualan",
+				Target:             "Rp 1 Triliun",
+				Unit:               "Rp",
+				BaselineYear:       "2020",
+				BaselineValue:      "Rp 750 Miliar",
+			},
+			{
+				GoalCode:           "G-002",
+				GoalName:           "Digital Transformation",
+				GoalDescription:     "Implementasi sistem digital untuk seluruh proses bisnis",
+				StrategicObjective:  "SO-002: Technology",
+				KPI:                "Prosentase Digitalisasi",
+				Target:             "80%",
+				Unit:               "%",
+				BaselineYear:       "2020",
+				BaselineValue:      "30%",
+			},
+		},
+	})
+
+	// Seeder 3: In Review VMG untuk subsidiary
+	subsidiary, err := getByName[models.Company](s.DB, "company_code", "AIFL-FIN")
+	if err == nil {
+		seeds = append(seeds, models.VisionMissionGoals{
+			CompanyID:      subsidiary.ID,
+			Period:         "2026 - 2030",
+			EffectiveDate:  timePtr(time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)),
+			Vision:         "Menjadi perusahaan jasa keuangan terpercaya yang memberikan layanan innovative dan sustainable.",
+			Mission:        "1. Menyediakan produk keuangan yang sesuai kebutuhanNasabah\n2. Menerapkan risk management yang prudent\n3. Berkomitmen pada good corporate governance",
+			Version:        "v1.0",
+			Status:         models.VmgStatusInReview,
+			Notes:          "Sedang dalam proses review oleh parent company",
+			CreatedBy:      "Citra Dewi",
+			ModifiedBy:     "Citra Dewi",
+			Goals: []models.VmgGoal{
+				{
+					GoalCode:           "G-001",
+					GoalName:           "AUM Growth",
+					GoalDescription:     "Meningkatkan Assets Under Management",
+					StrategicObjective:  "SO-001: Asset Growth",
+					KPI:                "Total AUM",
+					Target:             "Rp 5 Triliun",
+					Unit:               "Rp",
+					BaselineYear:       "2025",
+					BaselineValue:      "Rp 3 Triliun",
+				},
+				{
+					GoalCode:           "G-002",
+					GoalName:           "Risk Management Excellence",
+					GoalDescription:     "Meningkatkan kualitas risk management framework",
+					StrategicObjective:  "SO-002: Risk Management",
+					KPI:                "Risk Maturity Level",
+					Target:             "Level 4",
+					Unit:               "Level",
+					BaselineYear:       "2025",
+					BaselineValue:      "Level 3",
+				},
+				{
+					GoalCode:           "G-003",
+					GoalName:           "Compliance Rate",
+					GoalDescription:     "Memastikan kepatuhan terhadap seluruh regulasi yang berlaku",
+					StrategicObjective:  "SO-003: Compliance",
+					KPI:                "Compliance Index",
+					Target:             "98%",
+					Unit:               "%",
+					BaselineYear:       "2025",
+					BaselineValue:      "95%",
+				},
+				{
+					GoalCode:           "G-004",
+					GoalName:           "Employee Development",
+					GoalDescription:     "Mengembangkan kapabilitas dan kesejahteraan karyawan",
+					StrategicObjective:  "SO-004: Human Capital",
+					KPI:                "Training Hours per Employee",
+					Target:             "40",
+					Unit:               "Hours",
+					BaselineYear:       "2025",
+					BaselineValue:      "25 Hours",
+				},
+			},
+		})
+	}
+
+	// Insert all VMG records
+	for i := range seeds {
+		// Check if already exists by Period and CompanyID
+		var existing models.VisionMissionGoals
+		err := s.DB.Where("period = ? AND company_id = ?", seeds[i].Period, seeds[i].CompanyID).First(&existing).Error
+		if err == gorm.ErrRecordNotFound {
+			// Create new record
+			if err := s.DB.Create(&seeds[i]).Error; err != nil {
+				return fmt.Errorf("failed to seed VisionMissionGoals: %w", err)
+			}
+			fmt.Printf("  Seeded VisionMissionGoals: %s (%s)\n", seeds[i].Period, seeds[i].Status)
+		} else if err != nil {
+			return fmt.Errorf("failed to check existing VMG: %w", err)
+		} else {
+			fmt.Printf("  Skipped VisionMissionGoals: %s (already exists)\n", seeds[i].Period)
+		}
+	}
+
 	return nil
 }
 
