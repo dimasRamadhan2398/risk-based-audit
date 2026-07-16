@@ -46,7 +46,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 	departments := api.Group("/departments")
 	{
-		departments.GET("", controller.GetDepartment().FindAll)
+		departments.GET("", controller.GetDepartment().List)
 		departments.GET("/:id", controller.GetDepartment().FindById)
 		departments.POST("", controller.GetDepartment().Create)
 		departments.PUT("/:id", controller.GetDepartment().Update)
@@ -460,5 +460,16 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.Header("Content-Type", "application/octet-stream")
 			c.File(service.Attachment.FilePath)
 		})
+	}
+
+	// Vision, Mission & Goals routes
+	vmgs := api.Group("/vision-mission-goals")
+	{
+		vmgs.GET("", controller.GetVisionMissionGoals().List)
+		vmgs.GET("/:id", controller.GetVisionMissionGoals().FindById)
+		vmgs.GET("/company/:companyId", controller.GetVisionMissionGoals().FindByCompany)
+		vmgs.POST("", controller.GetVisionMissionGoals().Create)
+		vmgs.PUT("/:id", controller.GetVisionMissionGoals().Update)
+		vmgs.DELETE("/:id", controller.GetVisionMissionGoals().Delete)
 	}
 }

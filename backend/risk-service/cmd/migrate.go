@@ -67,6 +67,7 @@ func runFresh(cmd *cobra.Command, args []string) error {
 
 func autoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
+		&models.RiskLevel{},
 		&models.RiskAppetite{},
 		&models.RiskProfile{},
 		&models.RiskRegister{},
@@ -96,5 +97,6 @@ func dropAllTables(db *gorm.DB) error {
 		&models.RiskRegister{},
 		&models.RiskProfile{},
 		&models.RiskAppetite{},
+		&models.RiskLevel{},
 	)
 }

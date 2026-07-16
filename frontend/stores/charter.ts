@@ -207,6 +207,22 @@ export const useCharterStore = defineStore('charter', () => {
   }
 
   /**
+   * Helper to convert a File to base64 string.
+   */
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
+        const base64 = (reader.result as string).split(',')[1]
+        resolve(base64)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  /**
    * POST /api/v1/audit-charters
    *
    * Ini masih CRUD JSON / metadata.
@@ -327,6 +343,44 @@ export const useCharterStore = defineStore('charter', () => {
     }
   }
 
+  /**
+   * GET /api/v1/audit-charters/:id/download
+   *
+   * Downloads the audit charter file by ID.
+   */
+  const downloadCharter = async (id: string, filename: string) => {
+    loading.value = true
+    errorMsg.value = ''
+
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      console.log(`${baseUrl}/audit-charters/${id}/download`)
+
+      // Gunakan $fetch bawaan Nuxt agar konfigurasi global (seperti Auth Token) terbawa
+      // Tambahkan responseType: 'blob' untuk membaca stream file biner
+      const blob = await $fetch<Blob>(`${baseUrl}/audit-charters/${id}/download`, {
+        method: 'GET',
+        responseType: 'blob'
+      })
+
+      // Proses konversi blob menjadi URL dan inisiasi unduhan (browser)
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error: any) {
+      console.error('Failed to download audit charter:', error)
+      errorMsg.value = 'Gagal mengunduh file Audit Charter.'
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Submit Handler
   const handleSubmit = async () => {
     if (!isEditing.value && !form.file) {
@@ -415,6 +469,7 @@ export const useCharterStore = defineStore('charter', () => {
     addCharter,
     updateCharter,
     deleteCharter,
+    downloadCharter,
 
     handleEdit,
     handleSubmit,

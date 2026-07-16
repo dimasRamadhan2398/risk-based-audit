@@ -20,13 +20,14 @@ import (
 	likelihoodCtrl "master-service/controllers/likelihood"
 	locationCtrl "master-service/controllers/location"
 	mitigationActionCtrl "master-service/controllers/mitigation_action"
-	riskCauseCtrl "master-service/controllers/risk_cause"
 	riskCategoryCtrl "master-service/controllers/risk_category"
+	riskCauseCtrl "master-service/controllers/risk_cause"
 	riskEffectCtrl "master-service/controllers/risk_effect"
 	riskIndicatorCtrl "master-service/controllers/risk_indicator"
 	riskLevelCtrl "master-service/controllers/risk_level"
 	riskMatrixCellCtrl "master-service/controllers/risk_matrix_cell"
 	riskRegisterCtrl "master-service/controllers/risk_register"
+	vmgsCtrl "master-service/controllers/vision_mission_goals"
 	"master-service/pkg/validations"
 	"master-service/services"
 )
@@ -63,6 +64,7 @@ type IControllerRegistry interface {
 	GetRiskLevel() riskLevelCtrl.RiskLevelControllerInterface
 	GetRiskMatrixCell() riskMatrixCellCtrl.RiskMatrixCellControllerInterface
 	GetRiskRegister() riskRegisterCtrl.RiskRegisterControllerInterface
+	GetVisionMissionGoals() vmgsCtrl.VisionMissionGoalsControllerInterface
 }
 
 func NewControllerRegistry(service services.IServiceRegistry, validator *validations.Validator) IControllerRegistry {
@@ -149,4 +151,8 @@ func (r *Registry) GetRiskMatrixCell() riskMatrixCellCtrl.RiskMatrixCellControll
 }
 func (r *Registry) GetRiskRegister() riskRegisterCtrl.RiskRegisterControllerInterface {
 	return riskRegisterCtrl.NewRiskRegisterController(r.service.GetRiskRegister(), r.validator)
+}
+
+func (r *Registry) GetVisionMissionGoals() vmgsCtrl.VisionMissionGoalsControllerInterface {
+	return vmgsCtrl.NewVisionMissionGoalsController(r.service.GetVisionMissionGoals(), r.validator)
 }

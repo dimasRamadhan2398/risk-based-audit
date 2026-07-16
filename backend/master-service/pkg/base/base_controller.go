@@ -88,7 +88,11 @@ func (c *BaseController) GetRoles(ctx *gin.Context) []string {
 
 func (c *BaseController) RespondError(ctx *gin.Context, err error) {
 	if appErr, ok := err.(*apperrors.AppError); ok {
-		response.Error(ctx, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		details := ""
+		if appErr.Err != nil {
+			details = appErr.Err.Error()
+		}
+		response.Error(ctx, appErr.StatusCode, appErr.Code, appErr.Message, details)
 		return
 	}
 	response.Error(ctx, http.StatusInternalServerError, "INTERNAL_ERROR", "An unexpected error occurred", "")

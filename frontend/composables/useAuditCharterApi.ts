@@ -42,11 +42,30 @@ export const useAuditCharterApi = () => {
     })
   }
 
+  const downloadAuditCharter = async (id: string | number, filename: string) => {
+    const response = await $fetch<Blob>(`${baseUrl}/audit-charters/${id}/download`, {
+      method: 'GET',
+      responseType: 'blob'
+    })
+
+    // Create a blob URL and trigger download
+    const blob = new Blob([response])
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
+
   return {
     getAuditCharters,
     getAuditCharterById,
     createAuditCharter,
     updateAuditCharter,
-    deleteAuditCharter
+    deleteAuditCharter,
+    downloadAuditCharter
   }
 }

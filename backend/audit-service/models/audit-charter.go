@@ -22,6 +22,15 @@ type AuditCharter struct {
 }
 
 // Request DTOs
+//
+//	type CreateAuditCharterRequest struct {
+//		Filename string `json:"filename" binding:"required" validate:"required,max=200"`
+//		Version  string `json:"version" binding:"required" validate:"required,max=20"`
+//		Title    string `json:"title" binding:"required" validate:"required,max=200"`
+//		Content  string `json:"content" binding:"required" validate:"required"`
+//	}
+
+// Request DTOs
 type CreateAuditCharterRequest struct {
 	Filename string `json:"filename" binding:"required" validate:"required,max=200"`
 	Version  string `json:"version" binding:"required" validate:"required,max=20"`

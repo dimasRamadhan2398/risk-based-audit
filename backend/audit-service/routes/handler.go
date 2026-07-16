@@ -39,6 +39,20 @@ func (h *RouteHandler) SetRegistry(registry *RouteRegistry) {
 
 // RegisterRoutes registers all API routes
 func (h *RouteHandler) RegisterRoutes() {
+	// Debug route to list all registered routes
+	h.engine.GET("/debug/routes", func(c *gin.Context) {
+		routes := []gin.H{}
+		for _, route := range h.engine.Routes() {
+			routes = append(routes, gin.H{
+				"method": route.Method,
+				"path":   route.Path,
+			})
+		}
+		c.JSON(200, gin.H{
+			"routes": routes,
+		})
+	})
+
 	apiV1 := h.engine.Group("/api/v1")
 
 	// Audit Charter routes
@@ -48,10 +62,12 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditCharters.POST("", h.registry.AuditCharter.CreateCharter)
 		auditCharters.GET("/active", h.registry.AuditCharter.GetActiveCharter)
 		auditCharters.GET("/version", h.registry.AuditCharter.GetCharterByVersion)
+		// IMPORTANT: specific routes must come BEFORE /:id to avoid conflicts
+		auditCharters.GET("/:id/download", h.registry.AuditCharter.DownloadCharter)
+		auditCharters.POST("/:id/activate", h.registry.AuditCharter.SetActiveCharter)
 		auditCharters.GET("/:id", h.registry.AuditCharter.GetCharter)
 		auditCharters.PUT("/:id", h.registry.AuditCharter.UpdateCharter)
 		auditCharters.DELETE("/:id", h.registry.AuditCharter.DeleteCharter)
-		auditCharters.POST("/:id/activate", h.registry.AuditCharter.SetActiveCharter)
 	}
 
 	// Audit Mandate routes

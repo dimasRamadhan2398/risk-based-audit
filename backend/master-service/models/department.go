@@ -22,5 +22,6 @@ type Department struct {
 	CompanyID uuid.UUID `gorm:"type:uuid;not null;index" json:"company_id"`
 	Company   Company   `gorm:"foreignKey:CompanyID" json:"company"`
 
-	BusinessUnitID uuid.UUID `json:"business_unit_id" gorm:"type:uuid;column:business_unit_id"`
+	BusinessUnitID uuid.UUID    `gorm:"type:uuid;not null;index" json:"business_unit_id"`
+	BusinessUnit   BusinessUnit `gorm:"foreignKey:BusinessUnitID" json:"business_unit,omitempty"`
 }

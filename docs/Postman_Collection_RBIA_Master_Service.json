@@ -1,0 +1,316 @@
+{
+	"info": {
+		"_postman_id": "rbia-master-service-api",
+		"name": "RBIA Master Service API",
+		"description": "Risk-Based Internal Audit - Master Service API Collection for Employee & Department CRUD operations",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8002/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "departmentId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "employeeId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/../health",
+							"host": ["{{baseUrl}}", "..", "health"]
+						},
+						"description": "Check if the master service is running"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Department",
+			"item": [
+				{
+					"name": "1. List Departments (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/departments?page=1&page_size=10",
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "page_size",
+									"value": "10",
+									"description": "Items per page"
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search by code, name, or description",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get paginated list of departments"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get Department by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/departments/{{departmentId}}",
+							"host": ["{{baseUrl}}", "departments", "{{departmentId}}"]
+						},
+						"description": "Get a single department by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Create Department",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"department_code\": \"DEPT001\",\n    \"department_name\": \"Finance Department\",\n    \"department_description\": \"Handles all financial operations\",\n    \"pic_id\": \"123e4567-e89b-12d3-a456-426614174001\",\n    \"level\": 1,\n    \"company_id\": \"123e4567-e89b-12d3-a456-426614174002\",\n    \"business_unit_id\": \"123e4567-e89b-12d3-a456-426614174003\",\n    \"is_active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/departments",
+							"host": ["{{baseUrl}}", "departments"]
+						},
+						"description": "Create a new department. Note: pic_id and company_id should be valid UUIDs from your database."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Update Department",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"department_name\": \"Updated Finance Department\",\n    \"department_description\": \"Updated description\",\n    \"level\": 2,\n    \"is_active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/departments/{{departmentId}}",
+							"host": ["{{baseUrl}}", "departments", "{{departmentId}}"]
+						},
+						"description": "Update an existing department. All fields are optional - only include fields you want to update."
+					},
+					"response": []
+				},
+				{
+					"name": "5. Delete Department",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/departments/{{departmentId}}",
+							"host": ["{{baseUrl}}", "departments", "{{departmentId}}"]
+						},
+						"description": "Soft delete a department"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employee",
+			"item": [
+				{
+					"name": "1. List Employees (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/employees?page=1&page_size=10",
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "page_size",
+									"value": "10",
+									"description": "Items per page"
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search by employee_code, full_name, or email",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get paginated list of employees"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get Employee by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/employees/{{employeeId}}",
+							"host": ["{{baseUrl}}", "employees", "{{employeeId}}"]
+						},
+						"description": "Get a single employee by their ID"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Create Employee",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"employee_code\": \"EMP001\",\n    \"full_name\": \"John Doe\",\n    \"email\": \"john.doe@company.com\",\n    \"phone\": \"081234567890\",\n    \"company_id\": \"123e4567-e89b-12d3-a456-426614174001\",\n    \"department_id\": \"123e4567-e89b-12d3-a456-426614174002\",\n    \"job_role_id\": \"123e4567-e89b-12d3-a456-426614174003\",\n    \"level_grade\": 5,\n    \"work_location_id\": \"123e4567-e89b-12d3-a456-426614174004\",\n    \"manager_id\": \"123e4567-e89b-12d3-a456-426614174005\",\n    \"residence_address\": \"Jl. Sudirman No. 123\",\n    \"residence_city\": \"Jakarta\",\n    \"residence_province\": \"DKI Jakarta\",\n    \"residence_postal_code\": \"12190\",\n    \"is_active\": true,\n    \"join_date\": \"2024-01-15\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/employees",
+							"host": ["{{baseUrl}}", "employees"]
+						},
+						"description": "Create a new employee. Note: company_id, department_id, job_role_id should be valid UUIDs from your database."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Update Employee",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"Jane Doe\",\n    \"email\": \"jane.doe@company.com\",\n    \"phone\": \"089876543210\",\n    \"level_grade\": 6,\n    \"is_active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/employees/{{employeeId}}",
+							"host": ["{{baseUrl}}", "employees", "{{employeeId}}"]
+						},
+						"description": "Update an existing employee. All fields are optional - only include fields you want to update."
+					},
+					"response": []
+				},
+				{
+					"name": "5. Delete Employee",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/employees/{{employeeId}}",
+							"host": ["{{baseUrl}}", "employees", "{{employeeId}}"]
+						},
+						"description": "Soft delete an employee"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Test: Status code is 200 or 201",
+					"pm.test('Status is 200 or 201', function() {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+					"});",
+					"",
+					"// Test: Response has success true",
+					"pm.test('Response has success: true', function() {",
+					"    var jsonData = pm.response.json();",
+					"    pm.expect(jsonData.success).to.eql(true);",
+					"});",
+					"",
+					"// Save created ID for Department",
+					"if (pm.request.method === 'POST' && pm.request.url.path.includes('departments')) {",
+					"    var jsonData = pm.response.json();",
+					"    if (jsonData.data && jsonData.data.id) {",
+					"        pm.collectionVariables.set('departmentId', jsonData.data.id);",
+					"        console.log('Saved departmentId:', jsonData.data.id);",
+					"    }",
+					"}",
+					"",
+					"// Save created ID for Employee",
+					"if (pm.request.method === 'POST' && pm.request.url.path.includes('employees')) {",
+					"    var jsonData = pm.response.json();",
+					"    if (jsonData.data && jsonData.data.id) {",
+					"        pm.collectionVariables.set('employeeId', jsonData.data.id);",
+					"        console.log('Saved employeeId:', jsonData.data.id);",
+					"    }",
+					"}"
+				]
+			}
+		}
+	]
+}
