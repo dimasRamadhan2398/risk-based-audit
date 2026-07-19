@@ -185,7 +185,7 @@
                         <td class="px-4 py-3 text-center">
                           <UButton
                             icon="i-lucide-trash-2"
-                            color="rose"
+                            color="error"
                             variant="ghost"
                             size="xs"
                             @click="removeFactorFromCorporate(item)"
@@ -217,7 +217,7 @@
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
-                    🎯 Scoring Workspace
+                    🎯 Risk Score
                   </h2>
                   <p class="text-xs text-slate-500 mt-0.5">
                     Select year and entity to enter risk factor scoring.
@@ -239,20 +239,15 @@
                   <div class="flex items-center gap-2">
                     <span class="text-xs font-semibold text-slate-500">Entity:</span>
                     <USelectMenu
-                      :model-value="activeYearlyEntity"
-                      @update:model-value="selectEntityForScoring"
-                      :items="yearlyUniverse"
+                      :model-value="activeYearlyEntity ? dropdownEntities.find(d => d.id === activeYearlyEntity.id) : undefined"
+                      @update:model-value="(val: any) => selectEntityForScoring(val ? val.original : undefined)"
+                      :items="dropdownEntities"
+                      option-key="name"
                       placeholder="-- Select Entity --"
                       class="w-56"
                     >
-                      <template #label="{ modelValue }">
-                        <span v-if="modelValue?.corporate_audit_universe">
-                          {{ modelValue.corporate_audit_universe.name }}
-                        </span>
-                        <span v-else class="text-gray-400">-- Select Entity --</span>
-                      </template>
                       <template #item="{ item }">
-                        <span>{{ item.corporate_audit_universe?.name }}</span>
+                        <span>{{ item.name }}</span>
                       </template>
                     </USelectMenu>
                   </div>
@@ -468,7 +463,7 @@ const auditStore = useAuditUniverseStore()
 
 const tabItems = [
   { slot: 'weighting', label: '1. Corporate Weighting', icon: 'i-lucide-activity' },
-  { slot: 'scoring', label: '2. Scoring Workspace', icon: 'i-lucide-award' },
+  { slot: 'scoring', label: '2. Risk Score', icon: 'i-lucide-award' },
   { slot: 'priority', label: '3. Rekapitulasi & Priorities', icon: 'i-lucide-list-checks' }
 ]
 
@@ -537,6 +532,14 @@ const isValidWeightSum = computed(() => {
 })
 
 const yearlyUniverse = computed(() => auditStore.yearlyUniverse)
+
+const dropdownEntities = computed(() => {
+  return auditStore.yearlyUniverse.map(item => ({
+    id: item.id,
+    name: item.corporate_audit_universe ? item.corporate_audit_universe.name : 'Unknown',
+    original: item
+  }))
+})
 
 const sortedYearlyUniverse = computed(() => {
   return [...auditStore.yearlyUniverse]

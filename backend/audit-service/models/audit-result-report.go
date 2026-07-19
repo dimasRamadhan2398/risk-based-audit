@@ -31,7 +31,13 @@ type AuditResultReport struct {
 	ReportDate      *time.Time     `json:"report_date"`
 	Status          string         `gorm:"type:varchar(50);default:'DRAFT'" json:"status"`
 	Attachment      string         `gorm:"type:varchar(500)" json:"attachment"`
+	Findings        []AuditReportFinding `gorm:"serializer:json" json:"findings"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+type AuditReportFinding struct {
+	Title    string `json:"title"`
+	Severity string `json:"severity"`
 }

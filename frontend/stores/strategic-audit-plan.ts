@@ -174,12 +174,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             if (items.length > 0) {
                 strategicObjectives.value = items;
             } else {
-                strategicObjectives.value = [];
+                strategicObjectives.value = [...mockObjectives];
             }
         } catch (error: any) {
             console.error('Failed to fetch strategic plans:', error);
             errorMsg.value = 'Failed to load strategic plans.';
-            strategicObjectives.value = [];
+            strategicObjectives.value = [...mockObjectives];
         } finally {
             loading.value = false;
         }

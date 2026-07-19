@@ -2,12 +2,18 @@ import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
 import { useAssignmentLetterStore } from './assignment-letter'
 
+export interface FindingItem {
+  title: string
+  severity: 'Very Significant' | 'Significant' | 'Moderately Significant' | 'Insignificant'
+}
+
 export interface AuditResultReport {
   id: string
   assignmentLetterId: string
   reportTitle: string
   executiveSummary: string
-  overallRating: 'Satisfactory' | 'Needs Improvement' | 'Unsatisfactory'
+  overallRating: 'Very Significant' | 'Significant' | 'Moderately Significant' | 'Insignificant'
+  findings?: FindingItem[]
   reportDate: string
   status: 'Draft' | 'Final'
   findingsCount: number
@@ -20,14 +26,21 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   const selectedAssignmentLetter = ref<string>('')
   const reportList = ref<AuditResultReport[]>([
     {
-        id: 'R-001',
-        assignmentLetterId: 'ST-001/SKAI/2026',
-        reportTitle: 'Audit Report - Financial Operations 2026',
-        executiveSummary: 'The financial operations are generally effective with some minor findings in documentation.',
-        overallRating: 'Satisfactory',
-        reportDate: '2026-04-15',
-        status: 'Final',
-        findingsCount: 3
+      id: 'R-001',
+      assignmentLetterId: 'ST-001/SKAI/2026',
+      reportTitle: 'Audit Report - Financial Operations 2026',
+      executiveSummary: 'The financial operations are generally effective with some minor findings in documentation.',
+      overallRating: 'Significant',
+      reportDate: '2026-04-15',
+      status: 'Final',
+      findingsCount: 5,
+      findings: [
+        { title: 'Keterlambatan rekonsiliasi kas harian cabang utama', severity: 'Very Significant' },
+        { title: 'Kelemahan kontrol otorisasi transaksi di atas Rp 500jt', severity: 'Very Significant' },
+        { title: 'Selisih pencatatan inventaris fisik vs buku besar', severity: 'Very Significant' },
+        { title: 'Dokumentasi bukti transfer eksternal tidak lengkap', severity: 'Significant' },
+        { title: 'Akses user kasir tidak di-nonaktifkan setelah mutasi', severity: 'Significant' }
+      ]
     }
   ])
   const showModal = ref(false)
@@ -38,10 +51,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     assignmentLetterId: '',
     reportTitle: '',
     executiveSummary: '',
-    overallRating: 'Satisfactory' as 'Satisfactory' | 'Needs Improvement' | 'Unsatisfactory',
+    overallRating: 'Significant' as 'Very Significant' | 'Significant' | 'Moderately Significant' | 'Insignificant',
     reportDate: new Date().toISOString().split('T')[0] as string,
     status: 'Draft' as 'Draft' | 'Final',
-    findingsCount: 0
+    findingsCount: 0,
+    findings: [] as FindingItem[]
   })
 
   // Computed
@@ -72,10 +86,17 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       assignmentLetterId: 'ST-001/SKAI/2026',
       reportTitle: 'Audit Report - Financial Operations 2026',
       executiveSummary: 'The financial operations are generally effective with some minor findings in documentation.',
-      overallRating: 'Satisfactory',
+      overallRating: 'Significant',
       reportDate: '2026-04-15',
       status: 'Final',
-      findingsCount: 3
+      findingsCount: 5,
+      findings: [
+        { title: 'Keterlambatan rekonsiliasi kas harian cabang utama', severity: 'Very Significant' },
+        { title: 'Kelemahan kontrol otorisasi transaksi di atas Rp 500jt', severity: 'Very Significant' },
+        { title: 'Selisih pencatatan inventaris fisik vs buku besar', severity: 'Very Significant' },
+        { title: 'Dokumentasi bukti transfer eksternal tidak lengkap', severity: 'Significant' },
+        { title: 'Akses user kasir tidak di-nonaktifkan setelah mutasi', severity: 'Significant' }
+      ]
     }
   ]
 
@@ -128,10 +149,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       assignmentLetterId: selectedAssignmentLetter.value,
       reportTitle: '',
       executiveSummary: '',
-      overallRating: 'Satisfactory',
+      overallRating: 'Significant',
       reportDate: new Date().toISOString().split('T')[0] as string,
       status: 'Draft',
-      findingsCount: 0
+      findingsCount: 0,
+      findings: []
     })
   }
 
@@ -166,7 +188,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const editReport = (report: AuditResultReport) => {
-    Object.assign(reportForm, report)
+    Object.assign(reportForm, {
+      ...report,
+      findings: report.findings ? JSON.parse(JSON.stringify(report.findings)) : []
+    })
     isEditing.value = true
     editingId.value = report.id
     showModal.value = true

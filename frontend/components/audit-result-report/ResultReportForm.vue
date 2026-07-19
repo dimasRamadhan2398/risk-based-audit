@@ -43,7 +43,7 @@
               <UFormField label="Overall Rating" name="overallRating" required>
                 <USelectMenu
                   v-model="store.reportForm.overallRating"
-                  :items="['Satisfactory', 'Needs Improvement', 'Unsatisfactory']"
+                  :items="['Very Significant', 'Significant', 'Moderately Significant', 'Insignificant']"
                   class="w-full"
                 />
               </UFormField>
@@ -72,6 +72,64 @@
                   class="w-full"
                 />
               </UFormField>
+
+              <!-- Significant Findings List Editor -->
+              <div class="md:col-span-2 space-y-4 pt-4 border-t border-gray-100">
+                <div class="flex justify-between items-center">
+                  <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+                    <UIcon name="i-heroicons-list-bullet" class="text-primary-600" />
+                    Significant Findings (Max 5)
+                  </h4>
+                  <UButton
+                    v-if="(!store.reportForm.findings ? 0 : store.reportForm.findings.length) < 5"
+                    label="Add Finding"
+                    size="xs"
+                    color="primary"
+                    variant="soft"
+                    icon="i-heroicons-plus"
+                    @click="() => { if (!store.reportForm.findings) store.reportForm.findings = []; store.reportForm.findings.push({ title: '', severity: 'Significant' }) }"
+                  />
+                </div>
+                
+                <div class="space-y-3">
+                  <div
+                    v-for="(finding, idx) in store.reportForm.findings"
+                    :key="idx"
+                    class="flex items-start gap-3 bg-slate-50 dark:bg-slate-850 p-3 rounded-lg border border-slate-100 dark:border-slate-800"
+                  >
+                    <div class="flex-1 space-y-2">
+                      <div class="grid grid-cols-3 gap-3">
+                        <UFormField label="Severity" size="sm" class="col-span-1">
+                          <USelectMenu
+                            v-model="finding.severity"
+                            :items="['Very Significant', 'Significant']"
+                            class="w-full"
+                          />
+                        </UFormField>
+                        <UFormField label="Finding Description / Title" size="sm" class="col-span-2">
+                          <UInput
+                            v-model="finding.title"
+                            placeholder="e.g. Keterlambatan rekonsiliasi kas harian"
+                            required
+                            class="w-full"
+                          />
+                        </UFormField>
+                      </div>
+                    </div>
+                    <UButton
+                      color="error"
+                      variant="ghost"
+                      icon="i-heroicons-trash"
+                      size="sm"
+                      class="mt-6"
+                      @click="() => { store.reportForm.findings.splice(idx, 1) }"
+                    />
+                  </div>
+                  <div v-if="!store.reportForm.findings || store.reportForm.findings.length === 0" class="text-center py-4 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-400">
+                    No findings added yet. Click "Add Finding" to list significant findings.
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Footer Actions -->

@@ -129,7 +129,7 @@ const columns = [
   { accessorKey: 'reportTitle', header: 'Report Title' },
   { accessorKey: 'reportDate', header: 'Date' },
   { accessorKey: 'findingsCount', header: 'Findings' },
-  { accessorKey: 'overallRating', header: 'Overall Rating' },
+  { accessorKey: 'overallRating', header: 'Significance' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'actions', header: 'Actions' }
 ]

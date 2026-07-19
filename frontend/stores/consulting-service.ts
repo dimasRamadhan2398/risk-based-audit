@@ -71,18 +71,64 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
     return 'http://localhost:8003/api/v1'
   }
 
+  const mockServices: ConsultingService[] = [
+    {
+      id: 'CS-001',
+      title: 'Review & Assessment SOP Procurement & Purchasing',
+      category: 'Policy & SOP Review',
+      requestorDept: 'Procurement',
+      period: 'Q1 2026',
+      consultantName: 'Budi Hartanto',
+      status: 'Completed',
+      notes: 'Rekomendasi perbaikan kontrol persetujuan pembelian di atas Rp 100jt telah disetujui.',
+      attachment: {
+        name: 'SOP_Procurement_Review_Report.pdf',
+        size: '1.2 MB',
+        uploadedAt: '2026-03-10'
+      }
+    },
+    {
+      id: 'CS-002',
+      title: 'IT Security Governance Assessment & Training',
+      category: 'IT Advisory',
+      requestorDept: 'IT',
+      period: 'Q2 2026',
+      consultantName: 'Wahyu Hidayat',
+      status: 'In Progress',
+      notes: 'Melakukan review celah keamanan dan melatih staf IT tentang standar ISO 27001.',
+      attachment: {
+        name: 'IT_Security_Audit_Scope.pdf',
+        size: '850 KB',
+        uploadedAt: '2026-05-18'
+      }
+    },
+    {
+      id: 'CS-003',
+      title: 'Corporate Governance & Compliance Assessment',
+      category: 'Governance Assessment',
+      requestorDept: 'Legal',
+      period: 'Q3 2026',
+      consultantName: 'Carolina Wijaya',
+      status: 'Planned',
+      notes: 'Asesmen keselarasan kebijakan internal perusahaan terhadap regulasi POJK terbaru.'
+    }
+  ]
+
   const fetchServices = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getMasterServiceBaseUrl()
       const data: any = await $fetch(`${baseUrl}/consulting-services`)
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
         services.value = data
+      } else {
+        services.value = [...mockServices]
       }
     } catch (error) {
-      console.error('Failed to fetch consulting services:', error)
+      console.error('Failed to fetch consulting services, falling back to mock:', error)
       errorMsg.value = 'Failed to load consulting services.'
+      services.value = [...mockServices]
     } finally {
       loading.value = false
     }

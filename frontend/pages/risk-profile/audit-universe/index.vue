@@ -147,7 +147,7 @@
                       />
                       <UButton
                         icon="i-lucide-trash-2"
-                        color="rose"
+                        color="error"
                         variant="ghost"
                         size="xs"
                         @click="deleteCorporateNode(node.id)"
@@ -173,7 +173,7 @@
                         />
                         <UButton
                           icon="i-lucide-trash-2"
-                          color="rose"
+                          color="error"
                           variant="ghost"
                           size="xs"
                           @click="deleteCorporateNode(sub.id)"
@@ -204,7 +204,7 @@
               </div>
               <template #footer>
                 <div class="flex justify-end gap-3">
-                  <UButton color="neutral" variant="outline" label="Cancel" @click="renameModalOpen = false" />
+                  <UButton color="neutral" variant="outline" label="Cancel" @click="() => { renameModalOpen = false }" />
                   <UButton color="primary" label="Save" @click="saveRenameNode" />
                 </div>
               </template>
@@ -227,7 +227,7 @@
               </div>
               <template #footer>
                 <div class="flex justify-end gap-3">
-                  <UButton color="neutral" variant="outline" label="Cancel" @click="addCustomModalOpen = false" />
+                  <UButton color="neutral" variant="outline" label="Cancel" @click="() => { addCustomModalOpen = false }" />
                   <UButton color="primary" label="Add Node" @click="saveAddCustomNode" />
                 </div>
               </template>

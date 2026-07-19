@@ -20,20 +20,56 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
     return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
   }
 
+  const mockStatements: RiskAppetite[] = [
+    {
+      id: 'RA-001',
+      statement: 'Toleransi terhadap pelanggaran kepatuhan hukum, regulasi eksternal, dan etika bisnis (Fraud / Korupsi)',
+      threshold_limit: 0,
+      status: 'APPROVED',
+      created_at: '2026-01-05T08:00:00Z',
+      updated_at: '2026-01-05T08:00:00Z'
+    },
+    {
+      id: 'RA-002',
+      statement: 'Toleransi deviasi anggaran biaya operasional tahunan departemen',
+      threshold_limit: 5,
+      status: 'APPROVED',
+      created_at: '2026-01-05T08:00:00Z',
+      updated_at: '2026-01-05T08:00:00Z'
+    },
+    {
+      id: 'RA-003',
+      statement: 'Maksimal rasio piutang tak tertagih (Bad Debt Ratio) terhadap total pendapatan',
+      threshold_limit: 3,
+      status: 'APPROVED',
+      created_at: '2026-01-05T08:00:00Z',
+      updated_at: '2026-01-05T08:00:00Z'
+    },
+    {
+      id: 'RA-004',
+      statement: 'Toleransi downtime sistem IT utama/Core System dalam sebulan',
+      threshold_limit: 2,
+      status: 'APPROVED',
+      created_at: '2026-01-05T08:00:00Z',
+      updated_at: '2026-01-05T08:00:00Z'
+    }
+  ]
+
   const fetchStatements = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/risk-appetite`, { method: 'GET' })
-      if (Array.isArray(response)) {
+      if (Array.isArray(response) && response.length > 0) {
         statements.value = response
       } else {
-        statements.value = []
+        statements.value = [...mockStatements]
       }
     } catch (error) {
-      console.error('Failed to fetch risk appetite statements:', error)
+      console.error('Failed to fetch risk appetite statements, falling back to mock:', error)
       errorMsg.value = 'Failed to load risk appetite statements.'
+      statements.value = [...mockStatements]
     } finally {
       loading.value = false
     }

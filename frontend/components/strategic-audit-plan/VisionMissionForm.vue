@@ -26,7 +26,7 @@
             <div v-for="(visi, index) in store.form.visis" :key="'visi-' + index" class="flex gap-2 items-center">
               <UInput
                 v-model="store.form.visis[index]"
-                placeholder="Ex: Menguasai Negara"
+                placeholder="Ex: Visi Corporate"
                 class="flex-1"
                 required
               />
@@ -35,7 +35,7 @@
                 icon="i-lucide-trash"
                 color="error"
                 variant="ghost"
-                @click="store.form.visis.splice(index, 1)"
+                @click="() => { store.form.visis.splice(index, 1) }"
                 aria-label="Hapus Visi"
               />
             </div>
@@ -45,7 +45,7 @@
               variant="solid"
               size="sm"
               class="mt-1"
-              @click="store.form.visis.push('')"
+              @click="() => { store.form.visis.push('') }"
             />
           </div>
 
@@ -57,7 +57,7 @@
             <div v-for="(misi, index) in store.form.misis" :key="'misi-' + index" class="flex gap-2 items-center">
               <UInput
                 v-model="store.form.misis[index]"
-                placeholder="Ex: Menguasai Negara"
+                placeholder="Ex: Misi Corporate"
                 class="flex-1"
                 required
               />
@@ -66,7 +66,7 @@
                 icon="i-lucide-trash"
                 color="error"
                 variant="ghost"
-                @click="store.form.misis.splice(index, 1)"
+                @click="() => { store.form.misis.splice(index, 1) }"
                 aria-label="Hapus Misi"
               />
             </div>
@@ -76,7 +76,7 @@
               variant="solid"
               size="sm"
               class="mt-1"
-              @click="store.form.misis.push('')"
+              @click="() => { store.form.misis.push('') }"
             />
           </div>
 
@@ -106,7 +106,7 @@
                 icon="i-lucide-trash"
                 color="error"
                 variant="ghost"
-                @click="store.form.goals.splice(index, 1)"
+                @click="() => { store.form.goals.splice(index, 1) }"
                 aria-label="Hapus Goal"
               />
             </div>
@@ -116,7 +116,7 @@
               variant="solid"
               size="sm"
               class="mt-1"
-              @click="store.form.goals.push({ goal_code: `G-00${store.form.goals.length + 1}`, goal_name: '' })"
+              @click="() => { store.form.goals.push({ goal_code: `G-00${store.form.goals.length + 1}`, goal_name: '' }) }"
             />
           </div>
 
@@ -151,7 +151,7 @@
               label="Batal"
               color="neutral"
               variant="ghost"
-              @click="store.isModalOpen = false"
+              @click="() => { store.isModalOpen = false }"
             />
             <UButton
               type="submit"
