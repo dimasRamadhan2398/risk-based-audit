@@ -52,6 +52,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 		log.Printf("Warning: Appetite seeding failed: %v", err)
 	}
 
+	// Seed initial risk factors and audit universe if empty
+	if err := seedRiskFactorsAndUniverse(db); err != nil {
+		log.Printf("Warning: Risk Factors & Universe seeding failed: %v", err)
+	}
+
 	r := gin.Default()
 
 	r.Use(func(c *gin.Context) {
@@ -80,9 +85,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 
 	riskCtrl := controllers.NewRiskController(riskServ)
 	mitigationCtrl := controllers.NewMitigationController(mitigationServ)
+	riskFactorCtrl := controllers.NewRiskFactorController(db)
+	auditUniverseCtrl := controllers.NewAuditUniverseController(db)
 
 	// Register Routes
-	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, &r.RouterGroup)
+	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, riskFactorCtrl, auditUniverseCtrl, &r.RouterGroup)
 	riskRoute.Run()
 
 	// Risk Appetite Handlers (Migrated to Gin)

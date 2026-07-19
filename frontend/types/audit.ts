@@ -488,6 +488,7 @@ export type QuarterType = 'Q1' | 'Q2' | 'Q3' | 'Q4';
 export interface StrategicAuditPlan {
   id: string;
   code: string;
+  goalId?: string;
   strategicObjective: string;
   kpi: string;
   unit: string;

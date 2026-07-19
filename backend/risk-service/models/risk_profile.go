@@ -18,10 +18,10 @@ type RiskProfile struct {
 	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
 
 	// Risk scoring fields
-	Impact         int          `gorm:"not null" json:"impact"`
-	Likelihood     int          `gorm:"not null" json:"likelihood"`
-	RiskScore      int          `gorm:"not null" json:"risk_score"`   // Impact × Likelihood
-	SeverityWeight float64      `gorm:"type:decimal(5,4)" json:"severity_weight"`
+	Impact         int          `gorm:"not null;default:0" json:"impact"`
+	Likelihood     int          `gorm:"not null;default:0" json:"likelihood"`
+	RiskScore      int          `gorm:"not null;default:0" json:"risk_score"`   // Impact × Likelihood
+	SeverityWeight float64      `gorm:"type:decimal(5,4);default:0" json:"severity_weight"`
 
 	// Relation to RiskLevel
 	RiskLevelID *uuid.UUID `gorm:"type:uuid;index" json:"risk_level_id"`

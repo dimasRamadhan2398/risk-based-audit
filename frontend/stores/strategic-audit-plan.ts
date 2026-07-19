@@ -27,6 +27,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const form = ref<Partial<StrategicAuditPlan>>({
         code: '',
+        goalId: '',
         strategicObjective: '',
         kpi: '',
         unit: '',
@@ -253,6 +254,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const resetForm = () => {
         form.value = {
             code: '',
+            goalId: '',
             strategicObjective: '',
             kpi: '',
             unit: '',

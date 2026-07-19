@@ -242,3 +242,40 @@ import type { TableColumn } from '@nuxt/ui'
 export type EmployeeTableColumn = TableColumn<Employee>
 export type DepartmentTableColumn = TableColumn<Department>
 export type CompanyTableColumn = TableColumn<Company>
+
+// ============= Vision, Mission & Goals Types =============
+export type VisionMissionGoalsStatus = 'Draft' | 'In Review' | 'Approved' | 'Published'
+
+export interface VmgGoal {
+  id?: string
+  vmg_id?: string
+  goal_code: string
+  goal_name: string
+  goal_description?: string
+  strategic_objective?: string
+  kpi?: string
+  target?: string
+  unit?: string
+  baseline_year?: string
+  baseline_value?: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface VisionMissionGoals {
+  id: string
+  company_id: string
+  company?: Company
+  period: string
+  effective_date?: string
+  vision: string
+  mission: string
+  version?: string
+  status: VisionMissionGoalsStatus
+  notes?: string
+  created_at?: string
+  updated_at?: string
+  created_by?: string
+  modified_by?: string
+  goals?: VmgGoal[]
+}

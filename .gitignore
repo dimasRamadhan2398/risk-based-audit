@@ -12,3 +12,9 @@ gdrive-credentials.json
 # OS files
 .DS_Store
 Thumbs.db
+
+# Large binaries and archives
+*.zip
+*.safetensors
+*.bin
+**/model/

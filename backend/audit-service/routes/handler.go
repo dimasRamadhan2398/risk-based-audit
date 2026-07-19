@@ -70,6 +70,26 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditCharters.DELETE("/:id", h.registry.AuditCharter.DeleteCharter)
 	}
 
+	// Audit Guidelines routes
+	auditGuidelines := apiV1.Group("/audit-guidelines")
+	{
+		auditGuidelines.GET("", crud.List(h.db, "AuditGuideline", func() interface{} { return &[]models.AuditGuideline{} }))
+		auditGuidelines.GET("/:id", crud.GetByID(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
+		auditGuidelines.POST("", crud.Create(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
+		auditGuidelines.PUT("/:id", crud.Update(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
+		auditGuidelines.DELETE("/:id", crud.Delete(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
+	}
+
+	// Audit SOPs routes
+	auditSops := apiV1.Group("/audit-sops")
+	{
+		auditSops.GET("", crud.List(h.db, "AuditSop", func() interface{} { return &[]models.AuditSop{} }, "Guideline"))
+		auditSops.GET("/:id", crud.GetByID(h.db, "AuditSop", func() interface{} { return &models.AuditSop{} }, "Guideline"))
+		auditSops.POST("", crud.Create(h.db, "AuditSop", func() interface{} { return &models.AuditSop{} }))
+		auditSops.PUT("/:id", crud.Update(h.db, "AuditSop", func() interface{} { return &models.AuditSop{} }))
+		auditSops.DELETE("/:id", crud.Delete(h.db, "AuditSop", func() interface{} { return &models.AuditSop{} }))
+	}
+
 	// Audit Mandate routes
 	auditMandates := apiV1.Group("/audit-mandates")
 	{

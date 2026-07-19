@@ -88,6 +88,8 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 	// Define audit models to migrate
 	auditModels := []interface{}{
 		&models.AuditCharter{},
+		&models.AuditGuideline{},
+		&models.AuditSop{},
 		&models.AuditMandate{},
 		&models.AuditAssignment{},
 		&models.AuditAnnual{},
@@ -179,6 +181,8 @@ func runMigrateDown(cmd *cobra.Command, args []string) error {
 		"audit_annuals",
 		"audit_assignments",
 		"audit_mandates",
+		"audit_sops",
+		"audit_guidelines",
 		"audit_charters",
 	}
 
@@ -214,6 +218,8 @@ func runMigrateStatus(cmd *cobra.Command, args []string) error {
 	// Expected audit tables
 	expectedTables := []string{
 		"imported_working_papers",
+		"audit_guidelines",
+		"audit_sops",
 		"audit_charters",
 		"audit_mandates",
 		"audit_assignments",

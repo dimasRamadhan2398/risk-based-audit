@@ -29,12 +29,16 @@
     <!-- Add/Edit Modal -->
     <StrategicPlanForm />
 
+    <!-- Vision, Mission and Goals Strategic Card -->
+    <VisionMissionCard />
+    <VisionMissionForm />
+
     <!-- Error Alert -->
     <UAlert
       v-if="store.errorMsg"
       title="Error"
       :description="store.errorMsg"
-      color="red"
+      color="error"
       variant="soft"
       icon="i-lucide-alert-circle"
       class="mb-4"
@@ -50,10 +54,16 @@
 
 import StrategicPlanForm from "~/components/strategic-audit-plan/StrategicPlanForm.vue";
 import StrategicPlanTable from "~/components/strategic-audit-plan/StrategicPlanTable.vue";
+import VisionMissionCard from "~/components/strategic-audit-plan/VisionMissionCard.vue";
+import VisionMissionForm from "~/components/strategic-audit-plan/VisionMissionForm.vue";
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
+import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 
 // Inisialisasi Store
 const store = useStrategicPlanStore()
 store.fetchStrategicPlans()
+
+const vmgStore = useVisionMissionGoalsStore()
+vmgStore.fetchCompaniesAndVmg()
 
 </script>

@@ -283,6 +283,21 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
   }
 
+  const yearlyUniverse = ref<any[]>([])
+
+  const fetchYearlyUniverse = async (year: number) => {
+    try {
+      const config = useRuntimeConfig()
+      const baseUrl = config.public.riskServiceBaseUrl || 'http://localhost:8080/api/v1'
+      const response: any = await $fetch(`${baseUrl}/audit-universe/year/${year}`)
+      if (response && response.success) {
+        yearlyUniverse.value = response.data
+      }
+    } catch (error) {
+      console.error('Failed to fetch yearly universe for annual plan:', error)
+    }
+  }
+
   const plans = ref<AnnualAuditPlan[]>([])
 
   const fetchPlans = async () => {
@@ -624,6 +639,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
     getStatusColor, handleFileChange, fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
-    createRevision, getRiskLevelColor
+    createRevision, getRiskLevelColor, yearlyUniverse, fetchYearlyUniverse
   }
 })

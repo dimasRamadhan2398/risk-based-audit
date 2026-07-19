@@ -80,32 +80,50 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 mt-4">
-                                        <UFormField label="Associated Risk (Based on Risk Profile)" size="lg">
+                                        <UFormField label="Auditable Entity (from Audit Universe)" size="lg">
                                             <USelectMenu 
-                                                :model-value="getFilteredRisksForDept(activity.department).find(r => r.name === activity.riskName)"
+                                                :model-value="flattenedYearlyUniverse.find(u => u.name === activity.riskName)"
                                                 @update:model-value="(val: any) => { 
-                                                    activity.riskName = val ? val.name : ''; 
-                                                    activity.riskLevel = val ? val.riskLevel : ''; 
+                                                    if (val) {
+                                                        activity.riskName = val.name; 
+                                                        activity.riskLevel = val.riskLevel;
+                                                        activity.name = `Audit Operasional ${val.name}`;
+                                                        const nameLower = val.name.toLowerCase();
+                                                        if (nameLower.includes('it') || nameLower.includes('technology') || nameLower.includes('sistem')) {
+                                                            activity.department = AuditDepartment.IT;
+                                                        } else if (nameLower.includes('finance') || nameLower.includes('keuangan') || nameLower.includes('treasury')) {
+                                                            activity.department = AuditDepartment.FINANCE;
+                                                        } else if (nameLower.includes('hr') || nameLower.includes('human') || nameLower.includes('sumber daya') || nameLower.includes('resource')) {
+                                                            activity.department = AuditDepartment.HR;
+                                                        } else {
+                                                            activity.department = AuditDepartment.OPS;
+                                                        }
+                                                    } else {
+                                                        activity.riskName = '';
+                                                        activity.riskLevel = '';
+                                                    }
                                                 }"
-                                                :items="getFilteredRisksForDept(activity.department)"
+                                                :items="flattenedYearlyUniverse"
                                                 option-key="name"
-                                                placeholder="-- Select Risk --"
+                                                placeholder="-- Select Auditable Entity --"
                                                 class="w-full"
                                             >
                                                 <template #item="{ item }">
-                                                    <div class="flex items-center gap-2 max-w-full">
+                                                    <div class="flex items-center gap-2 max-w-full w-full">
                                                         <span 
                                                             class="w-2.5 h-2.5 rounded-full shrink-0" 
                                                             :style="{ backgroundColor: getRiskLevelColorHex(item.riskLevel) }"
                                                         ></span>
                                                         <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel }}]</span>
                                                         <span class="truncate text-xs">{{ item.name }}</span>
+                                                        <span class="text-[10px] text-gray-400 shrink-0 ml-1">({{ (item.riskIndex).toFixed(1) }}%)</span>
+                                                        <UBadge v-if="item.auditPriority" color="error" size="sm" variant="subtle" class="ml-auto">Priority</UBadge>
                                                     </div>
                                                 </template>
                                             </USelectMenu>
                                         </UFormField>
 
-                                        <UFormField label="Risk Level" size="lg">
+                                        <UFormField label="Calculated Risk Level" size="lg">
                                             <div class="mt-2">
                                                 <UBadge v-if="activity.riskLevel" :color="getRiskLevelColor(activity.riskLevel)" size="lg" variant="solid">
                                                     {{ activity.riskLevel }}
@@ -303,15 +321,34 @@
 </template>    
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useRiskProfileStore } from '~/stores/risk-profile'
+import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment } from '~/types/audit'
 
 const store = useAnnualPlanStore()
 const riskStore = useRiskProfileStore()
+const auditUniverseStore = useAuditUniverseStore()
 
 riskStore.fetchRisks()
+
+watch(() => store.form.year, async (newYear) => {
+  if (newYear) {
+    await auditUniverseStore.fetchYearlyUniverse(Number(newYear))
+  }
+}, { immediate: true })
+
+const flattenedYearlyUniverse = computed(() => {
+  if (!auditUniverseStore.yearlyUniverse) return []
+  return auditUniverseStore.yearlyUniverse.map(item => ({
+    id: item.id,
+    name: item.corporate_audit_universe ? item.corporate_audit_universe.name : 'Unknown',
+    riskLevel: item.risk_level || 'Not Scored',
+    riskIndex: item.risk_index || 0,
+    auditPriority: !!item.audit_priority
+  }))
+})
 
 const getFilteredRisksForDept = (dept: string) => {
   if (!riskStore.risks || riskStore.risks.length === 0) {

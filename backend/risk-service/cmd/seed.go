@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"risk-service/models"
-	"risk-service/pkg/config"
 	"risk-service/pkg/database"
 	"risk-service/pkg/logger"
 
@@ -46,6 +44,10 @@ func runSeed(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := seedRiskLevels(db); err != nil {
+		return err
+	}
+
+	if err := seedRiskFactorsAndUniverse(db); err != nil {
 		return err
 	}
 

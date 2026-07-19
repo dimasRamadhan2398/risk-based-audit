@@ -1,12 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
 
-// Gunakan useRoute untuk mendapatkan URL saat ini
 const route = useRoute()
 const authStore = useAuthStore()
+
+const isMobileMenuOpen = ref(false)
+
+watch(() => route.fullPath, () => {
+  isMobileMenuOpen.value = false
+})
+
+const openMobileMenu = () => {
+  isMobileMenuOpen.value = true
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
 
 // 1. Simpan data menu dalam variabel mentah (raw data)
 const rawItems: NavigationMenuItem[][] = [[
@@ -34,6 +47,16 @@ const rawItems: NavigationMenuItem[][] = [[
         label: 'Risk Appetite Statement',
         icon: 'i-lucide-clipboard-check',
         to: '/risk-appetite',
+      },
+      {
+        label: 'Risk Factors',
+        icon: 'i-lucide-activity',
+        to: '/risk-profile/risk-factors',
+      },
+      {
+        label: 'Audit Universe',
+        icon: 'i-lucide-globe',
+        to: '/risk-profile/audit-universe',
       },
     ]
   }, 
@@ -270,7 +293,16 @@ const userDropdownItems = computed(() => [
   <UDashboardPanel>
     <template #header>
         <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)]">
-          <Logo class="h-6 w-auto mx-auto text-2xl" />
+          <div class="flex items-center gap-3">
+            <UButton
+              icon="i-lucide-menu"
+              color="neutral"
+              variant="ghost"
+              class="lg:hidden"
+              @click="openMobileMenu"
+            />
+            <Logo class="h-6 w-auto text-2xl" />
+          </div>
           <div class="flex items-center gap-4">
             <UColorModeButton />
             <UButton v-if="!authStore.isLoggedIn" to="/auth/login" color="primary" variant="solid">Login</UButton>
@@ -311,6 +343,29 @@ const userDropdownItems = computed(() => [
     </template>
   </UDashboardPanel>
 
-  
+  <!-- Mobile Navigation Slideover -->
+  <USlideover v-model:open="isMobileMenuOpen" side="left">
+    <template #content>
+      <div class="flex flex-col h-full bg-[var(--bg-main)] border-r border-[var(--border-main)] overflow-y-auto w-72">
+        <div class="flex items-center justify-between p-4 border-b border-[var(--border-main)]">
+          <Logo class="h-6 w-auto text-xl" />
+          <UButton
+            icon="i-lucide-x"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            @click="closeMobileMenu"
+          />
+        </div>
+        <div class="flex-1 p-4 space-y-4">
+          <UNavigationMenu
+            :items="items[0]"
+            orientation="vertical"
+            class="w-full"
+          />
+        </div>
+      </div>
+    </template>
+  </USlideover>
   </UDashboardGroup>
 </template>

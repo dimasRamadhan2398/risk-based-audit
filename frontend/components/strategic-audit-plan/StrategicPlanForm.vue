@@ -9,6 +9,21 @@
         <UForm :state="store.form" @submit.prevent="store.handleSubmit">
           <div class="space-y-5">
 
+            <!-- Link to Goal -->
+            <div class="form-row" v-if="vmgStore.activeVmg?.goals?.length">
+              <label class="form-label">
+                Corporate Goal <span class="text-orange-500">*</span>
+              </label>
+              <USelectMenu
+                v-model="store.form.goalId"
+                :items="goalOptions"
+                value-key="value"
+                placeholder="Select Corporate Goal"
+                class="w-full"
+                required
+              />
+            </div>
+
             <!-- Objective ID -->
             <div class="form-row">
               <label class="form-label">
@@ -67,7 +82,7 @@
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
-                    v-model="store.form.dataType"
+                    v-model="store.form.hibHig"
                     value="HIG"
                     class="accent-orange-500 w-4 h-4"
                   />
@@ -76,7 +91,7 @@
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
-                    v-model="store.form.dataType"
+                    v-model="store.form.hibHig"
                     value="HIB"
                     class="accent-orange-500 w-4 h-4"
                   />
@@ -218,9 +233,20 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
+import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 
 const store = useStrategicPlanStore()
+const vmgStore = useVisionMissionGoalsStore()
+
+const goalOptions = computed(() => {
+  if (!vmgStore.activeVmg?.goals) return []
+  return vmgStore.activeVmg.goals.map(g => ({
+    label: `${g.goal_code} - ${g.goal_name}`,
+    value: g.id || g.goal_code
+  }))
+})
 </script>
 
 <style scoped>

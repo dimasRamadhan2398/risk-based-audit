@@ -1,0 +1,726 @@
+<template>
+  <div class="space-y-8 p-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-main)] pb-5">
+      <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
+          Risk Factors & Scoring Settings
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Configure risk weights, perform workspace scoring, and view computed audit priorities.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <UButton
+          to="/risk-profile"
+          icon="i-lucide-arrow-left"
+          color="neutral"
+          variant="outline"
+        >
+          Back to Heat Map
+        </UButton>
+      </div>
+    </div>
+
+    <!-- Alert Message -->
+    <Transition name="fade">
+      <UAlert
+        v-if="alertMessage"
+        :color="alertType === 'success' ? 'success' : 'error'"
+        variant="solid"
+        :title="alertType === 'success' ? 'Success' : 'Error'"
+        :description="alertMessage"
+        icon="i-lucide-info"
+        class="shadow-md"
+        closable
+        @close="alertMessage = ''"
+      />
+    </Transition>
+
+    <!-- Tabs Navigation -->
+    <UTabs :items="tabItems" class="w-full">
+      <!-- Tab 1: Corporate Weighting -->
+      <template #weighting>
+        <div class="space-y-6 mt-6">
+          <!-- Validation Status Banner -->
+          <div 
+            class="flex items-center justify-between p-4 rounded-xl border shadow-sm transition-all duration-300"
+            :class="isValidWeightSum ? 'bg-emerald-50/50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800' : 'bg-rose-50/50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-800'"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon 
+                :name="isValidWeightSum ? 'i-lucide-check-circle-2' : 'i-lucide-alert-triangle'" 
+                class="w-6 h-6"
+                :class="isValidWeightSum ? 'text-emerald-500' : 'text-rose-500'"
+              />
+              <div>
+                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Total Corporate Weight: <span class="font-bold text-base" :class="isValidWeightSum ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">{{ totalWeight }}%</span>
+                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  {{ isValidWeightSum ? 'All good! Weights sum to exactly 100%.' : 'Adjust weights of selected risk factors so that they equal exactly 100%.' }}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <UBadge :color="isValidWeightSum ? 'success' : 'error'" size="md" variant="subtle">
+                {{ isValidWeightSum ? 'VALID' : 'INVALID SUM' }}
+              </UBadge>
+              <UButton
+                icon="i-lucide-save"
+                color="primary"
+                variant="solid"
+                :loading="store.loading"
+                :disabled="!isValidWeightSum"
+                @click="saveChanges"
+              >
+                Save Weights
+              </UButton>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-8">
+            <!-- Catalog Explorer -->
+            <div class="space-y-6">
+              <UCard class="shadow-sm border border-[var(--border-main)]">
+                <template #header>
+                  <div class="space-y-3">
+                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
+                      📂 Standard Risk Factors
+                    </h2>
+                    <UInput
+                      v-model="searchQuery"
+                      icon="i-lucide-search"
+                      size="sm"
+                      placeholder="Search standard factors..."
+                      color="neutral"
+                      class="w-full"
+                    />
+                  </div>
+                </template>
+
+                <div class="max-h-[500px] overflow-y-auto pr-2 divide-y divide-slate-100 dark:divide-slate-800 space-y-2">
+                  <div 
+                    v-for="factor in filteredStandardFactors" 
+                    :key="factor.id"
+                    class="py-3 flex items-start justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 p-2 rounded-lg transition-colors duration-200"
+                  >
+                    <div class="cursor-pointer flex-1" @click="openGuidelines(factor)">
+                      <h3 class="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        {{ factor.name }}
+                      </h3>
+                      <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                        {{ factor.description }}
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <UCheckbox
+                        :model-value="isFactorSelected(factor.id)"
+                        @update:model-value="toggleFactorSelection(factor)"
+                      />
+                    </div>
+                  </div>
+                  <div v-if="filteredStandardFactors.length === 0" class="text-center py-8 text-xs text-slate-400">
+                    No standard risk factors match your query.
+                  </div>
+                </div>
+              </UCard>
+            </div>
+
+            <!-- Corporate Weights Table -->
+            <div>
+              <UCard class="shadow-sm border border-[var(--border-main)]">
+                <template #header>
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
+                        ⚙️ Selected Corporate Weights
+                      </h2>
+                    </div>
+                    <UBadge color="neutral" variant="outline">
+                      {{ selectedCorporateList.length }} Active Factors
+                    </UBadge>
+                  </div>
+                </template>
+
+                <div v-if="selectedCorporateList.length > 0" class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50">
+                      <tr>
+                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300 w-12">No</th>
+                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Risk Factor</th>
+                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300 w-32">Weight (%)</th>
+                        <th scope="col" class="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-300 w-20">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                      <tr 
+                        v-for="(item, idx) in selectedCorporateList" 
+                        :key="item.standard_risk_factor_id"
+                        class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20"
+                      >
+                        <td class="px-4 py-3 text-slate-500">{{ idx + 1 }}</td>
+                        <td class="px-4 py-3">
+                          <span 
+                            class="font-medium text-slate-800 dark:text-slate-200 cursor-pointer hover:underline"
+                            @click="openGuidelines(item.standard_risk_factor)"
+                          >
+                            {{ item.standard_risk_factor?.name }}
+                          </span>
+                          <p class="text-xs text-slate-400 mt-0.5 line-clamp-1">
+                            {{ item.standard_risk_factor?.description }}
+                          </p>
+                        </td>
+                        <td class="px-4 py-3">
+                          <UInput
+                            v-model.number="item.weight"
+                            type="number"
+                            size="sm"
+                            placeholder="0"
+                            color="neutral"
+                            class="w-24"
+                            trailing-icon="i-lucide-percent"
+                          />
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                          <UButton
+                            icon="i-lucide-trash-2"
+                            color="rose"
+                            variant="ghost"
+                            size="xs"
+                            @click="removeFactorFromCorporate(item)"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div v-else class="text-center py-16 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                  <UIcon name="i-lucide-alert-circle" class="w-8 h-8 text-slate-400 mx-auto" />
+                  <h3 class="mt-2 text-sm font-semibold text-slate-700 dark:text-slate-300">No Corporate Risk Factors Selected</h3>
+                  <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Check standard risk factors on the left to activate them.
+                  </p>
+                </div>
+              </UCard>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Tab 2: Scoring Workspace (Moved here) -->
+      <template #scoring>
+        <div class="mt-6">
+          <UCard class="shadow-sm border border-[var(--border-main)]">
+            <template #header>
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
+                    🎯 Scoring Workspace
+                  </h2>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Select year and entity to enter risk factor scoring.
+                  </p>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-500">Year:</span>
+                    <USelect
+                      v-model.number="selectedYear"
+                      :items="[2025, 2026, 2027, 2028]"
+                      size="sm"
+                      color="neutral"
+                      class="w-20"
+                      @update:model-value="fetchYearlyUniverse"
+                    />
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-500">Entity:</span>
+                    <USelectMenu
+                      :model-value="activeYearlyEntity"
+                      @update:model-value="selectEntityForScoring"
+                      :items="yearlyUniverse"
+                      placeholder="-- Select Entity --"
+                      class="w-56"
+                    >
+                      <template #label="{ modelValue }">
+                        <span v-if="modelValue?.corporate_audit_universe">
+                          {{ modelValue.corporate_audit_universe.name }}
+                        </span>
+                        <span v-else class="text-gray-400">-- Select Entity --</span>
+                      </template>
+                      <template #item="{ item }">
+                        <span>{{ item.corporate_audit_universe?.name }}</span>
+                      </template>
+                    </USelectMenu>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Scoring Area when activeYearlyEntity is selected -->
+            <div v-if="activeYearlyEntity" class="space-y-6">
+              <!-- Calculations overview -->
+              <div class="grid grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-850/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div class="text-center border-r border-slate-200 dark:border-slate-800">
+                  <p class="text-xs text-slate-500">Weighted Score Sum</p>
+                  <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ totalWeightedScore.toFixed(2) }}</p>
+                </div>
+                <div class="text-center border-r border-slate-200 dark:border-slate-800">
+                  <p class="text-xs text-slate-500">Risk Index</p>
+                  <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ activeYearlyEntity.risk_index?.toFixed(1) }}%</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-slate-500">Audit Priority</p>
+                  <UBadge :color="activeYearlyEntity.audit_priority ? 'success' : 'neutral'" variant="subtle" class="mt-1">
+                    {{ activeYearlyEntity.audit_priority ? 'YES (Priority)' : 'NO' }}
+                  </UBadge>
+                </div>
+              </div>
+
+              <!-- Scoring list -->
+              <div class="mt-6 space-y-4 max-h-[380px] overflow-y-auto pr-2 divide-y divide-slate-100 dark:divide-slate-800">
+                <div 
+                  v-for="score in scoringRows" 
+                  :key="score.corporate_risk_factor_id"
+                  class="pt-3 flex flex-col md:flex-row md:items-center justify-between gap-4 p-2 rounded-lg hover:bg-slate-50/50"
+                >
+                  <div class="flex-1 cursor-pointer" @click="openGuidelines(score.rubric)">
+                    <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      {{ score.factor_name }}
+                    </h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      Weight: {{ (score.weight * 100).toFixed(0) }}% | Weighted: {{ (score.weight * score.score).toFixed(2) }}
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <USelect
+                      v-model.number="score.score"
+                      :items="[1, 2, 3, 4, 5]"
+                      size="sm"
+                      color="neutral"
+                      class="w-20"
+                      @update:model-value="onScoreChange(score)"
+                    />
+                    <UButton
+                      icon="i-lucide-info"
+                      color="neutral"
+                      variant="ghost"
+                      size="xs"
+                      @click="openGuidelines(score.rubric)"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State when no entity is selected -->
+            <div v-else class="text-center py-20 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/20 dark:bg-slate-900/10">
+              <UIcon name="i-lucide-clipboard" class="w-12 h-12 text-slate-300 mx-auto" />
+              <h3 class="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-300">Select Auditable Entity</h3>
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Choose a year and active auditable entity from the dropdowns above to begin risk scoring.
+              </p>
+            </div>
+
+            <template #footer v-if="activeYearlyEntity">
+              <div class="flex justify-end gap-3">
+                <UButton
+                  icon="i-lucide-save"
+                  color="primary"
+                  label="Save Scoring & Calculate"
+                  :loading="auditStore.loading"
+                  @click="saveEntityScoring"
+                />
+              </div>
+            </template>
+          </UCard>
+        </div>
+      </template>
+
+      <!-- Tab 3: Rekapitulasi & Priorities -->
+      <template #priority>
+        <div class="mt-6 space-y-6">
+          <UCard class="shadow-sm border border-[var(--border-main)]">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space">
+                    Rekapitulasi Risk Index & Risk Level ({{ selectedYear }})
+                  </h2>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    Annual Audit Plan priorities based on calculated risk levels.
+                  </p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <UBadge color="success" variant="subtle" class="font-bold">
+                    {{ prioritizedCount }} Prioritized
+                  </UBadge>
+                </div>
+              </div>
+            </template>
+
+            <!-- Recap Table -->
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                <thead class="bg-slate-50 dark:bg-slate-850/50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">No</th>
+                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Auditable Entity</th>
+                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Risk Index</th>
+                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Risk Level</th>
+                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Audit Priority*</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr 
+                    v-for="(ent, idx) in sortedYearlyUniverse" 
+                    :key="ent.id"
+                    class="hover:bg-slate-50/50 dark:hover:bg-slate-800/10"
+                    :class="ent.audit_priority ? 'bg-primary-50/10' : ''"
+                  >
+                    <td class="px-6 py-4 text-slate-500 font-medium">{{ idx + 1 }}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
+                      {{ ent.corporate_audit_universe?.name }}
+                    </td>
+                    <td class="px-6 py-4 text-center font-semibold text-slate-700 dark:text-slate-300">
+                      {{ ent.risk_index?.toFixed(1) }}%
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <UBadge :color="getRiskLevelBadgeColor(ent.risk_level)" size="xs" class="font-bold">
+                        {{ ent.risk_level || 'N/A' }}
+                      </UBadge>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                        <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
+                        <span>√ Priority</span>
+                      </div>
+                      <span v-else class="text-slate-400 text-xs">-</span>
+                    </td>
+                  </tr>
+                  <tr v-if="yearlyUniverse.length === 0">
+                    <td colspan="5" class="text-center py-10 text-slate-400 text-xs">
+                      No established auditable entities for year {{ selectedYear }}.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <template #footer>
+              <div class="flex items-center justify-between text-[10px] text-slate-400">
+                <span>*Audit Priority = Risk Level Medium to High or High</span>
+                <span>Sorted by Risk Index (descending)</span>
+              </div>
+            </template>
+          </UCard>
+        </div>
+      </template>
+    </UTabs>
+
+    <!-- Scoring Scale Guidelines Modal (Task requirement) -->
+    <UModal v-model:open="guidelinesModalOpen">
+      <template #content>
+        <UCard>
+          <template #header>
+            <h3 class="font-bold text-base text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              📖 Scoring Scale Guidelines: {{ detailFactor?.name }}
+            </h3>
+          </template>
+          
+          <div v-if="detailFactor" class="space-y-4">
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ detailFactor.description }}</p>
+            <div class="space-y-3 mt-4">
+              <div 
+                v-for="guide in parsedGuidelines" 
+                :key="guide.score" 
+                class="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex items-start gap-3"
+              >
+                <div 
+                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
+                  :class="getScoreColor(guide.score)"
+                >
+                  {{ guide.score }}
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ getScoreLabel(guide.score) }}</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-sans leading-normal">{{ guide.desc }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </UCard>
+      </template>
+    </UModal>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRiskFactorsStore } from '~/stores/risk-factors'
+import { useAuditUniverseStore } from '~/stores/audit-universe'
+
+const store = useRiskFactorsStore()
+const auditStore = useAuditUniverseStore()
+
+const tabItems = [
+  { slot: 'weighting', label: '1. Corporate Weighting', icon: 'i-lucide-activity' },
+  { slot: 'scoring', label: '2. Scoring Workspace', icon: 'i-lucide-award' },
+  { slot: 'priority', label: '3. Rekapitulasi & Priorities', icon: 'i-lucide-list-checks' }
+]
+
+// State
+const searchQuery = ref('')
+const selectedCorporateList = ref<any[]>([])
+const detailFactor = ref<any>(null)
+const guidelinesModalOpen = ref(false)
+const alertMessage = ref('')
+const alertType = ref('success')
+
+// For scoring workspace:
+const selectedYear = ref(2026)
+const activeYearlyEntity = ref<any>(null)
+const scoringRows = ref<any[]>([])
+const rubricModalOpen = ref(false)
+const rubricFactor = ref<any>(null)
+
+// Lifecycle
+onMounted(async () => {
+  await store.fetchStandardFactors()
+  await store.fetchCorporateFactors()
+  await auditStore.fetchStandardUniverse()
+  await auditStore.fetchCorporateUniverse()
+  await fetchYearlyUniverse()
+  
+  // Set default details to Financial Materiality
+  if (store.standardFactors.length > 0) {
+    detailFactor.value = store.standardFactors[0]
+  }
+
+  // Populate local corporate selection from store
+  selectedCorporateList.value = store.corporateFactors.map(cf => ({
+    standard_risk_factor_id: cf.standard_risk_factor_id,
+    weight: Math.round(cf.weight * 100), // convert 0.15 to 15
+    standard_risk_factor: cf.standard_risk_factor
+  }))
+})
+
+// Computeds
+const filteredStandardFactors = computed(() => {
+  if (!searchQuery.value) return store.standardFactors
+  const query = searchQuery.value.toLowerCase()
+  return store.standardFactors.filter(
+    f => f.name.toLowerCase().includes(query) || f.description.toLowerCase().includes(query)
+  )
+})
+
+const parsedGuidelines = computed(() => {
+  if (!detailFactor.value?.score_guidelines) return []
+  try {
+    return JSON.parse(detailFactor.value.score_guidelines)
+  } catch (e) {
+    console.error('Failed to parse guidelines:', e)
+    return []
+  }
+})
+
+// Correct reactive calculation of total weight sum
+const totalWeight = computed(() => {
+  return selectedCorporateList.value.reduce((sum, item) => sum + (Number(item.weight) || 0), 0)
+})
+
+const isValidWeightSum = computed(() => {
+  return totalWeight.value === 100
+})
+
+const yearlyUniverse = computed(() => auditStore.yearlyUniverse)
+
+const sortedYearlyUniverse = computed(() => {
+  return [...auditStore.yearlyUniverse]
+    .sort((a, b) => (b.risk_index || 0) - (a.risk_index || 0))
+})
+
+const prioritizedCount = computed(() => {
+  return auditStore.yearlyUniverse.filter(ent => ent.audit_priority).length
+})
+
+const totalWeightedScore = computed(() => {
+  return scoringRows.value.reduce((sum, item) => sum + (item.score * item.weight || 0), 0)
+})
+
+// Methods
+const fetchYearlyUniverse = async () => {
+  activeYearlyEntity.value = null
+  scoringRows.value = []
+  await auditStore.fetchYearlyUniverse(selectedYear.value)
+}
+
+const isFactorSelected = (id: string): boolean => {
+  return selectedCorporateList.value.some(item => item.standard_risk_factor_id === id)
+}
+
+const toggleFactorSelection = (factor: any) => {
+  const index = selectedCorporateList.value.findIndex(item => item.standard_risk_factor_id === factor.id)
+  if (index >= 0) {
+    selectedCorporateList.value.splice(index, 1)
+  } else {
+    const currentSum = selectedCorporateList.value.reduce((s, i) => s + (i.weight || 0), 0)
+    const remaining = Math.max(0, 100 - currentSum)
+    
+    selectedCorporateList.value.push({
+      standard_risk_factor_id: factor.id,
+      weight: remaining,
+      standard_risk_factor: factor
+    })
+  }
+}
+
+const removeFactorFromCorporate = (item: any) => {
+  selectedCorporateList.value = selectedCorporateList.value.filter(
+    i => i.standard_risk_factor_id !== item.standard_risk_factor_id
+  )
+}
+
+const openGuidelines = (factor: any) => {
+  if (factor) {
+    detailFactor.value = factor
+    guidelinesModalOpen.value = true
+  }
+}
+
+const selectEntityForScoring = (ent: any) => {
+  if (!ent) {
+    activeYearlyEntity.value = null
+    scoringRows.value = []
+    return
+  }
+  activeYearlyEntity.value = ent
+  scoringRows.value = store.corporateFactors.map(cf => {
+    const matchScore = ent.risk_scores?.find((s: any) => s.corporate_risk_factor_id === cf.id)
+    return {
+      corporate_risk_factor_id: cf.id,
+      factor_name: cf.standard_risk_factor?.name,
+      weight: cf.weight,
+      score: matchScore ? matchScore.score : 3,
+      rubric: cf.standard_risk_factor
+    }
+  })
+}
+
+const onScoreChange = (scoreRow: any) => {
+  const sum = scoringRows.value.reduce((s, row) => s + (row.score * row.weight), 0)
+  activeYearlyEntity.value.risk_index = (sum / 5.0) * 100.0
+  
+  if (activeYearlyEntity.value.risk_index >= 80.0) {
+    activeYearlyEntity.value.risk_level = 'High'
+    activeYearlyEntity.value.audit_priority = true
+  } else if (activeYearlyEntity.value.risk_index >= 60.0) {
+    activeYearlyEntity.value.risk_level = 'Medium to High'
+    activeYearlyEntity.value.audit_priority = true
+  } else if (activeYearlyEntity.value.risk_index >= 40.0) {
+    activeYearlyEntity.value.risk_level = 'Medium'
+    activeYearlyEntity.value.audit_priority = false
+  } else if (activeYearlyEntity.value.risk_index >= 20.0) {
+    activeYearlyEntity.value.risk_level = 'Low to Medium'
+    activeYearlyEntity.value.audit_priority = false
+  } else {
+    activeYearlyEntity.value.risk_level = 'Low'
+    activeYearlyEntity.value.audit_priority = false
+  }
+}
+
+const saveEntityScoring = async () => {
+  if (!activeYearlyEntity.value) return
+
+  const payload = {
+    audit_universe_year_id: activeYearlyEntity.value.id,
+    scores: scoringRows.value.map(row => ({
+      corporate_risk_factor_id: row.corporate_risk_factor_id,
+      score: row.score
+    }))
+  }
+
+  const res = await auditStore.scoreYearlyEntity(selectedYear.value, payload)
+  if (res) {
+    showAlert('Risk scores saved and priority calculated successfully.', 'success')
+    await fetchYearlyUniverse()
+  } else {
+    showAlert(auditStore.errorMsg || 'Failed to save risk scores.', 'error')
+  }
+}
+
+const saveChanges = async () => {
+  if (!isValidWeightSum.value) {
+    showAlert(`Total weight must be exactly 100%. Current sum: ${totalWeight.value}%`, 'error')
+    return
+  }
+
+  const payload = selectedCorporateList.value.map(item => ({
+    standard_risk_factor_id: item.standard_risk_factor_id,
+    weight: item.weight
+  }))
+
+  const success = await store.saveCorporateFactors(payload)
+  if (success) {
+    showAlert('Corporate risk factors weights successfully updated.', 'success')
+  } else {
+    showAlert(store.errorMsg || 'Failed to save corporate risk factor weights.', 'error')
+  }
+}
+
+const getScoreColor = (score: number) => {
+  switch (score) {
+    case 5: return 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'
+    case 4: return 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
+    case 3: return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+    case 2: return 'bg-lime-100 text-lime-700 dark:bg-lime-900/40 dark:text-lime-300'
+    case 1: return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+    default: return 'bg-slate-100 text-slate-700'
+  }
+}
+
+const getScoreLabel = (score: number) => {
+  switch (score) {
+    case 5: return 'High (5)'
+    case 4: return 'Medium to High (4)'
+    case 3: return 'Medium (3)'
+    case 2: return 'Low to Medium (2)'
+    case 1: return 'Low (1)'
+    default: return ''
+  }
+}
+
+const getRiskLevelBadgeColor = (level?: string) => {
+  if (!level) return 'neutral'
+  switch (level) {
+    case 'High': return 'error'
+    case 'Medium to High': return 'warning'
+    case 'Medium': return 'primary'
+    case 'Low to Medium': return 'info'
+    case 'Low': return 'success'
+    default: return 'neutral'
+  }
+}
+
+const showAlert = (msg: string, type: string) => {
+  alertMessage.value = msg
+  alertType.value = type
+  setTimeout(() => {
+    alertMessage.value = ''
+  }, 4000)
+}
+</script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
