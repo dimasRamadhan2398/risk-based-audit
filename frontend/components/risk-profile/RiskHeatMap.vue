@@ -58,10 +58,10 @@
 
                 <!-- Quarterly Residual Score Inputs -->
                 <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-900/50 space-y-4">
-                  <span class="block text-xs font-black uppercase tracking-wider text-primary-500">Quarterly Residual Score Tracking (FY {{ store.selectedYear }})</span>
+                  <span class="block text-md font-black uppercase tracking-wider text-primary-500">Quarterly Residual Score Tracking (FY {{ store.selectedYear }})</span>
                   <div class="grid grid-cols-4 gap-4">
                     <div v-for="q in ['q1', 'q2', 'q3', 'q4']" :key="q" class="space-y-2 border-r last:border-0 border-gray-200 dark:border-gray-700 pr-2">
-                      <span class="text-xs font-black uppercase text-gray-500">{{ q }}</span>
+                      <span class="text-md font-black uppercase text-gray-500">{{ q }}</span>
                       <UFormField label="Impact">
                         <USelect v-model.number="newRisk[`impact_${q}`]" :items="[1,2,3,4,5]" class="w-full" />
                       </UFormField>
@@ -136,7 +136,7 @@
       <div class="flex flex-wrap gap-6">
         <div v-for="(config, key) in riskLevelConfig" :key="key" class="flex items-center gap-2">
           <div class="w-3.5 h-3.5 rounded-sm shadow-sm" :style="{ background: config.color }"></div>
-          <span class="text-xs font-bold">{{ config.label }}</span>
+          <span class="text-md font-bold">{{ config.label }}</span>
           <UIcon v-if="config.priority" name="i-heroicons-fire" class="w-3.5 h-3.5 text-warning-500" />
         </div>
       </div>
@@ -153,7 +153,7 @@
         <!-- Y-axis Ticks -->
         <div class="flex flex-col w-28 shrink-0">
           <div v-for="l in likelihoodLevels" :key="`y-${l}`" class="flex-1 flex items-center justify-end gap-3 pr-2 min-h-[110px]">
-            <span class="text-xs font-bold text-right leading-tight max-w-[70px] uppercase">{{ likelihoodLabels[l] }}</span>
+            <span class="text-md font-bold text-right leading-tight max-w-[70px] uppercase">{{ likelihoodLabels[l] }}</span>
             <span class="text-xl font-black">{{ l }}</span>
           </div>
         </div>
@@ -223,7 +223,7 @@
             <!-- Tab: Progress spreadsheet-like table -->
             <div v-if="item.key === 'progress'">
               <div class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl shadow-inner bg-white dark:bg-gray-900">
-                <table class="w-full text-left border-collapse text-xs font-sans">
+                <table class="w-full text-left border-collapse text-md font-sans">
                   <thead>
                     <tr class="bg-gray-100/80 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[9px] text-gray-500 text-center">
                       <th class="py-4 px-3 border-r border-gray-200 dark:border-gray-800 text-left min-w-[40px]" rowspan="2">No</th>
@@ -396,14 +396,14 @@
                             <div class="space-y-1.5">
                               <div class="flex items-center justify-between">
                                 <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Impact ({{ store.selectedPeriod }})</span>
-                                <span class="text-xs font-bold text-gray-700 dark:text-gray-300">{{ risk.impact }}/5</span>
+                                <span class="text-md font-bold text-gray-700 dark:text-gray-300">{{ risk.impact }}/5</span>
                               </div>
                               <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ impactLabels[risk.impact] }}</div>
                             </div>
                             <div class="space-y-1.5">
                               <div class="flex items-center justify-between">
                                 <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Likelihood ({{ store.selectedPeriod }})</span>
-                                <span class="text-xs font-bold text-gray-700 dark:text-gray-300">{{ risk.likelihood }}/5</span>
+                                <span class="text-md font-bold text-gray-700 dark:text-gray-300">{{ risk.likelihood }}/5</span>
                               </div>
                               <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ likelihoodLabels[risk.likelihood] }}</div>
                             </div>
@@ -493,10 +493,10 @@
 
           <!-- Quarterly residual inputs for editing -->
           <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-900/50 space-y-4">
-            <span class="block text-xs font-black uppercase tracking-wider text-warning-500">Quarterly Residual Score Tracking (FY {{ store.selectedYear }})</span>
+            <span class="block text-md font-black uppercase tracking-wider text-warning-500">Quarterly Residual Score Tracking (FY {{ store.selectedYear }})</span>
             <div class="grid grid-cols-4 gap-4">
               <div v-for="q in ['q1', 'q2', 'q3', 'q4']" :key="q" class="space-y-2 border-r last:border-0 border-gray-200 dark:border-gray-700 pr-2">
-                <span class="text-xs font-black uppercase text-gray-500">{{ q }}</span>
+                <span class="text-md font-black uppercase text-gray-500">{{ q }}</span>
                 <UFormField label="Impact">
                   <USelect v-model.number="store.selectedRisk[`impact_${q}`]" :items="[1,2,3,4,5]" class="w-full" />
                 </UFormField>

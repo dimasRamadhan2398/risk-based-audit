@@ -34,7 +34,7 @@ const sendReminder = () => {
                 </span> ]
               </p>
             </div>
-            <UButton color="neutral" variant="ghost" icon="i-lucide-x" class="-my-1" @click="isOpen = false" />
+            <UButton color="neutral" variant="ghost" icon="i-lucide-x" class="-my-1" @click="() => { isOpen = false }" />
           </div>
         </template>
 

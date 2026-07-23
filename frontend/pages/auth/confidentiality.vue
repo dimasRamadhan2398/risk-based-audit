@@ -13,16 +13,16 @@
       <!-- Mid content: Vertical stepper progress -->
       <div class="relative z-10 my-auto space-y-8 pl-2">
         <div class="flex items-start gap-4">
-          <span class="w-6 h-6 rounded-full bg-success-500/10 border border-success-500/20 flex items-center justify-center text-success-600 font-bold text-xs">✓</span>
+          <span class="w-6 h-6 rounded-full bg-success-500/10 border border-success-500/20 flex items-center justify-center text-success-600 font-bold text-md">✓</span>
           <div>
             <h4 class="text-sm font-bold text-[var(--text-main)]">Autentikasi</h4>
-            <p class="text-xs text-[var(--text-muted)]">Kredensial login berhasil diverifikasi</p>
+            <p class="text-md text-[var(--text-muted)]">Kredensial login berhasil diverifikasi</p>
           </div>
         </div>
         
         <div class="flex items-start gap-4">
           <span 
-            class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300"
+            class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-md transition-all duration-300"
             :class="currentStep === 2 ? 'bg-secondary-500 text-white shadow-lg shadow-secondary-500/25' : currentStep > 2 ? 'bg-success-500/10 border border-success-500/20 text-success-600' : 'bg-[var(--border-main)] text-[var(--text-muted)]'"
           >
             <span v-if="currentStep > 2">✓</span>
@@ -33,13 +33,13 @@
               class="text-sm font-bold transition-all duration-300"
               :class="currentStep === 2 ? 'text-secondary-500' : 'text-[var(--text-main)]'"
             >Pakta Integritas</h4>
-            <p class="text-xs text-[var(--text-muted)]">Persetujuan ketentuan kerahasiaan data</p>
+            <p class="text-md text-[var(--text-muted)]">Persetujuan ketentuan kerahasiaan data</p>
           </div>
         </div>
 
         <div class="flex items-start gap-4">
           <span 
-            class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300"
+            class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-md transition-all duration-300"
             :class="currentStep === 3 ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25' : 'bg-[var(--border-main)] text-[var(--text-muted)]'"
           >3</span>
           <div>
@@ -47,21 +47,21 @@
               class="text-sm font-bold transition-all duration-300"
               :class="currentStep === 3 ? 'text-primary-500' : 'text-[var(--text-main)]'"
             >Lengkapi Profil & Peran</h4>
-            <p class="text-xs text-[var(--text-muted)]">Informasi profil & tinjauan hak akses (RBAC)</p>
+            <p class="text-md text-[var(--text-muted)]">Informasi profil & tinjauan hak akses (RBAC)</p>
           </div>
         </div>
 
         <div class="flex items-start gap-4">
-          <span class="w-6 h-6 rounded-full bg-[var(--border-main)] text-[var(--text-muted)] flex items-center justify-center font-bold text-xs">4</span>
+          <span class="w-6 h-6 rounded-full bg-[var(--border-main)] text-[var(--text-muted)] flex items-center justify-center font-bold text-md">4</span>
           <div>
             <h4 class="text-sm font-bold text-[var(--text-main)]">Selesai</h4>
-            <p class="text-xs text-[var(--text-muted)]">Masuk ke dasbor sistem utama</p>
+            <p class="text-md text-[var(--text-muted)]">Masuk ke dasbor sistem utama</p>
           </div>
         </div>
       </div>
 
       <!-- Bottom metadata -->
-      <div class="relative z-10 text-xs text-[var(--text-muted)] opacity-60">
+      <div class="relative z-10 text-md text-[var(--text-muted)] opacity-60">
         <span>Sistem Audit Internal Berbasis Risiko v1.0</span>
       </div>
     </div>
@@ -69,7 +69,7 @@
     <!-- Right panel: Full screen content area -->
     <div class="w-full lg:w-8/12 flex flex-col justify-between bg-[var(--bg-main)] overflow-y-auto min-h-screen">
       <!-- Mobile top stepper banner (hidden on large screens) -->
-      <div class="lg:hidden px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between text-xs font-semibold select-none">
+      <div class="lg:hidden px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between text-md font-semibold select-none">
         <span class="text-primary-500">Langkah {{ currentStep }} dari 3</span>
         <span class="text-[var(--text-muted)] font-medium">Pakta Integritas & Profil</span>
       </div>
@@ -90,7 +90,7 @@
           </div>
 
           <!-- User initials metadata row -->
-          <div class="flex items-center gap-3 border-b border-[var(--border-main)] pb-4 text-xs text-[var(--text-muted)]">
+          <div class="flex items-center gap-3 border-b border-[var(--border-main)] pb-4 text-md text-[var(--text-muted)]">
             <span class="font-bold text-[var(--text-main)] capitalize">{{ authStore.user?.fullName }}</span>
             <span>·</span>
             <span>{{ authStore.user?.username }}</span>
@@ -143,7 +143,7 @@
               </li>
             </ol>
 
-            <p class="border-t border-[var(--border-main)] pt-4 text-xs text-[var(--text-muted)]">
+            <p class="border-t border-[var(--border-main)] pt-4 text-md text-[var(--text-muted)]">
               Dengan mengklik tombol <strong class="text-[var(--text-main)] dark:text-white">"Saya Setuju"</strong>, saya menyatakan bahwa saya telah membaca, memahami, dan menyetujui seluruh ketentuan dalam Pakta Integritas ini. Persetujuan ini bersifat mengikat secara hukum dan akan dicatat dalam sistem beserta timestamp, alamat IP, dan informasi perangkat yang digunakan.
             </p>
           </div>
@@ -156,10 +156,10 @@
                 :style="{ width: `${scrollProgress}%`, background: 'linear-gradient(90deg, var(--color-secondary-500), var(--color-primary-500))' }"
               />
             </div>
-            <p v-if="!hasScrolledToBottom" class="text-xs text-[var(--text-muted)] text-center flex items-center justify-center gap-1">
+            <p v-if="!hasScrolledToBottom" class="text-md text-[var(--text-muted)] text-center flex items-center justify-center gap-1">
               <span>↓</span> Gulir ke bawah untuk membaca seluruh ketentuan
             </p>
-            <p v-else class="text-xs text-success-600 dark:text-success-400 text-center flex items-center justify-center gap-1 font-medium">
+            <p v-else class="text-md text-success-600 dark:text-success-400 text-center flex items-center justify-center gap-1 font-medium">
               <span>✓</span> Anda telah membaca seluruh ketentuan
             </p>
           </div>
@@ -177,7 +177,7 @@
               id="confidentiality-accept-btn"
               :disabled="!hasScrolledToBottom || accepting"
               class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
-              :style="hasScrolledToBottom && !accepting ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', boxShadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
+              :style="hasScrolledToBottom && !accepting ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', bomdhadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
               :class="hasScrolledToBottom && !accepting
                 ? 'text-white hover:opacity-90'
                 : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
@@ -206,7 +206,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <UFormField name="fullName">
                 <template #label>
-                  <span class="text-xs font-semibold text-[var(--text-main)]">Nama Lengkap</span>
+                  <span class="text-md font-semibold text-[var(--text-main)]">Nama Lengkap</span>
                 </template>
                 <UInput
                   v-model="profileState.fullName"
@@ -220,7 +220,7 @@
 
               <UFormField name="phone">
                 <template #label>
-                  <span class="text-xs font-semibold text-[var(--text-main)]">Nomor Telepon</span>
+                  <span class="text-md font-semibold text-[var(--text-main)]">Nomor Telepon</span>
                 </template>
                 <UInput
                   v-model="profileState.phone"
@@ -234,7 +234,7 @@
 
               <UFormField name="department" class="md:col-span-2">
                 <template #label>
-                  <span class="text-xs font-semibold text-[var(--text-main)]">Unit Kerja / Departemen</span>
+                  <span class="text-md font-semibold text-[var(--text-main)]">Unit Kerja / Departemen</span>
                 </template>
                 <UInput
                   v-model="profileState.department"
@@ -251,18 +251,18 @@
           <!-- RBAC details -->
           <div class="border-t border-[var(--border-main)] pt-6 space-y-4">
             <div>
-              <span class="text-xs font-semibold text-[var(--text-main)] block mb-2">Peran Anda (Default Database)</span>
+              <span class="text-md font-semibold text-[var(--text-main)] block mb-2">Peran Anda (Default Database)</span>
               <div class="flex flex-wrap gap-2">
-                <span v-for="role in userRoles" :key="role" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-secondary-500/10 border border-secondary-500/20 text-secondary-600 dark:text-secondary-400 capitalize">
+                <span v-for="role in userRoles" :key="role" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-md font-bold bg-secondary-500/10 border border-secondary-500/20 text-secondary-600 dark:text-secondary-400 capitalize">
                   <UIcon name="i-lucide-key-round" class="w-3 h-3" /> {{ role }}
                 </span>
               </div>
             </div>
 
             <div>
-              <span class="text-xs font-semibold text-[var(--text-main)] block mb-2">Daftar Hak Akses Sistem Anda:</span>
+              <span class="text-md font-semibold text-[var(--text-main)] block mb-2">Daftar Hak Akses Sistem Anda:</span>
               <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-xl p-4 max-h-48 overflow-y-auto space-y-2.5">
-                <div v-for="(perm, idx) in permissionsList" :key="perm" class="flex items-start gap-2.5 text-xs text-[var(--text-main)]">
+                <div v-for="(perm, idx) in permissionsList" :key="perm" class="flex items-start gap-2.5 text-md text-[var(--text-main)]">
                   <UIcon 
                     name="i-lucide-shield-check" 
                     class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"
@@ -297,7 +297,7 @@
               id="profile-complete-btn"
               :disabled="savingProfile || !profileState.fullName"
               class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 text-white disabled:bg-[var(--border-main)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
-              :style="!(savingProfile || !profileState.fullName) ? { background: 'linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500))', boxShadow: '0 8px 24px -4px color-mix(in srgb, var(--color-primary-500) 30%, transparent)' } : {}"
+              :style="!(savingProfile || !profileState.fullName) ? { background: 'linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500))', bomdhadow: '0 8px 24px -4px color-mix(in srgb, var(--color-primary-500) 30%, transparent)' } : {}"
               @click="handleSaveProfile"
             >
               <span v-if="savingProfile">Menyimpan...</span>
@@ -308,7 +308,7 @@
       </div>
 
       <!-- Legal note at footer -->
-      <div class="p-8 text-center text-xs text-[var(--text-muted)] border-t border-[var(--border-main)] bg-[var(--bg-surface)]">
+      <div class="p-8 text-center text-md text-[var(--text-muted)] border-t border-[var(--border-main)] bg-[var(--bg-surface)]">
         <span>Keamanan terjamin · Aktivitas Onboarding login dicatat untuk audit kepatuhan.</span>
       </div>
     </div>

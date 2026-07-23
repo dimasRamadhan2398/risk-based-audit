@@ -12,9 +12,8 @@ type AuditResultReport struct {
 	ActivityPlanID     *uuid.UUID     `gorm:"type:uuid;index" json:"activity_plan_id"`
 	AssignmentLetterID string         `gorm:"type:varchar(100)" json:"assignmentLetterId"`
 	ReportTitle        string         `gorm:"type:varchar(255)" json:"reportTitle"`
-	OverallRating      string         `gorm:"type:varchar(100)" json:"overallRating"`
 	FindingsCount      int            `gorm:"type:int" json:"findingsCount"`
-	ReportNumber       string         `gorm:"type:varchar(100);index" json:"report_number"`
+	ReportNumber       string         `gorm:"type:varchar(100);index" json:"reportNumber"`
 	Title              string         `gorm:"type:varchar(255)" json:"title"`
 	AuditObject        string         `gorm:"type:varchar(255)" json:"audit_object"`
 	Department      string         `gorm:"type:varchar(100)" json:"department"`
@@ -39,5 +38,6 @@ type AuditResultReport struct {
 
 type AuditReportFinding struct {
 	Title    string `json:"title"`
-	Severity string `json:"severity"`
+	Category string `json:"category"`
+	Action   string `json:"action"`
 }

@@ -163,11 +163,11 @@ const lineChartOptions = {
         <div class="flex items-center justify-center gap-6 mt-2">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span class="text-xs font-semibold text-emerald-500">Timeliness (%)</span>
+            <span class="text-md font-semibold text-emerald-500">Timeliness (%)</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-            <span class="text-xs font-semibold text-orange-500">CSAT Score</span>
+            <span class="text-md font-semibold text-orange-500">CSAT Score</span>
           </div>
         </div>
       </div>

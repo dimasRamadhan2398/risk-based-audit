@@ -22,7 +22,7 @@
         <template #auditTeam-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-800 ">{{ row.original.leader }} (PIC)</span>
-            <span class="text-xs text-gray-500">{{ row.original.auditTeam }}</span>
+            <span class="text-md text-gray-500">{{ row.original.auditTeam }}</span>
           </div>
         </template>
 

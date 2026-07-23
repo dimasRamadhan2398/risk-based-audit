@@ -47,7 +47,9 @@ export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', ()
         params: { page: 1, page_size: 100 }
       })
 
-      const list = response.data?.companies || response.companies || []
+      const list = Array.isArray(response.data)
+        ? response.data
+        : (response.data?.companies || response.companies || [])
       companies.value = Array.isArray(list) ? list : []
 
       if (companies.value.length > 0) {

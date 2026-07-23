@@ -50,6 +50,10 @@ type AuditAnnual struct {
 	AttachmentUploadDate string                   `gorm:"type:varchar(100)" json:"attachmentUploadDate"`
 	IsActive             bool                     `gorm:"type:boolean;default:true" json:"isActive"`
 
+	StaffApprovalNote    string                   `gorm:"type:text;column:staff_approval_note" json:"staffApprovalNote"`
+	ManagerApprovalNote  string                   `gorm:"type:text;column:manager_approval_note" json:"managerApprovalNote"`
+	ChiefApprovalNote    string                   `gorm:"type:text;column:chief_approval_note" json:"chiefApprovalNote"`
+
 	// Activity Plans linked to this Annual Plan
 	ActivityPlans []AuditActivity `gorm:"foreignKey:AnnualPlanID" json:"activity_plans,omitempty"`
 

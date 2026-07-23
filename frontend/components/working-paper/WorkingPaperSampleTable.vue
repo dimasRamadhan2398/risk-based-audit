@@ -2,7 +2,7 @@
     <div class="mt-4 space-y-6">
         <UCard class="shadow-sm mt-10">
         
-        <UTable :data="store.dataF03" :columns="store.columnsF03" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
+        <UTable :data="store.filteredDataF03" :columns="store.columnsF03" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
             <template #samples-cell="{ row }">
             <div class="flex flex-col gap-2 max-w-md">
                 <div 
@@ -25,7 +25,7 @@
                 </div>
                 </div>
                 
-                <span v-if="!row.original.samples?.length" class="text-gray-400 italic text-xs">
+                <span v-if="!row.original.samples?.length" class="text-gray-400 italic text-md">
                 Tidak ada data sampel
                 </span>
             </div>

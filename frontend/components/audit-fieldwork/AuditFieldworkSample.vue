@@ -47,7 +47,7 @@
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">{{ store.isEditingSample ? 'Edit Sample Data' : 'Sample Data Form' }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showSampleModal = false" />
+              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showSampleModal = false }" />
             </div>
           </template>
 
@@ -72,7 +72,7 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showSampleModal = false" />
+              <UButton color="neutral" variant="soft" label="Cancel" @click="() => {store.showSampleModal = false}" />
               <UButton color="primary" :label="store.isEditingSample ? 'Update' : 'Submit'" @click="store.saveSample()" />
             </div>
           </template>

@@ -11,7 +11,7 @@
           <div 
             v-for="(act, idx) in getOriginal(row).plannedActivities" 
             :key="idx"
-            class="text-xs font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
+            class="text-md font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
             :title="act.riskName"
           >
             {{ act.riskName || '-' }}
@@ -47,7 +47,7 @@
             size="sm"
             :title="file.name"
           />
-          <span v-else class="text-gray-400 text-xs">-</span>
+          <span v-else class="text-gray-400 text-md">-</span>
         </div>
       </template>
 

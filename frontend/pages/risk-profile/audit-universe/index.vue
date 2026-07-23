@@ -51,7 +51,7 @@
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
                     Standard Audit Universe Library
                   </h2>
-                  <p class="text-xs text-slate-500 mt-0.5">
+                  <p class="text-md text-slate-500 mt-0.5">
                     Select standard entities to include them in your Corporate Audit Universe.
                   </p>
                 </div>
@@ -88,7 +88,7 @@
                           :model-value="isStandardNodeSelected(sub.id)"
                           @update:model-value="toggleStandardSelection(sub)"
                         />
-                        <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                        <span class="text-md font-semibold text-slate-600 dark:text-slate-400">
                           {{ sub.name }}
                         </span>
                       </div>
@@ -109,7 +109,7 @@
                   </h2>
                   <div class="flex items-center gap-2">
                     <UButton
-                      size="xs"
+                      size="md"
                       color="primary"
                       variant="soft"
                       icon="i-lucide-plus"
@@ -129,27 +129,27 @@
                   class="border border-slate-150 dark:border-slate-800/70 rounded-xl p-3 bg-white dark:bg-slate-900/40 space-y-2"
                 >
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-xs text-slate-800 dark:text-slate-200">{{ node.name }}</span>
+                    <span class="font-bold text-md text-slate-800 dark:text-slate-200">{{ node.name }}</span>
                     <div class="flex items-center gap-1">
                       <UButton
                         icon="i-lucide-plus-circle"
                         color="primary"
                         variant="ghost"
-                        size="xs"
+                        size="md"
                         @click="openAddCustomModal(node.id)"
                       />
                       <UButton
                         icon="i-lucide-edit"
                         color="neutral"
                         variant="ghost"
-                        size="xs"
+                        size="md"
                         @click="openRenameModal(node)"
                       />
                       <UButton
                         icon="i-lucide-trash-2"
                         color="error"
                         variant="ghost"
-                        size="xs"
+                        size="md"
                         @click="deleteCorporateNode(node.id)"
                       />
                     </div>
@@ -162,20 +162,20 @@
                       :key="sub.id"
                       class="flex items-center justify-between p-1 hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded"
                     >
-                      <span class="text-xs text-slate-600 dark:text-slate-400">{{ sub.name }}</span>
+                      <span class="text-md text-slate-600 dark:text-slate-400">{{ sub.name }}</span>
                       <div class="flex items-center gap-1">
                         <UButton
                           icon="i-lucide-edit"
                           color="neutral"
                           variant="ghost"
-                          size="xs"
+                          size="md"
                           @click="openRenameModal(sub)"
                         />
                         <UButton
                           icon="i-lucide-trash-2"
                           color="error"
                           variant="ghost"
-                          size="xs"
+                          size="md"
                           @click="deleteCorporateNode(sub.id)"
                         />
                       </div>
@@ -183,7 +183,7 @@
                   </div>
                 </div>
               </div>
-              <div v-else class="text-center py-16 text-slate-400 text-xs">
+              <div v-else class="text-center py-16 text-slate-400 text-md">
                 Corporate Audit Universe is empty. Select from standard library or add custom ones.
               </div>
             </UCard>
@@ -246,7 +246,7 @@
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
                     📅 2. Establish {{ selectedYear }} Audit Universe
                   </h2>
-                  <p class="text-xs text-slate-500 mt-0.5">
+                  <p class="text-md text-slate-500 mt-0.5">
                     Select Auditable Entities from the Corporate Audit Universe active for auditing in year {{ selectedYear }}.
                   </p>
                 </div>
@@ -296,7 +296,7 @@
                       :model-value="isYearlySelected(sub.id)"
                       @update:model-value="toggleYearlySelection(sub.id)"
                     />
-                    <span class="text-xs text-slate-500">{{ sub.name }}</span>
+                    <span class="text-md text-slate-500">{{ sub.name }}</span>
                   </div>
                 </div>
               </div>
@@ -313,15 +313,18 @@
               <div class="flex items-center justify-between">
                 <div>
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
-                    Rekapitulasi Risk Index & Risk Level ({{ selectedYear }})
+                    Audit Priority ({{ selectedYear }})
                   </h2>
-                  <p class="text-xs text-slate-500 mt-0.5">
+                  <p class="text-md text-slate-500 mt-0.5">
                     Annual Audit Plan priorities based on calculated risk levels.
                   </p>
                 </div>
                 <div class="flex items-center gap-4">
                   <UBadge color="success" variant="subtle" class="font-bold">
                     {{ prioritizedCount }} Prioritized
+                  </UBadge>
+                  <UBadge color="info" variant="solid" class="font-bold">
+                    Audit Priority = Risk Level Medium to High or High
                   </UBadge>
                 </div>
               </div>
@@ -354,7 +357,7 @@
                       {{ ent.risk_index?.toFixed(1) }}%
                     </td>
                     <td class="px-6 py-4 text-center">
-                      <UBadge :color="getRiskLevelBadgeColor(ent.risk_level)" size="xs" class="font-bold">
+                      <UBadge :color="getRiskLevelBadgeColor(ent.risk_level)" size="md" class="font-bold">
                         {{ ent.risk_level || 'N/A' }}
                       </UBadge>
                     </td>
@@ -363,11 +366,11 @@
                         <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
                         <span>√ Priority</span>
                       </div>
-                      <span v-else class="text-slate-400 text-xs">-</span>
+                      <span v-else class="text-slate-400 text-md">-</span>
                     </td>
                   </tr>
                   <tr v-if="yearlyUniverse.length === 0">
-                    <td colspan="5" class="text-center py-10 text-slate-400 text-xs">
+                    <td colspan="5" class="text-center py-10 text-slate-400 text-md">
                       No established auditable entities for year {{ selectedYear }}.
                     </td>
                   </tr>
@@ -376,12 +379,53 @@
             </div>
 
             <template #footer>
-              <div class="flex items-center justify-between text-xs text-slate-400">
-                <span>*Audit Priority = Risk Level Medium to High or High</span>
+              <div class="flex items-center justify-between text-md text-slate-400">
                 <span>Sorted by Risk Index (descending)</span>
               </div>
             </template>
           </UCard>
+
+          <!-- Risk Index Level Info -->
+          <UCard class="shadow-sm border border-[var(--border-main)] bg-slate-50/50 dark:bg-slate-900/30">
+            <template #header>
+              <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">
+                Corporate Risk Index Level Information
+              </h3>
+            </template>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-md text-left">
+                <thead class="bg-slate-100 dark:bg-slate-800">
+                  <tr>
+                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Risk Index</th>
+                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Risk Level</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">80 - 100%</td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-red-500/100 dark:bg-red-500/100">High</UBadge></td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">60 - 79%</td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-orange-500/100 dark:bg-orange-500/100">Moderate to High</UBadge></td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">40 - 59%</td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-yellow-500/100 dark:bg-yellow-500/100">Moderate</UBadge></td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">20 - 39%</td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-lime-500/100 dark:bg-lime-500/100">Low to Moderate</UBadge></td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">0 - 19%</td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-green-500/100 dark:bg-green-500/100">Low</UBadge></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </UCard>
+
         </div>
       </template>
     </UTabs>
@@ -400,7 +444,7 @@ const riskFactorsStore = useRiskFactorsStore()
 const tabItems = [
   { slot: 'library', label: '1. Corporate Universe Builder' },
   { slot: 'establish', label: '2. Yearly Establishment' },
-  { slot: 'priority', label: '3. Rekapitulasi & Priorities' }
+  { slot: 'priority', label: '3. Audit Priority' }
 ]
 
 // State

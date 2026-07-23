@@ -2,7 +2,7 @@
   <div class="grid grid-cols-1 lg:grid-cols-4 h-full bg-gray-50 dark:bg-gray-950">
     <!-- Sidebar Navigation Index (Corporate Report Builder Layout) -->
     <div class="hidden lg:block lg:col-span-1 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 overflow-y-auto space-y-6">
-      <div class="text-xs font-bold uppercase tracking-wider text-gray-400">Daftar Bagian Laporan</div>
+      <div class="text-md font-bold uppercase tracking-wider text-gray-400">Daftar Bagian Laporan</div>
       <nav class="space-y-1">
         <a
           v-for="sec in sections"
@@ -12,7 +12,7 @@
           :class="activeSection === sec.id ? 'text-primary-600 bg-primary-50 dark:bg-primary-950 dark:text-primary-400 font-bold' : 'text-gray-600 dark:text-gray-400'"
           @click.prevent="scrollToSection(sec.id)"
         >
-          <span class="size-5 rounded-full flex items-center justify-center border text-xs font-mono" :class="activeSection === sec.id ? 'border-primary-500 bg-primary-100 dark:bg-primary-900' : 'border-gray-300 dark:border-gray-700'">
+          <span class="size-5 rounded-full flex items-center justify-center border text-md font-mono" :class="activeSection === sec.id ? 'border-primary-500 bg-primary-100 dark:bg-primary-900' : 'border-gray-300 dark:border-gray-700'">
             {{ sec.index }}
           </span>
           {{ sec.title }}
@@ -22,7 +22,7 @@
       <!-- Locking Info / Actions -->
       <div class="border-t border-gray-200 dark:border-gray-800 pt-6 space-y-4">
         <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2 border">
-          <div class="text-xs font-semibold text-gray-500 flex items-center gap-1.5">
+          <div class="text-md font-semibold text-gray-500 flex items-center gap-1.5">
             <UIcon name="i-lucide-shield-alert" class="size-4" />
             Status Penguncian
           </div>
@@ -30,7 +30,7 @@
             <span class="size-2 rounded-full" :class="store.form.status === 'Approved' ? 'bg-success-500' : 'bg-warning-500'"></span>
             {{ store.form.status === 'Approved' ? 'Terkunci (Approved)' : 'Terbuka (Draft)' }}
           </div>
-          <p class="text-xs text-gray-400 leading-normal">
+          <p class="text-md text-gray-400 leading-normal">
             {{ store.form.status === 'Approved' 
               ? 'Laporan ini telah disetujui oleh Kepala SPI dan tidak dapat diedit.' 
               : 'Silakan isi semua data sebelum mengajukan persetujuan.' }}
@@ -63,11 +63,22 @@
             <p class="text-sm text-gray-400">Detail identitas laporan kompilasi dan unggahan dokumen resmi.</p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <UFormField label="Pilih LHA / ID Laporan Hasil Audit">
+              <USelectMenu
+                v-model="selectedLhaId"
+                :items="lhaDropdownOptions"
+                placeholder="Pilih ID LHA..."
+                class="w-full font-semibold"
+                :disabled="isLocked"
+                @update:modelValue="onLhaSelect"
+              />
+            </UFormField>
+
             <UFormField label="Tahun Laporan" required>
               <USelectMenu
                 v-model="store.form.tahun"
-                :items="[2026, 2025, 2027]"
+                :items="[2026, 2025, 2024, 2023]"
                 placeholder="Pilih Tahun"
                 class="w-full font-semibold"
                 :disabled="isLocked"
@@ -85,10 +96,10 @@
               />
             </UFormField>
 
-            <UFormField label="Nomor Dokumen Internal" required>
+            <UFormField label="Nomor Dokumen Internal (ID LHA)" required>
               <UInput
                 v-model="store.form.nomorDokumen"
-                placeholder="Contoh: LKA/01/SPI/KAI/2026"
+                placeholder="Contoh: 021/LHA/01/KS IAD/2026"
                 class="w-full font-mono text-sm"
                 :disabled="isLocked"
               />
@@ -123,7 +134,7 @@
                   </span>
                   <span v-else class="text-sm text-gray-400">Belum ada file yang dipilih (Maks. 10MB)</span>
                 </div>
-                <p class="text-xs text-gray-400">
+                <p class="text-md text-gray-400">
                   Dukungan format file PDF dan Word yang valid, tidak terkunci password.
                 </p>
               </div>
@@ -142,14 +153,14 @@
 
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-gray-400 uppercase">Teks Narasi Ringkasan</span>
+              <span class="text-md font-bold text-gray-400 uppercase">Teks Narasi Ringkasan</span>
               <UButton
                 v-if="!isLocked"
                 color="neutral"
                 variant="ghost"
                 icon="i-lucide-refresh-cw"
                 label="Reset Ke Template Default"
-                size="xs"
+                size="md"
                 @click="resetNarrativeToDefault"
               />
             </div>
@@ -204,14 +215,14 @@
                 title="Jumlah otomatis dari breakdown tingkat risiko"
               >
                 <template #trailing>
-                  <span class="text-xs text-gray-400">Temuan</span>
+                  <span class="text-md text-gray-400">Temuan</span>
                 </template>
               </UInput>
             </UFormField>
           </div>
 
           <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
-            <h4 class="text-xs font-extrabold uppercase tracking-wider text-gray-400">Breakdown Temuan Berdasarkan Risiko</h4>
+            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">Breakdown Temuan Berdasarkan Risiko</h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <UFormField label="Risiko Tinggi (High)">
                 <UInput
@@ -259,10 +270,10 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead class="bg-gray-50 dark:bg-gray-800/80">
                 <tr>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Jumlah</th>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">% (Persentase)</th>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Keterangan</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Jumlah</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">% (Persentase)</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Keterangan</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 font-medium">
@@ -298,7 +309,7 @@
                   <td class="px-6 py-4 text-sm text-gray-900 dark:text-white uppercase tracking-wider">Total</td>
                   <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">{{ totalFollowUpCount }}</td>
                   <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">100.0%</td>
-                  <td class="px-6 py-4 text-xs text-gray-400 italic">Dihitung otomatis</td>
+                  <td class="px-6 py-4 text-md text-gray-400 italic">Dihitung otomatis</td>
                 </tr>
               </tbody>
             </table>
@@ -331,12 +342,12 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead class="bg-gray-50 dark:bg-gray-800/80">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Unit Divisi</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Judul Temuan</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">Nilai Risiko</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Status TL</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usulan Tindakan</th>
-                  <th v-if="!isLocked" class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Aksi</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Unit Divisi</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Judul Temuan</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">Nilai Risiko</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Status TL</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usulan Tindakan</th>
+                  <th v-if="!isLocked" class="px-4 py-3 text-center text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Aksi</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
@@ -434,7 +445,7 @@
 
           <!-- Electronic Signatures -->
           <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
-            <h4 class="text-xs font-extrabold uppercase tracking-wider text-gray-400">Tanda Tangan Elektronik SPI</h4>
+            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">Tanda Tangan Elektronik SPI</h4>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
               <UFormField label="Tempat TTD" required>
                 <UInput
@@ -484,7 +495,7 @@
             <!-- Pie Chart: Status Tindak Lanjut -->
             <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
               <template #header>
-                <h5 class="text-xs font-bold uppercase tracking-wider text-gray-400 text-center">% Status Tindak Lanjut</h5>
+                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">% Status Tindak Lanjut</h5>
               </template>
               <div class="size-full max-h-52 max-w-52">
                 <Doughnut v-if="renderCharts" :data="pieChartData" :options="chartOptions" />
@@ -494,7 +505,7 @@
             <!-- Bar Chart: Temuan Per Bulan -->
             <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
               <template #header>
-                <h5 class="text-xs font-bold uppercase tracking-wider text-gray-400 text-center">Jumlah Temuan per Bulan</h5>
+                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">Jumlah Temuan per Bulan</h5>
               </template>
               <div class="w-full h-52">
                 <Bar v-if="renderCharts" :data="barChartData" :options="{ ...chartOptions, scales: { y: { beginAtZero: true } } }" />
@@ -504,7 +515,7 @@
             <!-- Line Chart: Aging Rekomendasi -->
             <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
               <template #header>
-                <h5 class="text-xs font-bold uppercase tracking-wider text-gray-400 text-center">Aging Rekomendasi (Progress Rata-rata %)</h5>
+                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">Aging Rekomendasi (Progress Rata-rata %)</h5>
               </template>
               <div class="w-full h-52">
                 <Line v-if="renderCharts" :data="lineChartData" :options="{ ...chartOptions, scales: { y: { min: 0, max: 100 } } }" />
@@ -558,7 +569,7 @@
           <!-- Matrix Grid Table -->
           <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
             <div class="overflow-x-auto w-full max-h-[500px] overflow-y-auto">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 font-medium text-xs">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 font-medium text-md">
                 <thead class="bg-gray-100 dark:bg-gray-800 sticky top-0 z-10">
                   <tr class="divide-x divide-gray-200 dark:divide-gray-800">
                     <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-28">Nomor (A)</th>
@@ -579,47 +590,47 @@
                 <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                   <tr v-for="(row, idx) in store.form.matriksKompilasi" :key="idx" class="divide-x divide-gray-100 dark:divide-gray-800 hover:bg-gray-50/50">
                     <td class="p-1">
-                      <UInput v-model="row.nomor" size="xs" class="font-mono" placeholder="001/SPI/2026" :disabled="isLocked" />
+                      <UInput v-model="row.nomor" size="md" class="font-mono" placeholder="001/SPI/2026" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <USelectMenu v-model="row.division" :items="divisionOptions" size="xs" :disabled="isLocked" />
+                      <USelectMenu v-model="row.division" :items="divisionOptions" size="md" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UInput v-model="row.unitKerja" size="xs" placeholder="Operation Personnel" :disabled="isLocked" />
+                      <UInput v-model="row.unitKerja" size="md" placeholder="Operation Personnel" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UInput v-model="row.prosesBisnis" size="xs" placeholder="O&M" :disabled="isLocked" />
+                      <UInput v-model="row.prosesBisnis" size="md" placeholder="O&M" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UTextarea v-model="row.judulTemuan" size="xs" placeholder="Uraian temuan..." :rows="1" :disabled="isLocked" />
+                      <UTextarea v-model="row.judulTemuan" size="md" placeholder="Uraian temuan..." :rows="1" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <USelectMenu v-model="row.nilaiRisiko" :items="['Tinggi', 'Sedang', 'Rendah']" size="xs" :disabled="isLocked" />
+                      <USelectMenu v-model="row.nilaiRisiko" :items="['Tinggi', 'Sedang', 'Rendah']" size="md" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UTextarea v-model="row.rekomendasi" size="xs" placeholder="Tindakan korektif..." :rows="1" :disabled="isLocked" />
+                      <UTextarea v-model="row.rekomendasi" size="md" placeholder="Tindakan korektif..." :rows="1" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UInput type="date" v-model="row.dueDate" size="xs" :disabled="isLocked" />
+                      <UInput type="date" v-model="row.dueDate" size="md" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UInput v-model="row.picUnit" size="xs" placeholder="Manager O&M" :disabled="isLocked" />
+                      <UInput v-model="row.picUnit" size="md" placeholder="Manager O&M" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UInput type="number" v-model.number="row.progres" size="xs" placeholder="0" min="0" max="100" class="w-16" :disabled="isLocked" />
+                      <UInput type="number" v-model.number="row.progres" size="md" placeholder="0" min="0" max="100" class="w-16" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <USelectMenu v-model="row.status" :items="['Closed', 'In Progress', 'Overdue']" size="xs" :disabled="isLocked" />
+                      <USelectMenu v-model="row.status" :items="['Closed', 'In Progress', 'Overdue']" size="md" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
                       <div class="flex items-center gap-1">
-                        <UInput v-model="row.buktiTL" size="xs" placeholder="Nama bukti..." class="flex-1" :disabled="isLocked" />
+                        <UInput v-model="row.buktiTL" size="md" placeholder="Nama bukti..." class="flex-1" :disabled="isLocked" />
                         <UButton
                           v-if="!isLocked"
                           color="neutral"
                           variant="ghost"
                           icon="i-lucide-paperclip"
-                          size="xs"
+                          size="md"
                           title="Lampirkan File"
                           @click="simulateAttachmentUpload(idx)"
                         />
@@ -630,7 +641,7 @@
                         color="error"
                         variant="ghost"
                         icon="i-lucide-x"
-                        size="xs"
+                        size="md"
                         @click="removeMatrixRow(idx)"
                       />
                     </td>
@@ -662,13 +673,13 @@
           color="neutral"
           variant="outline"
           class="font-semibold"
-          @click="store.showModal = false"
+          @click="() => {store.showModal = false}"
         />
       </div>
 
       <div class="flex items-center gap-3">
         <!-- Error alert message displays if necessary -->
-        <span v-if="store.errorMsg" class="text-xs text-error-500 font-semibold max-w-xs truncate">{{ store.errorMsg }}</span>
+        <span v-if="store.errorMsg" class="text-md text-error-500 font-semibold max-w-md truncate">{{ store.errorMsg }}</span>
         
         <!-- Workflow buttons -->
         <template v-if="!store.isViewing">
@@ -800,14 +811,14 @@ const totalFollowUpCount = computed(() => {
 // Rule 2: Warning sync check
 const isSyncWarning = computed(() => {
   const matrixTinggi = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Tinggi').length
-  const matrixSedang = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Sedang').length
+  const matrimdedang = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Sedang').length
   const matrixRendah = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Rendah').length
 
   const sumTinggi = store.form.risikoTinggi || 0
   const sumSedang = store.form.risikoSedang || 0
   const sumRendah = store.form.risikoRendah || 0
 
-  return sumTinggi !== matrixTinggi || sumSedang !== matrixSedang || sumRendah !== matrixRendah
+  return sumTinggi !== matrixTinggi || sumSedang !== matrimdedang || sumRendah !== matrixRendah
 })
 
 // Force recalculate Section III percentages
@@ -1027,9 +1038,9 @@ const statusBadgeColorMap = {
 
 const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
   const colors = {
-    Closed: 'bg-success-100 text-success-800 dark:bg-success-950 dark:text-success-300 px-2.5 py-0.5 rounded text-xs font-bold uppercase',
-    'In Progress': 'bg-info-100 text-info-800 dark:bg-info-950 dark:text-info-300 px-2.5 py-0.5 rounded text-xs font-bold uppercase',
-    Overdue: 'bg-error-100 text-error-800 dark:bg-error-950 dark:text-error-300 px-2.5 py-0.5 rounded text-xs font-bold uppercase'
+    Closed: 'bg-success-100 text-success-800 dark:bg-success-950 dark:text-success-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
+    'In Progress': 'bg-info-100 text-info-800 dark:bg-info-950 dark:text-info-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
+    Overdue: 'bg-error-100 text-error-800 dark:bg-error-950 dark:text-error-300 px-2.5 py-0.5 rounded text-md font-bold uppercase'
   }
   return colors[status]
 }
@@ -1205,6 +1216,41 @@ const onScroll = () => {
         activeSection.value = sec.id
         break
       }
+    }
+  }
+}
+
+// LHA Result Reports Store Integration for 2-Way Sync
+import { useAuditResultReportStore } from '~/stores/audit-result-report'
+
+const auditReportStore = useAuditResultReportStore()
+if (!auditReportStore.loading && auditReportStore.reportList.length === 0) {
+  auditReportStore.fetchReports()
+}
+
+const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any }>> = computed(() => {
+  return auditReportStore.reportList.map(r => ({
+    label: `${r.reportNumber || (r as any).report_number} - ${r.reportTitle}`,
+    value: r.reportNumber || (r as any).report_number,
+    report: r
+  }))
+})
+
+const selectedLhaId = ref<{ label: string; value: string; report: any } | undefined>(
+  lhaDropdownOptions.value.find(o => o.value === store.form.nomorDokumen)
+)
+
+const onLhaSelect = (val: any) => {
+  if (!val) return
+  const selectedNum = typeof val === 'object' ? val.value : val
+  const item = auditReportStore.reportList.find(r => (r.reportNumber || (r as any).report_number) === selectedNum)
+  if (item) {
+    store.form.nomorDokumen = item.reportNumber || (item as any).report_number
+    if (item.executiveSummary) {
+      store.form.narrative = item.executiveSummary
+    }
+    if (item.findingsCount) {
+      store.form.jumlahRekomendasi = item.findingsCount
     }
   }
 }

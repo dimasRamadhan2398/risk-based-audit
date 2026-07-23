@@ -39,13 +39,15 @@ export const useCompanyApi = () => {
     })
 
     // Handle different response formats
+    const rawData = response.data
+    const companies = Array.isArray(rawData) ? rawData : (rawData?.companies || response.companies || [])
     return {
-      companies: response.data?.companies || response.companies || [],
-      pagination: response.data?.pagination || response.pagination || {
+      companies,
+      pagination: (!Array.isArray(rawData) && rawData?.pagination) || response.pagination || {
         page: params?.page || 1,
         page_size: params?.page_size || 10,
-        total: 0,
-        total_pages: 0
+        total: companies.length,
+        total_pages: 1
       }
     }
   }
@@ -108,8 +110,8 @@ export const useCompanyApi = () => {
       params: { page: 1, page_size: 1000 }
     })
 
-    const companies = response.data?.companies || response.companies || []
-    return Array.isArray(companies) ? companies : []
+    const companiesList = Array.isArray(response.data) ? response.data : (response.data?.companies || response.companies || [])
+    return Array.isArray(companiesList) ? companiesList : []
   }
 
   return {

@@ -50,7 +50,7 @@
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">{{ store.isEditingObservation ? 'Edit Observation' : 'Observation Form' }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showObservationModal = false" />
+              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showObservationModal = false }" />
             </div>
           </template>
 
@@ -89,7 +89,7 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showObservationModal = false" />
+              <UButton color="neutral" variant="soft" label="Cancel" @click="() => { store.showObservationModal = false }" />
               <UButton color="primary" :label="store.isEditingObservation ? 'Update' : 'Submit'" @click="store.saveObservation()" />
             </div>
           </template>

@@ -115,7 +115,7 @@
                                                             :style="{ backgroundColor: getRiskLevelColorHex(item.riskLevel) }"
                                                         ></span>
                                                         <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel }}]</span>
-                                                        <span class="truncate text-xs">{{ item.name }}</span>
+                                                        <span class="truncate text-md">{{ item.name }}</span>
                                                         <span class="text-[10px] text-gray-400 shrink-0 ml-1">({{ (item.riskIndex).toFixed(1) }}%)</span>
                                                         <UBadge v-if="item.auditPriority" color="error" size="sm" variant="subtle" class="ml-auto">Priority</UBadge>
                                                     </div>
@@ -156,7 +156,7 @@
                                 <div class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-2 p-4">
                                     <div v-for="(month, idx) in store.monthsList" :key="idx" 
                                         @click="store.toggleMonth(idx)"
-                                        class="cursor-pointer border rounded-lg p-2 text-center text-xs font-semibold transition select-none"
+                                        class="cursor-pointer border rounded-lg p-2 text-center text-md font-semibold transition select-none"
                                         :class="store.form.selectedMonths.includes(idx) ? 'border-secondary-600 shadow-md transform scale-105' : 'text-gray-500'"
                                     >
                                     {{ month }}
@@ -186,7 +186,7 @@
                             <UFormField label="Number of Auditors (1-10)" size="lg"
                             >
                                 <UInput v-model.number="store.form.auditorCount" type="number" min="1" max="10" class="w-full"/>
-                                <p class="text-xs text-gray-500 mt-1">Advice: High Risk min. 3 auditor</p>
+                                <p class="text-md text-gray-500 mt-1">Advice: High Risk min. 3 auditor</p>
                             </UFormField>
             
                             <UFormField
@@ -197,9 +197,9 @@
                             </UFormField>
 
                             <UBadge class=" p-3 rounded text-center flex flex-col justify-center">
-                                <span class="text-xs text-gray-500 uppercase">Total Mandays</span>
+                                <span class="text-md text-gray-500 uppercase">Total Mandays</span>
                                 <span class="text-2xl font-bold text-primary-600">{{ store.totalMandays }}</span>
-                                <span class="text-xs text-gray-400">= {{ store.form.auditorCount }} person × {{ store.form.daysPerAuditor }} day</span>
+                                <span class="text-md text-gray-400">= {{ store.form.auditorCount }} person × {{ store.form.daysPerAuditor }} day</span>
                             </UBadge>
                             </div>
 
@@ -216,7 +216,7 @@
                                     class="w-full rounded-md shadow-sm"
                                 />
 
-                                <p v-if="store.selectedSupervisor?.workload! > 6" class="text-xs text-error-500 mt-1 font-bold">
+                                <p v-if="store.selectedSupervisor?.workload! > 6" class="text-md text-error-500 mt-1 font-bold">
                                     ⚠️ Warning: This Supervisor is supervised > 6 Activity!
                                 </p>
                             </UFormField>
@@ -224,7 +224,7 @@
                             <UFormField>
                                 <div class="flex justify-between items-center mb-1">
                                     <label class="label mb-0">Team Estimation Capacity</label>
-                                    <span class="text-xs font-bold" :class="store.utilizationData.color === 'red' ? 'text-error-600' : 'text-success-600'">
+                                    <span class="text-md font-bold" :class="store.utilizationData.color === 'red' ? 'text-error-600' : 'text-success-600'">
                                         {{ store.utilizationData.msg }}
                                     </span>
                                 </div>
@@ -238,7 +238,7 @@
                                         :style="{ width: `${Math.min(store.utilizationData.percent, 100)}%` }"
                                     ></div>
                                 </div>
-                                <p class="text-xs text-gray-400 mt-1">
+                                <p class="text-md text-gray-400 mt-1">
                                     Total Load: {{ store.utilizationData.percent.toFixed(1) }}% from Annual Capacity.
                                 </p>
                             </UFormField>
@@ -260,8 +260,8 @@
                                     autoresize
                                 ></UTextarea>
                                 <div class="flex justify-between mt-1">
-                                    <span class="text-xs text-gray-400">Use it for Special Audit / Investigation.</span>
-                                    <span class="text-xs text-gray-400">{{ store.form.notes!.length }}/500</span>
+                                    <span class="text-md text-gray-400">Use it for Special Audit / Investigation.</span>
+                                    <span class="text-md text-gray-400">{{ store.form.notes!.length }}/500</span>
                                 </div>
                             </UFormField>
                         </div>

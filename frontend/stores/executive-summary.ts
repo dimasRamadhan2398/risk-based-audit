@@ -119,43 +119,182 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
 
   const getAuditServiceBaseUrl = () => {
     const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8080/api/v1'
+    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
   }
 
   const mockSummaries: ExecutiveSummary[] = [
     {
-      id: 'ES-Q1-2026-001',
+      id: 'ES-LHA-021-2026',
+      quarter: 2,
+      periodeBulan: 'April',
+      tahun: 2026,
+      nomorDokumen: '021/LHA/01/KS IAD/2026',
+      dokumenPath: 'Executive_Summary_021_LHA_2026.pdf',
+      status: 'Approved',
+      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (021/LHA/01/KS IAD/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
+      jumlahLaporan: 1,
+      risikoTinggi: 3,
+      risikoSedang: 2,
+      risikoRendah: 0,
+      jumlahRekomendasi: 5,
+      followUpTable: [
+        { status: 'Closed', jumlah: 3, persentase: 60.0, keterangan: 'Telah divalidasi' },
+        { status: 'In Progress', jumlah: 2, persentase: 40.0, keterangan: 'On track' },
+        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
+      ],
+      topFindings: [
+        { unitDivision: 'Finance', judulTemuan: 'Selisih pencatatan inventaris fisik vs buku besar', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Rekonsiliasi Harian' },
+        { unitDivision: 'Finance', judulTemuan: 'Keterlambatan rekonsiliasi kas harian cabang utama', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Otomatisasi Sistem' }
+      ],
+      matriksKompilasi: [
+        { nomor: '021/LHA/01', division: 'Finance', unitKerja: 'Departemen Keuangan', prosesBisnis: 'ICOFR', judulTemuan: 'Selisih pencatatan inventaris fisik vs buku besar', nilaiRisiko: 'Tinggi', rekomendasi: 'Lakukan rekonsiliasi harian dan alert SMTP', dueDate: '2026-05-15', picUnit: 'Manager Keuangan', progres: 60, status: 'In Progress', buktiTL: 'BA_Rekonsiliasi.pdf' }
+      ],
+      akarMasalah: 'Kurangnya otomatisasi alarm kegagalan backup data dan kelalaian non-aktifkan akses user kasir.',
+      kesimpulan: 'Secara umum pengendalian internal departemen keuangan memadai dengan beberapa area peningkatan yang perlu segera ditindaklanjuti.',
+      signatureTempat: 'Jakarta',
+      signatureTanggal: '2026-04-15',
+      signatureNamaKepala: 'Zeta Ramadhani',
+      signatureNIK: 'NIK-100240'
+    },
+    {
+      id: 'ES-LHA-022-2026',
+      quarter: 2,
+      periodeBulan: 'Mei',
+      tahun: 2026,
+      nomorDokumen: '022/LHA/01/KS IAD/2026',
+      dokumenPath: 'Executive_Summary_022_LHA_2026.pdf',
+      status: 'Approved',
+      narrative: 'Executive Summary Individual untuk Audit Keamanan Sistem Informasi & ERP (022/LHA/01/KS IAD/2026). Audit mengevaluasi tata kelola akses pengguna, patch ERP, dan pengujian DRC.',
+      jumlahLaporan: 1,
+      risikoTinggi: 2,
+      risikoSedang: 2,
+      risikoRendah: 0,
+      jumlahRekomendasi: 4,
+      followUpTable: [
+        { status: 'Closed', jumlah: 2, persentase: 50.0, keterangan: 'Telah diterapkan' },
+        { status: 'In Progress', jumlah: 2, persentase: 50.0, keterangan: 'Pengadaan MFA' },
+        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
+      ],
+      topFindings: [
+        { unitDivision: 'IT', judulTemuan: 'Akses Superadmin ERP belum menggunakan MFA', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Implementasi Mandatory MFA' }
+      ],
+      matriksKompilasi: [],
+      akarMasalah: 'Keterlambatan rilis jadwal DRC drill tahunan.',
+      kesimpulan: 'Keamanan TI berjalan cukup baik dengan rekomendasi pengetatan autentikasi superadmin.',
+      signatureTempat: 'Jakarta',
+      signatureTanggal: '2026-05-02',
+      signatureNamaKepala: 'Andi Firmansyah',
+      signatureNIK: 'NIK-100311'
+    },
+    {
+      id: 'ES-LHA-023-2026',
+      quarter: 3,
+      periodeBulan: 'Agustus',
+      tahun: 2026,
+      nomorDokumen: '023/LHA/01/KS IAD/2026',
+      dokumenPath: 'Executive_Summary_023_LHA_2026.pdf',
+      status: 'Draft',
+      narrative: 'Executive Summary Individual untuk Audit Operasional Gudang & Persediaan Logistik 2026 (023/LHA/01/KS IAD/2026).',
+      jumlahLaporan: 1,
+      risikoTinggi: 1,
+      risikoSedang: 2,
+      risikoRendah: 0,
+      jumlahRekomendasi: 3,
+      followUpTable: [],
+      topFindings: [],
+      matriksKompilasi: [],
+      akarMasalah: 'Prosedur pemantauan fisik stok persediaan belum otomatis.',
+      kesimpulan: 'Pengelolaan logistik gudang berjalan dengan baik.',
+      signatureTempat: 'Jakarta',
+      signatureTanggal: '2026-08-10',
+      signatureNamaKepala: 'Rina Wulandari',
+      signatureNIK: 'NIK-100422'
+    },
+    {
+      id: 'ES-LHA-024-2026',
+      quarter: 3,
+      periodeBulan: 'Agustus',
+      tahun: 2026,
+      nomorDokumen: '024/LHA/01/KS IAD/2026',
+      dokumenPath: 'Executive_Summary_024_LHA_2026.pdf',
+      status: 'Approved',
+      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Kepatuhan Procurement & SCM 2026 (024/LHA/01/KS IAD/2026).',
+      jumlahLaporan: 1,
+      risikoTinggi: 1,
+      risikoSedang: 1,
+      risikoRendah: 0,
+      jumlahRekomendasi: 2,
+      followUpTable: [],
+      topFindings: [],
+      matriksKompilasi: [],
+      akarMasalah: 'Kelengkapan administrasi kertas kerja HPS vendor.',
+      kesimpulan: 'Kepatuhan pengadaan memenuhi standar kepatuhan internal.',
+      signatureTempat: 'Jakarta',
+      signatureTanggal: '2026-08-18',
+      signatureNamaKepala: 'Budi Santoso',
+      signatureNIK: 'NIK-100155'
+    },
+    {
+      id: 'DOC-EXSUM-Q1-2026',
       quarter: 1,
       periodeBulan: 'Maret',
       tahun: 2026,
-      nomorDokumen: 'LKA/01/SPI/KAI/2026',
-      dokumenPath: 'executive_summary_q1_2026.pdf',
+      nomorDokumen: 'DOC-EXSUM-Q1-2026',
+      dokumenPath: 'DOC-EXSUM-Q1-2026.pdf',
       status: 'Approved',
-      narrative: 'Periode Q1 2026, SPI telah menerbitkan 12 LHA. Total temuan 32 dengan 48 rekomendasi. Tingkat penyelesaian on-time 95%. Terdapat 5 temuan risiko tinggi overdue/terlambat terkait IT Security yang perlu arahan Direksi. Temuan berulang tertinggi pada proses Procurement.',
-      jumlahLaporan: 12,
-      risikoTinggi: 10,
-      risikoSedang: 15,
-      risikoRendah: 7,
-      jumlahRekomendasi: 48,
+      narrative: 'Executive Summary Individual DOC-EXSUM-Q1-2026 untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (025/LHA/01/KS IAD/2026). Audit mengevaluasi keandalan instalasi K3LH, sertifikasi alat, dan fasilitas pemadam kebakaran.',
+      jumlahLaporan: 1,
+      risikoTinggi: 2,
+      risikoSedang: 1,
+      risikoRendah: 0,
+      jumlahRekomendasi: 3,
       followUpTable: [
-        { status: 'Closed', jumlah: 96, persentase: 72.7, keterangan: 'Telah divalidasi SPI' },
-        { status: 'In Progress', jumlah: 26, persentase: 19.7, keterangan: 'On track, rata2 progres 68%' },
-        { status: 'Overdue', jumlah: 10, persentase: 7.6, keterangan: '3 Risiko Tinggi' }
+        { status: 'Closed', jumlah: 2, persentase: 66.7, keterangan: 'Selesai disertifikasi' },
+        { status: 'In Progress', jumlah: 1, persentase: 33.3, keterangan: 'Progres pemeliharaan hidran' },
+        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
       ],
       topFindings: [
-        { unitDivision: 'OP', judulTemuan: 'Keterlambatan Kalibrasi Alat Berat', risiko: 'Tinggi', statusTL: 'Overdue', usulan: 'Eskalasi Direksi' },
-        { unitDivision: 'KK/KSD', judulTemuan: 'Ketidakpatuhan Prosedur K3 Tambang', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Audit Khusus' }
+        { unitDivision: 'Maintenance', judulTemuan: 'Inspeksi berkala sistem pemadam kebakaran hidran belum 100% terlaksana', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Jadwal Pemeliharaan Hidran' }
+      ],
+      matriksKompilasi: [],
+      akarMasalah: 'Keterlambatan pengadaan sparepart hidran dan pembaruan sertifikasi K3.',
+      kesimpulan: 'Sistem pengendalian K3LH beroperasi secara aman dengan perbaikan pada fasilitas hidran.',
+      signatureTempat: 'Jakarta',
+      signatureTanggal: '2026-03-30',
+      signatureNamaKepala: 'Dewi Kusumawati',
+      signatureNIK: 'NIK-100533'
+    },
+    {
+      id: 'ES-LHA-020-2023',
+      quarter: 3,
+      periodeBulan: 'September',
+      tahun: 2023,
+      nomorDokumen: '020/LHA/01/KS IAD/2023',
+      dokumenPath: 'Executive_Summary_020_LHA_2023.pdf',
+      status: 'Approved',
+      narrative: 'Executive Summary Individual untuk Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau (020/LHA/01/KS IAD/2023). Audit mengevaluasi ketersediaan pembangkit (EAF/EFOR), K3LH, manajemen risiko, dan SCM.',
+      jumlahLaporan: 1,
+      risikoTinggi: 2,
+      risikoSedang: 4,
+      risikoRendah: 2,
+      jumlahRekomendasi: 8,
+      followUpTable: [
+        { status: 'Closed', jumlah: 5, persentase: 62.5, keterangan: 'Telah ditindaklanjuti' },
+        { status: 'In Progress', jumlah: 3, persentase: 37.5, keterangan: 'Progres rata-rata 80%' },
+        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
+      ],
+      topFindings: [
+        { unitDivision: 'Operasi', judulTemuan: 'Pelaksanaan Overhaul ME+ PLTU TBK #1 Terjadi PE 6 Hari', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Penyusunan DMR' }
       ],
       matriksKompilasi: [
-        { nomor: '001/SPI/2026', division: 'OP', unitKerja: 'Division Operation Personnel', prosesBisnis: 'O&M', judulTemuan: 'Keterlambatan Kalibrasi Alat Berat', nilaiRisiko: 'Tinggi', rekomendasi: 'Segera lakukan kalibrasi ulang', dueDate: '2026-03-15', picUnit: 'Manager O&M', progres: 40, status: 'Overdue', buktiTL: 'BA Kalibrasi 1' },
-        { nomor: '002/SPI/2026', division: 'KK/KSD', unitKerja: 'Division KSD', prosesBisnis: 'K3', judulTemuan: 'Ketidakpatuhan Prosedur K3 Tambang', nilaiRisiko: 'Tinggi', rekomendasi: 'Sediakan APD tambahan dan lakukan training harian', dueDate: '2026-04-10', picUnit: 'Manager K3', progres: 80, status: 'In Progress', buktiTL: '' }
+        { nomor: '020/LHA/01', division: 'Operasi', unitKerja: 'UPDK Kepulauan Riau', prosesBisnis: 'O&M Pembangkit', judulTemuan: 'Pelaksanaan Overhaul ME+ PLTU TBK #1 Terjadi PE 6 Hari', nilaiRisiko: 'Tinggi', rekomendasi: 'Penyusunan DMR & Sertifikasi Pemeliharaan', dueDate: '2023-11-30', picUnit: 'Manager UPDK', progres: 80, status: 'In Progress', buktiTL: 'Laporan_Overhaul.pdf' }
       ],
-      akarMasalah: 'Akar masalah utama adalah keterbatasan SDM tersertifikasi di unit operasi dan lambatnya respon vendor pengadaan.',
-      kesimpulan: 'Secara umum, risiko operasional terkendali namun diperlukan perhatian serius direksi untuk masalah kalibrasi alat berat di site OP.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-03-31',
-      signatureNamaKepala: 'Budi Santoso, CIA',
-      signatureNIK: 'SPI-77621'
+      akarMasalah: 'Masa transisi holding sub-holding, keterbatasan sarana lab batubara, dan belum lengkapnya fitur Maximo WPC.',
+      kesimpulan: 'Tata kelola dan pengendalian internal berjalan baik dengan 1 Risk Management AoI dan 8 Internal Control AoI.',
+      signatureTempat: 'Tanjung Pinang',
+      signatureTanggal: '2023-09-22',
+      signatureNamaKepala: 'Tomy Afrilianto',
+      signatureNIK: 'NIK-100188'
     }
   ]
 
@@ -298,6 +437,16 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
       showModal.value = false
       await fetchSummaries()
+
+      // 2-Way Sync: Update matching AuditResultReport item in Result Reports store
+      try {
+        const auditReportStore = useAuditResultReportStore()
+        if (form.nomorDokumen && form.narrative) {
+          await auditReportStore.syncExecutiveSummaryField(form.nomorDokumen, form.narrative, form.jumlahRekomendasi)
+        }
+      } catch (errSync) {
+        console.warn('Sync to AuditResultReport failed:', errSync)
+      }
     } catch (error: any) {
       console.error('Failed to save summary to backend, simulating local save:', error)
       // Simulating save in state for offline capabilities
@@ -317,22 +466,49 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         summaryList.value.push(newSummary)
       }
       showModal.value = false
+
+      // 2-Way Sync: Update matching AuditResultReport item in Result Reports store
+      try {
+        const auditReportStore = useAuditResultReportStore()
+        if (form.nomorDokumen && form.narrative) {
+          await auditReportStore.syncExecutiveSummaryField(form.nomorDokumen, form.narrative, form.jumlahRekomendasi)
+        }
+      } catch (errSync) {
+        console.warn('Sync to AuditResultReport failed:', errSync)
+      }
     } finally {
       loading.value = false
     }
   }
 
-  const deleteSummary = async (id: string) => {
+  const deletedDocNumbers = ref<string[]>([])
+
+  const deleteSummary = async (id: string, docNum?: string) => {
     if (!confirm('Apakah Anda yakin ingin menghapus Laporan Eksekutif ini?')) return
     loading.value = true
+    const item = summaryList.value.find(s => s.id === id || s.nomorDokumen === docNum)
+    const targetDocNum = docNum || (item ? item.nomorDokumen : '')
+
+    if (targetDocNum && !deletedDocNumbers.value.includes(targetDocNum)) {
+      deletedDocNumbers.value.push(targetDocNum)
+    }
+
     try {
       const baseUrl = getAuditServiceBaseUrl()
       await $fetch(`${baseUrl}/executive-summaries/${id}`, { method: 'DELETE' })
       await fetchSummaries()
     } catch (error) {
       console.error('Failed to delete on backend, simulating local deletion:', error)
-      summaryList.value = summaryList.value.filter(s => s.id !== id)
     } finally {
+      summaryList.value = summaryList.value.filter(s => s.id !== id && s.nomorDokumen !== targetDocNum)
+      if (targetDocNum) {
+        try {
+          const auditReportStore = useAuditResultReportStore()
+          await auditReportStore.clearExecutiveSummaryField(targetDocNum)
+        } catch (e) {
+          console.warn('Failed to clear executive summary on report store:', e)
+        }
+      }
       loading.value = false
     }
   }
@@ -372,6 +548,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
 
   return {
     summaryList,
+    deletedDocNumbers,
     currentSummary,
     showModal,
     isEditing,

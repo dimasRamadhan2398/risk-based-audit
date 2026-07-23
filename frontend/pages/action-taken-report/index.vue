@@ -75,7 +75,7 @@ const items = computed(() => {
         v-model="store.searchQuery"
         icon="i-lucide-search"
         placeholder="Search Finding"
-        class="w-full max-w-xs"
+        class="w-full max-w-md"
         size="md"
       />
       <USelectMenu
@@ -132,7 +132,7 @@ const items = computed(() => {
             color="neutral"
             variant="ghost"
             :disabled="page === 1"
-            @click="page--"
+            @click="() => { page-- }"
           />
           <span class="text-sm font-medium">{{ page }} / {{ Math.ceil(store.filteredReports.length / pageCount) }}</span>
           <UButton
@@ -140,7 +140,7 @@ const items = computed(() => {
             color="neutral"
             variant="ghost"
             :disabled="page >= Math.ceil(store.filteredReports.length / pageCount)"
-            @click="page++"
+            @click="() => { page++ }"
           />
         </div>
         <p class="text-sm font-bold">

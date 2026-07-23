@@ -95,14 +95,14 @@
                     <UIcon name="i-lucide-file-text" class="size-8 text-gray-400" />
                     <div class="space-y-0.5">
                       <p class="font-bold text-sm">{{ store.selectedReport.attachment.name }}</p>
-                      <p class="text-xs text-gray-500">{{ store.selectedReport.attachment.size }} • Uploaded</p>
+                      <p class="text-md text-gray-500">{{ store.selectedReport.attachment.size }} • Uploaded</p>
                     </div>
                  </div>
                  <div class="flex items-center space-x-3" v-else>
                     <UIcon name="i-lucide-file-text" class="size-8 text-gray-400" />
                     <div class="space-y-0.5">
                       <p class="font-bold text-sm text-gray-400">Tidak ada lampiran</p>
-                      <p class="text-xs text-gray-400">No document attached</p>
+                      <p class="text-md text-gray-400">No document attached</p>
                     </div>
                  </div>
                  <div class="flex items-center space-x-2" v-if="store.selectedReport?.attachment">

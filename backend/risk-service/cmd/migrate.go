@@ -80,6 +80,7 @@ func autoMigrate(db *gorm.DB) error {
 		&models.RiskRegister{},
 		&models.RiskAssessment{},
 		&models.RiskControl{},
+		&models.RiskControlMatrix{},
 		&models.SOPDocument{},
 		&models.StrategicObjective{},
 		&models.RiskSOPMap{},
@@ -98,6 +99,7 @@ func autoMigrate(db *gorm.DB) error {
 
 func dropAllTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
+		&models.RiskControlMatrix{},
 		&models.AuditUniverseRiskScore{},
 		&models.AuditUniverseYear{},
 		&models.CorporateAuditUniverse{},

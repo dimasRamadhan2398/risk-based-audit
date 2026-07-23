@@ -64,7 +64,7 @@
                   >
                     <template #header>
                       <div class="flex items-center justify-between border-b border-gray-200  pb-2">
-                        <span class="text-xs uppercase text-gray-500 tracking-wider">
+                        <span class="text-md uppercase text-gray-500 tracking-wider">
                           Sub-Activity {{ Number(index) + 1 }}
                         </span>
                       </div>
@@ -155,7 +155,7 @@
                         <div class="flex items-center gap-2">
                           <UIcon name="i-heroicons-document-text" class="text-gray-500" />
                           <span class="font-semibold text-gray-800">{{ file.name }}</span>
-                          <UBadge color="neutral" variant="soft" size="xs">{{ file.size }}</UBadge>
+                          <UBadge color="neutral" variant="soft" size="md">{{ file.size }}</UBadge>
                         </div>
                         <UButton :to="file.url" target="_blank" icon="i-heroicons-arrow-down-tray" size="sm" color="primary" variant="link" label="Download" />
                       </li>
@@ -174,7 +174,7 @@
                       color="primary" 
                       variant="soft" 
                       icon="i-heroicons-document-duplicate" 
-                      @click="isCreatingRevision = true"
+                      @click="() => { isCreatingRevision = true }"
                     >
                       Create Revised RKAT
                     </UButton>
@@ -186,7 +186,7 @@
                     <UTextarea v-model="revisionNote" placeholder="Describe the reason for this mid-year revision..." class="w-full" />
                   </UFormField>
                   <div class="mt-4 flex justify-end gap-2">
-                    <UButton color="neutral" variant="ghost" @click="isCreatingRevision = false">Cancel</UButton>
+                    <UButton color="neutral" variant="ghost" @click="() => { isCreatingRevision = false }">Cancel</UButton>
                     <UButton color="primary" icon="i-heroicons-check" @click="submitRevision" :disabled="!revisionNote">Submit Revision</UButton>
                   </div>
                 </div>

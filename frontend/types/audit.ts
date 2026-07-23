@@ -265,7 +265,6 @@ export interface AuditDataState {
   auditCategories: AuditCategoryRisk[];
   auditExecutionStatus: AuditExecutionStatus[];
   atrReports: AtrReport[];
-  recentFindings: RecentFinding[];
 }
 
 export interface SampleItem {
@@ -313,6 +312,8 @@ export interface WorkingPaperHeaderForm {
 
 export interface WorkingPaperRisk {
   id?: string;
+  workingPaperId?: string;
+  assignmentLetterId?: string;
   risk: string;
   taxonomy: RiskTaxonomy;
   riskLevel: RiskLevel;
@@ -321,6 +322,8 @@ export interface WorkingPaperRisk {
 
 export interface WorkingPaperRiskForm {
   id?: string;
+  workingPaperId?: string;
+  assignmentLetterId?: string;
   risk: string;
   taxonomy: RiskTaxonomy;
   riskLevel: RiskLevel;
@@ -329,6 +332,8 @@ export interface WorkingPaperRiskForm {
 
 export interface WorkingPaperSample {
   id?: string;
+  workingPaperId?: string;
+  assignmentLetterId?: string;
   population: number | null;
   sampleSize: number | null;
   samples: SampleItem[];
@@ -337,6 +342,8 @@ export interface WorkingPaperSample {
 
 export interface WorkingPaperSampleForm {
   id?: string;
+  workingPaperId?: string;
+  assignmentLetterId?: string;
   population: number | null;
   sampleSize: number | null;
   samples: SampleItem[];
@@ -345,24 +352,30 @@ export interface WorkingPaperSampleForm {
 
 export interface WorkingPaperCause {
   id?: string;
+  workingPaperId?: string;
+  assignmentLetterId?: string;
   condition: string;
   criteria: string;
   impact: string;
-  evidenceFile: File | null;
+  evidenceFile?: File | any | null;
   rootCause: RootCauseItem[];
 }
 
 export interface WorkingPaperCauseForm {
   id?: string;
+  workingPaperId?: string;
+  assignmentLetterId?: string;
   condition: string;
   criteria: string;
   impact: string;
-  evidenceFile: File | null;
+  evidenceFile?: File | any | null;
   rootCause: RootCauseItem[];
 }
 
 export interface WorkingPaperPlan {
   id?: string;
+  workingPaperId?: string;
+  assignmentLetterId?: string;
   recommendation: string;
   response: string;
   actionDescription: string;
@@ -372,6 +385,8 @@ export interface WorkingPaperPlan {
 
 export interface WorkingPaperPlanForm {
   id?: string;
+  workingPaperId?: string;
+  assignmentLetterId?: string;
   recommendation: string;
   response: string;
   actionDescription: string;

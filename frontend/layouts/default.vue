@@ -58,6 +58,11 @@ const rawItems: NavigationMenuItem[][] = [[
         icon: 'i-lucide-globe',
         to: '/risk-profile/audit-universe',
       },
+      {
+        label: 'Risk Control Matrix',
+        icon: 'i-lucide-grid',
+        to: '/risk-profile/risk-control-matrix',
+      },
     ]
   }, 
   {
@@ -144,18 +149,6 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '9. Executive Summary Report',
     icon: 'i-lucide-file-text',
     to: '/executive-summary',
-    children: [
-      {
-        label: 'Compilation & Narrative',
-        icon: 'i-lucide-clipboard-list',
-        to: '/executive-summary',
-      },
-      {
-        label: 'Matriks Induk Temuan',
-        icon: 'i-lucide-table',
-        to: '/executive-summary/matriks',
-      }
-    ]
   },
   {
     label: '9. Action Taken Report',
@@ -314,7 +307,7 @@ const userDropdownItems = computed(() => [
                   <p class="text-sm font-medium text-gray-900 truncate">
                     {{ item.label }}
                   </p>
-                  <p class="text-xs text-gray-500 truncate">
+                  <p class="text-md text-gray-500 truncate">
                     {{ authStore.getUser?.email }}
                   </p>
                 </div>

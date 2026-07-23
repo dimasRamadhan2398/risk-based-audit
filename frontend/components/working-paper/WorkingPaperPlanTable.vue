@@ -1,7 +1,7 @@
 <template>
     <div class="mt-4 space-y-6">
         <UCard class="shadow-sm mt-10">
-        <UTable :data="store.dataF05" :columns="store.columnsF05" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }" >
+        <UTable :data="store.filteredDataF05" :columns="store.columnsF05" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }" >
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
                     <UButton 

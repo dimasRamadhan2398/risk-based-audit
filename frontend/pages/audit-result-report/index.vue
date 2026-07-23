@@ -5,13 +5,13 @@
         <h1 class="text-2xl font-bold text-gray-900">Audit Result Report</h1>
         <p class="text-gray-500">Finalize and publish audit results and findings</p>
       </div>
-      <UButton
+      <!-- <UButton
         v-if="store.hasSelectedAssignmentLetter"
         color="primary"
         icon="i-heroicons-plus"
         label="Create New Report"
         @click="store.openModal"
-      />
+      /> -->
     </div>
 
     <!-- Assignment Letter Selector -->
@@ -52,18 +52,91 @@
     <div v-if="store.hasSelectedAssignmentLetter">
       <UCard v-if="store.filteredReports.length > 0" class="overflow-hidden overflow-x-auto">
         <UTable :data="store.filteredReports" :columns="columns">
-          <template #status-data="{ row }">
+          <template #reportNumber-cell="{ row }">
+            <span class="font-mono text-md font-semibold text-primary-600 dark:text-primary-400">
+              {{ row.original.reportNumber || (row.original as any).report_number || '-' }}
+            </span>
+          </template>
+          <template #reportDate-cell="{ row }">
+            <span class="text-sm font-medium text-gray-700">
+              {{ row.original.reportDate || (row.original as any).report_date?.split('T')[0] || '-' }}
+            </span>
+          </template>
+          <template #status-cell="{ row }">
             <UBadge :color="row.original.status === 'Final' ? 'success' : 'neutral'" variant="soft">
               {{ row.original.status }}
             </UBadge>
           </template>
-          <template #overallRating-data="{ row }">
-            <UBadge :color="getRatingColor(row.original.overallRating)" variant="subtle">
-              {{ row.original.overallRating }}
-            </UBadge>
+          <template #findingsCount-cell="{ row }">
+            <div class="flex flex-col gap-2 min-w-[30px]">
+              <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center justify-center bg-gray-50 rounded">
+                <span class="text-md font-semibold">{{ group.count }}</span>
+              </div>
+            </div>
+          </template>
+          <template #category-cell="{ row }">
+            <div class="flex flex-col gap-2">
+              <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center">
+                <UBadge :color="getRatingColor(group.category)" variant="subtle" size="sm" class="w-full justify-center">
+                  {{ group.category }}
+                </UBadge>
+              </div>
+            </div>
+          </template>
+          <template #listOfFinding-cell="{ row }">
+            <div class="flex flex-col gap-2">
+              <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center justify-center">
+                <UPopover v-if="group.count > 0" mode="hover">
+                  <UButton color="neutral" variant="soft" size="md" trailing-icon="i-heroicons-chevron-down" class="text-md">
+                    View {{ group.count }} Findings
+                  </UButton>
+                  <template #content>
+                    <div class="p-3 max-w-sm max-h-60 overflow-y-auto">
+                      <h4 class="text-md font-bold text-gray-900 mb-2 border-b pb-1">{{ group.category }} Findings</h4>
+                      <ul class="list-disc pl-4 text-md text-gray-700 space-y-1">
+                        <li v-for="(item, idx) in group.items" :key="idx" class="leading-relaxed">{{ item.title }}</li>
+                      </ul>
+                    </div>
+                  </template>
+                </UPopover>
+                <span v-else class="text-md text-gray-400">-</span>
+              </div>
+            </div>
+          </template>
+          <template #action-cell="{ row }">
+            <div class="flex flex-col gap-2">
+              <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center justify-center">
+                <UPopover v-if="group.count > 0" mode="hover">
+                  <UButton color="neutral" variant="soft" size="md" trailing-icon="i-heroicons-chevron-down" class="text-md">
+                    View Actions
+                  </UButton>
+                  <template #content>
+                    <div class="p-3 max-w-sm max-h-60 overflow-y-auto">
+                      <h4 class="text-md font-bold text-gray-900 mb-2 border-b pb-1">{{ group.category }} Actions</h4>
+                      <ul class="list-disc pl-4 text-md text-gray-700 space-y-1">
+                        <li v-for="(item, idx) in group.items" :key="idx" class="leading-relaxed">
+                          <span class="font-semibold block mb-0.5 text-gray-800">{{ item.title }}:</span>
+                          <span class="text-primary-700 block mb-1">{{ item.action || 'No action defined' }}</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </template>
+                </UPopover>
+                <span v-else class="text-md text-gray-400">-</span>
+              </div>
+            </div>
           </template>
           <template #actions-cell="{ row }">
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-center">
+              <UButton
+                color="success"
+                variant="soft"
+                icon="i-heroicons-arrow-down-tray"
+                size="sm"
+                label="Docx"
+                title="Download LHA (.docx)"
+                @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
+              />
               <UButton
                 color="primary"
                 variant="ghost"
@@ -126,21 +199,40 @@ import ResultReportForm from '~/components/audit-result-report/ResultReportForm.
 const store = useAuditResultReportStore()
 
 const columns = [
+  { accessorKey: 'reportNumber', header: 'No. LHA / ID' },
   { accessorKey: 'reportTitle', header: 'Report Title' },
   { accessorKey: 'reportDate', header: 'Date' },
   { accessorKey: 'findingsCount', header: 'Findings' },
-  { accessorKey: 'overallRating', header: 'Significance' },
+  { accessorKey: 'category', header: 'Category' },
+  { accessorKey: 'listOfFinding', header: 'List of Finding' },
+  { accessorKey: 'action', header: 'Action' },
   { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'actions', header: 'Actions' }
+  { accessorKey: 'actions', header: '' }
 ]
 
 const getRatingColor = (rating: any) => {
   switch (rating) {
-    case 'Satisfactory': return 'success'
-    case 'Needs Improvement': return 'warning'
-    case 'Unsatisfactory': return 'error'
+    case 'Very Significant': return 'error'
+    case 'Significant': return 'warning'
+    case 'Quite Significant': return 'info'
+    case 'Not Significant': return 'success'
     default: return 'neutral'
   }
+}
+
+const CATEGORY_ORDER = ['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']
+
+const getGroupedFindings = (findings: any[] | undefined) => {
+  if (!findings || findings.length === 0) return CATEGORY_ORDER.map(c => ({ category: c, count: 0, items: [] }))
+  
+  return CATEGORY_ORDER.map(cat => {
+    const items = findings.filter((f: any) => f.category === cat)
+    return {
+      category: cat,
+      count: items.length,
+      items
+    }
+  })
 }
 
 const printReport = (report: any) => {

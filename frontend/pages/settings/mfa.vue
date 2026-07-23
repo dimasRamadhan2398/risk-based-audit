@@ -29,7 +29,7 @@
             </div>
             <p class="text-sm text-gray-500">Or enter this secret manually: <code class="bg-gray-100 px-2 py-1 rounded">{{ setupData.secret }}</code></p>
 
-            <div class="w-full max-w-xs space-y-4 mt-6">
+            <div class="w-full max-w-md space-y-4 mt-6">
               <UFormField label="Enter Verification Code" help="Enter the 6-digit code from your app to confirm setup.">
                 <UInput v-model="verificationCode" placeholder="000000" maxlength="6" />
               </UFormField>
@@ -40,7 +40,7 @@
 
         <div v-else class="space-y-4">
           <p class="text-gray-600">Two-factor authentication is currently enabled for your account.</p>
-          <UButton color="error" variant="subtle" @click="showDisableModal = true">Disable MFA</UButton>
+          <UButton color="error" variant="subtle" @click="() => { showDisableModal = true }">Disable MFA</UButton>
         </div>
       </UCard>
 
@@ -53,7 +53,7 @@
           </UFormField>
           <template #footer>
             <div class="flex justify-end gap-3">
-              <UButton color="neutral" variant="ghost" @click="showDisableModal = false">Cancel</UButton>
+              <UButton color="neutral" variant="ghost" @click="() => { showDisableModal = false }">Cancel</UButton>
               <UButton color="error" :loading="loading" @click="handleDisable">Confirm Disable</UButton>
             </div>
           </template>

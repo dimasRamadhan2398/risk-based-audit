@@ -50,7 +50,7 @@
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">{{ store.isEditingDocument ? 'Edit Document' : 'Document Collection Form' }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showDocumentModal = false" />
+              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showDocumentModal = false }" />
             </div>
           </template>
 
@@ -84,7 +84,7 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showDocumentModal = false" />
+              <UButton color="neutral" variant="soft" label="Cancel" @click="() => { store.showDocumentModal = false }" />
               <UButton color="primary" :label="store.isEditingDocument ? 'Update' : 'Submit'" @click="store.saveDocument()" />
             </div>
           </template>

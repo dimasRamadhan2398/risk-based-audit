@@ -14,24 +14,24 @@
       <!-- Mid content: Security Info Steps -->
       <div class="relative z-10 my-auto space-y-8 pl-2">
         <div class="flex items-start gap-4">
-          <span class="w-6 h-6 rounded-full bg-success-500/10 border border-success-500/20 flex items-center justify-center text-success-600 font-bold text-xs">✓</span>
+          <span class="w-6 h-6 rounded-full bg-success-500/10 border border-success-500/20 flex items-center justify-center text-success-600 font-bold text-md">✓</span>
           <div>
             <h4 class="text-sm font-bold text-[var(--text-main)]">Autentikasi Utama</h4>
-            <p class="text-xs text-[var(--text-muted)]">Kredensial dasar berhasil divalidasi</p>
+            <p class="text-md text-[var(--text-muted)]">Kredensial dasar berhasil divalidasi</p>
           </div>
         </div>
         
         <div class="flex items-start gap-4">
-          <span class="w-6 h-6 rounded-full bg-secondary-500 text-white shadow-lg shadow-secondary-500/25 flex items-center justify-center font-bold text-xs">2</span>
+          <span class="w-6 h-6 rounded-full bg-secondary-500 text-white shadow-lg shadow-secondary-500/25 flex items-center justify-center font-bold text-md">2</span>
           <div>
             <h4 class="text-sm font-bold text-secondary-500">Verifikasi Dua Faktor (MFA)</h4>
-            <p class="text-xs text-[var(--text-muted)]">Masukkan kode OTP dari aplikasi autentikator Anda</p>
+            <p class="text-md text-[var(--text-muted)]">Masukkan kode OTP dari aplikasi autentikator Anda</p>
           </div>
         </div>
       </div>
 
       <!-- Bottom metadata -->
-      <div class="relative z-10 text-xs text-[var(--text-muted)] opacity-60">
+      <div class="relative z-10 text-md text-[var(--text-muted)] opacity-60">
         <span>Sistem Audit Internal Berbasis Risiko v1.0</span>
       </div>
     </div>
@@ -40,7 +40,7 @@
     <div class="w-full lg:w-8/12 flex flex-col justify-between bg-[var(--bg-main)] overflow-y-auto min-h-screen">
       
       <!-- Mobile top banner (hidden on large screens) -->
-      <div class="lg:hidden px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between text-xs font-semibold select-none">
+      <div class="lg:hidden px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between text-md font-semibold select-none">
         <span class="text-secondary-500">Verifikasi MFA</span>
         <span class="text-[var(--text-muted)] font-medium">Langkah 2 dari 2</span>
       </div>
@@ -100,7 +100,7 @@
               <label for="trust-device" class="text-sm font-semibold text-[var(--text-main)] cursor-pointer select-none">
                 Percayakan perangkat ini
               </label>
-              <p class="text-xs text-[var(--text-muted)] mt-0.5">
+              <p class="text-md text-[var(--text-muted)] mt-0.5">
                 Jangan minta OTP lagi selama 90 hari di perangkat ini.
               </p>
             </div>
@@ -108,11 +108,11 @@
 
           <!-- Timer / Expiry Info -->
           <div class="text-center pt-2">
-            <p v-if="timeLeft > 0" class="text-xs text-[var(--text-muted)] flex items-center justify-center gap-1.5">
+            <p v-if="timeLeft > 0" class="text-md text-[var(--text-muted)] flex items-center justify-center gap-1.5">
               Kode berlaku selama: 
               <span class="text-secondary-500 font-mono font-bold">{{ formatTime(timeLeft) }}</span>
             </p>
-            <p v-else class="text-xs text-error-600 dark:text-error-400 font-semibold">
+            <p v-else class="text-md text-error-600 dark:text-error-400 font-semibold">
               Sesi verifikasi telah kedaluwarsa.
               <NuxtLink to="/auth/login" class="underline hover:opacity-80 ml-1">Ulangi Login</NuxtLink>
             </p>
@@ -130,7 +130,7 @@
           <Transition name="fade">
             <div v-if="attempts > 0" class="flex items-start gap-3 rounded-xl bg-warning-500/10 border border-warning-500/20 px-4 py-3">
               <span class="text-warning-500 text-lg leading-none">⚠️</span>
-              <p class="text-xs text-warning-600 dark:text-warning-400">
+              <p class="text-md text-warning-600 dark:text-warning-400">
                 Gagal memverifikasi: {{ attempts }}/3 percobaan. Akun akan terkunci jika terlalu banyak kesalahan.
               </p>
             </div>
@@ -145,7 +145,7 @@
             :loading="loading"
             :disabled="state.code.length < 6 || timeLeft === 0"
             class="rounded-xl font-bold tracking-wide transition-all duration-200 text-white disabled:bg-[var(--border-main)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
-            :style="state.code.length === 6 && timeLeft > 0 ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', boxShadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
+            :style="state.code.length === 6 && timeLeft > 0 ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', bomdhadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
           >
             <template v-if="!loading">
               <span>Verifikasi & Masuk</span>
@@ -170,7 +170,7 @@
       </div>
 
       <!-- Legal footer -->
-      <div class="p-8 text-center text-xs text-[var(--text-muted)] border-t border-[var(--border-main)] bg-[var(--bg-surface)]">
+      <div class="p-8 text-center text-md text-[var(--text-muted)] border-t border-[var(--border-main)] bg-[var(--bg-surface)]">
         <span>Keamanan terjamin · Aktivitas verifikasi login dicatat untuk audit kepatuhan.</span>
       </div>
     </div>

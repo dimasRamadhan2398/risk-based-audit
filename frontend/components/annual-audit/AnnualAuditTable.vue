@@ -31,7 +31,7 @@
             <div 
               v-for="(act, idx) in row.original.activities" 
               :key="idx"
-              class="text-xs font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
+              class="text-md font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
               :title="act.riskName"
             >
               {{ act.riskName || '-' }}

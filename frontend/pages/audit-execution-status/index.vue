@@ -107,7 +107,7 @@ const handleRemind = (audit: any) => {
         <template #nama_audit-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-900 dark:text-white">{{ row.original.name }}</span>
-            <span class="text-xs text-gray-500">({{ row.original.category }})</span>
+            <span class="text-md text-gray-500">({{ row.original.category }})</span>
           </div>
         </template>
 
@@ -135,11 +135,11 @@ const handleRemind = (audit: any) => {
       <!-- Pagination Placeholder -->
       <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" size="xs" />
+          <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" size="md" />
           <span class="text-sm font-medium">1 / 10</span>
-          <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="xs" />
+          <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="md" />
         </div>
-        <span class="text-xs text-gray-500">Showing 1 - {{ filteredAudits.length }} of {{ auditExecutions.length }} data</span>
+        <span class="text-md text-gray-500">Showing 1 - {{ filteredAudits.length }} of {{ auditExecutions.length }} data</span>
       </div>
     </div>
 

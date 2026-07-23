@@ -16,7 +16,7 @@
       </div>
       <UButton
         label="Unggah Audit Charter Baru"
-        @click="store.showModal = true"
+        @click="() => { store.showModal = true }"
         color="primary"
         size="lg"
         class="rounded-xl px-6 py-3 font-semibold transition-all duration-200"
@@ -38,7 +38,7 @@
           </h1>
           <UButton
             label="Add Charter"
-            @click="store.showModal = true"
+            @click="() => { store.showModal = true }"
             color="primary"
             icon="i-lucide-plus"
           >
@@ -75,7 +75,7 @@
 
             <div class="grid grid-cols-2 bg-[var(--bg-surface)] gap-8 mb-6 p-4 rounded-lg transition-colors duration-300">
               <div>
-                <p class="text-xs text-[var(--text-muted)] uppercase tracking-wider">
+                <p class="text-md text-[var(--text-muted)] uppercase tracking-wider">
                   Uploaded By
                 </p>
                 <p class="font-medium text-[var(--text-main)]">
@@ -83,7 +83,7 @@
                 </p>
               </div>
               <div>
-                <p class="text-xs text-[var(--text-muted)] uppercase tracking-wider">
+                <p class="text-md text-[var(--text-muted)] uppercase tracking-wider">
                   Approved By
                 </p>
                 <p class="font-medium text-[var(--text-main)]">
@@ -125,7 +125,7 @@
           </p>
           <UButton
             label="Add Charter"
-            @click="store.showModal = true"
+            @click="() => { store.showModal = true }"
             color="primary"
             icon="i-lucide-plus"
           >

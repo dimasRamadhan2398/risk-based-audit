@@ -5,11 +5,8 @@
         <UBadge :color="row.status === 'Final' ? 'success' : 'neutral'" variant="soft" size="sm">
           {{ row.status }}
         </UBadge>
-        <span class="text-xs text-gray-400">{{ row.reportDate }}</span>
+        <span class="text-md text-gray-400">{{ row.reportDate }}</span>
       </div>
-      <UBadge :color="getRatingColor(row.overallRating)" variant="subtle" size="sm">
-        {{ row.overallRating }}
-      </UBadge>
     </div>
 
     <h3 class="font-bold text-gray-900 mb-2 truncate" :title="row.reportTitle">
@@ -21,7 +18,7 @@
     </p>
 
     <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-      <div class="flex items-center gap-1 text-xs text-gray-500">
+      <div class="flex items-center gap-1 text-md text-gray-500">
         <UIcon name="i-heroicons-magnifying-glass" class="size-4" />
         <span>{{ row.findingsCount }} Findings</span>
       </div>
@@ -30,14 +27,14 @@
           color="primary"
           variant="ghost"
           icon="i-heroicons-pencil-square"
-          size="xs"
+          size="md"
           @click="$emit('edit', row)"
         />
         <UButton
           color="neutral"
           variant="ghost"
           icon="i-heroicons-printer"
-          size="xs"
+          size="md"
           @click="$emit('print', row)"
         />
       </div>
@@ -56,9 +53,10 @@ defineEmits(['edit', 'print'])
 
 const getRatingColor = (rating: string) => {
   switch (rating) {
-    case 'Satisfactory': return 'success'
-    case 'Needs Improvement': return 'warning'
-    case 'Unsatisfactory': return 'error'
+    case 'Very Significant': return 'error'
+    case 'Significant': return 'warning'
+    case 'Moderately Significant': return 'info'
+    case 'Insignificant': return 'success'
     default: return 'neutral'
   }
 }

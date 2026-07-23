@@ -65,13 +65,13 @@
                 
                 <div v-if="!form.fileName" class="space-y-2">
                   <UIcon name="i-heroicons-document-arrow-up" class="w-8 h-8 mx-auto text-gray-400" />
-                  <p class="text-xs text-gray-500 font-medium">Click to select or drag & drop</p>
+                  <p class="text-md text-gray-500 font-medium">Click to select or drag & drop</p>
                   <p class="text-[10px] text-gray-400">PDF, DOCX, XLSX up to 10MB</p>
                 </div>
 
                 <div v-else class="space-y-2">
                   <UIcon name="i-heroicons-document-check" class="w-8 h-8 mx-auto text-green-500" />
-                  <p class="text-xs text-green-700 font-bold truncate max-w-full px-2">
+                  <p class="text-md text-green-700 font-bold truncate max-w-full px-2">
                     {{ form.fileName }}
                   </p>
                   <p class="text-[10px] text-green-600">
@@ -80,7 +80,7 @@
                   <button 
                     type="button" 
                     @click.stop="clearFile" 
-                    class="text-xs text-red-500 hover:underline font-semibold block mx-auto"
+                    class="text-md text-red-500 hover:underline font-semibold block mx-auto"
                   >
                     Remove File
                   </button>
@@ -134,9 +134,9 @@
             <div class="inline-flex p-4 rounded-full text-gray-400">
               <UIcon name="i-heroicons-folder-open" class="w-12 h-12" />
             </div>
-            <div class="max-w-xs mx-auto">
+            <div class="max-w-md mx-auto">
               <h3 class="text-sm font-bold text-gray-900">No guidelines imported</h3>
-              <p class="text-xs text-gray-500 mt-1">Upload files on the left to make reference documents available for auditors.</p>
+              <p class="text-md text-gray-500 mt-1">Upload files on the left to make reference documents available for auditors.</p>
             </div>
           </div>
 
@@ -155,18 +155,18 @@
               <template #fileName-cell="{ row }">
                 <div class="flex items-center gap-2 max-w-[200px]">
                   <UIcon :name="getFileIcon(row.original.fileName)" class="w-5 h-5 flex-shrink-0" :class="getFileIconColor(row.original.fileName)" />
-                  <span class="text-xs text-gray-600 truncate" :title="row.original.fileName">{{ row.original.fileName }}</span>
+                  <span class="text-md text-gray-600 truncate" :title="row.original.fileName">{{ row.original.fileName }}</span>
                 </div>
               </template>
 
               <template #fileSize-cell="{ row }">
-                <span class="text-xs text-gray-500 font-medium">
+                <span class="text-md text-gray-500 font-medium">
                   {{ formatBytes(row.original.fileSize) }}
                 </span>
               </template>
 
               <template #created_at-cell="{ row }">
-                <span class="text-xs text-gray-500">
+                <span class="text-md text-gray-500">
                   {{ formatDate(row.original.created_at) }}
                 </span>
               </template>
@@ -204,6 +204,11 @@ import { ref, onMounted } from 'vue'
 import { useImportWorkingPaperStore } from '~/stores/import-working-paper'
 
 const store = useImportWorkingPaperStore()
+
+onMounted(() => {
+  store.fetchImportedPapers()
+})
+
 const fileInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
 const selectedFileLength = ref(0)

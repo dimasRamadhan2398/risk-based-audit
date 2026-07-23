@@ -1,12 +1,18 @@
 package routes
 
 import (
+	"fmt"
+	"net/http"
+	"strings"
+
 	"audit-service/controllers"
 	"audit-service/controllers/crud"
 	"audit-service/models"
+	"audit-service/pkg/docxbuilder"
 	"audit-service/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -139,8 +145,8 @@ func (h *RouteHandler) RegisterRoutes() {
 	// 2. Activity Plan
 	activityPlans := apiV1.Group("/activity-plans")
 	{
-		activityPlans.GET("", crud.List(h.db, "ActivityPlan", func() interface{} { return &[]models.ActivityPlan{} }, "AnnualPlan"))
-		activityPlans.GET("/:id", crud.GetByID(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }, "AnnualPlan"))
+		activityPlans.GET("", crud.List(h.db, "ActivityPlan", func() interface{} { return &[]models.ActivityPlan{} }))
+		activityPlans.GET("/:id", crud.GetByID(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
 		activityPlans.POST("", crud.Create(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
 		activityPlans.PUT("/:id", crud.Update(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
 		activityPlans.DELETE("/:id", crud.Delete(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
@@ -310,6 +316,7 @@ func (h *RouteHandler) RegisterRoutes() {
 	auditResultReports := apiV1.Group("/audit-result-reports")
 	{
 		auditResultReports.GET("", crud.List(h.db, "AuditResultReport", func() interface{} { return &[]models.AuditResultReport{} }))
+		auditResultReports.GET("/:id/download-docx", h.downloadAuditResultReportDocx)
 		auditResultReports.GET("/:id", crud.GetByID(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 		auditResultReports.POST("", crud.Create(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 		auditResultReports.PUT("/:id", crud.Update(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
@@ -342,4 +349,89 @@ func (h *RouteHandler) RegisterRoutes() {
 		media.POST("/upload", h.registry.Media.Upload)
 		media.GET("/download/:id", h.registry.Media.Download)
 	}
+}
+
+func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	var report models.AuditResultReport
+	if err := h.db.First(&report, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Audit result report not found"})
+		return
+	}
+
+	// Fetch related entities by AssignmentLetterID
+	var st models.AssignmentLetter
+	if report.AssignmentLetterID != "" {
+		h.db.Where("letter_number = ?", report.AssignmentLetterID).First(&st)
+	}
+
+	var interviews []models.FieldworkInterview
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&interviews)
+	}
+
+	var observations []models.FieldworkObservation
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&observations)
+	}
+
+	var fieldworkDocs []models.FieldworkDocument
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&fieldworkDocs)
+	}
+
+	var fieldworkSamples []models.FieldworkSample
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&fieldworkSamples)
+	}
+
+	var wpHeader models.WorkingPaperHeader
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).First(&wpHeader)
+	}
+
+	var wpRisks []models.WorkingPaperRisk
+	if report.AssignmentLetterID != "" {
+		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpRisks)
+	}
+
+	var wpSamples []models.WorkingPaperSample
+	if report.AssignmentLetterID != "" {
+		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpSamples)
+	}
+
+	var wpCauses []models.WorkingPaperCause
+	if report.AssignmentLetterID != "" {
+		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpCauses)
+	}
+
+	var wpPlans []models.WorkingPaperPlan
+	if report.AssignmentLetterID != "" {
+		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpPlans)
+	}
+
+	var importedWPs []models.ImportedWorkingPaper
+	h.db.Find(&importedWPs)
+
+	docxBytes, err := docxbuilder.GenerateAuditReportDocx(&report, &st, interviews, observations, fieldworkDocs, fieldworkSamples, &wpHeader, wpRisks, wpSamples, wpCauses, wpPlans, importedWPs)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate Docx file", "details": err.Error()})
+		return
+	}
+
+	cleanNum := strings.ReplaceAll(report.ReportNumber, "/", "_")
+	cleanNum = strings.ReplaceAll(cleanNum, " ", "")
+	if cleanNum == "" {
+		cleanNum = "LHA"
+	}
+	filename := fmt.Sprintf("LHA_%s.docx", cleanNum)
+
+	c.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+	c.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", docxBytes)
 }

@@ -115,13 +115,13 @@
                   
                   <div v-if="!form.fileName" class="space-y-2">
                     <UIcon name="i-lucide-file-up" class="w-8 h-8 mx-auto text-gray-400" />
-                    <p class="text-xs text-gray-600 font-semibold">Click to upload or drag & drop</p>
+                    <p class="text-md text-gray-600 font-semibold">Click to upload or drag & drop</p>
                     <p class="text-[10px] text-gray-400">PDF, DOC, DOCX up to 10MB</p>
                   </div>
 
                   <div v-else class="space-y-2">
                     <UIcon name="i-lucide-file-check-2" class="w-8 h-8 mx-auto text-emerald-500" />
-                    <p class="text-xs text-emerald-700 font-bold truncate max-w-full px-2">
+                    <p class="text-md text-emerald-700 font-bold truncate max-w-full px-2">
                       {{ form.fileName }}
                     </p>
                     <p class="text-[10px] text-emerald-600">
@@ -183,9 +183,9 @@
             <div class="inline-flex p-4 rounded-full text-gray-300">
               <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
             </div>
-            <div class="max-w-xs mx-auto">
+            <div class="max-w-md mx-auto">
               <h3 class="text-sm font-bold text-gray-900">No imported reports</h3>
-              <p class="text-xs text-gray-500 mt-1">Upload QAR reports on the left to add them to your quality assurance records.</p>
+              <p class="text-md text-gray-500 mt-1">Upload QAR reports on the left to add them to your quality assurance records.</p>
             </div>
           </div>
 
@@ -218,7 +218,7 @@
               </template>
 
               <template #conductedBy-cell="{ row }">
-                <span class="text-xs font-medium text-gray-700">
+                <span class="text-md font-medium text-gray-700">
                   {{ row.original.conductedBy }}
                 </span>
               </template>

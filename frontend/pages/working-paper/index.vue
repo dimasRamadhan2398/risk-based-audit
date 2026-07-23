@@ -135,6 +135,7 @@ const store = useWorkingPaperStore()
 const route = useRoute()
 
 onMounted(() => {
+  store.fetchAllData()
   const { id, action } = route.query
   
   if (action === 'create') {

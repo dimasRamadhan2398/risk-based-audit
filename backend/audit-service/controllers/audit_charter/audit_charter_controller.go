@@ -74,27 +74,29 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 		}
 		isActive := isActiveStr == "true"
 
-		// Process file upload
+		// Process file upload (optional)
 		file, header, err := c.Request.FormFile("file")
-		if err != nil {
-			response.BadRequest(c, "File is required for creating a charter")
-			return
-		}
-		defer file.Close()
-
-		attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
-		if err != nil {
-			response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", err.Error())
-			return
+		if err == nil {
+			defer file.Close()
+			attachment, errUpload := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
+			if errUpload != nil {
+				response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", errUpload.Error())
+				return
+			}
+			req.Filename = header.Filename
+			req.FileUrl = attachment.FilePath
+			req.FileSize = attachment.FileSize
+		} else {
+			req.Filename = title + ".pdf"
+			if req.Filename == ".pdf" {
+				req.Filename = "Audit_Charter_" + version + ".pdf"
+			}
 		}
 
 		req.Title = title
 		req.Version = version
-		req.Filename = header.Filename
 		req.Content = content
 		req.IsActive = &isActive
-		req.FileUrl = attachment.FilePath
-		req.FileSize = attachment.FileSize
 	} else {
 		if err := c.ShouldBindJSON(&req); err != nil {
 			response.BadRequest(c, err.Error())

@@ -102,7 +102,7 @@
                       <div class="flex items-center gap-2">
                         <UIcon name="i-heroicons-document-text" class="text-gray-500" />
                         <span class="font-semibold text-gray-800">{{ file.name }}</span>
-                        <UBadge color="neutral" variant="soft" size="xs">{{ file.size }}</UBadge>
+                        <UBadge color="neutral" variant="soft" size="md">{{ file.size }}</UBadge>
                       </div>
                       <UButton :to="file.url" target="_blank" icon="i-heroicons-arrow-down-tray" size="sm" color="primary" variant="link" label="Download" />
                     </li>

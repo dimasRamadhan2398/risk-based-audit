@@ -61,7 +61,7 @@ const cards = computed(() => [
         <div :class="['p-2 rounded-lg', card.iconBg]">
           <UIcon :name="card.icon" :class="['w-6 h-6', card.iconColor]" />
         </div>
-        <div class="bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400 text-xs font-semibold px-2 py-1 rounded">
+        <div class="bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400 text-md font-semibold px-2 py-1 rounded">
           Target: {{ card.target }}
         </div>
       </div>

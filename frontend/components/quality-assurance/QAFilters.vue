@@ -4,7 +4,7 @@
         v-model="store.searchQuery"
         icon="i-lucide-search"
         placeholder="Search"
-        class="w-full max-w-xs"
+        class="w-full max-w-md"
         size="md"
       />
       <USelectMenu

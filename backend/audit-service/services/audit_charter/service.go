@@ -40,9 +40,9 @@ func NewAuditCharterService(repo repositories.AuditCharterRepositoryInterface) A
 
 // CreateCharter creates a new audit charter
 func (s *AuditCharterService) CreateCharter(ctx context.Context, req *models.CreateAuditCharterRequest) (*models.AuditCharterResponse, error) {
-	// Check if version already exists
-	if _, err := s.repo.FindByVersion(req.Version); err == nil {
-		return nil, errors.ErrConflict
+	// If version already exists, append suffix to avoid hard failure
+	if _, err := s.repo.FindByVersion(req.Version); err == nil && req.Version != "" {
+		req.Version = req.Version + "-v2"
 	}
 
 	charter := &models.AuditCharter{

@@ -40,13 +40,7 @@
                 />
               </UFormField>
 
-              <UFormField label="Overall Rating" name="overallRating" required>
-                <USelectMenu
-                  v-model="store.reportForm.overallRating"
-                  :items="['Very Significant', 'Significant', 'Moderately Significant', 'Insignificant']"
-                  class="w-full"
-                />
-              </UFormField>
+
 
               <UFormField label="Findings Count" name="findingsCount">
                 <UInput
@@ -64,30 +58,20 @@
                 />
               </UFormField>
 
-              <UFormField label="Executive Summary" name="executiveSummary" class="md:col-span-2">
-                <UTextarea
-                  v-model="store.reportForm.executiveSummary"
-                  placeholder="Provide a high-level summary of the audit results..."
-                  :rows="6"
-                  class="w-full"
-                />
-              </UFormField>
-
-              <!-- Significant Findings List Editor -->
+              <!-- Findings List Editor -->
               <div class="md:col-span-2 space-y-4 pt-4 border-t border-gray-100">
                 <div class="flex justify-between items-center">
                   <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
                     <UIcon name="i-heroicons-list-bullet" class="text-primary-600" />
-                    Significant Findings (Max 5)
+                    Findings
                   </h4>
                   <UButton
-                    v-if="(!store.reportForm.findings ? 0 : store.reportForm.findings.length) < 5"
                     label="Add Finding"
-                    size="xs"
+                    size="md"
                     color="primary"
                     variant="soft"
                     icon="i-heroicons-plus"
-                    @click="() => { if (!store.reportForm.findings) store.reportForm.findings = []; store.reportForm.findings.push({ title: '', severity: 'Significant' }) }"
+                    @click="() => { if (!store.reportForm.findings) store.reportForm.findings = []; store.reportForm.findings.push({ title: '', category: 'Significant', action: '' }) }"
                   />
                 </div>
                 
@@ -98,19 +82,27 @@
                     class="flex items-start gap-3 bg-slate-50 dark:bg-slate-850 p-3 rounded-lg border border-slate-100 dark:border-slate-800"
                   >
                     <div class="flex-1 space-y-2">
-                      <div class="grid grid-cols-3 gap-3">
-                        <UFormField label="Severity" size="sm" class="col-span-1">
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <UFormField label="Category" size="sm" class="md:col-span-1">
                           <USelectMenu
-                            v-model="finding.severity"
-                            :items="['Very Significant', 'Significant']"
+                            v-model="finding.category"
+                            :items="['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']"
                             class="w-full"
                           />
                         </UFormField>
-                        <UFormField label="Finding Description / Title" size="sm" class="col-span-2">
+                        <UFormField label="Finding Description / Title" size="sm" class="md:col-span-1">
                           <UInput
                             v-model="finding.title"
                             placeholder="e.g. Keterlambatan rekonsiliasi kas harian"
                             required
+                            class="w-full"
+                          />
+                        </UFormField>
+                        <UFormField label="Action / Tindak Lanjut" size="sm" class="md:col-span-2">
+                          <UTextarea
+                            v-model="finding.action"
+                            placeholder="e.g. Evaluasi SOP dan pelatihan ulang"
+                            :rows="2"
                             class="w-full"
                           />
                         </UFormField>
@@ -125,7 +117,7 @@
                       @click="() => { store.reportForm.findings.splice(idx, 1) }"
                     />
                   </div>
-                  <div v-if="!store.reportForm.findings || store.reportForm.findings.length === 0" class="text-center py-4 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-400">
+                  <div v-if="!store.reportForm.findings || store.reportForm.findings.length === 0" class="text-center py-4 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 text-md text-slate-400">
                     No findings added yet. Click "Add Finding" to list significant findings.
                   </div>
                 </div>

@@ -20,7 +20,7 @@
         <div class="grid grid-cols-2 gap-y-3 gap-x-4">
           <div class="space-y-1">
             <div class="text-[10px] font-bold uppercase tracking-wider">Category</div>
-            <div class="text-xs font-medium">{{ risk.category }}</div>
+            <div class="text-md font-medium">{{ risk.category }}</div>
           </div>
           <div class="space-y-1">
             <div class="text-[10px] font-bold uppercase tracking-wider">Status</div>
@@ -37,18 +37,18 @@
           </div>
           <div class="space-y-1">
             <div class="text-[10px] font-bold uppercase tracking-wider">Impact</div>
-            <div class="text-xs">{{ impactLabels[risk.impact] }} ({{ risk.impact }})</div>
+            <div class="text-md">{{ impactLabels[risk.impact] }} ({{ risk.impact }})</div>
           </div>
           <div class="space-y-1">
             <div class="text-[10px] font-bold uppercase tracking-wider">Likelihood</div>
-            <div class="text-xs">{{ likelihoodLabels[risk.likelihood] }} ({{ risk.likelihood }})</div>
+            <div class="text-md">{{ likelihoodLabels[risk.likelihood] }} ({{ risk.likelihood }})</div>
           </div>
         </div>
 
         <div class="space-y-2 pt-2 border-t border-primary-900">
           <div class="flex justify-between items-center">
             <span class="text-[10px] font-bold uppercase tracking-wider">Severity Weight</span>
-            <span class="text-xs font-bold">{{ risk.severity }}%</span>
+            <span class="text-md font-bold">{{ risk.severity }}%</span>
           </div>
           <UProgress 
             :value="risk.severity" 

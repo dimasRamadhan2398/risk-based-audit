@@ -96,11 +96,13 @@ export const useCharterStore = defineStore('charter', () => {
    * 4. [...]
    */
   const extractItemsFromResponse = (response: any) => {
-    if (Array.isArray(response?.data?.charters)) {
-            return response.data.charters
-        }
-        return []
-    }
+    if (Array.isArray(response?.data?.charters)) return response.data.charters
+    if (Array.isArray(response?.data?.items)) return response.data.items
+    if (Array.isArray(response?.data)) return response.data
+    if (Array.isArray(response?.charters)) return response.charters
+    if (Array.isArray(response)) return response
+    return []
+  }
 
   const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement
@@ -214,7 +216,7 @@ export const useCharterStore = defineStore('charter', () => {
       const reader = new FileReader()
       reader.onload = () => {
         // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
-        const base64 = (reader.result as string).split(',')[1]
+        const base64 = (reader.result as string).split(',')[1] || ''
         resolve(base64)
       }
       reader.onerror = reject

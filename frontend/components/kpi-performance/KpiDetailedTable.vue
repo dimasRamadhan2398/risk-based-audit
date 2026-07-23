@@ -209,11 +209,11 @@ const columns = [
       <!-- Pagination Placeholder -->
       <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" size="xs" />
+          <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" size="md" />
           <span class="text-sm font-medium">1 / 10</span>
-          <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="xs" />
+          <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="md" />
         </div>
-        <span class="text-xs text-gray-500 font-semibold">Showing 1 - {{ filteredData.length }} of 50 data</span>
+        <span class="text-md text-gray-500 font-semibold">Showing 1 - {{ filteredData.length }} of 50 data</span>
       </div>
     </div>
   </div>

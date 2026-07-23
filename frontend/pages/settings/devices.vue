@@ -38,7 +38,7 @@
               <p v-if="qrData" class="mt-4 text-sm text-gray-500 italic">Expires at: {{ new Date(qrData.expires_at).toLocaleString() }}</p>
             </div>
             <template #footer>
-              <UButton block @click="showQRModal = false">Close</UButton>
+              <UButton block @click="() => { showQRModal = false }">Close</UButton>
             </template>
           </UCard>
         </UModal>

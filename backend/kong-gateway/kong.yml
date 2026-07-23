@@ -53,6 +53,7 @@ services:
           - /api/v1/audit-result-reports
           - /api/v1/executive-summaries
           - /api/v1/action-taken-reports
+          - /api/v1/uploaded-plan-documents
           - /api/v1/media
         strip_path: false
 

@@ -24,9 +24,9 @@
                   <URadio :model-value="store.newReport.type === type" class="mr-4" />
                   <div class="space-y-0.5">
                     <p class="font-bold text-sm">{{ type }}</p>
-                    <p class="text-xs text-gray-500" v-if="type === QAType.REGULAR">[Description: Efficiency & effectiveness focus]</p>
-                    <p class="text-xs text-gray-500" v-if="type === QAType.SAIV">[Description: GIAS Compliance + External Validation]</p>
-                    <p class="text-xs text-gray-500" v-if="type === QAType.QAR">[Description: Professional Consultant - IPPF 2027 & GIAS 2024]</p>
+                    <p class="text-md text-gray-500" v-if="type === QAType.REGULAR">[Description: Efficiency & effectiveness focus]</p>
+                    <p class="text-md text-gray-500" v-if="type === QAType.SAIV">[Description: GIAS Compliance + External Validation]</p>
+                    <p class="text-md text-gray-500" v-if="type === QAType.QAR">[Description: Professional Consultant - IPPF 2027 & GIAS 2024]</p>
                   </div>
                 </div>
               </div>

@@ -112,7 +112,7 @@
                             :style="{ backgroundColor: getRiskLevelColorHex(item.riskLevel) }"
                           ></span>
                           <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel }}]</span>
-                          <span class="truncate text-xs">{{ item.name }}</span>
+                          <span class="truncate text-md">{{ item.name }}</span>
                         </div>
                       </template>
                     </USelectMenu>
@@ -161,15 +161,15 @@
                 <h4 class="font-medium mb-2">Summary of Activities</h4>
                 <div class="grid grid-cols-3 gap-4 text-center">
                   <div class="bg-red-50 text-red-600 rounded-lg p-2  ">
-                    <div class="text-xs font-semibold">High Risk</div>
+                    <div class="text-md font-semibold">High Risk</div>
                     <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'High').length }}</div>
                   </div>
                   <div class="bg-yellow-50 text-yellow-600 rounded-lg p-2  ">
-                    <div class="text-xs font-semibold">Medium Risk</div>
+                    <div class="text-md font-semibold">Medium Risk</div>
                     <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Medium').length }}</div>
                   </div>
                   <div class="bg-green-50 text-green-600 rounded-lg p-2  ">
-                    <div class="text-xs font-semibold">Low Risk</div>
+                    <div class="text-md font-semibold">Low Risk</div>
                     <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Low').length }}</div>
                   </div>
                 </div>

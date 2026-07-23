@@ -45,11 +45,7 @@ export const useAuditDataStore = defineStore("audit-data", {
       { id: "AUD-2023-002", name: "Revise Procurement Policy", owner: "Sarah M.",  date: "2023-11-10", status: "In Progress" },
       { id: "AUD-2023-001", name: "Update Firewall Ruleset", owner: "John Doe",  date: "2023-11-10", status: "Completed"},
     ],
-    recentFindings: [
-      {id: 1, audit_finding: "Vendor Contract Missing", audit_category: "Procurement Audit", severity: "Medium"},
-      {id: 2, audit_finding: "Unpatched Server", audit_category: "IT Security Audit", severity: "High"},
-      {id: 3, audit_finding: "Cash Discrepancy", audit_category: "Finance Operations", severity: "Low"}
-    ]
+
   }),
 
   getters: {
@@ -63,8 +59,7 @@ export const useAuditDataStore = defineStore("audit-data", {
       return Array.from({ length: 3 }, (_, index) => currentYear - index);
     },
     getAtrReports: (state): AtrReport[] => state.atrReports,
-    getAuditExecutionStatus: (state): AuditExecutionStatus[] => state.auditExecutionStatus,
-    getRecentFindings: (state): RecentFinding[] => state.recentFindings
+    getAuditExecutionStatus: (state): AuditExecutionStatus[] => state.auditExecutionStatus
   },
 
   actions: {

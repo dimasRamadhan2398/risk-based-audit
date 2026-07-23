@@ -1,576 +1,301 @@
 <template>
   <div class="space-y-6">
-    <div class="flex justify-between items-center">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Executive Summary Report</h1>
-        <p class="text-gray-500">Kompilasi dan visualisasi laporan hasil audit triwulanan untuk Direksi dan Komite Audit.</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <UIcon name="i-lucide-presentation" class="size-7 text-primary-500" />
+          Executive Summary (LHA Kompilasi)
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">
+          Kompilasi Laporan Hasil Audit triwulanan untuk BOD & Komite Audit.
+        </p>
       </div>
       <UButton
-        v-if="!store.showModal"
         color="primary"
-        icon="i-heroicons-plus"
+        icon="i-lucide-plus"
         label="Buat Laporan Kompilasi Baru"
-        @click="store.openNewForm(Number(selectedTab.replace('Q', '')))"
+        class="font-bold"
+        @click="store.openNewForm(activeQuarter)"
       />
     </div>
 
-    <!-- Active Form View -->
-    <div v-if="store.showModal" class="space-y-8">
-      <UCard>
-        <template #header>
-          <div class="flex justify-between items-center">
-            <h2 class="text-lg font-semibold text-gray-900">
-              {{ store.isEditing ? 'Edit Laporan Kompilasi' : 'Kompilasi Laporan Baru' }} - Triwulan Q{{ store.form.quarter }}
-            </h2>
-            <UButton 
-              color="neutral" 
-              variant="ghost" 
-              icon="i-heroicons-x-mark" 
-              @click="store.showModal = false" 
-            />
+    <!-- Stats Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <UCard :ui="{ body: 'p-4' }">
+        <div class="flex items-center gap-3">
+          <div class="p-3 bg-primary-50 dark:bg-primary-950 rounded-lg text-primary-600">
+            <UIcon name="i-lucide-file-text" class="size-6" />
           </div>
-        </template>
-
-        <div class="space-y-8">
-          <!-- Document Upload & General Metadata Form -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
-            <div>
-              <label class="label">Periode Bulan</label>
-              <!-- We don't have bulanOptions anymore, just hardcode standard ones or leave as text for now, but let's use standard ones -->
-              <USelectMenu v-model="store.form.periodeBulan" :items="['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']" />
-            </div>
-            <div>
-              <label class="label">Tahun</label>
-              <USelectMenu v-model="store.form.tahun" :items="[2024, 2025, 2026, 2027, 2028]" />
-            </div>
-            <div class="col-span-2">
-              <label class="label">Nomor Dokumen</label>
-              <UInput 
-                v-model="store.form.nomorDokumen" 
-                placeholder="Format: LKA/B/.../SPI/KAI/.../2026"
-              />
-            </div>
-            <div class="col-span-4 mt-2">
-              <label class="label">Upload Dokumen Resmi (PDF/Word, Max 10MB)</label>
-              <div class="flex items-center gap-3">
-                <input 
-                  type="file" 
-                  accept=".pdf,.docx" 
-                  class="hidden" 
-                  ref="fileInput"
-                  @change="handleFileChange"
-                />
-                <UButton 
-                  color="neutral" 
-                  variant="subtle" 
-                  icon="i-heroicons-cloud-arrow-up" 
-                  label="Pilih File Laporan Resmi" 
-                  @click="$refs.fileInput.click()" 
-                />
-                <span class="text-sm text-gray-600 font-medium">
-                  {{ store.form.dokumenPath || 'Belum ada file yang diunggah' }}
-                </span>
-              </div>
-            </div>
+          <div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Total Kompilasi</div>
+            <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ store.summaryList.length }}</div>
           </div>
-
-          <!-- Section I: Narrative -->
-          <div class="space-y-2">
-            <h3 class="text-md font-semibold text-gray-800 border-b pb-1">Section I: Executive Summary Narrative</h3>
-            <p class="text-xs text-gray-500">Sajikan narasi eksekutif laporan secara terstruktur:</p>
-            <UTextarea 
-              v-model="store.form.narrative" 
-              rows="4" 
-              class="w-full" 
-            />
+        </div>
+      </UCard>
+      
+      <UCard :ui="{ body: 'p-4' }">
+        <div class="flex items-center gap-3">
+          <div class="p-3 bg-success-50 dark:bg-success-950 rounded-lg text-success-600">
+            <UIcon name="i-lucide-check-circle" class="size-6" />
           </div>
-
-          <!-- Section II: Statistik Kompilasi -->
-          <div class="space-y-4">
-            <h3 class="text-md font-semibold text-gray-800 border-b pb-1">Section II: Statistik Kompilasi</h3>
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-              <div>
-                <label class="label">Jumlah Laporan</label>
-                <UInput type="number" v-model="store.form.jumlahLaporan" />
-              </div>
-              <div>
-                <label class="label">Risiko Tinggi</label>
-                <UInput type="number" v-model="store.form.risikoTinggi" />
-              </div>
-              <div>
-                <label class="label">Risiko Sedang</label>
-                <UInput type="number" v-model="store.form.risikoSedang" />
-              </div>
-              <div>
-                <label class="label">Risiko Rendah</label>
-                <UInput type="number" v-model="store.form.risikoRendah" />
-              </div>
-              <div>
-                <label class="label">Total Temuan</label>
-                <UInput :value="(Number(store.form.risikoTinggi) || 0) + (Number(store.form.risikoSedang) || 0) + (Number(store.form.risikoRendah) || 0)" disabled class="bg-gray-100" />
-              </div>
-              <div>
-                <label class="label">Rekomendasi</label>
-                <UInput type="number" v-model="store.form.jumlahRekomendasi" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Section III: Status Tindak Lanjut -->
-          <div class="space-y-3">
-            <h3 class="text-md font-semibold text-gray-800 border-b pb-1">Section III: Status Tindak Lanjut</h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 border text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-4 py-2 text-left font-medium text-gray-700">Status</th>
-                    <th class="px-4 py-2 text-left font-medium text-gray-700 w-32">Jumlah</th>
-                    <th class="px-4 py-2 text-left font-medium text-gray-700 w-32">Persentase (%)</th>
-                    <th class="px-4 py-2 text-left font-medium text-gray-700">Keterangan</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
-                  <tr>
-                    <td class="px-4 py-2 font-medium text-gray-900">Closed</td>
-                    <td class="px-4 py-2">
-                      <UInput type="number" v-model="store.form.followUpTable[0].jumlah" />
-                    </td>
-                    <td class="px-4 py-2 text-gray-500 font-medium">{{ getFormPercentage(store.form.followUpTable[0].jumlah) }}%</td>
-                    <td class="px-4 py-2">
-                      <UInput v-model="store.form.followUpTable[0].keterangan" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 font-medium text-gray-900">In Progress</td>
-                    <td class="px-4 py-2">
-                      <UInput type="number" v-model="store.form.followUpTable[1].jumlah" />
-                    </td>
-                    <td class="px-4 py-2 text-gray-500 font-medium">{{ getFormPercentage(store.form.followUpTable[1].jumlah) }}%</td>
-                    <td class="px-4 py-2">
-                      <UInput v-model="store.form.followUpTable[1].keterangan" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 font-medium text-gray-900">Overdue</td>
-                    <td class="px-4 py-2">
-                      <UInput type="number" v-model="store.form.followUpTable[2].jumlah" />
-                    </td>
-                    <td class="px-4 py-2 text-gray-500 font-medium">{{ getFormPercentage(store.form.followUpTable[2].jumlah) }}%</td>
-                    <td class="px-4 py-2">
-                      <UInput v-model="store.form.followUpTable[2].keterangan" />
-                    </td>
-                  </tr>
-                  <tr class="bg-gray-50 font-semibold">
-                    <td class="px-4 py-2">Total</td>
-                    <td class="px-4 py-2">{{ (Number(store.form.followUpTable[0].jumlah) || 0) + (Number(store.form.followUpTable[1].jumlah) || 0) + (Number(store.form.followUpTable[2].jumlah) || 0) }}</td>
-                    <td class="px-4 py-2">100%</td>
-                    <td class="px-4 py-2 text-gray-400 font-normal">Calculated Total</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Section IV: Top 5 Temuan Signifikan -->
-          <div class="space-y-3">
-            <div class="flex justify-between items-center border-b pb-1">
-              <h3 class="text-md font-semibold text-gray-800">Section IV: Top 5 Temuan Signifikan</h3>
-              <UButton 
-                v-if="store.form.topFindings.length < 5"
-                color="primary" 
-                variant="ghost" 
-                size="xs" 
-                icon="i-heroicons-plus" 
-                label="Tambah Baris"
-                @click="addTopFindingRow"
-              />
-            </div>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 border text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-3 py-2 text-left font-medium text-gray-700 w-40">Unit/Divisi</th>
-                    <th class="px-3 py-2 text-left font-medium text-gray-700">Judul Temuan</th>
-                    <th class="px-3 py-2 text-left font-medium text-gray-700 w-36">Risiko</th>
-                    <th class="px-3 py-2 text-left font-medium text-gray-700 w-36">Status TL</th>
-                    <th class="px-3 py-2 text-left font-medium text-gray-700 w-44">Usulan</th>
-                    <th class="px-3 py-2 text-center font-medium text-gray-700 w-16">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
-                  <tr v-for="(row, idx) in store.form.topFindings" :key="idx">
-                    <td class="px-2 py-1.5">
-                      <UInput v-model="row.unitDivision" placeholder="Contoh: OP" />
-                    </td>
-                    <td class="px-2 py-1.5">
-                      <UInput v-model="row.judulTemuan" placeholder="Judul temuan utama" />
-                    </td>
-                    <td class="px-2 py-1.5">
-                      <USelectMenu v-model="row.risiko" :items="['Tinggi', 'Sedang', 'Rendah']" />
-                    </td>
-                    <td class="px-2 py-1.5">
-                      <USelectMenu v-model="row.statusTL" :items="['Closed', 'In Progress', 'Overdue']" />
-                    </td>
-                    <td class="px-2 py-1.5">
-                      <UInput v-model="row.usulan" placeholder="Eskalasi Direksi" />
-                    </td>
-                    <td class="px-2 py-1.5 text-center">
-                      <UButton 
-                        color="error" 
-                        variant="ghost" 
-                        icon="i-heroicons-trash" 
-                        size="xs" 
-                        @click="removeTopFindingRow(idx)"
-                      />
-                    </td>
-                  </tr>
-                  <tr v-if="store.form.topFindings.length === 0">
-                    <td colspan="6" class="text-center py-4 text-gray-400">Belum ada temuan signifikan dimasukkan.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Section V, VII: Analisis Temuan Berulang & Kesimpulan & TTD -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-2">
-              <label class="label font-semibold">Section V: Analisis Temuan Berulang</label>
-              <UTextarea 
-                v-model="store.form.akarMasalah" 
-                placeholder="Akar masalah & Usulan revisi kebijakan"
-                rows="4"
-              />
-            </div>
-            <div class="space-y-2">
-              <label class="label font-semibold">Section VII: Kesimpulan & Rekomendasi</label>
-              <UTextarea 
-                v-model="store.form.kesimpulan" 
-                placeholder="Pernyataan umum, permohonan arahan Direksi, usulan task force"
-                rows="4"
-              />
-            </div>
-          </div>
-
-          <!-- Section VIII: Tanda Tangan Elektronik -->
-          <div class="p-4 bg-gray-50 rounded-lg">
-            <h4 class="text-sm font-semibold text-gray-800 mb-3">Tanda Tangan Elektronik</h4>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label class="label">Tempat</label>
-                <UInput v-model="store.form.signatureTempat" />
-              </div>
-              <div>
-                <label class="label">Tanggal</label>
-                <UInput type="date" v-model="store.form.signatureTanggal" />
-              </div>
-              <div>
-                <label class="label">Nama Kepala SPI</label>
-                <UInput v-model="store.form.signatureNamaKepala" />
-              </div>
-              <div>
-                <label class="label">NIK</label>
-                <UInput v-model="store.form.signatureNIK" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Section VI: Tren & Grafik Visuals (System Generated preview) -->
-          <div class="space-y-3">
-            <h3 class="text-md font-semibold text-gray-800 border-b pb-1">Section VI: Tren & Grafik (Pratinjau Visualisasi)</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <!-- Bar Chart: Jumlah Temuan per Kategori Risiko -->
-              <div class="border p-4 rounded-xl bg-white shadow-xs">
-                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Jumlah Temuan per Kategori</h4>
-                <div class="flex items-end justify-around h-40 pt-4 px-2 border-b">
-                  <div class="flex flex-col items-center w-8">
-                    <div 
-                      class="bg-error-500 w-full rounded-t transition-all duration-500" 
-                      :style="{ height: `${Math.min(Number(store.form.risikoTinggi) * 10, 100)}px` }"
-                    ></div>
-                    <span class="text-xs font-bold text-gray-700 mt-1">{{ store.form.risikoTinggi }}</span>
-                    <span class="text-[10px] text-gray-500 mt-1">Tinggi</span>
-                  </div>
-                  <div class="flex flex-col items-center w-8">
-                    <div 
-                      class="bg-warning-500 w-full rounded-t transition-all duration-500" 
-                      :style="{ height: `${Math.min(Number(store.form.risikoSedang) * 10, 100)}px` }"
-                    ></div>
-                    <span class="text-xs font-bold text-gray-700 mt-1">{{ store.form.risikoSedang }}</span>
-                    <span class="text-[10px] text-gray-500 mt-1">Sedang</span>
-                  </div>
-                  <div class="flex flex-col items-center w-8">
-                    <div 
-                      class="bg-success-500 w-full rounded-t transition-all duration-500" 
-                      :style="{ height: `${Math.min(Number(store.form.risikoRendah) * 10, 100)}px` }"
-                    ></div>
-                    <span class="text-xs font-bold text-gray-700 mt-1">{{ store.form.risikoRendah }}</span>
-                    <span class="text-[10px] text-gray-500 mt-1">Rendah</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pie Chart: Persentase Status Tindak Lanjut -->
-              <div class="border p-4 rounded-xl bg-white shadow-xs">
-                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Status Tindak Lanjut (%)</h4>
-                <div class="flex flex-col justify-between h-40">
-                  <div class="space-y-2">
-                    <div>
-                      <div class="flex justify-between text-xs font-medium text-gray-700 mb-1">
-                        <span>Closed</span>
-                        <span>{{ getFormPercentage(store.form.followUpTable[0].jumlah) }}%</span>
-                      </div>
-                      <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-success-500 h-2 rounded-full" :style="{ width: `${getFormPercentage(store.form.followUpTable[0].jumlah)}%` }"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="flex justify-between text-xs font-medium text-gray-700 mb-1">
-                        <span>In Progress</span>
-                        <span>{{ getFormPercentage(store.form.followUpTable[1].jumlah) }}%</span>
-                      </div>
-                      <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-primary-500 h-2 rounded-full" :style="{ width: `${getFormPercentage(store.form.followUpTable[1].jumlah)}%` }"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="flex justify-between text-xs font-medium text-gray-700 mb-1">
-                        <span>Overdue</span>
-                        <span>{{ getFormPercentage(store.form.followUpTable[2].jumlah) }}%</span>
-                      </div>
-                      <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-error-500 h-2 rounded-full" :style="{ width: `${getFormPercentage(store.form.followUpTable[2].jumlah)}%` }"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Line Chart: Aging Rekomendasi (Visual Gauge) -->
-              <div class="border p-4 rounded-xl bg-white shadow-xs">
-                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Penyelesaian On-Time</h4>
-                <div class="flex flex-col items-center justify-center h-40">
-                  <div class="relative size-24 flex items-center justify-center">
-                    <svg class="size-full transform -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        class="text-gray-100"
-                        stroke-width="3"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                      <path
-                        class="text-primary-500"
-                        stroke-width="3"
-                        stroke-dasharray="95, 100"
-                        stroke-linecap="round"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                    </svg>
-                    <span class="absolute text-lg font-bold text-gray-900">95%</span>
-                  </div>
-                  <span class="text-[10px] text-gray-400 mt-2 text-center">Target Penyelesaian Standar Operasional</span>
-                </div>
-              </div>
+          <div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Disetujui (Approved)</div>
+            <div class="text-2xl font-bold text-gray-800 dark:text-white">
+              {{ store.summaryList.filter(s => s.status === 'Approved').length }}
             </div>
           </div>
         </div>
+      </UCard>
 
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <UButton color="neutral" variant="ghost" label="Batal" @click="store.showModal = false" />
-            <UButton color="primary" label="Simpan Laporan Kompilasi" @click="store.saveForm" />
+      <UCard :ui="{ body: 'p-4' }">
+        <div class="flex items-center gap-3">
+          <div class="p-3 bg-warning-50 dark:bg-warning-950 rounded-lg text-warning-600">
+            <UIcon name="i-lucide-edit-3" class="size-6" />
           </div>
-        </template>
+          <div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Draft</div>
+            <div class="text-2xl font-bold text-gray-800 dark:text-white">
+              {{ store.summaryList.filter(s => s.status === 'Draft').length }}
+            </div>
+          </div>
+        </div>
+      </UCard>
+
+      <UCard :ui="{ body: 'p-4' }">
+        <div class="flex items-center gap-3">
+          <div class="p-3 bg-error-50 dark:bg-error-950 rounded-lg text-error-600">
+            <UIcon name="i-lucide-alert-triangle" class="size-6" />
+          </div>
+          <div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Ditolak (Rejected)</div>
+            <div class="text-2xl font-bold text-gray-800 dark:text-white">
+              {{ store.summaryList.filter(s => s.status === 'Rejected').length }}
+            </div>
+          </div>
+        </div>
       </UCard>
     </div>
 
-    <!-- History / Summary List Table -->
-    <div v-else class="space-y-4">
-      <div class="border-b border-gray-200">
-        <nav class="flex gap-4" aria-label="Tabs">
-          <button
-            v-for="q in ['Q1', 'Q2', 'Q3', 'Q4']"
-            :key="q"
-            @click="selectedTab = q as any"
-            class="px-4 py-2 text-sm font-semibold border-b-2 transition-all duration-200"
-            :class="selectedTab === q ? 'border-primary-500 text-primary-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
-          >
-            Triwulan {{ q }}
-          </button>
-        </nav>
+    <!-- Quarter Tabs -->
+    <UCard class="overflow-hidden">
+      <template #header>
+        <div class="flex justify-between items-center">
+          <div class="flex border-b border-gray-200 dark:border-gray-800 w-full">
+            <button
+              v-for="q in quarters"
+              :key="q.num"
+              @click="activeQuarter = q.num"
+              class="px-6 py-3 font-semibold text-sm transition-all border-b-2"
+              :class="activeQuarter === q.num 
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400 font-bold' 
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+            >
+              {{ q.label }}
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <!-- Search and Filters -->
+      <div class="mb-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="w-full md:w-80">
+          <UInput
+            v-model="searchQuery"
+            icon="i-lucide-search"
+            placeholder="Cari nomor dokumen atau bulan..."
+            class="w-full"
+          />
+        </div>
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          Menampilkan <span class="font-semibold">{{ filteredSummaries.length }}</span> dokumen
+        </div>
       </div>
 
-      <div v-if="filteredReports.length > 0" class="space-y-4">
+      <!-- Document History Cards -->
+      <div v-if="filteredSummaries.length > 0" class="space-y-4">
         <div 
-          v-for="item in filteredReports" 
+          v-for="item in filteredSummaries" 
           :key="item.id" 
-          class="bg-white border rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300"
+          class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group"
         >
-          <!-- Report Header Panel -->
-          <div class="p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50 border-b">
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-md font-bold text-gray-900">{{ item.nomorDokumen }}</h3>
-                <UBadge :color="item.status === 'Approved' ? 'success' : 'neutral'" variant="soft">
-                  {{ item.status === 'Approved' ? 'Approved (Locked)' : 'Draft' }}
-                </UBadge>
+          <!-- Header -->
+          <div class="p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
+            <div class="flex items-start gap-4">
+              <div class="p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 text-primary-500">
+                <UIcon name="i-lucide-file-text" class="size-6" />
               </div>
-              <p class="text-xs text-gray-400 mt-1">
-                Periode: {{ item.periodeBulan }} {{ item.tahun }} | File Lampiran: 
-                <span class="font-medium text-primary-600">{{ item.dokumenPath }}</span>
-              </p>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || 'Draft Laporan' }}</h3>
+                  <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
+                    {{ item.status }}
+                  </UBadge>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Periode: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ item.periodeBulan }} {{ item.tahun }}</span>
+                  <span v-if="item.dokumenPath" class="mx-2">•</span>
+                  <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400">
+                    <UIcon name="i-lucide-paperclip" class="size-3" />
+                    {{ item.dokumenPath }}
+                  </span>
+                </p>
+              </div>
             </div>
-            <div class="flex gap-2 shrink-0">
-              <UButton 
-                :color="item.status === 'Approved' ? 'warning' : 'success'"
-                variant="subtle"
-                size="sm"
-                :icon="item.status === 'Approved' ? 'i-heroicons-lock-open' : 'i-heroicons-lock-closed'"
-                :label="item.status === 'Approved' ? 'Unlock (Draft)' : 'Approve & Lock'"
-                @click="store.updateStatus(item.id, item.status === 'Approved' ? 'Draft' : 'Approved')"
-              />
-              <UButton 
-                v-if="item.status !== 'Approved'"
-                color="primary" 
-                variant="ghost" 
-                size="sm" 
-                icon="i-heroicons-pencil-square" 
-                label="Edit"
-                @click="store.openEditForm(item)"
-              />
-              <UButton 
-                v-if="item.status !== 'Approved'"
-                color="error" 
-                variant="ghost" 
-                size="sm" 
-                icon="i-heroicons-trash" 
-                label="Hapus"
-                @click="store.deleteSummary(item.id)"
-              />
-              <UButton 
-                color="neutral" 
-                variant="subtle" 
-                size="sm" 
-                icon="i-heroicons-table-cells" 
-                label="Edit Matriks Temuan"
-                @click="navigateTo('/executive-summary/matriks')"
-              />
+            
+            <div class="flex gap-2 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+              <UButton color="neutral" variant="ghost" icon="i-lucide-eye" size="sm" @click="store.openView(item)" title="Lihat Detail" />
+              <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="primary" variant="ghost" icon="i-lucide-edit" size="sm" @click="store.openEditForm(item as any)" title="Edit Laporan" />
+              <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="store.deleteSummary(item.id)" title="Hapus" />
+              
+              <!-- Quick Workflow Actions -->
+              <div v-if="(item.status === 'Draft' && isChiefAuditExecutive) || (item.status === 'Approved' && isHigherAuthority)" class="border-l border-gray-200 dark:border-gray-700 pl-2 ml-1 flex gap-1">
+                <UButton v-if="item.status === 'Draft' && isChiefAuditExecutive" color="success" variant="soft" icon="i-lucide-check" size="sm" label="Approve" @click="store.updateStatus(item.id, 'Approved')" />
+                <UButton v-if="item.status === 'Approved' && isHigherAuthority" color="warning" variant="soft" icon="i-lucide-unlock" size="sm" label="Revert Draft" @click="store.updateStatus(item.id, 'Draft')" />
+              </div>
             </div>
           </div>
 
-          <!-- Quick statistics overview -->
-          <div class="p-5 grid grid-cols-2 md:grid-cols-5 gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-100 text-center">
+          <!-- Stats Overview -->
+          <div class="p-5 grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-gray-800 text-center">
             <div>
-              <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Jumlah Laporan</span>
-              <span class="block text-xl font-bold text-gray-800 mt-1">{{ item.jumlahLaporan }} LHA</span>
+              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">Jumlah LHA</span>
+              <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.jumlahLaporan }}</span>
             </div>
-            <div class="pt-3 md:pt-0">
-              <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Temuan</span>
-              <span class="block text-xl font-bold text-gray-800 mt-1">
+            <div class="pt-4 md:pt-0">
+              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">Total Temuan</span>
+              <span class="block text-2xl font-bold text-gray-800 dark:text-white">
                 {{ Number(item.risikoTinggi) + Number(item.risikoSedang) + Number(item.risikoRendah) }}
               </span>
-              <div class="flex justify-center gap-1.5 mt-1 text-[10px]">
-                <span class="text-error-600 font-semibold">{{ item.risikoTinggi }} H</span>
-                <span class="text-gray-300">|</span>
-                <span class="text-warning-600 font-semibold">{{ item.risikoSedang }} M</span>
-                <span class="text-gray-300">|</span>
-                <span class="text-success-600 font-semibold">{{ item.risikoRendah }} L</span>
+              <div class="flex justify-center gap-2 mt-1.5 text-md">
+                <span class="text-error-600 font-semibold bg-error-50 dark:bg-error-950/50 px-1.5 rounded">{{ item.risikoTinggi }} H</span>
+                <span class="text-warning-600 font-semibold bg-warning-50 dark:bg-warning-950/50 px-1.5 rounded">{{ item.risikoSedang }} M</span>
+                <span class="text-success-600 font-semibold bg-success-50 dark:bg-success-950/50 px-1.5 rounded">{{ item.risikoRendah }} L</span>
               </div>
             </div>
-            <div class="pt-3 md:pt-0">
-              <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Closed</span>
-              <span class="block text-xl font-bold text-success-600 mt-1">{{ item.followUpTable[0]?.jumlah || 0 }}</span>
-              <span class="block text-[10px] text-gray-400">{{ getPercentage(item.followUpTable[0]?.jumlah || 0, item) }}%</span>
+            <div class="pt-4 md:pt-0">
+              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">Total Rekomendasi</span>
+              <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.jumlahRekomendasi }}</span>
             </div>
-            <div class="pt-3 md:pt-0">
-              <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">In Progress</span>
-              <span class="block text-xl font-bold text-primary-600 mt-1">{{ item.followUpTable[1]?.jumlah || 0 }}</span>
-              <span class="block text-[10px] text-gray-400">{{ getPercentage(item.followUpTable[1]?.jumlah || 0, item) }}%</span>
-            </div>
-            <div class="pt-3 md:pt-0">
-              <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Overdue</span>
-              <span class="block text-xl font-bold text-error-600 mt-1">{{ item.followUpTable[2]?.jumlah || 0 }}</span>
-              <span class="block text-[10px] text-gray-400">{{ getPercentage(item.followUpTable[2]?.jumlah || 0, item) }}%</span>
+            <div class="pt-4 md:pt-0 flex flex-col justify-center items-center">
+              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-2">Penyelesaian (Closed)</span>
+              <div class="w-full max-w-[120px]">
+                <div class="flex justify-between text-md font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <span>Progress</span>
+                  <span class="text-success-600">{{ item.followUpTable?.[0]?.jumlah ? Math.round((Number(item.followUpTable[0].jumlah) / ((Number(item.followUpTable[0].jumlah) || 0) + (Number(item.followUpTable[1]?.jumlah) || 0) + (Number(item.followUpTable[2]?.jumlah) || 0))) * 100) : 0 }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+                  <div class="bg-success-500 h-2 rounded-full transition-all" :style="{ width: `${item.followUpTable?.[0]?.jumlah ? Math.round((Number(item.followUpTable[0].jumlah) / ((Number(item.followUpTable[0].jumlah) || 0) + (Number(item.followUpTable[1]?.jumlah) || 0) + (Number(item.followUpTable[2]?.jumlah) || 0))) * 100) : 0}%` }"></div>
+                </div>
+              </div>
             </div>
           </div>
-
-          <!-- Section narrative block preview -->
-          <div class="px-5 pb-5 pt-2 border-t border-gray-100">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 text-left">Ringkasan Eksekutif</h4>
-            <blockquote class="text-sm italic text-gray-600 border-l-4 border-gray-200 pl-3 py-1">
-              "{{ item.narrative }}"
-            </blockquote>
+          
+          <!-- Narrative Snippet -->
+          <div v-if="item.narrative" class="px-5 pb-5 pt-0">
+            <div class="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-3 text-sm text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-800">
+              <UIcon name="i-lucide-quote" class="size-4 text-gray-300 mr-2 inline-block -mt-1" />
+              <span class="italic line-clamp-2">{{ item.narrative }}</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div 
-        v-else 
-        class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200"
-      >
-        <UIcon name="i-heroicons-document-text" class="size-16 text-gray-300 mx-auto mb-4" />
-        <h3 class="text-lg font-semibold text-gray-700">Belum ada Laporan Kompilasi</h3>
-        <p class="text-gray-500 mt-2 max-w-sm mx-auto mb-6">
-          Belum ada ringkasan eksekutif hasil audit triwulanan yang ditambahkan untuk Triwulan {{ selectedTab }} ini.
+      <div v-else class="text-center py-16 bg-gray-50 dark:bg-gray-900 rounded-lg border border-dashed border-gray-200 dark:border-gray-800">
+        <UIcon name="i-lucide-presentation" class="size-16 text-gray-300 mx-auto mb-4" />
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Belum ada Laporan Kompilasi</h3>
+        <p class="text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto mb-6">
+          Belum ada berkas Executive Summary yang diunggah untuk Triwulan {{ activeQuarter }} (2026).
         </p>
         <UButton
           color="primary"
-          icon="i-heroicons-plus"
-          label="Buat Laporan Baru"
-          @click="store.openNewForm(Number(selectedTab.replace('Q', '')))"
+          icon="i-lucide-plus"
+          label="Mulai Laporan Pertama"
+          @click="store.openNewForm(activeQuarter)"
         />
       </div>
-    </div>
+    </UCard>
+
+    <!-- Modal Form (Create / Edit / View) -->
+    <UModal v-model:open="store.showModal" fullscreen :prevent-close="store.loading">
+      <template #content>
+        <UCard class="flex flex-col h-full" :ui="{ body: 'flex-1 overflow-y-auto p-0', footer: 'border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900' }">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <UIcon name="i-lucide-presentation" class="size-5 text-primary-500" />
+                {{ store.isViewing ? 'Detail Laporan Kompilasi' : (store.isEditing ? 'Edit Laporan Kompilasi' : 'Buat Laporan Kompilasi Baru') }}
+                <UBadge v-if="store.currentSummary" :color="getStatusColor(store.form.status)" variant="soft" class="ml-2 font-bold uppercase">
+                  {{ store.form.status }}
+                </UBadge>
+              </h3>
+              <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="() => { store.showModal = false }" />
+            </div>
+          </template>
+
+          <!-- Form content handles all sections -->
+          <ExecutiveSummaryForm />
+        </UCard>
+      </template>
+    </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
+import { useAuthStore } from '~/stores/auth'
+import { UserRole } from '~/types/auth'
+import ExecutiveSummaryForm from '~/components/audit-result-report/ExecutiveSummaryForm.vue'
 
-const store = useExecutiveSummaryStore()
-const selectedTab = ref<'Q1' | 'Q2' | 'Q3' | 'Q4'>('Q1')
-
-const filteredReports = computed(() => {
-  return store.summaryList.filter(r => r.quarter === Number(selectedTab.value.replace('Q', '')))
+definePageMeta({
+  middleware: 'auth'
 })
 
-const fileInput = ref<HTMLInputElement | null>(null)
+const store = useExecutiveSummaryStore()
+const authStore = useAuthStore()
 
-const handleFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  if (target.files && target.files.length > 0) {
-    store.form.dokumenPath = target.files[0].name
+const activeQuarter = ref(1)
+const searchQuery = ref('')
+
+const quarters = [
+  { num: 1, label: 'Triwulan 1 (Q1)' },
+  { num: 2, label: 'Triwulan 2 (Q2)' },
+  { num: 3, label: 'Triwulan 3 (Q3)' },
+  { num: 4, label: 'Triwulan 4 (Q4)' }
+]
+
+
+
+// Role checks
+const isChiefAuditExecutive = computed(() => {
+  return authStore.user?.roles.includes(UserRole.CHIEF_AUDIT_EXECUTIVE) || authStore.user?.roles.includes(UserRole.ADMIN)
+})
+
+const isHigherAuthority = computed(() => {
+  // Komite audit mapped as admin or explicit audit_committee role
+  return authStore.user?.roles.includes(UserRole.ADMIN) || authStore.user?.roles.includes('audit_committee')
+})
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Approved': return 'success'
+    case 'Rejected': return 'error'
+    case 'Draft': return 'warning'
+    default: return 'neutral'
   }
 }
 
-const addTopFindingRow = () => {
-  store.form.topFindings.push({
-    unitDivision: '',
-    judulTemuan: '',
-    risiko: 'Sedang',
-    statusTL: 'In Progress',
-    usulan: ''
+const filteredSummaries = computed(() => {
+  return store.summaryList.filter(s => {
+    const qMatches = s.quarter === activeQuarter.value
+    const searchLower = searchQuery.value.toLowerCase()
+    const matchesSearch = !searchQuery.value ||
+      s.nomorDokumen.toLowerCase().includes(searchLower) ||
+      s.periodeBulan.toLowerCase().includes(searchLower)
+    
+    return qMatches && matchesSearch
   })
-}
-
-const removeTopFindingRow = (idx: number) => {
-  store.form.topFindings.splice(idx, 1)
-}
-
-const getFormPercentage = (value: number) => {
-  const total = (Number(store.form.followUpTable[0].jumlah) || 0) + (Number(store.form.followUpTable[1].jumlah) || 0) + (Number(store.form.followUpTable[2].jumlah) || 0)
-  if (total === 0) return 0
-  return Math.round((Number(value) / total) * 1000) / 10
-}
-
-const getPercentage = (value: number, item: any) => {
-  const total = item.followUpTable.reduce((sum: number, row: any) => sum + (Number(row.jumlah) || 0), 0)
-  if (total === 0) return 0
-  return Math.round((Number(value) / total) * 1000) / 10
-}
+})
 </script>

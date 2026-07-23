@@ -42,13 +42,13 @@
                 </td>
                 <td class="py-3 px-4 text-gray-600">{{ permission.description }}</td>
                 <td class="py-3 px-4 text-center">
-                  <UCheckbox :modelValue="getAccessCheckboxState(permission.access, 'read')" disabled />
+                  <UCheckbox :modelValue="getAccessCheckbomdtate(permission.access, 'read')" disabled />
                 </td>
                 <td class="py-3 px-4 text-center">
-                  <UCheckbox :modelValue="getAccessCheckboxState(permission.access, 'write')" disabled />
+                  <UCheckbox :modelValue="getAccessCheckbomdtate(permission.access, 'write')" disabled />
                 </td>
                 <td class="py-3 px-4 text-center">
-                  <UCheckbox :modelValue="getAccessCheckboxState(permission.access, 'delete')" disabled />
+                  <UCheckbox :modelValue="getAccessCheckbomdtate(permission.access, 'delete')" disabled />
                 </td>
                 <!-- <td class="py-3 px-4 text-center">
                   <div class="flex items-center justify-center gap-2">
@@ -311,7 +311,7 @@ const accordionItems = computed<AccordionItem[]>(() => {
   }))
 })
 
-function getAccessCheckboxState(access: string, checkType: 'read' | 'write' | 'delete'): boolean {
+function getAccessCheckbomdtate(access: string, checkType: 'read' | 'write' | 'delete'): boolean {
   switch (checkType) {
     case 'read':
       return access === 'Read' || access === 'Write' || access === 'Full'

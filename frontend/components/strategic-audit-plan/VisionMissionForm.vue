@@ -85,7 +85,7 @@
             <h4 class="text-sm font-bold text-[var(--text-main)] uppercase tracking-wide">
               Goals
             </h4>
-            <p class="text-xs text-[var(--text-muted)]">
+            <p class="text-md text-[var(--text-muted)]">
               Tambah goal-goal organisasi yang relevan:
             </p>
             <div v-for="(goal, index) in store.form.goals" :key="'goal-' + index" class="flex gap-2 items-center">
@@ -122,7 +122,7 @@
 
           <!-- Rentang Tahun Section -->
           <div class="space-y-3 pt-4 border-t border-[var(--border-main)]">
-            <p class="text-xs text-[var(--text-muted)] font-semibold">
+            <p class="text-md text-[var(--text-muted)] font-semibold">
               Pilih rentang tahun pencapaian target:
             </p>
             <div class="flex gap-4 items-center">

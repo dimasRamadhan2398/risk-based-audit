@@ -12,7 +12,7 @@
           </div>
           <div>
             <UButton color="primary" variant="soft" @click="triggerUpload">Change Photo</UButton>
-            <p class="text-xs text-gray-500 mt-2">JPG, PNG or GIF. Max 2MB.</p>
+            <p class="text-md text-gray-500 mt-2">JPG, PNG or GIF. Max 2MB.</p>
           </div>
         </div>
 
@@ -51,7 +51,7 @@ const props = defineProps({
     type: Array<string>,
     default: () => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   },
-  maxSizeMB: {
+  mamdizeMB: {
     type: Number,
     default: 5,
   },
@@ -83,8 +83,8 @@ function validateFile(file : File) {
     const formats = props.accept.map(t => t.split('/')[1]!.toUpperCase()).join(', ')
     return `Unsupported format. Accepted: ${formats}`
   }
-  if (file.size > props.maxSizeMB * 1024 * 1024) {
-    return `File too large. Maximum allowed size is ${props.maxSizeMB}MB.`
+  if (file.size > props.mamdizeMB * 1024 * 1024) {
+    return `File too large. Maximum allowed size is ${props.mamdizeMB}MB.`
   }
   return null
 }

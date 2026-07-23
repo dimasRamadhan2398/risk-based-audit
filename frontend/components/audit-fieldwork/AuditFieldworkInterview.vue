@@ -14,13 +14,13 @@
         <template #interviewee-cell="{ row }">
           <div>
             <p class="font-medium">{{ row.original.interviewee }}</p>
-            <p class="text-xs text-gray-500">{{ row.original.intervieweePosition }}</p>
+            <p class="text-md text-gray-500">{{ row.original.intervieweePosition }}</p>
           </div>
         </template>
         <template #interviewer-cell="{ row }">
           <div>
             <p class="font-medium">{{ row.original.interviewer }}</p>
-            <p class="text-xs text-gray-500">{{ row.original.interviewerPosition }}</p>
+            <p class="text-md text-gray-500">{{ row.original.interviewerPosition }}</p>
           </div>
         </template>
         <template #topic-cell="{ row }">
@@ -55,7 +55,7 @@
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">{{ store.isEditingInterview ? 'Edit Interview' : 'Add New Interview' }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showInterviewModal = false" />
+              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showInterviewModal = false }" />
             </div>
           </template>
 
@@ -120,7 +120,7 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showInterviewModal = false" />
+              <UButton color="neutral" variant="soft" label="Cancel" @click="() => { store.showInterviewModal = false }" />
               <UButton color="primary" :label="store.isEditingInterview ? 'Update' : 'Submit'" @click="store.saveInterview()" />
             </div>
           </template>

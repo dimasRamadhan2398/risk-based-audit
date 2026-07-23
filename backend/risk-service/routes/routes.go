@@ -13,6 +13,7 @@ type RiskRoute struct {
 	mitigationCtrl    *controllers.MitigationController
 	riskFactorCtrl    *controllers.RiskFactorController
 	auditUniverseCtrl *controllers.AuditUniverseController
+	rcmCtrl           *controllers.RCMController
 	group             *gin.RouterGroup
 }
 
@@ -25,6 +26,7 @@ func NewRiskRoute(
 	mitigationCtrl *controllers.MitigationController,
 	riskFactorCtrl *controllers.RiskFactorController,
 	auditUniverseCtrl *controllers.AuditUniverseController,
+	rcmCtrl *controllers.RCMController,
 	group *gin.RouterGroup,
 ) IRiskRoute {
 	return &RiskRoute{
@@ -32,6 +34,7 @@ func NewRiskRoute(
 		mitigationCtrl:    mitigationCtrl,
 		riskFactorCtrl:    riskFactorCtrl,
 		auditUniverseCtrl: auditUniverseCtrl,
+		rcmCtrl:           rcmCtrl,
 		group:             group,
 	}
 }
@@ -83,5 +86,12 @@ func (r *RiskRoute) Run() {
 		apiV1.GET("/audit-universe/year/:year", r.auditUniverseCtrl.ListYearlyAuditUniverse)
 		apiV1.POST("/audit-universe/year/:year", r.auditUniverseCtrl.EstablishYearlyUniverse)
 		apiV1.POST("/audit-universe/year/:year/score", r.auditUniverseCtrl.ScoreYearlyEntity)
+
+		// Routes for Risk Control Matrix (RCM)
+		apiV1.GET("/rcm", r.rcmCtrl.ListRCM)
+		apiV1.POST("/rcm", r.rcmCtrl.CreateRCM)
+		apiV1.PUT("/rcm/:id", r.rcmCtrl.UpdateRCM)
+		apiV1.DELETE("/rcm/:id", r.rcmCtrl.DeleteRCM)
+		apiV1.GET("/rcm/summary", r.rcmCtrl.GetRCMSummary)
 	}
 }

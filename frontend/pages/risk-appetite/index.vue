@@ -13,7 +13,7 @@
       <UCard :ui="{ body: 'p-5' }" class="shadow-sm border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Compliance Level</p>
+            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase">Compliance Level</p>
             <h3 class="text-2xl font-black mt-1" :class="complianceColor">
               {{ compliancePercentage }}%
             </h3>
@@ -30,7 +30,7 @@
       <UCard :ui="{ body: 'p-5' }" class="shadow-sm border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Total Risks</p>
+            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase">Total Risks</p>
             <h3 class="text-2xl font-black mt-1 text-gray-900 dark:text-white">
               {{ totalRisks }}
             </h3>
@@ -45,7 +45,7 @@
       <UCard :ui="{ body: 'p-5' }" class="shadow-sm border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Acceptable Risks</p>
+            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase">Acceptable Risks</p>
             <h3 class="text-2xl font-black mt-1 text-green-600 dark:text-green-500">
               {{ acceptableCount }}
             </h3>
@@ -60,7 +60,7 @@
       <UCard :ui="{ body: 'p-5' }" class="shadow-sm border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Appetite Violations</p>
+            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase">Appetite Violations</p>
             <h3 class="text-2xl font-black mt-1" :class="violatingCount > 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white'">
               {{ violatingCount }}
             </h3>
@@ -98,22 +98,22 @@
                   </div>
                   <div>
                     <h4 class="font-extrabold text-green-900 dark:text-green-100">1. Acceptable Risk Zone</h4>
-                    <p class="text-xs text-green-700 dark:text-green-300">Risiko yang dapat diterima tanpa mitigasi tambahan</p>
+                    <p class="text-md text-green-700 dark:text-green-300">Risiko yang dapat diterima tanpa mitigasi tambahan</p>
                   </div>
                 </div>
 
                 <div class="space-y-2">
-                  <div class="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
                     <div class="w-3 h-3 rounded bg-[#4CAF50]"></div>
                     <span>Low Risk Level</span>
                   </div>
-                  <div class="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
                     <div class="w-3 h-3 rounded bg-[#8BC34A]"></div>
                     <span>Low to Moderate Risk Level</span>
                   </div>
                 </div>
 
-                <p class="text-xs leading-normal text-green-800 dark:text-green-200 italic">
+                <p class="text-md leading-normal text-green-800 dark:text-green-200 italic">
                   * Risiko pada area ini dinilai memiliki dampak dan kemungkinan yang kecil bagi operasional perusahaan, sehingga tidak memerlukan alokasi sumber daya mitigasi khusus.
                 </p>
               </div>
@@ -126,26 +126,26 @@
                   </div>
                   <div>
                     <h4 class="font-extrabold text-orange-950 dark:text-orange-100">2. Action Required Zone</h4>
-                    <p class="text-xs text-orange-800 dark:text-orange-300">Risiko wajib dimitigasi demi meminimalkan paparan</p>
+                    <p class="text-md text-orange-800 dark:text-orange-300">Risiko wajib dimitigasi demi meminimalkan paparan</p>
                   </div>
                 </div>
 
                 <div class="space-y-2">
-                  <div class="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
                     <div class="w-3 h-3 rounded bg-[#FFC107]"></div>
                     <span>Moderate Risk Level</span>
                   </div>
-                  <div class="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
                     <div class="w-3 h-3 rounded bg-[#FF9800]"></div>
                     <span>Moderate to High Risk Level</span>
                   </div>
-                  <div class="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
                     <div class="w-3 h-3 rounded bg-[#F44336]"></div>
                     <span>High Risk Level</span>
                   </div>
                 </div>
 
-                <p class="text-xs leading-normal text-orange-900 dark:text-orange-200 italic">
+                <p class="text-md leading-normal text-orange-900 dark:text-orange-200 italic">
                   * Risiko wajib ditangani secara aktif dengan menyusun rencana mitigasi yang terstruktur dan terukur guna menurunkan level eksposur ke batas yang aman.
                 </p>
               </div>
@@ -158,7 +158,7 @@
             <div class="flex justify-between items-center pb-4 border-b border-gray-100 dark:border-gray-800">
               <div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Risk Profile Compliance Registry</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Checking current Risk Profile against the appetite statement rules</p>
+                <p class="text-md text-gray-500 dark:text-gray-400">Checking current Risk Profile against the appetite statement rules</p>
               </div>
               <div class="flex gap-3">
                 <USelect v-model="complianceFilter" :items="['All Risks', 'Mitigation Required (Moderate+)', 'Acceptable (Low/Low-Mod)', 'Non-Compliant (Violating)']" />
@@ -169,14 +169,14 @@
             <div class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900">
               <UTable :data="filteredComplianceRisks" :columns="complianceColumns">
                 <template #id-cell="{ row }">
-                  <span class="font-mono text-xs font-bold text-gray-500 dark:text-gray-400">
+                  <span class="font-mono text-md font-bold text-gray-500 dark:text-gray-400">
                     {{ profileStore.getFormattedId(row.original) }}
                   </span>
                 </template>
 
                 <template #name-cell="{ row }">
                   <div class="max-w-md whitespace-normal">
-                    <p class="font-bold text-gray-900 dark:text-white text-xs">{{ row.original.name }}</p>
+                    <p class="font-bold text-gray-900 dark:text-white text-md">{{ row.original.name }}</p>
                     <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ row.original.category }} · {{ row.original.branch || 'Head Office' }}</p>
                   </div>
                 </template>
@@ -208,7 +208,7 @@
                       </UBadge>
                     </template>
                     <template v-else-if="isAppetiteAcceptable(row.original)">
-                      <span class="text-xs text-gray-400 dark:text-gray-500 italic">None Required</span>
+                      <span class="text-md text-gray-400 dark:text-gray-500 italic">None Required</span>
                     </template>
                     <template v-else>
                       <div class="flex items-center gap-1.5 text-red-600 dark:text-red-500 animate-pulse">
@@ -227,11 +227,11 @@
                       :label="hasMitigation(row.original.id) ? 'View Mitigation' : 'Add Mitigation'" 
                       :color="hasMitigation(row.original.id) ? 'primary' : 'error'" 
                       variant="soft" 
-                      size="xs" 
+                      size="md" 
                       class="font-bold"
                       :to="`/mitigation?id=${row.original.id}`" 
                     />
-                    <span v-else class="text-xs text-gray-400 dark:text-gray-500">-</span>
+                    <span v-else class="text-md text-gray-400 dark:text-gray-500">-</span>
                   </div>
                 </template>
               </UTable>
@@ -243,7 +243,7 @@
             <div class="flex justify-between items-center pb-4 border-b border-gray-100 dark:border-gray-800">
               <div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Appetite Statements Management</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Official written policy declarations and threshold configurations</p>
+                <p class="text-md text-gray-500 dark:text-gray-400">Official written policy declarations and threshold configurations</p>
               </div>
               <UButton 
                 label="New Statement" 
@@ -259,9 +259,9 @@
               <div class="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-400 dark:text-gray-500">
                 <UIcon name="i-heroicons-clipboard-document-list" class="w-12 h-12" />
               </div>
-              <div class="max-w-xs mx-auto">
+              <div class="max-w-md mx-auto">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">No appetite statements</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Create official policy declarations to establish limits.</p>
+                <p class="text-md text-gray-500 dark:text-gray-400 mt-1">Create official policy declarations to establish limits.</p>
               </div>
             </div>
 
@@ -355,13 +355,13 @@
 
       <template #footer>
         <div class="flex justify-end gap-3">
-          <UButton label="Cancel" color="neutral" variant="ghost" @click="isModalOpen = false" />
+          <UButton label="Cancel" color="neutral" variant="ghost" @click="() => { isModalOpen = false }" />
           <UButton 
             :label="isEditing ? 'Save Changes' : 'Create'" 
             color="warning" 
             class="font-bold"
             :loading="appetiteStore.loading"
-            @click="handleSubmit" 
+            @click="handleSubmit()" 
           />
         </div>
       </template>

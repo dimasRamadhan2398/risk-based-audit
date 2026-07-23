@@ -38,7 +38,7 @@
             class="mb-4 flex items-start gap-3 rounded-xl bg-warning-500/10 border border-warning-500/20 px-4 py-3"
           >
             <span class="text-warning-500 mt-0.5">⚠</span>
-            <p class="text-xs text-warning-600 dark:text-warning-400">
+            <p class="text-md text-warning-600 dark:text-warning-400">
               Login dari perangkat baru terdeteksi. Verifikasi OTP mungkin diperlukan.
             </p>
           </div>
@@ -140,12 +140,12 @@
         </UForm>
 
         <!-- Device info chip -->
-        <div class="mt-6 flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
+        <div class="mt-6 flex items-center justify-center gap-2 text-md text-[var(--text-muted)]">
           <span>Koneksi terenkripsi · {{ deviceInfo.deviceName }}</span>
         </div>
 
         <!-- Footer note -->
-        <p class="mt-4 text-center text-xs text-[var(--text-muted)]">
+        <p class="mt-4 text-center text-md text-[var(--text-muted)]">
           Butuh akun? Hubungi Administrator sistem.
         </p>
       </div>

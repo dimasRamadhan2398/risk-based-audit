@@ -27,7 +27,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-gray-900 truncate">User Name</p>
-                <p class="text-xs text-gray-500 truncate">user@example.com</p>
+                <p class="text-md text-gray-500 truncate">user@example.com</p>
               </div>
             </div>
           </div>

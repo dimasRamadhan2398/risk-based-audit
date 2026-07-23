@@ -1,14 +1,14 @@
 <template>
   <div class="space-y-6">
     <!-- Title Card -->
-    <div class="flex justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xs">
+    <div class="flex justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-lg bg-primary-50 dark:bg-primary-950 flex items-center justify-center">
           <UIcon name="i-heroicons-shield-check" class="text-primary-600 dark:text-primary-400 text-xl font-bold" />
         </div>
         <div>
           <h3 class="text-md font-extrabold text-gray-800 dark:text-gray-200">Risk Mitigation Plans & Controls</h3>
-          <p class="text-xs text-gray-400">Expand a row to monitor weekly/monthly checks and update realization notes.</p>
+          <p class="text-md text-gray-400">Expand a row to monitor weekly/monthly checks and update realization notes.</p>
         </div>
       </div>
       <UButton 
@@ -23,7 +23,7 @@
     <!-- Mitigation List Table -->
     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-xs">
+        <table class="w-full text-left border-collapse text-md">
           <thead>
             <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[10px] text-gray-400 text-center">
               <th class="py-4 px-4 text-left w-12">No</th>
@@ -49,12 +49,17 @@
                   
                   <!-- Plan -->
                   <td class="py-4 px-4 font-bold text-gray-800 dark:text-gray-200 leading-relaxed max-w-[320px] whitespace-normal">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-start gap-2">
                       <UIcon 
                         :name="expandedRowId === row.id ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'" 
-                        class="text-gray-400 text-sm shrink-0" 
+                        class="text-gray-400 text-sm shrink-0 mt-1" 
                       />
-                      <span>{{ row.mitigationPlan }}</span>
+                      <div>
+                        <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-bold rounded text-[10px] mb-1">
+                          {{ row.riskControlId || ('CTL-RSK-' + (idx + 1)) }}
+                        </span>
+                        <p class="font-bold text-gray-800 dark:text-gray-200">{{ row.mitigationPlan }}</p>
+                      </div>
                     </div>
                   </td>
                   
@@ -123,7 +128,7 @@
                       <!-- Collapsible Panel Header -->
                       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                          <h4 class="text-xs font-black uppercase tracking-wider text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                          <h4 class="text-md font-black uppercase tracking-wider text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
                             <UIcon name="i-heroicons-clipboard-document-check" />
                             Monitoring Control Checklist
                           </h4>
@@ -136,7 +141,7 @@
                         <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm shrink-0">
                           <div class="text-[10px]">
                             <span class="block text-gray-400 font-black uppercase tracking-widest text-[8px] leading-none mb-1">Realization</span>
-                            <span class="font-black text-xs text-gray-700 dark:text-gray-200">
+                            <span class="font-black text-md text-gray-700 dark:text-gray-200">
                               {{ getActualCount(row) }} / {{ getTargetCount(row) }} {{ getMonitoringUnit(row) }} Monitored
                             </span>
                           </div>
@@ -146,7 +151,7 @@
                               :style="{ width: `${getProgressPercent(row)}%` }"
                             ></div>
                           </div>
-                          <span class="font-black text-xs text-primary-500">{{ getProgressPercent(row) }}%</span>
+                          <span class="font-black text-md text-primary-500">{{ getProgressPercent(row) }}%</span>
                         </div>
                       </div>
 
@@ -155,7 +160,7 @@
                         <div 
                           v-for="check in row.monitoring" 
                           :key="check.id"
-                          class="p-3 bg-white dark:bg-gray-800 rounded-xl border flex flex-col justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow duration-200"
+                          class="p-3 bg-white dark:bg-gray-800 rounded-xl border flex flex-col justify-between gap-3 shadow-2md hover:shadow-md transition-shadow duration-200"
                           :class="[
                             check.checked ? 'border-success-500/20 bg-success-500/5' : 'border-gray-200 dark:border-gray-700',
                             isOverdue(check) ? 'border-error-500/20 bg-error-500/5' : ''
@@ -165,13 +170,13 @@
                             <UCheckbox 
                               v-model="check.checked" 
                               :label="check.label"
-                              class="font-bold text-xs text-gray-700 dark:text-gray-200"
+                              class="font-bold text-md text-gray-700 dark:text-gray-200"
                               color="success"
                             />
                             <UBadge 
                               :color="getCheckStatusColor(check)"
                               variant="subtle"
-                              size="xs"
+                              size="md"
                               class="font-black uppercase tracking-wider text-[8px]"
                             >
                               {{ getCheckStatus(check) }}
@@ -184,7 +189,7 @@
                               v-model="check.notes" 
                               placeholder="Tambah catatan monitoring..." 
                               size="sm" 
-                              class="w-full text-xs" 
+                              class="w-full text-md" 
                               icon="i-heroicons-chat-bubble-bottom-center-text"
                             />
                           </div>

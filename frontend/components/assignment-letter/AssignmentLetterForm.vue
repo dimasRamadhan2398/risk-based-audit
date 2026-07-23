@@ -88,7 +88,7 @@
                   <UButton icon="i-heroicons-trash" color="error" variant="ghost" @click="store.removeItem(store.form.membersList, index)" />
                 </div>
                 <UButton class="mt-4" color="primary" variant="soft" icon="i-heroicons-plus" label="Add Member" @click="store.addItem(store.form.membersList, { name: '', role: 'Member' })" />
-                <p class="text-xs text-orange-600  font-semibold">* According to template, minimum 3 team members is recommended.</p>
+                <p class="text-md text-orange-600  font-semibold">* According to template, minimum 3 team members is recommended.</p>
               </UFormField>
             </div>
 

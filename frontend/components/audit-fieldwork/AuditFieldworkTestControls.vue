@@ -59,7 +59,7 @@
               <h3 class="text-lg font-semibold">
                 {{ store.isReadOnlyTestControl ? 'View Test Control' : (store.isEditingTestControl ? 'Edit Test Control' : 'Test Control Form') }}
               </h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showTestControlModal = false" />
+              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showTestControlModal = false }" />
             </div>
           </template>
 
@@ -123,9 +123,9 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Close" v-if="store.isReadOnlyTestControl" @click="store.showTestControlModal = false" />
+              <UButton color="neutral" variant="soft" label="Close" v-if="store.isReadOnlyTestControl" @click="() => { store.showTestControlModal = false }" />
               <template v-else>
-                <UButton color="neutral" variant="soft" label="Cancel" @click="store.showTestControlModal = false" />
+                <UButton color="neutral" variant="soft" label="Cancel" @click="() => { store.showTestControlModal = false }" />
                 <UButton color="primary" :label="store.isEditingTestControl ? 'Update' : 'Submit'" @click="store.saveTestControl()" />
               </template>
             </div>

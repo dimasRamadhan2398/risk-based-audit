@@ -76,6 +76,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.Next()
 	})
 
+	// Seed initial RCM matrix items if empty
+	if err := seedInitialRCM(db); err != nil {
+		log.Printf("Warning: RCM seeding failed: %v", err)
+	}
+
 	// Initialize Layers
 	riskRepo := repositories.NewRiskRepository(db)
 	mitigationRepo := repositories.NewMitigationRepository(db)
@@ -87,9 +92,10 @@ func runServe(cmd *cobra.Command, args []string) error {
 	mitigationCtrl := controllers.NewMitigationController(mitigationServ)
 	riskFactorCtrl := controllers.NewRiskFactorController(db)
 	auditUniverseCtrl := controllers.NewAuditUniverseController(db)
+	rcmCtrl := controllers.NewRCMController(db)
 
 	// Register Routes
-	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, riskFactorCtrl, auditUniverseCtrl, &r.RouterGroup)
+	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, riskFactorCtrl, auditUniverseCtrl, rcmCtrl, &r.RouterGroup)
 	riskRoute.Run()
 
 	// Risk Appetite Handlers (Migrated to Gin)
@@ -211,6 +217,98 @@ func seedInitialAppetite(db *gorm.DB) error {
 	}
 
 	for _, s := range seeds {
+		if err := db.Create(&s).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func seedInitialRCM(db *gorm.DB) error {
+	var count int64
+	db.Model(&models.RiskControlMatrix{}).Count(&count)
+	if count > 0 {
+		return nil
+	}
+
+	log.Println("Seeding initial Risk Control Matrix (RCM) entries...")
+	seeds := []models.RiskControlMatrix{
+		{
+			ID:                           uuid.New(),
+			RiskCode:                     "FIN-001",
+			RiskEvent:                    "Target pendapatan dan laba tidak tercapai",
+			ControlCode:                  "CTL-FIN-01",
+			ControlDescription:          "Review bulanan pencapaian KPI sales dan monitoring piutang usaha.",
+			ControlType:                 "Detective",
+			ControlOwner:                 "Finance Manager",
+			Department:                   "Head Office",
+			Year:                         2026,
+			DesignEffectivenessWeight:    20.0,
+			DesignEffectivenessRating:    4,
+			OperatingEffectivenessWeight: 20.0,
+			OperatingEffectivenessRating: 3,
+			CoverageCompletenessWeight:   20.0,
+			CoverageCompletenessRating:   4,
+			TimelinessWeight:             20.0,
+			TimelinessRating:             3,
+			AutomationMonitoringWeight:   20.0,
+			AutomationMonitoringRating:   2,
+			InherentRisk:                 20,
+			ResidualRisk:                 8,
+			Notes:                        "Internal control cukup efektif namun automasi monitoring perlu ditingkatkan.",
+		},
+		{
+			ID:                           uuid.New(),
+			RiskCode:                     "TEC-003",
+			RiskEvent:                    "Ancaman terhadap Cyber Security dan perlindungan data pribadi",
+			ControlCode:                  "CTL-TEC-02",
+			ControlDescription:          "Implementasi Multi-Factor Authentication (MFA) & vulnerability scanning mingguan.",
+			ControlType:                 "Preventive",
+			ControlOwner:                 "IT Security Lead",
+			Department:                   "Head Office",
+			Year:                         2026,
+			DesignEffectivenessWeight:    20.0,
+			DesignEffectivenessRating:    5,
+			OperatingEffectivenessWeight: 20.0,
+			OperatingEffectivenessRating: 4,
+			CoverageCompletenessWeight:   20.0,
+			CoverageCompletenessRating:   4,
+			TimelinessWeight:             20.0,
+			TimelinessRating:             5,
+			AutomationMonitoringWeight:   20.0,
+			AutomationMonitoringRating:   4,
+			InherentRisk:                 20,
+			ResidualRisk:                 8,
+			Notes:                        "Kontrol keamanan berjalan secara otomatis dan rutin dievaluasi.",
+		},
+		{
+			ID:                           uuid.New(),
+			RiskCode:                     "FIN-004",
+			RiskEvent:                    "Terjadinya fraud atau penyalahgunaan wewenang internal",
+			ControlCode:                  "CTL-FIN-02",
+			ControlDescription:          "Dual approval pada sistem transaksi pembayaran di atas Rp 50 juta & audit mendadak.",
+			ControlType:                 "Preventive",
+			ControlOwner:                 "Head of Internal Audit",
+			Department:                   "Head Office",
+			Year:                         2026,
+			DesignEffectivenessWeight:    20.0,
+			DesignEffectivenessRating:    4,
+			OperatingEffectivenessWeight: 20.0,
+			OperatingEffectivenessRating: 3,
+			CoverageCompletenessWeight:   20.0,
+			CoverageCompletenessRating:   3,
+			TimelinessWeight:             20.0,
+			TimelinessRating:             4,
+			AutomationMonitoringWeight:   20.0,
+			AutomationMonitoringRating:   3,
+			InherentRisk:                 20,
+			ResidualRisk:                 8,
+			Notes:                        "SOP otorisasi berjalan, perlu tindak lanjut log audit elektronik.",
+		},
+	}
+
+	for _, s := range seeds {
+		s.CalculateWeightedScore()
 		if err := db.Create(&s).Error; err != nil {
 			return err
 		}

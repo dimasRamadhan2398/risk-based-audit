@@ -27,7 +27,7 @@
           <UButton
             icon="i-lucide-shield-plus"
             class="text-white hover:opacity-90 font-bold transition-all duration-200"
-            :style="{ background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', boxShadow: '0 4px 12px -2px color-mix(in srgb, var(--color-secondary-500) 25%, transparent)' }"
+            :style="{ background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', bomdhadow: '0 4px 12px -2px color-mix(in srgb, var(--color-secondary-500) 25%, transparent)' }"
             :loading="loading"
             @click="handleSetup"
           >
@@ -41,7 +41,7 @@
             <!-- QR Code container -->
             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-inner flex-shrink-0">
               <img v-if="qrCodeDataURL" :src="qrCodeDataURL" alt="QR Code" class="w-40 h-40" />
-              <div v-else class="w-40 h-40 flex items-center justify-center text-gray-400 text-xs animate-pulse">
+              <div v-else class="w-40 h-40 flex items-center justify-center text-gray-400 text-md animate-pulse">
                 Membuat QR Code...
               </div>
             </div>
@@ -49,11 +49,11 @@
             <!-- Steps description -->
             <div class="space-y-3 flex-1">
               <h4 class="text-sm font-bold text-gray-900 dark:text-white">Langkah Aktivasi:</h4>
-              <ol class="list-decimal list-inside space-y-2 text-xs text-gray-600 dark:text-gray-300">
+              <ol class="list-decimal list-inside space-y-2 text-md text-gray-600 dark:text-gray-300">
                 <li>Buka aplikasi authenticator Anda di smartphone Anda.</li>
                 <li>Pindai kode QR di sebelah kiri, atau masukkan kunci rahasia berikut secara manual:</li>
                 <li class="list-none pl-4">
-                  <code class="bg-[var(--bg-main)] px-2.5 py-1 rounded-md font-mono text-xs font-semibold text-primary-500 tracking-wider inline-block mt-1 select-all border border-[var(--border-main)]">
+                  <code class="bg-[var(--bg-main)] px-2.5 py-1 rounded-md font-mono text-md font-semibold text-primary-500 tracking-wider inline-block mt-1 select-all border border-[var(--border-main)]">
                     {{ setupData.secret }}
                   </code>
                 </li>
@@ -82,7 +82,7 @@
                 variant="ghost"
                 color="neutral"
                 class="flex-1 rounded-xl"
-                @click="setupData = null"
+                @click="() => {setupData = null}"
               >
                 Batal
               </UButton>
@@ -105,7 +105,7 @@
           <UIcon name="i-lucide-shield-check" class="size-6 shrink-0 mt-0.5 text-success-600" />
           <div class="space-y-1">
             <p class="text-sm font-bold">Autentikasi dua faktor (MFA) saat ini aktif.</p>
-            <p class="text-xs">Akun Anda dilindungi dengan langkah verifikasi ekstra menggunakan TOTP (Aplikasi Authenticator).</p>
+            <p class="text-md">Akun Anda dilindungi dengan langkah verifikasi ekstra menggunakan TOTP (Aplikasi Authenticator).</p>
           </div>
         </div>
 
@@ -114,7 +114,7 @@
             variant="ghost"
             color="error"
             class="font-bold border border-red-500/20 hover:bg-red-500/10 rounded-xl"
-            @click="showDisableModal = true"
+            @click="() => {showDisableModal = true}"
           >
             Nonaktifkan MFA
           </UButton>

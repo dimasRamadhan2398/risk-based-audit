@@ -124,13 +124,14 @@
         <div class="flex gap-2 items-center">
           <USelectMenu
             v-model="pageSize"
-            :items="[
+            :items="([
               { label: '10 per page', value: 10 },
               { label: '25 per page', value: 25 },
               { label: '50 per page', value: 50 },
               { label: '100 per page', value: 100 }
-            ]"
+            ] as any)"
             class="w-40"
+            value-attribute="value"
             @change="handlePageSizeChange"
           />
 

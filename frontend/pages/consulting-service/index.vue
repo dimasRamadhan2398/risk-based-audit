@@ -26,7 +26,7 @@
       <UCard class="border-l-4 border-primary-500 shadow-md">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Assignments</p>
+            <p class="text-md font-semibold text-gray-500 uppercase tracking-wider">Total Assignments</p>
             <p class="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">{{ store.services.length }}</p>
           </div>
           <div class="p-3 bg-primary-50 dark:bg-primary-950 rounded-full text-primary-500">
@@ -38,7 +38,7 @@
       <UCard class="border-l-4 border-warning-500 shadow-md">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">In Progress</p>
+            <p class="text-md font-semibold text-gray-500 uppercase tracking-wider">In Progress</p>
             <p class="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
               {{ store.services.filter(s => s.status === 'In Progress').length }}
             </p>
@@ -52,7 +52,7 @@
       <UCard class="border-l-4 border-success-500 shadow-md">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Completed</p>
+            <p class="text-md font-semibold text-gray-500 uppercase tracking-wider">Completed</p>
             <p class="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
               {{ store.services.filter(s => s.status === 'Completed').length }}
             </p>
@@ -66,7 +66,7 @@
       <UCard class="border-l-4 border-gray-500 shadow-md">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Planned</p>
+            <p class="text-md font-semibold text-gray-500 uppercase tracking-wider">Planned</p>
             <p class="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
               {{ store.services.filter(s => s.status === 'Planned').length }}
             </p>
@@ -118,7 +118,7 @@
               @click="store.downloadAttachment((row.original as any).id, (row.original as any).attachment.name)"
             />
           </div>
-          <span v-else class="text-gray-400 italic text-xs">No file</span>
+          <span v-else class="text-gray-400 italic text-md">No file</span>
         </template>
 
         <!-- Actions Cell -->
@@ -197,7 +197,7 @@
                 <p class="text-sm font-medium text-gray-700">
                   {{ store.newService.attachment ? store.newService.attachment.name : 'Click or Drag file to upload' }}
                 </p>
-                <p class="text-xs text-gray-500 mt-1">PDF or DOCX (max. 10MB)</p>
+                <p class="text-md text-gray-500 mt-1">PDF or DOCX (max. 10MB)</p>
               </div>
             </UFormField>
 
@@ -235,25 +235,25 @@
 
             <div class="grid grid-cols-2 gap-4 text-sm bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
               <div>
-                <span class="text-xs text-gray-400 block">Category</span>
+                <span class="text-md text-gray-400 block">Category</span>
                 <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedService.category }}</span>
               </div>
               <div>
-                <span class="text-xs text-gray-400 block">Period</span>
+                <span class="text-md text-gray-400 block">Period</span>
                 <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedService.period }}</span>
               </div>
               <div>
-                <span class="text-xs text-gray-400 block">Requestor Department</span>
+                <span class="text-md text-gray-400 block">Requestor Department</span>
                 <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedService.requestorDept }}</span>
               </div>
               <div>
-                <span class="text-xs text-gray-400 block">Consultant Lead</span>
+                <span class="text-md text-gray-400 block">Consultant Lead</span>
                 <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedService.consultantName }}</span>
               </div>
             </div>
 
             <div>
-              <span class="text-xs text-gray-400 block">Description / Notes</span>
+              <span class="text-md text-gray-400 block">Description / Notes</span>
               <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-line bg-gray-50 dark:bg-gray-900 p-3 rounded">
                 {{ store.selectedService.notes || 'No description provided.' }}
               </p>
@@ -261,13 +261,13 @@
 
             <!-- Attachment details -->
             <div v-if="store.selectedService.attachment">
-              <span class="text-xs text-gray-400 block mb-2">Attached Document</span>
+              <span class="text-md text-gray-400 block mb-2">Attached Document</span>
               <div class="flex items-center justify-between p-3 bg-primary-50 dark:bg-primary-950 rounded-lg border border-primary-100">
                 <div class="flex items-center gap-2">
                   <UIcon name="i-lucide-file-text" class="text-primary-500 w-5 h-5" />
                   <div>
                     <span class="font-semibold text-sm text-gray-800 dark:text-gray-200">{{ store.selectedService.attachment.name }}</span>
-                    <span class="text-xs text-gray-400 block">{{ store.selectedService.attachment.size }} • Uploaded at {{ store.selectedService.attachment.uploadedAt }}</span>
+                    <span class="text-md text-gray-400 block">{{ store.selectedService.attachment.size }} • Uploaded at {{ store.selectedService.attachment.uploadedAt }}</span>
                   </div>
                 </div>
                 <UButton

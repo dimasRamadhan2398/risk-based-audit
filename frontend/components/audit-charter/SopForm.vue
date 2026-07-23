@@ -100,7 +100,7 @@
                   :required="!store.isEditing && !store.form.fileUrl"
                 />
               </div>
-              <p v-if="store.form.fileName" class="text-xs text-gray-500 mt-1">
+              <p v-if="store.form.fileName" class="text-md text-gray-500 mt-1">
                 File terpilih: <span class="font-semibold text-gray-700">{{ store.form.fileName }}</span>
               </p>
             </UFormField>

@@ -8,17 +8,17 @@
         </div>
         <div class="space-y-1">
           <h4 class="text-sm font-bold text-gray-900 dark:text-white">Verifikasi Penyimpanan Database</h4>
-          <p class="text-xs text-gray-600 dark:text-gray-300">
+          <p class="text-md text-gray-600 dark:text-gray-300">
             Perangkat yang Anda gunakan saat ini:
             <span class="font-mono font-semibold bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-primary-600">
               {{ currentDevice.deviceName }} (Fingerprint: {{ currentDevice.deviceFingerprint }})
             </span>
           </p>
-          <div v-if="dbStatus.checked" class="mt-2 text-xs text-success-700 dark:text-success-400 flex items-center gap-1.5 font-medium">
+          <div v-if="dbStatus.checked" class="mt-2 text-md text-success-700 dark:text-success-400 flex items-center gap-1.5 font-medium">
             <span class="flex h-2 w-2 rounded-full bg-success-500"></span>
             <span>Terdaftar di Database: Ya (Last Login Fingerprint: {{ dbStatus.lastLoginFingerprint }})</span>
           </div>
-          <div v-else class="mt-2 text-xs text-gray-500 flex items-center gap-1.5 animate-pulse">
+          <div v-else class="mt-2 text-md text-gray-500 flex items-center gap-1.5 animate-pulse">
             <span class="flex h-2 w-2 rounded-full bg-gray-400"></span>
             <span>Memeriksa database...</span>
           </div>
@@ -62,20 +62,20 @@
               <div class="flex-1 min-w-0 w-full">
                 <div class="flex items-center gap-3">
                   <p class="font-medium text-gray-900 dark:text-white">{{ currentDevice.deviceName }}</p>
-                  <UBadge label="Sesi Aktif" color="primary" variant="solid" size="xs" />
-                  <UBadge label="Online" color="success" variant="soft" size="xs" />
+                  <UBadge label="Sesi Aktif" color="primary" variant="solid" size="md" />
+                  <UBadge label="Online" color="success" variant="soft" size="md" />
                 </div>
                 <h6 class="text-sm flex flex-row gap-2 mt-1 text-gray-600 dark:text-gray-300">
                   <UIcon name="i-lucide-fingerprint" class="size-4 text-gray-400" />
                   Fingerprint: {{ currentDevice.deviceFingerprint }}
                 </h6>
-                <p class="text-xs text-gray-500 mt-1 flex flex-row items-center gap-1.5">
+                <p class="text-md text-gray-500 mt-1 flex flex-row items-center gap-1.5">
                   <UIcon name="i-lucide-clock" class="size-4" />
                   Masuk baru saja
                 </p>
               </div>
             </div>
-            <div class="text-xs text-gray-400 self-center">
+            <div class="text-md text-gray-400 self-center">
               Perangkat Ini
             </div>
           </div>
@@ -92,13 +92,13 @@
                 <div class="flex-1 min-w-0 w-full">
                   <div class="flex items-center gap-3">
                     <p class="font-medium text-gray-900 dark:text-white">{{ device.deviceName }}</p>
-                    <UBadge v-if="device.deviceFingerprint === currentDevice.deviceFingerprint" label="Perangkat Ini" color="primary" variant="soft" size="xs" />
+                    <UBadge v-if="device.deviceFingerprint === currentDevice.deviceFingerprint" label="Perangkat Ini" color="primary" variant="soft" size="md" />
                   </div>
                   <h6 class="text-sm flex flex-row gap-2 mt-1 text-gray-600 dark:text-gray-300">
                     <UIcon name="i-lucide-globe" class="size-4 text-gray-400" />
                     IP: {{ device.ipAddress }} · Fingerprint: {{ device.deviceFingerprint }}
                   </h6>
-                  <p class="text-xs text-gray-500 mt-1 flex flex-row items-center gap-1.5">
+                  <p class="text-md text-gray-500 mt-1 flex flex-row items-center gap-1.5">
                     <UIcon name="i-lucide-clock" class="size-4" />
                     Terdaftar: {{ formatTime(device.createdAt) }}
                   </p>
@@ -120,7 +120,7 @@
         <div v-else-if="!loading" class="text-center py-6 text-sm text-gray-500 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
           <UIcon name="i-lucide-info" class="size-6 text-gray-400 mx-auto mb-2" />
           <p>Tidak ada perangkat terpercaya tambahan terdaftar.</p>
-          <p class="text-xs text-gray-400 mt-1">Perangkat terdaftar secara otomatis saat Anda mencentang "Percayai Perangkat Ini" ketika verifikasi OTP/MFA.</p>
+          <p class="text-md text-gray-400 mt-1">Perangkat terdaftar secara otomatis saat Anda mencentang "Percayai Perangkat Ini" ketika verifikasi OTP/MFA.</p>
         </div>
       </div>
     </UCard>

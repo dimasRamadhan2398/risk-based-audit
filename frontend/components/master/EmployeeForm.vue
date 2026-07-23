@@ -130,7 +130,7 @@
                     placeholder="Company UUID"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Enter Company UUID</p>
+                  <p class="text-md text-gray-500 mt-1">Enter Company UUID</p>
                 </UFormField>
 
                 <UFormField label="Department ID *" size="lg">
@@ -140,7 +140,7 @@
                     placeholder="Department UUID"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Enter Department UUID</p>
+                  <p class="text-md text-gray-500 mt-1">Enter Department UUID</p>
                 </UFormField>
 
                 <UFormField label="Job Role ID *" size="lg">
@@ -150,7 +150,7 @@
                     placeholder="Job Role UUID"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Enter Job Role UUID</p>
+                  <p class="text-md text-gray-500 mt-1">Enter Job Role UUID</p>
                 </UFormField>
 
                 <UFormField label="Work Location ID" size="lg">

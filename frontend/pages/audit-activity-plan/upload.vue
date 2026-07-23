@@ -67,7 +67,7 @@
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
                     <p class="text-sm text-gray-600 font-semibold">Click to upload or drag & drop</p>
-                    <p class="text-xs text-gray-400 mt-1">PDF, DOC, DOCX up to 10MB</p>
+                    <p class="text-md text-gray-400 mt-1">PDF, DOC, DOCX up to 10MB</p>
                   </div>
                 </div>
 
@@ -77,14 +77,14 @@
                     <p class="text-sm text-emerald-700 font-bold truncate max-w-[200px] mx-auto px-2">
                       {{ form.fileName }}
                     </p>
-                    <p class="text-xs text-emerald-600 mt-1">
+                    <p class="text-md text-emerald-600 mt-1">
                       {{ formatBytes(selectedFileLength) }}
                     </p>
                   </div>
                   <button 
                     type="button" 
                     @click.stop="clearFile" 
-                    class="text-xs text-red-500 hover:underline font-bold mt-2 block mx-auto"
+                    class="text-md text-red-500 hover:underline font-bold mt-2 block mx-auto"
                   >
                     Remove File
                   </button>
@@ -133,9 +133,9 @@
             <div class="inline-flex p-4 rounded-full text-gray-300">
               <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
             </div>
-            <div class="max-w-xs mx-auto">
+            <div class="max-w-md mx-auto">
               <h3 class="text-sm font-bold text-gray-900">No documents uploaded</h3>
-              <p class="text-xs text-gray-500 mt-1">Upload plan documents on the left to add them to your records.</p>
+              <p class="text-md text-gray-500 mt-1">Upload plan documents on the left to add them to your records.</p>
             </div>
           </div>
 
@@ -153,12 +153,12 @@
               <template #fileName-cell="{ row }">
                 <div class="flex items-center gap-2">
                   <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
-                  <span class="text-xs text-gray-700 truncate max-w-[150px] block">{{ row.original.fileName }}</span>
+                  <span class="text-md text-gray-700 truncate max-w-[150px] block">{{ row.original.fileName }}</span>
                 </div>
               </template>
 
               <template #created_at-cell="{ row }">
-                <span class="text-xs text-gray-500">
+                <span class="text-md text-gray-500">
                   {{ formatDate(row.original.created_at) }}
                 </span>
               </template>

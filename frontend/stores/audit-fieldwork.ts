@@ -113,6 +113,260 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     auditTopics: ['Internal Control', 'Compliance', 'Risk Management', 'Process Efficiency', 'Other']
   }
 
+  const mockFieldwork: Record<string, {
+    interviews: InterviewItem[]
+    observations: ObservationItem[]
+    documents: DocumentItem[]
+    samples: SampleItem[]
+    testControls: TestControlItem[]
+  }> = {
+    'ST-001/SKAI/2026': {
+      interviews: [
+        {
+          id: '1',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          interviewee: 'Ahmad Yani',
+          intervieweePosition: 'Head of Finance',
+          interviewer: 'Zeta Ramadhani',
+          interviewerPosition: 'Chairperson',
+          date: '2026-03-05',
+          topic: 'Internal Control over Financial Reporting (ICOFR) implementation, segregation of duties in payment approvals, and monthly bank reconciliation process.',
+          file: null,
+          fileName: 'Meeting_Minutes_ICOFR.pdf'
+        },
+        {
+          id: '2',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          interviewee: 'Rudi Hermawan',
+          intervieweePosition: 'IT Manager',
+          interviewer: 'Andi Firmansyah',
+          interviewerPosition: 'Member',
+          date: '2026-03-08',
+          topic: 'Access controls to the ERP system, user privilege review procedures, and backup recovery tests.',
+          file: null,
+          fileName: 'IT_Access_Controls_Interview.pdf'
+        }
+      ],
+      observations: [
+        {
+          id: '1',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          activity: 'Observe cash count process in main vault and verify safety box lock code authorization.',
+          location: 'Headquarters - Vault Room',
+          date: '2026-03-10',
+          observer: 'Rina Wulandari',
+          file: null,
+          fileName: 'Cash_Count_Observation.pdf'
+        },
+        {
+          id: '2',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          activity: 'Walkthrough observation of transaction recording inside ERP and checking automated system logs.',
+          location: 'IT Server Room & Finance Desk',
+          date: '2026-03-12',
+          observer: 'Andi Firmansyah',
+          file: null
+        }
+      ],
+      documents: [
+        {
+          id: '1',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          documentName: 'General Ledger 2025',
+          description: 'Full year accounting ledger containing all transactions for balance sheet validation.',
+          requiredDate: '2026-03-02',
+          file: null,
+          fileName: 'General_Ledger_2025_Final.xlsx'
+        },
+        {
+          id: '2',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          documentName: 'ERP System Access Logs',
+          description: 'Active user list and permission matrix for segregation of duties audit.',
+          requiredDate: '2026-03-05',
+          file: null,
+          fileName: 'ERP_Access_Logs_Q4_2025.csv'
+        }
+      ],
+      samples: [
+        {
+          id: '1',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          documentName: 'Procurement Invoice',
+          documentNumber: 'INV-2025-0988',
+          date: '2025-11-12',
+          description: 'Sample transaction for validation of purchase order matching and invoice approval.'
+        },
+        {
+          id: '2',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          documentName: 'Bank Statement Reconciliation',
+          documentNumber: 'BR-2025-12',
+          date: '2025-12-31',
+          description: 'Reconciliation report for main bank account verifying outstanding checks and deposits.'
+        }
+      ],
+      testControls: [
+        {
+          id: '1',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          controlName: 'Payment Authorization Limit',
+          controlDescription: 'All payments above Rp 50,000,000 must be approved by the Finance Director.',
+          controlType: 'Preventive',
+          testProcedure: 'Select a sample of payments > Rp 50m and verify presence of Director signature or digital approval.',
+          testResult: 'Effective',
+          finding: 'No deviations found. All sample vouchers had the required dual approval.',
+          recommendation: 'Maintain current process and ensure limits are updated in system configuration.',
+          mitigationPlan: 'Routine system configuration audit.',
+          pic: 'Ahmad Yani (Head of Finance)',
+          dueDate: '2026-06-30'
+        },
+        {
+          id: '2',
+          assignmentLetterId: 'ST-001/SKAI/2026',
+          controlName: 'IT Backup Daily Execution',
+          controlDescription: 'ERP database backups must run automatically every night at 23:00.',
+          controlType: 'Automated',
+          testProcedure: 'Review backup logs for the month of December 2025 and verify successful backup statuses.',
+          testResult: 'Ineffective',
+          finding: 'On 3 days (Dec 12, 13, and 18), backups failed due to disk space issues. No alert was sent.',
+          recommendation: 'Implement automated notification alerting IT team when backup status is failed.',
+          mitigationPlan: 'Setup automated SMTP notification inside backup script.',
+          pic: 'Rudi Hermawan (IT Manager)',
+          dueDate: '2026-04-15'
+        }
+      ]
+    },
+    'ST-002/SKAI/2026': {
+      interviews: [
+        {
+          id: '101',
+          assignmentLetterId: 'ST-002/SKAI/2026',
+          interviewee: 'Bambang Susilo',
+          intervieweePosition: 'Head of IT',
+          interviewer: 'Andi Firmansyah',
+          interviewerPosition: 'Chairperson',
+          date: '2026-04-05',
+          topic: 'Keamanan Database ERP & Multi-Factor Authentication enforcement.',
+          file: null,
+          fileName: 'Interview_IT_Security_ST002.pdf'
+        }
+      ],
+      observations: [
+        {
+          id: '101',
+          assignmentLetterId: 'ST-002/SKAI/2026',
+          activity: 'Pengujian Disaster Recovery & Backup Restore Data ERP.',
+          location: 'Data Center Utama',
+          date: '2026-04-12',
+          observer: 'Andi Firmansyah',
+          file: null
+        }
+      ],
+      documents: [
+        {
+          id: '101',
+          assignmentLetterId: 'ST-002/SKAI/2026',
+          documentName: 'ERP Security Matrix Log',
+          description: 'Log autentikasi dan daftar hak akses pengguna ERP Q1 2026.',
+          requiredDate: '2026-04-02',
+          file: null,
+          fileName: 'ERP_Security_Matrix.xlsx'
+        }
+      ],
+      samples: [
+        {
+          id: '101',
+          assignmentLetterId: 'ST-002/SKAI/2026',
+          documentName: 'Log Akses User Admin',
+          documentNumber: 'LOG-ERP-2026-04',
+          date: '2026-04-10',
+          description: 'Sample log akses superadmin database ERP.'
+        }
+      ],
+      testControls: [
+        {
+          id: '101',
+          assignmentLetterId: 'ST-002/SKAI/2026',
+          controlName: 'MFA Enforcement',
+          controlDescription: 'MFA wajib untuk superadmin ERP.',
+          controlType: 'Automated',
+          testProcedure: 'Verify TOTP configuration for admin accounts.',
+          testResult: 'Ineffective',
+          finding: 'Single factor login active for 2 admin accounts.',
+          recommendation: 'Enforce mandatory MFA.',
+          mitigationPlan: 'Activate TOTP policy.',
+          pic: 'Bambang Susilo (Head of IT)',
+          dueDate: '2026-05-31'
+        }
+      ]
+    },
+    'ST-003/SKAI/2026': {
+      interviews: [
+        {
+          id: '201',
+          assignmentLetterId: 'ST-003/SKAI/2026',
+          interviewee: 'Hendra Wijaya',
+          intervieweePosition: 'Warehouse Manager',
+          interviewer: 'Rina Wulandari',
+          interviewerPosition: 'Chairperson',
+          date: '2026-07-08',
+          topic: 'Manajemen Stok Persediaan Gudang & Prosedur Opname Fisik.',
+          file: null,
+          fileName: 'Interview_Warehouse_ST003.pdf'
+        }
+      ],
+      observations: [
+        {
+          id: '201',
+          assignmentLetterId: 'ST-003/SKAI/2026',
+          activity: 'Inspeksi Fisik dan Pengukuran Suhu Gudang Bahan Kimia.',
+          location: 'Gudang Logistik Branch A',
+          date: '2026-07-15',
+          observer: 'Rina Wulandari',
+          file: null
+        }
+      ],
+      documents: [
+        {
+          id: '201',
+          assignmentLetterId: 'ST-003/SKAI/2026',
+          documentName: 'Kartu Stok & Laporan Opname',
+          description: 'Berita acara stok opname barang semester 1 2026.',
+          requiredDate: '2026-07-03',
+          file: null,
+          fileName: 'Stok_Opname_S1_2026.pdf'
+        }
+      ],
+      samples: [
+        {
+          id: '201',
+          assignmentLetterId: 'ST-003/SKAI/2026',
+          documentName: 'Work Order Pengeluaran Barang',
+          documentNumber: 'WO-LOG-2026-89',
+          date: '2026-07-20',
+          description: 'Sample otorisasi pengeluaran barang persediaan.'
+        }
+      ],
+      testControls: [
+        {
+          id: '201',
+          assignmentLetterId: 'ST-003/SKAI/2026',
+          controlName: 'Warehouse Temperature Monitor',
+          controlDescription: 'Suhu gudang terpantau 24/7.',
+          controlType: 'Preventive',
+          testProcedure: 'Inspect temp sensor logbook.',
+          testResult: 'Ineffective',
+          finding: 'Manual logging delayed by 2 days.',
+          recommendation: 'Install IoT digital sensor.',
+          mitigationPlan: 'Procure IoT sensors.',
+          pic: 'Hendra Wijaya (Warehouse Manager)',
+          dueDate: '2026-08-31'
+        }
+      ]
+    }
+  }
+
   const fieldworkData = ref<Record<string, {
     interviews: InterviewItem[]
     observations: ObservationItem[]
@@ -124,12 +378,18 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const ensureDataExists = () => {
     if (!selectedAssignmentLetter.value) return
     if (!fieldworkData.value[selectedAssignmentLetter.value]) {
-      fieldworkData.value[selectedAssignmentLetter.value] = {
-        interviews: [],
-        observations: [],
-        documents: [],
-        samples: [],
-        testControls: []
+      if (mockFieldwork[selectedAssignmentLetter.value]) {
+        fieldworkData.value[selectedAssignmentLetter.value] = JSON.parse(
+          JSON.stringify(mockFieldwork[selectedAssignmentLetter.value])
+        )
+      } else {
+        fieldworkData.value[selectedAssignmentLetter.value] = {
+          interviews: [],
+          observations: [],
+          documents: [],
+          samples: [],
+          testControls: []
+        }
       }
     }
   }
@@ -173,16 +433,27 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         $fetch(`${baseUrl}/fieldwork/test-controls?assignmentLetterId=${assignmentLetterId}`)
       ])
 
+      const interviewsList = interviewsRes?.items || interviewsRes || []
+      const observationsList = observationsRes?.items || observationsRes || []
+      const documentsList = documentsRes?.items || documentsRes || []
+      const samplesList = samplesRes?.items || samplesRes || []
+      const testControlsList = testControlsRes?.items || testControlsRes || []
+
       fieldworkData.value[assignmentLetterId] = {
-        interviews: interviewsRes.items || interviewsRes || [],
-        observations: observationsRes.items || observationsRes || [],
-        documents: documentsRes.items || documentsRes || [],
-        samples: samplesRes.items || samplesRes || [],
-        testControls: testControlsRes.items || testControlsRes || []
+        interviews: interviewsList.length > 0 ? interviewsList : (mockFieldwork[assignmentLetterId]?.interviews || []),
+        observations: observationsList.length > 0 ? observationsList : (mockFieldwork[assignmentLetterId]?.observations || []),
+        documents: documentsList.length > 0 ? documentsList : (mockFieldwork[assignmentLetterId]?.documents || []),
+        samples: samplesList.length > 0 ? samplesList : (mockFieldwork[assignmentLetterId]?.samples || []),
+        testControls: testControlsList.length > 0 ? testControlsList : (mockFieldwork[assignmentLetterId]?.testControls || [])
       }
     } catch (error: any) {
       console.error('Failed to fetch fieldwork data:', error)
       errorMsg.value = 'Failed to load fieldwork data.'
+      if (mockFieldwork[assignmentLetterId]) {
+        fieldworkData.value[assignmentLetterId] = JSON.parse(
+          JSON.stringify(mockFieldwork[assignmentLetterId])
+        )
+      }
     } finally {
       loading.value = false
     }
