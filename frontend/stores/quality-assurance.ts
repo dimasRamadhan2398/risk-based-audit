@@ -7,8 +7,11 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const errorMsg = ref('')
 
   const getMasterServiceBaseUrl = () => {
+    if (import.meta.client && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return 'http://localhost:8080/api/v1';
+    }
     const config = useRuntimeConfig()
-    return config.public.masterServiceBaseUrl || 'http://localhost:8003/api/v1'
+    return config.public.masterServiceBaseUrl || (import.meta.env.PROD ? 'https://api.auditsphere.app/api/v1' : 'http://localhost:8080/api/v1')
   }
 
   const columns = [
@@ -324,6 +327,22 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     return reports.value.filter(report => report.isImported)
   })
 
+  const regularImportedReports = computed(() => {
+    return reports.value.filter(report => report.isImported && report.type === QAType.REGULAR)
+  })
+
+  const saivImportedReports = computed(() => {
+    return reports.value.filter(report => report.isImported && report.type === QAType.SAIV)
+  })
+
+  const qarImportedReports = computed(() => {
+    return reports.value.filter(report => report.isImported && report.type === QAType.QAR)
+  })
+
+  const iacmImportedReports = computed(() => {
+    return reports.value.filter(report => report.isImported && report.type === QAType.IACM)
+  })
+
   const summary = computed(() => {
     const regular = reports.value.filter(r => r.type === QAType.REGULAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
     const qar = reports.value.filter(r => r.type === QAType.QAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
@@ -404,7 +423,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   return {
     reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isImportOpen, isDetailOpen, columns,
-    selectedReport, filteredReports, importedReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
+    selectedReport, filteredReports, importedReports, regularImportedReports, saivImportedReports, qarImportedReports, iacmImportedReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
     handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor,
     editReport, isEditing, deleteReport, fetchReports, loading, errorMsg
   }

@@ -5,14 +5,25 @@
       <div>
         <h1 class="text-2xl font-bold text-gray-900 ">Assignment Letter List</h1>
       </div>
-      <UButton
-        label="Create Assignment Letter"
-        icon="i-heroicons-plus"
-        color="primary"
-        size="lg"
-        class="font-bold shadow-md"
-        @click="store.openModal"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          label="Import Document"
+          icon="i-lucide-upload"
+          color="neutral"
+          variant="outline"
+          size="lg"
+          class="font-bold shadow-md"
+          to="/assignment-letter/upload"
+        />
+        <UButton
+          label="Create Assignment Letter"
+          icon="i-heroicons-plus"
+          color="primary"
+          size="lg"
+          class="font-bold shadow-md"
+          @click="store.openModal"
+        />
+      </div>
     </div>
 
     <AssignmentLetterTable />

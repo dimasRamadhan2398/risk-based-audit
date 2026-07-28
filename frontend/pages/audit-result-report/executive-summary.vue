@@ -11,13 +11,23 @@
           Rangkuman eksekutif resmi untuk setiap Laporan Hasil Audit (LHA) secara individual.
         </p>
       </div>
-      <UButton
-        color="primary"
-        icon="i-lucide-plus"
-        label="Buat Executive Summary Baru"
-        class="font-bold"
-        @click="store.openNewForm(1)"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-upload"
+          label="Import Executive Summary"
+          to="/audit-result-report/executive-summary-upload"
+          class="font-bold shadow"
+        />
+        <UButton
+          color="primary"
+          icon="i-lucide-plus"
+          label="Buat Executive Summary Baru"
+          class="font-bold"
+          @click="store.openNewForm(1)"
+        />
+      </div>
     </div>
 
     <!-- Stats Overview Cards -->

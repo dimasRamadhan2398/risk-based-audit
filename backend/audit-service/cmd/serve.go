@@ -9,6 +9,7 @@ import (
 	ctrlCharter "audit-service/controllers/audit_charter"
 	ctrlMandate "audit-service/controllers/audit_mandate"
 	ctrlMedia "audit-service/controllers/media"
+	"audit-service/models"
 	"audit-service/pkg/database"
 	"audit-service/pkg/logger"
 	"audit-service/pkg/media"
@@ -70,6 +71,17 @@ func runServe(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Failed to connect to database", logger.LogField("error", err))
 		return err
 	}
+
+	// Auto-migrate uploaded document tables on startup
+	_ = db.AutoMigrate(
+		&models.UploadedPlanDocument{},
+		&models.UploadedAnnualPlan{},
+		&models.UploadedAssignmentLetter{},
+		&models.UploadedAuditResultReport{},
+		&models.UploadedExecutiveSummary{},
+		&models.UploadedExecutiveSummaryReport{},
+		&models.UploadedConsultingDocument{},
+	)
 
 	// Initialize Redis
 	redisClient, err := redis.NewRedisConnection(&cfg.Redis)

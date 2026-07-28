@@ -11,13 +11,23 @@
           Kompilasi Laporan Hasil Audit triwulanan untuk BOD & Komite Audit.
         </p>
       </div>
-      <UButton
-        color="primary"
-        icon="i-lucide-plus"
-        label="Buat Laporan Kompilasi Baru"
-        class="font-bold"
-        @click="store.openNewForm(activeQuarter)"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-upload"
+          label="Import Document"
+          to="/audit-result-report/executive-summary-upload"
+          class="font-bold shadow"
+        />
+        <UButton
+          color="primary"
+          icon="i-lucide-plus"
+          label="Buat Laporan Kompilasi Baru"
+          class="font-bold"
+          @click="store.openNewForm(activeQuarter)"
+        />
+      </div>
     </div>
 
     <!-- Stats Overview Cards -->

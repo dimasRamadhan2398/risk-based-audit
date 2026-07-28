@@ -66,8 +66,8 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       await fetchImportedPapers()
       return response
     } catch (error: any) {
-      console.error('Failed to import working paper:', error)
-      errorMsg.value = error.data?.message || 'Failed to import working paper.'
+      console.error('Failed to upload working paper:', error)
+      errorMsg.value = error.data?.message || 'Failed to upload working paper.'
       throw error
     } finally {
       loading.value = false

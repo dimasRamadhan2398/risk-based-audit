@@ -24,7 +24,14 @@ const store = useQualityAssuranceStore()
         </p>
       </div>
       <div class="flex items-center gap-3">
-
+        <UButton
+          color="neutral"
+          variant="outline"
+          label="Import Report"
+          icon="i-lucide-upload"
+          class="px-5 py-2.5 font-bold rounded-lg shadow"
+          to="/quality-assurance/import"
+        />
         <UButton
           color="primary"
           label="Add Report"

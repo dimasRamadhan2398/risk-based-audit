@@ -312,6 +312,66 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedPlanDocuments.GET("/:id/download", uploadedPlanDocumentCtrl.Download)
 	}
 
+	// 16d. Uploaded Annual Plans
+	uploadedAnnualPlanCtrl := controllers.NewUploadedAnnualPlanController(h.db)
+	uploadedAnnualPlans := apiV1.Group("/uploaded-annual-plans")
+	{
+		uploadedAnnualPlans.GET("", uploadedAnnualPlanCtrl.List)
+		uploadedAnnualPlans.POST("", uploadedAnnualPlanCtrl.Upload)
+		uploadedAnnualPlans.DELETE("/:id", uploadedAnnualPlanCtrl.Delete)
+		uploadedAnnualPlans.GET("/:id/download", uploadedAnnualPlanCtrl.Download)
+	}
+
+	// 16e. Uploaded Assignment Letters
+	uploadedAssignmentLetterCtrl := controllers.NewUploadedAssignmentLetterController(h.db)
+	uploadedAssignmentLetters := apiV1.Group("/uploaded-assignment-letters")
+	{
+		uploadedAssignmentLetters.GET("", uploadedAssignmentLetterCtrl.List)
+		uploadedAssignmentLetters.POST("", uploadedAssignmentLetterCtrl.Upload)
+		uploadedAssignmentLetters.DELETE("/:id", uploadedAssignmentLetterCtrl.Delete)
+		uploadedAssignmentLetters.GET("/:id/download", uploadedAssignmentLetterCtrl.Download)
+	}
+
+	// 16f. Uploaded Audit Result Reports
+	uploadedAuditResultReportCtrl := controllers.NewUploadedAuditResultReportController(h.db)
+	uploadedAuditResultReports := apiV1.Group("/uploaded-audit-result-reports")
+	{
+		uploadedAuditResultReports.GET("", uploadedAuditResultReportCtrl.List)
+		uploadedAuditResultReports.POST("", uploadedAuditResultReportCtrl.Upload)
+		uploadedAuditResultReports.DELETE("/:id", uploadedAuditResultReportCtrl.Delete)
+		uploadedAuditResultReports.GET("/:id/download", uploadedAuditResultReportCtrl.Download)
+	}
+
+	// 16g. Uploaded Executive Summaries
+	uploadedExecutiveSummaryCtrl := controllers.NewUploadedExecutiveSummaryController(h.db)
+	uploadedExecutiveSummaries := apiV1.Group("/uploaded-executive-summaries")
+	{
+		uploadedExecutiveSummaries.GET("", uploadedExecutiveSummaryCtrl.List)
+		uploadedExecutiveSummaries.POST("", uploadedExecutiveSummaryCtrl.Upload)
+		uploadedExecutiveSummaries.DELETE("/:id", uploadedExecutiveSummaryCtrl.Delete)
+		uploadedExecutiveSummaries.GET("/:id/download", uploadedExecutiveSummaryCtrl.Download)
+	}
+
+	// 16h. Uploaded Executive Summary Reports
+	uploadedExecutiveSummaryReportCtrl := controllers.NewUploadedExecutiveSummaryReportController(h.db)
+	uploadedExecutiveSummaryReports := apiV1.Group("/uploaded-executive-summary-reports")
+	{
+		uploadedExecutiveSummaryReports.GET("", uploadedExecutiveSummaryReportCtrl.List)
+		uploadedExecutiveSummaryReports.POST("", uploadedExecutiveSummaryReportCtrl.Upload)
+		uploadedExecutiveSummaryReports.DELETE("/:id", uploadedExecutiveSummaryReportCtrl.Delete)
+		uploadedExecutiveSummaryReports.GET("/:id/download", uploadedExecutiveSummaryReportCtrl.Download)
+	}
+
+	// 16i. Uploaded Consulting Documents
+	uploadedConsultingDocumentCtrl := controllers.NewUploadedConsultingDocumentController(h.db)
+	uploadedConsultingDocuments := apiV1.Group("/uploaded-consulting-documents")
+	{
+		uploadedConsultingDocuments.GET("", uploadedConsultingDocumentCtrl.List)
+		uploadedConsultingDocuments.POST("", uploadedConsultingDocumentCtrl.Upload)
+		uploadedConsultingDocuments.DELETE("/:id", uploadedConsultingDocumentCtrl.Delete)
+		uploadedConsultingDocuments.GET("/:id/download", uploadedConsultingDocumentCtrl.Download)
+	}
+
 	// 17. Audit Result Reports
 	auditResultReports := apiV1.Group("/audit-result-reports")
 	{

@@ -2,6 +2,10 @@ import yaml from "@rollup/plugin-yaml";
 import { fileURLToPath } from "node:url";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const isProd = process.env.NODE_ENV === 'production';
+const defaultBaseUrl = isProd ? 'https://api.auditsphere.app/api/v1' : 'http://localhost:8080/api/v1';
+const defaultAnalyticsUrl = isProd ? 'https://api.auditsphere.app/api/analytics' : 'http://localhost:8084/api/analytics';
+
 export default defineNuxtConfig({
   devtools: {
     enabled: true,
@@ -81,12 +85,12 @@ export default defineNuxtConfig({
 
     // Public keys (exposed to client)
     public: {
-      apiBase: process.env.API_BASE_URL || "http://localhost:3001/api",
-      analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || "http://localhost:8084/api/analytics",
-      authServiceBaseUrl: process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL || 'http://localhost:8001/api/v1',
-      auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || 'http://localhost:8002/api/v1',
-      riskServiceBaseUrl: process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL || 'http://localhost:8004/api/v1',
-      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || 'http://localhost:8003/api/v1',
+      apiBase: process.env.API_BASE_URL || defaultBaseUrl,
+      analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || defaultAnalyticsUrl,
+      authServiceBaseUrl: process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL || defaultBaseUrl,
+      auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || defaultBaseUrl,
+      riskServiceBaseUrl: process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL || defaultBaseUrl,
+      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || defaultBaseUrl,
     },
   },
 

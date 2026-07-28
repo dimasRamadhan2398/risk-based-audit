@@ -185,14 +185,14 @@ export const useMitigationStore = defineStore('mitigation', () => {
                 riskControlId: generatedControlId,
                 riskEvent: form.riskEvent || riskName,
                 riskId: currentRiskId,
-                start_date: form.start_date ? new Date(form.start_date).toISOString() : undefined,
-                end_date: form.end_date ? new Date(form.end_date).toISOString() : undefined
+                start_date: form.start_date ? new Date(form.start_date).toISOString() : '',
+                end_date: form.end_date ? new Date(form.end_date).toISOString() : ''
             }
 
             if (isEditing.value && editingId.value) {
                 const idx = mitigations.value.findIndex(m => m.id === editingId.value)
                 if (idx !== -1) {
-                    mitigations.value[idx] = { ...mitigations.value[idx], ...payload }
+                    mitigations.value[idx] = { ...mitigations.value[idx], ...payload, id: editingId.value }
                 }
                 try {
                     await $fetch(`${baseUrl}/mitigations/${editingId.value}`, {

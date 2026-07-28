@@ -4,8 +4,8 @@
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/quality-assurance" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Import QAR Report</h1>
-        <p class="text-sm text-gray-500">Upload external Quality Assurance Review (QAR) documents</p>
+        <h1 class="text-2xl font-bold text-gray-900">Import IACM</h1>
+        <p class="text-sm text-gray-500">Upload external Internal Audit Capability Model (IACM) documents</p>
       </div>
     </div>
 
@@ -17,7 +17,7 @@
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-warning" />
-              Upload QAR Report Document
+              Upload IACM Document
             </h3>
           </template>
 
@@ -25,7 +25,7 @@
             <UFormField label="Document Title" required>
               <UInput 
                 v-model="form.title" 
-                placeholder="Ex: External Quality Assurance Review Report 2026" 
+                placeholder="Ex: Laporan IACM Document 2026" 
                 class="w-full"
                 required
               />
@@ -116,31 +116,31 @@
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-warning" />
-                Uploaded QAR Documents
+                Uploaded IACM Documents
               </h3>
               <UBadge color="warning" variant="subtle">
-                {{ store.qarImportedReports.length }} Documents
+                {{ store.iacmImportedReports.length }} Documents
               </UBadge>
             </div>
           </template>
 
-          <div v-if="store.loading && store.qarImportedReports.length === 0" class="py-12 text-center">
+          <div v-if="store.loading && store.iacmImportedReports.length === 0" class="py-12 text-center">
             <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-warning animate-spin mx-auto mb-2" />
             <p class="text-gray-500 text-sm">Loading documents...</p>
           </div>
 
-          <div v-else-if="store.qarImportedReports.length === 0" class="py-16 text-center space-y-4 rounded-lg border-2 border-dashed border-gray-100 bg-gray-50/50">
+          <div v-else-if="store.iacmImportedReports.length === 0" class="py-16 text-center space-y-4 rounded-lg border-2 border-dashed border-gray-100 bg-gray-50/50">
             <div class="inline-flex p-4 rounded-full text-gray-300">
               <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
             </div>
             <div class="max-w-md mx-auto">
               <h3 class="text-sm font-bold text-gray-900">No documents uploaded</h3>
-              <p class="text-md text-gray-500 mt-1">Upload QAR documents to add them to your records.</p>
+              <p class="text-md text-gray-500 mt-1">Upload IACM documents to add them to your records.</p>
             </div>
           </div>
 
           <div v-else class="overflow-x-auto">
-            <UTable :data="store.qarImportedReports" :columns="columns">
+            <UTable :data="store.iacmImportedReports" :columns="columns">
               <template #title-cell="{ row }">
                 <div>
                   <div class="font-bold text-gray-900 text-sm">{{ row.original.assessmentTitle }}</div>
@@ -154,7 +154,7 @@
                 <div class="flex items-center gap-2">
                   <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
                   <span class="text-md text-gray-700 truncate max-w-[150px] block">
-                    {{ row.original.attachment ? row.original.attachment.name : 'QAR_Report.pdf' }}
+                    {{ row.original.attachment ? row.original.attachment.name : 'IACM_Document.pdf' }}
                   </span>
                 </div>
               </template>
@@ -276,13 +276,13 @@ const handleUpload = async () => {
   try {
     await store.importQARReport({
       assessmentTitle: form.value.title,
-      type: QAType.QAR,
-      periodQuarter: 'Q1',
+      type: QAType.IACM,
+      periodQuarter: 'Yearly',
       periodYear: '2026',
-      result: 'Generally Conformed',
+      result: 'Level 4 (Managed)',
       status: QAStatus.COMPLETED,
-      conductedBy: form.value.description || 'External QA Assessor',
-      validator: 'External Consultant',
+      conductedBy: form.value.description || 'BPKP / Kementerian BUMN',
+      validator: 'BPKP Assessor',
       fileName: form.value.fileName,
       fileType: form.value.fileType,
       fileContent: form.value.fileContent

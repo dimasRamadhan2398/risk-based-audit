@@ -13,7 +13,14 @@
             </p>
           </div>
           <div class="flex items-center gap-2">
-
+            <UButton
+              icon="i-lucide-upload"
+              label="Import Document"
+              variant="outline"
+              color="neutral"
+              size="sm"
+              to="/audit-activity-plan/upload"
+            />
             <UButton
               icon="i-heroicons-plus"
               label="Buat Rencana"

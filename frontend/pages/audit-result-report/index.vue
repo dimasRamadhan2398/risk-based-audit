@@ -5,13 +5,14 @@
         <h1 class="text-2xl font-bold text-gray-900">Audit Result Report</h1>
         <p class="text-gray-500">Finalize and publish audit results and findings</p>
       </div>
-      <!-- <UButton
-        v-if="store.hasSelectedAssignmentLetter"
-        color="primary"
-        icon="i-heroicons-plus"
-        label="Create New Report"
-        @click="store.openModal"
-      /> -->
+      <UButton
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-upload"
+        label="Import LHA Document"
+        to="/audit-result-report/upload"
+        class="font-bold shadow"
+      />
     </div>
 
     <!-- Assignment Letter Selector -->

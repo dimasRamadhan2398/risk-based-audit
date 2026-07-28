@@ -1,7 +1,6 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
-export interface UploadedPlanDocument {
+export interface UploadedAnnualPlan {
   id: string;
   title: string;
   description: string;
@@ -11,22 +10,19 @@ export interface UploadedPlanDocument {
   created_at: string;
 }
 
-export const useUploadPlanDocumentStore = defineStore('upload-plan-document', () => {
-  const uploadedDocuments = ref<UploadedPlanDocument[]>([]);
+export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => {
+  const uploadedDocuments = ref<UploadedAnnualPlan[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig();
-    return config.public.auditServiceBaseUrl || (import.meta.env.PROD ? 'https://api.auditsphere.app/api/v1' : 'http://localhost:8080/api/v1');
-  };
+
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const response: any = await $fetch(`${baseUrl}/uploaded-plan-documents`, {
+      const response: any = await $fetch(`${baseUrl}/uploaded-annual-plans`, {
         method: 'GET'
       });
       if (Array.isArray(response)) {
@@ -35,54 +31,54 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
         uploadedDocuments.value = response.data;
       }
     } catch (error: any) {
-      console.error('Failed to fetch uploaded plan documents:', error);
-      errorMsg.value = 'Failed to load uploaded plan documents.';
+      console.error('Failed to fetch uploaded annual plans:', error);
+      errorMsg.value = 'Failed to load uploaded annual audit plans.';
     } finally {
       loading.value = false;
     }
-  }
+  };
 
   const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; fileContent: string }) => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      await $fetch(`${baseUrl}/uploaded-plan-documents`, {
+      await $fetch(`${baseUrl}/uploaded-annual-plans`, {
         method: 'POST',
         body: payload
       });
       await fetchUploadedDocuments();
     } catch (error: any) {
-      console.error('Failed to upload plan document:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload plan document.';
+      console.error('Failed to upload annual audit plan:', error);
+      errorMsg.value = error.data?.message || 'Failed to upload annual audit plan.';
       throw error;
     } finally {
       loading.value = false;
     }
-  }
+  };
 
   const deleteDocument = async (id: string) => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      await $fetch(`${baseUrl}/uploaded-plan-documents/${id}`, {
+      await $fetch(`${baseUrl}/uploaded-annual-plans/${id}`, {
         method: 'DELETE'
       });
       await fetchUploadedDocuments();
     } catch (error: any) {
-      console.error('Failed to delete uploaded plan document:', error);
-      errorMsg.value = 'Failed to delete plan document.';
+      console.error('Failed to delete uploaded annual audit plan:', error);
+      errorMsg.value = 'Failed to delete annual audit plan.';
       throw error;
     } finally {
       loading.value = false;
     }
-  }
+  };
 
   const downloadDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const response: any = await $fetch(`${baseUrl}/uploaded-plan-documents/${id}/download`, {
+      const response: any = await $fetch(`${baseUrl}/uploaded-annual-plans/${id}/download`, {
         responseType: 'blob'
       });
       
@@ -96,10 +92,10 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
-      console.error('Failed to download plan document:', error);
-      errorMsg.value = 'Failed to download plan document.';
+      console.error('Failed to download annual audit plan document:', error);
+      errorMsg.value = 'Failed to download document.';
     }
-  }
+  };
 
   return {
     uploadedDocuments,

@@ -12,6 +12,14 @@
       </div>
       <div class="flex items-center gap-3">
         <UButton
+          color="neutral"
+          variant="outline"
+          label="Import Document"
+          icon="i-lucide-upload"
+          class="px-5 py-2.5 font-bold rounded-lg shadow"
+          to="/consulting-service/upload"
+        />
+        <UButton
           color="primary"
           label="New Assignment"
           icon="i-lucide-plus"

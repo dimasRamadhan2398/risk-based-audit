@@ -4,15 +4,23 @@
       <h1 class="text-2xl font-bold text-gray-900 "> 
         Annual Audit Plan
       </h1>
-      <UButton
-        label="New Audit Plan" 
-        @click="store.openModal()"
-        color="primary" 
-        class="px-4 py- font-bold shadow-lg flex gap-2"
-        icon="add"
-        >
-      </UButton>
-      
+      <div class="flex items-center gap-2">
+        <UButton
+          label="Import Plan Document"
+          to="/annual-audit/upload"
+          color="neutral"
+          variant="outline"
+          class="px-4 font-bold shadow flex gap-2"
+          icon="i-lucide-upload"
+        />
+        <UButton
+          label="New Audit Plan" 
+          @click="store.openModal()"
+          color="primary" 
+          class="px-4 font-bold shadow-lg flex gap-2"
+          icon="i-lucide-plus"
+        />
+      </div>
     </div>
 
     <AnnualAuditFilter />

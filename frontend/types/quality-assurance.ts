@@ -24,6 +24,7 @@ export interface QAReport {
     assessmentTitle: string
     validator?: string
     internalEvaluator?: string
+    created_at?: string
     attachment?: {
         name: string
         size: string

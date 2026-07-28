@@ -6,6 +6,15 @@
         <h1 class="text-2xl font-bold text-gray-900 ">Create Working Paper</h1>
         <p class="text-sm text-gray-500">Create and manage audit working papers step by step</p>
       </div>
+      <UButton
+        label="Import Reference Paper"
+        icon="i-lucide-upload"
+        color="neutral"
+        variant="outline"
+        size="md"
+        class="font-bold shadow"
+        to="/working-paper/upload"
+      />
     </div>
 
     <UStepper :items="store.workingItems" class="w-full">

@@ -2,10 +2,10 @@
   <div class="p-6 max-w-7xl mx-auto space-y-6 min-h-screen">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
-      <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/quality-assurance" />
+      <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/audit-assignment" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Import QAR Report</h1>
-        <p class="text-sm text-gray-500">Upload external Quality Assurance Review (QAR) documents</p>
+        <h1 class="text-2xl font-bold text-gray-900">Upload Audit Assignment</h1>
+        <p class="text-sm text-gray-500">Upload external Audit Assignment documents</p>
       </div>
     </div>
 
@@ -16,8 +16,8 @@
         <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200">
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <UIcon name="i-lucide-upload" class="w-5 h-5 text-warning" />
-              Upload QAR Report Document
+              <UIcon name="i-lucide-upload" class="w-5 h-5 text-primary" />
+              Upload Assignment Document
             </h3>
           </template>
 
@@ -25,7 +25,7 @@
             <UFormField label="Document Title" required>
               <UInput 
                 v-model="form.title" 
-                placeholder="Ex: External Quality Assurance Review Report 2026" 
+                placeholder="Ex: Audit Assignment Letter 2026" 
                 class="w-full"
                 required
               />
@@ -49,10 +49,10 @@
                 class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors duration-200"
                 :class="[
                   isDragging 
-                    ? 'border-warning bg-orange-50/50' 
+                    ? 'border-primary bg-blue-50/50' 
                     : form.fileName 
                       ? 'border-emerald-400 bg-emerald-50/30' 
-                      : 'border-gray-300 hover:border-warning bg-white'
+                      : 'border-gray-300 hover:border-primary bg-white'
                 ]"
               >
                 <input 
@@ -60,14 +60,14 @@
                   ref="fileInput" 
                   class="hidden" 
                   @change="handleFileSelect"
-                  accept=".pdf,.docx,.doc,.xls,.xlsx"
+                  accept=".pdf,.docx,.doc"
                 />
                 
                 <div v-if="!form.fileName" class="space-y-3">
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
                     <p class="text-sm text-gray-600 font-semibold">Click to upload or drag & drop</p>
-                    <p class="text-md text-gray-400 mt-1">PDF, DOC, DOCX, XLSX up to 10MB</p>
+                    <p class="text-md text-gray-400 mt-1">PDF, DOC, DOCX up to 10MB</p>
                   </div>
                 </div>
 
@@ -99,7 +99,7 @@
             <UButton 
               type="submit"
               label="Upload Document" 
-              color="warning" 
+              color="primary" 
               class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
               icon="i-lucide-upload"
@@ -115,37 +115,37 @@
           <template #header>
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <UIcon name="i-lucide-list" class="w-5 h-5 text-warning" />
-                Uploaded QAR Documents
+                <UIcon name="i-lucide-list" class="w-5 h-5 text-primary" />
+                Uploaded Documents
               </h3>
-              <UBadge color="warning" variant="subtle">
-                {{ store.qarImportedReports.length }} Documents
+              <UBadge color="primary" variant="subtle">
+                {{ store.uploadedDocuments.length }} Documents
               </UBadge>
             </div>
           </template>
 
-          <div v-if="store.loading && store.qarImportedReports.length === 0" class="py-12 text-center">
-            <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-warning animate-spin mx-auto mb-2" />
+          <div v-if="store.loading && store.uploadedDocuments.length === 0" class="py-12 text-center">
+            <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
             <p class="text-gray-500 text-sm">Loading documents...</p>
           </div>
 
-          <div v-else-if="store.qarImportedReports.length === 0" class="py-16 text-center space-y-4 rounded-lg border-2 border-dashed border-gray-100 bg-gray-50/50">
+          <div v-else-if="store.uploadedDocuments.length === 0" class="py-16 text-center space-y-4 rounded-lg border-2 border-dashed border-gray-100 bg-gray-50/50">
             <div class="inline-flex p-4 rounded-full text-gray-300">
               <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
             </div>
             <div class="max-w-md mx-auto">
               <h3 class="text-sm font-bold text-gray-900">No documents uploaded</h3>
-              <p class="text-md text-gray-500 mt-1">Upload QAR documents to add them to your records.</p>
+              <p class="text-md text-gray-500 mt-1">Upload audit assignment documents to add them to your records.</p>
             </div>
           </div>
 
           <div v-else class="overflow-x-auto">
-            <UTable :data="store.qarImportedReports" :columns="columns">
+            <UTable :data="store.uploadedDocuments" :columns="columns">
               <template #title-cell="{ row }">
                 <div>
-                  <div class="font-bold text-gray-900 text-sm">{{ row.original.assessmentTitle }}</div>
-                  <div class="text-[11px] text-gray-500 mt-0.5 line-clamp-1" v-if="row.original.conductedBy">
-                    {{ row.original.conductedBy }}
+                  <div class="font-bold text-gray-900 text-sm">{{ row.original.title }}</div>
+                  <div class="text-[11px] text-gray-500 mt-0.5 line-clamp-1" v-if="row.original.description">
+                    {{ row.original.description }}
                   </div>
                 </div>
               </template>
@@ -153,15 +153,13 @@
               <template #fileName-cell="{ row }">
                 <div class="flex items-center gap-2">
                   <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
-                  <span class="text-md text-gray-700 truncate max-w-[150px] block">
-                    {{ row.original.attachment ? row.original.attachment.name : 'QAR_Report.pdf' }}
-                  </span>
+                  <span class="text-md text-gray-700 truncate max-w-[150px] block">{{ row.original.fileName }}</span>
                 </div>
               </template>
 
               <template #created_at-cell="{ row }">
                 <span class="text-md text-gray-500">
-                  {{ formatDate(row.original.created_at || row.original.period) }}
+                  {{ formatDate(row.original.created_at) }}
                 </span>
               </template>
 
@@ -173,7 +171,7 @@
                     variant="ghost" 
                     size="sm" 
                     title="Download Document"
-                    @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
+                    @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                   />
                   <UButton 
                     icon="i-lucide-trash-2" 
@@ -181,7 +179,7 @@
                     variant="ghost" 
                     size="sm" 
                     title="Delete Document"
-                    @click="handleDelete(row.original)" 
+                    @click="handleDelete(row.original.id)" 
                   />
                 </div>
               </template>
@@ -195,13 +193,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useQualityAssuranceStore } from '~/stores/quality-assurance'
-import { QAType, QAStatus, type QAReport } from '~/types/quality-assurance'
+import { useUploadAssignmentLetterStore } from '~/stores/upload-assignment-letter'
 
-const store = useQualityAssuranceStore()
+const store = useUploadAssignmentLetterStore()
 
 onMounted(() => {
-  store.fetchReports()
+  store.fetchUploadedDocuments()
 })
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -274,15 +271,9 @@ const handleUpload = async () => {
   if (!form.value.title || !form.value.fileName) return
 
   try {
-    await store.importQARReport({
-      assessmentTitle: form.value.title,
-      type: QAType.QAR,
-      periodQuarter: 'Q1',
-      periodYear: '2026',
-      result: 'Generally Conformed',
-      status: QAStatus.COMPLETED,
-      conductedBy: form.value.description || 'External QA Assessor',
-      validator: 'External Consultant',
+    await store.uploadDocument({
+      title: form.value.title,
+      description: form.value.description,
       fileName: form.value.fileName,
       fileType: form.value.fileType,
       fileContent: form.value.fileContent
@@ -298,10 +289,9 @@ const handleUpload = async () => {
   }
 }
 
-const handleDelete = async (report: QAReport) => {
+const handleDelete = async (id: string) => {
   if (confirm('Are you sure you want to delete this uploaded document?')) {
-    store.selectedReport = report
-    await store.deleteReport()
+    await store.deleteDocument(id)
   }
 }
 
@@ -316,7 +306,6 @@ const formatBytes = (bytes: number) => {
 const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   const date = new Date(dateString)
-  if (isNaN(date.getTime())) return dateString
   return new Intl.DateTimeFormat('id-ID', {
     day: '2-digit',
     month: 'short',

@@ -83,6 +83,16 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/annual-audit',
     children: [
       {
+        label: 'Create Annual Audit Plan',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/annual-audit',
+      },
+      {
+        label: 'Import Annual Audit Plan Document',
+        icon: 'i-lucide-upload',
+        to: '/annual-audit/upload',
+      },
+      {
         label: 'Audit Execution Status',
         icon: 'i-lucide-users',
         to: '/audit-execution-status',
@@ -100,7 +110,7 @@ const rawItems: NavigationMenuItem[][] = [[
         to: '/audit-activity-plan',
       },
       {
-        label: 'Upload Activity Plan Document',
+        label: 'Import Activity Plan Document',
         icon: 'i-lucide-upload',
         to: '/audit-activity-plan/upload',
       }
@@ -110,6 +120,18 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '6. Assignment Letter',
     icon: 'i-lucide-users',
     to: '/assignment-letter',
+    children: [
+      {
+        label: 'Create Assignment Letter',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/assignment-letter',
+      },
+      {
+        label: 'Import Assignment Letter Document',
+        icon: 'i-lucide-upload',
+        to: '/assignment-letter/upload',
+      }
+    ]
   },
   {
     label: '7. Audit Field Work',
@@ -122,9 +144,9 @@ const rawItems: NavigationMenuItem[][] = [[
         to: '/working-paper',
       },
       {
-        label: 'Import Working Paper',
+        label: 'Import Working Paper Document',
         icon: 'i-lucide-upload',
-        to: '/import-working-paper',
+        to: '/working-paper/upload',
       },
     ]
   },
@@ -134,14 +156,24 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/audit-result-report',
     children: [
       {
-        label: 'Result Reports',
+        label: 'Result Reports (LHA)',
         icon: 'i-lucide-list',
         to: '/audit-result-report',
+      },
+      {
+        label: 'Import LHA Document',
+        icon: 'i-lucide-upload',
+        to: '/audit-result-report/upload',
       },
       {
         label: 'Executive Summary',
         icon: 'i-lucide-presentation',
         to: '/audit-result-report/executive-summary',
+      },
+      {
+        label: 'Import Executive Summary Document',
+        icon: 'i-lucide-upload',
+        to: '/audit-result-report/executive-summary-upload',
       }
     ]
   },
@@ -149,31 +181,70 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '9. Executive Summary Report',
     icon: 'i-lucide-file-text',
     to: '/executive-summary',
+    children: [
+      {
+        label: 'Executive Summary Report Kompilasi',
+        icon: 'i-lucide-presentation',
+        to: '/executive-summary',
+      },
+      {
+        label: 'Import Executive Summary Report',
+        icon: 'i-lucide-upload',
+        to: '/executive-summary/upload',
+      }
+    ]
   },
   {
-    label: '9. Action Taken Report',
+    label: '10. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
   },
   {
-    label: '10. Consulting Service',
+    label: '11. Consulting Service',
     icon: 'i-lucide-users',
     to: '/consulting-service',
+    children: [
+      {
+        label: 'Consulting Service Dashboard',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/consulting-service',
+      },
+      {
+        label: 'Import Consulting Document',
+        icon: 'i-lucide-upload',
+        to: '/consulting-service/upload',
+      }
+    ]
   },
   {
-    label: '11. Quality Assurance Review',
+    label: '12. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [
       {
-        label: 'Create QAR Report',
+        label: 'Quality Assurance Dashboard',
         icon: 'i-lucide-layout-dashboard',
         to: '/quality-assurance',
+      },
+      {
+        label: 'Import Periodic Self Assessment',
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import-periodic-self-assessment',
+      },
+      {
+        label: 'Import SAIV',
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import-saiv',
       },
       {
         label: 'Import QAR Report',
         icon: 'i-lucide-upload',
         to: '/quality-assurance/import',
+      },
+      {
+        label: 'Import IACM',
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import-iacm',
       }
     ]
   },

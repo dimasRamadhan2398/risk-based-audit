@@ -1,7 +1,27 @@
 _format_version: "3.0"
 _transform: true
 
-
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Content-Type
+        - Authorization
+        - X-Requested-With
+        - accept
+        - origin
+        - Cache-Control
+      credentials: true
+      max_age: 3600
 
 services:
   - name: auth-service
@@ -54,6 +74,12 @@ services:
           - /api/v1/executive-summaries
           - /api/v1/action-taken-reports
           - /api/v1/uploaded-plan-documents
+          - /api/v1/uploaded-annual-plans
+          - /api/v1/uploaded-assignment-letters
+          - /api/v1/uploaded-audit-result-reports
+          - /api/v1/uploaded-executive-summaries
+          - /api/v1/uploaded-executive-summary-reports
+          - /api/v1/uploaded-consulting-documents
           - /api/v1/media
         strip_path: false
 
