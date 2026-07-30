@@ -81,6 +81,7 @@ services:
           - /api/v1/uploaded-executive-summary-reports
           - /api/v1/uploaded-consulting-documents
           - /api/v1/media
+          - /api/v1/performance
         strip_path: false
 
   - name: master-service
