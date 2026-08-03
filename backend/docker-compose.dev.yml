@@ -29,7 +29,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -85,7 +85,7 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092" ]
       interval: 15s
       timeout: 10s
       retries: 10
@@ -163,6 +163,8 @@ services:
     ports:
       - "8002:8001"
     command: sh -c "./audit seed && ./audit serve"
+    volumes:
+      - audit_uploads:/root/uploads
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -239,7 +241,7 @@ services:
       - "8006:8001"
       - "8444:8444"
     healthcheck:
-      test: ["CMD", "kong", "health"]
+      test: [ "CMD", "kong", "health" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -261,6 +263,7 @@ volumes:
   zookeeper_data:
   kafka_data:
   python_ai_models:
+  audit_uploads:
 
 networks:
   rb_audit_network:

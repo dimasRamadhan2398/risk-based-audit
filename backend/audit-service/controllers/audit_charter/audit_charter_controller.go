@@ -1,11 +1,8 @@
 package controllers
 
 import (
-	"encoding/base64"
 	"net/http"
-	"path/filepath"
 	"strconv"
-	"strings"
 
 	"audit-service/models"
 	pkgErrors "audit-service/pkg/errors"
@@ -349,6 +346,7 @@ func (ctrl *AuditCharterController) SetActiveCharter(c *gin.Context) {
 // @Router /api/v1/audit-charters/{id}/download [get]
 func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 	idParam := c.Param("id")
+
 	id, err := uuid.Parse(idParam)
 	if err != nil {
 		response.BadRequest(c, "Invalid audit charter ID")
@@ -361,22 +359,12 @@ func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 		return
 	}
 
-	// Decode base64 content
-	content, err := base64.StdEncoding.DecodeString(result.Content)
-	if err != nil {
-		response.InternalServerError(c, "Failed to decode charter content")
+	if result.FileUrl == "" {
+		response.NotFound(c, "Audit charter file was not found")
 		return
 	}
 
-	// Determine content type from filename extension
-	filename := result.Filename
-	ext := strings.ToLower(filepath.Ext(filename))
-	contentType := getContentType(ext)
-
-	// Set response headers for file download
-	c.Header("Content-Disposition", "attachment; filename="+filename)
-	c.Header("Content-Type", contentType)
-	c.Data(http.StatusOK, contentType, content)
+	c.Redirect(http.StatusTemporaryRedirect, result.FileUrl)
 }
 
 // getContentType returns the MIME type based on file extension

@@ -86,7 +86,7 @@ export const useGuidelineStore = defineStore('guideline', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const authStore = useAuthStore()
-      
+
       const formData = new FormData()
       formData.append('file', form.file)
       formData.append('folder', 'audit')
@@ -99,14 +99,23 @@ export const useGuidelineStore = defineStore('guideline', () => {
         body: formData
       })
 
-      if (response && response.status === 'success' && response.data) {
+      if (response?.success === true && response?.data) {
+        const { filePath, fileName, fileSize } = response.data
+
+        if (!filePath) {
+          throw new Error('Upload response did not contain filePath')
+        }
+
         return {
-          fileUrl: response.data.filePath,
-          fileName: response.data.fileName,
-          fileSize: response.data.fileSize
+          fileUrl: filePath,
+          fileName,
+          fileSize
         }
       }
-      return null
+
+      throw new Error(
+        response?.error?.message || 'Invalid media upload response'
+      )
     } catch (err) {
       console.error('Failed to upload file:', err)
       errorMsg.value = 'Gagal mengupload file dokumen.'
