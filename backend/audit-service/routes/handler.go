@@ -409,6 +409,22 @@ func (h *RouteHandler) RegisterRoutes() {
 		media.POST("/upload", h.registry.Media.Upload)
 		media.GET("/download/:id", h.registry.Media.Download)
 	}
+
+	// 20. Performance routes
+	performance := apiV1.Group("/performance")
+	{
+		performance.GET("/kpi", crud.List(h.db, "KPIAchievement", func() interface{} { return &[]models.KPIAchievement{} }))
+		performance.GET("/kpi/:id", crud.GetByID(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
+		performance.POST("/kpi", crud.Create(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
+		performance.PUT("/kpi/:id", crud.Update(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
+		performance.DELETE("/kpi/:id", crud.Delete(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
+
+		performance.GET("/realization", crud.List(h.db, "WorkPlanRealization", func() interface{} { return &[]models.WorkPlanRealization{} }))
+		performance.GET("/realization/:id", crud.GetByID(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
+		performance.POST("/realization", crud.Create(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
+		performance.PUT("/realization/:id", crud.Update(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
+		performance.DELETE("/realization/:id", crud.Delete(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
+	}
 }
 
 func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {

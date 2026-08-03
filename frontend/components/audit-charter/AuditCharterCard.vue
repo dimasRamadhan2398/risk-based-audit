@@ -148,27 +148,27 @@
             }"
             class="w-full text-sm text-left"
           >
-            <template #version-data="{ row }">
+            <template #version-cell="{ row }">
               <span class="font-bold text-gray-800">{{
                 row.original.version
               }}</span>
             </template>
-            <template #title-data="{ row }">
+            <template #title-cell="{ row }">
               <span class="font-bold text-gray-800">{{
                 row.original.title
               }}</span>
             </template>
-            <template #date-data="{ row }">
+            <template #date-cell="{ row }">
               <span class="font-bold text-gray-800">{{
                 row.original.date
               }}</span>
             </template>
-            <template #approvedBy-data="{ row }">
+            <template #approvedBy-cell="{ row }">
               <span class="font-bold text-gray-800">{{
                 row.original.approvedBy
               }}</span>
             </template>
-            <template #uploadedBy-data="{ row }">
+            <template #uploadedBy-cell="{ row }">
               <span class="font-bold text-gray-800">{{
                 row.original.uploadedBy
               }}</span>
@@ -187,7 +187,7 @@
               <span v-else>{{ row.original.fileName }}</span>
             </template>
             <template #actions-cell="{ row }">
-              <div class="flex justify-end">
+              <div class="flex justify-end gap-2">
                 <UButton
                   label="Edit"
                   size="md"
@@ -195,6 +195,14 @@
                   variant="outline"
                   icon="i-lucide-edit"
                   @click="store.handleEdit(row.original)"
+                />
+                <UButton
+                  label="Delete"
+                  size="md"
+                  color="error"
+                  variant="outline"
+                  icon="i-lucide-trash"
+                  @click="confirmDelete(row.original)"
                 />
               </div>
             </template>
@@ -209,6 +217,12 @@
 import { useCharterStore } from '~/stores/charter'
 
 const store = useCharterStore()
+
+const confirmDelete = async (item: any) => {
+  if (confirm(`Apakah Anda yakin ingin menghapus Audit Charter "${item.title}" versi ${item.version}?`)) {
+    await store.deleteCharter(item.id || '')
+  }
+}
 
 onMounted(async () => {
   await store.fetchCharters()

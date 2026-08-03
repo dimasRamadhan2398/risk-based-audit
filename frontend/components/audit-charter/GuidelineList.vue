@@ -46,7 +46,7 @@
           class="w-full text-sm text-left"
         >
           <!-- Status slot -->
-          <template #status-data="{ row }">
+          <template #status-cell="{ row }">
             <UBadge
               :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
               variant="subtle"
@@ -57,14 +57,14 @@
           </template>
 
           <!-- Effective date slot -->
-          <template #effective_date-data="{ row }">
+          <template #effective_date-cell="{ row }">
             <span class="font-medium text-gray-800">{{
               formatMonthYearIndonesian(row.original.effective_date)
             }}</span>
           </template>
 
           <!-- File / View Dokumen slot -->
-          <template #file_name-data="{ row }">
+          <template #file_name-cell="{ row }">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
               :to="row.original.file_url"
@@ -81,7 +81,7 @@
           </template>
 
           <!-- Actions slot -->
-          <template #actions-data="{ row }">
+          <template #actions-cell="{ row }">
             <div class="flex justify-end gap-2">
               <UButton
                 size="sm"
