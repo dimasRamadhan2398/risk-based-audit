@@ -1,1011 +1,1202 @@
 ID Transaksi,Entitas,Deskripsi,amount (dalam Juta Rp),hour_of_day (0-23),day_of_week (1-7),"is_new_beneficiary (1=Ya, 0=Tidak)","is_round_amount (1=Ya, 0=Tidak)",TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5)
-TRX-001,Jakarta Branch,Pembayaran vendor,15.5,10,2,0,0,Tidak,2,1
-TRX-002,Finance Dept,Reimbursement,2.1,14,2,0,0,Tidak,1,1
-TRX-003,Surabaya Branch,Pembayaran ke vendor baru,"1,500.00",23,6,1,1,Ya (Anomali),5,5
-TRX-004,IT Dept,Pembelian lisensi software,78,11,3,0,0,Tidak,3,1
-TRX-005,Operations Dept,Klaim biaya operasional,500,2,1,1,1,Ya (Anomali),5,5
-TRX-006,Bandung Branch,Biaya perjalanan dinas,7.5,16,4,0,0,Tidak,1,1
-TRX-007,HR Dept,Pembayaran jasa konsultan,45,13,4,0,0,Tidak,2,1
-TRX-008,Jakarta Branch,Transfer dana antar kas,5,19,7,0,1,Ya (Anomali),1,5
-TRX-009,Finance Dept,Pembayaran pajak,210.3,9,5,0,0,Tidak,4,1
-TRX-010,IT Dept,Perpanjangan server,125,15,5,0,0,Tidak,4,1
-TRX-011,Bandung Branch,Biaya perjalanan dinas,15.5,10,4,0,0,Tidak,2,1
-TRX-012,Jakarta Branch,Pembayaran ke vendor baru,1500,9,7,0,0,Tidak,5,1
-TRX-013,IT Dept,Pembayaran jasa konsultan,125,14,1,0,0,Tidak,4,1
-TRX-014,Bandung Branch,Pembayaran ke vendor baru,7.5,16,1,0,0,Ya (Anomali),1,4
-TRX-015,HR Dept,Transfer dana antar kas,125,13,4,1,0,Ya (Anomali),4,5
-TRX-016,Jakarta Branch,Pembayaran ke vendor baru,1500,9,5,0,1,Ya (Anomali),5,5
-TRX-017,Jakarta Branch,Pembayaran vendor,15.5,16,7,0,0,Tidak,2,1
-TRX-018,HR Dept,Reimbursement,15.5,11,2,0,0,Tidak,2,1
-TRX-019,Bandung Branch,Transfer dana antar kas,500,13,1,1,0,Ya (Anomali),5,5
-TRX-020,Finance Dept,Reimbursement,210.3,16,5,0,0,Ya (Anomali),4,4
-TRX-021,Jakarta Branch,Pembayaran pajak,15.5,14,3,0,0,Tidak,2,1
-TRX-022,Finance Dept,Pembayaran jasa konsultan,5,16,7,0,0,Tidak,1,1
-TRX-023,IT Dept,Biaya perjalanan dinas,45,14,2,0,1,Tidak,2,2
-TRX-024,Bandung Branch,Pembayaran ke vendor baru,500,11,3,0,1,Tidak,5,2
-TRX-025,IT Dept,Pembayaran vendor,7.5,23,3,0,0,Ya (Anomali),1,4
-TRX-026,Finance Dept,Reimbursement,500,14,3,0,0,Tidak,5,1
-TRX-027,Surabaya Branch,Perpanjangan server,7.5,19,5,0,1,Ya (Anomali),1,5
-TRX-028,Finance Dept,Pembayaran ke vendor baru,500,9,5,0,1,Ya (Anomali),5,5
-TRX-029,IT Dept,Pembelian lisensi software,7.5,11,6,0,0,Tidak,1,1
-TRX-030,Operations Dept,Reimbursement,45,11,2,0,0,Tidak,2,1
-TRX-031,Jakarta Branch,Biaya perjalanan dinas,1500,10,6,0,0,Tidak,5,1
-TRX-032,Surabaya Branch,Klaim biaya operasional,7.5,2,3,0,0,Tidak,1,1
-TRX-033,Finance Dept,Pembayaran pajak,45,14,5,0,0,Tidak,2,1
-TRX-034,Finance Dept,Reimbursement,15.5,23,3,0,0,Tidak,2,1
-TRX-035,Surabaya Branch,Pembayaran jasa konsultan,15.5,13,4,0,0,Ya (Anomali),2,4
-TRX-036,Jakarta Branch,Pembayaran ke vendor baru,45,19,5,0,0,Ya (Anomali),2,4
-TRX-037,IT Dept,Transfer dana antar kas,15.5,23,5,0,1,Ya (Anomali),2,5
-TRX-038,Jakarta Branch,Klaim biaya operasional,2.1,13,2,0,0,Ya (Anomali),1,4
-TRX-039,Surabaya Branch,Pembayaran ke vendor baru,125,15,7,0,0,Tidak,4,1
-TRX-040,IT Dept,Pembayaran jasa konsultan,7.5,2,6,0,0,Tidak,1,1
-TRX-041,Jakarta Branch,Pembayaran vendor,500,23,6,1,0,Tidak,5,2
-TRX-042,Operations Dept,Transfer dana antar kas,5,11,2,0,0,Tidak,1,1
-TRX-043,Operations Dept,Pembayaran ke vendor baru,45,13,6,1,0,Tidak,2,2
-TRX-044,Bandung Branch,Transfer dana antar kas,7.5,16,4,1,0,Ya (Anomali),1,5
-TRX-045,Bandung Branch,Biaya perjalanan dinas,78,2,1,0,0,Tidak,3,1
-TRX-046,Jakarta Branch,Pembayaran jasa konsultan,78,23,2,0,1,Tidak,3,2
-TRX-047,IT Dept,Pembayaran pajak,125,2,3,0,0,Tidak,4,1
-TRX-048,Jakarta Branch,Transfer dana antar kas,7.5,2,5,0,0,Tidak,1,1
-TRX-049,Finance Dept,Biaya perjalanan dinas,1500,15,5,0,1,Tidak,5,2
-TRX-050,Jakarta Branch,Pembayaran jasa konsultan,5,14,5,0,0,Tidak,1,1
-TRX-051,Surabaya Branch,Pembayaran ke vendor baru,210.3,13,6,1,1,Ya (Anomali),4,5
-TRX-052,Jakarta Branch,Perpanjangan server,5,15,4,0,0,Ya (Anomali),1,4
-TRX-053,Finance Dept,Klaim biaya operasional,2.1,13,7,1,0,Ya (Anomali),1,5
-TRX-054,Surabaya Branch,Pembayaran ke vendor baru,78,14,2,1,0,Tidak,3,2
-TRX-055,IT Dept,Perpanjangan server,7.5,15,1,0,0,Ya (Anomali),1,4
-TRX-056,Finance Dept,Pembayaran jasa konsultan,2.1,19,4,0,0,Tidak,1,1
-TRX-057,Finance Dept,Pembayaran ke vendor baru,15.5,23,5,0,1,Ya (Anomali),2,5
-TRX-058,Finance Dept,Pembelian lisensi software,2.1,10,4,0,0,Tidak,1,1
-TRX-059,IT Dept,Pembayaran vendor,500,2,7,0,1,Tidak,5,2
-TRX-060,HR Dept,Pembayaran pajak,7.5,16,7,0,1,Ya (Anomali),1,5
-TRX-061,Jakarta Branch,Biaya perjalanan dinas,1500,19,4,1,1,Tidak,5,3
-TRX-062,IT Dept,Perpanjangan server,5,16,5,0,0,Ya (Anomali),1,4
-TRX-063,Jakarta Branch,Klaim biaya operasional,78,15,2,0,1,Tidak,3,2
-TRX-064,Surabaya Branch,Klaim biaya operasional,45,2,4,0,0,Ya (Anomali),2,4
-TRX-065,Finance Dept,Biaya perjalanan dinas,1500,11,2,0,0,Ya (Anomali),5,4
-TRX-066,Finance Dept,Pembelian lisensi software,45,15,2,1,1,Ya (Anomali),2,5
-TRX-067,Jakarta Branch,Pembayaran vendor,78,14,7,1,0,Tidak,3,2
-TRX-068,IT Dept,Pembayaran vendor,1500,2,2,0,1,Tidak,5,2
-TRX-069,Bandung Branch,Transfer dana antar kas,500,13,2,0,0,Ya (Anomali),5,4
-TRX-070,IT Dept,Biaya perjalanan dinas,7.5,15,4,0,0,Ya (Anomali),1,4
-TRX-071,Finance Dept,Pembayaran jasa konsultan,500,11,6,0,1,Tidak,5,2
-TRX-072,Operations Dept,Klaim biaya operasional,210.3,15,5,0,0,Tidak,4,1
-TRX-073,IT Dept,Perpanjangan server,1500,9,2,0,0,Tidak,5,1
-TRX-074,Jakarta Branch,Pembayaran vendor,210.3,2,2,0,0,Ya (Anomali),4,4
-TRX-075,Surabaya Branch,Klaim biaya operasional,15.5,16,7,0,1,Ya (Anomali),2,5
-TRX-076,HR Dept,Pembayaran vendor,2.1,9,3,0,1,Tidak,1,2
-TRX-077,IT Dept,Pembelian lisensi software,45,14,5,1,1,Tidak,2,3
-TRX-078,Operations Dept,Perpanjangan server,1500,16,4,0,0,Tidak,5,1
-TRX-079,IT Dept,Pembayaran ke vendor baru,45,16,2,0,0,Tidak,2,1
-TRX-080,Finance Dept,Pembelian lisensi software,5,15,2,0,0,Tidak,1,1
-TRX-081,Operations Dept,Pembayaran vendor,210.3,2,3,0,0,Ya (Anomali),4,4
-TRX-082,Surabaya Branch,Pembelian lisensi software,15.5,19,5,0,0,Tidak,2,1
-TRX-083,Finance Dept,Perpanjangan server,78,2,7,0,0,Tidak,3,1
-TRX-084,Surabaya Branch,Pembayaran jasa konsultan,2.1,16,5,1,1,Tidak,1,3
-TRX-085,HR Dept,Pembayaran jasa konsultan,7.5,9,4,0,0,Tidak,1,1
-TRX-086,Jakarta Branch,Pembayaran jasa konsultan,7.5,19,1,0,1,Tidak,1,2
-TRX-087,Finance Dept,Pembayaran ke vendor baru,7.5,16,1,1,1,Tidak,1,3
-TRX-088,IT Dept,Pembayaran vendor,5,13,5,1,0,Tidak,1,2
-TRX-089,IT Dept,Transfer dana antar kas,45,2,4,1,1,Tidak,2,3
-TRX-090,HR Dept,Pembayaran pajak,2.1,2,5,0,0,Tidak,1,1
-TRX-091,HR Dept,Biaya perjalanan dinas,7.5,11,6,0,0,Tidak,1,1
-TRX-092,Finance Dept,Pembayaran vendor,15.5,10,2,0,1,Tidak,2,2
-TRX-093,IT Dept,Reimbursement,2.1,23,2,0,0,Tidak,1,1
-TRX-094,Finance Dept,Biaya perjalanan dinas,1500,15,1,1,0,Tidak,5,2
-TRX-095,Finance Dept,Pembayaran pajak,78,2,2,1,1,Ya (Anomali),3,5
-TRX-096,Finance Dept,Pembayaran ke vendor baru,5,23,1,0,1,Ya (Anomali),1,5
-TRX-097,IT Dept,Pembayaran jasa konsultan,1500,15,1,0,1,Tidak,5,2
-TRX-098,Jakarta Branch,Pembayaran vendor,45,11,4,0,0,Tidak,2,1
-TRX-099,Jakarta Branch,Pembayaran pajak,5,13,1,0,1,Tidak,1,2
-TRX-100,Jakarta Branch,Pembayaran ke vendor baru,125,19,2,0,0,Tidak,4,1
-TRX-101,HR Dept,Pembayaran vendor,78,9,2,0,0,Tidak,3,1
-TRX-102,IT Dept,Pembayaran ke vendor baru,5,9,6,0,1,Tidak,1,2
-TRX-103,IT Dept,Pembayaran vendor,15.5,10,7,0,0,Ya (Anomali),2,4
-TRX-104,Finance Dept,Reimbursement,2.1,10,5,0,1,Tidak,1,2
-TRX-105,Operations Dept,Pembayaran ke vendor baru,1500,11,7,0,0,Tidak,5,1
-TRX-106,Bandung Branch,Pembayaran vendor,5,23,1,0,0,Tidak,1,1
-TRX-107,IT Dept,Pembayaran ke vendor baru,15.5,9,2,0,1,Tidak,2,2
-TRX-108,Jakarta Branch,Perpanjangan server,78,11,2,0,0,Tidak,3,1
-TRX-109,IT Dept,Pembayaran pajak,7.5,10,7,0,0,Tidak,1,1
-TRX-110,Operations Dept,Pembayaran jasa konsultan,5,19,1,0,0,Ya (Anomali),1,4
-TRX-111,Finance Dept,Pembayaran ke vendor baru,210.3,10,5,0,0,Tidak,4,1
-TRX-112,Operations Dept,Reimbursement,5,9,7,0,0,Tidak,1,1
-TRX-113,Finance Dept,Pembelian lisensi software,2.1,16,6,1,0,Tidak,1,2
-TRX-114,Surabaya Branch,Pembelian lisensi software,500,15,7,0,0,Tidak,5,1
-TRX-115,IT Dept,Klaim biaya operasional,45,14,5,1,0,Ya (Anomali),2,5
-TRX-116,Operations Dept,Pembayaran jasa konsultan,1500,11,1,1,0,Tidak,5,2
-TRX-117,HR Dept,Pembayaran pajak,210.3,2,3,0,0,Tidak,4,1
-TRX-118,Finance Dept,Transfer dana antar kas,78,23,6,0,0,Ya (Anomali),3,4
-TRX-119,Operations Dept,Biaya perjalanan dinas,7.5,14,5,1,1,Tidak,1,3
-TRX-120,Operations Dept,Pembayaran ke vendor baru,500,13,3,0,0,Tidak,5,1
-TRX-121,Bandung Branch,Pembayaran ke vendor baru,1500,11,2,0,0,Tidak,5,1
-TRX-122,Finance Dept,Klaim biaya operasional,125,16,7,1,1,Ya (Anomali),4,5
-TRX-123,IT Dept,Biaya perjalanan dinas,1500,23,1,0,0,Ya (Anomali),5,4
-TRX-124,Finance Dept,Perpanjangan server,210.3,2,2,0,1,Ya (Anomali),4,5
-TRX-125,HR Dept,Perpanjangan server,210.3,2,2,0,0,Tidak,4,1
-TRX-126,IT Dept,Biaya perjalanan dinas,45,16,4,0,1,Ya (Anomali),2,5
-TRX-127,IT Dept,Pembayaran ke vendor baru,210.3,2,1,0,0,Tidak,4,1
-TRX-128,IT Dept,Perpanjangan server,500,11,4,0,0,Tidak,5,1
-TRX-129,Bandung Branch,Transfer dana antar kas,500,9,5,1,0,Tidak,5,2
-TRX-130,Bandung Branch,Reimbursement,125,23,6,0,0,Tidak,4,1
-TRX-131,Finance Dept,Pembayaran pajak,210.3,13,2,0,0,Tidak,4,1
-TRX-132,Jakarta Branch,Transfer dana antar kas,125,14,2,0,0,Tidak,4,1
-TRX-133,Finance Dept,Perpanjangan server,210.3,13,5,0,0,Ya (Anomali),4,4
-TRX-134,Operations Dept,Biaya perjalanan dinas,2.1,15,3,0,0,Tidak,1,1
-TRX-135,Jakarta Branch,Biaya perjalanan dinas,2.1,9,4,0,0,Tidak,1,1
-TRX-136,Jakarta Branch,Klaim biaya operasional,500,9,1,0,0,Tidak,5,1
-TRX-137,Jakarta Branch,Pembelian lisensi software,15.5,2,5,0,1,Tidak,2,2
-TRX-138,Surabaya Branch,Pembayaran pajak,45,16,1,0,1,Tidak,2,2
-TRX-139,Surabaya Branch,Reimbursement,125,15,6,0,0,Tidak,4,1
-TRX-140,Jakarta Branch,Klaim biaya operasional,1500,2,2,0,0,Ya (Anomali),5,4
-TRX-141,Jakarta Branch,Reimbursement,125,11,5,0,0,Tidak,4,1
-TRX-142,Jakarta Branch,Klaim biaya operasional,500,19,5,0,0,Tidak,5,1
-TRX-143,IT Dept,Pembayaran vendor,1500,10,7,0,0,Tidak,5,1
-TRX-144,Bandung Branch,Pembayaran pajak,45,19,2,0,1,Tidak,2,2
-TRX-145,Bandung Branch,Biaya perjalanan dinas,1500,2,6,0,0,Ya (Anomali),5,4
-TRX-146,IT Dept,Pembayaran pajak,2.1,11,2,0,1,Tidak,1,2
-TRX-147,IT Dept,Klaim biaya operasional,15.5,19,4,0,0,Tidak,2,1
-TRX-148,HR Dept,Pembayaran ke vendor baru,500,11,2,0,0,Tidak,5,1
-TRX-149,Operations Dept,Pembayaran jasa konsultan,500,16,2,0,0,Tidak,5,1
-TRX-150,IT Dept,Pembelian lisensi software,45,11,2,0,0,Tidak,2,1
-TRX-151,IT Dept,Pembayaran vendor,500,19,5,0,0,Tidak,5,1
-TRX-152,Finance Dept,Klaim biaya operasional,45,11,4,0,0,Tidak,2,1
-TRX-153,Jakarta Branch,Pembayaran vendor,2.1,23,2,0,0,Tidak,1,1
-TRX-154,IT Dept,Pembayaran pajak,1500,19,1,0,0,Tidak,5,1
-TRX-155,Jakarta Branch,Pembayaran vendor,125,11,5,0,1,Tidak,4,2
-TRX-156,Bandung Branch,Pembelian lisensi software,125,14,2,0,0,Ya (Anomali),4,4
-TRX-157,IT Dept,Perpanjangan server,2.1,14,4,1,0,Tidak,1,2
-TRX-158,Jakarta Branch,Transfer dana antar kas,7.5,2,6,1,0,Ya (Anomali),1,5
-TRX-159,IT Dept,Klaim biaya operasional,78,2,3,0,0,Tidak,3,1
-TRX-160,IT Dept,Pembayaran ke vendor baru,500,9,4,1,1,Tidak,5,3
-TRX-161,Jakarta Branch,Pembayaran vendor,7.5,2,2,0,0,Tidak,1,1
-TRX-162,Operations Dept,Klaim biaya operasional,500,14,7,0,0,Tidak,5,1
-TRX-163,Operations Dept,Transfer dana antar kas,125,2,3,0,0,Tidak,4,1
-TRX-164,Jakarta Branch,Klaim biaya operasional,7.5,10,2,0,0,Tidak,1,1
-TRX-165,IT Dept,Pembayaran vendor,5,10,1,0,0,Tidak,1,1
-TRX-166,Bandung Branch,Pembelian lisensi software,45,16,5,0,0,Tidak,2,1
-TRX-167,Jakarta Branch,Perpanjangan server,1500,14,6,1,1,Ya (Anomali),5,5
-TRX-168,Surabaya Branch,Pembayaran pajak,15.5,15,5,0,0,Ya (Anomali),2,4
-TRX-169,Finance Dept,Pembayaran ke vendor baru,1500,11,1,0,0,Tidak,5,1
-TRX-170,Jakarta Branch,Pembayaran vendor,1500,13,7,0,0,Tidak,5,1
-TRX-171,Jakarta Branch,Perpanjangan server,2.1,10,3,0,0,Tidak,1,1
-TRX-172,Surabaya Branch,Pembelian lisensi software,125,11,4,0,0,Tidak,4,1
-TRX-173,Surabaya Branch,Perpanjangan server,210.3,19,4,1,1,Tidak,4,3
-TRX-174,HR Dept,Reimbursement,15.5,11,5,0,1,Tidak,2,2
-TRX-175,HR Dept,Pembelian lisensi software,15.5,2,5,0,0,Tidak,2,1
-TRX-176,Operations Dept,Pembayaran ke vendor baru,5,13,4,0,1,Ya (Anomali),1,5
-TRX-177,HR Dept,Perpanjangan server,78,2,4,1,0,Tidak,3,2
-TRX-178,IT Dept,Klaim biaya operasional,2.1,11,4,0,0,Tidak,1,1
-TRX-179,IT Dept,Biaya perjalanan dinas,5,11,2,0,0,Tidak,1,1
-TRX-180,IT Dept,Pembayaran jasa konsultan,7.5,11,6,0,1,Ya (Anomali),1,5
-TRX-181,Operations Dept,Reimbursement,45,15,5,0,0,Tidak,2,1
-TRX-182,Operations Dept,Pembayaran ke vendor baru,78,14,3,0,0,Tidak,3,1
-TRX-183,Jakarta Branch,Reimbursement,210.3,19,1,0,1,Tidak,4,2
-TRX-184,Surabaya Branch,Pembelian lisensi software,45,11,4,0,1,Tidak,2,2
-TRX-185,Finance Dept,Pembayaran vendor,15.5,14,6,0,0,Ya (Anomali),2,4
-TRX-186,Finance Dept,Perpanjangan server,2.1,23,2,0,0,Ya (Anomali),1,4
-TRX-187,Finance Dept,Reimbursement,7.5,2,5,0,0,Tidak,1,1
-TRX-188,Finance Dept,Pembayaran ke vendor baru,78,10,1,1,1,Ya (Anomali),3,5
-TRX-189,Bandung Branch,Pembayaran ke vendor baru,45,15,7,0,0,Tidak,2,1
-TRX-190,HR Dept,Biaya perjalanan dinas,5,15,5,1,0,Tidak,1,2
-TRX-191,Operations Dept,Klaim biaya operasional,5,23,5,0,1,Ya (Anomali),1,5
-TRX-192,IT Dept,Pembayaran vendor,125,9,2,1,1,Ya (Anomali),4,5
-TRX-193,Jakarta Branch,Pembelian lisensi software,7.5,15,1,0,0,Ya (Anomali),1,4
-TRX-194,IT Dept,Pembayaran jasa konsultan,15.5,2,4,0,0,Tidak,2,1
-TRX-195,Jakarta Branch,Biaya perjalanan dinas,2.1,10,2,0,0,Tidak,1,1
-TRX-196,Jakarta Branch,Pembayaran ke vendor baru,5,10,2,0,0,Ya (Anomali),1,4
-TRX-197,Jakarta Branch,Pembayaran jasa konsultan,5,15,7,0,0,Ya (Anomali),1,4
-TRX-198,Finance Dept,Reimbursement,2.1,11,6,0,1,Tidak,1,2
-TRX-199,IT Dept,Biaya perjalanan dinas,2.1,14,2,0,0,Tidak,1,1
-TRX-200,Finance Dept,Pembayaran ke vendor baru,5,23,2,0,0,Tidak,1,1
-TRX-201,Finance Dept,Pembelian lisensi software,2.1,13,5,1,0,Tidak,1,2
-TRX-202,Finance Dept,Perpanjangan server,1500,15,4,0,0,Tidak,5,1
-TRX-203,IT Dept,Pembayaran jasa konsultan,210.3,14,7,1,0,Ya (Anomali),4,5
-TRX-204,IT Dept,Pembayaran vendor,210.3,15,1,0,0,Tidak,4,1
-TRX-205,IT Dept,Pembayaran pajak,210.3,2,2,1,0,Ya (Anomali),4,5
-TRX-206,Operations Dept,Perpanjangan server,15.5,10,6,0,1,Ya (Anomali),2,5
-TRX-207,Jakarta Branch,Pembelian lisensi software,1500,2,5,1,1,Ya (Anomali),5,5
-TRX-208,Finance Dept,Biaya perjalanan dinas,210.3,16,1,1,1,Tidak,4,3
-TRX-209,Finance Dept,Perpanjangan server,45,10,3,0,0,Tidak,2,1
-TRX-210,Jakarta Branch,Pembayaran pajak,7.5,15,7,1,1,Tidak,1,3
-TRX-211,Jakarta Branch,Transfer dana antar kas,45,16,7,0,1,Tidak,2,2
-TRX-212,Jakarta Branch,Pembayaran jasa konsultan,5,19,1,0,0,Ya (Anomali),1,4
-TRX-213,IT Dept,Reimbursement,7.5,16,5,1,0,Tidak,1,2
-TRX-214,Surabaya Branch,Reimbursement,15.5,23,1,0,0,Ya (Anomali),2,4
-TRX-215,Surabaya Branch,Biaya perjalanan dinas,210.3,9,5,0,1,Ya (Anomali),4,5
-TRX-216,IT Dept,Pembayaran ke vendor baru,125,2,7,0,0,Tidak,4,1
-TRX-217,Finance Dept,Pembayaran pajak,500,11,7,0,0,Tidak,5,1
-TRX-218,Operations Dept,Pembayaran jasa konsultan,7.5,23,5,1,0,Ya (Anomali),1,5
-TRX-219,Surabaya Branch,Klaim biaya operasional,7.5,2,1,0,0,Tidak,1,1
-TRX-220,Jakarta Branch,Transfer dana antar kas,125,13,5,0,0,Ya (Anomali),4,4
-TRX-221,IT Dept,Pembayaran jasa konsultan,2.1,23,2,0,0,Ya (Anomali),1,4
-TRX-222,HR Dept,Pembayaran vendor,210.3,2,4,0,0,Tidak,4,1
-TRX-223,Jakarta Branch,Biaya perjalanan dinas,5,16,5,1,0,Tidak,1,2
-TRX-224,Bandung Branch,Biaya perjalanan dinas,125,13,2,0,0,Tidak,4,1
-TRX-225,Finance Dept,Klaim biaya operasional,7.5,14,5,0,0,Tidak,1,1
-TRX-226,Operations Dept,Pembayaran pajak,500,13,3,1,0,Tidak,5,2
-TRX-227,Jakarta Branch,Biaya perjalanan dinas,7.5,19,1,0,0,Ya (Anomali),1,4
-TRX-228,Finance Dept,Transfer dana antar kas,78,10,2,0,0,Tidak,3,1
-TRX-229,Bandung Branch,Reimbursement,2.1,2,7,0,1,Tidak,1,2
-TRX-230,Finance Dept,Biaya perjalanan dinas,78,19,3,0,1,Tidak,3,2
-TRX-231,HR Dept,Transfer dana antar kas,125,14,4,0,0,Ya (Anomali),4,4
-TRX-232,Bandung Branch,Pembayaran pajak,45,23,5,0,1,Tidak,2,2
-TRX-233,Surabaya Branch,Pembayaran jasa konsultan,15.5,14,7,0,0,Tidak,2,1
-TRX-234,Bandung Branch,Perpanjangan server,7.5,14,1,0,1,Tidak,1,2
-TRX-235,Surabaya Branch,Perpanjangan server,78,19,5,0,0,Tidak,3,1
-TRX-236,Finance Dept,Klaim biaya operasional,2.1,2,7,0,0,Tidak,1,1
-TRX-237,Surabaya Branch,Biaya perjalanan dinas,5,19,5,1,0,Tidak,1,2
-TRX-238,HR Dept,Reimbursement,2.1,2,5,0,0,Tidak,1,1
-TRX-239,Operations Dept,Pembayaran ke vendor baru,125,19,4,1,0,Ya (Anomali),4,5
-TRX-240,Jakarta Branch,Reimbursement,1500,9,7,1,1,Tidak,5,3
-TRX-241,Jakarta Branch,Pembayaran ke vendor baru,125,2,2,1,0,Tidak,4,2
-TRX-242,Operations Dept,Reimbursement,210.3,13,4,0,0,Tidak,4,1
-TRX-243,Surabaya Branch,Pembayaran vendor,125,10,5,0,1,Ya (Anomali),4,5
-TRX-244,Jakarta Branch,Pembelian lisensi software,45,9,7,0,1,Tidak,2,2
-TRX-245,Jakarta Branch,Transfer dana antar kas,125,15,3,0,0,Tidak,4,1
-TRX-246,IT Dept,Perpanjangan server,125,13,6,1,0,Tidak,4,2
-TRX-247,Finance Dept,Reimbursement,2.1,9,7,0,1,Tidak,1,2
-TRX-248,HR Dept,Perpanjangan server,210.3,19,4,0,1,Ya (Anomali),4,5
-TRX-249,Finance Dept,Pembayaran pajak,7.5,19,6,0,0,Ya (Anomali),1,4
-TRX-250,Finance Dept,Reimbursement,78,9,2,0,1,Tidak,3,2
-TRX-251,HR Dept,Klaim biaya operasional,500,10,2,1,0,Tidak,5,2
-TRX-252,Surabaya Branch,Pembayaran jasa konsultan,5,14,3,0,0,Ya (Anomali),1,4
-TRX-253,IT Dept,Klaim biaya operasional,2.1,9,5,0,1,Tidak,1,2
-TRX-254,Finance Dept,Pembayaran jasa konsultan,125,23,7,1,0,Tidak,4,2
-TRX-255,Jakarta Branch,Biaya perjalanan dinas,45,14,2,0,1,Ya (Anomali),2,5
-TRX-256,IT Dept,Transfer dana antar kas,125,2,2,0,0,Tidak,4,1
-TRX-257,IT Dept,Perpanjangan server,2.1,14,7,0,0,Tidak,1,1
-TRX-258,IT Dept,Transfer dana antar kas,500,10,4,0,0,Tidak,5,1
-TRX-259,Finance Dept,Klaim biaya operasional,2.1,23,5,0,0,Ya (Anomali),1,4
-TRX-260,Operations Dept,Pembayaran jasa konsultan,210.3,9,3,1,0,Tidak,4,2
-TRX-261,HR Dept,Pembayaran ke vendor baru,15.5,9,1,0,0,Ya (Anomali),2,4
-TRX-262,Jakarta Branch,Klaim biaya operasional,125,13,4,0,0,Tidak,4,1
-TRX-263,HR Dept,Biaya perjalanan dinas,78,10,1,0,0,Tidak,3,1
-TRX-264,Surabaya Branch,Klaim biaya operasional,45,11,3,0,0,Ya (Anomali),2,4
-TRX-265,Finance Dept,Pembelian lisensi software,78,16,6,0,0,Tidak,3,1
-TRX-266,Jakarta Branch,Klaim biaya operasional,1500,19,5,1,0,Ya (Anomali),5,5
-TRX-267,Finance Dept,Pembelian lisensi software,210.3,19,4,0,0,Tidak,4,1
-TRX-268,Operations Dept,Pembelian lisensi software,45,16,7,0,0,Tidak,2,1
-TRX-269,HR Dept,Pembelian lisensi software,210.3,23,4,0,0,Tidak,4,1
-TRX-270,Surabaya Branch,Klaim biaya operasional,78,13,4,1,1,Tidak,3,3
-TRX-271,Bandung Branch,Pembayaran ke vendor baru,1500,19,5,0,0,Tidak,5,1
-TRX-272,Finance Dept,Pembayaran ke vendor baru,45,14,4,0,0,Tidak,2,1
-TRX-273,Jakarta Branch,Pembayaran ke vendor baru,2.1,10,7,1,0,Tidak,1,2
-TRX-274,HR Dept,Transfer dana antar kas,5,15,7,0,0,Ya (Anomali),1,4
-TRX-275,Finance Dept,Pembelian lisensi software,1500,14,2,0,1,Tidak,5,2
-TRX-276,Finance Dept,Pembayaran jasa konsultan,500,10,2,1,0,Tidak,5,2
-TRX-277,IT Dept,Klaim biaya operasional,2.1,9,6,0,0,Tidak,1,1
-TRX-278,Jakarta Branch,Biaya perjalanan dinas,7.5,14,3,0,1,Ya (Anomali),1,5
-TRX-279,HR Dept,Reimbursement,78,9,6,0,0,Ya (Anomali),3,4
-TRX-280,Finance Dept,Pembayaran pajak,500,11,6,0,1,Ya (Anomali),5,5
-TRX-281,HR Dept,Reimbursement,78,11,4,1,1,Tidak,3,3
-TRX-282,Finance Dept,Pembelian lisensi software,125,14,2,1,0,Tidak,4,2
-TRX-283,Bandung Branch,Pembayaran ke vendor baru,1500,13,2,1,0,Tidak,5,2
-TRX-284,IT Dept,Pembayaran vendor,15.5,15,2,0,0,Tidak,2,1
-TRX-285,IT Dept,Klaim biaya operasional,5,19,3,0,0,Tidak,1,1
-TRX-286,Jakarta Branch,Pembayaran ke vendor baru,15.5,15,2,1,1,Tidak,2,3
-TRX-287,HR Dept,Biaya perjalanan dinas,1500,16,5,1,1,Tidak,5,3
-TRX-288,IT Dept,Pembayaran pajak,125,23,4,1,1,Ya (Anomali),4,5
-TRX-289,HR Dept,Pembayaran pajak,2.1,14,2,0,0,Tidak,1,1
-TRX-290,Jakarta Branch,Pembayaran ke vendor baru,1500,2,7,0,0,Tidak,5,1
-TRX-291,Jakarta Branch,Perpanjangan server,7.5,16,4,1,0,Tidak,1,2
-TRX-292,Finance Dept,Biaya perjalanan dinas,15.5,16,4,1,0,Tidak,2,2
-TRX-293,Operations Dept,Pembayaran ke vendor baru,7.5,19,4,1,1,Tidak,1,3
-TRX-294,IT Dept,Transfer dana antar kas,1500,16,3,0,0,Tidak,5,1
-TRX-295,Operations Dept,Biaya perjalanan dinas,500,16,3,1,0,Tidak,5,2
-TRX-296,IT Dept,Klaim biaya operasional,500,15,4,0,1,Ya (Anomali),5,5
-TRX-297,HR Dept,Reimbursement,500,11,4,0,0,Tidak,5,1
-TRX-298,Bandung Branch,Perpanjangan server,78,13,5,0,0,Ya (Anomali),3,4
-TRX-299,Jakarta Branch,Klaim biaya operasional,1500,13,2,0,1,Tidak,5,2
-TRX-300,Bandung Branch,Pembayaran ke vendor baru,210.3,9,4,0,1,Tidak,4,2
-TRX-301,IT Dept,Transfer dana antar kas,7.5,19,5,0,1,Ya (Anomali),1,5
-TRX-302,Bandung Branch,Biaya perjalanan dinas,15.5,13,1,0,1,Tidak,2,2
-TRX-303,Operations Dept,Biaya perjalanan dinas,5,23,5,0,0,Ya (Anomali),1,4
-TRX-304,Surabaya Branch,Pembayaran jasa konsultan,210.3,2,1,0,0,Tidak,4,1
-TRX-305,Jakarta Branch,Pembayaran pajak,7.5,23,1,0,0,Tidak,1,1
-TRX-306,Jakarta Branch,Perpanjangan server,1500,2,4,0,0,Tidak,5,1
-TRX-307,HR Dept,Klaim biaya operasional,78,11,7,0,1,Tidak,3,2
-TRX-308,IT Dept,Pembayaran vendor,500,9,4,0,0,Ya (Anomali),5,4
-TRX-309,Jakarta Branch,Pembayaran pajak,78,9,4,0,0,Ya (Anomali),3,4
-TRX-310,Operations Dept,Pembayaran ke vendor baru,2.1,23,4,0,1,Ya (Anomali),1,5
-TRX-311,Surabaya Branch,Perpanjangan server,7.5,14,1,0,1,Ya (Anomali),1,5
-TRX-312,HR Dept,Perpanjangan server,45,14,5,1,1,Ya (Anomali),2,5
-TRX-313,HR Dept,Pembayaran ke vendor baru,78,16,2,1,1,Tidak,3,3
-TRX-314,IT Dept,Klaim biaya operasional,210.3,23,4,0,0,Tidak,4,1
-TRX-315,Jakarta Branch,Biaya perjalanan dinas,2.1,13,2,1,0,Tidak,1,2
-TRX-316,Bandung Branch,Pembayaran pajak,500,10,3,1,0,Tidak,5,2
-TRX-317,Surabaya Branch,Perpanjangan server,125,23,6,0,0,Tidak,4,1
-TRX-318,Surabaya Branch,Transfer dana antar kas,125,2,3,0,0,Tidak,4,1
-TRX-319,Finance Dept,Reimbursement,210.3,16,6,0,1,Tidak,4,2
-TRX-320,Jakarta Branch,Reimbursement,2.1,14,4,1,0,Tidak,1,2
-TRX-321,Jakarta Branch,Perpanjangan server,45,10,4,0,0,Ya (Anomali),2,4
-TRX-322,Jakarta Branch,Transfer dana antar kas,2.1,9,1,0,1,Ya (Anomali),1,5
-TRX-323,Jakarta Branch,Transfer dana antar kas,500,2,6,0,1,Tidak,5,2
-TRX-324,Bandung Branch,Pembayaran jasa konsultan,7.5,9,4,0,1,Ya (Anomali),1,5
-TRX-325,Operations Dept,Pembayaran jasa konsultan,125,2,4,0,0,Tidak,4,1
-TRX-326,Surabaya Branch,Pembelian lisensi software,2.1,13,4,0,0,Ya (Anomali),1,4
-TRX-327,Finance Dept,Perpanjangan server,45,9,2,1,0,Tidak,2,2
-TRX-328,Surabaya Branch,Reimbursement,125,9,5,0,0,Tidak,4,1
-TRX-329,IT Dept,Pembayaran vendor,78,23,4,0,0,Tidak,3,1
-TRX-330,Bandung Branch,Perpanjangan server,7.5,10,2,0,1,Tidak,1,2
-TRX-331,HR Dept,Transfer dana antar kas,78,16,2,0,0,Tidak,3,1
-TRX-332,Finance Dept,Transfer dana antar kas,125,16,2,0,0,Tidak,4,1
-TRX-333,Bandung Branch,Pembayaran ke vendor baru,15.5,23,6,0,0,Tidak,2,1
-TRX-334,Bandung Branch,Transfer dana antar kas,1500,11,2,0,0,Tidak,5,1
-TRX-335,Finance Dept,Pembayaran pajak,78,13,5,0,0,Tidak,3,1
-TRX-336,Jakarta Branch,Biaya perjalanan dinas,210.3,10,4,0,1,Tidak,4,2
-TRX-337,Bandung Branch,Reimbursement,500,13,2,0,0,Tidak,5,1
-TRX-338,IT Dept,Biaya perjalanan dinas,210.3,9,4,0,0,Tidak,4,1
-TRX-339,HR Dept,Pembayaran jasa konsultan,210.3,14,2,0,0,Ya (Anomali),4,4
-TRX-340,Operations Dept,Perpanjangan server,5,11,2,0,0,Tidak,1,1
-TRX-341,Finance Dept,Reimbursement,1500,23,4,0,0,Tidak,5,1
-TRX-342,HR Dept,Pembayaran vendor,7.5,2,2,0,0,Tidak,1,1
-TRX-343,Surabaya Branch,Pembayaran ke vendor baru,1500,11,1,0,1,Tidak,5,2
-TRX-344,Jakarta Branch,Transfer dana antar kas,210.3,19,4,1,1,Tidak,4,3
-TRX-345,Operations Dept,Perpanjangan server,125,2,5,0,0,Ya (Anomali),4,4
-TRX-346,IT Dept,Biaya perjalanan dinas,78,11,2,0,0,Tidak,3,1
-TRX-347,Finance Dept,Biaya perjalanan dinas,2.1,15,4,1,0,Ya (Anomali),1,5
-TRX-348,Operations Dept,Reimbursement,7.5,2,4,0,0,Ya (Anomali),1,4
-TRX-349,Jakarta Branch,Pembayaran jasa konsultan,5,23,4,1,1,Ya (Anomali),1,5
-TRX-350,Jakarta Branch,Pembayaran ke vendor baru,5,14,2,0,0,Tidak,1,1
-TRX-351,Bandung Branch,Biaya perjalanan dinas,1500,13,7,0,1,Tidak,5,2
-TRX-352,Finance Dept,Pembayaran vendor,2.1,16,1,0,1,Tidak,1,2
-TRX-353,HR Dept,Pembelian lisensi software,500,10,3,0,0,Tidak,5,1
-TRX-354,Finance Dept,Pembayaran pajak,125,19,5,0,0,Tidak,4,1
-TRX-355,Bandung Branch,Transfer dana antar kas,2.1,10,2,0,1,Tidak,1,2
-TRX-356,Surabaya Branch,Pembayaran jasa konsultan,5,10,2,0,0,Tidak,1,1
-TRX-357,Finance Dept,Pembayaran jasa konsultan,500,13,2,0,1,Tidak,5,2
-TRX-358,IT Dept,Klaim biaya operasional,500,2,5,0,0,Ya (Anomali),5,4
-TRX-359,Finance Dept,Pembayaran pajak,2.1,10,6,1,0,Tidak,1,2
-TRX-360,Jakarta Branch,Pembayaran pajak,78,15,1,1,0,Tidak,3,2
-TRX-361,IT Dept,Biaya perjalanan dinas,210.3,19,3,1,0,Ya (Anomali),4,5
-TRX-362,HR Dept,Pembayaran jasa konsultan,125,13,6,0,0,Ya (Anomali),4,4
-TRX-363,IT Dept,Pembayaran pajak,45,10,5,0,0,Tidak,2,1
-TRX-364,Finance Dept,Biaya perjalanan dinas,5,15,4,0,0,Tidak,1,1
-TRX-365,Surabaya Branch,Biaya perjalanan dinas,78,23,6,1,0,Tidak,3,2
-TRX-366,Surabaya Branch,Pembayaran vendor,500,10,5,1,1,Tidak,5,3
-TRX-367,Surabaya Branch,Klaim biaya operasional,1500,19,4,0,1,Tidak,5,2
-TRX-368,Bandung Branch,Perpanjangan server,1500,23,5,0,1,Ya (Anomali),5,5
-TRX-369,Bandung Branch,Pembayaran pajak,1500,14,2,0,0,Ya (Anomali),5,4
-TRX-370,Operations Dept,Pembelian lisensi software,7.5,13,4,0,0,Tidak,1,1
-TRX-371,Finance Dept,Pembayaran pajak,2.1,10,6,0,0,Tidak,1,1
-TRX-372,Surabaya Branch,Pembayaran pajak,500,15,2,0,0,Ya (Anomali),5,4
-TRX-373,IT Dept,Pembayaran pajak,78,2,4,0,0,Tidak,3,1
-TRX-374,Finance Dept,Pembayaran vendor,210.3,14,3,0,0,Tidak,4,1
-TRX-375,Finance Dept,Pembayaran pajak,2.1,19,1,0,0,Ya (Anomali),1,4
-TRX-376,IT Dept,Pembelian lisensi software,78,11,4,0,0,Ya (Anomali),3,4
-TRX-377,Bandung Branch,Perpanjangan server,2.1,19,5,0,0,Tidak,1,1
-TRX-378,IT Dept,Pembayaran ke vendor baru,210.3,13,2,0,0,Tidak,4,1
-TRX-379,Jakarta Branch,Klaim biaya operasional,78,13,5,0,0,Tidak,3,1
-TRX-380,Finance Dept,Transfer dana antar kas,210.3,13,2,1,0,Ya (Anomali),4,5
-TRX-381,Jakarta Branch,Reimbursement,78,9,4,1,0,Tidak,3,2
-TRX-382,Finance Dept,Pembayaran pajak,125,2,2,0,0,Ya (Anomali),4,4
-TRX-383,IT Dept,Pembayaran pajak,15.5,9,5,0,1,Tidak,2,2
-TRX-384,Bandung Branch,Pembayaran jasa konsultan,125,13,3,0,0,Tidak,4,1
-TRX-385,Finance Dept,Pembayaran jasa konsultan,500,9,2,0,0,Tidak,5,1
-TRX-386,IT Dept,Pembayaran ke vendor baru,125,16,2,0,0,Ya (Anomali),4,4
-TRX-387,Jakarta Branch,Pembelian lisensi software,78,10,7,0,0,Tidak,3,1
-TRX-388,Surabaya Branch,Reimbursement,5,19,2,0,0,Ya (Anomali),1,4
-TRX-389,Finance Dept,Pembayaran pajak,7.5,10,5,0,0,Ya (Anomali),1,4
-TRX-390,IT Dept,Transfer dana antar kas,210.3,2,2,1,0,Tidak,4,2
-TRX-391,Operations Dept,Klaim biaya operasional,78,11,4,0,0,Tidak,3,1
-TRX-392,Operations Dept,Pembelian lisensi software,7.5,11,5,0,0,Tidak,1,1
-TRX-393,Surabaya Branch,Pembayaran pajak,1500,13,1,0,0,Tidak,5,1
-TRX-394,Finance Dept,Pembayaran vendor,7.5,15,4,0,0,Tidak,1,1
-TRX-395,Operations Dept,Pembayaran vendor,2.1,14,4,0,1,Tidak,1,2
-TRX-396,Finance Dept,Pembayaran ke vendor baru,1500,10,6,0,0,Tidak,5,1
-TRX-397,Finance Dept,Pembayaran jasa konsultan,125,14,4,0,0,Ya (Anomali),4,4
-TRX-398,Jakarta Branch,Pembelian lisensi software,7.5,9,4,1,0,Ya (Anomali),1,5
-TRX-399,Finance Dept,Biaya perjalanan dinas,45,23,5,1,0,Ya (Anomali),2,5
-TRX-400,Finance Dept,Pembayaran jasa konsultan,15.5,23,4,0,1,Ya (Anomali),2,5
-TRX-401,Jakarta Branch,Transfer dana antar kas,78,19,3,0,0,Tidak,3,1
-TRX-402,Jakarta Branch,Biaya perjalanan dinas,45,13,5,0,0,Tidak,2,1
-TRX-403,Jakarta Branch,Transfer dana antar kas,125,14,7,0,1,Tidak,4,2
-TRX-404,Operations Dept,Transfer dana antar kas,45,10,1,1,0,Ya (Anomali),2,5
-TRX-405,IT Dept,Biaya perjalanan dinas,210.3,11,4,0,0,Tidak,4,1
-TRX-406,HR Dept,Pembayaran pajak,210.3,10,2,0,1,Tidak,4,2
-TRX-407,Jakarta Branch,Reimbursement,5,19,6,0,0,Ya (Anomali),1,4
-TRX-408,Jakarta Branch,Pembayaran jasa konsultan,7.5,16,5,0,1,Tidak,1,2
-TRX-409,IT Dept,Klaim biaya operasional,7.5,23,5,0,0,Ya (Anomali),1,4
-TRX-410,IT Dept,Pembayaran pajak,78,11,7,0,0,Ya (Anomali),3,4
-TRX-411,Surabaya Branch,Pembelian lisensi software,210.3,15,4,1,0,Tidak,4,2
-TRX-412,HR Dept,Reimbursement,5,2,4,0,1,Tidak,1,2
-TRX-413,Finance Dept,Pembayaran jasa konsultan,78,15,4,0,0,Tidak,3,1
-TRX-414,Finance Dept,Reimbursement,2.1,2,2,0,0,Ya (Anomali),1,4
-TRX-415,Surabaya Branch,Klaim biaya operasional,210.3,16,2,0,0,Tidak,4,1
-TRX-416,IT Dept,Pembayaran pajak,5,13,7,0,1,Tidak,1,2
-TRX-417,Finance Dept,Pembayaran ke vendor baru,45,2,2,1,0,Ya (Anomali),2,5
-TRX-418,Finance Dept,Klaim biaya operasional,2.1,14,5,1,0,Ya (Anomali),1,5
-TRX-419,IT Dept,Transfer dana antar kas,125,9,1,0,0,Ya (Anomali),4,4
-TRX-420,Operations Dept,Klaim biaya operasional,2.1,10,2,1,0,Tidak,1,2
-TRX-421,Jakarta Branch,Biaya perjalanan dinas,210.3,16,7,0,0,Tidak,4,1
-TRX-422,Finance Dept,Pembayaran ke vendor baru,2.1,9,5,0,0,Tidak,1,1
-TRX-423,Surabaya Branch,Pembayaran vendor,5,14,4,0,0,Tidak,1,1
-TRX-424,Finance Dept,Transfer dana antar kas,125,14,4,0,0,Ya (Anomali),4,4
-TRX-425,HR Dept,Reimbursement,1500,23,7,0,1,Tidak,5,2
-TRX-426,Jakarta Branch,Pembayaran ke vendor baru,5,10,5,1,0,Tidak,1,2
-TRX-427,Bandung Branch,Pembelian lisensi software,210.3,10,5,0,0,Tidak,4,1
-TRX-428,IT Dept,Klaim biaya operasional,45,11,7,0,0,Tidak,2,1
-TRX-429,Finance Dept,Perpanjangan server,78,15,3,0,0,Tidak,3,1
-TRX-430,HR Dept,Perpanjangan server,210.3,13,4,0,1,Tidak,4,2
-TRX-431,Operations Dept,Pembayaran pajak,5,13,2,1,0,Tidak,1,2
-TRX-432,Finance Dept,Pembayaran jasa konsultan,2.1,9,6,1,1,Tidak,1,3
-TRX-433,IT Dept,Reimbursement,125,23,4,0,0,Tidak,4,1
-TRX-434,Surabaya Branch,Reimbursement,500,23,2,0,0,Tidak,5,1
-TRX-435,Bandung Branch,Reimbursement,2.1,23,4,1,1,Tidak,1,3
-TRX-436,Jakarta Branch,Pembayaran jasa konsultan,500,13,6,1,0,Tidak,5,2
-TRX-437,Jakarta Branch,Transfer dana antar kas,7.5,11,7,0,0,Tidak,1,1
-TRX-438,Finance Dept,Pembayaran ke vendor baru,1500,15,7,0,0,Tidak,5,1
-TRX-439,Finance Dept,Pembelian lisensi software,15.5,13,3,1,0,Tidak,2,2
-TRX-440,HR Dept,Pembayaran pajak,45,13,5,0,0,Tidak,2,1
-TRX-441,Finance Dept,Pembayaran jasa konsultan,7.5,11,5,0,0,Tidak,1,1
-TRX-442,IT Dept,Pembayaran jasa konsultan,7.5,23,2,0,1,Ya (Anomali),1,5
-TRX-443,Jakarta Branch,Perpanjangan server,1500,13,5,0,0,Tidak,5,1
-TRX-444,IT Dept,Pembayaran jasa konsultan,210.3,16,1,0,0,Ya (Anomali),4,4
-TRX-445,IT Dept,Pembayaran pajak,500,2,5,0,0,Ya (Anomali),5,4
-TRX-446,Finance Dept,Pembayaran vendor,45,16,4,0,0,Ya (Anomali),2,4
-TRX-447,IT Dept,Pembayaran pajak,15.5,16,5,0,0,Ya (Anomali),2,4
-TRX-448,IT Dept,Biaya perjalanan dinas,210.3,19,6,1,1,Tidak,4,3
-TRX-449,Operations Dept,Pembelian lisensi software,125,10,5,1,0,Tidak,4,2
-TRX-450,IT Dept,Pembayaran ke vendor baru,5,10,6,0,1,Tidak,1,2
-TRX-451,HR Dept,Pembayaran jasa konsultan,2.1,11,2,0,0,Tidak,1,1
-TRX-452,Jakarta Branch,Perpanjangan server,2.1,23,2,0,0,Ya (Anomali),1,4
-TRX-453,Finance Dept,Klaim biaya operasional,45,9,1,0,0,Tidak,2,1
-TRX-454,Jakarta Branch,Reimbursement,15.5,13,4,1,1,Tidak,2,3
-TRX-455,IT Dept,Perpanjangan server,45,11,5,0,0,Ya (Anomali),2,4
-TRX-456,IT Dept,Pembayaran ke vendor baru,2.1,13,7,0,0,Ya (Anomali),1,4
-TRX-457,Operations Dept,Perpanjangan server,7.5,19,3,0,0,Ya (Anomali),1,4
-TRX-458,Operations Dept,Pembayaran ke vendor baru,125,16,5,1,0,Ya (Anomali),4,5
-TRX-459,Finance Dept,Perpanjangan server,7.5,19,6,1,1,Tidak,1,3
-TRX-460,Bandung Branch,Pembayaran jasa konsultan,210.3,10,5,1,0,Ya (Anomali),4,5
-TRX-461,IT Dept,Pembayaran jasa konsultan,1500,13,5,0,0,Ya (Anomali),5,4
-TRX-462,Operations Dept,Pembelian lisensi software,500,15,5,0,1,Tidak,5,2
-TRX-463,Operations Dept,Pembayaran vendor,78,10,7,0,0,Tidak,3,1
-TRX-464,Surabaya Branch,Biaya perjalanan dinas,45,10,4,0,0,Tidak,2,1
-TRX-465,Finance Dept,Perpanjangan server,500,13,4,0,0,Ya (Anomali),5,4
-TRX-466,Finance Dept,Pembayaran pajak,1500,14,7,0,0,Tidak,5,1
-TRX-467,Jakarta Branch,Transfer dana antar kas,78,23,2,0,0,Tidak,3,1
-TRX-468,Operations Dept,Transfer dana antar kas,125,14,5,0,0,Tidak,4,1
-TRX-469,Surabaya Branch,Pembayaran pajak,15.5,15,5,0,0,Tidak,2,1
-TRX-470,Operations Dept,Transfer dana antar kas,210.3,23,5,1,0,Tidak,4,2
-TRX-471,Operations Dept,Pembayaran jasa konsultan,15.5,10,3,0,0,Tidak,2,1
-TRX-472,Finance Dept,Pembelian lisensi software,5,19,3,0,0,Tidak,1,1
-TRX-473,Surabaya Branch,Pembayaran ke vendor baru,210.3,14,5,0,1,Tidak,4,2
-TRX-474,HR Dept,Klaim biaya operasional,500,16,3,0,0,Tidak,5,1
-TRX-475,Finance Dept,Klaim biaya operasional,45,15,2,0,0,Tidak,2,1
-TRX-476,Jakarta Branch,Pembayaran vendor,45,2,2,1,0,Tidak,2,2
-TRX-477,Surabaya Branch,Perpanjangan server,1500,13,4,1,0,Tidak,5,2
-TRX-478,Bandung Branch,Pembelian lisensi software,7.5,23,3,0,0,Ya (Anomali),1,4
-TRX-479,Operations Dept,Pembayaran vendor,2.1,16,4,1,0,Ya (Anomali),1,5
-TRX-480,Bandung Branch,Pembayaran jasa konsultan,78,2,4,0,0,Tidak,3,1
-TRX-481,IT Dept,Pembelian lisensi software,5,2,5,1,0,Tidak,1,2
-TRX-482,Bandung Branch,Perpanjangan server,210.3,2,2,0,1,Ya (Anomali),4,5
-TRX-483,Bandung Branch,Pembayaran pajak,210.3,23,5,0,0,Tidak,4,1
-TRX-484,Operations Dept,Biaya perjalanan dinas,2.1,11,5,0,1,Tidak,1,2
-TRX-485,IT Dept,Pembelian lisensi software,7.5,9,3,0,0,Tidak,1,1
-TRX-486,Jakarta Branch,Pembayaran ke vendor baru,5,10,4,0,1,Tidak,1,2
-TRX-487,IT Dept,Reimbursement,2.1,23,5,1,1,Tidak,1,3
-TRX-488,Finance Dept,Transfer dana antar kas,45,15,3,0,0,Tidak,2,1
-TRX-489,Jakarta Branch,Transfer dana antar kas,500,2,1,1,0,Ya (Anomali),5,5
-TRX-490,Jakarta Branch,Klaim biaya operasional,45,23,4,0,0,Tidak,2,1
-TRX-491,Operations Dept,Pembelian lisensi software,5,16,5,0,0,Tidak,1,1
-TRX-492,IT Dept,Pembayaran ke vendor baru,45,2,1,0,0,Ya (Anomali),2,4
-TRX-493,Finance Dept,Perpanjangan server,15.5,15,2,0,0,Tidak,2,1
-TRX-494,IT Dept,Reimbursement,1500,16,2,0,1,Tidak,5,2
-TRX-495,Bandung Branch,Pembayaran vendor,1500,10,2,0,0,Tidak,5,1
-TRX-496,Jakarta Branch,Pembayaran pajak,15.5,11,6,0,1,Tidak,2,2
-TRX-497,Jakarta Branch,Pembayaran vendor,500,15,3,0,0,Ya (Anomali),5,4
-TRX-498,Finance Dept,Transfer dana antar kas,210.3,11,5,0,0,Ya (Anomali),4,4
-TRX-499,Jakarta Branch,Pembayaran vendor,78,19,5,0,0,Tidak,3,1
-TRX-500,Bandung Branch,Pembayaran pajak,15.5,13,1,0,0,Tidak,2,1
-TRX-501,Bandung Branch,Pembayaran vendor,500,14,1,0,1,Tidak,5,2
-TRX-502,Operations Dept,Pembelian lisensi software,125,13,3,0,0,Ya (Anomali),4,4
-TRX-503,Surabaya Branch,Biaya perjalanan dinas,5,16,4,0,0,Tidak,1,1
-TRX-504,Bandung Branch,Pembayaran ke vendor baru,5,9,5,0,0,Tidak,1,1
-TRX-505,Bandung Branch,Klaim biaya operasional,500,16,3,0,1,Tidak,5,2
-TRX-506,IT Dept,Pembayaran ke vendor baru,210.3,16,1,0,0,Tidak,4,1
-TRX-507,Jakarta Branch,Biaya perjalanan dinas,7.5,10,5,0,0,Tidak,1,1
-TRX-508,Bandung Branch,Perpanjangan server,2.1,11,5,0,1,Ya (Anomali),1,5
-TRX-509,Jakarta Branch,Klaim biaya operasional,125,2,7,0,0,Tidak,4,1
-TRX-510,Finance Dept,Pembayaran pajak,15.5,15,3,0,0,Ya (Anomali),2,4
-TRX-511,Jakarta Branch,Biaya perjalanan dinas,500,16,5,0,0,Ya (Anomali),5,4
-TRX-512,Operations Dept,Pembayaran ke vendor baru,5,2,6,1,1,Tidak,1,3
-TRX-513,IT Dept,Pembelian lisensi software,2.1,23,5,1,1,Tidak,1,3
-TRX-514,Finance Dept,Pembayaran pajak,15.5,2,6,1,0,Ya (Anomali),2,5
-TRX-515,Surabaya Branch,Pembayaran vendor,2.1,19,5,0,0,Tidak,1,1
-TRX-516,Bandung Branch,Perpanjangan server,125,9,5,0,0,Ya (Anomali),4,4
-TRX-517,Jakarta Branch,Klaim biaya operasional,500,2,4,0,0,Ya (Anomali),5,4
-TRX-518,IT Dept,Perpanjangan server,1500,14,5,1,1,Ya (Anomali),5,5
-TRX-519,Jakarta Branch,Transfer dana antar kas,210.3,11,7,0,1,Ya (Anomali),4,5
-TRX-520,Jakarta Branch,Biaya perjalanan dinas,125,14,7,1,0,Tidak,4,2
-TRX-521,Jakarta Branch,Pembayaran vendor,7.5,13,4,1,0,Ya (Anomali),1,5
-TRX-522,IT Dept,Reimbursement,7.5,2,7,0,1,Tidak,1,2
-TRX-523,Finance Dept,Reimbursement,210.3,9,6,0,0,Tidak,4,1
-TRX-524,IT Dept,Reimbursement,45,11,5,1,0,Ya (Anomali),2,5
-TRX-525,Finance Dept,Pembayaran pajak,500,11,5,0,0,Tidak,5,1
-TRX-526,Jakarta Branch,Pembelian lisensi software,78,13,6,0,1,Ya (Anomali),3,5
-TRX-527,Surabaya Branch,Klaim biaya operasional,15.5,19,7,0,0,Tidak,2,1
-TRX-528,Jakarta Branch,Pembayaran jasa konsultan,1500,16,5,0,0,Ya (Anomali),5,4
-TRX-529,HR Dept,Pembayaran ke vendor baru,125,14,4,0,0,Ya (Anomali),4,4
-TRX-530,Operations Dept,Perpanjangan server,125,16,7,1,0,Ya (Anomali),4,5
-TRX-531,Jakarta Branch,Biaya perjalanan dinas,45,13,6,1,0,Ya (Anomali),2,5
-TRX-532,Operations Dept,Pembayaran pajak,2.1,2,5,1,0,Tidak,1,2
-TRX-533,Jakarta Branch,Klaim biaya operasional,210.3,10,2,1,1,Tidak,4,3
-TRX-534,IT Dept,Klaim biaya operasional,2.1,9,2,0,1,Tidak,1,2
-TRX-535,Jakarta Branch,Perpanjangan server,15.5,14,1,0,0,Ya (Anomali),2,4
-TRX-536,Jakarta Branch,Klaim biaya operasional,15.5,11,4,0,0,Ya (Anomali),2,4
-TRX-537,Jakarta Branch,Biaya perjalanan dinas,15.5,2,3,1,0,Tidak,2,2
-TRX-538,Operations Dept,Biaya perjalanan dinas,210.3,13,2,0,0,Tidak,4,1
-TRX-539,Finance Dept,Pembayaran pajak,7.5,16,5,1,0,Tidak,1,2
-TRX-540,HR Dept,Pembayaran pajak,1500,14,2,0,0,Ya (Anomali),5,4
-TRX-541,Finance Dept,Pembayaran ke vendor baru,210.3,19,4,0,0,Tidak,4,1
-TRX-542,IT Dept,Perpanjangan server,15.5,15,2,0,0,Tidak,2,1
-TRX-543,Surabaya Branch,Pembayaran vendor,125,10,1,0,0,Tidak,4,1
-TRX-544,IT Dept,Pembelian lisensi software,210.3,14,2,1,1,Ya (Anomali),4,5
-TRX-545,Finance Dept,Klaim biaya operasional,125,19,4,0,1,Ya (Anomali),4,5
-TRX-546,Jakarta Branch,Klaim biaya operasional,78,10,4,0,1,Ya (Anomali),3,5
-TRX-547,Finance Dept,Pembelian lisensi software,45,14,5,0,1,Tidak,2,2
-TRX-548,Bandung Branch,Transfer dana antar kas,15.5,9,5,0,0,Tidak,2,1
-TRX-549,Jakarta Branch,Pembayaran vendor,2.1,15,4,0,0,Tidak,1,1
-TRX-550,IT Dept,Pembayaran ke vendor baru,5,14,4,0,1,Tidak,1,2
-TRX-551,Operations Dept,Reimbursement,2.1,13,5,1,0,Tidak,1,2
-TRX-552,Bandung Branch,Perpanjangan server,125,16,2,0,1,Tidak,4,2
-TRX-553,Operations Dept,Transfer dana antar kas,15.5,15,5,0,0,Tidak,2,1
-TRX-554,HR Dept,Pembelian lisensi software,7.5,19,5,0,0,Tidak,1,1
-TRX-555,IT Dept,Perpanjangan server,2.1,2,6,0,0,Tidak,1,1
-TRX-556,Jakarta Branch,Pembayaran pajak,45,10,3,0,0,Tidak,2,1
-TRX-557,IT Dept,Pembayaran vendor,125,2,4,0,1,Tidak,4,2
-TRX-558,Finance Dept,Perpanjangan server,7.5,9,5,0,0,Ya (Anomali),1,4
-TRX-559,IT Dept,Pembayaran jasa konsultan,500,9,4,0,0,Ya (Anomali),5,4
-TRX-560,IT Dept,Pembayaran pajak,15.5,19,3,0,0,Tidak,2,1
-TRX-561,HR Dept,Pembelian lisensi software,45,9,1,0,0,Tidak,2,1
-TRX-562,Operations Dept,Pembayaran pajak,15.5,14,6,0,1,Tidak,2,2
-TRX-563,Jakarta Branch,Perpanjangan server,5,16,5,0,1,Tidak,1,2
-TRX-564,Finance Dept,Pembayaran jasa konsultan,125,2,4,0,0,Tidak,4,1
-TRX-565,Jakarta Branch,Klaim biaya operasional,500,2,7,0,1,Tidak,5,2
-TRX-566,Surabaya Branch,Klaim biaya operasional,15.5,16,5,0,0,Ya (Anomali),2,4
-TRX-567,Bandung Branch,Transfer dana antar kas,210.3,23,5,1,0,Tidak,4,2
-TRX-568,Bandung Branch,Klaim biaya operasional,125,16,7,0,0,Tidak,4,1
-TRX-569,HR Dept,Pembayaran ke vendor baru,2.1,13,4,0,0,Tidak,1,1
-TRX-570,Finance Dept,Biaya perjalanan dinas,125,19,3,0,0,Ya (Anomali),4,4
-TRX-571,HR Dept,Klaim biaya operasional,15.5,15,4,0,0,Tidak,2,1
-TRX-572,Finance Dept,Pembayaran ke vendor baru,210.3,23,5,0,0,Tidak,4,1
-TRX-573,Operations Dept,Perpanjangan server,45,19,6,0,0,Tidak,2,1
-TRX-574,HR Dept,Pembayaran ke vendor baru,7.5,16,4,0,0,Tidak,1,1
-TRX-575,IT Dept,Pembayaran ke vendor baru,210.3,9,4,0,0,Tidak,4,1
-TRX-576,Operations Dept,Transfer dana antar kas,500,14,2,1,1,Tidak,5,3
-TRX-577,Jakarta Branch,Klaim biaya operasional,15.5,13,3,0,0,Tidak,2,1
-TRX-578,Operations Dept,Reimbursement,7.5,23,5,0,0,Tidak,1,1
-TRX-579,Surabaya Branch,Transfer dana antar kas,15.5,10,2,0,0,Tidak,2,1
-TRX-580,Bandung Branch,Perpanjangan server,210.3,10,5,0,0,Tidak,4,1
-TRX-581,Surabaya Branch,Pembayaran pajak,125,10,2,0,0,Tidak,4,1
-TRX-582,Jakarta Branch,Transfer dana antar kas,45,11,1,0,0,Tidak,2,1
-TRX-583,Jakarta Branch,Biaya perjalanan dinas,2.1,10,5,1,0,Ya (Anomali),1,5
-TRX-584,Operations Dept,Perpanjangan server,15.5,13,2,1,1,Ya (Anomali),2,5
-TRX-585,HR Dept,Pembelian lisensi software,15.5,15,2,0,0,Tidak,2,1
-TRX-586,Finance Dept,Pembayaran vendor,500,23,5,0,1,Tidak,5,2
-TRX-587,Bandung Branch,Perpanjangan server,210.3,13,5,0,1,Tidak,4,2
-TRX-588,IT Dept,Biaya perjalanan dinas,78,11,7,0,0,Tidak,3,1
-TRX-589,Finance Dept,Klaim biaya operasional,78,9,3,0,1,Ya (Anomali),3,5
-TRX-590,IT Dept,Klaim biaya operasional,500,16,7,0,0,Tidak,5,1
-TRX-591,Finance Dept,Perpanjangan server,7.5,13,2,0,0,Ya (Anomali),1,4
-TRX-592,Jakarta Branch,Pembayaran pajak,1500,16,1,0,0,Tidak,5,1
-TRX-593,Surabaya Branch,Pembayaran ke vendor baru,210.3,16,1,1,0,Ya (Anomali),4,5
-TRX-594,HR Dept,Biaya perjalanan dinas,78,2,5,0,0,Ya (Anomali),3,4
-TRX-595,Surabaya Branch,Klaim biaya operasional,2.1,19,7,1,0,Ya (Anomali),1,5
-TRX-596,IT Dept,Klaim biaya operasional,15.5,2,4,0,1,Tidak,2,2
-TRX-597,Jakarta Branch,Klaim biaya operasional,2.1,9,4,0,0,Tidak,1,1
-TRX-598,Finance Dept,Pembayaran vendor,5,13,3,0,0,Tidak,1,1
-TRX-599,IT Dept,Pembayaran jasa konsultan,7.5,23,5,0,0,Ya (Anomali),1,4
-TRX-600,Finance Dept,Biaya perjalanan dinas,5,16,4,0,0,Tidak,1,1
-TRX-601,Operations Dept,Pembayaran vendor,1500,2,7,1,0,Tidak,5,2
-TRX-602,Jakarta Branch,Klaim biaya operasional,78,19,5,1,0,Tidak,3,2
-TRX-603,Finance Dept,Biaya perjalanan dinas,500,19,6,0,0,Tidak,5,1
-TRX-604,IT Dept,Pembayaran ke vendor baru,1500,14,7,0,0,Ya (Anomali),5,4
-TRX-605,IT Dept,Reimbursement,1500,10,5,0,0,Ya (Anomali),5,4
-TRX-606,Surabaya Branch,Reimbursement,78,9,4,0,0,Tidak,3,1
-TRX-607,IT Dept,Transfer dana antar kas,5,15,4,0,0,Tidak,1,1
-TRX-608,IT Dept,Transfer dana antar kas,5,2,4,0,1,Tidak,1,2
-TRX-609,Finance Dept,Biaya perjalanan dinas,210.3,19,5,0,0,Tidak,4,1
-TRX-610,HR Dept,Pembayaran pajak,125,14,4,0,0,Tidak,4,1
-TRX-611,Surabaya Branch,Reimbursement,5,16,1,0,0,Tidak,1,1
-TRX-612,Surabaya Branch,Pembayaran pajak,1500,13,5,0,0,Ya (Anomali),5,4
-TRX-613,IT Dept,Pembayaran ke vendor baru,1500,15,5,0,1,Ya (Anomali),5,5
-TRX-614,Bandung Branch,Biaya perjalanan dinas,500,14,5,0,0,Tidak,5,1
-TRX-615,Operations Dept,Reimbursement,15.5,9,1,0,1,Ya (Anomali),2,5
-TRX-616,Surabaya Branch,Perpanjangan server,210.3,2,2,0,0,Ya (Anomali),4,4
-TRX-617,Surabaya Branch,Biaya perjalanan dinas,1500,2,2,1,0,Tidak,5,2
-TRX-618,Finance Dept,Pembelian lisensi software,1500,15,4,0,1,Tidak,5,2
-TRX-619,HR Dept,Biaya perjalanan dinas,210.3,15,2,0,0,Tidak,4,1
-TRX-620,IT Dept,Perpanjangan server,2.1,14,5,0,0,Tidak,1,1
-TRX-621,Jakarta Branch,Pembayaran pajak,78,14,7,0,0,Ya (Anomali),3,4
-TRX-622,Finance Dept,Perpanjangan server,5,13,7,0,1,Tidak,1,2
-TRX-623,Jakarta Branch,Klaim biaya operasional,1500,15,4,0,0,Tidak,5,1
-TRX-624,Finance Dept,Pembayaran vendor,2.1,9,5,0,0,Tidak,1,1
-TRX-625,Jakarta Branch,Transfer dana antar kas,1500,19,7,0,0,Ya (Anomali),5,4
-TRX-626,Finance Dept,Biaya perjalanan dinas,500,2,4,0,0,Tidak,5,1
-TRX-627,HR Dept,Pembayaran pajak,125,11,6,1,0,Ya (Anomali),4,5
-TRX-628,IT Dept,Klaim biaya operasional,78,9,5,0,0,Ya (Anomali),3,4
-TRX-629,Jakarta Branch,Reimbursement,2.1,15,5,0,0,Tidak,1,1
-TRX-630,IT Dept,Pembayaran vendor,500,11,2,0,1,Tidak,5,2
-TRX-631,IT Dept,Pembayaran vendor,500,13,4,0,0,Ya (Anomali),5,4
-TRX-632,Finance Dept,Biaya perjalanan dinas,125,19,3,1,0,Tidak,4,2
-TRX-633,IT Dept,Reimbursement,78,23,2,0,0,Ya (Anomali),3,4
-TRX-634,Finance Dept,Klaim biaya operasional,15.5,14,4,1,0,Ya (Anomali),2,5
-TRX-635,Operations Dept,Pembayaran jasa konsultan,1500,19,2,1,0,Tidak,5,2
-TRX-636,Finance Dept,Pembayaran vendor,45,11,5,0,0,Tidak,2,1
-TRX-637,Surabaya Branch,Pembayaran ke vendor baru,45,11,2,1,1,Tidak,2,3
-TRX-638,Finance Dept,Pembayaran ke vendor baru,45,2,4,1,0,Ya (Anomali),2,5
-TRX-639,HR Dept,Transfer dana antar kas,500,2,4,0,0,Tidak,5,1
-TRX-640,Jakarta Branch,Pembayaran vendor,125,10,5,0,0,Ya (Anomali),4,4
-TRX-641,Jakarta Branch,Pembayaran pajak,45,19,2,0,1,Tidak,2,2
-TRX-642,Surabaya Branch,Klaim biaya operasional,5,15,5,0,1,Ya (Anomali),1,5
-TRX-643,Jakarta Branch,Perpanjangan server,45,13,5,0,0,Tidak,2,1
-TRX-644,Bandung Branch,Biaya perjalanan dinas,45,10,4,0,0,Tidak,2,1
-TRX-645,Surabaya Branch,Klaim biaya operasional,125,11,4,0,1,Tidak,4,2
-TRX-646,Bandung Branch,Pembayaran pajak,45,13,4,1,0,Tidak,2,2
-TRX-647,Finance Dept,Pembayaran vendor,78,14,6,0,1,Ya (Anomali),3,5
-TRX-648,Finance Dept,Pembayaran pajak,125,15,3,0,0,Tidak,4,1
-TRX-649,Finance Dept,Transfer dana antar kas,1500,16,2,0,0,Tidak,5,1
-TRX-650,HR Dept,Reimbursement,500,15,2,1,0,Tidak,5,2
-TRX-651,IT Dept,Reimbursement,45,15,1,0,1,Ya (Anomali),2,5
-TRX-652,Jakarta Branch,Perpanjangan server,15.5,19,6,1,0,Tidak,2,2
-TRX-653,Bandung Branch,Biaya perjalanan dinas,15.5,9,4,0,1,Ya (Anomali),2,5
-TRX-654,Bandung Branch,Pembayaran pajak,15.5,11,6,0,0,Tidak,2,1
-TRX-655,Operations Dept,Pembayaran vendor,78,11,2,0,0,Ya (Anomali),3,4
-TRX-656,Finance Dept,Biaya perjalanan dinas,2.1,11,5,0,0,Tidak,1,1
-TRX-657,IT Dept,Transfer dana antar kas,2.1,13,2,0,1,Ya (Anomali),1,5
-TRX-658,Bandung Branch,Biaya perjalanan dinas,78,15,5,0,1,Ya (Anomali),3,5
-TRX-659,Operations Dept,Pembayaran ke vendor baru,125,14,2,0,0,Ya (Anomali),4,4
-TRX-660,IT Dept,Pembayaran jasa konsultan,500,2,4,0,0,Ya (Anomali),5,4
-TRX-661,Jakarta Branch,Perpanjangan server,5,16,2,1,0,Tidak,1,2
-TRX-662,Jakarta Branch,Perpanjangan server,7.5,9,5,0,0,Tidak,1,1
-TRX-663,Bandung Branch,Pembayaran ke vendor baru,7.5,13,2,0,0,Tidak,1,1
-TRX-664,Operations Dept,Pembayaran ke vendor baru,78,19,5,0,0,Tidak,3,1
-TRX-665,HR Dept,Biaya perjalanan dinas,15.5,2,5,0,0,Tidak,2,1
-TRX-666,IT Dept,Pembayaran ke vendor baru,125,11,5,1,1,Tidak,4,3
-TRX-667,Surabaya Branch,Pembelian lisensi software,1500,11,6,1,0,Tidak,5,2
-TRX-668,HR Dept,Transfer dana antar kas,2.1,9,4,0,0,Tidak,1,1
-TRX-669,Jakarta Branch,Biaya perjalanan dinas,45,10,2,0,0,Tidak,2,1
-TRX-670,Finance Dept,Transfer dana antar kas,125,10,4,0,0,Ya (Anomali),4,4
-TRX-671,Surabaya Branch,Pembelian lisensi software,125,15,4,0,0,Tidak,4,1
-TRX-672,Jakarta Branch,Transfer dana antar kas,500,10,6,0,1,Tidak,5,2
-TRX-673,Finance Dept,Reimbursement,1500,13,7,1,1,Tidak,5,3
-TRX-674,Bandung Branch,Pembayaran ke vendor baru,500,11,2,0,0,Tidak,5,1
-TRX-675,Finance Dept,Transfer dana antar kas,5,11,4,0,0,Tidak,1,1
-TRX-676,Bandung Branch,Pembayaran pajak,1500,16,1,1,0,Tidak,5,2
-TRX-677,Operations Dept,Pembayaran vendor,210.3,9,6,1,0,Tidak,4,2
-TRX-678,Jakarta Branch,Transfer dana antar kas,2.1,11,2,0,1,Tidak,1,2
-TRX-679,Operations Dept,Pembayaran jasa konsultan,15.5,16,1,0,1,Tidak,2,2
-TRX-680,IT Dept,Pembayaran jasa konsultan,45,9,2,0,0,Tidak,2,1
-TRX-681,Surabaya Branch,Biaya perjalanan dinas,210.3,23,3,0,0,Tidak,4,1
-TRX-682,Bandung Branch,Perpanjangan server,125,9,7,0,1,Ya (Anomali),4,5
-TRX-683,Surabaya Branch,Reimbursement,7.5,2,1,1,0,Tidak,1,2
-TRX-684,Operations Dept,Pembayaran jasa konsultan,210.3,15,2,0,0,Tidak,4,1
-TRX-685,Finance Dept,Pembayaran pajak,15.5,15,6,0,1,Tidak,2,2
-TRX-686,IT Dept,Pembelian lisensi software,1500,11,3,0,0,Tidak,5,1
-TRX-687,Finance Dept,Transfer dana antar kas,7.5,13,1,1,1,Tidak,1,3
-TRX-688,IT Dept,Perpanjangan server,45,13,5,0,0,Tidak,2,1
-TRX-689,Finance Dept,Perpanjangan server,125,14,3,1,0,Ya (Anomali),4,5
-TRX-690,Operations Dept,Transfer dana antar kas,45,14,4,0,0,Tidak,2,1
-TRX-691,Jakarta Branch,Transfer dana antar kas,210.3,15,4,0,0,Tidak,4,1
-TRX-692,Operations Dept,Pembelian lisensi software,1500,15,4,0,0,Ya (Anomali),5,4
-TRX-693,Surabaya Branch,Pembayaran vendor,5,9,6,0,1,Tidak,1,2
-TRX-694,Jakarta Branch,Pembayaran ke vendor baru,78,13,5,0,1,Tidak,3,2
-TRX-695,Surabaya Branch,Pembayaran ke vendor baru,5,10,5,1,1,Tidak,1,3
-TRX-696,Jakarta Branch,Pembayaran jasa konsultan,1500,2,4,0,0,Tidak,5,1
-TRX-697,Surabaya Branch,Pembelian lisensi software,500,2,6,0,1,Tidak,5,2
-TRX-698,Jakarta Branch,Reimbursement,7.5,13,2,0,0,Tidak,1,1
-TRX-699,Finance Dept,Pembayaran vendor,2.1,2,3,1,0,Tidak,1,2
-TRX-700,HR Dept,Pembayaran pajak,78,23,7,0,0,Tidak,3,1
-TRX-701,Operations Dept,Pembelian lisensi software,1500,13,2,0,0,Tidak,5,1
-TRX-702,IT Dept,Transfer dana antar kas,210.3,11,2,0,0,Tidak,4,1
-TRX-703,Surabaya Branch,Pembayaran ke vendor baru,5,13,6,1,0,Tidak,1,2
-TRX-704,Jakarta Branch,Pembayaran jasa konsultan,5,13,1,1,0,Ya (Anomali),1,5
-TRX-705,Surabaya Branch,Pembelian lisensi software,45,10,1,0,1,Tidak,2,2
-TRX-706,Jakarta Branch,Transfer dana antar kas,5,15,2,0,0,Ya (Anomali),1,4
-TRX-707,Surabaya Branch,Reimbursement,500,11,6,0,1,Tidak,5,2
-TRX-708,Finance Dept,Pembayaran ke vendor baru,5,2,7,1,0,Tidak,1,2
-TRX-709,Surabaya Branch,Reimbursement,1500,15,5,1,1,Tidak,5,3
-TRX-710,Jakarta Branch,Pembayaran pajak,15.5,19,5,0,0,Tidak,2,1
-TRX-711,IT Dept,Pembelian lisensi software,500,9,5,0,1,Tidak,5,2
-TRX-712,IT Dept,Pembayaran vendor,5,14,6,1,0,Tidak,1,2
-TRX-713,IT Dept,Pembayaran pajak,125,11,2,1,0,Tidak,4,2
-TRX-714,Jakarta Branch,Pembayaran vendor,7.5,10,5,0,1,Tidak,1,2
-TRX-715,HR Dept,Pembayaran jasa konsultan,78,16,2,0,0,Tidak,3,1
-TRX-716,Operations Dept,Pembayaran jasa konsultan,500,14,4,0,1,Tidak,5,2
-TRX-717,Finance Dept,Pembayaran pajak,15.5,13,2,1,0,Tidak,2,2
-TRX-718,Finance Dept,Reimbursement,125,11,6,0,0,Ya (Anomali),4,4
-TRX-719,Operations Dept,Transfer dana antar kas,5,19,5,0,1,Tidak,1,2
-TRX-720,IT Dept,Pembayaran ke vendor baru,210.3,23,7,0,0,Tidak,4,1
-TRX-721,Surabaya Branch,Transfer dana antar kas,78,16,2,1,0,Ya (Anomali),3,5
-TRX-722,Surabaya Branch,Reimbursement,7.5,23,2,0,1,Tidak,1,2
-TRX-723,IT Dept,Reimbursement,78,9,2,1,1,Ya (Anomali),3,5
-TRX-724,Surabaya Branch,Pembayaran ke vendor baru,125,15,5,0,0,Tidak,4,1
-TRX-725,Operations Dept,Pembayaran pajak,5,11,2,0,0,Tidak,1,1
-TRX-726,Jakarta Branch,Perpanjangan server,210.3,13,5,0,0,Tidak,4,1
-TRX-727,IT Dept,Pembayaran vendor,15.5,14,5,0,0,Tidak,2,1
-TRX-728,Finance Dept,Pembelian lisensi software,125,9,1,0,0,Tidak,4,1
-TRX-729,IT Dept,Biaya perjalanan dinas,78,2,6,0,0,Tidak,3,1
-TRX-730,IT Dept,Pembayaran vendor,500,10,4,0,0,Ya (Anomali),5,4
-TRX-731,Operations Dept,Pembelian lisensi software,2.1,11,2,0,0,Ya (Anomali),1,4
-TRX-732,Bandung Branch,Klaim biaya operasional,5,13,5,0,0,Tidak,1,1
-TRX-733,IT Dept,Pembelian lisensi software,7.5,19,5,0,0,Tidak,1,1
-TRX-734,Finance Dept,Klaim biaya operasional,125,11,2,0,0,Tidak,4,1
-TRX-735,Finance Dept,Reimbursement,125,16,5,0,0,Tidak,4,1
-TRX-736,HR Dept,Perpanjangan server,45,23,2,1,0,Tidak,2,2
-TRX-737,IT Dept,Pembayaran pajak,45,9,2,0,0,Ya (Anomali),2,4
-TRX-738,Finance Dept,Pembayaran jasa konsultan,1500,13,2,0,1,Ya (Anomali),5,5
-TRX-739,Finance Dept,Biaya perjalanan dinas,125,19,4,1,0,Ya (Anomali),4,5
-TRX-740,IT Dept,Pembayaran jasa konsultan,500,2,4,0,0,Tidak,5,1
-TRX-741,Jakarta Branch,Transfer dana antar kas,2.1,9,2,0,0,Tidak,1,1
-TRX-742,Surabaya Branch,Transfer dana antar kas,125,14,2,0,1,Tidak,4,2
-TRX-743,IT Dept,Klaim biaya operasional,500,9,5,0,0,Tidak,5,1
-TRX-744,IT Dept,Pembayaran ke vendor baru,5,10,7,0,0,Tidak,1,1
-TRX-745,Jakarta Branch,Reimbursement,7.5,15,3,0,1,Tidak,1,2
-TRX-746,Finance Dept,Transfer dana antar kas,78,9,7,0,0,Ya (Anomali),3,4
-TRX-747,Jakarta Branch,Pembayaran pajak,500,19,6,1,0,Ya (Anomali),5,5
-TRX-748,Bandung Branch,Pembayaran jasa konsultan,45,23,1,0,0,Ya (Anomali),2,4
-TRX-749,HR Dept,Pembayaran pajak,210.3,14,6,1,0,Tidak,4,2
-TRX-750,Jakarta Branch,Pembayaran vendor,125,16,2,0,0,Tidak,4,1
-TRX-751,Finance Dept,Pembelian lisensi software,45,2,6,1,0,Tidak,2,2
-TRX-752,Finance Dept,Pembayaran pajak,7.5,16,5,0,0,Tidak,1,1
-TRX-753,Jakarta Branch,Pembayaran pajak,1500,23,3,0,0,Tidak,5,1
-TRX-754,HR Dept,Perpanjangan server,15.5,16,4,1,0,Tidak,2,2
-TRX-755,Jakarta Branch,Perpanjangan server,2.1,10,7,0,1,Tidak,1,2
-TRX-756,Finance Dept,Pembayaran ke vendor baru,78,9,6,0,0,Tidak,3,1
-TRX-757,Surabaya Branch,Perpanjangan server,45,15,1,0,0,Tidak,2,1
-TRX-758,Finance Dept,Pembayaran vendor,2.1,23,4,0,0,Tidak,1,1
-TRX-759,IT Dept,Pembayaran ke vendor baru,2.1,23,2,0,1,Tidak,1,2
-TRX-760,IT Dept,Pembayaran jasa konsultan,125,19,5,0,1,Ya (Anomali),4,5
-TRX-761,IT Dept,Pembelian lisensi software,210.3,23,5,0,0,Tidak,4,1
-TRX-762,Finance Dept,Pembelian lisensi software,2.1,9,4,1,0,Tidak,1,2
-TRX-763,IT Dept,Pembayaran vendor,5,9,4,0,0,Tidak,1,1
-TRX-764,IT Dept,Pembayaran pajak,78,15,4,0,0,Tidak,3,1
-TRX-765,Jakarta Branch,Perpanjangan server,1500,9,5,0,1,Tidak,5,2
-TRX-766,IT Dept,Pembayaran vendor,210.3,16,4,0,0,Tidak,4,1
-TRX-767,Operations Dept,Pembayaran jasa konsultan,45,15,2,0,0,Tidak,2,1
-TRX-768,Operations Dept,Transfer dana antar kas,45,19,7,0,0,Ya (Anomali),2,4
-TRX-769,Jakarta Branch,Pembayaran jasa konsultan,500,16,5,0,0,Tidak,5,1
-TRX-770,Bandung Branch,Reimbursement,1500,9,5,0,0,Tidak,5,1
-TRX-771,Operations Dept,Klaim biaya operasional,5,15,4,0,0,Ya (Anomali),1,4
-TRX-772,Surabaya Branch,Transfer dana antar kas,45,19,4,0,0,Tidak,2,1
-TRX-773,Finance Dept,Pembayaran vendor,125,23,5,0,0,Tidak,4,1
-TRX-774,Operations Dept,Biaya perjalanan dinas,210.3,10,4,1,1,Tidak,4,3
-TRX-775,Finance Dept,Reimbursement,2.1,10,2,0,0,Ya (Anomali),1,4
-TRX-776,Bandung Branch,Pembayaran vendor,5,2,4,0,0,Tidak,1,1
-TRX-777,Surabaya Branch,Pembayaran jasa konsultan,500,13,1,0,0,Tidak,5,1
-TRX-778,Finance Dept,Pembayaran vendor,500,13,6,0,1,Ya (Anomali),5,5
-TRX-779,Operations Dept,Pembayaran jasa konsultan,500,11,4,0,1,Tidak,5,2
-TRX-780,Jakarta Branch,Reimbursement,500,15,7,0,0,Ya (Anomali),5,4
-TRX-781,Jakarta Branch,Klaim biaya operasional,7.5,9,5,1,0,Ya (Anomali),1,5
-TRX-782,Jakarta Branch,Reimbursement,2.1,11,1,0,1,Tidak,1,2
-TRX-783,IT Dept,Perpanjangan server,45,10,2,1,0,Ya (Anomali),2,5
-TRX-784,Surabaya Branch,Klaim biaya operasional,78,11,2,1,1,Tidak,3,3
-TRX-785,Surabaya Branch,Transfer dana antar kas,125,15,1,1,0,Tidak,4,2
-TRX-786,IT Dept,Pembayaran ke vendor baru,45,13,4,0,1,Ya (Anomali),2,5
-TRX-787,IT Dept,Pembayaran vendor,125,11,5,1,0,Ya (Anomali),4,5
-TRX-788,IT Dept,Klaim biaya operasional,210.3,15,7,1,0,Ya (Anomali),4,5
-TRX-789,Jakarta Branch,Pembayaran ke vendor baru,5,10,7,0,0,Ya (Anomali),1,4
-TRX-790,Jakarta Branch,Pembelian lisensi software,78,23,5,0,1,Tidak,3,2
-TRX-791,Finance Dept,Pembayaran jasa konsultan,5,14,1,0,0,Ya (Anomali),1,4
-TRX-792,IT Dept,Pembayaran jasa konsultan,500,9,2,1,0,Tidak,5,2
-TRX-793,IT Dept,Pembayaran vendor,125,2,1,1,0,Ya (Anomali),4,5
-TRX-794,Finance Dept,Pembayaran pajak,7.5,9,5,0,1,Tidak,1,2
-TRX-795,Operations Dept,Klaim biaya operasional,5,10,2,0,1,Tidak,1,2
-TRX-796,HR Dept,Pembayaran pajak,500,16,6,0,1,Tidak,5,2
-TRX-797,HR Dept,Klaim biaya operasional,500,16,4,1,1,Ya (Anomali),5,5
-TRX-798,Bandung Branch,Pembelian lisensi software,7.5,15,1,0,1,Tidak,1,2
-TRX-799,Surabaya Branch,Klaim biaya operasional,2.1,15,2,0,0,Ya (Anomali),1,4
-TRX-800,Operations Dept,Pembayaran pajak,125,9,6,1,0,Tidak,4,2
-TRX-801,Surabaya Branch,Pembayaran vendor,78,9,4,0,0,Tidak,3,1
-TRX-802,Operations Dept,Klaim biaya operasional,210.3,19,4,0,0,Tidak,4,1
-TRX-803,Finance Dept,Pembayaran pajak,7.5,11,5,1,0,Tidak,1,2
-TRX-804,IT Dept,Pembayaran pajak,1500,9,5,0,0,Tidak,5,1
-TRX-805,Finance Dept,Biaya perjalanan dinas,125,11,4,0,0,Tidak,4,1
-TRX-806,Operations Dept,Perpanjangan server,7.5,9,5,0,0,Ya (Anomali),1,4
-TRX-807,Finance Dept,Perpanjangan server,5,9,2,0,0,Ya (Anomali),1,4
-TRX-808,Jakarta Branch,Pembayaran ke vendor baru,500,19,1,0,0,Ya (Anomali),5,4
-TRX-809,Surabaya Branch,Pembelian lisensi software,500,15,4,0,0,Ya (Anomali),5,4
-TRX-810,Jakarta Branch,Klaim biaya operasional,125,13,5,0,1,Tidak,4,2
-TRX-811,Jakarta Branch,Biaya perjalanan dinas,125,19,2,0,0,Ya (Anomali),4,4
-TRX-812,Finance Dept,Pembayaran pajak,500,14,7,0,1,Ya (Anomali),5,5
-TRX-813,IT Dept,Reimbursement,1500,15,4,0,0,Tidak,5,1
-TRX-814,HR Dept,Pembelian lisensi software,45,10,4,1,0,Ya (Anomali),2,5
-TRX-815,Finance Dept,Perpanjangan server,2.1,2,4,1,0,Tidak,1,2
-TRX-816,IT Dept,Pembelian lisensi software,210.3,9,5,0,0,Tidak,4,1
-TRX-817,Jakarta Branch,Klaim biaya operasional,125,14,3,0,0,Tidak,4,1
-TRX-818,Surabaya Branch,Reimbursement,15.5,19,1,0,0,Tidak,2,1
-TRX-819,Surabaya Branch,Pembayaran pajak,2.1,2,5,0,0,Tidak,1,1
-TRX-820,Operations Dept,Pembayaran jasa konsultan,7.5,14,4,0,0,Ya (Anomali),1,4
-TRX-821,Surabaya Branch,Biaya perjalanan dinas,2.1,2,5,1,0,Tidak,1,2
-TRX-822,Surabaya Branch,Pembayaran vendor,5,13,7,0,0,Tidak,1,1
-TRX-823,Finance Dept,Reimbursement,7.5,19,1,0,0,Tidak,1,1
-TRX-824,Surabaya Branch,Pembayaran ke vendor baru,1500,14,1,1,0,Tidak,5,2
-TRX-825,IT Dept,Pembelian lisensi software,210.3,14,5,0,0,Ya (Anomali),4,4
-TRX-826,IT Dept,Transfer dana antar kas,5,14,7,0,0,Ya (Anomali),1,4
-TRX-827,IT Dept,Pembayaran jasa konsultan,45,19,4,0,0,Tidak,2,1
-TRX-828,Jakarta Branch,Pembayaran ke vendor baru,125,15,5,1,1,Tidak,4,3
-TRX-829,Bandung Branch,Transfer dana antar kas,210.3,19,7,0,0,Tidak,4,1
-TRX-830,HR Dept,Pembayaran ke vendor baru,15.5,9,2,1,0,Tidak,2,2
-TRX-831,Bandung Branch,Klaim biaya operasional,15.5,19,1,1,0,Tidak,2,2
-TRX-832,Bandung Branch,Pembayaran pajak,210.3,16,3,0,0,Tidak,4,1
-TRX-833,HR Dept,Pembayaran ke vendor baru,5,13,6,0,0,Tidak,1,1
-TRX-834,IT Dept,Perpanjangan server,5,9,5,0,0,Tidak,1,1
-TRX-835,Finance Dept,Pembayaran ke vendor baru,7.5,23,4,1,1,Tidak,1,3
-TRX-836,Jakarta Branch,Pembayaran jasa konsultan,125,19,3,0,0,Tidak,4,1
-TRX-837,Jakarta Branch,Transfer dana antar kas,1500,19,7,0,1,Tidak,5,2
-TRX-838,Jakarta Branch,Pembayaran vendor,78,11,3,0,1,Tidak,3,2
-TRX-839,Jakarta Branch,Pembayaran jasa konsultan,15.5,10,4,0,0,Tidak,2,1
-TRX-840,Finance Dept,Pembayaran jasa konsultan,45,9,5,0,0,Ya (Anomali),2,4
-TRX-841,IT Dept,Transfer dana antar kas,500,10,4,0,0,Tidak,5,1
-TRX-842,Jakarta Branch,Pembayaran pajak,500,15,5,0,1,Tidak,5,2
-TRX-843,HR Dept,Pembayaran ke vendor baru,15.5,16,2,0,1,Tidak,2,2
-TRX-844,Surabaya Branch,Reimbursement,2.1,23,2,0,1,Tidak,1,2
-TRX-845,Surabaya Branch,Klaim biaya operasional,7.5,9,5,0,0,Tidak,1,1
-TRX-846,IT Dept,Klaim biaya operasional,5,9,2,0,0,Tidak,1,1
-TRX-847,Surabaya Branch,Transfer dana antar kas,78,14,5,1,0,Ya (Anomali),3,5
-TRX-848,Operations Dept,Pembayaran ke vendor baru,45,15,1,0,1,Ya (Anomali),2,5
-TRX-849,Operations Dept,Perpanjangan server,125,23,2,0,0,Ya (Anomali),4,4
-TRX-850,Surabaya Branch,Reimbursement,1500,16,2,0,0,Ya (Anomali),5,4
-TRX-851,Surabaya Branch,Transfer dana antar kas,7.5,23,7,0,0,Tidak,1,1
-TRX-852,Finance Dept,Pembayaran pajak,78,19,5,0,0,Tidak,3,1
-TRX-853,Jakarta Branch,Transfer dana antar kas,500,15,1,0,1,Tidak,5,2
-TRX-854,HR Dept,Pembelian lisensi software,500,9,5,0,0,Ya (Anomali),5,4
-TRX-855,Jakarta Branch,Klaim biaya operasional,45,16,2,0,0,Tidak,2,1
-TRX-856,HR Dept,Pembayaran ke vendor baru,1500,16,6,0,0,Tidak,5,1
-TRX-857,Operations Dept,Perpanjangan server,78,16,1,0,0,Tidak,3,1
-TRX-858,Jakarta Branch,Perpanjangan server,7.5,2,5,1,0,Tidak,1,2
-TRX-859,Finance Dept,Reimbursement,2.1,2,7,1,1,Tidak,1,3
-TRX-860,IT Dept,Pembayaran vendor,125,10,3,0,0,Tidak,4,1
-TRX-861,Bandung Branch,Transfer dana antar kas,500,16,5,0,1,Tidak,5,2
-TRX-862,Jakarta Branch,Pembelian lisensi software,7.5,15,5,1,0,Tidak,1,2
-TRX-863,Surabaya Branch,Reimbursement,45,19,2,0,0,Tidak,2,1
-TRX-864,IT Dept,Pembelian lisensi software,210.3,14,6,0,1,Ya (Anomali),4,5
-TRX-865,HR Dept,Perpanjangan server,500,16,3,0,0,Tidak,5,1
-TRX-866,Bandung Branch,Pembayaran ke vendor baru,7.5,23,5,0,0,Tidak,1,1
-TRX-867,IT Dept,Reimbursement,7.5,23,3,1,0,Tidak,1,2
-TRX-868,Surabaya Branch,Transfer dana antar kas,7.5,15,1,0,0,Ya (Anomali),1,4
-TRX-869,IT Dept,Perpanjangan server,500,14,3,0,0,Tidak,5,1
-TRX-870,Jakarta Branch,Pembayaran jasa konsultan,500,16,4,0,0,Tidak,5,1
-TRX-871,HR Dept,Klaim biaya operasional,45,9,2,0,0,Tidak,2,1
-TRX-872,Finance Dept,Pembayaran ke vendor baru,500,19,6,0,0,Tidak,5,1
-TRX-873,HR Dept,Pembelian lisensi software,500,14,4,0,0,Tidak,5,1
-TRX-874,Finance Dept,Klaim biaya operasional,2.1,11,3,1,0,Ya (Anomali),1,5
-TRX-875,IT Dept,Klaim biaya operasional,2.1,13,2,1,1,Tidak,1,3
-TRX-876,Finance Dept,Pembayaran jasa konsultan,2.1,2,2,0,0,Tidak,1,1
-TRX-877,Jakarta Branch,Biaya perjalanan dinas,15.5,2,4,0,0,Tidak,2,1
-TRX-878,Finance Dept,Biaya perjalanan dinas,7.5,23,4,0,0,Tidak,1,1
-TRX-879,Jakarta Branch,Pembayaran pajak,500,14,4,1,1,Ya (Anomali),5,5
-TRX-880,Jakarta Branch,Pembayaran ke vendor baru,78,16,6,1,0,Tidak,3,2
-TRX-881,Jakarta Branch,Reimbursement,1500,19,4,1,1,Tidak,5,3
-TRX-882,Finance Dept,Transfer dana antar kas,210.3,23,7,0,0,Tidak,4,1
-TRX-883,Operations Dept,Pembelian lisensi software,500,11,4,1,0,Tidak,5,2
-TRX-884,HR Dept,Perpanjangan server,78,15,5,0,1,Tidak,3,2
-TRX-885,Jakarta Branch,Pembayaran jasa konsultan,1500,13,3,0,0,Tidak,5,1
-TRX-886,Operations Dept,Pembayaran pajak,1500,2,2,0,1,Tidak,5,2
-TRX-887,Jakarta Branch,Pembayaran vendor,45,13,1,1,1,Tidak,2,3
-TRX-888,Finance Dept,Perpanjangan server,125,11,4,0,0,Tidak,4,1
-TRX-889,Finance Dept,Transfer dana antar kas,125,19,4,0,0,Ya (Anomali),4,4
-TRX-890,Operations Dept,Klaim biaya operasional,5,14,3,0,0,Ya (Anomali),1,4
-TRX-891,HR Dept,Pembayaran vendor,15.5,9,7,0,1,Tidak,2,2
-TRX-892,Finance Dept,Biaya perjalanan dinas,45,23,3,1,0,Tidak,2,2
-TRX-893,HR Dept,Pembayaran ke vendor baru,7.5,14,4,0,0,Tidak,1,1
-TRX-894,Finance Dept,Pembayaran jasa konsultan,210.3,13,2,0,1,Tidak,4,2
-TRX-895,IT Dept,Pembayaran ke vendor baru,5,19,6,0,0,Ya (Anomali),1,4
-TRX-896,IT Dept,Pembayaran vendor,78,2,4,0,0,Tidak,3,1
-TRX-897,Bandung Branch,Transfer dana antar kas,500,19,5,0,0,Tidak,5,1
-TRX-898,Jakarta Branch,Pembayaran jasa konsultan,210.3,15,2,0,1,Ya (Anomali),4,5
-TRX-899,IT Dept,Pembayaran pajak,210.3,15,4,0,0,Ya (Anomali),4,4
-TRX-900,IT Dept,Pembayaran pajak,125,13,3,0,0,Tidak,4,1
-TRX-901,Operations Dept,Pembayaran ke vendor baru,1500,23,2,0,0,Tidak,5,1
-TRX-902,Finance Dept,Pembelian lisensi software,45,16,7,0,1,Tidak,2,2
-TRX-903,Operations Dept,Pembayaran vendor,7.5,23,4,0,0,Tidak,1,1
-TRX-904,IT Dept,Pembayaran pajak,1500,14,5,1,0,Tidak,5,2
-TRX-905,Jakarta Branch,Biaya perjalanan dinas,1500,14,5,0,1,Ya (Anomali),5,5
-TRX-906,Jakarta Branch,Biaya perjalanan dinas,5,11,2,0,1,Tidak,1,2
-TRX-907,Surabaya Branch,Perpanjangan server,210.3,16,2,1,1,Tidak,4,3
-TRX-908,Operations Dept,Pembayaran ke vendor baru,1500,14,5,1,1,Tidak,5,3
-TRX-909,IT Dept,Pembelian lisensi software,125,9,5,0,1,Ya (Anomali),4,5
-TRX-910,IT Dept,Pembayaran pajak,5,13,3,0,0,Tidak,1,1
-TRX-911,Operations Dept,Pembayaran jasa konsultan,78,14,4,0,0,Tidak,3,1
-TRX-912,Finance Dept,Pembayaran jasa konsultan,78,11,7,0,0,Ya (Anomali),3,4
-TRX-913,Bandung Branch,Pembelian lisensi software,78,10,5,1,0,Tidak,3,2
-TRX-914,Finance Dept,Klaim biaya operasional,125,16,6,0,1,Ya (Anomali),4,5
-TRX-915,Surabaya Branch,Transfer dana antar kas,7.5,14,6,1,1,Tidak,1,3
-TRX-916,Operations Dept,Reimbursement,5,19,3,1,0,Ya (Anomali),1,5
-TRX-917,Operations Dept,Transfer dana antar kas,2.1,11,7,0,1,Tidak,1,2
-TRX-918,Finance Dept,Pembayaran pajak,1500,12,4,1,1,Ya (Anomali),5,5
-TRX-919,HR Dept,Pembayaran ke vendor baru,125,10,7,1,1,Tidak,4,3
-TRX-920,Surabaya Branch,Pembayaran pajak,500,9,7,0,0,Ya (Anomali),5,4
-TRX-921,Surabaya Branch,Klaim biaya operasional,500,6,1,0,0,Ya (Anomali),5,4
-TRX-922,IT Dept,Biaya perjalanan dinas,1500,19,7,0,1,Tidak,5,2
-TRX-923,Surabaya Branch,Pembayaran ke vendor baru,78,7,3,1,0,Ya (Anomali),3,5
-TRX-924,Jakarta Branch,Pembayaran pajak,2.1,11,1,1,0,Tidak,1,2
-TRX-925,HR Dept,Pembayaran pajak,1500,8,2,0,1,Ya (Anomali),5,5
-TRX-926,Surabaya Branch,Pembayaran vendor,500,2,1,0,1,Tidak,5,2
-TRX-927,IT Dept,Pembayaran vendor,15.5,11,4,1,1,Ya (Anomali),2,5
-TRX-928,Operations Dept,Perpanjangan server,15.5,6,4,0,0,Ya (Anomali),2,4
-TRX-929,Operations Dept,Pembayaran pajak,5,20,7,0,0,Tidak,1,1
-TRX-930,Surabaya Branch,Pembayaran vendor,45,18,2,1,1,Tidak,2,3
-TRX-931,Operations Dept,Pembayaran jasa konsultan,78,11,6,0,0,Tidak,3,1
-TRX-932,Finance Dept,Reimbursement,500,13,3,1,1,Tidak,5,3
-TRX-933,IT Dept,Reimbursement,45,7,6,0,1,Tidak,2,2
-TRX-934,Bandung Branch,Reimbursement,210.3,19,5,0,0,Ya (Anomali),4,4
-TRX-935,IT Dept,Perpanjangan server,500,7,6,0,1,Tidak,5,2
-TRX-936,HR Dept,Perpanjangan server,45,8,1,0,1,Ya (Anomali),2,5
-TRX-937,IT Dept,Reimbursement,7.5,20,1,1,1,Tidak,1,3
-TRX-938,IT Dept,Transfer dana antar kas,78,13,1,0,1,Tidak,3,2
-TRX-939,HR Dept,Transfer dana antar kas,500,9,7,1,1,Ya (Anomali),5,5
-TRX-940,Operations Dept,Pembayaran vendor,125,1,7,1,0,Tidak,4,2
-TRX-941,Jakarta Branch,Pembayaran vendor,125,23,5,0,0,Ya (Anomali),4,4
-TRX-942,IT Dept,Reimbursement,125,4,6,0,1,Ya (Anomali),4,5
-TRX-943,Surabaya Branch,Pembayaran ke vendor baru,5,13,4,0,1,Ya (Anomali),1,5
-TRX-944,Jakarta Branch,Biaya perjalanan dinas,15.5,23,7,0,1,Ya (Anomali),2,5
-TRX-945,Bandung Branch,Pembayaran jasa konsultan,500,21,1,0,1,Tidak,5,2
-TRX-946,Operations Dept,Reimbursement,500,4,5,1,0,Tidak,5,2
-TRX-947,Finance Dept,Pembelian lisensi software,2.1,12,4,1,0,Tidak,1,2
-TRX-948,Bandung Branch,Perpanjangan server,210.3,8,6,1,0,Tidak,4,2
-TRX-949,Finance Dept,Biaya perjalanan dinas,7.5,3,3,0,0,Tidak,1,1
-TRX-950,Operations Dept,Reimbursement,500,14,5,1,1,Tidak,5,3
-TRX-951,Jakarta Branch,Pembayaran pajak,2.1,12,6,1,1,Tidak,1,3
-TRX-952,IT Dept,Pembelian lisensi software,45,2,3,1,0,Tidak,2,2
-TRX-953,IT Dept,Biaya perjalanan dinas,125,17,4,1,1,Ya (Anomali),4,5
-TRX-954,Surabaya Branch,Pembayaran ke vendor baru,5,11,1,1,0,Tidak,1,2
-TRX-955,Operations Dept,Pembayaran vendor,1500,11,3,0,0,Ya (Anomali),5,4
-TRX-956,Finance Dept,Biaya perjalanan dinas,7.5,3,3,0,0,Ya (Anomali),1,4
-TRX-957,IT Dept,Pembayaran pajak,78,15,6,0,0,Ya (Anomali),3,4
-TRX-958,Jakarta Branch,Pembayaran ke vendor baru,210.3,7,5,1,1,Ya (Anomali),4,5
-TRX-959,Operations Dept,Pembelian lisensi software,1500,13,3,0,0,Tidak,5,1
-TRX-960,Finance Dept,Perpanjangan server,1500,19,1,1,1,Tidak,5,3
-TRX-961,Finance Dept,Perpanjangan server,1500,22,3,1,1,Tidak,5,3
-TRX-962,Finance Dept,Pembayaran pajak,2.1,10,5,0,1,Ya (Anomali),1,5
-TRX-963,Operations Dept,Pembayaran jasa konsultan,78,7,3,0,1,Ya (Anomali),3,5
-TRX-964,HR Dept,Pembayaran jasa konsultan,45,7,5,0,0,Tidak,2,1
-TRX-965,IT Dept,Pembayaran jasa konsultan,1500,3,2,1,1,Tidak,5,3
-TRX-966,Operations Dept,Perpanjangan server,500,20,2,0,0,Ya (Anomali),5,4
-TRX-967,Jakarta Branch,Pembayaran pajak,45,11,5,0,1,Tidak,2,2
-TRX-968,Jakarta Branch,Reimbursement,210.3,22,2,1,0,Tidak,4,2
-TRX-969,HR Dept,Perpanjangan server,125,6,3,1,1,Ya (Anomali),4,5
-TRX-970,Bandung Branch,Klaim biaya operasional,15.5,10,5,1,1,Tidak,2,3
-TRX-971,Operations Dept,Klaim biaya operasional,210.3,0,7,0,1,Tidak,4,2
-TRX-972,Surabaya Branch,Pembayaran vendor,7.5,22,2,1,1,Tidak,1,3
-TRX-973,IT Dept,Pembayaran ke vendor baru,5,2,4,1,1,Tidak,1,3
-TRX-974,HR Dept,Pembayaran pajak,500,0,4,0,0,Tidak,5,1
-TRX-975,HR Dept,Pembelian lisensi software,78,21,1,1,1,Ya (Anomali),3,5
-TRX-976,Bandung Branch,Transfer dana antar kas,2.1,11,7,1,1,Tidak,1,3
-TRX-977,Finance Dept,Perpanjangan server,1500,13,3,1,1,Tidak,5,3
-TRX-978,HR Dept,Perpanjangan server,2.1,23,5,1,1,Ya (Anomali),1,5
-TRX-979,IT Dept,Biaya perjalanan dinas,2.1,23,1,1,0,Ya (Anomali),1,5
-TRX-980,IT Dept,Reimbursement,7.5,18,6,0,1,Ya (Anomali),1,5
-TRX-981,Operations Dept,Transfer dana antar kas,15.5,5,4,0,1,Tidak,2,2
-TRX-982,Surabaya Branch,Biaya perjalanan dinas,5,16,1,1,0,Tidak,1,2
-TRX-983,Surabaya Branch,Pembayaran vendor,2.1,6,1,0,0,Ya (Anomali),1,4
-TRX-984,HR Dept,Biaya perjalanan dinas,210.3,22,1,1,0,Tidak,4,2
-TRX-985,Surabaya Branch,Pembelian lisensi software,2.1,15,3,1,1,Ya (Anomali),1,5
-TRX-986,Surabaya Branch,Klaim biaya operasional,210.3,18,3,1,1,Ya (Anomali),4,5
-TRX-987,Jakarta Branch,Klaim biaya operasional,210.3,0,6,0,1,Tidak,4,2
-TRX-988,Finance Dept,Pembayaran jasa konsultan,125,0,1,0,1,Tidak,4,2
-TRX-989,IT Dept,Pembayaran vendor,1500,3,2,1,0,Tidak,5,2
-TRX-990,Jakarta Branch,Pembayaran ke vendor baru,7.5,5,3,0,0,Ya (Anomali),1,4
-TRX-991,IT Dept,Pembayaran jasa konsultan,78,1,7,0,0,Tidak,3,1
-TRX-992,Jakarta Branch,Perpanjangan server,210.3,9,4,0,0,Tidak,4,1
-TRX-993,Finance Dept,Pembayaran vendor,15.5,12,6,1,0,Tidak,2,2
-TRX-994,IT Dept,Klaim biaya operasional,5,16,7,0,1,Tidak,1,2
-TRX-995,Surabaya Branch,Perpanjangan server,210.3,17,6,0,0,Ya (Anomali),4,4
-TRX-996,IT Dept,Biaya perjalanan dinas,78,21,3,1,1,Tidak,3,3
-TRX-997,Bandung Branch,Pembayaran pajak,210.3,14,4,1,1,Ya (Anomali),4,5
-TRX-998,IT Dept,Klaim biaya operasional,210.3,12,4,1,1,Ya (Anomali),4,5
-TRX-999,Surabaya Branch,Reimbursement,78,11,6,1,1,Tidak,3,3
-TRX-1000,Jakarta Branch,Biaya perjalanan dinas,2.1,4,6,0,1,Ya (Anomali),1,5
-TRX-1001,Operations Dept,Pembelian lisensi software,45,4,6,1,0,Tidak,2,2
-TRX-1002,Surabaya Branch,Pembayaran jasa konsultan,1500,14,5,0,1,Tidak,5,2
-TRX-1003,Bandung Branch,Pembayaran vendor,7.5,20,5,0,1,Tidak,1,2
-TRX-1004,IT Dept,Transfer dana antar kas,5,16,3,0,1,Ya (Anomali),1,5
-TRX-1005,Operations Dept,Pembayaran jasa konsultan,5,11,5,1,1,Tidak,1,3
-TRX-1006,Operations Dept,Pembayaran pajak,15.5,20,3,0,0,Tidak,2,1
-TRX-1007,IT Dept,Pembayaran jasa konsultan,210.3,4,5,1,1,Ya (Anomali),4,5
-TRX-1008,IT Dept,Pembayaran jasa konsultan,2.1,13,3,1,1,Tidak,1,3
-TRX-1009,Operations Dept,Perpanjangan server,78,22,7,1,0,Tidak,3,2
-TRX-1010,IT Dept,Biaya perjalanan dinas,7.5,3,7,1,1,Ya (Anomali),1,5
+TRX-0001,Finance Dept,Biaya Perjalanan Dinas,24.46,11,1,0,0,Tidak,4,2
+TRX-0002,IT Dept,Reimbursement Operasional,151.51,6,6,0,0,Tidak,5,1
+TRX-0003,Finance Dept,Pengadaan Perangkat IT,66.84,10,6,0,0,Tidak,4,1
+TRX-0004,Jakarta Branch,Pembayaran Tagihan Listrik,46.65,0,4,1,1,Ya (Anomali),3,5
+TRX-0005,IT Dept,Pembayaran Tagihan Listrik,9.48,5,4,1,0,Ya (Anomali),3,2
+TRX-0006,Operations Dept,Transfer Kas Internal,9.48,14,4,0,0,Tidak,3,1
+TRX-0007,Jakarta Branch,Biaya Perjalanan Dinas,3.99,14,1,0,1,Tidak,1,3
+TRX-0008,Bandung Branch,Pembayaran Vendor,101.56,18,7,0,0,Tidak,5,1
+TRX-0009,Surabaya Branch,Pembayaran Gaji Lembur,46.95,10,4,0,0,Tidak,3,2
+TRX-0010,Medan Branch,Pembayaran Gaji Lembur,62.56,22,1,1,1,Ya (Anomali),4,5
+TRX-0011,Jakarta Branch,Pembayaran Gaji Lembur,2.04,1,4,1,0,Ya (Anomali),2,4
+TRX-0012,Medan Branch,Pembayaran Vendor,176.18,13,5,0,0,Tidak,5,2
+TRX-0013,Medan Branch,Biaya Perjalanan Dinas,90.32,1,6,1,0,Tidak,5,3
+TRX-0014,Surabaya Branch,Pembayaran Gaji Lembur,12.93,3,4,0,0,Tidak,3,2
+TRX-0015,Bandung Branch,Pembelian Material Gudang,11.03,16,2,0,0,Tidak,2,1
+TRX-0016,Surabaya Branch,Pembayaran Vendor,11.13,2,6,0,0,Tidak,2,3
+TRX-0017,IT Dept,Pembayaran Vendor,19.14,12,6,1,0,Tidak,3,2
+TRX-0018,Jakarta Branch,Pengadaan Perangkat IT,38.2,8,4,0,0,Tidak,4,1
+TRX-0019,Medan Branch,Pengadaan Perangkat IT,29.28,6,7,0,1,Tidak,4,2
+TRX-0020,Surabaya Branch,Reimbursement Operasional,18.21,14,3,1,0,Tidak,3,2
+TRX-0021,Surabaya Branch,Pembelian Material Gudang,48.32,22,7,0,0,Tidak,4,3
+TRX-0022,Surabaya Branch,Pembelian Material Gudang,8.51,10,4,0,1,Tidak,3,1
+TRX-0023,Jakarta Branch,Reimbursement Operasional,18.28,19,6,1,1,Tidak,2,2
+TRX-0024,Bandung Branch,Pembelian Material Gudang,23.81,1,2,0,0,Tidak,3,2
+TRX-0025,Operations Dept,Jasa Konsultan Audit,31.45,14,6,0,1,Tidak,5,1
+TRX-0026,Surabaya Branch,Biaya Jamuan Klien,77.9,13,7,0,0,Tidak,5,1
+TRX-0027,Jakarta Branch,Pembayaran Gaji Lembur,12.14,19,2,0,0,Tidak,3,1
+TRX-0028,Medan Branch,Pengadaan Perangkat IT,37.1,21,1,1,1,Tidak,4,4
+TRX-0029,IT Dept,Reimbursement Operasional,45.88,10,5,0,0,Tidak,4,1
+TRX-0030,Operations Dept,Reimbursement Operasional,3.38,2,6,0,0,Tidak,2,1
+TRX-0031,Finance Dept,Pembelian Material Gudang,47.77,16,4,0,0,Tidak,3,1
+TRX-0032,Operations Dept,Pembayaran Vendor,10.35,11,1,0,0,Tidak,2,1
+TRX-0033,Operations Dept,Pembayaran Tagihan Listrik,4.36,23,5,0,0,Tidak,2,2
+TRX-0034,Jakarta Branch,Transfer Kas Internal,149.68,20,4,0,1,Ya (Anomali),5,3
+TRX-0035,Finance Dept,Transfer Kas Internal,169.53,14,3,0,0,Tidak,5,1
+TRX-0036,Surabaya Branch,Reimbursement Operasional,83.62,15,4,0,1,Tidak,4,2
+TRX-0037,Surabaya Branch,Pembayaran Gaji Lembur,19.16,4,2,0,0,Tidak,3,3
+TRX-0038,Operations Dept,Jasa Konsultan Audit,6.14,19,2,0,1,Tidak,2,1
+TRX-0039,Jakarta Branch,Pembayaran Gaji Lembur,58.64,5,3,0,1,Tidak,4,2
+TRX-0040,Finance Dept,Reimbursement Operasional,30.0,18,1,0,1,Tidak,4,1
+TRX-0041,Surabaya Branch,Pembayaran Gaji Lembur,7.51,4,5,0,0,Tidak,2,2
+TRX-0042,Medan Branch,Pengadaan Perangkat IT,35.18,2,4,0,0,Tidak,3,3
+TRX-0043,Bandung Branch,Pembayaran Gaji Lembur,2.75,0,2,0,0,Tidak,2,2
+TRX-0044,Bandung Branch,Pembelian Material Gudang,121.02,5,1,1,1,Ya (Anomali),5,5
+TRX-0045,Surabaya Branch,Pembelian Material Gudang,15.97,14,3,0,1,Tidak,3,2
+TRX-0046,Finance Dept,Jasa Konsultan Audit,55.31,1,7,0,0,Tidak,4,3
+TRX-0047,IT Dept,Pengadaan Perangkat IT,19.68,2,6,1,0,Tidak,3,4
+TRX-0048,Surabaya Branch,Pembayaran Tagihan Listrik,37.71,16,7,0,0,Tidak,3,1
+TRX-0049,IT Dept,Pembayaran Vendor,40.56,23,7,0,0,Tidak,4,2
+TRX-0050,IT Dept,Pengadaan Perangkat IT,11.22,11,2,0,0,Tidak,3,1
+TRX-0051,Finance Dept,Biaya Perjalanan Dinas,175.64,17,3,0,1,Ya (Anomali),5,3
+TRX-0052,IT Dept,Biaya Jamuan Klien,75.61,14,4,1,1,Tidak,4,2
+TRX-0053,Medan Branch,Reimbursement Operasional,141.25,11,7,0,0,Tidak,5,3
+TRX-0054,Finance Dept,Biaya Perjalanan Dinas,113.61,15,7,1,0,Tidak,5,1
+TRX-0055,Surabaya Branch,Jasa Konsultan Audit,46.55,7,5,0,0,Tidak,4,1
+TRX-0056,Operations Dept,Biaya Perjalanan Dinas,128.47,13,2,0,0,Tidak,4,1
+TRX-0057,Medan Branch,Pembelian Material Gudang,5.63,16,2,0,0,Tidak,2,1
+TRX-0058,Jakarta Branch,Pembayaran Gaji Lembur,11.91,20,4,0,0,Tidak,3,1
+TRX-0059,Bandung Branch,Pembayaran Vendor,3.31,7,6,0,1,Tidak,2,2
+TRX-0060,Surabaya Branch,Transfer Kas Internal,20.68,14,1,1,0,Tidak,4,1
+TRX-0061,Surabaya Branch,Reimbursement Operasional,25.61,13,5,0,0,Tidak,3,1
+TRX-0062,Surabaya Branch,Transfer Kas Internal,16.83,17,2,0,1,Tidak,4,1
+TRX-0063,Medan Branch,Pembayaran Gaji Lembur,89.23,19,5,0,1,Tidak,5,2
+TRX-0064,Jakarta Branch,Pembelian Material Gudang,23.06,6,2,0,0,Tidak,2,1
+TRX-0065,Operations Dept,Pembelian Material Gudang,17.49,2,5,0,0,Ya (Anomali),3,3
+TRX-0066,Finance Dept,Pembayaran Gaji Lembur,40.12,11,3,1,0,Tidak,4,3
+TRX-0067,Jakarta Branch,Reimbursement Operasional,8.59,20,7,0,1,Tidak,3,1
+TRX-0068,Medan Branch,Transfer Kas Internal,82.02,23,2,0,1,Tidak,4,1
+TRX-0069,Surabaya Branch,Pengadaan Perangkat IT,4.87,2,5,0,1,Tidak,2,3
+TRX-0070,Bandung Branch,Pembelian Material Gudang,217.71,19,1,1,0,Tidak,4,4
+TRX-0071,Surabaya Branch,Transfer Kas Internal,74.97,13,3,1,1,Tidak,5,1
+TRX-0072,Finance Dept,Pembayaran Tagihan Listrik,12.08,14,3,0,0,Tidak,4,1
+TRX-0073,IT Dept,Transfer Kas Internal,1.28,13,1,0,0,Tidak,1,1
+TRX-0074,Bandung Branch,Pembayaran Tagihan Listrik,85.49,6,5,1,0,Tidak,5,1
+TRX-0075,Surabaya Branch,Pembayaran Tagihan Listrik,62.35,16,4,0,0,Tidak,4,1
+TRX-0076,Operations Dept,Pembelian Material Gudang,66.28,11,1,1,0,Tidak,4,2
+TRX-0077,Bandung Branch,Reimbursement Operasional,74.76,19,5,0,1,Tidak,4,1
+TRX-0078,IT Dept,Jasa Konsultan Audit,4.85,3,1,0,1,Tidak,2,2
+TRX-0079,Jakarta Branch,Pembelian Material Gudang,23.19,8,1,1,0,Tidak,3,2
+TRX-0080,Medan Branch,Reimbursement Operasional,7.16,5,2,1,0,Ya (Anomali),3,4
+TRX-0081,Surabaya Branch,Reimbursement Operasional,100.43,15,5,0,0,Tidak,5,1
+TRX-0082,Finance Dept,Biaya Perjalanan Dinas,49.82,21,4,0,0,Tidak,4,1
+TRX-0083,Jakarta Branch,Pembayaran Gaji Lembur,21.09,21,7,0,0,Tidak,3,1
+TRX-0084,Surabaya Branch,Pembayaran Gaji Lembur,4.28,20,2,0,1,Tidak,2,1
+TRX-0085,Jakarta Branch,Pembayaran Gaji Lembur,19.62,20,1,0,0,Tidak,3,1
+TRX-0086,Finance Dept,Biaya Jamuan Klien,20.67,1,7,0,0,Ya (Anomali),3,3
+TRX-0087,Surabaya Branch,Pembelian Material Gudang,66.39,23,6,1,0,Ya (Anomali),4,3
+TRX-0088,IT Dept,Reimbursement Operasional,51.74,7,7,0,1,Tidak,5,1
+TRX-0089,IT Dept,Biaya Perjalanan Dinas,110.11,10,1,0,1,Tidak,5,1
+TRX-0090,Finance Dept,Pembayaran Tagihan Listrik,32.95,12,1,0,1,Tidak,4,1
+TRX-0091,Bandung Branch,Jasa Konsultan Audit,7.37,16,5,0,1,Tidak,1,1
+TRX-0092,Finance Dept,Jasa Konsultan Audit,63.46,7,5,0,0,Tidak,4,1
+TRX-0093,Bandung Branch,Pembayaran Tagihan Listrik,72.52,20,2,1,0,Tidak,4,2
+TRX-0094,Surabaya Branch,Transfer Kas Internal,42.19,17,4,0,1,Tidak,4,1
+TRX-0095,Bandung Branch,Transfer Kas Internal,74.69,17,2,1,0,Tidak,3,3
+TRX-0096,Surabaya Branch,Pembayaran Gaji Lembur,35.04,13,3,1,0,Tidak,5,1
+TRX-0097,Surabaya Branch,Pembelian Material Gudang,37.98,14,1,0,0,Tidak,4,1
+TRX-0098,Operations Dept,Biaya Jamuan Klien,28.89,5,7,1,0,Ya (Anomali),4,4
+TRX-0099,Medan Branch,Biaya Perjalanan Dinas,2.29,10,6,1,0,Tidak,2,2
+TRX-0100,Surabaya Branch,Jasa Konsultan Audit,6.71,12,1,0,0,Tidak,2,1
+TRX-0101,Bandung Branch,Pembayaran Gaji Lembur,2.6,0,1,0,1,Tidak,2,3
+TRX-0102,Medan Branch,Pembayaran Vendor,51.59,5,2,0,0,Tidak,3,1
+TRX-0103,Medan Branch,Pembayaran Gaji Lembur,19.87,8,6,0,0,Tidak,3,1
+TRX-0104,Surabaya Branch,Pembayaran Vendor,36.52,7,6,1,0,Tidak,4,2
+TRX-0105,Finance Dept,Pengadaan Perangkat IT,120.06,10,6,0,0,Tidak,4,1
+TRX-0106,Finance Dept,Reimbursement Operasional,15.34,21,2,1,0,Tidak,3,1
+TRX-0107,IT Dept,Pembayaran Tagihan Listrik,27.41,18,1,0,0,Tidak,4,2
+TRX-0108,Medan Branch,Reimbursement Operasional,71.44,23,2,0,0,Tidak,4,1
+TRX-0109,Surabaya Branch,Pembayaran Gaji Lembur,13.99,8,5,1,0,Tidak,3,2
+TRX-0110,Operations Dept,Reimbursement Operasional,5.01,16,5,0,0,Tidak,2,1
+TRX-0111,Finance Dept,Biaya Perjalanan Dinas,18.11,11,2,0,0,Tidak,3,2
+TRX-0112,Operations Dept,Pengadaan Perangkat IT,9.79,13,6,0,0,Tidak,3,1
+TRX-0113,Surabaya Branch,Biaya Jamuan Klien,133.75,14,1,0,0,Tidak,4,2
+TRX-0114,Surabaya Branch,Pengadaan Perangkat IT,83.54,15,2,0,0,Tidak,5,1
+TRX-0115,Medan Branch,Jasa Konsultan Audit,51.17,21,2,0,0,Tidak,4,1
+TRX-0116,Operations Dept,Biaya Perjalanan Dinas,103.58,21,2,0,0,Tidak,5,1
+TRX-0117,IT Dept,Reimbursement Operasional,82.4,19,3,1,0,Tidak,5,1
+TRX-0118,Medan Branch,Biaya Jamuan Klien,11.32,0,5,0,0,Tidak,3,1
+TRX-0119,Jakarta Branch,Reimbursement Operasional,112.54,9,7,0,1,Tidak,5,2
+TRX-0120,Operations Dept,Pembelian Material Gudang,39.75,7,6,0,1,Tidak,4,1
+TRX-0121,Finance Dept,Pembelian Material Gudang,83.37,17,4,1,1,Tidak,5,3
+TRX-0122,Finance Dept,Transfer Kas Internal,114.21,0,7,0,1,Ya (Anomali),5,3
+TRX-0123,Finance Dept,Pengadaan Perangkat IT,20.14,1,6,0,0,Tidak,3,3
+TRX-0124,Bandung Branch,Biaya Jamuan Klien,6.83,0,4,0,1,Tidak,2,3
+TRX-0125,Surabaya Branch,Pembelian Material Gudang,13.93,0,3,0,0,Tidak,3,2
+TRX-0126,Medan Branch,Transfer Kas Internal,28.85,8,2,1,0,Tidak,4,1
+TRX-0127,Finance Dept,Biaya Perjalanan Dinas,86.19,12,3,0,0,Tidak,5,1
+TRX-0128,Jakarta Branch,Biaya Jamuan Klien,99.57,0,3,0,0,Tidak,5,3
+TRX-0129,Finance Dept,Transfer Kas Internal,1.35,12,7,0,1,Tidak,1,2
+TRX-0130,IT Dept,Pembayaran Tagihan Listrik,36.74,19,1,0,0,Tidak,5,1
+TRX-0131,Surabaya Branch,Biaya Jamuan Klien,28.01,21,7,1,1,Ya (Anomali),4,3
+TRX-0132,Operations Dept,Pembayaran Gaji Lembur,13.56,6,5,1,0,Tidak,3,1
+TRX-0133,Surabaya Branch,Transfer Kas Internal,7.38,1,4,0,0,Tidak,1,2
+TRX-0134,Operations Dept,Reimbursement Operasional,21.6,5,2,1,0,Ya (Anomali),3,3
+TRX-0135,Operations Dept,Pembayaran Gaji Lembur,144.16,6,7,1,0,Ya (Anomali),4,3
+TRX-0136,Medan Branch,Pembayaran Tagihan Listrik,20.52,13,4,0,1,Tidak,4,1
+TRX-0137,Bandung Branch,Pembelian Material Gudang,37.57,17,6,0,0,Tidak,4,1
+TRX-0138,Operations Dept,Pembayaran Vendor,61.7,14,4,0,0,Tidak,4,1
+TRX-0139,Operations Dept,Transfer Kas Internal,23.6,1,6,1,1,Ya (Anomali),3,3
+TRX-0140,Medan Branch,Biaya Perjalanan Dinas,179.39,9,7,1,0,Ya (Anomali),5,4
+TRX-0141,Finance Dept,Transfer Kas Internal,165.1,22,5,1,1,Ya (Anomali),5,5
+TRX-0142,IT Dept,Pembayaran Vendor,15.5,11,7,1,0,Tidak,4,1
+TRX-0143,Jakarta Branch,Pembayaran Tagihan Listrik,35.38,16,6,0,0,Tidak,5,1
+TRX-0144,Medan Branch,Pembayaran Tagihan Listrik,18.9,7,4,1,0,Tidak,3,1
+TRX-0145,Bandung Branch,Pembayaran Gaji Lembur,17.76,10,4,1,0,Tidak,4,1
+TRX-0146,Medan Branch,Biaya Jamuan Klien,2.88,2,6,0,0,Tidak,2,2
+TRX-0147,Surabaya Branch,Biaya Perjalanan Dinas,48.02,5,3,0,0,Tidak,4,1
+TRX-0148,Finance Dept,Pembayaran Gaji Lembur,35.93,8,5,1,1,Ya (Anomali),4,3
+TRX-0149,Finance Dept,Biaya Perjalanan Dinas,3.64,5,1,0,1,Tidak,2,2
+TRX-0150,Operations Dept,Biaya Perjalanan Dinas,17.33,8,2,1,0,Tidak,2,1
+TRX-0151,Finance Dept,Pembayaran Vendor,120.44,6,4,0,0,Tidak,5,2
+TRX-0152,Finance Dept,Pembayaran Gaji Lembur,14.69,8,2,0,0,Tidak,3,1
+TRX-0153,Finance Dept,Biaya Perjalanan Dinas,8.83,17,1,1,0,Tidak,3,2
+TRX-0154,Finance Dept,Jasa Konsultan Audit,34.61,11,7,0,1,Tidak,4,1
+TRX-0155,Jakarta Branch,Pembayaran Vendor,213.2,7,2,0,0,Tidak,5,2
+TRX-0156,Bandung Branch,Pembayaran Tagihan Listrik,14.86,7,1,0,0,Tidak,3,2
+TRX-0157,Operations Dept,Pembayaran Vendor,56.76,17,6,1,0,Tidak,4,1
+TRX-0158,Finance Dept,Reimbursement Operasional,72.69,19,3,0,1,Tidak,3,2
+TRX-0159,Operations Dept,Reimbursement Operasional,14.57,14,4,1,0,Tidak,2,4
+TRX-0160,Bandung Branch,Biaya Perjalanan Dinas,66.14,6,1,0,0,Tidak,4,1
+TRX-0161,IT Dept,Pembayaran Gaji Lembur,23.93,10,2,1,0,Tidak,3,3
+TRX-0162,Finance Dept,Pembayaran Tagihan Listrik,51.03,19,4,1,0,Tidak,4,2
+TRX-0163,Operations Dept,Pembayaran Vendor,51.19,15,3,0,0,Tidak,3,1
+TRX-0164,Medan Branch,Pembayaran Gaji Lembur,39.37,3,6,0,0,Tidak,4,3
+TRX-0165,Operations Dept,Pembayaran Vendor,5.73,5,7,0,1,Ya (Anomali),2,2
+TRX-0166,Finance Dept,Pembayaran Vendor,91.18,21,4,0,0,Tidak,5,1
+TRX-0167,Surabaya Branch,Jasa Konsultan Audit,20.34,2,7,0,0,Tidak,2,2
+TRX-0168,Jakarta Branch,Reimbursement Operasional,11.32,8,1,0,1,Tidak,2,1
+TRX-0169,Medan Branch,Pembayaran Vendor,3.08,9,3,0,1,Tidak,2,1
+TRX-0170,Medan Branch,Jasa Konsultan Audit,45.69,13,2,0,0,Tidak,3,1
+TRX-0171,Surabaya Branch,Reimbursement Operasional,57.59,10,3,0,0,Tidak,5,1
+TRX-0172,Finance Dept,Jasa Konsultan Audit,1.84,17,3,0,0,Tidak,1,1
+TRX-0173,Jakarta Branch,Pembayaran Gaji Lembur,36.88,21,5,1,1,Ya (Anomali),3,3
+TRX-0174,Medan Branch,Biaya Jamuan Klien,13.84,11,3,0,0,Tidak,3,1
+TRX-0175,Jakarta Branch,Reimbursement Operasional,52.81,22,3,0,0,Tidak,4,2
+TRX-0176,Medan Branch,Pembelian Material Gudang,10.58,11,4,0,0,Tidak,2,1
+TRX-0177,Finance Dept,Biaya Jamuan Klien,59.71,12,2,1,0,Tidak,5,2
+TRX-0178,IT Dept,Pembayaran Gaji Lembur,25.45,12,4,1,0,Tidak,4,1
+TRX-0179,Medan Branch,Pembayaran Vendor,139.02,18,4,1,0,Ya (Anomali),5,3
+TRX-0180,IT Dept,Pembayaran Tagihan Listrik,8.4,18,1,1,0,Tidak,3,3
+TRX-0181,Medan Branch,Pembayaran Gaji Lembur,21.86,22,4,0,0,Tidak,2,1
+TRX-0182,Bandung Branch,Jasa Konsultan Audit,7.02,13,5,1,0,Tidak,2,2
+TRX-0183,Finance Dept,Jasa Konsultan Audit,130.31,3,5,1,0,Ya (Anomali),5,3
+TRX-0184,Surabaya Branch,Jasa Konsultan Audit,105.92,12,7,0,0,Tidak,5,1
+TRX-0185,IT Dept,Jasa Konsultan Audit,15.92,7,1,1,0,Tidak,3,2
+TRX-0186,Surabaya Branch,Pembayaran Gaji Lembur,54.94,22,7,0,0,Tidak,4,1
+TRX-0187,Finance Dept,Pembayaran Tagihan Listrik,85.97,20,7,0,1,Tidak,5,1
+TRX-0188,Operations Dept,Transfer Kas Internal,41.51,22,6,0,1,Ya (Anomali),4,4
+TRX-0189,Surabaya Branch,Jasa Konsultan Audit,38.71,18,2,0,1,Tidak,4,2
+TRX-0190,Finance Dept,Transfer Kas Internal,14.84,11,2,0,0,Tidak,3,1
+TRX-0191,Surabaya Branch,Pembayaran Tagihan Listrik,5.89,17,4,0,0,Tidak,3,1
+TRX-0192,IT Dept,Pembayaran Tagihan Listrik,114.76,5,4,0,0,Tidak,4,2
+TRX-0193,Bandung Branch,Biaya Jamuan Klien,116.34,17,6,0,0,Tidak,5,1
+TRX-0194,Surabaya Branch,Reimbursement Operasional,51.13,18,4,1,0,Tidak,4,2
+TRX-0195,IT Dept,Pembelian Material Gudang,21.7,21,2,0,1,Tidak,2,2
+TRX-0196,Medan Branch,Biaya Perjalanan Dinas,22.48,4,7,0,0,Tidak,3,1
+TRX-0197,Finance Dept,Pembelian Material Gudang,65.72,23,3,1,0,Ya (Anomali),4,3
+TRX-0198,Jakarta Branch,Pembayaran Gaji Lembur,114.7,8,5,1,1,Tidak,5,3
+TRX-0199,Operations Dept,Biaya Perjalanan Dinas,110.06,2,3,0,1,Ya (Anomali),4,3
+TRX-0200,Jakarta Branch,Pembayaran Tagihan Listrik,76.68,9,3,1,1,Tidak,4,4
+TRX-0201,Finance Dept,Pembelian Material Gudang,52.37,18,2,1,0,Tidak,4,2
+TRX-0202,Bandung Branch,Pengadaan Perangkat IT,5.39,2,3,1,0,Tidak,3,2
+TRX-0203,Surabaya Branch,Reimbursement Operasional,9.81,21,6,0,0,Tidak,3,1
+TRX-0204,Bandung Branch,Pembelian Material Gudang,115.41,14,1,0,0,Tidak,5,1
+TRX-0205,Jakarta Branch,Reimbursement Operasional,47.62,0,4,0,0,Tidak,5,2
+TRX-0206,Operations Dept,Transfer Kas Internal,1.46,6,1,0,0,Tidak,1,1
+TRX-0207,IT Dept,Pembayaran Gaji Lembur,6.35,11,7,0,1,Tidak,2,1
+TRX-0208,Operations Dept,Reimbursement Operasional,55.46,16,5,0,0,Tidak,5,1
+TRX-0209,Finance Dept,Transfer Kas Internal,1.25,20,4,0,1,Tidak,1,2
+TRX-0210,Finance Dept,Jasa Konsultan Audit,9.77,23,3,0,1,Ya (Anomali),3,3
+TRX-0211,Bandung Branch,Transfer Kas Internal,40.78,19,5,0,0,Tidak,4,1
+TRX-0212,IT Dept,Pembayaran Gaji Lembur,59.87,4,4,1,1,Ya (Anomali),4,3
+TRX-0213,Bandung Branch,Biaya Jamuan Klien,53.77,3,6,0,0,Tidak,3,1
+TRX-0214,Surabaya Branch,Jasa Konsultan Audit,13.7,11,6,0,0,Tidak,3,1
+TRX-0215,Medan Branch,Pembayaran Tagihan Listrik,63.27,19,6,1,1,Tidak,4,2
+TRX-0216,IT Dept,Pembayaran Vendor,14.54,23,6,0,0,Tidak,3,2
+TRX-0217,Medan Branch,Transfer Kas Internal,20.68,17,3,0,1,Tidak,3,2
+TRX-0218,Operations Dept,Transfer Kas Internal,69.62,16,1,1,0,Tidak,5,2
+TRX-0219,Surabaya Branch,Reimbursement Operasional,53.44,18,4,0,0,Tidak,4,1
+TRX-0220,Medan Branch,Pembayaran Tagihan Listrik,95.6,8,3,1,0,Tidak,4,3
+TRX-0221,Jakarta Branch,Pembelian Material Gudang,54.59,3,6,0,0,Tidak,4,1
+TRX-0222,Operations Dept,Pengadaan Perangkat IT,43.0,20,7,0,0,Tidak,4,1
+TRX-0223,Medan Branch,Biaya Perjalanan Dinas,5.92,1,1,0,0,Tidak,3,2
+TRX-0224,Surabaya Branch,Transfer Kas Internal,23.92,3,7,0,1,Tidak,2,3
+TRX-0225,Medan Branch,Pembelian Material Gudang,16.41,1,5,1,1,Ya (Anomali),3,3
+TRX-0226,Finance Dept,Pengadaan Perangkat IT,14.99,14,7,0,0,Tidak,4,1
+TRX-0227,Bandung Branch,Biaya Perjalanan Dinas,181.62,1,5,0,1,Ya (Anomali),5,5
+TRX-0228,Jakarta Branch,Pembayaran Vendor,25.97,3,5,0,1,Tidak,3,2
+TRX-0229,Finance Dept,Reimbursement Operasional,112.3,5,6,0,1,Ya (Anomali),5,3
+TRX-0230,Finance Dept,Pembelian Material Gudang,50.87,6,5,0,0,Tidak,3,1
+TRX-0231,Surabaya Branch,Reimbursement Operasional,80.19,9,2,0,0,Tidak,4,1
+TRX-0232,Bandung Branch,Biaya Perjalanan Dinas,35.92,18,4,0,1,Tidak,4,2
+TRX-0233,Bandung Branch,Biaya Jamuan Klien,44.01,18,4,0,0,Tidak,4,1
+TRX-0234,IT Dept,Transfer Kas Internal,34.91,21,6,0,1,Tidak,4,2
+TRX-0235,Operations Dept,Jasa Konsultan Audit,11.86,11,2,0,0,Tidak,2,1
+TRX-0236,Jakarta Branch,Pengadaan Perangkat IT,65.09,2,7,0,0,Tidak,4,2
+TRX-0237,Operations Dept,Pembayaran Tagihan Listrik,17.48,12,3,1,0,Tidak,4,2
+TRX-0238,Surabaya Branch,Pembayaran Gaji Lembur,2.23,17,7,0,0,Tidak,2,1
+TRX-0239,Jakarta Branch,Transfer Kas Internal,52.85,7,3,0,0,Tidak,5,1
+TRX-0240,IT Dept,Jasa Konsultan Audit,10.75,20,5,0,1,Tidak,4,2
+TRX-0241,Medan Branch,Pembayaran Gaji Lembur,142.05,14,1,0,0,Tidak,5,2
+TRX-0242,Finance Dept,Pembelian Material Gudang,154.88,0,3,0,1,Ya (Anomali),5,5
+TRX-0243,Jakarta Branch,Pembayaran Gaji Lembur,124.18,2,1,0,1,Ya (Anomali),5,4
+TRX-0244,Operations Dept,Pembayaran Vendor,24.11,7,4,1,0,Tidak,3,2
+TRX-0245,Finance Dept,Transfer Kas Internal,1.78,3,1,0,1,Ya (Anomali),1,4
+TRX-0246,Surabaya Branch,Reimbursement Operasional,132.78,15,4,1,1,Ya (Anomali),5,5
+TRX-0247,Operations Dept,Biaya Jamuan Klien,28.95,22,2,1,1,Ya (Anomali),5,5
+TRX-0248,Medan Branch,Pembayaran Tagihan Listrik,171.04,9,2,0,1,Tidak,5,3
+TRX-0249,Surabaya Branch,Reimbursement Operasional,166.69,11,6,0,1,Ya (Anomali),5,4
+TRX-0250,Medan Branch,Jasa Konsultan Audit,96.87,13,6,0,0,Tidak,4,1
+TRX-0251,Medan Branch,Transfer Kas Internal,18.44,13,5,0,0,Tidak,3,1
+TRX-0252,Finance Dept,Biaya Jamuan Klien,25.31,1,3,1,1,Ya (Anomali),4,5
+TRX-0253,Surabaya Branch,Pembayaran Gaji Lembur,96.24,22,5,0,0,Tidak,5,2
+TRX-0254,Surabaya Branch,Transfer Kas Internal,20.06,4,4,0,0,Tidak,3,2
+TRX-0255,Jakarta Branch,Pembayaran Gaji Lembur,10.29,4,5,1,0,Ya (Anomali),3,5
+TRX-0256,Operations Dept,Pembelian Material Gudang,41.69,5,1,0,1,Tidak,4,3
+TRX-0257,Surabaya Branch,Pembayaran Vendor,138.56,12,4,0,0,Tidak,5,3
+TRX-0258,Jakarta Branch,Biaya Perjalanan Dinas,60.54,8,6,0,1,Tidak,4,2
+TRX-0259,Bandung Branch,Transfer Kas Internal,43.21,21,2,0,0,Tidak,4,1
+TRX-0260,Bandung Branch,Jasa Konsultan Audit,6.11,14,6,1,0,Tidak,3,1
+TRX-0261,Bandung Branch,Pembayaran Gaji Lembur,48.73,13,3,0,0,Tidak,5,1
+TRX-0262,IT Dept,Reimbursement Operasional,231.53,23,4,0,0,Ya (Anomali),5,3
+TRX-0263,Surabaya Branch,Pembelian Material Gudang,8.55,6,4,0,1,Tidak,3,2
+TRX-0264,IT Dept,Jasa Konsultan Audit,37.52,19,1,0,1,Tidak,4,1
+TRX-0265,Operations Dept,Pembayaran Tagihan Listrik,105.93,1,3,0,1,Ya (Anomali),5,4
+TRX-0266,Surabaya Branch,Biaya Perjalanan Dinas,68.5,6,2,0,0,Tidak,4,1
+TRX-0267,Jakarta Branch,Pembelian Material Gudang,60.7,5,7,0,0,Tidak,4,1
+TRX-0268,IT Dept,Pembayaran Vendor,61.61,16,4,1,1,Tidak,4,1
+TRX-0269,IT Dept,Biaya Perjalanan Dinas,23.27,1,4,0,1,Ya (Anomali),2,4
+TRX-0270,Operations Dept,Pembayaran Gaji Lembur,18.38,2,1,0,0,Tidak,3,3
+TRX-0271,IT Dept,Jasa Konsultan Audit,83.87,4,5,0,0,Tidak,5,2
+TRX-0272,Medan Branch,Pembayaran Tagihan Listrik,84.07,4,2,1,0,Ya (Anomali),5,3
+TRX-0273,Jakarta Branch,Pengadaan Perangkat IT,101.9,0,6,0,1,Ya (Anomali),5,3
+TRX-0274,Bandung Branch,Pembayaran Vendor,123.23,7,3,0,0,Tidak,5,1
+TRX-0275,Jakarta Branch,Biaya Jamuan Klien,36.8,11,4,1,0,Tidak,3,2
+TRX-0276,Medan Branch,Pembayaran Gaji Lembur,35.81,23,4,0,0,Tidak,4,2
+TRX-0277,Operations Dept,Pengadaan Perangkat IT,81.05,3,6,0,1,Ya (Anomali),5,4
+TRX-0278,Operations Dept,Transfer Kas Internal,53.49,12,2,0,0,Tidak,4,1
+TRX-0279,Surabaya Branch,Pembayaran Tagihan Listrik,61.53,22,5,0,0,Tidak,4,1
+TRX-0280,Jakarta Branch,Reimbursement Operasional,80.43,14,4,1,0,Tidak,3,2
+TRX-0281,Operations Dept,Biaya Jamuan Klien,111.37,10,2,0,0,Tidak,5,1
+TRX-0282,IT Dept,Jasa Konsultan Audit,21.62,9,6,0,0,Tidak,3,1
+TRX-0283,Operations Dept,Pembayaran Tagihan Listrik,24.55,2,1,1,1,Ya (Anomali),4,5
+TRX-0284,Operations Dept,Biaya Perjalanan Dinas,5.93,21,5,0,1,Tidak,2,1
+TRX-0285,Operations Dept,Pembelian Material Gudang,44.17,13,3,0,1,Tidak,4,1
+TRX-0286,Operations Dept,Biaya Perjalanan Dinas,2.83,15,4,0,1,Tidak,2,2
+TRX-0287,Bandung Branch,Biaya Perjalanan Dinas,32.33,9,2,0,0,Tidak,4,1
+TRX-0288,Bandung Branch,Transfer Kas Internal,40.11,9,1,0,1,Tidak,4,1
+TRX-0289,Surabaya Branch,Pembayaran Vendor,17.88,11,3,0,0,Tidak,3,1
+TRX-0290,Operations Dept,Reimbursement Operasional,45.68,8,7,0,1,Tidak,4,3
+TRX-0291,Jakarta Branch,Biaya Jamuan Klien,2.55,0,2,0,1,Tidak,2,3
+TRX-0292,Medan Branch,Pembayaran Vendor,2.9,4,2,1,0,Ya (Anomali),2,3
+TRX-0293,Surabaya Branch,Pembayaran Tagihan Listrik,87.47,19,3,0,0,Tidak,4,1
+TRX-0294,Jakarta Branch,Biaya Perjalanan Dinas,23.33,7,1,0,0,Tidak,4,1
+TRX-0295,Operations Dept,Transfer Kas Internal,7.79,10,7,0,0,Tidak,1,1
+TRX-0296,Finance Dept,Pembayaran Tagihan Listrik,37.93,11,6,0,0,Tidak,4,1
+TRX-0297,Operations Dept,Pembelian Material Gudang,74.48,0,1,0,1,Ya (Anomali),4,3
+TRX-0298,Bandung Branch,Reimbursement Operasional,13.16,21,5,0,1,Tidak,3,2
+TRX-0299,Medan Branch,Biaya Jamuan Klien,49.76,19,4,0,0,Tidak,4,1
+TRX-0300,IT Dept,Pembelian Material Gudang,5.46,10,3,1,0,Tidak,1,2
+TRX-0301,Medan Branch,Transfer Kas Internal,3.65,4,6,0,0,Tidak,2,3
+TRX-0302,IT Dept,Reimbursement Operasional,38.9,14,7,1,1,Tidak,4,2
+TRX-0303,Medan Branch,Pembayaran Tagihan Listrik,39.9,4,3,0,0,Tidak,4,3
+TRX-0304,Bandung Branch,Biaya Perjalanan Dinas,51.73,11,3,1,0,Tidak,4,3
+TRX-0305,IT Dept,Biaya Perjalanan Dinas,65.75,4,1,0,0,Tidak,5,1
+TRX-0306,Jakarta Branch,Pembayaran Gaji Lembur,187.18,16,4,1,0,Ya (Anomali),5,5
+TRX-0307,IT Dept,Biaya Perjalanan Dinas,37.31,16,5,0,0,Tidak,5,2
+TRX-0308,Surabaya Branch,Pengadaan Perangkat IT,20.5,23,2,0,1,Tidak,3,4
+TRX-0309,Jakarta Branch,Biaya Perjalanan Dinas,80.28,11,2,0,0,Tidak,4,1
+TRX-0310,Surabaya Branch,Pengadaan Perangkat IT,16.79,23,3,0,1,Tidak,4,3
+TRX-0311,Operations Dept,Jasa Konsultan Audit,29.9,14,4,0,0,Tidak,5,1
+TRX-0312,Medan Branch,Pengadaan Perangkat IT,5.09,14,7,0,1,Tidak,2,3
+TRX-0313,Jakarta Branch,Reimbursement Operasional,2.28,5,7,0,1,Ya (Anomali),2,3
+TRX-0314,Medan Branch,Pembelian Material Gudang,165.37,11,6,0,0,Tidak,5,2
+TRX-0315,Operations Dept,Reimbursement Operasional,91.39,19,1,0,0,Tidak,5,1
+TRX-0316,Finance Dept,Pembelian Material Gudang,60.53,17,4,0,0,Tidak,4,1
+TRX-0317,Medan Branch,Pembayaran Gaji Lembur,27.29,13,4,1,1,Ya (Anomali),4,3
+TRX-0318,Operations Dept,Jasa Konsultan Audit,10.52,1,1,0,0,Tidak,4,3
+TRX-0319,Medan Branch,Pembelian Material Gudang,9.51,8,7,1,1,Tidak,2,3
+TRX-0320,Operations Dept,Pembelian Material Gudang,15.4,4,7,0,0,Tidak,3,2
+TRX-0321,Surabaya Branch,Transfer Kas Internal,40.84,19,7,1,1,Tidak,4,4
+TRX-0322,Operations Dept,Pembayaran Vendor,63.69,0,3,1,1,Ya (Anomali),4,5
+TRX-0323,IT Dept,Pembayaran Vendor,54.97,22,4,0,1,Tidak,3,3
+TRX-0324,Finance Dept,Transfer Kas Internal,17.42,2,2,0,0,Tidak,3,3
+TRX-0325,Medan Branch,Biaya Perjalanan Dinas,155.91,5,1,0,0,Ya (Anomali),5,3
+TRX-0326,Operations Dept,Transfer Kas Internal,67.95,4,7,1,1,Ya (Anomali),5,4
+TRX-0327,Operations Dept,Pembelian Material Gudang,41.41,20,6,0,0,Tidak,4,1
+TRX-0328,Medan Branch,Pembelian Material Gudang,48.3,4,7,0,0,Tidak,4,2
+TRX-0329,Finance Dept,Transfer Kas Internal,28.2,0,7,0,0,Ya (Anomali),4,4
+TRX-0330,Finance Dept,Transfer Kas Internal,15.23,16,5,1,0,Tidak,4,1
+TRX-0331,Operations Dept,Biaya Perjalanan Dinas,23.0,18,3,1,0,Tidak,3,2
+TRX-0332,Jakarta Branch,Reimbursement Operasional,71.91,13,1,1,0,Tidak,4,1
+TRX-0333,Surabaya Branch,Jasa Konsultan Audit,1.72,11,5,0,0,Tidak,1,1
+TRX-0334,Finance Dept,Pembayaran Tagihan Listrik,7.17,9,5,0,1,Tidak,2,2
+TRX-0335,Finance Dept,Pembelian Material Gudang,3.35,19,6,0,1,Tidak,1,2
+TRX-0336,Bandung Branch,Jasa Konsultan Audit,3.08,20,4,0,1,Tidak,2,1
+TRX-0337,IT Dept,Transfer Kas Internal,97.71,17,6,0,1,Tidak,5,2
+TRX-0338,Finance Dept,Biaya Perjalanan Dinas,61.81,23,4,0,0,Tidak,4,3
+TRX-0339,Surabaya Branch,Pengadaan Perangkat IT,33.14,10,4,0,0,Tidak,4,1
+TRX-0340,IT Dept,Biaya Perjalanan Dinas,6.15,1,1,0,0,Tidak,2,3
+TRX-0341,IT Dept,Biaya Jamuan Klien,34.83,17,7,1,0,Tidak,4,2
+TRX-0342,Medan Branch,Biaya Jamuan Klien,33.07,6,1,0,1,Tidak,4,2
+TRX-0343,Medan Branch,Jasa Konsultan Audit,10.51,23,3,1,0,Ya (Anomali),3,4
+TRX-0344,Medan Branch,Pembayaran Vendor,29.44,14,4,0,0,Tidak,4,1
+TRX-0345,Medan Branch,Biaya Jamuan Klien,26.42,10,5,0,0,Tidak,4,1
+TRX-0346,Bandung Branch,Biaya Jamuan Klien,48.84,17,7,0,0,Tidak,5,1
+TRX-0347,Finance Dept,Reimbursement Operasional,51.41,22,2,0,1,Ya (Anomali),4,4
+TRX-0348,Medan Branch,Pengadaan Perangkat IT,3.32,11,3,0,0,Tidak,2,1
+TRX-0349,Operations Dept,Reimbursement Operasional,24.47,5,1,0,1,Ya (Anomali),3,4
+TRX-0350,Jakarta Branch,Pengadaan Perangkat IT,50.16,19,6,0,0,Tidak,4,1
+TRX-0351,Medan Branch,Pembayaran Gaji Lembur,35.97,22,3,0,0,Tidak,4,1
+TRX-0352,Finance Dept,Pembayaran Tagihan Listrik,98.07,12,3,0,1,Tidak,5,2
+TRX-0353,Medan Branch,Pembelian Material Gudang,54.75,19,7,1,0,Tidak,5,3
+TRX-0354,Bandung Branch,Biaya Jamuan Klien,9.89,15,3,1,1,Ya (Anomali),3,2
+TRX-0355,Surabaya Branch,Pembelian Material Gudang,4.66,17,3,0,1,Tidak,3,2
+TRX-0356,Surabaya Branch,Biaya Jamuan Klien,52.42,9,2,0,1,Tidak,5,1
+TRX-0357,Finance Dept,Reimbursement Operasional,2.34,22,6,1,1,Ya (Anomali),1,5
+TRX-0358,Operations Dept,Pembayaran Tagihan Listrik,45.07,7,6,1,0,Tidak,4,3
+TRX-0359,Surabaya Branch,Reimbursement Operasional,141.86,17,6,0,1,Tidak,5,2
+TRX-0360,Surabaya Branch,Reimbursement Operasional,43.84,20,4,1,0,Tidak,5,2
+TRX-0361,Jakarta Branch,Pengadaan Perangkat IT,25.57,0,5,0,1,Ya (Anomali),2,3
+TRX-0362,Finance Dept,Pembayaran Vendor,52.54,22,6,1,1,Ya (Anomali),3,4
+TRX-0363,Operations Dept,Biaya Perjalanan Dinas,31.65,7,3,1,1,Tidak,4,3
+TRX-0364,Finance Dept,Jasa Konsultan Audit,40.44,5,3,0,1,Ya (Anomali),5,4
+TRX-0365,Surabaya Branch,Pembelian Material Gudang,142.91,4,6,0,0,Ya (Anomali),5,4
+TRX-0366,Surabaya Branch,Pembayaran Gaji Lembur,25.4,14,7,1,1,Tidak,3,3
+TRX-0367,Surabaya Branch,Biaya Jamuan Klien,163.45,21,6,0,0,Tidak,5,2
+TRX-0368,IT Dept,Reimbursement Operasional,118.88,14,3,0,1,Tidak,4,1
+TRX-0369,Bandung Branch,Pembayaran Vendor,11.89,1,4,1,1,Ya (Anomali),3,4
+TRX-0370,Medan Branch,Reimbursement Operasional,4.59,0,1,0,0,Tidak,2,2
+TRX-0371,Bandung Branch,Pembayaran Tagihan Listrik,6.31,22,1,0,0,Tidak,3,1
+TRX-0372,Finance Dept,Pengadaan Perangkat IT,1.92,22,6,0,0,Tidak,1,3
+TRX-0373,Jakarta Branch,Pembayaran Gaji Lembur,5.96,10,2,0,1,Tidak,2,2
+TRX-0374,Medan Branch,Biaya Perjalanan Dinas,58.44,9,6,0,0,Tidak,4,1
+TRX-0375,Jakarta Branch,Pembayaran Tagihan Listrik,4.69,17,7,0,0,Tidak,2,1
+TRX-0376,Operations Dept,Transfer Kas Internal,20.21,17,6,0,0,Tidak,2,1
+TRX-0377,IT Dept,Pembayaran Gaji Lembur,94.18,16,1,0,1,Tidak,5,3
+TRX-0378,Finance Dept,Reimbursement Operasional,2.18,7,3,0,0,Tidak,2,1
+TRX-0379,IT Dept,Pembayaran Tagihan Listrik,85.23,14,6,0,0,Tidak,5,1
+TRX-0380,Finance Dept,Biaya Perjalanan Dinas,17.55,7,3,0,0,Tidak,3,1
+TRX-0381,Jakarta Branch,Pembayaran Vendor,7.29,16,3,0,0,Tidak,2,1
+TRX-0382,Jakarta Branch,Pembayaran Vendor,60.66,11,2,0,0,Tidak,4,2
+TRX-0383,Jakarta Branch,Pembelian Material Gudang,50.57,7,3,0,0,Tidak,4,1
+TRX-0384,Finance Dept,Biaya Perjalanan Dinas,105.97,13,1,0,0,Tidak,5,1
+TRX-0385,Surabaya Branch,Pembayaran Vendor,67.41,3,4,1,1,Ya (Anomali),4,5
+TRX-0386,Jakarta Branch,Pembayaran Tagihan Listrik,82.35,0,4,0,1,Tidak,5,3
+TRX-0387,IT Dept,Pembelian Material Gudang,17.57,0,5,0,0,Tidak,3,1
+TRX-0388,Operations Dept,Pembayaran Vendor,10.77,18,7,0,1,Tidak,3,1
+TRX-0389,Medan Branch,Pembayaran Gaji Lembur,70.44,15,6,0,0,Tidak,4,1
+TRX-0390,Finance Dept,Pengadaan Perangkat IT,83.21,13,7,0,0,Tidak,5,1
+TRX-0391,IT Dept,Transfer Kas Internal,233.85,20,1,0,0,Tidak,4,2
+TRX-0392,Bandung Branch,Biaya Perjalanan Dinas,27.6,15,3,0,0,Tidak,4,1
+TRX-0393,Operations Dept,Pembayaran Tagihan Listrik,24.26,4,4,0,0,Tidak,3,2
+TRX-0394,Bandung Branch,Biaya Jamuan Klien,75.9,8,7,0,0,Tidak,4,1
+TRX-0395,Medan Branch,Reimbursement Operasional,21.84,1,1,0,0,Tidak,3,2
+TRX-0396,Surabaya Branch,Pembayaran Tagihan Listrik,134.51,17,4,0,1,Tidak,5,2
+TRX-0397,Jakarta Branch,Pembayaran Vendor,98.74,5,3,0,0,Tidak,5,2
+TRX-0398,Finance Dept,Pembayaran Tagihan Listrik,29.02,8,7,0,0,Tidak,4,2
+TRX-0399,IT Dept,Biaya Jamuan Klien,70.49,0,4,0,0,Tidak,4,2
+TRX-0400,Jakarta Branch,Reimbursement Operasional,71.23,8,6,0,0,Tidak,4,1
+TRX-0401,IT Dept,Pembelian Material Gudang,6.44,15,6,0,0,Tidak,2,1
+TRX-0402,Finance Dept,Pembayaran Vendor,117.42,12,5,0,0,Tidak,5,1
+TRX-0403,Bandung Branch,Jasa Konsultan Audit,36.19,8,5,0,1,Tidak,5,2
+TRX-0404,Jakarta Branch,Pembayaran Vendor,88.57,20,4,0,0,Tidak,5,2
+TRX-0405,Medan Branch,Transfer Kas Internal,20.29,12,1,0,0,Tidak,3,1
+TRX-0406,Surabaya Branch,Jasa Konsultan Audit,113.94,8,6,0,1,Tidak,4,3
+TRX-0407,Medan Branch,Transfer Kas Internal,25.65,10,1,1,0,Tidak,3,1
+TRX-0408,Surabaya Branch,Biaya Jamuan Klien,1.54,3,1,0,0,Tidak,1,2
+TRX-0409,Operations Dept,Biaya Perjalanan Dinas,118.9,1,4,1,1,Ya (Anomali),5,4
+TRX-0410,IT Dept,Reimbursement Operasional,5.79,5,1,0,0,Tidak,2,2
+TRX-0411,Jakarta Branch,Pengadaan Perangkat IT,20.23,13,6,0,0,Tidak,3,1
+TRX-0412,Jakarta Branch,Pembelian Material Gudang,150.85,3,3,0,0,Ya (Anomali),5,5
+TRX-0413,Operations Dept,Pengadaan Perangkat IT,151.4,5,5,0,0,Ya (Anomali),5,4
+TRX-0414,Surabaya Branch,Pembayaran Gaji Lembur,43.6,18,3,0,0,Tidak,5,1
+TRX-0415,Bandung Branch,Pembayaran Gaji Lembur,50.96,5,1,1,0,Tidak,3,2
+TRX-0416,Finance Dept,Biaya Jamuan Klien,30.75,1,3,0,0,Ya (Anomali),4,3
+TRX-0417,Medan Branch,Biaya Perjalanan Dinas,18.35,17,6,1,0,Ya (Anomali),3,3
+TRX-0418,Operations Dept,Pembayaran Gaji Lembur,20.92,12,6,0,1,Tidak,2,1
+TRX-0419,IT Dept,Pembayaran Vendor,56.82,8,1,0,0,Tidak,4,1
+TRX-0420,Operations Dept,Pembayaran Tagihan Listrik,70.79,22,4,0,0,Ya (Anomali),3,2
+TRX-0421,Medan Branch,Transfer Kas Internal,79.41,18,3,0,0,Tidak,4,1
+TRX-0422,Medan Branch,Pembayaran Gaji Lembur,78.94,12,4,0,1,Tidak,4,1
+TRX-0423,IT Dept,Biaya Jamuan Klien,5.78,10,4,0,0,Tidak,1,1
+TRX-0424,IT Dept,Transfer Kas Internal,35.1,0,2,0,1,Ya (Anomali),3,3
+TRX-0425,Jakarta Branch,Pembayaran Vendor,3.96,23,1,0,0,Tidak,2,2
+TRX-0426,Medan Branch,Biaya Perjalanan Dinas,40.87,21,5,0,0,Tidak,4,1
+TRX-0427,Finance Dept,Reimbursement Operasional,30.13,6,6,1,0,Tidak,4,3
+TRX-0428,Finance Dept,Pengadaan Perangkat IT,110.33,20,6,0,0,Tidak,5,1
+TRX-0429,Surabaya Branch,Pembayaran Vendor,22.61,14,1,1,0,Tidak,3,2
+TRX-0430,Operations Dept,Pembelian Material Gudang,7.23,0,7,1,0,Ya (Anomali),2,5
+TRX-0431,IT Dept,Jasa Konsultan Audit,8.72,11,7,1,0,Tidak,2,2
+TRX-0432,Jakarta Branch,Biaya Jamuan Klien,72.67,6,7,0,0,Tidak,4,1
+TRX-0433,Finance Dept,Pengadaan Perangkat IT,49.15,14,5,0,1,Tidak,4,1
+TRX-0434,Bandung Branch,Pembelian Material Gudang,6.33,20,6,1,1,Ya (Anomali),2,3
+TRX-0435,Jakarta Branch,Reimbursement Operasional,5.39,18,1,0,0,Tidak,2,1
+TRX-0436,Jakarta Branch,Pembelian Material Gudang,61.36,0,6,0,0,Tidak,4,2
+TRX-0437,Finance Dept,Biaya Perjalanan Dinas,4.78,16,4,0,0,Tidak,1,1
+TRX-0438,Bandung Branch,Jasa Konsultan Audit,87.26,16,3,0,1,Tidak,5,1
+TRX-0439,Surabaya Branch,Transfer Kas Internal,62.25,2,3,0,0,Tidak,4,1
+TRX-0440,Finance Dept,Pengadaan Perangkat IT,5.24,11,6,0,1,Tidak,3,1
+TRX-0441,Bandung Branch,Jasa Konsultan Audit,5.43,5,2,1,0,Ya (Anomali),2,3
+TRX-0442,Jakarta Branch,Pembayaran Tagihan Listrik,216.77,10,5,0,0,Tidak,5,1
+TRX-0443,Bandung Branch,Pembayaran Vendor,24.44,2,7,1,0,Tidak,3,2
+TRX-0444,Jakarta Branch,Pembayaran Tagihan Listrik,24.15,7,5,0,1,Tidak,4,1
+TRX-0445,Operations Dept,Pembayaran Vendor,84.78,13,5,0,0,Tidak,5,1
+TRX-0446,Finance Dept,Biaya Perjalanan Dinas,148.11,13,4,0,0,Tidak,5,1
+TRX-0447,IT Dept,Jasa Konsultan Audit,214.44,9,5,0,1,Ya (Anomali),5,3
+TRX-0448,Finance Dept,Reimbursement Operasional,70.99,1,3,1,0,Ya (Anomali),4,5
+TRX-0449,Operations Dept,Pembayaran Gaji Lembur,24.6,13,4,0,1,Tidak,3,1
+TRX-0450,Medan Branch,Pembelian Material Gudang,5.36,8,1,0,0,Tidak,2,1
+TRX-0451,Medan Branch,Pembayaran Gaji Lembur,76.06,2,5,0,1,Ya (Anomali),4,2
+TRX-0452,Medan Branch,Jasa Konsultan Audit,41.87,20,5,0,0,Tidak,3,1
+TRX-0453,Finance Dept,Pembayaran Tagihan Listrik,28.6,7,1,0,0,Tidak,4,1
+TRX-0454,Surabaya Branch,Pembayaran Gaji Lembur,119.41,15,5,0,1,Tidak,5,2
+TRX-0455,Finance Dept,Biaya Jamuan Klien,6.89,1,1,0,0,Tidak,2,3
+TRX-0456,Operations Dept,Pembayaran Gaji Lembur,34.93,5,4,1,0,Ya (Anomali),4,3
+TRX-0457,Operations Dept,Pembayaran Vendor,1.57,20,3,0,0,Tidak,1,2
+TRX-0458,IT Dept,Biaya Jamuan Klien,32.62,11,1,0,0,Tidak,5,1
+TRX-0459,Bandung Branch,Pengadaan Perangkat IT,3.9,4,2,0,0,Tidak,2,3
+TRX-0460,Finance Dept,Pembayaran Gaji Lembur,7.32,1,1,1,0,Ya (Anomali),2,3
+TRX-0461,Finance Dept,Biaya Jamuan Klien,7.25,15,5,0,0,Tidak,2,1
+TRX-0462,Jakarta Branch,Jasa Konsultan Audit,53.38,4,7,0,0,Tidak,5,1
+TRX-0463,Operations Dept,Pembelian Material Gudang,69.53,14,7,0,0,Tidak,4,1
+TRX-0464,Jakarta Branch,Pengadaan Perangkat IT,44.78,11,4,1,0,Tidak,4,2
+TRX-0465,Jakarta Branch,Reimbursement Operasional,164.74,3,6,0,1,Ya (Anomali),5,5
+TRX-0466,Finance Dept,Reimbursement Operasional,24.49,14,4,1,1,Tidak,3,3
+TRX-0467,Surabaya Branch,Biaya Perjalanan Dinas,17.82,10,6,0,1,Tidak,3,1
+TRX-0468,Bandung Branch,Pembayaran Gaji Lembur,102.48,15,7,0,0,Tidak,5,1
+TRX-0469,Bandung Branch,Pembelian Material Gudang,13.65,22,7,1,0,Tidak,3,1
+TRX-0470,Operations Dept,Transfer Kas Internal,166.14,5,1,0,0,Ya (Anomali),5,4
+TRX-0471,IT Dept,Biaya Jamuan Klien,1.61,13,3,1,0,Tidak,1,3
+TRX-0472,Operations Dept,Pengadaan Perangkat IT,176.13,17,2,1,0,Ya (Anomali),5,3
+TRX-0473,Surabaya Branch,Jasa Konsultan Audit,3.21,11,4,1,0,Tidak,2,2
+TRX-0474,Surabaya Branch,Pembayaran Gaji Lembur,111.89,10,5,0,0,Tidak,5,1
+TRX-0475,Bandung Branch,Jasa Konsultan Audit,38.51,12,6,1,1,Tidak,4,1
+TRX-0476,Medan Branch,Transfer Kas Internal,248.84,20,5,0,0,Tidak,5,2
+TRX-0477,Jakarta Branch,Biaya Perjalanan Dinas,4.83,22,3,1,0,Tidak,2,2
+TRX-0478,Jakarta Branch,Transfer Kas Internal,41.36,10,6,0,0,Tidak,4,1
+TRX-0479,Bandung Branch,Pembayaran Vendor,175.18,22,4,1,0,Ya (Anomali),5,3
+TRX-0480,Operations Dept,Pembayaran Tagihan Listrik,38.02,15,1,0,1,Ya (Anomali),4,3
+TRX-0481,Surabaya Branch,Pengadaan Perangkat IT,50.63,14,5,0,0,Tidak,3,1
+TRX-0482,Operations Dept,Pembayaran Tagihan Listrik,60.5,20,3,0,0,Tidak,3,2
+TRX-0483,IT Dept,Transfer Kas Internal,31.31,14,4,1,0,Tidak,4,1
+TRX-0484,Medan Branch,Biaya Perjalanan Dinas,50.38,3,7,0,0,Tidak,4,3
+TRX-0485,Bandung Branch,Biaya Perjalanan Dinas,44.89,10,7,0,0,Tidak,4,1
+TRX-0486,Jakarta Branch,Reimbursement Operasional,116.71,18,4,1,1,Ya (Anomali),5,2
+TRX-0487,Finance Dept,Pembayaran Gaji Lembur,3.33,14,4,0,1,Tidak,1,1
+TRX-0488,Operations Dept,Reimbursement Operasional,17.49,3,4,0,1,Ya (Anomali),3,4
+TRX-0489,Surabaya Branch,Pengadaan Perangkat IT,151.2,20,6,0,0,Tidak,5,1
+TRX-0490,Finance Dept,Pengadaan Perangkat IT,111.48,12,4,0,1,Tidak,4,2
+TRX-0491,IT Dept,Pengadaan Perangkat IT,31.41,21,5,0,0,Tidak,3,1
+TRX-0492,Bandung Branch,Jasa Konsultan Audit,49.4,18,3,0,0,Tidak,3,1
+TRX-0493,Operations Dept,Reimbursement Operasional,17.24,1,6,0,0,Ya (Anomali),2,3
+TRX-0494,Jakarta Branch,Jasa Konsultan Audit,11.42,13,4,0,0,Tidak,3,1
+TRX-0495,Operations Dept,Pembayaran Tagihan Listrik,32.15,3,2,0,0,Ya (Anomali),4,4
+TRX-0496,Medan Branch,Pembayaran Gaji Lembur,22.8,15,2,0,1,Tidak,3,1
+TRX-0497,Finance Dept,Transfer Kas Internal,44.81,20,3,0,0,Tidak,4,2
+TRX-0498,Medan Branch,Biaya Jamuan Klien,5.05,19,7,1,0,Tidak,3,1
+TRX-0499,IT Dept,Reimbursement Operasional,184.25,13,1,0,0,Tidak,5,2
+TRX-0500,Jakarta Branch,Biaya Jamuan Klien,215.19,14,1,0,1,Tidak,5,2
+TRX-0501,Finance Dept,Biaya Perjalanan Dinas,60.89,2,7,1,1,Ya (Anomali),4,5
+TRX-0502,IT Dept,Reimbursement Operasional,39.4,7,6,1,1,Tidak,4,3
+TRX-0503,Medan Branch,Pembayaran Tagihan Listrik,19.52,15,6,0,0,Tidak,3,1
+TRX-0504,Medan Branch,Reimbursement Operasional,85.05,9,6,0,0,Tidak,4,1
+TRX-0505,Finance Dept,Jasa Konsultan Audit,58.72,3,1,1,0,Ya (Anomali),4,4
+TRX-0506,Jakarta Branch,Pembayaran Gaji Lembur,9.87,17,2,0,0,Tidak,3,1
+TRX-0507,Medan Branch,Transfer Kas Internal,121.92,1,1,1,0,Ya (Anomali),5,4
+TRX-0508,Bandung Branch,Pembelian Material Gudang,87.45,16,5,0,0,Tidak,5,1
+TRX-0509,IT Dept,Transfer Kas Internal,150.59,12,4,1,0,Ya (Anomali),5,4
+TRX-0510,Finance Dept,Transfer Kas Internal,65.68,3,6,0,1,Ya (Anomali),4,4
+TRX-0511,Surabaya Branch,Biaya Perjalanan Dinas,48.52,10,2,0,0,Tidak,3,1
+TRX-0512,Surabaya Branch,Pembayaran Tagihan Listrik,28.09,6,3,0,0,Tidak,4,1
+TRX-0513,Jakarta Branch,Biaya Jamuan Klien,135.95,11,3,0,0,Tidak,5,1
+TRX-0514,Bandung Branch,Pembayaran Tagihan Listrik,101.52,9,4,0,1,Tidak,5,1
+TRX-0515,Medan Branch,Pembelian Material Gudang,3.31,6,2,1,1,Tidak,2,4
+TRX-0516,Surabaya Branch,Biaya Perjalanan Dinas,2.34,12,1,1,1,Tidak,2,3
+TRX-0517,Jakarta Branch,Pembayaran Gaji Lembur,24.62,6,1,0,1,Tidak,3,1
+TRX-0518,IT Dept,Transfer Kas Internal,84.18,23,5,1,0,Ya (Anomali),5,3
+TRX-0519,Bandung Branch,Jasa Konsultan Audit,219.21,16,5,1,0,Ya (Anomali),4,4
+TRX-0520,Bandung Branch,Biaya Perjalanan Dinas,9.15,9,1,0,0,Tidak,4,1
+TRX-0521,Operations Dept,Pengadaan Perangkat IT,46.09,9,3,0,0,Tidak,4,1
+TRX-0522,Jakarta Branch,Reimbursement Operasional,24.97,23,6,0,0,Tidak,3,3
+TRX-0523,Jakarta Branch,Pembayaran Tagihan Listrik,176.19,3,3,0,0,Ya (Anomali),5,3
+TRX-0524,Operations Dept,Biaya Perjalanan Dinas,93.3,19,5,0,1,Tidak,4,2
+TRX-0525,Medan Branch,Pengadaan Perangkat IT,92.11,3,4,1,1,Ya (Anomali),5,4
+TRX-0526,Jakarta Branch,Biaya Jamuan Klien,32.62,21,1,0,1,Tidak,4,1
+TRX-0527,Operations Dept,Pembelian Material Gudang,27.79,6,5,1,1,Ya (Anomali),4,5
+TRX-0528,Medan Branch,Pembelian Material Gudang,16.97,21,5,0,1,Tidak,3,2
+TRX-0529,Medan Branch,Transfer Kas Internal,3.9,0,6,0,0,Tidak,2,2
+TRX-0530,Finance Dept,Transfer Kas Internal,101.02,11,1,1,0,Tidak,5,1
+TRX-0531,Bandung Branch,Biaya Perjalanan Dinas,84.81,23,6,1,1,Ya (Anomali),5,5
+TRX-0532,IT Dept,Biaya Perjalanan Dinas,409.62,12,1,0,1,Ya (Anomali),5,3
+TRX-0533,Bandung Branch,Pembayaran Gaji Lembur,285.74,9,6,0,0,Tidak,5,2
+TRX-0534,Bandung Branch,Reimbursement Operasional,41.53,14,3,0,1,Tidak,5,1
+TRX-0535,Finance Dept,Pembayaran Vendor,74.26,12,4,0,0,Tidak,3,1
+TRX-0536,Medan Branch,Biaya Jamuan Klien,145.81,22,4,0,0,Ya (Anomali),4,3
+TRX-0537,Medan Branch,Transfer Kas Internal,95.74,21,1,0,1,Tidak,5,1
+TRX-0538,Jakarta Branch,Pembayaran Vendor,15.21,21,2,0,0,Tidak,3,1
+TRX-0539,Finance Dept,Pembayaran Vendor,30.94,20,7,0,0,Tidak,4,2
+TRX-0540,Jakarta Branch,Reimbursement Operasional,7.91,21,5,0,0,Tidak,1,2
+TRX-0541,Finance Dept,Jasa Konsultan Audit,155.01,8,5,0,1,Ya (Anomali),5,5
+TRX-0542,Jakarta Branch,Jasa Konsultan Audit,47.59,8,1,0,0,Tidak,3,1
+TRX-0543,Surabaya Branch,Transfer Kas Internal,13.98,14,6,0,1,Tidak,3,1
+TRX-0544,Operations Dept,Pengadaan Perangkat IT,56.69,9,2,1,0,Tidak,4,1
+TRX-0545,Bandung Branch,Reimbursement Operasional,49.13,23,3,0,0,Tidak,4,2
+TRX-0546,Bandung Branch,Reimbursement Operasional,23.17,9,6,1,1,Tidak,3,2
+TRX-0547,IT Dept,Pembayaran Tagihan Listrik,7.03,7,6,0,0,Tidak,3,1
+TRX-0548,Operations Dept,Pembayaran Vendor,56.67,23,1,0,1,Ya (Anomali),4,5
+TRX-0549,Medan Branch,Pembayaran Tagihan Listrik,37.73,15,1,0,0,Tidak,4,1
+TRX-0550,IT Dept,Pembayaran Vendor,74.99,16,5,0,1,Tidak,4,1
+TRX-0551,Surabaya Branch,Jasa Konsultan Audit,37.72,4,1,0,0,Tidak,4,2
+TRX-0552,IT Dept,Transfer Kas Internal,96.59,3,1,1,0,Ya (Anomali),4,4
+TRX-0553,Bandung Branch,Biaya Jamuan Klien,41.14,17,1,0,0,Tidak,3,1
+TRX-0554,Medan Branch,Jasa Konsultan Audit,42.16,23,5,0,0,Tidak,4,3
+TRX-0555,Surabaya Branch,Reimbursement Operasional,105.64,18,3,0,0,Tidak,5,1
+TRX-0556,Bandung Branch,Biaya Jamuan Klien,26.83,3,3,0,0,Tidak,4,3
+TRX-0557,Operations Dept,Biaya Perjalanan Dinas,8.19,6,7,0,0,Tidak,3,1
+TRX-0558,Jakarta Branch,Biaya Jamuan Klien,2.46,9,7,0,0,Tidak,2,1
+TRX-0559,Finance Dept,Biaya Jamuan Klien,71.35,17,1,0,0,Tidak,4,1
+TRX-0560,Surabaya Branch,Jasa Konsultan Audit,49.42,18,7,0,1,Tidak,4,1
+TRX-0561,Medan Branch,Reimbursement Operasional,61.88,3,5,0,0,Tidak,4,2
+TRX-0562,IT Dept,Biaya Jamuan Klien,12.97,9,3,0,0,Tidak,3,1
+TRX-0563,Operations Dept,Jasa Konsultan Audit,8.33,0,6,0,0,Ya (Anomali),3,3
+TRX-0564,IT Dept,Jasa Konsultan Audit,1.73,22,3,0,1,Tidak,1,2
+TRX-0565,Surabaya Branch,Biaya Jamuan Klien,22.58,17,3,1,0,Tidak,4,1
+TRX-0566,Operations Dept,Pembayaran Vendor,45.57,4,5,0,1,Ya (Anomali),3,5
+TRX-0567,Medan Branch,Reimbursement Operasional,25.9,14,7,1,1,Tidak,2,1
+TRX-0568,Surabaya Branch,Pembelian Material Gudang,29.77,16,6,1,1,Tidak,5,3
+TRX-0569,Medan Branch,Biaya Jamuan Klien,118.25,2,5,0,0,Tidak,5,2
+TRX-0570,IT Dept,Pembayaran Tagihan Listrik,22.41,11,1,0,0,Tidak,3,2
+TRX-0571,Bandung Branch,Pembayaran Tagihan Listrik,37.08,1,4,1,1,Ya (Anomali),4,5
+TRX-0572,Operations Dept,Biaya Perjalanan Dinas,77.54,0,3,0,0,Tidak,4,2
+TRX-0573,Jakarta Branch,Reimbursement Operasional,26.25,22,4,0,0,Tidak,4,2
+TRX-0574,Bandung Branch,Jasa Konsultan Audit,49.65,20,5,0,0,Tidak,4,1
+TRX-0575,Jakarta Branch,Pembayaran Gaji Lembur,100.16,16,5,0,1,Tidak,5,2
+TRX-0576,IT Dept,Transfer Kas Internal,150.31,21,5,0,0,Tidak,5,4
+TRX-0577,Operations Dept,Pengadaan Perangkat IT,8.95,15,4,1,1,Ya (Anomali),3,4
+TRX-0578,Bandung Branch,Pembayaran Gaji Lembur,131.58,4,5,0,0,Ya (Anomali),5,5
+TRX-0579,Bandung Branch,Reimbursement Operasional,34.88,14,1,0,0,Tidak,3,1
+TRX-0580,Surabaya Branch,Reimbursement Operasional,15.94,2,5,1,0,Tidak,3,4
+TRX-0581,Finance Dept,Biaya Jamuan Klien,31.73,6,2,0,0,Tidak,4,1
+TRX-0582,IT Dept,Biaya Jamuan Klien,196.68,10,7,1,1,Ya (Anomali),5,4
+TRX-0583,Medan Branch,Pembayaran Gaji Lembur,34.92,9,4,0,1,Tidak,3,1
+TRX-0584,IT Dept,Jasa Konsultan Audit,20.93,8,2,0,1,Tidak,3,2
+TRX-0585,Medan Branch,Biaya Perjalanan Dinas,51.17,13,5,1,0,Tidak,5,1
+TRX-0586,Operations Dept,Biaya Jamuan Klien,14.73,12,1,0,1,Tidak,3,2
+TRX-0587,Medan Branch,Pengadaan Perangkat IT,4.94,1,3,1,0,Tidak,3,3
+TRX-0588,Jakarta Branch,Pengadaan Perangkat IT,7.9,2,6,1,0,Ya (Anomali),1,3
+TRX-0589,Medan Branch,Biaya Perjalanan Dinas,7.85,6,7,1,0,Tidak,2,2
+TRX-0590,Medan Branch,Pembayaran Vendor,9.24,20,6,0,0,Tidak,4,1
+TRX-0591,Surabaya Branch,Pembayaran Vendor,8.47,17,5,1,1,Ya (Anomali),3,2
+TRX-0592,Bandung Branch,Reimbursement Operasional,52.2,2,7,0,1,Tidak,4,3
+TRX-0593,IT Dept,Biaya Jamuan Klien,11.04,9,7,0,0,Tidak,2,1
+TRX-0594,IT Dept,Pembayaran Tagihan Listrik,22.21,21,1,1,1,Tidak,4,2
+TRX-0595,Operations Dept,Pembayaran Gaji Lembur,114.55,6,7,0,0,Tidak,5,1
+TRX-0596,Operations Dept,Pembelian Material Gudang,33.12,8,4,0,0,Tidak,3,1
+TRX-0597,Medan Branch,Biaya Perjalanan Dinas,56.06,16,2,1,0,Tidak,4,2
+TRX-0598,Finance Dept,Reimbursement Operasional,10.46,10,2,0,0,Tidak,3,1
+TRX-0599,IT Dept,Pembayaran Tagihan Listrik,11.68,6,2,0,0,Tidak,2,1
+TRX-0600,Operations Dept,Biaya Jamuan Klien,3.09,23,4,1,0,Ya (Anomali),2,4
+TRX-0601,Medan Branch,Pembayaran Tagihan Listrik,10.25,13,6,0,1,Tidak,2,1
+TRX-0602,Operations Dept,Pembayaran Tagihan Listrik,17.33,18,1,1,1,Ya (Anomali),3,3
+TRX-0603,Jakarta Branch,Biaya Perjalanan Dinas,10.74,3,7,0,0,Ya (Anomali),3,3
+TRX-0604,Jakarta Branch,Reimbursement Operasional,5.64,5,4,0,1,Ya (Anomali),2,3
+TRX-0605,Operations Dept,Jasa Konsultan Audit,7.43,9,2,0,0,Tidak,2,1
+TRX-0606,Jakarta Branch,Pengadaan Perangkat IT,31.88,6,5,0,0,Tidak,5,1
+TRX-0607,Operations Dept,Pembayaran Gaji Lembur,12.55,12,3,0,1,Tidak,3,1
+TRX-0608,Medan Branch,Reimbursement Operasional,23.65,13,7,1,0,Tidak,2,1
+TRX-0609,Surabaya Branch,Pembelian Material Gudang,36.0,3,4,0,0,Tidak,4,1
+TRX-0610,Finance Dept,Pembayaran Tagihan Listrik,59.62,7,4,0,0,Tidak,4,1
+TRX-0611,Medan Branch,Jasa Konsultan Audit,3.01,4,1,0,0,Tidak,2,2
+TRX-0612,Surabaya Branch,Biaya Perjalanan Dinas,81.32,0,1,0,1,Ya (Anomali),5,4
+TRX-0613,Surabaya Branch,Transfer Kas Internal,50.43,3,4,0,0,Tidak,4,3
+TRX-0614,IT Dept,Pembayaran Gaji Lembur,5.26,2,2,0,0,Tidak,3,3
+TRX-0615,Medan Branch,Pembayaran Gaji Lembur,104.41,8,3,0,0,Tidak,4,1
+TRX-0616,Medan Branch,Pengadaan Perangkat IT,127.83,7,7,0,1,Ya (Anomali),5,3
+TRX-0617,Operations Dept,Transfer Kas Internal,4.15,0,1,0,0,Tidak,1,2
+TRX-0618,Surabaya Branch,Biaya Jamuan Klien,17.21,5,7,0,1,Tidak,4,3
+TRX-0619,Surabaya Branch,Transfer Kas Internal,83.05,8,2,0,0,Tidak,4,1
+TRX-0620,Surabaya Branch,Pembayaran Tagihan Listrik,69.97,6,7,0,0,Tidak,3,1
+TRX-0621,Operations Dept,Pembayaran Tagihan Listrik,11.2,3,5,1,0,Ya (Anomali),3,4
+TRX-0622,IT Dept,Pembayaran Tagihan Listrik,12.74,12,1,0,0,Tidak,3,1
+TRX-0623,Medan Branch,Pembayaran Tagihan Listrik,24.14,16,2,1,0,Tidak,3,3
+TRX-0624,Surabaya Branch,Reimbursement Operasional,34.13,1,2,0,0,Ya (Anomali),4,3
+TRX-0625,Jakarta Branch,Pembayaran Gaji Lembur,49.15,4,3,0,1,Ya (Anomali),4,3
+TRX-0626,Medan Branch,Transfer Kas Internal,24.02,11,3,1,0,Tidak,2,1
+TRX-0627,Operations Dept,Pembayaran Gaji Lembur,32.04,20,5,0,1,Tidak,4,1
+TRX-0628,IT Dept,Pembelian Material Gudang,69.81,7,2,1,0,Tidak,4,1
+TRX-0629,Jakarta Branch,Transfer Kas Internal,2.87,5,6,0,0,Tidak,2,2
+TRX-0630,Operations Dept,Reimbursement Operasional,15.55,7,2,0,0,Tidak,3,1
+TRX-0631,Bandung Branch,Pembelian Material Gudang,63.47,17,3,0,1,Tidak,4,2
+TRX-0632,Medan Branch,Pembayaran Gaji Lembur,113.79,2,6,0,0,Tidak,5,2
+TRX-0633,Bandung Branch,Pembelian Material Gudang,36.84,21,1,0,0,Tidak,3,1
+TRX-0634,Operations Dept,Pengadaan Perangkat IT,38.98,11,1,0,0,Tidak,4,1
+TRX-0635,Operations Dept,Pembelian Material Gudang,6.67,2,7,0,0,Ya (Anomali),2,3
+TRX-0636,Operations Dept,Transfer Kas Internal,30.66,21,4,0,0,Tidak,5,1
+TRX-0637,Surabaya Branch,Pembayaran Tagihan Listrik,39.03,5,3,0,0,Tidak,4,2
+TRX-0638,IT Dept,Pembayaran Tagihan Listrik,14.88,1,4,0,0,Tidak,2,2
+TRX-0639,Surabaya Branch,Biaya Jamuan Klien,16.68,22,6,1,0,Ya (Anomali),2,5
+TRX-0640,IT Dept,Pembayaran Gaji Lembur,24.68,11,3,0,1,Tidak,3,2
+TRX-0641,Finance Dept,Pengadaan Perangkat IT,2.01,1,5,1,0,Ya (Anomali),2,4
+TRX-0642,Surabaya Branch,Transfer Kas Internal,20.44,5,2,1,0,Ya (Anomali),2,4
+TRX-0643,Bandung Branch,Transfer Kas Internal,12.88,16,5,0,0,Tidak,4,1
+TRX-0644,IT Dept,Biaya Perjalanan Dinas,20.84,2,6,0,0,Tidak,3,4
+TRX-0645,Surabaya Branch,Pembayaran Vendor,7.38,1,3,0,0,Ya (Anomali),3,3
+TRX-0646,Medan Branch,Pembayaran Gaji Lembur,111.6,22,6,0,0,Tidak,5,3
+TRX-0647,Operations Dept,Transfer Kas Internal,46.02,19,2,0,0,Tidak,4,1
+TRX-0648,IT Dept,Jasa Konsultan Audit,57.83,7,1,0,0,Tidak,4,1
+TRX-0649,IT Dept,Transfer Kas Internal,78.84,21,1,0,0,Tidak,4,1
+TRX-0650,Surabaya Branch,Biaya Perjalanan Dinas,35.5,11,6,0,0,Tidak,4,1
+TRX-0651,Finance Dept,Pembelian Material Gudang,5.55,3,4,0,1,Ya (Anomali),2,4
+TRX-0652,Surabaya Branch,Reimbursement Operasional,39.51,4,3,0,0,Tidak,4,2
+TRX-0653,Bandung Branch,Reimbursement Operasional,45.2,12,3,0,0,Tidak,5,1
+TRX-0654,Bandung Branch,Jasa Konsultan Audit,69.41,14,1,1,0,Tidak,4,2
+TRX-0655,IT Dept,Jasa Konsultan Audit,29.25,22,7,0,0,Tidak,4,1
+TRX-0656,IT Dept,Biaya Jamuan Klien,7.82,15,5,0,0,Tidak,3,1
+TRX-0657,Surabaya Branch,Reimbursement Operasional,17.69,9,7,0,0,Tidak,3,1
+TRX-0658,Bandung Branch,Pembelian Material Gudang,23.56,22,2,0,1,Tidak,2,2
+TRX-0659,Bandung Branch,Reimbursement Operasional,52.91,15,5,0,0,Tidak,4,1
+TRX-0660,Finance Dept,Pembayaran Vendor,43.29,11,5,0,0,Tidak,4,1
+TRX-0661,Medan Branch,Pembayaran Gaji Lembur,23.01,16,6,0,0,Tidak,3,1
+TRX-0662,Finance Dept,Reimbursement Operasional,216.31,15,1,0,0,Tidak,5,1
+TRX-0663,Jakarta Branch,Pembayaran Tagihan Listrik,47.54,11,7,0,0,Tidak,4,1
+TRX-0664,Operations Dept,Biaya Jamuan Klien,14.54,7,7,0,1,Tidak,3,1
+TRX-0665,Finance Dept,Biaya Perjalanan Dinas,6.37,19,1,0,0,Tidak,1,1
+TRX-0666,Surabaya Branch,Jasa Konsultan Audit,9.29,2,7,1,1,Ya (Anomali),3,5
+TRX-0667,Medan Branch,Pembayaran Vendor,15.12,15,1,1,1,Ya (Anomali),3,4
+TRX-0668,Surabaya Branch,Jasa Konsultan Audit,9.76,12,6,0,1,Tidak,3,1
+TRX-0669,Operations Dept,Biaya Jamuan Klien,11.32,22,4,1,0,Ya (Anomali),3,3
+TRX-0670,Jakarta Branch,Transfer Kas Internal,17.78,18,5,0,0,Tidak,3,1
+TRX-0671,Medan Branch,Pembayaran Vendor,10.52,7,6,0,0,Tidak,3,2
+TRX-0672,IT Dept,Pengadaan Perangkat IT,114.54,21,3,0,0,Tidak,4,1
+TRX-0673,Bandung Branch,Pembayaran Vendor,5.18,4,2,0,0,Tidak,3,2
+TRX-0674,Finance Dept,Biaya Jamuan Klien,38.17,19,4,0,1,Tidak,4,3
+TRX-0675,Surabaya Branch,Biaya Perjalanan Dinas,27.42,7,3,0,0,Tidak,4,1
+TRX-0676,Jakarta Branch,Pembayaran Vendor,202.93,23,5,0,0,Ya (Anomali),5,4
+TRX-0677,Bandung Branch,Biaya Jamuan Klien,6.94,11,7,1,0,Tidak,2,2
+TRX-0678,Finance Dept,Pembelian Material Gudang,26.36,0,1,1,0,Ya (Anomali),4,4
+TRX-0679,Bandung Branch,Pembayaran Gaji Lembur,175.45,20,5,0,0,Tidak,5,1
+TRX-0680,Finance Dept,Reimbursement Operasional,101.31,19,6,0,1,Tidak,4,1
+TRX-0681,IT Dept,Pembelian Material Gudang,85.93,5,2,0,1,Tidak,5,2
+TRX-0682,Medan Branch,Biaya Jamuan Klien,15.91,21,6,0,1,Tidak,3,2
+TRX-0683,Bandung Branch,Pembayaran Tagihan Listrik,10.37,17,4,0,1,Tidak,3,2
+TRX-0684,Bandung Branch,Transfer Kas Internal,56.23,7,4,0,1,Tidak,4,1
+TRX-0685,Bandung Branch,Reimbursement Operasional,133.52,6,2,0,0,Tidak,5,2
+TRX-0686,Medan Branch,Pembayaran Tagihan Listrik,41.68,0,3,1,1,Ya (Anomali),5,5
+TRX-0687,Jakarta Branch,Biaya Perjalanan Dinas,43.39,20,3,0,0,Tidak,5,1
+TRX-0688,Finance Dept,Jasa Konsultan Audit,17.42,15,4,0,0,Tidak,3,1
+TRX-0689,IT Dept,Pengadaan Perangkat IT,74.37,11,4,0,0,Tidak,5,1
+TRX-0690,Bandung Branch,Reimbursement Operasional,11.35,5,7,0,0,Tidak,3,1
+TRX-0691,Operations Dept,Pembelian Material Gudang,20.55,19,1,0,0,Tidak,4,1
+TRX-0692,Medan Branch,Transfer Kas Internal,28.71,1,7,0,0,Tidak,4,4
+TRX-0693,Jakarta Branch,Pembayaran Tagihan Listrik,36.42,13,7,0,0,Tidak,4,1
+TRX-0694,Finance Dept,Biaya Jamuan Klien,14.88,3,3,1,1,Ya (Anomali),3,5
+TRX-0695,Medan Branch,Reimbursement Operasional,7.1,0,2,0,0,Tidak,2,2
+TRX-0696,IT Dept,Jasa Konsultan Audit,48.16,22,3,0,0,Tidak,3,2
+TRX-0697,IT Dept,Biaya Jamuan Klien,18.03,17,1,0,0,Tidak,3,1
+TRX-0698,Finance Dept,Pembayaran Tagihan Listrik,44.52,12,6,1,0,Tidak,4,1
+TRX-0699,Bandung Branch,Transfer Kas Internal,9.38,1,4,0,1,Ya (Anomali),3,3
+TRX-0700,IT Dept,Pembayaran Vendor,33.81,8,4,1,0,Tidak,4,1
+TRX-0701,Jakarta Branch,Jasa Konsultan Audit,39.03,20,1,1,0,Tidak,5,2
+TRX-0702,Medan Branch,Biaya Jamuan Klien,3.66,1,7,0,1,Ya (Anomali),2,4
+TRX-0703,Jakarta Branch,Jasa Konsultan Audit,21.52,8,2,1,1,Tidak,4,2
+TRX-0704,Bandung Branch,Biaya Perjalanan Dinas,8.22,0,4,1,0,Ya (Anomali),3,4
+TRX-0705,Jakarta Branch,Biaya Jamuan Klien,4.27,10,5,1,1,Tidak,2,2
+TRX-0706,Jakarta Branch,Reimbursement Operasional,231.06,2,7,0,0,Ya (Anomali),5,4
+TRX-0707,Surabaya Branch,Pembayaran Vendor,20.46,19,4,0,0,Tidak,2,1
+TRX-0708,Jakarta Branch,Pembayaran Vendor,84.0,22,5,0,0,Tidak,5,2
+TRX-0709,Finance Dept,Pengadaan Perangkat IT,15.69,3,1,0,1,Ya (Anomali),3,2
+TRX-0710,Medan Branch,Jasa Konsultan Audit,58.21,17,1,0,0,Tidak,4,1
+TRX-0711,Surabaya Branch,Pembelian Material Gudang,72.4,22,7,0,0,Tidak,4,1
+TRX-0712,Medan Branch,Pembayaran Vendor,46.27,5,4,1,0,Ya (Anomali),4,3
+TRX-0713,Medan Branch,Pembayaran Vendor,32.89,2,3,1,0,Ya (Anomali),3,4
+TRX-0714,Bandung Branch,Biaya Perjalanan Dinas,27.54,21,5,0,0,Tidak,3,1
+TRX-0715,Bandung Branch,Pembayaran Gaji Lembur,22.45,10,2,1,1,Tidak,3,1
+TRX-0716,Surabaya Branch,Biaya Perjalanan Dinas,133.63,14,4,1,0,Ya (Anomali),5,4
+TRX-0717,IT Dept,Biaya Perjalanan Dinas,89.78,21,2,0,0,Tidak,4,1
+TRX-0718,Operations Dept,Pembayaran Gaji Lembur,168.66,4,4,0,1,Ya (Anomali),5,5
+TRX-0719,Bandung Branch,Jasa Konsultan Audit,7.64,19,3,0,0,Tidak,2,1
+TRX-0720,Operations Dept,Biaya Jamuan Klien,66.63,9,3,0,0,Tidak,4,1
+TRX-0721,Bandung Branch,Transfer Kas Internal,140.31,11,7,0,0,Tidak,5,3
+TRX-0722,Bandung Branch,Pembelian Material Gudang,11.0,14,7,0,0,Tidak,3,1
+TRX-0723,Medan Branch,Pembayaran Vendor,4.44,16,3,0,0,Tidak,2,1
+TRX-0724,Surabaya Branch,Pengadaan Perangkat IT,68.57,9,6,0,0,Tidak,4,1
+TRX-0725,Medan Branch,Pembelian Material Gudang,43.72,5,3,1,0,Tidak,4,2
+TRX-0726,Finance Dept,Biaya Jamuan Klien,93.2,17,1,0,0,Tidak,5,1
+TRX-0727,Medan Branch,Pembayaran Gaji Lembur,8.53,12,1,1,1,Tidak,3,3
+TRX-0728,Operations Dept,Pembelian Material Gudang,80.3,2,6,1,1,Ya (Anomali),3,5
+TRX-0729,Operations Dept,Pembayaran Vendor,12.26,23,5,1,1,Ya (Anomali),3,5
+TRX-0730,Finance Dept,Pembelian Material Gudang,9.94,9,2,1,1,Tidak,3,3
+TRX-0731,Jakarta Branch,Transfer Kas Internal,9.97,13,4,1,0,Tidak,4,3
+TRX-0732,Jakarta Branch,Pembayaran Gaji Lembur,85.26,5,4,0,1,Tidak,5,3
+TRX-0733,Finance Dept,Pembelian Material Gudang,55.71,2,6,0,0,Tidak,4,1
+TRX-0734,Finance Dept,Pembayaran Vendor,38.02,15,1,0,1,Tidak,4,1
+TRX-0735,Medan Branch,Pembayaran Vendor,23.22,6,7,0,0,Tidak,3,1
+TRX-0736,Finance Dept,Pembelian Material Gudang,105.86,19,4,0,0,Tidak,5,1
+TRX-0737,Surabaya Branch,Jasa Konsultan Audit,25.92,13,1,0,1,Tidak,3,3
+TRX-0738,Jakarta Branch,Pengadaan Perangkat IT,85.8,8,5,1,1,Ya (Anomali),5,4
+TRX-0739,Jakarta Branch,Pembayaran Tagihan Listrik,29.91,14,2,1,0,Tidak,4,2
+TRX-0740,IT Dept,Biaya Perjalanan Dinas,24.66,20,5,1,1,Tidak,3,2
+TRX-0741,Finance Dept,Pembayaran Gaji Lembur,32.06,2,6,0,0,Tidak,5,2
+TRX-0742,Bandung Branch,Pembayaran Tagihan Listrik,18.93,1,3,0,0,Tidak,2,2
+TRX-0743,Bandung Branch,Biaya Jamuan Klien,69.84,1,3,0,0,Tidak,5,2
+TRX-0744,Finance Dept,Biaya Jamuan Klien,35.93,2,3,0,0,Ya (Anomali),5,3
+TRX-0745,Surabaya Branch,Pembayaran Vendor,14.21,17,5,0,1,Tidak,3,2
+TRX-0746,Bandung Branch,Biaya Jamuan Klien,115.92,13,4,0,1,Tidak,5,2
+TRX-0747,IT Dept,Jasa Konsultan Audit,25.22,19,2,1,1,Tidak,3,3
+TRX-0748,Operations Dept,Pengadaan Perangkat IT,40.21,17,3,0,0,Tidak,4,2
+TRX-0749,Finance Dept,Biaya Jamuan Klien,119.47,9,6,0,1,Tidak,5,1
+TRX-0750,Surabaya Branch,Transfer Kas Internal,49.94,1,6,0,0,Tidak,4,2
+TRX-0751,Surabaya Branch,Pengadaan Perangkat IT,7.22,21,3,0,1,Tidak,2,2
+TRX-0752,Medan Branch,Jasa Konsultan Audit,141.53,0,3,0,0,Ya (Anomali),5,3
+TRX-0753,Surabaya Branch,Pembayaran Tagihan Listrik,50.4,3,2,1,0,Tidak,4,2
+TRX-0754,Bandung Branch,Pengadaan Perangkat IT,21.39,13,3,0,1,Tidak,3,3
+TRX-0755,Operations Dept,Pengadaan Perangkat IT,8.5,0,2,0,0,Ya (Anomali),3,3
+TRX-0756,Bandung Branch,Pembayaran Tagihan Listrik,80.0,13,6,0,0,Tidak,3,1
+TRX-0757,Finance Dept,Jasa Konsultan Audit,49.39,15,3,0,0,Tidak,3,1
+TRX-0758,Operations Dept,Biaya Jamuan Klien,39.12,21,5,0,0,Tidak,4,2
+TRX-0759,Finance Dept,Pembayaran Vendor,113.17,13,7,0,0,Tidak,4,1
+TRX-0760,Surabaya Branch,Pembayaran Gaji Lembur,78.7,19,5,0,0,Tidak,3,1
+TRX-0761,IT Dept,Pembayaran Tagihan Listrik,9.22,2,6,0,0,Tidak,3,2
+TRX-0762,Jakarta Branch,Pembayaran Tagihan Listrik,19.68,2,2,0,0,Tidak,2,2
+TRX-0763,Operations Dept,Pembayaran Tagihan Listrik,15.28,8,5,0,1,Tidak,3,1
+TRX-0764,Medan Branch,Pembayaran Tagihan Listrik,69.12,5,2,1,0,Ya (Anomali),4,5
+TRX-0765,Jakarta Branch,Pembayaran Gaji Lembur,2.71,12,5,0,1,Tidak,3,2
+TRX-0766,Surabaya Branch,Pembayaran Gaji Lembur,43.19,20,5,0,1,Tidak,4,3
+TRX-0767,Surabaya Branch,Biaya Jamuan Klien,72.87,1,2,0,0,Ya (Anomali),4,3
+TRX-0768,Jakarta Branch,Pembelian Material Gudang,105.68,7,4,0,1,Tidak,5,1
+TRX-0769,Medan Branch,Pembelian Material Gudang,21.93,20,5,0,1,Tidak,3,1
+TRX-0770,Operations Dept,Reimbursement Operasional,87.09,1,3,0,1,Ya (Anomali),5,4
+TRX-0771,Operations Dept,Pembayaran Tagihan Listrik,6.86,3,7,0,0,Ya (Anomali),1,3
+TRX-0772,Jakarta Branch,Pembayaran Tagihan Listrik,94.69,14,6,1,0,Tidak,5,2
+TRX-0773,Finance Dept,Pengadaan Perangkat IT,7.82,3,4,0,0,Tidak,2,2
+TRX-0774,Bandung Branch,Pembelian Material Gudang,26.32,12,2,1,0,Tidak,4,1
+TRX-0775,IT Dept,Biaya Jamuan Klien,80.8,11,4,0,0,Tidak,5,1
+TRX-0776,Finance Dept,Pembayaran Vendor,9.12,12,1,1,0,Tidak,3,3
+TRX-0777,Operations Dept,Reimbursement Operasional,14.02,13,1,1,1,Ya (Anomali),3,3
+TRX-0778,Bandung Branch,Reimbursement Operasional,65.05,19,5,0,1,Tidak,4,2
+TRX-0779,IT Dept,Biaya Jamuan Klien,64.65,17,5,1,0,Tidak,4,1
+TRX-0780,IT Dept,Pembayaran Vendor,52.24,5,3,0,0,Tidak,3,3
+TRX-0781,IT Dept,Pengadaan Perangkat IT,60.2,10,7,1,0,Tidak,4,1
+TRX-0782,Surabaya Branch,Pembayaran Gaji Lembur,40.12,1,6,0,1,Ya (Anomali),4,4
+TRX-0783,IT Dept,Biaya Perjalanan Dinas,15.5,22,4,0,1,Ya (Anomali),3,3
+TRX-0784,Medan Branch,Pembelian Material Gudang,22.21,18,1,0,0,Tidak,2,1
+TRX-0785,Jakarta Branch,Pembayaran Tagihan Listrik,11.02,18,5,1,0,Tidak,3,2
+TRX-0786,Operations Dept,Biaya Jamuan Klien,120.54,4,6,0,0,Ya (Anomali),5,4
+TRX-0787,Medan Branch,Pembelian Material Gudang,44.78,18,4,0,0,Tidak,4,1
+TRX-0788,Jakarta Branch,Pembayaran Tagihan Listrik,26.61,1,5,0,0,Tidak,4,2
+TRX-0789,Finance Dept,Biaya Perjalanan Dinas,32.0,9,5,1,1,Tidak,3,4
+TRX-0790,Finance Dept,Biaya Perjalanan Dinas,148.14,1,1,0,1,Ya (Anomali),5,5
+TRX-0791,Jakarta Branch,Pembayaran Gaji Lembur,9.32,10,1,0,1,Tidak,3,1
+TRX-0792,Medan Branch,Jasa Konsultan Audit,45.12,17,5,0,1,Tidak,5,2
+TRX-0793,Jakarta Branch,Biaya Perjalanan Dinas,36.25,23,2,0,0,Tidak,4,1
+TRX-0794,IT Dept,Pembelian Material Gudang,48.27,14,5,0,0,Tidak,4,1
+TRX-0795,Surabaya Branch,Transfer Kas Internal,1.91,8,6,1,1,Tidak,1,3
+TRX-0796,Operations Dept,Transfer Kas Internal,103.83,22,5,0,1,Ya (Anomali),4,3
+TRX-0797,Finance Dept,Pembayaran Tagihan Listrik,135.5,18,3,0,0,Tidak,5,2
+TRX-0798,Operations Dept,Pembayaran Tagihan Listrik,42.64,8,7,0,0,Tidak,4,2
+TRX-0799,Surabaya Branch,Jasa Konsultan Audit,60.64,2,3,0,0,Tidak,5,1
+TRX-0800,IT Dept,Transfer Kas Internal,128.87,20,3,0,0,Tidak,5,2
+TRX-0801,IT Dept,Pembayaran Tagihan Listrik,62.42,8,2,0,0,Tidak,4,1
+TRX-0802,Finance Dept,Biaya Perjalanan Dinas,9.28,13,2,0,0,Tidak,3,1
+TRX-0803,Finance Dept,Pembayaran Tagihan Listrik,43.94,18,5,1,0,Tidak,4,2
+TRX-0804,IT Dept,Reimbursement Operasional,47.66,6,3,0,0,Tidak,5,2
+TRX-0805,Bandung Branch,Jasa Konsultan Audit,28.59,15,2,1,1,Ya (Anomali),5,3
+TRX-0806,Operations Dept,Biaya Jamuan Klien,67.67,15,1,1,0,Tidak,4,2
+TRX-0807,Surabaya Branch,Pembayaran Vendor,137.18,0,5,0,1,Ya (Anomali),5,5
+TRX-0808,Operations Dept,Pengadaan Perangkat IT,130.89,3,6,1,0,Ya (Anomali),5,5
+TRX-0809,Surabaya Branch,Pembayaran Vendor,30.97,3,7,0,1,Ya (Anomali),4,2
+TRX-0810,Bandung Branch,Pembayaran Vendor,7.01,6,4,0,0,Tidak,2,1
+TRX-0811,Medan Branch,Pembayaran Gaji Lembur,210.46,7,5,0,1,Ya (Anomali),5,4
+TRX-0812,Surabaya Branch,Biaya Jamuan Klien,92.29,16,4,0,0,Tidak,4,1
+TRX-0813,Operations Dept,Pembayaran Tagihan Listrik,7.66,4,3,0,1,Ya (Anomali),1,4
+TRX-0814,Jakarta Branch,Pembayaran Gaji Lembur,127.82,6,7,0,1,Tidak,5,2
+TRX-0815,IT Dept,Pembayaran Vendor,102.97,19,4,0,0,Tidak,5,1
+TRX-0816,IT Dept,Reimbursement Operasional,37.58,19,3,0,0,Tidak,4,2
+TRX-0817,Bandung Branch,Pengadaan Perangkat IT,45.74,3,1,1,0,Tidak,4,2
+TRX-0818,Surabaya Branch,Pembayaran Vendor,26.46,5,4,0,0,Tidak,4,4
+TRX-0819,Medan Branch,Transfer Kas Internal,3.82,6,7,0,0,Tidak,2,1
+TRX-0820,Surabaya Branch,Biaya Jamuan Klien,21.41,17,5,0,0,Tidak,3,1
+TRX-0821,IT Dept,Biaya Jamuan Klien,82.19,4,3,0,0,Tidak,5,2
+TRX-0822,Finance Dept,Biaya Jamuan Klien,1.23,19,5,0,0,Tidak,1,1
+TRX-0823,Jakarta Branch,Jasa Konsultan Audit,21.29,2,7,1,0,Tidak,3,2
+TRX-0824,Bandung Branch,Jasa Konsultan Audit,26.39,6,2,0,0,Tidak,4,1
+TRX-0825,Finance Dept,Biaya Perjalanan Dinas,39.54,21,3,0,0,Tidak,4,1
+TRX-0826,Operations Dept,Pembelian Material Gudang,127.2,13,4,1,0,Ya (Anomali),5,5
+TRX-0827,Medan Branch,Pengadaan Perangkat IT,22.26,6,3,1,0,Tidak,3,2
+TRX-0828,Finance Dept,Pembayaran Gaji Lembur,22.31,4,5,0,0,Tidak,3,1
+TRX-0829,Operations Dept,Pembayaran Tagihan Listrik,67.88,21,1,0,1,Tidak,3,1
+TRX-0830,Finance Dept,Pembayaran Vendor,31.09,4,3,0,0,Tidak,4,2
+TRX-0831,Medan Branch,Pembelian Material Gudang,13.72,22,4,0,0,Tidak,4,1
+TRX-0832,Finance Dept,Pembayaran Tagihan Listrik,31.11,1,2,0,0,Ya (Anomali),4,3
+TRX-0833,Bandung Branch,Pembayaran Gaji Lembur,8.59,20,6,0,1,Tidak,3,1
+TRX-0834,IT Dept,Pembelian Material Gudang,10.7,21,1,1,1,Ya (Anomali),3,3
+TRX-0835,Surabaya Branch,Pembayaran Tagihan Listrik,35.49,5,2,1,1,Ya (Anomali),3,3
+TRX-0836,Finance Dept,Reimbursement Operasional,28.14,14,3,0,1,Tidak,4,1
+TRX-0837,Bandung Branch,Jasa Konsultan Audit,124.16,20,5,0,0,Tidak,5,2
+TRX-0838,Surabaya Branch,Pembayaran Gaji Lembur,23.5,9,7,0,0,Tidak,3,1
+TRX-0839,Operations Dept,Pengadaan Perangkat IT,44.45,22,5,0,0,Tidak,5,3
+TRX-0840,Surabaya Branch,Transfer Kas Internal,51.02,23,4,0,1,Ya (Anomali),4,4
+TRX-0841,Operations Dept,Reimbursement Operasional,1.66,6,5,1,1,Tidak,1,2
+TRX-0842,Finance Dept,Jasa Konsultan Audit,55.46,4,1,0,1,Ya (Anomali),5,2
+TRX-0843,Bandung Branch,Biaya Jamuan Klien,10.8,0,5,0,0,Tidak,3,2
+TRX-0844,IT Dept,Jasa Konsultan Audit,163.3,12,4,1,1,Ya (Anomali),5,5
+TRX-0845,Finance Dept,Pembelian Material Gudang,9.05,20,6,0,0,Tidak,3,1
+TRX-0846,Operations Dept,Biaya Perjalanan Dinas,27.78,17,3,0,0,Tidak,4,1
+TRX-0847,Medan Branch,Reimbursement Operasional,5.46,12,7,0,0,Tidak,2,1
+TRX-0848,Surabaya Branch,Biaya Jamuan Klien,289.4,20,3,0,0,Tidak,5,2
+TRX-0849,Finance Dept,Pembelian Material Gudang,35.88,20,5,1,0,Tidak,4,2
+TRX-0850,Operations Dept,Pembayaran Gaji Lembur,46.24,17,2,0,1,Tidak,3,4
+TRX-0851,Surabaya Branch,Pengadaan Perangkat IT,4.47,4,3,0,0,Tidak,2,2
+TRX-0852,Operations Dept,Jasa Konsultan Audit,70.31,12,6,0,0,Tidak,4,1
+TRX-0853,Bandung Branch,Pembayaran Gaji Lembur,12.78,3,5,1,0,Ya (Anomali),3,4
+TRX-0854,Jakarta Branch,Biaya Jamuan Klien,115.17,16,7,0,0,Tidak,5,2
+TRX-0855,Finance Dept,Pembelian Material Gudang,12.48,2,4,0,1,Ya (Anomali),3,4
+TRX-0856,IT Dept,Biaya Perjalanan Dinas,11.58,16,6,0,1,Tidak,3,2
+TRX-0857,Finance Dept,Jasa Konsultan Audit,2.86,10,5,0,1,Tidak,2,1
+TRX-0858,Surabaya Branch,Pengadaan Perangkat IT,32.94,20,6,0,1,Tidak,4,1
+TRX-0859,Bandung Branch,Biaya Perjalanan Dinas,42.6,19,3,0,1,Tidak,4,2
+TRX-0860,Operations Dept,Pembayaran Tagihan Listrik,4.4,22,7,0,0,Tidak,2,2
+TRX-0861,Medan Branch,Pembelian Material Gudang,75.7,20,4,0,1,Tidak,5,1
+TRX-0862,IT Dept,Pembayaran Gaji Lembur,31.19,3,5,1,0,Ya (Anomali),5,4
+TRX-0863,Bandung Branch,Jasa Konsultan Audit,38.16,1,1,0,0,Tidak,5,1
+TRX-0864,Finance Dept,Jasa Konsultan Audit,30.06,19,4,0,0,Tidak,5,1
+TRX-0865,Medan Branch,Biaya Jamuan Klien,26.6,15,1,0,1,Tidak,4,1
+TRX-0866,Bandung Branch,Pengadaan Perangkat IT,42.01,17,6,1,1,Tidak,4,4
+TRX-0867,Jakarta Branch,Transfer Kas Internal,9.44,7,2,0,0,Tidak,4,1
+TRX-0868,IT Dept,Pembayaran Tagihan Listrik,11.04,2,4,1,1,Ya (Anomali),3,5
+TRX-0869,Surabaya Branch,Biaya Perjalanan Dinas,99.95,8,6,1,1,Tidak,5,2
+TRX-0870,Bandung Branch,Reimbursement Operasional,147.05,19,1,0,0,Tidak,5,1
+TRX-0871,Bandung Branch,Reimbursement Operasional,24.37,5,3,1,0,Ya (Anomali),3,3
+TRX-0872,Jakarta Branch,Jasa Konsultan Audit,16.79,9,3,0,1,Tidak,3,2
+TRX-0873,Finance Dept,Biaya Jamuan Klien,52.64,20,2,0,0,Tidak,5,2
+TRX-0874,Operations Dept,Pembayaran Vendor,27.27,9,4,1,0,Tidak,4,1
+TRX-0875,Operations Dept,Jasa Konsultan Audit,2.29,12,4,0,0,Tidak,2,1
+TRX-0876,IT Dept,Reimbursement Operasional,9.49,16,4,0,0,Tidak,3,1
+TRX-0877,IT Dept,Reimbursement Operasional,63.93,8,6,0,1,Tidak,4,3
+TRX-0878,Surabaya Branch,Pembayaran Tagihan Listrik,54.78,16,7,0,1,Tidak,4,1
+TRX-0879,Bandung Branch,Pembayaran Gaji Lembur,2.37,23,7,1,1,Ya (Anomali),2,4
+TRX-0880,Medan Branch,Pembayaran Vendor,13.55,8,2,0,1,Tidak,3,2
+TRX-0881,Bandung Branch,Jasa Konsultan Audit,14.14,8,4,0,1,Tidak,3,2
+TRX-0882,Operations Dept,Pembayaran Tagihan Listrik,56.72,0,6,0,1,Ya (Anomali),4,4
+TRX-0883,Surabaya Branch,Biaya Jamuan Klien,2.0,1,3,0,0,Tidak,1,3
+TRX-0884,Bandung Branch,Pembayaran Tagihan Listrik,6.5,15,1,1,0,Tidak,2,1
+TRX-0885,Jakarta Branch,Jasa Konsultan Audit,81.45,0,6,0,0,Tidak,5,3
+TRX-0886,Operations Dept,Pembelian Material Gudang,10.83,9,7,1,1,Tidak,4,2
+TRX-0887,Bandung Branch,Transfer Kas Internal,53.88,17,7,0,0,Tidak,4,1
+TRX-0888,Bandung Branch,Jasa Konsultan Audit,14.6,7,3,0,0,Tidak,3,2
+TRX-0889,Operations Dept,Pengadaan Perangkat IT,6.24,20,3,0,0,Tidak,2,1
+TRX-0890,Medan Branch,Reimbursement Operasional,14.93,10,1,0,1,Tidak,3,1
+TRX-0891,Operations Dept,Pembayaran Vendor,65.05,22,3,0,1,Ya (Anomali),4,5
+TRX-0892,Jakarta Branch,Pembayaran Vendor,97.79,1,2,0,0,Tidak,5,2
+TRX-0893,Jakarta Branch,Pembayaran Gaji Lembur,89.66,7,1,0,1,Tidak,5,1
+TRX-0894,Bandung Branch,Transfer Kas Internal,26.31,21,3,1,0,Tidak,4,1
+TRX-0895,IT Dept,Pengadaan Perangkat IT,56.14,7,5,0,0,Tidak,4,1
+TRX-0896,Medan Branch,Reimbursement Operasional,12.47,16,6,0,1,Tidak,2,1
+TRX-0897,Bandung Branch,Pembayaran Vendor,18.35,14,3,0,0,Tidak,3,1
+TRX-0898,Operations Dept,Pengadaan Perangkat IT,114.33,16,2,0,1,Tidak,5,1
+TRX-0899,Bandung Branch,Pembayaran Tagihan Listrik,1.65,22,4,0,0,Tidak,1,1
+TRX-0900,Surabaya Branch,Pembayaran Gaji Lembur,5.47,23,3,1,0,Ya (Anomali),3,4
+TRX-0901,Surabaya Branch,Jasa Konsultan Audit,12.65,12,7,1,1,Tidak,3,2
+TRX-0902,IT Dept,Jasa Konsultan Audit,2.34,18,7,0,0,Tidak,2,1
+TRX-0903,Medan Branch,Pembelian Material Gudang,11.01,4,7,0,1,Ya (Anomali),3,3
+TRX-0904,Finance Dept,Reimbursement Operasional,44.74,11,4,0,1,Tidak,5,3
+TRX-0905,Surabaya Branch,Pengadaan Perangkat IT,28.36,0,7,0,0,Ya (Anomali),4,4
+TRX-0906,Finance Dept,Biaya Perjalanan Dinas,112.59,22,5,0,0,Ya (Anomali),5,4
+TRX-0907,Jakarta Branch,Pembayaran Vendor,86.03,4,3,0,0,Tidak,5,4
+TRX-0908,Surabaya Branch,Biaya Jamuan Klien,21.91,7,7,0,0,Tidak,4,1
+TRX-0909,Surabaya Branch,Biaya Jamuan Klien,16.02,12,1,0,0,Tidak,3,2
+TRX-0910,Medan Branch,Jasa Konsultan Audit,24.88,7,4,1,0,Tidak,4,1
+TRX-0911,IT Dept,Biaya Perjalanan Dinas,45.62,22,5,0,0,Tidak,4,2
+TRX-0912,Finance Dept,Biaya Jamuan Klien,16.6,10,1,0,0,Tidak,3,1
+TRX-0913,Operations Dept,Transfer Kas Internal,49.93,0,1,0,1,Ya (Anomali),4,3
+TRX-0914,Surabaya Branch,Transfer Kas Internal,27.33,12,1,0,1,Tidak,4,1
+TRX-0915,Surabaya Branch,Reimbursement Operasional,41.15,18,1,1,1,Tidak,5,3
+TRX-0916,Medan Branch,Biaya Perjalanan Dinas,29.65,23,3,1,0,Ya (Anomali),3,3
+TRX-0917,Medan Branch,Transfer Kas Internal,18.44,2,7,1,1,Ya (Anomali),2,5
+TRX-0918,IT Dept,Transfer Kas Internal,149.26,23,6,0,0,Ya (Anomali),5,5
+TRX-0919,Finance Dept,Jasa Konsultan Audit,73.11,16,3,0,1,Tidak,4,1
+TRX-0920,Jakarta Branch,Biaya Jamuan Klien,8.55,4,3,0,1,Tidak,3,2
+TRX-0921,Operations Dept,Reimbursement Operasional,102.43,19,5,1,0,Tidak,5,2
+TRX-0922,IT Dept,Pengadaan Perangkat IT,34.42,20,5,0,1,Tidak,4,2
+TRX-0923,Jakarta Branch,Pembayaran Tagihan Listrik,113.48,7,7,1,1,Tidak,4,2
+TRX-0924,Bandung Branch,Pembayaran Vendor,81.44,13,6,1,1,Tidak,5,3
+TRX-0925,Surabaya Branch,Pembayaran Vendor,28.69,3,5,0,1,Ya (Anomali),4,3
+TRX-0926,Finance Dept,Pembayaran Gaji Lembur,2.14,10,7,0,0,Tidak,1,1
+TRX-0927,IT Dept,Pembayaran Tagihan Listrik,16.65,19,7,0,0,Tidak,3,1
+TRX-0928,Surabaya Branch,Pembayaran Tagihan Listrik,40.0,14,2,1,0,Tidak,4,2
+TRX-0929,Finance Dept,Pembayaran Vendor,51.18,18,6,0,1,Tidak,4,1
+TRX-0930,Finance Dept,Pembayaran Vendor,15.91,6,5,1,0,Tidak,3,1
+TRX-0931,Finance Dept,Pengadaan Perangkat IT,8.5,18,6,0,1,Tidak,2,3
+TRX-0932,Surabaya Branch,Biaya Perjalanan Dinas,91.07,18,3,0,0,Tidak,5,1
+TRX-0933,IT Dept,Biaya Perjalanan Dinas,209.03,10,3,1,0,Ya (Anomali),5,5
+TRX-0934,Operations Dept,Pengadaan Perangkat IT,38.29,4,6,0,0,Tidak,5,3
+TRX-0935,Medan Branch,Biaya Jamuan Klien,10.42,4,2,0,1,Ya (Anomali),2,3
+TRX-0936,Surabaya Branch,Pembayaran Tagihan Listrik,16.89,21,2,0,0,Tidak,4,1
+TRX-0937,Finance Dept,Pembelian Material Gudang,1.93,7,6,0,0,Tidak,1,1
+TRX-0938,IT Dept,Pembayaran Tagihan Listrik,123.84,9,5,1,0,Ya (Anomali),5,2
+TRX-0939,Operations Dept,Pembayaran Gaji Lembur,7.26,5,4,0,0,Tidak,1,2
+TRX-0940,Bandung Branch,Pembayaran Vendor,43.96,14,2,1,0,Tidak,4,2
+TRX-0941,Jakarta Branch,Pembayaran Tagihan Listrik,17.01,15,1,1,1,Ya (Anomali),4,3
+TRX-0942,Finance Dept,Pembayaran Vendor,41.39,16,3,0,0,Tidak,4,1
+TRX-0943,Bandung Branch,Pembayaran Tagihan Listrik,53.69,7,6,0,0,Tidak,4,1
+TRX-0944,Medan Branch,Pembayaran Gaji Lembur,89.52,7,1,0,1,Tidak,5,2
+TRX-0945,Operations Dept,Biaya Jamuan Klien,12.56,8,6,0,1,Tidak,3,2
+TRX-0946,Operations Dept,Pembelian Material Gudang,1.55,1,7,1,0,Ya (Anomali),1,4
+TRX-0947,Finance Dept,Transfer Kas Internal,8.36,14,3,0,0,Tidak,3,1
+TRX-0948,Operations Dept,Pengadaan Perangkat IT,116.14,17,3,0,1,Tidak,5,3
+TRX-0949,Bandung Branch,Pengadaan Perangkat IT,104.53,2,2,0,1,Tidak,4,2
+TRX-0950,Finance Dept,Pembelian Material Gudang,46.49,16,2,0,1,Tidak,4,1
+TRX-0951,Surabaya Branch,Pembayaran Tagihan Listrik,46.88,3,1,0,0,Tidak,4,2
+TRX-0952,IT Dept,Transfer Kas Internal,55.69,3,7,1,0,Tidak,4,3
+TRX-0953,Bandung Branch,Pembayaran Gaji Lembur,10.64,13,6,0,1,Tidak,3,1
+TRX-0954,IT Dept,Biaya Perjalanan Dinas,123.91,8,7,0,0,Tidak,5,3
+TRX-0955,Surabaya Branch,Pembayaran Tagihan Listrik,28.13,8,3,0,0,Tidak,5,1
+TRX-0956,Surabaya Branch,Biaya Jamuan Klien,25.16,22,1,0,1,Tidak,2,3
+TRX-0957,IT Dept,Pembayaran Vendor,37.59,17,4,0,1,Tidak,4,2
+TRX-0958,Bandung Branch,Reimbursement Operasional,3.41,9,1,0,0,Tidak,1,2
+TRX-0959,IT Dept,Pembayaran Tagihan Listrik,10.09,20,5,0,1,Tidak,3,1
+TRX-0960,IT Dept,Reimbursement Operasional,67.98,3,1,0,0,Tidak,4,1
+TRX-0961,Jakarta Branch,Pembayaran Tagihan Listrik,5.32,11,7,0,0,Tidak,3,1
+TRX-0962,Bandung Branch,Pembelian Material Gudang,47.21,7,5,0,1,Tidak,4,1
+TRX-0963,Jakarta Branch,Reimbursement Operasional,15.08,1,5,1,0,Ya (Anomali),2,3
+TRX-0964,Finance Dept,Pembayaran Tagihan Listrik,25.66,21,5,1,0,Tidak,2,2
+TRX-0965,Operations Dept,Pengadaan Perangkat IT,18.03,12,4,0,1,Tidak,3,2
+TRX-0966,IT Dept,Reimbursement Operasional,22.98,20,1,1,0,Tidak,3,1
+TRX-0967,Finance Dept,Pembayaran Tagihan Listrik,64.48,15,7,1,0,Tidak,4,3
+TRX-0968,Bandung Branch,Biaya Perjalanan Dinas,18.63,1,1,0,1,Ya (Anomali),4,3
+TRX-0969,IT Dept,Pembayaran Vendor,42.78,10,4,0,1,Tidak,5,1
+TRX-0970,Operations Dept,Biaya Perjalanan Dinas,33.32,9,3,1,1,Tidak,4,3
+TRX-0971,Finance Dept,Transfer Kas Internal,55.48,14,2,0,1,Tidak,5,1
+TRX-0972,Medan Branch,Pembayaran Tagihan Listrik,139.1,16,7,0,0,Tidak,5,1
+TRX-0973,Surabaya Branch,Jasa Konsultan Audit,66.95,7,7,1,1,Ya (Anomali),4,4
+TRX-0974,IT Dept,Biaya Jamuan Klien,13.1,17,1,0,0,Tidak,3,1
+TRX-0975,Operations Dept,Biaya Perjalanan Dinas,2.58,22,2,0,1,Ya (Anomali),1,3
+TRX-0976,Surabaya Branch,Reimbursement Operasional,16.21,8,6,1,0,Tidak,4,2
+TRX-0977,Jakarta Branch,Pembelian Material Gudang,46.2,7,6,0,0,Tidak,4,1
+TRX-0978,Finance Dept,Biaya Jamuan Klien,3.64,13,4,0,0,Tidak,2,2
+TRX-0979,Jakarta Branch,Jasa Konsultan Audit,35.3,17,6,0,0,Tidak,4,1
+TRX-0980,Operations Dept,Pembayaran Gaji Lembur,46.42,21,7,0,1,Tidak,3,2
+TRX-0981,IT Dept,Pembayaran Tagihan Listrik,21.34,19,6,1,0,Tidak,2,2
+TRX-0982,Surabaya Branch,Pembelian Material Gudang,74.68,19,3,0,0,Tidak,4,1
+TRX-0983,Surabaya Branch,Pembayaran Tagihan Listrik,6.64,20,3,0,0,Tidak,2,1
+TRX-0984,Finance Dept,Transfer Kas Internal,4.91,11,3,0,0,Tidak,2,1
+TRX-0985,IT Dept,Jasa Konsultan Audit,66.13,18,6,0,1,Tidak,4,2
+TRX-0986,Medan Branch,Pembayaran Tagihan Listrik,35.21,13,4,0,1,Tidak,4,2
+TRX-0987,Medan Branch,Reimbursement Operasional,59.3,16,5,1,1,Tidak,4,4
+TRX-0988,Finance Dept,Transfer Kas Internal,29.53,23,5,0,1,Ya (Anomali),4,3
+TRX-0989,IT Dept,Pengadaan Perangkat IT,15.14,20,2,0,1,Tidak,4,2
+TRX-0990,Finance Dept,Pembayaran Gaji Lembur,86.49,2,5,0,0,Ya (Anomali),5,3
+TRX-0991,IT Dept,Jasa Konsultan Audit,81.33,22,5,1,1,Ya (Anomali),5,5
+TRX-0992,Operations Dept,Pembayaran Vendor,60.32,6,3,1,1,Tidak,4,3
+TRX-0993,Operations Dept,Pembelian Material Gudang,16.88,16,3,1,0,Tidak,3,3
+TRX-0994,Jakarta Branch,Biaya Perjalanan Dinas,45.61,11,6,1,1,Ya (Anomali),3,3
+TRX-0995,Finance Dept,Pembayaran Tagihan Listrik,23.39,8,2,1,1,Tidak,3,3
+TRX-0996,IT Dept,Pembelian Material Gudang,5.8,14,1,0,0,Tidak,2,1
+TRX-0997,Medan Branch,Pembelian Material Gudang,125.63,17,7,0,0,Tidak,5,3
+TRX-0998,IT Dept,Pembayaran Vendor,8.36,20,2,0,0,Tidak,3,1
+TRX-0999,Operations Dept,Pembayaran Vendor,151.02,12,2,1,1,Ya (Anomali),5,4
+TRX-1000,IT Dept,Transfer Kas Internal,30.53,20,4,1,1,Tidak,4,2
+TRX-1001,Finance Dept,Jasa Konsultan Audit,11.24,7,6,0,0,Tidak,3,1
+TRX-1002,Jakarta Branch,Reimbursement Operasional,40.03,13,4,1,1,Tidak,4,2
+TRX-1003,Jakarta Branch,Pembayaran Gaji Lembur,104.16,7,2,0,0,Tidak,4,1
+TRX-1004,Jakarta Branch,Pembayaran Vendor,66.88,13,2,0,0,Tidak,4,1
+TRX-1005,Jakarta Branch,Pembayaran Vendor,83.14,6,2,0,1,Tidak,5,1
+TRX-1006,Operations Dept,Biaya Perjalanan Dinas,54.76,22,5,0,1,Ya (Anomali),4,5
+TRX-1007,Bandung Branch,Pengadaan Perangkat IT,59.93,11,7,0,0,Tidak,4,2
+TRX-1008,Finance Dept,Pembayaran Vendor,95.59,10,7,0,0,Tidak,5,1
+TRX-1009,Surabaya Branch,Pengadaan Perangkat IT,15.36,21,4,0,0,Tidak,2,1
+TRX-1010,Finance Dept,Transfer Kas Internal,34.61,21,2,0,0,Tidak,4,1
+TRX-1011,Bandung Branch,Reimbursement Operasional,13.5,10,7,1,0,Tidak,3,2
+TRX-1012,Jakarta Branch,Pembelian Material Gudang,220.78,21,3,1,0,Ya (Anomali),4,3
+TRX-1013,Bandung Branch,Pembayaran Vendor,145.17,12,7,1,0,Ya (Anomali),5,5
+TRX-1014,Medan Branch,Pembayaran Tagihan Listrik,3.01,17,6,0,0,Tidak,2,1
+TRX-1015,Medan Branch,Pengadaan Perangkat IT,62.14,1,6,0,0,Tidak,4,3
+TRX-1016,Operations Dept,Biaya Perjalanan Dinas,130.68,20,7,0,0,Tidak,5,2
+TRX-1017,Finance Dept,Pembayaran Gaji Lembur,10.96,14,3,0,1,Tidak,3,1
+TRX-1018,Finance Dept,Biaya Perjalanan Dinas,42.96,19,6,0,1,Tidak,4,2
+TRX-1019,Surabaya Branch,Pembayaran Vendor,124.54,17,5,0,0,Tidak,5,2
+TRX-1020,Operations Dept,Jasa Konsultan Audit,2.73,14,7,0,0,Tidak,2,2
+TRX-1021,Surabaya Branch,Pembelian Material Gudang,60.77,18,5,0,0,Tidak,4,1
+TRX-1022,Medan Branch,Reimbursement Operasional,18.64,22,7,0,0,Tidak,2,2
+TRX-1023,Jakarta Branch,Pembayaran Tagihan Listrik,130.11,23,1,0,0,Ya (Anomali),4,4
+TRX-1024,Bandung Branch,Jasa Konsultan Audit,178.12,11,1,0,0,Tidak,5,2
+TRX-1025,Surabaya Branch,Biaya Perjalanan Dinas,145.36,12,1,0,0,Tidak,5,2
+TRX-1026,IT Dept,Pengadaan Perangkat IT,33.14,21,6,0,1,Tidak,4,1
+TRX-1027,Surabaya Branch,Pengadaan Perangkat IT,100.04,10,5,0,0,Tidak,4,1
+TRX-1028,Jakarta Branch,Jasa Konsultan Audit,94.07,4,5,0,0,Tidak,5,1
+TRX-1029,Jakarta Branch,Pengadaan Perangkat IT,20.22,0,5,0,1,Ya (Anomali),3,3
+TRX-1030,Finance Dept,Biaya Perjalanan Dinas,89.28,23,3,0,0,Tidak,5,1
+TRX-1031,Bandung Branch,Jasa Konsultan Audit,2.89,2,5,0,0,Tidak,2,3
+TRX-1032,Jakarta Branch,Biaya Perjalanan Dinas,46.35,21,3,0,0,Tidak,4,1
+TRX-1033,Operations Dept,Pembayaran Tagihan Listrik,14.07,18,1,0,0,Tidak,3,1
+TRX-1034,Surabaya Branch,Pembelian Material Gudang,7.42,22,1,1,1,Ya (Anomali),2,5
+TRX-1035,Surabaya Branch,Pembayaran Gaji Lembur,5.0,6,6,0,0,Tidak,2,1
+TRX-1036,Medan Branch,Pembayaran Tagihan Listrik,60.58,11,7,0,0,Tidak,4,1
+TRX-1037,Jakarta Branch,Pembayaran Tagihan Listrik,21.77,14,1,0,0,Tidak,3,1
+TRX-1038,IT Dept,Pengadaan Perangkat IT,65.51,4,7,0,0,Tidak,5,2
+TRX-1039,Finance Dept,Pembayaran Vendor,4.38,14,7,0,1,Tidak,3,1
+TRX-1040,Bandung Branch,Biaya Jamuan Klien,19.94,7,6,0,1,Tidak,4,2
+TRX-1041,IT Dept,Pengadaan Perangkat IT,39.77,9,2,1,0,Tidak,4,2
+TRX-1042,Finance Dept,Pembayaran Vendor,79.2,15,2,0,0,Tidak,5,1
+TRX-1043,Surabaya Branch,Biaya Perjalanan Dinas,20.19,7,4,0,0,Tidak,2,1
+TRX-1044,IT Dept,Biaya Jamuan Klien,50.16,0,6,0,1,Tidak,4,2
+TRX-1045,Finance Dept,Pengadaan Perangkat IT,109.57,11,4,1,0,Tidak,5,1
+TRX-1046,Surabaya Branch,Biaya Jamuan Klien,48.84,4,4,0,0,Tidak,4,2
+TRX-1047,Surabaya Branch,Biaya Jamuan Klien,14.26,2,2,1,0,Tidak,3,2
+TRX-1048,Surabaya Branch,Transfer Kas Internal,2.24,0,6,0,0,Tidak,2,1
+TRX-1049,Surabaya Branch,Pembelian Material Gudang,103.05,3,2,1,0,Ya (Anomali),4,3
+TRX-1050,Operations Dept,Transfer Kas Internal,2.07,7,4,1,0,Tidak,2,1
+TRX-1051,Surabaya Branch,Pembayaran Vendor,104.85,2,6,0,0,Ya (Anomali),5,3
+TRX-1052,Medan Branch,Reimbursement Operasional,38.64,9,4,0,0,Tidak,4,1
+TRX-1053,IT Dept,Jasa Konsultan Audit,140.9,1,5,0,0,Ya (Anomali),5,4
+TRX-1054,Finance Dept,Pembayaran Gaji Lembur,81.17,10,7,0,1,Tidak,5,1
+TRX-1055,Medan Branch,Reimbursement Operasional,310.11,9,6,0,0,Tidak,5,2
+TRX-1056,Operations Dept,Jasa Konsultan Audit,22.59,20,6,0,0,Tidak,3,1
+TRX-1057,Medan Branch,Pembayaran Vendor,73.88,13,7,0,1,Tidak,4,1
+TRX-1058,Jakarta Branch,Pembayaran Vendor,26.7,6,4,0,0,Tidak,4,1
+TRX-1059,Jakarta Branch,Biaya Perjalanan Dinas,33.68,1,5,1,0,Ya (Anomali),3,4
+TRX-1060,Jakarta Branch,Pembayaran Gaji Lembur,50.38,8,3,0,1,Tidak,4,1
+TRX-1061,Bandung Branch,Pembelian Material Gudang,104.45,15,7,0,0,Tidak,5,1
+TRX-1062,Jakarta Branch,Biaya Jamuan Klien,208.02,12,2,0,1,Ya (Anomali),5,4
+TRX-1063,Finance Dept,Transfer Kas Internal,74.11,8,4,1,0,Tidak,4,2
+TRX-1064,Medan Branch,Transfer Kas Internal,28.04,19,7,0,0,Tidak,4,1
+TRX-1065,Finance Dept,Pembayaran Vendor,28.35,3,7,0,0,Tidak,5,2
+TRX-1066,IT Dept,Transfer Kas Internal,67.89,21,6,0,0,Tidak,4,2
+TRX-1067,Jakarta Branch,Pembayaran Vendor,14.64,9,2,0,1,Tidak,3,1
+TRX-1068,Operations Dept,Biaya Jamuan Klien,6.85,21,2,0,1,Tidak,2,1
+TRX-1069,Bandung Branch,Pembayaran Vendor,22.9,11,2,1,1,Tidak,4,3
+TRX-1070,IT Dept,Biaya Perjalanan Dinas,17.93,16,7,1,1,Tidak,3,3
+TRX-1071,Operations Dept,Pembelian Material Gudang,18.57,13,3,0,1,Tidak,3,1
+TRX-1072,Bandung Branch,Pembayaran Tagihan Listrik,14.3,13,1,1,0,Tidak,3,2
+TRX-1073,IT Dept,Pengadaan Perangkat IT,3.15,1,4,0,0,Tidak,2,1
+TRX-1074,Medan Branch,Pembelian Material Gudang,1.9,20,1,0,0,Tidak,1,1
+TRX-1075,Finance Dept,Pembelian Material Gudang,221.0,19,7,1,0,Ya (Anomali),5,5
+TRX-1076,Surabaya Branch,Reimbursement Operasional,28.91,10,1,0,1,Tidak,4,2
+TRX-1077,Finance Dept,Pembayaran Gaji Lembur,25.25,15,7,1,0,Tidak,3,1
+TRX-1078,Jakarta Branch,Pembayaran Gaji Lembur,57.92,18,1,0,0,Tidak,4,1
+TRX-1079,Operations Dept,Jasa Konsultan Audit,13.31,22,2,0,0,Tidak,3,3
+TRX-1080,Surabaya Branch,Pengadaan Perangkat IT,150.75,5,5,0,0,Ya (Anomali),5,3
+TRX-1081,Bandung Branch,Biaya Jamuan Klien,78.17,23,2,0,0,Tidak,5,2
+TRX-1082,Medan Branch,Pembayaran Tagihan Listrik,5.68,18,2,0,0,Tidak,2,1
+TRX-1083,Medan Branch,Pembayaran Tagihan Listrik,28.03,4,6,1,0,Tidak,4,3
+TRX-1084,Bandung Branch,Pembayaran Gaji Lembur,106.65,3,6,0,0,Tidak,5,1
+TRX-1085,Jakarta Branch,Pembelian Material Gudang,145.78,14,1,1,1,Ya (Anomali),5,5
+TRX-1086,Bandung Branch,Biaya Perjalanan Dinas,32.5,3,7,1,0,Ya (Anomali),4,3
+TRX-1087,IT Dept,Jasa Konsultan Audit,48.52,19,2,0,0,Tidak,4,1
+TRX-1088,Operations Dept,Pembayaran Vendor,10.14,9,1,0,0,Tidak,2,2
+TRX-1089,Operations Dept,Jasa Konsultan Audit,237.47,23,6,0,0,Ya (Anomali),5,4
+TRX-1090,Jakarta Branch,Reimbursement Operasional,14.18,21,5,0,0,Tidak,3,2
+TRX-1091,Surabaya Branch,Jasa Konsultan Audit,144.0,2,4,1,0,Ya (Anomali),5,5
+TRX-1092,Bandung Branch,Pembelian Material Gudang,53.44,4,1,0,0,Tidak,4,2
+TRX-1093,Jakarta Branch,Biaya Jamuan Klien,47.79,5,5,0,0,Tidak,5,2
+TRX-1094,Operations Dept,Pembelian Material Gudang,36.94,20,4,0,0,Tidak,3,1
+TRX-1095,Surabaya Branch,Pembayaran Gaji Lembur,14.11,21,3,0,0,Tidak,3,1
+TRX-1096,Bandung Branch,Biaya Jamuan Klien,10.71,7,1,0,1,Tidak,4,2
+TRX-1097,Medan Branch,Transfer Kas Internal,13.45,6,1,0,0,Tidak,3,1
+TRX-1098,Bandung Branch,Biaya Jamuan Klien,11.32,20,3,0,1,Tidak,2,2
+TRX-1099,Finance Dept,Jasa Konsultan Audit,76.61,9,3,0,0,Tidak,4,1
+TRX-1100,Bandung Branch,Jasa Konsultan Audit,22.55,5,1,0,0,Tidak,3,1
+TRX-1101,Finance Dept,Jasa Konsultan Audit,3.98,13,3,0,1,Tidak,2,3
+TRX-1102,Surabaya Branch,Transfer Kas Internal,174.85,3,2,0,1,Ya (Anomali),5,4
+TRX-1103,Bandung Branch,Pembayaran Gaji Lembur,108.62,12,4,1,0,Tidak,5,3
+TRX-1104,Surabaya Branch,Pembayaran Vendor,132.38,19,4,0,0,Tidak,5,1
+TRX-1105,Surabaya Branch,Pengadaan Perangkat IT,265.0,16,4,0,0,Ya (Anomali),5,4
+TRX-1106,Operations Dept,Pembayaran Gaji Lembur,10.55,22,2,0,0,Tidak,3,1
+TRX-1107,Jakarta Branch,Jasa Konsultan Audit,26.23,6,7,0,0,Tidak,4,1
+TRX-1108,Surabaya Branch,Pembayaran Gaji Lembur,71.99,3,3,1,0,Ya (Anomali),4,2
+TRX-1109,Surabaya Branch,Reimbursement Operasional,60.54,13,5,0,0,Tidak,4,1
+TRX-1110,Operations Dept,Pembayaran Tagihan Listrik,9.36,2,3,0,0,Ya (Anomali),3,4
+TRX-1111,Operations Dept,Pembayaran Tagihan Listrik,85.6,23,1,1,1,Ya (Anomali),5,5
+TRX-1112,Bandung Branch,Pengadaan Perangkat IT,13.71,4,6,0,1,Tidak,3,4
+TRX-1113,Operations Dept,Pengadaan Perangkat IT,13.67,15,4,0,1,Tidak,3,2
+TRX-1114,Bandung Branch,Pembayaran Vendor,39.5,22,3,0,0,Tidak,4,3
+TRX-1115,Medan Branch,Reimbursement Operasional,45.94,19,5,0,1,Tidak,4,2
+TRX-1116,Operations Dept,Pembelian Material Gudang,44.39,3,1,0,1,Ya (Anomali),3,4
+TRX-1117,Jakarta Branch,Pembayaran Gaji Lembur,5.8,23,2,0,0,Tidak,3,2
+TRX-1118,Surabaya Branch,Biaya Jamuan Klien,105.97,23,7,1,0,Ya (Anomali),4,5
+TRX-1119,Jakarta Branch,Biaya Jamuan Klien,16.44,1,2,1,1,Ya (Anomali),3,5
+TRX-1120,Finance Dept,Pembelian Material Gudang,7.94,17,5,0,0,Tidak,2,1
+TRX-1121,Operations Dept,Pembayaran Tagihan Listrik,110.8,18,1,0,0,Tidak,5,2
+TRX-1122,Surabaya Branch,Pembelian Material Gudang,156.78,18,4,1,0,Ya (Anomali),5,2
+TRX-1123,Jakarta Branch,Pembayaran Gaji Lembur,100.07,16,3,0,0,Tidak,5,1
+TRX-1124,Operations Dept,Reimbursement Operasional,83.91,13,1,1,1,Tidak,4,2
+TRX-1125,Operations Dept,Jasa Konsultan Audit,54.25,18,7,1,0,Tidak,4,3
+TRX-1126,Medan Branch,Transfer Kas Internal,41.02,21,2,0,0,Tidak,4,1
+TRX-1127,Medan Branch,Jasa Konsultan Audit,5.55,23,7,0,0,Tidak,2,1
+TRX-1128,Surabaya Branch,Transfer Kas Internal,27.25,12,7,0,0,Tidak,4,1
+TRX-1129,Finance Dept,Biaya Jamuan Klien,24.32,11,5,0,0,Tidak,4,1
+TRX-1130,Medan Branch,Pengadaan Perangkat IT,16.04,5,5,1,0,Ya (Anomali),4,2
+TRX-1131,Medan Branch,Pembayaran Gaji Lembur,65.26,20,3,0,1,Tidak,4,2
+TRX-1132,Finance Dept,Jasa Konsultan Audit,35.25,3,5,1,0,Ya (Anomali),4,5
+TRX-1133,Jakarta Branch,Pembelian Material Gudang,5.23,18,5,0,0,Tidak,2,1
+TRX-1134,Medan Branch,Reimbursement Operasional,13.43,15,1,0,1,Tidak,4,1
+TRX-1135,Bandung Branch,Reimbursement Operasional,58.48,12,4,0,0,Tidak,5,1
+TRX-1136,IT Dept,Pembayaran Tagihan Listrik,4.96,3,3,0,1,Ya (Anomali),2,4
+TRX-1137,IT Dept,Reimbursement Operasional,96.26,22,1,0,1,Ya (Anomali),5,3
+TRX-1138,Medan Branch,Reimbursement Operasional,35.17,16,4,0,1,Tidak,4,2
+TRX-1139,Jakarta Branch,Pengadaan Perangkat IT,33.75,22,7,1,0,Tidak,3,3
+TRX-1140,Operations Dept,Pembelian Material Gudang,45.87,0,1,0,0,Tidak,3,2
+TRX-1141,Jakarta Branch,Biaya Jamuan Klien,88.06,17,6,0,0,Tidak,5,1
+TRX-1142,Surabaya Branch,Reimbursement Operasional,22.37,19,1,0,0,Tidak,3,1
+TRX-1143,Bandung Branch,Biaya Jamuan Klien,57.66,16,5,1,1,Tidak,3,3
+TRX-1144,Jakarta Branch,Pengadaan Perangkat IT,42.7,14,4,0,1,Tidak,4,2
+TRX-1145,Finance Dept,Reimbursement Operasional,16.53,10,3,0,1,Tidak,3,2
+TRX-1146,Bandung Branch,Pembayaran Gaji Lembur,106.45,21,3,1,1,Tidak,5,3
+TRX-1147,IT Dept,Pembayaran Tagihan Listrik,80.83,12,4,1,1,Tidak,5,3
+TRX-1148,Bandung Branch,Jasa Konsultan Audit,54.71,0,5,0,0,Tidak,4,1
+TRX-1149,Finance Dept,Pembayaran Gaji Lembur,96.05,16,2,0,0,Tidak,5,1
+TRX-1150,Medan Branch,Biaya Perjalanan Dinas,101.98,5,1,0,1,Tidak,5,2
+TRX-1151,Finance Dept,Pembayaran Vendor,62.61,3,5,0,0,Ya (Anomali),4,4
+TRX-1152,Finance Dept,Reimbursement Operasional,91.7,19,6,1,0,Tidak,5,1
+TRX-1153,Medan Branch,Biaya Jamuan Klien,60.78,15,7,0,0,Tidak,4,2
+TRX-1154,Medan Branch,Pembayaran Vendor,57.99,14,4,1,1,Tidak,4,2
+TRX-1155,Medan Branch,Transfer Kas Internal,49.2,14,1,0,0,Tidak,4,1
+TRX-1156,Medan Branch,Reimbursement Operasional,70.86,5,3,0,1,Ya (Anomali),4,2
+TRX-1157,Medan Branch,Biaya Perjalanan Dinas,9.63,14,7,0,1,Tidak,2,2
+TRX-1158,Finance Dept,Pengadaan Perangkat IT,107.38,13,2,0,0,Tidak,5,1
+TRX-1159,Surabaya Branch,Pembayaran Tagihan Listrik,103.73,10,6,1,0,Tidak,4,1
+TRX-1160,Surabaya Branch,Biaya Perjalanan Dinas,2.48,6,3,1,0,Tidak,2,3
+TRX-1161,Jakarta Branch,Biaya Jamuan Klien,88.38,8,4,0,1,Tidak,5,2
+TRX-1162,Surabaya Branch,Pengadaan Perangkat IT,7.9,15,1,0,1,Tidak,2,1
+TRX-1163,IT Dept,Jasa Konsultan Audit,21.41,4,4,0,1,Tidak,3,3
+TRX-1164,Surabaya Branch,Pengadaan Perangkat IT,69.03,19,7,0,0,Tidak,5,1
+TRX-1165,Finance Dept,Reimbursement Operasional,9.76,9,1,0,0,Tidak,3,1
+TRX-1166,Medan Branch,Pembayaran Vendor,86.18,17,5,0,0,Tidak,5,1
+TRX-1167,Medan Branch,Pembayaran Vendor,90.23,2,2,0,1,Ya (Anomali),5,5
+TRX-1168,Operations Dept,Biaya Jamuan Klien,36.41,12,5,1,0,Tidak,5,3
+TRX-1169,Operations Dept,Pengadaan Perangkat IT,1.32,10,5,0,0,Tidak,1,1
+TRX-1170,Operations Dept,Biaya Perjalanan Dinas,17.92,16,4,0,0,Tidak,3,1
+TRX-1171,Finance Dept,Biaya Jamuan Klien,48.98,21,7,0,0,Tidak,4,1
+TRX-1172,IT Dept,Pembayaran Tagihan Listrik,199.66,12,2,0,0,Tidak,5,2
+TRX-1173,Surabaya Branch,Biaya Jamuan Klien,50.96,5,1,0,0,Tidak,4,2
+TRX-1174,Finance Dept,Biaya Jamuan Klien,16.04,16,1,1,0,Tidak,3,2
+TRX-1175,Jakarta Branch,Jasa Konsultan Audit,51.26,12,6,1,0,Tidak,4,1
+TRX-1176,Medan Branch,Pembayaran Gaji Lembur,39.82,18,3,0,1,Tidak,4,2
+TRX-1177,Operations Dept,Reimbursement Operasional,76.67,20,6,0,1,Tidak,4,2
+TRX-1178,Bandung Branch,Jasa Konsultan Audit,6.66,18,6,0,0,Tidak,2,1
+TRX-1179,Jakarta Branch,Pembayaran Vendor,72.57,9,1,1,1,Tidak,4,3
+TRX-1180,Operations Dept,Pembayaran Vendor,39.96,2,4,0,0,Tidak,4,3
+TRX-1181,IT Dept,Transfer Kas Internal,165.83,13,5,0,0,Ya (Anomali),5,3
+TRX-1182,Jakarta Branch,Transfer Kas Internal,21.92,18,7,0,1,Tidak,2,1
+TRX-1183,Finance Dept,Biaya Perjalanan Dinas,51.07,4,5,0,1,Ya (Anomali),4,3
+TRX-1184,Surabaya Branch,Pembayaran Vendor,135.43,4,5,0,1,Ya (Anomali),5,5
+TRX-1185,Medan Branch,Pembayaran Gaji Lembur,6.41,19,2,1,0,Tidak,1,4
+TRX-1186,IT Dept,Jasa Konsultan Audit,139.41,16,1,0,0,Tidak,5,2
+TRX-1187,IT Dept,Pembayaran Tagihan Listrik,59.22,20,7,0,1,Tidak,4,3
+TRX-1188,Bandung Branch,Pembayaran Gaji Lembur,4.51,9,4,0,0,Tidak,2,1
+TRX-1189,Jakarta Branch,Transfer Kas Internal,18.9,4,2,1,0,Ya (Anomali),2,2
+TRX-1190,Bandung Branch,Pengadaan Perangkat IT,62.58,3,3,1,1,Ya (Anomali),5,5
+TRX-1191,Surabaya Branch,Pembayaran Gaji Lembur,4.49,5,4,0,1,Tidak,2,2
+TRX-1192,Operations Dept,Pembayaran Gaji Lembur,44.63,3,6,1,1,Ya (Anomali),4,5
+TRX-1193,Surabaya Branch,Pembayaran Gaji Lembur,22.22,6,4,0,0,Tidak,3,1
+TRX-1194,Operations Dept,Pembayaran Gaji Lembur,49.5,6,4,0,1,Tidak,4,3
+TRX-1195,Bandung Branch,Pembayaran Gaji Lembur,3.34,17,5,0,0,Tidak,2,1
+TRX-1196,Medan Branch,Transfer Kas Internal,103.61,2,4,0,0,Tidak,4,2
+TRX-1197,Surabaya Branch,Pembayaran Vendor,182.51,0,6,0,0,Ya (Anomali),5,3
+TRX-1198,Bandung Branch,Biaya Jamuan Klien,174.49,23,6,0,0,Ya (Anomali),5,5
+TRX-1199,Jakarta Branch,Pembayaran Gaji Lembur,70.25,3,1,0,0,Tidak,4,3
+TRX-1200,Bandung Branch,Pembayaran Gaji Lembur,7.97,5,4,1,1,Ya (Anomali),2,5
+TX-2026-909,Medan Branch,Transfer luar biasa malam hari tanpa otorisasi,3400.0,23,7,1,1,Ya (Anomali),5,5

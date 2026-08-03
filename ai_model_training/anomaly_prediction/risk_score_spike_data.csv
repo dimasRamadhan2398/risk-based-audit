@@ -1,0 +1,1201 @@
+ID Penilaian Risiko,Entitas Auditee,Kategori Risiko,Deskripsi Evaluasi Risiko,current_risk_score,previous_risk_score,risk_score_diff,new_findings_count,risk_score_volatility,"is_unexplained_spike (1=Ya, 0=Tidak)",TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5)
+RSK-0001,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1,5.3,4.2,1.1,2,0.16,0,Tidak,3,2
+RSK-0002,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #2,16.7,16.2,0.5,4,0.35,0,Tidak,4,3
+RSK-0003,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #3,12.2,12.9,-0.7,1,0.09,0,Tidak,3,1
+RSK-0004,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #4,10.2,8.0,2.2,3,0.12,0,Tidak,3,1
+RSK-0005,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #5,4.1,5.8,-1.7,3,0.04,0,Tidak,2,1
+RSK-0006,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #6,18.1,13.0,5.1,1,0.17,0,Tidak,4,2
+RSK-0007,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #7,7.4,3.1,4.3,3,0.06,0,Tidak,3,1
+RSK-0008,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #8,13.7,16.0,-2.3,0,0.33,0,Tidak,4,3
+RSK-0009,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #9,12.5,12.4,0.1,0,0.0,0,Tidak,4,1
+RSK-0010,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #10,3.0,6.2,-3.2,0,0.1,0,Tidak,1,1
+RSK-0011,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #11,10.6,13.4,-2.8,4,0.27,0,Tidak,3,3
+RSK-0012,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #12,10.8,6.9,3.9,1,0.05,0,Tidak,3,1
+RSK-0013,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #13,19.7,16.3,3.4,3,0.1,0,Tidak,4,1
+RSK-0014,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #14,10.4,12.9,-2.5,1,0.02,0,Tidak,3,1
+RSK-0015,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #15,13.8,16.3,-2.5,4,0.02,0,Tidak,4,1
+RSK-0016,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #16,18.6,13.9,4.7,1,0.15,0,Tidak,4,2
+RSK-0017,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #17,12.1,8.9,3.2,18,0.25,0,Tidak,3,3
+RSK-0018,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #18,12.1,15.2,-3.1,2,0.01,0,Tidak,3,1
+RSK-0019,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #19,21.0,15.2,5.8,2,0.04,0,Tidak,5,1
+RSK-0020,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #20,18.9,17.6,1.3,2,0.08,0,Tidak,4,1
+RSK-0021,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #21,17.3,12.3,5.0,0,0.48,0,Tidak,5,4
+RSK-0022,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #22,17.4,13.3,4.1,1,0.02,0,Tidak,4,2
+RSK-0023,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #23,7.4,10.2,-2.8,5,0.22,0,Tidak,2,2
+RSK-0024,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #24,8.4,7.1,1.3,0,0.14,0,Tidak,2,2
+RSK-0025,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #25,2.1,4.2,-2.1,5,0.08,0,Tidak,1,2
+RSK-0026,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #26,16.5,14.3,2.2,0,0.05,0,Tidak,4,1
+RSK-0027,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #27,13.7,10.0,3.7,0,0.07,0,Tidak,3,1
+RSK-0028,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #28,19.3,15.7,3.6,4,0.08,0,Tidak,5,1
+RSK-0029,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #29,13.9,9.5,4.4,1,0.31,0,Tidak,3,3
+RSK-0030,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #30,20.1,17.1,3.0,0,0.64,0,Tidak,5,5
+RSK-0031,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #31,5.7,8.6,-2.9,0,0.47,0,Tidak,2,4
+RSK-0032,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #32,13.8,9.5,4.3,2,0.02,0,Tidak,3,2
+RSK-0033,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #33,18.1,12.9,5.2,1,0.0,0,Tidak,5,1
+RSK-0034,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #34,10.8,7.8,3.0,1,0.04,0,Tidak,3,2
+RSK-0035,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #35,13.3,12.4,0.9,8,0.05,0,Tidak,3,1
+RSK-0036,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #36,3.6,3.2,0.4,6,0.09,0,Tidak,1,1
+RSK-0037,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #37,2.7,6.7,-4.0,1,0.11,0,Tidak,1,1
+RSK-0038,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #38,11.6,6.5,5.1,0,0.07,0,Tidak,3,1
+RSK-0039,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #39,5.4,4.7,0.7,5,0.39,0,Tidak,3,4
+RSK-0040,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #40,21.0,16.9,4.1,0,0.19,0,Tidak,5,2
+RSK-0041,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #41,16.5,17.8,-1.3,0,0.18,0,Tidak,5,2
+RSK-0042,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #42,14.5,3.6,10.9,2,0.13,0,Tidak,4,3
+RSK-0043,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #43,14.0,9.7,4.3,0,0.12,0,Tidak,3,1
+RSK-0044,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #44,6.0,5.5,0.5,12,0.08,0,Tidak,3,1
+RSK-0045,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #45,10.9,15.4,-4.5,3,0.09,0,Tidak,3,1
+RSK-0046,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #46,8.9,5.2,3.7,0,0.42,0,Tidak,3,4
+RSK-0047,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #47,7.2,5.8,1.4,0,0.13,0,Tidak,2,3
+RSK-0048,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #48,5.8,14.0,-8.2,3,0.08,0,Tidak,2,1
+RSK-0049,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #49,1.7,4.3,-2.6,0,0.1,0,Tidak,1,1
+RSK-0050,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #50,16.9,17.2,-0.3,1,0.4,0,Tidak,4,4
+RSK-0051,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #51,21.5,14.0,7.5,0,0.06,1,Ya (Anomali),5,3
+RSK-0052,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #52,19.5,17.7,1.8,1,0.9,0,Tidak,5,5
+RSK-0053,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #53,15.4,9.7,5.7,2,0.07,0,Tidak,4,2
+RSK-0054,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #54,9.5,6.5,3.0,1,0.24,0,Tidak,2,2
+RSK-0055,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #55,21.8,17.0,4.8,4,0.01,0,Tidak,5,1
+RSK-0056,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #56,15.4,10.6,4.8,2,0.08,0,Tidak,4,2
+RSK-0057,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #57,25.0,17.3,9.2,0,0.02,1,Ya (Anomali),5,4
+RSK-0058,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #58,9.7,17.3,-7.6,5,0.05,0,Tidak,2,2
+RSK-0059,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #59,16.3,15.0,1.3,6,0.08,0,Tidak,4,1
+RSK-0060,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #60,10.1,6.4,3.7,0,0.12,0,Tidak,3,1
+RSK-0061,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #61,12.6,6.5,6.1,1,0.02,1,Ya (Anomali),3,4
+RSK-0062,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #62,15.3,12.7,2.6,2,0.09,0,Tidak,5,2
+RSK-0063,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #63,9.1,10.2,-1.1,0,0.4,0,Tidak,2,5
+RSK-0064,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #64,7.7,9.2,-1.5,0,0.11,0,Tidak,2,1
+RSK-0065,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #65,6.2,6.1,0.1,2,0.01,0,Tidak,2,1
+RSK-0066,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #66,9.5,6.3,3.2,3,0.03,0,Tidak,2,1
+RSK-0067,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #67,10.0,8.5,1.5,2,0.24,0,Tidak,2,3
+RSK-0068,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #68,12.9,12.5,0.4,4,0.05,0,Tidak,3,1
+RSK-0069,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #69,4.7,3.6,1.1,5,0.28,0,Tidak,1,4
+RSK-0070,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #70,15.8,8.9,6.9,0,0.05,0,Tidak,5,1
+RSK-0071,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #71,10.8,14.2,-3.4,7,0.12,0,Tidak,3,2
+RSK-0072,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #72,13.6,9.3,4.3,1,0.13,0,Tidak,3,2
+RSK-0073,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #73,8.0,12.0,-4.0,1,0.16,0,Tidak,2,2
+RSK-0074,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #74,5.3,4.5,0.8,8,0.2,0,Tidak,2,2
+RSK-0075,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #75,16.5,17.1,-0.6,3,0.82,0,Tidak,4,5
+RSK-0076,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #76,1.0,5.1,-4.7,4,0.0,0,Tidak,1,1
+RSK-0077,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #77,10.5,12.7,-2.2,1,0.22,0,Tidak,4,3
+RSK-0078,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #78,15.6,5.5,10.1,5,0.24,0,Tidak,4,3
+RSK-0079,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #79,18.8,17.8,1.0,3,0.04,0,Tidak,4,1
+RSK-0080,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #80,2.0,12.5,-10.5,2,0.05,0,Tidak,1,1
+RSK-0081,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #81,12.3,10.8,1.5,2,0.14,0,Tidak,3,2
+RSK-0082,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #82,21.0,15.7,5.3,0,0.04,0,Tidak,5,1
+RSK-0083,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #83,8.9,5.6,3.3,1,0.14,0,Tidak,2,2
+RSK-0084,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #84,5.9,9.4,-3.5,8,0.03,0,Tidak,2,1
+RSK-0085,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #85,8.8,17.7,-8.9,0,0.12,0,Tidak,2,1
+RSK-0086,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #86,10.8,10.6,0.2,0,0.23,0,Tidak,3,3
+RSK-0087,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #87,13.7,12.4,1.3,2,0.55,0,Tidak,3,5
+RSK-0088,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #88,1.0,4.0,-4.1,6,0.09,0,Tidak,2,1
+RSK-0089,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #89,2.7,4.1,-1.4,1,0.07,0,Tidak,2,1
+RSK-0090,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #90,1.0,3.9,-4.4,1,0.24,0,Tidak,2,2
+RSK-0091,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #91,21.6,10.4,11.2,4,0.05,0,Tidak,5,2
+RSK-0092,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #92,15.6,13.8,1.8,2,0.09,0,Tidak,4,1
+RSK-0093,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #93,5.6,7.9,-2.3,5,0.03,0,Tidak,3,2
+RSK-0094,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #94,11.8,11.6,0.2,7,0.23,0,Tidak,3,2
+RSK-0095,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #95,13.8,11.7,2.1,5,0.08,0,Tidak,3,1
+RSK-0096,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #96,3.1,5.4,-2.3,0,0.14,0,Tidak,1,2
+RSK-0097,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #97,16.4,14.3,2.1,5,0.03,0,Tidak,4,1
+RSK-0098,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #98,15.6,11.2,4.4,0,0.42,0,Tidak,5,5
+RSK-0099,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #99,8.1,4.8,3.3,5,0.68,0,Tidak,2,5
+RSK-0100,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #100,20.8,17.2,3.6,5,0.07,0,Tidak,5,2
+RSK-0101,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #101,9.6,6.7,2.9,2,0.28,0,Tidak,3,3
+RSK-0102,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #102,1.0,9.2,-9.2,4,0.02,0,Tidak,1,1
+RSK-0103,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #103,8.9,17.2,-8.3,0,0.21,0,Tidak,2,2
+RSK-0104,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #104,12.6,8.0,4.6,4,0.26,0,Tidak,3,3
+RSK-0105,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #105,8.8,5.8,3.0,1,0.12,0,Tidak,3,1
+RSK-0106,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #106,17.9,17.7,0.2,0,0.13,0,Tidak,4,2
+RSK-0107,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #107,13.8,17.9,-4.1,5,0.23,0,Tidak,4,2
+RSK-0108,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #108,11.5,13.3,-1.8,10,0.04,0,Tidak,4,1
+RSK-0109,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #109,21.8,16.4,5.4,7,0.03,0,Tidak,5,2
+RSK-0110,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #110,19.0,18.0,1.0,2,0.2,0,Tidak,5,2
+RSK-0111,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #111,4.2,5.2,-1.0,1,0.1,0,Tidak,2,1
+RSK-0112,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #112,17.3,15.6,1.7,0,0.33,0,Tidak,5,3
+RSK-0113,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #113,6.0,3.7,2.3,3,0.74,0,Tidak,2,5
+RSK-0114,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #114,13.1,12.7,0.4,0,0.29,0,Tidak,3,3
+RSK-0115,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #115,14.7,12.4,2.3,1,0.03,0,Tidak,3,2
+RSK-0116,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #116,16.0,10.3,5.7,1,0.09,0,Tidak,4,1
+RSK-0117,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #117,13.4,11.6,1.8,5,0.16,0,Tidak,3,2
+RSK-0118,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #118,9.3,7.2,2.1,0,0.05,0,Tidak,3,1
+RSK-0119,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #119,5.1,3.1,2.0,3,0.27,0,Tidak,2,4
+RSK-0120,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #120,12.5,5.8,6.7,1,0.09,0,Tidak,3,1
+RSK-0121,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #121,22.8,17.0,5.8,5,0.02,0,Tidak,5,1
+RSK-0122,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #122,9.0,7.1,1.9,1,0.04,0,Tidak,2,2
+RSK-0123,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #123,18.5,13.7,4.8,0,0.14,0,Tidak,4,2
+RSK-0124,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #124,14.1,9.8,4.3,0,0.17,0,Tidak,4,2
+RSK-0125,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #125,18.7,17.7,1.0,1,0.18,0,Tidak,4,3
+RSK-0126,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #126,18.6,17.7,0.9,0,0.03,0,Tidak,5,2
+RSK-0127,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #127,6.8,10.9,-4.1,0,0.22,0,Tidak,2,2
+RSK-0128,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #128,3.9,8.2,-4.3,0,0.02,0,Tidak,1,1
+RSK-0129,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #129,14.0,9.1,4.9,12,0.47,0,Tidak,4,5
+RSK-0130,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #130,17.6,8.4,9.2,4,0.22,0,Tidak,4,2
+RSK-0131,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #131,7.0,3.9,3.1,0,0.18,0,Tidak,2,3
+RSK-0132,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #132,4.4,3.7,0.7,0,0.04,0,Tidak,1,2
+RSK-0133,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #133,13.5,11.4,2.1,1,0.02,0,Tidak,3,1
+RSK-0134,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #134,13.5,11.6,1.9,3,0.02,0,Tidak,3,1
+RSK-0135,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #135,1.0,4.1,-4.0,2,0.04,0,Tidak,2,1
+RSK-0136,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #136,12.9,8.8,4.1,4,0.27,0,Tidak,3,3
+RSK-0137,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #137,19.8,16.8,3.0,0,0.16,0,Tidak,4,2
+RSK-0138,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #138,3.6,9.6,-6.0,0,0.52,0,Tidak,2,5
+RSK-0139,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #139,11.5,8.3,3.2,4,0.01,0,Tidak,4,1
+RSK-0140,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #140,8.0,4.1,3.9,0,0.18,0,Tidak,2,3
+RSK-0141,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #141,11.1,15.4,-4.3,7,0.29,0,Tidak,3,3
+RSK-0142,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #142,16.8,11.9,4.9,2,0.1,0,Tidak,4,1
+RSK-0143,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #143,5.3,5.5,-0.2,4,0.01,0,Tidak,3,1
+RSK-0144,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #144,13.9,9.2,4.7,1,0.16,0,Tidak,3,2
+RSK-0145,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #145,14.7,13.9,0.8,8,0.15,0,Tidak,3,2
+RSK-0146,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #146,15.4,7.0,8.4,7,0.43,0,Ya (Anomali),4,5
+RSK-0147,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #147,11.0,10.3,0.7,0,0.26,0,Tidak,3,4
+RSK-0148,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #148,14.1,11.1,3.0,0,0.12,0,Tidak,4,1
+RSK-0149,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #149,6.7,13.7,-7.0,3,0.02,0,Tidak,2,1
+RSK-0150,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #150,9.3,11.6,-2.3,11,0.01,0,Tidak,3,1
+RSK-0151,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #151,13.7,9.8,3.9,2,0.35,0,Tidak,4,3
+RSK-0152,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #152,11.4,5.6,5.8,6,0.1,0,Tidak,4,2
+RSK-0153,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #153,2.1,7.7,-5.6,0,0.15,0,Tidak,2,2
+RSK-0154,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #154,9.0,8.8,0.2,2,0.19,0,Tidak,2,3
+RSK-0155,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #155,23.9,16.7,7.2,1,0.12,1,Ya (Anomali),5,5
+RSK-0156,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #156,13.3,12.9,0.4,5,0.3,0,Tidak,3,3
+RSK-0157,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #157,10.2,11.1,-0.9,0,0.01,0,Tidak,3,1
+RSK-0158,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #158,5.9,10.7,-4.8,2,0.22,0,Tidak,2,2
+RSK-0159,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #159,13.4,12.8,0.6,0,0.22,0,Tidak,3,2
+RSK-0160,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #160,12.0,6.4,5.6,1,0.04,0,Tidak,3,2
+RSK-0161,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #161,13.2,9.4,3.8,0,0.02,0,Tidak,4,1
+RSK-0162,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #162,14.4,11.5,2.9,2,0.15,0,Tidak,3,3
+RSK-0163,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #163,15.9,8.5,7.4,3,0.06,0,Tidak,5,1
+RSK-0164,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #164,8.4,3.8,4.6,1,0.0,0,Tidak,2,1
+RSK-0165,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #165,10.6,9.4,1.2,2,0.09,0,Tidak,3,2
+RSK-0166,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #166,6.7,5.1,1.6,0,0.15,0,Tidak,3,2
+RSK-0167,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #167,12.2,14.8,-2.6,1,0.37,0,Tidak,3,4
+RSK-0168,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #168,9.8,10.6,-0.8,0,0.09,0,Tidak,2,1
+RSK-0169,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #169,11.4,17.5,-6.1,5,0.02,0,Tidak,3,1
+RSK-0170,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #170,14.2,8.5,5.7,1,0.08,0,Tidak,3,2
+RSK-0171,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #171,16.0,7.0,9.0,1,0.22,0,Tidak,4,2
+RSK-0172,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #172,25.0,18.0,9.3,0,0.02,1,Ya (Anomali),5,3
+RSK-0173,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #173,8.5,7.8,0.7,0,0.03,0,Tidak,2,1
+RSK-0174,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #174,9.4,9.0,0.4,2,0.05,0,Tidak,2,1
+RSK-0175,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #175,5.4,3.1,2.3,1,0.09,0,Tidak,3,2
+RSK-0176,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #176,10.9,6.2,4.7,6,0.37,0,Tidak,3,4
+RSK-0177,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #177,9.2,14.6,-5.4,2,0.22,0,Tidak,3,2
+RSK-0178,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #178,9.2,13.6,-4.4,1,0.15,0,Tidak,3,2
+RSK-0179,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #179,4.3,9.0,-4.7,4,0.25,0,Tidak,1,3
+RSK-0180,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #180,16.5,16.8,-0.3,2,0.32,0,Tidak,4,4
+RSK-0181,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #181,10.4,11.1,-0.7,2,0.09,0,Tidak,4,2
+RSK-0182,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #182,17.8,12.4,5.4,0,0.2,0,Tidak,4,2
+RSK-0183,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #183,12.7,15.1,-2.4,1,0.39,0,Tidak,3,5
+RSK-0184,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #184,9.6,13.6,-4.0,0,0.11,0,Tidak,2,2
+RSK-0185,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #185,5.1,5.2,-0.1,4,0.22,0,Tidak,3,2
+RSK-0186,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #186,12.1,10.2,1.9,1,0.61,0,Tidak,3,5
+RSK-0187,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #187,10.8,12.1,-1.3,0,0.1,0,Tidak,3,2
+RSK-0188,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #188,6.9,3.8,3.1,3,0.17,0,Tidak,2,3
+RSK-0189,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #189,2.9,6.7,-3.8,3,0.09,0,Tidak,1,1
+RSK-0190,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #190,8.3,14.8,-6.5,0,0.19,0,Tidak,3,3
+RSK-0191,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #191,21.0,17.3,3.7,6,0.07,0,Tidak,5,2
+RSK-0192,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #192,17.8,17.7,0.1,1,0.02,0,Tidak,4,1
+RSK-0193,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #193,9.2,13.8,-4.6,2,0.33,0,Tidak,3,3
+RSK-0194,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #194,10.0,13.5,-3.5,1,0.19,0,Tidak,3,2
+RSK-0195,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #195,10.2,13.6,-3.4,0,0.79,0,Tidak,3,5
+RSK-0196,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #196,9.4,7.4,2.0,1,0.19,0,Tidak,2,2
+RSK-0197,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #197,13.2,9.2,4.0,6,0.28,0,Tidak,3,3
+RSK-0198,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #198,2.9,5.7,-2.8,4,0.47,0,Tidak,2,4
+RSK-0199,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #199,13.9,10.1,3.8,1,0.01,0,Tidak,3,1
+RSK-0200,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #200,1.0,3.6,-4.5,2,0.29,0,Tidak,1,3
+RSK-0201,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #201,14.4,15.4,-1.0,1,0.02,0,Tidak,3,2
+RSK-0202,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #202,18.4,17.2,1.2,1,0.32,0,Tidak,4,3
+RSK-0203,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #203,9.7,5.1,4.6,2,0.22,0,Tidak,2,3
+RSK-0204,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #204,11.8,10.3,1.5,2,0.09,0,Tidak,4,2
+RSK-0205,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #205,14.6,9.6,5.0,5,0.25,0,Tidak,3,2
+RSK-0206,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #206,23.0,14.2,8.8,0,0.08,1,Ya (Anomali),5,4
+RSK-0207,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #207,16.2,10.7,5.5,5,0.2,0,Tidak,4,2
+RSK-0208,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #208,12.2,9.7,2.5,3,0.03,0,Tidak,3,1
+RSK-0209,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #209,3.4,5.1,-1.7,7,0.01,0,Tidak,1,1
+RSK-0210,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #210,12.9,7.3,5.6,0,0.16,0,Tidak,3,2
+RSK-0211,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #211,10.4,11.8,-1.4,1,0.08,0,Tidak,3,1
+RSK-0212,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #212,9.1,3.6,5.5,0,0.04,0,Tidak,3,1
+RSK-0213,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #213,8.5,8.0,0.5,1,0.03,0,Tidak,2,1
+RSK-0214,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #214,1.0,5.1,-4.1,0,0.31,0,Tidak,1,3
+RSK-0215,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #215,2.1,4.1,-2.0,0,0.06,0,Tidak,1,1
+RSK-0216,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #216,1.0,9.4,-11.0,0,0.26,0,Tidak,1,3
+RSK-0217,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #217,10.6,7.6,3.0,0,0.03,0,Tidak,4,1
+RSK-0218,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #218,9.7,11.6,-1.9,1,0.09,0,Tidak,2,1
+RSK-0219,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #219,1.0,6.1,-7.5,3,0.09,0,Tidak,1,1
+RSK-0220,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #220,4.9,3.8,1.1,2,0.04,0,Tidak,1,1
+RSK-0221,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #221,5.2,3.5,1.7,0,0.03,0,Tidak,2,1
+RSK-0222,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #222,7.8,9.5,-1.7,1,0.1,0,Tidak,2,1
+RSK-0223,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #223,1.7,3.1,-1.4,1,0.09,0,Tidak,1,1
+RSK-0224,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #224,9.9,3.8,6.1,5,0.23,0,Tidak,2,3
+RSK-0225,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #225,10.1,8.2,1.9,0,0.1,0,Tidak,3,1
+RSK-0226,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #226,10.9,17.1,-6.2,4,0.06,0,Tidak,3,1
+RSK-0227,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #227,14.3,13.7,0.6,0,0.1,0,Tidak,4,2
+RSK-0228,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #228,14.4,14.1,0.3,0,0.38,0,Tidak,3,5
+RSK-0229,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #229,1.0,5.6,-5.7,2,0.02,0,Tidak,2,1
+RSK-0230,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #230,10.7,11.6,-0.9,0,0.37,0,Tidak,4,3
+RSK-0231,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #231,1.0,6.5,-7.0,3,0.18,0,Tidak,2,2
+RSK-0232,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #232,5.4,10.8,-5.4,2,0.16,0,Tidak,2,3
+RSK-0233,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #233,8.3,15.2,-6.9,2,0.09,0,Tidak,2,2
+RSK-0234,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #234,6.6,9.5,-2.9,9,0.07,0,Tidak,2,2
+RSK-0235,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #235,13.8,6.4,7.4,0,0.21,1,Ya (Anomali),3,5
+RSK-0236,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #236,11.1,7.6,3.5,0,0.14,0,Tidak,4,2
+RSK-0237,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #237,13.9,10.3,3.6,4,0.16,0,Tidak,3,2
+RSK-0238,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #238,15.1,15.2,-0.1,0,0.14,0,Tidak,4,2
+RSK-0239,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #239,12.9,12.5,0.4,0,0.01,0,Tidak,3,1
+RSK-0240,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #240,22.4,17.3,5.1,0,0.11,0,Tidak,5,2
+RSK-0241,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #241,20.6,17.6,3.0,0,0.07,0,Tidak,5,1
+RSK-0242,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #242,13.2,7.7,5.5,5,0.24,0,Tidak,4,3
+RSK-0243,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #243,9.9,12.9,-3.0,1,0.13,0,Tidak,2,2
+RSK-0244,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #244,18.1,13.6,4.5,0,0.09,0,Tidak,4,1
+RSK-0245,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #245,21.0,11.4,9.6,0,0.74,1,Ya (Anomali),5,5
+RSK-0246,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #246,14.6,15.1,-0.5,3,0.17,0,Tidak,3,2
+RSK-0247,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #247,6.9,7.1,-0.2,5,0.32,0,Tidak,2,3
+RSK-0248,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #248,18.3,14.4,3.9,0,0.38,0,Tidak,5,5
+RSK-0249,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #249,13.3,6.8,6.5,3,0.2,0,Tidak,4,2
+RSK-0250,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #250,11.0,11.1,-0.1,2,0.08,0,Tidak,3,1
+RSK-0251,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #251,1.0,4.7,-5.6,4,0.1,0,Tidak,1,1
+RSK-0252,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #252,12.0,13.3,-1.3,12,0.03,0,Tidak,3,1
+RSK-0253,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #253,13.4,15.9,-2.5,1,0.14,0,Tidak,3,2
+RSK-0254,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #254,4.7,14.1,-9.4,5,0.11,0,Tidak,2,1
+RSK-0255,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #255,21.9,17.3,4.6,1,0.04,0,Tidak,5,1
+RSK-0256,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #256,15.8,17.8,-2.0,2,0.01,0,Tidak,4,2
+RSK-0257,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #257,12.5,9.9,2.6,1,0.3,0,Tidak,4,3
+RSK-0258,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #258,13.7,5.3,8.4,1,0.0,1,Ya (Anomali),4,3
+RSK-0259,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #259,6.6,13.7,-7.1,2,0.07,0,Tidak,3,1
+RSK-0260,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #260,10.3,9.3,1.0,0,0.12,0,Tidak,4,1
+RSK-0261,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #261,11.8,8.8,3.0,1,0.11,0,Tidak,4,1
+RSK-0262,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #262,5.0,5.7,-0.7,1,0.11,0,Tidak,1,1
+RSK-0263,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #263,4.8,3.6,1.2,2,0.04,0,Tidak,1,1
+RSK-0264,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #264,15.3,14.5,0.8,3,0.06,0,Tidak,4,1
+RSK-0265,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #265,5.4,10.2,-4.8,1,0.0,0,Tidak,2,1
+RSK-0266,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #266,14.5,9.0,5.5,4,0.39,0,Tidak,3,5
+RSK-0267,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #267,10.9,8.5,2.4,0,0.14,0,Tidak,3,2
+RSK-0268,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #268,9.8,10.6,-0.8,1,0.26,0,Tidak,2,4
+RSK-0269,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #269,11.8,14.1,-2.3,2,0.19,0,Tidak,4,3
+RSK-0270,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #270,5.3,9.5,-4.2,0,0.12,0,Tidak,3,2
+RSK-0271,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #271,7.0,4.4,2.6,4,0.11,0,Tidak,2,1
+RSK-0272,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #272,9.7,6.9,2.8,3,0.09,0,Tidak,2,1
+RSK-0273,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #273,8.9,5.0,3.9,0,0.12,0,Tidak,2,1
+RSK-0274,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #274,14.3,5.9,8.4,3,0.03,0,Tidak,3,2
+RSK-0275,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #275,17.5,16.1,1.4,5,0.08,0,Tidak,5,1
+RSK-0276,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #276,6.4,5.6,0.8,3,0.12,0,Tidak,2,2
+RSK-0277,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #277,11.7,13.9,-2.2,2,0.2,0,Tidak,3,2
+RSK-0278,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #278,15.1,7.5,7.6,1,0.23,1,Tidak,5,5
+RSK-0279,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #279,25.0,16.5,9.2,1,0.3,1,Ya (Anomali),5,5
+RSK-0280,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #280,5.9,12.3,-6.4,11,0.06,0,Tidak,2,2
+RSK-0281,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #281,12.0,13.1,-1.1,0,0.13,0,Tidak,3,3
+RSK-0282,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #282,22.8,10.9,11.9,1,0.12,1,Ya (Anomali),5,4
+RSK-0283,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #283,9.1,16.9,-7.8,4,0.08,0,Tidak,3,2
+RSK-0284,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #284,3.4,5.4,-2.0,1,0.06,0,Tidak,1,2
+RSK-0285,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #285,10.8,7.3,3.5,2,0.0,0,Tidak,4,1
+RSK-0286,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #286,25.0,16.6,8.7,1,0.03,1,Ya (Anomali),5,3
+RSK-0287,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #287,25.0,17.8,8.3,4,0.02,0,Tidak,5,1
+RSK-0288,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #288,17.5,14.6,2.9,1,0.05,0,Tidak,4,1
+RSK-0289,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #289,7.3,6.2,1.1,0,0.07,0,Tidak,2,1
+RSK-0290,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #290,21.5,16.6,4.9,0,0.05,0,Tidak,5,1
+RSK-0291,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #291,11.0,5.5,5.5,0,0.24,0,Tidak,3,2
+RSK-0292,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #292,16.2,16.1,0.1,5,0.03,0,Tidak,4,1
+RSK-0293,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #293,13.5,8.7,4.8,6,0.05,0,Tidak,3,2
+RSK-0294,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #294,4.0,3.7,0.3,0,0.1,0,Tidak,2,1
+RSK-0295,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #295,8.0,12.2,-4.2,1,0.05,0,Tidak,3,1
+RSK-0296,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #296,15.0,8.5,6.5,0,0.34,1,Ya (Anomali),3,5
+RSK-0297,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #297,13.2,3.3,9.9,1,0.14,1,Ya (Anomali),3,5
+RSK-0298,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #298,3.9,5.3,-1.4,2,0.06,0,Tidak,1,1
+RSK-0299,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #299,7.8,9.8,-2.0,2,0.09,0,Tidak,2,1
+RSK-0300,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #300,1.0,12.8,-12.1,1,0.08,0,Tidak,2,2
+RSK-0301,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #301,7.2,3.5,3.7,0,0.33,0,Tidak,2,4
+RSK-0302,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #302,17.5,10.8,6.7,1,0.13,1,Tidak,4,4
+RSK-0303,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #303,3.1,3.7,-0.6,2,0.07,0,Tidak,2,2
+RSK-0304,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #304,21.7,16.5,5.2,1,0.1,0,Tidak,5,1
+RSK-0305,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #305,10.5,13.6,-3.1,1,0.07,0,Tidak,3,2
+RSK-0306,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #306,2.4,4.3,-1.9,3,0.22,0,Tidak,1,3
+RSK-0307,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #307,2.6,10.6,-8.0,2,0.0,0,Tidak,1,1
+RSK-0308,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #308,15.5,14.0,1.5,2,0.1,0,Tidak,4,1
+RSK-0309,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #309,9.1,7.3,1.8,0,0.04,0,Tidak,2,1
+RSK-0310,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #310,6.6,5.8,0.8,2,0.04,0,Tidak,2,1
+RSK-0311,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #311,17.8,13.1,4.7,1,0.03,0,Tidak,4,2
+RSK-0312,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #312,22.2,14.7,7.5,5,0.1,0,Tidak,5,1
+RSK-0313,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #313,9.2,9.0,0.2,0,0.02,0,Tidak,2,1
+RSK-0314,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #314,15.7,6.6,9.1,2,0.11,0,Tidak,4,2
+RSK-0315,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #315,17.5,17.1,0.4,5,0.14,0,Tidak,5,2
+RSK-0316,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #316,11.3,11.0,0.3,1,0.34,0,Tidak,4,3
+RSK-0317,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #317,11.2,10.4,0.8,1,0.22,0,Tidak,3,2
+RSK-0318,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #318,23.4,14.0,9.4,0,0.16,1,Ya (Anomali),5,4
+RSK-0319,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #319,15.1,16.4,-1.3,0,0.25,0,Tidak,4,3
+RSK-0320,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #320,12.0,7.6,4.4,13,0.06,0,Tidak,3,1
+RSK-0321,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #321,16.8,15.2,1.6,1,0.11,0,Tidak,4,1
+RSK-0322,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #322,20.2,17.0,3.2,2,0.01,0,Tidak,5,1
+RSK-0323,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #323,15.5,17.4,-1.9,2,0.11,0,Tidak,4,1
+RSK-0324,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #324,9.6,13.3,-3.7,9,0.07,0,Tidak,2,2
+RSK-0325,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #325,20.3,14.6,5.7,0,0.37,0,Tidak,5,3
+RSK-0326,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #326,17.8,15.6,2.2,0,0.05,0,Tidak,4,1
+RSK-0327,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #327,13.6,14.9,-1.3,0,0.17,0,Tidak,4,3
+RSK-0328,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #328,1.0,5.8,-5.9,0,0.17,0,Tidak,1,2
+RSK-0329,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #329,2.3,3.0,-0.7,4,0.19,0,Tidak,1,3
+RSK-0330,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #330,11.2,11.6,-0.4,1,0.17,0,Tidak,3,2
+RSK-0331,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #331,19.4,12.4,7.0,4,0.32,0,Tidak,4,3
+RSK-0332,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #332,2.2,6.4,-4.2,1,0.14,0,Tidak,1,2
+RSK-0333,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #333,10.0,5.8,4.2,4,0.29,0,Tidak,2,3
+RSK-0334,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #334,18.0,11.0,7.0,2,0.17,0,Tidak,4,2
+RSK-0335,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #335,14.8,16.4,-1.6,0,0.32,0,Tidak,4,3
+RSK-0336,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #336,1.0,5.8,-5.7,2,0.2,0,Tidak,1,2
+RSK-0337,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #337,22.6,16.1,6.5,3,0.09,0,Tidak,5,1
+RSK-0338,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #338,25.0,15.9,11.6,1,0.05,1,Ya (Anomali),5,4
+RSK-0339,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #339,5.1,6.8,-1.7,2,0.36,0,Tidak,3,3
+RSK-0340,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #340,14.4,15.0,-0.6,1,0.02,0,Tidak,4,1
+RSK-0341,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #341,15.8,17.4,-1.6,3,0.31,0,Tidak,4,3
+RSK-0342,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #342,4.8,5.4,-0.6,1,0.16,0,Tidak,1,2
+RSK-0343,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #343,11.5,11.2,0.3,0,0.14,0,Tidak,3,3
+RSK-0344,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #344,17.7,15.1,2.6,0,0.12,0,Tidak,5,1
+RSK-0345,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #345,4.0,8.0,-4.0,2,0.05,0,Tidak,2,1
+RSK-0346,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #346,7.3,4.1,3.2,1,0.14,0,Tidak,2,3
+RSK-0347,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #347,1.0,4.8,-4.2,3,0.1,0,Tidak,1,1
+RSK-0348,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #348,14.9,8.0,6.9,3,0.08,0,Tidak,3,2
+RSK-0349,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #349,12.3,3.6,8.7,1,0.15,1,Ya (Anomali),3,5
+RSK-0350,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #350,8.4,3.7,4.7,2,0.01,0,Tidak,2,2
+RSK-0351,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #351,13.4,17.6,-4.2,6,0.14,0,Tidak,4,2
+RSK-0352,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #352,7.9,4.8,3.1,4,0.91,0,Tidak,3,5
+RSK-0353,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #353,5.3,5.5,-0.2,0,0.01,0,Tidak,3,1
+RSK-0354,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #354,12.5,11.9,0.6,0,0.1,0,Tidak,4,1
+RSK-0355,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #355,10.1,15.2,-5.1,1,0.09,0,Tidak,3,2
+RSK-0356,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #356,7.3,5.4,1.9,7,0.01,0,Tidak,2,1
+RSK-0357,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #357,7.5,3.6,3.9,8,0.1,0,Tidak,2,2
+RSK-0358,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #358,11.1,6.3,4.8,0,0.02,0,Tidak,3,1
+RSK-0359,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #359,15.5,10.6,4.9,1,0.26,0,Tidak,4,4
+RSK-0360,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #360,16.1,17.9,-1.8,3,0.35,0,Tidak,4,4
+RSK-0361,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #361,12.8,12.3,0.5,0,0.26,0,Tidak,4,3
+RSK-0362,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #362,6.9,6.3,0.6,1,0.39,0,Tidak,3,4
+RSK-0363,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #363,4.4,3.2,1.2,2,0.16,0,Tidak,1,2
+RSK-0364,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #364,6.4,5.5,0.9,0,0.28,0,Tidak,2,3
+RSK-0365,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #365,14.2,12.8,1.4,1,0.1,0,Tidak,3,1
+RSK-0366,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #366,9.6,7.8,1.8,1,0.23,0,Tidak,2,3
+RSK-0367,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #367,11.0,11.3,-0.3,4,0.44,0,Tidak,3,5
+RSK-0368,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #368,14.0,11.8,2.2,1,0.07,0,Tidak,3,2
+RSK-0369,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #369,1.0,5.4,-5.5,0,0.27,0,Tidak,2,4
+RSK-0370,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #370,7.2,9.1,-1.9,1,0.1,0,Tidak,3,1
+RSK-0371,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #371,16.9,11.3,5.6,0,0.14,0,Tidak,5,3
+RSK-0372,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #372,16.9,16.0,0.9,1,0.32,0,Tidak,4,3
+RSK-0373,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #373,16.9,15.0,1.9,6,0.32,0,Tidak,4,4
+RSK-0374,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #374,11.6,13.1,-1.5,1,0.2,0,Tidak,3,2
+RSK-0375,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #375,22.6,14.7,7.9,0,0.06,1,Tidak,5,3
+RSK-0376,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #376,17.1,17.4,-0.3,6,0.01,0,Tidak,4,2
+RSK-0377,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #377,4.6,14.4,-9.8,0,0.65,0,Tidak,2,5
+RSK-0378,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #378,4.6,6.1,-1.5,8,0.13,0,Tidak,1,3
+RSK-0379,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #379,13.8,8.0,5.8,3,0.02,0,Tidak,4,1
+RSK-0380,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #380,10.9,8.5,2.4,4,0.48,0,Tidak,4,4
+RSK-0381,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #381,3.0,9.6,-6.6,3,0.09,0,Tidak,1,1
+RSK-0382,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #382,12.4,12.5,-0.1,0,0.49,0,Tidak,4,5
+RSK-0383,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #383,4.1,9.3,-5.2,0,0.07,0,Tidak,1,1
+RSK-0384,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #384,7.9,10.0,-2.1,6,0.36,0,Tidak,3,3
+RSK-0385,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #385,9.8,11.9,-2.1,2,0.29,0,Tidak,3,4
+RSK-0386,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #386,23.2,15.2,8.0,0,0.1,0,Tidak,5,1
+RSK-0387,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #387,6.9,9.7,-2.8,1,0.06,0,Tidak,3,1
+RSK-0388,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #388,10.3,12.5,-2.2,4,0.2,0,Tidak,3,2
+RSK-0389,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #389,4.3,10.0,-5.7,1,0.28,0,Tidak,1,4
+RSK-0390,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #390,11.7,18.0,-6.3,2,0.01,0,Tidak,4,1
+RSK-0391,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #391,15.4,17.2,-1.8,3,0.04,0,Tidak,4,1
+RSK-0392,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #392,10.7,11.1,-0.4,4,0.08,0,Tidak,3,1
+RSK-0393,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #393,15.9,15.2,0.7,3,0.03,0,Tidak,5,1
+RSK-0394,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #394,25.0,15.9,9.5,5,0.05,0,Tidak,5,1
+RSK-0395,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #395,7.1,3.4,3.7,0,0.11,0,Tidak,2,2
+RSK-0396,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #396,12.0,16.8,-4.8,8,0.07,0,Tidak,3,1
+RSK-0397,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #397,22.8,15.9,6.9,4,0.41,0,Tidak,5,4
+RSK-0398,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #398,17.4,15.3,2.1,0,0.28,0,Tidak,4,3
+RSK-0399,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #399,10.7,11.5,-0.8,0,0.04,0,Tidak,3,1
+RSK-0400,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #400,9.4,6.4,3.0,6,0.44,0,Tidak,3,4
+RSK-0401,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #401,9.8,10.5,-0.7,6,0.04,0,Tidak,2,1
+RSK-0402,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #402,14.8,15.0,-0.2,3,0.14,0,Tidak,3,2
+RSK-0403,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #403,12.4,9.8,2.6,1,0.05,0,Tidak,3,2
+RSK-0404,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #404,22.6,17.8,4.8,1,0.05,0,Tidak,5,1
+RSK-0405,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #405,5.6,6.4,-0.8,6,0.12,0,Tidak,2,1
+RSK-0406,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #406,22.9,16.7,6.2,0,0.44,1,Ya (Anomali),5,5
+RSK-0407,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #407,7.9,7.8,0.1,4,0.08,0,Tidak,2,1
+RSK-0408,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #408,20.0,15.6,4.4,0,0.05,0,Tidak,5,1
+RSK-0409,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #409,9.4,9.5,-0.1,0,0.04,0,Tidak,2,1
+RSK-0410,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #410,15.2,15.5,-0.3,0,0.06,0,Tidak,5,1
+RSK-0411,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #411,16.4,11.8,4.6,3,0.09,0,Tidak,4,1
+RSK-0412,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #412,12.2,16.6,-4.4,1,0.31,0,Tidak,3,4
+RSK-0413,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #413,10.9,10.2,0.7,8,0.06,0,Tidak,4,2
+RSK-0414,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #414,13.2,17.0,-3.8,1,0.05,0,Tidak,3,2
+RSK-0415,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #415,6.1,4.9,1.2,5,0.13,0,Tidak,3,2
+RSK-0416,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #416,23.5,15.1,8.4,4,0.13,0,Tidak,5,2
+RSK-0417,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #417,9.4,6.3,3.1,8,0.09,0,Tidak,3,2
+RSK-0418,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #418,9.8,6.4,3.4,4,0.03,0,Tidak,2,1
+RSK-0419,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #419,1.0,4.0,-3.5,3,0.03,0,Tidak,1,1
+RSK-0420,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #420,12.7,14.0,-1.3,6,0.11,0,Tidak,3,1
+RSK-0421,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #421,14.5,12.7,1.8,4,0.05,0,Tidak,3,2
+RSK-0422,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #422,6.6,8.0,-1.4,0,0.02,0,Tidak,2,1
+RSK-0423,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #423,18.8,17.6,1.2,3,0.0,0,Tidak,4,1
+RSK-0424,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #424,8.7,3.9,4.8,2,0.02,0,Tidak,3,1
+RSK-0425,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #425,14.7,14.5,0.2,4,0.27,0,Tidak,4,4
+RSK-0426,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #426,6.4,7.0,-0.6,3,0.03,0,Tidak,2,1
+RSK-0427,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #427,11.6,4.0,7.6,7,0.0,0,Tidak,4,1
+RSK-0428,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #428,9.0,12.6,-3.6,2,0.07,0,Tidak,2,1
+RSK-0429,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #429,3.7,7.9,-4.2,0,0.39,0,Tidak,1,4
+RSK-0430,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #430,10.1,9.8,0.3,0,0.11,0,Tidak,4,2
+RSK-0431,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #431,7.7,10.1,-2.4,6,0.0,0,Tidak,2,1
+RSK-0432,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #432,9.6,3.6,6.0,1,0.19,0,Tidak,3,2
+RSK-0433,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #433,13.6,11.0,2.6,0,0.08,0,Tidak,4,2
+RSK-0434,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #434,9.4,3.6,5.8,0,0.22,0,Tidak,3,2
+RSK-0435,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #435,12.8,5.7,7.1,3,0.14,0,Tidak,4,2
+RSK-0436,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #436,17.6,13.8,3.8,0,0.02,0,Tidak,4,1
+RSK-0437,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #437,20.6,13.9,6.7,0,0.1,0,Tidak,5,1
+RSK-0438,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #438,3.5,3.0,0.5,0,0.12,0,Tidak,1,1
+RSK-0439,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #439,17.1,15.7,1.4,0,0.1,0,Tidak,4,1
+RSK-0440,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #440,6.5,3.1,3.4,1,0.23,0,Tidak,3,2
+RSK-0441,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #441,25.0,17.5,9.5,0,0.28,0,Tidak,5,3
+RSK-0442,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #442,13.9,11.4,2.5,8,0.16,0,Tidak,4,2
+RSK-0443,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #443,8.0,8.5,-0.5,5,0.01,0,Tidak,2,1
+RSK-0444,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #444,13.1,12.1,1.0,0,0.07,0,Tidak,3,2
+RSK-0445,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #445,1.0,5.2,-5.5,0,0.07,0,Tidak,2,2
+RSK-0446,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #446,7.1,10.2,-3.1,4,0.04,0,Tidak,2,1
+RSK-0447,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #447,10.1,13.3,-3.2,0,0.08,0,Tidak,3,1
+RSK-0448,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #448,14.7,12.8,1.9,0,0.03,0,Tidak,3,2
+RSK-0449,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #449,17.9,16.6,1.3,0,0.21,0,Tidak,4,3
+RSK-0450,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #450,9.2,7.3,1.9,0,0.27,0,Tidak,2,3
+RSK-0451,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #451,11.3,4.1,7.2,0,0.41,1,Ya (Anomali),4,5
+RSK-0452,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #452,9.8,8.6,1.2,0,0.0,0,Tidak,3,1
+RSK-0453,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #453,9.3,5.0,4.3,0,0.12,0,Tidak,2,1
+RSK-0454,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #454,22.5,16.4,6.1,1,0.04,1,Tidak,5,3
+RSK-0455,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #455,15.9,17.7,-1.8,0,0.11,0,Tidak,5,1
+RSK-0456,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #456,9.5,12.5,-3.0,1,0.01,0,Tidak,2,1
+RSK-0457,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #457,15.2,14.9,0.3,0,0.22,0,Tidak,4,2
+RSK-0458,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #458,15.8,13.5,2.3,3,0.05,0,Tidak,4,1
+RSK-0459,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #459,7.2,11.2,-4.0,4,0.13,0,Tidak,2,3
+RSK-0460,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #460,4.4,15.4,-11.0,7,0.24,0,Tidak,1,2
+RSK-0461,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #461,21.0,16.4,4.6,1,0.09,0,Tidak,5,1
+RSK-0462,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #462,6.3,10.7,-4.4,3,0.74,0,Tidak,2,5
+RSK-0463,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #463,12.4,15.2,-2.8,0,0.25,0,Tidak,4,2
+RSK-0464,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #464,12.7,8.9,3.8,2,0.08,0,Tidak,3,1
+RSK-0465,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #465,4.1,6.5,-2.4,1,0.18,0,Tidak,2,2
+RSK-0466,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #466,2.1,9.9,-7.8,1,0.17,0,Tidak,2,2
+RSK-0467,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #467,8.4,6.7,1.7,0,0.01,0,Tidak,2,1
+RSK-0468,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #468,12.8,8.9,3.9,2,0.07,0,Tidak,3,2
+RSK-0469,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #469,19.1,12.6,6.5,2,0.11,0,Tidak,5,2
+RSK-0470,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #470,10.0,5.6,4.4,16,0.08,0,Tidak,3,2
+RSK-0471,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #471,20.5,13.9,6.6,1,0.03,1,Ya (Anomali),5,3
+RSK-0472,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #472,12.9,16.4,-3.5,1,0.16,0,Tidak,3,2
+RSK-0473,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #473,17.3,8.7,8.6,6,0.66,0,Ya (Anomali),4,5
+RSK-0474,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #474,15.3,17.6,-2.3,2,0.06,0,Tidak,4,1
+RSK-0475,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #475,11.7,13.3,-1.6,0,0.48,0,Tidak,3,4
+RSK-0476,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #476,12.8,11.6,1.2,2,0.21,0,Tidak,3,2
+RSK-0477,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #477,9.5,7.6,1.9,0,0.06,0,Tidak,2,1
+RSK-0478,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #478,1.0,3.2,-2.6,6,0.08,0,Tidak,2,1
+RSK-0479,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #479,13.0,9.2,3.8,2,0.15,0,Tidak,3,2
+RSK-0480,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #480,19.3,16.7,2.6,1,0.21,0,Tidak,5,2
+RSK-0481,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #481,15.8,15.1,0.7,0,0.21,0,Tidak,4,3
+RSK-0482,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #482,20.5,17.7,2.8,5,0.15,0,Tidak,5,3
+RSK-0483,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #483,14.0,15.1,-1.1,0,0.02,0,Tidak,3,1
+RSK-0484,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #484,17.7,13.9,3.8,9,0.29,0,Tidak,5,3
+RSK-0485,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #485,5.8,4.3,1.5,1,0.05,0,Tidak,2,2
+RSK-0486,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #486,16.1,17.7,-1.6,3,0.03,0,Tidak,4,2
+RSK-0487,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #487,8.8,7.4,1.4,3,0.04,0,Tidak,3,1
+RSK-0488,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #488,6.7,6.7,0.0,1,0.01,0,Tidak,2,1
+RSK-0489,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #489,1.8,3.4,-1.6,3,0.2,0,Tidak,2,2
+RSK-0490,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #490,12.8,9.0,3.8,0,0.01,0,Tidak,3,1
+RSK-0491,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #491,17.7,16.4,1.3,0,0.01,0,Tidak,4,2
+RSK-0492,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #492,19.1,14.5,4.6,0,0.0,0,Tidak,4,1
+RSK-0493,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #493,13.2,11.8,1.4,4,0.0,0,Tidak,4,1
+RSK-0494,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #494,15.0,14.2,0.8,12,0.17,0,Tidak,3,2
+RSK-0495,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #495,6.5,3.8,2.7,0,0.1,0,Tidak,2,1
+RSK-0496,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #496,8.1,5.8,2.3,1,0.17,0,Tidak,3,2
+RSK-0497,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #497,9.5,10.0,-0.5,10,0.04,0,Tidak,2,2
+RSK-0498,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #498,9.0,13.0,-4.0,2,0.19,0,Tidak,2,2
+RSK-0499,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #499,3.9,11.5,-7.6,2,0.06,0,Tidak,2,2
+RSK-0500,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #500,9.4,5.3,4.1,7,0.1,0,Tidak,2,1
+RSK-0501,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #501,17.1,15.3,1.8,1,0.3,0,Tidak,4,3
+RSK-0502,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #502,2.4,5.0,-2.6,0,0.01,0,Tidak,1,2
+RSK-0503,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #503,11.3,6.8,4.5,0,0.29,0,Tidak,3,3
+RSK-0504,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #504,12.8,17.2,-4.4,1,0.06,0,Tidak,3,1
+RSK-0505,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #505,20.2,17.1,3.1,2,0.04,0,Tidak,5,2
+RSK-0506,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #506,5.6,5.5,0.1,0,0.28,0,Tidak,2,3
+RSK-0507,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #507,7.4,6.4,1.0,0,0.18,0,Tidak,2,3
+RSK-0508,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #508,12.3,12.7,-0.4,1,0.05,0,Tidak,3,1
+RSK-0509,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #509,21.3,15.6,5.7,0,0.18,0,Tidak,5,2
+RSK-0510,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #510,16.0,11.4,4.6,8,0.35,0,Tidak,4,3
+RSK-0511,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #511,1.6,7.2,-5.6,5,0.31,0,Tidak,1,4
+RSK-0512,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #512,10.5,7.3,3.2,0,0.25,0,Tidak,3,2
+RSK-0513,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #513,4.7,3.5,1.2,3,0.86,0,Tidak,1,5
+RSK-0514,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #514,3.7,3.1,0.6,0,0.03,0,Tidak,2,1
+RSK-0515,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #515,5.6,4.9,0.7,0,0.21,0,Tidak,2,2
+RSK-0516,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #516,16.6,17.9,-1.3,2,0.05,0,Tidak,4,2
+RSK-0517,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #517,8.2,5.9,2.3,0,0.4,0,Tidak,3,4
+RSK-0518,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #518,7.4,11.2,-3.8,0,0.01,0,Tidak,3,1
+RSK-0519,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #519,14.0,5.6,8.4,0,0.17,1,Ya (Anomali),3,5
+RSK-0520,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #520,15.1,16.0,-0.9,2,0.03,0,Tidak,5,2
+RSK-0521,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #521,16.0,12.9,3.1,3,0.7,0,Tidak,4,5
+RSK-0522,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #522,13.4,14.1,-0.7,3,0.11,0,Tidak,3,1
+RSK-0523,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #523,14.0,15.2,-1.2,0,0.11,0,Tidak,3,2
+RSK-0524,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #524,18.9,15.2,3.7,0,0.11,0,Tidak,4,2
+RSK-0525,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #525,4.1,3.1,1.0,3,0.21,0,Tidak,1,3
+RSK-0526,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #526,14.0,13.1,0.9,5,0.53,0,Tidak,3,5
+RSK-0527,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #527,22.4,15.3,7.1,0,0.49,1,Ya (Anomali),5,5
+RSK-0528,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #528,6.5,3.8,2.7,13,0.04,0,Tidak,2,1
+RSK-0529,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #529,8.5,11.0,-2.5,1,0.12,0,Tidak,2,2
+RSK-0530,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #530,4.1,5.6,-1.5,12,0.12,0,Tidak,1,1
+RSK-0531,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #531,9.6,6.2,3.4,2,0.02,0,Tidak,2,1
+RSK-0532,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #532,19.0,15.6,3.4,4,0.18,0,Tidak,5,3
+RSK-0533,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #533,12.3,9.9,2.4,3,0.21,0,Tidak,3,2
+RSK-0534,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #534,6.3,5.8,0.5,2,0.31,0,Tidak,3,3
+RSK-0535,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #535,14.9,14.2,0.7,6,0.2,0,Tidak,3,2
+RSK-0536,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #536,17.0,16.4,0.6,9,0.02,0,Tidak,4,1
+RSK-0537,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #537,23.0,13.2,9.8,4,0.38,0,Ya (Anomali),5,4
+RSK-0538,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #538,18.5,16.8,1.7,3,0.04,0,Tidak,5,1
+RSK-0539,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #539,13.5,7.3,6.2,3,0.14,0,Tidak,3,2
+RSK-0540,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #540,9.4,9.5,-0.1,1,0.16,0,Tidak,2,2
+RSK-0541,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #541,10.9,4.6,6.3,0,0.02,1,Ya (Anomali),3,3
+RSK-0542,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #542,3.6,4.1,-0.5,2,0.06,0,Tidak,2,1
+RSK-0543,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #543,5.7,9.0,-3.3,0,0.05,0,Tidak,2,2
+RSK-0544,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #544,9.2,13.2,-4.0,2,0.19,0,Tidak,2,2
+RSK-0545,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #545,11.9,14.3,-2.4,0,0.15,0,Tidak,3,2
+RSK-0546,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #546,4.5,5.3,-0.8,9,0.08,0,Tidak,1,2
+RSK-0547,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #547,8.3,12.2,-3.9,10,0.03,0,Tidak,2,1
+RSK-0548,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #548,12.4,10.9,1.5,2,0.2,0,Tidak,3,2
+RSK-0549,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #549,18.5,15.1,3.4,0,0.42,0,Tidak,4,5
+RSK-0550,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #550,13.8,13.9,-0.1,3,0.13,0,Tidak,3,2
+RSK-0551,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #551,9.9,10.5,-0.6,1,0.36,0,Tidak,3,3
+RSK-0552,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #552,3.8,6.7,-2.9,2,0.25,0,Tidak,2,2
+RSK-0553,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #553,15.6,16.2,-0.6,3,0.45,0,Tidak,4,4
+RSK-0554,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #554,10.3,5.5,4.8,4,0.06,0,Tidak,3,2
+RSK-0555,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #555,11.1,6.9,4.2,1,0.15,0,Tidak,3,2
+RSK-0556,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #556,15.6,13.1,2.5,3,0.04,0,Tidak,4,1
+RSK-0557,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #557,16.7,10.9,5.8,3,0.2,0,Tidak,5,2
+RSK-0558,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #558,11.8,4.6,7.2,1,0.62,1,Ya (Anomali),3,5
+RSK-0559,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #559,11.8,10.3,1.5,13,0.06,0,Tidak,3,2
+RSK-0560,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #560,11.9,4.8,7.1,1,0.01,1,Tidak,3,3
+RSK-0561,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #561,1.4,4.6,-3.2,0,0.54,0,Tidak,1,5
+RSK-0562,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #562,13.3,6.8,6.5,0,0.0,1,Ya (Anomali),3,3
+RSK-0563,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #563,4.4,5.6,-1.2,6,0.07,0,Tidak,1,1
+RSK-0564,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #564,22.0,17.9,4.1,1,0.12,0,Tidak,5,1
+RSK-0565,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #565,23.0,17.4,5.6,1,0.23,0,Tidak,5,2
+RSK-0566,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #566,11.4,13.9,-2.5,2,0.04,0,Tidak,3,1
+RSK-0567,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #567,15.3,15.6,-0.3,2,0.01,0,Tidak,5,2
+RSK-0568,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #568,21.5,16.5,5.0,1,0.18,0,Tidak,5,3
+RSK-0569,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #569,10.1,10.9,-0.8,7,0.02,0,Tidak,4,1
+RSK-0570,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #570,19.9,15.1,4.8,3,0.04,0,Tidak,4,1
+RSK-0571,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #571,11.5,16.5,-5.0,4,0.05,0,Tidak,3,2
+RSK-0572,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #572,1.0,3.8,-2.8,0,0.27,0,Tidak,2,4
+RSK-0573,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #573,21.0,15.1,5.9,1,0.13,0,Tidak,5,3
+RSK-0574,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #574,2.0,4.2,-2.2,2,0.09,0,Tidak,2,1
+RSK-0575,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #575,20.5,17.2,3.3,0,0.0,0,Tidak,5,1
+RSK-0576,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #576,20.4,13.1,7.3,0,0.11,0,Tidak,5,1
+RSK-0577,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #577,24.4,18.0,6.4,9,0.19,0,Tidak,5,2
+RSK-0578,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #578,2.1,9.0,-6.9,1,0.56,0,Tidak,1,5
+RSK-0579,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #579,11.2,15.9,-4.7,1,0.1,0,Tidak,4,2
+RSK-0580,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #580,9.7,17.3,-7.6,1,0.12,0,Tidak,2,2
+RSK-0581,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #581,4.8,7.4,-2.6,0,0.06,0,Tidak,1,1
+RSK-0582,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #582,19.3,15.9,3.4,2,0.25,0,Tidak,4,3
+RSK-0583,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #583,6.2,8.6,-2.4,6,0.12,0,Tidak,2,1
+RSK-0584,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #584,8.9,9.3,-0.4,2,0.07,0,Tidak,2,1
+RSK-0585,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #585,22.7,16.1,6.6,0,0.02,0,Tidak,5,1
+RSK-0586,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #586,11.5,11.1,0.4,2,0.33,0,Tidak,4,3
+RSK-0587,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #587,10.7,9.1,1.6,0,0.24,0,Tidak,3,2
+RSK-0588,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #588,12.3,5.3,7.0,2,0.03,0,Tidak,3,2
+RSK-0589,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #589,6.5,9.6,-3.1,2,0.31,0,Tidak,2,3
+RSK-0590,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #590,17.0,14.0,3.0,1,0.12,0,Tidak,4,2
+RSK-0591,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #591,12.9,13.3,-0.4,2,0.22,0,Tidak,3,3
+RSK-0592,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #592,18.3,14.7,3.6,0,0.16,0,Tidak,5,2
+RSK-0593,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #593,16.9,14.3,2.6,5,0.01,0,Tidak,4,1
+RSK-0594,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #594,14.0,8.4,5.6,1,0.04,0,Tidak,3,1
+RSK-0595,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #595,12.4,15.6,-3.2,2,0.08,0,Tidak,3,1
+RSK-0596,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #596,1.3,3.6,-2.3,0,0.02,0,Tidak,2,1
+RSK-0597,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #597,3.5,3.4,0.1,1,0.07,0,Tidak,1,1
+RSK-0598,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #598,21.0,17.3,3.7,3,0.01,0,Tidak,5,1
+RSK-0599,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #599,22.6,16.1,6.5,1,0.32,1,Ya (Anomali),5,5
+RSK-0600,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #600,7.1,9.0,-1.9,4,0.01,0,Tidak,2,1
+RSK-0601,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #601,19.1,15.6,3.5,4,0.12,0,Tidak,4,1
+RSK-0602,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #602,8.8,12.8,-4.0,4,0.18,0,Tidak,2,3
+RSK-0603,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #603,11.3,5.6,5.7,1,0.05,0,Tidak,3,1
+RSK-0604,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #604,14.3,9.8,4.5,3,0.0,0,Tidak,3,1
+RSK-0605,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #605,1.0,3.9,-3.6,2,0.12,0,Tidak,2,1
+RSK-0606,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #606,8.4,8.0,0.4,0,0.09,0,Tidak,2,2
+RSK-0607,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #607,2.9,6.1,-3.2,3,0.03,0,Tidak,1,1
+RSK-0608,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #608,21.8,15.3,6.5,5,0.01,0,Tidak,5,1
+RSK-0609,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #609,16.3,14.1,2.2,7,0.24,0,Tidak,4,2
+RSK-0610,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #610,6.8,3.9,2.9,1,0.03,0,Tidak,3,1
+RSK-0611,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #611,5.2,11.1,-5.9,0,0.08,0,Tidak,3,2
+RSK-0612,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #612,17.0,13.9,3.1,1,0.23,0,Tidak,4,2
+RSK-0613,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #613,9.4,12.3,-2.9,2,0.37,0,Tidak,2,3
+RSK-0614,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #614,13.0,3.8,9.2,4,0.08,0,Tidak,3,1
+RSK-0615,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #615,7.2,6.0,1.2,2,0.09,0,Tidak,2,1
+RSK-0616,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #616,12.3,8.8,3.5,0,0.19,0,Tidak,4,2
+RSK-0617,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #617,4.9,4.9,0.0,0,0.02,0,Tidak,1,2
+RSK-0618,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #618,9.9,5.2,4.7,2,0.27,0,Tidak,2,4
+RSK-0619,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #619,9.9,8.8,1.1,1,0.05,0,Tidak,3,2
+RSK-0620,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #620,13.9,10.4,3.5,0,0.08,0,Tidak,4,2
+RSK-0621,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #621,7.8,4.0,3.8,2,0.42,0,Tidak,2,4
+RSK-0622,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #622,10.3,13.9,-3.6,1,0.53,0,Tidak,3,5
+RSK-0623,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #623,14.2,11.1,3.1,2,0.09,0,Tidak,4,1
+RSK-0624,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #624,21.3,17.4,3.9,6,0.05,0,Tidak,5,1
+RSK-0625,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #625,7.2,7.2,-0.0,0,0.02,0,Tidak,3,2
+RSK-0626,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #626,17.1,6.9,10.2,0,0.03,1,Ya (Anomali),5,3
+RSK-0627,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #627,9.1,8.1,1.0,10,0.11,0,Tidak,2,2
+RSK-0628,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #628,16.1,11.2,4.9,7,0.17,0,Tidak,5,3
+RSK-0629,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #629,5.5,7.6,-2.1,2,0.07,0,Tidak,3,1
+RSK-0630,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #630,8.2,7.6,0.6,1,0.04,0,Tidak,2,1
+RSK-0631,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #631,22.4,15.9,6.5,0,0.0,1,Ya (Anomali),5,3
+RSK-0632,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #632,4.7,4.5,0.2,3,0.05,0,Tidak,2,1
+RSK-0633,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #633,9.3,10.5,-1.2,4,0.15,0,Tidak,2,2
+RSK-0634,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #634,18.1,14.3,3.8,0,0.2,0,Tidak,5,2
+RSK-0635,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #635,25.0,17.4,7.7,0,0.25,1,Ya (Anomali),5,5
+RSK-0636,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #636,19.0,16.2,2.8,0,0.11,0,Tidak,4,1
+RSK-0637,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #637,8.6,6.2,2.4,1,0.38,0,Tidak,3,4
+RSK-0638,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #638,16.2,9.9,6.3,2,0.23,0,Tidak,5,2
+RSK-0639,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #639,8.8,11.7,-2.9,2,0.23,0,Tidak,2,2
+RSK-0640,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #640,10.5,7.9,2.6,1,0.0,0,Tidak,3,1
+RSK-0641,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #641,6.5,7.8,-1.3,2,0.01,0,Tidak,2,1
+RSK-0642,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #642,12.0,5.8,6.2,9,0.22,0,Tidak,4,2
+RSK-0643,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #643,4.6,3.8,0.8,2,0.05,0,Tidak,1,2
+RSK-0644,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #644,17.8,14.7,3.1,7,0.05,0,Tidak,4,1
+RSK-0645,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #645,9.2,9.7,-0.5,4,0.05,0,Tidak,2,1
+RSK-0646,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #646,11.6,16.1,-4.5,0,0.21,0,Tidak,3,2
+RSK-0647,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #647,16.5,5.9,10.6,2,0.17,0,Tidak,4,2
+RSK-0648,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #648,4.6,8.6,-4.0,0,0.01,0,Tidak,1,1
+RSK-0649,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #649,14.8,8.3,6.5,0,0.24,1,Ya (Anomali),3,5
+RSK-0650,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #650,14.0,12.1,1.9,2,0.09,0,Tidak,4,1
+RSK-0651,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #651,16.3,10.3,6.0,1,0.2,0,Tidak,5,2
+RSK-0652,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #652,9.2,12.1,-2.9,4,0.44,0,Tidak,2,5
+RSK-0653,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #653,10.2,8.3,1.9,1,0.15,0,Tidak,4,3
+RSK-0654,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #654,13.0,17.1,-4.1,2,0.17,0,Tidak,3,2
+RSK-0655,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #655,24.2,17.0,7.2,1,0.06,1,Ya (Anomali),5,3
+RSK-0656,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #656,21.8,14.7,7.1,2,0.15,0,Tidak,5,2
+RSK-0657,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #657,15.5,17.9,-2.4,1,0.19,0,Tidak,4,2
+RSK-0658,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #658,9.2,6.1,3.1,13,0.05,0,Tidak,3,1
+RSK-0659,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #659,13.5,9.5,4.0,1,0.06,0,Tidak,3,1
+RSK-0660,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #660,16.9,12.5,4.4,1,0.01,0,Tidak,4,1
+RSK-0661,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #661,11.7,8.8,2.9,3,0.22,0,Tidak,3,3
+RSK-0662,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #662,9.0,6.4,2.6,2,0.15,0,Tidak,2,2
+RSK-0663,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #663,7.0,3.6,3.4,6,0.07,0,Tidak,2,1
+RSK-0664,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #664,16.5,17.2,-0.7,0,0.11,0,Tidak,4,2
+RSK-0665,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #665,10.7,6.5,4.2,1,0.17,0,Tidak,3,2
+RSK-0666,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #666,11.1,10.1,1.0,3,0.03,0,Tidak,3,1
+RSK-0667,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #667,12.8,3.3,9.5,1,0.17,1,Ya (Anomali),3,5
+RSK-0668,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #668,16.1,11.1,5.0,1,0.15,0,Tidak,4,2
+RSK-0669,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #669,12.3,15.6,-3.3,1,0.16,0,Tidak,3,2
+RSK-0670,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #670,13.1,9.9,3.2,0,0.06,0,Tidak,3,1
+RSK-0671,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #671,21.6,16.7,4.9,1,0.02,0,Tidak,5,1
+RSK-0672,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #672,11.5,6.2,5.3,5,0.07,0,Tidak,4,1
+RSK-0673,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #673,9.7,6.0,3.7,1,0.01,0,Tidak,3,1
+RSK-0674,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #674,17.0,12.0,5.0,0,0.03,0,Tidak,4,1
+RSK-0675,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #675,18.9,15.2,3.7,15,0.12,0,Tidak,5,1
+RSK-0676,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #676,4.7,3.1,1.6,2,0.39,0,Tidak,1,5
+RSK-0677,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #677,9.2,6.8,2.4,1,0.04,0,Tidak,2,1
+RSK-0678,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #678,12.5,6.7,5.8,2,0.12,0,Tidak,4,1
+RSK-0679,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #679,18.5,10.7,7.8,1,0.03,1,Ya (Anomali),4,3
+RSK-0680,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #680,17.0,12.3,4.7,3,0.12,0,Tidak,4,2
+RSK-0681,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #681,10.5,11.1,-0.6,0,0.21,0,Tidak,3,3
+RSK-0682,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #682,10.2,6.7,3.5,2,0.25,0,Tidak,3,2
+RSK-0683,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #683,17.1,16.1,1.0,4,0.18,0,Tidak,4,2
+RSK-0684,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #684,14.8,14.6,0.2,0,0.03,0,Tidak,3,1
+RSK-0685,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #685,15.2,12.5,2.7,1,0.09,0,Tidak,4,1
+RSK-0686,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #686,13.0,8.6,4.4,12,0.25,0,Tidak,3,2
+RSK-0687,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #687,12.9,7.9,5.0,4,0.2,0,Tidak,3,2
+RSK-0688,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #688,10.8,14.1,-3.3,1,0.24,0,Tidak,3,2
+RSK-0689,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #689,7.8,4.8,3.0,4,0.01,0,Tidak,2,1
+RSK-0690,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #690,11.7,3.5,8.2,7,0.2,0,Tidak,3,2
+RSK-0691,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #691,9.5,17.5,-8.0,0,0.09,0,Tidak,2,2
+RSK-0692,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #692,23.9,17.2,6.7,0,0.07,1,Ya (Anomali),5,4
+RSK-0693,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #693,13.2,17.1,-3.9,3,0.03,0,Tidak,3,1
+RSK-0694,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #694,10.4,11.2,-0.8,2,0.04,0,Tidak,4,1
+RSK-0695,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #695,4.0,4.5,-0.5,4,0.14,0,Tidak,1,2
+RSK-0696,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #696,15.9,10.5,5.4,7,0.18,0,Tidak,5,3
+RSK-0697,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #697,1.0,8.4,-9.4,11,0.12,0,Tidak,1,1
+RSK-0698,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #698,17.5,11.7,5.8,13,0.5,0,Tidak,4,4
+RSK-0699,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #699,21.1,16.5,4.6,8,0.03,0,Tidak,5,2
+RSK-0700,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #700,10.0,10.0,0.0,8,0.13,0,Tidak,2,3
+RSK-0701,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #701,20.2,15.3,4.9,0,0.2,0,Tidak,5,2
+RSK-0702,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #702,16.4,10.4,6.0,4,0.04,0,Tidak,4,2
+RSK-0703,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #703,18.9,17.3,1.6,1,0.01,0,Tidak,5,1
+RSK-0704,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #704,7.1,10.1,-3.0,3,0.04,0,Tidak,3,1
+RSK-0705,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #705,14.7,13.7,1.0,0,0.0,0,Tidak,4,1
+RSK-0706,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #706,17.4,9.9,7.5,0,0.09,1,Ya (Anomali),4,5
+RSK-0707,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #707,9.1,9.0,0.1,0,0.01,0,Tidak,3,1
+RSK-0708,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #708,9.2,14.2,-5.0,1,0.21,0,Tidak,2,2
+RSK-0709,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #709,14.9,14.2,0.7,8,0.35,0,Tidak,4,3
+RSK-0710,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #710,7.2,6.3,0.9,5,0.06,0,Tidak,2,2
+RSK-0711,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #711,12.0,9.1,2.9,5,0.13,0,Tidak,3,2
+RSK-0712,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #712,1.0,3.1,-7.2,0,0.26,0,Tidak,1,4
+RSK-0713,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #713,5.9,3.3,2.6,2,0.05,0,Tidak,3,1
+RSK-0714,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #714,14.0,5.2,8.8,1,0.18,1,Ya (Anomali),3,4
+RSK-0715,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #715,11.7,14.4,-2.7,2,0.34,0,Tidak,3,4
+RSK-0716,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #716,1.8,4.1,-2.3,6,0.17,0,Tidak,1,2
+RSK-0717,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #717,18.4,17.1,1.3,0,0.17,0,Tidak,5,2
+RSK-0718,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #718,1.0,5.9,-6.1,1,0.02,0,Tidak,1,2
+RSK-0719,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #719,18.1,16.3,1.8,2,0.03,0,Tidak,4,1
+RSK-0720,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #720,14.3,17.3,-3.0,8,0.13,0,Tidak,3,2
+RSK-0721,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #721,12.8,9.4,3.4,3,0.03,0,Tidak,3,2
+RSK-0722,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #722,7.0,10.8,-3.8,3,0.09,0,Tidak,2,1
+RSK-0723,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #723,18.1,7.8,10.3,1,0.31,1,Ya (Anomali),4,5
+RSK-0724,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #724,15.8,16.5,-0.7,7,0.45,0,Tidak,4,4
+RSK-0725,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #725,16.4,10.6,5.8,0,0.08,0,Tidak,4,1
+RSK-0726,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #726,23.3,17.7,5.6,6,0.02,0,Tidak,5,1
+RSK-0727,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #727,7.7,17.5,-9.8,12,0.37,0,Tidak,3,3
+RSK-0728,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #728,23.8,17.3,6.5,3,0.09,0,Tidak,5,2
+RSK-0729,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #729,7.6,8.3,-0.7,3,0.05,0,Tidak,3,1
+RSK-0730,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #730,8.7,4.2,4.5,1,0.76,0,Tidak,2,5
+RSK-0731,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #731,22.1,13.0,9.1,5,0.34,0,Ya (Anomali),5,4
+RSK-0732,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #732,23.1,16.1,7.0,0,0.08,1,Ya (Anomali),5,5
+RSK-0733,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #733,12.1,8.3,3.8,0,0.01,0,Tidak,3,1
+RSK-0734,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #734,13.5,17.4,-3.9,2,0.13,0,Tidak,3,2
+RSK-0735,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #735,20.3,16.7,3.6,3,0.19,0,Tidak,5,2
+RSK-0736,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #736,9.8,12.4,-2.6,1,0.0,0,Tidak,3,1
+RSK-0737,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #737,5.2,4.8,0.4,0,0.06,0,Tidak,2,1
+RSK-0738,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #738,16.6,16.4,0.2,1,0.01,0,Tidak,4,1
+RSK-0739,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #739,8.0,4.8,3.2,2,0.32,0,Tidak,2,3
+RSK-0740,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #740,10.0,10.8,-0.8,1,0.01,0,Tidak,2,1
+RSK-0741,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #741,5.3,3.3,2.0,1,0.45,0,Tidak,2,4
+RSK-0742,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #742,9.5,5.3,4.2,2,0.01,0,Tidak,3,1
+RSK-0743,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #743,11.7,11.5,0.2,1,0.01,0,Tidak,3,1
+RSK-0744,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #744,1.0,3.0,-6.8,2,0.09,0,Tidak,1,1
+RSK-0745,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #745,11.0,5.3,5.7,0,0.07,0,Tidak,4,2
+RSK-0746,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #746,8.7,6.3,2.4,0,0.01,0,Tidak,3,2
+RSK-0747,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #747,4.0,3.6,0.4,7,0.24,0,Tidak,1,3
+RSK-0748,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #748,13.3,11.7,1.6,0,0.01,0,Tidak,3,1
+RSK-0749,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #749,20.4,14.5,5.9,1,0.01,0,Tidak,5,2
+RSK-0750,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #750,3.8,3.6,0.2,3,0.1,0,Tidak,2,1
+RSK-0751,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #751,5.5,9.2,-3.7,4,0.06,0,Tidak,2,1
+RSK-0752,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #752,9.9,11.1,-1.2,0,0.02,0,Tidak,2,2
+RSK-0753,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #753,13.3,10.8,2.5,1,0.02,0,Tidak,3,2
+RSK-0754,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #754,12.6,10.3,2.3,0,0.53,0,Tidak,4,5
+RSK-0755,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #755,1.0,4.4,-4.7,1,0.15,0,Tidak,1,2
+RSK-0756,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #756,14.8,6.7,8.1,5,0.04,0,Tidak,4,1
+RSK-0757,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #757,25.0,16.9,13.0,1,0.06,1,Ya (Anomali),5,3
+RSK-0758,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #758,13.8,5.7,8.1,2,0.16,0,Tidak,4,2
+RSK-0759,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #759,17.9,14.8,3.1,1,0.01,0,Tidak,4,1
+RSK-0760,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #760,4.9,5.2,-0.3,2,0.07,0,Tidak,1,1
+RSK-0761,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #761,19.2,14.1,5.1,7,0.0,0,Tidak,4,1
+RSK-0762,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #762,15.4,13.2,2.2,1,0.14,0,Tidak,4,2
+RSK-0763,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #763,18.5,17.9,0.6,1,0.29,0,Tidak,4,3
+RSK-0764,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #764,4.6,5.3,-0.7,1,0.35,0,Tidak,2,3
+RSK-0765,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #765,4.3,7.1,-2.8,1,0.16,0,Tidak,1,2
+RSK-0766,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #766,18.5,15.6,2.9,3,0.25,0,Tidak,4,3
+RSK-0767,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #767,16.1,11.4,4.7,3,0.21,0,Tidak,4,2
+RSK-0768,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #768,8.7,7.9,0.8,0,0.0,0,Tidak,3,1
+RSK-0769,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #769,5.7,5.3,0.4,5,0.03,0,Tidak,3,1
+RSK-0770,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #770,15.4,11.4,4.0,0,0.01,0,Tidak,5,2
+RSK-0771,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #771,6.9,10.2,-3.3,1,0.05,0,Tidak,2,1
+RSK-0772,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #772,5.1,6.7,-1.6,2,0.01,0,Tidak,3,1
+RSK-0773,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #773,10.0,12.4,-2.4,1,0.11,0,Tidak,2,1
+RSK-0774,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #774,19.2,13.2,6.0,1,0.03,0,Tidak,5,1
+RSK-0775,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #775,16.0,11.3,4.7,24,0.03,0,Tidak,5,1
+RSK-0776,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #776,1.8,13.0,-11.2,4,0.62,0,Tidak,1,5
+RSK-0777,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #777,6.1,6.8,-0.7,11,0.37,0,Tidak,3,3
+RSK-0778,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #778,23.1,16.6,6.5,1,0.03,1,Tidak,5,3
+RSK-0779,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #779,1.2,3.8,-2.6,0,0.03,0,Tidak,1,1
+RSK-0780,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #780,1.0,5.6,-8.8,3,0.2,0,Tidak,1,2
+RSK-0781,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #781,11.4,6.3,5.1,1,0.16,0,Tidak,3,2
+RSK-0782,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #782,20.6,17.3,3.3,2,0.05,0,Tidak,5,2
+RSK-0783,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #783,5.1,7.3,-2.2,2,0.3,0,Tidak,2,3
+RSK-0784,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #784,14.8,17.0,-2.2,0,0.02,0,Tidak,4,2
+RSK-0785,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #785,11.1,10.2,0.9,2,0.22,0,Tidak,4,3
+RSK-0786,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #786,13.8,13.8,0.0,5,0.36,0,Tidak,4,3
+RSK-0787,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #787,8.2,7.2,1.0,16,0.02,0,Tidak,3,1
+RSK-0788,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #788,23.1,13.5,9.6,0,0.12,1,Ya (Anomali),5,4
+RSK-0789,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #789,16.6,16.1,0.5,0,0.01,0,Tidak,4,1
+RSK-0790,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #790,9.6,11.7,-2.1,1,0.25,0,Tidak,2,2
+RSK-0791,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #791,20.0,16.7,3.3,0,0.2,0,Tidak,4,2
+RSK-0792,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #792,11.8,8.8,3.0,0,0.09,0,Tidak,3,1
+RSK-0793,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #793,18.2,12.3,5.9,9,0.05,0,Tidak,4,1
+RSK-0794,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #794,7.2,7.2,-0.0,0,0.03,0,Tidak,2,2
+RSK-0795,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #795,8.7,5.2,3.5,2,0.19,0,Tidak,2,2
+RSK-0796,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #796,1.9,5.4,-3.5,0,0.18,0,Tidak,1,2
+RSK-0797,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #797,13.7,9.7,4.0,0,0.11,0,Tidak,4,1
+RSK-0798,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #798,16.5,17.1,-0.6,0,0.02,0,Tidak,4,1
+RSK-0799,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #799,7.7,7.5,0.2,0,0.01,0,Tidak,3,1
+RSK-0800,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #800,7.3,4.4,2.9,5,0.01,0,Tidak,2,1
+RSK-0801,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #801,12.8,9.7,3.1,0,0.32,0,Tidak,3,3
+RSK-0802,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #802,3.3,5.1,-1.8,3,0.02,0,Tidak,1,1
+RSK-0803,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #803,5.4,6.2,-0.8,1,0.1,0,Tidak,2,1
+RSK-0804,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #804,17.5,16.7,0.8,1,0.26,0,Tidak,4,3
+RSK-0805,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #805,19.8,12.6,7.2,3,0.09,0,Tidak,5,1
+RSK-0806,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #806,17.1,10.8,6.3,5,0.0,0,Tidak,4,1
+RSK-0807,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #807,3.3,6.4,-3.1,3,0.25,0,Tidak,1,2
+RSK-0808,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #808,11.8,4.4,7.4,2,0.01,0,Tidak,4,1
+RSK-0809,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #809,15.6,17.1,-1.5,1,0.11,0,Tidak,4,1
+RSK-0810,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #810,13.8,11.0,2.8,0,0.26,0,Tidak,3,4
+RSK-0811,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #811,1.0,5.0,-4.1,0,0.13,0,Tidak,1,2
+RSK-0812,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #812,12.2,9.9,2.3,1,0.03,0,Tidak,3,1
+RSK-0813,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #813,14.7,12.2,2.5,3,0.02,0,Tidak,4,1
+RSK-0814,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #814,16.7,13.3,3.4,2,0.64,0,Tidak,5,5
+RSK-0815,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #815,1.3,4.4,-3.1,3,0.04,0,Tidak,1,2
+RSK-0816,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #816,13.3,13.6,-0.3,4,0.0,0,Tidak,4,1
+RSK-0817,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #817,8.7,14.6,-5.9,0,0.07,0,Tidak,3,2
+RSK-0818,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #818,14.7,8.5,6.2,10,0.2,0,Tidak,3,3
+RSK-0819,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #819,16.0,13.0,3.0,4,0.08,0,Tidak,4,1
+RSK-0820,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #820,11.2,4.5,6.7,0,0.03,1,Ya (Anomali),3,3
+RSK-0821,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #821,20.1,17.9,2.2,3,0.03,0,Tidak,5,1
+RSK-0822,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #822,3.3,4.1,-0.8,1,0.19,0,Tidak,1,2
+RSK-0823,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #823,9.9,6.0,3.9,0,0.41,0,Tidak,3,5
+RSK-0824,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #824,11.5,14.4,-2.9,0,0.05,0,Tidak,3,1
+RSK-0825,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #825,16.6,17.4,-0.8,19,0.4,0,Tidak,4,4
+RSK-0826,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #826,7.6,6.8,0.8,0,0.02,0,Tidak,3,1
+RSK-0827,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #827,9.5,4.5,5.0,2,0.01,0,Tidak,2,1
+RSK-0828,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #828,4.7,5.1,-0.4,6,0.03,0,Tidak,1,1
+RSK-0829,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #829,5.8,13.2,-7.4,0,0.07,0,Tidak,2,1
+RSK-0830,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #830,12.0,10.7,1.3,2,0.11,0,Tidak,3,1
+RSK-0831,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #831,21.9,16.2,5.7,7,0.04,0,Tidak,5,1
+RSK-0832,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #832,7.7,4.5,3.2,0,0.01,0,Tidak,2,2
+RSK-0833,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #833,13.5,10.5,3.0,4,0.2,0,Tidak,3,2
+RSK-0834,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #834,12.5,12.2,0.3,0,0.05,0,Tidak,3,1
+RSK-0835,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #835,17.1,15.9,1.2,2,0.12,0,Tidak,4,1
+RSK-0836,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #836,11.7,11.3,0.4,0,0.22,0,Tidak,3,2
+RSK-0837,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #837,6.9,5.7,1.2,1,0.02,0,Tidak,3,1
+RSK-0838,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #838,20.4,16.3,4.1,2,0.11,0,Tidak,5,1
+RSK-0839,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #839,17.6,16.0,1.6,8,0.27,0,Tidak,4,3
+RSK-0840,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #840,16.5,16.1,0.4,3,0.07,0,Tidak,4,2
+RSK-0841,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #841,16.9,11.8,5.1,8,0.11,0,Tidak,4,1
+RSK-0842,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #842,22.2,17.4,4.8,1,0.42,0,Tidak,5,4
+RSK-0843,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #843,16.4,11.3,5.1,0,0.2,0,Tidak,5,2
+RSK-0844,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #844,13.5,5.2,8.3,7,0.07,0,Tidak,3,1
+RSK-0845,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #845,13.1,9.0,4.1,1,0.02,0,Tidak,3,1
+RSK-0846,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #846,15.8,15.4,0.4,2,0.05,0,Tidak,4,2
+RSK-0847,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #847,21.3,17.7,3.6,3,0.12,0,Tidak,5,2
+RSK-0848,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #848,14.9,15.5,-0.6,1,0.03,0,Tidak,3,1
+RSK-0849,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #849,6.1,8.4,-2.3,4,0.07,0,Tidak,2,2
+RSK-0850,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #850,3.1,3.1,-0.0,1,0.16,0,Tidak,2,2
+RSK-0851,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #851,16.9,5.7,11.2,2,0.4,0,Tidak,5,5
+RSK-0852,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #852,2.7,3.6,-0.9,1,0.04,0,Tidak,1,1
+RSK-0853,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #853,24.5,15.3,9.2,2,0.04,0,Ya (Anomali),5,2
+RSK-0854,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #854,6.4,7.6,-1.2,0,0.17,0,Tidak,2,3
+RSK-0855,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #855,15.9,13.4,2.5,0,0.02,0,Tidak,4,1
+RSK-0856,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #856,18.4,9.1,9.3,2,0.03,0,Tidak,4,1
+RSK-0857,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #857,5.1,7.1,-2.0,5,0.03,0,Tidak,2,1
+RSK-0858,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #858,8.4,10.9,-2.5,0,0.16,0,Tidak,3,2
+RSK-0859,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #859,7.1,10.3,-3.2,2,0.09,0,Tidak,2,2
+RSK-0860,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #860,11.7,15.3,-3.6,0,0.02,0,Tidak,3,1
+RSK-0861,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #861,14.7,13.4,1.3,3,0.05,0,Tidak,3,1
+RSK-0862,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #862,5.7,7.7,-2.0,4,0.09,0,Tidak,3,1
+RSK-0863,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #863,17.8,15.1,2.7,1,0.06,0,Tidak,4,1
+RSK-0864,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #864,9.1,12.0,-2.9,5,0.08,0,Tidak,2,1
+RSK-0865,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #865,9.2,8.1,1.1,1,0.37,0,Tidak,2,3
+RSK-0866,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #866,12.7,15.2,-2.5,4,0.5,0,Tidak,3,4
+RSK-0867,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #867,12.4,8.6,3.8,0,0.73,0,Tidak,3,5
+RSK-0868,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #868,5.8,3.8,2.0,3,0.0,0,Tidak,2,1
+RSK-0869,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #869,19.8,16.2,3.6,1,0.19,0,Tidak,5,3
+RSK-0870,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #870,11.0,9.7,1.3,1,0.41,0,Tidak,4,4
+RSK-0871,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #871,7.9,7.8,0.1,0,0.35,0,Tidak,2,3
+RSK-0872,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #872,19.6,16.7,2.9,0,0.0,0,Tidak,4,1
+RSK-0873,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #873,3.8,6.8,-3.0,1,0.25,0,Tidak,1,3
+RSK-0874,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #874,16.0,17.6,-1.6,1,0.09,0,Tidak,5,1
+RSK-0875,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #875,9.1,3.4,5.7,0,0.28,0,Tidak,2,3
+RSK-0876,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #876,17.7,13.0,4.7,0,0.19,0,Tidak,5,2
+RSK-0877,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #877,6.9,3.9,3.0,6,0.09,0,Tidak,3,1
+RSK-0878,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #878,1.0,4.4,-3.8,0,0.05,0,Tidak,1,1
+RSK-0879,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #879,15.5,17.4,-1.9,7,0.0,0,Tidak,4,1
+RSK-0880,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #880,23.4,16.8,6.6,3,0.12,0,Tidak,5,2
+RSK-0881,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #881,18.3,15.7,2.6,0,0.08,0,Tidak,4,2
+RSK-0882,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #882,13.4,13.2,0.2,0,0.06,0,Tidak,3,1
+RSK-0883,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #883,15.7,10.0,5.7,0,0.09,0,Tidak,4,1
+RSK-0884,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #884,21.6,13.2,8.4,0,0.1,1,Ya (Anomali),5,4
+RSK-0885,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #885,16.7,11.4,5.3,0,0.13,0,Tidak,4,2
+RSK-0886,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #886,20.6,15.8,4.8,9,0.16,0,Tidak,5,2
+RSK-0887,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #887,14.7,14.2,0.5,0,0.03,0,Tidak,3,1
+RSK-0888,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #888,18.7,13.2,5.5,2,0.04,0,Tidak,4,1
+RSK-0889,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #889,13.9,5.9,8.0,2,0.09,0,Tidak,4,1
+RSK-0890,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #890,14.4,12.9,1.5,6,0.05,0,Tidak,3,1
+RSK-0891,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #891,9.9,10.3,-0.4,0,0.24,0,Tidak,2,2
+RSK-0892,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #892,16.1,14.7,1.4,0,0.1,0,Tidak,5,2
+RSK-0893,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #893,11.8,9.8,2.0,5,0.11,0,Tidak,3,1
+RSK-0894,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #894,6.6,10.5,-3.9,1,0.12,0,Tidak,2,2
+RSK-0895,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #895,14.7,9.2,5.5,3,0.19,0,Tidak,3,3
+RSK-0896,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #896,20.1,17.8,2.3,5,0.18,0,Tidak,5,3
+RSK-0897,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #897,7.9,11.9,-4.0,4,0.17,0,Tidak,3,3
+RSK-0898,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #898,18.3,16.7,1.6,2,0.01,0,Tidak,4,1
+RSK-0899,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #899,13.7,16.1,-2.4,5,0.21,0,Tidak,3,2
+RSK-0900,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #900,12.8,14.3,-1.5,1,0.23,0,Tidak,3,2
+RSK-0901,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #901,19.9,10.6,9.3,3,0.15,0,Tidak,4,2
+RSK-0902,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #902,14.0,11.1,2.9,0,0.29,0,Tidak,4,3
+RSK-0903,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #903,16.9,17.0,-0.1,0,0.05,0,Tidak,5,1
+RSK-0904,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #904,1.1,6.5,-5.4,0,0.01,0,Tidak,1,1
+RSK-0905,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #905,17.5,14.8,2.7,0,0.05,0,Tidak,5,1
+RSK-0906,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #906,9.1,7.5,1.6,5,0.19,0,Tidak,2,2
+RSK-0907,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #907,4.1,3.9,0.2,7,0.22,0,Tidak,2,2
+RSK-0908,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #908,7.8,8.9,-1.1,1,0.14,0,Tidak,2,2
+RSK-0909,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #909,17.4,10.8,6.6,0,0.03,1,Tidak,4,3
+RSK-0910,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #910,10.9,5.0,5.9,2,0.2,0,Tidak,3,3
+RSK-0911,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #911,18.1,14.2,3.9,0,0.0,0,Tidak,5,1
+RSK-0912,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #912,8.6,14.1,-5.5,5,0.01,0,Tidak,2,1
+RSK-0913,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #913,14.6,14.0,0.6,0,0.01,0,Tidak,3,1
+RSK-0914,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #914,15.2,7.8,7.4,7,0.04,0,Tidak,4,1
+RSK-0915,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #915,10.1,10.5,-0.4,1,0.09,0,Tidak,4,2
+RSK-0916,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #916,4.3,5.6,-1.3,5,0.12,0,Tidak,2,2
+RSK-0917,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #917,7.8,9.6,-1.8,3,0.11,0,Tidak,2,1
+RSK-0918,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #918,24.1,17.3,6.8,1,0.19,1,Tidak,5,5
+RSK-0919,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #919,3.2,7.5,-4.3,0,0.02,0,Tidak,1,1
+RSK-0920,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #920,5.1,3.7,1.4,2,0.14,0,Tidak,2,2
+RSK-0921,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #921,2.7,7.7,-5.0,0,0.1,0,Tidak,1,2
+RSK-0922,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #922,18.4,15.5,2.9,6,0.17,0,Tidak,5,2
+RSK-0923,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #923,25.0,16.6,10.5,10,0.55,0,Tidak,5,5
+RSK-0924,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #924,4.6,3.1,1.5,2,0.07,0,Tidak,2,1
+RSK-0925,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #925,10.8,10.2,0.6,0,0.04,0,Tidak,4,2
+RSK-0926,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #926,17.0,17.2,-0.2,0,0.29,0,Tidak,4,3
+RSK-0927,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #927,5.9,4.9,1.0,0,0.05,0,Tidak,3,1
+RSK-0928,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #928,6.4,3.9,2.5,1,0.3,0,Tidak,2,4
+RSK-0929,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #929,18.6,14.4,4.2,5,0.01,0,Tidak,5,1
+RSK-0930,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #930,13.1,12.6,0.5,4,0.01,0,Tidak,3,2
+RSK-0931,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #931,17.5,13.8,3.7,4,0.15,0,Tidak,4,2
+RSK-0932,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #932,8.2,7.1,1.1,1,0.05,0,Tidak,3,1
+RSK-0933,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #933,13.7,9.1,4.6,0,0.07,0,Tidak,3,1
+RSK-0934,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #934,16.7,11.6,5.1,4,0.0,0,Tidak,5,1
+RSK-0935,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #935,14.0,14.4,-0.4,1,0.11,0,Tidak,4,1
+RSK-0936,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #936,12.4,7.8,4.6,0,0.0,0,Tidak,3,1
+RSK-0937,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #937,12.5,9.1,3.4,2,0.29,0,Tidak,3,4
+RSK-0938,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #938,17.2,11.0,6.2,3,0.17,0,Tidak,5,3
+RSK-0939,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #939,7.8,3.1,4.7,2,0.09,0,Tidak,2,2
+RSK-0940,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #940,14.9,15.7,-0.8,2,0.15,0,Tidak,3,3
+RSK-0941,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #941,23.1,12.4,10.7,2,0.1,0,Tidak,5,1
+RSK-0942,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #942,6.4,4.2,2.2,0,0.03,0,Tidak,3,2
+RSK-0943,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #943,7.8,8.3,-0.5,0,0.12,0,Tidak,2,1
+RSK-0944,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #944,10.9,5.7,5.2,0,0.38,0,Tidak,3,4
+RSK-0945,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #945,7.0,3.6,3.4,0,0.15,0,Tidak,3,2
+RSK-0946,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #946,6.5,7.7,-1.2,0,0.26,0,Tidak,2,3
+RSK-0947,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #947,18.6,16.1,2.5,2,0.04,0,Tidak,5,2
+RSK-0948,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #948,13.9,4.0,9.9,2,0.08,0,Tidak,3,2
+RSK-0949,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #949,14.4,16.2,-1.8,4,0.05,0,Tidak,3,1
+RSK-0950,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #950,4.5,6.3,-1.8,0,0.21,0,Tidak,2,2
+RSK-0951,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #951,25.0,17.3,9.9,0,0.15,1,Ya (Anomali),5,5
+RSK-0952,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #952,2.9,6.3,-3.4,4,0.13,0,Tidak,1,3
+RSK-0953,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #953,13.1,15.8,-2.7,8,0.0,0,Tidak,3,1
+RSK-0954,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #954,18.2,16.8,1.4,1,0.29,0,Tidak,5,4
+RSK-0955,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #955,18.5,16.8,1.7,6,0.37,0,Tidak,5,3
+RSK-0956,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #956,13.2,4.9,8.3,6,0.18,0,Tidak,3,2
+RSK-0957,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #957,21.6,13.1,8.5,2,0.32,0,Tidak,5,3
+RSK-0958,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #958,24.7,15.4,9.3,0,0.27,1,Ya (Anomali),5,5
+RSK-0959,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #959,20.0,14.0,6.0,0,0.26,0,Tidak,4,3
+RSK-0960,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #960,8.3,10.1,-1.8,1,0.2,0,Tidak,3,3
+RSK-0961,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #961,13.7,17.1,-3.4,2,0.01,0,Tidak,3,2
+RSK-0962,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #962,7.7,5.7,2.0,3,0.02,0,Tidak,2,1
+RSK-0963,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #963,14.8,16.2,-1.4,1,0.28,0,Tidak,3,3
+RSK-0964,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #964,5.5,6.6,-1.1,2,0.08,0,Tidak,2,1
+RSK-0965,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #965,9.2,9.8,-0.6,2,0.21,0,Tidak,2,3
+RSK-0966,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #966,12.6,9.9,2.7,0,0.03,0,Tidak,4,1
+RSK-0967,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #967,13.6,7.3,6.3,0,0.16,1,Ya (Anomali),3,4
+RSK-0968,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #968,4.1,7.3,-3.2,0,0.04,0,Tidak,1,1
+RSK-0969,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #969,10.9,8.6,2.3,5,0.09,0,Tidak,3,2
+RSK-0970,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #970,12.4,3.2,9.2,2,0.05,0,Ya (Anomali),3,2
+RSK-0971,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #971,1.0,6.6,-6.2,0,0.09,0,Tidak,1,1
+RSK-0972,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #972,24.2,17.3,6.9,0,0.6,1,Ya (Anomali),5,5
+RSK-0973,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #973,5.5,13.8,-8.3,0,0.16,0,Tidak,3,2
+RSK-0974,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #974,9.0,9.7,-0.7,0,0.3,0,Tidak,2,4
+RSK-0975,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #975,1.0,3.0,-3.6,8,0.1,0,Tidak,1,1
+RSK-0976,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #976,15.4,13.6,1.8,0,0.0,0,Tidak,5,1
+RSK-0977,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #977,14.7,10.4,4.3,12,0.19,0,Tidak,3,3
+RSK-0978,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #978,17.8,12.8,5.0,2,0.51,0,Tidak,5,5
+RSK-0979,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #979,6.5,8.9,-2.4,1,0.05,0,Tidak,2,1
+RSK-0980,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #980,2.4,3.0,-0.6,0,0.16,0,Tidak,1,2
+RSK-0981,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #981,11.5,11.8,-0.3,4,0.09,0,Tidak,3,1
+RSK-0982,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #982,12.1,14.8,-2.7,3,0.12,0,Tidak,4,1
+RSK-0983,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #983,3.6,6.2,-2.6,8,0.01,0,Tidak,1,1
+RSK-0984,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #984,21.0,12.9,8.1,0,0.21,1,Ya (Anomali),5,5
+RSK-0985,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #985,7.4,8.3,-0.9,0,0.29,0,Tidak,3,3
+RSK-0986,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #986,16.0,15.5,0.5,1,0.01,0,Tidak,4,1
+RSK-0987,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #987,21.9,9.6,12.3,4,0.12,0,Tidak,5,1
+RSK-0988,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #988,12.0,3.9,8.1,0,0.22,1,Ya (Anomali),3,5
+RSK-0989,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #989,9.0,10.9,-1.9,2,0.61,0,Tidak,2,5
+RSK-0990,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #990,12.5,12.1,0.4,0,0.06,0,Tidak,3,1
+RSK-0991,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #991,1.3,7.8,-6.5,0,0.06,0,Tidak,1,1
+RSK-0992,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #992,8.9,4.2,4.7,0,0.31,0,Tidak,3,3
+RSK-0993,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #993,20.8,14.3,6.5,2,0.18,0,Tidak,5,2
+RSK-0994,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #994,12.6,11.1,1.5,1,0.47,0,Tidak,3,4
+RSK-0995,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #995,7.2,6.1,1.1,2,0.1,0,Tidak,2,2
+RSK-0996,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #996,10.5,5.8,4.7,1,0.15,0,Tidak,4,2
+RSK-0997,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #997,18.9,11.2,7.7,2,0.01,0,Tidak,4,1
+RSK-0998,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #998,14.3,7.6,6.7,6,0.52,0,Tidak,3,5
+RSK-0999,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #999,15.1,13.4,1.7,4,0.07,0,Tidak,4,1
+RSK-1000,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1000,13.5,8.2,5.3,1,0.12,0,Tidak,3,2
+RSK-1001,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1001,9.7,10.1,-0.4,6,0.13,0,Tidak,2,3
+RSK-1002,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1002,10.7,3.9,6.8,1,0.09,1,Tidak,3,5
+RSK-1003,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1003,4.0,9.9,-5.9,2,0.23,0,Tidak,2,2
+RSK-1004,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1004,1.0,3.2,-8.7,1,0.13,0,Tidak,1,3
+RSK-1005,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1005,12.2,8.4,3.8,2,0.04,0,Tidak,3,1
+RSK-1006,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1006,7.7,7.7,0.0,0,0.06,0,Tidak,2,1
+RSK-1007,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1007,9.1,14.3,-5.2,2,0.46,0,Tidak,2,4
+RSK-1008,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1008,14.6,14.5,0.1,0,0.27,0,Tidak,4,4
+RSK-1009,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1009,7.5,9.3,-1.8,1,0.51,0,Tidak,2,5
+RSK-1010,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1010,16.4,17.6,-1.2,3,0.04,0,Tidak,4,1
+RSK-1011,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1011,8.8,6.8,2.0,2,0.09,0,Tidak,2,1
+RSK-1012,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1012,8.8,5.5,3.3,1,0.01,0,Tidak,2,1
+RSK-1013,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1013,23.1,15.2,7.9,10,0.09,0,Tidak,5,1
+RSK-1014,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1014,13.1,10.7,2.4,4,0.04,0,Tidak,3,1
+RSK-1015,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1015,1.3,5.9,-4.6,3,0.08,0,Tidak,1,2
+RSK-1016,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1016,7.9,8.0,-0.1,3,0.05,0,Tidak,2,1
+RSK-1017,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1017,1.0,4.4,-13.4,1,0.01,0,Tidak,2,1
+RSK-1018,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1018,18.4,13.4,5.0,0,0.05,0,Tidak,4,1
+RSK-1019,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1019,10.5,10.5,-0.0,0,0.11,0,Tidak,3,1
+RSK-1020,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1020,15.7,11.5,4.2,0,0.01,0,Tidak,4,2
+RSK-1021,Bandung Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1021,8.2,4.1,4.1,1,0.15,0,Tidak,2,2
+RSK-1022,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1022,15.6,13.5,2.1,2,0.18,0,Tidak,5,3
+RSK-1023,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1023,12.3,7.4,4.9,6,0.07,0,Tidak,3,1
+RSK-1024,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1024,5.8,5.4,0.4,5,0.36,0,Tidak,2,4
+RSK-1025,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1025,15.0,9.4,5.6,9,0.01,0,Tidak,3,1
+RSK-1026,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1026,12.7,15.8,-3.1,0,0.15,0,Tidak,4,2
+RSK-1027,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1027,14.4,8.6,5.8,11,0.2,0,Tidak,3,2
+RSK-1028,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1028,8.0,4.6,3.4,3,0.23,0,Tidak,3,3
+RSK-1029,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1029,16.1,17.1,-1.0,0,0.09,0,Tidak,4,1
+RSK-1030,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1030,13.9,12.6,1.3,1,0.05,0,Tidak,3,1
+RSK-1031,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1031,2.6,7.5,-4.9,0,0.49,0,Tidak,2,5
+RSK-1032,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1032,3.8,11.7,-7.9,1,0.39,0,Tidak,1,5
+RSK-1033,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1033,5.8,4.4,1.4,3,0.63,0,Tidak,2,5
+RSK-1034,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1034,13.4,11.5,1.9,5,0.19,0,Tidak,4,2
+RSK-1035,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1035,19.7,15.3,4.4,5,0.23,0,Tidak,5,2
+RSK-1036,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1036,9.0,5.1,3.9,2,0.4,0,Tidak,3,4
+RSK-1037,Jakarta Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1037,18.3,15.5,2.8,0,0.09,0,Tidak,4,1
+RSK-1038,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1038,18.9,11.3,7.6,3,0.03,0,Tidak,4,1
+RSK-1039,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1039,11.0,5.9,5.1,2,0.12,0,Tidak,4,1
+RSK-1040,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1040,8.1,6.2,1.9,4,0.1,0,Tidak,3,1
+RSK-1041,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1041,17.7,16.2,1.5,0,0.23,0,Tidak,4,3
+RSK-1042,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1042,18.6,10.1,8.5,1,0.2,1,Ya (Anomali),4,5
+RSK-1043,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1043,9.4,7.2,2.2,1,0.05,0,Tidak,2,2
+RSK-1044,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1044,9.4,6.8,2.6,2,0.02,0,Tidak,2,1
+RSK-1045,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1045,11.6,9.0,2.6,4,0.13,0,Tidak,3,3
+RSK-1046,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1046,20.1,14.7,5.4,1,0.17,0,Tidak,5,3
+RSK-1047,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1047,1.7,3.4,-1.7,11,0.11,0,Tidak,2,2
+RSK-1048,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1048,6.4,4.6,1.8,0,0.17,0,Tidak,2,2
+RSK-1049,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1049,6.3,9.7,-3.4,3,0.21,0,Tidak,2,2
+RSK-1050,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1050,15.1,16.6,-1.5,1,0.09,0,Tidak,4,1
+RSK-1051,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1051,14.8,16.3,-1.5,1,0.1,0,Tidak,3,2
+RSK-1052,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1052,12.0,14.7,-2.7,1,0.15,0,Tidak,3,2
+RSK-1053,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1053,14.8,17.7,-2.9,2,0.14,0,Tidak,3,2
+RSK-1054,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1054,8.6,4.6,4.0,11,0.1,0,Tidak,2,1
+RSK-1055,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1055,16.8,16.3,0.5,0,0.04,0,Tidak,5,1
+RSK-1056,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1056,1.0,3.3,-3.1,0,0.17,0,Tidak,1,2
+RSK-1057,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1057,9.3,9.2,0.1,1,0.07,0,Tidak,2,1
+RSK-1058,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1058,9.5,6.4,3.1,0,0.09,0,Tidak,2,2
+RSK-1059,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1059,9.9,8.4,1.5,2,0.11,0,Tidak,2,1
+RSK-1060,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1060,21.4,17.6,3.8,0,0.09,0,Tidak,5,1
+RSK-1061,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1061,2.9,7.9,-5.0,1,0.16,0,Tidak,1,3
+RSK-1062,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1062,19.6,12.4,7.2,1,0.11,1,Ya (Anomali),4,4
+RSK-1063,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1063,15.7,13.3,2.4,0,0.05,0,Tidak,5,1
+RSK-1064,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1064,9.2,11.2,-2.0,7,0.47,0,Tidak,2,4
+RSK-1065,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1065,2.4,4.4,-2.0,2,0.65,0,Tidak,1,5
+RSK-1066,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1066,21.5,15.8,5.7,4,0.01,0,Tidak,5,1
+RSK-1067,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1067,9.1,14.8,-5.7,0,0.17,0,Tidak,3,2
+RSK-1068,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1068,16.8,14.2,2.6,1,0.33,0,Tidak,4,3
+RSK-1069,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1069,5.5,16.7,-11.2,7,0.45,0,Tidak,3,4
+RSK-1070,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1070,2.7,8.2,-5.5,9,0.25,0,Tidak,1,3
+RSK-1071,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1071,7.6,11.6,-4.0,19,0.33,0,Tidak,2,3
+RSK-1072,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1072,9.8,14.7,-4.9,0,0.07,0,Tidak,2,1
+RSK-1073,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1073,10.1,9.7,0.4,0,0.27,0,Tidak,4,3
+RSK-1074,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1074,18.1,17.4,0.7,0,0.14,0,Tidak,4,2
+RSK-1075,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1075,12.6,15.7,-3.1,1,0.08,0,Tidak,3,1
+RSK-1076,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1076,8.0,11.0,-3.0,0,0.25,0,Tidak,2,2
+RSK-1077,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1077,12.2,5.2,7.0,2,0.04,0,Tidak,3,2
+RSK-1078,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1078,12.3,10.6,1.7,6,0.44,0,Tidak,3,4
+RSK-1079,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1079,3.7,6.1,-2.4,1,0.09,0,Tidak,2,2
+RSK-1080,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1080,5.5,9.1,-3.6,1,0.28,0,Tidak,2,3
+RSK-1081,Jakarta Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1081,8.9,7.0,1.9,2,0.04,0,Tidak,3,1
+RSK-1082,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1082,21.2,15.2,6.0,0,0.34,0,Tidak,5,3
+RSK-1083,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1083,5.9,6.9,-1.0,3,0.12,0,Tidak,2,1
+RSK-1084,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1084,15.9,11.9,4.0,0,0.05,0,Tidak,5,1
+RSK-1085,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1085,12.2,3.8,8.4,1,0.14,0,Tidak,3,2
+RSK-1086,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1086,10.8,14.3,-3.5,11,0.01,0,Tidak,3,1
+RSK-1087,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1087,20.4,9.7,10.7,10,0.07,0,Tidak,5,1
+RSK-1088,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1088,9.1,9.2,-0.1,2,0.11,0,Tidak,2,2
+RSK-1089,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1089,10.4,9.5,0.9,3,0.11,0,Tidak,3,2
+RSK-1090,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1090,22.6,13.7,8.9,0,0.14,0,Tidak,5,2
+RSK-1091,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1091,13.7,9.5,4.2,3,0.01,0,Tidak,4,1
+RSK-1092,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1092,21.4,14.1,7.3,0,0.22,1,Ya (Anomali),5,5
+RSK-1093,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1093,11.7,7.2,4.5,1,0.01,0,Tidak,3,1
+RSK-1094,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1094,14.9,17.4,-2.5,4,0.42,0,Tidak,3,4
+RSK-1095,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1095,8.1,10.7,-2.6,3,0.12,0,Tidak,2,2
+RSK-1096,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1096,8.3,11.8,-3.5,0,0.59,0,Tidak,2,5
+RSK-1097,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1097,13.5,13.4,0.1,1,0.03,0,Tidak,4,1
+RSK-1098,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1098,10.4,11.8,-1.4,1,0.22,0,Tidak,3,3
+RSK-1099,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1099,18.9,11.5,7.4,2,0.13,0,Tidak,4,2
+RSK-1100,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1100,5.1,3.0,2.1,1,0.27,0,Tidak,3,3
+RSK-1101,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1101,10.3,9.9,0.4,1,0.01,0,Tidak,3,1
+RSK-1102,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1102,24.1,16.0,8.1,0,0.07,0,Tidak,5,1
+RSK-1103,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1103,11.8,16.9,-5.1,5,0.16,0,Tidak,3,2
+RSK-1104,Surabaya Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1104,12.5,7.3,5.2,0,0.05,0,Tidak,4,1
+RSK-1105,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1105,17.3,13.6,3.7,5,0.36,0,Tidak,4,4
+RSK-1106,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1106,19.8,15.9,3.9,1,0.22,0,Tidak,4,2
+RSK-1107,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1107,11.8,9.6,2.2,0,0.07,0,Tidak,3,1
+RSK-1108,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1108,25.0,12.0,13.2,7,0.02,0,Tidak,5,1
+RSK-1109,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1109,8.2,12.6,-4.4,0,0.17,0,Tidak,3,3
+RSK-1110,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1110,15.7,17.2,-1.5,0,0.19,0,Tidak,4,2
+RSK-1111,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1111,10.1,10.2,-0.1,7,0.05,0,Tidak,3,1
+RSK-1112,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1112,10.4,14.7,-4.3,3,0.01,0,Tidak,4,1
+RSK-1113,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1113,10.9,5.8,5.1,1,0.02,0,Tidak,3,1
+RSK-1114,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1114,16.6,11.8,4.8,9,0.32,0,Tidak,4,3
+RSK-1115,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1115,17.2,9.8,7.4,7,0.07,0,Tidak,4,1
+RSK-1116,Operations Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1116,9.7,6.4,3.3,1,0.24,0,Tidak,2,2
+RSK-1117,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1117,1.0,3.2,-5.4,1,0.08,0,Tidak,1,2
+RSK-1118,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1118,20.3,11.9,8.4,3,0.22,0,Tidak,5,2
+RSK-1119,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1119,13.5,15.1,-1.6,6,0.28,0,Tidak,3,4
+RSK-1120,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1120,15.4,15.1,0.3,1,0.06,0,Tidak,5,1
+RSK-1121,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1121,14.9,8.8,6.1,1,0.82,1,Ya (Anomali),3,5
+RSK-1122,Finance Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1122,5.0,5.7,-0.7,0,0.03,0,Tidak,1,1
+RSK-1123,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1123,14.8,17.1,-2.3,1,0.12,0,Tidak,4,1
+RSK-1124,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1124,7.4,8.7,-1.3,0,0.16,0,Tidak,2,3
+RSK-1125,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1125,10.7,8.2,2.5,2,0.03,0,Tidak,3,1
+RSK-1126,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1126,16.0,12.2,3.8,0,0.01,0,Tidak,4,2
+RSK-1127,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1127,12.4,9.6,2.8,0,0.02,0,Tidak,3,1
+RSK-1128,Surabaya Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1128,8.9,8.2,0.7,0,0.02,0,Tidak,3,1
+RSK-1129,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1129,12.3,7.9,4.4,0,0.15,0,Tidak,3,3
+RSK-1130,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1130,9.3,8.9,0.4,5,0.53,0,Tidak,3,5
+RSK-1131,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1131,20.1,13.3,6.8,2,0.1,0,Tidak,5,1
+RSK-1132,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1132,1.0,3.2,-3.6,5,0.24,0,Tidak,2,2
+RSK-1133,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1133,14.1,6.0,8.1,0,0.02,1,Ya (Anomali),3,4
+RSK-1134,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1134,1.0,6.8,-6.4,0,0.07,0,Tidak,1,2
+RSK-1135,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1135,17.5,18.0,-0.5,0,0.03,0,Tidak,4,1
+RSK-1136,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1136,14.6,16.3,-1.7,2,0.17,0,Tidak,3,2
+RSK-1137,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1137,6.9,9.3,-2.4,4,0.48,0,Tidak,2,4
+RSK-1138,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1138,10.4,13.5,-3.1,0,0.06,0,Tidak,3,1
+RSK-1139,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1139,4.9,6.5,-1.6,4,0.06,0,Tidak,1,1
+RSK-1140,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1140,21.4,17.1,4.3,2,0.09,0,Tidak,5,2
+RSK-1141,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1141,11.0,16.9,-5.9,4,0.02,0,Tidak,4,1
+RSK-1142,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1142,14.4,5.4,9.0,2,0.21,0,Tidak,3,3
+RSK-1143,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1143,16.9,16.9,0.0,0,0.37,0,Tidak,4,3
+RSK-1144,Finance Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1144,11.1,9.2,1.9,5,0.01,0,Tidak,3,1
+RSK-1145,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1145,5.9,10.4,-4.5,0,0.07,0,Tidak,2,1
+RSK-1146,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1146,8.0,13.4,-5.4,0,0.31,0,Tidak,3,3
+RSK-1147,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1147,3.1,10.2,-7.1,1,0.03,0,Tidak,2,2
+RSK-1148,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1148,16.2,11.6,4.6,0,0.17,0,Tidak,4,3
+RSK-1149,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1149,17.7,9.7,8.0,0,0.03,1,Ya (Anomali),4,4
+RSK-1150,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1150,1.0,4.0,-5.5,10,0.2,0,Tidak,1,2
+RSK-1151,Jakarta Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1151,11.9,11.3,0.6,5,0.16,0,Tidak,4,2
+RSK-1152,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1152,1.0,3.7,-2.7,3,0.46,0,Tidak,1,4
+RSK-1153,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1153,7.0,4.5,2.5,1,0.12,0,Tidak,2,2
+RSK-1154,Surabaya Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1154,10.6,13.3,-2.7,1,0.09,0,Tidak,3,1
+RSK-1155,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1155,10.5,10.0,0.5,0,0.11,0,Tidak,3,1
+RSK-1156,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1156,16.9,11.1,5.8,0,0.14,0,Tidak,5,2
+RSK-1157,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1157,1.3,5.5,-4.2,2,0.5,0,Tidak,2,4
+RSK-1158,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1158,12.1,13.3,-1.2,5,0.01,0,Tidak,3,2
+RSK-1159,IT Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1159,8.5,4.1,4.4,0,0.13,0,Tidak,2,3
+RSK-1160,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1160,2.9,6.8,-3.9,0,0.11,0,Tidak,2,2
+RSK-1161,Medan Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1161,21.4,16.5,4.9,3,0.52,0,Tidak,5,5
+RSK-1162,Medan Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1162,8.1,3.4,4.7,3,0.23,0,Tidak,2,2
+RSK-1163,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1163,15.0,14.2,0.8,2,0.31,0,Tidak,3,3
+RSK-1164,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1164,11.8,5.4,6.4,0,0.01,0,Tidak,4,2
+RSK-1165,Bandung Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1165,23.4,15.5,7.9,5,0.29,0,Tidak,5,3
+RSK-1166,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1166,11.1,12.1,-1.0,1,0.21,0,Tidak,3,3
+RSK-1167,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1167,2.7,3.5,-0.8,0,0.1,0,Tidak,1,1
+RSK-1168,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1168,6.7,3.1,3.6,1,0.06,0,Tidak,2,1
+RSK-1169,Surabaya Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1169,9.6,11.6,-2.0,8,0.07,0,Tidak,3,1
+RSK-1170,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1170,13.2,14.9,-1.7,3,0.16,0,Tidak,3,2
+RSK-1171,Jakarta Branch,Operasional,Evaluasi Lonjakan Skor Risiko #1171,21.5,13.7,7.8,1,0.02,1,Ya (Anomali),5,4
+RSK-1172,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1172,4.6,7.4,-2.8,6,0.04,0,Tidak,2,2
+RSK-1173,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1173,11.3,13.9,-2.6,1,0.16,0,Tidak,3,2
+RSK-1174,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1174,8.7,7.2,1.5,6,0.05,0,Tidak,2,1
+RSK-1175,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1175,7.8,10.4,-2.6,5,0.23,0,Tidak,2,2
+RSK-1176,Finance Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1176,3.4,6.3,-2.9,1,0.2,0,Tidak,1,2
+RSK-1177,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1177,1.0,4.7,-6.0,1,0.11,0,Tidak,1,1
+RSK-1178,IT Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1178,16.1,17.4,-1.3,5,0.23,0,Tidak,4,3
+RSK-1179,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1179,15.3,12.7,2.6,1,0.03,0,Tidak,5,1
+RSK-1180,Bandung Branch,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1180,9.6,6.4,3.2,1,0.25,0,Tidak,2,2
+RSK-1181,Bandung Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1181,2.1,4.8,-2.7,8,0.03,0,Tidak,2,1
+RSK-1182,Finance Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1182,4.7,6.9,-2.2,9,0.17,0,Tidak,1,2
+RSK-1183,Surabaya Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1183,12.2,8.6,3.6,5,0.18,0,Tidak,3,2
+RSK-1184,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1184,23.4,16.0,7.4,1,0.14,1,Ya (Anomali),5,4
+RSK-1185,Operations Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1185,10.8,13.2,-2.4,1,0.12,0,Tidak,3,1
+RSK-1186,Medan Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1186,13.6,8.4,5.2,2,0.32,0,Tidak,3,4
+RSK-1187,Finance Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1187,11.3,7.9,3.4,2,0.17,0,Tidak,4,3
+RSK-1188,IT Dept,Finansial,Evaluasi Lonjakan Skor Risiko #1188,6.5,6.6,-0.1,7,0.07,0,Tidak,2,1
+RSK-1189,Medan Branch,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1189,2.9,4.7,-1.8,4,0.23,0,Tidak,1,2
+RSK-1190,IT Dept,Keamanan TI,Evaluasi Lonjakan Skor Risiko #1190,14.1,15.9,-1.8,0,0.04,0,Tidak,3,2
+RSK-1191,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1191,14.9,10.1,4.8,2,0.06,0,Tidak,3,1
+RSK-1192,Jakarta Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1192,14.2,17.2,-3.0,0,0.23,0,Tidak,3,3
+RSK-1193,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1193,16.7,14.7,2.0,0,0.52,0,Tidak,4,5
+RSK-1194,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1194,13.0,13.4,-0.4,0,0.36,0,Tidak,4,3
+RSK-1195,Operations Dept,Reputasi,Evaluasi Lonjakan Skor Risiko #1195,7.0,8.2,-1.2,1,0.05,0,Tidak,3,2
+RSK-1196,Bandung Branch,Finansial,Evaluasi Lonjakan Skor Risiko #1196,8.5,10.1,-1.6,8,0.28,0,Tidak,3,4
+RSK-1197,IT Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1197,12.0,6.6,5.4,6,0.12,0,Tidak,3,1
+RSK-1198,Medan Branch,Reputasi,Evaluasi Lonjakan Skor Risiko #1198,22.2,15.0,7.2,2,0.09,0,Tidak,5,2
+RSK-1199,Operations Dept,Legal & Kepatuhan,Evaluasi Lonjakan Skor Risiko #1199,4.1,10.0,-5.9,5,0.11,0,Tidak,1,1
+RSK-1200,Operations Dept,Operasional,Evaluasi Lonjakan Skor Risiko #1200,17.1,14.8,2.3,3,0.18,0,Tidak,4,3

@@ -35,10 +35,14 @@ func (c *AnalyticsController) GetPredictiveTrends(ctx *gin.Context) {
 	})
 }
 
-// GetRiskScore handles GET /api/analytics/risk-score
+// GetRiskScore handles POST & GET /api/analytics/risk-score
 func (c *AnalyticsController) GetRiskScore(ctx *gin.Context) {
-	// Dummy input values for now, normally coming from query params
-	res, err := c.service.GetRiskScore(0.5, 0.5, 0.5)
+	var req services.DepartmentRiskRequest
+	if ctx.Request.Method == http.MethodPost {
+		_ = ctx.ShouldBindJSON(&req)
+	}
+
+	res, err := c.service.GetRiskScore(req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -49,10 +53,26 @@ func (c *AnalyticsController) GetRiskScore(ctx *gin.Context) {
 	})
 }
 
-// GetAnomaly handles GET /api/analytics/anomaly
+func (c *AnalyticsController) GetRiskScoreBatch(ctx *gin.Context) {
+	res, err := c.service.GetRiskScoreBatch()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+// GetAnomaly handles POST & GET /api/analytics/anomaly
 func (c *AnalyticsController) GetAnomaly(ctx *gin.Context) {
-	// Dummy input values
-	res, err := c.service.GetAnomaly(1.0, -1.0)
+	var req services.AnomalyRequest
+	if ctx.Request.Method == http.MethodPost {
+		_ = ctx.ShouldBindJSON(&req)
+	}
+
+	res, err := c.service.GetAnomaly(req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -63,13 +83,25 @@ func (c *AnalyticsController) GetAnomaly(ctx *gin.Context) {
 	})
 }
 
-// GetTextAnalysis handles POST /api/analytics/text-analysis
+func (c *AnalyticsController) GetAnomalyBatch(ctx *gin.Context) {
+	res, err := c.service.GetAnomalyBatch()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+// GetTextAnalysis handles POST & GET /api/analytics/text-analysis
 func (c *AnalyticsController) GetTextAnalysis(ctx *gin.Context) {
 	var req struct {
 		Text string `json:"text"`
 	}
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		req.Text = "Dummy finding text indicating potential fraud." // fallback
+	if ctx.Request.Method == http.MethodPost {
+		_ = ctx.ShouldBindJSON(&req)
 	}
 	res, err := c.service.GetTextAnalysis(req.Text)
 	if err != nil {
@@ -82,15 +114,49 @@ func (c *AnalyticsController) GetTextAnalysis(ctx *gin.Context) {
 	})
 }
 
-// GetPerformanceTrend handles POST /api/analytics/performance-trend
+func (c *AnalyticsController) GetTextAnalysisBatch(ctx *gin.Context) {
+	res, err := c.service.GetTextAnalysisBatch()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+// GetPerformanceTrend handles POST & GET /api/analytics/performance-trend
 func (c *AnalyticsController) GetPerformanceTrend(ctx *gin.Context) {
-	var req struct {
-		HistoricalData []float64 `json:"historical_data"`
+	var req services.PerformanceTrendRequest
+	if ctx.Request.Method == http.MethodPost {
+		_ = ctx.ShouldBindJSON(&req)
 	}
-	if err := ctx.ShouldBindJSON(&req); err != nil || len(req.HistoricalData) == 0 {
-		req.HistoricalData = []float64{0.8, 0.82, 0.85, 0.81, 0.79} // fallback
+	res, err := c.service.GetPerformanceTrend(req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
-	res, err := c.service.GetPerformanceTrend(req.HistoricalData)
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+func (c *AnalyticsController) GetPerformanceTrendBatch(ctx *gin.Context) {
+	res, err := c.service.GetPerformanceTrendBatch()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+func (c *AnalyticsController) TriggerAutoRetrain(ctx *gin.Context) {
+	res, err := c.service.TriggerAutoRetrain()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

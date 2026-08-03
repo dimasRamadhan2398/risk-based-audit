@@ -1,0 +1,1201 @@
+ID Mitigasi,Entitas Auditee,Kategori Temuan,Tingkat Keparahan Temuan,Deskripsi Rencana Aksi,overdue_days,repeated_overdue_count,mitigation_progress_pct,"is_unjustified_delay (1=Ya, 0=Tidak)",TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5)
+MIT-0001,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1,172,1,39.0,0,Tidak,5,4
+MIT-0002,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #2,126,5,52.2,0,Ya (Anomali),5,5
+MIT-0003,IT Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #3,90,4,82.6,0,Tidak,5,5
+MIT-0004,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #4,65,5,1.0,1,Ya (Anomali),5,5
+MIT-0005,IT Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #5,81,5,83.8,0,Tidak,5,5
+MIT-0006,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #6,83,5,70.4,0,Tidak,5,5
+MIT-0007,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #7,130,3,36.7,0,Ya (Anomali),5,5
+MIT-0008,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #8,57,5,94.2,0,Tidak,5,5
+MIT-0009,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #9,178,0,5.6,0,Tidak,5,4
+MIT-0010,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #10,139,0,70.1,0,Tidak,5,2
+MIT-0011,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #11,30,2,68.4,0,Tidak,2,4
+MIT-0012,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #12,174,0,90.0,0,Ya (Anomali),5,2
+MIT-0013,Jakarta Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #13,122,1,78.3,0,Tidak,4,3
+MIT-0014,IT Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #14,143,1,54.7,0,Tidak,5,3
+MIT-0015,Medan Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #15,60,5,22.1,0,Tidak,4,5
+MIT-0016,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #16,87,3,48.4,0,Tidak,4,5
+MIT-0017,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #17,140,5,9.8,0,Ya (Anomali),5,5
+MIT-0018,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #18,91,0,46.4,0,Tidak,3,2
+MIT-0019,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #19,6,0,18.4,0,Tidak,1,4
+MIT-0020,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #20,5,0,88.8,0,Tidak,1,2
+MIT-0021,Jakarta Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #21,174,1,38.6,0,Tidak,5,4
+MIT-0022,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #22,166,1,14.2,1,Ya (Anomali),5,5
+MIT-0023,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #23,163,4,2.3,1,Ya (Anomali),5,5
+MIT-0024,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #24,64,2,31.4,0,Tidak,4,5
+MIT-0025,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #25,134,0,5.5,1,Ya (Anomali),4,5
+MIT-0026,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #26,14,4,43.6,0,Tidak,3,5
+MIT-0027,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #27,52,3,4.5,0,Ya (Anomali),3,5
+MIT-0028,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #28,178,0,79.2,0,Tidak,5,2
+MIT-0029,Jakarta Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #29,17,5,44.2,0,Tidak,4,5
+MIT-0030,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #30,137,0,75.3,0,Tidak,4,1
+MIT-0031,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #31,168,4,34.6,0,Ya (Anomali),5,5
+MIT-0032,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #32,36,2,72.9,0,Tidak,3,5
+MIT-0033,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #33,74,3,38.5,0,Tidak,4,5
+MIT-0034,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #34,91,3,63.8,0,Ya (Anomali),4,5
+MIT-0035,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #35,49,3,67.8,0,Tidak,3,5
+MIT-0036,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #36,31,1,57.2,0,Tidak,3,3
+MIT-0037,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #37,78,2,5.2,0,Ya (Anomali),3,5
+MIT-0038,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #38,108,0,34.9,0,Tidak,3,4
+MIT-0039,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #39,93,2,73.8,0,Ya (Anomali),5,5
+MIT-0040,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #40,103,2,87.8,0,Ya (Anomali),4,3
+MIT-0041,Bandung Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #41,175,2,62.7,0,Ya (Anomali),5,4
+MIT-0042,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #42,76,2,91.9,0,Ya (Anomali),4,4
+MIT-0043,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #43,97,2,26.1,0,Ya (Anomali),4,5
+MIT-0044,Surabaya Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #44,122,1,13.0,1,Ya (Anomali),4,5
+MIT-0045,Jakarta Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #45,94,4,31.2,0,Tidak,5,5
+MIT-0046,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #46,22,2,64.4,0,Tidak,2,4
+MIT-0047,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #47,30,0,37.1,0,Tidak,1,3
+MIT-0048,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #48,160,2,62.6,0,Tidak,5,4
+MIT-0049,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #49,166,3,66.7,0,Ya (Anomali),5,5
+MIT-0050,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #50,130,5,58.3,0,Ya (Anomali),5,5
+MIT-0051,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #51,121,3,74.0,0,Ya (Anomali),5,5
+MIT-0052,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #52,64,3,22.1,1,Ya (Anomali),4,5
+MIT-0053,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #53,178,3,10.4,1,Ya (Anomali),5,5
+MIT-0054,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #54,156,2,4.6,1,Ya (Anomali),5,5
+MIT-0055,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #55,3,3,92.7,0,Tidak,2,4
+MIT-0056,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #56,148,1,68.2,0,Tidak,5,4
+MIT-0057,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #57,99,2,22.7,1,Ya (Anomali),4,5
+MIT-0058,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #58,19,4,45.3,0,Tidak,4,5
+MIT-0059,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #59,134,3,5.9,1,Ya (Anomali),5,5
+MIT-0060,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #60,45,2,63.1,0,Tidak,4,4
+MIT-0061,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #61,70,1,91.9,0,Tidak,3,3
+MIT-0062,Surabaya Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #62,78,0,67.1,0,Tidak,2,2
+MIT-0063,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #63,14,2,59.1,0,Tidak,2,5
+MIT-0064,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #64,125,4,87.6,0,Ya (Anomali),5,5
+MIT-0065,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #65,81,0,48.7,0,Tidak,3,2
+MIT-0066,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #66,78,3,70.8,0,Tidak,4,5
+MIT-0067,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #67,31,2,88.6,0,Tidak,2,3
+MIT-0068,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #68,45,3,61.5,0,Tidak,3,5
+MIT-0069,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #69,69,0,50.0,0,Tidak,2,2
+MIT-0070,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #70,80,1,55.1,0,Tidak,3,3
+MIT-0071,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #71,20,4,73.1,0,Ya (Anomali),3,5
+MIT-0072,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #72,176,2,4.9,1,Ya (Anomali),5,5
+MIT-0073,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #73,150,0,31.2,0,Tidak,5,3
+MIT-0074,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #74,168,5,4.9,1,Ya (Anomali),5,5
+MIT-0075,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #75,178,0,74.7,0,Tidak,5,2
+MIT-0076,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #76,178,2,86.9,0,Ya (Anomali),5,3
+MIT-0077,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #77,9,2,38.0,0,Tidak,3,5
+MIT-0078,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #78,102,5,23.9,1,Ya (Anomali),5,5
+MIT-0079,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #79,79,3,3.9,1,Ya (Anomali),4,5
+MIT-0080,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #80,46,2,0.6,1,Ya (Anomali),3,5
+MIT-0081,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #81,78,2,51.8,0,Ya (Anomali),3,5
+MIT-0082,Jakarta Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #82,137,0,31.7,0,Tidak,4,3
+MIT-0083,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #83,161,3,91.6,0,Ya (Anomali),5,4
+MIT-0084,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #84,57,3,77.7,0,Tidak,3,5
+MIT-0085,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #85,159,4,42.8,0,Ya (Anomali),5,5
+MIT-0086,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #86,39,5,18.9,0,Tidak,4,5
+MIT-0087,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #87,97,4,36.4,0,Ya (Anomali),5,5
+MIT-0088,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #88,113,4,6.8,1,Ya (Anomali),5,5
+MIT-0089,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #89,82,4,59.2,0,Tidak,5,5
+MIT-0090,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #90,116,3,82.2,0,Ya (Anomali),5,5
+MIT-0091,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #91,76,0,41.4,0,Tidak,3,2
+MIT-0092,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #92,64,4,45.6,0,Tidak,4,5
+MIT-0093,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #93,118,4,89.1,0,Ya (Anomali),5,5
+MIT-0094,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #94,27,5,29.4,0,Tidak,5,5
+MIT-0095,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #95,105,3,9.7,0,Ya (Anomali),5,5
+MIT-0096,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #96,9,1,6.6,0,Tidak,2,5
+MIT-0097,Jakarta Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #97,177,0,73.0,0,Tidak,5,1
+MIT-0098,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #98,63,0,20.7,1,Tidak,3,5
+MIT-0099,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #99,113,0,94.9,0,Tidak,3,1
+MIT-0100,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #100,150,1,91.5,0,Tidak,5,2
+MIT-0101,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #101,2,4,81.1,0,Tidak,4,5
+MIT-0102,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #102,167,5,47.9,0,Ya (Anomali),5,5
+MIT-0103,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #103,112,4,48.2,0,Ya (Anomali),5,5
+MIT-0104,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #104,151,0,88.6,0,Tidak,4,2
+MIT-0105,Surabaya Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #105,62,5,28.2,0,Tidak,5,5
+MIT-0106,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #106,13,5,46.2,0,Tidak,4,5
+MIT-0107,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #107,121,1,38.2,0,Tidak,4,4
+MIT-0108,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #108,109,1,34.1,0,Tidak,4,4
+MIT-0109,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #109,47,3,84.7,0,Tidak,4,5
+MIT-0110,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #110,148,3,68.8,0,Ya (Anomali),5,5
+MIT-0111,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #111,13,4,89.7,0,Tidak,4,5
+MIT-0112,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #112,155,4,6.8,1,Ya (Anomali),5,5
+MIT-0113,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #113,106,4,78.6,0,Tidak,5,5
+MIT-0114,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #114,159,0,31.2,0,Tidak,4,3
+MIT-0115,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #115,90,0,56.1,0,Tidak,3,3
+MIT-0116,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #116,22,3,66.8,0,Tidak,3,5
+MIT-0117,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #117,32,4,13.4,0,Ya (Anomali),3,5
+MIT-0118,IT Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #118,64,4,71.1,0,Tidak,5,5
+MIT-0119,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #119,22,3,32.4,0,Tidak,3,5
+MIT-0120,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #120,47,5,26.5,0,Tidak,4,5
+MIT-0121,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #121,1,0,44.8,0,Tidak,1,2
+MIT-0122,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #122,171,0,74.4,0,Tidak,5,2
+MIT-0123,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #123,87,3,38.9,0,Tidak,4,5
+MIT-0124,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #124,38,5,51.8,0,Tidak,5,5
+MIT-0125,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #125,169,1,22.7,1,Ya (Anomali),5,5
+MIT-0126,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #126,142,2,30.2,0,Ya (Anomali),5,5
+MIT-0127,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #127,107,2,89.4,0,Tidak,4,3
+MIT-0128,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #128,3,3,87.3,0,Tidak,2,5
+MIT-0129,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #129,65,1,84.3,0,Tidak,3,2
+MIT-0130,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #130,44,3,36.9,0,Tidak,3,5
+MIT-0131,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #131,16,4,2.8,0,Tidak,3,5
+MIT-0132,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #132,136,1,87.3,0,Tidak,4,2
+MIT-0133,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #133,85,4,38.1,0,Tidak,5,5
+MIT-0134,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #134,62,3,76.3,0,Tidak,4,5
+MIT-0135,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #135,2,5,49.0,0,Tidak,3,5
+MIT-0136,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #136,76,5,84.9,0,Tidak,5,5
+MIT-0137,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #137,86,5,11.1,1,Ya (Anomali),5,5
+MIT-0138,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #138,56,5,78.8,0,Tidak,4,5
+MIT-0139,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #139,145,0,82.4,0,Tidak,5,1
+MIT-0140,Finance Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #140,7,4,27.6,0,Tidak,4,5
+MIT-0141,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #141,85,0,59.4,0,Tidak,3,2
+MIT-0142,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #142,34,0,5.2,0,Tidak,1,4
+MIT-0143,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #143,60,3,29.8,0,Tidak,3,5
+MIT-0144,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #144,22,3,35.4,0,Tidak,4,5
+MIT-0145,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #145,150,2,9.0,1,Ya (Anomali),5,5
+MIT-0146,Jakarta Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #146,149,5,41.2,0,Ya (Anomali),5,5
+MIT-0147,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #147,128,4,61.6,0,Tidak,5,5
+MIT-0148,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #148,13,0,61.7,0,Tidak,1,2
+MIT-0149,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #149,127,5,44.6,0,Tidak,5,5
+MIT-0150,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #150,44,5,11.7,0,Tidak,5,5
+MIT-0151,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #151,159,5,7.5,0,Ya (Anomali),5,5
+MIT-0152,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #152,25,4,78.1,0,Tidak,3,5
+MIT-0153,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #153,96,4,53.2,0,Ya (Anomali),5,5
+MIT-0154,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #154,55,3,71.2,0,Tidak,4,5
+MIT-0155,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #155,29,4,3.1,0,Ya (Anomali),4,5
+MIT-0156,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #156,35,2,41.9,0,Tidak,2,5
+MIT-0157,Surabaya Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #157,76,1,85.9,0,Tidak,4,3
+MIT-0158,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #158,80,0,67.3,0,Tidak,2,2
+MIT-0159,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #159,73,1,72.8,0,Tidak,3,3
+MIT-0160,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #160,76,1,44.8,0,Tidak,3,4
+MIT-0161,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #161,90,0,70.8,0,Tidak,3,2
+MIT-0162,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #162,143,1,63.9,0,Tidak,5,3
+MIT-0163,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #163,68,4,12.7,1,Ya (Anomali),4,5
+MIT-0164,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #164,49,3,8.7,1,Ya (Anomali),3,5
+MIT-0165,Jakarta Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #165,176,2,16.8,1,Ya (Anomali),5,5
+MIT-0166,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #166,44,2,7.6,0,Tidak,3,5
+MIT-0167,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #167,38,4,54.9,0,Tidak,3,5
+MIT-0168,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #168,112,3,91.7,0,Ya (Anomali),5,4
+MIT-0169,IT Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #169,12,3,73.5,0,Tidak,2,5
+MIT-0170,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #170,60,1,70.8,0,Tidak,2,3
+MIT-0171,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #171,166,2,78.9,0,Ya (Anomali),5,4
+MIT-0172,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #172,94,2,85.6,0,Ya (Anomali),4,3
+MIT-0173,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #173,15,2,28.9,0,Tidak,3,5
+MIT-0174,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #174,36,0,8.6,0,Tidak,2,4
+MIT-0175,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #175,69,2,71.4,0,Tidak,3,4
+MIT-0176,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #176,90,0,40.5,0,Tidak,3,3
+MIT-0177,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #177,171,4,89.8,0,Ya (Anomali),5,5
+MIT-0178,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #178,19,0,88.7,0,Tidak,1,1
+MIT-0179,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #179,78,5,92.5,0,Tidak,5,5
+MIT-0180,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #180,91,5,73.6,0,Ya (Anomali),5,5
+MIT-0181,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #181,120,0,58.2,0,Tidak,3,3
+MIT-0182,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #182,166,3,72.9,0,Ya (Anomali),5,5
+MIT-0183,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #183,26,1,26.1,0,Tidak,2,4
+MIT-0184,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #184,106,3,0.2,1,Ya (Anomali),5,5
+MIT-0185,Finance Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #185,106,5,43.8,0,Ya (Anomali),5,5
+MIT-0186,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #186,177,2,60.8,0,Ya (Anomali),5,5
+MIT-0187,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #187,61,3,79.7,0,Tidak,4,5
+MIT-0188,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #188,66,1,4.8,1,Ya (Anomali),3,5
+MIT-0189,IT Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #189,140,0,4.3,1,Ya (Anomali),4,5
+MIT-0190,IT Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #190,104,0,89.0,0,Tidak,4,2
+MIT-0191,Finance Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #191,36,5,19.1,0,Tidak,4,5
+MIT-0192,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #192,68,4,65.4,0,Tidak,4,5
+MIT-0193,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #193,159,4,14.0,1,Ya (Anomali),5,5
+MIT-0194,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #194,41,1,85.6,0,Tidak,2,2
+MIT-0195,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #195,156,1,71.1,0,Tidak,5,4
+MIT-0196,Surabaya Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #196,175,3,5.2,1,Ya (Anomali),5,5
+MIT-0197,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #197,29,1,25.9,0,Tidak,2,4
+MIT-0198,Jakarta Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #198,15,3,92.1,0,Tidak,2,5
+MIT-0199,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #199,85,4,80.4,0,Tidak,5,5
+MIT-0200,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #200,142,3,4.5,0,Ya (Anomali),5,5
+MIT-0201,Jakarta Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #201,144,5,29.2,0,Ya (Anomali),5,5
+MIT-0202,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #202,28,3,31.2,0,Tidak,4,5
+MIT-0203,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #203,36,4,45.6,0,Tidak,4,5
+MIT-0204,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #204,138,2,26.2,0,Ya (Anomali),5,5
+MIT-0205,Jakarta Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #205,175,1,78.8,0,Tidak,5,2
+MIT-0206,Jakarta Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #206,137,0,44.7,0,Tidak,4,3
+MIT-0207,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #207,14,4,1.2,0,Tidak,3,5
+MIT-0208,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #208,126,3,37.0,0,Ya (Anomali),5,5
+MIT-0209,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #209,83,0,56.3,0,Tidak,3,3
+MIT-0210,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #210,57,1,62.6,0,Tidak,2,3
+MIT-0211,Operations Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #211,77,0,9.2,1,Ya (Anomali),2,5
+MIT-0212,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #212,123,0,47.2,0,Tidak,4,3
+MIT-0213,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #213,179,5,40.9,0,Ya (Anomali),5,5
+MIT-0214,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #214,101,1,16.7,1,Ya (Anomali),5,5
+MIT-0215,IT Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #215,39,3,17.1,0,Tidak,4,5
+MIT-0216,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #216,52,3,92.4,0,Ya (Anomali),4,5
+MIT-0217,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #217,63,2,39.3,0,Tidak,3,5
+MIT-0218,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #218,61,3,60.8,0,Tidak,5,5
+MIT-0219,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #219,67,2,19.6,1,Ya (Anomali),3,5
+MIT-0220,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #220,71,4,90.9,0,Tidak,4,5
+MIT-0221,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #221,28,1,89.9,0,Tidak,2,2
+MIT-0222,IT Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #222,14,2,75.4,0,Tidak,3,5
+MIT-0223,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #223,165,1,41.4,0,Tidak,5,4
+MIT-0224,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #224,112,0,39.4,0,Tidak,3,4
+MIT-0225,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #225,22,1,84.5,0,Tidak,2,3
+MIT-0226,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #226,1,1,82.5,0,Tidak,1,2
+MIT-0227,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #227,54,1,87.8,0,Tidak,2,2
+MIT-0228,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #228,174,0,26.0,0,Tidak,5,3
+MIT-0229,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #229,112,3,62.9,0,Ya (Anomali),5,5
+MIT-0230,Bandung Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #230,85,2,63.8,0,Tidak,4,4
+MIT-0231,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #231,68,4,34.2,0,Tidak,4,5
+MIT-0232,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #232,127,1,9.0,1,Ya (Anomali),4,5
+MIT-0233,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #233,135,1,9.9,1,Ya (Anomali),5,5
+MIT-0234,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #234,101,2,80.1,0,Ya (Anomali),4,5
+MIT-0235,Jakarta Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #235,71,2,32.5,0,Tidak,3,5
+MIT-0236,Finance Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #236,66,5,84.6,0,Tidak,5,5
+MIT-0237,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #237,129,0,27.2,0,Tidak,5,3
+MIT-0238,Finance Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #238,131,2,19.3,1,Ya (Anomali),5,5
+MIT-0239,IT Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #239,1,0,37.3,0,Tidak,1,4
+MIT-0240,Bandung Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #240,35,3,68.8,0,Tidak,4,5
+MIT-0241,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #241,16,0,58.9,0,Tidak,1,3
+MIT-0242,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #242,136,1,14.3,1,Ya (Anomali),4,5
+MIT-0243,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #243,149,4,93.2,0,Ya (Anomali),5,5
+MIT-0244,Finance Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #244,5,1,92.9,0,Tidak,2,3
+MIT-0245,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #245,56,0,25.8,0,Tidak,2,3
+MIT-0246,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #246,31,5,50.4,0,Tidak,5,5
+MIT-0247,IT Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #247,90,1,21.6,1,Tidak,3,5
+MIT-0248,Medan Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #248,1,5,94.3,0,Tidak,3,5
+MIT-0249,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #249,141,3,33.1,0,Tidak,5,5
+MIT-0250,Jakarta Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #250,32,5,85.7,0,Tidak,4,5
+MIT-0251,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #251,84,5,40.8,0,Tidak,5,5
+MIT-0252,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #252,51,3,68.0,0,Tidak,4,5
+MIT-0253,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #253,92,5,86.0,0,Ya (Anomali),5,5
+MIT-0254,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #254,135,4,59.0,0,Ya (Anomali),5,5
+MIT-0255,Bandung Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #255,124,4,21.9,1,Ya (Anomali),5,5
+MIT-0256,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #256,58,3,75.8,0,Ya (Anomali),3,5
+MIT-0257,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #257,32,3,86.3,0,Tidak,3,5
+MIT-0258,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #258,18,5,8.5,0,Ya (Anomali),3,5
+MIT-0259,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #259,174,1,35.5,0,Tidak,5,4
+MIT-0260,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #260,109,3,94.3,0,Ya (Anomali),5,4
+MIT-0261,Bandung Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #261,8,0,61.9,0,Tidak,1,2
+MIT-0262,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #262,84,1,16.5,0,Tidak,4,5
+MIT-0263,Medan Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #263,26,2,80.1,0,Tidak,2,5
+MIT-0264,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #264,18,4,44.8,0,Tidak,3,5
+MIT-0265,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #265,46,4,81.9,0,Tidak,4,5
+MIT-0266,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #266,125,4,72.5,0,Tidak,5,5
+MIT-0267,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #267,130,1,68.6,0,Tidak,5,3
+MIT-0268,IT Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #268,175,3,25.7,0,Tidak,5,5
+MIT-0269,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #269,49,0,53.1,0,Tidak,3,2
+MIT-0270,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #270,88,2,81.3,0,Tidak,4,4
+MIT-0271,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #271,8,4,81.2,0,Ya (Anomali),3,5
+MIT-0272,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #272,22,1,16.2,0,Tidak,3,5
+MIT-0273,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #273,98,0,38.1,0,Tidak,4,3
+MIT-0274,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #274,99,3,43.7,0,Tidak,4,5
+MIT-0275,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #275,153,2,45.7,0,Ya (Anomali),5,5
+MIT-0276,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #276,78,4,43.5,0,Tidak,5,5
+MIT-0277,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #277,172,3,9.1,1,Ya (Anomali),5,5
+MIT-0278,Surabaya Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #278,157,1,85.8,0,Tidak,5,2
+MIT-0279,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #279,7,4,74.2,0,Tidak,3,5
+MIT-0280,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #280,128,1,41.0,0,Tidak,4,4
+MIT-0281,Medan Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #281,25,3,90.4,0,Tidak,4,4
+MIT-0282,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #282,8,2,51.4,0,Tidak,3,5
+MIT-0283,IT Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #283,131,4,5.5,0,Ya (Anomali),5,5
+MIT-0284,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #284,31,4,42.1,0,Tidak,3,5
+MIT-0285,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #285,68,5,19.6,1,Ya (Anomali),5,5
+MIT-0286,IT Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #286,32,0,94.8,0,Tidak,2,1
+MIT-0287,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #287,135,4,11.8,1,Ya (Anomali),5,5
+MIT-0288,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #288,142,0,29.1,0,Tidak,4,4
+MIT-0289,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #289,162,3,64.4,0,Ya (Anomali),5,5
+MIT-0290,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #290,12,5,21.2,0,Tidak,4,5
+MIT-0291,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #291,37,3,10.7,0,Tidak,3,5
+MIT-0292,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #292,27,2,36.7,0,Tidak,2,5
+MIT-0293,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #293,85,3,85.1,0,Ya (Anomali),4,5
+MIT-0294,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #294,121,2,54.8,0,Ya (Anomali),5,5
+MIT-0295,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #295,77,1,70.8,0,Tidak,3,4
+MIT-0296,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #296,89,5,27.1,0,Tidak,5,5
+MIT-0297,Medan Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #297,34,0,84.8,0,Tidak,1,1
+MIT-0298,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #298,42,1,53.3,0,Tidak,2,3
+MIT-0299,Jakarta Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #299,64,2,33.6,0,Tidak,3,5
+MIT-0300,Bandung Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #300,48,4,62.2,0,Tidak,4,5
+MIT-0301,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #301,17,0,38.7,0,Tidak,1,3
+MIT-0302,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #302,149,1,26.3,0,Tidak,5,4
+MIT-0303,Bandung Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #303,15,1,72.8,0,Tidak,1,3
+MIT-0304,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #304,26,1,10.2,0,Tidak,2,5
+MIT-0305,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #305,161,3,63.1,0,Ya (Anomali),5,5
+MIT-0306,Jakarta Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #306,99,4,49.9,0,Ya (Anomali),5,5
+MIT-0307,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #307,90,1,48.8,0,Tidak,3,4
+MIT-0308,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #308,140,1,32.5,0,Tidak,4,5
+MIT-0309,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #309,22,1,26.1,0,Tidak,2,5
+MIT-0310,Bandung Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #310,98,5,65.6,0,Ya (Anomali),5,5
+MIT-0311,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #311,97,4,77.0,0,Ya (Anomali),5,5
+MIT-0312,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #312,74,1,36.7,0,Tidak,3,5
+MIT-0313,IT Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #313,173,0,13.7,0,Tidak,5,3
+MIT-0314,Surabaya Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #314,135,5,2.0,1,Ya (Anomali),5,5
+MIT-0315,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #315,28,3,55.1,0,Tidak,4,5
+MIT-0316,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #316,40,3,23.8,0,Tidak,4,5
+MIT-0317,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #317,94,1,39.2,0,Tidak,3,5
+MIT-0318,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #318,50,4,52.9,0,Tidak,4,5
+MIT-0319,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #319,114,4,68.7,0,Ya (Anomali),5,5
+MIT-0320,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #320,109,2,40.2,0,Ya (Anomali),4,5
+MIT-0321,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #321,94,2,66.7,0,Ya (Anomali),4,5
+MIT-0322,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #322,10,0,86.8,0,Tidak,1,1
+MIT-0323,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #323,25,0,26.3,0,Tidak,1,4
+MIT-0324,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #324,140,5,66.2,0,Ya (Anomali),5,5
+MIT-0325,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #325,119,4,28.9,0,Ya (Anomali),5,5
+MIT-0326,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #326,1,0,6.5,0,Tidak,1,4
+MIT-0327,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #327,73,2,7.9,1,Ya (Anomali),3,5
+MIT-0328,Bandung Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #328,38,4,66.7,0,Tidak,3,5
+MIT-0329,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #329,82,2,14.2,1,Ya (Anomali),4,5
+MIT-0330,Bandung Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #330,165,1,94.7,0,Tidak,5,2
+MIT-0331,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #331,113,5,51.6,0,Ya (Anomali),5,5
+MIT-0332,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #332,140,1,29.7,0,Tidak,4,4
+MIT-0333,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #333,165,0,57.5,0,Tidak,5,2
+MIT-0334,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #334,96,2,8.6,0,Ya (Anomali),4,5
+MIT-0335,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #335,12,4,5.0,0,Ya (Anomali),3,5
+MIT-0336,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #336,56,4,51.0,0,Tidak,5,5
+MIT-0337,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #337,101,0,17.0,1,Ya (Anomali),4,5
+MIT-0338,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #338,167,5,6.9,1,Ya (Anomali),5,5
+MIT-0339,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #339,56,2,59.7,0,Tidak,3,4
+MIT-0340,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #340,107,0,42.6,0,Tidak,3,2
+MIT-0341,Finance Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #341,160,4,47.2,0,Ya (Anomali),5,5
+MIT-0342,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #342,33,1,72.6,0,Tidak,2,3
+MIT-0343,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #343,152,5,65.4,0,Ya (Anomali),5,5
+MIT-0344,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #344,159,2,76.5,0,Ya (Anomali),5,4
+MIT-0345,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #345,2,0,8.4,0,Tidak,1,4
+MIT-0346,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #346,52,1,7.8,1,Ya (Anomali),2,5
+MIT-0347,Jakarta Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #347,81,3,54.8,0,Tidak,4,5
+MIT-0348,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #348,129,2,87.7,0,Ya (Anomali),5,3
+MIT-0349,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #349,52,4,70.9,0,Tidak,5,5
+MIT-0350,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #350,95,4,66.6,0,Ya (Anomali),5,5
+MIT-0351,Bandung Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #351,124,3,33.6,0,Ya (Anomali),5,5
+MIT-0352,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #352,93,2,54.1,0,Ya (Anomali),4,4
+MIT-0353,Jakarta Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #353,132,0,66.1,0,Tidak,4,2
+MIT-0354,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #354,100,2,48.0,0,Ya (Anomali),4,5
+MIT-0355,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #355,8,2,21.9,0,Tidak,2,5
+MIT-0356,Bandung Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #356,100,5,64.5,0,Ya (Anomali),5,5
+MIT-0357,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #357,175,5,48.9,0,Ya (Anomali),5,5
+MIT-0358,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #358,149,3,23.7,1,Ya (Anomali),5,5
+MIT-0359,Medan Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #359,75,4,50.1,0,Tidak,4,5
+MIT-0360,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #360,140,1,32.6,0,Tidak,5,5
+MIT-0361,Jakarta Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #361,91,4,6.3,1,Ya (Anomali),5,5
+MIT-0362,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #362,34,2,44.9,0,Tidak,2,5
+MIT-0363,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #363,103,4,92.0,0,Ya (Anomali),5,5
+MIT-0364,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #364,77,3,23.7,1,Ya (Anomali),4,5
+MIT-0365,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #365,81,5,41.9,0,Tidak,5,5
+MIT-0366,Medan Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #366,68,5,78.0,0,Tidak,5,5
+MIT-0367,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #367,64,1,90.2,0,Tidak,4,3
+MIT-0368,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #368,103,1,5.3,0,Tidak,4,5
+MIT-0369,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #369,28,0,71.2,0,Tidak,1,1
+MIT-0370,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #370,41,5,30.6,0,Tidak,4,5
+MIT-0371,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #371,84,4,10.2,1,Ya (Anomali),5,5
+MIT-0372,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #372,72,5,71.8,0,Tidak,5,5
+MIT-0373,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #373,47,5,44.7,0,Ya (Anomali),4,5
+MIT-0374,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #374,15,4,19.7,0,Tidak,3,5
+MIT-0375,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #375,95,3,68.2,0,Ya (Anomali),4,5
+MIT-0376,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #376,149,4,21.0,1,Ya (Anomali),5,5
+MIT-0377,Finance Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #377,48,3,59.8,0,Tidak,4,5
+MIT-0378,Surabaya Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #378,167,0,31.8,0,Tidak,5,3
+MIT-0379,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #379,32,2,21.6,0,Tidak,2,5
+MIT-0380,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #380,6,4,3.8,0,Ya (Anomali),4,5
+MIT-0381,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #381,88,2,14.9,1,Ya (Anomali),4,5
+MIT-0382,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #382,96,0,88.8,0,Tidak,3,2
+MIT-0383,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #383,146,4,42.8,0,Tidak,5,5
+MIT-0384,Surabaya Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #384,108,4,80.3,0,Ya (Anomali),5,5
+MIT-0385,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #385,9,2,72.3,0,Tidak,2,4
+MIT-0386,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #386,141,0,65.8,0,Tidak,4,3
+MIT-0387,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #387,27,0,70.0,0,Tidak,1,1
+MIT-0388,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #388,101,2,15.9,0,Tidak,4,5
+MIT-0389,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #389,136,2,23.4,1,Ya (Anomali),5,5
+MIT-0390,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #390,66,4,74.0,0,Tidak,4,5
+MIT-0391,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #391,4,5,63.5,0,Tidak,3,5
+MIT-0392,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #392,14,0,77.1,0,Tidak,1,1
+MIT-0393,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #393,25,5,65.1,0,Tidak,4,5
+MIT-0394,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #394,169,1,74.6,0,Tidak,5,3
+MIT-0395,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #395,134,0,55.4,0,Tidak,4,2
+MIT-0396,Bandung Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #396,5,4,77.6,0,Tidak,3,5
+MIT-0397,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #397,149,2,30.7,0,Ya (Anomali),5,5
+MIT-0398,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #398,177,4,6.5,1,Ya (Anomali),5,5
+MIT-0399,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #399,151,1,19.1,0,Tidak,5,4
+MIT-0400,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #400,37,0,14.4,0,Tidak,1,3
+MIT-0401,Surabaya Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #401,83,5,44.9,0,Tidak,5,5
+MIT-0402,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #402,53,1,85.9,0,Tidak,2,2
+MIT-0403,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #403,177,5,29.5,0,Ya (Anomali),5,5
+MIT-0404,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #404,127,5,49.1,0,Ya (Anomali),5,5
+MIT-0405,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #405,138,5,77.4,0,Ya (Anomali),5,5
+MIT-0406,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #406,148,0,82.8,0,Tidak,5,1
+MIT-0407,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #407,176,4,26.4,0,Ya (Anomali),5,5
+MIT-0408,Surabaya Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #408,11,1,49.7,0,Tidak,2,4
+MIT-0409,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #409,79,4,24.4,1,Ya (Anomali),4,5
+MIT-0410,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #410,96,4,39.8,0,Ya (Anomali),5,5
+MIT-0411,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #411,139,4,37.3,0,Ya (Anomali),5,5
+MIT-0412,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #412,39,5,6.1,0,Ya (Anomali),4,5
+MIT-0413,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #413,129,1,2.6,0,Tidak,4,5
+MIT-0414,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #414,64,0,58.7,0,Tidak,2,3
+MIT-0415,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #415,47,4,16.3,1,Ya (Anomali),4,5
+MIT-0416,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #416,91,4,14.1,1,Ya (Anomali),5,5
+MIT-0417,Jakarta Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #417,136,2,34.0,0,Ya (Anomali),5,5
+MIT-0418,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #418,76,5,22.0,1,Ya (Anomali),5,5
+MIT-0419,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #419,126,5,70.8,0,Ya (Anomali),5,5
+MIT-0420,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #420,92,2,61.7,0,Tidak,5,4
+MIT-0421,Bandung Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #421,48,1,91.4,0,Tidak,2,2
+MIT-0422,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #422,106,5,38.2,0,Ya (Anomali),5,5
+MIT-0423,Surabaya Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #423,106,5,2.5,1,Ya (Anomali),5,5
+MIT-0424,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #424,126,3,80.5,0,Ya (Anomali),5,5
+MIT-0425,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #425,115,4,11.7,1,Ya (Anomali),5,5
+MIT-0426,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #426,147,1,25.5,0,Tidak,5,4
+MIT-0427,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #427,88,0,59.9,0,Tidak,3,3
+MIT-0428,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #428,66,5,43.9,0,Tidak,5,5
+MIT-0429,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #429,64,5,65.7,0,Tidak,5,5
+MIT-0430,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #430,96,1,18.4,1,Ya (Anomali),3,5
+MIT-0431,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #431,72,4,55.6,0,Tidak,5,5
+MIT-0432,Bandung Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #432,109,0,43.1,0,Tidak,4,2
+MIT-0433,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #433,125,5,55.8,0,Ya (Anomali),5,5
+MIT-0434,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #434,151,2,83.8,0,Ya (Anomali),5,3
+MIT-0435,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #435,119,4,50.7,0,Ya (Anomali),5,5
+MIT-0436,Finance Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #436,29,2,70.4,0,Tidak,2,4
+MIT-0437,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #437,71,4,70.7,0,Tidak,5,5
+MIT-0438,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #438,133,5,62.9,0,Ya (Anomali),5,5
+MIT-0439,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #439,40,0,45.9,0,Tidak,1,2
+MIT-0440,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #440,160,4,0.3,1,Ya (Anomali),5,5
+MIT-0441,Bandung Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #441,104,4,11.5,1,Ya (Anomali),5,5
+MIT-0442,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #442,3,1,51.6,0,Tidak,2,3
+MIT-0443,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #443,10,3,4.2,0,Ya (Anomali),2,5
+MIT-0444,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #444,168,1,4.3,1,Ya (Anomali),5,5
+MIT-0445,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #445,117,3,12.0,1,Ya (Anomali),5,5
+MIT-0446,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #446,93,3,22.1,0,Tidak,5,5
+MIT-0447,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #447,173,5,95.0,0,Ya (Anomali),5,5
+MIT-0448,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #448,83,0,11.4,1,Tidak,3,5
+MIT-0449,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #449,89,4,25.8,0,Tidak,5,5
+MIT-0450,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #450,174,2,64.9,0,Ya (Anomali),5,4
+MIT-0451,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #451,74,4,64.3,0,Tidak,5,5
+MIT-0452,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #452,179,3,83.1,0,Tidak,5,5
+MIT-0453,Bandung Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #453,139,3,58.0,0,Ya (Anomali),5,5
+MIT-0454,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #454,179,5,25.3,0,Ya (Anomali),5,5
+MIT-0455,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #455,133,0,22.7,0,Tidak,4,3
+MIT-0456,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #456,107,1,78.8,0,Tidak,5,2
+MIT-0457,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #457,156,3,9.3,1,Ya (Anomali),5,5
+MIT-0458,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #458,33,3,45.7,0,Tidak,3,5
+MIT-0459,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #459,130,1,45.9,0,Tidak,4,4
+MIT-0460,Finance Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #460,118,2,70.2,0,Tidak,4,4
+MIT-0461,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #461,93,1,94.6,0,Tidak,4,2
+MIT-0462,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #462,82,1,47.1,0,Tidak,3,3
+MIT-0463,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #463,110,1,73.7,0,Tidak,4,3
+MIT-0464,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #464,10,3,80.9,0,Tidak,2,5
+MIT-0465,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #465,143,2,3.2,0,Ya (Anomali),5,5
+MIT-0466,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #466,27,0,60.4,0,Tidak,1,3
+MIT-0467,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #467,155,0,84.0,0,Tidak,5,1
+MIT-0468,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #468,149,0,68.4,0,Tidak,4,3
+MIT-0469,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #469,159,5,73.5,0,Ya (Anomali),5,5
+MIT-0470,Surabaya Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #470,128,4,77.0,0,Ya (Anomali),5,5
+MIT-0471,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #471,13,4,1.8,0,Ya (Anomali),4,5
+MIT-0472,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #472,168,0,88.2,0,Tidak,5,1
+MIT-0473,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #473,15,2,86.1,0,Tidak,3,4
+MIT-0474,Operations Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #474,124,1,57.1,0,Tidak,4,3
+MIT-0475,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #475,112,1,33.1,0,Tidak,4,4
+MIT-0476,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #476,170,3,35.1,0,Ya (Anomali),5,5
+MIT-0477,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #477,151,3,50.8,0,Tidak,5,5
+MIT-0478,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #478,64,3,27.7,0,Tidak,4,5
+MIT-0479,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #479,110,1,53.8,0,Tidak,4,4
+MIT-0480,Jakarta Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #480,99,5,58.7,0,Ya (Anomali),5,5
+MIT-0481,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #481,54,4,69.2,0,Tidak,4,5
+MIT-0482,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #482,8,4,6.2,0,Tidak,4,5
+MIT-0483,IT Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #483,97,5,6.3,0,Ya (Anomali),5,5
+MIT-0484,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #484,156,0,87.6,0,Tidak,5,1
+MIT-0485,Jakarta Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #485,71,3,70.7,0,Tidak,5,5
+MIT-0486,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #486,141,4,32.5,0,Tidak,5,5
+MIT-0487,IT Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #487,170,3,2.3,1,Ya (Anomali),5,5
+MIT-0488,Bandung Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #488,159,1,57.9,0,Tidak,5,4
+MIT-0489,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #489,13,2,23.7,0,Ya (Anomali),2,5
+MIT-0490,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #490,35,3,5.5,0,Tidak,3,5
+MIT-0491,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #491,120,0,71.7,0,Tidak,3,2
+MIT-0492,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #492,50,2,92.8,0,Tidak,4,3
+MIT-0493,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #493,71,2,71.0,0,Ya (Anomali),3,5
+MIT-0494,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #494,150,4,10.7,0,Tidak,5,5
+MIT-0495,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #495,168,2,34.9,0,Ya (Anomali),5,5
+MIT-0496,IT Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #496,137,0,23.6,1,Ya (Anomali),4,5
+MIT-0497,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #497,160,4,35.5,0,Tidak,5,5
+MIT-0498,Jakarta Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #498,3,5,53.0,0,Tidak,3,5
+MIT-0499,Surabaya Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #499,21,2,60.3,0,Tidak,2,4
+MIT-0500,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #500,126,2,29.3,0,Ya (Anomali),5,5
+MIT-0501,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #501,77,5,64.1,0,Tidak,5,5
+MIT-0502,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #502,97,0,65.0,0,Tidak,3,2
+MIT-0503,IT Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #503,164,5,94.3,0,Ya (Anomali),5,5
+MIT-0504,Medan Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #504,10,4,45.7,0,Tidak,3,5
+MIT-0505,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #505,146,4,31.2,0,Ya (Anomali),5,5
+MIT-0506,Jakarta Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #506,1,5,81.5,0,Tidak,3,5
+MIT-0507,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #507,159,2,16.0,1,Ya (Anomali),5,5
+MIT-0508,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #508,154,5,42.5,0,Ya (Anomali),5,5
+MIT-0509,Jakarta Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #509,38,0,59.5,0,Tidak,1,3
+MIT-0510,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #510,76,5,13.5,1,Ya (Anomali),5,5
+MIT-0511,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #511,171,1,5.2,1,Ya (Anomali),5,5
+MIT-0512,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #512,43,0,37.7,0,Tidak,3,4
+MIT-0513,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #513,51,2,33.2,0,Tidak,3,5
+MIT-0514,Bandung Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #514,93,2,70.8,0,Ya (Anomali),5,5
+MIT-0515,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #515,58,1,50.6,0,Tidak,2,3
+MIT-0516,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #516,60,1,2.2,1,Ya (Anomali),2,5
+MIT-0517,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #517,5,4,87.3,0,Tidak,3,5
+MIT-0518,Jakarta Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #518,42,5,81.8,0,Ya (Anomali),5,5
+MIT-0519,Jakarta Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #519,2,2,7.1,0,Ya (Anomali),2,5
+MIT-0520,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #520,140,4,24.2,1,Ya (Anomali),5,5
+MIT-0521,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #521,142,2,59.3,0,Ya (Anomali),5,5
+MIT-0522,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #522,47,0,17.1,1,Ya (Anomali),3,5
+MIT-0523,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #523,54,3,92.5,0,Tidak,3,4
+MIT-0524,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #524,35,4,40.0,0,Tidak,3,5
+MIT-0525,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #525,47,4,66.9,0,Tidak,4,5
+MIT-0526,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #526,124,4,48.6,0,Ya (Anomali),5,5
+MIT-0527,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #527,17,5,29.3,0,Tidak,4,5
+MIT-0528,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #528,131,3,66.2,0,Ya (Anomali),5,5
+MIT-0529,Surabaya Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #529,73,3,45.2,0,Tidak,4,5
+MIT-0530,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #530,64,1,60.4,0,Tidak,4,3
+MIT-0531,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #531,84,2,37.3,0,Tidak,5,5
+MIT-0532,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #532,76,0,94.7,0,Tidak,2,1
+MIT-0533,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #533,7,4,19.6,0,Tidak,3,5
+MIT-0534,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #534,118,1,17.4,1,Ya (Anomali),4,5
+MIT-0535,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #535,62,4,0.9,1,Ya (Anomali),4,5
+MIT-0536,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #536,157,2,82.7,0,Ya (Anomali),5,4
+MIT-0537,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #537,122,3,14.9,1,Ya (Anomali),5,5
+MIT-0538,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #538,125,5,23.4,1,Ya (Anomali),5,5
+MIT-0539,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #539,18,2,19.6,0,Tidak,2,5
+MIT-0540,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #540,2,2,93.0,0,Ya (Anomali),2,3
+MIT-0541,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #541,176,2,81.0,0,Ya (Anomali),5,5
+MIT-0542,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #542,11,1,71.2,0,Tidak,1,3
+MIT-0543,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #543,26,2,36.9,0,Tidak,2,5
+MIT-0544,IT Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #544,126,2,0.6,1,Ya (Anomali),5,5
+MIT-0545,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #545,147,2,91.9,0,Ya (Anomali),5,3
+MIT-0546,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #546,84,0,19.3,1,Tidak,3,5
+MIT-0547,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #547,88,1,6.2,1,Ya (Anomali),3,5
+MIT-0548,Jakarta Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #548,141,1,36.1,0,Tidak,5,4
+MIT-0549,Surabaya Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #549,6,0,26.5,0,Tidak,1,3
+MIT-0550,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #550,40,1,89.7,0,Tidak,2,2
+MIT-0551,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #551,165,4,2.6,1,Ya (Anomali),5,5
+MIT-0552,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #552,121,1,93.0,0,Tidak,4,2
+MIT-0553,Finance Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #553,65,1,55.7,0,Tidak,3,3
+MIT-0554,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #554,52,2,28.5,0,Tidak,4,5
+MIT-0555,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #555,2,0,82.5,0,Tidak,2,2
+MIT-0556,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #556,41,3,39.6,0,Tidak,3,5
+MIT-0557,Medan Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #557,62,5,50.6,0,Tidak,5,5
+MIT-0558,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #558,30,2,13.6,0,Tidak,2,5
+MIT-0559,Surabaya Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #559,88,4,83.6,0,Tidak,5,5
+MIT-0560,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #560,38,1,83.4,0,Tidak,2,2
+MIT-0561,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #561,30,2,71.4,0,Tidak,2,4
+MIT-0562,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #562,126,3,69.0,0,Ya (Anomali),5,5
+MIT-0563,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #563,137,4,19.0,1,Ya (Anomali),5,5
+MIT-0564,Finance Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #564,101,1,42.1,0,Tidak,4,4
+MIT-0565,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #565,16,1,8.7,0,Tidak,1,5
+MIT-0566,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #566,163,3,56.2,0,Tidak,5,5
+MIT-0567,Bandung Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #567,92,5,20.1,1,Ya (Anomali),5,5
+MIT-0568,Jakarta Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #568,76,3,28.4,0,Tidak,4,5
+MIT-0569,Bandung Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #569,76,3,77.5,0,Tidak,4,5
+MIT-0570,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #570,51,4,93.6,0,Tidak,4,5
+MIT-0571,Bandung Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #571,9,5,36.1,0,Tidak,3,5
+MIT-0572,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #572,157,4,75.5,0,Ya (Anomali),5,5
+MIT-0573,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #573,115,2,12.5,0,Ya (Anomali),4,5
+MIT-0574,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #574,179,3,50.2,0,Ya (Anomali),5,5
+MIT-0575,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #575,145,1,52.4,0,Tidak,5,4
+MIT-0576,Jakarta Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #576,161,0,84.4,0,Tidak,5,2
+MIT-0577,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #577,34,1,22.9,0,Tidak,3,5
+MIT-0578,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #578,90,3,6.1,1,Ya (Anomali),4,5
+MIT-0579,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #579,146,1,33.2,0,Tidak,5,4
+MIT-0580,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #580,98,2,70.9,0,Tidak,4,4
+MIT-0581,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #581,102,3,4.4,0,Ya (Anomali),5,5
+MIT-0582,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #582,89,4,13.9,1,Ya (Anomali),5,5
+MIT-0583,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #583,179,0,4.3,0,Tidak,5,5
+MIT-0584,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #584,124,3,47.2,0,Ya (Anomali),5,5
+MIT-0585,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #585,50,1,78.4,0,Tidak,2,2
+MIT-0586,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #586,48,5,25.3,0,Tidak,4,5
+MIT-0587,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #587,45,1,3.0,0,Tidak,3,5
+MIT-0588,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #588,79,3,16.8,1,Ya (Anomali),4,5
+MIT-0589,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #589,87,5,8.0,1,Ya (Anomali),5,5
+MIT-0590,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #590,45,4,52.6,0,Tidak,4,5
+MIT-0591,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #591,70,4,47.5,0,Tidak,4,5
+MIT-0592,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #592,103,3,23.3,1,Ya (Anomali),5,5
+MIT-0593,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #593,147,1,80.0,0,Tidak,5,3
+MIT-0594,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #594,34,1,39.0,0,Tidak,3,4
+MIT-0595,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #595,165,4,92.1,0,Ya (Anomali),5,5
+MIT-0596,Operations Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #596,122,5,22.1,1,Ya (Anomali),5,5
+MIT-0597,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #597,174,1,59.1,0,Tidak,5,3
+MIT-0598,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #598,87,0,75.6,0,Tidak,4,2
+MIT-0599,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #599,79,0,18.0,1,Tidak,2,5
+MIT-0600,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #600,130,0,75.4,0,Tidak,4,2
+MIT-0601,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #601,38,0,84.0,0,Tidak,2,1
+MIT-0602,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #602,89,2,63.4,0,Tidak,4,5
+MIT-0603,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #603,72,0,85.1,0,Tidak,2,1
+MIT-0604,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #604,60,2,37.3,0,Tidak,3,5
+MIT-0605,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #605,75,1,38.2,0,Tidak,3,5
+MIT-0606,Medan Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #606,29,5,1.8,0,Ya (Anomali),4,5
+MIT-0607,Bandung Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #607,60,4,75.9,0,Tidak,5,5
+MIT-0608,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #608,69,5,3.1,0,Tidak,5,5
+MIT-0609,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #609,165,0,25.1,0,Tidak,5,3
+MIT-0610,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #610,84,0,58.9,0,Tidak,4,2
+MIT-0611,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #611,12,0,57.7,0,Tidak,1,2
+MIT-0612,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #612,80,5,45.6,0,Tidak,5,5
+MIT-0613,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #613,85,2,58.7,0,Tidak,5,4
+MIT-0614,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #614,165,0,30.6,0,Tidak,5,4
+MIT-0615,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #615,55,2,19.4,1,Ya (Anomali),3,5
+MIT-0616,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #616,114,0,27.8,0,Tidak,3,4
+MIT-0617,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #617,21,5,23.5,0,Tidak,4,5
+MIT-0618,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #618,117,4,40.8,0,Ya (Anomali),5,5
+MIT-0619,Medan Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #619,136,0,72.0,0,Tidak,4,1
+MIT-0620,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #620,110,2,30.9,0,Ya (Anomali),4,5
+MIT-0621,Bandung Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #621,95,4,33.8,0,Ya (Anomali),5,5
+MIT-0622,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #622,149,1,66.3,0,Tidak,5,4
+MIT-0623,Finance Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #623,67,1,86.8,0,Tidak,3,2
+MIT-0624,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #624,125,4,24.7,1,Ya (Anomali),5,5
+MIT-0625,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #625,175,1,69.9,0,Tidak,5,3
+MIT-0626,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #626,85,4,59.3,0,Tidak,5,5
+MIT-0627,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #627,32,0,49.5,0,Tidak,1,3
+MIT-0628,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #628,113,1,1.8,1,Ya (Anomali),4,5
+MIT-0629,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #629,154,3,36.2,0,Ya (Anomali),5,5
+MIT-0630,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #630,13,3,19.5,0,Tidak,2,5
+MIT-0631,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #631,15,4,13.3,0,Tidak,3,5
+MIT-0632,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #632,2,3,26.2,0,Tidak,2,5
+MIT-0633,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #633,161,4,62.0,0,Ya (Anomali),5,5
+MIT-0634,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #634,31,1,51.2,0,Tidak,3,3
+MIT-0635,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #635,65,4,41.5,0,Tidak,5,5
+MIT-0636,Surabaya Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #636,103,5,13.8,1,Ya (Anomali),5,5
+MIT-0637,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #637,117,4,73.9,0,Ya (Anomali),5,5
+MIT-0638,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #638,143,0,45.7,0,Tidak,5,2
+MIT-0639,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #639,84,5,61.3,0,Ya (Anomali),5,5
+MIT-0640,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #640,71,1,3.5,1,Ya (Anomali),3,5
+MIT-0641,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #641,100,4,84.8,0,Ya (Anomali),5,5
+MIT-0642,IT Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #642,171,1,49.2,0,Tidak,5,4
+MIT-0643,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #643,12,3,33.2,0,Tidak,3,5
+MIT-0644,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #644,5,4,78.6,0,Tidak,4,5
+MIT-0645,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #645,134,3,77.1,0,Tidak,5,5
+MIT-0646,Surabaya Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #646,5,0,20.9,0,Tidak,1,3
+MIT-0647,IT Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #647,62,0,35.3,0,Tidak,2,4
+MIT-0648,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #648,173,1,57.5,0,Tidak,5,3
+MIT-0649,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #649,39,0,94.9,0,Tidak,1,1
+MIT-0650,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #650,107,4,74.7,0,Ya (Anomali),5,5
+MIT-0651,Bandung Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #651,70,1,4.7,1,Ya (Anomali),3,5
+MIT-0652,Bandung Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #652,134,3,69.9,0,Ya (Anomali),5,5
+MIT-0653,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #653,75,2,46.6,0,Tidak,3,5
+MIT-0654,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #654,16,0,1.7,0,Tidak,1,4
+MIT-0655,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #655,109,4,43.0,0,Ya (Anomali),5,5
+MIT-0656,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #656,160,3,31.1,0,Ya (Anomali),5,5
+MIT-0657,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #657,25,2,9.9,0,Ya (Anomali),2,5
+MIT-0658,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #658,82,1,50.7,0,Tidak,3,4
+MIT-0659,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #659,83,4,89.5,0,Tidak,5,5
+MIT-0660,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #660,112,2,83.1,0,Ya (Anomali),5,4
+MIT-0661,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #661,35,4,53.2,0,Tidak,3,5
+MIT-0662,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #662,115,3,19.6,1,Ya (Anomali),5,5
+MIT-0663,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #663,174,3,10.9,1,Ya (Anomali),5,5
+MIT-0664,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #664,54,0,65.0,0,Tidak,3,2
+MIT-0665,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #665,27,3,37.2,0,Tidak,3,5
+MIT-0666,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #666,13,1,49.6,0,Tidak,1,4
+MIT-0667,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #667,108,1,73.9,0,Tidak,4,4
+MIT-0668,Medan Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #668,121,4,57.2,0,Ya (Anomali),5,5
+MIT-0669,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #669,159,1,7.3,1,Ya (Anomali),5,5
+MIT-0670,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #670,117,3,93.7,0,Ya (Anomali),5,4
+MIT-0671,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #671,31,2,13.7,0,Ya (Anomali),3,5
+MIT-0672,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #672,37,1,93.1,0,Tidak,2,2
+MIT-0673,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #673,150,3,48.2,0,Ya (Anomali),5,5
+MIT-0674,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #674,97,5,79.7,0,Tidak,5,5
+MIT-0675,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #675,173,3,11.8,0,Ya (Anomali),5,5
+MIT-0676,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #676,143,4,81.8,0,Ya (Anomali),5,5
+MIT-0677,Operations Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #677,102,4,12.3,0,Ya (Anomali),5,5
+MIT-0678,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #678,62,1,84.6,0,Tidak,4,3
+MIT-0679,Bandung Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #679,106,1,42.1,0,Tidak,5,4
+MIT-0680,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #680,48,3,81.8,0,Tidak,4,5
+MIT-0681,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #681,124,1,26.2,0,Tidak,5,5
+MIT-0682,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #682,15,5,67.3,0,Tidak,4,5
+MIT-0683,Bandung Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #683,29,2,73.5,0,Tidak,2,4
+MIT-0684,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #684,26,5,47.5,0,Tidak,5,5
+MIT-0685,Operations Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #685,22,0,82.2,0,Tidak,1,1
+MIT-0686,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #686,132,0,64.9,0,Tidak,4,3
+MIT-0687,Finance Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #687,33,3,29.9,0,Tidak,3,5
+MIT-0688,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #688,69,5,88.3,0,Tidak,5,5
+MIT-0689,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #689,28,0,32.3,0,Tidak,1,3
+MIT-0690,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #690,127,3,69.4,0,Ya (Anomali),5,5
+MIT-0691,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #691,35,3,65.8,0,Tidak,3,5
+MIT-0692,Jakarta Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #692,170,5,12.5,0,Ya (Anomali),5,5
+MIT-0693,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #693,160,2,40.7,0,Tidak,5,5
+MIT-0694,Bandung Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #694,93,4,54.6,0,Ya (Anomali),5,5
+MIT-0695,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #695,174,1,17.7,0,Tidak,5,4
+MIT-0696,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #696,24,2,9.4,0,Ya (Anomali),2,5
+MIT-0697,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #697,94,4,51.9,0,Ya (Anomali),5,5
+MIT-0698,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #698,73,3,14.6,1,Ya (Anomali),4,5
+MIT-0699,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #699,127,5,74.9,0,Ya (Anomali),5,5
+MIT-0700,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #700,176,5,81.3,0,Ya (Anomali),5,5
+MIT-0701,Finance Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #701,146,2,8.9,1,Ya (Anomali),5,5
+MIT-0702,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #702,11,3,66.8,0,Tidak,2,5
+MIT-0703,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #703,150,0,69.6,0,Tidak,5,3
+MIT-0704,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #704,101,5,6.3,1,Ya (Anomali),5,5
+MIT-0705,Bandung Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #705,121,3,56.7,0,Ya (Anomali),5,5
+MIT-0706,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #706,96,0,59.1,0,Tidak,4,2
+MIT-0707,Bandung Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #707,58,3,48.6,0,Tidak,3,5
+MIT-0708,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #708,108,5,65.5,0,Ya (Anomali),5,5
+MIT-0709,Surabaya Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #709,171,3,23.5,1,Ya (Anomali),5,5
+MIT-0710,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #710,112,5,24.8,0,Ya (Anomali),5,5
+MIT-0711,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #711,134,5,87.8,0,Ya (Anomali),5,5
+MIT-0712,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #712,163,4,64.5,0,Ya (Anomali),5,5
+MIT-0713,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #713,131,3,37.7,0,Ya (Anomali),5,5
+MIT-0714,Medan Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #714,85,3,63.8,0,Tidak,5,5
+MIT-0715,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #715,114,3,71.1,0,Ya (Anomali),5,5
+MIT-0716,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #716,171,1,28.7,0,Tidak,5,5
+MIT-0717,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #717,34,1,49.4,0,Tidak,3,3
+MIT-0718,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #718,3,2,10.9,0,Tidak,3,5
+MIT-0719,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #719,173,4,57.1,0,Ya (Anomali),5,5
+MIT-0720,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #720,45,5,65.4,0,Tidak,4,5
+MIT-0721,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #721,104,1,70.6,0,Tidak,4,3
+MIT-0722,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #722,127,2,91.2,0,Tidak,5,3
+MIT-0723,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #723,165,2,15.8,1,Ya (Anomali),5,5
+MIT-0724,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #724,53,2,6.6,1,Ya (Anomali),3,5
+MIT-0725,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #725,133,4,89.5,0,Tidak,5,5
+MIT-0726,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #726,50,5,61.6,0,Tidak,4,5
+MIT-0727,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #727,112,0,53.5,0,Tidak,4,2
+MIT-0728,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #728,17,4,40.2,0,Tidak,4,5
+MIT-0729,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #729,132,2,41.9,0,Ya (Anomali),5,5
+MIT-0730,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #730,8,5,28.2,0,Tidak,3,5
+MIT-0731,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #731,41,3,59.3,0,Tidak,3,5
+MIT-0732,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #732,111,5,1.5,1,Ya (Anomali),5,5
+MIT-0733,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #733,22,5,51.7,0,Ya (Anomali),5,5
+MIT-0734,Surabaya Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #734,96,2,5.5,1,Ya (Anomali),4,5
+MIT-0735,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #735,27,3,68.8,0,Tidak,3,5
+MIT-0736,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #736,58,4,91.4,0,Tidak,4,5
+MIT-0737,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #737,134,5,17.6,0,Ya (Anomali),5,5
+MIT-0738,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #738,159,0,26.1,0,Tidak,4,3
+MIT-0739,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #739,59,1,51.2,0,Tidak,3,3
+MIT-0740,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #740,4,5,46.5,0,Tidak,4,5
+MIT-0741,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #741,175,1,77.5,0,Tidak,5,2
+MIT-0742,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #742,103,0,11.9,1,Ya (Anomali),4,5
+MIT-0743,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #743,171,3,52.6,0,Ya (Anomali),5,5
+MIT-0744,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #744,117,3,87.6,0,Ya (Anomali),5,5
+MIT-0745,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #745,97,0,63.4,0,Tidak,3,3
+MIT-0746,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #746,95,0,25.5,0,Tidak,3,3
+MIT-0747,Operations Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #747,60,2,5.9,1,Ya (Anomali),4,5
+MIT-0748,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #748,156,4,39.8,0,Ya (Anomali),5,5
+MIT-0749,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #749,63,2,44.4,0,Tidak,3,5
+MIT-0750,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #750,145,2,12.6,0,Ya (Anomali),5,5
+MIT-0751,Surabaya Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #751,95,4,45.6,0,Ya (Anomali),5,5
+MIT-0752,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #752,50,1,64.3,0,Tidak,2,3
+MIT-0753,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #753,100,4,45.2,0,Ya (Anomali),5,5
+MIT-0754,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #754,110,1,21.5,1,Ya (Anomali),5,5
+MIT-0755,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #755,17,4,91.0,0,Tidak,3,5
+MIT-0756,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #756,138,1,10.9,0,Tidak,4,5
+MIT-0757,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #757,115,3,57.8,0,Tidak,5,5
+MIT-0758,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #758,48,3,69.3,0,Tidak,3,5
+MIT-0759,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #759,150,4,25.6,0,Ya (Anomali),5,5
+MIT-0760,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #760,64,0,36.1,0,Tidak,2,3
+MIT-0761,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #761,158,3,41.4,0,Ya (Anomali),5,5
+MIT-0762,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #762,20,4,61.5,0,Ya (Anomali),4,5
+MIT-0763,Jakarta Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #763,14,5,48.7,0,Tidak,3,5
+MIT-0764,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #764,15,4,18.2,0,Tidak,4,5
+MIT-0765,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #765,43,3,84.8,0,Tidak,4,5
+MIT-0766,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #766,57,5,34.6,0,Tidak,4,5
+MIT-0767,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #767,147,4,36.3,0,Ya (Anomali),5,5
+MIT-0768,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #768,40,0,76.0,0,Tidak,1,1
+MIT-0769,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #769,95,5,50.9,0,Ya (Anomali),5,5
+MIT-0770,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #770,151,1,22.0,0,Tidak,5,4
+MIT-0771,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #771,108,4,86.9,0,Ya (Anomali),5,5
+MIT-0772,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #772,22,5,76.5,0,Tidak,4,5
+MIT-0773,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #773,31,3,57.0,0,Tidak,4,5
+MIT-0774,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #774,16,0,48.6,0,Tidak,1,2
+MIT-0775,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #775,54,0,64.2,0,Tidak,2,3
+MIT-0776,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #776,103,4,34.3,0,Ya (Anomali),5,5
+MIT-0777,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #777,152,2,65.9,0,Ya (Anomali),5,4
+MIT-0778,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #778,21,3,3.6,0,Ya (Anomali),4,5
+MIT-0779,Medan Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #779,72,0,38.0,0,Tidak,3,3
+MIT-0780,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #780,38,3,58.7,0,Tidak,4,5
+MIT-0781,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #781,70,4,59.0,0,Tidak,4,5
+MIT-0782,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #782,142,4,6.8,1,Ya (Anomali),5,5
+MIT-0783,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #783,119,2,68.4,0,Ya (Anomali),4,4
+MIT-0784,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #784,158,2,8.1,1,Ya (Anomali),5,5
+MIT-0785,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #785,7,4,70.4,0,Tidak,3,5
+MIT-0786,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #786,4,1,86.6,0,Tidak,1,3
+MIT-0787,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #787,121,1,92.7,0,Tidak,5,2
+MIT-0788,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #788,83,0,57.3,0,Tidak,3,2
+MIT-0789,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #789,25,2,67.8,0,Tidak,2,4
+MIT-0790,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #790,153,0,22.2,1,Ya (Anomali),5,5
+MIT-0791,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #791,147,5,35.6,0,Ya (Anomali),5,5
+MIT-0792,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #792,30,5,1.2,0,Tidak,4,5
+MIT-0793,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #793,171,3,75.8,0,Ya (Anomali),5,5
+MIT-0794,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #794,94,4,65.5,0,Ya (Anomali),5,5
+MIT-0795,IT Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #795,15,5,24.5,0,Tidak,4,5
+MIT-0796,Medan Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #796,176,4,46.6,0,Ya (Anomali),5,5
+MIT-0797,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #797,29,5,69.2,0,Ya (Anomali),4,5
+MIT-0798,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #798,161,5,63.3,0,Ya (Anomali),5,5
+MIT-0799,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #799,39,1,30.5,0,Tidak,2,4
+MIT-0800,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #800,40,0,35.1,0,Tidak,1,3
+MIT-0801,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #801,23,0,14.7,0,Tidak,1,3
+MIT-0802,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #802,62,3,13.1,1,Ya (Anomali),4,5
+MIT-0803,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #803,171,0,38.5,0,Tidak,5,3
+MIT-0804,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #804,101,3,45.6,0,Ya (Anomali),5,5
+MIT-0805,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #805,119,0,90.3,0,Tidak,4,2
+MIT-0806,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #806,42,5,48.0,0,Tidak,5,5
+MIT-0807,Medan Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #807,52,2,18.0,1,Ya (Anomali),3,5
+MIT-0808,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #808,94,4,16.1,1,Ya (Anomali),5,5
+MIT-0809,Jakarta Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #809,80,3,32.8,0,Tidak,4,5
+MIT-0810,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #810,127,4,87.3,0,Ya (Anomali),5,5
+MIT-0811,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #811,33,4,75.4,0,Tidak,3,5
+MIT-0812,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #812,91,0,46.9,0,Tidak,3,2
+MIT-0813,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #813,138,0,90.8,0,Tidak,4,2
+MIT-0814,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #814,148,3,20.5,0,Ya (Anomali),5,5
+MIT-0815,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #815,63,1,41.3,0,Tidak,4,5
+MIT-0816,Surabaya Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #816,132,1,0.1,1,Ya (Anomali),4,5
+MIT-0817,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #817,143,4,82.3,0,Tidak,5,5
+MIT-0818,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #818,15,1,15.0,0,Tidak,2,5
+MIT-0819,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #819,63,2,91.0,0,Tidak,3,4
+MIT-0820,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #820,175,0,48.2,0,Tidak,5,2
+MIT-0821,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #821,145,5,94.4,0,Ya (Anomali),5,5
+MIT-0822,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #822,49,4,51.4,0,Tidak,5,5
+MIT-0823,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #823,17,0,43.3,0,Tidak,2,2
+MIT-0824,Medan Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #824,12,1,44.9,0,Tidak,1,4
+MIT-0825,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #825,11,2,79.4,0,Tidak,3,4
+MIT-0826,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #826,154,2,34.4,0,Ya (Anomali),5,5
+MIT-0827,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #827,121,3,81.1,0,Ya (Anomali),5,5
+MIT-0828,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #828,112,4,84.2,0,Ya (Anomali),5,5
+MIT-0829,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #829,89,2,27.4,0,Tidak,4,5
+MIT-0830,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #830,173,4,88.0,0,Ya (Anomali),5,5
+MIT-0831,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #831,105,4,18.1,1,Ya (Anomali),5,5
+MIT-0832,IT Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #832,65,4,78.5,0,Tidak,4,5
+MIT-0833,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #833,63,0,16.0,1,Tidak,3,5
+MIT-0834,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #834,26,4,68.2,0,Tidak,3,5
+MIT-0835,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #835,59,1,92.7,0,Tidak,3,2
+MIT-0836,IT Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #836,122,2,7.2,0,Ya (Anomali),5,5
+MIT-0837,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #837,43,0,18.7,0,Tidak,3,3
+MIT-0838,Bandung Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #838,120,2,33.5,0,Ya (Anomali),4,5
+MIT-0839,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #839,139,1,34.2,0,Tidak,5,5
+MIT-0840,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #840,175,0,17.3,0,Tidak,5,3
+MIT-0841,Operations Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #841,156,3,47.2,0,Ya (Anomali),5,5
+MIT-0842,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #842,28,1,75.1,0,Tidak,2,4
+MIT-0843,Bandung Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #843,163,3,76.3,0,Ya (Anomali),5,5
+MIT-0844,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #844,135,2,44.3,0,Tidak,5,5
+MIT-0845,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #845,97,1,29.8,0,Tidak,3,5
+MIT-0846,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #846,27,3,23.0,0,Tidak,3,5
+MIT-0847,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #847,93,3,68.0,0,Ya (Anomali),4,5
+MIT-0848,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #848,155,5,8.1,1,Ya (Anomali),5,5
+MIT-0849,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #849,106,0,51.8,0,Tidak,3,2
+MIT-0850,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #850,95,0,51.4,0,Tidak,4,2
+MIT-0851,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #851,175,2,10.7,0,Tidak,5,5
+MIT-0852,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #852,133,1,44.8,0,Tidak,4,4
+MIT-0853,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #853,37,3,23.7,0,Tidak,3,5
+MIT-0854,Jakarta Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #854,21,1,15.8,0,Tidak,3,5
+MIT-0855,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #855,90,4,7.8,0,Ya (Anomali),5,5
+MIT-0856,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #856,118,5,18.4,1,Ya (Anomali),5,5
+MIT-0857,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #857,69,5,61.3,0,Tidak,5,5
+MIT-0858,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #858,97,2,69.3,0,Ya (Anomali),4,4
+MIT-0859,Surabaya Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #859,42,5,21.7,0,Tidak,4,5
+MIT-0860,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #860,63,5,54.5,0,Tidak,5,5
+MIT-0861,Finance Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #861,2,2,35.3,0,Tidak,3,5
+MIT-0862,Surabaya Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #862,87,5,51.5,0,Tidak,5,5
+MIT-0863,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #863,128,5,23.4,0,Ya (Anomali),5,5
+MIT-0864,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #864,179,5,4.4,1,Ya (Anomali),5,5
+MIT-0865,Surabaya Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #865,93,0,31.1,0,Tidak,4,3
+MIT-0866,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #866,146,5,15.3,1,Ya (Anomali),5,5
+MIT-0867,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #867,163,5,69.8,0,Ya (Anomali),5,5
+MIT-0868,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #868,138,3,69.4,0,Ya (Anomali),5,5
+MIT-0869,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #869,167,1,6.9,1,Ya (Anomali),5,5
+MIT-0870,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #870,97,3,37.7,0,Ya (Anomali),4,5
+MIT-0871,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #871,32,2,8.8,0,Ya (Anomali),2,5
+MIT-0872,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #872,37,3,67.9,0,Tidak,3,5
+MIT-0873,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #873,17,2,1.7,0,Tidak,2,5
+MIT-0874,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #874,110,4,41.6,0,Ya (Anomali),5,5
+MIT-0875,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #875,36,3,14.5,0,Tidak,3,5
+MIT-0876,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #876,155,2,63.2,0,Ya (Anomali),5,4
+MIT-0877,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #877,48,3,20.3,1,Ya (Anomali),3,5
+MIT-0878,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #878,167,3,38.6,0,Tidak,5,5
+MIT-0879,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #879,166,1,0.5,1,Ya (Anomali),5,5
+MIT-0880,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #880,62,3,93.9,0,Tidak,4,4
+MIT-0881,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #881,142,3,71.6,0,Tidak,5,5
+MIT-0882,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #882,175,5,15.6,1,Ya (Anomali),5,5
+MIT-0883,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #883,43,3,42.2,0,Tidak,3,5
+MIT-0884,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #884,114,2,47.3,0,Ya (Anomali),5,5
+MIT-0885,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #885,130,2,21.5,1,Ya (Anomali),5,5
+MIT-0886,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #886,122,5,8.1,1,Ya (Anomali),5,5
+MIT-0887,Operations Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #887,89,3,54.1,0,Tidak,4,5
+MIT-0888,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #888,166,4,79.3,0,Ya (Anomali),5,5
+MIT-0889,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #889,176,5,54.3,0,Ya (Anomali),5,5
+MIT-0890,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #890,78,3,59.9,0,Tidak,5,5
+MIT-0891,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #891,141,3,56.1,0,Ya (Anomali),5,5
+MIT-0892,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #892,172,5,43.4,0,Ya (Anomali),5,5
+MIT-0893,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #893,19,2,14.0,0,Tidak,2,5
+MIT-0894,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #894,140,0,19.2,1,Ya (Anomali),4,5
+MIT-0895,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #895,60,0,31.1,0,Tidak,2,3
+MIT-0896,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #896,159,3,27.9,0,Ya (Anomali),5,5
+MIT-0897,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #897,34,4,49.6,0,Tidak,4,5
+MIT-0898,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #898,169,1,40.0,0,Tidak,5,4
+MIT-0899,Medan Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #899,151,2,60.5,0,Ya (Anomali),5,5
+MIT-0900,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #900,16,1,79.8,0,Tidak,1,3
+MIT-0901,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #901,72,1,4.7,1,Ya (Anomali),3,5
+MIT-0902,Jakarta Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #902,31,5,43.9,0,Tidak,5,5
+MIT-0903,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #903,96,4,20.5,1,Ya (Anomali),5,5
+MIT-0904,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #904,117,4,86.5,0,Tidak,5,5
+MIT-0905,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #905,170,0,51.7,0,Tidak,5,2
+MIT-0906,Jakarta Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #906,23,2,84.0,0,Ya (Anomali),2,3
+MIT-0907,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #907,166,0,63.7,0,Tidak,5,2
+MIT-0908,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #908,100,4,12.9,1,Ya (Anomali),5,5
+MIT-0909,Surabaya Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #909,96,4,80.4,0,Ya (Anomali),5,5
+MIT-0910,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #910,151,5,30.2,0,Ya (Anomali),5,5
+MIT-0911,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #911,87,2,70.6,0,Tidak,4,5
+MIT-0912,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #912,97,2,48.3,0,Ya (Anomali),5,5
+MIT-0913,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #913,127,3,69.4,0,Ya (Anomali),5,5
+MIT-0914,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #914,154,3,50.1,0,Ya (Anomali),5,5
+MIT-0915,Finance Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #915,40,1,88.2,0,Tidak,2,2
+MIT-0916,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #916,3,2,48.5,0,Tidak,3,5
+MIT-0917,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #917,1,2,5.8,0,Ya (Anomali),3,5
+MIT-0918,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #918,178,0,43.0,0,Tidak,5,2
+MIT-0919,IT Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #919,27,0,91.9,0,Tidak,1,1
+MIT-0920,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #920,44,3,75.0,0,Tidak,4,5
+MIT-0921,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #921,86,1,60.0,0,Tidak,3,3
+MIT-0922,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #922,55,4,14.4,0,Tidak,4,5
+MIT-0923,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #923,143,3,17.4,1,Ya (Anomali),5,5
+MIT-0924,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #924,94,0,68.6,0,Tidak,3,2
+MIT-0925,Jakarta Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #925,44,4,69.4,0,Tidak,4,5
+MIT-0926,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #926,96,5,35.5,0,Ya (Anomali),5,5
+MIT-0927,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #927,69,1,94.5,0,Tidak,3,3
+MIT-0928,Finance Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #928,150,0,65.7,0,Tidak,4,2
+MIT-0929,Surabaya Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #929,113,3,85.0,0,Ya (Anomali),5,5
+MIT-0930,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #930,179,3,4.4,1,Ya (Anomali),5,5
+MIT-0931,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #931,167,1,59.2,0,Tidak,5,3
+MIT-0932,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #932,150,3,71.2,0,Ya (Anomali),5,5
+MIT-0933,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #933,135,1,75.7,0,Tidak,5,3
+MIT-0934,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #934,50,2,63.9,0,Tidak,3,4
+MIT-0935,Jakarta Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #935,74,0,57.6,0,Tidak,2,2
+MIT-0936,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #936,114,2,70.9,0,Tidak,4,4
+MIT-0937,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #937,140,2,3.7,0,Ya (Anomali),5,5
+MIT-0938,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #938,101,3,71.4,0,Ya (Anomali),5,5
+MIT-0939,Surabaya Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #939,166,4,31.3,0,Ya (Anomali),5,5
+MIT-0940,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #940,67,3,72.3,0,Tidak,4,5
+MIT-0941,Jakarta Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #941,94,0,73.8,0,Tidak,4,1
+MIT-0942,Surabaya Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #942,41,3,26.3,0,Tidak,4,5
+MIT-0943,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #943,130,0,67.9,0,Tidak,4,3
+MIT-0944,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #944,57,4,31.2,0,Tidak,5,5
+MIT-0945,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #945,59,5,68.9,0,Tidak,5,5
+MIT-0946,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #946,158,4,18.0,1,Ya (Anomali),5,5
+MIT-0947,Finance Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #947,92,4,7.4,1,Ya (Anomali),5,5
+MIT-0948,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #948,177,0,55.9,0,Tidak,5,2
+MIT-0949,Finance Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #949,177,4,18.3,1,Ya (Anomali),5,5
+MIT-0950,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #950,121,2,85.0,0,Ya (Anomali),5,3
+MIT-0951,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #951,43,3,15.0,0,Tidak,3,5
+MIT-0952,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #952,95,3,57.7,0,Ya (Anomali),5,5
+MIT-0953,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #953,145,0,66.2,0,Tidak,5,2
+MIT-0954,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #954,58,5,0.2,1,Ya (Anomali),5,5
+MIT-0955,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #955,20,1,82.6,0,Tidak,2,3
+MIT-0956,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #956,77,1,69.0,0,Tidak,3,3
+MIT-0957,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #957,54,3,73.1,0,Tidak,4,5
+MIT-0958,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #958,124,1,5.3,1,Ya (Anomali),4,5
+MIT-0959,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #959,58,1,33.4,0,Tidak,2,4
+MIT-0960,Surabaya Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #960,4,1,61.0,0,Tidak,2,4
+MIT-0961,Surabaya Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #961,91,0,21.7,1,Ya (Anomali),3,5
+MIT-0962,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #962,72,5,79.0,0,Tidak,5,5
+MIT-0963,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #963,137,2,38.8,0,Ya (Anomali),5,5
+MIT-0964,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #964,35,4,76.1,0,Tidak,3,5
+MIT-0965,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #965,125,5,83.2,0,Tidak,5,5
+MIT-0966,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #966,156,0,45.2,0,Tidak,4,3
+MIT-0967,Bandung Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #967,155,2,21.6,1,Ya (Anomali),5,5
+MIT-0968,Finance Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #968,178,4,36.2,0,Ya (Anomali),5,5
+MIT-0969,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #969,173,4,47.4,0,Tidak,5,5
+MIT-0970,Medan Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #970,14,5,43.3,0,Tidak,4,5
+MIT-0971,IT Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #971,29,0,0.4,0,Tidak,1,4
+MIT-0972,IT Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #972,110,3,8.0,1,Ya (Anomali),5,5
+MIT-0973,Medan Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #973,60,0,43.3,0,Tidak,2,3
+MIT-0974,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #974,157,4,41.5,0,Tidak,5,5
+MIT-0975,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #975,57,5,84.6,0,Tidak,5,5
+MIT-0976,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #976,121,1,26.3,0,Tidak,5,5
+MIT-0977,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #977,61,1,92.9,0,Tidak,3,3
+MIT-0978,Surabaya Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #978,113,5,92.4,0,Ya (Anomali),5,5
+MIT-0979,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #979,66,5,17.9,0,Tidak,5,5
+MIT-0980,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #980,51,3,2.3,1,Ya (Anomali),3,5
+MIT-0981,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #981,10,0,18.8,0,Tidak,1,3
+MIT-0982,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #982,88,5,39.8,0,Tidak,5,5
+MIT-0983,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #983,91,4,34.9,0,Ya (Anomali),5,5
+MIT-0984,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #984,51,5,45.0,0,Tidak,4,5
+MIT-0985,Operations Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #985,96,1,65.7,0,Tidak,3,4
+MIT-0986,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #986,176,2,49.2,0,Ya (Anomali),5,5
+MIT-0987,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #987,57,1,32.8,0,Tidak,2,4
+MIT-0988,Finance Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #988,57,5,64.2,0,Tidak,4,5
+MIT-0989,Bandung Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #989,85,3,31.7,0,Tidak,4,5
+MIT-0990,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #990,86,0,33.5,0,Tidak,4,3
+MIT-0991,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #991,118,0,32.6,0,Tidak,3,3
+MIT-0992,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #992,12,5,28.9,0,Tidak,3,5
+MIT-0993,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #993,34,1,66.5,0,Tidak,2,3
+MIT-0994,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #994,169,2,16.6,1,Ya (Anomali),5,5
+MIT-0995,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #995,21,0,73.6,0,Tidak,1,2
+MIT-0996,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #996,120,0,87.6,0,Tidak,3,1
+MIT-0997,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #997,95,4,26.2,0,Ya (Anomali),5,5
+MIT-0998,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #998,146,3,66.9,0,Ya (Anomali),5,5
+MIT-0999,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #999,97,4,57.4,0,Ya (Anomali),5,5
+MIT-1000,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1000,46,3,28.5,0,Tidak,3,5
+MIT-1001,Medan Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1001,7,0,22.5,0,Tidak,1,4
+MIT-1002,Jakarta Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #1002,166,2,89.7,0,Ya (Anomali),5,3
+MIT-1003,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1003,20,2,66.2,0,Tidak,2,4
+MIT-1004,Operations Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1004,132,0,61.2,0,Tidak,5,2
+MIT-1005,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1005,11,3,94.7,0,Tidak,3,4
+MIT-1006,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1006,6,4,33.6,0,Tidak,3,5
+MIT-1007,Jakarta Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1007,103,5,21.7,1,Ya (Anomali),5,5
+MIT-1008,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1008,135,4,31.3,0,Ya (Anomali),5,5
+MIT-1009,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1009,45,4,16.2,0,Ya (Anomali),5,5
+MIT-1010,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1010,30,3,87.9,0,Tidak,3,5
+MIT-1011,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #1011,106,0,66.2,0,Tidak,4,2
+MIT-1012,Surabaya Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #1012,28,2,57.5,0,Ya (Anomali),3,4
+MIT-1013,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1013,102,4,76.6,0,Tidak,5,5
+MIT-1014,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1014,56,5,49.0,0,Tidak,4,5
+MIT-1015,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1015,129,3,18.1,1,Ya (Anomali),5,5
+MIT-1016,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1016,88,3,14.7,1,Ya (Anomali),4,5
+MIT-1017,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1017,60,4,49.6,0,Ya (Anomali),4,5
+MIT-1018,Jakarta Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1018,176,0,76.5,0,Tidak,5,1
+MIT-1019,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1019,28,5,21.1,0,Tidak,5,5
+MIT-1020,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1020,98,2,67.0,0,Ya (Anomali),4,5
+MIT-1021,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1021,81,2,23.7,0,Tidak,4,5
+MIT-1022,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1022,88,3,41.1,0,Tidak,4,5
+MIT-1023,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1023,31,0,5.8,0,Tidak,1,4
+MIT-1024,Bandung Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1024,148,1,47.8,0,Tidak,5,3
+MIT-1025,Jakarta Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1025,29,2,16.1,0,Tidak,3,5
+MIT-1026,Finance Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1026,28,5,80.2,0,Tidak,4,5
+MIT-1027,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1027,78,1,91.0,0,Tidak,3,3
+MIT-1028,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1028,170,3,8.0,1,Ya (Anomali),5,5
+MIT-1029,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1029,124,5,50.7,0,Ya (Anomali),5,5
+MIT-1030,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1030,154,2,66.9,0,Ya (Anomali),5,4
+MIT-1031,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1031,128,0,6.2,1,Ya (Anomali),4,5
+MIT-1032,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1032,11,1,52.6,0,Tidak,1,3
+MIT-1033,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #1033,144,4,89.0,0,Ya (Anomali),5,5
+MIT-1034,Medan Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1034,164,1,50.0,0,Tidak,5,3
+MIT-1035,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1035,29,5,59.0,0,Tidak,5,5
+MIT-1036,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1036,91,3,31.1,0,Ya (Anomali),5,5
+MIT-1037,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1037,29,5,58.4,0,Ya (Anomali),4,5
+MIT-1038,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1038,156,5,84.4,0,Ya (Anomali),5,5
+MIT-1039,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1039,96,3,31.3,0,Ya (Anomali),5,5
+MIT-1040,Finance Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1040,155,3,73.4,0,Ya (Anomali),5,5
+MIT-1041,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1041,11,0,54.2,0,Tidak,1,3
+MIT-1042,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1042,173,0,24.4,1,Ya (Anomali),5,5
+MIT-1043,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1043,177,5,37.2,0,Ya (Anomali),5,5
+MIT-1044,Bandung Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1044,53,3,34.0,0,Tidak,3,5
+MIT-1045,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1045,107,5,44.5,0,Tidak,5,5
+MIT-1046,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1046,68,2,10.7,1,Ya (Anomali),3,5
+MIT-1047,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1047,121,4,14.3,0,Ya (Anomali),5,5
+MIT-1048,Jakarta Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1048,160,0,36.0,0,Tidak,4,3
+MIT-1049,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1049,56,2,53.4,0,Tidak,4,4
+MIT-1050,IT Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1050,153,5,58.7,0,Ya (Anomali),5,5
+MIT-1051,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1051,84,1,86.5,0,Tidak,3,2
+MIT-1052,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1052,50,1,54.0,0,Tidak,2,3
+MIT-1053,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1053,7,2,69.3,0,Tidak,2,4
+MIT-1054,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1054,96,5,45.8,0,Ya (Anomali),5,5
+MIT-1055,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1055,115,4,49.7,0,Ya (Anomali),5,5
+MIT-1056,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1056,6,1,56.0,0,Tidak,2,3
+MIT-1057,IT Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1057,52,2,49.6,0,Tidak,3,5
+MIT-1058,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1058,146,2,29.4,0,Ya (Anomali),5,5
+MIT-1059,Medan Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1059,12,3,92.8,0,Tidak,2,5
+MIT-1060,Bandung Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1060,111,2,58.8,0,Ya (Anomali),4,5
+MIT-1061,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1061,165,4,32.9,0,Ya (Anomali),5,5
+MIT-1062,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1062,10,3,75.9,0,Tidak,2,5
+MIT-1063,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1063,87,4,15.6,1,Ya (Anomali),5,5
+MIT-1064,Operations Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1064,21,4,94.3,0,Tidak,3,5
+MIT-1065,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1065,118,3,74.9,0,Ya (Anomali),5,5
+MIT-1066,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1066,141,3,9.3,1,Ya (Anomali),5,5
+MIT-1067,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1067,66,1,80.6,0,Tidak,4,2
+MIT-1068,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1068,146,1,24.6,1,Ya (Anomali),5,5
+MIT-1069,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1069,35,5,60.6,0,Tidak,4,5
+MIT-1070,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1070,112,3,15.7,1,Ya (Anomali),5,5
+MIT-1071,Surabaya Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1071,98,4,67.5,0,Ya (Anomali),5,5
+MIT-1072,Operations Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1072,101,0,72.0,0,Tidak,3,1
+MIT-1073,Surabaya Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1073,160,2,80.9,0,Ya (Anomali),5,4
+MIT-1074,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1074,25,5,46.3,0,Tidak,4,5
+MIT-1075,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1075,152,3,52.6,0,Tidak,5,5
+MIT-1076,Jakarta Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1076,39,2,20.4,0,Tidak,3,5
+MIT-1077,Operations Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1077,60,1,49.0,0,Tidak,2,3
+MIT-1078,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #1078,26,2,50.5,0,Tidak,2,5
+MIT-1079,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1079,42,1,76.9,0,Tidak,2,2
+MIT-1080,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1080,39,3,67.6,0,Tidak,4,5
+MIT-1081,Finance Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1081,69,1,66.3,0,Tidak,3,3
+MIT-1082,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1082,70,4,2.8,0,Tidak,5,5
+MIT-1083,Finance Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #1083,96,4,51.9,0,Ya (Anomali),5,5
+MIT-1084,Medan Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1084,41,4,94.3,0,Tidak,5,5
+MIT-1085,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1085,160,2,71.5,0,Ya (Anomali),5,5
+MIT-1086,IT Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1086,8,2,79.3,0,Tidak,2,4
+MIT-1087,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #1087,18,0,46.9,0,Tidak,1,3
+MIT-1088,Surabaya Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1088,118,2,79.0,0,Ya (Anomali),5,4
+MIT-1089,Operations Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1089,129,5,77.6,0,Ya (Anomali),5,5
+MIT-1090,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1090,152,5,50.4,0,Ya (Anomali),5,5
+MIT-1091,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1091,175,0,54.0,0,Tidak,5,3
+MIT-1092,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1092,81,3,4.9,0,Ya (Anomali),4,5
+MIT-1093,IT Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1093,63,3,81.0,0,Tidak,4,5
+MIT-1094,IT Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1094,146,3,12.7,1,Ya (Anomali),5,5
+MIT-1095,Finance Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1095,148,3,28.6,0,Ya (Anomali),5,5
+MIT-1096,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1096,26,2,70.7,0,Tidak,2,4
+MIT-1097,Operations Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1097,114,5,28.6,0,Ya (Anomali),5,5
+MIT-1098,Jakarta Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1098,101,4,48.0,0,Ya (Anomali),5,5
+MIT-1099,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1099,91,4,14.6,1,Ya (Anomali),5,5
+MIT-1100,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1100,167,1,27.7,0,Tidak,5,4
+MIT-1101,Bandung Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1101,23,3,69.8,0,Tidak,3,5
+MIT-1102,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1102,90,4,39.7,0,Tidak,5,5
+MIT-1103,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1103,5,0,53.5,0,Tidak,1,2
+MIT-1104,IT Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1104,14,3,33.9,0,Tidak,2,5
+MIT-1105,Medan Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1105,99,0,88.4,0,Tidak,3,2
+MIT-1106,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #1106,117,2,81.3,0,Ya (Anomali),4,4
+MIT-1107,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1107,173,3,10.7,0,Ya (Anomali),5,5
+MIT-1108,Bandung Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1108,22,3,92.9,0,Tidak,3,4
+MIT-1109,Medan Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1109,113,5,76.9,0,Ya (Anomali),5,5
+MIT-1110,IT Dept,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1110,33,4,15.0,0,Tidak,3,5
+MIT-1111,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1111,13,2,4.0,0,Ya (Anomali),2,5
+MIT-1112,Bandung Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1112,72,1,84.8,0,Tidak,4,2
+MIT-1113,Operations Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1113,102,0,72.0,0,Tidak,4,2
+MIT-1114,Jakarta Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1114,174,3,26.2,0,Ya (Anomali),5,5
+MIT-1115,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1115,108,0,90.4,0,Tidak,3,1
+MIT-1116,Medan Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1116,156,5,86.1,0,Tidak,5,5
+MIT-1117,Bandung Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1117,129,3,20.3,1,Ya (Anomali),5,5
+MIT-1118,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1118,143,5,37.9,0,Ya (Anomali),5,5
+MIT-1119,Finance Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1119,135,5,4.5,1,Ya (Anomali),5,5
+MIT-1120,Finance Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1120,145,3,29.3,0,Ya (Anomali),5,5
+MIT-1121,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1121,55,1,47.1,0,Tidak,2,3
+MIT-1122,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1122,119,4,6.0,1,Ya (Anomali),5,5
+MIT-1123,IT Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1123,56,0,32.0,0,Tidak,2,4
+MIT-1124,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1124,14,0,14.3,0,Tidak,2,3
+MIT-1125,Finance Dept,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1125,77,2,87.7,0,Tidak,4,3
+MIT-1126,Operations Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1126,117,2,78.8,0,Ya (Anomali),4,4
+MIT-1127,Bandung Branch,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #1127,56,4,72.8,0,Tidak,5,5
+MIT-1128,Medan Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1128,160,4,73.6,0,Ya (Anomali),5,5
+MIT-1129,Finance Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1129,125,5,1.4,1,Ya (Anomali),5,5
+MIT-1130,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1130,117,2,57.2,0,Ya (Anomali),4,4
+MIT-1131,Finance Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1131,25,5,56.1,0,Tidak,4,5
+MIT-1132,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1132,91,2,94.3,0,Tidak,5,4
+MIT-1133,IT Dept,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1133,152,2,60.1,0,Ya (Anomali),5,4
+MIT-1134,IT Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1134,141,4,61.8,0,Ya (Anomali),5,5
+MIT-1135,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1135,93,2,36.2,0,Ya (Anomali),5,5
+MIT-1136,IT Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1136,158,1,47.5,0,Tidak,5,3
+MIT-1137,Medan Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1137,7,5,37.6,0,Tidak,4,5
+MIT-1138,Finance Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1138,141,4,86.6,0,Ya (Anomali),5,5
+MIT-1139,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1139,135,2,19.3,1,Ya (Anomali),5,5
+MIT-1140,Jakarta Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1140,99,4,14.3,1,Ya (Anomali),5,5
+MIT-1141,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1141,22,1,94.7,0,Tidak,3,2
+MIT-1142,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1142,59,0,88.4,0,Tidak,3,1
+MIT-1143,Finance Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1143,142,2,56.3,0,Tidak,5,5
+MIT-1144,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1144,21,1,73.4,0,Tidak,2,3
+MIT-1145,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1145,18,3,10.5,0,Tidak,3,5
+MIT-1146,IT Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #1146,48,4,73.0,0,Tidak,4,5
+MIT-1147,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #1147,93,0,44.2,0,Tidak,3,2
+MIT-1148,Surabaya Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1148,26,3,78.6,0,Tidak,3,5
+MIT-1149,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1149,39,2,49.0,0,Tidak,2,5
+MIT-1150,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1150,165,3,69.0,0,Ya (Anomali),5,5
+MIT-1151,Surabaya Branch,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1151,114,2,32.2,0,Ya (Anomali),5,5
+MIT-1152,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1152,156,1,69.5,0,Tidak,5,3
+MIT-1153,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1153,139,1,25.8,0,Tidak,5,4
+MIT-1154,Jakarta Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1154,145,5,90.7,0,Ya (Anomali),5,5
+MIT-1155,Medan Branch,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #1155,12,0,63.7,0,Tidak,1,2
+MIT-1156,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1156,28,5,45.5,0,Ya (Anomali),5,5
+MIT-1157,IT Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1157,31,3,57.6,0,Tidak,4,5
+MIT-1158,Operations Dept,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1158,157,4,58.6,0,Ya (Anomali),5,5
+MIT-1159,IT Dept,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1159,133,5,81.2,0,Tidak,5,5
+MIT-1160,Medan Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1160,119,1,53.0,0,Tidak,5,3
+MIT-1161,Surabaya Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1161,35,1,53.5,0,Tidak,3,4
+MIT-1162,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1162,125,2,55.7,0,Ya (Anomali),5,4
+MIT-1163,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1163,141,5,73.4,0,Ya (Anomali),5,5
+MIT-1164,Bandung Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1164,115,0,46.7,0,Tidak,3,2
+MIT-1165,Operations Dept,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1165,173,0,20.2,1,Ya (Anomali),5,5
+MIT-1166,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1166,73,5,39.7,0,Tidak,5,5
+MIT-1167,Surabaya Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1167,159,2,35.7,0,Tidak,5,5
+MIT-1168,Medan Branch,Kepatuhan SOP,Sedang,Rencana Aksi Mitigasi Temuan #1168,123,4,5.6,1,Ya (Anomali),5,5
+MIT-1169,Operations Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1169,144,1,76.0,0,Tidak,5,2
+MIT-1170,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1170,47,0,79.4,0,Tidak,3,2
+MIT-1171,Operations Dept,Sistem Informasi,Kritis,Rencana Aksi Mitigasi Temuan #1171,136,2,25.4,0,Ya (Anomali),5,5
+MIT-1172,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1172,176,5,30.8,0,Ya (Anomali),5,5
+MIT-1173,Jakarta Branch,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1173,50,3,30.5,0,Tidak,4,5
+MIT-1174,Surabaya Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1174,147,5,49.1,0,Ya (Anomali),5,5
+MIT-1175,Finance Dept,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1175,43,0,44.6,0,Tidak,3,2
+MIT-1176,Surabaya Branch,Kepatuhan SOP,Rendah,Rencana Aksi Mitigasi Temuan #1176,109,1,84.2,0,Tidak,4,3
+MIT-1177,Surabaya Branch,Pengendalian Internal,Kritis,Rencana Aksi Mitigasi Temuan #1177,91,1,46.9,0,Tidak,3,4
+MIT-1178,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1178,79,1,16.9,1,Tidak,3,5
+MIT-1179,Finance Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1179,88,3,71.0,0,Tidak,5,5
+MIT-1180,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1180,175,3,82.5,0,Ya (Anomali),5,5
+MIT-1181,IT Dept,Pengendalian Internal,Tinggi,Rencana Aksi Mitigasi Temuan #1181,38,1,57.9,0,Tidak,2,3
+MIT-1182,Bandung Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1182,57,2,72.6,0,Tidak,3,5
+MIT-1183,Surabaya Branch,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1183,9,5,21.3,0,Tidak,3,5
+MIT-1184,Jakarta Branch,Manajemen Risiko,Sedang,Rencana Aksi Mitigasi Temuan #1184,89,2,85.5,0,Tidak,5,3
+MIT-1185,IT Dept,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1185,143,1,7.2,1,Ya (Anomali),5,5
+MIT-1186,IT Dept,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1186,27,2,85.4,0,Tidak,2,3
+MIT-1187,Finance Dept,Pengendalian Internal,Sedang,Rencana Aksi Mitigasi Temuan #1187,173,4,34.6,0,Ya (Anomali),5,5
+MIT-1188,Surabaya Branch,Manajemen Risiko,Kritis,Rencana Aksi Mitigasi Temuan #1188,6,1,8.5,0,Tidak,2,5
+MIT-1189,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1189,39,0,17.2,0,Tidak,2,3
+MIT-1190,IT Dept,Sistem Informasi,Rendah,Rencana Aksi Mitigasi Temuan #1190,16,4,94.0,0,Tidak,3,5
+MIT-1191,Finance Dept,Manajemen Risiko,Tinggi,Rencana Aksi Mitigasi Temuan #1191,51,5,35.4,0,Tidak,5,5
+MIT-1192,Jakarta Branch,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1192,29,4,73.5,0,Tidak,3,5
+MIT-1193,IT Dept,Pengendalian Internal,Rendah,Rencana Aksi Mitigasi Temuan #1193,82,2,45.3,0,Tidak,5,5
+MIT-1194,Jakarta Branch,Sistem Informasi,Sedang,Rencana Aksi Mitigasi Temuan #1194,100,4,54.8,0,Ya (Anomali),5,5
+MIT-1195,Medan Branch,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1195,1,3,60.5,0,Tidak,2,5
+MIT-1196,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1196,141,2,57.3,0,Tidak,5,4
+MIT-1197,Medan Branch,Kepatuhan SOP,Tinggi,Rencana Aksi Mitigasi Temuan #1197,134,2,94.8,0,Ya (Anomali),5,3
+MIT-1198,Bandung Branch,Sistem Informasi,Tinggi,Rencana Aksi Mitigasi Temuan #1198,20,3,52.4,0,Tidak,2,5
+MIT-1199,Operations Dept,Kepatuhan SOP,Kritis,Rencana Aksi Mitigasi Temuan #1199,102,4,59.0,0,Ya (Anomali),5,5
+MIT-1200,Medan Branch,Manajemen Risiko,Rendah,Rencana Aksi Mitigasi Temuan #1200,98,2,33.2,0,Ya (Anomali),4,5

@@ -1,0 +1,1201 @@
+ID Penugasan,Entitas Auditee,Jenis Audit,Deskripsi Fieldwork,completion_duration_days,historical_avg_duration_days,sampling_coverage_pct,audit_findings_count,duration_zscore,"is_instant_approval (1=Ya, 0=Tidak)",TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5)
+ASG-0001,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1,36,15,63.6,0,2.1,0,Tidak,3,1
+ASG-0002,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #2,16,39,43.5,1,-2.3,0,Tidak,4,3
+ASG-0003,IT Dept,Surprise Audit,Penugasan Audit Lapangan #3,44,26,62.2,3,1.8,0,Tidak,5,1
+ASG-0004,IT Dept,Compliance Audit,Penugasan Audit Lapangan #4,11,19,43.6,0,-0.8,0,Tidak,3,1
+ASG-0005,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #5,53,43,86.7,5,1.0,0,Tidak,5,1
+ASG-0006,Medan Branch,Limited Review,Penugasan Audit Lapangan #6,16,19,7.3,2,-0.3,0,Tidak,5,2
+ASG-0007,Bandung Branch,Limited Review,Penugasan Audit Lapangan #7,26,29,22.2,5,-0.3,0,Tidak,5,2
+ASG-0008,IT Dept,Compliance Audit,Penugasan Audit Lapangan #8,18,31,80.0,0,-1.3,0,Tidak,1,2
+ASG-0009,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #9,52,19,71.3,4,3.3,0,Tidak,5,1
+ASG-0010,IT Dept,Compliance Audit,Penugasan Audit Lapangan #10,32,33,21.8,4,-0.1,0,Tidak,5,1
+ASG-0011,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #11,12,24,15.9,0,-1.2,0,Tidak,5,2
+ASG-0012,Bandung Branch,Limited Review,Penugasan Audit Lapangan #12,21,43,33.0,5,-2.2,0,Tidak,5,3
+ASG-0013,IT Dept,Limited Review,Penugasan Audit Lapangan #13,32,17,48.4,8,1.5,0,Tidak,5,1
+ASG-0014,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #14,17,25,9.2,6,-0.8,0,Ya (Anomali),5,1
+ASG-0015,Bandung Branch,Limited Review,Penugasan Audit Lapangan #15,37,40,81.1,2,-0.3,0,Tidak,3,1
+ASG-0016,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #16,40,22,51.9,1,1.8,0,Tidak,4,1
+ASG-0017,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #17,12,39,87.8,5,-2.7,0,Tidak,5,4
+ASG-0018,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #18,21,27,34.3,1,-0.6,0,Tidak,5,1
+ASG-0019,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #19,27,20,9.4,4,0.7,0,Tidak,5,1
+ASG-0020,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #20,57,17,83.4,5,4.0,0,Tidak,5,1
+ASG-0021,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #21,50,38,18.5,4,1.2,0,Tidak,5,1
+ASG-0022,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #22,52,33,35.2,4,1.9,0,Tidak,5,1
+ASG-0023,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #23,27,21,46.8,5,0.6,0,Tidak,5,1
+ASG-0024,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #24,43,16,49.3,8,2.7,0,Tidak,5,1
+ASG-0025,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #25,48,36,7.1,2,1.2,0,Tidak,5,1
+ASG-0026,Medan Branch,Limited Review,Penugasan Audit Lapangan #26,7,38,52.4,3,-3.1,0,Tidak,5,4
+ASG-0027,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #27,46,33,11.9,0,1.3,0,Tidak,5,1
+ASG-0028,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #28,36,27,34.4,5,0.9,0,Tidak,5,1
+ASG-0029,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #29,9,39,92.8,1,-3.0,0,Tidak,2,4
+ASG-0030,IT Dept,Compliance Audit,Penugasan Audit Lapangan #30,8,25,30.2,0,-1.7,0,Tidak,3,3
+ASG-0031,IT Dept,Compliance Audit,Penugasan Audit Lapangan #31,38,23,78.2,3,1.5,0,Tidak,4,1
+ASG-0032,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #32,51,33,50.9,1,1.8,0,Tidak,3,1
+ASG-0033,Finance Dept,Limited Review,Penugasan Audit Lapangan #33,54,33,23.2,0,2.1,0,Tidak,4,1
+ASG-0034,IT Dept,Surprise Audit,Penugasan Audit Lapangan #34,17,35,70.0,5,-1.8,0,Tidak,5,3
+ASG-0035,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #35,10,39,55.0,5,-2.9,0,Tidak,5,4
+ASG-0036,Medan Branch,Limited Review,Penugasan Audit Lapangan #36,12,28,53.0,0,-1.6,0,Tidak,2,2
+ASG-0037,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #37,22,26,7.7,5,-0.4,0,Tidak,5,1
+ASG-0038,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #38,52,43,35.0,1,0.9,0,Tidak,5,1
+ASG-0039,IT Dept,Surprise Audit,Penugasan Audit Lapangan #39,47,15,71.1,9,3.2,0,Tidak,5,1
+ASG-0040,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #40,8,15,76.6,4,-0.7,0,Tidak,5,1
+ASG-0041,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #41,13,31,78.3,3,-1.8,0,Tidak,4,3
+ASG-0042,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #42,52,18,8.4,5,3.4,0,Tidak,5,1
+ASG-0043,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #43,41,27,19.6,3,1.4,0,Tidak,5,1
+ASG-0044,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #44,22,37,93.7,2,-1.5,0,Tidak,2,2
+ASG-0045,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #45,6,42,19.0,3,-3.6,0,Tidak,5,5
+ASG-0046,IT Dept,Surprise Audit,Penugasan Audit Lapangan #46,7,25,24.2,8,-1.8,0,Tidak,5,3
+ASG-0047,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #47,44,32,77.2,3,1.2,0,Tidak,4,1
+ASG-0048,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #48,27,26,40.4,3,0.1,0,Tidak,5,1
+ASG-0049,Bandung Branch,Limited Review,Penugasan Audit Lapangan #49,30,33,15.5,2,-0.3,0,Tidak,5,1
+ASG-0050,Operations Dept,Limited Review,Penugasan Audit Lapangan #50,55,34,16.3,4,2.1,0,Tidak,5,1
+ASG-0051,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #51,4,15,12.5,0,-1.1,0,Tidak,5,2
+ASG-0052,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #52,12,32,21.3,1,-2.0,0,Tidak,4,3
+ASG-0053,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #53,24,16,49.7,3,0.8,0,Tidak,5,1
+ASG-0054,IT Dept,Surprise Audit,Penugasan Audit Lapangan #54,26,44,6.4,3,-1.8,0,Tidak,5,4
+ASG-0055,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #55,13,25,15.5,2,-1.2,0,Tidak,5,2
+ASG-0056,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #56,2,29,86.6,0,-2.7,0,Tidak,1,5
+ASG-0057,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #57,5,29,83.9,4,-2.4,0,Tidak,4,3
+ASG-0058,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #58,53,20,80.0,3,3.3,0,Tidak,4,1
+ASG-0059,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #59,2,18,68.6,5,-1.6,0,Tidak,5,2
+ASG-0060,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #60,7,26,64.5,1,-1.9,0,Tidak,3,4
+ASG-0061,IT Dept,Surprise Audit,Penugasan Audit Lapangan #61,35,37,29.8,0,-0.2,0,Tidak,3,1
+ASG-0062,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #62,28,42,35.1,2,-1.4,0,Tidak,5,3
+ASG-0063,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #63,46,25,26.2,2,2.1,0,Tidak,5,1
+ASG-0064,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #64,17,42,93.2,2,-2.5,0,Tidak,3,3
+ASG-0065,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #65,12,22,62.1,4,-1.0,0,Tidak,5,3
+ASG-0066,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #66,15,16,91.9,4,-0.1,0,Tidak,4,1
+ASG-0067,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #67,39,30,29.5,2,0.9,0,Tidak,5,1
+ASG-0068,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #68,49,16,60.9,6,3.3,0,Tidak,5,1
+ASG-0069,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #69,50,35,73.3,2,1.5,0,Tidak,3,1
+ASG-0070,IT Dept,Surprise Audit,Penugasan Audit Lapangan #70,11,18,13.5,0,-0.7,0,Tidak,4,1
+ASG-0071,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #71,54,42,65.0,2,1.2,0,Tidak,3,1
+ASG-0072,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #72,55,44,20.2,1,1.1,0,Tidak,4,1
+ASG-0073,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #73,59,40,34.5,2,1.9,0,Tidak,5,1
+ASG-0074,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #74,14,16,69.5,0,-0.2,0,Tidak,3,1
+ASG-0075,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #75,46,39,44.6,1,0.7,0,Tidak,4,1
+ASG-0076,IT Dept,Limited Review,Penugasan Audit Lapangan #76,35,23,87.9,2,1.2,0,Tidak,3,1
+ASG-0077,Bandung Branch,Limited Review,Penugasan Audit Lapangan #77,34,43,26.7,1,-0.9,0,Tidak,4,2
+ASG-0078,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #78,56,40,18.8,1,1.6,0,Tidak,5,1
+ASG-0079,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #79,34,27,35.3,2,0.7,0,Tidak,5,1
+ASG-0080,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #80,40,42,81.7,0,-0.2,0,Tidak,1,1
+ASG-0081,Finance Dept,Limited Review,Penugasan Audit Lapangan #81,14,34,81.3,0,-2.0,0,Tidak,1,4
+ASG-0082,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #82,18,16,38.2,7,0.2,0,Tidak,5,1
+ASG-0083,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #83,10,33,77.9,2,-2.3,0,Tidak,3,4
+ASG-0084,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #84,14,22,12.0,1,-0.8,0,Tidak,5,1
+ASG-0085,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #85,17,43,5.7,0,-2.6,0,Ya (Anomali),4,4
+ASG-0086,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #86,38,25,82.8,2,1.3,0,Tidak,4,1
+ASG-0087,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #87,55,22,83.7,4,3.3,0,Tidak,4,1
+ASG-0088,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #88,31,30,17.9,3,0.1,0,Tidak,5,1
+ASG-0089,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #89,40,42,31.8,2,-0.2,0,Tidak,5,2
+ASG-0090,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #90,34,44,81.6,6,-1.0,0,Tidak,5,2
+ASG-0091,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #91,41,37,12.5,8,0.4,0,Tidak,5,1
+ASG-0092,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #92,7,43,82.7,6,-3.6,0,Tidak,5,5
+ASG-0093,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #93,13,34,56.7,4,-2.1,0,Tidak,5,4
+ASG-0094,Operations Dept,Limited Review,Penugasan Audit Lapangan #94,3,31,64.2,4,-2.8,0,Tidak,5,4
+ASG-0095,IT Dept,Limited Review,Penugasan Audit Lapangan #95,34,40,58.5,3,-0.6,0,Tidak,5,1
+ASG-0096,IT Dept,Surprise Audit,Penugasan Audit Lapangan #96,16,39,57.4,11,-2.3,0,Tidak,5,4
+ASG-0097,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #97,18,29,21.7,8,-1.1,0,Tidak,5,3
+ASG-0098,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #98,53,21,26.2,3,3.2,0,Tidak,5,1
+ASG-0099,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #99,36,43,57.2,1,-0.7,0,Tidak,3,1
+ASG-0100,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #100,32,15,41.1,2,1.7,0,Tidak,5,1
+ASG-0101,Finance Dept,Limited Review,Penugasan Audit Lapangan #101,31,28,53.7,10,0.3,0,Tidak,5,1
+ASG-0102,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #102,39,30,27.8,11,0.9,0,Tidak,5,1
+ASG-0103,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #103,17,35,46.7,1,-1.8,0,Tidak,3,4
+ASG-0104,Operations Dept,Limited Review,Penugasan Audit Lapangan #104,43,17,17.9,4,2.6,0,Tidak,5,1
+ASG-0105,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #105,46,32,8.5,0,1.4,0,Tidak,4,1
+ASG-0106,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #106,41,33,90.6,8,0.8,0,Tidak,5,1
+ASG-0107,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #107,18,20,70.1,4,-0.2,0,Tidak,5,1
+ASG-0108,IT Dept,Limited Review,Penugasan Audit Lapangan #108,8,42,49.8,13,-3.4,0,Tidak,5,5
+ASG-0109,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #109,57,37,54.6,2,2.0,0,Tidak,5,1
+ASG-0110,Operations Dept,Limited Review,Penugasan Audit Lapangan #110,6,40,51.0,2,-3.4,0,Tidak,5,5
+ASG-0111,Operations Dept,Limited Review,Penugasan Audit Lapangan #111,41,23,85.9,2,1.8,0,Tidak,4,1
+ASG-0112,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #112,28,27,74.6,3,0.1,0,Tidak,4,1
+ASG-0113,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #113,2,40,34.3,4,-3.8,0,Tidak,5,5
+ASG-0114,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #114,3,26,24.6,1,-2.3,0,Tidak,5,3
+ASG-0115,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #115,5,29,11.0,1,-2.4,0,Tidak,5,3
+ASG-0116,Bandung Branch,Limited Review,Penugasan Audit Lapangan #116,2,41,18.3,5,-3.9,1,Ya (Anomali),5,5
+ASG-0117,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #117,30,21,49.1,2,0.9,0,Tidak,4,1
+ASG-0118,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #118,22,26,23.2,6,-0.4,0,Tidak,5,1
+ASG-0119,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #119,43,31,33.1,3,1.2,0,Tidak,5,1
+ASG-0120,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #120,36,27,17.0,1,0.9,0,Tidak,5,1
+ASG-0121,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #121,35,37,88.1,4,-0.2,0,Tidak,5,1
+ASG-0122,IT Dept,Compliance Audit,Penugasan Audit Lapangan #122,40,43,8.0,3,-0.3,0,Tidak,5,2
+ASG-0123,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #123,3,31,36.7,4,-2.8,0,Tidak,5,4
+ASG-0124,Medan Branch,Limited Review,Penugasan Audit Lapangan #124,26,43,28.2,2,-1.7,0,Tidak,5,4
+ASG-0125,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #125,7,22,5.7,1,-1.5,0,Tidak,5,2
+ASG-0126,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #126,9,32,88.6,4,-2.3,0,Tidak,4,4
+ASG-0127,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #127,36,16,33.2,0,2.0,0,Tidak,3,1
+ASG-0128,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #128,54,31,50.2,0,2.3,0,Tidak,2,1
+ASG-0129,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #129,20,39,57.4,1,-1.9,0,Tidak,4,3
+ASG-0130,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #130,10,26,59.9,2,-1.6,0,Tidak,4,3
+ASG-0131,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #131,34,27,46.4,2,0.7,0,Tidak,4,1
+ASG-0132,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #132,9,29,58.4,0,-2.0,0,Tidak,2,3
+ASG-0133,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #133,39,44,72.7,1,-0.5,0,Tidak,3,2
+ASG-0134,IT Dept,Limited Review,Penugasan Audit Lapangan #134,33,25,90.7,1,0.8,0,Tidak,2,1
+ASG-0135,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #135,24,38,64.1,4,-1.4,0,Tidak,5,2
+ASG-0136,Bandung Branch,Limited Review,Penugasan Audit Lapangan #136,35,23,46.6,2,1.2,0,Tidak,4,1
+ASG-0137,Medan Branch,Limited Review,Penugasan Audit Lapangan #137,24,22,45.0,3,0.2,0,Tidak,5,1
+ASG-0138,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #138,47,34,68.9,0,1.3,0,Tidak,3,1
+ASG-0139,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #139,33,39,61.4,6,-0.6,0,Tidak,5,1
+ASG-0140,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #140,2,29,42.8,5,-2.7,0,Tidak,5,5
+ASG-0141,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #141,8,38,35.2,1,-3.0,0,Tidak,5,4
+ASG-0142,IT Dept,Limited Review,Penugasan Audit Lapangan #142,44,31,94.4,6,1.3,0,Tidak,5,1
+ASG-0143,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #143,49,40,74.0,4,0.9,0,Tidak,5,1
+ASG-0144,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #144,25,28,23.6,0,-0.3,0,Tidak,5,1
+ASG-0145,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #145,3,19,31.3,0,-1.6,0,Tidak,3,2
+ASG-0146,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #146,59,44,85.4,1,1.5,0,Tidak,3,1
+ASG-0147,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #147,19,30,64.5,4,-1.1,0,Tidak,5,2
+ASG-0148,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #148,20,39,33.0,2,-1.9,0,Tidak,5,3
+ASG-0149,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #149,43,43,37.8,4,0.0,0,Tidak,5,1
+ASG-0150,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #150,37,42,39.1,4,-0.5,0,Tidak,5,1
+ASG-0151,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #151,57,22,21.8,10,3.5,0,Tidak,5,1
+ASG-0152,Finance Dept,Limited Review,Penugasan Audit Lapangan #152,29,31,51.0,2,-0.2,0,Tidak,4,2
+ASG-0153,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #153,36,36,73.9,3,0.0,0,Tidak,4,1
+ASG-0154,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #154,33,25,55.8,2,0.8,0,Tidak,4,1
+ASG-0155,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #155,14,36,64.0,0,-2.2,0,Tidak,2,4
+ASG-0156,IT Dept,Surprise Audit,Penugasan Audit Lapangan #156,7,32,58.6,1,-2.5,0,Tidak,3,3
+ASG-0157,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #157,30,41,10.3,4,-1.1,0,Tidak,5,2
+ASG-0158,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #158,11,16,21.9,6,-0.5,0,Tidak,5,2
+ASG-0159,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #159,41,15,36.5,0,2.6,0,Tidak,4,1
+ASG-0160,Medan Branch,Limited Review,Penugasan Audit Lapangan #160,11,36,85.0,1,-2.5,0,Tidak,2,3
+ASG-0161,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #161,35,23,36.4,7,1.2,0,Tidak,5,1
+ASG-0162,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #162,21,22,34.4,3,-0.1,0,Tidak,5,1
+ASG-0163,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #163,48,35,12.3,7,1.3,0,Tidak,5,1
+ASG-0164,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #164,34,38,92.5,9,-0.4,0,Tidak,5,2
+ASG-0165,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #165,12,16,75.1,11,-0.4,0,Tidak,5,1
+ASG-0166,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #166,25,26,73.9,2,-0.1,0,Tidak,4,1
+ASG-0167,IT Dept,Compliance Audit,Penugasan Audit Lapangan #167,34,41,39.5,2,-0.7,0,Tidak,5,2
+ASG-0168,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #168,58,20,12.1,2,3.8,0,Tidak,5,1
+ASG-0169,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #169,23,42,28.7,0,-1.9,0,Tidak,4,4
+ASG-0170,Finance Dept,Limited Review,Penugasan Audit Lapangan #170,49,16,81.8,3,3.3,0,Tidak,4,1
+ASG-0171,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #171,13,38,21.2,3,-2.5,0,Tidak,5,4
+ASG-0172,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #172,31,26,85.5,2,0.5,0,Tidak,3,1
+ASG-0173,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #173,33,32,53.2,0,0.1,0,Tidak,2,1
+ASG-0174,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #174,45,19,69.3,1,2.6,0,Tidak,3,1
+ASG-0175,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #175,20,27,45.8,3,-0.7,0,Tidak,5,1
+ASG-0176,IT Dept,Compliance Audit,Penugasan Audit Lapangan #176,46,42,88.9,1,0.4,0,Tidak,2,1
+ASG-0177,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #177,41,37,26.6,1,0.4,0,Tidak,4,1
+ASG-0178,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #178,3,37,56.5,5,-3.4,0,Tidak,5,5
+ASG-0179,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #179,52,18,11.2,2,3.4,0,Tidak,5,1
+ASG-0180,Bandung Branch,Limited Review,Penugasan Audit Lapangan #180,15,22,48.2,3,-0.7,0,Tidak,5,1
+ASG-0181,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #181,56,44,92.5,6,1.2,0,Tidak,5,1
+ASG-0182,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #182,34,37,12.9,4,-0.3,0,Tidak,5,1
+ASG-0183,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #183,33,24,50.6,4,0.9,0,Tidak,5,1
+ASG-0184,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #184,58,35,59.2,0,2.3,0,Tidak,2,1
+ASG-0185,IT Dept,Compliance Audit,Penugasan Audit Lapangan #185,59,28,88.9,5,3.1,0,Tidak,5,1
+ASG-0186,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #186,42,34,31.8,4,0.8,0,Tidak,5,1
+ASG-0187,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #187,20,44,50.3,6,-2.4,0,Tidak,5,3
+ASG-0188,Medan Branch,Limited Review,Penugasan Audit Lapangan #188,15,16,93.8,0,-0.1,0,Tidak,2,1
+ASG-0189,IT Dept,Compliance Audit,Penugasan Audit Lapangan #189,5,16,74.2,1,-1.1,0,Tidak,2,2
+ASG-0190,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #190,3,18,77.9,3,-1.5,0,Tidak,4,2
+ASG-0191,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #191,11,38,75.2,3,-2.7,0,Tidak,4,4
+ASG-0192,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #192,30,25,51.4,2,0.5,0,Tidak,4,1
+ASG-0193,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #193,16,36,44.1,0,-2.0,0,Tidak,4,3
+ASG-0194,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #194,32,23,27.9,2,0.9,0,Tidak,5,1
+ASG-0195,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #195,34,32,46.9,0,0.2,0,Tidak,3,1
+ASG-0196,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #196,30,43,6.8,2,-1.3,0,Tidak,5,2
+ASG-0197,Medan Branch,Limited Review,Penugasan Audit Lapangan #197,12,37,13.7,3,-2.5,0,Tidak,5,4
+ASG-0198,Medan Branch,Limited Review,Penugasan Audit Lapangan #198,49,44,30.9,3,0.5,0,Tidak,5,1
+ASG-0199,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #199,46,31,35.0,7,1.5,0,Tidak,5,1
+ASG-0200,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #200,41,16,68.7,2,2.5,0,Tidak,3,1
+ASG-0201,Finance Dept,Limited Review,Penugasan Audit Lapangan #201,10,44,20.4,5,-3.4,0,Tidak,5,5
+ASG-0202,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #202,48,41,76.6,0,0.7,0,Tidak,1,1
+ASG-0203,Finance Dept,Limited Review,Penugasan Audit Lapangan #203,58,39,77.1,5,1.9,0,Tidak,5,1
+ASG-0204,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #204,59,43,57.8,0,1.6,0,Tidak,3,1
+ASG-0205,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #205,30,38,49.2,3,-0.8,0,Tidak,5,2
+ASG-0206,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #206,38,39,47.1,6,-0.1,0,Tidak,5,2
+ASG-0207,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #207,22,44,42.8,6,-2.2,0,Tidak,5,3
+ASG-0208,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #208,32,21,13.0,0,1.1,0,Tidak,5,1
+ASG-0209,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #209,54,26,64.0,4,2.8,0,Tidak,5,1
+ASG-0210,Medan Branch,Limited Review,Penugasan Audit Lapangan #210,23,30,57.0,1,-0.7,0,Tidak,3,1
+ASG-0211,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #211,53,24,6.4,2,2.9,0,Tidak,5,1
+ASG-0212,IT Dept,Limited Review,Penugasan Audit Lapangan #212,19,42,23.2,2,-2.3,0,Tidak,5,3
+ASG-0213,IT Dept,Compliance Audit,Penugasan Audit Lapangan #213,3,25,44.3,3,-2.2,0,Tidak,5,3
+ASG-0214,IT Dept,Surprise Audit,Penugasan Audit Lapangan #214,23,23,86.1,0,0.0,0,Tidak,1,1
+ASG-0215,IT Dept,Surprise Audit,Penugasan Audit Lapangan #215,38,18,94.1,16,2.0,0,Tidak,5,1
+ASG-0216,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #216,21,30,72.6,1,-0.9,0,Tidak,2,2
+ASG-0217,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #217,49,33,72.4,4,1.6,0,Tidak,5,1
+ASG-0218,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #218,49,34,42.4,2,1.5,0,Tidak,4,1
+ASG-0219,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #219,55,19,56.4,0,3.6,0,Tidak,2,1
+ASG-0220,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #220,5,26,26.0,2,-2.1,0,Tidak,5,3
+ASG-0221,Finance Dept,Limited Review,Penugasan Audit Lapangan #221,27,24,71.4,0,0.3,0,Tidak,2,1
+ASG-0222,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #222,21,28,10.4,3,-0.7,0,Tidak,5,1
+ASG-0223,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #223,23,34,42.6,2,-1.1,0,Tidak,4,2
+ASG-0224,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #224,44,34,79.8,2,1.0,0,Tidak,3,1
+ASG-0225,IT Dept,Surprise Audit,Penugasan Audit Lapangan #225,21,26,93.2,10,-0.5,0,Tidak,5,1
+ASG-0226,Finance Dept,Limited Review,Penugasan Audit Lapangan #226,30,37,67.7,2,-0.7,0,Tidak,3,1
+ASG-0227,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #227,49,18,22.8,1,3.1,0,Tidak,4,1
+ASG-0228,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #228,58,34,56.4,2,2.4,0,Tidak,5,1
+ASG-0229,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #229,32,39,55.4,3,-0.7,0,Tidak,5,2
+ASG-0230,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #230,24,23,91.9,5,0.1,0,Tidak,5,1
+ASG-0231,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #231,45,28,80.6,2,1.7,0,Tidak,4,1
+ASG-0232,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #232,39,19,9.4,2,2.0,0,Tidak,5,1
+ASG-0233,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #233,17,23,24.8,0,-0.6,0,Tidak,5,2
+ASG-0234,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #234,20,41,80.8,4,-2.1,0,Tidak,4,3
+ASG-0235,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #235,12,16,92.5,2,-0.4,0,Tidak,2,1
+ASG-0236,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #236,13,26,31.5,6,-1.3,0,Tidak,5,2
+ASG-0237,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #237,37,42,67.2,6,-0.5,0,Tidak,5,1
+ASG-0238,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #238,14,26,32.7,2,-1.2,0,Tidak,5,2
+ASG-0239,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #239,3,27,8.7,5,-2.4,1,Ya (Anomali),5,5
+ASG-0240,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #240,52,35,79.7,11,1.7,0,Tidak,5,1
+ASG-0241,Finance Dept,Limited Review,Penugasan Audit Lapangan #241,12,25,71.5,3,-1.3,0,Tidak,4,3
+ASG-0242,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #242,2,37,9.8,1,-3.5,1,Ya (Anomali),5,5
+ASG-0243,IT Dept,Surprise Audit,Penugasan Audit Lapangan #243,42,22,18.1,2,2.0,0,Tidak,5,1
+ASG-0244,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #244,11,42,95.0,1,-3.1,0,Tidak,1,5
+ASG-0245,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #245,4,35,63.6,3,-3.1,0,Tidak,4,4
+ASG-0246,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #246,9,26,77.0,0,-1.7,0,Tidak,2,3
+ASG-0247,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #247,17,23,40.0,4,-0.6,0,Tidak,5,1
+ASG-0248,Bandung Branch,Limited Review,Penugasan Audit Lapangan #248,37,26,51.6,2,1.1,0,Tidak,4,1
+ASG-0249,IT Dept,Surprise Audit,Penugasan Audit Lapangan #249,44,25,60.8,5,1.9,0,Tidak,5,1
+ASG-0250,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #250,41,33,77.5,11,0.8,0,Tidak,5,1
+ASG-0251,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #251,40,43,35.5,0,-0.3,0,Tidak,4,2
+ASG-0252,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #252,21,42,65.5,0,-2.1,0,Tidak,3,3
+ASG-0253,IT Dept,Surprise Audit,Penugasan Audit Lapangan #253,48,22,74.8,5,2.6,0,Tidak,5,1
+ASG-0254,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #254,56,41,77.5,4,1.5,0,Tidak,5,1
+ASG-0255,Bandung Branch,Limited Review,Penugasan Audit Lapangan #255,9,39,49.9,2,-3.0,0,Tidak,4,5
+ASG-0256,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #256,11,21,47.6,9,-1.0,0,Tidak,5,2
+ASG-0257,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #257,52,35,14.4,0,1.7,0,Tidak,4,1
+ASG-0258,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #258,38,39,49.8,2,-0.1,0,Tidak,5,2
+ASG-0259,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #259,33,41,68.2,4,-0.8,0,Tidak,5,1
+ASG-0260,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #260,28,28,87.9,7,0.0,0,Tidak,5,1
+ASG-0261,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #261,32,43,16.3,6,-1.1,0,Tidak,5,3
+ASG-0262,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #262,4,38,92.2,5,-3.4,0,Tidak,5,5
+ASG-0263,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #263,40,42,26.1,2,-0.2,0,Tidak,5,1
+ASG-0264,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #264,7,38,20.8,3,-3.1,0,Tidak,5,4
+ASG-0265,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #265,18,36,15.3,2,-1.8,0,Tidak,5,3
+ASG-0266,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #266,11,16,94.1,1,-0.5,0,Tidak,2,1
+ASG-0267,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #267,22,34,55.5,5,-1.2,0,Tidak,5,2
+ASG-0268,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #268,30,26,29.4,1,0.4,0,Tidak,4,1
+ASG-0269,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #269,30,15,33.6,4,1.5,0,Tidak,5,1
+ASG-0270,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #270,21,42,90.5,2,-2.1,0,Tidak,2,3
+ASG-0271,Operations Dept,Limited Review,Penugasan Audit Lapangan #271,16,40,86.0,0,-2.4,0,Tidak,1,3
+ASG-0272,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #272,3,35,36.5,4,-3.2,0,Tidak,5,4
+ASG-0273,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #273,34,43,10.7,7,-0.9,0,Tidak,5,3
+ASG-0274,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #274,13,44,80.0,9,-3.1,0,Tidak,5,4
+ASG-0275,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #275,14,24,87.3,0,-1.0,0,Tidak,2,2
+ASG-0276,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #276,45,15,80.4,7,3.0,0,Tidak,5,1
+ASG-0277,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #277,45,36,87.2,3,0.9,0,Tidak,3,1
+ASG-0278,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #278,40,24,56.8,4,1.6,0,Tidak,5,1
+ASG-0279,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #279,40,22,80.6,1,1.8,0,Tidak,2,1
+ASG-0280,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #280,39,27,90.0,5,1.2,0,Tidak,5,1
+ASG-0281,IT Dept,Limited Review,Penugasan Audit Lapangan #281,46,28,85.1,0,1.8,0,Tidak,1,1
+ASG-0282,Finance Dept,Limited Review,Penugasan Audit Lapangan #282,22,24,57.8,0,-0.2,0,Tidak,2,1
+ASG-0283,IT Dept,Compliance Audit,Penugasan Audit Lapangan #283,42,15,72.2,1,2.7,0,Tidak,2,1
+ASG-0284,Operations Dept,Limited Review,Penugasan Audit Lapangan #284,17,20,69.9,2,-0.3,0,Tidak,3,1
+ASG-0285,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #285,35,26,77.3,5,0.9,0,Tidak,5,1
+ASG-0286,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #286,28,34,25.6,3,-0.6,0,Tidak,5,1
+ASG-0287,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #287,44,29,5.2,0,1.5,0,Tidak,5,1
+ASG-0288,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #288,4,27,50.9,0,-2.3,0,Tidak,2,3
+ASG-0289,Medan Branch,Limited Review,Penugasan Audit Lapangan #289,10,29,73.9,0,-1.9,0,Tidak,2,4
+ASG-0290,Finance Dept,Limited Review,Penugasan Audit Lapangan #290,45,39,16.3,5,0.6,0,Tidak,5,1
+ASG-0291,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #291,35,42,53.0,1,-0.7,0,Tidak,3,1
+ASG-0292,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #292,20,30,33.3,1,-1.0,0,Tidak,5,3
+ASG-0293,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #293,39,38,80.4,2,0.1,0,Tidak,3,1
+ASG-0294,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #294,27,26,14.0,6,0.1,0,Tidak,5,1
+ASG-0295,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #295,24,34,81.3,0,-1.0,0,Tidak,1,2
+ASG-0296,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #296,19,25,60.0,8,-0.6,0,Tidak,5,1
+ASG-0297,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #297,46,26,87.8,5,2.0,0,Tidak,5,1
+ASG-0298,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #298,47,41,89.2,2,0.6,0,Tidak,4,1
+ASG-0299,Operations Dept,Limited Review,Penugasan Audit Lapangan #299,41,16,77.8,0,2.5,0,Tidak,1,1
+ASG-0300,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #300,42,43,52.7,3,-0.1,0,Tidak,5,1
+ASG-0301,IT Dept,Surprise Audit,Penugasan Audit Lapangan #301,46,43,17.8,1,0.3,0,Tidak,5,1
+ASG-0302,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #302,50,36,25.3,2,1.4,0,Tidak,5,1
+ASG-0303,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #303,39,44,42.6,1,-0.5,0,Tidak,4,1
+ASG-0304,IT Dept,Limited Review,Penugasan Audit Lapangan #304,53,17,70.6,1,3.6,0,Tidak,2,1
+ASG-0305,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #305,11,31,54.0,0,-2.0,0,Tidak,2,3
+ASG-0306,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #306,44,44,44.4,3,0.0,0,Tidak,5,1
+ASG-0307,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #307,11,28,48.0,9,-1.7,0,Tidak,5,3
+ASG-0308,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #308,22,41,71.7,3,-1.9,0,Tidak,4,3
+ASG-0309,Bandung Branch,Limited Review,Penugasan Audit Lapangan #309,39,21,8.1,9,1.8,0,Tidak,5,1
+ASG-0310,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #310,39,34,44.8,0,0.5,0,Tidak,3,1
+ASG-0311,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #311,48,28,56.5,3,2.0,0,Tidak,5,1
+ASG-0312,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #312,8,23,58.0,0,-1.5,0,Tidak,2,2
+ASG-0313,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #313,58,43,60.7,1,1.5,0,Tidak,4,1
+ASG-0314,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #314,13,24,9.8,1,-1.1,0,Ya (Anomali),5,2
+ASG-0315,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #315,53,40,55.2,5,1.3,0,Tidak,5,1
+ASG-0316,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #316,42,25,54.5,4,1.7,0,Tidak,5,1
+ASG-0317,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #317,34,44,81.9,5,-1.0,0,Tidak,5,3
+ASG-0318,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #318,26,25,73.4,5,0.1,0,Tidak,5,1
+ASG-0319,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #319,29,41,7.8,2,-1.2,0,Tidak,5,2
+ASG-0320,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #320,25,33,55.0,0,-0.8,0,Tidak,3,2
+ASG-0321,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #321,49,43,67.2,3,0.6,0,Tidak,5,1
+ASG-0322,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #322,32,42,57.2,1,-1.0,0,Tidak,3,2
+ASG-0323,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #323,19,27,65.9,8,-0.8,0,Tidak,5,1
+ASG-0324,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #324,24,24,15.5,7,0.0,0,Tidak,5,1
+ASG-0325,IT Dept,Compliance Audit,Penugasan Audit Lapangan #325,8,30,20.2,0,-2.2,0,Tidak,5,3
+ASG-0326,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #326,51,24,57.4,3,2.7,0,Tidak,5,1
+ASG-0327,Bandung Branch,Limited Review,Penugasan Audit Lapangan #327,9,24,77.1,5,-1.5,0,Tidak,5,2
+ASG-0328,IT Dept,Limited Review,Penugasan Audit Lapangan #328,55,42,7.3,1,1.3,0,Tidak,5,1
+ASG-0329,Bandung Branch,Limited Review,Penugasan Audit Lapangan #329,16,26,44.3,5,-1.0,0,Tidak,5,2
+ASG-0330,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #330,39,15,94.3,9,2.4,0,Tidak,5,1
+ASG-0331,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #331,29,42,73.9,1,-1.3,0,Tidak,2,2
+ASG-0332,Medan Branch,Limited Review,Penugasan Audit Lapangan #332,28,32,45.5,0,-0.4,0,Tidak,3,1
+ASG-0333,IT Dept,Surprise Audit,Penugasan Audit Lapangan #333,22,34,13.8,1,-1.2,0,Tidak,5,2
+ASG-0334,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #334,45,42,37.3,4,0.3,0,Tidak,5,1
+ASG-0335,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #335,28,42,18.9,3,-1.4,0,Tidak,5,3
+ASG-0336,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #336,48,25,87.9,7,2.3,0,Tidak,5,1
+ASG-0337,Operations Dept,Limited Review,Penugasan Audit Lapangan #337,57,21,66.7,3,3.6,0,Tidak,5,1
+ASG-0338,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #338,48,28,82.0,0,2.0,0,Tidak,1,1
+ASG-0339,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #339,43,22,85.8,0,2.1,0,Tidak,1,1
+ASG-0340,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #340,42,44,59.6,0,-0.2,0,Tidak,2,1
+ASG-0341,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #341,15,18,5.6,1,-0.3,0,Tidak,5,1
+ASG-0342,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #342,22,17,55.0,0,0.5,0,Tidak,3,1
+ASG-0343,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #343,15,24,77.2,4,-0.9,0,Tidak,5,2
+ASG-0344,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #344,50,23,33.3,2,2.7,0,Tidak,5,1
+ASG-0345,Finance Dept,Limited Review,Penugasan Audit Lapangan #345,44,29,88.5,1,1.5,0,Tidak,2,1
+ASG-0346,Bandung Branch,Limited Review,Penugasan Audit Lapangan #346,7,22,94.7,2,-1.5,0,Tidak,3,2
+ASG-0347,IT Dept,Limited Review,Penugasan Audit Lapangan #347,13,27,54.4,1,-1.4,0,Tidak,3,3
+ASG-0348,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #348,29,36,52.8,0,-0.7,0,Tidak,2,2
+ASG-0349,Bandung Branch,Limited Review,Penugasan Audit Lapangan #349,50,39,64.0,0,1.1,0,Tidak,2,1
+ASG-0350,IT Dept,Compliance Audit,Penugasan Audit Lapangan #350,30,38,56.0,2,-0.8,0,Tidak,4,1
+ASG-0351,IT Dept,Limited Review,Penugasan Audit Lapangan #351,38,21,19.4,0,1.7,0,Tidak,4,1
+ASG-0352,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #352,39,27,29.4,2,1.2,0,Tidak,5,1
+ASG-0353,IT Dept,Limited Review,Penugasan Audit Lapangan #353,4,20,23.2,6,-1.6,0,Tidak,5,2
+ASG-0354,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #354,34,24,11.5,4,1.0,0,Tidak,5,1
+ASG-0355,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #355,51,33,17.6,5,1.8,0,Tidak,5,1
+ASG-0356,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #356,47,42,92.5,6,0.5,0,Tidak,5,1
+ASG-0357,IT Dept,Compliance Audit,Penugasan Audit Lapangan #357,13,25,54.9,7,-1.2,0,Tidak,5,2
+ASG-0358,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #358,13,43,16.3,2,-3.0,0,Tidak,5,4
+ASG-0359,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #359,12,30,69.2,2,-1.8,0,Tidak,3,3
+ASG-0360,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #360,29,36,47.9,1,-0.7,0,Tidak,3,2
+ASG-0361,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #361,52,34,25.2,3,1.8,0,Tidak,5,1
+ASG-0362,IT Dept,Limited Review,Penugasan Audit Lapangan #362,36,35,89.9,5,0.1,0,Tidak,5,1
+ASG-0363,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #363,35,37,25.2,8,-0.2,0,Tidak,5,1
+ASG-0364,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #364,23,43,13.8,7,-2.0,0,Tidak,5,4
+ASG-0365,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #365,40,28,23.5,7,1.2,0,Tidak,5,1
+ASG-0366,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #366,54,37,87.1,0,1.7,0,Tidak,1,1
+ASG-0367,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #367,24,42,82.2,7,-1.8,0,Tidak,5,3
+ASG-0368,Medan Branch,Limited Review,Penugasan Audit Lapangan #368,13,23,85.5,0,-1.0,0,Tidak,1,3
+ASG-0369,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #369,20,30,87.5,3,-1.0,0,Tidak,4,2
+ASG-0370,Operations Dept,Limited Review,Penugasan Audit Lapangan #370,32,23,12.0,8,0.9,0,Tidak,5,1
+ASG-0371,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #371,54,20,69.0,4,3.4,0,Tidak,5,1
+ASG-0372,IT Dept,Limited Review,Penugasan Audit Lapangan #372,14,20,64.8,1,-0.6,0,Tidak,4,2
+ASG-0373,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #373,20,43,94.4,1,-2.3,0,Tidak,2,3
+ASG-0374,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #374,37,32,69.3,4,0.5,0,Tidak,5,1
+ASG-0375,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #375,23,38,76.3,0,-1.5,0,Tidak,1,2
+ASG-0376,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #376,45,33,69.3,3,1.2,0,Tidak,4,1
+ASG-0377,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #377,31,31,60.9,6,0.0,0,Tidak,5,1
+ASG-0378,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #378,5,18,54.8,12,-1.3,0,Tidak,5,3
+ASG-0379,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #379,14,35,92.2,1,-2.1,0,Tidak,2,3
+ASG-0380,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #380,21,33,89.3,2,-1.2,0,Tidak,3,2
+ASG-0381,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #381,40,44,44.4,11,-0.4,0,Tidak,5,1
+ASG-0382,IT Dept,Limited Review,Penugasan Audit Lapangan #382,7,37,30.6,1,-3.0,0,Tidak,4,4
+ASG-0383,Bandung Branch,Limited Review,Penugasan Audit Lapangan #383,45,41,50.8,4,0.4,0,Tidak,5,1
+ASG-0384,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #384,13,35,72.2,6,-2.2,0,Tidak,5,3
+ASG-0385,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #385,17,25,41.1,0,-0.8,0,Tidak,3,1
+ASG-0386,Finance Dept,Limited Review,Penugasan Audit Lapangan #386,46,40,53.4,1,0.6,0,Tidak,3,1
+ASG-0387,IT Dept,Limited Review,Penugasan Audit Lapangan #387,18,35,31.9,7,-1.7,0,Tidak,5,3
+ASG-0388,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #388,9,36,43.5,1,-2.7,0,Tidak,4,5
+ASG-0389,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #389,34,25,91.2,2,0.9,0,Tidak,3,1
+ASG-0390,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #390,45,25,24.3,21,2.0,0,Tidak,5,1
+ASG-0391,Finance Dept,Limited Review,Penugasan Audit Lapangan #391,58,36,94.0,0,2.2,0,Tidak,1,1
+ASG-0392,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #392,53,39,24.4,4,1.4,0,Tidak,5,1
+ASG-0393,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #393,40,33,33.7,7,0.7,0,Tidak,5,1
+ASG-0394,IT Dept,Limited Review,Penugasan Audit Lapangan #394,54,22,12.8,0,3.2,0,Tidak,5,1
+ASG-0395,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #395,13,41,72.7,2,-2.8,0,Tidak,3,4
+ASG-0396,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #396,27,37,6.6,6,-1.0,0,Tidak,5,3
+ASG-0397,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #397,20,30,75.9,1,-1.0,0,Tidak,2,3
+ASG-0398,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #398,14,39,56.9,1,-2.5,0,Tidak,3,3
+ASG-0399,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #399,57,35,72.4,2,2.2,0,Tidak,3,1
+ASG-0400,IT Dept,Surprise Audit,Penugasan Audit Lapangan #400,11,37,75.5,3,-2.6,0,Tidak,4,4
+ASG-0401,Finance Dept,Limited Review,Penugasan Audit Lapangan #401,35,22,16.2,2,1.3,0,Tidak,5,1
+ASG-0402,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #402,32,23,6.9,11,0.9,0,Ya (Anomali),5,1
+ASG-0403,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #403,28,38,20.2,1,-1.0,0,Tidak,4,3
+ASG-0404,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #404,59,26,39.6,0,3.3,0,Tidak,3,1
+ASG-0405,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #405,4,26,11.6,4,-2.2,0,Tidak,5,3
+ASG-0406,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #406,45,16,46.1,7,2.9,0,Tidak,5,1
+ASG-0407,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #407,6,41,30.7,4,-3.5,0,Tidak,5,5
+ASG-0408,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #408,6,20,37.7,1,-1.4,0,Tidak,4,3
+ASG-0409,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #409,38,18,89.6,3,2.0,0,Tidak,4,1
+ASG-0410,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #410,8,43,70.2,3,-3.5,0,Tidak,4,5
+ASG-0411,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #411,41,27,64.2,2,1.4,0,Tidak,4,1
+ASG-0412,Operations Dept,Limited Review,Penugasan Audit Lapangan #412,57,44,63.8,3,1.3,0,Tidak,4,1
+ASG-0413,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #413,52,18,55.0,1,3.4,0,Tidak,3,1
+ASG-0414,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #414,57,23,51.2,3,3.4,0,Tidak,5,1
+ASG-0415,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #415,49,21,84.4,1,2.8,0,Tidak,2,1
+ASG-0416,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #416,43,20,11.8,1,2.3,0,Tidak,5,1
+ASG-0417,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #417,14,32,31.0,3,-1.8,0,Tidak,5,4
+ASG-0418,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #418,35,29,14.4,3,0.6,0,Tidak,5,1
+ASG-0419,IT Dept,Limited Review,Penugasan Audit Lapangan #419,37,30,6.0,6,0.7,0,Tidak,5,1
+ASG-0420,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #420,35,15,6.2,6,2.0,0,Tidak,5,1
+ASG-0421,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #421,54,24,7.2,2,3.0,0,Tidak,5,1
+ASG-0422,Medan Branch,Limited Review,Penugasan Audit Lapangan #422,4,44,66.4,5,-4.0,0,Tidak,5,5
+ASG-0423,Bandung Branch,Limited Review,Penugasan Audit Lapangan #423,11,18,15.0,8,-0.7,0,Tidak,5,2
+ASG-0424,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #424,59,39,23.2,3,2.0,0,Tidak,5,1
+ASG-0425,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #425,44,18,42.7,4,2.6,0,Tidak,5,1
+ASG-0426,Bandung Branch,Limited Review,Penugasan Audit Lapangan #426,36,32,29.2,2,0.4,0,Tidak,5,1
+ASG-0427,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #427,38,27,78.5,2,1.1,0,Tidak,3,1
+ASG-0428,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #428,53,38,61.1,0,1.5,0,Tidak,2,1
+ASG-0429,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #429,7,36,35.0,4,-2.9,0,Tidak,5,4
+ASG-0430,IT Dept,Limited Review,Penugasan Audit Lapangan #430,22,15,33.6,0,0.7,0,Tidak,3,1
+ASG-0431,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #431,59,34,66.5,1,2.5,0,Tidak,4,1
+ASG-0432,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #432,46,24,20.4,10,2.2,0,Tidak,5,1
+ASG-0433,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #433,6,35,30.2,0,-2.9,0,Tidak,4,4
+ASG-0434,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #434,4,15,36.8,1,-1.1,0,Tidak,4,3
+ASG-0435,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #435,21,16,45.9,1,0.5,0,Tidak,4,1
+ASG-0436,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #436,31,23,22.1,0,0.8,0,Tidak,4,1
+ASG-0437,Operations Dept,Limited Review,Penugasan Audit Lapangan #437,13,15,19.2,0,-0.2,0,Tidak,4,1
+ASG-0438,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #438,36,29,94.1,5,0.7,0,Tidak,5,1
+ASG-0439,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #439,33,41,87.2,0,-0.8,0,Tidak,1,1
+ASG-0440,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #440,20,29,52.1,2,-0.9,0,Tidak,4,2
+ASG-0441,Finance Dept,Limited Review,Penugasan Audit Lapangan #441,16,38,73.9,4,-2.2,0,Tidak,5,3
+ASG-0442,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #442,11,42,65.7,2,-3.1,0,Tidak,3,4
+ASG-0443,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #443,58,41,11.8,0,1.7,0,Tidak,5,1
+ASG-0444,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #444,27,39,51.6,1,-1.2,0,Tidak,4,2
+ASG-0445,IT Dept,Surprise Audit,Penugasan Audit Lapangan #445,7,16,21.6,4,-0.9,0,Tidak,5,2
+ASG-0446,IT Dept,Limited Review,Penugasan Audit Lapangan #446,49,26,57.6,7,2.3,0,Tidak,5,1
+ASG-0447,Medan Branch,Limited Review,Penugasan Audit Lapangan #447,48,32,10.6,2,1.6,0,Tidak,5,1
+ASG-0448,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #448,27,37,19.7,0,-1.0,0,Tidak,5,2
+ASG-0449,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #449,3,24,75.4,0,-2.1,0,Tidak,2,4
+ASG-0450,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #450,50,44,80.9,3,0.6,0,Tidak,4,1
+ASG-0451,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #451,49,27,86.7,0,2.2,0,Tidak,1,1
+ASG-0452,Medan Branch,Limited Review,Penugasan Audit Lapangan #452,33,23,85.7,3,1.0,0,Tidak,3,1
+ASG-0453,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #453,4,40,86.6,4,-3.6,0,Tidak,4,5
+ASG-0454,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #454,20,39,13.5,1,-1.9,0,Tidak,5,3
+ASG-0455,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #455,37,17,64.4,4,2.0,0,Tidak,5,1
+ASG-0456,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #456,21,37,68.1,6,-1.6,0,Tidak,5,2
+ASG-0457,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #457,31,36,29.1,5,-0.5,0,Tidak,5,1
+ASG-0458,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #458,38,22,94.4,3,1.6,0,Tidak,3,1
+ASG-0459,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #459,46,28,30.7,1,1.8,0,Tidak,4,1
+ASG-0460,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #460,21,38,56.7,8,-1.7,0,Tidak,5,3
+ASG-0461,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #461,35,38,83.5,3,-0.3,0,Tidak,4,2
+ASG-0462,IT Dept,Compliance Audit,Penugasan Audit Lapangan #462,45,38,31.0,1,0.7,0,Tidak,4,1
+ASG-0463,IT Dept,Limited Review,Penugasan Audit Lapangan #463,18,41,59.6,5,-2.3,0,Tidak,5,3
+ASG-0464,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #464,43,40,69.8,4,0.3,0,Tidak,5,1
+ASG-0465,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #465,24,30,61.4,4,-0.6,0,Tidak,5,1
+ASG-0466,IT Dept,Compliance Audit,Penugasan Audit Lapangan #466,42,20,41.5,1,2.2,0,Tidak,5,1
+ASG-0467,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #467,10,23,90.0,2,-1.3,0,Tidak,2,3
+ASG-0468,IT Dept,Surprise Audit,Penugasan Audit Lapangan #468,28,35,60.1,2,-0.7,0,Tidak,4,1
+ASG-0469,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #469,18,18,25.2,6,0.0,0,Tidak,5,1
+ASG-0470,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #470,42,37,77.6,9,0.5,0,Tidak,5,1
+ASG-0471,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #471,47,33,64.0,10,1.4,0,Tidak,5,1
+ASG-0472,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #472,18,38,14.9,2,-2.0,0,Tidak,5,4
+ASG-0473,Finance Dept,Limited Review,Penugasan Audit Lapangan #473,50,29,30.0,0,2.1,0,Tidak,3,1
+ASG-0474,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #474,3,38,19.2,2,-3.5,1,Ya (Anomali),5,5
+ASG-0475,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #475,59,25,11.5,3,3.4,0,Tidak,5,1
+ASG-0476,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #476,16,35,25.7,3,-1.9,0,Tidak,5,4
+ASG-0477,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #477,12,24,30.0,4,-1.2,0,Tidak,5,2
+ASG-0478,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #478,55,22,47.0,2,3.3,0,Tidak,5,1
+ASG-0479,Finance Dept,Limited Review,Penugasan Audit Lapangan #479,58,17,92.2,5,4.1,0,Tidak,5,1
+ASG-0480,Bandung Branch,Limited Review,Penugasan Audit Lapangan #480,38,33,89.9,5,0.5,0,Tidak,5,1
+ASG-0481,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #481,42,18,72.8,2,2.4,0,Tidak,3,1
+ASG-0482,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #482,10,43,63.2,1,-3.3,0,Tidak,3,4
+ASG-0483,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #483,15,27,90.3,8,-1.2,0,Tidak,5,2
+ASG-0484,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #484,9,23,17.8,1,-1.4,0,Tidak,5,2
+ASG-0485,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #485,44,35,34.7,3,0.9,0,Tidak,5,1
+ASG-0486,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #486,13,36,54.8,5,-2.3,0,Tidak,5,3
+ASG-0487,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #487,8,34,78.3,3,-2.6,0,Tidak,5,4
+ASG-0488,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #488,4,44,61.1,2,-4.0,0,Tidak,4,5
+ASG-0489,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #489,27,27,77.8,0,0.0,0,Tidak,1,1
+ASG-0490,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #490,4,23,18.8,4,-1.9,0,Tidak,5,3
+ASG-0491,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #491,47,34,22.3,1,1.3,0,Tidak,4,1
+ASG-0492,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #492,5,33,71.7,9,-2.8,0,Ya (Anomali),5,5
+ASG-0493,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #493,58,30,36.3,10,2.8,0,Tidak,5,1
+ASG-0494,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #494,33,32,44.2,1,0.1,0,Tidak,5,1
+ASG-0495,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #495,47,33,76.2,7,1.4,0,Tidak,5,1
+ASG-0496,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #496,15,31,11.3,0,-1.6,0,Tidak,5,3
+ASG-0497,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #497,4,26,20.1,1,-2.2,0,Tidak,4,4
+ASG-0498,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #498,14,25,31.6,0,-1.1,0,Tidak,3,2
+ASG-0499,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #499,9,38,84.5,0,-2.9,0,Tidak,2,4
+ASG-0500,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #500,57,31,41.4,2,2.6,0,Tidak,5,1
+ASG-0501,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #501,39,20,27.7,1,1.9,0,Tidak,5,1
+ASG-0502,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #502,3,41,66.1,3,-3.8,0,Tidak,4,5
+ASG-0503,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #503,39,29,7.7,4,1.0,0,Tidak,5,1
+ASG-0504,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #504,53,16,74.8,2,3.7,0,Tidak,4,1
+ASG-0505,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #505,47,28,67.8,1,1.9,0,Tidak,4,1
+ASG-0506,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #506,32,41,10.0,13,-0.9,0,Tidak,5,2
+ASG-0507,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #507,40,41,49.8,3,-0.1,0,Tidak,5,1
+ASG-0508,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #508,28,17,41.4,1,1.1,0,Tidak,4,1
+ASG-0509,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #509,18,39,19.2,1,-2.1,0,Tidak,5,3
+ASG-0510,Operations Dept,Limited Review,Penugasan Audit Lapangan #510,36,26,18.9,6,1.0,0,Tidak,5,1
+ASG-0511,Medan Branch,Limited Review,Penugasan Audit Lapangan #511,47,43,19.4,11,0.4,0,Tidak,5,1
+ASG-0512,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #512,25,39,59.0,5,-1.4,0,Tidak,5,3
+ASG-0513,Operations Dept,Limited Review,Penugasan Audit Lapangan #513,2,20,20.4,1,-1.8,0,Tidak,4,3
+ASG-0514,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #514,30,37,10.4,8,-0.7,0,Tidak,5,1
+ASG-0515,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #515,27,19,91.2,4,0.8,0,Tidak,5,1
+ASG-0516,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #516,45,21,8.5,3,2.4,0,Tidak,5,1
+ASG-0517,IT Dept,Surprise Audit,Penugasan Audit Lapangan #517,36,20,64.8,1,1.6,0,Tidak,3,1
+ASG-0518,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #518,52,35,89.2,1,1.7,0,Tidak,3,1
+ASG-0519,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #519,45,33,8.4,3,1.2,0,Tidak,5,1
+ASG-0520,Operations Dept,Limited Review,Penugasan Audit Lapangan #520,25,28,91.9,4,-0.3,0,Tidak,4,2
+ASG-0521,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #521,47,32,50.2,2,1.5,0,Tidak,4,1
+ASG-0522,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #522,34,35,75.7,1,-0.1,0,Tidak,2,2
+ASG-0523,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #523,27,28,61.3,1,-0.1,0,Tidak,3,1
+ASG-0524,IT Dept,Surprise Audit,Penugasan Audit Lapangan #524,38,22,60.5,0,1.6,0,Tidak,2,1
+ASG-0525,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #525,40,28,76.0,2,1.2,0,Tidak,4,1
+ASG-0526,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #526,53,35,10.9,0,1.8,0,Tidak,5,1
+ASG-0527,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #527,59,33,40.3,1,2.6,0,Tidak,5,1
+ASG-0528,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #528,52,40,92.3,3,1.2,0,Tidak,4,1
+ASG-0529,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #529,27,17,9.9,2,1.0,0,Ya (Anomali),5,1
+ASG-0530,Operations Dept,Limited Review,Penugasan Audit Lapangan #530,39,29,28.7,2,1.0,0,Tidak,5,1
+ASG-0531,Medan Branch,Limited Review,Penugasan Audit Lapangan #531,54,35,65.5,0,1.9,0,Tidak,2,1
+ASG-0532,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #532,51,44,14.0,5,0.7,0,Tidak,5,1
+ASG-0533,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #533,39,30,53.3,1,0.9,0,Tidak,3,1
+ASG-0534,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #534,12,39,69.2,4,-2.7,0,Tidak,5,4
+ASG-0535,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #535,30,29,73.2,3,0.1,0,Tidak,5,1
+ASG-0536,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #536,30,28,55.5,1,0.2,0,Tidak,3,1
+ASG-0537,Finance Dept,Limited Review,Penugasan Audit Lapangan #537,4,29,50.1,1,-2.5,0,Tidak,4,4
+ASG-0538,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #538,10,38,69.2,1,-2.8,0,Tidak,4,4
+ASG-0539,Medan Branch,Limited Review,Penugasan Audit Lapangan #539,36,21,18.1,4,1.5,0,Tidak,5,1
+ASG-0540,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #540,58,19,66.2,3,3.9,0,Tidak,4,1
+ASG-0541,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #541,7,23,87.7,1,-1.6,0,Tidak,2,2
+ASG-0542,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #542,57,30,66.4,2,2.7,0,Tidak,3,1
+ASG-0543,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #543,10,42,9.2,3,-3.2,0,Ya (Anomali),5,4
+ASG-0544,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #544,9,16,50.5,9,-0.7,0,Tidak,5,1
+ASG-0545,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #545,28,36,70.4,3,-0.8,0,Tidak,5,1
+ASG-0546,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #546,35,37,8.9,1,-0.2,0,Tidak,5,1
+ASG-0547,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #547,52,21,73.6,1,3.1,0,Tidak,2,1
+ASG-0548,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #548,25,26,30.3,1,-0.1,0,Tidak,4,1
+ASG-0549,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #549,49,41,58.0,0,0.8,0,Tidak,2,1
+ASG-0550,Medan Branch,Limited Review,Penugasan Audit Lapangan #550,6,43,92.0,3,-3.7,0,Tidak,4,5
+ASG-0551,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #551,11,30,94.5,1,-1.9,0,Tidak,2,3
+ASG-0552,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #552,21,18,62.1,1,0.3,0,Tidak,3,1
+ASG-0553,IT Dept,Compliance Audit,Penugasan Audit Lapangan #553,23,16,49.2,0,0.7,0,Tidak,3,1
+ASG-0554,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #554,13,31,21.0,12,-1.8,0,Tidak,5,4
+ASG-0555,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #555,45,31,23.8,2,1.4,0,Tidak,5,1
+ASG-0556,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #556,30,17,43.6,1,1.3,0,Tidak,5,1
+ASG-0557,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #557,32,30,68.2,7,0.2,0,Tidak,5,1
+ASG-0558,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #558,7,37,74.2,4,-3.0,0,Tidak,5,4
+ASG-0559,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #559,47,41,25.0,5,0.6,0,Tidak,5,1
+ASG-0560,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #560,8,19,53.2,0,-1.1,0,Tidak,2,3
+ASG-0561,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #561,54,21,58.2,0,3.3,0,Tidak,3,1
+ASG-0562,IT Dept,Compliance Audit,Penugasan Audit Lapangan #562,34,42,85.4,7,-0.8,0,Tidak,5,1
+ASG-0563,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #563,47,27,83.9,5,2.0,0,Tidak,5,1
+ASG-0564,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #564,16,23,78.6,6,-0.7,0,Tidak,5,2
+ASG-0565,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #565,14,22,51.5,11,-0.8,0,Tidak,5,1
+ASG-0566,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #566,25,15,10.9,1,1.0,0,Tidak,5,1
+ASG-0567,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #567,31,44,35.1,1,-1.3,0,Tidak,4,3
+ASG-0568,IT Dept,Limited Review,Penugasan Audit Lapangan #568,34,18,61.0,2,1.6,0,Tidak,5,1
+ASG-0569,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #569,21,35,62.4,8,-1.4,0,Tidak,5,3
+ASG-0570,Operations Dept,Limited Review,Penugasan Audit Lapangan #570,20,21,81.4,7,-0.1,0,Tidak,5,1
+ASG-0571,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #571,20,25,39.1,1,-0.5,0,Tidak,4,1
+ASG-0572,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #572,39,22,89.3,10,1.7,0,Tidak,5,1
+ASG-0573,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #573,25,22,19.7,2,0.3,0,Tidak,5,1
+ASG-0574,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #574,6,34,9.5,0,-2.8,0,Ya (Anomali),4,4
+ASG-0575,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #575,23,44,20.9,0,-2.1,0,Tidak,4,3
+ASG-0576,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #576,23,25,46.6,3,-0.2,0,Tidak,5,2
+ASG-0577,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #577,29,21,79.1,1,0.8,0,Tidak,2,1
+ASG-0578,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #578,18,42,18.8,0,-2.4,0,Tidak,5,4
+ASG-0579,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #579,32,25,54.3,2,0.7,0,Tidak,5,1
+ASG-0580,Medan Branch,Limited Review,Penugasan Audit Lapangan #580,48,32,74.9,6,1.6,0,Tidak,5,1
+ASG-0581,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #581,8,39,8.1,3,-3.1,0,Ya (Anomali),5,4
+ASG-0582,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #582,18,36,8.7,2,-1.8,0,Tidak,5,4
+ASG-0583,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #583,13,18,49.2,8,-0.5,0,Tidak,5,2
+ASG-0584,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #584,8,20,21.4,6,-1.2,0,Tidak,5,2
+ASG-0585,Finance Dept,Limited Review,Penugasan Audit Lapangan #585,30,21,45.6,4,0.9,0,Tidak,5,1
+ASG-0586,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #586,46,24,9.0,2,2.2,0,Tidak,5,1
+ASG-0587,IT Dept,Surprise Audit,Penugasan Audit Lapangan #587,9,22,92.9,0,-1.3,0,Tidak,1,2
+ASG-0588,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #588,5,18,63.9,0,-1.3,0,Tidak,3,3
+ASG-0589,Finance Dept,Limited Review,Penugasan Audit Lapangan #589,41,23,66.8,3,1.8,0,Tidak,4,1
+ASG-0590,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #590,55,20,50.9,3,3.5,0,Tidak,5,1
+ASG-0591,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #591,17,31,79.2,3,-1.4,0,Tidak,5,2
+ASG-0592,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #592,17,33,80.0,3,-1.6,0,Tidak,4,3
+ASG-0593,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #593,23,28,19.3,8,-0.5,0,Tidak,5,1
+ASG-0594,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #594,12,15,74.2,9,-0.3,0,Tidak,5,2
+ASG-0595,Bandung Branch,Limited Review,Penugasan Audit Lapangan #595,42,20,56.0,6,2.2,0,Tidak,5,1
+ASG-0596,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #596,55,36,73.6,0,1.9,0,Tidak,3,1
+ASG-0597,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #597,12,21,87.7,0,-0.9,0,Tidak,2,2
+ASG-0598,IT Dept,Surprise Audit,Penugasan Audit Lapangan #598,6,15,35.2,0,-0.9,0,Tidak,3,3
+ASG-0599,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #599,43,31,56.4,6,1.2,0,Tidak,5,1
+ASG-0600,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #600,59,35,75.9,4,2.4,0,Tidak,5,1
+ASG-0601,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #601,39,35,93.8,0,0.4,0,Tidak,1,1
+ASG-0602,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #602,49,31,60.1,1,1.8,0,Tidak,3,1
+ASG-0603,IT Dept,Compliance Audit,Penugasan Audit Lapangan #603,13,21,69.9,6,-0.8,0,Tidak,5,1
+ASG-0604,IT Dept,Compliance Audit,Penugasan Audit Lapangan #604,41,28,81.2,1,1.3,0,Tidak,3,1
+ASG-0605,IT Dept,Limited Review,Penugasan Audit Lapangan #605,26,21,72.6,2,0.5,0,Tidak,3,1
+ASG-0606,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #606,59,36,89.8,1,2.3,0,Tidak,2,1
+ASG-0607,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #607,46,27,25.7,5,1.9,0,Tidak,5,1
+ASG-0608,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #608,14,37,86.7,2,-2.3,0,Tidak,3,3
+ASG-0609,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #609,49,42,23.6,1,0.7,0,Tidak,4,1
+ASG-0610,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #610,27,36,55.9,4,-0.9,0,Tidak,5,2
+ASG-0611,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #611,12,40,52.1,3,-2.8,0,Tidak,5,4
+ASG-0612,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #612,57,32,79.8,2,2.5,0,Tidak,3,1
+ASG-0613,IT Dept,Limited Review,Penugasan Audit Lapangan #613,41,35,40.9,0,0.6,0,Tidak,3,1
+ASG-0614,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #614,24,21,17.9,4,0.3,0,Tidak,5,1
+ASG-0615,IT Dept,Surprise Audit,Penugasan Audit Lapangan #615,14,16,68.6,1,-0.2,0,Tidak,3,1
+ASG-0616,Operations Dept,Limited Review,Penugasan Audit Lapangan #616,34,35,59.6,2,-0.1,0,Tidak,4,1
+ASG-0617,Finance Dept,Limited Review,Penugasan Audit Lapangan #617,53,33,79.4,1,2.0,0,Tidak,3,1
+ASG-0618,Operations Dept,Limited Review,Penugasan Audit Lapangan #618,53,28,73.3,3,2.5,0,Tidak,4,1
+ASG-0619,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #619,29,39,85.5,0,-1.0,0,Tidak,2,2
+ASG-0620,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #620,52,40,80.5,1,1.2,0,Tidak,2,1
+ASG-0621,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #621,5,15,66.7,6,-1.0,0,Tidak,5,2
+ASG-0622,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #622,29,30,46.9,0,-0.1,0,Tidak,4,2
+ASG-0623,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #623,35,21,6.8,2,1.4,0,Tidak,5,1
+ASG-0624,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #624,52,40,32.7,0,1.2,0,Tidak,3,1
+ASG-0625,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #625,52,30,70.5,1,2.2,0,Tidak,2,1
+ASG-0626,Finance Dept,Limited Review,Penugasan Audit Lapangan #626,11,34,10.4,5,-2.3,0,Tidak,5,3
+ASG-0627,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #627,50,26,73.1,1,2.4,0,Tidak,2,1
+ASG-0628,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #628,56,19,51.5,1,3.7,0,Tidak,4,1
+ASG-0629,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #629,53,31,83.1,4,2.2,0,Tidak,4,1
+ASG-0630,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #630,9,35,64.4,2,-2.6,0,Tidak,5,5
+ASG-0631,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #631,10,41,76.9,4,-3.1,0,Tidak,5,5
+ASG-0632,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #632,19,38,20.4,0,-1.9,0,Tidak,4,3
+ASG-0633,Finance Dept,Limited Review,Penugasan Audit Lapangan #633,3,27,20.6,3,-2.4,0,Tidak,5,3
+ASG-0634,IT Dept,Surprise Audit,Penugasan Audit Lapangan #634,19,28,24.0,7,-0.9,0,Tidak,5,3
+ASG-0635,Operations Dept,Limited Review,Penugasan Audit Lapangan #635,41,36,35.0,0,0.5,0,Tidak,3,1
+ASG-0636,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #636,3,43,86.4,0,-4.0,0,Tidak,1,5
+ASG-0637,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #637,23,30,74.7,0,-0.7,0,Tidak,2,1
+ASG-0638,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #638,17,27,37.8,2,-1.0,0,Tidak,5,2
+ASG-0639,IT Dept,Surprise Audit,Penugasan Audit Lapangan #639,38,32,87.7,0,0.6,0,Tidak,1,1
+ASG-0640,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #640,33,32,75.1,2,0.1,0,Tidak,3,1
+ASG-0641,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #641,11,41,64.0,1,-3.0,0,Tidak,3,4
+ASG-0642,IT Dept,Limited Review,Penugasan Audit Lapangan #642,42,23,44.3,7,1.9,0,Tidak,5,1
+ASG-0643,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #643,35,42,63.6,5,-0.7,0,Tidak,5,1
+ASG-0644,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #644,49,15,58.4,0,3.4,0,Tidak,2,1
+ASG-0645,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #645,17,42,75.4,4,-2.5,0,Tidak,5,3
+ASG-0646,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #646,50,16,25.3,1,3.4,0,Tidak,4,1
+ASG-0647,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #647,35,22,84.7,2,1.3,0,Tidak,4,1
+ASG-0648,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #648,59,27,58.3,0,3.2,0,Tidak,2,1
+ASG-0649,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #649,38,20,77.6,5,1.8,0,Tidak,5,1
+ASG-0650,Finance Dept,Limited Review,Penugasan Audit Lapangan #650,41,33,36.3,5,0.8,0,Tidak,5,1
+ASG-0651,Operations Dept,Limited Review,Penugasan Audit Lapangan #651,57,33,40.3,1,2.4,0,Tidak,4,1
+ASG-0652,IT Dept,Surprise Audit,Penugasan Audit Lapangan #652,35,44,89.4,0,-0.9,0,Tidak,2,3
+ASG-0653,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #653,45,41,61.0,2,0.4,0,Tidak,4,1
+ASG-0654,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #654,14,39,33.6,8,-2.5,0,Tidak,5,3
+ASG-0655,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #655,49,16,12.4,0,3.3,0,Tidak,5,1
+ASG-0656,IT Dept,Surprise Audit,Penugasan Audit Lapangan #656,38,24,44.1,4,1.4,0,Tidak,5,1
+ASG-0657,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #657,13,19,81.4,0,-0.6,0,Tidak,1,1
+ASG-0658,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #658,16,37,27.6,3,-2.1,0,Tidak,5,3
+ASG-0659,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #659,31,36,82.4,5,-0.5,0,Tidak,5,1
+ASG-0660,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #660,32,44,19.5,0,-1.2,0,Tidak,4,3
+ASG-0661,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #661,30,15,16.7,4,1.5,0,Tidak,5,1
+ASG-0662,IT Dept,Limited Review,Penugasan Audit Lapangan #662,35,27,59.5,1,0.8,0,Tidak,3,1
+ASG-0663,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #663,33,26,77.4,5,0.7,0,Tidak,5,1
+ASG-0664,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #664,45,24,75.2,6,2.1,0,Tidak,5,1
+ASG-0665,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #665,24,17,53.9,5,0.7,0,Tidak,5,1
+ASG-0666,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #666,11,29,62.5,5,-1.8,0,Tidak,5,4
+ASG-0667,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #667,9,44,28.2,1,-3.5,0,Tidak,4,5
+ASG-0668,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #668,22,19,54.6,4,0.3,0,Tidak,5,1
+ASG-0669,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #669,12,42,23.7,3,-3.0,0,Tidak,5,4
+ASG-0670,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #670,13,33,88.6,5,-2.0,0,Ya (Anomali),5,4
+ASG-0671,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #671,50,33,66.0,3,1.7,0,Tidak,5,1
+ASG-0672,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #672,40,35,55.8,2,0.5,0,Tidak,4,1
+ASG-0673,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #673,48,43,27.2,8,0.5,0,Tidak,5,1
+ASG-0674,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #674,20,27,41.8,3,-0.7,0,Tidak,5,2
+ASG-0675,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #675,35,22,75.2,0,1.3,0,Tidak,1,1
+ASG-0676,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #676,39,40,26.5,0,-0.1,0,Tidak,3,1
+ASG-0677,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #677,35,22,16.6,0,1.3,0,Tidak,4,1
+ASG-0678,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #678,47,44,32.7,1,0.3,0,Tidak,5,1
+ASG-0679,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #679,27,38,76.5,4,-1.1,0,Tidak,5,2
+ASG-0680,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #680,41,20,84.5,3,2.1,0,Tidak,4,1
+ASG-0681,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #681,17,23,42.3,5,-0.6,0,Tidak,5,2
+ASG-0682,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #682,20,28,75.3,10,-0.8,0,Tidak,5,2
+ASG-0683,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #683,51,19,34.9,0,3.2,0,Tidak,4,1
+ASG-0684,Bandung Branch,Limited Review,Penugasan Audit Lapangan #684,57,30,50.8,4,2.7,0,Tidak,5,1
+ASG-0685,Operations Dept,Limited Review,Penugasan Audit Lapangan #685,30,28,6.8,1,0.2,0,Tidak,5,1
+ASG-0686,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #686,46,24,69.1,2,2.2,0,Tidak,4,1
+ASG-0687,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #687,39,37,69.7,1,0.2,0,Tidak,3,1
+ASG-0688,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #688,37,31,14.0,9,0.6,0,Tidak,5,1
+ASG-0689,Medan Branch,Limited Review,Penugasan Audit Lapangan #689,22,30,37.3,1,-0.8,0,Tidak,4,1
+ASG-0690,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #690,11,34,48.5,1,-2.3,0,Tidak,4,4
+ASG-0691,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #691,48,31,74.7,4,1.7,0,Tidak,5,1
+ASG-0692,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #692,24,30,79.1,1,-0.6,0,Tidak,2,1
+ASG-0693,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #693,45,24,69.7,3,2.1,0,Tidak,4,1
+ASG-0694,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #694,53,32,24.4,0,2.1,0,Tidak,4,1
+ASG-0695,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #695,45,20,37.1,12,2.5,0,Tidak,5,1
+ASG-0696,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #696,8,31,27.3,1,-2.3,0,Tidak,4,3
+ASG-0697,Operations Dept,Limited Review,Penugasan Audit Lapangan #697,39,23,62.3,5,1.6,0,Tidak,5,1
+ASG-0698,Bandung Branch,Limited Review,Penugasan Audit Lapangan #698,6,36,63.3,4,-3.0,0,Tidak,5,4
+ASG-0699,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #699,20,22,6.5,1,-0.2,0,Tidak,5,1
+ASG-0700,IT Dept,Limited Review,Penugasan Audit Lapangan #700,47,40,70.9,5,0.7,0,Tidak,5,1
+ASG-0701,Medan Branch,Limited Review,Penugasan Audit Lapangan #701,34,40,25.7,1,-0.6,0,Tidak,5,1
+ASG-0702,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #702,25,22,77.1,5,0.3,0,Tidak,5,1
+ASG-0703,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #703,44,26,80.0,4,1.8,0,Tidak,4,1
+ASG-0704,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #704,24,32,76.7,4,-0.8,0,Tidak,5,1
+ASG-0705,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #705,23,16,41.7,1,0.7,0,Tidak,4,1
+ASG-0706,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #706,37,17,36.3,1,2.0,0,Tidak,4,1
+ASG-0707,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #707,54,41,44.2,3,1.3,0,Tidak,5,1
+ASG-0708,IT Dept,Limited Review,Penugasan Audit Lapangan #708,47,38,52.5,4,0.9,0,Tidak,5,1
+ASG-0709,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #709,22,25,27.5,2,-0.3,0,Tidak,5,1
+ASG-0710,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #710,19,38,88.8,6,-1.9,0,Tidak,5,3
+ASG-0711,Operations Dept,Limited Review,Penugasan Audit Lapangan #711,39,35,50.4,1,0.4,0,Tidak,3,1
+ASG-0712,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #712,28,44,11.6,1,-1.6,0,Tidak,5,2
+ASG-0713,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #713,38,27,94.7,3,1.1,0,Tidak,3,1
+ASG-0714,Medan Branch,Limited Review,Penugasan Audit Lapangan #714,50,32,48.6,0,1.8,0,Tidak,3,1
+ASG-0715,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #715,26,25,90.2,4,0.1,0,Tidak,4,1
+ASG-0716,IT Dept,Surprise Audit,Penugasan Audit Lapangan #716,40,28,40.1,1,1.2,0,Tidak,4,1
+ASG-0717,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #717,31,34,25.2,8,-0.3,0,Tidak,5,2
+ASG-0718,IT Dept,Surprise Audit,Penugasan Audit Lapangan #718,44,18,71.3,2,2.6,0,Tidak,4,1
+ASG-0719,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #719,15,37,43.9,5,-2.2,0,Tidak,5,4
+ASG-0720,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #720,35,18,84.3,2,1.7,0,Tidak,3,1
+ASG-0721,IT Dept,Surprise Audit,Penugasan Audit Lapangan #721,55,24,46.8,4,3.1,0,Tidak,5,1
+ASG-0722,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #722,33,36,35.5,6,-0.3,0,Tidak,5,1
+ASG-0723,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #723,32,41,92.0,0,-0.9,0,Tidak,1,2
+ASG-0724,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #724,50,16,79.7,2,3.4,0,Tidak,4,1
+ASG-0725,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #725,3,32,23.5,4,-2.9,0,Tidak,5,5
+ASG-0726,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #726,48,42,49.0,1,0.6,0,Tidak,3,1
+ASG-0727,Bandung Branch,Limited Review,Penugasan Audit Lapangan #727,40,25,15.2,4,1.5,0,Tidak,5,1
+ASG-0728,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #728,36,19,14.7,6,1.7,0,Tidak,5,1
+ASG-0729,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #729,24,31,81.8,1,-0.7,0,Tidak,2,1
+ASG-0730,Medan Branch,Limited Review,Penugasan Audit Lapangan #730,7,16,88.9,0,-0.9,0,Tidak,1,2
+ASG-0731,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #731,22,17,71.5,1,0.5,0,Tidak,2,1
+ASG-0732,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #732,27,39,94.0,1,-1.2,0,Tidak,2,2
+ASG-0733,IT Dept,Limited Review,Penugasan Audit Lapangan #733,31,39,9.1,4,-0.8,0,Tidak,5,1
+ASG-0734,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #734,42,21,34.8,1,2.1,0,Tidak,4,1
+ASG-0735,IT Dept,Compliance Audit,Penugasan Audit Lapangan #735,43,43,16.9,3,0.0,0,Tidak,5,1
+ASG-0736,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #736,54,35,75.4,2,1.9,0,Tidak,3,1
+ASG-0737,Operations Dept,Limited Review,Penugasan Audit Lapangan #737,31,16,85.1,2,1.5,0,Tidak,3,1
+ASG-0738,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #738,54,16,45.2,2,3.8,0,Tidak,4,1
+ASG-0739,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #739,9,22,79.6,7,-1.3,0,Tidak,5,3
+ASG-0740,IT Dept,Surprise Audit,Penugasan Audit Lapangan #740,40,30,81.3,1,1.0,0,Tidak,2,1
+ASG-0741,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #741,34,17,17.6,0,1.7,0,Tidak,5,1
+ASG-0742,IT Dept,Compliance Audit,Penugasan Audit Lapangan #742,11,37,38.9,4,-2.6,0,Tidak,5,4
+ASG-0743,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #743,19,43,21.9,1,-2.4,0,Tidak,4,3
+ASG-0744,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #744,49,36,65.3,8,1.3,0,Tidak,5,1
+ASG-0745,IT Dept,Limited Review,Penugasan Audit Lapangan #745,37,43,39.9,0,-0.6,0,Tidak,3,1
+ASG-0746,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #746,42,20,65.1,3,2.2,0,Tidak,4,1
+ASG-0747,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #747,56,33,83.8,7,2.3,0,Tidak,5,1
+ASG-0748,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #748,51,36,42.1,6,1.5,0,Tidak,5,1
+ASG-0749,Finance Dept,Limited Review,Penugasan Audit Lapangan #749,12,27,92.5,4,-1.5,0,Tidak,4,2
+ASG-0750,IT Dept,Surprise Audit,Penugasan Audit Lapangan #750,45,18,41.8,0,2.7,0,Tidak,4,1
+ASG-0751,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #751,9,31,24.2,5,-2.2,0,Tidak,5,4
+ASG-0752,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #752,2,42,52.6,3,-4.0,0,Tidak,5,5
+ASG-0753,IT Dept,Surprise Audit,Penugasan Audit Lapangan #753,9,38,40.9,12,-2.9,0,Tidak,5,4
+ASG-0754,Finance Dept,Limited Review,Penugasan Audit Lapangan #754,6,23,16.3,3,-1.7,0,Tidak,5,3
+ASG-0755,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #755,2,44,7.1,1,-4.2,1,Ya (Anomali),5,5
+ASG-0756,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #756,4,17,72.0,7,-1.3,0,Tidak,5,2
+ASG-0757,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #757,28,41,89.0,1,-1.3,0,Tidak,2,2
+ASG-0758,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #758,46,15,44.6,6,3.1,0,Tidak,5,1
+ASG-0759,Finance Dept,Limited Review,Penugasan Audit Lapangan #759,49,15,10.9,1,3.4,0,Tidak,5,1
+ASG-0760,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #760,24,31,71.7,6,-0.7,0,Tidak,5,2
+ASG-0761,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #761,45,39,83.0,4,0.6,0,Tidak,5,1
+ASG-0762,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #762,40,40,34.1,2,0.0,0,Tidak,5,1
+ASG-0763,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #763,41,27,25.0,2,1.4,0,Tidak,5,1
+ASG-0764,Bandung Branch,Limited Review,Penugasan Audit Lapangan #764,12,19,35.3,5,-0.7,0,Tidak,5,1
+ASG-0765,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #765,46,33,86.7,2,1.3,0,Tidak,4,1
+ASG-0766,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #766,12,40,42.6,7,-2.8,0,Tidak,5,4
+ASG-0767,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #767,37,39,63.9,1,-0.2,0,Tidak,3,2
+ASG-0768,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #768,39,24,11.7,2,1.5,0,Tidak,5,1
+ASG-0769,Bandung Branch,Limited Review,Penugasan Audit Lapangan #769,32,23,30.3,3,0.9,0,Tidak,5,1
+ASG-0770,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #770,56,20,25.5,1,3.6,0,Tidak,4,1
+ASG-0771,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #771,25,35,10.6,4,-1.0,0,Tidak,5,3
+ASG-0772,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #772,20,31,15.9,0,-1.1,0,Tidak,4,2
+ASG-0773,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #773,54,36,42.5,4,1.8,0,Tidak,5,1
+ASG-0774,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #774,33,35,55.2,4,-0.2,0,Tidak,5,1
+ASG-0775,Medan Branch,Limited Review,Penugasan Audit Lapangan #775,41,39,33.1,5,0.2,0,Tidak,5,1
+ASG-0776,IT Dept,Compliance Audit,Penugasan Audit Lapangan #776,39,44,42.8,8,-0.5,0,Tidak,5,1
+ASG-0777,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #777,18,21,73.4,1,-0.3,0,Tidak,2,1
+ASG-0778,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #778,51,30,27.2,0,2.1,0,Tidak,4,1
+ASG-0779,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #779,36,33,8.1,2,0.3,0,Tidak,5,1
+ASG-0780,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #780,13,19,28.1,0,-0.6,0,Tidak,3,2
+ASG-0781,IT Dept,Surprise Audit,Penugasan Audit Lapangan #781,16,36,87.9,5,-2.0,0,Tidak,5,4
+ASG-0782,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #782,40,41,6.6,3,-0.1,0,Tidak,5,1
+ASG-0783,IT Dept,Limited Review,Penugasan Audit Lapangan #783,14,32,16.6,4,-1.8,0,Tidak,5,3
+ASG-0784,IT Dept,Surprise Audit,Penugasan Audit Lapangan #784,31,21,10.9,8,1.0,0,Tidak,5,1
+ASG-0785,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #785,43,39,38.9,11,0.4,0,Tidak,5,1
+ASG-0786,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #786,20,40,63.3,5,-2.0,0,Tidak,5,3
+ASG-0787,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #787,10,39,86.9,3,-2.9,0,Tidak,3,5
+ASG-0788,Finance Dept,Limited Review,Penugasan Audit Lapangan #788,58,19,76.5,8,3.9,0,Tidak,5,1
+ASG-0789,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #789,29,22,27.6,3,0.7,0,Tidak,5,1
+ASG-0790,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #790,45,23,62.1,5,2.2,0,Tidak,5,1
+ASG-0791,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #791,44,36,64.7,0,0.8,0,Tidak,2,1
+ASG-0792,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #792,57,42,13.1,3,1.5,0,Tidak,5,1
+ASG-0793,Bandung Branch,Limited Review,Penugasan Audit Lapangan #793,26,34,43.4,6,-0.8,0,Tidak,5,2
+ASG-0794,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #794,41,18,33.0,1,2.3,0,Tidak,4,1
+ASG-0795,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #795,42,17,19.1,8,2.5,0,Tidak,5,1
+ASG-0796,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #796,5,26,10.3,8,-2.1,0,Tidak,5,3
+ASG-0797,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #797,53,23,7.4,3,3.0,0,Ya (Anomali),5,1
+ASG-0798,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #798,38,24,82.3,9,1.4,0,Tidak,5,1
+ASG-0799,Bandung Branch,Limited Review,Penugasan Audit Lapangan #799,8,25,34.8,4,-1.7,0,Tidak,5,4
+ASG-0800,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #800,42,30,49.4,1,1.2,0,Tidak,3,1
+ASG-0801,IT Dept,Surprise Audit,Penugasan Audit Lapangan #801,5,43,31.2,4,-3.8,0,Tidak,5,5
+ASG-0802,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #802,24,25,19.9,6,-0.1,0,Tidak,5,1
+ASG-0803,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #803,45,36,28.5,7,0.9,0,Tidak,5,1
+ASG-0804,IT Dept,Limited Review,Penugasan Audit Lapangan #804,45,22,20.3,0,2.3,0,Tidak,4,1
+ASG-0805,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #805,7,28,73.2,0,-2.1,0,Tidak,3,4
+ASG-0806,IT Dept,Compliance Audit,Penugasan Audit Lapangan #806,46,16,86.7,6,3.0,0,Tidak,5,1
+ASG-0807,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #807,10,18,44.1,5,-0.8,0,Tidak,5,1
+ASG-0808,Finance Dept,Limited Review,Penugasan Audit Lapangan #808,58,29,79.1,1,2.9,0,Tidak,3,1
+ASG-0809,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #809,10,32,43.3,2,-2.2,0,Tidak,4,3
+ASG-0810,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #810,22,25,45.2,0,-0.3,0,Tidak,3,1
+ASG-0811,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #811,4,41,48.7,4,-3.7,0,Tidak,5,5
+ASG-0812,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #812,14,33,78.8,0,-1.9,0,Tidak,2,4
+ASG-0813,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #813,39,32,89.3,13,0.7,0,Tidak,5,1
+ASG-0814,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #814,19,23,72.0,7,-0.4,0,Tidak,5,2
+ASG-0815,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #815,56,39,85.0,3,1.7,0,Tidak,5,1
+ASG-0816,Operations Dept,Limited Review,Penugasan Audit Lapangan #816,47,36,62.8,2,1.1,0,Tidak,4,1
+ASG-0817,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #817,32,42,80.5,4,-1.0,0,Tidak,4,2
+ASG-0818,IT Dept,Compliance Audit,Penugasan Audit Lapangan #818,30,37,55.1,2,-0.7,0,Tidak,4,1
+ASG-0819,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #819,56,44,74.5,1,1.2,0,Tidak,3,1
+ASG-0820,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #820,3,19,68.5,3,-1.6,0,Tidak,4,2
+ASG-0821,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #821,32,24,72.4,1,0.8,0,Tidak,2,1
+ASG-0822,IT Dept,Compliance Audit,Penugasan Audit Lapangan #822,39,31,26.1,5,0.8,0,Tidak,5,1
+ASG-0823,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #823,53,34,18.8,7,1.9,0,Tidak,5,1
+ASG-0824,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #824,8,27,63.8,1,-1.9,0,Tidak,4,3
+ASG-0825,Bandung Branch,Limited Review,Penugasan Audit Lapangan #825,41,18,48.5,10,2.3,0,Tidak,5,1
+ASG-0826,IT Dept,Compliance Audit,Penugasan Audit Lapangan #826,11,42,73.8,8,-3.1,0,Tidak,5,4
+ASG-0827,IT Dept,Limited Review,Penugasan Audit Lapangan #827,14,44,18.2,0,-3.0,0,Tidak,5,4
+ASG-0828,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #828,2,28,90.3,4,-2.6,0,Tidak,4,5
+ASG-0829,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #829,38,22,68.4,1,1.6,0,Tidak,3,1
+ASG-0830,Medan Branch,Limited Review,Penugasan Audit Lapangan #830,26,35,7.1,1,-0.9,0,Tidak,5,2
+ASG-0831,Bandung Branch,Limited Review,Penugasan Audit Lapangan #831,31,29,56.9,2,0.2,0,Tidak,4,1
+ASG-0832,Bandung Branch,Limited Review,Penugasan Audit Lapangan #832,3,17,33.1,4,-1.4,0,Tidak,5,2
+ASG-0833,IT Dept,Compliance Audit,Penugasan Audit Lapangan #833,37,31,29.7,3,0.6,0,Tidak,5,1
+ASG-0834,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #834,25,29,86.2,3,-0.4,0,Tidak,3,1
+ASG-0835,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #835,13,15,80.2,5,-0.2,0,Tidak,5,1
+ASG-0836,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #836,6,19,5.9,0,-1.3,0,Ya (Anomali),5,2
+ASG-0837,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #837,57,22,21.4,3,3.5,0,Tidak,5,1
+ASG-0838,Bandung Branch,Limited Review,Penugasan Audit Lapangan #838,16,23,69.8,2,-0.7,0,Tidak,3,2
+ASG-0839,Finance Dept,Limited Review,Penugasan Audit Lapangan #839,43,40,81.3,6,0.3,0,Tidak,5,1
+ASG-0840,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #840,59,40,69.6,1,1.9,0,Tidak,4,1
+ASG-0841,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #841,50,16,52.3,2,3.4,0,Tidak,5,1
+ASG-0842,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #842,47,19,93.6,1,2.8,0,Tidak,2,1
+ASG-0843,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #843,8,44,76.8,5,-3.6,0,Tidak,5,5
+ASG-0844,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #844,55,18,47.1,0,3.7,0,Tidak,3,1
+ASG-0845,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #845,3,26,57.5,2,-2.3,0,Tidak,4,3
+ASG-0846,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #846,56,33,9.0,4,2.3,0,Tidak,5,1
+ASG-0847,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #847,4,41,91.8,5,-3.7,0,Tidak,5,5
+ASG-0848,Medan Branch,Limited Review,Penugasan Audit Lapangan #848,5,38,37.6,2,-3.3,0,Tidak,5,5
+ASG-0849,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #849,49,16,64.5,4,3.3,0,Tidak,5,1
+ASG-0850,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #850,17,30,65.0,4,-1.3,0,Tidak,5,2
+ASG-0851,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #851,28,16,10.1,1,1.2,0,Tidak,5,1
+ASG-0852,Bandung Branch,Limited Review,Penugasan Audit Lapangan #852,23,35,28.9,5,-1.2,0,Tidak,5,2
+ASG-0853,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #853,4,24,64.1,3,-2.0,0,Tidak,5,4
+ASG-0854,Medan Branch,Limited Review,Penugasan Audit Lapangan #854,50,40,87.1,9,1.0,0,Tidak,5,1
+ASG-0855,IT Dept,Surprise Audit,Penugasan Audit Lapangan #855,59,24,75.1,3,3.5,0,Tidak,5,1
+ASG-0856,IT Dept,Surprise Audit,Penugasan Audit Lapangan #856,18,31,57.2,2,-1.3,0,Tidak,4,2
+ASG-0857,IT Dept,Compliance Audit,Penugasan Audit Lapangan #857,23,26,25.9,2,-0.3,0,Tidak,5,1
+ASG-0858,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #858,53,21,90.4,1,3.2,0,Tidak,2,1
+ASG-0859,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #859,8,23,41.3,8,-1.5,0,Tidak,5,2
+ASG-0860,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #860,58,28,18.5,1,3.0,0,Tidak,5,1
+ASG-0861,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #861,31,32,6.9,2,-0.1,0,Tidak,5,1
+ASG-0862,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #862,9,24,90.5,0,-1.5,0,Tidak,2,2
+ASG-0863,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #863,20,30,75.0,5,-1.0,0,Tidak,5,2
+ASG-0864,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #864,8,15,24.5,1,-0.7,0,Tidak,4,1
+ASG-0865,IT Dept,Limited Review,Penugasan Audit Lapangan #865,2,23,17.8,4,-2.1,1,Ya (Anomali),5,5
+ASG-0866,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #866,17,27,91.4,1,-1.0,0,Tidak,2,2
+ASG-0867,IT Dept,Surprise Audit,Penugasan Audit Lapangan #867,51,43,26.7,7,0.8,0,Tidak,5,1
+ASG-0868,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #868,58,30,46.6,0,2.8,0,Tidak,4,1
+ASG-0869,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #869,59,30,60.0,2,2.9,0,Tidak,4,1
+ASG-0870,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #870,41,16,10.6,3,2.5,0,Tidak,5,1
+ASG-0871,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #871,32,23,36.0,2,0.9,0,Tidak,5,1
+ASG-0872,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #872,40,44,89.9,5,-0.4,0,Tidak,5,1
+ASG-0873,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #873,28,27,68.0,12,0.1,0,Tidak,5,1
+ASG-0874,IT Dept,Limited Review,Penugasan Audit Lapangan #874,11,22,38.1,1,-1.1,0,Tidak,4,3
+ASG-0875,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #875,35,37,76.3,2,-0.2,0,Tidak,3,1
+ASG-0876,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #876,48,25,80.3,0,2.3,0,Tidak,1,1
+ASG-0877,IT Dept,Surprise Audit,Penugasan Audit Lapangan #877,15,31,18.7,6,-1.6,0,Tidak,5,2
+ASG-0878,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #878,3,34,57.8,2,-3.1,0,Tidak,4,5
+ASG-0879,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #879,40,25,38.0,4,1.5,0,Tidak,5,1
+ASG-0880,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #880,56,25,50.6,1,3.1,0,Tidak,3,1
+ASG-0881,IT Dept,Limited Review,Penugasan Audit Lapangan #881,23,30,47.2,2,-0.7,0,Tidak,5,1
+ASG-0882,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #882,27,21,50.3,0,0.6,0,Tidak,2,1
+ASG-0883,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #883,45,36,52.0,3,0.9,0,Tidak,5,1
+ASG-0884,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #884,6,15,11.2,1,-0.9,0,Tidak,5,2
+ASG-0885,Operations Dept,Limited Review,Penugasan Audit Lapangan #885,39,37,21.0,0,0.2,0,Tidak,4,1
+ASG-0886,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #886,17,44,56.0,3,-2.7,0,Tidak,5,4
+ASG-0887,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #887,13,29,89.2,1,-1.6,0,Tidak,2,2
+ASG-0888,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #888,42,32,72.2,0,1.0,0,Tidak,3,1
+ASG-0889,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #889,53,42,26.5,4,1.1,0,Tidak,5,1
+ASG-0890,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #890,45,43,37.6,1,0.2,0,Tidak,4,1
+ASG-0891,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #891,43,28,35.2,3,1.5,0,Tidak,5,1
+ASG-0892,IT Dept,Limited Review,Penugasan Audit Lapangan #892,18,27,74.3,2,-0.9,0,Tidak,4,2
+ASG-0893,Operations Dept,Limited Review,Penugasan Audit Lapangan #893,26,38,92.5,3,-1.2,0,Tidak,4,2
+ASG-0894,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #894,25,16,37.0,3,0.9,0,Tidak,5,1
+ASG-0895,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #895,12,34,6.3,3,-2.2,0,Ya (Anomali),5,4
+ASG-0896,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #896,19,36,89.3,9,-1.7,0,Tidak,5,3
+ASG-0897,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #897,37,38,72.8,3,-0.1,0,Tidak,5,2
+ASG-0898,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #898,4,42,80.1,0,-3.8,0,Tidak,2,5
+ASG-0899,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #899,20,25,23.8,3,-0.5,0,Tidak,5,1
+ASG-0900,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #900,7,33,63.1,1,-2.6,0,Tidak,3,5
+ASG-0901,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #901,24,42,25.9,1,-1.8,0,Tidak,4,3
+ASG-0902,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #902,41,36,6.0,6,0.5,0,Ya (Anomali),5,1
+ASG-0903,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #903,8,44,19.1,0,-3.6,0,Tidak,5,5
+ASG-0904,IT Dept,Limited Review,Penugasan Audit Lapangan #904,48,20,88.1,5,2.8,0,Tidak,5,1
+ASG-0905,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #905,45,31,24.4,2,1.4,0,Tidak,5,1
+ASG-0906,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #906,48,36,57.7,0,1.2,0,Tidak,3,1
+ASG-0907,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #907,10,15,92.1,5,-0.5,0,Tidak,5,2
+ASG-0908,IT Dept,Surprise Audit,Penugasan Audit Lapangan #908,3,39,11.8,1,-3.6,1,Ya (Anomali),5,5
+ASG-0909,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #909,59,34,77.7,2,2.5,0,Tidak,3,1
+ASG-0910,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #910,53,19,58.8,6,3.4,0,Tidak,5,1
+ASG-0911,Finance Dept,Limited Review,Penugasan Audit Lapangan #911,48,15,34.1,3,3.3,0,Tidak,5,1
+ASG-0912,IT Dept,Surprise Audit,Penugasan Audit Lapangan #912,51,27,37.8,8,2.4,0,Tidak,5,1
+ASG-0913,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #913,46,15,7.4,6,3.1,0,Tidak,5,1
+ASG-0914,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #914,49,26,28.0,3,2.3,0,Tidak,5,1
+ASG-0915,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #915,48,23,43.1,4,2.5,0,Tidak,5,1
+ASG-0916,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #916,12,36,69.5,1,-2.4,0,Tidak,3,4
+ASG-0917,Finance Dept,Limited Review,Penugasan Audit Lapangan #917,4,43,29.7,1,-3.9,0,Tidak,4,5
+ASG-0918,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #918,43,40,57.2,7,0.3,0,Tidak,5,1
+ASG-0919,Medan Branch,Limited Review,Penugasan Audit Lapangan #919,50,44,70.9,2,0.6,0,Tidak,4,1
+ASG-0920,Medan Branch,Limited Review,Penugasan Audit Lapangan #920,31,27,67.9,3,0.4,0,Tidak,4,1
+ASG-0921,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #921,9,24,58.1,3,-1.5,0,Tidak,5,3
+ASG-0922,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #922,38,30,57.2,9,0.8,0,Tidak,5,1
+ASG-0923,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #923,22,20,69.9,0,0.2,0,Tidak,2,1
+ASG-0924,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #924,9,35,35.2,7,-2.6,0,Tidak,5,4
+ASG-0925,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #925,48,36,45.5,3,1.2,0,Tidak,5,1
+ASG-0926,IT Dept,Surprise Audit,Penugasan Audit Lapangan #926,12,44,92.0,0,-3.2,0,Tidak,1,4
+ASG-0927,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #927,42,22,65.2,1,2.0,0,Tidak,3,1
+ASG-0928,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #928,58,37,51.8,6,2.1,0,Tidak,5,1
+ASG-0929,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #929,59,21,57.0,3,3.8,0,Tidak,5,1
+ASG-0930,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #930,58,39,14.4,1,1.9,0,Tidak,5,1
+ASG-0931,IT Dept,Limited Review,Penugasan Audit Lapangan #931,35,39,58.3,0,-0.4,0,Tidak,2,1
+ASG-0932,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #932,40,27,80.3,3,1.3,0,Tidak,4,1
+ASG-0933,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #933,17,39,52.1,2,-2.2,0,Tidak,5,4
+ASG-0934,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #934,8,31,20.9,1,-2.3,0,Tidak,5,3
+ASG-0935,Medan Branch,Limited Review,Penugasan Audit Lapangan #935,5,26,45.3,3,-2.1,0,Tidak,5,4
+ASG-0936,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #936,33,41,30.0,4,-0.8,0,Tidak,5,1
+ASG-0937,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #937,38,25,37.4,2,1.3,0,Tidak,5,1
+ASG-0938,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #938,47,20,25.3,5,2.7,0,Tidak,5,1
+ASG-0939,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #939,23,29,35.1,2,-0.6,0,Tidak,5,1
+ASG-0940,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #940,8,19,79.0,5,-1.1,0,Tidak,5,2
+ASG-0941,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #941,14,30,73.2,0,-1.6,0,Tidak,2,3
+ASG-0942,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #942,19,38,49.1,5,-1.9,0,Tidak,5,4
+ASG-0943,Finance Dept,Limited Review,Penugasan Audit Lapangan #943,43,25,75.4,5,1.8,0,Tidak,5,1
+ASG-0944,IT Dept,Limited Review,Penugasan Audit Lapangan #944,35,24,92.8,3,1.1,0,Tidak,3,1
+ASG-0945,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #945,14,43,41.6,1,-2.9,0,Tidak,4,4
+ASG-0946,Finance Dept,Limited Review,Penugasan Audit Lapangan #946,35,22,93.2,8,1.3,0,Tidak,5,1
+ASG-0947,IT Dept,Limited Review,Penugasan Audit Lapangan #947,30,38,27.1,6,-0.8,0,Tidak,5,1
+ASG-0948,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #948,48,19,90.9,5,2.9,0,Tidak,5,1
+ASG-0949,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #949,6,24,82.8,0,-1.8,0,Tidak,1,3
+ASG-0950,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #950,55,41,22.9,4,1.4,0,Tidak,5,1
+ASG-0951,Finance Dept,Limited Review,Penugasan Audit Lapangan #951,32,24,36.5,0,0.8,0,Tidak,3,1
+ASG-0952,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #952,12,15,68.7,2,-0.3,0,Tidak,3,2
+ASG-0953,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #953,39,27,22.2,2,1.2,0,Tidak,5,1
+ASG-0954,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #954,52,34,58.2,9,1.8,0,Tidak,5,1
+ASG-0955,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #955,48,37,53.1,2,1.1,0,Tidak,5,1
+ASG-0956,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #956,5,32,31.3,3,-2.7,0,Tidak,5,4
+ASG-0957,IT Dept,Compliance Audit,Penugasan Audit Lapangan #957,8,37,32.0,4,-2.9,0,Tidak,5,4
+ASG-0958,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #958,24,19,51.5,1,0.5,0,Tidak,3,1
+ASG-0959,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #959,32,30,32.0,0,0.2,0,Tidak,3,1
+ASG-0960,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #960,55,20,21.2,1,3.5,0,Tidak,4,1
+ASG-0961,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #961,18,36,74.6,3,-1.8,0,Tidak,4,4
+ASG-0962,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #962,11,35,57.4,3,-2.4,0,Tidak,5,4
+ASG-0963,Operations Dept,Limited Review,Penugasan Audit Lapangan #963,23,24,44.4,0,-0.1,0,Tidak,4,2
+ASG-0964,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #964,31,21,21.3,3,1.0,0,Tidak,5,1
+ASG-0965,IT Dept,Surprise Audit,Penugasan Audit Lapangan #965,30,34,58.5,2,-0.4,0,Tidak,4,2
+ASG-0966,Operations Dept,Limited Review,Penugasan Audit Lapangan #966,18,43,61.6,1,-2.5,0,Tidak,3,3
+ASG-0967,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #967,44,30,48.2,5,1.4,0,Tidak,5,1
+ASG-0968,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #968,22,15,38.5,6,0.7,0,Tidak,5,1
+ASG-0969,Finance Dept,Limited Review,Penugasan Audit Lapangan #969,23,39,83.1,2,-1.6,0,Tidak,4,2
+ASG-0970,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #970,49,21,68.4,2,2.8,0,Tidak,4,1
+ASG-0971,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #971,40,39,37.1,0,0.1,0,Tidak,3,1
+ASG-0972,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #972,41,26,58.4,3,1.5,0,Tidak,5,1
+ASG-0973,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #973,49,41,26.0,2,0.8,0,Tidak,5,1
+ASG-0974,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #974,49,39,6.0,5,1.0,0,Ya (Anomali),5,1
+ASG-0975,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #975,58,37,83.2,3,2.1,0,Tidak,5,1
+ASG-0976,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #976,23,29,78.7,1,-0.6,0,Tidak,2,2
+ASG-0977,Finance Dept,Limited Review,Penugasan Audit Lapangan #977,28,16,62.5,1,1.2,0,Tidak,3,1
+ASG-0978,IT Dept,Limited Review,Penugasan Audit Lapangan #978,24,41,78.0,3,-1.7,0,Tidak,5,3
+ASG-0979,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #979,5,32,75.3,1,-2.7,0,Tidak,2,4
+ASG-0980,Operations Dept,Limited Review,Penugasan Audit Lapangan #980,27,18,82.4,5,0.9,0,Tidak,5,1
+ASG-0981,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #981,40,39,85.3,0,0.1,0,Tidak,1,1
+ASG-0982,Finance Dept,Limited Review,Penugasan Audit Lapangan #982,59,27,78.7,6,3.2,0,Tidak,5,1
+ASG-0983,Finance Dept,Limited Review,Penugasan Audit Lapangan #983,18,37,81.7,6,-1.9,0,Tidak,5,3
+ASG-0984,IT Dept,Compliance Audit,Penugasan Audit Lapangan #984,4,23,50.2,2,-1.9,0,Tidak,5,3
+ASG-0985,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #985,18,18,68.7,3,0.0,0,Tidak,5,1
+ASG-0986,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #986,44,23,35.0,3,2.1,0,Tidak,5,1
+ASG-0987,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #987,41,37,82.5,1,0.4,0,Tidak,2,1
+ASG-0988,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #988,20,38,82.3,10,-1.8,0,Tidak,5,3
+ASG-0989,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #989,40,15,11.0,9,2.5,0,Tidak,5,1
+ASG-0990,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #990,19,39,36.2,3,-2.0,0,Tidak,5,4
+ASG-0991,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #991,29,42,20.4,2,-1.3,0,Tidak,5,2
+ASG-0992,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #992,54,22,17.2,6,3.2,0,Tidak,5,1
+ASG-0993,IT Dept,Limited Review,Penugasan Audit Lapangan #993,16,15,42.3,5,0.1,0,Tidak,5,1
+ASG-0994,Bandung Branch,Limited Review,Penugasan Audit Lapangan #994,52,44,61.3,1,0.8,0,Tidak,3,1
+ASG-0995,IT Dept,Surprise Audit,Penugasan Audit Lapangan #995,27,43,35.9,0,-1.6,0,Tidak,3,2
+ASG-0996,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #996,36,30,32.8,3,0.6,0,Tidak,5,1
+ASG-0997,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #997,17,38,13.5,2,-2.1,0,Tidak,5,3
+ASG-0998,Finance Dept,Limited Review,Penugasan Audit Lapangan #998,16,29,39.5,4,-1.3,0,Tidak,5,2
+ASG-0999,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #999,6,29,47.4,1,-2.3,0,Tidak,3,3
+ASG-1000,Medan Branch,Limited Review,Penugasan Audit Lapangan #1000,47,19,40.9,2,2.8,0,Tidak,4,1
+ASG-1001,Medan Branch,Limited Review,Penugasan Audit Lapangan #1001,25,33,66.2,3,-0.8,0,Tidak,5,1
+ASG-1002,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1002,3,38,30.9,0,-3.5,0,Tidak,3,5
+ASG-1003,Medan Branch,Limited Review,Penugasan Audit Lapangan #1003,37,25,69.4,0,1.2,0,Tidak,3,1
+ASG-1004,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1004,53,41,84.4,0,1.2,0,Tidak,2,1
+ASG-1005,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1005,46,33,58.2,4,1.3,0,Tidak,5,1
+ASG-1006,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #1006,49,38,40.0,6,1.1,0,Tidak,5,1
+ASG-1007,IT Dept,Limited Review,Penugasan Audit Lapangan #1007,32,35,21.2,1,-0.3,0,Tidak,4,1
+ASG-1008,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #1008,31,38,88.9,2,-0.7,0,Tidak,3,1
+ASG-1009,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1009,13,17,72.7,6,-0.4,0,Tidak,5,2
+ASG-1010,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1010,38,40,27.2,0,-0.2,0,Tidak,4,2
+ASG-1011,IT Dept,Limited Review,Penugasan Audit Lapangan #1011,55,36,18.6,0,1.9,0,Tidak,4,1
+ASG-1012,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1012,58,42,9.4,4,1.6,0,Tidak,5,1
+ASG-1013,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #1013,22,36,22.1,5,-1.4,0,Tidak,5,2
+ASG-1014,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #1014,13,18,70.9,2,-0.5,0,Tidak,3,1
+ASG-1015,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #1015,59,35,61.7,9,2.4,0,Tidak,5,1
+ASG-1016,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1016,41,30,92.1,4,1.1,0,Tidak,5,1
+ASG-1017,Medan Branch,Limited Review,Penugasan Audit Lapangan #1017,38,26,34.0,5,1.2,0,Tidak,5,1
+ASG-1018,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #1018,36,42,75.8,3,-0.6,0,Tidak,4,1
+ASG-1019,Finance Dept,Limited Review,Penugasan Audit Lapangan #1019,23,21,15.8,2,0.2,0,Tidak,5,1
+ASG-1020,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #1020,46,15,55.6,6,3.1,0,Tidak,5,1
+ASG-1021,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1021,37,38,47.0,0,-0.1,0,Tidak,3,2
+ASG-1022,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1022,54,25,80.4,1,2.9,0,Tidak,2,1
+ASG-1023,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #1023,9,29,68.1,3,-2.0,0,Tidak,4,4
+ASG-1024,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1024,28,33,22.5,5,-0.5,0,Tidak,5,2
+ASG-1025,Operations Dept,Limited Review,Penugasan Audit Lapangan #1025,28,37,93.5,1,-0.9,0,Tidak,2,3
+ASG-1026,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1026,37,29,79.1,2,0.8,0,Tidak,4,1
+ASG-1027,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #1027,8,23,36.9,2,-1.5,0,Tidak,5,2
+ASG-1028,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #1028,4,27,79.3,1,-2.3,0,Tidak,2,3
+ASG-1029,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #1029,5,32,91.1,6,-2.7,0,Tidak,5,4
+ASG-1030,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #1030,25,43,85.1,3,-1.8,0,Tidak,4,4
+ASG-1031,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1031,9,40,55.1,0,-3.1,0,Tidak,2,4
+ASG-1032,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #1032,46,40,56.9,1,0.6,0,Tidak,4,1
+ASG-1033,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #1033,14,37,14.6,8,-2.3,0,Tidak,5,4
+ASG-1034,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1034,10,31,19.8,6,-2.1,0,Tidak,5,3
+ASG-1035,Finance Dept,Limited Review,Penugasan Audit Lapangan #1035,21,19,93.4,2,0.2,0,Tidak,2,1
+ASG-1036,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #1036,59,41,74.3,6,1.8,0,Tidak,5,1
+ASG-1037,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #1037,21,30,7.3,2,-0.9,0,Tidak,5,2
+ASG-1038,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1038,6,21,54.3,0,-1.5,0,Tidak,3,2
+ASG-1039,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #1039,47,44,36.1,4,0.3,0,Tidak,5,1
+ASG-1040,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #1040,6,35,33.0,2,-2.9,0,Tidak,5,5
+ASG-1041,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1041,36,19,55.1,8,1.7,0,Tidak,5,1
+ASG-1042,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #1042,2,36,33.8,1,-3.4,0,Tidak,5,5
+ASG-1043,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1043,43,40,27.6,13,0.3,0,Tidak,5,1
+ASG-1044,Finance Dept,Limited Review,Penugasan Audit Lapangan #1044,16,40,89.4,0,-2.4,0,Tidak,1,3
+ASG-1045,IT Dept,Compliance Audit,Penugasan Audit Lapangan #1045,18,25,8.6,7,-0.7,0,Tidak,5,1
+ASG-1046,Finance Dept,Limited Review,Penugasan Audit Lapangan #1046,13,30,44.3,2,-1.7,0,Tidak,4,3
+ASG-1047,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1047,47,44,51.0,3,0.3,0,Tidak,5,1
+ASG-1048,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1048,57,44,44.6,3,1.3,0,Tidak,5,1
+ASG-1049,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #1049,37,41,64.2,4,-0.4,0,Tidak,5,1
+ASG-1050,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1050,44,36,7.3,1,0.8,0,Tidak,5,1
+ASG-1051,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #1051,59,40,84.6,1,1.9,0,Tidak,3,1
+ASG-1052,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #1052,16,27,50.0,1,-1.1,0,Tidak,3,3
+ASG-1053,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1053,15,16,54.8,0,-0.1,0,Tidak,3,1
+ASG-1054,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #1054,28,26,46.6,3,0.2,0,Tidak,5,1
+ASG-1055,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #1055,51,26,45.0,3,2.5,0,Tidak,5,1
+ASG-1056,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #1056,23,24,21.8,0,-0.1,0,Tidak,5,1
+ASG-1057,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #1057,10,41,50.4,1,-3.1,0,Tidak,3,5
+ASG-1058,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #1058,48,40,42.9,3,0.8,0,Tidak,5,1
+ASG-1059,IT Dept,Compliance Audit,Penugasan Audit Lapangan #1059,22,27,47.1,2,-0.5,0,Tidak,4,1
+ASG-1060,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1060,4,26,6.2,5,-2.2,0,Ya (Anomali),5,4
+ASG-1061,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #1061,53,39,16.8,6,1.4,0,Tidak,5,1
+ASG-1062,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #1062,32,33,73.7,5,-0.1,0,Tidak,5,1
+ASG-1063,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #1063,14,31,42.7,4,-1.7,0,Tidak,5,4
+ASG-1064,IT Dept,Compliance Audit,Penugasan Audit Lapangan #1064,3,41,71.9,10,-3.8,0,Tidak,5,5
+ASG-1065,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #1065,48,30,20.4,4,1.8,0,Tidak,5,1
+ASG-1066,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #1066,15,31,67.8,2,-1.6,0,Tidak,3,2
+ASG-1067,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #1067,8,39,31.0,12,-3.1,0,Tidak,5,4
+ASG-1068,Medan Branch,Limited Review,Penugasan Audit Lapangan #1068,30,20,68.5,8,1.0,0,Tidak,5,1
+ASG-1069,IT Dept,Limited Review,Penugasan Audit Lapangan #1069,5,37,12.8,1,-3.2,0,Tidak,5,5
+ASG-1070,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #1070,5,32,35.0,0,-2.7,0,Tidak,3,4
+ASG-1071,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1071,25,25,15.7,2,0.0,0,Tidak,5,1
+ASG-1072,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1072,43,44,61.7,4,-0.1,0,Tidak,5,1
+ASG-1073,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1073,22,26,40.3,1,-0.4,0,Tidak,4,1
+ASG-1074,Medan Branch,Limited Review,Penugasan Audit Lapangan #1074,52,31,11.7,2,2.1,0,Tidak,5,1
+ASG-1075,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #1075,46,16,52.4,3,3.0,0,Tidak,5,1
+ASG-1076,Finance Dept,Limited Review,Penugasan Audit Lapangan #1076,29,27,7.2,1,0.2,0,Tidak,5,1
+ASG-1077,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1077,39,33,78.7,0,0.6,0,Tidak,2,1
+ASG-1078,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1078,9,33,89.5,2,-2.4,0,Tidak,4,4
+ASG-1079,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1079,43,38,77.9,0,0.5,0,Tidak,1,1
+ASG-1080,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #1080,18,18,90.6,3,0.0,0,Tidak,3,1
+ASG-1081,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1081,10,15,85.7,1,-0.5,0,Tidak,2,1
+ASG-1082,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #1082,47,16,85.5,1,3.1,0,Tidak,3,1
+ASG-1083,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1083,21,39,27.1,11,-1.8,0,Tidak,5,3
+ASG-1084,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #1084,6,32,25.8,2,-2.6,0,Tidak,5,4
+ASG-1085,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #1085,59,26,77.8,4,3.3,0,Tidak,5,1
+ASG-1086,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1086,36,23,49.2,4,1.3,0,Tidak,5,1
+ASG-1087,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #1087,42,19,89.8,2,2.3,0,Tidak,3,1
+ASG-1088,IT Dept,Compliance Audit,Penugasan Audit Lapangan #1088,30,30,85.8,1,0.0,0,Tidak,2,1
+ASG-1089,Finance Dept,Limited Review,Penugasan Audit Lapangan #1089,13,18,85.4,3,-0.5,0,Tidak,4,1
+ASG-1090,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #1090,55,34,34.4,0,2.1,0,Tidak,3,1
+ASG-1091,Finance Dept,Limited Review,Penugasan Audit Lapangan #1091,33,17,17.0,6,1.6,0,Tidak,5,1
+ASG-1092,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #1092,32,32,66.0,3,0.0,0,Tidak,4,1
+ASG-1093,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #1093,32,22,44.7,11,1.0,0,Tidak,5,1
+ASG-1094,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #1094,2,36,89.1,4,-3.4,0,Tidak,5,5
+ASG-1095,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #1095,58,39,81.8,4,1.9,0,Tidak,5,1
+ASG-1096,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #1096,44,16,88.6,0,2.8,0,Tidak,2,1
+ASG-1097,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #1097,6,26,56.1,1,-2.0,0,Tidak,3,3
+ASG-1098,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #1098,52,15,52.4,1,3.7,0,Tidak,3,1
+ASG-1099,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1099,37,38,81.2,5,-0.1,0,Tidak,5,1
+ASG-1100,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1100,13,38,51.1,1,-2.5,0,Tidak,3,3
+ASG-1101,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #1101,17,35,86.0,2,-1.8,0,Tidak,3,3
+ASG-1102,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #1102,17,32,8.1,0,-1.5,0,Tidak,4,2
+ASG-1103,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1103,22,24,37.3,1,-0.2,0,Tidak,4,2
+ASG-1104,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #1104,34,35,80.1,0,-0.1,0,Tidak,1,2
+ASG-1105,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #1105,27,22,23.9,1,0.5,0,Tidak,4,1
+ASG-1106,Medan Branch,Limited Review,Penugasan Audit Lapangan #1106,4,44,40.9,8,-4.0,0,Tidak,5,5
+ASG-1107,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #1107,24,44,5.9,4,-2.0,0,Ya (Anomali),5,3
+ASG-1108,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1108,26,18,32.2,0,0.8,0,Tidak,3,1
+ASG-1109,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #1109,55,44,33.7,8,1.1,0,Tidak,5,1
+ASG-1110,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #1110,21,32,70.9,5,-1.1,0,Tidak,5,2
+ASG-1111,Medan Branch,Limited Review,Penugasan Audit Lapangan #1111,48,17,66.0,1,3.1,0,Tidak,3,1
+ASG-1112,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1112,53,17,45.0,3,3.6,0,Tidak,5,1
+ASG-1113,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #1113,58,39,70.6,18,1.9,0,Tidak,5,1
+ASG-1114,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #1114,50,43,43.6,2,0.7,0,Tidak,5,1
+ASG-1115,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1115,55,26,44.1,0,2.9,0,Tidak,4,1
+ASG-1116,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #1116,37,33,63.1,5,0.4,0,Tidak,5,1
+ASG-1117,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #1117,36,31,70.1,5,0.5,0,Tidak,5,1
+ASG-1118,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1118,44,37,81.2,1,0.7,0,Tidak,2,1
+ASG-1119,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1119,34,31,72.6,2,0.3,0,Tidak,3,1
+ASG-1120,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #1120,6,36,65.3,1,-3.0,0,Tidak,3,4
+ASG-1121,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1121,5,40,55.5,0,-3.5,0,Tidak,2,5
+ASG-1122,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #1122,59,18,32.7,0,4.1,0,Tidak,4,1
+ASG-1123,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #1123,53,21,28.5,11,3.2,0,Tidak,5,1
+ASG-1124,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #1124,9,37,80.9,0,-2.8,0,Tidak,1,5
+ASG-1125,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #1125,12,21,69.6,1,-0.9,0,Tidak,3,3
+ASG-1126,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1126,44,44,64.9,1,0.0,0,Tidak,3,1
+ASG-1127,Finance Dept,Compliance Audit,Penugasan Audit Lapangan #1127,51,36,28.3,0,1.5,0,Tidak,3,1
+ASG-1128,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #1128,28,21,92.3,2,0.7,0,Tidak,2,1
+ASG-1129,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1129,11,22,12.3,3,-1.1,0,Tidak,5,3
+ASG-1130,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #1130,59,33,80.4,0,2.6,0,Tidak,2,1
+ASG-1131,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #1131,46,35,24.0,10,1.1,0,Tidak,5,1
+ASG-1132,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1132,21,44,40.3,2,-2.3,0,Tidak,4,3
+ASG-1133,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #1133,33,40,43.5,1,-0.7,0,Tidak,4,1
+ASG-1134,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #1134,49,41,64.6,2,0.8,0,Tidak,4,1
+ASG-1135,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1135,28,23,54.2,4,0.5,0,Tidak,5,1
+ASG-1136,Medan Branch,Limited Review,Penugasan Audit Lapangan #1136,50,38,21.7,3,1.2,0,Tidak,5,1
+ASG-1137,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #1137,19,36,7.7,0,-1.7,0,Tidak,5,3
+ASG-1138,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1138,27,43,69.5,4,-1.6,0,Tidak,5,2
+ASG-1139,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #1139,59,23,50.4,3,3.6,0,Tidak,5,1
+ASG-1140,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #1140,36,28,37.6,1,0.8,0,Tidak,4,1
+ASG-1141,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #1141,29,40,30.6,3,-1.1,0,Tidak,5,2
+ASG-1142,Operations Dept,Limited Review,Penugasan Audit Lapangan #1142,2,43,79.1,2,-4.1,0,Tidak,4,5
+ASG-1143,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #1143,35,35,76.6,2,0.0,0,Tidak,3,1
+ASG-1144,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1144,56,32,79.3,1,2.4,0,Tidak,3,1
+ASG-1145,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #1145,27,23,24.7,2,0.4,0,Tidak,5,1
+ASG-1146,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1146,59,44,81.7,1,1.5,0,Tidak,2,1
+ASG-1147,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #1147,7,19,93.7,2,-1.2,0,Tidak,3,3
+ASG-1148,Bandung Branch,Full Scope Audit,Penugasan Audit Lapangan #1148,51,22,58.9,4,2.9,0,Tidak,5,1
+ASG-1149,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1149,50,38,9.2,2,1.2,0,Tidak,5,1
+ASG-1150,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1150,59,18,68.2,2,4.1,0,Tidak,4,1
+ASG-1151,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1151,47,34,53.4,1,1.3,0,Tidak,4,1
+ASG-1152,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1152,26,28,69.1,8,-0.2,0,Tidak,5,1
+ASG-1153,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #1153,18,31,21.9,8,-1.3,0,Tidak,5,2
+ASG-1154,Finance Dept,Surprise Audit,Penugasan Audit Lapangan #1154,27,35,59.5,3,-0.8,0,Tidak,5,1
+ASG-1155,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #1155,22,30,53.5,0,-0.8,0,Tidak,3,1
+ASG-1156,Operations Dept,Limited Review,Penugasan Audit Lapangan #1156,33,23,59.2,9,1.0,0,Tidak,5,1
+ASG-1157,Operations Dept,Limited Review,Penugasan Audit Lapangan #1157,26,42,70.5,2,-1.6,0,Tidak,3,3
+ASG-1158,Operations Dept,Compliance Audit,Penugasan Audit Lapangan #1158,33,19,54.0,0,1.4,0,Tidak,2,1
+ASG-1159,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1159,42,19,34.0,2,2.3,0,Tidak,5,1
+ASG-1160,Finance Dept,Limited Review,Penugasan Audit Lapangan #1160,55,44,32.8,0,1.1,0,Tidak,3,1
+ASG-1161,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1161,20,20,67.6,6,0.0,0,Tidak,5,1
+ASG-1162,Finance Dept,Limited Review,Penugasan Audit Lapangan #1162,3,20,64.7,0,-1.7,0,Tidak,2,4
+ASG-1163,IT Dept,Full Scope Audit,Penugasan Audit Lapangan #1163,36,22,43.0,1,1.4,0,Tidak,4,1
+ASG-1164,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #1164,17,30,36.8,4,-1.3,0,Tidak,5,3
+ASG-1165,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1165,17,28,60.8,1,-1.1,0,Tidak,3,2
+ASG-1166,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #1166,34,15,33.1,14,1.9,0,Tidak,5,1
+ASG-1167,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #1167,52,30,91.7,9,2.2,0,Tidak,5,1
+ASG-1168,Jakarta Branch,Limited Review,Penugasan Audit Lapangan #1168,51,29,58.7,2,2.2,0,Tidak,5,1
+ASG-1169,Bandung Branch,Surprise Audit,Penugasan Audit Lapangan #1169,25,19,58.3,1,0.6,0,Tidak,3,1
+ASG-1170,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1170,32,23,17.3,0,0.9,0,Tidak,5,1
+ASG-1171,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #1171,43,17,59.9,14,2.6,0,Tidak,5,1
+ASG-1172,Operations Dept,Limited Review,Penugasan Audit Lapangan #1172,24,41,31.5,0,-1.7,0,Tidak,4,3
+ASG-1173,Medan Branch,Limited Review,Penugasan Audit Lapangan #1173,18,21,45.7,3,-0.3,0,Tidak,5,1
+ASG-1174,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #1174,34,21,53.4,3,1.3,0,Tidak,5,1
+ASG-1175,Medan Branch,Compliance Audit,Penugasan Audit Lapangan #1175,38,30,48.0,2,0.8,0,Tidak,4,1
+ASG-1176,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #1176,37,42,77.8,4,-0.5,0,Tidak,5,1
+ASG-1177,Jakarta Branch,Full Scope Audit,Penugasan Audit Lapangan #1177,57,42,14.0,1,1.5,0,Tidak,5,1
+ASG-1178,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #1178,57,40,20.1,1,1.7,0,Tidak,4,1
+ASG-1179,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #1179,20,17,19.1,2,0.3,0,Tidak,5,1
+ASG-1180,Finance Dept,Full Scope Audit,Penugasan Audit Lapangan #1180,22,29,78.5,3,-0.7,0,Tidak,4,1
+ASG-1181,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1181,40,21,15.6,3,1.9,0,Tidak,5,1
+ASG-1182,IT Dept,Compliance Audit,Penugasan Audit Lapangan #1182,41,17,92.4,1,2.4,0,Tidak,3,1
+ASG-1183,Bandung Branch,Limited Review,Penugasan Audit Lapangan #1183,20,30,92.2,8,-1.0,0,Tidak,5,2
+ASG-1184,Surabaya Branch,Full Scope Audit,Penugasan Audit Lapangan #1184,9,20,94.3,5,-1.1,0,Tidak,5,3
+ASG-1185,Jakarta Branch,Surprise Audit,Penugasan Audit Lapangan #1185,27,22,93.2,4,0.5,0,Tidak,4,1
+ASG-1186,Operations Dept,Limited Review,Penugasan Audit Lapangan #1186,42,30,18.4,4,1.2,0,Tidak,5,1
+ASG-1187,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #1187,52,38,64.2,6,1.4,0,Tidak,5,1
+ASG-1188,Bandung Branch,Compliance Audit,Penugasan Audit Lapangan #1188,19,20,41.0,1,-0.1,0,Tidak,4,1
+ASG-1189,Surabaya Branch,Limited Review,Penugasan Audit Lapangan #1189,15,30,70.9,5,-1.5,0,Tidak,5,3
+ASG-1190,Medan Branch,Full Scope Audit,Penugasan Audit Lapangan #1190,19,16,41.5,1,0.3,0,Tidak,4,1
+ASG-1191,Finance Dept,Limited Review,Penugasan Audit Lapangan #1191,38,15,39.5,0,2.3,0,Tidak,4,1
+ASG-1192,Operations Dept,Full Scope Audit,Penugasan Audit Lapangan #1192,29,33,86.4,5,-0.4,0,Tidak,5,1
+ASG-1193,Surabaya Branch,Compliance Audit,Penugasan Audit Lapangan #1193,59,28,49.5,4,3.1,0,Tidak,5,1
+ASG-1194,Surabaya Branch,Surprise Audit,Penugasan Audit Lapangan #1194,34,33,71.6,2,0.1,0,Tidak,3,1
+ASG-1195,Medan Branch,Surprise Audit,Penugasan Audit Lapangan #1195,7,37,63.5,2,-3.0,0,Tidak,4,4
+ASG-1196,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #1196,8,18,64.2,10,-1.0,0,Tidak,5,2
+ASG-1197,Jakarta Branch,Compliance Audit,Penugasan Audit Lapangan #1197,6,16,36.4,5,-1.0,0,Tidak,5,3
+ASG-1198,IT Dept,Surprise Audit,Penugasan Audit Lapangan #1198,28,16,27.7,1,1.2,0,Tidak,5,1
+ASG-1199,IT Dept,Compliance Audit,Penugasan Audit Lapangan #1199,9,26,84.7,1,-1.7,0,Tidak,2,3
+ASG-1200,Operations Dept,Surprise Audit,Penugasan Audit Lapangan #1200,39,37,7.2,0,0.2,0,Ya (Anomali),4,1

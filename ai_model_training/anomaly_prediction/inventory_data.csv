@@ -1,0 +1,1201 @@
+ID Penyesuaian,Entitas Gudang,Kategori Barang,Deskripsi Penyesuaian,adjustment_amount (Juta Rp),stock_variance_pct,adjustment_frequency_month,"has_supporting_doc (1=Ya, 0=Tidak)",approver_role_level (1-4),"is_manual_override (1=Ya, 0=Tidak)",TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5)
+ADJ-0001,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1,76.48,5.0,6,1,2,0,Tidak,5,2
+ADJ-0002,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #2,47.41,14.4,2,1,1,0,Tidak,4,1
+ADJ-0003,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #3,2.25,31.4,9,0,3,0,Ya (Anomali),1,5
+ADJ-0004,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #4,11.69,13.4,10,1,2,0,Tidak,1,4
+ADJ-0005,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #5,7.23,21.3,12,1,2,0,Ya (Anomali),2,4
+ADJ-0006,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #6,3.08,31.5,3,1,3,0,Tidak,1,2
+ADJ-0007,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #7,4.45,12.9,14,1,3,0,Tidak,1,5
+ADJ-0008,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #8,72.63,13.1,7,1,1,1,Tidak,5,4
+ADJ-0009,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #9,12.14,3.5,7,0,2,1,Ya (Anomali),1,5
+ADJ-0010,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #10,15.94,12.5,5,1,2,0,Tidak,3,3
+ADJ-0011,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #11,20.95,26.2,10,0,1,0,Ya (Anomali),2,5
+ADJ-0012,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #12,41.99,29.6,12,0,3,0,Ya (Anomali),3,5
+ADJ-0013,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #13,49.04,25.4,2,0,2,0,Ya (Anomali),4,3
+ADJ-0014,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #14,100.5,0.7,5,1,1,0,Tidak,5,2
+ADJ-0015,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #15,8.1,4.5,2,1,2,0,Tidak,1,2
+ADJ-0016,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #16,11.75,25.7,3,1,2,0,Tidak,1,2
+ADJ-0017,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #17,12.26,33.0,8,0,3,0,Tidak,2,5
+ADJ-0018,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #18,18.68,24.5,6,1,2,0,Tidak,3,2
+ADJ-0019,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #19,50.41,8.3,10,1,3,1,Ya (Anomali),4,5
+ADJ-0020,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #20,9.21,4.2,12,1,2,1,Ya (Anomali),1,5
+ADJ-0021,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #21,46.82,30.8,14,0,2,0,Ya (Anomali),4,5
+ADJ-0022,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #22,7.85,3.9,10,0,2,0,Tidak,2,5
+ADJ-0023,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #23,38.15,5.7,13,1,1,0,Tidak,3,5
+ADJ-0024,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #24,49.13,21.1,10,1,3,0,Tidak,4,5
+ADJ-0025,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #25,58.68,7.1,4,1,1,0,Tidak,5,2
+ADJ-0026,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #26,22.42,8.4,8,1,4,0,Tidak,2,4
+ADJ-0027,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #27,12.96,5.4,10,1,2,0,Tidak,1,5
+ADJ-0028,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #28,45.4,33.1,9,0,4,0,Ya (Anomali),4,5
+ADJ-0029,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #29,12.61,4.8,5,0,3,0,Tidak,1,4
+ADJ-0030,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #30,5.81,32.6,1,1,1,0,Tidak,1,1
+ADJ-0031,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #31,55.0,11.8,6,1,1,0,Tidak,5,2
+ADJ-0032,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #32,16.89,28.8,9,1,3,1,Ya (Anomali),2,5
+ADJ-0033,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #33,26.38,33.3,6,1,3,1,Ya (Anomali),2,5
+ADJ-0034,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #34,76.19,18.4,6,1,1,0,Tidak,5,3
+ADJ-0035,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #35,5.38,27.1,5,1,4,0,Tidak,2,2
+ADJ-0036,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #36,25.44,9.7,7,1,3,0,Tidak,2,4
+ADJ-0037,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #37,25.55,13.7,13,1,2,0,Tidak,2,5
+ADJ-0038,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #38,60.39,19.6,4,1,4,0,Tidak,5,2
+ADJ-0039,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #39,13.52,29.8,4,1,1,0,Tidak,2,2
+ADJ-0040,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #40,16.39,21.9,4,1,3,0,Tidak,2,3
+ADJ-0041,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #41,22.97,1.3,9,1,3,0,Tidak,2,3
+ADJ-0042,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #42,6.49,11.0,14,1,4,0,Tidak,2,5
+ADJ-0043,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #43,20.08,30.3,10,0,3,1,Ya (Anomali),2,5
+ADJ-0044,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #44,18.19,8.8,3,1,2,0,Tidak,3,2
+ADJ-0045,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #45,7.6,13.2,10,1,1,1,Ya (Anomali),1,5
+ADJ-0046,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #46,54.7,13.9,3,1,4,0,Tidak,4,1
+ADJ-0047,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #47,17.92,5.8,11,1,4,0,Tidak,2,5
+ADJ-0048,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #48,11.96,12.6,3,1,2,0,Tidak,1,2
+ADJ-0049,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #49,5.19,28.7,3,0,3,1,Ya (Anomali),2,5
+ADJ-0050,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #50,3.82,29.8,13,0,4,1,Ya (Anomali),1,5
+ADJ-0051,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #51,97.74,20.5,12,0,1,0,Ya (Anomali),5,5
+ADJ-0052,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #52,160.88,23.9,13,1,3,0,Ya (Anomali),5,5
+ADJ-0053,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #53,69.46,18.9,8,1,4,0,Tidak,5,3
+ADJ-0054,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #54,19.41,2.0,9,0,4,0,Tidak,2,5
+ADJ-0055,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #55,50.49,24.5,13,1,1,0,Tidak,5,5
+ADJ-0056,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #56,54.92,34.9,8,1,4,0,Tidak,4,3
+ADJ-0057,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #57,11.69,8.4,4,1,3,0,Tidak,1,2
+ADJ-0058,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #58,27.46,34.4,10,1,2,0,Ya (Anomali),2,4
+ADJ-0059,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #59,95.27,34.9,7,1,4,1,Ya (Anomali),5,5
+ADJ-0060,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #60,10.86,5.4,4,1,2,0,Tidak,1,2
+ADJ-0061,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #61,33.62,32.5,10,1,1,0,Ya (Anomali),3,4
+ADJ-0062,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #62,33.59,23.8,1,1,2,0,Tidak,4,1
+ADJ-0063,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #63,19.08,16.6,7,1,4,0,Tidak,2,3
+ADJ-0064,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #64,21.22,12.4,3,1,1,0,Tidak,2,2
+ADJ-0065,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #65,19.29,22.2,14,1,3,0,Ya (Anomali),2,5
+ADJ-0066,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #66,23.09,29.6,5,1,2,0,Tidak,2,2
+ADJ-0067,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #67,5.83,1.7,14,1,4,1,Ya (Anomali),2,5
+ADJ-0068,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #68,48.51,19.0,3,1,3,0,Tidak,4,1
+ADJ-0069,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #69,33.46,22.9,1,0,2,0,Ya (Anomali),3,3
+ADJ-0070,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #70,110.29,1.4,9,1,3,0,Tidak,5,3
+ADJ-0071,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #71,9.46,31.2,2,1,4,0,Tidak,1,1
+ADJ-0072,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #72,5.73,33.3,2,0,4,0,Ya (Anomali),1,3
+ADJ-0073,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #73,13.58,21.6,6,1,2,0,Tidak,1,2
+ADJ-0074,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #74,22.38,4.5,1,1,2,0,Tidak,2,1
+ADJ-0075,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #75,7.88,32.7,8,1,4,0,Tidak,2,3
+ADJ-0076,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #76,19.52,28.3,4,0,3,0,Ya (Anomali),2,4
+ADJ-0077,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #77,31.87,1.5,3,1,2,0,Tidak,3,2
+ADJ-0078,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #78,2.73,20.5,5,1,4,0,Tidak,1,2
+ADJ-0079,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #79,43.57,4.5,8,1,1,0,Tidak,3,3
+ADJ-0080,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #80,85.26,5.4,1,1,3,0,Tidak,5,1
+ADJ-0081,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #81,10.37,7.1,5,1,1,1,Tidak,2,4
+ADJ-0082,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #82,45.91,14.2,9,1,1,0,Tidak,4,3
+ADJ-0083,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #83,17.24,30.7,2,1,3,0,Tidak,2,1
+ADJ-0084,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #84,33.76,1.6,8,0,1,0,Tidak,3,5
+ADJ-0085,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #85,41.76,24.3,2,1,1,0,Tidak,3,2
+ADJ-0086,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #86,11.49,33.8,7,1,1,0,Tidak,1,4
+ADJ-0087,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #87,47.45,22.6,9,1,4,1,Ya (Anomali),4,5
+ADJ-0088,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #88,4.33,28.6,5,1,1,0,Tidak,1,2
+ADJ-0089,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #89,130.66,31.6,11,1,1,0,Tidak,5,5
+ADJ-0090,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #90,13.33,25.2,9,1,3,1,Ya (Anomali),1,5
+ADJ-0091,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #91,8.6,23.3,1,0,3,0,Ya (Anomali),1,3
+ADJ-0092,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #92,5.48,1.1,7,1,1,0,Tidak,2,3
+ADJ-0093,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #93,51.17,18.4,4,1,1,0,Tidak,5,2
+ADJ-0094,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #94,27.45,16.7,7,1,1,0,Tidak,3,3
+ADJ-0095,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #95,91.89,18.5,1,1,4,0,Tidak,5,1
+ADJ-0096,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #96,32.3,15.4,7,0,1,0,Tidak,3,5
+ADJ-0097,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #97,13.49,31.8,7,1,3,1,Ya (Anomali),2,4
+ADJ-0098,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #98,55.31,31.2,14,1,3,0,Tidak,4,5
+ADJ-0099,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #99,10.91,4.8,10,1,1,0,Tidak,1,4
+ADJ-0100,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #100,11.31,18.9,12,1,1,1,Ya (Anomali),2,5
+ADJ-0101,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #101,1.86,33.6,12,1,3,1,Ya (Anomali),1,5
+ADJ-0102,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #102,9.71,21.2,10,1,1,0,Ya (Anomali),1,4
+ADJ-0103,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #103,10.09,28.2,7,1,1,0,Tidak,1,4
+ADJ-0104,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #104,11.59,13.4,10,1,4,0,Tidak,1,4
+ADJ-0105,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #105,14.8,13.5,14,1,1,0,Tidak,1,5
+ADJ-0106,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #106,26.79,11.7,2,0,4,0,Tidak,2,3
+ADJ-0107,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #107,8.32,1.3,13,1,2,0,Tidak,1,5
+ADJ-0108,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #108,31.38,32.4,6,0,4,1,Ya (Anomali),4,5
+ADJ-0109,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #109,5.29,12.6,12,1,1,1,Ya (Anomali),1,5
+ADJ-0110,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #110,81.17,13.2,3,1,1,0,Tidak,5,1
+ADJ-0111,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #111,1.79,26.7,11,1,3,0,Ya (Anomali),1,4
+ADJ-0112,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #112,72.64,18.7,6,1,1,0,Tidak,5,3
+ADJ-0113,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #113,24.77,13.0,5,0,1,0,Tidak,2,5
+ADJ-0114,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #114,38.14,31.0,11,1,1,0,Tidak,3,4
+ADJ-0115,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #115,11.63,29.0,4,1,4,0,Tidak,2,3
+ADJ-0116,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #116,6.73,34.2,8,0,4,1,Ya (Anomali),1,5
+ADJ-0117,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #117,89.29,22.6,2,1,2,1,Ya (Anomali),5,3
+ADJ-0118,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #118,18.45,24.3,7,1,4,0,Tidak,2,3
+ADJ-0119,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #119,20.65,11.7,4,1,3,0,Tidak,2,2
+ADJ-0120,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #120,128.38,3.9,14,0,4,0,Ya (Anomali),5,5
+ADJ-0121,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #121,13.29,4.2,7,0,1,0,Tidak,2,5
+ADJ-0122,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #122,4.17,22.8,5,0,4,0,Ya (Anomali),1,4
+ADJ-0123,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #123,27.52,4.4,5,1,1,1,Ya (Anomali),2,4
+ADJ-0124,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #124,25.28,31.8,9,1,3,1,Ya (Anomali),2,5
+ADJ-0125,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #125,45.5,24.8,13,1,2,0,Ya (Anomali),4,5
+ADJ-0126,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #126,94.08,8.3,5,1,2,0,Tidak,5,2
+ADJ-0127,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #127,12.03,10.1,8,1,2,0,Tidak,2,3
+ADJ-0128,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #128,39.38,25.0,7,0,2,1,Ya (Anomali),3,5
+ADJ-0129,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #129,18.1,28.9,14,1,1,0,Tidak,3,5
+ADJ-0130,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #130,46.94,29.5,12,1,1,1,Ya (Anomali),4,5
+ADJ-0131,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #131,6.38,21.2,4,1,4,0,Tidak,1,2
+ADJ-0132,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #132,21.85,5.9,13,0,1,0,Tidak,2,5
+ADJ-0133,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #133,3.41,28.7,8,1,2,0,Tidak,1,4
+ADJ-0134,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #134,25.71,27.8,7,0,1,1,Ya (Anomali),2,5
+ADJ-0135,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #135,6.55,29.3,12,0,3,0,Ya (Anomali),1,5
+ADJ-0136,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #136,97.6,5.9,4,1,3,1,Tidak,5,4
+ADJ-0137,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #137,25.25,24.1,6,1,3,0,Tidak,3,2
+ADJ-0138,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #138,23.61,33.6,14,1,2,0,Tidak,2,5
+ADJ-0139,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #139,108.62,9.3,7,1,4,0,Tidak,5,3
+ADJ-0140,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #140,21.7,25.2,13,0,1,0,Ya (Anomali),3,5
+ADJ-0141,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #141,34.88,9.4,10,1,4,0,Tidak,4,4
+ADJ-0142,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #142,2.43,11.1,13,1,1,0,Tidak,2,5
+ADJ-0143,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #143,37.96,17.2,11,1,2,0,Tidak,3,5
+ADJ-0144,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #144,4.3,31.4,12,1,3,0,Tidak,1,4
+ADJ-0145,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #145,46.46,1.8,7,1,2,0,Tidak,5,3
+ADJ-0146,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #146,63.83,34.6,8,0,3,0,Ya (Anomali),5,5
+ADJ-0147,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #147,12.37,27.1,9,0,4,0,Ya (Anomali),1,5
+ADJ-0148,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #148,64.14,12.9,5,1,4,0,Tidak,5,2
+ADJ-0149,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #149,20.77,12.7,2,0,2,0,Tidak,2,3
+ADJ-0150,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #150,26.43,17.2,10,1,2,1,Ya (Anomali),2,5
+ADJ-0151,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #151,16.88,30.7,12,1,1,0,Ya (Anomali),3,5
+ADJ-0152,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #152,20.42,1.1,13,1,4,0,Tidak,2,5
+ADJ-0153,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #153,72.67,19.4,5,1,3,0,Tidak,5,2
+ADJ-0154,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #154,89.29,2.4,14,1,4,0,Tidak,5,5
+ADJ-0155,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #155,18.71,4.5,11,0,1,0,Ya (Anomali),2,5
+ADJ-0156,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #156,22.67,24.3,14,1,2,0,Ya (Anomali),2,5
+ADJ-0157,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #157,4.7,8.6,7,1,3,0,Tidak,1,3
+ADJ-0158,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #158,12.82,1.9,13,1,1,0,Tidak,1,5
+ADJ-0159,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #159,22.6,6.2,14,1,2,0,Tidak,3,5
+ADJ-0160,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #160,7.79,7.7,3,1,3,0,Tidak,2,1
+ADJ-0161,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #161,26.78,27.1,10,1,1,0,Ya (Anomali),2,4
+ADJ-0162,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #162,35.68,22.1,5,1,2,0,Tidak,4,2
+ADJ-0163,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #163,32.49,25.9,6,1,4,0,Tidak,3,2
+ADJ-0164,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #164,18.53,13.3,6,1,2,1,Tidak,2,4
+ADJ-0165,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #165,45.0,4.4,4,0,2,0,Tidak,3,4
+ADJ-0166,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #166,12.55,28.3,3,0,1,1,Ya (Anomali),1,5
+ADJ-0167,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #167,20.01,5.3,11,0,1,0,Ya (Anomali),2,5
+ADJ-0168,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #168,10.45,13.7,4,0,1,1,Ya (Anomali),1,5
+ADJ-0169,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #169,28.76,9.5,1,1,2,0,Tidak,2,1
+ADJ-0170,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #170,18.43,10.7,8,1,2,0,Tidak,2,4
+ADJ-0171,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #171,8.34,21.3,12,1,4,0,Tidak,2,4
+ADJ-0172,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #172,12.05,6.2,3,0,1,0,Tidak,1,3
+ADJ-0173,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #173,10.83,15.9,4,1,4,0,Tidak,1,3
+ADJ-0174,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #174,73.54,22.5,11,1,3,0,Ya (Anomali),5,5
+ADJ-0175,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #175,23.14,30.5,14,0,4,0,Ya (Anomali),2,5
+ADJ-0176,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #176,32.72,13.3,9,1,1,0,Tidak,4,4
+ADJ-0177,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #177,82.88,11.5,13,1,3,0,Tidak,5,5
+ADJ-0178,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #178,7.03,13.2,10,1,2,0,Tidak,1,5
+ADJ-0179,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #179,83.89,17.8,9,1,2,0,Tidak,5,3
+ADJ-0180,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #180,24.27,11.3,13,1,3,0,Tidak,2,5
+ADJ-0181,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #181,59.18,9.1,6,1,1,0,Tidak,4,2
+ADJ-0182,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #182,6.52,13.4,4,1,4,0,Tidak,1,2
+ADJ-0183,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #183,10.56,27.3,11,1,2,0,Tidak,1,4
+ADJ-0184,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #184,7.48,9.2,8,0,3,0,Tidak,1,5
+ADJ-0185,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #185,32.79,29.6,7,1,4,0,Tidak,4,4
+ADJ-0186,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #186,5.55,10.3,6,0,4,0,Tidak,1,4
+ADJ-0187,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #187,48.18,21.3,6,0,2,1,Ya (Anomali),4,5
+ADJ-0188,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #188,9.65,34.0,9,0,1,0,Ya (Anomali),2,5
+ADJ-0189,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #189,9.85,33.3,4,1,1,0,Tidak,1,2
+ADJ-0190,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #190,10.9,15.5,14,1,3,0,Tidak,2,5
+ADJ-0191,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #191,42.16,2.8,13,1,3,0,Tidak,4,5
+ADJ-0192,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #192,78.4,31.6,6,1,1,0,Tidak,5,2
+ADJ-0193,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #193,72.42,4.9,2,1,3,0,Tidak,5,1
+ADJ-0194,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #194,4.2,32.4,9,0,1,0,Ya (Anomali),1,5
+ADJ-0195,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #195,10.13,25.8,7,1,2,0,Tidak,1,4
+ADJ-0196,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #196,34.46,32.7,8,0,4,1,Ya (Anomali),4,5
+ADJ-0197,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #197,29.91,23.5,2,1,3,0,Tidak,2,1
+ADJ-0198,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #198,13.92,34.8,12,1,2,0,Tidak,2,4
+ADJ-0199,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #199,60.6,16.6,5,1,1,0,Tidak,5,2
+ADJ-0200,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #200,5.19,11.9,14,1,3,0,Tidak,1,5
+ADJ-0201,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #201,31.57,14.1,9,1,2,0,Tidak,4,3
+ADJ-0202,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #202,10.57,12.6,14,1,3,0,Tidak,1,5
+ADJ-0203,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #203,23.47,14.3,13,1,2,0,Tidak,3,5
+ADJ-0204,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #204,15.71,31.0,3,0,1,1,Ya (Anomali),2,5
+ADJ-0205,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #205,117.97,20.9,7,1,4,0,Tidak,5,4
+ADJ-0206,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #206,21.01,25.5,13,1,2,1,Ya (Anomali),2,5
+ADJ-0207,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #207,113.01,10.4,5,1,1,0,Tidak,5,2
+ADJ-0208,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #208,9.83,34.7,6,1,3,0,Tidak,2,2
+ADJ-0209,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #209,44.82,10.2,5,1,4,0,Tidak,4,2
+ADJ-0210,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #210,38.88,6.0,6,1,4,0,Tidak,3,2
+ADJ-0211,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #211,57.45,27.3,9,0,3,0,Ya (Anomali),4,5
+ADJ-0212,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #212,36.49,29.4,7,1,4,0,Tidak,3,4
+ADJ-0213,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #213,35.41,14.1,1,1,3,0,Tidak,3,1
+ADJ-0214,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #214,33.43,19.2,9,1,3,0,Tidak,4,4
+ADJ-0215,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #215,127.09,14.8,2,1,1,0,Tidak,5,1
+ADJ-0216,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #216,8.77,10.6,14,0,3,0,Ya (Anomali),2,5
+ADJ-0217,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #217,1.92,28.6,4,1,1,0,Tidak,1,2
+ADJ-0218,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #218,34.99,26.6,4,1,2,1,Ya (Anomali),3,4
+ADJ-0219,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #219,6.67,17.2,5,1,2,1,Tidak,1,5
+ADJ-0220,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #220,35.13,16.2,10,1,3,0,Tidak,3,4
+ADJ-0221,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #221,12.56,6.7,4,1,1,0,Tidak,1,2
+ADJ-0222,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #222,2.33,22.5,8,1,2,1,Ya (Anomali),2,5
+ADJ-0223,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #223,45.06,32.4,9,1,1,0,Tidak,5,3
+ADJ-0224,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #224,2.59,25.3,11,1,2,0,Ya (Anomali),1,4
+ADJ-0225,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #225,8.61,18.0,14,1,3,0,Tidak,1,5
+ADJ-0226,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #226,13.3,1.8,11,0,2,0,Ya (Anomali),1,5
+ADJ-0227,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #227,5.27,32.6,12,1,3,0,Ya (Anomali),1,5
+ADJ-0228,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #228,74.45,11.1,2,0,3,0,Tidak,5,3
+ADJ-0229,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #229,30.17,10.8,12,1,2,0,Tidak,3,4
+ADJ-0230,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #230,63.48,16.7,9,1,3,0,Tidak,5,4
+ADJ-0231,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #231,35.38,15.3,2,1,1,0,Tidak,3,1
+ADJ-0232,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #232,145.65,33.7,3,1,1,0,Tidak,5,1
+ADJ-0233,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #233,23.34,6.2,6,0,1,0,Tidak,2,4
+ADJ-0234,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #234,2.66,24.3,13,1,4,0,Ya (Anomali),2,5
+ADJ-0235,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #235,6.26,4.2,9,1,2,0,Tidak,1,3
+ADJ-0236,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #236,27.63,10.1,7,1,2,0,Tidak,3,4
+ADJ-0237,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #237,13.82,25.4,8,1,4,1,Ya (Anomali),1,5
+ADJ-0238,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #238,4.59,28.2,2,1,2,0,Tidak,1,1
+ADJ-0239,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #239,9.16,16.7,13,0,1,0,Ya (Anomali),1,5
+ADJ-0240,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #240,20.31,27.7,9,0,4,0,Ya (Anomali),2,5
+ADJ-0241,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #241,22.91,32.8,6,0,4,0,Ya (Anomali),2,4
+ADJ-0242,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #242,82.81,32.8,14,1,1,1,Ya (Anomali),5,5
+ADJ-0243,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #243,3.85,12.3,3,1,2,0,Tidak,1,1
+ADJ-0244,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #244,14.29,11.3,2,0,3,0,Tidak,2,3
+ADJ-0245,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #245,22.16,25.6,12,1,3,1,Ya (Anomali),2,5
+ADJ-0246,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #246,4.61,23.1,2,0,2,0,Tidak,1,4
+ADJ-0247,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #247,35.92,14.0,10,1,3,1,Tidak,3,5
+ADJ-0248,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #248,22.71,8.4,9,1,4,0,Tidak,3,4
+ADJ-0249,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #249,19.46,21.8,4,1,3,0,Tidak,2,2
+ADJ-0250,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #250,33.02,15.3,8,1,2,1,Tidak,3,5
+ADJ-0251,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #251,11.18,5.1,11,1,2,1,Ya (Anomali),1,5
+ADJ-0252,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #252,13.43,22.6,7,0,2,1,Ya (Anomali),2,5
+ADJ-0253,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #253,6.33,24.6,5,1,4,0,Tidak,2,2
+ADJ-0254,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #254,23.25,13.1,11,0,2,0,Tidak,2,5
+ADJ-0255,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #255,14.98,29.2,4,1,3,0,Tidak,2,2
+ADJ-0256,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #256,10.05,3.0,6,1,2,0,Tidak,1,3
+ADJ-0257,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #257,5.0,17.6,13,1,2,0,Tidak,1,5
+ADJ-0258,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #258,1.7,33.5,10,1,2,1,Ya (Anomali),2,5
+ADJ-0259,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #259,7.45,7.1,8,1,4,1,Tidak,2,5
+ADJ-0260,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #260,9.53,6.4,5,1,4,0,Tidak,1,3
+ADJ-0261,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #261,20.93,13.6,2,1,4,0,Tidak,2,1
+ADJ-0262,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #262,9.27,9.7,14,1,4,0,Tidak,1,5
+ADJ-0263,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #263,52.06,8.1,4,1,1,0,Tidak,4,3
+ADJ-0264,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #264,20.28,33.3,11,1,1,0,Ya (Anomali),2,5
+ADJ-0265,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #265,30.33,12.4,1,0,3,0,Tidak,3,4
+ADJ-0266,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #266,7.99,2.6,13,1,2,0,Tidak,1,5
+ADJ-0267,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #267,17.14,31.5,9,0,4,0,Ya (Anomali),2,5
+ADJ-0268,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #268,28.7,16.0,6,1,4,0,Tidak,2,2
+ADJ-0269,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #269,12.18,25.9,7,0,2,0,Ya (Anomali),2,5
+ADJ-0270,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #270,13.29,13.2,1,1,2,0,Tidak,1,1
+ADJ-0271,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #271,50.42,32.8,5,1,1,0,Tidak,4,2
+ADJ-0272,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #272,55.45,10.4,9,1,2,0,Tidak,4,3
+ADJ-0273,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #273,23.84,23.4,1,1,1,0,Tidak,2,1
+ADJ-0274,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #274,69.02,28.9,1,1,2,1,Ya (Anomali),5,2
+ADJ-0275,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #275,41.03,8.7,11,1,2,1,Tidak,4,5
+ADJ-0276,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #276,2.71,28.2,2,0,4,0,Tidak,1,3
+ADJ-0277,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #277,25.59,27.8,3,1,4,0,Tidak,3,1
+ADJ-0278,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #278,36.9,33.8,14,1,1,0,Ya (Anomali),3,5
+ADJ-0279,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #279,24.35,32.3,6,1,2,0,Tidak,2,2
+ADJ-0280,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #280,54.51,13.9,11,1,4,0,Tidak,4,5
+ADJ-0281,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #281,11.74,20.9,6,0,1,0,Ya (Anomali),1,4
+ADJ-0282,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #282,3.03,32.4,10,1,4,0,Ya (Anomali),1,4
+ADJ-0283,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #283,31.12,0.7,10,1,3,0,Tidak,3,4
+ADJ-0284,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #284,40.37,22.1,14,1,1,1,Ya (Anomali),3,5
+ADJ-0285,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #285,44.48,7.9,1,1,3,0,Tidak,3,1
+ADJ-0286,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #286,1.33,26.0,3,1,2,0,Tidak,2,1
+ADJ-0287,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #287,34.57,28.0,13,1,1,0,Tidak,3,5
+ADJ-0288,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #288,1.63,25.1,13,1,3,0,Tidak,1,5
+ADJ-0289,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #289,45.72,34.9,9,1,2,0,Tidak,4,3
+ADJ-0290,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #290,37.43,17.0,8,0,1,0,Tidak,4,5
+ADJ-0291,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #291,26.14,19.9,11,1,2,0,Tidak,2,5
+ADJ-0292,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #292,22.18,14.6,9,0,3,0,Ya (Anomali),3,5
+ADJ-0293,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #293,38.67,34.1,11,1,1,0,Tidak,4,4
+ADJ-0294,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #294,2.77,32.3,8,1,2,0,Tidak,1,3
+ADJ-0295,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #295,54.55,34.5,9,1,2,0,Tidak,5,4
+ADJ-0296,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #296,7.74,34.5,7,1,4,0,Tidak,1,4
+ADJ-0297,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #297,20.49,31.4,10,1,3,1,Ya (Anomali),2,5
+ADJ-0298,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #298,21.01,32.6,13,1,1,0,Tidak,2,5
+ADJ-0299,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #299,46.03,4.6,14,0,1,0,Ya (Anomali),4,5
+ADJ-0300,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #300,7.43,6.5,9,1,2,0,Tidak,1,3
+ADJ-0301,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #301,11.69,31.0,3,0,3,0,Ya (Anomali),1,3
+ADJ-0302,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #302,33.64,25.6,6,1,2,0,Tidak,3,2
+ADJ-0303,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #303,16.97,30.7,6,1,2,0,Tidak,2,2
+ADJ-0304,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #304,11.65,27.1,14,0,1,1,Ya (Anomali),1,5
+ADJ-0305,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #305,30.14,5.3,13,1,2,0,Tidak,4,5
+ADJ-0306,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #306,3.72,32.1,1,0,1,0,Ya (Anomali),1,3
+ADJ-0307,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #307,47.79,27.1,12,0,1,0,Ya (Anomali),4,5
+ADJ-0308,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #308,23.32,20.2,13,1,4,0,Ya (Anomali),2,5
+ADJ-0309,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #309,7.92,18.9,14,1,1,0,Tidak,1,5
+ADJ-0310,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #310,16.75,20.3,12,1,4,0,Ya (Anomali),3,4
+ADJ-0311,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #311,5.22,14.0,11,1,2,0,Tidak,1,4
+ADJ-0312,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #312,29.76,28.2,10,1,1,0,Tidak,2,4
+ADJ-0313,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #313,34.2,31.9,10,1,1,0,Ya (Anomali),3,4
+ADJ-0314,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #314,16.59,9.2,7,1,4,0,Tidak,3,3
+ADJ-0315,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #315,13.45,1.8,3,1,4,0,Tidak,2,2
+ADJ-0316,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #316,57.87,7.5,12,1,1,0,Tidak,4,4
+ADJ-0317,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #317,26.75,26.6,14,1,3,0,Tidak,2,5
+ADJ-0318,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #318,33.99,30.5,2,1,3,1,Ya (Anomali),4,3
+ADJ-0319,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #319,5.09,12.5,7,1,4,0,Tidak,1,3
+ADJ-0320,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #320,38.48,5.8,14,1,1,1,Tidak,3,5
+ADJ-0321,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #321,18.64,30.1,10,1,2,0,Ya (Anomali),2,4
+ADJ-0322,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #322,14.7,7.9,4,1,2,0,Tidak,1,2
+ADJ-0323,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #323,80.52,8.8,7,1,3,0,Tidak,5,3
+ADJ-0324,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #324,2.66,3.7,1,0,3,0,Tidak,1,3
+ADJ-0325,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #325,7.53,31.9,10,1,2,0,Tidak,2,5
+ADJ-0326,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #326,15.1,11.8,8,1,4,0,Tidak,2,4
+ADJ-0327,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #327,12.75,6.4,2,1,1,1,Tidak,1,3
+ADJ-0328,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #328,22.44,33.4,8,1,3,0,Tidak,2,3
+ADJ-0329,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #329,16.37,12.1,8,0,1,0,Tidak,2,5
+ADJ-0330,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #330,47.58,26.3,9,1,4,0,Tidak,5,4
+ADJ-0331,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #331,44.83,8.4,4,0,4,1,Ya (Anomali),4,5
+ADJ-0332,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #332,45.4,25.6,12,1,3,0,Ya (Anomali),4,4
+ADJ-0333,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #333,14.83,8.5,1,1,4,0,Tidak,2,1
+ADJ-0334,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #334,16.7,22.5,10,1,2,0,Tidak,2,4
+ADJ-0335,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #335,39.24,15.7,8,0,4,0,Tidak,3,5
+ADJ-0336,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #336,4.98,28.1,9,1,3,1,Ya (Anomali),2,5
+ADJ-0337,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #337,58.3,25.7,11,0,4,0,Ya (Anomali),4,5
+ADJ-0338,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #338,24.38,32.8,14,1,4,0,Ya (Anomali),2,5
+ADJ-0339,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #339,57.62,13.5,9,0,3,1,Ya (Anomali),5,5
+ADJ-0340,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #340,48.34,26.5,6,1,3,0,Tidak,4,2
+ADJ-0341,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #341,15.07,33.9,8,1,1,0,Tidak,2,4
+ADJ-0342,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #342,4.21,12.1,8,1,2,1,Tidak,2,5
+ADJ-0343,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #343,77.08,10.5,5,0,3,0,Tidak,5,4
+ADJ-0344,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #344,13.68,27.0,4,1,4,1,Ya (Anomali),1,4
+ADJ-0345,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #345,15.04,15.9,10,1,1,0,Tidak,2,4
+ADJ-0346,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #346,72.92,14.3,10,1,4,0,Tidak,5,4
+ADJ-0347,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #347,75.79,19.3,11,1,2,0,Tidak,5,4
+ADJ-0348,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #348,10.15,32.8,2,1,4,0,Tidak,2,1
+ADJ-0349,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #349,3.79,3.4,3,1,1,0,Tidak,2,1
+ADJ-0350,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #350,1.03,16.6,11,1,2,0,Tidak,2,4
+ADJ-0351,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #351,18.3,4.3,12,0,4,0,Ya (Anomali),2,5
+ADJ-0352,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #352,26.22,31.0,3,0,1,0,Ya (Anomali),2,3
+ADJ-0353,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #353,10.46,5.2,12,1,4,0,Tidak,1,5
+ADJ-0354,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #354,10.02,3.6,6,0,2,0,Tidak,1,4
+ADJ-0355,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #355,14.24,33.7,7,1,4,0,Tidak,2,3
+ADJ-0356,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #356,10.16,19.9,6,1,4,1,Tidak,2,4
+ADJ-0357,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #357,59.65,29.0,11,1,1,0,Tidak,5,5
+ADJ-0358,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #358,31.89,16.7,14,0,4,1,Ya (Anomali),4,5
+ADJ-0359,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #359,53.97,15.5,1,1,3,1,Ya (Anomali),5,2
+ADJ-0360,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #360,60.09,32.0,7,1,2,1,Ya (Anomali),5,4
+ADJ-0361,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #361,18.13,34.7,12,1,1,0,Ya (Anomali),2,5
+ADJ-0362,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #362,20.48,21.8,13,0,3,0,Ya (Anomali),2,5
+ADJ-0363,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #363,115.26,32.2,9,1,3,0,Ya (Anomali),5,4
+ADJ-0364,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #364,51.92,30.3,8,0,2,1,Ya (Anomali),4,5
+ADJ-0365,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #365,48.97,19.3,11,1,1,1,Ya (Anomali),4,5
+ADJ-0366,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #366,27.29,33.0,5,1,3,0,Tidak,2,3
+ADJ-0367,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #367,19.55,7.7,4,1,4,0,Tidak,2,3
+ADJ-0368,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #368,68.5,31.0,5,1,3,1,Ya (Anomali),5,4
+ADJ-0369,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #369,49.97,11.2,13,0,2,0,Ya (Anomali),5,5
+ADJ-0370,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #370,22.82,1.6,3,1,3,0,Tidak,3,1
+ADJ-0371,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #371,10.46,27.7,9,1,1,0,Tidak,2,4
+ADJ-0372,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #372,5.78,32.6,5,0,3,0,Ya (Anomali),2,5
+ADJ-0373,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #373,25.14,8.0,7,1,3,1,Tidak,2,4
+ADJ-0374,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #374,11.53,18.9,7,1,2,0,Tidak,1,4
+ADJ-0375,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #375,10.2,26.4,1,0,3,1,Ya (Anomali),1,4
+ADJ-0376,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #376,4.35,11.9,6,1,3,0,Tidak,1,3
+ADJ-0377,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #377,2.05,5.6,13,1,1,0,Tidak,2,5
+ADJ-0378,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #378,46.88,14.0,4,1,2,1,Tidak,5,3
+ADJ-0379,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #379,4.43,16.3,3,1,2,1,Tidak,2,3
+ADJ-0380,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #380,66.84,26.1,13,1,2,0,Ya (Anomali),5,5
+ADJ-0381,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #381,8.22,7.4,3,1,2,1,Tidak,1,3
+ADJ-0382,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #382,43.77,28.6,14,1,4,0,Tidak,3,5
+ADJ-0383,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #383,52.95,17.8,6,0,4,0,Tidak,4,4
+ADJ-0384,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #384,48.19,31.7,1,0,4,0,Ya (Anomali),4,4
+ADJ-0385,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #385,62.87,20.0,5,1,2,0,Tidak,5,2
+ADJ-0386,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #386,13.45,15.9,4,1,2,0,Tidak,1,2
+ADJ-0387,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #387,128.82,10.4,10,1,4,1,Ya (Anomali),5,5
+ADJ-0388,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #388,10.84,4.2,8,1,2,0,Tidak,2,3
+ADJ-0389,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #389,82.68,13.3,9,1,3,0,Tidak,5,3
+ADJ-0390,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #390,18.26,14.8,8,1,1,1,Tidak,2,5
+ADJ-0391,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #391,2.76,20.1,7,1,2,0,Tidak,2,4
+ADJ-0392,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #392,47.1,30.2,3,0,3,1,Ya (Anomali),5,5
+ADJ-0393,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #393,47.45,16.5,8,0,3,1,Ya (Anomali),4,5
+ADJ-0394,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #394,7.59,11.3,1,0,4,0,Tidak,1,4
+ADJ-0395,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #395,53.04,30.6,4,0,1,0,Ya (Anomali),4,4
+ADJ-0396,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #396,6.14,25.8,14,1,2,0,Tidak,1,5
+ADJ-0397,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #397,5.93,11.1,3,0,2,0,Tidak,1,3
+ADJ-0398,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #398,50.65,6.3,11,0,1,0,Tidak,4,5
+ADJ-0399,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #399,11.28,10.5,3,1,3,0,Tidak,1,2
+ADJ-0400,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #400,3.4,4.8,2,0,2,0,Tidak,1,3
+ADJ-0401,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #401,94.94,31.7,7,0,2,0,Ya (Anomali),5,5
+ADJ-0402,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #402,25.43,21.6,14,1,1,0,Tidak,2,5
+ADJ-0403,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #403,18.83,30.3,14,0,3,0,Ya (Anomali),2,5
+ADJ-0404,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #404,22.04,28.8,10,1,3,0,Ya (Anomali),2,4
+ADJ-0405,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #405,34.3,5.8,3,0,3,0,Tidak,3,3
+ADJ-0406,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #406,60.34,15.8,7,0,2,0,Tidak,5,5
+ADJ-0407,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #407,34.5,34.0,2,0,3,1,Ya (Anomali),4,5
+ADJ-0408,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #408,41.36,8.6,3,1,1,1,Tidak,3,4
+ADJ-0409,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #409,6.96,2.2,12,1,4,0,Tidak,1,5
+ADJ-0410,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #410,15.54,12.4,3,1,4,0,Tidak,2,2
+ADJ-0411,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #411,27.37,18.1,7,1,1,0,Tidak,2,4
+ADJ-0412,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #412,29.98,2.4,10,1,1,0,Tidak,3,4
+ADJ-0413,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #413,10.47,15.2,4,0,1,0,Tidak,1,4
+ADJ-0414,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #414,111.65,9.2,12,1,3,0,Tidak,5,4
+ADJ-0415,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #415,4.77,7.8,10,1,1,0,Tidak,1,5
+ADJ-0416,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #416,4.57,9.6,7,1,2,0,Tidak,1,4
+ADJ-0417,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #417,8.81,4.1,3,1,4,1,Tidak,2,4
+ADJ-0418,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #418,43.06,3.1,10,1,2,0,Tidak,3,4
+ADJ-0419,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #419,2.12,21.1,9,0,2,0,Ya (Anomali),1,5
+ADJ-0420,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #420,133.35,33.2,2,0,3,0,Tidak,5,3
+ADJ-0421,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #421,133.02,28.3,12,1,3,0,Ya (Anomali),5,4
+ADJ-0422,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #422,6.22,29.3,11,1,4,0,Ya (Anomali),1,4
+ADJ-0423,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #423,16.38,25.9,13,1,3,0,Ya (Anomali),2,5
+ADJ-0424,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #424,7.84,33.5,3,1,3,0,Tidak,1,2
+ADJ-0425,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #425,16.73,33.3,12,0,4,0,Ya (Anomali),2,5
+ADJ-0426,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #426,23.83,27.4,6,0,1,0,Ya (Anomali),3,4
+ADJ-0427,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #427,52.9,25.2,11,1,4,1,Ya (Anomali),5,5
+ADJ-0428,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #428,2.09,11.0,12,1,4,0,Tidak,2,4
+ADJ-0429,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #429,131.05,3.6,13,1,1,0,Tidak,5,5
+ADJ-0430,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #430,85.69,3.7,6,1,1,1,Tidak,5,4
+ADJ-0431,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #431,26.35,25.9,6,1,4,1,Ya (Anomali),3,4
+ADJ-0432,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #432,20.67,1.5,10,1,1,0,Tidak,3,4
+ADJ-0433,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #433,25.0,28.7,8,1,1,0,Tidak,2,3
+ADJ-0434,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #434,1.56,13.1,8,1,4,0,Tidak,1,4
+ADJ-0435,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #435,41.15,7.1,6,1,1,0,Tidak,4,2
+ADJ-0436,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #436,21.58,14.6,8,1,2,1,Tidak,3,5
+ADJ-0437,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #437,11.11,24.8,1,1,3,0,Tidak,2,1
+ADJ-0438,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #438,19.57,10.0,7,1,3,0,Tidak,2,3
+ADJ-0439,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #439,11.38,6.5,3,1,4,1,Tidak,1,4
+ADJ-0440,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #440,37.11,26.0,13,1,1,0,Tidak,3,5
+ADJ-0441,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #441,29.59,30.9,3,0,2,1,Ya (Anomali),3,5
+ADJ-0442,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #442,15.74,20.7,9,0,1,0,Ya (Anomali),2,5
+ADJ-0443,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #443,12.32,18.6,1,1,1,0,Tidak,2,2
+ADJ-0444,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #444,64.12,26.5,9,1,1,0,Ya (Anomali),5,3
+ADJ-0445,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #445,35.39,25.8,5,1,4,0,Tidak,3,2
+ADJ-0446,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #446,38.74,0.7,14,1,3,0,Tidak,3,5
+ADJ-0447,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #447,29.92,10.2,9,1,3,0,Tidak,2,3
+ADJ-0448,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #448,3.35,32.7,1,1,2,0,Tidak,1,2
+ADJ-0449,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #449,2.83,33.6,6,1,2,1,Ya (Anomali),2,4
+ADJ-0450,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #450,17.82,18.1,1,1,1,0,Tidak,3,1
+ADJ-0451,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #451,80.99,19.8,1,1,2,0,Tidak,5,1
+ADJ-0452,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #452,23.31,0.5,14,0,2,0,Ya (Anomali),2,5
+ADJ-0453,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #453,63.6,23.7,5,0,2,0,Ya (Anomali),5,4
+ADJ-0454,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #454,4.05,7.8,11,1,1,1,Ya (Anomali),2,5
+ADJ-0455,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #455,39.65,4.9,13,1,1,0,Tidak,4,5
+ADJ-0456,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #456,9.44,11.0,14,1,3,0,Tidak,2,5
+ADJ-0457,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #457,23.3,23.4,5,1,4,1,Ya (Anomali),2,4
+ADJ-0458,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #458,11.4,15.6,1,1,1,1,Tidak,1,2
+ADJ-0459,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #459,38.38,12.5,2,0,3,0,Tidak,3,4
+ADJ-0460,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #460,16.37,25.6,14,1,2,0,Ya (Anomali),2,5
+ADJ-0461,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #461,19.61,28.6,3,1,2,1,Ya (Anomali),2,4
+ADJ-0462,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #462,9.44,30.5,3,1,4,0,Tidak,2,1
+ADJ-0463,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #463,10.92,15.8,7,1,1,0,Tidak,2,3
+ADJ-0464,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #464,6.93,25.3,2,0,4,0,Ya (Anomali),1,3
+ADJ-0465,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #465,25.21,31.0,3,0,3,0,Ya (Anomali),2,3
+ADJ-0466,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #466,5.7,31.9,14,1,4,1,Ya (Anomali),2,5
+ADJ-0467,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #467,10.37,17.5,1,0,4,0,Tidak,1,3
+ADJ-0468,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #468,23.68,12.8,1,1,2,0,Tidak,2,1
+ADJ-0469,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #469,10.64,31.6,1,1,2,0,Tidak,1,1
+ADJ-0470,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #470,27.64,9.5,1,0,2,1,Ya (Anomali),2,4
+ADJ-0471,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #471,1.43,28.0,4,1,3,0,Tidak,1,2
+ADJ-0472,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #472,109.61,31.8,1,1,3,0,Tidak,5,1
+ADJ-0473,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #473,40.28,26.0,4,1,1,0,Tidak,4,2
+ADJ-0474,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #474,22.02,24.0,6,1,1,1,Ya (Anomali),2,4
+ADJ-0475,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #475,77.09,2.2,3,1,2,0,Tidak,5,1
+ADJ-0476,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #476,62.15,7.5,3,1,2,0,Tidak,5,2
+ADJ-0477,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #477,14.7,23.5,12,0,4,0,Ya (Anomali),2,5
+ADJ-0478,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #478,4.7,27.6,11,1,1,0,Tidak,1,4
+ADJ-0479,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #479,9.72,2.7,5,1,4,0,Tidak,1,2
+ADJ-0480,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #480,8.02,1.2,10,1,3,0,Tidak,1,4
+ADJ-0481,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #481,42.6,11.2,13,1,3,0,Tidak,3,5
+ADJ-0482,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #482,24.83,22.8,12,0,3,1,Ya (Anomali),2,5
+ADJ-0483,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #483,57.93,18.2,2,0,1,0,Tidak,5,3
+ADJ-0484,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #484,21.18,0.8,14,1,3,0,Tidak,3,5
+ADJ-0485,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #485,45.06,5.7,4,1,1,0,Tidak,4,2
+ADJ-0486,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #486,12.72,26.5,1,1,2,0,Tidak,2,1
+ADJ-0487,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #487,28.65,10.8,10,1,4,0,Tidak,2,5
+ADJ-0488,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #488,31.6,4.5,12,1,4,0,Tidak,4,4
+ADJ-0489,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #489,43.72,2.3,9,1,3,0,Tidak,3,4
+ADJ-0490,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #490,49.21,29.8,3,1,4,0,Tidak,5,1
+ADJ-0491,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #491,10.71,16.8,8,1,3,1,Tidak,1,5
+ADJ-0492,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #492,15.59,17.9,4,1,1,0,Tidak,3,2
+ADJ-0493,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #493,7.96,2.6,6,1,3,0,Tidak,2,2
+ADJ-0494,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #494,42.33,17.4,10,1,3,0,Tidak,3,4
+ADJ-0495,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #495,10.47,22.8,11,1,4,0,Tidak,1,4
+ADJ-0496,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #496,15.88,4.7,4,1,4,1,Tidak,2,4
+ADJ-0497,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #497,49.74,31.6,4,1,1,0,Tidak,5,2
+ADJ-0498,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #498,13.46,27.5,11,1,4,0,Tidak,1,4
+ADJ-0499,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #499,11.34,28.2,14,0,1,0,Ya (Anomali),1,5
+ADJ-0500,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #500,32.6,19.0,6,0,4,0,Tidak,4,5
+ADJ-0501,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #501,112.12,12.0,8,0,3,0,Tidak,5,5
+ADJ-0502,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #502,2.94,22.6,9,1,2,1,Ya (Anomali),1,5
+ADJ-0503,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #503,55.02,8.3,2,1,4,0,Tidak,4,1
+ADJ-0504,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #504,4.89,5.2,6,1,4,0,Tidak,2,2
+ADJ-0505,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #505,13.69,19.1,1,1,4,1,Tidak,1,2
+ADJ-0506,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #506,17.17,17.0,7,1,1,1,Tidak,2,5
+ADJ-0507,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #507,39.05,5.7,10,1,1,0,Tidak,3,4
+ADJ-0508,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #508,79.34,18.8,3,1,4,1,Ya (Anomali),5,3
+ADJ-0509,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #509,4.23,19.4,9,1,1,0,Tidak,1,3
+ADJ-0510,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #510,41.97,30.6,6,0,1,0,Ya (Anomali),3,4
+ADJ-0511,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #511,12.67,26.7,13,1,1,0,Tidak,1,5
+ADJ-0512,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #512,70.66,8.0,13,1,1,1,Ya (Anomali),5,5
+ADJ-0513,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #513,10.78,28.7,12,0,1,0,Ya (Anomali),1,5
+ADJ-0514,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #514,36.51,33.9,9,1,3,0,Ya (Anomali),3,4
+ADJ-0515,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #515,6.4,25.2,6,1,4,0,Tidak,1,2
+ADJ-0516,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #516,96.06,27.7,4,0,2,0,Ya (Anomali),5,5
+ADJ-0517,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #517,1.13,9.7,6,0,4,0,Tidak,1,5
+ADJ-0518,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #518,8.95,34.7,1,1,2,0,Tidak,1,2
+ADJ-0519,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #519,34.81,6.6,10,0,2,1,Ya (Anomali),3,5
+ADJ-0520,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #520,58.63,26.4,8,1,1,0,Tidak,5,4
+ADJ-0521,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #521,152.34,14.1,10,1,4,0,Tidak,5,5
+ADJ-0522,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #522,6.71,12.8,8,1,4,0,Tidak,1,4
+ADJ-0523,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #523,12.01,10.3,3,1,1,0,Tidak,1,1
+ADJ-0524,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #524,67.73,15.7,5,1,2,0,Tidak,5,2
+ADJ-0525,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #525,1.99,27.8,5,1,3,0,Tidak,2,3
+ADJ-0526,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #526,40.65,33.0,3,1,1,0,Tidak,3,1
+ADJ-0527,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #527,17.5,14.9,11,1,2,0,Tidak,2,4
+ADJ-0528,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #528,36.02,23.0,11,0,2,0,Ya (Anomali),3,5
+ADJ-0529,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #529,23.33,27.7,6,1,2,0,Tidak,2,2
+ADJ-0530,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #530,30.59,3.9,11,1,2,0,Tidak,3,5
+ADJ-0531,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #531,33.96,33.6,9,1,3,0,Ya (Anomali),3,3
+ADJ-0532,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #532,30.93,7.8,11,1,1,0,Tidak,3,5
+ADJ-0533,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #533,33.77,32.1,12,0,3,0,Ya (Anomali),3,5
+ADJ-0534,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #534,26.2,34.5,3,1,4,1,Ya (Anomali),3,3
+ADJ-0535,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #535,38.54,4.0,9,1,3,0,Tidak,3,3
+ADJ-0536,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #536,45.89,31.3,13,1,4,0,Tidak,5,5
+ADJ-0537,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #537,47.53,22.6,8,1,1,0,Tidak,5,4
+ADJ-0538,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #538,58.62,28.7,5,1,3,0,Tidak,4,3
+ADJ-0539,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #539,12.41,4.3,13,1,4,0,Tidak,1,5
+ADJ-0540,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #540,42.09,29.3,9,0,1,0,Ya (Anomali),3,5
+ADJ-0541,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #541,88.93,22.1,7,1,1,1,Ya (Anomali),5,4
+ADJ-0542,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #542,14.74,18.1,3,0,2,0,Tidak,1,3
+ADJ-0543,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #543,46.1,19.8,10,1,4,1,Ya (Anomali),5,5
+ADJ-0544,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #544,11.34,26.2,13,1,3,0,Tidak,2,5
+ADJ-0545,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #545,6.79,10.8,13,0,3,0,Ya (Anomali),1,5
+ADJ-0546,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #546,18.74,33.0,2,1,1,0,Tidak,2,2
+ADJ-0547,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #547,50.28,11.1,11,1,2,1,Ya (Anomali),4,5
+ADJ-0548,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #548,12.01,30.8,5,1,2,0,Tidak,1,3
+ADJ-0549,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #549,11.48,0.9,3,1,2,0,Tidak,1,2
+ADJ-0550,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #550,10.76,32.1,12,0,1,0,Ya (Anomali),1,5
+ADJ-0551,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #551,8.38,29.9,10,1,1,0,Tidak,1,5
+ADJ-0552,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #552,29.33,4.8,9,1,4,0,Tidak,3,3
+ADJ-0553,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #553,9.37,25.9,11,1,3,0,Ya (Anomali),1,5
+ADJ-0554,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #554,82.96,13.4,10,0,3,0,Tidak,5,5
+ADJ-0555,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #555,13.74,17.1,7,1,4,1,Tidak,2,4
+ADJ-0556,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #556,24.45,2.9,10,1,4,1,Ya (Anomali),2,5
+ADJ-0557,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #557,16.79,7.8,10,0,1,0,Ya (Anomali),3,5
+ADJ-0558,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #558,99.68,33.4,8,1,3,1,Ya (Anomali),5,5
+ADJ-0559,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #559,17.55,14.9,6,1,3,0,Tidak,2,2
+ADJ-0560,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #560,25.88,1.4,9,1,3,0,Tidak,2,3
+ADJ-0561,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #561,44.24,18.3,6,1,1,0,Tidak,3,3
+ADJ-0562,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #562,6.64,34.8,13,0,1,0,Ya (Anomali),2,5
+ADJ-0563,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #563,2.0,12.0,12,1,4,1,Ya (Anomali),1,5
+ADJ-0564,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #564,19.2,5.4,13,1,1,0,Tidak,3,5
+ADJ-0565,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #565,25.0,22.7,3,0,1,0,Ya (Anomali),3,3
+ADJ-0566,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #566,11.15,32.2,2,1,3,0,Tidak,1,2
+ADJ-0567,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #567,19.63,30.1,13,1,3,0,Ya (Anomali),2,5
+ADJ-0568,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #568,29.65,23.2,1,1,4,0,Tidak,2,2
+ADJ-0569,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #569,109.66,6.9,9,1,1,0,Tidak,5,4
+ADJ-0570,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #570,28.62,27.6,14,1,3,0,Ya (Anomali),2,5
+ADJ-0571,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #571,18.87,28.9,6,0,3,0,Ya (Anomali),2,4
+ADJ-0572,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #572,1.68,29.8,4,0,4,0,Ya (Anomali),1,5
+ADJ-0573,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #573,12.16,14.4,5,0,3,0,Tidak,2,4
+ADJ-0574,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #574,14.32,14.6,14,1,4,0,Tidak,1,5
+ADJ-0575,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #575,20.44,5.9,8,1,3,0,Tidak,2,3
+ADJ-0576,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #576,46.72,27.2,14,0,4,0,Ya (Anomali),4,5
+ADJ-0577,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #577,45.87,25.9,1,1,4,0,Tidak,5,1
+ADJ-0578,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #578,56.99,3.9,14,1,4,0,Tidak,4,5
+ADJ-0579,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #579,11.27,1.2,8,0,2,1,Ya (Anomali),2,5
+ADJ-0580,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #580,13.76,33.3,7,1,2,1,Ya (Anomali),1,5
+ADJ-0581,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #581,5.88,1.1,9,1,1,0,Tidak,1,4
+ADJ-0582,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #582,59.43,22.2,14,1,1,0,Tidak,5,5
+ADJ-0583,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #583,32.69,16.2,4,1,3,0,Tidak,4,3
+ADJ-0584,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #584,3.42,27.3,11,0,2,0,Ya (Anomali),1,5
+ADJ-0585,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #585,11.86,3.5,5,1,4,0,Tidak,2,2
+ADJ-0586,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #586,5.97,24.0,8,1,1,0,Tidak,1,3
+ADJ-0587,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #587,105.43,21.7,3,1,1,1,Ya (Anomali),5,4
+ADJ-0588,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #588,12.77,29.9,10,1,4,0,Ya (Anomali),1,5
+ADJ-0589,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #589,21.58,18.4,11,0,4,1,Ya (Anomali),3,5
+ADJ-0590,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #590,12.48,25.6,1,1,2,1,Ya (Anomali),1,3
+ADJ-0591,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #591,20.29,15.6,1,1,4,0,Tidak,3,1
+ADJ-0592,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #592,198.62,34.4,11,1,1,0,Ya (Anomali),5,4
+ADJ-0593,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #593,11.16,19.8,11,1,1,1,Ya (Anomali),1,5
+ADJ-0594,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #594,10.96,26.5,10,1,2,0,Ya (Anomali),2,4
+ADJ-0595,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #595,14.93,3.7,6,1,3,0,Tidak,1,3
+ADJ-0596,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #596,6.57,16.5,2,1,2,0,Tidak,1,1
+ADJ-0597,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #597,41.3,2.7,13,0,1,1,Ya (Anomali),4,5
+ADJ-0598,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #598,15.31,4.7,9,1,2,0,Tidak,2,4
+ADJ-0599,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #599,27.09,18.0,5,1,3,0,Tidak,3,2
+ADJ-0600,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #600,33.48,12.7,13,1,1,0,Tidak,4,5
+ADJ-0601,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #601,2.08,16.4,11,0,4,0,Tidak,1,5
+ADJ-0602,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #602,31.98,17.6,9,1,1,0,Tidak,3,3
+ADJ-0603,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #603,23.83,6.0,8,1,4,0,Tidak,2,3
+ADJ-0604,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #604,3.59,13.1,8,1,1,0,Tidak,1,4
+ADJ-0605,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #605,4.99,30.2,5,1,3,0,Tidak,1,2
+ADJ-0606,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #606,18.44,30.1,11,1,4,1,Ya (Anomali),3,5
+ADJ-0607,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #607,13.75,17.4,12,1,1,0,Tidak,1,4
+ADJ-0608,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #608,18.26,26.3,2,0,4,0,Ya (Anomali),2,3
+ADJ-0609,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #609,31.28,26.5,11,1,1,0,Ya (Anomali),4,4
+ADJ-0610,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #610,6.03,2.0,11,0,3,0,Ya (Anomali),2,5
+ADJ-0611,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #611,33.58,21.6,13,1,2,0,Tidak,3,5
+ADJ-0612,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #612,52.13,28.3,11,1,3,0,Ya (Anomali),4,4
+ADJ-0613,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #613,1.09,21.0,6,1,2,0,Tidak,1,2
+ADJ-0614,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #614,14.79,19.2,11,1,1,0,Tidak,2,5
+ADJ-0615,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #615,10.65,18.8,14,1,3,1,Ya (Anomali),1,5
+ADJ-0616,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #616,17.97,18.0,5,1,3,0,Tidak,2,2
+ADJ-0617,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #617,29.66,27.4,3,0,2,0,Tidak,2,3
+ADJ-0618,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #618,7.23,22.7,14,1,3,0,Ya (Anomali),2,5
+ADJ-0619,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #619,5.32,7.9,10,0,2,0,Ya (Anomali),1,5
+ADJ-0620,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #620,40.15,15.5,9,1,2,0,Tidak,3,3
+ADJ-0621,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #621,35.73,18.7,7,0,2,0,Tidak,3,5
+ADJ-0622,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #622,19.53,15.0,13,1,3,0,Tidak,2,5
+ADJ-0623,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #623,21.87,8.7,12,1,4,0,Tidak,2,4
+ADJ-0624,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #624,10.44,4.8,12,1,1,0,Tidak,1,5
+ADJ-0625,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #625,12.98,4.5,14,1,3,0,Tidak,1,5
+ADJ-0626,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #626,12.57,10.7,9,1,4,0,Tidak,2,3
+ADJ-0627,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #627,39.88,14.4,10,0,2,0,Tidak,3,5
+ADJ-0628,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #628,25.33,24.1,11,0,4,0,Ya (Anomali),2,5
+ADJ-0629,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #629,40.22,34.5,14,0,4,1,Ya (Anomali),3,5
+ADJ-0630,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #630,27.8,31.5,4,0,1,0,Ya (Anomali),3,4
+ADJ-0631,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #631,24.67,28.6,3,1,4,0,Tidak,3,1
+ADJ-0632,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #632,12.6,28.6,2,1,3,0,Tidak,2,2
+ADJ-0633,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #633,16.1,21.1,5,1,1,0,Tidak,3,3
+ADJ-0634,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #634,66.52,9.2,1,1,1,1,Tidak,5,2
+ADJ-0635,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #635,26.74,16.8,6,1,1,0,Tidak,2,2
+ADJ-0636,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #636,23.3,5.4,2,1,2,0,Tidak,3,1
+ADJ-0637,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #637,2.64,20.0,12,1,2,1,Ya (Anomali),1,5
+ADJ-0638,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #638,34.34,1.3,12,0,1,0,Ya (Anomali),3,5
+ADJ-0639,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #639,35.75,7.0,9,0,1,0,Ya (Anomali),3,5
+ADJ-0640,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #640,36.2,25.1,5,0,2,0,Ya (Anomali),3,4
+ADJ-0641,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #641,3.87,10.1,2,0,2,0,Tidak,1,3
+ADJ-0642,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #642,11.72,15.0,4,1,2,1,Tidak,1,3
+ADJ-0643,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #643,14.92,29.2,6,1,2,1,Tidak,1,4
+ADJ-0644,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #644,53.55,2.0,4,1,2,1,Tidak,5,3
+ADJ-0645,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #645,119.39,1.3,5,1,2,0,Tidak,5,2
+ADJ-0646,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #646,17.07,8.4,4,0,3,1,Ya (Anomali),3,5
+ADJ-0647,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #647,25.24,24.1,4,1,2,0,Tidak,2,2
+ADJ-0648,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #648,1.22,8.6,3,0,4,0,Tidak,1,3
+ADJ-0649,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #649,1.26,30.3,9,1,4,0,Tidak,2,3
+ADJ-0650,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #650,3.32,12.6,14,1,1,0,Tidak,1,5
+ADJ-0651,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #651,39.13,10.3,3,1,4,0,Tidak,4,1
+ADJ-0652,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #652,6.89,8.5,4,1,4,0,Tidak,2,2
+ADJ-0653,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #653,43.55,20.3,8,1,3,0,Tidak,3,3
+ADJ-0654,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #654,17.96,30.0,5,1,2,1,Ya (Anomali),2,4
+ADJ-0655,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #655,57.91,14.5,7,1,2,0,Tidak,4,4
+ADJ-0656,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #656,62.28,9.2,6,1,4,1,Tidak,5,5
+ADJ-0657,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #657,64.57,15.0,1,1,2,0,Tidak,5,1
+ADJ-0658,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #658,24.53,31.7,2,1,2,0,Tidak,2,1
+ADJ-0659,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #659,47.61,12.0,10,1,1,1,Ya (Anomali),5,5
+ADJ-0660,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #660,33.53,23.1,5,0,1,0,Ya (Anomali),3,4
+ADJ-0661,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #661,7.2,11.9,10,1,3,0,Tidak,1,5
+ADJ-0662,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #662,15.41,23.8,14,1,1,1,Ya (Anomali),2,5
+ADJ-0663,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #663,99.39,30.9,3,1,2,1,Ya (Anomali),5,4
+ADJ-0664,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #664,45.43,21.2,12,0,2,0,Ya (Anomali),4,5
+ADJ-0665,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #665,10.15,33.2,8,1,3,1,Ya (Anomali),2,5
+ADJ-0666,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #666,10.9,21.3,8,1,4,0,Tidak,1,3
+ADJ-0667,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #667,9.8,34.1,2,1,3,0,Tidak,2,2
+ADJ-0668,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #668,12.96,25.5,14,0,2,1,Ya (Anomali),1,5
+ADJ-0669,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #669,80.06,23.0,6,0,4,0,Ya (Anomali),5,5
+ADJ-0670,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #670,18.05,29.1,7,1,1,0,Tidak,2,3
+ADJ-0671,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #671,14.59,0.9,14,1,3,0,Tidak,1,5
+ADJ-0672,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #672,9.2,9.4,14,1,4,0,Tidak,2,5
+ADJ-0673,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #673,67.88,8.0,7,0,3,0,Tidak,5,5
+ADJ-0674,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #674,95.66,4.3,3,0,1,0,Tidak,5,4
+ADJ-0675,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #675,12.73,32.9,9,1,4,1,Ya (Anomali),1,5
+ADJ-0676,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #676,29.76,5.0,13,1,3,1,Ya (Anomali),2,5
+ADJ-0677,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #677,96.41,9.6,14,1,1,0,Tidak,5,5
+ADJ-0678,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #678,21.76,12.1,7,0,2,0,Tidak,2,5
+ADJ-0679,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #679,19.97,22.0,1,0,4,0,Ya (Anomali),3,4
+ADJ-0680,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #680,23.5,27.0,9,0,1,1,Ya (Anomali),3,5
+ADJ-0681,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #681,2.01,21.4,11,1,3,0,Ya (Anomali),1,5
+ADJ-0682,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #682,11.71,26.3,6,1,2,1,Ya (Anomali),2,4
+ADJ-0683,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #683,37.02,14.4,6,1,3,0,Tidak,3,2
+ADJ-0684,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #684,103.09,34.9,7,0,4,0,Ya (Anomali),5,5
+ADJ-0685,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #685,26.23,6.4,2,0,1,1,Ya (Anomali),2,5
+ADJ-0686,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #686,7.34,14.3,11,1,3,0,Tidak,2,4
+ADJ-0687,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #687,17.7,29.2,2,1,3,0,Tidak,2,1
+ADJ-0688,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #688,21.2,9.0,4,0,1,0,Tidak,3,4
+ADJ-0689,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #689,5.95,26.4,13,0,4,0,Ya (Anomali),1,5
+ADJ-0690,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #690,12.98,13.1,12,1,4,0,Tidak,1,4
+ADJ-0691,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #691,18.67,6.6,14,1,4,0,Tidak,2,5
+ADJ-0692,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #692,10.11,14.4,2,1,2,0,Tidak,2,1
+ADJ-0693,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #693,14.1,27.6,7,1,2,0,Tidak,1,3
+ADJ-0694,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #694,10.7,4.4,10,1,4,0,Tidak,1,4
+ADJ-0695,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #695,29.47,18.3,9,1,3,0,Tidak,2,3
+ADJ-0696,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #696,26.93,26.1,2,1,1,1,Ya (Anomali),2,4
+ADJ-0697,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #697,25.07,26.4,1,1,3,0,Tidak,3,1
+ADJ-0698,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #698,4.05,13.9,14,0,2,0,Ya (Anomali),2,5
+ADJ-0699,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #699,7.08,16.6,1,0,1,0,Tidak,1,3
+ADJ-0700,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #700,4.52,30.1,13,1,3,0,Ya (Anomali),2,5
+ADJ-0701,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #701,2.96,7.7,2,1,4,0,Tidak,1,1
+ADJ-0702,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #702,9.5,34.7,14,1,3,0,Ya (Anomali),1,5
+ADJ-0703,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #703,7.49,15.0,12,1,1,1,Tidak,1,5
+ADJ-0704,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #704,39.73,10.0,3,1,3,0,Tidak,3,1
+ADJ-0705,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #705,36.71,0.6,1,0,2,0,Tidak,3,3
+ADJ-0706,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #706,7.74,4.8,8,1,1,0,Tidak,1,4
+ADJ-0707,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #707,6.43,26.6,6,1,3,0,Tidak,2,3
+ADJ-0708,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #708,5.7,22.9,3,1,2,0,Tidak,1,1
+ADJ-0709,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #709,12.57,9.0,9,1,2,0,Tidak,1,4
+ADJ-0710,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #710,11.45,32.5,4,1,2,0,Tidak,1,2
+ADJ-0711,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #711,1.87,29.3,9,0,3,0,Ya (Anomali),1,5
+ADJ-0712,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #712,26.17,9.8,5,1,3,1,Tidak,2,4
+ADJ-0713,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #713,69.49,11.9,9,0,1,0,Ya (Anomali),5,5
+ADJ-0714,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #714,24.22,6.9,8,1,4,0,Tidak,3,3
+ADJ-0715,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #715,2.98,22.7,2,0,4,0,Ya (Anomali),2,3
+ADJ-0716,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #716,28.46,24.7,5,0,1,0,Ya (Anomali),2,4
+ADJ-0717,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #717,20.91,14.2,1,1,4,0,Tidak,2,1
+ADJ-0718,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #718,72.23,25.9,1,0,4,0,Ya (Anomali),5,4
+ADJ-0719,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #719,14.54,34.7,3,1,1,1,Ya (Anomali),2,3
+ADJ-0720,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #720,42.83,21.6,1,0,1,0,Ya (Anomali),3,4
+ADJ-0721,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #721,2.18,22.9,6,1,1,0,Tidak,1,2
+ADJ-0722,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #722,39.35,13.4,6,0,2,0,Tidak,3,5
+ADJ-0723,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #723,2.27,0.9,5,0,1,0,Tidak,1,4
+ADJ-0724,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #724,13.68,33.4,14,1,2,0,Tidak,1,5
+ADJ-0725,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #725,89.74,27.1,9,0,3,0,Ya (Anomali),5,5
+ADJ-0726,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #726,37.44,24.5,11,1,1,0,Tidak,3,5
+ADJ-0727,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #727,78.72,1.5,4,1,4,0,Tidak,5,2
+ADJ-0728,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #728,21.55,26.7,3,1,4,1,Ya (Anomali),2,3
+ADJ-0729,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #729,28.96,23.6,3,1,4,1,Ya (Anomali),3,4
+ADJ-0730,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #730,22.88,20.1,1,1,4,0,Tidak,3,2
+ADJ-0731,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #731,20.55,22.0,4,1,2,0,Tidak,3,3
+ADJ-0732,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #732,26.9,32.2,7,0,3,0,Ya (Anomali),2,5
+ADJ-0733,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #733,2.19,0.7,8,0,1,0,Tidak,2,5
+ADJ-0734,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #734,7.16,5.9,14,1,1,0,Tidak,2,5
+ADJ-0735,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #735,8.25,31.4,13,0,3,0,Ya (Anomali),1,5
+ADJ-0736,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #736,15.48,0.8,6,1,4,0,Tidak,2,2
+ADJ-0737,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #737,18.1,31.7,7,1,1,0,Tidak,3,3
+ADJ-0738,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #738,41.38,1.5,5,0,3,0,Tidak,4,4
+ADJ-0739,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #739,6.43,27.4,14,1,4,0,Ya (Anomali),2,5
+ADJ-0740,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #740,26.31,31.2,8,1,1,0,Tidak,2,3
+ADJ-0741,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #741,10.54,21.6,10,1,4,0,Ya (Anomali),1,5
+ADJ-0742,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #742,22.75,22.6,3,1,3,0,Tidak,2,2
+ADJ-0743,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #743,30.55,2.2,8,1,2,0,Tidak,3,4
+ADJ-0744,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #744,27.2,7.8,11,1,4,0,Tidak,2,4
+ADJ-0745,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #745,8.28,31.5,10,1,4,0,Tidak,1,4
+ADJ-0746,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #746,38.08,28.9,7,0,2,0,Ya (Anomali),4,5
+ADJ-0747,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #747,32.82,2.6,9,1,3,0,Tidak,3,4
+ADJ-0748,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #748,81.65,28.5,13,1,3,0,Ya (Anomali),5,5
+ADJ-0749,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #749,31.17,15.1,6,1,2,1,Tidak,4,4
+ADJ-0750,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #750,39.22,19.8,13,1,4,0,Tidak,3,5
+ADJ-0751,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #751,50.98,4.2,10,0,2,0,Tidak,4,5
+ADJ-0752,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #752,4.36,14.3,10,1,2,0,Tidak,2,4
+ADJ-0753,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #753,36.75,15.5,14,1,2,1,Ya (Anomali),3,5
+ADJ-0754,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #754,12.51,23.6,2,0,1,1,Ya (Anomali),1,5
+ADJ-0755,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #755,52.97,23.2,12,1,2,1,Ya (Anomali),5,5
+ADJ-0756,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #756,20.63,19.4,11,1,4,0,Tidak,2,4
+ADJ-0757,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #757,27.07,1.6,5,1,4,0,Tidak,2,2
+ADJ-0758,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #758,10.05,6.1,9,0,4,0,Ya (Anomali),2,5
+ADJ-0759,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #759,32.54,6.0,7,0,2,0,Tidak,3,5
+ADJ-0760,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #760,2.09,31.1,12,1,1,0,Ya (Anomali),1,4
+ADJ-0761,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #761,42.42,31.6,11,1,1,0,Ya (Anomali),3,4
+ADJ-0762,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #762,6.35,28.3,12,1,1,0,Ya (Anomali),1,4
+ADJ-0763,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #763,8.75,6.5,3,1,2,0,Tidak,2,1
+ADJ-0764,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #764,1.03,29.5,2,1,3,0,Tidak,1,1
+ADJ-0765,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #765,12.27,7.0,8,1,2,0,Tidak,1,3
+ADJ-0766,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #766,15.74,19.6,8,1,3,0,Tidak,2,3
+ADJ-0767,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #767,9.0,25.8,1,1,1,0,Tidak,1,2
+ADJ-0768,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #768,8.85,2.3,2,1,4,1,Tidak,1,4
+ADJ-0769,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #769,68.04,21.1,5,1,1,0,Tidak,5,3
+ADJ-0770,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #770,12.86,9.2,13,0,4,0,Ya (Anomali),1,5
+ADJ-0771,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #771,39.43,17.7,5,1,4,0,Tidak,3,3
+ADJ-0772,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #772,9.13,13.7,7,1,1,0,Tidak,1,3
+ADJ-0773,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #773,50.67,24.2,5,1,2,1,Ya (Anomali),5,5
+ADJ-0774,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #774,34.97,17.4,12,1,3,0,Tidak,4,4
+ADJ-0775,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #775,43.34,10.9,9,1,4,0,Tidak,4,3
+ADJ-0776,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #776,18.37,31.9,1,0,2,1,Ya (Anomali),2,4
+ADJ-0777,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #777,64.5,33.6,5,1,2,0,Tidak,5,2
+ADJ-0778,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #778,15.05,28.2,3,1,1,0,Tidak,3,1
+ADJ-0779,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #779,28.56,20.5,10,1,1,0,Tidak,2,5
+ADJ-0780,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #780,31.66,31.0,13,1,1,1,Ya (Anomali),3,5
+ADJ-0781,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #781,92.25,21.3,11,1,1,0,Ya (Anomali),5,4
+ADJ-0782,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #782,5.33,5.6,6,1,4,0,Tidak,2,2
+ADJ-0783,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #783,5.37,1.1,1,1,1,0,Tidak,1,2
+ADJ-0784,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #784,19.6,25.5,2,1,1,0,Tidak,2,2
+ADJ-0785,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #785,75.99,26.5,9,0,2,0,Ya (Anomali),5,5
+ADJ-0786,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #786,1.66,32.4,9,1,2,1,Ya (Anomali),1,5
+ADJ-0787,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #787,10.7,28.9,12,0,3,0,Ya (Anomali),1,5
+ADJ-0788,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #788,11.0,22.6,2,1,2,0,Tidak,1,2
+ADJ-0789,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #789,11.91,7.1,4,1,1,0,Tidak,1,3
+ADJ-0790,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #790,1.75,21.0,14,1,1,0,Ya (Anomali),1,5
+ADJ-0791,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #791,53.39,15.5,13,1,3,0,Tidak,4,5
+ADJ-0792,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #792,1.27,8.5,10,1,1,1,Tidak,2,5
+ADJ-0793,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #793,20.49,28.1,3,1,3,0,Tidak,2,1
+ADJ-0794,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #794,2.74,5.7,8,0,3,0,Tidak,1,5
+ADJ-0795,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #795,49.08,22.2,1,1,1,0,Tidak,4,1
+ADJ-0796,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #796,42.18,21.6,9,1,2,0,Tidak,4,3
+ADJ-0797,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #797,39.35,11.0,4,1,2,0,Tidak,3,2
+ADJ-0798,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #798,40.98,15.3,14,0,2,0,Ya (Anomali),3,5
+ADJ-0799,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #799,85.52,4.5,12,1,3,0,Tidak,5,4
+ADJ-0800,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #800,17.18,1.4,8,0,2,0,Tidak,2,5
+ADJ-0801,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #801,60.32,0.9,8,0,3,0,Ya (Anomali),5,5
+ADJ-0802,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #802,7.11,6.5,6,1,4,1,Tidak,2,4
+ADJ-0803,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #803,19.0,30.4,12,1,3,0,Tidak,2,4
+ADJ-0804,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #804,1.27,18.5,10,1,1,0,Tidak,1,4
+ADJ-0805,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #805,11.03,4.5,9,1,1,0,Tidak,1,4
+ADJ-0806,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #806,19.38,31.7,8,1,2,0,Tidak,2,3
+ADJ-0807,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #807,73.0,20.1,14,0,1,1,Ya (Anomali),5,5
+ADJ-0808,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #808,12.44,1.5,14,1,2,0,Tidak,1,5
+ADJ-0809,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #809,34.48,26.8,3,1,4,0,Tidak,3,2
+ADJ-0810,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #810,54.87,16.8,14,1,3,0,Tidak,5,5
+ADJ-0811,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #811,12.86,18.9,6,1,1,1,Tidak,1,4
+ADJ-0812,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #812,6.56,21.7,2,1,2,0,Tidak,1,1
+ADJ-0813,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #813,27.84,3.8,1,1,4,1,Ya (Anomali),3,3
+ADJ-0814,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #814,11.04,33.2,5,1,1,0,Tidak,1,2
+ADJ-0815,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #815,32.71,9.3,13,0,1,0,Ya (Anomali),4,5
+ADJ-0816,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #816,5.34,22.0,7,0,4,0,Ya (Anomali),1,5
+ADJ-0817,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #817,5.93,30.0,12,1,3,0,Tidak,1,5
+ADJ-0818,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #818,34.8,12.0,6,1,1,0,Tidak,4,2
+ADJ-0819,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #819,109.99,22.2,4,1,4,0,Tidak,5,2
+ADJ-0820,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #820,9.51,34.6,4,1,2,0,Tidak,2,2
+ADJ-0821,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #821,38.54,29.9,9,1,1,1,Ya (Anomali),3,5
+ADJ-0822,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #822,23.78,27.4,12,1,3,0,Tidak,2,5
+ADJ-0823,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #823,56.71,15.7,3,0,3,0,Tidak,5,4
+ADJ-0824,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #824,15.77,16.1,11,1,4,0,Tidak,2,5
+ADJ-0825,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #825,107.96,17.3,13,0,3,0,Ya (Anomali),5,5
+ADJ-0826,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #826,3.58,24.3,2,1,2,0,Tidak,1,1
+ADJ-0827,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #827,126.29,5.5,6,0,4,0,Tidak,5,5
+ADJ-0828,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #828,57.17,30.2,1,1,4,1,Ya (Anomali),4,2
+ADJ-0829,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #829,61.4,1.1,2,1,3,0,Tidak,5,1
+ADJ-0830,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #830,56.43,6.4,4,1,3,0,Tidak,5,2
+ADJ-0831,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #831,60.39,17.1,9,1,4,0,Tidak,5,4
+ADJ-0832,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #832,51.65,9.2,4,1,2,1,Tidak,4,3
+ADJ-0833,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #833,69.93,13.1,10,0,2,1,Ya (Anomali),5,5
+ADJ-0834,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #834,19.53,12.0,13,1,2,1,Ya (Anomali),2,5
+ADJ-0835,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #835,85.05,9.8,11,1,2,1,Ya (Anomali),5,5
+ADJ-0836,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #836,15.58,13.6,3,1,2,0,Tidak,2,1
+ADJ-0837,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #837,40.12,17.9,11,1,4,0,Tidak,3,4
+ADJ-0838,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #838,38.17,16.9,1,1,4,0,Tidak,3,2
+ADJ-0839,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #839,52.59,28.5,12,1,1,0,Tidak,4,4
+ADJ-0840,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #840,41.23,11.1,8,1,3,0,Tidak,3,3
+ADJ-0841,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #841,2.08,10.2,11,0,2,0,Tidak,1,5
+ADJ-0842,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #842,41.31,17.9,4,1,3,0,Tidak,3,2
+ADJ-0843,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #843,1.71,2.2,11,1,4,0,Tidak,2,5
+ADJ-0844,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #844,23.86,4.4,2,1,1,0,Tidak,2,1
+ADJ-0845,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #845,55.78,28.2,7,0,4,0,Ya (Anomali),5,5
+ADJ-0846,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #846,54.08,17.5,13,1,1,0,Tidak,5,5
+ADJ-0847,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #847,56.22,2.8,12,0,4,0,Ya (Anomali),4,5
+ADJ-0848,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #848,28.67,15.7,1,1,2,0,Tidak,2,1
+ADJ-0849,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #849,7.09,14.2,3,1,3,1,Tidak,1,3
+ADJ-0850,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #850,22.28,9.0,10,1,3,0,Tidak,3,4
+ADJ-0851,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #851,22.78,13.3,11,0,1,1,Ya (Anomali),2,5
+ADJ-0852,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #852,12.78,7.0,5,1,1,0,Tidak,1,2
+ADJ-0853,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #853,17.55,16.0,7,1,4,0,Tidak,3,3
+ADJ-0854,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #854,62.71,14.6,14,0,1,0,Ya (Anomali),5,5
+ADJ-0855,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #855,22.89,21.5,3,1,2,1,Ya (Anomali),2,3
+ADJ-0856,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #856,37.6,33.0,13,1,4,0,Tidak,3,5
+ADJ-0857,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #857,21.54,6.9,4,1,2,0,Tidak,2,2
+ADJ-0858,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #858,29.83,14.9,5,1,1,0,Tidak,2,2
+ADJ-0859,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #859,3.91,19.9,10,1,3,0,Tidak,2,5
+ADJ-0860,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #860,81.38,19.4,14,0,2,0,Tidak,5,5
+ADJ-0861,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #861,18.18,23.3,2,1,4,0,Tidak,2,1
+ADJ-0862,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #862,42.39,9.7,12,1,3,0,Tidak,3,4
+ADJ-0863,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #863,34.0,22.4,9,1,1,1,Ya (Anomali),3,5
+ADJ-0864,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #864,49.17,7.4,7,1,2,1,Tidak,5,4
+ADJ-0865,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #865,2.06,4.8,2,1,1,0,Tidak,2,2
+ADJ-0866,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #866,83.16,29.2,12,0,2,1,Ya (Anomali),5,5
+ADJ-0867,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #867,54.11,16.8,6,1,3,0,Tidak,5,2
+ADJ-0868,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #868,54.83,14.2,7,1,4,0,Tidak,4,3
+ADJ-0869,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #869,19.88,32.5,12,1,1,1,Ya (Anomali),2,5
+ADJ-0870,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #870,48.74,25.0,10,0,3,0,Ya (Anomali),5,5
+ADJ-0871,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #871,26.68,23.9,12,1,3,0,Ya (Anomali),2,4
+ADJ-0872,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #872,22.0,7.2,4,1,4,0,Tidak,3,2
+ADJ-0873,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #873,47.1,7.7,11,0,4,0,Ya (Anomali),4,5
+ADJ-0874,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #874,30.65,17.2,4,1,3,0,Tidak,4,2
+ADJ-0875,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #875,3.41,23.0,8,0,2,1,Ya (Anomali),1,5
+ADJ-0876,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #876,12.33,14.1,2,1,3,0,Tidak,2,1
+ADJ-0877,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #877,30.19,2.7,2,1,3,0,Tidak,3,1
+ADJ-0878,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #878,71.24,24.1,2,0,2,0,Ya (Anomali),5,4
+ADJ-0879,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #879,82.09,27.2,11,1,1,0,Tidak,5,4
+ADJ-0880,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #880,55.77,33.1,2,1,3,0,Tidak,4,1
+ADJ-0881,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #881,9.8,14.6,7,1,2,0,Tidak,1,3
+ADJ-0882,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #882,20.24,9.4,4,1,1,1,Tidak,2,3
+ADJ-0883,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #883,18.04,32.4,5,0,2,0,Ya (Anomali),2,4
+ADJ-0884,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #884,18.32,25.2,8,1,2,0,Tidak,2,3
+ADJ-0885,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #885,2.53,2.7,7,0,2,0,Tidak,1,5
+ADJ-0886,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #886,6.72,20.5,11,1,1,0,Ya (Anomali),2,4
+ADJ-0887,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #887,5.99,1.5,8,0,1,0,Tidak,1,5
+ADJ-0888,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #888,29.81,8.3,5,1,3,0,Tidak,3,2
+ADJ-0889,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #889,16.92,2.9,8,0,3,0,Tidak,3,5
+ADJ-0890,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #890,12.76,7.6,1,1,3,1,Tidak,1,2
+ADJ-0891,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #891,18.6,17.4,14,0,3,0,Ya (Anomali),2,5
+ADJ-0892,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #892,12.76,10.8,5,1,3,0,Tidak,2,2
+ADJ-0893,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #893,43.5,3.5,12,1,1,0,Tidak,3,4
+ADJ-0894,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #894,6.48,17.1,11,1,4,0,Tidak,1,4
+ADJ-0895,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #895,2.73,24.9,10,1,2,0,Tidak,2,4
+ADJ-0896,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #896,32.56,2.3,2,1,3,0,Tidak,3,1
+ADJ-0897,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #897,8.86,30.9,5,1,2,0,Tidak,2,2
+ADJ-0898,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #898,31.93,23.0,13,1,2,0,Ya (Anomali),3,5
+ADJ-0899,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #899,2.81,18.4,13,1,3,1,Ya (Anomali),1,5
+ADJ-0900,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #900,9.51,14.2,12,1,2,1,Ya (Anomali),1,5
+ADJ-0901,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #901,6.01,14.1,2,0,2,0,Tidak,1,3
+ADJ-0902,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #902,11.3,12.1,6,1,4,0,Tidak,1,2
+ADJ-0903,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #903,12.96,4.5,9,1,2,0,Tidak,1,3
+ADJ-0904,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #904,21.51,3.2,12,1,2,0,Tidak,2,5
+ADJ-0905,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #905,23.03,11.2,14,1,4,0,Tidak,3,5
+ADJ-0906,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #906,30.84,23.5,2,1,2,0,Tidak,3,1
+ADJ-0907,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #907,13.09,10.4,10,1,2,0,Tidak,2,5
+ADJ-0908,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #908,23.78,28.5,2,1,2,1,Ya (Anomali),2,3
+ADJ-0909,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #909,139.51,13.6,10,1,2,0,Tidak,5,4
+ADJ-0910,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #910,8.1,22.3,3,0,2,0,Ya (Anomali),2,3
+ADJ-0911,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #911,5.97,15.4,10,1,2,1,Ya (Anomali),2,5
+ADJ-0912,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #912,56.46,17.7,5,1,1,0,Tidak,4,2
+ADJ-0913,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #913,16.85,9.1,10,1,4,0,Tidak,2,4
+ADJ-0914,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #914,57.3,18.2,14,1,1,0,Tidak,4,5
+ADJ-0915,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #915,17.59,4.3,9,1,1,0,Tidak,2,4
+ADJ-0916,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #916,1.66,13.8,3,1,4,0,Tidak,1,2
+ADJ-0917,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #917,15.09,16.0,9,0,4,0,Ya (Anomali),3,5
+ADJ-0918,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #918,29.26,24.8,9,1,2,1,Ya (Anomali),3,5
+ADJ-0919,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #919,18.8,14.3,9,1,3,0,Tidak,3,3
+ADJ-0920,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #920,19.45,23.5,4,1,3,0,Tidak,2,2
+ADJ-0921,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #921,192.6,6.5,10,1,1,0,Tidak,5,5
+ADJ-0922,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #922,24.57,1.4,6,1,2,0,Tidak,3,3
+ADJ-0923,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #923,36.81,18.0,2,1,3,0,Tidak,3,1
+ADJ-0924,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #924,39.29,16.8,1,0,4,1,Ya (Anomali),3,5
+ADJ-0925,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #925,1.01,23.6,2,1,4,1,Ya (Anomali),1,3
+ADJ-0926,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #926,25.12,11.3,4,1,3,0,Tidak,2,2
+ADJ-0927,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #927,99.95,1.5,7,0,2,0,Tidak,5,5
+ADJ-0928,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #928,42.69,25.5,2,1,2,0,Tidak,3,2
+ADJ-0929,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #929,13.48,33.0,10,1,1,0,Tidak,1,4
+ADJ-0930,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #930,14.6,14.1,1,0,4,0,Tidak,1,3
+ADJ-0931,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #931,11.86,21.6,3,1,2,0,Tidak,2,1
+ADJ-0932,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #932,30.84,19.3,7,1,4,0,Tidak,3,4
+ADJ-0933,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #933,4.07,20.0,3,1,1,0,Tidak,1,1
+ADJ-0934,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #934,11.27,30.4,2,1,2,1,Ya (Anomali),1,3
+ADJ-0935,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #935,21.69,25.9,1,1,2,0,Tidak,3,1
+ADJ-0936,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #936,23.99,27.1,3,1,3,1,Ya (Anomali),3,3
+ADJ-0937,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #937,29.05,3.6,14,0,4,0,Ya (Anomali),2,5
+ADJ-0938,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #938,48.87,5.6,7,0,2,0,Tidak,4,5
+ADJ-0939,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #939,6.35,23.4,3,0,1,1,Ya (Anomali),1,5
+ADJ-0940,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #940,8.65,19.1,5,1,4,1,Ya (Anomali),2,4
+ADJ-0941,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #941,62.75,27.2,11,1,2,0,Ya (Anomali),5,5
+ADJ-0942,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #942,54.36,3.7,6,1,4,0,Tidak,5,3
+ADJ-0943,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #943,52.71,20.0,12,1,1,0,Tidak,5,4
+ADJ-0944,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #944,8.02,17.3,14,0,3,0,Ya (Anomali),1,5
+ADJ-0945,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #945,2.8,30.0,5,1,3,1,Ya (Anomali),2,4
+ADJ-0946,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #946,23.23,7.0,1,1,1,1,Tidak,2,2
+ADJ-0947,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #947,62.22,12.5,14,1,4,0,Tidak,5,5
+ADJ-0948,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #948,9.14,5.7,5,1,1,0,Tidak,1,3
+ADJ-0949,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #949,71.36,16.1,3,1,3,0,Tidak,5,1
+ADJ-0950,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #950,5.58,30.9,8,1,4,0,Tidak,1,3
+ADJ-0951,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #951,11.62,23.6,5,1,4,1,Ya (Anomali),1,4
+ADJ-0952,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #952,11.63,26.2,8,1,2,0,Tidak,1,3
+ADJ-0953,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #953,5.91,3.7,9,0,2,1,Ya (Anomali),1,5
+ADJ-0954,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #954,62.85,16.1,2,1,2,1,Tidak,5,3
+ADJ-0955,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #955,16.96,29.4,4,1,2,0,Tidak,2,2
+ADJ-0956,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #956,7.35,29.4,10,0,2,0,Ya (Anomali),2,5
+ADJ-0957,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #957,5.78,34.6,1,1,1,0,Tidak,1,2
+ADJ-0958,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #958,17.39,18.6,10,0,1,1,Ya (Anomali),2,5
+ADJ-0959,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #959,1.52,0.6,12,1,4,0,Tidak,1,5
+ADJ-0960,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #960,4.87,31.5,9,1,4,0,Tidak,1,4
+ADJ-0961,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #961,1.11,33.5,10,1,2,1,Ya (Anomali),1,5
+ADJ-0962,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #962,1.74,32.5,12,1,3,0,Ya (Anomali),1,4
+ADJ-0963,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #963,179.27,27.1,8,1,3,1,Ya (Anomali),5,5
+ADJ-0964,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #964,18.87,7.8,13,0,4,0,Ya (Anomali),2,5
+ADJ-0965,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #965,40.16,5.3,2,0,4,0,Tidak,3,3
+ADJ-0966,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #966,41.08,24.7,13,1,4,0,Ya (Anomali),3,5
+ADJ-0967,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #967,64.71,5.3,11,0,2,0,Ya (Anomali),5,5
+ADJ-0968,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #968,4.29,33.4,6,0,4,0,Ya (Anomali),1,4
+ADJ-0969,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #969,23.38,15.9,5,1,2,1,Tidak,3,4
+ADJ-0970,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #970,12.65,1.6,5,1,1,0,Tidak,1,2
+ADJ-0971,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #971,24.85,5.7,3,1,4,0,Tidak,2,1
+ADJ-0972,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #972,13.11,10.5,1,1,3,0,Tidak,1,1
+ADJ-0973,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #973,7.09,24.8,14,1,2,0,Ya (Anomali),1,5
+ADJ-0974,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #974,34.52,25.9,11,0,1,1,Ya (Anomali),3,5
+ADJ-0975,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #975,2.18,7.8,6,1,1,0,Tidak,2,2
+ADJ-0976,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #976,68.72,22.9,6,1,2,0,Tidak,5,2
+ADJ-0977,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #977,5.74,1.6,5,1,2,0,Tidak,1,2
+ADJ-0978,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #978,29.65,4.0,9,1,1,1,Ya (Anomali),2,5
+ADJ-0979,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #979,43.1,19.0,10,1,1,1,Ya (Anomali),3,5
+ADJ-0980,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #980,3.27,24.8,12,1,1,0,Tidak,1,4
+ADJ-0981,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #981,71.08,32.0,9,0,2,0,Ya (Anomali),5,5
+ADJ-0982,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #982,14.21,15.6,14,1,4,0,Tidak,1,5
+ADJ-0983,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #983,172.66,4.6,13,0,1,1,Ya (Anomali),5,5
+ADJ-0984,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #984,3.14,32.5,10,1,1,0,Tidak,2,4
+ADJ-0985,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #985,38.85,15.6,1,1,3,1,Ya (Anomali),4,3
+ADJ-0986,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #986,6.26,17.7,7,0,4,0,Tidak,1,5
+ADJ-0987,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #987,16.46,30.0,12,0,2,0,Ya (Anomali),2,5
+ADJ-0988,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #988,18.57,20.7,6,1,1,1,Ya (Anomali),3,4
+ADJ-0989,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #989,16.63,10.9,13,0,2,0,Ya (Anomali),2,5
+ADJ-0990,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #990,13.36,19.2,3,1,4,0,Tidak,2,1
+ADJ-0991,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #991,44.73,22.1,14,1,4,1,Ya (Anomali),3,5
+ADJ-0992,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #992,52.43,31.2,4,1,4,1,Ya (Anomali),4,4
+ADJ-0993,Surabaya Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #993,13.27,8.6,4,0,3,0,Tidak,2,4
+ADJ-0994,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #994,20.77,19.8,4,1,1,0,Tidak,3,2
+ADJ-0995,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #995,17.43,32.3,7,1,4,0,Tidak,3,3
+ADJ-0996,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #996,28.01,2.1,4,1,2,0,Tidak,2,2
+ADJ-0997,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #997,5.88,7.2,10,1,3,0,Tidak,2,4
+ADJ-0998,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #998,50.15,12.4,14,1,4,1,Tidak,4,5
+ADJ-0999,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #999,48.84,23.9,6,1,4,1,Ya (Anomali),4,5
+ADJ-1000,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #1000,27.78,29.5,1,1,2,0,Tidak,2,2
+ADJ-1001,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1001,42.13,7.4,8,1,3,0,Tidak,3,3
+ADJ-1002,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1002,134.98,9.0,12,1,2,0,Tidak,5,4
+ADJ-1003,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1003,77.73,28.9,4,1,1,1,Ya (Anomali),5,3
+ADJ-1004,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1004,29.36,5.6,13,1,4,0,Tidak,2,5
+ADJ-1005,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1005,22.49,9.5,3,1,2,1,Tidak,2,3
+ADJ-1006,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1006,23.94,25.8,13,0,3,0,Ya (Anomali),2,5
+ADJ-1007,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1007,19.86,6.2,9,1,1,1,Ya (Anomali),3,5
+ADJ-1008,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1008,20.63,29.1,2,1,4,0,Tidak,2,1
+ADJ-1009,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #1009,40.51,17.4,8,1,4,0,Tidak,4,3
+ADJ-1010,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1010,146.31,15.9,11,1,3,0,Tidak,5,5
+ADJ-1011,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1011,2.39,5.2,6,0,2,0,Tidak,1,4
+ADJ-1012,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1012,8.85,23.9,13,1,2,0,Tidak,2,5
+ADJ-1013,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1013,8.08,31.0,13,0,4,0,Ya (Anomali),1,5
+ADJ-1014,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #1014,54.67,24.4,6,1,1,0,Tidak,4,2
+ADJ-1015,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #1015,17.33,11.4,10,0,2,1,Ya (Anomali),2,5
+ADJ-1016,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1016,23.34,24.6,6,1,3,0,Tidak,2,2
+ADJ-1017,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #1017,20.0,18.1,2,1,4,0,Tidak,2,1
+ADJ-1018,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1018,58.66,30.0,14,1,1,0,Ya (Anomali),4,5
+ADJ-1019,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #1019,21.78,16.4,11,1,3,0,Tidak,2,4
+ADJ-1020,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1020,34.06,8.7,12,1,1,0,Tidak,3,4
+ADJ-1021,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1021,1.59,4.0,7,1,1,0,Tidak,1,3
+ADJ-1022,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #1022,32.71,10.2,8,0,4,0,Tidak,4,5
+ADJ-1023,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1023,9.27,19.9,8,1,1,0,Tidak,1,4
+ADJ-1024,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1024,61.49,6.4,10,1,2,0,Tidak,5,4
+ADJ-1025,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1025,42.78,1.9,13,1,2,0,Tidak,4,5
+ADJ-1026,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1026,4.47,16.0,7,0,1,0,Tidak,1,5
+ADJ-1027,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #1027,4.28,12.5,7,0,4,0,Tidak,1,5
+ADJ-1028,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1028,11.4,15.0,5,1,4,0,Tidak,1,2
+ADJ-1029,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1029,5.03,16.2,4,1,1,0,Tidak,1,2
+ADJ-1030,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1030,41.45,26.9,4,1,2,0,Tidak,3,3
+ADJ-1031,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #1031,130.86,33.7,2,1,2,0,Tidak,5,1
+ADJ-1032,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1032,32.95,9.5,4,1,4,0,Tidak,3,2
+ADJ-1033,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #1033,9.59,33.0,7,1,4,0,Tidak,2,3
+ADJ-1034,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1034,25.92,8.4,13,1,3,0,Tidak,3,5
+ADJ-1035,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #1035,50.14,26.5,2,1,3,0,Tidak,4,2
+ADJ-1036,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #1036,99.27,24.0,11,1,1,0,Tidak,5,5
+ADJ-1037,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #1037,1.15,2.3,7,1,1,0,Tidak,2,4
+ADJ-1038,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #1038,23.25,25.5,9,1,4,0,Tidak,2,3
+ADJ-1039,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1039,19.11,31.6,10,1,4,0,Ya (Anomali),2,5
+ADJ-1040,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1040,17.06,32.6,14,1,3,0,Tidak,2,5
+ADJ-1041,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #1041,22.03,24.1,3,1,1,1,Ya (Anomali),2,3
+ADJ-1042,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #1042,16.5,27.6,8,1,3,0,Tidak,2,3
+ADJ-1043,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1043,13.65,3.0,5,1,3,1,Tidak,1,5
+ADJ-1044,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1044,4.66,6.1,10,0,3,0,Ya (Anomali),2,5
+ADJ-1045,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1045,21.79,9.6,10,1,2,0,Tidak,3,5
+ADJ-1046,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1046,52.62,18.8,10,1,1,0,Tidak,5,4
+ADJ-1047,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #1047,4.32,13.8,4,1,3,0,Tidak,1,2
+ADJ-1048,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1048,41.24,23.2,12,0,2,1,Ya (Anomali),3,5
+ADJ-1049,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1049,10.35,15.9,13,0,2,0,Ya (Anomali),2,5
+ADJ-1050,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1050,15.4,27.2,11,1,1,0,Ya (Anomali),2,5
+ADJ-1051,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1051,133.9,25.1,8,1,3,0,Tidak,5,3
+ADJ-1052,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1052,34.74,26.3,10,1,4,1,Ya (Anomali),3,5
+ADJ-1053,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1053,39.09,29.1,1,1,1,1,Ya (Anomali),3,2
+ADJ-1054,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1054,28.67,29.3,7,1,3,0,Tidak,2,3
+ADJ-1055,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1055,12.67,27.4,9,1,3,0,Tidak,2,4
+ADJ-1056,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1056,34.73,2.8,7,0,2,1,Ya (Anomali),3,5
+ADJ-1057,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #1057,19.33,22.0,9,1,3,0,Tidak,2,3
+ADJ-1058,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1058,54.53,1.2,7,1,2,0,Tidak,4,3
+ADJ-1059,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1059,26.39,26.2,12,1,3,0,Tidak,2,4
+ADJ-1060,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #1060,45.25,2.6,13,1,4,0,Tidak,4,5
+ADJ-1061,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1061,57.62,34.4,2,0,1,0,Ya (Anomali),5,3
+ADJ-1062,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1062,52.63,21.7,5,1,3,0,Tidak,5,3
+ADJ-1063,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1063,16.43,6.8,4,1,2,0,Tidak,3,2
+ADJ-1064,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #1064,14.8,16.7,10,1,2,0,Tidak,1,4
+ADJ-1065,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1065,61.99,29.0,8,0,2,0,Ya (Anomali),5,5
+ADJ-1066,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #1066,5.63,6.7,10,0,2,0,Ya (Anomali),1,5
+ADJ-1067,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #1067,10.83,19.0,14,0,2,0,Ya (Anomali),2,5
+ADJ-1068,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #1068,4.87,0.6,13,0,2,0,Ya (Anomali),2,5
+ADJ-1069,Finance Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1069,2.29,27.7,9,1,1,0,Tidak,1,3
+ADJ-1070,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1070,29.7,7.2,9,1,3,1,Ya (Anomali),2,5
+ADJ-1071,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #1071,70.31,13.9,14,0,1,0,Ya (Anomali),5,5
+ADJ-1072,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #1072,5.16,18.8,3,0,1,0,Tidak,1,3
+ADJ-1073,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1073,48.65,5.5,3,1,1,0,Tidak,4,2
+ADJ-1074,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #1074,15.31,32.5,5,1,4,0,Tidak,3,2
+ADJ-1075,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #1075,29.88,16.7,14,1,3,0,Tidak,2,5
+ADJ-1076,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #1076,44.28,8.5,2,1,1,1,Tidak,4,3
+ADJ-1077,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1077,38.14,25.9,12,1,2,1,Ya (Anomali),3,5
+ADJ-1078,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #1078,5.41,31.4,4,1,3,0,Tidak,1,2
+ADJ-1079,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1079,4.68,32.0,3,1,1,0,Tidak,1,1
+ADJ-1080,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1080,78.39,15.4,11,0,1,0,Ya (Anomali),5,5
+ADJ-1081,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1081,3.48,12.9,12,0,4,1,Ya (Anomali),1,5
+ADJ-1082,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1082,8.39,32.6,6,1,3,0,Tidak,2,2
+ADJ-1083,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1083,18.31,2.3,1,1,3,1,Tidak,3,2
+ADJ-1084,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #1084,52.61,26.4,5,1,2,0,Tidak,5,2
+ADJ-1085,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #1085,28.69,6.6,11,1,2,1,Ya (Anomali),2,5
+ADJ-1086,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #1086,26.4,16.6,11,1,3,0,Tidak,2,4
+ADJ-1087,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #1087,36.33,33.4,4,1,2,1,Ya (Anomali),3,4
+ADJ-1088,Surabaya Branch,Peralatan TI,Penyesuaian Stok Gudang #1088,49.61,20.5,1,1,2,1,Ya (Anomali),4,2
+ADJ-1089,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1089,8.94,18.6,4,1,1,0,Tidak,1,2
+ADJ-1090,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #1090,1.57,2.6,7,1,2,1,Ya (Anomali),1,4
+ADJ-1091,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #1091,5.08,10.1,3,1,4,1,Tidak,1,3
+ADJ-1092,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #1092,6.42,0.6,14,0,1,0,Ya (Anomali),1,5
+ADJ-1093,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1093,2.23,30.7,12,1,2,0,Ya (Anomali),1,4
+ADJ-1094,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1094,42.29,22.7,5,1,1,0,Tidak,3,2
+ADJ-1095,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1095,65.87,4.6,8,1,2,0,Tidak,5,4
+ADJ-1096,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #1096,38.2,13.0,11,1,2,0,Tidak,4,4
+ADJ-1097,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #1097,7.27,28.5,3,0,2,0,Ya (Anomali),2,4
+ADJ-1098,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1098,28.98,5.3,3,1,1,0,Tidak,2,2
+ADJ-1099,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1099,23.06,8.4,11,1,3,1,Ya (Anomali),2,5
+ADJ-1100,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1100,52.44,19.2,8,1,2,0,Tidak,4,4
+ADJ-1101,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1101,86.57,5.5,3,1,4,0,Tidak,5,1
+ADJ-1102,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #1102,41.75,13.7,2,1,2,0,Tidak,3,1
+ADJ-1103,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #1103,22.56,34.4,2,1,3,0,Tidak,2,2
+ADJ-1104,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1104,22.46,19.3,12,1,1,0,Tidak,2,4
+ADJ-1105,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #1105,50.47,24.7,8,1,2,0,Tidak,5,3
+ADJ-1106,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #1106,4.92,23.4,6,0,4,0,Ya (Anomali),1,4
+ADJ-1107,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #1107,5.99,7.8,10,1,1,1,Ya (Anomali),2,5
+ADJ-1108,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #1108,13.63,29.7,3,1,2,0,Tidak,2,1
+ADJ-1109,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1109,42.25,4.7,11,1,1,0,Tidak,3,5
+ADJ-1110,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #1110,3.05,32.3,11,1,1,0,Tidak,1,4
+ADJ-1111,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #1111,13.66,8.0,10,1,3,0,Tidak,1,4
+ADJ-1112,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1112,12.51,33.4,10,1,1,0,Ya (Anomali),2,4
+ADJ-1113,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #1113,20.95,28.0,14,1,2,1,Ya (Anomali),3,5
+ADJ-1114,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1114,19.69,6.4,1,1,3,0,Tidak,3,1
+ADJ-1115,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #1115,38.6,6.0,11,1,3,0,Tidak,3,4
+ADJ-1116,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #1116,30.47,3.4,6,1,1,1,Tidak,3,4
+ADJ-1117,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1117,70.92,9.0,14,1,1,0,Tidak,5,5
+ADJ-1118,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1118,6.98,23.2,9,1,2,0,Tidak,1,4
+ADJ-1119,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #1119,17.97,18.5,6,1,4,0,Tidak,2,2
+ADJ-1120,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1120,16.33,21.7,1,1,3,1,Ya (Anomali),3,2
+ADJ-1121,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #1121,4.58,1.6,6,0,3,0,Tidak,1,4
+ADJ-1122,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1122,6.4,3.3,14,1,3,1,Ya (Anomali),1,5
+ADJ-1123,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #1123,13.31,24.4,9,1,1,0,Ya (Anomali),1,3
+ADJ-1124,Jakarta Branch,Peralatan TI,Penyesuaian Stok Gudang #1124,40.82,29.8,6,1,4,0,Tidak,3,2
+ADJ-1125,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1125,5.88,12.9,3,1,2,0,Tidak,2,2
+ADJ-1126,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #1126,10.25,6.2,2,1,2,0,Tidak,2,2
+ADJ-1127,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1127,34.85,11.1,11,0,3,0,Ya (Anomali),4,5
+ADJ-1128,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1128,28.24,14.7,8,0,1,0,Tidak,3,5
+ADJ-1129,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1129,4.31,22.2,2,1,4,0,Tidak,1,1
+ADJ-1130,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #1130,87.31,14.6,7,1,2,0,Tidak,5,3
+ADJ-1131,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #1131,5.81,31.4,14,1,2,0,Ya (Anomali),2,5
+ADJ-1132,Operations Dept,Barang Jadi,Penyesuaian Stok Gudang #1132,2.9,14.3,3,1,1,0,Tidak,1,1
+ADJ-1133,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #1133,11.88,6.8,13,1,2,0,Tidak,2,5
+ADJ-1134,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1134,1.8,9.1,5,1,3,0,Tidak,1,2
+ADJ-1135,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1135,1.94,16.5,11,1,1,0,Tidak,1,5
+ADJ-1136,Operations Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1136,26.93,27.5,3,0,3,0,Ya (Anomali),3,4
+ADJ-1137,Surabaya Branch,Barang Jadi,Penyesuaian Stok Gudang #1137,68.03,30.5,3,0,3,0,Ya (Anomali),5,4
+ADJ-1138,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #1138,16.45,6.9,13,1,4,1,Ya (Anomali),2,5
+ADJ-1139,Finance Dept,Barang Jadi,Penyesuaian Stok Gudang #1139,11.79,0.6,7,1,1,1,Tidak,2,5
+ADJ-1140,Medan Branch,Komoditas Umum,Penyesuaian Stok Gudang #1140,74.82,30.5,7,1,2,0,Tidak,5,3
+ADJ-1141,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #1141,2.9,8.4,7,1,3,0,Tidak,1,3
+ADJ-1142,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #1142,20.23,28.8,11,0,4,0,Ya (Anomali),2,5
+ADJ-1143,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #1143,9.73,19.5,12,1,2,0,Tidak,1,4
+ADJ-1144,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1144,15.42,14.4,12,1,2,0,Tidak,2,4
+ADJ-1145,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #1145,16.87,5.6,4,1,2,0,Tidak,2,3
+ADJ-1146,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #1146,24.63,23.7,11,1,2,0,Tidak,3,4
+ADJ-1147,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1147,19.11,28.7,14,1,4,1,Ya (Anomali),2,5
+ADJ-1148,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1148,133.81,16.4,8,1,4,0,Tidak,5,3
+ADJ-1149,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #1149,1.78,15.9,9,0,2,0,Ya (Anomali),2,5
+ADJ-1150,Finance Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1150,43.52,26.6,1,1,1,0,Tidak,3,2
+ADJ-1151,Bandung Branch,Barang Jadi,Penyesuaian Stok Gudang #1151,2.57,17.8,7,1,4,0,Tidak,2,4
+ADJ-1152,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1152,17.92,27.6,8,1,2,0,Tidak,2,3
+ADJ-1153,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1153,7.76,2.4,2,1,4,0,Tidak,2,1
+ADJ-1154,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1154,88.18,30.1,6,1,4,0,Tidak,5,2
+ADJ-1155,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1155,39.46,9.5,12,0,2,0,Ya (Anomali),4,5
+ADJ-1156,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1156,19.64,6.3,5,1,3,0,Tidak,3,2
+ADJ-1157,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1157,92.25,1.6,4,1,1,0,Tidak,5,2
+ADJ-1158,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1158,39.33,29.3,4,1,4,0,Tidak,3,3
+ADJ-1159,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1159,92.06,2.6,10,1,2,0,Tidak,5,5
+ADJ-1160,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #1160,37.58,33.4,6,0,2,0,Ya (Anomali),3,5
+ADJ-1161,Surabaya Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1161,3.43,20.0,12,1,3,1,Ya (Anomali),1,5
+ADJ-1162,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1162,29.74,24.6,1,1,4,0,Tidak,3,1
+ADJ-1163,Medan Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1163,118.89,25.5,13,1,1,1,Ya (Anomali),5,5
+ADJ-1164,Jakarta Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1164,8.23,10.6,1,1,1,0,Tidak,1,1
+ADJ-1165,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #1165,48.21,28.3,4,1,3,0,Tidak,4,2
+ADJ-1166,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1166,7.12,33.1,3,1,1,1,Ya (Anomali),1,3
+ADJ-1167,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1167,19.06,13.3,5,1,1,0,Tidak,2,3
+ADJ-1168,Finance Dept,Komoditas Umum,Penyesuaian Stok Gudang #1168,3.65,29.3,13,1,2,1,Ya (Anomali),2,5
+ADJ-1169,IT Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1169,13.49,27.1,10,1,3,0,Ya (Anomali),1,4
+ADJ-1170,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1170,45.91,20.8,10,1,4,0,Tidak,4,4
+ADJ-1171,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #1171,2.39,13.2,13,1,3,1,Ya (Anomali),1,5
+ADJ-1172,Operations Dept,Peralatan TI,Penyesuaian Stok Gudang #1172,12.58,14.8,5,0,1,0,Tidak,2,4
+ADJ-1173,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #1173,30.81,11.1,14,0,2,0,Tidak,3,5
+ADJ-1174,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1174,90.02,15.2,1,1,4,0,Tidak,5,1
+ADJ-1175,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #1175,9.45,34.6,12,1,1,0,Tidak,2,5
+ADJ-1176,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1176,6.7,13.0,5,0,2,0,Tidak,2,4
+ADJ-1177,IT Dept,Peralatan TI,Penyesuaian Stok Gudang #1177,7.83,23.5,6,1,1,0,Tidak,2,3
+ADJ-1178,IT Dept,Barang Jadi,Penyesuaian Stok Gudang #1178,9.11,11.5,11,1,1,0,Tidak,1,4
+ADJ-1179,Jakarta Branch,Barang Jadi,Penyesuaian Stok Gudang #1179,31.51,16.6,4,1,3,0,Tidak,3,2
+ADJ-1180,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1180,199.63,3.4,13,1,1,0,Tidak,5,5
+ADJ-1181,Bandung Branch,Komoditas Umum,Penyesuaian Stok Gudang #1181,23.24,26.8,14,1,4,0,Tidak,3,5
+ADJ-1182,Operations Dept,Bahan Baku Industri,Penyesuaian Stok Gudang #1182,10.5,23.3,10,1,1,0,Ya (Anomali),1,4
+ADJ-1183,Bandung Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1183,42.23,12.5,2,0,3,0,Tidak,4,3
+ADJ-1184,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1184,6.17,18.6,10,1,2,0,Tidak,2,4
+ADJ-1185,Bandung Branch,Peralatan TI,Penyesuaian Stok Gudang #1185,1.91,30.6,11,1,1,0,Tidak,2,4
+ADJ-1186,Medan Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1186,28.89,2.0,9,1,1,0,Tidak,2,3
+ADJ-1187,Operations Dept,Komoditas Umum,Penyesuaian Stok Gudang #1187,8.08,32.6,12,1,3,1,Ya (Anomali),1,5
+ADJ-1188,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #1188,16.29,16.7,9,1,2,1,Ya (Anomali),3,5
+ADJ-1189,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #1189,8.89,30.2,9,1,1,1,Ya (Anomali),1,5
+ADJ-1190,IT Dept,Suku Cadang Utama,Penyesuaian Stok Gudang #1190,76.05,30.2,9,0,1,0,Ya (Anomali),5,5
+ADJ-1191,Bandung Branch,Suku Cadang Utama,Penyesuaian Stok Gudang #1191,13.37,2.5,10,0,4,0,Tidak,1,5
+ADJ-1192,Surabaya Branch,Komoditas Umum,Penyesuaian Stok Gudang #1192,18.88,27.5,7,1,3,0,Tidak,2,3
+ADJ-1193,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #1193,9.03,25.8,12,0,2,0,Ya (Anomali),1,5
+ADJ-1194,Medan Branch,Barang Jadi,Penyesuaian Stok Gudang #1194,3.66,2.0,2,1,1,0,Tidak,1,2
+ADJ-1195,Finance Dept,Peralatan TI,Penyesuaian Stok Gudang #1195,22.56,32.9,7,0,3,0,Ya (Anomali),2,5
+ADJ-1196,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #1196,61.91,22.4,1,1,3,0,Tidak,5,2
+ADJ-1197,Jakarta Branch,Bahan Baku Industri,Penyesuaian Stok Gudang #1197,14.0,6.3,6,1,3,0,Tidak,2,2
+ADJ-1198,IT Dept,Komoditas Umum,Penyesuaian Stok Gudang #1198,46.56,4.7,6,1,2,0,Tidak,5,2
+ADJ-1199,Medan Branch,Peralatan TI,Penyesuaian Stok Gudang #1199,1.99,19.9,5,1,3,0,Tidak,2,2
+ADJ-1200,Jakarta Branch,Komoditas Umum,Penyesuaian Stok Gudang #1200,9.06,2.5,7,1,1,1,Tidak,2,5
