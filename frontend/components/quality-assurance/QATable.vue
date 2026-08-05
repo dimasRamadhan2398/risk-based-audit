@@ -14,7 +14,7 @@
           <div class="flex items-center space-x-2">
             <div :class="['w-4 h-4 rounded-full', store.getTypeIconColor(row.original.type)]"></div>
             <span class="text-sm font-medium">
-              {{ row.original.type === QAType.REGULAR ? 'Regular' : (row.original.type === QAType.SAIV ? 'SAIV' : (row.original.type === QAType.IACM ? 'BUMN IACM' : 'QAR')) }}
+              {{ formatTypeLabel(row.original.type) }}
             </span>
           </div>
         </template>
@@ -29,7 +29,7 @@
 
         <template #result-cell="{ row }: { row: any }">
           <span class="font-bold">
-            {{ row.original.type === QAType.QAR ? formatOverallConclusion(row.original.result) : row.original.result }}
+            {{ (store.matchQAType(row.original.type, QAType.QAR) || store.matchQAType(row.original.type, QAType.SAIV)) ? formatOverallConclusion(row.original.result) : row.original.result }}
           </span>
         </template>
 
@@ -102,6 +102,13 @@
 import { useQualityAssuranceStore, QAType } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
+
+const formatTypeLabel = (type: string) => {
+  if (store.matchQAType(type, QAType.REGULAR)) return 'Regular'
+  if (store.matchQAType(type, QAType.SAIV)) return 'SAIV'
+  if (store.matchQAType(type, QAType.IACM)) return 'BUMN IACM'
+  return 'QAR'
+}
 
 const openReportFile = (row: any) => {
   if (row.attachment && row.attachment.filePath) {

@@ -4,20 +4,20 @@
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/executive-summary" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Upload Executive Summary Report</h1>
-        <p class="text-sm text-gray-500">Upload external compiled Executive Summary Report documents</p>
+        <h1 class="text-2xl font-bold text-gray-900">Import Executive Summary Report</h1>
+        <p class="text-sm text-gray-500">Import external compiled Executive Summary Report documents</p>
       </div>
     </div>
 
     <!-- Main Content -->
     <div class="flex flex-col gap-10">
-      <!-- Upload Form Card -->
+      <!-- Import Form Card -->
       <div class="w-full space-y-6">
         <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200">
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-primary" />
-              Upload Executive Summary Report Document
+              Import Executive Summary Report Document
             </h3>
           </template>
 
@@ -40,7 +40,7 @@
             </UFormField>
 
             <div class="space-y-2 pt-2">
-              <label class="block text-sm font-medium text-gray-700">Upload Document File *</label>
+              <label class="block text-sm font-medium text-gray-700">Import Document File *</label>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -98,7 +98,7 @@
 
             <UButton 
               type="submit"
-              label="Upload Report" 
+              label="Import Report" 
               color="primary" 
               class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
@@ -109,14 +109,14 @@
         </UCard>
       </div>
 
-      <!-- Uploaded Documents Table -->
+      <!-- Imported Documents Table -->
       <div class="w-full">
         <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 h-full">
           <template #header>
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-primary" />
-                Uploaded Executive Summary Reports
+                Imported Executive Summary Reports
               </h3>
               <UBadge color="primary" variant="subtle">
                 {{ store.uploadedDocuments.length }} Reports
@@ -134,8 +134,8 @@
               <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
             </div>
             <div class="max-w-md mx-auto">
-              <h3 class="text-sm font-bold text-gray-900">No reports uploaded</h3>
-              <p class="text-md text-gray-500 mt-1">Upload compiled executive summary reports to add them to your records.</p>
+              <h3 class="text-sm font-bold text-gray-900">No reports imported</h3>
+              <p class="text-md text-gray-500 mt-1">Import compiled executive summary reports to add them to your records.</p>
             </div>
           </div>
 
@@ -216,7 +216,7 @@ const form = ref({
 const columns = [
   { accessorKey: 'title', header: 'Document Title' },
   { accessorKey: 'fileName', header: 'File' },
-  { accessorKey: 'created_at', header: 'Uploaded Date' },
+  { accessorKey: 'created_at', header: 'Imported Date' },
   { accessorKey: 'actions', header: 'Actions' }
 ]
 
@@ -290,7 +290,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (confirm('Are you sure you want to delete this uploaded report?')) {
+  if (confirm('Are you sure you want to delete this imported report?')) {
     await store.deleteDocument(id)
   }
 }

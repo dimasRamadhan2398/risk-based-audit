@@ -115,13 +115,13 @@ targets_config = {
 
 # Machine Learning candidate models
 candidate_models = {
-    'Gradient Boosting': GradientBoostingClassifier(random_state=42),
-    'XGBoost': XGBClassifier(eval_metric='mlogloss', random_state=42),
-    'Extra Trees': ExtraTreesClassifier(n_estimators=200, random_state=42),
-    'Random Forest': RandomForestClassifier(n_estimators=200, random_state=42),
-    'MLP Neural Net': MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500, random_state=42),
-    'SVM (RBF)': SVC(kernel='rbf', C=1.0, random_state=42),
-    'Logistic Regression': LogisticRegression(max_iter=1000, random_state=42)
+    'Gradient Boosting': GradientBoostingClassifier(n_estimators=300, learning_rate=0.05, max_depth=5, random_state=42),
+    'XGBoost': XGBClassifier(n_estimators=300, max_depth=5, learning_rate=0.05, eval_metric='mlogloss', random_state=42),
+    'Extra Trees': ExtraTreesClassifier(n_estimators=300, max_depth=12, random_state=42),
+    'Random Forest': RandomForestClassifier(n_estimators=300, max_depth=12, random_state=42),
+    'MLP Neural Net': MLPClassifier(hidden_layer_sizes=(128, 64), max_iter=800, random_state=42),
+    'SVM (RBF)': SVC(kernel='rbf', C=2.0, random_state=42),
+    'Logistic Regression': LogisticRegression(max_iter=1000, C=2.0, random_state=42)
 }
 
 # Multi-Model Evaluation Loop

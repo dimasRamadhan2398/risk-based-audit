@@ -1612,7 +1612,7 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 func (s *Seeder) SeedQAReports() error {
 	seeds := []models.QAReport{
 		{
-			Type:              "Regular RSA",
+			Type:              "Regular Self Assessment (RSA)",
 			Period:            "Q3 2025",
 			ReportName:        "Operational Efficiency Q3",
 			Result:            "8.7/10",
@@ -1628,10 +1628,10 @@ func (s *Seeder) SeedQAReports() error {
 			},
 		},
 		{
-			Type:            "SAIV",
+			Type:            "Self Assessment w/ Independent Validation (SAIV)",
 			Period:          "Cycle 2025",
 			ReportName:      "Self Assessment GIAS '22-24",
-			Result:          "92%",
+			Result:          "Generally Conformed",
 			Status:          "Completed",
 			ConductedBy:     "PT Independent Consultant X",
 			AssessmentTitle: "SAIV - Cycle 2025",
@@ -1644,7 +1644,7 @@ func (s *Seeder) SeedQAReports() error {
 			},
 		},
 		{
-			Type:            "QAR External",
+			Type:            "Quality Assurance Review (QAR)",
 			Period:          "Year 2025",
 			ReportName:      "External QAR (IPPF 2027)",
 			Result:          "G/C*",
@@ -1660,7 +1660,7 @@ func (s *Seeder) SeedQAReports() error {
 			},
 		},
 		{
-			Type:            "Regular RSA",
+			Type:            "Regular Self Assessment (RSA)",
 			Period:          "Q2 2025",
 			ReportName:      "Operational Efficiency Q2",
 			Result:          "8.3/10",
@@ -1668,7 +1668,7 @@ func (s *Seeder) SeedQAReports() error {
 			AssessmentTitle: "RSA - Audit 2025 Q2",
 		},
 		{
-			Type:            "Regular RSA",
+			Type:            "Regular Self Assessment (RSA)",
 			Period:          "Q1 2025",
 			ReportName:      "Operational Efficiency Q1",
 			Result:          "6.9/10",
@@ -1676,7 +1676,7 @@ func (s *Seeder) SeedQAReports() error {
 			AssessmentTitle: "RSA - Audit 2025 Q1",
 		},
 		{
-			Type:            "IACM",
+			Type:            "BUMN IACM Assessment",
 			Period:          "Year 2025",
 			ReportName:      "BUMN IACM Assessment 2025",
 			Result:          "4",

@@ -372,6 +372,16 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedConsultingDocuments.GET("/:id/download", uploadedConsultingDocumentCtrl.Download)
 	}
 
+	// 16j. Uploaded Performance Reports (Q1, Q2, Q3, Q4, Tahunan)
+	uploadedPerformanceReportCtrl := controllers.NewUploadedPerformanceReportController(h.db)
+	uploadedPerformanceReports := apiV1.Group("/uploaded-performance-reports")
+	{
+		uploadedPerformanceReports.GET("", uploadedPerformanceReportCtrl.List)
+		uploadedPerformanceReports.POST("", uploadedPerformanceReportCtrl.Upload)
+		uploadedPerformanceReports.DELETE("/:id", uploadedPerformanceReportCtrl.Delete)
+		uploadedPerformanceReports.GET("/:id/download", uploadedPerformanceReportCtrl.Download)
+	}
+
 	// 17. Audit Result Reports
 	auditResultReports := apiV1.Group("/audit-result-reports")
 	{

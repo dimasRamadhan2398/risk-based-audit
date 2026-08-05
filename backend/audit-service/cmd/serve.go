@@ -81,6 +81,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		&models.UploadedExecutiveSummary{},
 		&models.UploadedExecutiveSummaryReport{},
 		&models.UploadedConsultingDocument{},
+		&models.UploadedPerformanceReport{},
 	)
 
 	// Initialize Redis

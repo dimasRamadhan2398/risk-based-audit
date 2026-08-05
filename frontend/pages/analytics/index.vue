@@ -33,7 +33,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 // ─── Data & Config ──────────────────────────────────────────────────────────
 const config = useRuntimeConfig()
 const ANALYTICS_API_URL = config.public.analyticsApiBase || 'http://localhost:8084/api/analytics'
-const PYTHON_AI_DIRECT_URL = 'http://localhost:8000'
+const PYTHON_AI_DIRECT_URL = config.public.pythonAiBaseUrl || 'http://localhost:8000'
 
 const initialXGB = useXGBoostData()
 const initialIso = useIsolationForestData()
@@ -43,6 +43,11 @@ const summary = ref(useAnalyticsSummary())
 
 const loading = ref(true)
 const error = ref('')
+
+// Connection & Persistent Cache State
+const isAiConnected = ref(true)
+const usingCachedRealData = ref(false)
+const lastSyncedTime = ref<string | null>(null)
 
 // Reactive Model States driven by Real Model Data & Continuous Background Sync
 const xgboostState = ref<any>({
@@ -60,8 +65,7 @@ const isolationState = ref<any>({
 const nlpState = ref<any>({
   documents: [...initialNLP.documents],
   categoryDistribution: { ...initialNLP.categoryDistribution },
-  sentimentDistribution: { ...initialNLP.sentimentDistribution },
-  topKeywords: [...initialNLP.topKeywords]
+  sentimentDistribution: { ...initialNLP.sentimentDistribution }
 })
 
 const timeseriesState = ref<any>({
@@ -71,28 +75,33 @@ const timeseriesState = ref<any>({
   forecastAccuracy: { ...initialTS.forecastAccuracy }
 })
 
-// Safe Fetch Helper with Fallbacks
+// Safe Fetch Helper with Multi-tier Fallbacks
 const safeApiFetch = async (endpoint: string, options: any = {}): Promise<any> => {
   try {
     return await $fetch(`${ANALYTICS_API_URL}${endpoint}`, options)
   } catch (e1) {
-    try {
-      // Direct Python AI Fallback
-      let pyEndpoint = endpoint
-      if (endpoint === '/risk-score') pyEndpoint = '/predict/risk-score'
-      else if (endpoint === '/anomaly') pyEndpoint = '/predict/anomaly'
-      else if (endpoint === '/text-analysis') pyEndpoint = '/predict/text-analysis'
-      else if (endpoint === '/performance-trend') pyEndpoint = '/predict/performance-trend'
-      else if (endpoint === '/risk-score/batch') pyEndpoint = '/predict/risk-score/batch'
-      else if (endpoint === '/anomaly/batch') pyEndpoint = '/predict/anomaly/batch'
-      else if (endpoint === '/text-analysis/batch') pyEndpoint = '/predict/text-analysis/batch'
-      else if (endpoint === '/performance-trend/batch') pyEndpoint = '/predict/performance-trend/batch'
-      else if (endpoint === '/retrain/auto') pyEndpoint = '/retrain/auto'
+    let pyEndpoint = endpoint
+    if (endpoint === '/risk-score') pyEndpoint = '/predict/risk-score'
+    else if (endpoint === '/anomaly') pyEndpoint = '/predict/anomaly'
+    else if (endpoint === '/text-analysis') pyEndpoint = '/predict/text-analysis'
+    else if (endpoint === '/performance-trend') pyEndpoint = '/predict/performance-trend'
+    else if (endpoint === '/risk-score/batch') pyEndpoint = '/predict/risk-score/batch'
+    else if (endpoint === '/anomaly/batch') pyEndpoint = '/predict/anomaly/batch'
+    else if (endpoint === '/text-analysis/batch') pyEndpoint = '/predict/text-analysis/batch'
+    else if (endpoint === '/performance-trend/batch') pyEndpoint = '/predict/performance-trend/batch'
+    else if (endpoint === '/retrain/auto') pyEndpoint = '/retrain/auto'
 
+    try {
+      // Primary Python AI Fallback (Port 8000)
       return await $fetch(`${PYTHON_AI_DIRECT_URL}${pyEndpoint}`, options)
     } catch (e2) {
-      console.warn(`API call failed for ${endpoint}, using fallback`, e2)
-      return null
+      try {
+        // Secondary Python AI Fallback (Dev Port 8005)
+        return await $fetch(`http://localhost:8005${pyEndpoint}`, options)
+      } catch (e3) {
+        console.warn(`API call failed for ${endpoint}, using fallback`, e3)
+        return null
+      }
     }
   }
 }
@@ -104,9 +113,66 @@ const formatNum = (val: any, decimals = 1): string => {
 }
 
 const getRiskConfig = (level: string) => {
-  if (!level) return { label: 'Moderate', color: '#FF9800' }
-  const normalized = level.replace(/\s+/g, '_').toUpperCase() as RiskLevel
-  return (riskLevelConfig as any)[normalized] || (riskLevelConfig as any)[level] || { label: level, color: '#6366F1' }
+  if (!level) return { label: 'Moderate', color: '#FFC107', bg: '#FF6F00' }
+  const raw = String(level).trim().toLowerCase().replace(/[\s\-_]+/g, '')
+
+  if (raw.includes('critical') || raw.includes('extreme') || raw === 'high' || raw.includes('veryhigh')) {
+    return { label: level.toUpperCase() === 'HIGH' ? 'High' : level, color: '#F44336', bg: '#B71C1C' }
+  }
+  if (raw.includes('moderatehigh') || raw.includes('mediumhigh')) {
+    return { label: 'Moderate to High', color: '#FF9800', bg: '#E65100' }
+  }
+  if (raw.includes('moderate') || raw.includes('medium') || raw.includes('watch')) {
+    return { label: 'Moderate', color: '#FFC107', bg: '#FF6F00' }
+  }
+  if (raw.includes('lowmoderate')) {
+    return { label: 'Low to Moderate', color: '#8BC34A', bg: '#33691E' }
+  }
+  if (raw.includes('low') || raw.includes('verylow')) {
+    return { label: 'Low', color: '#4CAF50', bg: '#1B5E20' }
+  }
+
+  const mapped = (riskLevelConfig as any)[raw] || (riskLevelConfig as any)[level]
+  if (mapped) return mapped
+
+  return { label: level, color: '#FFC107', bg: '#FF6F00' }
+}
+
+// ─── LocalStorage Persistent Cache Helpers ──────────────────────────────
+const saveRealCache = () => {
+  if (typeof window === 'undefined') return
+  try {
+    const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    const cacheObj = {
+      time: timeStr,
+      xgboost: xgboostState.value,
+      isolation: isolationState.value,
+      nlp: nlpState.value,
+      timeseries: timeseriesState.value
+    }
+    localStorage.setItem('auditsphere_real_analytics_cache_v3', JSON.stringify(cacheObj))
+    lastSyncedTime.value = timeStr
+  } catch (e) {
+    console.warn('Failed to save real analytics cache', e)
+  }
+}
+
+const loadRealCache = (): boolean => {
+  if (typeof window === 'undefined') return false
+  try {
+    const raw = localStorage.getItem('auditsphere_real_analytics_cache_v3') || localStorage.getItem('auditsphere_real_analytics_cache')
+    if (!raw) return false
+    const parsed = JSON.parse(raw)
+    if (parsed.xgboost) xgboostState.value = parsed.xgboost
+    if (parsed.isolation) isolationState.value = parsed.isolation
+    if (parsed.nlp) nlpState.value = parsed.nlp
+    if (parsed.timeseries) timeseriesState.value = parsed.timeseries
+    if (parsed.time) lastSyncedTime.value = parsed.time
+    return true
+  } catch (e) {
+    console.warn('Failed to load real analytics cache', e)
+    return false
+  }
 }
 
 // ─── Fetch Initial Batch Predictions & Automated Sync ───────────────────────
@@ -124,82 +190,112 @@ const fetchAnalytics = async () => {
       safeApiFetch('/performance-trend/batch')
     ])
 
-    if (resRiskBatch?.data || resRiskBatch?.predictions) {
-      const bData = resRiskBatch.data || resRiskBatch
-      if (bData.predictions && bData.predictions.length > 0) {
-        xgboostState.value.predictions = bData.predictions.map((p: any) => ({
-          entity: p.entity || 'Unknown Entity',
-          type: p.type || (p.entity && p.entity.includes('Dept') ? 'Department' : 'Branch'),
-          predictedLikelihood: p.predicted_likelihood ?? p.predictedLikelihood ?? 3,
-          predictedImpact: p.predicted_impact ?? p.predictedImpact ?? 3,
-          predictedScore: p.predicted_score ?? p.predictedScore ?? 9,
-          actualScore: p.actual_score ?? p.actualScore ?? 9,
-          confidence: p.confidence ?? 0.92,
-          delta: p.delta ?? 0,
-          trend: p.trend || 'stable',
-          predictedRiskLevel: p.risk_level || p.predictedRiskLevel || 'MODERATE_HIGH',
-          actualRiskLevel: p.actual_risk_level || p.actualRiskLevel || 'MODERATE_HIGH'
-        }))
-      }
-    }
+    const hasRealData = !!(resRiskBatch || resAnomalyBatch || resTextBatch || resPerfBatch)
 
-    if (resAnomalyBatch?.data || resAnomalyBatch?.anomalies) {
-      const bData = resAnomalyBatch.data || resAnomalyBatch
-      if (bData.anomalies && bData.anomalies.length > 0) {
-        isolationState.value.anomalies = bData.anomalies.map((a: any) => ({
-          id: a.id || 'ANM-001',
-          entity: a.entity || 'Jakarta Branch',
-          type: a.type || 'Transaction',
-          anomalyScore: a.anomaly_score ?? a.anomalyScore ?? 0.85,
-          description: a.description || '',
-          severity: a.severity || 'High',
-          date: a.date || '2026-06-01',
-          amount: a.amount ?? 0,
-          isAnomaly: a.is_anomaly !== undefined ? a.is_anomaly : true,
-          riskLevel: a.risk_level || a.riskLevel || 'HIGH'
-        }))
-      }
-      if (bData.scatter_data && bData.scatter_data.length > 0) {
-        isolationState.value.scatterData = bData.scatter_data.map((s: any) => ({
-          x: s.x ?? 0,
-          y: s.y ?? 0,
-          isAnomaly: s.is_anomaly ?? false,
-          label: s.label || ''
-        }))
-      }
-    }
+    if (hasRealData) {
+      isAiConnected.value = true
+      usingCachedRealData.value = false
 
-    if (resTextBatch?.data || resTextBatch?.documents) {
-      const bData = resTextBatch.data || resTextBatch
-      if (bData.documents && bData.documents.length > 0) {
-        nlpState.value.documents = bData.documents.map((d: any) => ({
-          docId: d.docId || 'WP-001',
-          title: d.title || 'Document Title',
-          source: d.source || 'Working Paper',
-          autoCategory: d.risk_category || d.autoCategory || 'Financial',
-          confidence: d.confidence ?? 0.91,
-          sentiment: d.sentiment || 'Negative',
-          severityScore: d.severityScore ?? 80,
-          date: d.date || '2026-06-01',
-          excerpt: d.excerpt || '',
-          riskLevel: d.risk_level || d.riskLevel || 'HIGH'
-        }))
+      if (resRiskBatch?.data || resRiskBatch?.predictions) {
+        const bData = resRiskBatch.data || resRiskBatch
+        if (bData.predictions && bData.predictions.length > 0) {
+          xgboostState.value.predictions = bData.predictions.map((p: any) => ({
+            entity: p.entity || 'Unknown Entity',
+            type: p.type || (p.entity && p.entity.includes('Dept') ? 'Department' : 'Branch'),
+            riskCategory: p.risk_category || p.riskCategory || 'Financial',
+            targetTimeline: p.target_timeline || p.targetTimeline || 'Q3 2026',
+            predictedLikelihood: p.predicted_likelihood ?? p.predictedLikelihood ?? 3,
+            predictedImpact: p.predicted_impact ?? p.predictedImpact ?? 3,
+            predictedScore: p.predicted_score ?? p.predictedScore ?? 9,
+            actualScore: p.actual_score ?? p.actualScore ?? 9,
+            delta: p.delta ?? 0,
+            trend: p.trend || 'stable',
+            predictedRiskLevel: p.risk_level || p.predictedRiskLevel || 'MODERATE_HIGH',
+            actualRiskLevel: p.actual_risk_level || p.actualRiskLevel || 'MODERATE_HIGH'
+          }))
+        }
       }
-      if (bData.category_distribution) nlpState.value.categoryDistribution = bData.category_distribution
-      if (bData.sentiment_distribution) nlpState.value.sentimentDistribution = bData.sentiment_distribution
-    }
 
-    if (resPerfBatch?.data || resPerfBatch?.kpi_forecasts) {
-      const bData = resPerfBatch.data || resPerfBatch
-      if (bData.kpi_forecasts && bData.kpi_forecasts.length > 0) {
-        timeseriesState.value.kpiForecasts = bData.kpi_forecasts
+      if (resAnomalyBatch?.data || resAnomalyBatch?.anomalies) {
+        const bData = resAnomalyBatch.data || resAnomalyBatch
+        if (bData.anomalies && bData.anomalies.length > 0) {
+          isolationState.value.anomalies = bData.anomalies.map((a: any) => ({
+            id: a.id || 'ANM-001',
+            entity: a.entity || 'Jakarta Branch',
+            type: a.type || 'Transaction',
+            anomalyScore: a.anomaly_score ?? a.anomalyScore ?? 0.85,
+            description: a.description || '',
+            severity: a.severity || 'High',
+            date: a.date || '2026-06-01',
+            amount: a.amount ?? 0,
+            isAnomaly: a.is_anomaly !== undefined ? a.is_anomaly : true,
+            riskLevel: a.risk_level || a.riskLevel || 'HIGH'
+          }))
+        }
+        if (bData.scatter_data && bData.scatter_data.length > 0) {
+          isolationState.value.scatterData = bData.scatter_data.map((s: any) => ({
+            x: s.x ?? 0,
+            y: s.y ?? 0,
+            isAnomaly: s.is_anomaly ?? false,
+            label: s.label || ''
+          }))
+        }
       }
-      if (bData.at_risk_departments) timeseriesState.value.atRiskDepartments = bData.at_risk_departments
-      if (bData.time_series_data) timeseriesState.value.historicalKPI = bData.time_series_data
+
+      if (resTextBatch?.data || resTextBatch?.documents) {
+        const bData = resTextBatch.data || resTextBatch
+        if (bData.documents && bData.documents.length > 0) {
+          nlpState.value.documents = bData.documents.map((d: any) => ({
+            docId: d.docId || 'WP-001',
+            title: d.title || 'Document Title',
+            source: d.source || 'Working Paper',
+            autoCategory: d.risk_category || d.autoCategory || 'Financial',
+            confidence: d.confidence ?? 0.91,
+            sentiment: d.sentiment || 'Negative',
+            severityScore: d.severityScore ?? 80,
+            date: d.date || '2026-06-01',
+            excerpt: d.excerpt || '',
+            riskLevel: d.risk_level || d.riskLevel || 'HIGH'
+          }))
+        }
+        if (bData.category_distribution) nlpState.value.categoryDistribution = bData.category_distribution
+        if (bData.sentiment_distribution) nlpState.value.sentimentDistribution = bData.sentiment_distribution
+      }
+
+      if (resPerfBatch?.data || resPerfBatch?.kpi_forecasts) {
+        const bData = resPerfBatch.data || resPerfBatch
+        if (bData.kpi_forecasts && bData.kpi_forecasts.length > 0) {
+          timeseriesState.value.kpiForecasts = bData.kpi_forecasts.map((f: any) => ({
+            kpiName: f.kpiName || f.kpi_name,
+            code: f.code || 'KPI-001',
+            unit: f.unit || '%',
+            entity: f.entity || 'Finance Dept',
+            entityType: f.entityType || f.entity_type || 'Department',
+            targetHorizon: f.targetHorizon || f.target_horizon || 'Q3 2026',
+            currentValue: f.currentValue ?? f.current_value ?? 0,
+            forecastedValue: f.forecastedValue ?? f.forecasted_value ?? 0,
+            trend: f.trend || 'Stable',
+            recommendedAction: f.recommendedAction || f.recommended_action || '',
+            riskLevel: f.riskLevel || f.risk_level || 'LOW'
+          }))
+        }
+        if (bData.at_risk_departments) timeseriesState.value.atRiskDepartments = bData.at_risk_departments
+        if (bData.time_series_data) timeseriesState.value.historicalKPI = bData.time_series_data
+      }
+
+      // Save real data to persistent storage
+      saveRealCache()
+    } else {
+      isAiConnected.value = false
+      const loaded = loadRealCache()
+      usingCachedRealData.value = loaded
     }
 
   } catch (err: any) {
     error.value = err.message || 'Error loading analytics'
+    isAiConnected.value = false
+    const loaded = loadRealCache()
+    usingCachedRealData.value = loaded
   } finally {
     loading.value = false
   }
@@ -286,30 +382,70 @@ const featureBarOptions = {
   }
 }
 
-// ─── Tab 2: Dynamic Computed Scatter Chart for Anomaly Detection ──────────
-const scatterChartData = computed(() => {
-  const normal = (isolationState.value.scatterData || []).filter((p: any) => !p.isAnomaly)
-  const anomalous = (isolationState.value.scatterData || []).filter((p: any) => p.isAnomaly)
+// ─── Tab 2: Dynamic Computed Scatter Chart for Anomaly Detection (Separated) ─
+const anomalyTypeColors: Record<string, { bg: string, border: string, style: string }> = {
+  'Transaction': { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' },
+  'Access Pattern': { bg: 'rgba(249,115,22,0.85)', border: 'rgba(249,115,22,1)', style: 'rectRot' },
+  'Expense Report': { bg: 'rgba(234,179,8,0.85)', border: 'rgba(234,179,8,1)', style: 'rect' },
+  'Fieldwork': { bg: 'rgba(139,92,246,0.85)', border: 'rgba(139,92,246,1)', style: 'star' },
+  'Procurement': { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'triangle' },
+  'Travel Expense': { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'rectRot' },
+  'Data Access': { bg: 'rgba(59,130,246,0.85)', border: 'rgba(59,130,246,1)', style: 'rect' },
+  'Inventory': { bg: 'rgba(107,114,128,0.85)', border: 'rgba(107,114,128,1)', style: 'star' },
+}
+
+const selectedAnomalyType = ref('All')
+
+const availableAnomalyTypes = computed(() => {
+  const types = new Set<string>()
+  const anomalies = isolationState.value.anomalies || []
+  anomalies.forEach((a: any) => { if (a.type) types.add(a.type) })
+  return ['All', ...Array.from(types)]
+})
+
+const getScatterChartForType = (typeFilter: string) => {
+  const anomalies = isolationState.value.anomalies || []
+  const scatterData = isolationState.value.scatterData || []
+
+  let filteredAnomalies = anomalies
+  if (typeFilter !== 'All') {
+    filteredAnomalies = anomalies.filter((a: any) => a.type === typeFilter)
+  }
+
+  const normalPoints = scatterData.filter((s: any) => !s.isAnomaly)
+  
+  const anomalyPoints = filteredAnomalies.map((a: any) => {
+    const matchedScatter = scatterData.find((s: any) => s.label === a.id)
+    return {
+      x: matchedScatter?.x ?? (a.amount ? a.amount / 1000000 : 15),
+      y: matchedScatter?.y ?? 20
+    }
+  })
+
+  const colors = anomalyTypeColors[typeFilter] || anomalyTypeColors['Transaction']
+
   return {
     datasets: [
       {
-        label: 'Normal Transactions',
-        data: normal.map((p: any) => ({ x: p.x ?? 0, y: p.y ?? 0 })),
-        backgroundColor: 'rgba(59,130,246,0.4)',
-        borderColor: 'rgba(59,130,246,0.6)',
+        label: `Normal Data Points (${typeFilter})`,
+        data: normalPoints.map((p: any) => ({ x: p.x ?? 0, y: p.y ?? 0 })),
+        backgroundColor: 'rgba(59,130,246,0.3)',
+        borderColor: 'rgba(59,130,246,0.5)',
         pointRadius: 4,
       },
       {
-        label: 'Anomalies Detected (ML)',
-        data: anomalous.map((p: any) => ({ x: p.x ?? 0, y: p.y ?? 0 })),
-        backgroundColor: 'rgba(239,68,68,0.85)',
-        borderColor: 'rgba(239,68,68,1)',
-        pointRadius: 7,
-        pointStyle: 'triangle',
-      },
+        label: `Anomalies (${typeFilter})`,
+        data: anomalyPoints,
+        backgroundColor: colors.bg,
+        borderColor: colors.border,
+        pointRadius: 8,
+        pointStyle: colors.style,
+      }
     ]
   }
-})
+}
+
+const scatterChartData = computed(() => getScatterChartForType(selectedAnomalyType.value))
 
 const scatterOptions = {
   responsive: true,
@@ -318,13 +454,13 @@ const scatterOptions = {
     legend: { position: 'top' as const },
     tooltip: {
       callbacks: {
-        label: (ctx: any) => `Amount: ${ctx.parsed.x}M, Frequency: ${ctx.parsed.y}`
+        label: (ctx: any) => `Amount/Value: ${ctx.parsed.x}M, Frequency/Occur: ${ctx.parsed.y}`
       }
     }
   },
   scales: {
-    x: { title: { display: true, text: 'Transaction Amount (Rp M)' } },
-    y: { title: { display: true, text: 'Frequency / Hour' } }
+    x: { title: { display: true, text: 'Data Value (Rp M / Score)' } },
+    y: { title: { display: true, text: 'Frequency / Occurrence' } }
   }
 }
 
@@ -342,13 +478,20 @@ const categoryDoughnutData = computed(() => ({
   }]
 }))
 
+const getSentimentCount = (key: string): number => {
+  const dist = nlpState.value?.sentimentDistribution || {}
+  const lower = key.toLowerCase()
+  const upper = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()
+  return (dist[lower] ?? dist[upper] ?? dist[key] ?? 0) as number
+}
+
 const sentimentDoughnutData = computed(() => ({
   labels: ['Positive', 'Neutral', 'Negative'],
   datasets: [{
     data: [
-      nlpState.value.sentimentDistribution?.positive ?? 0,
-      nlpState.value.sentimentDistribution?.neutral ?? 0,
-      nlpState.value.sentimentDistribution?.negative ?? 0
+      getSentimentCount('positive'),
+      getSentimentCount('neutral'),
+      getSentimentCount('negative')
     ],
     backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
     borderWidth: 2,
@@ -440,19 +583,18 @@ const timeSeriesOptions = {
 // ─── Helpers ────────────────────────────────────────────────────────────────
 type BadgeColor = 'error' | 'primary' | 'warning' | 'success' | 'info' | 'neutral'
 
-const severityColor = (s: string): BadgeColor => {
-  const map: Record<string, BadgeColor> = { Critical: 'error', High: 'warning', Medium: 'info', Low: 'success' }
-  return map[s] || 'neutral'
-}
-
 const sentimentColor = (s: string): BadgeColor => {
   const map: Record<string, BadgeColor> = { Positive: 'success', Neutral: 'warning', Negative: 'error' }
   return map[s] || 'neutral'
 }
 
-const alertColor = (l: string): BadgeColor => {
-  const map: Record<string, BadgeColor> = { Critical: 'error', Warning: 'warning', Watch: 'info', None: 'success' }
-  return map[l] || 'neutral'
+const riskCategoryColor = (cat: string): BadgeColor => {
+  const map: Record<string, BadgeColor> = {
+    'Financial': 'error', 'Technology': 'info', 'Operational': 'warning',
+    'Compliance': 'success', 'Strategic': 'primary', 'Reputational': 'neutral',
+    'Legal': 'warning', 'Security': 'error', 'Fraud & Security': 'error'
+  }
+  return map[cat] || 'neutral'
 }
 
 const trendIcon = (t: string) => {
@@ -467,21 +609,6 @@ const trendColor = (t: string) => {
 }
 
 const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
-
-const keywordSizeClass = (count: number) => {
-  if (count >= 20) return 'text-lg font-black'
-  if (count >= 15) return 'text-base font-bold'
-  if (count >= 10) return 'text-sm font-semibold'
-  return 'text-md font-medium'
-}
-
-const keywordColor = (category: string): BadgeColor => {
-  const map: Record<string, BadgeColor> = {
-    'Financial': 'error', 'Technology': 'info', 'Operations': 'warning',
-    'Compliance': 'success', 'Human Resources': 'neutral', 'Governance': 'primary'
-  }
-  return map[category] || 'neutral'
-}
 </script>
 
 <template>
@@ -498,12 +625,25 @@ const keywordColor = (category: string): BadgeColor => {
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <UBadge color="primary" variant="subtle" size="lg" class="px-3 py-1 font-bold">
-          <UIcon name="i-heroicons-check-circle" class="w-4 h-4 mr-1 text-emerald-500" />
-          4 Trained Models Active & Synchronized
+        <UBadge :color="isAiConnected ? 'primary' : 'warning'" variant="subtle" size="lg" class="px-3 py-1 font-bold">
+          <UIcon :name="isAiConnected ? 'i-heroicons-check-circle' : 'i-heroicons-exclamation-triangle'" :class="isAiConnected ? 'text-emerald-500' : 'text-amber-500'" class="w-4 h-4 mr-1" />
+          {{ isAiConnected ? '4 Trained Models Active & Synchronized' : (usingCachedRealData ? 'Offline - Displaying Saved Real Data' : 'AI Backend Disconnected') }}
         </UBadge>
       </div>
     </div>
+
+    <!-- Connection Warning Alert Banner -->
+    <UAlert
+      v-if="!isAiConnected"
+      icon="i-heroicons-exclamation-triangle"
+      color="warning"
+      variant="solid"
+      class="mb-6 border border-amber-500 shadow-md font-medium"
+      :title="usingCachedRealData ? '⚠️ Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)' : '⚠️ Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend'"
+      :description="usingCachedRealData
+        ? `Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada ${lastSyncedTime || 'sesi sebelumnya'} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.`
+        : 'Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.'"
+    />
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center items-center h-96">
@@ -617,13 +757,14 @@ const keywordColor = (category: string): BadgeColor => {
                     <tr class="border-b border-gray-200 dark:border-gray-700">
                       <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Entity</th>
                       <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Type</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Kategori Risiko</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Target Periode</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Pred. Likelihood</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Pred. Impact</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Pred. Score</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Pred. Risk Level</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Actual</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Actual Risk Level</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Confidence</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Trend</th>
                     </tr>
                   </thead>
@@ -631,6 +772,8 @@ const keywordColor = (category: string): BadgeColor => {
                     <tr v-for="row in xgboostState.predictions" :key="row.entity" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <td class="py-3 px-4 font-bold">{{ row.entity }}</td>
                       <td class="py-3 px-4"><UBadge :color="row.type === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="md">{{ row.type }}</UBadge></td>
+                      <td class="text-center py-3 px-4"><UBadge :color="riskCategoryColor(row.riskCategory)" variant="subtle" size="md">{{ row.riskCategory }}</UBadge></td>
+                      <td class="text-center py-3 px-4"><UBadge color="info" variant="subtle" size="md" class="font-bold">{{ row.targetTimeline || 'Q3 2026' }}</UBadge></td>
                       <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.predictedLikelihood, 1) }}</td>
                       <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.predictedImpact, 1) }}</td>
                       <td class="text-center py-3 px-4 font-mono font-bold">{{ formatNum(row.predictedScore, 1) }}</td>
@@ -654,9 +797,6 @@ const keywordColor = (category: string): BadgeColor => {
                         >
                           {{ getRiskConfig(row.actualRiskLevel).label }}
                         </UBadge>
-                      </td>
-                      <td class="text-center py-3 px-4">
-                        <span class="font-bold" :class="(row.confidence ?? 0) >= 0.9 ? 'text-emerald-500' : 'text-amber-500'">{{ pct(row.confidence) }}</span>
                       </td>
                       <td class="text-center py-3 px-4">
                         <UIcon :name="trendIcon(row.trend)" class="w-5 h-5" :class="trendColor(row.trend)" />
@@ -708,13 +848,27 @@ const keywordColor = (category: string): BadgeColor => {
               </UCard>
             </div>
 
-            <!-- Scatter Plot -->
+            <!-- Scatter Chart Card with Type Filter Tabs -->
             <UCard>
               <template #header>
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-chart-bar" class="text-blue-500" />
-                  <h3 class="font-bold">Transaction Pattern Distribution</h3>
-                  <UBadge color="error" variant="subtle" size="md" class="ml-auto">▲ = Anomaly</UBadge>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex items-center gap-2">
+                    <UIcon name="i-heroicons-chart-bar" class="text-blue-500" />
+                    <h3 class="font-bold">Data Pattern Distribution per Anomaly Type</h3>
+                  </div>
+                  <!-- Anomaly Type Selector Buttons -->
+                  <div class="flex flex-wrap gap-1">
+                    <UButton
+                      v-for="t in availableAnomalyTypes"
+                      :key="t"
+                      :color="selectedAnomalyType === t ? 'primary' : 'neutral'"
+                      :variant="selectedAnomalyType === t ? 'solid' : 'ghost'"
+                      size="xs"
+                      @click="selectedAnomalyType = t"
+                    >
+                      {{ t }}
+                    </UButton>
+                  </div>
                 </div>
               </template>
               <div class="h-80">
@@ -726,7 +880,7 @@ const keywordColor = (category: string): BadgeColor => {
             <UCard>
               <template #header>
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-flag" class="text-rose-500" />
+                  <UIcon name="i-heroicons-table-cells" class="text-rose-500" />
                   <h3 class="font-bold">Detected Anomalies Detail</h3>
                 </div>
               </template>
@@ -737,9 +891,7 @@ const keywordColor = (category: string): BadgeColor => {
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">ID</th>
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Entity</th>
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Type</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Score</th>
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[300px]">Description</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Severity</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Risk Level</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Date</th>
                     </tr>
@@ -749,9 +901,7 @@ const keywordColor = (category: string): BadgeColor => {
                       <td class="py-3 px-3 font-mono font-bold text-md">{{ a.id }}</td>
                       <td class="py-3 px-3 font-bold">{{ a.entity }}</td>
                       <td class="py-3 px-3"><UBadge color="neutral" variant="subtle" size="md">{{ a.type }}</UBadge></td>
-                      <td class="text-center py-3 px-3 font-mono font-bold text-rose-500">{{ formatNum(a.anomalyScore, 2) }}</td>
                       <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">{{ a.description }}</td>
-                      <td class="text-center py-3 px-3"><UBadge :color="severityColor(a.severity)" variant="subtle" size="md">{{ a.severity }}</UBadge></td>
                       <td class="text-center py-3 px-3">
                         <UBadge
                           :style="{ backgroundColor: getRiskConfig(a.riskLevel).color, color: 'white' }"
@@ -783,7 +933,7 @@ const keywordColor = (category: string): BadgeColor => {
             />
 
             <!-- Charts Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <UCard>
                 <template #header>
                   <h3 class="font-bold text-sm">Auto-Classified Risk Categories</h3>
@@ -798,26 +948,6 @@ const keywordColor = (category: string): BadgeColor => {
                 </template>
                 <div class="h-60">
                   <Doughnut :data="sentimentDoughnutData" :options="doughnutOptions" />
-                </div>
-              </UCard>
-
-              <!-- Keywords Cloud -->
-              <UCard>
-                <template #header>
-                  <h3 class="font-bold text-sm">Top Keywords (Extracted)</h3>
-                </template>
-                <div class="flex flex-wrap gap-2 items-center justify-center py-2">
-                  <UBadge
-                    v-for="kw in nlpState.topKeywords"
-                    :key="kw.word"
-                    :color="keywordColor(kw.category)"
-                    variant="subtle"
-                    :class="keywordSizeClass(kw.count)"
-                    class="px-2.5 py-1"
-                  >
-                    {{ kw.word }}
-                    <span class="ml-1 opacity-50 text-[9px]">{{ kw.count }}</span>
-                  </UBadge>
                 </div>
               </UCard>
             </div>
@@ -838,9 +968,7 @@ const keywordColor = (category: string): BadgeColor => {
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Title</th>
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Source</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Category</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Conf.</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Sentiment</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Severity</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Risk Level</th>
                     </tr>
                   </thead>
@@ -852,21 +980,8 @@ const keywordColor = (category: string): BadgeColor => {
                         <div class="text-[11px] text-gray-400 mt-0.5 italic truncate max-w-[300px]">"{{ doc.excerpt }}"</div>
                       </td>
                       <td class="py-3 px-3"><UBadge :color="doc.source === 'Working Paper' ? 'primary' : 'warning'" variant="subtle" size="md">{{ doc.source }}</UBadge></td>
-                      <td class="text-center py-3 px-3"><UBadge color="neutral" variant="subtle" size="md">{{ doc.autoCategory }}</UBadge></td>
-                      <td class="text-center py-3 px-3 font-mono font-bold" :class="(doc.confidence ?? 0) >= 0.9 ? 'text-emerald-500' : 'text-amber-500'">{{ pct(doc.confidence) }}</td>
+                      <td class="text-center py-3 px-3"><UBadge :color="riskCategoryColor(doc.autoCategory)" variant="subtle" size="md">{{ doc.autoCategory }}</UBadge></td>
                       <td class="text-center py-3 px-3"><UBadge :color="sentimentColor(doc.sentiment)" variant="subtle" size="md">{{ doc.sentiment }}</UBadge></td>
-                      <td class="text-center py-3 px-3">
-                        <div class="flex items-center justify-center gap-1.5">
-                          <div class="w-12 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                            <div
-                              class="h-1.5 rounded-full"
-                              :class="(doc.severityScore ?? 0) >= 70 ? 'bg-rose-500' : (doc.severityScore ?? 0) >= 50 ? 'bg-amber-500' : 'bg-emerald-500'"
-                              :style="{ width: `${doc.severityScore ?? 0}%` }"
-                            />
-                          </div>
-                          <span class="text-md font-bold">{{ doc.severityScore ?? 0 }}</span>
-                        </div>
-                      </td>
                       <td class="text-center py-3 px-3">
                         <UBadge
                           :style="{ backgroundColor: getRiskConfig(doc.riskLevel).color, color: 'white' }"
@@ -955,10 +1070,12 @@ const keywordColor = (category: string): BadgeColor => {
                     <tr class="border-b border-gray-200 dark:border-gray-700">
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Code</th>
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">KPI</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Entity</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Type</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Horizon Prediksi</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Current</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Forecast</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Trend</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Alert</th>
                       <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Risk Level</th>
                       <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[250px]">Recommended Action</th>
                     </tr>
@@ -967,6 +1084,9 @@ const keywordColor = (category: string): BadgeColor => {
                     <tr v-for="kpi in timeseriesState.kpiForecasts" :key="kpi.code" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <td class="py-3 px-3 font-mono font-bold text-md">{{ kpi.code }}</td>
                       <td class="py-3 px-3 font-bold text-md">{{ kpi.kpiName }}</td>
+                      <td class="py-3 px-3 font-bold text-md">{{ kpi.entity || '-' }}</td>
+                      <td class="text-center py-3 px-3"><UBadge :color="(kpi.entityType || kpi.type) === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="md">{{ kpi.entityType || kpi.type || '-' }}</UBadge></td>
+                      <td class="text-center py-3 px-3"><UBadge color="info" variant="subtle" size="md" class="font-bold">{{ kpi.targetHorizon || 'Q3 2026' }}</UBadge></td>
                       <td class="text-center py-3 px-3 font-mono">{{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}</td>
                       <td class="text-center py-3 px-3 font-mono font-bold">{{ formatNum(kpi.forecastedValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}</td>
                       <td class="text-center py-3 px-3">
@@ -975,7 +1095,6 @@ const keywordColor = (category: string): BadgeColor => {
                           <span class="text-md font-bold" :class="trendColor(kpi.trend)">{{ kpi.trend }}</span>
                         </div>
                       </td>
-                      <td class="text-center py-3 px-3"><UBadge :color="alertColor(kpi.alertLevel)" variant="subtle" size="md">{{ kpi.alertLevel }}</UBadge></td>
                       <td class="text-center py-3 px-3">
                         <UBadge
                           :style="{ backgroundColor: getRiskConfig(kpi.riskLevel).color, color: 'white' }"

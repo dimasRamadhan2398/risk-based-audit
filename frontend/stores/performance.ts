@@ -4,6 +4,8 @@ import { ref } from 'vue';
 export interface KPIAchievement {
   id: string;
   year: number;
+  period?: string;
+  report_id?: string;
   kpi_name: string;
   target: number;
   actual: number;
@@ -30,10 +32,10 @@ export const usePerformanceStore = defineStore('performance', () => {
   const error = ref<string | null>(null);
 
   const mockKpis: KPIAchievement[] = [
-    { id: '1', year: 2026, kpi_name: 'Penyelesaian Program Kerja Audit Tahunan (PKAT)', target: 100, actual: 92, achievement_rate: 92, notes: '1 audit operasional ditunda ke Q1 2027 karena restrukturisasi unit bisnis' },
-    { id: '2', year: 2026, kpi_name: 'Persentase Tindak Lanjut Rekomendasi Audit', target: 85, actual: 88, achievement_rate: 103.5, notes: 'Melebihi target karena implementasi sistem monitoring otomatis baru' },
-    { id: '3', year: 2026, kpi_name: 'Indeks Kepuasan Auditee terhadap Layanan Audit', target: 80, actual: 82, achievement_rate: 102.5, notes: 'Survei akhir tahun menunjukkan kepuasan tinggi terhadap kejelasan rekomendasi' },
-    { id: '4', year: 2026, kpi_name: 'Rata-rata Waktu Penyampaian Laporan Hasil Audit (LHA)', target: 14, actual: 15, achievement_rate: 93.3, notes: 'Target 14 hari kerja setelah exit meeting, rata-rata aktual 15 hari kerja' }
+    { id: '1', year: 2026, period: 'Tahunan', kpi_name: 'Penyelesaian Program Kerja Audit Tahunan (PKAT)', target: 100, actual: 92, achievement_rate: 92, notes: '1 audit operasional ditunda ke Q1 2027 karena restrukturisasi unit bisnis' },
+    { id: '2', year: 2026, period: 'Tahunan', kpi_name: 'Persentase Tindak Lanjut Rekomendasi Audit', target: 85, actual: 88, achievement_rate: 103.5, notes: 'Melebihi target karena implementasi sistem monitoring otomatis baru' },
+    { id: '3', year: 2026, period: 'Tahunan', kpi_name: 'Indeks Kepuasan Auditee terhadap Layanan Audit', target: 80, actual: 82, achievement_rate: 102.5, notes: 'Survei akhir tahun menunjukkan kepuasan tinggi terhadap kejelasan rekomendasi' },
+    { id: '4', year: 2026, period: 'Tahunan', kpi_name: 'Rata-rata Waktu Penyampaian Laporan Hasil Audit (LHA)', target: 14, actual: 15, achievement_rate: 93.3, notes: 'Target 14 hari kerja setelah exit meeting, rata-rata aktual 15 hari kerja' }
   ];
 
   const mockRealizations: WorkPlanRealization[] = [
@@ -46,20 +48,30 @@ export const usePerformanceStore = defineStore('performance', () => {
     return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1';
   };
 
-  const fetchKPIAchievements = async (year: number = 2026) => {
+  const fetchKPIAchievements = async (year: number = 2026, period?: string) => {
     loading.value = true;
     error.value = null;
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const params: Record<string, any> = { year };
+      if (period && period !== 'Semua') {
+        params.period = period;
+      }
       const response: any = await $fetch(`${baseUrl}/performance/kpi`, {
-        params: { year }
+        params
       });
+      let fetched: KPIAchievement[] = [];
       if (response && Array.isArray(response.data) && response.data.length > 0) {
-        kpiAchievements.value = response.data;
+        fetched = response.data;
       } else if (Array.isArray(response) && response.length > 0) {
-        kpiAchievements.value = response;
+        fetched = response;
       } else {
-        kpiAchievements.value = [...mockKpis];
+        fetched = [...mockKpis];
+      }
+      if (period && period !== 'Semua') {
+        kpiAchievements.value = fetched.filter(item => !item.period || item.period === period);
+      } else {
+        kpiAchievements.value = fetched;
       }
     } catch (err: any) {
       error.value = err.message || 'Failed to fetch KPI achievements';

@@ -4,8 +4,8 @@
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/working-paper" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Upload Working Paper Reference</h1>
-        <p class="text-sm text-gray-500">Upload external reference Working Paper documents</p>
+        <h1 class="text-2xl font-bold text-gray-900">Import Working Paper Reference</h1>
+        <p class="text-sm text-gray-500">Import external reference Working Paper documents</p>
       </div>
     </div>
 
@@ -17,7 +17,7 @@
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-primary" />
-              Upload Reference Paper
+              Import Working Paper
             </h3>
           </template>
 
@@ -137,7 +137,7 @@
             </div>
             <div class="max-w-md mx-auto">
               <h3 class="text-sm font-bold text-gray-900">No guidelines imported</h3>
-              <p class="text-md text-gray-500 mt-1">Upload files to make reference documents available for auditors.</p>
+              <p class="text-md text-gray-500 mt-1">Import files to make reference documents available for auditors.</p>
             </div>
           </div>
 
@@ -226,7 +226,7 @@ const columns = [
   { accessorKey: 'title', header: 'Document Title' },
   { accessorKey: 'fileName', header: 'File Reference' },
   { accessorKey: 'fileSize', header: 'Size' },
-  { accessorKey: 'created_at', header: 'Uploaded At' },
+  { accessorKey: 'created_at', header: 'Imported At' },
   { accessorKey: 'actions', header: 'Actions' }
 ]
 

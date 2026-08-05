@@ -80,6 +80,7 @@ services:
           - /api/v1/uploaded-executive-summaries
           - /api/v1/uploaded-executive-summary-reports
           - /api/v1/uploaded-consulting-documents
+          - /api/v1/uploaded-performance-reports
           - /api/v1/media
           - /api/v1/performance
         strip_path: false
@@ -114,3 +115,11 @@ services:
         paths:
           - /api/analytics
         strip_path: false
+
+  - name: python-ai-service
+    url: http://python-ai:8000
+    routes:
+      - name: python-ai-routes
+        paths:
+          - /api/python-ai
+        strip_path: true
