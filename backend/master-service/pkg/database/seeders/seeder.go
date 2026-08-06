@@ -751,6 +751,7 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 	if err != nil {
 		return err
 	}
+	finDept, _ := getByName[models.Department](s.DB, "department_code", "DEPT-001")
 	itDept, err := getByName[models.Department](s.DB, "department_code", "DEPT-002")
 	if err != nil {
 		return err
@@ -759,6 +760,8 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 	if err != nil {
 		return err
 	}
+	opsDept, _ := getByName[models.Department](s.DB, "department_code", "DEPT-004")
+
 	requester, err := getByName[models.Employee](s.DB, "employee_code", "EMP-0004")
 	if err != nil {
 		return err
@@ -776,25 +779,75 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 	seeds := []models.AnnualAuditPlan{
 		{
 			PlanCode:         "AAP-2026-001",
-			PlanTitle:        "IT Security Governance Audit",
-			Description:      "Risk-based audit over IT security governance controls",
+			PlanTitle:        "Program Kerja Pemeriksaan Tahunan 2026",
+			Description:      "Risk-based annual audit plan over operational and IT controls",
 			AuditPeriodID:    period.ID,
 			RiskRegisterID:   &risk1.ID,
 			DepartmentID:     itDept.ID,
 			Priority:         models.AuditPlanPriorityHigh,
 			Status:           models.AuditPlanStatusApproved,
-			EstimatedDays:    20,
-			PlannedStartDate: time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC),
-			PlannedEndDate:   time.Date(2026, 2, 28, 0, 0, 0, 0, time.UTC),
+			EstimatedDays:    77,
+			PlannedStartDate: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
+			PlannedEndDate:   time.Date(2026, 12, 31, 0, 0, 0, 0, time.UTC),
 			ApprovedByID:     &approver.ID,
 			ApprovedAt:       &approvedAt,
-			ApprovalNotes:    "Approved in annual committee meeting.",
+			ApprovalNotes:    "Approved in annual audit committee meeting.",
 			RequestedByID:    requester.ID,
 			RevisionNumber:   1,
+			Activities: []models.AnnualAuditPlanActivity{
+				{
+					ItemNumber:         "1.1",
+					Category:           models.CategoryAssurance,
+					GroupTitle:         "Audit Kantor Pusat & Unit Kerja",
+					Title:              "Audit Siklus Pendapatan & Piutang",
+					InvolvedDepartments: []models.Department{finDept, opsDept},
+					TimelineText:       "Jan - Feb",
+					AuditorCount:       3,
+					TotalMandays:       15,
+					SupervisorName:     "Budi Santoso",
+					NotesObjective:     "Fokus pada validitas Sales Revenue dan piutang tertagih",
+				},
+				{
+					ItemNumber:         "1.2",
+					Category:           models.CategoryAssurance,
+					GroupTitle:         "Audit Kantor Pusat & Unit Kerja",
+					Title:              "Audit Pengadaan & COGS",
+					InvolvedDepartments: []models.Department{finDept, opsDept},
+					TimelineText:       "Mar - Apr",
+					AuditorCount:       3,
+					TotalMandays:       20,
+					SupervisorName:     "Budi Santoso",
+					NotesObjective:     "Review efisiensi biaya bahan baku & vendor management",
+				},
+				{
+					ItemNumber:         "2.2",
+					Category:           models.CategoryAssurance,
+					GroupTitle:         "Audit Khusus/Investigasi",
+					Title:              "Audit TI (Keamanan Data)",
+					InvolvedDepartments: []models.Department{itDept},
+					TimelineText:       "Sep",
+					AuditorCount:       2,
+					TotalMandays:       14,
+					SupervisorName:     "Eksternal Ahli",
+					NotesObjective:     "Audit kerentanan sistem keuangan & cyber security",
+				},
+				{
+					ItemNumber:         "1.1",
+					Category:           models.CategoryConsulting,
+					GroupTitle:         "Layanan Konsultansi",
+					Title:              "Review Implementasi ERP Baru",
+					InvolvedDepartments: []models.Department{itDept, finDept},
+					TimelineText:       "Jul - Sep",
+					AuditorCount:       2,
+					TotalMandays:       30,
+					SupervisorName:     "Head of Audit",
+					NotesObjective:     "Memberikan masukan kontrol sistem pada modul Keuangan",
+				},
+			},
 		},
 		{
 			PlanCode:         "AAP-2026-002",
-			PlanTitle:        "Internal Audit Quality Review",
+			PlanTitle:        "Internal Audit Quality & Compliance Plan",
 			Description:      "Quality assessment of internal audit execution practices",
 			AuditPeriodID:    period.ID,
 			DepartmentID:     auditDept.ID,
@@ -805,6 +858,20 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 			PlannedEndDate:   time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC),
 			RequestedByID:    requester.ID,
 			RevisionNumber:   1,
+			Activities: []models.AnnualAuditPlanActivity{
+				{
+					ItemNumber:         "1.1",
+					Category:           models.CategoryOther,
+					GroupTitle:         "Kegiatan Lainnya",
+					Title:              "Penyusunan Laporan Tahunan Audit",
+					InvolvedDepartments: []models.Department{auditDept},
+					TimelineText:       "Des",
+					AuditorCount:       3,
+					TotalMandays:       10,
+					SupervisorName:     "Head of Audit",
+					NotesObjective:     "Rekapitulasi temuan dan efektivitas internal control",
+				},
+			},
 		},
 	}
 	for i := range seeds {

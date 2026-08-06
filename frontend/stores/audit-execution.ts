@@ -8,7 +8,7 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         id: '1',
         ref: 'AUD-2026-001',
         name: 'Financial Operations',
-        category: 'Finance',
+        category: AuditCategory.ASSURANCE,
         progress: 100,
         lead_auditor: 'Dimas P',
         status: AuditStatus.COMPLETED,

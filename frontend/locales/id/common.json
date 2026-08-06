@@ -56,5 +56,95 @@
     "confirm": "Konfirmasi",
     "yes": "Ya",
     "no": "Tidak"
+  },
+  "auditExecution": {
+    "title": "Status Eksekusi Audit",
+    "subtitle": "Transparansi progres & tahapan siklus audit dari perencanaan hingga penyelesaian LHA.",
+    "cycleGuideButton": "Panduan Siklus Audit",
+    "summary": {
+      "title": "Ringkasan Eksekusi:",
+      "completed": "{count} Selesai",
+      "inProgress": "{count} Sedang Berjalan",
+      "planned": "{count} Rencana",
+      "viewPhaseGuide": "Lihat Panduan Tahapan"
+    },
+    "filters": {
+      "searchPlaceholder": "Cari Audit...",
+      "quarterPlaceholder": "Kuartal",
+      "categoryPlaceholder": "Kategori",
+      "statusPlaceholder": "Status"
+    },
+    "columns": {
+      "name": "Nama Audit",
+      "phase": "Tahapan Audit",
+      "progress": "Progres Eksekusi",
+      "leadAuditor": "Auditor Utama",
+      "actions": "Aksi"
+    },
+    "table": {
+      "ref": "Ref:",
+      "showing": "Menampilkan {start} - {end} dari {total} data"
+    },
+    "guideModal": {
+      "title": "Panduan Siklus Eksekusi Audit",
+      "subtitle": "Tahapan standar eksekusi audit internal & pemetaan persentase progres.",
+      "description": "Progres eksekusi audit dikategorikan ke dalam 6 tahapan siklus untuk memberikan transparansi dan pemantauan capaian secara rinci:",
+      "close": "Tutup Panduan"
+    },
+    "phases": {
+      "1": {
+        "title": "Perencanaan & Persiapan",
+        "shortLabel": "Perencanaan",
+        "description": "Penerbitan surat tugas, alokasi tim audit & pengumpulan data awal auditee."
+      },
+      "2": {
+        "title": "Entry Meeting & Penyelarasan Scope",
+        "shortLabel": "Entry Meeting",
+        "description": "Pertemuan pembuka dengan auditee, konfirmasi ruang lingkup & finalisasi program audit."
+      },
+      "3": {
+        "title": "Fieldwork & Pengujian Pengendalian",
+        "shortLabel": "Fieldwork",
+        "description": "Pengujian sampel kontrol, wawancara staf, pengisian kertas kerja & pengumpulan bukti audit."
+      },
+      "4": {
+        "title": "Draft Temuan & Rekomendasi",
+        "shortLabel": "Draft Temuan",
+        "description": "Penyusunan temuan audit 5-C, konfirmasi tanggapan manajemen & komitmen PIC penanggung jawab."
+      },
+      "5": {
+        "title": "Pelaporan & Exit Meeting",
+        "shortLabel": "Pelaporan",
+        "description": "Penyusunan draft Laporan Hasil Audit (LHA), pertemuan penutup dengan auditee & persetujuan CAE."
+      },
+      "6": {
+        "title": "Audit Selesai",
+        "shortLabel": "Selesai",
+        "description": "Laporan Hasil Audit final diterbitkan & siap untuk pemantauan Tindak Lanjut (Action Plan)."
+      }
+    },
+    "detailModal": {
+      "title": "Detail Eksekusi Audit",
+      "lifecyclePhase": "Tahapan Siklus Eksekusi Audit",
+      "overallProgress": "Total Progres: {progress}%",
+      "activePhase": "Tahap Aktif {step}: {title}",
+      "range": "Rentang: {min}% - {max}%",
+      "sampleDataTitle": "[1] SAMPEL DATA & PENGUJIAN KONTROL",
+      "progress": "Progres",
+      "description": "Deskripsi",
+      "workingPapersTitle": "[2] KERTAS KERJA (WORKING PAPERS)",
+      "condition": "Kondisi",
+      "criteria": "Kriteria",
+      "actionPlanTitle": "[3] RENCANA AKSI PERBAIKAN",
+      "recommendation": "Rekomendasi",
+      "deadline": "Batas Waktu",
+      "pic": "PIC",
+      "latestUpdateTitle": "[4] UPDATE PROGRES TERAKHIR",
+      "attachment": "Lampiran",
+      "noAttachment": "Tidak ada lampiran",
+      "sendReminder": "Kirim Pengingat",
+      "reminderSent": "Pengingat Terkirim",
+      "reminderDescription": "Pengingat untuk audit {name} telah dikirim ke {auditor}"
+    }
   }
 }

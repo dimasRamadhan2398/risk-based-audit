@@ -66,15 +66,17 @@
                                         </UFormField>
 
                                         <UFormField label="Category" size="lg">
-                                            <USelectMenu v-model="activity.category" :items="Object.values(AuditCategory)" class="w-full" />
+                                            <USelectMenu v-model="(activity.category as any)" :items="categoryOptions" class="w-full" />
                                         </UFormField>
 
-                                        <UFormField label="Department" size="lg">
+                                        <UFormField label="Involved Departments" size="lg">
                                             <USelectMenu 
-                                                v-model="activity.department" 
+                                                v-model="activity.involvedDepartments" 
                                                 :items="Object.values(AuditDepartment)" 
+                                                multiple
+                                                placeholder="Select Departments"
                                                 class="w-full" 
-                                                @update:model-value="() => { activity.riskName = ''; activity.riskLevel = ''; }"
+                                                @update:model-value="() => { if (activity.involvedDepartments && activity.involvedDepartments.length > 0) activity.department = activity.involvedDepartments[0]; }"
                                             />
                                         </UFormField>
                                     </div>
@@ -330,6 +332,8 @@ import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment } from '~/types/a
 const store = useAnnualPlanStore()
 const riskStore = useRiskProfileStore()
 const auditUniverseStore = useAuditUniverseStore()
+
+const categoryOptions = Object.values(AuditCategory) as AuditCategory[]
 
 riskStore.fetchRisks()
 

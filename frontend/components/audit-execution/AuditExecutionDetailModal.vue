@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { EXECUTION_PHASES, getExecutionPhase, type AuditExecution } from '~/types/audit'
+import { useI18n } from '~/composables/useI18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   open: boolean
@@ -45,13 +48,13 @@ const sendReminder = () => {
           <div class="flex items-center justify-between">
             <div class="space-y-1">
               <div class="flex items-center gap-3">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ audit?.name || 'Audit Execution Detail' }}</h3>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ audit?.name || t('auditExecution.detailModal.title') }}</h3>
                 <UBadge :color="currentPhase.badgeColor" variant="subtle" size="md">
-                  {{ currentPhase.title }}
+                  {{ t(`auditExecution.phases.${currentPhase.step}.title`) }}
                 </UBadge>
               </div>
               <p class="text-sm text-gray-500">
-                Ref: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.ref }}</span> | Category: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.category }}</span> | Lead Auditor: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.lead_auditor || '-' }}</span>
+                {{ t('auditExecution.table.ref') }} <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.ref }}</span> | {{ t('auditExecution.filters.categoryPlaceholder') }}: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.category }}</span> | {{ t('auditExecution.columns.leadAuditor') }}: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.lead_auditor || '-' }}</span>
               </p>
             </div>
             <UButton color="neutral" variant="ghost" icon="i-lucide-x" class="-my-1" @click="() => { isOpen = false }" />
@@ -64,10 +67,10 @@ const sendReminder = () => {
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <UIcon name="i-lucide-route" class="text-primary-600 dark:text-primary-400 text-lg" />
-                <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Audit Execution Lifecycle Phase</h4>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{{ t('auditExecution.detailModal.lifecyclePhase') }}</h4>
               </div>
               <span class="text-sm font-extrabold text-primary-600 dark:text-primary-400">
-                Overall Progress: {{ auditProgress }}%
+                {{ t('auditExecution.detailModal.overallProgress', { progress: auditProgress }) }}
               </span>
             </div>
 
@@ -99,7 +102,7 @@ const sendReminder = () => {
                   <span v-else>{{ phase.step }}</span>
                 </div>
                 <span class="text-xs font-bold line-clamp-1" :class="phase.step === currentPhase.step ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'">
-                  {{ phase.shortLabel }}
+                  {{ t(`auditExecution.phases.${phase.step}.shortLabel`) }}
                 </span>
               </div>
             </div>
@@ -109,10 +112,10 @@ const sendReminder = () => {
               <UIcon :name="currentPhase.icon" class="text-primary-600 dark:text-primary-400 text-2xl shrink-0 mt-0.5" />
               <div class="space-y-0.5 flex-1">
                 <div class="flex items-center justify-between">
-                  <span class="text-sm font-bold text-gray-900 dark:text-white">Active Phase {{ currentPhase.step }}: {{ currentPhase.title }}</span>
-                  <span class="text-xs font-semibold text-gray-500">{{ currentPhase.minProgress === currentPhase.maxProgress ? `${currentPhase.minProgress}%` : `Range: ${currentPhase.minProgress}% - ${currentPhase.maxProgress}%` }}</span>
+                  <span class="text-sm font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.activePhase', { step: currentPhase.step, title: t(`auditExecution.phases.${currentPhase.step}.title`) }) }}</span>
+                  <span class="text-xs font-semibold text-gray-500">{{ currentPhase.minProgress === currentPhase.maxProgress ? `${currentPhase.minProgress}%` : t('auditExecution.detailModal.range', { min: currentPhase.minProgress, max: currentPhase.maxProgress }) }}</span>
                 </div>
-                <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">{{ currentPhase.description }}</p>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">{{ t(`auditExecution.phases.${currentPhase.step}.description`) }}</p>
               </div>
             </div>
           </div>
@@ -120,9 +123,9 @@ const sendReminder = () => {
           <!-- Section 1: Sample Data & Test Controls -->
           <UCard variant="subtle" class="bg-gray-50/50 dark:bg-gray-800/50">
             <div class="space-y-4">
-              <h4 class="font-bold text-gray-900 dark:text-white">[1] SAMPLE DATA & TEST CONTROLS</h4>
+              <h4 class="font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.sampleDataTitle') }}</h4>
               <div class="grid grid-cols-4 gap-4 items-center">
-                <span class="text-sm font-medium text-gray-500">Progress</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.progress') }}</span>
                 <div class="col-span-3 flex items-center gap-3">
                   <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner">
                     <div
@@ -135,7 +138,7 @@ const sendReminder = () => {
                 </div>
               </div>
               <div class="grid grid-cols-4 gap-4">
-                <span class="text-sm font-medium text-gray-500">Description</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.description') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300">
                   {{ audit?.sample_data_test_controls?.description || '-' }}
                 </p>
@@ -146,15 +149,15 @@ const sendReminder = () => {
           <!-- Section 2: Working Papers -->
           <UCard variant="subtle" class="bg-gray-50/50 dark:bg-gray-800/50">
             <div class="space-y-4">
-              <h4 class="font-bold text-gray-900 dark:text-white">[2] WORKING PAPERS</h4>
+              <h4 class="font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.workingPapersTitle') }}</h4>
               <div class="grid grid-cols-4 gap-4">
-                <span class="text-sm font-medium text-gray-500">Condition</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.condition') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300">
                   {{ audit?.working_papers?.condition || '-' }}
                 </p>
               </div>
               <div class="grid grid-cols-4 gap-4">
-                <span class="text-sm font-medium text-gray-500">Criteria</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.criteria') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300">
                   {{ audit?.working_papers?.criteria || '-' }}
                 </p>
@@ -165,21 +168,21 @@ const sendReminder = () => {
           <!-- Section 3: Action Plan Improvements -->
           <UCard variant="subtle" class="bg-gray-50/50 dark:bg-gray-800/50">
             <div class="space-y-4">
-              <h4 class="font-bold text-gray-900 dark:text-white">Action Plan Improvements</h4>
+              <h4 class="font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.actionPlanTitle') }}</h4>
               <div class="grid grid-cols-4 gap-4">
-                <span class="text-sm font-medium text-gray-500">Recommendation</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.recommendation') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300">
                   {{ audit?.action_plan_improvements?.recommendation || '-' }}
                 </p>
               </div>
               <div class="grid grid-cols-4 gap-4">
-                <span class="text-sm font-medium text-gray-500">Deadline</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.deadline') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300">
                   {{ audit?.action_plan_improvements?.deadline || '-' }}
                 </p>
               </div>
               <div class="grid grid-cols-4 gap-4">
-                <span class="text-sm font-medium text-gray-500">PIC</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.pic') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300">
                   {{ audit?.action_plan_improvements?.pic || '-' }}
                 </p>
@@ -192,19 +195,19 @@ const sendReminder = () => {
           <!-- Section 4: Latest Update Progress -->
           <UCard variant="subtle" class="bg-gray-50/50 dark:bg-gray-800/50">
             <div class="space-y-4">
-              <h4 class="font-bold text-gray-900 dark:text-white">Latest Update Progress</h4>
+              <h4 class="font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.latestUpdateTitle') }}</h4>
               <div class="grid grid-cols-4 gap-4 items-center">
-                <span class="text-sm font-medium text-gray-500">Attachment</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.attachment') }}</span>
                 <div class="col-span-3">
                   <div v-if="audit?.latest_update_progress?.attachment" class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
                     <UIcon name="i-lucide-file-text" />
                     <span>[ {{ audit?.latest_update_progress?.attachment }} ]</span>
                   </div>
-                  <span v-else class="text-sm text-gray-400">No attachment</span>
+                  <span v-else class="text-sm text-gray-400">{{ t('auditExecution.detailModal.noAttachment') }}</span>
                 </div>
               </div>
               <div class="grid grid-cols-4 gap-4">
-                <span class="text-sm font-medium text-gray-500">Description</span>
+                <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.description') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300 italic">
                   {{ audit?.latest_update_progress?.description || '-' }}
                 </p>
@@ -216,7 +219,7 @@ const sendReminder = () => {
         <template #footer>
           <div class="flex justify-end">
             <UButton
-              label="Send Reminder"
+              :label="t('auditExecution.detailModal.sendReminder')"
               color="primary"
               icon="i-lucide-bell"
               @click="sendReminder"
@@ -227,3 +230,4 @@ const sendReminder = () => {
     </template>
   </UModal>
 </template>
+

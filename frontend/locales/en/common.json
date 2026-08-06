@@ -59,5 +59,95 @@
   },
   "dashboard": {
     "title": "Home"
+  },
+  "auditExecution": {
+    "title": "Audit Execution Status",
+    "subtitle": "Transparency of audit cycle progress & phases from planning to report completion.",
+    "cycleGuideButton": "Audit Cycle Guide",
+    "summary": {
+      "title": "Execution Summary:",
+      "completed": "{count} Completed",
+      "inProgress": "{count} In Progress",
+      "planned": "{count} Planned",
+      "viewPhaseGuide": "View Phase Guide"
+    },
+    "filters": {
+      "searchPlaceholder": "Search Audit...",
+      "quarterPlaceholder": "Quarter",
+      "categoryPlaceholder": "Category",
+      "statusPlaceholder": "Status"
+    },
+    "columns": {
+      "name": "Audit Name",
+      "phase": "Audit Phase",
+      "progress": "Execution Progress",
+      "leadAuditor": "Lead Auditor",
+      "actions": "Actions"
+    },
+    "table": {
+      "ref": "Ref:",
+      "showing": "Showing {start} - {end} of {total} data"
+    },
+    "guideModal": {
+      "title": "Audit Execution Cycle Guide",
+      "subtitle": "Standard internal audit execution phases & progress mapping.",
+      "description": "Audit execution progress is categorized into 6 lifecycle phases to provide detailed transparency and achievement tracking:",
+      "close": "Close Guide"
+    },
+    "phases": {
+      "1": {
+        "title": "Planning & Preparation",
+        "shortLabel": "Planning",
+        "description": "Issuance of assignment letter, audit team allocation, and initial auditee data collection."
+      },
+      "2": {
+        "title": "Entry Meeting & Scope Alignment",
+        "shortLabel": "Entry Meeting",
+        "description": "Opening meeting with auditee, scope confirmation, and audit program finalization."
+      },
+      "3": {
+        "title": "Fieldwork & Control Testing",
+        "shortLabel": "Fieldwork",
+        "description": "Control sample testing, staff interviews, working paper completion, and audit evidence collection."
+      },
+      "4": {
+        "title": "Draft Findings & Recommendations",
+        "shortLabel": "Draft Findings",
+        "description": "Formulation of 5-C audit findings, management response confirmation, and PIC commitment."
+      },
+      "5": {
+        "title": "Reporting & Exit Meeting",
+        "shortLabel": "Reporting",
+        "description": "Drafting Audit Result Report (LHA), exit meeting with auditee, and CAE approval."
+      },
+      "6": {
+        "title": "Audit Completed",
+        "shortLabel": "Completed",
+        "description": "Final Audit Result Report published & ready for Action Plan follow-up monitoring."
+      }
+    },
+    "detailModal": {
+      "title": "Audit Execution Detail",
+      "lifecyclePhase": "Audit Execution Lifecycle Phase",
+      "overallProgress": "Overall Progress: {progress}%",
+      "activePhase": "Active Phase {step}: {title}",
+      "range": "Range: {min}% - {max}%",
+      "sampleDataTitle": "[1] SAMPLE DATA & TEST CONTROLS",
+      "progress": "Progress",
+      "description": "Description",
+      "workingPapersTitle": "[2] WORKING PAPERS",
+      "condition": "Condition",
+      "criteria": "Criteria",
+      "actionPlanTitle": "[3] ACTION PLAN IMPROVEMENTS",
+      "recommendation": "Recommendation",
+      "deadline": "Deadline",
+      "pic": "PIC",
+      "latestUpdateTitle": "[4] LATEST UPDATE PROGRESS",
+      "attachment": "Attachment",
+      "noAttachment": "No attachment",
+      "sendReminder": "Send Reminder",
+      "reminderSent": "Reminder Sent",
+      "reminderDescription": "Reminder for audit {name} has been sent to {auditor}"
+    }
   }
 }

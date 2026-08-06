@@ -147,9 +147,18 @@ export interface CharterFormState {
 }
 
 export interface AuditActivities {
+  id?: string;
+  itemNumber?: string;
+  category: AuditCategory | string;
+  groupTitle?: string;
   name: string;
-  category: AuditCategory;
-  department: AuditDepartment;
+  department?: AuditDepartment | string;
+  involvedDepartments?: any[];
+  timelineText?: string;
+  auditorCount?: number;
+  totalMandays?: number;
+  supervisorName?: string;
+  notesObjective?: string;
   riskName?: string;
   riskLevel?: string;
 }
@@ -545,7 +554,8 @@ export interface AuditExecution {
   id: string
   ref: ActionTakenReport['auditRef']
   name: ActionTakenReport['title']
-  category: AuditCategory
+  category: AuditCategory | string
+  department?: AuditDepartment | string
   progress: number
   lead_auditor: string
   status: AuditStatus
@@ -575,7 +585,7 @@ export interface ExecutionPhase {
   shortLabel: string
   description: string
   icon: string
-  badgeColor: 'neutral' | 'info' | 'primary' | 'warning' | 'success' | 'error'
+  badgeColor: 'neutral' | 'info' | 'primary' | 'warning' | 'success' | 'error' | 'secondary'
   badgeClass: string
   iconClass: string
   numBgClass: string
@@ -673,10 +683,10 @@ export const EXECUTION_PHASES: ExecutionPhase[] = [
 
 export const getExecutionPhase = (progress: number = 0): ExecutionPhase => {
   const p = Number(progress) || 0
-  if (p >= 100) return EXECUTION_PHASES[5]
-  if (p >= 76) return EXECUTION_PHASES[4]
-  if (p >= 51) return EXECUTION_PHASES[3]
-  if (p >= 26) return EXECUTION_PHASES[2]
-  if (p >= 1) return EXECUTION_PHASES[1]
-  return EXECUTION_PHASES[0]
+  if (p >= 100) return EXECUTION_PHASES[5]!
+  if (p >= 76) return EXECUTION_PHASES[4]!
+  if (p >= 51) return EXECUTION_PHASES[3]!
+  if (p >= 26) return EXECUTION_PHASES[2]!
+  if (p >= 1) return EXECUTION_PHASES[1]!
+  return EXECUTION_PHASES[0]!
 }

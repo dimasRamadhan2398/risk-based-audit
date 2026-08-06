@@ -300,6 +300,25 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const plans = ref<AnnualAuditPlan[]>([])
 
+  const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
+    return rawPlans.map(p => ({
+      ...p,
+      code: p.code || p.plan_code || '',
+      title: p.title || p.plan_title || '',
+      activities: Array.isArray(p.activities) ? p.activities.map((a: any) => ({
+        ...a,
+        name: a.name || a.title || '',
+        category: a.category || AuditCategory.ASSURANCE,
+        department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
+        involvedDepartments: a.involvedDepartments || a.involved_departments || [],
+        timelineText: a.timeline_text || a.timelineText || '',
+        auditorCount: a.auditor_count || a.auditorCount || 1,
+        totalMandays: a.total_mandays || a.totalMandays || 0,
+        supervisorName: a.supervisor_name || a.supervisorName || ''
+      })) : []
+    }))
+  }
+
   const fetchPlans = async () => {
     loading.value = true
     errorMsg.value = ''
@@ -309,11 +328,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         method: 'GET'
       })
       if (response && response.data && Array.isArray(response.data.items)) {
-        plans.value = response.data.items
+        plans.value = normalizePlans(response.data.items)
+      } else if (response && response.data && Array.isArray(response.data)) {
+        plans.value = normalizePlans(response.data)
       } else if (response && Array.isArray(response.items)) {
-        plans.value = response.items
+        plans.value = normalizePlans(response.items)
       } else if (Array.isArray(response)) {
-        plans.value = response
+        plans.value = normalizePlans(response)
       }
     } catch (error: any) {
       console.error('Failed to fetch annual plans:', error)

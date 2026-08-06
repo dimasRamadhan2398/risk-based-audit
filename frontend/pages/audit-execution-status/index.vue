@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useAuditExecutionStore } from '~/stores/audit-execution'
 import AuditExecutionDetailModal from '~/components/audit-execution/AuditExecutionDetailModal.vue'
-import { AuditCategory, AuditDepartment, AuditStatus, EXECUTION_PHASES, getExecutionPhase } from '~/types/audit'
+import { AuditCategory, AuditStatus, EXECUTION_PHASES, getExecutionPhase } from '~/types/audit'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useAuditExecutionStore()
 store.fetchAuditExecutions()
 const { auditExecutions, getSummary } = storeToRefs(store)
@@ -10,19 +12,19 @@ const { auditExecutions, getSummary } = storeToRefs(store)
 const search = ref('')
 const quarter = ref('')
 const status = ref<AuditStatus | undefined>(undefined)
-const department = ref<AuditDepartment | undefined>(undefined)
+const category = ref<AuditCategory | undefined>(undefined)
 
 const isHelpModalOpen = ref(false)
 
 const quarters = ['Quarter I', 'Quarter II', 'Quarter III', 'Quarter IV']
 
-const columns = [
-  { accessorKey: 'name', header: 'Nama Audit' },
-  { accessorKey: 'phase', header: 'Tahapan Audit' },
-  { accessorKey: 'progress', header: 'Progres Eksekusi' },
-  { accessorKey: 'lead_auditor', header: 'Auditor Utama' },
-  { accessorKey: 'actions', header: 'Aksi' }
-]
+const columns = computed(() => [
+  { accessorKey: 'name', header: t('auditExecution.columns.name') },
+  { accessorKey: 'phase', header: t('auditExecution.columns.phase') },
+  { accessorKey: 'progress', header: t('auditExecution.columns.progress') },
+  { accessorKey: 'lead_auditor', header: t('auditExecution.columns.leadAuditor') },
+  { accessorKey: 'actions', header: t('auditExecution.columns.actions') }
+])
 
 const filteredAudits = computed(() => {
   return auditExecutions.value.filter(audit => {
@@ -30,9 +32,9 @@ const filteredAudits = computed(() => {
                           (audit.name && audit.name.toLowerCase().includes(search.value.toLowerCase())) || 
                           (audit.category && audit.category.toLowerCase().includes(search.value.toLowerCase())) ||
                           (audit.ref && audit.ref.toLowerCase().includes(search.value.toLowerCase()))
-    const matchesDept = !department.value || audit. === department.value
+    const matchesCategory = !category.value || audit.category === category.value
     const matchesStatus = !status.value || audit.status === status.value
-    return matchesSearch && matchesDept && matchesStatus
+    return matchesSearch && matchesCategory && matchesStatus
   })
 })
 
@@ -72,8 +74,11 @@ const openDetail = (row: any) => {
 
 const handleRemind = (audit: any) => {
   useToast().add({
-    title: 'Reminder Sent',
-    description: `Reminder for audit ${audit?.name || audit?.nama_audit || ''} has been sent to ${audit?.lead_auditor || ''}`,
+    title: t('auditExecution.detailModal.reminderSent'),
+    description: t('auditExecution.detailModal.reminderDescription', {
+      name: audit?.name || audit?.nama_audit || '',
+      auditor: audit?.lead_auditor || ''
+    }),
     color: 'success'
   })
 }
@@ -83,15 +88,15 @@ const handleRemind = (audit: any) => {
   <div class="p-6 space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Status Eksekusi Audit</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('auditExecution.title') }}</h1>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          Transparansi progres & tahapan siklus audit dari perencanaan hingga penyelesaian LHA.
+          {{ t('auditExecution.subtitle') }}
         </p>
       </div>
 
       <UButton
         icon="i-lucide-help-circle"
-        label="Panduan Siklus Audit"
+        :label="t('auditExecution.cycleGuideButton')"
         color="primary"
         variant="soft"
         size="md"
@@ -103,23 +108,23 @@ const handleRemind = (audit: any) => {
     <!-- Summary Section -->
     <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-6">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Ringkasan Eksekusi:</span>
+        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">{{ t('auditExecution.summary.title') }}</span>
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.completed }} Selesai</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.completed', { count: getSummary.completed }) }}</span>
         </div>
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-sky-500"></span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.inProgress }} Sedang Berjalan</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.inProgress', { count: getSummary.inProgress }) }}</span>
         </div>
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.planned }} Rencana</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.planned', { count: getSummary.planned }) }}</span>
         </div>
       </div>
 
       <UButton
-        label="Lihat Panduan Tahapan"
+        :label="t('auditExecution.summary.viewPhaseGuide')"
         icon="i-lucide-book-open"
         color="neutral"
         variant="ghost"
@@ -133,25 +138,25 @@ const handleRemind = (audit: any) => {
       <UInput
         v-model="search"
         icon="i-lucide-search"
-        placeholder="Search Audit"
+        :placeholder="t('auditExecution.filters.searchPlaceholder')"
         class="w-48"
       />
       <USelectMenu
         v-model="quarter"
         :items="quarters"
-        placeholder="Quarter"
+        :placeholder="t('auditExecution.filters.quarterPlaceholder')"
         class="w-48"
       />
       <USelectMenu
-        v-model="department"
-        :items="Object.values(AuditDepartment)"
-        placeholder="Category"
+        v-model="category"
+        :items="Object.values(AuditCategory)"
+        :placeholder="t('auditExecution.filters.categoryPlaceholder')"
         class="w-48"
       />
       <USelectMenu
         v-model="status"
         :items="Object.values(AuditStatus)"
-        placeholder="Status"
+        :placeholder="t('auditExecution.filters.statusPlaceholder')"
         class="w-48"
       />
     </div>
@@ -162,14 +167,14 @@ const handleRemind = (audit: any) => {
         <template #name-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-900 dark:text-white">{{ (row.original || row).name }}</span>
-            <span class="text-xs text-gray-500 font-medium">Ref: {{ (row.original || row).ref || '-' }} | ({{ (row.original || row).category }})</span>
+            <span class="text-xs text-gray-500 font-medium">{{ t('auditExecution.table.ref') }} {{ (row.original || row).ref || '-' }} | ({{ (row.original || row).category }})</span>
           </div>
         </template>
 
         <template #phase-cell="{ row }">
           <UBadge :color="getExecutionPhase(getProgressValue(row)).badgeColor" variant="subtle" size="md">
             <UIcon :name="getExecutionPhase(getProgressValue(row)).icon" class="mr-1.5 inline-block text-xs" />
-            {{ getExecutionPhase(getProgressValue(row)).shortLabel }}
+            {{ t(`auditExecution.phases.${getExecutionPhase(getProgressValue(row)).step}.shortLabel`) }}
           </UBadge>
         </template>
 
@@ -209,7 +214,7 @@ const handleRemind = (audit: any) => {
           <span class="text-sm font-medium">1 / 1</span>
           <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="md" />
         </div>
-        <span class="text-xs font-medium text-gray-500">Showing 1 - {{ filteredAudits.length }} of {{ auditExecutions.length }} data</span>
+        <span class="text-xs font-medium text-gray-500">{{ t('auditExecution.table.showing', { start: 1, end: filteredAudits.length, total: auditExecutions.length }) }}</span>
       </div>
     </div>
 
@@ -231,8 +236,8 @@ const handleRemind = (audit: any) => {
                   <UIcon name="i-lucide-route" class="text-xl" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">Panduan Siklus Eksekusi Audit</h3>
-                  <p class="text-xs text-gray-500">Tahapan standar eksekusi audit internal & pemetaan persentase progres.</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('auditExecution.guideModal.title') }}</h3>
+                  <p class="text-xs text-gray-500">{{ t('auditExecution.guideModal.subtitle') }}</p>
                 </div>
               </div>
               <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="() => { isHelpModalOpen = false }" />
@@ -241,7 +246,7 @@ const handleRemind = (audit: any) => {
 
           <div class="space-y-4">
             <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-              Progres eksekusi audit dikategorikan ke dalam 6 tahapan siklus untuk memberikan transparansi dan pemantauan capaian secara rinci:
+              {{ t('auditExecution.guideModal.description') }}
             </p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -259,7 +264,7 @@ const handleRemind = (audit: any) => {
                     >
                       {{ phase.step }}
                     </div>
-                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ phase.title }}</span>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ t(`auditExecution.phases.${phase.step}.title`) }}</span>
                   </div>
                   <span
                     class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
@@ -269,7 +274,7 @@ const handleRemind = (audit: any) => {
                   </span>
                 </div>
                 <p class="text-[11px] text-gray-600 dark:text-gray-400 pl-8 leading-relaxed">
-                  {{ phase.description }}
+                  {{ t(`auditExecution.phases.${phase.step}.description`) }}
                 </p>
               </div>
             </div>
@@ -278,7 +283,7 @@ const handleRemind = (audit: any) => {
           <template #footer>
             <div class="flex justify-end">
               <UButton
-                label="Tutup Panduan"
+                :label="t('auditExecution.guideModal.close')"
                 color="primary"
                 class="px-5 font-bold"
                 @click="() => { isHelpModalOpen = false }"
@@ -290,3 +295,4 @@ const handleRemind = (audit: any) => {
     </UModal>
   </div>
 </template>
+
