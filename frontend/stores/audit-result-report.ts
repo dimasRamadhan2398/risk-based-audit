@@ -19,6 +19,7 @@ export interface AuditResultReport {
   status: 'Draft' | 'Final'
   findingsCount: number
   category?: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
+  department?: string
 }
 
 export const useAuditResultReportStore = defineStore('audit-result-report', () => {

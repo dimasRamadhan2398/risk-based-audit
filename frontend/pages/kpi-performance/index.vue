@@ -16,11 +16,16 @@ const yearOptions = ['2024', '2025', '2026', '2027']
 
 perfStore.fetchKPIAchievements(parseInt(year.value))
 perfStore.fetchWorkPlanRealizations(parseInt(year.value))
+perfStore.fetchDashboardSummary(parseInt(year.value))
+perfStore.fetchMonthlyTrends(parseInt(year.value))
 spStore.fetchStrategicPlans()
 
 watch(year, (newYear) => {
-  perfStore.fetchKPIAchievements(parseInt(newYear))
-  perfStore.fetchWorkPlanRealizations(parseInt(newYear))
+  const yr = parseInt(newYear)
+  perfStore.fetchKPIAchievements(yr)
+  perfStore.fetchWorkPlanRealizations(yr)
+  perfStore.fetchDashboardSummary(yr)
+  perfStore.fetchMonthlyTrends(yr)
   spStore.fetchStrategicPlans()
 })
 
@@ -56,12 +61,12 @@ const exportPDF = () => {
     </div>
 
     <!-- Summary Cards -->
-    <KpiSummaryCards />
+    <KpiSummaryCards :year="parseInt(year)" />
 
     <!-- Charts -->
-    <KpiCharts />
+    <KpiCharts :year="parseInt(year)" />
 
     <!-- Detailed Table -->
-    <KpiDetailedTable />
+    <KpiDetailedTable :year="parseInt(year)" />
   </div>
 </template>

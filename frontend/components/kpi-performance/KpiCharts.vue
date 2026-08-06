@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { usePerformanceStore } from '~/stores/performance'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import {
   Chart as ChartJS,
@@ -25,6 +26,14 @@ ChartJS.register(
   Legend
 )
 
+const props = defineProps({
+  year: {
+    type: Number,
+    required: true
+  }
+})
+
+const perfStore = usePerformanceStore()
 const spStore = useStrategicPlanStore()
 
 const findSpMetric = (keywords: string[]) => {
@@ -36,20 +45,27 @@ const findSpMetric = (keywords: string[]) => {
 }
 
 const barChartData = computed(() => {
-  const spMonthly = findSpMetric(['monthly completion', 'completion rate', 'pkat'])
-  const actualVal = parseFloat(spMonthly?.actual || '95')
-  
-  const monthlyData = [
-    Math.round(actualVal * 0.88),
-    Math.round(actualVal * 0.92),
-    Math.round(actualVal * 0.95),
-    Math.round(actualVal * 0.93),
-    Math.round(actualVal * 0.98),
-    Math.min(100, Math.round(actualVal))
-  ]
+  let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+  let monthlyData = [85, 90, 95, 92, 98, 100]
+
+  if (perfStore.monthlyTrends && perfStore.monthlyTrends.completion_rate_series && perfStore.monthlyTrends.completion_rate_series.length > 0) {
+    labels = perfStore.monthlyTrends.labels
+    monthlyData = perfStore.monthlyTrends.completion_rate_series
+  } else {
+    const spMonthly = findSpMetric(['monthly completion', 'completion rate', 'pkat'])
+    const actualVal = parseFloat(spMonthly?.actual || '95')
+    monthlyData = [
+      Math.round(actualVal * 0.88),
+      Math.round(actualVal * 0.92),
+      Math.round(actualVal * 0.95),
+      Math.round(actualVal * 0.93),
+      Math.round(actualVal * 0.98),
+      Math.min(100, Math.round(actualVal))
+    ]
+  }
 
   return {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels,
     datasets: [
       {
         label: 'Monthly Completion Rate',
@@ -96,32 +112,42 @@ const barChartOptions = {
 }
 
 const lineChartData = computed(() => {
-  const spTimeliness = findSpMetric(['report timeliness', 'timeliness', 'lha'])
-  const timelinessActual = parseFloat(spTimeliness?.actual || '98')
+  let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+  let timelinessData = [85, 87, 90, 88, 92, 98]
+  let csatData = [4.2, 4.3, 4.5, 4.4, 4.6, 4.7]
 
-  const spCsat = findSpMetric(['client satisfaction', 'auditee satisfaction', 'csat'])
-  const csatActual = parseFloat(spCsat?.actual || '4.7')
+  if (perfStore.monthlyTrends && perfStore.monthlyTrends.timeliness_series && perfStore.monthlyTrends.timeliness_series.length > 0) {
+    labels = perfStore.monthlyTrends.labels
+    timelinessData = perfStore.monthlyTrends.timeliness_series
+    csatData = perfStore.monthlyTrends.csat_series
+  } else {
+    const spTimeliness = findSpMetric(['report timeliness', 'timeliness', 'lha'])
+    const timelinessActual = parseFloat(spTimeliness?.actual || '98')
 
-  const timelinessData = [
-    Math.round(timelinessActual * 0.88),
-    Math.round(timelinessActual * 0.90),
-    Math.round(timelinessActual * 0.93),
-    Math.round(timelinessActual * 0.91),
-    Math.round(timelinessActual * 0.96),
-    Math.min(100, Math.round(timelinessActual))
-  ]
+    const spCsat = findSpMetric(['client satisfaction', 'auditee satisfaction', 'csat'])
+    const csatActual = parseFloat(spCsat?.actual || '4.7')
 
-  const csatData = [
-    parseFloat((csatActual * 0.90).toFixed(1)),
-    parseFloat((csatActual * 0.92).toFixed(1)),
-    parseFloat((csatActual * 0.96).toFixed(1)),
-    parseFloat((csatActual * 0.94).toFixed(1)),
-    parseFloat((csatActual * 0.98).toFixed(1)),
-    Math.min(5.0, parseFloat(csatActual.toFixed(1)))
-  ]
+    timelinessData = [
+      Math.round(timelinessActual * 0.88),
+      Math.round(timelinessActual * 0.90),
+      Math.round(timelinessActual * 0.93),
+      Math.round(timelinessActual * 0.91),
+      Math.round(timelinessActual * 0.96),
+      Math.min(100, Math.round(timelinessActual))
+    ]
+
+    csatData = [
+      parseFloat((csatActual * 0.90).toFixed(1)),
+      parseFloat((csatActual * 0.92).toFixed(1)),
+      parseFloat((csatActual * 0.96).toFixed(1)),
+      parseFloat((csatActual * 0.94).toFixed(1)),
+      parseFloat((csatActual * 0.98).toFixed(1)),
+      Math.min(5.0, parseFloat(csatActual.toFixed(1)))
+    ]
+  }
 
   return {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels,
     datasets: [
       {
         label: 'Timeliness (%)',

@@ -10,6 +10,7 @@ import (
 	"audit-service/models"
 	"audit-service/pkg/docxbuilder"
 	"audit-service/pkg/middleware"
+	"audit-service/pkg/redis"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -22,6 +23,7 @@ type RouteHandler struct {
 	registry       *RouteRegistry
 	authMiddleware *middleware.AuthMiddleware
 	db             *gorm.DB
+	redisClient    *redis.Client // may be nil
 }
 
 // NewRouteHandler creates a new route handler
@@ -29,12 +31,14 @@ func NewRouteHandler(
 	engine *gin.Engine,
 	authMiddleware *middleware.AuthMiddleware,
 	db *gorm.DB,
+	redisClient *redis.Client,
 ) *RouteHandler {
 	return &RouteHandler{
 		engine:         engine,
 		registry:       NewRouteRegistry(),
 		authMiddleware: authMiddleware,
 		db:             db,
+		redisClient:    redisClient,
 	}
 }
 
@@ -383,6 +387,16 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditResultReports.DELETE("/:id", crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 	}
 
+	// 17c. Auditee Surveys
+	auditeeSurveys := apiV1.Group("/auditee-surveys")
+	{
+		auditeeSurveys.GET("", crud.List(h.db, "AuditeeSurvey", func() interface{} { return &[]models.AuditeeSurvey{} }))
+		auditeeSurveys.GET("/:id", crud.GetByID(h.db, "AuditeeSurvey", func() interface{} { return &models.AuditeeSurvey{} }))
+		auditeeSurveys.POST("", crud.Create(h.db, "AuditeeSurvey", func() interface{} { return &models.AuditeeSurvey{} }))
+		auditeeSurveys.PUT("/:id", crud.Update(h.db, "AuditeeSurvey", func() interface{} { return &models.AuditeeSurvey{} }))
+		auditeeSurveys.DELETE("/:id", crud.Delete(h.db, "AuditeeSurvey", func() interface{} { return &models.AuditeeSurvey{} }))
+	}
+
 	// 17b. Executive Summary Reports
 	executiveSummaries := apiV1.Group("/executive-summaries")
 	{
@@ -411,8 +425,15 @@ func (h *RouteHandler) RegisterRoutes() {
 	}
 
 	// 20. Performance routes
+	perfStatsCtrl := controllers.NewPerformanceStatsController(h.db, h.redisClient)
 	performance := apiV1.Group("/performance")
 	{
+		performance.GET("/dashboard-summary", perfStatsCtrl.GetDashboardSummary)
+		performance.GET("/monthly-trends", perfStatsCtrl.GetMonthlyTrends)
+		performance.GET("/kpi-breakdown", perfStatsCtrl.GetKpiBreakdown)
+		performance.GET("/completion-analysis", perfStatsCtrl.GetCompletionAnalysis)
+		performance.GET("/completion-history", perfStatsCtrl.GetCompletionHistory)
+
 		performance.GET("/kpi", crud.List(h.db, "KPIAchievement", func() interface{} { return &[]models.KPIAchievement{} }))
 		performance.GET("/kpi/:id", crud.GetByID(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
 		performance.POST("/kpi", crud.Create(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
