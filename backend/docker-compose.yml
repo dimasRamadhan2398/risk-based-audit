@@ -179,6 +179,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - python_ai_models:/app/models
+      - ../ai_model_training:/app/ai_model_training:ro
     networks:
       - rb_audit_network
     restart: unless-stopped
