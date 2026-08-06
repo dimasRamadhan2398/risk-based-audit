@@ -16,9 +16,8 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
   const loading = ref(false);
   const errorMsg = ref('');
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig();
-    return config.public.auditServiceBaseUrl || (import.meta.env.PROD ? 'https://api.auditsphere.app/api/v1' : 'http://localhost:8080/api/v1');
+  const getAuditServiceBaseUrlLocal = () => {
+    return getAuditServiceBaseUrl();
   };
 
   const fetchUploadedDocuments = async () => {

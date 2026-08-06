@@ -179,10 +179,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const strategicObjectives = ref<StrategicAuditPlan[]>([...mockObjectives]);
 
-    const getAuditServiceBaseUrl = () => {
-        const config = useRuntimeConfig()
-        return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-    }
+
 
     const fetchStrategicPlans = async () => {
         loading.value = true;

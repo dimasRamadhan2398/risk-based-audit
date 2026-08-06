@@ -37,7 +37,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/auth/login`,
+          `${getAuthServiceBaseUrl()}/auth/login`,
           {
             method: 'POST',
             body: {
@@ -80,7 +80,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/auth/verify-mfa-login`,
+          `${getAuthServiceBaseUrl()}/auth/verify-mfa-login`,
           {
             method: 'POST',
             body: {
@@ -118,7 +118,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/confidentiality/status`,
+          `${getAuthServiceBaseUrl()}/confidentiality/status`,
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -137,7 +137,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         await $fetch(
-          `${config.public.authServiceBaseUrl}/confidentiality/accept`,
+          `${getAuthServiceBaseUrl()}/confidentiality/accept`,
           {
             method: 'POST',
             headers: { Authorization: `Bearer ${this.token}` },
@@ -164,7 +164,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/users/${this.user.id}`,
+          `${getAuthServiceBaseUrl()}/users/${this.user.id}`,
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -183,7 +183,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         await $fetch(
-          `${config.public.authServiceBaseUrl}/users/${this.user.id}`,
+          `${getAuthServiceBaseUrl()}/users/${this.user.id}`,
           {
             method: 'PUT',
             headers: { Authorization: `Bearer ${this.token}` },
@@ -241,7 +241,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         if (this.token) {
-          await $fetch(`${config.public.authServiceBaseUrl}/auth/logout`, {
+          await $fetch(`${getAuthServiceBaseUrl()}/auth/logout`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${this.token}` },
           })
@@ -307,7 +307,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/devices`,
+          `${getAuthServiceBaseUrl()}/devices`,
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -325,7 +325,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         await $fetch(
-          `${config.public.authServiceBaseUrl}/devices/${deviceId}`,
+          `${getAuthServiceBaseUrl()}/devices/${deviceId}`,
           {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${this.token}` },
@@ -340,7 +340,7 @@ export const useAuthStore = defineStore('auth', {
     async forgotPassword(email: string) {
       const config = useRuntimeConfig()
       try {
-        await $fetch(`${config.public.authServiceBaseUrl}/auth/forgot-password`, {
+        await $fetch(`${getAuthServiceBaseUrl()}/auth/forgot-password`, {
           method: 'POST',
           body: { email },
         })
@@ -353,7 +353,7 @@ export const useAuthStore = defineStore('auth', {
     async resetPassword(token: string, password: string) {
       const config = useRuntimeConfig()
       try {
-        await $fetch(`${config.public.authServiceBaseUrl}/auth/reset-password`, {
+        await $fetch(`${getAuthServiceBaseUrl()}/auth/reset-password`, {
           method: 'POST',
           body: { token, password },
         })

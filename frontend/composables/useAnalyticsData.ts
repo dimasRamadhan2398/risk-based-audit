@@ -52,6 +52,7 @@ export interface AnomalyRecord {
 export interface ScatterPoint {
   x: number
   y: number
+  type?: string
   isAnomaly: boolean
   label?: string
 }

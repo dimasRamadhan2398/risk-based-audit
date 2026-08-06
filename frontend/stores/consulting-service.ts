@@ -65,10 +65,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
   }
 
   const getMasterServiceBaseUrl = () => {
-    if (process.client) {
-      return window.location.origin.replace(':3000', ':8003') + '/api/v1'
-    }
-    return 'http://localhost:8003/api/v1'
+    return getAuditServiceBaseUrl()
   }
 
   const mockServices: ConsultingService[] = [

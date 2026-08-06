@@ -278,17 +278,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const closeModal = () => showModal.value = false
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
-
   const yearlyUniverse = ref<any[]>([])
 
   const fetchYearlyUniverse = async (year: number) => {
     try {
-      const config = useRuntimeConfig()
-      const baseUrl = config.public.riskServiceBaseUrl || 'http://localhost:8080/api/v1'
+      const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/audit-universe/year/${year}`)
       if (response && response.success) {
         yearlyUniverse.value = response.data

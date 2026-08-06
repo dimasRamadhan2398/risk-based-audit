@@ -24,10 +24,10 @@ export default defineNuxtConfig({
     "nuxt-charts",
     "nuxt-chatgpt",
   ],
+  ssr: false,
   routeRules: {
-    "/dashboard": {
+    "/**": {
       ssr: false,
-      prerender: true,
     },
   },
   alias: {

@@ -31,9 +31,21 @@ import { RiskLevel } from '~/types/risk'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler)
 
 // ─── Data & Config ──────────────────────────────────────────────────────────
-const config = useRuntimeConfig()
-const ANALYTICS_API_URL = config.public.analyticsApiBase || 'http://localhost:8084/api/analytics'
-const PYTHON_AI_DIRECT_URL = config.public.pythonAiBaseUrl || 'http://localhost:8000'
+const getAnalyticsUrl = () => {
+  const config = useRuntimeConfig()
+  if (import.meta.client && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'https://api.auditsphere.app/api/analytics'
+  }
+  return config.public.analyticsApiBase || 'http://localhost:8084/api/analytics'
+}
+
+const getPythonAiUrl = () => {
+  const config = useRuntimeConfig()
+  if (import.meta.client && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'https://api.auditsphere.app/api/python-ai'
+  }
+  return config.public.pythonAiBaseUrl || 'http://localhost:8000'
+}
 
 const initialXGB = useXGBoostData()
 const initialIso = useIsolationForestData()
@@ -77,8 +89,10 @@ const timeseriesState = ref<any>({
 
 // Safe Fetch Helper with Multi-tier Fallbacks
 const safeApiFetch = async (endpoint: string, options: any = {}): Promise<any> => {
+  const analyticsUrl = getAnalyticsUrl()
+  const pyUrl = getPythonAiUrl()
   try {
-    return await $fetch(`${ANALYTICS_API_URL}${endpoint}`, options)
+    return await $fetch(`${analyticsUrl}${endpoint}`, options)
   } catch (e1) {
     let pyEndpoint = endpoint
     if (endpoint === '/risk-score') pyEndpoint = '/predict/risk-score'
@@ -92,16 +106,10 @@ const safeApiFetch = async (endpoint: string, options: any = {}): Promise<any> =
     else if (endpoint === '/retrain/auto') pyEndpoint = '/retrain/auto'
 
     try {
-      // Primary Python AI Fallback (Port 8000)
-      return await $fetch(`${PYTHON_AI_DIRECT_URL}${pyEndpoint}`, options)
+      return await $fetch(`${pyUrl}${pyEndpoint}`, options)
     } catch (e2) {
-      try {
-        // Secondary Python AI Fallback (Dev Port 8005)
-        return await $fetch(`http://localhost:8005${pyEndpoint}`, options)
-      } catch (e3) {
-        console.warn(`API call failed for ${endpoint}, using fallback`, e3)
-        return null
-      }
+      console.warn(`API call failed for ${endpoint}, using fallback`, e2)
+      return null
     }
   }
 }
@@ -383,52 +391,119 @@ const featureBarOptions = {
 }
 
 // ─── Tab 2: Dynamic Computed Scatter Chart for Anomaly Detection (Separated) ─
-const anomalyTypeColors: Record<string, { bg: string, border: string, style: string }> = {
-  'Transaction': { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' },
-  'Access Pattern': { bg: 'rgba(249,115,22,0.85)', border: 'rgba(249,115,22,1)', style: 'rectRot' },
-  'Expense Report': { bg: 'rgba(234,179,8,0.85)', border: 'rgba(234,179,8,1)', style: 'rect' },
-  'Fieldwork': { bg: 'rgba(139,92,246,0.85)', border: 'rgba(139,92,246,1)', style: 'star' },
-  'Procurement': { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'triangle' },
-  'Travel Expense': { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'rectRot' },
-  'Data Access': { bg: 'rgba(59,130,246,0.85)', border: 'rgba(59,130,246,1)', style: 'rect' },
-  'Inventory': { bg: 'rgba(107,114,128,0.85)', border: 'rgba(107,114,128,1)', style: 'star' },
+interface AnomalyTypeConfig {
+  xAxisTitle: string
+  unit: string
+  formatX: (val: number) => string
+  colors: { bg: string, border: string, style: string }
 }
 
-const selectedAnomalyType = ref('All')
+const anomalyTypeConfigs: Record<string, AnomalyTypeConfig> = {
+  'Fieldwork': {
+    xAxisTitle: 'Durasi Pengerjaan Fieldwork (Hari)',
+    unit: 'Hari',
+    formatX: (val) => `${val} Hari`,
+    colors: { bg: 'rgba(139,92,246,0.85)', border: 'rgba(139,92,246,1)', style: 'star' }
+  },
+  'Access Pattern': {
+    xAxisTitle: 'Waktu Akses Sistem (Jam 0-23)',
+    unit: 'Jam',
+    formatX: (val) => `Jam ${val}:00`,
+    colors: { bg: 'rgba(249,115,22,0.85)', border: 'rgba(249,115,22,1)', style: 'rectRot' }
+  },
+  'Data Access': {
+    xAxisTitle: 'Volume Export Data (MB)',
+    unit: 'MB',
+    formatX: (val) => `${val} MB`,
+    colors: { bg: 'rgba(59,130,246,0.85)', border: 'rgba(59,130,246,1)', style: 'rect' }
+  },
+  'Inventory': {
+    xAxisTitle: 'Nilai Penyesuaian Stok (Rp Juta)',
+    unit: 'Rp Juta',
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(107,114,128,0.85)', border: 'rgba(107,114,128,1)', style: 'star' }
+  },
+  'Expense Report': {
+    xAxisTitle: 'Nominal Klaim Pengeluaran (Rp Juta)',
+    unit: 'Rp Juta',
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(234,179,8,0.85)', border: 'rgba(234,179,8,1)', style: 'rect' }
+  },
+  'Travel Expense': {
+    xAxisTitle: 'Nominal Biaya Perjalanan (Rp Juta)',
+    unit: 'Rp Juta',
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'rectRot' }
+  },
+  'Procurement': {
+    xAxisTitle: 'Nilai Pengadaan / Vendor (Rp Juta)',
+    unit: 'Rp Juta',
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'triangle' }
+  },
+  'Transaction': {
+    xAxisTitle: 'Nominal Transaksi (Rp Juta)',
+    unit: 'Rp Juta',
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
+  }
+}
+
+const selectedAnomalyType = ref('Expense Report')
 
 const availableAnomalyTypes = computed(() => {
   const types = new Set<string>()
   const anomalies = isolationState.value.anomalies || []
+  const scatterData = isolationState.value.scatterData || []
+
   anomalies.forEach((a: any) => { if (a.type) types.add(a.type) })
-  return ['All', ...Array.from(types)]
+  scatterData.forEach((s: any) => { if (s.type) types.add(s.type) })
+
+  if (types.size === 0) {
+    ['Expense Report', 'Travel Expense', 'Procurement', 'Access Pattern', 'Fieldwork', 'Data Access', 'Inventory', 'Transaction'].forEach(t => types.add(t))
+  }
+
+  return Array.from(types).filter(t => t !== 'All')
+})
+
+watchEffect(() => {
+  if ((selectedAnomalyType.value === 'All' || !selectedAnomalyType.value || !availableAnomalyTypes.value.includes(selectedAnomalyType.value)) && availableAnomalyTypes.value.length > 0) {
+    selectedAnomalyType.value = availableAnomalyTypes.value[0]
+  }
 })
 
 const getScatterChartForType = (typeFilter: string) => {
   const anomalies = isolationState.value.anomalies || []
   const scatterData = isolationState.value.scatterData || []
 
-  let filteredAnomalies = anomalies
-  if (typeFilter !== 'All') {
-    filteredAnomalies = anomalies.filter((a: any) => a.type === typeFilter)
-  }
-
-  const normalPoints = scatterData.filter((s: any) => !s.isAnomaly)
+  const filteredAnomalies = anomalies.filter((a: any) => a.type === typeFilter)
+  const normalPoints = scatterData
+    .filter((s: any) => !s.isAnomaly && (s.type === typeFilter || !s.type))
+    .map((s: any) => ({ x: s.x ?? 0, y: s.y ?? 0 }))
   
   const anomalyPoints = filteredAnomalies.map((a: any) => {
     const matchedScatter = scatterData.find((s: any) => s.label === a.id)
+    let xVal = matchedScatter?.x ?? a.xMetric
+    if (xVal === undefined || xVal === null) {
+      if (typeFilter === 'Fieldwork') xVal = 24
+      else if (typeFilter === 'Access Pattern') xVal = 2
+      else if (typeFilter === 'Data Access') xVal = 450
+      else xVal = a.amount ? a.amount / 1000000 : 15
+    }
     return {
-      x: matchedScatter?.x ?? (a.amount ? a.amount / 1000000 : 15),
+      x: xVal,
       y: matchedScatter?.y ?? 20
     }
   })
 
-  const colors = anomalyTypeColors[typeFilter] || anomalyTypeColors['Transaction']
+  const config = anomalyTypeConfigs[typeFilter] || anomalyTypeConfigs['Transaction']
+  const colors = config.colors
 
   return {
     datasets: [
       {
-        label: `Normal Data Points (${typeFilter})`,
-        data: normalPoints.map((p: any) => ({ x: p.x ?? 0, y: p.y ?? 0 })),
+        label: `Normal Data (${typeFilter})`,
+        data: normalPoints,
         backgroundColor: 'rgba(59,130,246,0.3)',
         borderColor: 'rgba(59,130,246,0.5)',
         pointRadius: 4,
@@ -447,22 +522,34 @@ const getScatterChartForType = (typeFilter: string) => {
 
 const scatterChartData = computed(() => getScatterChartForType(selectedAnomalyType.value))
 
-const scatterOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { position: 'top' as const },
-    tooltip: {
-      callbacks: {
-        label: (ctx: any) => `Amount/Value: ${ctx.parsed.x}M, Frequency/Occur: ${ctx.parsed.y}`
-      }
-    }
-  },
-  scales: {
-    x: { title: { display: true, text: 'Data Value (Rp M / Score)' } },
-    y: { title: { display: true, text: 'Frequency / Occurrence' } }
+const scatterOptions = computed(() => {
+  const currentConfig = anomalyTypeConfigs[selectedAnomalyType.value] || {
+    xAxisTitle: 'Metrik Anomali (Nilai / Score)',
+    unit: 'Value',
+    formatX: (val: number) => `${val}`
   }
-}
+
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' as const },
+      tooltip: {
+        callbacks: {
+          label: (ctx: any) => {
+            const formattedX = currentConfig.formatX ? currentConfig.formatX(ctx.parsed.x) : `${ctx.parsed.x}`
+            const metricName = currentConfig.xAxisTitle.split(' (')[0]
+            return `${metricName}: ${formattedX}, Frequency/Occurrence: ${ctx.parsed.y}`
+          }
+        }
+      }
+    },
+    scales: {
+      x: { title: { display: true, text: currentConfig.xAxisTitle } },
+      y: { title: { display: true, text: 'Frequency / Occurrence' } }
+    }
+  }
+})
 
 // ─── Tab 3: Dynamic Computed Doughnut Charts for IndoBERT NLP ─────────────
 const categoryDoughnutData = computed(() => ({

@@ -7,11 +7,14 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const errorMsg = ref('')
 
   const getMasterServiceBaseUrl = () => {
-    if (import.meta.client && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      return 'http://localhost:8080/api/v1';
-    }
     const config = useRuntimeConfig()
-    return config.public.masterServiceBaseUrl || (import.meta.env.PROD ? 'https://api.auditsphere.app/api/v1' : 'http://localhost:8080/api/v1')
+    if (import.meta.client) {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8080/api/v1';
+      }
+      return 'https://api.auditsphere.app/api/v1';
+    }
+    return config.public.masterServiceBaseUrl || 'https://api.auditsphere.app/api/v1'
   }
 
   const columns = [
