@@ -522,13 +522,17 @@ export interface StrategicAuditPlan {
 
 export interface ActionTakenReport {
   id: string
+  assignment_letter_id?: string
+  assignmentLetterId?: string
+  assignment_letter?: AssignmentLetter
+  assignmentLetter?: AssignmentLetter
   auditRef: AnnualAuditPlan['code']
   title: string
-  department: AuditDepartment
+  department: AuditDepartment | string
   deadline: string
-  status: AuditStatus
+  status: AuditStatus | string
   auditObject?: string
-  findingCategory?: AuditCategory
+  findingCategory?: AuditCategory | string
   condition?: string
   criteria?: string
   recommendation?: string
@@ -563,4 +567,116 @@ export interface AuditExecution {
     attachment: string
     description: string
   }
+}
+
+export interface ExecutionPhase {
+  step: number
+  title: string
+  shortLabel: string
+  description: string
+  icon: string
+  badgeColor: 'neutral' | 'info' | 'primary' | 'warning' | 'success' | 'error'
+  badgeClass: string
+  iconClass: string
+  numBgClass: string
+  cardClass: string
+  minProgress: number
+  maxProgress: number
+}
+
+export const EXECUTION_PHASES: ExecutionPhase[] = [
+  {
+    step: 1,
+    title: 'Perencanaan & Persiapan',
+    shortLabel: 'Perencanaan',
+    description: 'Penerbitan surat tugas, alokasi tim audit & pengumpulan data awal auditee.',
+    icon: 'i-lucide-calendar-clock',
+    badgeColor: 'info',
+    badgeClass: 'bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 border border-sky-300 dark:border-sky-700',
+    iconClass: 'text-sky-500 dark:text-sky-400',
+    numBgClass: 'bg-sky-500 text-white',
+    cardClass: 'border-sky-200 dark:border-sky-900/60 bg-sky-50/30 dark:bg-sky-950/20',
+    minProgress: 0,
+    maxProgress: 0
+  },
+  {
+    step: 2,
+    title: 'Entry Meeting & Penyelarasan Scope',
+    shortLabel: 'Entry Meeting',
+    description: 'Pertemuan pembuka dengan auditee, konfirmasi ruang lingkup & finalisasi program audit.',
+    icon: 'i-lucide-users',
+    badgeColor: 'info',
+    badgeClass: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-300 dark:border-blue-700',
+    iconClass: 'text-blue-500 dark:text-blue-400',
+    numBgClass: 'bg-blue-500 text-white',
+    cardClass: 'border-blue-200 dark:border-blue-900/60 bg-blue-50/30 dark:bg-blue-950/20',
+    minProgress: 1,
+    maxProgress: 25
+  },
+  {
+    step: 3,
+    title: 'Fieldwork & Pengujian Pengendalian',
+    shortLabel: 'Fieldwork',
+    description: 'Pengujian sampel kontrol, wawancara staf, pengisian kertas kerja & pengumpulan bukti audit.',
+    icon: 'i-lucide-clipboard-check',
+    badgeColor: 'warning',
+    badgeClass: 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300 border border-violet-300 dark:border-violet-700',
+    iconClass: 'text-violet-500 dark:text-violet-400',
+    numBgClass: 'bg-violet-500 text-white',
+    cardClass: 'border-violet-200 dark:border-violet-900/60 bg-violet-50/30 dark:bg-violet-950/20',
+    minProgress: 26,
+    maxProgress: 50
+  },
+  {
+    step: 4,
+    title: 'Draft Temuan & Rekomendasi',
+    shortLabel: 'Draft Temuan',
+    description: 'Penyusunan temuan audit 5-C, konfirmasi tanggapan manajemen & komitmen PIC penanggung jawab.',
+    icon: 'i-lucide-file-warning',
+    badgeColor: 'secondary',
+    badgeClass: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 border border-purple-300 dark:border-purple-700',
+    iconClass: 'text-purple-500 dark:text-purple-400',
+    numBgClass: 'bg-purple-500 text-white',
+    cardClass: 'border-purple-200 dark:border-purple-900/60 bg-purple-50/30 dark:bg-purple-950/20',
+    minProgress: 51,
+    maxProgress: 75
+  },
+  {
+    step: 5,
+    title: 'Pelaporan & Exit Meeting',
+    shortLabel: 'Pelaporan',
+    description: 'Penyusunan draft Laporan Hasil Audit (LHA), pertemuan penutup dengan auditee & persetujuan CAE.',
+    icon: 'i-lucide-file-text',
+    badgeColor: 'primary',
+    badgeClass: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700',
+    iconClass: 'text-indigo-500 dark:text-indigo-400',
+    numBgClass: 'bg-indigo-500 text-white',
+    cardClass: 'border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/30 dark:bg-indigo-950/20',
+    minProgress: 76,
+    maxProgress: 99
+  },
+  {
+    step: 6,
+    title: 'Audit Selesai',
+    shortLabel: 'Selesai',
+    description: 'Laporan Hasil Audit final diterbitkan & siap untuk pemantauan Tindak Lanjut (Action Plan).',
+    icon: 'i-lucide-check-circle-2',
+    badgeColor: 'secondary',
+    badgeClass: 'bg-secondary-100 text-secondary-700 dark:bg-secondary-950 dark:text-secondary-300 border border-secondary-300 dark:border-secondary-700',
+    iconClass: 'text-secondary-600 dark:text-secondary-400',
+    numBgClass: 'bg-secondary-600 text-white',
+    cardClass: 'border-secondary-300 dark:border-secondary-800 bg-secondary-50/40 dark:bg-secondary-950/30',
+    minProgress: 100,
+    maxProgress: 100
+  }
+]
+
+export const getExecutionPhase = (progress: number = 0): ExecutionPhase => {
+  const p = Number(progress) || 0
+  if (p >= 100) return EXECUTION_PHASES[5]
+  if (p >= 76) return EXECUTION_PHASES[4]
+  if (p >= 51) return EXECUTION_PHASES[3]
+  if (p >= 26) return EXECUTION_PHASES[2]
+  if (p >= 1) return EXECUTION_PHASES[1]
+  return EXECUTION_PHASES[0]
 }

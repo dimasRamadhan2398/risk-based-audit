@@ -196,10 +196,10 @@
                                 <UInput v-model.number="store.form.daysPerAuditor" type="number" min="1" />
                             </UFormField>
 
-                            <UBadge class=" p-3 rounded text-center flex flex-col justify-center">
-                                <span class="text-md text-gray-500 uppercase">Total Mandays</span>
-                                <span class="text-2xl font-bold text-primary-600">{{ store.totalMandays }}</span>
-                                <span class="text-md text-gray-400">= {{ store.form.auditorCount }} person × {{ store.form.daysPerAuditor }} day</span>
+                            <UBadge variant="outline" color="primary" class="p-3 rounded-lg text-center flex flex-col justify-center bg-transparent border border-primary-500/50 dark:border-primary-400/50">
+                                <span class="text-md text-gray-500 dark:text-gray-400 uppercase">Total Mandays</span>
+                                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ store.totalMandays }}</span>
+                                <span class="text-md text-gray-400 dark:text-gray-500">= {{ store.form.auditorCount }} person × {{ store.form.daysPerAuditor }} day</span>
                             </UBadge>
                             </div>
 

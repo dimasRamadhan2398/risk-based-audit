@@ -410,8 +410,8 @@ func (h *RouteHandler) RegisterRoutes() {
 	// 18. Action Taken Reports
 	actionTakenReports := apiV1.Group("/action-taken-reports")
 	{
-		actionTakenReports.GET("", crud.List(h.db, "ActionTakenReport", func() interface{} { return &[]models.ActionTakenReport{} }))
-		actionTakenReports.GET("/:id", crud.GetByID(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
+		actionTakenReports.GET("", crud.List(h.db, "ActionTakenReport", func() interface{} { return &[]models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
+		actionTakenReports.GET("/:id", crud.GetByID(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
 		actionTakenReports.POST("", crud.Create(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
 		actionTakenReports.PUT("/:id", crud.Update(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
 		actionTakenReports.DELETE("/:id", crud.Delete(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))

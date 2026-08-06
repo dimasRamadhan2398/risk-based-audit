@@ -30,6 +30,7 @@ type LatestUpdateSub struct {
 
 type AuditExecution struct {
 	ID                     uuid.UUID         `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	ActivityID             *uuid.UUID        `gorm:"type:uuid;index" json:"activity_id,omitempty"`
 	Ref                    string            `gorm:"type:varchar(100)" json:"ref"`
 	Name                   string            `gorm:"type:varchar(255)" json:"name"`
 	Category               string            `gorm:"type:varchar(100)" json:"category"`

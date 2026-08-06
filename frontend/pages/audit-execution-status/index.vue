@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAuditExecutionStore } from '~/stores/audit-execution'
 import AuditExecutionDetailModal from '~/components/audit-execution/AuditExecutionDetailModal.vue'
-import { AuditCategory, AuditDepartment, AuditStatus } from '~/types/audit'
+import { AuditCategory, AuditDepartment, AuditStatus, EXECUTION_PHASES, getExecutionPhase } from '~/types/audit'
 
 const store = useAuditExecutionStore()
 store.fetchAuditExecutions()
@@ -12,37 +12,68 @@ const quarter = ref('')
 const status = ref<AuditStatus | undefined>(undefined)
 const department = ref<AuditDepartment | undefined>(undefined)
 
+const isHelpModalOpen = ref(false)
+
 const quarters = ['Quarter I', 'Quarter II', 'Quarter III', 'Quarter IV']
 
 const columns = [
-  { accessorKey: 'name', header: 'Audit Name' },
-  { accessorKey: 'progress', header: 'Execution Progress' },
-  { accessorKey: 'lead_auditor', header: 'Lead Auditor' },
-  { accessorKey: 'actions', header: 'Action' }
+  { accessorKey: 'name', header: 'Nama Audit' },
+  { accessorKey: 'phase', header: 'Tahapan Audit' },
+  { accessorKey: 'progress', header: 'Progres Eksekusi' },
+  { accessorKey: 'lead_auditor', header: 'Auditor Utama' },
+  { accessorKey: 'actions', header: 'Aksi' }
 ]
 
 const filteredAudits = computed(() => {
   return auditExecutions.value.filter(audit => {
-    const matchesSearch = audit.name.toLowerCase().includes(search.value.toLowerCase()) || 
-                          audit.category.toLowerCase().includes(search.value.toLowerCase())
-    const matchesDept = !AuditDepartment.FINANCE || audit.category === AuditCategory.ASSURANCE
+    const matchesSearch = !search.value || 
+                          (audit.name && audit.name.toLowerCase().includes(search.value.toLowerCase())) || 
+                          (audit.category && audit.category.toLowerCase().includes(search.value.toLowerCase())) ||
+                          (audit.ref && audit.ref.toLowerCase().includes(search.value.toLowerCase()))
+    const matchesDept = !department.value || audit. === department.value
     const matchesStatus = !status.value || audit.status === status.value
     return matchesSearch && matchesDept && matchesStatus
   })
 })
 
+const phaseBreakdown = computed(() => {
+  const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
+  auditExecutions.value.forEach(audit => {
+    const phase = getExecutionPhase(audit.progress)
+    counts[phase.step] = (counts[phase.step] || 0) + 1
+  })
+  return counts
+})
+
+const getProgressValue = (row: any): number => {
+  const item = row?.original || row
+  const val = item?.progress
+  if (typeof val === 'number') return val
+  if (typeof val === 'string') return parseFloat(val) || 0
+  return 0
+}
+
+const getProgressColor = (val: number) => {
+  if (val >= 100) return 'bg-secondary-600 shadow-sm shadow-secondary-600/40'
+  if (val >= 76) return 'bg-indigo-500 shadow-sm shadow-indigo-500/40'
+  if (val >= 51) return 'bg-purple-500 shadow-sm shadow-purple-500/40'
+  if (val >= 26) return 'bg-violet-500 shadow-sm shadow-violet-500/40'
+  if (val >= 1) return 'bg-blue-500 shadow-sm shadow-blue-500/40'
+  return 'bg-sky-400 shadow-sm shadow-sky-400/40'
+}
+
 const isDetailOpen = ref(false)
 const selectedAudit = ref<any>(undefined)
 
-const openDetail = (audit: any) => {
-  selectedAudit.value = audit.original
+const openDetail = (row: any) => {
+  selectedAudit.value = row?.original || row
   isDetailOpen.value = true
 }
 
 const handleRemind = (audit: any) => {
   useToast().add({
     title: 'Reminder Sent',
-    description: `Reminder for audit ${audit.nama_audit} has been sent to ${audit.lead_auditor}`,
+    description: `Reminder for audit ${audit?.name || audit?.nama_audit || ''} has been sent to ${audit?.lead_auditor || ''}`,
     color: 'success'
   })
 }
@@ -51,26 +82,50 @@ const handleRemind = (audit: any) => {
 <template>
   <div class="p-6 space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Execution Status</h1>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Status Eksekusi Audit</h1>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Transparansi progres & tahapan siklus audit dari perencanaan hingga penyelesaian LHA.
+        </p>
+      </div>
+
+      <UButton
+        icon="i-lucide-help-circle"
+        label="Panduan Siklus Audit"
+        color="primary"
+        variant="soft"
+        size="md"
+        class="font-bold"
+        @click="() => { isHelpModalOpen = true }"
+      />
     </div>
 
     <!-- Summary Section -->
-    <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm">
-      <p class="text-sm font-semibold text-gray-500 mb-3">Summary Status:</p>
-      <div class="flex items-center gap-6">
+    <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-6">
+        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Ringkasan Eksekusi:</span>
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.completed }} Completed</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.completed }} Selesai</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.inProgress }} In Progress</span>
+          <span class="w-3 h-3 rounded-full bg-sky-500"></span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.inProgress }} Sedang Berjalan</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-gray-300"></span>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.planned }} Planned</span>
+          <span class="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getSummary.planned }} Rencana</span>
         </div>
       </div>
+
+      <UButton
+        label="Lihat Panduan Tahapan"
+        icon="i-lucide-book-open"
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        @click="() => { isHelpModalOpen = true }"
+      />
     </div>
 
     <!-- Filters Section -->
@@ -104,22 +159,37 @@ const handleRemind = (audit: any) => {
     <!-- Table Section -->
     <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
       <UTable :columns="columns" :data="filteredAudits" :ui="{ th: 'bg-gray-50 dark:bg-gray-800/50' }">
-        <template #nama_audit-cell="{ row }">
+        <template #name-cell="{ row }">
           <div class="flex flex-col">
-            <span class="font-bold text-gray-900 dark:text-white">{{ row.original.name }}</span>
-            <span class="text-md text-gray-500">({{ row.original.category }})</span>
+            <span class="font-bold text-gray-900 dark:text-white">{{ (row.original || row).name }}</span>
+            <span class="text-xs text-gray-500 font-medium">Ref: {{ (row.original || row).ref || '-' }} | ({{ (row.original || row).category }})</span>
           </div>
+        </template>
+
+        <template #phase-cell="{ row }">
+          <UBadge :color="getExecutionPhase(getProgressValue(row)).badgeColor" variant="subtle" size="md">
+            <UIcon :name="getExecutionPhase(getProgressValue(row)).icon" class="mr-1.5 inline-block text-xs" />
+            {{ getExecutionPhase(getProgressValue(row)).shortLabel }}
+          </UBadge>
         </template>
 
         <template #progress-cell="{ row }">
           <div class="flex items-center gap-3 min-w-[200px]">
-            <UProgress :value="row.original.progress" color="secondary" class="flex-1" />
-            <span class="text-sm font-bold text-secondary">{{ row.original.progress }} %</span>
+            <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner">
+              <div
+                class="h-full rounded-full transition-all duration-500 ease-out"
+                :class="getProgressColor(getProgressValue(row))"
+                :style="{ width: `${Math.min(100, Math.max(0, getProgressValue(row)))}%` }"
+              ></div>
+            </div>
+            <span class="text-xs font-bold text-gray-700 dark:text-gray-300 w-10 text-right">
+              {{ getProgressValue(row) }}%
+            </span>
           </div>
         </template>
 
-        <template #lead_auditor-data="{ row }">
-          <span class="text-sm text-gray-700 dark:text-gray-300">{{ row.original.lead_auditor }}</span>
+        <template #lead_auditor-cell="{ row }">
+          <span class="text-sm text-gray-700 dark:text-gray-300">{{ (row.original || row).lead_auditor || '-' }}</span>
         </template>
 
         <template #actions-cell="{ row }">
@@ -136,10 +206,10 @@ const handleRemind = (audit: any) => {
       <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" size="md" />
-          <span class="text-sm font-medium">1 / 10</span>
+          <span class="text-sm font-medium">1 / 1</span>
           <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="md" />
         </div>
-        <span class="text-md text-gray-500">Showing 1 - {{ filteredAudits.length }} of {{ auditExecutions.length }} data</span>
+        <span class="text-xs font-medium text-gray-500">Showing 1 - {{ filteredAudits.length }} of {{ auditExecutions.length }} data</span>
       </div>
     </div>
 
@@ -149,5 +219,74 @@ const handleRemind = (audit: any) => {
       :audit="selectedAudit"
       @remind="handleRemind"
     />
+
+    <!-- Lifecycle Phase Guide Help Modal -->
+    <UModal v-model:open="isHelpModalOpen" :ui="{ content: 'sm:max-w-3xl' }" scrollable>
+      <template #content>
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-950/60 text-secondary-600 dark:text-secondary-400">
+                  <UIcon name="i-lucide-route" class="text-xl" />
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">Panduan Siklus Eksekusi Audit</h3>
+                  <p class="text-xs text-gray-500">Tahapan standar eksekusi audit internal & pemetaan persentase progres.</p>
+                </div>
+              </div>
+              <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="() => { isHelpModalOpen = false }" />
+            </div>
+          </template>
+
+          <div class="space-y-4">
+            <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+              Progres eksekusi audit dikategorikan ke dalam 6 tahapan siklus untuk memberikan transparansi dan pemantauan capaian secara rinci:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div
+                v-for="phase in EXECUTION_PHASES"
+                :key="phase.step"
+                class="p-4 rounded-xl border space-y-2 transition-all duration-200 hover:shadow-xs"
+                :class="phase.cardClass"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-xs"
+                      :class="phase.numBgClass"
+                    >
+                      {{ phase.step }}
+                    </div>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ phase.title }}</span>
+                  </div>
+                  <span
+                    class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
+                    :class="phase.badgeClass"
+                  >
+                    {{ phase.minProgress === phase.maxProgress ? `${phase.minProgress}%` : `${phase.minProgress}–${phase.maxProgress}%` }}
+                  </span>
+                </div>
+                <p class="text-[11px] text-gray-600 dark:text-gray-400 pl-8 leading-relaxed">
+                  {{ phase.description }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <template #footer>
+            <div class="flex justify-end">
+              <UButton
+                label="Tutup Panduan"
+                color="primary"
+                class="px-5 font-bold"
+                @click="() => { isHelpModalOpen = false }"
+              />
+            </div>
+          </template>
+        </UCard>
+      </template>
+    </UModal>
   </div>
 </template>

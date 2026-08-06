@@ -144,6 +144,11 @@ func (a *AuditCompletionAnalyzer) compute(ctx context.Context, year int) (*model
 		CacheSource: "live_query",
 	}
 
+	// 0. Synchronize AuditExecution status to AuditActivity status for the year
+	if err := SyncAllExecutionsForYear(ctx, a.db, year); err != nil {
+		logger.Warn("[AuditCompletionAnalyzer] Pre-compute execution sync warning", logger.LogField("error", err))
+	}
+
 	// ----------------------------------------------------------------
 	// Query 1: audit_activities — plan-based rate
 	// Join through audit_annuals to scope by year.
