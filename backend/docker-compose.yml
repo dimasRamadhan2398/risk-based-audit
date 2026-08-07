@@ -30,15 +30,6 @@ services:
       - rb_audit_network
     restart: unless-stopped
 
-  redisinsight:
-    image: redis/redisinsight:latest
-    depends_on:
-      redis:
-        condition: service_healthy
-    networks:
-      - rb_audit_network
-    restart: unless-stopped
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: rb_audit_zookeeper
@@ -58,6 +49,7 @@ services:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms128M"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: PLAIN://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092,OUTSIDE://localhost:9092
@@ -70,26 +62,10 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:29092 --list || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
-    networks:
-      - rb_audit_network
-    restart: unless-stopped
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: rb_audit_kafka_ui
-    depends_on:
-      kafka:
-        condition: service_healthy
-    environment:
-      TZ: Asia/Jakarta
-      KAFKA_CLUSTERS_0_NAME: rb_audit
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 29092 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -118,6 +94,8 @@ services:
       context: ./analytics-service
       dockerfile: Dockerfile
     container_name: rb_audit_analytics_service
+    environment:
+      - PYTHON_AI_URL=http://python-ai:8000
     depends_on:
       postgres:
         condition: service_started
@@ -125,6 +103,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      python-ai:
+        condition: service_started
     ports:
       - "8084:8084"
     networks:
@@ -193,10 +173,13 @@ services:
       context: ./python-ai
       dockerfile: Dockerfile
     container_name: rb_audit_python_ai
+    ports:
+      - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
       - python_ai_models:/app/models
+      - ../ai_model_training:/app/ai_model_training:ro
     networks:
       - rb_audit_network
     restart: unless-stopped

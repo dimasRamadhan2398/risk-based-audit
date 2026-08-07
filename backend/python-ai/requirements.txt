@@ -2,9 +2,8 @@ fastapi
 uvicorn
 xgboost
 scikit-learn
-tensorflow
+tensorflow-cpu
 transformers
-torch
 pandas
 numpy
 pydantic

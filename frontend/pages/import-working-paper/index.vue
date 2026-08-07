@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Upload Working Paper</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Import Working Paper</h1>
         <p class="text-sm text-gray-500">Import reference working papers for auditor guidelines</p>
       </div>
     </div>
@@ -16,7 +16,7 @@
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
               <UIcon name="i-heroicons-arrow-up-tray" class="w-5 h-5 text-primary" />
-              Upload Reference Paper
+              Import Working Paper
             </h3>
           </template>
 
@@ -39,7 +39,7 @@
               />
             </UFormField>
 
-            <!-- File Upload Box -->
+            <!-- File Import Box -->
             <UFormField label="File Reference" required>
               <div 
                 @click="triggerFileSelect"
@@ -136,7 +136,7 @@
             </div>
             <div class="max-w-md mx-auto">
               <h3 class="text-sm font-bold text-gray-900">No guidelines imported</h3>
-              <p class="text-md text-gray-500 mt-1">Upload files on the left to make reference documents available for auditors.</p>
+              <p class="text-md text-gray-500 mt-1">Import files on the left to make reference documents available for auditors.</p>
             </div>
           </div>
 
@@ -225,7 +225,7 @@ const columns = [
   { accessorKey: 'title', header: 'Document Title' },
   { accessorKey: 'fileName', header: 'File Reference' },
   { accessorKey: 'fileSize', header: 'Size' },
-  { accessorKey: 'created_at', header: 'Uploaded At' },
+  { accessorKey: 'created_at', header: 'Imported At' },
   { accessorKey: 'actions', header: 'Actions' }
 ]
 

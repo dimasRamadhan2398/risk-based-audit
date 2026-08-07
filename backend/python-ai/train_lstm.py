@@ -1,9 +1,7 @@
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import numpy as np
-
-# TensorFlow will automatically use a GPU if available (and CUDA is installed).
-# Commenting out the line below allows for GPU acceleration.
-# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential

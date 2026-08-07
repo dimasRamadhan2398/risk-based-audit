@@ -39,10 +39,7 @@ export const useSopStore = defineStore('sop', () => {
     fileSize: 0
   })
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const fetchSops = async () => {
     loading.value = true

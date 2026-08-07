@@ -66,7 +66,7 @@
                     class="w-full"
                   />
                   <USelectMenu 
-                    v-else-if="store.newReport.type === QAType.QAR"
+                    v-else-if="store.newReport.type === QAType.QAR || store.newReport.type === QAType.SAIV"
                     v-model="store.newReport.result" 
                     :items="['Does not Conform', 'Partially Conform', 'Generally Conformed', 'Fully Conformance']" 
                     placeholder="Select Conformance" 

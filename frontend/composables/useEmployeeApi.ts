@@ -16,10 +16,7 @@ export const useEmployeeApi = () => {
    * Get base URL - with fallback to auditServiceBaseUrl if masterServiceBaseUrl not configured
    */
   const getBaseUrl = () => {
-    const masterUrl = config.public.masterServiceBaseUrl
-    if (masterUrl) return masterUrl
-    // Fallback to audit service URL as they share the same port
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+    return getAuditServiceBaseUrl()
   }
 
   /**

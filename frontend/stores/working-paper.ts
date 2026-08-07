@@ -213,10 +213,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const dataF04 = ref<WorkingPaperCause[]>([])
   const dataF05 = ref<WorkingPaperPlan[]>([])
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const loading = ref(false)
   const errorMsg = ref('')

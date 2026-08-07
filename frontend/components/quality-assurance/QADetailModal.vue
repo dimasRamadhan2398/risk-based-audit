@@ -59,7 +59,7 @@
                 <div class="grid grid-cols-3 gap-4">
                   <p class="font-bold text-gray-700">Result/Score</p>
                   <p class="col-span-2 text-xl font-bold">
-                    {{ store.selectedReport?.type === QAType.QAR ? formatOverallConclusion(store.selectedReport?.result!) : store.selectedReport?.result }}
+                    {{ (store.matchQAType(store.selectedReport?.type!, QAType.QAR) || store.matchQAType(store.selectedReport?.type!, QAType.SAIV)) ? formatOverallConclusion(store.selectedReport?.result!) : store.selectedReport?.result }}
                   </p>
                 </div>
                 <div class="grid grid-cols-3 gap-4">

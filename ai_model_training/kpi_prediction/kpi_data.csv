@@ -1,1011 +1,1321 @@
 ID KPI,Nama KPI,Periode,TARGET: Nilai Aktual (%),TARGET: Impact (1-5),TARGET: Likelihood (1-5)
-SO-IA01,Customer Acquisition Cost,Q1 2024,35.2,4,4
-SO-IA02,Customer Lifetime Value,Q2 2024,34.8,3,3
-SO-IA03,Net Promoter Score,Q3 2024,36.1,5,5
-SO-IA04,Sales Conversion Rate,Q4 2024,35.5,4,4
-SO-IA05,Employee Turnover Rate,Q1 2025,34.9,3,3
-SO-IA06,Monthly Recurring Revenue,Q2 2025,33.8,2,2
-SO-IA07,Customer Retention Rate,Q3 2025,34.5,3,3
-SO-IA08,Average Order Value,Q4 2025,33.1,2,2
-SO-IA09,Return on Investment,Q1 2026,33.3,2,2
-SO-IA010,Gross Profit Margin,Q2 2026,32.9,1,1
-SO-IA011,Customer Retention Rate,Q3 2026,32.5,1,1
-SO-IA012,Employee Turnover Rate,Q4 2026,32.1,1,1
-SO-IA013,Customer Retention Rate,Q1 2027,32.9,1,1
-SO-IA014,Customer Acquisition Cost,Q2 2027,35.3,4,4
-SO-IA015,Employee Turnover Rate,Q3 2027,36.9,5,5
-SO-IA016,Monthly Recurring Revenue,Q4 2027,35.3,4,4
-SO-IA017,Customer Retention Rate,Q1 2028,37.0,5,5
-SO-IA018,Customer Lifetime Value,Q2 2028,35.2,4,4
-SO-IA019,Customer Lifetime Value,Q3 2028,33.0,2,2
-SO-IA020,Customer Retention Rate,Q4 2028,35.6,4,4
-SO-IA021,Sales Conversion Rate,Q1 2029,36.9,5,5
-SO-IA022,Sales Conversion Rate,Q2 2029,34.5,3,3
-SO-IA023,Monthly Recurring Revenue,Q3 2029,33.3,2,2
-SO-IA024,Customer Retention Rate,Q4 2029,34.6,3,3
-SO-IA025,Customer Lifetime Value,Q1 2030,32.9,1,1
-SO-IA026,Sales Conversion Rate,Q2 2030,32.7,1,1
-SO-IA027,Net Promoter Score,Q3 2030,35.6,4,4
-SO-IA028,Net Promoter Score,Q4 2030,34.8,3,3
-SO-IA029,Net Promoter Score,Q1 2031,36.2,5,5
-SO-IA030,Customer Acquisition Cost,Q2 2031,36.7,5,5
-SO-IA031,Return on Investment,Q3 2031,33.1,2,2
-SO-IA032,Customer Acquisition Cost,Q4 2031,32.0,1,1
-SO-IA033,Net Promoter Score,Q1 2032,36.4,5,5
-SO-IA034,Customer Retention Rate,Q2 2032,32.5,1,1
-SO-IA035,Return on Investment,Q3 2032,33.6,2,2
-SO-IA036,Monthly Recurring Revenue,Q4 2032,35.9,4,4
-SO-IA037,Net Promoter Score,Q1 2033,36.9,5,5
-SO-IA038,Sales Conversion Rate,Q2 2033,35.9,4,4
-SO-IA039,Employee Turnover Rate,Q3 2033,35.6,4,4
-SO-IA040,Customer Lifetime Value,Q4 2033,32.6,1,1
-SO-IA041,Customer Acquisition Cost,Q1 2034,32.0,1,1
-SO-IA042,Customer Retention Rate,Q2 2034,34.2,3,3
-SO-IA043,Customer Lifetime Value,Q3 2034,33.8,2,2
-SO-IA044,Customer Acquisition Cost,Q4 2034,36.1,5,5
-SO-IA045,Customer Retention Rate,Q1 2035,36.8,5,5
-SO-IA046,Gross Profit Margin,Q2 2035,32.9,1,1
-SO-IA047,Customer Retention Rate,Q3 2035,34.8,3,3
-SO-IA048,Gross Profit Margin,Q4 2035,35.7,4,4
-SO-IA049,Customer Acquisition Cost,Q1 2036,34.6,3,3
-SO-IA050,Return on Investment,Q2 2036,35.6,4,4
-SO-IA051,Monthly Recurring Revenue,Q3 2036,34.9,3,3
-SO-IA052,Customer Acquisition Cost,Q4 2036,34.1,3,3
-SO-IA053,Customer Retention Rate,Q1 2037,34.1,3,3
-SO-IA054,Customer Lifetime Value,Q2 2037,32.9,1,1
-SO-IA055,Customer Lifetime Value,Q3 2037,35.5,4,4
-SO-IA056,Customer Lifetime Value,Q4 2037,32.9,1,1
-SO-IA057,Net Promoter Score,Q1 2038,33.7,2,2
-SO-IA058,Monthly Recurring Revenue,Q2 2038,33.4,2,2
-SO-IA059,Monthly Recurring Revenue,Q3 2038,35.2,4,4
-SO-IA060,Return on Investment,Q4 2038,34.3,3,3
-SO-IA061,Monthly Recurring Revenue,Q1 2039,36.5,5,5
-SO-IA062,Average Order Value,Q2 2039,33.1,2,2
-SO-IA063,Monthly Recurring Revenue,Q3 2039,36.5,5,5
-SO-IA064,Customer Retention Rate,Q4 2039,33.9,2,2
-SO-IA065,Customer Lifetime Value,Q1 2040,36.1,5,5
-SO-IA066,Net Promoter Score,Q2 2040,36.2,5,5
-SO-IA067,Sales Conversion Rate,Q3 2040,33.5,2,2
-SO-IA068,Sales Conversion Rate,Q4 2040,35.6,4,4
-SO-IA069,Net Promoter Score,Q1 2041,33.3,2,2
-SO-IA070,Customer Acquisition Cost,Q2 2041,32.4,1,1
-SO-IA071,Net Promoter Score,Q3 2041,36.8,5,5
-SO-IA072,Customer Lifetime Value,Q4 2041,36.6,5,5
-SO-IA073,Customer Lifetime Value,Q1 2042,34.3,3,3
-SO-IA074,Employee Turnover Rate,Q2 2042,36.4,5,5
-SO-IA075,Customer Lifetime Value,Q3 2042,35.1,4,4
-SO-IA076,Gross Profit Margin,Q4 2042,33.2,2,2
-SO-IA077,Customer Lifetime Value,Q1 2043,35.5,4,4
-SO-IA078,Return on Investment,Q2 2043,35.6,4,4
-SO-IA079,Gross Profit Margin,Q3 2043,36.2,5,5
-SO-IA080,Average Order Value,Q4 2043,35.0,3,3
-SO-IA081,Employee Turnover Rate,Q1 2044,32.2,1,1
-SO-IA082,Customer Retention Rate,Q2 2044,34.8,3,3
-SO-IA083,Net Promoter Score,Q3 2044,34.9,3,3
-SO-IA084,Customer Lifetime Value,Q4 2044,34.5,3,3
-SO-IA085,Customer Acquisition Cost,Q1 2045,32.7,1,1
-SO-IA086,Sales Conversion Rate,Q2 2045,35.4,4,4
-SO-IA087,Sales Conversion Rate,Q3 2045,34.8,3,3
-SO-IA088,Customer Acquisition Cost,Q4 2045,33.6,2,2
-SO-IA089,Sales Conversion Rate,Q1 2046,36.5,5,5
-SO-IA090,Gross Profit Margin,Q2 2046,36.8,5,5
-SO-IA091,Gross Profit Margin,Q3 2046,33.8,2,2
-SO-IA092,Net Promoter Score,Q4 2046,36.3,5,5
-SO-IA093,Net Promoter Score,Q1 2047,35.8,4,4
-SO-IA094,Return on Investment,Q2 2047,33.1,2,2
-SO-IA095,Employee Turnover Rate,Q3 2047,34.6,3,3
-SO-IA096,Customer Retention Rate,Q4 2047,33.3,2,2
-SO-IA097,Net Promoter Score,Q1 2048,34.9,3,3
-SO-IA098,Employee Turnover Rate,Q2 2048,35.7,4,4
-SO-IA099,Sales Conversion Rate,Q3 2048,34.5,3,3
-SO-IA0100,Customer Lifetime Value,Q4 2048,33.1,2,2
-SO-IA0101,Sales Conversion Rate,Q1 2049,36.6,5,5
-SO-IA0102,Gross Profit Margin,Q2 2049,33.0,2,2
-SO-IA0103,Customer Acquisition Cost,Q3 2049,35.5,4,4
-SO-IA0104,Return on Investment,Q4 2049,35.9,4,4
-SO-IA0105,Employee Turnover Rate,Q1 2050,35.7,4,4
-SO-IA0106,Customer Acquisition Cost,Q2 2050,36.2,5,5
-SO-IA0107,Monthly Recurring Revenue,Q3 2050,32.3,1,1
-SO-IA0108,Net Promoter Score,Q4 2050,33.3,2,2
-SO-IA0109,Sales Conversion Rate,Q1 2051,34.7,3,3
-SO-IA0110,Customer Acquisition Cost,Q2 2051,34.5,3,3
-SO-IA0111,Customer Acquisition Cost,Q3 2051,36.0,5,5
-SO-IA0112,Customer Retention Rate,Q4 2051,34.4,3,3
-SO-IA0113,Return on Investment,Q1 2052,32.2,1,1
-SO-IA0114,Monthly Recurring Revenue,Q2 2052,34.2,3,3
-SO-IA0115,Sales Conversion Rate,Q3 2052,36.1,5,5
-SO-IA0116,Average Order Value,Q4 2052,32.6,1,1
-SO-IA0117,Customer Acquisition Cost,Q1 2053,36.4,5,5
-SO-IA0118,Sales Conversion Rate,Q2 2053,34.2,3,3
-SO-IA0119,Gross Profit Margin,Q3 2053,33.7,2,2
-SO-IA0120,Customer Lifetime Value,Q4 2053,34.5,3,3
-SO-IA0121,Customer Lifetime Value,Q1 2054,35.3,4,4
-SO-IA0122,Customer Retention Rate,Q2 2054,34.0,3,3
-SO-IA0123,Customer Lifetime Value,Q3 2054,34.6,3,3
-SO-IA0124,Customer Acquisition Cost,Q4 2054,33.8,2,2
-SO-IA0125,Net Promoter Score,Q1 2055,33.3,2,2
-SO-IA0126,Customer Retention Rate,Q2 2055,34.7,3,3
-SO-IA0127,Return on Investment,Q3 2055,33.6,2,2
-SO-IA0128,Customer Acquisition Cost,Q4 2055,35.7,4,4
-SO-IA0129,Customer Lifetime Value,Q1 2056,33.6,2,2
-SO-IA0130,Sales Conversion Rate,Q2 2056,33.3,2,2
-SO-IA0131,Gross Profit Margin,Q3 2056,36.4,5,5
-SO-IA0132,Employee Turnover Rate,Q4 2056,34.4,3,3
-SO-IA0133,Net Promoter Score,Q1 2057,32.1,1,1
-SO-IA0134,Employee Turnover Rate,Q2 2057,34.1,3,3
-SO-IA0135,Sales Conversion Rate,Q3 2057,36.3,5,5
-SO-IA0136,Monthly Recurring Revenue,Q4 2057,35.1,4,4
-SO-IA0137,Net Promoter Score,Q1 2058,32.9,1,1
-SO-IA0138,Customer Lifetime Value,Q2 2058,36.5,5,5
-SO-IA0139,Sales Conversion Rate,Q3 2058,33.1,2,2
-SO-IA0140,Sales Conversion Rate,Q4 2058,33.3,2,2
-SO-IA0141,Sales Conversion Rate,Q1 2059,36.7,5,5
-SO-IA0142,Gross Profit Margin,Q2 2059,36.4,5,5
-SO-IA0143,Sales Conversion Rate,Q3 2059,36.9,5,5
-SO-IA0144,Monthly Recurring Revenue,Q4 2059,36.6,5,5
-SO-IA0145,Monthly Recurring Revenue,Q1 2060,32.3,1,1
-SO-IA0146,Customer Retention Rate,Q2 2060,36.8,5,5
-SO-IA0147,Net Promoter Score,Q3 2060,35.2,4,4
-SO-IA0148,Average Order Value,Q4 2060,36.5,5,5
-SO-IA0149,Customer Retention Rate,Q1 2061,36.1,5,5
-SO-IA0150,Average Order Value,Q2 2061,34.0,2,2
-SO-IA0151,Net Promoter Score,Q3 2061,34.2,3,3
-SO-IA0152,Employee Turnover Rate,Q4 2061,33.4,2,2
-SO-IA0153,Sales Conversion Rate,Q1 2062,34.7,3,3
-SO-IA0154,Customer Lifetime Value,Q2 2062,34.2,3,3
-SO-IA0155,Average Order Value,Q3 2062,36.8,5,5
-SO-IA0156,Monthly Recurring Revenue,Q4 2062,35.2,4,4
-SO-IA0157,Customer Lifetime Value,Q1 2063,32.4,1,1
-SO-IA0158,Customer Lifetime Value,Q2 2063,34.5,3,3
-SO-IA0159,Return on Investment,Q3 2063,33.4,2,2
-SO-IA0160,Customer Retention Rate,Q4 2063,35.4,4,4
-SO-IA0161,Customer Acquisition Cost,Q1 2064,32.8,1,1
-SO-IA0162,Customer Lifetime Value,Q2 2064,36.7,5,5
-SO-IA0163,Return on Investment,Q3 2064,32.7,1,1
-SO-IA0164,Monthly Recurring Revenue,Q4 2064,32.4,1,1
-SO-IA0165,Average Order Value,Q1 2065,32.9,1,1
-SO-IA0166,Employee Turnover Rate,Q2 2065,36.4,5,5
-SO-IA0167,Sales Conversion Rate,Q3 2065,34.4,3,3
-SO-IA0168,Net Promoter Score,Q4 2065,33.1,2,2
-SO-IA0169,Net Promoter Score,Q1 2066,35.9,4,4
-SO-IA0170,Net Promoter Score,Q2 2066,35.4,4,4
-SO-IA0171,Average Order Value,Q3 2066,36.1,5,5
-SO-IA0172,Customer Acquisition Cost,Q4 2066,36.6,5,5
-SO-IA0173,Customer Lifetime Value,Q1 2067,36.1,5,5
-SO-IA0174,Average Order Value,Q2 2067,32.4,1,1
-SO-IA0175,Gross Profit Margin,Q3 2067,36.8,5,5
-SO-IA0176,Sales Conversion Rate,Q4 2067,34.2,3,3
-SO-IA0177,Gross Profit Margin,Q1 2068,35.0,4,4
-SO-IA0178,Employee Turnover Rate,Q2 2068,32.6,1,1
-SO-IA0179,Employee Turnover Rate,Q3 2068,32.6,1,1
-SO-IA0180,Customer Lifetime Value,Q4 2068,33.7,2,2
-SO-IA0181,Sales Conversion Rate,Q1 2069,36.0,5,5
-SO-IA0182,Monthly Recurring Revenue,Q2 2069,33.0,2,2
-SO-IA0183,Average Order Value,Q3 2069,35.5,4,4
-SO-IA0184,Gross Profit Margin,Q4 2069,34.4,3,3
-SO-IA0185,Return on Investment,Q1 2070,35.1,4,4
-SO-IA0186,Gross Profit Margin,Q2 2070,36.8,5,5
-SO-IA0187,Gross Profit Margin,Q3 2070,36.2,5,5
-SO-IA0188,Average Order Value,Q4 2070,34.3,3,3
-SO-IA0189,Monthly Recurring Revenue,Q1 2071,36.6,5,5
-SO-IA0190,Employee Turnover Rate,Q2 2071,36.7,5,5
-SO-IA0191,Customer Acquisition Cost,Q3 2071,35.6,4,4
-SO-IA0192,Net Promoter Score,Q4 2071,35.7,4,4
-SO-IA0193,Sales Conversion Rate,Q1 2072,33.8,2,2
-SO-IA0194,Gross Profit Margin,Q2 2072,34.9,3,3
-SO-IA0195,Customer Lifetime Value,Q3 2072,36.1,5,5
-SO-IA0196,Gross Profit Margin,Q4 2072,35.3,4,4
-SO-IA0197,Monthly Recurring Revenue,Q1 2073,35.8,4,4
-SO-IA0198,Employee Turnover Rate,Q2 2073,36.6,5,5
-SO-IA0199,Net Promoter Score,Q3 2073,33.9,2,2
-SO-IA0200,Return on Investment,Q4 2073,34.8,3,3
-SO-IA0201,Sales Conversion Rate,Q1 2074,33.8,2,2
-SO-IA0202,Customer Acquisition Cost,Q2 2074,34.8,3,3
-SO-IA0203,Return on Investment,Q3 2074,36.8,5,5
-SO-IA0204,Net Promoter Score,Q4 2074,34.3,3,3
-SO-IA0205,Return on Investment,Q1 2075,36.2,5,5
-SO-IA0206,Sales Conversion Rate,Q2 2075,32.6,1,1
-SO-IA0207,Net Promoter Score,Q3 2075,32.1,1,1
-SO-IA0208,Gross Profit Margin,Q4 2075,34.4,3,3
-SO-IA0209,Employee Turnover Rate,Q1 2076,34.9,3,3
-SO-IA0210,Customer Lifetime Value,Q2 2076,34.9,3,3
-SO-IA0211,Gross Profit Margin,Q3 2076,33.2,2,2
-SO-IA0212,Sales Conversion Rate,Q4 2076,35.0,4,4
-SO-IA0213,Employee Turnover Rate,Q1 2077,34.8,3,3
-SO-IA0214,Customer Lifetime Value,Q2 2077,36.1,5,5
-SO-IA0215,Monthly Recurring Revenue,Q3 2077,32.6,1,1
-SO-IA0216,Gross Profit Margin,Q4 2077,35.5,4,4
-SO-IA0217,Net Promoter Score,Q1 2078,35.1,4,4
-SO-IA0218,Average Order Value,Q2 2078,35.7,4,4
-SO-IA0219,Sales Conversion Rate,Q3 2078,35.8,4,4
-SO-IA0220,Customer Lifetime Value,Q4 2078,32.5,1,1
-SO-IA0221,Employee Turnover Rate,Q1 2079,36.8,5,5
-SO-IA0222,Return on Investment,Q2 2079,33.7,2,2
-SO-IA0223,Gross Profit Margin,Q3 2079,32.5,1,1
-SO-IA0224,Average Order Value,Q4 2079,33.3,2,2
-SO-IA0225,Sales Conversion Rate,Q1 2080,36.1,5,5
-SO-IA0226,Monthly Recurring Revenue,Q2 2080,34.5,3,3
-SO-IA0227,Gross Profit Margin,Q3 2080,34.4,3,3
-SO-IA0228,Customer Lifetime Value,Q4 2080,35.5,4,4
-SO-IA0229,Net Promoter Score,Q1 2081,33.5,2,2
-SO-IA0230,Gross Profit Margin,Q2 2081,35.9,4,4
-SO-IA0231,Net Promoter Score,Q3 2081,36.8,5,5
-SO-IA0232,Gross Profit Margin,Q4 2081,34.9,3,3
-SO-IA0233,Employee Turnover Rate,Q1 2082,32.9,1,1
-SO-IA0234,Customer Lifetime Value,Q2 2082,34.7,3,3
-SO-IA0235,Average Order Value,Q3 2082,34.2,3,3
-SO-IA0236,Return on Investment,Q4 2082,32.5,1,1
-SO-IA0237,Customer Lifetime Value,Q1 2083,36.2,5,5
-SO-IA0238,Sales Conversion Rate,Q2 2083,32.2,1,1
-SO-IA0239,Customer Lifetime Value,Q3 2083,32.4,1,1
-SO-IA0240,Monthly Recurring Revenue,Q4 2083,35.3,4,4
-SO-IA0241,Customer Acquisition Cost,Q1 2084,35.9,4,4
-SO-IA0242,Average Order Value,Q2 2084,32.2,1,1
-SO-IA0243,Customer Retention Rate,Q3 2084,34.1,3,3
-SO-IA0244,Customer Acquisition Cost,Q4 2084,34.8,3,3
-SO-IA0245,Average Order Value,Q1 2085,33.9,2,2
-SO-IA0246,Customer Acquisition Cost,Q2 2085,33.1,2,2
-SO-IA0247,Monthly Recurring Revenue,Q3 2085,36.2,5,5
-SO-IA0248,Return on Investment,Q4 2085,32.8,1,1
-SO-IA0249,Sales Conversion Rate,Q1 2086,34.6,3,3
-SO-IA0250,Sales Conversion Rate,Q2 2086,34.6,3,3
-SO-IA0251,Gross Profit Margin,Q3 2086,34.2,3,3
-SO-IA0252,Employee Turnover Rate,Q4 2086,36.2,5,5
-SO-IA0253,Average Order Value,Q1 2087,34.4,3,3
-SO-IA0254,Return on Investment,Q2 2087,32.8,1,1
-SO-IA0255,Net Promoter Score,Q3 2087,32.5,1,1
-SO-IA0256,Average Order Value,Q4 2087,35.8,4,4
-SO-IA0257,Average Order Value,Q1 2088,35.8,4,4
-SO-IA0258,Customer Lifetime Value,Q2 2088,33.2,2,2
-SO-IA0259,Monthly Recurring Revenue,Q3 2088,34.6,3,3
-SO-IA0260,Customer Lifetime Value,Q4 2088,35.6,4,4
-SO-IA0261,Customer Retention Rate,Q1 2089,33.6,2,2
-SO-IA0262,Customer Acquisition Cost,Q2 2089,34.2,3,3
-SO-IA0263,Monthly Recurring Revenue,Q3 2089,34.1,3,3
-SO-IA0264,Sales Conversion Rate,Q4 2089,32.0,1,1
-SO-IA0265,Average Order Value,Q1 2090,35.0,4,4
-SO-IA0266,Customer Lifetime Value,Q2 2090,34.0,2,2
-SO-IA0267,Net Promoter Score,Q3 2090,34.6,3,3
-SO-IA0268,Return on Investment,Q4 2090,35.3,4,4
-SO-IA0269,Net Promoter Score,Q1 2091,35.8,4,4
-SO-IA0270,Sales Conversion Rate,Q2 2091,33.5,2,2
-SO-IA0271,Return on Investment,Q3 2091,36.2,5,5
-SO-IA0272,Gross Profit Margin,Q4 2091,33.5,2,2
-SO-IA0273,Sales Conversion Rate,Q1 2092,36.0,4,4
-SO-IA0274,Employee Turnover Rate,Q2 2092,32.1,1,1
-SO-IA0275,Return on Investment,Q3 2092,32.8,1,1
-SO-IA0276,Customer Lifetime Value,Q4 2092,37.0,5,5
-SO-IA0277,Sales Conversion Rate,Q1 2093,37.0,5,5
-SO-IA0278,Sales Conversion Rate,Q2 2093,34.2,3,3
-SO-IA0279,Employee Turnover Rate,Q3 2093,34.1,3,3
-SO-IA0280,Customer Retention Rate,Q4 2093,35.2,4,4
-SO-IA0281,Average Order Value,Q1 2094,33.7,2,2
-SO-IA0282,Monthly Recurring Revenue,Q2 2094,33.5,2,2
-SO-IA0283,Customer Lifetime Value,Q3 2094,33.9,2,2
-SO-IA0284,Employee Turnover Rate,Q4 2094,35.9,4,4
-SO-IA0285,Sales Conversion Rate,Q1 2095,35.9,4,4
-SO-IA0286,Customer Acquisition Cost,Q2 2095,33.8,2,2
-SO-IA0287,Customer Lifetime Value,Q3 2095,36.3,5,5
-SO-IA0288,Employee Turnover Rate,Q4 2095,34.2,3,3
-SO-IA0289,Return on Investment,Q1 2096,35.0,3,3
-SO-IA0290,Average Order Value,Q2 2096,33.8,2,2
-SO-IA0291,Average Order Value,Q3 2096,36.1,5,5
-SO-IA0292,Customer Acquisition Cost,Q4 2096,35.1,4,4
-SO-IA0293,Return on Investment,Q1 2097,33.1,2,2
-SO-IA0294,Employee Turnover Rate,Q2 2097,35.9,4,4
-SO-IA0295,Customer Retention Rate,Q3 2097,32.3,1,1
-SO-IA0296,Customer Lifetime Value,Q4 2097,34.6,3,3
-SO-IA0297,Net Promoter Score,Q1 2098,32.9,1,1
-SO-IA0298,Customer Lifetime Value,Q2 2098,32.9,1,1
-SO-IA0299,Average Order Value,Q3 2098,35.7,4,4
-SO-IA0300,Customer Acquisition Cost,Q4 2098,34.7,3,3
-SO-IA0301,Customer Retention Rate,Q1 2099,34.8,3,3
-SO-IA0302,Monthly Recurring Revenue,Q2 2099,34.9,3,3
-SO-IA0303,Monthly Recurring Revenue,Q3 2099,33.5,2,2
-SO-IA0304,Gross Profit Margin,Q4 2099,32.0,1,1
-SO-IA0305,Net Promoter Score,Q1 2100,37.0,5,5
-SO-IA0306,Employee Turnover Rate,Q2 2100,36.7,5,5
-SO-IA0307,Net Promoter Score,Q3 2100,32.0,1,1
-SO-IA0308,Sales Conversion Rate,Q4 2100,32.3,1,1
-SO-IA0309,Customer Retention Rate,Q1 2101,34.9,3,3
-SO-IA0310,Customer Lifetime Value,Q2 2101,36.1,5,5
-SO-IA0311,Employee Turnover Rate,Q3 2101,33.4,2,2
-SO-IA0312,Return on Investment,Q4 2101,36.3,5,5
-SO-IA0313,Sales Conversion Rate,Q1 2102,34.1,3,3
-SO-IA0314,Customer Retention Rate,Q2 2102,36.2,5,5
-SO-IA0315,Average Order Value,Q3 2102,36.8,5,5
-SO-IA0316,Monthly Recurring Revenue,Q4 2102,36.9,5,5
-SO-IA0317,Gross Profit Margin,Q1 2103,33.9,2,2
-SO-IA0318,Customer Lifetime Value,Q2 2103,33.2,2,2
-SO-IA0319,Monthly Recurring Revenue,Q3 2103,34.9,3,3
-SO-IA0320,Average Order Value,Q4 2103,32.7,1,1
-SO-IA0321,Customer Lifetime Value,Q1 2104,33.3,2,2
-SO-IA0322,Customer Acquisition Cost,Q2 2104,35.0,3,3
-SO-IA0323,Customer Lifetime Value,Q3 2104,36.6,5,5
-SO-IA0324,Gross Profit Margin,Q4 2104,33.7,2,2
-SO-IA0325,Net Promoter Score,Q1 2105,34.9,3,3
-SO-IA0326,Customer Acquisition Cost,Q2 2105,32.1,1,1
-SO-IA0327,Net Promoter Score,Q3 2105,36.5,5,5
-SO-IA0328,Sales Conversion Rate,Q4 2105,33.1,2,2
-SO-IA0329,Monthly Recurring Revenue,Q1 2106,36.2,5,5
-SO-IA0330,Net Promoter Score,Q2 2106,36.3,5,5
-SO-IA0331,Sales Conversion Rate,Q3 2106,32.4,1,1
-SO-IA0332,Gross Profit Margin,Q4 2106,36.8,5,5
-SO-IA0333,Monthly Recurring Revenue,Q1 2107,35.1,4,4
-SO-IA0334,Return on Investment,Q2 2107,35.1,4,4
-SO-IA0335,Gross Profit Margin,Q3 2107,33.7,2,2
-SO-IA0336,Sales Conversion Rate,Q4 2107,35.8,4,4
-SO-IA0337,Net Promoter Score,Q1 2108,36.6,5,5
-SO-IA0338,Return on Investment,Q2 2108,32.9,1,1
-SO-IA0339,Customer Lifetime Value,Q3 2108,36.1,5,5
-SO-IA0340,Customer Retention Rate,Q4 2108,32.9,1,1
-SO-IA0341,Monthly Recurring Revenue,Q1 2109,33.0,2,2
-SO-IA0342,Net Promoter Score,Q2 2109,34.8,3,3
-SO-IA0343,Return on Investment,Q3 2109,34.7,3,3
-SO-IA0344,Customer Acquisition Cost,Q4 2109,36.6,5,5
-SO-IA0345,Customer Retention Rate,Q1 2110,35.7,4,4
-SO-IA0346,Return on Investment,Q2 2110,34.4,3,3
-SO-IA0347,Customer Acquisition Cost,Q3 2110,35.1,4,4
-SO-IA0348,Net Promoter Score,Q4 2110,35.2,4,4
-SO-IA0349,Gross Profit Margin,Q1 2111,33.7,2,2
-SO-IA0350,Return on Investment,Q2 2111,35.0,4,4
-SO-IA0351,Customer Lifetime Value,Q3 2111,33.8,2,2
-SO-IA0352,Sales Conversion Rate,Q4 2111,33.3,2,2
-SO-IA0353,Monthly Recurring Revenue,Q1 2112,34.6,3,3
-SO-IA0354,Net Promoter Score,Q2 2112,32.9,1,1
-SO-IA0355,Net Promoter Score,Q3 2112,33.6,2,2
-SO-IA0356,Average Order Value,Q4 2112,35.4,4,4
-SO-IA0357,Sales Conversion Rate,Q1 2113,35.0,4,4
-SO-IA0358,Customer Acquisition Cost,Q2 2113,33.2,2,2
-SO-IA0359,Monthly Recurring Revenue,Q3 2113,34.9,3,3
-SO-IA0360,Gross Profit Margin,Q4 2113,33.0,2,2
-SO-IA0361,Average Order Value,Q1 2114,34.3,3,3
-SO-IA0362,Customer Retention Rate,Q2 2114,33.0,2,2
-SO-IA0363,Customer Acquisition Cost,Q3 2114,34.1,3,3
-SO-IA0364,Customer Acquisition Cost,Q4 2114,33.6,2,2
-SO-IA0365,Sales Conversion Rate,Q1 2115,33.0,1,1
-SO-IA0366,Customer Retention Rate,Q2 2115,34.8,3,3
-SO-IA0367,Customer Acquisition Cost,Q3 2115,35.7,4,4
-SO-IA0368,Customer Lifetime Value,Q4 2115,32.3,1,1
-SO-IA0369,Employee Turnover Rate,Q1 2116,35.9,4,4
-SO-IA0370,Average Order Value,Q2 2116,35.6,4,4
-SO-IA0371,Customer Lifetime Value,Q3 2116,33.0,1,1
-SO-IA0372,Sales Conversion Rate,Q4 2116,36.2,5,5
-SO-IA0373,Sales Conversion Rate,Q1 2117,33.9,2,2
-SO-IA0374,Customer Acquisition Cost,Q2 2117,34.2,3,3
-SO-IA0375,Gross Profit Margin,Q3 2117,36.4,5,5
-SO-IA0376,Customer Lifetime Value,Q4 2117,32.9,1,1
-SO-IA0377,Gross Profit Margin,Q1 2118,34.4,3,3
-SO-IA0378,Customer Retention Rate,Q2 2118,33.3,2,2
-SO-IA0379,Sales Conversion Rate,Q3 2118,34.5,3,3
-SO-IA0380,Monthly Recurring Revenue,Q4 2118,35.8,4,4
-SO-IA0381,Employee Turnover Rate,Q1 2119,32.5,1,1
-SO-IA0382,Customer Lifetime Value,Q2 2119,36.8,5,5
-SO-IA0383,Sales Conversion Rate,Q3 2119,32.8,1,1
-SO-IA0384,Monthly Recurring Revenue,Q4 2119,33.5,2,2
-SO-IA0385,Sales Conversion Rate,Q1 2120,35.8,4,4
-SO-IA0386,Average Order Value,Q2 2120,34.4,3,3
-SO-IA0387,Monthly Recurring Revenue,Q3 2120,32.7,1,1
-SO-IA0388,Gross Profit Margin,Q4 2120,34.4,3,3
-SO-IA0389,Customer Lifetime Value,Q1 2121,36.2,5,5
-SO-IA0390,Gross Profit Margin,Q2 2121,34.1,3,3
-SO-IA0391,Return on Investment,Q3 2121,34.2,3,3
-SO-IA0392,Average Order Value,Q4 2121,34.7,3,3
-SO-IA0393,Monthly Recurring Revenue,Q1 2122,35.0,3,3
-SO-IA0394,Net Promoter Score,Q2 2122,32.0,1,1
-SO-IA0395,Average Order Value,Q3 2122,32.3,1,1
-SO-IA0396,Gross Profit Margin,Q4 2122,36.6,5,5
-SO-IA0397,Employee Turnover Rate,Q1 2123,33.4,2,2
-SO-IA0398,Average Order Value,Q2 2123,33.2,2,2
-SO-IA0399,Customer Retention Rate,Q3 2123,33.4,2,2
-SO-IA0400,Average Order Value,Q4 2123,34.4,3,3
-SO-IA0401,Average Order Value,Q1 2124,33.9,2,2
-SO-IA0402,Customer Acquisition Cost,Q2 2124,36.0,4,4
-SO-IA0403,Net Promoter Score,Q3 2124,32.8,1,1
-SO-IA0404,Gross Profit Margin,Q4 2124,32.3,1,1
-SO-IA0405,Net Promoter Score,Q1 2125,36.7,5,5
-SO-IA0406,Customer Acquisition Cost,Q2 2125,36.2,5,5
-SO-IA0407,Net Promoter Score,Q3 2125,36.5,5,5
-SO-IA0408,Customer Acquisition Cost,Q4 2125,32.9,1,1
-SO-IA0409,Average Order Value,Q1 2126,32.1,1,1
-SO-IA0410,Monthly Recurring Revenue,Q2 2126,32.3,1,1
-SO-IA0411,Gross Profit Margin,Q3 2126,32.8,1,1
-SO-IA0412,Monthly Recurring Revenue,Q4 2126,36.8,5,5
-SO-IA0413,Average Order Value,Q1 2127,32.9,1,1
-SO-IA0414,Customer Retention Rate,Q2 2127,33.1,2,2
-SO-IA0415,Monthly Recurring Revenue,Q3 2127,33.0,1,1
-SO-IA0416,Return on Investment,Q4 2127,33.5,2,2
-SO-IA0417,Average Order Value,Q1 2128,36.7,5,5
-SO-IA0418,Customer Retention Rate,Q2 2128,36.1,5,5
-SO-IA0419,Monthly Recurring Revenue,Q3 2128,36.3,5,5
-SO-IA0420,Customer Retention Rate,Q4 2128,36.8,5,5
-SO-IA0421,Customer Acquisition Cost,Q1 2129,32.8,1,1
-SO-IA0422,Return on Investment,Q2 2129,34.3,3,3
-SO-IA0423,Customer Retention Rate,Q3 2129,36.7,5,5
-SO-IA0424,Net Promoter Score,Q4 2129,33.9,2,2
-SO-IA0425,Customer Lifetime Value,Q1 2130,34.4,3,3
-SO-IA0426,Employee Turnover Rate,Q2 2130,34.3,3,3
-SO-IA0427,Employee Turnover Rate,Q3 2130,35.9,4,4
-SO-IA0428,Monthly Recurring Revenue,Q4 2130,36.6,5,5
-SO-IA0429,Gross Profit Margin,Q1 2131,34.7,3,3
-SO-IA0430,Monthly Recurring Revenue,Q2 2131,32.1,1,1
-SO-IA0431,Customer Lifetime Value,Q3 2131,33.1,2,2
-SO-IA0432,Customer Retention Rate,Q4 2131,33.4,2,2
-SO-IA0433,Monthly Recurring Revenue,Q1 2132,32.5,1,1
-SO-IA0434,Customer Retention Rate,Q2 2132,36.4,5,5
-SO-IA0435,Sales Conversion Rate,Q3 2132,33.0,1,1
-SO-IA0436,Customer Acquisition Cost,Q4 2132,35.5,4,4
-SO-IA0437,Average Order Value,Q1 2133,32.6,1,1
-SO-IA0438,Gross Profit Margin,Q2 2133,32.4,1,1
-SO-IA0439,Customer Lifetime Value,Q3 2133,34.6,3,3
-SO-IA0440,Customer Acquisition Cost,Q4 2133,32.2,1,1
-SO-IA0441,Sales Conversion Rate,Q1 2134,32.3,1,1
-SO-IA0442,Gross Profit Margin,Q2 2134,33.7,2,2
-SO-IA0443,Return on Investment,Q3 2134,34.9,3,3
-SO-IA0444,Employee Turnover Rate,Q4 2134,34.5,3,3
-SO-IA0445,Return on Investment,Q1 2135,34.5,3,3
-SO-IA0446,Customer Lifetime Value,Q2 2135,34.1,3,3
-SO-IA0447,Customer Retention Rate,Q3 2135,34.4,3,3
-SO-IA0448,Net Promoter Score,Q4 2135,35.8,4,4
-SO-IA0449,Gross Profit Margin,Q1 2136,35.6,4,4
-SO-IA0450,Employee Turnover Rate,Q2 2136,35.4,4,4
-SO-IA0451,Sales Conversion Rate,Q3 2136,34.2,3,3
-SO-IA0452,Net Promoter Score,Q4 2136,34.0,2,2
-SO-IA0453,Monthly Recurring Revenue,Q1 2137,32.1,1,1
-SO-IA0454,Customer Acquisition Cost,Q2 2137,35.3,4,4
-SO-IA0455,Gross Profit Margin,Q3 2137,32.9,1,1
-SO-IA0456,Monthly Recurring Revenue,Q4 2137,34.0,3,3
-SO-IA0457,Sales Conversion Rate,Q1 2138,33.6,2,2
-SO-IA0458,Net Promoter Score,Q2 2138,36.4,5,5
-SO-IA0459,Sales Conversion Rate,Q3 2138,36.4,5,5
-SO-IA0460,Customer Acquisition Cost,Q4 2138,34.5,3,3
-SO-IA0461,Monthly Recurring Revenue,Q1 2139,35.8,4,4
-SO-IA0462,Customer Retention Rate,Q2 2139,35.4,4,4
-SO-IA0463,Customer Acquisition Cost,Q3 2139,36.9,5,5
-SO-IA0464,Net Promoter Score,Q4 2139,34.4,3,3
-SO-IA0465,Customer Acquisition Cost,Q1 2140,33.1,2,2
-SO-IA0466,Return on Investment,Q2 2140,36.9,5,5
-SO-IA0467,Customer Acquisition Cost,Q3 2140,33.8,2,2
-SO-IA0468,Customer Lifetime Value,Q4 2140,33.8,2,2
-SO-IA0469,Monthly Recurring Revenue,Q1 2141,36.6,5,5
-SO-IA0470,Return on Investment,Q2 2141,36.1,5,5
-SO-IA0471,Sales Conversion Rate,Q3 2141,36.1,5,5
-SO-IA0472,Average Order Value,Q4 2141,36.5,5,5
-SO-IA0473,Average Order Value,Q1 2142,36.6,5,5
-SO-IA0474,Employee Turnover Rate,Q2 2142,35.7,4,4
-SO-IA0475,Customer Acquisition Cost,Q3 2142,34.4,3,3
-SO-IA0476,Gross Profit Margin,Q4 2142,34.8,3,3
-SO-IA0477,Monthly Recurring Revenue,Q1 2143,35.9,4,4
-SO-IA0478,Net Promoter Score,Q2 2143,36.4,5,5
-SO-IA0479,Return on Investment,Q3 2143,34.8,3,3
-SO-IA0480,Sales Conversion Rate,Q4 2143,35.5,4,4
-SO-IA0481,Net Promoter Score,Q1 2144,36.5,5,5
-SO-IA0482,Customer Lifetime Value,Q2 2144,36.8,5,5
-SO-IA0483,Gross Profit Margin,Q3 2144,35.5,4,4
-SO-IA0484,Employee Turnover Rate,Q4 2144,36.6,5,5
-SO-IA0485,Gross Profit Margin,Q1 2145,36.3,5,5
-SO-IA0486,Customer Acquisition Cost,Q2 2145,33.5,2,2
-SO-IA0487,Gross Profit Margin,Q3 2145,36.5,5,5
-SO-IA0488,Return on Investment,Q4 2145,34.1,3,3
-SO-IA0489,Gross Profit Margin,Q1 2146,35.6,4,4
-SO-IA0490,Employee Turnover Rate,Q2 2146,35.1,4,4
-SO-IA0491,Net Promoter Score,Q3 2146,35.1,4,4
-SO-IA0492,Net Promoter Score,Q4 2146,33.5,2,2
-SO-IA0493,Customer Lifetime Value,Q1 2147,33.0,2,2
-SO-IA0494,Average Order Value,Q2 2147,35.3,4,4
-SO-IA0495,Return on Investment,Q3 2147,32.3,1,1
-SO-IA0496,Return on Investment,Q4 2147,36.8,5,5
-SO-IA0497,Customer Acquisition Cost,Q1 2148,34.8,3,3
-SO-IA0498,Net Promoter Score,Q2 2148,32.2,1,1
-SO-IA0499,Sales Conversion Rate,Q3 2148,36.3,5,5
-SO-IA0500,Sales Conversion Rate,Q4 2148,33.3,2,2
-SO-IA0501,Employee Turnover Rate,Q1 2149,35.5,4,4
-SO-IA0502,Average Order Value,Q2 2149,36.6,5,5
-SO-IA0503,Customer Lifetime Value,Q3 2149,36.8,5,5
-SO-IA0504,Average Order Value,Q4 2149,35.7,4,4
-SO-IA0505,Customer Retention Rate,Q1 2150,33.2,2,2
-SO-IA0506,Gross Profit Margin,Q2 2150,33.7,2,2
-SO-IA0507,Net Promoter Score,Q3 2150,36.0,4,4
-SO-IA0508,Employee Turnover Rate,Q4 2150,36.6,5,5
-SO-IA0509,Sales Conversion Rate,Q1 2151,32.6,1,1
-SO-IA0510,Return on Investment,Q2 2151,34.7,3,3
-SO-IA0511,Monthly Recurring Revenue,Q3 2151,35.2,4,4
-SO-IA0512,Customer Acquisition Cost,Q4 2151,32.5,1,1
-SO-IA0513,Gross Profit Margin,Q1 2152,33.2,2,2
-SO-IA0514,Customer Retention Rate,Q2 2152,34.9,3,3
-SO-IA0515,Monthly Recurring Revenue,Q3 2152,36.2,5,5
-SO-IA0516,Return on Investment,Q4 2152,35.4,4,4
-SO-IA0517,Average Order Value,Q1 2153,36.7,5,5
-SO-IA0518,Customer Retention Rate,Q2 2153,34.7,3,3
-SO-IA0519,Gross Profit Margin,Q3 2153,34.6,3,3
-SO-IA0520,Net Promoter Score,Q4 2153,33.8,2,2
-SO-IA0521,Customer Lifetime Value,Q1 2154,34.8,3,3
-SO-IA0522,Sales Conversion Rate,Q2 2154,32.9,1,1
-SO-IA0523,Average Order Value,Q3 2154,36.1,5,5
-SO-IA0524,Return on Investment,Q4 2154,32.7,1,1
-SO-IA0525,Customer Retention Rate,Q1 2155,34.8,3,3
-SO-IA0526,Customer Lifetime Value,Q2 2155,34.5,3,3
-SO-IA0527,Customer Lifetime Value,Q3 2155,33.1,2,2
-SO-IA0528,Sales Conversion Rate,Q4 2155,32.5,1,1
-SO-IA0529,Average Order Value,Q1 2156,33.3,2,2
-SO-IA0530,Monthly Recurring Revenue,Q2 2156,35.8,4,4
-SO-IA0531,Gross Profit Margin,Q3 2156,35.1,4,4
-SO-IA0532,Sales Conversion Rate,Q4 2156,35.1,4,4
-SO-IA0533,Customer Lifetime Value,Q1 2157,32.5,1,1
-SO-IA0534,Sales Conversion Rate,Q2 2157,34.1,3,3
-SO-IA0535,Customer Lifetime Value,Q3 2157,34.1,3,3
-SO-IA0536,Gross Profit Margin,Q4 2157,34.1,3,3
-SO-IA0537,Return on Investment,Q1 2158,36.1,5,5
-SO-IA0538,Return on Investment,Q2 2158,35.7,4,4
-SO-IA0539,Net Promoter Score,Q3 2158,34.6,3,3
-SO-IA0540,Employee Turnover Rate,Q4 2158,35.2,4,4
-SO-IA0541,Customer Acquisition Cost,Q1 2159,36.9,5,5
-SO-IA0542,Monthly Recurring Revenue,Q2 2159,34.1,3,3
-SO-IA0543,Gross Profit Margin,Q3 2159,36.5,5,5
-SO-IA0544,Employee Turnover Rate,Q4 2159,33.6,2,2
-SO-IA0545,Customer Retention Rate,Q1 2160,33.3,2,2
-SO-IA0546,Employee Turnover Rate,Q2 2160,34.4,3,3
-SO-IA0547,Monthly Recurring Revenue,Q3 2160,33.8,2,2
-SO-IA0548,Customer Acquisition Cost,Q4 2160,33.4,2,2
-SO-IA0549,Customer Acquisition Cost,Q1 2161,33.2,2,2
-SO-IA0550,Gross Profit Margin,Q2 2161,35.1,4,4
-SO-IA0551,Gross Profit Margin,Q3 2161,34.4,3,3
-SO-IA0552,Employee Turnover Rate,Q4 2161,33.5,2,2
-SO-IA0553,Sales Conversion Rate,Q1 2162,36.6,5,5
-SO-IA0554,Employee Turnover Rate,Q2 2162,35.7,4,4
-SO-IA0555,Gross Profit Margin,Q3 2162,36.2,5,5
-SO-IA0556,Customer Lifetime Value,Q4 2162,36.5,5,5
-SO-IA0557,Customer Acquisition Cost,Q1 2163,36.4,5,5
-SO-IA0558,Monthly Recurring Revenue,Q2 2163,34.5,3,3
-SO-IA0559,Sales Conversion Rate,Q3 2163,36.3,5,5
-SO-IA0560,Monthly Recurring Revenue,Q4 2163,33.5,2,2
-SO-IA0561,Customer Acquisition Cost,Q1 2164,35.9,4,4
-SO-IA0562,Customer Retention Rate,Q2 2164,34.6,3,3
-SO-IA0563,Return on Investment,Q3 2164,34.1,3,3
-SO-IA0564,Customer Acquisition Cost,Q4 2164,32.1,1,1
-SO-IA0565,Customer Lifetime Value,Q1 2165,32.0,1,1
-SO-IA0566,Average Order Value,Q2 2165,36.1,5,5
-SO-IA0567,Sales Conversion Rate,Q3 2165,34.8,3,3
-SO-IA0568,Sales Conversion Rate,Q4 2165,36.8,5,5
-SO-IA0569,Average Order Value,Q1 2166,36.3,5,5
-SO-IA0570,Monthly Recurring Revenue,Q2 2166,35.8,4,4
-SO-IA0571,Net Promoter Score,Q3 2166,35.2,4,4
-SO-IA0572,Monthly Recurring Revenue,Q4 2166,33.3,2,2
-SO-IA0573,Net Promoter Score,Q1 2167,33.8,2,2
-SO-IA0574,Monthly Recurring Revenue,Q2 2167,35.1,4,4
-SO-IA0575,Customer Lifetime Value,Q3 2167,36.9,5,5
-SO-IA0576,Employee Turnover Rate,Q4 2167,32.4,1,1
-SO-IA0577,Sales Conversion Rate,Q1 2168,34.8,3,3
-SO-IA0578,Gross Profit Margin,Q2 2168,34.9,3,3
-SO-IA0579,Employee Turnover Rate,Q3 2168,32.3,1,1
-SO-IA0580,Net Promoter Score,Q4 2168,33.4,2,2
-SO-IA0581,Customer Acquisition Cost,Q1 2169,35.5,4,4
-SO-IA0582,Customer Retention Rate,Q2 2169,32.8,1,1
-SO-IA0583,Customer Acquisition Cost,Q3 2169,36.7,5,5
-SO-IA0584,Return on Investment,Q4 2169,32.3,1,1
-SO-IA0585,Customer Retention Rate,Q1 2170,33.9,2,2
-SO-IA0586,Customer Retention Rate,Q2 2170,35.6,4,4
-SO-IA0587,Monthly Recurring Revenue,Q3 2170,35.4,4,4
-SO-IA0588,Return on Investment,Q4 2170,35.8,4,4
-SO-IA0589,Net Promoter Score,Q1 2171,36.6,5,5
-SO-IA0590,Customer Retention Rate,Q2 2171,35.7,4,4
-SO-IA0591,Customer Retention Rate,Q3 2171,36.3,5,5
-SO-IA0592,Customer Acquisition Cost,Q4 2171,32.6,1,1
-SO-IA0593,Customer Acquisition Cost,Q1 2172,34.0,3,3
-SO-IA0594,Sales Conversion Rate,Q2 2172,35.2,4,4
-SO-IA0595,Customer Retention Rate,Q3 2172,36.7,5,5
-SO-IA0596,Sales Conversion Rate,Q4 2172,33.4,2,2
-SO-IA0597,Net Promoter Score,Q1 2173,32.0,1,1
-SO-IA0598,Customer Lifetime Value,Q2 2173,34.7,3,3
-SO-IA0599,Net Promoter Score,Q3 2173,33.3,2,2
-SO-IA0600,Monthly Recurring Revenue,Q4 2173,32.2,1,1
-SO-IA0601,Monthly Recurring Revenue,Q1 2174,32.9,1,1
-SO-IA0602,Average Order Value,Q2 2174,33.0,2,2
-SO-IA0603,Gross Profit Margin,Q3 2174,34.5,3,3
-SO-IA0604,Sales Conversion Rate,Q4 2174,36.8,5,5
-SO-IA0605,Customer Lifetime Value,Q1 2175,32.8,1,1
-SO-IA0606,Gross Profit Margin,Q2 2175,33.2,2,2
-SO-IA0607,Net Promoter Score,Q3 2175,36.2,5,5
-SO-IA0608,Customer Retention Rate,Q4 2175,34.8,3,3
-SO-IA0609,Return on Investment,Q1 2176,32.6,1,1
-SO-IA0610,Net Promoter Score,Q2 2176,33.0,1,1
-SO-IA0611,Net Promoter Score,Q3 2176,34.0,2,2
-SO-IA0612,Monthly Recurring Revenue,Q4 2176,33.1,2,2
-SO-IA0613,Sales Conversion Rate,Q1 2177,35.5,4,4
-SO-IA0614,Customer Acquisition Cost,Q2 2177,36.4,5,5
-SO-IA0615,Net Promoter Score,Q3 2177,35.0,3,3
-SO-IA0616,Return on Investment,Q4 2177,35.4,4,4
-SO-IA0617,Employee Turnover Rate,Q1 2178,34.4,3,3
-SO-IA0618,Customer Acquisition Cost,Q2 2178,35.9,4,4
-SO-IA0619,Customer Lifetime Value,Q3 2178,33.9,2,2
-SO-IA0620,Employee Turnover Rate,Q4 2178,35.1,4,4
-SO-IA0621,Sales Conversion Rate,Q1 2179,35.4,4,4
-SO-IA0622,Gross Profit Margin,Q2 2179,33.3,2,2
-SO-IA0623,Gross Profit Margin,Q3 2179,33.5,2,2
-SO-IA0624,Net Promoter Score,Q4 2179,33.9,2,2
-SO-IA0625,Monthly Recurring Revenue,Q1 2180,35.1,4,4
-SO-IA0626,Customer Lifetime Value,Q2 2180,36.2,5,5
-SO-IA0627,Average Order Value,Q3 2180,33.7,2,2
-SO-IA0628,Net Promoter Score,Q4 2180,33.8,2,2
-SO-IA0629,Return on Investment,Q1 2181,36.9,5,5
-SO-IA0630,Return on Investment,Q2 2181,36.1,5,5
-SO-IA0631,Employee Turnover Rate,Q3 2181,32.4,1,1
-SO-IA0632,Average Order Value,Q4 2181,36.0,5,5
-SO-IA0633,Return on Investment,Q1 2182,32.0,1,1
-SO-IA0634,Customer Acquisition Cost,Q2 2182,36.4,5,5
-SO-IA0635,Customer Acquisition Cost,Q3 2182,33.3,2,2
-SO-IA0636,Average Order Value,Q4 2182,33.4,2,2
-SO-IA0637,Gross Profit Margin,Q1 2183,36.4,5,5
-SO-IA0638,Customer Lifetime Value,Q2 2183,36.3,5,5
-SO-IA0639,Net Promoter Score,Q3 2183,36.0,5,5
-SO-IA0640,Monthly Recurring Revenue,Q4 2183,35.3,4,4
-SO-IA0641,Employee Turnover Rate,Q1 2184,32.8,1,1
-SO-IA0642,Customer Lifetime Value,Q2 2184,35.3,4,4
-SO-IA0643,Net Promoter Score,Q3 2184,32.6,1,1
-SO-IA0644,Average Order Value,Q4 2184,34.9,3,3
-SO-IA0645,Gross Profit Margin,Q1 2185,36.1,5,5
-SO-IA0646,Customer Acquisition Cost,Q2 2185,34.3,3,3
-SO-IA0647,Return on Investment,Q3 2185,36.0,5,5
-SO-IA0648,Return on Investment,Q4 2185,34.1,3,3
-SO-IA0649,Sales Conversion Rate,Q1 2186,34.6,3,3
-SO-IA0650,Customer Retention Rate,Q2 2186,36.7,5,5
-SO-IA0651,Customer Lifetime Value,Q3 2186,35.4,4,4
-SO-IA0652,Sales Conversion Rate,Q4 2186,36.0,4,4
-SO-IA0653,Employee Turnover Rate,Q1 2187,32.6,1,1
-SO-IA0654,Return on Investment,Q2 2187,34.4,3,3
-SO-IA0655,Return on Investment,Q3 2187,35.9,4,4
-SO-IA0656,Net Promoter Score,Q4 2187,35.6,4,4
-SO-IA0657,Customer Retention Rate,Q1 2188,32.1,1,1
-SO-IA0658,Employee Turnover Rate,Q2 2188,32.1,1,1
-SO-IA0659,Customer Retention Rate,Q3 2188,36.6,5,5
-SO-IA0660,Net Promoter Score,Q4 2188,35.4,4,4
-SO-IA0661,Customer Lifetime Value,Q1 2189,36.7,5,5
-SO-IA0662,Sales Conversion Rate,Q2 2189,34.8,3,3
-SO-IA0663,Customer Lifetime Value,Q3 2189,33.4,2,2
-SO-IA0664,Customer Lifetime Value,Q4 2189,36.6,5,5
-SO-IA0665,Employee Turnover Rate,Q1 2190,35.7,4,4
-SO-IA0666,Employee Turnover Rate,Q2 2190,36.6,5,5
-SO-IA0667,Gross Profit Margin,Q3 2190,35.6,4,4
-SO-IA0668,Customer Retention Rate,Q4 2190,36.0,4,4
-SO-IA0669,Gross Profit Margin,Q1 2191,34.7,3,3
-SO-IA0670,Gross Profit Margin,Q2 2191,36.9,5,5
-SO-IA0671,Net Promoter Score,Q3 2191,36.3,5,5
-SO-IA0672,Monthly Recurring Revenue,Q4 2191,35.1,4,4
-SO-IA0673,Gross Profit Margin,Q1 2192,36.9,5,5
-SO-IA0674,Employee Turnover Rate,Q2 2192,33.0,1,1
-SO-IA0675,Net Promoter Score,Q3 2192,32.5,1,1
-SO-IA0676,Customer Acquisition Cost,Q4 2192,33.4,2,2
-SO-IA0677,Customer Retention Rate,Q1 2193,35.9,4,4
-SO-IA0678,Return on Investment,Q2 2193,35.3,4,4
-SO-IA0679,Net Promoter Score,Q3 2193,36.7,5,5
-SO-IA0680,Monthly Recurring Revenue,Q4 2193,36.4,5,5
-SO-IA0681,Sales Conversion Rate,Q1 2194,35.0,3,3
-SO-IA0682,Average Order Value,Q2 2194,32.4,1,1
-SO-IA0683,Customer Lifetime Value,Q3 2194,36.7,5,5
-SO-IA0684,Customer Retention Rate,Q4 2194,36.7,5,5
-SO-IA0685,Customer Retention Rate,Q1 2195,33.7,2,2
-SO-IA0686,Monthly Recurring Revenue,Q2 2195,36.9,5,5
-SO-IA0687,Return on Investment,Q3 2195,36.2,5,5
-SO-IA0688,Average Order Value,Q4 2195,33.3,2,2
-SO-IA0689,Average Order Value,Q1 2196,34.0,3,3
-SO-IA0690,Return on Investment,Q2 2196,33.2,2,2
-SO-IA0691,Customer Acquisition Cost,Q3 2196,32.4,1,1
-SO-IA0692,Employee Turnover Rate,Q4 2196,34.8,3,3
-SO-IA0693,Customer Acquisition Cost,Q1 2197,32.5,1,1
-SO-IA0694,Net Promoter Score,Q2 2197,35.7,4,4
-SO-IA0695,Sales Conversion Rate,Q3 2197,34.4,3,3
-SO-IA0696,Net Promoter Score,Q4 2197,36.1,5,5
-SO-IA0697,Customer Retention Rate,Q1 2198,32.8,1,1
-SO-IA0698,Net Promoter Score,Q2 2198,33.5,2,2
-SO-IA0699,Customer Acquisition Cost,Q3 2198,33.5,2,2
-SO-IA0700,Net Promoter Score,Q4 2198,33.4,2,2
-SO-IA0701,Sales Conversion Rate,Q1 2199,36.0,5,5
-SO-IA0702,Net Promoter Score,Q2 2199,36.6,5,5
-SO-IA0703,Customer Lifetime Value,Q3 2199,33.2,2,2
-SO-IA0704,Gross Profit Margin,Q4 2199,36.7,5,5
-SO-IA0705,Sales Conversion Rate,Q1 2200,32.9,1,1
-SO-IA0706,Customer Lifetime Value,Q2 2200,36.8,5,5
-SO-IA0707,Net Promoter Score,Q3 2200,33.6,2,2
-SO-IA0708,Monthly Recurring Revenue,Q4 2200,33.6,2,2
-SO-IA0709,Return on Investment,Q1 2201,35.3,4,4
-SO-IA0710,Average Order Value,Q2 2201,35.8,4,4
-SO-IA0711,Customer Lifetime Value,Q3 2201,32.4,1,1
-SO-IA0712,Return on Investment,Q4 2201,34.4,3,3
-SO-IA0713,Customer Acquisition Cost,Q1 2202,35.9,4,4
-SO-IA0714,Return on Investment,Q2 2202,34.5,3,3
-SO-IA0715,Average Order Value,Q3 2202,33.0,1,1
-SO-IA0716,Net Promoter Score,Q4 2202,33.4,2,2
-SO-IA0717,Employee Turnover Rate,Q1 2203,35.6,4,4
-SO-IA0718,Customer Acquisition Cost,Q2 2203,33.7,2,2
-SO-IA0719,Return on Investment,Q3 2203,34.8,3,3
-SO-IA0720,Customer Acquisition Cost,Q4 2203,34.9,3,3
-SO-IA0721,Net Promoter Score,Q1 2204,32.4,1,1
-SO-IA0722,Customer Retention Rate,Q2 2204,36.5,5,5
-SO-IA0723,Monthly Recurring Revenue,Q3 2204,34.8,3,3
-SO-IA0724,Gross Profit Margin,Q4 2204,32.3,1,1
-SO-IA0725,Net Promoter Score,Q1 2205,33.6,2,2
-SO-IA0726,Net Promoter Score,Q2 2205,36.2,5,5
-SO-IA0727,Customer Retention Rate,Q3 2205,34.0,3,3
-SO-IA0728,Average Order Value,Q4 2205,33.2,2,2
-SO-IA0729,Customer Lifetime Value,Q1 2206,36.0,5,5
-SO-IA0730,Net Promoter Score,Q2 2206,35.4,4,4
-SO-IA0731,Sales Conversion Rate,Q3 2206,33.6,2,2
-SO-IA0732,Return on Investment,Q4 2206,36.9,5,5
-SO-IA0733,Customer Lifetime Value,Q1 2207,34.3,3,3
-SO-IA0734,Average Order Value,Q2 2207,36.5,5,5
-SO-IA0735,Sales Conversion Rate,Q3 2207,32.8,1,1
-SO-IA0736,Customer Lifetime Value,Q4 2207,33.8,2,2
-SO-IA0737,Gross Profit Margin,Q1 2208,32.6,1,1
-SO-IA0738,Customer Retention Rate,Q2 2208,34.4,3,3
-SO-IA0739,Sales Conversion Rate,Q3 2208,33.7,2,2
-SO-IA0740,Employee Turnover Rate,Q4 2208,34.5,3,3
-SO-IA0741,Monthly Recurring Revenue,Q1 2209,34.1,3,3
-SO-IA0742,Net Promoter Score,Q2 2209,32.9,1,1
-SO-IA0743,Average Order Value,Q3 2209,35.7,4,4
-SO-IA0744,Sales Conversion Rate,Q4 2209,37.0,5,5
-SO-IA0745,Gross Profit Margin,Q1 2210,35.4,4,4
-SO-IA0746,Customer Acquisition Cost,Q2 2210,36.8,5,5
-SO-IA0747,Customer Lifetime Value,Q3 2210,35.6,4,4
-SO-IA0748,Employee Turnover Rate,Q4 2210,36.7,5,5
-SO-IA0749,Gross Profit Margin,Q1 2211,34.9,3,3
-SO-IA0750,Customer Retention Rate,Q2 2211,34.6,3,3
-SO-IA0751,Average Order Value,Q3 2211,35.0,4,4
-SO-IA0752,Return on Investment,Q4 2211,36.9,5,5
-SO-IA0753,Monthly Recurring Revenue,Q1 2212,33.8,2,2
-SO-IA0754,Employee Turnover Rate,Q2 2212,33.4,2,2
-SO-IA0755,Customer Acquisition Cost,Q3 2212,36.3,5,5
-SO-IA0756,Return on Investment,Q4 2212,36.4,5,5
-SO-IA0757,Customer Lifetime Value,Q1 2213,34.8,3,3
-SO-IA0758,Customer Acquisition Cost,Q2 2213,35.3,4,4
-SO-IA0759,Employee Turnover Rate,Q3 2213,35.7,4,4
-SO-IA0760,Monthly Recurring Revenue,Q4 2213,32.2,1,1
-SO-IA0761,Monthly Recurring Revenue,Q1 2214,34.7,3,3
-SO-IA0762,Average Order Value,Q2 2214,34.0,3,3
-SO-IA0763,Customer Retention Rate,Q3 2214,35.0,3,3
-SO-IA0764,Customer Lifetime Value,Q4 2214,32.8,1,1
-SO-IA0765,Net Promoter Score,Q1 2215,32.2,1,1
-SO-IA0766,Customer Acquisition Cost,Q2 2215,33.8,2,2
-SO-IA0767,Monthly Recurring Revenue,Q3 2215,36.8,5,5
-SO-IA0768,Net Promoter Score,Q4 2215,33.5,2,2
-SO-IA0769,Employee Turnover Rate,Q1 2216,35.0,4,4
-SO-IA0770,Monthly Recurring Revenue,Q2 2216,33.2,2,2
-SO-IA0771,Sales Conversion Rate,Q3 2216,36.2,5,5
-SO-IA0772,Employee Turnover Rate,Q4 2216,35.7,4,4
-SO-IA0773,Customer Acquisition Cost,Q1 2217,34.9,3,3
-SO-IA0774,Average Order Value,Q2 2217,33.5,2,2
-SO-IA0775,Average Order Value,Q3 2217,32.8,1,1
-SO-IA0776,Customer Retention Rate,Q4 2217,34.8,3,3
-SO-IA0777,Customer Lifetime Value,Q1 2218,33.0,1,1
-SO-IA0778,Customer Acquisition Cost,Q2 2218,35.8,4,4
-SO-IA0779,Customer Lifetime Value,Q3 2218,34.5,3,3
-SO-IA0780,Net Promoter Score,Q4 2218,35.9,4,4
-SO-IA0781,Return on Investment,Q1 2219,36.4,5,5
-SO-IA0782,Return on Investment,Q2 2219,32.4,1,1
-SO-IA0783,Customer Acquisition Cost,Q3 2219,33.6,2,2
-SO-IA0784,Customer Retention Rate,Q4 2219,36.3,5,5
-SO-IA0785,Sales Conversion Rate,Q1 2220,34.7,3,3
-SO-IA0786,Gross Profit Margin,Q2 2220,33.2,2,2
-SO-IA0787,Sales Conversion Rate,Q3 2220,36.9,5,5
-SO-IA0788,Customer Retention Rate,Q4 2220,35.3,4,4
-SO-IA0789,Customer Retention Rate,Q1 2221,36.6,5,5
-SO-IA0790,Customer Retention Rate,Q2 2221,33.4,2,2
-SO-IA0791,Return on Investment,Q3 2221,34.5,3,3
-SO-IA0792,Return on Investment,Q4 2221,32.9,1,1
-SO-IA0793,Gross Profit Margin,Q1 2222,34.8,3,3
-SO-IA0794,Customer Lifetime Value,Q2 2222,36.4,5,5
-SO-IA0795,Return on Investment,Q3 2222,32.5,1,1
-SO-IA0796,Return on Investment,Q4 2222,36.7,5,5
-SO-IA0797,Monthly Recurring Revenue,Q1 2223,35.5,4,4
-SO-IA0798,Customer Retention Rate,Q2 2223,34.8,3,3
-SO-IA0799,Monthly Recurring Revenue,Q3 2223,33.7,2,2
-SO-IA0800,Customer Lifetime Value,Q4 2223,34.1,3,3
-SO-IA0801,Employee Turnover Rate,Q1 2224,36.2,5,5
-SO-IA0802,Average Order Value,Q2 2224,34.4,3,3
-SO-IA0803,Average Order Value,Q3 2224,33.9,2,2
-SO-IA0804,Employee Turnover Rate,Q4 2224,33.6,2,2
-SO-IA0805,Employee Turnover Rate,Q1 2225,33.2,2,2
-SO-IA0806,Customer Acquisition Cost,Q2 2225,35.9,4,4
-SO-IA0807,Employee Turnover Rate,Q3 2225,34.6,3,3
-SO-IA0808,Average Order Value,Q4 2225,36.2,5,5
-SO-IA0809,Customer Retention Rate,Q1 2226,34.6,3,3
-SO-IA0810,Net Promoter Score,Q2 2226,33.2,2,2
-SO-IA0811,Customer Lifetime Value,Q3 2226,33.4,2,2
-SO-IA0812,Gross Profit Margin,Q4 2226,33.2,2,2
-SO-IA0813,Employee Turnover Rate,Q1 2227,33.7,2,2
-SO-IA0814,Average Order Value,Q2 2227,32.6,1,1
-SO-IA0815,Return on Investment,Q3 2227,32.7,1,1
-SO-IA0816,Average Order Value,Q4 2227,34.8,3,3
-SO-IA0817,Net Promoter Score,Q1 2228,35.8,4,4
-SO-IA0818,Sales Conversion Rate,Q2 2228,33.3,2,2
-SO-IA0819,Return on Investment,Q3 2228,34.0,3,3
-SO-IA0820,Net Promoter Score,Q4 2228,34.6,3,3
-SO-IA0821,Return on Investment,Q1 2229,34.8,3,3
-SO-IA0822,Average Order Value,Q2 2229,34.2,3,3
-SO-IA0823,Customer Lifetime Value,Q3 2229,34.5,3,3
-SO-IA0824,Gross Profit Margin,Q4 2229,32.1,1,1
-SO-IA0825,Sales Conversion Rate,Q1 2230,33.9,2,2
-SO-IA0826,Customer Retention Rate,Q2 2230,32.1,1,1
-SO-IA0827,Customer Lifetime Value,Q3 2230,32.3,1,1
-SO-IA0828,Monthly Recurring Revenue,Q4 2230,33.9,2,2
-SO-IA0829,Sales Conversion Rate,Q1 2231,34.6,3,3
-SO-IA0830,Net Promoter Score,Q2 2231,33.6,2,2
-SO-IA0831,Customer Acquisition Cost,Q3 2231,36.9,5,5
-SO-IA0832,Net Promoter Score,Q4 2231,34.0,3,3
-SO-IA0833,Return on Investment,Q1 2232,35.0,3,3
-SO-IA0834,Average Order Value,Q2 2232,34.2,3,3
-SO-IA0835,Customer Retention Rate,Q3 2232,35.1,4,4
-SO-IA0836,Customer Lifetime Value,Q4 2232,34.9,3,3
-SO-IA0837,Gross Profit Margin,Q1 2233,33.5,2,2
-SO-IA0838,Monthly Recurring Revenue,Q2 2233,35.7,4,4
-SO-IA0839,Employee Turnover Rate,Q3 2233,35.2,4,4
-SO-IA0840,Average Order Value,Q4 2233,33.5,2,2
-SO-IA0841,Net Promoter Score,Q1 2234,34.1,3,3
-SO-IA0842,Customer Lifetime Value,Q2 2234,33.7,2,2
-SO-IA0843,Net Promoter Score,Q3 2234,35.0,4,4
-SO-IA0844,Customer Acquisition Cost,Q4 2234,34.7,3,3
-SO-IA0845,Return on Investment,Q1 2235,35.3,4,4
-SO-IA0846,Average Order Value,Q2 2235,32.2,1,1
-SO-IA0847,Monthly Recurring Revenue,Q3 2235,34.1,3,3
-SO-IA0848,Employee Turnover Rate,Q4 2235,33.1,2,2
-SO-IA0849,Employee Turnover Rate,Q1 2236,34.8,3,3
-SO-IA0850,Customer Acquisition Cost,Q2 2236,35.0,3,3
-SO-IA0851,Net Promoter Score,Q3 2236,33.3,2,2
-SO-IA0852,Employee Turnover Rate,Q4 2236,35.6,4,4
-SO-IA0853,Return on Investment,Q1 2237,32.9,1,1
-SO-IA0854,Customer Retention Rate,Q2 2237,36.4,5,5
-SO-IA0855,Average Order Value,Q3 2237,32.2,1,1
-SO-IA0856,Customer Retention Rate,Q4 2237,36.5,5,5
-SO-IA0857,Customer Retention Rate,Q1 2238,33.6,2,2
-SO-IA0858,Employee Turnover Rate,Q2 2238,32.4,1,1
-SO-IA0859,Customer Lifetime Value,Q3 2238,33.0,2,2
-SO-IA0860,Sales Conversion Rate,Q4 2238,35.7,4,4
-SO-IA0861,Customer Lifetime Value,Q1 2239,35.6,4,4
-SO-IA0862,Average Order Value,Q2 2239,33.1,2,2
-SO-IA0863,Sales Conversion Rate,Q3 2239,33.5,2,2
-SO-IA0864,Return on Investment,Q4 2239,33.0,1,1
-SO-IA0865,Gross Profit Margin,Q1 2240,35.6,4,4
-SO-IA0866,Monthly Recurring Revenue,Q2 2240,34.9,3,3
-SO-IA0867,Customer Lifetime Value,Q3 2240,34.8,3,3
-SO-IA0868,Employee Turnover Rate,Q4 2240,35.8,4,4
-SO-IA0869,Sales Conversion Rate,Q1 2241,36.4,5,5
-SO-IA0870,Gross Profit Margin,Q2 2241,34.8,3,3
-SO-IA0871,Average Order Value,Q3 2241,36.2,5,5
-SO-IA0872,Customer Retention Rate,Q4 2241,32.1,1,1
-SO-IA0873,Customer Acquisition Cost,Q1 2242,35.3,4,4
-SO-IA0874,Customer Acquisition Cost,Q2 2242,35.5,4,4
-SO-IA0875,Gross Profit Margin,Q3 2242,33.4,2,2
-SO-IA0876,Monthly Recurring Revenue,Q4 2242,32.6,1,1
-SO-IA0877,Employee Turnover Rate,Q1 2243,32.5,1,1
-SO-IA0878,Customer Retention Rate,Q2 2243,36.5,5,5
-SO-IA0879,Net Promoter Score,Q3 2243,32.8,1,1
-SO-IA0880,Monthly Recurring Revenue,Q4 2243,32.4,1,1
-SO-IA0881,Return on Investment,Q1 2244,33.3,2,2
-SO-IA0882,Customer Retention Rate,Q2 2244,36.2,5,5
-SO-IA0883,Monthly Recurring Revenue,Q3 2244,36.0,5,5
-SO-IA0884,Return on Investment,Q4 2244,35.8,4,4
-SO-IA0885,Customer Acquisition Cost,Q1 2245,34.8,3,3
-SO-IA0886,Average Order Value,Q2 2245,33.5,2,2
-SO-IA0887,Gross Profit Margin,Q3 2245,36.9,5,5
-SO-IA0888,Employee Turnover Rate,Q4 2245,36.4,5,5
-SO-IA0889,Average Order Value,Q1 2246,32.7,1,1
-SO-IA0890,Customer Retention Rate,Q2 2246,36.0,4,4
-SO-IA0891,Employee Turnover Rate,Q3 2246,33.7,2,2
-SO-IA0892,Average Order Value,Q4 2246,32.5,1,1
-SO-IA0893,Average Order Value,Q1 2247,34.7,3,3
-SO-IA0894,Monthly Recurring Revenue,Q2 2247,36.4,5,5
-SO-IA0895,Sales Conversion Rate,Q3 2247,34.5,3,3
-SO-IA0896,Gross Profit Margin,Q4 2247,32.9,1,1
-SO-IA0897,Average Order Value,Q1 2248,35.8,4,4
-SO-IA0898,Gross Profit Margin,Q2 2248,33.4,2,2
-SO-IA0899,Average Order Value,Q3 2248,32.8,1,1
-SO-IA0900,Sales Conversion Rate,Q4 2248,32.5,1,1
-SO-IA0901,Customer Retention Rate,Q1 2249,32.8,1,1
-SO-IA0902,Sales Conversion Rate,Q2 2249,35.5,4,4
-SO-IA0903,Employee Turnover Rate,Q3 2249,32.3,1,1
-SO-IA0904,Customer Lifetime Value,Q4 2249,34.7,3,3
-SO-IA0905,Employee Turnover Rate,Q1 2250,36.6,5,5
-SO-IA0906,Customer Retention Rate,Q2 2250,35.3,4,4
-SO-IA0907,Return on Investment,Q3 2250,32.0,1,1
-SO-IA0908,Customer Lifetime Value,Q4 2250,33.9,2,2
-SO-IA0909,Customer Retention Rate,Q1 2251,33.2,2,2
-SO-IA0910,Monthly Recurring Revenue,Q2 2251,35.7,4,4
-SO-IA0911,Sales Conversion Rate,Q3 2251,34.0,3,3
-SO-IA0912,Customer Lifetime Value,Q4 2251,32.5,1,1
-SO-IA0913,Return on Investment,Q1 2252,35.3,4,4
-SO-IA0914,Sales Conversion Rate,Q2 2252,36.4,5,5
-SO-IA0915,Customer Acquisition Cost,Q3 2252,35.0,3,3
-SO-IA0916,Average Order Value,Q4 2252,32.8,1,1
-SO-IA0917,Net Promoter Score,Q1 2253,32.7,1,1
-SO-IA0918,Return on Investment,Q2 2253,35.8,4,4
-SO-IA0919,Sales Conversion Rate,Q3 2253,32.3,1,1
-SO-IA0920,Net Promoter Score,Q4 2253,34.9,3,3
-SO-IA0921,Sales Conversion Rate,Q1 2254,32.5,1,1
-SO-IA0922,Customer Acquisition Cost,Q2 2254,36.0,5,5
-SO-IA0923,Return on Investment,Q3 2254,35.3,4,4
-SO-IA0924,Gross Profit Margin,Q4 2254,33.5,2,2
-SO-IA0925,Net Promoter Score,Q1 2255,32.9,1,1
-SO-IA0926,Customer Retention Rate,Q2 2255,35.1,4,4
-SO-IA0927,Sales Conversion Rate,Q3 2255,34.8,3,3
-SO-IA0928,Customer Acquisition Cost,Q4 2255,36.5,5,5
-SO-IA0929,Return on Investment,Q1 2256,32.6,1,1
-SO-IA0930,Average Order Value,Q2 2256,35.0,3,3
-SO-IA0931,Net Promoter Score,Q3 2256,32.4,1,1
-SO-IA0932,Customer Lifetime Value,Q4 2256,35.2,4,4
-SO-IA0933,Monthly Recurring Revenue,Q1 2257,34.2,3,3
-SO-IA0934,Average Order Value,Q2 2257,32.4,1,1
-SO-IA0935,Customer Acquisition Cost,Q3 2257,32.9,1,1
-SO-IA0936,Customer Retention Rate,Q4 2257,32.6,1,1
-SO-IA0937,Average Order Value,Q1 2258,36.6,5,5
-SO-IA0938,Customer Retention Rate,Q2 2258,34.8,3,3
-SO-IA0939,Monthly Recurring Revenue,Q3 2258,32.4,1,1
-SO-IA0940,Net Promoter Score,Q4 2258,35.6,4,4
-SO-IA0941,Customer Retention Rate,Q1 2259,35.5,4,4
-SO-IA0942,Sales Conversion Rate,Q2 2259,33.5,2,2
-SO-IA0943,Customer Retention Rate,Q3 2259,33.9,2,2
-SO-IA0944,Customer Acquisition Cost,Q4 2259,32.3,1,1
-SO-IA0945,Customer Lifetime Value,Q1 2260,36.3,5,5
-SO-IA0946,Customer Acquisition Cost,Q2 2260,33.6,2,2
-SO-IA0947,Employee Turnover Rate,Q3 2260,36.4,5,5
-SO-IA0948,Net Promoter Score,Q4 2260,36.9,5,5
-SO-IA0949,Customer Retention Rate,Q1 2261,33.4,2,2
-SO-IA0950,Customer Lifetime Value,Q2 2261,32.7,1,1
-SO-IA0951,Gross Profit Margin,Q3 2261,34.5,3,3
-SO-IA0952,Average Order Value,Q4 2261,33.8,2,2
-SO-IA0953,Monthly Recurring Revenue,Q1 2262,35.6,4,4
-SO-IA0954,Return on Investment,Q2 2262,33.0,2,2
-SO-IA0955,Monthly Recurring Revenue,Q3 2262,32.9,1,1
-SO-IA0956,Sales Conversion Rate,Q4 2262,36.3,5,5
-SO-IA0957,Customer Lifetime Value,Q1 2263,32.2,1,1
-SO-IA0958,Customer Acquisition Cost,Q2 2263,33.4,2,2
-SO-IA0959,Customer Retention Rate,Q3 2263,32.0,1,1
-SO-IA0960,Gross Profit Margin,Q4 2263,34.1,3,3
-SO-IA0961,Return on Investment,Q1 2264,35.1,4,4
-SO-IA0962,Customer Lifetime Value,Q2 2264,35.8,4,4
-SO-IA0963,Customer Lifetime Value,Q3 2264,35.2,4,4
-SO-IA0964,Net Promoter Score,Q4 2264,36.7,5,5
-SO-IA0965,Monthly Recurring Revenue,Q1 2265,36.5,5,5
-SO-IA0966,Return on Investment,Q2 2265,35.1,4,4
-SO-IA0967,Employee Turnover Rate,Q3 2265,34.4,3,3
-SO-IA0968,Average Order Value,Q4 2265,35.8,4,4
-SO-IA0969,Net Promoter Score,Q1 2266,34.2,3,3
-SO-IA0970,Net Promoter Score,Q2 2266,36.2,5,5
-SO-IA0971,Gross Profit Margin,Q3 2266,32.3,1,1
-SO-IA0972,Customer Retention Rate,Q4 2266,36.2,5,5
-SO-IA0973,Monthly Recurring Revenue,Q1 2267,32.6,1,1
-SO-IA0974,Customer Retention Rate,Q2 2267,34.3,3,3
-SO-IA0975,Customer Acquisition Cost,Q3 2267,33.0,1,1
-SO-IA0976,Sales Conversion Rate,Q4 2267,32.7,1,1
-SO-IA0977,Sales Conversion Rate,Q1 2268,34.1,3,3
-SO-IA0978,Customer Lifetime Value,Q2 2268,34.0,3,3
-SO-IA0979,Gross Profit Margin,Q3 2268,32.6,1,1
-SO-IA0980,Customer Retention Rate,Q4 2268,35.3,4,4
-SO-IA0981,Net Promoter Score,Q1 2269,35.9,4,4
-SO-IA0982,Customer Lifetime Value,Q2 2269,35.1,4,4
-SO-IA0983,Customer Lifetime Value,Q3 2269,33.2,2,2
-SO-IA0984,Average Order Value,Q4 2269,36.6,5,5
-SO-IA0985,Employee Turnover Rate,Q1 2270,35.8,4,4
-SO-IA0986,Employee Turnover Rate,Q2 2270,32.7,1,1
-SO-IA0987,Return on Investment,Q3 2270,35.5,4,4
-SO-IA0988,Sales Conversion Rate,Q4 2270,35.2,4,4
-SO-IA0989,Sales Conversion Rate,Q1 2271,32.0,1,1
-SO-IA0990,Gross Profit Margin,Q2 2271,36.7,5,5
-SO-IA0991,Customer Acquisition Cost,Q3 2271,34.3,3,3
-SO-IA0992,Customer Acquisition Cost,Q4 2271,35.0,3,3
-SO-IA0993,Net Promoter Score,Q1 2272,32.2,1,1
-SO-IA0994,Customer Retention Rate,Q2 2272,33.5,2,2
-SO-IA0995,Monthly Recurring Revenue,Q3 2272,33.2,2,2
-SO-IA0996,Sales Conversion Rate,Q4 2272,32.4,1,1
-SO-IA0997,Average Order Value,Q1 2273,36.7,5,5
-SO-IA0998,Gross Profit Margin,Q2 2273,34.4,3,3
-SO-IA0999,Gross Profit Margin,Q3 2273,34.5,3,3
-SO-IA01000,Gross Profit Margin,Q4 2273,36.0,5,5
-SO-IA01001,Customer Retention Rate,Q1 2274,33.5,2,2
-SO-IA01002,Return on Investment,Q2 2274,35.2,4,4
-SO-IA01003,Return on Investment,Q3 2274,34.8,3,3
-SO-IA01004,Return on Investment,Q4 2274,35.6,4,4
-SO-IA01005,Net Promoter Score,Q1 2275,35.1,4,4
-SO-IA01006,Gross Profit Margin,Q2 2275,34.3,3,3
-SO-IA01007,Gross Profit Margin,Q3 2275,36.8,5,5
-SO-IA01008,Gross Profit Margin,Q4 2275,36.2,5,5
-SO-IA01009,Return on Investment,Q1 2276,33.2,2,2
-SO-IA01010,Customer Lifetime Value,Q2 2276,32.5,1,1
+KPI-0001,Net Promoter Score,Bulan 01 2015,53.0,1,1
+KPI-0002,Net Promoter Score,Bulan 02 2015,62.8,1,4
+KPI-0003,Net Promoter Score,Bulan 03 2015,65.0,1,5
+KPI-0004,Net Promoter Score,Bulan 04 2015,69.2,1,5
+KPI-0005,Net Promoter Score,Bulan 05 2015,61.1,1,5
+KPI-0006,Net Promoter Score,Bulan 06 2015,58.8,3,5
+KPI-0007,Net Promoter Score,Bulan 07 2015,55.2,2,5
+KPI-0008,Net Promoter Score,Bulan 08 2015,50.2,3,5
+KPI-0009,Net Promoter Score,Bulan 09 2015,40.1,4,5
+KPI-0010,Net Promoter Score,Bulan 10 2015,55.2,2,5
+KPI-0011,Net Promoter Score,Bulan 11 2015,55.4,1,5
+KPI-0012,Net Promoter Score,Bulan 12 2015,47.3,2,5
+KPI-0013,Net Promoter Score,Bulan 01 2016,55.6,2,5
+KPI-0014,Net Promoter Score,Bulan 02 2016,57.5,2,5
+KPI-0015,Net Promoter Score,Bulan 03 2016,60.1,1,5
+KPI-0016,Net Promoter Score,Bulan 04 2016,54.5,2,3
+KPI-0017,Net Promoter Score,Bulan 05 2016,60.4,1,3
+KPI-0018,Net Promoter Score,Bulan 06 2016,63.4,1,3
+KPI-0019,Net Promoter Score,Bulan 07 2016,68.8,1,4
+KPI-0020,Net Promoter Score,Bulan 08 2016,55.6,2,4
+KPI-0021,Net Promoter Score,Bulan 09 2016,51.9,3,5
+KPI-0022,Net Promoter Score,Bulan 10 2016,48.1,3,5
+KPI-0023,Net Promoter Score,Bulan 11 2016,48.6,4,5
+KPI-0024,Net Promoter Score,Bulan 12 2016,58.0,2,5
+KPI-0025,Net Promoter Score,Bulan 01 2017,58.3,1,5
+KPI-0026,Net Promoter Score,Bulan 02 2017,57.5,1,4
+KPI-0027,Net Promoter Score,Bulan 03 2017,58.2,1,5
+KPI-0028,Net Promoter Score,Bulan 04 2017,62.9,1,5
+KPI-0029,Net Promoter Score,Bulan 05 2017,60.3,1,4
+KPI-0030,Net Promoter Score,Bulan 06 2017,60.2,1,2
+KPI-0031,Net Promoter Score,Bulan 07 2017,55.8,2,1
+KPI-0032,Net Promoter Score,Bulan 08 2017,55.1,3,3
+KPI-0033,Net Promoter Score,Bulan 09 2017,45.2,3,5
+KPI-0034,Net Promoter Score,Bulan 10 2017,54.8,1,5
+KPI-0035,Net Promoter Score,Bulan 11 2017,63.3,2,5
+KPI-0036,Net Promoter Score,Bulan 12 2017,58.6,1,4
+KPI-0037,Net Promoter Score,Bulan 01 2018,57.5,2,5
+KPI-0038,Net Promoter Score,Bulan 02 2018,63.9,2,5
+KPI-0039,Net Promoter Score,Bulan 03 2018,57.8,2,5
+KPI-0040,Net Promoter Score,Bulan 04 2018,56.1,1,4
+KPI-0041,Net Promoter Score,Bulan 05 2018,65.7,1,2
+KPI-0042,Net Promoter Score,Bulan 06 2018,57.3,1,4
+KPI-0043,Net Promoter Score,Bulan 07 2018,50.3,3,4
+KPI-0044,Net Promoter Score,Bulan 08 2018,48.9,3,5
+KPI-0045,Net Promoter Score,Bulan 09 2018,45.3,4,5
+KPI-0046,Net Promoter Score,Bulan 10 2018,50.1,2,5
+KPI-0047,Net Promoter Score,Bulan 11 2018,52.9,3,5
+KPI-0048,Net Promoter Score,Bulan 12 2018,56.7,2,4
+KPI-0049,Net Promoter Score,Bulan 01 2019,60.1,1,5
+KPI-0050,Net Promoter Score,Bulan 02 2019,62.8,2,5
+KPI-0051,Net Promoter Score,Bulan 03 2019,60.9,2,5
+KPI-0052,Net Promoter Score,Bulan 04 2019,59.9,1,4
+KPI-0053,Net Promoter Score,Bulan 05 2019,55.0,2,3
+KPI-0054,Net Promoter Score,Bulan 06 2019,64.2,2,4
+KPI-0055,Net Promoter Score,Bulan 07 2019,55.0,2,3
+KPI-0056,Net Promoter Score,Bulan 08 2019,50.6,3,4
+KPI-0057,Net Promoter Score,Bulan 09 2019,55.2,2,4
+KPI-0058,Net Promoter Score,Bulan 10 2019,44.9,3,5
+KPI-0059,Net Promoter Score,Bulan 11 2019,53.6,1,4
+KPI-0060,Net Promoter Score,Bulan 12 2019,53.6,1,5
+KPI-0061,Net Promoter Score,Bulan 01 2020,50.9,2,2
+KPI-0062,Net Promoter Score,Bulan 02 2020,58.6,1,4
+KPI-0063,Net Promoter Score,Bulan 03 2020,65.7,1,5
+KPI-0064,Net Promoter Score,Bulan 04 2020,65.8,1,5
+KPI-0065,Net Promoter Score,Bulan 05 2020,68.0,1,5
+KPI-0066,Net Promoter Score,Bulan 06 2020,60.3,2,5
+KPI-0067,Net Promoter Score,Bulan 07 2020,70.5,1,5
+KPI-0068,Net Promoter Score,Bulan 08 2020,47.8,3,5
+KPI-0069,Net Promoter Score,Bulan 09 2020,47.6,3,5
+KPI-0070,Net Promoter Score,Bulan 10 2020,48.2,3,5
+KPI-0071,Net Promoter Score,Bulan 11 2020,43.0,4,5
+KPI-0072,Net Promoter Score,Bulan 12 2020,56.5,1,5
+KPI-0073,Net Promoter Score,Bulan 01 2021,59.2,1,5
+KPI-0074,Net Promoter Score,Bulan 02 2021,58.5,1,5
+KPI-0075,Net Promoter Score,Bulan 03 2021,58.5,2,5
+KPI-0076,Net Promoter Score,Bulan 04 2021,55.0,2,5
+KPI-0077,Net Promoter Score,Bulan 05 2021,57.3,2,5
+KPI-0078,Net Promoter Score,Bulan 06 2021,61.6,1,2
+KPI-0079,Net Promoter Score,Bulan 07 2021,53.9,1,2
+KPI-0080,Net Promoter Score,Bulan 08 2021,49.5,4,2
+KPI-0081,Net Promoter Score,Bulan 09 2021,51.2,3,3
+KPI-0082,Net Promoter Score,Bulan 10 2021,53.2,1,4
+KPI-0083,Net Promoter Score,Bulan 11 2021,50.0,3,4
+KPI-0084,Net Promoter Score,Bulan 12 2021,52.7,2,4
+KPI-0085,Net Promoter Score,Bulan 01 2022,60.8,1,2
+KPI-0086,Net Promoter Score,Bulan 02 2022,58.8,1,4
+KPI-0087,Net Promoter Score,Bulan 03 2022,59.0,1,4
+KPI-0088,Net Promoter Score,Bulan 04 2022,64.3,1,4
+KPI-0089,Net Promoter Score,Bulan 05 2022,59.2,1,4
+KPI-0090,Net Promoter Score,Bulan 06 2022,56.2,3,3
+KPI-0091,Net Promoter Score,Bulan 07 2022,60.1,2,1
+KPI-0092,Net Promoter Score,Bulan 08 2022,49.7,3,3
+KPI-0093,Net Promoter Score,Bulan 09 2022,36.5,4,5
+KPI-0094,Net Promoter Score,Bulan 10 2022,49.1,3,5
+KPI-0095,Net Promoter Score,Bulan 11 2022,46.6,3,5
+KPI-0096,Net Promoter Score,Bulan 12 2022,49.5,2,5
+KPI-0097,Net Promoter Score,Bulan 01 2023,56.2,1,5
+KPI-0098,Net Promoter Score,Bulan 02 2023,56.7,2,5
+KPI-0099,Net Promoter Score,Bulan 03 2023,60.9,1,5
+KPI-0100,Net Promoter Score,Bulan 04 2023,51.7,3,3
+KPI-0101,Net Promoter Score,Bulan 05 2023,55.6,1,3
+KPI-0102,Net Promoter Score,Bulan 06 2023,63.7,1,5
+KPI-0103,Net Promoter Score,Bulan 07 2023,53.8,1,5
+KPI-0104,Net Promoter Score,Bulan 08 2023,43.0,3,4
+KPI-0105,Net Promoter Score,Bulan 09 2023,43.2,3,5
+KPI-0106,Net Promoter Score,Bulan 10 2023,42.6,4,5
+KPI-0107,Net Promoter Score,Bulan 11 2023,48.4,3,5
+KPI-0108,Net Promoter Score,Bulan 12 2023,48.4,2,5
+KPI-0109,Net Promoter Score,Bulan 01 2024,50.7,3,5
+KPI-0110,Net Promoter Score,Bulan 02 2024,57.0,1,4
+KPI-0111,Net Promoter Score,Bulan 03 2024,61.6,2,5
+KPI-0112,Net Promoter Score,Bulan 04 2024,59.1,2,5
+KPI-0113,Net Promoter Score,Bulan 05 2024,56.8,1,4
+KPI-0114,Net Promoter Score,Bulan 06 2024,55.0,3,3
+KPI-0115,Net Promoter Score,Bulan 07 2024,55.0,3,3
+KPI-0116,Net Promoter Score,Bulan 08 2024,50.0,4,3
+KPI-0117,Net Promoter Score,Bulan 09 2024,51.0,4,4
+KPI-0118,Net Promoter Score,Bulan 10 2024,41.4,3,5
+KPI-0119,Net Promoter Score,Bulan 11 2024,43.9,3,5
+KPI-0120,Net Promoter Score,Bulan 12 2024,53.3,2,5
+KPI-0121,Net Promoter Score,Bulan 01 2025,49.6,2,4
+KPI-0122,Net Promoter Score,Bulan 02 2025,62.8,1,5
+KPI-0123,Net Promoter Score,Bulan 03 2025,65.3,1,5
+KPI-0124,Net Promoter Score,Bulan 04 2025,66.1,1,5
+KPI-0125,Net Promoter Score,Bulan 05 2025,54.9,3,5
+KPI-0126,Net Promoter Score,Bulan 06 2025,56.7,2,4
+KPI-0127,Net Promoter Score,Bulan 07 2025,50.7,3,5
+KPI-0128,Net Promoter Score,Bulan 08 2025,53.7,2,5
+KPI-0129,Net Promoter Score,Bulan 09 2025,54.7,1,4
+KPI-0130,Net Promoter Score,Bulan 10 2025,50.0,3,4
+KPI-0131,Net Promoter Score,Bulan 11 2025,47.0,3,2
+KPI-0132,Net Promoter Score,Bulan 12 2025,47.7,4,2
+KPI-0133,Customer Lifetime Value,Bulan 01 2015,663.5,1,1
+KPI-0134,Customer Lifetime Value,Bulan 02 2015,714.4,2,4
+KPI-0135,Customer Lifetime Value,Bulan 03 2015,674.9,1,2
+KPI-0136,Customer Lifetime Value,Bulan 04 2015,683.4,1,2
+KPI-0137,Customer Lifetime Value,Bulan 05 2015,700.5,1,2
+KPI-0138,Customer Lifetime Value,Bulan 06 2015,699.0,1,2
+KPI-0139,Customer Lifetime Value,Bulan 07 2015,691.1,1,2
+KPI-0140,Customer Lifetime Value,Bulan 08 2015,705.7,1,1
+KPI-0141,Customer Lifetime Value,Bulan 09 2015,664.9,2,3
+KPI-0142,Customer Lifetime Value,Bulan 10 2015,622.3,3,3
+KPI-0143,Customer Lifetime Value,Bulan 11 2015,634.3,4,3
+KPI-0144,Customer Lifetime Value,Bulan 12 2015,619.1,3,3
+KPI-0145,Customer Lifetime Value,Bulan 01 2016,679.8,1,3
+KPI-0146,Customer Lifetime Value,Bulan 02 2016,696.7,1,2
+KPI-0147,Customer Lifetime Value,Bulan 03 2016,737.3,1,4
+KPI-0148,Customer Lifetime Value,Bulan 04 2016,704.1,1,4
+KPI-0149,Customer Lifetime Value,Bulan 05 2016,744.3,1,5
+KPI-0150,Customer Lifetime Value,Bulan 06 2016,760.6,1,4
+KPI-0151,Customer Lifetime Value,Bulan 07 2016,676.9,1,2
+KPI-0152,Customer Lifetime Value,Bulan 08 2016,668.6,2,2
+KPI-0153,Customer Lifetime Value,Bulan 09 2016,659.5,2,3
+KPI-0154,Customer Lifetime Value,Bulan 10 2016,614.3,3,5
+KPI-0155,Customer Lifetime Value,Bulan 11 2016,643.3,1,4
+KPI-0156,Customer Lifetime Value,Bulan 12 2016,655.1,1,5
+KPI-0157,Customer Lifetime Value,Bulan 01 2017,684.4,1,2
+KPI-0158,Customer Lifetime Value,Bulan 02 2017,680.2,2,3
+KPI-0159,Customer Lifetime Value,Bulan 03 2017,727.4,2,3
+KPI-0160,Customer Lifetime Value,Bulan 04 2017,751.0,1,4
+KPI-0161,Customer Lifetime Value,Bulan 05 2017,777.4,1,4
+KPI-0162,Customer Lifetime Value,Bulan 06 2017,741.0,1,4
+KPI-0163,Customer Lifetime Value,Bulan 07 2017,756.6,1,2
+KPI-0164,Customer Lifetime Value,Bulan 08 2017,628.1,3,4
+KPI-0165,Customer Lifetime Value,Bulan 09 2017,666.3,2,4
+KPI-0166,Customer Lifetime Value,Bulan 10 2017,635.2,3,5
+KPI-0167,Customer Lifetime Value,Bulan 11 2017,712.5,1,5
+KPI-0168,Customer Lifetime Value,Bulan 12 2017,626.9,3,5
+KPI-0169,Customer Lifetime Value,Bulan 01 2018,652.0,1,3
+KPI-0170,Customer Lifetime Value,Bulan 02 2018,686.8,1,2
+KPI-0171,Customer Lifetime Value,Bulan 03 2018,652.6,1,4
+KPI-0172,Customer Lifetime Value,Bulan 04 2018,715.7,1,4
+KPI-0173,Customer Lifetime Value,Bulan 05 2018,700.5,1,3
+KPI-0174,Customer Lifetime Value,Bulan 06 2018,713.2,2,3
+KPI-0175,Customer Lifetime Value,Bulan 07 2018,693.6,1,2
+KPI-0176,Customer Lifetime Value,Bulan 08 2018,721.1,1,3
+KPI-0177,Customer Lifetime Value,Bulan 09 2018,669.6,3,3
+KPI-0178,Customer Lifetime Value,Bulan 10 2018,609.1,3,3
+KPI-0179,Customer Lifetime Value,Bulan 11 2018,604.9,4,3
+KPI-0180,Customer Lifetime Value,Bulan 12 2018,672.8,1,4
+KPI-0181,Customer Lifetime Value,Bulan 01 2019,635.7,2,5
+KPI-0182,Customer Lifetime Value,Bulan 02 2019,772.3,1,5
+KPI-0183,Customer Lifetime Value,Bulan 03 2019,768.7,1,5
+KPI-0184,Customer Lifetime Value,Bulan 04 2019,718.1,1,5
+KPI-0185,Customer Lifetime Value,Bulan 05 2019,667.6,2,5
+KPI-0186,Customer Lifetime Value,Bulan 06 2019,755.8,1,5
+KPI-0187,Customer Lifetime Value,Bulan 07 2019,678.2,2,5
+KPI-0188,Customer Lifetime Value,Bulan 08 2019,699.3,1,4
+KPI-0189,Customer Lifetime Value,Bulan 09 2019,581.0,3,5
+KPI-0190,Customer Lifetime Value,Bulan 10 2019,608.8,4,5
+KPI-0191,Customer Lifetime Value,Bulan 11 2019,637.0,3,5
+KPI-0192,Customer Lifetime Value,Bulan 12 2019,657.8,1,5
+KPI-0193,Customer Lifetime Value,Bulan 01 2020,666.6,2,4
+KPI-0194,Customer Lifetime Value,Bulan 02 2020,730.5,1,5
+KPI-0195,Customer Lifetime Value,Bulan 03 2020,690.6,1,4
+KPI-0196,Customer Lifetime Value,Bulan 04 2020,730.0,1,4
+KPI-0197,Customer Lifetime Value,Bulan 05 2020,732.2,1,3
+KPI-0198,Customer Lifetime Value,Bulan 06 2020,726.9,2,3
+KPI-0199,Customer Lifetime Value,Bulan 07 2020,707.5,1,2
+KPI-0200,Customer Lifetime Value,Bulan 08 2020,617.1,3,4
+KPI-0201,Customer Lifetime Value,Bulan 09 2020,583.6,3,5
+KPI-0202,Customer Lifetime Value,Bulan 10 2020,675.0,3,5
+KPI-0203,Customer Lifetime Value,Bulan 11 2020,649.0,1,5
+KPI-0204,Customer Lifetime Value,Bulan 12 2020,630.4,2,5
+KPI-0205,Customer Lifetime Value,Bulan 01 2021,737.2,1,4
+KPI-0206,Customer Lifetime Value,Bulan 02 2021,713.2,2,4
+KPI-0207,Customer Lifetime Value,Bulan 03 2021,769.7,1,5
+KPI-0208,Customer Lifetime Value,Bulan 04 2021,737.9,2,4
+KPI-0209,Customer Lifetime Value,Bulan 05 2021,800.6,1,5
+KPI-0210,Customer Lifetime Value,Bulan 06 2021,770.8,1,5
+KPI-0211,Customer Lifetime Value,Bulan 07 2021,674.4,2,5
+KPI-0212,Customer Lifetime Value,Bulan 08 2021,690.9,2,4
+KPI-0213,Customer Lifetime Value,Bulan 09 2021,660.3,2,5
+KPI-0214,Customer Lifetime Value,Bulan 10 2021,678.6,1,5
+KPI-0215,Customer Lifetime Value,Bulan 11 2021,604.0,3,5
+KPI-0216,Customer Lifetime Value,Bulan 12 2021,681.1,1,5
+KPI-0217,Customer Lifetime Value,Bulan 01 2022,720.4,2,3
+KPI-0218,Customer Lifetime Value,Bulan 02 2022,648.1,1,4
+KPI-0219,Customer Lifetime Value,Bulan 03 2022,687.5,2,2
+KPI-0220,Customer Lifetime Value,Bulan 04 2022,664.6,2,3
+KPI-0221,Customer Lifetime Value,Bulan 05 2022,719.6,1,4
+KPI-0222,Customer Lifetime Value,Bulan 06 2022,734.9,2,4
+KPI-0223,Customer Lifetime Value,Bulan 07 2022,736.2,1,2
+KPI-0224,Customer Lifetime Value,Bulan 08 2022,660.0,3,4
+KPI-0225,Customer Lifetime Value,Bulan 09 2022,695.2,2,4
+KPI-0226,Customer Lifetime Value,Bulan 10 2022,582.9,4,5
+KPI-0227,Customer Lifetime Value,Bulan 11 2022,578.7,3,5
+KPI-0228,Customer Lifetime Value,Bulan 12 2022,655.6,2,5
+KPI-0229,Customer Lifetime Value,Bulan 01 2023,697.3,2,4
+KPI-0230,Customer Lifetime Value,Bulan 02 2023,709.0,1,4
+KPI-0231,Customer Lifetime Value,Bulan 03 2023,657.0,1,5
+KPI-0232,Customer Lifetime Value,Bulan 04 2023,733.3,1,5
+KPI-0233,Customer Lifetime Value,Bulan 05 2023,683.8,2,4
+KPI-0234,Customer Lifetime Value,Bulan 06 2023,733.7,1,3
+KPI-0235,Customer Lifetime Value,Bulan 07 2023,696.9,2,2
+KPI-0236,Customer Lifetime Value,Bulan 08 2023,625.0,3,3
+KPI-0237,Customer Lifetime Value,Bulan 09 2023,620.7,4,4
+KPI-0238,Customer Lifetime Value,Bulan 10 2023,594.6,3,5
+KPI-0239,Customer Lifetime Value,Bulan 11 2023,636.6,2,4
+KPI-0240,Customer Lifetime Value,Bulan 12 2023,691.5,1,5
+KPI-0241,Customer Lifetime Value,Bulan 01 2024,649.8,1,3
+KPI-0242,Customer Lifetime Value,Bulan 02 2024,728.3,1,5
+KPI-0243,Customer Lifetime Value,Bulan 03 2024,711.3,1,4
+KPI-0244,Customer Lifetime Value,Bulan 04 2024,709.2,1,4
+KPI-0245,Customer Lifetime Value,Bulan 05 2024,726.2,1,4
+KPI-0246,Customer Lifetime Value,Bulan 06 2024,674.5,2,2
+KPI-0247,Customer Lifetime Value,Bulan 07 2024,665.2,2,3
+KPI-0248,Customer Lifetime Value,Bulan 08 2024,616.4,3,3
+KPI-0249,Customer Lifetime Value,Bulan 09 2024,707.9,2,3
+KPI-0250,Customer Lifetime Value,Bulan 10 2024,633.4,3,4
+KPI-0251,Customer Lifetime Value,Bulan 11 2024,614.8,2,4
+KPI-0252,Customer Lifetime Value,Bulan 12 2024,666.0,2,2
+KPI-0253,Customer Lifetime Value,Bulan 01 2025,680.9,2,4
+KPI-0254,Customer Lifetime Value,Bulan 02 2025,703.4,1,3
+KPI-0255,Customer Lifetime Value,Bulan 03 2025,751.8,1,4
+KPI-0256,Customer Lifetime Value,Bulan 04 2025,763.9,1,4
+KPI-0257,Customer Lifetime Value,Bulan 05 2025,711.9,2,4
+KPI-0258,Customer Lifetime Value,Bulan 06 2025,691.1,2,3
+KPI-0259,Customer Lifetime Value,Bulan 07 2025,675.4,2,3
+KPI-0260,Customer Lifetime Value,Bulan 08 2025,578.3,3,4
+KPI-0261,Customer Lifetime Value,Bulan 09 2025,586.6,4,5
+KPI-0262,Customer Lifetime Value,Bulan 10 2025,680.5,1,5
+KPI-0263,Customer Lifetime Value,Bulan 11 2025,697.3,1,5
+KPI-0264,Customer Lifetime Value,Bulan 12 2025,650.3,2,5
+KPI-0265,Sales Conversion Rate,Bulan 01 2015,10.5,1,4
+KPI-0266,Sales Conversion Rate,Bulan 02 2015,8.2,2,4
+KPI-0267,Sales Conversion Rate,Bulan 03 2015,9.4,1,3
+KPI-0268,Sales Conversion Rate,Bulan 04 2015,9.3,2,2
+KPI-0269,Sales Conversion Rate,Bulan 05 2015,8.2,2,2
+KPI-0270,Sales Conversion Rate,Bulan 06 2015,11.7,1,3
+KPI-0271,Sales Conversion Rate,Bulan 07 2015,7.3,3,3
+KPI-0272,Sales Conversion Rate,Bulan 08 2015,6.9,4,5
+KPI-0273,Sales Conversion Rate,Bulan 09 2015,8.8,3,5
+KPI-0274,Sales Conversion Rate,Bulan 10 2015,5.0,4,5
+KPI-0275,Sales Conversion Rate,Bulan 11 2015,8.2,3,5
+KPI-0276,Sales Conversion Rate,Bulan 12 2015,6.3,4,5
+KPI-0277,Sales Conversion Rate,Bulan 01 2016,10.5,1,4
+KPI-0278,Sales Conversion Rate,Bulan 02 2016,7.3,2,4
+KPI-0279,Sales Conversion Rate,Bulan 03 2016,8.5,2,3
+KPI-0280,Sales Conversion Rate,Bulan 04 2016,10.2,2,5
+KPI-0281,Sales Conversion Rate,Bulan 05 2016,11.9,1,5
+KPI-0282,Sales Conversion Rate,Bulan 06 2016,10.0,2,5
+KPI-0283,Sales Conversion Rate,Bulan 07 2016,8.8,3,4
+KPI-0284,Sales Conversion Rate,Bulan 08 2016,10.0,2,3
+KPI-0285,Sales Conversion Rate,Bulan 09 2016,10.3,1,3
+KPI-0286,Sales Conversion Rate,Bulan 10 2016,8.3,2,3
+KPI-0287,Sales Conversion Rate,Bulan 11 2016,7.1,3,3
+KPI-0288,Sales Conversion Rate,Bulan 12 2016,8.0,3,3
+KPI-0289,Sales Conversion Rate,Bulan 01 2017,7.9,2,4
+KPI-0290,Sales Conversion Rate,Bulan 02 2017,10.5,1,3
+KPI-0291,Sales Conversion Rate,Bulan 03 2017,9.1,1,4
+KPI-0292,Sales Conversion Rate,Bulan 04 2017,12.0,1,4
+KPI-0293,Sales Conversion Rate,Bulan 05 2017,13.6,1,5
+KPI-0294,Sales Conversion Rate,Bulan 06 2017,11.4,1,5
+KPI-0295,Sales Conversion Rate,Bulan 07 2017,9.1,2,5
+KPI-0296,Sales Conversion Rate,Bulan 08 2017,9.5,3,4
+KPI-0297,Sales Conversion Rate,Bulan 09 2017,10.2,3,4
+KPI-0298,Sales Conversion Rate,Bulan 10 2017,9.9,1,4
+KPI-0299,Sales Conversion Rate,Bulan 11 2017,7.1,4,4
+KPI-0300,Sales Conversion Rate,Bulan 12 2017,9.6,2,4
+KPI-0301,Sales Conversion Rate,Bulan 01 2018,9.8,1,4
+KPI-0302,Sales Conversion Rate,Bulan 02 2018,11.8,1,3
+KPI-0303,Sales Conversion Rate,Bulan 03 2018,12.0,1,3
+KPI-0304,Sales Conversion Rate,Bulan 04 2018,9.0,2,5
+KPI-0305,Sales Conversion Rate,Bulan 05 2018,11.2,1,3
+KPI-0306,Sales Conversion Rate,Bulan 06 2018,11.3,1,3
+KPI-0307,Sales Conversion Rate,Bulan 07 2018,8.5,3,3
+KPI-0308,Sales Conversion Rate,Bulan 08 2018,10.0,2,3
+KPI-0309,Sales Conversion Rate,Bulan 09 2018,6.9,3,4
+KPI-0310,Sales Conversion Rate,Bulan 10 2018,7.5,2,4
+KPI-0311,Sales Conversion Rate,Bulan 11 2018,10.4,1,5
+KPI-0312,Sales Conversion Rate,Bulan 12 2018,8.4,2,4
+KPI-0313,Sales Conversion Rate,Bulan 01 2019,11.1,1,3
+KPI-0314,Sales Conversion Rate,Bulan 02 2019,9.3,3,4
+KPI-0315,Sales Conversion Rate,Bulan 03 2019,14.6,1,5
+KPI-0316,Sales Conversion Rate,Bulan 04 2019,12.0,1,4
+KPI-0317,Sales Conversion Rate,Bulan 05 2019,12.3,1,5
+KPI-0318,Sales Conversion Rate,Bulan 06 2019,11.7,1,4
+KPI-0319,Sales Conversion Rate,Bulan 07 2019,11.4,1,5
+KPI-0320,Sales Conversion Rate,Bulan 08 2019,8.0,4,5
+KPI-0321,Sales Conversion Rate,Bulan 09 2019,9.2,2,5
+KPI-0322,Sales Conversion Rate,Bulan 10 2019,8.2,3,3
+KPI-0323,Sales Conversion Rate,Bulan 11 2019,7.2,2,5
+KPI-0324,Sales Conversion Rate,Bulan 12 2019,11.1,1,4
+KPI-0325,Sales Conversion Rate,Bulan 01 2020,10.5,1,4
+KPI-0326,Sales Conversion Rate,Bulan 02 2020,12.1,1,4
+KPI-0327,Sales Conversion Rate,Bulan 03 2020,12.8,1,4
+KPI-0328,Sales Conversion Rate,Bulan 04 2020,12.4,1,5
+KPI-0329,Sales Conversion Rate,Bulan 05 2020,15.0,1,4
+KPI-0330,Sales Conversion Rate,Bulan 06 2020,11.9,1,3
+KPI-0331,Sales Conversion Rate,Bulan 07 2020,9.3,2,5
+KPI-0332,Sales Conversion Rate,Bulan 08 2020,9.8,2,4
+KPI-0333,Sales Conversion Rate,Bulan 09 2020,10.3,3,5
+KPI-0334,Sales Conversion Rate,Bulan 10 2020,10.1,1,5
+KPI-0335,Sales Conversion Rate,Bulan 11 2020,8.4,3,5
+KPI-0336,Sales Conversion Rate,Bulan 12 2020,11.6,1,4
+KPI-0337,Sales Conversion Rate,Bulan 01 2021,9.3,1,3
+KPI-0338,Sales Conversion Rate,Bulan 02 2021,13.7,1,4
+KPI-0339,Sales Conversion Rate,Bulan 03 2021,11.4,1,5
+KPI-0340,Sales Conversion Rate,Bulan 04 2021,13.0,1,5
+KPI-0341,Sales Conversion Rate,Bulan 05 2021,14.4,1,5
+KPI-0342,Sales Conversion Rate,Bulan 06 2021,12.6,1,4
+KPI-0343,Sales Conversion Rate,Bulan 07 2021,12.6,1,4
+KPI-0344,Sales Conversion Rate,Bulan 08 2021,11.5,1,2
+KPI-0345,Sales Conversion Rate,Bulan 09 2021,11.7,1,4
+KPI-0346,Sales Conversion Rate,Bulan 10 2021,11.2,1,3
+KPI-0347,Sales Conversion Rate,Bulan 11 2021,9.7,2,2
+KPI-0348,Sales Conversion Rate,Bulan 12 2021,11.7,1,3
+KPI-0349,Sales Conversion Rate,Bulan 01 2022,10.0,2,3
+KPI-0350,Sales Conversion Rate,Bulan 02 2022,12.7,1,2
+KPI-0351,Sales Conversion Rate,Bulan 03 2022,14.5,1,4
+KPI-0352,Sales Conversion Rate,Bulan 04 2022,13.9,1,4
+KPI-0353,Sales Conversion Rate,Bulan 05 2022,14.1,1,4
+KPI-0354,Sales Conversion Rate,Bulan 06 2022,12.7,1,4
+KPI-0355,Sales Conversion Rate,Bulan 07 2022,13.5,1,4
+KPI-0356,Sales Conversion Rate,Bulan 08 2022,11.1,1,3
+KPI-0357,Sales Conversion Rate,Bulan 09 2022,10.1,3,4
+KPI-0358,Sales Conversion Rate,Bulan 10 2022,11.5,1,4
+KPI-0359,Sales Conversion Rate,Bulan 11 2022,9.0,2,4
+KPI-0360,Sales Conversion Rate,Bulan 12 2022,12.0,1,3
+KPI-0361,Sales Conversion Rate,Bulan 01 2023,11.1,1,3
+KPI-0362,Sales Conversion Rate,Bulan 02 2023,14.8,1,4
+KPI-0363,Sales Conversion Rate,Bulan 03 2023,13.7,1,5
+KPI-0364,Sales Conversion Rate,Bulan 04 2023,14.4,1,4
+KPI-0365,Sales Conversion Rate,Bulan 05 2023,14.6,1,4
+KPI-0366,Sales Conversion Rate,Bulan 06 2023,11.1,1,4
+KPI-0367,Sales Conversion Rate,Bulan 07 2023,11.8,1,4
+KPI-0368,Sales Conversion Rate,Bulan 08 2023,13.0,1,4
+KPI-0369,Sales Conversion Rate,Bulan 09 2023,12.1,1,2
+KPI-0370,Sales Conversion Rate,Bulan 10 2023,11.2,1,3
+KPI-0371,Sales Conversion Rate,Bulan 11 2023,9.6,3,3
+KPI-0372,Sales Conversion Rate,Bulan 12 2023,12.6,1,2
+KPI-0373,Sales Conversion Rate,Bulan 01 2024,13.7,1,3
+KPI-0374,Sales Conversion Rate,Bulan 02 2024,13.8,1,4
+KPI-0375,Sales Conversion Rate,Bulan 03 2024,15.9,1,5
+KPI-0376,Sales Conversion Rate,Bulan 04 2024,13.9,1,4
+KPI-0377,Sales Conversion Rate,Bulan 05 2024,13.9,1,4
+KPI-0378,Sales Conversion Rate,Bulan 06 2024,10.9,3,4
+KPI-0379,Sales Conversion Rate,Bulan 07 2024,14.2,1,3
+KPI-0380,Sales Conversion Rate,Bulan 08 2024,12.6,2,3
+KPI-0381,Sales Conversion Rate,Bulan 09 2024,9.6,2,5
+KPI-0382,Sales Conversion Rate,Bulan 10 2024,9.3,2,5
+KPI-0383,Sales Conversion Rate,Bulan 11 2024,10.6,2,5
+KPI-0384,Sales Conversion Rate,Bulan 12 2024,13.3,1,3
+KPI-0385,Sales Conversion Rate,Bulan 01 2025,12.9,1,4
+KPI-0386,Sales Conversion Rate,Bulan 02 2025,13.3,1,4
+KPI-0387,Sales Conversion Rate,Bulan 03 2025,13.7,1,4
+KPI-0388,Sales Conversion Rate,Bulan 04 2025,14.0,1,5
+KPI-0389,Sales Conversion Rate,Bulan 05 2025,12.7,1,2
+KPI-0390,Sales Conversion Rate,Bulan 06 2025,13.0,1,1
+KPI-0391,Sales Conversion Rate,Bulan 07 2025,12.3,1,2
+KPI-0392,Sales Conversion Rate,Bulan 08 2025,13.5,1,3
+KPI-0393,Sales Conversion Rate,Bulan 09 2025,11.9,2,2
+KPI-0394,Sales Conversion Rate,Bulan 10 2025,10.9,2,3
+KPI-0395,Sales Conversion Rate,Bulan 11 2025,14.9,1,4
+KPI-0396,Sales Conversion Rate,Bulan 12 2025,12.0,1,4
+KPI-0397,Customer Acquisition Cost,Bulan 01 2015,48.4,2,2
+KPI-0398,Customer Acquisition Cost,Bulan 02 2015,43.1,1,4
+KPI-0399,Customer Acquisition Cost,Bulan 03 2015,51.1,2,2
+KPI-0400,Customer Acquisition Cost,Bulan 04 2015,47.7,2,3
+KPI-0401,Customer Acquisition Cost,Bulan 05 2015,46.4,1,3
+KPI-0402,Customer Acquisition Cost,Bulan 06 2015,48.4,3,3
+KPI-0403,Customer Acquisition Cost,Bulan 07 2015,44.7,1,3
+KPI-0404,Customer Acquisition Cost,Bulan 08 2015,33.4,1,5
+KPI-0405,Customer Acquisition Cost,Bulan 09 2015,43.0,1,4
+KPI-0406,Customer Acquisition Cost,Bulan 10 2015,41.9,1,5
+KPI-0407,Customer Acquisition Cost,Bulan 11 2015,35.1,1,5
+KPI-0408,Customer Acquisition Cost,Bulan 12 2015,41.1,2,4
+KPI-0409,Customer Acquisition Cost,Bulan 01 2016,44.4,1,4
+KPI-0410,Customer Acquisition Cost,Bulan 02 2016,46.4,3,4
+KPI-0411,Customer Acquisition Cost,Bulan 03 2016,45.4,2,4
+KPI-0412,Customer Acquisition Cost,Bulan 04 2016,45.7,1,4
+KPI-0413,Customer Acquisition Cost,Bulan 05 2016,47.5,3,4
+KPI-0414,Customer Acquisition Cost,Bulan 06 2016,50.0,3,4
+KPI-0415,Customer Acquisition Cost,Bulan 07 2016,44.8,1,2
+KPI-0416,Customer Acquisition Cost,Bulan 08 2016,38.5,1,3
+KPI-0417,Customer Acquisition Cost,Bulan 09 2016,40.8,2,5
+KPI-0418,Customer Acquisition Cost,Bulan 10 2016,26.3,1,5
+KPI-0419,Customer Acquisition Cost,Bulan 11 2016,42.3,2,5
+KPI-0420,Customer Acquisition Cost,Bulan 12 2016,33.5,1,5
+KPI-0421,Customer Acquisition Cost,Bulan 01 2017,41.6,2,5
+KPI-0422,Customer Acquisition Cost,Bulan 02 2017,41.6,1,5
+KPI-0423,Customer Acquisition Cost,Bulan 03 2017,43.1,2,5
+KPI-0424,Customer Acquisition Cost,Bulan 04 2017,53.2,4,5
+KPI-0425,Customer Acquisition Cost,Bulan 05 2017,46.3,1,4
+KPI-0426,Customer Acquisition Cost,Bulan 06 2017,47.3,2,5
+KPI-0427,Customer Acquisition Cost,Bulan 07 2017,43.0,1,4
+KPI-0428,Customer Acquisition Cost,Bulan 08 2017,42.2,1,4
+KPI-0429,Customer Acquisition Cost,Bulan 09 2017,38.6,1,4
+KPI-0430,Customer Acquisition Cost,Bulan 10 2017,32.7,1,5
+KPI-0431,Customer Acquisition Cost,Bulan 11 2017,42.2,1,5
+KPI-0432,Customer Acquisition Cost,Bulan 12 2017,38.7,1,4
+KPI-0433,Customer Acquisition Cost,Bulan 01 2018,37.5,1,5
+KPI-0434,Customer Acquisition Cost,Bulan 02 2018,44.7,1,3
+KPI-0435,Customer Acquisition Cost,Bulan 03 2018,54.2,4,5
+KPI-0436,Customer Acquisition Cost,Bulan 04 2018,52.5,3,5
+KPI-0437,Customer Acquisition Cost,Bulan 05 2018,47.2,2,5
+KPI-0438,Customer Acquisition Cost,Bulan 06 2018,45.2,1,5
+KPI-0439,Customer Acquisition Cost,Bulan 07 2018,42.5,1,5
+KPI-0440,Customer Acquisition Cost,Bulan 08 2018,48.8,2,4
+KPI-0441,Customer Acquisition Cost,Bulan 09 2018,40.3,1,5
+KPI-0442,Customer Acquisition Cost,Bulan 10 2018,39.7,1,4
+KPI-0443,Customer Acquisition Cost,Bulan 11 2018,42.8,2,3
+KPI-0444,Customer Acquisition Cost,Bulan 12 2018,41.9,1,3
+KPI-0445,Customer Acquisition Cost,Bulan 01 2019,42.9,1,3
+KPI-0446,Customer Acquisition Cost,Bulan 02 2019,46.1,2,3
+KPI-0447,Customer Acquisition Cost,Bulan 03 2019,48.7,3,3
+KPI-0448,Customer Acquisition Cost,Bulan 04 2019,49.6,3,3
+KPI-0449,Customer Acquisition Cost,Bulan 05 2019,51.8,3,5
+KPI-0450,Customer Acquisition Cost,Bulan 06 2019,47.2,2,3
+KPI-0451,Customer Acquisition Cost,Bulan 07 2019,46.9,1,3
+KPI-0452,Customer Acquisition Cost,Bulan 08 2019,41.0,1,3
+KPI-0453,Customer Acquisition Cost,Bulan 09 2019,39.6,2,4
+KPI-0454,Customer Acquisition Cost,Bulan 10 2019,31.0,1,5
+KPI-0455,Customer Acquisition Cost,Bulan 11 2019,42.9,2,5
+KPI-0456,Customer Acquisition Cost,Bulan 12 2019,42.8,1,4
+KPI-0457,Customer Acquisition Cost,Bulan 01 2020,48.2,4,5
+KPI-0458,Customer Acquisition Cost,Bulan 02 2020,36.3,1,5
+KPI-0459,Customer Acquisition Cost,Bulan 03 2020,57.4,3,5
+KPI-0460,Customer Acquisition Cost,Bulan 04 2020,49.7,2,5
+KPI-0461,Customer Acquisition Cost,Bulan 05 2020,53.7,3,5
+KPI-0462,Customer Acquisition Cost,Bulan 06 2020,43.5,2,5
+KPI-0463,Customer Acquisition Cost,Bulan 07 2020,47.0,1,5
+KPI-0464,Customer Acquisition Cost,Bulan 08 2020,37.8,1,5
+KPI-0465,Customer Acquisition Cost,Bulan 09 2020,37.4,1,5
+KPI-0466,Customer Acquisition Cost,Bulan 10 2020,46.3,1,5
+KPI-0467,Customer Acquisition Cost,Bulan 11 2020,39.1,1,5
+KPI-0468,Customer Acquisition Cost,Bulan 12 2020,42.8,2,4
+KPI-0469,Customer Acquisition Cost,Bulan 01 2021,48.2,3,4
+KPI-0470,Customer Acquisition Cost,Bulan 02 2021,49.7,4,5
+KPI-0471,Customer Acquisition Cost,Bulan 03 2021,50.5,3,5
+KPI-0472,Customer Acquisition Cost,Bulan 04 2021,52.1,2,5
+KPI-0473,Customer Acquisition Cost,Bulan 05 2021,59.1,4,5
+KPI-0474,Customer Acquisition Cost,Bulan 06 2021,47.7,3,5
+KPI-0475,Customer Acquisition Cost,Bulan 07 2021,45.9,2,4
+KPI-0476,Customer Acquisition Cost,Bulan 08 2021,46.3,1,4
+KPI-0477,Customer Acquisition Cost,Bulan 09 2021,44.5,1,5
+KPI-0478,Customer Acquisition Cost,Bulan 10 2021,44.1,1,5
+KPI-0479,Customer Acquisition Cost,Bulan 11 2021,42.8,1,5
+KPI-0480,Customer Acquisition Cost,Bulan 12 2021,38.1,1,4
+KPI-0481,Customer Acquisition Cost,Bulan 01 2022,51.6,4,4
+KPI-0482,Customer Acquisition Cost,Bulan 02 2022,43.9,1,4
+KPI-0483,Customer Acquisition Cost,Bulan 03 2022,51.5,3,5
+KPI-0484,Customer Acquisition Cost,Bulan 04 2022,48.3,2,4
+KPI-0485,Customer Acquisition Cost,Bulan 05 2022,50.2,3,4
+KPI-0486,Customer Acquisition Cost,Bulan 06 2022,49.7,2,4
+KPI-0487,Customer Acquisition Cost,Bulan 07 2022,46.8,2,3
+KPI-0488,Customer Acquisition Cost,Bulan 08 2022,44.4,2,3
+KPI-0489,Customer Acquisition Cost,Bulan 09 2022,46.9,1,3
+KPI-0490,Customer Acquisition Cost,Bulan 10 2022,41.7,1,2
+KPI-0491,Customer Acquisition Cost,Bulan 11 2022,39.9,1,4
+KPI-0492,Customer Acquisition Cost,Bulan 12 2022,46.6,1,3
+KPI-0493,Customer Acquisition Cost,Bulan 01 2023,50.4,3,2
+KPI-0494,Customer Acquisition Cost,Bulan 02 2023,44.1,2,3
+KPI-0495,Customer Acquisition Cost,Bulan 03 2023,53.1,3,5
+KPI-0496,Customer Acquisition Cost,Bulan 04 2023,54.3,2,5
+KPI-0497,Customer Acquisition Cost,Bulan 05 2023,49.8,4,5
+KPI-0498,Customer Acquisition Cost,Bulan 06 2023,54.1,2,3
+KPI-0499,Customer Acquisition Cost,Bulan 07 2023,45.5,1,3
+KPI-0500,Customer Acquisition Cost,Bulan 08 2023,43.7,1,3
+KPI-0501,Customer Acquisition Cost,Bulan 09 2023,40.6,1,5
+KPI-0502,Customer Acquisition Cost,Bulan 10 2023,40.6,2,5
+KPI-0503,Customer Acquisition Cost,Bulan 11 2023,37.1,1,5
+KPI-0504,Customer Acquisition Cost,Bulan 12 2023,38.0,1,5
+KPI-0505,Customer Acquisition Cost,Bulan 01 2024,52.4,3,5
+KPI-0506,Customer Acquisition Cost,Bulan 02 2024,46.0,2,4
+KPI-0507,Customer Acquisition Cost,Bulan 03 2024,47.6,3,5
+KPI-0508,Customer Acquisition Cost,Bulan 04 2024,44.0,2,5
+KPI-0509,Customer Acquisition Cost,Bulan 05 2024,49.0,3,4
+KPI-0510,Customer Acquisition Cost,Bulan 06 2024,44.3,1,4
+KPI-0511,Customer Acquisition Cost,Bulan 07 2024,52.8,3,3
+KPI-0512,Customer Acquisition Cost,Bulan 08 2024,47.6,3,2
+KPI-0513,Customer Acquisition Cost,Bulan 09 2024,39.1,1,4
+KPI-0514,Customer Acquisition Cost,Bulan 10 2024,49.5,2,4
+KPI-0515,Customer Acquisition Cost,Bulan 11 2024,45.5,2,5
+KPI-0516,Customer Acquisition Cost,Bulan 12 2024,42.7,2,4
+KPI-0517,Customer Acquisition Cost,Bulan 01 2025,37.3,1,5
+KPI-0518,Customer Acquisition Cost,Bulan 02 2025,58.4,3,5
+KPI-0519,Customer Acquisition Cost,Bulan 03 2025,46.5,1,5
+KPI-0520,Customer Acquisition Cost,Bulan 04 2025,46.4,2,5
+KPI-0521,Customer Acquisition Cost,Bulan 05 2025,55.8,3,5
+KPI-0522,Customer Acquisition Cost,Bulan 06 2025,59.1,4,5
+KPI-0523,Customer Acquisition Cost,Bulan 07 2025,52.3,3,5
+KPI-0524,Customer Acquisition Cost,Bulan 08 2025,46.4,2,5
+KPI-0525,Customer Acquisition Cost,Bulan 09 2025,44.4,2,5
+KPI-0526,Customer Acquisition Cost,Bulan 10 2025,44.7,1,5
+KPI-0527,Customer Acquisition Cost,Bulan 11 2025,45.1,1,5
+KPI-0528,Customer Acquisition Cost,Bulan 12 2025,45.5,1,5
+KPI-0529,Gross Profit Margin,Bulan 01 2015,37.1,1,2
+KPI-0530,Gross Profit Margin,Bulan 02 2015,38.4,1,1
+KPI-0531,Gross Profit Margin,Bulan 03 2015,37.5,1,1
+KPI-0532,Gross Profit Margin,Bulan 04 2015,39.2,1,2
+KPI-0533,Gross Profit Margin,Bulan 05 2015,35.6,3,3
+KPI-0534,Gross Profit Margin,Bulan 06 2015,36.2,2,2
+KPI-0535,Gross Profit Margin,Bulan 07 2015,31.6,3,4
+KPI-0536,Gross Profit Margin,Bulan 08 2015,32.8,4,3
+KPI-0537,Gross Profit Margin,Bulan 09 2015,31.7,3,5
+KPI-0538,Gross Profit Margin,Bulan 10 2015,34.8,1,4
+KPI-0539,Gross Profit Margin,Bulan 11 2015,31.0,2,2
+KPI-0540,Gross Profit Margin,Bulan 12 2015,33.0,1,3
+KPI-0541,Gross Profit Margin,Bulan 01 2016,35.0,1,2
+KPI-0542,Gross Profit Margin,Bulan 02 2016,35.2,2,3
+KPI-0543,Gross Profit Margin,Bulan 03 2016,35.7,1,3
+KPI-0544,Gross Profit Margin,Bulan 04 2016,40.8,1,4
+KPI-0545,Gross Profit Margin,Bulan 05 2016,35.3,1,5
+KPI-0546,Gross Profit Margin,Bulan 06 2016,33.4,3,3
+KPI-0547,Gross Profit Margin,Bulan 07 2016,36.2,3,3
+KPI-0548,Gross Profit Margin,Bulan 08 2016,35.7,1,2
+KPI-0549,Gross Profit Margin,Bulan 09 2016,30.9,3,4
+KPI-0550,Gross Profit Margin,Bulan 10 2016,30.6,3,5
+KPI-0551,Gross Profit Margin,Bulan 11 2016,32.6,4,3
+KPI-0552,Gross Profit Margin,Bulan 12 2016,31.7,2,3
+KPI-0553,Gross Profit Margin,Bulan 01 2017,33.2,1,3
+KPI-0554,Gross Profit Margin,Bulan 02 2017,38.6,1,5
+KPI-0555,Gross Profit Margin,Bulan 03 2017,39.2,1,4
+KPI-0556,Gross Profit Margin,Bulan 04 2017,41.3,1,5
+KPI-0557,Gross Profit Margin,Bulan 05 2017,35.2,2,5
+KPI-0558,Gross Profit Margin,Bulan 06 2017,35.7,2,5
+KPI-0559,Gross Profit Margin,Bulan 07 2017,35.8,3,4
+KPI-0560,Gross Profit Margin,Bulan 08 2017,31.6,4,4
+KPI-0561,Gross Profit Margin,Bulan 09 2017,33.8,1,4
+KPI-0562,Gross Profit Margin,Bulan 10 2017,34.7,1,5
+KPI-0563,Gross Profit Margin,Bulan 11 2017,31.2,2,3
+KPI-0564,Gross Profit Margin,Bulan 12 2017,33.8,1,3
+KPI-0565,Gross Profit Margin,Bulan 01 2018,38.6,1,3
+KPI-0566,Gross Profit Margin,Bulan 02 2018,41.1,1,5
+KPI-0567,Gross Profit Margin,Bulan 03 2018,40.0,1,5
+KPI-0568,Gross Profit Margin,Bulan 04 2018,40.2,1,5
+KPI-0569,Gross Profit Margin,Bulan 05 2018,36.6,2,5
+KPI-0570,Gross Profit Margin,Bulan 06 2018,38.1,1,4
+KPI-0571,Gross Profit Margin,Bulan 07 2018,36.9,2,2
+KPI-0572,Gross Profit Margin,Bulan 08 2018,33.6,2,4
+KPI-0573,Gross Profit Margin,Bulan 09 2018,31.6,4,5
+KPI-0574,Gross Profit Margin,Bulan 10 2018,29.7,3,4
+KPI-0575,Gross Profit Margin,Bulan 11 2018,29.2,3,5
+KPI-0576,Gross Profit Margin,Bulan 12 2018,29.9,2,5
+KPI-0577,Gross Profit Margin,Bulan 01 2019,37.2,1,5
+KPI-0578,Gross Profit Margin,Bulan 02 2019,37.9,1,5
+KPI-0579,Gross Profit Margin,Bulan 03 2019,37.8,2,5
+KPI-0580,Gross Profit Margin,Bulan 04 2019,38.6,1,5
+KPI-0581,Gross Profit Margin,Bulan 05 2019,39.4,1,5
+KPI-0582,Gross Profit Margin,Bulan 06 2019,37.4,1,4
+KPI-0583,Gross Profit Margin,Bulan 07 2019,33.2,3,4
+KPI-0584,Gross Profit Margin,Bulan 08 2019,36.6,2,3
+KPI-0585,Gross Profit Margin,Bulan 09 2019,34.1,2,3
+KPI-0586,Gross Profit Margin,Bulan 10 2019,33.6,1,3
+KPI-0587,Gross Profit Margin,Bulan 11 2019,35.3,1,4
+KPI-0588,Gross Profit Margin,Bulan 12 2019,32.9,1,2
+KPI-0589,Gross Profit Margin,Bulan 01 2020,39.1,1,3
+KPI-0590,Gross Profit Margin,Bulan 02 2020,37.8,1,2
+KPI-0591,Gross Profit Margin,Bulan 03 2020,41.3,1,5
+KPI-0592,Gross Profit Margin,Bulan 04 2020,41.4,1,5
+KPI-0593,Gross Profit Margin,Bulan 05 2020,37.1,2,5
+KPI-0594,Gross Profit Margin,Bulan 06 2020,39.4,1,4
+KPI-0595,Gross Profit Margin,Bulan 07 2020,37.4,2,4
+KPI-0596,Gross Profit Margin,Bulan 08 2020,35.1,2,3
+KPI-0597,Gross Profit Margin,Bulan 09 2020,33.7,2,4
+KPI-0598,Gross Profit Margin,Bulan 10 2020,33.3,3,4
+KPI-0599,Gross Profit Margin,Bulan 11 2020,35.7,1,2
+KPI-0600,Gross Profit Margin,Bulan 12 2020,36.5,1,4
+KPI-0601,Gross Profit Margin,Bulan 01 2021,36.9,1,3
+KPI-0602,Gross Profit Margin,Bulan 02 2021,35.3,2,2
+KPI-0603,Gross Profit Margin,Bulan 03 2021,40.9,1,4
+KPI-0604,Gross Profit Margin,Bulan 04 2021,41.9,1,5
+KPI-0605,Gross Profit Margin,Bulan 05 2021,45.0,1,5
+KPI-0606,Gross Profit Margin,Bulan 06 2021,41.1,1,5
+KPI-0607,Gross Profit Margin,Bulan 07 2021,32.9,2,5
+KPI-0608,Gross Profit Margin,Bulan 08 2021,35.7,2,5
+KPI-0609,Gross Profit Margin,Bulan 09 2021,38.3,1,5
+KPI-0610,Gross Profit Margin,Bulan 10 2021,35.3,2,5
+KPI-0611,Gross Profit Margin,Bulan 11 2021,35.1,2,5
+KPI-0612,Gross Profit Margin,Bulan 12 2021,37.7,1,3
+KPI-0613,Gross Profit Margin,Bulan 01 2022,36.0,2,3
+KPI-0614,Gross Profit Margin,Bulan 02 2022,40.1,1,3
+KPI-0615,Gross Profit Margin,Bulan 03 2022,39.7,1,2
+KPI-0616,Gross Profit Margin,Bulan 04 2022,40.7,1,5
+KPI-0617,Gross Profit Margin,Bulan 05 2022,42.2,1,5
+KPI-0618,Gross Profit Margin,Bulan 06 2022,37.2,2,4
+KPI-0619,Gross Profit Margin,Bulan 07 2022,40.4,1,3
+KPI-0620,Gross Profit Margin,Bulan 08 2022,35.1,2,5
+KPI-0621,Gross Profit Margin,Bulan 09 2022,35.4,1,3
+KPI-0622,Gross Profit Margin,Bulan 10 2022,31.3,3,5
+KPI-0623,Gross Profit Margin,Bulan 11 2022,36.5,1,5
+KPI-0624,Gross Profit Margin,Bulan 12 2022,39.3,1,3
+KPI-0625,Gross Profit Margin,Bulan 01 2023,36.7,2,3
+KPI-0626,Gross Profit Margin,Bulan 02 2023,37.1,2,5
+KPI-0627,Gross Profit Margin,Bulan 03 2023,41.4,1,5
+KPI-0628,Gross Profit Margin,Bulan 04 2023,44.5,1,5
+KPI-0629,Gross Profit Margin,Bulan 05 2023,37.7,2,4
+KPI-0630,Gross Profit Margin,Bulan 06 2023,37.3,2,4
+KPI-0631,Gross Profit Margin,Bulan 07 2023,37.1,3,4
+KPI-0632,Gross Profit Margin,Bulan 08 2023,34.7,2,5
+KPI-0633,Gross Profit Margin,Bulan 09 2023,33.5,3,4
+KPI-0634,Gross Profit Margin,Bulan 10 2023,30.3,3,5
+KPI-0635,Gross Profit Margin,Bulan 11 2023,36.7,1,4
+KPI-0636,Gross Profit Margin,Bulan 12 2023,37.4,2,4
+KPI-0637,Gross Profit Margin,Bulan 01 2024,34.6,1,4
+KPI-0638,Gross Profit Margin,Bulan 02 2024,43.2,1,5
+KPI-0639,Gross Profit Margin,Bulan 03 2024,45.0,1,5
+KPI-0640,Gross Profit Margin,Bulan 04 2024,40.1,1,5
+KPI-0641,Gross Profit Margin,Bulan 05 2024,43.9,1,5
+KPI-0642,Gross Profit Margin,Bulan 06 2024,38.9,1,4
+KPI-0643,Gross Profit Margin,Bulan 07 2024,39.0,1,5
+KPI-0644,Gross Profit Margin,Bulan 08 2024,35.1,3,5
+KPI-0645,Gross Profit Margin,Bulan 09 2024,40.7,1,5
+KPI-0646,Gross Profit Margin,Bulan 10 2024,34.7,2,5
+KPI-0647,Gross Profit Margin,Bulan 11 2024,36.1,1,4
+KPI-0648,Gross Profit Margin,Bulan 12 2024,35.6,2,4
+KPI-0649,Gross Profit Margin,Bulan 01 2025,42.9,1,5
+KPI-0650,Gross Profit Margin,Bulan 02 2025,44.6,1,5
+KPI-0651,Gross Profit Margin,Bulan 03 2025,45.3,1,5
+KPI-0652,Gross Profit Margin,Bulan 04 2025,44.3,1,5
+KPI-0653,Gross Profit Margin,Bulan 05 2025,40.4,1,5
+KPI-0654,Gross Profit Margin,Bulan 06 2025,42.5,1,5
+KPI-0655,Gross Profit Margin,Bulan 07 2025,39.0,2,3
+KPI-0656,Gross Profit Margin,Bulan 08 2025,40.3,1,5
+KPI-0657,Gross Profit Margin,Bulan 09 2025,38.7,1,4
+KPI-0658,Gross Profit Margin,Bulan 10 2025,34.4,2,5
+KPI-0659,Gross Profit Margin,Bulan 11 2025,38.4,1,4
+KPI-0660,Gross Profit Margin,Bulan 12 2025,39.1,1,4
+KPI-0661,Customer Retention Rate,Bulan 01 2015,87.8,1,2
+KPI-0662,Customer Retention Rate,Bulan 02 2015,89.5,1,2
+KPI-0663,Customer Retention Rate,Bulan 03 2015,87.0,2,3
+KPI-0664,Customer Retention Rate,Bulan 04 2015,92.6,1,3
+KPI-0665,Customer Retention Rate,Bulan 05 2015,88.1,1,3
+KPI-0666,Customer Retention Rate,Bulan 06 2015,90.1,1,3
+KPI-0667,Customer Retention Rate,Bulan 07 2015,87.2,3,3
+KPI-0668,Customer Retention Rate,Bulan 08 2015,89.0,1,2
+KPI-0669,Customer Retention Rate,Bulan 09 2015,82.5,3,3
+KPI-0670,Customer Retention Rate,Bulan 10 2015,81.7,4,5
+KPI-0671,Customer Retention Rate,Bulan 11 2015,83.1,3,3
+KPI-0672,Customer Retention Rate,Bulan 12 2015,83.8,2,4
+KPI-0673,Customer Retention Rate,Bulan 01 2016,88.5,1,3
+KPI-0674,Customer Retention Rate,Bulan 02 2016,84.4,2,4
+KPI-0675,Customer Retention Rate,Bulan 03 2016,87.2,1,3
+KPI-0676,Customer Retention Rate,Bulan 04 2016,87.7,1,3
+KPI-0677,Customer Retention Rate,Bulan 05 2016,92.3,1,4
+KPI-0678,Customer Retention Rate,Bulan 06 2016,92.8,1,3
+KPI-0679,Customer Retention Rate,Bulan 07 2016,86.5,1,3
+KPI-0680,Customer Retention Rate,Bulan 08 2016,84.5,3,5
+KPI-0681,Customer Retention Rate,Bulan 09 2016,83.7,3,3
+KPI-0682,Customer Retention Rate,Bulan 10 2016,86.0,1,4
+KPI-0683,Customer Retention Rate,Bulan 11 2016,81.3,3,4
+KPI-0684,Customer Retention Rate,Bulan 12 2016,85.6,2,4
+KPI-0685,Customer Retention Rate,Bulan 01 2017,89.4,1,4
+KPI-0686,Customer Retention Rate,Bulan 02 2017,90.1,1,5
+KPI-0687,Customer Retention Rate,Bulan 03 2017,90.8,1,5
+KPI-0688,Customer Retention Rate,Bulan 04 2017,93.3,1,5
+KPI-0689,Customer Retention Rate,Bulan 05 2017,83.6,4,5
+KPI-0690,Customer Retention Rate,Bulan 06 2017,90.7,1,4
+KPI-0691,Customer Retention Rate,Bulan 07 2017,85.6,2,4
+KPI-0692,Customer Retention Rate,Bulan 08 2017,80.8,3,5
+KPI-0693,Customer Retention Rate,Bulan 09 2017,85.3,2,5
+KPI-0694,Customer Retention Rate,Bulan 10 2017,87.0,2,5
+KPI-0695,Customer Retention Rate,Bulan 11 2017,83.8,2,4
+KPI-0696,Customer Retention Rate,Bulan 12 2017,87.9,1,3
+KPI-0697,Customer Retention Rate,Bulan 01 2018,91.5,1,4
+KPI-0698,Customer Retention Rate,Bulan 02 2018,92.6,1,5
+KPI-0699,Customer Retention Rate,Bulan 03 2018,94.9,1,5
+KPI-0700,Customer Retention Rate,Bulan 04 2018,93.2,1,4
+KPI-0701,Customer Retention Rate,Bulan 05 2018,91.0,1,5
+KPI-0702,Customer Retention Rate,Bulan 06 2018,85.5,2,4
+KPI-0703,Customer Retention Rate,Bulan 07 2018,87.1,3,5
+KPI-0704,Customer Retention Rate,Bulan 08 2018,83.7,3,5
+KPI-0705,Customer Retention Rate,Bulan 09 2018,89.9,1,5
+KPI-0706,Customer Retention Rate,Bulan 10 2018,83.6,3,4
+KPI-0707,Customer Retention Rate,Bulan 11 2018,84.9,2,4
+KPI-0708,Customer Retention Rate,Bulan 12 2018,87.4,2,4
+KPI-0709,Customer Retention Rate,Bulan 01 2019,88.0,2,3
+KPI-0710,Customer Retention Rate,Bulan 02 2019,94.1,1,5
+KPI-0711,Customer Retention Rate,Bulan 03 2019,89.7,1,4
+KPI-0712,Customer Retention Rate,Bulan 04 2019,92.3,1,5
+KPI-0713,Customer Retention Rate,Bulan 05 2019,89.5,2,5
+KPI-0714,Customer Retention Rate,Bulan 06 2019,86.7,3,2
+KPI-0715,Customer Retention Rate,Bulan 07 2019,86.6,2,5
+KPI-0716,Customer Retention Rate,Bulan 08 2019,86.2,2,5
+KPI-0717,Customer Retention Rate,Bulan 09 2019,83.9,3,4
+KPI-0718,Customer Retention Rate,Bulan 10 2019,82.8,3,4
+KPI-0719,Customer Retention Rate,Bulan 11 2019,81.6,4,4
+KPI-0720,Customer Retention Rate,Bulan 12 2019,86.3,1,3
+KPI-0721,Customer Retention Rate,Bulan 01 2020,84.6,2,4
+KPI-0722,Customer Retention Rate,Bulan 02 2020,92.2,1,4
+KPI-0723,Customer Retention Rate,Bulan 03 2020,91.9,1,5
+KPI-0724,Customer Retention Rate,Bulan 04 2020,88.6,1,5
+KPI-0725,Customer Retention Rate,Bulan 05 2020,91.0,1,4
+KPI-0726,Customer Retention Rate,Bulan 06 2020,88.6,3,4
+KPI-0727,Customer Retention Rate,Bulan 07 2020,89.4,2,4
+KPI-0728,Customer Retention Rate,Bulan 08 2020,90.2,1,3
+KPI-0729,Customer Retention Rate,Bulan 09 2020,80.8,3,5
+KPI-0730,Customer Retention Rate,Bulan 10 2020,85.3,2,5
+KPI-0731,Customer Retention Rate,Bulan 11 2020,85.2,2,5
+KPI-0732,Customer Retention Rate,Bulan 12 2020,88.6,1,4
+KPI-0733,Customer Retention Rate,Bulan 01 2021,89.4,1,3
+KPI-0734,Customer Retention Rate,Bulan 02 2021,88.9,1,4
+KPI-0735,Customer Retention Rate,Bulan 03 2021,91.4,1,4
+KPI-0736,Customer Retention Rate,Bulan 04 2021,90.8,1,4
+KPI-0737,Customer Retention Rate,Bulan 05 2021,95.0,1,5
+KPI-0738,Customer Retention Rate,Bulan 06 2021,91.0,1,4
+KPI-0739,Customer Retention Rate,Bulan 07 2021,93.9,1,2
+KPI-0740,Customer Retention Rate,Bulan 08 2021,87.1,3,5
+KPI-0741,Customer Retention Rate,Bulan 09 2021,84.2,4,4
+KPI-0742,Customer Retention Rate,Bulan 10 2021,81.7,4,5
+KPI-0743,Customer Retention Rate,Bulan 11 2021,81.5,3,5
+KPI-0744,Customer Retention Rate,Bulan 12 2021,83.5,3,5
+KPI-0745,Customer Retention Rate,Bulan 01 2022,90.0,1,5
+KPI-0746,Customer Retention Rate,Bulan 02 2022,92.5,1,5
+KPI-0747,Customer Retention Rate,Bulan 03 2022,88.7,1,4
+KPI-0748,Customer Retention Rate,Bulan 04 2022,95.5,1,5
+KPI-0749,Customer Retention Rate,Bulan 05 2022,91.6,1,5
+KPI-0750,Customer Retention Rate,Bulan 06 2022,91.8,1,5
+KPI-0751,Customer Retention Rate,Bulan 07 2022,93.6,1,3
+KPI-0752,Customer Retention Rate,Bulan 08 2022,90.0,1,3
+KPI-0753,Customer Retention Rate,Bulan 09 2022,85.8,3,4
+KPI-0754,Customer Retention Rate,Bulan 10 2022,83.7,3,4
+KPI-0755,Customer Retention Rate,Bulan 11 2022,81.1,3,5
+KPI-0756,Customer Retention Rate,Bulan 12 2022,86.1,1,5
+KPI-0757,Customer Retention Rate,Bulan 01 2023,89.3,2,5
+KPI-0758,Customer Retention Rate,Bulan 02 2023,89.3,1,5
+KPI-0759,Customer Retention Rate,Bulan 03 2023,92.8,1,5
+KPI-0760,Customer Retention Rate,Bulan 04 2023,93.9,1,5
+KPI-0761,Customer Retention Rate,Bulan 05 2023,92.7,1,5
+KPI-0762,Customer Retention Rate,Bulan 06 2023,90.3,1,4
+KPI-0763,Customer Retention Rate,Bulan 07 2023,90.5,1,4
+KPI-0764,Customer Retention Rate,Bulan 08 2023,89.3,2,3
+KPI-0765,Customer Retention Rate,Bulan 09 2023,84.2,3,4
+KPI-0766,Customer Retention Rate,Bulan 10 2023,90.0,1,4
+KPI-0767,Customer Retention Rate,Bulan 11 2023,86.7,2,4
+KPI-0768,Customer Retention Rate,Bulan 12 2023,88.5,2,4
+KPI-0769,Customer Retention Rate,Bulan 01 2024,92.1,1,3
+KPI-0770,Customer Retention Rate,Bulan 02 2024,92.8,1,4
+KPI-0771,Customer Retention Rate,Bulan 03 2024,96.0,1,5
+KPI-0772,Customer Retention Rate,Bulan 04 2024,94.9,1,3
+KPI-0773,Customer Retention Rate,Bulan 05 2024,92.2,1,3
+KPI-0774,Customer Retention Rate,Bulan 06 2024,93.3,2,3
+KPI-0775,Customer Retention Rate,Bulan 07 2024,87.7,2,3
+KPI-0776,Customer Retention Rate,Bulan 08 2024,89.0,2,4
+KPI-0777,Customer Retention Rate,Bulan 09 2024,87.3,3,3
+KPI-0778,Customer Retention Rate,Bulan 10 2024,86.4,2,3
+KPI-0779,Customer Retention Rate,Bulan 11 2024,87.2,1,3
+KPI-0780,Customer Retention Rate,Bulan 12 2024,84.2,3,3
+KPI-0781,Customer Retention Rate,Bulan 01 2025,89.4,1,2
+KPI-0782,Customer Retention Rate,Bulan 02 2025,92.9,1,4
+KPI-0783,Customer Retention Rate,Bulan 03 2025,94.5,1,5
+KPI-0784,Customer Retention Rate,Bulan 04 2025,92.1,1,5
+KPI-0785,Customer Retention Rate,Bulan 05 2025,97.4,1,5
+KPI-0786,Customer Retention Rate,Bulan 06 2025,90.7,1,5
+KPI-0787,Customer Retention Rate,Bulan 07 2025,93.5,1,3
+KPI-0788,Customer Retention Rate,Bulan 08 2025,90.3,1,3
+KPI-0789,Customer Retention Rate,Bulan 09 2025,86.3,2,3
+KPI-0790,Customer Retention Rate,Bulan 10 2025,91.8,1,4
+KPI-0791,Customer Retention Rate,Bulan 11 2025,85.0,3,5
+KPI-0792,Customer Retention Rate,Bulan 12 2025,91.7,1,4
+KPI-0793,Average Order Value,Bulan 01 2015,137.0,2,1
+KPI-0794,Average Order Value,Bulan 02 2015,139.6,1,1
+KPI-0795,Average Order Value,Bulan 03 2015,143.5,1,2
+KPI-0796,Average Order Value,Bulan 04 2015,151.3,1,2
+KPI-0797,Average Order Value,Bulan 05 2015,151.9,1,3
+KPI-0798,Average Order Value,Bulan 06 2015,141.1,2,2
+KPI-0799,Average Order Value,Bulan 07 2015,106.4,4,5
+KPI-0800,Average Order Value,Bulan 08 2015,127.4,3,5
+KPI-0801,Average Order Value,Bulan 09 2015,107.3,4,5
+KPI-0802,Average Order Value,Bulan 10 2015,117.5,2,5
+KPI-0803,Average Order Value,Bulan 11 2015,107.6,5,5
+KPI-0804,Average Order Value,Bulan 12 2015,112.9,2,5
+KPI-0805,Average Order Value,Bulan 01 2016,146.9,1,5
+KPI-0806,Average Order Value,Bulan 02 2016,138.8,2,5
+KPI-0807,Average Order Value,Bulan 03 2016,143.5,2,5
+KPI-0808,Average Order Value,Bulan 04 2016,154.2,1,5
+KPI-0809,Average Order Value,Bulan 05 2016,143.6,1,5
+KPI-0810,Average Order Value,Bulan 06 2016,162.9,1,5
+KPI-0811,Average Order Value,Bulan 07 2016,131.5,3,3
+KPI-0812,Average Order Value,Bulan 08 2016,130.4,4,3
+KPI-0813,Average Order Value,Bulan 09 2016,130.9,3,5
+KPI-0814,Average Order Value,Bulan 10 2016,135.2,1,4
+KPI-0815,Average Order Value,Bulan 11 2016,113.7,3,5
+KPI-0816,Average Order Value,Bulan 12 2016,122.4,2,5
+KPI-0817,Average Order Value,Bulan 01 2017,146.8,1,4
+KPI-0818,Average Order Value,Bulan 02 2017,149.6,1,5
+KPI-0819,Average Order Value,Bulan 03 2017,157.7,2,5
+KPI-0820,Average Order Value,Bulan 04 2017,135.2,2,5
+KPI-0821,Average Order Value,Bulan 05 2017,162.4,1,5
+KPI-0822,Average Order Value,Bulan 06 2017,133.7,3,5
+KPI-0823,Average Order Value,Bulan 07 2017,135.7,1,4
+KPI-0824,Average Order Value,Bulan 08 2017,124.8,3,5
+KPI-0825,Average Order Value,Bulan 09 2017,111.9,3,5
+KPI-0826,Average Order Value,Bulan 10 2017,104.6,5,5
+KPI-0827,Average Order Value,Bulan 11 2017,103.2,4,5
+KPI-0828,Average Order Value,Bulan 12 2017,127.3,3,5
+KPI-0829,Average Order Value,Bulan 01 2018,118.3,2,5
+KPI-0830,Average Order Value,Bulan 02 2018,129.7,3,4
+KPI-0831,Average Order Value,Bulan 03 2018,144.3,1,5
+KPI-0832,Average Order Value,Bulan 04 2018,122.1,2,4
+KPI-0833,Average Order Value,Bulan 05 2018,154.2,2,5
+KPI-0834,Average Order Value,Bulan 06 2018,116.8,3,5
+KPI-0835,Average Order Value,Bulan 07 2018,132.5,2,4
+KPI-0836,Average Order Value,Bulan 08 2018,125.9,4,4
+KPI-0837,Average Order Value,Bulan 09 2018,125.6,2,5
+KPI-0838,Average Order Value,Bulan 10 2018,117.8,3,5
+KPI-0839,Average Order Value,Bulan 11 2018,140.3,1,5
+KPI-0840,Average Order Value,Bulan 12 2018,127.8,2,3
+KPI-0841,Average Order Value,Bulan 01 2019,143.6,1,3
+KPI-0842,Average Order Value,Bulan 02 2019,133.3,3,3
+KPI-0843,Average Order Value,Bulan 03 2019,147.2,1,4
+KPI-0844,Average Order Value,Bulan 04 2019,163.4,1,5
+KPI-0845,Average Order Value,Bulan 05 2019,143.5,1,4
+KPI-0846,Average Order Value,Bulan 06 2019,142.3,2,5
+KPI-0847,Average Order Value,Bulan 07 2019,142.6,2,3
+KPI-0848,Average Order Value,Bulan 08 2019,117.9,4,5
+KPI-0849,Average Order Value,Bulan 09 2019,98.2,5,5
+KPI-0850,Average Order Value,Bulan 10 2019,120.3,3,5
+KPI-0851,Average Order Value,Bulan 11 2019,129.6,2,5
+KPI-0852,Average Order Value,Bulan 12 2019,111.6,2,5
+KPI-0853,Average Order Value,Bulan 01 2020,139.3,1,5
+KPI-0854,Average Order Value,Bulan 02 2020,146.8,1,5
+KPI-0855,Average Order Value,Bulan 03 2020,122.8,2,5
+KPI-0856,Average Order Value,Bulan 04 2020,138.1,1,5
+KPI-0857,Average Order Value,Bulan 05 2020,141.5,2,4
+KPI-0858,Average Order Value,Bulan 06 2020,138.1,1,4
+KPI-0859,Average Order Value,Bulan 07 2020,124.9,3,3
+KPI-0860,Average Order Value,Bulan 08 2020,116.8,4,5
+KPI-0861,Average Order Value,Bulan 09 2020,136.0,1,4
+KPI-0862,Average Order Value,Bulan 10 2020,116.2,2,5
+KPI-0863,Average Order Value,Bulan 11 2020,112.3,2,4
+KPI-0864,Average Order Value,Bulan 12 2020,124.2,4,4
+KPI-0865,Average Order Value,Bulan 01 2021,137.5,2,3
+KPI-0866,Average Order Value,Bulan 02 2021,140.1,1,4
+KPI-0867,Average Order Value,Bulan 03 2021,143.0,2,5
+KPI-0868,Average Order Value,Bulan 04 2021,140.5,2,5
+KPI-0869,Average Order Value,Bulan 05 2021,138.3,1,5
+KPI-0870,Average Order Value,Bulan 06 2021,133.4,2,3
+KPI-0871,Average Order Value,Bulan 07 2021,135.3,1,2
+KPI-0872,Average Order Value,Bulan 08 2021,114.4,4,4
+KPI-0873,Average Order Value,Bulan 09 2021,122.7,3,5
+KPI-0874,Average Order Value,Bulan 10 2021,130.9,2,3
+KPI-0875,Average Order Value,Bulan 11 2021,122.0,3,3
+KPI-0876,Average Order Value,Bulan 12 2021,120.5,2,3
+KPI-0877,Average Order Value,Bulan 01 2022,118.7,4,3
+KPI-0878,Average Order Value,Bulan 02 2022,154.9,2,4
+KPI-0879,Average Order Value,Bulan 03 2022,132.9,2,5
+KPI-0880,Average Order Value,Bulan 04 2022,155.0,2,5
+KPI-0881,Average Order Value,Bulan 05 2022,150.9,2,5
+KPI-0882,Average Order Value,Bulan 06 2022,136.6,1,5
+KPI-0883,Average Order Value,Bulan 07 2022,128.8,4,4
+KPI-0884,Average Order Value,Bulan 08 2022,105.5,4,5
+KPI-0885,Average Order Value,Bulan 09 2022,121.6,4,5
+KPI-0886,Average Order Value,Bulan 10 2022,122.5,3,5
+KPI-0887,Average Order Value,Bulan 11 2022,107.4,3,5
+KPI-0888,Average Order Value,Bulan 12 2022,122.1,3,5
+KPI-0889,Average Order Value,Bulan 01 2023,131.5,2,4
+KPI-0890,Average Order Value,Bulan 02 2023,144.5,1,5
+KPI-0891,Average Order Value,Bulan 03 2023,144.1,1,5
+KPI-0892,Average Order Value,Bulan 04 2023,129.8,2,5
+KPI-0893,Average Order Value,Bulan 05 2023,138.7,1,5
+KPI-0894,Average Order Value,Bulan 06 2023,140.7,1,2
+KPI-0895,Average Order Value,Bulan 07 2023,139.3,2,2
+KPI-0896,Average Order Value,Bulan 08 2023,117.2,3,4
+KPI-0897,Average Order Value,Bulan 09 2023,139.7,1,2
+KPI-0898,Average Order Value,Bulan 10 2023,96.9,4,5
+KPI-0899,Average Order Value,Bulan 11 2023,112.1,2,5
+KPI-0900,Average Order Value,Bulan 12 2023,122.4,3,5
+KPI-0901,Average Order Value,Bulan 01 2024,128.7,2,5
+KPI-0902,Average Order Value,Bulan 02 2024,125.8,2,5
+KPI-0903,Average Order Value,Bulan 03 2024,148.1,1,5
+KPI-0904,Average Order Value,Bulan 04 2024,149.3,2,5
+KPI-0905,Average Order Value,Bulan 05 2024,144.0,1,4
+KPI-0906,Average Order Value,Bulan 06 2024,141.3,2,3
+KPI-0907,Average Order Value,Bulan 07 2024,126.2,3,4
+KPI-0908,Average Order Value,Bulan 08 2024,106.7,5,5
+KPI-0909,Average Order Value,Bulan 09 2024,110.2,3,5
+KPI-0910,Average Order Value,Bulan 10 2024,116.9,2,5
+KPI-0911,Average Order Value,Bulan 11 2024,118.9,2,5
+KPI-0912,Average Order Value,Bulan 12 2024,123.2,2,4
+KPI-0913,Average Order Value,Bulan 01 2025,135.7,2,4
+KPI-0914,Average Order Value,Bulan 02 2025,131.8,2,3
+KPI-0915,Average Order Value,Bulan 03 2025,143.4,2,4
+KPI-0916,Average Order Value,Bulan 04 2025,150.8,1,5
+KPI-0917,Average Order Value,Bulan 05 2025,142.2,1,4
+KPI-0918,Average Order Value,Bulan 06 2025,125.1,3,3
+KPI-0919,Average Order Value,Bulan 07 2025,120.3,4,4
+KPI-0920,Average Order Value,Bulan 08 2025,130.7,3,4
+KPI-0921,Average Order Value,Bulan 09 2025,130.8,2,4
+KPI-0922,Average Order Value,Bulan 10 2025,126.6,2,4
+KPI-0923,Average Order Value,Bulan 11 2025,119.1,4,4
+KPI-0924,Average Order Value,Bulan 12 2025,110.2,3,2
+KPI-0925,Return on Investment,Bulan 01 2015,26.5,1,3
+KPI-0926,Return on Investment,Bulan 02 2015,28.1,1,2
+KPI-0927,Return on Investment,Bulan 03 2015,29.8,1,2
+KPI-0928,Return on Investment,Bulan 04 2015,25.6,1,3
+KPI-0929,Return on Investment,Bulan 05 2015,31.7,1,2
+KPI-0930,Return on Investment,Bulan 06 2015,30.6,1,3
+KPI-0931,Return on Investment,Bulan 07 2015,24.6,2,4
+KPI-0932,Return on Investment,Bulan 08 2015,23.1,3,3
+KPI-0933,Return on Investment,Bulan 09 2015,17.4,4,5
+KPI-0934,Return on Investment,Bulan 10 2015,22.6,2,5
+KPI-0935,Return on Investment,Bulan 11 2015,23.4,2,5
+KPI-0936,Return on Investment,Bulan 12 2015,23.2,2,5
+KPI-0937,Return on Investment,Bulan 01 2016,28.6,1,4
+KPI-0938,Return on Investment,Bulan 02 2016,26.7,1,4
+KPI-0939,Return on Investment,Bulan 03 2016,30.8,1,5
+KPI-0940,Return on Investment,Bulan 04 2016,26.9,1,4
+KPI-0941,Return on Investment,Bulan 05 2016,29.2,1,4
+KPI-0942,Return on Investment,Bulan 06 2016,27.3,2,2
+KPI-0943,Return on Investment,Bulan 07 2016,26.4,2,2
+KPI-0944,Return on Investment,Bulan 08 2016,22.6,4,5
+KPI-0945,Return on Investment,Bulan 09 2016,21.8,4,4
+KPI-0946,Return on Investment,Bulan 10 2016,24.0,2,4
+KPI-0947,Return on Investment,Bulan 11 2016,21.0,2,3
+KPI-0948,Return on Investment,Bulan 12 2016,19.3,3,5
+KPI-0949,Return on Investment,Bulan 01 2017,30.9,1,4
+KPI-0950,Return on Investment,Bulan 02 2017,32.0,1,5
+KPI-0951,Return on Investment,Bulan 03 2017,26.1,2,5
+KPI-0952,Return on Investment,Bulan 04 2017,32.2,1,5
+KPI-0953,Return on Investment,Bulan 05 2017,28.3,2,5
+KPI-0954,Return on Investment,Bulan 06 2017,29.0,2,5
+KPI-0955,Return on Investment,Bulan 07 2017,27.0,2,2
+KPI-0956,Return on Investment,Bulan 08 2017,23.5,3,5
+KPI-0957,Return on Investment,Bulan 09 2017,20.4,3,5
+KPI-0958,Return on Investment,Bulan 10 2017,20.2,3,5
+KPI-0959,Return on Investment,Bulan 11 2017,20.2,3,5
+KPI-0960,Return on Investment,Bulan 12 2017,22.0,2,4
+KPI-0961,Return on Investment,Bulan 01 2018,26.3,1,4
+KPI-0962,Return on Investment,Bulan 02 2018,26.6,2,4
+KPI-0963,Return on Investment,Bulan 03 2018,32.1,1,5
+KPI-0964,Return on Investment,Bulan 04 2018,34.9,1,5
+KPI-0965,Return on Investment,Bulan 05 2018,28.6,1,5
+KPI-0966,Return on Investment,Bulan 06 2018,29.4,2,5
+KPI-0967,Return on Investment,Bulan 07 2018,28.1,2,3
+KPI-0968,Return on Investment,Bulan 08 2018,25.9,2,4
+KPI-0969,Return on Investment,Bulan 09 2018,23.3,4,5
+KPI-0970,Return on Investment,Bulan 10 2018,24.7,3,5
+KPI-0971,Return on Investment,Bulan 11 2018,24.6,1,3
+KPI-0972,Return on Investment,Bulan 12 2018,21.3,2,4
+KPI-0973,Return on Investment,Bulan 01 2019,29.4,1,3
+KPI-0974,Return on Investment,Bulan 02 2019,31.5,1,5
+KPI-0975,Return on Investment,Bulan 03 2019,28.5,2,5
+KPI-0976,Return on Investment,Bulan 04 2019,31.3,1,5
+KPI-0977,Return on Investment,Bulan 05 2019,32.6,1,5
+KPI-0978,Return on Investment,Bulan 06 2019,28.6,1,4
+KPI-0979,Return on Investment,Bulan 07 2019,30.2,1,2
+KPI-0980,Return on Investment,Bulan 08 2019,31.7,1,2
+KPI-0981,Return on Investment,Bulan 09 2019,21.4,3,5
+KPI-0982,Return on Investment,Bulan 10 2019,19.2,3,5
+KPI-0983,Return on Investment,Bulan 11 2019,24.5,3,5
+KPI-0984,Return on Investment,Bulan 12 2019,27.3,1,5
+KPI-0985,Return on Investment,Bulan 01 2020,26.8,1,5
+KPI-0986,Return on Investment,Bulan 02 2020,33.6,1,5
+KPI-0987,Return on Investment,Bulan 03 2020,27.4,2,5
+KPI-0988,Return on Investment,Bulan 04 2020,33.7,1,5
+KPI-0989,Return on Investment,Bulan 05 2020,29.5,3,5
+KPI-0990,Return on Investment,Bulan 06 2020,34.5,1,5
+KPI-0991,Return on Investment,Bulan 07 2020,33.2,1,4
+KPI-0992,Return on Investment,Bulan 08 2020,23.4,3,5
+KPI-0993,Return on Investment,Bulan 09 2020,22.5,3,5
+KPI-0994,Return on Investment,Bulan 10 2020,26.0,3,5
+KPI-0995,Return on Investment,Bulan 11 2020,23.1,3,5
+KPI-0996,Return on Investment,Bulan 12 2020,25.6,1,5
+KPI-0997,Return on Investment,Bulan 01 2021,28.0,1,5
+KPI-0998,Return on Investment,Bulan 02 2021,24.6,1,3
+KPI-0999,Return on Investment,Bulan 03 2021,31.6,1,5
+KPI-1000,Return on Investment,Bulan 04 2021,30.3,1,4
+KPI-1001,Return on Investment,Bulan 05 2021,30.3,1,4
+KPI-1002,Return on Investment,Bulan 06 2021,34.2,1,5
+KPI-1003,Return on Investment,Bulan 07 2021,24.6,3,5
+KPI-1004,Return on Investment,Bulan 08 2021,28.3,2,5
+KPI-1005,Return on Investment,Bulan 09 2021,23.8,4,5
+KPI-1006,Return on Investment,Bulan 10 2021,23.3,2,5
+KPI-1007,Return on Investment,Bulan 11 2021,26.9,1,4
+KPI-1008,Return on Investment,Bulan 12 2021,27.2,2,5
+KPI-1009,Return on Investment,Bulan 01 2022,30.0,1,4
+KPI-1010,Return on Investment,Bulan 02 2022,33.2,1,5
+KPI-1011,Return on Investment,Bulan 03 2022,31.1,1,4
+KPI-1012,Return on Investment,Bulan 04 2022,31.0,1,4
+KPI-1013,Return on Investment,Bulan 05 2022,29.1,2,3
+KPI-1014,Return on Investment,Bulan 06 2022,28.3,2,3
+KPI-1015,Return on Investment,Bulan 07 2022,36.9,1,4
+KPI-1016,Return on Investment,Bulan 08 2022,30.0,1,3
+KPI-1017,Return on Investment,Bulan 09 2022,21.3,4,5
+KPI-1018,Return on Investment,Bulan 10 2022,20.8,4,5
+KPI-1019,Return on Investment,Bulan 11 2022,26.5,3,5
+KPI-1020,Return on Investment,Bulan 12 2022,28.2,1,5
+KPI-1021,Return on Investment,Bulan 01 2023,30.4,1,5
+KPI-1022,Return on Investment,Bulan 02 2023,30.3,1,5
+KPI-1023,Return on Investment,Bulan 03 2023,32.2,1,5
+KPI-1024,Return on Investment,Bulan 04 2023,34.1,1,5
+KPI-1025,Return on Investment,Bulan 05 2023,32.9,1,4
+KPI-1026,Return on Investment,Bulan 06 2023,24.9,3,5
+KPI-1027,Return on Investment,Bulan 07 2023,28.4,2,4
+KPI-1028,Return on Investment,Bulan 08 2023,24.6,2,5
+KPI-1029,Return on Investment,Bulan 09 2023,26.0,2,5
+KPI-1030,Return on Investment,Bulan 10 2023,33.4,1,5
+KPI-1031,Return on Investment,Bulan 11 2023,26.6,1,4
+KPI-1032,Return on Investment,Bulan 12 2023,26.3,1,4
+KPI-1033,Return on Investment,Bulan 01 2024,31.9,1,4
+KPI-1034,Return on Investment,Bulan 02 2024,32.8,1,4
+KPI-1035,Return on Investment,Bulan 03 2024,34.2,1,5
+KPI-1036,Return on Investment,Bulan 04 2024,35.3,1,5
+KPI-1037,Return on Investment,Bulan 05 2024,38.9,1,5
+KPI-1038,Return on Investment,Bulan 06 2024,28.5,2,5
+KPI-1039,Return on Investment,Bulan 07 2024,30.9,1,5
+KPI-1040,Return on Investment,Bulan 08 2024,24.9,2,5
+KPI-1041,Return on Investment,Bulan 09 2024,27.6,2,5
+KPI-1042,Return on Investment,Bulan 10 2024,22.9,3,5
+KPI-1043,Return on Investment,Bulan 11 2024,24.9,1,5
+KPI-1044,Return on Investment,Bulan 12 2024,26.8,2,5
+KPI-1045,Return on Investment,Bulan 01 2025,32.5,1,5
+KPI-1046,Return on Investment,Bulan 02 2025,34.5,1,5
+KPI-1047,Return on Investment,Bulan 03 2025,30.0,1,5
+KPI-1048,Return on Investment,Bulan 04 2025,34.3,1,5
+KPI-1049,Return on Investment,Bulan 05 2025,31.6,1,5
+KPI-1050,Return on Investment,Bulan 06 2025,28.6,1,3
+KPI-1051,Return on Investment,Bulan 07 2025,29.4,2,3
+KPI-1052,Return on Investment,Bulan 08 2025,27.1,2,4
+KPI-1053,Return on Investment,Bulan 09 2025,33.3,1,5
+KPI-1054,Return on Investment,Bulan 10 2025,27.2,1,4
+KPI-1055,Return on Investment,Bulan 11 2025,22.7,4,5
+KPI-1056,Return on Investment,Bulan 12 2025,26.6,2,4
+KPI-1057,Monthly Recurring Revenue,Bulan 01 2015,183.5,1,2
+KPI-1058,Monthly Recurring Revenue,Bulan 02 2015,189.9,1,1
+KPI-1059,Monthly Recurring Revenue,Bulan 03 2015,209.8,1,4
+KPI-1060,Monthly Recurring Revenue,Bulan 04 2015,196.4,1,3
+KPI-1061,Monthly Recurring Revenue,Bulan 05 2015,193.2,1,3
+KPI-1062,Monthly Recurring Revenue,Bulan 06 2015,183.0,2,2
+KPI-1063,Monthly Recurring Revenue,Bulan 07 2015,183.9,1,4
+KPI-1064,Monthly Recurring Revenue,Bulan 08 2015,174.4,3,3
+KPI-1065,Monthly Recurring Revenue,Bulan 09 2015,156.1,3,5
+KPI-1066,Monthly Recurring Revenue,Bulan 10 2015,159.5,3,5
+KPI-1067,Monthly Recurring Revenue,Bulan 11 2015,156.1,3,5
+KPI-1068,Monthly Recurring Revenue,Bulan 12 2015,162.1,2,3
+KPI-1069,Monthly Recurring Revenue,Bulan 01 2016,158.8,2,4
+KPI-1070,Monthly Recurring Revenue,Bulan 02 2016,185.7,1,3
+KPI-1071,Monthly Recurring Revenue,Bulan 03 2016,174.6,2,3
+KPI-1072,Monthly Recurring Revenue,Bulan 04 2016,191.8,1,5
+KPI-1073,Monthly Recurring Revenue,Bulan 05 2016,187.6,1,5
+KPI-1074,Monthly Recurring Revenue,Bulan 06 2016,200.9,1,5
+KPI-1075,Monthly Recurring Revenue,Bulan 07 2016,167.1,3,4
+KPI-1076,Monthly Recurring Revenue,Bulan 08 2016,161.1,4,5
+KPI-1077,Monthly Recurring Revenue,Bulan 09 2016,159.0,4,5
+KPI-1078,Monthly Recurring Revenue,Bulan 10 2016,154.2,2,5
+KPI-1079,Monthly Recurring Revenue,Bulan 11 2016,180.0,3,4
+KPI-1080,Monthly Recurring Revenue,Bulan 12 2016,156.4,3,5
+KPI-1081,Monthly Recurring Revenue,Bulan 01 2017,174.5,2,4
+KPI-1082,Monthly Recurring Revenue,Bulan 02 2017,192.0,1,4
+KPI-1083,Monthly Recurring Revenue,Bulan 03 2017,205.1,1,5
+KPI-1084,Monthly Recurring Revenue,Bulan 04 2017,192.4,1,5
+KPI-1085,Monthly Recurring Revenue,Bulan 05 2017,171.5,4,5
+KPI-1086,Monthly Recurring Revenue,Bulan 06 2017,186.0,2,5
+KPI-1087,Monthly Recurring Revenue,Bulan 07 2017,195.0,2,3
+KPI-1088,Monthly Recurring Revenue,Bulan 08 2017,173.1,2,3
+KPI-1089,Monthly Recurring Revenue,Bulan 09 2017,166.0,3,3
+KPI-1090,Monthly Recurring Revenue,Bulan 10 2017,147.9,4,5
+KPI-1091,Monthly Recurring Revenue,Bulan 11 2017,149.1,3,5
+KPI-1092,Monthly Recurring Revenue,Bulan 12 2017,169.8,2,5
+KPI-1093,Monthly Recurring Revenue,Bulan 01 2018,161.4,3,5
+KPI-1094,Monthly Recurring Revenue,Bulan 02 2018,196.9,1,5
+KPI-1095,Monthly Recurring Revenue,Bulan 03 2018,183.9,2,5
+KPI-1096,Monthly Recurring Revenue,Bulan 04 2018,196.1,1,5
+KPI-1097,Monthly Recurring Revenue,Bulan 05 2018,171.4,3,5
+KPI-1098,Monthly Recurring Revenue,Bulan 06 2018,182.6,1,4
+KPI-1099,Monthly Recurring Revenue,Bulan 07 2018,164.1,4,5
+KPI-1100,Monthly Recurring Revenue,Bulan 08 2018,141.4,5,5
+KPI-1101,Monthly Recurring Revenue,Bulan 09 2018,169.2,2,5
+KPI-1102,Monthly Recurring Revenue,Bulan 10 2018,179.9,2,4
+KPI-1103,Monthly Recurring Revenue,Bulan 11 2018,176.1,2,4
+KPI-1104,Monthly Recurring Revenue,Bulan 12 2018,177.3,3,3
+KPI-1105,Monthly Recurring Revenue,Bulan 01 2019,173.1,3,4
+KPI-1106,Monthly Recurring Revenue,Bulan 02 2019,196.7,1,5
+KPI-1107,Monthly Recurring Revenue,Bulan 03 2019,208.3,1,4
+KPI-1108,Monthly Recurring Revenue,Bulan 04 2019,197.6,1,3
+KPI-1109,Monthly Recurring Revenue,Bulan 05 2019,179.3,3,4
+KPI-1110,Monthly Recurring Revenue,Bulan 06 2019,180.9,4,4
+KPI-1111,Monthly Recurring Revenue,Bulan 07 2019,198.3,2,4
+KPI-1112,Monthly Recurring Revenue,Bulan 08 2019,167.9,3,5
+KPI-1113,Monthly Recurring Revenue,Bulan 09 2019,122.3,4,5
+KPI-1114,Monthly Recurring Revenue,Bulan 10 2019,142.1,5,5
+KPI-1115,Monthly Recurring Revenue,Bulan 11 2019,157.0,2,5
+KPI-1116,Monthly Recurring Revenue,Bulan 12 2019,181.1,3,5
+KPI-1117,Monthly Recurring Revenue,Bulan 01 2020,174.3,2,5
+KPI-1118,Monthly Recurring Revenue,Bulan 02 2020,199.2,1,5
+KPI-1119,Monthly Recurring Revenue,Bulan 03 2020,186.8,2,5
+KPI-1120,Monthly Recurring Revenue,Bulan 04 2020,171.9,2,5
+KPI-1121,Monthly Recurring Revenue,Bulan 05 2020,187.1,2,3
+KPI-1122,Monthly Recurring Revenue,Bulan 06 2020,190.5,1,3
+KPI-1123,Monthly Recurring Revenue,Bulan 07 2020,180.5,2,2
+KPI-1124,Monthly Recurring Revenue,Bulan 08 2020,153.3,3,4
+KPI-1125,Monthly Recurring Revenue,Bulan 09 2020,157.5,4,5
+KPI-1126,Monthly Recurring Revenue,Bulan 10 2020,191.5,2,5
+KPI-1127,Monthly Recurring Revenue,Bulan 11 2020,146.8,3,5
+KPI-1128,Monthly Recurring Revenue,Bulan 12 2020,176.1,2,4
+KPI-1129,Monthly Recurring Revenue,Bulan 01 2021,152.0,3,5
+KPI-1130,Monthly Recurring Revenue,Bulan 02 2021,196.4,1,5
+KPI-1131,Monthly Recurring Revenue,Bulan 03 2021,181.9,2,5
+KPI-1132,Monthly Recurring Revenue,Bulan 04 2021,199.8,1,5
+KPI-1133,Monthly Recurring Revenue,Bulan 05 2021,177.1,4,5
+KPI-1134,Monthly Recurring Revenue,Bulan 06 2021,189.4,1,5
+KPI-1135,Monthly Recurring Revenue,Bulan 07 2021,166.0,3,5
+KPI-1136,Monthly Recurring Revenue,Bulan 08 2021,159.3,3,4
+KPI-1137,Monthly Recurring Revenue,Bulan 09 2021,166.5,3,4
+KPI-1138,Monthly Recurring Revenue,Bulan 10 2021,153.6,2,5
+KPI-1139,Monthly Recurring Revenue,Bulan 11 2021,165.7,2,4
+KPI-1140,Monthly Recurring Revenue,Bulan 12 2021,165.4,3,4
+KPI-1141,Monthly Recurring Revenue,Bulan 01 2022,177.4,2,2
+KPI-1142,Monthly Recurring Revenue,Bulan 02 2022,190.9,1,5
+KPI-1143,Monthly Recurring Revenue,Bulan 03 2022,187.9,1,5
+KPI-1144,Monthly Recurring Revenue,Bulan 04 2022,182.6,1,4
+KPI-1145,Monthly Recurring Revenue,Bulan 05 2022,185.7,1,3
+KPI-1146,Monthly Recurring Revenue,Bulan 06 2022,199.8,1,2
+KPI-1147,Monthly Recurring Revenue,Bulan 07 2022,177.8,2,4
+KPI-1148,Monthly Recurring Revenue,Bulan 08 2022,157.2,3,4
+KPI-1149,Monthly Recurring Revenue,Bulan 09 2022,165.6,3,4
+KPI-1150,Monthly Recurring Revenue,Bulan 10 2022,163.9,2,4
+KPI-1151,Monthly Recurring Revenue,Bulan 11 2022,166.9,3,4
+KPI-1152,Monthly Recurring Revenue,Bulan 12 2022,155.5,2,4
+KPI-1153,Monthly Recurring Revenue,Bulan 01 2023,168.0,2,2
+KPI-1154,Monthly Recurring Revenue,Bulan 02 2023,177.0,3,3
+KPI-1155,Monthly Recurring Revenue,Bulan 03 2023,187.3,1,3
+KPI-1156,Monthly Recurring Revenue,Bulan 04 2023,200.5,1,3
+KPI-1157,Monthly Recurring Revenue,Bulan 05 2023,195.1,1,5
+KPI-1158,Monthly Recurring Revenue,Bulan 06 2023,189.5,1,5
+KPI-1159,Monthly Recurring Revenue,Bulan 07 2023,192.2,1,3
+KPI-1160,Monthly Recurring Revenue,Bulan 08 2023,175.1,3,2
+KPI-1161,Monthly Recurring Revenue,Bulan 09 2023,158.5,4,3
+KPI-1162,Monthly Recurring Revenue,Bulan 10 2023,143.6,4,5
+KPI-1163,Monthly Recurring Revenue,Bulan 11 2023,151.6,4,5
+KPI-1164,Monthly Recurring Revenue,Bulan 12 2023,163.6,2,5
+KPI-1165,Monthly Recurring Revenue,Bulan 01 2024,185.6,2,5
+KPI-1166,Monthly Recurring Revenue,Bulan 02 2024,184.3,1,5
+KPI-1167,Monthly Recurring Revenue,Bulan 03 2024,183.3,2,5
+KPI-1168,Monthly Recurring Revenue,Bulan 04 2024,184.8,1,5
+KPI-1169,Monthly Recurring Revenue,Bulan 05 2024,190.3,1,4
+KPI-1170,Monthly Recurring Revenue,Bulan 06 2024,195.2,1,3
+KPI-1171,Monthly Recurring Revenue,Bulan 07 2024,194.5,1,2
+KPI-1172,Monthly Recurring Revenue,Bulan 08 2024,163.9,4,2
+KPI-1173,Monthly Recurring Revenue,Bulan 09 2024,159.2,4,4
+KPI-1174,Monthly Recurring Revenue,Bulan 10 2024,142.8,5,5
+KPI-1175,Monthly Recurring Revenue,Bulan 11 2024,183.0,1,5
+KPI-1176,Monthly Recurring Revenue,Bulan 12 2024,149.4,2,5
+KPI-1177,Monthly Recurring Revenue,Bulan 01 2025,189.3,1,5
+KPI-1178,Monthly Recurring Revenue,Bulan 02 2025,179.8,2,5
+KPI-1179,Monthly Recurring Revenue,Bulan 03 2025,183.5,1,4
+KPI-1180,Monthly Recurring Revenue,Bulan 04 2025,179.8,2,4
+KPI-1181,Monthly Recurring Revenue,Bulan 05 2025,219.5,2,5
+KPI-1182,Monthly Recurring Revenue,Bulan 06 2025,186.7,1,5
+KPI-1183,Monthly Recurring Revenue,Bulan 07 2025,175.2,2,4
+KPI-1184,Monthly Recurring Revenue,Bulan 08 2025,176.6,4,5
+KPI-1185,Monthly Recurring Revenue,Bulan 09 2025,151.5,3,5
+KPI-1186,Monthly Recurring Revenue,Bulan 10 2025,156.9,3,5
+KPI-1187,Monthly Recurring Revenue,Bulan 11 2025,159.9,3,5
+KPI-1188,Monthly Recurring Revenue,Bulan 12 2025,159.6,2,4
+KPI-1189,Employee Turnover Rate,Bulan 01 2015,11.7,2,1
+KPI-1190,Employee Turnover Rate,Bulan 02 2015,16.3,3,4
+KPI-1191,Employee Turnover Rate,Bulan 03 2015,17.1,2,4
+KPI-1192,Employee Turnover Rate,Bulan 04 2015,13.2,1,3
+KPI-1193,Employee Turnover Rate,Bulan 05 2015,14.1,1,3
+KPI-1194,Employee Turnover Rate,Bulan 06 2015,14.6,2,3
+KPI-1195,Employee Turnover Rate,Bulan 07 2015,13.2,1,3
+KPI-1196,Employee Turnover Rate,Bulan 08 2015,10.2,1,4
+KPI-1197,Employee Turnover Rate,Bulan 09 2015,12.0,1,4
+KPI-1198,Employee Turnover Rate,Bulan 10 2015,11.4,2,3
+KPI-1199,Employee Turnover Rate,Bulan 11 2015,10.9,1,4
+KPI-1200,Employee Turnover Rate,Bulan 12 2015,10.8,1,2
+KPI-1201,Employee Turnover Rate,Bulan 01 2016,15.4,3,3
+KPI-1202,Employee Turnover Rate,Bulan 02 2016,17.8,3,4
+KPI-1203,Employee Turnover Rate,Bulan 03 2016,14.9,3,3
+KPI-1204,Employee Turnover Rate,Bulan 04 2016,15.0,3,4
+KPI-1205,Employee Turnover Rate,Bulan 05 2016,16.6,2,4
+KPI-1206,Employee Turnover Rate,Bulan 06 2016,14.0,1,3
+KPI-1207,Employee Turnover Rate,Bulan 07 2016,13.0,1,4
+KPI-1208,Employee Turnover Rate,Bulan 08 2016,13.2,2,3
+KPI-1209,Employee Turnover Rate,Bulan 09 2016,7.4,1,5
+KPI-1210,Employee Turnover Rate,Bulan 10 2016,12.8,2,4
+KPI-1211,Employee Turnover Rate,Bulan 11 2016,10.9,1,3
+KPI-1212,Employee Turnover Rate,Bulan 12 2016,11.0,3,4
+KPI-1213,Employee Turnover Rate,Bulan 01 2017,12.9,1,2
+KPI-1214,Employee Turnover Rate,Bulan 02 2017,14.3,2,5
+KPI-1215,Employee Turnover Rate,Bulan 03 2017,12.2,2,4
+KPI-1216,Employee Turnover Rate,Bulan 04 2017,18.3,3,3
+KPI-1217,Employee Turnover Rate,Bulan 05 2017,15.3,2,4
+KPI-1218,Employee Turnover Rate,Bulan 06 2017,15.0,3,4
+KPI-1219,Employee Turnover Rate,Bulan 07 2017,14.5,1,2
+KPI-1220,Employee Turnover Rate,Bulan 08 2017,9.6,1,3
+KPI-1221,Employee Turnover Rate,Bulan 09 2017,11.2,1,5
+KPI-1222,Employee Turnover Rate,Bulan 10 2017,9.5,1,5
+KPI-1223,Employee Turnover Rate,Bulan 11 2017,11.8,3,5
+KPI-1224,Employee Turnover Rate,Bulan 12 2017,7.4,1,5
+KPI-1225,Employee Turnover Rate,Bulan 01 2018,12.4,2,4
+KPI-1226,Employee Turnover Rate,Bulan 02 2018,12.8,1,3
+KPI-1227,Employee Turnover Rate,Bulan 03 2018,15.6,3,4
+KPI-1228,Employee Turnover Rate,Bulan 04 2018,16.0,3,5
+KPI-1229,Employee Turnover Rate,Bulan 05 2018,13.5,1,4
+KPI-1230,Employee Turnover Rate,Bulan 06 2018,12.4,1,4
+KPI-1231,Employee Turnover Rate,Bulan 07 2018,12.1,2,4
+KPI-1232,Employee Turnover Rate,Bulan 08 2018,9.3,1,4
+KPI-1233,Employee Turnover Rate,Bulan 09 2018,11.4,1,3
+KPI-1234,Employee Turnover Rate,Bulan 10 2018,8.8,1,4
+KPI-1235,Employee Turnover Rate,Bulan 11 2018,4.6,1,5
+KPI-1236,Employee Turnover Rate,Bulan 12 2018,10.1,2,3
+KPI-1237,Employee Turnover Rate,Bulan 01 2019,10.2,1,5
+KPI-1238,Employee Turnover Rate,Bulan 02 2019,10.5,2,4
+KPI-1239,Employee Turnover Rate,Bulan 03 2019,12.1,1,4
+KPI-1240,Employee Turnover Rate,Bulan 04 2019,14.9,3,4
+KPI-1241,Employee Turnover Rate,Bulan 05 2019,16.6,3,5
+KPI-1242,Employee Turnover Rate,Bulan 06 2019,13.8,1,4
+KPI-1243,Employee Turnover Rate,Bulan 07 2019,10.7,1,5
+KPI-1244,Employee Turnover Rate,Bulan 08 2019,11.3,1,4
+KPI-1245,Employee Turnover Rate,Bulan 09 2019,8.6,1,4
+KPI-1246,Employee Turnover Rate,Bulan 10 2019,7.8,1,5
+KPI-1247,Employee Turnover Rate,Bulan 11 2019,7.3,1,5
+KPI-1248,Employee Turnover Rate,Bulan 12 2019,7.1,1,4
+KPI-1249,Employee Turnover Rate,Bulan 01 2020,10.9,2,3
+KPI-1250,Employee Turnover Rate,Bulan 02 2020,13.2,2,3
+KPI-1251,Employee Turnover Rate,Bulan 03 2020,13.7,3,4
+KPI-1252,Employee Turnover Rate,Bulan 04 2020,13.4,2,5
+KPI-1253,Employee Turnover Rate,Bulan 05 2020,12.1,1,4
+KPI-1254,Employee Turnover Rate,Bulan 06 2020,13.8,1,4
+KPI-1255,Employee Turnover Rate,Bulan 07 2020,9.0,1,3
+KPI-1256,Employee Turnover Rate,Bulan 08 2020,11.4,1,3
+KPI-1257,Employee Turnover Rate,Bulan 09 2020,7.1,1,4
+KPI-1258,Employee Turnover Rate,Bulan 10 2020,7.2,1,5
+KPI-1259,Employee Turnover Rate,Bulan 11 2020,6.2,1,4
+KPI-1260,Employee Turnover Rate,Bulan 12 2020,8.9,1,5
+KPI-1261,Employee Turnover Rate,Bulan 01 2021,12.9,2,3
+KPI-1262,Employee Turnover Rate,Bulan 02 2021,13.4,2,5
+KPI-1263,Employee Turnover Rate,Bulan 03 2021,15.1,3,5
+KPI-1264,Employee Turnover Rate,Bulan 04 2021,14.6,2,5
+KPI-1265,Employee Turnover Rate,Bulan 05 2021,11.3,1,5
+KPI-1266,Employee Turnover Rate,Bulan 06 2021,11.7,1,4
+KPI-1267,Employee Turnover Rate,Bulan 07 2021,9.5,1,3
+KPI-1268,Employee Turnover Rate,Bulan 08 2021,11.9,1,3
+KPI-1269,Employee Turnover Rate,Bulan 09 2021,6.3,1,4
+KPI-1270,Employee Turnover Rate,Bulan 10 2021,9.7,1,5
+KPI-1271,Employee Turnover Rate,Bulan 11 2021,10.0,1,4
+KPI-1272,Employee Turnover Rate,Bulan 12 2021,12.6,2,3
+KPI-1273,Employee Turnover Rate,Bulan 01 2022,9.9,1,3
+KPI-1274,Employee Turnover Rate,Bulan 02 2022,13.2,2,4
+KPI-1275,Employee Turnover Rate,Bulan 03 2022,17.0,3,5
+KPI-1276,Employee Turnover Rate,Bulan 04 2022,12.1,2,4
+KPI-1277,Employee Turnover Rate,Bulan 05 2022,10.1,1,3
+KPI-1278,Employee Turnover Rate,Bulan 06 2022,8.4,1,4
+KPI-1279,Employee Turnover Rate,Bulan 07 2022,11.7,2,4
+KPI-1280,Employee Turnover Rate,Bulan 08 2022,5.6,1,5
+KPI-1281,Employee Turnover Rate,Bulan 09 2022,7.3,1,5
+KPI-1282,Employee Turnover Rate,Bulan 10 2022,8.4,1,5
+KPI-1283,Employee Turnover Rate,Bulan 11 2022,8.2,1,3
+KPI-1284,Employee Turnover Rate,Bulan 12 2022,9.6,1,2
+KPI-1285,Employee Turnover Rate,Bulan 01 2023,10.6,2,3
+KPI-1286,Employee Turnover Rate,Bulan 02 2023,13.8,2,5
+KPI-1287,Employee Turnover Rate,Bulan 03 2023,10.7,2,4
+KPI-1288,Employee Turnover Rate,Bulan 04 2023,11.5,2,2
+KPI-1289,Employee Turnover Rate,Bulan 05 2023,10.9,1,3
+KPI-1290,Employee Turnover Rate,Bulan 06 2023,12.8,3,2
+KPI-1291,Employee Turnover Rate,Bulan 07 2023,11.5,1,3
+KPI-1292,Employee Turnover Rate,Bulan 08 2023,9.3,1,4
+KPI-1293,Employee Turnover Rate,Bulan 09 2023,9.6,1,1
+KPI-1294,Employee Turnover Rate,Bulan 10 2023,5.0,1,3
+KPI-1295,Employee Turnover Rate,Bulan 11 2023,10.4,1,4
+KPI-1296,Employee Turnover Rate,Bulan 12 2023,11.1,1,5
+KPI-1297,Employee Turnover Rate,Bulan 01 2024,11.0,2,4
+KPI-1298,Employee Turnover Rate,Bulan 02 2024,14.2,3,5
+KPI-1299,Employee Turnover Rate,Bulan 03 2024,9.0,1,5
+KPI-1300,Employee Turnover Rate,Bulan 04 2024,11.3,1,5
+KPI-1301,Employee Turnover Rate,Bulan 05 2024,10.5,1,2
+KPI-1302,Employee Turnover Rate,Bulan 06 2024,12.1,2,3
+KPI-1303,Employee Turnover Rate,Bulan 07 2024,7.5,1,2
+KPI-1304,Employee Turnover Rate,Bulan 08 2024,9.4,1,5
+KPI-1305,Employee Turnover Rate,Bulan 09 2024,9.5,1,3
+KPI-1306,Employee Turnover Rate,Bulan 10 2024,7.9,1,2
+KPI-1307,Employee Turnover Rate,Bulan 11 2024,7.5,1,4
+KPI-1308,Employee Turnover Rate,Bulan 12 2024,6.1,1,3
+KPI-1309,Employee Turnover Rate,Bulan 01 2025,7.7,1,2
+KPI-1310,Employee Turnover Rate,Bulan 02 2025,12.8,3,3
+KPI-1311,Employee Turnover Rate,Bulan 03 2025,12.9,3,4
+KPI-1312,Employee Turnover Rate,Bulan 04 2025,11.7,2,5
+KPI-1313,Employee Turnover Rate,Bulan 05 2025,10.6,1,4
+KPI-1314,Employee Turnover Rate,Bulan 06 2025,6.7,1,5
+KPI-1315,Employee Turnover Rate,Bulan 07 2025,7.0,1,3
+KPI-1316,Employee Turnover Rate,Bulan 08 2025,11.0,1,4
+KPI-1317,Employee Turnover Rate,Bulan 09 2025,4.2,1,5
+KPI-1318,Employee Turnover Rate,Bulan 10 2025,6.5,1,4
+KPI-1319,Employee Turnover Rate,Bulan 11 2025,8.3,1,4
+KPI-1320,Employee Turnover Rate,Bulan 12 2025,5.2,1,3

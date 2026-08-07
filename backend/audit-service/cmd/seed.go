@@ -82,6 +82,12 @@ func runSeed(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	logger.Info("Seeding performance data...")
+	if err := seedPerformance(db); err != nil {
+		logger.Fatal("Failed to seed performance data", logger.LogField("error", err))
+		return err
+	}
+
 	logger.Info("Seeding assignment letters...")
 	if err := seedAssignmentLetters(db); err != nil {
 		logger.Fatal("Failed to seed assignment letters", logger.LogField("error", err))
@@ -448,6 +454,55 @@ func seedStrategicPlans(db *gorm.DB) error {
 			}
 		}
 	}
+	return nil
+}
+
+func seedPerformance(db *gorm.DB) error {
+	kpiSeeds := []models.KPIAchievement{
+		{
+			Year:            2026,
+			KPIName:         "Penyelesaian Program Kerja Audit Tahunan (PKAT)",
+			Target:          100,
+			Actual:          92,
+			AchievementRate: 92,
+			Notes:           "1 audit operasional ditunda ke Q1 2027 karena restrukturisasi unit bisnis",
+		},
+		{
+			Year:            2026,
+			KPIName:         "Persentase Tindak Lanjut Rekomendasi Audit",
+			Target:          85,
+			Actual:          88,
+			AchievementRate: 103.5,
+			Notes:           "Melebihi target karena implementasi sistem monitoring otomatis baru",
+		},
+		{
+			Year:            2026,
+			KPIName:         "Indeks Kepuasan Auditee terhadap Layanan Audit",
+			Target:          80,
+			Actual:          82,
+			AchievementRate: 102.5,
+			Notes:           "Survei akhir tahun menunjukkan kepuasan tinggi terhadap kejelasan rekomendasi",
+		},
+		{
+			Year:            2026,
+			KPIName:         "Rata-rata Waktu Penyampaian Laporan Hasil Audit (LHA)",
+			Target:          14,
+			Actual:          15,
+			AchievementRate: 93.3,
+			Notes:           "Target 14 hari kerja setelah exit meeting, rata-rata aktual 15 hari kerja",
+		},
+	}
+
+	for i := range kpiSeeds {
+		var count int64
+		db.Model(&models.KPIAchievement{}).Where("kpi_name = ? AND year = ?", kpiSeeds[i].KPIName, kpiSeeds[i].Year).Count(&count)
+		if count == 0 {
+			if err := db.Create(&kpiSeeds[i]).Error; err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

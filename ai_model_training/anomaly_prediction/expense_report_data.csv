@@ -1,0 +1,1201 @@
+ID Klaim,Entitas,Kategori Pengeluaran,Deskripsi Pengeluaran,claim_amount (Juta Rp),"is_sequential_invoice (1=Ya, 0=Tidak)","is_exact_round_amount (1=Ya, 0=Tidak)",duplicate_claim_count,days_since_last_claim,"is_over_limit_threshold (1=Ya, 0=Tidak)",TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5)
+CLM-0001,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1,33.52,0,1,0,6,1,Tidak,5,1
+CLM-0002,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #2,4.55,0,1,0,37,0,Tidak,1,1
+CLM-0003,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #3,83.19,0,0,0,12,1,Ya (Anomali),5,1
+CLM-0004,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #4,4.95,0,0,0,44,0,Tidak,1,1
+CLM-0005,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #5,20.66,0,0,0,20,0,Tidak,3,1
+CLM-0006,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #6,8.6,0,0,1,36,0,Tidak,3,1
+CLM-0007,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #7,2.7,0,1,2,5,0,Tidak,2,2
+CLM-0008,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #8,4.92,1,1,0,9,0,Tidak,1,2
+CLM-0009,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #9,17.36,0,0,0,26,0,Tidak,3,1
+CLM-0010,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #10,6.67,0,0,0,25,0,Tidak,2,1
+CLM-0011,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #11,14.4,0,0,0,41,0,Tidak,2,1
+CLM-0012,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #12,3.95,0,1,1,27,0,Tidak,1,2
+CLM-0013,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #13,9.43,0,0,0,15,0,Tidak,3,1
+CLM-0014,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #14,11.27,0,0,1,27,0,Tidak,2,2
+CLM-0015,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #15,8.49,0,1,0,2,0,Tidak,3,1
+CLM-0016,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #16,3.81,0,1,0,0,0,Tidak,1,2
+CLM-0017,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #17,9.79,0,0,0,2,0,Tidak,2,1
+CLM-0018,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #18,18.21,0,0,1,29,0,Tidak,3,2
+CLM-0019,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #19,50.75,0,1,2,18,1,Ya (Anomali),5,2
+CLM-0020,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #20,23.88,0,0,0,32,0,Tidak,3,1
+CLM-0021,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #21,3.14,1,0,0,7,0,Tidak,1,2
+CLM-0022,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #22,5.28,0,0,2,18,0,Tidak,1,2
+CLM-0023,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #23,1.73,1,1,0,35,0,Ya (Anomali),2,2
+CLM-0024,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #24,2.69,0,1,0,36,0,Tidak,2,1
+CLM-0025,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #25,4.83,0,1,0,4,0,Tidak,1,1
+CLM-0026,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #26,3.84,0,0,0,33,0,Tidak,2,1
+CLM-0027,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #27,4.11,0,0,0,37,0,Tidak,2,1
+CLM-0028,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #28,4.44,0,0,0,26,0,Tidak,2,1
+CLM-0029,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #29,5.86,1,1,0,38,0,Tidak,1,3
+CLM-0030,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #30,2.51,1,0,0,41,0,Tidak,1,2
+CLM-0031,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #31,5.38,0,0,0,41,0,Tidak,1,1
+CLM-0032,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #32,17.99,0,0,0,23,0,Tidak,3,1
+CLM-0033,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #33,4.55,0,1,1,30,0,Tidak,2,2
+CLM-0034,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #34,3.33,0,1,1,21,0,Tidak,1,1
+CLM-0035,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #35,1.55,0,1,0,22,0,Tidak,1,1
+CLM-0036,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #36,10.9,0,0,0,40,0,Tidak,2,1
+CLM-0037,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #37,28.18,0,1,0,23,1,Tidak,4,1
+CLM-0038,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #38,1.41,0,0,0,39,0,Tidak,1,1
+CLM-0039,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #39,12.22,0,1,1,31,0,Tidak,2,2
+CLM-0040,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #40,16.27,0,0,0,32,0,Tidak,3,1
+CLM-0041,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #41,13.96,0,0,0,27,0,Tidak,2,1
+CLM-0042,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #42,32.01,0,0,0,16,1,Tidak,5,1
+CLM-0043,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #43,30.69,0,0,0,25,1,Tidak,5,1
+CLM-0044,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #44,1.39,0,0,0,17,0,Tidak,1,1
+CLM-0045,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #45,7.22,0,0,1,14,0,Tidak,1,1
+CLM-0046,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #46,17.17,0,0,1,37,0,Tidak,3,1
+CLM-0047,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #47,46.19,0,0,0,21,1,Tidak,5,1
+CLM-0048,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #48,25.0,0,0,0,17,0,Tidak,5,1
+CLM-0049,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #49,3.41,0,1,0,20,0,Tidak,1,1
+CLM-0050,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #50,5.41,0,1,0,18,0,Tidak,2,1
+CLM-0051,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #51,22.13,0,1,0,1,0,Tidak,4,1
+CLM-0052,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #52,10.06,0,0,1,29,0,Tidak,2,1
+CLM-0053,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #53,12.39,0,1,0,24,0,Tidak,2,1
+CLM-0054,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #54,14.58,0,1,0,25,0,Tidak,2,1
+CLM-0055,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #55,2.14,0,0,0,38,0,Tidak,1,1
+CLM-0056,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #56,29.57,0,0,0,16,1,Ya (Anomali),4,1
+CLM-0057,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #57,30.33,0,0,0,15,0,Tidak,4,1
+CLM-0058,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #58,9.97,0,0,0,26,0,Tidak,3,1
+CLM-0059,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #59,15.29,1,1,1,2,0,Ya (Anomali),3,4
+CLM-0060,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #60,16.68,0,0,0,41,0,Tidak,3,1
+CLM-0061,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #61,3.66,0,0,0,37,0,Tidak,1,1
+CLM-0062,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #62,2.29,0,0,0,28,0,Tidak,2,1
+CLM-0063,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #63,0.81,0,0,0,1,0,Tidak,2,1
+CLM-0064,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #64,37.11,0,0,0,42,0,Tidak,5,1
+CLM-0065,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #65,6.86,0,0,0,39,0,Tidak,1,1
+CLM-0066,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #66,1.85,0,0,0,13,0,Tidak,2,1
+CLM-0067,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #67,9.9,0,0,0,11,0,Tidak,2,1
+CLM-0068,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #68,1.68,0,0,0,23,0,Tidak,1,1
+CLM-0069,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #69,1.84,0,1,1,27,0,Tidak,2,1
+CLM-0070,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #70,10.57,0,1,1,38,0,Ya (Anomali),3,1
+CLM-0071,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #71,11.16,0,0,0,17,0,Tidak,2,1
+CLM-0072,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #72,13.52,0,0,1,24,0,Tidak,3,1
+CLM-0073,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #73,16.52,0,0,1,36,0,Tidak,3,1
+CLM-0074,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #74,17.05,0,0,0,5,0,Tidak,3,1
+CLM-0075,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #75,9.01,0,0,0,44,0,Tidak,2,1
+CLM-0076,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #76,15.97,0,0,0,29,0,Tidak,3,1
+CLM-0077,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #77,5.95,0,1,0,30,0,Tidak,1,1
+CLM-0078,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #78,9.23,0,0,0,33,0,Tidak,2,1
+CLM-0079,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #79,8.0,0,1,0,18,0,Tidak,1,1
+CLM-0080,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #80,6.49,0,0,0,27,0,Tidak,1,1
+CLM-0081,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #81,4.59,0,0,0,7,0,Tidak,1,1
+CLM-0082,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #82,1.73,0,0,0,10,0,Tidak,2,1
+CLM-0083,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #83,11.08,0,0,0,15,0,Tidak,2,1
+CLM-0084,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #84,12.06,1,0,1,25,0,Ya (Anomali),2,4
+CLM-0085,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #85,6.65,0,1,1,0,0,Ya (Anomali),1,4
+CLM-0086,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #86,56.35,1,0,0,30,0,Tidak,5,2
+CLM-0087,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #87,12.71,0,0,0,26,0,Tidak,3,1
+CLM-0088,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #88,33.47,0,1,0,43,1,Tidak,5,1
+CLM-0089,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #89,13.16,0,0,1,8,0,Tidak,2,2
+CLM-0090,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #90,3.66,0,0,1,25,0,Tidak,2,1
+CLM-0091,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #91,55.61,1,0,0,5,1,Ya (Anomali),5,2
+CLM-0092,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #92,32.99,0,0,0,6,0,Tidak,5,1
+CLM-0093,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #93,10.06,0,0,0,12,0,Tidak,3,1
+CLM-0094,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #94,4.68,1,0,1,9,0,Ya (Anomali),1,3
+CLM-0095,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #95,4.28,1,0,1,42,0,Ya (Anomali),1,4
+CLM-0096,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #96,25.1,0,0,0,30,0,Tidak,5,1
+CLM-0097,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #97,1.57,0,1,0,36,0,Tidak,1,1
+CLM-0098,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #98,15.74,0,0,0,17,0,Tidak,2,1
+CLM-0099,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #99,15.83,0,0,1,10,0,Tidak,2,1
+CLM-0100,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #100,3.52,1,0,0,9,0,Tidak,1,2
+CLM-0101,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #101,18.81,0,0,0,27,0,Tidak,4,1
+CLM-0102,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #102,18.83,0,0,0,20,0,Tidak,3,1
+CLM-0103,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #103,6.96,0,0,1,24,0,Ya (Anomali),2,1
+CLM-0104,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #104,10.41,0,1,0,5,0,Tidak,2,1
+CLM-0105,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #105,27.33,0,0,0,41,1,Tidak,4,1
+CLM-0106,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #106,11.61,0,0,1,10,0,Tidak,3,1
+CLM-0107,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #107,14.94,0,1,0,32,0,Tidak,2,1
+CLM-0108,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #108,8.49,0,0,0,4,0,Tidak,2,1
+CLM-0109,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #109,2.93,0,1,0,33,0,Tidak,1,1
+CLM-0110,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #110,94.23,0,0,0,31,1,Tidak,5,1
+CLM-0111,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #111,11.87,0,1,1,42,0,Ya (Anomali),2,1
+CLM-0112,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #112,6.65,0,0,1,23,0,Tidak,1,1
+CLM-0113,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #113,19.27,0,1,0,12,0,Tidak,4,1
+CLM-0114,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #114,15.05,0,0,1,42,0,Tidak,3,1
+CLM-0115,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #115,4.48,0,0,0,5,0,Tidak,1,1
+CLM-0116,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #116,31.92,0,0,0,33,1,Tidak,4,1
+CLM-0117,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #117,1.6,0,1,0,24,0,Tidak,1,1
+CLM-0118,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #118,14.46,0,0,0,40,0,Tidak,3,1
+CLM-0119,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #119,10.25,0,0,1,22,0,Tidak,2,2
+CLM-0120,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #120,6.25,0,1,1,12,0,Tidak,1,1
+CLM-0121,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #121,26.76,0,0,0,27,1,Tidak,4,1
+CLM-0122,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #122,16.52,0,0,0,43,0,Tidak,3,1
+CLM-0123,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #123,21.88,0,1,0,43,0,Tidak,3,1
+CLM-0124,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #124,8.53,0,0,1,12,0,Tidak,2,1
+CLM-0125,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #125,43.31,0,1,0,6,1,Ya (Anomali),5,1
+CLM-0126,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #126,6.84,0,0,0,16,0,Tidak,1,1
+CLM-0127,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #127,11.86,0,0,1,8,0,Ya (Anomali),2,2
+CLM-0128,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #128,41.19,0,0,1,13,1,Ya (Anomali),5,1
+CLM-0129,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #129,1.8,0,1,0,29,0,Tidak,2,1
+CLM-0130,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #130,2.23,1,1,1,40,0,Ya (Anomali),1,4
+CLM-0131,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #131,77.72,0,0,0,37,1,Tidak,5,1
+CLM-0132,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #132,53.81,0,0,0,29,0,Tidak,5,1
+CLM-0133,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #133,22.66,0,0,1,32,0,Tidak,4,1
+CLM-0134,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #134,10.43,0,1,0,24,0,Tidak,3,1
+CLM-0135,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #135,11.08,0,0,0,30,0,Tidak,3,1
+CLM-0136,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #136,4.96,0,0,0,22,0,Tidak,1,1
+CLM-0137,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #137,9.0,1,1,1,26,0,Ya (Anomali),2,3
+CLM-0138,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #138,8.97,0,1,0,32,0,Tidak,2,1
+CLM-0139,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #139,1.05,0,0,0,19,0,Tidak,1,1
+CLM-0140,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #140,9.55,0,1,0,27,0,Tidak,2,1
+CLM-0141,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #141,10.3,0,1,0,7,0,Tidak,2,1
+CLM-0142,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #142,16.94,0,1,0,21,0,Tidak,3,1
+CLM-0143,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #143,11.4,0,0,0,34,0,Tidak,3,1
+CLM-0144,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #144,30.17,0,0,0,30,0,Tidak,5,1
+CLM-0145,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #145,7.37,0,1,0,43,0,Tidak,1,1
+CLM-0146,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #146,8.41,0,0,0,23,0,Tidak,3,1
+CLM-0147,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #147,13.21,0,0,1,14,0,Tidak,2,1
+CLM-0148,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #148,3.9,0,0,0,44,0,Tidak,1,1
+CLM-0149,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #149,8.0,0,0,0,30,0,Tidak,1,1
+CLM-0150,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #150,17.88,0,0,1,4,0,Tidak,3,1
+CLM-0151,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #151,8.46,0,1,1,21,0,Ya (Anomali),2,1
+CLM-0152,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #152,36.07,0,0,0,16,0,Tidak,5,1
+CLM-0153,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #153,14.83,0,0,0,27,0,Tidak,2,1
+CLM-0154,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #154,3.0,0,0,0,2,0,Tidak,2,1
+CLM-0155,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #155,10.53,0,0,1,18,0,Tidak,2,2
+CLM-0156,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #156,22.21,0,0,0,37,0,Tidak,3,1
+CLM-0157,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #157,15.96,1,1,0,26,0,Tidak,2,2
+CLM-0158,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #158,32.98,0,0,0,16,0,Tidak,5,1
+CLM-0159,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #159,21.29,1,0,1,31,0,Ya (Anomali),3,3
+CLM-0160,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #160,1.45,0,1,0,36,0,Tidak,1,1
+CLM-0161,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #161,2.29,1,0,0,20,0,Ya (Anomali),1,2
+CLM-0162,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #162,16.24,0,0,1,36,0,Tidak,3,1
+CLM-0163,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #163,4.59,0,0,0,10,0,Tidak,1,1
+CLM-0164,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #164,13.79,0,0,0,0,0,Tidak,2,2
+CLM-0165,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #165,24.07,1,0,0,29,0,Tidak,4,2
+CLM-0166,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #166,13.4,0,1,0,25,0,Tidak,2,1
+CLM-0167,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #167,8.55,0,0,0,44,0,Tidak,2,1
+CLM-0168,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #168,16.09,0,0,0,42,0,Tidak,4,1
+CLM-0169,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #169,2.83,0,0,1,35,0,Tidak,1,1
+CLM-0170,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #170,19.77,0,0,1,25,0,Tidak,3,2
+CLM-0171,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #171,18.41,0,1,0,41,0,Tidak,3,1
+CLM-0172,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #172,11.34,0,0,0,26,0,Tidak,2,1
+CLM-0173,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #173,5.4,0,0,1,25,0,Ya (Anomali),1,2
+CLM-0174,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #174,24.46,0,0,1,42,0,Tidak,5,2
+CLM-0175,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #175,11.22,0,1,0,17,0,Tidak,3,1
+CLM-0176,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #176,1.42,0,0,0,32,0,Tidak,1,1
+CLM-0177,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #177,38.13,0,0,1,35,1,Ya (Anomali),5,1
+CLM-0178,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #178,22.4,0,0,0,36,0,Tidak,3,1
+CLM-0179,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #179,13.69,0,1,0,33,0,Tidak,2,1
+CLM-0180,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #180,9.11,0,0,1,25,0,Ya (Anomali),2,2
+CLM-0181,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #181,48.75,1,0,0,21,1,Ya (Anomali),5,3
+CLM-0182,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #182,22.88,0,0,0,23,0,Tidak,4,1
+CLM-0183,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #183,11.99,0,0,0,11,0,Tidak,3,1
+CLM-0184,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #184,16.38,0,0,1,10,0,Tidak,4,1
+CLM-0185,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #185,5.44,0,0,1,20,0,Tidak,1,2
+CLM-0186,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #186,3.77,0,1,0,15,0,Tidak,1,1
+CLM-0187,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #187,5.29,0,1,0,35,0,Tidak,1,1
+CLM-0188,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #188,5.7,0,1,0,6,0,Tidak,2,1
+CLM-0189,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #189,20.69,0,0,1,27,0,Tidak,3,2
+CLM-0190,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #190,2.76,0,1,0,23,0,Tidak,1,1
+CLM-0191,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #191,23.05,0,0,0,12,0,Tidak,3,1
+CLM-0192,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #192,11.62,0,0,0,13,0,Tidak,2,1
+CLM-0193,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #193,7.78,0,0,0,42,0,Tidak,1,1
+CLM-0194,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #194,5.86,0,0,1,30,0,Tidak,2,2
+CLM-0195,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #195,11.3,0,0,0,7,0,Tidak,2,1
+CLM-0196,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #196,6.23,0,0,1,0,0,Tidak,1,3
+CLM-0197,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #197,8.92,0,0,0,39,0,Tidak,3,1
+CLM-0198,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #198,20.65,0,0,0,16,0,Tidak,3,1
+CLM-0199,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #199,15.25,0,0,1,40,0,Tidak,3,2
+CLM-0200,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #200,21.17,0,1,0,12,0,Tidak,3,1
+CLM-0201,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #201,19.22,0,1,0,26,0,Tidak,4,1
+CLM-0202,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #202,25.82,0,1,1,12,1,Ya (Anomali),5,1
+CLM-0203,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #203,3.88,0,1,0,39,0,Tidak,2,1
+CLM-0204,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #204,80.35,1,1,0,26,1,Ya (Anomali),5,3
+CLM-0205,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #205,10.19,0,0,0,31,0,Tidak,2,1
+CLM-0206,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #206,19.5,0,1,1,11,0,Tidak,3,1
+CLM-0207,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #207,17.49,0,0,0,42,0,Tidak,4,1
+CLM-0208,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #208,13.03,0,1,0,12,0,Tidak,2,1
+CLM-0209,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #209,82.65,0,0,1,15,0,Tidak,5,2
+CLM-0210,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #210,4.18,0,0,0,33,0,Tidak,2,1
+CLM-0211,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #211,8.72,0,1,0,5,0,Tidak,2,1
+CLM-0212,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #212,2.55,0,0,0,17,0,Tidak,2,1
+CLM-0213,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #213,3.51,0,0,1,16,0,Tidak,1,1
+CLM-0214,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #214,19.22,0,0,1,38,0,Tidak,3,2
+CLM-0215,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #215,0.57,0,0,0,13,0,Tidak,1,1
+CLM-0216,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #216,33.58,0,1,0,6,1,Tidak,5,1
+CLM-0217,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #217,15.54,0,0,0,5,0,Tidak,2,1
+CLM-0218,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #218,9.22,0,0,0,11,0,Tidak,2,1
+CLM-0219,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #219,6.54,0,1,0,33,0,Tidak,2,1
+CLM-0220,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #220,2.52,0,1,0,0,0,Tidak,1,2
+CLM-0221,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #221,38.68,0,0,1,28,0,Ya (Anomali),5,1
+CLM-0222,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #222,19.19,1,1,0,27,0,Ya (Anomali),3,2
+CLM-0223,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #223,6.65,1,0,1,4,0,Ya (Anomali),2,3
+CLM-0224,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #224,1.6,0,0,0,20,0,Tidak,1,1
+CLM-0225,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #225,6.41,0,1,0,38,0,Tidak,1,1
+CLM-0226,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #226,3.56,0,1,0,37,0,Tidak,1,1
+CLM-0227,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #227,23.65,0,0,1,33,0,Tidak,3,1
+CLM-0228,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #228,19.57,1,0,0,20,0,Ya (Anomali),3,2
+CLM-0229,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #229,10.84,0,0,0,23,0,Tidak,3,1
+CLM-0230,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #230,33.05,0,1,0,12,0,Tidak,5,1
+CLM-0231,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #231,3.49,1,1,1,44,0,Ya (Anomali),1,4
+CLM-0232,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #232,9.52,0,0,0,22,0,Tidak,2,1
+CLM-0233,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #233,19.1,0,0,0,31,0,Tidak,4,1
+CLM-0234,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #234,1.55,0,0,0,7,0,Tidak,1,1
+CLM-0235,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #235,7.49,1,1,1,10,0,Ya (Anomali),2,3
+CLM-0236,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #236,13.22,0,0,0,12,0,Tidak,2,1
+CLM-0237,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #237,7.35,1,0,0,19,0,Tidak,1,2
+CLM-0238,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #238,10.31,1,0,0,0,0,Ya (Anomali),2,4
+CLM-0239,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #239,14.55,0,0,0,1,0,Tidak,2,1
+CLM-0240,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #240,7.39,0,0,0,10,0,Tidak,1,1
+CLM-0241,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #241,2.18,0,0,0,29,0,Tidak,1,1
+CLM-0242,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #242,2.75,0,0,0,4,0,Tidak,2,1
+CLM-0243,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #243,11.73,0,1,0,6,0,Tidak,2,1
+CLM-0244,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #244,3.38,1,0,1,23,0,Ya (Anomali),1,3
+CLM-0245,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #245,33.59,0,0,0,30,1,Tidak,5,1
+CLM-0246,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #246,27.45,0,0,0,29,1,Tidak,4,1
+CLM-0247,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #247,6.94,0,0,0,42,0,Tidak,1,1
+CLM-0248,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #248,27.17,0,0,0,14,1,Tidak,4,1
+CLM-0249,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #249,11.93,0,0,0,35,0,Tidak,2,1
+CLM-0250,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #250,3.1,0,1,0,9,0,Tidak,1,1
+CLM-0251,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #251,14.79,0,1,0,0,0,Tidak,3,2
+CLM-0252,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #252,17.57,0,1,1,6,0,Tidak,3,1
+CLM-0253,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #253,1.81,0,0,2,43,0,Tidak,1,3
+CLM-0254,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #254,6.16,0,1,1,25,0,Tidak,2,2
+CLM-0255,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #255,0.58,0,1,0,42,0,Tidak,1,1
+CLM-0256,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #256,6.21,0,0,1,42,0,Tidak,1,1
+CLM-0257,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #257,6.63,1,0,0,29,0,Ya (Anomali),1,3
+CLM-0258,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #258,15.42,0,0,0,0,0,Tidak,2,2
+CLM-0259,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #259,3.83,0,0,1,14,0,Tidak,1,1
+CLM-0260,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #260,0.96,0,1,0,19,0,Tidak,1,1
+CLM-0261,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #261,6.19,1,0,0,21,0,Tidak,1,2
+CLM-0262,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #262,26.7,1,0,0,24,1,Ya (Anomali),4,2
+CLM-0263,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #263,8.14,0,0,1,35,0,Tidak,3,1
+CLM-0264,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #264,8.54,0,0,1,36,0,Tidak,2,2
+CLM-0265,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #265,10.0,0,1,0,44,0,Tidak,3,1
+CLM-0266,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #266,21.4,0,0,0,26,0,Tidak,4,1
+CLM-0267,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #267,10.31,0,0,0,18,0,Tidak,2,1
+CLM-0268,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #268,1.94,0,0,0,18,0,Tidak,1,1
+CLM-0269,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #269,3.97,0,1,0,15,0,Tidak,1,1
+CLM-0270,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #270,3.62,0,0,0,20,0,Tidak,1,1
+CLM-0271,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #271,11.13,0,1,1,32,0,Tidak,2,1
+CLM-0272,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #272,0.96,0,0,1,41,0,Tidak,1,1
+CLM-0273,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #273,5.5,0,0,0,30,0,Tidak,1,1
+CLM-0274,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #274,14.52,1,0,0,33,0,Ya (Anomali),2,2
+CLM-0275,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #275,7.07,0,0,0,14,0,Tidak,2,1
+CLM-0276,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #276,18.95,1,0,0,35,0,Tidak,3,2
+CLM-0277,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #277,7.94,0,0,0,25,0,Tidak,1,1
+CLM-0278,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #278,58.63,0,0,0,29,1,Tidak,5,1
+CLM-0279,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #279,50.94,0,0,1,30,1,Ya (Anomali),5,2
+CLM-0280,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #280,24.63,0,0,1,24,0,Tidak,4,1
+CLM-0281,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #281,46.81,0,0,1,3,0,Tidak,5,1
+CLM-0282,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #282,3.94,0,1,0,11,0,Tidak,1,1
+CLM-0283,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #283,21.35,0,0,1,18,0,Tidak,3,1
+CLM-0284,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #284,6.32,1,0,0,8,0,Tidak,1,2
+CLM-0285,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #285,19.88,0,0,0,24,0,Tidak,4,1
+CLM-0286,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #286,7.52,0,0,0,40,0,Tidak,2,1
+CLM-0287,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #287,5.63,0,0,1,6,0,Tidak,2,1
+CLM-0288,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #288,48.34,0,0,0,26,1,Tidak,5,1
+CLM-0289,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #289,4.03,0,1,0,42,0,Tidak,1,1
+CLM-0290,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #290,21.82,0,1,0,5,0,Tidak,4,1
+CLM-0291,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #291,17.34,1,0,0,34,0,Tidak,3,2
+CLM-0292,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #292,5.92,0,0,0,31,0,Tidak,1,1
+CLM-0293,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #293,9.7,0,0,0,13,0,Tidak,2,1
+CLM-0294,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #294,2.81,0,0,1,5,0,Tidak,1,1
+CLM-0295,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #295,38.61,0,0,1,17,1,Ya (Anomali),5,1
+CLM-0296,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #296,52.19,0,1,1,30,0,Tidak,5,1
+CLM-0297,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #297,20.28,0,0,0,15,0,Tidak,4,1
+CLM-0298,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #298,28.9,0,0,0,2,1,Tidak,5,1
+CLM-0299,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #299,1.79,0,0,0,30,0,Tidak,2,1
+CLM-0300,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #300,7.77,0,1,1,37,0,Tidak,1,2
+CLM-0301,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #301,6.53,0,0,0,16,0,Tidak,1,1
+CLM-0302,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #302,12.98,0,0,0,4,0,Tidak,3,1
+CLM-0303,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #303,3.54,0,0,0,15,0,Tidak,1,1
+CLM-0304,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #304,12.93,0,0,0,16,0,Tidak,3,1
+CLM-0305,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #305,16.44,0,0,0,30,0,Tidak,4,1
+CLM-0306,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #306,2.63,0,0,0,15,0,Tidak,1,1
+CLM-0307,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #307,2.62,0,0,0,20,0,Tidak,1,1
+CLM-0308,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #308,1.04,0,1,0,40,0,Tidak,1,1
+CLM-0309,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #309,21.96,0,0,0,38,0,Tidak,4,1
+CLM-0310,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #310,6.53,0,0,0,36,0,Tidak,1,1
+CLM-0311,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #311,4.33,0,0,0,40,0,Tidak,1,1
+CLM-0312,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #312,23.08,1,0,1,9,0,Ya (Anomali),3,3
+CLM-0313,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #313,2.82,0,1,0,31,0,Tidak,1,1
+CLM-0314,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #314,8.86,0,0,0,24,0,Tidak,2,1
+CLM-0315,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #315,20.98,0,0,0,32,0,Tidak,3,1
+CLM-0316,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #316,13.29,0,0,0,38,0,Tidak,2,1
+CLM-0317,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #317,12.61,0,1,1,36,0,Tidak,2,1
+CLM-0318,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #318,3.07,1,0,1,37,0,Ya (Anomali),1,3
+CLM-0319,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #319,3.49,0,0,1,37,0,Tidak,2,1
+CLM-0320,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #320,13.6,0,0,0,27,0,Tidak,3,1
+CLM-0321,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #321,0.86,0,0,0,14,0,Tidak,2,1
+CLM-0322,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #322,31.0,0,1,1,7,1,Ya (Anomali),4,1
+CLM-0323,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #323,6.97,0,0,0,0,0,Tidak,1,2
+CLM-0324,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #324,8.58,0,0,1,9,0,Tidak,2,1
+CLM-0325,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #325,4.98,0,0,2,34,0,Ya (Anomali),2,3
+CLM-0326,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #326,31.89,0,0,0,32,1,Tidak,4,1
+CLM-0327,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #327,15.93,0,0,0,15,0,Tidak,2,1
+CLM-0328,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #328,9.47,0,1,0,13,0,Tidak,3,1
+CLM-0329,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #329,13.7,1,0,0,4,0,Tidak,2,2
+CLM-0330,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #330,7.68,0,0,0,15,0,Tidak,1,1
+CLM-0331,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #331,9.9,0,0,0,20,0,Tidak,2,1
+CLM-0332,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #332,7.14,0,1,0,10,0,Tidak,1,1
+CLM-0333,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #333,8.43,0,0,0,6,0,Tidak,3,1
+CLM-0334,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #334,6.17,0,0,0,7,0,Tidak,2,1
+CLM-0335,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #335,1.71,0,1,1,16,0,Tidak,2,2
+CLM-0336,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #336,1.07,0,0,1,29,0,Tidak,1,2
+CLM-0337,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #337,3.37,0,0,0,13,0,Tidak,1,1
+CLM-0338,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #338,4.85,0,0,1,43,0,Tidak,1,1
+CLM-0339,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #339,33.67,0,0,0,32,1,Tidak,5,1
+CLM-0340,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #340,14.67,0,0,0,23,0,Tidak,2,1
+CLM-0341,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #341,48.16,0,1,1,6,1,Ya (Anomali),5,2
+CLM-0342,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #342,6.72,0,0,0,37,0,Tidak,1,1
+CLM-0343,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #343,8.21,0,0,0,14,0,Tidak,2,1
+CLM-0344,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #344,19.58,0,0,0,42,0,Tidak,4,1
+CLM-0345,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #345,13.44,1,0,1,24,0,Ya (Anomali),3,4
+CLM-0346,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #346,11.76,1,1,0,16,0,Tidak,3,3
+CLM-0347,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #347,13.35,0,0,1,32,0,Tidak,2,1
+CLM-0348,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #348,13.66,0,1,0,1,0,Tidak,2,1
+CLM-0349,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #349,22.27,0,1,0,38,0,Tidak,4,1
+CLM-0350,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #350,17.04,0,1,0,9,0,Tidak,3,1
+CLM-0351,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #351,47.81,0,0,0,13,0,Tidak,5,1
+CLM-0352,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #352,44.84,0,0,0,11,1,Tidak,5,1
+CLM-0353,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #353,8.72,0,0,0,16,0,Tidak,2,1
+CLM-0354,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #354,1.05,0,0,0,13,0,Tidak,2,1
+CLM-0355,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #355,0.67,0,0,0,9,0,Tidak,1,1
+CLM-0356,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #356,2.47,0,0,0,43,0,Tidak,1,1
+CLM-0357,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #357,1.67,0,1,1,38,0,Tidak,1,1
+CLM-0358,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #358,7.51,0,0,1,39,0,Tidak,1,1
+CLM-0359,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #359,1.31,0,0,1,28,0,Tidak,1,1
+CLM-0360,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #360,15.21,0,0,1,44,0,Tidak,3,1
+CLM-0361,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #361,3.66,1,0,0,5,0,Ya (Anomali),1,2
+CLM-0362,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #362,11.32,0,0,0,39,0,Tidak,2,1
+CLM-0363,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #363,2.13,1,0,1,30,0,Ya (Anomali),1,4
+CLM-0364,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #364,26.88,0,0,1,36,1,Ya (Anomali),5,1
+CLM-0365,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #365,23.21,1,0,0,8,0,Tidak,3,2
+CLM-0366,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #366,7.83,0,0,0,42,0,Tidak,1,1
+CLM-0367,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #367,36.72,0,0,0,44,1,Tidak,5,1
+CLM-0368,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #368,3.58,0,0,0,32,0,Tidak,2,1
+CLM-0369,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #369,25.73,0,0,0,6,0,Tidak,4,1
+CLM-0370,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #370,12.34,0,0,1,37,0,Tidak,2,1
+CLM-0371,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #371,6.5,0,0,0,7,0,Tidak,2,1
+CLM-0372,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #372,1.82,1,0,0,33,0,Tidak,1,2
+CLM-0373,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #373,3.32,0,1,0,16,0,Tidak,1,1
+CLM-0374,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #374,30.3,0,0,1,16,1,Ya (Anomali),5,1
+CLM-0375,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #375,14.5,0,0,0,29,0,Tidak,2,1
+CLM-0376,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #376,4.56,0,1,0,17,0,Tidak,2,1
+CLM-0377,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #377,10.77,0,0,0,38,0,Tidak,2,1
+CLM-0378,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #378,2.21,0,0,0,14,0,Tidak,1,1
+CLM-0379,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #379,2.06,0,1,0,44,0,Tidak,1,1
+CLM-0380,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #380,36.25,1,0,1,19,1,Ya (Anomali),5,4
+CLM-0381,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #381,9.68,0,1,0,24,0,Tidak,3,1
+CLM-0382,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #382,7.23,0,0,0,13,0,Tidak,2,1
+CLM-0383,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #383,45.16,0,0,0,26,1,Tidak,5,1
+CLM-0384,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #384,8.14,0,0,0,34,0,Tidak,2,1
+CLM-0385,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #385,6.65,0,0,0,27,0,Tidak,1,1
+CLM-0386,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #386,5.28,0,0,0,5,0,Tidak,2,1
+CLM-0387,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #387,12.99,0,1,0,40,0,Tidak,3,1
+CLM-0388,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #388,12.76,0,0,1,30,0,Tidak,3,2
+CLM-0389,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #389,0.74,0,1,0,13,0,Tidak,2,1
+CLM-0390,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #390,16.42,1,0,1,15,0,Ya (Anomali),3,4
+CLM-0391,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #391,23.79,0,1,0,43,0,Tidak,3,1
+CLM-0392,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #392,14.86,0,0,1,35,0,Tidak,2,1
+CLM-0393,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #393,31.09,0,0,0,4,1,Tidak,4,1
+CLM-0394,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #394,5.35,0,0,0,31,0,Tidak,1,1
+CLM-0395,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #395,3.7,0,0,1,10,0,Tidak,1,1
+CLM-0396,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #396,18.42,0,0,0,21,0,Tidak,3,1
+CLM-0397,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #397,3.63,0,0,0,42,0,Tidak,1,1
+CLM-0398,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #398,1.93,0,0,1,39,0,Tidak,1,2
+CLM-0399,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #399,2.02,0,0,0,27,0,Tidak,2,1
+CLM-0400,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #400,22.44,0,0,0,5,0,Tidak,4,1
+CLM-0401,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #401,0.94,0,0,0,38,0,Tidak,1,1
+CLM-0402,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #402,5.63,0,0,0,5,0,Tidak,1,1
+CLM-0403,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #403,2.57,0,0,0,19,0,Tidak,1,1
+CLM-0404,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #404,21.59,0,1,1,37,0,Tidak,4,2
+CLM-0405,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #405,11.0,0,0,1,3,0,Tidak,2,1
+CLM-0406,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #406,3.95,0,1,0,24,0,Tidak,1,1
+CLM-0407,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #407,21.32,1,1,0,12,0,Ya (Anomali),3,2
+CLM-0408,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #408,21.32,0,0,0,11,0,Tidak,4,1
+CLM-0409,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #409,11.6,0,1,0,8,0,Tidak,2,1
+CLM-0410,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #410,5.34,0,0,0,2,0,Tidak,1,1
+CLM-0411,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #411,13.74,0,1,0,31,0,Tidak,2,1
+CLM-0412,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #412,41.17,0,0,1,10,0,Tidak,5,1
+CLM-0413,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #413,1.3,0,0,1,4,0,Tidak,1,1
+CLM-0414,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #414,5.16,0,0,0,34,0,Tidak,2,1
+CLM-0415,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #415,5.53,0,1,0,23,0,Tidak,2,1
+CLM-0416,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #416,15.49,0,0,0,40,0,Tidak,2,1
+CLM-0417,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #417,16.3,0,0,0,5,0,Tidak,4,1
+CLM-0418,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #418,3.97,0,0,1,17,0,Ya (Anomali),1,1
+CLM-0419,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #419,4.15,0,1,0,37,0,Tidak,1,1
+CLM-0420,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #420,40.01,0,0,0,5,1,Tidak,5,1
+CLM-0421,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #421,21.68,0,0,0,21,0,Tidak,3,1
+CLM-0422,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #422,41.33,0,0,1,41,1,Ya (Anomali),5,1
+CLM-0423,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #423,27.05,0,0,0,42,1,Tidak,4,1
+CLM-0424,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #424,8.22,0,0,0,13,0,Tidak,2,1
+CLM-0425,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #425,2.45,0,1,1,11,0,Tidak,2,2
+CLM-0426,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #426,15.4,0,1,0,24,0,Tidak,3,1
+CLM-0427,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #427,7.01,0,0,1,19,0,Tidak,1,2
+CLM-0428,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #428,8.81,1,1,0,17,0,Tidak,2,2
+CLM-0429,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #429,8.82,0,1,0,23,0,Tidak,3,1
+CLM-0430,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #430,41.86,0,1,1,14,1,Ya (Anomali),5,1
+CLM-0431,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #431,1.57,0,1,0,30,0,Tidak,1,1
+CLM-0432,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #432,3.72,0,0,1,41,0,Ya (Anomali),2,2
+CLM-0433,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #433,14.55,0,0,1,0,0,Ya (Anomali),3,4
+CLM-0434,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #434,32.78,0,0,0,14,0,Tidak,5,1
+CLM-0435,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #435,38.01,0,0,0,33,0,Tidak,5,1
+CLM-0436,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #436,12.77,0,1,0,1,0,Tidak,2,1
+CLM-0437,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #437,1.03,0,0,0,35,0,Tidak,2,1
+CLM-0438,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #438,7.26,0,1,0,22,0,Tidak,2,1
+CLM-0439,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #439,38.17,0,0,0,23,1,Tidak,5,1
+CLM-0440,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #440,10.9,0,0,0,31,0,Tidak,2,1
+CLM-0441,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #441,19.95,0,0,1,12,0,Ya (Anomali),4,1
+CLM-0442,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #442,5.2,0,1,1,32,0,Tidak,1,1
+CLM-0443,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #443,0.88,0,0,0,41,0,Tidak,2,1
+CLM-0444,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #444,13.45,0,0,0,13,0,Tidak,2,1
+CLM-0445,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #445,27.53,0,0,0,16,1,Ya (Anomali),5,1
+CLM-0446,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #446,69.99,0,1,1,15,1,Ya (Anomali),5,2
+CLM-0447,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #447,28.62,0,0,0,31,1,Ya (Anomali),5,1
+CLM-0448,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #448,12.61,0,1,2,14,0,Tidak,2,3
+CLM-0449,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #449,14.58,0,0,1,42,0,Tidak,2,2
+CLM-0450,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #450,26.57,0,0,1,30,0,Tidak,4,1
+CLM-0451,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #451,0.8,0,0,0,11,0,Tidak,1,1
+CLM-0452,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #452,45.94,0,1,0,32,0,Tidak,5,1
+CLM-0453,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #453,11.86,0,0,2,2,0,Tidak,2,2
+CLM-0454,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #454,46.06,0,0,0,10,1,Tidak,5,1
+CLM-0455,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #455,22.19,1,0,0,42,0,Ya (Anomali),3,3
+CLM-0456,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #456,2.98,0,1,0,4,0,Tidak,1,1
+CLM-0457,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #457,3.21,0,0,0,26,0,Tidak,1,1
+CLM-0458,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #458,7.05,0,0,1,15,0,Tidak,1,2
+CLM-0459,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #459,5.1,0,0,0,34,0,Tidak,2,1
+CLM-0460,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #460,9.18,0,0,1,39,0,Tidak,2,1
+CLM-0461,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #461,14.39,1,0,0,15,0,Ya (Anomali),2,3
+CLM-0462,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #462,9.11,0,0,0,15,0,Tidak,2,1
+CLM-0463,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #463,1.37,0,0,1,21,0,Tidak,2,1
+CLM-0464,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #464,56.22,0,0,1,3,0,Tidak,5,1
+CLM-0465,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #465,8.8,0,0,1,31,0,Tidak,3,1
+CLM-0466,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #466,29.06,0,0,1,26,1,Ya (Anomali),4,1
+CLM-0467,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #467,1.65,0,1,0,14,0,Tidak,2,1
+CLM-0468,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #468,25.42,0,0,0,18,1,Tidak,5,1
+CLM-0469,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #469,3.36,0,0,0,25,0,Tidak,1,1
+CLM-0470,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #470,17.56,0,1,0,14,0,Tidak,3,1
+CLM-0471,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #471,16.76,0,0,0,44,0,Tidak,4,1
+CLM-0472,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #472,36.59,0,0,0,9,1,Tidak,5,1
+CLM-0473,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #473,6.3,0,0,0,33,0,Tidak,1,1
+CLM-0474,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #474,2.23,0,0,0,37,0,Tidak,2,1
+CLM-0475,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #475,30.49,0,0,0,25,1,Tidak,5,1
+CLM-0476,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #476,6.54,0,1,0,7,0,Tidak,1,1
+CLM-0477,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #477,4.47,0,0,1,15,0,Ya (Anomali),1,1
+CLM-0478,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #478,10.49,0,0,0,28,0,Tidak,2,1
+CLM-0479,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #479,2.87,0,1,0,31,0,Tidak,1,1
+CLM-0480,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #480,5.79,0,0,1,20,0,Tidak,1,1
+CLM-0481,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #481,7.8,0,0,0,31,0,Tidak,2,1
+CLM-0482,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #482,5.37,0,0,2,44,0,Tidak,2,2
+CLM-0483,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #483,9.47,0,1,0,11,0,Tidak,2,1
+CLM-0484,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #484,7.78,0,0,0,38,0,Tidak,1,1
+CLM-0485,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #485,22.85,0,0,0,9,0,Tidak,4,1
+CLM-0486,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #486,38.09,0,0,1,5,0,Tidak,5,1
+CLM-0487,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #487,2.1,0,0,0,36,0,Tidak,1,1
+CLM-0488,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #488,26.5,0,0,0,17,1,Tidak,4,1
+CLM-0489,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #489,40.77,0,0,1,30,1,Ya (Anomali),5,1
+CLM-0490,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #490,17.9,0,0,1,34,0,Tidak,3,2
+CLM-0491,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #491,84.98,0,1,1,2,0,Tidak,5,1
+CLM-0492,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #492,6.62,1,1,1,4,0,Ya (Anomali),2,3
+CLM-0493,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #493,27.11,0,1,1,33,1,Ya (Anomali),4,1
+CLM-0494,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #494,17.3,0,0,0,32,0,Tidak,4,1
+CLM-0495,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #495,6.36,1,0,0,35,0,Tidak,2,2
+CLM-0496,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #496,18.8,0,0,1,9,0,Tidak,3,2
+CLM-0497,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #497,11.19,0,0,0,44,0,Tidak,2,1
+CLM-0498,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #498,3.64,0,0,0,2,0,Tidak,1,1
+CLM-0499,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #499,3.37,0,0,0,10,0,Tidak,1,1
+CLM-0500,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #500,19.24,1,0,0,2,0,Ya (Anomali),3,2
+CLM-0501,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #501,19.17,0,0,0,27,0,Tidak,4,1
+CLM-0502,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #502,11.85,0,0,1,41,0,Ya (Anomali),3,1
+CLM-0503,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #503,10.94,0,0,1,27,0,Tidak,2,1
+CLM-0504,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #504,3.48,0,1,0,8,0,Tidak,2,1
+CLM-0505,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #505,8.91,0,0,0,25,0,Tidak,3,1
+CLM-0506,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #506,31.27,0,1,0,28,1,Tidak,5,1
+CLM-0507,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #507,29.44,0,1,0,9,1,Tidak,5,1
+CLM-0508,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #508,16.72,0,1,0,26,0,Tidak,3,1
+CLM-0509,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #509,89.54,0,1,0,44,1,Tidak,5,1
+CLM-0510,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #510,34.05,0,0,1,31,1,Ya (Anomali),5,1
+CLM-0511,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #511,2.85,0,0,0,17,0,Tidak,2,1
+CLM-0512,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #512,8.14,0,1,0,17,0,Tidak,2,1
+CLM-0513,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #513,2.62,0,0,0,21,0,Tidak,2,1
+CLM-0514,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #514,9.91,0,0,1,16,0,Ya (Anomali),3,2
+CLM-0515,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #515,22.97,0,0,1,24,0,Tidak,3,1
+CLM-0516,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #516,3.04,0,0,0,25,0,Tidak,2,1
+CLM-0517,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #517,32.36,0,1,1,4,1,Ya (Anomali),5,1
+CLM-0518,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #518,13.13,0,0,0,8,0,Tidak,2,1
+CLM-0519,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #519,21.23,0,0,0,43,0,Tidak,3,1
+CLM-0520,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #520,1.19,0,1,0,43,0,Tidak,1,1
+CLM-0521,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #521,1.98,0,0,0,23,0,Tidak,2,1
+CLM-0522,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #522,15.05,0,1,1,6,0,Tidak,3,1
+CLM-0523,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #523,27.82,0,1,1,19,1,Ya (Anomali),4,2
+CLM-0524,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #524,31.56,0,1,0,43,1,Tidak,4,1
+CLM-0525,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #525,17.99,0,0,0,40,0,Tidak,3,1
+CLM-0526,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #526,3.86,0,0,0,7,0,Tidak,1,1
+CLM-0527,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #527,3.75,0,0,1,18,0,Tidak,1,1
+CLM-0528,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #528,32.48,0,0,0,34,1,Tidak,5,1
+CLM-0529,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #529,2.3,0,0,0,42,0,Tidak,1,1
+CLM-0530,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #530,17.88,0,0,1,43,0,Tidak,3,2
+CLM-0531,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #531,11.94,0,0,0,24,0,Tidak,3,1
+CLM-0532,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #532,8.71,1,0,1,16,0,Ya (Anomali),2,3
+CLM-0533,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #533,9.21,0,0,0,38,0,Tidak,3,1
+CLM-0534,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #534,44.06,0,0,0,24,0,Tidak,5,1
+CLM-0535,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #535,30.15,1,1,1,34,1,Ya (Anomali),4,3
+CLM-0536,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #536,30.54,0,0,0,38,1,Tidak,5,1
+CLM-0537,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #537,8.33,0,0,0,38,0,Tidak,3,1
+CLM-0538,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #538,2.2,0,0,1,1,0,Tidak,1,1
+CLM-0539,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #539,92.56,0,0,0,15,1,Tidak,5,1
+CLM-0540,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #540,2.86,0,0,0,41,0,Tidak,1,1
+CLM-0541,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #541,11.37,0,0,0,13,0,Tidak,2,1
+CLM-0542,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #542,5.11,0,1,0,28,0,Tidak,2,1
+CLM-0543,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #543,11.22,0,0,0,38,0,Tidak,2,1
+CLM-0544,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #544,5.96,0,0,0,1,0,Tidak,1,1
+CLM-0545,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #545,34.58,1,1,0,9,1,Ya (Anomali),5,2
+CLM-0546,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #546,52.29,0,0,0,1,1,Tidak,5,1
+CLM-0547,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #547,8.42,0,0,0,26,0,Tidak,2,1
+CLM-0548,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #548,1.59,1,1,0,12,0,Ya (Anomali),1,2
+CLM-0549,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #549,16.83,0,0,0,1,0,Tidak,3,1
+CLM-0550,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #550,7.59,0,0,0,41,0,Tidak,1,1
+CLM-0551,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #551,64.5,0,1,0,13,1,Tidak,5,1
+CLM-0552,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #552,1.9,0,0,0,16,0,Tidak,2,1
+CLM-0553,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #553,2.4,0,0,0,43,0,Tidak,1,1
+CLM-0554,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #554,18.53,0,0,0,37,0,Tidak,4,1
+CLM-0555,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #555,21.82,1,0,0,35,0,Ya (Anomali),4,2
+CLM-0556,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #556,10.05,0,0,1,33,0,Tidak,2,2
+CLM-0557,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #557,5.37,0,0,0,28,0,Tidak,1,1
+CLM-0558,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #558,6.06,0,1,1,22,0,Tidak,2,2
+CLM-0559,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #559,6.69,0,1,0,22,0,Tidak,1,1
+CLM-0560,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #560,4.33,0,0,1,15,0,Tidak,2,1
+CLM-0561,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #561,29.02,0,0,0,43,1,Tidak,4,1
+CLM-0562,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #562,1.51,0,0,0,6,0,Tidak,1,1
+CLM-0563,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #563,8.35,0,1,1,44,0,Tidak,2,1
+CLM-0564,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #564,21.15,0,0,0,0,0,Tidak,4,3
+CLM-0565,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #565,0.56,0,0,0,18,0,Tidak,2,1
+CLM-0566,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #566,32.06,0,0,0,44,0,Tidak,5,1
+CLM-0567,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #567,18.88,0,0,0,32,0,Tidak,4,1
+CLM-0568,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #568,1.64,0,0,1,33,0,Tidak,2,1
+CLM-0569,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #569,34.31,1,0,0,0,1,Ya (Anomali),5,5
+CLM-0570,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #570,10.52,0,0,0,11,0,Tidak,3,1
+CLM-0571,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #571,16.34,0,0,0,24,0,Tidak,4,1
+CLM-0572,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #572,32.56,0,1,0,22,0,Tidak,5,1
+CLM-0573,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #573,32.45,0,0,0,24,1,Tidak,5,1
+CLM-0574,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #574,8.38,0,0,0,30,0,Tidak,3,1
+CLM-0575,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #575,4.57,0,0,0,23,0,Tidak,1,1
+CLM-0576,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #576,4.96,0,0,0,9,0,Tidak,1,1
+CLM-0577,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #577,22.28,0,0,0,1,0,Tidak,3,1
+CLM-0578,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #578,40.27,0,0,0,32,1,Tidak,5,1
+CLM-0579,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #579,1.62,0,1,1,36,0,Tidak,1,2
+CLM-0580,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #580,0.73,0,0,0,22,0,Tidak,1,1
+CLM-0581,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #581,26.47,0,0,0,1,0,Tidak,4,1
+CLM-0582,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #582,7.83,0,0,0,3,0,Tidak,1,1
+CLM-0583,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #583,5.35,0,0,1,22,0,Tidak,1,2
+CLM-0584,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #584,3.63,1,0,0,40,0,Tidak,2,2
+CLM-0585,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #585,6.88,0,1,0,37,0,Tidak,2,1
+CLM-0586,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #586,53.85,0,0,1,22,1,Ya (Anomali),5,1
+CLM-0587,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #587,57.14,0,1,0,11,1,Tidak,5,1
+CLM-0588,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #588,6.54,0,0,0,43,0,Tidak,2,1
+CLM-0589,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #589,50.23,0,1,0,23,0,Tidak,5,1
+CLM-0590,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #590,5.85,0,1,0,28,0,Tidak,1,1
+CLM-0591,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #591,29.41,1,0,0,40,1,Ya (Anomali),5,3
+CLM-0592,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #592,4.07,0,0,0,27,0,Tidak,2,1
+CLM-0593,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #593,26.77,0,0,0,14,1,Tidak,4,1
+CLM-0594,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #594,7.05,0,0,0,9,0,Tidak,1,1
+CLM-0595,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #595,3.77,0,0,1,33,0,Tidak,2,1
+CLM-0596,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #596,41.45,0,0,0,28,1,Tidak,5,1
+CLM-0597,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #597,4.12,0,1,0,30,0,Tidak,1,1
+CLM-0598,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #598,72.62,0,0,3,22,1,Ya (Anomali),5,4
+CLM-0599,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #599,2.22,0,0,0,17,0,Tidak,1,1
+CLM-0600,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #600,0.65,0,0,1,6,0,Ya (Anomali),1,1
+CLM-0601,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #601,31.2,1,0,0,26,1,Ya (Anomali),4,3
+CLM-0602,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #602,13.75,1,1,1,8,0,Ya (Anomali),2,3
+CLM-0603,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #603,8.71,0,1,1,19,0,Tidak,2,1
+CLM-0604,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #604,1.78,0,0,0,20,0,Tidak,1,1
+CLM-0605,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #605,13.33,0,0,0,27,0,Tidak,2,1
+CLM-0606,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #606,8.01,0,0,0,2,0,Tidak,2,1
+CLM-0607,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #607,10.41,0,0,0,44,0,Tidak,2,1
+CLM-0608,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #608,15.43,0,0,2,9,0,Tidak,2,2
+CLM-0609,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #609,15.82,0,0,0,16,0,Tidak,3,1
+CLM-0610,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #610,49.01,0,1,1,34,1,Ya (Anomali),5,1
+CLM-0611,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #611,16.47,1,0,1,20,0,Ya (Anomali),4,3
+CLM-0612,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #612,6.72,0,0,0,8,0,Tidak,1,1
+CLM-0613,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #613,6.5,0,1,0,16,0,Tidak,1,1
+CLM-0614,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #614,10.23,0,0,0,31,0,Tidak,2,1
+CLM-0615,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #615,5.0,0,0,0,37,0,Tidak,1,1
+CLM-0616,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #616,7.58,0,0,1,27,0,Ya (Anomali),1,1
+CLM-0617,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #617,28.19,0,0,0,17,1,Tidak,5,1
+CLM-0618,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #618,29.97,0,0,0,5,1,Tidak,4,1
+CLM-0619,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #619,15.32,0,0,1,5,0,Tidak,2,2
+CLM-0620,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #620,13.61,0,0,0,16,0,Tidak,3,1
+CLM-0621,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #621,8.86,0,1,0,9,0,Tidak,2,1
+CLM-0622,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #622,15.65,0,0,1,1,0,Ya (Anomali),2,1
+CLM-0623,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #623,25.1,0,0,0,32,1,Tidak,5,1
+CLM-0624,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #624,20.58,1,0,1,42,0,Ya (Anomali),4,3
+CLM-0625,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #625,1.04,0,0,1,24,0,Tidak,1,1
+CLM-0626,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #626,20.2,0,0,0,37,0,Tidak,3,1
+CLM-0627,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #627,19.59,0,0,0,0,0,Tidak,3,2
+CLM-0628,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #628,2.06,0,0,0,15,0,Tidak,1,1
+CLM-0629,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #629,2.94,0,1,0,25,0,Tidak,1,1
+CLM-0630,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #630,23.76,0,0,0,40,0,Tidak,3,1
+CLM-0631,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #631,12.78,1,0,0,11,0,Tidak,2,2
+CLM-0632,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #632,26.36,0,1,1,8,1,Ya (Anomali),4,2
+CLM-0633,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #633,3.56,0,0,0,12,0,Tidak,1,1
+CLM-0634,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #634,0.97,0,0,1,6,0,Tidak,2,1
+CLM-0635,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #635,3.15,0,1,0,0,0,Tidak,2,2
+CLM-0636,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #636,9.54,1,0,0,30,0,Tidak,2,2
+CLM-0637,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #637,11.61,0,0,1,34,0,Tidak,3,1
+CLM-0638,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #638,29.75,1,0,1,23,1,Ya (Anomali),5,4
+CLM-0639,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #639,19.39,1,0,0,2,0,Tidak,3,2
+CLM-0640,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #640,70.18,1,0,0,18,0,Tidak,5,3
+CLM-0641,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #641,1.73,0,0,0,3,0,Tidak,1,1
+CLM-0642,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #642,2.59,0,0,0,27,0,Tidak,1,1
+CLM-0643,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #643,1.82,0,0,1,43,0,Ya (Anomali),2,2
+CLM-0644,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #644,12.1,0,1,1,29,0,Tidak,2,1
+CLM-0645,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #645,5.16,0,0,0,35,0,Tidak,1,1
+CLM-0646,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #646,17.76,0,0,0,41,0,Tidak,3,1
+CLM-0647,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #647,2.64,0,1,0,3,0,Tidak,1,1
+CLM-0648,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #648,2.13,0,0,1,22,0,Tidak,2,1
+CLM-0649,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #649,9.75,0,0,0,10,0,Tidak,2,1
+CLM-0650,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #650,7.57,0,0,1,3,0,Ya (Anomali),2,1
+CLM-0651,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #651,27.01,0,1,1,10,1,Ya (Anomali),4,1
+CLM-0652,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #652,27.76,0,1,0,23,0,Tidak,5,1
+CLM-0653,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #653,2.37,0,1,1,19,0,Tidak,2,2
+CLM-0654,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #654,25.6,0,0,0,44,0,Tidak,5,1
+CLM-0655,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #655,12.96,0,0,0,16,0,Tidak,2,1
+CLM-0656,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #656,11.0,0,0,0,12,0,Tidak,3,1
+CLM-0657,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #657,1.99,0,1,2,16,0,Tidak,1,2
+CLM-0658,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #658,20.68,0,0,0,14,0,Tidak,3,1
+CLM-0659,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #659,1.42,1,0,0,3,0,Ya (Anomali),1,2
+CLM-0660,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #660,5.38,0,0,0,17,0,Tidak,2,1
+CLM-0661,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #661,2.0,0,0,0,42,0,Tidak,1,1
+CLM-0662,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #662,11.85,1,0,1,8,0,Ya (Anomali),3,3
+CLM-0663,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #663,16.04,0,0,1,2,0,Tidak,3,2
+CLM-0664,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #664,33.73,0,0,0,26,1,Tidak,5,1
+CLM-0665,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #665,20.36,0,0,0,17,0,Tidak,3,1
+CLM-0666,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #666,49.2,0,0,0,16,1,Ya (Anomali),5,1
+CLM-0667,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #667,21.97,0,0,0,9,0,Tidak,3,1
+CLM-0668,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #668,5.81,0,0,1,36,0,Tidak,1,2
+CLM-0669,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #669,12.4,0,0,0,28,0,Tidak,2,1
+CLM-0670,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #670,9.69,0,1,1,4,0,Tidak,3,2
+CLM-0671,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #671,13.02,0,0,0,5,0,Tidak,2,1
+CLM-0672,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #672,13.23,0,0,0,39,0,Tidak,2,1
+CLM-0673,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #673,18.67,0,0,0,34,0,Tidak,3,1
+CLM-0674,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #674,1.8,0,0,0,4,0,Tidak,1,1
+CLM-0675,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #675,21.1,0,0,0,14,0,Tidak,4,1
+CLM-0676,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #676,2.83,0,1,0,26,0,Tidak,2,1
+CLM-0677,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #677,0.9,0,0,0,43,0,Tidak,1,1
+CLM-0678,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #678,11.48,0,1,0,38,0,Tidak,2,1
+CLM-0679,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #679,13.57,0,1,0,32,0,Tidak,2,1
+CLM-0680,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #680,1.03,0,0,0,23,0,Tidak,1,1
+CLM-0681,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #681,11.37,1,0,0,20,0,Tidak,2,3
+CLM-0682,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #682,11.97,0,0,1,1,0,Ya (Anomali),2,1
+CLM-0683,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #683,1.31,0,0,0,18,0,Tidak,1,1
+CLM-0684,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #684,19.15,0,0,0,44,0,Tidak,4,1
+CLM-0685,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #685,4.04,0,0,0,17,0,Tidak,2,1
+CLM-0686,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #686,24.23,0,0,0,9,0,Tidak,4,1
+CLM-0687,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #687,6.08,0,0,0,44,0,Tidak,1,1
+CLM-0688,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #688,10.25,0,0,0,36,0,Tidak,3,1
+CLM-0689,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #689,33.86,1,0,1,22,1,Ya (Anomali),5,3
+CLM-0690,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #690,25.11,0,0,0,44,1,Tidak,5,1
+CLM-0691,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #691,23.34,0,1,0,40,0,Tidak,3,1
+CLM-0692,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #692,3.12,1,0,0,0,0,Tidak,1,4
+CLM-0693,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #693,1.24,0,0,0,5,0,Tidak,1,1
+CLM-0694,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #694,14.46,0,0,0,0,0,Tidak,3,2
+CLM-0695,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #695,8.43,0,1,1,17,0,Tidak,3,2
+CLM-0696,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #696,36.47,1,1,0,26,1,Ya (Anomali),5,2
+CLM-0697,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #697,6.95,0,1,1,39,0,Tidak,1,2
+CLM-0698,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #698,8.43,0,0,0,37,0,Tidak,2,1
+CLM-0699,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #699,11.7,0,0,0,44,0,Tidak,2,1
+CLM-0700,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #700,24.37,0,0,1,16,0,Tidak,5,2
+CLM-0701,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #701,5.19,0,0,1,25,0,Ya (Anomali),1,2
+CLM-0702,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #702,43.16,0,1,0,12,1,Tidak,5,1
+CLM-0703,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #703,12.15,0,0,0,9,0,Tidak,3,1
+CLM-0704,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #704,28.08,0,0,0,37,1,Tidak,4,1
+CLM-0705,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #705,11.69,0,1,0,25,0,Tidak,3,1
+CLM-0706,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #706,22.68,1,0,1,30,0,Ya (Anomali),3,3
+CLM-0707,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #707,1.29,0,0,0,22,0,Tidak,1,1
+CLM-0708,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #708,24.58,0,0,0,19,0,Tidak,4,1
+CLM-0709,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #709,11.63,0,0,0,22,0,Tidak,3,1
+CLM-0710,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #710,9.45,0,0,0,44,0,Tidak,2,1
+CLM-0711,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #711,2.28,0,1,0,26,0,Tidak,2,1
+CLM-0712,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #712,20.8,0,0,0,14,0,Tidak,4,1
+CLM-0713,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #713,2.61,0,0,0,37,0,Tidak,1,1
+CLM-0714,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #714,3.7,1,0,0,10,0,Ya (Anomali),1,2
+CLM-0715,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #715,2.53,0,0,0,7,0,Tidak,1,1
+CLM-0716,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #716,0.6,0,0,1,13,0,Tidak,2,1
+CLM-0717,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #717,16.77,1,1,0,12,0,Tidak,3,3
+CLM-0718,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #718,5.24,0,0,0,21,0,Tidak,1,1
+CLM-0719,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #719,2.93,0,0,1,33,0,Tidak,2,2
+CLM-0720,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #720,6.28,0,0,1,0,0,Tidak,1,4
+CLM-0721,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #721,10.87,0,0,0,36,0,Tidak,2,1
+CLM-0722,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #722,11.0,0,0,0,31,0,Tidak,2,1
+CLM-0723,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #723,7.36,0,0,0,10,0,Tidak,2,1
+CLM-0724,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #724,10.75,0,0,0,9,0,Tidak,2,1
+CLM-0725,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #725,8.86,0,0,0,29,0,Tidak,2,1
+CLM-0726,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #726,26.45,0,0,0,11,1,Tidak,4,1
+CLM-0727,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #727,0.95,0,1,0,41,0,Tidak,1,1
+CLM-0728,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #728,30.88,0,0,1,40,1,Ya (Anomali),4,1
+CLM-0729,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #729,4.69,0,0,0,33,0,Tidak,2,1
+CLM-0730,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #730,19.69,1,0,1,24,0,Ya (Anomali),3,3
+CLM-0731,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #731,8.29,0,0,1,35,0,Tidak,3,1
+CLM-0732,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #732,5.73,0,0,1,3,0,Ya (Anomali),2,2
+CLM-0733,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #733,14.83,0,1,0,20,0,Tidak,3,1
+CLM-0734,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #734,22.47,0,1,0,29,0,Tidak,3,1
+CLM-0735,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #735,9.47,0,0,0,37,0,Tidak,3,1
+CLM-0736,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #736,9.93,1,0,0,11,0,Tidak,2,2
+CLM-0737,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #737,1.41,0,0,0,38,0,Tidak,1,1
+CLM-0738,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #738,39.15,0,0,1,24,1,Ya (Anomali),5,1
+CLM-0739,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #739,28.65,0,0,0,18,1,Tidak,4,1
+CLM-0740,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #740,8.11,0,1,0,1,0,Tidak,2,1
+CLM-0741,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #741,22.22,0,0,1,21,0,Tidak,4,1
+CLM-0742,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #742,6.14,0,0,0,29,0,Tidak,1,1
+CLM-0743,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #743,20.16,0,0,0,35,0,Tidak,3,1
+CLM-0744,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #744,11.41,0,0,0,2,0,Tidak,2,1
+CLM-0745,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #745,9.76,0,0,0,22,0,Tidak,2,1
+CLM-0746,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #746,1.37,0,1,0,3,0,Tidak,2,1
+CLM-0747,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #747,50.97,0,0,0,27,1,Tidak,5,1
+CLM-0748,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #748,27.75,0,0,0,13,1,Tidak,4,1
+CLM-0749,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #749,24.15,0,1,1,5,0,Tidak,4,1
+CLM-0750,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #750,5.96,0,1,0,5,0,Tidak,1,1
+CLM-0751,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #751,5.63,0,1,1,40,0,Tidak,1,1
+CLM-0752,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #752,13.27,1,0,0,36,0,Tidak,2,2
+CLM-0753,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #753,28.58,0,1,1,6,0,Tidak,5,1
+CLM-0754,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #754,41.42,0,1,0,12,1,Tidak,5,1
+CLM-0755,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #755,5.2,0,1,1,0,0,Ya (Anomali),1,3
+CLM-0756,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #756,14.53,0,1,0,23,0,Tidak,2,1
+CLM-0757,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #757,19.81,0,1,0,33,0,Tidak,3,1
+CLM-0758,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #758,4.35,0,0,0,9,0,Tidak,1,1
+CLM-0759,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #759,8.35,0,0,0,5,0,Tidak,2,1
+CLM-0760,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #760,3.61,1,0,0,3,0,Tidak,1,2
+CLM-0761,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #761,18.5,0,0,1,7,0,Ya (Anomali),3,1
+CLM-0762,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #762,30.4,0,0,0,14,1,Tidak,5,1
+CLM-0763,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #763,32.0,0,0,1,44,1,Ya (Anomali),4,1
+CLM-0764,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #764,17.13,0,0,1,11,0,Tidak,3,1
+CLM-0765,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #765,6.9,0,0,1,38,0,Tidak,1,2
+CLM-0766,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #766,16.73,1,0,0,5,0,Ya (Anomali),3,2
+CLM-0767,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #767,30.46,0,0,0,20,1,Tidak,5,1
+CLM-0768,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #768,15.25,0,0,0,31,0,Tidak,2,1
+CLM-0769,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #769,8.49,0,1,0,31,0,Tidak,2,1
+CLM-0770,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #770,38.35,0,0,0,26,0,Tidak,5,1
+CLM-0771,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #771,27.55,0,0,0,10,1,Tidak,4,1
+CLM-0772,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #772,32.61,0,0,0,21,0,Tidak,5,1
+CLM-0773,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #773,35.53,0,0,0,35,1,Tidak,5,1
+CLM-0774,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #774,8.01,1,1,0,22,0,Tidak,2,2
+CLM-0775,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #775,29.95,1,0,0,36,0,Ya (Anomali),5,3
+CLM-0776,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #776,13.17,0,0,0,22,0,Tidak,2,1
+CLM-0777,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #777,1.08,0,1,0,26,0,Tidak,1,1
+CLM-0778,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #778,15.65,0,1,0,33,0,Tidak,2,1
+CLM-0779,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #779,10.04,1,0,1,19,0,Ya (Anomali),3,3
+CLM-0780,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #780,5.33,0,0,1,14,0,Ya (Anomali),2,1
+CLM-0781,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #781,53.29,0,0,1,41,0,Tidak,5,1
+CLM-0782,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #782,1.35,0,0,0,3,0,Tidak,2,1
+CLM-0783,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #783,44.25,0,1,0,28,1,Tidak,5,1
+CLM-0784,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #784,3.1,0,1,1,39,0,Tidak,2,2
+CLM-0785,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #785,7.6,0,0,1,10,0,Tidak,2,1
+CLM-0786,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #786,8.6,0,1,1,6,0,Tidak,2,1
+CLM-0787,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #787,20.2,0,0,0,10,0,Tidak,4,1
+CLM-0788,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #788,4.14,0,0,0,41,0,Tidak,2,1
+CLM-0789,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #789,64.64,0,0,1,32,1,Ya (Anomali),5,1
+CLM-0790,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #790,21.24,0,1,0,29,0,Tidak,4,1
+CLM-0791,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #791,23.91,0,1,0,31,0,Tidak,3,1
+CLM-0792,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #792,2.19,0,0,0,39,0,Tidak,2,1
+CLM-0793,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #793,10.2,0,0,0,36,0,Tidak,2,1
+CLM-0794,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #794,44.17,0,0,0,12,1,Tidak,5,1
+CLM-0795,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #795,5.22,0,1,0,6,0,Tidak,2,1
+CLM-0796,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #796,2.86,0,0,0,23,0,Tidak,1,1
+CLM-0797,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #797,10.47,0,0,0,10,0,Tidak,2,1
+CLM-0798,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #798,40.47,0,0,0,30,1,Tidak,5,1
+CLM-0799,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #799,10.51,0,0,0,43,0,Tidak,3,1
+CLM-0800,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #800,8.28,1,0,1,13,0,Ya (Anomali),2,3
+CLM-0801,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #801,16.26,0,1,0,43,0,Tidak,4,1
+CLM-0802,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #802,41.94,0,0,0,25,0,Tidak,5,1
+CLM-0803,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #803,1.25,0,0,0,0,0,Tidak,1,2
+CLM-0804,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #804,3.0,0,0,0,5,0,Tidak,1,1
+CLM-0805,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #805,2.64,1,0,0,30,0,Ya (Anomali),1,2
+CLM-0806,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #806,1.84,0,0,0,42,0,Tidak,1,1
+CLM-0807,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #807,5.9,0,0,0,42,0,Tidak,1,1
+CLM-0808,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #808,4.41,0,0,0,11,0,Tidak,1,1
+CLM-0809,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #809,12.43,0,0,0,0,0,Tidak,3,2
+CLM-0810,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #810,6.45,0,0,0,5,0,Tidak,2,1
+CLM-0811,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #811,8.29,1,0,1,28,0,Ya (Anomali),2,3
+CLM-0812,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #812,43.17,0,0,0,29,1,Tidak,5,1
+CLM-0813,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #813,3.04,0,0,2,12,0,Tidak,1,2
+CLM-0814,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #814,7.88,0,0,1,29,0,Tidak,2,2
+CLM-0815,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #815,4.96,1,0,1,11,0,Ya (Anomali),1,4
+CLM-0816,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #816,12.45,0,0,1,9,0,Tidak,2,2
+CLM-0817,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #817,20.5,0,0,0,38,0,Tidak,3,1
+CLM-0818,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #818,25.97,1,0,0,9,1,Ya (Anomali),4,3
+CLM-0819,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #819,11.36,0,0,1,17,0,Tidak,2,2
+CLM-0820,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #820,29.46,0,0,0,5,1,Tidak,4,1
+CLM-0821,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #821,23.56,0,0,0,7,0,Tidak,3,1
+CLM-0822,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #822,3.06,0,0,0,19,0,Tidak,1,1
+CLM-0823,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #823,4.72,0,0,0,40,0,Tidak,1,1
+CLM-0824,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #824,17.21,0,0,0,15,0,Tidak,3,1
+CLM-0825,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #825,55.71,0,1,0,1,1,Tidak,5,1
+CLM-0826,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #826,7.58,0,0,1,10,0,Tidak,1,1
+CLM-0827,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #827,4.42,0,0,0,23,0,Tidak,1,1
+CLM-0828,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #828,31.0,1,0,0,18,1,Ya (Anomali),4,2
+CLM-0829,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #829,3.84,0,0,0,3,0,Tidak,1,1
+CLM-0830,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #830,18.43,0,1,0,2,0,Tidak,3,1
+CLM-0831,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #831,1.02,1,0,0,14,0,Tidak,1,3
+CLM-0832,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #832,0.79,0,0,0,39,0,Tidak,1,1
+CLM-0833,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #833,9.51,1,0,1,3,0,Ya (Anomali),2,4
+CLM-0834,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #834,16.53,0,1,1,42,0,Tidak,4,1
+CLM-0835,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #835,2.8,0,0,0,16,0,Tidak,1,1
+CLM-0836,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #836,22.15,0,0,1,8,0,Tidak,3,2
+CLM-0837,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #837,2.57,1,0,0,24,0,Tidak,1,3
+CLM-0838,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #838,11.94,0,0,0,0,0,Tidak,2,2
+CLM-0839,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #839,6.03,0,0,1,39,0,Tidak,1,1
+CLM-0840,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #840,21.43,0,0,0,1,0,Tidak,3,1
+CLM-0841,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #841,24.95,1,1,0,44,0,Tidak,4,3
+CLM-0842,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #842,1.53,0,0,0,32,0,Tidak,1,1
+CLM-0843,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #843,3.71,0,0,0,21,0,Tidak,2,1
+CLM-0844,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #844,33.97,0,1,0,41,1,Tidak,5,1
+CLM-0845,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #845,8.56,0,1,0,11,0,Tidak,2,1
+CLM-0846,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #846,10.22,0,0,0,26,0,Tidak,2,1
+CLM-0847,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #847,3.26,0,0,0,10,0,Tidak,2,1
+CLM-0848,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #848,79.66,0,1,0,41,1,Tidak,5,1
+CLM-0849,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #849,38.97,0,0,1,13,1,Ya (Anomali),5,1
+CLM-0850,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #850,0.53,0,0,1,13,0,Tidak,1,2
+CLM-0851,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #851,12.5,0,0,0,39,0,Tidak,3,1
+CLM-0852,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #852,31.37,0,0,0,42,1,Tidak,5,1
+CLM-0853,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #853,8.95,0,1,0,21,0,Tidak,2,1
+CLM-0854,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #854,9.11,0,0,0,8,0,Tidak,2,1
+CLM-0855,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #855,7.65,0,0,0,14,0,Tidak,1,1
+CLM-0856,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #856,0.94,0,0,0,32,0,Tidak,1,1
+CLM-0857,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #857,23.93,0,0,1,18,0,Tidak,4,1
+CLM-0858,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #858,9.65,0,1,0,30,0,Tidak,3,1
+CLM-0859,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #859,11.86,0,0,0,17,0,Tidak,2,1
+CLM-0860,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #860,4.93,1,0,0,11,0,Ya (Anomali),1,2
+CLM-0861,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #861,23.5,0,0,1,39,0,Tidak,3,1
+CLM-0862,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #862,24.18,0,0,0,36,0,Tidak,5,1
+CLM-0863,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #863,12.58,0,0,1,44,0,Tidak,3,1
+CLM-0864,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #864,35.75,0,1,0,0,1,Ya (Anomali),5,2
+CLM-0865,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #865,2.35,0,0,1,33,0,Tidak,2,2
+CLM-0866,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #866,23.67,0,0,0,6,0,Tidak,3,1
+CLM-0867,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #867,12.77,0,0,0,1,0,Tidak,3,1
+CLM-0868,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #868,4.44,0,0,1,21,0,Ya (Anomali),1,1
+CLM-0869,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #869,2.63,0,0,0,3,0,Tidak,1,1
+CLM-0870,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #870,5.87,0,0,0,44,0,Tidak,1,1
+CLM-0871,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #871,29.6,0,0,1,19,1,Ya (Anomali),4,1
+CLM-0872,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #872,23.74,0,1,0,2,0,Tidak,3,1
+CLM-0873,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #873,16.04,0,0,0,8,0,Tidak,4,1
+CLM-0874,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #874,1.92,0,0,0,17,0,Tidak,1,1
+CLM-0875,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #875,46.96,1,0,0,15,0,Tidak,5,3
+CLM-0876,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #876,5.97,0,0,0,8,0,Tidak,1,1
+CLM-0877,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #877,14.51,0,1,0,18,0,Tidak,2,1
+CLM-0878,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #878,24.88,0,1,0,5,0,Tidak,4,1
+CLM-0879,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #879,2.64,0,0,0,43,0,Tidak,1,1
+CLM-0880,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #880,16.34,0,1,0,14,0,Tidak,4,1
+CLM-0881,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #881,0.99,0,0,0,5,0,Tidak,2,1
+CLM-0882,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #882,2.11,0,0,0,4,0,Tidak,1,1
+CLM-0883,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #883,19.76,0,0,0,28,0,Tidak,3,1
+CLM-0884,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #884,3.03,0,1,0,26,0,Tidak,2,1
+CLM-0885,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #885,9.29,0,0,0,44,0,Tidak,2,1
+CLM-0886,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #886,4.78,0,1,1,40,0,Tidak,2,1
+CLM-0887,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #887,8.7,0,0,1,25,0,Tidak,3,1
+CLM-0888,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #888,1.71,0,0,0,27,0,Tidak,1,1
+CLM-0889,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #889,21.59,0,0,0,31,0,Tidak,3,1
+CLM-0890,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #890,1.74,0,0,0,24,0,Tidak,1,1
+CLM-0891,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #891,27.79,0,0,0,6,0,Tidak,4,1
+CLM-0892,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #892,16.8,0,1,1,29,0,Tidak,3,2
+CLM-0893,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #893,8.58,0,0,0,30,0,Tidak,2,1
+CLM-0894,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #894,30.7,0,0,0,11,1,Tidak,5,1
+CLM-0895,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #895,3.59,0,0,0,8,0,Tidak,2,1
+CLM-0896,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #896,5.11,0,1,1,33,0,Tidak,1,1
+CLM-0897,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #897,2.71,0,0,1,2,0,Tidak,1,2
+CLM-0898,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #898,7.71,0,1,0,36,0,Tidak,1,1
+CLM-0899,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #899,65.34,0,1,1,27,1,Ya (Anomali),5,1
+CLM-0900,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #900,3.13,0,0,0,21,0,Tidak,2,1
+CLM-0901,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #901,27.17,0,0,1,25,1,Ya (Anomali),4,1
+CLM-0902,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #902,16.33,0,0,0,18,0,Tidak,3,1
+CLM-0903,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #903,0.74,1,0,1,20,0,Ya (Anomali),2,3
+CLM-0904,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #904,43.98,0,0,0,36,1,Tidak,5,1
+CLM-0905,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #905,53.65,0,0,0,9,1,Tidak,5,1
+CLM-0906,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #906,39.33,0,1,0,15,1,Tidak,5,1
+CLM-0907,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #907,10.95,0,0,0,23,0,Tidak,2,1
+CLM-0908,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #908,4.23,1,0,0,24,0,Ya (Anomali),1,2
+CLM-0909,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #909,7.95,0,0,1,25,0,Tidak,1,1
+CLM-0910,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #910,14.79,0,0,0,0,0,Tidak,3,2
+CLM-0911,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #911,7.64,0,1,0,3,0,Tidak,1,1
+CLM-0912,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #912,18.97,0,0,0,36,0,Tidak,3,1
+CLM-0913,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #913,24.31,0,0,0,42,0,Tidak,4,1
+CLM-0914,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #914,4.02,0,0,1,13,0,Tidak,2,1
+CLM-0915,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #915,8.29,0,0,1,23,0,Tidak,3,1
+CLM-0916,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #916,47.96,0,0,1,26,0,Tidak,5,1
+CLM-0917,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #917,4.81,0,0,1,42,0,Tidak,1,1
+CLM-0918,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #918,6.88,0,0,1,26,0,Tidak,2,1
+CLM-0919,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #919,1.04,1,0,0,23,0,Tidak,1,2
+CLM-0920,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #920,6.56,0,1,0,39,0,Tidak,1,1
+CLM-0921,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #921,7.45,0,0,1,0,0,Ya (Anomali),1,4
+CLM-0922,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #922,2.08,0,0,0,38,0,Tidak,1,1
+CLM-0923,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #923,0.52,0,1,2,12,0,Tidak,1,2
+CLM-0924,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #924,13.35,0,1,1,19,0,Tidak,2,2
+CLM-0925,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #925,5.88,0,0,0,37,0,Tidak,1,1
+CLM-0926,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #926,0.77,0,0,0,35,0,Tidak,2,1
+CLM-0927,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #927,29.99,0,1,0,11,1,Tidak,4,1
+CLM-0928,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #928,13.67,1,0,1,4,0,Ya (Anomali),2,3
+CLM-0929,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #929,3.32,0,0,1,4,0,Tidak,2,2
+CLM-0930,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #930,30.56,0,0,0,16,1,Tidak,4,1
+CLM-0931,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #931,4.89,0,0,1,37,0,Tidak,1,1
+CLM-0932,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #932,4.37,0,0,0,9,0,Tidak,1,1
+CLM-0933,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #933,34.25,0,0,0,15,1,Tidak,5,1
+CLM-0934,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #934,3.47,0,1,0,23,0,Tidak,1,1
+CLM-0935,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #935,32.18,0,0,0,28,1,Tidak,5,1
+CLM-0936,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #936,24.87,1,0,0,13,0,Tidak,4,2
+CLM-0937,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #937,6.06,1,0,0,9,0,Tidak,2,3
+CLM-0938,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #938,1.03,1,0,0,28,0,Tidak,1,2
+CLM-0939,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #939,1.79,0,0,1,27,0,Tidak,2,2
+CLM-0940,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #940,2.24,0,0,0,16,0,Tidak,1,1
+CLM-0941,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #941,33.72,1,0,0,4,0,Ya (Anomali),5,2
+CLM-0942,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #942,8.26,0,0,0,1,0,Tidak,2,1
+CLM-0943,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #943,1.0,0,1,1,35,0,Tidak,1,1
+CLM-0944,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #944,12.7,0,0,0,39,0,Tidak,2,1
+CLM-0945,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #945,4.0,0,0,1,44,0,Tidak,1,1
+CLM-0946,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #946,4.52,0,1,0,38,0,Tidak,1,1
+CLM-0947,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #947,3.13,0,0,0,8,0,Tidak,1,1
+CLM-0948,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #948,22.03,0,0,0,35,0,Tidak,3,1
+CLM-0949,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #949,0.51,0,0,0,4,0,Tidak,2,1
+CLM-0950,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #950,9.17,0,0,0,14,0,Tidak,3,1
+CLM-0951,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #951,1.86,0,0,0,8,0,Tidak,1,1
+CLM-0952,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #952,12.56,0,0,0,24,0,Tidak,3,1
+CLM-0953,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #953,6.87,0,0,1,27,0,Tidak,1,1
+CLM-0954,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #954,0.93,0,1,0,26,0,Tidak,2,1
+CLM-0955,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #955,9.77,0,0,0,32,0,Tidak,2,1
+CLM-0956,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #956,13.18,0,0,0,32,0,Tidak,2,1
+CLM-0957,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #957,4.77,0,0,1,37,0,Tidak,2,2
+CLM-0958,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #958,22.26,0,0,0,7,0,Tidak,4,1
+CLM-0959,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #959,7.46,0,0,0,3,0,Tidak,2,1
+CLM-0960,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #960,21.26,0,0,0,42,0,Tidak,3,1
+CLM-0961,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #961,13.48,1,0,0,35,0,Ya (Anomali),2,2
+CLM-0962,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #962,31.02,0,0,0,42,1,Tidak,4,1
+CLM-0963,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #963,12.38,0,0,0,30,0,Tidak,3,1
+CLM-0964,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #964,3.58,1,0,1,9,0,Ya (Anomali),1,3
+CLM-0965,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #965,26.44,0,0,1,40,1,Ya (Anomali),5,1
+CLM-0966,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #966,23.42,0,0,0,41,0,Tidak,4,1
+CLM-0967,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #967,54.33,0,1,0,7,1,Tidak,5,1
+CLM-0968,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #968,1.97,0,1,0,29,0,Tidak,2,1
+CLM-0969,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #969,13.92,0,1,0,13,0,Tidak,2,1
+CLM-0970,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #970,10.65,0,1,1,44,0,Tidak,2,1
+CLM-0971,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #971,17.17,0,0,0,34,0,Tidak,4,1
+CLM-0972,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #972,59.32,0,0,1,2,0,Tidak,5,1
+CLM-0973,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #973,11.9,0,0,0,28,0,Tidak,2,1
+CLM-0974,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #974,17.86,0,0,0,15,0,Tidak,3,1
+CLM-0975,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #975,6.9,0,0,1,9,0,Tidak,1,1
+CLM-0976,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #976,5.83,0,0,0,3,0,Tidak,1,1
+CLM-0977,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #977,6.63,0,0,0,3,0,Tidak,1,1
+CLM-0978,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #978,1.09,0,0,0,1,0,Tidak,1,1
+CLM-0979,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #979,5.53,0,0,0,10,0,Tidak,2,1
+CLM-0980,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #980,3.35,0,1,0,14,0,Tidak,1,1
+CLM-0981,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #981,9.67,1,0,1,10,0,Ya (Anomali),2,3
+CLM-0982,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #982,9.77,0,1,1,22,0,Tidak,2,2
+CLM-0983,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #983,22.24,0,0,1,37,0,Tidak,3,1
+CLM-0984,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #984,10.97,0,0,0,29,0,Tidak,2,1
+CLM-0985,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #985,9.83,0,0,2,0,0,Tidak,2,4
+CLM-0986,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #986,4.45,1,0,1,44,0,Ya (Anomali),1,3
+CLM-0987,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #987,29.21,0,1,0,32,1,Tidak,4,1
+CLM-0988,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #988,1.93,1,0,0,44,0,Tidak,2,2
+CLM-0989,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #989,61.01,0,0,0,36,1,Tidak,5,1
+CLM-0990,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #990,10.2,0,0,0,22,0,Tidak,2,1
+CLM-0991,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #991,3.59,1,0,0,17,0,Tidak,1,3
+CLM-0992,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #992,7.06,0,1,0,9,0,Tidak,2,1
+CLM-0993,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #993,0.73,1,0,2,16,0,Ya (Anomali),2,4
+CLM-0994,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #994,3.23,0,0,0,6,0,Tidak,1,1
+CLM-0995,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #995,6.63,0,0,0,14,0,Tidak,2,1
+CLM-0996,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #996,12.63,0,0,1,26,0,Tidak,3,1
+CLM-0997,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #997,2.58,1,0,0,8,0,Tidak,1,3
+CLM-0998,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #998,17.4,0,0,1,20,0,Tidak,3,2
+CLM-0999,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #999,28.4,0,0,1,36,1,Ya (Anomali),4,1
+CLM-1000,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1000,13.24,0,0,0,28,0,Tidak,2,1
+CLM-1001,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1001,5.78,1,0,0,41,0,Ya (Anomali),1,2
+CLM-1002,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1002,2.44,0,0,0,44,0,Tidak,1,1
+CLM-1003,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1003,0.73,0,0,0,32,0,Tidak,1,1
+CLM-1004,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1004,20.24,0,0,0,5,0,Tidak,3,1
+CLM-1005,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1005,15.35,0,0,0,24,0,Tidak,2,1
+CLM-1006,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1006,10.2,0,0,1,34,0,Tidak,3,2
+CLM-1007,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1007,2.11,0,0,0,16,0,Tidak,1,1
+CLM-1008,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1008,3.98,0,0,0,43,0,Tidak,1,1
+CLM-1009,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1009,25.82,0,0,1,26,1,Ya (Anomali),4,2
+CLM-1010,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1010,10.3,0,1,0,42,0,Tidak,2,1
+CLM-1011,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1011,49.88,0,0,1,39,1,Ya (Anomali),5,1
+CLM-1012,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1012,157.83,0,0,0,24,1,Tidak,5,1
+CLM-1013,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1013,24.69,0,0,0,11,0,Tidak,4,1
+CLM-1014,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1014,4.98,0,0,0,42,0,Tidak,1,1
+CLM-1015,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1015,4.44,0,0,1,36,0,Tidak,1,1
+CLM-1016,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1016,4.89,0,1,0,39,0,Tidak,1,1
+CLM-1017,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1017,65.4,0,1,0,43,1,Tidak,5,1
+CLM-1018,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1018,6.63,1,0,0,37,0,Tidak,1,3
+CLM-1019,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1019,18.89,0,0,0,40,0,Tidak,3,1
+CLM-1020,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1020,48.42,0,0,0,24,0,Tidak,5,1
+CLM-1021,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1021,26.19,0,0,0,1,1,Tidak,4,1
+CLM-1022,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1022,14.15,0,0,1,0,0,Ya (Anomali),3,3
+CLM-1023,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1023,3.28,1,1,0,2,0,Ya (Anomali),2,2
+CLM-1024,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1024,3.38,0,0,0,28,0,Tidak,1,1
+CLM-1025,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1025,10.67,0,0,1,13,0,Tidak,3,1
+CLM-1026,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1026,46.03,0,0,0,44,1,Tidak,5,1
+CLM-1027,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1027,35.73,0,0,1,33,1,Ya (Anomali),5,2
+CLM-1028,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1028,3.23,0,0,0,21,0,Tidak,2,1
+CLM-1029,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1029,5.59,1,1,0,35,0,Tidak,1,2
+CLM-1030,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1030,13.83,0,0,0,14,0,Tidak,2,1
+CLM-1031,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1031,10.23,0,0,2,36,0,Tidak,3,2
+CLM-1032,Jakarta Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1032,2.41,0,0,1,9,0,Tidak,1,1
+CLM-1033,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1033,7.41,1,1,1,8,0,Ya (Anomali),2,3
+CLM-1034,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1034,46.92,1,0,0,34,1,Ya (Anomali),5,2
+CLM-1035,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1035,45.88,1,0,1,41,1,Ya (Anomali),5,3
+CLM-1036,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1036,12.8,0,0,1,16,0,Tidak,2,1
+CLM-1037,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1037,15.63,0,0,0,17,0,Tidak,2,1
+CLM-1038,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1038,4.26,0,1,0,24,0,Tidak,1,1
+CLM-1039,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1039,20.82,0,0,2,34,0,Ya (Anomali),3,2
+CLM-1040,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1040,1.31,0,0,0,15,0,Tidak,1,1
+CLM-1041,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1041,4.24,0,0,0,44,0,Tidak,2,1
+CLM-1042,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1042,0.59,0,0,1,24,0,Tidak,1,2
+CLM-1043,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1043,7.81,0,0,0,15,0,Tidak,1,1
+CLM-1044,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1044,28.98,0,0,2,40,1,Ya (Anomali),4,2
+CLM-1045,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1045,61.19,0,0,0,23,1,Tidak,5,1
+CLM-1046,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1046,17.03,0,0,0,11,0,Tidak,4,1
+CLM-1047,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1047,20.99,0,0,0,34,0,Tidak,4,1
+CLM-1048,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1048,5.07,0,0,0,8,0,Tidak,2,1
+CLM-1049,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1049,11.52,0,1,0,36,0,Tidak,3,1
+CLM-1050,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1050,20.51,0,0,0,31,0,Tidak,3,1
+CLM-1051,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1051,10.82,0,0,0,18,0,Tidak,2,1
+CLM-1052,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1052,1.89,0,1,0,21,0,Tidak,1,1
+CLM-1053,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1053,20.76,0,1,1,44,0,Ya (Anomali),4,2
+CLM-1054,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1054,4.22,1,0,0,33,0,Tidak,1,2
+CLM-1055,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1055,2.04,0,0,0,18,0,Tidak,1,1
+CLM-1056,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1056,10.25,0,1,0,11,0,Tidak,2,1
+CLM-1057,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1057,1.66,1,0,0,17,0,Ya (Anomali),2,3
+CLM-1058,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1058,15.39,0,1,0,4,0,Tidak,2,1
+CLM-1059,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1059,15.84,0,1,1,25,0,Tidak,2,1
+CLM-1060,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1060,4.95,1,0,1,26,0,Ya (Anomali),1,3
+CLM-1061,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1061,50.59,0,0,0,19,1,Tidak,5,1
+CLM-1062,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1062,26.6,0,0,2,7,0,Tidak,4,2
+CLM-1063,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1063,2.24,1,1,1,15,0,Ya (Anomali),1,4
+CLM-1064,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1064,21.21,0,1,0,1,0,Tidak,4,1
+CLM-1065,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1065,7.03,0,0,0,44,0,Tidak,2,1
+CLM-1066,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1066,21.31,0,0,1,0,0,Ya (Anomali),3,3
+CLM-1067,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1067,24.7,0,0,1,4,0,Ya (Anomali),4,2
+CLM-1068,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1068,2.96,0,1,0,30,0,Tidak,2,1
+CLM-1069,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1069,16.76,1,0,0,22,0,Tidak,3,2
+CLM-1070,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1070,30.29,0,0,0,20,1,Tidak,5,1
+CLM-1071,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1071,6.36,0,0,0,11,0,Tidak,2,1
+CLM-1072,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1072,1.76,0,0,1,3,0,Tidak,2,2
+CLM-1073,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1073,0.91,0,1,1,36,0,Tidak,1,1
+CLM-1074,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1074,2.25,0,0,0,10,0,Tidak,1,1
+CLM-1075,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1075,0.56,0,0,0,41,0,Tidak,1,1
+CLM-1076,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1076,6.44,0,0,1,39,0,Tidak,2,1
+CLM-1077,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1077,5.84,0,0,0,8,0,Tidak,1,1
+CLM-1078,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1078,2.25,0,0,0,25,0,Tidak,1,1
+CLM-1079,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1079,16.3,0,1,0,38,0,Tidak,3,1
+CLM-1080,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1080,72.75,0,0,0,26,1,Tidak,5,1
+CLM-1081,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1081,35.18,0,0,0,28,1,Tidak,5,1
+CLM-1082,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1082,4.87,0,0,0,42,0,Tidak,2,1
+CLM-1083,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1083,22.54,0,1,0,24,0,Tidak,4,1
+CLM-1084,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1084,41.94,0,0,1,17,1,Ya (Anomali),5,1
+CLM-1085,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1085,36.03,0,0,1,29,1,Ya (Anomali),5,2
+CLM-1086,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1086,32.88,1,0,0,7,1,Ya (Anomali),5,3
+CLM-1087,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1087,23.66,0,1,0,1,0,Tidak,3,1
+CLM-1088,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1088,5.7,0,1,0,21,0,Tidak,1,1
+CLM-1089,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1089,1.81,0,0,0,20,0,Tidak,1,1
+CLM-1090,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1090,10.54,0,1,0,38,0,Tidak,2,1
+CLM-1091,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1091,1.35,0,0,0,25,0,Tidak,2,1
+CLM-1092,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1092,97.77,0,0,1,28,1,Ya (Anomali),5,1
+CLM-1093,Finance Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1093,7.15,0,1,1,4,0,Tidak,1,1
+CLM-1094,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1094,48.17,0,0,1,13,1,Ya (Anomali),5,1
+CLM-1095,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1095,22.75,0,1,0,34,0,Tidak,3,1
+CLM-1096,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1096,8.45,0,0,0,5,0,Tidak,3,1
+CLM-1097,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1097,2.39,0,0,0,22,0,Tidak,1,1
+CLM-1098,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1098,4.56,0,0,0,16,0,Tidak,2,1
+CLM-1099,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1099,17.27,0,0,0,23,0,Tidak,3,1
+CLM-1100,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1100,27.07,0,0,1,39,0,Tidak,5,1
+CLM-1101,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1101,58.77,0,0,0,28,1,Tidak,5,1
+CLM-1102,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1102,2.63,0,0,0,29,0,Tidak,1,1
+CLM-1103,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1103,3.04,0,1,1,23,0,Tidak,1,2
+CLM-1104,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1104,1.15,0,0,0,34,0,Tidak,1,1
+CLM-1105,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1105,5.02,0,1,0,36,0,Tidak,2,1
+CLM-1106,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1106,26.31,0,0,0,1,1,Tidak,5,1
+CLM-1107,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1107,3.81,1,0,0,20,0,Ya (Anomali),1,2
+CLM-1108,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1108,12.41,0,0,0,39,0,Tidak,2,1
+CLM-1109,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1109,9.37,0,0,0,40,0,Tidak,3,1
+CLM-1110,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1110,6.41,0,1,0,4,0,Tidak,1,1
+CLM-1111,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1111,14.95,0,1,0,34,0,Tidak,2,1
+CLM-1112,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1112,10.97,0,0,0,43,0,Tidak,2,1
+CLM-1113,Bandung Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1113,6.61,0,0,0,34,0,Tidak,2,1
+CLM-1114,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1114,18.01,0,0,0,18,0,Tidak,4,1
+CLM-1115,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1115,5.43,0,1,1,15,0,Tidak,1,1
+CLM-1116,Operations Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1116,15.96,0,1,1,24,0,Tidak,2,1
+CLM-1117,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1117,47.78,0,0,0,15,0,Tidak,5,1
+CLM-1118,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1118,20.08,0,0,0,30,0,Tidak,3,1
+CLM-1119,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1119,8.63,0,0,0,32,0,Tidak,2,1
+CLM-1120,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1120,21.15,0,1,1,16,0,Tidak,3,1
+CLM-1121,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1121,25.35,0,1,0,20,1,Tidak,5,1
+CLM-1122,Jakarta Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1122,6.41,1,1,1,34,0,Ya (Anomali),1,3
+CLM-1123,Bandung Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1123,18.82,0,0,0,22,0,Tidak,3,1
+CLM-1124,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1124,9.05,0,0,1,15,0,Tidak,2,1
+CLM-1125,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1125,26.1,0,0,0,37,1,Tidak,4,1
+CLM-1126,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1126,5.75,0,0,0,13,0,Tidak,1,1
+CLM-1127,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1127,42.15,1,0,0,39,1,Ya (Anomali),5,2
+CLM-1128,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1128,13.33,1,0,0,40,0,Ya (Anomali),2,3
+CLM-1129,Operations Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1129,7.04,0,0,1,32,0,Tidak,1,1
+CLM-1130,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1130,8.65,1,0,0,20,0,Ya (Anomali),2,2
+CLM-1131,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1131,6.91,0,0,0,16,0,Tidak,1,1
+CLM-1132,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1132,2.87,0,1,0,3,0,Tidak,1,1
+CLM-1133,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1133,1.56,0,0,0,15,0,Tidak,1,1
+CLM-1134,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1134,6.32,0,0,0,29,0,Tidak,1,1
+CLM-1135,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1135,9.71,0,1,1,43,0,Tidak,2,2
+CLM-1136,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1136,7.24,0,0,0,44,0,Tidak,1,1
+CLM-1137,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1137,0.71,0,0,1,33,0,Tidak,1,1
+CLM-1138,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1138,13.48,1,1,1,21,0,Ya (Anomali),2,3
+CLM-1139,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1139,2.85,0,1,0,43,0,Tidak,1,1
+CLM-1140,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1140,4.05,0,0,0,41,0,Tidak,1,1
+CLM-1141,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1141,2.43,0,0,1,28,0,Tidak,1,1
+CLM-1142,IT Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1142,11.52,0,1,0,4,0,Tidak,2,1
+CLM-1143,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1143,2.0,0,0,0,0,0,Tidak,1,3
+CLM-1144,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1144,4.94,0,0,1,39,0,Tidak,1,2
+CLM-1145,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1145,9.51,0,0,0,24,0,Tidak,3,1
+CLM-1146,Surabaya Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1146,3.25,0,1,0,5,0,Tidak,2,1
+CLM-1147,IT Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1147,9.37,0,0,0,22,0,Tidak,3,1
+CLM-1148,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1148,6.8,1,0,1,32,0,Ya (Anomali),1,3
+CLM-1149,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1149,30.06,0,0,0,13,1,Tidak,4,1
+CLM-1150,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1150,24.26,0,0,0,41,0,Tidak,4,1
+CLM-1151,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1151,74.62,0,0,0,35,1,Tidak,5,1
+CLM-1152,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1152,11.79,0,0,1,17,0,Tidak,2,1
+CLM-1153,Finance Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1153,13.35,0,0,1,39,0,Ya (Anomali),3,2
+CLM-1154,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1154,44.46,0,1,0,43,1,Tidak,5,1
+CLM-1155,Medan Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1155,8.15,0,0,0,9,0,Tidak,3,1
+CLM-1156,Finance Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1156,12.67,1,0,0,44,0,Ya (Anomali),2,2
+CLM-1157,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1157,7.65,0,0,0,38,0,Tidak,1,1
+CLM-1158,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1158,12.34,0,0,2,11,0,Tidak,2,2
+CLM-1159,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1159,1.76,0,0,0,37,0,Tidak,1,1
+CLM-1160,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1160,23.47,0,0,2,22,0,Tidak,3,2
+CLM-1161,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1161,63.78,0,0,1,6,1,Ya (Anomali),5,2
+CLM-1162,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1162,1.52,0,0,0,44,0,Tidak,1,1
+CLM-1163,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1163,24.72,0,1,1,24,0,Tidak,5,1
+CLM-1164,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1164,4.65,0,0,0,12,0,Tidak,2,1
+CLM-1165,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1165,3.8,1,0,0,37,0,Tidak,2,2
+CLM-1166,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1166,18.23,1,1,0,18,0,Tidak,4,3
+CLM-1167,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1167,1.18,1,1,1,44,0,Ya (Anomali),1,3
+CLM-1168,Medan Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1168,9.83,0,1,0,21,0,Tidak,3,1
+CLM-1169,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1169,0.52,0,0,1,40,0,Tidak,1,2
+CLM-1170,Finance Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1170,12.62,0,1,1,10,0,Ya (Anomali),2,1
+CLM-1171,Medan Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1171,9.8,0,1,0,41,0,Tidak,2,1
+CLM-1172,Operations Dept,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1172,37.56,0,0,1,2,0,Ya (Anomali),5,1
+CLM-1173,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1173,19.61,0,0,0,18,0,Tidak,4,1
+CLM-1174,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1174,2.52,0,0,0,26,0,Tidak,1,1
+CLM-1175,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1175,7.07,0,0,1,6,0,Tidak,2,1
+CLM-1176,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1176,40.73,0,0,0,36,1,Tidak,5,1
+CLM-1177,Bandung Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1177,19.88,0,0,0,26,0,Tidak,3,1
+CLM-1178,Bandung Branch,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1178,14.03,0,0,0,33,0,Tidak,2,1
+CLM-1179,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1179,12.78,0,0,0,10,0,Tidak,2,1
+CLM-1180,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1180,8.11,1,0,0,37,0,Tidak,2,3
+CLM-1181,Surabaya Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1181,13.7,0,0,0,4,0,Tidak,2,1
+CLM-1182,Surabaya Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1182,22.65,0,0,0,6,0,Tidak,4,1
+CLM-1183,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1183,2.55,1,1,1,35,0,Ya (Anomali),1,3
+CLM-1184,Jakarta Branch,Travel & Entertainment,Klaim Pengeluaran Operasional #1184,53.01,0,0,1,4,1,Ya (Anomali),5,1
+CLM-1185,Operations Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1185,4.6,1,0,0,4,0,Tidak,1,2
+CLM-1186,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1186,9.41,0,0,0,26,0,Tidak,3,1
+CLM-1187,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1187,0.84,0,1,0,28,0,Tidak,1,1
+CLM-1188,Medan Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1188,12.49,0,0,1,26,0,Ya (Anomali),3,1
+CLM-1189,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1189,7.72,0,1,0,31,0,Tidak,1,1
+CLM-1190,Surabaya Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1190,4.81,0,0,0,24,0,Tidak,1,1
+CLM-1191,IT Dept,Konsumsi Rapat,Klaim Pengeluaran Operasional #1191,64.03,0,0,1,41,1,Ya (Anomali),5,2
+CLM-1192,Bandung Branch,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1192,8.88,0,0,0,33,0,Tidak,2,1
+CLM-1193,Jakarta Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1193,8.52,0,0,0,14,0,Tidak,2,1
+CLM-1194,Medan Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1194,9.83,0,0,0,40,0,Tidak,3,1
+CLM-1195,Jakarta Branch,Konsumsi Rapat,Klaim Pengeluaran Operasional #1195,2.35,0,1,1,33,0,Tidak,2,1
+CLM-1196,Surabaya Branch,Sewa Kendaraan Operasional,Klaim Pengeluaran Operasional #1196,7.99,0,0,0,34,0,Tidak,1,1
+CLM-1197,Finance Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1197,6.65,0,0,0,19,0,Tidak,1,1
+CLM-1198,IT Dept,Travel & Entertainment,Klaim Pengeluaran Operasional #1198,9.89,0,0,1,23,0,Tidak,3,1
+CLM-1199,IT Dept,Vendor Pihak Ketiga,Klaim Pengeluaran Operasional #1199,29.63,0,0,1,33,1,Ya (Anomali),5,1
+CLM-1200,Operations Dept,Kertas & Alat Tulis,Klaim Pengeluaran Operasional #1200,3.71,1,0,0,33,0,Tidak,1,3

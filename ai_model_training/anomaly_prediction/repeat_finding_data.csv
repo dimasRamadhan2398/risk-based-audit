@@ -1,0 +1,1201 @@
+ID Temuan,Entitas Auditee,Kategori Risiko,Deskripsi Temuan,repeat_count_last_year,finding_similarity_pct,"is_same_root_cause (1=Ya, 0=Tidak)","is_previously_closed (1=Ya, 0=Tidak)",severity_category,TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5)
+FND-0001,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1,0,93.5,0,1,Kritis,Tidak,1,5
+FND-0002,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #2,0,78.7,0,1,Rendah,Tidak,1,5
+FND-0003,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #3,0,42.4,0,0,Tinggi,Tidak,1,2
+FND-0004,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #4,4,74.3,0,0,Rendah,Tidak,5,3
+FND-0005,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #5,0,54.4,1,1,Rendah,Tidak,3,5
+FND-0006,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #6,2,87.9,1,0,Rendah,Ya (Anomali),5,4
+FND-0007,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #7,0,20.5,0,0,Rendah,Tidak,1,2
+FND-0008,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #8,4,61.3,1,0,Sedang,Ya (Anomali),5,3
+FND-0009,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #9,1,73.8,0,1,Sedang,Tidak,3,4
+FND-0010,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #10,0,51.4,0,1,Kritis,Tidak,1,5
+FND-0011,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #11,0,57.4,1,1,Rendah,Tidak,2,4
+FND-0012,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #12,0,39.0,0,0,Sedang,Tidak,1,2
+FND-0013,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #13,1,53.0,0,0,Kritis,Tidak,2,3
+FND-0014,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #14,1,92.8,0,1,Tinggi,Tidak,2,5
+FND-0015,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #15,0,50.4,1,0,Rendah,Tidak,2,4
+FND-0016,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #16,0,98.1,0,1,Kritis,Tidak,1,5
+FND-0017,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #17,0,56.8,0,0,Kritis,Tidak,1,3
+FND-0018,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #18,1,69.0,0,1,Tinggi,Tidak,2,4
+FND-0019,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #19,0,20.4,1,1,Tinggi,Tidak,2,2
+FND-0020,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #20,0,34.8,0,0,Kritis,Tidak,1,2
+FND-0021,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #21,0,48.1,0,0,Rendah,Tidak,1,2
+FND-0022,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #22,7,45.9,1,0,Rendah,Tidak,5,2
+FND-0023,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #23,0,76.8,0,0,Sedang,Tidak,1,5
+FND-0024,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #24,0,63.3,0,0,Kritis,Tidak,1,4
+FND-0025,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #25,2,37.1,0,1,Sedang,Ya (Anomali),3,3
+FND-0026,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #26,6,67.8,0,0,Kritis,Ya (Anomali),5,3
+FND-0027,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #27,0,30.4,1,1,Kritis,Tidak,2,3
+FND-0028,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #28,1,88.5,1,1,Kritis,Ya (Anomali),3,5
+FND-0029,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #29,0,79.2,1,1,Rendah,Tidak,2,5
+FND-0030,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #30,1,47.3,1,0,Rendah,Tidak,3,3
+FND-0031,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #31,1,23.8,0,1,Kritis,Tidak,2,3
+FND-0032,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #32,1,81.8,0,1,Tinggi,Tidak,3,5
+FND-0033,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #33,0,39.2,1,1,Tinggi,Tidak,2,3
+FND-0034,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #34,0,40.5,0,1,Kritis,Tidak,1,3
+FND-0035,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #35,1,54.1,1,1,Sedang,Tidak,3,4
+FND-0036,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #36,0,68.1,0,0,Rendah,Tidak,1,3
+FND-0037,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #37,0,22.7,1,1,Sedang,Tidak,2,2
+FND-0038,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #38,4,85.2,0,0,Sedang,Tidak,5,4
+FND-0039,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #39,0,22.7,0,1,Tinggi,Tidak,1,2
+FND-0040,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #40,0,33.8,0,0,Tinggi,Tidak,1,3
+FND-0041,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #41,0,37.9,0,1,Sedang,Tidak,1,3
+FND-0042,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #42,0,87.1,0,1,Sedang,Tidak,1,5
+FND-0043,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #43,1,78.9,0,1,Sedang,Tidak,2,5
+FND-0044,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #44,2,68.2,0,1,Tinggi,Tidak,3,4
+FND-0045,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #45,1,48.1,1,1,Sedang,Tidak,3,3
+FND-0046,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #46,1,63.7,1,1,Tinggi,Tidak,4,4
+FND-0047,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #47,1,24.0,0,1,Rendah,Tidak,3,2
+FND-0048,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #48,3,88.4,0,0,Rendah,Tidak,4,4
+FND-0049,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #49,3,74.7,0,0,Sedang,Tidak,4,3
+FND-0050,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #50,1,72.7,1,0,Sedang,Tidak,3,3
+FND-0051,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #51,4,97.8,0,1,Tinggi,Ya (Anomali),5,5
+FND-0052,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #52,2,62.1,0,0,Rendah,Tidak,4,3
+FND-0053,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #53,0,25.8,1,0,Kritis,Tidak,2,2
+FND-0054,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #54,0,38.0,1,1,Rendah,Tidak,3,3
+FND-0055,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #55,0,32.7,0,0,Sedang,Tidak,1,2
+FND-0056,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #56,1,94.4,0,0,Tinggi,Tidak,2,5
+FND-0057,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #57,0,30.1,0,0,Tinggi,Tidak,1,3
+FND-0058,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #58,0,21.8,1,1,Sedang,Tidak,2,2
+FND-0059,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #59,1,43.9,0,0,Tinggi,Tidak,2,2
+FND-0060,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #60,3,29.6,0,0,Kritis,Tidak,4,2
+FND-0061,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #61,3,69.0,1,1,Tinggi,Tidak,5,4
+FND-0062,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #62,1,37.7,0,0,Kritis,Tidak,2,3
+FND-0063,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #63,4,86.6,0,0,Sedang,Tidak,5,5
+FND-0064,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #64,2,31.3,0,0,Sedang,Tidak,3,2
+FND-0065,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #65,3,32.0,0,0,Kritis,Tidak,4,2
+FND-0066,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #66,1,68.0,0,1,Sedang,Tidak,2,4
+FND-0067,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #67,0,26.5,0,1,Rendah,Tidak,1,4
+FND-0068,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #68,2,24.0,1,1,Kritis,Tidak,4,2
+FND-0069,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #69,0,34.5,0,1,Kritis,Tidak,1,3
+FND-0070,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #70,0,61.6,0,1,Sedang,Tidak,1,4
+FND-0071,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #71,1,63.3,1,1,Kritis,Tidak,3,4
+FND-0072,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #72,3,50.4,0,1,Rendah,Tidak,5,4
+FND-0073,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #73,0,56.9,1,1,Rendah,Tidak,2,4
+FND-0074,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #74,2,55.9,0,0,Kritis,Tidak,4,4
+FND-0075,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #75,0,56.1,1,1,Sedang,Tidak,2,5
+FND-0076,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #76,2,41.0,0,1,Tinggi,Tidak,3,4
+FND-0077,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #77,2,33.4,1,1,Tinggi,Tidak,4,4
+FND-0078,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #78,3,50.9,0,1,Rendah,Tidak,4,4
+FND-0079,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #79,0,56.6,1,1,Tinggi,Tidak,2,4
+FND-0080,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #80,1,95.3,1,0,Kritis,Ya (Anomali),3,5
+FND-0081,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #81,0,79.1,0,1,Rendah,Tidak,1,5
+FND-0082,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #82,2,88.1,1,1,Sedang,Ya (Anomali),4,5
+FND-0083,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #83,0,50.5,1,0,Rendah,Tidak,3,3
+FND-0084,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #84,3,65.2,1,0,Rendah,Tidak,5,3
+FND-0085,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #85,1,78.6,0,1,Tinggi,Tidak,3,5
+FND-0086,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #86,5,34.5,0,1,Rendah,Tidak,5,4
+FND-0087,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #87,0,56.3,0,1,Kritis,Tidak,1,4
+FND-0088,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #88,2,47.5,1,0,Tinggi,Tidak,4,2
+FND-0089,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #89,0,63.3,1,0,Rendah,Tidak,3,3
+FND-0090,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #90,1,43.1,0,0,Sedang,Tidak,3,2
+FND-0091,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #91,0,48.0,1,1,Sedang,Tidak,2,3
+FND-0092,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #92,0,85.7,1,0,Tinggi,Tidak,2,4
+FND-0093,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #93,1,81.4,1,1,Tinggi,Ya (Anomali),3,5
+FND-0094,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #94,1,52.2,0,1,Rendah,Tidak,3,4
+FND-0095,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #95,2,27.7,0,1,Tinggi,Tidak,4,3
+FND-0096,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #96,0,42.6,0,1,Kritis,Tidak,1,3
+FND-0097,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #97,0,77.8,1,1,Tinggi,Tidak,2,5
+FND-0098,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #98,0,79.7,0,1,Rendah,Tidak,1,5
+FND-0099,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #99,3,45.6,0,1,Kritis,Tidak,5,4
+FND-0100,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #100,1,94.2,1,1,Rendah,Ya (Anomali),3,5
+FND-0101,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #101,0,59.6,0,0,Sedang,Tidak,1,4
+FND-0102,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #102,2,89.4,0,1,Kritis,Ya (Anomali),3,5
+FND-0103,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #103,2,61.9,1,0,Sedang,Tidak,4,3
+FND-0104,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #104,1,21.0,0,0,Kritis,Tidak,2,1
+FND-0105,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #105,2,27.9,1,1,Sedang,Tidak,5,3
+FND-0106,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #106,3,28.3,1,1,Kritis,Tidak,5,4
+FND-0107,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #107,9,76.7,1,0,Rendah,Ya (Anomali),5,4
+FND-0108,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #108,5,88.0,1,1,Kritis,Ya (Anomali),5,5
+FND-0109,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #109,0,61.5,0,0,Tinggi,Tidak,1,3
+FND-0110,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #110,0,87.5,0,1,Sedang,Tidak,1,5
+FND-0111,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #111,3,49.4,0,1,Sedang,Tidak,4,4
+FND-0112,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #112,2,28.0,0,1,Kritis,Tidak,4,3
+FND-0113,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #113,0,40.5,0,1,Kritis,Tidak,1,4
+FND-0114,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #114,0,29.3,0,1,Tinggi,Tidak,1,4
+FND-0115,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #115,5,90.0,1,0,Rendah,Ya (Anomali),5,4
+FND-0116,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #116,0,38.9,1,0,Rendah,Tidak,2,2
+FND-0117,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #117,0,79.3,1,0,Kritis,Tidak,2,4
+FND-0118,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #118,4,25.6,1,0,Sedang,Ya (Anomali),5,3
+FND-0119,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #119,3,81.2,1,1,Kritis,Ya (Anomali),5,5
+FND-0120,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #120,0,26.7,1,1,Rendah,Tidak,2,3
+FND-0121,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #121,5,94.9,1,1,Sedang,Ya (Anomali),5,5
+FND-0122,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #122,2,70.6,0,0,Sedang,Ya (Anomali),4,3
+FND-0123,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #123,0,73.4,0,0,Tinggi,Tidak,1,3
+FND-0124,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #124,3,73.8,0,0,Kritis,Tidak,5,3
+FND-0125,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #125,2,41.7,1,0,Sedang,Tidak,4,3
+FND-0126,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #126,2,55.0,0,0,Tinggi,Ya (Anomali),4,3
+FND-0127,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #127,1,91.5,0,1,Rendah,Tidak,2,5
+FND-0128,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #128,1,36.3,1,1,Kritis,Tidak,3,3
+FND-0129,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #129,2,61.7,0,1,Sedang,Ya (Anomali),3,5
+FND-0130,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #130,2,45.5,1,1,Tinggi,Tidak,4,3
+FND-0131,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #131,1,80.3,0,1,Rendah,Tidak,3,5
+FND-0132,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #132,2,56.0,0,0,Tinggi,Tidak,4,3
+FND-0133,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #133,3,47.1,1,0,Tinggi,Tidak,5,2
+FND-0134,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #134,2,66.8,0,0,Tinggi,Tidak,3,3
+FND-0135,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #135,5,28.4,1,1,Kritis,Tidak,5,3
+FND-0136,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #136,1,64.2,1,1,Rendah,Tidak,4,4
+FND-0137,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #137,1,81.9,0,0,Sedang,Tidak,3,4
+FND-0138,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #138,1,96.1,0,0,Rendah,Tidak,3,4
+FND-0139,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #139,2,86.8,0,1,Sedang,Ya (Anomali),3,5
+FND-0140,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #140,0,68.7,0,0,Kritis,Tidak,1,3
+FND-0141,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #141,0,62.7,0,1,Kritis,Tidak,1,5
+FND-0142,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #142,3,46.0,0,1,Kritis,Tidak,4,3
+FND-0143,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #143,2,57.8,0,0,Kritis,Tidak,3,3
+FND-0144,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #144,6,68.9,0,0,Kritis,Ya (Anomali),5,3
+FND-0145,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #145,0,30.3,1,0,Sedang,Tidak,3,2
+FND-0146,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #146,2,77.1,0,1,Kritis,Ya (Anomali),4,5
+FND-0147,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #147,0,39.4,0,1,Tinggi,Tidak,1,3
+FND-0148,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #148,2,29.1,0,0,Kritis,Tidak,4,2
+FND-0149,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #149,0,27.7,0,0,Rendah,Tidak,1,2
+FND-0150,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #150,1,45.3,1,1,Sedang,Tidak,4,3
+FND-0151,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #151,0,45.3,0,0,Sedang,Tidak,1,2
+FND-0152,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #152,2,65.2,0,0,Tinggi,Ya (Anomali),3,4
+FND-0153,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #153,0,56.2,0,0,Rendah,Tidak,1,4
+FND-0154,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #154,0,79.2,1,0,Tinggi,Tidak,2,4
+FND-0155,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #155,1,21.5,0,1,Sedang,Tidak,2,3
+FND-0156,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #156,0,27.2,0,1,Sedang,Tidak,1,3
+FND-0157,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #157,0,39.6,0,1,Kritis,Tidak,1,3
+FND-0158,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #158,3,23.1,0,1,Rendah,Tidak,4,2
+FND-0159,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #159,1,33.0,1,0,Sedang,Tidak,3,3
+FND-0160,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #160,0,77.5,1,1,Rendah,Tidak,2,5
+FND-0161,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #161,6,83.1,1,1,Tinggi,Ya (Anomali),5,5
+FND-0162,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #162,1,66.8,0,0,Kritis,Tidak,2,3
+FND-0163,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #163,0,65.1,0,0,Tinggi,Tidak,1,3
+FND-0164,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #164,0,69.5,0,1,Kritis,Tidak,1,4
+FND-0165,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #165,3,83.3,0,1,Sedang,Ya (Anomali),4,5
+FND-0166,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #166,1,86.6,1,1,Tinggi,Ya (Anomali),4,5
+FND-0167,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #167,2,46.8,0,1,Rendah,Tidak,3,3
+FND-0168,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #168,0,52.9,0,0,Sedang,Tidak,1,4
+FND-0169,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #169,0,83.9,0,1,Tinggi,Tidak,1,5
+FND-0170,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #170,1,36.6,1,1,Rendah,Tidak,3,4
+FND-0171,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #171,4,94.5,0,1,Sedang,Ya (Anomali),5,5
+FND-0172,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #172,0,86.2,0,1,Sedang,Tidak,1,5
+FND-0173,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #173,1,54.8,0,1,Kritis,Tidak,2,4
+FND-0174,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #174,1,60.6,1,0,Sedang,Tidak,4,4
+FND-0175,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #175,1,54.6,1,1,Sedang,Tidak,4,5
+FND-0176,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #176,0,38.1,0,1,Kritis,Tidak,1,3
+FND-0177,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #177,0,39.0,0,1,Tinggi,Tidak,1,3
+FND-0178,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #178,0,43.9,0,1,Kritis,Tidak,1,4
+FND-0179,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #179,0,52.3,0,1,Tinggi,Tidak,1,5
+FND-0180,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #180,6,90.6,0,0,Sedang,Ya (Anomali),5,4
+FND-0181,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #181,1,48.3,0,1,Rendah,Tidak,3,4
+FND-0182,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #182,4,64.4,1,1,Kritis,Ya (Anomali),5,5
+FND-0183,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #183,1,27.0,1,0,Kritis,Tidak,3,2
+FND-0184,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #184,1,50.4,1,1,Rendah,Tidak,3,4
+FND-0185,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #185,1,53.8,1,0,Sedang,Tidak,3,3
+FND-0186,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #186,2,59.7,0,1,Kritis,Tidak,4,4
+FND-0187,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #187,0,56.5,0,0,Tinggi,Tidak,1,3
+FND-0188,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #188,2,72.2,1,0,Kritis,Tidak,5,4
+FND-0189,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #189,0,87.2,1,0,Kritis,Tidak,2,4
+FND-0190,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #190,0,69.9,0,1,Kritis,Tidak,1,4
+FND-0191,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #191,2,50.6,1,1,Kritis,Tidak,4,4
+FND-0192,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #192,0,81.0,1,1,Sedang,Ya (Anomali),2,5
+FND-0193,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #193,0,74.1,0,1,Rendah,Tidak,1,4
+FND-0194,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #194,1,74.5,0,0,Kritis,Tidak,2,4
+FND-0195,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #195,1,82.2,0,1,Tinggi,Tidak,3,5
+FND-0196,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #196,5,28.8,0,0,Rendah,Ya (Anomali),5,3
+FND-0197,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #197,1,48.6,0,1,Tinggi,Tidak,2,4
+FND-0198,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #198,0,33.3,0,0,Tinggi,Tidak,1,3
+FND-0199,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #199,7,81.0,0,1,Tinggi,Ya (Anomali),5,5
+FND-0200,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #200,2,64.8,0,0,Kritis,Ya (Anomali),3,4
+FND-0201,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #201,0,98.2,1,0,Kritis,Tidak,2,5
+FND-0202,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #202,2,73.6,0,1,Tinggi,Tidak,3,4
+FND-0203,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #203,1,26.0,0,0,Tinggi,Tidak,2,3
+FND-0204,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #204,0,42.8,1,1,Tinggi,Tidak,2,4
+FND-0205,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #205,0,93.1,1,1,Sedang,Ya (Anomali),2,5
+FND-0206,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #206,2,97.5,0,1,Rendah,Ya (Anomali),3,5
+FND-0207,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #207,1,37.6,1,1,Kritis,Tidak,3,3
+FND-0208,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #208,2,59.0,0,0,Sedang,Tidak,3,4
+FND-0209,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #209,4,49.2,0,1,Sedang,Tidak,5,3
+FND-0210,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #210,1,36.6,0,0,Sedang,Tidak,2,3
+FND-0211,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #211,0,49.1,1,1,Kritis,Tidak,2,3
+FND-0212,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #212,1,53.8,1,1,Sedang,Tidak,3,4
+FND-0213,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #213,0,72.7,1,1,Kritis,Tidak,3,4
+FND-0214,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #214,0,59.7,0,1,Rendah,Tidak,1,4
+FND-0215,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #215,1,85.6,0,1,Sedang,Tidak,3,5
+FND-0216,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #216,1,94.4,1,1,Kritis,Ya (Anomali),3,5
+FND-0217,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #217,1,50.2,1,0,Tinggi,Tidak,4,3
+FND-0218,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #218,1,59.6,1,0,Rendah,Tidak,3,3
+FND-0219,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #219,2,77.5,0,1,Tinggi,Ya (Anomali),3,5
+FND-0220,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #220,1,85.3,0,1,Sedang,Tidak,2,5
+FND-0221,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #221,13,37.4,0,1,Sedang,Tidak,5,4
+FND-0222,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #222,0,72.0,0,0,Kritis,Tidak,1,3
+FND-0223,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #223,2,84.7,0,0,Tinggi,Tidak,4,4
+FND-0224,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #224,2,78.5,0,0,Kritis,Tidak,3,4
+FND-0225,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #225,0,75.1,1,0,Sedang,Tidak,3,4
+FND-0226,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #226,6,94.6,0,0,Sedang,Tidak,5,4
+FND-0227,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #227,1,78.9,0,0,Kritis,Tidak,2,4
+FND-0228,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #228,0,58.6,0,1,Sedang,Tidak,1,4
+FND-0229,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #229,0,88.7,0,1,Sedang,Tidak,1,5
+FND-0230,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #230,2,54.5,0,1,Rendah,Ya (Anomali),3,4
+FND-0231,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #231,0,83.0,1,1,Tinggi,Ya (Anomali),2,5
+FND-0232,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #232,0,69.4,0,1,Rendah,Tidak,1,4
+FND-0233,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #233,8,67.8,1,1,Sedang,Tidak,5,5
+FND-0234,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #234,6,78.4,0,1,Rendah,Ya (Anomali),5,5
+FND-0235,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #235,5,75.3,1,0,Kritis,Tidak,5,4
+FND-0236,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #236,0,62.2,0,0,Tinggi,Tidak,1,4
+FND-0237,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #237,5,90.0,1,1,Sedang,Ya (Anomali),5,5
+FND-0238,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #238,1,77.0,1,0,Tinggi,Tidak,3,4
+FND-0239,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #239,3,65.9,0,1,Tinggi,Tidak,4,4
+FND-0240,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #240,0,75.6,0,0,Sedang,Tidak,1,4
+FND-0241,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #241,7,47.2,1,0,Kritis,Tidak,5,2
+FND-0242,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #242,0,99.0,0,1,Rendah,Tidak,1,5
+FND-0243,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #243,0,57.1,1,1,Tinggi,Tidak,2,4
+FND-0244,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #244,1,57.5,1,0,Tinggi,Tidak,4,3
+FND-0245,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #245,0,50.9,0,1,Kritis,Tidak,1,4
+FND-0246,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #246,5,45.4,1,1,Sedang,Tidak,5,3
+FND-0247,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #247,0,96.1,0,0,Kritis,Tidak,1,4
+FND-0248,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #248,1,96.6,0,1,Kritis,Tidak,3,5
+FND-0249,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #249,1,94.9,1,0,Kritis,Tidak,3,4
+FND-0250,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #250,2,45.5,0,1,Kritis,Tidak,3,3
+FND-0251,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #251,2,68.9,1,1,Kritis,Tidak,5,5
+FND-0252,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #252,0,34.6,0,0,Sedang,Tidak,1,3
+FND-0253,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #253,0,77.0,0,1,Sedang,Tidak,1,5
+FND-0254,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #254,1,41.5,1,1,Kritis,Tidak,3,3
+FND-0255,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #255,1,74.2,0,0,Kritis,Tidak,3,3
+FND-0256,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #256,0,76.6,0,1,Rendah,Tidak,1,5
+FND-0257,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #257,0,98.7,0,1,Kritis,Tidak,1,5
+FND-0258,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #258,3,82.1,1,0,Rendah,Ya (Anomali),5,4
+FND-0259,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #259,0,65.6,1,1,Rendah,Tidak,2,4
+FND-0260,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #260,0,58.8,0,0,Tinggi,Tidak,1,4
+FND-0261,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #261,2,24.5,1,1,Kritis,Ya (Anomali),4,2
+FND-0262,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #262,0,94.7,0,0,Sedang,Tidak,1,4
+FND-0263,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #263,0,34.5,0,1,Sedang,Tidak,1,3
+FND-0264,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #264,2,23.2,1,1,Tinggi,Tidak,4,3
+FND-0265,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #265,7,47.6,0,0,Kritis,Tidak,5,3
+FND-0266,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #266,0,38.1,0,1,Sedang,Tidak,1,3
+FND-0267,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #267,0,58.3,0,0,Kritis,Tidak,1,3
+FND-0268,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #268,3,93.0,1,1,Kritis,Ya (Anomali),5,5
+FND-0269,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #269,3,95.5,1,1,Rendah,Ya (Anomali),5,5
+FND-0270,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #270,7,42.6,0,1,Sedang,Tidak,5,4
+FND-0271,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #271,0,91.9,1,1,Sedang,Ya (Anomali),2,5
+FND-0272,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #272,0,91.2,0,1,Kritis,Tidak,1,5
+FND-0273,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #273,7,54.7,1,1,Sedang,Tidak,5,4
+FND-0274,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #274,0,62.8,1,0,Kritis,Tidak,3,4
+FND-0275,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #275,1,23.9,1,1,Kritis,Tidak,3,2
+FND-0276,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #276,5,21.6,0,1,Kritis,Tidak,5,2
+FND-0277,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #277,0,32.2,0,0,Rendah,Tidak,1,2
+FND-0278,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #278,2,61.3,0,1,Kritis,Tidak,3,4
+FND-0279,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #279,2,57.3,1,0,Kritis,Tidak,4,3
+FND-0280,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #280,0,21.0,0,0,Kritis,Tidak,1,2
+FND-0281,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #281,1,28.8,0,1,Rendah,Tidak,2,3
+FND-0282,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #282,0,53.1,0,1,Rendah,Tidak,1,5
+FND-0283,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #283,3,83.7,0,1,Kritis,Ya (Anomali),4,5
+FND-0284,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #284,4,62.7,0,1,Kritis,Tidak,5,4
+FND-0285,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #285,2,74.3,0,1,Kritis,Ya (Anomali),3,4
+FND-0286,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #286,2,55.9,0,0,Kritis,Ya (Anomali),3,4
+FND-0287,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #287,1,50.0,1,0,Sedang,Tidak,3,2
+FND-0288,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #288,3,91.8,0,0,Tinggi,Tidak,4,4
+FND-0289,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #289,0,85.5,0,0,Sedang,Tidak,1,5
+FND-0290,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #290,1,35.7,0,1,Rendah,Tidak,2,3
+FND-0291,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #291,1,84.3,0,1,Tinggi,Tidak,2,5
+FND-0292,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #292,1,39.9,0,1,Tinggi,Tidak,2,4
+FND-0293,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #293,0,23.1,1,1,Rendah,Tidak,2,2
+FND-0294,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #294,1,82.2,0,0,Tinggi,Tidak,2,4
+FND-0295,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #295,2,32.1,0,0,Rendah,Tidak,3,2
+FND-0296,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #296,3,42.3,1,0,Sedang,Tidak,5,2
+FND-0297,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #297,4,80.6,1,1,Rendah,Ya (Anomali),5,5
+FND-0298,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #298,1,58.3,0,0,Kritis,Tidak,3,3
+FND-0299,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #299,0,74.7,0,1,Rendah,Tidak,1,4
+FND-0300,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #300,3,22.3,1,1,Rendah,Tidak,5,2
+FND-0301,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #301,2,46.5,1,1,Rendah,Ya (Anomali),4,4
+FND-0302,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #302,0,48.0,1,1,Kritis,Tidak,2,3
+FND-0303,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #303,9,39.3,0,0,Tinggi,Tidak,5,2
+FND-0304,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #304,0,49.6,0,1,Kritis,Tidak,1,3
+FND-0305,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #305,1,48.8,0,1,Sedang,Tidak,2,3
+FND-0306,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #306,5,94.6,0,0,Rendah,Ya (Anomali),5,5
+FND-0307,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #307,1,87.1,0,1,Rendah,Tidak,3,5
+FND-0308,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #308,0,84.9,1,0,Tinggi,Tidak,3,4
+FND-0309,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #309,2,20.3,0,0,Tinggi,Tidak,3,1
+FND-0310,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #310,0,48.9,0,1,Rendah,Tidak,1,3
+FND-0311,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #311,1,32.3,0,1,Rendah,Tidak,2,3
+FND-0312,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #312,0,44.2,1,0,Rendah,Tidak,2,3
+FND-0313,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #313,0,33.3,1,1,Tinggi,Tidak,2,3
+FND-0314,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #314,1,25.8,0,1,Kritis,Tidak,3,4
+FND-0315,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #315,3,63.7,0,1,Sedang,Tidak,5,5
+FND-0316,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #316,0,80.0,1,0,Rendah,Tidak,3,5
+FND-0317,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #317,2,58.9,0,0,Rendah,Tidak,4,4
+FND-0318,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #318,2,42.7,1,0,Rendah,Ya (Anomali),4,2
+FND-0319,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #319,0,28.0,0,0,Kritis,Tidak,1,3
+FND-0320,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #320,8,88.0,0,0,Rendah,Ya (Anomali),5,4
+FND-0321,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #321,0,70.5,0,1,Tinggi,Tidak,1,4
+FND-0322,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #322,0,32.0,0,1,Rendah,Tidak,1,3
+FND-0323,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #323,0,43.5,0,0,Sedang,Tidak,1,3
+FND-0324,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #324,1,81.9,0,0,Sedang,Tidak,2,4
+FND-0325,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #325,2,80.1,0,1,Sedang,Ya (Anomali),3,5
+FND-0326,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #326,0,72.4,0,0,Kritis,Tidak,1,3
+FND-0327,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #327,0,27.4,1,1,Kritis,Tidak,2,3
+FND-0328,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #328,0,70.9,0,1,Kritis,Tidak,1,4
+FND-0329,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #329,4,68.2,0,1,Sedang,Tidak,5,4
+FND-0330,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #330,2,68.2,1,1,Kritis,Tidak,5,4
+FND-0331,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #331,0,85.0,0,0,Rendah,Tidak,1,5
+FND-0332,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #332,0,29.4,0,1,Rendah,Tidak,1,4
+FND-0333,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #333,2,22.1,1,1,Kritis,Tidak,5,3
+FND-0334,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #334,0,38.3,1,1,Tinggi,Tidak,2,4
+FND-0335,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #335,0,28.7,1,1,Tinggi,Tidak,2,4
+FND-0336,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #336,1,80.3,0,0,Sedang,Tidak,3,5
+FND-0337,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #337,0,26.2,1,1,Rendah,Tidak,2,3
+FND-0338,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #338,1,48.7,0,1,Kritis,Tidak,2,3
+FND-0339,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #339,2,91.0,0,0,Rendah,Ya (Anomali),3,4
+FND-0340,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #340,2,90.9,1,1,Rendah,Ya (Anomali),4,5
+FND-0341,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #341,5,48.3,0,0,Kritis,Tidak,5,3
+FND-0342,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #342,4,67.8,0,1,Tinggi,Tidak,5,4
+FND-0343,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #343,0,35.6,0,0,Tinggi,Tidak,1,2
+FND-0344,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #344,0,26.1,0,1,Tinggi,Tidak,1,4
+FND-0345,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #345,4,80.4,1,1,Rendah,Ya (Anomali),5,5
+FND-0346,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #346,2,20.6,1,1,Rendah,Tidak,4,2
+FND-0347,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #347,2,85.5,1,1,Tinggi,Ya (Anomali),4,5
+FND-0348,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #348,0,46.6,0,1,Sedang,Tidak,1,4
+FND-0349,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #349,0,30.5,1,1,Tinggi,Tidak,2,4
+FND-0350,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #350,3,59.9,0,1,Rendah,Ya (Anomali),5,4
+FND-0351,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #351,3,96.8,1,1,Rendah,Ya (Anomali),5,5
+FND-0352,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #352,0,78.1,0,1,Rendah,Tidak,1,5
+FND-0353,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #353,0,80.0,1,1,Tinggi,Tidak,2,5
+FND-0354,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #354,1,52.2,1,0,Rendah,Tidak,4,3
+FND-0355,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #355,2,55.6,0,1,Tinggi,Ya (Anomali),3,4
+FND-0356,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #356,0,86.6,0,1,Rendah,Tidak,1,5
+FND-0357,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #357,2,26.6,0,0,Kritis,Tidak,3,3
+FND-0358,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #358,2,24.3,0,1,Sedang,Tidak,4,3
+FND-0359,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #359,0,74.5,1,1,Tinggi,Tidak,2,4
+FND-0360,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #360,0,41.5,0,1,Sedang,Tidak,1,4
+FND-0361,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #361,0,98.9,0,1,Rendah,Tidak,1,5
+FND-0362,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #362,6,98.6,0,0,Kritis,Tidak,5,5
+FND-0363,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #363,0,70.8,0,0,Rendah,Tidak,1,3
+FND-0364,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #364,4,56.6,1,1,Kritis,Ya (Anomali),5,4
+FND-0365,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #365,0,20.6,0,1,Kritis,Tidak,1,2
+FND-0366,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #366,0,67.6,0,1,Rendah,Tidak,1,5
+FND-0367,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #367,3,27.1,1,1,Kritis,Tidak,5,3
+FND-0368,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #368,1,91.4,1,1,Tinggi,Ya (Anomali),3,5
+FND-0369,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #369,3,29.1,0,1,Tinggi,Tidak,4,4
+FND-0370,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #370,0,27.8,1,0,Sedang,Tidak,2,3
+FND-0371,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #371,0,76.9,0,1,Kritis,Tidak,1,5
+FND-0372,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #372,0,32.1,1,1,Rendah,Tidak,2,4
+FND-0373,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #373,0,66.3,1,1,Kritis,Tidak,2,5
+FND-0374,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #374,1,82.9,1,1,Sedang,Ya (Anomali),4,5
+FND-0375,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #375,0,20.2,1,1,Rendah,Tidak,2,2
+FND-0376,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #376,5,32.0,1,1,Rendah,Tidak,5,4
+FND-0377,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #377,2,34.1,1,0,Tinggi,Tidak,5,2
+FND-0378,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #378,5,63.8,1,1,Kritis,Tidak,5,4
+FND-0379,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #379,2,83.1,0,0,Tinggi,Tidak,3,4
+FND-0380,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #380,1,88.0,1,1,Rendah,Ya (Anomali),4,5
+FND-0381,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #381,0,25.0,0,1,Rendah,Tidak,1,2
+FND-0382,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #382,0,60.2,0,0,Rendah,Tidak,1,3
+FND-0383,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #383,3,88.7,1,1,Kritis,Ya (Anomali),5,5
+FND-0384,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #384,0,25.6,0,0,Kritis,Tidak,1,2
+FND-0385,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #385,3,22.0,1,1,Sedang,Ya (Anomali),5,3
+FND-0386,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #386,4,23.7,0,0,Sedang,Tidak,5,1
+FND-0387,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #387,0,93.6,0,1,Kritis,Tidak,1,5
+FND-0388,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #388,1,51.5,0,1,Sedang,Tidak,2,5
+FND-0389,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #389,0,24.8,1,0,Kritis,Tidak,3,1
+FND-0390,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #390,1,98.7,0,0,Tinggi,Tidak,3,5
+FND-0391,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #391,0,95.4,0,1,Rendah,Tidak,1,5
+FND-0392,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #392,2,53.0,0,0,Sedang,Ya (Anomali),4,3
+FND-0393,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #393,4,28.2,1,1,Sedang,Ya (Anomali),5,3
+FND-0394,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #394,0,78.7,0,0,Kritis,Tidak,1,4
+FND-0395,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #395,1,24.7,0,1,Sedang,Tidak,2,3
+FND-0396,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #396,0,69.6,0,1,Tinggi,Tidak,1,4
+FND-0397,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #397,2,80.2,1,1,Tinggi,Ya (Anomali),5,5
+FND-0398,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #398,4,36.8,1,0,Tinggi,Tidak,5,2
+FND-0399,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #399,1,94.5,0,0,Sedang,Tidak,3,4
+FND-0400,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #400,0,98.7,0,0,Tinggi,Tidak,1,4
+FND-0401,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #401,1,48.3,0,1,Tinggi,Tidak,2,3
+FND-0402,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #402,3,96.1,0,1,Rendah,Ya (Anomali),4,5
+FND-0403,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #403,2,38.3,1,0,Sedang,Tidak,5,2
+FND-0404,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #404,0,83.4,0,0,Rendah,Tidak,1,4
+FND-0405,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #405,4,78.5,0,0,Tinggi,Tidak,5,4
+FND-0406,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #406,1,23.3,0,0,Tinggi,Tidak,2,1
+FND-0407,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #407,0,40.5,0,0,Rendah,Tidak,1,2
+FND-0408,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #408,1,50.4,1,1,Kritis,Tidak,3,5
+FND-0409,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #409,0,21.2,0,0,Tinggi,Tidak,1,2
+FND-0410,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #410,1,94.9,0,0,Sedang,Tidak,2,5
+FND-0411,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #411,1,36.8,0,1,Sedang,Tidak,2,3
+FND-0412,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #412,0,93.1,1,0,Tinggi,Tidak,2,4
+FND-0413,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #413,3,54.8,0,0,Kritis,Ya (Anomali),5,3
+FND-0414,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #414,0,30.1,0,0,Sedang,Tidak,1,2
+FND-0415,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #415,1,53.8,0,1,Sedang,Tidak,3,5
+FND-0416,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #416,2,68.4,1,1,Tinggi,Ya (Anomali),4,4
+FND-0417,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #417,2,57.5,1,1,Tinggi,Ya (Anomali),5,5
+FND-0418,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #418,0,45.1,1,0,Sedang,Tidak,2,2
+FND-0419,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #419,3,84.3,0,1,Kritis,Ya (Anomali),4,5
+FND-0420,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #420,1,95.5,1,1,Tinggi,Ya (Anomali),3,5
+FND-0421,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #421,2,27.5,1,1,Rendah,Tidak,4,3
+FND-0422,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #422,0,63.4,0,1,Tinggi,Tidak,1,4
+FND-0423,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #423,0,45.1,0,1,Kritis,Tidak,1,3
+FND-0424,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #424,1,79.0,0,0,Kritis,Tidak,2,5
+FND-0425,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #425,1,70.2,0,0,Kritis,Tidak,2,4
+FND-0426,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #426,1,22.2,1,1,Tinggi,Tidak,3,2
+FND-0427,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #427,0,70.2,0,0,Rendah,Tidak,1,4
+FND-0428,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #428,3,77.2,0,0,Kritis,Ya (Anomali),5,5
+FND-0429,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #429,0,80.9,1,1,Tinggi,Ya (Anomali),2,5
+FND-0430,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #430,1,90.4,1,0,Sedang,Tidak,4,4
+FND-0431,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #431,2,94.7,0,0,Sedang,Tidak,4,5
+FND-0432,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #432,0,41.1,1,1,Kritis,Tidak,3,3
+FND-0433,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #433,0,72.3,1,1,Sedang,Tidak,2,4
+FND-0434,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #434,1,64.0,1,1,Tinggi,Tidak,4,5
+FND-0435,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #435,0,84.9,1,1,Sedang,Ya (Anomali),2,5
+FND-0436,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #436,1,23.0,1,1,Tinggi,Tidak,3,2
+FND-0437,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #437,0,52.4,1,1,Sedang,Tidak,2,4
+FND-0438,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #438,0,47.1,0,1,Kritis,Tidak,1,3
+FND-0439,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #439,6,71.6,0,0,Kritis,Tidak,5,3
+FND-0440,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #440,2,53.0,0,1,Kritis,Tidak,3,5
+FND-0441,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #441,1,51.1,0,1,Sedang,Tidak,2,4
+FND-0442,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #442,0,49.7,0,1,Sedang,Tidak,1,4
+FND-0443,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #443,0,85.2,0,1,Rendah,Tidak,1,5
+FND-0444,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #444,2,58.2,0,1,Tinggi,Ya (Anomali),3,5
+FND-0445,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #445,0,51.6,0,1,Tinggi,Tidak,1,5
+FND-0446,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #446,1,88.4,1,0,Kritis,Tidak,3,4
+FND-0447,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #447,1,20.1,1,1,Kritis,Tidak,4,2
+FND-0448,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #448,8,45.2,1,1,Tinggi,Tidak,5,3
+FND-0449,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #449,1,73.2,1,0,Kritis,Tidak,3,3
+FND-0450,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #450,1,28.3,1,1,Sedang,Tidak,3,3
+FND-0451,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #451,4,65.8,1,1,Sedang,Tidak,5,4
+FND-0452,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #452,1,55.5,0,0,Rendah,Tidak,3,3
+FND-0453,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #453,1,72.9,0,1,Sedang,Tidak,3,4
+FND-0454,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #454,1,61.9,0,0,Sedang,Tidak,2,3
+FND-0455,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #455,0,35.4,0,1,Kritis,Tidak,1,4
+FND-0456,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #456,1,30.5,0,0,Sedang,Tidak,2,2
+FND-0457,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #457,1,44.2,1,0,Kritis,Tidak,4,3
+FND-0458,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #458,0,94.5,0,1,Tinggi,Tidak,1,5
+FND-0459,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #459,3,36.6,0,0,Sedang,Tidak,4,3
+FND-0460,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #460,2,56.4,1,1,Sedang,Tidak,4,4
+FND-0461,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #461,2,95.1,1,0,Tinggi,Ya (Anomali),4,5
+FND-0462,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #462,0,36.0,1,1,Sedang,Tidak,2,3
+FND-0463,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #463,0,39.3,1,1,Sedang,Tidak,3,4
+FND-0464,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #464,0,57.8,0,1,Rendah,Tidak,1,5
+FND-0465,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #465,2,28.3,1,1,Sedang,Ya (Anomali),4,3
+FND-0466,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #466,5,26.3,1,0,Tinggi,Tidak,5,2
+FND-0467,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #467,1,43.9,0,0,Sedang,Tidak,2,2
+FND-0468,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #468,1,31.3,0,0,Rendah,Tidak,2,2
+FND-0469,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #469,7,53.7,1,0,Sedang,Tidak,5,3
+FND-0470,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #470,0,28.6,0,0,Tinggi,Tidak,1,2
+FND-0471,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #471,2,66.4,0,0,Tinggi,Tidak,3,4
+FND-0472,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #472,0,58.9,1,1,Sedang,Tidak,2,5
+FND-0473,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #473,0,66.8,1,1,Tinggi,Tidak,2,5
+FND-0474,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #474,3,91.2,1,0,Tinggi,Ya (Anomali),5,4
+FND-0475,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #475,0,47.3,0,1,Kritis,Tidak,1,4
+FND-0476,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #476,0,41.2,1,0,Sedang,Tidak,2,3
+FND-0477,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #477,4,65.4,1,1,Sedang,Tidak,5,5
+FND-0478,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #478,0,39.5,0,1,Rendah,Tidak,1,4
+FND-0479,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #479,1,25.3,0,1,Kritis,Tidak,2,4
+FND-0480,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #480,1,24.6,1,1,Tinggi,Tidak,3,2
+FND-0481,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #481,1,25.2,0,0,Rendah,Tidak,2,2
+FND-0482,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #482,0,38.8,0,0,Tinggi,Tidak,1,2
+FND-0483,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #483,6,77.7,0,0,Tinggi,Tidak,5,4
+FND-0484,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #484,2,32.2,1,1,Kritis,Tidak,4,4
+FND-0485,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #485,1,40.4,1,0,Kritis,Tidak,3,2
+FND-0486,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #486,2,87.9,0,1,Kritis,Ya (Anomali),4,5
+FND-0487,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #487,0,54.5,0,0,Kritis,Tidak,1,3
+FND-0488,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #488,3,23.3,0,0,Sedang,Tidak,4,1
+FND-0489,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #489,1,39.5,1,0,Kritis,Tidak,3,2
+FND-0490,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #490,2,43.8,1,0,Tinggi,Tidak,4,2
+FND-0491,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #491,1,34.6,0,0,Kritis,Tidak,2,2
+FND-0492,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #492,1,96.4,0,1,Sedang,Ya (Anomali),2,5
+FND-0493,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #493,0,52.1,0,1,Tinggi,Tidak,1,5
+FND-0494,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #494,3,51.3,0,1,Sedang,Ya (Anomali),4,4
+FND-0495,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #495,1,97.2,0,1,Tinggi,Tidak,2,5
+FND-0496,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #496,0,63.4,1,0,Rendah,Tidak,2,3
+FND-0497,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #497,0,26.5,0,1,Tinggi,Tidak,1,3
+FND-0498,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #498,1,55.0,1,0,Rendah,Tidak,3,4
+FND-0499,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #499,0,71.7,1,1,Rendah,Tidak,3,4
+FND-0500,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #500,0,65.0,1,0,Sedang,Tidak,2,3
+FND-0501,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #501,0,86.8,0,1,Sedang,Tidak,1,5
+FND-0502,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #502,1,96.1,0,1,Sedang,Tidak,3,5
+FND-0503,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #503,0,24.6,1,1,Tinggi,Tidak,2,3
+FND-0504,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #504,1,40.2,0,0,Tinggi,Tidak,2,2
+FND-0505,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #505,1,91.1,0,0,Rendah,Tidak,2,4
+FND-0506,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #506,2,88.9,0,1,Tinggi,Ya (Anomali),4,5
+FND-0507,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #507,0,21.3,1,0,Tinggi,Tidak,2,2
+FND-0508,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #508,3,65.6,1,1,Tinggi,Tidak,5,4
+FND-0509,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #509,2,45.2,0,1,Rendah,Tidak,3,3
+FND-0510,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #510,0,61.9,0,1,Sedang,Tidak,1,4
+FND-0511,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #511,2,37.4,0,0,Rendah,Tidak,4,2
+FND-0512,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #512,2,75.8,0,1,Tinggi,Ya (Anomali),4,5
+FND-0513,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #513,0,46.2,1,1,Rendah,Tidak,2,3
+FND-0514,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #514,2,70.7,0,1,Rendah,Tidak,3,4
+FND-0515,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #515,0,25.9,0,0,Sedang,Tidak,1,3
+FND-0516,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #516,3,96.1,0,1,Sedang,Ya (Anomali),4,5
+FND-0517,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #517,2,40.0,1,0,Sedang,Tidak,5,3
+FND-0518,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #518,2,52.2,0,1,Kritis,Tidak,4,4
+FND-0519,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #519,6,50.1,0,1,Tinggi,Tidak,5,4
+FND-0520,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #520,0,67.1,0,0,Rendah,Tidak,1,3
+FND-0521,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #521,4,28.4,1,0,Tinggi,Tidak,5,2
+FND-0522,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #522,0,46.4,0,0,Sedang,Tidak,1,2
+FND-0523,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #523,1,89.6,0,1,Tinggi,Tidak,2,5
+FND-0524,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #524,0,51.4,1,1,Rendah,Tidak,2,4
+FND-0525,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #525,4,38.8,0,0,Tinggi,Tidak,5,2
+FND-0526,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #526,0,91.3,1,0,Rendah,Tidak,3,4
+FND-0527,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #527,6,66.1,0,1,Kritis,Tidak,5,5
+FND-0528,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #528,2,52.9,1,1,Tinggi,Ya (Anomali),4,4
+FND-0529,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #529,4,94.1,1,1,Tinggi,Ya (Anomali),5,5
+FND-0530,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #530,1,75.2,1,1,Sedang,Tidak,3,5
+FND-0531,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #531,2,72.9,0,0,Tinggi,Tidak,3,4
+FND-0532,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #532,0,45.9,0,1,Kritis,Tidak,1,4
+FND-0533,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #533,2,64.2,1,1,Rendah,Tidak,4,4
+FND-0534,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #534,3,57.1,1,1,Tinggi,Tidak,5,4
+FND-0535,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #535,0,51.5,1,1,Rendah,Tidak,3,5
+FND-0536,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #536,2,20.5,1,0,Rendah,Tidak,4,1
+FND-0537,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #537,2,43.2,0,1,Kritis,Ya (Anomali),3,3
+FND-0538,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #538,2,97.4,0,1,Tinggi,Ya (Anomali),3,5
+FND-0539,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #539,5,81.6,0,1,Rendah,Ya (Anomali),5,5
+FND-0540,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #540,1,68.6,0,0,Tinggi,Tidak,3,3
+FND-0541,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #541,0,52.9,1,0,Tinggi,Tidak,2,3
+FND-0542,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #542,1,26.1,0,1,Rendah,Tidak,3,3
+FND-0543,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #543,2,68.1,0,1,Tinggi,Tidak,3,4
+FND-0544,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #544,4,41.5,1,1,Kritis,Tidak,5,4
+FND-0545,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #545,0,65.5,0,0,Kritis,Tidak,1,3
+FND-0546,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #546,0,94.8,1,0,Sedang,Tidak,2,5
+FND-0547,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #547,0,82.1,0,1,Sedang,Tidak,1,5
+FND-0548,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #548,0,95.9,0,0,Kritis,Tidak,1,4
+FND-0549,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #549,5,86.2,0,0,Rendah,Ya (Anomali),5,5
+FND-0550,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #550,2,26.9,0,0,Sedang,Ya (Anomali),3,3
+FND-0551,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #551,2,27.7,1,1,Kritis,Tidak,5,3
+FND-0552,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #552,1,73.5,0,1,Rendah,Tidak,2,5
+FND-0553,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #553,2,71.9,1,1,Sedang,Tidak,5,4
+FND-0554,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #554,1,50.0,0,1,Kritis,Tidak,2,4
+FND-0555,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #555,1,24.2,1,0,Rendah,Tidak,3,2
+FND-0556,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #556,1,76.4,0,1,Tinggi,Tidak,2,5
+FND-0557,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #557,0,28.3,0,1,Sedang,Tidak,1,3
+FND-0558,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #558,3,70.2,0,0,Tinggi,Tidak,5,3
+FND-0559,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #559,0,23.8,1,1,Rendah,Tidak,3,2
+FND-0560,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #560,3,34.4,0,0,Sedang,Tidak,5,2
+FND-0561,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #561,0,64.0,0,0,Tinggi,Tidak,1,4
+FND-0562,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #562,1,67.2,0,1,Rendah,Tidak,2,4
+FND-0563,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #563,1,73.1,1,0,Sedang,Tidak,3,4
+FND-0564,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #564,5,28.7,0,1,Tinggi,Tidak,5,3
+FND-0565,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #565,0,55.1,0,0,Tinggi,Tidak,1,3
+FND-0566,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #566,0,30.6,1,1,Rendah,Tidak,3,4
+FND-0567,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #567,0,94.0,0,0,Rendah,Tidak,1,5
+FND-0568,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #568,8,85.9,1,1,Tinggi,Ya (Anomali),5,5
+FND-0569,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #569,0,64.6,0,0,Tinggi,Tidak,1,3
+FND-0570,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #570,0,54.0,0,0,Tinggi,Tidak,1,4
+FND-0571,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #571,0,45.7,0,0,Kritis,Tidak,1,3
+FND-0572,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #572,0,82.1,0,1,Rendah,Tidak,1,5
+FND-0573,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #573,2,60.3,1,0,Kritis,Tidak,4,4
+FND-0574,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #574,0,21.0,0,1,Tinggi,Tidak,1,2
+FND-0575,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #575,5,65.1,1,0,Tinggi,Tidak,5,3
+FND-0576,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #576,2,87.7,0,1,Rendah,Ya (Anomali),3,5
+FND-0577,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #577,5,67.9,0,1,Tinggi,Ya (Anomali),5,4
+FND-0578,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #578,0,25.6,0,1,Rendah,Tidak,1,3
+FND-0579,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #579,0,66.6,0,1,Kritis,Tidak,1,4
+FND-0580,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #580,1,79.2,0,1,Rendah,Tidak,3,5
+FND-0581,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #581,4,78.3,0,0,Rendah,Tidak,5,5
+FND-0582,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #582,2,62.8,0,1,Tinggi,Tidak,3,4
+FND-0583,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #583,2,79.5,1,1,Tinggi,Ya (Anomali),4,5
+FND-0584,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #584,2,29.3,1,1,Tinggi,Tidak,4,4
+FND-0585,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #585,4,40.7,1,1,Tinggi,Tidak,5,3
+FND-0586,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #586,3,37.9,0,1,Sedang,Tidak,4,3
+FND-0587,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #587,0,47.5,0,0,Sedang,Tidak,1,2
+FND-0588,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #588,0,70.3,0,1,Sedang,Tidak,1,5
+FND-0589,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #589,3,60.6,0,1,Kritis,Ya (Anomali),4,4
+FND-0590,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #590,5,56.9,0,1,Tinggi,Tidak,5,5
+FND-0591,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #591,4,64.5,0,1,Sedang,Ya (Anomali),5,4
+FND-0592,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #592,1,51.7,1,1,Sedang,Tidak,3,4
+FND-0593,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #593,0,96.2,0,1,Kritis,Tidak,1,5
+FND-0594,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #594,3,21.1,1,0,Sedang,Tidak,5,1
+FND-0595,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #595,0,44.4,1,0,Sedang,Tidak,2,2
+FND-0596,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #596,0,97.9,1,1,Tinggi,Ya (Anomali),2,5
+FND-0597,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #597,1,93.0,0,1,Tinggi,Tidak,2,5
+FND-0598,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #598,0,85.8,1,1,Sedang,Ya (Anomali),2,5
+FND-0599,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #599,3,32.2,1,0,Kritis,Ya (Anomali),5,3
+FND-0600,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #600,3,83.7,1,1,Tinggi,Ya (Anomali),5,5
+FND-0601,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #601,0,27.3,0,0,Rendah,Tidak,1,2
+FND-0602,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #602,0,26.2,1,1,Tinggi,Tidak,2,3
+FND-0603,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #603,1,26.4,1,0,Sedang,Tidak,4,2
+FND-0604,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #604,3,66.0,1,1,Tinggi,Ya (Anomali),5,5
+FND-0605,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #605,1,74.5,0,0,Sedang,Tidak,2,3
+FND-0606,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #606,1,40.2,0,1,Tinggi,Tidak,3,4
+FND-0607,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #607,1,71.6,0,0,Tinggi,Tidak,2,3
+FND-0608,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #608,0,56.2,0,1,Rendah,Tidak,1,4
+FND-0609,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #609,2,96.9,0,1,Sedang,Ya (Anomali),3,5
+FND-0610,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #610,1,47.2,0,0,Sedang,Tidak,2,3
+FND-0611,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #611,13,74.0,1,0,Kritis,Tidak,5,4
+FND-0612,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #612,0,30.1,0,1,Kritis,Tidak,1,4
+FND-0613,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #613,2,24.6,0,0,Kritis,Ya (Anomali),3,1
+FND-0614,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #614,0,69.4,1,0,Tinggi,Tidak,3,4
+FND-0615,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #615,5,40.0,0,1,Rendah,Tidak,5,3
+FND-0616,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #616,1,92.3,0,0,Sedang,Tidak,3,4
+FND-0617,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #617,4,21.2,1,1,Sedang,Ya (Anomali),5,2
+FND-0618,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #618,1,94.4,0,1,Tinggi,Ya (Anomali),2,5
+FND-0619,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #619,1,21.6,1,1,Sedang,Tidak,3,2
+FND-0620,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #620,4,71.2,0,1,Rendah,Ya (Anomali),5,5
+FND-0621,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #621,2,86.7,0,1,Tinggi,Ya (Anomali),3,5
+FND-0622,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #622,2,54.0,0,1,Kritis,Tidak,3,5
+FND-0623,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #623,0,72.1,0,1,Kritis,Tidak,1,4
+FND-0624,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #624,0,43.2,1,1,Tinggi,Tidak,2,3
+FND-0625,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #625,1,56.7,0,1,Kritis,Tidak,3,4
+FND-0626,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #626,1,33.7,1,1,Tinggi,Tidak,3,3
+FND-0627,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #627,1,38.1,1,1,Sedang,Tidak,3,3
+FND-0628,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #628,0,90.6,0,1,Sedang,Tidak,1,5
+FND-0629,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #629,1,76.1,1,1,Kritis,Tidak,3,5
+FND-0630,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #630,0,86.5,1,0,Sedang,Tidak,3,4
+FND-0631,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #631,1,52.2,0,1,Kritis,Tidak,2,4
+FND-0632,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #632,0,30.1,0,0,Kritis,Tidak,1,3
+FND-0633,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #633,0,92.1,0,1,Tinggi,Tidak,1,5
+FND-0634,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #634,0,96.3,0,1,Rendah,Tidak,1,5
+FND-0635,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #635,2,87.3,1,0,Rendah,Ya (Anomali),4,4
+FND-0636,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #636,0,64.5,0,0,Rendah,Tidak,1,4
+FND-0637,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #637,2,59.6,0,1,Tinggi,Ya (Anomali),3,4
+FND-0638,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #638,0,90.7,0,1,Sedang,Tidak,1,5
+FND-0639,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #639,0,52.5,0,1,Kritis,Tidak,1,5
+FND-0640,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #640,3,66.4,0,1,Sedang,Tidak,4,4
+FND-0641,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #641,1,52.7,0,1,Kritis,Tidak,2,5
+FND-0642,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #642,0,26.2,0,1,Sedang,Tidak,1,4
+FND-0643,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #643,1,90.0,1,1,Rendah,Ya (Anomali),3,5
+FND-0644,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #644,0,77.1,1,0,Sedang,Tidak,3,5
+FND-0645,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #645,3,56.7,0,0,Kritis,Tidak,4,4
+FND-0646,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #646,3,32.8,0,1,Tinggi,Tidak,4,3
+FND-0647,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #647,0,34.0,0,1,Kritis,Tidak,1,3
+FND-0648,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #648,3,72.5,0,1,Rendah,Tidak,4,4
+FND-0649,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #649,2,94.0,0,1,Kritis,Ya (Anomali),4,5
+FND-0650,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #650,2,53.9,1,1,Kritis,Tidak,5,5
+FND-0651,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #651,1,55.1,0,1,Kritis,Tidak,2,4
+FND-0652,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #652,1,74.2,1,0,Tinggi,Tidak,3,3
+FND-0653,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #653,0,87.5,1,0,Tinggi,Tidak,2,4
+FND-0654,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #654,1,83.5,1,1,Kritis,Ya (Anomali),4,5
+FND-0655,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #655,0,76.5,1,0,Rendah,Tidak,2,4
+FND-0656,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #656,0,40.5,1,1,Sedang,Tidak,2,3
+FND-0657,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #657,0,33.6,0,0,Rendah,Tidak,1,2
+FND-0658,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #658,1,20.6,1,1,Rendah,Tidak,3,2
+FND-0659,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #659,3,96.6,1,1,Rendah,Ya (Anomali),5,5
+FND-0660,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #660,1,54.3,0,1,Rendah,Tidak,3,5
+FND-0661,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #661,1,35.7,1,0,Rendah,Tidak,4,2
+FND-0662,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #662,0,29.7,1,1,Rendah,Tidak,2,3
+FND-0663,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #663,1,31.8,1,0,Tinggi,Tidak,4,2
+FND-0664,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #664,1,46.5,0,0,Sedang,Tidak,2,3
+FND-0665,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #665,0,87.8,1,1,Kritis,Ya (Anomali),2,5
+FND-0666,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #666,1,96.7,0,0,Sedang,Tidak,2,5
+FND-0667,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #667,0,60.1,0,0,Tinggi,Tidak,1,3
+FND-0668,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #668,7,45.2,0,1,Rendah,Tidak,5,4
+FND-0669,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #669,1,33.9,0,1,Sedang,Tidak,3,3
+FND-0670,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #670,9,42.7,1,1,Sedang,Tidak,5,3
+FND-0671,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #671,6,68.9,0,0,Kritis,Tidak,5,3
+FND-0672,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #672,0,94.7,1,0,Kritis,Tidak,2,5
+FND-0673,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #673,2,58.8,0,0,Tinggi,Ya (Anomali),3,3
+FND-0674,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #674,3,31.0,0,1,Rendah,Tidak,5,3
+FND-0675,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #675,0,94.7,0,0,Sedang,Tidak,1,4
+FND-0676,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #676,4,96.1,1,1,Sedang,Ya (Anomali),5,5
+FND-0677,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #677,2,90.7,0,0,Kritis,Tidak,3,5
+FND-0678,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #678,0,87.9,0,1,Sedang,Tidak,1,5
+FND-0679,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #679,0,81.4,0,1,Sedang,Tidak,1,5
+FND-0680,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #680,2,30.0,1,0,Kritis,Tidak,4,2
+FND-0681,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #681,3,45.9,1,0,Kritis,Tidak,5,3
+FND-0682,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #682,0,79.6,0,0,Rendah,Tidak,1,4
+FND-0683,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #683,3,88.4,0,1,Rendah,Ya (Anomali),4,5
+FND-0684,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #684,0,38.0,0,0,Sedang,Tidak,1,2
+FND-0685,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #685,1,69.1,1,1,Tinggi,Tidak,4,4
+FND-0686,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #686,1,24.7,0,1,Rendah,Tidak,2,3
+FND-0687,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #687,0,87.6,1,0,Sedang,Tidak,2,5
+FND-0688,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #688,0,47.4,0,1,Rendah,Tidak,1,3
+FND-0689,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #689,1,35.5,0,1,Kritis,Tidak,2,3
+FND-0690,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #690,0,86.2,0,1,Kritis,Tidak,1,5
+FND-0691,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #691,1,33.5,1,0,Sedang,Tidak,3,2
+FND-0692,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #692,0,56.4,1,1,Sedang,Tidak,3,4
+FND-0693,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #693,0,27.5,0,0,Rendah,Tidak,1,2
+FND-0694,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #694,0,55.2,0,1,Tinggi,Tidak,1,5
+FND-0695,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #695,0,93.0,0,1,Sedang,Tidak,1,5
+FND-0696,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #696,0,74.8,1,0,Sedang,Tidak,2,3
+FND-0697,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #697,2,97.8,0,1,Rendah,Ya (Anomali),4,5
+FND-0698,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #698,1,55.4,1,0,Tinggi,Tidak,3,3
+FND-0699,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #699,4,90.2,1,1,Kritis,Ya (Anomali),5,5
+FND-0700,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #700,1,92.0,0,1,Rendah,Tidak,3,5
+FND-0701,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #701,0,27.1,1,0,Sedang,Tidak,2,2
+FND-0702,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #702,1,97.3,0,1,Rendah,Tidak,3,5
+FND-0703,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #703,3,90.5,1,1,Kritis,Ya (Anomali),5,5
+FND-0704,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #704,0,69.5,0,1,Kritis,Tidak,1,4
+FND-0705,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #705,0,62.4,0,1,Sedang,Tidak,1,4
+FND-0706,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #706,0,50.4,0,1,Tinggi,Tidak,1,4
+FND-0707,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #707,1,66.3,0,1,Kritis,Tidak,2,4
+FND-0708,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #708,2,78.2,0,1,Sedang,Ya (Anomali),4,5
+FND-0709,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #709,0,76.0,0,0,Tinggi,Tidak,1,4
+FND-0710,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #710,0,43.7,0,1,Kritis,Tidak,1,4
+FND-0711,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #711,0,73.1,1,1,Sedang,Tidak,2,5
+FND-0712,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #712,2,20.4,0,1,Kritis,Tidak,3,3
+FND-0713,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #713,1,33.4,0,1,Rendah,Tidak,2,4
+FND-0714,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #714,0,32.0,0,1,Kritis,Tidak,1,3
+FND-0715,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #715,0,78.5,0,1,Kritis,Tidak,1,5
+FND-0716,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #716,4,90.9,0,1,Kritis,Ya (Anomali),5,5
+FND-0717,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #717,2,26.8,0,0,Kritis,Tidak,3,3
+FND-0718,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #718,1,92.0,0,1,Kritis,Tidak,2,5
+FND-0719,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #719,0,44.2,0,1,Kritis,Tidak,1,3
+FND-0720,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #720,0,69.2,0,1,Kritis,Tidak,1,5
+FND-0721,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #721,3,33.0,0,0,Tinggi,Tidak,4,2
+FND-0722,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #722,1,51.8,0,1,Sedang,Tidak,3,5
+FND-0723,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #723,1,56.5,1,1,Rendah,Tidak,4,5
+FND-0724,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #724,0,49.6,0,0,Kritis,Tidak,1,3
+FND-0725,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #725,0,84.9,0,1,Kritis,Tidak,1,5
+FND-0726,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #726,0,66.1,0,1,Sedang,Tidak,1,4
+FND-0727,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #727,0,59.2,0,1,Kritis,Tidak,1,5
+FND-0728,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #728,2,81.9,1,1,Kritis,Ya (Anomali),4,5
+FND-0729,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #729,1,76.0,1,1,Rendah,Tidak,4,5
+FND-0730,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #730,0,28.3,1,1,Rendah,Tidak,3,3
+FND-0731,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #731,0,60.9,0,1,Kritis,Tidak,1,4
+FND-0732,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #732,2,83.0,1,1,Tinggi,Ya (Anomali),5,5
+FND-0733,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #733,3,70.4,0,1,Rendah,Tidak,5,4
+FND-0734,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #734,0,76.3,1,1,Sedang,Tidak,2,5
+FND-0735,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #735,1,65.3,1,0,Kritis,Tidak,3,3
+FND-0736,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #736,1,93.3,0,0,Tinggi,Tidak,3,5
+FND-0737,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #737,0,60.6,0,1,Kritis,Tidak,1,4
+FND-0738,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #738,1,64.5,0,0,Kritis,Tidak,2,4
+FND-0739,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #739,3,89.5,1,1,Rendah,Ya (Anomali),5,5
+FND-0740,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #740,1,68.6,0,0,Tinggi,Tidak,2,3
+FND-0741,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #741,0,54.6,0,1,Tinggi,Tidak,1,4
+FND-0742,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #742,0,40.0,0,1,Sedang,Tidak,1,4
+FND-0743,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #743,0,96.3,0,1,Sedang,Tidak,1,5
+FND-0744,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #744,4,80.9,0,1,Kritis,Ya (Anomali),5,5
+FND-0745,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #745,18,26.5,1,1,Sedang,Tidak,5,3
+FND-0746,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #746,0,29.9,1,0,Rendah,Tidak,2,2
+FND-0747,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #747,0,36.2,0,1,Rendah,Tidak,1,4
+FND-0748,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #748,3,38.7,0,1,Sedang,Tidak,4,3
+FND-0749,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #749,0,71.0,0,0,Rendah,Tidak,1,4
+FND-0750,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #750,1,62.1,0,1,Sedang,Tidak,2,4
+FND-0751,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #751,2,38.6,0,1,Rendah,Tidak,3,4
+FND-0752,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #752,2,31.8,0,0,Tinggi,Tidak,3,3
+FND-0753,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #753,2,74.7,0,0,Tinggi,Tidak,4,3
+FND-0754,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #754,1,24.2,0,1,Sedang,Tidak,2,3
+FND-0755,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #755,5,37.3,0,0,Kritis,Tidak,5,3
+FND-0756,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #756,0,43.4,0,1,Kritis,Tidak,1,3
+FND-0757,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #757,0,34.3,0,0,Kritis,Tidak,1,2
+FND-0758,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #758,0,65.4,0,0,Sedang,Tidak,1,3
+FND-0759,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #759,3,76.7,0,0,Sedang,Ya (Anomali),4,4
+FND-0760,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #760,3,52.2,0,0,Sedang,Tidak,4,3
+FND-0761,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #761,0,33.2,1,1,Rendah,Tidak,2,4
+FND-0762,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #762,1,51.7,0,1,Rendah,Tidak,3,4
+FND-0763,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #763,0,56.8,0,0,Rendah,Tidak,1,3
+FND-0764,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #764,0,89.5,0,0,Sedang,Tidak,1,5
+FND-0765,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #765,0,62.0,0,1,Rendah,Tidak,1,5
+FND-0766,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #766,1,24.5,0,0,Tinggi,Tidak,3,1
+FND-0767,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #767,1,97.3,0,1,Tinggi,Tidak,2,5
+FND-0768,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #768,0,34.9,0,0,Sedang,Tidak,1,2
+FND-0769,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #769,3,61.7,0,1,Kritis,Tidak,4,5
+FND-0770,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #770,0,47.0,0,1,Rendah,Tidak,1,3
+FND-0771,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #771,0,75.2,1,1,Rendah,Tidak,2,5
+FND-0772,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #772,0,35.1,0,1,Kritis,Tidak,1,3
+FND-0773,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #773,1,60.5,0,1,Rendah,Tidak,2,5
+FND-0774,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #774,4,60.6,0,0,Tinggi,Tidak,5,4
+FND-0775,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #775,2,71.4,1,1,Tinggi,Tidak,4,4
+FND-0776,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #776,4,66.0,0,0,Tinggi,Ya (Anomali),5,3
+FND-0777,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #777,3,29.9,1,0,Sedang,Tidak,5,2
+FND-0778,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #778,1,74.8,0,0,Rendah,Tidak,3,3
+FND-0779,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #779,3,56.6,0,0,Sedang,Ya (Anomali),4,4
+FND-0780,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #780,1,34.8,0,1,Sedang,Tidak,3,3
+FND-0781,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #781,0,51.6,0,1,Kritis,Tidak,1,4
+FND-0782,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #782,2,49.2,0,0,Rendah,Tidak,4,2
+FND-0783,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #783,0,55.0,1,0,Rendah,Tidak,2,3
+FND-0784,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #784,1,90.7,1,1,Sedang,Tidak,4,5
+FND-0785,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #785,1,88.9,0,0,Sedang,Tidak,2,5
+FND-0786,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #786,2,21.9,1,1,Rendah,Tidak,4,2
+FND-0787,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #787,3,60.5,0,0,Sedang,Tidak,4,3
+FND-0788,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #788,0,25.8,0,1,Kritis,Tidak,1,3
+FND-0789,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #789,1,22.9,1,0,Sedang,Tidak,3,2
+FND-0790,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #790,0,36.7,0,0,Tinggi,Tidak,1,2
+FND-0791,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #791,0,96.3,0,0,Sedang,Tidak,1,4
+FND-0792,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #792,1,93.5,0,1,Tinggi,Tidak,2,5
+FND-0793,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #793,0,76.3,0,1,Tinggi,Tidak,1,5
+FND-0794,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #794,9,44.4,0,1,Sedang,Tidak,5,3
+FND-0795,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #795,1,36.7,0,1,Tinggi,Tidak,2,3
+FND-0796,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #796,3,33.5,0,0,Tinggi,Tidak,4,2
+FND-0797,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #797,1,21.7,0,1,Tinggi,Tidak,2,3
+FND-0798,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #798,3,54.8,1,1,Kritis,Tidak,5,4
+FND-0799,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #799,0,67.9,1,1,Kritis,Tidak,2,4
+FND-0800,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #800,2,66.9,1,1,Tinggi,Tidak,4,4
+FND-0801,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #801,0,75.4,1,1,Sedang,Tidak,3,5
+FND-0802,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #802,0,60.3,0,1,Sedang,Tidak,1,4
+FND-0803,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #803,0,62.2,1,0,Tinggi,Tidak,2,4
+FND-0804,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #804,0,95.8,0,0,Kritis,Tidak,1,4
+FND-0805,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #805,4,64.6,0,0,Sedang,Tidak,5,3
+FND-0806,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #806,0,89.0,0,1,Sedang,Tidak,1,5
+FND-0807,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #807,0,29.8,0,1,Rendah,Tidak,1,4
+FND-0808,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #808,6,85.3,1,0,Rendah,Ya (Anomali),5,5
+FND-0809,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #809,2,74.4,0,0,Tinggi,Tidak,3,3
+FND-0810,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #810,0,20.5,0,0,Kritis,Tidak,1,1
+FND-0811,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #811,0,36.6,0,0,Rendah,Tidak,1,2
+FND-0812,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #812,3,37.0,0,1,Rendah,Tidak,4,3
+FND-0813,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #813,0,51.4,0,1,Rendah,Tidak,1,4
+FND-0814,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #814,5,50.9,0,0,Tinggi,Ya (Anomali),5,3
+FND-0815,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #815,4,47.6,1,1,Kritis,Tidak,5,3
+FND-0816,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #816,0,54.3,1,1,Sedang,Tidak,2,5
+FND-0817,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #817,4,85.3,0,1,Tinggi,Ya (Anomali),5,5
+FND-0818,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #818,0,24.0,0,1,Sedang,Tidak,1,3
+FND-0819,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #819,0,86.9,0,0,Rendah,Tidak,1,5
+FND-0820,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #820,3,92.6,0,1,Kritis,Ya (Anomali),4,5
+FND-0821,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #821,2,33.2,0,0,Tinggi,Tidak,3,2
+FND-0822,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #822,1,48.9,1,1,Kritis,Tidak,3,3
+FND-0823,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #823,0,71.4,0,1,Tinggi,Tidak,1,4
+FND-0824,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #824,2,97.3,0,1,Kritis,Ya (Anomali),3,5
+FND-0825,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #825,0,88.4,0,1,Kritis,Tidak,1,5
+FND-0826,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #826,2,78.5,1,1,Tinggi,Ya (Anomali),4,5
+FND-0827,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #827,0,94.2,0,1,Sedang,Tidak,1,5
+FND-0828,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #828,1,97.6,1,0,Rendah,Tidak,3,5
+FND-0829,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #829,5,91.0,1,0,Sedang,Ya (Anomali),5,4
+FND-0830,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #830,2,34.7,1,1,Kritis,Ya (Anomali),4,4
+FND-0831,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #831,2,76.4,0,1,Kritis,Ya (Anomali),4,5
+FND-0832,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #832,1,51.5,0,0,Sedang,Tidak,2,3
+FND-0833,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #833,0,84.6,0,0,Tinggi,Tidak,1,4
+FND-0834,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #834,0,24.4,0,1,Sedang,Tidak,1,2
+FND-0835,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #835,0,85.5,1,1,Tinggi,Ya (Anomali),2,5
+FND-0836,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #836,0,43.3,1,0,Kritis,Tidak,2,2
+FND-0837,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #837,1,80.9,0,1,Tinggi,Tidak,3,5
+FND-0838,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #838,1,33.3,0,1,Sedang,Tidak,3,4
+FND-0839,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #839,6,23.9,1,0,Tinggi,Tidak,5,1
+FND-0840,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #840,4,71.4,0,1,Sedang,Ya (Anomali),5,5
+FND-0841,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #841,0,55.1,1,1,Tinggi,Tidak,2,4
+FND-0842,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #842,1,86.9,0,1,Sedang,Tidak,3,5
+FND-0843,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #843,1,92.1,1,0,Tinggi,Tidak,3,4
+FND-0844,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #844,1,52.1,0,1,Sedang,Tidak,2,5
+FND-0845,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #845,0,68.7,0,1,Sedang,Tidak,1,4
+FND-0846,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #846,2,42.1,1,0,Sedang,Tidak,4,2
+FND-0847,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #847,4,40.5,1,1,Tinggi,Tidak,5,3
+FND-0848,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #848,5,87.9,0,1,Kritis,Ya (Anomali),5,5
+FND-0849,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #849,2,31.5,1,1,Rendah,Tidak,4,4
+FND-0850,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #850,2,55.2,1,0,Sedang,Ya (Anomali),4,3
+FND-0851,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #851,1,55.9,0,0,Kritis,Tidak,2,4
+FND-0852,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #852,0,66.2,0,1,Tinggi,Tidak,1,4
+FND-0853,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #853,0,69.9,0,1,Rendah,Tidak,1,4
+FND-0854,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #854,0,54.2,1,1,Sedang,Tidak,2,5
+FND-0855,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #855,3,54.9,0,1,Kritis,Tidak,4,4
+FND-0856,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #856,0,69.1,1,1,Tinggi,Tidak,2,5
+FND-0857,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #857,4,75.5,0,0,Kritis,Tidak,5,5
+FND-0858,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #858,2,82.7,0,0,Rendah,Tidak,3,5
+FND-0859,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #859,0,74.0,0,1,Tinggi,Tidak,1,4
+FND-0860,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #860,0,20.6,1,1,Kritis,Tidak,3,2
+FND-0861,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #861,0,38.3,0,1,Sedang,Tidak,1,4
+FND-0862,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #862,0,30.7,0,1,Tinggi,Tidak,1,3
+FND-0863,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #863,0,84.1,0,0,Kritis,Tidak,1,4
+FND-0864,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #864,1,58.0,0,1,Sedang,Tidak,2,4
+FND-0865,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #865,2,50.3,1,1,Kritis,Ya (Anomali),4,5
+FND-0866,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #866,0,79.2,0,0,Tinggi,Tidak,1,4
+FND-0867,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #867,2,26.0,0,0,Kritis,Tidak,4,2
+FND-0868,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #868,0,75.6,0,0,Sedang,Tidak,1,4
+FND-0869,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #869,0,61.3,0,1,Sedang,Tidak,1,5
+FND-0870,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #870,0,53.4,0,0,Sedang,Tidak,1,4
+FND-0871,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #871,0,72.1,1,1,Sedang,Tidak,2,4
+FND-0872,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #872,0,21.7,0,1,Rendah,Tidak,1,2
+FND-0873,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #873,0,28.1,1,0,Kritis,Tidak,3,2
+FND-0874,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #874,1,51.4,0,1,Sedang,Tidak,2,4
+FND-0875,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #875,1,27.4,1,0,Kritis,Tidak,3,2
+FND-0876,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #876,2,58.1,1,1,Rendah,Tidak,4,5
+FND-0877,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #877,0,67.0,1,0,Sedang,Tidak,2,3
+FND-0878,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #878,0,70.9,1,0,Rendah,Tidak,2,4
+FND-0879,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #879,2,38.7,0,0,Tinggi,Ya (Anomali),3,2
+FND-0880,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #880,1,80.4,0,0,Tinggi,Tidak,2,4
+FND-0881,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #881,2,27.2,1,1,Sedang,Ya (Anomali),5,3
+FND-0882,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #882,4,93.4,1,0,Kritis,Ya (Anomali),5,5
+FND-0883,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #883,0,30.8,1,0,Kritis,Tidak,2,2
+FND-0884,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #884,1,54.3,0,1,Kritis,Tidak,3,5
+FND-0885,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #885,0,23.0,0,0,Kritis,Tidak,1,1
+FND-0886,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #886,0,58.2,0,0,Tinggi,Tidak,1,3
+FND-0887,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #887,1,93.2,0,0,Kritis,Tidak,2,4
+FND-0888,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #888,4,36.9,0,0,Tinggi,Tidak,5,2
+FND-0889,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #889,2,91.6,1,0,Sedang,Ya (Anomali),4,5
+FND-0890,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #890,0,59.8,0,1,Kritis,Tidak,1,4
+FND-0891,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #891,0,28.5,0,0,Tinggi,Tidak,1,2
+FND-0892,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #892,2,81.0,1,0,Tinggi,Ya (Anomali),4,5
+FND-0893,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #893,3,54.5,1,1,Sedang,Ya (Anomali),5,4
+FND-0894,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #894,4,57.9,0,1,Kritis,Tidak,5,4
+FND-0895,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #895,1,68.4,0,1,Rendah,Tidak,2,4
+FND-0896,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #896,0,85.5,0,0,Tinggi,Tidak,1,4
+FND-0897,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #897,1,52.4,1,0,Tinggi,Tidak,3,3
+FND-0898,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #898,0,79.4,1,1,Sedang,Tidak,2,5
+FND-0899,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #899,0,32.7,1,1,Sedang,Tidak,2,4
+FND-0900,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #900,7,23.8,0,0,Tinggi,Tidak,5,1
+FND-0901,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #901,2,23.7,0,0,Tinggi,Tidak,3,2
+FND-0902,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #902,1,23.3,0,0,Sedang,Tidak,2,1
+FND-0903,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #903,4,61.6,0,1,Rendah,Tidak,5,4
+FND-0904,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #904,3,50.8,1,1,Kritis,Tidak,5,4
+FND-0905,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #905,1,82.1,1,1,Kritis,Ya (Anomali),4,5
+FND-0906,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #906,1,20.2,1,0,Sedang,Tidak,3,1
+FND-0907,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #907,0,73.0,1,1,Rendah,Tidak,3,4
+FND-0908,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #908,2,49.6,0,1,Sedang,Ya (Anomali),4,3
+FND-0909,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #909,0,57.2,0,0,Kritis,Tidak,1,4
+FND-0910,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #910,2,30.7,0,0,Tinggi,Tidak,4,3
+FND-0911,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #911,1,80.5,1,1,Tinggi,Ya (Anomali),3,5
+FND-0912,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #912,0,88.7,0,1,Kritis,Tidak,1,5
+FND-0913,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #913,0,22.8,0,0,Sedang,Tidak,1,2
+FND-0914,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #914,0,46.7,0,1,Rendah,Tidak,1,3
+FND-0915,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #915,9,52.9,0,1,Sedang,Tidak,5,4
+FND-0916,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #916,4,87.6,0,1,Tinggi,Ya (Anomali),5,5
+FND-0917,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #917,2,82.8,1,1,Sedang,Ya (Anomali),4,5
+FND-0918,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #918,1,63.3,1,0,Sedang,Tidak,3,3
+FND-0919,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #919,4,34.2,1,1,Sedang,Tidak,5,3
+FND-0920,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #920,0,63.8,0,0,Kritis,Tidak,1,3
+FND-0921,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #921,3,54.8,0,0,Tinggi,Ya (Anomali),5,4
+FND-0922,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #922,4,91.3,0,1,Kritis,Ya (Anomali),5,5
+FND-0923,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #923,3,41.2,1,0,Tinggi,Tidak,5,2
+FND-0924,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #924,0,82.8,1,0,Kritis,Tidak,2,4
+FND-0925,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #925,0,64.7,0,1,Rendah,Tidak,1,4
+FND-0926,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #926,2,22.6,0,1,Sedang,Tidak,3,2
+FND-0927,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #927,1,39.8,1,1,Rendah,Tidak,3,3
+FND-0928,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #928,1,30.3,1,1,Kritis,Tidak,4,3
+FND-0929,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #929,0,57.0,0,0,Sedang,Tidak,1,3
+FND-0930,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #930,1,82.6,0,1,Sedang,Tidak,2,5
+FND-0931,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #931,0,66.4,1,0,Sedang,Tidak,2,3
+FND-0932,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #932,0,45.8,0,1,Tinggi,Tidak,1,4
+FND-0933,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #933,3,77.4,1,1,Rendah,Ya (Anomali),5,5
+FND-0934,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #934,0,69.0,0,0,Sedang,Tidak,1,3
+FND-0935,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #935,0,25.5,1,1,Sedang,Tidak,2,3
+FND-0936,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #936,2,28.5,0,1,Tinggi,Tidak,4,3
+FND-0937,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #937,0,28.0,1,1,Kritis,Tidak,2,3
+FND-0938,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #938,0,45.2,0,1,Tinggi,Tidak,1,4
+FND-0939,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #939,0,65.7,0,1,Tinggi,Tidak,1,4
+FND-0940,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #940,1,93.6,0,0,Tinggi,Tidak,2,4
+FND-0941,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #941,1,72.8,1,1,Kritis,Tidak,4,4
+FND-0942,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #942,2,76.0,0,1,Rendah,Ya (Anomali),3,5
+FND-0943,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #943,0,27.7,0,1,Tinggi,Tidak,1,4
+FND-0944,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #944,4,28.3,1,1,Rendah,Ya (Anomali),5,4
+FND-0945,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #945,0,30.9,0,1,Tinggi,Tidak,1,3
+FND-0946,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #946,0,66.0,0,0,Tinggi,Tidak,1,4
+FND-0947,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #947,1,78.7,0,0,Sedang,Tidak,2,4
+FND-0948,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #948,1,82.5,1,0,Sedang,Tidak,3,5
+FND-0949,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #949,0,36.6,0,0,Rendah,Tidak,1,2
+FND-0950,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #950,4,77.1,0,0,Kritis,Ya (Anomali),5,5
+FND-0951,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #951,2,45.5,0,0,Rendah,Tidak,3,3
+FND-0952,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #952,2,64.1,0,1,Sedang,Tidak,3,4
+FND-0953,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #953,0,60.3,1,0,Tinggi,Tidak,2,3
+FND-0954,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #954,0,25.8,1,0,Sedang,Tidak,2,2
+FND-0955,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #955,0,86.4,0,1,Kritis,Tidak,1,5
+FND-0956,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #956,0,78.0,1,1,Tinggi,Tidak,2,5
+FND-0957,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #957,1,73.5,0,1,Tinggi,Tidak,3,4
+FND-0958,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #958,6,46.9,0,1,Tinggi,Tidak,5,3
+FND-0959,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #959,0,98.4,0,1,Tinggi,Tidak,1,5
+FND-0960,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #960,0,25.0,0,1,Sedang,Tidak,1,2
+FND-0961,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #961,2,43.9,1,1,Rendah,Ya (Anomali),5,3
+FND-0962,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #962,0,30.4,0,1,Rendah,Tidak,1,3
+FND-0963,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #963,1,38.6,0,1,Rendah,Tidak,2,4
+FND-0964,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #964,2,55.3,0,1,Rendah,Tidak,3,5
+FND-0965,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #965,1,68.4,0,1,Tinggi,Tidak,3,5
+FND-0966,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #966,2,27.7,1,1,Tinggi,Tidak,4,3
+FND-0967,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #967,1,65.9,0,1,Rendah,Tidak,2,5
+FND-0968,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #968,3,81.5,0,1,Rendah,Ya (Anomali),4,5
+FND-0969,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #969,2,92.7,1,0,Kritis,Ya (Anomali),4,5
+FND-0970,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #970,0,36.5,1,1,Sedang,Tidak,2,4
+FND-0971,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #971,0,90.5,0,0,Tinggi,Tidak,1,4
+FND-0972,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #972,0,88.8,0,0,Tinggi,Tidak,1,5
+FND-0973,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #973,2,42.3,0,1,Kritis,Tidak,3,4
+FND-0974,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #974,5,74.3,0,0,Kritis,Ya (Anomali),5,3
+FND-0975,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #975,2,74.8,0,1,Kritis,Tidak,4,4
+FND-0976,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #976,1,94.8,1,0,Sedang,Tidak,3,4
+FND-0977,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #977,0,38.3,0,1,Tinggi,Tidak,1,4
+FND-0978,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #978,2,27.3,0,1,Kritis,Tidak,3,4
+FND-0979,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #979,0,64.2,1,1,Kritis,Tidak,2,4
+FND-0980,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #980,0,40.3,0,0,Rendah,Tidak,1,2
+FND-0981,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #981,1,38.6,0,0,Rendah,Tidak,2,3
+FND-0982,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #982,1,92.9,0,0,Tinggi,Tidak,2,4
+FND-0983,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #983,2,77.1,0,1,Kritis,Ya (Anomali),4,5
+FND-0984,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #984,2,72.9,1,0,Kritis,Ya (Anomali),5,3
+FND-0985,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #985,1,95.2,1,1,Tinggi,Ya (Anomali),3,5
+FND-0986,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #986,11,25.5,1,1,Tinggi,Tidak,5,3
+FND-0987,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #987,0,66.4,1,1,Sedang,Tidak,3,4
+FND-0988,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #988,0,58.5,1,1,Kritis,Tidak,2,4
+FND-0989,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #989,1,43.9,0,1,Rendah,Tidak,3,4
+FND-0990,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #990,1,66.3,0,0,Sedang,Tidak,2,3
+FND-0991,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #991,4,83.2,1,1,Sedang,Ya (Anomali),5,5
+FND-0992,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #992,3,64.3,0,0,Sedang,Tidak,5,3
+FND-0993,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #993,3,33.7,0,0,Tinggi,Tidak,4,2
+FND-0994,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #994,0,64.5,0,1,Sedang,Tidak,1,5
+FND-0995,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #995,3,35.5,0,1,Sedang,Ya (Anomali),4,3
+FND-0996,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #996,7,31.9,1,1,Kritis,Tidak,5,3
+FND-0997,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #997,2,63.2,1,1,Sedang,Tidak,4,4
+FND-0998,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #998,0,28.4,0,0,Kritis,Tidak,1,2
+FND-0999,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #999,0,49.7,0,1,Kritis,Tidak,1,4
+FND-1000,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1000,0,71.3,1,1,Kritis,Tidak,3,4
+FND-1001,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #1001,2,66.1,0,1,Kritis,Ya (Anomali),3,4
+FND-1002,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #1002,0,58.2,1,1,Rendah,Tidak,3,5
+FND-1003,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1003,1,39.2,1,1,Tinggi,Tidak,3,4
+FND-1004,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #1004,0,43.7,0,0,Rendah,Tidak,1,2
+FND-1005,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1005,6,37.4,0,1,Sedang,Tidak,5,3
+FND-1006,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1006,3,61.5,0,0,Tinggi,Tidak,4,3
+FND-1007,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #1007,0,90.1,0,0,Tinggi,Tidak,1,4
+FND-1008,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1008,0,86.6,0,0,Rendah,Tidak,1,4
+FND-1009,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #1009,0,83.2,1,0,Sedang,Tidak,2,5
+FND-1010,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1010,1,42.4,0,1,Kritis,Tidak,2,4
+FND-1011,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1011,4,57.2,1,0,Kritis,Tidak,5,3
+FND-1012,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #1012,3,50.9,0,1,Tinggi,Tidak,4,4
+FND-1013,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1013,0,61.6,0,1,Kritis,Tidak,1,4
+FND-1014,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1014,2,55.2,0,1,Kritis,Tidak,4,5
+FND-1015,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #1015,0,56.1,1,1,Sedang,Tidak,3,5
+FND-1016,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1016,0,25.4,1,0,Sedang,Tidak,2,2
+FND-1017,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1017,4,35.9,0,0,Sedang,Ya (Anomali),5,2
+FND-1018,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1018,2,49.7,0,0,Tinggi,Tidak,4,3
+FND-1019,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #1019,0,38.5,0,0,Sedang,Tidak,1,3
+FND-1020,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #1020,0,89.2,0,0,Sedang,Tidak,1,4
+FND-1021,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #1021,0,91.2,0,1,Rendah,Tidak,1,5
+FND-1022,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #1022,8,74.6,0,1,Kritis,Tidak,5,4
+FND-1023,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #1023,0,95.3,1,0,Sedang,Tidak,2,4
+FND-1024,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1024,1,28.7,1,0,Tinggi,Tidak,3,3
+FND-1025,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1025,0,47.4,0,0,Rendah,Tidak,1,3
+FND-1026,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #1026,0,97.8,1,0,Rendah,Tidak,2,5
+FND-1027,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #1027,4,71.5,0,0,Rendah,Tidak,5,3
+FND-1028,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #1028,1,95.5,1,0,Rendah,Tidak,3,4
+FND-1029,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #1029,0,36.7,0,1,Sedang,Tidak,1,3
+FND-1030,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #1030,0,55.7,1,1,Rendah,Tidak,3,5
+FND-1031,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #1031,1,40.4,1,0,Sedang,Tidak,3,2
+FND-1032,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1032,3,91.6,0,0,Tinggi,Tidak,4,4
+FND-1033,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1033,1,70.6,0,1,Sedang,Tidak,2,4
+FND-1034,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1034,1,73.7,0,0,Rendah,Tidak,2,4
+FND-1035,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #1035,4,67.7,0,1,Sedang,Tidak,5,4
+FND-1036,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #1036,2,82.6,0,1,Tinggi,Ya (Anomali),3,5
+FND-1037,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1037,1,60.2,0,0,Tinggi,Tidak,2,3
+FND-1038,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1038,0,88.6,1,1,Rendah,Ya (Anomali),2,5
+FND-1039,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #1039,1,23.3,0,1,Rendah,Tidak,2,2
+FND-1040,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1040,0,83.1,0,1,Sedang,Tidak,1,5
+FND-1041,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1041,2,21.4,0,0,Sedang,Ya (Anomali),4,1
+FND-1042,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1042,10,46.1,0,0,Kritis,Ya (Anomali),5,2
+FND-1043,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1043,3,55.7,0,1,Kritis,Tidak,4,5
+FND-1044,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1044,2,63.7,0,1,Tinggi,Ya (Anomali),4,4
+FND-1045,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1045,1,91.4,0,1,Rendah,Tidak,2,5
+FND-1046,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1046,0,91.1,0,1,Sedang,Tidak,1,5
+FND-1047,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1047,4,84.9,0,1,Tinggi,Ya (Anomali),5,5
+FND-1048,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1048,2,97.7,0,1,Tinggi,Ya (Anomali),4,5
+FND-1049,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #1049,0,43.6,0,1,Sedang,Tidak,1,4
+FND-1050,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #1050,3,78.4,0,1,Tinggi,Ya (Anomali),4,5
+FND-1051,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #1051,8,25.0,0,0,Tinggi,Tidak,5,1
+FND-1052,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #1052,0,45.2,1,1,Sedang,Tidak,2,4
+FND-1053,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1053,0,45.6,0,0,Kritis,Tidak,1,2
+FND-1054,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1054,0,40.6,1,0,Kritis,Tidak,2,3
+FND-1055,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #1055,0,97.1,0,1,Rendah,Tidak,1,5
+FND-1056,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #1056,0,94.6,0,1,Sedang,Tidak,1,5
+FND-1057,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1057,0,51.1,0,0,Rendah,Tidak,1,3
+FND-1058,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1058,0,49.3,0,0,Rendah,Tidak,1,2
+FND-1059,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1059,1,58.5,1,1,Rendah,Tidak,3,4
+FND-1060,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1060,0,53.8,0,0,Kritis,Tidak,1,4
+FND-1061,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1061,4,43.9,1,1,Kritis,Tidak,5,3
+FND-1062,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #1062,0,40.8,0,1,Rendah,Tidak,1,4
+FND-1063,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #1063,2,93.5,0,1,Kritis,Ya (Anomali),3,5
+FND-1064,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1064,0,35.8,0,0,Sedang,Tidak,1,3
+FND-1065,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #1065,1,51.4,0,1,Kritis,Tidak,2,5
+FND-1066,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1066,0,74.6,0,0,Sedang,Tidak,1,3
+FND-1067,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #1067,4,96.9,1,0,Sedang,Ya (Anomali),5,4
+FND-1068,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1068,3,76.1,1,1,Tinggi,Ya (Anomali),5,5
+FND-1069,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1069,2,63.0,1,0,Tinggi,Tidak,5,4
+FND-1070,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #1070,3,56.6,0,0,Sedang,Tidak,4,3
+FND-1071,Finance Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1071,1,70.9,1,1,Kritis,Tidak,3,4
+FND-1072,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #1072,0,74.2,0,0,Rendah,Tidak,1,3
+FND-1073,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #1073,0,98.4,0,0,Rendah,Tidak,1,4
+FND-1074,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #1074,0,47.6,0,0,Sedang,Tidak,1,2
+FND-1075,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #1075,1,36.8,0,1,Kritis,Tidak,3,3
+FND-1076,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1076,3,53.6,0,1,Kritis,Tidak,4,4
+FND-1077,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #1077,0,39.5,1,0,Kritis,Tidak,2,3
+FND-1078,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1078,0,23.6,1,0,Sedang,Tidak,3,2
+FND-1079,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1079,1,96.4,0,0,Tinggi,Tidak,2,5
+FND-1080,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1080,0,24.8,1,1,Tinggi,Tidak,3,2
+FND-1081,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #1081,0,58.0,0,1,Sedang,Tidak,1,5
+FND-1082,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1082,2,57.8,0,1,Kritis,Tidak,3,4
+FND-1083,Bandung Branch,Operasional,Deskripsi Temuan Audit Berulang #1083,1,34.6,0,0,Tinggi,Tidak,2,2
+FND-1084,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #1084,1,65.6,0,1,Tinggi,Tidak,3,4
+FND-1085,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1085,6,85.1,0,1,Rendah,Ya (Anomali),5,5
+FND-1086,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #1086,0,89.2,1,1,Sedang,Ya (Anomali),2,5
+FND-1087,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #1087,4,48.9,0,0,Rendah,Tidak,5,3
+FND-1088,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #1088,0,35.3,0,0,Kritis,Tidak,1,2
+FND-1089,Jakarta Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1089,1,60.1,0,1,Rendah,Tidak,2,4
+FND-1090,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #1090,1,29.6,1,0,Sedang,Tidak,4,2
+FND-1091,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #1091,0,87.2,0,1,Sedang,Tidak,1,5
+FND-1092,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1092,9,56.4,0,0,Rendah,Tidak,5,4
+FND-1093,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1093,2,90.3,0,1,Sedang,Ya (Anomali),3,5
+FND-1094,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #1094,1,23.0,0,1,Kritis,Tidak,2,2
+FND-1095,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #1095,1,86.8,0,1,Rendah,Tidak,2,5
+FND-1096,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1096,1,40.5,1,1,Kritis,Tidak,4,4
+FND-1097,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1097,1,95.5,0,0,Sedang,Tidak,2,5
+FND-1098,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #1098,0,26.1,0,1,Rendah,Tidak,1,3
+FND-1099,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1099,1,86.2,1,1,Sedang,Ya (Anomali),3,5
+FND-1100,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1100,5,62.2,1,1,Rendah,Tidak,5,4
+FND-1101,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1101,0,35.3,1,0,Kritis,Tidak,3,3
+FND-1102,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #1102,1,54.1,0,0,Tinggi,Tidak,2,3
+FND-1103,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1103,0,44.0,0,1,Tinggi,Tidak,1,3
+FND-1104,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1104,1,38.8,0,1,Rendah,Tidak,3,4
+FND-1105,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1105,5,69.1,1,0,Rendah,Tidak,5,3
+FND-1106,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1106,1,73.4,0,0,Rendah,Tidak,2,3
+FND-1107,Bandung Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1107,0,28.4,0,1,Kritis,Tidak,1,3
+FND-1108,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1108,2,77.3,0,1,Sedang,Ya (Anomali),3,5
+FND-1109,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #1109,0,58.2,0,1,Tinggi,Tidak,1,5
+FND-1110,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #1110,6,61.9,0,1,Sedang,Tidak,5,4
+FND-1111,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #1111,2,78.8,1,0,Rendah,Tidak,5,4
+FND-1112,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #1112,1,54.1,0,1,Rendah,Tidak,3,4
+FND-1113,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1113,2,66.9,0,1,Kritis,Tidak,3,4
+FND-1114,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #1114,0,60.5,1,1,Rendah,Tidak,2,4
+FND-1115,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1115,0,29.4,1,1,Sedang,Tidak,3,3
+FND-1116,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #1116,0,53.8,0,0,Rendah,Tidak,1,3
+FND-1117,Medan Branch,Finansial,Deskripsi Temuan Audit Berulang #1117,0,86.1,0,0,Rendah,Tidak,1,4
+FND-1118,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #1118,1,22.4,0,1,Kritis,Tidak,2,2
+FND-1119,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1119,1,22.7,0,0,Tinggi,Tidak,3,1
+FND-1120,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #1120,0,93.4,0,1,Sedang,Tidak,1,5
+FND-1121,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #1121,1,84.8,1,0,Kritis,Tidak,3,4
+FND-1122,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #1122,0,20.3,0,1,Tinggi,Tidak,1,3
+FND-1123,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1123,3,93.8,1,1,Tinggi,Ya (Anomali),5,5
+FND-1124,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #1124,0,43.5,0,0,Kritis,Tidak,1,3
+FND-1125,Operations Dept,Reputasi,Deskripsi Temuan Audit Berulang #1125,1,55.6,0,0,Kritis,Tidak,2,3
+FND-1126,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1126,0,38.6,1,1,Kritis,Tidak,3,3
+FND-1127,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #1127,2,34.0,0,0,Tinggi,Tidak,3,2
+FND-1128,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #1128,4,29.7,0,0,Tinggi,Tidak,5,3
+FND-1129,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1129,0,75.1,0,0,Kritis,Tidak,1,4
+FND-1130,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1130,4,21.1,1,1,Tinggi,Tidak,5,2
+FND-1131,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1131,1,50.7,0,1,Tinggi,Tidak,3,5
+FND-1132,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1132,0,55.9,0,0,Kritis,Tidak,1,4
+FND-1133,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #1133,1,43.1,1,1,Kritis,Tidak,3,3
+FND-1134,Surabaya Branch,Reputasi,Deskripsi Temuan Audit Berulang #1134,0,39.8,1,1,Rendah,Tidak,3,4
+FND-1135,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1135,0,68.5,0,1,Tinggi,Tidak,1,4
+FND-1136,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #1136,4,85.4,0,1,Tinggi,Ya (Anomali),5,5
+FND-1137,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1137,4,59.9,0,1,Tinggi,Tidak,5,4
+FND-1138,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #1138,2,76.2,1,1,Rendah,Ya (Anomali),4,5
+FND-1139,Operations Dept,Finansial,Deskripsi Temuan Audit Berulang #1139,2,77.8,1,1,Kritis,Ya (Anomali),4,5
+FND-1140,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1140,1,91.7,0,1,Rendah,Tidak,2,5
+FND-1141,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1141,0,78.0,0,0,Rendah,Tidak,1,4
+FND-1142,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1142,2,41.4,0,0,Tinggi,Ya (Anomali),4,2
+FND-1143,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1143,5,35.0,1,1,Kritis,Tidak,5,3
+FND-1144,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1144,0,91.7,0,0,Sedang,Tidak,1,4
+FND-1145,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1145,6,80.6,0,1,Sedang,Ya (Anomali),5,5
+FND-1146,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1146,1,69.4,1,0,Kritis,Tidak,3,3
+FND-1147,Finance Dept,Reputasi,Deskripsi Temuan Audit Berulang #1147,3,94.9,1,1,Rendah,Ya (Anomali),5,5
+FND-1148,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1148,0,73.2,0,0,Sedang,Tidak,1,4
+FND-1149,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1149,5,70.2,0,1,Rendah,Tidak,5,5
+FND-1150,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1150,0,88.6,1,1,Sedang,Ya (Anomali),2,5
+FND-1151,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #1151,5,82.3,0,1,Rendah,Ya (Anomali),5,5
+FND-1152,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1152,1,43.4,0,0,Sedang,Tidak,2,2
+FND-1153,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #1153,1,59.5,1,1,Rendah,Tidak,3,4
+FND-1154,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #1154,1,72.0,1,1,Sedang,Tidak,4,4
+FND-1155,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #1155,1,38.6,0,0,Tinggi,Tidak,3,2
+FND-1156,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #1156,4,70.5,0,1,Sedang,Tidak,5,4
+FND-1157,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1157,2,78.3,0,1,Sedang,Ya (Anomali),3,5
+FND-1158,Medan Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1158,0,40.9,1,1,Rendah,Tidak,2,3
+FND-1159,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1159,4,41.3,1,0,Tinggi,Tidak,5,3
+FND-1160,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #1160,1,98.5,0,0,Tinggi,Tidak,2,5
+FND-1161,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1161,1,48.9,0,0,Rendah,Tidak,2,2
+FND-1162,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #1162,3,22.2,1,1,Kritis,Tidak,5,2
+FND-1163,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1163,2,33.4,1,1,Sedang,Tidak,4,4
+FND-1164,Operations Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1164,1,79.6,0,0,Kritis,Tidak,2,4
+FND-1165,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #1165,0,73.2,0,0,Kritis,Tidak,1,3
+FND-1166,Surabaya Branch,Operasional,Deskripsi Temuan Audit Berulang #1166,1,86.0,0,1,Tinggi,Tidak,2,5
+FND-1167,IT Dept,Reputasi,Deskripsi Temuan Audit Berulang #1167,3,72.0,0,1,Rendah,Tidak,4,5
+FND-1168,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #1168,4,68.0,0,1,Tinggi,Tidak,5,5
+FND-1169,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1169,0,76.6,0,0,Rendah,Tidak,1,4
+FND-1170,Surabaya Branch,Finansial,Deskripsi Temuan Audit Berulang #1170,4,91.2,0,1,Sedang,Ya (Anomali),5,5
+FND-1171,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1171,0,76.9,1,1,Kritis,Tidak,3,5
+FND-1172,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #1172,0,28.5,0,0,Rendah,Tidak,1,2
+FND-1173,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1173,0,82.9,0,1,Kritis,Tidak,1,5
+FND-1174,Jakarta Branch,Reputasi,Deskripsi Temuan Audit Berulang #1174,4,97.7,1,1,Kritis,Ya (Anomali),5,5
+FND-1175,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #1175,0,20.2,0,1,Tinggi,Tidak,1,2
+FND-1176,IT Dept,Operasional,Deskripsi Temuan Audit Berulang #1176,0,58.8,0,1,Sedang,Tidak,1,4
+FND-1177,Operations Dept,Operasional,Deskripsi Temuan Audit Berulang #1177,2,22.9,0,1,Tinggi,Ya (Anomali),4,3
+FND-1178,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1178,2,95.5,1,1,Sedang,Ya (Anomali),4,5
+FND-1179,Medan Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1179,0,95.7,1,0,Kritis,Tidak,2,4
+FND-1180,Jakarta Branch,Finansial,Deskripsi Temuan Audit Berulang #1180,3,69.8,1,0,Rendah,Ya (Anomali),5,4
+FND-1181,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1181,4,60.0,1,0,Kritis,Ya (Anomali),5,4
+FND-1182,Surabaya Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1182,1,22.7,0,1,Rendah,Tidak,2,3
+FND-1183,Finance Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1183,0,96.3,0,1,Rendah,Tidak,1,5
+FND-1184,Bandung Branch,Reputasi,Deskripsi Temuan Audit Berulang #1184,0,96.7,0,1,Rendah,Tidak,1,5
+FND-1185,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1185,1,78.7,1,1,Tinggi,Tidak,4,5
+FND-1186,Bandung Branch,Keamanan TI,Deskripsi Temuan Audit Berulang #1186,2,22.3,0,1,Rendah,Tidak,3,3
+FND-1187,Bandung Branch,Finansial,Deskripsi Temuan Audit Berulang #1187,1,82.9,0,0,Kritis,Tidak,2,4
+FND-1188,Surabaya Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1188,1,64.4,0,0,Rendah,Tidak,3,3
+FND-1189,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1189,2,96.8,0,0,Kritis,Tidak,4,5
+FND-1190,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #1190,2,73.9,0,1,Rendah,Ya (Anomali),3,4
+FND-1191,Operations Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1191,3,95.5,0,1,Rendah,Ya (Anomali),4,5
+FND-1192,Jakarta Branch,Operasional,Deskripsi Temuan Audit Berulang #1192,1,28.2,0,1,Sedang,Tidak,3,3
+FND-1193,Finance Dept,Finansial,Deskripsi Temuan Audit Berulang #1193,0,79.7,1,0,Kritis,Tidak,2,5
+FND-1194,Jakarta Branch,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1194,1,89.7,0,1,Sedang,Tidak,3,5
+FND-1195,Finance Dept,Operasional,Deskripsi Temuan Audit Berulang #1195,0,70.2,0,0,Tinggi,Tidak,1,3
+FND-1196,IT Dept,Legal & Kepatuhan,Deskripsi Temuan Audit Berulang #1196,0,62.8,0,0,Sedang,Tidak,1,4
+FND-1197,IT Dept,Finansial,Deskripsi Temuan Audit Berulang #1197,4,81.2,0,1,Tinggi,Ya (Anomali),5,5
+FND-1198,Medan Branch,Reputasi,Deskripsi Temuan Audit Berulang #1198,1,87.5,0,1,Tinggi,Tidak,2,5
+FND-1199,Medan Branch,Operasional,Deskripsi Temuan Audit Berulang #1199,4,69.2,0,1,Sedang,Tidak,5,4
+FND-1200,IT Dept,Keamanan TI,Deskripsi Temuan Audit Berulang #1200,4,78.1,1,0,Tinggi,Tidak,5,5

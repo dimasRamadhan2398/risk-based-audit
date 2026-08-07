@@ -1,4 +1,5 @@
 import os
+import re
 import random
 import numpy as np
 import pandas as pd
@@ -7,7 +8,11 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from torch.optim import AdamW
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, f1_score
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -23,12 +28,20 @@ set_seed(42)
 # ==========================================
 # CONFIGURATION
 # ==========================================
-TARGET_COLUMN = 'TARGET: Kategori Risiko'  # Options: 'TARGET: Risk Level', 'TARGET: Sentimen', 'TARGET: Kategori Risiko'
+MODEL_NAME = 'indobenchmark/indobert-base-p1'
 NUM_EPOCHS = 3
-BATCH_SIZE = 8
+BATCH_SIZE = 32
 MAX_LEN = 128
 LEARNING_RATE = 2e-5
-QUICK_TRAIN = False  # Set to True to use a subset of 100 rows for fast testing, False for full dataset
+QUICK_TRAIN = False  # Set to True to use a subset of 100 rows for fast testing
+
+# Text Preprocessing Function
+def clean_audit_text(text):
+    text = str(text)
+    # Remove leading numbering patterns like "1. ", "10. ", "100. "
+    text = re.sub(r'^\s*\d+[\.\)]\s*', '', text)
+    # Strip surrounding whitespace
+    return text.strip()
 
 # ==========================================
 # 1. LOAD AND PREPROCESS DATA
@@ -37,50 +50,36 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 dataset_path = os.path.join(current_dir, 'document_data.csv')
 print(f"Loading dataset from: {dataset_path}")
 df = pd.read_csv(dataset_path)
+initial_len = len(df)
 
-print("Original dataset shape:", df.shape)
-print("Target column selected:", TARGET_COLUMN)
+# Deduplicate identical records
+df = df.drop_duplicates().reset_index(drop=True)
+print(f"Original rows: {initial_len} | Deduplicated clean rows: {len(df)}")
+
+text_col = 'Teks Input (Kutipan dari Laporan Audit)'
+if text_col not in df.columns:
+    raise ValueError(f"Required text column '{text_col}' not found in dataset.")
+
+# Apply text cleaning
+df['text_clean'] = df[text_col].apply(clean_audit_text)
+
+# Identify the 4 Target Columns
+target_columns_map = {
+    'TARGET: Kategori Risiko': [c for c in df.columns if 'Kategori Risiko' in c][0],
+    'TARGET: Sentimen': [c for c in df.columns if 'Sentimen' in c][0],
+    'TARGET: Impact (1-5)': [c for c in df.columns if 'Impact' in c][0],
+    'TARGET: Likelihood (1-5)': [c for c in df.columns if 'Likelihood' in c][0]
+}
+
+print("\n--- Identified 4 Target Columns ---")
+for key, col in target_columns_map.items():
+    print(f" - {key}: '{col}' (Unique classes: {df[col].nunique()})")
 
 if QUICK_TRAIN:
-    print(f"QUICK_TRAIN is active. Slicing dataset to the first 100 rows...")
-    df = df.iloc[:100]
+    print(f"\nQUICK_TRAIN active. Using first 100 rows for testing...")
+    df = df.iloc[:100].reset_index(drop=True)
 
-# Check columns
-text_col = 'Teks Input (Kutipan dari Laporan Audit)'
-if text_col not in df.columns or TARGET_COLUMN not in df.columns:
-    raise ValueError(f"Required columns not found in dataset. Check column names.")
-
-# Drop null values in target or text
-df = df.dropna(subset=[text_col, TARGET_COLUMN])
-
-# Get unique labels and map them to integers
-unique_labels = sorted(df[TARGET_COLUMN].unique())
-num_classes = len(unique_labels)
-label_to_id = {label: idx for idx, label in enumerate(unique_labels)}
-id_to_label = {idx: label for label, idx in label_to_id.items()}
-
-print(f"Labels found ({num_classes} classes): {label_to_id}")
-df['label_id'] = df[TARGET_COLUMN].map(label_to_id)
-
-texts = df[text_col].values
-labels = df['label_id'].values
-
-# ==========================================
-# 2. SPLITTING DATA
-# ==========================================
-print("\nSplitting dataset into train and validation sets (80/20)...")
-X_train, X_val, y_train, y_val = train_test_split(
-    texts, labels, test_size=0.2, random_state=0, stratify=labels
-)
-print(f"Train size: {len(X_train)} | Validation size: {len(X_val)}")
-
-# ==========================================
-# 3. TOKENIZER & DATASET DEFINITION
-# ==========================================
-MODEL_NAME = 'indobenchmark/indobert-base-p1'
-print(f"\nLoading IndoBERT tokenizer: {MODEL_NAME}...")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-
+# Dataset Class for PyTorch IndoBERT
 class AuditDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_len):
         self.texts = texts
@@ -111,98 +110,152 @@ class AuditDataset(Dataset):
             'label': torch.tensor(label, dtype=torch.long)
         }
 
-train_dataset = AuditDataset(X_train, y_train, tokenizer, MAX_LEN)
-val_dataset = AuditDataset(X_val, y_val, tokenizer, MAX_LEN)
-
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
-
-# ==========================================
-# 4. INITIALIZE MODEL & DEVICE
-# ==========================================
+# Device selection
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"\nUsing device: {device}")
+print(f"\nUsing compute device: {device}")
 
-print(f"Loading IndoBERT classification model (classes={num_classes})...")
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=num_classes)
-model = model.to(device)
+print(f"Loading IndoBERT Tokenizer ({MODEL_NAME})...")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
-optimizer = AdamW(model.parameters(), lr=LEARNING_RATE)
+overall_results = {}
 
 # ==========================================
-# 5. TRAINING LOOP
+# 2. TRAINING & EVALUATION LOOP FOR ALL 4 TARGETS
 # ==========================================
-print("\nStarting model training...")
-for epoch in range(NUM_EPOCHS):
-    model.train()
-    total_train_loss = 0
+for target_label, target_col in target_columns_map.items():
+    print(f"\n======================================================================")
+    print(f" TRAINING & EVALUATING INDOBERT FOR TARGET: {target_label} ")
+    print(f"======================================================================")
     
-    for step, batch in enumerate(train_loader):
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        labels_batch = batch['label'].to(device)
-        
-        model.zero_grad()
-        
-        outputs = model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            labels=labels_batch
-        )
-        
-        loss = outputs.loss
-        total_train_loss += loss.item()
-        
-        loss.backward()
-        optimizer.step()
-        
-        if (step + 1) % 5 == 0 or (step + 1) == len(train_loader):
-            print(f"Epoch {epoch+1}/{NUM_EPOCHS} | Batch {step+1}/{len(train_loader)} | Loss: {loss.item():.4f}")
+    # Clean null values in target
+    sub_df = df.dropna(subset=['text_clean', target_col]).copy()
+    
+    le = LabelEncoder()
+    sub_df['label_id'] = le.fit_transform(sub_df[target_col].astype(str))
+    
+    unique_classes = list(le.classes_)
+    num_classes = len(unique_classes)
+    
+    print(f"Target Column: '{target_col}' | Classes count: {num_classes}")
+    print(f"Classes list: {unique_classes}")
+    
+    texts = sub_df['text_clean'].values
+    labels = sub_df['label_id'].values
+    
+    # Check class frequency for safe stratification
+    class_counts = pd.Series(labels).value_counts()
+    min_samples = class_counts.min()
+    
+    if min_samples < 2:
+        rare_classes = [unique_classes[idx] for idx in class_counts[class_counts < 2].index]
+        print(f"Warning: Class(es) {rare_classes} have fewer than 2 samples (min={min_samples}). Disabling stratify for train_test_split.")
+        stratify_param = None
+    else:
+        stratify_param = labels
+
+    # 80/20 Train-Test Split
+    X_train, X_val, y_train, y_val = train_test_split(
+        texts, labels, test_size=0.2, random_state=42, stratify=stratify_param
+    )
+    print(f"Train samples: {len(X_train)} | Validation samples: {len(X_val)}")
+    
+    # PyTorch DataLoaders
+    train_dataset = AuditDataset(X_train, y_train, tokenizer, MAX_LEN)
+    val_dataset = AuditDataset(X_val, y_val, tokenizer, MAX_LEN)
+    
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
+    
+    # Load IndoBERT Model
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=num_classes)
+    model = model.to(device)
+    
+    optimizer = AdamW(model.parameters(), lr=LEARNING_RATE)
+    
+    # Training Loop
+    print(f"Fine-tuning IndoBERT for {NUM_EPOCHS} epochs...")
+    for epoch in range(NUM_EPOCHS):
+        model.train()
+        total_loss = 0
+        for step, batch in enumerate(train_loader):
+            input_ids = batch['input_ids'].to(device)
+            attention_mask = batch['attention_mask'].to(device)
+            labels_b = batch['label'].to(device)
             
-    avg_loss = total_train_loss / len(train_loader)
-    print(f"Epoch {epoch+1} complete. Average Loss: {avg_loss:.4f}")
-
-# ==========================================
-# 6. EVALUATION
-# ==========================================
-print("\nEvaluating model on validation set...")
-model.eval()
-all_preds = []
-all_targets = []
-
-with torch.no_grad():
-    for batch in val_loader:
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        labels_batch = batch['label']
+            optimizer.zero_grad()
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels_b)
+            loss = outputs.loss
+            total_loss += loss.item()
+            loss.backward()
+            optimizer.step()
+            
+        avg_loss = total_loss / len(train_loader)
+        print(f" Epoch {epoch+1}/{NUM_EPOCHS} | Train Loss: {avg_loss:.4f}", flush=True)
         
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-        logits = outputs.logits
-        preds = torch.argmax(logits, dim=1).cpu().numpy()
-        
-        all_preds.extend(preds)
-        all_targets.extend(labels_batch.numpy())
-
-accuracy = accuracy_score(all_targets, all_preds)
-print("\n--- Validation Set Evaluation ---")
-print(f"Accuracy Score: {accuracy * 100:.2f} %")
-
-print("\nConfusion Matrix:")
-print(confusion_matrix(all_targets, all_preds))
-
-target_names = [id_to_label[i] for i in range(num_classes)]
-print("\nClassification Report:")
-print(classification_report(all_targets, all_preds, target_names=target_names))
+    # Validation Loop
+    model.eval()
+    all_preds = []
+    all_targets = []
+    
+    with torch.no_grad():
+        for batch in val_loader:
+            input_ids = batch['input_ids'].to(device)
+            attention_mask = batch['attention_mask'].to(device)
+            labels_b = batch['label']
+            
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            preds = torch.argmax(outputs.logits, dim=1).cpu().numpy()
+            
+            all_preds.extend(preds)
+            all_targets.extend(labels_b.numpy())
+            
+    val_acc = accuracy_score(all_targets, all_preds)
+    val_f1 = f1_score(all_targets, all_preds, average='weighted', zero_division=0)
+    
+    # Baseline Comparison: TF-IDF + Logistic Regression
+    tfidf_vec = TfidfVectorizer(ngram_range=(1, 2), max_features=3000, sublinear_tf=True)
+    X_tr_tfidf = tfidf_vec.fit_transform(X_train)
+    X_val_tfidf = tfidf_vec.transform(X_val)
+    clf_baseline = LogisticRegression(max_iter=1000, random_state=42)
+    clf_baseline.fit(X_tr_tfidf, y_train)
+    baseline_preds = clf_baseline.predict(X_val_tfidf)
+    baseline_acc = accuracy_score(y_val, baseline_preds)
+    baseline_f1 = f1_score(y_val, baseline_preds, average='weighted', zero_division=0)
+    
+    report_str = classification_report(all_targets, all_preds, labels=list(range(num_classes)), target_names=unique_classes, zero_division=0)
+    
+    overall_results[target_label] = {
+        'num_classes': num_classes,
+        'indobert_acc': val_acc,
+        'indobert_f1': val_f1,
+        'baseline_acc': baseline_acc,
+        'baseline_f1': baseline_f1,
+        'confusion_matrix': confusion_matrix(all_targets, all_preds, labels=list(range(num_classes))),
+        'classification_report': report_str
+    }
+    
+    print(f"\n--- Validation Results ({target_label}) ---")
+    print(f"IndoBERT Accuracy : {val_acc * 100:.2f} % (Weighted F1: {val_f1:.4f})")
+    print(f"TF-IDF Baseline   : {baseline_acc * 100:.2f} % (Weighted F1: {baseline_f1:.4f})")
+    print("\nConfusion Matrix (IndoBERT):")
+    print(confusion_matrix(all_targets, all_preds, labels=list(range(num_classes))))
+    print("\nClassification Report (IndoBERT):")
+    print(report_str)
+    
+    # Cleanup memory for next target
+    del model
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
 # ==========================================
-# 7. SAVE MODEL
+# 3. OVERALL ACCURACY SUMMARY REPORT
 # ==========================================
-output_dir = os.path.join(current_dir, 'model')
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+print("\n======================================================================")
+print(" FINAL ACCURACY SUMMARY REPORT FOR ALL 4 TARGET COLUMNS ")
+print("======================================================================")
+print(f"{'Target Column':<30} | {'Classes':<8} | {'IndoBERT Acc':<15} | {'TF-IDF Baseline':<15}")
+print("-" * 75)
+for t_label, res in overall_results.items():
+    print(f"{t_label:<30} | {res['num_classes']:<8} | {res['indobert_acc']*100:>6.2f} %        | {res['baseline_acc']*100:>6.2f} %")
 
-print(f"\nSaving model and tokenizer to: {output_dir}")
-model.save_pretrained(output_dir)
-tokenizer.save_pretrained(output_dir)
-
-print("\nIndoBERT Training script executed successfully!")
+print("\nIndoBERT 4-Target Training and Benchmark completed successfully!")

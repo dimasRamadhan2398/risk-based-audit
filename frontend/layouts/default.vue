@@ -75,6 +75,11 @@ const rawItems: NavigationMenuItem[][] = [[
         icon: 'i-lucide-users',
         to: '/kpi-performance',
       },
+      {
+        label: 'Impor Laporan Kinerja',
+        icon: 'i-lucide-upload',
+        to: '/kpi-performance/upload',
+      },
     ]
   },
   {

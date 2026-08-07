@@ -27,8 +27,8 @@ export const useRiskFactorsStore = defineStore('risk-factors', () => {
   const loading = ref(false)
   const errorMsg = ref('')
 
-  const getRiskServiceBaseUrl = () => {
-    return config.public.riskServiceBaseUrl || 'http://localhost:8080/api/v1'
+  const getRiskServiceBaseUrlLocal = () => {
+    return getRiskServiceBaseUrl()
   }
 
   const fetchStandardFactors = async () => {

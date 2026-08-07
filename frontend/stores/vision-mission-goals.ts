@@ -5,9 +5,7 @@ import type { VisionMissionGoals, Company } from '~/types/master'
 export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', () => {
   // Config
   const config = useRuntimeConfig()
-  const getMasterServiceBaseUrl = () => {
-    return config.public.masterServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   // State
   const activeVmg = ref<VisionMissionGoals | null>(null)

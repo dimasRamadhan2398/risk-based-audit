@@ -7,6 +7,8 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:ai": "cd ../backend/python-ai && python main.py",
+    "dev:all": "node -e \"require('child_process').exec('start ../start-all.bat')\"",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
