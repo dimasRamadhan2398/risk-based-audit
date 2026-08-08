@@ -19,7 +19,7 @@ server:
 
 database:
   host: 127.0.0.1
-  port: 5433
+  port: 5434
   username: postgres
   password: postgres
   name: rb_audit_auth_service
