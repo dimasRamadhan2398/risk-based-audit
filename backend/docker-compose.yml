@@ -48,6 +48,12 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 2181 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -57,7 +63,8 @@ services:
     platform: linux/arm64
     container_name: rb_audit_kafka
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -72,7 +79,7 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "29092"]
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 29092 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10

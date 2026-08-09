@@ -11,9 +11,9 @@
               <UIcon :name="isMfaEnabled ? 'i-lucide-shield-check' : 'i-lucide-shield-alert'" class="w-6 h-6" />
             </div>
             <div>
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white">Autentikasi Dua Faktor (2FA / MFA)</h3>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.mfa.title') }}</h3>
               <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                Tingkatkan keamanan akun Anda menggunakan aplikasi authenticator TOTP.
+                {{ t('settings.mfa.subtitle') }}
               </p>
             </div>
           </div>
@@ -28,7 +28,7 @@
               <template #leading>
                 <span class="w-2 h-2 rounded-full" :class="isMfaEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'" />
               </template>
-              {{ isMfaEnabled ? 'Aktif & Terlindungi' : 'Belum Diaktifkan' }}
+              {{ isMfaEnabled ? t('settings.mfa.activeProtected') : t('settings.mfa.notEnabled') }}
             </UBadge>
           </div>
           <USkeleton v-else class="h-7 w-28 rounded-full" />
@@ -46,7 +46,7 @@
         <div class="p-4 rounded-xl bg-primary-900/50 dark:bg-primary-950/60 border border-primary-100 dark:border-primary-900/40 text-primary-900 dark:text-primary-200 text-sm flex items-start gap-3">
           <UIcon name="i-lucide-info" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0 mt-0.5" />
           <p>
-            Autentikasi dua faktor menambahkan verifikasi ekstra saat masuk. Setelah diaktifkan, Anda akan memerlukan kode 6-digit dari aplikasi authenticator seperti <strong>Google Authenticator</strong> atau <strong>Microsoft Authenticator</strong>.
+            {{ t('settings.mfa.infoText') }}
           </p>
         </div>
 
@@ -60,7 +60,7 @@
             :loading="loading"
             @click="handleSetup"
           >
-            Aktifkan Autentikasi Dua Faktor
+            {{ t('settings.mfa.enableButton') }}
           </UButton>
         </div>
 
@@ -80,10 +80,10 @@
             <div class="space-y-4 flex-1">
               <h4 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <span class="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">1</span>
-                Pindai atau Masukkan Kunci Rahasia
+                {{ t('settings.mfa.scanTitle') }}
               </h4>
               <p class="text-sm text-gray-600 dark:text-gray-300">
-                Buka aplikasi authenticator di smartphone Anda dan pindai QR Code di sebelah kiri. Jika tidak bisa memindai, gunakan kunci berikut:
+                {{ t('settings.mfa.scanInstructions') }}
               </p>
 
               <div class="flex items-center gap-2 max-w-md">
@@ -95,7 +95,7 @@
                   color="neutral"
                   variant="subtle"
                   class="rounded-xl"
-                  title="Salin Kunci"
+                  :title="t('settings.mfa.copySecret')"
                   @click="copySecret"
                 />
               </div>
@@ -103,11 +103,11 @@
               <div class="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-4">
                 <h4 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
                   <span class="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">2</span>
-                  Verifikasi Kode 6-Digit
+                  {{ t('settings.mfa.verifyTitle') }}
                 </h4>
 
                 <div class="max-w-xs space-y-3">
-                  <UFormField label="Kode Verifikasi" help="Masukkan kode 6 digit dari aplikasi Anda.">
+                  <UFormField :label="t('settings.mfa.verificationCodeLabel')" :help="t('settings.mfa.verificationCodeHelp')">
                     <UInput
                       v-model="verificationCode"
                       placeholder="000 000"
@@ -124,7 +124,7 @@
                       class="flex-1 rounded-xl font-semibold"
                       @click="setupData = null"
                     >
-                      Batal
+                      {{ t('settings.mfa.cancel') }}
                     </UButton>
                     <UButton
                       color="primary"
@@ -132,7 +132,7 @@
                       :loading="loading"
                       @click="handleVerifySetup"
                     >
-                      Verifikasi & Aktifkan
+                      {{ t('settings.mfa.verifyEnableButton') }}
                     </UButton>
                   </div>
                 </div>
@@ -147,17 +147,17 @@
         <div class="flex items-start gap-4 p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200 shadow-xs">
           <UIcon name="i-lucide-shield-check" class="w-7 h-7 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
           <div class="space-y-1">
-            <h4 class="text-base font-bold text-emerald-950 dark:text-emerald-100">Keamanan MFA Aktif</h4>
+            <h4 class="text-base font-bold text-emerald-950 dark:text-emerald-100">{{ t('settings.mfa.mfaActiveTitle') }}</h4>
             <p class="text-sm text-emerald-800 dark:text-emerald-300">
-              Akun Anda saat ini terlindungi dengan verifikasi tambahan berbasis TOTP (Aplikasi Authenticator). Setiap kali login, Anda akan diminta memasukkan kode verifikasi 6 digit.
+              {{ t('settings.mfa.mfaActiveDesc') }}
             </p>
           </div>
         </div>
 
         <div class="pt-2 flex items-center justify-between border-t border-gray-100 dark:border-gray-800">
           <div>
-            <p class="text-sm font-semibold text-gray-900 dark:text-white">Nonaktifkan Keamanan 2FA</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Menonaktifkan 2FA akan mengurangi perlindungan keamanan akun Anda.</p>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('settings.mfa.disableTitle') }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.mfa.disableDesc') }}</p>
           </div>
           <UButton
             icon="i-lucide-shield-off"
@@ -166,7 +166,7 @@
             class="font-bold rounded-xl px-4 py-2 hover:bg-red-500/20 transition-all duration-200"
             @click="showDisableModal = true"
           >
-            Nonaktifkan MFA
+            {{ t('settings.mfa.disableButton') }}
           </UButton>
         </div>
       </div>
@@ -181,22 +181,22 @@
               <UIcon name="i-lucide-alert-triangle" class="w-5 h-5" />
             </div>
             <div>
-              <h3 class="text-base font-bold text-gray-900 dark:text-white">Konfirmasi Nonaktifkan MFA</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Verifikasi password Anda sebelum melanjutkan.</p>
+              <h3 class="text-base font-bold text-gray-900 dark:text-white">{{ t('settings.mfa.modalTitle') }}</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.mfa.modalSubtitle') }}</p>
             </div>
           </div>
         </template>
 
         <div class="space-y-4 py-2">
           <p class="text-sm text-gray-600 dark:text-gray-300">
-            Demi alasan keamanan, silakan masukkan password akun Anda untuk mengonfirmasi penonaktifan MFA.
+            {{ t('settings.mfa.modalPrompt') }}
           </p>
 
-          <UFormField label="Password Akun">
+          <UFormField :label="t('settings.mfa.passwordLabel')">
             <UInput
               v-model="password"
               type="password"
-              placeholder="Masukkan password Anda"
+              :placeholder="t('settings.mfa.passwordPlaceholder')"
               size="lg"
               class="w-full"
             />
@@ -211,7 +211,7 @@
               class="rounded-xl font-semibold"
               @click="showDisableModal = false; password = ''"
             >
-              Batalkan
+              {{ t('settings.mfa.cancelModal') }}
             </UButton>
             <UButton
               color="error"
@@ -219,7 +219,7 @@
               :loading="loading"
               @click="handleDisable"
             >
-              Nonaktifkan MFA
+              {{ t('settings.mfa.confirmDisable') }}
             </UButton>
           </div>
         </template>
@@ -234,6 +234,7 @@ import { useAuthStore } from '~/stores/auth'
 
 const config = useRuntimeConfig()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const mfaStatus = ref<any>(null)
 const loadingStatus = ref(true)
@@ -300,8 +301,8 @@ const copySecret = () => {
   if (!setupData.value?.secret) return
   navigator.clipboard.writeText(setupData.value.secret)
   toast.add({
-    title: 'Tersalin',
-    description: 'Kunci rahasia berhasil disalin ke papan klip.',
+    title: t('settings.mfa.copiedToast'),
+    description: t('settings.mfa.copiedDesc'),
     color: 'success',
     icon: 'i-lucide-check'
   })
@@ -318,8 +319,8 @@ const handleVerifySetup = async () => {
     })
     
     toast.add({
-      title: 'MFA Diaktifkan',
-      description: 'Autentikasi Dua Faktor berhasil diaktifkan.',
+      title: t('settings.mfa.enabledToast'),
+      description: t('settings.mfa.enabledDesc'),
       color: 'success',
       icon: 'i-lucide-circle-check'
     })
@@ -350,8 +351,8 @@ const handleDisable = async () => {
     })
     
     toast.add({
-      title: 'MFA Dinonaktifkan',
-      description: 'Autentikasi dua faktor akun Anda telah dinonaktifkan.',
+      title: t('settings.mfa.disabledToast'),
+      description: t('settings.mfa.disabledDesc'),
       color: 'success',
       icon: 'i-lucide-circle-check'
     })

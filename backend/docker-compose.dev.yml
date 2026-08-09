@@ -60,6 +60,12 @@ services:
       - "2181:2181"
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 2181 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -69,7 +75,8 @@ services:
     platform: linux/arm64
     container_name: rb_audit_kafka
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "9092:9092"
       - "29092:29092"
@@ -87,10 +94,11 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "29092"]
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 29092 || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
     networks:
       - rb_audit_network
     restart: unless-stopped

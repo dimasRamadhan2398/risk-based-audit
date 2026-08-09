@@ -2,8 +2,8 @@
   <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
     <template #header>
       <div>
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">My Profile</h3>
-        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Manage your personal account details and preferences.</p>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.profile.title') }}</h3>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{{ t('settings.profile.subtitle') }}</p>
       </div>
     </template>
 
@@ -19,13 +19,13 @@
         <div class="space-y-2">
           <div class="flex items-center gap-3">
             <UButton color="primary" variant="soft" class="font-semibold rounded-xl" @click="triggerUpload">
-              Change Photo
+              {{ t('settings.profile.changePhoto') }}
             </UButton>
             <UButton v-if="preview" color="neutral" variant="ghost" class="rounded-xl text-xs" @click="preview = ''">
-              Remove
+              {{ t('settings.profile.remove') }}
             </UButton>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">JPG, PNG, WebP or GIF. Max {{ mamdizeMB }}MB.</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.profile.fileLimits', { size: mamdizeMB }) }}</p>
           <p v-if="statusMessage" class="text-xs font-semibold" :class="isError ? 'text-red-500' : 'text-emerald-600'">
             {{ statusMessage }}
           </p>
@@ -34,16 +34,16 @@
 
       <!-- User Information Form -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormField label="Full Name" help="Your display name visible across the application.">
+        <UFormField :label="t('settings.profile.fullName')" :help="t('settings.profile.fullNameHelp')">
           <UInput
             v-model="form.fullName"
-            placeholder="Enter your full name"
+            :placeholder="t('settings.profile.fullNamePlaceholder')"
             size="lg"
             class="w-full"
           />
         </UFormField>
 
-        <UFormField label="Username">
+        <UFormField :label="t('settings.profile.username')">
           <UInput
             :model-value="authStore.user?.username || '—'"
             disabled
@@ -52,7 +52,7 @@
           />
         </UFormField>
 
-        <UFormField label="Email" help="Email yang terhubung dengan akun Anda.">
+        <UFormField :label="t('settings.profile.email')" :help="t('settings.profile.emailHelp')">
           <UInput
             v-model="form.email"
             type="email"
@@ -63,29 +63,29 @@
           />
         </UFormField>
 
-        <UFormField label="Phone Number">
+        <UFormField :label="t('settings.profile.phone')">
           <UInput
             v-model="form.phone"
-            placeholder="Enter your phone number"
+            :placeholder="t('settings.profile.phonePlaceholder')"
             size="lg"
             class="w-full"
           />
         </UFormField>
 
-        <UFormField label="Department">
+        <UFormField :label="t('settings.profile.department')">
           <USelect
             v-model="form.department"
-            placeholder="Select department"
+            :placeholder="t('settings.profile.selectDepartment')"
             :options="departments"
             size="lg"
             class="w-full"
           />
         </UFormField>
 
-        <UFormField label="Jabatan / Position">
+        <UFormField :label="t('settings.profile.position')">
           <UInput
             v-model="form.position"
-            placeholder="Masukkan Jabatan..."
+            :placeholder="t('settings.profile.positionPlaceholder')"
             size="lg"
             class="w-full"
           />
@@ -94,7 +94,7 @@
 
       <!-- User Roles -->
       <div class="pt-4 border-t border-gray-100 dark:border-gray-800">
-        <UFormField label="Assigned Roles">
+        <UFormField :label="t('settings.profile.assignedRoles')">
           <div class="flex flex-wrap gap-2 pt-1">
             <UBadge
               v-for="role in (authStore.user?.roles || ['User'])"
@@ -112,10 +112,10 @@
       <!-- Actions -->
       <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
         <UButton variant="subtle" color="neutral" class="rounded-xl font-semibold px-5" @click="resetForm">
-          Cancel
+          {{ t('settings.profile.cancel') }}
         </UButton>
         <UButton color="primary" class="rounded-xl font-bold px-6" :loading="saving" @click="saveProfile">
-          Save Changes
+          {{ t('settings.profile.saveChanges') }}
         </UButton>
       </div>
     </div>
@@ -138,6 +138,7 @@ const props = defineProps({
 
 const authStore = useAuthStore()
 const toast = useToast()
+const { t } = useI18n()
 
 const departments = [
   { label: 'Internal Audit', value: 'internal-audit' },
@@ -172,37 +173,58 @@ const syncFormFromStore = () => {
     form.value.email = authStore.user.email || ''
     form.value.phone = authStore.user.phone || ''
     form.value.department = authStore.user.department || 'internal-audit'
-    form.value.position = (authStore.user as any).position || 'Auditor'
+    form.value.position = authStore.user.position || ''
   }
 }
+
+const fetchProfileData = async () => {
+  try {
+    const profile = await authStore.fetchUserProfile()
+    if (profile) {
+      form.value.fullName = profile.full_name || profile.fullName || authStore.user?.username || ''
+      form.value.email = profile.email || authStore.user?.email || ''
+      form.value.phone = profile.phone || ''
+      form.value.department = profile.department || 'internal-audit'
+      form.value.position = profile.position || ''
+    } else {
+      syncFormFromStore()
+    }
+  } catch {
+    syncFormFromStore()
+  }
+}
+
+onMounted(() => {
+  fetchProfileData()
+})
 
 watch(() => authStore.user, syncFormFromStore, { immediate: true })
 
 const resetForm = () => {
-  syncFormFromStore()
+  fetchProfileData()
   clearStatus()
 }
 
 const saveProfile = async () => {
   saving.value = true
   try {
-    if (authStore.user) {
-      authStore.user.fullName = form.value.fullName
-      authStore.user.phone = form.value.phone
-      authStore.user.department = form.value.department
-      ;(authStore.user as any).position = form.value.position
-    }
+    await authStore.updateProfile({
+      fullName: form.value.fullName,
+      phone: form.value.phone,
+      department: form.value.department,
+      position: form.value.position,
+    })
 
     toast.add({
-      title: 'Profil Diperbarui',
-      description: 'Informasi profil Anda telah berhasil disimpan.',
+      title: t('settings.profile.toastSuccessTitle'),
+      description: t('settings.profile.toastSuccessDesc'),
       color: 'success',
       icon: 'i-lucide-check-circle',
     })
   } catch (err: any) {
     toast.add({
-      title: 'Gagal Menyimpan',
-      description: err.message || 'Terjadi kesalahan saat menyimpan profil.',
+      title: t('settings.profile.toastErrorTitle'),
+      description: err.message || t('settings.profile.toastErrorDesc'),
       color: 'error',
       icon: 'i-lucide-alert-triangle',
     })

@@ -7,28 +7,28 @@
           <UIcon name="i-lucide-shield-check" class="size-6" />
         </div>
         <div class="space-y-1">
-          <h4 class="text-sm font-bold text-gray-900 dark:text-white">Verifikasi Penyimpanan Database</h4>
+          <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ t('settings.activity.verificationTitle') }}</h4>
           <p class="text-md text-gray-600 dark:text-gray-300">
-            Perangkat yang Anda gunakan saat ini:
+            {{ t('settings.activity.deviceText') }}
             <span class="font-mono font-semibold bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-primary-600">
               {{ currentDevice.deviceName }} (Fingerprint: {{ currentDevice.deviceFingerprint }})
             </span>
           </p>
           <div v-if="dbStatus.checked" class="mt-2 text-md text-success-700 dark:text-success-400 flex items-center gap-1.5 font-medium">
             <span class="flex h-2 w-2 rounded-full bg-success-500"></span>
-            <span>Terdaftar di Database: Ya (Last Login Fingerprint: {{ dbStatus.lastLoginFingerprint }})</span>
+            <span>{{ t('settings.activity.registeredYes', { fingerprint: dbStatus.lastLoginFingerprint }) }}</span>
           </div>
           <div v-else class="mt-2 text-md text-gray-500 flex items-center gap-1.5 animate-pulse">
             <span class="flex h-2 w-2 rounded-full bg-gray-400"></span>
-            <span>Memeriksa database...</span>
+            <span>{{ t('settings.activity.checkingDb') }}</span>
           </div>
         </div>
       </div>
     </UCard>
 
     <UAlert
-      title="Tips Keamanan"
-      description="Jika Anda melihat perangkat atau lokasi yang tidak dikenali, segera hapus perangkat tersebut dan ubah password Anda."
+      :title="t('settings.activity.securityTipsTitle')"
+      :description="t('settings.activity.securityTipsDesc')"
       icon="i-lucide-alert-triangle"
       color="warning"
       variant="subtle"
@@ -38,8 +38,8 @@
       <template #header>
         <div class="flex justify-between items-center">
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Perangkat Terpercaya (MFA Trusted Devices)</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Daftar perangkat yang dipercaya untuk melewati verifikasi OTP/MFA.</p>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('settings.activity.trustedDevicesTitle') }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('settings.activity.trustedDevicesSubtitle') }}</p>
           </div>
           <UButton
             icon="i-lucide-refresh-cw"
@@ -62,8 +62,8 @@
               <div class="flex-1 min-w-0 w-full">
                 <div class="flex items-center gap-3">
                   <p class="font-medium text-gray-900 dark:text-white">{{ currentDevice.deviceName }}</p>
-                  <UBadge label="Sesi Aktif" color="primary" variant="solid" size="md" />
-                  <UBadge label="Online" color="success" variant="soft" size="md" />
+                  <UBadge :label="t('settings.activity.activeSession')" color="primary" variant="solid" size="md" />
+                  <UBadge :label="t('settings.activity.online')" color="success" variant="soft" size="md" />
                 </div>
                 <h6 class="text-sm flex flex-row gap-2 mt-1 text-gray-600 dark:text-gray-300">
                   <UIcon name="i-lucide-fingerprint" class="size-4 text-gray-400" />
@@ -71,12 +71,12 @@
                 </h6>
                 <p class="text-md text-gray-500 mt-1 flex flex-row items-center gap-1.5">
                   <UIcon name="i-lucide-clock" class="size-4" />
-                  Masuk baru saja
+                  {{ t('settings.activity.justNow') }}
                 </p>
               </div>
             </div>
             <div class="text-md text-gray-400 self-center">
-              Perangkat Ini
+              {{ t('settings.activity.thisDevice') }}
             </div>
           </div>
         </div>
@@ -92,7 +92,7 @@
                 <div class="flex-1 min-w-0 w-full">
                   <div class="flex items-center gap-3">
                     <p class="font-medium text-gray-900 dark:text-white">{{ device.deviceName }}</p>
-                    <UBadge v-if="device.deviceFingerprint === currentDevice.deviceFingerprint" label="Perangkat Ini" color="primary" variant="soft" size="md" />
+                    <UBadge v-if="device.deviceFingerprint === currentDevice.deviceFingerprint" :label="t('settings.activity.thisDevice')" color="primary" variant="soft" size="md" />
                   </div>
                   <h6 class="text-sm flex flex-row gap-2 mt-1 text-gray-600 dark:text-gray-300">
                     <UIcon name="i-lucide-globe" class="size-4 text-gray-400" />
@@ -100,13 +100,13 @@
                   </h6>
                   <p class="text-md text-gray-500 mt-1 flex flex-row items-center gap-1.5">
                     <UIcon name="i-lucide-clock" class="size-4" />
-                    Terdaftar: {{ formatTime(device.createdAt) }}
+                    {{ t('settings.activity.registeredAt', { date: formatTime(device.createdAt) }) }}
                   </p>
                 </div>
               </div>
               <div class="self-center">
                 <UButton
-                  label="Hapus"
+                  :label="t('settings.activity.remove')"
                   variant="ghost"
                   color="error"
                   size="sm"
@@ -119,23 +119,23 @@
         
         <div v-else-if="!loading" class="text-center py-6 text-sm text-gray-500 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
           <UIcon name="i-lucide-info" class="size-6 text-gray-400 mx-auto mb-2" />
-          <p>Tidak ada perangkat terpercaya tambahan terdaftar.</p>
-          <p class="text-md text-gray-400 mt-1">Perangkat terdaftar secara otomatis saat Anda mencentang "Percayai Perangkat Ini" ketika verifikasi OTP/MFA.</p>
+          <p>{{ t('settings.activity.noDevices') }}</p>
+          <p class="text-md text-gray-400 mt-1">{{ t('settings.activity.noDevicesSub') }}</p>
         </div>
       </div>
     </UCard>
 
     <UCard class="w-full">
       <template #header>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tentang Activity Log</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('settings.activity.aboutTitle') }}</h3>
       </template>  
       <article class="flex flex-col gap-4 text-sm text-gray-700 dark:text-gray-300">
-        <p>Halaman ini mencatat semua perangkat terpercaya yang diizinkan untuk melewati verifikasi multi-faktor (MFA).</p>
-        <p>Jika Anda mendeteksi aktivitas mencurigakan atau perangkat yang tidak dikenal:</p>
+        <p>{{ t('settings.activity.aboutP1') }}</p>
+        <p>{{ t('settings.activity.aboutP2') }}</p>
         <ul class="pb-2 px-6 text-sm space-y-1 list-disc list-inside">
-          <li>Segera hapus/lepas perangkat tersebut dari daftar di atas.</li>
-          <li>Ubah password akun Anda dengan kombinasi yang kuat.</li>
-          <li>Pastikan Multi-Factor Authentication (MFA) tetap aktif.</li>
+          <li>{{ t('settings.activity.aboutTip1') }}</li>
+          <li>{{ t('settings.activity.aboutTip2') }}</li>
+          <li>{{ t('settings.activity.aboutTip3') }}</li>
         </ul>
       </article>
     </UCard>
@@ -143,10 +143,10 @@
     <!-- Confirmation Modal -->
     <ConfirmationPopup
       v-model:isOpen="state.open"
-      title="Hapus Perangkat Terpercaya?"
-      question="Perangkat ini akan dihapus dari daftar terpercaya dan akan memerlukan verifikasi OTP kembali saat masuk."
-      confirmText="Hapus Akses"
-      cancelText="Batalkan"
+      :title="t('settings.activity.modalTitle')"
+      :question="t('settings.activity.modalQuestion')"
+      :confirmText="t('settings.activity.confirmRemove')"
+      :cancelText="t('settings.activity.cancelRemove')"
       variant="danger"
       @confirm="handleReleaseConfirm"
     />
@@ -161,6 +161,7 @@ import ConfirmationPopup from '../shared/ConfirmationPopup.vue'
 const authStore = useAuthStore()
 const { getDeviceFingerprint } = useDeviceFingerprint()
 const toast = useToast()
+const { t, locale } = useI18n()
 
 const loading = ref(false)
 const trustedDevices = ref<any[]>([])
@@ -223,8 +224,8 @@ const handleReleaseConfirm = async () => {
   try {
     await authStore.unenrollDevice(state.value.targetDeviceId)
     toast.add({
-      title: "Perangkat Dihapus",
-      description: `Akses terpercaya untuk perangkat "${state.value.targetDeviceName}" telah dihapus.`,
+      title: t('settings.activity.deviceRemovedToast'),
+      description: t('settings.activity.deviceRemovedDesc', { name: state.value.targetDeviceName }),
       color: "success",
       icon: "i-lucide-circle-check",
     })
@@ -242,7 +243,7 @@ const handleReleaseConfirm = async () => {
 const formatTime = (dateStr: string): string => {
   if (!dateStr) return '-'
   const date = new Date(dateStr)
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale.value === 'id' ? 'id-ID' : 'en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

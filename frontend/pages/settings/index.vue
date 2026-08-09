@@ -4,7 +4,7 @@
       <UDashboardSidebar resizeable>
         <template #header>
           <div class="px-4 py-4">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Account Settings</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('settings.sidebar.accountSettings') }}</h2>
           </div>
         </template>
 
@@ -73,6 +73,11 @@
               <SettingsPermission />
             </div>
 
+            <!-- Data Sources Section -->
+            <div v-if="activeTab === 'datasource'">
+              <SettingsDataSource />
+            </div>
+
             <!-- FAQ Section -->
             <div v-if="activeTab === 'faq'">
               <SettingsFaq />
@@ -103,8 +108,9 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
-const validTabs = ['profile', 'settings', 'mfa', 'activity', 'permissions', 'faq']
+const validTabs = ['profile', 'settings', 'mfa', 'activity', 'permissions', 'datasource', 'faq']
 const initialTab = computed(() => {
   const tabQuery = route.query.tab as string
   return validTabs.includes(tabQuery) ? tabQuery : 'profile'
@@ -133,7 +139,7 @@ const userInitial = computed(() => {
 
 const links = computed<NavigationMenuItem[]>(() => [
   {
-    label: 'My Profile',
+    label: t('settings.sidebar.myProfile'),
     icon: 'i-lucide-user',
     slot: 'profile' as const,
     onSelect: () => selectTab('profile'),
@@ -141,7 +147,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === 'profile',
   },
   {
-    label: 'Settings',
+    label: t('settings.sidebar.settings'),
     icon: 'i-lucide-settings',
     slot: 'settings' as const,
     onSelect: () => selectTab('settings'),
@@ -149,7 +155,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === 'settings',
   },
   {
-    label: 'Security (MFA)',
+    label: t('settings.sidebar.securityMfa'),
     icon: 'i-lucide-shield-check',
     slot: 'mfa' as const,
     onSelect: () => selectTab('mfa'),
@@ -157,7 +163,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === 'mfa',
   },
   {
-    label: 'Activity',
+    label: t('settings.sidebar.activity'),
     icon: 'i-lucide-clock',
     slot: 'activity' as const,
     onSelect: () => selectTab('activity'),
@@ -165,7 +171,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === 'activity',
   },
   {
-    label: 'Permissions',
+    label: t('settings.sidebar.permissions'),
     icon: 'i-lucide-shield',
     slot: 'permissions' as const,
     onSelect: () => selectTab('permissions'),
@@ -173,7 +179,15 @@ const links = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === 'permissions',
   },
   {
-    label: 'FAQ',
+    label: t('settings.sidebar.dataSources'),
+    icon: 'i-lucide-database',
+    slot: 'datasource' as const,
+    onSelect: () => selectTab('datasource'),
+    onClick: () => selectTab('datasource'),
+    active: activeTab.value === 'datasource',
+  },
+  {
+    label: t('settings.sidebar.faq'),
     icon: 'i-lucide-help-circle',
     slot: 'faq' as const,
     onSelect: () => selectTab('faq'),
@@ -184,13 +198,14 @@ const links = computed<NavigationMenuItem[]>(() => [
 
 const currentPageTitle = computed(() => {
   const titles: Record<string, string> = {
-    profile: 'My Profile',
-    settings: 'Settings',
-    mfa: 'Two-Factor Authentication (MFA)',
-    activity: 'Activity',
-    permissions: 'Permissions',
-    faq: 'FAQ',
+    profile: t('settings.titles.profile'),
+    settings: t('settings.titles.settings'),
+    mfa: t('settings.titles.mfa'),
+    activity: t('settings.titles.activity'),
+    permissions: t('settings.titles.permissions'),
+    datasource: t('settings.titles.datasource'),
+    faq: t('settings.titles.faq'),
   }
-  return titles[activeTab.value] || 'Settings'
+  return titles[activeTab.value] || t('settings.titles.settings')
 })
 </script>
