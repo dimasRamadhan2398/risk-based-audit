@@ -521,7 +521,7 @@ export interface StrategicAuditPlan {
   selectedPeriod: string; // Q1-Q4 for Quartal, or year string for Yearly
   yearStart?: number;
   yearEnd?: number;
-  kpiTargets: Record<number, string>;
+  kpiTargets: Record<string | number, string>;
   internalAuditSO: string;
   actual: string;
   target: string;

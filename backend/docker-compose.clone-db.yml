@@ -1,0 +1,31 @@
+name: rb_audit_backend_clone_db
+
+services:
+  postgres-clone:
+    image: postgres:16
+    container_name: rb_audit_postgres_clone
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rb_audit_clone
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_clone_data:/var/lib/postgresql/data
+      - ./scripts/clone-db-init.sql:/docker-entrypoint-initdb.d/clone-db-init.sql
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_clone_data:
+
+networks:
+  rb_audit_network:
+    name: rb_audit_backend_rb_audit_network
+    external: true

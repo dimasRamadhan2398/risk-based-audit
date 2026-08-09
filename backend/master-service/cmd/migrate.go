@@ -221,6 +221,7 @@ func autoMigrate(db *gorm.DB) error {
 		&models.Department{},
 		&models.RiskRegister{},
 		&models.AnnualAuditPlan{},
+		&models.AnnualAuditPlanActivity{},
 		&models.AuditScope{},
 		&models.Control{},
 		&models.ControlAssessment{},

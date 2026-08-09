@@ -433,6 +433,7 @@ func (h *RouteHandler) RegisterRoutes() {
 		performance.GET("/kpi-breakdown", perfStatsCtrl.GetKpiBreakdown)
 		performance.GET("/completion-analysis", perfStatsCtrl.GetCompletionAnalysis)
 		performance.GET("/completion-history", perfStatsCtrl.GetCompletionHistory)
+		performance.GET("/export-pdf", perfStatsCtrl.ExportPdfReport)
 
 		performance.GET("/kpi", crud.List(h.db, "KPIAchievement", func() interface{} { return &[]models.KPIAchievement{} }))
 		performance.GET("/kpi/:id", crud.GetByID(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))

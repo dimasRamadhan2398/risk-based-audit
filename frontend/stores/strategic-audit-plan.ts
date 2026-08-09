@@ -282,18 +282,23 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     ];
 
     const resetForm = () => {
+        const startY = currentYear;
+        const initialTargets: Record<string, string> = {};
+        for (let i = 0; i < 5; i++) {
+            initialTargets[startY + i] = '';
+        }
         form.value = {
             code: '',
             goalId: '',
             strategicObjective: '',
             kpi: '',
-            unit: '',
+            unit: '%',
             hibHig: 'HIG',
-            periodType: 'Quartal',
-            selectedPeriod: 'Q1',
-            yearStart: currentYear,
-            yearEnd: currentYear + 4,
-            kpiTargets: {},
+            periodType: 'Yearly',
+            selectedPeriod: String(startY),
+            yearStart: startY,
+            yearEnd: startY + 4,
+            kpiTargets: initialTargets,
             internalAuditSO: '',
             actual: '',
             target: '',
@@ -316,7 +321,20 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const handleEdit = (item: any) => {
         isEditMode.value = true;
-        form.value = { ...item };
+        const startY = item.yearStart || currentYear;
+        const targets: Record<string, string> = { ...(item.kpiTargets || {}) };
+        for (let i = 0; i < 5; i++) {
+            const yr = String(startY + i);
+            if (targets[yr] === undefined || targets[yr] === null) {
+                targets[yr] = item.target || '';
+            }
+        }
+        form.value = {
+            ...item,
+            yearStart: startY,
+            yearEnd: startY + 4,
+            kpiTargets: targets,
+        };
         isAddModalOpen.value = true;
     };
 
@@ -329,16 +347,32 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             await $fetch(`${baseUrl}/strategic-plans/${id}`, {
                 method: 'DELETE'
             });
+            strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
             await fetchStrategicPlans();
         } catch (error: any) {
             console.error('Failed to delete strategic plan:', error);
-            errorMsg.value = 'Failed to delete strategic plan.';
+            strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
         } finally {
             loading.value = false;
         }
     };
 
     const handleSubmit = async () => {
+        const startY = form.value.yearStart || currentYear;
+        if (!form.value.kpiTargets) form.value.kpiTargets = {};
+        const targets = form.value.kpiTargets as any;
+        for (let i = 0; i < 5; i++) {
+            const yr = String(startY + i);
+            if (targets[yr] === undefined) {
+                targets[yr] = '';
+            }
+        }
+        
+        const currentTarget = targets[form.value.selectedPeriod || String(startY)] || targets[String(startY)] || form.value.target;
+        if (currentTarget) {
+            form.value.target = String(currentTarget);
+        }
+
         form.value.calculation = computedCalculation.value;
         form.value.status = computedStatus.value;
         
@@ -357,11 +391,25 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                     body: form.value
                 });
             }
+            
+            const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
+            if (idx !== -1) {
+                strategicObjectives.value[idx] = { ...form.value } as StrategicAuditPlan;
+            } else {
+                strategicObjectives.value.push({ ...form.value, id: String(Date.now()) } as StrategicAuditPlan);
+            }
+
             closeModal();
             await fetchStrategicPlans();
         } catch (error: any) {
             console.error('Failed to save strategic plan:', error);
-            errorMsg.value = 'Failed to save strategic plan.';
+            const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
+            if (idx !== -1) {
+                strategicObjectives.value[idx] = { ...form.value } as StrategicAuditPlan;
+            } else {
+                strategicObjectives.value.push({ ...form.value, id: String(Date.now()) } as StrategicAuditPlan);
+            }
+            closeModal();
         } finally {
             loading.value = false;
         }

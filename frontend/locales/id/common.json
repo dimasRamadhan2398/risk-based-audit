@@ -55,7 +55,8 @@
     "info": "Informasi",
     "confirm": "Konfirmasi",
     "yes": "Ya",
-    "no": "Tidak"
+    "no": "Tidak",
+    "back": "Kembali"
   },
   "auditExecution": {
     "title": "Status Eksekusi Audit",

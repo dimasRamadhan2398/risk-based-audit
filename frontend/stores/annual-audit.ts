@@ -247,9 +247,44 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
+  const getCategoryCode = (category?: string): string => {
+    if (!category) return 'ASR'
+    const cat = category.toLowerCase()
+    if (cat.includes('assurance') && !cat.includes('quality')) return 'ASR'
+    if (cat.includes('special')) return 'SPE'
+    if (cat.includes('specific')) return 'SPR'
+    if (cat.includes('consulting')) return 'CON'
+    if (cat.includes('investigation')) return 'INV'
+    if (cat.includes('quality') || cat.includes('qar')) return 'QAR'
+    if (cat.includes('follow')) return 'FLW'
+    const cleaned = category.replace(/[^a-zA-Z]/g, '')
+    return cleaned.length >= 3 ? cleaned.slice(0, 3).toUpperCase() : 'ASR'
+  }
+
+  const generateAutoCode = () => {
+    if (isEditing.value) return
+
+    const yr = form.year || yearOptions[0] || new Date().getFullYear().toString()
+    const catCode = getCategoryCode(form.activities[0]?.category)
+
+    const seq = (plans.value.length + 1).toString().padStart(3, '0')
+    form.code = `PKAT-${yr}-${catCode}-${seq}`
+  }
+
+  watch(
+    [() => form.year, () => form.activities[0]?.category],
+    () => {
+      if (!isEditing.value && showModal.value) {
+        generateAutoCode()
+      }
+    }
+  )
+
   const openModal = () => {
     isEditing.value = false
     editingId.value = null
+
+    const defaultYear = yearOptions[0] || new Date().getFullYear().toString()
 
     Object.assign(form, {
       code: '',
@@ -271,8 +306,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       attachmentCategory: '',
       attachmentUploadedBy: '',
       attachmentUploadDate: '',
-      year: ''
+      year: defaultYear
     })
+
+    generateAutoCode()
     showModal.value = true
   }
 
@@ -658,7 +695,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
-    getStatusColor, handleFileChange, fetchPlans,
+    getStatusColor, handleFileChange, fetchPlans, generateAutoCode, getCategoryCode,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
     createRevision, getRiskLevelColor, yearlyUniverse, fetchYearlyUniverse
   }

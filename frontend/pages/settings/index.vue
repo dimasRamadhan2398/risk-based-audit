@@ -41,8 +41,21 @@
 
       <UDashboardPanel>
         <template #header>
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-            <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{ currentPageTitle }}</h1>
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <UButton
+                icon="i-lucide-arrow-left"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                class="rounded-xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800"
+                @click="goBack"
+              >
+                {{ t('common.back') }}
+              </UButton>
+              <div class="h-4 w-px bg-gray-200 dark:bg-gray-700"></div>
+              <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{ currentPageTitle }}</h1>
+            </div>
           </div>
         </template>
 
@@ -130,6 +143,14 @@ watch(
 const selectTab = (tab: string) => {
   activeTab.value = tab
   router.replace({ query: { ...route.query, tab } })
+}
+
+const goBack = () => {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/')
+  }
 }
 
 const userInitial = computed(() => {

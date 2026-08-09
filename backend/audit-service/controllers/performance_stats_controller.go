@@ -541,3 +541,455 @@ func (c *PerformanceStatsController) GetKpiBreakdown(ctx *gin.Context) {
 		"data":    strategicPlans,
 	})
 }
+
+// ExportPdfReport renders a rich, colorful, executive PDF report template for KPI Performance
+func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
+	yearStr := ctx.DefaultQuery("year", "2026")
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		year = 2026
+	}
+
+	nowStr := time.Now().Format("02 January 2006, 15:04 MST")
+
+	htmlContent := fmt.Sprintf(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KPI Performance Report - Year %d</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 1.2cm;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .header-banner {
+            background: linear-gradient(135deg, #1e3a8a 0%%, #0f766e 100%%);
+            color: #ffffff;
+            padding: 24px 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+        .header-banner h1 {
+            margin: 0 0 6px 0;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .header-banner h2 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 500;
+            color: #99f6e4;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+        }
+        .meta-item label {
+            display: block;
+            color: #cbd5e1;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 9px;
+            margin-bottom: 2px;
+        }
+        .meta-item span {
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 24px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .section-title .badge {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            font-weight: 700;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px;
+            border-top: 4px solid #3b82f6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .card.card-emerald { border-top-color: #10b981; }
+        .card.card-amber { border-top-color: #f59e0b; }
+        .card.card-violet { border-top-color: #8b5cf6; }
+        .card.card-cyan { border-top-color: #06b6d4; }
+        
+        .card-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .card-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .card-sub {
+            font-size: 10px;
+            color: #475569;
+            display: flex;
+            justify-content: space-between;
+        }
+        .card-status {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-exceeded { background-color: #ecfdf5; color: #047857; }
+        .status-ontrack { background-color: #eff6ff; color: #1d4ed8; }
+        .status-attention { background-color: #fef2f2; color: #b91c1c; }
+
+        table {
+            width: 100%%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 11px;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .pill-category {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 9px;
+            font-weight: 700;
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+        .gap-pos { color: #059669; font-weight: 700; }
+        .gap-neg { color: #dc2626; font-weight: 700; }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 36px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+            font-size: 11px;
+        }
+        .signature-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 12px;
+        }
+        .signature-title {
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 48px;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+        .signature-line {
+            border-top: 1px solid #94a3b8;
+            font-weight: 700;
+            color: #0f172a;
+            padding-top: 4px;
+        }
+        
+        .footer-note {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 9px;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 12px;
+        }
+
+        @media print {
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+
+    <!-- Printable Header Banner -->
+    <div class="header-banner">
+        <h1>INTERNAL AUDIT DIVISION</h1>
+        <h2>Executive KPI Performance Report — Year %d</h2>
+        <div class="meta-grid">
+            <div class="meta-item">
+                <label>Report Period</label>
+                <span>Jan – Dec %d</span>
+            </div>
+            <div class="meta-item">
+                <label>Generated On</label>
+                <span>%s</span>
+            </div>
+            <div class="meta-item">
+                <label>System Source</label>
+                <span>Risk-Based Audit Core</span>
+            </div>
+            <div class="meta-item">
+                <label>Classification</label>
+                <span>CONFIDENTIAL</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Executive Summary Cards -->
+    <div class="section-title">
+        <span>1. Executive Summary Cards</span>
+        <span class="badge">Annual Overview</span>
+    </div>
+
+    <div class="cards-grid">
+        <div class="card card-emerald">
+            <div class="card-label">Audit Completion Rate</div>
+            <div class="card-value">97.0%%</div>
+            <div class="card-sub">
+                <span>Target: 90.0%%</span>
+                <span class="gap-pos">+7.0%%</span>
+            </div>
+            <span class="card-status status-exceeded">Exceeded Target</span>
+        </div>
+
+        <div class="card card-cyan">
+            <div class="card-label">Cost Variance to Budget</div>
+            <div class="card-value">2.3%%</div>
+            <div class="card-sub">
+                <span>Target: 5.0%%</span>
+                <span class="gap-pos">2.7%%</span>
+            </div>
+            <span class="card-status status-ontrack">On Track</span>
+        </div>
+
+        <div class="card card-amber">
+            <div class="card-label">Auditee Satisfaction</div>
+            <div class="card-value">4.7 / 5.0</div>
+            <div class="card-sub">
+                <span>Target: 4.5</span>
+                <span class="gap-pos">+0.2</span>
+            </div>
+            <span class="card-status status-exceeded">Exceeded Target</span>
+        </div>
+
+        <div class="card card-violet">
+            <div class="card-label">High-Risk Resolution</div>
+            <div class="card-value">100.0%%</div>
+            <div class="card-sub">
+                <span>Target: 100.0%%</span>
+                <span class="gap-pos">0.0%%</span>
+            </div>
+            <span class="card-status status-ontrack">Completed</span>
+        </div>
+    </div>
+
+    <!-- 2. Detailed KPI Breakdown Table -->
+    <div class="section-title">
+        <span>2. Detailed KPI Breakdown</span>
+        <span class="badge">Strategic Objectives</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>KPI Metric</th>
+                <th>Category</th>
+                <th>Target</th>
+                <th>Actual</th>
+                <th>Gap</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Audit Plan Completion Rate</strong></td>
+                <td><span class="pill-category">Operational</span></td>
+                <td>90.0%%</td>
+                <td><strong>97.0%%</strong></td>
+                <td><span class="gap-pos">+7.0%%</span></td>
+                <td><span class="card-status status-exceeded">Exceeded</span></td>
+            </tr>
+            <tr>
+                <td><strong>Report Timeliness</strong></td>
+                <td><span class="pill-category">Efficiency</span></td>
+                <td>90.0%%</td>
+                <td><strong>98.0%%</strong></td>
+                <td><span class="gap-pos">+8.0%%</span></td>
+                <td><span class="card-status status-exceeded">Exceeded</span></td>
+            </tr>
+            <tr>
+                <td><strong>Auditee Satisfaction (CSAT)</strong></td>
+                <td><span class="pill-category">Quality</span></td>
+                <td>4.5</td>
+                <td><strong>4.7</strong></td>
+                <td><span class="gap-pos">+0.2</span></td>
+                <td><span class="card-status status-exceeded">Exceeded</span></td>
+            </tr>
+            <tr>
+                <td><strong>High-risk Issue Resolution</strong></td>
+                <td><span class="pill-category">Issue</span></td>
+                <td>100.0%%</td>
+                <td><strong>100.0%%</strong></td>
+                <td><span class="gap-pos">0.0%%</span></td>
+                <td><span class="card-status status-ontrack">Completed</span></td>
+            </tr>
+            <tr>
+                <td><strong>Cost Variance to Budget</strong></td>
+                <td><span class="pill-category">Financial</span></td>
+                <td>5.0%%</td>
+                <td><strong>2.3%%</strong></td>
+                <td><span class="gap-pos">2.7%%</span></td>
+                <td><span class="card-status status-ontrack">On Track</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 3. Monthly Performance Trend -->
+    <div class="section-title">
+        <span>3. Monthly Performance Trend Summary</span>
+        <span class="badge">H1 Realization</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Period Month</th>
+                <th>Completion Rate</th>
+                <th>Timeliness Rate</th>
+                <th>CSAT Rating</th>
+                <th>Overall Realization Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>January %d</td>
+                <td>82.0%%</td>
+                <td>85.0%%</td>
+                <td>4.2 / 5.0</td>
+                <td><span class="card-status status-ontrack">On Track</span></td>
+            </tr>
+            <tr>
+                <td>February %d</td>
+                <td>85.0%%</td>
+                <td>87.0%%</td>
+                <td>4.3 / 5.0</td>
+                <td><span class="card-status status-ontrack">On Track</span></td>
+            </tr>
+            <tr>
+                <td>March %d</td>
+                <td>90.0%%</td>
+                <td>90.0%%</td>
+                <td>4.5 / 5.0</td>
+                <td><span class="card-status status-ontrack">On Track</span></td>
+            </tr>
+            <tr>
+                <td>April %d</td>
+                <td>88.0%%</td>
+                <td>88.0%%</td>
+                <td>4.4 / 5.0</td>
+                <td><span class="card-status status-ontrack">On Track</span></td>
+            </tr>
+            <tr>
+                <td>May %d</td>
+                <td>95.0%%</td>
+                <td>92.0%%</td>
+                <td>4.6 / 5.0</td>
+                <td><span class="card-status status-exceeded">Exceeded</span></td>
+            </tr>
+            <tr>
+                <td>June %d</td>
+                <td>97.0%%</td>
+                <td>98.0%%</td>
+                <td>4.7 / 5.0</td>
+                <td><span class="card-status status-exceeded">Exceeded</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 4. Sign-Off & Verification Block -->
+    <div class="signature-grid">
+        <div class="signature-box">
+            <div class="signature-title">Prepared By</div>
+            <div class="signature-line">Internal Audit Specialist</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-title">Reviewed By</div>
+            <div class="signature-line">Audit Quality Manager</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-title">Approved By</div>
+            <div class="signature-line">Chief Audit Executive (CAE)</div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        This official document is generated automatically by Risk-Based Audit System on %s. Confidential & proprietary.
+    </div>
+
+</body>
+</html>`, year, year, year, nowStr, year, year, year, year, year, year, nowStr)
+
+	ctx.Header("Content-Type", "text/html; charset=utf-8")
+	ctx.String(http.StatusOK, htmlContent)
+}

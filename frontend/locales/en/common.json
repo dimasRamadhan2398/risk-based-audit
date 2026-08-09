@@ -55,7 +55,8 @@
     "info": "Information",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "back": "Back"
   },
   "dashboard": {
     "title": "Home"

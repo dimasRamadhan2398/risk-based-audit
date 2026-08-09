@@ -24,13 +24,13 @@
                                     class="w-full"/>
                                 </UFormField>
 
-                                <UFormField label="Activity Code" size="lg">  
+                                <UFormField label="Activity Code" size="lg" help="Format Auto: PKAT-Tahun-CodeCategory-No.urut">  
                                     <UInput 
                                         v-model="store.form.code"
                                         required 
                                         type="text" 
-                                        placeholder="e.g. ASR-01"
-                                        class="w-full"
+                                        placeholder="e.g. PKAT-2026-ASR-001"
+                                        class="w-full font-mono text-sm"
                                     />
                                 </UFormField>
                             </div>

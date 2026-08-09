@@ -95,6 +95,7 @@ services:
           - /api/v1/departments
           - /api/v1/quality-assurance
           - /api/v1/vision-mission-goals
+          - /api/v1/data-sources
         strip_path: false
 
   - name: risk-service
