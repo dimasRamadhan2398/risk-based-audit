@@ -3,6 +3,7 @@ import type { TableColumn } from '@nuxt/ui';
 import { defineStore } from 'pinia'
 import { ref, reactive, computed, watch } from 'vue'
 import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
+import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
@@ -10,6 +11,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const errorMsg = ref("")
   const progressAudit = ref(50);
   const loading = ref(false)
+  const validationErrors = reactive({
+    activityDetail: '',
+    timeline: '',
+    auditor: ''
+  })
 
   // Constants
   const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -251,6 +257,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     isEditing.value = false
     editingId.value = null
 
+    clearValidationErrors()
+
     Object.assign(form, {
       code: '',
       version: 'v1.0',
@@ -317,13 +325,97 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
-  const handleSubmit = async () => {
-    if (form.selectedMonths.length === 0) {
-      alert("⚠️ Wajib memilih minimal 1 bulan pelaksanaan.")
-      return
+  const clearValidationErrors = () => {
+    validationErrors.activityDetail = ''
+    validationErrors.timeline = ''
+    validationErrors.auditor = ''
+  }
+
+  const validateForm = () => {
+    clearValidationErrors()
+
+    const activityErrors: string[] = []
+    const timelineErrors: string[] = []
+    const auditorErrors: string[] = []
+
+    // 1. Activity Detail
+    if (!form.code.trim()) {
+      activityErrors.push('Activity Code wajib diisi.')
     }
+
+    if (!form.activities.length) {
+      activityErrors.push('Minimal harus ada 1 aktivitas.')
+    }
+
+    form.activities.forEach((activity, index) => {
+      if (!activity.name?.trim()) {
+        activityErrors.push(
+          `Activity Name pada Sub-Aktivitas ${index + 1} wajib diisi.`
+        )
+      }
+
+      if (!activity.category) {
+        activityErrors.push(
+          `Category pada Sub-Aktivitas ${index + 1} wajib dipilih.`
+        )
+      }
+
+      if (!activity.department) {
+        activityErrors.push(
+          `Department pada Sub-Aktivitas ${index + 1} wajib dipilih.`
+        )
+      }
+
+      if (!activity.riskName?.trim()) {
+        activityErrors.push(
+          `Auditable Entity pada Sub-Aktivitas ${index + 1} wajib dipilih.`
+        )
+      }
+    })
+
+    // 2. Timeline
+    if (!form.year) {
+      timelineErrors.push('Year wajib dipilih.')
+    }
+
+    if (form.selectedMonths.length === 0) {
+      timelineErrors.push('Minimal 1 bulan pelaksanaan wajib dipilih.')
+    }
+
+    // 3. Auditor
+    if (
+      !Number.isInteger(form.auditorCount) ||
+      form.auditorCount < 1 ||
+      form.auditorCount > 10
+    ) {
+      auditorErrors.push('Number of Auditors harus antara 1 sampai 10.')
+    }
+
+    if (
+      !Number.isFinite(form.daysPerAuditor) ||
+      form.daysPerAuditor < 1
+    ) {
+      auditorErrors.push('Duration harus minimal 1 hari.')
+    }
+
     if (!form.supervisorId) {
-      alert("⚠️ Wajib memilih Supervisor.")
+      auditorErrors.push('Supervisor wajib dipilih.')
+    }
+
+    validationErrors.activityDetail = activityErrors.join(' ')
+    validationErrors.timeline = timelineErrors.join(' ')
+    validationErrors.auditor = auditorErrors.join(' ')
+
+    return (
+      activityErrors.length === 0 &&
+      timelineErrors.length === 0 &&
+      auditorErrors.length === 0
+    )
+  }
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      alert('⚠️ Mohon lengkapi data pada Activity Detail, Timeline, dan Auditor.')
       return
     }
 
@@ -335,6 +427,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         await addPlan({ ...form })
         alert("Data Rencana Audit Berhasil Disimpan!")
       }
+
       closeModal()
     } catch (err: any) {
       alert("Gagal menyimpan data: " + err.message)
@@ -344,6 +437,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const handleEdit = (plan: any) => {
     isEditing.value = true
     editingId.value = plan.id
+
+    clearValidationErrors()
 
     form.code = plan.code
     form.version = plan.version || 'v1.0'
@@ -411,7 +506,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   ])
 
   const TEAM_CAPACITY_PER_YEAR = 10 * 220 * 0.7
-  
+
   const calculateQuarters = (months: number[]) => {
     const qSet = new Set<string>()
     months.forEach(m => {
@@ -517,18 +612,27 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     const baseUrl = getAuditServiceBaseUrl()
     if (plan.isUsed) {
-      // Soft deactivate
-      const payload = { ...plan, isActive: false }
+      const confirmed = confirm('Rencana audit ini sudah digunakan dan tidak dapat dihapus permanen. Apakah Anda ingin menonaktifkannya?')
+
+      if (!confirmed) return
+
+      const payload = {
+        ...plan,
+        isActive: false
+      }
+
       await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
         method: 'PUT',
         body: payload
       })
     } else {
-      if (confirm('Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?')) {
-        await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-          method: 'DELETE'
-        })
-      }
+      const confirmed = confirm('Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?')
+
+      if (!confirmed) return
+
+      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+        method: 'DELETE'
+      })
     }
     await fetchPlans()
   }
@@ -625,7 +729,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   return {
     plans, supervisors, monthsList, yearOptions, supervisorOptions, attachmentCategoryOptions,
     showModal, isEditing, editingId, showViewModal, selectedPlan, progressAudit, approvalStepperItems,
-    searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading,
+    searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading, validationErrors,
     filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
     computedQuarters,
     clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,

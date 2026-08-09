@@ -14,6 +14,19 @@
                     <div class="p-6 overflow-y-auto space-y-4">  
                         <div class="space-y-4">
                             <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b border-[var(--border-main)] pb-2">1. Activity Detail</h4>
+                            <div
+                                v-if="store.validationErrors.activityDetail"
+                                class="flex items-start gap-2 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-600"
+                                >
+                                <UIcon
+                                    name="i-lucide-circle-alert"
+                                    class="mt-0.5 shrink-0"
+                                />
+
+                                <span>
+                                    {{ store.validationErrors.activityDetail }}
+                                </span>
+                            </div>
                         
                             <div class="grid grid-cols-1 gap-6 md:grid-cols-2 mb-4">
                                 <UFormField label="Status" size="lg">
@@ -148,7 +161,20 @@
 
                         <div class="space-y-4">
                             <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b pb-2">2. Timeline</h4>
-                            
+                            <div
+                                v-if="store.validationErrors.timeline"
+                                class="flex items-start gap-2 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-600"
+                                >
+                                <UIcon
+                                    name="i-lucide-circle-alert"
+                                    class="mt-0.5 shrink-0"
+                                />
+
+                                <span>
+                                    {{ store.validationErrors.timeline }}
+                                </span>
+                            </div>
+
                             <UFormField label="Year" size="lg">
                                 <USelectMenu v-model="store.form.year" :items="store.yearOptions" class="w-full" />
                             </UFormField>
@@ -181,7 +207,20 @@
 
                         <div class="space-y-4">
                             <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b pb-2">3. Auditor</h4>
-            
+                            <div
+                                v-if="store.validationErrors.auditor"
+                                class="flex items-start gap-2 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-600"
+                                >
+                                <UIcon
+                                    name="i-lucide-circle-alert"
+                                    class="mt-0.5 shrink-0"
+                                />
+
+                                <span>
+                                    {{ store.validationErrors.auditor }}
+                                </span>
+                            </div>
+
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 rounded-lg border border-primary-200 ">
                             <UFormField label="Number of Auditors (1-10)" size="lg"
                             >
@@ -305,11 +344,11 @@
                     </div>
     
                 <div class="px-6 py-4 border-t border-secondary-200  rounded-b-xl flex justify-end gap-3">
-                    <UButton 
-                        :label="store.isEditing ? 'Update Plan' : 'Save Plan'" 
-                        color="primary" 
+                    <UButton
+                        type="submit"
+                        :label="store.isEditing ? 'Update Plan' : 'Save Plan'"
+                        color="primary"
                         :disabled="!!store.quarterAlert || store.utilizationData.color === 'red'"
-                        @click="store.handleSubmit" 
                     />
                 </div>
             

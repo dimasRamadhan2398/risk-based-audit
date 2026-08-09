@@ -239,15 +239,16 @@
                   <div class="flex items-center gap-2">
                     <span class="text-md font-semibold text-slate-500">Entity:</span>
                     <USelectMenu
-                      :model-value="activeYearlyEntity ? dropdownEntities.find(d => d.id === activeYearlyEntity.id) : undefined"
-                      @update:model-value="(val: any) => selectEntityForScoring(val ? val.original : undefined)"
+                      v-model="selectedEntityId"
                       :items="dropdownEntities"
-                      option-key="name"
+                      label-key="label"
+                      value-key="value"
                       placeholder="-- Select Entity --"
                       class="w-56"
+                      @update:model-value="selectEntityForScoringById"
                     >
                       <template #item="{ item }">
-                        <span>{{ item.name }}</span>
+                        <span>{{ item.label }}</span>
                       </template>
                     </USelectMenu>
                   </div>
@@ -520,6 +521,7 @@ const alertType = ref('success')
 
 // For scoring workspace:
 const selectedYear = ref(2026)
+const selectedEntityId = ref<string | undefined>(undefined)
 const activeYearlyEntity = ref<any>(null)
 const scoringRows = ref<any[]>([])
 const rubricModalOpen = ref(false)
@@ -578,8 +580,8 @@ const yearlyUniverse = computed(() => auditStore.yearlyUniverse)
 
 const dropdownEntities = computed(() => {
   return auditStore.yearlyUniverse.map(item => ({
-    id: item.id,
-    name: item.corporate_audit_universe ? item.corporate_audit_universe.name : 'Unknown',
+    label: item.corporate_audit_universe?.name || 'Unknown',
+    value: item.id,
     original: item
   }))
 })
@@ -599,6 +601,7 @@ const totalWeightedScore = computed(() => {
 
 // Methods
 const fetchYearlyUniverse = async () => {
+  selectedEntityId.value = undefined
   activeYearlyEntity.value = null
   scoringRows.value = []
   await auditStore.fetchYearlyUniverse(selectedYear.value)
@@ -635,6 +638,19 @@ const openGuidelines = (factor: any) => {
     detailFactor.value = factor
     guidelinesModalOpen.value = true
   }
+}
+
+const selectEntityForScoringById = (entityId?: string) => {
+  if (!entityId) {
+    selectEntityForScoring(null)
+    return
+  }
+
+  const selected = dropdownEntities.value.find(
+    item => item.value === entityId
+  )
+
+  selectEntityForScoring(selected?.original ?? null)
 }
 
 const selectEntityForScoring = (ent: any) => {

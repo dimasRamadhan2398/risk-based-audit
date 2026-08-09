@@ -14,6 +14,13 @@ const department = ref<AuditDepartment | undefined>(undefined)
 
 const quarters = ['Quarter I', 'Quarter II', 'Quarter III', 'Quarter IV']
 
+const resetFilters = () => {
+  search.value = ''
+  quarter.value = ''
+  department.value = undefined
+  status.value = undefined
+}
+
 const columns = [
   { accessorKey: 'name', header: 'Audit Name' },
   { accessorKey: 'progress', header: 'Execution Progress' },
@@ -98,6 +105,13 @@ const handleRemind = (audit: any) => {
         :items="Object.values(AuditStatus)"
         placeholder="Status"
         class="w-48"
+      />
+      <UButton
+        label="Reset Filter"
+        icon="i-lucide-rotate-ccw"
+        color="neutral"
+        variant="outline"
+        @click="resetFilters"
       />
     </div>
 

@@ -15,6 +15,13 @@ const categories = ['Operational', 'Financial', 'Quality', 'Issue', 'Efficiency'
 const periods = ['Q1', 'Q2', 'Q3', 'Q4', '2025', '2026']
 const statuses = ['On Track', 'Exceeded', 'Completed', 'Needs Attention']
 
+const resetFilters = () => {
+  search.value = ''
+  category.value = undefined
+  period.value = undefined
+  status.value = undefined
+}
+
 // We will map the store data to fit the image's structure
 // The store has `kpi`, `target`, `actual`, `status`, `unit`
 // We'll calculate `gap` and assign a random category if missing
@@ -171,6 +178,13 @@ const columns = [
         :items="statuses"
         placeholder="Select Status"
         class="w-48"
+      />
+      <UButton
+        label="Reset Filter"
+        icon="i-lucide-rotate-ccw"
+        color="neutral"
+        variant="outline"
+        @click="resetFilters"
       />
     </div>
 
