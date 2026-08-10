@@ -19,34 +19,42 @@ const isOpen = computed({
 
 const isLoading = ref(false)
 
-const form = ref({
-  total_reports_planned: 0,
-  total_reports_completed: 0,
-  reports_completed_on_time: 0,
-  remarks: ''
-})
+interface QuestionnaireItem {
+  id?: string
+  questionnaire_name: string
+  total_reports_planned: number
+  total_reports_completed: number
+  reports_completed_on_time: number
+  remarks: string
+  timeliness_percentage?: number
+}
 
-const timelinessPercentage = computed(() => {
-  if (form.value.total_reports_completed === 0) return 0
-  return Math.round((form.value.reports_completed_on_time / form.value.total_reports_completed) * 100)
-})
+const formList = ref<QuestionnaireItem[]>([])
+
+const calculatePercentage = (item: QuestionnaireItem) => {
+  if (item.total_reports_completed === 0) return 0
+  return Math.round((item.reports_completed_on_time / item.total_reports_completed) * 100)
+}
 
 const loadData = async () => {
   try {
     isLoading.value = true
     const res: any = await $fetch(`http://localhost:8002/api/v1/report-timeliness?year=${props.year}&period=${props.period}`)
-    if (res) {
-      form.value = {
-        total_reports_planned: res.total_reports_planned || 0,
-        total_reports_completed: res.total_reports_completed || 0,
-        reports_completed_on_time: res.reports_completed_on_time || 0,
-        remarks: res.remarks || ''
-      }
+    if (res && Array.isArray(res)) {
+      formList.value = res.map((r: any) => ({
+        id: r.id,
+        questionnaire_name: r.questionnaire_name || '',
+        total_reports_planned: r.total_reports_planned || 0,
+        total_reports_completed: r.total_reports_completed || 0,
+        reports_completed_on_time: r.reports_completed_on_time || 0,
+        remarks: r.remarks || ''
+      }))
+    } else {
+      formList.value = []
     }
   } catch (error: any) {
-    if (error.response?.status !== 404) {
-      console.error('Failed to load timeliness data:', error)
-    }
+    console.error('Failed to load timeliness data:', error)
+    formList.value = []
   } finally {
     isLoading.value = false
   }
@@ -56,25 +64,39 @@ watch(() => props.modelValue, (newVal) => {
   if (newVal) {
     loadData()
   } else {
-    form.value = {
-      total_reports_planned: 0,
-      total_reports_completed: 0,
-      reports_completed_on_time: 0,
-      remarks: ''
-    }
+    formList.value = []
   }
 })
+
+const addQuestionnaire = () => {
+  formList.value.push({
+    questionnaire_name: '',
+    total_reports_planned: 0,
+    total_reports_completed: 0,
+    reports_completed_on_time: 0,
+    remarks: ''
+  })
+}
+
+const removeQuestionnaire = (index: number) => {
+  formList.value.splice(index, 1)
+}
 
 const handleSave = async () => {
   try {
     isLoading.value = true
+    
+    const payload = formList.value.map(item => ({
+      ...item,
+      timeliness_percentage: calculatePercentage(item)
+    }))
+
     await $fetch('http://localhost:8002/api/v1/report-timeliness', {
       method: 'POST',
       body: {
         year: props.year,
         period: props.period,
-        ...form.value,
-        timeliness_percentage: timelinessPercentage.value
+        questionnaires: payload
       }
     })
     
@@ -96,43 +118,65 @@ const handleSave = async () => {
     isLoading.value = false
   }
 }
+
+const columns = [
+  { accessorKey: 'questionnaire_name', header: 'Quisioner' },
+  { accessorKey: 'total_reports_planned', header: 'Planned' },
+  { accessorKey: 'total_reports_completed', header: 'Completed' },
+  { accessorKey: 'reports_completed_on_time', header: 'On Time' },
+  { accessorKey: 'percentage', header: '%' },
+  { accessorKey: 'remarks', header: 'Remarks' },
+  { id: 'actions', header: '' }
+]
 </script>
 
 <template>
-  <UModal v-model="isOpen">
+  <UModal v-model="isOpen" :ui="{ width: 'sm:max-w-5xl' }">
     <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
             Report Timeliness Questionnaire ({{ period }} {{ year }})
           </h3>
-          <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isOpen = false" />
+          <div class="flex items-center gap-3">
+            <UButton icon="i-lucide-plus" size="sm" color="primary" @click="addQuestionnaire">
+              Add Questionnaire
+            </UButton>
+            <UButton color="neutral" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isOpen = false" />
+          </div>
         </div>
       </template>
 
       <div class="space-y-4" v-if="!isLoading">
-        <UFormField label="Total Reports Planned" required>
-          <UInput type="number" v-model.number="form.total_reports_planned" min="0" />
-        </UFormField>
-
-        <UFormField label="Total Reports Completed" required>
-          <UInput type="number" v-model.number="form.total_reports_completed" min="0" />
-        </UFormField>
-
-        <UFormField label="Reports Completed On Time" required>
-          <UInput type="number" v-model.number="form.reports_completed_on_time" min="0" :max="form.total_reports_completed" />
-        </UFormField>
-
-        <UFormField label="Timeliness Percentage">
-          <div class="flex items-center gap-2">
-            <UProgress :value="timelinessPercentage" max="100" class="flex-1" :color="timelinessPercentage >= 90 ? 'success' : timelinessPercentage >= 70 ? 'warning' : 'error'" />
-            <span class="font-bold w-12 text-right">{{ timelinessPercentage }}%</span>
-          </div>
-        </UFormField>
-
-        <UFormField label="Remarks">
-          <UTextarea v-model="form.remarks" rows="3" placeholder="Additional notes or context..." />
-        </UFormField>
+        <UTable :columns="columns" :data="formList" :empty-state="{ icon: 'i-lucide-file-question', label: 'No questionnaires added yet.' }">
+          <template #questionnaire_name-cell="{ row }">
+            <UInput v-model="row.original.questionnaire_name" placeholder="Quisioner Name" size="sm" />
+          </template>
+          <template #total_reports_planned-cell="{ row }">
+            <UInput type="number" v-model.number="row.original.total_reports_planned" min="0" size="sm" class="w-20" />
+          </template>
+          <template #total_reports_completed-cell="{ row }">
+            <UInput type="number" v-model.number="row.original.total_reports_completed" min="0" size="sm" class="w-20" />
+          </template>
+          <template #reports_completed_on_time-cell="{ row }">
+            <UInput type="number" v-model.number="row.original.reports_completed_on_time" min="0" :max="row.original.total_reports_completed" size="sm" class="w-20" />
+          </template>
+          <template #percentage-cell="{ row }">
+            <div class="font-bold text-center" :class="{
+              'text-green-600': calculatePercentage(row.original) >= 90,
+              'text-orange-500': calculatePercentage(row.original) >= 70 && calculatePercentage(row.original) < 90,
+              'text-red-500': calculatePercentage(row.original) < 70
+            }">
+              {{ calculatePercentage(row.original) }}%
+            </div>
+          </template>
+          <template #remarks-cell="{ row }">
+            <UInput v-model="row.original.remarks" placeholder="Remarks..." size="sm" />
+          </template>
+          <template #actions-cell="{ row }">
+            <UButton color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="removeQuestionnaire(row.index)" />
+          </template>
+        </UTable>
       </div>
       
       <div v-else class="flex justify-center p-8">
@@ -141,10 +185,11 @@ const handleSave = async () => {
 
       <template #footer>
         <div class="flex justify-end gap-3">
-          <UButton color="gray" variant="soft" @click="isOpen = false" :disabled="isLoading">Cancel</UButton>
-          <UButton color="primary" @click="handleSave" :loading="isLoading">Save Metrics</UButton>
+          <UButton color="neutral" variant="soft" @click="isOpen = false" :disabled="isLoading">Cancel</UButton>
+          <UButton color="primary" @click="handleSave" :loading="isLoading" :disabled="formList.length === 0">Save Metrics</UButton>
         </div>
       </template>
     </UCard>
   </UModal>
 </template>
+

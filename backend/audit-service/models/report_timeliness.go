@@ -11,6 +11,7 @@ type ReportTimeliness struct {
 	ID                     uuid.UUID `gorm:"type:uuid;primary_key;" json:"id"`
 	Year                   int       `json:"year"`
 	Period                 string    `json:"period"`
+	QuestionnaireName      string    `json:"questionnaire_name"`
 	TotalReportsPlanned    int       `json:"total_reports_planned"`
 	TotalReportsCompleted  int       `json:"total_reports_completed"`
 	ReportsCompletedOnTime int       `json:"reports_completed_on_time"`

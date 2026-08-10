@@ -37,7 +37,7 @@
               <h4 class="font-bold text-gray-700">2. General Information</h4>
               <div class="space-y-4">
                 <UFormField label="Assessment Title" required :error="errors.assessmentTitle ? 'Title is required' : ''">
-                  <UInput v-model="store.newReport.assessmentTitle" placeholder="Ex: QAR - Audit 2026" class="w-full" :class="{ 'ring-2 ring-red-500': errors.assessmentTitle }"/>
+                  <UInput v-model="store.newReport.assessmentTitle" placeholder="Ex: QAR - Audit 2026" class="w-full" />
                 </UFormField>
                 <div class="grid grid-cols-2 gap-4">
                   <UFormField label="Execution Period">
@@ -55,7 +55,7 @@
               <h4 class="font-bold text-gray-700">3. Results & Status</h4>
               <div class="grid grid-cols-2 gap-4">
                 <UFormField label="Status" required :error="errors.status ? 'Status is required' : ''">
-                  <USelectMenu v-model="store.newReport.status" :items="store.qaStatuses" placeholder="Select Status" class="w-full" :class="{ 'ring-2 ring-red-500': errors.status }"/>
+                  <USelectMenu v-model="store.newReport.status" :items="store.qaStatuses" placeholder="Select Status" class="w-full" />
                 </UFormField>
                 <UFormField label="Result/Score" required :error="errors.result ? 'Result is required' : ''">
                   <USelectMenu 
@@ -151,7 +151,7 @@ const validateAndSave = () => {
     toast.add({
       title: 'Validation Error',
       description: 'Mohon isi semua kolom yang wajib diisi (berwarna merah).',
-      color: 'red',
+      color: 'error',
       icon: 'i-heroicons-exclamation-circle'
     })
     return

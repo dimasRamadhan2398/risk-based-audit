@@ -53,3 +53,4 @@ export const useI18n = () => {
     t
   }
 }
+// Force reload cache

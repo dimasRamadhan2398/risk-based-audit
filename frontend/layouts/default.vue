@@ -69,18 +69,6 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
-    children: [
-      {
-        label: 'KPI Performance',
-        icon: 'i-lucide-users',
-        to: '/kpi-performance',
-      },
-      {
-        label: 'Impor Laporan Kinerja',
-        icon: 'i-lucide-upload',
-        to: '/kpi-performance/upload',
-      },
-    ]
   },
   {
     label: '4. Annual Audit Plan',
@@ -208,14 +196,9 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '9. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
-  },
+  }, 
   {
-    label: '10. KPI Performance',
-    icon: 'i-lucide-trending-up',
-    to: '/kpi-performance',
-  },
-  {
-    label: '11. Consulting Service',
+    label: '10. Consulting Service',
     icon: 'i-lucide-users',
     to: '/consulting-service',
     children: [
@@ -232,7 +215,17 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '12. Quality Assurance Review',
+    label: '11. Impor Laporan Kinerja',
+    icon: 'i-lucide-upload',
+    to: '/kpi-performance/upload',
+  },
+  {
+    label: '12. KPI Performance',
+    icon: 'i-lucide-trending-up',
+    to: '/kpi-performance',
+  },
+  {
+    label: '13. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [
@@ -264,7 +257,7 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '13. Analytics',
+    label: 'Analytics',
     icon: 'i-lucide-pie-chart',
     to: '/analytics',
   },

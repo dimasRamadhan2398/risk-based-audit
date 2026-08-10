@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"audit-service/models"
 	"audit-service/services"
 	"net/http"
 	"strconv"
@@ -16,14 +17,20 @@ func NewReportTimelinessController(service services.IReportTimelinessService) *R
 	return &ReportTimelinessController{service: service}
 }
 
+type SaveMultipleReq struct {
+	Year           int                            `json:"year"`
+	Period         string                         `json:"period"`
+	Questionnaires []services.ReportTimelinessReq `json:"questionnaires"`
+}
+
 func (c *ReportTimelinessController) CreateOrUpdate(ctx *gin.Context) {
-	var req services.ReportTimelinessReq
+	var req SaveMultipleReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	res, err := c.service.CreateOrUpdate(&req)
+	res, err := c.service.SaveMultiple(req.Year, req.Period, req.Questionnaires)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -49,8 +56,7 @@ func (c *ReportTimelinessController) GetByYearAndPeriod(ctx *gin.Context) {
 	}
 
 	if res == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": "Not found"})
-		return
+		res = []models.ReportTimeliness{}
 	}
 
 	ctx.JSON(http.StatusOK, res)

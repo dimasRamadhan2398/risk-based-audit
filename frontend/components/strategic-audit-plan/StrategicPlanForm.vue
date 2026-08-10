@@ -29,17 +29,6 @@
               />
             </div>
 
-            <!-- Objective ID -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">
-                {{ t('strategicPlan.form.code') }} <span class="text-orange-500">*</span>
-              </label>
-              <UInput
-                v-model="store.form.code"
-                :placeholder="t('strategicPlan.form.codePlaceholder')"
-                class="w-full"
-              />
-            </div>
 
             <!-- Strategic Objective -->
             <div class="form-row">

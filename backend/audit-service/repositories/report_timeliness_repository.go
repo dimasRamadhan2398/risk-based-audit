@@ -9,7 +9,8 @@ import (
 type IReportTimelinessRepository interface {
 	Create(entity *models.ReportTimeliness) error
 	FindAll() ([]models.ReportTimeliness, error)
-	FindByYearAndPeriod(year int, period string) (*models.ReportTimeliness, error)
+	FindAllByYearAndPeriod(year int, period string) ([]models.ReportTimeliness, error)
+	ReplaceByYearAndPeriod(year int, period string, entities []models.ReportTimeliness) error
 }
 
 type reportTimelinessRepository struct {
@@ -34,13 +35,24 @@ func (r *reportTimelinessRepository) FindAll() ([]models.ReportTimeliness, error
 	return list, nil
 }
 
-func (r *reportTimelinessRepository) FindByYearAndPeriod(year int, period string) (*models.ReportTimeliness, error) {
-	var entity models.ReportTimeliness
-	if err := r.DB.Where("year = ? AND period = ?", year, period).First(&entity).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		}
+func (r *reportTimelinessRepository) FindAllByYearAndPeriod(year int, period string) ([]models.ReportTimeliness, error) {
+	var list []models.ReportTimeliness
+	if err := r.DB.Where("year = ? AND period = ?", year, period).Find(&list).Error; err != nil {
 		return nil, err
 	}
-	return &entity, nil
+	return list, nil
+}
+
+func (r *reportTimelinessRepository) ReplaceByYearAndPeriod(year int, period string, entities []models.ReportTimeliness) error {
+	return r.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("year = ? AND period = ?", year, period).Delete(&models.ReportTimeliness{}).Error; err != nil {
+			return err
+		}
+		if len(entities) > 0 {
+			if err := tx.Create(&entities).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }

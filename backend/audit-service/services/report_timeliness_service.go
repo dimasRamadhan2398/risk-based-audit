@@ -8,6 +8,7 @@ import (
 type ReportTimelinessReq struct {
 	Year                   int     `json:"year"`
 	Period                 string  `json:"period"`
+	QuestionnaireName      string  `json:"questionnaire_name"`
 	TotalReportsPlanned    int     `json:"total_reports_planned"`
 	TotalReportsCompleted  int     `json:"total_reports_completed"`
 	ReportsCompletedOnTime int     `json:"reports_completed_on_time"`
@@ -16,8 +17,8 @@ type ReportTimelinessReq struct {
 }
 
 type IReportTimelinessService interface {
-	CreateOrUpdate(req *ReportTimelinessReq) (*models.ReportTimeliness, error)
-	GetByYearAndPeriod(year int, period string) (*models.ReportTimeliness, error)
+	SaveMultiple(year int, period string, reqs []ReportTimelinessReq) ([]models.ReportTimeliness, error)
+	GetByYearAndPeriod(year int, period string) ([]models.ReportTimeliness, error)
 }
 
 type reportTimelinessService struct {
@@ -28,48 +29,29 @@ func NewReportTimelinessService(repo repositories.IReportTimelinessRepository) I
 	return &reportTimelinessService{repo: repo}
 }
 
-func (s *reportTimelinessService) CreateOrUpdate(req *ReportTimelinessReq) (*models.ReportTimeliness, error) {
-	existing, err := s.repo.FindByYearAndPeriod(req.Year, req.Period)
-	if err != nil {
-		return nil, err
-	}
-
-	if existing != nil {
-		// Update existing
-		existing.TotalReportsPlanned = req.TotalReportsPlanned
-		existing.TotalReportsCompleted = req.TotalReportsCompleted
-		existing.ReportsCompletedOnTime = req.ReportsCompletedOnTime
-		existing.TimelinessPercentage = req.TimelinessPercentage
-		existing.Remarks = req.Remarks
-
-		// Depending on base repository update
-		if br, ok := s.repo.(interface{ Update(interface{}) error }); ok {
-			err = br.Update(existing)
-		} else {
-			// fallback
+func (s *reportTimelinessService) SaveMultiple(year int, period string, reqs []ReportTimelinessReq) ([]models.ReportTimeliness, error) {
+	var entities []models.ReportTimeliness
+	for _, req := range reqs {
+		entity := models.ReportTimeliness{
+			Year:                   year,
+			Period:                 period,
+			QuestionnaireName:      req.QuestionnaireName,
+			TotalReportsPlanned:    req.TotalReportsPlanned,
+			TotalReportsCompleted:  req.TotalReportsCompleted,
+			ReportsCompletedOnTime: req.ReportsCompletedOnTime,
+			TimelinessPercentage:   req.TimelinessPercentage,
+			Remarks:                req.Remarks,
 		}
-		
-		return existing, err
+		entities = append(entities, entity)
 	}
 
-	entity := &models.ReportTimeliness{
-		Year:                   req.Year,
-		Period:                 req.Period,
-		TotalReportsPlanned:    req.TotalReportsPlanned,
-		TotalReportsCompleted:  req.TotalReportsCompleted,
-		ReportsCompletedOnTime: req.ReportsCompletedOnTime,
-		TimelinessPercentage:   req.TimelinessPercentage,
-		Remarks:                req.Remarks,
-	}
-
-	err = s.repo.Create(entity)
+	err := s.repo.ReplaceByYearAndPeriod(year, period, entities)
 	if err != nil {
 		return nil, err
 	}
-
-	return entity, nil
+	return entities, nil
 }
 
-func (s *reportTimelinessService) GetByYearAndPeriod(year int, period string) (*models.ReportTimeliness, error) {
-	return s.repo.FindByYearAndPeriod(year, period)
+func (s *reportTimelinessService) GetByYearAndPeriod(year int, period string) ([]models.ReportTimeliness, error) {
+	return s.repo.FindAllByYearAndPeriod(year, period)
 }

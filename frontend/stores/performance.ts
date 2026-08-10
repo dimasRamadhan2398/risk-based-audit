@@ -80,7 +80,7 @@ export const usePerformanceStore = defineStore('performance', () => {
 
   const getAuditServiceBaseUrl = () => {
     const config = useRuntimeConfig();
-    return config.public.auditServiceBaseUrl || 'http://localhost:8080/api/v1';
+    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1';
   };
 
   const fetchDashboardSummary = async (year: number = 2026) => {
