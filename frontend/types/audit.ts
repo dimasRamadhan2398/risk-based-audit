@@ -522,6 +522,7 @@ export interface StrategicAuditPlan {
   yearStart?: number;
   yearEnd?: number;
   kpiTargets: Record<string | number, string>;
+  kpiActuals?: Record<string | number, string>;
   internalAuditSO: string;
   actual: string;
   target: string;

@@ -2,7 +2,7 @@
     <!-- Add/Edit Modal -->
     <UModal
       v-model:open="store.isAddModalOpen"
-      title="Strategic Plan Information"
+      :title="t('strategicPlan.form.title')"
       :ui="{
         content: 'sm:max-w-2xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl',
         header: 'border-b border-gray-100 dark:border-gray-800 pb-4 text-gray-900 dark:text-white font-bold',
@@ -17,13 +17,13 @@
             <!-- Link to Goal -->
             <div class="form-row" v-if="vmgStore.activeVmg?.goals?.length">
               <label class="form-label text-gray-700 dark:text-white">
-                Corporate Goal <span class="text-orange-500">*</span>
+                {{ t('strategicPlan.form.corporateGoal') }} <span class="text-orange-500">*</span>
               </label>
               <USelectMenu
                 v-model="store.form.goalId"
                 :items="goalOptions"
                 value-key="value"
-                placeholder="Select Corporate Goal"
+                :placeholder="t('strategicPlan.form.selectCorporateGoal')"
                 class="w-full"
                 required
               />
@@ -32,11 +32,11 @@
             <!-- Objective ID -->
             <div class="form-row">
               <label class="form-label text-gray-700 dark:text-white">
-                Objective ID <span class="text-orange-500">*</span>
+                {{ t('strategicPlan.form.code') }} <span class="text-orange-500">*</span>
               </label>
               <UInput
                 v-model="store.form.code"
-                placeholder="Ex: SO-IA01"
+                :placeholder="t('strategicPlan.form.codePlaceholder')"
                 class="w-full"
               />
             </div>
@@ -44,11 +44,11 @@
             <!-- Strategic Objective -->
             <div class="form-row">
               <label class="form-label text-gray-700 dark:text-white">
-                Strategic Objective <span class="text-orange-500">*</span>
+                {{ t('strategicPlan.form.objective') }} <span class="text-orange-500">*</span>
               </label>
               <UTextarea
                 v-model="store.form.strategicObjective"
-                placeholder="Ex: Enhance Operational Efficiency"
+                :placeholder="t('strategicPlan.form.objectivePlaceholder')"
                 :rows="2"
                 class="w-full"
               />
@@ -57,23 +57,23 @@
             <!-- KPI Title -->
             <div class="form-row">
               <label class="form-label text-gray-700 dark:text-white">
-                KPI <span class="text-orange-500">*</span>
+                {{ t('strategicPlan.form.kpi') }} <span class="text-orange-500">*</span>
               </label>
               <UInput
                 v-model="store.form.kpi"
-                placeholder="Ex: Revenue Operational Cost"
+                :placeholder="t('strategicPlan.form.kpiPlaceholder')"
                 class="w-full"
               />
             </div>
 
             <!-- Unit -->
             <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">Unit</label>
+              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.unit') }}</label>
               <USelectMenu
                 v-model="store.form.unit"
                 :items="store.unitOptions"
                 value-key="value"
-                placeholder="Select Unit"
+                :placeholder="t('strategicPlan.form.selectUnit')"
                 class="w-full"
               />
             </div>
@@ -81,7 +81,7 @@
             <!-- HIB/HIG Radio -->
             <div class="form-row">
               <label class="form-label text-gray-700 dark:text-white">
-                HIB/HIG <span class="text-orange-500">*</span>
+                {{ t('strategicPlan.form.hibHig') }} <span class="text-orange-500">*</span>
               </label>
               <div class="flex flex-col gap-2">
                 <label class="inline-flex items-center gap-2 cursor-pointer">
@@ -91,7 +91,7 @@
                     value="HIG"
                     class="accent-orange-500 w-4 h-4"
                   />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">HIG (High is Good)</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.higLabel') }}</span>
                 </label>
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                   <input
@@ -100,7 +100,7 @@
                     value="HIB"
                     class="accent-orange-500 w-4 h-4"
                   />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">HIB (High is Bad)</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.hibLabel') }}</span>
                 </label>
               </div>
             </div>
@@ -108,7 +108,7 @@
             <!-- Period Type Radio -->
             <div class="form-row">
               <label class="form-label text-gray-700 dark:text-white">
-                Period Type <span class="text-orange-500">*</span>
+                {{ t('strategicPlan.form.periodType') }} <span class="text-orange-500">*</span>
               </label>
               <div class="flex flex-col gap-2">
                 <label class="inline-flex items-center gap-2 cursor-pointer">
@@ -118,7 +118,7 @@
                     value="Quartal"
                     class="accent-orange-500 w-4 h-4"
                   />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">Quartal</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.quartal') }}</span>
                 </label>
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                   <input
@@ -127,16 +127,16 @@
                     value="Yearly"
                     class="accent-orange-500 w-4 h-4"
                   />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">Yearly</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.yearly') }}</span>
                 </label>
               </div>
             </div>
 
             <!-- Yearly: Dari Tahun / Sampai Tahun -->
             <div v-if="store.form.periodType === 'Yearly'" class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">Period</label>
+              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.period') }}</label>
               <div class="flex items-center gap-3 flex-wrap">
-                <span class="text-sm font-bold text-gray-800 dark:text-white">From</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">{{ t('strategicPlan.form.from') }}</span>
                 <USelectMenu
                   v-model="store.form.yearStart"
                   :items="store.yearOptions"
@@ -144,7 +144,7 @@
                   placeholder="Year"
                   class="w-28"
                 />
-                <span class="text-sm font-bold text-gray-800 dark:text-white">To</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">{{ t('strategicPlan.form.to') }}</span>
                 <USelectMenu
                   v-model="store.form.yearEnd"
                   :items="store.yearOptions"
@@ -178,11 +178,11 @@
             <!-- Actual -->
             <div class="form-row">
               <label class="form-label text-gray-700 dark:text-white">
-                Actual <span class="text-orange-500">*</span>
+                {{ t('strategicPlan.form.actual') }} <span class="text-orange-500">*</span>
               </label>
               <UInput
                 v-model="store.form.actual"
-                placeholder="Ex: 100"
+                :placeholder="t('strategicPlan.form.actualPlaceholder')"
                 class="w-full"
               />
             </div>
@@ -192,9 +192,9 @@
               <div class="flex items-center justify-between">
                 <label class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-2">
                   <UIcon name="i-lucide-target" class="w-4 h-4 text-primary-500" />
-                  Target KPI 5 Tahun (Tahun 1 s/d Tahun 5) <span class="text-orange-500">*</span>
+                  {{ t('strategicPlan.form.target5YearsTitle') }} <span class="text-orange-500">*</span>
                 </label>
-                <span class="text-xs text-gray-500 dark:text-gray-400">Input target 5 tahun sekaligus</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ t('strategicPlan.form.target5YearsSubtitle') }}</span>
               </div>
 
               <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
@@ -204,7 +204,7 @@
                   class="space-y-1.5 p-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-center"
                 >
                   <span class="block text-[11px] font-extrabold uppercase tracking-wide text-primary-600 dark:text-primary-400">
-                    Tahun {{ idx + 1 }}
+                    {{ t('strategicPlan.form.yearLabel', { number: idx + 1 }) }}
                   </span>
                   <span class="block text-[10px] text-gray-500 dark:text-gray-400 font-mono">({{ yr }})</span>
                   <UInput
@@ -220,7 +220,7 @@
 
             <!-- Hitungan (Read Only) -->
             <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">Calculation</label>
+              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.calculation') }}</label>
               <div class="readonly-field">
                 {{ store.computedCalculation || '-' }}
               </div>
@@ -228,9 +228,9 @@
 
             <!-- Status (Read Only) -->
             <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">Status</label>
+              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.status') }}</label>
               <div class="readonly-field">
-                {{ store.computedStatus || '-' }}
+                {{ formatStatus(store.computedStatus) }}
               </div>
             </div>
 
@@ -240,14 +240,14 @@
       <template #footer>
         <div class="flex flex-row justify-end gap-3">
           <UButton
-            label="Cancel"
+            :label="t('strategicPlan.form.cancel')"
             variant="ghost"
             color="neutral"
             class="font-semibold text-gray-700 dark:text-white"
             @click="store.closeModal"
           />
           <UButton
-            :label="store.isEditMode ? 'Update' : 'Submit'"
+            :label="store.isEditMode ? t('strategicPlan.form.update') : t('strategicPlan.form.submit')"
             variant="solid"
             color="primary"
             class="font-bold"
@@ -262,7 +262,9 @@
 import { computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useStrategicPlanStore()
 const vmgStore = useVisionMissionGoalsStore()
 
@@ -273,6 +275,15 @@ const goalOptions = computed(() => {
     value: g.id || g.goal_code
   }))
 })
+
+const formatStatus = (status: string) => {
+  if (!status) return '-'
+  const lower = status.toLowerCase()
+  if (['good', 'moderate', 'poor', 'pending', 'planned'].includes(lower)) {
+    return t(`strategicPlan.status.${lower}`)
+  }
+  return status
+}
 
 const yearsList = computed(() => {
   const start = store.form.yearStart || new Date().getFullYear()

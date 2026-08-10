@@ -69,13 +69,6 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
-    children: [
-      {
-        label: 'KPI Performance',
-        icon: 'i-lucide-users',
-        to: '/kpi-performance',
-      },
-    ]
   },
   {
     label: '4. Annual Audit Plan',
@@ -205,7 +198,12 @@ const rawItems: NavigationMenuItem[][] = [[
     to: '/action-taken-report',
   },
   {
-    label: '10. Consulting Service',
+    label: '10. KPI Performance',
+    icon: 'i-lucide-trending-up',
+    to: '/kpi-performance',
+  },
+  {
+    label: '11. Consulting Service',
     icon: 'i-lucide-users',
     to: '/consulting-service',
     children: [
@@ -222,7 +220,7 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '11. Quality Assurance Review',
+    label: '12. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [
@@ -254,7 +252,7 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: 'Analytics',
+    label: '13. Analytics',
     icon: 'i-lucide-pie-chart',
     to: '/analytics',
   },

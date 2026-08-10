@@ -6,9 +6,21 @@ import type { StrategicAuditPlan } from "~/types/audit";
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const isAddModalOpen = ref(false);
+    const isViewModalOpen = ref(false);
+    const selectedViewObjective = ref<StrategicAuditPlan | null>(null);
     const isEditMode = ref(false);
     const loading = ref(false);
     const errorMsg = ref('');
+
+    const openViewModal = (item: StrategicAuditPlan) => {
+        selectedViewObjective.value = item;
+        isViewModalOpen.value = true;
+    };
+
+    const closeViewModal = () => {
+        isViewModalOpen.value = false;
+        selectedViewObjective.value = null;
+    };
 
     const unitOptions = [
         { label: 'Percentage (%)', value: '%' },
@@ -37,6 +49,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         yearStart: currentYear,
         yearEnd: currentYear + 4,
         kpiTargets: {},
+        kpiActuals: {},
         internalAuditSO: '',
         actual: '',
         target: '',
@@ -104,11 +117,14 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             hibHig: 'HIG',
             periodType: 'Quartal',
             selectedPeriod: 'Q1',
+            yearStart: 2024,
+            yearEnd: 2028,
             kpiTargets: { 2024: '85', 2025: '90', 2026: '95', 2027: '98', 2028: '100' },
+            kpiActuals: { 2024: '87', 2025: '92', 2026: '97', 2027: '', 2028: '' },
             internalAuditSO: 'Tingkatkan efisiensi pelaksanaan audit tahunan',
             actual: '97',
-            target: '90',
-            calculation: '107.78%',
+            target: '95',
+            calculation: '102.11%',
             status: 'Good',
         },
         {
@@ -118,13 +134,16 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             kpi: 'Report Timeliness',
             unit: '%',
             hibHig: 'HIG',
+            yearStart: 2024,
+            yearEnd: 2028,
             kpiTargets: { 2024: '85', 2025: '90', 2026: '95', 2027: '98', 2028: '100' },
+            kpiActuals: { 2024: '88', 2025: '91', 2026: '98', 2027: '', 2028: '' },
             internalAuditSO: 'Percepat penyampaian LHA ke pihak manajemen',
             periodType: 'Quartal',
             selectedPeriod: 'Q1',
             actual: '98',
-            target: '90',
-            calculation: '108.89%',
+            target: '95',
+            calculation: '103.16%',
             status: 'Good',
         },
         {
@@ -134,7 +153,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             kpi: 'Client Satisfaction',
             unit: 'Score',
             hibHig: 'HIG',
+            yearStart: 2024,
+            yearEnd: 2028,
             kpiTargets: { 2024: '4.0', 2025: '4.2', 2026: '4.5', 2027: '4.8', 2028: '5.0' },
+            kpiActuals: { 2024: '4.2', 2025: '4.5', 2026: '4.7', 2027: '', 2028: '' },
             internalAuditSO: 'Tingkatkan kualitas layanan & rekomendasi audit',
             periodType: 'Yearly',
             selectedPeriod: '2026',
@@ -150,7 +172,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             kpi: 'Action Plan Closed',
             unit: '%',
             hibHig: 'HIG',
+            yearStart: 2024,
+            yearEnd: 2028,
             kpiTargets: { 2024: '80', 2025: '85', 2026: '90', 2027: '95', 2028: '100' },
+            kpiActuals: { 2024: '82', 2025: '84', 2026: '87', 2027: '', 2028: '' },
             internalAuditSO: 'Memastikan seluruh temuan audit ditindaklanjuti auditee',
             periodType: 'Quartal',
             selectedPeriod: 'Q1',
@@ -166,7 +191,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             kpi: 'Monthly Completion Rate',
             unit: '%',
             hibHig: 'HIG',
+            yearStart: 2024,
+            yearEnd: 2028,
             kpiTargets: { 2024: '80', 2025: '85', 2026: '90', 2027: '95', 2028: '100' },
+            kpiActuals: { 2024: '85', 2025: '88', 2026: '95', 2027: '', 2028: '' },
             internalAuditSO: 'Monitoring progres penyelesaian audit per bulan',
             periodType: 'Quartal',
             selectedPeriod: 'Q1',
@@ -434,6 +462,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     return {
         columns, strategicObjectives, isAddModalOpen, isEditMode, form,
+        isViewModalOpen, selectedViewObjective, openViewModal, closeViewModal,
         unitOptions, yearOptions, availablePeriods, computedCalculation, computedStatus,
         getRowActions, openModal, closeModal, handleEdit, handleDelete, handleSubmit,
         fetchStrategicPlans, loading, errorMsg

@@ -252,6 +252,12 @@ const isMfaEnabled = computed(() => {
 })
 
 const getAuthBaseUrl = () => {
+  if (import.meta.client) {
+    const hostname = window.location.hostname
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:8080/api/v1'
+    }
+  }
   let url = (config.public.authServiceBaseUrl as string) || '/api/v1'
   if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
     url = `/${url}`
