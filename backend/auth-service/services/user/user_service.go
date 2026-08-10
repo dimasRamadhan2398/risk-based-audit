@@ -94,6 +94,9 @@ func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.
 	if req.Department != nil {
 		user.Department = *req.Department
 	}
+	if req.Position != nil {
+		user.Position = *req.Position
+	}
 	if req.IsActive != nil {
 		user.IsActive = *req.IsActive
 	}
@@ -174,6 +177,7 @@ func (s *UserService) userToResponse(user *models.User) *models.UserResponse {
 		FullName:   user.FullName,
 		Phone:      user.Phone,
 		Department: user.Department,
+		Position:   user.Position,
 		IsActive:   user.IsActive,
 		Roles:      roles,
 		CreatedAt:  user.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),

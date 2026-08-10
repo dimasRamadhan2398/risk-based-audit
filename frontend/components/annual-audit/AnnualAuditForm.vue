@@ -24,13 +24,13 @@
                                     class="w-full"/>
                                 </UFormField>
 
-                                <UFormField label="Activity Code" size="lg">  
+                                <UFormField label="Activity Code" size="lg" help="Format Auto: PKAT-Tahun-CodeCategory-No.urut">  
                                     <UInput 
                                         v-model="store.form.code"
                                         required 
                                         type="text" 
-                                        placeholder="e.g. ASR-01"
-                                        class="w-full"
+                                        placeholder="e.g. PKAT-2026-ASR-001"
+                                        class="w-full font-mono text-sm"
                                     />
                                 </UFormField>
                             </div>
@@ -66,15 +66,17 @@
                                         </UFormField>
 
                                         <UFormField label="Category" size="lg">
-                                            <USelectMenu v-model="activity.category" :items="Object.values(AuditCategory)" class="w-full" />
+                                            <USelectMenu v-model="(activity.category as any)" :items="categoryOptions" class="w-full" />
                                         </UFormField>
 
-                                        <UFormField label="Department" size="lg">
+                                        <UFormField label="Involved Departments" size="lg">
                                             <USelectMenu 
-                                                v-model="activity.department" 
+                                                v-model="activity.involvedDepartments" 
                                                 :items="Object.values(AuditDepartment)" 
+                                                multiple
+                                                placeholder="Select Departments"
                                                 class="w-full" 
-                                                @update:model-value="() => { activity.riskName = ''; activity.riskLevel = ''; }"
+                                                @update:model-value="() => { if (activity.involvedDepartments && activity.involvedDepartments.length > 0) activity.department = activity.involvedDepartments[0]; }"
                                             />
                                         </UFormField>
                                     </div>
@@ -196,10 +198,10 @@
                                 <UInput v-model.number="store.form.daysPerAuditor" type="number" min="1" />
                             </UFormField>
 
-                            <UBadge class=" p-3 rounded text-center flex flex-col justify-center">
-                                <span class="text-md text-gray-500 uppercase">Total Mandays</span>
-                                <span class="text-2xl font-bold text-primary-600">{{ store.totalMandays }}</span>
-                                <span class="text-md text-gray-400">= {{ store.form.auditorCount }} person × {{ store.form.daysPerAuditor }} day</span>
+                            <UBadge variant="outline" color="primary" class="p-3 rounded-lg text-center flex flex-col justify-center bg-transparent border border-primary-500/50 dark:border-primary-400/50">
+                                <span class="text-md text-gray-500 dark:text-gray-400 uppercase">Total Mandays</span>
+                                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ store.totalMandays }}</span>
+                                <span class="text-md text-gray-400 dark:text-gray-500">= {{ store.form.auditorCount }} person × {{ store.form.daysPerAuditor }} day</span>
                             </UBadge>
                             </div>
 
@@ -330,6 +332,8 @@ import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment } from '~/types/a
 const store = useAnnualPlanStore()
 const riskStore = useRiskProfileStore()
 const auditUniverseStore = useAuditUniverseStore()
+
+const categoryOptions = Object.values(AuditCategory) as AuditCategory[]
 
 riskStore.fetchRisks()
 

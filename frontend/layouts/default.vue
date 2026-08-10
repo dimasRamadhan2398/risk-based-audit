@@ -179,30 +179,40 @@ const rawItems: NavigationMenuItem[][] = [[
         label: 'Import Executive Summary Document',
         icon: 'i-lucide-upload',
         to: '/audit-result-report/executive-summary-upload',
-      }
-    ]
-  },
-  {
-    label: '9. Executive Summary Report',
-    icon: 'i-lucide-file-text',
-    to: '/executive-summary',
-    children: [
-      {
-        label: 'Executive Summary Report Kompilasi',
-        icon: 'i-lucide-presentation',
-        to: '/executive-summary',
       },
       {
-        label: 'Import Executive Summary Report',
-        icon: 'i-lucide-upload',
-        to: '/executive-summary/upload',
+        label: 'Client Satisfaction Survey',
+        icon: 'i-lucide-smile',
+        to: '/audit-result-report/satisfaction-survey',
       }
     ]
   },
+  // {
+  //   label: '9. Executive Summary Report',
+  //   icon: 'i-lucide-file-text',
+  //   to: '/executive-summary',
+  //   children: [
+  //     {
+  //       label: 'Executive Summary Report Kompilasi',
+  //       icon: 'i-lucide-presentation',
+  //       to: '/executive-summary',
+  //     },
+  //     {
+  //       label: 'Import Executive Summary Report',
+  //       icon: 'i-lucide-upload',
+  //       to: '/executive-summary/upload',
+  //     }
+  //   ]
+  // },
   {
-    label: '10. Action Taken Report',
+    label: '9. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
+  },
+  {
+    label: '10. KPI Performance',
+    icon: 'i-lucide-trending-up',
+    to: '/kpi-performance',
   },
   {
     label: '11. Consulting Service',
@@ -254,7 +264,7 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: 'Analytics',
+    label: '13. Analytics',
     icon: 'i-lucide-pie-chart',
     to: '/analytics',
   },

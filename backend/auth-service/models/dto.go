@@ -60,6 +60,7 @@ type CreateUserRequest struct {
 	FullName   string   `json:"full_name" validate:"max=100"`
 	Phone      string   `json:"phone" validate:"max=20"`
 	Department string   `json:"department" validate:"max=100"`
+	Position   string   `json:"position" validate:"max=100"`
 	Roles      []string `json:"roles"`
 }
 
@@ -68,6 +69,7 @@ type UpdateUserRequest struct {
 	FullName   *string  `json:"full_name" validate:"omitempty,max=100"`
 	Phone      *string  `json:"phone" validate:"omitempty,max=20"`
 	Department *string  `json:"department" validate:"omitempty,max=100"`
+	Position   *string  `json:"position" validate:"omitempty,max=100"`
 	IsActive   *bool    `json:"is_active"`
 }
 
@@ -88,6 +90,7 @@ type UserResponse struct {
 	FullName   string  `json:"full_name"`
 	Phone      string  `json:"phone"`
 	Department string  `json:"department"`
+	Position   string  `json:"position"`
 	IsActive   bool    `json:"is_active"`
 	Roles      []string `json:"roles"`
 	CreatedAt  string  `json:"created_at"`

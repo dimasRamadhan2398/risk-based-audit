@@ -15,7 +15,7 @@
         <template #department-cell="{ row }">
           <div class="flex gap-1 flex-wrap">
             <UBadge 
-              v-for="dept in Array.from(new Set(row.original.activities.map(a => a.department)))" 
+              v-for="dept in getRowDepartments(row.original)" 
               :key="dept"
               color="neutral"
               variant="soft"
@@ -111,4 +111,25 @@ import { useAnnualPlanStore } from '~/stores/annual-audit'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
+
+const getRowDepartments = (plan: any): string[] => {
+  const depts = new Set<string>()
+  if (plan.department?.name) depts.add(plan.department.name)
+  if (plan.department && typeof plan.department === 'string') depts.add(plan.department)
+  
+  if (Array.isArray(plan.activities)) {
+    plan.activities.forEach((act: any) => {
+      if (act.department) depts.add(typeof act.department === 'string' ? act.department : act.department.name)
+      const inv = act.involvedDepartments || act.involved_departments
+      if (Array.isArray(inv)) {
+        inv.forEach((d: any) => {
+          if (typeof d === 'string') depts.add(d)
+          else if (d?.name) depts.add(d.name)
+          else if (d?.code) depts.add(d.code)
+        })
+      }
+    })
+  }
+  return Array.from(depts).filter(Boolean)
+}
 </script>

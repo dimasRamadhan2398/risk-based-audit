@@ -16,18 +16,18 @@
     >
       <div class="flex flex-col items-center justify-center text-center py-10 px-4 space-y-5">
         <h3 class="text-xl font-bold text-[var(--text-main)]">
-          Visi, Misi dan Goals
+          {{ t('strategicPlan.vmg.title') }}
         </h3>
         <div class="space-y-1">
-          <h4 class="text-lg font-semibold text-gray-800">
-            Visi, Misi dan Goals belum ditambahkan
+          <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+            {{ t('strategicPlan.vmg.emptyTitle') }}
           </h4>
           <p class="text-sm text-[var(--text-muted)] max-w-md">
-            Lengkapi bagian ini sekarang untuk memperjelas arah strategis manajemen audit Anda.
+            {{ t('strategicPlan.vmg.emptySubtitle') }}
           </p>
         </div>
         <UButton
-          label="Tambah Visi dan Misi"
+          :label="t('strategicPlan.vmg.addVmg')"
           icon="i-lucide-plus"
           color="primary"
           variant="solid"
@@ -45,7 +45,7 @@
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-[var(--text-main)]">
-            Visi, Misi dan Goals
+            {{ t('strategicPlan.vmg.title') }}
           </h3>
           <UButton
             icon="i-lucide-pencil"
@@ -53,7 +53,7 @@
             variant="ghost"
             size="sm"
             @click="store.openModal"
-            aria-label="Edit Visi Misi"
+            :aria-label="t('strategicPlan.vmg.editVmg')"
           />
         </div>
       </template>
@@ -62,7 +62,7 @@
         <!-- Visi Section -->
         <div class="space-y-2">
           <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)]">
-            Visi
+            {{ t('strategicPlan.vmg.vision') }}
           </h4>
           <div class="space-y-2 pl-4 border-l-4 border-orange-500">
             <p
@@ -78,7 +78,7 @@
         <!-- Misi Section -->
         <div class="space-y-2">
           <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)]">
-            Misi
+            {{ t('strategicPlan.vmg.mission') }}
           </h4>
           <div class="space-y-2 pl-1">
             <div
@@ -95,10 +95,10 @@
         <!-- Goals Section -->
         <div class="space-y-2 pt-4 border-t border-[var(--border-main)]">
           <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)]">
-            Goals Tahunan
+            {{ t('strategicPlan.vmg.goals') }}
           </h4>
           <p v-if="parsedPeriod" class="text-sm font-semibold text-[var(--text-main)]">
-            Periode Target: {{ parsedPeriod.start }} s/d {{ parsedPeriod.end }} ({{ parsedPeriod.duration }} Tahun)
+            {{ t('strategicPlan.vmg.targetPeriod', { start: parsedPeriod.start, end: parsedPeriod.end, duration: parsedPeriod.duration }) }}
           </p>
           <div v-if="store.activeVmg.goals && store.activeVmg.goals.length > 0" class="mt-3 space-y-2 pl-1 border-t border-dashed border-[var(--border-main)] pt-3">
             <div
@@ -120,7 +120,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useVisionMissionGoalsStore()
 
 // Clean leading numbers like "1. ", "2. " from seeded missions

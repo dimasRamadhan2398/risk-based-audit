@@ -221,6 +221,7 @@ func autoMigrate(db *gorm.DB) error {
 		&models.Department{},
 		&models.RiskRegister{},
 		&models.AnnualAuditPlan{},
+		&models.AnnualAuditPlanActivity{},
 		&models.AuditScope{},
 		&models.Control{},
 		&models.ControlAssessment{},
@@ -238,11 +239,15 @@ func autoMigrate(db *gorm.DB) error {
 		&models.ConsultingService{},
 		&models.VisionMissionGoals{},
 		&models.VmgGoal{},
+		&models.DataSourceConnection{},
+		&models.DataSourceActivityLog{},
 	)
 }
 
 func dropAllTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
+		&models.DataSourceActivityLog{},
+		&models.DataSourceConnection{},
 		&models.VmgGoal{},
 		&models.VisionMissionGoals{},
 		&models.QAReport{},

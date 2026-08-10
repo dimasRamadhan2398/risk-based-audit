@@ -4,12 +4,11 @@
       <UDashboardSidebar resizeable>
         <template #header>
           <div class="px-4 py-4">
-            <h2 class="text-lg font-semibold text-gray-900">Account</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('settings.sidebar.accountSettings') }}</h2>
           </div>
         </template>
 
         <template #default>
-          <!-- <UDashboardSidebarLinks :links="links" /> -->
           <UNavigationMenu
             color="primary"
             :items="links"
@@ -20,14 +19,20 @@
         </template>
 
         <template #footer>
-          <div class="px-4 py-4 border-t border-gray-200">
+          <div class="px-4 py-4 border-t border-gray-200 dark:border-gray-800">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                <span class="text-sm font-semibold text-primary-700">U</span>
+              <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0">
+                <span class="text-sm font-semibold text-primary-700 dark:text-primary-400">
+                  {{ userInitial }}
+                </span>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 truncate">User Name</p>
-                <p class="text-md text-gray-500 truncate">user@example.com</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {{ authStore.user?.fullName || authStore.user?.username || 'User' }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {{ authStore.user?.email || 'user@example.com' }}
+                </p>
               </div>
             </div>
           </div>
@@ -36,185 +41,192 @@
 
       <UDashboardPanel>
         <template #header>
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h1 class="text-xl font-semibold text-gray-900">{{ currentPageTitle }}</h1>
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <UButton
+                icon="i-lucide-arrow-left"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                class="rounded-xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800"
+                @click="goBack"
+              >
+                {{ t('common.back') }}
+              </UButton>
+              <div class="h-4 w-px bg-gray-200 dark:bg-gray-700"></div>
+              <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{ currentPageTitle }}</h1>
+            </div>
           </div>
         </template>
+
         <template #body>
-        <div class="p-6">
-          <!-- My Profile Section -->
-          <div v-if="activeTab === 'profile'">
-            <SettingsProfile />
-          </div>
+          <div class="p-6">
+            <!-- My Profile Section -->
+            <div v-if="activeTab === 'profile'">
+              <SettingsProfile />
+            </div>
 
-          <!-- Settings Section -->
-          <div v-if="activeTab === 'settings'">
-            <SettingsGeneral />
-          </div>
+            <!-- Settings Section -->
+            <div v-if="activeTab === 'settings'">
+              <SettingsGeneral />
+            </div>
 
-          <!-- Two-Factor Authentication (MFA) Section -->
-          <div v-if="activeTab === 'mfa'">
-            <SettingsMfa />
-          </div>
+            <!-- Two-Factor Authentication (MFA) Section -->
+            <div v-if="activeTab === 'mfa'">
+              <SettingsMfa />
+            </div>
 
-          <!-- Activity Section -->
-          <div v-if="activeTab === 'activity'">
-            <SettingsActivity />
-          </div>
+            <!-- Activity Section -->
+            <div v-if="activeTab === 'activity'">
+              <SettingsActivity />
+            </div>
 
-          <!-- Permissions Section -->
-          <div v-if="activeTab === 'permissions'">
-            <SettingsPermission />
-          </div>
+            <!-- Permissions Section -->
+            <div v-if="activeTab === 'permissions'">
+              <SettingsPermission />
+            </div>
 
-          <!-- FAQ Section -->
-          <div v-if="activeTab === 'faq'">
-            <SettingsFaq />
+            <!-- Data Sources Section -->
+            <div v-if="activeTab === 'datasource'">
+              <SettingsDataSource />
+            </div>
+
+            <!-- FAQ Section -->
+            <div v-if="activeTab === 'faq'">
+              <SettingsFaq />
+            </div>
           </div>
-        </div>
-      </template>
+        </template>
       </UDashboardPanel>
     </UDashboardGroup>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui';
+import type { NavigationMenuItem } from '@nuxt/ui'
+import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
-  middleware: "auth",
-  layout: "dashboard",
+  middleware: 'auth',
+  layout: 'dashboard',
   layoutTransition: {
-    name: "fade",
-    mode: "in-out",
-    type: "animation",
+    name: 'fade',
+    mode: 'in-out',
+    type: 'animation',
     duration: 500,
     appear: true,
   },
-});
+})
 
-const activeTab = ref("profile");
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+const { t } = useI18n()
+
+const validTabs = ['profile', 'settings', 'mfa', 'activity', 'permissions', 'datasource', 'faq']
+const initialTab = computed(() => {
+  const tabQuery = route.query.tab as string
+  return validTabs.includes(tabQuery) ? tabQuery : 'profile'
+})
+
+const activeTab = ref(initialTab.value)
+
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab && typeof newTab === 'string' && validTabs.includes(newTab)) {
+      activeTab.value = newTab
+    }
+  }
+)
+
+const selectTab = (tab: string) => {
+  activeTab.value = tab
+  router.replace({ query: { ...route.query, tab } })
+}
+
+const goBack = () => {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
+
+const userInitial = computed(() => {
+  const name = authStore.user?.fullName || authStore.user?.username || 'U'
+  return name.charAt(0).toUpperCase()
+})
 
 const links = computed<NavigationMenuItem[]>(() => [
   {
-    label: "My Profile",
-    icon: "i-lucide-user",
-    slot: "profile" as const,
-    onClick: () => activeTab.value = "profile",
-    active: activeTab.value === "profile",
+    label: t('settings.sidebar.myProfile'),
+    icon: 'i-lucide-user',
+    slot: 'profile' as const,
+    onSelect: () => selectTab('profile'),
+    onClick: () => selectTab('profile'),
+    active: activeTab.value === 'profile',
   },
   {
-    label: "Settings",
-    icon: "i-lucide-settings",
-    slot: "settings" as const,
-    onClick: () => activeTab.value = "settings",
-    active: activeTab.value === "settings",
+    label: t('settings.sidebar.settings'),
+    icon: 'i-lucide-settings',
+    slot: 'settings' as const,
+    onSelect: () => selectTab('settings'),
+    onClick: () => selectTab('settings'),
+    active: activeTab.value === 'settings',
   },
   {
-    label: "Security (MFA)",
-    icon: "i-lucide-shield-check",
-    slot: "mfa" as const,
-    onClick: () => activeTab.value = "mfa",
-    active: activeTab.value === "mfa",
+    label: t('settings.sidebar.securityMfa'),
+    icon: 'i-lucide-shield-check',
+    slot: 'mfa' as const,
+    onSelect: () => selectTab('mfa'),
+    onClick: () => selectTab('mfa'),
+    active: activeTab.value === 'mfa',
   },
   {
-    label: "Activity",
-    icon: "i-lucide-clock",
-    slot: "activity" as const,
-    onClick: () => activeTab.value = "activity",
-    active: activeTab.value === "activity",
+    label: t('settings.sidebar.activity'),
+    icon: 'i-lucide-clock',
+    slot: 'activity' as const,
+    onSelect: () => selectTab('activity'),
+    onClick: () => selectTab('activity'),
+    active: activeTab.value === 'activity',
   },
   {
-    label: "Permissions",
-    icon: "i-lucide-shield",
-    slot: "permissions" as const,
-    onClick: () => activeTab.value = "permissions",
-    active: activeTab.value === "permissions",
+    label: t('settings.sidebar.permissions'),
+    icon: 'i-lucide-shield',
+    slot: 'permissions' as const,
+    onSelect: () => selectTab('permissions'),
+    onClick: () => selectTab('permissions'),
+    active: activeTab.value === 'permissions',
   },
   {
-    label: "FAQ",
-    icon: "i-lucide-help-circle",
-    slot: "faq" as const,
-    onClick: () => activeTab.value = "faq",
-    active: activeTab.value === "faq",
+    label: t('settings.sidebar.dataSources'),
+    icon: 'i-lucide-database',
+    slot: 'datasource' as const,
+    onSelect: () => selectTab('datasource'),
+    onClick: () => selectTab('datasource'),
+    active: activeTab.value === 'datasource',
   },
-]);
+  {
+    label: t('settings.sidebar.faq'),
+    icon: 'i-lucide-help-circle',
+    slot: 'faq' as const,
+    onSelect: () => selectTab('faq'),
+    onClick: () => selectTab('faq'),
+    active: activeTab.value === 'faq',
+  },
+])
 
 const currentPageTitle = computed(() => {
-  const titles = {
-    profile: "My Profile",
-    settings: "Settings",
-    mfa: "Two-Factor Authentication",
-    activity: "Activity",
-    permissions: "Permissions",
-    faq: "FAQ",
-  };
-  return titles[activeTab.value as keyof typeof titles] || "Settings";
-});
-
-const settings = ref({
-  emailNotifications: true,
-  pushNotifications: false,
-  darkMode: false,
-  language: "en",
-  timezone: "asia/jakarta",
-});
-
-const activities = [
-  {
-    id: 1,
-    title: "Created new risk profile",
-    description: "Added operational risk for IT department",
-    icon: "i-lucide-plus-circle",
-    time: "2 hours ago",
-  },
-  {
-    id: 2,
-    title: "Updated audit plan",
-    description: "Modified Q4 2025 audit schedule",
-    icon: "i-lucide-edit",
-    time: "5 hours ago",
-  },
-  {
-    id: 3,
-    title: "Completed review",
-    description: "Finished review of financial audit findings",
-    icon: "i-lucide-check-circle",
-    time: "1 day ago",
-  },
-  {
-    id: 4,
-    title: "Logged in",
-    description: "Login from Jakarta, Indonesia",
-    icon: "i-lucide-log-in",
-    time: "2 days ago",
-  },
-];
-
-const permissions = [
-  {
-    module: "Risk Management",
-    description: "Create, edit, and delete risk profiles",
-    icon: "i-lucide-shield-alert",
-    access: "Full",
-  },
-  {
-    module: "Audit Planning",
-    description: "Create and manage audit plans",
-    icon: "i-lucide-calendar",
-    access: "Full",
-  },
-  {
-    module: "Reports",
-    description: "View and generate reports",
-    icon: "i-lucide-file-text",
-    access: "Full",
-  },
-  {
-    module: "User Management",
-    description: "Manage user accounts and roles",
-    icon: "i-lucide-users",
-    access: "Read Only",
-  },
-];
+  const titles: Record<string, string> = {
+    profile: t('settings.titles.profile'),
+    settings: t('settings.titles.settings'),
+    mfa: t('settings.titles.mfa'),
+    activity: t('settings.titles.activity'),
+    permissions: t('settings.titles.permissions'),
+    datasource: t('settings.titles.datasource'),
+    faq: t('settings.titles.faq'),
+  }
+  return titles[activeTab.value] || t('settings.titles.settings')
+})
 </script>
