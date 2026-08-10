@@ -34,11 +34,11 @@ import GuidelineForm from "~/components/audit-charter/GuidelineForm.vue";
 import SopList from "~/components/audit-charter/SopList.vue";
 import SopForm from "~/components/audit-charter/SopForm.vue";
 
-const activeTab = ref(0)
+const activeTab = ref('charter')
 
 const tabs = [
-  { label: 'Audit Charter', key: 'charter', icon: 'i-lucide-file-text' },
-  { label: 'Pedoman Audit', key: 'guideline', icon: 'i-lucide-book-open' },
-  { label: 'Petunjuk Teknis / SOP', key: 'sop', icon: 'i-lucide-file-check' }
+  {label: 'Audit Charter', key: 'charter', value: 'charter', icon: 'i-lucide-file-text'},
+  {label: 'Pedoman Audit', key: 'guideline', value: 'guideline', icon: 'i-lucide-book-open'},
+  {label: 'Petunjuk Teknis / SOP', key: 'sop', value: 'sop', icon: 'i-lucide-file-check'}
 ]
 </script>

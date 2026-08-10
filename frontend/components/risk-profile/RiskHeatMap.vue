@@ -216,7 +216,7 @@
 
     <!-- Risk List Panel -->
     <UCard :ui="{ body: { padding: 'p-0' } }" class="overflow-hidden border-gray-200 dark:border-gray-800">
-      <UTabs v-model="activeTabIndex" :items="tabItems" class="w-full">
+      <UTabs v-model="activeRiskTab" :items="tabItems" class="w-full">
         <template #content="{ item }">
           <div class="p-6 max-h-[600px] overflow-y-auto">
             
@@ -549,7 +549,7 @@ const toast = useToast()
 
 // Local state for UI
 const dragOverCell = ref(null)
-const activeTabIndex = ref(0)
+const activeRiskTab = ref('priority')
 const isAddModalOpen = ref(false)
 
 // Form state for new risk
@@ -691,16 +691,19 @@ const branchOptions = computed(() => ['All Branches', ...store.branches])
 const tabItems = computed(() => [
   {
     key: 'priority',
+    value: 'priority',
     label: `Priority Risks (${priorityRisks.value.length})`,
     icon: 'i-heroicons-fire'
   },
   {
     key: 'all',
+    value: 'all',
     label: `All Risks (${totalRisks.value})`,
     icon: 'i-heroicons-list-bullet'
   },
   {
     key: 'progress',
+    value: 'progress',
     label: 'Risk Progress Table',
     icon: 'i-heroicons-arrow-trending-up'
   }

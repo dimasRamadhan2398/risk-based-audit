@@ -1,8 +1,23 @@
 <template>
   <div>
+    <UAlert
+      v-if="store.errorMsg"
+      color="error"
+      variant="soft"
+      icon="i-lucide-circle-alert"
+      title="Gagal memuat Audit Charter"
+      :description="store.errorMsg"
+      class="mb-4"
+    />
+
+    <div v-if="store.loading" class="space-y-3 py-6">
+      <USkeleton class="h-24 w-full" />
+      <USkeleton class="h-48 w-full" />
+    </div>
+
     <!-- Empty State when there are no charters at all -->
     <div
-      v-if="store.charters.length === 0"
+      v-else-if="store.charters.length === 0"
       class="flex flex-col items-center justify-center p-12 bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl text-center space-y-6 shadow-sm my-4"
     >
       <div class="w-16 h-16 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary-500">
@@ -178,13 +193,18 @@
                 v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
                 :to="row.original.fileUrl"
                 target="_blank"
-                icon="i-lucide-download"
+                icon="i-lucide-external-link"
                 color="primary"
-                size="md"
+                variant="link"
+                size="sm"
+                class="p-0 font-bold"
               >
-                {{ row.original.fileName }}
+                View Dokumen
               </UButton>
-              <span v-else>{{ row.original.fileName }}</span>
+
+              <span v-else class="text-gray-400 italic">
+                No File
+              </span>
             </template>
             <template #actions-cell="{ row }">
               <div class="flex justify-end gap-2">

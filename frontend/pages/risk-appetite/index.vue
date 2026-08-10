@@ -383,7 +383,7 @@ const profileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()
 const appetiteStore = useRiskAppetiteStore()
 
-const activeTab = ref(0)
+const activeTab = ref('overview')
 const complianceFilter = ref('All Risks')
 
 const isModalOpen = ref(false)
@@ -397,9 +397,9 @@ const form = ref({
 })
 
 const tabs = [
-  { label: 'RAS Guidelines', key: 'overview' as const, icon: 'i-heroicons-information-circle' },
-  { label: 'Risk Compliance', key: 'compliance' as const, icon: 'i-heroicons-shield-check' },
-  { label: 'Appetite Statements', key: 'statements' as const, icon: 'i-heroicons-clipboard-document-list' }
+  {label: 'RAS Guidelines', key: 'overview' as const, value: 'overview', icon: 'i-heroicons-information-circle'},
+  {label: 'Risk Compliance', key: 'compliance' as const, value: 'compliance', icon: 'i-heroicons-shield-check'},
+  {label: 'Appetite Statements', key: 'statements' as const, value: 'statements', icon: 'i-heroicons-clipboard-document-list'}
 ]
 
 const complianceColumns = [

@@ -79,11 +79,11 @@
           <span 
             class="w-2.5 h-2.5 rounded-full inline-block"
             :class="store.getStatusColor(row.original.status)"
-          />
+          ></span>
         </template>
 
         <template #actions-cell="{ row }">
-          <div class="flex">
+          <div class="flex items-center">
             <UButton
               label="View"
               color="primary"
@@ -91,13 +91,25 @@
               size="lg"
               @click="store.openViewModal(row.original)"
             />
-            <h4> | </h4>
+
+            <span class="text-gray-300">|</span>
+
             <UButton
               label="Edit"
               color="primary"
               variant="ghost"
               size="lg"
               @click="store.handleEdit(row.original)"
+            />
+
+            <span class="text-gray-300">|</span>
+
+            <UButton
+              label="Delete"
+              color="error"
+              variant="ghost"
+              size="lg"
+              @click="store.handleDelete(row.original.id)"
             />
           </div>
         </template>
