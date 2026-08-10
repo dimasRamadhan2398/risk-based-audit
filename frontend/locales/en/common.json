@@ -416,15 +416,16 @@
         "question": "What are the different risk levels?",
         "answer": "Risk levels are calculated based on impact and probability scores: Low (1-3), Low to Moderate (4-6), Moderate (7-9), Moderate to High (10-12), and High (13-15)."
       }
-    },
-    "strategicPlan": {
+    }
+  },
+  "strategicPlan": {
       "title": "Strategic Plan Internal Audit",
       "subtitle": "Strategic Planning for Risk-Based Audit",
       "addObjective": "Add Strategic Objective",
       "errorTitle": "Error",
       "vmg": {
-        "title": "Vision, Mission and Goals",
-        "emptyTitle": "Vision, Mission and Goals have not been added",
+        "title": "Vision, Mission, Goals and Strategic Objective",
+        "emptyTitle": "Vision, Mission, Goals and Strategic Objective have not been added",
         "emptySubtitle": "Complete this section now to clarify your audit management strategic direction.",
         "addVmg": "Add Vision and Mission",
         "editVmg": "Edit Vision and Mission",
@@ -506,8 +507,10 @@
         "to": "To",
         "actual": "Actual",
         "actualPlaceholder": "Ex: 100",
-        "target5YearsTitle": "5-Year KPI Target (Year 1 to Year 5)",
-        "target5YearsSubtitle": "Input 5-year targets at once",
+        "target5YearsTitle": "KPI Target & Realization Matrix",
+        "target5YearsSubtitle": "Input target & actual realization for each period",
+        "targetMatrixTitle": "KPI Target & Realization Matrix ({start} - {end})",
+        "targetMatrixSubtitle": "Input target & actual realization per year ({duration} Years)",
         "yearLabel": "Year {number}",
         "calculation": "Calculation",
         "status": "Status",
@@ -543,5 +546,4 @@
         "planned": "Planned"
       }
     }
-  }
 }

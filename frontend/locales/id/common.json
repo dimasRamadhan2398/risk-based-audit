@@ -413,15 +413,16 @@
         "question": "Apa saja tingkatan tingkat risiko yang ada?",
         "answer": "Tingkat risiko dihitung berdasarkan skor dampak dan probabilitas: Rendah (1-3), Rendah ke Sedang (4-6), Sedang (7-9), Sedang ke Tinggi (10-12), dan Tinggi (13-15)."
       }
-    },
-    "strategicPlan": {
+    }
+  },
+  "strategicPlan": {
       "title": "Rencana Strategis Audit Internal",
       "subtitle": "Perencanaan Strategis untuk Audit Berbasis Risiko",
-      "addObjective": "Tambah Sasaran Strategis",
+      "addObjective": "Tambah Strategic Objective",
       "errorTitle": "Gagal",
       "vmg": {
-        "title": "Visi, Misi dan Goals",
-        "emptyTitle": "Visi, Misi dan Goals belum ditambahkan",
+        "title": "Visi, Misi, Goals dan Strategic Objective",
+        "emptyTitle": "Visi, Misi, Goals dan Strategic Objective belum ditambahkan",
         "emptySubtitle": "Lengkapi bagian ini sekarang untuk memperjelas arah strategis manajemen audit Anda.",
         "addVmg": "Tambah Visi dan Misi",
         "editVmg": "Ubah Visi Misi",
@@ -449,12 +450,12 @@
         "validationError": "Kesalahan Validasi"
       },
       "filters": {
-        "searchPlaceholder": "Cari Sasaran atau KPI...",
+        "searchPlaceholder": "Cari Strategic Objective atau KPI...",
         "periodType": "Jenis Periode",
         "selectYear": "Pilih Tahun",
         "selectQuartal": "Pilih Kuartal",
         "reset": "Reset Filter",
-        "allObjectives": "Semua Sasaran Strategis",
+        "allObjectives": "Semua Strategic Objective",
         "allTypes": "Semua Jenis",
         "yearly": "Tahunan",
         "quartal": "Kuartal",
@@ -462,8 +463,8 @@
         "allQuarters": "Semua Kuartal"
       },
       "columns": {
-        "code": "ID Sasaran",
-        "objective": "Sasaran Strategis",
+        "code": "ID Strategic Objective",
+        "objective": "Strategic Objective",
         "kpi": "Nama KPI",
         "unit": "Satuan",
         "period": "Periode",
@@ -484,9 +485,9 @@
         "title": "Informasi Rencana Strategis",
         "corporateGoal": "Goal Korporat",
         "selectCorporateGoal": "Pilih Goal Korporat",
-        "code": "ID Sasaran",
+        "code": "ID Strategic Objective",
         "codePlaceholder": "Contoh: SO-IA01",
-        "objective": "Sasaran Strategis",
+        "objective": "Strategic Objective",
         "objectivePlaceholder": "Contoh: Meningkatkan Efisiensi Operasional",
         "kpi": "KPI",
         "kpiPlaceholder": "Contoh: Biaya Operasional Pendapatan",
@@ -503,8 +504,10 @@
         "to": "Sampai",
         "actual": "Realisasi",
         "actualPlaceholder": "Contoh: 100",
-        "target5YearsTitle": "Target KPI 5 Tahun (Tahun 1 s/d Tahun 5)",
-        "target5YearsSubtitle": "Input target 5 tahun sekaligus",
+        "target5YearsTitle": "Matriks Target & Realisasi KPI",
+        "target5YearsSubtitle": "Input target & realisasi untuk setiap periode",
+        "targetMatrixTitle": "Matriks Target & Realisasi KPI ({start} - {end})",
+        "targetMatrixSubtitle": "Input target & realisasi per tahun ({duration} Tahun)",
         "yearLabel": "Tahun {number}",
         "calculation": "Hitungan",
         "status": "Keterangan",
@@ -513,8 +516,8 @@
         "update": "Perbarui"
       },
       "viewModal": {
-        "title": "Detail Sasaran Strategis",
-        "iaObjective": "Sasaran Strategis Audit Internal:",
+        "title": "Detail Strategic Objective",
+        "iaObjective": "Strategic Objective Audit Internal:",
         "overallStatus": "Status Keseluruhan",
         "kpiName": "Nama KPI",
         "unitAndTargetPeriod": "Satuan & Periode Target",
@@ -529,7 +532,7 @@
         "current": "Saat Ini",
         "quarterlyBreakdownTitle": "Rincian Eksekusi Kuartalan (Tampilan Kuartal)",
         "selected": "Dipilih",
-        "footerNote": "Tampilan Matriks Sasaran Strategis (Hanya Baca)",
+        "footerNote": "Tampilan Matriks Strategic Objective (Hanya Baca)",
         "close": "Tutup"
       },
       "status": {
@@ -540,5 +543,4 @@
         "planned": "Direncanakan"
       }
     }
-  }
 }

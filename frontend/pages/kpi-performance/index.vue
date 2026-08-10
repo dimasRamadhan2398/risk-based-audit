@@ -15,7 +15,7 @@ const uploadStore = useUploadPerformanceReportStore()
 
 const year = ref('2026')
 const selectedPeriod = ref('Semua')
-const yearOptions = ['2024', '2025', '2026', '2027', '2028']
+const yearOptions = ['2024', '2025', '2026', '2027', '2028', '2029', '2030']
 const periodOptions = ['Semua', 'Q1', 'Q2', 'Q3', 'Q4', 'Tahunan']
 
 const isQuestionnaireOpen = ref(false)

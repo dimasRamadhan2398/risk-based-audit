@@ -309,8 +309,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const resetForm = () => {
         const startY = currentYear;
         const initialTargets: Record<string, string> = {};
+        const initialActuals: Record<string, string> = {};
         for (let i = 0; i < 5; i++) {
             initialTargets[startY + i] = '';
+            initialActuals[startY + i] = '';
         }
         form.value = {
             code: '',
@@ -324,6 +326,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             yearStart: startY,
             yearEnd: startY + 4,
             kpiTargets: initialTargets,
+            kpiActuals: initialActuals,
             internalAuditSO: '',
             actual: '',
             target: '',
@@ -348,10 +351,14 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         isEditMode.value = true;
         const startY = item.yearStart || currentYear;
         const targets: Record<string, string> = { ...(item.kpiTargets || {}) };
+        const actuals: Record<string, string> = { ...(item.kpiActuals || {}) };
         for (let i = 0; i < 5; i++) {
             const yr = String(startY + i);
             if (targets[yr] === undefined || targets[yr] === null) {
                 targets[yr] = item.target || '';
+            }
+            if (actuals[yr] === undefined || actuals[yr] === null) {
+                actuals[yr] = item.actual || '';
             }
         }
         form.value = {
@@ -359,6 +366,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             yearStart: startY,
             yearEnd: startY + 4,
             kpiTargets: targets,
+            kpiActuals: actuals,
         };
         isAddModalOpen.value = true;
     };
@@ -389,17 +397,28 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         
         const startY = form.value.yearStart || currentYear;
         if (!form.value.kpiTargets) form.value.kpiTargets = {};
+        if (!form.value.kpiActuals) form.value.kpiActuals = {};
         const targets = form.value.kpiTargets as any;
+        const actuals = form.value.kpiActuals as any;
         for (let i = 0; i < 5; i++) {
             const yr = String(startY + i);
             if (targets[yr] === undefined) {
                 targets[yr] = '';
             }
+            if (actuals[yr] === undefined) {
+                actuals[yr] = '';
+            }
         }
         
-        const currentTarget = targets[form.value.selectedPeriod || String(startY)] || targets[String(startY)] || form.value.target;
-        if (currentTarget) {
+        const selPeriod = form.value.selectedPeriod || String(startY);
+        const currentTarget = targets[selPeriod] || targets[String(startY)] || form.value.target;
+        const currentActual = actuals[selPeriod] || actuals[String(startY)] || form.value.actual;
+        
+        if (currentTarget !== undefined && currentTarget !== '') {
             form.value.target = String(currentTarget);
+        }
+        if (currentActual !== undefined && currentActual !== '') {
+            form.value.actual = String(currentActual);
         }
         form.value.calculation = computedCalculation.value;
         form.value.status = computedStatus.value;

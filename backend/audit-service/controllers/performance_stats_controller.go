@@ -542,7 +542,7 @@ func (c *PerformanceStatsController) GetKpiBreakdown(ctx *gin.Context) {
 	})
 }
 
-// ExportPdfReport renders a rich, colorful, executive PDF report template for KPI Performance
+// ExportPdfReport renders an executive PDF report matching the app design system
 func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
 	yearStr := ctx.DefaultQuery("year", "2026")
 	year, err := strconv.Atoi(yearStr)
@@ -556,300 +556,254 @@ func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KPI Performance Report - Year %d</title>
+    <title>KPI Performance Report — %d</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @page {
-            size: A4 portrait;
-            margin: 1.2cm;
+        /* ── Design tokens from tailwind.config.js / app.config.ts ── */
+        :root {
+            --primary-50:  #FFF5E6; --primary-100: #FFEBCC; --primary-200: #FFD099;
+            --primary-500: #FF5C02; --primary-600: #DB4101; --primary-700: #B72B01;
+            --primary-800: #931900; --primary-900: #7A0D00;
+            --secondary-100: #E1CCFF; --secondary-500: #4D00FF;
+            --secondary-700: #2C00B7; --secondary-900: #15007A;
+            --success-100: #F4FDCD; --success-200: #E6FB9C;
+            --success-600: #7EBE09; --success-700: #649F06; --success-800: #4C8004;
+            --warning-100: #FEF7CC; --warning-400: #FBD440;
+            --warning-600: #D69F01; --warning-700: #B38101;
+            --error-100: #FEE6D8; --error-600: #D82E39; --error-700: #B51F37;
+            --neutral-200: #E8E8E8; --neutral-300: #D2D2D2; --neutral-400: #BBBBBB;
+            --neutral-500: #A4A4A4; --neutral-600: #777777;
+            --neutral-700: #606060; --neutral-800: #4A4A4A; --neutral-900: #333333;
+            --bg-main: #ffffff; --bg-surface: #FAFAFA;
+            --border-main: #D2D2D2; --text-main: #333333; --text-muted: #777777;
         }
+        @page { size: A4 portrait; margin: 1.2cm; }
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #1e293b;
-            background-color: #ffffff;
-            margin: 0;
-            padding: 0;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            font-family: 'Space Grotesk', 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main); background: var(--bg-surface);
+            margin: 0; padding: 0; font-size: 11px; line-height: 1.5;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
+
+        /* ── Header: deep dark with primary orange accent ── */
         .header-banner {
-            background: linear-gradient(135deg, #1e3a8a 0%%, #0f766e 100%%);
-            color: #ffffff;
-            padding: 24px 32px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--primary-800) 0%%, var(--primary-600) 55%%, var(--primary-500) 100%%);
+            color: #ffffff; padding: 26px 32px; border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(219,65,1,0.25); margin-bottom: 24px;
+            position: relative; overflow: hidden;
+        }
+        .header-banner::before {
+            content: ''; position: absolute; top: -40px; right: -40px;
+            width: 180px; height: 180px; background: rgba(255,255,255,0.07); border-radius: 50%%;
+        }
+        .header-org {
+            font-size: 9px; font-weight: 600; letter-spacing: 1px;
+            color: var(--primary-100); margin-bottom: 6px;
         }
         .header-banner h1 {
-            margin: 0 0 6px 0;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            margin: 0 0 4px 0; font-size: 22px; font-weight: 700;
+            letter-spacing: -0.01em; color: #ffffff;
         }
         .header-banner h2 {
-            margin: 0;
-            font-size: 15px;
-            font-weight: 500;
-            color: #99f6e4;
+            margin: 0; font-size: 13px; font-weight: 400;
+            color: var(--primary-100); opacity: 0.88;
         }
         .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 11px;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 12px; margin-top: 18px; padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.2);
         }
         .meta-item label {
-            display: block;
-            color: #cbd5e1;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 9px;
-            margin-bottom: 2px;
+            display: block; color: var(--primary-200); font-weight: 600;
+            font-size: 8px; letter-spacing: 0.5px; margin-bottom: 3px;
         }
-        .meta-item span {
-            font-weight: 700;
-            color: #ffffff;
+        .meta-item span { font-weight: 700; color: #fff; font-size: 10.5px; }
+        .meta-confidential {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px; padding: 1px 7px; display: inline-block;
         }
-        .section-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: #0f172a;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 24px 0 12px 0;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .section-title .badge {
-            background-color: #eff6ff;
-            color: #1d4ed8;
-            font-size: 10px;
-            padding: 3px 8px;
-            border-radius: 9999px;
-            font-weight: 700;
-        }
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 14px;
-            border-top: 4px solid #3b82f6;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        .card.card-emerald { border-top-color: #10b981; }
-        .card.card-amber { border-top-color: #f59e0b; }
-        .card.card-violet { border-top-color: #8b5cf6; }
-        .card.card-cyan { border-top-color: #06b6d4; }
-        
-        .card-label {
-            font-size: 10px;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-        .card-value {
-            font-size: 20px;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }
-        .card-sub {
-            font-size: 10px;
-            color: #475569;
-            display: flex;
-            justify-content: space-between;
-        }
-        .card-status {
-            display: inline-block;
-            margin-top: 6px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        .status-exceeded { background-color: #ecfdf5; color: #047857; }
-        .status-ontrack { background-color: #eff6ff; color: #1d4ed8; }
-        .status-attention { background-color: #fef2f2; color: #b91c1c; }
 
+        /* ── Section Headers: match app.config.ts card header style ── */
+        .section-hd {
+            font-size: 11px; font-weight: 700; color: var(--text-main);
+            letter-spacing: 0.2px;
+            margin: 22px 0 10px; padding: 9px 14px;
+            border-radius: 8px; background: var(--bg-main);
+            border: 2px solid var(--border-main);
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .section-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 20px; height: 20px; background: var(--primary-500); color: #fff;
+            border-radius: 5px; font-size: 10px; font-weight: 700; margin-right: 8px; flex-shrink: 0;
+        }
+        .section-badge {
+            background: var(--primary-500); color: #ffffff;
+            font-size: 8.5px;
+            padding: 3px 10px; border-radius: 9999px; font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── KPI Summary Cards: match app card variant=outline ── */
+        .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+        .kpi-card {
+            background: var(--bg-main); border: 2px solid var(--border-main);
+            border-radius: 10px; padding: 13px 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06);
+            position: relative; overflow: hidden;
+        }
+        .kpi-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 4px; border-radius: 8px 8px 0 0;
+        }
+        .kpi-primary::before   { background: var(--primary-500); }
+        .kpi-success::before   { background: var(--success-600); }
+        .kpi-warning::before   { background: var(--warning-400); }
+        .kpi-secondary::before { background: var(--secondary-500); }
+
+        .kpi-label {
+            font-size: 8.5px; font-weight: 600; color: var(--text-muted);
+            letter-spacing: 0.3px; margin-bottom: 7px;
+        }
+        .kpi-value { font-size: 21px; font-weight: 700; margin-bottom: 5px; line-height: 1; }
+        .kpi-primary   .kpi-value { color: var(--primary-600); }
+        .kpi-success   .kpi-value { color: var(--success-700); }
+        .kpi-warning   .kpi-value { color: var(--warning-600); }
+        .kpi-secondary .kpi-value { color: var(--secondary-700); }
+
+        .kpi-sub {
+            font-size: 9px; color: var(--text-muted);
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px;
+        }
+        .pill {
+            display: inline-block; padding: 3px 9px; border-radius: 9999px;
+            font-size: 8px; font-weight: 700; letter-spacing: 0.2px;
+        }
+        .pill-exceeded  { background: var(--success-600); color: #ffffff; }
+        .pill-ontrack   { background: var(--primary-500); color: #ffffff; }
+        .pill-completed { background: var(--secondary-500); color: #ffffff; }
+        .pill-attention { background: var(--error-600); color: #ffffff; }
+
+        /* ── Category pills in table ── */
+        .cat { display: inline-block; padding: 2px 7px; border-radius: 9999px; font-size: 8.5px; font-weight: 600; }
+        .cat-op  { background: var(--primary-50);    color: var(--primary-700);    border: 1px solid var(--primary-200); }
+        .cat-eff { background: var(--secondary-100); color: var(--secondary-700);  border: 1px solid #C199FF; }
+        .cat-qlt { background: var(--success-100);   color: var(--success-800);    border: 1px solid var(--success-200); }
+        .cat-iss { background: var(--warning-100);   color: var(--warning-700);    border: 1px solid var(--warning-400); }
+        .cat-fin { background: #E5FFFB;              color: #005990;               border: 1px solid #98FEF5; }
+
+        .gap-pos { color: var(--success-700); font-weight: 700; }
+        .gap-neg { color: var(--error-600);   font-weight: 700; }
+        .gap-neu { color: var(--text-muted);  font-weight: 700; }
+
+        /* ── Tables: match app card border/radius ── */
         table {
-            width: 100%%;
-            border-collapse: collapse;
-            margin-top: 8px;
-            font-size: 11px;
-            background: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
+            width: 100%%; border-collapse: collapse; margin-top: 6px;
+            background: var(--bg-main); border-radius: 10px; overflow: hidden;
+            border: 2px solid var(--border-main);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            font-size: 10.5px;
         }
+        thead tr { background: var(--bg-surface); border-bottom: 2px solid var(--border-main); }
         th {
-            background-color: #f8fafc;
-            color: #334155;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 9px;
-            letter-spacing: 0.5px;
-            padding: 10px 12px;
-            text-align: left;
-            border-bottom: 2px solid #e2e8f0;
+            color: var(--text-muted); font-weight: 700;
+            font-size: 9px; letter-spacing: 0.3px; padding: 9px 12px; text-align: left;
         }
-        td {
-            padding: 9px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
+        td { padding: 8px 12px; border-bottom: 1px solid var(--neutral-200); color: var(--text-main); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tbody tr:nth-child(even) td { background: var(--bg-surface); }
+
+        /* ── Signature block: match app card soft style ── */
+        .sig-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 14px; margin-top: 28px; padding-top: 18px;
+            border-top: 2px solid var(--border-main);
         }
-        tr:nth-child(even) {
-            background-color: #f8fafc;
+        .sig-box {
+            background: var(--bg-surface); border: 2px solid var(--border-main);
+            border-radius: 10px; padding: 14px 12px; text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
-        .pill-category {
-            display: inline-block;
-            padding: 2px 8px;
+        .sig-role {
+            font-weight: 700; color: var(--text-muted); margin-bottom: 36px;
+            font-size: 9px; letter-spacing: 0.3px;
+        }
+        .sig-line {
+            border-top: 1px solid var(--neutral-400);
+            padding-top: 5px; font-weight: 600;
+            color: var(--text-main); font-size: 9.5px;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            margin-top: 22px; text-align: center; font-size: 8.5px;
+            color: var(--neutral-500); border-top: 1px solid var(--neutral-200);
+            padding-top: 10px;
+        }
+        .footer-brand {
+            display: inline-block; background: var(--primary-500); color: #ffffff;
             border-radius: 9999px;
-            font-size: 9px;
-            font-weight: 700;
-            background-color: #f1f5f9;
-            color: #475569;
+            padding: 3px 12px; font-weight: 700; font-size: 8.5px;
+            letter-spacing: 0.3px; margin-bottom: 5px;
         }
-        .gap-pos { color: #059669; font-weight: 700; }
-        .gap-neg { color: #dc2626; font-weight: 700; }
-
-        .signature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 36px;
-            padding-top: 20px;
-            border-top: 2px solid #e2e8f0;
-            text-align: center;
-            font-size: 11px;
-        }
-        .signature-box {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 16px 12px;
-        }
-        .signature-title {
-            font-weight: 700;
-            color: #475569;
-            margin-bottom: 48px;
-            text-transform: uppercase;
-            font-size: 10px;
-        }
-        .signature-line {
-            border-top: 1px solid #94a3b8;
-            font-weight: 700;
-            color: #0f172a;
-            padding-top: 4px;
-        }
-        
-        .footer-note {
-            margin-top: 24px;
-            text-align: center;
-            font-size: 9px;
-            color: #94a3b8;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 12px;
-        }
-
-        @media print {
-            .no-print { display: none; }
-        }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body onload="window.print()">
 
-    <!-- Printable Header Banner -->
+    <!-- ── Header ── -->
     <div class="header-banner">
-        <h1>INTERNAL AUDIT DIVISION</h1>
-        <h2>Executive KPI Performance Report — Year %d</h2>
+        <div class="header-org">Auditsphere · Internal Audit Division</div>
+        <h1>KPI Performance Report</h1>
+        <h2>Executive Summary — Fiscal Year %d</h2>
         <div class="meta-grid">
-            <div class="meta-item">
-                <label>Report Period</label>
-                <span>Jan – Dec %d</span>
-            </div>
-            <div class="meta-item">
-                <label>Generated On</label>
-                <span>%s</span>
-            </div>
-            <div class="meta-item">
-                <label>System Source</label>
-                <span>Risk-Based Audit Core</span>
-            </div>
-            <div class="meta-item">
-                <label>Classification</label>
-                <span>CONFIDENTIAL</span>
-            </div>
+            <div class="meta-item"><label>Report Period</label><span>Jan – Dec %d</span></div>
+            <div class="meta-item"><label>Generated On</label><span>%s</span></div>
+            <div class="meta-item"><label>Source System</label><span>Auditsphere Core</span></div>
+            <div class="meta-item"><label>Classification</label><span class="meta-confidential">Confidential</span></div>
         </div>
     </div>
 
-    <!-- 1. Executive Summary Cards -->
-    <div class="section-title">
-        <span>1. Executive Summary Cards</span>
-        <span class="badge">Annual Overview</span>
+    <!-- ── 1. Executive Summary ── -->
+    <div class="section-hd">
+        <span><span class="section-num">1</span>Executive Summary</span>
+        <span class="section-badge">Annual Overview</span>
     </div>
-
     <div class="cards-grid">
-        <div class="card card-emerald">
-            <div class="card-label">Audit Completion Rate</div>
-            <div class="card-value">97.0%%</div>
-            <div class="card-sub">
-                <span>Target: 90.0%%</span>
-                <span class="gap-pos">+7.0%%</span>
-            </div>
-            <span class="card-status status-exceeded">Exceeded Target</span>
+        <div class="kpi-card kpi-success">
+            <div class="kpi-label">Audit Completion Rate</div>
+            <div class="kpi-value">97.0%%</div>
+            <div class="kpi-sub"><span>Target: 90.0%%</span><span class="gap-pos">+7.0%%</span></div>
+            <span class="pill pill-exceeded">Exceeded Target</span>
         </div>
-
-        <div class="card card-cyan">
-            <div class="card-label">Cost Variance to Budget</div>
-            <div class="card-value">2.3%%</div>
-            <div class="card-sub">
-                <span>Target: 5.0%%</span>
-                <span class="gap-pos">2.7%%</span>
-            </div>
-            <span class="card-status status-ontrack">On Track</span>
+        <div class="kpi-card kpi-primary">
+            <div class="kpi-label">Cost Variance to Budget</div>
+            <div class="kpi-value">2.3%%</div>
+            <div class="kpi-sub"><span>Target: ≤ 5.0%%</span><span class="gap-pos">2.7%% room</span></div>
+            <span class="pill pill-ontrack">On Track</span>
         </div>
-
-        <div class="card card-amber">
-            <div class="card-label">Auditee Satisfaction</div>
-            <div class="card-value">4.7 / 5.0</div>
-            <div class="card-sub">
-                <span>Target: 4.5</span>
-                <span class="gap-pos">+0.2</span>
-            </div>
-            <span class="card-status status-exceeded">Exceeded Target</span>
+        <div class="kpi-card kpi-warning">
+            <div class="kpi-label">Auditee Satisfaction (CSAT)</div>
+            <div class="kpi-value">4.7 / 5</div>
+            <div class="kpi-sub"><span>Target: 4.5</span><span class="gap-pos">+0.2</span></div>
+            <span class="pill pill-exceeded">Exceeded Target</span>
         </div>
-
-        <div class="card card-violet">
-            <div class="card-label">High-Risk Resolution</div>
-            <div class="card-value">100.0%%</div>
-            <div class="card-sub">
-                <span>Target: 100.0%%</span>
-                <span class="gap-pos">0.0%%</span>
-            </div>
-            <span class="card-status status-ontrack">Completed</span>
+        <div class="kpi-card kpi-secondary">
+            <div class="kpi-label">High-Risk Resolution</div>
+            <div class="kpi-value">100%%</div>
+            <div class="kpi-sub"><span>Target: 100%%</span><span class="gap-neu">0%%</span></div>
+            <span class="pill pill-completed">Completed</span>
         </div>
     </div>
 
-    <!-- 2. Detailed KPI Breakdown Table -->
-    <div class="section-title">
-        <span>2. Detailed KPI Breakdown</span>
-        <span class="badge">Strategic Objectives</span>
+    <!-- ── 2. Detailed KPI Breakdown ── -->
+    <div class="section-hd">
+        <span><span class="section-num">2</span>Detailed KPI Breakdown</span>
+        <span class="section-badge">Strategic Objectives</span>
     </div>
-
     <table>
         <thead>
             <tr>
@@ -864,127 +818,86 @@ func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
         <tbody>
             <tr>
                 <td><strong>Audit Plan Completion Rate</strong></td>
-                <td><span class="pill-category">Operational</span></td>
-                <td>90.0%%</td>
-                <td><strong>97.0%%</strong></td>
+                <td><span class="cat cat-op">Operational</span></td>
+                <td>90.0%%</td><td><strong>97.0%%</strong></td>
                 <td><span class="gap-pos">+7.0%%</span></td>
-                <td><span class="card-status status-exceeded">Exceeded</span></td>
+                <td><span class="pill pill-exceeded">Exceeded</span></td>
             </tr>
             <tr>
                 <td><strong>Report Timeliness</strong></td>
-                <td><span class="pill-category">Efficiency</span></td>
-                <td>90.0%%</td>
-                <td><strong>98.0%%</strong></td>
+                <td><span class="cat cat-eff">Efficiency</span></td>
+                <td>90.0%%</td><td><strong>98.0%%</strong></td>
                 <td><span class="gap-pos">+8.0%%</span></td>
-                <td><span class="card-status status-exceeded">Exceeded</span></td>
+                <td><span class="pill pill-exceeded">Exceeded</span></td>
             </tr>
             <tr>
                 <td><strong>Auditee Satisfaction (CSAT)</strong></td>
-                <td><span class="pill-category">Quality</span></td>
-                <td>4.5</td>
-                <td><strong>4.7</strong></td>
+                <td><span class="cat cat-qlt">Quality</span></td>
+                <td>4.5</td><td><strong>4.7</strong></td>
                 <td><span class="gap-pos">+0.2</span></td>
-                <td><span class="card-status status-exceeded">Exceeded</span></td>
+                <td><span class="pill pill-exceeded">Exceeded</span></td>
             </tr>
             <tr>
                 <td><strong>High-risk Issue Resolution</strong></td>
-                <td><span class="pill-category">Issue</span></td>
-                <td>100.0%%</td>
-                <td><strong>100.0%%</strong></td>
-                <td><span class="gap-pos">0.0%%</span></td>
-                <td><span class="card-status status-ontrack">Completed</span></td>
+                <td><span class="cat cat-iss">Issue</span></td>
+                <td>100.0%%</td><td><strong>100.0%%</strong></td>
+                <td><span class="gap-neu">0.0%%</span></td>
+                <td><span class="pill pill-completed">Completed</span></td>
             </tr>
             <tr>
                 <td><strong>Cost Variance to Budget</strong></td>
-                <td><span class="pill-category">Financial</span></td>
-                <td>5.0%%</td>
-                <td><strong>2.3%%</strong></td>
+                <td><span class="cat cat-fin">Financial</span></td>
+                <td>≤ 5.0%%</td><td><strong>2.3%%</strong></td>
                 <td><span class="gap-pos">2.7%%</span></td>
-                <td><span class="card-status status-ontrack">On Track</span></td>
+                <td><span class="pill pill-ontrack">On Track</span></td>
             </tr>
         </tbody>
     </table>
 
-    <!-- 3. Monthly Performance Trend -->
-    <div class="section-title">
-        <span>3. Monthly Performance Trend Summary</span>
-        <span class="badge">H1 Realization</span>
+    <!-- ── 3. Monthly Performance Trend ── -->
+    <div class="section-hd">
+        <span><span class="section-num">3</span>Monthly Performance Trend</span>
+        <span class="section-badge">H1 Realization</span>
     </div>
-
     <table>
         <thead>
             <tr>
-                <th>Period Month</th>
+                <th>Month</th>
                 <th>Completion Rate</th>
                 <th>Timeliness Rate</th>
                 <th>CSAT Rating</th>
-                <th>Overall Realization Status</th>
+                <th>Overall Status</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>January %d</td>
-                <td>82.0%%</td>
-                <td>85.0%%</td>
-                <td>4.2 / 5.0</td>
-                <td><span class="card-status status-ontrack">On Track</span></td>
-            </tr>
-            <tr>
-                <td>February %d</td>
-                <td>85.0%%</td>
-                <td>87.0%%</td>
-                <td>4.3 / 5.0</td>
-                <td><span class="card-status status-ontrack">On Track</span></td>
-            </tr>
-            <tr>
-                <td>March %d</td>
-                <td>90.0%%</td>
-                <td>90.0%%</td>
-                <td>4.5 / 5.0</td>
-                <td><span class="card-status status-ontrack">On Track</span></td>
-            </tr>
-            <tr>
-                <td>April %d</td>
-                <td>88.0%%</td>
-                <td>88.0%%</td>
-                <td>4.4 / 5.0</td>
-                <td><span class="card-status status-ontrack">On Track</span></td>
-            </tr>
-            <tr>
-                <td>May %d</td>
-                <td>95.0%%</td>
-                <td>92.0%%</td>
-                <td>4.6 / 5.0</td>
-                <td><span class="card-status status-exceeded">Exceeded</span></td>
-            </tr>
-            <tr>
-                <td>June %d</td>
-                <td>97.0%%</td>
-                <td>98.0%%</td>
-                <td>4.7 / 5.0</td>
-                <td><span class="card-status status-exceeded">Exceeded</span></td>
-            </tr>
+            <tr><td>January %d</td><td>82.0%%</td><td>85.0%%</td><td>4.2 / 5.0</td><td><span class="pill pill-ontrack">On Track</span></td></tr>
+            <tr><td>February %d</td><td>85.0%%</td><td>87.0%%</td><td>4.3 / 5.0</td><td><span class="pill pill-ontrack">On Track</span></td></tr>
+            <tr><td>March %d</td><td>90.0%%</td><td>90.0%%</td><td>4.5 / 5.0</td><td><span class="pill pill-ontrack">On Track</span></td></tr>
+            <tr><td>April %d</td><td>88.0%%</td><td>88.0%%</td><td>4.4 / 5.0</td><td><span class="pill pill-ontrack">On Track</span></td></tr>
+            <tr><td>May %d</td><td>95.0%%</td><td>92.0%%</td><td>4.6 / 5.0</td><td><span class="pill pill-exceeded">Exceeded</span></td></tr>
+            <tr><td>June %d</td><td>97.0%%</td><td>98.0%%</td><td>4.7 / 5.0</td><td><span class="pill pill-exceeded">Exceeded</span></td></tr>
         </tbody>
     </table>
 
-    <!-- 4. Sign-Off & Verification Block -->
-    <div class="signature-grid">
-        <div class="signature-box">
-            <div class="signature-title">Prepared By</div>
-            <div class="signature-line">Internal Audit Specialist</div>
+    <!-- ── 4. Sign-Off Block ── -->
+    <div class="sig-grid">
+        <div class="sig-box">
+            <div class="sig-role">Prepared By</div>
+            <div class="sig-line">Internal Audit Specialist</div>
         </div>
-        <div class="signature-box">
-            <div class="signature-title">Reviewed By</div>
-            <div class="signature-line">Audit Quality Manager</div>
+        <div class="sig-box">
+            <div class="sig-role">Reviewed By</div>
+            <div class="sig-line">Audit Quality Manager</div>
         </div>
-        <div class="signature-box">
-            <div class="signature-title">Approved By</div>
-            <div class="signature-line">Chief Audit Executive (CAE)</div>
+        <div class="sig-box">
+            <div class="sig-role">Approved By</div>
+            <div class="sig-line">Chief Audit Executive (CAE)</div>
         </div>
     </div>
 
-    <div class="footer-note">
-        This official document is generated automatically by Risk-Based Audit System on %s. Confidential & proprietary.
+    <div class="footer">
+        <div class="footer-brand">Auditsphere</div><br>
+        Generated automatically on %s &middot; Confidential &amp; Proprietary
     </div>
 
 </body>
@@ -993,3 +906,4 @@ func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
 	ctx.Header("Content-Type", "text/html; charset=utf-8")
 	ctx.String(http.StatusOK, htmlContent)
 }
+
