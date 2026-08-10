@@ -422,7 +422,7 @@
     "errorTitle": "Gagal",
     "vmg": {
       "title": "VISI, MISI, GOAL, dan STRATEGIC OBJECTIVE",
-      "emptyTitle": "Visi, Misi dan Goals belum ditambahkan",
+      "emptyTitle": "Visi, Misi, Goals dan Strategic Objective belum ditambahkan",
       "emptySubtitle": "Lengkapi bagian ini sekarang untuk memperjelas arah strategis manajemen audit Anda.",
       "addVmg": "Tambah Visi dan Misi",
       "editVmg": "Ubah Visi Misi",
@@ -506,6 +506,8 @@
       "actualPlaceholder": "Contoh: 100",
       "target5YearsTitle": "Target KPI 5 Tahun (Tahun 1 s/d Tahun 5)",
       "target5YearsSubtitle": "Input target 5 tahun sekaligus",
+      "targetMatrixTitle": "Matriks Target & Realisasi KPI ({start} - {end})",
+      "targetMatrixSubtitle": "Input target & realisasi per tahun ({duration} Tahun)",
       "yearLabel": "Tahun {number}",
       "calculation": "Hitungan",
       "status": "Keterangan",

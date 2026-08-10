@@ -185,7 +185,7 @@ function editKpiTarget(rowOriginal: any) {
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold text-gray-900 dark:text-white">KPI Detailed Breakdown</h2>
       <UButton
-        label="Set 5-Year KPI Targets"
+        label="Set KPI Targets"
         icon="i-lucide-plus"
         color="primary"
         size="sm"
@@ -268,7 +268,7 @@ function editKpiTarget(rowOriginal: any) {
             class="font-semibold rounded-lg"
             @click="editKpiTarget(row.original)"
           >
-            Edit 5-Yr Targets
+            Edit KPI Targets
           </UButton>
         </template>
       </UTable>

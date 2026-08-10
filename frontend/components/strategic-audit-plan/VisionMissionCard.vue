@@ -59,6 +59,13 @@
       </template>
 
       <div class="space-y-6">
+        <!-- Target Period -->
+        <div v-if="parsedPeriod" class="pb-3 border-b border-[var(--border-main)]">
+          <p class="text-sm font-semibold text-[var(--text-main)]">
+            {{ t('strategicPlan.vmg.targetPeriod', { start: parsedPeriod.start, end: parsedPeriod.end, duration: parsedPeriod.duration }) }}
+          </p>
+        </div>
+
         <!-- Visi Section -->
         <div class="space-y-2">
           <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)]">
@@ -97,10 +104,7 @@
           <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)]">
             {{ t('strategicPlan.vmg.goals') }}
           </h4>
-          <p v-if="parsedPeriod" class="text-sm font-semibold text-[var(--text-main)]">
-            {{ t('strategicPlan.vmg.targetPeriod', { start: parsedPeriod.start, end: parsedPeriod.end, duration: parsedPeriod.duration }) }}
-          </p>
-          <div v-if="store.activeVmg.goals && store.activeVmg.goals.length > 0" class="mt-3 space-y-2 pl-1 border-t border-dashed border-[var(--border-main)] pt-3">
+          <div v-if="store.activeVmg.goals && store.activeVmg.goals.length > 0" class="mt-3 space-y-2 pl-1">
             <div
               v-for="g in store.activeVmg.goals"
               :key="g.id"

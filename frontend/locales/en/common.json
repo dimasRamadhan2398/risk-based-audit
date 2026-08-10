@@ -509,6 +509,8 @@
       "actualPlaceholder": "Ex: 100",
       "target5YearsTitle": "5-Year KPI Target (Year 1 to Year 5)",
       "target5YearsSubtitle": "Input 5-year targets at once",
+      "targetMatrixTitle": "KPI Target & Realization Matrix ({start} - {end})",
+      "targetMatrixSubtitle": "Input target & actual realization per year ({duration} Years)",
       "yearLabel": "Year {number}",
       "calculation": "Calculation",
       "status": "Status",
