@@ -91,6 +91,14 @@ const isMfaEnabled = computed(() => {
   return Boolean(mfaStatus.value.is_enabled ?? mfaStatus.value.data?.is_enabled)
 })
 
+const getAuthBaseUrl = () => {
+  let url = (config.public.authServiceBaseUrl as string) || '/api/v1'
+  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
+    url = `/${url}`
+  }
+  return url.replace(/\/$/, '')
+}
+
 const fetchStatus = async () => {
   if (!authStore.token) {
     loadingStatus.value = false
@@ -98,7 +106,7 @@ const fetchStatus = async () => {
   }
   loadingStatus.value = true
   try {
-    const response = await $fetch<any>(`${config.public.authServiceBaseUrl}/mfa/status`, {
+    const response = await $fetch<any>(`${getAuthBaseUrl()}/mfa/status`, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     })
     const rawData = response?.data?.data ?? response?.data ?? response
@@ -114,7 +122,7 @@ const handleSetup = async () => {
   if (!authStore.token) return
   loading.value = true
   try {
-    const response = await $fetch<any>(`${config.public.authServiceBaseUrl}/mfa/enroll`, {
+    const response = await $fetch<any>(`${getAuthBaseUrl()}/mfa/enroll`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.token}` },
       body: { mfa_type: 'TOTP' }
@@ -137,7 +145,7 @@ const handleVerifySetup = async () => {
   if (!authStore.token) return
   loading.value = true
   try {
-    await $fetch(`${config.public.authServiceBaseUrl}/mfa/verify`, {
+    await $fetch(`${getAuthBaseUrl()}/mfa/verify`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.token}` },
       body: { code: verificationCode.value }
@@ -156,7 +164,7 @@ const handleDisable = async () => {
   if (!authStore.token) return
   loading.value = true
   try {
-    await $fetch(`${config.public.authServiceBaseUrl}/mfa/disable`, {
+    await $fetch(`${getAuthBaseUrl()}/mfa/disable`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.token}` },
       body: { password: password.value }
