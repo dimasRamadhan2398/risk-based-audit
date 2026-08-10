@@ -1,10 +1,16 @@
 <template>
   <div class="min-h-screen flex">
     <UDashboardGroup>
-      <UDashboardSidebar resizeable>
+      <UDashboardSidebar 
+        resizeable
+        :ui="{
+          body: 'p-3 flex flex-col justify-start gap-y-2',
+          header: 'px-4 py-3 border-b border-gray-200 dark:border-gray-800'
+        }"
+      >
         <template #header>
-          <div class="px-4 py-4">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('settings.sidebar.accountSettings') }}</h2>
+          <div>
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">{{ t('settings.sidebar.accountSettings') }}</h2>
           </div>
         </template>
 

@@ -346,36 +346,43 @@ const userDropdownItems = computed(() => [
     :default-size="25"
     :max-size="30"
     :collapsed-size="0"
-    :ui="{ footer: 'border-t border-default' }"
+    :ui="{
+      body: 'p-3 flex flex-col justify-start gap-y-3 flex-1 overflow-y-auto',
+      header: 'px-4 py-3 border-b border-[var(--border-main)] flex items-center justify-between shrink-0',
+      footer: 'border-t border-default'
+    }"
   >
     <template #header="{ collapsed }">
-      <Logo v-if="!collapsed" class="h-8 w-auto shrink-0" hide-subtitle text-class="text-xl" />
+      <Logo v-if="!collapsed" class="h-7 w-auto shrink-0" hide-subtitle text-class="text-xl" />
       <Logo v-else icon-only class="h-6 w-auto mx-auto" />
       <UDashboardSidebarCollapse variant="subtle" />
     </template>
 
     <template #default="{ collapsed }">
-      <UInput
-        v-if="!collapsed"
-        v-model="searchQuery"
-        placeholder="Search..."
-        icon="i-lucide-search"
-        color="neutral"
-        variant="outline"
-      />
+      <div class="flex flex-col gap-3">
+        <UInput
+          v-if="!collapsed"
+          v-model="searchQuery"
+          placeholder="Search..."
+          icon="i-lucide-search"
+          color="neutral"
+          variant="outline"
+          class="w-full"
+        />
 
-      <UNavigationMenu
-        :collapsed="collapsed"
-        :items="items[0]"
-        orientation="vertical"
-      />
+        <UNavigationMenu
+          :collapsed="collapsed"
+          :items="items[0]"
+          orientation="vertical"
+        />
+      </div>
 
       <UNavigationMenu
         v-if="items[1]" 
         :collapsed="collapsed"
         :items="items[1]"
         orientation="vertical"
-        class="mt-auto"
+        class="mt-auto pt-3 border-t border-[var(--border-main)]"
       />
     </template>
     
