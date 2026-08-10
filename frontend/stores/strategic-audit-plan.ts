@@ -336,6 +336,9 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     };
 
     const handleSubmit = async () => {
+        if (!form.value.code) {
+            form.value.code = `SO-IA${String(strategicObjectives.value.length + 1).padStart(2, '0')}`;
+        }
         form.value.calculation = computedCalculation.value;
         form.value.status = computedStatus.value;
         

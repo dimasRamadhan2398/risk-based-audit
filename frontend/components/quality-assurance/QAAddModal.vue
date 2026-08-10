@@ -36,8 +36,8 @@
             <div class="space-y-4">
               <h4 class="font-bold text-gray-700">2. General Information</h4>
               <div class="space-y-4">
-                <UFormField label="Assessment Title" required>
-                  <UInput v-model="store.newReport.assessmentTitle" placeholder="Ex: QAR - Audit 2026" class="w-full"/>
+                <UFormField label="Assessment Title" required :error="errors.assessmentTitle ? 'Title is required' : ''">
+                  <UInput v-model="store.newReport.assessmentTitle" placeholder="Ex: QAR - Audit 2026" class="w-full" :class="{ 'ring-2 ring-red-500': errors.assessmentTitle }"/>
                 </UFormField>
                 <div class="grid grid-cols-2 gap-4">
                   <UFormField label="Execution Period">
@@ -54,10 +54,10 @@
             <div class="space-y-4">
               <h4 class="font-bold text-gray-700">3. Results & Status</h4>
               <div class="grid grid-cols-2 gap-4">
-                <UFormField label="Status" required>
-                  <USelectMenu v-model="store.newReport.status" :items="store.qaStatuses" placeholder="Select Status" class="w-full"/>
+                <UFormField label="Status" required :error="errors.status ? 'Status is required' : ''">
+                  <USelectMenu v-model="store.newReport.status" :items="store.qaStatuses" placeholder="Select Status" class="w-full" :class="{ 'ring-2 ring-red-500': errors.status }"/>
                 </UFormField>
-                <UFormField label="Result/Score" required>
+                <UFormField label="Result/Score" required :error="errors.result ? 'Result is required' : ''">
                   <USelectMenu 
                     v-if="store.newReport.type === QAType.IACM"
                     v-model="store.newReport.result" 
@@ -121,7 +121,7 @@
           <template #footer>
             <div class="flex justify-end gap-3">
               <UButton label="Cancel" variant="ghost" color="neutral" @click="store.closeForm" />
-              <UButton :label="store.isEditing ? 'Update Report' : 'Save Report'" color="warning" class="px-8 font-bold" @click="store.saveReport" />
+              <UButton :label="store.isEditing ? 'Update Report' : 'Save Report'" color="warning" class="px-8 font-bold" @click="validateAndSave" />
             </div>
           </template>
         </UCard>
@@ -131,8 +131,33 @@
 
 <script setup lang="ts">
 
+import { ref } from 'vue'
 import { useQualityAssuranceStore, QAType } from '~/stores/quality-assurance'
-
+const toast = useToast()
 const store = useQualityAssuranceStore()
+
+const errors = ref({
+  assessmentTitle: false,
+  status: false,
+  result: false
+})
+
+const validateAndSave = () => {
+  errors.value.assessmentTitle = !store.newReport.assessmentTitle
+  errors.value.status = !store.newReport.status
+  errors.value.result = !store.newReport.result
+
+  if (errors.value.assessmentTitle || errors.value.status || errors.value.result) {
+    toast.add({
+      title: 'Validation Error',
+      description: 'Mohon isi semua kolom yang wajib diisi (berwarna merah).',
+      color: 'red',
+      icon: 'i-heroicons-exclamation-circle'
+    })
+    return
+  }
+  
+  store.saveReport()
+}
 
 </script>

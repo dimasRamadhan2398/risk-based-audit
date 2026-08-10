@@ -334,6 +334,21 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     }
   }
 
+  const viewDocument = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response], { type: response.type || 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+    } catch (error) {
+      console.error('Failed to view QAR attachment:', error)
+    }
+  }
+
   const filteredReports = computed(() => {
     return reports.value.filter(report => {
       if (report.isImported) return false

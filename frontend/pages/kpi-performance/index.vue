@@ -3,6 +3,7 @@ import { ref, watch, onMounted } from 'vue'
 import KpiSummaryCards from '~/components/kpi-performance/KpiSummaryCards.vue'
 import KpiCharts from '~/components/kpi-performance/KpiCharts.vue'
 import KpiDetailedTable from '~/components/kpi-performance/KpiDetailedTable.vue'
+import TimelinessQuestionnaireModal from '~/components/kpi-performance/TimelinessQuestionnaireModal.vue'
 
 import { usePerformanceStore } from '~/stores/performance'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
@@ -16,6 +17,8 @@ const year = ref('2026')
 const selectedPeriod = ref('Semua')
 const yearOptions = ['2024', '2025', '2026', '2027', '2028']
 const periodOptions = ['Semua', 'Q1', 'Q2', 'Q3', 'Q4', 'Tahunan']
+
+const isQuestionnaireOpen = ref(false)
 
 const loadData = () => {
   perfStore.fetchKPIAchievements(parseInt(year.value), selectedPeriod.value)
@@ -70,6 +73,15 @@ const exportPDF = () => {
           color="primary"
           to="/kpi-performance/upload"
         />
+        <!-- Isi Kuesioner Button -->
+        <UButton
+          v-if="selectedPeriod !== 'Semua'"
+          label="Isi Kuesioner Ketepatan Waktu"
+          icon="i-lucide-clipboard-check"
+          color="info"
+          variant="solid"
+          @click="isQuestionnaireOpen = true"
+        />
         <!-- Export Button -->
         <UButton
           label="Export PDF"
@@ -116,5 +128,12 @@ const exportPDF = () => {
 
     <!-- Detailed Table -->
     <KpiDetailedTable />
+
+    <TimelinessQuestionnaireModal
+      v-model="isQuestionnaireOpen"
+      :year="parseInt(year)"
+      :period="selectedPeriod"
+      @saved="loadData"
+    />
   </div>
 </template>

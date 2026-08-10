@@ -418,9 +418,16 @@ const columns = [
                     {{ new Date(doc.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) }}
                   </td>
                   <td class="py-3 px-3 text-right">
-                    <div class="flex items-center justify-end gap-1">
-                      <UButton
-                        icon="i-lucide-download"
+                    <div class="flex items-center justify-end gap-1">                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="sm" 
+                    title="View Document"
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
+                  <UButton 
+                    icon="i-lucide-download"
                         color="neutral"
                         variant="ghost"
                         size="xs"
