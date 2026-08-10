@@ -175,56 +175,8 @@
               </div>
             </div>
 
-            <!-- Actual -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">
-                {{ t('strategicPlan.form.actual') }} <span class="text-orange-500">*</span>
-              </label>
-              <UInput
-                v-model="store.form.actual"
-                :placeholder="t('strategicPlan.form.actualPlaceholder')"
-                class="w-full"
-              />
-            </div>
-
-            <!-- Target KPI 5 Tahun (Tahun 1 s/d Tahun 5 Input) -->
-            <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3">
-              <div class="flex items-center justify-between">
-                <label class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-2">
-                  <UIcon name="i-lucide-target" class="w-4 h-4 text-primary-500" />
-                  {{ t('strategicPlan.form.target5YearsTitle') }} <span class="text-orange-500">*</span>
-                </label>
-                <span class="text-xs text-gray-500 dark:text-gray-400">{{ t('strategicPlan.form.target5YearsSubtitle') }}</span>
-              </div>
-
-              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                <div
-                  v-for="(yr, idx) in yearsList"
-                  :key="yr"
-                  class="space-y-1.5 p-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-center"
-                >
-                  <span class="block text-[11px] font-extrabold uppercase tracking-wide text-primary-600 dark:text-primary-400">
-                    {{ t('strategicPlan.form.yearLabel', { number: idx + 1 }) }}
-                  </span>
-                  <span class="block text-[10px] text-gray-500 dark:text-gray-400 font-mono">({{ yr }})</span>
-                  <UInput
-                    :model-value="(store.form.kpiTargets as any)?.[yr] || ''"
-                    placeholder="Target"
-                    size="sm"
-                    class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
-                    @update:model-value="(val: string) => updateYearTarget(yr, val)"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Hitungan (Read Only) -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.calculation') }}</label>
-              <div class="readonly-field">
-                {{ store.computedCalculation || '-' }}
-              </div>
-            </div>
+            <!-- Flexible Target & Realisasi KPI Matrix Component -->
+            <TargetRealizationMatrix />
 
             <!-- Status (Read Only) -->
             <div class="form-row">
@@ -263,6 +215,7 @@ import { computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
+import TargetRealizationMatrix from './TargetRealizationMatrix.vue'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
@@ -283,27 +236,6 @@ const formatStatus = (status: string) => {
     return t(`strategicPlan.status.${lower}`)
   }
   return status
-}
-
-const yearsList = computed(() => {
-  const start = store.form.yearStart || new Date().getFullYear()
-  return [
-    String(start),
-    String(start + 1),
-    String(start + 2),
-    String(start + 3),
-    String(start + 4),
-  ]
-})
-
-function updateYearTarget(year: string, value: string) {
-  if (!store.form.kpiTargets) {
-    store.form.kpiTargets = {}
-  }
-  ;(store.form.kpiTargets as any)[year] = value
-  if (store.form.selectedPeriod === year || !store.form.target) {
-    store.form.target = value
-  }
 }
 </script>
 

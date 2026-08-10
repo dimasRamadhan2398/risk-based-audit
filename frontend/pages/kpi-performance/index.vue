@@ -10,7 +10,7 @@ import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 const perfStore = usePerformanceStore()
 const spStore = useStrategicPlanStore()
 
-const year = ref('2024')
+const year = ref('2026')
 const yearOptions = ['2024', '2025', '2026', '2027']
 
 perfStore.fetchKPIAchievements(parseInt(year.value))
