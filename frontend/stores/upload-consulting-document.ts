@@ -76,6 +76,23 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
     }
   };
 
+    const viewDocument = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getAuditServiceBaseUrl();
+      const response: any = await $fetch(`${baseUrl}/uploaded-consulting-documents/${id}/download`, {
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response], { type: response.type || 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+    } catch (error: any) {
+      console.error('Failed to view document:', error);
+      errorMsg.value = 'Failed to view document.';
+    }
+  };
+
   const downloadDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
@@ -105,6 +122,7 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
     fetchUploadedDocuments,
     uploadDocument,
     deleteDocument,
-    downloadDocument
+    downloadDocument,
+    viewDocument
   };
 });

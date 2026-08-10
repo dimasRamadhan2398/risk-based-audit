@@ -7,7 +7,7 @@
         <p class="text-sm text-gray-500">Create and manage audit working papers step by step</p>
       </div>
       <UButton
-        label="Import Reference Paper"
+        label="Import Working Paper"
         icon="i-lucide-upload"
         color="neutral"
         variant="outline"

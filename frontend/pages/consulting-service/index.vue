@@ -163,21 +163,21 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <UFormField label="Category">
-                <USelectMenu v-model="store.newService.category" :items="store.categories" class="w-full" />
+                <USelectMenu v-model="store.newService.category" :items="store.categories" :popper="{ strategy: 'fixed' }" class="w-full" />
               </UFormField>
 
               <UFormField label="Requestor Department">
-                <USelectMenu v-model="store.newService.requestorDept" :items="store.departments" class="w-full" />
+                <USelectMenu v-model="store.newService.requestorDept" :items="store.departments" :popper="{ strategy: 'fixed' }" class="w-full" />
               </UFormField>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <UFormField label="Period Quarter">
-                <USelectMenu v-model="store.newService.periodQuarter" :items="store.quarters" class="w-full" />
+                <USelectMenu v-model="store.newService.periodQuarter" :items="store.quarters" :popper="{ strategy: 'fixed' }" class="w-full" />
               </UFormField>
 
               <UFormField label="Period Year">
-                <USelectMenu v-model="store.newService.periodYear" :items="store.years" class="w-full" />
+                <USelectMenu v-model="store.newService.periodYear" :items="store.years" :popper="{ strategy: 'fixed' }" class="w-full" />
               </UFormField>
 
               <UFormField label="Consultant / Lead Auditor" required>
@@ -186,7 +186,7 @@
             </div>
 
             <UFormField label="Status">
-              <USelectMenu v-model="store.newService.status" :items="store.statuses" class="w-full" />
+              <USelectMenu v-model="store.newService.status" :items="store.statuses" :popper="{ strategy: 'fixed' }" class="w-full" />
             </UFormField>
 
             <UFormField label="Notes / Description">

@@ -69,6 +69,18 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
+    children: [
+      {
+        label: 'KPI Performance',
+        icon: 'i-lucide-users',
+        to: '/kpi-performance',
+      },
+      {
+        label: 'Impor Laporan Kinerja',
+        icon: 'i-lucide-upload',
+        to: '/kpi-performance/upload',
+      },
+    ]
   },
   {
     label: '4. Annual Audit Plan',
@@ -259,11 +271,22 @@ const rawItems: NavigationMenuItem[][] = [[
   
 ]]
 
+const searchQuery = ref('')
+
 // 2. Gunakan Computed agar menu bereaksi setiap kali pengguna pindah halaman
 const items = computed<NavigationMenuItem[][]>(() => {
   return rawItems.map(group => {
     return group.map(parent => {
+      const q = searchQuery.value.toLowerCase()
       
+      // Filter anak-anaknya (children) jika ada query
+      let filteredChildren = parent.children
+      let childrenMatches = false
+      if (q && parent.children) {
+        filteredChildren = parent.children.filter(child => child.label.toLowerCase().includes(q) || parent.label.toLowerCase().includes(q))
+        childrenMatches = filteredChildren.length > 0
+      }
+
       // Cek apakah ada submenu (child) yang URL-nya cocok dengan URL saat ini
       const hasActiveChild = parent.children?.some(child => 
         route.path.startsWith(child.to as string)
@@ -271,11 +294,18 @@ const items = computed<NavigationMenuItem[][]>(() => {
 
       return {
         ...parent,
+        children: filteredChildren,
         // Jika ada child yang aktif, buat parent menyala (active: true) 
         // dan otomatis terbuka dropdown-nya (defaultOpen: true)
         active: hasActiveChild,
-        defaultOpen: hasActiveChild || parent.defaultOpen
+        defaultOpen: hasActiveChild || parent.defaultOpen || (q.length > 0 && childrenMatches)
       }
+    }).filter(parent => {
+       if (!searchQuery.value) return true
+       const q = searchQuery.value.toLowerCase()
+       const parentMatches = parent.label.toLowerCase().includes(q)
+       const hasVisibleChildren = parent.children && parent.children.length > 0
+       return parentMatches || hasVisibleChildren
     })
   })
 })
@@ -325,20 +355,14 @@ const userDropdownItems = computed(() => [
     </template>
 
     <template #default="{ collapsed }">
-      <UButton
-        :label="collapsed ? undefined : 'Search...'"
+      <UInput
+        v-if="!collapsed"
+        v-model="searchQuery"
+        placeholder="Search..."
         icon="i-lucide-search"
         color="neutral"
         variant="outline"
-        block
-        :square="collapsed"
-      >
-        <template v-if="!collapsed" #trailing>
-          <div class="flex items-center gap-0.5 ms-auto">
-            
-          </div>
-        </template>
-      </UButton>
+      />
 
       <UNavigationMenu
         :collapsed="collapsed"

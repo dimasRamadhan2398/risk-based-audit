@@ -207,10 +207,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const strategicObjectives = ref<StrategicAuditPlan[]>([...mockObjectives]);
 
-    const getAuditServiceBaseUrl = () => {
-        const config = useRuntimeConfig()
-        return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-    }
+
 
     const fetchStrategicPlans = async () => {
         loading.value = true;
@@ -394,6 +391,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     };
 
     const handleSubmit = async () => {
+        if (!form.value.code) {
+            form.value.code = `SO-IA${String(strategicObjectives.value.length + 1).padStart(2, '0')}`;
+        }
+        
         const startY = form.value.yearStart || currentYear;
         if (!form.value.kpiTargets) form.value.kpiTargets = {};
         if (!form.value.kpiActuals) form.value.kpiActuals = {};
@@ -419,7 +420,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         if (currentActual !== undefined && currentActual !== '') {
             form.value.actual = String(currentActual);
         }
-
         form.value.calculation = computedCalculation.value;
         form.value.status = computedStatus.value;
         

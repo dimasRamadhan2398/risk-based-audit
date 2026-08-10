@@ -199,8 +199,10 @@ export const useMitigationStore = defineStore('mitigation', () => {
                         method: 'PUT',
                         body: payload
                     })
+                    await fetchMitigations(currentRiskId)
                 } catch (e) {
                     console.warn('Backend update failed, saved locally.')
+                    mitigations.value = [...mitigations.value]
                 }
             } else {
                 const newMitigation: RiskMitigation = {
@@ -215,8 +217,10 @@ export const useMitigationStore = defineStore('mitigation', () => {
                         method: 'POST',
                         body: payload
                     })
+                    await fetchMitigations(currentRiskId)
                 } catch (e) {
                     console.warn('Backend create failed, saved locally.')
+                    mitigations.value = [...mitigations.value]
                 }
             }
             closeForm()

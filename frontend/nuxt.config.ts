@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const isProd = process.env.NODE_ENV === 'production';
 const defaultBaseUrl = isProd ? 'https://api.auditsphere.app/api/v1' : '/api/v1';
 const defaultAnalyticsUrl = isProd ? 'https://api.auditsphere.app/api/analytics' : '/api/analytics';
+const defaultPythonAiUrl = isProd ? 'https://api.auditsphere.app/api/python-ai' : 'http://localhost:8000';
 
 export default defineNuxtConfig({
   devtools: {
@@ -23,10 +24,10 @@ export default defineNuxtConfig({
     "nuxt-charts",
     "nuxt-chatgpt",
   ],
+  ssr: false,
   routeRules: {
-    "/dashboard": {
+    "/**": {
       ssr: false,
-      prerender: true,
     },
     "/api/v1/**": {
       proxy: process.env.API_BASE_URL_SERVER || "http://localhost:8080/api/v1/**"
@@ -93,6 +94,7 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.API_BASE_URL || defaultBaseUrl,
       analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || defaultAnalyticsUrl,
+      pythonAiBaseUrl: process.env.PYTHON_AI_BASE_URL || defaultPythonAiUrl,
       authServiceBaseUrl: process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL || defaultBaseUrl,
       auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || defaultBaseUrl,
       riskServiceBaseUrl: process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL || defaultBaseUrl,

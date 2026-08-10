@@ -156,56 +156,54 @@
                       </div>
 
                       <!-- Checklist Grid -->
-                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                        <div 
-                          v-for="check in row.monitoring" 
-                          :key="check.id"
-                          class="p-3 bg-white dark:bg-gray-800 rounded-xl border flex flex-col justify-between gap-3 shadow-2md hover:shadow-md transition-shadow duration-200"
-                          :class="[
-                            check.checked ? 'border-success-500/20 bg-success-500/5' : 'border-gray-200 dark:border-gray-700',
-                            isOverdue(check) ? 'border-error-500/20 bg-error-500/5' : ''
-                          ]"
-                        >
-                          <div class="flex items-start justify-between gap-3">
-                            <UCheckbox 
-                              v-model="check.checked" 
-                              :label="check.label"
-                              class="font-bold text-md text-gray-700 dark:text-gray-200"
-                              color="success"
-                            />
-                            <UBadge 
-                              :color="getCheckStatusColor(check)"
-                              variant="subtle"
-                              size="md"
-                              class="font-black uppercase tracking-wider text-[8px]"
+                      <div class="space-y-6 pt-2">
+                        <div v-for="monthCheck in row.monitoring" :key="monthCheck.id" class="space-y-4">
+                          <h5 class="font-bold text-gray-700 dark:text-gray-300 border-b pb-2">{{ monthCheck.label }}</h5>
+                          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div 
+                              v-for="check in monthCheck.weeks" 
+                              :key="check.id"
+                              class="p-3 bg-white dark:bg-gray-800 rounded-xl border flex flex-col justify-between gap-3 shadow-2md hover:shadow-md transition-shadow duration-200"
+                              :class="[
+                                check.checked ? 'border-success-500/20 bg-success-500/5' : 'border-gray-200 dark:border-gray-700',
+                                isOverdue(check) ? 'border-error-500/20 bg-error-500/5' : '',
+                                !isCheckable(check) ? 'opacity-50 pointer-events-none' : ''
+                              ]"
                             >
-                              {{ getCheckStatus(check) }}
-                            </UBadge>
-                          </div>
-                          
-                          <!-- Notes input -->
-                          <div class="space-y-1">
-                            <UInput 
-                              v-model="check.notes" 
-                              placeholder="Tambah catatan monitoring..." 
-                              size="sm" 
-                              class="w-full text-md" 
-                              icon="i-heroicons-chat-bubble-bottom-center-text"
-                            />
+                              <div class="flex items-start justify-between gap-3">
+                                <UCheckbox 
+                                  v-model="check.checked" 
+                                  :label="check.label"
+                                  class="font-bold text-md text-gray-700 dark:text-gray-200"
+                                  color="success"
+                                  :disabled="!isCheckable(check)"
+                                  @change="saveMonitoring(row.id, row.monitoring)"
+                                />
+                                <UBadge 
+                                  :color="getCheckStatusColor(check)"
+                                  variant="subtle"
+                                  size="md"
+                                  class="font-black uppercase tracking-wider text-[8px]"
+                                >
+                                  {{ getCheckStatus(check) }}
+                                </UBadge>
+                              </div>
+                              
+                              <!-- Notes input -->
+                              <div class="space-y-1">
+                                <UInput 
+                                  v-model="check.notes" 
+                                  placeholder="Tambah catatan monitoring..." 
+                                  size="sm" 
+                                  class="w-full text-md" 
+                                  icon="i-heroicons-chat-bubble-bottom-center-text"
+                                  :disabled="!isCheckable(check)"
+                                  @blur="saveMonitoring(row.id, row.monitoring)"
+                                />
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-
-                      <!-- Save button -->
-                      <div class="flex justify-end gap-3 pt-2">
-                        <UButton 
-                          label="Save Monitoring Controls" 
-                          icon="i-heroicons-check-circle"
-                          color="success"
-                          size="md"
-                          class="font-black shadow-md shadow-success/20"
-                          @click="saveMonitoring(row.id, row.monitoring || [])"
-                        />
                       </div>
                     </div>
                   </td>
@@ -269,21 +267,30 @@ const formatDate = (dateStr: string) => {
 }
 
 const getMonitoringUnit = (row: any) => {
-  const start = new Date(row.start_date)
-  const end = new Date(row.end_date)
-  const diffDays = Math.ceil(Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-  return diffDays < 60 ? 'Weeks' : 'Months'
+  return 'Weeks'
 }
 
 const getTargetCount = (row: any) => {
   const now = new Date()
   if (!row.monitoring) return 0
-  return row.monitoring.filter((check: any) => new Date(check.startDate) <= now).length
+  let count = 0
+  row.monitoring.forEach((m: any) => {
+    if (m.weeks) {
+      count += m.weeks.filter((check: any) => new Date(check.startDate) <= now).length
+    }
+  })
+  return count
 }
 
 const getActualCount = (row: any) => {
   if (!row.monitoring) return 0
-  return row.monitoring.filter((check: any) => check.checked).length
+  let count = 0
+  row.monitoring.forEach((m: any) => {
+    if (m.weeks) {
+      count += m.weeks.filter((check: any) => check.checked).length
+    }
+  })
+  return count
 }
 
 const getProgressPercent = (row: any) => {
@@ -310,6 +317,11 @@ const getCheckStatusColor = (check: any) => {
 const isOverdue = (check: any) => {
   const now = new Date()
   return !check.checked && new Date(check.endDate) < now
+}
+
+const isCheckable = (check: any) => {
+  const now = new Date()
+  return new Date(check.startDate) <= now
 }
 
 async function saveMonitoring(id: string, monitoring: any[]) {

@@ -1,5 +1,5 @@
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Reguler Asesmen -->
       <UCard class="border-2 border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
         <div class="space-y-4">
@@ -27,10 +27,11 @@
           <UButton
             variant="ghost"
             color="neutral"
-            label="View History"
+            label="View Detail"
             icon="i-lucide-chevron-right"
             trailing
             class="p-0 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            @click="openCardDetail(store.summary.regular)"
           />
         </div>
       </UCard>
@@ -62,10 +63,11 @@
           <UButton
             variant="ghost"
             color="neutral"
-            label="View Certificate"
+            label="View Detail"
             icon="i-lucide-certificate"
             trailing
             class="p-0 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            @click="openCardDetail(store.summary.qar)"
           />
         </div>
       </UCard>
@@ -79,8 +81,8 @@
           </div>
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-gray-500 font-medium">Validation Score</span>
-              <span class="font-bold">{{ (store.summary.saiv as any).result }}</span>
+              <span class="text-gray-500 font-medium">Overall Conclusion</span>
+              <span class="font-bold">{{ formatOverallConclusion((store.summary.saiv as any).result) }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-500 font-medium">Validator</span>
@@ -97,10 +99,11 @@
           <UButton
             variant="ghost"
             color="neutral"
-            label="View History"
+            label="View Detail"
             icon="i-lucide-chevron-right"
             trailing
             class="p-0 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            @click="openCardDetail(store.summary.saiv)"
           />
         </div>
       </UCard>
@@ -132,10 +135,11 @@
           <UButton
             variant="ghost"
             color="neutral"
-            label="View History"
+            label="View Detail"
             icon="i-lucide-chevron-right"
             trailing
             class="p-0 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            @click="openCardDetail(store.summary.iacm)"
           />
         </div>
       </UCard>
@@ -146,6 +150,12 @@
 import { useQualityAssuranceStore, QAStatus } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
+
+const openCardDetail = (report: any) => {
+  if (report && report.id) {
+    store.openDetail(report)
+  }
+}
 
 const formatOverallConclusion = (result: string) => {
   if (!result) return '-'
@@ -164,4 +174,4 @@ const formatOverallConclusion = (result: string) => {
   }
   return result
 }
-</script>
+</script>

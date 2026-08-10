@@ -64,6 +64,8 @@ type PerformanceTrendRequest struct {
 type DepartmentRiskResponse struct {
 	Entity              string             `json:"entity"`
 	Type                string             `json:"type"`
+	RiskCategory        string             `json:"risk_category"`
+	TargetTimeline      string             `json:"target_timeline"`
 	PredictedImpact     int                `json:"predicted_impact"`
 	PredictedLikelihood int                `json:"predicted_likelihood"`
 	PredictedScore      float64            `json:"predicted_score"`
@@ -107,6 +109,9 @@ type IndoBERTResponse struct {
 
 type LSTMResponse struct {
 	KPIName              string    `json:"kpi_name"`
+	Entity               string    `json:"entity"`
+	EntityType           string    `json:"entity_type"`
+	TargetHorizon        string    `json:"target_horizon"`
 	PredictedPerformance float64   `json:"predicted_performance"`
 	ForecastSeries       []float64 `json:"forecast_series"`
 	Trend                string    `json:"trend"`

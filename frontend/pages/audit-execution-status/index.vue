@@ -18,6 +18,13 @@ const isHelpModalOpen = ref(false)
 
 const quarters = ['Quarter I', 'Quarter II', 'Quarter III', 'Quarter IV']
 
+const resetFilters = () => {
+  search.value = ''
+  quarter.value = ''
+  category.value = undefined
+  status.value = undefined
+}
+
 const columns = computed(() => [
   { accessorKey: 'name', header: t('auditExecution.columns.name') },
   { accessorKey: 'phase', header: t('auditExecution.columns.phase') },
@@ -158,6 +165,13 @@ const handleRemind = (audit: any) => {
         :items="Object.values(AuditStatus)"
         :placeholder="t('auditExecution.filters.statusPlaceholder')"
         class="w-48"
+      />
+      <UButton
+        label="Reset Filter"
+        icon="i-lucide-rotate-ccw"
+        color="neutral"
+        variant="outline"
+        @click="resetFilters"
       />
     </div>
 

@@ -87,7 +87,7 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditGuidelines.GET("/:id", crud.GetByID(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
 		auditGuidelines.POST("", crud.Create(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
 		auditGuidelines.PUT("/:id", crud.Update(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
-		auditGuidelines.DELETE("/:id", crud.Delete(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
+		auditGuidelines.DELETE("/:id", h.deleteAuditGuideline)
 	}
 
 	// Audit SOPs routes
@@ -134,6 +134,12 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditActivities.GET("/:id", h.registry.AuditActivity.GetActivity)
 		auditActivities.PUT("/:id", h.registry.AuditActivity.UpdateActivity)
 		auditActivities.DELETE("/:id", h.registry.AuditActivity.DeleteActivity)
+	}
+
+	reportTimeliness := apiV1.Group("/report-timeliness")
+	{
+		reportTimeliness.GET("", h.registry.ReportTimeliness.GetByYearAndPeriod)
+		reportTimeliness.POST("", h.registry.ReportTimeliness.CreateOrUpdate)
 	}
 
 	// 1. Annual Audit Plan
@@ -376,6 +382,16 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedConsultingDocuments.GET("/:id/download", uploadedConsultingDocumentCtrl.Download)
 	}
 
+	// 16j. Uploaded Performance Reports (Q1, Q2, Q3, Q4, Tahunan)
+	uploadedPerformanceReportCtrl := controllers.NewUploadedPerformanceReportController(h.db)
+	uploadedPerformanceReports := apiV1.Group("/uploaded-performance-reports")
+	{
+		uploadedPerformanceReports.GET("", uploadedPerformanceReportCtrl.List)
+		uploadedPerformanceReports.POST("", uploadedPerformanceReportCtrl.Upload)
+		uploadedPerformanceReports.DELETE("/:id", uploadedPerformanceReportCtrl.Delete)
+		uploadedPerformanceReports.GET("/:id/download", uploadedPerformanceReportCtrl.Download)
+	}
+
 	// 17. Audit Result Reports
 	auditResultReports := apiV1.Group("/audit-result-reports")
 	{
@@ -447,6 +463,64 @@ func (h *RouteHandler) RegisterRoutes() {
 		performance.PUT("/realization/:id", crud.Update(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
 		performance.DELETE("/realization/:id", crud.Delete(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
 	}
+}
+
+func (h *RouteHandler) deleteAuditGuideline(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid AuditGuideline ID",
+		})
+		return
+	}
+
+	var guideline models.AuditGuideline
+
+	if err := h.db.First(&guideline, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "Audit guideline not found",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to fetch AuditGuideline",
+		})
+		return
+	}
+
+	err = h.db.Transaction(func(tx *gorm.DB) error {
+		// Soft-delete seluruh SOP/Juknis yang menggunakan Pedoman ini.
+		if err := tx.
+			Where("guideline_id = ?", id).
+			Delete(&models.AuditSop{}).Error; err != nil {
+			return err
+		}
+
+		// Setelah child record berhasil dihapus, soft-delete Pedoman.
+		if err := tx.Delete(&guideline).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to delete AuditGuideline",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "AuditGuideline deleted successfully",
+	})
 }
 
 func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {

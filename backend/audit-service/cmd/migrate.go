@@ -120,6 +120,7 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.UploadedExecutiveSummary{},
 		&models.UploadedExecutiveSummaryReport{},
 		&models.UploadedConsultingDocument{},
+		&models.UploadedPerformanceReport{},
 		&models.KPIAchievement{},
 		&models.WorkPlanRealization{},
 		&models.AuditeeSurvey{},

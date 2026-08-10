@@ -203,7 +203,10 @@
                 <template #mitigationStatus-cell="{ row }">
                   <div class="flex items-center gap-2">
                     <template v-if="hasMitigation(row.original.id)">
-                      <UBadge color="success" variant="solid" class="font-black text-[9px]">
+                      <UBadge v-if="isMitigationSelesai(row.original.id)" color="success" variant="solid" class="font-black text-[9px]">
+                        Selesai
+                      </UBadge>
+                      <UBadge v-else color="success" variant="solid" class="font-black text-[9px]">
                         Active ({{ getMitigationCount(row.original.id) }} Plan)
                       </UBadge>
                     </template>
@@ -380,7 +383,7 @@ const profileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()
 const appetiteStore = useRiskAppetiteStore()
 
-const activeTab = ref(0)
+const activeTab = ref('overview')
 const complianceFilter = ref('All Risks')
 
 const isModalOpen = ref(false)
@@ -394,9 +397,9 @@ const form = ref({
 })
 
 const tabs = [
-  { label: 'RAS Guidelines', key: 'overview' as const, icon: 'i-heroicons-information-circle' },
-  { label: 'Risk Compliance', key: 'compliance' as const, icon: 'i-heroicons-shield-check' },
-  { label: 'Appetite Statements', key: 'statements' as const, icon: 'i-heroicons-clipboard-document-list' }
+  {label: 'RAS Guidelines', key: 'overview' as const, value: 'overview', icon: 'i-heroicons-information-circle'},
+  {label: 'Risk Compliance', key: 'compliance' as const, value: 'compliance', icon: 'i-heroicons-shield-check'},
+  {label: 'Appetite Statements', key: 'statements' as const, value: 'statements', icon: 'i-heroicons-clipboard-document-list'}
 ]
 
 const complianceColumns = [
@@ -438,6 +441,35 @@ const hasMitigation = (riskId: string): boolean => {
 
 const getMitigationCount = (riskId: string): number => {
   return mitigationStore.mitigations.filter(m => m.riskId === String(riskId)).length
+}
+
+const isMitigationSelesai = (riskId: string): boolean => {
+  const mits = mitigationStore.mitigations.filter(m => m.riskId === String(riskId))
+  if (mits.length === 0) return false
+  
+  let allSelesai = true
+  for (const row of mits) {
+    if (!row.monitoring) {
+      allSelesai = false
+      break
+    }
+    
+    let target = 0
+    let actual = 0
+    const now = new Date()
+    row.monitoring.forEach((m: any) => {
+      if (m.weeks) {
+        target += m.weeks.filter((check: any) => new Date(check.startDate) <= now).length
+        actual += m.weeks.filter((check: any) => check.checked).length
+      }
+    })
+    
+    if (target === 0 || actual < target) {
+      allSelesai = false
+      break
+    }
+  }
+  return allSelesai
 }
 
 // KPI Computations

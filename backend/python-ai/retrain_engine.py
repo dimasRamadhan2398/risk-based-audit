@@ -50,9 +50,9 @@ class AutoRetrainEngine:
     def __init__(self):
         self.model_dir = MODEL_DIR
         self.ai_training_dir = AI_TRAINING_DIR
-        self.risk_service_url = os.getenv("RISK_SERVICE_URL", "http://localhost:8081")
-        self.audit_service_url = os.getenv("AUDIT_SERVICE_URL", "http://localhost:8082")
-        self.master_service_url = os.getenv("MASTER_SERVICE_URL", "http://localhost:8083")
+        self.risk_service_url = os.getenv("RISK_SERVICE_URL", "http://risk-service:8002" if os.path.exists("/.dockerenv") else "http://localhost:8081")
+        self.audit_service_url = os.getenv("AUDIT_SERVICE_URL", "http://audit-service:8001" if os.path.exists("/.dockerenv") else "http://localhost:8082")
+        self.master_service_url = os.getenv("MASTER_SERVICE_URL", "http://master-service:8002" if os.path.exists("/.dockerenv") else "http://localhost:8083")
 
     def sync_live_cross_service_data(self) -> dict:
         """

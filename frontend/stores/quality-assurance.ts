@@ -7,11 +7,14 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const errorMsg = ref('')
 
   const getMasterServiceBaseUrl = () => {
-    if (import.meta.client && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      return 'http://localhost:8080/api/v1';
-    }
     const config = useRuntimeConfig()
-    return config.public.masterServiceBaseUrl || (import.meta.env.PROD ? 'https://api.auditsphere.app/api/v1' : 'http://localhost:8080/api/v1')
+    if (import.meta.client) {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8080/api/v1';
+      }
+      return 'https://api.auditsphere.app/api/v1';
+    }
+    return config.public.masterServiceBaseUrl || 'https://api.auditsphere.app/api/v1'
   }
 
   const columns = [
@@ -35,14 +38,35 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     }
   }
 
-  const getTypeIconColor = (type: QAType) => {
-    switch (type) {
-      case QAType.REGULAR: return 'bg-amber-400'
-      case QAType.SAIV: return 'bg-blue-500'
-      case QAType.QAR: return 'bg-gray-100 border'
-      case QAType.IACM: return 'bg-indigo-500'
-      default: return 'bg-gray-300'
+  const matchQAType = (type: string, target: QAType | string): boolean => {
+    if (!type || !target) return false
+    if (type === target) return true
+
+    const t = type.toLowerCase().trim()
+    const targetStr = target.toLowerCase().trim()
+
+    if (target === QAType.REGULAR || targetStr.includes('regular') || targetStr.includes('rsa')) {
+      return t.includes('regular') || t.includes('rsa')
     }
+    if (target === QAType.QAR || targetStr.includes('qar') || targetStr.includes('quality assurance review')) {
+      return t.includes('qar') || t.includes('quality assurance review')
+    }
+    if (target === QAType.SAIV || targetStr.includes('saiv') || targetStr.includes('independent validation')) {
+      return t.includes('saiv')
+    }
+    if (target === QAType.IACM || targetStr.includes('iacm') || targetStr.includes('bumn')) {
+      return t.includes('iacm')
+    }
+
+    return false
+  }
+
+  const getTypeIconColor = (type: string) => {
+    if (matchQAType(type, QAType.REGULAR)) return 'bg-amber-400'
+    if (matchQAType(type, QAType.SAIV)) return 'bg-blue-500'
+    if (matchQAType(type, QAType.QAR)) return 'bg-gray-100 border'
+    if (matchQAType(type, QAType.IACM)) return 'bg-indigo-500'
+    return 'bg-gray-300'
   }
 
   const page = ref(1)
@@ -110,7 +134,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       type: QAType.SAIV,
       period: 'Cycle 2025',
       reportName: 'Self Assessment GIAS \'22-24',
-      result: '92%',
+      result: 'Generally Conformed',
       status: QAStatus.COMPLETED,
       conductedBy: 'PT Independent Consultant X',
       assessmentTitle: 'SAIV - Cycle 2025',
@@ -310,13 +334,28 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     }
   }
 
+  const viewDocument = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response], { type: response.type || 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+    } catch (error) {
+      console.error('Failed to view QAR attachment:', error)
+    }
+  }
+
   const filteredReports = computed(() => {
     return reports.value.filter(report => {
       if (report.isImported) return false
       
       const matchesSearch = (report.reportName || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         (report.assessmentTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
-      const matchesType = !selectedType.value || report.type === selectedType.value
+      const matchesType = !selectedType.value || matchQAType(report.type, selectedType.value)
       const matchesPeriod = !selectedPeriod.value || (report.period || '').includes(selectedPeriod.value)
       const matchesStatus = !selectedStatus.value || report.status === selectedStatus.value
       return matchesSearch && matchesType && matchesPeriod && matchesStatus
@@ -328,26 +367,26 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   })
 
   const regularImportedReports = computed(() => {
-    return reports.value.filter(report => report.isImported && report.type === QAType.REGULAR)
+    return reports.value.filter(report => report.isImported && matchQAType(report.type, QAType.REGULAR))
   })
 
   const saivImportedReports = computed(() => {
-    return reports.value.filter(report => report.isImported && report.type === QAType.SAIV)
+    return reports.value.filter(report => report.isImported && matchQAType(report.type, QAType.SAIV))
   })
 
   const qarImportedReports = computed(() => {
-    return reports.value.filter(report => report.isImported && report.type === QAType.QAR)
+    return reports.value.filter(report => report.isImported && matchQAType(report.type, QAType.QAR))
   })
 
   const iacmImportedReports = computed(() => {
-    return reports.value.filter(report => report.isImported && report.type === QAType.IACM)
+    return reports.value.filter(report => report.isImported && matchQAType(report.type, QAType.IACM))
   })
 
   const summary = computed(() => {
-    const regular = reports.value.filter(r => r.type === QAType.REGULAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
-    const qar = reports.value.filter(r => r.type === QAType.QAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
-    const saiv = reports.value.filter(r => r.type === QAType.SAIV).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
-    const iacm = reports.value.filter(r => r.type === QAType.IACM).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const regular = reports.value.filter(r => matchQAType(r.type, QAType.REGULAR)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const qar = reports.value.filter(r => matchQAType(r.type, QAType.QAR)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const saiv = reports.value.filter(r => matchQAType(r.type, QAType.SAIV)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const iacm = reports.value.filter(r => matchQAType(r.type, QAType.IACM)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
 
     return {
       regular: regular || { result: '-', period: '-', status: QAStatus.PLANNED },
@@ -424,7 +463,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   return {
     reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isImportOpen, isDetailOpen, columns,
     selectedReport, filteredReports, importedReports, regularImportedReports, saivImportedReports, qarImportedReports, iacmImportedReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
-    handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor,
+    handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor, matchQAType,
     editReport, isEditing, deleteReport, fetchReports, loading, errorMsg
   }
 })
