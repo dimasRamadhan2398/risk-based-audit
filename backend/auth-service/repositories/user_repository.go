@@ -21,6 +21,7 @@ type UserRepositoryInterface interface {
 	FindByEmail(email string) (*models.User, error)
 	FindMany(offset, limit int, search, department string, isActive *bool) ([]*models.User, error)
 	Count(search, department string, isActive *bool) (int64, error)
+	AssignRoles(userID uuid.UUID, roleNames []string) error
 }
 
 // UserRepository handles user data operations
@@ -134,4 +135,19 @@ func (r *UserRepository) Count(search, department string, isActive *bool) (int64
 	}
 
 	return count, nil
+}
+
+// AssignRoles assigns roles to a user by role names
+func (r *UserRepository) AssignRoles(userID uuid.UUID, roleNames []string) error {
+	var user models.User
+	if err := r.GetDB().First(&user, userID).Error; err != nil {
+		return err
+	}
+
+	var roles []models.Role
+	if err := r.GetDB().Where("name IN ?", roleNames).Find(&roles).Error; err != nil {
+		return err
+	}
+
+	return r.GetDB().Model(&user).Association("Roles").Replace(roles)
 }

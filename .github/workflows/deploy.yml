@@ -1,0 +1,123 @@
+name: AuditSphere CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository }}
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Images to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 1. Auth Service
+      - name: Build & Push Auth Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/auth-service
+          file: ./backend/auth-service/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/auth-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 2. Audit Service
+      - name: Build & Push Audit Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/audit-service
+          file: ./backend/audit-service/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/audit-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 3. Master Service
+      - name: Build & Push Master Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/master-service
+          file: ./backend/master-service/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/master-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 4. Risk Service
+      - name: Build & Push Risk Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/risk-service
+          file: ./backend/risk-service/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/risk-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 5. Analytics Service
+      - name: Build & Push Analytics Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/analytics-service
+          file: ./backend/analytics-service/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/analytics-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 6. Python AI Service
+      - name: Build & Push Python AI Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/python-ai
+          file: ./backend/python-ai/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/python-ai:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-vps:
+    name: Deploy to VPS
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute SSH commands to update VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            echo "🚀 Pulling latest changes from GitHub repository..."
+            cd /app/rbia-backend
+            docker compose -f docker-compose.prod.yml pull || true
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            cd /app/rbia-frontend
+            docker compose -f docker-compose.prod.yml pull || true
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            echo "🧹 Cleaning up unused Docker images..."
+            docker image prune -f
+            echo "✅ Deployment finished successfully!"

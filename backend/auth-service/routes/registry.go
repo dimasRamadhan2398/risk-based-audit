@@ -44,6 +44,8 @@ func (r *Registry) SetController(controller controllers.IControllerRegistry) {
 func (r *Registry) Serve() {
 	r.auth()
 	r.users()
+	r.roles()
+	r.permissions()
 	r.mfa()
 	r.trustedDevices()
 	r.confidentiality()
@@ -65,6 +67,36 @@ func (r *Registry) auth() {
 			protected.POST("/change-password", r.controller.GetAuth().ChangePassword)
 			protected.GET("/me", r.controller.GetAuth().Me)
 		}
+	}
+}
+
+// roles registers role management routes
+func (r *Registry) roles() {
+	roles := r.group.Group("/roles")
+	roles.Use(r.authMiddleware.Authenticate())
+	{
+		roles.GET("", r.controller.GetRole().GetRoles)
+		roles.GET("/all", r.controller.GetRole().GetAllRoles)
+		roles.GET("/:id", r.controller.GetRole().GetRoleByID)
+
+		adminOnly := roles.Group("")
+		adminOnly.Use(r.authMiddleware.RequireRoles("ADMIN"))
+		{
+			adminOnly.POST("", r.controller.GetRole().CreateRole)
+			adminOnly.PUT("/:id", r.controller.GetRole().UpdateRole)
+			adminOnly.DELETE("/:id", r.controller.GetRole().DeleteRole)
+			adminOnly.POST("/:id/permissions", r.controller.GetRole().AssignPermissions)
+			adminOnly.DELETE("/:id/permissions", r.controller.GetRole().RemovePermissions)
+		}
+	}
+}
+
+// permissions registers permission routes
+func (r *Registry) permissions() {
+	permissions := r.group.Group("/permissions")
+	permissions.Use(r.authMiddleware.Authenticate())
+	{
+		permissions.GET("", r.controller.GetRole().ListPermissions)
 	}
 }
 
