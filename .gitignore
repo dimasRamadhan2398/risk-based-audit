@@ -15,6 +15,33 @@ Thumbs.db
 
 # Large binaries and archives
 *.zip
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+*.7z
+*.rar
+*.bz2
 *.safetensors
 *.bin
+*.iso
+*.dmg
 **/model/
+
+# Build artifacts & caches
+.output/
+.nuxt/
+dist/
+build/
+
+# Database dumps & local storage
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql.gz
+
+# Logs
+*.log
+logs/
+
