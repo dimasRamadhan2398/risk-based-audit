@@ -6,7 +6,6 @@ yarn-error.log*
 
 # Nuxt build
 .nuxt/
-.output/
 dist/
 
 # Logs

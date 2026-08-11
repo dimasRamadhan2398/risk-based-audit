@@ -24,6 +24,15 @@ export default defineNuxtConfig({
     "nuxt-charts",
     "nuxt-chatgpt",
   ],
+  fonts: {
+    providers: {
+      google: false,
+      bunny: false,
+      fontshare: false,
+      fontsource: false,
+      adobe: false
+    }
+  },
   ssr: false,
   routeRules: {
     "/**": {
