@@ -108,7 +108,7 @@
           </div>
         </div>
 
-        <div class="mt-3 text-xs text-slate-400 flex items-center gap-1">
+        <div class="mt-3 text-md text-slate-400 flex items-center gap-1">
           <UIcon name="i-lucide-check-circle-2" class="size-3.5 text-emerald-500" />
           <span>Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile.</span>
         </div>
@@ -175,35 +175,35 @@
               <tr class="hover:bg-slate-50/50">
                 <td class="py-2.5 px-4 font-bold text-emerald-600 whitespace-nowrap">90 – 100%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block">Highly Effective</span>
+                  <span class="bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Highly Effective</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600">Controls reliably mitigate risk and require only routine monitoring.</td>
               </tr>
               <tr class="hover:bg-slate-50/50">
                 <td class="py-2.5 px-4 font-bold text-sky-600 whitespace-nowrap">80 – 89%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block">Effective</span>
+                  <span class="bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Effective</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600">Controls function well; only minor improvements are recommended.</td>
               </tr>
               <tr class="hover:bg-slate-50/50">
                 <td class="py-2.5 px-4 font-bold text-amber-600 whitespace-nowrap">70 – 79%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block">Moderately Effective</span>
+                  <span class="bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Moderately Effective</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600">Some weaknesses exist; corrective actions should be planned.</td>
               </tr>
               <tr class="hover:bg-slate-50/50">
                 <td class="py-2.5 px-4 font-bold text-orange-600 whitespace-nowrap">60 – 69%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block">Weak</span>
+                  <span class="bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Weak</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600">Significant improvements are needed to reduce risk adequately.</td>
               </tr>
               <tr class="hover:bg-slate-50/50">
                 <td class="py-2.5 px-4 font-bold text-red-600 whitespace-nowrap">&lt; 60%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block">Ineffective</span>
+                  <span class="bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Ineffective</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600">Controls do not provide sufficient risk mitigation and require immediate attention.</td>
               </tr>
@@ -256,7 +256,7 @@
             >
               <!-- Risk Code & Event -->
               <td class="py-3 px-4 align-top">
-                <span class="inline-block px-2 py-0.5 bg-primary-50 text-primary-700 font-bold rounded text-xs mb-1">
+                <span class="inline-block px-2 py-0.5 bg-primary-50 text-primary-700 font-bold rounded text-md mb-1">
                   {{ item.risk_code }}
                 </span>
                 <p class="font-medium text-slate-900 max-w-[200px] leading-snug line-clamp-2" :title="item.risk_event">
@@ -266,7 +266,7 @@
 
               <!-- Control Code (Risk Control ID) & Description -->
               <td class="py-3 px-4 align-top">
-                <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-800 font-extrabold rounded text-xs mb-1 border border-slate-200">
+                <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-800 font-extrabold rounded text-md mb-1 border border-slate-200">
                   {{ item.control_code }}
                 </span>
                 <p class="text-slate-600 max-w-[240px] leading-relaxed line-clamp-2" :title="item.control_description">
@@ -277,7 +277,7 @@
               <!-- Department & PIC -->
               <td class="py-3 px-4 align-top">
                 <p class="text-md text-slate-800 font-semibold mb-0.5">{{ item.department }}</p>
-                <p class="text-xs text-slate-500">PIC: <strong class="text-slate-700">{{ item.control_owner }}</strong></p>
+                <p class="text-md text-slate-500">PIC: <strong class="text-slate-700">{{ item.control_owner }}</strong></p>
               </td>
 
               <!-- COSO Ratings 1-5 -->
@@ -464,7 +464,7 @@
           <div class="border-t border-slate-100 pt-4 space-y-3">
             <div class="flex items-center justify-between">
               <h4 class="text-md font-bold text-slate-900 uppercase tracking-wider">Rating 5 Dimensi COSO 2013</h4>
-              <span class="text-xs text-slate-500 font-medium">Pilih Skala 1 - 5</span>
+              <span class="text-md text-slate-500 font-medium">Pilih Skala 1 - 5</span>
             </div>
             
             <div
@@ -480,7 +480,7 @@
                   v-for="star in 5"
                   :key="star"
                   type="button"
-                  class="w-9 h-8 rounded-md font-bold text-md transition-colors flex items-center justify-center shadow-xs"
+                  class="w-9 h-8 rounded-md font-bold text-md transition-colors flex items-center justify-center shadow-md"
                   :class="getRatingBtnClass((formData as any)[dim.ratingKey], star)"
                   @click="(formData as any)[dim.ratingKey] = star"
                 >
@@ -602,15 +602,15 @@ const getItemRating = (scorePercent: number) => {
 const getRatingBadgeClass = (ratingLabel: string) => {
   switch (ratingLabel) {
     case 'Highly Effective':
-      return 'bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-xs shadow-xs whitespace-nowrap inline-block'
+      return 'bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
     case 'Effective':
-      return 'bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-xs shadow-xs whitespace-nowrap inline-block'
+      return 'bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
     case 'Moderately Effective':
-      return 'bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-xs shadow-xs whitespace-nowrap inline-block'
+      return 'bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
     case 'Weak':
-      return 'bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-xs shadow-xs whitespace-nowrap inline-block'
+      return 'bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
     default:
-      return 'bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-xs shadow-xs whitespace-nowrap inline-block'
+      return 'bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
   }
 }
 

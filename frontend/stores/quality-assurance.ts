@@ -340,7 +340,15 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
         responseType: 'blob'
       })
-      const blob = new Blob([response], { type: response.type || 'application/pdf' })
+      let mimeType = 'application/pdf'
+      if (fileName) {
+        const lowerName = fileName.toLowerCase()
+        if (lowerName.endsWith('.png')) mimeType = 'image/png'
+        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg'
+        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain'
+      }
+      
+      const blob = new Blob([response], { type: mimeType })
       const url = window.URL.createObjectURL(blob)
       window.open(url, '_blank')
       setTimeout(() => window.URL.revokeObjectURL(url), 10000)
@@ -463,7 +471,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   return {
     reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isImportOpen, isDetailOpen, columns,
     selectedReport, filteredReports, importedReports, regularImportedReports, saivImportedReports, qarImportedReports, iacmImportedReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
-    handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor, matchQAType,
+    handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, viewDocument, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor, matchQAType,
     editReport, isEditing, deleteReport, fetchReports, loading, errorMsg
   }
 })

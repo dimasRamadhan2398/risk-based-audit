@@ -7,7 +7,7 @@
         content: 'sm:max-w-2xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl',
         header: 'border-b border-gray-100 dark:border-gray-800 pb-4 text-gray-900 dark:text-white font-bold',
         body: 'p-6 space-y-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white',
-        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-xs'
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
       <template #body>

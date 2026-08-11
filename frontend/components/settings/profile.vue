@@ -1,16 +1,16 @@
 <template>
-  <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+  <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
     <template #header>
       <div>
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.profile.title') }}</h3>
-        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{{ t('settings.profile.subtitle') }}</p>
+        <p class="text-md sm:text-sm text-gray-500 dark:text-gray-400">{{ t('settings.profile.subtitle') }}</p>
       </div>
     </template>
 
     <div class="space-y-6">
       <!-- Profile Picture Section -->
       <div class="flex items-center gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
-        <div class="w-20 h-20 rounded-2xl bg-primary-100 dark:bg-primary-950 flex items-center justify-center border border-primary-200 dark:border-primary-800 overflow-hidden shrink-0 shadow-xs">
+        <div class="w-20 h-20 rounded-2xl bg-primary-100 dark:bg-primary-950 flex items-center justify-center border border-primary-200 dark:border-primary-800 overflow-hidden shrink-0 shadow-md">
           <img v-if="preview" :src="preview" alt="Avatar" class="w-full h-full object-cover" />
           <span v-else class="text-2xl font-extrabold text-primary-700 dark:text-primary-400">
             {{ userInitial }}
@@ -21,12 +21,12 @@
             <UButton color="primary" variant="soft" class="font-semibold rounded-xl" @click="triggerUpload">
               {{ t('settings.profile.changePhoto') }}
             </UButton>
-            <UButton v-if="preview" color="neutral" variant="ghost" class="rounded-xl text-xs" @click="preview = ''">
+            <UButton v-if="preview" color="neutral" variant="ghost" class="rounded-xl text-md" @click="preview = ''">
               {{ t('settings.profile.remove') }}
             </UButton>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.profile.fileLimits', { size: mamdizeMB }) }}</p>
-          <p v-if="statusMessage" class="text-xs font-semibold" :class="isError ? 'text-red-500' : 'text-emerald-600'">
+          <p class="text-md text-gray-500 dark:text-gray-400">{{ t('settings.profile.fileLimits', { size: mamdizeMB }) }}</p>
+          <p v-if="statusMessage" class="text-md font-semibold" :class="isError ? 'text-red-500' : 'text-emerald-600'">
             {{ statusMessage }}
           </p>
         </div>
@@ -101,7 +101,7 @@
               :key="role"
               color="primary"
               variant="subtle"
-              class="font-semibold px-3 py-1 rounded-full text-xs"
+              class="font-semibold px-3 py-1 rounded-full text-md"
             >
               {{ role }}
             </UBadge>

@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"audit-service/controllers"
 	ctrlActivity "audit-service/controllers/audit_activity"
 	ctrlAssignment "audit-service/controllers/audit_assignment"
 	ctrlCharter "audit-service/controllers/audit_charter"
@@ -16,7 +15,6 @@ type RouteRegistry struct {
 	AuditMandate    ctrlMandate.AuditMandateControllerInterface
 	AuditAssignment ctrlAssignment.AuditAssignmentControllerInterface
 	Media           *ctrlMedia.MediaController
-	ReportTimeliness *controllers.ReportTimelinessController
 }
 
 // NewRouteRegistry creates a new route registry
@@ -47,8 +45,4 @@ func (r *RouteRegistry) SetAuditActivityController(ctrl ctrlActivity.AuditActivi
 // SetMediaController sets the media controller
 func (r *RouteRegistry) SetMediaController(ctrl *ctrlMedia.MediaController) {
 	r.Media = ctrl
-}
-
-func (r *RouteRegistry) SetReportTimelinessController(ctrl *controllers.ReportTimelinessController) {
-	r.ReportTimeliness = ctrl
 }

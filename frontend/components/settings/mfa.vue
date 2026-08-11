@@ -12,7 +12,7 @@
             </div>
             <div>
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.mfa.title') }}</h3>
-              <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              <p class="text-md sm:text-sm text-gray-500 dark:text-gray-400">
                 {{ t('settings.mfa.subtitle') }}
               </p>
             </div>
@@ -23,7 +23,7 @@
               :color="isMfaEnabled ? 'success' : 'warning'"
               variant="subtle"
               size="md"
-              class="font-semibold px-3 py-1 rounded-full shadow-xs"
+              class="font-semibold px-3 py-1 rounded-full shadow-md"
             >
               <template #leading>
                 <span class="w-2 h-2 rounded-full" :class="isMfaEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'" />
@@ -73,13 +73,13 @@
               <div v-else class="w-44 h-44 flex items-center justify-center text-gray-400 text-sm animate-pulse">
                 Membuat QR Code...
               </div>
-              <span class="text-xs text-gray-500 font-medium">Pindai QR Code</span>
+              <span class="text-md text-gray-500 font-medium">Pindai QR Code</span>
             </div>
 
             <!-- Steps -->
             <div class="space-y-4 flex-1">
               <h4 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <span class="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">1</span>
+                <span class="w-6 h-6 rounded-full bg-primary text-white text-md flex items-center justify-center font-bold">1</span>
                 {{ t('settings.mfa.scanTitle') }}
               </h4>
               <p class="text-sm text-gray-600 dark:text-gray-300">
@@ -102,11 +102,11 @@
 
               <div class="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-4">
                 <h4 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">2</span>
+                  <span class="w-6 h-6 rounded-full bg-primary text-white text-md flex items-center justify-center font-bold">2</span>
                   {{ t('settings.mfa.verifyTitle') }}
                 </h4>
 
-                <div class="max-w-xs space-y-3">
+                <div class="max-w-md space-y-3">
                   <UFormField :label="t('settings.mfa.verificationCodeLabel')" :help="t('settings.mfa.verificationCodeHelp')">
                     <UInput
                       v-model="verificationCode"
@@ -144,7 +144,7 @@
 
       <!-- MFA Enabled State -->
       <div v-else class="space-y-6 p-2">
-        <div class="flex items-start gap-4 p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200 shadow-xs">
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200 shadow-md">
           <UIcon name="i-lucide-shield-check" class="w-7 h-7 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
           <div class="space-y-1">
             <h4 class="text-base font-bold text-emerald-950 dark:text-emerald-100">{{ t('settings.mfa.mfaActiveTitle') }}</h4>
@@ -157,7 +157,7 @@
         <div class="pt-2 flex items-center justify-between border-t border-gray-100 dark:border-gray-800">
           <div>
             <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('settings.mfa.disableTitle') }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.mfa.disableDesc') }}</p>
+            <p class="text-md text-gray-500 dark:text-gray-400">{{ t('settings.mfa.disableDesc') }}</p>
           </div>
           <UButton
             icon="i-lucide-shield-off"
@@ -182,7 +182,7 @@
             </div>
             <div>
               <h3 class="text-base font-bold text-gray-900 dark:text-white">{{ t('settings.mfa.modalTitle') }}</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.mfa.modalSubtitle') }}</p>
+              <p class="text-md text-gray-500 dark:text-gray-400">{{ t('settings.mfa.modalSubtitle') }}</p>
             </div>
           </div>
         </template>

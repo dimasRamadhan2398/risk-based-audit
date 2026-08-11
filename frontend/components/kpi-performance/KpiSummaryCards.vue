@@ -206,7 +206,7 @@ const cards = computed(() => {
       <!-- Tiered sub-metrics details -->
       <div v-if="card.subMetrics && card.subMetrics.length > 0" class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
         <div v-for="(sub, sIdx) in card.subMetrics" :key="sIdx" class="space-y-1 bg-gray-50 dark:bg-gray-800/40 p-2.5 rounded-lg border border-gray-100 dark:border-gray-800/80">
-          <div class="flex justify-between items-center text-xs font-semibold text-gray-400 dark:text-gray-500 gap-2">
+          <div class="flex justify-between items-center text-md font-semibold text-gray-400 dark:text-gray-500 gap-2">
             <span class="truncate" :title="sub.title">{{ sub.title }}</span>
             <span class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded text-[10px] shrink-0">{{ sub.target }}</span>
           </div>

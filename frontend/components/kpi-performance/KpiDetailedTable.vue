@@ -263,8 +263,8 @@ function editKpiTarget(rowOriginal: any) {
           <UButton
             color="primary"
             variant="soft"
-            size="xs"
-            icon="i-lucide-pencil shadow-xs"
+            size="md"
+            icon="i-lucide-pencil shadow-md"
             class="font-semibold rounded-lg"
             @click="editKpiTarget(row.original)"
           >

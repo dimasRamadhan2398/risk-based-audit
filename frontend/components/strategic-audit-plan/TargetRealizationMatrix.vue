@@ -7,8 +7,8 @@
         {{ t('strategicPlan.form.targetMatrixTitle', { start: startYear, end: endYear }) }}
         <span class="text-orange-500">*</span>
       </label>
-      <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-        {{ t('strategicPlan.form.targetMatrixSubtitle', { duration: yearsList.length }) }}
+      <span class="text-md text-gray-500 dark:text-gray-400 font-medium">
+        {{ t('strategicPlan.form.targetMatrimdubtitle', { duration: yearsList.length }) }}
       </span>
     </div>
 
@@ -17,7 +17,7 @@
       <div
         v-for="(yr, idx) in yearsList"
         :key="yr"
-        class="space-y-2 p-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-center shadow-xs transition-all hover:border-primary-400"
+        class="space-y-2 p-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-center shadow-md transition-all hover:border-primary-400"
       >
         <div class="pb-1.5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
           <span class="text-[11px] font-extrabold uppercase tracking-wide text-primary-600 dark:text-primary-400">
@@ -34,7 +34,7 @@
           <UInput
             :model-value="(store.form.kpiTargets as any)?.[yr] || ''"
             placeholder="Target"
-            size="xs"
+            size="md"
             class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updateYearTarget(yr, val)"
           />
@@ -46,7 +46,7 @@
           <UInput
             :model-value="(store.form.kpiActuals as any)?.[yr] || ''"
             placeholder="Actual"
-            size="xs"
+            size="md"
             class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updateYearActual(yr, val)"
           />
@@ -56,7 +56,7 @@
         <div class="space-y-1 text-left">
           <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Hitungan</label>
           <div
-            class="w-full text-center font-bold font-mono text-xs py-1 px-2 rounded border transition-colors"
+            class="w-full text-center font-bold font-mono text-md py-1 px-2 rounded border transition-colors"
             :class="getYearCalcColorClass(yr)"
           >
             {{ getYearCalculation(yr) }}

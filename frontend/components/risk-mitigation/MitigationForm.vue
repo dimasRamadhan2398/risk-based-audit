@@ -54,7 +54,7 @@
                 </UFormField>
 
                 <UFormField label="End Date" required>
-                    <UInput v-model="store.form.end_date" type="date" :min="todayDate" icon="i-heroicons-calendar-days" required />
+                    <UInput v-model="store.form.end_date" type="date" :min="minEndDate" icon="i-heroicons-calendar-days" required />
                 </UFormField>
             </div>
 
@@ -93,5 +93,17 @@ const todayDate = computed(() => {
   const offset = today.getTimezoneOffset()
   const localDate = new Date(today.getTime() - (offset * 60 * 1000))
   return localDate.toISOString().split('T')[0]
+})
+
+// Menghitung batas minimum untuk End Date (minimal 7 hari setelah Start Date)
+const minEndDate = computed(() => {
+  if (store.form.start_date) {
+    const startDate = new Date(store.form.start_date)
+    startDate.setDate(startDate.getDate() + 7)
+    const offset = startDate.getTimezoneOffset()
+    const localDate = new Date(startDate.getTime() - (offset * 60 * 1000))
+    return localDate.toISOString().split('T')[0]
+  }
+  return todayDate.value
 })
 </script>

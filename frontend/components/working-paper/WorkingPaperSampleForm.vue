@@ -4,7 +4,7 @@
         <div></div>
 
         <template #content>
-        <UForm :state="store.sampleForm" @submit.prevent="store.handleSubmitF03">
+        <UForm :schema="sampleSchema" :state="store.sampleForm" @submit.prevent="store.handleSubmitF03">
         <div class="bg-[var(--bg-main)] rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto border border-[var(--border-main)] transition-colors duration-300">
         <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center transition-colors duration-300">
             <UIcon name="charter" class="text-primary-500 " size="32"></UIcon>
@@ -13,10 +13,10 @@
         </div>
         <div class="space-y-6 m-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-full">
-            <UFormField label="Total Populasi" required>
+            <UFormField label="Total Populasi" required name="population">
             <UInput type="number" v-model="store.sampleForm.population" placeholder="Ex: 100" class="w-full"/>
             </UFormField>
-            <UFormField label="Jumlah Sampel yang Diuji" required>
+            <UFormField label="Jumlah Sampel yang Diuji" required name="sampleSize">
             <UInput type="number" v-model="store.sampleForm.sampleSize" placeholder="Ex: 10" class="w-full"/>
             </UFormField>
         </div>
@@ -57,16 +57,20 @@
             <UButton color="primary" icon="i-heroicons-plus" variant="soft" label="Tambah Sampel" @click="store.addSample" />
         
 
-        <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full">
-            <UFormField label="Kesimpulan" class="font-semibold text-sm" />
-            <UTextarea class="md:col-span-3" v-model="store.sampleForm.conclusion" :rows="4" placeholder="Ketik kontrol pengamanan / SOP yang sedang dievaluasi di lapangan..." />
-        </div>
+        <UFormField 
+            label="Kesimpulan" 
+            name="conclusion" 
+            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full" 
+            :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
+        >
+            <UTextarea v-model="store.sampleForm.conclusion" :rows="4" placeholder="Ketik kontrol pengamanan / SOP yang sedang dievaluasi di lapangan..." class="w-full" />
+        </UFormField>
 
         <div class="flex justify-end p-6 border-gray-100">
             <UButton 
+                type="submit"
                 :label="store.isEditingF03 ? 'Update Data' : 'Submit'" 
                 color="primary"
-                @click="store.handleSubmitF03" 
             />
         </div>
         </div>
@@ -79,8 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useWorkingPaperStore, sampleSchema } from '~/stores/working-paper'
 
-// Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useWorkingPaperStore()
 </script>

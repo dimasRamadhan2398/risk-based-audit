@@ -1,10 +1,10 @@
 <template>
-  <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+  <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
     <template #header>
       <div class="flex items-center justify-between">
         <div>
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.permission.title') }}</h3>
-          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+          <p class="text-md sm:text-sm text-gray-500 dark:text-gray-400">
             {{ t('settings.permission.subtitle') }}
           </p>
         </div>

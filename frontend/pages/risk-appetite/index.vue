@@ -454,17 +454,10 @@ const isMitigationSelesai = (riskId: string): boolean => {
       break
     }
     
-    let target = 0
-    let actual = 0
-    const now = new Date()
-    row.monitoring.forEach((m: any) => {
-      if (m.weeks) {
-        target += m.weeks.filter((check: any) => new Date(check.startDate) <= now).length
-        actual += m.weeks.filter((check: any) => check.checked).length
-      }
-    })
+    const total = row.monitoring.length
+    const actual = row.monitoring.filter((check: any) => check.checked).length
     
-    if (target === 0 || actual < target) {
+    if (total === 0 || actual < total) {
       allSelesai = false
       break
     }

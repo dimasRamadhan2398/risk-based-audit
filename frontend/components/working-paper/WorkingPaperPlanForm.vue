@@ -4,7 +4,7 @@
         <div></div>
 
         <template #content>
-        <UForm :state="store.planForm" @submit.prevent="store.handleSubmitF05">
+        <UForm :schema="planSchema" :state="store.planForm" @submit.prevent="store.handleSubmitF05">
         <div class="rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
 
         <div class="px-6 py-4 border-b border-secondary-200 rounded-t-xl flex justify-between items-center">
@@ -14,38 +14,58 @@
         </div>
         
         <div class="space-y-6 m-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-            <UFormField label="Rekomendasi Auditor (Solusi)" class="font-semibold text-sm mt-2" />
-            <UTextarea class="md:col-span-3" v-model="store.planForm.recommendation" :rows="3" placeholder="Ex: Tim IT perlu menambahkan fitur hard-block..." />
-            </div>
+            <UFormField 
+                label="Rekomendasi Auditor (Solusi)" 
+                name="recommendation" 
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
+                :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
+            >
+                <UTextarea v-model="store.planForm.recommendation" :rows="3" placeholder="Ex: Tim IT perlu menambahkan fitur hard-block..." class="w-full" />
+            </UFormField>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-            <UFormField label="Tanggapan Audite (Managemen Response)" class="font-semibold text-sm mt-2" />
-            <UTextarea class="md:col-span-3" v-model="store.planForm.response" :rows="3" placeholder="Ex: Kami setuju, update akan dilakukan di Q3..." />
-            </div>
+            <UFormField 
+                label="Tanggapan Audite (Managemen Response)" 
+                name="response" 
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
+                :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
+            >
+                <UTextarea v-model="store.planForm.response" :rows="3" placeholder="Ex: Kami setuju, update akan dilakukan di Q3..." class="w-full" />
+            </UFormField>
 
             <h2 class="text-xl text-center font-bold text-gray-800  mb-6">Detail Rencana Aksi (Action Plan)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-            <UFormField label="Deskripsi Action" class="font-semibold text-sm" />
-            <UInput class="md:col-span-3" v-model="store.planForm.actionDescription" placeholder="Ex: Staf lupa meminta TTD Manager" />
-            </div>
+            <UFormField 
+                label="Deskripsi Action" 
+                name="actionDescription" 
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
+                :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
+            >
+                <UInput v-model="store.planForm.actionDescription" placeholder="Ex: Staf lupa meminta TTD Manager" class="w-full" />
+            </UFormField>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-            <UFormField label="PIC (Penanggung Jawab)" class="font-semibold text-sm" />
-            <USelectMenu class="md:col-span-3" v-model="store.planForm.pic" icon="i-heroicons-magnifying-glass" :items="store.options.pic" placeholder="Cari Nama Karyawan Ex: Dimas - IT" />
-            </div>
+            <UFormField 
+                label="PIC (Penanggung Jawab)" 
+                name="pic" 
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
+                :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
+            >
+                <USelectMenu v-model="store.planForm.pic" icon="i-heroicons-magnifying-glass" :items="store.options.pic" placeholder="Cari Nama Karyawan Ex: Dimas - IT" class="w-full" />
+            </UFormField>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-            <UFormField label="Periode Perencanaan" class="font-semibold text-sm" />
-            <UInput class="md:col-span-3" type="date" v-model="store.planForm.periodAction" icon="i-heroicons-calendar" />
-            </div>
+            <UFormField 
+                label="Periode Perencanaan" 
+                name="periodAction" 
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
+                :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
+            >
+                <UInput type="date" v-model="store.planForm.periodAction" icon="i-heroicons-calendar" class="w-full" />
+            </UFormField>
         
 
         <div class="flex justify-end pt-10 border-gray-100">
             <UButton 
+                type="submit"
                 :label="store.isEditingF05 ? 'Update Data' : 'Submit'" 
                 color="primary"
-                @click="store.handleSubmitF05" 
             />
         </div>
         </div>
@@ -58,8 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useWorkingPaperStore, planSchema } from '~/stores/working-paper'
 
-// Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useWorkingPaperStore()
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6 max-w-4xl">
     <!-- General Settings Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
       <template #header>
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.general.cardTitle') }}</h3>
       </template>
@@ -21,7 +21,7 @@
             >
               <div class="space-y-0.5 min-w-0 flex-1">
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ item.label }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ item.description }}</p>
+                <p class="text-md text-gray-500 dark:text-gray-400">{{ item.description }}</p>
               </div>
               <USwitch
                 :model-value="settings[item.key]"
@@ -35,7 +35,7 @@
             <div class="flex items-center justify-between py-3.5">
               <div class="space-y-0.5 min-w-0 flex-1">
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('settings.general.darkMode') }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.general.darkModeDesc') }}</p>
+                <p class="text-md text-gray-500 dark:text-gray-400">{{ t('settings.general.darkModeDesc') }}</p>
               </div>
               <USwitch v-model="settings.darkMode" color="primary" />
             </div>
@@ -45,7 +45,7 @@
     </UCard>
 
     <!-- Language & Region Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
       <template #header>
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.general.languageRegion') }}</h3>
       </template>
@@ -68,13 +68,13 @@
     </UCard>
 
     <!-- Change Password Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
       <template #header>
         <div class="space-y-2">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.general.changePassword') }}</h3>
           <UAccordion :items="accordionItems" variant="subtle" color="primary">
             <template #content="{ item }">
-              <ul class="pb-3.5 px-4 text-xs sm:text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
+              <ul class="pb-3.5 px-4 text-md sm:text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
                 <li>{{ t('settings.general.tip1') }}</li>
                 <li>{{ t('settings.general.tip2') }}</li>
                 <li>{{ t('settings.general.tip3') }}</li>

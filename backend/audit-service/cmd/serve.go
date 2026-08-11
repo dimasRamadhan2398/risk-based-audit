@@ -18,8 +18,6 @@ import (
 	"audit-service/pkg/redis"
 	"audit-service/repositories"
 	"audit-service/routes"
-	"audit-service/controllers"
-	"audit-service/services"
 	svcActivity "audit-service/services/audit_activity"
 	svcAssignment "audit-service/services/audit_assignment"
 	svcCharter "audit-service/services/audit_charter"
@@ -86,8 +84,12 @@ func runServe(cmd *cobra.Command, args []string) error {
 		&models.UploadedExecutiveSummaryReport{},
 		&models.UploadedConsultingDocument{},
 		&models.UploadedPerformanceReport{},
-		&models.ReportTimeliness{},
 		&models.AuditCompletionSnapshot{},
+		&models.WorkingPaperHeader{},
+		&models.WorkingPaperRisk{},
+		&models.WorkingPaperSample{},
+		&models.WorkingPaperCause{},
+		&models.WorkingPaperPlan{},
 	)
 
 	// Initialize Redis
@@ -154,10 +156,6 @@ func runServe(cmd *cobra.Command, args []string) error {
 	routeRegistry.SetAuditActivityController(auditActivityCtrl)
 	routeRegistry.SetMediaController(mediaCtrl)
 
-	reportTimelinessRepo := repositories.NewReportTimelinessRepository(baseRepo.DB)
-	reportTimelinessSvc := services.NewReportTimelinessService(reportTimelinessRepo)
-	reportTimelinessCtrl := controllers.NewReportTimelinessController(reportTimelinessSvc)
-	routeRegistry.SetReportTimelinessController(reportTimelinessCtrl)
 
 	// Initialize middleware
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)

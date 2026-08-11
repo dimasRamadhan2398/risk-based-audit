@@ -174,6 +174,7 @@
                               class="font-bold text-md text-gray-700 dark:text-gray-200"
                               color="success"
                               :disabled="!isCheckable(check)"
+                              @change="saveMonitoring(row.id, row.monitoring || [])"
                             />
                             <UBadge 
                               :color="getCheckStatusColor(check)"
@@ -194,22 +195,13 @@
                               class="w-full text-md" 
                               icon="i-heroicons-chat-bubble-bottom-center-text"
                               :disabled="!isCheckable(check)"
+                              @change="saveMonitoring(row.id, row.monitoring || [])"
                             />
                           </div>
                         </div>
                       </div>
 
-                      <!-- Save button -->
-                      <div class="flex justify-end gap-3 pt-2 mt-4">
-                        <UButton 
-                          label="Save Monitoring Controls" 
-                          icon="i-heroicons-check-circle"
-                          color="success"
-                          size="md"
-                          class="font-black shadow-md shadow-success/20"
-                          @click="saveMonitoring(row.id, row.monitoring || [])"
-                        />
-                      </div>
+                      <!-- Save button removed for auto-save functionality -->
                     </div>
                   </td>
                 </tr>
@@ -272,30 +264,19 @@ const formatDate = (dateStr: string) => {
 }
 
 const getMonitoringUnit = (row: any) => {
-  return 'Weeks'
+  if (!row.monitoring || row.monitoring.length === 0) return 'Weeks'
+  return row.monitoring[0].id.startsWith('M') ? 'Months' : 'Weeks'
 }
 
 const getTargetCount = (row: any) => {
   const now = new Date()
   if (!row.monitoring) return 0
-  let count = 0
-  row.monitoring.forEach((m: any) => {
-    if (m.weeks) {
-      count += m.weeks.filter((check: any) => new Date(check.startDate) <= now).length
-    }
-  })
-  return count
+  return row.monitoring.filter((check: any) => new Date(check.startDate) <= now).length
 }
 
 const getActualCount = (row: any) => {
   if (!row.monitoring) return 0
-  let count = 0
-  row.monitoring.forEach((m: any) => {
-    if (m.weeks) {
-      count += m.weeks.filter((check: any) => check.checked).length
-    }
-  })
-  return count
+  return row.monitoring.filter((check: any) => check.checked).length
 }
 
 const getProgressPercent = (row: any) => {

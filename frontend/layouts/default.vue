@@ -175,30 +175,30 @@ const rawItems: NavigationMenuItem[][] = [[
       }
     ]
   },
-  // {
-  //   label: '9. Executive Summary Report',
-  //   icon: 'i-lucide-file-text',
-  //   to: '/executive-summary',
-  //   children: [
-  //     {
-  //       label: 'Executive Summary Report Kompilasi',
-  //       icon: 'i-lucide-presentation',
-  //       to: '/executive-summary',
-  //     },
-  //     {
-  //       label: 'Import Executive Summary Report',
-  //       icon: 'i-lucide-upload',
-  //       to: '/executive-summary/upload',
-  //     }
-  //   ]
-  // },
   {
-    label: '9. Action Taken Report',
+    label: '9. Executive Summary Report',
+    icon: 'i-lucide-file-text',
+    to: '/executive-summary',
+    children: [
+      {
+        label: 'Executive Summary Report Kompilasi',
+        icon: 'i-lucide-presentation',
+        to: '/executive-summary',
+      },
+      {
+        label: 'Import Executive Summary Report',
+        icon: 'i-lucide-upload',
+        to: '/executive-summary/upload',
+      }
+    ]
+  },
+  {
+    label: '10. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
   }, 
   {
-    label: '10. Consulting Service',
+    label: '11. Consulting Service',
     icon: 'i-lucide-users',
     to: '/consulting-service',
     children: [
@@ -215,17 +215,17 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '11. Impor Laporan Kinerja',
+    label: '12. Import Laporan Kinerja',
     icon: 'i-lucide-upload',
     to: '/kpi-performance/upload',
   },
   {
-    label: '12. KPI Performance',
+    label: '13. Internal Audit Performance',
     icon: 'i-lucide-trending-up',
     to: '/kpi-performance',
   },
   {
-    label: '13. Quality Assurance Review',
+    label: '14. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [

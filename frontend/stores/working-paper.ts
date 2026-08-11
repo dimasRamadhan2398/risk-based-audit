@@ -14,6 +14,43 @@ import { computed } from 'vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import type { StepperItem } from '@nuxt/ui'
 
+import { z } from 'zod'
+
+export const headerSchema = z.object({
+  assignmentLetterId: z.string().min(1, 'Required'),
+  businessProcess: z.string().min(1, 'Required'),
+  periodStart: z.string().min(1, 'Required'),
+  periodEnd: z.string().min(1, 'Required'),
+  location: z.string().min(1, 'Required')
+})
+
+export const riskSchema = z.object({
+  risk: z.string().min(1, 'Required'),
+  taxonomy: z.string().min(1, 'Required'),
+  riskLevel: z.string().min(1, 'Required'),
+  controlDescription: z.string().min(1, 'Required')
+})
+
+export const sampleSchema = z.object({
+  population: z.number().min(1, 'Required'),
+  sampleSize: z.number().min(1, 'Required'),
+  conclusion: z.string().min(1, 'Required')
+})
+
+export const causeSchema = z.object({
+  condition: z.string().min(1, 'Required'),
+  criteria: z.string().min(1, 'Required'),
+  impact: z.string().min(1, 'Required')
+})
+
+export const planSchema = z.object({
+  recommendation: z.string().min(1, 'Required'),
+  response: z.string().min(1, 'Required'),
+  actionDescription: z.string().min(1, 'Required'),
+  pic: z.string().min(1, 'Required'),
+  periodAction: z.string().min(1, 'Required')
+})
+
 export const useWorkingPaperStore = defineStore('working-paper', () => {
   const fieldworkStore = useAuditFieldworkStore()
 
@@ -463,6 +500,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const addF02 = async (riskForm: WorkingPaperRiskForm) => {
     const newRisk = {
+      workingPaperId: fieldworkStore.selectedAssignmentLetter,
       risk: riskForm.risk,
       taxonomy: riskForm.taxonomy || 'Operational',
       riskLevel: riskForm.riskLevel || 'High',
@@ -478,6 +516,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const updateF02 = async (id: string, updatedRiskData: WorkingPaperRiskForm) => {
     const payload = {
+      workingPaperId: fieldworkStore.selectedAssignmentLetter,
       risk: updatedRiskData.risk,
       taxonomy: updatedRiskData.taxonomy || 'Operational',
       riskLevel: updatedRiskData.riskLevel || 'High',
@@ -553,6 +592,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const addF03 = async (sampleForm: WorkingPaperSampleForm) => {
     const newSample = {
+      workingPaperId: fieldworkStore.selectedAssignmentLetter,
       population: sampleForm.population,
       sampleSize: sampleForm.sampleSize,
       samples: sampleForm.samples,
@@ -568,6 +608,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const updateF03 = async (id: string, updatedData: WorkingPaperSampleForm) => {
     const payload = {
+      workingPaperId: fieldworkStore.selectedAssignmentLetter,
       population: updatedData.population,
       sampleSize: updatedData.sampleSize,
       samples: updatedData.samples,
@@ -643,10 +684,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const addF04 = async (causeForm: WorkingPaperCauseForm) => {
     const newCause = {
+      workingPaperId: fieldworkStore.selectedAssignmentLetter,
       condition: causeForm.condition,
       criteria: causeForm.criteria,
       impact: causeForm.impact,
-      evidenceFile: causeForm.evidenceFile ? causeForm.evidenceFile.name : '',
+      evidenceFile: causeForm.evidenceFile ? causeForm.evidenceFile.name : null,
       rootCause: causeForm.rootCause
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -657,13 +699,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     await fetchAllData()
   }
 
-  const updateF04 = async (id: string, updatedCauseData: WorkingPaperCauseForm) => {
+  const updateF04 = async (id: string, updatedData: WorkingPaperCauseForm) => {
     const payload = {
-      condition: updatedCauseData.condition,
-      criteria: updatedCauseData.criteria,
-      impact: updatedCauseData.impact,
-      evidenceFile: updatedCauseData.evidenceFile ? updatedCauseData.evidenceFile.name : '',
-      rootCause: updatedCauseData.rootCause
+      workingPaperId: fieldworkStore.selectedAssignmentLetter,
+      condition: updatedData.condition,
+      criteria: updatedData.criteria,
+      impact: updatedData.impact,
+      evidenceFile: updatedData.evidenceFile ? updatedData.evidenceFile.name : null,
+      rootCause: updatedData.rootCause
     }
     const baseUrl = getAuditServiceBaseUrl()
     await $fetch(`${baseUrl}/working-papers/causes/${id}`, {
@@ -737,6 +780,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const addF05 = async (planForm: WorkingPaperPlanForm) => {
     const newPlan = {
+      workingPaperId: fieldworkStore.selectedAssignmentLetter,
       recommendation: planForm.recommendation,
       response: planForm.response,
       actionDescription: planForm.actionDescription,
@@ -751,13 +795,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     await fetchAllData()
   }
 
-  const updateF05 = async (id: string, updatedPlanData: WorkingPaperPlanForm) => {
+  const updateF05 = async (id: string, updatedData: WorkingPaperPlanForm) => {
     const payload = {
-      recommendation: updatedPlanData.recommendation,
-      response: updatedPlanData.response,
-      actionDescription: updatedPlanData.actionDescription,
-      pic: updatedPlanData.pic,
-      periodAction: updatedPlanData.periodAction
+      workingPaperId: fieldworkStore.selectedAssignmentLetter,
+      recommendation: updatedData.recommendation,
+      response: updatedData.response,
+      actionDescription: updatedData.actionDescription,
+      pic: updatedData.pic,
+      periodAction: updatedData.periodAction
     }
     const baseUrl = getAuditServiceBaseUrl()
     await $fetch(`${baseUrl}/working-papers/plans/${id}`, {

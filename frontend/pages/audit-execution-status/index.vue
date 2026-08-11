@@ -96,7 +96,7 @@ const handleRemind = (audit: any) => {
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('auditExecution.title') }}</h1>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p class="text-md text-gray-500 dark:text-gray-400 mt-1">
           {{ t('auditExecution.subtitle') }}
         </p>
       </div>
@@ -115,7 +115,7 @@ const handleRemind = (audit: any) => {
     <!-- Summary Section -->
     <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-6">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">{{ t('auditExecution.summary.title') }}</span>
+        <span class="text-md font-bold text-gray-500 uppercase tracking-wider">{{ t('auditExecution.summary.title') }}</span>
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.completed', { count: getSummary.completed }) }}</span>
@@ -135,7 +135,7 @@ const handleRemind = (audit: any) => {
         icon="i-lucide-book-open"
         color="neutral"
         variant="ghost"
-        size="xs"
+        size="md"
         @click="() => { isHelpModalOpen = true }"
       />
     </div>
@@ -181,13 +181,13 @@ const handleRemind = (audit: any) => {
         <template #name-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-900 dark:text-white">{{ (row.original || row).name }}</span>
-            <span class="text-xs text-gray-500 font-medium">{{ t('auditExecution.table.ref') }} {{ (row.original || row).ref || '-' }} | ({{ (row.original || row).category }})</span>
+            <span class="text-md text-gray-500 font-medium">{{ t('auditExecution.table.ref') }} {{ (row.original || row).ref || '-' }} | ({{ (row.original || row).category }})</span>
           </div>
         </template>
 
         <template #phase-cell="{ row }">
           <UBadge :color="getExecutionPhase(getProgressValue(row)).badgeColor" variant="subtle" size="md">
-            <UIcon :name="getExecutionPhase(getProgressValue(row)).icon" class="mr-1.5 inline-block text-xs" />
+            <UIcon :name="getExecutionPhase(getProgressValue(row)).icon" class="mr-1.5 inline-block text-md" />
             {{ t(`auditExecution.phases.${getExecutionPhase(getProgressValue(row)).step}.shortLabel`) }}
           </UBadge>
         </template>
@@ -201,7 +201,7 @@ const handleRemind = (audit: any) => {
                 :style="{ width: `${Math.min(100, Math.max(0, getProgressValue(row)))}%` }"
               ></div>
             </div>
-            <span class="text-xs font-bold text-gray-700 dark:text-gray-300 w-10 text-right">
+            <span class="text-md font-bold text-gray-700 dark:text-gray-300 w-10 text-right">
               {{ getProgressValue(row) }}%
             </span>
           </div>
@@ -228,7 +228,7 @@ const handleRemind = (audit: any) => {
           <span class="text-sm font-medium">1 / 1</span>
           <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="md" />
         </div>
-        <span class="text-xs font-medium text-gray-500">{{ t('auditExecution.table.showing', { start: 1, end: filteredAudits.length, total: auditExecutions.length }) }}</span>
+        <span class="text-md font-medium text-gray-500">{{ t('auditExecution.table.showing', { start: 1, end: filteredAudits.length, total: auditExecutions.length }) }}</span>
       </div>
     </div>
 
@@ -251,7 +251,7 @@ const handleRemind = (audit: any) => {
                 </div>
                 <div>
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('auditExecution.guideModal.title') }}</h3>
-                  <p class="text-xs text-gray-500">{{ t('auditExecution.guideModal.subtitle') }}</p>
+                  <p class="text-md text-gray-500">{{ t('auditExecution.guideModal.subtitle') }}</p>
                 </div>
               </div>
               <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="() => { isHelpModalOpen = false }" />
@@ -259,7 +259,7 @@ const handleRemind = (audit: any) => {
           </template>
 
           <div class="space-y-4">
-            <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+            <p class="text-md text-gray-600 dark:text-gray-300 leading-relaxed">
               {{ t('auditExecution.guideModal.description') }}
             </p>
 
@@ -267,13 +267,13 @@ const handleRemind = (audit: any) => {
               <div
                 v-for="phase in EXECUTION_PHASES"
                 :key="phase.step"
-                class="p-4 rounded-xl border space-y-2 transition-all duration-200 hover:shadow-xs"
+                class="p-4 rounded-xl border space-y-2 transition-all duration-200 hover:shadow-md"
                 :class="phase.cardClass"
               >
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <div
-                      class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-xs"
+                      class="w-6 h-6 rounded-full flex items-center justify-center text-md font-bold shrink-0 shadow-md"
                       :class="phase.numBgClass"
                     >
                       {{ phase.step }}
@@ -281,7 +281,7 @@ const handleRemind = (audit: any) => {
                     <span class="text-sm font-bold text-gray-900 dark:text-white">{{ t(`auditExecution.phases.${phase.step}.title`) }}</span>
                   </div>
                   <span
-                    class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
+                    class="text-md font-bold px-2 py-0.5 rounded-full shrink-0"
                     :class="phase.badgeClass"
                   >
                     {{ phase.minProgress === phase.maxProgress ? `${phase.minProgress}%` : `${phase.minProgress}–${phase.maxProgress}%` }}

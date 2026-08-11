@@ -89,7 +89,7 @@ const sendReminder = () => {
                 ]"
               >
                 <div
-                  class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mb-1.5 transition-colors"
+                  class="w-7 h-7 rounded-full flex items-center justify-center text-md font-bold mb-1.5 transition-colors"
                   :class="[
                     phase.step === currentPhase.step
                       ? 'bg-primary-600 text-white shadow-md'
@@ -101,19 +101,19 @@ const sendReminder = () => {
                   <UIcon v-if="phase.step < currentPhase.step" name="i-lucide-check" class="text-sm" />
                   <span v-else>{{ phase.step }}</span>
                 </div>
-                <span class="text-xs font-bold line-clamp-1" :class="phase.step === currentPhase.step ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'">
+                <span class="text-md font-bold line-clamp-1" :class="phase.step === currentPhase.step ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'">
                   {{ t(`auditExecution.phases.${phase.step}.shortLabel`) }}
                 </span>
               </div>
             </div>
 
             <!-- Current Active Phase Card -->
-            <div class="p-3.5 bg-white dark:bg-gray-900 border border-primary-200/80 dark:border-primary-800/80 rounded-lg flex items-start gap-3 shadow-xs">
+            <div class="p-3.5 bg-white dark:bg-gray-900 border border-primary-200/80 dark:border-primary-800/80 rounded-lg flex items-start gap-3 shadow-md">
               <UIcon :name="currentPhase.icon" class="text-primary-600 dark:text-primary-400 text-2xl shrink-0 mt-0.5" />
               <div class="space-y-0.5 flex-1">
                 <div class="flex items-center justify-between">
                   <span class="text-sm font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.activePhase', { step: currentPhase.step, title: t(`auditExecution.phases.${currentPhase.step}.title`) }) }}</span>
-                  <span class="text-xs font-semibold text-gray-500">{{ currentPhase.minProgress === currentPhase.maxProgress ? `${currentPhase.minProgress}%` : t('auditExecution.detailModal.range', { min: currentPhase.minProgress, max: currentPhase.maxProgress }) }}</span>
+                  <span class="text-md font-semibold text-gray-500">{{ currentPhase.minProgress === currentPhase.maxProgress ? `${currentPhase.minProgress}%` : t('auditExecution.detailModal.range', { min: currentPhase.minProgress, max: currentPhase.maxProgress }) }}</span>
                 </div>
                 <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">{{ t(`auditExecution.phases.${currentPhase.step}.description`) }}</p>
               </div>

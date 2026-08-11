@@ -1,12 +1,12 @@
 <template>
   <div class="space-y-6 max-w-6xl">
     <!-- Main Connections Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.title') }}</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <p class="text-md text-gray-500 dark:text-gray-400 mt-0.5">
               {{ t('settings.dataSource.subtitle') }}
             </p>
           </div>
@@ -53,7 +53,7 @@
         <div
           v-for="conn in filteredConnections"
           :key="conn.id"
-          class="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-primary-500/50 transition-all duration-200 shadow-xs"
+          class="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-primary-500/50 transition-all duration-200 shadow-md"
         >
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <!-- Left Info -->
@@ -75,12 +75,12 @@
                     />
                     {{ conn.status }}
                   </UBadge>
-                  <UBadge color="neutral" variant="outline" size="sm" class="rounded-lg font-mono text-xs">
+                  <UBadge color="neutral" variant="outline" size="sm" class="rounded-lg font-mono text-md">
                     {{ conn.environment }}
                   </UBadge>
                 </div>
 
-                <div class="flex items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400 flex-wrap">
+                <div class="flex items-center gap-x-4 gap-y-1 text-md text-gray-500 dark:text-gray-400 flex-wrap">
                   <span class="flex items-center gap-1 font-mono">
                     <UIcon name="i-lucide-server" class="w-3.5 h-3.5" />
                     {{ conn.host }}:{{ conn.port }}
@@ -95,7 +95,7 @@
                   </span>
                 </div>
 
-                <p v-if="conn.lastError" class="text-xs text-rose-600 dark:text-rose-400 font-medium pt-1 flex items-center gap-1">
+                <p v-if="conn.lastError" class="text-md text-rose-600 dark:text-rose-400 font-medium pt-1 flex items-center gap-1">
                   <UIcon name="i-lucide-alert-circle" class="w-3.5 h-3.5 shrink-0" />
                   {{ conn.lastError }}
                 </p>
@@ -104,16 +104,16 @@
 
             <!-- Right Meta & Actions -->
             <div class="flex items-center justify-between lg:justify-end gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100 dark:border-gray-800">
-              <div class="text-left lg:text-right text-xs text-gray-500 dark:text-gray-400">
+              <div class="text-left lg:text-right text-md text-gray-500 dark:text-gray-400">
                 <p class="font-medium text-gray-700 dark:text-gray-300">{{ t('settings.dataSource.lastSynced') }}</p>
-                <p class="font-mono text-xs">{{ conn.lastSync }}</p>
+                <p class="font-mono text-md">{{ conn.lastSync }}</p>
               </div>
 
               <div class="flex items-center gap-2">
                 <UButton
                   color="neutral"
                   variant="subtle"
-                  size="xs"
+                  size="md"
                   icon="i-lucide-plug"
                   class="rounded-xl font-semibold"
                   :loading="testingId === conn.id"
@@ -125,7 +125,7 @@
                 <UButton
                   color="primary"
                   variant="subtle"
-                  size="xs"
+                  size="md"
                   icon="i-lucide-refresh-cw"
                   class="rounded-xl font-semibold"
                   :loading="syncingId === conn.id"
@@ -138,7 +138,7 @@
                   <UButton
                     color="neutral"
                     variant="ghost"
-                    size="xs"
+                    size="md"
                     icon="i-lucide-more-vertical"
                     class="rounded-xl"
                   />
@@ -151,7 +151,7 @@
         <div v-if="filteredConnections.length === 0" class="text-center py-12 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
           <UIcon name="i-lucide-database-zap" class="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-3" />
           <h4 class="text-base font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.noSources') }}</h4>
-          <p class="text-xs text-gray-500 dark:text-gray-400 max-w-sm mx-auto mt-1 mb-4">
+          <p class="text-md text-gray-500 dark:text-gray-400 max-w-sm mx-auto mt-1 mb-4">
             {{ t('settings.dataSource.noSourcesSub') }}
           </p>
           <UButton color="primary" size="sm" icon="i-lucide-plus" class="rounded-xl font-bold" @click="openAddModal">
@@ -162,7 +162,7 @@
     </UCard>
 
     <!-- Recent Data Integration Activity Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.recentLogsTitle') }}</h3>
@@ -171,7 +171,7 @@
       </template>
 
       <div class="overflow-x-auto">
-        <table class="w-full text-xs text-left">
+        <table class="w-full text-md text-left">
           <thead class="bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-800">
             <tr>
               <th class="py-3 px-4">{{ t('settings.dataSource.thName') }}</th>
@@ -190,7 +190,7 @@
               </td>
               <td class="py-3 px-4 text-gray-600 dark:text-gray-300 font-mono">{{ log.event }}</td>
               <td class="py-3 px-4">
-                <UBadge :color="log.status === 'SUCCESS' ? 'success' : log.status === 'RUNNING' ? 'info' : 'error'" variant="subtle" size="xs" class="rounded-md font-semibold">
+                <UBadge :color="log.status === 'SUCCESS' ? 'success' : log.status === 'RUNNING' ? 'info' : 'error'" variant="subtle" size="md" class="rounded-md font-semibold">
                   {{ log.status }}
                 </UBadge>
               </td>
@@ -199,7 +199,7 @@
               <td class="py-3 px-4 text-right font-mono text-gray-500 dark:text-gray-400">{{ log.timestamp }}</td>
             </tr>
             <tr v-if="activityLogs.length === 0">
-              <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400 text-xs">
+              <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400 text-md">
                 {{ t('settings.dataSource.noLogs') }}
               </td>
             </tr>
@@ -220,13 +220,13 @@
         content: 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl',
         header: 'border-b border-gray-100 dark:border-gray-800 pb-4',
         body: 'p-6 space-y-4 bg-white dark:bg-gray-900',
-        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-xs'
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
       <template #body>
         <form @submit.prevent="saveConnection" class="space-y-4">
           <!-- PostgreSQL Option Quick Info Banner -->
-          <div class="p-3.5 rounded-xl bg-primary-300 border-2 border-secondary-500 text-xs text-secondary-900 flex items-start gap-2.5 shadow-sm">
+          <div class="p-3.5 rounded-xl bg-primary-300 border-2 border-secondary-500 text-md text-secondary-900 flex items-start gap-2.5 shadow-sm">
             <UIcon name="i-lucide-zap" class="w-4 h-4 text-secondary-700 shrink-0 mt-0.5" />
             <div>
               <span class="font-bold text-secondary-900">{{ t('settings.dataSource.bannerTitle')  }} </span>
@@ -237,7 +237,7 @@
 
           <!-- Provider Type Selection grid -->
           <div>
-            <label class="block text-xs font-bold text-gray-700 dark:text-gray-200 mb-2">{{ t('settings.dataSource.selectProvider') }}</label>
+            <label class="block text-md font-bold text-gray-700 dark:text-gray-200 mb-2">{{ t('settings.dataSource.selectProvider') }}</label>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               <button
                 v-for="provider in providers"
@@ -256,7 +256,7 @@
                   {{ provider.badge }}
                 </span>
                 <UIcon :name="provider.icon" class="w-6 h-6 mt-1" />
-                <span class="text-xs font-semibold">{{ provider.name }}</span>
+                <span class="text-md font-semibold">{{ provider.name }}</span>
               </button>
             </div>
           </div>
@@ -271,15 +271,15 @@
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.host')" required>
-              <UInput v-model="form.host" placeholder="10.20.0.14 or db.internal.net" size="md" class="w-full font-mono text-xs" />
+              <UInput v-model="form.host" placeholder="10.20.0.14 or db.internal.net" size="md" class="w-full font-mono text-md" />
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.port')" required>
-              <UInput v-model.number="form.port" type="number" placeholder="5432" size="md" class="w-full font-mono text-xs" />
+              <UInput v-model.number="form.port" type="number" placeholder="5432" size="md" class="w-full font-mono text-md" />
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.database')" required>
-              <UInput v-model="form.database" placeholder="core_banking" size="md" class="w-full font-mono text-xs" />
+              <UInput v-model="form.database" placeholder="core_banking" size="md" class="w-full font-mono text-md" />
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.syncFrequency')">
@@ -292,7 +292,7 @@
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.username')">
-              <UInput v-model="form.username" placeholder="audit_reader" size="md" class="w-full font-mono text-xs" />
+              <UInput v-model="form.username" placeholder="audit_reader" size="md" class="w-full font-mono text-md" />
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.password')">
@@ -301,13 +301,13 @@
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="••••••••••••"
                 size="md"
-                class="w-full font-mono text-xs"
+                class="w-full font-mono text-md"
               >
                 <template #trailing>
                   <UButton
                     color="neutral"
                     variant="ghost"
-                    size="xs"
+                    size="md"
                     :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
                     @click="showPassword = !showPassword"
                   />
@@ -319,7 +319,7 @@
           <!-- Feature Scope Selection -->
           <div class="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 space-y-2 mt-2">
             <div class="flex items-center justify-between">
-              <label class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+              <label class="text-md font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                 <UIcon name="i-lucide-layers" class="w-4 h-4 text-primary-500" />
                 {{ t('settings.dataSource.enabledScopes') }}
               </label>
@@ -330,7 +330,7 @@
               <label
                 v-for="scope in availableScopes"
                 :key="scope.id"
-                class="flex flex-col p-2.5 rounded-xl text-xs cursor-pointer transition-colors select-none"
+                class="flex flex-col p-2.5 rounded-xl text-md cursor-pointer transition-colors select-none"
                 :class="form.scopes.includes(scope.id)
                   ? 'border-2 border-secondary-500 bg-primary-300 text-secondary-900 font-semibold shadow-sm'
                   : 'border border-gray-200 dark:border-gray-700/60 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'"
@@ -351,7 +351,7 @@
 
           <div class="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-800 mt-2">
             <div class="space-y-0.5">
-              <p class="text-xs font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.enableSsl') }}</p>
+              <p class="text-md font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.enableSsl') }}</p>
               <p class="text-[11px] text-gray-500 dark:text-gray-400">{{ t('settings.dataSource.enableSslSub') }}</p>
             </div>
             <USwitch v-model="form.ssl" color="primary" />
@@ -360,7 +360,7 @@
           <!-- Test result banner inside modal -->
           <div
             v-if="modalTestResult"
-            class="p-3 rounded-xl text-xs font-medium flex items-center gap-2 border"
+            class="p-3 rounded-xl text-md font-medium flex items-center gap-2 border"
             :class="modalTestResult.success
               ? 'bg-emerald-500/10 dark:bg-emerald-950/40 border-emerald-500/20 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400'
               : 'bg-rose-500/10 dark:bg-rose-950/40 border-rose-500/20 dark:border-rose-900/50 text-rose-600 dark:text-rose-400'"
@@ -375,7 +375,7 @@
               color="neutral"
               variant="subtle"
               icon="i-lucide-plug"
-              class="rounded-xl font-semibold text-xs"
+              class="rounded-xl font-semibold text-md"
               :loading="isModalTesting"
               @click="testModalConnection"
             >

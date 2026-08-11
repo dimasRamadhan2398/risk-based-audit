@@ -6,6 +6,7 @@
         <h2 class="text-lg font-semibold">Interview List</h2>
         <p class="text-sm text-gray-500">Manage interview list with interviewees and interviewers</p>
       </div>
+      <UButton color="primary" icon="i-heroicons-plus" label="Add Interview" @click="store.openInterviewModal()" />
     </div>
 
     <!-- Interview List -->

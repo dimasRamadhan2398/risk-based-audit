@@ -67,7 +67,7 @@
             icon="i-lucide-rotate-ccw"
             color="neutral"
             variant="ghost"
-            size="xs"
+            size="md"
             class="rounded-xl font-semibold"
             @click="resetFilters"
           >
@@ -88,7 +88,7 @@
               icon="i-lucide-eye"
               color="neutral"
               variant="ghost"
-              size="xs"
+              size="md"
               :title="t('strategicPlan.actions.viewDetails')"
               :aria-label="t('strategicPlan.actions.viewDetails')"
               @click="store.openViewModal(row.original)"
@@ -102,7 +102,7 @@
                 icon="i-lucide-ellipsis-vertical"
                 color="neutral"
                 variant="ghost"
-                size="xs"
+                size="md"
                 aria-label="Actions dropdown"
               />
             </UDropdownMenu>

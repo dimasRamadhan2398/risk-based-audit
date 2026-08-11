@@ -4,7 +4,7 @@
         <div></div>
         <template #content>
         
-        <UForm :state="store.causeForm" @submit.prevent="store.handleSubmitF04">
+        <UForm :schema="causeSchema" :state="store.causeForm" @submit.prevent="store.handleSubmitF04">
         <div class=" rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto  transition-colors duration-300">
 
         <div class="px-6 py-4 rounded-t-xl flex justify-between items-center transition-colors duration-300">
@@ -14,10 +14,14 @@
         </div>
         
         <div class="space-y-6 m-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-            <UFormField label="Kondisi (Dampak di Lapangan)" class="font-semibold text-sm mt-2" />
-            <UTextarea class="md:col-span-3" v-model="store.causeForm.condition" :rows="3" placeholder="Ex: Ditemukan dokumen PO tanpa tanda tangan Manager terkait pada tanggal..." />
-            </div>
+            <UFormField 
+                label="Kondisi (Dampak di Lapangan)" 
+                name="condition" 
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
+                :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
+            >
+                <UTextarea v-model="store.causeForm.condition" :rows="3" placeholder="Ex: Ditemukan dokumen PO tanpa tanda tangan Manager terkait pada tanggal..." class="w-full" />
+            </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
             <UFormField label="Unggah bukti temuan/foto" class="font-semibold text-sm mt-2" />
@@ -40,15 +44,23 @@
             </div>
         </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-            <UFormField label="Kriteria (Aturan/SOP Terkait)" class="font-semibold text-sm" />
-            <UInput class="md:col-span-3" v-model="store.causeForm.criteria" placeholder="Cari Peraturan Internal (Contoh: SOP Pengadaan Bab IV - Otorisasi)" />
-            </div>
+            <UFormField 
+                label="Kriteria (Aturan/SOP Terkait)" 
+                name="criteria" 
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
+                :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
+            >
+                <UInput v-model="store.causeForm.criteria" placeholder="Cari Peraturan Internal (Contoh: SOP Pengadaan Bab IV - Otorisasi)" class="w-full" />
+            </UFormField>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-            <UFormField label="Dampak (Risk Impact)" class="font-semibold text-sm mt-2" />
-            <UTextarea class="md:col-span-3" v-model="store.causeForm.impact" :rows="3" placeholder="Ex: Potensi fraud atau pembelian fiktif yang dapat merugikan keuangan..." />
-            </div>
+            <UFormField 
+                label="Dampak (Risk Impact)" 
+                name="impact" 
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
+                :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
+            >
+                <UTextarea v-model="store.causeForm.impact" :rows="3" placeholder="Ex: Potensi fraud atau pembelian fiktif yang dapat merugikan keuangan..." class="w-full" />
+            </UFormField>
 
             <h2 class="text-xl text-center font-bold text-gray-800  mb-6">Analisa Akar Masalah</h2>
             <div v-for="(rca, index) in store.causeForm.rootCause" :key="rca.id" class="border border-gray-200  rounded-xl p-6 ">
@@ -85,9 +97,9 @@
         
         <div class="flex justify-end p-6 border-gray-100">
             <UButton 
+                type="submit"
                 :label="store.isEditingF04 ? 'Update Data' : 'Submit'" 
                 color="primary"
-                @click="store.handleSubmitF04" 
             />
         </div>
 
@@ -101,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useWorkingPaperStore, causeSchema } from '~/stores/working-paper'
 
 const store = useWorkingPaperStore()
 

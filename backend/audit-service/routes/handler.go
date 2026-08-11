@@ -136,12 +136,6 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditActivities.DELETE("/:id", h.registry.AuditActivity.DeleteActivity)
 	}
 
-	reportTimeliness := apiV1.Group("/report-timeliness")
-	{
-		reportTimeliness.GET("", h.registry.ReportTimeliness.GetByYearAndPeriod)
-		reportTimeliness.POST("", h.registry.ReportTimeliness.CreateOrUpdate)
-	}
-
 	// 1. Annual Audit Plan
 	annualPlans := apiV1.Group("/annual-audit-plans")
 	{

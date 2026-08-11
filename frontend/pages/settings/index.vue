@@ -36,7 +36,7 @@
                 <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
                   {{ authStore.user?.fullName || authStore.user?.username || 'User' }}
                 </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <p class="text-md text-gray-500 dark:text-gray-400 truncate">
                   {{ authStore.user?.email || 'user@example.com' }}
                 </p>
               </div>

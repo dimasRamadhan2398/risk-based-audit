@@ -99,7 +99,7 @@
 
           <!-- Title -->
           <template #reportTitle-cell="{ row }">
-            <div class="max-w-xs truncate font-medium text-gray-800 dark:text-gray-200" :title="row.original.reportTitle">
+            <div class="max-w-md truncate font-medium text-gray-800 dark:text-gray-200" :title="row.original.reportTitle">
               {{ row.original.reportTitle }}
             </div>
           </template>
@@ -186,7 +186,7 @@
               </div>
               <div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Auditee Satisfaction Questionnaire</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Please rate your satisfaction with our audit process</p>
+                <p class="text-md text-gray-500 dark:text-gray-400 mt-0.5">Please rate your satisfaction with our audit process</p>
               </div>
             </div>
             <UButton
@@ -333,7 +333,7 @@
               <div class="p-4 bg-gradient-to-r from-gray-50 to-slate-100 dark:from-slate-900 dark:to-slate-850 border border-gray-200 dark:border-gray-850 rounded-xl flex items-center justify-between">
                 <div>
                   <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider block">Estimated CSAT Score</span>
-                  <span class="text-xs text-gray-400 mt-0.5">Average: (Clarity + Professionalism + Timeliness) / 3</span>
+                  <span class="text-md text-gray-400 mt-0.5">Average: (Clarity + Professionalism + Timeliness) / 3</span>
                 </div>
                 <div class="text-right">
                   <span class="text-2xl font-extrabold text-primary-600 dark:text-primary-400">
@@ -405,11 +405,11 @@
                 </div>
                 <div class="text-md text-gray-500 dark:text-gray-400 grid grid-cols-2 gap-2 mt-1">
                   <div>
-                    <span class="text-xs text-gray-400 block">Submitted By</span>
+                    <span class="text-md text-gray-400 block">Submitted By</span>
                     <span class="font-medium text-gray-700 dark:text-gray-300">{{ viewSurveyDetail?.auditee_name }}</span>
                   </div>
                   <div>
-                    <span class="text-xs text-gray-400 block">Department</span>
+                    <span class="text-md text-gray-400 block">Department</span>
                     <span class="font-medium text-gray-700 dark:text-gray-300">{{ viewSurveyDetail?.department }}</span>
                   </div>
                 </div>
@@ -446,7 +446,7 @@
               <div class="p-4 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-xl flex items-center justify-between">
                 <div>
                   <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider block">CSAT Overall Score</span>
-                  <span class="text-xs text-gray-500 mt-0.5">Average calculated score</span>
+                  <span class="text-md text-gray-500 mt-0.5">Average calculated score</span>
                 </div>
                 <div class="text-right">
                   <span class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
@@ -458,7 +458,7 @@
 
               <!-- Comments -->
               <div class="space-y-1">
-                <span class="text-xs text-gray-400 uppercase font-semibold">Comments / Feedback</span>
+                <span class="text-md text-gray-400 uppercase font-semibold">Comments / Feedback</span>
                 <div class="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl text-md text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed italic">
                   "{{ viewSurveyDetail?.comments || 'No additional comments provided.' }}"
                 </div>

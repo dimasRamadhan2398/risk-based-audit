@@ -177,7 +177,7 @@
               id="confidentiality-accept-btn"
               :disabled="!hasScrolledToBottom || accepting"
               class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
-              :style="hasScrolledToBottom && !accepting ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', boxShadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
+              :style="hasScrolledToBottom && !accepting ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', bomdhadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
               :class="hasScrolledToBottom && !accepting
                 ? 'text-white hover:opacity-90'
                 : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
@@ -297,7 +297,7 @@
               id="profile-complete-btn"
               :disabled="savingProfile || !profileState.fullName"
               class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 text-white disabled:bg-[var(--border-main)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
-              :style="!(savingProfile || !profileState.fullName) ? { background: 'linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500))', boxShadow: '0 8px 24px -4px color-mix(in srgb, var(--color-primary-500) 30%, transparent)' } : {}"
+              :style="!(savingProfile || !profileState.fullName) ? { background: 'linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500))', bomdhadow: '0 8px 24px -4px color-mix(in srgb, var(--color-primary-500) 30%, transparent)' } : {}"
               @click="handleSaveProfile"
             >
               <span v-if="savingProfile">Menyimpan...</span>
