@@ -31,6 +31,24 @@ plugins:
         - Authorization
       credentials: true
       max_age: 3600
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 5000
+      policy: local
+  - name: bot-detection
+    config:
+      allow:
+        - "googlebot"           # Allowed bots (e.g. search engine crawlers)
+        - "bingbot"
+      deny:
+        - "curl"                # Extra User-Agents to block
+        - "python-requests"
+        - "Go-http-client"
+        - "sqlmap"
+        - "nikto"
+        - "nmap"
+
 
 services:
   - name: auth-service
