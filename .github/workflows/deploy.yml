@@ -26,6 +26,8 @@ jobs:
           script: |
             set -Eeuo pipefail
 
+            DEPLOY_LOG="/var/log/auditsphere-deploy.log"
+
             main() {
               # ================================================================
               # Configuration
@@ -42,7 +44,6 @@ jobs:
               BACKEND_CONTAINER_FILTER="rb_audit"
               FRONTEND_CONTAINER_FILTER="rbia-frontend"
 
-              DEPLOY_LOG="/var/log/auditsphere-deploy.log"
               LOCK_FILE="/tmp/auditsphere-deploy.lock"
 
               mkdir -p "$(dirname "$DEPLOY_LOG")"
