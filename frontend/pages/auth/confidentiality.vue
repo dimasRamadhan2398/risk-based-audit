@@ -150,8 +150,8 @@
           <div class="space-y-2">
             <div class="h-1.5 bg-[var(--border-main)] rounded-full overflow-hidden">
               <div
-                class="h-full rounded-full transition-all duration-500"
-                :style="{ width: `${scrollProgress}%`, background: 'linear-gradient(90deg, var(--color-secondary-500), var(--color-primary-500))' }"
+                class="h-full rounded-full transition-all duration-500 bg-orange-500"
+                :style="{ width: `${scrollProgress}%` }"
               />
             </div>
             <p v-if="!hasScrolledToBottom" class="text-md text-[var(--text-muted)] text-center flex items-center justify-center gap-1">
@@ -175,9 +175,8 @@
               id="confidentiality-accept-btn"
               :disabled="!hasScrolledToBottom || accepting"
               class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
-              :style="hasScrolledToBottom && !accepting ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', boxShadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
               :class="hasScrolledToBottom && !accepting
-                ? 'text-white hover:opacity-90'
+                ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/25'
                 : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
               @click="handleAccept"
             >
@@ -294,8 +293,10 @@
             <button
               id="profile-complete-btn"
               :disabled="savingProfile || !profileState.fullName"
-              class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 text-white disabled:bg-[var(--border-main)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
-              :style="!(savingProfile || !profileState.fullName) ? { background: 'linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500))', boxShadow: '0 8px 24px -4px color-mix(in srgb, var(--color-primary-500) 30%, transparent)' } : {}"
+              class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
+              :class="!(savingProfile || !profileState.fullName)
+                ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/25'
+                : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
               @click="handleSaveProfile"
             >
               <span v-if="savingProfile">{{ t.step3.savingBtn }}</span>
