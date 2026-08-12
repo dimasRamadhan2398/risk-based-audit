@@ -33,18 +33,12 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 // ─── Data & Config ──────────────────────────────────────────────────────────
 const getAnalyticsUrl = () => {
   const config = useRuntimeConfig()
-  if (import.meta.client && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://api.auditsphere.app/api/analytics'
-  }
-  return config.public.analyticsApiBase || 'http://localhost:8084/api/analytics'
+  return config.public.analyticsApiBase || '/api/analytics'
 }
 
 const getPythonAiUrl = () => {
   const config = useRuntimeConfig()
-  if (import.meta.client && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://api.auditsphere.app/api/python-ai'
-  }
-  return config.public.pythonAiBaseUrl || 'http://localhost:8000'
+  return config.public.pythonAiBaseUrl || '/api/python-ai'
 }
 
 const initialXGB = useXGBoostData()

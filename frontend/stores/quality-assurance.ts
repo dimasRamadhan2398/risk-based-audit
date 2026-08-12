@@ -8,13 +8,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   const getMasterServiceBaseUrl = () => {
     const config = useRuntimeConfig()
-    if (import.meta.client) {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:8080/api/v1';
-      }
-      return 'https://api.auditsphere.app/api/v1';
-    }
-    return config.public.masterServiceBaseUrl || 'https://api.auditsphere.app/api/v1'
+    return config.public.masterServiceBaseUrl || config.public.apiBase || '/api/v1'
   }
 
   const columns = [
