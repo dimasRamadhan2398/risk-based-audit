@@ -27,6 +27,8 @@ jobs:
             set -Eeuo pipefail
 
             DEPLOY_LOG="/var/log/auditsphere-deploy.log"
+            LOCK_FILE="/tmp/auditsphere-deploy.lock"
+            mkdir -p "$(dirname "$DEPLOY_LOG")"
 
             main() {
               # ================================================================
@@ -34,19 +36,12 @@ jobs:
               # ================================================================
               REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
               REPO_DIR="/app/rbia-repo"
-
               BACKEND_DIR="$REPO_DIR/backend"
               FRONTEND_DIR="$REPO_DIR/frontend"
-
               BACKEND_COMPOSE="docker-compose.prod.yml"
               FRONTEND_COMPOSE="docker-compose.prod.yml"
-
               BACKEND_CONTAINER_FILTER="rb_audit"
               FRONTEND_CONTAINER_FILTER="rbia-frontend"
-
-              LOCK_FILE="/tmp/auditsphere-deploy.lock"
-
-              mkdir -p "$(dirname "$DEPLOY_LOG")"
 
               echo ""
               echo "============================================================"
@@ -123,7 +118,6 @@ jobs:
               echo ""
               echo "📦 Syncing repository..."
               echo "👤 SSH User: $(whoami) (UID: $(id -u), GID: $(id -g))"
-              mkdir -p "$(dirname "$REPO_DIR")" 2>/dev/null || true
 
               if [ ! -d "$REPO_DIR/.git" ]; then
                 echo "📥 First-time deployment: cloning repository..."
