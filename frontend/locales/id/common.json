@@ -565,4 +565,89 @@
         "planned": "Direncanakan"
       }
     }
+  },
+  "riskFactors": {
+    "title": "Faktor Risiko & Pengaturan Pembobotan",
+    "subtitle": "Konfigurasi bobot risiko, lakukan penilaian area kerja, dan lihat prioritas audit yang dihitung.",
+    "backToHeatmap": "Kembali ke Heat Map",
+    "tabs": {
+      "weight": "1. Bobot",
+      "score": "2. Skor Risiko",
+      "priority": "3. Prioritas Audit"
+    },
+    "weighting": {
+      "totalWeight": "Total Bobot: {total}%",
+      "validSum": "Semua sesuai! Total bobot tepat 100%.",
+      "invalidSum": "Sesuaikan bobot faktor risiko yang dipilih agar jumlahnya tepat 100%.",
+      "badgeValid": "VALID",
+      "badgeInvalid": "JUMLAH TIDAK VALID",
+      "saveWeights": "Simpan Bobot",
+      "standardFactorsTitle": "📂 Faktor Risiko Standar",
+      "searchPlaceholder": "Cari faktor standar...",
+      "noMatchingFactors": "Tidak ada faktor risiko standar yang cocok dengan pencarian Anda.",
+      "selectedWeightsTitle": "⚙️ Bobot Terpilih",
+      "activeFactorsCount": "{count} Faktor Aktif",
+      "no": "No",
+      "riskFactor": "Faktor Risiko",
+      "weightCol": "Bobot (%)",
+      "action": "Aksi",
+      "noFactorsTitle": "Belum Ada Faktor Risiko Korporat Terpilih",
+      "noFactorsDesc": "Centang faktor risiko standar di sebelah kiri untuk mengaktifkannya."
+    },
+    "scoring": {
+      "title": "🎯 Skor Risiko",
+      "subtitle": "Pilih tahun dan entitas untuk memasukkan penilaian faktor risiko.",
+      "yearLabel": "Tahun:",
+      "entityLabel": "Entitas:",
+      "selectEntityPlaceholder": "-- Pilih Entitas --",
+      "weightedScoreSum": "Total Skor Terbobot",
+      "riskIndex": "Indeks Risiko",
+      "auditPriority": "Prioritas Audit",
+      "priorityYes": "YA (Prioritas)",
+      "priorityNo": "TIDAK",
+      "weightInfo": "Bobot: {weight}% | Terbobot: {weighted}",
+      "selectEntityTitle": "Pilih Entitas Auditee",
+      "selectEntityDesc": "Pilih tahun dan entitas auditee aktif dari menu pilihan di atas untuk memulai penilaian risiko.",
+      "saveBtn": "Simpan Penilaian & Hitung"
+    },
+    "priority": {
+      "title": "Prioritas Audit ({year})",
+      "subtitle": "Prioritas Rencana Audit Tahunan berdasarkan tingkat risiko yang dihitung.",
+      "prioritizedCount": "{count} Diprioritaskan",
+      "priorityRule": "Prioritas Audit = Tingkat Risiko Sedang ke Tinggi atau Tinggi",
+      "no": "No",
+      "auditableEntity": "Entitas Auditee",
+      "riskIndex": "Indeks Risiko",
+      "riskLevel": "Tingkat Risiko",
+      "auditPriorityCol": "Prioritas Audit*",
+      "priorityBadge": "√ Prioritas",
+      "noEntities": "Belum ada entitas auditee yang ditetapkan untuk tahun {year}.",
+      "sortedNote": "Diurutkan berdasarkan Indeks Risiko (menurun)",
+      "levelInfoTitle": "Informasi Tingkat Indeks Risiko Korporat",
+      "levels": {
+        "high": "Tinggi",
+        "moderateToHigh": "Sedang ke Tinggi",
+        "moderate": "Sedang",
+        "lowToModerate": "Rendah ke Sedang",
+        "low": "Rendah"
+      }
+    },
+    "guidelines": {
+      "modalTitle": "📖 Panduan Skala Penilaian: {name}"
+    },
+    "messages": {
+      "scoresSaved": "Skor risiko berhasil disimpan dan prioritas telah dihitung.",
+      "scoresSaveFailed": "Gagal menyimpan skor risiko.",
+      "weightSumMustBe100": "Total bobot harus tepat 100%. Jumlah saat ini: {total}%",
+      "weightsUpdated": "Bobot faktor risiko korporat berhasil diperbarui.",
+      "weightsUpdateFailed": "Gagal menyimpan bobot faktor risiko korporat."
+    },
+    "scoreLabels": {
+      "5": "Tinggi (5)",
+      "4": "Sedang ke Tinggi (4)",
+      "3": "Sedang (3)",
+      "2": "Rendah ke Sedang (2)",
+      "1": "Rendah (1)"
+    }
+  }
 }

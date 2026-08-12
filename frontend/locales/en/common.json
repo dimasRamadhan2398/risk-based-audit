@@ -568,4 +568,89 @@
         "planned": "Planned"
       }
     }
+  },
+  "riskFactors": {
+    "title": "Risk Factors & Scoring Settings",
+    "subtitle": "Configure risk weights, perform workspace scoring, and view computed audit priorities.",
+    "backToHeatmap": "Back to Heat Map",
+    "tabs": {
+      "weight": "1. Weight",
+      "score": "2. Risk Score",
+      "priority": "3. Audit Priority"
+    },
+    "weighting": {
+      "totalWeight": "Total Weight: {total}%",
+      "validSum": "All good! Weights sum to exactly 100%.",
+      "invalidSum": "Adjust weights of selected risk factors so that they equal exactly 100%.",
+      "badgeValid": "VALID",
+      "badgeInvalid": "INVALID SUM",
+      "saveWeights": "Save Weights",
+      "standardFactorsTitle": "📂 Standard Risk Factors",
+      "searchPlaceholder": "Search standard factors...",
+      "noMatchingFactors": "No standard risk factors match your query.",
+      "selectedWeightsTitle": "⚙️ Selected Weights",
+      "activeFactorsCount": "{count} Active Factors",
+      "no": "No",
+      "riskFactor": "Risk Factor",
+      "weightCol": "Weight (%)",
+      "action": "Action",
+      "noFactorsTitle": "No Corporate Risk Factors Selected",
+      "noFactorsDesc": "Check standard risk factors on the left to activate them."
+    },
+    "scoring": {
+      "title": "🎯 Risk Score",
+      "subtitle": "Select year and entity to enter risk factor scoring.",
+      "yearLabel": "Year:",
+      "entityLabel": "Entity:",
+      "selectEntityPlaceholder": "-- Select Entity --",
+      "weightedScoreSum": "Weighted Score Sum",
+      "riskIndex": "Risk Index",
+      "auditPriority": "Audit Priority",
+      "priorityYes": "YES (Priority)",
+      "priorityNo": "NO",
+      "weightInfo": "Weight: {weight}% | Weighted: {weighted}",
+      "selectEntityTitle": "Select Auditable Entity",
+      "selectEntityDesc": "Choose a year and active auditable entity from the dropdowns above to begin risk scoring.",
+      "saveBtn": "Save Scoring & Calculate"
+    },
+    "priority": {
+      "title": "Audit Priority ({year})",
+      "subtitle": "Annual Audit Plan priorities based on calculated risk levels.",
+      "prioritizedCount": "{count} Prioritized",
+      "priorityRule": "Audit Priority = Risk Level Medium to High or High",
+      "no": "No",
+      "auditableEntity": "Auditable Entity",
+      "riskIndex": "Risk Index",
+      "riskLevel": "Risk Level",
+      "auditPriorityCol": "Audit Priority*",
+      "priorityBadge": "√ Priority",
+      "noEntities": "No established auditable entities for year {year}.",
+      "sortedNote": "Sorted by Risk Index (descending)",
+      "levelInfoTitle": "Corporate Risk Index Level Information",
+      "levels": {
+        "high": "High",
+        "moderateToHigh": "Moderate to High",
+        "moderate": "Moderate",
+        "lowToModerate": "Low to Moderate",
+        "low": "Low"
+      }
+    },
+    "guidelines": {
+      "modalTitle": "📖 Scoring Scale Guidelines: {name}"
+    },
+    "messages": {
+      "scoresSaved": "Risk scores saved and priority calculated successfully.",
+      "scoresSaveFailed": "Failed to save risk scores.",
+      "weightSumMustBe100": "Total weight must be exactly 100%. Current sum: {total}%",
+      "weightsUpdated": "Corporate risk factors weights successfully updated.",
+      "weightsUpdateFailed": "Failed to save corporate risk factor weights."
+    },
+    "scoreLabels": {
+      "5": "High (5)",
+      "4": "Medium to High (4)",
+      "3": "Medium (3)",
+      "2": "Low to Medium (2)",
+      "1": "Low (1)"
+    }
+  }
 }
