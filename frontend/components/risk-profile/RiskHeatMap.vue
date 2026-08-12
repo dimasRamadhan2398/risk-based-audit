@@ -8,8 +8,8 @@
             <UIcon name="i-heroicons-chart-bar-square" class="w-8 h-8" />
           </div>
           <div>
-            <h1 class="text-2xl font-extrabold tracking-tight">Corporate Risk Profile</h1>
-            <p class="text-sm">Interactive Risk Heat Map — Fiscal Year {{ store.selectedYear }} ({{ store.selectedPeriod }})</p>
+            <h1 class="text-2xl font-extrabold tracking-tight">{{ t('riskProfile.title') }}</h1>
+            <p class="text-sm">{{ t('riskProfile.subtitle', { year: store.selectedYear, period: store.selectedPeriod }) }}</p>
           </div>
         </div>
         
@@ -17,23 +17,23 @@
           <div class="flex gap-4">
             <div class="px-4 py-2 rounded-lg border border-gray-100 dark:border-gray-700 text-center min-w-[80px]">
               <span class="block text-xl font-black ">{{ totalRisks }}</span>
-              <span class="block text-[10px] font-bold uppercase tracking-widest">Total</span>
+              <span class="block text-[10px] font-bold uppercase tracking-widest">{{ t('riskProfile.total') }}</span>
             </div>
             <div class="px-4 py-2 bg-orange-100 dark:bg-orange-900/50 rounded-lg border border-orange-100 dark:border-orange-900/50 text-center min-w-[80px]">
               <span class="block text-xl text-warning-500 font-black ">{{ priorityCount }}</span>
-              <span class="block text-[10px] font-bold text-warning-500 uppercase tracking-widest">Priority</span>
+              <span class="block text-[10px] font-bold text-warning-500 uppercase tracking-widest">{{ t('riskProfile.priority') }}</span>
             </div>
           </div>
           
           <UModal 
             v-model:open="isAddModalOpen"
-            title="Add New Corporate Risk" 
-            description="Enter the details of the new risk to be added to the heatmap."
+            :title="t('riskProfile.addModal.title')" 
+            :description="t('riskProfile.addModal.desc')"
             :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
           >
             <UButton 
               icon="i-heroicons-plus"
-              label="Add Risk"
+              :label="t('riskProfile.addRisk')"
               color="primary"
               size="lg"
               class="font-bold shadow-md shadow-primary/20"
@@ -41,47 +41,45 @@
 
             <template #body>
               <form @submit.prevent="submitNewRisk" class="space-y-4">
-                <UFormField label="Risk Name" required>
-                  <UInput v-model="newRisk.name" placeholder="e.g. Target pendapatan dan laba tidak tercapai" class="w-full" />
+                <UFormField :label="t('riskProfile.addModal.name')" required>
+                  <UInput v-model="newRisk.name" :placeholder="t('riskProfile.addModal.namePlaceholder')" class="w-full" />
                 </UFormField>
 
                 <div class="grid grid-cols-2 gap-4">
-                  <UFormField label="Category">
+                  <UFormField :label="t('riskProfile.addModal.category')">
                     <USelect v-model="newRisk.category" :items="categoryOptions" class="w-full" />
                   </UFormField>
-                  <UFormField label="Branch / Dept">
+                  <UFormField :label="t('riskProfile.addModal.branch')">
                     <USelect v-model="newRisk.branch" :items="store.branches" class="w-full" />
                   </UFormField>
                 </div>
 
-
-
                 <!-- Quarterly Residual Score Inputs -->
                 <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-900/50 space-y-4">
-                  <span class="block text-md font-black uppercase tracking-wider text-primary-500">Quarterly Residual Score Tracking (FY {{ store.selectedYear }})</span>
+                  <span class="block text-md font-black uppercase tracking-wider text-primary-500">{{ t('riskProfile.addModal.quarterlyTitle', { year: store.selectedYear }) }}</span>
                   <div class="grid grid-cols-4 gap-4">
                     <div v-for="q in ['q1', 'q2', 'q3', 'q4']" :key="q" class="space-y-2 border-r last:border-0 border-gray-200 dark:border-gray-700 pr-2">
                       <span class="text-md font-black uppercase text-gray-500">{{ q }}</span>
-                      <UFormField label="Impact">
+                      <UFormField :label="t('riskProfile.addModal.impact')">
                         <USelect v-model.number="newRisk[`impact_${q}`]" :items="[1,2,3,4,5]" class="w-full" />
                       </UFormField>
-                      <UFormField label="Likelihood">
+                      <UFormField :label="t('riskProfile.addModal.likelihood')">
                         <USelect v-model.number="newRisk[`likelihood_${q}`]" :items="[1,2,3,4,5]" class="w-full" />
                       </UFormField>
                     </div>
                   </div>
                 </div>
 
-                <UFormField label="Risk Description">
-                  <UTextarea v-model="newRisk.description" placeholder="Describe the risk and its potential consequences..." class="w-full" />
+                <UFormField :label="t('riskProfile.addModal.description')">
+                  <UTextarea v-model="newRisk.description" :placeholder="t('riskProfile.addModal.descriptionPlaceholder')" class="w-full" />
                 </UFormField>
               </form>
             </template>
 
             <template #footer>
               <div class="flex justify-end gap-3">
-                <UButton label="Cancel" color="neutral" variant="ghost" @click="isAddModalOpen = false" />
-                <UButton label="Save Risk" color="primary" @click="submitNewRisk" />
+                <UButton :label="t('common.cancel')" color="neutral" variant="ghost" @click="isAddModalOpen = false" />
+                <UButton :label="t('riskProfile.addModal.saveBtn')" color="primary" @click="submitNewRisk" />
               </div>
             </template>
           </UModal>
@@ -92,16 +90,13 @@
     <!-- Controls & Hint -->
     <div class="grid md:grid-cols-4 gap-6 mb-8 items-start">
       <div class="md:col-span-2">
-        <UAlert
-          icon="i-heroicons-light-bulb"
-          color="primary"
-          variant="subtle"
-          title="Quick Tip"
-          description="Drag and drop risks to update their status. Switch quarters to track risk changes over time."
+        <QuickTip
+          :title="t('riskProfile.quickTip.title')"
+          :description="t('riskProfile.quickTip.desc')"
         />
       </div>
       <div>
-        <UFormField label="Filter Branch/Dept" size="sm" class="font-bold">
+        <UFormField :label="t('riskProfile.filterBranch')" size="sm" class="font-bold">
           <USelect
             v-model="selectedBranch"
             :items="branchOptions"
@@ -111,7 +106,7 @@
         </UFormField>
       </div>
       <div class="flex gap-4">
-        <UFormField label="Fiscal Year" size="sm" class="font-bold w-1/2">
+        <UFormField :label="t('riskProfile.fiscalYear')" size="sm" class="font-bold w-1/2">
           <USelect
             v-model.number="store.selectedYear"
             :items="[2025, 2026, 2027]"
@@ -119,7 +114,7 @@
             class="w-full"
           />
         </UFormField>
-        <UFormField label="Period" size="sm" class="font-bold w-1/2">
+        <UFormField :label="t('riskProfile.period')" size="sm" class="font-bold w-1/2">
           <USelect
             v-model="store.selectedPeriod"
             :items="['Q1', 'Q2', 'Q3', 'Q4']"
@@ -132,11 +127,11 @@
 
     <!-- Legend -->
     <div class="border border-gray-200 dark:border-gray-800 rounded-xl p-4 mb-10 flex flex-wrap items-center gap-x-8 gap-y-3">
-      <span class="text-[10px] font-black uppercase tracking-[0.2em]">Risk Levels</span>
+      <span class="text-[10px] font-black uppercase tracking-[0.2em]">{{ t('riskProfile.riskLevels') }}</span>
       <div class="flex flex-wrap gap-6">
         <div v-for="(config, key) in riskLevelConfig" :key="key" class="flex items-center gap-2">
           <div class="w-3.5 h-3.5 rounded-sm shadow-sm" :style="{ background: config.color }"></div>
-          <span class="text-md font-bold">{{ config.label }}</span>
+          <span class="text-md font-bold">{{ getRiskLevelLabel(key) }}</span>
           <UIcon v-if="config.priority" name="i-heroicons-fire" class="w-3.5 h-3.5 text-warning-500" />
         </div>
       </div>
@@ -146,14 +141,14 @@
     <div class="relative pl-12 mb-16 select-none">
       <!-- Y-axis Label -->
       <div class="absolute -left-20 top-1/2 -translate-y-1/2 -rotate-90 origin-center whitespace-nowrap text-[10px] font-black uppercase tracking-[0.3em]">
-        LIKELIHOOD LEVEL
+        {{ t('riskProfile.likelihoodLevel') }}
       </div>
 
       <div class="flex gap-4">
         <!-- Y-axis Ticks -->
         <div class="flex flex-col w-28 shrink-0">
           <div v-for="l in likelihoodLevels" :key="`y-${l}`" class="flex-1 flex items-center justify-end gap-3 pr-2 min-h-[110px]">
-            <span class="text-md font-bold text-right leading-tight max-w-[70px] uppercase">{{ likelihoodLabels[l] }}</span>
+            <span class="text-md font-bold text-right leading-tight max-w-[70px] uppercase">{{ getLikelihoodLabel(l) }}</span>
             <span class="text-xl font-black">{{ l }}</span>
           </div>
         </div>
@@ -178,7 +173,7 @@
                 >
                   <!-- Cell Labels -->
                   <div class="absolute inset-x-2 top-2 flex justify-between items-start pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity">
-                    <span class="text-[8px] font-black uppercase tracking-tighter max-w-[60%] leading-none">{{ riskLevelConfig[getRiskLevel(l, i)].label }}</span>
+                    <span class="text-[8px] font-black uppercase tracking-tighter max-w-[60%] leading-none">{{ getRiskLevelLabel(getRiskLevel(l, i)) }}</span>
                     <span class="text-[10px] font-black">{{ getRiskScore(l, i) }}</span>
                   </div>
 
@@ -202,13 +197,13 @@
           <div class="flex mt-4 ml-0">
             <div v-for="i in impactLevels" :key="`x-${i}`" class="flex-1 flex flex-col items-center gap-1">
               <span class="text-xl font-black">{{ i }}</span>
-              <span class="text-[10px] font-bold uppercase tracking-tighter text-center max-w-[80px] leading-tight">{{ impactLabels[i] }}</span>
+              <span class="text-[10px] font-bold uppercase tracking-tighter text-center max-w-[80px] leading-tight">{{ getImpactLabel(i) }}</span>
             </div>
           </div>
 
           <!-- X-axis Label -->
           <div class="mt-8 text-center text-[10px] font-black uppercase tracking-[0.3em]">
-            IMPACT LEVEL
+            {{ t('riskProfile.impactLevel') }}
           </div>
         </div>
       </div>
@@ -226,11 +221,11 @@
                 <table class="w-full text-left border-collapse text-md font-sans">
                   <thead>
                     <tr class="bg-gray-100/80 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[9px] text-gray-500 text-center">
-                      <th class="py-4 px-3 border-r border-gray-200 dark:border-gray-800 text-left min-w-[40px]" rowspan="2">No</th>
-                      <th class="py-4 px-4 border-r border-gray-200 dark:border-gray-800 text-left min-w-[300px]" rowspan="2">Peristiwa Risiko</th>
-                      <th class="py-2 px-3 border-r border-gray-200 dark:border-gray-800 border-b" colspan="4">Skala Dampak</th>
-                      <th class="py-2 px-3 border-r border-gray-200 dark:border-gray-800 border-b" colspan="4">Skala Kemungkinan</th>
-                      <th class="py-2 px-3 border-b" colspan="4">Level Risiko</th>
+                      <th class="py-4 px-3 border-r border-gray-200 dark:border-gray-800 text-left min-w-[40px]" rowspan="2">{{ t('riskProfile.table.no') }}</th>
+                      <th class="py-4 px-4 border-r border-gray-200 dark:border-gray-800 text-left min-w-[300px]" rowspan="2">{{ t('riskProfile.table.riskEvent') }}</th>
+                      <th class="py-2 px-3 border-r border-gray-200 dark:border-gray-800 border-b" colspan="4">{{ t('riskProfile.table.impactScale') }}</th>
+                      <th class="py-2 px-3 border-r border-gray-200 dark:border-gray-800 border-b" colspan="4">{{ t('riskProfile.table.likelihoodScale') }}</th>
+                      <th class="py-2 px-3 border-b" colspan="4">{{ t('riskProfile.table.riskLevel') }}</th>
                     </tr>
                     <tr class="bg-gray-50/50 dark:bg-gray-800/40 border-b border-gray-200 dark:border-gray-800 font-bold text-[8px] text-gray-400 text-center uppercase">
                       <!-- Dampak Q1-Q4 -->
@@ -341,7 +336,7 @@
                   <!-- Score -->
                   <div class="text-right shrink-0 px-4 border-r border-gray-100 dark:border-gray-800">
                     <div class="text-[10px] font-black uppercase tracking-tighter leading-none" :style="{ color: riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].color }">
-                      {{ riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].label }}
+                      {{ getRiskLevelLabel(getRiskLevel(risk.likelihood, risk.impact)) }}
                     </div>
                     <div class="text-2xl font-black leading-tight text-gray-700 dark:text-gray-300">
                       {{ getRiskScore(risk.likelihood, risk.impact) }}
@@ -351,8 +346,8 @@
                   <!-- Actions -->
                   <div class="flex items-center gap-1.5">
                     <UModal 
-                      :title="`Risk Detail: # ${store.getFormattedId(risk)}`"
-                      description="Complete assessment data and categorization for this risk event."
+                      :title="t('riskProfile.detailModal.title', { id: store.getFormattedId(risk) })"
+                      :description="t('riskProfile.detailModal.desc')"
                       :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
                     >
                       <UButton
@@ -369,25 +364,25 @@
                             <div class="flex items-center gap-3">
                               <span class="text-3xl">{{ categoryIcons[risk.category] }}</span>
                               <div>
-                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Category</div>
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.category') }}</div>
                                 <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ risk.category }}</div>
                               </div>
                             </div>
                             <div class="text-right">
-                              <div class="text-[10px] font-black uppercase tracking-widest mb-1 text-gray-400">Risk Level</div>
+                              <div class="text-[10px] font-black uppercase tracking-widest mb-1 text-gray-400">{{ t('riskProfile.detailModal.riskLevel') }}</div>
                               <UBadge 
                                 :style="{ backgroundColor: riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].color, color: 'white' }"
                                 size="sm"
                                 class="font-black"
                               >
-                                {{ riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].label }}
+                                {{ getRiskLevelLabel(getRiskLevel(risk.likelihood, risk.impact)) }}
                               </UBadge>
                             </div>
                           </div>
 
                           <!-- Basic Info -->
                           <div class="space-y-1">
-                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Risk Event Name</div>
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.riskEventName') }}</div>
                             <h3 class="text-xl font-black leading-tight text-gray-800 dark:text-gray-100">{{ risk.name }}</h3>
                           </div>
 
@@ -395,24 +390,24 @@
                           <div class="grid grid-cols-2 gap-6 pt-4 border-t border-gray-100 dark:border-gray-800">
                             <div class="space-y-1.5">
                               <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Impact ({{ store.selectedPeriod }})</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.impactPeriod', { period: store.selectedPeriod }) }}</span>
                                 <span class="text-md font-bold text-gray-700 dark:text-gray-300">{{ risk.impact }}/5</span>
                               </div>
-                              <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ impactLabels[risk.impact] }}</div>
+                              <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ getImpactLabel(risk.impact) }}</div>
                             </div>
                             <div class="space-y-1.5">
                               <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Likelihood ({{ store.selectedPeriod }})</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.likelihoodPeriod', { period: store.selectedPeriod }) }}</span>
                                 <span class="text-md font-bold text-gray-700 dark:text-gray-300">{{ risk.likelihood }}/5</span>
                               </div>
-                              <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ likelihoodLabels[risk.likelihood] }}</div>
+                              <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ getLikelihoodLabel(risk.likelihood) }}</div>
                             </div>
                           </div>
 
                           <!-- Severity Progress -->
                           <div class="space-y-2 pt-4 border-t border-gray-100 dark:border-gray-800">
                             <div class="flex justify-between items-center">
-                              <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Severity Weight</span>
+                              <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.severityWeight') }}</span>
                               <span class="text-sm font-black text-gray-700 dark:text-gray-300">{{ risk.severity }}%</span>
                             </div>
                             <UMeter :value="risk.severity" color="primary" size="md" />
@@ -420,7 +415,7 @@
 
                           <!-- Description -->
                           <div v-if="risk.description" class="space-y-1 pt-4 border-t border-gray-100 dark:border-gray-800">
-                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Description</div>
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.description') }}</div>
                             <p class="text-sm leading-relaxed italic text-gray-600 dark:text-gray-400">
                               "{{ risk.description }}"
                             </p>
@@ -430,7 +425,7 @@
                           <div class="pt-6 border-t border-gray-100 dark:border-gray-800">
                             <UButton
                               icon="i-heroicons-shield-check"
-                              label="Go to Mitigation Plan"
+                              :label="t('riskProfile.detailModal.mitigationBtn')"
                               color="primary"
                               variant="soft"
                               class="w-full justify-center font-bold animate-pulse"
@@ -470,44 +465,42 @@
     <!-- Global Edit Risk Modal -->
     <UModal 
       v-model:open="store.isFormOpen"
-      :title="store.selectedRisk ? `Edit Risk: ${store.selectedRisk.name}` : 'Edit Risk'"
-      description="Modify the assessment parameters or quarterly scoring details."
+      :title="store.selectedRisk ? t('riskProfile.editModal.title', { name: store.selectedRisk.name }) : t('riskProfile.editModal.titleDefault')"
+      :description="t('riskProfile.editModal.desc')"
       :ui="{ content: 'sm:max-w-2xl' }"
     >
       <template #body>
         <div v-if="store.selectedRisk" class="space-y-4">
-          <UFormField label="Risk Name" required>
+          <UFormField :label="t('riskProfile.addModal.name')" required>
             <UInput v-model="store.selectedRisk.name" class="w-full" />
           </UFormField>
 
           <div class="grid grid-cols-2 gap-4">
-            <UFormField label="Category">
+            <UFormField :label="t('riskProfile.addModal.category')">
               <USelect v-model="store.selectedRisk.category" :items="categoryOptions" class="w-full" />
             </UFormField>
-            <UFormField label="Branch / Dept">
+            <UFormField :label="t('riskProfile.addModal.branch')">
               <USelect v-model="store.selectedRisk.branch" :items="store.branches" class="w-full" />
             </UFormField>
           </div>
 
-
-
           <!-- Quarterly residual inputs for editing -->
           <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-900/50 space-y-4">
-            <span class="block text-md font-black uppercase tracking-wider text-warning-500">Quarterly Residual Score Tracking (FY {{ store.selectedYear }})</span>
+            <span class="block text-md font-black uppercase tracking-wider text-warning-500">{{ t('riskProfile.addModal.quarterlyTitle', { year: store.selectedYear }) }}</span>
             <div class="grid grid-cols-4 gap-4">
               <div v-for="q in ['q1', 'q2', 'q3', 'q4']" :key="q" class="space-y-2 border-r last:border-0 border-gray-200 dark:border-gray-700 pr-2">
                 <span class="text-md font-black uppercase text-gray-500">{{ q }}</span>
-                <UFormField label="Impact">
+                <UFormField :label="t('riskProfile.addModal.impact')">
                   <USelect v-model.number="store.selectedRisk[`impact_${q}`]" :items="[1,2,3,4,5]" class="w-full" />
                 </UFormField>
-                <UFormField label="Likelihood">
+                <UFormField :label="t('riskProfile.addModal.likelihood')">
                   <USelect v-model.number="store.selectedRisk[`likelihood_${q}`]" :items="[1,2,3,4,5]" class="w-full" />
                 </UFormField>
               </div>
             </div>
           </div>
 
-          <UFormField label="Risk Description">
+          <UFormField :label="t('riskProfile.addModal.description')">
             <UTextarea v-model="store.selectedRisk.description" class="w-full" />
           </UFormField>
         </div>
@@ -516,13 +509,13 @@
       <template #footer>
         <div class="flex justify-end gap-3 w-full">
           <UButton 
-            label="Cancel" 
+            :label="t('common.cancel')" 
             color="neutral" 
             variant="ghost" 
             @click="store.isFormOpen = false" 
           />
           <UButton 
-            label="Update Risk" 
+            :label="t('riskProfile.editModal.updateBtn')" 
             color="warning" 
             @click="submitEditRisk" 
           />
@@ -535,6 +528,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import RiskBadge from './RiskBadge.vue'
+import { useI18n } from '~/composables/useI18n'
 import { 
   useRiskProfileStore, 
   riskLevelConfig, 
@@ -545,6 +539,7 @@ import {
 
 const store = useRiskProfileStore()
 const { getRiskLevel, getRiskScore } = store
+const { t } = useI18n()
 const toast = useToast()
 
 // Local state for UI
@@ -571,7 +566,18 @@ const newRisk = ref({
   likelihood_q4: 3
 })
 
+// Localized helper labels
+function getRiskLevelLabel(levelKey) {
+  return t(`riskProfile.riskLevelLabels.${levelKey}`) || riskLevelConfig[levelKey]?.label || levelKey
+}
 
+function getImpactLabel(val) {
+  return t(`riskProfile.impactLabels.${val}`) || impactLabels[val] || val
+}
+
+function getLikelihoodLabel(val) {
+  return t(`riskProfile.likelihoodLabels.${val}`) || likelihoodLabels[val] || val
+}
 
 // Options for selects
 const categoryOptions = Object.keys(categoryIcons).map(cat => ({ 
@@ -580,20 +586,20 @@ const categoryOptions = Object.keys(categoryIcons).map(cat => ({
 }))
 
 const impactOptions = Object.entries(impactLabels).map(([val, label]) => ({ 
-  label: `${val} - ${label}`, 
+  label: `${val} - ${getImpactLabel(val)}`, 
   value: Number(val) 
 }))
 
 const likelihoodOptions = Object.entries(likelihoodLabels).map(([val, label]) => ({ 
-  label: `${val} - ${label}`, 
+  label: `${val} - ${getLikelihoodLabel(val)}`, 
   value: Number(val) 
 }))
 
 function submitNewRisk() {
   if (!newRisk.value.name) {
     toast.add({
-      title: 'Validation Error',
-      description: 'Risk name is required.',
+      title: t('riskProfile.toasts.validationError'),
+      description: t('riskProfile.toasts.nameRequired'),
       color: 'error'
     })
     return
@@ -625,8 +631,8 @@ function submitNewRisk() {
 
   store.addRisk(payload)
   toast.add({
-    title: 'Risk Added',
-    description: `"${newRisk.value.name}" successfully added to the profile.`,
+    title: t('riskProfile.toasts.riskAdded'),
+    description: t('riskProfile.toasts.riskAddedDesc', { name: newRisk.value.name }),
     color: 'success',
     icon: 'i-heroicons-check-circle'
   })
@@ -664,7 +670,7 @@ const selectedBranch = computed({
 })
 
 const filteredRisks = computed(() => {
-  if (selectedBranch.value === 'All Branches') return risks.value
+  if (selectedBranch.value === 'All Branches' || selectedBranch.value === t('riskProfile.allBranches')) return risks.value
   return risks.value.filter(r => r.branch === selectedBranch.value)
 })
 
@@ -686,25 +692,25 @@ const priorityRisks = computed(() => {
 
 const priorityCount = computed(() => priorityRisks.value.length)
 
-const branchOptions = computed(() => ['All Branches', ...store.branches])
+const branchOptions = computed(() => [t('riskProfile.allBranches'), ...store.branches])
 
 const tabItems = computed(() => [
   {
     key: 'priority',
     value: 'priority',
-    label: `Priority Risks (${priorityRisks.value.length})`,
+    label: t('riskProfile.tabs.priority', { count: priorityRisks.value.length }),
     icon: 'i-heroicons-fire'
   },
   {
     key: 'all',
     value: 'all',
-    label: `All Risks (${totalRisks.value})`,
+    label: t('riskProfile.tabs.all', { count: totalRisks.value }),
     icon: 'i-heroicons-list-bullet'
   },
   {
     key: 'progress',
     value: 'progress',
-    label: 'Risk Progress Table',
+    label: t('riskProfile.tabs.progress'),
     icon: 'i-heroicons-arrow-trending-up'
   }
 ])
@@ -759,7 +765,7 @@ function getQLevelLabel(risk, quarter) {
   const impact = getQVal(risk, 'impact', quarter)
   const likelihood = getQVal(risk, 'likelihood', quarter)
   const level = store.getRiskLevel(likelihood, impact)
-  return riskLevelConfig[level]?.label || 'Low'
+  return getRiskLevelLabel(level)
 }
 
 function getQLevelBadgeStyle(risk, quarter) {
@@ -783,7 +789,11 @@ function getQLevelCellStyle(risk, quarter) {
 
 function submitEditRisk() {
   store.updateRisk(store.selectedRisk);
-  toast.add({ title: 'Risk Updated', description: 'Changes saved successfully.', color: 'success' });
+  toast.add({ 
+    title: t('riskProfile.toasts.riskUpdated'), 
+    description: t('riskProfile.toasts.riskUpdatedDesc'), 
+    color: 'success' 
+  });
   store.isFormOpen = false;
 }
 
@@ -833,8 +843,8 @@ function onDrop(e, newLikelihood, newImpact) {
     store.updateRisk({ ...droppedRisk, likelihood: newLikelihood, impact: newImpact })
     
     toast.add({
-      title: 'Risk Position Updated',
-      description: `"${droppedRisk.name}" moved to ${newLikelihood}×${newImpact} for ${store.selectedPeriod}`,
+      title: t('riskProfile.toasts.positionUpdated'),
+      description: t('riskProfile.toasts.positionUpdatedDesc', { name: droppedRisk.name, l: newLikelihood, i: newImpact, period: store.selectedPeriod }),
       color: 'primary',
       icon: 'i-heroicons-arrows-right-left'
     })
@@ -849,8 +859,8 @@ function handleDeleteRisk(id) {
   
   store.deleteRisk(id)
   toast.add({
-    title: 'Risk Deleted',
-    description: `"${risk.name}" has been removed.`,
+    title: t('riskProfile.toasts.riskDeleted'),
+    description: t('riskProfile.toasts.riskDeletedDesc', { name: risk.name }),
     color: 'error',
     icon: 'i-heroicons-trash'
   })

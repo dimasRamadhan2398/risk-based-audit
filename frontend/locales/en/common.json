@@ -832,5 +832,100 @@
         "actions": "Actions"
       }
     }
+  },
+  "riskProfile": {
+    "title": "Corporate Risk Profile",
+    "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
+    "total": "Total",
+    "priority": "Priority",
+    "addRisk": "Add Risk",
+    "filterBranch": "Filter Branch/Dept",
+    "allBranches": "All Branches",
+    "fiscalYear": "Fiscal Year",
+    "period": "Period",
+    "riskLevels": "Risk Levels",
+    "likelihoodLevel": "LIKELIHOOD LEVEL",
+    "impactLevel": "IMPACT LEVEL",
+    "quickTip": {
+      "title": "Quick Tip",
+      "desc": "Drag and drop risks to update their status. Switch quarters to track risk changes over time."
+    },
+    "tabs": {
+      "priority": "Priority Risks ({count})",
+      "all": "All Risks ({count})",
+      "progress": "Risk Progress Table"
+    },
+    "table": {
+      "no": "No",
+      "riskEvent": "Risk Event",
+      "impactScale": "Impact Scale",
+      "likelihoodScale": "Likelihood Scale",
+      "riskLevel": "Risk Level"
+    },
+    "addModal": {
+      "title": "Add New Corporate Risk",
+      "desc": "Enter the details of the new risk to be added to the heatmap.",
+      "name": "Risk Name",
+      "namePlaceholder": "e.g. Target pendapatan dan laba tidak tercapai",
+      "category": "Category",
+      "branch": "Branch / Dept",
+      "quarterlyTitle": "Quarterly Residual Score Tracking (FY {year})",
+      "impact": "Impact",
+      "likelihood": "Likelihood",
+      "description": "Risk Description",
+      "descriptionPlaceholder": "Describe the risk and its potential consequences...",
+      "saveBtn": "Save Risk"
+    },
+    "editModal": {
+      "title": "Edit Risk: {name}",
+      "titleDefault": "Edit Risk",
+      "desc": "Modify the assessment parameters or quarterly scoring details.",
+      "updateBtn": "Update Risk"
+    },
+    "detailModal": {
+      "title": "Risk Detail: # {id}",
+      "desc": "Complete assessment data and categorization for this risk event.",
+      "category": "Category",
+      "riskLevel": "Risk Level",
+      "riskEventName": "Risk Event Name",
+      "impactPeriod": "Impact ({period})",
+      "likelihoodPeriod": "Likelihood ({period})",
+      "severityWeight": "Severity Weight",
+      "description": "Description",
+      "mitigationBtn": "Go to Mitigation Plan"
+    },
+    "toasts": {
+      "validationError": "Validation Error",
+      "nameRequired": "Risk name is required.",
+      "riskAdded": "Risk Added",
+      "riskAddedDesc": "\"{name}\" successfully added to the profile.",
+      "riskUpdated": "Risk Updated",
+      "riskUpdatedDesc": "Changes saved successfully.",
+      "positionUpdated": "Risk Position Updated",
+      "positionUpdatedDesc": "\"{name}\" moved to {l}×{i} for {period}",
+      "riskDeleted": "Risk Deleted",
+      "riskDeletedDesc": "\"{name}\" has been removed."
+    },
+    "impactLabels": {
+      "1": "Very Low",
+      "2": "Low",
+      "3": "Moderate",
+      "4": "High",
+      "5": "Very High"
+    },
+    "likelihoodLabels": {
+      "1": "Very Rare",
+      "2": "Rare",
+      "3": "Possible",
+      "4": "Likely",
+      "5": "Very Likely"
+    },
+    "riskLevelLabels": {
+      "low": "Low",
+      "low-moderate": "Low to Moderate",
+      "moderate": "Moderate",
+      "moderate-high": "Moderate to High",
+      "high": "High"
+    }
   }
 }

@@ -166,7 +166,7 @@
           <div class="flex flex-col sm:flex-row gap-3 pt-4">
             <DangerButton
               id="confidentiality-reject-btn"
-              variant="soft"
+              variant="solid"
               size="lg"
               class="whitespace-nowrap shrink-0"
               @click="handleReject"

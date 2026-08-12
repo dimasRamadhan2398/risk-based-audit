@@ -4,7 +4,7 @@
     :to="to"
     :type="to ? undefined : type"
     :disabled="disabled || loading"
-    class="inline-flex items-center justify-center font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-error-500/50 select-none disabled:cursor-not-allowed disabled:opacity-50"
+    class="inline-flex items-center justify-center font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-error-500/20 select-none disabled:cursor-not-allowed disabled:opacity-50"
     :class="[
       sizeClasses[size],
       variantClasses[variant],
