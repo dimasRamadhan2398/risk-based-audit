@@ -6,6 +6,7 @@ export interface User {
   fullName: string
   phone?: string
   department?: string
+  position?: string
   roles: string[]
   createdAt?: string
   updatedAt?: string

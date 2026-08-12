@@ -13,8 +13,12 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - API_BASE_URL=http://localhost:8080/api/v1
-      - ANALYTICS_API_BASE_URL=http://localhost:8080/api/analytics
+      - API_BASE_URL=/api/v1
+      - ANALYTICS_API_BASE_URL=/api/analytics
+      - API_BASE_URL_SERVER=http://host.docker.internal:8080/api/v1/**
+      - ANALYTICS_API_BASE_URL_SERVER=http://host.docker.internal:8080/api/analytics/**
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - rbia-network
     restart: unless-stopped

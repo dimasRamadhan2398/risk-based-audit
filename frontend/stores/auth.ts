@@ -178,7 +178,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /** Update user profile (PUT /api/v1/users/:id) */
-    async updateProfile(profile: { fullName: string, phone: string, department: string }) {
+    async updateProfile(profile: { fullName: string, phone: string, department: string, position?: string }) {
       if (!this.token || !this.user?.id) return
       const config = useRuntimeConfig()
       try {
@@ -191,6 +191,7 @@ export const useAuthStore = defineStore('auth', {
               full_name: profile.fullName,
               phone: profile.phone,
               department: profile.department,
+              position: profile.position,
             },
           },
         )
@@ -199,6 +200,7 @@ export const useAuthStore = defineStore('auth', {
           this.user.fullName = profile.fullName
           this.user.phone = profile.phone
           this.user.department = profile.department
+          this.user.position = profile.position
 
           // Re-cookie updated user
           const userCookie = useCookie('auth-user')
@@ -221,6 +223,7 @@ export const useAuthStore = defineStore('auth', {
         fullName: data.user?.full_name ?? data.user?.fullName ?? '',
         phone: data.user?.phone,
         department: data.user?.department,
+        position: data.user?.position,
         roles: data.user?.roles ?? [],
       }
 

@@ -2,8 +2,13 @@
     <!-- Add/Edit Modal -->
     <UModal
       v-model:open="store.isAddModalOpen"
-      title="Strategic Plan Information"
-      :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
+      :title="t('strategicPlan.form.title')"
+      :ui="{
+        content: 'sm:max-w-2xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl',
+        header: 'border-b border-gray-100 dark:border-gray-800 pb-4 text-gray-900 dark:text-white font-bold',
+        body: 'p-6 space-y-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
     >
       <template #body>
         <UForm :state="store.form" @submit.prevent="store.handleSubmit">
@@ -11,39 +16,28 @@
 
             <!-- Link to Goal -->
             <div class="form-row" v-if="vmgStore.activeVmg?.goals?.length">
-              <label class="form-label">
-                Corporate Goal <span class="text-orange-500">*</span>
+              <label class="form-label text-gray-700 dark:text-white">
+                {{ t('strategicPlan.form.corporateGoal') }} <span class="text-orange-500">*</span>
               </label>
               <USelectMenu
                 v-model="store.form.goalId"
                 :items="goalOptions"
                 value-key="value"
-                placeholder="Select Corporate Goal"
+                :placeholder="t('strategicPlan.form.selectCorporateGoal')"
                 class="w-full"
                 required
               />
             </div>
 
-            <!-- Objective ID -->
-            <div class="form-row">
-              <label class="form-label">
-                Objective ID <span class="text-orange-500">*</span>
-              </label>
-              <UInput
-                v-model="store.form.code"
-                placeholder="Ex: SO-IA01"
-                class="w-full"
-              />
-            </div>
 
             <!-- Strategic Objective -->
             <div class="form-row">
-              <label class="form-label">
-                Strategic Objective <span class="text-orange-500">*</span>
+              <label class="form-label text-gray-700 dark:text-white">
+                {{ t('strategicPlan.form.objective') }} <span class="text-orange-500">*</span>
               </label>
               <UTextarea
                 v-model="store.form.strategicObjective"
-                placeholder="Ex: Enhance Operational Efficiency"
+                :placeholder="t('strategicPlan.form.objectivePlaceholder')"
                 :rows="2"
                 class="w-full"
               />
@@ -51,32 +45,32 @@
 
             <!-- KPI Title -->
             <div class="form-row">
-              <label class="form-label">
-                KPI <span class="text-orange-500">*</span>
+              <label class="form-label text-gray-700 dark:text-white">
+                {{ t('strategicPlan.form.kpi') }} <span class="text-orange-500">*</span>
               </label>
               <UInput
                 v-model="store.form.kpi"
-                placeholder="Ex: Revenue Operational Cost"
+                :placeholder="t('strategicPlan.form.kpiPlaceholder')"
                 class="w-full"
               />
             </div>
 
             <!-- Unit -->
             <div class="form-row">
-              <label class="form-label">Unit</label>
+              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.unit') }}</label>
               <USelectMenu
                 v-model="store.form.unit"
                 :items="store.unitOptions"
                 value-key="value"
-                placeholder="Select Unit"
+                :placeholder="t('strategicPlan.form.selectUnit')"
                 class="w-full"
               />
             </div>
 
             <!-- HIB/HIG Radio -->
             <div class="form-row">
-              <label class="form-label">
-                HIB/HIG <span class="text-orange-500">*</span>
+              <label class="form-label text-gray-700 dark:text-white">
+                {{ t('strategicPlan.form.hibHig') }} <span class="text-orange-500">*</span>
               </label>
               <div class="flex flex-col gap-2">
                 <label class="inline-flex items-center gap-2 cursor-pointer">
@@ -86,7 +80,7 @@
                     value="HIG"
                     class="accent-orange-500 w-4 h-4"
                   />
-                  <span class="text-sm text-gray-800">HIG (High is Good)</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.higLabel') }}</span>
                 </label>
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                   <input
@@ -95,15 +89,15 @@
                     value="HIB"
                     class="accent-orange-500 w-4 h-4"
                   />
-                  <span class="text-sm text-gray-800">HIB (High is Bad)</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.hibLabel') }}</span>
                 </label>
               </div>
             </div>
 
             <!-- Period Type Radio -->
             <div class="form-row">
-              <label class="form-label">
-                Period Type <span class="text-orange-500">*</span>
+              <label class="form-label text-gray-700 dark:text-white">
+                {{ t('strategicPlan.form.periodType') }} <span class="text-orange-500">*</span>
               </label>
               <div class="flex flex-col gap-2">
                 <label class="inline-flex items-center gap-2 cursor-pointer">
@@ -113,7 +107,7 @@
                     value="Quartal"
                     class="accent-orange-500 w-4 h-4"
                   />
-                  <span class="text-sm text-gray-800">Quartal</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.quartal') }}</span>
                 </label>
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                   <input
@@ -122,16 +116,16 @@
                     value="Yearly"
                     class="accent-orange-500 w-4 h-4"
                   />
-                  <span class="text-sm text-gray-800">Yearly</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.yearly') }}</span>
                 </label>
               </div>
             </div>
 
             <!-- Yearly: Dari Tahun / Sampai Tahun -->
             <div v-if="store.form.periodType === 'Yearly'" class="form-row">
-              <label class="form-label">Period</label>
+              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.period') }}</label>
               <div class="flex items-center gap-3 flex-wrap">
-                <span class="text-sm font-semibold text-gray-800">From</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">{{ t('strategicPlan.form.from') }}</span>
                 <USelectMenu
                   v-model="store.form.yearStart"
                   :items="store.yearOptions"
@@ -139,7 +133,7 @@
                   placeholder="Year"
                   class="w-28"
                 />
-                <span class="text-sm font-semibold text-gray-800">To</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">{{ t('strategicPlan.form.to') }}</span>
                 <USelectMenu
                   v-model="store.form.yearEnd"
                   :items="store.yearOptions"
@@ -152,7 +146,7 @@
 
             <!-- Period Tabs (Quarter or Year) -->
             <div class="form-row">
-              <label class="form-label"></label>
+              <label class="form-label text-gray-700 dark:text-white"></label>
               <div class="flex gap-0 border border-gray-300 dark:border-gray-600 rounded-md overflow-hidden w-fit">
                 <button
                   v-for="period in store.availablePeriods"
@@ -170,43 +164,14 @@
               </div>
             </div>
 
-            <!-- Actual -->
-            <div class="form-row">
-              <label class="form-label">
-                Actual <span class="text-orange-500">*</span>
-              </label>
-              <UInput
-                v-model="store.form.actual"
-                placeholder="Ex: 100"
-                class="w-full"
-              />
-            </div>
-
-            <!-- Target -->
-            <div class="form-row">
-              <label class="form-label">
-                Target <span class="text-orange-500">*</span>
-              </label>
-              <UInput
-                v-model="store.form.target"
-                placeholder="Ex: 300"
-                class="w-full"
-              />
-            </div>
-
-            <!-- Hitungan (Read Only) -->
-            <div class="form-row">
-              <label class="form-label">Calculation</label>
-              <div class="readonly-field">
-                {{ store.computedCalculation || '-' }}
-              </div>
-            </div>
+            <!-- Flexible Target & Realisasi KPI Matrix Component -->
+            <TargetRealizationMatrix />
 
             <!-- Status (Read Only) -->
             <div class="form-row">
-              <label class="form-label">Status</label>
+              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.status') }}</label>
               <div class="readonly-field">
-                {{ store.computedStatus || '-' }}
+                {{ formatStatus(store.computedStatus) }}
               </div>
             </div>
 
@@ -216,15 +181,17 @@
       <template #footer>
         <div class="flex flex-row justify-end gap-3">
           <UButton
-            label="Cancel"
+            :label="t('strategicPlan.form.cancel')"
             variant="ghost"
             color="neutral"
+            class="font-semibold text-gray-700 dark:text-white"
             @click="store.closeModal"
           />
           <UButton
-            :label="store.isEditMode ? 'Update' : 'Submit'"
+            :label="store.isEditMode ? t('strategicPlan.form.update') : t('strategicPlan.form.submit')"
             variant="solid"
             color="primary"
+            class="font-bold"
             @click="store.handleSubmit"
           />
         </div>
@@ -236,7 +203,10 @@
 import { computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
+import { useI18n } from '~/composables/useI18n'
+import TargetRealizationMatrix from './TargetRealizationMatrix.vue'
 
+const { t } = useI18n()
 const store = useStrategicPlanStore()
 const vmgStore = useVisionMissionGoalsStore()
 
@@ -247,6 +217,15 @@ const goalOptions = computed(() => {
     value: g.id || g.goal_code
   }))
 })
+
+const formatStatus = (status: string) => {
+  if (!status) return '-'
+  const lower = status.toLowerCase()
+  if (['good', 'moderate', 'poor', 'pending', 'planned'].includes(lower)) {
+    return t(`strategicPlan.status.${lower}`)
+  }
+  return status
+}
 </script>
 
 <style scoped>
@@ -260,8 +239,12 @@ const goalOptions = computed(() => {
 .form-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
   padding-top: 0.5rem;
+}
+
+html.dark .form-label,
+.dark .form-label {
+  color: #ffffff !important;
 }
 
 .readonly-field {
@@ -269,10 +252,18 @@ const goalOptions = computed(() => {
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-  color: #4b5563;
+  color: #111827;
+  font-weight: 600;
   min-height: 2.25rem;
   display: flex;
   align-items: center;
+}
+
+html.dark .readonly-field,
+.dark .readonly-field {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+  border: 1px solid #374151;
 }
 
 .period-tab {
@@ -291,12 +282,29 @@ const goalOptions = computed(() => {
   background-color: white;
 }
 
+html.dark .period-tab-active,
+.dark .period-tab-active {
+  background-color: #1f2937 !important;
+  color: #f97316 !important;
+}
+
 .period-tab-inactive {
   color: #6b7280;
   background-color: white;
 }
 
+html.dark .period-tab-inactive,
+.dark .period-tab-inactive {
+  color: #ffffff !important;
+  background-color: #111827 !important;
+}
+
 .period-tab-inactive:hover {
   background-color: #f9fafb;
+}
+
+html.dark .period-tab-inactive:hover,
+.dark .period-tab-inactive:hover {
+  background-color: #1f2937 !important;
 }
 </style>

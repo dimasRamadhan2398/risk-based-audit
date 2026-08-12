@@ -5,6 +5,9 @@ plugins:
   - name: cors
     config:
       origins:
+        - "https://auditsphere.app"
+        - "http://localhost:3000"
+        - "http://202.10.34.166:3000"
         - "*"
       methods:
         - GET
@@ -20,8 +23,32 @@ plugins:
         - accept
         - origin
         - Cache-Control
+        - X-CSRF-Token
+        - Access-Control-Allow-Origin
+      exposed_headers:
+        - Content-Length
+        - Content-Type
+        - Authorization
       credentials: true
       max_age: 3600
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 5000
+      policy: local
+  - name: bot-detection
+    config:
+      allow:
+        - "googlebot"           # Allowed bots (e.g. search engine crawlers)
+        - "bingbot"
+      deny:
+        - "curl"                # Extra User-Agents to block
+        - "python-requests"
+        - "Go-http-client"
+        - "sqlmap"
+        - "nikto"
+        - "nmap"
+
 
 services:
   - name: auth-service
@@ -71,6 +98,7 @@ services:
           - /api/v1/fieldwork
           - /api/v1/working-papers
           - /api/v1/audit-result-reports
+          - /api/v1/auditee-surveys
           - /api/v1/executive-summaries
           - /api/v1/action-taken-reports
           - /api/v1/uploaded-plan-documents
@@ -95,6 +123,7 @@ services:
           - /api/v1/departments
           - /api/v1/quality-assurance
           - /api/v1/vision-mission-goals
+          - /api/v1/data-sources
         strip_path: false
 
   - name: risk-service

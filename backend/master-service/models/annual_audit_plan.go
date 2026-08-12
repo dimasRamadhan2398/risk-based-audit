@@ -41,6 +41,9 @@ type AnnualAuditPlan struct {
 	DepartmentID    uuid.UUID           `gorm:"type:uuid;index" json:"department_id"`
 	Department      Department         `gorm:"foreignKey:DepartmentID" json:"department"`
 
+	// Child Activities (PKPT line items)
+	Activities      []AnnualAuditPlanActivity `gorm:"foreignKey:AnnualAuditPlanID" json:"activities"`
+
 	// Planning details
 	Priority        AuditPlanPriority   `gorm:"type:varchar(20);not null" json:"priority"`
 	Status          AuditPlanStatus     `gorm:"type:varchar(20);default:'DRAFT'" json:"status"`

@@ -2,6 +2,14 @@
 import { ref, computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { usePerformanceStore } from '~/stores/performance'
+import StrategicPlanForm from '~/components/strategic-audit-plan/StrategicPlanForm.vue'
+
+const props = defineProps({
+  year: {
+    type: Number,
+    required: true
+  }
+})
 
 const store = useStrategicPlanStore()
 const perfStore = usePerformanceStore()
@@ -27,15 +35,27 @@ const resetFilters = () => {
 // We'll calculate `gap` and assign a random category if missing
 const tableData = computed(() => {
   return store.strategicObjectives.map((obj: any, index: number) => {
-    
-    // Attempt to calculate gap
+    const achievement = perfStore.kpiAchievements.find((a: any) => {
+      const kName = a.kpi_name.toLowerCase()
+      const oName = (obj.kpi || obj.strategicObjective || '').toLowerCase()
+      return kName.includes(oName) || oName.includes(kName)
+    })
+
+    let targetVal = parseFloat(obj.target || '0')
+    if (obj.kpiTargets) {
+      const tgt = obj.kpiTargets[props.year] || obj.kpiTargets[String(props.year)]
+      if (tgt) targetVal = parseFloat(tgt)
+    }
+
+    let actualVal = parseFloat(obj.actual || '0')
+    if (achievement) {
+      actualVal = achievement.actual
+    }
+
     let gap = ''
     let gapValue = 0
     let isPositive = false
 
-    const actualVal = parseFloat(obj.actual || '0')
-    const targetVal = parseFloat(obj.target || '0')
-    
     if (targetVal !== 0) {
       if (obj.hibHig === 'HIG') {
         gapValue = actualVal - targetVal
@@ -50,40 +70,37 @@ const tableData = computed(() => {
        gap = '0'
     }
 
-    // Map store status to image status
     let mappedStatus = 'On Track'
     let statusColor = 'bg-emerald-500'
 
-    if (obj.status === 'Good') {
-       if (isPositive && gapValue > 0) {
-          mappedStatus = 'Exceeded'
-          statusColor = 'bg-secondary-500' // Purple
-       } else {
-          mappedStatus = 'On Track'
-          statusColor = 'bg-emerald-500' // Green
-       }
-    } else if (obj.status === 'Poor') {
-       mappedStatus = 'Needs Attention'
-       statusColor = 'bg-red-500'
-    } else if (obj.status === 'Moderate') {
-       mappedStatus = 'On Track'
-       statusColor = 'bg-emerald-500'
+    if (targetVal > 0) {
+      const achRate = (actualVal / targetVal) * 100
+      if (achRate >= 100) {
+        mappedStatus = 'Exceeded'
+        statusColor = 'bg-secondary-500'
+      } else if (achRate >= 80) {
+        mappedStatus = 'On Track'
+        statusColor = 'bg-emerald-500'
+      } else {
+        mappedStatus = 'Needs Attention'
+        statusColor = 'bg-red-500'
+      }
     }
 
-    // Map category
     let mappedCategory = categories[index % categories.length]
 
     return {
       id: obj.id,
       metric: obj.kpi,
       category: mappedCategory,
-      target: `${obj.target}${obj.unit === '%' ? '%' : ''}`,
-      actual: `${obj.actual}${obj.unit === '%' ? '%' : ''}`,
+      target: `${targetVal}${obj.unit === '%' ? '%' : ''}`,
+      actual: `${actualVal}${obj.unit === '%' ? '%' : ''}`,
       gap: gap,
       gapIsPositive: isPositive,
       status: mappedStatus,
       statusColor: statusColor,
-      rawPeriod: obj.selectedPeriod
+      rawPeriod: obj.selectedPeriod,
+      rawObj: obj,
     }
   })
 })
@@ -91,20 +108,23 @@ const tableData = computed(() => {
 const filteredData = computed(() => {
   let data = [...tableData.value]
 
-  // Add data from perfStore
   perfStore.kpiAchievements.forEach(kpi => {
-     data.push({
-        id: kpi.id,
-        metric: kpi.kpi_name,
-        category: 'Corporate',
-        target: `${kpi.target}`,
-        actual: `${kpi.actual}`,
-        gap: `${(kpi.actual - kpi.target).toFixed(1)}`,
-        gapIsPositive: kpi.actual >= kpi.target,
-        status: kpi.achievement_rate >= 100 ? 'Exceeded' : (kpi.achievement_rate >= 80 ? 'On Track' : 'Needs Attention'),
-        statusColor: kpi.achievement_rate >= 100 ? 'bg-secondary-500' : (kpi.achievement_rate >= 80 ? 'bg-emerald-500' : 'bg-red-500'),
-        rawPeriod: kpi.year.toString()
-     })
+     const exists = data.some(d => d.metric.toLowerCase().includes(kpi.kpi_name.toLowerCase()) || kpi.kpi_name.toLowerCase().includes(d.metric.toLowerCase()))
+     if (!exists && kpi.year === props.year) {
+        data.push({
+           id: kpi.id,
+           metric: kpi.kpi_name,
+           category: 'Corporate',
+           target: `${kpi.target}`,
+           actual: `${kpi.actual}`,
+           gap: `${(kpi.actual - kpi.target).toFixed(1)}`,
+           gapIsPositive: kpi.actual >= kpi.target,
+           status: kpi.achievement_rate >= 100 ? 'Exceeded' : (kpi.achievement_rate >= 80 ? 'On Track' : 'Needs Attention'),
+           statusColor: kpi.achievement_rate >= 100 ? 'bg-secondary-500' : (kpi.achievement_rate >= 80 ? 'bg-emerald-500' : 'bg-red-500'),
+           rawPeriod: kpi.year.toString(),
+           rawObj: kpi,
+        })
+     }
   })
 
   if (search.value) {
@@ -128,7 +148,6 @@ const filteredData = computed(() => {
        { id: 104, metric: 'High-risk Issue Resolution', category: 'Issue', target: '100%', actual: '100%', gap: '0%', gapIsPositive: true, status: 'Selesai', statusColor: 'bg-emerald-500', rawPeriod: '2026' },
        { id: 105, metric: 'Reporting Timeliness', category: 'Efficiency', target: '90%', actual: '95%', gap: '+5%', gapIsPositive: true, status: 'Exceeded', statusColor: 'bg-secondary-500', rawPeriod: '2026' },
      ]
-     // avoid duplicates if they exist
      mockData.forEach(mock => {
         if (!data.find((d: any) => d.metric === mock.metric)) {
            data.push(mock)
@@ -145,14 +164,35 @@ const columns = [
   { accessorKey: 'target', header: 'Target' },
   { accessorKey: 'actual', header: 'Actual' },
   { accessorKey: 'gap', header: 'Gap' },
-  { accessorKey: 'status', header: 'Status' }
+  { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'actions', header: 'Actions' }
 ]
 
+function editKpiTarget(rowOriginal: any) {
+  const existing = store.strategicObjectives.find(o => String(o.id) === String(rowOriginal.id) || o.kpi === rowOriginal.metric)
+  if (existing) {
+    store.handleEdit(existing)
+  } else {
+    store.openModal()
+    store.form.kpi = rowOriginal.metric
+    store.form.strategicObjective = rowOriginal.metric
+  }
+}
 </script>
 
 <template>
   <div class="space-y-6">
-    <h2 class="text-xl font-bold text-gray-900 dark:text-white">KPI Detailed Breakdown</h2>
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">KPI Detailed Breakdown</h2>
+      <UButton
+        label="Set KPI Targets"
+        icon="i-lucide-plus"
+        color="primary"
+        size="sm"
+        class="font-bold rounded-xl"
+        @click="store.openModal()"
+      />
+    </div>
 
     <div class="flex flex-wrap items-center gap-4">
       <UInput
@@ -218,6 +258,19 @@ const columns = [
             <span class="font-semibold text-gray-900 dark:text-white">{{ row.original.status }}</span>
           </div>
         </template>
+
+        <template #actions-cell="{ row }">
+          <UButton
+            color="primary"
+            variant="soft"
+            size="md"
+            icon="i-lucide-pencil shadow-md"
+            class="font-semibold rounded-lg"
+            @click="editKpiTarget(row.original)"
+          >
+            Edit KPI Targets
+          </UButton>
+        </template>
       </UTable>
 
       <!-- Pagination Placeholder -->
@@ -230,5 +283,8 @@ const columns = [
         <span class="text-md text-gray-500 font-semibold">Showing 1 - {{ filteredData.length }} of 50 data</span>
       </div>
     </div>
+
+    <!-- Strategic Plan / KPI Target Form Modal -->
+    <StrategicPlanForm />
   </div>
 </template>

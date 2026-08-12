@@ -58,6 +58,83 @@ export const initialMitigationsData: RiskMitigation[] = [
   }
 ]
 
+// Helper to generate flat monitoring checks (Weekly or Monthly) based on timeline
+function generateMonitoringChecks(startDateStr: string, endDateStr: string) {
+    const checks: any[] = []
+    if (!startDateStr || !endDateStr) return checks
+
+    try {
+        const start = new Date(startDateStr)
+        const end = new Date(endDateStr)
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) return checks
+
+        const diffTime = Math.abs(end.getTime() - start.getTime())
+        const durationDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        if (durationDays < 60) {
+            // Weekly
+            let numWeeks = Math.floor((durationDays + 6) / 7)
+            if (numWeeks <= 0) numWeeks = 1
+            
+            for (let i = 1; i <= numWeeks; i++) {
+                const wStart = new Date(start)
+                wStart.setDate(wStart.getDate() + (i - 1) * 7)
+                
+                const wEnd = new Date(start)
+                wEnd.setDate(wEnd.getDate() + i * 7)
+                wEnd.setSeconds(wEnd.getSeconds() - 1)
+                
+                const finalEnd = wEnd > end ? new Date(end) : wEnd
+                
+                const wStartFmt = wStart.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })
+                const wEndFmt = finalEnd.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })
+
+                checks.push({
+                    id: `W${i}`,
+                    label: `Week ${i} (${wStartFmt} - ${wEndFmt})`,
+                    checked: false,
+                    notes: "",
+                    startDate: wStart.toISOString(),
+                    endDate: finalEnd.toISOString()
+                })
+            }
+        } else {
+            // Monthly
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+            let current = new Date(start)
+            let i = 1
+
+            while (current <= end) {
+                let mStart = new Date(current.getFullYear(), current.getMonth(), 1)
+                if (mStart < start) mStart = new Date(start)
+
+                let mEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59)
+                if (mEnd > end) mEnd = new Date(end)
+
+                checks.push({
+                    id: `M${i}`,
+                    label: `${monthNames[current.getMonth()]} ${current.getFullYear()}`,
+                    checked: false,
+                    notes: "",
+                    startDate: mStart.toISOString(),
+                    endDate: mEnd.toISOString()
+                })
+
+                current = new Date(current.getFullYear(), current.getMonth() + 1, 1)
+                i++
+            }
+        }
+    } catch (e) {
+        console.error("Error generating monitoring checks:", e)
+    }
+    return checks
+}
+
+// Pre-fill initial data with monitoring checks
+initialMitigationsData.forEach(mit => {
+    mit.monitoring = generateMonitoringChecks(mit.start_date, mit.end_date)
+})
+
 export const useMitigationStore = defineStore('mitigation', () => {
     // --- STATE ---
     const mitigations = ref<RiskMitigation[]>(initialMitigationsData)
@@ -118,9 +195,21 @@ export const useMitigationStore = defineStore('mitigation', () => {
                     const formattedRiskCode = risk ? riskProfileStore.getFormattedId(risk) : `RSK-${String(idx + 1).padStart(3, '0')}`
                     const isLongUuid = m.riskControlId && (m.riskControlId.includes('-4') || m.riskControlId.length > 25)
                     const cleanControlId = (!m.riskControlId || isLongUuid) ? `CTL-${formattedRiskCode}` : m.riskControlId
+                    
+                    let safeMonitoring = m.monitoring
+                    if (!safeMonitoring || safeMonitoring.length === 0) {
+                        const localMit = mitigations.value.find(local => local.id === m.id)
+                        if (localMit && localMit.monitoring && localMit.monitoring.length > 0) {
+                            safeMonitoring = localMit.monitoring
+                        } else {
+                            safeMonitoring = generateMonitoringChecks(m.start_date, m.end_date)
+                        }
+                    }
+
                     return {
                         ...m,
-                        riskControlId: cleanControlId
+                        riskControlId: cleanControlId,
+                        monitoring: safeMonitoring
                     }
                 })
             }
@@ -189,34 +278,46 @@ export const useMitigationStore = defineStore('mitigation', () => {
                 end_date: form.end_date ? new Date(form.end_date).toISOString() : ''
             }
 
+            const newMonitoring = generateMonitoringChecks(payload.start_date, payload.end_date)
+
             if (isEditing.value && editingId.value) {
                 const idx = mitigations.value.findIndex(m => m.id === editingId.value)
+                let payloadWithMonitoring = { ...payload }
                 if (idx !== -1) {
-                    mitigations.value[idx] = { ...mitigations.value[idx], ...payload, id: editingId.value }
+                    const oldMit = mitigations.value[idx]
+                    const dateChanged = oldMit.start_date !== payload.start_date || oldMit.end_date !== payload.end_date
+                    const updatedMonitoring = dateChanged ? newMonitoring : (oldMit.monitoring || [])
+                    payloadWithMonitoring = { ...payload, monitoring: updatedMonitoring }
+                    mitigations.value[idx] = { ...oldMit, ...payloadWithMonitoring, id: editingId.value }
                 }
                 try {
                     await $fetch(`${baseUrl}/mitigations/${editingId.value}`, {
                         method: 'PUT',
-                        body: payload
+                        body: payloadWithMonitoring
                     })
+                    await fetchMitigations(currentRiskId)
                 } catch (e) {
                     console.warn('Backend update failed, saved locally.')
+                    mitigations.value = [...mitigations.value]
                 }
             } else {
                 const newMitigation: RiskMitigation = {
                     id: `mit-${Date.now()}`,
                     ...payload,
                     start_date: payload.start_date || new Date().toISOString(),
-                    end_date: payload.end_date || new Date().toISOString()
+                    end_date: payload.end_date || new Date().toISOString(),
+                    monitoring: newMonitoring
                 }
                 mitigations.value.push(newMitigation)
                 try {
                     await $fetch(`${baseUrl}/mitigations`, {
                         method: 'POST',
-                        body: payload
+                        body: { ...payload, monitoring: newMonitoring }
                     })
+                    await fetchMitigations(currentRiskId)
                 } catch (e) {
                     console.warn('Backend create failed, saved locally.')
+                    mitigations.value = [...mitigations.value]
                 }
             }
             closeForm()

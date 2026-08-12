@@ -199,7 +199,7 @@ export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', ()
       return true
     } catch (error: any) {
       console.error('Failed to save VMG:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal menyimpan data Visi, Misi dan Goals.'
+      errorMsg.value = error?.data?.message || error?.message || 'Gagal menyimpan data Visi, Misi, Goals dan Strategic Objective.'
       return false
     } finally {
       saving.value = false

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -20,6 +21,7 @@ import (
 	svcActivity "audit-service/services/audit_activity"
 	svcAssignment "audit-service/services/audit_assignment"
 	svcCharter "audit-service/services/audit_charter"
+	svcCompletion "audit-service/services/audit_completion"
 	svcMandate "audit-service/services/audit_mandate"
 	svcMedia "audit-service/services/media"
 
@@ -72,7 +74,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Auto-migrate uploaded document tables on startup
+	// Auto-migrate uploaded document tables and analyzer snapshot on startup
 	_ = db.AutoMigrate(
 		&models.UploadedPlanDocument{},
 		&models.UploadedAnnualPlan{},
@@ -82,6 +84,12 @@ func runServe(cmd *cobra.Command, args []string) error {
 		&models.UploadedExecutiveSummaryReport{},
 		&models.UploadedConsultingDocument{},
 		&models.UploadedPerformanceReport{},
+		&models.AuditCompletionSnapshot{},
+		&models.WorkingPaperHeader{},
+		&models.WorkingPaperRisk{},
+		&models.WorkingPaperSample{},
+		&models.WorkingPaperCause{},
+		&models.WorkingPaperPlan{},
 	)
 
 	// Initialize Redis
@@ -92,6 +100,15 @@ func runServe(cmd *cobra.Command, args []string) error {
 	if redisClient != nil {
 		defer redisClient.Close()
 	}
+
+	// Start the Audit Completion Analyzer background goroutine.
+	// It runs every 5 minutes, caches results in Redis, and persists
+	// snapshots for historical trending.
+	analyzerCtx, cancelAnalyzer := context.WithCancel(context.Background())
+	defer cancelAnalyzer()
+	completionAnalyzer := svcCompletion.NewAuditCompletionAnalyzer(db, redisClient)
+	go completionAnalyzer.Start(analyzerCtx)
+	logger.Info("[AuditCompletionAnalyzer] Background goroutine launched")
 
 	// Initialize base repository
 	baseRepo := repositories.NewBaseRepository(db)
@@ -139,6 +156,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	routeRegistry.SetAuditActivityController(auditActivityCtrl)
 	routeRegistry.SetMediaController(mediaCtrl)
 
+
 	// Initialize middleware
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
 
@@ -172,7 +190,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Initialize route handler
-	routeHandler := routes.NewRouteHandler(engine, authMiddleware, db)
+	routeHandler := routes.NewRouteHandler(engine, authMiddleware, db, redisClient)
 	routeHandler.SetRegistry(routeRegistry)
 	routeHandler.RegisterRoutes()
 

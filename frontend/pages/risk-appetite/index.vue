@@ -203,7 +203,10 @@
                 <template #mitigationStatus-cell="{ row }">
                   <div class="flex items-center gap-2">
                     <template v-if="hasMitigation(row.original.id)">
-                      <UBadge color="success" variant="solid" class="font-black text-[9px]">
+                      <UBadge v-if="isMitigationSelesai(row.original.id)" color="success" variant="solid" class="font-black text-[9px]">
+                        Selesai
+                      </UBadge>
+                      <UBadge v-else color="success" variant="solid" class="font-black text-[9px]">
                         Active ({{ getMitigationCount(row.original.id) }} Plan)
                       </UBadge>
                     </template>
@@ -438,6 +441,28 @@ const hasMitigation = (riskId: string): boolean => {
 
 const getMitigationCount = (riskId: string): number => {
   return mitigationStore.mitigations.filter(m => m.riskId === String(riskId)).length
+}
+
+const isMitigationSelesai = (riskId: string): boolean => {
+  const mits = mitigationStore.mitigations.filter(m => m.riskId === String(riskId))
+  if (mits.length === 0) return false
+  
+  let allSelesai = true
+  for (const row of mits) {
+    if (!row.monitoring) {
+      allSelesai = false
+      break
+    }
+    
+    const total = row.monitoring.length
+    const actual = row.monitoring.filter((check: any) => check.checked).length
+    
+    if (total === 0 || actual < total) {
+      allSelesai = false
+      break
+    }
+  }
+  return allSelesai
 }
 
 // KPI Computations

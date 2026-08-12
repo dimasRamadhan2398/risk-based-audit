@@ -121,6 +121,30 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
     }
   };
 
+  const viewDocument = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getAuditServiceBaseUrl();
+      const response: any = await $fetch(`${baseUrl}/uploaded-performance-reports/${id}/download`, {
+        responseType: 'blob'
+      });
+      let mimeType = 'application/pdf'
+      if (fileName) {
+        const lowerName = fileName.toLowerCase()
+        if (lowerName.endsWith('.png')) mimeType = 'image/png'
+        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg'
+        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain'
+      }
+
+      const blob = new Blob([response], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+    } catch (error: any) {
+      console.error('Failed to view performance report document:', error);
+      errorMsg.value = 'Failed to view document.';
+    }
+  };
+
   return {
     uploadedReports,
     loading,
@@ -128,6 +152,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
     fetchUploadedReports,
     uploadReport,
     deleteReport,
-    downloadReport
+    downloadReport,
+    viewDocument
   };
 });

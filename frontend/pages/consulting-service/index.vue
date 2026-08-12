@@ -164,9 +164,9 @@
     </UCard>
 
     <!-- Form Modal -->
-    <Teleport to="body">
-      <div v-if="store.isFormOpen" class="fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl" :ui="{header: 'sticky top-0 z-20 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800'}">
+    <UModal v-model:open="store.isFormOpen" class="w-full max-w-2xl">
+      <template #content>
+        <UCard class="w-full shadow-2xl">
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -183,21 +183,21 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <UFormField label="Category">
-                <USelectMenu v-model="store.newService.category" :items="store.categories" class="w-full" />
+                <USelect v-model="store.newService.category" :items="store.categories" class="w-full" />
               </UFormField>
 
               <UFormField label="Requestor Department">
-                <USelectMenu v-model="store.newService.requestorDept" :items="store.departments" class="w-full" />
+                <USelect v-model="store.newService.requestorDept" :items="store.departments" class="w-full" />
               </UFormField>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <UFormField label="Period Quarter">
-                <USelectMenu v-model="store.newService.periodQuarter" :items="store.quarters" class="w-full" />
+                <USelect v-model="store.newService.periodQuarter" :items="store.quarters" class="w-full" />
               </UFormField>
 
               <UFormField label="Period Year">
-                <USelectMenu v-model="store.newService.periodYear" :items="store.years" class="w-full" />
+                <USelect v-model="store.newService.periodYear" :items="store.years" class="w-full" />
               </UFormField>
 
               <UFormField label="Consultant / Lead Auditor" required>
@@ -206,7 +206,7 @@
             </div>
 
             <UFormField label="Status">
-              <USelectMenu v-model="store.newService.status" :items="store.statuses" class="w-full" />
+              <USelect v-model="store.newService.status" :items="store.statuses" class="w-full" />
             </UFormField>
 
             <UFormField label="Notes / Description">
@@ -239,13 +239,13 @@
             </div>
           </UForm>
         </UCard>
-      </div>
-    </Teleport>
+      </template>
+    </UModal>
 
     <!-- Detail Modal -->
-    <Teleport to="body">
-      <div v-if="store.isDetailOpen" class="fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl shadow-2xl">
+    <UModal v-model:open="store.isDetailOpen" class="w-full max-w-2xl">
+      <template #content>
+        <UCard class="w-full shadow-2xl">
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">Assignment Details</h3>
@@ -319,8 +319,8 @@
             </div>
           </div>
         </UCard>
-      </div>
-    </Teleport>
+      </template>
+    </UModal>
 
   </div>
 </template>

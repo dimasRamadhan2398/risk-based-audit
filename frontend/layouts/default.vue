@@ -69,18 +69,6 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
-    children: [
-      {
-        label: 'KPI Performance',
-        icon: 'i-lucide-users',
-        to: '/kpi-performance',
-      },
-      {
-        label: 'Impor Laporan Kinerja',
-        icon: 'i-lucide-upload',
-        to: '/kpi-performance/upload',
-      },
-    ]
   },
   {
     label: '4. Annual Audit Plan',
@@ -179,6 +167,11 @@ const rawItems: NavigationMenuItem[][] = [[
         label: 'Import Executive Summary Document',
         icon: 'i-lucide-upload',
         to: '/audit-result-report/executive-summary-upload',
+      },
+      {
+        label: 'Client Satisfaction Survey',
+        icon: 'i-lucide-smile',
+        to: '/audit-result-report/satisfaction-survey',
       }
     ]
   },
@@ -203,7 +196,7 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '10. Action Taken Report',
     icon: 'i-lucide-users',
     to: '/action-taken-report',
-  },
+  }, 
   {
     label: '11. Consulting Service',
     icon: 'i-lucide-users',
@@ -222,7 +215,17 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '12. Quality Assurance Review',
+    label: '12. Import Laporan Kinerja',
+    icon: 'i-lucide-upload',
+    to: '/kpi-performance/upload',
+  },
+  {
+    label: '13. Internal Audit Performance',
+    icon: 'i-lucide-trending-up',
+    to: '/kpi-performance',
+  },
+  {
+    label: '14. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [
@@ -261,11 +264,22 @@ const rawItems: NavigationMenuItem[][] = [[
   
 ]]
 
+const searchQuery = ref('')
+
 // 2. Gunakan Computed agar menu bereaksi setiap kali pengguna pindah halaman
 const items = computed<NavigationMenuItem[][]>(() => {
   return rawItems.map(group => {
     return group.map(parent => {
+      const q = searchQuery.value.toLowerCase()
       
+      // Filter anak-anaknya (children) jika ada query
+      let filteredChildren = parent.children
+      let childrenMatches = false
+      if (q && parent.children) {
+        filteredChildren = parent.children.filter(child => (child.label?.toLowerCase() || '').includes(q) || (parent.label?.toLowerCase() || '').includes(q))
+        childrenMatches = filteredChildren.length > 0
+      }
+
       // Cek apakah ada submenu (child) yang URL-nya cocok dengan URL saat ini
       const hasActiveChild = parent.children?.some(child => 
         route.path.startsWith(child.to as string)
@@ -273,11 +287,18 @@ const items = computed<NavigationMenuItem[][]>(() => {
 
       return {
         ...parent,
+        children: filteredChildren,
         // Jika ada child yang aktif, buat parent menyala (active: true) 
         // dan otomatis terbuka dropdown-nya (defaultOpen: true)
         active: hasActiveChild,
-        defaultOpen: hasActiveChild || parent.defaultOpen
+        defaultOpen: hasActiveChild || parent.defaultOpen || (q.length > 0 && childrenMatches)
       }
+    }).filter(parent => {
+       if (!searchQuery.value) return true
+       const q = searchQuery.value.toLowerCase()
+       const parentMatches = (parent.label?.toLowerCase() || '').includes(q)
+       const hasVisibleChildren = parent.children && parent.children.length > 0
+       return parentMatches || hasVisibleChildren
     })
   })
 })
@@ -318,42 +339,43 @@ const userDropdownItems = computed(() => [
     :default-size="25"
     :max-size="30"
     :collapsed-size="0"
-    :ui="{ footer: 'border-t border-default' }"
+    :ui="{
+      body: 'p-3 flex flex-col justify-start gap-y-3 flex-1 overflow-y-auto',
+      header: 'px-4 py-3 border-b border-[var(--border-main)] flex items-center justify-between shrink-0',
+      footer: 'border-t border-default'
+    }"
   >
     <template #header="{ collapsed }">
-      <Logo v-if="!collapsed" class="h-8 w-auto shrink-0" hide-subtitle text-class="text-xl" />
+      <Logo v-if="!collapsed" class="h-7 w-auto shrink-0" hide-subtitle text-class="text-xl" />
       <Logo v-else icon-only class="h-6 w-auto mx-auto" />
       <UDashboardSidebarCollapse variant="subtle" />
     </template>
 
     <template #default="{ collapsed }">
-      <UButton
-        :label="collapsed ? undefined : 'Search...'"
-        icon="i-lucide-search"
-        color="neutral"
-        variant="outline"
-        block
-        :square="collapsed"
-      >
-        <template v-if="!collapsed" #trailing>
-          <div class="flex items-center gap-0.5 ms-auto">
-            
-          </div>
-        </template>
-      </UButton>
+      <div class="flex flex-col gap-3">
+        <UInput
+          v-if="!collapsed"
+          v-model="searchQuery"
+          placeholder="Search..."
+          icon="i-lucide-search"
+          color="neutral"
+          variant="outline"
+          class="w-full"
+        />
 
-      <UNavigationMenu
-        :collapsed="collapsed"
-        :items="items[0]"
-        orientation="vertical"
-      />
+        <UNavigationMenu
+          :collapsed="collapsed"
+          :items="items[0]"
+          orientation="vertical"
+        />
+      </div>
 
       <UNavigationMenu
         v-if="items[1]" 
         :collapsed="collapsed"
         :items="items[1]"
         orientation="vertical"
-        class="mt-auto"
+        class="mt-auto pt-3 border-t border-[var(--border-main)]"
       />
     </template>
     

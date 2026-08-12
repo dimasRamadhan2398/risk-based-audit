@@ -253,11 +253,45 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
+  const getCategoryCode = (category?: string): string => {
+    if (!category) return 'ASR'
+    const cat = category.toLowerCase()
+    if (cat.includes('assurance') && !cat.includes('quality')) return 'ASR'
+    if (cat.includes('special')) return 'SPE'
+    if (cat.includes('specific')) return 'SPR'
+    if (cat.includes('consulting')) return 'CON'
+    if (cat.includes('investigation')) return 'INV'
+    if (cat.includes('quality') || cat.includes('qar')) return 'QAR'
+    if (cat.includes('follow')) return 'FLW'
+    const cleaned = category.replace(/[^a-zA-Z]/g, '')
+    return cleaned.length >= 3 ? cleaned.slice(0, 3).toUpperCase() : 'ASR'
+  }
+
+  const generateAutoCode = () => {
+    if (isEditing.value) return
+
+    const yr = form.year || yearOptions[0] || new Date().getFullYear().toString()
+    const catCode = getCategoryCode(form.activities[0]?.category)
+
+    const seq = (plans.value.length + 1).toString().padStart(3, '0')
+    form.code = `PKAT-${yr}-${catCode}-${seq}`
+  }
+
+  watch(
+    [() => form.year, () => form.activities[0]?.category],
+    () => {
+      if (!isEditing.value && showModal.value) {
+        generateAutoCode()
+      }
+    }
+  )
+
   const openModal = () => {
     isEditing.value = false
     editingId.value = null
 
     clearValidationErrors()
+    const defaultYear = yearOptions[0] || new Date().getFullYear().toString()
 
     Object.assign(form, {
       code: '',
@@ -279,8 +313,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       attachmentCategory: '',
       attachmentUploadedBy: '',
       attachmentUploadDate: '',
-      year: ''
+      year: defaultYear
     })
+
+    generateAutoCode()
     showModal.value = true
   }
 
@@ -302,6 +338,25 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const plans = ref<AnnualAuditPlan[]>([])
 
+  const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
+    return rawPlans.map(p => ({
+      ...p,
+      code: p.code || p.plan_code || '',
+      title: p.title || p.plan_title || '',
+      activities: Array.isArray(p.activities) ? p.activities.map((a: any) => ({
+        ...a,
+        name: a.name || a.title || '',
+        category: a.category || AuditCategory.ASSURANCE,
+        department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
+        involvedDepartments: a.involvedDepartments || a.involved_departments || [],
+        timelineText: a.timeline_text || a.timelineText || '',
+        auditorCount: a.auditor_count || a.auditorCount || 1,
+        totalMandays: a.total_mandays || a.totalMandays || 0,
+        supervisorName: a.supervisor_name || a.supervisorName || ''
+      })) : []
+    }))
+  }
+
   const fetchPlans = async () => {
     loading.value = true
     errorMsg.value = ''
@@ -311,11 +366,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         method: 'GET'
       })
       if (response && response.data && Array.isArray(response.data.items)) {
-        plans.value = response.data.items
+        plans.value = normalizePlans(response.data.items)
+      } else if (response && response.data && Array.isArray(response.data)) {
+        plans.value = normalizePlans(response.data)
       } else if (response && Array.isArray(response.items)) {
-        plans.value = response.items
+        plans.value = normalizePlans(response.items)
       } else if (Array.isArray(response)) {
-        plans.value = response
+        plans.value = normalizePlans(response)
       }
     } catch (error: any) {
       console.error('Failed to fetch annual plans:', error)
@@ -735,7 +792,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
-    getStatusColor, handleFileChange, fetchPlans,
+    getStatusColor, handleFileChange, fetchPlans, generateAutoCode, getCategoryCode,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
     createRevision, getRiskLevelColor, yearlyUniverse, fetchYearlyUniverse
   }

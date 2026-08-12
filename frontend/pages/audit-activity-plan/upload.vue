@@ -164,7 +164,14 @@
               </template>
 
               <template #actions-cell="{ row }">
-                <div class="flex items-center gap-1">
+                <div class="flex items-center gap-1">                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="sm" 
+                    title="View Document"
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
                   <UButton 
                     icon="i-lucide-download" 
                     color="primary" 

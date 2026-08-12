@@ -1,11 +1,11 @@
 <template>
-  <UCard>
+  <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
     <template #header>
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-lg font-semibold text-gray-900">Pengaturan Hak Akses dan Role</h3>
-          <p class="text-sm text-gray-600">
-            Kelola izin spesifik untuk setiap kelompok pengguna di dalam sistem.
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.permission.title') }}</h3>
+          <p class="text-md sm:text-sm text-gray-500 dark:text-gray-400">
+            {{ t('settings.permission.subtitle') }}
           </p>
         </div>
       </div>
@@ -13,34 +13,50 @@
 
     <!-- Role Selector -->
     <div class="mb-6">
-      <h4 class="font-medium text-gray-900 mb-3">
-        Role Saat Ini : <span class="text-primary">{{ currentRole }}</span>
+      <h4 class="font-medium text-gray-900 dark:text-white mb-3">
+        {{ t('settings.permission.currentRole') }} <span class="text-primary-600 dark:text-primary-400 font-bold">{{ currentRole }}</span>
       </h4>
     </div>
 
     <!-- Permissions Accordion -->
-    <UAccordion :items="accordionItems" variant="subtle" color="primary">
+    <UAccordion
+      :items="accordionItems"
+      variant="subtle"
+      color="primary"
+      :ui="{
+        trigger: 'text-gray-900 dark:text-gray-200 hover:text-gray-700 dark:hover:text-gray-400 transition-colors',
+        label: 'font-bold text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-400'
+      }"
+    >
       <template #content="{ item }">
         <div class="pb-4">
           <table class="w-full">
             <thead>
-              <tr class="border-b border-gray-200">
-                <th class="text-left py-3 px-4 font-medium text-sm text-gray-700">Modul</th>
-                <th class="text-left py-3 px-4 font-medium text-sm text-gray-700">Deskripsi</th>
-                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700">Baca</th>
-                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700">Tulis</th>
-                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700">Hapus</th>
-                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700">Aksi</th>
+              <tr class="border-b border-gray-200 dark:border-gray-800">
+                <th class="text-left py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableModule') }}</th>
+                <th class="text-left py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableDescription') }}</th>
+                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableRead') }}</th>
+                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableWrite') }}</th>
+                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableDelete') }}</th>
+                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableAction') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="permission in item.permissions" :key="permission.id" class="border-b border-gray-100 hover:bg-gray-50">
+              <tr
+                v-for="permission in item.permissions"
+                :key="permission.id"
+                class="border-b border-gray-100 dark:border-gray-800/60 hover:bg-gray-50 dark:hover:bg-gray-800/40 group transition-colors"
+              >
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-3">
-                    <span class="font-medium ">{{ permission.module }}</span>
+                    <span class="font-medium text-gray-900 dark:text-gray-200 group-hover:text-gray-700 dark:group-hover:text-gray-400 transition-colors">
+                      {{ permission.module }}
+                    </span>
                   </div>
                 </td>
-                <td class="py-3 px-4 text-gray-600">{{ permission.description }}</td>
+                <td class="py-3 px-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-400 transition-colors">
+                  {{ permission.description }}
+                </td>
                 <td class="py-3 px-4 text-center">
                   <UCheckbox :modelValue="getAccessCheckbomdtate(permission.access, 'read')" disabled />
                 </td>
@@ -50,12 +66,6 @@
                 <td class="py-3 px-4 text-center">
                   <UCheckbox :modelValue="getAccessCheckbomdtate(permission.access, 'delete')" disabled />
                 </td>
-                <!-- <td class="py-3 px-4 text-center">
-                  <div class="flex items-center justify-center gap-2">
-                    <UButton icon="i-lucide-pencil" variant="ghost" color="primary" size="sm" @click="openEditModal(permission)" title="Edit" />
-                    <UButton icon="i-lucide-trash-2" variant="ghost" color="error" size="sm" @click="openDeleteModal(permission)" title="Hapus" />
-                  </div>
-                </td> -->
               </tr>
             </tbody>
           </table>
@@ -65,7 +75,7 @@
 
     <!-- Add/Edit Modal -->
     <UModal
-      :title="isEditMode ? 'Edit Izin Akses' : 'Tambah Izin Akses'"
+      :title="isEditMode ? t('settings.permission.editModalTitle') : t('settings.permission.addModalTitle')"
       :open="isModalOpen"
       :close="{
         color: 'neutral',
@@ -79,17 +89,17 @@
         <UForm @submit.prevent="handleSubmit">
           <div class="space-y-4">
             <UFormField
-              label="Modul"
+              :label="t('settings.permission.labelModule')"
               required
             >
               <UInput
                 v-model="formData.module"
-                placeholder="Nama modul"
+                :placeholder="t('settings.permission.placeholderModule')"
               />
             </UFormField>
 
             <UFormField
-              label="Ikon"
+              :label="t('settings.permission.labelIcon')"
             >
               <UInput
                 v-model="formData.icon"
@@ -98,22 +108,22 @@
             </UFormField>
 
             <UFormField
-              label="Deskripsi"
+              :label="t('settings.permission.labelDescription')"
             >
               <UTextarea
                 v-model="formData.description"
-                placeholder="Deskripsi izin akses"
+                :placeholder="t('settings.permission.placeholderDescription')"
                 :rows="2"
               />
             </UFormField>
 
             <UFormField
-              label="Level Akses"
+              :label="t('settings.permission.labelAccess')"
             >
               <USelect
                 v-model="formData.access"
                 :items="accessLevels"
-                placeholder="Pilih level akses"
+                :placeholder="t('settings.permission.placeholderAccess')"
               />
             </UFormField>
           </div>
@@ -123,13 +133,13 @@
       <template #footer>
         <div class="flex justify-end gap-3">
           <UButton
-            label="Batal"
+            :label="t('settings.permission.cancel')"
             color="neutral"
             variant="outline"
             @click="closeModal"
           />
           <UButton
-            :label="isEditMode ? 'Simpan Perubahan' : 'Tambah'"
+            :label="isEditMode ? t('settings.permission.save') : t('settings.permission.add')"
             color="primary"
             @click="handleSubmit"
           />
@@ -140,10 +150,10 @@
     <!-- Delete Confirmation -->
     <ConfirmationPopup
       v-model:isOpen="isDeleteModalOpen"
-      title="Hapus Izin Akses"
-      :question="`Apakah Anda yakin ingin menghapus izin akses untuk ${permissionToDelete?.module}?`"
-      confirmText="Hapus"
-      cancelText="Batal"
+      :title="t('settings.permission.deleteTitle')"
+      :question="t('settings.permission.deleteQuestion', { module: permissionToDelete?.module || '' })"
+      :confirmText="t('settings.permission.confirmDelete')"
+      :cancelText="t('settings.permission.cancel')"
       variant="danger"
       @confirm="confirmDelete"
     />
@@ -152,6 +162,8 @@
 
 <script setup lang="ts">
 import ConfirmationPopup from '../shared/ConfirmationPopup.vue'
+
+const { t } = useI18n()
 
 interface AuditPermission {
   id: number
@@ -181,12 +193,12 @@ const formData = ref({
   access: '' as 'None' | 'Read' | 'Write' | 'Full' | ''
 })
 
-const accessLevels = [
-  { value: 'None', label: 'Tidak Ada Akses' },
-  { value: 'Read', label: 'Baca Saja' },
-  { value: 'Write', label: 'Tulis' },
-  { value: 'Full', label: 'Full Akses' },
-]
+const accessLevels = computed(() => [
+  { value: 'None', label: t('settings.permission.accessNone') },
+  { value: 'Read', label: t('settings.permission.accessRead') },
+  { value: 'Write', label: t('settings.permission.accessWrite') },
+  { value: 'Full', label: t('settings.permission.accessFull') },
+])
 
 const auditPermissions = ref<AuditPermission[]>([
   {

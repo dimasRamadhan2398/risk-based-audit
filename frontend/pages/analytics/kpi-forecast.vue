@@ -8,7 +8,7 @@ const initialTS = useTimeSeriesData()
   <div class="max-w-[1440px] mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <div class="mb-6 flex items-center justify-between">
       <div>
-        <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
+        <div class="flex items-center gap-2 text-md text-gray-400 mb-1">
           <NuxtLink to="/analytics" class="hover:underline">Analytics</NuxtLink>
           <span>/</span>
           <span class="text-indigo-600 font-bold">Sub-Feature 9</span>
@@ -17,7 +17,7 @@ const initialTS = useTimeSeriesData()
           <UIcon name="i-heroicons-arrow-trending-up" class="text-violet-500 w-7 h-7" />
           KPI PyTorch LSTM Forecast
         </h1>
-        <p class="text-xs text-gray-500 mt-1">
+        <p class="text-md text-gray-500 mt-1">
           Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis.
         </p>
       </div>
@@ -49,7 +49,7 @@ const initialTS = useTimeSeriesData()
               <td class="text-center py-3 px-3">
                 <UBadge :color="kpi.trend === 'Improving' ? 'success' : 'error'" variant="subtle">{{ kpi.trend }}</UBadge>
               </td>
-              <td class="py-3 px-3 text-xs text-gray-600 dark:text-gray-300">{{ kpi.recommendedAction }}</td>
+              <td class="py-3 px-3 text-md text-gray-600 dark:text-gray-300">{{ kpi.recommendedAction }}</td>
             </tr>
           </tbody>
         </table>

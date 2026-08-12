@@ -3,18 +3,15 @@ import { fileURLToPath } from "node:url";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 const isProd = process.env.NODE_ENV === 'production';
-const defaultBaseUrl = isProd ? 'https://api.auditsphere.app/api/v1' : 'http://localhost:8080/api/v1';
-const defaultAnalyticsUrl = isProd ? 'https://api.auditsphere.app/api/analytics' : 'http://localhost:8084/api/analytics';
+const defaultBaseUrl = isProd ? 'https://api.auditsphere.app/api/v1' : '/api/v1';
+const defaultAnalyticsUrl = isProd ? 'https://api.auditsphere.app/api/analytics' : '/api/analytics';
 const defaultPythonAiUrl = isProd ? 'https://api.auditsphere.app/api/python-ai' : 'http://localhost:8000';
 
 export default defineNuxtConfig({
   devtools: {
-    enabled: true,
-
-    timeline: {
-      enabled: true,
-    },
+    enabled: false,
   },
+  telemetry: false,
   modules: [
     "@pinia/nuxt",
     "@nuxt/ui",
@@ -24,11 +21,26 @@ export default defineNuxtConfig({
     "nuxt-charts",
     "nuxt-chatgpt",
   ],
+  fonts: {
+    providers: {
+      google: false,
+      bunny: false,
+      fontshare: false,
+      fontsource: false,
+      adobe: false
+    }
+  },
   ssr: false,
   routeRules: {
     "/**": {
       ssr: false,
     },
+    "/api/v1/**": {
+      proxy: process.env.API_BASE_URL_SERVER || "http://localhost:8080/api/v1/**"
+    },
+    "/api/analytics/**": {
+      proxy: process.env.ANALYTICS_API_BASE_URL_SERVER || "http://localhost:8080/api/analytics/**"
+    }
   },
   alias: {
     "@": fileURLToPath(new URL("./", import.meta.url)),

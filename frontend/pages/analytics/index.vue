@@ -950,7 +950,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       :key="t"
                       :color="selectedAnomalyType === t ? 'primary' : 'neutral'"
                       :variant="selectedAnomalyType === t ? 'solid' : 'ghost'"
-                      size="xs"
+                      size="md"
                       @click="selectedAnomalyType = t"
                     >
                       {{ t }}

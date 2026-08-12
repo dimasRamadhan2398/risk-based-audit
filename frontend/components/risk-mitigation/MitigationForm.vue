@@ -50,11 +50,11 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField label="Start Date" required>
-                    <UInput v-model="store.form.start_date" type="date" icon="i-heroicons-calendar" required />
+                    <UInput v-model="store.form.start_date" type="date" :min="todayDate" icon="i-heroicons-calendar" required />
                 </UFormField>
 
                 <UFormField label="End Date" required>
-                    <UInput v-model="store.form.end_date" type="date" icon="i-heroicons-calendar-days" required />
+                    <UInput v-model="store.form.end_date" type="date" :min="minEndDate" icon="i-heroicons-calendar-days" required />
                 </UFormField>
             </div>
 
@@ -76,6 +76,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 
 // Menerima Risk ID dari halaman induk agar mitigasi tersambung dengan risiko yang tepat
@@ -84,4 +85,25 @@ const props = defineProps<{
 }>()
 
 const store = useMitigationStore()
+
+// Mendapatkan tanggal hari ini dalam format YYYY-MM-DD untuk batas minimum pemilihan tanggal
+const todayDate = computed(() => {
+  const today = new Date()
+  // Adjust timezone offset to get the correct local date string
+  const offset = today.getTimezoneOffset()
+  const localDate = new Date(today.getTime() - (offset * 60 * 1000))
+  return localDate.toISOString().split('T')[0]
+})
+
+// Menghitung batas minimum untuk End Date (minimal 7 hari setelah Start Date)
+const minEndDate = computed(() => {
+  if (store.form.start_date) {
+    const startDate = new Date(store.form.start_date)
+    startDate.setDate(startDate.getDate() + 7)
+    const offset = startDate.getTimezoneOffset()
+    const localDate = new Date(startDate.getTime() - (offset * 60 * 1000))
+    return localDate.toISOString().split('T')[0]
+  }
+  return todayDate.value
+})
 </script>

@@ -229,7 +229,7 @@ const columns = [
                   :key="p"
                   type="button"
                   @click="form.period = p"
-                  class="py-2.5 px-2 text-xs font-bold rounded-lg border transition-all text-center"
+                  class="py-2.5 px-2 text-md font-bold rounded-lg border transition-all text-center"
                   :class="[
                     form.period === p
                       ? 'border-primary bg-primary/10 text-primary ring-2 ring-primary/30'
@@ -301,7 +301,7 @@ const columns = [
                 <div v-if="!form.fileName" class="space-y-2">
                   <UIcon name="i-lucide-file-up" class="w-9 h-9 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-xs font-semibold text-gray-700 dark:text-gray-300">Klik untuk upload atau drag & drop file</p>
+                    <p class="text-md font-semibold text-gray-700 dark:text-gray-300">Klik untuk upload atau drag & drop file</p>
                     <p class="text-[11px] text-gray-400 mt-0.5">PDF, DOCX, XLSX hingga 10MB</p>
                   </div>
                 </div>
@@ -309,7 +309,7 @@ const columns = [
                 <div v-else class="space-y-2">
                   <UIcon name="i-lucide-file-check-2" class="w-9 h-9 mx-auto text-emerald-500" />
                   <div>
-                    <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[220px] mx-auto">
+                    <p class="text-md font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[220px] mx-auto">
                       {{ form.fileName }}
                     </p>
                     <p class="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">
@@ -319,7 +319,7 @@ const columns = [
                   <button
                     type="button"
                     @click.stop="clearFile"
-                    class="text-xs text-red-500 hover:underline font-bold mt-1 inline-block"
+                    class="text-md text-red-500 hover:underline font-bold mt-1 inline-block"
                   >
                     Ganti File
                   </button>
@@ -327,7 +327,7 @@ const columns = [
               </div>
             </div>
 
-            <div v-if="store.errorMsg" class="text-xs text-red-600 font-semibold bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200">
+            <div v-if="store.errorMsg" class="text-md text-red-600 font-semibold bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200">
               {{ store.errorMsg }}
             </div>
 
@@ -358,12 +358,12 @@ const columns = [
                 <USelect
                   v-model="selectedPeriodFilter"
                   :items="periodFilterOptions"
-                  class="w-28 text-xs"
+                  class="w-28 text-md"
                 />
                 <USelect
                   v-model="selectedYearFilter"
                   :items="yearOptions.map(String)"
-                  class="w-24 text-xs"
+                  class="w-24 text-md"
                 />
               </div>
             </div>
@@ -371,19 +371,19 @@ const columns = [
 
           <div v-if="store.loading && store.uploadedReports.length === 0" class="py-12 text-center">
             <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-            <p class="text-gray-500 text-xs">Memuat daftar dokumen...</p>
+            <p class="text-gray-500 text-md">Memuat daftar dokumen...</p>
           </div>
 
           <div v-else-if="store.uploadedReports.length === 0" class="py-16 text-center space-y-3 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30">
             <UIcon name="i-lucide-folder-open" class="w-12 h-12 text-gray-300 mx-auto" />
             <div>
               <h3 class="text-sm font-bold text-gray-900 dark:text-white">Belum Ada Dokumen Terimpor</h3>
-              <p class="text-xs text-gray-500 mt-1">Unggah dokumen Laporan Kinerja Q1, Q2, Q3, Q4, atau Tahunan melalui formulir di sebelah kiri.</p>
+              <p class="text-md text-gray-500 mt-1">Unggah dokumen Laporan Kinerja Q1, Q2, Q3, Q4, atau Tahunan melalui formulir di sebelah kiri.</p>
             </div>
           </div>
 
           <div v-else class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+            <table class="w-full text-left text-md">
               <thead class="bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700">
                 <tr>
                   <th class="py-3 px-4">Judul Dokumen</th>
@@ -401,7 +401,7 @@ const columns = [
                     <div v-if="doc.description" class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">{{ doc.description }}</div>
                   </td>
                   <td class="py-3 px-3">
-                    <UBadge :color="getPeriodBadgeColor(doc.period)" variant="subtle" size="xs" class="font-bold">
+                    <UBadge :color="getPeriodBadgeColor(doc.period)" variant="subtle" size="md" class="font-bold">
                       {{ doc.period }}
                     </UBadge>
                   </td>
@@ -418,12 +418,19 @@ const columns = [
                     {{ new Date(doc.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) }}
                   </td>
                   <td class="py-3 px-3 text-right">
-                    <div class="flex items-center justify-end gap-1">
-                      <UButton
-                        icon="i-lucide-download"
+                    <div class="flex items-center justify-end gap-1">                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="sm" 
+                    title="View Document"
+                    @click="store.viewDocument(doc.id, doc.fileName)" 
+                  />
+                  <UButton 
+                    icon="i-lucide-download"
                         color="neutral"
                         variant="ghost"
-                        size="xs"
+                        size="md"
                         @click="handleDownload(doc.id, doc.fileName)"
                         title="Unduh Dokumen"
                       />
@@ -431,7 +438,7 @@ const columns = [
                         icon="i-lucide-trash-2"
                         color="error"
                         variant="ghost"
-                        size="xs"
+                        size="md"
                         @click="handleDelete(doc.id, doc.title)"
                         title="Hapus Dokumen"
                       />
