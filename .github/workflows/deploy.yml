@@ -25,12 +25,9 @@ jobs:
           script_stop: true
           script: |
             set -Eeuo pipefail
-            # set -E ensures ERR trap is inherited by the main() subshell inside the pipeline
             set -E
 
-            DEPLOY_LOG="/var/log/auditsphere-deploy.log"
             LOCK_FILE="/tmp/auditsphere-deploy.lock"
-            mkdir -p "$(dirname "$DEPLOY_LOG")"
 
             main() {
               # ================================================================
@@ -262,5 +259,4 @@ jobs:
               echo "Finished at: $(date)"
             }
 
-            main "$@" 2>&1 | tee -a "$DEPLOY_LOG"
-            exit "${PIPESTATUS[0]}"
+            main "$@"
