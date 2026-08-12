@@ -150,7 +150,7 @@
           <div class="space-y-2">
             <div class="h-1.5 bg-[var(--border-main)] rounded-full overflow-hidden">
               <div
-                class="h-full rounded-full transition-all duration-500 bg-orange-500"
+                class="h-full rounded-full transition-all duration-500 bg-primary-400"
                 :style="{ width: `${scrollProgress}%` }"
               />
             </div>
@@ -176,7 +176,7 @@
               :disabled="!hasScrolledToBottom || accepting"
               class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
               :class="hasScrolledToBottom && !accepting
-                ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/25'
+                ? 'bg-primary-400 hover:bg-primary-500 text-white shadow-lg shadow-primary-400/25'
                 : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
               @click="handleAccept"
             >
@@ -295,7 +295,7 @@
               :disabled="savingProfile || !profileState.fullName"
               class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
               :class="!(savingProfile || !profileState.fullName)
-                ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/25'
+                ? 'bg-primary-400 hover:bg-primary-500 text-white shadow-lg shadow-primary-400/25'
                 : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
               @click="handleSaveProfile"
             >
