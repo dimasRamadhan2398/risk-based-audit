@@ -564,8 +564,7 @@
         "pending": "Menunggu",
         "planned": "Direncanakan"
       }
-    }
-  },
+    },
   "riskFactors": {
     "title": "Faktor Risiko & Pengaturan Pembobotan",
     "subtitle": "Konfigurasi bobot risiko, lakukan penilaian area kerja, dan lihat prioritas audit yang dihitung.",

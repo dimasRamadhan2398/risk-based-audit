@@ -567,8 +567,7 @@
         "pending": "Pending",
         "planned": "Planned"
       }
-    }
-  },
+    },
   "riskFactors": {
     "title": "Risk Factors & Scoring Settings",
     "subtitle": "Configure risk weights, perform workspace scoring, and view computed audit priorities.",
