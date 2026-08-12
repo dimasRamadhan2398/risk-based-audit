@@ -17,14 +17,29 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
-            echo "🚀 Pulling latest backend changes..."
-            cd /app/rbia-backend
-            git pull origin main
+            REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
+            REPO_DIR="/app/rbia-repo"
+
+            # ── Clone or update the monorepo ──────────────────────────────────
+            if [ ! -d "$REPO_DIR/.git" ]; then
+              echo "📥 First-time: cloning monorepo..."
+              rm -rf "$REPO_DIR"
+              git clone --depth=1 "$REPO_URL" "$REPO_DIR"
+            else
+              echo "🔄 Pulling latest changes..."
+              cd "$REPO_DIR"
+              git fetch --depth=1 origin main
+              git reset --hard origin/main
+            fi
+
+            # ── Deploy Backend ────────────────────────────────────────────────
+            echo "🚀 Deploying backend..."
+            cd "$REPO_DIR/backend"
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
-            echo "🚀 Pulling latest frontend changes..."
-            cd /app/rbia-frontend
-            git pull origin main
+            # ── Deploy Frontend ───────────────────────────────────────────────
+            echo "🚀 Deploying frontend..."
+            cd "$REPO_DIR/frontend"
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
             echo "🧹 Cleaning up unused Docker images..."
