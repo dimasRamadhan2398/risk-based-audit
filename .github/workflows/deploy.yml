@@ -25,6 +25,8 @@ jobs:
           script_stop: true
           script: |
             set -Eeuo pipefail
+            # set -E ensures ERR trap is inherited by the main() subshell inside the pipeline
+            set -E
 
             DEPLOY_LOG="/var/log/auditsphere-deploy.log"
             LOCK_FILE="/tmp/auditsphere-deploy.lock"
@@ -118,18 +120,27 @@ jobs:
               echo ""
               echo "📦 Syncing repository..."
               echo "👤 SSH User: $(whoami) (UID: $(id -u), GID: $(id -g))"
-              mkdir -p "$(dirname "$REPO_DIR")" 2>/dev/null || true
+
+              # Ensure /app parent directory exists
+              mkdir -p /app || { echo "❌ Failed to create /app directory. Check VPS root permissions."; exit 1; }
+              mkdir -p "$REPO_DIR" 2>/dev/null || true
+              echo "📁 /app permissions: $(ls -ld /app)"
+              echo "📁 REPO_DIR exists: $(ls -ld "$REPO_DIR" 2>/dev/null || echo 'does not exist')"
 
               if [ ! -d "$REPO_DIR/.git" ]; then
                 echo "📥 First-time deployment: cloning repository..."
                 rm -rf "$REPO_DIR"
-                git clone --depth=1 --branch main "$REPO_URL" "$REPO_DIR"
+                git clone --depth=1 --branch main "$REPO_URL" "$REPO_DIR" \
+                  || { echo "❌ git clone failed — check VPS network or repo URL."; exit 1; }
               else
                 echo "🔄 Pulling latest changes..."
                 cd "$REPO_DIR"
-                git fetch --depth=1 origin main
-                git reset --hard origin/main
-                git clean -fd
+                git fetch --depth=1 origin main \
+                  || { echo "❌ git fetch failed — check VPS network access to github.com."; exit 1; }
+                git reset --hard origin/main \
+                  || { echo "❌ git reset failed."; exit 1; }
+                git clean -fd \
+                  || { echo "❌ git clean failed."; exit 1; }
               fi
 
               cd "$REPO_DIR"
