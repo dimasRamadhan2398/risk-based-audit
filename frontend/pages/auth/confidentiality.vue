@@ -166,7 +166,7 @@
           <div class="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               id="confidentiality-reject-btn"
-              class="flex-1 px-4 py-3 rounded-xl border border-error-500/30 bg-error-500/10 text-error-600 dark:text-error-400 hover:bg-error-500/20 text-sm font-semibold transition-all duration-200"
+              class="px-5 py-3 rounded-xl border border-error-500/30 bg-error-500/10 text-error-600 dark:text-error-400 hover:bg-error-500/20 text-sm font-semibold transition-all duration-200 whitespace-nowrap shrink-0"
               @click="handleReject"
             >
               {{ t.step2.rejectBtn }}
@@ -174,7 +174,7 @@
             <button
               id="confidentiality-accept-btn"
               :disabled="!hasScrolledToBottom || accepting"
-              class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
+              class="flex-1 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200 whitespace-nowrap flex items-center justify-center gap-1.5"
               :class="hasScrolledToBottom && !accepting
                 ? 'bg-primary-400 hover:bg-primary-500 text-white shadow-lg shadow-primary-400/25'
                 : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
@@ -285,7 +285,7 @@
           <!-- Action buttons for Step 3 -->
           <div class="flex flex-col sm:flex-row gap-3 pt-4">
             <button
-              class="flex-1 px-4 py-3 rounded-xl border border-[var(--border-main)] hover:bg-[var(--bg-surface)] text-sm font-semibold transition-all duration-200 text-[var(--text-main)]"
+              class="px-5 py-3 rounded-xl border border-[var(--border-main)] hover:bg-[var(--bg-surface)] text-sm font-semibold transition-all duration-200 text-[var(--text-main)] whitespace-nowrap shrink-0"
               @click="currentStep = 2"
             >
               {{ t.step3.backBtn }}
@@ -293,7 +293,7 @@
             <button
               id="profile-complete-btn"
               :disabled="savingProfile || !profileState.fullName"
-              class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
+              class="flex-1 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200 whitespace-nowrap flex items-center justify-center gap-1.5"
               :class="!(savingProfile || !profileState.fullName)
                 ? 'bg-primary-400 hover:bg-primary-500 text-white shadow-lg shadow-primary-400/25'
                 : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
