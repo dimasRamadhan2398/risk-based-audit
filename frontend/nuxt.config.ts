@@ -2,9 +2,12 @@ import yaml from "@rollup/plugin-yaml";
 import { fileURLToPath } from "node:url";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const isProd = process.env.NODE_ENV === 'production';
 const defaultBaseUrl = '/api/v1';
 const defaultAnalyticsUrl = '/api/analytics';
 const defaultPythonAiUrl = '/api/python-ai';
+const defaultProxyTarget = isProd ? "http://kong:8080/api/v1/**" : "http://localhost:8080/api/v1/**";
+const defaultAnalyticsProxyTarget = isProd ? "http://kong:8080/api/analytics/**" : "http://localhost:8080/api/analytics/**";
 
 export default defineNuxtConfig({
   devtools: {
@@ -35,10 +38,10 @@ export default defineNuxtConfig({
       ssr: false,
     },
     "/api/v1/**": {
-      proxy: process.env.API_BASE_URL_SERVER || "http://kong:8080/api/v1/**"
+      proxy: process.env.API_BASE_URL_SERVER || defaultProxyTarget
     },
     "/api/analytics/**": {
-      proxy: process.env.ANALYTICS_API_BASE_URL_SERVER || "http://kong:8080/api/analytics/**"
+      proxy: process.env.ANALYTICS_API_BASE_URL_SERVER || defaultAnalyticsProxyTarget
     }
   },
   alias: {
