@@ -4,45 +4,206 @@ on:
   push:
     branches: [ main ]
 
+concurrency:
+  group: auditsphere-production
+  cancel-in-progress: false
+
 jobs:
   deploy-vps:
     name: Deploy to VPS
     runs-on: ubuntu-latest
+
     steps:
-      - name: Execute SSH commands to update VPS
+      - name: Execute SSH deployment
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 60m
+          script_stop: true
           script: |
-            set -e
+            set -Eeuo pipefail
+
+            # ================================================================
+            # Configuration
+            # ================================================================
             REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
             REPO_DIR="/app/rbia-repo"
 
-            # ── Clone or update the monorepo ──────────────────────────────────
+            BACKEND_DIR="$REPO_DIR/backend"
+            FRONTEND_DIR="$REPO_DIR/frontend"
+
+            BACKEND_COMPOSE="docker-compose.prod.yml"
+            FRONTEND_COMPOSE="docker-compose.prod.yml"
+
+            DEPLOY_LOG="/var/log/auditsphere-deploy.log"
+            LOCK_FILE="/tmp/auditsphere-deploy.lock"
+
+            # ================================================================
+            # Logging & Lock Setup
+            # ================================================================
+            mkdir -p "$(dirname "$DEPLOY_LOG")"
+            exec > >(tee -a "$DEPLOY_LOG") 2>&1
+
+            echo ""
+            echo "============================================================"
+            echo "🚀 AuditSphere Production Deployment"
+            echo "============================================================"
+            echo "Started at: $(date)"
+
+            exec 200>"$LOCK_FILE"
+            if ! flock -n 200; then
+              echo "❌ Another AuditSphere deployment is currently running on VPS."
+              exit 1
+            fi
+            echo "🔒 Deployment lock acquired."
+
+            # ================================================================
+            # Error Handler & Rollback
+            # ================================================================
+            cleanup_on_failure() {
+              echo ""
+              echo "============================================================"
+              echo "❌ DEPLOYMENT FAILED - INITIATING DIAGNOSTICS & ROLLBACK"
+              echo "============================================================"
+
+              echo "📦 Backend status & logs:"
+              cd "$BACKEND_DIR" || true
+              docker compose -f "$BACKEND_COMPOSE" ps || true
+              docker compose -f "$BACKEND_COMPOSE" logs --tail=50 || true
+
+              echo "📦 Frontend status & logs:"
+              cd "$FRONTEND_DIR" || true
+              docker compose -f "$FRONTEND_COMPOSE" ps || true
+              docker compose -f "$FRONTEND_COMPOSE" logs --tail=50 || true
+
+              if [ -n "${PREVIOUS_FRONTEND_IMAGE:-}" ]; then
+                echo "🔄 Rolling back frontend..."
+                cd "$FRONTEND_DIR" || true
+                docker compose -f "$FRONTEND_COMPOSE" up -d || true
+              fi
+
+              if [ -n "${PREVIOUS_BACKEND_IMAGE:-}" ]; then
+                echo "🔄 Rolling back backend..."
+                cd "$BACKEND_DIR" || true
+                docker compose -f "$BACKEND_COMPOSE" up -d || true
+              fi
+
+              echo "⚠️ Deployment aborted due to errors. Check logs above."
+            }
+
+            trap cleanup_on_failure ERR
+
+            # ================================================================
+            # Resource & Disk Checks
+            # ================================================================
+            echo ""
+            echo "🔍 Checking VPS system resources..."
+            DISK_USAGE=$(df --output=pcent / | tail -1 | tr -dc '0-9')
+            if [ "$DISK_USAGE" -ge 90 ]; then
+              echo "❌ Disk usage is ${DISK_USAGE}%. Aborting deployment to prevent failure."
+              exit 1
+            fi
+            echo "✅ Disk usage: ${DISK_USAGE}%"
+
+            # ================================================================
+            # Update Repository Code
+            # ================================================================
+            echo ""
+            echo "📦 Syncing repository..."
             if [ ! -d "$REPO_DIR/.git" ]; then
-              echo "📥 First-time: cloning monorepo..."
+              echo "📥 First-time deployment: cloning repository..."
               rm -rf "$REPO_DIR"
-              git clone --depth=1 "$REPO_URL" "$REPO_DIR"
+              git clone --depth=1 --branch main "$REPO_URL" "$REPO_DIR"
             else
               echo "🔄 Pulling latest changes..."
               cd "$REPO_DIR"
               git fetch --depth=1 origin main
               git reset --hard origin/main
+              git clean -fd
             fi
 
-            # ── Deploy Backend ────────────────────────────────────────────────
-            echo "🚀 Deploying backend..."
-            cd "$REPO_DIR/backend"
-            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            cd "$REPO_DIR"
+            CURRENT_COMMIT=$(git rev-parse HEAD)
+            echo "📌 Commit: $CURRENT_COMMIT ($(git log -1 --pretty=format:'%s'))"
 
-            # ── Deploy Frontend ───────────────────────────────────────────────
-            echo "🚀 Deploying frontend..."
-            cd "$REPO_DIR/frontend"
-            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            export DOCKER_BUILDKIT=1
+            export COMPOSE_DOCKER_CLI_BUILD=1
 
-            echo "🧹 Cleaning up unused Docker images..."
+            # Record running image state for potential rollback
+            PREVIOUS_BACKEND_IMAGE=$(docker inspect $(docker ps --filter "name=rb_audit" -q | head -1) --format '{{.Config.Image}}' 2>/dev/null || true)
+            PREVIOUS_FRONTEND_IMAGE=$(docker inspect $(docker ps --filter "name=rbia-frontend" -q | head -1) --format '{{.Config.Image}}' 2>/dev/null || true)
+
+            # ================================================================
+            # Deploy Backend & Health Check
+            # ================================================================
+            echo ""
+            echo "============================================================"
+            echo "🚀 Deploying Backend Services"
+            echo "============================================================"
+            cd "$BACKEND_DIR"
+            docker compose -f "$BACKEND_COMPOSE" up -d --build --remove-orphans
+
+            echo "🏥 Waiting for backend health..."
+            BACKEND_HEALTH_URL="${BACKEND_HEALTH_URL:-http://localhost:8080/api/v1/auth/health}"
+            BACKEND_READY=0
+
+            for i in {1..24}; do
+              if curl --fail --silent --show-error --max-time 5 "$BACKEND_HEALTH_URL" > /dev/null 2>&1 || \
+                 curl --fail --silent --show-error --max-time 5 "http://localhost:8001/health" > /dev/null 2>&1; then
+                echo "✅ Backend is healthy."
+                BACKEND_READY=1
+                break
+              fi
+              echo "⏳ Waiting for backend API gateway... attempt $i/24"
+              sleep 5
+            done
+
+            if [ "$BACKEND_READY" -ne 1 ]; then
+              echo "❌ Backend health check failed."
+              exit 1
+            fi
+
+            # ================================================================
+            # Deploy Frontend & Health Check
+            # ================================================================
+            echo ""
+            echo "============================================================"
+            echo "🚀 Deploying Frontend Service"
+            echo "============================================================"
+            cd "$FRONTEND_DIR"
+            docker rm -f rbia-frontend-prod 2>/dev/null || true
+            docker compose -f "$FRONTEND_COMPOSE" up -d --build --remove-orphans
+
+            echo "🏥 Waiting for frontend health..."
+            FRONTEND_HEALTH_URL="${FRONTEND_HEALTH_URL:-http://localhost:3000}"
+            FRONTEND_READY=0
+
+            for i in {1..24}; do
+              if curl --fail --silent --show-error --max-time 5 "$FRONTEND_HEALTH_URL" > /dev/null 2>&1; then
+                echo "✅ Frontend is healthy."
+                FRONTEND_READY=1
+                break
+              fi
+              echo "⏳ Waiting for frontend application... attempt $i/24"
+              sleep 5
+            done
+
+            if [ "$FRONTEND_READY" -ne 1 ]; then
+              echo "❌ Frontend health check failed."
+              exit 1
+            fi
+
+            # ================================================================
+            # Cleanup & Finish
+            # ================================================================
+            echo ""
+            echo "🧹 Pruning unused Docker images..."
             docker image prune -f
-            echo "✅ Deployment finished successfully!"
+
+            echo ""
+            echo "============================================================"
+            echo "✅ AUDITSPHERE DEPLOYMENT SUCCESSFUL"
+            echo "============================================================"
+            echo "Finished at: $(date)"
