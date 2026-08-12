@@ -4,10 +4,10 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-main)] pb-5">
       <div>
         <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
-          Risk Factors & Scoring Settings
+          {{ t('riskFactors.title') }}
         </h1>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Configure risk weights, perform workspace scoring, and view computed audit priorities.
+          {{ t('riskFactors.subtitle') }}
         </p>
       </div>
       <div class="flex items-center gap-3">
@@ -17,7 +17,7 @@
           color="neutral"
           variant="outline"
         >
-          Back to Heat Map
+          {{ t('riskFactors.backToHeatmap') }}
         </UButton>
       </div>
     </div>
@@ -28,7 +28,7 @@
         v-if="alertMessage"
         :color="alertType === 'success' ? 'success' : 'error'"
         variant="solid"
-        :title="alertType === 'success' ? 'Success' : 'Error'"
+        :title="alertType === 'success' ? t('common.success') : t('common.error')"
         :description="alertMessage"
         icon="i-lucide-info"
         class="shadow-md"
@@ -55,16 +55,16 @@
               />
               <div>
                 <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  Total Weight: <span class="font-bold text-base" :class="isValidWeightSum ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">{{ totalWeight }}%</span>
+                  <span class="font-bold text-base" :class="isValidWeightSum ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">{{ t('riskFactors.weighting.totalWeight', { total: totalWeight }) }}</span>
                 </p>
                 <p class="text-md text-slate-500 dark:text-slate-400">
-                  {{ isValidWeightSum ? 'All good! Weights sum to exactly 100%.' : 'Adjust weights of selected risk factors so that they equal exactly 100%.' }}
+                  {{ isValidWeightSum ? t('riskFactors.weighting.validSum') : t('riskFactors.weighting.invalidSum') }}
                 </p>
               </div>
             </div>
             <div class="flex items-center gap-3">
               <UBadge :color="isValidWeightSum ? 'success' : 'error'" size="md" variant="subtle">
-                {{ isValidWeightSum ? 'VALID' : 'INVALID SUM' }}
+                {{ isValidWeightSum ? t('riskFactors.weighting.badgeValid') : t('riskFactors.weighting.badgeInvalid') }}
               </UBadge>
               <UButton
                 icon="i-lucide-save"
@@ -74,7 +74,7 @@
                 :disabled="!isValidWeightSum"
                 @click="saveChanges"
               >
-                Save Weights
+                {{ t('riskFactors.weighting.saveWeights') }}
               </UButton>
             </div>
           </div>
@@ -86,13 +86,13 @@
                 <template #header>
                   <div class="space-y-3">
                     <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
-                      📂 Standard Risk Factors
+                      {{ t('riskFactors.weighting.standardFactorsTitle') }}
                     </h2>
                     <UInput
                       v-model="searchQuery"
                       icon="i-lucide-search"
                       size="sm"
-                      placeholder="Search standard factors..."
+                      :placeholder="t('riskFactors.weighting.searchPlaceholder')"
                       color="neutral"
                       class="w-full"
                     />
@@ -121,7 +121,7 @@
                     </div>
                   </div>
                   <div v-if="filteredStandardFactors.length === 0" class="text-center py-8 text-md text-slate-400">
-                    No standard risk factors match your query.
+                    {{ t('riskFactors.weighting.noMatchingFactors') }}
                   </div>
                 </div>
               </UCard>
@@ -134,11 +134,11 @@
                   <div class="flex items-center justify-between">
                     <div>
                       <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
-                        ⚙️ Selected Weights
+                        {{ t('riskFactors.weighting.selectedWeightsTitle') }}
                       </h2>
                     </div>
                     <UBadge color="neutral" variant="outline">
-                      {{ selectedCorporateList.length }} Active Factors
+                      {{ t('riskFactors.weighting.activeFactorsCount', { count: selectedCorporateList.length }) }}
                     </UBadge>
                   </div>
                 </template>
@@ -147,10 +147,10 @@
                   <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
                     <thead class="bg-slate-50 dark:bg-slate-800/50">
                       <tr>
-                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300 w-12">No</th>
-                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Risk Factor</th>
-                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300 w-32">Weight (%)</th>
-                        <th scope="col" class="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-300 w-20">Action</th>
+                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300 w-12">{{ t('riskFactors.weighting.no') }}</th>
+                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.weighting.riskFactor') }}</th>
+                        <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300 w-32">{{ t('riskFactors.weighting.weightCol') }}</th>
+                        <th scope="col" class="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-300 w-20">{{ t('riskFactors.weighting.action') }}</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -198,9 +198,9 @@
 
                 <div v-else class="text-center py-16 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
                   <UIcon name="i-lucide-alert-circle" class="w-8 h-8 text-slate-400 mx-auto" />
-                  <h3 class="mt-2 text-sm font-semibold text-slate-700 dark:text-slate-300">No Corporate Risk Factors Selected</h3>
+                  <h3 class="mt-2 text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.weighting.noFactorsTitle') }}</h3>
                   <p class="mt-1 text-md text-slate-500 dark:text-slate-400">
-                    Check standard risk factors on the left to activate them.
+                    {{ t('riskFactors.weighting.noFactorsDesc') }}
                   </p>
                 </div>
               </UCard>
@@ -209,7 +209,7 @@
         </div>
       </template>
 
-      <!-- Tab 2: Scoring Workspace (Moved here) -->
+      <!-- Tab 2: Scoring Workspace -->
       <template #scoring>
         <div class="mt-6">
           <UCard class="shadow-sm border border-[var(--border-main)]">
@@ -217,16 +217,16 @@
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
-                    🎯 Risk Score
+                    {{ t('riskFactors.scoring.title') }}
                   </h2>
                   <p class="text-md text-slate-500 mt-0.5">
-                    Select year and entity to enter risk factor scoring.
+                    {{ t('riskFactors.scoring.subtitle') }}
                   </p>
                 </div>
                 
                 <div class="flex items-center gap-3">
                   <div class="flex items-center gap-2">
-                    <span class="text-md font-semibold text-slate-500">Year:</span>
+                    <span class="text-md font-semibold text-slate-500">{{ t('riskFactors.scoring.yearLabel') }}</span>
                     <USelect
                       v-model.number="selectedYear"
                       :items="[2025, 2026, 2027, 2028]"
@@ -237,13 +237,13 @@
                     />
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="text-md font-semibold text-slate-500">Entity:</span>
+                    <span class="text-md font-semibold text-slate-500">{{ t('riskFactors.scoring.entityLabel') }}</span>
                     <USelectMenu
                       v-model="selectedEntityId"
                       :items="dropdownEntities"
                       label-key="label"
                       value-key="value"
-                      placeholder="-- Select Entity --"
+                      :placeholder="t('riskFactors.scoring.selectEntityPlaceholder')"
                       class="w-56"
                       @update:model-value="selectEntityForScoringById"
                     >
@@ -261,17 +261,17 @@
               <!-- Calculations overview -->
               <div class="grid grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-850/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                 <div class="text-center border-r border-slate-200 dark:border-slate-800">
-                  <p class="text-md text-slate-500">Weighted Score Sum</p>
+                  <p class="text-md text-slate-500">{{ t('riskFactors.scoring.weightedScoreSum') }}</p>
                   <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ totalWeightedScore.toFixed(2) }}</p>
                 </div>
                 <div class="text-center border-r border-slate-200 dark:border-slate-800">
-                  <p class="text-md text-slate-500">Risk Index</p>
+                  <p class="text-md text-slate-500">{{ t('riskFactors.scoring.riskIndex') }}</p>
                   <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ activeYearlyEntity.risk_index?.toFixed(1) }}%</p>
                 </div>
                 <div class="text-center">
-                  <p class="text-md text-slate-500">Audit Priority</p>
+                  <p class="text-md text-slate-500">{{ t('riskFactors.scoring.auditPriority') }}</p>
                   <UBadge :color="activeYearlyEntity.audit_priority ? 'success' : 'neutral'" variant="subtle" class="mt-1">
-                    {{ activeYearlyEntity.audit_priority ? 'YES (Priority)' : 'NO' }}
+                    {{ activeYearlyEntity.audit_priority ? t('riskFactors.scoring.priorityYes') : t('riskFactors.scoring.priorityNo') }}
                   </UBadge>
                 </div>
               </div>
@@ -288,7 +288,7 @@
                       {{ score.factor_name }}
                     </h3>
                     <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      Weight: {{ (score.weight * 100).toFixed(0) }}% | Weighted: {{ (score.weight * score.score).toFixed(2) }}
+                      {{ t('riskFactors.scoring.weightInfo', { weight: (score.weight * 100).toFixed(0), weighted: (score.weight * score.score).toFixed(2) }) }}
                     </p>
                   </div>
                   <div class="flex items-center gap-3">
@@ -315,9 +315,9 @@
             <!-- Empty State when no entity is selected -->
             <div v-else class="text-center py-20 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/20 dark:bg-slate-900/10">
               <UIcon name="i-lucide-clipboard" class="w-12 h-12 text-slate-300 mx-auto" />
-              <h3 class="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-300">Select Auditable Entity</h3>
+              <h3 class="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.scoring.selectEntityTitle') }}</h3>
               <p class="mt-1 text-md text-slate-500 dark:text-slate-400">
-                Choose a year and active auditable entity from the dropdowns above to begin risk scoring.
+                {{ t('riskFactors.scoring.selectEntityDesc') }}
               </p>
             </div>
 
@@ -326,7 +326,7 @@
                 <UButton
                   icon="i-lucide-save"
                   color="primary"
-                  label="Save Scoring & Calculate"
+                  :label="t('riskFactors.scoring.saveBtn')"
                   :loading="auditStore.loading"
                   @click="saveEntityScoring"
                 />
@@ -344,18 +344,18 @@
               <div class="flex items-center justify-between">
                 <div>
                   <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space">
-                    Audit Priority ({{ selectedYear }})
+                    {{ t('riskFactors.priority.title', { year: selectedYear }) }}
                   </h2>
                   <p class="text-md text-slate-500 mt-0.5">
-                    Annual Audit Plan priorities based on calculated risk levels.
+                    {{ t('riskFactors.priority.subtitle') }}
                   </p>
                 </div>
                 <div class="flex items-center gap-4">
                   <UBadge color="success" variant="subtle" class="font-bold">
-                    {{ prioritizedCount }} Prioritized
+                    {{ t('riskFactors.priority.prioritizedCount', { count: prioritizedCount }) }}
                   </UBadge>
                   <UBadge color="info" variant="solid" class="font-bold">
-                    Audit Priority = Risk Level Medium to High or High
+                    {{ t('riskFactors.priority.priorityRule') }}
                   </UBadge>
                 </div>
               </div>
@@ -366,11 +366,11 @@
               <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
                 <thead class="bg-slate-50 dark:bg-slate-850/50">
                   <tr>
-                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">No</th>
-                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Auditable Entity</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Risk Index</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Risk Level</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Audit Priority*</th>
+                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.no') }}</th>
+                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.auditableEntity') }}</th>
+                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.riskIndex') }}</th>
+                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.riskLevel') }}</th>
+                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.auditPriorityCol') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -389,20 +389,20 @@
                     </td>
                     <td class="px-6 py-4 text-center">
                       <UBadge :color="getRiskLevelBadgeColor(ent.risk_level)" size="md" class="font-bold">
-                        {{ ent.risk_level || 'N/A' }}
+                        {{ formatRiskLevel(ent.risk_level) }}
                       </UBadge>
                     </td>
                     <td class="px-6 py-4 text-center">
                       <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                         <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
-                        <span>√ Priority</span>
+                        <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
                       </div>
                       <span v-else class="text-slate-400 text-md">-</span>
                     </td>
                   </tr>
                   <tr v-if="yearlyUniverse.length === 0">
                     <td colspan="5" class="text-center py-10 text-slate-400 text-md">
-                      No established auditable entities for year {{ selectedYear }}.
+                      {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
                     </td>
                   </tr>
                 </tbody>
@@ -411,7 +411,7 @@
 
             <template #footer>
               <div class="flex items-center justify-between text-[10px] text-slate-400">
-                <span>Sorted by Risk Index (descending)</span>
+                <span>{{ t('riskFactors.priority.sortedNote') }}</span>
               </div>
             </template>
           </UCard>
@@ -420,37 +420,37 @@
           <UCard class="shadow-sm border border-[var(--border-main)] bg-slate-50/50 dark:bg-slate-900/30">
             <template #header>
               <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">
-                Corporate Risk Index Level Information
+                {{ t('riskFactors.priority.levelInfoTitle') }}
               </h3>
             </template>
             <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-md text-left">
                 <thead class="bg-slate-100 dark:bg-slate-800">
                   <tr>
-                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Risk Index</th>
-                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Risk Level</th>
+                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.riskIndex') }}</th>
+                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.riskLevel') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr>
                     <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">80 - 100%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-red-500/100 dark:bg-red-500/100">High</UBadge></td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-red-500/100 dark:bg-red-500/100">{{ t('riskFactors.priority.levels.high') }}</UBadge></td>
                   </tr>
                   <tr>
                     <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">60 - 79%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-orange-500/100 dark:bg-orange-500/100">Moderate to High</UBadge></td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-orange-500/100 dark:bg-orange-500/100">{{ t('riskFactors.priority.levels.moderateToHigh') }}</UBadge></td>
                   </tr>
                   <tr>
                     <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">40 - 59%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-yellow-500/100 dark:bg-yellow-500/100">Moderate</UBadge></td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-yellow-500/100 dark:bg-yellow-500/100">{{ t('riskFactors.priority.levels.moderate') }}</UBadge></td>
                   </tr>
                   <tr>
                     <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">20 - 39%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-lime-500/100 dark:bg-lime-500/100">Low to Moderate</UBadge></td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-lime-500/100 dark:bg-lime-500/100">{{ t('riskFactors.priority.levels.lowToModerate') }}</UBadge></td>
                   </tr>
                   <tr>
                     <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">0 - 19%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-green-500/100 dark:bg-green-500/100">Low</UBadge></td>
+                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-green-500/100 dark:bg-green-500/100">{{ t('riskFactors.priority.levels.low') }}</UBadge></td>
                   </tr>
                 </tbody>
               </table>
@@ -460,13 +460,13 @@
       </template>
     </UTabs>
 
-    <!-- Scoring Scale Guidelines Modal (Task requirement) -->
+    <!-- Scoring Scale Guidelines Modal -->
     <UModal v-model:open="guidelinesModalOpen">
       <template #content>
         <UCard>
           <template #header>
             <h3 class="font-bold text-base text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              📖 Scoring Scale Guidelines: {{ detailFactor?.name }}
+              {{ t('riskFactors.guidelines.modalTitle', { name: detailFactor?.name }) }}
             </h3>
           </template>
           
@@ -501,15 +501,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRiskFactorsStore } from '~/stores/risk-factors'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
+import { useI18n } from '~/composables/useI18n'
 
 const store = useRiskFactorsStore()
 const auditStore = useAuditUniverseStore()
+const { t } = useI18n()
 
-const tabItems = [
-  { slot: 'weighting', label: '1. Weight', icon: 'i-lucide-activity' },
-  { slot: 'scoring', label: '2. Risk Score', icon: 'i-lucide-award' },
-  { slot: 'priority', label: '3. Audit Priority', icon: 'i-lucide-list-checks' }
-]
+const tabItems = computed(() => [
+  { slot: 'weighting', label: t('riskFactors.tabs.weight'), icon: 'i-lucide-activity' },
+  { slot: 'scoring', label: t('riskFactors.tabs.score'), icon: 'i-lucide-award' },
+  { slot: 'priority', label: t('riskFactors.tabs.priority'), icon: 'i-lucide-list-checks' }
+])
 
 // State
 const searchQuery = ref('')
@@ -707,16 +709,16 @@ const saveEntityScoring = async () => {
 
   const res = await auditStore.scoreYearlyEntity(selectedYear.value, payload)
   if (res) {
-    showAlert('Risk scores saved and priority calculated successfully.', 'success')
+    showAlert(t('riskFactors.messages.scoresSaved'), 'success')
     await fetchYearlyUniverse()
   } else {
-    showAlert(auditStore.errorMsg || 'Failed to save risk scores.', 'error')
+    showAlert(auditStore.errorMsg || t('riskFactors.messages.scoresSaveFailed'), 'error')
   }
 }
 
 const saveChanges = async () => {
   if (!isValidWeightSum.value) {
-    showAlert(`Total weight must be exactly 100%. Current sum: ${totalWeight.value}%`, 'error')
+    showAlert(t('riskFactors.messages.weightSumMustBe100', { total: totalWeight.value }), 'error')
     return
   }
 
@@ -727,9 +729,9 @@ const saveChanges = async () => {
 
   const success = await store.saveCorporateFactors(payload)
   if (success) {
-    showAlert('Corporate risk factors weights successfully updated.', 'success')
+    showAlert(t('riskFactors.messages.weightsUpdated'), 'success')
   } else {
-    showAlert(store.errorMsg || 'Failed to save corporate risk factor weights.', 'error')
+    showAlert(store.errorMsg || t('riskFactors.messages.weightsUpdateFailed'), 'error')
   }
 }
 
@@ -745,13 +747,20 @@ const getScoreColor = (score: number) => {
 }
 
 const getScoreLabel = (score: number) => {
-  switch (score) {
-    case 5: return 'High (5)'
-    case 4: return 'Medium to High (4)'
-    case 3: return 'Medium (3)'
-    case 2: return 'Low to Medium (2)'
-    case 1: return 'Low (1)'
-    default: return ''
+  const labelKey = `riskFactors.scoreLabels.${score}`
+  const label = t(labelKey)
+  return label !== labelKey ? label : ''
+}
+
+const formatRiskLevel = (level?: string) => {
+  if (!level) return 'N/A'
+  switch (level) {
+    case 'High': return t('riskFactors.priority.levels.high')
+    case 'Medium to High': return t('riskFactors.priority.levels.moderateToHigh')
+    case 'Medium': return t('riskFactors.priority.levels.moderate')
+    case 'Low to Medium': return t('riskFactors.priority.levels.lowToModerate')
+    case 'Low': return t('riskFactors.priority.levels.low')
+    default: return level
   }
 }
 

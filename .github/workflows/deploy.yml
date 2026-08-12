@@ -20,6 +20,9 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD || secrets.SERVER_PASSWORD }}
+          passphrase: ${{ secrets.VPS_PASSPHRASE }}
+          port: ${{ secrets.VPS_PORT || 22 }}
           timeout: 60m
           command_timeout: 60m
           script_stop: true
@@ -209,8 +212,8 @@ jobs:
               echo "🚀 Deploying Frontend Service"
               echo "============================================================"
               cd "$FRONTEND_DIR"
-              echo "🔨 Building frontend image..."
-              docker compose -f "$FRONTEND_COMPOSE" build
+              echo "🔨 Building frontend image (no cache)..."
+              docker compose -f "$FRONTEND_COMPOSE" build --no-cache
               docker rm -f rbia-frontend-prod 2>/dev/null || true
               docker compose -f "$FRONTEND_COMPOSE" up -d --force-recreate --remove-orphans
 

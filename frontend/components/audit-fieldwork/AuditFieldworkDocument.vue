@@ -3,10 +3,10 @@
     <!-- Header with Add Button -->
     <div class="flex justify-between items-center">
       <div>
-        <h3 class="text-lg font-semibold">Document Collections</h3>
-        <p class="text-sm text-gray-500">Manage documents required for audit implementation</p>
+        <h3 class="text-lg font-semibold">{{ t('auditFieldwork.document.title') }}</h3>
+        <p class="text-sm text-gray-500">{{ t('auditFieldwork.document.subtitle') }}</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" label="Add Document" @click="store.openDocumentModal()" />
+      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
     </div>
 
     <!-- Document List -->
@@ -39,8 +39,8 @@
     <!-- Empty State -->
     <div v-else class="text-center py-8">
       <UIcon name="i-heroicons-document-duplicate" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">No documents collected yet</p>
-      <UButton color="primary" variant="soft" class="mt-2" label="Add Document" @click="store.openDocumentModal()" />
+      <p class="text-gray-500">{{ t('auditFieldwork.document.empty') }}</p>
+      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
     </div>
 
     <!-- Document Modal -->
@@ -49,25 +49,25 @@
         <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <template #header>
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingDocument ? 'Edit Document' : 'Document Collection Form' }}</h3>
+              <h3 class="text-lg font-semibold">{{ store.isEditingDocument ? t('auditFieldwork.document.modalEdit') : t('auditFieldwork.document.modalAdd') }}</h3>
               <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showDocumentModal = false }" />
             </div>
           </template>
 
           <UForm @submit.prevent="store.saveDocument()" class="space-y-4">
-            <UFormField label="Document Name" required>
-              <UInput v-model="store.documentForm.documentName" placeholder="Example: SOP Procurement" class="w-full" required />
+            <UFormField :label="t('auditFieldwork.document.name')" required>
+              <UInput v-model="store.documentForm.documentName" :placeholder="t('auditFieldwork.document.namePlaceholder')" class="w-full" required />
             </UFormField>
 
-            <UFormField label="Document Description" required>
-              <UTextarea v-model="store.documentForm.description" placeholder="Describe the purpose and scope of this document" class="w-full" required />
+            <UFormField :label="t('auditFieldwork.document.description')" required>
+              <UTextarea v-model="store.documentForm.description" :placeholder="t('auditFieldwork.document.descriptionPlaceholder')" class="w-full" required />
             </UFormField>
 
-            <UFormField label="Required Date" required>
+            <UFormField :label="t('auditFieldwork.document.requiredDate')" required>
               <UInput v-model="store.documentForm.requiredDate" type="date" class="w-full" required />
             </UFormField>
           
-            <UFormField label="Upload File (PDF/DOCX/XLSX)">
+            <UFormField :label="t('auditFieldwork.document.uploadFile')">
               <UInput
                 type="file"
                 icon="i-heroicons-paper-clip"
@@ -84,8 +84,8 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="() => { store.showDocumentModal = false }" />
-              <UButton color="primary" :label="store.isEditingDocument ? 'Update' : 'Submit'" @click="store.saveDocument()" />
+              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showDocumentModal = false }" />
+              <UButton color="primary" :label="store.isEditingDocument ? t('common.edit') : t('common.submit')" @click="store.saveDocument()" />
             </div>
           </template>
         </UCard>
@@ -96,14 +96,17 @@
 
 <script setup lang="ts">
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useI18n } from '~/composables/useI18n'
+import { computed } from 'vue'
 
 const store = useAuditFieldworkStore()
+const { t } = useI18n()
 
-const columns = [
-  { accessorKey: 'documentName', header: 'Document Name' },
-  { accessorKey: 'description', header: 'Description' },
-  { accessorKey: 'requiredDate', header: 'Required Date' },
-  { accessorKey: 'file', header: 'File' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'documentName', header: t('auditFieldwork.document.columns.name') },
+  { accessorKey: 'description', header: t('auditFieldwork.document.columns.description') },
+  { accessorKey: 'requiredDate', header: t('auditFieldwork.document.columns.requiredDate') },
+  { accessorKey: 'file', header: t('auditFieldwork.document.columns.file') },
+  { accessorKey: 'actions', header: t('auditFieldwork.document.columns.actions') }
+])
 </script>

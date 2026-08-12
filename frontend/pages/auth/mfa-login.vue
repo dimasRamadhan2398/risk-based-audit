@@ -16,33 +16,55 @@
         <div class="flex items-start gap-4">
           <span class="w-6 h-6 rounded-full bg-success-500/10 border border-success-500/20 flex items-center justify-center text-success-600 font-bold text-md">✓</span>
           <div>
-            <h4 class="text-sm font-bold text-[var(--text-main)]">Autentikasi Utama</h4>
-            <p class="text-md text-[var(--text-muted)]">Kredensial dasar berhasil divalidasi</p>
+            <h4 class="text-sm font-bold text-[var(--text-main)]">{{ t('auth.mfaLogin.primaryAuth') }}</h4>
+            <p class="text-md text-[var(--text-muted)]">{{ t('auth.mfaLogin.credentialsValid') }}</p>
           </div>
         </div>
         
         <div class="flex items-start gap-4">
           <span class="w-6 h-6 rounded-full bg-secondary-500 text-white shadow-lg shadow-secondary-500/25 flex items-center justify-center font-bold text-md">2</span>
           <div>
-            <h4 class="text-sm font-bold text-secondary-500">Verifikasi Dua Faktor (MFA)</h4>
-            <p class="text-md text-[var(--text-muted)]">Masukkan kode OTP dari aplikasi autentikator Anda</p>
+            <h4 class="text-sm font-bold text-secondary-500">{{ t('auth.mfaLogin.mfaTitle') }}</h4>
+            <p class="text-md text-[var(--text-muted)]">{{ t('auth.mfaLogin.mfaSubtitle') }}</p>
           </div>
         </div>
       </div>
 
       <!-- Bottom metadata -->
       <div class="relative z-10 text-md text-[var(--text-muted)] opacity-60">
-        <span>Sistem Audit Internal Berbasis Risiko v1.0</span>
+        <span>{{ t('auth.mfaLogin.systemVersion') }}</span>
       </div>
     </div>
 
     <!-- Right panel: Full screen login verification area -->
     <div class="w-full lg:w-8/12 flex flex-col justify-between bg-[var(--bg-main)] overflow-y-auto min-h-screen">
       
-      <!-- Mobile top banner (hidden on large screens) -->
-      <div class="lg:hidden px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between text-md font-semibold select-none">
-        <span class="text-secondary-500">Verifikasi MFA</span>
-        <span class="text-[var(--text-muted)] font-medium">Langkah 2 dari 2</span>
+      <!-- Top header bar with language switcher -->
+      <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between text-md font-semibold select-none">
+        <div class="flex items-center gap-2">
+          <span class="text-secondary-500 lg:hidden">{{ t('auth.mfaLogin.mobileMfa') }}</span>
+          <span class="text-[var(--text-muted)] font-medium lg:hidden">· {{ t('auth.mfaLogin.mobileStep') }}</span>
+        </div>
+
+        <!-- Language Switcher Toggle -->
+        <div class="flex items-center gap-1.5 bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-main)] ml-auto">
+          <button
+            type="button"
+            class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+            :class="locale === 'id' ? 'bg-secondary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+            @click="setLocale('id')"
+          >
+            <span>🇮🇩</span> ID
+          </button>
+          <button
+            type="button"
+            class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+            :class="locale === 'en' ? 'bg-secondary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+            @click="setLocale('en')"
+          >
+            <span>🇬🇧</span> EN
+          </button>
+        </div>
       </div>
 
       <!-- Center content section -->
@@ -54,9 +76,9 @@
             <UIcon name="i-lucide-shield-alert" class="w-7 h-7" />
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-[var(--text-main)]">Masukkan Kode OTP</h1>
+            <h1 class="text-2xl font-bold text-[var(--text-main)]">{{ t('auth.mfaLogin.headerTitle') }}</h1>
             <p class="text-sm text-[var(--text-muted)]">
-              Masukkan 6 digit kode keamanan dari aplikasi autentikator di ponsel Anda untuk memverifikasi.
+              {{ t('auth.mfaLogin.headerSubtitle') }}
             </p>
           </div>
         </div>
@@ -98,10 +120,10 @@
             </div>
             <div>
               <label for="trust-device" class="text-sm font-semibold text-[var(--text-main)] cursor-pointer select-none">
-                Percayakan perangkat ini
+                {{ t('auth.mfaLogin.trustDeviceLabel') }}
               </label>
               <p class="text-md text-[var(--text-muted)] mt-0.5">
-                Jangan minta OTP lagi selama 90 hari di perangkat ini.
+                {{ t('auth.mfaLogin.trustDeviceDesc') }}
               </p>
             </div>
           </div>
@@ -109,12 +131,12 @@
           <!-- Timer / Expiry Info -->
           <div class="text-center pt-2">
             <p v-if="timeLeft > 0" class="text-md text-[var(--text-muted)] flex items-center justify-center gap-1.5">
-              Kode berlaku selama: 
+              {{ t('auth.mfaLogin.codeValidTime') }} 
               <span class="text-secondary-500 font-mono font-bold">{{ formatTime(timeLeft) }}</span>
             </p>
             <p v-else class="text-md text-error-600 dark:text-error-400 font-semibold">
-              Sesi verifikasi telah kedaluwarsa.
-              <NuxtLink to="/auth/login" class="underline hover:opacity-80 ml-1">Ulangi Login</NuxtLink>
+              {{ t('auth.mfaLogin.sessionExpired') }}
+              <NuxtLink to="/auth/login" class="underline hover:opacity-80 ml-1">{{ t('auth.mfaLogin.retryLogin') }}</NuxtLink>
             </p>
           </div>
 
@@ -131,7 +153,7 @@
             <div v-if="attempts > 0" class="flex items-start gap-3 rounded-xl bg-warning-500/10 border border-warning-500/20 px-4 py-3">
               <span class="text-warning-500 text-lg leading-none">⚠️</span>
               <p class="text-md text-warning-600 dark:text-warning-400">
-                Gagal memverifikasi: {{ attempts }}/3 percobaan. Akun akan terkunci jika terlalu banyak kesalahan.
+                {{ t('auth.mfaLogin.attemptsWarning', { attempts }) }}
               </p>
             </div>
           </Transition>
@@ -148,11 +170,11 @@
             :style="state.code.length === 6 && timeLeft > 0 ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', bomdhadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
           >
             <template v-if="!loading">
-              <span>Verifikasi & Masuk</span>
+              <span>{{ t('auth.mfaLogin.verifyBtn') }}</span>
               <span class="ml-2">→</span>
             </template>
             <template v-else>
-              <span>Memverifikasi...</span>
+              <span>{{ t('auth.mfaLogin.verifyingBtn') }}</span>
             </template>
           </UButton>
 
@@ -162,7 +184,7 @@
               to="/auth/login"
               class="text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors duration-150 inline-flex items-center gap-1.5"
             >
-              ← Kembali ke halaman login
+              {{ t('auth.mfaLogin.backToLogin') }}
             </NuxtLink>
           </div>
 
@@ -171,15 +193,17 @@
 
       <!-- Legal footer -->
       <div class="p-8 text-center text-md text-[var(--text-muted)] border-t border-[var(--border-main)] bg-[var(--bg-surface)]">
-        <span>Keamanan terjamin · Aktivitas verifikasi login dicatat untuk audit kepatuhan.</span>
+        <span>{{ t('auth.mfaLogin.legalFooter') }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useDeviceFingerprint } from '~/composables/useDeviceFingerprint'
+import { useI18n } from '~/composables/useI18n'
 
 definePageMeta({
   layout: 'auth',
@@ -190,6 +214,7 @@ definePageMeta({
 const authStore = useAuthStore()
 const router = useRouter()
 const { getDeviceFingerprint } = useDeviceFingerprint()
+const { t, locale, setLocale } = useI18n()
 
 const state = reactive({
   code: '',
@@ -268,7 +293,7 @@ const handleVerify = async () => {
     }
   }
   catch (err: any) {
-    error.value = err.message || 'Kode verifikasi tidak valid'
+    error.value = err.message || t('auth.mfaLogin.invalidCode')
     state.code = ''
     attempts.value++
   }
