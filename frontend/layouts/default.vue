@@ -276,7 +276,7 @@ const items = computed<NavigationMenuItem[][]>(() => {
       let filteredChildren = parent.children
       let childrenMatches = false
       if (q && parent.children) {
-        filteredChildren = parent.children.filter(child => child.label.toLowerCase().includes(q) || parent.label.toLowerCase().includes(q))
+        filteredChildren = parent.children.filter(child => (child.label?.toLowerCase() || '').includes(q) || (parent.label?.toLowerCase() || '').includes(q))
         childrenMatches = filteredChildren.length > 0
       }
 
@@ -296,7 +296,7 @@ const items = computed<NavigationMenuItem[][]>(() => {
     }).filter(parent => {
        if (!searchQuery.value) return true
        const q = searchQuery.value.toLowerCase()
-       const parentMatches = parent.label.toLowerCase().includes(q)
+       const parentMatches = (parent.label?.toLowerCase() || '').includes(q)
        const hasVisibleChildren = parent.children && parent.children.length > 0
        return parentMatches || hasVisibleChildren
     })

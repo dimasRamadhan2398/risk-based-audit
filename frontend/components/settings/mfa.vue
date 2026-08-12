@@ -6,29 +6,39 @@
           <div class="flex items-center gap-3">
             <div
               class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300"
-              :class="isMfaEnabled ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-primary-500/10 text-primary-600 dark:text-primary-400'"
+              :class="isMfaEnabled 
+                ? (isDisabling ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400')
+                : 'bg-primary-500/10 text-primary-600 dark:text-primary-400'"
             >
-              <UIcon :name="isMfaEnabled ? 'i-lucide-shield-check' : 'i-lucide-shield-alert'" class="w-6 h-6" />
+              <UIcon 
+                :name="isMfaEnabled ? (isDisabling ? 'i-lucide-shield-alert' : 'i-lucide-shield-check') : 'i-lucide-shield-alert'" 
+                class="w-6 h-6" 
+              />
             </div>
             <div>
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.mfa.title') }}</h3>
-              <p class="text-md sm:text-sm text-gray-500 dark:text-gray-400">
-                {{ t('settings.mfa.subtitle') }}
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                {{ isDisabling ? t('settings.mfa.modalTitle') : t('settings.mfa.title') }}
+              </h3>
+              <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                {{ isDisabling ? t('settings.mfa.modalSubtitle') : t('settings.mfa.subtitle') }}
               </p>
             </div>
           </div>
 
           <div v-if="!loadingStatus" class="self-start sm:self-center">
             <UBadge
-              :color="isMfaEnabled ? 'success' : 'warning'"
+              :color="isMfaEnabled ? (isDisabling ? 'error' : 'success') : 'warning'"
               variant="subtle"
               size="md"
               class="font-semibold px-3 py-1 rounded-full shadow-md"
             >
               <template #leading>
-                <span class="w-2 h-2 rounded-full" :class="isMfaEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'" />
+                <span 
+                  class="w-2 h-2 rounded-full" 
+                  :class="isMfaEnabled ? (isDisabling ? 'bg-red-500' : 'bg-emerald-500 animate-pulse') : 'bg-amber-500'" 
+                />
               </template>
-              {{ isMfaEnabled ? t('settings.mfa.activeProtected') : t('settings.mfa.notEnabled') }}
+              {{ isMfaEnabled ? (isDisabling ? t('settings.mfa.confirmDisable') : t('settings.mfa.activeProtected')) : t('settings.mfa.notEnabled') }}
             </UBadge>
           </div>
           <USkeleton v-else class="h-7 w-28 rounded-full" />
@@ -41,22 +51,22 @@
         <USkeleton class="h-10 w-48 rounded-xl" />
       </div>
 
-      <!-- MFA Disabled State (Setup Flow) -->
+      <!-- State 1 & 2: MFA Disabled Flow (Begin Component / Setup Stepper) -->
       <div v-else-if="!isMfaEnabled" class="space-y-6 p-2">
-        <div class="p-4 rounded-xl bg-primary-900/50 dark:bg-primary-950/60 border border-primary-100 dark:border-primary-900/40 text-primary-900 dark:text-primary-200 text-sm flex items-start gap-3">
+        <div class="p-4 rounded-xl bg-primary-900/40 dark:bg-primary-950/60 border border-primary-100 dark:border-primary-900/40 text-primary-900 dark:text-primary-200 text-sm flex items-start gap-3">
           <UIcon name="i-lucide-info" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0 mt-0.5" />
           <p>
             {{ t('settings.mfa.infoText') }}
           </p>
         </div>
 
-        <!-- Start Setup Button -->
+        <!-- MFA Begin Component (Start Setup) -->
         <div v-if="!setupData" class="pt-2">
           <UButton
             icon="i-lucide-shield-plus"
             color="primary"
             size="lg"
-            class="font-bold px-6 py-3 rounded-xl transition-all duration-200 shadow-md"
+            class="font-bold px-6 py-3 rounded-xl transition-all duration-200 shadow-md cursor-pointer"
             :loading="loading"
             @click="handleSetup"
           >
@@ -64,7 +74,7 @@
           </UButton>
         </div>
 
-        <!-- Setup Stepper -->
+        <!-- MFA Setup Stepper Component -->
         <div v-else class="space-y-6 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 bg-gray-50/50 dark:bg-gray-900/50">
           <div class="flex flex-col lg:flex-row gap-8 items-start">
             <!-- QR Code Box -->
@@ -142,9 +152,9 @@
         </div>
       </div>
 
-      <!-- MFA Enabled State -->
-      <div v-else class="space-y-6 p-2">
-        <div class="flex items-start gap-4 p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200 shadow-md">
+      <!-- State 3: MFA Active Component (When not in disable confirmation state) -->
+      <div v-else-if="!isDisabling" class="space-y-6 p-2">
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200 shadow-xs">
           <UIcon name="i-lucide-shield-check" class="w-7 h-7 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
           <div class="space-y-1">
             <h4 class="text-base font-bold text-emerald-950 dark:text-emerald-100">{{ t('settings.mfa.mfaActiveTitle') }}</h4>
@@ -163,35 +173,27 @@
             icon="i-lucide-shield-off"
             color="error"
             variant="soft"
-            class="font-bold rounded-xl px-4 py-2 hover:bg-red-500/20 transition-all duration-200"
-            @click="showDisableModal = true"
+            class="font-bold rounded-xl px-4 py-2 hover:bg-red-500/20 transition-all duration-200 cursor-pointer"
+            @click="isDisabling = true"
           >
             {{ t('settings.mfa.disableButton') }}
           </UButton>
         </div>
       </div>
-    </UCard>
 
-    <!-- Disable Modal -->
-    <UModal v-model="showDisableModal">
-      <UCard class="max-w-md w-full rounded-2xl">
-        <template #header>
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center shrink-0">
-              <UIcon name="i-lucide-alert-triangle" class="w-5 h-5" />
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-gray-900 dark:text-white">{{ t('settings.mfa.modalTitle') }}</h3>
-              <p class="text-md text-gray-500 dark:text-gray-400">{{ t('settings.mfa.modalSubtitle') }}</p>
-            </div>
+      <!-- State 4: MFA Confirm Disable Component (Displayed conditionally when disabling) -->
+      <div v-else class="space-y-6 p-4 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/20">
+        <div class="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-900 dark:text-red-200">
+          <UIcon name="i-lucide-alert-triangle" class="w-6 h-6 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+          <div class="space-y-1">
+            <h4 class="text-sm font-bold text-red-950 dark:text-red-100">{{ t('settings.mfa.modalTitle') }}</h4>
+            <p class="text-xs text-red-800 dark:text-red-300">
+              {{ t('settings.mfa.modalPrompt') }}
+            </p>
           </div>
-        </template>
+        </div>
 
-        <div class="space-y-4 py-2">
-          <p class="text-sm text-gray-600 dark:text-gray-300">
-            {{ t('settings.mfa.modalPrompt') }}
-          </p>
-
+        <div class="max-w-md space-y-4">
           <UFormField :label="t('settings.mfa.passwordLabel')">
             <UInput
               v-model="password"
@@ -199,32 +201,31 @@
               :placeholder="t('settings.mfa.passwordPlaceholder')"
               size="lg"
               class="w-full"
+              @keyup.enter="handleDisable"
             />
           </UFormField>
-        </div>
 
-        <template #footer>
-          <div class="flex justify-end gap-3">
+          <div class="flex items-center gap-3 pt-2">
             <UButton
               variant="subtle"
               color="neutral"
-              class="rounded-xl font-semibold"
-              @click="showDisableModal = false; password = ''"
+              class="rounded-xl font-semibold px-5"
+              @click="cancelDisable"
             >
               {{ t('settings.mfa.cancelModal') }}
             </UButton>
             <UButton
               color="error"
-              class="rounded-xl text-white font-bold px-5"
+              class="rounded-xl text-white font-bold px-6 cursor-pointer"
               :loading="loading"
               @click="handleDisable"
             >
               {{ t('settings.mfa.confirmDisable') }}
             </UButton>
           </div>
-        </template>
-      </UCard>
-    </UModal>
+        </div>
+      </div>
+    </UCard>
   </div>
 </template>
 
@@ -242,7 +243,7 @@ const setupData = ref<any>(null)
 const qrCodeDataURL = ref('')
 const verificationCode = ref('')
 const loading = ref(false)
-const showDisableModal = ref(false)
+const isDisabling = ref(false)
 const password = ref('')
 const toast = useToast()
 
@@ -251,20 +252,6 @@ const isMfaEnabled = computed(() => {
   return Boolean(mfaStatus.value.is_enabled ?? mfaStatus.value.data?.is_enabled)
 })
 
-const getAuthBaseUrl = () => {
-  if (import.meta.client) {
-    const hostname = window.location.hostname
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:8080/api/v1'
-    }
-  }
-  let url = (config.public.authServiceBaseUrl as string) || '/api/v1'
-  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
-    url = `/${url}`
-  }
-  return url.replace(/\/$/, '')
-}
-
 const fetchStatus = async () => {
   if (!authStore.token) {
     loadingStatus.value = false
@@ -272,7 +259,7 @@ const fetchStatus = async () => {
   }
   loadingStatus.value = true
   try {
-    const response = await $fetch<any>(`${getAuthBaseUrl()}/mfa/status`, {
+    const response = await $fetch<any>(`${getAuthServiceBaseUrl()}/mfa/status`, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     })
     const rawData = response?.data?.data ?? response?.data ?? response
@@ -288,7 +275,7 @@ const handleSetup = async () => {
   if (!authStore.token) return
   loading.value = true
   try {
-    const response = await $fetch<any>(`${getAuthBaseUrl()}/mfa/enroll`, {
+    const response = await $fetch<any>(`${getAuthServiceBaseUrl()}/mfa/enroll`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.token}` },
       body: { mfa_type: 'TOTP' }
@@ -326,7 +313,7 @@ const handleVerifySetup = async () => {
   if (!authStore.token || !verificationCode.value) return
   loading.value = true
   try {
-    await $fetch(`${getAuthBaseUrl()}/mfa/verify`, {
+    await $fetch(`${getAuthServiceBaseUrl()}/mfa/verify`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.token}` },
       body: { code: verificationCode.value }
@@ -354,11 +341,16 @@ const handleVerifySetup = async () => {
   }
 }
 
+const cancelDisable = () => {
+  isDisabling.value = false
+  password.value = ''
+}
+
 const handleDisable = async () => {
   if (!authStore.token || !password.value) return
   loading.value = true
   try {
-    await $fetch(`${getAuthBaseUrl()}/mfa/disable`, {
+    await $fetch(`${getAuthServiceBaseUrl()}/mfa/disable`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.token}` },
       body: { password: password.value }
@@ -371,7 +363,7 @@ const handleDisable = async () => {
       icon: 'i-lucide-circle-check'
     })
     
-    showDisableModal.value = false
+    isDisabling.value = false
     password.value = ''
     await fetchStatus()
   } catch (err: any) {

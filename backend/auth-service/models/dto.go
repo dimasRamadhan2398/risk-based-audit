@@ -203,6 +203,10 @@ type PaginatedResponse struct {
     Limit  int         `json:"limit"`
 }
 
+type AssignPermissionsRequest struct {
+	PermissionIDs []uuid.UUID `json:"permission_ids" binding:"required"`
+}
+
 // AcceptConfidentialityRequest represents the body for accepting a confidentiality agreement
 type AcceptConfidentialityRequest struct {
 	AgreementType string `json:"agreement_type" binding:"required"`

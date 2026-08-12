@@ -94,7 +94,7 @@ func (m *AuthMiddleware) RequireRoles(roles ...string) gin.HandlerFunc {
 		hasRole := false
 		for _, requiredRole := range roles {
 			for _, userRole := range userRoleList {
-				if userRole == requiredRole {
+				if strings.EqualFold(userRole, requiredRole) {
 					hasRole = true
 					break
 				}

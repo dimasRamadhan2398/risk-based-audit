@@ -8,6 +8,7 @@ import (
 	confidentialityServices "auth-service/services/confidentiality"
 	emailServices "auth-service/services/email"
 	mfaServices "auth-service/services/mfa"
+	roleServices "auth-service/services/role"
 	trustedDevicesServices "auth-service/services/trusted-devices"
 	userServices "auth-service/services/user"
 )
@@ -44,6 +45,18 @@ func (r *Registry) GetUserService() userServices.UserServiceInterface {
 	return userServices.NewUserService(r.repository.GetUserRepository(), r.repository.GetKafkaProducer())
 }
 
+// GetRoleService implements IServiceRegistry.
+func (r *Registry) GetRoleService() roleServices.IRoleService {
+	var redisClient = r.repository.GetCacheRepository()
+	var rawClient = redisClient.GetClient()
+	return roleServices.NewRoleService(
+		r.repository.GetRoleRepository(),
+		r.repository.GetPermissionRepository(),
+		r.repository.GetEventPublisher(),
+		rawClient,
+	)
+}
+
 // GetTrustedDevicesService implements IServiceRegistry.
 func (r *Registry) GetTrustedDevicesService() trustedDevicesServices.TrustedDevicesServiceInterface {
 	return trustedDevicesServices.NewTrustedDevicesService(r.repository.GetTrustedDeviceRepository(), r.repository.GetUserRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient())
@@ -57,11 +70,13 @@ func (r *Registry) GetConfidentialityService() confidentialityServices.Confident
 type IServiceRegistry interface {
 	GetAuthService() authServices.AuthServiceInterface
 	GetUserService() userServices.UserServiceInterface
+	GetRoleService() roleServices.IRoleService
 	GetMfaService() mfaServices.MfaServiceInterface
 	GetTrustedDevicesService() trustedDevicesServices.TrustedDevicesServiceInterface
 	GetEmailService() emailServices.EmailServiceInterface
 	GetConfidentialityService() confidentialityServices.ConfidentialityServiceInterface
 }
+
 func NewServiceRegistry(repository repositories.IRepositoryRegistry) IServiceRegistry {
 	return &Registry{repository: repository}
 }

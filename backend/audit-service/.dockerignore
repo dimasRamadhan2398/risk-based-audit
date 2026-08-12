@@ -1,0 +1,43 @@
+# Binaries and compiled output
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+audit-service
+audit-service-test
+audit
+tmp_audit
+tmp_audit.exe
+audit-service.exe
+
+# Archives
+*.tar.gz
+*.zip
+
+# Go workspace file
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+build/
+
+# Misc
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage.out
+coverage.html
+*.coverprofile

@@ -36,25 +36,62 @@ func (s *Seeder) RunAll() error {
 // SeedPermissions seeds permission data
 func (s *Seeder) SeedPermissions() error {
 	permissions := []models.Permission{
+		// Users & Roles
 		{Name: "view_users", Resource: "users", Action: "read", Description: "View users"},
 		{Name: "create_users", Resource: "users", Action: "create", Description: "Create users"},
 		{Name: "update_users", Resource: "users", Action: "update", Description: "Update users"},
 		{Name: "delete_users", Resource: "users", Action: "delete", Description: "Delete users"},
 		{Name: "view_roles", Resource: "roles", Action: "read", Description: "View roles"},
 		{Name: "manage_roles", Resource: "roles", Action: "manage", Description: "Manage roles"},
+
+		// Master Data
 		{Name: "view_companies", Resource: "companies", Action: "read", Description: "View companies"},
 		{Name: "manage_companies", Resource: "companies", Action: "manage", Description: "Manage companies"},
 		{Name: "view_departments", Resource: "departments", Action: "read", Description: "View departments"},
 		{Name: "manage_departments", Resource: "departments", Action: "manage", Description: "Manage departments"},
 		{Name: "view_employees", Resource: "employees", Action: "read", Description: "View employees"},
 		{Name: "manage_employees", Resource: "employees", Action: "manage", Description: "Manage employees"},
+
+		// Audit Charter & Risk Profile
+		{Name: "view_audit_charter", Resource: "audit_charter", Action: "read", Description: "View audit charter"},
+		{Name: "manage_audit_charter", Resource: "audit_charter", Action: "manage", Description: "Manage audit charter"},
 		{Name: "view_risk_register", Resource: "risk_register", Action: "read", Description: "View risk register"},
 		{Name: "create_risk_register", Resource: "risk_register", Action: "create", Description: "Create risk register"},
 		{Name: "update_risk_register", Resource: "risk_register", Action: "update", Description: "Update risk register"},
 		{Name: "delete_risk_register", Resource: "risk_register", Action: "delete", Description: "Delete risk register"},
-		{Name: "view_audit_charter", Resource: "audit_charter", Action: "read", Description: "View audit charter"},
-		{Name: "manage_audit_charter", Resource: "audit_charter", Action: "manage", Description: "Manage audit charter"},
-		{Name: "manage_audit_charter", Resource: "audit_charter", Action: "manage", Description: "Manage audit charter"},
+
+		// Audit Planning & Execution
+		{Name: "view_strategic_plan", Resource: "strategic_plan", Action: "read", Description: "View strategic audit plan"},
+		{Name: "manage_strategic_plan", Resource: "strategic_plan", Action: "manage", Description: "Manage strategic audit plan"},
+		{Name: "view_annual_plan", Resource: "annual_plan", Action: "read", Description: "View annual audit plan"},
+		{Name: "manage_annual_plan", Resource: "annual_plan", Action: "manage", Description: "Manage annual audit plan"},
+		{Name: "view_activity_plan", Resource: "activity_plan", Action: "read", Description: "View audit activity plan"},
+		{Name: "manage_activity_plan", Resource: "activity_plan", Action: "manage", Description: "Manage audit activity plan"},
+		{Name: "view_assignment_letter", Resource: "assignment_letter", Action: "read", Description: "View assignment letter"},
+		{Name: "manage_assignment_letter", Resource: "assignment_letter", Action: "manage", Description: "Manage assignment letter"},
+		{Name: "view_working_paper", Resource: "working_paper", Action: "read", Description: "View working paper"},
+		{Name: "create_working_paper", Resource: "working_paper", Action: "create", Description: "Create working paper"},
+		{Name: "update_working_paper", Resource: "working_paper", Action: "update", Description: "Update working paper"},
+		{Name: "delete_working_paper", Resource: "working_paper", Action: "delete", Description: "Delete working paper"},
+
+		// Reporting & Follow-Up
+		{Name: "view_audit_report", Resource: "audit_report", Action: "read", Description: "View audit result report (LHA)"},
+		{Name: "manage_audit_report", Resource: "audit_report", Action: "manage", Description: "Manage audit result report (LHA)"},
+		{Name: "view_executive_summary", Resource: "executive_summary", Action: "read", Description: "View executive summary report"},
+		{Name: "manage_executive_summary", Resource: "executive_summary", Action: "manage", Description: "Manage executive summary report"},
+		{Name: "view_action_taken_report", Resource: "action_taken_report", Action: "read", Description: "View action taken report (ATR)"},
+		{Name: "update_action_taken_report", Resource: "action_taken_report", Action: "update", Description: "Update action taken report (ATR)"},
+
+		// Executive, Performance & Quality
+		{Name: "view_kpi", Resource: "kpi", Action: "read", Description: "View KPI performance"},
+		{Name: "manage_kpi", Resource: "kpi", Action: "manage", Description: "Manage KPI performance"},
+		{Name: "view_consulting", Resource: "consulting", Action: "read", Description: "View consulting service"},
+		{Name: "manage_consulting", Resource: "consulting", Action: "manage", Description: "Manage consulting service"},
+		{Name: "view_quality_assurance", Resource: "quality_assurance", Action: "read", Description: "View quality assurance"},
+		{Name: "manage_quality_assurance", Resource: "quality_assurance", Action: "manage", Description: "Manage quality assurance"},
+		{Name: "view_analytics", Resource: "analytics", Action: "read", Description: "View analytics dashboard"},
+
+		// System
 		{Name: "view_system_logs", Resource: "sys_alert_logs", Action: "read", Description: "View alert logs"},
 		{Name: "export_system_logs", Resource: "sys_alert_logs", Action: "manage", Description: "Export alert logs"},
 		{Name: "delete_system_logs", Resource: "sys_alert_logs", Action: "delete", Description: "Delete alert logs"},
@@ -72,77 +109,95 @@ func (s *Seeder) SeedRoles() error {
 	var permissions []models.Permission
 	s.DB.Find(&permissions)
 
+	permMap := make(map[string]models.Permission)
+	for _, p := range permissions {
+		permMap[p.Name] = p
+	}
+
+	getPerms := func(names ...string) []models.Permission {
+		var list []models.Permission
+		for _, name := range names {
+			if p, ok := permMap[name]; ok {
+				list = append(list, p)
+			}
+		}
+		return list
+	}
+
 	roles := []models.Role{
 		{
 			Name:        "ADMIN",
-			Description: "System Administrator",
+			Description: "System Administrator with full access",
 			Permissions: permissions,
 		},
 		{
 			Name:        "AUDITOR",
-			Description: "Internal Auditor",
-			Permissions: []models.Permission{
-				permissions[0],  // view_users
-				permissions[6],  // view_companies
-				permissions[8],  // view_departments
-				permissions[10], // view_employees
-				permissions[12], // view_risk_register
-				permissions[13], // create_risk_register
-				permissions[14], // update_risk_register
-				permissions[16], // view_audit_charter
-			},
-		},
-		{
-			Name:        "DEPARTMENT_HEAD",
-			Description: "Head of Department who is responsible of the subordinates taking part in the audit process ",
-			Permissions: []models.Permission{
-				permissions[6],  // view_companies
-				permissions[8],  // view_departments
-				permissions[10], // view_employees
-				permissions[12], // view_risk_register
-				permissions[13], // create_risk_register
-				permissions[14], // update_risk_register
-				permissions[15], // delete_risk_register
-			},
-		},
-		{
-			Name:        "AUDITEE",
-			Description: "Auditee is the unit that is audited by the auditor",
-			Permissions: []models.Permission{
-				permissions[0], // view_users
-				permissions[6], // view_companies
-				permissions[8], // view_departments
-			},
-		},
-		{
-			Name:        "VIEWER",
-			Description: "Viewer with very limited access",
-			Permissions: []models.Permission{
-				permissions[0], // view_users
-				permissions[6], // view_companies
-				permissions[8], // view_departments
-			},
+			Description: "Internal Auditor with access to audit planning, fieldwork, risk registers, and reporting",
+			Permissions: getPerms(
+				"view_users", "view_companies", "view_departments", "view_employees",
+				"view_audit_charter", "manage_audit_charter",
+				"view_risk_register", "create_risk_register", "update_risk_register", "delete_risk_register",
+				"view_strategic_plan", "manage_strategic_plan",
+				"view_annual_plan", "manage_annual_plan",
+				"view_activity_plan", "manage_activity_plan",
+				"view_assignment_letter", "manage_assignment_letter",
+				"view_working_paper", "create_working_paper", "update_working_paper", "delete_working_paper",
+				"view_audit_report", "manage_audit_report",
+				"view_executive_summary", "manage_executive_summary",
+				"view_action_taken_report", "update_action_taken_report",
+				"view_kpi", "manage_kpi",
+				"view_consulting", "manage_consulting",
+				"view_quality_assurance", "manage_quality_assurance",
+				"view_analytics",
+			),
 		},
 		{
 			Name:        "EXECUTIVE",
-			Description: "Executive management with high-level access",
-			Permissions: []models.Permission{
-				permissions[0],  // view_users
-				permissions[4],  // view_roles
-				permissions[6],  // view_companies
-				permissions[8],  // view_departments
-				permissions[10], // view_employees
-				permissions[12], // view_risk_register
-				permissions[16], // view_audit_charter
-				permissions[19], // view_system_logs
-			},
+			Description: "Executive Management with access to executive summary, analytics, and high-level reports",
+			Permissions: getPerms(
+				"view_users", "view_roles", "view_companies", "view_departments", "view_employees",
+				"view_audit_charter", "view_risk_register",
+				"view_strategic_plan", "view_annual_plan",
+				"view_audit_report", "view_executive_summary", "manage_executive_summary",
+				"view_action_taken_report", "view_kpi", "view_quality_assurance",
+				"view_analytics", "view_system_logs",
+			),
+		},
+		{
+			Name:        "AUDITEE",
+			Description: "Auditee unit responsible for viewing assigned findings and submitting Action Taken Reports",
+			Permissions: getPerms(
+				"view_users", "view_companies", "view_departments",
+				"view_audit_charter", "view_risk_register",
+				"view_action_taken_report", "update_action_taken_report",
+			),
+		},
+		{
+			Name:        "VIEWER",
+			Description: "Viewer with read-only access to published reports and dashboards",
+			Permissions: getPerms(
+				"view_users", "view_companies", "view_departments",
+				"view_audit_charter", "view_risk_register",
+				"view_audit_report", "view_executive_summary", "view_analytics",
+			),
+		},
+		{
+			Name:        "DEPARTMENT_HEAD",
+			Description: "Head of Department overseeing department risk and audit actions",
+			Permissions: getPerms(
+				"view_users", "view_companies", "view_departments", "view_employees",
+				"view_risk_register", "create_risk_register", "update_risk_register", "delete_risk_register",
+				"view_audit_report", "view_action_taken_report", "update_action_taken_report",
+			),
 		},
 	}
 
 	for i := range roles {
-		s.DB.FirstOrCreate(&roles[i], models.Role{Name: roles[i].Name})
-		if roles[i].Name == "ADMIN" {
-			s.DB.Model(&roles[i]).Association("Permissions").Replace(roles[i].Permissions)
+		var existing models.Role
+		if err := s.DB.Where("name = ?", roles[i].Name).First(&existing).Error; err == gorm.ErrRecordNotFound {
+			s.DB.Create(&roles[i])
+		} else {
+			s.DB.Model(&existing).Association("Permissions").Replace(roles[i].Permissions)
 		}
 	}
 

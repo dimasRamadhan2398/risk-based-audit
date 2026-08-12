@@ -1,0 +1,261 @@
+name: AuditSphere CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: auditsphere-production
+  cancel-in-progress: false
+
+jobs:
+  deploy-vps:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Execute SSH deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          timeout: 60m
+          command_timeout: 60m
+          script_stop: true
+          script: |
+            set -Eeuo pipefail
+
+            LOCK_FILE="/tmp/auditsphere-deploy.lock"
+
+            main() {
+              # ================================================================
+              # Configuration
+              # ================================================================
+              REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
+              REPO_DIR="/app/rbia-repo"
+              BACKEND_DIR="$REPO_DIR/backend"
+              FRONTEND_DIR="$REPO_DIR/frontend"
+              BACKEND_COMPOSE="docker-compose.prod.yml"
+              FRONTEND_COMPOSE="docker-compose.prod.yml"
+              BACKEND_CONTAINER_FILTER="rb_audit"
+              FRONTEND_CONTAINER_FILTER="rbia-frontend"
+
+              echo ""
+              echo "============================================================"
+              echo "🚀 AuditSphere Production Deployment"
+              echo "============================================================"
+              echo "Started at: $(date)"
+
+              exec 200>"$LOCK_FILE"
+              if ! flock -n 200; then
+                echo "❌ Another AuditSphere deployment is currently running on VPS."
+                exit 1
+              fi
+              echo "🔒 Deployment lock acquired."
+
+              # ================================================================
+              # Error Handler & Rollback
+              # ================================================================
+              cleanup_on_failure() {
+                echo ""
+                echo "============================================================"
+                echo "❌ DEPLOYMENT FAILED - INITIATING DIAGNOSTICS & ROLLBACK"
+                echo "============================================================"
+
+                echo "📦 Backend status & logs:"
+                cd "$BACKEND_DIR" || true
+                docker compose -f "$BACKEND_COMPOSE" ps || true
+                docker compose -f "$BACKEND_COMPOSE" logs --tail=50 || true
+
+                echo "📦 Frontend status & logs:"
+                cd "$FRONTEND_DIR" || true
+                docker compose -f "$FRONTEND_COMPOSE" ps || true
+                docker compose -f "$FRONTEND_COMPOSE" logs --tail=50 || true
+
+                if [ -n "${PREVIOUS_BACKEND_IMAGE_ID:-}" ] && [ -n "${PREVIOUS_BACKEND_IMAGE_TAG:-}" ]; then
+                  echo "🔄 Rolling back backend to previous image ($PREVIOUS_BACKEND_IMAGE_ID)..."
+                  docker tag "$PREVIOUS_BACKEND_IMAGE_ID" "$PREVIOUS_BACKEND_IMAGE_TAG" || true
+                  cd "$BACKEND_DIR" || true
+                  docker compose -f "$BACKEND_COMPOSE" up -d --no-build || true
+                else
+                  echo "⚠️ No previous backend image recorded — nothing to roll back to (likely first deploy)."
+                fi
+
+                if [ -n "${PREVIOUS_FRONTEND_IMAGE_ID:-}" ] && [ -n "${PREVIOUS_FRONTEND_IMAGE_TAG:-}" ]; then
+                  echo "🔄 Rolling back frontend to previous image ($PREVIOUS_FRONTEND_IMAGE_ID)..."
+                  docker tag "$PREVIOUS_FRONTEND_IMAGE_ID" "$PREVIOUS_FRONTEND_IMAGE_TAG" || true
+                  cd "$FRONTEND_DIR" || true
+                  docker compose -f "$FRONTEND_COMPOSE" up -d --no-build || true
+                else
+                  echo "⚠️ No previous frontend image recorded — nothing to roll back to (likely first deploy)."
+                fi
+
+                echo "⚠️ Deployment aborted due to errors. Check logs above."
+              }
+
+              trap cleanup_on_failure ERR
+
+              export GIT_TERMINAL_PROMPT=0
+
+              # ================================================================
+              # Resource & Disk Checks
+              # ================================================================
+              echo ""
+              echo "🔍 Checking VPS system resources..."
+              DISK_USAGE=$(df --output=pcent / | tail -1 | tr -dc '0-9')
+              if [ "$DISK_USAGE" -ge 90 ]; then
+                echo "❌ Disk usage is ${DISK_USAGE}%. Aborting deployment to prevent failure."
+                exit 1
+              fi
+              echo "✅ Disk usage: ${DISK_USAGE}%"
+
+              # ================================================================
+              # Update Repository Code
+              # ================================================================
+              echo ""
+              echo "📦 Syncing repository..."
+              echo "👤 SSH User: $(whoami) (UID: $(id -u))"
+              echo "📁 /app: $(ls -ld /app 2>&1 || echo 'ERROR: /app not found')"
+              echo "📁 .git exists: $(test -d "$REPO_DIR/.git" && echo YES || echo NO)"
+
+              if [ -d "$REPO_DIR/.git" ]; then
+                echo "🔄 Taking git pull path..."
+                cd "$REPO_DIR" || { echo "❌ cd $REPO_DIR failed"; exit 1; }
+                echo "   ✓ cd OK"
+                git fetch --depth=1 origin main 2>&1 || { echo "❌ git fetch failed (exit $?)"; exit 1; }
+                echo "   ✓ fetch OK"
+                git reset --hard origin/main 2>&1 || { echo "❌ git reset failed (exit $?)"; exit 1; }
+                echo "   ✓ reset OK"
+                git clean -fd 2>&1 || { echo "❌ git clean failed (exit $?)"; exit 1; }
+                echo "   ✓ clean OK"
+              else
+                echo "📥 Taking git clone path..."
+                rm -rf "$REPO_DIR" 2>&1 || true
+                echo "   removed stale dir (if any)"
+                git clone --depth=1 --branch main "$REPO_URL" "$REPO_DIR" 2>&1 \
+                  || { echo "❌ git clone failed (exit $?)"; exit 1; }
+                echo "   ✓ clone OK"
+              fi
+
+              cd "$REPO_DIR"
+              CURRENT_COMMIT=$(git rev-parse HEAD 2>&1) || { echo "❌ git rev-parse failed"; exit 1; }
+              echo "📌 Commit: $CURRENT_COMMIT ($(git log -1 --pretty=format:'%s' 2>&1))"
+
+              export DOCKER_BUILDKIT=1
+              export COMPOSE_DOCKER_CLI_BUILD=1
+
+              # ================================================================
+              # Record running image state for rollback
+              # ================================================================
+              PREVIOUS_BACKEND_IMAGE_ID=""
+              PREVIOUS_BACKEND_IMAGE_TAG=""
+              BACKEND_CONTAINER_ID=$(docker ps --filter "name=${BACKEND_CONTAINER_FILTER}" -q | head -1)
+              if [ -n "$BACKEND_CONTAINER_ID" ]; then
+                PREVIOUS_BACKEND_IMAGE_ID=$(docker inspect "$BACKEND_CONTAINER_ID" --format '{{.Image}}' 2>/dev/null || echo "")
+                PREVIOUS_BACKEND_IMAGE_TAG=$(docker inspect "$BACKEND_CONTAINER_ID" --format '{{.Config.Image}}' 2>/dev/null || echo "")
+              fi
+
+              PREVIOUS_FRONTEND_IMAGE_ID=""
+              PREVIOUS_FRONTEND_IMAGE_TAG=""
+              FRONTEND_CONTAINER_ID=$(docker ps --filter "name=${FRONTEND_CONTAINER_FILTER}" -q | head -1)
+              if [ -n "$FRONTEND_CONTAINER_ID" ]; then
+                PREVIOUS_FRONTEND_IMAGE_ID=$(docker inspect "$FRONTEND_CONTAINER_ID" --format '{{.Image}}' 2>/dev/null || echo "")
+                PREVIOUS_FRONTEND_IMAGE_TAG=$(docker inspect "$FRONTEND_CONTAINER_ID" --format '{{.Config.Image}}' 2>/dev/null || echo "")
+              fi
+
+              echo "📸 Previous backend image:  ${PREVIOUS_BACKEND_IMAGE_ID:-none} (${PREVIOUS_BACKEND_IMAGE_TAG:-n/a})"
+              echo "📸 Previous frontend image: ${PREVIOUS_FRONTEND_IMAGE_ID:-none} (${PREVIOUS_FRONTEND_IMAGE_TAG:-n/a})"
+
+              # ================================================================
+              # Deploy Backend & Health Check
+              # ================================================================
+              echo ""
+              echo "============================================================"
+              echo "🚀 Deploying Backend Services"
+              echo "============================================================"
+              cd "$BACKEND_DIR"
+              echo "🔨 Building backend images in parallel..."
+              docker compose -f "$BACKEND_COMPOSE" build --parallel
+              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans
+
+              echo "🏥 Waiting for backend health..."
+              BACKEND_HEALTH_URL="${BACKEND_HEALTH_URL:-http://localhost:8080/api/v1/auth/health}"
+              BACKEND_READY=0
+
+              for i in {1..24}; do
+                HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "$BACKEND_HEALTH_URL" 2>/dev/null || echo "000")
+                HTTP_CODE_DIRECT=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://localhost:8001/health" 2>/dev/null || echo "000")
+
+                if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE_DIRECT" -eq 200 ]; then
+                  echo "✅ Backend is healthy (Gateway HTTP $HTTP_CODE / Auth Direct HTTP $HTTP_CODE_DIRECT)."
+                  BACKEND_READY=1
+                  break
+                fi
+                echo "⏳ Waiting for backend API gateway (status: $HTTP_CODE)... attempt $i/24"
+                sleep 5
+              done
+
+              if [ "$BACKEND_READY" -ne 1 ]; then
+                echo "❌ Backend health check failed."
+                exit 1
+              fi
+
+              # ================================================================
+              # Deploy Frontend & Health Check
+              # ================================================================
+              echo ""
+              echo "============================================================"
+              echo "🚀 Deploying Frontend Service"
+              echo "============================================================"
+              cd "$FRONTEND_DIR"
+              echo "🔨 Building frontend image..."
+              docker compose -f "$FRONTEND_COMPOSE" build
+              docker rm -f rbia-frontend-prod 2>/dev/null || true
+              docker compose -f "$FRONTEND_COMPOSE" up -d --force-recreate --remove-orphans
+
+              echo "🏥 Waiting for frontend health..."
+              FRONTEND_HEALTH_URL="${FRONTEND_HEALTH_URL:-http://127.0.0.1:3000}"
+              FRONTEND_READY=0
+
+              for i in {1..30}; do
+                HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://127.0.0.1:3000" 2>/dev/null || echo "000")
+                if [ "$HTTP_CODE" -eq "000" ]; then
+                  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://localhost:3000" 2>/dev/null || echo "000")
+                fi
+
+                CONTAINER_OK=0
+                if docker exec rbia-frontend-prod wget --spider -q http://localhost:3000 2>/dev/null || \
+                   docker exec rbia-frontend-prod node -e "require('http').get('http://localhost:3000', res => process.exit(res.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))" 2>/dev/null; then
+                  CONTAINER_OK=1
+                fi
+
+                if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 302 ] || [ "$HTTP_CODE" -eq 301 ] || [ "$CONTAINER_OK" -eq 1 ]; then
+                  echo "✅ Frontend is healthy (Host HTTP $HTTP_CODE / Container OK)."
+                  FRONTEND_READY=1
+                  break
+                fi
+                echo "⏳ Waiting for frontend application (host status: $HTTP_CODE)... attempt $i/30"
+                sleep 5
+              done
+
+              if [ "$FRONTEND_READY" -ne 1 ]; then
+                echo "❌ Frontend health check failed."
+                exit 1
+              fi
+
+              # ================================================================
+              # Cleanup & Finish
+              # ================================================================
+              echo ""
+              echo "🧹 Pruning unused Docker images..."
+              docker image prune -f
+
+              echo ""
+              echo "============================================================"
+              echo "✅ AUDITSPHERE DEPLOYMENT SUCCESSFUL"
+              echo "============================================================"
+              echo "Finished at: $(date)"
+            }
+
+            main "$@"

@@ -9,12 +9,9 @@ const defaultPythonAiUrl = isProd ? 'https://api.auditsphere.app/api/python-ai' 
 
 export default defineNuxtConfig({
   devtools: {
-    enabled: true,
-
-    timeline: {
-      enabled: true,
-    },
+    enabled: false,
   },
+  telemetry: false,
   modules: [
     "@pinia/nuxt",
     "@nuxt/ui",
@@ -24,6 +21,15 @@ export default defineNuxtConfig({
     "nuxt-charts",
     "nuxt-chatgpt",
   ],
+  fonts: {
+    providers: {
+      google: false,
+      bunny: false,
+      fontshare: false,
+      fontsource: false,
+      adobe: false
+    }
+  },
   ssr: false,
   routeRules: {
     "/**": {
