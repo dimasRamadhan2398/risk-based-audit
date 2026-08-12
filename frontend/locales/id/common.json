@@ -37,7 +37,29 @@
     "resetError": "Gagal mereset password",
     "passwordMismatch": "Password tidak cocok",
     "invalidResetToken": "Token reset tidak valid",
-    "contactAdmin": "Hubungi admin untuk bantuan login"
+    "contactAdmin": "Hubungi admin untuk bantuan login",
+    "mfaLogin": {
+      "primaryAuth": "Autentikasi Utama",
+      "credentialsValid": "Kredensial dasar berhasil divalidasi",
+      "mfaTitle": "Verifikasi Dua Faktor (MFA)",
+      "mfaSubtitle": "Masukkan kode OTP dari aplikasi autentikator Anda",
+      "systemVersion": "Sistem Audit Internal Berbasis Risiko v1.0",
+      "mobileMfa": "Verifikasi MFA",
+      "mobileStep": "Langkah 2 dari 2",
+      "headerTitle": "Masukkan Kode OTP",
+      "headerSubtitle": "Masukkan 6 digit kode keamanan dari aplikasi autentikator di ponsel Anda untuk memverifikasi.",
+      "trustDeviceLabel": "Percayakan perangkat ini",
+      "trustDeviceDesc": "Jangan minta OTP lagi selama 90 hari di perangkat ini.",
+      "codeValidTime": "Kode berlaku selama:",
+      "sessionExpired": "Sesi verifikasi telah kedaluwarsa.",
+      "retryLogin": "Ulangi Login",
+      "invalidCode": "Kode verifikasi tidak valid",
+      "attemptsWarning": "Gagal memverifikasi: {attempts}/3 percobaan. Akun akan terkunci jika terlalu banyak kesalahan.",
+      "verifyBtn": "Verifikasi & Masuk",
+      "verifyingBtn": "Memverifikasi...",
+      "backToLogin": "← Kembali ke halaman login",
+      "legalFooter": "Keamanan terjamin · Aktivitas verifikasi login dicatat untuk audit kepatuhan."
+    }
   },
   "common": {
     "save": "Simpan",

@@ -37,7 +37,29 @@
     "resetError": "Failed to reset password",
     "passwordMismatch": "Passwords do not match",
     "invalidResetToken": "Invalid reset token",
-    "contactAdmin": "Contact your administrator for Login Credentials"
+    "contactAdmin": "Contact your administrator for Login Credentials",
+    "mfaLogin": {
+      "primaryAuth": "Primary Authentication",
+      "credentialsValid": "Basic credentials successfully validated",
+      "mfaTitle": "Two-Factor Verification (MFA)",
+      "mfaSubtitle": "Enter the OTP code from your authenticator app",
+      "systemVersion": "Risk-Based Internal Audit System v1.0",
+      "mobileMfa": "MFA Verification",
+      "mobileStep": "Step 2 of 2",
+      "headerTitle": "Enter OTP Code",
+      "headerSubtitle": "Enter the 6-digit security code from the authenticator app on your phone to verify.",
+      "trustDeviceLabel": "Trust this device",
+      "trustDeviceDesc": "Do not ask for OTP again for 90 days on this device.",
+      "codeValidTime": "Code valid for:",
+      "sessionExpired": "Verification session has expired.",
+      "retryLogin": "Login Again",
+      "invalidCode": "Invalid verification code",
+      "attemptsWarning": "Verification failed: {attempts}/3 attempts. Account will be locked after too many errors.",
+      "verifyBtn": "Verify & Login",
+      "verifyingBtn": "Verifying...",
+      "backToLogin": "← Back to login page",
+      "legalFooter": "Security guaranteed · Login verification activity is logged for compliance audit."
+    }
   },
   "common": {
     "save": "Save",
