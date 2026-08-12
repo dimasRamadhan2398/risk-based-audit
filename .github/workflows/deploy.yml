@@ -111,12 +111,14 @@ jobs:
             set -e
             echo "🚀 Pulling latest changes from GitHub repository..."
             cd /app/rbia-backend
+            git pull origin main
             docker compose -f docker-compose.prod.yml pull || true
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
             cd /app/rbia-frontend
+            git pull origin main
             docker compose -f docker-compose.prod.yml pull || true
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
             echo "🧹 Cleaning up unused Docker images..."
             docker image prune -f
