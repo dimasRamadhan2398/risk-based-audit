@@ -125,6 +125,17 @@ jobs:
             # ================================================================
             echo ""
             echo "📦 Syncing repository..."
+            echo "👤 SSH User: $(whoami) (UID: $(id -u), GID: $(id -g))"
+            mkdir -p "$(dirname "$REPO_DIR")" 2>/dev/null || true
+            
+            if [ -d "$REPO_DIR" ]; then
+              echo "📁 Directory permissions: $(ls -ld "$REPO_DIR")"
+              sudo chown -R $(whoami):$(id -gn) "$REPO_DIR" 2>/dev/null || true
+            fi
+
+            git config --global --add safe.directory "$REPO_DIR" 2>/dev/null || true
+            git config --global --add safe.directory "*" 2>/dev/null || true
+
             if [ ! -d "$REPO_DIR/.git" ]; then
               echo "📥 First-time deployment: cloning repository..."
               rm -rf "$REPO_DIR"
