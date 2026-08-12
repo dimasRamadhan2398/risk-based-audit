@@ -210,17 +210,27 @@ jobs:
             docker compose -f "$FRONTEND_COMPOSE" up -d --build --remove-orphans
 
             echo "🏥 Waiting for frontend health..."
-            FRONTEND_HEALTH_URL="${FRONTEND_HEALTH_URL:-http://localhost:3000}"
+            FRONTEND_HEALTH_URL="${FRONTEND_HEALTH_URL:-http://127.0.0.1:3000}"
             FRONTEND_READY=0
 
-            for i in {1..24}; do
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "$FRONTEND_HEALTH_URL" 2>/dev/null || echo "000")
-              if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 302 ] || [ "$HTTP_CODE" -eq 301 ]; then
-                echo "✅ Frontend is healthy (HTTP $HTTP_CODE)."
+            for i in {1..30}; do
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://127.0.0.1:3000" 2>/dev/null || echo "000")
+              if [ "$HTTP_CODE" -eq "000" ]; then
+                HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://localhost:3000" 2>/dev/null || echo "000")
+              fi
+
+              CONTAINER_OK=0
+              if docker exec rbia-frontend-prod wget --spider -q http://localhost:3000 2>/dev/null || \
+                 docker exec rbia-frontend-prod node -e "require('http').get('http://localhost:3000', res => process.exit(res.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))" 2>/dev/null; then
+                CONTAINER_OK=1
+              fi
+
+              if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 302 ] || [ "$HTTP_CODE" -eq 301 ] || [ "$CONTAINER_OK" -eq 1 ]; then
+                echo "✅ Frontend is healthy (Host HTTP $HTTP_CODE / Container OK)."
                 FRONTEND_READY=1
                 break
               fi
-              echo "⏳ Waiting for frontend application (status: $HTTP_CODE)... attempt $i/24"
+              echo "⏳ Waiting for frontend application (host status: $HTTP_CODE)... attempt $i/30"
               sleep 5
             done
 
