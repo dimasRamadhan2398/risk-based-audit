@@ -649,5 +649,186 @@
       "2": "Rendah ke Sedang (2)",
       "1": "Rendah (1)"
     }
+  },
+  "auditFieldwork": {
+    "title": "Audit Fieldwork",
+    "subtitle": "Kelola pelaksanaan audit dari wawancara hingga kertas kerja",
+    "assignmentLetter": {
+      "label": "Pilih Surat Tugas (Audit)",
+      "placeholder": "Pilih Surat Tugas yang akan diaudit",
+      "noPublished": "Tidak ada Surat Tugas dengan status Terbit (Published). Silakan buat dan terbitkan Surat Tugas terlebih dahulu.",
+      "selectedAudit": "Audit: {letter}"
+    },
+    "tabs": {
+      "interview": "Wawancara",
+      "observation": "Observasi",
+      "document": "Pengumpulan Dokumen",
+      "sample": "Data Sampel",
+      "testControls": "Uji Pengendalian",
+      "workingPapers": "Kertas Kerja"
+    },
+    "workingPapers": {
+      "title": "Kertas Kerja",
+      "subtitle": "Kertas kerja yang terkait dengan {letter}",
+      "emptyTitle": "Tidak Ada Kertas Kerja Ditemukan",
+      "emptyDesc": "Belum ada kertas kerja yang dibuat untuk surat tugas {letter}.",
+      "createFirst": "Buat Kertas Kerja Pertama",
+      "columns": {
+        "businessProcess": "Proses Bisnis",
+        "period": "Periode",
+        "riskLevel": "Tingkat Risiko",
+        "rootCause": "Akar Masalah",
+        "location": "Lokasi",
+        "actions": "Aksi"
+      },
+      "tooltips": {
+        "view": "Lihat Detail",
+        "edit": "Ubah",
+        "delete": "Hapus"
+      }
+    },
+    "emptyState": {
+      "title": "Pilih Surat Tugas",
+      "desc": "Silakan pilih Surat Tugas (Audit) terlebih dahulu untuk mulai mengelola fieldwork. Hanya Surat Tugas berstatus \"Published\" yang dapat dipilih."
+    },
+    "interview": {
+      "title": "Daftar Wawancara",
+      "subtitle": "Kelola daftar wawancara dengan auditee dan pewawancara",
+      "addBtn": "Tambah Wawancara Pertama",
+      "empty": "Belum ada data wawancara",
+      "modalAdd": "Tambah Wawancara Baru",
+      "modalEdit": "Ubah Wawancara",
+      "interviewee": "Auditee (Yang Diwawancarai)",
+      "intervieweePlaceholder": "Pilih Auditee",
+      "intervieweePosition": "Jabatan Auditee",
+      "intervieweePositionPlaceholder": "Pilih Jabatan Auditee",
+      "interviewer": "Pewawancara",
+      "interviewerPlaceholder": "Pilih Pewawancara",
+      "interviewerPosition": "Jabatan Pewawancara",
+      "interviewerPositionPlaceholder": "Pilih Jabatan Pewawancara",
+      "date": "Tanggal Wawancara",
+      "topic": "Topik Wawancara",
+      "topicPlaceholder": "Pilih Topik Wawancara",
+      "uploadFile": "Unggah Berkas (PDF/DOCX)",
+      "columns": {
+        "interviewee": "Auditee",
+        "intervieweePosition": "Jabatan Auditee",
+        "interviewer": "Pewawancara",
+        "interviewerPosition": "Jabatan Pewawancara",
+        "date": "Tanggal",
+        "topic": "Topik",
+        "file": "Berkas",
+        "actions": "Aksi"
+      }
+    },
+    "observation": {
+      "title": "Jadwal Observasi",
+      "subtitle": "Kelola jadwal observasi di lapangan",
+      "addBtn": "Tambah Observasi",
+      "empty": "Belum ada data observasi",
+      "modalAdd": "Formulir Observasi",
+      "modalEdit": "Ubah Observasi",
+      "activity": "Aktivitas yang Diobservasi",
+      "activityPlaceholder": "Contoh: Proses Pengadaan",
+      "location": "Lokasi Observasi",
+      "locationPlaceholder": "Contoh: Gudang Pusat",
+      "date": "Tanggal Observasi",
+      "observer": "Petugas Observasi",
+      "observerPlaceholder": "Nama lengkap petugas observasi",
+      "uploadFile": "Unggah Berkas (PDF/DOCX)",
+      "columns": {
+        "activity": "Aktivitas",
+        "location": "Lokasi",
+        "date": "Tanggal",
+        "observer": "Petugas",
+        "file": "Berkas",
+        "actions": "Aksi"
+      }
+    },
+    "document": {
+      "title": "Pengumpulan Dokumen",
+      "subtitle": "Kelola dokumen yang diperlukan untuk pelaksanaan audit",
+      "addBtn": "Tambah Dokumen",
+      "empty": "Belum ada dokumen yang dikumpulkan",
+      "modalAdd": "Formulir Pengumpulan Dokumen",
+      "modalEdit": "Ubah Dokumen",
+      "name": "Nama Dokumen",
+      "namePlaceholder": "Contoh: SOP Pengadaan",
+      "description": "Deskripsi Dokumen",
+      "descriptionPlaceholder": "Jelaskan tujuan dan ruang lingkup dokumen ini",
+      "requiredDate": "Tanggal Dibutuhkan",
+      "uploadFile": "Unggah Berkas (PDF/DOCX/XLSX)",
+      "columns": {
+        "name": "Nama Dokumen",
+        "description": "Deskripsi",
+        "requiredDate": "Tanggal Dibutuhkan",
+        "file": "Berkas",
+        "actions": "Aksi"
+      }
+    },
+    "sample": {
+      "title": "Data Sampel",
+      "subtitle": "Kelola data sampel untuk pengujian audit",
+      "addBtn": "Tambah Sampel",
+      "empty": "Belum ada data sampel",
+      "modalAdd": "Formulir Data Sampel",
+      "modalEdit": "Ubah Data Sampel",
+      "name": "Nama Dokumen",
+      "namePlaceholder": "Contoh: Faktur Pembelian",
+      "number": "Nomor Dokumen",
+      "numberPlaceholder": "Contoh: INV/2026/001",
+      "date": "Tanggal",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Jelaskan isi atau rincian sampel ini",
+      "columns": {
+        "name": "Nama Dokumen",
+        "number": "Nomor Dokumen",
+        "date": "Tanggal",
+        "description": "Deskripsi",
+        "actions": "Aksi"
+      }
+    },
+    "testControls": {
+      "title": "Uji Pengendalian",
+      "subtitle": "Uji efisiensi dan efektivitas pengendalian yang ada",
+      "addBtn": "Uji Pengendalian",
+      "empty": "Belum ada data uji pengendalian",
+      "effectiveCount": "{count} Efektif",
+      "ineffectiveCount": "{count} Tidak Efektif",
+      "modalView": "Lihat Uji Pengendalian",
+      "modalEdit": "Ubah Uji Pengendalian",
+      "modalAdd": "Formulir Uji Pengendalian",
+      "sectionControl": "Informasi Pengendalian",
+      "name": "Nama Pengendalian",
+      "namePlaceholder": "Contoh: Persetujuan Pesanan Pembelian",
+      "type": "Jenis Pengendalian",
+      "typePlaceholder": "Pilih Jenis Pengendalian",
+      "description": "Deskripsi Pengendalian",
+      "descriptionPlaceholder": "Jelaskan cara kerja pengendalian ini",
+      "sectionProcedure": "Prosedur Pengujian",
+      "steps": "Langkah Pengujian",
+      "stepsPlaceholder": "Jelaskan langkah-langkah yang dilakukan untuk menguji pengendalian ini",
+      "result": "Hasil Pengujian",
+      "resultPlaceholder": "Pilih Hasil Pengujian",
+      "sectionFinding": "Temuan dan Rekomendasi",
+      "finding": "Temuan",
+      "findingPlaceholder": "Jelaskan temuan dari pengujian (jika ada)",
+      "recommendation": "Rekomendasi",
+      "recommendationPlaceholder": "Rekomendasi perbaikan untuk pengendalian yang tidak efektif",
+      "sectionMitigation": "Rencana Mitigasi",
+      "mitigation": "Rencana Mitigasi",
+      "mitigationPlaceholder": "Jelaskan rencana mitigasi untuk menangani kelemahan pengendalian",
+      "pic": "PIC",
+      "picPlaceholder": "Nama PIC",
+      "dueDate": "Target Tenggat Waktu",
+      "columns": {
+        "name": "Nama Pengendalian",
+        "type": "Jenis Pengendalian",
+        "result": "Hasil Pengujian",
+        "finding": "Temuan",
+        "mitigation": "Rencana Mitigasi",
+        "actions": "Aksi"
+      }
+    }
   }
 }

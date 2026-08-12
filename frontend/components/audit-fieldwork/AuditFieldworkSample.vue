@@ -3,10 +3,10 @@
     <!-- Header with Add Button -->
     <div class="flex justify-between items-center">
       <div>
-        <h3 class="text-lg font-semibold">Sample Data</h3>
-        <p class="text-sm text-gray-500">Manage sample data for audit testing</p>
+        <h3 class="text-lg font-semibold">{{ t('auditFieldwork.sample.title') }}</h3>
+        <p class="text-sm text-gray-500">{{ t('auditFieldwork.sample.subtitle') }}</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" label="Add Sample" @click="store.openSampleModal()" />
+      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
     </div>
 
     <!-- Sample List -->
@@ -36,8 +36,8 @@
     <!-- Empty State -->
     <div v-else class="text-center py-8">
       <UIcon name="i-heroicons-table-cells" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">No samples data yet</p>
-      <UButton color="primary" variant="soft" class="mt-2" label="Add Sample" @click="store.openSampleModal()" />
+      <p class="text-gray-500">{{ t('auditFieldwork.sample.empty') }}</p>
+      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
     </div>
 
     <!-- Sample Modal -->
@@ -46,34 +46,34 @@
         <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <template #header>
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingSample ? 'Edit Sample Data' : 'Sample Data Form' }}</h3>
+              <h3 class="text-lg font-semibold">{{ store.isEditingSample ? t('auditFieldwork.sample.modalEdit') : t('auditFieldwork.sample.modalAdd') }}</h3>
               <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showSampleModal = false }" />
             </div>
           </template>
 
           <UForm @submit.prevent="store.saveSample()" class="space-y-4">
-            <UFormField label="Document Name" required>
-              <UInput v-model="store.sampleForm.documentName" placeholder="Example: Purchase Invoice" class="w-full" required />
+            <UFormField :label="t('auditFieldwork.sample.name')" required>
+              <UInput v-model="store.sampleForm.documentName" :placeholder="t('auditFieldwork.sample.namePlaceholder')" class="w-full" required />
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Document Number" required>
-                <UInput v-model="store.sampleForm.documentNumber" placeholder="Example: INV/2026/001" class="w-full"required />
+              <UFormField :label="t('auditFieldwork.sample.number')" required>
+                <UInput v-model="store.sampleForm.documentNumber" :placeholder="t('auditFieldwork.sample.numberPlaceholder')" class="w-full" required />
               </UFormField>
-              <UFormField label="Date" required>
+              <UFormField :label="t('auditFieldwork.sample.date')" required>
                 <UInput v-model="store.sampleForm.date" type="date" class="w-full" required />
               </UFormField>
             </div>
 
-            <UFormField label="Description" required>
-              <UTextarea v-model="store.sampleForm.description" placeholder="Describe the content or details of this sample" class="w-full" required />
+            <UFormField :label="t('auditFieldwork.sample.description')" required>
+              <UTextarea v-model="store.sampleForm.description" :placeholder="t('auditFieldwork.sample.descriptionPlaceholder')" class="w-full" required />
             </UFormField>
           </UForm>
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="() => {store.showSampleModal = false}" />
-              <UButton color="primary" :label="store.isEditingSample ? 'Update' : 'Submit'" @click="store.saveSample()" />
+              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showSampleModal = false }" />
+              <UButton color="primary" :label="store.isEditingSample ? t('common.edit') : t('common.submit')" @click="store.saveSample()" />
             </div>
           </template>
         </UCard>
@@ -84,14 +84,17 @@
 
 <script setup lang="ts">
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useI18n } from '~/composables/useI18n'
+import { computed } from 'vue'
 
 const store = useAuditFieldworkStore()
+const { t } = useI18n()
 
-const columns = [
-  { accessorKey: 'documentName', header: 'Document Name' },
-  { accessorKey: 'documentNumber', header: 'Document Number' },
-  { accessorKey: 'date', header: 'Date' },
-  { accessorKey: 'description', header: 'Description' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name') },
+  { accessorKey: 'documentNumber', header: t('auditFieldwork.sample.columns.number') },
+  { accessorKey: 'date', header: t('auditFieldwork.sample.columns.date') },
+  { accessorKey: 'description', header: t('auditFieldwork.sample.columns.description') },
+  { accessorKey: 'actions', header: t('auditFieldwork.sample.columns.actions') }
+])
 </script>

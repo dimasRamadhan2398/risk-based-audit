@@ -3,10 +3,10 @@
     <!-- Header with Add Button -->
     <div class="flex justify-between items-center">
       <div>
-        <h3 class="text-lg font-semibold">Observation Schedule</h3>
-        <p class="text-sm text-gray-500">Manage observation schedule in the field</p>
+        <h3 class="text-lg font-semibold">{{ t('auditFieldwork.observation.title') }}</h3>
+        <p class="text-sm text-gray-500">{{ t('auditFieldwork.observation.subtitle') }}</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" label="Add Observation" @click="store.openObservationModal()" />
+      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.observation.addBtn')" @click="store.openObservationModal()" />
     </div>
 
     <!-- Observation List -->
@@ -39,8 +39,8 @@
     <!-- Empty State -->
     <div v-else class="text-center py-8">
       <UIcon name="i-heroicons-eye" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">No observation data yet</p>
-      <UButton color="primary" variant="soft" class="mt-2" label="Add Observation" @click="store.openObservationModal()" />
+      <p class="text-gray-500">{{ t('auditFieldwork.observation.empty') }}</p>
+      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.observation.addBtn')" @click="store.openObservationModal()" />
     </div>
 
     <!-- Observation Modal -->
@@ -49,30 +49,30 @@
         <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <template #header>
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingObservation ? 'Edit Observation' : 'Observation Form' }}</h3>
+              <h3 class="text-lg font-semibold">{{ store.isEditingObservation ? t('auditFieldwork.observation.modalEdit') : t('auditFieldwork.observation.modalAdd') }}</h3>
               <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showObservationModal = false }" />
             </div>
           </template>
 
           <UForm @submit.prevent="store.saveObservation()" class="space-y-4">
-            <UFormField label="Activity Observed" required>
-              <UInput v-model="store.observationForm.activity" placeholder="Example: Procurement Process" required />
+            <UFormField :label="t('auditFieldwork.observation.activity')" required>
+              <UInput v-model="store.observationForm.activity" :placeholder="t('auditFieldwork.observation.activityPlaceholder')" required />
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Observation Location" required>
-                <UInput v-model="store.observationForm.location" placeholder="Example: Central Warehouse" required />
+              <UFormField :label="t('auditFieldwork.observation.location')" required>
+                <UInput v-model="store.observationForm.location" :placeholder="t('auditFieldwork.observation.locationPlaceholder')" required />
               </UFormField>
-              <UFormField label="Observation Date" required>
+              <UFormField :label="t('auditFieldwork.observation.date')" required>
                 <UInput v-model="store.observationForm.date" type="date" required />
               </UFormField>
             </div>
 
-            <UFormField label="Observer" required>
-              <UInput v-model="store.observationForm.observer" placeholder="Full name of observer" required />
+            <UFormField :label="t('auditFieldwork.observation.observer')" required>
+              <UInput v-model="store.observationForm.observer" :placeholder="t('auditFieldwork.observation.observerPlaceholder')" required />
             </UFormField>
 
-            <UFormField label="Upload File (PDF/DOCX)">
+            <UFormField :label="t('auditFieldwork.observation.uploadFile')">
               <UInput
                 type="file"
                 icon="i-heroicons-paper-clip"
@@ -89,8 +89,8 @@
 
           <template #footer>
             <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="() => { store.showObservationModal = false }" />
-              <UButton color="primary" :label="store.isEditingObservation ? 'Update' : 'Submit'" @click="store.saveObservation()" />
+              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showObservationModal = false }" />
+              <UButton color="primary" :label="store.isEditingObservation ? t('common.edit') : t('common.submit')" @click="store.saveObservation()" />
             </div>
           </template>
         </UCard>
@@ -101,15 +101,18 @@
 
 <script setup lang="ts">
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useI18n } from '~/composables/useI18n'
+import { computed } from 'vue'
 
 const store = useAuditFieldworkStore()
+const { t } = useI18n()
 
-const columns = [
-  { accessorKey: 'activity', header: 'Activity' },
-  { accessorKey: 'location', header: 'Location' },
-  { accessorKey: 'date', header: 'Date' },
-  { accessorKey: 'observer', header: 'Observer' },
-  { accessorKey: 'file', header: 'File' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'activity', header: t('auditFieldwork.observation.columns.activity') },
+  { accessorKey: 'location', header: t('auditFieldwork.observation.columns.location') },
+  { accessorKey: 'date', header: t('auditFieldwork.observation.columns.date') },
+  { accessorKey: 'observer', header: t('auditFieldwork.observation.columns.observer') },
+  { accessorKey: 'file', header: t('auditFieldwork.observation.columns.file') },
+  { accessorKey: 'actions', header: t('auditFieldwork.observation.columns.actions') }
+])
 </script>

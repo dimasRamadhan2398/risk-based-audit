@@ -652,5 +652,186 @@
       "2": "Low to Medium (2)",
       "1": "Low (1)"
     }
+  },
+  "auditFieldwork": {
+    "title": "Audit Fieldwork",
+    "subtitle": "Manage audit execution from interview to working papers",
+    "assignmentLetter": {
+      "label": "Select Assignment Letter (Audit)",
+      "placeholder": "Select Assignment Letter to audit",
+      "noPublished": "No Assignment Letter with Published status. Please create and publish an Assignment Letter first.",
+      "selectedAudit": "Audit: {letter}"
+    },
+    "tabs": {
+      "interview": "Interview",
+      "observation": "Observation",
+      "document": "Document Collection",
+      "sample": "Sample Data",
+      "testControls": "Test Controls",
+      "workingPapers": "Working Papers"
+    },
+    "workingPapers": {
+      "title": "Working Papers",
+      "subtitle": "Working papers associated with {letter}",
+      "emptyTitle": "No Working Papers Found",
+      "emptyDesc": "There are no working papers created for assignment letter {letter} yet.",
+      "createFirst": "Create First Working Paper",
+      "columns": {
+        "businessProcess": "Business Process",
+        "period": "Period",
+        "riskLevel": "Risk Level",
+        "rootCause": "Root Cause",
+        "location": "Location",
+        "actions": "Actions"
+      },
+      "tooltips": {
+        "view": "View Details",
+        "edit": "Edit",
+        "delete": "Delete"
+      }
+    },
+    "emptyState": {
+      "title": "Select Assignment Letter",
+      "desc": "Please select an Assignment Letter (Audit) first to start managing fieldwork. Only Assignment Letters with \"Published\" status can be selected."
+    },
+    "interview": {
+      "title": "Interview List",
+      "subtitle": "Manage interview list with interviewees and interviewers",
+      "addBtn": "Add First Interview",
+      "empty": "No interview data yet",
+      "modalAdd": "Add New Interview",
+      "modalEdit": "Edit Interview",
+      "interviewee": "Interviewee",
+      "intervieweePlaceholder": "Select Auditee",
+      "intervieweePosition": "Interviewee Position",
+      "intervieweePositionPlaceholder": "Select Auditee Position",
+      "interviewer": "Interviewer",
+      "interviewerPlaceholder": "Select Interviewer",
+      "interviewerPosition": "Interviewer Position",
+      "interviewerPositionPlaceholder": "Select Interviewer Position",
+      "date": "Interview Date",
+      "topic": "Interview Topic",
+      "topicPlaceholder": "Select Interview Topic",
+      "uploadFile": "Upload File (PDF/DOCX)",
+      "columns": {
+        "interviewee": "Interviewee",
+        "intervieweePosition": "Interviewee Position",
+        "interviewer": "Interviewer",
+        "interviewerPosition": "Interviewer Position",
+        "date": "Date",
+        "topic": "Topic",
+        "file": "File",
+        "actions": "Actions"
+      }
+    },
+    "observation": {
+      "title": "Observation Schedule",
+      "subtitle": "Manage observation schedule in the field",
+      "addBtn": "Add Observation",
+      "empty": "No observation data yet",
+      "modalAdd": "Observation Form",
+      "modalEdit": "Edit Observation",
+      "activity": "Activity Observed",
+      "activityPlaceholder": "Example: Procurement Process",
+      "location": "Observation Location",
+      "locationPlaceholder": "Example: Central Warehouse",
+      "date": "Observation Date",
+      "observer": "Observer",
+      "observerPlaceholder": "Full name of observer",
+      "uploadFile": "Upload File (PDF/DOCX)",
+      "columns": {
+        "activity": "Activity",
+        "location": "Location",
+        "date": "Date",
+        "observer": "Observer",
+        "file": "File",
+        "actions": "Actions"
+      }
+    },
+    "document": {
+      "title": "Document Collections",
+      "subtitle": "Manage documents required for audit implementation",
+      "addBtn": "Add Document",
+      "empty": "No documents collected yet",
+      "modalAdd": "Document Collection Form",
+      "modalEdit": "Edit Document",
+      "name": "Document Name",
+      "namePlaceholder": "Example: SOP Procurement",
+      "description": "Document Description",
+      "descriptionPlaceholder": "Describe the purpose and scope of this document",
+      "requiredDate": "Required Date",
+      "uploadFile": "Upload File (PDF/DOCX/XLSX)",
+      "columns": {
+        "name": "Document Name",
+        "description": "Description",
+        "requiredDate": "Required Date",
+        "file": "File",
+        "actions": "Actions"
+      }
+    },
+    "sample": {
+      "title": "Sample Data",
+      "subtitle": "Manage sample data for audit testing",
+      "addBtn": "Add Sample",
+      "empty": "No samples data yet",
+      "modalAdd": "Sample Data Form",
+      "modalEdit": "Edit Sample Data",
+      "name": "Document Name",
+      "namePlaceholder": "Example: Purchase Invoice",
+      "number": "Document Number",
+      "numberPlaceholder": "Example: INV/2026/001",
+      "date": "Date",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the content or details of this sample",
+      "columns": {
+        "name": "Document Name",
+        "number": "Document Number",
+        "date": "Date",
+        "description": "Description",
+        "actions": "Actions"
+      }
+    },
+    "testControls": {
+      "title": "Test Controls",
+      "subtitle": "Test efficiency and effectiveness of existing controls",
+      "addBtn": "Test Control",
+      "empty": "No test control data yet",
+      "effectiveCount": "{count} Effective",
+      "ineffectiveCount": "{count} Ineffective",
+      "modalView": "View Test Control",
+      "modalEdit": "Edit Test Control",
+      "modalAdd": "Test Control Form",
+      "sectionControl": "Control Information",
+      "name": "Control Name",
+      "namePlaceholder": "Example: Purchase Order Approval",
+      "type": "Control Type",
+      "typePlaceholder": "Choose Control Type",
+      "description": "Control Description",
+      "descriptionPlaceholder": "Describe how this control works",
+      "sectionProcedure": "Test Procedure",
+      "steps": "Test Steps",
+      "stepsPlaceholder": "Describe the steps taken to test this control",
+      "result": "Test Result",
+      "resultPlaceholder": "Choose Test Result",
+      "sectionFinding": "Finding and Recommendation",
+      "finding": "Finding",
+      "findingPlaceholder": "Describe the finding from the test (if any)",
+      "recommendation": "Recommendation",
+      "recommendationPlaceholder": "Recommendations for improving ineffective controls",
+      "sectionMitigation": "Mitigation Plan",
+      "mitigation": "Mitigation Plan",
+      "mitigationPlaceholder": "Describe the mitigation plan for addressing control weaknesses",
+      "pic": "PIC",
+      "picPlaceholder": "PIC Name",
+      "dueDate": "Target Due Date",
+      "columns": {
+        "name": "Control Name",
+        "type": "Control Type",
+        "result": "Test Result",
+        "finding": "Finding",
+        "mitigation": "Mitigation Plan",
+        "actions": "Actions"
+      }
+    }
   }
 }
