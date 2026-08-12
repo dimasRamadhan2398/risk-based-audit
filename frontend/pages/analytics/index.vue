@@ -26,7 +26,6 @@ import {
   type KPIForecast
 } from '~/composables/useAnalyticsData'
 import { riskLevelConfig } from '~/stores/risk-profile'
-import { RiskLevel } from '~/types/risk'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler)
 
