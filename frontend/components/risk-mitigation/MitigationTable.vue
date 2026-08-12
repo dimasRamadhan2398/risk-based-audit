@@ -48,17 +48,16 @@
                   <td class="py-4 px-4 font-bold text-gray-400">{{ idx + 1 }}</td>
                   
                   <!-- Plan -->
-                  <td class="py-4 px-4 font-bold text-gray-800 dark:text-gray-200 leading-relaxed max-w-[320px] whitespace-normal">
-                    <div class="flex items-start gap-2">
-                      <UIcon 
-                        :name="expandedRowId === row.id ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'" 
-                        class="text-gray-400 text-sm shrink-0 mt-1" 
-                      />
-                      <div>
-                        <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-bold rounded text-[10px] mb-1">
+                  <td class="py-4 px-4 w-[320px] min-w-[280px] max-w-[320px] align-top font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
+                    <div class="flex items-start gap-2 min-w-0">
+                      <UIcon :name="expandedRowId === row.id ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'" class="text-gray-400 text-sm shrink-0 mt-1"/>
+
+                      <div class="min-w-0 flex-1">
+                        <span class="inline-block max-w-full px-2 py-0.5 mb-1 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-bold rounded text-[10px] wrap-anywhere">
                           {{ row.riskControlId || ('CTL-RSK-' + (idx + 1)) }}
                         </span>
-                        <p class="font-bold text-gray-800 dark:text-gray-200">{{ row.mitigationPlan }}</p>
+
+                        <p class="font-bold text-gray-800 dark:text-gray-200 whitespace-normal wrap-anywhere">{{ row.mitigationPlan }}</p>
                       </div>
                     </div>
                   </td>

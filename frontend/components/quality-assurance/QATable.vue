@@ -59,13 +59,37 @@
         </template>
 
         <template #actions-cell="{ row }">
-          <UButton
-            icon="i-lucide-eye"
-            color="neutral"
-            variant="ghost"
-            class="font-bold"
-            @click="store.openDetail(row.original)"
-          />
+          <div class="flex items-center gap-1">
+            <UButton
+              icon="i-lucide-eye"
+              label="Details"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              class="font-bold"
+              @click="store.openDetail(row.original)"
+            />
+
+            <UButton
+              icon="i-lucide-edit"
+              label="Edit"
+              color="warning"
+              variant="ghost"
+              size="sm"
+              class="font-bold"
+              @click="store.editReport(row.original)"
+            />
+
+            <UButton
+              icon="i-lucide-trash"
+              label="Delete"
+              color="error"
+              variant="ghost"
+              size="sm"
+              class="font-bold"
+              @click="store.deleteReport(row.original)"
+            />
+          </div>
         </template>
       </UTable>
 

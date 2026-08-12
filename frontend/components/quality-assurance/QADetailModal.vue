@@ -3,29 +3,17 @@
       <template #content>
         <UCard :ui="{ header: 'px-6 py-4', body: 'px-6 py-6', footer: 'px-6 py-4' }">
           <template #header>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
-                <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" @click="store.closeDetail" />
-                <h3 class="text-xl font-bold">Detail: {{ store.selectedReport?.assessmentTitle }}</h3>
-              </div>
-              <div class="flex items-center space-x-2">
-                <UButton 
-                  icon="i-lucide-edit" 
-                  label="Edit" 
-                  color="neutral" 
-                  variant="ghost" 
-                  class="font-bold" 
-                  @click="store.editReport"
-                />
-                <UButton 
-                  icon="i-lucide-trash" 
-                  label="Delete" 
-                  color="error" 
-                  variant="ghost" 
-                  class="font-bold" 
-                  @click="store.deleteReport"
-                />
-              </div>
+            <div class="flex items-center space-x-4">
+              <UButton
+                icon="i-lucide-arrow-left"
+                color="neutral"
+                variant="ghost"
+                @click="store.closeDetail"
+              />
+
+              <h3 class="text-xl font-bold">
+                Detail: {{ store.selectedReport?.assessmentTitle }}
+              </h3>
             </div>
           </template>
 

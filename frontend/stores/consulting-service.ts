@@ -179,17 +179,26 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
     }
   }
 
-  const deleteService = async () => {
-    if (!selectedService.value) return
+  const deleteService = async (service?: ConsultingService) => {
+    const targetService = service || selectedService.value
+
+    if (!targetService) return
+
     loading.value = true
     errorMsg.value = ''
+
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      await $fetch(`${baseUrl}/consulting-services/${selectedService.value.id}`, {
+
+      await $fetch(`${baseUrl}/consulting-services/${targetService.id}`, {
         method: 'DELETE'
       })
-      isDetailOpen.value = false
-      selectedService.value = null
+
+      if (selectedService.value?.id === targetService.id) {
+        isDetailOpen.value = false
+        selectedService.value = null
+      }
+
       await fetchServices()
     } catch (error) {
       console.error('Failed to delete consulting service:', error)
@@ -234,11 +243,17 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
     isFormOpen.value = true
   }
 
-  const editService = () => {
+  const editService = (service?: ConsultingService) => {
+    if (service) {
+      selectedService.value = service
+    }
+
     if (!selectedService.value) return
+
     isEditing.value = true
-    
+
     const periodParts = (selectedService.value.period || '').split(' ')
+
     Object.assign(newService, {
       title: selectedService.value.title,
       category: selectedService.value.category,
@@ -250,7 +265,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       notes: selectedService.value.notes || '',
       attachment: null
     })
-    
+
     isDetailOpen.value = false
     isFormOpen.value = true
   }

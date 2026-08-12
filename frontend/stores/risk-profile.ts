@@ -352,7 +352,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
         method: 'POST',
         body: newRiskData
       })
-      
+
       const isSuccess = response && (response.success || response.id)
       const responseData = response.data || response
 
@@ -455,18 +455,28 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     }
   }
 
-  async function deleteRisk(id: string | number) {
+  async function deleteRisk(id: string | number): Promise<boolean> {
     try {
       const baseUrl = getRiskServiceBaseUrl()
+
       const response: any = await $fetch(`${baseUrl}/risks/${id}`, {
         method: 'DELETE'
       })
+
       if (response && response.success) {
-        rawRisks.value = rawRisks.value.filter(r => String(r.id) !== String(id))
+        rawRisks.value = rawRisks.value.filter(
+          r => String(r.id) !== String(id)
+        )
+
         updateDisplayIds()
+
+        return true
       }
+
+      return false
     } catch (error) {
       console.error('Failed to delete risk:', error)
+      return false
     }
   }
 
