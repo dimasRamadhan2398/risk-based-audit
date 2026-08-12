@@ -5,6 +5,7 @@ import { type AssignmentLetter, type AssignmentLetterForm, type AssignmentLetter
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
+  editingId: string | null;
   assignmentLetterList: AssignmentLetter[];
   form: AssignmentLetterForm;
   columns: TableColumn<AssignmentLetter>[];
@@ -20,6 +21,7 @@ export interface AssignmentLetterState {
 export const useAssignmentLetterStore = defineStore('assignment-letter', {
   state: (): AssignmentLetterState => ({
     isModalOpen: false,
+    editingId: null,
     assignmentLetterList: [
       {
         id: 'mock-uuid-zeta-1',
@@ -218,7 +220,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       { accessorKey: 'workingUnit', header: 'Work Unit' },
       { accessorKey: 'executionPeriod', header: 'Execution Period' },
       { accessorKey: 'auditTeam', header: 'Audit Team' },
-      { accessorKey: 'status', header: 'Status' }
+      { accessorKey: 'status', header: 'Status' },
+      { accessorKey: 'actions', header: 'Actions' }
     ],
     options: {
       auditTeam: ['SKAI', 'DAI', 'CAE'],
@@ -405,9 +408,9 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         })
         let items: AssignmentLetter[] = []
         if (response && response.data && Array.isArray(response.data.items)) {
-        items = response.data.items
-      } else if (response && Array.isArray(response.items)) {
-        items = response.items
+          items = response.data.items
+        } else if (response && Array.isArray(response.items)) {
+          items = response.items
         } else if (Array.isArray(response)) {
           items = response
         }
@@ -441,6 +444,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     },
 
     openModal() {
+      this.editingId = null
       Object.assign(this.form, {
         auditTitle: '',
         leader: '',
@@ -461,8 +465,35 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       this.isModalOpen = true
     },
 
+    openEditModal(letter: AssignmentLetter) {
+      this.editingId = letter.id
+
+      Object.assign(this.form, {
+        auditTitle: letter.auditTitle,
+        leader: letter.leader,
+        category: letter.category,
+        auditYear: letter.auditYear,
+        auditTeam: letter.auditTeam,
+        startPeriod: letter.startPeriod,
+        finishPeriod: letter.finishPeriod,
+        workingUnit: letter.workingUnit,
+        auditPurpose: letter.auditPurpose,
+        letterDate: letter.letterDate
+          ? String(letter.letterDate).slice(0, 10)
+          : '',
+        caeSignature: letter.caeSignature || '',
+        membersList: letter.membersList.map(member => ({ ...member })),
+        purposeList: [...letter.purposeList],
+        scopeList: [...letter.scopeList],
+        ccList: [...letter.ccList]
+      })
+
+      this.isModalOpen = true
+    },
+
     closeModal() {
       this.isModalOpen = false
+      this.editingId = null
     },
 
     async handleSubmit() {
@@ -484,39 +515,66 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       this.loading = true
       try {
         const baseUrl = this.getAuditServiceBaseUrl()
-        const letterNumber = this.generateNomorSurat(this.form.auditTeam, this.form.auditYear)
-        const executionPeriod = `${this.form.startPeriod} to ${this.form.finishPeriod}`
+        const executionPeriod =
+          `${this.form.startPeriod} to ${this.form.finishPeriod}`
 
-        const payload = {
-          letterNumber,
-          status: 'Draft',
-          auditTitle: this.form.auditTitle,
-          leader: this.form.leader,
-          category: this.form.category,
-          auditYear: this.form.auditYear,
-          auditTeam: this.form.auditTeam,
-          startPeriod: this.form.startPeriod,
-          finishPeriod: this.form.finishPeriod,
-          workingUnit: this.form.workingUnit,
-          auditPurpose: this.form.auditPurpose,
-          letterDate: this.form.letterDate,
-          caeSignature: this.form.caeSignature,
-          executionPeriod,
-          membersList: this.form.membersList,
-          purposeList: this.form.purposeList,
-          scopeList: this.form.scopeList,
-          ccList: this.form.ccList
+        if (this.editingId) {
+          const existingLetter = this.assignmentLetterList.find(
+            letter => letter.id === this.editingId
+          )
+
+          if (!existingLetter) {
+            throw new Error('Assignment letter not found.')
+          }
+
+          const payload = {
+            ...this.form,
+            letterNumber: existingLetter.letterNumber,
+            status: existingLetter.status,
+            executionPeriod
+          }
+
+          await $fetch(
+            `${baseUrl}/assignment-letters/${this.editingId}`,
+            {
+              method: 'PUT',
+              body: payload
+            }
+          )
+        } else {
+          const letterNumber = this.generateNomorSurat(
+            this.form.auditTeam,
+            this.form.auditYear
+          )
+
+          const payload = {
+            ...this.form,
+            letterNumber,
+            status: 'Draft',
+            executionPeriod
+          }
+
+          await $fetch(`${baseUrl}/assignment-letters`, {
+            method: 'POST',
+            body: payload
+          })
         }
 
-        await $fetch(`${baseUrl}/assignment-letters`, {
-          method: 'POST',
-          body: payload
-        })
         this.closeModal()
         await this.fetchAssignmentLetters()
       } catch (error: any) {
-        console.error('Failed to create assignment letter:', error)
-        alert('Failed to save assignment letter.')
+        console.error(
+          this.editingId
+            ? 'Failed to update assignment letter:'
+            : 'Failed to create assignment letter:',
+          error
+        )
+
+        alert(
+          this.editingId
+            ? 'Failed to update assignment letter.'
+            : 'Failed to save assignment letter.'
+        )
       } finally {
         this.loading = false
       }

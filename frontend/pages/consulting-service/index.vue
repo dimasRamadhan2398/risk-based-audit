@@ -131,14 +131,34 @@
 
         <!-- Actions Cell -->
         <template #actions-cell="{ row }">
-          <UButton
-            icon="i-lucide-eye"
-            color="primary"
-            variant="ghost"
-            size="sm"
-            label="Details"
-            @click="store.openDetail(row.original as any)"
-          />
+          <div class="flex items-center gap-1">
+            <UButton
+              icon="i-lucide-eye"
+              color="primary"
+              variant="ghost"
+              size="sm"
+              label="Details"
+              @click="store.openDetail(row.original as any)"
+            />
+
+            <UButton
+              icon="i-lucide-edit"
+              color="warning"
+              variant="ghost"
+              size="sm"
+              label="Edit"
+              @click="store.editService(row.original as any)"
+            />
+
+            <UButton
+              icon="i-lucide-trash"
+              color="error"
+              variant="ghost"
+              size="sm"
+              label="Delete"
+              @click="confirmDelete(row.original as any)"
+            />
+          </div>
         </template>
       </UTable>
     </UCard>
@@ -289,18 +309,13 @@
               </div>
             </div>
 
-            <div class="flex justify-between gap-3 pt-4 border-t">
+            <div class="flex justify-end pt-4 border-t">
               <UButton
-                label="Delete"
-                icon="i-lucide-trash"
-                color="error"
+                label="Close"
+                color="neutral"
                 variant="ghost"
-                @click="confirmDelete"
+                @click="store.closeDetail"
               />
-              <div class="flex gap-2">
-                <UButton label="Close" color="neutral" variant="ghost" @click="store.closeDetail" />
-                <UButton label="Edit Assignment" color="warning" icon="i-lucide-edit" @click="store.editService" />
-              </div>
             </div>
           </div>
         </UCard>
@@ -346,9 +361,9 @@ const filteredServices = computed(() => {
   })
 })
 
-const confirmDelete = () => {
+const confirmDelete = (service: any) => {
   if (confirm('Are you sure you want to delete this consulting assignment?')) {
-    store.deleteService()
+    store.deleteService(service)
   }
 }
 </script>

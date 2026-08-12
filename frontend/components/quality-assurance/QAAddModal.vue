@@ -1,7 +1,7 @@
 <template>
     <UModal v-model:open="store.isFormOpen" scrollable class="w-full sm:max-w-2xl bg-[var(--bg-main)] border-[var(--border-main)]">
       <template #content>
-        <UCard :ui="{ header: 'px-6 py-4', body: 'px-6 py-6', footer: 'px-6 py-4' }">
+        <UCard :ui="{ header: 'sticky top-0 z-20 px-6 py-4 bg-[var(--bg-main)] border-b border-[var(--border-main)]', body: 'px-6 py-6', footer: 'px-6 py-4'}">
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-xl font-bold">{{ store.isEditing ? 'Edit Assessment' : 'Add New Assessment' }}</h3>

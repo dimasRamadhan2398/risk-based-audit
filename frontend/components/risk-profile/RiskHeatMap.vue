@@ -843,17 +843,34 @@ function onDrop(e, newLikelihood, newImpact) {
   }
 }
 
-function handleDeleteRisk(id) {
+async function handleDeleteRisk(id) {
   const risk = store.risks.find(r => r.id === id)
+
   if (!risk) return
-  
-  store.deleteRisk(id)
-  toast.add({
-    title: 'Risk Deleted',
-    description: `"${risk.name}" has been removed.`,
-    color: 'error',
-    icon: 'i-heroicons-trash'
-  })
+
+  const confirmed = confirm(
+    `Apakah Anda yakin ingin menghapus Risk "${risk.name}"?`
+  )
+
+  if (!confirmed) return
+
+  const deleted = await store.deleteRisk(id)
+
+  if (deleted) {
+    toast.add({
+      title: 'Risk Deleted',
+      description: `"${risk.name}" has been removed.`,
+      color: 'success',
+      icon: 'i-heroicons-check-circle'
+    })
+  } else {
+    toast.add({
+      title: 'Delete Failed',
+      description: `Failed to delete "${risk.name}".`,
+      color: 'error',
+      icon: 'i-heroicons-exclamation-triangle'
+    })
+  }
 }
 
 </script>

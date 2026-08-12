@@ -270,6 +270,14 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const selectedPeriod = ref('')
   const selectedStatus = ref('')
 
+  const resetFilters = () => {
+    searchQuery.value = ''
+    selectedType.value = ''
+    selectedPeriod.value = ''
+    selectedStatus.value = ''
+    page.value = 1
+  }
+
   const isFormOpen = ref(false)
   const isImportOpen = ref(false)
   const isDetailOpen = ref(false)
@@ -360,7 +368,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const filteredReports = computed(() => {
     return reports.value.filter(report => {
       if (report.isImported) return false
-      
+
       const matchesSearch = (report.reportName || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         (report.assessmentTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
       const matchesType = !selectedType.value || matchQAType(report.type, selectedType.value)
@@ -412,12 +420,17 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     isFormOpen.value = true
   }
 
-  const editReport = () => {
+  const editReport = (report?: QAReport) => {
+    if (report) {
+      selectedReport.value = report
+    }
+
     if (!selectedReport.value) return
+
     isEditing.value = true
-    
-    // Populate form
+
     const periodParts = (selectedReport.value.period || '').split(' ')
+
     Object.assign(newReport, {
       type: selectedReport.value.type,
       assessmentTitle: selectedReport.value.assessmentTitle,
@@ -426,10 +439,10 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       status: selectedReport.value.status,
       conductedBy: selectedReport.value.conductedBy || '',
       result: selectedReport.value.result,
-      internalEvaluator: selectedReport.value.internalEvaluator,
+      internalEvaluator: selectedReport.value.internalEvaluator || '',
       attachment: null
     })
-    
+
     isDetailOpen.value = false
     isFormOpen.value = true
   }
@@ -448,17 +461,30 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     selectedReport.value = null
   }
 
-  const deleteReport = async () => {
-    if (!selectedReport.value) return
-    if (!confirm('Apakah Anda yakin ingin menghapus laporan Quality Assurance ini?')) return
+  const deleteReport = async (report?: QAReport) => {
+    const targetReport = report || selectedReport.value
+
+    if (!targetReport) return
+
+    if (!confirm('Apakah Anda yakin ingin menghapus laporan Quality Assurance ini?')) {
+      return
+    }
+
     loading.value = true
     errorMsg.value = ''
+
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      await $fetch(`${baseUrl}/quality-assurance/${selectedReport.value.id}`, {
+
+      await $fetch(`${baseUrl}/quality-assurance/${targetReport.id}`, {
         method: 'DELETE'
       })
-      closeDetail()
+
+      if (selectedReport.value?.id === targetReport.id) {
+        isDetailOpen.value = false
+        selectedReport.value = null
+      }
+
       await fetchReports()
     } catch (error: any) {
       console.error('Failed to delete QA report:', error)
@@ -472,7 +498,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isImportOpen, isDetailOpen, columns,
     selectedReport, filteredReports, importedReports, regularImportedReports, saivImportedReports, qarImportedReports, iacmImportedReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
     handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, viewDocument, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor, matchQAType,
-    editReport, isEditing, deleteReport, fetchReports, loading, errorMsg
+    editReport, isEditing, deleteReport, fetchReports, resetFilters, loading, errorMsg
   }
 })
 export { QAType, QAStatus }

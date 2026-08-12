@@ -41,6 +41,13 @@ const getStatusLabel = (status: string) => {
 
 const page = ref(1)
 const pageCount = 5
+const resetFilters = () => {
+  store.searchQuery = ''
+  store.selectedDepartment = ''
+  store.selectedStatus = ''
+  page.value = 1
+}
+watch(() => [store.searchQuery, store.selectedDepartment, store.selectedStatus], () => { page.value = 1 })
 const items = computed(() => {
   return store.filteredReports.slice((page.value - 1) * pageCount, (page.value) * pageCount)
 })
@@ -91,6 +98,14 @@ const items = computed(() => {
         placeholder="Choose Status"
         class="w-full max-w-[200px]"
         size="md"
+      />
+      <UButton
+        label="Reset Filter"
+        icon="i-lucide-rotate-ccw"
+        color="neutral"
+        variant="outline"
+        size="md"
+        @click="resetFilters"
       />
     </div>
 

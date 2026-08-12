@@ -10,8 +10,8 @@
         <div class="relative  rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
           <div class="flex justify-between items-center p-6 border-b border-gray-100">
             <h2 class="text-xl font-bold text-gray-800  flex items-center gap-2">
-              <UIcon name="i-heroicons-document-plus" class="w-6 h-6 text-orange-500" />
-              Add Assignment Letter
+              <UIcon :name="store.editingId ? 'i-heroicons-pencil-square' : 'i-heroicons-document-plus'" class="w-6 h-6 text-orange-500" />
+              {{ store.editingId ? 'Edit Assignment Letter' : 'Add Assignment Letter' }}
             </h2>
             <UIcon name="i-heroicons-x-mark" @click="store.closeModal" size="xl" />
           </div>
@@ -52,10 +52,10 @@
             <label class="font-bold text-gray-700 ">Audit Team</label>
             <UFormField class="md:col-span-3">
                 <URadioGroup
-                orientation="horizontal"
-                variant="list"
-                default-value="System"
-                :items="store.options.auditTeam"
+                  v-model="store.form.auditTeam"
+                  orientation="horizontal"
+                  variant="list"
+                  :items="store.options.auditTeam"
                 />
             </UFormField>
             </div>
@@ -129,8 +129,7 @@
           </div>
 
           <div class="p-6 border-t border-gray-100 flex justify-end items-center gap-4">
-            <!-- <UButton label="Cancel" color="neutral" variant="soft" @click="store.closeModal" class="font-bold text-gray-500 hover:text-gray-700 px-4 py-2" /> -->
-            <UButton label="Save Assignment Letter" color="primary" size="lg" class="font-bold px-8 shadow-md" @click="store.handleSubmit" />
+            <UButton :label="store.editingId ? 'Update Assignment Letter' : 'Save Assignment Letter'" color="primary" size="lg" class="font-bold px-8 shadow-md" @click="store.handleSubmit"/>
           </div>
         </div>
         </UForm>

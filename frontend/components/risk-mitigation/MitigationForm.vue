@@ -18,7 +18,7 @@
             
 
             <UFormField label="Mitigation Plan & Controls" required>
-              <UInput v-model="store.form.mitigationPlan" placeholder="Explain the mitigation plan and controls in detail..." class="w-full" required />
+              <UTextarea v-model="store.form.mitigationPlan" :rows="4" autoresize placeholder="Explain the mitigation plan and controls in detail..." class="w-full" required />
             </UFormField>
 
             <UFormField label="Supervisor" required>

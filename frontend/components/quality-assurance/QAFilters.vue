@@ -1,34 +1,46 @@
 <template>
-    <div class="flex flex-wrap items-center gap-4">
-      <UInput
-        v-model="store.searchQuery"
-        icon="i-lucide-search"
-        placeholder="Search"
-        class="w-full max-w-md"
-        size="md"
-      />
-      <USelectMenu
-        v-model="(store.selectedType as any)"
-        :items="store.qaTypes"
-        placeholder="Select QA"
-        class="w-full max-w-[200px]"
-        size="md"
-      />
-      <USelectMenu
-        v-model="store.selectedPeriod"
-        :items="store.periods"
-        placeholder="Select Period"
-        class="w-full max-w-[200px]"
-        size="md"
-      />
-      <USelectMenu
-        v-model="(store.selectedStatus as any)"
-        :items="store.qaStatuses"
-        placeholder="Select Status"
-        class="w-full max-w-[200px]"
-        size="md"
-      />
-    </div>
+  <div class="flex flex-wrap items-center gap-4">
+    <UInput
+      v-model="store.searchQuery"
+      icon="i-lucide-search"
+      placeholder="Search"
+      class="w-full max-w-md"
+      size="md"
+    />
+
+    <USelectMenu
+      v-model="(store.selectedType as any)"
+      :items="store.qaTypes"
+      placeholder="Select QA"
+      class="w-full max-w-[200px]"
+      size="md"
+    />
+
+    <USelectMenu
+      v-model="store.selectedPeriod"
+      :items="store.periods"
+      placeholder="Select Period"
+      class="w-full max-w-[200px]"
+      size="md"
+    />
+
+    <USelectMenu
+      v-model="(store.selectedStatus as any)"
+      :items="store.qaStatuses"
+      placeholder="Select Status"
+      class="w-full max-w-[200px]"
+      size="md"
+    />
+
+    <UButton
+      label="Reset Filter"
+      icon="i-lucide-rotate-ccw"
+      color="neutral"
+      variant="outline"
+      size="md"
+      @click="store.resetFilters"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">

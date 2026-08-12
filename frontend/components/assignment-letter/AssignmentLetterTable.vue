@@ -32,26 +32,29 @@
           </UBadge>
         </template>
 
-        <!-- <template #actions-cell="{ row }">
-            <div class="flex gap-2">
-            <UButton 
-                size="md" 
-                color="warning" 
-                variant="soft" 
-                icon="i-heroicons-pencil-square" 
-                @click="store.handleEditF04(row.original)" 
-                title="Edit"
+        <template #actions-cell="{ row }">
+          <div class="flex items-center gap-1">
+            <UButton
+              label="Edit"
+              size="md"
+              color="primary"
+              variant="ghost"
+              icon="i-heroicons-pencil-square"
+              @click="store.openEditModal(row.original)"
             />
-            <UButton 
-                size="md" 
-                color="error" 
-                variant="soft" 
-                icon="i-heroicons-trash" 
-                @click="store.handleDeleteF04(row.original.id)" 
-                title="Hapus"
+
+            <span class="text-gray-300">|</span>
+
+            <UButton
+              label="Delete"
+              size="md"
+              color="error"
+              variant="ghost"
+              icon="i-heroicons-trash"
+              @click="store.deleteSuratTugas(row.original.id)"
             />
-            </div>
-        </template> -->
+          </div>
+        </template>
 
       </UTable>
     </UCard>
