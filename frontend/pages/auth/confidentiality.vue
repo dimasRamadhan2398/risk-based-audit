@@ -164,13 +164,15 @@
 
           <!-- Action buttons for Step 2 -->
           <div class="flex flex-col sm:flex-row gap-3 pt-4">
-            <button
+            <DangerButton
               id="confidentiality-reject-btn"
-              class="px-5 py-3 rounded-xl border border-error-500/30 bg-error-500/10 text-error-600 dark:text-error-400 hover:bg-error-500/20 text-sm font-semibold transition-all duration-200 whitespace-nowrap shrink-0"
+              variant="soft"
+              size="lg"
+              class="whitespace-nowrap shrink-0"
               @click="handleReject"
             >
               {{ t.step2.rejectBtn }}
-            </button>
+            </DangerButton>
             <button
               id="confidentiality-accept-btn"
               :disabled="!hasScrolledToBottom || accepting"
