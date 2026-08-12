@@ -37,6 +37,10 @@ jobs:
             BACKEND_COMPOSE="docker-compose.prod.yml"
             FRONTEND_COMPOSE="docker-compose.prod.yml"
 
+            # Container name filters — MUST match container_name in your compose files.
+            BACKEND_CONTAINER_FILTER="rb_audit"
+            FRONTEND_CONTAINER_FILTER="rbia-frontend"
+
             DEPLOY_LOG="/var/log/auditsphere-deploy.log"
             LOCK_FILE="/tmp/auditsphere-deploy.lock"
 
@@ -61,6 +65,8 @@ jobs:
 
             # ================================================================
             # Error Handler & Rollback
+            # Restores the exact previous image (by image ID, not tag) so the
+            # rollback doesn't just restart the same failed build.
             # ================================================================
             cleanup_on_failure() {
               echo ""
@@ -78,16 +84,22 @@ jobs:
               docker compose -f "$FRONTEND_COMPOSE" ps || true
               docker compose -f "$FRONTEND_COMPOSE" logs --tail=50 || true
 
-              if [ -n "${PREVIOUS_FRONTEND_IMAGE:-}" ]; then
-                echo "🔄 Rolling back frontend..."
-                cd "$FRONTEND_DIR" || true
-                docker compose -f "$FRONTEND_COMPOSE" up -d || true
+              if [ -n "${PREVIOUS_BACKEND_IMAGE_ID:-}" ] && [ -n "${PREVIOUS_BACKEND_IMAGE_TAG:-}" ]; then
+                echo "🔄 Rolling back backend to previous image ($PREVIOUS_BACKEND_IMAGE_ID)..."
+                docker tag "$PREVIOUS_BACKEND_IMAGE_ID" "$PREVIOUS_BACKEND_IMAGE_TAG" || true
+                cd "$BACKEND_DIR" || true
+                docker compose -f "$BACKEND_COMPOSE" up -d --no-build || true
+              else
+                echo "⚠️ No previous backend image recorded — nothing to roll back to (likely first deploy)."
               fi
 
-              if [ -n "${PREVIOUS_BACKEND_IMAGE:-}" ]; then
-                echo "🔄 Rolling back backend..."
-                cd "$BACKEND_DIR" || true
-                docker compose -f "$BACKEND_COMPOSE" up -d || true
+              if [ -n "${PREVIOUS_FRONTEND_IMAGE_ID:-}" ] && [ -n "${PREVIOUS_FRONTEND_IMAGE_TAG:-}" ]; then
+                echo "🔄 Rolling back frontend to previous image ($PREVIOUS_FRONTEND_IMAGE_ID)..."
+                docker tag "$PREVIOUS_FRONTEND_IMAGE_ID" "$PREVIOUS_FRONTEND_IMAGE_TAG" || true
+                cd "$FRONTEND_DIR" || true
+                docker compose -f "$FRONTEND_COMPOSE" up -d --no-build || true
+              else
+                echo "⚠️ No previous frontend image recorded — nothing to roll back to (likely first deploy)."
               fi
 
               echo "⚠️ Deployment aborted due to errors. Check logs above."
@@ -131,9 +143,29 @@ jobs:
             export DOCKER_BUILDKIT=1
             export COMPOSE_DOCKER_CLI_BUILD=1
 
-            # Record running image state for potential rollback
-            PREVIOUS_BACKEND_IMAGE=$(docker inspect $(docker ps --filter "name=rb_audit" -q | head -1) --format '{{.Config.Image}}' 2>/dev/null || true)
-            PREVIOUS_FRONTEND_IMAGE=$(docker inspect $(docker ps --filter "name=rbia-frontend" -q | head -1) --format '{{.Config.Image}}' 2>/dev/null || true)
+            # ================================================================
+            # Record running image state for rollback (ID *and* tag).
+            # The tag gets overwritten by the new build; the ID doesn't move,
+            # so it's what we re-tag onto if we need to roll back.
+            # ================================================================
+            PREVIOUS_BACKEND_IMAGE_ID=""
+            PREVIOUS_BACKEND_IMAGE_TAG=""
+            BACKEND_CONTAINER_ID=$(docker ps --filter "name=${BACKEND_CONTAINER_FILTER}" -q | head -1)
+            if [ -n "$BACKEND_CONTAINER_ID" ]; then
+              PREVIOUS_BACKEND_IMAGE_ID=$(docker inspect "$BACKEND_CONTAINER_ID" --format '{{.Image}}' 2>/dev/null || echo "")
+              PREVIOUS_BACKEND_IMAGE_TAG=$(docker inspect "$BACKEND_CONTAINER_ID" --format '{{.Config.Image}}' 2>/dev/null || echo "")
+            fi
+
+            PREVIOUS_FRONTEND_IMAGE_ID=""
+            PREVIOUS_FRONTEND_IMAGE_TAG=""
+            FRONTEND_CONTAINER_ID=$(docker ps --filter "name=${FRONTEND_CONTAINER_FILTER}" -q | head -1)
+            if [ -n "$FRONTEND_CONTAINER_ID" ]; then
+              PREVIOUS_FRONTEND_IMAGE_ID=$(docker inspect "$FRONTEND_CONTAINER_ID" --format '{{.Image}}' 2>/dev/null || echo "")
+              PREVIOUS_FRONTEND_IMAGE_TAG=$(docker inspect "$FRONTEND_CONTAINER_ID" --format '{{.Config.Image}}' 2>/dev/null || echo "")
+            fi
+
+            echo "📸 Previous backend image:  ${PREVIOUS_BACKEND_IMAGE_ID:-none} (${PREVIOUS_BACKEND_IMAGE_TAG:-n/a})"
+            echo "📸 Previous frontend image: ${PREVIOUS_FRONTEND_IMAGE_ID:-none} (${PREVIOUS_FRONTEND_IMAGE_TAG:-n/a})"
 
             # ================================================================
             # Deploy Backend & Health Check
@@ -150,13 +182,15 @@ jobs:
             BACKEND_READY=0
 
             for i in {1..24}; do
-              if curl --fail --silent --show-error --max-time 5 "$BACKEND_HEALTH_URL" > /dev/null 2>&1 || \
-                 curl --fail --silent --show-error --max-time 5 "http://localhost:8001/health" > /dev/null 2>&1; then
-                echo "✅ Backend is healthy."
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "$BACKEND_HEALTH_URL" 2>/dev/null || echo "000")
+              HTTP_CODE_DIRECT=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://localhost:8001/health" 2>/dev/null || echo "000")
+
+              if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE_DIRECT" -eq 200 ]; then
+                echo "✅ Backend is healthy (Gateway HTTP $HTTP_CODE / Auth Direct HTTP $HTTP_CODE_DIRECT)."
                 BACKEND_READY=1
                 break
               fi
-              echo "⏳ Waiting for backend API gateway... attempt $i/24"
+              echo "⏳ Waiting for backend API gateway (status: $HTTP_CODE)... attempt $i/24"
               sleep 5
             done
 
@@ -173,7 +207,6 @@ jobs:
             echo "🚀 Deploying Frontend Service"
             echo "============================================================"
             cd "$FRONTEND_DIR"
-            docker rm -f rbia-frontend-prod 2>/dev/null || true
             docker compose -f "$FRONTEND_COMPOSE" up -d --build --remove-orphans
 
             echo "🏥 Waiting for frontend health..."
@@ -181,12 +214,13 @@ jobs:
             FRONTEND_READY=0
 
             for i in {1..24}; do
-              if curl --fail --silent --show-error --max-time 5 "$FRONTEND_HEALTH_URL" > /dev/null 2>&1; then
-                echo "✅ Frontend is healthy."
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "$FRONTEND_HEALTH_URL" 2>/dev/null || echo "000")
+              if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 302 ] || [ "$HTTP_CODE" -eq 301 ]; then
+                echo "✅ Frontend is healthy (HTTP $HTTP_CODE)."
                 FRONTEND_READY=1
                 break
               fi
-              echo "⏳ Waiting for frontend application... attempt $i/24"
+              echo "⏳ Waiting for frontend application (status: $HTTP_CODE)... attempt $i/24"
               sleep 5
             done
 
