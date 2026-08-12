@@ -237,4 +237,5 @@ volumes:
 
 networks:
   rb_audit_network:
+    name: rb_audit_network
     driver: bridge
