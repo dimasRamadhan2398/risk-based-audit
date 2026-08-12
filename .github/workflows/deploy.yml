@@ -118,6 +118,7 @@ jobs:
               echo ""
               echo "📦 Syncing repository..."
               echo "👤 SSH User: $(whoami) (UID: $(id -u), GID: $(id -g))"
+              mkdir -p "$(dirname "$REPO_DIR")" 2>/dev/null || true
 
               if [ ! -d "$REPO_DIR/.git" ]; then
                 echo "📥 First-time deployment: cloning repository..."
