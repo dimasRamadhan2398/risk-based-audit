@@ -410,6 +410,73 @@ jobs:
             # ================================================================
 
             main() {
+<<<<<<< HEAD
+=======
+              # ================================================================
+              # Configuration
+              # ================================================================
+              REPO_URL="https://github.com/${{ github.repository }}.git"
+              REPO_DIR="/app/rbia-repo"
+              BACKEND_DIR="$REPO_DIR/backend"
+              FRONTEND_DIR="$REPO_DIR/frontend"
+              BACKEND_COMPOSE="docker-compose.prod.yml"
+              FRONTEND_COMPOSE="docker-compose.prod.yml"
+              BACKEND_CONTAINER_FILTER="rb_audit"
+              FRONTEND_CONTAINER_FILTER="rbia-frontend"
+
+              echo ""
+              echo "============================================================"
+              echo "🚀 AuditSphere Production Deployment"
+              echo "============================================================"
+              echo "Started at: $(date)"
+
+              exec 200>"$LOCK_FILE"
+              if ! flock -n 200; then
+                echo "❌ Another AuditSphere deployment is currently running on VPS."
+                exit 1
+              fi
+              echo "🔒 Deployment lock acquired."
+
+              # ================================================================
+              # Error Handler & Rollback
+              # ================================================================
+              cleanup_on_failure() {
+                echo ""
+                echo "============================================================"
+                echo "❌ DEPLOYMENT FAILED - INITIATING DIAGNOSTICS & ROLLBACK"
+                echo "============================================================"
+
+                echo "📦 Backend status & logs:"
+                cd "$BACKEND_DIR" || true
+                docker compose -f "$BACKEND_COMPOSE" ps || true
+                docker compose -f "$BACKEND_COMPOSE" logs --tail=50 || true
+
+                echo "📦 Frontend status & logs:"
+                cd "$FRONTEND_DIR" || true
+                docker compose -f "$FRONTEND_COMPOSE" ps || true
+                docker compose -f "$FRONTEND_COMPOSE" logs --tail=50 || true
+
+                if [ -n "${PREVIOUS_BACKEND_IMAGE_ID:-}" ] && [ -n "${PREVIOUS_BACKEND_IMAGE_TAG:-}" ]; then
+                  echo "🔄 Rolling back backend to previous image ($PREVIOUS_BACKEND_IMAGE_ID)..."
+                  docker tag "$PREVIOUS_BACKEND_IMAGE_ID" "$PREVIOUS_BACKEND_IMAGE_TAG" || true
+                  cd "$BACKEND_DIR" || true
+                  docker compose -f "$BACKEND_COMPOSE" up -d --no-build || true
+                else
+                  echo "⚠️ No previous backend image recorded — nothing to roll back to (likely first deploy)."
+                fi
+
+                if [ -n "${PREVIOUS_FRONTEND_IMAGE_ID:-}" ] && [ -n "${PREVIOUS_FRONTEND_IMAGE_TAG:-}" ]; then
+                  echo "🔄 Rolling back frontend to previous image ($PREVIOUS_FRONTEND_IMAGE_ID)..."
+                  docker tag "$PREVIOUS_FRONTEND_IMAGE_ID" "$PREVIOUS_FRONTEND_IMAGE_TAG" || true
+                  cd "$FRONTEND_DIR" || true
+                  docker compose -f "$FRONTEND_COMPOSE" up -d --no-build || true
+                else
+                  echo "⚠️ No previous frontend image recorded — nothing to roll back to (likely first deploy)."
+                fi
+
+                echo "⚠️ Deployment aborted due to errors. Check logs above."
+              }
+>>>>>>> 4e16ae4 (fix locale)
 
               trap cleanup_on_failure ERR
 
