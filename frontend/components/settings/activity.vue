@@ -2,36 +2,44 @@
   <div class="wrapper-vertical-expanded space-y-6">
     <!-- Database registration check panel -->
     <UCard class="w-full border-l-4 border-success-500">
-      <div class="flex items-start gap-4">
-        <div class="rounded-full bg-success-500/10 p-2 text-success-600">
-          <UIcon name="i-lucide-shield-check" class="size-6" />
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="rounded-full bg-success-500/10 p-2 text-success-600 shrink-0">
+            <UIcon name="i-lucide-shield-check" class="size-8" />
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ t('settings.activity.verificationTitle') }}</h4>
+            <p class="text-md text-gray-600 dark:text-gray-300">
+              {{ t('settings.activity.deviceText') }}
+              <span class="font-mono font-semibold bg-secondary-900 dark:bg-secondary-500 px-1 py-0.5 rounded-xl text-primary-200">
+                {{ currentDevice.deviceName }} (Fingerprint: {{ currentDevice.deviceFingerprint }})
+              </span>
+            </p>
+          </div>
         </div>
-        <div class="space-y-1">
-          <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ t('settings.activity.verificationTitle') }}</h4>
-          <p class="text-md text-gray-600 dark:text-gray-300">
-            {{ t('settings.activity.deviceText') }}
-            <span class="font-mono font-semibold bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-primary-600">
-              {{ currentDevice.deviceName }} (Fingerprint: {{ currentDevice.deviceFingerprint }})
+
+        <div class="shrink-0 self-start sm:self-center">
+          <div v-if="dbStatus.checked" class="px-3.5 py-2 rounded-lg bg-success-50 dark:bg-success-950/40 border border-success-200 dark:border-success-800/60 text-sm text-success-700 dark:text-success-400 flex items-center gap-2 font-medium">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-success-500"></span>
             </span>
-          </p>
-          <div v-if="dbStatus.checked" class="mt-2 text-md text-success-700 dark:text-success-400 flex items-center gap-1.5 font-medium">
-            <span class="flex h-2 w-2 rounded-full bg-success-500"></span>
             <span>{{ t('settings.activity.registeredYes', { fingerprint: dbStatus.lastLoginFingerprint }) }}</span>
           </div>
-          <div v-else class="mt-2 text-md text-gray-500 flex items-center gap-1.5 animate-pulse">
-            <span class="flex h-2 w-2 rounded-full bg-gray-400"></span>
+          <div v-else class="px-3.5 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-sm text-gray-500 flex items-center gap-2 animate-pulse">
+            <span class="flex h-2.5 w-2.5 rounded-full bg-gray-400"></span>
             <span>{{ t('settings.activity.checkingDb') }}</span>
           </div>
         </div>
       </div>
     </UCard>
 
-    <UAlert
+    <QuickTip
       :title="t('settings.activity.securityTipsTitle')"
       :description="t('settings.activity.securityTipsDesc')"
       icon="i-lucide-alert-triangle"
-      color="warning"
-      variant="subtle"
+      color="secondary"
+      variant="outline"
     />
 
     <UCard class="w-full">
@@ -157,6 +165,7 @@
 import { useAuthStore } from '~/stores/auth'
 import { useDeviceFingerprint } from '~/composables/useDeviceFingerprint'
 import ConfirmationPopup from '../shared/ConfirmationPopup.vue'
+import QuickTip from '../shared/QuickTip.vue'
 
 const authStore = useAuthStore()
 const { getDeviceFingerprint } = useDeviceFingerprint()
