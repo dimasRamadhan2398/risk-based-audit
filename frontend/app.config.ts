@@ -88,7 +88,8 @@ export default defineAppConfig({
           solid: '',
           outline: '',
           soft: '',
-          subtle: ''
+          subtle: '',
+          none: ''
         },
         orientation: {
           horizontal: {
@@ -107,6 +108,7 @@ export default defineAppConfig({
         }
       },
       compoundVariants: [
+        // Primary
         {
           color: 'primary',
           variant: 'solid',
@@ -136,14 +138,193 @@ export default defineAppConfig({
           }
         },
         {
+          color: 'primary',
+          variant: 'none',
+          class: {
+            root: 'text-primary bg-transparent p-0'
+          }
+        },
+        // Secondary
+        {
+          color: 'secondary',
+          variant: 'solid',
+          class: {
+            root: 'bg-secondary text-white'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'outline',
+          class: {
+            root: 'text-secondary-600 dark:text-secondary-400 ring ring-inset ring-secondary-500/25'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'soft',
+          class: {
+            root: 'bg-secondary-500/10 text-secondary-600 dark:text-secondary-400'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'subtle',
+          class: {
+            root: 'bg-secondary-500/10 text-secondary-600 dark:text-secondary-400 ring ring-inset ring-secondary-500/25'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'none',
+          class: {
+            root: 'text-secondary-600 dark:text-secondary-400 bg-transparent p-0'
+          }
+        },
+        // Success
+        {
+          color: 'success',
+          variant: 'solid',
+          class: {
+            root: 'bg-success-600 text-white dark:bg-success-500'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'outline',
+          class: {
+            root: 'text-success-700 dark:text-success-400 ring ring-inset ring-success-500/25'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'soft',
+          class: {
+            root: 'bg-success-500/10 text-success-700 dark:text-success-400'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'subtle',
+          class: {
+            root: 'bg-success-500/10 text-success-700 dark:text-success-400 ring ring-inset ring-success-500/25'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'none',
+          class: {
+            root: 'text-success-700 dark:text-success-400 bg-transparent p-0'
+          }
+        },
+        // Info
+        {
+          color: 'info',
+          variant: 'solid',
+          class: {
+            root: 'bg-info-600 text-white dark:bg-info-500'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'outline',
+          class: {
+            root: 'text-info-700 dark:text-info-400 ring ring-inset ring-info-500/25'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'soft',
+          class: {
+            root: 'bg-info-500/10 text-info-700 dark:text-info-400'
+          }
+        },
+        {
           color: 'info',
           variant: 'subtle',
           class: {
-            root: 'ring-info/10 bg-info-700/20',
-            icon: "text-info-700 font-bold",
-            description: "text-info-700"
+            root: 'bg-info-500/10 text-info-700 dark:text-info-400 ring ring-inset ring-info-500/25'
           }
         },
+        {
+          color: 'info',
+          variant: 'none',
+          class: {
+            root: 'text-info-700 dark:text-info-400 bg-transparent p-0'
+          }
+        },
+        // Warning
+        {
+          color: 'warning',
+          variant: 'solid',
+          class: {
+            root: 'bg-warning-500 text-gray-950 font-medium'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'outline',
+          class: {
+            root: 'text-warning-700 dark:text-warning-400 ring ring-inset ring-warning-500/25'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'soft',
+          class: {
+            root: 'bg-warning-500/10 text-warning-700 dark:text-warning-400'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'subtle',
+          class: {
+            root: 'bg-warning-500/10 text-warning-700 dark:text-warning-400 ring ring-inset ring-warning-500/25'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'none',
+          class: {
+            root: 'text-warning-700 dark:text-warning-400 bg-transparent p-0'
+          }
+        },
+        // Error
+        {
+          color: 'error',
+          variant: 'solid',
+          class: {
+            root: 'bg-error-600 text-white dark:bg-error-500'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'outline',
+          class: {
+            root: 'text-error-700 dark:text-error-400 ring ring-inset ring-error-500/25'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'soft',
+          class: {
+            root: 'bg-error-500/10 text-error-700 dark:text-error-400'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'subtle',
+          class: {
+            root: 'bg-error-500/10 text-error-700 dark:text-error-400 ring ring-inset ring-error-500/25'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'none',
+          class: {
+            root: 'text-error-700 dark:text-error-400 bg-transparent p-0'
+          }
+        },
+        // Neutral
         {
           color: 'neutral',
           variant: 'solid',
@@ -170,6 +351,13 @@ export default defineAppConfig({
           variant: 'subtle',
           class: {
             root: 'text-highlighted bg-elevated/50 ring ring-inset ring-accented'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'none',
+          class: {
+            root: 'text-highlighted bg-transparent p-0'
           }
         }
       ],

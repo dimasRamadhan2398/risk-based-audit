@@ -593,7 +593,12 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			if req.Password != "" {
 				existing.Password = req.Password
 			}
-			existing.Scopes = req.Scopes
+			if req.Scopes != nil {
+				existing.Scopes = req.Scopes
+			}
+			if req.DataMappings != nil {
+				existing.DataMappings = req.DataMappings
+			}
 
 			if err := db.Save(&existing).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update data source: " + err.Error()})
@@ -672,6 +677,207 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusOK, gin.H{
 				"success": true,
 				"message": fmt.Sprintf("Successfully connected to %s at %s:%d (Database: %s).", conn.Name, conn.Host, conn.Port, conn.Database),
+				"data":    conn,
+			})
+		})
+
+		// Schema Introspection: returns discovered tables & column metadata
+		ds.GET("/:id/schema", func(c *gin.Context) {
+			id, err := uuid.Parse(c.Param("id"))
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
+				return
+			}
+			var conn models.DataSourceConnection
+			if err := db.First(&conn, "id = ?", id).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Data source connection not found"})
+				return
+			}
+
+			// Simulated standard banking/enterprise schema for discovered database
+			tables := []models.SchemaTable{
+				{
+					TableName:   "gl_transactions",
+					RowCount:    142580,
+					ColumnCount: 8,
+					Description: "General Ledger posted financial transactions and journal vouchers",
+					Columns: []models.TableColumn{
+						{Name: "id", DataType: "uuid", IsPrimary: true, IsNullable: false},
+						{Name: "transaction_ref", DataType: "varchar(64)", IsPrimary: false, IsNullable: false},
+						{Name: "account_number", DataType: "varchar(32)", IsPrimary: false, IsNullable: false},
+						{Name: "amount", DataType: "numeric(18,2)", IsPrimary: false, IsNullable: false},
+						{Name: "currency", DataType: "varchar(3)", IsPrimary: false, IsNullable: false},
+						{Name: "channel", DataType: "varchar(32)", IsPrimary: false, IsNullable: true},
+						{Name: "created_by", DataType: "varchar(64)", IsPrimary: false, IsNullable: false},
+						{Name: "created_at", DataType: "timestamp", IsPrimary: false, IsNullable: false},
+					},
+				},
+				{
+					TableName:   "loan_accounts",
+					RowCount:    28490,
+					ColumnCount: 7,
+					Description: "Customer credit facilities, risk ratings & collateral values",
+					Columns: []models.TableColumn{
+						{Name: "loan_id", DataType: "varchar(32)", IsPrimary: true, IsNullable: false},
+						{Name: "cif_number", DataType: "varchar(20)", IsPrimary: false, IsNullable: false},
+						{Name: "product_type", DataType: "varchar(50)", IsPrimary: false, IsNullable: false},
+						{Name: "principal_amount", DataType: "numeric(18,2)", IsPrimary: false, IsNullable: false},
+						{Name: "interest_rate", DataType: "numeric(5,2)", IsPrimary: false, IsNullable: false},
+						{Name: "kol_status", DataType: "varchar(10)", IsPrimary: false, IsNullable: false},
+						{Name: "disbursed_at", DataType: "timestamp", IsPrimary: false, IsNullable: true},
+					},
+				},
+				{
+					TableName:   "user_access_audit_logs",
+					RowCount:    894200,
+					ColumnCount: 6,
+					Description: "Core banking privileged authentication, role mutations & terminal access",
+					Columns: []models.TableColumn{
+						{Name: "log_id", DataType: "bigserial", IsPrimary: true, IsNullable: false},
+						{Name: "user_id", DataType: "varchar(64)", IsPrimary: false, IsNullable: false},
+						{Name: "action_name", DataType: "varchar(128)", IsPrimary: false, IsNullable: false},
+						{Name: "ip_address", DataType: "varchar(45)", IsPrimary: false, IsNullable: true},
+						{Name: "is_override_auth", DataType: "boolean", IsPrimary: false, IsNullable: false},
+						{Name: "logged_at", DataType: "timestamp", IsPrimary: false, IsNullable: false},
+					},
+				},
+				{
+					TableName:   "vendor_invoices",
+					RowCount:    12350,
+					ColumnCount: 7,
+					Description: "Procurement invoice approvals, vendor details & disbursement status",
+					Columns: []models.TableColumn{
+						{Name: "invoice_no", DataType: "varchar(64)", IsPrimary: true, IsNullable: false},
+						{Name: "vendor_code", DataType: "varchar(32)", IsPrimary: false, IsNullable: false},
+						{Name: "invoice_amount", DataType: "numeric(18,2)", IsPrimary: false, IsNullable: false},
+						{Name: "po_number", DataType: "varchar(64)", IsPrimary: false, IsNullable: true},
+						{Name: "approval_status", DataType: "varchar(32)", IsPrimary: false, IsNullable: false},
+						{Name: "approver_id", DataType: "varchar(64)", IsPrimary: false, IsNullable: true},
+						{Name: "paid_at", DataType: "timestamp", IsPrimary: false, IsNullable: true},
+					},
+				},
+				{
+					TableName:   "compliance_incident_records",
+					RowCount:    320,
+					ColumnCount: 6,
+					Description: "Regulatory policy violations, STR/AML alerts & AML screening hits",
+					Columns: []models.TableColumn{
+						{Name: "incident_id", DataType: "uuid", IsPrimary: true, IsNullable: false},
+						{Name: "category", DataType: "varchar(64)", IsPrimary: false, IsNullable: false},
+						{Name: "severity_score", DataType: "integer", IsPrimary: false, IsNullable: false},
+						{Name: "investigator_notes", DataType: "text", IsPrimary: false, IsNullable: true},
+						{Name: "status", DataType: "varchar(32)", IsPrimary: false, IsNullable: false},
+						{Name: "reported_at", DataType: "timestamp", IsPrimary: false, IsNullable: false},
+					},
+				},
+			}
+
+			c.JSON(http.StatusOK, gin.H{
+				"success": true,
+				"data": gin.H{
+					"database":    conn.Database,
+					"host":        conn.Host,
+					"totalTables": len(tables),
+					"tables":      tables,
+				},
+			})
+		})
+
+		// Data Preview: returns sample rows from a discovered table
+		ds.GET("/:id/preview/:tableName", func(c *gin.Context) {
+			tableName := c.Param("tableName")
+			
+			var sampleRows []map[string]interface{}
+			switch tableName {
+			case "gl_transactions":
+				sampleRows = []map[string]interface{}{
+					{"id": "c1f721e0-0814-4eb9-bf2a-429f55e69e01", "transaction_ref": "TRX-20260813-0091", "account_number": "ACC-10029381", "amount": 450000000.00, "currency": "IDR", "channel": "RTGS", "created_by": "teller_014", "created_at": "2026-08-13 14:15:02"},
+					{"id": "e4a812b1-5912-4fc8-9f1a-518f44d78a02", "transaction_ref": "TRX-20260813-0092", "account_number": "ACC-50019283", "amount": 12500000.00, "currency": "IDR", "channel": "MOBILE_APP", "created_by": "system_auto", "created_at": "2026-08-13 14:22:11"},
+					{"id": "a9d701c3-1123-4ca7-8b3d-621f33b67c03", "transaction_ref": "TRX-20260813-0093", "account_number": "ACC-88029311", "amount": 890000000.00, "currency": "IDR", "channel": "BRANCH_OVERRIDE", "created_by": "branch_mgr_02", "created_at": "2026-08-13 15:05:44"},
+					{"id": "b7c654d2-3341-4fb9-7c2a-994f11a89d04", "transaction_ref": "TRX-20260813-0094", "account_number": "ACC-10029381", "amount": 35000000.00, "currency": "IDR", "channel": "ATM", "created_by": "atm_terminal_8", "created_at": "2026-08-13 15:10:00"},
+				}
+			case "loan_accounts":
+				sampleRows = []map[string]interface{}{
+					{"loan_id": "LN-2026-00128", "cif_number": "CIF-881923", "product_type": "Commercial Working Capital", "principal_amount": 2500000000.00, "interest_rate": 8.50, "kol_status": "KOL-1 (Lancor)", "disbursed_at": "2026-01-15 10:00:00"},
+					{"loan_id": "LN-2026-00129", "cif_number": "CIF-772910", "product_type": "Mortgage Griya", "principal_amount": 750000000.00, "interest_rate": 6.75, "kol_status": "KOL-2 (Dalam Perhatian)", "disbursed_at": "2025-11-20 11:30:00"},
+					{"loan_id": "LN-2026-00130", "cif_number": "CIF-664019", "product_type": "SME Microloan", "principal_amount": 150000000.00, "interest_rate": 9.25, "kol_status": "KOL-1 (Lancor)", "disbursed_at": "2026-03-01 09:15:00"},
+				}
+			case "user_access_audit_logs":
+				sampleRows = []map[string]interface{}{
+					{"log_id": 98120, "user_id": "adm_super_01", "action_name": "MUTATION_TABLE_PERMISSIONS", "ip_address": "10.20.4.12", "is_override_auth": true, "logged_at": "2026-08-13 15:48:10"},
+					{"log_id": 98121, "user_id": "teller_014", "action_name": "POST_CASH_TRANSACTION", "ip_address": "10.20.10.88", "is_override_auth": false, "logged_at": "2026-08-13 15:50:02"},
+					{"log_id": 98122, "user_id": "batch_job_eod", "action_name": "EOD_INTEREST_CALCULATION", "ip_address": "10.20.1.5", "is_override_auth": false, "logged_at": "2026-08-13 16:00:00"},
+				}
+			case "vendor_invoices":
+				sampleRows = []map[string]interface{}{
+					{"invoice_no": "INV-2026-8801", "vendor_code": "VND-TECH-01", "invoice_amount": 185000000.00, "po_number": "PO-2026-041", "approval_status": "APPROVED", "approver_id": "cfo_finance", "paid_at": "2026-08-10 16:00:00"},
+					{"invoice_no": "INV-2026-8802", "vendor_code": "VND-SEC-09", "invoice_amount": 42000000.00, "po_number": "PO-2026-045", "approval_status": "PENDING_APPROVAL", "approver_id": "procurement_lead", "paid_at": nil},
+				}
+			case "compliance_incident_records":
+				sampleRows = []map[string]interface{}{
+					{"incident_id": "d5e892c1-8812-4bc9-bf11-429f55e69e99", "category": "AML_STR_ALERT", "severity_score": 85, "investigator_notes": "Rapid turnover of funds in dormant corporate account", "status": "ESCALATED_TO_PPATK", "reported_at": "2026-08-12 11:20:00"},
+					{"incident_id": "f1b773d4-9914-4ca8-aa22-518f44d78a88", "category": "SOD_VIOLATION", "severity_score": 60, "investigator_notes": "Same user initiated and authorized ledger adjustment", "status": "IN_REVIEW", "reported_at": "2026-08-13 09:45:00"},
+				}
+			default:
+				sampleRows = []map[string]interface{}{
+					{"id": "1", "record_name": "Sample record 1", "status": "ACTIVE", "created_at": "2026-08-13 12:00:00"},
+					{"id": "2", "record_name": "Sample record 2", "status": "PENDING", "created_at": "2026-08-13 13:00:00"},
+				}
+			}
+
+			c.JSON(http.StatusOK, gin.H{
+				"success": true,
+				"data": gin.H{
+					"tableName": tableName,
+					"rows":      sampleRows,
+				},
+			})
+		})
+
+		// Save Data Mappings endpoint
+		ds.PUT("/:id/mappings", func(c *gin.Context) {
+			id, err := uuid.Parse(c.Param("id"))
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
+				return
+			}
+			var conn models.DataSourceConnection
+			if err := db.First(&conn, "id = ?", id).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Data source connection not found"})
+				return
+			}
+
+			type MappingPayload struct {
+				DataMappings []models.TableDataMapping `json:"dataMappings"`
+			}
+			var req MappingPayload
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+				return
+			}
+
+			conn.DataMappings = req.DataMappings
+			if err := db.Save(&conn).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update mappings: " + err.Error()})
+				return
+			}
+
+			log := models.DataSourceActivityLog{
+				ID:             uuid.New(),
+				ConnectionID:   conn.ID,
+				ConnectionName: conn.Name,
+				Type:           conn.Type,
+				Event:          "Schema Mappings Updated",
+				Status:         "SUCCESS",
+				Records:        len(req.DataMappings),
+				Duration:       "0.2s",
+				Timestamp:      "Just now",
+			}
+			db.Create(&log)
+
+			c.JSON(http.StatusOK, gin.H{
+				"success": true,
+				"message": fmt.Sprintf("Successfully saved %d table data mappings for %s.", len(req.DataMappings), conn.Name),
 				"data":    conn,
 			})
 		})
