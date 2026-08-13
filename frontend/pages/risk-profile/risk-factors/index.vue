@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-8 p-6 max-w-7xl mx-auto">
+  <div class="space-y-8 p-6 max-w-full mx-auto">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-main)] pb-5">
       <div>

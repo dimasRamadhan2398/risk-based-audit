@@ -692,7 +692,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
 </script>
 
 <template>
-  <div class="max-w-[1440px] mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <!-- Header -->
     <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>

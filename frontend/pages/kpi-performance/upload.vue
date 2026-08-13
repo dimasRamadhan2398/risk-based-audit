@@ -197,7 +197,7 @@ const columns = [
 </script>
 
 <template>
-  <div class="p-6 max-w-7xl mx-auto space-y-6 min-h-screen">
+  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/kpi-performance" />
