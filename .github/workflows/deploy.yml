@@ -181,6 +181,36 @@ jobs:
               cd "$BACKEND_DIR"
               echo "🔨 Building backend images in parallel..."
               docker compose -f "$BACKEND_COMPOSE" build --parallel
+
+              # ── Phase 1: Start infra (postgres, redis, zookeeper) ──────────
+              echo "🏗️  Phase 1: Starting infrastructure services (postgres, redis, zookeeper)..."
+              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans \
+                postgres redis zookeeper
+
+              # ── Phase 2: Start Kafka and wait for it to become healthy ─────
+              echo "🏗️  Phase 2: Starting Kafka and waiting for health..."
+              docker compose -f "$BACKEND_COMPOSE" up -d kafka
+
+              KAFKA_HEALTHY=0
+              for i in $(seq 1 36); do
+                KAFKA_STATUS=$(docker inspect --format='{{.State.Health.Status}}' rb_audit_kafka 2>/dev/null || echo "not_found")
+                if [ "$KAFKA_STATUS" = "healthy" ]; then
+                  echo "✅ Kafka is healthy."
+                  KAFKA_HEALTHY=1
+                  break
+                fi
+                echo "⏳ Kafka status: $KAFKA_STATUS — waiting... attempt $i/36"
+                sleep 5
+              done
+
+              if [ "$KAFKA_HEALTHY" -ne 1 ]; then
+                echo "❌ Kafka failed to become healthy after 3 minutes. Check Kafka logs:"
+                docker compose -f "$BACKEND_COMPOSE" logs --tail=60 kafka || true
+                exit 1
+              fi
+
+              # ── Phase 3: Start all remaining application services ──────────
+              echo "🏗️  Phase 3: Starting application services..."
               docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans
 
               echo "🏥 Waiting for backend health..."
