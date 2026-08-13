@@ -42,8 +42,8 @@ services:
       test: ["CMD-SHELL", "nc -z 127.0.0.1 2181 || exit 1"]
       interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 15s
+      retries: 15
+      start_period: 30s
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -69,11 +69,11 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 29092 || exit 1"]
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 29092 && kafka-topics --bootstrap-server 127.0.0.1:29092 --list > /dev/null 2>&1 || exit 1"]
       interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 90s
+      timeout: 10s
+      retries: 15
+      start_period: 120s
     networks:
       - rb_audit_network
     restart: unless-stopped

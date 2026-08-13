@@ -48,7 +48,25 @@ CREATE TABLE IF NOT EXISTS user_roles (
     PRIMARY KEY (user_id, role_id)
 );
 
+-- RBAC Matrix Features table
+CREATE TABLE IF NOT EXISTS rbac_matrix_features (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    feature_number INT NOT NULL,
+    module VARCHAR(100) NOT NULL,
+    submodule VARCHAR(150),
+    feature_code VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT,
+    admin_access VARCHAR(50) NOT NULL DEFAULT 'FULL',
+    audit_manager_access VARCHAR(50) NOT NULL DEFAULT 'READ',
+    auditor_access VARCHAR(50) NOT NULL DEFAULT 'READ',
+    auditee_access VARCHAR(50) NOT NULL DEFAULT 'NONE',
+    viewer_access VARCHAR(50) NOT NULL DEFAULT 'READ',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- +migrate Down
+DROP TABLE IF EXISTS rbac_matrix_features CASCADE;
 DROP TABLE IF EXISTS user_roles CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS role_permissions CASCADE;

@@ -30,6 +30,10 @@ func (s *Seeder) RunAll() error {
 		return fmt.Errorf("failed to seed users: %w", err)
 	}
 
+	if err := s.SeedRbacMatrix(); err != nil {
+		return fmt.Errorf("failed to seed RBAC matrix: %w", err)
+	}
+
 	return nil
 }
 
@@ -351,6 +355,52 @@ func (s *Seeder) SeedUsers() error {
 	for _, a := range assignments {
 		if err := s.DB.Model(a.user).Association("Roles").Append(a.role); err != nil {
 			return fmt.Errorf("failed to assign role to user %s: %w", a.user.Username, err)
+		}
+	}
+
+	return nil
+}
+
+// SeedRbacMatrix seeds the AuditSphere RBAC matrix permissions feature set
+func (s *Seeder) SeedRbacMatrix() error {
+	features := []models.RbacMatrixFeature{
+		{FeatureNumber: 1, Module: "Dashboard", Submodule: "Dashboard Main Overview", FeatureCode: "dashboard", Description: "Dashboard access & overview", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 2, Module: "Audit Charter", Submodule: "Audit Charter Framework", FeatureCode: "audit_charter", Description: "Audit charter framework", AdminAccess: "FULL", AuditManagerAccess: "READ", AuditorAccess: "READ", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 3, Module: "Risk Profile", Submodule: "Corporate Risk Profile", FeatureCode: "risk_profile_corporate", Description: "Corporate risk profile mapping", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "FULL", AuditeeAccess: "EDIT — Own Dept.", ViewerAccess: "READ"},
+		{FeatureNumber: 3, Module: "Risk Profile", Submodule: "Risk Appetite Statement", FeatureCode: "risk_profile_appetite", Description: "Risk appetite statement", AdminAccess: "FULL", AuditManagerAccess: "READ", AuditorAccess: "READ", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 3, Module: "Risk Profile", Submodule: "Risk Factors & Scoring", FeatureCode: "risk_profile_factors", Description: "Risk scoring parameters", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "NONE", ViewerAccess: "READ"},
+		{FeatureNumber: 3, Module: "Risk Profile", Submodule: "Audit Universe", FeatureCode: "risk_profile_universe", Description: "Audit universe entities", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "NONE", ViewerAccess: "READ"},
+		{FeatureNumber: 3, Module: "Risk Profile", Submodule: "Risk Control Matrix (RCM)", FeatureCode: "risk_profile_rcm", Description: "Risk control matrix", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "FULL", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 4, Module: "Strategic Audit Plan", Submodule: "Strategic Audit Plan", FeatureCode: "strategic_audit_plan", Description: "Strategic audit plan", AdminAccess: "FULL", AuditManagerAccess: "EDIT", AuditorAccess: "READ", AuditeeAccess: "NONE", ViewerAccess: "READ"},
+		{FeatureNumber: 5, Module: "Annual Audit Plan", Submodule: "Create / Manage Plan", FeatureCode: "annual_plan_manage", Description: "Annual plan creation & management", AdminAccess: "FULL", AuditManagerAccess: "DRAFT", AuditorAccess: "READ", AuditeeAccess: "NONE", ViewerAccess: "READ"},
+		{FeatureNumber: 5, Module: "Annual Audit Plan", Submodule: "Import Plan Document", FeatureCode: "annual_plan_import", Description: "Import annual plan document", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "NONE", AuditeeAccess: "NONE", ViewerAccess: "NONE"},
+		{FeatureNumber: 5, Module: "Annual Audit Plan", Submodule: "Execution Status", FeatureCode: "annual_plan_status", Description: "Annual plan execution status", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 6, Module: "Audit Activity Plan", Submodule: "Create Activity Plan", FeatureCode: "activity_plan_create", Description: "Create activity plan", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "DRAFT", AuditeeAccess: "NONE", ViewerAccess: "READ"},
+		{FeatureNumber: 6, Module: "Audit Activity Plan", Submodule: "Import Activity Plan", FeatureCode: "activity_plan_import", Description: "Import activity plan", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "NONE", AuditeeAccess: "NONE", ViewerAccess: "NONE"},
+		{FeatureNumber: 7, Module: "Assignment Letter", Submodule: "Create / Publish Letter", FeatureCode: "assignment_letter_publish", Description: "Create/publish assignment letter", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 7, Module: "Assignment Letter", Submodule: "Import Letter", FeatureCode: "assignment_letter_import", Description: "Import assignment letter", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "NONE", AuditeeAccess: "NONE", ViewerAccess: "NONE"},
+		{FeatureNumber: 8, Module: "Audit Fieldwork", Submodule: "Fieldwork — Interviews, Sampling, Testing, etc.", FeatureCode: "fieldwork_testing", Description: "Fieldwork interviews & testing", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "FULL", AuditeeAccess: "RESPOND", ViewerAccess: "READ"},
+		{FeatureNumber: 8, Module: "Audit Fieldwork", Submodule: "Working Papers — F-01 to F-05", FeatureCode: "fieldwork_working_papers", Description: "Working papers F-01 to F-05", AdminAccess: "FULL", AuditManagerAccess: "REVIEW", AuditorAccess: "CREATE", AuditeeAccess: "NONE", ViewerAccess: "READ"},
+		{FeatureNumber: 8, Module: "Audit Fieldwork", Submodule: "Import Working Papers", FeatureCode: "fieldwork_import_papers", Description: "Import working papers", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "UPLOAD", AuditeeAccess: "NONE", ViewerAccess: "NONE"},
+		{FeatureNumber: 9, Module: "Audit Result Report", Submodule: "Result Report / LHA", FeatureCode: "report_lha", Description: "Result report / LHA", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "DRAFT", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 9, Module: "Audit Result Report", Submodule: "Executive Summary", FeatureCode: "report_executive_summary", Description: "Executive summary report", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 9, Module: "Audit Result Report", Submodule: "Client Satisfaction Survey", FeatureCode: "report_survey", Description: "Client satisfaction survey", AdminAccess: "FULL", AuditManagerAccess: "READ", AuditorAccess: "READ", AuditeeAccess: "FILL SURVEY", ViewerAccess: "READ"},
+		{FeatureNumber: 10, Module: "Action Taken Report (ATR)", Submodule: "Action Taken Report (ATR)", FeatureCode: "action_taken_report", Description: "Action taken report & CAPA tracking", AdminAccess: "FULL", AuditManagerAccess: "REVIEW", AuditorAccess: "READ", AuditeeAccess: "UPDATE CAPA", ViewerAccess: "READ"},
+		{FeatureNumber: 11, Module: "KPI Performance", Submodule: "KPI Performance", FeatureCode: "kpi_performance", Description: "KPI performance metrics", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "NONE", ViewerAccess: "READ"},
+		{FeatureNumber: 12, Module: "Consulting Service", Submodule: "Consulting Service", FeatureCode: "consulting_service", Description: "Consulting service requests", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "FULL", AuditeeAccess: "REQUEST", ViewerAccess: "READ"},
+		{FeatureNumber: 13, Module: "Quality Assurance (QA)", Submodule: "Quality Assurance (QA)", FeatureCode: "quality_assurance", Description: "Quality assurance reviews", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "NONE", ViewerAccess: "READ"},
+		{FeatureNumber: 14, Module: "Analytics", Submodule: "Analytics", FeatureCode: "analytics", Description: "Analytics & audit dashboards", AdminAccess: "FULL", AuditManagerAccess: "FULL", AuditorAccess: "READ", AuditeeAccess: "READ", ViewerAccess: "READ"},
+		{FeatureNumber: 15, Module: "Settings & User Management", Submodule: "Settings & User Management", FeatureCode: "settings_user_management", Description: "Settings & RBAC management", AdminAccess: "FULL", AuditManagerAccess: "NONE", AuditorAccess: "NONE", AuditeeAccess: "NONE", ViewerAccess: "NONE"},
+	}
+
+	for i := range features {
+		var existing models.RbacMatrixFeature
+		if err := s.DB.Where("feature_code = ?", features[i].FeatureCode).First(&existing).Error; err == gorm.ErrRecordNotFound {
+			if err := s.DB.Create(&features[i]).Error; err != nil {
+				return fmt.Errorf("failed to create rbac feature %s: %w", features[i].FeatureCode, err)
+			}
+		} else {
+			s.DB.Model(&existing).Updates(&features[i])
 		}
 	}
 
