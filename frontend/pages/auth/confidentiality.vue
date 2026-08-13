@@ -150,8 +150,8 @@
           <div class="space-y-2">
             <div class="h-1.5 bg-[var(--border-main)] rounded-full overflow-hidden">
               <div
-                class="h-full rounded-full transition-all duration-500"
-                :style="{ width: `${scrollProgress}%`, background: 'linear-gradient(90deg, var(--color-secondary-500), var(--color-primary-500))' }"
+                class="h-full rounded-full transition-all duration-500 bg-primary-400"
+                :style="{ width: `${scrollProgress}%` }"
               />
             </div>
             <p v-if="!hasScrolledToBottom" class="text-md text-[var(--text-muted)] text-center flex items-center justify-center gap-1">
@@ -164,20 +164,21 @@
 
           <!-- Action buttons for Step 2 -->
           <div class="flex flex-col sm:flex-row gap-3 pt-4">
-            <button
+            <DangerButton
               id="confidentiality-reject-btn"
-              class="flex-1 px-4 py-3 rounded-xl border border-error-500/30 bg-error-500/10 text-error-600 dark:text-error-400 hover:bg-error-500/20 text-sm font-semibold transition-all duration-200"
+              variant="solid"
+              size="lg"
+              class="whitespace-nowrap shrink-0"
               @click="handleReject"
             >
               {{ t.step2.rejectBtn }}
-            </button>
+            </DangerButton>
             <button
               id="confidentiality-accept-btn"
               :disabled="!hasScrolledToBottom || accepting"
-              class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200"
-              :style="hasScrolledToBottom && !accepting ? { background: 'linear-gradient(135deg, var(--color-secondary-500), var(--color-primary-500))', bomdhadow: '0 8px 24px -4px color-mix(in srgb, var(--color-secondary-500) 30%, transparent)' } : {}"
+              class="flex-1 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200 whitespace-nowrap flex items-center justify-center gap-1.5"
               :class="hasScrolledToBottom && !accepting
-                ? 'text-white hover:opacity-90'
+                ? 'bg-primary-400 hover:bg-primary-500 text-white shadow-lg shadow-primary-400/25'
                 : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
               @click="handleAccept"
             >
@@ -286,7 +287,7 @@
           <!-- Action buttons for Step 3 -->
           <div class="flex flex-col sm:flex-row gap-3 pt-4">
             <button
-              class="flex-1 px-4 py-3 rounded-xl border border-[var(--border-main)] hover:bg-[var(--bg-surface)] text-sm font-semibold transition-all duration-200 text-[var(--text-main)]"
+              class="px-5 py-3 rounded-xl border border-[var(--border-main)] hover:bg-[var(--bg-surface)] text-sm font-semibold transition-all duration-200 text-[var(--text-main)] whitespace-nowrap shrink-0"
               @click="currentStep = 2"
             >
               {{ t.step3.backBtn }}
@@ -294,8 +295,10 @@
             <button
               id="profile-complete-btn"
               :disabled="savingProfile || !profileState.fullName"
-              class="flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 text-white disabled:bg-[var(--border-main)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
-              :style="!(savingProfile || !profileState.fullName) ? { background: 'linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500))', bomdhadow: '0 8px 24px -4px color-mix(in srgb, var(--color-primary-500) 30%, transparent)' } : {}"
+              class="flex-1 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200 whitespace-nowrap flex items-center justify-center gap-1.5"
+              :class="!(savingProfile || !profileState.fullName)
+                ? 'bg-primary-400 hover:bg-primary-500 text-white shadow-lg shadow-primary-400/25'
+                : 'bg-[var(--border-main)] text-[var(--text-muted)] cursor-not-allowed'"
               @click="handleSaveProfile"
             >
               <span v-if="savingProfile">{{ t.step3.savingBtn }}</span>
