@@ -127,6 +127,7 @@ jobs:
                 echo "🔄 Taking git pull path..."
                 cd "$REPO_DIR" || { echo "❌ cd $REPO_DIR failed"; exit 1; }
                 echo "   ✓ cd OK"
+                git remote set-url origin "$REPO_URL" 2>&1 || true
                 git fetch --depth=1 origin main 2>&1 || { echo "❌ git fetch failed (exit $?)"; exit 1; }
                 echo "   ✓ fetch OK"
                 git reset --hard origin/main 2>&1 || { echo "❌ git reset failed (exit $?)"; exit 1; }
