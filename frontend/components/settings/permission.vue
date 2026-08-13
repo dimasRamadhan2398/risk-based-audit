@@ -38,25 +38,25 @@
           </h4>
           <div class="flex flex-wrap items-center gap-4 text-xs">
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 rounded-full font-bold text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border bg-emerald-800 text-emerald-700 border-emerald-200 dark:bg-emerald-800 dark:text-emerald-300 dark:border-emerald-800">
                 FULL
               </span>
               <span class="text-gray-600 dark:text-gray-300">Full Access (Create, Read, Update, Delete, Approval)</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 rounded-full font-bold text-xs bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border bg-amber-800 text-amber-700 border-amber-200 dark:bg-amber-800 dark:text-amber-300 dark:border-amber-800">
                 LIMITED / ACTION
               </span>
               <span class="text-gray-600 dark:text-gray-300">Restricted operational action (Draft, Edit, Respond, Review, etc.)</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 rounded-full font-bold text-xs bg-sky-100 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300 border border-sky-300 dark:border-sky-700">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border bg-slate-800 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
                 READ
               </span>
               <span class="text-gray-600 dark:text-gray-300">Read-Only access</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 rounded-full font-bold text-xs bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border bg-slate-800 text-slate-400 border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-800">
                 NONE
               </span>
               <span class="text-gray-600 dark:text-gray-300">No access / Hidden from navigation</span>
@@ -131,7 +131,7 @@
                   <div>
                     <span
                       class="font-semibold text-gray-900 dark:text-gray-100"
-                      :class="{ 'text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold': !item.isSubmodule }"
+                      :class="{ 'text-sm tracking-tight text-gray-500 dark:text-gray-400 font-bold': !item.isSubmodule }"
                     >
                       {{ item.isSubmodule ? item.submodule : item.module }}
                     </span>
@@ -256,19 +256,39 @@ const filteredMatrix = computed(() => {
 })
 
 function getBadgeClass(val: string): string {
-  const base = 'inline-flex items-center justify-center px-2.5 py-1 rounded-full font-bold text-xs transition-colors border '
+  const base =
+    'inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border'
 
   if (val === 'FULL') {
-    return base + 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+    return (
+      base +
+      ' bg-emerald-800 text-emerald-700 border-emerald-200' +
+      ' dark:bg-emerald-800 dark:text-emerald-300 dark:border-emerald-800'
+    )
   }
+
   if (val === 'READ') {
-    return base + 'bg-sky-100 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300 border-sky-300 dark:border-sky-700'
+    return (
+      base +
+      ' bg-slate-800 text-slate-600 border-slate-200' +
+      ' dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+    )
   }
+
   if (val === 'NONE') {
-    return base + 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border-rose-200 dark:border-rose-800'
+    return (
+      base +
+      ' bg-slate-800 text-slate-400 border-slate-200' +
+      ' dark:bg-slate-800 dark:text-slate-500 dark:border-slate-800'
+    )
   }
-  // Action specific / Limited access
-  return base + 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-300 dark:border-amber-700'
+
+  // Action-specific / Limited access
+  return (
+    base +
+    ' bg-amber-800 text-amber-700 border-amber-200' +
+    ' dark:bg-amber-800 dark:text-amber-300 dark:border-amber-800'
+  )
 }
 
 function exportMatrix() {
