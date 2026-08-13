@@ -1,421 +1,284 @@
 <template>
-  <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
-    <template #header>
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.permission.title') }}</h3>
-          <p class="text-md sm:text-sm text-gray-500 dark:text-gray-400">
-            {{ t('settings.permission.subtitle') }}
-          </p>
+  <div class="space-y-6">
+    <!-- Main Card Container -->
+    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+      <template #header>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <UIcon
+                name="i-lucide-shield-check"
+                class="w-6 h-6 text-primary-600 dark:text-primary-400"
+              />
+              AuditSphere Role-Based Access Control (RBAC) Matrix
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Official permission matrix defining access rights and operational authority across system modules.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <UButton
+              label="Export Matrix"
+              icon="i-lucide-download"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              @click="exportMatrix"
+            />
+          </div>
+        </div>
+      </template>
+
+      <!-- Access Legend & Controls -->
+      <div class="space-y-6 mb-6">
+        <!-- Legend Pill Container -->
+        <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+            Access Level Legend
+          </h4>
+          <div class="flex flex-wrap items-center gap-4 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full font-bold text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                FULL
+              </span>
+              <span class="text-gray-600 dark:text-gray-300">Full Access (Create, Read, Update, Delete, Approval)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full font-bold text-xs bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                LIMITED / ACTION
+              </span>
+              <span class="text-gray-600 dark:text-gray-300">Restricted operational action (Draft, Edit, Respond, Review, etc.)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full font-bold text-xs bg-sky-100 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300 border border-sky-300 dark:border-sky-700">
+                READ
+              </span>
+              <span class="text-gray-600 dark:text-gray-300">Read-Only access</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full font-bold text-xs bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
+                NONE
+              </span>
+              <span class="text-gray-600 dark:text-gray-300">No access / Hidden from navigation</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="w-full sm:w-80">
+            <UInput
+              v-model="searchQuery"
+              icon="i-lucide-search"
+              placeholder="Search module or feature..."
+              class="w-full"
+            />
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto text-xs text-gray-500 dark:text-gray-400 font-medium">
+            Showing {{ filteredMatrix.length }} of {{ matrixData.length }} module features
+          </div>
         </div>
       </div>
-    </template>
 
-    <!-- Role Selector -->
-    <div class="mb-6">
-      <h4 class="font-medium text-gray-900 dark:text-white mb-3">
-        {{ t('settings.permission.currentRole') }} <span class="text-primary-600 dark:text-primary-400 font-bold">{{ currentRole }}</span>
-      </h4>
-    </div>
+      <!-- Feature Access Matrix Table -->
+      <div class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-gray-100 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+              <th class="py-3.5 px-4 font-bold w-12 text-center">
+                #
+              </th>
+              <th class="py-3.5 px-4 font-bold min-w-[240px]">
+                Sidebar Module / Feature
+              </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[130px] bg-emerald-50/50 dark:bg-emerald-950/20">
+                Admin / CAE
+              </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[130px]">
+                Audit Manager
+              </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[130px]">
+                Auditor
+              </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[150px]">
+                Auditee / Dept. Head
+              </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[120px]">
+                Viewer
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+            <tr
+              v-for="item in filteredMatrix"
+              :key="item.id"
+              class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-colors"
+            >
+              <!-- Module Number -->
+              <td class="py-3 px-4 text-center font-medium text-gray-500 dark:text-gray-400">
+                {{ item.num }}
+              </td>
 
-    <!-- Permissions Accordion -->
-    <UAccordion
-      :items="accordionItems"
-      variant="subtle"
-      color="primary"
-      :ui="{
-        trigger: 'text-gray-900 dark:text-gray-200 hover:text-gray-700 dark:hover:text-gray-400 transition-colors',
-        label: 'font-bold text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-400'
-      }"
-    >
-      <template #content="{ item }">
-        <div class="pb-4">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-gray-200 dark:border-gray-800">
-                <th class="text-left py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableModule') }}</th>
-                <th class="text-left py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableDescription') }}</th>
-                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableRead') }}</th>
-                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableWrite') }}</th>
-                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableDelete') }}</th>
-                <th class="text-center py-3 px-4 font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('settings.permission.tableAction') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="permission in item.permissions"
-                :key="permission.id"
-                class="border-b border-gray-100 dark:border-gray-800/60 hover:bg-gray-50 dark:hover:bg-gray-800/40 group transition-colors"
-              >
-                <td class="py-3 px-4">
-                  <div class="flex items-center gap-3">
-                    <span class="font-medium text-gray-900 dark:text-gray-200 group-hover:text-gray-700 dark:group-hover:text-gray-400 transition-colors">
-                      {{ permission.module }}
+              <!-- Sidebar Module / Feature Name -->
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-2">
+                  <span
+                    v-if="item.isSubmodule"
+                    class="text-gray-400 dark:text-gray-600 font-mono text-sm ml-2"
+                  >
+                    ↳
+                  </span>
+                  <div>
+                    <span
+                      class="font-semibold text-gray-900 dark:text-gray-100"
+                      :class="{ 'text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold': !item.isSubmodule }"
+                    >
+                      {{ item.isSubmodule ? item.submodule : item.module }}
                     </span>
+                    <p
+                      v-if="item.isSubmodule && item.module"
+                      class="text-xs text-gray-400 dark:text-gray-500"
+                    >
+                      {{ item.module }}
+                    </p>
                   </div>
-                </td>
-                <td class="py-3 px-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-400 transition-colors">
-                  {{ permission.description }}
-                </td>
-                <td class="py-3 px-4 text-center">
-                  <UCheckbox :modelValue="getAccessCheckbomdtate(permission.access, 'read')" disabled />
-                </td>
-                <td class="py-3 px-4 text-center">
-                  <UCheckbox :modelValue="getAccessCheckbomdtate(permission.access, 'write')" disabled />
-                </td>
-                <td class="py-3 px-4 text-center">
-                  <UCheckbox :modelValue="getAccessCheckbomdtate(permission.access, 'delete')" disabled />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </template>
-    </UAccordion>
+                </div>
+              </td>
 
-    <!-- Add/Edit Modal -->
-    <UModal
-      :title="isEditMode ? t('settings.permission.editModalTitle') : t('settings.permission.addModalTitle')"
-      :open="isModalOpen"
-      :close="{
-        color: 'neutral',
-        variant: 'outline',
-        onClick: closeModal,
-      }"
-      variant="default"
-      dismissible
-    >
-      <template #body>
-        <UForm @submit.prevent="handleSubmit">
-          <div class="space-y-4">
-            <UFormField
-              :label="t('settings.permission.labelModule')"
-              required
-            >
-              <UInput
-                v-model="formData.module"
-                :placeholder="t('settings.permission.placeholderModule')"
-              />
-            </UFormField>
+              <!-- Admin / CAE Column -->
+              <td class="py-3 px-4 text-center bg-emerald-50/20 dark:bg-emerald-950/10">
+                <span :class="getBadgeClass(item.admin)">
+                  {{ item.admin }}
+                </span>
+              </td>
 
-            <UFormField
-              :label="t('settings.permission.labelIcon')"
-            >
-              <UInput
-                v-model="formData.icon"
-                placeholder="i-lucide-shield"
-              />
-            </UFormField>
+              <!-- Audit Manager Column -->
+              <td class="py-3 px-4 text-center">
+                <span :class="getBadgeClass(item.manager)">
+                  {{ item.manager }}
+                </span>
+              </td>
 
-            <UFormField
-              :label="t('settings.permission.labelDescription')"
-            >
-              <UTextarea
-                v-model="formData.description"
-                :placeholder="t('settings.permission.placeholderDescription')"
-                :rows="2"
-              />
-            </UFormField>
+              <!-- Auditor Column -->
+              <td class="py-3 px-4 text-center">
+                <span :class="getBadgeClass(item.auditor)">
+                  {{ item.auditor }}
+                </span>
+              </td>
 
-            <UFormField
-              :label="t('settings.permission.labelAccess')"
-            >
-              <USelect
-                v-model="formData.access"
-                :items="accessLevels"
-                :placeholder="t('settings.permission.placeholderAccess')"
-              />
-            </UFormField>
-          </div>
-        </UForm>
-      </template>
+              <!-- Auditee / Dept Head Column -->
+              <td class="py-3 px-4 text-center">
+                <span :class="getBadgeClass(item.auditee)">
+                  {{ item.auditee }}
+                </span>
+              </td>
 
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton
-            :label="t('settings.permission.cancel')"
-            color="neutral"
-            variant="outline"
-            @click="closeModal"
-          />
-          <UButton
-            :label="isEditMode ? t('settings.permission.save') : t('settings.permission.add')"
-            color="primary"
-            @click="handleSubmit"
-          />
-        </div>
-      </template>
-    </UModal>
+              <!-- Viewer Column -->
+              <td class="py-3 px-4 text-center">
+                <span :class="getBadgeClass(item.viewer)">
+                  {{ item.viewer }}
+                </span>
+              </td>
+            </tr>
 
-    <!-- Delete Confirmation -->
-    <ConfirmationPopup
-      v-model:isOpen="isDeleteModalOpen"
-      :title="t('settings.permission.deleteTitle')"
-      :question="t('settings.permission.deleteQuestion', { module: permissionToDelete?.module || '' })"
-      :confirmText="t('settings.permission.confirmDelete')"
-      :cancelText="t('settings.permission.cancel')"
-      variant="danger"
-      @confirm="confirmDelete"
-    />
-  </UCard>
+            <tr v-if="filteredMatrix.length === 0">
+              <td
+                colspan="7"
+                class="py-8 text-center text-gray-500 dark:text-gray-400"
+              >
+                No matching features found for "{{ searchQuery }}".
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </UCard>
+  </div>
 </template>
 
 <script setup lang="ts">
-import ConfirmationPopup from '../shared/ConfirmationPopup.vue'
+import { ref, computed } from 'vue'
 
-const { t } = useI18n()
-
-interface AuditPermission {
-  id: number
+interface MatrixItem {
+  id: string
+  num: number
   module: string
-  icon: string
-  description: string
-  access: 'None' | 'Read' | 'Write' | 'Full' | ''
-  category: string
+  submodule: string
+  isSubmodule: boolean
+  admin: string
+  manager: string
+  auditor: string
+  auditee: string
+  viewer: string
 }
 
-interface AccordionItem {
-  label: string
-  permissions: AuditPermission[]
-}
+const searchQuery = ref('')
 
-const currentRole = ref('Auditor')
-const isModalOpen = ref(false)
-const isDeleteModalOpen = ref(false)
-const isEditMode = ref(false)
-const permissionToDelete = ref<AuditPermission | null>(null)
-const editingPermissionId = ref<number | null>(null)
-
-const formData = ref({
-  module: '',
-  icon: 'i-lucide-shield',
-  description: '',
-  access: '' as 'None' | 'Read' | 'Write' | 'Full' | ''
-})
-
-const accessLevels = computed(() => [
-  { value: 'None', label: t('settings.permission.accessNone') },
-  { value: 'Read', label: t('settings.permission.accessRead') },
-  { value: 'Write', label: t('settings.permission.accessWrite') },
-  { value: 'Full', label: t('settings.permission.accessFull') },
+const matrixData = ref<MatrixItem[]>([
+  { id: '1', num: 1, module: 'Dashboard', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
+  { id: '2', num: 2, module: 'Audit Charter', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'READ', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
+  { id: '3-1', num: 3, module: 'Risk Profile', submodule: 'Corporate Risk Profile', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'FULL', auditee: 'EDIT — Own Dept.', viewer: 'READ' },
+  { id: '3-2', num: 3, module: 'Risk Profile', submodule: 'Risk Appetite Statement', isSubmodule: true, admin: 'FULL', manager: 'READ', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
+  { id: '3-3', num: 3, module: 'Risk Profile', submodule: 'Risk Factors & Scoring', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
+  { id: '3-4', num: 3, module: 'Risk Profile', submodule: 'Audit Universe', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
+  { id: '3-5', num: 3, module: 'Risk Profile', submodule: 'Risk Control Matrix (RCM)', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'FULL', auditee: 'READ', viewer: 'READ' },
+  { id: '4', num: 4, module: 'Strategic Audit Plan', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'EDIT', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
+  { id: '5-1', num: 5, module: 'Annual Audit Plan', submodule: 'Create / Manage Plan', isSubmodule: true, admin: 'FULL', manager: 'DRAFT', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
+  { id: '5-2', num: 5, module: 'Annual Audit Plan', submodule: 'Import Plan Document', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'NONE', auditee: 'NONE', viewer: 'NONE' },
+  { id: '5-3', num: 5, module: 'Annual Audit Plan', submodule: 'Execution Status', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
+  { id: '6-1', num: 6, module: 'Audit Activity Plan', submodule: 'Create Activity Plan', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'DRAFT', auditee: 'NONE', viewer: 'READ' },
+  { id: '6-2', num: 6, module: 'Audit Activity Plan', submodule: 'Import Activity Plan', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'NONE', auditee: 'NONE', viewer: 'NONE' },
+  { id: '7-1', num: 7, module: 'Assignment Letter', submodule: 'Create / Publish Letter', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
+  { id: '7-2', num: 7, module: 'Assignment Letter', submodule: 'Import Letter', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'NONE', auditee: 'NONE', viewer: 'NONE' },
+  { id: '8-1', num: 8, module: 'Audit Fieldwork', submodule: 'Fieldwork — Interviews, Sampling, Testing, etc.', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'FULL', auditee: 'RESPOND', viewer: 'READ' },
+  { id: '8-2', num: 8, module: 'Audit Fieldwork', submodule: 'Working Papers — F-01 to F-05', isSubmodule: true, admin: 'FULL', manager: 'REVIEW', auditor: 'CREATE', auditee: 'NONE', viewer: 'READ' },
+  { id: '8-3', num: 8, module: 'Audit Fieldwork', submodule: 'Import Working Papers', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'UPLOAD', auditee: 'NONE', viewer: 'NONE' },
+  { id: '9-1', num: 9, module: 'Audit Result Report', submodule: 'Result Report / LHA', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'DRAFT', auditee: 'READ', viewer: 'READ' },
+  { id: '9-2', num: 9, module: 'Audit Result Report', submodule: 'Executive Summary', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
+  { id: '9-3', num: 9, module: 'Audit Result Report', submodule: 'Client Satisfaction Survey', isSubmodule: true, admin: 'FULL', manager: 'READ', auditor: 'READ', auditee: 'FILL SURVEY', viewer: 'READ' },
+  { id: '10', num: 10, module: 'Action Taken Report (ATR)', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'REVIEW', auditor: 'READ', auditee: 'UPDATE CAPA', viewer: 'READ' },
+  { id: '11', num: 11, module: 'KPI Performance', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
+  { id: '12', num: 12, module: 'Consulting Service', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'FULL', auditee: 'REQUEST', viewer: 'READ' },
+  { id: '13', num: 13, module: 'Quality Assurance (QA)', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
+  { id: '14', num: 14, module: 'Analytics', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
+  { id: '15', num: 15, module: 'Settings & User Management', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'NONE', auditor: 'NONE', auditee: 'NONE', viewer: 'NONE' }
 ])
 
-const auditPermissions = ref<AuditPermission[]>([
-  {
-    id: 1,
-    module: 'Audit Charter',
-    icon: 'i-lucide-shield',
-    description: 'Manage audit charter',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 2,
-    module: 'Strategic Plan Internal Audit',
-    icon: 'i-lucide-shield',
-    description: 'Manage Strategic Plan Internal Audit',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 3,
-    module: 'Annual Audit Plan',
-    icon: 'i-lucide-shield',
-    description: 'Manage audit planning and execution',
-    access: 'Read',
-    category: 'Internal Audit'
-  },
-  {
-    id: 4,
-    module: 'Risk Assessment',
-    icon: 'i-lucide-bar-chart-3',
-    description: 'Manage risk assessment',
-    access: 'Write',
-    category: 'Risk Management'
-  },
-  {
-    id: 5,
-    module: 'Risk Profile',
-    icon: 'i-lucide-file-text',
-    description: 'Manage risk profile',
-    access: 'Full',
-    category: 'Risk Management'
-  },
-  {
-    id: 6,
-    module: 'Kertas Kerja Audit',
-    icon: 'i-lucide-file-text',
-    description: 'Manage Audit Working Paper',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 7,
-    module: 'Surat Tugas Audit',
-    icon: 'i-lucide-file-text',
-    description: 'Manage Audit Assignment Letter',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 8,
-    module: 'Audit Fieldwork',
-    icon: 'i-lucide-file-text',
-    description: 'Manage Audit Fieldwork',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 9,
-    module: 'Data Analytics',
-    icon: 'i-lucide-file-text',
-    description: 'Manage Audit Assignment Letter',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 10,
-    module: 'Monitoring ATR',
-    icon: 'i-lucide-file-text',
-    description: 'Monitoring Action Taken Reports',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 11,
-    module: 'Quality Assurance Review',
-    icon: 'i-lucide-file-text',
-    description: 'Monitoring Action Taken Reports',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 12,
-    module: 'Internal Audit Performance',
-    icon: 'i-lucide-file-text',
-    description: 'KPI Achievement & Work Plan Realization',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 13,
-    module: 'Risk Report Update',
-    icon: 'i-lucide-file-text',
-    description: 'Manage Risk Report Update',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-  {
-    id: 14,
-    module: 'Reporting',
-    icon: 'i-lucide-file-text',
-    description: 'Audit Findings, Draft & Final Report',
-    access: 'Full',
-    category: 'Internal Audit'
-  },
-])
-
-const accordionItems = computed<AccordionItem[]>(() => {
-  const categories = ['Internal Audit', 'Risk Management']
-  return categories.map(category => ({
-    label: category,
-    permissions: auditPermissions.value.filter(p => p.category === category)
-  }))
+const filteredMatrix = computed(() => {
+  return matrixData.value.filter((item) => {
+    const q = searchQuery.value.toLowerCase().trim()
+    if (!q) return true
+    return (
+      item.module.toLowerCase().includes(q)
+      || item.submodule.toLowerCase().includes(q)
+    )
+  })
 })
 
-function getAccessCheckbomdtate(access: string, checkType: 'read' | 'write' | 'delete'): boolean {
-  switch (checkType) {
-    case 'read':
-      return access === 'Read' || access === 'Write' || access === 'Full'
-    case 'write':
-      return access === 'Write' || access === 'Full'
-    case 'delete':
-      return access === 'Full'
-    default:
-      return false
+function getBadgeClass(val: string): string {
+  const base = 'inline-flex items-center justify-center px-2.5 py-1 rounded-full font-bold text-xs transition-colors border '
+
+  if (val === 'FULL') {
+    return base + 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
   }
+  if (val === 'READ') {
+    return base + 'bg-sky-100 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300 border-sky-300 dark:border-sky-700'
+  }
+  if (val === 'NONE') {
+    return base + 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border-rose-200 dark:border-rose-800'
+  }
+  // Action specific / Limited access
+  return base + 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-300 dark:border-amber-700'
 }
 
-function openAddModal() {
-  isEditMode.value = false
-  editingPermissionId.value = null
-  formData.value = {
-    module: '',
-    icon: 'i-lucide-shield',
-    description: '',
-    access: ''
-  }
-  isModalOpen.value = true
-}
-
-function openEditModal(permission: AuditPermission) {
-  isEditMode.value = true
-  editingPermissionId.value = permission.id
-  formData.value = {
-    module: permission.module,
-    icon: permission.icon,
-    description: permission.description,
-    access: permission.access
-  }
-  isModalOpen.value = true
-}
-
-function closeModal() {
-  isModalOpen.value = false
-  formData.value = {
-    module: '',
-    icon: 'i-lucide-shield',
-    description: '',
-    access: ''
-  }
-}
-
-function openDeleteModal(permission: AuditPermission) {
-  permissionToDelete.value = permission
-  isDeleteModalOpen.value = true
-}
-
-function handleSubmit() {
-  if (!formData.value.module) {
-    return
-  }
-
-  if (isEditMode.value && editingPermissionId.value) {
-    const index = auditPermissions.value.findIndex(p => p.id === editingPermissionId.value)
-    if (index !== -1) {
-      const existingPermission = auditPermissions.value[index]
-      if (existingPermission) {
-        const updatedPermission: AuditPermission = {
-          id: editingPermissionId.value,
-          module: formData.value.module,
-          icon: formData.value.icon,
-          description: formData.value.description,
-          access: formData.value.access,
-          category: existingPermission.category
-        }
-        auditPermissions.value[index] = updatedPermission
-      }
-    }
-  } else {
-    const newId = Math.max(...auditPermissions.value.map(p => p.id), 0) + 1
-    const newPermission: AuditPermission = {
-      id: newId,
-      module: formData.value.module,
-      icon: formData.value.icon,
-      description: formData.value.description,
-      access: formData.value.access,
-      category: 'Internal Audit'
-    }
-    auditPermissions.value.push(newPermission)
-  }
-
-  closeModal()
-}
-
-function confirmDelete() {
-  if (permissionToDelete.value) {
-    auditPermissions.value = auditPermissions.value.filter(p => p.id !== permissionToDelete.value!.id)
-    permissionToDelete.value = null
-  }
+function exportMatrix() {
+  const jsonStr = JSON.stringify(matrixData.value, null, 2)
+  const blob = new Blob([jsonStr], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'AuditSphere_RBAC_Matrix.json'
+  a.click()
+  URL.revokeObjectURL(url)
 }
 </script>

@@ -61,7 +61,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 interface Props {
   title?: string
@@ -96,17 +95,7 @@ const emit = defineEmits<{
   'dismiss': []
 }>()
 
-// Handle i18n safely
-let t: (key: string) => string = k => k
-let te: (key: string) => boolean = () => false
-
-try {
-  const i18n = useI18n()
-  t = i18n.t
-  te = i18n.te
-} catch {
-  // i18n optional fallback
-}
+const { t } = useI18n()
 
 const isVisibleState = ref(props.modelValue ?? props.visible)
 
@@ -129,16 +118,20 @@ const isVisible = computed({
 
 const computedTitle = computed(() => {
   if (props.title) return props.title
-  if (te('common.quickTip.title')) return t('common.quickTip.title')
-  if (te('riskProfile.quickTip.title')) return t('riskProfile.quickTip.title')
+  const commonTitle = t('common.quickTip.title')
+  if (commonTitle !== 'common.quickTip.title') return commonTitle
+  const riskTitle = t('riskProfile.quickTip.title')
+  if (riskTitle !== 'riskProfile.quickTip.title') return riskTitle
   return 'Quick Tip'
 })
 
 const computedDescription = computed(() => {
   if (props.description) return props.description
   if (props.desc) return props.desc
-  if (te('common.quickTip.desc')) return t('common.quickTip.desc')
-  if (te('riskProfile.quickTip.desc')) return t('riskProfile.quickTip.desc')
+  const commonDesc = t('common.quickTip.desc')
+  if (commonDesc !== 'common.quickTip.desc') return commonDesc
+  const riskDesc = t('riskProfile.quickTip.desc')
+  if (riskDesc !== 'riskProfile.quickTip.desc') return riskDesc
   return ''
 })
 
