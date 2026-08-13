@@ -36,7 +36,7 @@ jobs:
               # ================================================================
               # Configuration
               # ================================================================
-              REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
+              REPO_URL="https://github.com/${{ github.repository }}.git"
               REPO_DIR="/app/rbia-repo"
               BACKEND_DIR="$REPO_DIR/backend"
               FRONTEND_DIR="$REPO_DIR/frontend"
