@@ -32,7 +32,7 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
-    platform: linux/arm64
+    platform: linux/amd64
     container_name: rb_audit_zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -51,7 +51,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.6.1
-    platform: linux/arm64
+    platform: linux/amd64
     container_name: rb_audit_kafka
     depends_on:
       zookeeper:
@@ -76,6 +76,23 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: rb_audit_kafka_ui
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8085:8080"
+    environment:
+      TZ: Asia/Jakarta
+      KAFKA_CLUSTERS_0_NAME: rb_audit
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     networks:
       - rb_audit_network
     restart: unless-stopped
