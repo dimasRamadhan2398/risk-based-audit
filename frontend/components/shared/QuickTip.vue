@@ -68,7 +68,7 @@ interface Props {
   desc?: string
   icon?: string
   color?: 'primary' | 'secondary' | 'neutral' | 'info' | 'success' | 'warning' | 'error'
-  variant?: 'subtle' | 'solid' | 'outline' | 'soft'
+  variant?: 'subtle' | 'solid' | 'outline' | 'soft' | 'none'
   dismissible?: boolean
   closable?: boolean
   visible?: boolean
