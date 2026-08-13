@@ -251,7 +251,7 @@
               >
                 <span
                   v-if="provider.badge"
-                  class="absolute top-16 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-emerald-700/15 text-emerald-600 dark:bg-emerald-900 dark:text-white border border-emerald-500/30"
+                  class="absolute top-18 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-emerald-700/15 text-emerald-600 dark:bg-emerald-900 dark:text-white border border-emerald-500/30"
                 >
                   {{ provider.badge }}
                 </span>
