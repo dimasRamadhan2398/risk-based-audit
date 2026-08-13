@@ -2,9 +2,9 @@ name: AuditSphere CI/CD Pipeline
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
 
 concurrency:
   group: auditsphere-production
@@ -163,6 +163,83 @@ jobs:
             # ================================================================
             # Diagnostics & Cleanup
             # ================================================================
+
+            PREVIOUS_BACKEND_IMAGE_ID=""
+            PREVIOUS_BACKEND_IMAGE_TAG=""
+
+            PREVIOUS_FRONTEND_IMAGE_ID=""
+            PREVIOUS_FRONTEND_IMAGE_TAG=""
+
+            capture_previous_state() {
+
+              log "📸 Capturing current production image state..."
+
+              local backend_container_id
+              local frontend_container_id
+
+              backend_container_id="$(
+                docker ps \
+                  --filter "name=${BACKEND_CONTAINER_FILTER}" \
+                  -q \
+                  | head -1 || true
+              )"
+
+              if [ -n "$backend_container_id" ]; then
+
+                PREVIOUS_BACKEND_IMAGE_ID="$(
+                  docker inspect \
+                    "$backend_container_id" \
+                    --format '{{.Image}}' \
+                    2>/dev/null || true
+                )"
+
+                PREVIOUS_BACKEND_IMAGE_TAG="$(
+                  docker inspect \
+                    "$backend_container_id" \
+                    --format '{{.Config.Image}}' \
+                    2>/dev/null || true
+                )"
+
+              fi
+
+              frontend_container_id="$(
+                docker ps \
+                  --filter "name=${FRONTEND_CONTAINER_FILTER}" \
+                  -q \
+                  | head -1 || true
+              )"
+
+              if [ -n "$frontend_container_id" ]; then
+
+                PREVIOUS_FRONTEND_IMAGE_ID="$(
+                  docker inspect \
+                    "$frontend_container_id" \
+                    --format '{{.Image}}' \
+                    2>/dev/null || true
+                )"
+
+                PREVIOUS_FRONTEND_IMAGE_TAG="$(
+                  docker inspect \
+                    "$frontend_container_id" \
+                    --format '{{.Config.Image}}' \
+                    2>/dev/null || true
+                )"
+
+              fi
+
+              log "Previous backend image:"
+              log "  ID  : ${PREVIOUS_BACKEND_IMAGE_ID:-none}"
+              log "  Tag : ${PREVIOUS_BACKEND_IMAGE_TAG:-none}"
+
+              log "Previous frontend image:"
+              log "  ID  : ${PREVIOUS_FRONTEND_IMAGE_ID:-none}"
+              log "  Tag : ${PREVIOUS_FRONTEND_IMAGE_TAG:-none}"
+            }
+
+            # ================================================================
+            # Diagnostics
+            # ================================================================
+
             diagnostics() {
               log "============================================================"
               log "🔎 DEPLOYMENT DIAGNOSTICS"
