@@ -645,11 +645,11 @@
       "weightsUpdateFailed": "Failed to save corporate risk factor weights."
     },
     "scoreLabels": {
-      "5": "High (5)",
-      "4": "Medium to High (4)",
-      "3": "Medium (3)",
+      "1": "Low (1)",
       "2": "Low to Medium (2)",
-      "1": "Low (1)"
+      "3": "Medium (3)",
+      "4": "Medium to High (4)",
+      "5": "High (5)"
     }
   },
   "auditFieldwork": {
@@ -926,6 +926,97 @@
         "moderate-high": "Moderate to High",
         "high": "High"
       }
+    }
+  },
+  "riskProfile": {
+    "title": "Corporate Risk Profile",
+    "subtitle": "Enterprise Risk Profile for Fiscal Year {year} - {period}",
+    "total": "Total",
+    "priority": "Priority",
+    "addRisk": "Add Risk",
+    "filterBranch": "Filter by Branch",
+    "fiscalYear": "Fiscal Year",
+    "period": "Period",
+    "riskLevels": "Risk Levels",
+    "likelihoodLevel": "Likelihood Level",
+    "impactLevel": "Impact Level",
+    "allBranches": "All Branches",
+    "addModal": {
+      "title": "Add New Risk Event",
+      "desc": "Define a new risk event and its initial quarterly assessments.",
+      "name": "Risk Name",
+      "namePlaceholder": "Enter risk name",
+      "category": "Category",
+      "branch": "Branch / Division",
+      "quarterlyTitle": "Quarterly Residual Score {year}",
+      "impact": "Impact",
+      "likelihood": "Likelihood",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the risk context, causes, and impacts",
+      "saveBtn": "Save Risk Event"
+    },
+    "quickTip": {
+      "title": "Quick Tip",
+      "desc": "Drag and drop risk badges to adjust their likelihood or impact. The risk score will automatically update."
+    },
+    "table": {
+      "no": "No",
+      "riskEvent": "Risk Event",
+      "impactScale": "Impact Scale",
+      "likelihoodScale": "Likelihood Scale",
+      "riskLevel": "Risk Level"
+    },
+    "tabs": {
+      "priority": "Priority ({count})",
+      "all": "All Risks ({count})",
+      "progress": "Quarterly Progress"
+    },
+    "detailModal": {
+      "title": "Risk Details - {id}",
+      "desc": "Comprehensive view of the risk event and its assessments.",
+      "category": "Category",
+      "riskLevel": "Risk Level",
+      "riskEventName": "Risk Event Name",
+      "impactPeriod": "Impact (Period {period})",
+      "likelihoodPeriod": "Likelihood (Period {period})",
+      "severityWeight": "Severity Weight",
+      "description": "Description",
+      "mitigationBtn": "View Mitigation Plan"
+    },
+    "editModal": {
+      "title": "Edit Risk - {name}",
+      "titleDefault": "Edit Risk",
+      "desc": "Modify risk details and adjust quarterly assessments.",
+      "updateBtn": "Update Risk"
+    },
+    "riskLevelLabels": {
+      "low": "Low",
+      "low-moderate": "Low-Moderate",
+      "moderate": "Moderate",
+      "moderate-high": "Moderate-High",
+      "high": "High"
+    },
+    "impactLabels": {
+      "1": "Insignificant",
+      "2": "Minor",
+      "3": "Moderate",
+      "4": "Major",
+      "5": "Catastrophic"
+    },
+    "likelihoodLabels": {
+      "1": "Rare",
+      "2": "Unlikely",
+      "3": "Possible",
+      "4": "Likely",
+      "5": "Almost Certain"
+    },
+    "toasts": {
+      "validationError": "Validation Error",
+      "nameRequired": "Risk Name is required",
+      "riskAdded": "Risk Added",
+      "riskAddedDesc": "Successfully added new risk: {name}",
+      "riskUpdated": "Risk Updated",
+      "riskUpdatedDesc": "Successfully updated risk details."
     }
   }
 }
