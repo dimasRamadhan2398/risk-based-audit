@@ -180,7 +180,7 @@ jobs:
               echo "============================================================"
               cd "$BACKEND_DIR"
               echo "🔨 Building backend images in parallel..."
-              docker compose -f "$BACKEND_COMPOSE" build --parallel
+              docker compose -f "$BACKEND_COMPOSE" build --no-cache --parallel
 
               # ── Phase 1: Start infra (postgres, redis, zookeeper) ──────────
               echo "🏗️  Phase 1: Starting infrastructure services (postgres, redis, zookeeper)..."
