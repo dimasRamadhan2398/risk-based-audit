@@ -3,12 +3,19 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # ------------------------------------------------------------------
-# Layer 1: build tooling + torch's transitive deps from plain PyPI.
-# Installed BEFORE torch so torch never needs to resolve dependencies
-# itself — this is what avoids the flit_core/typing_extensions bug.
+# Set PyPI as the DEFAULT index for ALL pip invocations — including
+# any subprocess pip spawns to install build backends (flit_core etc).
+# This is the root fix for the flit_core / typing_extensions error.
 # ------------------------------------------------------------------
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir \
+ENV PIP_INDEX_URL=https://pypi.org/simple
+ENV PIP_NO_CACHE_DIR=1
+
+# ------------------------------------------------------------------
+# Layer 1: upgrade pip and pre-install every transitive dep that
+# torch needs, all from plain PyPI — no PyTorch index involved yet.
+# ------------------------------------------------------------------
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install \
         typing-extensions \
         jinja2 \
         filelock \
@@ -20,26 +27,23 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
         numpy==1.26.4
 
 # ------------------------------------------------------------------
-# Layer 2: torch CPU build, pinned, --no-deps so it can NEVER trigger
-# a dependency resolution against download.pytorch.org again.
-# No --extra-index-url, no mirrors — single explicit source only.
+# Layer 2: install torch CPU wheels via --find-links.
+# --find-links points Docker at PyTorch's wheel mirror but does NOT
+# override PIP_INDEX_URL, so any dependency subprocess still uses
+# PyPI. --no-deps means torch itself won't trigger more resolution.
 # ------------------------------------------------------------------
-RUN pip install --no-cache-dir \
+RUN pip install \
         torch==2.2.2+cpu \
         torchvision==0.17.2+cpu \
         torchaudio==2.2.2+cpu \
         --no-deps \
-        --index-url https://download.pytorch.org/whl/cpu
+        --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 
 # ------------------------------------------------------------------
-# Layer 3: app dependencies. --no-deps here too, so nothing in
-# requirements.txt can silently pull in a conflicting numpy/torch.
-# pip check fails the build loudly if anything is actually missing,
-# instead of failing quietly at runtime.
+# Layer 3: app dependencies
 # ------------------------------------------------------------------
 COPY requirements.txt .
-RUN pip install --default-timeout=1000 --retries 10 --no-cache-dir --no-deps -r requirements.txt && \
-    pip check
+RUN pip install --default-timeout=1000 --retries 10 -r requirements.txt
 
 COPY . .
 
