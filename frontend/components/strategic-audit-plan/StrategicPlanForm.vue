@@ -4,9 +4,10 @@
       v-model:open="store.isAddModalOpen"
       :title="t('strategicPlan.form.title')"
       :ui="{
-        content: 'sm:max-w-2xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl',
-        header: 'border-b border-gray-100 dark:border-gray-800 pb-4 text-gray-900 dark:text-white font-bold',
-        body: 'p-6 space-y-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white',
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
@@ -28,7 +29,6 @@
                 required
               />
             </div>
-
 
             <!-- Strategic Objective -->
             <div class="form-row">
@@ -121,8 +121,8 @@
               </div>
             </div>
 
-            <!-- Yearly: Dari Tahun / Sampai Tahun -->
-            <div v-if="store.form.periodType === 'Yearly'" class="form-row">
+            <!-- Periode: Dari Tahun / Sampai Tahun -->
+            <div class="form-row">
               <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.period') }}</label>
               <div class="flex items-center gap-3 flex-wrap">
                 <span class="text-sm font-bold text-gray-800 dark:text-white">{{ t('strategicPlan.form.from') }}</span>
@@ -141,26 +141,6 @@
                   placeholder="Year"
                   class="w-28"
                 />
-              </div>
-            </div>
-
-            <!-- Period Tabs (Quarter or Year) -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white"></label>
-              <div class="flex gap-0 border border-gray-300 dark:border-gray-600 rounded-md overflow-hidden w-fit">
-                <button
-                  v-for="period in store.availablePeriods"
-                  :key="period"
-                  type="button"
-                  class="period-tab"
-                  :class="{
-                    'period-tab-active': store.form.selectedPeriod === period,
-                    'period-tab-inactive': store.form.selectedPeriod !== period,
-                  }"
-                  @click="store.form.selectedPeriod = period"
-                >
-                  {{ period }}
-                </button>
               </div>
             </div>
 

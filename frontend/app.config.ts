@@ -63,309 +63,106 @@ export default defineAppConfig({
       }
     },
     alert: {
-      slots: {
-        root: 'relative overflow-hidden w-full rounded-lg p-4 flex gap-2.5',
-        wrapper: 'min-w-0 flex-1 flex flex-col',
-        title: 'font-semibold text-lg',
-        description: 'text-sm opacity-90 tracking-wide font-medium',
-        icon: 'shrink-0 size-7',
-        avatar: 'shrink-0',
-        avatarSize: '2xl',
-        actions: 'flex flex-wrap gap-1.5 shrink-0',
-        close: 'p-0'
+  slots: {
+    // pl-5 sengaja lebih lebar dari pr-4 untuk kasih ruang si "spine" tab di kiri
+    root: 'relative isolate overflow-hidden w-full rounded-lg pl-5 pr-4 py-3.5 flex gap-3 ring-1 ring-transparent transition-colors duration-200 before:absolute before:inset-y-2.5 before:left-2 before:w-[3px] before:rounded-full before:content-[""] before:transition-colors before:duration-200',
+    wrapper: 'min-w-0 flex-1 flex flex-col gap-0.5',
+    title: 'font-semibold text-[15px] tracking-tight leading-snug',
+    description: 'text-[13px] leading-relaxed opacity-80 font-normal',
+    icon: 'shrink-0 size-5 mt-0.5 opacity-90',
+    avatar: 'shrink-0',
+    avatarSize: '2xl',
+    actions: 'flex flex-wrap gap-2 shrink-0 mt-2',
+    close: 'p-0 -mr-1 -mt-1'
+  },
+  variants: {
+    color: {
+      primary: '',
+      secondary: '',
+      success: '',
+      info: '',
+      warning: '',
+      error: '',
+      neutral: ''
+    },
+    variant: {
+      solid: '',
+      outline: '',
+      soft: '',
+      subtle: '',
+      none: ''
+    },
+    orientation: {
+      horizontal: {
+        root: 'items-center',
+        actions: 'items-center'
       },
-      variants: {
-        color: {
-          primary: '',
-          secondary: '',
-          success: '',
-          info: '',
-          warning: '',
-          error: '',
-          neutral: ''
-        },
-        variant: {
-          solid: '',
-          outline: '',
-          soft: '',
-          subtle: '',
-          none: ''
-        },
-        orientation: {
-          horizontal: {
-            root: 'items-center',
-            actions: 'items-center'
-          },
-          vertical: {
-            root: 'items-start',
-            actions: 'items-start mt-2.5'
-          }
-        },
-        title: {
-          true: {
-            description: 'mt-1'
-          }
-        }
-      },
-      compoundVariants: [
-        // Primary
-        {
-          color: 'primary',
-          variant: 'solid',
-          class: {
-            root: 'bg-primary text-inverted'
-          }
-        },
-        {
-          color: 'primary',
-          variant: 'outline',
-          class: {
-            root: 'text-primary ring ring-inset ring-primary/25'
-          }
-        },
-        {
-          color: 'primary',
-          variant: 'soft',
-          class: {
-            root: 'bg-primary/10 text-primary'
-          }
-        },
-        {
-          color: 'primary',
-          variant: 'subtle',
-          class: {
-            root: 'bg-primary/10 text-primary ring ring-inset ring-primary/25'
-          }
-        },
-        {
-          color: 'primary',
-          variant: 'none',
-          class: {
-            root: 'text-primary bg-transparent p-0'
-          }
-        },
-        // Secondary
-        {
-          color: 'secondary',
-          variant: 'solid',
-          class: {
-            root: 'bg-secondary text-white'
-          }
-        },
-        {
-          color: 'secondary',
-          variant: 'outline',
-          class: {
-            root: 'text-secondary-600 dark:text-secondary-400 ring ring-inset ring-secondary-500/25'
-          }
-        },
-        {
-          color: 'secondary',
-          variant: 'soft',
-          class: {
-            root: 'bg-secondary-500/10 text-secondary-600 dark:text-secondary-400'
-          }
-        },
-        {
-          color: 'secondary',
-          variant: 'subtle',
-          class: {
-            root: 'bg-secondary-500/10 text-secondary-600 dark:text-secondary-400 ring ring-inset ring-secondary-500/25'
-          }
-        },
-        {
-          color: 'secondary',
-          variant: 'none',
-          class: {
-            root: 'text-secondary-600 dark:text-secondary-400 bg-transparent p-0'
-          }
-        },
-        // Success
-        {
-          color: 'success',
-          variant: 'solid',
-          class: {
-            root: 'bg-success-600 text-white dark:bg-success-500'
-          }
-        },
-        {
-          color: 'success',
-          variant: 'outline',
-          class: {
-            root: 'text-success-700 dark:text-success-400 ring ring-inset ring-success-500/25'
-          }
-        },
-        {
-          color: 'success',
-          variant: 'soft',
-          class: {
-            root: 'bg-success-500/10 text-success-700 dark:text-success-400'
-          }
-        },
-        {
-          color: 'success',
-          variant: 'subtle',
-          class: {
-            root: 'bg-success-500/10 text-success-700 dark:text-success-400 ring ring-inset ring-success-500/25'
-          }
-        },
-        {
-          color: 'success',
-          variant: 'none',
-          class: {
-            root: 'text-success-700 dark:text-success-400 bg-transparent p-0'
-          }
-        },
-        // Info
-        {
-          color: 'info',
-          variant: 'solid',
-          class: {
-            root: 'bg-info-600 text-white dark:bg-info-500'
-          }
-        },
-        {
-          color: 'info',
-          variant: 'outline',
-          class: {
-            root: 'text-info-700 dark:text-info-400 ring ring-inset ring-info-500/25'
-          }
-        },
-        {
-          color: 'info',
-          variant: 'soft',
-          class: {
-            root: 'bg-info-500/10 text-info-700 dark:text-info-400'
-          }
-        },
-        {
-          color: 'info',
-          variant: 'subtle',
-          class: {
-            root: 'bg-info-500/10 text-info-700 dark:text-info-400 ring ring-inset ring-info-500/25'
-          }
-        },
-        {
-          color: 'info',
-          variant: 'none',
-          class: {
-            root: 'text-info-700 dark:text-info-400 bg-transparent p-0'
-          }
-        },
-        // Warning
-        {
-          color: 'warning',
-          variant: 'solid',
-          class: {
-            root: 'bg-warning-500 text-gray-950 font-medium'
-          }
-        },
-        {
-          color: 'warning',
-          variant: 'outline',
-          class: {
-            root: 'text-warning-700 dark:text-warning-400 ring ring-inset ring-warning-500/25'
-          }
-        },
-        {
-          color: 'warning',
-          variant: 'soft',
-          class: {
-            root: 'bg-warning-500/10 text-warning-700 dark:text-warning-400'
-          }
-        },
-        {
-          color: 'warning',
-          variant: 'subtle',
-          class: {
-            root: 'bg-warning-500/10 text-warning-700 dark:text-warning-400 ring ring-inset ring-warning-500/25'
-          }
-        },
-        {
-          color: 'warning',
-          variant: 'none',
-          class: {
-            root: 'text-warning-700 dark:text-warning-400 bg-transparent p-0'
-          }
-        },
-        // Error
-        {
-          color: 'error',
-          variant: 'solid',
-          class: {
-            root: 'bg-error-600 text-white dark:bg-error-500'
-          }
-        },
-        {
-          color: 'error',
-          variant: 'outline',
-          class: {
-            root: 'text-error-700 dark:text-error-400 ring ring-inset ring-error-500/25'
-          }
-        },
-        {
-          color: 'error',
-          variant: 'soft',
-          class: {
-            root: 'bg-error-500/10 text-error-700 dark:text-error-400'
-          }
-        },
-        {
-          color: 'error',
-          variant: 'subtle',
-          class: {
-            root: 'bg-error-500/10 text-error-700 dark:text-error-400 ring ring-inset ring-error-500/25'
-          }
-        },
-        {
-          color: 'error',
-          variant: 'none',
-          class: {
-            root: 'text-error-700 dark:text-error-400 bg-transparent p-0'
-          }
-        },
-        // Neutral
-        {
-          color: 'neutral',
-          variant: 'solid',
-          class: {
-            root: 'text-inverted bg-inverted'
-          }
-        },
-        {
-          color: 'neutral',
-          variant: 'outline',
-          class: {
-            root: 'text-highlighted bg-default ring ring-inset ring-default'
-          }
-        },
-        {
-          color: 'neutral',
-          variant: 'soft',
-          class: {
-            root: 'text-highlighted bg-elevated/50'
-          }
-        },
-        {
-          color: 'neutral',
-          variant: 'subtle',
-          class: {
-            root: 'text-highlighted bg-elevated/50 ring ring-inset ring-accented'
-          }
-        },
-        {
-          color: 'neutral',
-          variant: 'none',
-          class: {
-            root: 'text-highlighted bg-transparent p-0'
-          }
-        }
-      ],
-      defaultVariants: {
-        color: 'primary',
-        variant: 'solid'
+      vertical: {
+        root: 'items-start',
+        actions: 'items-start mt-2.5'
       }
     },
+    title: {
+      true: {
+        description: 'mt-1'
+      }
+    }
+  },
+  compoundVariants: [
+    // ===== Primary =====
+    { color: 'primary', variant: 'solid', class: { root: 'bg-primary-600 dark:bg-primary-500 text-white before:bg-primary-300 dark:before:bg-primary-200' } },
+    { color: 'primary', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-primary-500/30 dark:ring-primary-400/30 text-primary-700 dark:text-primary-400 before:bg-primary-500 dark:before:bg-primary-400' } },
+    { color: 'primary', variant: 'soft', class: { root: 'bg-primary-500/10 dark:bg-primary-400/10 text-primary-700 dark:text-primary-400 before:bg-primary-500 dark:before:bg-primary-400' } },
+    { color: 'primary', variant: 'subtle', class: { root: 'bg-primary-500/10 dark:bg-primary-400/10 ring-primary-500/25 dark:ring-primary-400/25 text-primary-700 dark:text-primary-400 before:bg-primary-500 dark:before:bg-primary-400' } },
+    { color: 'primary', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-primary-700 dark:text-primary-400' } },
+
+    // ===== Secondary =====
+    { color: 'secondary', variant: 'solid', class: { root: 'bg-secondary-600 dark:bg-secondary-500 text-white before:bg-secondary-300 dark:before:bg-secondary-200' } },
+    { color: 'secondary', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-secondary-500/30 dark:ring-secondary-400/30 text-secondary-700 dark:text-secondary-400 before:bg-secondary-500 dark:before:bg-secondary-400' } },
+    { color: 'secondary', variant: 'soft', class: { root: 'bg-secondary-500/10 dark:bg-secondary-400/10 text-secondary-700 dark:text-secondary-400 before:bg-secondary-500 dark:before:bg-secondary-400' } },
+    { color: 'secondary', variant: 'subtle', class: { root: 'bg-secondary-500/10 dark:bg-secondary-400/10 ring-secondary-500/25 dark:ring-secondary-400/25 text-secondary-700 dark:text-secondary-400 before:bg-secondary-500 dark:before:bg-secondary-400' } },
+    { color: 'secondary', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-secondary-700 dark:text-secondary-400' } },
+
+    // ===== Success =====
+    { color: 'success', variant: 'solid', class: { root: 'bg-success-600 dark:bg-success-500 text-white before:bg-success-300 dark:before:bg-success-200' } },
+    { color: 'success', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-success-500/30 dark:ring-success-400/30 text-success-700 dark:text-success-400 before:bg-success-500 dark:before:bg-success-400' } },
+    { color: 'success', variant: 'soft', class: { root: 'bg-success-500/10 dark:bg-success-400/10 text-success-700 dark:text-success-400 before:bg-success-500 dark:before:bg-success-400' } },
+    { color: 'success', variant: 'subtle', class: { root: 'bg-success-500/10 dark:bg-success-400/10 ring-success-500/25 dark:ring-success-400/25 text-success-700 dark:text-success-400 before:bg-success-500 dark:before:bg-success-400' } },
+    { color: 'success', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-success-700 dark:text-success-400' } },
+
+    // ===== Info =====
+    { color: 'info', variant: 'solid', class: { root: 'bg-info-600 dark:bg-info-500 text-white before:bg-info-300 dark:before:bg-info-200' } },
+    { color: 'info', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-info-500/30 dark:ring-info-400/30 text-info-700 dark:text-info-400 before:bg-info-500 dark:before:bg-info-400' } },
+    { color: 'info', variant: 'soft', class: { root: 'bg-info-500/10 dark:bg-info-400/10 text-info-700 dark:text-info-400 before:bg-info-500 dark:before:bg-info-400' } },
+    { color: 'info', variant: 'subtle', class: { root: 'bg-info-500/10 dark:bg-info-400/10 ring-info-500/25 dark:ring-info-400/25 text-info-700 dark:text-info-400 before:bg-info-500 dark:before:bg-info-400' } },
+    { color: 'info', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-info-700 dark:text-info-400' } },
+
+    // ===== Warning (fill terang -> teks gelap, spine pakai gelap transparan biar tetap ada kontras "stempel") =====
+    { color: 'warning', variant: 'solid', class: { root: 'bg-warning-500 dark:bg-warning-500 text-neutral-950 font-medium before:bg-neutral-950/25' } },
+    { color: 'warning', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-warning-500/30 dark:ring-warning-400/30 text-warning-700 dark:text-warning-400 before:bg-warning-500 dark:before:bg-warning-400' } },
+    { color: 'warning', variant: 'soft', class: { root: 'bg-warning-500/10 dark:bg-warning-400/10 text-warning-700 dark:text-warning-400 before:bg-warning-500 dark:before:bg-warning-400' } },
+    { color: 'warning', variant: 'subtle', class: { root: 'bg-warning-500/10 dark:bg-warning-400/10 ring-warning-500/25 dark:ring-warning-400/25 text-warning-700 dark:text-warning-400 before:bg-warning-500 dark:before:bg-warning-400' } },
+    { color: 'warning', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-warning-700 dark:text-warning-400' } },
+
+    // ===== Error =====
+    { color: 'error', variant: 'solid', class: { root: 'bg-error-600 dark:bg-error-500 text-white before:bg-error-300 dark:before:bg-error-200' } },
+    { color: 'error', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-error-500/30 dark:ring-error-400/30 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },
+    { color: 'error', variant: 'soft', class: { root: 'bg-error-500/10 dark:bg-error-400/10 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },
+    { color: 'error', variant: 'subtle', class: { root: 'bg-error-500/10 dark:bg-error-400/10 ring-error-500/25 dark:ring-error-400/25 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },
+    { color: 'error', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-error-700 dark:text-error-400' } },
+
+    // ===== Neutral (inverted di solid, biar tetap punya "berat" tanpa nyolok) =====
+    { color: 'neutral', variant: 'solid', class: { root: 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 before:bg-neutral-500 dark:before:bg-neutral-400' } },
+    { color: 'neutral', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-neutral-300 dark:ring-neutral-700 text-neutral-800 dark:text-neutral-200 before:bg-neutral-400 dark:before:bg-neutral-500' } },
+    { color: 'neutral', variant: 'soft', class: { root: 'bg-neutral-100 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 before:bg-neutral-400 dark:before:bg-neutral-500' } },
+    { color: 'neutral', variant: 'subtle', class: { root: 'bg-neutral-100 dark:bg-neutral-800/60 ring-neutral-300 dark:ring-neutral-700 text-neutral-800 dark:text-neutral-200 before:bg-neutral-400 dark:before:bg-neutral-500' } },
+    { color: 'neutral', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-neutral-800 dark:text-neutral-200' } }
+  ],
+  defaultVariants: {
+    color: 'primary',
+    variant: 'solid'
+  }
+},
     badge: {
       slots: {
         base: "font-medium inline-flex items-center",
