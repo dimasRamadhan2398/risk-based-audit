@@ -2,9 +2,9 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
+# --- Layer 1: core build deps + torch's transitive deps, from plain PyPI ---
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir \
-        flit_core \
         typing-extensions \
         jinja2 \
         filelock \
@@ -13,8 +13,9 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
         fsspec \
         mpmath \
         pillow \
-        numpy
+        numpy==1.26.4
 
+# --- Layer 2: torch CPU build, --no-deps so it never re-resolves the above ---
 RUN pip install --no-cache-dir \
     torch==2.2.2+cpu \
     torchvision==0.17.2+cpu \
@@ -22,8 +23,10 @@ RUN pip install --no-cache-dir \
     --no-deps \
     --index-url https://download.pytorch.org/whl/cpu
 
+# --- Layer 3: app-specific deps ---
 COPY requirements.txt .
-RUN pip install --default-timeout=1000 --retries 10 --no-cache-dir -r requirements.txt
+RUN pip install --default-timeout=1000 --retries 10 --no-cache-dir --no-deps -r requirements.txt && \
+    pip check
 
 COPY . .
 
