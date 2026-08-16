@@ -3,8 +3,8 @@ FROM python:3.10-slim
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir torch==2.2.2+cpu torchvision==0.17.2+cpu torchaudio==2.2.2+cpu --extra-index-url https://download.pytorch.org/whl/cpu
-RUN pip install --default-timeout=1000 --retries 10 --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+RUN pip install --default-timeout=1000 --retries 10 --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --default-timeout=1000 --retries 10 --no-cache-dir -r requirements.txt
 
 COPY . .
 
