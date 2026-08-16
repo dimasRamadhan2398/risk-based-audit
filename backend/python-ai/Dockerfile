@@ -2,6 +2,8 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel typing-extensions
+
 COPY requirements.txt .
 RUN pip install --default-timeout=1000 --retries 10 --no-cache-dir torch --extra-index-url https://download.pytorch.org/whl/cpu
 RUN pip install --default-timeout=1000 --retries 10 --no-cache-dir -r requirements.txt
