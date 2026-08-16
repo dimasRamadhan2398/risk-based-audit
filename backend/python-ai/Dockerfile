@@ -15,13 +15,13 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
         pillow \
         numpy==1.26.4
 
-# --- Layer 2: torch CPU build, --no-deps so it never re-resolves the above ---
-RUN pip install --no-cache-dir \
-    torch==2.2.2+cpu \
-    torchvision==0.17.2+cpu \
-    torchaudio==2.2.2+cpu \
-    --no-deps \
-    --index-url https://download.pytorch.org/whl/cpu
+# # --- Layer 2: torch CPU build, --no-deps so it never re-resolves the above ---
+# RUN pip install --no-cache-dir \
+#     torch==2.2.2+cpu \
+#     torchvision==0.17.2+cpu \
+#     torchaudio==2.2.2+cpu \
+#     --no-deps \
+#     --index-url https://download.pytorch.org/whl/cpu
 
 # --- Layer 3: app-specific deps ---
 COPY requirements.txt .
