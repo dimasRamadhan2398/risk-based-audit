@@ -210,6 +210,174 @@
       </div>
     </div>
 
+    <!-- Dedicated AI Section: KPI Forecasting & Anomaly Detection -->
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Predictive Intelligence & Anomaly Analytics
+            </h2>
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Analisis proyeksi masa depan KPI dan deteksi anomali finansial/operasional.
+          </p>
+        </div>
+
+        <NuxtLink
+          to="/analytics"
+          class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 self-start sm:self-auto"
+        >
+          <span>Buka Deep Analytics Center</span>
+          <span>&rarr;</span>
+        </NuxtLink>
+      </div>
+
+      <!-- Grid of 2 Main Analytics Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- CARD 1: KPI FORECASTING (PyTorch LSTM) -->
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-6 flex flex-col justify-between space-y-6">
+          <div>
+            <!-- Card Header -->
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                    KPI Performance Forecasting
+                  </h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Proyeksi tren historis vs estimasi Q3 2026 - Q1 2027 (Interval Kepercayaan 95%)
+                </p>
+              </div>
+
+              <NuxtLink to="/analytics/kpi-forecast" class="text-xs font-semibold text-violet-600 hover:underline">
+                Rincian
+              </NuxtLink>
+            </div>
+
+            <!-- Line Chart Component -->
+            <div class="h-[280px] w-full relative">
+              <Line :data="kpiChartData" :options="kpiChartOptions" />
+            </div>
+
+            <!-- Forecast Highlights Table / Cards -->
+            <div class="mt-6 space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                At-Risk KPI Projections & Audit Recommendations
+              </h4>
+
+              <div
+                v-for="kpi in timeseriesData.kpiForecasts.slice(0, 3)"
+                :key="kpi.code"
+                class="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-xs font-bold text-violet-600 dark:text-violet-400">{{ kpi.code }}</span>
+                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ kpi.kpiName }}</span>
+                    <UBadge :color="getTrendBadgeColor(kpi.trend) as any" variant="subtle" size="sm" class="font-semibold text-[10px]">
+                      {{ kpi.trend }}
+                    </UBadge>
+                  </div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ kpi.recommendedAction }}
+                  </p>
+                </div>
+
+                <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
+                  <span class="text-xs text-slate-400">Proyeksi</span>
+                  <span class="text-sm font-extrabold font-mono text-violet-600 dark:text-violet-400">
+                    {{ kpi.forecastedValue }}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Footer Info -->
+          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+            <span class="flex items-center gap-1.5">
+              <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-violet-500" />
+              Interval Prediksi ±4.8% MAPE
+            </span>
+            <span class="font-medium text-slate-700 dark:text-slate-300">Target Horizon: Q3 2026</span>
+          </div>
+        </div>
+
+        <!-- CARD 2: ANOMALY DETECTION (Isolation Forest) -->
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-6 flex flex-col justify-between space-y-6">
+          <div>
+            <!-- Card Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                    Transaction Anomaly Detection
+                  </h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Deteksi pencilan transaksi & pola tak wajar berbasis machine learning yang tidak terawasi
+                </p>
+              </div>
+            </div>
+
+            <!-- Scatter Chart Component -->
+            <div class="h-[280px] w-full relative">
+              <Scatter :data="anomalyScatterChartData" :options="anomalyScatterOptions" />
+            </div>
+
+            <!-- Top Detected Anomaly List -->
+            <div class="mt-6 space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                Critical Anomaly Alerts Requiring Investigation
+              </h4>
+
+              <div
+                v-for="anm in filteredAnomalies.slice(0, 3)"
+                :key="anm.id"
+                class="p-3.5 rounded-xl border border-rose-100 dark:border-rose-900/40 bg-rose-50/40 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <UBadge :color="getSeverityColor(anm.severity) as any" variant="solid" size="sm" class="font-bold text-[10px]">
+                      {{ anm.severity }}
+                    </UBadge>
+                    <span class="font-mono text-xs font-bold text-slate-900 dark:text-slate-100">{{ anm.id }}</span>
+                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400">· {{ anm.entity }}</span>
+                  </div>
+                  <p class="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                    {{ anm.description }}
+                  </p>
+                </div>
+
+                <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
+                  <span class="text-xs font-mono text-rose-600 dark:text-rose-400 font-bold">
+                    Score: {{ anm.anomalyScore }}
+                  </span>
+                  <span v-if="anm.amount" class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    Rp {{ (anm.amount / 1000000).toLocaleString() }}M
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Footer Info -->
+          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+            <span class="flex items-center gap-1.5">
+              <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" />
+              Tingkat Kontaminasi: {{ (isolationData.summary.contaminationRate * 100).toFixed(1) }}%
+            </span>
+            <NuxtLink to="/analytics" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline">
+              Kelola Semua {{ isolationData.anomalies.length }} Anomali &rarr;
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Internal Control Effectiveness Section (COSO 2013) -->
     <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -319,12 +487,6 @@
             <h3 class="text-lg font-bold text-slate-800">
               Inherent vs Residual Risk by Department
             </h3>
-            <USelect
-              v-model="activeYear"
-              :options="yearlyFilters"
-              size="sm"
-              class="w-24  "
-            />
           </div>
           <div class="h-[350px] w-full">
             <BarChart
@@ -721,6 +883,22 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { Line, Scatter } from "vue-chartjs";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from "chart.js";
+import {
+  useTimeSeriesData,
+  useIsolationForestData
+} from "~/composables/useAnalyticsData";
 import { useI18n } from "~/composables/useI18n";
 import { useRiskProfileStore } from "~/stores/risk-profile";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
@@ -731,6 +909,17 @@ import { useAuthStore } from "~/stores/auth";
 import { useRCMStore } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
 import { AuditStatus } from "~/types/audit";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 definePageMeta({
   middleware: "auth",
@@ -746,8 +935,269 @@ const auditResultStore = useAuditResultReportStore();
 const authStore = useAuthStore();
 const rcmStore = useRCMStore();
 
-const UButton = resolveComponent("UButton");
-const UBadge = resolveComponent("UBadge");
+// AI & Analytics Composables
+const timeseriesData = useTimeSeriesData();
+const isolationData = useIsolationForestData();
+const filteredAnomalies = computed(() => isolationData.anomalies);
+
+// ─── KPI Forecasting Line Chart Config ─────────────────────
+const kpiChartData = computed(() => ({
+  labels: timeseriesData.historicalKPI.map((p) => p.period),
+  datasets: [
+    {
+      label: "Actual KPI Score (%)",
+      data: timeseriesData.historicalKPI.map((p) => p.actual),
+      borderColor: "#4f46e5",
+      backgroundColor: "rgba(79, 70, 229, 0.15)",
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      pointBackgroundColor: "#4f46e5",
+      pointBorderColor: "#ffffff",
+      pointBorderWidth: 2,
+      spanGaps: false,
+    },
+    {
+      label: "KPI Forecast (%)",
+      data: timeseriesData.historicalKPI.map((p) => p.forecast),
+      borderColor: "#8b5cf6",
+      backgroundColor: "rgba(139, 92, 246, 0.15)",
+      borderDash: [6, 4],
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      pointStyle: "rectRot",
+      pointBackgroundColor: "#8b5cf6",
+      pointBorderColor: "#ffffff",
+      pointBorderWidth: 2,
+      spanGaps: false,
+    },
+    {
+      label: "Upper Bound (95% CI)",
+      data: timeseriesData.historicalKPI.map((p) => p.upperBound),
+      borderColor: "transparent",
+      backgroundColor: "rgba(139, 92, 246, 0.08)",
+      fill: "+1",
+      tension: 0.4,
+      pointRadius: 0,
+      spanGaps: false,
+    },
+    {
+      label: "Lower Bound (95% CI)",
+      data: timeseriesData.historicalKPI.map((p) => p.lowerBound),
+      borderColor: "transparent",
+      backgroundColor: "rgba(139, 92, 246, 0.08)",
+      fill: "-1",
+      tension: 0.4,
+      pointRadius: 0,
+      spanGaps: false,
+    },
+  ],
+}));
+
+const kpiChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: "top" as const,
+      labels: {
+        usePointStyle: true,
+        font: { family: "Inter, sans-serif", size: 12, weight: "bold" as const },
+        filter: (item: any) =>
+          !["Upper Bound (95% CI)", "Lower Bound (95% CI)"].includes(item.text),
+      },
+    },
+    tooltip: {
+      backgroundColor: "rgba(15, 23, 42, 0.9)",
+      titleFont: { size: 13, weight: "bold" as const },
+      bodyFont: { size: 12 },
+      padding: 12,
+      cornerRadius: 10,
+      callbacks: {
+        label: (ctx: any) => {
+          if (
+            ["Upper Bound (95% CI)", "Lower Bound (95% CI)"].includes(
+              ctx.dataset.label
+            )
+          )
+            return "";
+          return `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%`;
+        },
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      ticks: { font: { family: "Inter, sans-serif", size: 11 } },
+    },
+    y: {
+      min: 50,
+      max: 85,
+      grid: { color: "rgba(226, 232, 240, 0.6)" },
+      ticks: {
+        font: { family: "Inter, sans-serif", size: 11 },
+        callback: (v: any) => `${v}%`,
+      },
+      title: {
+        display: true,
+        text: "KPI Index Score (%)",
+        font: { size: 12, weight: "bold" as const },
+      },
+    },
+  },
+};
+
+// ─── Anomaly Detection Scatter Chart Config ────────────
+
+const anomalyScatterChartData = computed(() => {
+  const normalPoints = isolationData.scatterData.filter((s) => !s.isAnomaly);
+  const anomalyList = filteredAnomalies.value;
+
+  const criticalPoints = anomalyList
+    .filter((a) => a.severity === "Critical")
+    .map((a, idx) => ({
+      x: a.anomalyScore * -100,
+      y: (idx + 1) * 12 + 15,
+      label: a.id,
+      title: a.entity,
+    }));
+
+  const highPoints = anomalyList
+    .filter((a) => a.severity === "High")
+    .map((a, idx) => ({
+      x: a.anomalyScore * -100,
+      y: (idx + 1) * 9 + 8,
+      label: a.id,
+      title: a.entity,
+    }));
+
+  const mediumPoints = anomalyList
+    .filter((a) => a.severity === "Medium")
+    .map((a, idx) => ({
+      x: a.anomalyScore * -100,
+      y: (idx + 1) * 7 + 5,
+      label: a.id,
+      title: a.entity,
+    }));
+
+  return {
+    datasets: [
+      {
+        label: "Baseline Operational Data",
+        data: normalPoints.map((p) => ({ x: p.x, y: p.y })),
+        backgroundColor: "rgba(148, 163, 184, 0.35)",
+        borderColor: "rgba(148, 163, 184, 0.6)",
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      },
+      {
+        label: "Critical Anomalies",
+        data: criticalPoints,
+        backgroundColor: "#ef4444",
+        borderColor: "#b91c1c",
+        pointRadius: 9,
+        pointHoverRadius: 12,
+        pointStyle: "triangle",
+      },
+      {
+        label: "High Severity Outliers",
+        data: highPoints,
+        backgroundColor: "#f97316",
+        borderColor: "#c2410c",
+        pointRadius: 8,
+        pointHoverRadius: 10,
+        pointStyle: "rectRot",
+      },
+      {
+        label: "Medium Risk Outliers",
+        data: mediumPoints,
+        backgroundColor: "#eab308",
+        borderColor: "#a16207",
+        pointRadius: 7,
+        pointHoverRadius: 9,
+        pointStyle: "circle",
+      },
+    ],
+  };
+});
+
+const anomalyScatterOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: "top" as const,
+      labels: {
+        usePointStyle: true,
+        font: { family: "Inter, sans-serif", size: 11, weight: "bold" as const },
+      },
+    },
+    tooltip: {
+      backgroundColor: "rgba(15, 23, 42, 0.9)",
+      titleFont: { size: 13, weight: "bold" as const },
+      bodyFont: { size: 12 },
+      padding: 12,
+      cornerRadius: 10,
+      callbacks: {
+        label: (ctx: any) => {
+          const pt = ctx.raw;
+          if (pt.label) {
+            return `[${pt.label}] ${pt.title}: Anomaly Score ${pt.x?.toFixed(1)}`;
+          }
+          return `Normal Baseline Point (Score: ${pt.x?.toFixed(1)})`;
+        },
+      },
+    },
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: "Anomaly Deviation Index",
+        font: { size: 11, weight: "bold" as const },
+      },
+      grid: { color: "rgba(226, 232, 240, 0.6)" },
+      ticks: { font: { size: 11 } },
+    },
+    y: {
+      title: {
+        display: true,
+        text: "Frequency / Transaction Spread",
+        font: { size: 11, weight: "bold" as const },
+      },
+      grid: { display: false },
+      ticks: { font: { size: 11 } },
+    },
+  },
+};
+
+const getSeverityColor = (sev: string) => {
+  switch (sev) {
+    case "Critical":
+      return "error";
+    case "High":
+      return "warning";
+    case "Medium":
+      return "info";
+    default:
+      return "neutral";
+  }
+};
+
+const getTrendBadgeColor = (trend: string) => {
+  switch (trend) {
+    case "Improving":
+      return "success";
+    case "Declining":
+      return "error";
+    default:
+      return "warning";
+  }
+};
 
 // Sync state and action simulation
 const isSyncing = ref(false);
