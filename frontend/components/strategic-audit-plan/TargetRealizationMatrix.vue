@@ -4,27 +4,40 @@
     <div class="flex items-center justify-between flex-wrap gap-2">
       <label class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-2">
         <UIcon name="i-lucide-target" class="w-4 h-4 text-primary-500" />
-        {{ t('strategicPlan.form.targetMatrixTitle', { start: startYear, end: endYear }) }}
+        <template v-if="store.form.periodType === 'Quartal'">
+          {{ t('strategicPlan.form.targetMatrixQuarterlyTitle') }}
+        </template>
+        <template v-else>
+          {{ t('strategicPlan.form.targetMatrixTitle', { start: startYear, end: endYear }) }}
+        </template>
         <span class="text-orange-500">*</span>
       </label>
-      <span class="text-md text-gray-500 dark:text-gray-400 font-medium">
-        {{ t('strategicPlan.form.targetMatrimdubtitle', { duration: yearsList.length }) }}
+      <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+        <template v-if="store.form.periodType === 'Quartal'">
+          {{ t('strategicPlan.form.targetMatrixQuarterlySubtitle') }}
+        </template>
+        <template v-else>
+          {{ t('strategicPlan.form.targetMatrixSubtitle', { duration: periodsList.length }) }}
+        </template>
       </span>
     </div>
 
-    <!-- Flexible Year Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+    <!-- Flexible Grid (Quarterly or Yearly) -->
+    <div 
+      class="grid gap-3"
+      :class="store.form.periodType === 'Quartal' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'"
+    >
       <div
-        v-for="(yr, idx) in yearsList"
-        :key="yr"
+        v-for="(item, idx) in periodsList"
+        :key="item"
         class="space-y-2 p-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-center shadow-md transition-all hover:border-primary-400"
       >
         <div class="pb-1.5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
           <span class="text-[11px] font-extrabold uppercase tracking-wide text-primary-600 dark:text-primary-400">
-            {{ t('strategicPlan.form.yearLabel', { number: idx + 1 }) }}
+            {{ store.form.periodType === 'Quartal' ? t('strategicPlan.form.quarterLabel', { number: idx + 1 }) : t('strategicPlan.form.yearLabel', { number: idx + 1 }) }}
           </span>
           <span class="text-[11px] font-mono font-bold text-gray-700 dark:text-gray-300">
-            {{ yr }}
+            {{ item }}
           </span>
         </div>
 
@@ -32,11 +45,11 @@
         <div class="space-y-1 text-left">
           <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Target</label>
           <UInput
-            :model-value="(store.form.kpiTargets as any)?.[yr] || ''"
+            :model-value="(store.form.kpiTargets as any)?.[item] || ''"
             placeholder="Target"
             size="md"
             class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
-            @update:model-value="(val: string) => updateYearTarget(yr, val)"
+            @update:model-value="(val: string) => updatePeriodTarget(item, val)"
           />
         </div>
 
@@ -44,11 +57,11 @@
         <div class="space-y-1 text-left">
           <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Realisasi</label>
           <UInput
-            :model-value="(store.form.kpiActuals as any)?.[yr] || ''"
+            :model-value="(store.form.kpiActuals as any)?.[item] || ''"
             placeholder="Actual"
             size="md"
             class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
-            @update:model-value="(val: string) => updateYearActual(yr, val)"
+            @update:model-value="(val: string) => updatePeriodActual(item, val)"
           />
         </div>
 
@@ -57,9 +70,9 @@
           <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Hitungan</label>
           <div
             class="w-full text-center font-bold font-mono text-md py-1 px-2 rounded border transition-colors"
-            :class="getYearCalcColorClass(yr)"
+            :class="getPeriodCalcColorClass(item)"
           >
-            {{ getYearCalculation(yr) }}
+            {{ getPeriodCalculation(item) }}
           </div>
         </div>
       </div>
@@ -85,7 +98,10 @@ const endYear = computed(() => {
   return start + 4
 })
 
-const yearsList = computed(() => {
+const periodsList = computed(() => {
+  if (store.form.periodType === 'Quartal') {
+    return ['Q1', 'Q2', 'Q3', 'Q4']
+  }
   const start = startYear.value
   const end = endYear.value
   const years: string[] = []
@@ -95,29 +111,29 @@ const yearsList = computed(() => {
   return years
 })
 
-function updateYearTarget(year: string, value: string) {
+function updatePeriodTarget(periodKey: string, value: string) {
   if (!store.form.kpiTargets) {
     store.form.kpiTargets = {}
   }
-  ;(store.form.kpiTargets as any)[year] = value
-  if (store.form.selectedPeriod === year || !store.form.target) {
+  ;(store.form.kpiTargets as any)[periodKey] = value
+  if (store.form.selectedPeriod === periodKey || !store.form.target) {
     store.form.target = value
   }
 }
 
-function updateYearActual(year: string, value: string) {
+function updatePeriodActual(periodKey: string, value: string) {
   if (!store.form.kpiActuals) {
     store.form.kpiActuals = {}
   }
-  ;(store.form.kpiActuals as any)[year] = value
-  if (store.form.selectedPeriod === year || !store.form.actual) {
+  ;(store.form.kpiActuals as any)[periodKey] = value
+  if (store.form.selectedPeriod === periodKey || !store.form.actual) {
     store.form.actual = value
   }
 }
 
-function getYearCalculation(year: string): string {
-  const targetStr = (store.form.kpiTargets as any)?.[year]
-  const actualStr = (store.form.kpiActuals as any)?.[year]
+function getPeriodCalculation(periodKey: string): string {
+  const targetStr = (store.form.kpiTargets as any)?.[periodKey]
+  const actualStr = (store.form.kpiActuals as any)?.[periodKey]
   if (!targetStr || !actualStr) return '-'
   const target = parseFloat(targetStr)
   const actual = parseFloat(actualStr)
@@ -134,8 +150,8 @@ function getYearCalculation(year: string): string {
   return `${result.toFixed(2)}%`
 }
 
-function getYearCalcColorClass(year: string): string {
-  const calc = getYearCalculation(year)
+function getPeriodCalcColorClass(periodKey: string): string {
+  const calc = getPeriodCalculation(periodKey)
   if (calc === '-') return 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
   const val = parseFloat(calc)
   if (val >= 100) return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'

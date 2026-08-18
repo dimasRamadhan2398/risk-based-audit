@@ -118,10 +118,8 @@ jobs:
               # Update Repository Code
               # ================================================================
               echo ""
-              echo "📦 Syncing repository..."
+              echo "📦 Syncing repository (fresh clone every deploy)..."
               echo "👤 SSH User: $(whoami) (UID: $(id -u))"
-              echo "📁 /app: $(ls -ld /app 2>&1 || echo 'ERROR: /app not found')"
-              echo "📁 .git exists: $(test -d "$REPO_DIR/.git" && echo YES || echo NO)"
 
               if [ -d "$REPO_DIR/.git" ]; then
                 echo "🔄 Taking git pull path..."
@@ -146,6 +144,8 @@ jobs:
               cd "$REPO_DIR"
               CURRENT_COMMIT=$(git rev-parse HEAD 2>&1) || { echo "❌ git rev-parse failed"; exit 1; }
               echo "📌 Commit: $CURRENT_COMMIT ($(git log -1 --pretty=format:'%s' 2>&1))"
+              echo "📄 python-ai/Dockerfile MD5: $(md5sum backend/python-ai/Dockerfile)"
+
 
               export DOCKER_BUILDKIT=1
               export COMPOSE_DOCKER_CLI_BUILD=1
@@ -180,8 +180,10 @@ jobs:
               echo "🚀 Deploying Backend Services"
               echo "============================================================"
               cd "$BACKEND_DIR"
+              echo "🔎 Verifying python-ai Dockerfile on VPS (must show --no-deps):"
+              cat python-ai/Dockerfile
               echo "🔨 Building backend images in parallel..."
-              docker compose -f "$BACKEND_COMPOSE" build --parallel
+              docker compose -f "$BACKEND_COMPOSE" build --no-cache --parallel
 
               # ── Phase 1: Start infra (postgres, redis, zookeeper) ──────────
               echo "🏗️  Phase 1: Starting infrastructure services (postgres, redis, zookeeper)..."
