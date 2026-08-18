@@ -49,12 +49,12 @@ ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
 
   echo "  → Creating environment file..."
   cat <<ENVEOF > .env
-API_BASE_URL=http://$VPS_IP:8080/api/v1
-ANALYTICS_API_BASE_URL=http://$VPS_IP:8080/api/analytics
-NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
-NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
-NUXT_PUBLIC_RISK_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
-NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
+API_BASE_URL=/api/v1
+ANALYTICS_API_BASE_URL=/api/analytics
+NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=/api/v1
+NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=/api/v1
+NUXT_PUBLIC_RISK_SERVICE_BASE_URL=/api/v1
+NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=/api/v1
 ENVEOF
 
   echo "  → Launching Docker container..."
