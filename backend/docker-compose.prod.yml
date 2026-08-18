@@ -39,7 +39,7 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
     healthcheck:
-      test: ["CMD-SHELL", "cub zookeeper-ready localhost:2181 40 || exit 1"]
+      test: ["CMD-SHELL", "cub zk-ready localhost:2181 40 || exit 1"]
       interval: 10s
       timeout: 45s
       retries: 10
