@@ -246,6 +246,8 @@ jobs:
               echo "🚀 Deploying Frontend Service"
               echo "============================================================"
               cd "$FRONTEND_DIR"
+              echo "🧹 Removing any existing .env file to use defaults..."
+              rm -f .env
               echo "🔨 Building frontend image (no cache)..."
               docker compose -f "$FRONTEND_COMPOSE" build --no-cache
               docker rm -f rbia-frontend-prod 2>/dev/null || true
