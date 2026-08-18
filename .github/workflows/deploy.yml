@@ -173,7 +173,7 @@ jobs:
               echo "🔎 Verifying python-ai Dockerfile on VPS (must show --no-deps):"
               cat python-ai/Dockerfile
               echo "🔨 Building backend images in parallel..."
-              docker compose -f "$BACKEND_COMPOSE" build --no-cache --parallel
+              docker compose -f "$BACKEND_COMPOSE" build --parallel
 
               # ── Phase 1: Start infra (postgres, redis, zookeeper) ──────────
               echo "🏗️  Phase 1: Starting infrastructure services (postgres, redis, zookeeper)..."
@@ -237,7 +237,7 @@ jobs:
               echo "============================================================"
               cd "$FRONTEND_DIR"
               echo "🔨 Building frontend image (no cache)..."
-              docker compose -f "$FRONTEND_COMPOSE" build --no-cache
+              docker compose -f "$FRONTEND_COMPOSE" build
               docker rm -f rbia-frontend-prod 2>/dev/null || true
               docker compose -f "$FRONTEND_COMPOSE" up -d --force-recreate --remove-orphans
 

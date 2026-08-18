@@ -26,19 +26,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import AuditCharterCard from "~/components/audit-charter/AuditCharterCard.vue";
 import AuditCharterForm from "~/components/audit-charter/AuditCharterForm.vue";
 import GuidelineList from "~/components/audit-charter/GuidelineList.vue";
 import GuidelineForm from "~/components/audit-charter/GuidelineForm.vue";
 import SopList from "~/components/audit-charter/SopList.vue";
 import SopForm from "~/components/audit-charter/SopForm.vue";
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const activeTab = ref('charter')
 
-const tabs = [
-  {label: 'Audit Charter', key: 'charter', value: 'charter', icon: 'i-lucide-file-text'},
-  {label: 'Pedoman Audit', key: 'guideline', value: 'guideline', icon: 'i-lucide-book-open'},
-  {label: 'Petunjuk Teknis / SOP', key: 'sop', value: 'sop', icon: 'i-lucide-file-check'}
-]
+const tabs = computed(() => [
+  {label: t('auditCharter.tabs.charter'), key: 'charter', value: 'charter', icon: 'i-lucide-file-text'},
+  {label: t('auditCharter.tabs.guideline'), key: 'guideline', value: 'guideline', icon: 'i-lucide-book-open'},
+  {label: t('auditCharter.tabs.sop'), key: 'sop', value: 'sop', icon: 'i-lucide-file-check'}
+])
 </script>
