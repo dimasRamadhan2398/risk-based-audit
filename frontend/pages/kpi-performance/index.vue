@@ -77,7 +77,7 @@ const exportPDF = () => {
     <!-- Screen Header (Hidden during PDF Print) -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">KPI Performance</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Internal Audit Performance</h1>
         <p class="text-sm font-semibold text-gray-500 mt-1">Monitor and track internal audit performance metrics & Laporan Kinerja (Q1, Q2, Q3, Q4, Tahunan)</p>
       </div>
       <div class="flex flex-wrap items-center gap-3">

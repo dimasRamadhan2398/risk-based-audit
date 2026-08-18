@@ -34,12 +34,12 @@ echo "   Archive size: $(du -sh $ARCHIVE | cut -f1)"
 
 # ── Step 3: Prepare directory & Upload to VPS ───────────────────────────────
 echo "🌐 [3/4] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
-ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
-scp -o StrictHostKeyChecking=no "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
+ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
+scp -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
 
 # ── Step 4: Extract & Run Container on VPS ──────────────────────────────────
 echo "🚀 [4/4] Starting container on VPS (zero-build on server)..."
-ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
+ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
   set -e
   cd $TARGET_DIR
 
@@ -58,7 +58,8 @@ NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
 ENVEOF
 
   echo "  → Launching Docker container..."
-  docker compose -f docker-compose.prod.yml up -d --build
+  docker rm -f rbia-frontend-prod || true
+  docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 
   echo "  → Checking status..."
   docker compose -f docker-compose.prod.yml ps

@@ -69,6 +69,18 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
+    children: [
+      {
+        label: 'Create Strategic Audit Plan',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/strategic-audit-plan',
+      },
+      {
+        label: 'Import Strategic Audit Plan',
+        icon: 'i-lucide-upload',
+        to: '/strategic-audit-plan/upload',
+      }
+    ]
   },
   {
     label: '4. Annual Audit Plan',
@@ -215,17 +227,24 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '12. Import Laporan Kinerja',
-    icon: 'i-lucide-upload',
-    to: '/kpi-performance/upload',
-  },
-  {
-    label: '13. Internal Audit Performance',
+    label: '12. Internal Audit Performance',
     icon: 'i-lucide-trending-up',
     to: '/kpi-performance',
+    children: [
+      {
+        label: 'Internal Audit Performance Dashboard',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/kpi-performance',
+      },
+      {
+        label: 'Import Laporan Kinerja',
+        icon: 'i-lucide-upload',
+        to: '/kpi-performance/upload',
+      }
+    ]
   },
   {
-    label: '14. Quality Assurance Review',
+    label: '13. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [

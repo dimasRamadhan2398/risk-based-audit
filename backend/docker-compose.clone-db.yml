@@ -27,5 +27,5 @@ volumes:
 
 networks:
   rb_audit_network:
-    name: rb_audit_backend_rb_audit_network
+    name: rb_audit_network
     external: true

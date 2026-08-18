@@ -39,9 +39,9 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
     healthcheck:
-      test: ["CMD-SHELL", "cub zookeeper-ready 127.0.0.1:2181 30 || exit 1"]
-      interval: 5s
-      timeout: 5s
+      test: ["CMD-SHELL", "cub zk-ready 127.0.0.1:2181 5 || exit 1"]
+      interval: 10s
+      timeout: 10s
       retries: 10
       start_period: 15s
     networks:
@@ -69,7 +69,7 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "cub kafka-ready 1 30 -b 127.0.0.1:29092 || exit 1"]
+      test: ["CMD-SHELL", "cub kafka-ready 1 5 -b 127.0.0.1:29092 || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -187,7 +187,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - python_ai_models:/app/models
-      - ../ai_model_training:/app/ai_model_training:ro
+      - ./ai_model_training:/app/ai_model_training:ro
     networks:
       - rb_audit_network
     restart: unless-stopped
