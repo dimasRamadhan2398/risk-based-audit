@@ -192,7 +192,12 @@ jobs:
 
               # ── Phase 2: Start Kafka and wait for it to become healthy ─────
               echo "🏗️  Phase 2: Starting Kafka and waiting for health..."
-              docker compose -f "$BACKEND_COMPOSE" up -d kafka
+              if ! docker compose -f "$BACKEND_COMPOSE" up -d kafka; then
+                echo "❌ Failed to start kafka. Checking Zookeeper logs:"
+                docker compose -f "$BACKEND_COMPOSE" logs zookeeper
+                docker compose -f "$BACKEND_COMPOSE" logs kafka
+                exit 1
+              fi
 
               KAFKA_HEALTHY=0
               for i in $(seq 1 36); do
@@ -209,6 +214,7 @@ jobs:
               if [ "$KAFKA_HEALTHY" -ne 1 ]; then
                 echo "❌ Kafka failed to become healthy after 3 minutes. Check Kafka logs:"
                 docker compose -f "$BACKEND_COMPOSE" logs --tail=60 kafka || true
+                docker compose -f "$BACKEND_COMPOSE" logs --tail=60 zookeeper || true
                 exit 1
               fi
 
