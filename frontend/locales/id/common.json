@@ -953,5 +953,37 @@
         "high": "Tinggi"
       }
     }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "kpiForecast": {
+      "subFeature": "Sub-Fitur 9",
+      "title": "KPI PyTorch LSTM Forecast",
+      "subtitle": "Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis.",
+      "badge": "Model PyTorch LSTM",
+      "summaryTitle": "Ringkasan Forecast KPI (PyTorch LSTM)",
+      "columns": {
+        "code": "Kode",
+        "kpi": "KPI",
+        "currentValue": "Nilai Saat Ini",
+        "forecastedValue": "Nilai Forecast",
+        "trend": "Tren",
+        "recommendedAction": "Rekomendasi Tindakan Audit"
+      },
+      "trends": {
+        "improving": "Meningkat",
+        "deteriorating": "Menurun"
+      }
+    }
+  },
+  "annualAudit": {
+    "title": "Rencana Audit Tahunan",
+    "importPlanDocument": "Impor Dokumen Rencana",
+    "newAuditPlan": "Rencana Audit Baru"
+  },
+  "assignmentLetter": {
+    "title": "Daftar Surat Tugas",
+    "importDocument": "Impor Dokumen",
+    "createAssignmentLetter": "Buat Surat Tugas"
   }
 }

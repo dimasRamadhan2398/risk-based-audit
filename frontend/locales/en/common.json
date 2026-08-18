@@ -956,5 +956,37 @@
         "high": "High"
       }
     }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "kpiForecast": {
+      "subFeature": "Sub-Feature 9",
+      "title": "KPI PyTorch LSTM Forecast",
+      "subtitle": "Deep Learning Model (PyTorch LSTM) predicts future KPI performance trends based on historical time series data.",
+      "badge": "PyTorch LSTM Model",
+      "summaryTitle": "KPI Forecast Summary (PyTorch LSTM)",
+      "columns": {
+        "code": "Code",
+        "kpi": "KPI",
+        "currentValue": "Current Value",
+        "forecastedValue": "Forecasted Value",
+        "trend": "Trend",
+        "recommendedAction": "Audit Action Recommendation"
+      },
+      "trends": {
+        "improving": "Improving",
+        "deteriorating": "Deteriorating"
+      }
+    }
+  },
+  "annualAudit": {
+    "title": "Annual Audit Plan",
+    "importPlanDocument": "Import Plan Document",
+    "newAuditPlan": "New Audit Plan"
+  },
+  "assignmentLetter": {
+    "title": "Assignment Letter List",
+    "importDocument": "Import Document",
+    "createAssignmentLetter": "Create Assignment Letter"
   }
 }
