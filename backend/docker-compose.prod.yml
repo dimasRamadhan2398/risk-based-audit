@@ -40,10 +40,10 @@ services:
       - zookeeper_data:/var/lib/zookeeper/data
     healthcheck:
       test: ["CMD-SHELL", "cub zk-ready 127.0.0.1:2181 30 || exit 1"]
-      interval: 5s
+      interval: 10s
       timeout: 40s
-      retries: 10
-      start_period: 15s
+      retries: 15
+      start_period: 30s
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -69,11 +69,11 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "cub kafka-ready 1 30 -b 127.0.0.1:29092 || exit 1"]
+      test: ["CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:29092 && echo 'Kafka ready' || exit 1"]
       interval: 10s
-      timeout: 40s
-      retries: 10
-      start_period: 30s
+      timeout: 60s
+      retries: 15
+      start_period: 60s
     networks:
       - rb_audit_network
     restart: unless-stopped

@@ -197,24 +197,27 @@ jobs:
               echo "🔨 Building backend images in parallel..."
               docker compose -f "$BACKEND_COMPOSE" build --parallel
 
-              # ── Phase 1: Recreate Zookeeper cleanly, but PRESERVE its volume ─
-              # Do not use `down -v`: Kafka/Zookeeper state may be stored in volumes.
-              # Removing the volume can destroy the Kafka metadata/state.
-              echo "🏗️  Phase 1: Rebuilding and recreating Zookeeper..."
+              # ── Phase 1: Cleanly stop Kafka → Zookeeper (correct shutdown order) ─
+              # Kafka must be stopped BEFORE Zookeeper, otherwise Zookeeper gets a
+              # dirty disconnect and may write a corrupt snapshot on next start.
+              echo "🏗️  Phase 1: Stopping and rebuilding Zookeeper + Kafka cleanly..."
 
-              # Resolve the actual Compose container name instead of assuming
-              # rb_audit_zookeeper. This is important when Compose adds a project
-              # prefix or the container_name changes.
+              # Stop kafka first (if running), then zookeeper
+              KAFKA_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -aq kafka | head -1 || true)
+              if [ -n "$KAFKA_CONTAINER_ID" ]; then
+                echo "🧹 Removing existing Kafka container first: $KAFKA_CONTAINER_ID"
+                docker rm -f "$KAFKA_CONTAINER_ID" 2>/dev/null || true
+              fi
+
               ZK_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -aq zookeeper | head -1 || true)
-
               if [ -n "$ZK_CONTAINER_ID" ]; then
                 echo "🧹 Removing existing Zookeeper container: $ZK_CONTAINER_ID"
                 docker rm -f "$ZK_CONTAINER_ID" 2>/dev/null || true
               fi
 
-              # Rebuild from the current compose/Dockerfile and recreate the service.
+              # Rebuild and recreate Zookeeper cleanly (no image layer cache)
               docker compose -f "$BACKEND_COMPOSE" build --no-cache zookeeper
-              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans zookeeper
+              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --no-deps zookeeper
 
               ZK_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -q zookeeper | head -1 || true)
               if [ -z "$ZK_CONTAINER_ID" ]; then
@@ -223,21 +226,20 @@ jobs:
                 exit 1
               fi
 
-              if ! wait_for_container_health "$ZK_CONTAINER_ID" "Zookeeper" 36; then
+              if ! wait_for_container_health "$ZK_CONTAINER_ID" "Zookeeper" 48; then
                 echo "❌ Zookeeper failed its Docker healthcheck."
                 echo "📋 Zookeeper status:"
                 docker inspect "$ZK_CONTAINER_ID" --format='{{json .State.Health}}' 2>/dev/null || true
                 echo "📋 Zookeeper logs:"
                 docker compose -f "$BACKEND_COMPOSE" logs --tail=100 zookeeper || true
 
-                # Last recovery attempt: recreate the container without touching
-                # persistent volumes. This handles stale/broken container state.
+                # Last recovery attempt
                 echo "🔄 Last Zookeeper recovery attempt..."
                 docker rm -f "$ZK_CONTAINER_ID" 2>/dev/null || true
-                docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate zookeeper
+                docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --no-deps zookeeper
                 ZK_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -q zookeeper | head -1 || true)
 
-                if [ -z "$ZK_CONTAINER_ID" ] || ! wait_for_container_health "$ZK_CONTAINER_ID" "Zookeeper (recovery)" 36; then
+                if [ -z "$ZK_CONTAINER_ID" ] || ! wait_for_container_health "$ZK_CONTAINER_ID" "Zookeeper (recovery)" 48; then
                   echo "❌ Zookeeper is still unhealthy. Deployment stopped before Kafka."
                   docker compose -f "$BACKEND_COMPOSE" logs --tail=150 zookeeper || true
                   exit 1
@@ -249,14 +251,9 @@ jobs:
               # ── Phase 2: Rebuild/recreate Kafka AFTER Zookeeper is healthy ──
               echo "🏗️  Phase 2: Rebuilding and recreating Kafka..."
 
-              KAFKA_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -aq kafka | head -1 || true)
-              if [ -n "$KAFKA_CONTAINER_ID" ]; then
-                echo "🧹 Removing existing Kafka container: $KAFKA_CONTAINER_ID"
-                docker rm -f "$KAFKA_CONTAINER_ID" 2>/dev/null || true
-              fi
-
+              # Rebuild and recreate Kafka cleanly (no image layer cache)
               docker compose -f "$BACKEND_COMPOSE" build --no-cache kafka
-              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans kafka
+              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --no-deps kafka
 
               KAFKA_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -q kafka | head -1 || true)
               if [ -z "$KAFKA_CONTAINER_ID" ]; then
@@ -265,7 +262,7 @@ jobs:
                 exit 1
               fi
 
-              if ! wait_for_container_health "$KAFKA_CONTAINER_ID" "Kafka" 48; then
+              if ! wait_for_container_health "$KAFKA_CONTAINER_ID" "Kafka" 72; then
                 echo "❌ Kafka failed its Docker healthcheck."
                 echo "📋 Kafka status:"
                 docker inspect "$KAFKA_CONTAINER_ID" --format='{{json .State.Health}}' 2>/dev/null || true
@@ -274,10 +271,10 @@ jobs:
 
                 echo "🔄 Last Kafka recovery attempt..."
                 docker rm -f "$KAFKA_CONTAINER_ID" 2>/dev/null || true
-                docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate kafka
+                docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --no-deps kafka
                 KAFKA_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -q kafka | head -1 || true)
 
-                if [ -z "$KAFKA_CONTAINER_ID" ] || ! wait_for_container_health "$KAFKA_CONTAINER_ID" "Kafka (recovery)" 48; then
+                if [ -z "$KAFKA_CONTAINER_ID" ] || ! wait_for_container_health "$KAFKA_CONTAINER_ID" "Kafka (recovery)" 72; then
                   echo "❌ Kafka is still unhealthy. Deployment stopped."
                   docker compose -f "$BACKEND_COMPOSE" logs --tail=200 kafka || true
                   exit 1
@@ -285,6 +282,8 @@ jobs:
               fi
 
               echo "✅ Kafka is healthy and ready."
+              echo "⏳ Letting Kafka settle for 10 seconds before starting app services..."
+              sleep 10
 
               # ── Phase 3: Start all remaining application services ──────────
               echo "🏗️  Phase 3: Starting application services..."
