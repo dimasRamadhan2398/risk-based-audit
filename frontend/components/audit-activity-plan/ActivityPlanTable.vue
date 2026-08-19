@@ -11,7 +11,7 @@
           <div 
             v-for="(act, idx) in getOriginal(row).plannedActivities" 
             :key="idx"
-            class="text-md font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
+            class="text-md font-semibold text-gray-700 dark:text-white truncate max-w-[200px]"
             :title="act.riskName"
           >
             {{ act.riskName || '-' }}

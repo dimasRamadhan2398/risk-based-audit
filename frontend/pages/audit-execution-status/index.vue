@@ -201,14 +201,14 @@ const handleRemind = (audit: any) => {
                 :style="{ width: `${Math.min(100, Math.max(0, getProgressValue(row)))}%` }"
               ></div>
             </div>
-            <span class="text-md font-bold text-gray-700 dark:text-gray-300 w-10 text-right">
+            <span class="text-md font-bold text-gray-700 dark:text-white w-10 text-right">
               {{ getProgressValue(row) }}%
             </span>
           </div>
         </template>
 
         <template #lead_auditor-cell="{ row }">
-          <span class="text-sm text-gray-700 dark:text-gray-300">{{ (row.original || row).lead_auditor || '-' }}</span>
+          <span class="text-sm text-gray-700 dark:text-white">{{ (row.original || row).lead_auditor || '-' }}</span>
         </template>
 
         <template #actions-cell="{ row }">

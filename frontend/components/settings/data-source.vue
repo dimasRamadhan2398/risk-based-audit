@@ -199,7 +199,7 @@
                 <UIcon :name="getProviderIcon(log.type)" class="w-4 h-4 text-primary-500" />
                 {{ log.connName }}
               </td>
-              <td class="py-3 px-4 text-gray-600 dark:text-gray-300 font-mono">{{ log.event }}</td>
+              <td class="py-3 px-4 text-gray-600 dark:text-white font-mono">{{ log.event }}</td>
               <td class="py-3 px-4">
                 <UBadge :color="log.status === 'SUCCESS' ? 'success' : log.status === 'RUNNING' ? 'info' : 'error'" variant="subtle" size="md" class="rounded-md font-semibold">
                   {{ log.status }}

@@ -1659,5 +1659,20 @@ export default defineAppConfig({
         },
       },
     },
+
+    /**
+     * UTable — override dark-mode text to pure white on all tables app-wide.
+     * Slot names come from the Nuxt UI v3 table theme (table$1).
+     *   th:    header cells  (default: text-highlighted)
+     *   td:    body cells    (default: text-muted)
+     *   empty: empty state   (default: text-muted)
+     */
+    table: {
+      slots: {
+        th: 'px-4 py-3.5 text-sm text-left rtl:text-right font-semibold text-gray-700 dark:text-white',
+        td: 'p-4 text-sm whitespace-nowrap text-gray-600 dark:text-white',
+        empty: 'py-6 text-center text-sm text-gray-500 dark:text-white',
+      }
+    },
   },
 });

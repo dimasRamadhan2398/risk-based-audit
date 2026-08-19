@@ -41,7 +41,7 @@
         </template>
 
         <template #conductedBy-cell="{ row }">
-          <span class="font-medium text-gray-700 dark:text-gray-300">{{ row.original.conductedBy || '-' }}</span>
+          <span class="font-medium text-gray-700 dark:text-white">{{ row.original.conductedBy || '-' }}</span>
         </template>
 
         <template #viewReport-cell="{ row }">
