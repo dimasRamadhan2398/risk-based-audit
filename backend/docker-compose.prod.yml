@@ -24,7 +24,7 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
-      timeout: 5s
+      timeout: 40s
       retries: 5
     networks:
       - rb_audit_network
@@ -39,9 +39,9 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
     healthcheck:
-      test: ["CMD-SHELL", "cub zookeeper-ready 127.0.0.1:2181 30 || exit 1"]
+      test: ["CMD-SHELL", "cub zk-ready 127.0.0.1:2181 30 || exit 1"]
       interval: 5s
-      timeout: 5s
+      timeout: 40s
       retries: 10
       start_period: 15s
     networks:
@@ -71,7 +71,7 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "cub kafka-ready 1 30 -b 127.0.0.1:29092 || exit 1"]
       interval: 10s
-      timeout: 10s
+      timeout: 40s
       retries: 10
       start_period: 30s
     networks:
@@ -214,7 +214,7 @@ services:
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
-      timeout: 5s
+      timeout: 40s
       retries: 5
       start_period: 30s
     networks:

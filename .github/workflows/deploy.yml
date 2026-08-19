@@ -29,6 +29,7 @@ jobs:
           script_stop: true
           script: |
             set -Eeuo pipefail
+            export LOCK_FILE="/tmp/auditsphere_deploy.lock"
 
             wait_for_container_health() {
               local container_name="$1"
@@ -65,7 +66,6 @@ jobs:
               FRONTEND_COMPOSE="docker-compose.prod.yml"
               BACKEND_CONTAINER_FILTER="rb_audit"
               FRONTEND_CONTAINER_FILTER="rbia-frontend"
-              LOCK_FILE="/tmp/auditsphere_deploy.lock"
 
               echo ""
               echo "============================================================"
