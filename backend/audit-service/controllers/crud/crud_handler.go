@@ -207,11 +207,18 @@ func Update(db *gorm.DB, modelName string, newEntity func() interface{}) gin.Han
 				}
 				// Parse date strings into time.Time for time/date fields
 				if strings.HasSuffix(col, "_date") || strings.HasSuffix(col, "_at") {
-					if strVal, ok := val.(string); ok && strVal != "" {
-						if t, err := time.Parse("2006-01-02", strVal); err == nil {
+					if strVal, ok := val.(string); ok {
+						trimmed := strings.TrimSpace(strVal)
+						if trimmed == "" || trimmed == "null" {
+							snakeData[col] = nil
+						} else if t, err := time.Parse("2006-01-02", trimmed); err == nil {
 							snakeData[col] = t
-						} else if t, err := time.Parse(time.RFC3339, strVal); err == nil {
+						} else if t, err := time.Parse(time.RFC3339, trimmed); err == nil {
 							snakeData[col] = t
+						} else if len(trimmed) >= 10 {
+							if t, err := time.Parse("2006-01-02", trimmed[:10]); err == nil {
+								snakeData[col] = t
+							}
 						}
 					}
 				}
