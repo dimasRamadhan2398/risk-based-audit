@@ -44,7 +44,7 @@ func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, fileName str
 	return &models.MediaAttachment{
 		FileID:     "local-" + safeFileName,
 		FileName:   fileName,
-		FilePath:   "http://localhost:8002/uploads/" + safeFileName,
+		FilePath:   "/uploads/" + safeFileName,
 		FileSize:   written,
 		FileType:   "application/octet-stream",
 		UploadedAt: time.Now(),

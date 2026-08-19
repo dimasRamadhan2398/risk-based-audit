@@ -111,8 +111,7 @@
         <div class="sm:flex sm:flex-row-reverse gap-4">
           <UButton
             v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            :to="store.activeCharter.fileUrl"
-            target="_blank"
+            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName)"
             icon="i-lucide-download"
             size="md"
             color="primary"
@@ -190,8 +189,7 @@
             <template #fileName-cell="{ row }">
               <UButton
                 v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                :to="row.original.fileUrl"
-                target="_blank"
+                @click="store.downloadCharter(row.original.id, row.original.fileName)"
                 icon="i-lucide-external-link"
                 color="primary"
                 variant="link"

@@ -60,6 +60,7 @@ jobs:
               FRONTEND_COMPOSE="docker-compose.prod.yml"
               BACKEND_CONTAINER_FILTER="rb_audit"
               FRONTEND_CONTAINER_FILTER="rbia-frontend"
+              LOCK_FILE="/tmp/auditsphere_deploy.lock"
 
               echo ""
               echo "============================================================"
