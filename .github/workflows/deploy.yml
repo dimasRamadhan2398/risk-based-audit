@@ -180,6 +180,24 @@ jobs:
               docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans \
                 postgres redis zookeeper
 
+              ZK_HEALTHY=0
+              for i in $(seq 1 24); do
+                ZK_STATUS=$(docker inspect --format='{{.State.Health.Status}}' rb_audit_zookeeper 2>/dev/null || echo "not_found")
+                if [ "$ZK_STATUS" = "healthy" ]; then
+                  echo "✅ Zookeeper is healthy."
+                  ZK_HEALTHY=1
+                  break
+                fi
+                echo "⏳ Zookeeper status: $ZK_STATUS — waiting... attempt $i/24"
+                sleep 5
+              done
+
+              if [ "$ZK_HEALTHY" -ne 1 ]; then
+                echo "❌ Zookeeper failed to become healthy. Logs:"
+                docker compose -f "$BACKEND_COMPOSE" logs --tail=60 zookeeper || true
+                exit 1
+              fi
+
               # ── Phase 2: Start Kafka and wait for it to become healthy ─────
               echo "🏗️  Phase 2: Starting Kafka and waiting for health..."
               docker compose -f "$BACKEND_COMPOSE" up -d kafka
