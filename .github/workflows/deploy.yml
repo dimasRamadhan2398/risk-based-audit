@@ -30,7 +30,23 @@ jobs:
           script: |
             set -Eeuo pipefail
 
-            LOCK_FILE="/tmp/auditsphere-deploy.lock"
+            wait_for_container_health() {
+              local container_name="$1"
+              local service_name="$2"
+              local max_attempts="${3:-20}"
+
+              for i in $(seq 1 "$max_attempts"); do
+                local status
+                status=$(docker inspect --format='{{.State.Health.Status}}' "$container_name" 2>/dev/null || echo "not_found")
+                if [ "$status" = "healthy" ]; then
+                  echo "✅ $service_name is healthy."
+                  return 0
+                fi
+                echo "⏳ $service_name status: $status — waiting... attempt $i/$max_attempts"
+                sleep 5
+              done
+              return 1
+            }
 
             main() {
               # ================================================================
@@ -180,44 +196,34 @@ jobs:
               docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans \
                 postgres redis zookeeper
 
-              ZK_HEALTHY=0
-              for i in $(seq 1 24); do
-                ZK_STATUS=$(docker inspect --format='{{.State.Health.Status}}' rb_audit_zookeeper 2>/dev/null || echo "not_found")
-                if [ "$ZK_STATUS" = "healthy" ]; then
-                  echo "✅ Zookeeper is healthy."
-                  ZK_HEALTHY=1
-                  break
-                fi
-                echo "⏳ Zookeeper status: $ZK_STATUS — waiting... attempt $i/24"
-                sleep 5
-              done
-
-              if [ "$ZK_HEALTHY" -ne 1 ]; then
-                echo "❌ Zookeeper failed to become healthy. Logs:"
+              if ! wait_for_container_health "rb_audit_zookeeper" "Zookeeper" 20; then
+                echo "⚠️ Zookeeper failed to become healthy. Re-pulling image and recreating..."
                 docker compose -f "$BACKEND_COMPOSE" logs --tail=60 zookeeper || true
-                exit 1
+                docker compose -f "$BACKEND_COMPOSE" pull zookeeper || true
+                docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --build zookeeper
+
+                if ! wait_for_container_health "rb_audit_zookeeper" "Zookeeper (after rebuild)" 20; then
+                  echo "❌ Zookeeper failed to become healthy after rebuild. Check Zookeeper logs:"
+                  docker compose -f "$BACKEND_COMPOSE" logs --tail=60 zookeeper || true
+                  exit 1
+                fi
               fi
 
               # ── Phase 2: Start Kafka and wait for it to become healthy ─────
               echo "🏗️  Phase 2: Starting Kafka and waiting for health..."
               docker compose -f "$BACKEND_COMPOSE" up -d kafka
 
-              KAFKA_HEALTHY=0
-              for i in $(seq 1 36); do
-                KAFKA_STATUS=$(docker inspect --format='{{.State.Health.Status}}' rb_audit_kafka 2>/dev/null || echo "not_found")
-                if [ "$KAFKA_STATUS" = "healthy" ]; then
-                  echo "✅ Kafka is healthy."
-                  KAFKA_HEALTHY=1
-                  break
-                fi
-                echo "⏳ Kafka status: $KAFKA_STATUS — waiting... attempt $i/36"
-                sleep 5
-              done
-
-              if [ "$KAFKA_HEALTHY" -ne 1 ]; then
-                echo "❌ Kafka failed to become healthy after 3 minutes. Check Kafka logs:"
+              if ! wait_for_container_health "rb_audit_kafka" "Kafka" 24; then
+                echo "⚠️ Kafka failed to become healthy. Re-pulling image and recreating..."
                 docker compose -f "$BACKEND_COMPOSE" logs --tail=60 kafka || true
-                exit 1
+                docker compose -f "$BACKEND_COMPOSE" pull kafka || true
+                docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --build kafka
+
+                if ! wait_for_container_health "rb_audit_kafka" "Kafka (after rebuild)" 24; then
+                  echo "❌ Kafka failed to become healthy after rebuild. Check Kafka logs:"
+                  docker compose -f "$BACKEND_COMPOSE" logs --tail=60 kafka || true
+                  exit 1
+                fi
               fi
 
               # ── Phase 3: Start all remaining application services ──────────
