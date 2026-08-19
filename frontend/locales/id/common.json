@@ -857,8 +857,9 @@
         "mitigation": "Rencana Mitigasi",
         "actions": "Aksi"
       }
-    },
-    "riskProfile": {
+    }
+  },
+  "riskProfile": {
       "title": "Profil Risiko Perusahaan",
       "subtitle": "Heat Map Risiko Interaktif — Tahun Buku {year} ({period})",
       "total": "Total",
@@ -952,8 +953,7 @@
         "moderate-high": "Sedang ke Tinggi",
         "high": "Tinggi"
       }
-    }
-  },
+    },
   "analytics": {
     "title": "Analytics",
     "kpiForecast": {
@@ -995,6 +995,20 @@
     "createPlanTitle": "Buat Rencana Aktivitas Audit",
     "emptyState": "Belum ada data rencana audit.",
     "deleteConfirm": "Apakah Anda yakin ingin menghapus rencana aktivitas ini?",
+    "validation": {
+      "basicInfo": "Harap isi semua kolom wajib pada informasi dasar (Judul Rencana, Tahun, Periode, Departemen).",
+      "plannedActivities": "Harap tambahkan setidaknya satu aktivitas audit dengan Judul dan Auditee yang diisi.",
+      "reviewAndApproval": "Harap lengkapi rincian Pembuat dan Penyetuju (Nama, Jabatan, dan Tanggal Persetujuan)."
+    },
+    "stepper": {
+      "step1": "Info Dasar",
+      "step2": "Aktivitas Audit",
+      "step3": "SDM & Anggaran",
+      "step4": "Review & Persetujuan",
+      "step5": "Lampiran",
+      "previous": "Sebelumnya",
+      "next": "Langkah Berikutnya"
+    },
     "table": {
       "title": "Judul",
       "year": "Tahun",
@@ -1006,6 +1020,7 @@
       "actions": "Aksi"
     },
     "form": {
+      "stepNum": "Langkah {current} dari {total}",
       "basicInfo": "Informasi Perencanaan Dasar",
       "planTitle": "Judul Rencana Aktivitas Audit",
       "planYear": "Tahun Perencanaan",
@@ -1018,6 +1033,7 @@
       "addAuditActivity": "Tambah Aktivitas Audit",
       "activityNum": "Aktivitas Audit {num}",
       "activityTitle": "Judul Aktivitas Audit",
+      "createPlanTitle": "Buat Rencana Aktivitas Audit",
       "auditee": "Auditee",
       "category": "Kategori",
       "selectCategory": "Pilih Kategori",
@@ -1109,6 +1125,36 @@
         "position": "Posisi",
         "competence": "Kompetensi",
         "availability": "Ketersediaan"
+      }
+    },
+    "upload": {
+      "title": "Impor Dokumen Rencana",
+      "subtitle": "Impor dokumen Rencana Aktivitas Audit eksternal",
+      "formTitle": "Impor Dokumen Rencana",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Rencana Audit Tahunan 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi singkat tentang dokumen...",
+      "fileLabel": "File Dokumen Impor *",
+      "dropzoneLabel": "Klik untuk mengunggah atau tarik & lepas",
+      "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
+      "removeFile": "Hapus File",
+      "uploadButton": "Impor Dokumen",
+      "importedTitle": "Dokumen Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "loading": "Memuat dokumen...",
+      "noDocumentsTitle": "Belum ada dokumen yang diimpor",
+      "noDocumentsDesc": "Impor dokumen rencana di sebelah kiri untuk menambahkannya ke catatan Anda.",
+      "viewDocument": "Lihat Dokumen",
+      "downloadDocument": "Unduh Dokumen",
+      "deleteDocument": "Hapus Dokumen",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen yang diunggah ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas 10MB.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "importedDate": "Tanggal Impor",
+        "actions": "Aksi"
       }
     }
   },

@@ -860,8 +860,9 @@
         "mitigation": "Mitigation Plan",
         "actions": "Actions"
       }
-    },
-    "riskProfile": {
+    }
+  },
+  "riskProfile": {
       "title": "Corporate Risk Profile",
       "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
       "total": "Total",
@@ -955,8 +956,7 @@
         "moderate-high": "Moderate to High",
         "high": "High"
       }
-    }
-  },
+    },
   "analytics": {
     "title": "Analytics",
     "kpiForecast": {
@@ -998,6 +998,20 @@
     "createPlanTitle": "Create Audit Activity Plan",
     "emptyState": "No audit activity plan data available.",
     "deleteConfirm": "Are you sure you want to delete this activity plan?",
+    "validation": {
+      "basicInfo": "Please fill in all required fields (Plan Title, Year, Period, Department).",
+      "plannedActivities": "Please add at least one audit activity with Activity Title and Auditee filled.",
+      "reviewAndApproval": "Please fill in Creator and Approver details (Names, Positions, and Approval Date)."
+    },
+    "stepper": {
+      "step1": "Basic Info",
+      "step2": "Audit Activities",
+      "step3": "Resources & Budget",
+      "step4": "Review & Approval",
+      "step5": "Attachments",
+      "previous": "Previous",
+      "next": "Next Step"
+    },
     "table": {
       "title": "Title",
       "year": "Year",
@@ -1009,6 +1023,7 @@
       "actions": "Actions"
     },
     "form": {
+      "stepNum": "Step {current} of {total}",
       "basicInfo": "Basic Planning Information",
       "planTitle": "Title of Audit Activity Plan",
       "planYear": "Planning Year",
@@ -1021,6 +1036,7 @@
       "addAuditActivity": "Add Audit Activity",
       "activityNum": "Audit Activity {num}",
       "activityTitle": "Title of Audit Activity",
+      "createPlanTitle": "Create Audit Activity Plan",
       "auditee": "Auditee",
       "category": "Category",
       "selectCategory": "Select Category",
@@ -1112,6 +1128,36 @@
         "position": "Position",
         "competence": "Competence",
         "availability": "Availability"
+      }
+    },
+    "upload": {
+      "title": "Import Plan Document",
+      "subtitle": "Import external Audit Activity Plan documents",
+      "formTitle": "Import Plan Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Annual Audit Plan 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzoneLabel": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "uploadButton": "Import Document",
+      "importedTitle": "Imported Documents",
+      "documentsCount": "{count} Documents",
+      "loading": "Loading documents...",
+      "noDocumentsTitle": "No documents imported",
+      "noDocumentsDesc": "Import plan documents on the left to add them to your records.",
+      "viewDocument": "View Document",
+      "downloadDocument": "Download Document",
+      "deleteDocument": "Delete Document",
+      "deleteConfirm": "Are you sure you want to delete this uploaded document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "importedDate": "Imported Date",
+        "actions": "Actions"
       }
     }
   },

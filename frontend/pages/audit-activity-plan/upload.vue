@@ -4,8 +4,8 @@
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/audit-activity-plan" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Import Plan Document</h1>
-        <p class="text-sm text-gray-500">Import external Audit Activity Plan documents</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ t('auditActivityPlan.upload.title') }}</h1>
+        <p class="text-sm text-gray-500">{{ t('auditActivityPlan.upload.subtitle') }}</p>
       </div>
     </div>
 
@@ -17,30 +17,30 @@
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-primary" />
-              Import Plan Document
+              {{ t('auditActivityPlan.upload.formTitle') }}
             </h3>
           </template>
 
           <form @submit.prevent="handleUpload" class="space-y-6">
-            <UFormField label="Document Title" required>
+            <UFormField :label="t('auditActivityPlan.upload.documentTitle')" required>
               <UInput 
                 v-model="form.title" 
-                placeholder="Ex: Annual Audit Plan 2026" 
+                :placeholder="t('auditActivityPlan.upload.documentTitlePlaceholder')" 
                 class="w-full"
                 required
               />
             </UFormField>
 
-            <UFormField label="Description">
+            <UFormField :label="t('auditActivityPlan.upload.description')">
               <UTextarea 
                 v-model="form.description" 
-                placeholder="Brief description of the document..." 
+                :placeholder="t('auditActivityPlan.upload.descriptionPlaceholder')" 
                 class="w-full"
               />
             </UFormField>
 
             <div class="space-y-2 pt-2">
-              <label class="block text-sm font-medium text-gray-700">Import Document File *</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('auditActivityPlan.upload.fileLabel') }}</label>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -66,8 +66,8 @@
                 <div v-if="!form.fileName" class="space-y-3">
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-sm text-gray-600 font-semibold">Click to upload or drag & drop</p>
-                    <p class="text-md text-gray-400 mt-1">PDF, DOC, DOCX up to 10MB</p>
+                    <p class="text-sm text-gray-600 font-semibold">{{ t('auditActivityPlan.upload.dropzoneLabel') }}</p>
+                    <p class="text-md text-gray-400 mt-1">{{ t('auditActivityPlan.upload.dropzoneHint') }}</p>
                   </div>
                 </div>
 
@@ -86,7 +86,7 @@
                     @click.stop="clearFile" 
                     class="text-md text-red-500 hover:underline font-bold mt-2 block mx-auto"
                   >
-                    Remove File
+                    {{ t('auditActivityPlan.upload.removeFile') }}
                   </button>
                 </div>
               </div>
@@ -97,8 +97,8 @@
             </div>
 
             <UButton 
-              type="submit"
-              label="Import Document" 
+              type="submit" 
+              :label="t('auditActivityPlan.upload.uploadButton')" 
               color="primary" 
               class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
@@ -116,17 +116,17 @@
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-primary" />
-                Imported Documents
+                {{ t('auditActivityPlan.upload.importedTitle') }}
               </h3>
               <UBadge color="primary" variant="subtle">
-                {{ store.uploadedDocuments.length }} Documents
+                {{ t('auditActivityPlan.upload.documentsCount', { count: store.uploadedDocuments.length }) }}
               </UBadge>
             </div>
           </template>
 
           <div v-if="store.loading && store.uploadedDocuments.length === 0" class="py-12 text-center">
             <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-            <p class="text-gray-500 text-sm">Loading documents...</p>
+            <p class="text-gray-500 text-sm">{{ t('auditActivityPlan.upload.loading') }}</p>
           </div>
 
           <div v-else-if="store.uploadedDocuments.length === 0" class="py-16 text-center space-y-4 rounded-lg border-2 border-dashed border-gray-100 bg-gray-50/50">
@@ -134,8 +134,8 @@
               <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
             </div>
             <div class="max-w-md mx-auto">
-              <h3 class="text-sm font-bold text-gray-900">No documents imported</h3>
-              <p class="text-md text-gray-500 mt-1">Import plan documents on the left to add them to your records.</p>
+              <h3 class="text-sm font-bold text-gray-900">{{ t('auditActivityPlan.upload.noDocumentsTitle') }}</h3>
+              <p class="text-md text-gray-500 mt-1">{{ t('auditActivityPlan.upload.noDocumentsDesc') }}</p>
             </div>
           </div>
 
@@ -164,12 +164,13 @@
               </template>
 
               <template #actions-cell="{ row }">
-                <div class="flex items-center gap-1">                  <UButton 
+                <div class="flex items-center gap-1">
+                  <UButton 
                     icon="i-lucide-eye" 
                     color="info" 
                     variant="ghost" 
                     size="sm" 
-                    title="View Document"
+                    :title="t('auditActivityPlan.upload.viewDocument')"
                     @click="store.viewDocument(row.original.id, row.original.fileName)" 
                   />
                   <UButton 
@@ -177,7 +178,7 @@
                     color="primary" 
                     variant="ghost" 
                     size="sm" 
-                    title="Download Document"
+                    :title="t('auditActivityPlan.upload.downloadDocument')"
                     @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                   />
                   <UButton 
@@ -185,7 +186,7 @@
                     color="error" 
                     variant="ghost" 
                     size="sm" 
-                    title="Delete Document"
+                    :title="t('auditActivityPlan.upload.deleteDocument')"
                     @click="handleDelete(row.original.id)" 
                   />
                 </div>
@@ -199,9 +200,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUploadPlanDocumentStore } from '~/stores/upload-plan-document'
+import { useI18n } from '~/composables/useI18n'
 
+const { t, locale } = useI18n()
 const store = useUploadPlanDocumentStore()
 
 onMounted(() => {
@@ -220,12 +223,12 @@ const form = ref({
   fileContent: ''
 })
 
-const columns = [
-  { accessorKey: 'title', header: 'Document Title' },
-  { accessorKey: 'fileName', header: 'File' },
-  { accessorKey: 'created_at', header: 'Imported Date' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'title', header: t('auditActivityPlan.upload.columns.title') },
+  { accessorKey: 'fileName', header: t('auditActivityPlan.upload.columns.file') },
+  { accessorKey: 'created_at', header: t('auditActivityPlan.upload.columns.importedDate') },
+  { accessorKey: 'actions', header: t('auditActivityPlan.upload.columns.actions') }
+])
 
 const triggerFileSelect = () => {
   fileInput.value?.click()
@@ -249,7 +252,7 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    alert('File size exceeds the 10MB limit.')
+    alert(t('auditActivityPlan.upload.fileSizeLimit'))
     return
   }
 
@@ -297,7 +300,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (confirm('Are you sure you want to delete this uploaded document?')) {
+  if (confirm(t('auditActivityPlan.upload.deleteConfirm'))) {
     await store.deleteDocument(id)
   }
 }
@@ -313,7 +316,7 @@ const formatBytes = (bytes: number) => {
 const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   const date = new Date(dateString)
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale.value === 'id' ? 'id-ID' : 'en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'
