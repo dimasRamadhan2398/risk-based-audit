@@ -135,12 +135,11 @@
                       <UIcon name="i-heroicons-clipboard-document-check" class="w-5 h-5 text-amber-500" />
                       <h3 class="text-lg font-bold text-[var(--text-main)]">{{ t('auditActivityPlan.form.plannedActivities') }}</h3>
                     </div>
-                    <UButton 
-                      color="warning" 
-                      variant="solid" 
+                    <ReusableButton 
+                      color="primary" 
+                      variant="fill" 
                       icon="i-heroicons-plus" 
                       :label="t('auditActivityPlan.form.addAuditActivity')" 
-                      class="font-bold shadow-sm"
                       @click="store.addPlannedActivity" 
                     />
                   </div>
@@ -241,21 +240,21 @@
                     {{ t('auditActivityPlan.form.noActivitiesAdded') }}
                   </div>
 
-                  <div class="mt-4 border-t border-[var(--border-main)] pt-4">
+                  <div class="mt-6 border-t border-[var(--border-main)] pt-5">
                     <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{{ t('auditActivityPlan.form.summaryOfActivities') }}</h4>
-                    <div class="grid grid-cols-3 gap-4 text-center">
-                      <div class="bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl p-3 border border-red-500/20">
-                        <div class="text-xs font-bold uppercase tracking-wider">{{ t('auditActivityPlan.form.highRisk') }}</div>
-                        <div class="text-xl font-black mt-0.5">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'High').length }}</div>
-                      </div>
-                      <div class="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-xl p-3 border border-yellow-500/20">
-                        <div class="text-xs font-bold uppercase tracking-wider">{{ t('auditActivityPlan.form.mediumRisk') }}</div>
-                        <div class="text-xl font-black mt-0.5">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Medium').length }}</div>
-                      </div>
-                      <div class="bg-green-500/10 text-green-600 dark:text-green-400 rounded-xl p-3 border border-green-500/20">
-                        <div class="text-xs font-bold uppercase tracking-wider">{{ t('auditActivityPlan.form.lowRisk') }}</div>
-                        <div class="text-xl font-black mt-0.5">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Low').length }}</div>
-                      </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-red-600 dark:bg-red-700 text-white shadow-md border-0 rounded-xl">
+                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.highRisk') }}</div>
+                        <div class="text-2xl font-black mt-1">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'High').length }}</div>
+                      </UCard>
+                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-primary-400 dark:bg-primary-400 text-white shadow-md border-0 rounded-xl">
+                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.mediumRisk') }}</div>
+                        <div class="text-2xl font-black mt-1">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Medium').length }}</div>
+                      </UCard>
+                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-green-600 dark:bg-green-700 text-white shadow-md border-0 rounded-xl">
+                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.lowRisk') }}</div>
+                        <div class="text-2xl font-black mt-1">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Low').length }}</div>
+                      </UCard>
                     </div>
                   </div>
                 </div>
@@ -469,6 +468,7 @@ import { useActivityPlanStore } from '~/stores/activity-plan'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { AuditCategory, AuditDepartment } from '~/types/audit';
 import { useI18n } from '~/composables/useI18n'
+import ReusableButton from '~/components/shared/ReusableButton.vue'
 
 const { t } = useI18n()
 const store = useActivityPlanStore()

@@ -7,5 +7,5 @@
 </template>
 
 <script setup lang="ts">
-import DangerButton from './shared/DangerButton.vue'
+import DangerButton from './shared/ReusableButton.vue'
 </script>

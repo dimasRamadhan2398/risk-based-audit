@@ -583,30 +583,34 @@ export default defineAppConfig({
     },
     card: {
       slots: {
-        root: "rounded-xl overflow-hidden border-2 border-slate-300 transition-all duration-300 shadow-md hover:shadow-lg",
-        header: "p-4 sm:px-6 border-b border-[var(--border-main)] bg-[var(--bg-surface)]",
-        body: "p-4 sm:p-6",
-        footer: "p-4 sm:px-6 border-t border-[var(--border-main)] bg-[var(--bg-surface)]",
+        root: 'rounded-lg overflow-hidden',
+        header: 'p-4 sm:px-6',
+        title: 'text-highlighted font-semibold',
+        description: 'mt-1 text-muted text-sm',
+        body: 'p-4 sm:p-6',
+        footer: 'p-4 sm:px-6'
       },
       variants: {
         variant: {
           solid: {
-            root: "bg-[var(--bg-main)] text-[var(--text-main)]",
+            root: 'bg-inverted text-inverted',
+            title: 'text-inverted',
+            description: 'text-dimmed'
           },
           outline: {
-            root: "bg-[var(--bg-main)] border border-[var(--border-main)]",
+            root: 'bg-default ring ring-default divide-y divide-default'
           },
           soft: {
-            root: "bg-[var(--bg-surface)] rounded-xl z-100 block relative shadow-lg",
+            root: 'bg-elevated/50 divide-y divide-default'
           },
           subtle: {
-            root: "bg-[var(--bg-surface)]/50 ring ring-[var(--border-main)] divide-y divide-[var(--border-main)]",
-          },
-        },
+            root: 'bg-elevated/50 ring ring-default divide-y divide-default'
+          }
+        }
       },
       defaultVariants: {
-        variant: "outline",
-      },
+        variant: 'outline'
+      }
     },
     colors: {
       primary: "primary",
