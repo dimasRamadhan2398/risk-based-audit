@@ -1189,5 +1189,91 @@
     },
     "confirmDelete": "Are you sure you want to delete this imported document?",
     "fileSizeLimitAlert": "File size exceeds the 10MB limit."
+  },
+  "riskAppetite": {
+    "title": "Risk Appetite Statement (RAS)",
+    "subtitle": "Manage organizational risk appetite statements and verify compliance with risk mitigation rules.",
+    "kpi": {
+      "complianceLevel": "Compliance Level",
+      "compliantSubtitle": "{compliant} of {total} risks are appetite-compliant",
+      "totalRisks": "Total Risks",
+      "totalSubtitle": "Active risks in current profile",
+      "acceptableRisks": "Acceptable Risks",
+      "acceptableSubtitle": "Low & Low-Moderate level risks",
+      "appetiteViolations": "Appetite Violations",
+      "violationsSubtitle": "Moderate+ risks missing mitigations"
+    },
+    "tabs": {
+      "overview": "RAS Guidelines",
+      "compliance": "Risk Compliance",
+      "statements": "Appetite Statements"
+    },
+    "guidelines": {
+      "title": "Risk Appetite Statement (RAS) Rules",
+      "desc": "The Risk Appetite Statement establishes acceptable risk thresholds for the organization to achieve strategic objectives, as well as required corrective actions for risks exceeding tolerance.",
+      "acceptableZone": {
+        "title": "1. Acceptable Risk Zone",
+        "desc": "Risks acceptable without additional mitigation",
+        "low": "Low Risk Level",
+        "lowMod": "Low to Moderate Risk Level",
+        "note": "* Risks in this area are assessed to have low impact and probability for operational activities, requiring no dedicated mitigation resources."
+      },
+      "actionZone": {
+        "title": "2. Action Required Zone",
+        "desc": "Mandatory mitigation to minimize exposure",
+        "mod": "Moderate Risk Level",
+        "modHigh": "Moderate to High Risk Level",
+        "high": "High Risk Level",
+        "note": "* Risks must be actively managed by developing structured and measurable mitigation plans to reduce exposure to a safe threshold."
+      }
+    },
+    "compliance": {
+      "registryTitle": "Risk Profile Compliance Registry",
+      "registryDesc": "Checking current Risk Profile against the appetite statement rules",
+      "filters": {
+        "all": "All Risks",
+        "required": "Mitigation Required (Moderate+)",
+        "acceptable": "Acceptable (Low/Low-Mod)",
+        "violating": "Non-Compliant (Violating)"
+      },
+      "columns": {
+        "id": "Risk ID",
+        "name": "Risk Event",
+        "level": "Risk Level",
+        "appetite": "Appetite Rule",
+        "status": "Mitigation Status",
+        "actions": "Actions"
+      },
+      "acceptableBadge": "Acceptable",
+      "requiredBadge": "Mitigation Required",
+      "noneRequired": "None Required",
+      "missingPlan": "Missing Plan",
+      "activePlan": "Active ({count} Plan)",
+      "done": "Completed",
+      "viewMitigation": "View Mitigation",
+      "addMitigation": "Add Mitigation"
+    },
+    "statements": {
+      "title": "Appetite Statements Management",
+      "subtitle": "Official written policy declarations and threshold configurations",
+      "newBtn": "New Statement",
+      "emptyTitle": "No appetite statements",
+      "emptyDesc": "Create official policy declarations to establish limits.",
+      "limitThreshold": "Limit Threshold: {limit}%",
+      "deleteConfirm": "Are you sure you want to delete this appetite statement?",
+      "deleteError": "Failed to delete statement.",
+      "saveError": "Failed to save appetite statement.",
+      "modal": {
+        "newTitle": "New Appetite Statement",
+        "editTitle": "Edit Appetite Statement",
+        "statementLabel": "Statement Policy Text",
+        "statementPlaceholder": "e.g. Low and Low to Moderate level risks are acceptable...",
+        "thresholdLabel": "Threshold Limit (%)",
+        "statusLabel": "Approval Status",
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save Changes"
+      }
+    }
   }
 }

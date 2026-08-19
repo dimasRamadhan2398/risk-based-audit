@@ -1186,5 +1186,91 @@
     },
     "confirmDelete": "Apakah Anda yakin ingin menghapus dokumen yang diimpor ini?",
     "fileSizeLimitAlert": "Ukuran file melebihi batas 10MB."
+  },
+  "riskAppetite": {
+    "title": "Risk Appetite Statement (RAS)",
+    "subtitle": "Kelola pernyataan selera risiko organisasi dan verifikasi kepatuhan terhadap aturan mitigasi risiko.",
+    "kpi": {
+      "complianceLevel": "Tingkat Kepatuhan",
+      "compliantSubtitle": "{compliant} dari {total} risiko patuh pada selera risiko",
+      "totalRisks": "Total Risiko",
+      "totalSubtitle": "Risiko aktif pada profil saat ini",
+      "acceptableRisks": "Risiko Dapat Diterima",
+      "acceptableSubtitle": "Risiko tingkat Rendah & Rendah-Sedang",
+      "appetiteViolations": "Pelanggaran Selera Risiko",
+      "violationsSubtitle": "Risiko Sedang+ yang belum memiliki mitigasi"
+    },
+    "tabs": {
+      "overview": "Ketentuan RAS",
+      "compliance": "Kepatuhan Risiko",
+      "statements": "Pernyataan Selera Risiko"
+    },
+    "guidelines": {
+      "title": "Ketentuan Risk Appetite Statement (RAS)",
+      "desc": "Risk Appetite Statement menetapkan batas tingkat risiko yang dapat diterima (acceptable) oleh perusahaan untuk mencapai tujuan strategisnya, serta kewajiban tindakan perbaikan untuk risiko yang melampaui batas toleransi tersebut.",
+      "acceptableZone": {
+        "title": "1. Area Risiko Dapat Diterima (Acceptable)",
+        "desc": "Risiko yang dapat diterima tanpa mitigasi tambahan",
+        "low": "Tingkat Risiko Rendah (Low)",
+        "lowMod": "Tingkat Risiko Rendah-Sedang (Low to Moderate)",
+        "note": "* Risiko pada area ini dinilai memiliki dampak dan kemungkinan yang kecil bagi operasional perusahaan, sehingga tidak memerlukan alokasi sumber daya mitigasi khusus."
+      },
+      "actionZone": {
+        "title": "2. Area Wajib Tindakan (Action Required)",
+        "desc": "Risiko wajib dimitigasi demi meminimalkan paparan",
+        "mod": "Tingkat Risiko Sedang (Moderate)",
+        "modHigh": "Tingkat Risiko Sedang-Tinggi (Moderate to High)",
+        "high": "Tingkat Risiko Tinggi (High)",
+        "note": "* Risiko wajib ditangani secara aktif dengan menyusun rencana mitigasi yang terstruktur dan terukur guna menurunkan level eksposur ke batas yang aman."
+      }
+    },
+    "compliance": {
+      "registryTitle": "Registri Kepatuhan Profil Risiko",
+      "registryDesc": "Pemeriksaan Profil Risiko saat ini terhadap aturan pernyataan selera risiko",
+      "filters": {
+        "all": "Semua Risiko",
+        "required": "Wajib Mitigasi (Sedang+)",
+        "acceptable": "Dapat Diterima (Rendah/Rendah-Sedang)",
+        "violating": "Tidak Patuh (Melanggar)"
+      },
+      "columns": {
+        "id": "ID Risiko",
+        "name": "Peristiwa Risiko",
+        "level": "Tingkat Risiko",
+        "appetite": "Aturan Selera",
+        "status": "Status Mitigasi",
+        "actions": "Aksi"
+      },
+      "acceptableBadge": "Dapat Diterima",
+      "requiredBadge": "Wajib Mitigasi",
+      "noneRequired": "Tidak Diperlukan",
+      "missingPlan": "Rencana Belum Ada",
+      "activePlan": "Aktif ({count} Rencana)",
+      "done": "Selesai",
+      "viewMitigation": "Lihat Mitigasi",
+      "addMitigation": "Tambah Mitigasi"
+    },
+    "statements": {
+      "title": "Manajemen Pernyataan Selera Risiko",
+      "subtitle": "Deklarasi kebijakan tertulis resmi dan konfigurasi ambang batas",
+      "newBtn": "Pernyataan Baru",
+      "emptyTitle": "Belum ada pernyataan selera risiko",
+      "emptyDesc": "Buat deklarasi kebijakan resmi untuk menetapkan ambang batas.",
+      "limitThreshold": "Batas Toleransi: {limit}%",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus pernyataan selera risiko ini?",
+      "deleteError": "Gagal menghapus pernyataan.",
+      "saveError": "Gagal menyimpan pernyataan selera risiko.",
+      "modal": {
+        "newTitle": "Pernyataan Selera Risiko Baru",
+        "editTitle": "Edit Pernyataan Selera Risiko",
+        "statementLabel": "Teks Kebijakan Pernyataan",
+        "statementPlaceholder": "contoh: Risiko tingkat Low dan Low to Moderate dapat diterima...",
+        "thresholdLabel": "Batas Toleransi (%)",
+        "statusLabel": "Status Persetujuan",
+        "cancel": "Batal",
+        "create": "Buat",
+        "save": "Simpan Perubahan"
+      }
+    }
   }
 }
