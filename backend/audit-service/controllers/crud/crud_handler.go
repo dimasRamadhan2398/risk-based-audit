@@ -71,7 +71,8 @@ func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads .
 				continue
 			}
 			if len(values) > 0 && values[0] != "" {
-				query = query.Where(fmt.Sprintf("%s = ?", key), values[0])
+				col := toSnakeCase(key)
+				query = query.Where(fmt.Sprintf("%s = ?", col), values[0])
 			}
 		}
 
