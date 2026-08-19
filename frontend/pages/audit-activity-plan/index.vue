@@ -6,16 +6,16 @@
         <div class="flex items-center justify-between">
           <div class="flex flex-col gap-2">
             <h1 class="text-3xl font-bold text-[var(--text-main)]">
-              Audit Activity Plan
+              {{ t('auditActivityPlan.title') }}
             </h1>
             <p class="text-sm text-[var(--text-muted)]">
-              Manage and review annual audit activity plans.
+              {{ t('auditActivityPlan.subtitle') }}
             </p>
           </div>
           <div class="flex items-center gap-2">
             <UButton
               icon="i-lucide-upload"
-              label="Import Document"
+              :label="t('auditActivityPlan.importDocument')"
               variant="outline"
               color="neutral"
               size="sm"
@@ -23,7 +23,7 @@
             />
             <UButton
               icon="i-heroicons-plus"
-              label="Buat Rencana"
+              :label="t('auditActivityPlan.createPlan')"
               variant="solid"
               color="primary"
               size="sm"
@@ -47,7 +47,9 @@
 import ActivityPlanForm from '~/components/audit-activity-plan/ActivityPlanForm.vue'
 import ActivityPlanTable from '~/components/audit-activity-plan/ActivityPlanTable.vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useActivityPlanStore()
 store.fetchPlans()
 </script>

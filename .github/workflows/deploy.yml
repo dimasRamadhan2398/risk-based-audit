@@ -29,14 +29,36 @@ jobs:
           script_stop: true
           script: |
             set -Eeuo pipefail
+            export LOCK_FILE="/tmp/auditsphere_deploy.lock"
 
-            LOCK_FILE="/tmp/auditsphere-deploy.lock"
+            wait_for_container_health() {
+              local container_name="$1"
+              local service_name="$2"
+              local max_attempts="${3:-20}"
+
+              if [ -z "$container_name" ]; then
+                echo "❌ $service_name container ID/name is empty."
+                return 1
+              fi
+
+              for i in $(seq 1 "$max_attempts"); do
+                local status
+                status=$(docker inspect --format='{{.State.Health.Status}}' "$container_name" 2>/dev/null || echo "not_found")
+                if [ "$status" = "healthy" ]; then
+                  echo "✅ $service_name is healthy."
+                  return 0
+                fi
+                echo "⏳ $service_name status: $status — waiting... attempt $i/$max_attempts"
+                sleep 5
+              done
+              return 1
+            }
 
             main() {
               # ================================================================
               # Configuration
               # ================================================================
-              REPO_URL="https://github.com/${{ github.repository }}.git"
+              REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
               REPO_DIR="/app/rbia-repo"
               BACKEND_DIR="$REPO_DIR/backend"
               FRONTEND_DIR="$REPO_DIR/frontend"
@@ -121,25 +143,15 @@ jobs:
               echo "📦 Syncing repository (fresh clone every deploy)..."
               echo "👤 SSH User: $(whoami) (UID: $(id -u))"
 
-              if [ -d "$REPO_DIR/.git" ]; then
-                echo "🔄 Taking git pull path..."
-                cd "$REPO_DIR" || { echo "❌ cd $REPO_DIR failed"; exit 1; }
-                echo "   ✓ cd OK"
-                git remote set-url origin "$REPO_URL" 2>&1 || true
-                git fetch --depth=1 origin main 2>&1 || { echo "❌ git fetch failed (exit $?)"; exit 1; }
-                echo "   ✓ fetch OK"
-                git reset --hard origin/main 2>&1 || { echo "❌ git reset failed (exit $?)"; exit 1; }
-                echo "   ✓ reset OK"
-                git clean -fd 2>&1 || { echo "❌ git clean failed (exit $?)"; exit 1; }
-                echo "   ✓ clean OK"
-              else
-                echo "📥 Taking git clone path..."
-                rm -rf "$REPO_DIR" 2>&1 || true
-                echo "   removed stale dir (if any)"
-                git clone --depth=1 --branch main "$REPO_URL" "$REPO_DIR" 2>&1 \
-                  || { echo "❌ git clone failed (exit $?)"; exit 1; }
-                echo "   ✓ clone OK"
-              fi
+              # ── Always delete and re-clone to guarantee latest files ──────────
+              # A shallow fetch on an existing repo can silently serve stale refs.
+              # A fresh clone is the ONLY way to be 100% certain we have HEAD.
+              echo "🗑️  Removing stale repo dir: $REPO_DIR"
+              rm -rf "$REPO_DIR"
+              echo "📥 Cloning fresh from main..."
+              git clone --branch main "$REPO_URL" "$REPO_DIR" 2>&1 \
+                || { echo "❌ git clone failed (exit $?)"; exit 1; }
+              echo "   ✓ clone OK"
 
               cd "$REPO_DIR"
               CURRENT_COMMIT=$(git rev-parse HEAD 2>&1) || { echo "❌ git rev-parse failed"; exit 1; }
@@ -183,40 +195,96 @@ jobs:
               echo "🔎 Verifying python-ai Dockerfile on VPS (must show --no-deps):"
               cat python-ai/Dockerfile
               echo "🔨 Building backend images in parallel..."
-              docker compose -f "$BACKEND_COMPOSE" build --no-cache --parallel
+              docker compose -f "$BACKEND_COMPOSE" build --parallel
 
-              # ── Phase 1: Start infra (postgres, redis, zookeeper) ──────────
-              echo "🏗️  Phase 1: Starting infrastructure services (postgres, redis, zookeeper)..."
-              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans \
-                postgres redis zookeeper
+              # ── Phase 1: Recreate Zookeeper cleanly, but PRESERVE its volume ─
+              # Do not use `down -v`: Kafka/Zookeeper state may be stored in volumes.
+              # Removing the volume can destroy the Kafka metadata/state.
+              echo "🏗️  Phase 1: Rebuilding and recreating Zookeeper..."
 
-              # ── Phase 2: Start Kafka and wait for it to become healthy ─────
-              echo "🏗️  Phase 2: Starting Kafka and waiting for health..."
-              if ! docker compose -f "$BACKEND_COMPOSE" up -d kafka; then
-                echo "❌ Failed to start kafka. Checking Zookeeper logs:"
-                docker compose -f "$BACKEND_COMPOSE" logs zookeeper
-                docker compose -f "$BACKEND_COMPOSE" logs kafka
+              # Resolve the actual Compose container name instead of assuming
+              # rb_audit_zookeeper. This is important when Compose adds a project
+              # prefix or the container_name changes.
+              ZK_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -aq zookeeper | head -1 || true)
+
+              if [ -n "$ZK_CONTAINER_ID" ]; then
+                echo "🧹 Removing existing Zookeeper container: $ZK_CONTAINER_ID"
+                docker rm -f "$ZK_CONTAINER_ID" 2>/dev/null || true
+              fi
+
+              # Rebuild from the current compose/Dockerfile and recreate the service.
+              docker compose -f "$BACKEND_COMPOSE" build --no-cache zookeeper
+              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans zookeeper
+
+              ZK_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -q zookeeper | head -1 || true)
+              if [ -z "$ZK_CONTAINER_ID" ]; then
+                echo "❌ Could not determine Zookeeper container ID."
+                docker compose -f "$BACKEND_COMPOSE" ps || true
                 exit 1
               fi
 
-              KAFKA_HEALTHY=0
-              for i in $(seq 1 36); do
-                KAFKA_STATUS=$(docker inspect --format='{{.State.Health.Status}}' rb_audit_kafka 2>/dev/null || echo "not_found")
-                if [ "$KAFKA_STATUS" = "healthy" ]; then
-                  echo "✅ Kafka is healthy."
-                  KAFKA_HEALTHY=1
-                  break
+              if ! wait_for_container_health "$ZK_CONTAINER_ID" "Zookeeper" 36; then
+                echo "❌ Zookeeper failed its Docker healthcheck."
+                echo "📋 Zookeeper status:"
+                docker inspect "$ZK_CONTAINER_ID" --format='{{json .State.Health}}' 2>/dev/null || true
+                echo "📋 Zookeeper logs:"
+                docker compose -f "$BACKEND_COMPOSE" logs --tail=100 zookeeper || true
+
+                # Last recovery attempt: recreate the container without touching
+                # persistent volumes. This handles stale/broken container state.
+                echo "🔄 Last Zookeeper recovery attempt..."
+                docker rm -f "$ZK_CONTAINER_ID" 2>/dev/null || true
+                docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate zookeeper
+                ZK_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -q zookeeper | head -1 || true)
+
+                if [ -z "$ZK_CONTAINER_ID" ] || ! wait_for_container_health "$ZK_CONTAINER_ID" "Zookeeper (recovery)" 36; then
+                  echo "❌ Zookeeper is still unhealthy. Deployment stopped before Kafka."
+                  docker compose -f "$BACKEND_COMPOSE" logs --tail=150 zookeeper || true
+                  exit 1
                 fi
-                echo "⏳ Kafka status: $KAFKA_STATUS — waiting... attempt $i/36"
-                sleep 5
-              done
+              fi
 
-              if [ "$KAFKA_HEALTHY" -ne 1 ]; then
-                echo "❌ Kafka failed to become healthy after 3 minutes. Check Kafka logs:"
-                docker compose -f "$BACKEND_COMPOSE" logs --tail=60 kafka || true
-                docker compose -f "$BACKEND_COMPOSE" logs --tail=60 zookeeper || true
+              echo "✅ Zookeeper is healthy and ready for Kafka."
+
+              # ── Phase 2: Rebuild/recreate Kafka AFTER Zookeeper is healthy ──
+              echo "🏗️  Phase 2: Rebuilding and recreating Kafka..."
+
+              KAFKA_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -aq kafka | head -1 || true)
+              if [ -n "$KAFKA_CONTAINER_ID" ]; then
+                echo "🧹 Removing existing Kafka container: $KAFKA_CONTAINER_ID"
+                docker rm -f "$KAFKA_CONTAINER_ID" 2>/dev/null || true
+              fi
+
+              docker compose -f "$BACKEND_COMPOSE" build --no-cache kafka
+              docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate --remove-orphans kafka
+
+              KAFKA_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -q kafka | head -1 || true)
+              if [ -z "$KAFKA_CONTAINER_ID" ]; then
+                echo "❌ Could not determine Kafka container ID."
+                docker compose -f "$BACKEND_COMPOSE" ps || true
                 exit 1
               fi
+
+              if ! wait_for_container_health "$KAFKA_CONTAINER_ID" "Kafka" 48; then
+                echo "❌ Kafka failed its Docker healthcheck."
+                echo "📋 Kafka status:"
+                docker inspect "$KAFKA_CONTAINER_ID" --format='{{json .State.Health}}' 2>/dev/null || true
+                echo "📋 Kafka logs:"
+                docker compose -f "$BACKEND_COMPOSE" logs --tail=150 kafka || true
+
+                echo "🔄 Last Kafka recovery attempt..."
+                docker rm -f "$KAFKA_CONTAINER_ID" 2>/dev/null || true
+                docker compose -f "$BACKEND_COMPOSE" up -d --force-recreate kafka
+                KAFKA_CONTAINER_ID=$(docker compose -f "$BACKEND_COMPOSE" ps -q kafka | head -1 || true)
+
+                if [ -z "$KAFKA_CONTAINER_ID" ] || ! wait_for_container_health "$KAFKA_CONTAINER_ID" "Kafka (recovery)" 48; then
+                  echo "❌ Kafka is still unhealthy. Deployment stopped."
+                  docker compose -f "$BACKEND_COMPOSE" logs --tail=200 kafka || true
+                  exit 1
+                fi
+              fi
+
+              echo "✅ Kafka is healthy and ready."
 
               # ── Phase 3: Start all remaining application services ──────────
               echo "🏗️  Phase 3: Starting application services..."
@@ -252,10 +320,8 @@ jobs:
               echo "🚀 Deploying Frontend Service"
               echo "============================================================"
               cd "$FRONTEND_DIR"
-              echo "🧹 Removing any existing .env file to use defaults..."
-              rm -f .env
               echo "🔨 Building frontend image (no cache)..."
-              docker compose -f "$FRONTEND_COMPOSE" build --no-cache
+              docker compose -f "$FRONTEND_COMPOSE" build
               docker rm -f rbia-frontend-prod 2>/dev/null || true
               docker compose -f "$FRONTEND_COMPOSE" up -d --force-recreate --remove-orphans
 

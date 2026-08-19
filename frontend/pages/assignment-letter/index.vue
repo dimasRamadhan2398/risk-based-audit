@@ -3,11 +3,11 @@
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 ">Assignment Letter List</h1>
+        <h1 class="text-2xl font-bold text-gray-900 ">{{ t('assignmentLetter.title') }}</h1>
       </div>
       <div class="flex items-center gap-2">
         <UButton
-          label="Import Document"
+          :label="t('assignmentLetter.importDocument')"
           icon="i-lucide-upload"
           color="neutral"
           variant="outline"
@@ -16,7 +16,7 @@
           to="/assignment-letter/upload"
         />
         <UButton
-          label="Create Assignment Letter"
+          :label="t('assignmentLetter.createAssignmentLetter')"
           icon="i-heroicons-plus"
           color="primary"
           size="lg"
@@ -37,7 +37,9 @@
 import AssignmentLetterForm from '~/components/assignment-letter/AssignmentLetterForm.vue';
 import AssignmentLetterTable from '~/components/assignment-letter/AssignmentLetterTable.vue';
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useAssignmentLetterStore()
 store.fetchAssignmentLetters()
 

@@ -15,7 +15,7 @@
                       class="text-lg leading-6 font-medium mb-4"
                       id="modal-title"
                     >
-                      {{ store.isEditing ? 'Edit Audit Charter' : 'Upload New Charter' }}
+                      {{ store.isEditing ? t('auditCharter.form.editTitle') : t('auditCharter.form.uploadTitle') }}
                     </h3>
                     <UIcon
                       name="close"
@@ -27,7 +27,7 @@
 
                   <div class="space-y-4">
                     <UFormField
-                      label="Judul Dokumen"
+                      :label="t('auditCharter.form.docTitle')"
                       class="block text-sm font-medium"
                       size="lg"
                     >
@@ -38,13 +38,13 @@
                         name="title"
                         id="title"
                         class="mt-1 block w-full rounded-md sm:text-sm p-2"
-                        placeholder="e.g. Internal Audit Charter 2026"
+                        :placeholder="t('auditCharter.form.docTitlePlaceholder')"
                       />
                     </UFormField>
 
                     <div class="grid grid-cols-2 gap-4">
                       <UFormField
-                        label="Versi (Auto)"
+                        :label="t('auditCharter.form.versionAuto')"
                         class="block text-sm font-medium"
                         size="lg"
                         disabled
@@ -60,7 +60,7 @@
                       </UFormField>
 
                       <UFormField
-                        label="Tanggal"
+                        :label="t('auditCharter.form.date')"
                         class="block text-sm font-medium"
                         size="lg"
                       >
@@ -75,7 +75,7 @@
 
                     <div class="grid grid-cols-2 gap-4">
                       <UFormField
-                        label="Diupload Oleh"
+                        :label="t('auditCharter.form.uploadedBy')"
                         class="block text-sm font-medium"
                         size="lg"
                       >
@@ -87,7 +87,7 @@
                       </UFormField>
 
                       <UFormField
-                        label="Disetujui Oleh"
+                        :label="t('auditCharter.form.approvedBy')"
                         class="block text-sm font-medium"
                         size="lg"
                       >
@@ -96,21 +96,21 @@
                           required
                           type="text"
                           class="mt-1 block w-full rounded-md sm:text-sm"
-                          placeholder="e.g. Audit Committee"
+                          :placeholder="t('auditCharter.form.approvedByPlaceholder')"
                         />
                       </UFormField>
                     </div>
 
                     <UFormField
-                      label="Status"
+                      :label="t('auditCharter.form.status')"
                       class="block text-sm font-medium"
                       size="lg"
                     >
                       <URadioGroup
                         v-model="store.form.isActive"
                         :items="[
-                          { label: 'Active', value: true },
-                          { label: 'Inactive', value: false }
+                          { label: t('auditCharter.form.active'), value: true },
+                          { label: t('auditCharter.form.inactive'), value: false }
                         ]"
                         orientation="horizontal"
                         class="mt-2"
@@ -118,7 +118,7 @@
                     </UFormField>
 
                     <UFormField
-                      label="Upload File Charter (PDF/DOCX)"
+                      :label="t('auditCharter.form.uploadFile')"
                       :error="store.errorMsg"
                       class="block text-sm font-medium"
                       size="lg"
@@ -149,7 +149,7 @@
                     type="submit"
                     color="primary"
                     class="w-full inline-flex justify-center rounded-md px-4 py-2 sm:ml-3 sm:w-auto sm:text-sm"
-                    label="Submit"
+                    :label="t('auditCharter.form.submit')"
                   >
                   </UButton>
                 </div>
@@ -161,7 +161,8 @@
 
 <script setup lang="ts">
 import { useCharterStore } from '~/stores/charter'
+import { useI18n } from '~/composables/useI18n'
 
-// Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
+const { t } = useI18n()
 const store = useCharterStore()
 </script>

@@ -6,7 +6,7 @@
       <!-- Header -->
       <div class="flex items-center justify-between p-4 z-10 sticky top-0 rounded-t-xl transition-colors duration-300">
         <h3 class="text-xl font-bold text-[var(--text-main)]">
-          {{ store.isEditMode ? 'Edit' : 'Buat' }} Audit Activity Plan
+          {{ store.isEditMode ? t('auditActivityPlan.editPlan') : t('auditActivityPlan.form.createPlanTitle') }}
         </h3>
         <UButton
           color="neutral"
@@ -25,24 +25,24 @@
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
               <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium">Basic Planning Information</h3>
+                <h3 class="text-lg font-medium">{{ t('auditActivityPlan.form.basicInfo') }}</h3>
               </div>
             </template>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Title of Audit Activity Plan" required>
+              <UFormField :label="t('auditActivityPlan.form.planTitle')" required>
                 <UInput v-model="store.formState.planTitle" placeholder="Audit of the Year 2024" class="w-full"/>
               </UFormField>
-              <UFormField label="Planning Year" required>
+              <UFormField :label="t('auditActivityPlan.form.planYear')" required>
                 <UInput v-model="store.formState.planYear" class="w-full"/>
               </UFormField>
-              <UFormField label="Planning Period" required class="col-span-1 md:col-span-2 w-full">
+              <UFormField :label="t('auditActivityPlan.form.planPeriod')" required class="col-span-1 md:col-span-2 w-full">
                 <div class="flex items-center gap-2">
                   <UInput v-model="store.formState.planPeriodStart" type="date" class="flex-1 w-full" />
-                  <span class="text-gray-500">s/d</span>
+                  <span class="text-gray-500">{{ t('auditActivityPlan.form.to') }}</span>
                   <UInput v-model="store.formState.planPeriodEnd" type="date" class="flex-1 w-full" />
                 </div>
               </UFormField>
-              <UFormField label="Department/Unit of Audit" required>
+              <UFormField :label="t('auditActivityPlan.form.department')" required>
                 <USelectMenu 
                 v-model="store.formState.department" 
                 placeholder="Risk Audit IT" 
@@ -50,11 +50,11 @@
                 :items="Object.values(AuditDepartment)" 
                 />
               </UFormField>
-              <UFormField label="Created By">
+              <UFormField :label="t('auditActivityPlan.form.createdBy')">
                 <UInput v-model="store.formState.createdBy" class="w-full" />
               </UFormField>
             </div>
-            <UFormField label="Creation Date" class="pt-4">
+            <UFormField :label="t('auditActivityPlan.form.creationDate')" class="pt-4">
               <UInput v-model="store.formState.creationDate" type="date" class="w-full" readonly />
             </UFormField>
           </UCard>
@@ -63,8 +63,8 @@
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
               <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium">Planned Audit Activities</h3>
-                <UButton color="warning" variant="solid" icon="i-heroicons-plus" label="Add Audit Activity" @click="store.addPlannedActivity" />
+                <h3 class="text-lg font-medium">{{ t('auditActivityPlan.form.plannedActivities') }}</h3>
+                <UButton color="warning" variant="solid" icon="i-heroicons-plus" :label="t('auditActivityPlan.form.addAuditActivity')" @click="store.addPlannedActivity" />
               </div>
             </template>
 
@@ -77,23 +77,23 @@
                   class="absolute top-2 right-2"
                   @click="store.removePlannedActivity(index)"
                 />
-                <h4 class="font-medium mb-4">Audit Activity {{ index + 1 }}</h4>
+                <h4 class="font-medium mb-4">{{ t('auditActivityPlan.form.activityNum', { num: index + 1 }) }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormField label="Title of Audit Activity" required>
+                  <UFormField :label="t('auditActivityPlan.form.activityTitle')" required>
                     <UInput v-model="activity.auditName" placeholder="Audit IT Q1" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Auditee" required>
+                  <UFormField :label="t('auditActivityPlan.form.auditee')" required>
                     <UInput v-model="activity.auditee" placeholder="Jamil" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Category" class="col-span-1 md:col-span-2">
+                  <UFormField :label="t('auditActivityPlan.form.category')" class="col-span-1 md:col-span-2">
                     <USelectMenu
                       v-model="activity.category"
                       :items="Object.values(AuditCategory)"
-                      placeholder="Select Category"
+                      :placeholder="t('auditActivityPlan.form.selectCategory')"
                       class="w-full"
                     />
                   </UFormField>
-                  <UFormField label="Associated Risk (Based on Risk Profile)" class="col-span-1 md:col-span-2">
+                  <UFormField :label="t('auditActivityPlan.form.associatedRisk')" class="col-span-1 md:col-span-2">
                     <USelectMenu
                       :model-value="getFilteredRisksForDept(store.formState.department).find(r => r.name === activity.riskName)"
                       @update:model-value="(val: any) => {
@@ -102,7 +102,7 @@
                       }"
                       :items="getFilteredRisksForDept(store.formState.department)"
                       option-key="name"
-                      placeholder="-- Select Risk Profile --"
+                      :placeholder="t('auditActivityPlan.form.selectRiskProfile')"
                       class="w-full"
                     >
                       <template #item="{ item }">
@@ -118,58 +118,58 @@
                     </USelectMenu>
                   </UFormField>
 
-                  <UFormField label="Risk Level">
+                  <UFormField :label="t('auditActivityPlan.form.riskLevel')">
                     <USelectMenu
                       v-model="activity.riskLevel"
                       :items="store.riskLevelOptions"
                       value-key="value"
                       label-key="label"
-                      placeholder="Select risk level"
+                      :placeholder="t('auditActivityPlan.form.selectRiskLevel')"
                       class="w-full"
                     />
                   </UFormField>
-                  <UFormField label="Duration (days)">
+                  <UFormField :label="t('auditActivityPlan.form.duration')">
                     <UInput v-model="activity.duration" type="number" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Priority">
+                  <UFormField :label="t('auditActivityPlan.form.priority')">
                     <USelectMenu 
                       v-model="activity.priority" 
                       :items="store.priorityOptions" 
                       value-key="value" 
                       label-key="label" 
-                      placeholder="Select priority" 
+                      :placeholder="t('auditActivityPlan.form.selectPriority')" 
                       class="w-full"
                     />
                   </UFormField>
-                  <UFormField label="Number of Auditors">
+                  <UFormField :label="t('auditActivityPlan.form.auditorsNum')">
                     <UInput v-model="activity.numberOfAuditors" type="number" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Estimated Schedule/Time">
+                  <UFormField :label="t('auditActivityPlan.form.estimatedSchedule')">
                     <UInput v-model="activity.estimatedSchedule" type="date" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Budget Estimation">
+                  <UFormField :label="t('auditActivityPlan.form.budgetEstimation')">
                     <UInput v-model="activity.budgetEstimation" type="number" class="w-full"/>
                   </UFormField>
                 </div>
               </div>
               
               <div v-if="store.formState.plannedActivities.length === 0" class="text-center text-gray-500 py-4">
-                No audit activities have been added yet.
+                {{ t('auditActivityPlan.form.noActivitiesAdded') }}
               </div>
 
               <div class="mt-4 border-t pt-4">
-                <h4 class="font-medium mb-2">Summary of Activities</h4>
+                <h4 class="font-medium mb-2">{{ t('auditActivityPlan.form.summaryOfActivities') }}</h4>
                 <div class="grid grid-cols-3 gap-4 text-center">
                   <div class="bg-red-50 text-red-600 rounded-lg p-2  ">
-                    <div class="text-md font-semibold">High Risk</div>
+                    <div class="text-md font-semibold">{{ t('auditActivityPlan.form.highRisk') }}</div>
                     <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'High').length }}</div>
                   </div>
                   <div class="bg-yellow-50 text-yellow-600 rounded-lg p-2  ">
-                    <div class="text-md font-semibold">Medium Risk</div>
+                    <div class="text-md font-semibold">{{ t('auditActivityPlan.form.mediumRisk') }}</div>
                     <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Medium').length }}</div>
                   </div>
                   <div class="bg-green-50 text-green-600 rounded-lg p-2  ">
-                    <div class="text-md font-semibold">Low Risk</div>
+                    <div class="text-md font-semibold">{{ t('auditActivityPlan.form.lowRisk') }}</div>
                     <div class="text-lg font-bold">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Low').length }}</div>
                   </div>
                 </div>
@@ -181,8 +181,8 @@
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
               <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium">Resources & Budget</h3>
-                <UButton color="warning" variant="solid" icon="i-heroicons-plus" label="Add Auditor" @click="store.addResourceAuditor" />
+                <h3 class="text-lg font-medium">{{ t('auditActivityPlan.form.resourcesAndBudget') }}</h3>
+                <UButton color="warning" variant="solid" icon="i-heroicons-plus" :label="t('auditActivityPlan.form.addAuditor')" @click="store.addResourceAuditor" />
               </div>
             </template>
             
@@ -195,33 +195,33 @@
                   class="absolute top-2 right-2"
                   @click="store.removeResourceAuditor(index)"
                 />
-                <h4 class="font-medium mb-4">Auditor {{ index + 1 }}</h4>
+                <h4 class="font-medium mb-4">{{ t('auditActivityPlan.form.auditorNum', { num: index + 1 }) }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormField label="Name">
+                  <UFormField :label="t('auditActivityPlan.form.name')">
                     <UInput v-model="auditor.name" placeholder="Jamil" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Position">
+                  <UFormField :label="t('auditActivityPlan.form.position')">
                     <UInput v-model="auditor.position" placeholder="IT Auditor" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Competence">
+                  <UFormField :label="t('auditActivityPlan.form.competence')">
                     <UInput v-model="auditor.competence" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Availability">
+                  <UFormField :label="t('auditActivityPlan.form.availability')">
                     <UInput v-model="auditor.availability" placeholder="Available" class="w-full"/>
                   </UFormField>
                 </div>
               </div>
 
               <div class="mt-6 border-t pt-4">
-                <h4 class="font-medium mb-4">Budget Planning</h4>
+                <h4 class="font-medium mb-4">{{ t('auditActivityPlan.form.budgetPlanning') }}</h4>
                 <div class="grid grid-cols-1 gap-4">
-                  <UFormField label="Total Estimated Activity Cost">
+                  <UFormField :label="t('auditActivityPlan.form.totalEstimatedCost')">
                     <UInput v-model="store.formState.budget.totalEstimatedCost" type="number" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Total Budget Allocated">
+                  <UFormField :label="t('auditActivityPlan.form.totalAllocatedBudget')">
                     <UInput v-model="store.formState.budget.totalAllocatedBudget" type="number" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Budget Notes">
+                  <UFormField :label="t('auditActivityPlan.form.budgetNotes')">
                     <UTextarea v-model="store.formState.budget.budgetNotes" class="w-full"/>
                   </UFormField>
                 </div>
@@ -233,35 +233,35 @@
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
               <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium">Review & Approval</h3>
+                <h3 class="text-lg font-medium">{{ t('auditActivityPlan.form.reviewAndApproval') }}</h3>
               </div>
             </template>
             <div class="space-y-6">
               <div>
-                <h4 class="font-medium mb-2">Created By</h4>
+                <h4 class="font-medium mb-2">{{ t('auditActivityPlan.view.creator') }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormField label="Creator Name" required>
+                  <UFormField :label="t('auditActivityPlan.form.creatorName')" required>
                     <UInput v-model="store.formState.review.creatorName" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Creator Position" required>
+                  <UFormField :label="t('auditActivityPlan.form.creatorPosition')" required>
                     <UInput v-model="store.formState.review.creatorPosition" class="w-full"/>
                   </UFormField>
                 </div>
               </div>
               <div class="border-t pt-4">
-                <h4 class="font-medium mb-2">Approved By</h4>
+                <h4 class="font-medium mb-2">{{ t('auditActivityPlan.form.approvedBy') }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormField label="Approver Name" required>
+                  <UFormField :label="t('auditActivityPlan.form.approverName')" required>
                     <UInput v-model="store.formState.review.approverName" class="w-full"/>
                   </UFormField>
-                  <UFormField label="Approver Position" required>
+                  <UFormField :label="t('auditActivityPlan.form.approverPosition')" required>
                     <UInput v-model="store.formState.review.approverPosition" class="w-full"/>
                   </UFormField>
                 </div>
-                <UFormField label="Approval Date" class="pt-4" required>
+                <UFormField :label="t('auditActivityPlan.form.approvalDate')" class="pt-4" required>
                   <UInput v-model="store.formState.review.approvalDate" type="date" class="w-full"/>
                 </UFormField>
-                <UFormField label="Additional Notes" class="col-span-1 md:col-span-2 pt-4">
+                <UFormField :label="t('auditActivityPlan.form.additionalNotes')" class="col-span-1 md:col-span-2 pt-4">
                   <UTextarea v-model="store.formState.review.additionalNotes" class="w-full"/>
                 </UFormField>
                 
@@ -272,25 +272,25 @@
           <!-- Attachment -->
           <UCard :ui="{ body: 'px-4 py-5 sm:p-6' }">
             <template #header>
-              <h3 class="text-lg font-medium">Attachment</h3>
+              <h3 class="text-lg font-medium">{{ t('auditActivityPlan.form.attachment') }}</h3>
             </template>
             <div class="space-y-4">
-              <UFormField label="Attachment Category">
+              <UFormField :label="t('auditActivityPlan.form.attachmentCategory')">
                 <USelectMenu v-model="store.formState.attachmentCategory" :items="store.attachmentCategoryOptions" class="w-full"/>
               </UFormField>
-              <UFormField label="Attachment Uploaded By">
+              <UFormField :label="t('auditActivityPlan.form.attachmentUploadedBy')">
                 <UInput v-model="store.formState.attachmentUploadedBy" placeholder="Example: Auditor" class="w-full" />
               </UFormField>
-              <UFormField label="Attachment Upload Date">
+              <UFormField :label="t('auditActivityPlan.form.attachmentUploadDate')">
                 <UInput type="date" v-model="store.formState.attachmentUploadDate" class="w-full"/>
               </UFormField>
-              <UFormField label="Upload your Attachment here" size="lg">
+              <UFormField :label="t('auditActivityPlan.form.uploadAttachmentHere')" size="lg">
                 <UFileUpload
                   v-model="store.formState.file"
                   layout="list"
                   multiple
-                  label="Drop your attachments here"
-                  description="You can upload multiple files (max. 2MB each)"
+                  :label="t('auditActivityPlan.form.dropAttachmentsHere')"
+                  :description="t('auditActivityPlan.form.maxFileSizeDesc')"
                   class="w-full"
                   :ui="{
                     base: 'min-h-48'
@@ -302,8 +302,8 @@
 
           <!-- Buttons -->
           <div class="flex justify-end gap-3 pb-6">
-            <UButton label="Cancel" color="neutral" variant="ghost" @click="store.closeModal" />
-            <UButton type="submit" :label="store.isEditMode ? 'Update' : 'Create'" color="warning" />
+            <UButton :label="t('auditActivityPlan.form.cancel')" color="neutral" variant="ghost" @click="store.closeModal" />
+            <UButton type="submit" :label="store.isEditMode ? t('auditActivityPlan.form.update') : t('auditActivityPlan.form.create')" color="warning" />
           </div>
 
         </UForm>
@@ -317,7 +317,9 @@
 import { useActivityPlanStore } from '~/stores/activity-plan'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { AuditCategory, AuditDepartment } from '~/types/audit';
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useActivityPlanStore()
 const riskStore = useRiskProfileStore()
 

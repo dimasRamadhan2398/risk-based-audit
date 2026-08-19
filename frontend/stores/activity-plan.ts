@@ -148,7 +148,8 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this activity plan?")) return;
+    const { t } = useI18n();
+    if (!confirm(t("auditActivityPlan.deleteConfirm"))) return;
     loading.value = true;
     errorMsg.value = '';
     try {

@@ -5,7 +5,7 @@
       color="error"
       variant="soft"
       icon="i-lucide-circle-alert"
-      title="Gagal memuat Audit Charter"
+      :title="t('auditCharter.card.loadError')"
       :description="store.errorMsg"
       class="mb-4"
     />
@@ -24,13 +24,13 @@
         <UIcon name="i-lucide-file-text" class="w-8 h-8" />
       </div>
       <div class="space-y-2 max-w-md">
-        <h2 class="text-xl font-bold text-[var(--text-main)]">Belum Ada Audit Charter</h2>
+        <h2 class="text-xl font-bold text-[var(--text-main)]">{{ t('auditCharter.card.emptyTitle') }}</h2>
         <p class="text-sm text-[var(--text-muted)] leading-relaxed">
-          Audit Charter adalah dokumen formal yang mendefinisikan tujuan, wewenang, dan tanggung jawab fungsi Audit Internal. Unggah dokumen pertama Anda untuk memulai.
+          {{ t('auditCharter.card.emptyDesc') }}
         </p>
       </div>
       <UButton
-        label="Unggah Audit Charter Baru"
+        :label="t('auditCharter.card.uploadNew')"
         @click="() => { store.showModal = true }"
         color="primary"
         size="lg"
@@ -49,10 +49,10 @@
       >
         <div class="flex justify-between items-center">
           <h1 class="text-2xl font-bold text-gray-900">
-            Active Audit Charter
+            {{ t('auditCharter.card.activeTitle') }}
           </h1>
           <UButton
-            label="Add Charter"
+            :label="t('auditCharter.card.addCharter')"
             @click="() => { store.showModal = true }"
             color="primary"
             icon="i-lucide-plus"
@@ -65,7 +65,7 @@
         <div class="flex justify-between items-start">
           <div>
             <UBadge
-              label="CURRENTLY ACTIVE"
+              :label="t('auditCharter.card.currentlyActive')"
               class="px-2.5 py-0.5 mb-4 rounded inline-block"
               size="xl"
               color="success"
@@ -91,7 +91,7 @@
             <div class="grid grid-cols-2 bg-[var(--bg-surface)] gap-8 mb-6 p-4 rounded-lg transition-colors duration-300">
               <div>
                 <p class="text-md text-[var(--text-muted)] uppercase tracking-wider">
-                  Uploaded By
+                  {{ t('auditCharter.card.uploadedBy') }}
                 </p>
                 <p class="font-medium text-[var(--text-main)]">
                   {{ store.activeCharter.uploadedBy }}
@@ -99,7 +99,7 @@
               </div>
               <div>
                 <p class="text-md text-[var(--text-muted)] uppercase tracking-wider">
-                  Approved By
+                  {{ t('auditCharter.card.approvedBy') }}
                 </p>
                 <p class="font-medium text-[var(--text-main)]">
                   {{ store.activeCharter.approvedBy }}
@@ -111,17 +111,15 @@
         <div class="sm:flex sm:flex-row-reverse gap-4">
           <UButton
             v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            :to="store.activeCharter.fileUrl"
-            target="_blank"
+            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName)"
             icon="i-lucide-download"
             size="md"
             color="primary"
             variant="solid"
-          >
-            Download
-          </UButton>
+            :label="t('auditCharter.card.download')"
+          />
           <UButton
-            label="Edit"
+            :label="t('auditCharter.card.edit')"
             @click="store.handleEdit(store.activeCharter)"
             color="primary"
             icon="i-lucide-edit"
@@ -136,10 +134,10 @@
         <div class="flex justify-between items-center">
           <UIcon name="i-lucide-alert-triangle" size="lg" class="text-warning-600"></UIcon>
           <p class="text-secondary-700">
-            Belum ada Audit Charter yang aktif. Silakan upload atau aktifkan dokumen.
+            {{ t('auditCharter.card.noActiveCharterWarning') }}
           </p>
           <UButton
-            label="Add Charter"
+            :label="t('auditCharter.card.addCharter')"
             @click="() => { store.showModal = true }"
             color="primary"
             icon="i-lucide-plus"
@@ -152,14 +150,14 @@
       <div>
         <UCard class="relative group" variant="soft">
           <h3 class="text-lg font-semibold text-gray-700 mb-4">
-            History Audit Charter
+            {{ t('auditCharter.card.historyTitle') }}
           </h3>
           <UTable
             :data="store.historyCharters"
             :columns="store.columns"
             :empty-state="{
               icon: 'i-lucide-folder-open',
-              label: 'Belum ada data history rencana audit.',
+              label: t('auditCharter.card.emptyHistory'),
             }"
             class="w-full text-sm text-left"
           >
@@ -191,25 +189,23 @@
             <template #fileName-cell="{ row }">
               <UButton
                 v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                :to="row.original.fileUrl"
-                target="_blank"
+                @click="store.downloadCharter(row.original.id, row.original.fileName)"
                 icon="i-lucide-external-link"
                 color="primary"
                 variant="link"
                 size="sm"
                 class="p-0 font-bold"
-              >
-                View Dokumen
-              </UButton>
+                :label="t('auditCharter.card.viewDocument')"
+              />
 
               <span v-else class="text-gray-400 italic">
-                No File
+                {{ t('auditCharter.card.noFile') }}
               </span>
             </template>
             <template #actions-cell="{ row }">
               <div class="flex justify-end gap-2">
                 <UButton
-                  label="Edit"
+                  :label="t('auditCharter.card.edit')"
                   size="md"
                   color="primary"
                   variant="outline"
@@ -217,7 +213,7 @@
                   @click="store.handleEdit(row.original)"
                 />
                 <UButton
-                  label="Delete"
+                  :label="t('auditCharter.card.delete')"
                   size="md"
                   color="error"
                   variant="outline"
@@ -235,11 +231,13 @@
 
 <script setup lang="ts">
 import { useCharterStore } from '~/stores/charter'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useCharterStore()
 
 const confirmDelete = async (item: any) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus Audit Charter "${item.title}" versi ${item.version}?`)) {
+  if (confirm(t('auditCharter.card.deleteConfirm', { title: item.title, version: item.version }))) {
     await store.deleteCharter(item.id || '')
   }
 }
