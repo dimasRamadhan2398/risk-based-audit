@@ -69,9 +69,9 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:29092 && echo 'Kafka ready' || exit 1"]
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/29092' || exit 1"]
       interval: 10s
-      timeout: 60s
+      timeout: 10s
       retries: 15
       start_period: 60s
     networks:
