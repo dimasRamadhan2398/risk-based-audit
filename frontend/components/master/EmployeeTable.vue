@@ -56,12 +56,18 @@
       <p class="text-gray-500">No employees found.</p>
     </div>
 
-    <!-- Table -->
-    <UTable
+    <!-- Table & Pagination via TableEntities -->
+    <TableEntities
       v-else
       :data="store.employees"
       :columns="store.columns"
-      class="w-full"
+      :loading="store.loading"
+      :server-side="true"
+      :total="store.pagination.total"
+      :items-per-page="store.pagination.page_size"
+      :page="store.pagination.page"
+      @update:page="(p) => store.fetchEmployees(p)"
+      @update:items-per-page="(size) => store.setPageSize(size)"
     >
       <template #employee_code-cell="{ row }">
         <span class="font-medium text-primary-600">{{ row.original.employee_code }}</span>
@@ -110,51 +116,7 @@
           />
         </div>
       </template>
-    </UTable>
-
-    <!-- Pagination -->
-    <template #footer>
-      <div class="flex items-center justify-between">
-        <div class="text-sm text-gray-500">
-          Showing {{ (store.pagination.page - 1) * store.pagination.page_size + 1 }}
-          to {{ Math.min(store.pagination.page * store.pagination.page_size, store.pagination.total) }}
-          of {{ store.pagination.total }} entries
-        </div>
-
-        <div class="flex gap-2 items-center">
-          <USelectMenu
-            v-model="pageSize"
-            :items="([
-              { label: '10 per page', value: 10 },
-              { label: '25 per page', value: 25 },
-              { label: '50 per page', value: 50 },
-              { label: '100 per page', value: 100 }
-            ] as any)"
-            class="w-40"
-            value-attribute="value"
-            @change="handlePageSizeChange"
-          />
-
-          <UButton
-            icon="i-heroicons-chevron-left"
-            variant="soft"
-            :disabled="!store.hasPrevPage"
-            @click="store.prevPage"
-          />
-
-          <span class="px-2 text-sm">
-            Page {{ store.pagination.page }} of {{ store.totalPages || 1 }}
-          </span>
-
-          <UButton
-            icon="i-heroicons-chevron-right"
-            variant="soft"
-            :disabled="!store.hasNextPage"
-            @click="store.nextPage"
-          />
-        </div>
-      </div>
-    </template>
+    </TableEntities>
   </UCard>
 </template>
 

@@ -179,6 +179,15 @@ const loadRealCache = (): boolean => {
   }
 }
 
+const route = useRoute()
+const activeTab = ref('xgboost')
+const tabItems = [
+  { key: 'xgboost', label: 'Risk Scoring ML', icon: 'i-heroicons-chart-bar-square' },
+  { key: 'isolation', label: 'Anomaly Detection ML', icon: 'i-heroicons-shield-exclamation' },
+  { key: 'nlp', label: 'IndoBERT NLP', icon: 'i-heroicons-document-magnifying-glass' },
+  { key: 'timeseries', label: 'KPI PyTorch LSTM', icon: 'i-heroicons-arrow-trending-up' },
+]
+
 // ─── Fetch Initial Batch Predictions & Automated Sync ───────────────────────
 const fetchAnalytics = async () => {
   try {
@@ -302,6 +311,9 @@ const fetchAnalytics = async () => {
     usingCachedRealData.value = loaded
   } finally {
     loading.value = false
+    // Immediately display the Risk Scoring feature ('xgboost') after models finish loading
+    const targetTab = (route.query.tab as string) || 'xgboost'
+    activeTab.value = targetTab
   }
 }
 
@@ -317,7 +329,6 @@ const tabItems = computed(() => [
   { key: 'nlp', label: t('analytics.tabs.indoBERT'), icon: 'i-heroicons-document-magnifying-glass' },
   { key: 'timeseries', label: t('analytics.tabs.kpiLSTM'), icon: 'i-heroicons-arrow-trending-up' },
 ])
-
 // ─── Tab 1: Dynamic Computed Charts for Risk Scoring ───────────────────────
 const xgboostBarData = computed(() => ({
   labels: xgboostState.value.predictions.map((p: any) => p.entity || 'Entity'),
@@ -800,31 +811,34 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               :description="t('analytics.xgboost.alertDesc')"
             />
 
-            <!-- Predicted vs Actual Chart -->
-            <UCard class="lg:col-span-2">
-              <template #header>
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
-                  <h3 class="font-bold">{{ t('analytics.xgboost.chartPredictedVsActual') }}</h3>
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Predicted vs Actual Chart -->
+              <UCard class="lg:col-span-2">
+                <template #header>
+                  <div class="flex items-center gap-2">
+                    <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
+                    <h3 class="font-bold">{{ t('analytics.xgboost.chartPredictedVsActual') }}</h3>
+                  </div>
+                </template>
+                <div class="h-80">
+                  <Bar :data="xgboostBarData" :options="xgboostBarOptions" />
                 </div>
-              </template>
-              <div class="h-80">
-                <Bar :data="xgboostBarData" :options="xgboostBarOptions" />
-              </div>
-            </UCard>
+              </UCard>
 
-            <!-- Feature Importance -->
-            <UCard>
-              <template #header>
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-adjustments-horizontal" class="text-orange-500" />
-                  <h3 class="font-bold">{{ t('analytics.xgboost.chartFeatureImportance') }}</h3>
+              <!-- Feature Importance -->
+              <UCard class="lg:col-span-1">
+                <template #header>
+                  <div class="flex items-center gap-2">
+                    <UIcon name="i-heroicons-adjustments-horizontal" class="text-orange-500" />
+                    <h3 class="font-bold">{{ t('analytics.xgboost.chartFeatureImportance') }}</h3>
+                  </div>
+                </template>
+                <div class="h-80">
+                  <Bar :data="featureBarData" :options="featureBarOptions" />
                 </div>
-              </template>
-              <div class="h-72">
-                <Bar :data="featureBarData" :options="featureBarOptions" />
-              </div>
-            </UCard>
+              </UCard>
+            </div>
 
             <!-- Predictions Table -->
             <UCard>

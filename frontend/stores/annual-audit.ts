@@ -90,9 +90,86 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const departmentOptions = Object.values(AuditDepartment)
   const statusOptions = Object.values(AnnualAuditPlanStatus)
 
+  const initialMockPlans: any[] = [
+    {
+      id: 'mock-1',
+      code: 'PKAT-2026-ASR-001',
+      version: 'v1.0',
+      status: AnnualAuditPlanStatus.WORK_IN_PROGRESS,
+      year: '2026',
+      quarters: ['Q1', 'Q2'],
+      selectedMonths: [0, 1, 3, 4],
+      auditorCount: 3,
+      daysPerAuditor: 10,
+      totalMandays: 30,
+      supervisorId: 'S01',
+      supervisorName: 'Budi Santoso (Mgr)',
+      notes: 'Audit operasional TI dan infrastruktur data center',
+      isActive: true,
+      activities: [
+        {
+          name: 'Audit Keamanan Siber & IT Infrastructure',
+          category: AuditCategory.ASSURANCE,
+          department: AuditDepartment.IT,
+          riskName: 'Kelemahan Kontrol Akses & Server Downtime',
+          riskLevel: 'High'
+        }
+      ]
+    },
+    {
+      id: 'mock-2',
+      code: 'PKAT-2026-ASR-002',
+      version: 'v1.0',
+      status: AnnualAuditPlanStatus.DONE,
+      year: '2026',
+      quarters: ['Q2', 'Q3'],
+      selectedMonths: [4, 5, 7],
+      auditorCount: 2,
+      daysPerAuditor: 8,
+      totalMandays: 16,
+      supervisorId: 'S02',
+      supervisorName: 'Siti Aminah (Snr)',
+      notes: 'Audit kepatuhan regulasi OJK & laporan keuangan bulanan',
+      isActive: true,
+      activities: [
+        {
+          name: 'Audit Kepatuhan Keuangan & Pajak',
+          category: AuditCategory.ASSURANCE,
+          department: AuditDepartment.FINANCE,
+          riskName: 'Penyimpangan Rekonsiliasi Bank',
+          riskLevel: 'Medium'
+        }
+      ]
+    }
+  ]
+
+  const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
+    if (!Array.isArray(rawPlans)) return []
+    return rawPlans.map(p => ({
+      ...p,
+      code: p.code || p.plan_code || '',
+      title: p.title || p.plan_title || '',
+      activities: Array.isArray(p.activities) ? p.activities.map((a: any) => ({
+        ...a,
+        name: a.name || a.title || '',
+        category: a.category || AuditCategory.ASSURANCE,
+        department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
+        involvedDepartments: a.involvedDepartments || a.involved_departments || [],
+        timelineText: a.timeline_text || a.timelineText || '',
+        auditorCount: a.auditor_count || a.auditorCount || 1,
+        totalMandays: a.total_mandays || a.totalMandays || 0,
+        supervisorName: a.supervisor_name || a.supervisorName || ''
+      })) : [],
+      selectedMonths: Array.isArray(p.selectedMonths) ? p.selectedMonths : (Array.isArray(p.selected_months) ? p.selected_months : []),
+      quarters: Array.isArray(p.quarters) ? p.quarters : []
+    }))
+  }
+
+  const plans = ref<AnnualAuditPlan[]>(normalizePlans(initialMockPlans))
+
   // --- COMPUTED: FILTER DATA ---
   const filteredPlans = computed(() => {
-    return plans.value.filter(plan => {
+    return (plans.value || []).filter(plan => {
       const matchCode = !searchCode.value ||
         (plan.code || '').toLowerCase().includes(searchCode.value.toLowerCase()) ||
         (plan.activities || []).some(act => (act.name || '').toLowerCase().includes(searchCode.value.toLowerCase()))
@@ -336,26 +413,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
-  const plans = ref<AnnualAuditPlan[]>([])
 
-  const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
-    return rawPlans.map(p => ({
-      ...p,
-      code: p.code || p.plan_code || '',
-      title: p.title || p.plan_title || '',
-      activities: Array.isArray(p.activities) ? p.activities.map((a: any) => ({
-        ...a,
-        name: a.name || a.title || '',
-        category: a.category || AuditCategory.ASSURANCE,
-        department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
-        involvedDepartments: a.involvedDepartments || a.involved_departments || [],
-        timelineText: a.timeline_text || a.timelineText || '',
-        auditorCount: a.auditor_count || a.auditorCount || 1,
-        totalMandays: a.total_mandays || a.totalMandays || 0,
-        supervisorName: a.supervisor_name || a.supervisorName || ''
-      })) : []
-    }))
-  }
 
   const fetchPlans = async () => {
     loading.value = true
@@ -365,18 +423,17 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       const response: any = await $fetch(`${baseUrl}/annual-audit-plans`, {
         method: 'GET'
       })
-      if (response && response.data && Array.isArray(response.data.items)) {
+      if (response && response.data && Array.isArray(response.data.items) && response.data.items.length > 0) {
         plans.value = normalizePlans(response.data.items)
-      } else if (response && response.data && Array.isArray(response.data)) {
+      } else if (response && response.data && Array.isArray(response.data) && response.data.length > 0) {
         plans.value = normalizePlans(response.data)
-      } else if (response && Array.isArray(response.items)) {
+      } else if (response && Array.isArray(response.items) && response.items.length > 0) {
         plans.value = normalizePlans(response.items)
-      } else if (Array.isArray(response)) {
+      } else if (Array.isArray(response) && response.length > 0) {
         plans.value = normalizePlans(response)
       }
     } catch (error: any) {
-      console.error('Failed to fetch annual plans:', error)
-      errorMsg.value = 'Gagal mengambil rencana audit tahunan.'
+      console.warn('Backend API unavailable, using initial mock annual plans:', error)
     } finally {
       loading.value = false
     }

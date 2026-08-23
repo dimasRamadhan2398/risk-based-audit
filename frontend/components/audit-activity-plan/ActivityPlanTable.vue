@@ -1,9 +1,9 @@
 <template>
   <UCard class="rounded-xl shadow overflow-y-auto" variant="soft" color="primary">
-    <UTable
+    <TableEntities
       :data="store.filteredPlans"    
-      :columns="store.columns"
-      :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data rencana audit.' }"
+      :columns="columns"
+      :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: t('auditActivityPlan.emptyState') }"
       class="w-full text-sm text-left"
     >
       <template #riskName-cell="{ row }">
@@ -11,7 +11,7 @@
           <div 
             v-for="(act, idx) in getOriginal(row).plannedActivities" 
             :key="idx"
-            class="text-md font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
+            class="text-md font-semibold text-gray-700 dark:text-white truncate max-w-[200px]"
             :title="act.riskName"
           >
             {{ act.riskName || '-' }}
@@ -78,8 +78,7 @@
           />
         </div>
       </template>
-      
-    </UTable>
+    </TableEntities>
     <ActivityPlanViewModal />
   </UCard>
   
@@ -87,9 +86,23 @@
 
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
 import ActivityPlanViewModal from '~/components/audit-activity-plan/ActivityPlanViewModal.vue'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useActivityPlanStore()
 const getOriginal = (row: any) => row.original as any
+
+const columns = computed(() => [
+  { accessorKey: 'planTitle', header: t('auditActivityPlan.table.title') },
+  { accessorKey: 'planYear', header: t('auditActivityPlan.table.year') },
+  { accessorKey: 'period', header: t('auditActivityPlan.table.period') },
+  { accessorKey: 'department', header: t('auditActivityPlan.table.department') },
+  { accessorKey: 'riskName', header: t('auditActivityPlan.table.riskName') },
+  { accessorKey: 'riskLevel', header: t('auditActivityPlan.table.riskLevel') },
+  { accessorKey: 'attachments', header: t('auditActivityPlan.table.attachment') },
+  { accessorKey: 'actions', header: t('auditActivityPlan.table.actions') }
+])
 </script>

@@ -113,6 +113,7 @@ services:
           - /api/v1/uploaded-performance-reports
           - /api/v1/media
           - /api/v1/performance
+          - /uploads
         strip_path: false
 
   - name: master-service
@@ -137,6 +138,7 @@ services:
           - /api/v1/mitigations
           - /api/v1/risk-factors
           - /api/v1/audit-universe
+          - /api/v1/risk-appetite
         strip_path: false
 
   - name: analytics-service

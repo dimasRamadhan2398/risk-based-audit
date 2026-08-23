@@ -1,7 +1,7 @@
 <template>
     <div class="mt-4 space-y-6">
         <UCard class="shadow-sm mt-10">
-        <UTable :data="store.filteredDataF04" :columns="store.columnsF04" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
+        <TableEntities :data="store.filteredDataF04" :columns="store.columnsF04" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
             <template #evidenceFile-cell="{ row }">
                 <div v-if="row.original.evidenceFile" class="flex items-center gap-1 text-blue-600">
                     <UIcon name="i-heroicons-paper-clip" />
@@ -43,7 +43,7 @@
                 />
                 </div>
             </template>
-        </UTable>
+        </TableEntities>
         </UCard>
     </div>
 </template>

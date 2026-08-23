@@ -21,7 +21,16 @@
       "needAccount": "Need an account? Contact system Administrator.",
       "generalError": "An error occurred during login. Please try again.",
       "serverError": "Failed to connect to server. Make sure your internet connection is active and the server is running.",
-      "invalidCredentials": "Invalid username or password."
+      "invalidCredentials": "Invalid username or password.",
+      "errors": {
+        "notFound": "Authentication service not found (404). Please contact the system administrator.",
+        "serviceUnavailable": "Server is currently unreachable (502/503). Please make sure the backend service is running and try again.",
+        "serverError": "An internal server error occurred (500). Please try again in a few moments.",
+        "invalidCredentials": "Incorrect username or password. Please check and try again.",
+        "tooManyRequests": "Too many login attempts. Please wait a few moments before trying again.",
+        "networkError": "Failed to connect to the server. Please ensure your internet connection is active and the server is running.",
+        "generic": "An error occurred during login. Please try again."
+      }
     },
     "register": {
       "title": "Create your account",
@@ -876,8 +885,9 @@
         "mitigation": "Mitigation Plan",
         "actions": "Actions"
       }
-    },
-    "riskProfile": {
+    }
+  },
+  "riskProfile": {
       "title": "Corporate Risk Profile",
       "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
       "total": "Total",
@@ -970,6 +980,371 @@
         "moderate": "Moderate",
         "moderate-high": "Moderate to High",
         "high": "High"
+      }
+    },
+  "analytics": {
+    "title": "Analytics",
+    "kpiForecast": {
+      "subFeature": "Sub-Feature 9",
+      "title": "KPI PyTorch LSTM Forecast",
+      "subtitle": "Deep Learning Model (PyTorch LSTM) predicts future KPI performance trends based on historical time series data.",
+      "badge": "PyTorch LSTM Model",
+      "summaryTitle": "KPI Forecast Summary (PyTorch LSTM)",
+      "columns": {
+        "code": "Code",
+        "kpi": "KPI",
+        "currentValue": "Current Value",
+        "forecastedValue": "Forecasted Value",
+        "trend": "Trend",
+        "recommendedAction": "Audit Action Recommendation"
+      },
+      "trends": {
+        "improving": "Improving",
+        "deteriorating": "Deteriorating"
+      }
+    }
+  },
+  "annualAudit": {
+    "title": "Annual Audit Plan",
+    "importPlanDocument": "Import Plan Document",
+    "newAuditPlan": "New Audit Plan"
+  },
+  "assignmentLetter": {
+    "title": "Assignment Letter List",
+    "importDocument": "Import Document",
+    "createAssignmentLetter": "Create Assignment Letter"
+  },
+  "auditActivityPlan": {
+    "title": "Audit Activity Plan",
+    "subtitle": "Manage and review annual audit activity plans.",
+    "importDocument": "Import Document",
+    "createPlan": "Create Plan",
+    "editPlan": "Edit Audit Activity Plan",
+    "createPlanTitle": "Create Audit Activity Plan",
+    "emptyState": "No audit activity plan data available.",
+    "deleteConfirm": "Are you sure you want to delete this activity plan?",
+    "validation": {
+      "basicInfo": "Please fill in all required fields (Plan Title, Year, Period, Department).",
+      "plannedActivities": "Please add at least one audit activity with Activity Title and Auditee filled.",
+      "reviewAndApproval": "Please fill in Creator and Approver details (Names, Positions, and Approval Date)."
+    },
+    "stepper": {
+      "step1": "Basic Info",
+      "step2": "Audit Activities",
+      "step3": "Resources & Budget",
+      "step4": "Review & Approval",
+      "step5": "Attachments",
+      "previous": "Previous",
+      "next": "Next Step"
+    },
+    "table": {
+      "title": "Title",
+      "year": "Year",
+      "period": "Period",
+      "department": "Department/Unit",
+      "riskName": "Risk Name",
+      "riskLevel": "Risk Level",
+      "attachment": "Attachment",
+      "actions": "Actions"
+    },
+    "form": {
+      "stepNum": "Step {current} of {total}",
+      "basicInfo": "Basic Planning Information",
+      "planTitle": "Title of Audit Activity Plan",
+      "planYear": "Planning Year",
+      "planPeriod": "Planning Period",
+      "department": "Department/Unit of Audit",
+      "createdBy": "Created By",
+      "creationDate": "Creation Date",
+      "to": "to",
+      "plannedActivities": "Planned Audit Activities",
+      "addAuditActivity": "Add Audit Activity",
+      "activityNum": "Audit Activity {num}",
+      "activityTitle": "Title of Audit Activity",
+      "createPlanTitle": "Create Audit Activity Plan",
+      "auditee": "Auditee",
+      "category": "Category",
+      "selectCategory": "Select Category",
+      "associatedRisk": "Associated Risk (Based on Risk Profile)",
+      "selectRiskProfile": "-- Select Risk Profile --",
+      "riskLevel": "Risk Level",
+      "selectRiskLevel": "Select risk level",
+      "duration": "Duration (days)",
+      "priority": "Priority",
+      "selectPriority": "Select priority",
+      "auditorsNum": "Number of Auditors",
+      "estimatedSchedule": "Estimated Schedule/Time",
+      "budgetEstimation": "Budget Estimation",
+      "millionRupiah": "Million Rupiah",
+      "noActivitiesAdded": "No audit activities have been added yet.",
+      "summaryOfActivities": "Summary of Activities",
+      "highRisk": "High Risk",
+      "mediumRisk": "Medium Risk",
+      "lowRisk": "Low Risk",
+      "resourcesAndBudget": "Resources & Budget",
+      "addAuditor": "Add Auditor",
+      "auditorNum": "Auditor {num}",
+      "name": "Name",
+      "position": "Position",
+      "competence": "Competence",
+      "availability": "Availability",
+      "budgetPlanning": "Budget Planning",
+      "totalEstimatedCost": "Total Estimated Activity Cost",
+      "totalAllocatedBudget": "Total Budget Allocated",
+      "budgetNotes": "Budget Notes",
+      "reviewAndApproval": "Review & Approval",
+      "creatorName": "Creator Name",
+      "creatorPosition": "Creator Position",
+      "approvedBy": "Approved By",
+      "approverName": "Approver Name",
+      "approverPosition": "Approver Position",
+      "approvalDate": "Approval Date",
+      "additionalNotes": "Additional Notes",
+      "attachment": "Attachment",
+      "attachmentCategory": "Attachment Category",
+      "attachmentUploadedBy": "Attachment Uploaded By",
+      "attachmentUploadDate": "Attachment Upload Date",
+      "uploadAttachmentHere": "Upload your Attachment here",
+      "dropAttachmentsHere": "Drop your attachments here",
+      "maxFileSizeDesc": "You can upload multiple files (max. 2MB each)",
+      "cancel": "Cancel",
+      "create": "Create",
+      "update": "Update"
+    },
+    "view": {
+      "title": "Audit Activity Plan Details",
+      "basicInfo": "Basic Information",
+      "planTitle": "Plan Title:",
+      "planYear": "Plan Year:",
+      "planPeriod": "Plan Period:",
+      "department": "Department:",
+      "createdBy": "Created By:",
+      "creationDate": "Creation Date:",
+      "plannedActivities": "Planned Audit Activities ({count})",
+      "resourceAuditors": "Resource Auditors ({count})",
+      "budgetPlanning": "Budget Planning",
+      "totalEstimatedCost": "Total Estimated Cost:",
+      "totalAllocatedBudget": "Total Allocated Budget:",
+      "budgetNotes": "Budget Notes:",
+      "reviewAndApproval": "Review & Approval",
+      "creator": "Created By",
+      "approver": "Approved By",
+      "name": "Name:",
+      "position": "Position:",
+      "date": "Date:",
+      "additionalNotes": "Additional Notes:",
+      "attachment": "Attachment",
+      "attachmentCategory": "File Category:",
+      "uploadedBy": "Uploaded By:",
+      "uploadDate": "Upload Date:",
+      "uploadedFiles": "Uploaded Files:",
+      "noFilesAttached": "No files attached.",
+      "loading": "Loading data...",
+      "close": "Close",
+      "download": "Download",
+      "columns": {
+        "auditName": "Audit Name",
+        "auditee": "Auditee",
+        "category": "Category",
+        "riskName": "Risk Name",
+        "riskLevel": "Risk Level",
+        "duration": "Duration (days)",
+        "priority": "Priority",
+        "name": "Name",
+        "position": "Position",
+        "competence": "Competence",
+        "availability": "Availability"
+      }
+    },
+    "upload": {
+      "title": "Import Plan Document",
+      "subtitle": "Import external Audit Activity Plan documents",
+      "formTitle": "Import Plan Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Annual Audit Plan 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzoneLabel": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "uploadButton": "Import Document",
+      "importedTitle": "Imported Documents",
+      "documentsCount": "{count} Documents",
+      "loading": "Loading documents...",
+      "noDocumentsTitle": "No documents imported",
+      "noDocumentsDesc": "Import plan documents on the left to add them to your records.",
+      "viewDocument": "View Document",
+      "downloadDocument": "Download Document",
+      "deleteDocument": "Delete Document",
+      "deleteConfirm": "Are you sure you want to delete this uploaded document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "importedDate": "Imported Date",
+        "actions": "Actions"
+      }
+    }
+  },
+  "auditCharter": {
+    "tabs": {
+      "charter": "Audit Charter",
+      "guideline": "Audit Guidelines",
+      "sop": "Technical Instructions / SOP"
+    },
+    "card": {
+      "loadError": "Failed to load Audit Charter",
+      "emptyTitle": "No Audit Charter Yet",
+      "emptyDesc": "Audit Charter is a formal document defining the purpose, authority, and responsibility of the Internal Audit function. Upload your first document to get started.",
+      "uploadNew": "Upload New Audit Charter",
+      "activeTitle": "Active Audit Charter",
+      "addCharter": "Add Charter",
+      "currentlyActive": "CURRENTLY ACTIVE",
+      "uploadedBy": "Uploaded By",
+      "approvedBy": "Approved By",
+      "download": "Download",
+      "edit": "Edit",
+      "delete": "Delete",
+      "noActiveCharterWarning": "No active Audit Charter yet. Please upload or activate a document.",
+      "historyTitle": "Audit Charter History",
+      "emptyHistory": "No audit plan history data yet.",
+      "viewDocument": "View Document",
+      "noFile": "No File",
+      "deleteConfirm": "Are you sure you want to delete Audit Charter \"{title}\" version {version}?"
+    },
+    "form": {
+      "editTitle": "Edit Audit Charter",
+      "uploadTitle": "Upload New Charter",
+      "docTitle": "Document Title",
+      "docTitlePlaceholder": "e.g. Internal Audit Charter 2026",
+      "versionAuto": "Version (Auto)",
+      "date": "Date",
+      "uploadedBy": "Uploaded By",
+      "approvedBy": "Approved By",
+      "approvedByPlaceholder": "e.g. Audit Committee",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "uploadFile": "Upload Charter File (PDF/DOCX)",
+      "submit": "Submit"
+    }
+  },
+  "executiveSummaryUpload": {
+    "headerTitle": "Import Executive Summary",
+    "headerSubtitle": "Import external Executive Summary documents for Audit Result Report",
+    "formHeader": "Import Executive Summary Document",
+    "documentTitleLabel": "Document Title",
+    "documentTitlePlaceholder": "Ex: Executive Summary Operational Audit 2026",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Brief description of the executive summary document...",
+    "fileUploadLabel": "Import Document File *",
+    "fileDropPrompt": "Click to upload or drag & drop",
+    "fileLimitInfo": "PDF, DOC, DOCX up to 10MB",
+    "removeFile": "Remove File",
+    "submitButton": "Import Executive Summary",
+    "tableHeader": "Imported Executive Summaries",
+    "documentsCount": "{count} Documents",
+    "loadingDocuments": "Loading documents...",
+    "emptyTitle": "No documents imported",
+    "emptySubtitle": "Import executive summary documents to add them to your records.",
+    "columns": {
+      "documentTitle": "Document Title",
+      "file": "File",
+      "importedDate": "Imported Date",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "View Document",
+      "download": "Download Document",
+      "delete": "Delete Document"
+    },
+    "confirmDelete": "Are you sure you want to delete this imported document?",
+    "fileSizeLimitAlert": "File size exceeds the 10MB limit."
+  },
+  "riskAppetite": {
+    "title": "Risk Appetite Statement (RAS)",
+    "subtitle": "Manage organizational risk appetite statements and verify compliance with risk mitigation rules.",
+    "kpi": {
+      "complianceLevel": "Compliance Level",
+      "compliantSubtitle": "{compliant} of {total} risks are appetite-compliant",
+      "totalRisks": "Total Risks",
+      "totalSubtitle": "Active risks in current profile",
+      "acceptableRisks": "Acceptable Risks",
+      "acceptableSubtitle": "Low & Low-Moderate level risks",
+      "appetiteViolations": "Appetite Violations",
+      "violationsSubtitle": "Moderate+ risks missing mitigations"
+    },
+    "tabs": {
+      "overview": "RAS Guidelines",
+      "compliance": "Risk Compliance",
+      "statements": "Appetite Statements"
+    },
+    "guidelines": {
+      "title": "Risk Appetite Statement (RAS) Rules",
+      "desc": "The Risk Appetite Statement establishes acceptable risk thresholds for the organization to achieve strategic objectives, as well as required corrective actions for risks exceeding tolerance.",
+      "acceptableZone": {
+        "title": "1. Acceptable Risk Zone",
+        "desc": "Risks acceptable without additional mitigation",
+        "low": "Low Risk Level",
+        "lowMod": "Low to Moderate Risk Level",
+        "note": "* Risks in this area are assessed to have low impact and probability for operational activities, requiring no dedicated mitigation resources."
+      },
+      "actionZone": {
+        "title": "2. Action Required Zone",
+        "desc": "Mandatory mitigation to minimize exposure",
+        "mod": "Moderate Risk Level",
+        "modHigh": "Moderate to High Risk Level",
+        "high": "High Risk Level",
+        "note": "* Risks must be actively managed by developing structured and measurable mitigation plans to reduce exposure to a safe threshold."
+      }
+    },
+    "compliance": {
+      "registryTitle": "Risk Profile Compliance Registry",
+      "registryDesc": "Checking current Risk Profile against the appetite statement rules",
+      "filters": {
+        "all": "All Risks",
+        "required": "Mitigation Required (Moderate+)",
+        "acceptable": "Acceptable (Low/Low-Mod)",
+        "violating": "Non-Compliant (Violating)"
+      },
+      "columns": {
+        "id": "Risk ID",
+        "name": "Risk Event",
+        "level": "Risk Level",
+        "appetite": "Appetite Rule",
+        "status": "Mitigation Status",
+        "actions": "Actions"
+      },
+      "acceptableBadge": "Acceptable",
+      "requiredBadge": "Mitigation Required",
+      "noneRequired": "None Required",
+      "missingPlan": "Missing Plan",
+      "activePlan": "Active ({count} Plan)",
+      "done": "Completed",
+      "viewMitigation": "View Mitigation",
+      "addMitigation": "Add Mitigation"
+    },
+    "statements": {
+      "title": "Appetite Statements Management",
+      "subtitle": "Official written policy declarations and threshold configurations",
+      "newBtn": "New Statement",
+      "emptyTitle": "No appetite statements",
+      "emptyDesc": "Create official policy declarations to establish limits.",
+      "limitThreshold": "Limit Threshold: {limit}%",
+      "deleteConfirm": "Are you sure you want to delete this appetite statement?",
+      "deleteError": "Failed to delete statement.",
+      "saveError": "Failed to save appetite statement.",
+      "modal": {
+        "newTitle": "New Appetite Statement",
+        "editTitle": "Edit Appetite Statement",
+        "statementLabel": "Statement Policy Text",
+        "statementPlaceholder": "e.g. Low and Low to Moderate level risks are acceptable...",
+        "thresholdLabel": "Threshold Limit (%)",
+        "statusLabel": "Approval Status",
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save Changes"
       }
     }
   },

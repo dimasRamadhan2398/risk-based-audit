@@ -110,16 +110,10 @@ const items = computed(() => {
     </div>
 
     <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
-      <UTable
+      <TableEntities
         :columns="columns"
         :data="items"
-        @select="(row: any) => store.openDetail(row.original || row)"
         class="w-full"
-        :ui="{ 
-          thead: 'bg-gray-100 dark:bg-gray-800/50',
-          th: 'font-bold py-4',
-          td: 'py-4'
-        }"
       >
         <template #status-cell="{ row }: { row: any }">
           <div class="flex items-center space-x-2">
@@ -138,30 +132,7 @@ const items = computed(() => {
             />
           </div>
         </template>
-      </UTable>
-
-      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex items-center space-x-4">
-           <UButton
-            icon="i-lucide-chevron-left"
-            color="neutral"
-            variant="ghost"
-            :disabled="page === 1"
-            @click="() => { page-- }"
-          />
-          <span class="text-sm font-medium">{{ page }} / {{ Math.ceil(store.filteredReports.length / pageCount) }}</span>
-          <UButton
-            icon="i-lucide-chevron-right"
-            color="neutral"
-            variant="ghost"
-            :disabled="page >= Math.ceil(store.filteredReports.length / pageCount)"
-            @click="() => { page++ }"
-          />
-        </div>
-        <p class="text-sm font-bold">
-          Showing {{ (page - 1) * pageCount + 1 }} - {{ Math.min(page * pageCount, store.filteredReports.length) }} of {{ store.filteredReports.length }} data
-        </p>
-      </div>
+      </TableEntities>
     </UCard>
 
     <ATRDetail />

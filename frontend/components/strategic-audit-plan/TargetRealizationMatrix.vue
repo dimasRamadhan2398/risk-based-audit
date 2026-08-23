@@ -34,10 +34,10 @@
       >
         <div class="pb-1.5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
           <span class="text-[11px] font-extrabold uppercase tracking-wide text-primary-600 dark:text-primary-400">
-            {{ store.form.periodType === 'Quartal' ? t('strategicPlan.form.quarterLabel', { number: idx + 1 }) : t('strategicPlan.form.yearLabel', { number: idx + 1 }) }}
+            {{ store.form.periodType === 'Quartal' ? item.split('-')[0] : t('strategicPlan.form.yearLabel', { number: idx + 1 }) }}
           </span>
           <span class="text-[11px] font-mono font-bold text-gray-700 dark:text-gray-300">
-            {{ item }}
+            {{ store.form.periodType === 'Quartal' ? item.split('-')[1] : item }}
           </span>
         </div>
 
@@ -99,11 +99,17 @@ const endYear = computed(() => {
 })
 
 const periodsList = computed(() => {
-  if (store.form.periodType === 'Quartal') {
-    return ['Q1', 'Q2', 'Q3', 'Q4']
-  }
   const start = startYear.value
   const end = endYear.value
+  if (store.form.periodType === 'Quartal') {
+    // Generate Q1–Q4 for every year in the range
+    // Key format: "Q1-2026", "Q2-2026", ..., "Q4-2030"
+    const quarters: string[] = []
+    for (let y = start; y <= end; y++) {
+      quarters.push(`Q1-${y}`, `Q2-${y}`, `Q3-${y}`, `Q4-${y}`)
+    }
+    return quarters
+  }
   const years: string[] = []
   for (let y = start; y <= end; y++) {
     years.push(String(y))

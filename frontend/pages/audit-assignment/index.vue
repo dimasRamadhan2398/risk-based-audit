@@ -1,40 +1,45 @@
 <template>
-  <div class="grid grid-cols-2 gap-4">
-    <div>
-      <label class="block text-sm font-medium text-gray-700"
-        >Activity ID</label
-      >
-      <input
-        v-model="form.activityId"
-        required
-        type="text"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2 border"
-        placeholder="e.g. AUD-001"
-      />
+  <div class="p-6 max-w-full mx-auto space-y-6">
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 ">{{ t('assignmentLetter.title') }}</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <UButton
+          :label="t('assignmentLetter.importDocument')"
+          icon="i-lucide-upload"
+          color="neutral"
+          variant="outline"
+          size="lg"
+          class="font-bold shadow-md"
+          to="/audit-assignment/upload"
+        />
+        <UButton
+          :label="t('assignmentLetter.createAssignmentLetter')"
+          icon="i-heroicons-plus"
+          color="primary"
+          size="lg"
+          class="font-bold shadow-md"
+          @click="store.openModal"
+        />
+      </div>
     </div>
-    <div>
-      <label class="block text-sm font-medium text-gray-700"
-        >Letter Number</label
-      >
-      <input
-        v-model="form.letterNumber"
-        required
-        type="text"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2 border"
-        placeholder="e.g. AUD-001"
-      />
-    </div>
+
+    <AssignmentLetterTable />
+
+    <AssignmentLetterForm />
+
   </div>
 </template>
-<script>
-export default {
-  data() {
-    return {
-      form: {
-        activityId: "",
-        letterNumber: "",
-      },
-    };
-  },
-};
+
+<script setup lang="ts">
+import AssignmentLetterForm from '~/components/assignment-letter/AssignmentLetterForm.vue';
+import AssignmentLetterTable from '~/components/assignment-letter/AssignmentLetterTable.vue';
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useI18n } from '~/composables/useI18n'
+
+const { t } = useI18n()
+const store = useAssignmentLetterStore()
+store.fetchAssignmentLetters()
 </script>

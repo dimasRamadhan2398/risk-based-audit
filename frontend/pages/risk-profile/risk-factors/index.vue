@@ -67,6 +67,7 @@
                 {{ isValidWeightSum ? t('riskFactors.weighting.badgeValid') : t('riskFactors.weighting.badgeInvalid') }}
               </UBadge>
               <UButton
+                v-if="canEditRiskFactors"
                 icon="i-lucide-save"
                 color="primary"
                 variant="solid"
@@ -322,7 +323,7 @@
             </div>
 
             <template #footer v-if="activeYearlyEntity">
-              <div class="flex justify-end gap-3">
+              <div v-if="canEditRiskFactors" class="flex justify-end gap-3">
                 <UButton
                   icon="i-lucide-save"
                   color="primary"
@@ -393,8 +394,8 @@
                       </UBadge>
                     </td>
                     <td class="px-6 py-4 text-center">
-                      <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                        <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
+                      <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-success-600 dark:text-success-400 font-bold">
+                        <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-success-500" />
                         <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
                       </div>
                       <span v-else class="text-slate-400 text-md">-</span>
@@ -424,33 +425,53 @@
               </h3>
             </template>
             <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-md text-left">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-md text-center">
                 <thead class="bg-slate-100 dark:bg-slate-800">
                   <tr>
-                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.riskIndex') }}</th>
-                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.riskLevel') }}</th>
+                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300 text-center">{{ t('riskFactors.priority.riskIndex') }}</th>
+                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300 text-center">{{ t('riskFactors.priority.riskLevel') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">80 - 100%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-red-500/100 dark:bg-red-500/100">{{ t('riskFactors.priority.levels.high') }}</UBadge></td>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">80 - 100%</td>
+                    <td class="px-4 py-2 text-center flex justify-center">
+                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #F44336;">
+                        {{ t('riskFactors.priority.levels.high') }}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">60 - 79%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-orange-500/100 dark:bg-orange-500/100">{{ t('riskFactors.priority.levels.moderateToHigh') }}</UBadge></td>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">60 - 79%</td>
+                    <td class="px-4 py-2 text-center flex justify-center">
+                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #FF9800;">
+                        {{ t('riskFactors.priority.levels.moderateToHigh') }}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">40 - 59%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-yellow-500/100 dark:bg-yellow-500/100">{{ t('riskFactors.priority.levels.moderate') }}</UBadge></td>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">40 - 59%</td>
+                    <td class="px-4 py-2 text-center flex justify-center">
+                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #FFC107;">
+                        {{ t('riskFactors.priority.levels.moderate') }}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">20 - 39%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-lime-500/100 dark:bg-lime-500/100">{{ t('riskFactors.priority.levels.lowToModerate') }}</UBadge></td>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">20 - 39%</td>
+                    <td class="px-4 py-2 text-center flex justify-center">
+                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #8BC34A;">
+                        {{ t('riskFactors.priority.levels.lowToModerate') }}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">0 - 19%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-green-500/100 dark:bg-green-500/100">{{ t('riskFactors.priority.levels.low') }}</UBadge></td>
+                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">0 - 19%</td>
+                    <td class="px-4 py-2 text-center flex justify-center">
+                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #4CAF50;">
+                        {{ t('riskFactors.priority.levels.low') }}
+                      </span>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -502,10 +523,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRiskFactorsStore } from '~/stores/risk-factors'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const store = useRiskFactorsStore()
 const auditStore = useAuditUniverseStore()
 const { t } = useI18n()
+const { canEditRiskFactors } = useRbac()
 
 const tabItems = computed(() => [
   { slot: 'weighting', label: t('riskFactors.tabs.weight'), icon: 'i-lucide-activity' },
@@ -550,13 +573,39 @@ onMounted(async () => {
   }))
 })
 
-// Computeds
 const filteredStandardFactors = computed(() => {
   if (!searchQuery.value) return store.standardFactors
-  const query = searchQuery.value.toLowerCase()
-  return store.standardFactors.filter(
-    f => f.name.toLowerCase().includes(query) || f.description.toLowerCase().includes(query)
-  )
+  const query = searchQuery.value.toLowerCase().trim()
+  if (!query) return store.standardFactors
+
+  const matched = store.standardFactors.filter(f => {
+    const nameMatch = f.name?.toLowerCase().includes(query)
+    const descMatch = f.description?.toLowerCase().includes(query)
+    return nameMatch || descMatch
+  })
+
+  return matched.slice().sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase()
+    const nameB = (b.name || '').toLowerCase()
+
+    const getScore = (name: string, desc: string) => {
+      if (name.startsWith(query)) return 1
+      const words = name.split(/\s+/)
+      if (words.some(w => w.startsWith(query))) return 2
+      if (name.includes(query)) return 3
+      if ((desc || '').toLowerCase().startsWith(query)) return 4
+      return 5
+    }
+
+    const scoreA = getScore(nameA, a.description)
+    const scoreB = getScore(nameB, b.description)
+
+    if (scoreA !== scoreB) {
+      return scoreA - scoreB
+    }
+
+    return nameA.localeCompare(nameB)
+  })
 })
 
 const parsedGuidelines = computed(() => {

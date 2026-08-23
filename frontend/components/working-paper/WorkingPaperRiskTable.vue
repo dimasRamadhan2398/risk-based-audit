@@ -2,7 +2,7 @@
     <div class="mt-4 space-y-6">
         <UCard class="shadow-sm mt-10">
         
-        <UTable :data="store.filteredDataF02" :columns="store.columnsF02" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }">
+        <TableEntities :data="store.filteredDataF02" :columns="store.columnsF02" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }">
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
                     <UButton 
@@ -23,7 +23,7 @@
                     />
                 </div>
             </template>
-        </UTable>
+        </TableEntities>
     </UCard>
     </div>
 </template>

@@ -22,7 +22,7 @@
           <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
             {{ t('strategicPlan.vmg.emptyTitle') }}
           </h4>
-          <p class="text-sm text-[var(--text-muted)] max-w-md">
+          <p class="text-sm text-[var(--text-muted)] w-full text-center">
             {{ t('strategicPlan.vmg.emptySubtitle') }}
           </p>
         </div>

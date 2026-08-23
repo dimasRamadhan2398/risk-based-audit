@@ -2,7 +2,11 @@ package controllers
 
 import (
 	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"audit-service/models"
 	pkgErrors "audit-service/pkg/errors"
@@ -362,6 +366,32 @@ func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 	if result.FileUrl == "" {
 		response.NotFound(c, "Audit charter file was not found")
 		return
+	}
+
+	// Handle local uploads by directly serving the file attachment
+	fileUrl := result.FileUrl
+	if strings.Contains(fileUrl, "/uploads/") || strings.HasPrefix(fileUrl, "uploads/") {
+		var relativePath string
+		if idx := strings.Index(fileUrl, "/uploads/"); idx != -1 {
+			relativePath = fileUrl[idx+len("/uploads/"):]
+		} else {
+			relativePath = strings.TrimPrefix(fileUrl, "uploads/")
+		}
+
+		decodedPath, err := url.PathUnescape(relativePath)
+		if err == nil {
+			relativePath = decodedPath
+		}
+
+		filePath := filepath.Join("uploads", relativePath)
+		if _, err := os.Stat(filePath); err == nil {
+			downloadName := result.Filename
+			if downloadName == "" {
+				downloadName = filepath.Base(filePath)
+			}
+			c.FileAttachment(filePath, downloadName)
+			return
+		}
 	}
 
 	c.Redirect(http.StatusTemporaryRedirect, result.FileUrl)

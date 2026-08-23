@@ -1,6 +1,6 @@
 <template>
     <UCard class="rounded-xl shadow overflow-y-auto" variant="soft" color="primary">
-      <UTable
+      <TableEntities
         :data="store.filteredPlans"    
         :columns="store.columns"
         :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data rencana audit.' }"
@@ -8,14 +8,14 @@
       >
         <template #activity-cell="{ row }">
           <div class="py-2">
-            <div class="font-bold text-gray-600">{{ row.original.code }}</div>
+            <div class="font-bold text-gray-600 dark:text-gray-300">{{ (row.original || row)?.code || '-' }}</div>
           </div>
         </template>
 
         <template #department-cell="{ row }">
           <div class="flex gap-1 flex-wrap">
             <UBadge 
-              v-for="dept in getRowDepartments(row.original)" 
+              v-for="dept in getRowDepartments(row.original || row)" 
               :key="dept"
               color="neutral"
               variant="soft"
@@ -29,9 +29,9 @@
         <template #riskName-cell="{ row }">
           <div class="flex flex-col gap-1">
             <div 
-              v-for="(act, idx) in row.original.activities" 
+              v-for="(act, idx) in ((row.original || row)?.activities || [])" 
               :key="idx"
-              class="text-md font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
+              class="text-md font-semibold text-gray-700 dark:text-white truncate max-w-[200px]"
               :title="act.riskName"
             >
               {{ act.riskName || '-' }}
@@ -42,7 +42,7 @@
         <template #riskLevel-cell="{ row }">
           <div class="flex gap-1 flex-wrap">
             <UBadge 
-              v-for="(act, idx) in row.original.activities" 
+              v-for="(act, idx) in ((row.original || row)?.activities || [])" 
               :key="idx"
               :color="store.getRiskLevelColor ? store.getRiskLevelColor(act.riskLevel) : 'neutral'"
               variant="soft"
@@ -54,13 +54,13 @@
         </template>
 
         <template #timeline-cell="{ row }">
-          <div class="font-bold text-primary-600 mr-1">{{ row.original.year }}</div>
-          <UBadge v-for="q in row.original.quarters" :key="q" color="primary" variant="subtle" size="md">
+          <div class="font-bold text-primary-600 mr-1">{{ (row.original || row)?.year }}</div>
+          <UBadge v-for="q in ((row.original || row)?.quarters || [])" :key="q" color="primary" variant="subtle" size="md">
             {{ q }}
           </UBadge>
           <div class="flex gap-1 flex-wrap mt-1">
             <UBadge 
-              v-for="idx in row.original.selectedMonths.slice().sort((a, b) => a - b)" 
+              v-for="idx in (((row.original || row)?.selectedMonths || []).slice().sort((a: number, b: number) => a - b))" 
               :key="idx"
               color="primary" 
               variant="outline" 
@@ -75,10 +75,10 @@
           <UProgress v-model="store.progressAudit" color="secondary" status />
         </template>
 
-        <template #status-data="{ row }">
+        <template #status-cell="{ row }">
           <span 
             class="w-2.5 h-2.5 rounded-full inline-block"
-            :class="store.getStatusColor(row.original.status)"
+            :class="store.getStatusColor((row.original || row)?.status)"
           ></span>
         </template>
 
@@ -89,7 +89,7 @@
               color="primary"
               variant="ghost"
               size="lg"
-              @click="store.openViewModal(row.original)"
+              @click="store.openViewModal(row.original || row)"
             />
 
             <span class="text-gray-300">|</span>
@@ -99,22 +99,22 @@
               color="primary"
               variant="ghost"
               size="lg"
-              @click="store.handleEdit(row.original)"
+              @click="store.openEditModal(row.original || row)"
             />
 
             <span class="text-gray-300">|</span>
 
             <UButton
-              label="Delete"
+              label="Hapus"
               color="error"
               variant="ghost"
               size="lg"
-              @click="store.handleDelete(row.original.id)"
+              @click="store.openDeleteModal((row.original || row)?.id)"
             />
           </div>
         </template>
       
-      </UTable>
+      </TableEntities>
     </UCard>
 </template>
 
