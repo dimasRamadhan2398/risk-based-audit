@@ -1,6 +1,6 @@
 <template>
   <UCard class="rounded-xl shadow overflow-y-auto" variant="soft" color="primary">
-    <UTable
+    <TableEntities
       :data="store.filteredPlans"    
       :columns="columns"
       :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: t('auditActivityPlan.emptyState') }"
@@ -78,8 +78,7 @@
           />
         </div>
       </template>
-      
-    </UTable>
+    </TableEntities>
     <ActivityPlanViewModal />
   </UCard>
   

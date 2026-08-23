@@ -1674,5 +1674,21 @@ export default defineAppConfig({
         empty: 'py-6 text-center text-sm text-gray-500 dark:text-white',
       }
     },
+    dashboardSidebar: {
+      slots: {
+        body: 'p-3 flex flex-col justify-start gap-y-2',
+        header: 'px-4 py-3 border-b border-gray-200 dark:border-gray-800',
+        footer: 'p-0'
+      }
+    },
+    toast: {
+      slots: {
+        root: 'relative group overflow-hidden bg-white dark:bg-neutral-900 shadow-xl rounded-xl ring-1 ring-neutral-200 dark:ring-neutral-800 p-4 flex gap-3 focus:outline-none',
+        title: 'text-sm font-semibold text-neutral-900 dark:text-white',
+        description: 'text-xs text-neutral-500 dark:text-neutral-400 mt-0.5',
+        icon: 'shrink-0 size-5 text-emerald-500 dark:text-emerald-400',
+        progress: 'hidden !important',
+      }
+    },
   },
 });

@@ -177,7 +177,7 @@ const handleRemind = (audit: any) => {
 
     <!-- Table Section -->
     <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
-      <UTable :columns="columns" :data="filteredAudits" :ui="{ th: 'bg-gray-50 dark:bg-gray-800/50' }">
+      <TableEntities :columns="columns" :data="filteredAudits">
         <template #name-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-900 dark:text-white">{{ (row.original || row).name }}</span>
@@ -219,17 +219,7 @@ const handleRemind = (audit: any) => {
             @click="openDetail(row)"
           />
         </template>
-      </UTable>
-
-      <!-- Pagination Placeholder -->
-      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" size="md" />
-          <span class="text-sm font-medium">1 / 1</span>
-          <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="md" />
-        </div>
-        <span class="text-md font-medium text-gray-500">{{ t('auditExecution.table.showing', { start: 1, end: filteredAudits.length, total: auditExecutions.length }) }}</span>
-      </div>
+      </TableEntities>
     </div>
 
     <!-- Detail Modal -->

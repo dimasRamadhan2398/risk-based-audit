@@ -168,6 +168,7 @@ definePageMeta({
 const authStore = useAuthStore()
 const router = useRouter()
 const { getDeviceFingerprint } = useDeviceFingerprint()
+const { t } = useI18n()
 
 // Collect device info on mount
 const deviceInfo = ref({ deviceFingerprint: '', deviceName: 'Web Browser', deviceType: 'desktop' })
@@ -219,12 +220,31 @@ const handleLogin = async (event: FormSubmitEvent<Schema>) => {
     }
   }
   catch (err: any) {
-    let errMsg = err.message || 'Terjadi kesalahan saat login. Coba lagi.'
-    if (errMsg.includes('Failed to fetch') || errMsg.includes('fetch failed')) {
-      errMsg = 'Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.'
-    } else if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized') || errMsg.toLowerCase().includes('invalid credentials')) {
-      errMsg = 'Username atau password salah.'
+    const status = err?.status ?? err?.statusCode ?? err?.response?.status
+    const apiMsg: string = err?.data?.error?.message || err?.data?.message || err?.message || ''
+
+    let errMsg: string
+
+    if (status === 404 || apiMsg.toLowerCase().includes('endpoint_not_found') || apiMsg.toLowerCase().includes('not found')) {
+      // Backend route not found — likely misconfigured proxy or wrong URL
+      errMsg = t('auth.login.errors.notFound')
+    } else if (status === 502 || status === 503 || status === 504) {
+      // Gateway/proxy or service unavailable
+      errMsg = t('auth.login.errors.serviceUnavailable')
+    } else if (status === 500) {
+      errMsg = t('auth.login.errors.serverError')
+    } else if (status === 401 || status === 403 || apiMsg.toLowerCase().includes('invalid credentials') || apiMsg.toLowerCase().includes('unauthorized')) {
+      errMsg = t('auth.login.errors.invalidCredentials')
+    } else if (status === 429) {
+      errMsg = t('auth.login.errors.tooManyRequests')
+    } else if (apiMsg.includes('Failed to fetch') || apiMsg.includes('fetch failed') || apiMsg.includes('ECONNREFUSED') || apiMsg.includes('NetworkError')) {
+      errMsg = t('auth.login.errors.networkError')
+    } else if (apiMsg) {
+      errMsg = apiMsg
+    } else {
+      errMsg = t('auth.login.errors.generic')
     }
+
     error.value = errMsg
   }
   finally {

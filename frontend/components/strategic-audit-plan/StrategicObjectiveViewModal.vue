@@ -142,34 +142,56 @@
         </div>
 
         <!-- Quarterly Breakdown Table (if Quartal) -->
-        <div v-if="objective.periodType === 'Quartal'" class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-          <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-lucide-calendar-days" class="w-4 h-4 text-primary-500" />
-            {{ t('strategicPlan.viewModal.quarterlyBreakdownTitle') }}
-          </h3>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div 
-              v-for="q in ['Q1', 'Q2', 'Q3', 'Q4']" 
-              :key="q"
-              :class="[
-                'p-3 rounded-xl border transition-all',
-                objective.selectedPeriod === q 
-                  ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/20 ring-1 ring-primary-500' 
-                  : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
-              ]"
-            >
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-md text-gray-900 dark:text-white">{{ q }}</span>
-                <span v-if="objective.selectedPeriod === q" class="text-[10px] font-bold text-primary-600 dark:text-primary-400">{{ t('strategicPlan.viewModal.selected') }}</span>
-              </div>
-              <div class="mt-2 space-y-1 text-md">
-                <div class="flex justify-between text-gray-500 dark:text-gray-400">
-                  <span>{{ t('strategicPlan.viewModal.target') }}:</span>
-                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{ objective.target || '90' }} {{ objective.unit }}</span>
+        <div v-if="objective.periodType === 'Quartal'" class="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <UIcon name="i-lucide-calendar-days" class="w-4 h-4 text-primary-500" />
+              {{ t('strategicPlan.viewModal.quarterlyBreakdownTitle') }}
+            </h3>
+            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+              {{ quarterlyYears.length * 4 }} Quartals ({{ objective.yearStart }} - {{ objective.yearEnd }})
+            </span>
+          </div>
+
+          <div v-for="yr in quarterlyYears" :key="yr" class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                Tahun {{ yr }}
+              </span>
+              <span v-if="String(yr) === String(currentYear)" class="px-1.5 py-0.5 text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 rounded font-semibold">
+                {{ t('strategicPlan.viewModal.current') }}
+              </span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div 
+                v-for="q in ['Q1', 'Q2', 'Q3', 'Q4']" 
+                :key="`${q}-${yr}`"
+                :class="[
+                  'p-3 rounded-xl border transition-all',
+                  isQuarterSelected(q, yr)
+                    ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/20 ring-1 ring-primary-500' 
+                    : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
+                ]"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-md text-gray-900 dark:text-white">{{ q }}</span>
+                  <span v-if="isQuarterSelected(q, yr)" class="text-[10px] font-bold text-primary-600 dark:text-primary-400">
+                    {{ t('strategicPlan.viewModal.selected') }}
+                  </span>
                 </div>
-                <div class="flex justify-between text-gray-500 dark:text-gray-400">
-                  <span>{{ t('strategicPlan.viewModal.actual') }}:</span>
-                  <span class="font-semibold text-gray-800 dark:text-gray-200">{{ objective.selectedPeriod === q ? (objective.actual || '-') : '-' }} {{ objective.unit }}</span>
+                <div class="mt-2 space-y-1 text-md">
+                  <div class="flex justify-between text-gray-500 dark:text-gray-400">
+                    <span>{{ t('strategicPlan.viewModal.target') }}:</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">
+                      {{ getQuarterTarget(q, yr) !== '-' ? getQuarterTarget(q, yr) + ' ' + objective.unit : '-' }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between text-gray-500 dark:text-gray-400">
+                    <span>{{ t('strategicPlan.viewModal.actual') }}:</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">
+                      {{ getQuarterActual(q, yr) !== '-' ? getQuarterActual(q, yr) + ' ' + objective.unit : '-' }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -210,17 +232,80 @@ const formatStatus = (status: string) => {
   return status
 }
 
+const quarterlyYears = computed(() => {
+  if (!objective.value) return []
+  const startY = objective.value.yearStart || currentYear
+  const endY = objective.value.yearEnd || (startY + 4)
+  const years = []
+  for (let yr = startY; yr <= endY; yr++) {
+    years.push(yr)
+  }
+  return years
+})
+
+const getQuarterTarget = (q: string, yr: number) => {
+  if (!objective.value) return '-'
+  const key = `${q}-${yr}`
+  const targets = objective.value.kpiTargets || {}
+  if (targets[key] !== undefined && targets[key] !== '') return String(targets[key])
+  if (targets[q] !== undefined && targets[q] !== '') return String(targets[q])
+  return '-'
+}
+
+const getQuarterActual = (q: string, yr: number) => {
+  if (!objective.value) return '-'
+  const key = `${q}-${yr}`
+  const actuals = objective.value.kpiActuals || {}
+  if (actuals[key] !== undefined && actuals[key] !== '') return String(actuals[key])
+  if (actuals[q] !== undefined && actuals[q] !== '') return String(actuals[q])
+  return '-'
+}
+
+const isQuarterSelected = (q: string, yr: number) => {
+  if (!objective.value) return false
+  const key = `${q}-${yr}`
+  return objective.value.selectedPeriod === key || objective.value.selectedPeriod === q
+}
+
 const multiYearData = computed(() => {
   if (!objective.value) return []
-  const startY = objective.value.yearStart || 2024
-  const endY = objective.value.yearEnd || 2028
+  const startY = objective.value.yearStart || currentYear
+  const endY = objective.value.yearEnd || (startY + 4)
   const targets = objective.value.kpiTargets || {}
   const actuals = objective.value.kpiActuals || {}
 
   const rows = []
   for (let yr = startY; yr <= endY; yr++) {
-    const targetVal = targets[yr] !== undefined && targets[yr] !== '' ? String(targets[yr]) : (yr === 2026 ? objective.value.target || '' : '')
-    const actualVal = actuals[yr] !== undefined && actuals[yr] !== '' ? String(actuals[yr]) : (yr === 2026 ? objective.value.actual || '' : '')
+    let targetVal = targets[yr] !== undefined && targets[yr] !== '' ? String(targets[yr]) : ''
+    let actualVal = actuals[yr] !== undefined && actuals[yr] !== '' ? String(actuals[yr]) : ''
+
+    if (objective.value.periodType === 'Quartal' && (!targetVal || !actualVal)) {
+      const qKeys = [`Q1-${yr}`, `Q2-${yr}`, `Q3-${yr}`, `Q4-${yr}`]
+      if (!targetVal) {
+        for (const qk of qKeys) {
+          if (targets[qk] !== undefined && targets[qk] !== '') {
+            targetVal = String(targets[qk])
+            break
+          }
+        }
+      }
+      if (!actualVal) {
+        for (let i = qKeys.length - 1; i >= 0; i--) {
+          const qk = qKeys[i]
+          if (actuals[qk] !== undefined && actuals[qk] !== '') {
+            actualVal = String(actuals[qk])
+            break
+          }
+        }
+      }
+    }
+
+    if (!targetVal && yr === currentYear) {
+      targetVal = objective.value.target || ''
+    }
+    if (!actualVal && yr === currentYear) {
+      actualVal = objective.value.actual || ''
+    }
 
     const targetNum = parseFloat(targetVal)
     const actualNum = parseFloat(actualVal)
@@ -239,7 +324,7 @@ const multiYearData = computed(() => {
       if (ratio >= 100) status = 'Good'
       else if (ratio >= 70) status = 'Moderate'
       else status = 'Poor'
-    } else if (targetVal !== '' && actualVal === '') {
+    } else if (targetVal !== '' && (actualVal === '' || actualVal === '-')) {
       status = 'Planned'
     }
 

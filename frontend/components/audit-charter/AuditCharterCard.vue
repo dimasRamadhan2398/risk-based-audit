@@ -30,6 +30,7 @@
         </p>
       </div>
       <UButton
+        v-if="canManageCharter"
         :label="t('auditCharter.card.uploadNew')"
         @click="() => { store.showModal = true }"
         color="primary"
@@ -52,6 +53,7 @@
             {{ t('auditCharter.card.activeTitle') }}
           </h1>
           <UButton
+            v-if="canManageCharter"
             :label="t('auditCharter.card.addCharter')"
             @click="() => { store.showModal = true }"
             color="primary"
@@ -119,6 +121,7 @@
             :label="t('auditCharter.card.download')"
           />
           <UButton
+            v-if="canManageCharter"
             :label="t('auditCharter.card.edit')"
             @click="store.handleEdit(store.activeCharter)"
             color="primary"
@@ -137,6 +140,7 @@
             {{ t('auditCharter.card.noActiveCharterWarning') }}
           </p>
           <UButton
+            v-if="canManageCharter"
             :label="t('auditCharter.card.addCharter')"
             @click="() => { store.showModal = true }"
             color="primary"
@@ -203,7 +207,7 @@
               </span>
             </template>
             <template #actions-cell="{ row }">
-              <div class="flex justify-end gap-2">
+              <div v-if="canManageCharter" class="flex justify-end gap-2">
                 <UButton
                   :label="t('auditCharter.card.edit')"
                   size="md"
@@ -232,9 +236,11 @@
 <script setup lang="ts">
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
 const store = useCharterStore()
+const { canManageCharter } = useRbac()
 
 const confirmDelete = async (item: any) => {
   if (confirm(t('auditCharter.card.deleteConfirm', { title: item.title, version: item.version }))) {

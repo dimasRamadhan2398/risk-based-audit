@@ -2,12 +2,11 @@
   <div class="min-h-screen flex">
     <UDashboardGroup>
       <UDashboardSidebar 
-        resizeable
-        :ui="{
-          body: 'p-3 flex flex-col justify-start gap-y-2',
-          header: 'px-4 py-3 border-b border-gray-200 dark:border-gray-800',
-          footer: 'p-0'
-        }"
+        id="settings-sidebar"
+        resizable
+        :min-size="12"
+        :default-size="17"
+        :max-size="22"
       >
         <template #header>
           <div>

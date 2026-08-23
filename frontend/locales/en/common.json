@@ -5,7 +5,16 @@
       "subtitle": "Risk-Based Internal Audit System",
       "button": "Sign in",
       "link": "Sign in",
-      "error": "Invalid email or password"
+      "error": "Invalid email or password",
+      "errors": {
+        "notFound": "Authentication service not found (404). Please contact the system administrator.",
+        "serviceUnavailable": "Server is currently unreachable (502/503). Please make sure the backend service is running and try again.",
+        "serverError": "An internal server error occurred (500). Please try again in a few moments.",
+        "invalidCredentials": "Incorrect username or password. Please check and try again.",
+        "tooManyRequests": "Too many login attempts. Please wait a few moments before trying again.",
+        "networkError": "Failed to connect to the server. Please ensure your internet connection is active and the server is running.",
+        "generic": "An error occurred during login. Please try again."
+      }
     },
     "register": {
       "title": "Create your account",

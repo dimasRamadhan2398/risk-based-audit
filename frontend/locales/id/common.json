@@ -5,7 +5,16 @@
       "subtitle": "Sistem Audit Internal Berbasis Risiko",
       "button": "Masuk",
       "link": "Masuk",
-      "error": "Email atau password salah"
+      "error": "Email atau password salah",
+      "errors": {
+        "notFound": "Layanan autentikasi tidak ditemukan (404). Hubungi administrator sistem.",
+        "serviceUnavailable": "Server sedang tidak dapat diakses (502/503). Pastikan layanan backend sedang berjalan dan coba lagi.",
+        "serverError": "Terjadi kesalahan internal pada server (500). Coba lagi dalam beberapa saat.",
+        "invalidCredentials": "Username atau password salah. Periksa kembali dan coba lagi.",
+        "tooManyRequests": "Terlalu banyak percobaan login. Silakan tunggu beberapa saat sebelum mencoba kembali.",
+        "networkError": "Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.",
+        "generic": "Terjadi kesalahan saat login. Coba lagi."
+      }
     },
     "register": {
       "title": "Buat akun Anda",

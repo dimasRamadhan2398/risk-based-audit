@@ -249,6 +249,7 @@
                 <p class="text-md text-gray-500 dark:text-gray-400">{{ t('riskAppetite.statements.subtitle') }}</p>
               </div>
               <UButton 
+                v-if="canEditRiskAppetite"
                 :label="t('riskAppetite.statements.newBtn')" 
                 icon="i-heroicons-plus" 
                 color="warning" 
@@ -294,7 +295,7 @@
                     </p>
                   </div>
 
-                  <div class="flex gap-1.5 shrink-0">
+                  <div v-if="canEditRiskAppetite" class="flex gap-1.5 shrink-0">
                     <UButton 
                       icon="i-heroicons-pencil-square" 
                       color="primary" 
@@ -386,12 +387,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import { useRiskAppetiteStore, type RiskAppetite } from '~/stores/risk-appetite'
 import { RiskLevel } from '~/types/risk'
 
 const { t } = useI18n()
+const { canEditRiskAppetite } = useRbac()
 const profileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()
 const appetiteStore = useRiskAppetiteStore()

@@ -25,4 +25,4 @@ services:
 networks:
   rb_audit_network:
     name: rb_audit_network
-    external: true
+

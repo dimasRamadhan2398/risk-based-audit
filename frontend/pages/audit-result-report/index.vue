@@ -6,6 +6,7 @@
         <p class="text-gray-500">Finalize and publish audit results and findings</p>
       </div>
       <UButton
+        v-if="canImportPlanDocs"
         color="neutral"
         variant="outline"
         icon="i-lucide-upload"
@@ -52,7 +53,7 @@
     <!-- Main Content -->
     <div v-if="store.hasSelectedAssignmentLetter">
       <UCard v-if="store.filteredReports.length > 0" class="overflow-hidden overflow-x-auto">
-        <UTable :data="store.filteredReports" :columns="columns">
+        <TableEntities :data="store.filteredReports" :columns="columns">
           <template #reportNumber-cell="{ row }">
             <span class="font-mono text-md font-semibold text-primary-600 dark:text-primary-400">
               {{ row.original.reportNumber || (row.original as any).report_number || '-' }}
@@ -161,7 +162,7 @@
               />
             </div>
           </template>
-        </UTable>
+        </TableEntities>
       </UCard>
 
       <div v-else class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
@@ -196,8 +197,10 @@
 <script setup lang="ts">
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import ResultReportForm from '~/components/audit-result-report/ResultReportForm.vue'
+import { useRbac } from '~/composables/useRbac'
 
 const store = useAuditResultReportStore()
+const { canImportPlanDocs } = useRbac()
 
 const columns = [
   { accessorKey: 'reportNumber', header: 'No. LHA / ID' },

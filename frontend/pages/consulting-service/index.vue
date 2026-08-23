@@ -106,7 +106,7 @@
 
     <!-- Data Table -->
     <UCard class="shadow-md overflow-hidden">
-      <UTable :data="filteredServices" :columns="columns" class="w-full">
+      <TableEntities :data="filteredServices" :columns="columns" class="w-full">
         <!-- Status Cell -->
         <template #status-cell="{ row }">
           <UBadge :color="store.getStatusColor((row.original as any).status)" variant="subtle" size="md">
@@ -160,7 +160,7 @@
             />
           </div>
         </template>
-      </UTable>
+      </TableEntities>
     </UCard>
 
     <!-- Form Modal -->
