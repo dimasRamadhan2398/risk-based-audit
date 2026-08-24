@@ -126,14 +126,10 @@ candidate_models = {
     'Logistic Regression': LogisticRegression(max_iter=1000, C=2.0, random_state=42)
 }
 
+# Build a fresh preprocessing pipeline.
+# A new preprocessor is created for each model so OneHotEncoder
+# and StandardScaler are fitted only on the training fold during CV.
 def build_preprocessor():
-    """
-    Build a fresh preprocessing pipeline.
-
-    A new preprocessor is created for each model so OneHotEncoder
-    and StandardScaler are fitted only on the training fold during CV.
-    """
-
     return ColumnTransformer(
         transformers=[
             (
@@ -152,6 +148,16 @@ def build_preprocessor():
         ],
         remainder='drop'
     )
+    
+# Complete ML pipeline: raw dataframe -> encoding -> scaling -> classifier
+def build_model_pipeline(model):
+    return Pipeline(
+        steps=[
+            ('preprocessor', build_preprocessor()),
+            ('scaler', StandardScaler()),
+            ('classifier', model)
+        ]
+    )
 
 # Multi-Model Evaluation Loop
 for target_name, config in targets_config.items():
@@ -167,10 +173,10 @@ for target_name, config in targets_config.items():
         X, y, test_size=0.2, random_state=42, stratify=y
     )
     
-    # Feature Scaling (StandardScaler)
-    sc = StandardScaler()
-    X_train_scaled = sc.fit_transform(X_train)
-    X_test_scaled = sc.transform(X_test)
+    # # Feature Scaling (StandardScaler)
+    # sc = StandardScaler()
+    # X_train_scaled = sc.fit_transform(X_train)
+    # X_test_scaled = sc.transform(X_test)
     
     # Stratified 5-Fold Cross Validation
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -179,37 +185,69 @@ for target_name, config in targets_config.items():
     trained_models = {}
     
     for m_name, model in candidate_models.items():
-        # Cross-validation on training set
-        cv_scores = cross_val_score(model, X_train_scaled, y_train, cv=skf, scoring='accuracy')
-        
-        # Fit on training set and predict on test set
-        model.fit(X_train_scaled, y_train)
-        y_pred = model.predict(X_test_scaled)
-        
-        test_acc = accuracy_score(y_test, y_pred)
-        weighted_f1 = f1_score(y_test, y_pred, average='weighted')
-        
+        print(f"\nEvaluating: {m_name}")
+
+        # Build a fresh pipeline for every model.
+        # Preprocessing is performed INSIDE each CV fold.
+        pipeline = build_model_pipeline(model)
+
+        scoring = {
+            'accuracy': 'accuracy',
+            'weighted_f1': 'f1_weighted'
+        }
+
+        cv_results = cross_validate(
+            pipeline,
+            X_train,
+            y_train,
+            cv=skf,
+            scoring=scoring,
+            n_jobs=-1,
+            return_train_score=False
+        )
+
+        # Fit complete pipeline using training set only.
+        pipeline.fit(X_train, y_train)
+
+        # Test data remains untouched until this point.
+        y_pred = pipeline.predict(X_test)
+
+        test_acc = accuracy_score(
+            y_test,
+            y_pred
+        )
+
+        weighted_f1 = f1_score(
+            y_test,
+            y_pred,
+            average='weighted'
+        )
+
         results.append({
             'model_name': m_name,
             'test_acc': test_acc,
             'weighted_f1': weighted_f1,
-            'cv_mean': cv_scores.mean(),
-            'cv_std': cv_scores.std(),
+            'cv_mean': cv_results['test_accuracy'].mean(),
+            'cv_std': cv_results['test_accuracy'].std(),
+            'cv_f1_mean': cv_results['test_weighted_f1'].mean(),
+            'cv_f1_std': cv_results['test_weighted_f1'].std(),
             'y_pred': y_pred
         })
-        trained_models[m_name] = model
+
+        trained_models[m_name] = pipeline
         
     # Sort results by CV Mean and Test Accuracy
-    results_sorted = sorted(results, key=lambda r: (r['cv_mean'], r['test_acc']), reverse=True)
+    results_sorted = sorted(results, key=lambda r: (r['cv_f1_mean'], r['cv_mean']), reverse=True)
     winner = results_sorted[0]
     
     print("\n--- Performance Leaderboard ---")
-    print(f"{'Rank':<5} | {'Model Name':<20} | {'Test Accuracy':<15} | {'Weighted F1':<13} | {'5-Fold CV Mean ± Std':<22}")
-    print("-" * 82)
+    print(f"{'Rank':<5} | {'Model Name':<20} | {'Test Accuracy':<10} | {'Test F1':<10} | {'CV Accuracy':<18} | {'CV Weighted F1':<18}")
+    print("-" * 100)
     for idx, r in enumerate(results_sorted):
-        print(f"{idx+1:<5} | {r['model_name']:<20} | {r['test_acc']*100:>6.2f} %        | {r['weighted_f1']:>8.4f}    | {r['cv_mean']*100:>6.2f}% ± {r['cv_std']*100:.2f}%")
+        print(f"{idx + 1:<5} | {r['model_name']:<20} | {r['test_acc'] * 100:>6.2f}%   | {r['weighted_f1']:>8.4f} | {r['cv_mean'] * 100:>6.2f}% ± {r['cv_std'] * 100:.2f}% | {r['cv_f1_mean']:>7.4f} ± {r['cv_f1_std']:.4f}")
         
-    print(f"\n[WINNER] Winner Model: {winner['model_name']} (CV Mean: {winner['cv_mean']*100:.2f}%, Test Acc: {winner['test_acc']*100:.2f}%)")
+    print(f"\n[WINNER] Winner Model: {winner['model_name']}")
+    print(f"CV Weighted F1: {winner['cv_f1_mean']:.4f} | CV Accuracy: {winner['cv_mean']:.4f} | Test Accuracy: {winner['test_acc']:.4f}")
     
     # Detailed Evaluation for Winner Model
     print(f"\n--- Detailed Classification Report for Winner ({winner['model_name']}) ---")
