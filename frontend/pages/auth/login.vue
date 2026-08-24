@@ -192,7 +192,6 @@ const { t, locale, setLocale } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 const { getDeviceFingerprint } = useDeviceFingerprint()
-const { t } = useI18n()
 
 // Collect device info on mount
 const deviceInfo = ref({ deviceFingerprint: '', deviceName: 'Web Browser', deviceType: 'desktop' })

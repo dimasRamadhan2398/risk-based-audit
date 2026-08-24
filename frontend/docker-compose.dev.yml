@@ -1,11 +1,11 @@
 services:
-  frontend:
+  frontend-dev:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: rbia-frontend-prod
+    container_name: rbia-frontend-dev
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - NODE_ENV=production
       - HOST=0.0.0.0

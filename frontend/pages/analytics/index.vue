@@ -180,13 +180,7 @@ const loadRealCache = (): boolean => {
 }
 
 const route = useRoute()
-const activeTab = ref('xgboost')
-const tabItems = [
-  { key: 'xgboost', label: 'Risk Scoring ML', icon: 'i-heroicons-chart-bar-square' },
-  { key: 'isolation', label: 'Anomaly Detection ML', icon: 'i-heroicons-shield-exclamation' },
-  { key: 'nlp', label: 'IndoBERT NLP', icon: 'i-heroicons-document-magnifying-glass' },
-  { key: 'timeseries', label: 'KPI PyTorch LSTM', icon: 'i-heroicons-arrow-trending-up' },
-]
+
 
 // ─── Fetch Initial Batch Predictions & Automated Sync ───────────────────────
 const fetchAnalytics = async () => {
@@ -475,7 +469,10 @@ const availableAnomalyTypes = computed(() => {
 
 watchEffect(() => {
   if ((selectedAnomalyType.value === 'All' || !selectedAnomalyType.value || !availableAnomalyTypes.value.includes(selectedAnomalyType.value)) && availableAnomalyTypes.value.length > 0) {
-    selectedAnomalyType.value = availableAnomalyTypes.value[0]
+    const firstType = availableAnomalyTypes.value[0]
+    if (firstType) {
+      selectedAnomalyType.value = firstType
+    }
   }
 })
 
@@ -503,7 +500,13 @@ const getScatterChartForType = (typeFilter: string) => {
     }
   })
 
-  const config = anomalyTypeConfigs.value[typeFilter] || anomalyTypeConfigs.value['Transaction']
+  const defaultConfig: AnomalyTypeConfig = {
+    xAxisTitle: t('analytics.isolation.anomalyTypes.transactionXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.transactionUnit'),
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
+  }
+  const config = anomalyTypeConfigs.value[typeFilter] || anomalyTypeConfigs.value['Transaction'] || defaultConfig
   const colors = config.colors
 
   return {

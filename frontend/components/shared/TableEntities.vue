@@ -4,13 +4,13 @@
     <div class="overflow-x-auto rounded-xl border border-[var(--border-main)] bg-[var(--bg-main)] shadow-xs">
       <UTable
         :data="paginatedData"
-        :columns="normalizedColumns"
+        :columns="(normalizedColumns as any)"
         :loading="loading"
         :ui="mergedUi"
         class="w-full"
       >
         <!-- Header slots pass-through: support ${col.key}-header, ${col.key}-header-data, or custom slot -->
-        <template
+        <!-- <template
           v-for="col in normalizedColumns"
           :key="`header-${col.id}`"
           #[`${col.id}-header`]="headerProps"
@@ -21,10 +21,10 @@
             v-bind="headerProps"
           />
           <span v-else>{{ col.label }}</span>
-        </template>
+        </template> -->
 
         <!-- Cell slots pass-through: support ${col.key}-cell, ${col.key}-data, and ${col.key} -->
-        <template
+        <!-- <template
           v-for="col in normalizedColumns"
           :key="`cell-${col.id}`"
           #[`${col.id}-cell`]="cellProps"
@@ -40,7 +40,7 @@
             :cell="cellProps.cell"
           />
           <span v-else>{{ getCellValue(cellProps.row?.original, col) }}</span>
-        </template>
+        </template> -->
 
         <!-- Empty state slot -->
         <template #empty>
@@ -74,25 +74,23 @@
             </div>
           </slot>
         </template>
-
         <!-- Expanded slot -->
-        <template #expanded="expandedProps">
+        <!-- <template #expanded="expandedProps">
           <slot
             name="expanded"
             v-bind="expandedProps"
           />
-        </template>
+        </template> -->
 
         <!-- Caption slot -->
-        <template #caption="captionProps">
+        <!-- <template #caption="captionProps">
           <slot
             name="caption"
             v-bind="captionProps"
           />
-        </template>
-
+        </template> -->
         <!-- Footer slots pass-through -->
-        <template
+        <!-- <template
           v-for="col in normalizedColumns"
           :key="`footer-${col.id}`"
           #[`${col.id}-footer`]="footerProps"
@@ -102,7 +100,7 @@
             :name="getFooterSlotName(col)!"
             v-bind="footerProps"
           />
-        </template>
+        </template> -->
       </UTable>
     </div>
 
@@ -112,7 +110,7 @@
       class="flex flex-col sm:flex-row items-center justify-between gap-4 px-3 py-2.5"
     >
       <!-- Entry Counter & Page Size Selector -->
-      <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
+      <!-- <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
         <span>
           Showing <strong class="font-semibold text-[var(--text-main)]">{{ startItem }}</strong> to
           <strong class="font-semibold text-[var(--text-main)]">{{ endItem }}</strong> of
@@ -131,10 +129,10 @@
             class="w-20"
           />
         </div>
-      </div>
+      </div> -->
 
       <!-- UPagination Control -->
-      <UPagination
+     <UPagination
         v-if="totalItems > 0"
         v-model:page="currentPage"
         :items-per-page="perPage"
@@ -152,6 +150,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, useSlots } from 'vue'
+import { getPaginationRowModel } from '@tanstack/vue-table'
 
 defineOptions({ inheritAttrs: false })
 
@@ -223,8 +222,9 @@ const getNestedValue = (obj: unknown, path: string) => {
 }
 
 // Universal slot row helper: ensures entity properties, row.original, and TanStack row methods are seamlessly accessible
-const getSlotRow = (cellProps: Record<string, unknown>) => {
-  const row = cellProps?.row as Record<string, unknown> | undefined
+const getSlotRow = (cellProps: unknown) => {
+  const propsObj = cellProps as Record<string, unknown> | undefined
+  const row = propsObj?.row as Record<string, unknown> | undefined
   if (!row) return cellProps
   const original = row.original ?? row
 
@@ -245,12 +245,13 @@ const getSlotRow = (cellProps: Record<string, unknown>) => {
 }
 
 // Get slot value either from TanStack cell context or direct original property
-const getSlotValue = (cellProps: Record<string, unknown>, col: TableColumnItem | string) => {
-  if (typeof cellProps?.getValue === 'function') {
-    const val = (cellProps.getValue as () => unknown)()
+const getSlotValue = (cellProps: unknown, col: TableColumnItem | string) => {
+  const propsObj = cellProps as Record<string, unknown> | undefined
+  if (typeof propsObj?.getValue === 'function') {
+    const val = (propsObj.getValue as () => unknown)()
     if (val !== undefined && val !== null) return val
   }
-  const row = cellProps?.row as Record<string, unknown> | undefined
+  const row = propsObj?.row as Record<string, unknown> | undefined
   const original = row?.original ?? row
   const key = typeof col === 'string' ? col : (col.key || col.accessorKey || col.id)
   return key ? getNestedValue(original, key) : undefined

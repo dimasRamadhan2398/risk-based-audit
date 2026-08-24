@@ -5,8 +5,9 @@
         :columns="store.columns"
         :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data rencana audit.' }"
         class="w-full text-sm text-left"
+        :pagination="store.pagination"
       >
-        <template #activity-cell="{ row }">
+        <!-- <template #activity-cell="{ row }">
           <div class="py-2">
             <div class="font-bold text-gray-600 dark:text-gray-300">{{ (row.original || row)?.code || '-' }}</div>
           </div>
@@ -112,9 +113,10 @@
               @click="store.openDeleteModal((row.original || row)?.id)"
             />
           </div>
-        </template>
+        </template> -->
       
       </TableEntities>
+      
     </UCard>
 </template>
 

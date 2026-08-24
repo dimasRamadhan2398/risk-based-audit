@@ -1,15 +1,15 @@
 // stores/annual-plan.ts
-import type { TableColumn } from '@nuxt/ui';
+import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
 import { ref, reactive, computed, watch } from 'vue'
 import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
 import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import type { TablePagination } from '~/types/common'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
-
   const showModal = ref(false)
-  const errorMsg = ref("")
-  const progressAudit = ref(50);
+  const errorMsg = ref('')
+  const progressAudit = ref(50)
   const loading = ref(false)
   const validationErrors = reactive({
     activityDetail: '',
@@ -20,7 +20,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   // Constants
   const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const attachmentCategoryOptions = ['Plan', 'Evidence', 'Charter', 'Other']
-  const open = ref(false)
+  const paginations = ref<TablePagination>({
+    pageSize: 10,
+    currentIndex: 1,
+    totalPages: 1
+  })
 
   const approvalStepperItems = ref([
     {
@@ -44,24 +48,24 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       description: 'System',
       icon: 'i-lucide-check-circle'
     }
-  ]) as any;
+  ]) as any
 
   const handleDownload = (plan: any) => {
-    if (!plan) return;
+    if (!plan) return
 
-    const dataStr = JSON.stringify(plan, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const dataStr = JSON.stringify(plan, null, 2)
+    const blob = new Blob([dataStr], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
 
-    a.href = url;
-    a.download = `${plan.code}-annual-audit-plan.json`;
-    document.body.appendChild(a);
-    a.click();
+    a.href = url
+    a.download = `${plan.code}-annual-audit-plan.json`
+    document.body.appendChild(a)
+    a.click()
 
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  };
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  }
 
   const columns: TableColumn<AnnualAuditPlan>[] = [
     { accessorKey: 'activity', header: 'Activity' },
@@ -71,7 +75,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     { accessorKey: 'timeline', header: 'Timeline' },
     { accessorKey: 'progress', header: 'Progress' },
     { accessorKey: 'status', header: 'Status' },
-    { accessorKey: 'actions', header: 'Actions' },
+    { accessorKey: 'actions', header: 'Actions' }
   ]
 
   const isEditing = ref(false)
@@ -149,17 +153,19 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       ...p,
       code: p.code || p.plan_code || '',
       title: p.title || p.plan_title || '',
-      activities: Array.isArray(p.activities) ? p.activities.map((a: any) => ({
-        ...a,
-        name: a.name || a.title || '',
-        category: a.category || AuditCategory.ASSURANCE,
-        department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
-        involvedDepartments: a.involvedDepartments || a.involved_departments || [],
-        timelineText: a.timeline_text || a.timelineText || '',
-        auditorCount: a.auditor_count || a.auditorCount || 1,
-        totalMandays: a.total_mandays || a.totalMandays || 0,
-        supervisorName: a.supervisor_name || a.supervisorName || ''
-      })) : [],
+      activities: Array.isArray(p.activities)
+        ? p.activities.map((a: any) => ({
+            ...a,
+            name: a.name || a.title || '',
+            category: a.category || AuditCategory.ASSURANCE,
+            department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
+            involvedDepartments: a.involvedDepartments || a.involved_departments || [],
+            timelineText: a.timeline_text || a.timelineText || '',
+            auditorCount: a.auditor_count || a.auditorCount || 1,
+            totalMandays: a.total_mandays || a.totalMandays || 0,
+            supervisorName: a.supervisor_name || a.supervisorName || ''
+          }))
+        : [],
       selectedMonths: Array.isArray(p.selectedMonths) ? p.selectedMonths : (Array.isArray(p.selected_months) ? p.selected_months : []),
       quarters: Array.isArray(p.quarters) ? p.quarters : []
     }))
@@ -169,13 +175,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // --- COMPUTED: FILTER DATA ---
   const filteredPlans = computed(() => {
-    return (plans.value || []).filter(plan => {
-      const matchCode = !searchCode.value ||
-        (plan.code || '').toLowerCase().includes(searchCode.value.toLowerCase()) ||
-        (plan.activities || []).some(act => (act.name || '').toLowerCase().includes(searchCode.value.toLowerCase()))
+    return (plans.value || []).filter((plan) => {
+      const matchCode = !searchCode.value
+        || (plan.code || '').toLowerCase().includes(searchCode.value.toLowerCase())
+        || (plan.activities || []).some(act => (act.name || '').toLowerCase().includes(searchCode.value.toLowerCase()))
 
-      const matchDept = !selectedDepartment.value ||
-        (plan.activities || []).some(act => act.department === selectedDepartment.value)
+      const matchDept = !selectedDepartment.value
+        || (plan.activities || []).some(act => act.department === selectedDepartment.value)
 
       const matchStatus = !selectedStatus.value || plan.status === selectedStatus.value
 
@@ -296,7 +302,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const q1Count = form.selectedMonths.filter(m => m <= 2).length
     const totalCount = form.selectedMonths.length
     if (totalCount > 0 && (q1Count / totalCount) > 0.4 && totalCount > 3) {
-      return "Beban kerja Triwulan I terlalu tinggi (>40%). Mohon ratakan jadwal."
+      return 'Beban kerja Triwulan I terlalu tinggi (>40%). Mohon ratakan jadwal.'
     }
     return null
   })
@@ -320,7 +326,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.activities.push({
       name: '',
       category: AuditCategory.ASSURANCE,
-      department: AuditDepartment.IT,
+      department: AuditDepartment.IT
     })
   }
 
@@ -413,18 +419,29 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
-
+  watch(
+    () => filteredPlans.value.length,
+    (total) => {
+      const size = paginations.value.pageSize || 10
+      const pages = Math.ceil(total / size) || 1
+      paginations.value.totalPages = pages
+      if (paginations.value.currentIndex > pages) {
+        paginations.value.currentIndex = Math.max(1, pages)
+      }
+    },
+    { immediate: true }
+  )
 
   const fetchPlans = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/annual-audit-plans`, {
+      const response = await $fetch<Record<string, unknown>>(`${baseUrl}/annual-audit-plans`, {
         method: 'GET'
       })
-      if (response && response.data && Array.isArray(response.data.items) && response.data.items.length > 0) {
-        plans.value = normalizePlans(response.data.items)
+      if (response && response.data && typeof response.data === 'object' && Array.isArray((response.data as Record<string, unknown>).items) && ((response.data as Record<string, unknown>).items as unknown[]).length > 0) {
+        plans.value = normalizePlans((response.data as Record<string, unknown>).items as unknown[])
       } else if (response && response.data && Array.isArray(response.data) && response.data.length > 0) {
         plans.value = normalizePlans(response.data)
       } else if (response && Array.isArray(response.items) && response.items.length > 0) {
@@ -432,8 +449,28 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       } else if (Array.isArray(response) && response.length > 0) {
         plans.value = normalizePlans(response)
       }
-    } catch (error: any) {
+
+      // Bind and update paginations data after fetching plans
+      const resPagination = response?.pagination as Record<string, unknown> | undefined
+      const totalItems = (resPagination?.total as number | undefined) ?? (response?.total as number | undefined) ?? plans.value.length
+      const pageSize = (resPagination?.pageSize as number | undefined) ?? (resPagination?.page_size as number | undefined) ?? paginations.value.pageSize ?? 10
+      const currentIndex = (resPagination?.currentIndex as number | undefined) ?? (resPagination?.page as number | undefined) ?? paginations.value.currentIndex ?? 1
+      const totalPages = (resPagination?.totalPages as number | undefined) ?? (resPagination?.total_pages as number | undefined) ?? Math.ceil(totalItems / pageSize) ?? 1
+
+      paginations.value = {
+        pageSize,
+        currentIndex,
+        totalPages
+      }
+    } catch (error: unknown) {
       console.warn('Backend API unavailable, using initial mock annual plans:', error)
+      const totalItems = plans.value.length
+      const pageSize = paginations.value.pageSize || 10
+      paginations.value = {
+        pageSize,
+        currentIndex: 1,
+        totalPages: Math.ceil(totalItems / pageSize) || 1
+      }
     } finally {
       loading.value = false
     }
@@ -498,16 +535,16 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     // 3. Auditor
     if (
-      !Number.isInteger(form.auditorCount) ||
-      form.auditorCount < 1 ||
-      form.auditorCount > 10
+      !Number.isInteger(form.auditorCount)
+      || form.auditorCount < 1
+      || form.auditorCount > 10
     ) {
       auditorErrors.push('Number of Auditors harus antara 1 sampai 10.')
     }
 
     if (
-      !Number.isFinite(form.daysPerAuditor) ||
-      form.daysPerAuditor < 1
+      !Number.isFinite(form.daysPerAuditor)
+      || form.daysPerAuditor < 1
     ) {
       auditorErrors.push('Duration harus minimal 1 hari.')
     }
@@ -521,9 +558,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     validationErrors.auditor = auditorErrors.join(' ')
 
     return (
-      activityErrors.length === 0 &&
-      timelineErrors.length === 0 &&
-      auditorErrors.length === 0
+      activityErrors.length === 0
+      && timelineErrors.length === 0
+      && auditorErrors.length === 0
     )
   }
 
@@ -536,15 +573,15 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     try {
       if (isEditing.value && editingId.value) {
         await updatePlan(editingId.value, { ...form })
-        alert("Data Rencana Audit Berhasil Diperbarui!")
+        alert('Data Rencana Audit Berhasil Diperbarui!')
       } else {
         await addPlan({ ...form })
-        alert("Data Rencana Audit Berhasil Disimpan!")
+        alert('Data Rencana Audit Berhasil Disimpan!')
       }
 
       closeModal()
     } catch (err: any) {
-      alert("Gagal menyimpan data: " + err.message)
+      alert('Gagal menyimpan data: ' + err.message)
     }
   }
 
@@ -585,45 +622,45 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   }
 
   const handleFileChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (!file) return;
+    const target = event.target as HTMLInputElement
+    const file = target.files?.[0]
+    if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      errorMsg.value = "File terlalu besar! Maksimal 5MB.";
-      form.file = null;
-      target.value = "";
-      return;
+      errorMsg.value = 'File terlalu besar! Maksimal 5MB.'
+      form.file = null
+      target.value = ''
+      return
     }
 
     const allowedTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
-    ];
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/msword'
+    ]
 
     if (!allowedTypes.includes(file.type)) {
-      errorMsg.value = "Format file tidak valid. Gunakan PDF atau DOCX.";
-      form.file = null;
-      target.value = "";
-      return;
+      errorMsg.value = 'Format file tidak valid. Gunakan PDF atau DOCX.'
+      form.file = null
+      target.value = ''
+      return
     }
 
-    errorMsg.value = "";
-    form.file = [file];
-  };
+    errorMsg.value = ''
+    form.file = [file]
+  }
 
   const supervisors = ref([
     { id: 'S01', name: 'Budi Santoso (Mgr)', workload: 5 },
     { id: 'S02', name: 'Siti Aminah (Snr)', workload: 8 },
-    { id: 'S03', name: 'John Doe (Mgr)', workload: 2 },
+    { id: 'S03', name: 'John Doe (Mgr)', workload: 2 }
   ])
 
   const TEAM_CAPACITY_PER_YEAR = 10 * 220 * 0.7
 
   const calculateQuarters = (months: number[]) => {
     const qSet = new Set<string>()
-    months.forEach(m => {
+    months.forEach((m) => {
       if (m >= 0 && m <= 2) qSet.add('Q1')
       else if (m >= 3 && m <= 5) qSet.add('Q2')
       else if (m >= 6 && m <= 8) qSet.add('Q3')
@@ -643,11 +680,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   }
 
   const checkScheduleGaps = (months: number[]) => {
-    if (months.length === 0) return "Wajib pilih minimal 1 bulan."
+    if (months.length === 0) return 'Wajib pilih minimal 1 bulan.'
     const sorted = [...months].sort((a, b) => a - b)
     for (let i = 0; i < sorted.length - 1; i++) {
       if (sorted[i + 1]! - sorted[i]! > 1) {
-        return "⚠️ Warning: Ada gap bulan kosong. Pastikan continuous coverage jika diperlukan."
+        return '⚠️ Warning: Ada gap bulan kosong. Pastikan continuous coverage jika diperlukan.'
       }
     }
     return null
@@ -674,11 +711,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       notes: form.notes,
       year: parseInt(form.year) || 2026,
       attachmentCategory: form.attachmentCategory,
-      attachments: form.file && form.file.length > 0 ? form.file.map((f: any) => ({
-        name: f.name,
-        size: Math.round(f.size / 1024) + ' KB',
-        url: '#'
-      })) : [],
+      attachments: form.file && form.file.length > 0
+        ? form.file.map((f: any) => ({
+            name: f.name,
+            size: Math.round(f.size / 1024) + ' KB',
+            url: '#'
+          }))
+        : [],
       attachmentUploadedBy: form.attachmentUploadedBy,
       attachmentUploadDate: form.attachmentUploadDate,
       isActive: form.isActive
@@ -698,11 +737,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
     const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
 
-    const fileList = updatedData.file && updatedData.file.length > 0 ? updatedData.file.map((f: any) => ({
-      name: f.name,
-      size: Math.round(f.size / 1024) + ' KB',
-      url: '#'
-    })) : []
+    const fileList = updatedData.file && updatedData.file.length > 0
+      ? updatedData.file.map((f: any) => ({
+          name: f.name,
+          size: Math.round(f.size / 1024) + ' KB',
+          url: '#'
+        }))
+      : []
 
     const payload = {
       ...updatedData,
@@ -845,7 +886,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     showModal, isEditing, editingId, showViewModal, selectedPlan, progressAudit, approvalStepperItems,
     searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading, validationErrors,
     filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
-    computedQuarters,
+    computedQuarters, paginations, pagination: paginations,
     clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
