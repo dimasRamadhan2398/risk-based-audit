@@ -9,38 +9,20 @@
         :ui="mergedUi"
         class="w-full"
       >
-        <!-- Header slots pass-through: support ${col.key}-header, ${col.key}-header-data, or custom slot -->
-        <!-- <template
+        <template
           v-for="col in normalizedColumns"
-          :key="`header-${col.id}`"
-          #[`${col.id}-header`]="headerProps"
+          #[`${col.id}-cell`]="props"
         >
           <slot
-            v-if="getHeaderSlotName(col)"
-            :name="getHeaderSlotName(col)!"
-            v-bind="headerProps"
+            v-if="$slots[`${col.id}-cell`]"
+            :name="`${col.id}-cell`"
+            v-bind="props"
           />
-          <span v-else>{{ col.label }}</span>
-        </template> -->
 
-        <!-- Cell slots pass-through: support ${col.key}-cell, ${col.key}-data, and ${col.key} -->
-        <!-- <template
-          v-for="col in normalizedColumns"
-          :key="`cell-${col.id}`"
-          #[`${col.id}-cell`]="cellProps"
-        >
-          <slot
-            v-if="getCellSlotName(col)"
-            :name="getCellSlotName(col)!"
-            v-bind="cellProps"
-            :row="getSlotRow(cellProps)"
-            :row-data="cellProps.row?.original"
-            :value="getSlotValue(cellProps, col)"
-            :column="cellProps.column"
-            :cell="cellProps.cell"
-          />
-          <span v-else>{{ getCellValue(cellProps.row?.original, col) }}</span>
-        </template> -->
+          <span v-else>
+            {{ props.getValue() }}
+          </span>
+        </template>
 
         <!-- Empty state slot -->
         <template #empty>
@@ -166,8 +148,7 @@ export interface TableColumnItem {
 
 const props = withDefaults(
   defineProps<{
-    data?: Record<string, unknown>[]
-    rows?: Record<string, unknown>[]
+    data?: any[]
     columns?: (string | TableColumnItem)[]
     loading?: boolean
     emptyState?: { icon?: string, label?: string, description?: string }
@@ -183,8 +164,7 @@ const props = withDefaults(
     ui?: Record<string, unknown>
   }>(),
   {
-    data: undefined,
-    rows: undefined,
+    data: () => [],
     columns: () => [],
     loading: false,
     emptyState: () => ({ icon: 'i-lucide-database', label: 'No data available' }),
@@ -206,70 +186,6 @@ const emit = defineEmits<{
 }>()
 
 const $slots = useSlots()
-
-const rawData = computed(() => props.data ?? props.rows ?? [])
-
-// Helper to access nested object properties e.g. "dept.name"
-const getNestedValue = (obj: unknown, path: string) => {
-  if (!obj || !path) return undefined
-  if (!path.includes('.')) return (obj as Record<string, unknown>)[path]
-  return path.split('.').reduce<unknown>((acc, part) => {
-    if (acc && typeof acc === 'object') {
-      return (acc as Record<string, unknown>)[part]
-    }
-    return undefined
-  }, obj)
-}
-
-// Universal slot row helper: ensures entity properties, row.original, and TanStack row methods are seamlessly accessible
-const getSlotRow = (cellProps: unknown) => {
-  const propsObj = cellProps as Record<string, unknown> | undefined
-  const row = propsObj?.row as Record<string, unknown> | undefined
-  if (!row) return cellProps
-  const original = row.original ?? row
-
-  if (typeof original !== 'object' || original === null) return row
-
-  return new Proxy(row, {
-    get(target, prop, receiver) {
-      if (prop === 'original') return original
-      if (typeof prop === 'string' && prop in original) {
-        return (original as Record<string, unknown>)[prop]
-      }
-      if (prop in target) {
-        return Reflect.get(target, prop, receiver)
-      }
-      return undefined
-    }
-  })
-}
-
-// Get slot value either from TanStack cell context or direct original property
-const getSlotValue = (cellProps: unknown, col: TableColumnItem | string) => {
-  const propsObj = cellProps as Record<string, unknown> | undefined
-  if (typeof propsObj?.getValue === 'function') {
-    const val = (propsObj.getValue as () => unknown)()
-    if (val !== undefined && val !== null) return val
-  }
-  const row = propsObj?.row as Record<string, unknown> | undefined
-  const original = row?.original ?? row
-  const key = typeof col === 'string' ? col : (col.key || col.accessorKey || col.id)
-  return key ? getNestedValue(original, key) : undefined
-}
-
-// Fallback cell string formatter
-const getCellValue = (original: unknown, col: TableColumnItem | string) => {
-  if (!original) return '\u00a0'
-  const key = typeof col === 'string' ? col : (col.key || col.accessorKey || col.id)
-  if (!key) return '\u00a0'
-  const val = getNestedValue(original, key)
-  if (val === null || val === undefined || val === '') return '\u00a0'
-  if (typeof val === 'object') {
-    const valObj = val as Record<string, unknown>
-    return String(valObj.name || valObj.label || valObj.title || valObj.code || JSON.stringify(valObj))
-  }
-  return String(val)
-}
 
 // Normalize columns for TanStack Table / Nuxt UI UTable
 const normalizedColumns = computed(() => {
@@ -362,32 +278,17 @@ watch(perPage, (newVal) => {
 })
 
 const totalItems = computed(() => {
-  if (props.serverSide && typeof props.total === 'number') {
+  if (props.serverSide && props.total !== undefined) {
     return props.total
   }
-  return rawData.value.length
+  return props.data?.length || 0
 })
-
-const pageCount = computed(() => {
-  return Math.ceil(totalItems.value / (perPage.value || 10)) || 1
-})
-
-// Auto-reset page if client-side dataset decreases and currentPage exceeds pageCount
-watch(
-  () => rawData.value.length,
-  () => {
-    if (!props.serverSide && currentPage.value > pageCount.value) {
-      currentPage.value = Math.max(1, pageCount.value)
-    }
-  }
-)
 
 const paginatedData = computed(() => {
-  if (props.serverSide) {
-    return rawData.value
-  }
+  if (!props.data) return []
+  if (props.serverSide) return props.data
   const start = (currentPage.value - 1) * perPage.value
-  return rawData.value.slice(start, start + perPage.value)
+  return props.data.slice(start, start + perPage.value)
 })
 
 const startItem = computed(() => {

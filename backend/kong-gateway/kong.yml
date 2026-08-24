@@ -125,6 +125,7 @@ services:
           - /api/v1/business-units
           - /api/v1/departments
           - /api/v1/quality-assurance
+          - /api/v1/consulting-services
           - /api/v1/vision-mission-goals
           - /api/v1/data-sources
         strip_path: false
@@ -139,6 +140,7 @@ services:
           - /api/v1/risk-factors
           - /api/v1/audit-universe
           - /api/v1/risk-appetite
+          - /api/v1/rcm
         strip_path: false
 
   - name: analytics-service
