@@ -196,7 +196,7 @@ services:
     image: kong:3.4
     container_name: rb_audit_kong
     volumes:
-      - ./kong-gateway:/usr/local/kong/declarative
+      - ./kong-gateway/kong/prod:/usr/local/kong/declarative
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml

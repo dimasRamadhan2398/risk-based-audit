@@ -3,87 +3,43 @@
     <!-- Table Container using Nuxt UI UTable -->
     <div class="overflow-x-auto rounded-xl border border-[var(--border-main)] bg-[var(--bg-main)] shadow-xs">
       <UTable
-        :data="paginatedData"
-        :columns="(normalizedColumns as any)"
-        :loading="loading"
-        :ui="mergedUi"
-        class="w-full"
-      >
-        <template
-          v-for="col in normalizedColumns"
-          #[`${col.id}-cell`]="props"
-        >
-          <slot
-            v-if="$slots[`${col.id}-cell`]"
-            :name="`${col.id}-cell`"
-            v-bind="props"
-          />
+  :data="paginatedData"
+  :columns="normalizedColumns"
+  :loading="loading"
+  :ui="mergedUi"
+>
+  <template
+    v-for="column in normalizedColumns"
+    :key="`${column.id}-cell`"
+    #[`${column.id}-cell`]="slotProps"
+  >
+    <slot
+      :name="`${column.id}-cell`"
+      v-bind="slotProps"
+    >
+      {{ slotProps.getValue() }}
+    </slot>
+  </template>
 
-          <span v-else>
-            {{ props.getValue() }}
-          </span>
-        </template>
+  <template #empty>
+    <slot name="empty">
+      <div class="py-8 text-center">
+        No data available
+      </div>
+    </slot>
+  </template>
 
-        <!-- Empty state slot -->
-        <template #empty>
-          <slot name="empty">
-            <div class="flex flex-col items-center justify-center py-8 px-4 text-center">
-              <UIcon
-                :name="emptyState?.icon || 'i-lucide-database'"
-                class="w-10 h-10 text-gray-400 dark:text-gray-500 mb-2 opacity-60"
-              />
-              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                {{ emptyState?.label || 'No data available' }}
-              </p>
-              <p
-                v-if="emptyState?.description"
-                class="text-xs text-gray-400 dark:text-gray-500 mt-1"
-              >
-                {{ emptyState.description }}
-              </p>
-            </div>
-          </slot>
-        </template>
-
-        <!-- Loading state slot -->
-        <template #loading>
-          <slot name="loading">
-            <div class="flex items-center justify-center py-8 px-4">
-              <UIcon
-                name="i-lucide-loader-2"
-                class="w-8 h-8 text-primary-500 animate-spin"
-              />
-            </div>
-          </slot>
-        </template>
-        <!-- Expanded slot -->
-        <!-- <template #expanded="expandedProps">
-          <slot
-            name="expanded"
-            v-bind="expandedProps"
-          />
-        </template> -->
-
-        <!-- Caption slot -->
-        <!-- <template #caption="captionProps">
-          <slot
-            name="caption"
-            v-bind="captionProps"
-          />
-        </template> -->
-        <!-- Footer slots pass-through -->
-        <!-- <template
-          v-for="col in normalizedColumns"
-          :key="`footer-${col.id}`"
-          #[`${col.id}-footer`]="footerProps"
-        >
-          <slot
-            v-if="getFooterSlotName(col)"
-            :name="getFooterSlotName(col)!"
-            v-bind="footerProps"
-          />
-        </template> -->
-      </UTable>
+  <template #loading>
+    <slot name="loading">
+      <div class="flex items-center justify-center py-8">
+        <UIcon
+          name="i-lucide-loader-2"
+          class="size-8 animate-spin"
+        />
+      </div>
+    </slot>
+  </template>
+</UTable>
     </div>
 
     <!-- Pagination & Controls Footer using Nuxt UI UPagination -->
