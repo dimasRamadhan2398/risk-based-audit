@@ -120,9 +120,9 @@ jobs:
               rm -rf "$REPO_DIR"
 
               echo "📥 Cloning branch '$TARGET_BRANCH' from $REPO_URL..."
-              if ! git clone --branch "$TARGET_BRANCH" "$REPO_URL" "$REPO_DIR" 2>&1; then
+              if ! git clone --depth 1 --branch "$TARGET_BRANCH" "$REPO_URL" "$REPO_DIR" 2>&1; then
                 echo "⚠️ Branch '$TARGET_BRANCH' not found. Falling back to 'main'..."
-                git clone --branch main "$REPO_URL" "$REPO_DIR" 2>&1
+                git clone --depth 1 --branch main "$REPO_URL" "$REPO_DIR" 2>&1
               fi
               echo "   ✓ clone OK"
 

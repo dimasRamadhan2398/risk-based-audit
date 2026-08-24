@@ -149,7 +149,7 @@ jobs:
               echo "🗑️  Removing stale repo dir: $REPO_DIR"
               rm -rf "$REPO_DIR"
               echo "📥 Cloning fresh from main..."
-              git clone --branch main "$REPO_URL" "$REPO_DIR" 2>&1 \
+              git clone --depth 1 --branch main "$REPO_URL" "$REPO_DIR" 2>&1 \
                 || { echo "❌ git clone failed (exit $?)"; exit 1; }
               echo "   ✓ clone OK"
 
