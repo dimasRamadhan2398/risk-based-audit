@@ -11,7 +11,7 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
-from sklearn.metrics import confusion_matrix, accuracy_score, classification_report, f1_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report, f1_score, mean_absolute_error, mean_squared_error
 
 # Add root directory to sys.path to enable importing preprocess_xgboost
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -222,6 +222,15 @@ for target_name, config in targets_config.items():
             y_pred,
             average='weighted'
         )
+        
+        # Convert encoded classes back to original risk levels (1-5)
+        y_test_original = le.inverse_transform(y_test)
+        y_pred_original = le.inverse_transform(y_pred)
+
+        ordinal_mae = mean_absolute_error(
+            y_test_original,
+            y_pred_original
+        )
 
         results.append({
             'model_name': m_name,
@@ -231,6 +240,7 @@ for target_name, config in targets_config.items():
             'cv_std': cv_results['test_accuracy'].std(),
             'cv_f1_mean': cv_results['test_weighted_f1'].mean(),
             'cv_f1_std': cv_results['test_weighted_f1'].std(),
+            'ordinal_mae': ordinal_mae,
             'y_pred': y_pred
         })
 
@@ -248,7 +258,8 @@ for target_name, config in targets_config.items():
         
     print(f"\n[WINNER] Winner Model: {winner['model_name']}")
     print(f"CV Weighted F1: {winner['cv_f1_mean']:.4f} | CV Accuracy: {winner['cv_mean']:.4f} | Test Accuracy: {winner['test_acc']:.4f}")
-    
+    print(f"Ordinal MAE: {winner['ordinal_mae']:.4f}")
+
     # Detailed Evaluation for Winner Model
     print(f"\n--- Detailed Classification Report for Winner ({winner['model_name']}) ---")
     print("Confusion Matrix:")
