@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler
-from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_validate
+from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
@@ -95,23 +96,24 @@ feature_cols = [
 
 print(f"Selected {len(feature_cols)} clean input features (Target Leakage Removed).")
 
-# Step 3: Categorical One-Hot Encoding (Columns 0: entity, 1: risk_category)
-X_raw = df[feature_cols].values
-ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(), [0, 1])], remainder='passthrough')
-X = np.array(ct.fit_transform(X_raw))
-print(f"Encoded Feature matrix shape: {X.shape}")
+# Step 3: Prepare RAW features.
+# Encoding and scaling will be performed inside the sklearn Pipeline
+# so each CV fold only learns preprocessing from its own training data.
+X = df[feature_cols].copy()
 
-# Targets configuration
-targets_config = {
-    'Impact Prediction (target_impact)': {
-        'series': df['target_impact'],
-        'class_names': [str(c) for c in sorted(df['target_impact'].unique())]
-    },
-    'Likelihood Prediction (target_likelihood)': {
-        'series': df['target_likelihood'],
-        'class_names': [str(c) for c in sorted(df['target_likelihood'].unique())]
-    }
-}
+categorical_features = [
+    'entity',
+    'risk_category'
+]
+
+numeric_features = [
+    col for col in feature_cols
+    if col not in categorical_features
+]
+
+print(f"Raw feature matrix shape: {X.shape}")
+print(f"Categorical features: {categorical_features}")
+print(f"Numeric features: {len(numeric_features)}")
 
 # Machine Learning candidate models
 candidate_models = {
@@ -123,6 +125,33 @@ candidate_models = {
     'SVM (RBF)': SVC(kernel='rbf', C=2.0, random_state=42),
     'Logistic Regression': LogisticRegression(max_iter=1000, C=2.0, random_state=42)
 }
+
+def build_preprocessor():
+    """
+    Build a fresh preprocessing pipeline.
+
+    A new preprocessor is created for each model so OneHotEncoder
+    and StandardScaler are fitted only on the training fold during CV.
+    """
+
+    return ColumnTransformer(
+        transformers=[
+            (
+                'categorical',
+                OneHotEncoder(
+                    handle_unknown='ignore',
+                    sparse_output=False
+                ),
+                categorical_features
+            ),
+            (
+                'numeric',
+                'passthrough',
+                numeric_features
+            )
+        ],
+        remainder='drop'
+    )
 
 # Multi-Model Evaluation Loop
 for target_name, config in targets_config.items():
