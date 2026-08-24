@@ -51,15 +51,16 @@ ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=
 
   echo "  → Creating development environment file (pointing to Kong Port 8081 / api-dev)..."
   cat <<ENVEOF > .env
-API_BASE_URL=http://$VPS_IP:8081/api/v1
-ANALYTICS_API_BASE_URL=http://$VPS_IP:8081/api/analytics
-NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=http://$VPS_IP:8081/api/v1
-NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=http://$VPS_IP:8081/api/v1
-NUXT_PUBLIC_RISK_SERVICE_BASE_URL=http://$VPS_IP:8081/api/v1
-NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=http://$VPS_IP:8081/api/v1
+API_BASE_URL=https://api-dev.auditsphere.app/api/v1
+ANALYTICS_API_BASE_URL=https://api-dev.auditsphere.app/api/analytics
+NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
+NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
+NUXT_PUBLIC_RISK_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
+NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
 ENVEOF
 
   echo "  → Launching rbia-frontend-dev container..."
+  docker rm -f rbia-frontend-dev || true
   docker compose -f docker-compose.dev.yml up -d --build --force-recreate
 
   echo "  → Checking status..."

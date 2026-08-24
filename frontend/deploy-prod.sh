@@ -50,15 +50,16 @@ ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=
 
   echo "  → Creating production environment file..."
   cat <<ENVEOF > .env
-API_BASE_URL=http://$VPS_IP:8080/api/v1
-ANALYTICS_API_BASE_URL=http://$VPS_IP:8080/api/analytics
-NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
-NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
-NUXT_PUBLIC_RISK_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
-NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=http://$VPS_IP:8080/api/v1
+API_BASE_URL=https://api.auditsphere.app/api/v1
+ANALYTICS_API_BASE_URL=https://api.auditsphere.app/api/analytics
+NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1
+NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1
+NUXT_PUBLIC_RISK_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1
+NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1
 ENVEOF
 
   echo "  → Launching rbia-frontend-prod container..."
+  docker rm -f rbia-frontend-prod || true
   docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 
   echo "  → Checking status..."
