@@ -115,6 +115,24 @@ print(f"Raw feature matrix shape: {X.shape}")
 print(f"Categorical features: {categorical_features}")
 print(f"Numeric features: {len(numeric_features)}")
 
+# Targets configuration
+targets_config = {
+    'Impact Prediction (target_impact)': {
+        'series': df['target_impact'],
+        'class_names': [
+            str(c)
+            for c in sorted(df['target_impact'].unique())
+        ]
+    },
+    'Likelihood Prediction (target_likelihood)': {
+        'series': df['target_likelihood'],
+        'class_names': [
+            str(c)
+            for c in sorted(df['target_likelihood'].unique())
+        ]
+    }
+}
+
 # Machine Learning candidate models
 candidate_models = {
     'Gradient Boosting': GradientBoostingClassifier(n_estimators=300, learning_rate=0.05, max_depth=5, random_state=42),
