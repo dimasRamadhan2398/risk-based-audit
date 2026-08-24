@@ -3,7 +3,9 @@ name: AuditSphere Development CI/CD Pipeline
 on:
   workflow_dispatch:
   push:
-    branches: [ dev, develop ]
+    branches:
+      - dev
+      - develop
 
 concurrency:
   group: auditsphere-development
@@ -11,212 +13,480 @@ concurrency:
 
 jobs:
   deploy-dev-vps:
-    name: Deploy Dev to VPS
+    name: Deploy AuditSphere Dev to VPS
     runs-on: ubuntu-latest
 
     steps:
-      - name: Execute SSH Dev Deployment
+      - name: Deploy Dev to VPS
         uses: appleboy/ssh-action@v1.0.3
+
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+          DEPLOY_REF: ${{ github.ref_name }}
+          DEPLOY_ACTOR: ${{ github.actor }}
+
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          password: ${{ secrets.VPS_PASSWORD || secrets.SERVER_PASSWORD }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           port: ${{ secrets.VPS_PORT || 22 }}
+
           timeout: 60m
           command_timeout: 60m
           script_stop: true
+
+          envs: DEPLOY_SHA,DEPLOY_REF,DEPLOY_ACTOR
+
           script: |
             set -Eeuo pipefail
-            export LOCK_FILE="/tmp/auditsphere_deploy_dev.lock"
+
+            # ================================================================
+            # Configuration
+            # ================================================================
+
+            APP_NAME="auditsphere-dev"
+
+            REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
+            REPO_DIR="/app/rbia-repo-dev"
+
+            BACKEND_DIR="$REPO_DIR/backend"
+            FRONTEND_DIR="$REPO_DIR/frontend"
+
+            BACKEND_COMPOSE="docker-compose.dev.yml"
+            FRONTEND_COMPOSE="docker-compose.dev.yml"
+
+            FRONTEND_CONTAINER="rbia-frontend-dev"
+
+            BACKEND_HEALTH_URL="http://localhost:8101/health"
+            FRONTEND_HEALTH_URL="http://127.0.0.1:3001"
+
+            LOCK_FILE="/tmp/auditsphere_deploy_dev.lock"
+
+            BACKEND_MAX_ATTEMPTS=24
+            FRONTEND_MAX_ATTEMPTS=30
+
+            # ================================================================
+            # Utility
+            # ================================================================
+
+            log() {
+              echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+            }
+
+            fail() {
+              log "❌ $*"
+              exit 1
+            }
+
+            wait_for_http() {
+
+              local url="$1"
+              local service_name="$2"
+              local max_attempts="${3:-30}"
+
+              for i in $(seq 1 "$max_attempts"); do
+
+                local http_code
+
+                http_code="$(
+                  curl \
+                    -s \
+                    -o /dev/null \
+                    -w "%{http_code}" \
+                    -L \
+                    --max-time 5 \
+                    "$url" \
+                    2>/dev/null || echo "000"
+                )"
+
+                if [ "$http_code" = "200" ] ||
+                   [ "$http_code" = "301" ] ||
+                   [ "$http_code" = "302" ]; then
+
+                  log "✅ $service_name is healthy. HTTP $http_code"
+                  return 0
+
+                fi
+
+                log "⏳ $service_name HTTP $http_code — attempt $i/$max_attempts"
+
+                sleep 5
+              done
+
+              return 1
+            }
+
+            # ================================================================
+            # Diagnostics
+            # ================================================================
+
+            diagnostics() {
+
+              log ""
+              log "============================================================"
+              log "🔎 DEV DEPLOYMENT DIAGNOSTICS"
+              log "============================================================"
+
+              log ""
+              log "🐳 Docker containers:"
+
+              docker ps -a \
+                --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" \
+                || true
+
+              log ""
+              log "📦 Backend status & logs:"
+
+              if [ -d "$BACKEND_DIR" ]; then
+
+                cd "$BACKEND_DIR" || true
+
+                docker compose \
+                  -f "$BACKEND_COMPOSE" \
+                  ps \
+                  || true
+
+                docker compose \
+                  -f "$BACKEND_COMPOSE" \
+                  logs \
+                  --tail=100 \
+                  || true
+
+              fi
+
+              log ""
+              log "📦 Frontend status & logs:"
+
+              if [ -d "$FRONTEND_DIR" ]; then
+
+                cd "$FRONTEND_DIR" || true
+
+                docker compose \
+                  -f "$FRONTEND_COMPOSE" \
+                  ps \
+                  || true
+
+                docker compose \
+                  -f "$FRONTEND_COMPOSE" \
+                  logs \
+                  --tail=100 \
+                  || true
+
+              fi
+
+              log ""
+              log "💾 Disk usage:"
+
+              df -h || true
+            }
+
+            # ================================================================
+            # Failure Handler
+            # ================================================================
+
+            cleanup_on_failure() {
+
+              log ""
+              log "============================================================"
+              log "❌ AUDITSPHERE DEV DEPLOYMENT FAILED"
+              log "============================================================"
+
+              diagnostics
+
+              log ""
+              log "⚠️ Dev deployment aborted."
+
+              exit 1
+            }
+
+            # ================================================================
+            # Main
+            # ================================================================
 
             main() {
-              # ================================================================
-              # Configuration
-              # ================================================================
-              REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
-              REPO_DIR="/app/rbia-repo-dev"
-              BACKEND_DIR="$REPO_DIR/backend"
-              FRONTEND_DIR="$REPO_DIR/frontend"
-              BACKEND_COMPOSE="docker-compose.dev.yml"
-              FRONTEND_COMPOSE="docker-compose.dev.yml"
-              FRONTEND_CONTAINER_FILTER="rbia-frontend-dev"
-              TARGET_BRANCH="${GITHUB_REF_NAME:-dev}"
-
-              echo ""
-              echo "============================================================"
-              echo "🚀 AuditSphere Development Deployment (dev.auditsphere.app)"
-              echo "============================================================"
-              echo "Started at: $(date)"
-
-              exec 200>"$LOCK_FILE"
-              if ! flock -n 200; then
-                echo "❌ Another AuditSphere Dev deployment is currently running on VPS."
-                exit 1
-              fi
-              echo "🔒 Deployment lock acquired."
-
-              # ================================================================
-              # Error Handler & Diagnostics
-              # ================================================================
-              cleanup_on_failure() {
-                echo ""
-                echo "============================================================"
-                echo "❌ DEV DEPLOYMENT FAILED - INITIATING DIAGNOSTICS"
-                echo "============================================================"
-
-                echo "📦 Dev Backend status & logs:"
-                cd "$BACKEND_DIR" || true
-                docker compose -f "$BACKEND_COMPOSE" ps || true
-                docker compose -f "$BACKEND_COMPOSE" logs --tail=50 || true
-
-                echo "📦 Dev Frontend status & logs:"
-                cd "$FRONTEND_DIR" || true
-                docker compose -f "$FRONTEND_COMPOSE" ps || true
-                docker compose -f "$FRONTEND_COMPOSE" logs --tail=50 || true
-
-                echo "⚠️ Dev Deployment aborted due to errors. Check logs above."
-              }
 
               trap cleanup_on_failure ERR
 
+              log ""
+              log "============================================================"
+              log "🚀 AuditSphere Development Deployment"
+              log "============================================================"
+
+              log "Application : $APP_NAME"
+              log "Branch      : $DEPLOY_REF"
+              log "Commit SHA  : $DEPLOY_SHA"
+              log "Actor       : $DEPLOY_ACTOR"
+              log "Started     : $(date)"
+
+              # ==============================================================
+              # Deployment Lock
+              # ==============================================================
+
+              exec 200>"$LOCK_FILE"
+
+              if ! flock -n 200; then
+                fail "Another AuditSphere Dev deployment is currently running."
+              fi
+
+              log "🔒 Deployment lock acquired."
+
+              # ==============================================================
+              # System Resource Check
+              # ==============================================================
+
+              log ""
+              log "🔍 Checking VPS resources..."
+
+              DISK_USAGE="$(
+                df \
+                  --output=pcent \
+                  / \
+                  | tail -1 \
+                  | tr -dc '0-9'
+              )"
+
+              log "Disk usage: ${DISK_USAGE}%"
+
+              if [ "$DISK_USAGE" -ge 90 ]; then
+                fail "Disk usage is ${DISK_USAGE}%. Deployment aborted."
+              fi
+
+              # ==============================================================
+              # Repository
+              # ==============================================================
+
+              log ""
+              log "============================================================"
+              log "📦 Preparing Development Source"
+              log "============================================================"
+
               export GIT_TERMINAL_PROMPT=0
 
-              # ================================================================
-              # Resource & Disk Checks
-              # ================================================================
-              echo ""
-              echo "🔍 Checking VPS system resources..."
-              DISK_USAGE=$(df --output=pcent / | tail -1 | tr -dc '0-9')
-              if [ "$DISK_USAGE" -ge 90 ]; then
-                echo "❌ Disk usage is ${DISK_USAGE}%. Aborting deployment to prevent failure."
-                exit 1
+              if [ -d "$REPO_DIR/.git" ]; then
+
+                log "Repository exists. Updating..."
+
+                cd "$REPO_DIR"
+
+                git fetch \
+                  --depth 1 \
+                  origin \
+                  "$DEPLOY_SHA"
+
+                git reset \
+                  --hard \
+                  "$DEPLOY_SHA"
+
+                git clean \
+                  -fd
+
+              else
+
+                log "Repository does not exist. Initial clone..."
+
+                rm -rf "$REPO_DIR"
+
+                git clone \
+                  --depth 1 \
+                  "$REPO_URL" \
+                  "$REPO_DIR"
+
+                cd "$REPO_DIR"
+
+                git fetch \
+                  --depth 1 \
+                  origin \
+                  "$DEPLOY_SHA"
+
+                git checkout \
+                  "$DEPLOY_SHA"
+
               fi
-              echo "✅ Disk usage: ${DISK_USAGE}%"
 
-              # ================================================================
-              # Update Repository Code (Dev Branch)
-              # ================================================================
-              echo ""
-              echo "📦 Syncing dev repository (fresh clone)..."
-              echo "🗑️ Removing stale dev repo dir: $REPO_DIR"
-              rm -rf "$REPO_DIR"
+              CURRENT_COMMIT="$(git rev-parse HEAD)"
 
-              echo "📥 Cloning branch '$TARGET_BRANCH' from $REPO_URL..."
-              if ! git clone --depth 1 --branch "$TARGET_BRANCH" "$REPO_URL" "$REPO_DIR" 2>&1; then
-                echo "⚠️ Branch '$TARGET_BRANCH' not found. Falling back to 'main'..."
-                git clone --depth 1 --branch main "$REPO_URL" "$REPO_DIR" 2>&1
+              if [ "$CURRENT_COMMIT" != "$DEPLOY_SHA" ]; then
+                fail "Commit mismatch. Expected $DEPLOY_SHA but got $CURRENT_COMMIT"
               fi
-              echo "   ✓ clone OK"
 
-              cd "$REPO_DIR"
-              CURRENT_COMMIT=$(git rev-parse HEAD 2>&1) || { echo "❌ git rev-parse failed"; exit 1; }
-              echo "📌 Commit: $CURRENT_COMMIT ($(git log -1 --pretty=format:'%s' 2>&1))"
+              log "✅ Exact commit verified:"
+              log "$CURRENT_COMMIT"
+
+              log "Commit message:"
+              git log -1 --pretty=format:'%s%n'
+
+              # ==============================================================
+              # Docker Configuration
+              # ==============================================================
 
               export DOCKER_BUILDKIT=1
               export COMPOSE_DOCKER_CLI_BUILD=1
 
-              # ================================================================
-              # Deploy Dev Backend Services (docker-compose.dev.yml / Port 8081)
-              # ================================================================
-              echo ""
-              echo "============================================================"
-              echo "🚀 Deploying Dev Backend Services (docker-compose.dev.yml)"
-              echo "============================================================"
+              # ==============================================================
+              # Backend
+              # ==============================================================
+
+              log ""
+              log "============================================================"
+              log "🚀 Deploying Dev Backend"
+              log "============================================================"
+
               cd "$BACKEND_DIR"
 
-              echo "🔨 Building and starting dev backend containers..."
-              docker compose -f "$BACKEND_COMPOSE" up -d --build --force-recreate
+              log "🔨 Building and starting dev backend..."
 
-              echo "🏥 Waiting for dev backend health..."
-              BACKEND_READY=0
-              for i in {1..24}; do
-                HTTP_CODE_DIRECT=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://localhost:8101/health" 2>/dev/null || echo "000")
-                if [ "$HTTP_CODE_DIRECT" -eq 200 ]; then
-                  echo "✅ Dev Backend is healthy (Auth Direct HTTP $HTTP_CODE_DIRECT)."
-                  BACKEND_READY=1
-                  break
-                fi
-                echo "⏳ Waiting for dev backend API gateway (status: $HTTP_CODE_DIRECT)... attempt $i/24"
-                sleep 5
-              done
+              docker compose \
+                -f "$BACKEND_COMPOSE" \
+                up \
+                -d \
+                --build \
+                --force-recreate \
+                --remove-orphans
 
-              if [ "$BACKEND_READY" -ne 1 ]; then
-                echo "❌ Dev Backend health check failed."
-                exit 1
+              log "🏥 Checking dev backend..."
+
+              if ! wait_for_http \
+                "$BACKEND_HEALTH_URL" \
+                "Dev Backend" \
+                "$BACKEND_MAX_ATTEMPTS"; then
+
+                fail "Dev Backend health check failed."
               fi
 
-              # ================================================================
-              # Deploy Dev Frontend Service (docker-compose.dev.yml / Port 3001)
-              # ================================================================
-              echo ""
-              echo "============================================================"
-              echo "🚀 Deploying Dev Frontend Service (Port 3001 -> dev.auditsphere.app)"
-              echo "============================================================"
+              # ==============================================================
+              # Frontend Environment
+              # ==============================================================
+
+              log ""
+              log "============================================================"
+              log "🚀 Deploying Dev Frontend"
+              log "============================================================"
+
               cd "$FRONTEND_DIR"
 
-              echo "  → Creating development environment file (pointing to Kong Port 8081 / api-dev)..."
-              cat <<ENVEOF > .env
-API_BASE_URL=https://api-dev.auditsphere.app/api/v1
-ANALYTICS_API_BASE_URL=https://api-dev.auditsphere.app/api/analytics
-NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
-NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
-NUXT_PUBLIC_RISK_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
-NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
-ENVEOF
+              log "📝 Creating development environment..."
 
-              echo "🔨 Building frontend dev image..."
-              docker compose -f "$FRONTEND_COMPOSE" build
+              cat > .env <<'ENVEOF'
+            API_BASE_URL=https://api-dev.auditsphere.app/api/v1
+            ANALYTICS_API_BASE_URL=https://api-dev.auditsphere.app/api/analytics
+            NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
+            NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
+            NUXT_PUBLIC_RISK_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
+            NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
+            ENVEOF
 
-              echo "🧹 Removing old dev frontend container..."
-              docker rm -f rbia-frontend-dev 2>/dev/null || true
+              # ==============================================================
+              # Frontend Build
+              # ==============================================================
 
-              echo "🚀 Starting dev frontend container..."
-              docker compose -f "$FRONTEND_COMPOSE" up -d --force-recreate --remove-orphans
+              log "🔨 Building dev frontend image..."
 
-              echo "🏥 Waiting for dev frontend health..."
-              FRONTEND_READY=0
+              docker compose \
+                -f "$FRONTEND_COMPOSE" \
+                build
 
-              for i in {1..30}; do
-                HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://127.0.0.1:3001" 2>/dev/null || echo "000")
-                if [ "$HTTP_CODE" -eq "000" ]; then
-                  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "http://localhost:3001" 2>/dev/null || echo "000")
-                fi
+              log "🚀 Starting dev frontend..."
 
-                CONTAINER_OK=0
-                if docker exec rbia-frontend-dev node -e "require('http').get('http://localhost:3000', res => process.exit(res.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))" 2>/dev/null; then
-                  CONTAINER_OK=1
-                fi
+              docker compose \
+                -f "$FRONTEND_COMPOSE" \
+                up \
+                -d \
+                --force-recreate \
+                --remove-orphans
 
-                if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 302 ] || [ "$HTTP_CODE" -eq 301 ] || [ "$CONTAINER_OK" -eq 1 ]; then
-                  echo "✅ Dev Frontend is healthy (Host Port 3001 HTTP $HTTP_CODE / Container OK)."
-                  FRONTEND_READY=1
-                  break
-                fi
-                echo "⏳ Waiting for dev frontend application (host status: $HTTP_CODE)... attempt $i/30"
-                sleep 5
-              done
+              # ==============================================================
+              # Frontend Health
+              # ==============================================================
 
-              if [ "$FRONTEND_READY" -ne 1 ]; then
-                echo "❌ Dev Frontend health check failed."
-                exit 1
+              log ""
+              log "🏥 Checking dev frontend..."
+
+              if ! wait_for_http \
+                "$FRONTEND_HEALTH_URL" \
+                "Dev Frontend" \
+                "$FRONTEND_MAX_ATTEMPTS"; then
+
+                fail "Dev Frontend health check failed."
               fi
 
-              # ================================================================
-              # Cleanup & Finish
-              # ================================================================
-              echo ""
-              echo "🧹 Pruning unused Docker images..."
+              # ==============================================================
+              # Smoke Test
+              # ==============================================================
+
+              log ""
+              log "============================================================"
+              log "🧪 Running Dev Smoke Tests"
+              log "============================================================"
+
+              log "Testing backend..."
+
+              curl \
+                -fsS \
+                --max-time 10 \
+                "$BACKEND_HEALTH_URL" \
+                >/dev/null
+
+              log "✅ Backend smoke test passed."
+
+              log "Testing frontend..."
+
+              curl \
+                -fsS \
+                --max-time 10 \
+                "$FRONTEND_HEALTH_URL" \
+                >/dev/null
+
+              log "✅ Frontend smoke test passed."
+
+              # ==============================================================
+              # Deployment Metadata
+              # ==============================================================
+
+              echo "$DEPLOY_SHA" \
+                > /tmp/auditsphere_dev_current_commit
+
+              log ""
+              log "📌 Dev deployment information:"
+              log "Branch     : $DEPLOY_REF"
+              log "Commit     : $DEPLOY_SHA"
+              log "Actor      : $DEPLOY_ACTOR"
+
+              # ==============================================================
+              # Cleanup
+              # ==============================================================
+
+              log ""
+              log "🧹 Pruning dangling Docker images..."
+
               docker image prune -f
 
-              echo ""
-              echo "============================================================"
-              echo "✅ AUDITSPHERE DEV DEPLOYMENT SUCCESSFUL"
-              echo "============================================================"
-              echo "🌐 UI URL : https://dev.auditsphere.app"
-              echo "🌐 API URL: https://api-dev.auditsphere.app"
-              echo "Finished at: $(date)"
+              # ==============================================================
+              # Final State
+              # ==============================================================
+
+              log ""
+              log "============================================================"
+              log "🐳 Running Dev Containers"
+              log "============================================================"
+
+              docker ps \
+                --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
+
+              # ==============================================================
+              # Success
+              # ==============================================================
+
+              log ""
+              log "============================================================"
+              log "✅ AUDITSPHERE DEV DEPLOYMENT SUCCESSFUL"
+              log "============================================================"
+
+              log "🌐 UI  : https://dev.auditsphere.app"
+              log "🌐 API : https://api-dev.auditsphere.app"
+              log "🔖 SHA : $DEPLOY_SHA"
+              log "Finished at: $(date)"
+
             }
 
             main "$@"
