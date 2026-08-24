@@ -319,6 +319,16 @@ jobs:
               echo "🚀 Deploying Frontend Service"
               echo "============================================================"
               cd "$FRONTEND_DIR"
+              echo "  → Creating production environment file..."
+              cat <<ENVEOF > .env
+API_BASE_URL=https://api.auditsphere.app/api/v1
+ANALYTICS_API_BASE_URL=https://api.auditsphere.app/api/analytics
+NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1
+NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1
+NUXT_PUBLIC_RISK_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1
+NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1
+ENVEOF
+
               echo "🔨 Building frontend image (no cache)..."
               docker compose -f "$FRONTEND_COMPOSE" build
               docker rm -f rbia-frontend-prod 2>/dev/null || true
