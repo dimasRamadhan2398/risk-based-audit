@@ -409,7 +409,7 @@ const columns = [
                     {{ doc.year }}
                   </td>
                   <td class="py-3 px-3">
-                    <div class="text-gray-700 dark:text-gray-300 font-medium truncate max-w-[140px]" :title="doc.fileName">
+                    <div class="text-gray-700 dark:text-white font-medium truncate max-w-[140px]" :title="doc.fileName">
                       {{ doc.fileName }}
                     </div>
                     <div class="text-[10px] text-gray-400">{{ formatBytes(doc.fileSize) }}</div>

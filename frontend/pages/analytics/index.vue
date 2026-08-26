@@ -26,8 +26,11 @@ import {
   type KPIForecast
 } from '~/composables/useAnalyticsData'
 import { riskLevelConfig } from '~/stores/risk-profile'
+import { useI18n } from '~/composables/useI18n'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler)
+
+const { t } = useI18n()
 
 // ─── Data & Config ──────────────────────────────────────────────────────────
 const getAnalyticsUrl = () => {
@@ -176,6 +179,9 @@ const loadRealCache = (): boolean => {
   }
 }
 
+const route = useRoute()
+
+
 // ─── Fetch Initial Batch Predictions & Automated Sync ───────────────────────
 const fetchAnalytics = async () => {
   try {
@@ -299,6 +305,9 @@ const fetchAnalytics = async () => {
     usingCachedRealData.value = loaded
   } finally {
     loading.value = false
+    // Immediately display the Risk Scoring feature ('xgboost') after models finish loading
+    const targetTab = (route.query.tab as string) || 'xgboost'
+    activeTab.value = targetTab
   }
 }
 
@@ -308,19 +317,18 @@ onMounted(() => {
 
 // ─── Tab Navigation ─────────────────────────────────────────────────────────
 const activeTab = ref('xgboost')
-const tabItems = [
-  { key: 'xgboost', label: 'Risk Scoring ML', icon: 'i-heroicons-chart-bar-square' },
-  { key: 'isolation', label: 'Anomaly Detection ML', icon: 'i-heroicons-shield-exclamation' },
-  { key: 'nlp', label: 'IndoBERT NLP', icon: 'i-heroicons-document-magnifying-glass' },
-  { key: 'timeseries', label: 'KPI PyTorch LSTM', icon: 'i-heroicons-arrow-trending-up' },
-]
-
+const tabItems = computed(() => [
+  { key: 'xgboost', label: t('analytics.tabs.riskScoring'), icon: 'i-heroicons-chart-bar-square' },
+  { key: 'isolation', label: t('analytics.tabs.anomalyDetection'), icon: 'i-heroicons-shield-exclamation' },
+  { key: 'nlp', label: t('analytics.tabs.indoBERT'), icon: 'i-heroicons-document-magnifying-glass' },
+  { key: 'timeseries', label: t('analytics.tabs.kpiLSTM'), icon: 'i-heroicons-arrow-trending-up' },
+])
 // ─── Tab 1: Dynamic Computed Charts for Risk Scoring ───────────────────────
 const xgboostBarData = computed(() => ({
   labels: xgboostState.value.predictions.map((p: any) => p.entity || 'Entity'),
   datasets: [
     {
-      label: 'Predicted Score',
+      label: t('analytics.xgboost.labelPredictedScore'),
       backgroundColor: 'rgba(99,102,241,0.75)',
       borderColor: 'rgb(99,102,241)',
       borderWidth: 1.5,
@@ -328,7 +336,7 @@ const xgboostBarData = computed(() => ({
       data: xgboostState.value.predictions.map((p: any) => p.predictedScore ?? 0),
     },
     {
-      label: 'Actual Score',
+      label: t('analytics.xgboost.labelActualScore'),
       backgroundColor: 'rgba(16,185,129,0.75)',
       borderColor: 'rgb(16,185,129)',
       borderWidth: 1.5,
@@ -338,7 +346,7 @@ const xgboostBarData = computed(() => ({
   ],
 }))
 
-const xgboostBarOptions = {
+const xgboostBarOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -350,15 +358,15 @@ const xgboostBarOptions = {
     }
   },
   scales: {
-    y: { beginAtZero: true, title: { display: true, text: 'Risk Score' } },
+    y: { beginAtZero: true, title: { display: true, text: t('analytics.xgboost.axisRiskScore') } },
     x: { ticks: { maxRotation: 45 } }
   }
-}
+}))
 
 const featureBarData = computed(() => ({
   labels: xgboostState.value.featureImportance.map((f: any) => f.feature || 'Feature'),
   datasets: [{
-    label: 'Feature Importance',
+    label: t('analytics.xgboost.labelFeatureImportance'),
     backgroundColor: [
       'rgba(239,68,68,0.75)', 'rgba(249,115,22,0.75)', 'rgba(234,179,8,0.75)',
       'rgba(34,197,94,0.75)', 'rgba(59,130,246,0.75)', 'rgba(139,92,246,0.75)',
@@ -370,7 +378,7 @@ const featureBarData = computed(() => ({
   }]
 }))
 
-const featureBarOptions = {
+const featureBarOptions = computed(() => ({
   indexAxis: 'y' as const,
   responsive: true,
   maintainAspectRatio: false,
@@ -379,9 +387,9 @@ const featureBarOptions = {
     tooltip: { callbacks: { label: (ctx: any) => `${formatNum(ctx.parsed.x, 1)}%` } }
   },
   scales: {
-    x: { beginAtZero: true, max: 35, title: { display: true, text: 'Importance (%)' } }
+    x: { beginAtZero: true, max: 35, title: { display: true, text: t('analytics.xgboost.axisImportancePct') } }
   }
-}
+}))
 
 // ─── Tab 2: Dynamic Computed Scatter Chart for Anomaly Detection (Separated) ─
 interface AnomalyTypeConfig {
@@ -391,56 +399,56 @@ interface AnomalyTypeConfig {
   colors: { bg: string, border: string, style: string }
 }
 
-const anomalyTypeConfigs: Record<string, AnomalyTypeConfig> = {
+const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => ({
   'Fieldwork': {
-    xAxisTitle: 'Durasi Pengerjaan Fieldwork (Hari)',
-    unit: 'Hari',
-    formatX: (val) => `${val} Hari`,
+    xAxisTitle: t('analytics.isolation.anomalyTypes.fieldworkXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.fieldworkUnit'),
+    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.fieldworkUnit')}`,
     colors: { bg: 'rgba(139,92,246,0.85)', border: 'rgba(139,92,246,1)', style: 'star' }
   },
   'Access Pattern': {
-    xAxisTitle: 'Waktu Akses Sistem (Jam 0-23)',
-    unit: 'Jam',
-    formatX: (val) => `Jam ${val}:00`,
+    xAxisTitle: t('analytics.isolation.anomalyTypes.accessPatternXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.accessPatternUnit'),
+    formatX: (val) => `${t('analytics.isolation.anomalyTypes.accessPatternUnit')} ${val}:00`,
     colors: { bg: 'rgba(249,115,22,0.85)', border: 'rgba(249,115,22,1)', style: 'rectRot' }
   },
   'Data Access': {
-    xAxisTitle: 'Volume Export Data (MB)',
-    unit: 'MB',
-    formatX: (val) => `${val} MB`,
+    xAxisTitle: t('analytics.isolation.anomalyTypes.dataAccessXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.dataAccessUnit'),
+    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.dataAccessUnit')}`,
     colors: { bg: 'rgba(59,130,246,0.85)', border: 'rgba(59,130,246,1)', style: 'rect' }
   },
   'Inventory': {
-    xAxisTitle: 'Nilai Penyesuaian Stok (Rp Juta)',
-    unit: 'Rp Juta',
+    xAxisTitle: t('analytics.isolation.anomalyTypes.inventoryXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.inventoryUnit'),
     formatX: (val) => `Rp ${val}M`,
     colors: { bg: 'rgba(107,114,128,0.85)', border: 'rgba(107,114,128,1)', style: 'star' }
   },
   'Expense Report': {
-    xAxisTitle: 'Nominal Klaim Pengeluaran (Rp Juta)',
-    unit: 'Rp Juta',
+    xAxisTitle: t('analytics.isolation.anomalyTypes.expenseReportXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.expenseReportUnit'),
     formatX: (val) => `Rp ${val}M`,
     colors: { bg: 'rgba(234,179,8,0.85)', border: 'rgba(234,179,8,1)', style: 'rect' }
   },
   'Travel Expense': {
-    xAxisTitle: 'Nominal Biaya Perjalanan (Rp Juta)',
-    unit: 'Rp Juta',
+    xAxisTitle: t('analytics.isolation.anomalyTypes.travelExpenseXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.travelExpenseUnit'),
     formatX: (val) => `Rp ${val}M`,
     colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'rectRot' }
   },
   'Procurement': {
-    xAxisTitle: 'Nilai Pengadaan / Vendor (Rp Juta)',
-    unit: 'Rp Juta',
+    xAxisTitle: t('analytics.isolation.anomalyTypes.procurementXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.procurementUnit'),
     formatX: (val) => `Rp ${val}M`,
     colors: { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'triangle' }
   },
   'Transaction': {
-    xAxisTitle: 'Nominal Transaksi (Rp Juta)',
-    unit: 'Rp Juta',
+    xAxisTitle: t('analytics.isolation.anomalyTypes.transactionXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.transactionUnit'),
     formatX: (val) => `Rp ${val}M`,
     colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
   }
-}
+}))
 
 const selectedAnomalyType = ref('Expense Report')
 
@@ -461,7 +469,10 @@ const availableAnomalyTypes = computed(() => {
 
 watchEffect(() => {
   if ((selectedAnomalyType.value === 'All' || !selectedAnomalyType.value || !availableAnomalyTypes.value.includes(selectedAnomalyType.value)) && availableAnomalyTypes.value.length > 0) {
-    selectedAnomalyType.value = availableAnomalyTypes.value[0]
+    const firstType = availableAnomalyTypes.value[0]
+    if (firstType) {
+      selectedAnomalyType.value = firstType
+    }
   }
 })
 
@@ -489,20 +500,26 @@ const getScatterChartForType = (typeFilter: string) => {
     }
   })
 
-  const config = anomalyTypeConfigs[typeFilter] || anomalyTypeConfigs['Transaction']
+  const defaultConfig: AnomalyTypeConfig = {
+    xAxisTitle: t('analytics.isolation.anomalyTypes.transactionXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.transactionUnit'),
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
+  }
+  const config = anomalyTypeConfigs.value[typeFilter] || anomalyTypeConfigs.value['Transaction'] || defaultConfig
   const colors = config.colors
 
   return {
     datasets: [
       {
-        label: `Normal Data (${typeFilter})`,
+        label: t('analytics.isolation.labelNormalData', { type: typeFilter }),
         data: normalPoints,
         backgroundColor: 'rgba(59,130,246,0.3)',
         borderColor: 'rgba(59,130,246,0.5)',
         pointRadius: 4,
       },
       {
-        label: `Anomalies (${typeFilter})`,
+        label: t('analytics.isolation.labelAnomalies', { type: typeFilter }),
         data: anomalyPoints,
         backgroundColor: colors.bg,
         borderColor: colors.border,
@@ -516,7 +533,7 @@ const getScatterChartForType = (typeFilter: string) => {
 const scatterChartData = computed(() => getScatterChartForType(selectedAnomalyType.value))
 
 const scatterOptions = computed(() => {
-  const currentConfig = anomalyTypeConfigs[selectedAnomalyType.value] || {
+  const currentConfig = anomalyTypeConfigs.value[selectedAnomalyType.value] || {
     xAxisTitle: 'Metrik Anomali (Nilai / Score)',
     unit: 'Value',
     formatX: (val: number) => `${val}`
@@ -532,14 +549,14 @@ const scatterOptions = computed(() => {
           label: (ctx: any) => {
             const formattedX = currentConfig.formatX ? currentConfig.formatX(ctx.parsed.x) : `${ctx.parsed.x}`
             const metricName = currentConfig.xAxisTitle.split(' (')[0]
-            return `${metricName}: ${formattedX}, Frequency/Occurrence: ${ctx.parsed.y}`
+            return `${metricName}: ${formattedX}, ${t('analytics.isolation.axisFrequency')}: ${ctx.parsed.y}`
           }
         }
       }
     },
     scales: {
       x: { title: { display: true, text: currentConfig.xAxisTitle } },
-      y: { title: { display: true, text: 'Frequency / Occurrence' } }
+      y: { title: { display: true, text: t('analytics.isolation.axisFrequency') } }
     }
   }
 })
@@ -592,7 +609,7 @@ const timeSeriesChartData = computed(() => ({
   labels: (timeseriesState.value.historicalKPI || []).map((p: any) => p.period || ''),
   datasets: [
     {
-      label: 'Actual KPI (%)',
+      label: t('analytics.timeseries.labelActualKPI'),
       data: (timeseriesState.value.historicalKPI || []).map((p: any) => p.actual ?? null),
       borderColor: 'rgb(59,130,246)',
       backgroundColor: 'rgba(59,130,246,0.1)',
@@ -602,7 +619,7 @@ const timeSeriesChartData = computed(() => ({
       spanGaps: false,
     },
     {
-      label: 'PyTorch LSTM Forecast',
+      label: t('analytics.timeseries.labelForecast'),
       data: (timeseriesState.value.historicalKPI || []).map((p: any) => p.forecast ?? null),
       borderColor: 'rgb(139,92,246)',
       backgroundColor: 'rgba(139,92,246,0.1)',
@@ -614,7 +631,7 @@ const timeSeriesChartData = computed(() => ({
       spanGaps: false,
     },
     {
-      label: 'Upper Bound',
+      label: t('analytics.timeseries.labelUpperBound'),
       data: (timeseriesState.value.historicalKPI || []).map((p: any) => p.upperBound ?? null),
       borderColor: 'transparent',
       backgroundColor: 'rgba(139,92,246,0.08)',
@@ -624,7 +641,7 @@ const timeSeriesChartData = computed(() => ({
       spanGaps: false,
     },
     {
-      label: 'Lower Bound',
+      label: t('analytics.timeseries.labelLowerBound'),
       data: (timeseriesState.value.historicalKPI || []).map((p: any) => p.lowerBound ?? null),
       borderColor: 'transparent',
       backgroundColor: 'rgba(139,92,246,0.08)',
@@ -636,29 +653,29 @@ const timeSeriesChartData = computed(() => ({
   ]
 }))
 
-const timeSeriesOptions = {
+const timeSeriesOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'top' as const,
       labels: {
-        filter: (item: any) => !['Upper Bound', 'Lower Bound'].includes(item.text)
+        filter: (item: any) => ![t('analytics.timeseries.labelUpperBound'), t('analytics.timeseries.labelLowerBound')].includes(item.text)
       }
     },
     tooltip: {
       callbacks: {
         label: (ctx: any) => {
-          if (['Upper Bound', 'Lower Bound'].includes(ctx.dataset.label)) return ''
+          if ([t('analytics.timeseries.labelUpperBound'), t('analytics.timeseries.labelLowerBound')].includes(ctx.dataset.label)) return ''
           return `${ctx.dataset.label}: ${formatNum(ctx.parsed.y, 1)}%`
         }
       }
     }
   },
   scales: {
-    y: { title: { display: true, text: 'KPI Score (%)' } }
+    y: { title: { display: true, text: t('analytics.timeseries.axisKPIScore') } }
   }
-}
+}))
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 type BadgeColor = 'error' | 'primary' | 'warning' | 'success' | 'info' | 'neutral'
@@ -698,16 +715,16 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
       <div>
         <h1 class="text-3xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
           <UIcon name="i-heroicons-cpu-chip" class="text-indigo-600 dark:text-indigo-400 w-8 h-8" />
-          AI & Analytics Center
+          {{ t('analytics.title') }}
         </h1>
         <p class="text-gray-500 dark:text-gray-400 mt-1">
-          Integrasi Terpadu Model Machine Learning & Deep Learning (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)
+          {{ t('analytics.subtitle') }}
         </p>
       </div>
       <div class="flex items-center gap-2">
         <UBadge :color="isAiConnected ? 'primary' : 'warning'" variant="subtle" size="lg" class="px-3 py-1 font-bold">
           <UIcon :name="isAiConnected ? 'i-heroicons-check-circle' : 'i-heroicons-exclamation-triangle'" :class="isAiConnected ? 'text-emerald-500' : 'text-amber-500'" class="w-4 h-4 mr-1" />
-          {{ isAiConnected ? '4 Trained Models Active & Synchronized' : (usingCachedRealData ? 'Offline - Displaying Saved Real Data' : 'AI Backend Disconnected') }}
+          {{ isAiConnected ? t('analytics.statusActive') : (usingCachedRealData ? t('analytics.statusOffline') : t('analytics.statusDisconnected')) }}
         </UBadge>
       </div>
     </div>
@@ -719,17 +736,17 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
       color="warning"
       variant="solid"
       class="mb-6 border border-amber-500 shadow-md font-medium"
-      :title="usingCachedRealData ? '⚠️ Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)' : '⚠️ Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend'"
+      :title="usingCachedRealData ? t('analytics.warningTitleCached') : t('analytics.warningTitleDisconnected')"
       :description="usingCachedRealData
-        ? `Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada ${lastSyncedTime || 'sesi sebelumnya'} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.`
-        : 'Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.'"
+        ? t('analytics.warningDescCached', { time: lastSyncedTime || '' })
+        : t('analytics.warningDescDisconnected')"
     />
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center items-center h-96">
       <div class="flex flex-col items-center gap-4">
         <UIcon name="i-heroicons-cpu-chip" class="w-12 h-12 animate-pulse text-indigo-500" />
-        <span class="text-sm font-semibold text-gray-500 animate-pulse">Menghubungkan & Memuat Model AI...</span>
+        <span class="text-sm font-semibold text-gray-500 animate-pulse">{{ t('analytics.loading') }}</span>
       </div>
     </div>
 
@@ -742,7 +759,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <UIcon name="i-heroicons-chart-bar-square" class="w-5 h-5 text-indigo-500" />
             </div>
             <div>
-              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Entities Scored</div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.summary.entitiesScored') }}</div>
               <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400">{{ xgboostState.predictions.length }}</div>
             </div>
           </div>
@@ -753,7 +770,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <UIcon name="i-heroicons-shield-exclamation" class="w-5 h-5 text-rose-500" />
             </div>
             <div>
-              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Anomalies Detected</div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.summary.anomaliesDetected') }}</div>
               <div class="text-2xl font-black text-rose-600 dark:text-rose-400">{{ summary.anomaliesDetected }}</div>
             </div>
           </div>
@@ -764,7 +781,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <UIcon name="i-heroicons-document-magnifying-glass" class="w-5 h-5 text-amber-500" />
             </div>
             <div>
-              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Docs Analyzed</div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.summary.docsAnalyzed') }}</div>
               <div class="text-2xl font-black text-amber-600 dark:text-amber-400">{{ nlpState.documents.length }}</div>
             </div>
           </div>
@@ -775,7 +792,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <UIcon name="i-heroicons-bell-alert" class="w-5 h-5 text-violet-500" />
             </div>
             <div>
-              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">KPI Forecasts</div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.summary.kpiForecasts') }}</div>
               <div class="text-2xl font-black text-violet-600 dark:text-violet-400">{{ timeseriesState.kpiForecasts.length }}</div>
             </div>
           </div>
@@ -793,59 +810,62 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               icon="i-heroicons-cpu-chip"
               color="primary"
               variant="subtle"
-              title="Department & Entity Risk Scoring ML Model"
-              description="Model Machine Learning memprediksi Impact dan Likelihood departemen/cabang secara dinamis berdasarkan achievement KPI, temuan audit lalu, dan volatilitas."
+              :title="t('analytics.xgboost.alertTitle')"
+              :description="t('analytics.xgboost.alertDesc')"
             />
 
-            <!-- Predicted vs Actual Chart -->
-            <UCard class="lg:col-span-2">
-              <template #header>
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
-                  <h3 class="font-bold">Predicted vs Actual Risk Score</h3>
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Predicted vs Actual Chart -->
+              <UCard class="lg:col-span-2">
+                <template #header>
+                  <div class="flex items-center gap-2">
+                    <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
+                    <h3 class="font-bold">{{ t('analytics.xgboost.chartPredictedVsActual') }}</h3>
+                  </div>
+                </template>
+                <div class="h-80">
+                  <Bar :data="xgboostBarData" :options="xgboostBarOptions" />
                 </div>
-              </template>
-              <div class="h-80">
-                <Bar :data="xgboostBarData" :options="xgboostBarOptions" />
-              </div>
-            </UCard>
+              </UCard>
 
-            <!-- Feature Importance -->
-            <UCard>
-              <template #header>
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-adjustments-horizontal" class="text-orange-500" />
-                  <h3 class="font-bold">Feature Importance (Top Predictors)</h3>
+              <!-- Feature Importance -->
+              <UCard class="lg:col-span-1">
+                <template #header>
+                  <div class="flex items-center gap-2">
+                    <UIcon name="i-heroicons-adjustments-horizontal" class="text-orange-500" />
+                    <h3 class="font-bold">{{ t('analytics.xgboost.chartFeatureImportance') }}</h3>
+                  </div>
+                </template>
+                <div class="h-80">
+                  <Bar :data="featureBarData" :options="featureBarOptions" />
                 </div>
-              </template>
-              <div class="h-72">
-                <Bar :data="featureBarData" :options="featureBarOptions" />
-              </div>
-            </UCard>
+              </UCard>
+            </div>
 
             <!-- Predictions Table -->
             <UCard>
               <template #header>
                 <div class="flex items-center gap-2">
                   <UIcon name="i-heroicons-table-cells" class="text-blue-500" />
-                  <h3 class="font-bold">Entity Risk Score Predictions</h3>
+                  <h3 class="font-bold">{{ t('analytics.xgboost.tableTitle') }}</h3>
                 </div>
               </template>
               <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                   <thead>
                     <tr class="border-b border-gray-200 dark:border-gray-700">
-                      <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Entity</th>
-                      <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Type</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Kategori Risiko</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Target Periode</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Pred. Likelihood</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Pred. Impact</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Pred. Score</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Pred. Risk Level</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Actual</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Actual Risk Level</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">Trend</th>
+                      <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colEntity') }}</th>
+                      <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colType') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colRiskCategory') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colTargetPeriod') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredLikelihood') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredImpact') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredScore') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredRiskLevel') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colActual') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colActualRiskLevel') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colTrend') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -896,33 +916,33 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               icon="i-heroicons-shield-exclamation"
               color="warning"
               variant="subtle"
-              title="Transaction Anomaly Detection Model"
-              description="Model Machine Learning memindai pola transaksi (jumlah, jam operasional, hari, penerima baru, pola pembulatan) untuk mendeteksi anomali fraud secara real-time."
+              :title="t('analytics.isolation.alertTitle')"
+              :description="t('analytics.isolation.alertDesc')"
             />
 
             <!-- Summary Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <UCard>
                 <div class="text-center">
-                  <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Records Scanned</div>
+                  <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.recordsScanned') }}</div>
                   <div class="text-2xl font-black mt-1">{{ (isolationState.summary?.totalScanned || 0).toLocaleString() }}</div>
                 </div>
               </UCard>
               <UCard>
                 <div class="text-center">
-                  <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Anomalies Found</div>
+                  <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.anomaliesFound') }}</div>
                   <div class="text-2xl font-black text-rose-500 mt-1">{{ summary.anomaliesDetected }}</div>
                 </div>
               </UCard>
               <UCard>
                 <div class="text-center">
-                  <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Contamination Rate</div>
+                  <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.contaminationRate') }}</div>
                   <div class="text-2xl font-black text-amber-500 mt-1">{{ formatNum((isolationState.summary?.contaminationRate || 0) * 100, 1) }}%</div>
                 </div>
               </UCard>
               <UCard>
                 <div class="text-center">
-                  <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Top Category</div>
+                  <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.topCategory') }}</div>
                   <div class="text-2xl font-black text-indigo-500 mt-1">{{ isolationState.summary?.topCategory || 'Transaction' }}</div>
                 </div>
               </UCard>
@@ -934,7 +954,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex items-center gap-2">
                     <UIcon name="i-heroicons-chart-bar" class="text-blue-500" />
-                    <h3 class="font-bold">Data Pattern Distribution per Anomaly Type</h3>
+                    <h3 class="font-bold">{{ t('analytics.isolation.chartTitle') }}</h3>
                   </div>
                   <!-- Anomaly Type Selector Buttons -->
                   <div class="flex flex-wrap gap-1">
@@ -944,7 +964,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       :color="selectedAnomalyType === t ? 'primary' : 'neutral'"
                       :variant="selectedAnomalyType === t ? 'solid' : 'ghost'"
                       size="md"
-                      @click="selectedAnomalyType = t"
+                      @click="() => { selectedAnomalyType = t }"
                     >
                       {{ t }}
                     </UButton>
@@ -961,19 +981,19 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <template #header>
                 <div class="flex items-center gap-2">
                   <UIcon name="i-heroicons-table-cells" class="text-rose-500" />
-                  <h3 class="font-bold">Detected Anomalies Detail</h3>
+                  <h3 class="font-bold">{{ t('analytics.isolation.tableTitle') }}</h3>
                 </div>
               </template>
               <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                   <thead>
                     <tr class="border-b border-gray-200 dark:border-gray-700">
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">ID</th>
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Entity</th>
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Type</th>
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[300px]">Description</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Risk Level</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Date</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colID') }}</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colEntity') }}</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colType') }}</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[300px]">{{ t('analytics.isolation.colDescription') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colRiskLevel') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colDate') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1008,15 +1028,15 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               icon="i-heroicons-document-magnifying-glass"
               color="success"
               variant="subtle"
-              title="IndoBERT NLP Document Analysis Model"
-              description="Model IndoBERT & Natural Language Processing menganalisis kutipan Laporan Hasil Audit (Bahasa Indonesia) untuk mengklasifikasi kategori risiko, sentimen, impact, dan likelihood secara otomatis."
+              :title="t('analytics.nlp.alertTitle')"
+              :description="t('analytics.nlp.alertDesc')"
             />
 
             <!-- Charts Row -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <UCard>
                 <template #header>
-                  <h3 class="font-bold text-sm">Auto-Classified Risk Categories</h3>
+                  <h3 class="font-bold text-sm">{{ t('analytics.nlp.chartCategoryTitle') }}</h3>
                 </template>
                 <div class="h-60">
                   <Doughnut :data="categoryDoughnutData" :options="doughnutOptions" />
@@ -1024,7 +1044,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               </UCard>
               <UCard>
                 <template #header>
-                  <h3 class="font-bold text-sm">Sentiment Distribution</h3>
+                  <h3 class="font-bold text-sm">{{ t('analytics.nlp.chartSentimentTitle') }}</h3>
                 </template>
                 <div class="h-60">
                   <Doughnut :data="sentimentDoughnutData" :options="doughnutOptions" />
@@ -1037,19 +1057,19 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <template #header>
                 <div class="flex items-center gap-2">
                   <UIcon name="i-heroicons-document-text" class="text-violet-500" />
-                  <h3 class="font-bold">Analyzed Documents</h3>
+                  <h3 class="font-bold">{{ t('analytics.nlp.tableTitle') }}</h3>
                 </div>
               </template>
               <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                   <thead>
                     <tr class="border-b border-gray-200 dark:border-gray-700">
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Doc ID</th>
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Title</th>
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Source</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Category</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Sentiment</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Risk Level</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.nlp.colDocID') }}</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.nlp.colTitle') }}</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.nlp.colSource') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.nlp.colCategory') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.nlp.colSentiment') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.nlp.colRiskLevel') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1087,8 +1107,8 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               icon="i-heroicons-arrow-trending-up"
               color="info"
               variant="subtle"
-              title="Time-Series KPI PyTorch LSTM Forecasting Model"
-              description="Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis untuk peringatan dini perencanaan audit."
+              :title="t('analytics.timeseries.alertTitle')"
+              :description="t('analytics.timeseries.alertDesc')"
             />
 
             <!-- Forecast Chart -->
@@ -1097,8 +1117,8 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                 <template #header>
                   <div class="flex items-center gap-2">
                     <UIcon name="i-heroicons-chart-bar" class="text-violet-500" />
-                    <h3 class="font-bold">KPI Performance Forecast</h3>
-                    <UBadge color="info" variant="subtle" size="md" class="ml-auto">Shaded area = confidence interval</UBadge>
+                    <h3 class="font-bold">{{ t('analytics.timeseries.chartTitle') }}</h3>
+                    <UBadge color="info" variant="subtle" size="md" class="ml-auto">{{ t('analytics.timeseries.chartConfidenceBadge') }}</UBadge>
                   </div>
                 </template>
                 <div class="h-80">
@@ -1110,7 +1130,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <div class="space-y-6">
                 <UCard>
                   <template #header>
-                    <h3 class="font-bold text-sm">⚠️ At-Risk Departments</h3>
+                    <h3 class="font-bold text-sm">{{ t('analytics.timeseries.atRiskTitle') }}</h3>
                   </template>
                   <div class="space-y-3">
                     <div v-for="dept in timeseriesState.atRiskDepartments" :key="dept.department" class="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
@@ -1128,7 +1148,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       <div class="text-[10px] text-gray-500 mt-0.5">{{ dept.kpi }}</div>
                       <div class="flex items-center gap-2 mt-1.5">
                         <UIcon name="i-heroicons-arrow-trending-down" class="w-4 h-4 text-rose-500" />
-                        <span class="text-md font-bold text-rose-500">{{ formatNum(dept.predictedQ3, 1) }}% projected Q3</span>
+                        <span class="text-md font-bold text-rose-500">{{ formatNum(dept.predictedQ3, 1) }}{{ t('analytics.timeseries.projectedQ3') }}</span>
                       </div>
                     </div>
                   </div>
@@ -1141,23 +1161,23 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <template #header>
                 <div class="flex items-center gap-2">
                   <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
-                  <h3 class="font-bold">KPI Forecast Summary</h3>
+                  <h3 class="font-bold">{{ t('analytics.timeseries.tableTitle') }}</h3>
                 </div>
               </template>
               <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                   <thead>
                     <tr class="border-b border-gray-200 dark:border-gray-700">
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Code</th>
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">KPI</th>
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Entity</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Type</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Horizon Prediksi</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Current</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Forecast</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Trend</th>
-                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Risk Level</th>
-                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[250px]">Recommended Action</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colCode') }}</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colKPI') }}</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colEntity') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colType') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colForecastHorizon') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colCurrent') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colForecast') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colTrend') }}</th>
+                      <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colRiskLevel') }}</th>
+                      <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[250px]">{{ t('analytics.timeseries.colRecommendedAction') }}</th>
                     </tr>
                   </thead>
                   <tbody>

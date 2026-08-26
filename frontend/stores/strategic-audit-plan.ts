@@ -116,11 +116,11 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             unit: '%',
             hibHig: 'HIG',
             periodType: 'Quartal',
-            selectedPeriod: 'Q1',
-            yearStart: 2024,
-            yearEnd: 2028,
-            kpiTargets: { 2024: '85', 2025: '90', 2026: '95', 2027: '98', 2028: '100' },
-            kpiActuals: { 2024: '87', 2025: '92', 2026: '97', 2027: '', 2028: '' },
+            selectedPeriod: 'Q1-2026',
+            yearStart: 2026,
+            yearEnd: 2027,
+            kpiTargets: { 'Q1-2026': '95', 'Q2-2026': '95', 'Q3-2026': '95', 'Q4-2026': '95', 'Q1-2027': '98', 'Q2-2027': '98', 'Q3-2027': '98', 'Q4-2027': '98' },
+            kpiActuals: { 'Q1-2026': '97', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
             internalAuditSO: 'Tingkatkan efisiensi pelaksanaan audit tahunan',
             actual: '97',
             target: '95',
@@ -134,13 +134,13 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             kpi: 'Report Timeliness',
             unit: '%',
             hibHig: 'HIG',
-            yearStart: 2024,
-            yearEnd: 2028,
-            kpiTargets: { 2024: '85', 2025: '90', 2026: '95', 2027: '98', 2028: '100' },
-            kpiActuals: { 2024: '88', 2025: '91', 2026: '98', 2027: '', 2028: '' },
+            yearStart: 2026,
+            yearEnd: 2027,
+            kpiTargets: { 'Q1-2026': '95', 'Q2-2026': '95', 'Q3-2026': '95', 'Q4-2026': '95', 'Q1-2027': '98', 'Q2-2027': '98', 'Q3-2027': '98', 'Q4-2027': '98' },
+            kpiActuals: { 'Q1-2026': '98', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
             internalAuditSO: 'Percepat penyampaian LHA ke pihak manajemen',
             periodType: 'Quartal',
-            selectedPeriod: 'Q1',
+            selectedPeriod: 'Q1-2026',
             actual: '98',
             target: '95',
             calculation: '103.16%',
@@ -155,8 +155,8 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             hibHig: 'HIG',
             yearStart: 2024,
             yearEnd: 2028,
-            kpiTargets: { 2024: '4.0', 2025: '4.2', 2026: '4.5', 2027: '4.8', 2028: '5.0' },
-            kpiActuals: { 2024: '4.2', 2025: '4.5', 2026: '4.7', 2027: '', 2028: '' },
+            kpiTargets: { '2024': '4.0', '2025': '4.2', '2026': '4.5', '2027': '4.8', '2028': '5.0' },
+            kpiActuals: { '2024': '4.2', '2025': '4.5', '2026': '4.7', '2027': '', '2028': '' },
             internalAuditSO: 'Tingkatkan kualitas layanan & rekomendasi audit',
             periodType: 'Yearly',
             selectedPeriod: '2026',
@@ -172,13 +172,13 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             kpi: 'Action Plan Closed',
             unit: '%',
             hibHig: 'HIG',
-            yearStart: 2024,
-            yearEnd: 2028,
-            kpiTargets: { 2024: '80', 2025: '85', 2026: '90', 2027: '95', 2028: '100' },
-            kpiActuals: { 2024: '82', 2025: '84', 2026: '87', 2027: '', 2028: '' },
+            yearStart: 2026,
+            yearEnd: 2027,
+            kpiTargets: { 'Q1-2026': '90', 'Q2-2026': '90', 'Q3-2026': '90', 'Q4-2026': '90', 'Q1-2027': '95', 'Q2-2027': '95', 'Q3-2027': '95', 'Q4-2027': '95' },
+            kpiActuals: { 'Q1-2026': '87', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
             internalAuditSO: 'Memastikan seluruh temuan audit ditindaklanjuti auditee',
             periodType: 'Quartal',
-            selectedPeriod: 'Q1',
+            selectedPeriod: 'Q1-2026',
             actual: '87',
             target: '90',
             calculation: '96.67%',
@@ -191,13 +191,13 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             kpi: 'Monthly Completion Rate',
             unit: '%',
             hibHig: 'HIG',
-            yearStart: 2024,
-            yearEnd: 2028,
-            kpiTargets: { 2024: '80', 2025: '85', 2026: '90', 2027: '95', 2028: '100' },
-            kpiActuals: { 2024: '85', 2025: '88', 2026: '95', 2027: '', 2028: '' },
+            yearStart: 2026,
+            yearEnd: 2027,
+            kpiTargets: { 'Q1-2026': '90', 'Q2-2026': '90', 'Q3-2026': '90', 'Q4-2026': '90', 'Q1-2027': '95', 'Q2-2027': '95', 'Q3-2027': '95', 'Q4-2027': '95' },
+            kpiActuals: { 'Q1-2026': '95', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
             internalAuditSO: 'Monitoring progres penyelesaian audit per bulan',
             periodType: 'Quartal',
-            selectedPeriod: 'Q1',
+            selectedPeriod: 'Q1-2026',
             actual: '95',
             target: '90',
             calculation: '105.56%',
@@ -206,8 +206,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     ];
 
     const strategicObjectives = ref<StrategicAuditPlan[]>([...mockObjectives]);
-
-
 
     const fetchStrategicPlans = async () => {
         loading.value = true;
@@ -244,49 +242,16 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     fetchStrategicPlans();
 
     const columns: TableColumn<StrategicAuditPlan>[] = [
-        {
-            accessorKey: 'code',
-            header: 'Objective ID',
-            cell: (row) => row.getValue(),
-        },
-        {
-            accessorKey: 'strategicObjective',
-            header: 'Strategic Objective',
-        },
-        {
-            accessorKey: 'kpi',
-            header: 'KPI Name',
-        },
-        {
-            accessorKey: 'unit',
-            header: 'Unit',
-        },
-        {
-            accessorKey: 'selectedPeriod',
-            header: 'Period',
-        },
-        {
-            accessorKey: 'target',
-            header: 'Target',
-        },
-        {
-            accessorKey: 'actual',
-            header: 'Actual',
-        },
-        {
-            accessorKey: 'calculation',
-            header: 'Hitungan',
-        },
-        {
-            accessorKey: 'status',
-            header: 'Keterangan',
-            cell: 'status-cell',
-        },
-        {
-            accessorKey: 'actions',
-            header: 'Actions',
-            cell: 'actions-cell',
-        },
+        { accessorKey: 'code', header: 'Objective ID' },
+        { accessorKey: 'strategicObjective', header: 'Strategic Objective' },
+        { accessorKey: 'kpi', header: 'KPI Name' },
+        { accessorKey: 'unit', header: 'Unit' },
+        { accessorKey: 'selectedPeriod', header: 'Period' },
+        { accessorKey: 'target', header: 'Target' },
+        { accessorKey: 'actual', header: 'Actual' },
+        { accessorKey: 'calculation', header: 'Hitungan' },
+        { accessorKey: 'status', header: 'Keterangan' },
+        { accessorKey: 'actions', header: 'Actions' },
     ];
 
     const getRowActions = (row: any) => [
@@ -350,21 +315,14 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const handleEdit = (item: any) => {
         isEditMode.value = true;
         const startY = item.yearStart || currentYear;
+        const endY = item.yearEnd || (startY + 4);
         const targets: Record<string, string> = { ...(item.kpiTargets || {}) };
         const actuals: Record<string, string> = { ...(item.kpiActuals || {}) };
-        for (let i = 0; i < 5; i++) {
-            const yr = String(startY + i);
-            if (targets[yr] === undefined || targets[yr] === null) {
-                targets[yr] = item.target || '';
-            }
-            if (actuals[yr] === undefined || actuals[yr] === null) {
-                actuals[yr] = item.actual || '';
-            }
-        }
+
         form.value = {
             ...item,
             yearStart: startY,
-            yearEnd: startY + 4,
+            yearEnd: endY,
             kpiTargets: targets,
             kpiActuals: actuals,
         };
@@ -390,29 +348,77 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         }
     };
 
+    const cleanKpiMaps = () => {
+        if (!form.value.kpiTargets) form.value.kpiTargets = {};
+        if (!form.value.kpiActuals) form.value.kpiActuals = {};
+
+        const cleanedTargets: Record<string, string> = {};
+        const cleanedActuals: Record<string, string> = {};
+
+        if (form.value.periodType === 'Quartal') {
+            for (const [key, val] of Object.entries(form.value.kpiTargets)) {
+                if (!/^\d{4}$/.test(key) && val !== undefined && val !== null) {
+                    cleanedTargets[key] = String(val);
+                }
+            }
+            for (const [key, val] of Object.entries(form.value.kpiActuals)) {
+                if (!/^\d{4}$/.test(key) && val !== undefined && val !== null) {
+                    cleanedActuals[key] = String(val);
+                }
+            }
+        } else {
+            for (const [key, val] of Object.entries(form.value.kpiTargets)) {
+                if (/^\d{4}$/.test(key) && val !== undefined && val !== null) {
+                    cleanedTargets[key] = String(val);
+                }
+            }
+            for (const [key, val] of Object.entries(form.value.kpiActuals)) {
+                if (/^\d{4}$/.test(key) && val !== undefined && val !== null) {
+                    cleanedActuals[key] = String(val);
+                }
+            }
+        }
+
+        form.value.kpiTargets = cleanedTargets;
+        form.value.kpiActuals = cleanedActuals;
+    };
+
     const handleSubmit = async () => {
+        cleanKpiMaps();
+
         if (!form.value.code) {
             form.value.code = `SO-IA${String(strategicObjectives.value.length + 1).padStart(2, '0')}`;
         }
         
         const startY = form.value.yearStart || currentYear;
-        if (!form.value.kpiTargets) form.value.kpiTargets = {};
-        if (!form.value.kpiActuals) form.value.kpiActuals = {};
-        const targets = form.value.kpiTargets as any;
-        const actuals = form.value.kpiActuals as any;
-        for (let i = 0; i < 5; i++) {
-            const yr = String(startY + i);
-            if (targets[yr] === undefined) {
-                targets[yr] = '';
+        const endY = form.value.yearEnd || (startY + 4);
+        const targets = form.value.kpiTargets as Record<string, string>;
+        const actuals = form.value.kpiActuals as Record<string, string>;
+
+        const selPeriod = form.value.selectedPeriod || (form.value.periodType === 'Quartal' ? `Q1-${startY}` : String(startY));
+        let currentTarget = targets[selPeriod] || targets['Q1-' + startY] || targets[String(startY)] || form.value.target;
+        let currentActual = actuals[selPeriod] || actuals['Q1-' + startY] || actuals[String(startY)] || form.value.actual;
+
+        if (form.value.periodType === 'Quartal') {
+            if (!currentTarget) {
+                for (let y = startY; y <= endY; y++) {
+                    for (const q of ['Q1', 'Q2', 'Q3', 'Q4']) {
+                        const k = `${q}-${y}`;
+                        if (targets[k]) { currentTarget = targets[k]; break; }
+                    }
+                    if (currentTarget) break;
+                }
             }
-            if (actuals[yr] === undefined) {
-                actuals[yr] = '';
+            if (!currentActual) {
+                for (let y = startY; y <= endY; y++) {
+                    for (const q of ['Q1', 'Q2', 'Q3', 'Q4']) {
+                        const k = `${q}-${y}`;
+                        if (actuals[k]) { currentActual = actuals[k]; break; }
+                    }
+                    if (currentActual) break;
+                }
             }
         }
-        
-        const selPeriod = form.value.selectedPeriod || String(startY);
-        const currentTarget = targets[selPeriod] || targets[String(startY)] || form.value.target;
-        const currentActual = actuals[selPeriod] || actuals[String(startY)] || form.value.actual;
         
         if (currentTarget !== undefined && currentTarget !== '') {
             form.value.target = String(currentTarget);
@@ -425,9 +431,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         
         loading.value = true;
         errorMsg.value = '';
+        const appToast = useAppToast();
+        const editModeState = isEditMode.value;
+
         try {
             const baseUrl = getAuditServiceBaseUrl();
-            if (isEditMode.value) {
+            if (editModeState) {
                 await $fetch(`${baseUrl}/strategic-plans/${form.value.id}`, {
                     method: 'PUT',
                     body: form.value
@@ -446,10 +455,18 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                 strategicObjectives.value.push({ ...form.value, id: String(Date.now()) } as StrategicAuditPlan);
             }
 
+            appToast.success(
+                editModeState ? 'Rencana Strategis Diperbarui' : 'Rencana Strategis Dibuat',
+                `Rencana Strategis "${form.value.strategicObjective || form.value.code}" berhasil disimpan.`
+            );
+
             closeModal();
             await fetchStrategicPlans();
         } catch (error: any) {
             console.error('Failed to save strategic plan:', error);
+            const detail = error.data?.error?.message || error.message || 'Gagal menyimpan rencana strategis.';
+            appToast.error('Gagal Menyimpan Rencana Strategis', detail);
+
             const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
             if (idx !== -1) {
                 strategicObjectives.value[idx] = { ...form.value } as StrategicAuditPlan;
@@ -463,6 +480,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     };
 
     watch(() => form.value.periodType, (newType) => {
+        cleanKpiMaps();
         if (newType === 'Quartal') {
             form.value.selectedPeriod = 'Q1';
         } else {

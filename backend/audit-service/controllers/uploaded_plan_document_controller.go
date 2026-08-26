@@ -82,6 +82,7 @@ func (ctrl *UploadedPlanDocumentController) Upload(c *gin.Context) {
 		FileName:    req.FileName,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
+		FileContent: dec,
 		FileType:    req.FileType,
 	}
 
@@ -151,6 +152,19 @@ func (ctrl *UploadedPlanDocumentController) Download(c *gin.Context) {
 			return
 		}
 		response.InternalServerError(c, "Failed to fetch uploaded plan document")
+		return
+	}
+
+		if len(paper.FileContent) > 0 {
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", paper.FileName))
+		if paper.FileType != "" {
+			c.Header("Content-Type", paper.FileType)
+		} else {
+			c.Header("Content-Type", "application/octet-stream")
+		}
+		c.Data(http.StatusOK, paper.FileType, paper.FileContent)
 		return
 	}
 

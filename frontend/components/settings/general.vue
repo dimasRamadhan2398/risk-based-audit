@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-6 max-w-4xl">
+  <div class="space-y-6 w-full">
     <!-- General Settings Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="w-full border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
       <template #header>
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.general.cardTitle') }}</h3>
       </template>
@@ -45,7 +45,7 @@
     </UCard>
 
     <!-- Language & Region Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="w-full border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
       <template #header>
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.general.languageRegion') }}</h3>
       </template>
@@ -68,7 +68,7 @@
     </UCard>
 
     <!-- Change Password Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="w-full border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
       <template #header>
         <div class="space-y-2">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.general.changePassword') }}</h3>

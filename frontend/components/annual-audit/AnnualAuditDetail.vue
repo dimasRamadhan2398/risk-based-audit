@@ -17,7 +17,6 @@
                 <div class="flex items-center gap-2">
                   <UButton label="Delete" color="error" icon="i-heroicons-trash" size="md" @click="store.handleDelete(store.selectedPlan.id)"/>
                   <UButton 
-                    label="Edit Data" 
                     color="warning" 
                     icon="i-heroicons-pencil-square" 
                     size="md"

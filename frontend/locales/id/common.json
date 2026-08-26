@@ -1,11 +1,36 @@
 {
   "auth": {
     "login": {
-      "title": "Masuk ke akun Anda",
-      "subtitle": "Sistem Audit Internal Berbasis Risiko",
+      "title": "Selamat Datang",
+      "subtitle": "Silahkan login terlebih dahulu",
       "button": "Masuk",
+      "verifying": "Memverifikasi...",
       "link": "Masuk",
-      "error": "Email atau password salah"
+      "error": "Email atau password salah",
+      "newDeviceHint": "Login dari perangkat baru terdeteksi. Verifikasi OTP mungkin diperlukan.",
+      "username": "Username",
+      "usernamePlaceholder": "Masukkan username Anda",
+      "usernameRequired": "Username wajib diisi",
+      "usernameMinLength": "Username minimal 3 karakter",
+      "password": "Password",
+      "passwordPlaceholder": "Masukkan password Anda",
+      "passwordRequired": "Password wajib diisi",
+      "rememberMe": "Ingat saya",
+      "forgotPassword": "Lupa Password?",
+      "encryptedConnection": "Koneksi terenkripsi - {device}",
+      "needAccount": "Butuh akun? Hubungi Administrator sistem.",
+      "generalError": "Terjadi kesalahan saat login. Coba lagi.",
+      "serverError": "Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.",
+      "invalidCredentials": "Username atau password salah.",
+      "errors": {
+        "notFound": "Layanan autentikasi tidak ditemukan (404). Hubungi administrator sistem.",
+        "serviceUnavailable": "Server sedang tidak dapat diakses (502/503). Pastikan layanan backend sedang berjalan dan coba lagi.",
+        "serverError": "Terjadi kesalahan internal pada server (500). Coba lagi dalam beberapa saat.",
+        "invalidCredentials": "Username atau password salah. Periksa kembali dan coba lagi.",
+        "tooManyRequests": "Terlalu banyak percobaan login. Silakan tunggu beberapa saat sebelum mencoba kembali.",
+        "networkError": "Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.",
+        "generic": "Terjadi kesalahan saat login. Coba lagi."
+      }
     },
     "register": {
       "title": "Buat akun Anda",
@@ -636,7 +661,8 @@
       "weightInfo": "Bobot: {weight}% | Terbobot: {weighted}",
       "selectEntityTitle": "Pilih Entitas Auditee",
       "selectEntityDesc": "Pilih tahun dan entitas auditee aktif dari menu pilihan di atas untuk memulai penilaian risiko.",
-      "saveBtn": "Simpan Penilaian & Hitung"
+      "saveBtn": "Simpan Penilaian & Hitung",
+      "guidelinesTooltip": "Panduan Skala Penilaian"
     },
     "priority": {
       "title": "Prioritas Audit ({year})",
@@ -857,101 +883,101 @@
         "mitigation": "Rencana Mitigasi",
         "actions": "Aksi"
       }
+    }
+  },
+  "riskProfile": {
+    "title": "Profil Risiko Perusahaan",
+    "subtitle": "Heat Map Risiko Interaktif — Tahun Buku {year} ({period})",
+    "total": "Total",
+    "priority": "Prioritas",
+    "addRisk": "Tambah Risiko",
+    "filterBranch": "Filter Cabang/Dept",
+    "allBranches": "Semua Cabang",
+    "fiscalYear": "Tahun Buku",
+    "period": "Periode",
+    "riskLevels": "Tingkat Risiko",
+    "likelihoodLevel": "TINGKAT KEMUNGKINAN",
+    "impactLevel": "TINGKAT DAMPAK",
+    "quickTip": {
+      "title": "Tips Cepat",
+      "desc": "Tarik dan lepas risiko untuk memperbarui statusnya. Ganti kuartal untuk memantau perubahan risiko dari waktu ke waktu."
     },
-    "riskProfile": {
-      "title": "Profil Risiko Perusahaan",
-      "subtitle": "Heat Map Risiko Interaktif — Tahun Buku {year} ({period})",
-      "total": "Total",
-      "priority": "Prioritas",
-      "addRisk": "Tambah Risiko",
-      "filterBranch": "Filter Cabang/Dept",
-      "allBranches": "Semua Cabang",
-      "fiscalYear": "Tahun Buku",
-      "period": "Periode",
-      "riskLevels": "Tingkat Risiko",
-      "likelihoodLevel": "TINGKAT KEMUNGKINAN",
-      "impactLevel": "TINGKAT DAMPAK",
-      "quickTip": {
-        "title": "Tips Cepat",
-        "desc": "Tarik dan lepas risiko untuk memperbarui statusnya. Ganti kuartal untuk memantau perubahan risiko dari waktu ke waktu."
-      },
-      "tabs": {
-        "priority": "Risiko Prioritas ({count})",
-        "all": "Semua Risiko ({count})",
-        "progress": "Tabel Perkembangan Risiko"
-      },
-      "table": {
-        "no": "No",
-        "riskEvent": "Peristiwa Risiko",
-        "impactScale": "Skala Dampak",
-        "likelihoodScale": "Skala Kemungkinan",
-        "riskLevel": "Level Risiko"
-      },
-      "addModal": {
-        "title": "Tambah Risiko Perusahaan Baru",
-        "desc": "Masukkan rincian risiko baru yang akan ditambahkan ke heat map.",
-        "name": "Nama Risiko",
-        "namePlaceholder": "Contoh: Target pendapatan dan laba tidak tercapai",
-        "category": "Kategori",
-        "branch": "Cabang / Departemen",
-        "quarterlyTitle": "Pelacakan Skor Residual Triwulanan (FY {year})",
-        "impact": "Dampak",
-        "likelihood": "Kemungkinan",
-        "description": "Deskripsi Risiko",
-        "descriptionPlaceholder": "Jelaskan risiko dan potensi dampaknya...",
-        "saveBtn": "Simpan Risiko"
-      },
-      "editModal": {
-        "title": "Ubah Risiko: {name}",
-        "titleDefault": "Ubah Risiko",
-        "desc": "Ubah parameter penilaian atau rincian skor triwulanan.",
-        "updateBtn": "Perbarui Risiko"
-      },
-      "detailModal": {
-        "title": "Detail Risiko: # {id}",
-        "desc": "Data penilaian lengkap dan pengkategorian untuk peristiwa risiko ini.",
-        "category": "Kategori",
-        "riskLevel": "Tingkat Risiko",
-        "riskEventName": "Nama Peristiwa Risiko",
-        "impactPeriod": "Dampak ({period})",
-        "likelihoodPeriod": "Kemungkinan ({period})",
-        "severityWeight": "Bobot Keparahan",
-        "description": "Deskripsi",
-        "mitigationBtn": "Buka Rencana Mitigasi"
-      },
-      "toasts": {
-        "validationError": "Kesalahan Validasi",
-        "nameRequired": "Nama risiko wajib diisi.",
-        "riskAdded": "Risiko Ditambahkan",
-        "riskAddedDesc": "\"{name}\" berhasil ditambahkan ke profil.",
-        "riskUpdated": "Risiko Diperbarui",
-        "riskUpdatedDesc": "Perubahan berhasil disimpan.",
-        "positionUpdated": "Posisi Risiko Diperbarui",
-        "positionUpdatedDesc": "\"{name}\" dipindahkan ke {l}×{i} untuk {period}",
-        "riskDeleted": "Risiko Dihapus",
-        "riskDeletedDesc": "\"{name}\" telah dihapus."
-      },
-      "impactLabels": {
-        "1": "Sangat Rendah",
-        "2": "Rendah",
-        "3": "Sedang",
-        "4": "Tinggi",
-        "5": "Sangat Tinggi"
-      },
-      "likelihoodLabels": {
-        "1": "Sangat Jarang",
-        "2": "Jarang",
-        "3": "Mungkin",
-        "4": "Sering",
-        "5": "Hampir Pasti"
-      },
-      "riskLevelLabels": {
-        "low": "Rendah",
-        "low-moderate": "Rendah ke Sedang",
-        "moderate": "Sedang",
-        "moderate-high": "Sedang ke Tinggi",
-        "high": "Tinggi"
-      }
+    "tabs": {
+      "priority": "Risiko Prioritas ({count})",
+      "all": "Semua Risiko ({count})",
+      "progress": "Tabel Perkembangan Risiko"
+    },
+    "table": {
+      "no": "No",
+      "riskEvent": "Peristiwa Risiko",
+      "impactScale": "Skala Dampak",
+      "likelihoodScale": "Skala Kemungkinan",
+      "riskLevel": "Level Risiko"
+    },
+    "addModal": {
+      "title": "Tambah Risiko Perusahaan Baru",
+      "desc": "Masukkan rincian risiko baru yang akan ditambahkan ke heat map.",
+      "name": "Nama Risiko",
+      "namePlaceholder": "Contoh: Target pendapatan dan laba tidak tercapai",
+      "category": "Kategori",
+      "branch": "Cabang / Departemen",
+      "quarterlyTitle": "Pelacakan Skor Residual Triwulanan (FY {year})",
+      "impact": "Dampak",
+      "likelihood": "Kemungkinan",
+      "description": "Deskripsi Risiko",
+      "descriptionPlaceholder": "Jelaskan risiko dan potensi dampaknya...",
+      "saveBtn": "Simpan Risiko"
+    },
+    "editModal": {
+      "title": "Ubah Risiko: {name}",
+      "titleDefault": "Ubah Risiko",
+      "desc": "Ubah parameter penilaian atau rincian skor triwulanan.",
+      "updateBtn": "Perbarui Risiko"
+    },
+    "detailModal": {
+      "title": "Detail Risiko: # {id}",
+      "desc": "Data penilaian lengkap dan pengkategorian untuk peristiwa risiko ini.",
+      "category": "Kategori",
+      "riskLevel": "Tingkat Risiko",
+      "riskEventName": "Nama Peristiwa Risiko",
+      "impactPeriod": "Dampak ({period})",
+      "likelihoodPeriod": "Kemungkinan ({period})",
+      "severityWeight": "Bobot Keparahan",
+      "description": "Deskripsi",
+      "mitigationBtn": "Buka Rencana Mitigasi"
+    },
+    "toasts": {
+      "validationError": "Kesalahan Validasi",
+      "nameRequired": "Nama risiko wajib diisi.",
+      "riskAdded": "Risiko Ditambahkan",
+      "riskAddedDesc": "\"{name}\" berhasil ditambahkan ke profil.",
+      "riskUpdated": "Risiko Diperbarui",
+      "riskUpdatedDesc": "Perubahan berhasil disimpan.",
+      "positionUpdated": "Posisi Risiko Diperbarui",
+      "positionUpdatedDesc": "\"{name}\" dipindahkan ke {l}×{i} untuk {period}",
+      "riskDeleted": "Risiko Dihapus",
+      "riskDeletedDesc": "\"{name}\" telah dihapus."
+    },
+    "impactLabels": {
+      "1": "Sangat Rendah",
+      "2": "Rendah",
+      "3": "Sedang",
+      "4": "Tinggi",
+      "5": "Sangat Tinggi"
+    },
+    "likelihoodLabels": {
+      "1": "Sangat Jarang",
+      "2": "Jarang",
+      "3": "Mungkin",
+      "4": "Sering",
+      "5": "Hampir Pasti"
+    },
+    "riskLevelLabels": {
+      "low": "Rendah",
+      "low-moderate": "Rendah ke Sedang",
+      "moderate": "Sedang",
+      "moderate-high": "Sedang ke Tinggi",
+      "high": "Tinggi"
     }
   },
   "analytics": {
@@ -995,6 +1021,20 @@
     "createPlanTitle": "Buat Rencana Aktivitas Audit",
     "emptyState": "Belum ada data rencana audit.",
     "deleteConfirm": "Apakah Anda yakin ingin menghapus rencana aktivitas ini?",
+    "validation": {
+      "basicInfo": "Harap isi semua kolom wajib pada informasi dasar (Judul Rencana, Tahun, Periode, Departemen).",
+      "plannedActivities": "Harap tambahkan setidaknya satu aktivitas audit dengan Judul dan Auditee yang diisi.",
+      "reviewAndApproval": "Harap lengkapi rincian Pembuat dan Penyetuju (Nama, Jabatan, dan Tanggal Persetujuan)."
+    },
+    "stepper": {
+      "step1": "Info Dasar",
+      "step2": "Aktivitas Audit",
+      "step3": "SDM & Anggaran",
+      "step4": "Review & Persetujuan",
+      "step5": "Lampiran",
+      "previous": "Sebelumnya",
+      "next": "Langkah Berikutnya"
+    },
     "table": {
       "title": "Judul",
       "year": "Tahun",
@@ -1006,6 +1046,7 @@
       "actions": "Aksi"
     },
     "form": {
+      "stepNum": "Langkah {current} dari {total}",
       "basicInfo": "Informasi Perencanaan Dasar",
       "planTitle": "Judul Rencana Aktivitas Audit",
       "planYear": "Tahun Perencanaan",
@@ -1018,6 +1059,7 @@
       "addAuditActivity": "Tambah Aktivitas Audit",
       "activityNum": "Aktivitas Audit {num}",
       "activityTitle": "Judul Aktivitas Audit",
+      "createPlanTitle": "Buat Rencana Aktivitas Audit",
       "auditee": "Auditee",
       "category": "Kategori",
       "selectCategory": "Pilih Kategori",
@@ -1031,6 +1073,7 @@
       "auditorsNum": "Jumlah Auditor",
       "estimatedSchedule": "Estimasi Jadwal/Waktu",
       "budgetEstimation": "Estimasi Budget",
+      "millionRupiah": "Juta Rupiah",
       "noActivitiesAdded": "Belum ada aktivitas audit yang ditambahkan.",
       "summaryOfActivities": "Ringkasan Aktivitas",
       "highRisk": "Risiko Tinggi",
@@ -1110,6 +1153,36 @@
         "competence": "Kompetensi",
         "availability": "Ketersediaan"
       }
+    },
+    "upload": {
+      "title": "Impor Dokumen Rencana",
+      "subtitle": "Impor dokumen Rencana Aktivitas Audit eksternal",
+      "formTitle": "Impor Dokumen Rencana",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Rencana Audit Tahunan 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi singkat tentang dokumen...",
+      "fileLabel": "File Dokumen Impor *",
+      "dropzoneLabel": "Klik untuk mengunggah atau tarik & lepas",
+      "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
+      "removeFile": "Hapus File",
+      "uploadButton": "Impor Dokumen",
+      "importedTitle": "Dokumen Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "loading": "Memuat dokumen...",
+      "noDocumentsTitle": "Belum ada dokumen yang diimpor",
+      "noDocumentsDesc": "Impor dokumen rencana di sebelah kiri untuk menambahkannya ke catatan Anda.",
+      "viewDocument": "Lihat Dokumen",
+      "downloadDocument": "Unduh Dokumen",
+      "deleteDocument": "Hapus Dokumen",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen yang diunggah ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas 10MB.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "importedDate": "Tanggal Impor",
+        "actions": "Aksi"
+      }
     }
   },
   "auditCharter": {
@@ -1140,7 +1213,7 @@
     },
     "form": {
       "editTitle": "Edit Audit Charter",
-      "uploadTitle": "Unggah Charter Baru",
+      "uploadTitle": "Tambah Charter Baru",
       "docTitle": "Judul Dokumen",
       "docTitlePlaceholder": "contoh: Internal Audit Charter 2026",
       "versionAuto": "Versi (Auto)",
@@ -1186,5 +1259,212 @@
     },
     "confirmDelete": "Apakah Anda yakin ingin menghapus dokumen yang diimpor ini?",
     "fileSizeLimitAlert": "Ukuran file melebihi batas 10MB."
+  },
+  "riskAppetite": {
+    "title": "Risk Appetite Statement (RAS)",
+    "subtitle": "Kelola pernyataan selera risiko organisasi dan verifikasi kepatuhan terhadap aturan mitigasi risiko.",
+    "kpi": {
+      "complianceLevel": "Tingkat Kepatuhan",
+      "compliantSubtitle": "{compliant} dari {total} risiko patuh pada selera risiko",
+      "totalRisks": "Total Risiko",
+      "totalSubtitle": "Risiko aktif pada profil saat ini",
+      "acceptableRisks": "Risiko Dapat Diterima",
+      "acceptableSubtitle": "Risiko tingkat Rendah & Rendah-Sedang",
+      "appetiteViolations": "Pelanggaran Selera Risiko",
+      "violationsSubtitle": "Risiko Sedang+ yang belum memiliki mitigasi"
+    },
+    "tabs": {
+      "overview": "Ketentuan RAS",
+      "compliance": "Kepatuhan Risiko",
+      "statements": "Pernyataan Selera Risiko"
+    },
+    "guidelines": {
+      "title": "Ketentuan Risk Appetite Statement (RAS)",
+      "desc": "Risk Appetite Statement menetapkan batas tingkat risiko yang dapat diterima (acceptable) oleh perusahaan untuk mencapai tujuan strategisnya, serta kewajiban tindakan perbaikan untuk risiko yang melampaui batas toleransi tersebut.",
+      "acceptableZone": {
+        "title": "1. Area Risiko Dapat Diterima (Acceptable)",
+        "desc": "Risiko yang dapat diterima tanpa mitigasi tambahan",
+        "low": "Tingkat Risiko Rendah (Low)",
+        "lowMod": "Tingkat Risiko Rendah-Sedang (Low to Moderate)",
+        "note": "* Risiko pada area ini dinilai memiliki dampak dan kemungkinan yang kecil bagi operasional perusahaan, sehingga tidak memerlukan alokasi sumber daya mitigasi khusus."
+      },
+      "actionZone": {
+        "title": "2. Area Wajib Tindakan (Action Required)",
+        "desc": "Risiko wajib dimitigasi demi meminimalkan paparan",
+        "mod": "Tingkat Risiko Sedang (Moderate)",
+        "modHigh": "Tingkat Risiko Sedang-Tinggi (Moderate to High)",
+        "high": "Tingkat Risiko Tinggi (High)",
+        "note": "* Risiko wajib ditangani secara aktif dengan menyusun rencana mitigasi yang terstruktur dan terukur guna menurunkan level eksposur ke batas yang aman."
+      }
+    },
+    "compliance": {
+      "registryTitle": "Registri Kepatuhan Profil Risiko",
+      "registryDesc": "Pemeriksaan Profil Risiko saat ini terhadap aturan pernyataan selera risiko",
+      "filters": {
+        "all": "Semua Risiko",
+        "required": "Wajib Mitigasi (Sedang+)",
+        "acceptable": "Dapat Diterima (Rendah/Rendah-Sedang)",
+        "violating": "Tidak Patuh (Melanggar)"
+      },
+      "columns": {
+        "id": "ID Risiko",
+        "name": "Peristiwa Risiko",
+        "level": "Tingkat Risiko",
+        "appetite": "Aturan Selera",
+        "status": "Status Mitigasi",
+        "actions": "Aksi"
+      },
+      "acceptableBadge": "Dapat Diterima",
+      "requiredBadge": "Wajib Mitigasi",
+      "noneRequired": "Tidak Diperlukan",
+      "missingPlan": "Rencana Belum Ada",
+      "activePlan": "Aktif ({count} Rencana)",
+      "done": "Selesai",
+      "viewMitigation": "Lihat Mitigasi",
+      "addMitigation": "Tambah Mitigasi"
+    },
+    "statements": {
+      "title": "Manajemen Pernyataan Selera Risiko",
+      "subtitle": "Deklarasi kebijakan tertulis resmi dan konfigurasi ambang batas",
+      "newBtn": "Tambah Pernyataan",
+      "emptyTitle": "Belum ada pernyataan selera risiko",
+      "emptyDesc": "Buat deklarasi kebijakan resmi untuk menetapkan ambang batas.",
+      "limitThreshold": "Batas Toleransi: {limit}%",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus pernyataan selera risiko ini?",
+      "deleteError": "Gagal menghapus pernyataan.",
+      "saveError": "Gagal menyimpan pernyataan selera risiko.",
+      "modal": {
+        "newTitle": "Tambah Pernyataan Selera Risiko Baru",
+        "editTitle": "Edit Pernyataan Selera Risiko",
+        "statementLabel": "Teks Kebijakan Pernyataan",
+        "statementPlaceholder": "contoh: Risiko tingkat Low dan Low to Moderate dapat diterima...",
+        "thresholdLabel": "Batas Toleransi (%)",
+        "statusLabel": "Status Persetujuan",
+        "cancel": "Batal",
+        "create": "Buat",
+        "save": "Simpan Perubahan"
+      }
+    }
+  },
+  "analytics": {
+    "title": "Pusat AI & Analitik",
+    "subtitle": "Integrasi Terpadu Model Machine Learning & Deep Learning (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
+    "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
+    "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
+    "statusDisconnected": "AI Backend Terputus",
+    "warningTitleCached": "⚠️ Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
+    "warningTitleDisconnected": "⚠️ Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
+    "warningDescCached": "Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada {time} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
+    "warningDescDisconnected": "Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
+    "loading": "Menghubungkan & Memuat Model AI...",
+    "summary": {
+      "entitiesScored": "Entitas Dinilai",
+      "anomaliesDetected": "Anomali Terdeteksi",
+      "docsAnalyzed": "Dokumen Dianalisis",
+      "kpiForecasts": "Prediksi KPI"
+    },
+    "tabs": {
+      "riskScoring": "Risk Scoring ML",
+      "anomalyDetection": "Deteksi Anomali ML",
+      "indoBERT": "IndoBERT NLP",
+      "kpiLSTM": "KPI PyTorch LSTM"
+    },
+    "xgboost": {
+      "alertTitle": "Model ML Penilaian Risiko Departemen & Entitas",
+      "alertDesc": "Model Machine Learning memprediksi Impact dan Likelihood departemen/cabang secara dinamis berdasarkan achievement KPI, temuan audit lalu, dan volatilitas.",
+      "chartPredictedVsActual": "Skor Risiko: Prediksi vs Aktual",
+      "chartFeatureImportance": "Feature Importance (Prediktor Utama)",
+      "tableTitle": "Prediksi Skor Risiko Entitas",
+      "colEntity": "Entitas",
+      "colType": "Tipe",
+      "colRiskCategory": "Kategori Risiko",
+      "colTargetPeriod": "Target Periode",
+      "colPredLikelihood": "Pred. Likelihood",
+      "colPredImpact": "Pred. Impact",
+      "colPredScore": "Pred. Skor",
+      "colPredRiskLevel": "Pred. Level Risiko",
+      "colActual": "Aktual",
+      "colActualRiskLevel": "Level Risiko Aktual",
+      "colTrend": "Tren",
+      "labelPredictedScore": "Skor Prediksi",
+      "labelActualScore": "Skor Aktual",
+      "labelFeatureImportance": "Feature Importance",
+      "axisRiskScore": "Skor Risiko",
+      "axisImportancePct": "Kepentingan (%)"
+    },
+    "isolation": {
+      "alertTitle": "Model Deteksi Anomali Transaksi",
+      "alertDesc": "Model Machine Learning memindai pola transaksi (jumlah, jam operasional, hari, penerima baru, pola pembulatan) untuk mendeteksi anomali fraud secara real-time.",
+      "recordsScanned": "Data Dipindai",
+      "anomaliesFound": "Anomali Ditemukan",
+      "contaminationRate": "Tingkat Kontaminasi",
+      "topCategory": "Kategori Teratas",
+      "chartTitle": "Distribusi Pola Data per Jenis Anomali",
+      "labelNormalData": "Data Normal ({type})",
+      "labelAnomalies": "Anomali ({type})",
+      "axisFrequency": "Frekuensi / Kemunculan",
+      "tableTitle": "Detail Anomali Terdeteksi",
+      "colID": "ID",
+      "colEntity": "Entitas",
+      "colType": "Jenis",
+      "colDescription": "Deskripsi",
+      "colRiskLevel": "Level Risiko",
+      "colDate": "Tanggal",
+      "anomalyTypes": {
+        "fieldworkXAxis": "Durasi Pengerjaan Fieldwork (Hari)",
+        "fieldworkUnit": "Hari",
+        "accessPatternXAxis": "Waktu Akses Sistem (Jam 0-23)",
+        "accessPatternUnit": "Jam",
+        "dataAccessXAxis": "Volume Export Data (MB)",
+        "dataAccessUnit": "MB",
+        "inventoryXAxis": "Nilai Penyesuaian Stok (Rp Juta)",
+        "inventoryUnit": "Rp Juta",
+        "expenseReportXAxis": "Nominal Klaim Pengeluaran (Rp Juta)",
+        "expenseReportUnit": "Rp Juta",
+        "travelExpenseXAxis": "Nominal Biaya Perjalanan (Rp Juta)",
+        "travelExpenseUnit": "Rp Juta",
+        "procurementXAxis": "Nilai Pengadaan / Vendor (Rp Juta)",
+        "procurementUnit": "Rp Juta",
+        "transactionXAxis": "Nominal Transaksi (Rp Juta)",
+        "transactionUnit": "Rp Juta"
+      }
+    },
+    "nlp": {
+      "alertTitle": "Model Analisis Dokumen IndoBERT NLP",
+      "alertDesc": "Model IndoBERT & Natural Language Processing menganalisis kutipan Laporan Hasil Audit (Bahasa Indonesia) untuk mengklasifikasi kategori risiko, sentimen, impact, dan likelihood secara otomatis.",
+      "chartCategoryTitle": "Kategori Risiko Auto-Klasifikasi",
+      "chartSentimentTitle": "Distribusi Sentimen",
+      "tableTitle": "Dokumen Dianalisis",
+      "colDocID": "ID Dok",
+      "colTitle": "Judul",
+      "colSource": "Sumber",
+      "colCategory": "Kategori",
+      "colSentiment": "Sentimen",
+      "colRiskLevel": "Level Risiko"
+    },
+    "timeseries": {
+      "alertTitle": "Model Peramalan KPI Time-Series PyTorch LSTM",
+      "alertDesc": "Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis untuk peringatan dini perencanaan audit.",
+      "chartTitle": "Prediksi Performa KPI",
+      "chartConfidenceBadge": "Area arsir = interval kepercayaan",
+      "atRiskTitle": "⚠️ Departemen Berisiko",
+      "projectedQ3": "% proyeksi Q3",
+      "tableTitle": "Ringkasan Prediksi KPI",
+      "colCode": "Kode",
+      "colKPI": "KPI",
+      "colEntity": "Entitas",
+      "colType": "Tipe",
+      "colForecastHorizon": "Horizon Prediksi",
+      "colCurrent": "Saat Ini",
+      "colForecast": "Prediksi",
+      "colTrend": "Tren",
+      "colRiskLevel": "Level Risiko",
+      "colRecommendedAction": "Tindakan yang Direkomendasikan",
+      "labelActualKPI": "KPI Aktual (%)",
+      "labelForecast": "Prediksi PyTorch LSTM",
+      "labelUpperBound": "Batas Atas",
+      "labelLowerBound": "Batas Bawah",
+      "axisKPIScore": "Skor KPI (%)"
+    }
   }
 }

@@ -69,6 +69,18 @@ const rawItems: NavigationMenuItem[][] = [[
     label: '3. Strategic Audit Plan',
     icon: 'i-lucide-users',
     to: '/strategic-audit-plan',
+    children: [
+      {
+        label: 'Create Strategic Audit Plan',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/strategic-audit-plan',
+      },
+      {
+        label: 'Import Strategic Audit Plan',
+        icon: 'i-lucide-upload',
+        to: '/strategic-audit-plan/upload',
+      }
+    ]
   },
   {
     label: '4. Annual Audit Plan',
@@ -215,17 +227,24 @@ const rawItems: NavigationMenuItem[][] = [[
     ]
   },
   {
-    label: '12. Import Laporan Kinerja',
-    icon: 'i-lucide-upload',
-    to: '/kpi-performance/upload',
-  },
-  {
-    label: '13. Internal Audit Performance',
+    label: '12. Internal Audit Performance',
     icon: 'i-lucide-trending-up',
     to: '/kpi-performance',
+    children: [
+      {
+        label: 'Internal Audit Performance Dashboard',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/kpi-performance',
+      },
+      {
+        label: 'Import Laporan Kinerja',
+        icon: 'i-lucide-upload',
+        to: '/kpi-performance/upload',
+      }
+    ]
   },
   {
-    label: '14. Quality Assurance Review',
+    label: '13. Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [
@@ -261,45 +280,86 @@ const rawItems: NavigationMenuItem[][] = [[
     icon: 'i-lucide-pie-chart',
     to: '/analytics',
   },
+  {
+    label: 'Master Data',
+    icon: 'i-lucide-database',
+    to: '/master/employee',
+    children: [
+      {
+        label: 'Employee Management',
+        icon: 'i-lucide-users-round',
+        to: '/master/employee',
+      },
+      {
+        label: 'Department',
+        icon: 'i-lucide-building-2',
+        to: '/master/department',
+      },
+    ]
+  },
   
 ]]
 
 const searchQuery = ref('')
+const { canImportPlanDocs, isAdmin, canManageAudits } = useRbac()
 
-// 2. Gunakan Computed agar menu bereaksi setiap kali pengguna pindah halaman
+// 2. Gunakan Computed agar menu bereaksi setiap kali pengguna pindah halaman dan mempertimbangkan Hak Akses (RBAC)
 const items = computed<NavigationMenuItem[][]>(() => {
   return rawItems.map(group => {
-    return group.map(parent => {
-      const q = searchQuery.value.toLowerCase()
-      
-      // Filter anak-anaknya (children) jika ada query
-      let filteredChildren = parent.children
-      let childrenMatches = false
-      if (q && parent.children) {
-        filteredChildren = parent.children.filter(child => (child.label?.toLowerCase() || '').includes(q) || (parent.label?.toLowerCase() || '').includes(q))
-        childrenMatches = filteredChildren.length > 0
-      }
+    return group
+      .filter(parent => {
+        // Master Data is Settings & User Management (NONE for Auditor/Auditee/Viewer)
+        if (parent.to === '/master/employee' && !isAdmin.value && !canManageAudits.value) {
+          return false
+        }
+        return true
+      })
+      .map(parent => {
+        const q = searchQuery.value.toLowerCase()
+        
+        // Filter children according to RBAC (e.g. Import Plan submodules are NONE for Auditor)
+        let filteredChildren = parent.children ? [...parent.children] : undefined
+        
+        if (filteredChildren) {
+          filteredChildren = filteredChildren.filter(child => {
+            const childTo = (child.to as string) || ''
+            // Working paper upload is UPLOAD for Auditor, so allow it.
+            // Other import pages (Annual Audit, Activity Plan, Assignment Letter, QA, Executive Summary, KPI) are NONE for Auditor.
+            if (childTo.includes('/upload') || childTo.includes('/import')) {
+              if (childTo.includes('/working-paper/upload')) return true
+              if (!canImportPlanDocs.value) return false
+            }
+            return true
+          })
+        }
 
-      // Cek apakah ada submenu (child) yang URL-nya cocok dengan URL saat ini
-      const hasActiveChild = parent.children?.some(child => 
-        route.path.startsWith(child.to as string)
-      )
+        let childrenMatches = false
+        if (q && filteredChildren) {
+          filteredChildren = filteredChildren.filter(child => (child.label?.toLowerCase() || '').includes(q) || (parent.label?.toLowerCase() || '').includes(q))
+          childrenMatches = filteredChildren.length > 0
+        }
 
-      return {
-        ...parent,
-        children: filteredChildren,
-        // Jika ada child yang aktif, buat parent menyala (active: true) 
-        // dan otomatis terbuka dropdown-nya (defaultOpen: true)
-        active: hasActiveChild,
-        defaultOpen: hasActiveChild || parent.defaultOpen || (q.length > 0 && childrenMatches)
-      }
-    }).filter(parent => {
-       if (!searchQuery.value) return true
-       const q = searchQuery.value.toLowerCase()
-       const parentMatches = (parent.label?.toLowerCase() || '').includes(q)
-       const hasVisibleChildren = parent.children && parent.children.length > 0
-       return parentMatches || hasVisibleChildren
-    })
+        // Cek apakah ada submenu (child) yang URL-nya cocok dengan URL saat ini
+        const hasActiveChild = filteredChildren?.some(child => 
+          route.path.startsWith(child.to as string)
+        )
+
+        return {
+          ...parent,
+          children: filteredChildren,
+          active: hasActiveChild,
+          defaultOpen: hasActiveChild || parent.defaultOpen || (q.length > 0 && childrenMatches)
+        }
+      }).filter(parent => {
+         if (parent.children && parent.children.length === 0 && rawItems.some(g => g.some(p => p.to === parent.to && p.children && p.children.length > 0))) {
+           // If parent lost all its children due to RBAC and was only a parent container
+         }
+         if (!searchQuery.value) return true
+         const q = searchQuery.value.toLowerCase()
+         const parentMatches = (parent.label?.toLowerCase() || '').includes(q)
+         const hasVisibleChildren = parent.children && parent.children.length > 0
+         return parentMatches || hasVisibleChildren
+      })
   })
 })
 
@@ -333,17 +393,13 @@ const userDropdownItems = computed(() => [
 <template>
   <UDashboardGroup>
   <UDashboardSidebar 
+    id="main-sidebar-final"
     collapsible 
     resizable
-    :min-size="20"
-    :default-size="25"
-    :max-size="30"
+    :min-size="21"
+    :default-size="21"
+    :max-size="35"
     :collapsed-size="0"
-    :ui="{
-      body: 'p-3 flex flex-col justify-start gap-y-3 flex-1 overflow-y-auto',
-      header: 'px-4 py-3 border-b border-[var(--border-main)] flex items-center justify-between shrink-0',
-      footer: 'border-t border-default'
-    }"
   >
     <template #header="{ collapsed }">
       <Logo v-if="!collapsed" class="h-7 w-auto shrink-0" hide-subtitle text-class="text-xl" />

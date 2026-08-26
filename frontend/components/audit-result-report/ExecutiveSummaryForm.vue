@@ -270,10 +270,10 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead class="bg-gray-50 dark:bg-gray-800/80">
                 <tr>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Jumlah</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">% (Persentase)</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Keterangan</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">Jumlah</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">% (Persentase)</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">Keterangan</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 font-medium">
@@ -292,7 +292,7 @@
                       @input="recalculatePercentages"
                     />
                   </td>
-                  <td class="px-6 py-4 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                  <td class="px-6 py-4 text-sm font-semibold text-gray-600 dark:text-white">
                     {{ formatPercent(row.persentase) }}%
                   </td>
                   <td class="px-6 py-2">
@@ -342,12 +342,12 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead class="bg-gray-50 dark:bg-gray-800/80">
                 <tr>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Unit Divisi</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Judul Temuan</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">Nilai Risiko</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-36">Status TL</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usulan Tindakan</th>
-                  <th v-if="!isLocked" class="px-4 py-3 text-center text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Aksi</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">Unit Divisi</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">Judul Temuan</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-32">Nilai Risiko</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">Status TL</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">Usulan Tindakan</th>
+                  <th v-if="!isLocked" class="px-4 py-3 text-center text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-16">Aksi</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">

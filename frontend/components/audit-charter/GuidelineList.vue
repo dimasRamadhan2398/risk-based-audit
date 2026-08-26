@@ -63,38 +63,29 @@
             }}</span>
           </template>
 
-          <!-- File / View Dokumen slot -->
-          <template #file_name-cell="{ row }">
-            <UButton
-              v-if="row.original.file_url && row.original.file_url !== '#'"
-              :to="row.original.file_url"
-              target="_blank"
-              icon="i-lucide-external-link"
-              color="primary"
-              variant="link"
-              size="sm"
-              class="p-0 font-bold"
-            >
-              View Dokumen
-            </UButton>
-            <span v-else class="text-gray-400 italic">No File</span>
-          </template>
-
           <!-- Actions slot -->
           <template #actions-cell="{ row }">
-            <div class="flex justify-end gap-2">
+            <div class="flex justify-end">
               <UButton
-                size="sm"
+                :to="row.original.file_url"
+                target="_blank"
+                icon="i-lucide-eye"
                 color="primary"
-                variant="outline"
+                variant="ghost"
+                size="md"
+              />
+              <UButton
+                size="md"
+                color="primary"
+                variant="ghost"
                 icon="i-lucide-edit"
                 @click="store.handleEdit(row.original)"
               />
               <UButton
-                size="sm"
+                size="md"
                 color="error"
-                variant="outline"
-                icon="i-lucide-trash"
+                variant="ghost"
+                icon="i-lucide-trash-2"
                 @click="confirmDelete(row.original)"
               />
             </div>
@@ -116,7 +107,7 @@ const columns = [
   { accessorKey: 'name', header: 'Nama Pedoman' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'effective_date', header: 'Mulai Berlaku' },
-  { accessorKey: 'file_name', header: 'View Dokumen' },
+  { accessorKey: 'file_name', header: 'Action' },
   { accessorKey: 'actions', header: '' }
 ]
 

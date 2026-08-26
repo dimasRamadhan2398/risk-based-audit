@@ -1,6 +1,6 @@
 <template>
     <UCard class="rounded-xl shadow-sm overflow-hidden" variant="soft">
-      <UTable
+      <TableEntities
         :columns="store.columns"
         :data="store.assignmentLetterList"
         :empty-state="{ icon: 'i-heroicons-document-text', label: 'No assignment letters yet. Click Create Assignment Letter to start.' }"
@@ -35,7 +35,6 @@
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
             <UButton
-              label="Edit"
               size="md"
               color="primary"
               variant="ghost"
@@ -56,7 +55,7 @@
           </div>
         </template>
 
-      </UTable>
+      </TableEntities>
     </UCard>
 </template>
 

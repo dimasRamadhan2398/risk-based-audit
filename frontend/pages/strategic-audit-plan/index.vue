@@ -14,6 +14,7 @@
               </p>
             </div>
             <UButton
+              v-if="canManageStrategicPlan"
               icon="add"
               :label="t('strategicPlan.addObjective')"
               variant="solid"
@@ -63,8 +64,10 @@ import VisionMissionForm from "~/components/strategic-audit-plan/VisionMissionFo
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
+const { canManageStrategicPlan } = useRbac()
 
 // Inisialisasi Store
 const store = useStrategicPlanStore()

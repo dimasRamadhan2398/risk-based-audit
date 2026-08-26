@@ -1,11 +1,36 @@
 {
   "auth": {
     "login": {
-      "title": "Sign in to your account",
-      "subtitle": "Risk-Based Internal Audit System",
+      "title": "Welcome Back",
+      "subtitle": "Please log in to continue",
       "button": "Sign in",
+      "verifying": "Verifying...",
       "link": "Sign in",
-      "error": "Invalid email or password"
+      "error": "Invalid email or password",
+      "newDeviceHint": "New device login detected. OTP verification may be required.",
+      "username": "Username",
+      "usernamePlaceholder": "Enter your username",
+      "usernameRequired": "Username is required",
+      "usernameMinLength": "Username must be at least 3 characters",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "passwordRequired": "Password is required",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "encryptedConnection": "Encrypted connection - {device}",
+      "needAccount": "Need an account? Contact system Administrator.",
+      "generalError": "An error occurred during login. Please try again.",
+      "serverError": "Failed to connect to server. Make sure your internet connection is active and the server is running.",
+      "invalidCredentials": "Invalid username or password.",
+      "errors": {
+        "notFound": "Authentication service not found (404). Please contact the system administrator.",
+        "serviceUnavailable": "Server is currently unreachable (502/503). Please make sure the backend service is running and try again.",
+        "serverError": "An internal server error occurred (500). Please try again in a few moments.",
+        "invalidCredentials": "Incorrect username or password. Please check and try again.",
+        "tooManyRequests": "Too many login attempts. Please wait a few moments before trying again.",
+        "networkError": "Failed to connect to the server. Please ensure your internet connection is active and the server is running.",
+        "generic": "An error occurred during login. Please try again."
+      }
     },
     "register": {
       "title": "Create your account",
@@ -639,7 +664,8 @@
       "weightInfo": "Weight: {weight}% | Weighted: {weighted}",
       "selectEntityTitle": "Select Auditable Entity",
       "selectEntityDesc": "Choose a year and active auditable entity from the dropdowns above to begin risk scoring.",
-      "saveBtn": "Save Scoring & Calculate"
+      "saveBtn": "Save Scoring & Calculate",
+      "guidelinesTooltip": "Scoring Scale Guidelines"
     },
     "priority": {
       "title": "Audit Priority ({year})",
@@ -860,101 +886,101 @@
         "mitigation": "Mitigation Plan",
         "actions": "Actions"
       }
+    }
+  },
+  "riskProfile": {
+    "title": "Corporate Risk Profile",
+    "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
+    "total": "Total",
+    "priority": "Priority",
+    "addRisk": "Add Risk",
+    "filterBranch": "Filter Branch/Dept",
+    "allBranches": "All Branches",
+    "fiscalYear": "Fiscal Year",
+    "period": "Period",
+    "riskLevels": "Risk Levels",
+    "likelihoodLevel": "LIKELIHOOD LEVEL",
+    "impactLevel": "IMPACT LEVEL",
+    "quickTip": {
+      "title": "Quick Tip",
+      "desc": "Drag and drop risks to update their status. Switch quarters to track risk changes over time."
     },
-    "riskProfile": {
-      "title": "Corporate Risk Profile",
-      "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
-      "total": "Total",
-      "priority": "Priority",
-      "addRisk": "Add Risk",
-      "filterBranch": "Filter Branch/Dept",
-      "allBranches": "All Branches",
-      "fiscalYear": "Fiscal Year",
-      "period": "Period",
-      "riskLevels": "Risk Levels",
-      "likelihoodLevel": "LIKELIHOOD LEVEL",
-      "impactLevel": "IMPACT LEVEL",
-      "quickTip": {
-        "title": "Quick Tip",
-        "desc": "Drag and drop risks to update their status. Switch quarters to track risk changes over time."
-      },
-      "tabs": {
-        "priority": "Priority Risks ({count})",
-        "all": "All Risks ({count})",
-        "progress": "Risk Progress Table"
-      },
-      "table": {
-        "no": "No",
-        "riskEvent": "Risk Event",
-        "impactScale": "Impact Scale",
-        "likelihoodScale": "Likelihood Scale",
-        "riskLevel": "Risk Level"
-      },
-      "addModal": {
-        "title": "Add New Corporate Risk",
-        "desc": "Enter the details of the new risk to be added to the heatmap.",
-        "name": "Risk Name",
-        "namePlaceholder": "e.g. Target pendapatan dan laba tidak tercapai",
-        "category": "Category",
-        "branch": "Branch / Dept",
-        "quarterlyTitle": "Quarterly Residual Score Tracking (FY {year})",
-        "impact": "Impact",
-        "likelihood": "Likelihood",
-        "description": "Risk Description",
-        "descriptionPlaceholder": "Describe the risk and its potential consequences...",
-        "saveBtn": "Save Risk"
-      },
-      "editModal": {
-        "title": "Edit Risk: {name}",
-        "titleDefault": "Edit Risk",
-        "desc": "Modify the assessment parameters or quarterly scoring details.",
-        "updateBtn": "Update Risk"
-      },
-      "detailModal": {
-        "title": "Risk Detail: # {id}",
-        "desc": "Complete assessment data and categorization for this risk event.",
-        "category": "Category",
-        "riskLevel": "Risk Level",
-        "riskEventName": "Risk Event Name",
-        "impactPeriod": "Impact ({period})",
-        "likelihoodPeriod": "Likelihood ({period})",
-        "severityWeight": "Severity Weight",
-        "description": "Description",
-        "mitigationBtn": "Go to Mitigation Plan"
-      },
-      "toasts": {
-        "validationError": "Validation Error",
-        "nameRequired": "Risk name is required.",
-        "riskAdded": "Risk Added",
-        "riskAddedDesc": "\"{name}\" successfully added to the profile.",
-        "riskUpdated": "Risk Updated",
-        "riskUpdatedDesc": "Changes saved successfully.",
-        "positionUpdated": "Risk Position Updated",
-        "positionUpdatedDesc": "\"{name}\" moved to {l}×{i} for {period}",
-        "riskDeleted": "Risk Deleted",
-        "riskDeletedDesc": "\"{name}\" has been removed."
-      },
-      "impactLabels": {
-        "1": "Very Low",
-        "2": "Low",
-        "3": "Moderate",
-        "4": "High",
-        "5": "Very High"
-      },
-      "likelihoodLabels": {
-        "1": "Very Rare",
-        "2": "Rare",
-        "3": "Possible",
-        "4": "Likely",
-        "5": "Very Likely"
-      },
-      "riskLevelLabels": {
-        "low": "Low",
-        "low-moderate": "Low to Moderate",
-        "moderate": "Moderate",
-        "moderate-high": "Moderate to High",
-        "high": "High"
-      }
+    "tabs": {
+      "priority": "Priority Risks ({count})",
+      "all": "All Risks ({count})",
+      "progress": "Risk Progress Table"
+    },
+    "table": {
+      "no": "No",
+      "riskEvent": "Risk Event",
+      "impactScale": "Impact Scale",
+      "likelihoodScale": "Likelihood Scale",
+      "riskLevel": "Risk Level"
+    },
+    "addModal": {
+      "title": "Add New Corporate Risk",
+      "desc": "Enter the details of the new risk to be added to the heatmap.",
+      "name": "Risk Name",
+      "namePlaceholder": "e.g. Target pendapatan dan laba tidak tercapai",
+      "category": "Category",
+      "branch": "Branch / Dept",
+      "quarterlyTitle": "Quarterly Residual Score Tracking (FY {year})",
+      "impact": "Impact",
+      "likelihood": "Likelihood",
+      "description": "Risk Description",
+      "descriptionPlaceholder": "Describe the risk and its potential consequences...",
+      "saveBtn": "Save Risk"
+    },
+    "editModal": {
+      "title": "Edit Risk: {name}",
+      "titleDefault": "Edit Risk",
+      "desc": "Modify the assessment parameters or quarterly scoring details.",
+      "updateBtn": "Update Risk"
+    },
+    "detailModal": {
+      "title": "Risk Detail: # {id}",
+      "desc": "Complete assessment data and categorization for this risk event.",
+      "category": "Category",
+      "riskLevel": "Risk Level",
+      "riskEventName": "Risk Event Name",
+      "impactPeriod": "Impact ({period})",
+      "likelihoodPeriod": "Likelihood ({period})",
+      "severityWeight": "Severity Weight",
+      "description": "Description",
+      "mitigationBtn": "Go to Mitigation Plan"
+    },
+    "toasts": {
+      "validationError": "Validation Error",
+      "nameRequired": "Risk name is required.",
+      "riskAdded": "Risk Added",
+      "riskAddedDesc": "\"{name}\" successfully added to the profile.",
+      "riskUpdated": "Risk Updated",
+      "riskUpdatedDesc": "Changes saved successfully.",
+      "positionUpdated": "Risk Position Updated",
+      "positionUpdatedDesc": "\"{name}\" moved to {l}×{i} for {period}",
+      "riskDeleted": "Risk Deleted",
+      "riskDeletedDesc": "\"{name}\" has been removed."
+    },
+    "impactLabels": {
+      "1": "Very Low",
+      "2": "Low",
+      "3": "Moderate",
+      "4": "High",
+      "5": "Very High"
+    },
+    "likelihoodLabels": {
+      "1": "Very Rare",
+      "2": "Rare",
+      "3": "Possible",
+      "4": "Likely",
+      "5": "Very Likely"
+    },
+    "riskLevelLabels": {
+      "low": "Low",
+      "low-moderate": "Low to Moderate",
+      "moderate": "Moderate",
+      "moderate-high": "Moderate to High",
+      "high": "High"
     }
   },
   "analytics": {
@@ -998,6 +1024,20 @@
     "createPlanTitle": "Create Audit Activity Plan",
     "emptyState": "No audit activity plan data available.",
     "deleteConfirm": "Are you sure you want to delete this activity plan?",
+    "validation": {
+      "basicInfo": "Please fill in all required fields (Plan Title, Year, Period, Department).",
+      "plannedActivities": "Please add at least one audit activity with Activity Title and Auditee filled.",
+      "reviewAndApproval": "Please fill in Creator and Approver details (Names, Positions, and Approval Date)."
+    },
+    "stepper": {
+      "step1": "Basic Info",
+      "step2": "Audit Activities",
+      "step3": "Resources & Budget",
+      "step4": "Review & Approval",
+      "step5": "Attachments",
+      "previous": "Previous",
+      "next": "Next Step"
+    },
     "table": {
       "title": "Title",
       "year": "Year",
@@ -1009,6 +1049,7 @@
       "actions": "Actions"
     },
     "form": {
+      "stepNum": "Step {current} of {total}",
       "basicInfo": "Basic Planning Information",
       "planTitle": "Title of Audit Activity Plan",
       "planYear": "Planning Year",
@@ -1021,6 +1062,7 @@
       "addAuditActivity": "Add Audit Activity",
       "activityNum": "Audit Activity {num}",
       "activityTitle": "Title of Audit Activity",
+      "createPlanTitle": "Create Audit Activity Plan",
       "auditee": "Auditee",
       "category": "Category",
       "selectCategory": "Select Category",
@@ -1034,6 +1076,7 @@
       "auditorsNum": "Number of Auditors",
       "estimatedSchedule": "Estimated Schedule/Time",
       "budgetEstimation": "Budget Estimation",
+      "millionRupiah": "Million Rupiah",
       "noActivitiesAdded": "No audit activities have been added yet.",
       "summaryOfActivities": "Summary of Activities",
       "highRisk": "High Risk",
@@ -1113,6 +1156,36 @@
         "competence": "Competence",
         "availability": "Availability"
       }
+    },
+    "upload": {
+      "title": "Import Plan Document",
+      "subtitle": "Import external Audit Activity Plan documents",
+      "formTitle": "Import Plan Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Annual Audit Plan 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzoneLabel": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "uploadButton": "Import Document",
+      "importedTitle": "Imported Documents",
+      "documentsCount": "{count} Documents",
+      "loading": "Loading documents...",
+      "noDocumentsTitle": "No documents imported",
+      "noDocumentsDesc": "Import plan documents on the left to add them to your records.",
+      "viewDocument": "View Document",
+      "downloadDocument": "Download Document",
+      "deleteDocument": "Delete Document",
+      "deleteConfirm": "Are you sure you want to delete this uploaded document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "importedDate": "Imported Date",
+        "actions": "Actions"
+      }
     }
   },
   "auditCharter": {
@@ -1143,7 +1216,7 @@
     },
     "form": {
       "editTitle": "Edit Audit Charter",
-      "uploadTitle": "Upload New Charter",
+      "uploadTitle": "Add New Charter",
       "docTitle": "Document Title",
       "docTitlePlaceholder": "e.g. Internal Audit Charter 2026",
       "versionAuto": "Version (Auto)",
@@ -1189,5 +1262,212 @@
     },
     "confirmDelete": "Are you sure you want to delete this imported document?",
     "fileSizeLimitAlert": "File size exceeds the 10MB limit."
+  },
+  "riskAppetite": {
+    "title": "Risk Appetite Statement (RAS)",
+    "subtitle": "Manage organizational risk appetite statements and verify compliance with risk mitigation rules.",
+    "kpi": {
+      "complianceLevel": "Compliance Level",
+      "compliantSubtitle": "{compliant} of {total} risks are appetite-compliant",
+      "totalRisks": "Total Risks",
+      "totalSubtitle": "Active risks in current profile",
+      "acceptableRisks": "Acceptable Risks",
+      "acceptableSubtitle": "Low & Low-Moderate level risks",
+      "appetiteViolations": "Appetite Violations",
+      "violationsSubtitle": "Moderate+ risks missing mitigations"
+    },
+    "tabs": {
+      "overview": "RAS Guidelines",
+      "compliance": "Risk Compliance",
+      "statements": "Appetite Statements"
+    },
+    "guidelines": {
+      "title": "Risk Appetite Statement (RAS) Rules",
+      "desc": "The Risk Appetite Statement establishes acceptable risk thresholds for the organization to achieve strategic objectives, as well as required corrective actions for risks exceeding tolerance.",
+      "acceptableZone": {
+        "title": "1. Acceptable Risk Zone",
+        "desc": "Risks acceptable without additional mitigation",
+        "low": "Low Risk Level",
+        "lowMod": "Low to Moderate Risk Level",
+        "note": "* Risks in this area are assessed to have low impact and probability for operational activities, requiring no dedicated mitigation resources."
+      },
+      "actionZone": {
+        "title": "2. Action Required Zone",
+        "desc": "Mandatory mitigation to minimize exposure",
+        "mod": "Moderate Risk Level",
+        "modHigh": "Moderate to High Risk Level",
+        "high": "High Risk Level",
+        "note": "* Risks must be actively managed by developing structured and measurable mitigation plans to reduce exposure to a safe threshold."
+      }
+    },
+    "compliance": {
+      "registryTitle": "Risk Profile Compliance Registry",
+      "registryDesc": "Checking current Risk Profile against the appetite statement rules",
+      "filters": {
+        "all": "All Risks",
+        "required": "Mitigation Required (Moderate+)",
+        "acceptable": "Acceptable (Low/Low-Mod)",
+        "violating": "Non-Compliant (Violating)"
+      },
+      "columns": {
+        "id": "Risk ID",
+        "name": "Risk Event",
+        "level": "Risk Level",
+        "appetite": "Appetite Rule",
+        "status": "Mitigation Status",
+        "actions": "Actions"
+      },
+      "acceptableBadge": "Acceptable",
+      "requiredBadge": "Mitigation Required",
+      "noneRequired": "None Required",
+      "missingPlan": "Missing Plan",
+      "activePlan": "Active ({count} Plan)",
+      "done": "Completed",
+      "viewMitigation": "View Mitigation",
+      "addMitigation": "Add Mitigation"
+    },
+    "statements": {
+      "title": "Appetite Statements Management",
+      "subtitle": "Official written policy declarations and threshold configurations",
+      "newBtn": "Add Statement",
+      "emptyTitle": "No appetite statements",
+      "emptyDesc": "Create official policy declarations to establish limits.",
+      "limitThreshold": "Limit Threshold: {limit}%",
+      "deleteConfirm": "Are you sure you want to delete this appetite statement?",
+      "deleteError": "Failed to delete statement.",
+      "saveError": "Failed to save appetite statement.",
+      "modal": {
+        "newTitle": "Add New Appetite Statement",
+        "editTitle": "Edit Appetite Statement",
+        "statementLabel": "Statement Policy Text",
+        "statementPlaceholder": "e.g. Low and Low to Moderate level risks are acceptable...",
+        "thresholdLabel": "Threshold Limit (%)",
+        "statusLabel": "Approval Status",
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save Changes"
+      }
+    }
+  },
+  "analytics": {
+    "title": "AI & Analytics Center",
+    "subtitle": "Integrated Machine Learning & Deep Learning Models (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
+    "statusActive": "4 Trained Models Active & Synchronized",
+    "statusOffline": "Offline - Displaying Saved Real Data",
+    "statusDisconnected": "AI Backend Disconnected",
+    "warningTitleCached": "⚠️ Warning: AI Backend Service Disconnected (Showing Last Real Data)",
+    "warningTitleDisconnected": "⚠️ Warning: AI Analytics Feature Not Running / Not Connected to Backend",
+    "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
+    "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
+    "loading": "Connecting & Loading AI Models...",
+    "summary": {
+      "entitiesScored": "Entities Scored",
+      "anomaliesDetected": "Anomalies Detected",
+      "docsAnalyzed": "Docs Analyzed",
+      "kpiForecasts": "KPI Forecasts"
+    },
+    "tabs": {
+      "riskScoring": "Risk Scoring ML",
+      "anomalyDetection": "Anomaly Detection ML",
+      "indoBERT": "IndoBERT NLP",
+      "kpiLSTM": "KPI PyTorch LSTM"
+    },
+    "xgboost": {
+      "alertTitle": "Department & Entity Risk Scoring ML Model",
+      "alertDesc": "The Machine Learning model dynamically predicts department/branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
+      "chartPredictedVsActual": "Predicted vs Actual Risk Score",
+      "chartFeatureImportance": "Feature Importance (Top Predictors)",
+      "tableTitle": "Entity Risk Score Predictions",
+      "colEntity": "Entity",
+      "colType": "Type",
+      "colRiskCategory": "Risk Category",
+      "colTargetPeriod": "Target Period",
+      "colPredLikelihood": "Pred. Likelihood",
+      "colPredImpact": "Pred. Impact",
+      "colPredScore": "Pred. Score",
+      "colPredRiskLevel": "Pred. Risk Level",
+      "colActual": "Actual",
+      "colActualRiskLevel": "Actual Risk Level",
+      "colTrend": "Trend",
+      "labelPredictedScore": "Predicted Score",
+      "labelActualScore": "Actual Score",
+      "labelFeatureImportance": "Feature Importance",
+      "axisRiskScore": "Risk Score",
+      "axisImportancePct": "Importance (%)"
+    },
+    "isolation": {
+      "alertTitle": "Transaction Anomaly Detection Model",
+      "alertDesc": "The Machine Learning model scans transaction patterns (amount, operating hours, day, new recipients, rounding patterns) to detect fraud anomalies in real-time.",
+      "recordsScanned": "Records Scanned",
+      "anomaliesFound": "Anomalies Found",
+      "contaminationRate": "Contamination Rate",
+      "topCategory": "Top Category",
+      "chartTitle": "Data Pattern Distribution per Anomaly Type",
+      "labelNormalData": "Normal Data ({type})",
+      "labelAnomalies": "Anomalies ({type})",
+      "axisFrequency": "Frequency / Occurrence",
+      "tableTitle": "Detected Anomalies Detail",
+      "colID": "ID",
+      "colEntity": "Entity",
+      "colType": "Type",
+      "colDescription": "Description",
+      "colRiskLevel": "Risk Level",
+      "colDate": "Date",
+      "anomalyTypes": {
+        "fieldworkXAxis": "Fieldwork Duration (Days)",
+        "fieldworkUnit": "Days",
+        "accessPatternXAxis": "System Access Time (Hour 0-23)",
+        "accessPatternUnit": "Hour",
+        "dataAccessXAxis": "Data Export Volume (MB)",
+        "dataAccessUnit": "MB",
+        "inventoryXAxis": "Stock Adjustment Value (IDR Million)",
+        "inventoryUnit": "IDR Million",
+        "expenseReportXAxis": "Expense Claim Amount (IDR Million)",
+        "expenseReportUnit": "IDR Million",
+        "travelExpenseXAxis": "Travel Cost Amount (IDR Million)",
+        "travelExpenseUnit": "IDR Million",
+        "procurementXAxis": "Procurement / Vendor Value (IDR Million)",
+        "procurementUnit": "IDR Million",
+        "transactionXAxis": "Transaction Amount (IDR Million)",
+        "transactionUnit": "IDR Million"
+      }
+    },
+    "nlp": {
+      "alertTitle": "IndoBERT NLP Document Analysis Model",
+      "alertDesc": "The IndoBERT & Natural Language Processing model analyzes excerpts from Audit Report Results (Indonesian Language) to automatically classify risk categories, sentiment, impact, and likelihood.",
+      "chartCategoryTitle": "Auto-Classified Risk Categories",
+      "chartSentimentTitle": "Sentiment Distribution",
+      "tableTitle": "Analyzed Documents",
+      "colDocID": "Doc ID",
+      "colTitle": "Title",
+      "colSource": "Source",
+      "colCategory": "Category",
+      "colSentiment": "Sentiment",
+      "colRiskLevel": "Risk Level"
+    },
+    "timeseries": {
+      "alertTitle": "Time-Series KPI PyTorch LSTM Forecasting Model",
+      "alertDesc": "The Deep Learning model (PyTorch LSTM) predicts future KPI performance trends based on historical time series for early audit planning warnings.",
+      "chartTitle": "KPI Performance Forecast",
+      "chartConfidenceBadge": "Shaded area = confidence interval",
+      "atRiskTitle": "⚠️ At-Risk Departments",
+      "projectedQ3": "% projected Q3",
+      "tableTitle": "KPI Forecast Summary",
+      "colCode": "Code",
+      "colKPI": "KPI",
+      "colEntity": "Entity",
+      "colType": "Type",
+      "colForecastHorizon": "Forecast Horizon",
+      "colCurrent": "Current",
+      "colForecast": "Forecast",
+      "colTrend": "Trend",
+      "colRiskLevel": "Risk Level",
+      "colRecommendedAction": "Recommended Action",
+      "labelActualKPI": "Actual KPI (%)",
+      "labelForecast": "PyTorch LSTM Forecast",
+      "labelUpperBound": "Upper Bound",
+      "labelLowerBound": "Lower Bound",
+      "axisKPIScore": "KPI Score (%)"
+    }
   }
 }

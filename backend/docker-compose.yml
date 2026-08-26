@@ -40,9 +40,9 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 2181 || exit 1"]
-      interval: 5s
-      timeout: 5s
+      test: ["CMD-SHELL", "cub zk-ready 127.0.0.1:2181 30 || exit 1"]
+      interval: 10s
+      timeout: 40s
       retries: 10
       start_period: 15s
     networks:
@@ -71,9 +71,9 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 29092 || exit 1"]
+      test: ["CMD-SHELL", "cub kafka-ready 1 30 -b 127.0.0.1:29092 || exit 1"]
       interval: 10s
-      timeout: 5s
+      timeout: 40s
       retries: 10
       start_period: 30s
     networks:
@@ -215,16 +215,18 @@ services:
     image: kong:3.4
     container_name: rb_audit_kong
     volumes:
-      - ./kong-gateway:/usr/local/kong/declarative
+      - ./kong-gateway/kong/dev:/usr/local/kong/declarative
     environment:
       KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong-dev.yml
       KONG_PROXY_LISTEN: 0.0.0.0:8080, 0.0.0.0:8443 ssl http2
       KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl http2
       KONG_LOG_LEVEL: info
       KONG_PLUGINS: bundled
       KONG_NGINX_WORKER_PROCESSES: 1
       KONG_NGINX_PROXY_PROXY_BUFFERING: "off"
+      KONG_CLIENT_MAX_BODY_SIZE: 100m
+      KONG_NGINX_PROXY_CLIENT_MAX_BODY_SIZE: 100m
     ports:
       - "8080:8080"
       - "8443:8443"

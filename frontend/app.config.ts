@@ -583,30 +583,34 @@ export default defineAppConfig({
     },
     card: {
       slots: {
-        root: "rounded-xl overflow-hidden border-2 border-slate-300 transition-all duration-300 shadow-md hover:shadow-lg",
-        header: "p-4 sm:px-6 border-b border-[var(--border-main)] bg-[var(--bg-surface)]",
-        body: "p-4 sm:p-6",
-        footer: "p-4 sm:px-6 border-t border-[var(--border-main)] bg-[var(--bg-surface)]",
+        root: 'rounded-lg overflow-hidden',
+        header: 'p-4 sm:px-6',
+        title: 'text-highlighted font-semibold',
+        description: 'mt-1 text-muted text-sm',
+        body: 'p-4 sm:p-6',
+        footer: 'p-4 sm:px-6'
       },
       variants: {
         variant: {
           solid: {
-            root: "bg-[var(--bg-main)] text-[var(--text-main)]",
+            root: 'bg-inverted text-inverted',
+            title: 'text-inverted',
+            description: 'text-dimmed'
           },
           outline: {
-            root: "bg-[var(--bg-main)] border border-[var(--border-main)]",
+            root: 'bg-default ring ring-default divide-y divide-default'
           },
           soft: {
-            root: "bg-[var(--bg-surface)] rounded-xl z-100 block relative shadow-lg",
+            root: 'bg-elevated/50 divide-y divide-default'
           },
           subtle: {
-            root: "bg-[var(--bg-surface)]/50 ring ring-[var(--border-main)] divide-y divide-[var(--border-main)]",
-          },
-        },
+            root: 'bg-elevated/50 ring ring-default divide-y divide-default'
+          }
+        }
       },
       defaultVariants: {
-        variant: "outline",
-      },
+        variant: 'outline'
+      }
     },
     colors: {
       primary: "primary",
@@ -895,14 +899,14 @@ export default defineAppConfig({
       slots: {
         overlay: "fixed inset-0",
         content:
-          "bg-secondary-50 divide-y divide-default flex flex-col focus:outline-none",
-        header: "flex items-center gap-1.5 p-4 sm:px-6 min-h-16",
+          "bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-main)] divide-y divide-[var(--border-main)] flex flex-col focus:outline-none",
+        header: "flex items-center gap-1.5 p-4 sm:px-6 min-h-16 text-[var(--text-main)]",
         wrapper: "",
-        body: "flex-1 p-4 sm:p-6",
-        footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6",
-        title: "text-highlighted font-semibold text-2xl",
-        description: "mt-1 text-muted text-sm",
-        close: "absolute top-4 end-4",
+        body: "flex-1 p-4 sm:p-6 text-[var(--text-main)]",
+        footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6 text-[var(--text-main)]",
+        title: "text-[var(--text-main)] font-semibold text-2xl",
+        description: "mt-1 text-[var(--text-muted)] text-sm",
+        close: "absolute top-4 end-4 text-[var(--text-muted)] hover:text-[var(--text-main)]",
       },
       variants: {
         transition: {
@@ -1654,6 +1658,37 @@ export default defineAppConfig({
           bg: "bg-primary-500",
         },
       },
+    },
+
+    /**
+     * UTable — override dark-mode text to pure white on all tables app-wide.
+     * Slot names come from the Nuxt UI v3 table theme (table$1).
+     *   th:    header cells  (default: text-highlighted)
+     *   td:    body cells    (default: text-muted)
+     *   empty: empty state   (default: text-muted)
+     */
+    table: {
+      slots: {
+        th: 'px-4 py-3.5 text-sm text-left rtl:text-right font-semibold text-gray-700 dark:text-white',
+        td: 'p-4 text-sm whitespace-nowrap text-gray-600 dark:text-white',
+        empty: 'py-6 text-center text-sm text-gray-500 dark:text-white',
+      }
+    },
+    dashboardSidebar: {
+      slots: {
+        body: 'p-3 flex flex-col justify-start gap-y-2',
+        header: 'px-4 py-3 border-b border-gray-200 dark:border-gray-800',
+        footer: 'p-0'
+      }
+    },
+    toast: {
+      slots: {
+        root: 'relative group overflow-hidden bg-white dark:bg-neutral-900 shadow-xl rounded-xl ring-1 ring-neutral-200 dark:ring-neutral-800 p-4 flex gap-3 focus:outline-none',
+        title: 'text-sm font-semibold text-neutral-900 dark:text-white',
+        description: 'text-xs text-neutral-500 dark:text-neutral-400 mt-0.5',
+        icon: 'shrink-0 size-5 text-emerald-500 dark:text-emerald-400',
+        progress: 'hidden !important',
+      }
     },
   },
 });

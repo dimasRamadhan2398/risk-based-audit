@@ -15,6 +15,7 @@ type UploadedAnnualPlan struct {
 	FilePath    string         `gorm:"type:varchar(500);not null" json:"filePath"`
 	FileSize    int64          `gorm:"type:bigint" json:"fileSize"`
 	FileType    string         `gorm:"type:varchar(100)" json:"fileType"`
+	FileContent []byte         `gorm:"type:bytea" json:"-"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`

@@ -433,18 +433,18 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         $fetch(`${baseUrl}/fieldwork/test-controls?assignmentLetterId=${assignmentLetterId}`)
       ])
 
-      const interviewsList = interviewsRes?.items || interviewsRes || []
-      const observationsList = observationsRes?.items || observationsRes || []
-      const documentsList = documentsRes?.items || documentsRes || []
-      const samplesList = samplesRes?.items || samplesRes || []
-      const testControlsList = testControlsRes?.items || testControlsRes || []
+      const interviewsList = interviewsRes?.data?.items || interviewsRes?.items || (Array.isArray(interviewsRes) ? interviewsRes : [])
+      const observationsList = observationsRes?.data?.items || observationsRes?.items || (Array.isArray(observationsRes) ? observationsRes : [])
+      const documentsList = documentsRes?.data?.items || documentsRes?.items || (Array.isArray(documentsRes) ? documentsRes : [])
+      const samplesList = samplesRes?.data?.items || samplesRes?.items || (Array.isArray(samplesRes) ? samplesRes : [])
+      const testControlsList = testControlsRes?.data?.items || testControlsRes?.items || (Array.isArray(testControlsRes) ? testControlsRes : [])
 
       fieldworkData.value[assignmentLetterId] = {
-        interviews: interviewsList.length > 0 ? interviewsList : (mockFieldwork[assignmentLetterId]?.interviews || []),
-        observations: observationsList.length > 0 ? observationsList : (mockFieldwork[assignmentLetterId]?.observations || []),
-        documents: documentsList.length > 0 ? documentsList : (mockFieldwork[assignmentLetterId]?.documents || []),
-        samples: samplesList.length > 0 ? samplesList : (mockFieldwork[assignmentLetterId]?.samples || []),
-        testControls: testControlsList.length > 0 ? testControlsList : (mockFieldwork[assignmentLetterId]?.testControls || [])
+        interviews: Array.isArray(interviewsList) && interviewsList.length > 0 ? interviewsList : (mockFieldwork[assignmentLetterId]?.interviews || []),
+        observations: Array.isArray(observationsList) && observationsList.length > 0 ? observationsList : (mockFieldwork[assignmentLetterId]?.observations || []),
+        documents: Array.isArray(documentsList) && documentsList.length > 0 ? documentsList : (mockFieldwork[assignmentLetterId]?.documents || []),
+        samples: Array.isArray(samplesList) && samplesList.length > 0 ? samplesList : (mockFieldwork[assignmentLetterId]?.samples || []),
+        testControls: Array.isArray(testControlsList) && testControlsList.length > 0 ? testControlsList : (mockFieldwork[assignmentLetterId]?.testControls || [])
       }
     } catch (error: any) {
       console.error('Failed to fetch fieldwork data:', error)
@@ -456,6 +456,93 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
     } finally {
       loading.value = false
+    }
+  }
+
+  const ensureFieldworkDataHolder = (assignmentLetterId: string) => {
+    if (!fieldworkData.value[assignmentLetterId]) {
+      fieldworkData.value[assignmentLetterId] = {
+        interviews: mockFieldwork[assignmentLetterId]?.interviews || [],
+        observations: mockFieldwork[assignmentLetterId]?.observations || [],
+        documents: mockFieldwork[assignmentLetterId]?.documents || [],
+        samples: mockFieldwork[assignmentLetterId]?.samples || [],
+        testControls: mockFieldwork[assignmentLetterId]?.testControls || []
+      }
+    }
+  }
+
+  const fetchInterviews = async (assignmentLetterId: string) => {
+    if (!assignmentLetterId) return
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const res: any = await $fetch(`${baseUrl}/fieldwork/interviews?assignmentLetterId=${assignmentLetterId}`)
+      const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
+      ensureFieldworkDataHolder(assignmentLetterId)
+      if (Array.isArray(list) && list.length > 0) {
+        fieldworkData.value[assignmentLetterId].interviews = list
+      }
+    } catch (error) {
+      console.error('Failed to fetch interviews:', error)
+    }
+  }
+
+  const fetchObservations = async (assignmentLetterId: string) => {
+    if (!assignmentLetterId) return
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const res: any = await $fetch(`${baseUrl}/fieldwork/observations?assignmentLetterId=${assignmentLetterId}`)
+      const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
+      ensureFieldworkDataHolder(assignmentLetterId)
+      if (Array.isArray(list) && list.length > 0) {
+        fieldworkData.value[assignmentLetterId].observations = list
+      }
+    } catch (error) {
+      console.error('Failed to fetch observations:', error)
+    }
+  }
+
+  const fetchDocuments = async (assignmentLetterId: string) => {
+    if (!assignmentLetterId) return
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const res: any = await $fetch(`${baseUrl}/fieldwork/documents?assignmentLetterId=${assignmentLetterId}`)
+      const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
+      ensureFieldworkDataHolder(assignmentLetterId)
+      if (Array.isArray(list) && list.length > 0) {
+        fieldworkData.value[assignmentLetterId].documents = list
+      }
+    } catch (error) {
+      console.error('Failed to fetch documents:', error)
+    }
+  }
+
+  const fetchSamples = async (assignmentLetterId: string) => {
+    if (!assignmentLetterId) return
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const res: any = await $fetch(`${baseUrl}/fieldwork/samples?assignmentLetterId=${assignmentLetterId}`)
+      const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
+      ensureFieldworkDataHolder(assignmentLetterId)
+      if (Array.isArray(list) && list.length > 0) {
+        fieldworkData.value[assignmentLetterId].samples = list
+      }
+    } catch (error) {
+      console.error('Failed to fetch samples:', error)
+    }
+  }
+
+  const fetchTestControls = async (assignmentLetterId: string) => {
+    if (!assignmentLetterId) return
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const res: any = await $fetch(`${baseUrl}/fieldwork/test-controls?assignmentLetterId=${assignmentLetterId}`)
+      const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
+      ensureFieldworkDataHolder(assignmentLetterId)
+      if (Array.isArray(list) && list.length > 0) {
+        fieldworkData.value[assignmentLetterId].testControls = list
+      }
+    } catch (error) {
+      console.error('Failed to fetch test controls:', error)
     }
   }
 
@@ -544,22 +631,78 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         assignmentLetterId: selectedAssignmentLetter.value,
         fileName: interviewForm.file ? interviewForm.file.name : ''
       }
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].interviews
+
+      let res: any = null
       if (isEditingInterview.value && editingInterviewId.value) {
-        await $fetch(`${baseUrl}/fieldwork/interviews/${editingInterviewId.value}`, {
+        res = await $fetch(`${baseUrl}/fieldwork/interviews/${editingInterviewId.value}`, {
           method: 'PUT',
           body: payload
         })
+        const updatedItem = res?.data || res
+        const idx = currentList.findIndex((item: any) => item.id === editingInterviewId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...payload,
+            id: updatedItem?.id || editingInterviewId.value,
+            file: interviewForm.file
+          }
+        }
       } else {
-        await $fetch(`${baseUrl}/fieldwork/interviews`, {
+        res = await $fetch(`${baseUrl}/fieldwork/interviews`, {
           method: 'POST',
           body: payload
         })
+        const createdItem = res?.data || res
+        const newItem: InterviewItem = {
+          id: createdItem?.id || Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          interviewee: interviewForm.interviewee,
+          intervieweePosition: interviewForm.intervieweePosition,
+          interviewer: interviewForm.interviewer,
+          interviewerPosition: interviewForm.interviewerPosition,
+          date: interviewForm.date,
+          topic: interviewForm.topic,
+          file: interviewForm.file,
+          fileName: interviewForm.file ? interviewForm.file.name : ''
+        }
+        currentList.push(newItem)
       }
       showInterviewModal.value = false
       resetInterviewForm()
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      await fetchInterviews(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API save error, applying local state update:', error)
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].interviews
+      if (isEditingInterview.value && editingInterviewId.value) {
+        const idx = currentList.findIndex((item: any) => item.id === editingInterviewId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...interviewForm,
+            fileName: interviewForm.file ? interviewForm.file.name : currentList[idx].fileName
+          }
+        }
+      } else {
+        const newItem: InterviewItem = {
+          id: Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          interviewee: interviewForm.interviewee,
+          intervieweePosition: interviewForm.intervieweePosition,
+          interviewer: interviewForm.interviewer,
+          interviewerPosition: interviewForm.interviewerPosition,
+          date: interviewForm.date,
+          topic: interviewForm.topic,
+          file: interviewForm.file,
+          fileName: interviewForm.file ? interviewForm.file.name : ''
+        }
+        currentList.push(newItem)
+      }
+      showInterviewModal.value = false
+      resetInterviewForm()
     } finally {
       loading.value = false
     }
@@ -575,9 +718,15 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/interviews/${item.id}`, {
         method: 'DELETE'
       })
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.interviews) {
+        fieldworkData.value[selectedAssignmentLetter.value].interviews.splice(index, 1)
+      }
+      await fetchInterviews(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API delete error, applying local delete:', error)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.interviews) {
+        fieldworkData.value[selectedAssignmentLetter.value].interviews.splice(index, 1)
+      }
     } finally {
       loading.value = false
     }
@@ -656,22 +805,74 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         assignmentLetterId: selectedAssignmentLetter.value,
         fileName: observationForm.file ? observationForm.file.name : ''
       }
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].observations
+
+      let res: any = null
       if (isEditingObservation.value && editingObservationId.value) {
-        await $fetch(`${baseUrl}/fieldwork/observations/${editingObservationId.value}`, {
+        res = await $fetch(`${baseUrl}/fieldwork/observations/${editingObservationId.value}`, {
           method: 'PUT',
           body: payload
         })
+        const updatedItem = res?.data || res
+        const idx = currentList.findIndex((item: any) => item.id === editingObservationId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...payload,
+            id: updatedItem?.id || editingObservationId.value,
+            file: observationForm.file
+          }
+        }
       } else {
-        await $fetch(`${baseUrl}/fieldwork/observations`, {
+        res = await $fetch(`${baseUrl}/fieldwork/observations`, {
           method: 'POST',
           body: payload
         })
+        const createdItem = res?.data || res
+        const newItem: ObservationItem = {
+          id: createdItem?.id || Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          activity: observationForm.activity,
+          location: observationForm.location,
+          date: observationForm.date,
+          observer: observationForm.observer,
+          file: observationForm.file,
+          fileName: observationForm.file ? observationForm.file.name : ''
+        }
+        currentList.push(newItem)
       }
       showObservationModal.value = false
       resetObservationForm()
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      await fetchObservations(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API save error, applying local state update:', error)
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].observations
+      if (isEditingObservation.value && editingObservationId.value) {
+        const idx = currentList.findIndex((item: any) => item.id === editingObservationId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...observationForm,
+            fileName: observationForm.file ? observationForm.file.name : currentList[idx].fileName
+          }
+        }
+      } else {
+        const newItem: ObservationItem = {
+          id: Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          activity: observationForm.activity,
+          location: observationForm.location,
+          date: observationForm.date,
+          observer: observationForm.observer,
+          file: observationForm.file,
+          fileName: observationForm.file ? observationForm.file.name : ''
+        }
+        currentList.push(newItem)
+      }
+      showObservationModal.value = false
+      resetObservationForm()
     } finally {
       loading.value = false
     }
@@ -687,9 +888,15 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/observations/${item.id}`, {
         method: 'DELETE'
       })
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.observations) {
+        fieldworkData.value[selectedAssignmentLetter.value].observations.splice(index, 1)
+      }
+      await fetchObservations(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API delete error, applying local delete:', error)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.observations) {
+        fieldworkData.value[selectedAssignmentLetter.value].observations.splice(index, 1)
+      }
     } finally {
       loading.value = false
     }
@@ -765,22 +972,72 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         assignmentLetterId: selectedAssignmentLetter.value,
         fileName: documentForm.file ? documentForm.file.name : ''
       }
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].documents
+
+      let res: any = null
       if (isEditingDocument.value && editingDocumentId.value) {
-        await $fetch(`${baseUrl}/fieldwork/documents/${editingDocumentId.value}`, {
+        res = await $fetch(`${baseUrl}/fieldwork/documents/${editingDocumentId.value}`, {
           method: 'PUT',
           body: payload
         })
+        const updatedItem = res?.data || res
+        const idx = currentList.findIndex((item: any) => item.id === editingDocumentId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...payload,
+            id: updatedItem?.id || editingDocumentId.value,
+            file: documentForm.file
+          }
+        }
       } else {
-        await $fetch(`${baseUrl}/fieldwork/documents`, {
+        res = await $fetch(`${baseUrl}/fieldwork/documents`, {
           method: 'POST',
           body: payload
         })
+        const createdItem = res?.data || res
+        const newItem: DocumentItem = {
+          id: createdItem?.id || Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          documentName: documentForm.documentName,
+          description: documentForm.description,
+          requiredDate: documentForm.requiredDate,
+          file: documentForm.file,
+          fileName: documentForm.file ? documentForm.file.name : ''
+        }
+        currentList.push(newItem)
       }
       showDocumentModal.value = false
       resetDocumentForm()
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      await fetchDocuments(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API save error, applying local state update:', error)
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].documents
+      if (isEditingDocument.value && editingDocumentId.value) {
+        const idx = currentList.findIndex((item: any) => item.id === editingDocumentId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...documentForm,
+            fileName: documentForm.file ? documentForm.file.name : currentList[idx].fileName
+          }
+        }
+      } else {
+        const newItem: DocumentItem = {
+          id: Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          documentName: documentForm.documentName,
+          description: documentForm.description,
+          requiredDate: documentForm.requiredDate,
+          file: documentForm.file,
+          fileName: documentForm.file ? documentForm.file.name : ''
+        }
+        currentList.push(newItem)
+      }
+      showDocumentModal.value = false
+      resetDocumentForm()
     } finally {
       loading.value = false
     }
@@ -796,9 +1053,15 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/documents/${item.id}`, {
         method: 'DELETE'
       })
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.documents) {
+        fieldworkData.value[selectedAssignmentLetter.value].documents.splice(index, 1)
+      }
+      await fetchDocuments(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API delete error, applying local delete:', error)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.documents) {
+        fieldworkData.value[selectedAssignmentLetter.value].documents.splice(index, 1)
+      }
     } finally {
       loading.value = false
     }
@@ -861,22 +1124,68 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         ...sampleForm,
         assignmentLetterId: selectedAssignmentLetter.value
       }
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].samples
+
+      let res: any = null
       if (isEditingSample.value && editingSampleId.value) {
-        await $fetch(`${baseUrl}/fieldwork/samples/${editingSampleId.value}`, {
+        res = await $fetch(`${baseUrl}/fieldwork/samples/${editingSampleId.value}`, {
           method: 'PUT',
           body: payload
         })
+        const updatedItem = res?.data || res
+        const idx = currentList.findIndex((item: any) => item.id === editingSampleId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...payload,
+            id: updatedItem?.id || editingSampleId.value
+          }
+        }
       } else {
-        await $fetch(`${baseUrl}/fieldwork/samples`, {
+        res = await $fetch(`${baseUrl}/fieldwork/samples`, {
           method: 'POST',
           body: payload
         })
+        const createdItem = res?.data || res
+        const newItem: SampleItem = {
+          id: createdItem?.id || Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          documentName: sampleForm.documentName,
+          documentNumber: sampleForm.documentNumber,
+          date: sampleForm.date,
+          description: sampleForm.description
+        }
+        currentList.push(newItem)
       }
       showSampleModal.value = false
       resetSampleForm()
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      await fetchSamples(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API save error, applying local state update:', error)
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].samples
+      if (isEditingSample.value && editingSampleId.value) {
+        const idx = currentList.findIndex((item: any) => item.id === editingSampleId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...sampleForm
+          }
+        }
+      } else {
+        const newItem: SampleItem = {
+          id: Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          documentName: sampleForm.documentName,
+          documentNumber: sampleForm.documentNumber,
+          date: sampleForm.date,
+          description: sampleForm.description
+        }
+        currentList.push(newItem)
+      }
+      showSampleModal.value = false
+      resetSampleForm()
     } finally {
       loading.value = false
     }
@@ -892,9 +1201,15 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/samples/${item.id}`, {
         method: 'DELETE'
       })
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.samples) {
+        fieldworkData.value[selectedAssignmentLetter.value].samples.splice(index, 1)
+      }
+      await fetchSamples(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API delete error, applying local delete:', error)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.samples) {
+        fieldworkData.value[selectedAssignmentLetter.value].samples.splice(index, 1)
+      }
     } finally {
       loading.value = false
     }
@@ -975,22 +1290,80 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         ...testControlForm,
         assignmentLetterId: selectedAssignmentLetter.value
       }
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].testControls
+
+      let res: any = null
       if (isEditingTestControl.value && editingTestControlId.value) {
-        await $fetch(`${baseUrl}/fieldwork/test-controls/${editingTestControlId.value}`, {
+        res = await $fetch(`${baseUrl}/fieldwork/test-controls/${editingTestControlId.value}`, {
           method: 'PUT',
           body: payload
         })
+        const updatedItem = res?.data || res
+        const idx = currentList.findIndex((item: any) => item.id === editingTestControlId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...payload,
+            id: updatedItem?.id || editingTestControlId.value
+          }
+        }
       } else {
-        await $fetch(`${baseUrl}/fieldwork/test-controls`, {
+        res = await $fetch(`${baseUrl}/fieldwork/test-controls`, {
           method: 'POST',
           body: payload
         })
+        const createdItem = res?.data || res
+        const newItem: TestControlItem = {
+          id: createdItem?.id || Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          controlName: testControlForm.controlName,
+          controlDescription: testControlForm.controlDescription,
+          controlType: testControlForm.controlType,
+          testProcedure: testControlForm.testProcedure,
+          testResult: testControlForm.testResult,
+          finding: testControlForm.finding,
+          recommendation: testControlForm.recommendation,
+          mitigationPlan: testControlForm.mitigationPlan,
+          pic: testControlForm.pic,
+          dueDate: testControlForm.dueDate
+        }
+        currentList.push(newItem)
       }
       showTestControlModal.value = false
       resetTestControlForm()
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      await fetchTestControls(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API save error, applying local state update:', error)
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value].testControls
+      if (isEditingTestControl.value && editingTestControlId.value) {
+        const idx = currentList.findIndex((item: any) => item.id === editingTestControlId.value)
+        if (idx !== -1) {
+          currentList[idx] = {
+            ...currentList[idx],
+            ...testControlForm
+          }
+        }
+      } else {
+        const newItem: TestControlItem = {
+          id: Date.now().toString(),
+          assignmentLetterId: selectedAssignmentLetter.value,
+          controlName: testControlForm.controlName,
+          controlDescription: testControlForm.controlDescription,
+          controlType: testControlForm.controlType,
+          testProcedure: testControlForm.testProcedure,
+          testResult: testControlForm.testResult,
+          finding: testControlForm.finding,
+          recommendation: testControlForm.recommendation,
+          mitigationPlan: testControlForm.mitigationPlan,
+          pic: testControlForm.pic,
+          dueDate: testControlForm.dueDate
+        }
+        currentList.push(newItem)
+      }
+      showTestControlModal.value = false
+      resetTestControlForm()
     } finally {
       loading.value = false
     }
@@ -1006,9 +1379,15 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/test-controls/${item.id}`, {
         method: 'DELETE'
       })
-      await fetchAllFieldworkData(selectedAssignmentLetter.value)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.testControls) {
+        fieldworkData.value[selectedAssignmentLetter.value].testControls.splice(index, 1)
+      }
+      await fetchTestControls(selectedAssignmentLetter.value)
     } catch (error) {
-      console.error(error)
+      console.error('API delete error, applying local delete:', error)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.testControls) {
+        fieldworkData.value[selectedAssignmentLetter.value].testControls.splice(index, 1)
+      }
     } finally {
       loading.value = false
     }

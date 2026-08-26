@@ -14,6 +14,7 @@
           </div>
           <div class="flex items-center gap-2">
             <UButton
+              v-if="canImportPlanDocs"
               icon="i-lucide-upload"
               :label="t('auditActivityPlan.importDocument')"
               variant="outline"
@@ -48,8 +49,10 @@ import ActivityPlanForm from '~/components/audit-activity-plan/ActivityPlanForm.
 import ActivityPlanTable from '~/components/audit-activity-plan/ActivityPlanTable.vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
+const { canImportPlanDocs } = useRbac()
 const store = useActivityPlanStore()
 store.fetchPlans()
 </script>

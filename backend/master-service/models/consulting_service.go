@@ -24,6 +24,7 @@ type ConsultingService struct {
 	Status            string                `gorm:"type:varchar(50);default:'Planned'" json:"status"` // Planned, In Progress, Completed
 	Notes             string                `gorm:"type:text" json:"notes,omitempty"`
 	Attachment        *ConsultingAttachment `gorm:"serializer:json" json:"attachment,omitempty"`
+	FileContent       []byte                `gorm:"type:bytea" json:"-"`
 	CreatedAt         time.Time             `json:"created_at"`
 	UpdatedAt         time.Time             `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt        `gorm:"index" json:"-"`

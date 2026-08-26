@@ -200,6 +200,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				AssessmentTitle:   req.AssessmentTitle,
 				Validator:         req.Validator,
 				InternalEvaluator: req.InternalEvaluator,
+				FileContent:       dec,
 				Attachment: &models.QAReportAttachment{
 					Name:       req.FileName,
 					Size:       fmt.Sprintf("%.2f MB", float64(len(dec))/(1024*1024)),
@@ -231,6 +232,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 			if report.Attachment == nil || report.Attachment.FilePath == "" {
 				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "This report does not have an attached file"})
+				return
+			}
+
+			if len(report.FileContent) > 0 {
+				c.Header("Content-Description", "File Transfer")
+				c.Header("Content-Transfer-Encoding", "binary")
+				c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", report.Attachment.Name))
+				c.Header("Content-Type", "application/octet-stream")
+				c.Data(http.StatusOK, "application/octet-stream", report.FileContent)
 				return
 			}
 
@@ -417,6 +427,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				ConsultantName: req.ConsultantName,
 				Status:         req.Status,
 				Notes:          req.Notes,
+				FileContent:    dec,
 				Attachment: &models.ConsultingAttachment{
 					Name:       req.FileName,
 					Size:       fmt.Sprintf("%.2f MB", float64(len(dec))/(1024*1024)),
@@ -448,6 +459,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 			if service.Attachment == nil || service.Attachment.FilePath == "" {
 				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "This record does not have an attached file"})
+				return
+			}
+
+			if len(service.FileContent) > 0 {
+				c.Header("Content-Description", "File Transfer")
+				c.Header("Content-Transfer-Encoding", "binary")
+				c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", service.Attachment.Name))
+				c.Header("Content-Type", "application/octet-stream")
+				c.Data(http.StatusOK, "application/octet-stream", service.FileContent)
 				return
 			}
 

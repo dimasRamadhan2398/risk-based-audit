@@ -7,6 +7,7 @@
       </div>
       <div class="flex items-center gap-2">
         <UButton
+          v-if="canImportPlanDocs"
           :label="t('assignmentLetter.importDocument')"
           icon="i-lucide-upload"
           color="neutral"
@@ -16,6 +17,7 @@
           to="/assignment-letter/upload"
         />
         <UButton
+          v-if="canManageAssignmentLetter"
           :label="t('assignmentLetter.createAssignmentLetter')"
           icon="i-heroicons-plus"
           color="primary"
@@ -38,8 +40,10 @@ import AssignmentLetterForm from '~/components/assignment-letter/AssignmentLette
 import AssignmentLetterTable from '~/components/assignment-letter/AssignmentLetterTable.vue';
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
+const { canManageAssignmentLetter, canImportPlanDocs } = useRbac()
 const store = useAssignmentLetterStore()
 store.fetchAssignmentLetters()
 

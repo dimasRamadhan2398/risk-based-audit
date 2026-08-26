@@ -18,16 +18,38 @@
     <div class="absolute bottom-1/4 -right-32 w-64 h-64 bg-secondary-500/10 dark:bg-secondary-500/5 rounded-full blur-3xl" />
 
     <div class="relative w-full max-w-md z-10">
+      <!-- Language Switcher Toggle -->
+      <div class="flex justify-end mb-3">
+        <div class="flex items-center gap-1.5 bg-[var(--bg-surface)]/80 backdrop-blur-sm p-1 rounded-xl border border-[var(--border-main)] shadow-sm">
+          <button
+            type="button"
+            class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+            :class="locale === 'id' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+            @click="setLocale('id')"
+          >
+            <span>🇮🇩</span> ID
+          </button>
+          <button
+            type="button"
+            class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+            :class="locale === 'en' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+            @click="setLocale('en')"
+          >
+            <span>🇬🇧</span> EN
+          </button>
+        </div>
+      </div>
+
       <!-- Card following the design system -->
       <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl shadow-2xl px-8 py-10 transition-all duration-300">
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
           <Logo class="mb-5 h-12" />
           <h1 class="text-2xl font-bold text-[var(--text-main)] tracking-tight">
-            Selamat Datang Kembali
+            {{ t('auth.login.title') }}
           </h1>
-          <p class="mt-1.5 text-sm text-[var(--text-muted)] text-center">
-            Masuk ke Sistem Audit Internal Berbasis Risiko
+          <p class="text-sm text-[var(--text-muted)] mt-1.5 text-center">
+            {{ t('auth.login.subtitle') }}
           </p>
         </div>
 
@@ -39,7 +61,7 @@
           >
             <span class="text-warning-500 mt-0.5">⚠</span>
             <p class="text-md text-warning-600 dark:text-warning-400">
-              Login dari perangkat baru terdeteksi. Verifikasi OTP mungkin diperlukan.
+              {{ t('auth.login.newDeviceHint') }}
             </p>
           </div>
         </Transition>
@@ -55,7 +77,7 @@
           <!-- Username field -->
           <UFormField name="username">
             <template #label>
-              <span class="text-sm font-medium text-[var(--text-main)]">Username</span>
+              <span class="text-sm font-medium text-[var(--text-main)]">{{ t('auth.login.username') }}</span>
             </template>
             <UInput
               id="username"
@@ -63,7 +85,7 @@
               name="username"
               type="text"
               autocomplete="username"
-              placeholder="Masukkan username Anda"
+              :placeholder="t('auth.login.usernamePlaceholder')"
               size="lg"
               class="w-full"
               :ui="{
@@ -75,7 +97,7 @@
           <!-- Password field -->
           <UFormField name="password">
             <template #label>
-              <span class="text-sm font-medium text-[var(--text-main)]">Password</span>
+              <span class="text-sm font-medium text-[var(--text-main)]">{{ t('auth.login.password') }}</span>
             </template>
             <UInput
               id="password"
@@ -83,7 +105,7 @@
               name="password"
               :type="showPassword ? 'text' : 'password'"
               autocomplete="current-password"
-              placeholder="Masukkan password Anda"
+              :placeholder="t('auth.login.passwordPlaceholder')"
               size="lg"
               class="w-full"
               :ui="{
@@ -100,13 +122,13 @@
                 type="checkbox"
                 class="rounded border-[var(--border-main)] bg-[var(--bg-main)] text-primary-500 focus:ring-primary-500/20"
               >
-              <span class="text-sm text-[var(--text-muted)]">Ingat saya</span>
+              <span class="text-sm text-[var(--text-muted)]">{{ t('auth.login.rememberMe') }}</span>
             </label>
             <NuxtLink
               to="/auth/forgot-password"
               class="text-sm text-primary-500 hover:text-primary-600 transition-colors"
             >
-              Lupa Password?
+              {{ t('auth.login.forgotPassword') }}
             </NuxtLink>
           </div>
 
@@ -130,23 +152,23 @@
             class="rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-semibold tracking-wide transition-all duration-200 shadow-lg shadow-primary-500/20 hover:shadow-primary-600/30 mt-2"
           >
             <template v-if="!loading">
-              <span>Masuk</span>
+              <span>{{ t('auth.login.button') }}</span>
               <span class="ml-2">→</span>
             </template>
             <template v-else>
-              <span>Memverifikasi...</span>
+              <span>{{ t('auth.login.verifying') }}</span>
             </template>
           </UButton>
         </UForm>
 
         <!-- Device info chip -->
         <div class="mt-6 flex items-center justify-center gap-2 text-md text-[var(--text-muted)]">
-          <span>Koneksi terenkripsi · {{ deviceInfo.deviceName }}</span>
+          <span>{{ t('auth.login.encryptedConnection', { device: deviceInfo.deviceName }) }}</span>
         </div>
 
         <!-- Footer note -->
         <p class="mt-4 text-center text-md text-[var(--text-muted)]">
-          Butuh akun? Hubungi Administrator sistem.
+          {{ t('auth.login.needAccount') }}
         </p>
       </div>
     </div>
@@ -158,6 +180,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
 import { useDeviceFingerprint } from '~/composables/useDeviceFingerprint'
+import { useI18n } from '~/composables/useI18n'
 
 definePageMeta({
   layout: 'auth',
@@ -165,6 +188,7 @@ definePageMeta({
   pageTransition: { name: 'fade', mode: 'out-in' },
 })
 
+const { t, locale, setLocale } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 const { getDeviceFingerprint } = useDeviceFingerprint()
@@ -175,15 +199,19 @@ onMounted(() => {
   deviceInfo.value = getDeviceFingerprint()
 })
 
-const schema = z.object({
-  username: z.string().min(1, 'Username wajib diisi').min(3, 'Username minimal 3 karakter'),
-  password: z.string().min(1, 'Password wajib diisi'),
+const schema = computed(() => z.object({
+  username: z.string().min(1, t('auth.login.usernameRequired')).min(3, t('auth.login.usernameMinLength')),
+  password: z.string().min(1, t('auth.login.passwordRequired')),
   rememberMe: z.boolean().optional(),
-})
+}))
 
-type Schema = z.output<typeof schema>
+type Schema = {
+  username?: string
+  password?: string
+  rememberMe?: boolean
+}
 
-const state = reactive<Partial<Schema>>({
+const state = reactive<Schema>({
   username: '',
   password: '',
   rememberMe: false,
@@ -200,8 +228,8 @@ const handleLogin = async (event: FormSubmitEvent<Schema>) => {
 
   try {
     const result = await authStore.login({
-      username: event.data.username,
-      password: event.data.password,
+      username: event.data.username || '',
+      password: event.data.password || '',
       rememberMe: event.data.rememberMe,
       deviceFingerprint: deviceInfo.value.deviceFingerprint,
       deviceName: deviceInfo.value.deviceName,
@@ -219,12 +247,31 @@ const handleLogin = async (event: FormSubmitEvent<Schema>) => {
     }
   }
   catch (err: any) {
-    let errMsg = err.message || 'Terjadi kesalahan saat login. Coba lagi.'
-    if (errMsg.includes('Failed to fetch') || errMsg.includes('fetch failed')) {
-      errMsg = 'Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.'
-    } else if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized') || errMsg.toLowerCase().includes('invalid credentials')) {
-      errMsg = 'Username atau password salah.'
+    const status = err?.status ?? err?.statusCode ?? err?.response?.status
+    const apiMsg: string = err?.data?.error?.message || err?.data?.message || err?.message || ''
+
+    let errMsg: string
+
+    if (status === 404 || apiMsg.toLowerCase().includes('endpoint_not_found') || apiMsg.toLowerCase().includes('not found')) {
+      // Backend route not found — likely misconfigured proxy or wrong URL
+      errMsg = t('auth.login.errors.notFound')
+    } else if (status === 502 || status === 503 || status === 504) {
+      // Gateway/proxy or service unavailable
+      errMsg = t('auth.login.errors.serviceUnavailable')
+    } else if (status === 500) {
+      errMsg = t('auth.login.errors.serverError')
+    } else if (status === 401 || status === 403 || apiMsg.toLowerCase().includes('invalid credentials') || apiMsg.toLowerCase().includes('unauthorized')) {
+      errMsg = t('auth.login.errors.invalidCredentials')
+    } else if (status === 429) {
+      errMsg = t('auth.login.errors.tooManyRequests')
+    } else if (apiMsg.includes('Failed to fetch') || apiMsg.includes('fetch failed') || apiMsg.includes('ECONNREFUSED') || apiMsg.includes('NetworkError')) {
+      errMsg = t('auth.login.errors.networkError')
+    } else if (apiMsg) {
+      errMsg = apiMsg
+    } else {
+      errMsg = t('auth.login.errors.generic')
     }
+
     error.value = errMsg
   }
   finally {
