@@ -559,6 +559,10 @@ jobs:
                 build \
                 --parallel
 
+              log "🔑 Setting permissions for Kong configuration..."
+              chmod -R 755 "$BACKEND_DIR/kong-gateway/kong/prod" || true
+              chmod 644 "$BACKEND_DIR/kong-gateway/kong/prod/kong.yml" || true
+
               log "🚀 Starting backend services..."
 
               docker compose \
