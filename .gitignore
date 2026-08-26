@@ -45,3 +45,5 @@ build/
 *.log
 logs/
 
+# Executables
+*.exe
