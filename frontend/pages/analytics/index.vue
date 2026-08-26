@@ -461,7 +461,7 @@ const availableAnomalyTypes = computed(() => {
 
 watchEffect(() => {
   if ((selectedAnomalyType.value === 'All' || !selectedAnomalyType.value || !availableAnomalyTypes.value.includes(selectedAnomalyType.value)) && availableAnomalyTypes.value.length > 0) {
-    selectedAnomalyType.value = availableAnomalyTypes.value[0]
+    selectedAnomalyType.value = availableAnomalyTypes.value[0]!
   }
 })
 
@@ -489,7 +489,7 @@ const getScatterChartForType = (typeFilter: string) => {
     }
   })
 
-  const config = anomalyTypeConfigs[typeFilter] || anomalyTypeConfigs['Transaction']
+  const config = anomalyTypeConfigs[typeFilter] || anomalyTypeConfigs['Transaction']!
   const colors = config.colors
 
   return {
@@ -944,7 +944,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       :color="selectedAnomalyType === t ? 'primary' : 'neutral'"
                       :variant="selectedAnomalyType === t ? 'solid' : 'ghost'"
                       size="md"
-                      @click="selectedAnomalyType = t"
+                      @click="() => { selectedAnomalyType = t }"
                     >
                       {{ t }}
                     </UButton>

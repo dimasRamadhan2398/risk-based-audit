@@ -824,7 +824,7 @@
               </div>
             </div>
             <UBadge
-              :color="risk.impact * risk.likelihood > 15 ? 'red' : 'warning'"
+              :color="risk.impact * risk.likelihood > 15 ? 'error' : 'warning'"
               variant="soft"
               size="sm"
               class="font-semibold"
@@ -909,6 +909,7 @@ import { useAuthStore } from "~/stores/auth";
 import { useRCMStore } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
 import { AuditStatus } from "~/types/audit";
+import { UBadge } from "#components";
 
 ChartJS.register(
   CategoryScale,
@@ -1462,7 +1463,7 @@ const auditTableColumns = [
       return h(
         UBadge,
         {
-          color: findings_category === "Very Significant" ? "red" : findings_category === "Significant" ? "orange" : findings_category === "Quite Significant" ? "yellow" : "green",
+          color: findings_category === "Very Significant" ? "error" : findings_category === "Significant" ? "error" : findings_category === "Quite Significant" ? "warning" : "success",
           variant: "soft",
         },
         () => findings_category

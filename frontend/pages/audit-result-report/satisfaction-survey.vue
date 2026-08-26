@@ -193,7 +193,7 @@
               color="neutral"
               variant="ghost"
               icon="i-heroicons-x-mark"
-              @click="showFormModal = false"
+              @click="() => { showFormModal = false }"
             />
           </div>
 
@@ -359,7 +359,7 @@
                   label="Cancel"
                   color="neutral"
                   variant="ghost"
-                  @click="showFormModal = false"
+                  @click="() => { showFormModal = false }"
                 />
                 <UButton
                   type="submit"
@@ -391,7 +391,7 @@
               color="neutral"
               variant="ghost"
               icon="i-heroicons-x-mark"
-              @click="showViewModal = false"
+              @click="() => { showViewModal = false }"
             />
           </div>
 
@@ -471,7 +471,7 @@
                 label="Close"
                 color="neutral"
                 variant="soft"
-                @click="showViewModal = false"
+                @click="() => { showViewModal = false }"
               />
             </div>
           </div>

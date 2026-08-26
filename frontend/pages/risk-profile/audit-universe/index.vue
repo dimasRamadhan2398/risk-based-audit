@@ -111,12 +111,11 @@
                     <UButton
                       size="md"
                       color="primary"
-                      variant="soft"
                       icon="i-lucide-plus"
                       label="Add Custom Entity"
                       @click="openAddCustomModal(null)"
                     />
-                    <UBadge color="primary" variant="subtle">Active</UBadge>
+                    <UBadge color="primary" variant="subtle">{{ corporateUniverse.length }} Entity</UBadge>
                   </div>
                 </div>
               </template>
@@ -131,27 +130,33 @@
                   <div class="flex items-center justify-between">
                     <span class="font-bold text-md text-slate-800 dark:text-slate-200">{{ node.name }}</span>
                     <div class="flex items-center gap-1">
-                      <UButton
-                        icon="i-lucide-plus-circle"
-                        color="primary"
-                        variant="ghost"
-                        size="md"
-                        @click="openAddCustomModal(node.id)"
-                      />
-                      <UButton
-                        icon="i-lucide-edit"
-                        color="neutral"
-                        variant="ghost"
-                        size="md"
-                        @click="openRenameModal(node)"
-                      />
-                      <UButton
-                        icon="i-lucide-trash-2"
-                        color="error"
-                        variant="ghost"
-                        size="md"
-                        @click="deleteCorporateNode(node.id)"
-                      />
+                      <UTooltip text="Add Sub-Entity">
+                        <UButton
+                          icon="i-lucide-plus"
+                          color="primary"
+                          variant="ghost"
+                          size="md"
+                          @click="openAddCustomModal(node.id)"
+                        />
+                      </UTooltip>
+                      <UTooltip text="Rename">
+                        <UButton
+                          icon="i-lucide-edit"
+                          color="warning"
+                          variant="ghost"
+                          size="md"
+                          @click="openRenameModal(node)"
+                        />
+                      </UTooltip>
+                      <UTooltip text="Delete">
+                        <UButton
+                          icon="i-lucide-trash-2"
+                          color="error"
+                          variant="ghost"
+                          size="md"
+                          @click="deleteCorporateNode(node.id)"
+                        />
+                      </UTooltip>
                     </div>
                   </div>
 
@@ -164,20 +169,24 @@
                     >
                       <span class="text-md text-slate-600 dark:text-slate-400">{{ sub.name }}</span>
                       <div class="flex items-center gap-1">
-                        <UButton
-                          icon="i-lucide-edit"
-                          color="neutral"
-                          variant="ghost"
-                          size="md"
-                          @click="openRenameModal(sub)"
-                        />
-                        <UButton
-                          icon="i-lucide-trash-2"
-                          color="error"
-                          variant="ghost"
-                          size="md"
-                          @click="deleteCorporateNode(sub.id)"
-                        />
+                        <UTooltip text="Rename">
+                          <UButton
+                            icon="i-lucide-edit"
+                            color="warning"
+                            variant="ghost"
+                            size="md"
+                            @click="openRenameModal(sub)"
+                          />
+                        </UTooltip>
+                        <UTooltip text="Delete">
+                          <UButton
+                            icon="i-lucide-trash-2"
+                            color="error"
+                            variant="ghost"
+                            size="md"
+                            @click="deleteCorporateNode(sub.id)"
+                          />
+                        </UTooltip>
                       </div>
                     </div>
                   </div>

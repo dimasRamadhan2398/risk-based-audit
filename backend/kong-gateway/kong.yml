@@ -138,6 +138,7 @@ services:
           - /api/v1/mitigations
           - /api/v1/risk-factors
           - /api/v1/audit-universe
+          - /api/v1/risk-appetite
         strip_path: false
 
   - name: analytics-service

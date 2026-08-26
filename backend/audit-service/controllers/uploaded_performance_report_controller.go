@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"net/http"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -89,6 +90,7 @@ func (ctrl *UploadedPerformanceReportController) Upload(c *gin.Context) {
 		FileName:        req.FileName,
 		FilePath:        filePath,
 		FileSize:        int64(len(dec)),
+		FileContent: dec,
 		FileType:        req.FileType,
 		Status:          "Uploaded",
 		ParsedKPIsCount: 4,
@@ -164,6 +166,19 @@ func (ctrl *UploadedPerformanceReportController) Download(c *gin.Context) {
 	var doc models.UploadedPerformanceReport
 	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
 		response.NotFound(c, "Uploaded performance report document not found")
+		return
+	}
+
+		if len(doc.FileContent) > 0 {
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", doc.FileName))
+		if doc.FileType != "" {
+			c.Header("Content-Type", doc.FileType)
+		} else {
+			c.Header("Content-Type", "application/octet-stream")
+		}
+		c.Data(http.StatusOK, doc.FileType, doc.FileContent)
 		return
 	}
 

@@ -95,7 +95,7 @@
             <span class="text-gray-300">|</span>
 
             <UButton
-              label="Edit"
+              icon="i-heroicons-pencil-square"
               color="primary"
               variant="ghost"
               size="lg"

@@ -895,14 +895,14 @@ export default defineAppConfig({
       slots: {
         overlay: "fixed inset-0",
         content:
-          "bg-secondary-50 divide-y divide-default flex flex-col focus:outline-none",
-        header: "flex items-center gap-1.5 p-4 sm:px-6 min-h-16",
+          "bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-main)] divide-y divide-[var(--border-main)] flex flex-col focus:outline-none",
+        header: "flex items-center gap-1.5 p-4 sm:px-6 min-h-16 text-[var(--text-main)]",
         wrapper: "",
-        body: "flex-1 p-4 sm:p-6",
-        footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6",
-        title: "text-highlighted font-semibold text-2xl",
-        description: "mt-1 text-muted text-sm",
-        close: "absolute top-4 end-4",
+        body: "flex-1 p-4 sm:p-6 text-[var(--text-main)]",
+        footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6 text-[var(--text-main)]",
+        title: "text-[var(--text-main)] font-semibold text-2xl",
+        description: "mt-1 text-[var(--text-muted)] text-sm",
+        close: "absolute top-4 end-4 text-[var(--text-muted)] hover:text-[var(--text-main)]",
       },
       variants: {
         transition: {

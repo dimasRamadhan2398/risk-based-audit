@@ -35,7 +35,6 @@
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
             <UButton
-              label="Edit"
               size="md"
               color="primary"
               variant="ghost"

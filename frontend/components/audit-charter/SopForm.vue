@@ -31,8 +31,11 @@
                 v-model="store.form.name"
                 required
                 type="text"
+                maxlength="200"
                 placeholder="e.g. SOP Penyusunan Program Kerja Audit Tahunan"
                 class="mt-1 block w-full rounded-md"
+                @invalid="(e: { target: HTMLInputElement }) => (e.target as HTMLInputElement).setCustomValidity('Nama SOP wajib diisi dan maksimal 200 karakter')"
+                @input="(e: { target: HTMLInputElement }) => (e.target as HTMLInputElement).setCustomValidity('')"
               />
             </UFormField>
 

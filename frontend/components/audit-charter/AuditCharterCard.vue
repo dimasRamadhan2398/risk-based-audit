@@ -108,22 +108,21 @@
             </div>
           </div>
         </div>
-        <div class="sm:flex sm:flex-row-reverse gap-4">
+        <div class="sm:flex sm:flex-row-reverse">
           <UButton
             v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName)"
+            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || '')"
             icon="i-lucide-download"
-            size="md"
+            size="xl"
             color="primary"
-            variant="solid"
-            :label="t('auditCharter.card.download')"
+            variant="ghost"
           />
           <UButton
-            :label="t('auditCharter.card.edit')"
             @click="store.handleEdit(store.activeCharter)"
             color="primary"
             icon="i-lucide-edit"
-            variant="outline"
+            variant="ghost"
+            size="xl"
           >
           </UButton>
         </div>
@@ -186,38 +185,27 @@
                 row.original.uploadedBy
               }}</span>
             </template>
-            <template #fileName-cell="{ row }">
-              <UButton
-                v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                @click="store.downloadCharter(row.original.id, row.original.fileName)"
-                icon="i-lucide-external-link"
-                color="primary"
-                variant="link"
-                size="sm"
-                class="p-0 font-bold"
-                :label="t('auditCharter.card.viewDocument')"
-              />
-
-              <span v-else class="text-gray-400 italic">
-                {{ t('auditCharter.card.noFile') }}
-              </span>
-            </template>
             <template #actions-cell="{ row }">
-              <div class="flex justify-end gap-2">
+              <div class="flex justify-end">
                 <UButton
-                  :label="t('auditCharter.card.edit')"
+                  @click="store.downloadCharter(row.original.id, row.original.fileName || '')"
+                  icon="i-lucide-eye"
+                  color="primary"
+                  variant="ghost"
+                  size="md"
+                />
+                <UButton
                   size="md"
                   color="primary"
-                  variant="outline"
+                  variant="ghost"
                   icon="i-lucide-edit"
                   @click="store.handleEdit(row.original)"
                 />
                 <UButton
-                  :label="t('auditCharter.card.delete')"
                   size="md"
                   color="error"
-                  variant="outline"
-                  icon="i-lucide-trash"
+                  variant="ghost"
+                  icon="i-lucide-trash-2"
                   @click="confirmDelete(row.original)"
                 />
               </div>
@@ -232,6 +220,7 @@
 <script setup lang="ts">
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
+import { onMounted } from 'vue'
 
 const { t } = useI18n()
 const store = useCharterStore()
