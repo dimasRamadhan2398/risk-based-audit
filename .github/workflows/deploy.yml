@@ -174,7 +174,7 @@ jobs:
                   --filter "name=${BACKEND_CONTAINER_FILTER}" \
                   -q \
                   | head -1 || true
-              )
+              )"
 
               if [ -n "$backend_container_id" ]; then
 
@@ -199,7 +199,7 @@ jobs:
                   --filter "name=${FRONTEND_CONTAINER_FILTER}" \
                   -q \
                   | head -1 || true
-              )
+              )"
 
               if [ -n "$frontend_container_id" ]; then
 
