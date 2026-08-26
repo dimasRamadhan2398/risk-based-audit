@@ -8,28 +8,33 @@ import { UserRole } from '~/types/auth'
 export const useRbac = () => {
   const authStore = useAuthStore()
 
+  const normalize = (r: string | UserRole) => String(r || '').toLowerCase().trim()
+
   /**
-   * Check if the current user has a specific role.
+   * Check if the current user has a specific role (case-insensitive).
    */
   const hasRole = (role: UserRole | string): boolean => {
-    if (!authStore.user?.roles) return false
-    return authStore.user.roles.includes(role)
+    if (!authStore.user?.roles || !Array.isArray(authStore.user.roles)) return false
+    const target = normalize(role)
+    return authStore.user.roles.some(r => normalize(r) === target)
   }
 
   /**
-   * Check if the current user has any of the provided roles.
+   * Check if the current user has any of the provided roles (case-insensitive).
    */
   const hasAnyRole = (roles: (UserRole | string)[]): boolean => {
-    if (!authStore.user?.roles) return false
-    return roles.some(role => authStore.user!.roles.includes(role))
+    if (!authStore.user?.roles || !Array.isArray(authStore.user.roles)) return false
+    const targets = roles.map(normalize)
+    return authStore.user.roles.some(r => targets.includes(normalize(r)))
   }
 
   /**
-   * Check if the current user has all of the provided roles.
+   * Check if the current user has all of the provided roles (case-insensitive).
    */
   const hasAllRoles = (roles: (UserRole | string)[]): boolean => {
-    if (!authStore.user?.roles) return false
-    return roles.every(role => authStore.user!.roles.includes(role))
+    if (!authStore.user?.roles || !Array.isArray(authStore.user.roles)) return false
+    const userRoles = authStore.user.roles.map(normalize)
+    return roles.every(role => userRoles.includes(normalize(role)))
   }
 
   /**
@@ -74,7 +79,7 @@ export const useRbac = () => {
    * Get the user's primary display role (highest privilege).
    */
   const primaryRole = computed((): string => {
-    const roles = authStore.user?.roles ?? []
+    const roles = (authStore.user?.roles ?? []).map(normalize)
     const priority = [
       UserRole.ADMIN,
       UserRole.CHIEF_AUDIT_EXECUTIVE,
@@ -84,17 +89,17 @@ export const useRbac = () => {
       UserRole.DEPARTMENT_HEAD,
       UserRole.AUDITEE,
       UserRole.VIEWER,
-    ]
+    ].map(normalize)
     for (const role of priority) {
       if (roles.includes(role)) return role
     }
-    return roles[0] ?? 'user'
+    return authStore.user?.roles?.[0] ?? 'user'
   })
 
   /**
    * Module permission helpers matching Settings RBAC matrix
    */
-  const canManageCharter = computed(() => isAdmin.value)
+  const canManageCharter = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER]))
   const canEditRiskAppetite = computed(() => isAdmin.value)
   const canEditRiskFactors = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
   const canEditAuditUniverse = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))

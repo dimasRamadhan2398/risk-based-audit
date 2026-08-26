@@ -151,65 +151,63 @@
       </UCard>
 
       <!-- History Table -->
-      <div>
-        <UCard class="relative group" variant="soft">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">
-            {{ t('auditCharter.card.historyTitle') }}
-          </h3>
-          <UTable
-            :data="store.historyCharters"
-            :columns="store.columns"
-            :empty-state="{
-              icon: 'i-lucide-folder-open',
-              label: t('auditCharter.card.emptyHistory'),
-            }"
-            class="w-full text-sm text-left"
-          >
-            <template #version-cell="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.version
-              }}</span>
-            </template>
-            <template #title-cell="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.title
-              }}</span>
-            </template>
-            <template #date-cell="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.date
-              }}</span>
-            </template>
-            <template #approvedBy-cell="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.approvedBy
-              }}</span>
-            </template>
-            <template #uploadedBy-cell="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.uploadedBy
-              }}</span>
-            </template>
-            <template #actions-cell="{ row }">
-              <div v-if="canManageCharter" class="flex justify-end gap-2">
-                <UButton
-                  size="md"
-                  color="primary"
-                  variant="ghost"
-                  icon="i-lucide-edit"
-                  @click="store.handleEdit(row.original)"
-                />
-                <UButton
-                  size="md"
-                  color="error"
-                  variant="ghost"
-                  icon="i-lucide-trash-2"
-                  @click="confirmDelete(row.original)"
-                />
-              </div>
-            </template>
-          </UTable>
-        </UCard>
+      <div class="space-y-3">
+        <h3 class="text-lg font-semibold text-[var(--text-main)]">
+          {{ t('auditCharter.card.historyTitle') }}
+        </h3>
+        <TableEntities
+          :data="store.historyCharters"
+          :columns="store.columns"
+          :empty-state="{
+            icon: 'i-lucide-folder-open',
+            label: t('auditCharter.card.emptyHistory'),
+          }"
+          class="w-full"
+        >
+          <template #version-cell="{ row }">
+            <span class="font-bold text-[var(--text-main)]">{{
+              row.original.version
+            }}</span>
+          </template>
+          <template #title-cell="{ row }">
+            <span class="font-bold text-[var(--text-main)]">{{
+              row.original.title
+            }}</span>
+          </template>
+          <template #date-cell="{ row }">
+            <span class="font-medium text-[var(--text-main)]">{{
+              row.original.date
+            }}</span>
+          </template>
+          <template #approvedBy-cell="{ row }">
+            <span class="font-medium text-[var(--text-main)]">{{
+              row.original.approvedBy
+            }}</span>
+          </template>
+          <template #uploadedBy-cell="{ row }">
+            <span class="font-medium text-[var(--text-main)]">{{
+              row.original.uploadedBy
+            }}</span>
+          </template>
+          <template #actions-cell="{ row }">
+            <div v-if="canManageCharter" class="flex justify-end gap-2">
+              <UButton
+                size="md"
+                color="primary"
+                variant="ghost"
+                icon="i-lucide-edit"
+                @click="store.handleEdit(row.original)"
+              />
+              <UButton
+                size="md"
+                color="error"
+                variant="ghost"
+                icon="i-lucide-trash-2"
+                @click="confirmDelete(row.original)"
+              />
+            </div>
+          </template>
+        </TableEntities>
       </div>
     </div>
   </div>
@@ -219,6 +217,7 @@
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()

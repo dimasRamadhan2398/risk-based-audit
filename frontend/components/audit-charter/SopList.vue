@@ -39,66 +39,79 @@
         />
       </div>
 
-      <UCard class="relative overflow-hidden" variant="soft">
-        <UTable
-          :data="tableData"
-          :columns="columns"
-          class="w-full text-sm text-left"
-        >
-          <!-- Parent Guideline Name slot -->
-          <template #guideline_name-cell="{ row }">
-            <span class="text-gray-800 font-semibold">
-              {{ row.original.guideline?.name || '-' }}
-            </span>
-          </template>
+      <TableEntities
+        :data="tableData"
+        :columns="columns"
+        :empty-state="{
+          icon: 'i-lucide-file-text',
+          label: 'Belum ada petunjuk teknis / SOP'
+        }"
+        class="w-full"
+      >
+        <!-- No slot -->
+        <template #no-cell="{ row }">
+          <span class="font-medium text-[var(--text-muted)]">{{ row.original.no }}</span>
+        </template>
 
-          <!-- Status slot -->
-          <template #status-cell="{ row }">
-            <UBadge
-              :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
-              variant="subtle"
-              class="rounded font-semibold"
-            >
-              {{ row.original.status }}
-            </UBadge>
-          </template>
+        <!-- Name slot -->
+        <template #name-cell="{ row }">
+          <span class="font-semibold text-[var(--text-main)]">{{ row.original.name }}</span>
+        </template>
 
-          <!-- Effective date slot -->
-          <template #effective_date-cell="{ row }">
-            <span class="font-medium text-gray-800">{{
-              formatMonthYearIndonesian(row.original.effective_date)
-            }}</span>
-          </template>
+        <!-- Parent Guideline Name slot -->
+        <template #guideline_name-cell="{ row }">
+          <span class="text-[var(--text-main)] font-medium">
+            {{ row.original.guideline?.name || '-' }}
+          </span>
+        </template>
 
-          <!-- Actions slot -->
-          <template #actions-cell="{ row }">
-            <div class="flex justify-end">
-              <UButton
-                :to="row.original.file_url"
-                target="_blank"
-                icon="i-lucide-eye"
-                color="primary"
-                variant="ghost"
-                size="md"
-              />
-              <UButton
-                size="md"
-                color="primary"
-                variant="ghost"
-                icon="i-lucide-edit"
-                @click="store.handleEdit(row.original)"
-              />
-              <UButton
-                size="md"
-                color="error"
-                variant="ghost"
-                icon="i-lucide-trash-2"
-                @click="confirmDelete(row.original)"
-              />
-            </div>
-          </template>
-        </UTable>
-      </UCard>
+        <!-- Status slot -->
+        <template #status-cell="{ row }">
+          <UBadge
+            :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
+            variant="subtle"
+            class="rounded font-semibold"
+          >
+            {{ row.original.status }}
+          </UBadge>
+        </template>
+
+        <!-- Effective date slot -->
+        <template #effective_date-cell="{ row }">
+          <span class="font-medium text-[var(--text-main)]">{{
+            formatMonthYearIndonesian(row.original.effective_date)
+          }}</span>
+        </template>
+
+        <!-- Actions slot -->
+        <template #actions-cell="{ row }">
+          <div class="flex justify-end gap-1">
+            <UButton
+              v-if="row.original.file_url && row.original.file_url !== '#'"
+              :to="row.original.file_url"
+              target="_blank"
+              icon="i-lucide-eye"
+              color="primary"
+              variant="ghost"
+              size="md"
+            />
+            <UButton
+              size="md"
+              color="primary"
+              variant="ghost"
+              icon="i-lucide-edit"
+              @click="store.handleEdit(row.original)"
+            />
+            <UButton
+              size="md"
+              color="error"
+              variant="ghost"
+              icon="i-lucide-trash-2"
+              @click="confirmDelete(row.original)"
+            />
+          </div>
+        </template>
+      </TableEntities>
     </div>
   </div>
 </template>
@@ -107,6 +120,7 @@
 import { computed, onMounted } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
@@ -117,7 +131,6 @@ const columns = [
   { accessorKey: 'guideline_name', header: 'Nama Pedoman' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'effective_date', header: 'Mulai Berlaku' },
-  { accessorKey: 'file_name', header: 'Action' },
   { accessorKey: 'actions', header: '' }
 ]
 
