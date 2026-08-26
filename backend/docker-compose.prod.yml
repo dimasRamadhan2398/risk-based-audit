@@ -194,6 +194,7 @@ services:
 
   kong:
     image: kong:3.4
+    user: root
     container_name: rb_audit_kong
     volumes:
       - ./kong-gateway/kong/prod:/usr/local/kong/declarative
