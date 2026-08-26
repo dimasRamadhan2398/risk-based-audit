@@ -1567,8 +1567,8 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 		Goals: []models.VmgGoal{
 			{
 				GoalCode:           "G-001",
-				GoalName:           "Pencapaian Target Penjualan",
-				GoalDescription:    "Mencapai target penjualan yang ditetapkan",
+				GoalName:           "Handal dalam asurans dan consulting ",
+				GoalDescription:    "Mengelola resiko untuk mencapai kinerja terbaik",
 				StrategicObjective: "SO-001: Sales Growth",
 				KPI:                "Total Penjualan",
 				Target:             "Rp 1 Triliun",
@@ -1578,8 +1578,8 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 			},
 			{
 				GoalCode:           "G-002",
-				GoalName:           "Digital Transformation",
-				GoalDescription:    "Implementasi sistem digital untuk seluruh proses bisnis",
+				GoalName:           "Intelligent Risk Based Audit System",
+				GoalDescription:    "Implementasi sistem digital untuk seluruh proses bisnis audit",
 				StrategicObjective: "SO-002: Technology",
 				KPI:                "Prosentase Digitalisasi",
 				Target:             "80%",

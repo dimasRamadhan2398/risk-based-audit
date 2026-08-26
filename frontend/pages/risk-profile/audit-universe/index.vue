@@ -68,6 +68,7 @@
                     <div class="flex items-center gap-2">
                       <UCheckbox
                         :model-value="isStandardNodeSelected(node.id)"
+                        :disabled="!canEditAuditUniverse"
                         @update:model-value="toggleStandardSelection(node)"
                       />
                       <span class="font-bold text-sm text-slate-800 dark:text-slate-200">
@@ -86,6 +87,7 @@
                       <div class="flex items-center gap-2">
                         <UCheckbox
                           :model-value="isStandardNodeSelected(sub.id)"
+                          :disabled="!canEditAuditUniverse"
                           @update:model-value="toggleStandardSelection(sub)"
                         />
                         <span class="text-md font-semibold text-slate-600 dark:text-slate-400">
@@ -109,6 +111,7 @@
                   </h2>
                   <div class="flex items-center gap-2">
                     <UButton
+                      v-if="canEditAuditUniverse"
                       size="md"
                       color="primary"
                       icon="i-lucide-plus"
@@ -129,34 +132,28 @@
                 >
                   <div class="flex items-center justify-between">
                     <span class="font-bold text-md text-slate-800 dark:text-slate-200">{{ node.name }}</span>
-                    <div class="flex items-center gap-1">
-                      <UTooltip text="Add Sub-Entity">
-                        <UButton
-                          icon="i-lucide-plus"
-                          color="primary"
-                          variant="ghost"
-                          size="md"
-                          @click="openAddCustomModal(node.id)"
-                        />
-                      </UTooltip>
-                      <UTooltip text="Rename">
-                        <UButton
-                          icon="i-lucide-edit"
-                          color="warning"
-                          variant="ghost"
-                          size="md"
-                          @click="openRenameModal(node)"
-                        />
-                      </UTooltip>
-                      <UTooltip text="Delete">
-                        <UButton
-                          icon="i-lucide-trash-2"
-                          color="error"
-                          variant="ghost"
-                          size="md"
-                          @click="deleteCorporateNode(node.id)"
-                        />
-                      </UTooltip>
+                    <div v-if="canEditAuditUniverse" class="flex items-center gap-1">
+                      <UButton
+                        icon="i-lucide-plus-circle"
+                        color="primary"
+                        variant="ghost"
+                        size="md"
+                        @click="openAddCustomModal(node.id)"
+                      />
+                      <UButton
+                        icon="i-lucide-edit"
+                        color="neutral"
+                        variant="ghost"
+                        size="md"
+                        @click="openRenameModal(node)"
+                      />
+                      <UButton
+                        icon="i-lucide-trash-2"
+                        color="error"
+                        variant="ghost"
+                        size="md"
+                        @click="deleteCorporateNode(node.id)"
+                      />
                     </div>
                   </div>
 
@@ -446,9 +443,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useRiskFactorsStore } from '~/stores/risk-factors'
+import { useRbac } from '~/composables/useRbac'
 
 const store = useAuditUniverseStore()
 const riskFactorsStore = useRiskFactorsStore()
+const { canEditAuditUniverse } = useRbac()
 
 const tabItems = [
   { slot: 'library', label: '1. Corporate Universe Builder' },

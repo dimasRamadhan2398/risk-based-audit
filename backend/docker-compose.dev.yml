@@ -1,149 +1,148 @@
-# Docker Compose for Development with Debugging Tools
-# Includes RedisInsight and Kafka UI for debugging
+# Docker Compose for Development Environment (Isolated Infrastructure)
+# Runs on separate ports, separate volumes, and separate container names from production.
 
 name: rb_audit_backend_dev
 
 services:
   postgres:
     image: postgres:16
-    container_name: rb_audit_postgres
+    container_name: rb_audit_postgres_dev
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: rb_audit
       GIN_MODE: release
     ports:
-      - "5434:5432"
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_dev_data:/var/lib/postgresql/data
       - ./init-multiple-databases.sql:/docker-entrypoint-initdb.d/init-multiple-databases.sql
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: rb_audit_redis
+    container_name: rb_audit_redis_dev
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
-      - redis_data:/data
+      - redis_dev_data:/data
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   redisinsight:
     image: redis/redisinsight:latest
-    container_name: rb_audit_redisinsight
+    container_name: rb_audit_redisinsight_dev
     ports:
-      - "5540:5540"
+      - "5541:5540"
     depends_on:
       redis:
         condition: service_healthy
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
-    platform: linux/amd64
-    container_name: rb_audit_zookeeper
+    container_name: rb_audit_zookeeper_dev
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2181:2181"
+      - "2182:2181"
     volumes:
-      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_dev_data:/var/lib/zookeeper/data
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 2181 || exit 1"]
+      test: ["CMD-SHELL", "cat < /dev/null > /dev/tcp/127.0.0.1/2181 || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 15s
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   kafka:
     image: confluentinc/cp-kafka:7.6.1
-    platform: linux/amd64
-    container_name: rb_audit_kafka
+    container_name: rb_audit_kafka_dev
     depends_on:
       zookeeper:
         condition: service_healthy
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - "9093:9092"
+      - "29093:29092"
     environment:
       KAFKA_BROKER_ID: 1
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms128M"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENERS: PLAIN://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAIN:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAIN
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_LOG_RETENTION_HOURS: 168
       KAFKA_LOG_SEGMENT_BYTES: 1073741824
       KAFKA_NUM_PARTITIONS: 3
     volumes:
-      - kafka_data:/var/lib/kafka/data
+      - kafka_dev_data:/var/lib/kafka/data
     healthcheck:
-      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092" ]
-      interval: 15s
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/29092' || exit 1"]
+      interval: 10s
       timeout: 10s
-      retries: 10
+      retries: 15
       start_period: 30s
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    container_name: rb_audit_kafka_ui
+    container_name: rb_audit_kafka_ui_dev
     depends_on:
       kafka:
         condition: service_started
     ports:
-      - "8085:8080"
+      - "8086:8080"
     environment:
       TZ: Asia/Jakarta
-      KAFKA_CLUSTERS_0_NAME: rb_audit
+      KAFKA_CLUSTERS_0_NAME: rb_audit_dev
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   auth-service:
     build:
       context: ./auth-service
       dockerfile: Dockerfile
-    container_name: rb_audit_auth_service
+    container_name: rb_audit_auth_service_dev
     depends_on:
       postgres:
         condition: service_started
       redis:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
     ports:
-      - "8001:8001"
+      - "8101:8001"
     command: sh -c "./auth --config ./pkg/config/config.yaml seed && ./auth --config ./pkg/config/config.yaml serve"
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   analytics-service:
     build:
       context: ./analytics-service
       dockerfile: Dockerfile
-    container_name: rb_audit_analytics_service
+    container_name: rb_audit_analytics_service_dev
     environment:
       - PYTHON_AI_URL=http://python-ai:8000
     depends_on:
@@ -156,112 +155,114 @@ services:
       python-ai:
         condition: service_started
     ports:
-      - "8084:8084"
+      - "8184:8084"
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   audit-service:
     build:
       context: ./audit-service
       dockerfile: Dockerfile
-    container_name: rb_audit_audit_service
+    container_name: rb_audit_audit_service_dev
     depends_on:
       postgres:
         condition: service_started
       redis:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
     ports:
-      - "8002:8001"
+      - "8102:8001"
     command: sh -c "./audit seed && ./audit serve"
     volumes:
-      - audit_uploads:/root/uploads
+      - audit_dev_uploads:/root/uploads
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   master-service:
     build:
       context: ./master-service
       dockerfile: Dockerfile
-    container_name: rb_audit_master_service
+    container_name: rb_audit_master_service_dev
     depends_on:
       postgres:
         condition: service_started
       redis:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
     ports:
-      - "8003:8002"
+      - "8103:8002"
     command: sh -c "./master seed && ./master serve"
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   risk-service:
     build:
       context: ./risk-service
       dockerfile: Dockerfile
-    container_name: rb_audit_risk_service
+    container_name: rb_audit_risk_service_dev
     depends_on:
       postgres:
         condition: service_started
       redis:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
     ports:
-      - "8004:8002"
+      - "8104:8002"
     command: sh -c "./risk up && ./risk serve"
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   python-ai:
     build:
       context: ./python-ai
       dockerfile: Dockerfile
-    container_name: rb_audit_python_ai
+    container_name: rb_audit_python_ai_dev
     ports:
-      - "8000:8000"
-      - "8005:8000"
+      - "8100:8000"
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
-      - python_ai_models:/app/models
+      - python_ai_dev_models:/app/models
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
 
   kong:
     image: kong:3.4
-    container_name: rb_audit_kong
+    container_name: rb_audit_kong_dev
     volumes:
-      - ./kong-gateway:/usr/local/kong/declarative
+      - ./kong-gateway/kong/dev:/usr/local/kong/declarative
     environment:
       KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong-dev.yml
       KONG_PROXY_LISTEN: 0.0.0.0:8080, 0.0.0.0:8443 ssl http2
       KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl http2
       KONG_LOG_LEVEL: info
       KONG_PLUGINS: bundled
       KONG_NGINX_WORKER_PROCESSES: 1
+      KONG_NGINX_PROXY_PROXY_BUFFERING: "off"
+      KONG_CLIENT_MAX_BODY_SIZE: 100m
+      KONG_NGINX_PROXY_CLIENT_MAX_BODY_SIZE: 100m
     ports:
-      - "8080:8080"
-      - "8443:8443"
-      - "8006:8001"
-      - "8444:8444"
+      - "8081:8080"
+      - "8445:8443"
+      - "8010:8001"
+      - "8446:8444"
     healthcheck:
       test: [ "CMD", "kong", "health" ]
       interval: 10s
-      timeout: 5s
+      timeout: 40s
       retries: 5
       start_period: 30s
     networks:
-      - rb_audit_network
+      - rb_audit_network_dev
     restart: unless-stopped
     depends_on:
       - auth-service
@@ -272,13 +273,14 @@ services:
       - python-ai
 
 volumes:
-  postgres_data:
-  redis_data:
-  zookeeper_data:
-  kafka_data:
-  python_ai_models:
-  audit_uploads:
+  postgres_dev_data:
+  redis_dev_data:
+  zookeeper_dev_data:
+  kafka_dev_data:
+  python_ai_dev_models:
+  audit_dev_uploads:
 
 networks:
-  rb_audit_network:
+  rb_audit_network_dev:
+    name: rb_audit_network_dev
     driver: bridge

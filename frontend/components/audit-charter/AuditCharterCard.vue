@@ -30,6 +30,7 @@
         </p>
       </div>
       <UButton
+        v-if="canManageCharter"
         :label="t('auditCharter.card.uploadNew')"
         @click="() => { store.showModal = true }"
         color="primary"
@@ -52,6 +53,7 @@
             {{ t('auditCharter.card.activeTitle') }}
           </h1>
           <UButton
+            v-if="canManageCharter"
             :label="t('auditCharter.card.addCharter')"
             @click="() => { store.showModal = true }"
             color="primary"
@@ -118,6 +120,8 @@
             variant="ghost"
           />
           <UButton
+            v-if="canManageCharter"
+            :label="t('auditCharter.card.edit')"
             @click="store.handleEdit(store.activeCharter)"
             color="primary"
             icon="i-lucide-edit"
@@ -136,6 +140,7 @@
             {{ t('auditCharter.card.noActiveCharterWarning') }}
           </p>
           <UButton
+            v-if="canManageCharter"
             :label="t('auditCharter.card.addCharter')"
             @click="() => { store.showModal = true }"
             color="primary"
@@ -186,14 +191,7 @@
               }}</span>
             </template>
             <template #actions-cell="{ row }">
-              <div class="flex justify-end">
-                <UButton
-                  @click="store.downloadCharter(row.original.id, row.original.fileName || '')"
-                  icon="i-lucide-eye"
-                  color="primary"
-                  variant="ghost"
-                  size="md"
-                />
+              <div v-if="canManageCharter" class="flex justify-end gap-2">
                 <UButton
                   size="md"
                   color="primary"
@@ -220,10 +218,11 @@
 <script setup lang="ts">
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
-import { onMounted } from 'vue'
+import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
 const store = useCharterStore()
+const { canManageCharter } = useRbac()
 
 const confirmDelete = async (item: any) => {
   if (confirm(t('auditCharter.card.deleteConfirm', { title: item.title, version: item.version }))) {

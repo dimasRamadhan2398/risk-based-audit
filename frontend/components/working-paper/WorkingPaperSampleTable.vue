@@ -2,7 +2,7 @@
     <div class="mt-4 space-y-6">
         <UCard class="shadow-sm mt-10">
         
-        <UTable :data="store.filteredDataF03" :columns="store.columnsF03" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
+        <TableEntities :data="store.filteredDataF03" :columns="store.columnsF03" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
             <template #samples-cell="{ row }">
             <div class="flex flex-col gap-2 max-w-md">
                 <div 
@@ -52,7 +52,7 @@
                 </div>
             </template>
 
-        </UTable>
+        </TableEntities>
         </UCard>
     </div>
 </template>

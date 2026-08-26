@@ -77,9 +77,9 @@
       </div>
     </UCard>
 
-    <!-- Strategic KPI Table -->
+    <!-- Strategic KPI Table & Pagination -->
     <UCard variant="soft">
-      <UTable :data="filteredObjectives" :columns="columns">
+      <TableEntities :data="filteredObjectives" :columns="columns">
         <!-- Action Buttons -->
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
@@ -121,7 +121,7 @@
             {{ formatStatus(row.original.status) }}
           </span>
         </template>
-      </UTable>
+      </TableEntities>
     </UCard>
   </div>
 </template>
@@ -152,16 +152,16 @@ watch(selectedPeriodType, (newType) => {
 })
 
 const columns = computed(() => [
-  { accessorKey: 'code', header: t('strategicPlan.columns.code'), cell: (row: any) => row.getValue() },
-  { accessorKey: 'strategicObjective', header: t('strategicPlan.columns.objective') },
-  { accessorKey: 'kpi', header: t('strategicPlan.columns.kpi') },
-  { accessorKey: 'unit', header: t('strategicPlan.columns.unit') },
-  { accessorKey: 'selectedPeriod', header: t('strategicPlan.columns.period') },
-  { accessorKey: 'target', header: t('strategicPlan.columns.target') },
-  { accessorKey: 'actual', header: t('strategicPlan.columns.actual') },
-  { accessorKey: 'calculation', header: t('strategicPlan.columns.calculation') },
-  { accessorKey: 'status', header: t('strategicPlan.columns.status'), cell: 'status-cell' },
-  { accessorKey: 'actions', header: t('strategicPlan.columns.actions'), cell: 'actions-cell' },
+  { key: 'code', accessorKey: 'code', label: t('strategicPlan.columns.code'), header: t('strategicPlan.columns.code') },
+  { key: 'strategicObjective', accessorKey: 'strategicObjective', label: t('strategicPlan.columns.objective'), header: t('strategicPlan.columns.objective') },
+  { key: 'kpi', accessorKey: 'kpi', label: t('strategicPlan.columns.kpi'), header: t('strategicPlan.columns.kpi') },
+  { key: 'unit', accessorKey: 'unit', label: t('strategicPlan.columns.unit'), header: t('strategicPlan.columns.unit') },
+  { key: 'selectedPeriod', accessorKey: 'selectedPeriod', label: t('strategicPlan.columns.period'), header: t('strategicPlan.columns.period') },
+  { key: 'target', accessorKey: 'target', label: t('strategicPlan.columns.target'), header: t('strategicPlan.columns.target') },
+  { key: 'actual', accessorKey: 'actual', label: t('strategicPlan.columns.actual'), header: t('strategicPlan.columns.actual') },
+  { key: 'calculation', accessorKey: 'calculation', label: t('strategicPlan.columns.calculation'), header: t('strategicPlan.columns.calculation') },
+  { key: 'status', accessorKey: 'status', label: t('strategicPlan.columns.status'), header: t('strategicPlan.columns.status') },
+  { key: 'actions', accessorKey: 'actions', label: t('strategicPlan.columns.actions'), header: t('strategicPlan.columns.actions') },
 ])
 
 const periodTypeOptions = computed(() => [
@@ -285,8 +285,10 @@ const filteredObjectives = computed(() => {
   return list
 })
 
-const getActions = (item: StrategicAuditPlan) => [
-  [
+const { canManageStrategicPlan } = useRbac()
+
+const getActions = (item: StrategicAuditPlan) => {
+  const actions: any[] = [
     {
       type: "label" as const,
       label: t('strategicPlan.actions.title'),
@@ -296,16 +298,23 @@ const getActions = (item: StrategicAuditPlan) => [
       icon: "i-lucide-eye",
       onSelect: () => store.openViewModal(item),
     },
-    {
-      label: t('strategicPlan.actions.edit'),
-      icon: "i-lucide-edit",
-      onSelect: () => store.handleEdit(item),
-    },
-    {
-      label: t('strategicPlan.actions.delete'),
-      icon: "i-lucide-trash-2",
-      onSelect: () => store.handleDelete(item.id),
-    },
-  ],
-]
+  ]
+
+  if (canManageStrategicPlan.value) {
+    actions.push(
+      {
+        label: t('strategicPlan.actions.edit'),
+        icon: "i-lucide-edit",
+        onSelect: () => store.handleEdit(item),
+      },
+      {
+        label: t('strategicPlan.actions.delete'),
+        icon: "i-lucide-trash-2",
+        onSelect: () => store.handleDelete(item.id),
+      }
+    )
+  }
+
+  return [actions]
+}
 </script>

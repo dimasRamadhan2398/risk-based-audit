@@ -67,6 +67,7 @@
                 {{ isValidWeightSum ? t('riskFactors.weighting.badgeValid') : t('riskFactors.weighting.badgeInvalid') }}
               </UBadge>
               <UButton
+                v-if="canEditRiskFactors"
                 icon="i-lucide-save"
                 color="primary"
                 variant="solid"
@@ -324,7 +325,7 @@
             </div>
 
             <template #footer v-if="activeYearlyEntity">
-              <div class="flex justify-end gap-3">
+              <div v-if="canEditRiskFactors" class="flex justify-end gap-3">
                 <UButton
                   icon="i-lucide-save"
                   color="primary"
@@ -524,10 +525,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRiskFactorsStore } from '~/stores/risk-factors'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const store = useRiskFactorsStore()
 const auditStore = useAuditUniverseStore()
 const { t } = useI18n()
+const { canEditRiskFactors } = useRbac()
 
 const tabItems = computed(() => [
   { slot: 'weighting', label: t('riskFactors.tabs.weight'), icon: 'i-lucide-activity' },

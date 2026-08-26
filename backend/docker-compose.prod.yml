@@ -39,11 +39,16 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
     healthcheck:
+<<<<<<< HEAD
       test: [ "CMD-SHELL", "cub zk-ready 127.0.0.1:2181 30 || exit 1" ]
       interval: 5s
+=======
+      test: ["CMD-SHELL", "cub zk-ready 127.0.0.1:2181 30 || exit 1"]
+      interval: 10s
+>>>>>>> e0d0c64637b8826b1759b4dc2c32fc0cea447fe3
       timeout: 40s
-      retries: 10
-      start_period: 15s
+      retries: 15
+      start_period: 30s
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -69,11 +74,11 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: [ "CMD-SHELL", "cub kafka-ready 1 40 -b localhost:29092 || exit 1" ]
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/29092' || exit 1"]
       interval: 10s
-      timeout: 40s
-      retries: 10
-      start_period: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -187,7 +192,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - python_ai_models:/app/models
-      - ../ai_model_training:/app/ai_model_training:ro
+      - ./ai_model_training:/app/ai_model_training:ro
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -196,7 +201,7 @@ services:
     image: kong:3.4
     container_name: rb_audit_kong
     volumes:
-      - ./kong-gateway:/usr/local/kong/declarative
+      - ./kong-gateway/kong/prod:/usr/local/kong/declarative
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
@@ -206,6 +211,8 @@ services:
       KONG_PLUGINS: bundled
       KONG_NGINX_WORKER_PROCESSES: 1
       KONG_NGINX_PROXY_PROXY_BUFFERING: "off"
+      KONG_CLIENT_MAX_BODY_SIZE: 100m
+      KONG_NGINX_PROXY_CLIENT_MAX_BODY_SIZE: 100m
     ports:
       - "8080:8080"
       - "8443:8443"

@@ -76,9 +76,18 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 						unit = defaultUnit
 					}
 					if sp.KPITargets != nil {
-						if tgtStr, ok := sp.KPITargets[year]; ok && tgtStr != "" {
+						yrStr := strconv.Itoa(year)
+						if tgtStr, ok := sp.KPITargets[yrStr]; ok && tgtStr != "" {
 							if tVal, err := strconv.ParseFloat(tgtStr, 64); err == nil && tVal > 0 {
 								return tVal, unit
+							}
+						}
+						for q := 1; q <= 4; q++ {
+							qKey := fmt.Sprintf("Q%d-%d", q, year)
+							if tgtStr, ok := sp.KPITargets[qKey]; ok && tgtStr != "" {
+								if tVal, err := strconv.ParseFloat(tgtStr, 64); err == nil && tVal > 0 {
+									return tVal, unit
+								}
 							}
 						}
 					}

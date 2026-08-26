@@ -1,6 +1,6 @@
 <template>
   <UCard class="rounded-xl shadow overflow-y-auto" variant="soft" color="primary">
-    <UTable
+    <TableEntities
       :data="store.filteredPlans"    
       :columns="columns"
       :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: t('auditActivityPlan.emptyState') }"
@@ -11,7 +11,7 @@
           <div 
             v-for="(act, idx) in getOriginal(row).plannedActivities" 
             :key="idx"
-            class="text-md font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[200px]"
+            class="text-md font-semibold text-gray-700 dark:text-white truncate max-w-[200px]"
             :title="act.riskName"
           >
             {{ act.riskName || '-' }}
@@ -78,8 +78,7 @@
           />
         </div>
       </template>
-      
-    </UTable>
+    </TableEntities>
     <ActivityPlanViewModal />
   </UCard>
   

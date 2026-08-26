@@ -6,6 +6,7 @@
       </h1>
       <div class="flex items-center gap-2">
         <UButton
+          v-if="canImportPlanDocs"
           :label="t('annualAudit.importPlanDocument')"
           to="/annual-audit/upload"
           color="neutral"
@@ -14,6 +15,7 @@
           icon="i-lucide-upload"
         />
         <UButton
+          v-if="canManageAnnualPlan"
           :label="t('annualAudit.newAuditPlan')" 
           @click="store.openModal()"
           color="primary" 
@@ -41,8 +43,10 @@ import AnnualAuditForm from '~/components/annual-audit/AnnualAuditForm.vue';
 import AnnualAuditTable from '~/components/annual-audit/AnnualAuditTable.vue';
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
+const { canManageAnnualPlan, canImportPlanDocs } = useRbac()
 
 // Inisialisasi Store
 const store = useAnnualPlanStore()

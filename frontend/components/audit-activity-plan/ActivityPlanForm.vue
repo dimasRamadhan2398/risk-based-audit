@@ -135,12 +135,11 @@
                       <UIcon name="i-heroicons-clipboard-document-check" class="w-5 h-5 text-amber-500" />
                       <h3 class="text-lg font-bold text-[var(--text-main)]">{{ t('auditActivityPlan.form.plannedActivities') }}</h3>
                     </div>
-                    <UButton 
-                      color="warning" 
-                      variant="solid" 
+                    <ReusableButton 
+                      color="primary" 
+                      variant="fill" 
                       icon="i-heroicons-plus" 
                       :label="t('auditActivityPlan.form.addAuditActivity')" 
-                      class="font-bold shadow-sm"
                       @click="store.addPlannedActivity" 
                     />
                   </div>
@@ -179,24 +178,30 @@
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.associatedRisk')" class="col-span-1 md:col-span-2">
                         <USelectMenu
-                          :model-value="getFilteredRisksForDept(store.formState.department).find(r => r.name === activity.riskName)"
+                          :model-value="getFilteredRisksForDept(store.formState.department).find(r => r.name === activity.riskName) || (activity.riskName ? { name: activity.riskName, label: activity.riskName, riskLevel: activity.riskLevel } : undefined)"
                           @update:model-value="(val: any) => {
-                            activity.riskName = val ? val.name : '';
-                            activity.riskLevel = val ? val.riskLevel : '';
+                            if (val) {
+                              activity.riskName = typeof val === 'string' ? val : (val.name || val.label || '');
+                              if (typeof val === 'object' && val.riskLevel) {
+                                activity.riskLevel = val.riskLevel;
+                              }
+                            } else {
+                              activity.riskName = '';
+                            }
                           }"
                           :items="getFilteredRisksForDept(store.formState.department)"
-                          option-key="name"
+                          label-key="name"
                           :placeholder="t('auditActivityPlan.form.selectRiskProfile')"
                           class="w-full"
                         >
                           <template #item="{ item }">
-                            <div class="flex items-center gap-2 max-w-full">
+                            <div class="flex items-center gap-2 max-w-full w-full">
                               <span 
                                 class="w-2.5 h-2.5 rounded-full shrink-0" 
                                 :style="{ backgroundColor: getRiskLevelColorHex(item.riskLevel) }"
                               ></span>
-                              <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel }}]</span>
-                              <span class="truncate text-md">{{ item.name }}</span>
+                              <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel || 'N/A' }}]</span>
+                              <span class="truncate text-md">{{ item.name || item.label }}</span>
                             </div>
                           </template>
                         </USelectMenu>
@@ -232,7 +237,13 @@
                         <UInput v-model="activity.estimatedSchedule" type="date" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.budgetEstimation')">
-                        <UInput v-model="activity.budgetEstimation" type="number" class="w-full"/>
+                        <UInput v-model="activity.budgetEstimation" type="number" class="w-full">
+                          <template #trailing>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 font-medium select-none pr-1">
+                              {{ t('auditActivityPlan.form.millionRupiah') }}
+                            </span>
+                          </template>
+                        </UInput>
                       </UFormField>
                     </div>
                   </div>
@@ -241,21 +252,21 @@
                     {{ t('auditActivityPlan.form.noActivitiesAdded') }}
                   </div>
 
-                  <div class="mt-4 border-t border-[var(--border-main)] pt-4">
+                  <div class="mt-6 border-t border-[var(--border-main)] pt-5">
                     <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{{ t('auditActivityPlan.form.summaryOfActivities') }}</h4>
-                    <div class="grid grid-cols-3 gap-4 text-center">
-                      <div class="bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl p-3 border border-red-500/20">
-                        <div class="text-xs font-bold uppercase tracking-wider">{{ t('auditActivityPlan.form.highRisk') }}</div>
-                        <div class="text-xl font-black mt-0.5">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'High').length }}</div>
-                      </div>
-                      <div class="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-xl p-3 border border-yellow-500/20">
-                        <div class="text-xs font-bold uppercase tracking-wider">{{ t('auditActivityPlan.form.mediumRisk') }}</div>
-                        <div class="text-xl font-black mt-0.5">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Medium').length }}</div>
-                      </div>
-                      <div class="bg-green-500/10 text-green-600 dark:text-green-400 rounded-xl p-3 border border-green-500/20">
-                        <div class="text-xs font-bold uppercase tracking-wider">{{ t('auditActivityPlan.form.lowRisk') }}</div>
-                        <div class="text-xl font-black mt-0.5">{{ store.formState.plannedActivities.filter((a: any) => String(a.riskLevel) === 'Low').length }}</div>
-                      </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-red-600 dark:bg-red-700 text-white shadow-md border-0 rounded-xl">
+                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.highRisk') }}</div>
+                        <div class="text-2xl font-black mt-1">{{ highRiskCount }}</div>
+                      </UCard>
+                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-primary-400 dark:bg-primary-400 text-white shadow-md border-0 rounded-xl">
+                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.mediumRisk') }}</div>
+                        <div class="text-2xl font-black mt-1">{{ mediumRiskCount }}</div>
+                      </UCard>
+                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-green-600 dark:bg-green-700 text-white shadow-md border-0 rounded-xl">
+                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.lowRisk') }}</div>
+                        <div class="text-2xl font-black mt-1">{{ lowRiskCount }}</div>
+                      </UCard>
                     </div>
                   </div>
                 </div>
@@ -321,10 +332,22 @@
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <UFormField :label="t('auditActivityPlan.form.totalEstimatedCost')">
-                        <UInput v-model="store.formState.budget.totalEstimatedCost" type="number" class="w-full"/>
+                        <UInput v-model="store.formState.budget.totalEstimatedCost" type="number" class="w-full">
+                          <template #trailing>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 font-medium select-none pr-1">
+                              {{ t('auditActivityPlan.form.millionRupiah') }}
+                            </span>
+                          </template>
+                        </UInput>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.totalAllocatedBudget')">
-                        <UInput v-model="store.formState.budget.totalAllocatedBudget" type="number" class="w-full"/>
+                        <UInput v-model="store.formState.budget.totalAllocatedBudget" type="number" class="w-full">
+                          <template #trailing>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 font-medium select-none pr-1">
+                              {{ t('auditActivityPlan.form.millionRupiah') }}
+                            </span>
+                          </template>
+                        </UInput>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.budgetNotes')" class="col-span-1 md:col-span-2">
                         <UTextarea v-model="store.formState.budget.budgetNotes" class="w-full" :rows="3"/>
@@ -469,6 +492,7 @@ import { useActivityPlanStore } from '~/stores/activity-plan'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { AuditCategory, AuditDepartment } from '~/types/audit';
 import { useI18n } from '~/composables/useI18n'
+import ReusableButton from '~/components/shared/ReusableButton.vue'
 
 const { t } = useI18n()
 const store = useActivityPlanStore()
@@ -489,10 +513,45 @@ watch(() => store.isModalOpen, (isOpen) => {
   if (isOpen) {
     currentStep.value = 0
     stepError.value = ''
+    if (!riskStore.risks || riskStore.risks.length === 0) {
+      riskStore.fetchRisks()
+    }
   }
 })
 
 riskStore.fetchRisks()
+
+const isHighRisk = (level?: string) => {
+  if (!level) return false
+  const l = String(level).toLowerCase().trim()
+  return l === 'high' || l === 'critical' || l === 'moderate-high' || l === 'moderate to high' || l.includes('high')
+}
+
+const isMediumRisk = (level?: string) => {
+  if (!level) return false
+  const l = String(level).toLowerCase().trim()
+  if (isHighRisk(l)) return false
+  return l === 'medium' || l === 'moderate' || l === 'low-moderate' || l === 'low to moderate' || l.includes('moderate') || l.includes('medium')
+}
+
+const isLowRisk = (level?: string) => {
+  if (!level) return false
+  const l = String(level).toLowerCase().trim()
+  if (isHighRisk(l) || isMediumRisk(l)) return false
+  return l === 'low' || l.includes('low')
+}
+
+const highRiskCount = computed(() => {
+  return (store.formState.plannedActivities || []).filter((a: any) => isHighRisk(a.riskLevel)).length
+})
+
+const mediumRiskCount = computed(() => {
+  return (store.formState.plannedActivities || []).filter((a: any) => isMediumRisk(a.riskLevel)).length
+})
+
+const lowRiskCount = computed(() => {
+  return (store.formState.plannedActivities || []).filter((a: any) => isLowRisk(a.riskLevel)).length
+})
 
 const validateStep = (stepIdx: number): boolean => {
   stepError.value = ''
@@ -556,16 +615,31 @@ const handleNext = () => {
 }
 
 const getFilteredRisksForDept = (dept: string) => {
-  if (!riskStore.risks || riskStore.risks.length === 0) {
-    return []
+  const allRisks = riskStore.risks && riskStore.risks.length > 0 ? riskStore.risks : []
+  if (allRisks.length === 0) return []
+  
+  if (!dept) {
+    return allRisks.map(r => ({
+      ...r,
+      label: r.name,
+      value: r.name
+    }))
   }
-  return riskStore.risks.filter(r => {
+  
+  const filtered = allRisks.filter(r => {
     if (dept === 'IT') return r.category === 'Technology'
     if (dept === 'Finance') return r.category === 'Financial'
     if (dept === 'HR') return r.category === 'Human Resources'
     if (dept === 'Ops') return ['Operations', 'Compliance', 'Strategic', 'Governance'].includes(r.category)
     return true
   })
+
+  const results = filtered.length > 0 ? filtered : allRisks
+  return results.map(r => ({
+    ...r,
+    label: r.name,
+    value: r.name
+  }))
 }
 
 const getRiskLevelColorHex = (level?: string) => {

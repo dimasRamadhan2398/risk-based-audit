@@ -1,12 +1,12 @@
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'guest'  // Prevent already-logged-in users from seeing redirect
+  middleware: [
+    'guest',
+    () => navigateTo('/auth/login')
+  ]
 })
-
-// Redirect to login
-navigateTo('/auth/login')
 </script>
 
 <template>
-  <div></div>
+  <div />
 </template>

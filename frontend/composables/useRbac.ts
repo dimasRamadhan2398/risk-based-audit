@@ -91,6 +91,18 @@ export const useRbac = () => {
     return roles[0] ?? 'user'
   })
 
+  /**
+   * Module permission helpers matching Settings RBAC matrix
+   */
+  const canManageCharter = computed(() => isAdmin.value)
+  const canEditRiskAppetite = computed(() => isAdmin.value)
+  const canEditRiskFactors = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
+  const canEditAuditUniverse = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
+  const canManageStrategicPlan = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
+  const canManageAnnualPlan = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
+  const canManageAssignmentLetter = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
+  const canImportPlanDocs = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
+
   return {
     hasRole,
     hasAnyRole,
@@ -99,6 +111,14 @@ export const useRbac = () => {
     isAuditor,
     canManageAudits,
     canViewRisks,
+    canManageCharter,
+    canEditRiskAppetite,
+    canEditRiskFactors,
+    canEditAuditUniverse,
+    canManageStrategicPlan,
+    canManageAnnualPlan,
+    canManageAssignmentLetter,
+    canImportPlanDocs,
     primaryRole,
   }
 }

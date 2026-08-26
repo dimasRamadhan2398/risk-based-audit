@@ -70,7 +70,10 @@ export const useAuthStore = defineStore('auth', {
       }
       catch (error: any) {
         const msg = error?.data?.error?.message || error?.data?.message || error?.message || 'Login failed'
-        throw new Error(msg)
+        const err = new Error(msg) as any
+        err.status = error?.status ?? error?.statusCode ?? error?.response?.status
+        err.data = error?.data
+        throw err
       }
     },
 

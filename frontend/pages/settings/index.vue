@@ -2,11 +2,11 @@
   <div class="min-h-screen flex">
     <UDashboardGroup>
       <UDashboardSidebar 
-        resizeable
-        :ui="{
-          body: 'p-3 flex flex-col justify-start gap-y-2',
-          header: 'px-4 py-3 border-b border-gray-200 dark:border-gray-800'
-        }"
+        id="settings-sidebar"
+        resizable
+        :min-size="12"
+        :default-size="17"
+        :max-size="22"
       >
         <template #header>
           <div>
@@ -25,18 +25,16 @@
         </template>
 
         <template #footer>
-          <div class="px-4 py-4 border-t border-gray-200 dark:border-gray-800">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0">
-                <span class="text-sm font-semibold text-primary-700 dark:text-primary-400">
-                  {{ userInitial }}
-                </span>
+          <div class="w-full border-t border-gray-200 dark:border-gray-800 px-3 py-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs">
+                {{ userInitial }}
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                <p class="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight" :title="authStore.user?.fullName || authStore.user?.username || 'User'">
                   {{ authStore.user?.fullName || authStore.user?.username || 'User' }}
                 </p>
-                <p class="text-md text-gray-500 dark:text-gray-400 truncate">
+                <p class="text-[11px] text-gray-400 dark:text-gray-400 truncate leading-tight mt-0.5" :title="authStore.user?.email || 'user@example.com'">
                   {{ authStore.user?.email || 'user@example.com' }}
                 </p>
               </div>

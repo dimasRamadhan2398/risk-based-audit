@@ -130,6 +130,28 @@ func runServe(cmd *cobra.Command, args []string) error {
 		})
 	})
 
+	// 404 handler — unknown route
+	engine.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    "ENDPOINT_NOT_FOUND",
+				"message": "The requested endpoint does not exist. Please check the URL and try again.",
+			},
+		})
+	})
+
+	// 405 handler — wrong HTTP method
+	engine.NoMethod(func(c *gin.Context) {
+		c.JSON(http.StatusMethodNotAllowed, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    "METHOD_NOT_ALLOWED",
+				"message": "HTTP method not allowed for this endpoint.",
+			},
+		})
+	})
+
 	// Swagger documentation
 	docs.SwaggerInfo.Title = "Auth Service API"
 	docs.SwaggerInfo.Description = "Authentication and Authorization microservice for Risk-Based Internal Audit System"

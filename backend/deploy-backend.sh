@@ -46,15 +46,15 @@ echo "   Archive size: $(du -sh $ARCHIVE | cut -f1)"
 
 # ── Step 2: Prepare remote directory ─────────────────────────────────────────
 echo "🌐 [2/4] Preparing remote directory on VPS..."
-ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
+ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
 
 # ── Step 3: Upload ────────────────────────────────────────────────────────────
 echo "🚀 [3/4] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
-scp -o StrictHostKeyChecking=no "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
+scp -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
 
 # ── Step 4: Extract & Start on VPS ───────────────────────────────────────────
 echo "🔧 [4/4] Extracting and starting backend on VPS..."
-ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
+ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
   set -e
   cd $TARGET_DIR
 

@@ -1,0 +1,292 @@
+_format_version: "3.0"
+_transform: true
+
+# ============================================================
+# GLOBAL PLUGINS
+# ============================================================
+
+plugins:
+
+  # ----------------------------------------------------------
+  # CORS
+  # ----------------------------------------------------------
+  - name: cors
+    config:
+      origins:
+        - "https://dev.auditsphere.app"
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+
+      headers:
+        - Accept
+        - Authorization
+        - Cache-Control
+        - Content-Type
+        - Origin
+        - X-Requested-With
+        - X-CSRF-Token
+
+      exposed_headers:
+        - Content-Length
+        - Content-Type
+        - Authorization
+
+      credentials: true
+
+      max_age: 3600
+
+
+  # ----------------------------------------------------------
+  # RATE LIMITING
+  # ----------------------------------------------------------
+  # Development dibuat lebih longgar karena banyak request
+  # dari hot reload, Postman, Swagger, automated testing, dll.
+  # ----------------------------------------------------------
+  - name: rate-limiting
+    config:
+      minute: 300
+      hour: 20000
+      policy: local
+
+
+  # ----------------------------------------------------------
+  # BOT DETECTION
+  # ----------------------------------------------------------
+  # Untuk DEV jangan terlalu agresif.
+  #
+  # curl / python-requests / Go-http-client sengaja tidak
+  # diblokir karena sering digunakan untuk development/testing.
+  # ----------------------------------------------------------
+  - name: bot-detection
+    config:
+      allow:
+        - "googlebot"
+        - "bingbot"
+
+      deny:
+        - "sqlmap"
+        - "nikto"
+        - "nmap"
+
+
+# ============================================================
+# SERVICES
+# ============================================================
+
+services:
+
+  # ==========================================================
+  # AUTH SERVICE
+  # ==========================================================
+
+  - name: auth-service
+    url: http://auth-service:8001
+
+    routes:
+
+      - name: auth-routes-v1
+        paths:
+          - /api/v1/auth
+          - /api/v1/users
+          - /api/v1/roles
+          - /api/v1/permissions
+          - /api/v1/mfa
+          - /api/v1/devices
+          - /api/v1/confidentiality
+
+        strip_path: false
+
+
+  # ----------------------------------------------------------
+  # LEGACY MFA
+  # ----------------------------------------------------------
+
+  - name: auth-service-legacy-mfa
+    url: http://auth-service:8001/api/v1/mfa
+
+    routes:
+
+      - name: auth-route-legacy-mfa
+        paths:
+          - /api/mfa
+
+        strip_path: true
+
+
+  # ----------------------------------------------------------
+  # LEGACY DEVICES
+  # ----------------------------------------------------------
+
+  - name: auth-service-legacy-devices
+    url: http://auth-service:8001/api/v1/devices
+
+    routes:
+
+      - name: auth-route-legacy-devices
+        paths:
+          - /api/devices
+
+        strip_path: true
+
+
+  # ==========================================================
+  # AUDIT SERVICE
+  # ==========================================================
+
+  - name: audit-service
+    url: http://audit-service:8001
+
+    routes:
+
+      - name: audit-routes
+
+        paths:
+
+          # Audit Charter / Governance
+          - /api/v1/audit-charters
+          - /api/v1/audit-guidelines
+          - /api/v1/audit-sops
+          - /api/v1/audit-mandates
+
+          # Audit Planning
+          - /api/v1/audit-assignments
+          - /api/v1/audit-activities
+          - /api/v1/annual-audit-plans
+          - /api/v1/activity-plans
+          - /api/v1/strategic-plans
+          - /api/v1/assignment-letters
+
+          # Audit Execution
+          - /api/v1/audit-executions
+          - /api/v1/fieldwork
+          - /api/v1/working-papers
+
+          # Audit Results
+          - /api/v1/audit-result-reports
+          - /api/v1/auditee-surveys
+          - /api/v1/executive-summaries
+          - /api/v1/action-taken-reports
+
+          # Documents
+          - /api/v1/uploaded-plan-documents
+          - /api/v1/uploaded-annual-plans
+          - /api/v1/uploaded-assignment-letters
+          - /api/v1/uploaded-audit-result-reports
+          - /api/v1/uploaded-executive-summaries
+          - /api/v1/uploaded-executive-summary-reports
+          - /api/v1/uploaded-consulting-documents
+          - /api/v1/uploaded-performance-reports
+
+          # Media
+          - /api/v1/media
+          - /uploads
+
+          # Performance
+          - /api/v1/performance
+
+        strip_path: false
+
+
+  # ==========================================================
+  # MASTER SERVICE
+  # ==========================================================
+
+  - name: master-service
+    url: http://master-service:8002
+
+    routes:
+
+      - name: master-routes
+
+        paths:
+
+          # Organization
+          - /api/v1/companies
+          - /api/v1/business-units
+          - /api/v1/departments
+
+          # Quality Assurance
+          - /api/v1/quality-assurance
+
+          # Consulting
+          - /api/v1/consulting-services
+
+          # Corporate Strategy
+          - /api/v1/vision-mission-goals
+
+          # Data Sources
+          - /api/v1/data-sources
+
+        strip_path: false
+
+
+  # ==========================================================
+  # RISK SERVICE
+  # ==========================================================
+
+  - name: risk-service
+    url: http://risk-service:8002
+
+    routes:
+
+      - name: risk-routes
+
+        paths:
+
+          # Risk Management
+          - /api/v1/risks
+          - /api/v1/mitigations
+          - /api/v1/risk-factors
+
+          # Audit Universe
+          - /api/v1/audit-universe
+
+          # Risk Appetite
+          - /api/v1/risk-appetite
+
+          # Risk & Control Matrix
+          - /api/v1/rcm
+
+        strip_path: false
+
+
+  # ==========================================================
+  # ANALYTICS SERVICE
+  # ==========================================================
+
+  - name: analytics-service
+    url: http://analytics-service:8084
+
+    routes:
+
+      - name: analytics-routes
+
+        paths:
+          - /api/analytics
+
+        strip_path: false
+
+
+  # ==========================================================
+  # PYTHON AI SERVICE
+  # ==========================================================
+
+  - name: python-ai-service
+    url: http://python-ai:8000
+
+    routes:
+
+      - name: python-ai-routes
+
+        paths:
+          - /api/python-ai
+
+        strip_path: true
