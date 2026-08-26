@@ -89,7 +89,7 @@
     <!-- Pagination & Controls Footer using Nuxt UI UPagination -->
     <div
       v-if="showPagination && (totalItems > 0 || !serverSide)"
-      class="flex flex-col sm:flex-row items-center justify-between gap-4 px-3 py-2.5"
+      class="flex flex-col sm:flex-row items-center justify-end gap-4 px-3 py-2.5"
     >
       <!-- Entry Counter & Page Size Selector -->
       <!-- <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">

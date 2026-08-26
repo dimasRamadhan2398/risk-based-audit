@@ -10,6 +10,10 @@ const defaultProxyTarget = isProd ? "http://kong:8080/api/v1/**" : "http://local
 const defaultAnalyticsProxyTarget = isProd ? "http://kong:8080/api/analytics/**" : "http://localhost:8080/api/analytics/**";
 
 export default defineNuxtConfig({
+  components: [
+    { path: '~/components/shared', pathPrefix: false },
+    '~/components',
+  ],
   devtools: {
     enabled: false,
   },
