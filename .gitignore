@@ -33,6 +33,11 @@ Thumbs.db
 .nuxt/
 dist/
 build/
+backend/auth-service/auth
+backend/audit-service/audit
+backend/master-service/master
+backend/risk-service/risk
+backend/analytics-service/analytics
 
 # Database dumps & local storage
 *.sqlite

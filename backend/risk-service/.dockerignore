@@ -6,10 +6,6 @@
 *.dylib
 *.test
 *.out
-risk
-risk-service
-cmd.exe
-tmp_risk
 
 # Archives
 *.tar.gz
