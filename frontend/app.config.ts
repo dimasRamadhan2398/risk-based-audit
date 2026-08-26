@@ -1690,5 +1690,15 @@ export default defineAppConfig({
         progress: 'hidden !important',
       }
     },
+    selectMenu: {
+      slots: {
+        content: 'z-[9999]'
+      }
+    },
+    select: {
+      slots: {
+        content: 'z-[9999]'
+      }
+    },
   },
 });

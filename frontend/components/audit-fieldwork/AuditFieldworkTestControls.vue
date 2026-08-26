@@ -72,7 +72,7 @@
                   <UInput v-model="store.testControlForm.controlName" :placeholder="t('auditFieldwork.testControls.namePlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
                 </UFormField>
                 <UFormField :label="t('auditFieldwork.testControls.type')" required>
-                  <USelectMenu v-model="store.testControlForm.controlType" :items="store.options.controlTypes" :placeholder="t('auditFieldwork.testControls.typePlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
+                  <ReusableSelectMenu v-model="store.testControlForm.controlType" :items="store.options.controlTypes" :placeholder="t('auditFieldwork.testControls.typePlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
                 </UFormField>
               </div>
               <UFormField :label="t('auditFieldwork.testControls.description')" required>
@@ -88,7 +88,7 @@
               </UFormField>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField :label="t('auditFieldwork.testControls.result')" required>
-                  <USelectMenu v-model="store.testControlForm.testResult" :items="store.options.testResults" :placeholder="t('auditFieldwork.testControls.resultPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
+                  <ReusableSelectMenu v-model="store.testControlForm.testResult" :items="store.options.testResults" :placeholder="t('auditFieldwork.testControls.resultPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
                 </UFormField>
               </div>
             </div>
