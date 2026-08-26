@@ -11,12 +11,63 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy-vps:
-    name: Deploy AuditSphere to VPS
+  build-and-deploy-prod:
+    name: Build & Deploy Production to VPS
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to VPS
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          check-latest: true
+
+      - name: Pre-compile Go Microservices
+        run: |
+          echo "⚡ [1/3] Pre-compiling Go microservices (linux/amd64)..."
+          for svc in auth-service audit-service master-service risk-service analytics-service; do
+            echo "  → Compiling $svc..."
+            cmd_pkg="cmd"
+            bin_name="${svc%-service}"
+            if [ "$svc" = "auth-service" ]; then cmd_pkg="cmd/auth"; fi
+            (cd "backend/$svc" && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o "./$bin_name" "./$cmd_pkg")
+          done
+          echo "✅ All Go microservices compiled successfully."
+
+      - name: Package Pre-compiled Backend
+        run: |
+          echo "📦 [2/3] Packaging backend with pre-compiled binaries..."
+          tar \
+            --exclude='.git' \
+            --exclude='*/vendor' \
+            --exclude='*.tar.gz' \
+            --exclude='*.exe' \
+            --exclude='*/audit-service/audit-service-test' \
+            --exclude='*/audit-service/tmp_*' \
+            --exclude='*/risk-service/tmp_*' \
+            --exclude='__pycache__' \
+            --exclude='.pytest_cache' \
+            --exclude='.venv' \
+            --exclude='.DS_Store' \
+            -czf backend-dist-prod.tar.gz backend
+
+          echo "   Archive size: $(du -sh backend-dist-prod.tar.gz | cut -f1)"
+
+      - name: Upload Pre-compiled Backend to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_PASSPHRASE }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          source: "backend-dist-prod.tar.gz"
+          target: "/tmp/"
+
+      - name: Execute SSH Production Deployment
         uses: appleboy/ssh-action@v1.0.3
         env:
           DEPLOY_SHA: ${{ github.sha }}
@@ -28,50 +79,36 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           port: ${{ secrets.VPS_PORT || 22 }}
-
-          timeout: 60m
-          command_timeout: 60m
+          timeout: 30m
+          command_timeout: 30m
           script_stop: true
-
           envs: DEPLOY_SHA,DEPLOY_REF,DEPLOY_ACTOR
-
           script: |
             set -Eeuo pipefail
 
             # ================================================================
             # Configuration
             # ================================================================
-
             APP_NAME="auditsphere"
-
             REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
             REPO_DIR="/app/rbia-repo"
-
             BACKEND_DIR="$REPO_DIR/backend"
             FRONTEND_DIR="$REPO_DIR/frontend"
-
             BACKEND_COMPOSE="docker-compose.prod.yml"
             FRONTEND_COMPOSE="docker-compose.prod.yml"
-
             BACKEND_CONTAINER_FILTER="rb_audit"
             FRONTEND_CONTAINER_FILTER="rbia-frontend"
-
             LOCK_FILE="/tmp/auditsphere_deploy.lock"
-
             BACKEND_HEALTH_URL="http://localhost:8080/api/v1/auth/health"
             AUTH_HEALTH_URL="http://localhost:8001/health"
-
             FRONTEND_HEALTH_URL="http://127.0.0.1:3000"
-
             MAX_BACKEND_ATTEMPTS=30
             MAX_FRONTEND_ATTEMPTS=30
-
             DEPLOY_STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S')"
 
             # ================================================================
             # Utility Functions
             # ================================================================
-
             log() {
               echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
             }
@@ -93,26 +130,15 @@ jobs:
               fi
 
               for i in $(seq 1 "$max_attempts"); do
-
                 local status
-
-                status="$(
-                  docker inspect \
-                    --format='{{.State.Health.Status}}' \
-                    "$container_name" \
-                    2>/dev/null || echo "not_found"
-                )"
-
+                status="$(docker inspect --format='{{.State.Health.Status}}' "$container_name" 2>/dev/null || echo "not_found")"
                 if [ "$status" = "healthy" ]; then
                   log "✅ $service_name is healthy."
                   return 0
                 fi
-
                 log "⏳ $service_name status: $status — attempt $i/$max_attempts"
-
                 sleep 5
               done
-
               return 1
             }
 
@@ -122,39 +148,22 @@ jobs:
               local max_attempts="${3:-30}"
 
               for i in $(seq 1 "$max_attempts"); do
-
                 local http_code
-
-                http_code="$(
-                  curl \
-                    -s \
-                    -o /dev/null \
-                    -w "%{http_code}" \
-                    -L \
-                    --max-time 5 \
-                    "$url" \
-                    2>/dev/null || echo "000"
-                )"
-
-                if [ "$http_code" = "200" ] ||
-                   [ "$http_code" = "301" ] ||
-                   [ "$http_code" = "302" ]; then
-
+                http_code="$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "$url" 2>/dev/null || echo "000")"
+                if [ "$http_code" = "200" ] || [ "$http_code" = "301" ] || [ "$http_code" = "302" ]; then
                   log "✅ $service_name is responding with HTTP $http_code."
                   return 0
                 fi
-
                 log "⏳ $service_name HTTP status: $http_code — attempt $i/$max_attempts"
-
                 sleep 5
               done
-
               return 1
             }
 
             # ================================================================
-            # Previous Container/Image State
+            # Diagnostics & Cleanup
             # ================================================================
+<<<<<<< HEAD
 
             PREVIOUS_BACKEND_IMAGE_ID=""
             PREVIOUS_BACKEND_IMAGE_TAG=""
@@ -232,326 +241,99 @@ jobs:
             # Diagnostics
             # ================================================================
 
+=======
+>>>>>>> 76ac008 (fix: docker file to fasten deploy process)
             diagnostics() {
-
               log "============================================================"
               log "🔎 DEPLOYMENT DIAGNOSTICS"
               log "============================================================"
-
               log "Docker containers:"
-              docker ps -a \
-                --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" \
-                || true
-
-              log ""
-              log "Backend compose status:"
+              docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || true
 
               if [ -d "$BACKEND_DIR" ]; then
                 cd "$BACKEND_DIR" || true
-
-                docker compose \
-                  -f "$BACKEND_COMPOSE" \
-                  ps \
-                  || true
-
-                log ""
-                log "Backend logs:"
-                docker compose \
-                  -f "$BACKEND_COMPOSE" \
-                  logs \
-                  --tail=100 \
-                  || true
+                docker compose -f "$BACKEND_COMPOSE" ps || true
+                docker compose -f "$BACKEND_COMPOSE" logs --tail=50 || true
               fi
-
-              log ""
-              log "Frontend compose status:"
 
               if [ -d "$FRONTEND_DIR" ]; then
                 cd "$FRONTEND_DIR" || true
-
-                docker compose \
-                  -f "$FRONTEND_COMPOSE" \
-                  ps \
-                  || true
-
-                log ""
-                log "Frontend logs:"
-                docker compose \
-                  -f "$FRONTEND_COMPOSE" \
-                  logs \
-                  --tail=100 \
-                  || true
+                docker compose -f "$FRONTEND_COMPOSE" ps || true
+                docker compose -f "$FRONTEND_COMPOSE" logs --tail=50 || true
               fi
 
-              log ""
-              log "Disk usage:"
               df -h || true
             }
 
-            # ================================================================
-            # Rollback
-            # ================================================================
-
-            rollback() {
-
-              log ""
-              log "============================================================"
-              log "🔄 STARTING ROLLBACK"
-              log "============================================================"
-
-              local rollback_failed=0
-
-              # ------------------------------------------------------------
-              # Backend rollback
-              # ------------------------------------------------------------
-
-              if [ -n "$PREVIOUS_BACKEND_IMAGE_ID" ] &&
-                 [ -n "$PREVIOUS_BACKEND_IMAGE_TAG" ]; then
-
-                log "🔄 Rolling back backend..."
-
-                if docker image inspect "$PREVIOUS_BACKEND_IMAGE_ID" >/dev/null 2>&1; then
-
-                  docker tag \
-                    "$PREVIOUS_BACKEND_IMAGE_ID" \
-                    "$PREVIOUS_BACKEND_IMAGE_TAG" \
-                    || rollback_failed=1
-
-                  cd "$BACKEND_DIR" || rollback_failed=1
-
-                  docker compose \
-                    -f "$BACKEND_COMPOSE" \
-                    up -d \
-                    --no-build \
-                    || rollback_failed=1
-
-                else
-
-                  log "⚠️ Previous backend image no longer exists."
-
-                fi
-
-              else
-
-                log "⚠️ No previous backend image available."
-
-              fi
-
-              # ------------------------------------------------------------
-              # Frontend rollback
-              # ------------------------------------------------------------
-
-              if [ -n "$PREVIOUS_FRONTEND_IMAGE_ID" ] &&
-                 [ -n "$PREVIOUS_FRONTEND_IMAGE_TAG" ]; then
-
-                log "🔄 Rolling back frontend..."
-
-                if docker image inspect "$PREVIOUS_FRONTEND_IMAGE_ID" >/dev/null 2>&1; then
-
-                  docker tag \
-                    "$PREVIOUS_FRONTEND_IMAGE_ID" \
-                    "$PREVIOUS_FRONTEND_IMAGE_TAG" \
-                    || rollback_failed=1
-
-                  cd "$FRONTEND_DIR" || rollback_failed=1
-
-                  docker compose \
-                    -f "$FRONTEND_COMPOSE" \
-                    up -d \
-                    --no-build \
-                    || rollback_failed=1
-
-                else
-
-                  log "⚠️ Previous frontend image no longer exists."
-
-                fi
-
-              else
-
-                log "⚠️ No previous frontend image available."
-
-              fi
-
-              if [ "$rollback_failed" -eq 0 ]; then
-                log "✅ Rollback commands completed."
-              else
-                log "❌ Rollback encountered errors."
-              fi
-
-              return "$rollback_failed"
-            }
-
-            # ================================================================
-            # Deployment Failure Handler
-            # ================================================================
-
             cleanup_on_failure() {
-
               log ""
               log "============================================================"
-              log "❌ AUDITSPHERE DEPLOYMENT FAILED"
+              log "❌ AUDITSPHERE PRODUCTION DEPLOYMENT FAILED"
               log "============================================================"
-
               diagnostics
-
-              rollback || true
-
-              log ""
-              log "============================================================"
-              log "❌ DEPLOYMENT ABORTED"
-              log "============================================================"
-
               exit 1
             }
 
-            # ================================================================
-            # Main Deployment
-            # ================================================================
-
             main() {
-
               trap cleanup_on_failure ERR
 
               log ""
               log "============================================================"
               log "🚀 AuditSphere Production Deployment"
               log "============================================================"
-
               log "Application : $APP_NAME"
               log "Commit SHA  : $DEPLOY_SHA"
               log "Branch      : $DEPLOY_REF"
               log "Actor       : $DEPLOY_ACTOR"
               log "Started     : $DEPLOY_STARTED_AT"
 
-              # ==============================================================
-              # Deployment Lock
-              # ==============================================================
-
+              # Lock
               exec 200>"$LOCK_FILE"
-
               if ! flock -n 200; then
                 fail "Another AuditSphere deployment is currently running."
               fi
-
               log "🔒 Deployment lock acquired."
 
-              # ==============================================================
-              # System Check
-              # ==============================================================
-
-              log ""
-              log "🔍 Checking VPS resources..."
-
-              DISK_USAGE="$(
-                df \
-                  --output=pcent \
-                  / \
-                  | tail -1 \
-                  | tr -dc '0-9'
-              )"
-
+              # System resource check
+              DISK_USAGE="$(df --output=pcent / | tail -1 | tr -dc '0-9')"
               log "Disk usage: ${DISK_USAGE}%"
-
               if [ "$DISK_USAGE" -ge 90 ]; then
                 fail "Disk usage is ${DISK_USAGE}%. Deployment aborted."
               fi
 
-              MEMORY_AVAILABLE="$(
-                free -m \
-                  | awk '/^Mem:/ {print $7}'
-              )"
-
-              log "Available memory: ${MEMORY_AVAILABLE} MB"
-
-              # ==============================================================
-              # Capture Current Production State
-              # ==============================================================
-
-              capture_previous_state
-
-              # ==============================================================
-              # Repository
-              # ==============================================================
-
-              log ""
-              log "============================================================"
-              log "📦 Preparing source code"
-              log "============================================================"
-
               export GIT_TERMINAL_PROMPT=0
 
+              # Sync repository
+              log "📦 Syncing repository code..."
               if [ -d "$REPO_DIR/.git" ]; then
-
-                log "Repository already exists."
-
                 cd "$REPO_DIR"
-
-                git fetch \
-                  --depth 1 \
-                  origin \
-                  "$DEPLOY_SHA"
-
-                git reset \
-                  --hard \
-                  "$DEPLOY_SHA"
-
-                git clean \
-                  -fd
-
+                git fetch --depth 1 origin "$DEPLOY_SHA"
+                git reset --hard "$DEPLOY_SHA"
+                git clean -fd
               else
-
-                log "Repository does not exist. Performing initial clone."
-
                 rm -rf "$REPO_DIR"
-
-                git clone \
-                  --depth 1 \
-                  "$REPO_URL" \
-                  "$REPO_DIR"
-
+                git clone --depth 1 "$REPO_URL" "$REPO_DIR"
                 cd "$REPO_DIR"
-
-                git fetch \
-                  --depth 1 \
-                  origin \
-                  "$DEPLOY_SHA"
-
-                git checkout \
-                  "$DEPLOY_SHA"
-
+                git fetch --depth 1 origin "$DEPLOY_SHA"
+                git checkout "$DEPLOY_SHA"
               fi
 
-              CURRENT_COMMIT="$(git rev-parse HEAD)"
-
-              if [ "$CURRENT_COMMIT" != "$DEPLOY_SHA" ]; then
-                fail "Checked out commit $CURRENT_COMMIT but expected $DEPLOY_SHA"
-              fi
-
-              log "✅ Exact commit verified:"
-              log "$CURRENT_COMMIT"
-
-              log "Commit message:"
-              git log -1 --pretty=format:'%s%n'
-
-              # ==============================================================
-              # Docker Configuration
-              # ==============================================================
+              # Overlay pre-compiled backend
+              log "📦 Overlaying pre-compiled backend binaries..."
+              tar -xzf /tmp/backend-dist-prod.tar.gz -C "$REPO_DIR"
+              rm -f /tmp/backend-dist-prod.tar.gz
+              log "   ✓ pre-compiled backend ready"
 
               export DOCKER_BUILDKIT=1
               export COMPOSE_DOCKER_CLI_BUILD=1
 
-              # ==============================================================
-              # Backend Deployment
-              # ==============================================================
-
-              log ""
+              # Deploy Backend
               log "============================================================"
               log "🚀 Deploying Backend"
               log "============================================================"
-
               cd "$BACKEND_DIR"
 
+<<<<<<< HEAD
               log "🔨 Building backend images..."
 
               docker compose \
@@ -647,66 +429,38 @@ jobs:
 
               log ""
               log "🏥 Checking backend API..."
+=======
+              log "🔨 Starting backend services with pre-built binaries..."
+              docker compose -f "$BACKEND_COMPOSE" up -d --build --force-recreate --remove-orphans
+>>>>>>> 76ac008 (fix: docker file to fasten deploy process)
 
+              # Backend Health Check
+              log "🏥 Checking backend API health..."
               BACKEND_READY=0
-
               for i in $(seq 1 "$MAX_BACKEND_ATTEMPTS"); do
-
-                GATEWAY_STATUS="$(
-                  curl \
-                    -s \
-                    -o /dev/null \
-                    -w "%{http_code}" \
-                    -L \
-                    --max-time 5 \
-                    "$BACKEND_HEALTH_URL" \
-                    2>/dev/null || echo "000"
-                )"
-
-                AUTH_STATUS="$(
-                  curl \
-                    -s \
-                    -o /dev/null \
-                    -w "%{http_code}" \
-                    -L \
-                    --max-time 5 \
-                    "$AUTH_HEALTH_URL" \
-                    2>/dev/null || echo "000"
-                )"
-
+                GATEWAY_STATUS="$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "$BACKEND_HEALTH_URL" 2>/dev/null || echo "000")"
+                AUTH_STATUS="$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "$AUTH_HEALTH_URL" 2>/dev/null || echo "000")"
                 log "Backend: gateway=$GATEWAY_STATUS auth=$AUTH_STATUS attempt=$i/$MAX_BACKEND_ATTEMPTS"
 
-                if [ "$GATEWAY_STATUS" = "200" ] ||
-                   [ "$AUTH_STATUS" = "200" ]; then
-
+                if [ "$GATEWAY_STATUS" = "200" ] || [ "$AUTH_STATUS" = "200" ]; then
                   BACKEND_READY=1
                   break
-
                 fi
-
                 sleep 5
-
               done
 
               if [ "$BACKEND_READY" -ne 1 ]; then
                 fail "Backend health check failed."
               fi
-
               log "✅ Backend is healthy."
 
-              # ==============================================================
-              # Frontend Environment
-              # ==============================================================
-
-              log ""
+              # Deploy Frontend
               log "============================================================"
               log "🚀 Deploying Frontend"
               log "============================================================"
-
               cd "$FRONTEND_DIR"
 
               log "📝 Creating production environment..."
-
               {
                 echo "API_BASE_URL=https://api.auditsphere.app/api/v1"
                 echo "ANALYTICS_API_BASE_URL=https://api.auditsphere.app/api/analytics"
@@ -716,142 +470,46 @@ jobs:
                 echo "NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api.auditsphere.app/api/v1"
               } > .env
 
-              # ==============================================================
-              # Frontend Build
-              # ==============================================================
-
               log "🔨 Building frontend image..."
-
-              docker compose \
-                -f "$FRONTEND_COMPOSE" \
-                build
+              docker compose -f "$FRONTEND_COMPOSE" build
 
               log "🚀 Starting frontend..."
+              docker compose -f "$FRONTEND_COMPOSE" up -d --force-recreate --remove-orphans
 
-              docker compose \
-                -f "$FRONTEND_COMPOSE" \
-                up -d \
-                --force-recreate \
-                --remove-orphans
-
-              # ==============================================================
-              # Frontend Health
-              # ==============================================================
-
-              log ""
-              log "🏥 Checking frontend..."
-
+              # Frontend Health Check
+              log "🏥 Checking frontend health..."
               FRONTEND_READY=0
-
               for i in $(seq 1 "$MAX_FRONTEND_ATTEMPTS"); do
-
-                HTTP_CODE="$(
-                  curl \
-                    -s \
-                    -o /dev/null \
-                    -w "%{http_code}" \
-                    -L \
-                    --max-time 5 \
-                    "$FRONTEND_HEALTH_URL" \
-                    2>/dev/null || echo "000"
-                )"
-
+                HTTP_CODE="$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 5 "$FRONTEND_HEALTH_URL" 2>/dev/null || echo "000")"
                 log "Frontend HTTP status: $HTTP_CODE — attempt $i/$MAX_FRONTEND_ATTEMPTS"
 
-                if [ "$HTTP_CODE" = "200" ] ||
-                   [ "$HTTP_CODE" = "301" ] ||
-                   [ "$HTTP_CODE" = "302" ]; then
-
+                if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "301" ] || [ "$HTTP_CODE" = "302" ]; then
                   FRONTEND_READY=1
                   break
-
                 fi
-
                 sleep 5
-
               done
 
               if [ "$FRONTEND_READY" -ne 1 ]; then
                 fail "Frontend health check failed."
               fi
-
               log "✅ Frontend is healthy."
 
-              # ==============================================================
-              # Post Deployment Smoke Test
-              # ==============================================================
+              # Smoke tests
+              log "🧪 Running post-deployment smoke tests..."
+              curl -fsS --max-time 10 "$BACKEND_HEALTH_URL" >/dev/null
+              curl -fsS --max-time 10 "$FRONTEND_HEALTH_URL" >/dev/null
+              log "✅ Smoke tests passed."
 
-              log ""
-              log "============================================================"
-              log "🧪 Running post-deployment smoke tests"
-              log "============================================================"
-
-              log "Testing backend gateway..."
-
-              curl \
-                -fsS \
-                --max-time 10 \
-                "$BACKEND_HEALTH_URL" \
-                >/dev/null
-
-              log "✅ Backend smoke test passed."
-
-              log "Testing frontend..."
-
-              curl \
-                -fsS \
-                --max-time 10 \
-                "$FRONTEND_HEALTH_URL" \
-                >/dev/null
-
-              log "✅ Frontend smoke test passed."
-
-              # ==============================================================
-              # Deployment Metadata
-              # ==============================================================
-
-              log ""
-              log "📌 Deployment information:"
-
-              log "Commit SHA : $DEPLOY_SHA"
-              log "Branch     : $DEPLOY_REF"
-              log "Actor      : $DEPLOY_ACTOR"
-
-              echo "$DEPLOY_SHA" > /tmp/auditsphere_current_commit
-
-              # ==============================================================
-              # Docker Cleanup
-              # ==============================================================
-
-              log ""
+              # Docker cleanup
               log "🧹 Cleaning unused Docker resources..."
-
               docker image prune -f
 
-              # ==============================================================
-              # Final Verification
-              # ==============================================================
-
-              log ""
               log "============================================================"
-              log "🔎 Final container state"
+              log "✅ AUDITSPHERE PRODUCTION DEPLOYMENT SUCCESSFUL"
               log "============================================================"
-
-              docker ps \
-                --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
-
-              # ==============================================================
-              # Success
-              # ==============================================================
-
-              log ""
-              log "============================================================"
-              log "✅ AUDITSPHERE DEPLOYMENT SUCCESSFUL"
-              log "============================================================"
-
               log "Commit     : $DEPLOY_SHA"
               log "Finished   : $(date '+%Y-%m-%d %H:%M:%S')"
-              log "============================================================"
             }
 
             main "$@"

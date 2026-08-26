@@ -1,35 +1,14 @@
-# Build stage
-FROM golang:alpine AS builder
-
-WORKDIR /app
-ENV GOTOOLCHAIN=auto
-
-# Install build dependencies
-RUN apk add --no-cache git ca-certificates tzdata
-
-# Copy go mod files
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy source code
-COPY . .
-
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /app/auth ./cmd/auth
-
-# Runtime stage
 FROM alpine:latest
 
-# Install runtime dependencies
 RUN apk --no-cache add ca-certificates tzdata
 
 WORKDIR /root/
 
-# Copy the binary from builder
-COPY --from=builder /app/auth .
+# Copy pre-compiled binary
+COPY auth .
 
-# Copy docker config as the runtime config
-COPY --from=builder /app/pkg/config/config.docker.yaml ./pkg/config/config.yaml
+# Copy docker config as runtime config
+COPY pkg/config/config.docker.yaml ./pkg/config/config.yaml
 
 # Expose service port
 EXPOSE 8001
