@@ -166,7 +166,7 @@
           class="w-full"
         >
           <template #version-cell="{ row }">
-            <span class="font-bold text-[var(--text-main)] whitespace-nowrap">{{
+            <span class="font-bold text-[var(--text-main)]">{{
               row.original.version
             }}</span>
           </template>
