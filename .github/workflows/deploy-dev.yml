@@ -156,14 +156,14 @@ jobs:
               cd "$FRONTEND_DIR"
 
               echo "  → Creating development environment file (pointing to Kong Port 8081 / api-dev)..."
-              cat <<ENVEOF > .env
-API_BASE_URL=https://api-dev.auditsphere.app/api/v1
-ANALYTICS_API_BASE_URL=https://api-dev.auditsphere.app/api/analytics
-NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
-NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
-NUXT_PUBLIC_RISK_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
-NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1
-ENVEOF
+              {
+                echo "API_BASE_URL=https://api-dev.auditsphere.app/api/v1"
+                echo "ANALYTICS_API_BASE_URL=https://api-dev.auditsphere.app/api/analytics"
+                echo "NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1"
+                echo "NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1"
+                echo "NUXT_PUBLIC_RISK_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1"
+                echo "NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api-dev.auditsphere.app/api/v1"
+              } > .env
 
               echo "🔨 Building frontend dev image..."
               docker compose -f "$FRONTEND_COMPOSE" build
