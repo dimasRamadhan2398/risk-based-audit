@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"io"
 	"net/http"
-	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -41,32 +41,40 @@ type UploadPerformanceReportRequest struct {
 }
 
 func (ctrl *UploadedPerformanceReportController) Upload(c *gin.Context) {
-	var req UploadPerformanceReportRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+	title := c.PostForm("title")
+	description := c.PostForm("description")
+	fileName := c.PostForm("fileName")
+	fileType := c.PostForm("fileType")
+	period := c.PostForm("period")
+	yearStr := c.PostForm("year")
+	year, _ := strconv.Atoi(yearStr)
+
+	if title == "" || fileName == "" {
+		response.BadRequest(c, "title and fileName are required")
 		return
 	}
 
-	if req.Period == "" {
-		req.Period = "Tahunan"
-	}
-	if req.Year == 0 {
-		req.Year = time.Now().Year()
-	}
-
-	base64Data := req.FileContent
-	if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
-		base64Data = base64Data[idx+8:]
-	}
-
-	dec, err := base64.StdEncoding.DecodeString(base64Data)
+	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
 	if err != nil {
-		response.BadRequest(c, "Invalid base64 file data: "+err.Error())
+		response.BadRequest(c, "file is required: "+err.Error())
 		return
 	}
 
-	fileExt := filepath.Ext(req.FileName)
-	baseName := strings.TrimSuffix(req.FileName, fileExt)
+	openedFile, err := file.Open()
+	if err != nil {
+		response.InternalServerError(c, "failed to open file: "+err.Error())
+		return
+	}
+	defer openedFile.Close()
+
+	dec, err := io.ReadAll(openedFile)
+	if err != nil {
+		response.InternalServerError(c, "failed to read file: "+err.Error())
+		return
+	}
+
+	fileExt := filepath.Ext(fileName)
+	baseName := strings.TrimSuffix(fileName, fileExt)
 	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 
 	uploadsDir := "./uploads/uploaded-performance-reports"
@@ -83,15 +91,15 @@ func (ctrl *UploadedPerformanceReportController) Upload(c *gin.Context) {
 	reportID := uuid.New()
 	doc := models.UploadedPerformanceReport{
 		ID:              reportID,
-		Title:           req.Title,
-		Period:          req.Period,
-		Year:            req.Year,
-		Description:     req.Description,
-		FileName:        req.FileName,
+		Title:           title,
+		Period:          period,
+		Year:            year,
+		Description:     description,
+		FileName:        fileName,
 		FilePath:        filePath,
 		FileSize:        int64(len(dec)),
 		FileContent: dec,
-		FileType:        req.FileType,
+		FileType:        fileType,
 		Status:          "Uploaded",
 		ParsedKPIsCount: 4,
 	}

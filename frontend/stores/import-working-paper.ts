@@ -28,6 +28,12 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/working-papers/imports`, { method: 'GET' })
       if (response && Array.isArray(response.data)) {
         importedPapers.value = response.data
@@ -53,15 +59,21 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     description: string
     fileName: string
     fileType: string
-    fileContent: string // base64
+    file: File 
   }) => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/working-papers/imports`, {
         method: 'POST',
-        body: payload
+        body: formData
       })
       await fetchImportedPapers()
       return response
@@ -92,9 +104,37 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     }
   }
 
+  const viewDocument = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
+      const response: any = await $fetch(`${baseUrl}/working-papers/imports/${id}/download`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response], { type: response.type || 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+    } catch (error) {
+      console.error('Failed to view document:', error)
+      errorMsg.value = 'Failed to view document.'
+    }
+  }
+
   const downloadImportedPaper = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/working-papers/imports/${id}/download`, {
         responseType: 'blob'
       })
@@ -117,6 +157,7 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     fetchImportedPapers,
     importWorkingPaper,
     deleteImportedPaper,
-    downloadImportedPaper
+    downloadImportedPaper,
+    viewDocument
   }
 })

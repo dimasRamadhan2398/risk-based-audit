@@ -12,7 +12,7 @@ const form = ref({
   title: '',
   description: '',
   fileName: '',
-  fileContent: ''
+  file: null as any
 })
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -63,7 +63,7 @@ const processFile = (file: File) => {
 
 const clearFile = () => {
   form.value.fileName = ''
-  form.value.fileContent = ''
+  form.value.file = null as any
   selectedFileSize.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''

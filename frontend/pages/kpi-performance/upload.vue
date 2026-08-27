@@ -18,7 +18,7 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  fileContent: ''
+  file: null as any
 })
 
 const periodOptions = [
@@ -96,7 +96,7 @@ const getExtensionType = (filename: string) => {
 const clearFile = () => {
   form.value.fileName = ''
   form.value.fileType = ''
-  form.value.fileContent = ''
+  form.value.file = null as any
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -130,7 +130,7 @@ const handleUpload = async () => {
       description: form.value.description,
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      fileContent: form.value.fileContent
+      file: form.value.file
     })
 
     toast.add({

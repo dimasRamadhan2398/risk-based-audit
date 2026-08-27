@@ -25,6 +25,12 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-assignment-letters`, {
         method: 'GET'
       });
@@ -41,14 +47,14 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
     }
   };
 
-  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; fileContent: string }) => {
+  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; file: File }) => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
       await $fetch(`${baseUrl}/uploaded-assignment-letters`, {
         method: 'POST',
-        body: payload
+        body: formData
       });
       await fetchUploadedDocuments();
     } catch (error: any) {
@@ -81,6 +87,12 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
     const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-assignment-letters/${id}/download`, {
         responseType: 'blob'
       });
@@ -98,6 +110,12 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
   const downloadDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-assignment-letters/${id}/download`, {
         responseType: 'blob'
       });

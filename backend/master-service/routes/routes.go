@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -133,35 +134,38 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.POST("/import", func(c *gin.Context) {
-			type ImportQARRequest struct {
-				AssessmentTitle   string `json:"assessmentTitle" binding:"required"`
-				Type              string `json:"type" binding:"required"`
-				PeriodQuarter     string `json:"periodQuarter"`
-				PeriodYear        string `json:"periodYear" binding:"required"`
-				Result            string `json:"result" binding:"required"`
-				Status            string `json:"status" binding:"required"`
-				ConductedBy       string `json:"conductedBy"`
-				Validator         string `json:"validator"`
-				InternalEvaluator string `json:"internalEvaluator"`
-				FileName          string `json:"fileName" binding:"required"`
-				FileType          string `json:"fileType"`
-				FileContent       string `json:"fileContent" binding:"required"` // Base64
-			}
+			assessmentTitle := c.PostForm("assessmentTitle")
+			typeParam := c.PostForm("type")
+			periodQuarter := c.PostForm("periodQuarter")
+			periodYear := c.PostForm("periodYear")
+			result := c.PostForm("result")
+			status := c.PostForm("status")
+			conductedBy := c.PostForm("conductedBy")
+			validator := c.PostForm("validator")
+			internalEvaluator := c.PostForm("internalEvaluator")
+			fileName := c.PostForm("fileName")
 
-			var req ImportQARRequest
-			if err := c.ShouldBindJSON(&req); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+			if assessmentTitle == "" || typeParam == "" || periodYear == "" || result == "" || status == "" || fileName == "" {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Missing required fields"})
 				return
 			}
 
-			// Clean and decode base64
-			base64Data := req.FileContent
-			if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
-				base64Data = base64Data[idx+8:]
-			}
-			dec, err := base64.StdEncoding.DecodeString(base64Data)
+			file, err := c.FormFile("file")
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid base64 file data: " + err.Error()})
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "file is required: " + err.Error()})
+				return
+			}
+
+			openedFile, err := file.Open()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "failed to open file: " + err.Error()})
+				return
+			}
+			defer openedFile.Close()
+
+			dec, err := io.ReadAll(openedFile)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "failed to read file: " + err.Error()})
 				return
 			}
 
@@ -171,8 +175,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to create uploads directory: " + err.Error()})
 				return
 			}
-			fileExt := filepath.Ext(req.FileName)
-			baseName := strings.TrimSuffix(req.FileName, fileExt)
+			fileExt := filepath.Ext(fileName)
+			baseName := strings.TrimSuffix(fileName, fileExt)
 			uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 			filePath := filepath.Join(uploadsDir, uniqueFileName)
 			if err := os.WriteFile(filePath, dec, 0644); err != nil {
@@ -181,28 +185,28 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			}
 
 			// Construct Period
-			period := fmt.Sprintf("%s %s", req.PeriodQuarter, req.PeriodYear)
+			period := fmt.Sprintf("%s %s", periodQuarter, periodYear)
 			period = strings.TrimSpace(period)
 			if period == "" {
-				period = req.PeriodYear
+				period = periodYear
 			}
 
 			// Create QAReport
 			report := models.QAReport{
 				ID:                uuid.New(),
-				Type:              req.Type,
+				Type:              typeParam,
 				IsImported:        true,
 				Period:            period,
-				ReportName:        req.AssessmentTitle,
-				Result:            req.Result,
-				Status:            req.Status,
-				ConductedBy:       req.ConductedBy,
-				AssessmentTitle:   req.AssessmentTitle,
-				Validator:         req.Validator,
-				InternalEvaluator: req.InternalEvaluator,
+				ReportName:        assessmentTitle,
+				Result:            result,
+				Status:            status,
+				ConductedBy:       conductedBy,
+				AssessmentTitle:   assessmentTitle,
+				Validator:         validator,
+				InternalEvaluator: internalEvaluator,
 				FileContent:       dec,
 				Attachment: &models.QAReportAttachment{
-					Name:       req.FileName,
+					Name:       fileName,
 					Size:       fmt.Sprintf("%.2f MB", float64(len(dec))/(1024*1024)),
 					UploadedAt: time.Now().Format("2006-01-02"),
 					FilePath:   filePath,

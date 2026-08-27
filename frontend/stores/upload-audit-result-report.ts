@@ -23,6 +23,12 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-audit-result-reports`, {
         method: 'GET'
       });
@@ -39,14 +45,14 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
     }
   };
 
-  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; fileContent: string }) => {
+  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; file: File }) => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
       await $fetch(`${baseUrl}/uploaded-audit-result-reports`, {
         method: 'POST',
-        body: payload
+        body: formData
       });
       await fetchUploadedDocuments();
     } catch (error: any) {
@@ -79,6 +85,12 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
     const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-audit-result-reports/${id}/download`, {
         responseType: 'blob'
       });
@@ -96,6 +108,12 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
   const downloadDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-audit-result-reports/${id}/download`, {
         responseType: 'blob'
       });

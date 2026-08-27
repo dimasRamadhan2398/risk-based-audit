@@ -34,6 +34,12 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
         params.year = year;
       }
 
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-performance-reports`, {
         method: 'GET',
         params
@@ -61,7 +67,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
     description: string;
     fileName: string;
     fileType: string;
-    fileContent: string;
+    file: File;
   }) => {
     loading.value = true;
     errorMsg.value = '';
@@ -69,7 +75,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       const baseUrl = getAuditServiceBaseUrl();
       await $fetch(`${baseUrl}/uploaded-performance-reports`, {
         method: 'POST',
-        body: payload
+        body: formData
       });
       await fetchUploadedReports(payload.period, payload.year);
     } catch (error: any) {
@@ -102,6 +108,12 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
   const downloadReport = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-performance-reports/${id}/download`, {
         responseType: 'blob'
       });
@@ -124,6 +136,12 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
   const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/uploaded-performance-reports/${id}/download`, {
         responseType: 'blob'
       });

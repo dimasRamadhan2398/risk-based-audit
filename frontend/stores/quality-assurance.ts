@@ -190,6 +190,12 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     errorMsg.value = ''
     try {
       const baseUrl = getMasterServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance`, {
         method: 'GET'
       })
@@ -297,15 +303,21 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     validator: string
     fileName: string
     fileType: string
-    fileContent: string // base64
+    file: File 
   }) => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getMasterServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance/import`, {
         method: 'POST',
-        body: payload
+        body: formData
       })
       await fetchReports()
       closeImportModal()
@@ -322,6 +334,12 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const downloadAttachment = async (id: string, fileName: string) => {
     try {
       const baseUrl = getMasterServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
         responseType: 'blob'
       })
@@ -339,6 +357,12 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getMasterServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== null) {
+          formData.append(key, payload[key])
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
         responseType: 'blob'
       })
