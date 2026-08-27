@@ -217,7 +217,7 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  fileContent: ''
+  file: null as any
 })
 
 const columns = [
@@ -257,17 +257,13 @@ const processFile = (file: File) => {
   form.value.fileType = file.type || 'application/octet-stream'
   selectedFileLength.value = file.size
 
-  const reader = new FileReader()
-  reader.onload = () => {
-    form.value.fileContent = reader.result as string
-  }
-  reader.readAsDataURL(file)
+  form.value.file = file
 }
 
 const clearFile = () => {
   form.value.fileName = ''
   form.value.fileType = ''
-  form.value.fileContent = ''
+  form.value.file = null as any
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -283,7 +279,7 @@ const handleUpload = async () => {
       description: form.value.description,
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      fileContent: form.value.fileContent
+      file: form.value.file
     })
     
     if (!store.errorMsg) {

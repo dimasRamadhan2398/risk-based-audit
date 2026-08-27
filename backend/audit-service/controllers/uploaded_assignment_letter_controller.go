@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -38,25 +38,37 @@ type UploadAssignmentLetterRequest struct {
 }
 
 func (ctrl *UploadedAssignmentLetterController) Upload(c *gin.Context) {
-	var req UploadAssignmentLetterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+	title := c.PostForm("title")
+	description := c.PostForm("description")
+	fileName := c.PostForm("fileName")
+	fileType := c.PostForm("fileType")
+
+	if title == "" || fileName == "" {
+		response.BadRequest(c, "title and fileName are required")
 		return
 	}
 
-	base64Data := req.FileContent
-	if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
-		base64Data = base64Data[idx+8:]
-	}
-
-	dec, err := base64.StdEncoding.DecodeString(base64Data)
+	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
 	if err != nil {
-		response.BadRequest(c, "Invalid base64 file data: "+err.Error())
+		response.BadRequest(c, "file is required: "+err.Error())
 		return
 	}
 
-	fileExt := filepath.Ext(req.FileName)
-	baseName := strings.TrimSuffix(req.FileName, fileExt)
+	openedFile, err := file.Open()
+	if err != nil {
+		response.InternalServerError(c, "failed to open file: "+err.Error())
+		return
+	}
+	defer openedFile.Close()
+
+	dec, err := io.ReadAll(openedFile)
+	if err != nil {
+		response.InternalServerError(c, "failed to read file: "+err.Error())
+		return
+	}
+
+	fileExt := filepath.Ext(fileName)
+	baseName := strings.TrimSuffix(fileName, fileExt)
 	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 
 	uploadsDir := "./uploads/uploaded-assignment-letters"
@@ -72,13 +84,13 @@ func (ctrl *UploadedAssignmentLetterController) Upload(c *gin.Context) {
 
 	doc := models.UploadedAssignmentLetter{
 		ID:          uuid.New(),
-		Title:       req.Title,
-		Description: req.Description,
-		FileName:    req.FileName,
+		Title:       title,
+		Description: description,
+		FileName:    fileName,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
 		FileContent: dec,
-		FileType:    req.FileType,
+		FileType:    fileType,
 	}
 
 	if err := ctrl.DB.Create(&doc).Error; err != nil {
