@@ -20,7 +20,7 @@
       </template>
 
       <template #riskLevel-cell="{ row }">
-        <div class="flex gap-1 flex-wrap">
+        <div class="flex flex-col gap-1 items-start">
           <UBadge 
             v-for="(act, idx) in getOriginal(row).plannedActivities" 
             :key="idx"
@@ -97,7 +97,6 @@ const getOriginal = (row: any) => row.original as any
 
 const columns = computed(() => [
   { accessorKey: 'planTitle', header: t('auditActivityPlan.table.title') },
-  { accessorKey: 'planYear', header: t('auditActivityPlan.table.year') },
   { accessorKey: 'period', header: t('auditActivityPlan.table.period') },
   { accessorKey: 'department', header: t('auditActivityPlan.table.department') },
   { accessorKey: 'riskName', header: t('auditActivityPlan.table.riskName') },

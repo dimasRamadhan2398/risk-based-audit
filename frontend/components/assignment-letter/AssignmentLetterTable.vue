@@ -45,11 +45,11 @@
             <span class="text-gray-300">|</span>
 
             <UButton
-              label="Delete"
               size="md"
               color="error"
               variant="ghost"
               icon="i-heroicons-trash"
+              title="Delete"
               @click="store.deleteSuratTugas(row.original.id)"
             />
           </div>

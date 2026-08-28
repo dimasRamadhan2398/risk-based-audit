@@ -41,7 +41,7 @@
         </template>
 
         <template #riskLevel-cell="{ row }">
-          <div class="flex gap-1 flex-wrap">
+          <div class="flex flex-col gap-1 items-start">
             <UBadge 
               v-for="(act, idx) in ((row.original || row)?.activities || [])" 
               :key="idx"
@@ -50,24 +50,6 @@
               size="md"
             >
               {{ act.riskLevel || '-' }}
-            </UBadge>
-          </div>
-        </template>
-
-        <template #timeline-cell="{ row }">
-          <div class="font-bold text-primary-600 mr-1">{{ (row.original || row)?.year }}</div>
-          <UBadge v-for="q in ((row.original || row)?.quarters || [])" :key="q" color="primary" variant="subtle" size="md">
-            {{ q }}
-          </UBadge>
-          <div class="flex gap-1 flex-wrap mt-1">
-            <UBadge 
-              v-for="idx in (((row.original || row)?.selectedMonths || []).slice().sort((a: number, b: number) => a - b))" 
-              :key="idx"
-              color="primary" 
-              variant="outline" 
-              size="md"
-            >
-              {{ store.monthsList[idx] }}
             </UBadge>
           </div>
         </template>
@@ -86,10 +68,11 @@
         <template #actions-cell="{ row }">
           <div class="flex items-center">
             <UButton
-              label="View"
+              icon="i-heroicons-eye"
               color="primary"
               variant="ghost"
               size="lg"
+              title="View"
               @click="store.openViewModal(row.original || row)"
             />
 
@@ -100,17 +83,19 @@
               color="primary"
               variant="ghost"
               size="lg"
+              title="Edit"
               @click="store.openEditModal(row.original || row)"
             />
 
             <span class="text-gray-300">|</span>
 
             <UButton
-              label="Hapus"
+              icon="i-heroicons-trash"
               color="error"
               variant="ghost"
               size="lg"
-              @click="store.openDeleteModal((row.original || row)?.id)"
+              title="Hapus"
+              @click="store.handleDelete((row.original || row)?.id)"
             />
           </div>
         </template>
