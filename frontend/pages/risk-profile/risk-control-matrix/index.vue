@@ -18,26 +18,21 @@
 
       <!-- Actions / Filters -->
       <div class="flex flex-wrap items-center gap-3">
-        <select
+        <USelectMenu
           v-model="rcmStore.selectedYear"
-          class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option :value="2026">Tahun 2026</option>
-          <option :value="2025">Tahun 2025</option>
-          <option :value="2024">Tahun 2024</option>
-        </select>
+          :items="dynamicYears"
+          value-key="id"
+          label-key="label"
+          class="w-36"
+        />
 
-        <select
+        <USelectMenu
           v-model="rcmStore.selectedDepartment"
-          class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option value="All Departments">Semua Departemen / Branch</option>
-          <option value="Head Office">Head Office</option>
-          <option value="Jakarta Branch">Jakarta Branch</option>
-          <option value="Surabaya Branch">Surabaya Branch</option>
-          <option value="Bandung Branch">Bandung Branch</option>
-          <option value="Bali Branch">Bali Branch</option>
-        </select>
+          :items="dynamicDepartments"
+          value-key="id"
+          label-key="label"
+          class="w-60"
+        />
 
         <UButton
           color="primary"
@@ -324,20 +319,18 @@
               <!-- Actions -->
               <td class="py-3 px-4 text-right align-middle">
                 <div class="flex items-center justify-end gap-1">
-                  <button
-                    class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    title="Edit Control"
+                  <UButton
+                    icon="i-lucide-edit"
+                    variant="ghost"
+                    color="warning"
                     @click="openEditModal(item)"
-                  >
-                    <UIcon name="i-lucide-edit-3" class="size-4" />
-                  </button>
-                  <button
-                    class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Hapus Control"
+                  />
+                  <UButton
+                    variant="ghost"
+                    color="error"
+                    icon="i-lucide-trash-2"
                     @click="confirmDelete(item.id)"
-                  >
-                    <UIcon name="i-lucide-trash-2" class="size-4" />
-                  </button>
+                  />
                 </div>
               </td>
             </tr>
@@ -354,29 +347,22 @@
 
     <!-- Add / Edit Modal -->
     <UModal v-model:open="isModalOpen" title="Manage Risk Control Matrix">
-      <template #content>
-        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto">
-          <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-2">
-            {{ isEditMode ? 'Edit Risk Control Matrix' : 'Tambah Risk Control Matrix Baru' }}
-          </h3>
-
+      <template #body>
+        <div class="p-6 space-y-4">
           <!-- Synchronized Risk Dropdown from Corporate Risk Profile -->
           <div>
             <label class="block text-md font-semibold text-slate-700 mb-1">Pilih Risiko (Corporate Risk Profile)</label>
-            <select
+            <USelectMenu
               v-model="selectedRiskId"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
-              @change="onRiskSelected"
-            >
-              <option value="">-- Pilih Risiko dari Corporate Risk Profile --</option>
-              <option
-                v-for="r in riskProfileStore.risks"
-                :key="r.id"
-                :value="r.id"
-              >
-                {{ riskProfileStore.getFormattedId(r) }} - {{ r.name }} ({{ r.branch || r.category }})
-              </option>
-            </select>
+              :items="riskProfileStore.risks.map(r => ({ id: r.id, label: `${riskProfileStore.getFormattedId(r)} - ${r.name} (${r.branch || r.category})` }))"
+              value-key="id"
+              label-key="label"
+              placeholder="-- Pilih Risiko dari Corporate Risk Profile --"
+              class="w-full"
+              size="lg"
+              searchable
+              @update:model-value="onRiskSelected"
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -413,20 +399,17 @@
           <!-- Synchronized Control & Mitigation Selection from Risk Mitigation Plans & Controls -->
           <div v-if="availableMitigations.length > 0">
             <label class="block text-md font-semibold text-slate-700 mb-1">Pilih Risk Control ID (Rencana Mitigasi & Kontrol)</label>
-            <select
+            <USelectMenu
               v-model="selectedMitigationId"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
-              @change="onControlSelected"
-            >
-              <option value="">-- Pilih Risk Control ID --</option>
-              <option
-                v-for="m in availableMitigations"
-                :key="m.id"
-                :value="m.id"
-              >
-                {{ m.riskControlId || 'CTL-001' }} - {{ m.mitigationPlan }} (PIC: {{ m.pic }})
-              </option>
-            </select>
+              :items="availableMitigations.map(m => ({ id: m.id, label: `${m.riskControlId || 'CTL-001'} - ${m.mitigationPlan} (PIC: ${m.pic})` }))"
+              value-key="id"
+              label-key="label"
+              placeholder="-- Pilih Risk Control ID --"
+              class="w-full"
+              size="lg"
+              searchable
+              @update:model-value="onControlSelected"
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -435,8 +418,8 @@
               <input
                 v-model="formData.control_code"
                 type="text"
-                placeholder="misal: CTL-FIN-001"
-                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
+                class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-600 font-medium cursor-not-allowed"
+                readonly
               />
             </div>
             <div>
@@ -556,6 +539,55 @@ const formData = ref<Partial<RCMItem>>({
   automation_monitoring_weight: 20,
   automation_monitoring_rating: 3,
   notes: ''
+})
+
+const dynamicYears = computed(() => {
+  const years = new Set<number>()
+  
+  riskProfileStore.risks.forEach(risk => {
+    if (risk.assessments) {
+      risk.assessments.forEach((ass: any) => {
+        if (ass.year) years.add(ass.year)
+      })
+    }
+  })
+  
+  if (rcmStore.selectedYear) {
+    years.add(rcmStore.selectedYear)
+  }
+  
+  if (years.size === 0) {
+    years.add(new Date().getFullYear())
+  }
+  
+  return Array.from(years)
+    .sort((a, b) => b - a)
+    .map(y => ({ id: y, label: `Tahun ${y}` }))
+})
+
+const dynamicDepartments = computed(() => {
+  const depts = new Set<string>()
+  
+  riskProfileStore.risks.forEach(risk => {
+    if (risk.branch) {
+      depts.add(risk.branch)
+    } else if (risk.category) {
+      depts.add(risk.category)
+    }
+  })
+  
+  if (rcmStore.selectedDepartment && rcmStore.selectedDepartment !== 'All Departments') {
+    depts.add(rcmStore.selectedDepartment)
+  }
+  
+  if (depts.size === 0) {
+    depts.add('Head Office')
+  }
+  
+  return [
+    { id: 'All Departments', label: 'Semua Departemen / Branch' },
+    ...Array.from(depts).sort().map(d => ({ id: d, label: d }))
+  ]
 })
 
 onMounted(() => {
