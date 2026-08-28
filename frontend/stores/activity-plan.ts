@@ -88,7 +88,6 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
 
   const columns: TableColumn<ActivityPlan>[] = [
     { accessorKey: 'planTitle', header: 'Title' },
-    { accessorKey: 'planYear', header: 'Year' },
     { accessorKey: 'period', header: 'Period' },
     { accessorKey: 'department', header: 'Department/Unit' },
     { accessorKey: 'riskName', header: 'Risk Name' },
