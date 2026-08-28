@@ -4,8 +4,7 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler
-from sklearn.model_selection import RandomizedSearchCV, cross_val_predict
-from sklearn.model_selection import cross_val_predict, train_test_split, StratifiedKFold, cross_val_score
+from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split, StratifiedKFold, cross_val_score, RepeatedStratifiedKFold
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
@@ -141,14 +140,14 @@ for target_name, config in targets_config.items():
             'Logistic Reg (Balanced)': LogisticRegression(class_weight='balanced', max_iter=1000, random_state=42),
             'Extra Trees (Balanced)': ExtraTreesClassifier(class_weight='balanced', n_estimators=200, random_state=42),
             'Random Forest (Balanced)': RandomForestClassifier(class_weight='balanced', n_estimators=200, random_state=42),
-            'XGBoost (Weighted)': XGBClassifier(scale_pos_weight=scale_pos, eval_metric='logloss', random_state=42),
+            'XGBoost (Weighted)': XGBClassifier(scale_pos_weight=scale_pos, eval_metric='logloss', random_state=42, n_jobs=1),
             'SVM (Balanced)': SVC(class_weight='balanced', probability=True, random_state=42),
             'Gradient Boosting': GradientBoostingClassifier(random_state=42),
             'MLP Neural Net': MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500, random_state=42)
         }
     else:
         candidate_models = {
-            'XGBoost': XGBClassifier(eval_metric='mlogloss', random_state=42),
+            'XGBoost': XGBClassifier(eval_metric='mlogloss', random_state=42, n_jobs=1),
             'Random Forest (Balanced)': RandomForestClassifier(class_weight='balanced', n_estimators=200, random_state=42),
             'Extra Trees (Balanced)': ExtraTreesClassifier(class_weight='balanced', n_estimators=200, random_state=42),
             'Gradient Boosting': GradientBoostingClassifier(random_state=42),
@@ -341,7 +340,7 @@ for model_name, model in improved_models.items():
         y_train_anom,
         cv=skf_anom,
         method='predict_proba',
-        n_jobs=-1
+        n_jobs=1
     )[:, 1]
 
     # Select threshold only from OOF predictions
@@ -498,7 +497,7 @@ xgb_search = RandomizedSearchCV(
     scoring='average_precision',
     cv=skf_anom,
     random_state=42,
-    n_jobs=-1,
+    n_jobs=1,
     verbose=1,
     refit=True
 )
@@ -518,7 +517,7 @@ best_xgb_pipeline = xgb_search.best_estimator_
 
 xgb_oof_probs = cross_val_predict(
     best_xgb_pipeline, X_train_anom, y_train_anom,
-    cv=skf_anom, method='predict_proba', n_jobs=-1
+    cv=skf_anom, method='predict_proba', n_jobs=1
 )[:, 1]
 
 best_xgb_threshold = 0.50
@@ -595,7 +594,7 @@ gb_search = RandomizedSearchCV(
     scoring='average_precision',
     cv=skf_anom,
     random_state=42,
-    n_jobs=-1,
+    n_jobs=1,
     verbose=1,
     refit=True
 )
@@ -615,7 +614,7 @@ best_gb_pipeline = gb_search.best_estimator_
 
 gb_oof_probs = cross_val_predict(
     best_gb_pipeline, X_train_anom, y_train_anom,
-    cv=skf_anom, method='predict_proba', n_jobs=-1
+    cv=skf_anom, method='predict_proba', n_jobs=1
 )[:, 1]
 
 best_gb_threshold = 0.50
@@ -698,3 +697,118 @@ print(f"{'Recall':<20} | {xgb_tuned_recall:<12.4f} | {gb_tuned_recall:<12.4f}")
 print(f"{'Precision':<20} | {xgb_tuned_precision:<12.4f} | {gb_tuned_precision:<12.4f}")
 print(f"{'PR-AUC':<20} | {xgb_tuned_pr_auc:<12.4f} | {gb_tuned_pr_auc:<12.4f}")
 print(f"{'ROC-AUC':<20} | {xgb_tuned_roc_auc:<12.4f} | {gb_tuned_roc_auc:<12.4f}")
+
+# ======================================================================
+# FINAL ROBUSTNESS VALIDATION - LOCKED XGBOOST
+# Repeated outer CV + inner OOF threshold selection
+# ======================================================================
+
+print("\n" + "=" * 78)
+print(" FINAL ROBUSTNESS VALIDATION: LOCKED XGBOOST ")
+print("=" * 78)
+
+# Locked parameters from previous fine-tuning
+locked_xgb_params = {
+    'objective': 'binary:logistic',
+    'eval_metric': 'logloss',
+    'n_estimators': 500,
+    'max_depth': 4,
+    'learning_rate': 0.10,
+    'min_child_weight': 2,
+    'subsample': 0.80,
+    'colsample_bytree': 0.70,
+    'gamma': 0.20,
+    'reg_alpha': 0.0,
+    'reg_lambda': 1.0,
+    'scale_pos_weight': 4.780150753768845,
+    'random_state': 42,
+    'n_jobs': 1
+}
+
+outer_cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3, random_state=2026)
+robustness_results = []
+
+for fold_no, (train_idx, val_idx) in enumerate(outer_cv.split(X_anomaly, y_anomaly), start=1):
+    X_outer_train = X_anomaly.iloc[train_idx]
+    X_outer_val = X_anomaly.iloc[val_idx]
+    y_outer_train = y_anomaly[train_idx]
+    y_outer_val = y_anomaly[val_idx]
+
+    # Inner CV is used only to determine threshold.
+    inner_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+    inner_pipeline = build_anomaly_pipeline(XGBClassifier(**locked_xgb_params))
+
+    inner_oof_probs = cross_val_predict(
+        inner_pipeline, X_outer_train, y_outer_train,
+        cv=inner_cv, method='predict_proba', n_jobs=1
+    )[:, 1]
+
+    # Find best threshold using inner OOF predictions only
+    fold_threshold = 0.50
+    fold_best_f1 = -1
+
+    for threshold in np.arange(0.10, 0.81, 0.01):
+        inner_pred = (inner_oof_probs >= threshold).astype(int)
+        current_f1 = f1_score(y_outer_train, inner_pred, pos_label=1, zero_division=0)
+
+        if current_f1 > fold_best_f1:
+            fold_best_f1 = current_f1
+            fold_threshold = threshold
+
+    # Fit locked model on the complete outer training fold
+    final_pipeline = build_anomaly_pipeline(XGBClassifier(**locked_xgb_params))
+    final_pipeline.fit(X_outer_train, y_outer_train)
+
+    val_probs = final_pipeline.predict_proba(X_outer_val)[:, 1]
+    val_pred = (val_probs >= fold_threshold).astype(int)
+
+    fold_result = {
+        'fold': fold_no,
+        'threshold': fold_threshold,
+        'accuracy': accuracy_score(y_outer_val, val_pred),
+        'precision': precision_score(y_outer_val, val_pred, zero_division=0),
+        'recall': recall_score(y_outer_val, val_pred, zero_division=0),
+        'f1': f1_score(y_outer_val, val_pred, zero_division=0),
+        'pr_auc': average_precision_score(y_outer_val, val_probs),
+        'roc_auc': roc_auc_score(y_outer_val, val_probs)
+    }
+
+    robustness_results.append(fold_result)
+
+    print(
+        f"Fold {fold_no:>2} | Th={fold_threshold:.2f} | "
+        f"F1={fold_result['f1']:.4f} | Recall={fold_result['recall']:.4f} | "
+        f"Precision={fold_result['precision']:.4f} | PR-AUC={fold_result['pr_auc']:.4f}"
+    )
+
+
+# ======================================================================
+# ROBUSTNESS SUMMARY
+# ======================================================================
+
+robust_df = pd.DataFrame(robustness_results)
+
+print("\n" + "=" * 78)
+print(" FINAL ROBUSTNESS SUMMARY ")
+print("=" * 78)
+
+print(f"{'Metric':<15} | {'Mean':<10} | {'Std':<10} | {'Min':<10} | {'Max':<10}")
+print("-" * 65)
+
+for metric in ['accuracy', 'precision', 'recall', 'f1', 'pr_auc', 'roc_auc']:
+    values = robust_df[metric]
+
+    print(
+        f"{metric.upper():<15} | "
+        f"{values.mean():<10.4f} | "
+        f"{values.std():<10.4f} | "
+        f"{values.min():<10.4f} | "
+        f"{values.max():<10.4f}"
+    )
+
+print("\nThreshold Stability:")
+print(f"Mean Threshold : {robust_df['threshold'].mean():.3f}")
+print(f"Std Threshold  : {robust_df['threshold'].std():.3f}")
+print(f"Min Threshold  : {robust_df['threshold'].min():.2f}")
+print(f"Max Threshold  : {robust_df['threshold'].max():.2f}")
