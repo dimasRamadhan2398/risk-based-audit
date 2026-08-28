@@ -34,8 +34,8 @@
                 maxlength="200"
                 placeholder="e.g. Pedoman Pengelolaan Satuan Audit Internal"
                 class="mt-1 block w-full rounded-md"
-                @invalid="(e: { target: HTMLInputElement }) => (e.target as HTMLInputElement).setCustomValidity('Nama Pedoman wajib diisi dan maksimal 200 karakter')"
-                @input="(e: { target: HTMLInputElement }) => (e.target as HTMLInputElement).setCustomValidity('')"
+                @invalid="($event.target as any)?.setCustomValidity('Nama Pedoman wajib diisi dan maksimal 200 karakter')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
             </UFormField>
 

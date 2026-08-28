@@ -492,6 +492,7 @@
     "title": "Rencana Strategis Audit Internal",
     "subtitle": "Perencanaan Strategis untuk Audit Berbasis Risiko",
     "addObjective": "Tambah Strategic Objective",
+    "importDocument": "Impor Dokumen",
     "errorTitle": "Gagal",
     "vmg": {
       "title": "Visi, Misi, Goals dan Strategic Objective",
@@ -617,6 +618,37 @@
       "poor": "Kurang",
       "pending": "Menunggu",
       "planned": "Direncanakan"
+    },
+    "upload": {
+      "title": "Impor Rencana Audit Strategis",
+      "subtitle": "Impor dokumen Rencana Audit Strategis eksternal",
+      "formTitle": "Impor Dokumen Rencana Audit Strategis",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Rencana Audit Strategis 2026-2030",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Rencana Audit Strategis Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen Rencana Audit Strategis untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
     }
   },
   "riskFactors": {
@@ -981,36 +1013,197 @@
     }
   },
   "analytics": {
-    "title": "Analytics",
-    "kpiForecast": {
-      "subFeature": "Sub-Fitur 9",
-      "title": "KPI PyTorch LSTM Forecast",
-      "subtitle": "Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis.",
-      "badge": "Model PyTorch LSTM",
-      "summaryTitle": "Ringkasan Forecast KPI (PyTorch LSTM)",
-      "columns": {
-        "code": "Kode",
-        "kpi": "KPI",
-        "currentValue": "Nilai Saat Ini",
-        "forecastedValue": "Nilai Forecast",
-        "trend": "Tren",
-        "recommendedAction": "Rekomendasi Tindakan Audit"
-      },
-      "trends": {
-        "improving": "Meningkat",
-        "deteriorating": "Menurun"
+    "title": "Pusat AI & Analitik",
+    "subtitle": "Integrasi Terpadu Model Machine Learning & Deep Learning (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
+    "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
+    "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
+    "statusDisconnected": "AI Backend Terputus",
+    "warningTitleCached": "⚠️ Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
+    "warningTitleDisconnected": "⚠️ Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
+    "warningDescCached": "Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada {time} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
+    "warningDescDisconnected": "Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
+    "loading": "Menghubungkan & Memuat Model AI...",
+    "summary": {
+      "entitiesScored": "Entitas Dinilai",
+      "anomaliesDetected": "Anomali Terdeteksi",
+      "docsAnalyzed": "Dokumen Dianalisis",
+      "kpiForecasts": "Prediksi KPI"
+    },
+    "tabs": {
+      "riskScoring": "Risk Scoring ML",
+      "anomalyDetection": "Deteksi Anomali ML",
+      "indoBERT": "IndoBERT NLP",
+      "kpiLSTM": "KPI PyTorch LSTM"
+    },
+    "xgboost": {
+      "alertTitle": "Model ML Penilaian Risiko Departemen & Entitas",
+      "alertDesc": "Model Machine Learning memprediksi Impact dan Likelihood departemen/cabang secara dinamis berdasarkan achievement KPI, temuan audit lalu, dan volatilitas.",
+      "chartPredictedVsActual": "Skor Risiko: Prediksi vs Aktual",
+      "chartFeatureImportance": "Feature Importance (Prediktor Utama)",
+      "tableTitle": "Prediksi Skor Risiko Entitas",
+      "colEntity": "Entitas",
+      "colType": "Tipe",
+      "colRiskCategory": "Kategori Risiko",
+      "colTargetPeriod": "Target Periode",
+      "colPredLikelihood": "Pred. Likelihood",
+      "colPredImpact": "Pred. Impact",
+      "colPredScore": "Pred. Skor",
+      "colPredRiskLevel": "Pred. Level Risiko",
+      "colActual": "Aktual",
+      "colActualRiskLevel": "Level Risiko Aktual",
+      "colTrend": "Tren",
+      "labelPredictedScore": "Skor Prediksi",
+      "labelActualScore": "Skor Aktual",
+      "labelFeatureImportance": "Feature Importance",
+      "axisRiskScore": "Skor Risiko",
+      "axisImportancePct": "Kepentingan (%)"
+    },
+    "isolation": {
+      "alertTitle": "Model Deteksi Anomali Transaksi",
+      "alertDesc": "Model Machine Learning memindai pola transaksi (jumlah, jam operasional, hari, penerima baru, pola pembulatan) untuk mendeteksi anomali fraud secara real-time.",
+      "recordsScanned": "Data Dipindai",
+      "anomaliesFound": "Anomali Ditemukan",
+      "contaminationRate": "Tingkat Kontaminasi",
+      "topCategory": "Kategori Teratas",
+      "chartTitle": "Distribusi Pola Data per Jenis Anomali",
+      "labelNormalData": "Data Normal ({type})",
+      "labelAnomalies": "Anomali ({type})",
+      "axisFrequency": "Frekuensi / Kemunculan",
+      "tableTitle": "Detail Anomali Terdeteksi",
+      "colID": "ID",
+      "colEntity": "Entitas",
+      "colType": "Jenis",
+      "colDescription": "Deskripsi",
+      "colRiskLevel": "Level Risiko",
+      "colDate": "Tanggal",
+      "anomalyTypes": {
+        "fieldworkXAxis": "Durasi Pengerjaan Fieldwork (Hari)",
+        "fieldworkUnit": "Hari",
+        "accessPatternXAxis": "Waktu Akses Sistem (Jam 0-23)",
+        "accessPatternUnit": "Jam",
+        "dataAccessXAxis": "Volume Export Data (MB)",
+        "dataAccessUnit": "MB",
+        "inventoryXAxis": "Nilai Penyesuaian Stok (Rp Juta)",
+        "inventoryUnit": "Rp Juta",
+        "expenseReportXAxis": "Nominal Klaim Pengeluaran (Rp Juta)",
+        "expenseReportUnit": "Rp Juta",
+        "travelExpenseXAxis": "Nominal Biaya Perjalanan (Rp Juta)",
+        "travelExpenseUnit": "Rp Juta",
+        "procurementXAxis": "Nilai Pengadaan / Vendor (Rp Juta)",
+        "procurementUnit": "Rp Juta",
+        "transactionXAxis": "Nominal Transaksi (Rp Juta)",
+        "transactionUnit": "Rp Juta"
       }
+    },
+    "nlp": {
+      "alertTitle": "Model Analisis Dokumen IndoBERT NLP",
+      "alertDesc": "Model IndoBERT & Natural Language Processing menganalisis kutipan Laporan Hasil Audit (Bahasa Indonesia) untuk mengklasifikasi kategori risiko, sentimen, impact, dan likelihood secara otomatis.",
+      "chartCategoryTitle": "Kategori Risiko Auto-Klasifikasi",
+      "chartSentimentTitle": "Distribusi Sentimen",
+      "tableTitle": "Dokumen Dianalisis",
+      "colDocID": "ID Dok",
+      "colTitle": "Judul",
+      "colSource": "Sumber",
+      "colCategory": "Kategori",
+      "colSentiment": "Sentimen",
+      "colRiskLevel": "Level Risiko"
+    },
+    "timeseries": {
+      "alertTitle": "Model Peramalan KPI Time-Series PyTorch LSTM",
+      "alertDesc": "Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis untuk peringatan dini perencanaan audit.",
+      "chartTitle": "Prediksi Performa KPI",
+      "chartConfidenceBadge": "Area arsir = interval kepercayaan",
+      "atRiskTitle": "⚠️ Departemen Berisiko",
+      "projectedQ3": "% proyeksi Q3",
+      "tableTitle": "Ringkasan Prediksi KPI",
+      "colCode": "Kode",
+      "colKPI": "KPI",
+      "colEntity": "Entitas",
+      "colType": "Tipe",
+      "colForecastHorizon": "Horizon Prediksi",
+      "colCurrent": "Saat Ini",
+      "colForecast": "Prediksi",
+      "colTrend": "Tren",
+      "colRiskLevel": "Level Risiko",
+      "colRecommendedAction": "Tindakan yang Direkomendasikan",
+      "labelActualKPI": "KPI Aktual (%)",
+      "labelForecast": "Prediksi PyTorch LSTM",
+      "labelUpperBound": "Batas Atas",
+      "labelLowerBound": "Batas Bawah",
+      "axisKPIScore": "Skor KPI (%)"
     }
   },
   "annualAudit": {
     "title": "Rencana Audit Tahunan",
     "importPlanDocument": "Impor Dokumen Rencana",
-    "newAuditPlan": "Rencana Audit Baru"
+    "newAuditPlan": "Rencana Audit Baru",
+    "upload": {
+      "title": "Impor Rencana Audit Tahunan",
+      "subtitle": "Impor dokumen Rencana Audit Tahunan (PKPT) eksternal",
+      "formTitle": "Impor Dokumen Rencana Audit Tahunan",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Rencana Audit Tahunan PKPT 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Rencana Audit Tahunan Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen Rencana Audit Tahunan untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    }
   },
   "assignmentLetter": {
     "title": "Daftar Surat Tugas",
     "importDocument": "Impor Dokumen",
-    "createAssignmentLetter": "Buat Surat Tugas"
+    "createAssignmentLetter": "Buat Surat Tugas",
+    "upload": {
+      "title": "Impor Surat Tugas",
+      "subtitle": "Impor dokumen Surat Tugas / Assignment Letter eksternal",
+      "formTitle": "Impor Dokumen Surat Tugas",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Surat Tugas Audit Keuangan Q1 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Surat Tugas Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen surat tugas untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    }
   },
   "auditActivityPlan": {
     "title": "Rencana Aktivitas Audit",
@@ -1346,125 +1539,341 @@
       }
     }
   },
-  "analytics": {
-    "title": "Pusat AI & Analitik",
-    "subtitle": "Integrasi Terpadu Model Machine Learning & Deep Learning (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
-    "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
-    "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
-    "statusDisconnected": "AI Backend Terputus",
-    "warningTitleCached": "⚠️ Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
-    "warningTitleDisconnected": "⚠️ Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
-    "warningDescCached": "Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada {time} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
-    "warningDescDisconnected": "Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
-    "loading": "Menghubungkan & Memuat Model AI...",
-    "summary": {
-      "entitiesScored": "Entitas Dinilai",
-      "anomaliesDetected": "Anomali Terdeteksi",
-      "docsAnalyzed": "Dokumen Dianalisis",
-      "kpiForecasts": "Prediksi KPI"
+  "auditAssignment": {
+    "upload": {
+      "title": "Impor Penugasan Audit",
+      "subtitle": "Impor dokumen Penugasan Audit eksternal",
+      "formTitle": "Impor Dokumen Penugasan Audit",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Penugasan Audit Operasional Q1 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Penugasan Audit Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen Penugasan Audit untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "date": "Tanggal Upload",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    }
+  },
+  "workingPaper": {
+    "upload": {
+      "title": "Impor Referensi Kertas Kerja",
+      "subtitle": "Impor dokumen referensi Kertas Kerja (Working Paper) eksternal",
+      "formTitle": "Impor Kertas Kerja",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Pedoman Audit TI 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi opsional dokumen...",
+      "fileLabel": "Referensi File *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Pedoman Referensi Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada pedoman terimpor",
+      "emptyDesc": "Impor file untuk menyediakan dokumen referensi bagi auditor.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "Referensi File",
+        "size": "Ukuran",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh File",
+        "delete": "Hapus File"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    }
+  },
+  "consultingService": {
+    "upload": {
+      "title": "Impor Dokumen Konsultasi",
+      "subtitle": "Impor dokumen Layanan Konsultasi eksternal",
+      "formTitle": "Impor Dokumen Konsultasi",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Laporan Layanan Konsultasi TI 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Dokumen Konsultasi Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen konsultasi untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    }
+  },
+  "executiveSummary": {
+    "upload": {
+      "title": "Impor Laporan Ringkasan Eksekutif",
+      "subtitle": "Impor dokumen Laporan Ringkasan Eksekutif kompilasi eksternal",
+      "formTitle": "Impor Dokumen Laporan Ringkasan Eksekutif",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Laporan Ringkasan Eksekutif Kompilasi 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Laporan",
+      "tableTitle": "Daftar Laporan Ringkasan Eksekutif Terimpor",
+      "documentsCount": "{count} Laporan",
+      "emptyTitle": "Belum ada laporan terimpor",
+      "emptyDesc": "Impor laporan ringkasan eksekutif kompilasi untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    }
+  },
+  "auditResultReport": {
+    "upload": {
+      "title": "Impor Laporan Hasil Audit (LHA)",
+      "subtitle": "Impor dokumen Laporan Hasil Audit (LHA) eksternal",
+      "formTitle": "Impor Dokumen LHA",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: LHA Audit Operasional 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Dokumen LHA Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen LHA untuk menambahkannya ke arsip audit Anda.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    }
+  },
+  "qualityAssurance": {
+    "importQar": {
+      "title": "Impor Laporan QAR",
+      "subtitle": "Impor dokumen Quality Assurance Review (QAR) eksternal",
+      "formTitle": "Impor Dokumen Laporan QAR",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Laporan Quality Assurance Review Eksternal 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Dokumen QAR Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen QAR untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Penilaian",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
     },
-    "tabs": {
-      "riskScoring": "Risk Scoring ML",
-      "anomalyDetection": "Deteksi Anomali ML",
-      "indoBERT": "IndoBERT NLP",
-      "kpiLSTM": "KPI PyTorch LSTM"
+    "importIacm": {
+      "title": "Impor IACM",
+      "subtitle": "Impor dokumen Internal Audit Capability Model (IACM) eksternal",
+      "formTitle": "Impor Dokumen IACM",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Laporan Penilaian IACM 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Dokumen IACM Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen IACM untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Penilaian",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
     },
-    "xgboost": {
-      "alertTitle": "Model ML Penilaian Risiko Departemen & Entitas",
-      "alertDesc": "Model Machine Learning memprediksi Impact dan Likelihood departemen/cabang secara dinamis berdasarkan achievement KPI, temuan audit lalu, dan volatilitas.",
-      "chartPredictedVsActual": "Skor Risiko: Prediksi vs Aktual",
-      "chartFeatureImportance": "Feature Importance (Prediktor Utama)",
-      "tableTitle": "Prediksi Skor Risiko Entitas",
-      "colEntity": "Entitas",
-      "colType": "Tipe",
-      "colRiskCategory": "Kategori Risiko",
-      "colTargetPeriod": "Target Periode",
-      "colPredLikelihood": "Pred. Likelihood",
-      "colPredImpact": "Pred. Impact",
-      "colPredScore": "Pred. Skor",
-      "colPredRiskLevel": "Pred. Level Risiko",
-      "colActual": "Aktual",
-      "colActualRiskLevel": "Level Risiko Aktual",
-      "colTrend": "Tren",
-      "labelPredictedScore": "Skor Prediksi",
-      "labelActualScore": "Skor Aktual",
-      "labelFeatureImportance": "Feature Importance",
-      "axisRiskScore": "Skor Risiko",
-      "axisImportancePct": "Kepentingan (%)"
+    "importSaiv": {
+      "title": "Impor SAIV",
+      "subtitle": "Impor dokumen Self Assessment with Independent Validation (SAIV) eksternal",
+      "formTitle": "Impor Dokumen SAIV",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Laporan Penilaian SAIV 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Dokumen SAIV Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen SAIV untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Penilaian",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
     },
-    "isolation": {
-      "alertTitle": "Model Deteksi Anomali Transaksi",
-      "alertDesc": "Model Machine Learning memindai pola transaksi (jumlah, jam operasional, hari, penerima baru, pola pembulatan) untuk mendeteksi anomali fraud secara real-time.",
-      "recordsScanned": "Data Dipindai",
-      "anomaliesFound": "Anomali Ditemukan",
-      "contaminationRate": "Tingkat Kontaminasi",
-      "topCategory": "Kategori Teratas",
-      "chartTitle": "Distribusi Pola Data per Jenis Anomali",
-      "labelNormalData": "Data Normal ({type})",
-      "labelAnomalies": "Anomali ({type})",
-      "axisFrequency": "Frekuensi / Kemunculan",
-      "tableTitle": "Detail Anomali Terdeteksi",
-      "colID": "ID",
-      "colEntity": "Entitas",
-      "colType": "Jenis",
-      "colDescription": "Deskripsi",
-      "colRiskLevel": "Level Risiko",
-      "colDate": "Tanggal",
-      "anomalyTypes": {
-        "fieldworkXAxis": "Durasi Pengerjaan Fieldwork (Hari)",
-        "fieldworkUnit": "Hari",
-        "accessPatternXAxis": "Waktu Akses Sistem (Jam 0-23)",
-        "accessPatternUnit": "Jam",
-        "dataAccessXAxis": "Volume Export Data (MB)",
-        "dataAccessUnit": "MB",
-        "inventoryXAxis": "Nilai Penyesuaian Stok (Rp Juta)",
-        "inventoryUnit": "Rp Juta",
-        "expenseReportXAxis": "Nominal Klaim Pengeluaran (Rp Juta)",
-        "expenseReportUnit": "Rp Juta",
-        "travelExpenseXAxis": "Nominal Biaya Perjalanan (Rp Juta)",
-        "travelExpenseUnit": "Rp Juta",
-        "procurementXAxis": "Nilai Pengadaan / Vendor (Rp Juta)",
-        "procurementUnit": "Rp Juta",
-        "transactionXAxis": "Nominal Transaksi (Rp Juta)",
-        "transactionUnit": "Rp Juta"
-      }
-    },
-    "nlp": {
-      "alertTitle": "Model Analisis Dokumen IndoBERT NLP",
-      "alertDesc": "Model IndoBERT & Natural Language Processing menganalisis kutipan Laporan Hasil Audit (Bahasa Indonesia) untuk mengklasifikasi kategori risiko, sentimen, impact, dan likelihood secara otomatis.",
-      "chartCategoryTitle": "Kategori Risiko Auto-Klasifikasi",
-      "chartSentimentTitle": "Distribusi Sentimen",
-      "tableTitle": "Dokumen Dianalisis",
-      "colDocID": "ID Dok",
-      "colTitle": "Judul",
-      "colSource": "Sumber",
-      "colCategory": "Kategori",
-      "colSentiment": "Sentimen",
-      "colRiskLevel": "Level Risiko"
-    },
-    "timeseries": {
-      "alertTitle": "Model Peramalan KPI Time-Series PyTorch LSTM",
-      "alertDesc": "Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis untuk peringatan dini perencanaan audit.",
-      "chartTitle": "Prediksi Performa KPI",
-      "chartConfidenceBadge": "Area arsir = interval kepercayaan",
-      "atRiskTitle": "⚠️ Departemen Berisiko",
-      "projectedQ3": "% proyeksi Q3",
-      "tableTitle": "Ringkasan Prediksi KPI",
-      "colCode": "Kode",
-      "colKPI": "KPI",
-      "colEntity": "Entitas",
-      "colType": "Tipe",
-      "colForecastHorizon": "Horizon Prediksi",
-      "colCurrent": "Saat Ini",
-      "colForecast": "Prediksi",
-      "colTrend": "Tren",
-      "colRiskLevel": "Level Risiko",
-      "colRecommendedAction": "Tindakan yang Direkomendasikan",
-      "labelActualKPI": "KPI Aktual (%)",
-      "labelForecast": "Prediksi PyTorch LSTM",
-      "labelUpperBound": "Batas Atas",
-      "labelLowerBound": "Batas Bawah",
-      "axisKPIScore": "Skor KPI (%)"
+    "importPeriodic": {
+      "title": "Impor Periodic Self Assessment",
+      "subtitle": "Impor dokumen Penilaian Mandiri Berkala (Periodic Self Assessment) eksternal",
+      "formTitle": "Impor Dokumen Periodic Self Assessment",
+      "documentTitle": "Judul Dokumen",
+      "documentTitlePlaceholder": "Contoh: Laporan Penilaian Mandiri Berkala 2026",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi ringkas dokumen...",
+      "fileLabel": "Unggah File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX hingga 10MB",
+      "removeFile": "Hapus File",
+      "submitButton": "Impor Dokumen",
+      "tableTitle": "Daftar Dokumen Periodic Self Assessment Terimpor",
+      "documentsCount": "{count} Dokumen",
+      "emptyTitle": "Belum ada dokumen terimpor",
+      "emptyDesc": "Impor dokumen Penilaian Mandiri Berkala untuk menambahkannya ke arsip Anda.",
+      "columns": {
+        "title": "Judul Penilaian",
+        "file": "File",
+        "date": "Tanggal Impor",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    }
+  },
+  "kpiPerformance": {
+    "upload": {
+      "title": "Impor Dokumen Laporan Kinerja",
+      "subtitle": "Unggah dan kelola dokumen Laporan Kinerja Q1, Q2, Q3, Q4 dan Laporan Kinerja Tahunan",
+      "formTitle": "Formulir Impor Dokumen",
+      "periodLabel": "Periode Laporan Kinerja *",
+      "yearLabel": "Tahun Laporan *",
+      "documentTitle": "Judul Dokumen *",
+      "documentTitlePlaceholder": "Contoh: Laporan Kinerja Q1 2026 Internal Audit",
+      "description": "Deskripsi Ringkas",
+      "descriptionPlaceholder": "Catatan atau ikhtisar dokumen laporan...",
+      "fileLabel": "Upload File Dokumen *",
+      "dropzonePrompt": "Klik untuk upload atau drag & drop file",
+      "dropzoneHint": "PDF, DOCX, XLSX hingga 10MB",
+      "changeFile": "Ganti File",
+      "submitButton": "Impor Laporan Kinerja",
+      "tableTitle": "Daftar Dokumen Laporan Kinerja",
+      "filterAll": "Semua",
+      "annual": "Tahunan",
+      "emptyTitle": "Belum Ada Dokumen Terimpor",
+      "emptyDesc": "Unggah dokumen Laporan Kinerja Q1, Q2, Q3, Q4, atau Tahunan melalui formulir di atas.",
+      "columns": {
+        "title": "Judul Dokumen",
+        "period": "Periode",
+        "year": "Tahun",
+        "file": "File",
+        "date": "Tanggal Upload",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "view": "Lihat Dokumen",
+        "download": "Unduh Dokumen",
+        "delete": "Hapus Dokumen"
+      },
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen \"{title}\"?",
+      "fileTooLarge": "File Terlalu Besar",
+      "fileTooLargeDesc": "Ukuran file maksimum adalah 10MB.",
+      "formIncomplete": "Formulir Belum Lengkap",
+      "formIncompleteDesc": "Harap lengkapi Judul dan File Dokumen Laporan Kinerja.",
+      "uploadSuccess": "Berhasil Impor",
+      "uploadSuccessDesc": "Dokumen Laporan Kinerja {period} {year} berhasil diunggah!",
+      "uploadFailed": "Gagal Mengunggah",
+      "uploadFailedDesc": "Terjadi kesalahan saat mengunggah dokumen."
     }
   }
 }

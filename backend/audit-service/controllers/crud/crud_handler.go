@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var (
@@ -197,17 +198,19 @@ func Update(db *gorm.DB, modelName string, newEntity func() interface{}) gin.Han
 		// Parse GORM schema to filter out non-existent columns and format dates
 		stmt := &gorm.Statement{DB: db}
 		if err := stmt.Parse(existing); err == nil {
-			validCols := make(map[string]bool)
+			fieldsByDBName := make(map[string]*schema.Field)
 			for _, field := range stmt.Schema.Fields {
-				validCols[field.DBName] = true
+				fieldsByDBName[field.DBName] = field
 			}
 			for col, val := range snakeData {
-				if !validCols[col] {
+				field, exists := fieldsByDBName[col]
+				if !exists {
 					delete(snakeData, col)
 					continue
 				}
-				// Parse date strings into time.Time for time/date fields
-				if strings.HasSuffix(col, "_date") || strings.HasSuffix(col, "_at") {
+				// Parse date strings into time.Time only for actual time/date model fields
+				isTimeField := field.DataType == schema.Time || field.FieldType.String() == "time.Time" || field.FieldType.String() == "*time.Time"
+				if isTimeField && (strings.HasSuffix(col, "_date") || strings.HasSuffix(col, "_at") || strings.Contains(col, "date") || strings.Contains(col, "time")) {
 					if strVal, ok := val.(string); ok {
 						trimmed := strings.TrimSpace(strVal)
 						if trimmed == "" || trimmed == "null" {

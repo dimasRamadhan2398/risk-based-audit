@@ -78,6 +78,10 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 		// Process file upload (optional)
 		file, header, err := c.Request.FormFile("file")
 		if err == nil {
+			if header.Size > 10*1024*1024 {
+				response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+				return
+			}
 			defer file.Close()
 			attachment, errUpload := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
 			if errUpload != nil {
@@ -154,6 +158,10 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 		// Process optional file upload
 		file, header, err := c.Request.FormFile("file")
 		if err == nil { // file is present
+			if header.Size > 10*1024*1024 {
+				response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+				return
+			}
 			defer file.Close()
 			attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
 			if err != nil {

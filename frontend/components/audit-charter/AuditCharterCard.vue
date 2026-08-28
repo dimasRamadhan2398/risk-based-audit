@@ -165,32 +165,37 @@
           class="w-full"
         >
           <template #version-cell="{ row }">
-            <span class="font-bold text-[var(--text-main)]">{{
+            <span class="font-bold text-[var(--text-main)] whitespace-nowrap">{{
               row.original.version
             }}</span>
           </template>
           <template #title-cell="{ row }">
-            <span class="font-bold text-[var(--text-main)]">{{
-              row.original.title
-            }}</span>
+            <div class="font-bold text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              {{ row.original.title }}
+            </div>
+          </template>
+          <template #content-cell="{ row }">
+            <div class="font-normal text-[var(--text-muted)] text-sm break-words whitespace-normal leading-relaxed min-w-0">
+              {{ row.original.content || '-' }}
+            </div>
           </template>
           <template #date-cell="{ row }">
-            <span class="font-medium text-[var(--text-main)]">{{
+            <span class="font-medium text-[var(--text-main)] whitespace-nowrap">{{
               row.original.date
             }}</span>
           </template>
           <template #approvedBy-cell="{ row }">
-            <span class="font-medium text-[var(--text-main)]">{{
-              row.original.approvedBy
-            }}</span>
+            <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              {{ row.original.approvedBy }}
+            </div>
           </template>
           <template #uploadedBy-cell="{ row }">
-            <span class="font-medium text-[var(--text-main)]">{{
-              row.original.uploadedBy
-            }}</span>
+            <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              {{ row.original.uploadedBy }}
+            </div>
           </template>
           <template #actions-cell="{ row }">
-            <div v-if="canManageCharter" class="flex justify-end gap-2">
+            <div v-if="canManageCharter" class="flex justify-end gap-1.5 whitespace-nowrap">
               <UButton
                 size="md"
                 color="primary"

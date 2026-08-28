@@ -9,39 +9,38 @@
       <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
     </div>
 
-    <!-- Document List -->
-    <UCard v-if="store.documents.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.documents" :columns="columns">
-        <template #documentName-cell="{ row }">
-          <span class="font-medium">{{ row.original.documentName }}</span>
-        </template>
-        <template #description-cell="{ row }">
-          <span class="text-sm text-gray-600">{{ row.original.description }}</span>
-        </template>
-        <template #requiredDate-cell="{ row }">
-          <UBadge color="warning" variant="subtle">{{ row.original.requiredDate }}</UBadge>
-        </template>
-        <template #file-cell="{ row }">
-          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.original.file.name }}
-          </UButton>
-          <span v-else class="text-gray-400 text-sm">-</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editDocument(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteDocument(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-document-duplicate" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">{{ t('auditFieldwork.document.empty') }}</p>
-      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
-    </div>
+    <!-- Document List via TableEntities -->
+    <TableEntities
+      :data="store.documents"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-document-duplicate',
+        label: t('auditFieldwork.document.empty')
+      }"
+      class="w-full"
+    >
+      <template #documentName-cell="{ row }">
+        <span class="font-medium">{{ row.original.documentName }}</span>
+      </template>
+      <template #description-cell="{ row }">
+        <span class="text-sm text-gray-600">{{ row.original.description }}</span>
+      </template>
+      <template #requiredDate-cell="{ row }">
+        <UBadge color="warning" variant="subtle">{{ row.original.requiredDate }}</UBadge>
+      </template>
+      <template #file-cell="{ row }">
+        <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
+          {{ row.original.file.name }}
+        </UButton>
+        <span v-else class="text-gray-400 text-sm">-</span>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center gap-1">
+          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editDocument(row.original)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteDocument(row.index)" />
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Document Modal -->
     <Teleport to="body">
@@ -95,9 +94,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
-import { computed } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()

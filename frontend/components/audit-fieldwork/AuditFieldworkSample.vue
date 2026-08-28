@@ -9,36 +9,35 @@
       <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
     </div>
 
-    <!-- Sample List -->
-    <UCard v-if="store.samples.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.samples" :columns="columns">
-        <template #documentName-cell="{ row }">
-          <span class="font-medium">{{ row.original.documentName }}</span>
-        </template>
-        <template #documentNumber-cell="{ row }">
-          <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
-        </template>
-        <template #date-cell="{ row }">
-          <span>{{ row.original.date }}</span>
-        </template>
-        <template #description-cell="{ row }">
-          <span class="text-sm text-gray-600">{{ row.original.description }}</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editSample(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteSample(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-table-cells" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">{{ t('auditFieldwork.sample.empty') }}</p>
-      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
-    </div>
+    <!-- Sample List via TableEntities -->
+    <TableEntities
+      :data="store.samples"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-table-cells',
+        label: t('auditFieldwork.sample.empty')
+      }"
+      class="w-full"
+    >
+      <template #documentName-cell="{ row }">
+        <span class="font-medium">{{ row.original.documentName }}</span>
+      </template>
+      <template #documentNumber-cell="{ row }">
+        <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
+      </template>
+      <template #date-cell="{ row }">
+        <span>{{ row.original.date }}</span>
+      </template>
+      <template #description-cell="{ row }">
+        <span class="text-sm text-gray-600">{{ row.original.description }}</span>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center gap-1">
+          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editSample(row.original)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteSample(row.index)" />
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Sample Modal -->
     <Teleport to="body">
@@ -83,9 +82,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
-import { computed } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()

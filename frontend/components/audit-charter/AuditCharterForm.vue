@@ -34,8 +34,8 @@
                 maxlength="200"
                 class="mt-1 block w-full rounded-md"
                 :placeholder="t('auditCharter.form.docTitlePlaceholder')"
-                @invalid="(e: { target: HTMLInputElement; }) => (e.target as HTMLInputElement).setCustomValidity('Judul maksimal 200 karakter dan wajib diisi')"
-                @input="(e: { target: HTMLInputElement; }) => (e.target as HTMLInputElement).setCustomValidity('')"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 200 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
             </UFormField>
 
@@ -89,8 +89,8 @@
                   maxlength="200"
                   class="mt-1 block w-full rounded-md"
                   :placeholder="t('auditCharter.form.approvedByPlaceholder')"
-                  @invalid="(e: { target: HTMLInputElement; }) => (e.target as HTMLInputElement).setCustomValidity('Penyetuju maksimal 200 karakter dan wajib diisi')"
-                  @input="(e: { target: HTMLInputElement; }) => (e.target as HTMLInputElement).setCustomValidity('')"
+                  @invalid="($event.target as any)?.setCustomValidity('Penyetuju maksimal 200 karakter dan wajib diisi')"
+                  @input="($event.target as any)?.setCustomValidity('')"
                 />
               </UFormField>
             </div>

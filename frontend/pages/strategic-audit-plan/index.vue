@@ -13,15 +13,26 @@
                 {{ t('strategicPlan.subtitle') }}
               </p>
             </div>
-            <UButton
-              v-if="canManageStrategicPlan"
-              icon="add"
-              :label="t('strategicPlan.addObjective')"
-              variant="solid"
-              color="primary"
-              size="sm"
-              @click="store.openModal()"
-            />
+            <div class="flex items-center gap-2">
+              <UButton
+                v-if="canImportPlanDocs"
+                :label="t('strategicPlan.importDocument')"
+                to="/strategic-audit-plan/upload"
+                color="neutral"
+                variant="outline"
+                size="sm"
+                icon="i-lucide-upload"
+              />
+              <UButton
+                v-if="canManageStrategicPlan"
+                icon="add"
+                :label="t('strategicPlan.addObjective')"
+                variant="solid"
+                color="primary"
+                size="sm"
+                @click="store.openModal()"
+              />
+            </div>
           </div>
         </div>
       </template>
@@ -67,7 +78,7 @@ import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
-const { canManageStrategicPlan } = useRbac()
+const { canManageStrategicPlan, canImportPlanDocs } = useRbac()
 
 // Inisialisasi Store
 const store = useStrategicPlanStore()

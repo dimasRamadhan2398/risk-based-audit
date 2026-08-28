@@ -165,6 +165,11 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
+			if int64(len(dec)) > 10*1024*1024 {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
+				return
+			}
+
 			// Save to uploads/qar-reports
 			uploadsDir := "./uploads/qar-reports"
 			if err := os.MkdirAll(uploadsDir, 0755); err != nil {
@@ -401,6 +406,11 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			dec, err := base64.StdEncoding.DecodeString(base64Data)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid base64 file data: " + err.Error()})
+				return
+			}
+
+			if int64(len(dec)) > 10*1024*1024 {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
 				return
 			}
 

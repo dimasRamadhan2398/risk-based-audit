@@ -213,143 +213,151 @@
       </div>
     </div>
 
-    <!-- Main Risk Control Matrix Table -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Main Risk Control Matrix Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h3 class="text-lg font-bold text-slate-900">Daftar Risk Control Matrix</h3>
-          <p class="text-md text-slate-500">Hasil evaluasi 5 Dimensi COSO 2013 (Rating 1 - 5 mewakili 4% - 20% per dimensi)</p>
+          <p class="text-sm text-slate-500">Hasil evaluasi 5 Dimensi COSO 2013 (Rating 1 - 5 mewakili 4% - 20% per dimensi)</p>
         </div>
         <div class="relative w-full md:w-64">
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Cari risiko / kontrol..."
-            class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-1.5 text-md text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
           <UIcon name="i-lucide-search" class="absolute left-3 top-2.5 size-3.5 text-slate-400" />
         </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-md border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold tracking-wider">
-              <th class="py-3 px-4">Kode / Risiko</th>
-              <th class="py-3 px-4">Risk Control ID & Deskripsi Mitigasi</th>
-              <th class="py-3 px-4">Departemen / PIC</th>
-              <th class="py-3 px-3 text-center" title="Design Effectiveness (20%)">Design (1-5)</th>
-              <th class="py-3 px-3 text-center" title="Operating Effectiveness (20%)">Operating (1-5)</th>
-              <th class="py-3 px-3 text-center" title="Coverage & Completeness (20%)">Coverage (1-5)</th>
-              <th class="py-3 px-3 text-center" title="Timeliness (20%)">Timeliness (1-5)</th>
-              <th class="py-3 px-3 text-center" title="Automation & Monitoring (20%)">Automation (1-5)</th>
-              <th class="py-3 px-4 text-center">Total Score</th>
-              <th class="py-3 px-4 text-center">Rating Efektivitas</th>
-              <th class="py-3 px-4 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr
-              v-for="item in filteredList"
-              :key="item.id"
-              class="hover:bg-slate-50/70 transition-colors"
-            >
-              <!-- Risk Code & Event -->
-              <td class="py-3 px-4 align-top">
-                <span class="inline-block px-2 py-0.5 bg-primary-50 text-primary-700 font-bold rounded text-md mb-1">
-                  {{ item.risk_code }}
-                </span>
-                <p class="font-medium text-slate-900 max-w-[200px] leading-snug line-clamp-2" :title="item.risk_event">
-                  {{ item.risk_event }}
-                </p>
-              </td>
+      <TableEntities
+        :data="filteredList"
+        :columns="columns"
+        :items-per-page="10"
+        :empty-state="{
+          icon: 'i-lucide-shield-alert',
+          label: 'Tidak ada data Risk Control Matrix',
+          description: 'Tidak ada data Risk Control Matrix yang sesuai dengan filter.'
+        }"
+      >
+        <!-- Risk Code & Event -->
+        <template #risk_code-cell="{ row }">
+          <div class="space-y-1">
+            <span class="inline-block px-2 py-0.5 bg-primary-50 text-primary-700 font-bold rounded text-xs">
+              {{ row.original.risk_code }}
+            </span>
+            <p class="font-medium text-slate-900 text-sm leading-snug line-clamp-2 break-words" :title="row.original.risk_event">
+              {{ row.original.risk_event }}
+            </p>
+          </div>
+        </template>
 
-              <!-- Control Code (Risk Control ID) & Description -->
-              <td class="py-3 px-4 align-top">
-                <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-800 font-extrabold rounded text-md mb-1 border border-slate-200">
-                  {{ item.control_code }}
-                </span>
-                <p class="text-slate-600 max-w-[240px] leading-relaxed line-clamp-2" :title="item.control_description">
-                  {{ item.control_description }}
-                </p>
-              </td>
+        <!-- Control Code & Description -->
+        <template #control_code-cell="{ row }">
+          <div class="space-y-1">
+            <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-800 font-extrabold rounded text-xs border border-slate-200">
+              {{ row.original.control_code }}
+            </span>
+            <p class="text-slate-600 text-sm leading-relaxed line-clamp-2 break-words" :title="row.original.control_description">
+              {{ row.original.control_description }}
+            </p>
+          </div>
+        </template>
 
-              <!-- Department & PIC -->
-              <td class="py-3 px-4 align-top">
-                <p class="text-md text-slate-800 font-semibold mb-0.5">{{ item.department }}</p>
-                <p class="text-md text-slate-500">PIC: <strong class="text-slate-700">{{ item.control_owner }}</strong></p>
-              </td>
+        <!-- Department & PIC -->
+        <template #department-cell="{ row }">
+          <div>
+            <p class="text-sm text-slate-800 font-semibold mb-0.5">{{ row.original.department }}</p>
+            <p class="text-xs text-slate-500">PIC: <strong class="text-slate-700">{{ row.original.control_owner }}</strong></p>
+          </div>
+        </template>
 
-              <!-- COSO Ratings 1-5 -->
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.design_effectiveness_rating * 4}%`">
-                  {{ item.design_effectiveness_rating }}
-                </span>
-              </td>
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.operating_effectiveness_rating * 4}%`">
-                  {{ item.operating_effectiveness_rating }}
-                </span>
-              </td>
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.coverage_completeness_rating * 4}%`">
-                  {{ item.coverage_completeness_rating }}
-                </span>
-              </td>
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.timeliness_rating * 4}%`">
-                  {{ item.timeliness_rating }}
-                </span>
-              </td>
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.automation_monitoring_rating * 4}%`">
-                  {{ item.automation_monitoring_rating }}
-                </span>
-              </td>
+        <!-- Design Rating (1-5) -->
+        <template #design_effectiveness_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700">
+            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.design_effectiveness_rating * 4}%`">
+              {{ row.original.design_effectiveness_rating }}
+            </span>
+          </div>
+        </template>
 
-              <!-- Total Score (%) -->
-              <td class="py-3 px-4 text-center align-middle">
-                <span class="text-sm font-extrabold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-lg border border-primary-100">
-                  {{ item.total_weighted_score }}%
-                </span>
-              </td>
+        <!-- Operating Rating (1-5) -->
+        <template #operating_effectiveness_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700">
+            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.operating_effectiveness_rating * 4}%`">
+              {{ row.original.operating_effectiveness_rating }}
+            </span>
+          </div>
+        </template>
 
-              <!-- Rating Efektivitas Column (With Distinct Color Badges) -->
-              <td class="py-3 px-4 text-center align-middle whitespace-nowrap">
-                <span :class="getRatingBadgeClass(getItemRating(item.total_weighted_score).rating)">
-                  {{ getItemRating(item.total_weighted_score).rating }}
-                </span>
-              </td>
+        <!-- Coverage Rating (1-5) -->
+        <template #coverage_completeness_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700">
+            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.coverage_completeness_rating * 4}%`">
+              {{ row.original.coverage_completeness_rating }}
+            </span>
+          </div>
+        </template>
 
-              <!-- Actions -->
-              <td class="py-3 px-4 text-right align-middle">
-                <div class="flex items-center justify-end gap-1">
-                  <button
-                    class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    title="Edit Control"
-                    @click="openEditModal(item)"
-                  >
-                    <UIcon name="i-lucide-edit-3" class="size-4" />
-                  </button>
-                  <button
-                    class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Hapus Control"
-                    @click="confirmDelete(item.id)"
-                  >
-                    <UIcon name="i-lucide-trash-2" class="size-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
+        <!-- Timeliness Rating (1-5) -->
+        <template #timeliness_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700">
+            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.timeliness_rating * 4}%`">
+              {{ row.original.timeliness_rating }}
+            </span>
+          </div>
+        </template>
 
-            <tr v-if="filteredList.length === 0">
-              <td colspan="11" class="py-8 text-center text-slate-400">
-                Tidak ada data Risk Control Matrix yang sesuai dengan filter.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <!-- Automation Rating (1-5) -->
+        <template #automation_monitoring_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700">
+            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.automation_monitoring_rating * 4}%`">
+              {{ row.original.automation_monitoring_rating }}
+            </span>
+          </div>
+        </template>
+
+        <!-- Total Score (%) -->
+        <template #total_weighted_score-cell="{ row }">
+          <div class="text-center">
+            <span class="text-xs font-extrabold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-lg border border-primary-100 inline-block">
+              {{ row.original.total_weighted_score }}%
+            </span>
+          </div>
+        </template>
+
+        <!-- Rating Efektivitas Column -->
+        <template #rating-cell="{ row }">
+          <div class="text-center whitespace-nowrap">
+            <span :class="getRatingBadgeClass(getItemRating(row.original.total_weighted_score).rating)">
+              {{ getItemRating(row.original.total_weighted_score).rating }}
+            </span>
+          </div>
+        </template>
+
+        <!-- Actions -->
+        <template #actions-cell="{ row }">
+          <div class="flex items-center justify-end gap-1">
+            <UButton
+              icon="i-lucide-edit-3"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              title="Edit Control"
+              @click="openEditModal(row.original)"
+            />
+            <UButton
+              icon="i-lucide-trash-2"
+              color="error"
+              variant="ghost"
+              size="xs"
+              title="Hapus Control"
+              @click="confirmDelete(row.original.id)"
+            />
+          </div>
+        </template>
+      </TableEntities>
     </div>
 
     <!-- Add / Edit Modal -->
@@ -451,52 +459,155 @@
           </div>
 
           <div>
-            <label class="block text-md font-semibold text-slate-700 mb-1">Deskripsi Kontrol Internal (Dari Risk Mitigation Plans)</label>
+            <label class="block text-md font-semibold text-slate-700 mb-1">Deskripsi Aktivitas Pengendalian Internal</label>
             <textarea
               v-model="formData.control_description"
-              rows="2"
-              placeholder="Deskripsi kontrol internal / rencana mitigasi..."
+              rows="3"
+              placeholder="Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan..."
               class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
             ></textarea>
           </div>
 
-          <!-- COSO 2013 5 Dimensions Ratings (1-5 Rating) -->
-          <div class="border-t border-slate-100 pt-4 space-y-3">
+          <!-- 5 Dimensions COSO 2013 Rating System -->
+          <div class="space-y-4 pt-2 border-t border-slate-100">
             <div class="flex items-center justify-between">
-              <h4 class="text-md font-bold text-slate-900 uppercase tracking-wider">Rating 5 Dimensi COSO 2013</h4>
-              <span class="text-md text-slate-500 font-medium">Pilih Skala 1 - 5</span>
+              <h4 class="font-bold text-slate-900 text-md">Evaluasi 5 Dimensi Internal Control (COSO 2013)</h4>
+              <span class="text-md text-slate-500">Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)</span>
             </div>
-            
-            <div
-              v-for="dim in cosoDimensions"
-              :key="dim.key"
-              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100"
-            >
-              <div>
-                <span class="text-md font-semibold text-slate-800">{{ dim.label }}</span>
+
+            <!-- Dimensi 1: Design -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 text-md">1. Design Effectiveness (20%)</span>
+                  <p class="text-md text-slate-500">Kesesuaian rancangan kontrol terhadap risiko & SOP</p>
+                </div>
+                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                  {{ (formData.design_effectiveness_rating || 1) * 4 }}%
+                </span>
               </div>
-              <div class="flex items-center gap-1.5">
+              <div class="flex gap-2">
                 <button
-                  v-for="star in 5"
+                  v-for="star in [1, 2, 3, 4, 5]"
                   :key="star"
                   type="button"
-                  class="w-9 h-8 rounded-md font-bold text-md transition-colors flex items-center justify-center shadow-md"
-                  :class="getRatingBtnClass((formData as any)[dim.ratingKey], star)"
-                  @click="(formData as any)[dim.ratingKey] = star"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.design_effectiveness_rating || 1, star)"
+                  @click="formData.design_effectiveness_rating = star"
                 >
-                  {{ star }}
+                  {{ star }} ({{ star * 4 }}%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Dimensi 2: Operating -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 text-md">2. Operating Effectiveness (20%)</span>
+                  <p class="text-md text-slate-500">Konsistensi eksekusi dan ketiadaan deviasi kontrol</p>
+                </div>
+                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                  {{ (formData.operating_effectiveness_rating || 1) * 4 }}%
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-for="star in [1, 2, 3, 4, 5]"
+                  :key="star"
+                  type="button"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.operating_effectiveness_rating || 1, star)"
+                  @click="formData.operating_effectiveness_rating = star"
+                >
+                  {{ star }} ({{ star * 4 }}%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Dimensi 3: Coverage -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 text-md">3. Coverage & Completeness (20%)</span>
+                  <p class="text-md text-slate-500">Cakupan kontrol pada seluruh transaksi/aktivitas</p>
+                </div>
+                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                  {{ (formData.coverage_completeness_rating || 1) * 4 }}%
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-for="star in [1, 2, 3, 4, 5]"
+                  :key="star"
+                  type="button"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.coverage_completeness_rating || 1, star)"
+                  @click="formData.coverage_completeness_rating = star"
+                >
+                  {{ star }} ({{ star * 4 }}%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Dimensi 4: Timeliness -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 text-md">4. Timeliness & Frequency (20%)</span>
+                  <p class="text-md text-slate-500">Ketepatan waktu kontrol mendeteksi / mencegah insiden</p>
+                </div>
+                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                  {{ (formData.timeliness_rating || 1) * 4 }}%
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-for="star in [1, 2, 3, 4, 5]"
+                  :key="star"
+                  type="button"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.timeliness_rating || 1, star)"
+                  @click="formData.timeliness_rating = star"
+                >
+                  {{ star }} ({{ star * 4 }}%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Dimensi 5: Automation -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 text-md">5. Automation & Monitoring (20%)</span>
+                  <p class="text-md text-slate-500">Tingkat otomatisasi sistemik & continuous monitoring</p>
+                </div>
+                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                  {{ (formData.automation_monitoring_rating || 1) * 4 }}%
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-for="star in [1, 2, 3, 4, 5]"
+                  :key="star"
+                  type="button"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.automation_monitoring_rating || 1, star)"
+                  @click="formData.automation_monitoring_rating = star"
+                >
+                  {{ star }} ({{ star * 4 }}%)
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Total Weighted Score Preview in % & Effectiveness Rating -->
-          <div class="bg-primary-50 p-3 rounded-xl border border-primary-100 flex items-center justify-between">
+          <!-- Total Score Summary in Modal -->
+          <div class="bg-primary-50 p-4 rounded-xl border border-primary-100 flex items-center justify-between">
             <div>
-              <span class="text-md font-bold text-primary-900 block mb-1">Total Weighted Score Preview:</span>
-              <span :class="getRatingBadgeClass(getItemRating(calculatedModalScorePercent).rating)">
-                {{ getItemRating(calculatedModalScorePercent).rating }}
-              </span>
+              <span class="text-md text-primary-900 font-bold">Total Weighted Effectiveness Score:</span>
+              <p class="text-md text-primary-700">
+                Interpretasi: <strong>{{ getItemRating(calculatedModalScorePercent).rating }}</strong>
+              </p>
             </div>
             <span class="text-2xl font-extrabold text-primary-700">{{ calculatedModalScorePercent }}%</span>
           </div>
@@ -519,6 +630,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, type RCMItem } from '~/stores/rcm'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
+import TableEntities from '~/components/shared/TableEntities.vue'
 import type { RiskMitigation } from '~/types/risk'
 
 definePageMeta({
@@ -535,6 +647,20 @@ const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
+
+const columns = computed(() => [
+  { accessorKey: 'risk_code', id: 'risk_code', header: 'Kode / Risiko', class: 'w-[16%]' },
+  { accessorKey: 'control_code', id: 'control_code', header: 'Risk Control ID & Deskripsi Mitigasi', class: 'w-[20%]' },
+  { accessorKey: 'department', id: 'department', header: 'Departemen / PIC', class: 'w-[14%]' },
+  { accessorKey: 'design_effectiveness_rating', id: 'design_effectiveness_rating', header: 'Design (1-5)', class: 'w-[6%] text-center' },
+  { accessorKey: 'operating_effectiveness_rating', id: 'operating_effectiveness_rating', header: 'Operating (1-5)', class: 'w-[6%] text-center' },
+  { accessorKey: 'coverage_completeness_rating', id: 'coverage_completeness_rating', header: 'Coverage (1-5)', class: 'w-[6%] text-center' },
+  { accessorKey: 'timeliness_rating', id: 'timeliness_rating', header: 'Timeliness (1-5)', class: 'w-[6%] text-center' },
+  { accessorKey: 'automation_monitoring_rating', id: 'automation_monitoring_rating', header: 'Automation (1-5)', class: 'w-[6%] text-center' },
+  { accessorKey: 'total_weighted_score', id: 'total_weighted_score', header: 'Total Score', class: 'w-[7%] text-center' },
+  { accessorKey: 'rating', id: 'rating', header: 'Rating Efektivitas', class: 'w-[9%] text-center' },
+  { accessorKey: 'actions', id: 'actions', header: 'Aksi', class: 'w-[4%] text-right' }
+])
 
 const formData = ref<Partial<RCMItem>>({
   risk_id: '',

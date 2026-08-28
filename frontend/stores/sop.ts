@@ -23,6 +23,14 @@ export const useSopStore = defineStore('sop', () => {
   const loading = ref(false)
   const errorMsg = ref('')
 
+  // Pagination State
+  const pagination = ref({
+    page: 1,
+    page_size: 20,
+    total: 0,
+    total_pages: 0
+  })
+
   // Modal & Form State
   const showModal = ref(false)
   const isEditing = ref(false)
@@ -39,22 +47,37 @@ export const useSopStore = defineStore('sop', () => {
     fileSize: 0
   })
 
+  const getAuditServiceBaseUrl = () => {
+    const config = useRuntimeConfig()
+    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  }
 
+  const fetchSops = async (page?: number, pageSize?: number) => {
+    if (page !== undefined) pagination.value.page = page
+    if (pageSize !== undefined) pagination.value.page_size = pageSize
 
-  const fetchSops = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const authStore = useAuthStore()
-      const response: any = await $fetch(`${baseUrl}/audit-sops?page_size=100`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${authStore.token}`
+      const response: any = await $fetch(
+        `${baseUrl}/audit-sops?page=${pagination.value.page}&page_size=${pagination.value.page_size}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
         }
-      })
+      )
       if (response && response.data && Array.isArray(response.data.items)) {
         sops.value = response.data.items
+        if (response.data.pagination) {
+          pagination.value = {
+            ...pagination.value,
+            ...response.data.pagination
+          }
+        }
       } else {
         sops.value = []
       }
@@ -64,6 +87,14 @@ export const useSopStore = defineStore('sop', () => {
     } finally {
       loading.value = false
     }
+  }
+
+  const setPage = (page: number) => {
+    fetchSops(page)
+  }
+
+  const setPageSize = (size: number) => {
+    fetchSops(1, size)
   }
 
   const handleFileChange = (event: Event) => {
@@ -280,10 +311,13 @@ export const useSopStore = defineStore('sop', () => {
     sops,
     loading,
     errorMsg,
+    pagination,
     showModal,
     isEditing,
     form,
     fetchSops,
+    setPage,
+    setPageSize,
     handleFileChange,
     addSop,
     updateSop,

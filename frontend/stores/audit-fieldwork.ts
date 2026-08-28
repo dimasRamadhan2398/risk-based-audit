@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive, ref, computed, watch } from 'vue'
 import { useAssignmentLetterStore } from './assignment-letter'
+import { useAppToast } from '~/composables/useAppToast'
 
 export interface InterviewItem {
   id: any
@@ -568,8 +569,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const editingInterviewId = ref<any>(null)
 
   const openInterviewModal = () => {
+    const toast = useAppToast()
     if (!selectedAssignmentLetter.value) {
-      alert('Please select an Assignment Letter first!')
+      toast.warning('Silakan pilih Surat Tugas terlebih dahulu!')
       return
     }
     resetInterviewForm()
@@ -610,11 +612,13 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const handleInterviewFileChange = (e: Event) => {
+    const toast = useAppToast()
     const target = e.target as HTMLInputElement
     const file = target.files?.[0]
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        alert('File too large! Maximum 10MB.')
+        toast.error('Ukuran file terlalu besar! Maksimal 10MB.')
+        target.value = ''
         return
       }
       interviewForm.file = file
@@ -624,6 +628,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const saveInterview = async () => {
     if (!selectedAssignmentLetter.value || isReadOnlyInterview.value) return
     loading.value = true
+    const toast = useAppToast()
+    const wasEditing = isEditingInterview.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const payload = {
@@ -673,6 +679,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       showInterviewModal.value = false
       resetInterviewForm()
       await fetchInterviews(selectedAssignmentLetter.value)
+      toast.success(wasEditing ? 'Wawancara berhasil diperbarui' : 'Wawancara berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
@@ -703,6 +710,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showInterviewModal.value = false
       resetInterviewForm()
+      toast.success(wasEditing ? 'Wawancara berhasil diperbarui' : 'Wawancara berhasil ditambahkan')
     } finally {
       loading.value = false
     }
@@ -711,8 +719,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const deleteInterview = async (index: number) => {
     if (!selectedAssignmentLetter.value) return
     const item = interviews.value[index]
-    if (!item || !confirm('Are you sure you want to delete this interview?')) return
+    if (!item || !confirm('Apakah Anda yakin ingin menghapus data wawancara ini?')) return
     loading.value = true
+    const toast = useAppToast()
     try {
       const baseUrl = getAuditServiceBaseUrl()
       await $fetch(`${baseUrl}/fieldwork/interviews/${item.id}`, {
@@ -722,11 +731,13 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         fieldworkData.value[selectedAssignmentLetter.value].interviews.splice(index, 1)
       }
       await fetchInterviews(selectedAssignmentLetter.value)
+      toast.success('Data wawancara berhasil dihapus')
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
       if (fieldworkData.value[selectedAssignmentLetter.value]?.interviews) {
         fieldworkData.value[selectedAssignmentLetter.value].interviews.splice(index, 1)
       }
+      toast.success('Data wawancara berhasil dihapus')
     } finally {
       loading.value = false
     }

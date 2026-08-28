@@ -5,20 +5,7 @@
         <TableEntities :data="store.filteredDataF01" :columns="store.columnsF01" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }" >
         
         <template #teamMembers-cell="{ row }">
-            <div class="flex flex-wrap gap-1">
-            <UBadge 
-                v-for="member in row.original.teamMembers"
-                :key="member.id"
-                color="neutral" 
-                variant="subtle" 
-                size="lg"
-                class="flex flex-col items-start px-2 py-1"
-            >
-                <span class="font-bold text-primary-700">{{ member.name }}</span>
-                <span class="text-[10px] opacity-70 italic">{{ member.role }}</span>
-            </UBadge>
-            <span v-if="!row.original.teamMembers?.length" class="text-gray-400">-</span>
-            </div>
+          <TeamMembersBadge :members="row.original.teamMembers" />
         </template>
 
         <template #actions-cell="{ row }">
