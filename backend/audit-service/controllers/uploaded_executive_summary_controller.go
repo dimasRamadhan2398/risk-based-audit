@@ -69,6 +69,10 @@ func (ctrl *UploadedExecutiveSummaryController) Upload(c *gin.Context) {
 
 	fileExt := filepath.Ext(fileName)
 	baseName := strings.TrimSuffix(fileName, fileExt)
+	if int64(len(dec)) > 10*1024*1024 {
+		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+		return
+	}
 	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 
 	uploadsDir := "./uploads/uploaded-executive-summaries"

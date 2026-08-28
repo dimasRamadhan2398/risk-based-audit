@@ -42,9 +42,15 @@
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-1">
+<<<<<<< HEAD
           <UButton icon="i-lucide-eye" color="neutral" variant="ghost" size="md" @click="store.viewTestControl(row.original)" />
           <UButton icon="i-lucide-edit" color="warning" variant="ghost" size="md" @click="store.editTestControl(row.original)" />
           <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="md" @click="store.deleteTestControl(row.index)" />
+=======
+          <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" @click="store.viewTestControl(row.original)" />
+          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editTestControl(row.original)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteTestControl(row.index)" />
+>>>>>>> 19ed793 (fix: table display on every page)
         </div>
       </template>
     </TableEntities>

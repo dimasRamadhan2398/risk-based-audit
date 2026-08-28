@@ -335,10 +335,17 @@
         <template #actions-cell="{ row }">
           <div class="flex items-center justify-end gap-1">
             <UButton
+<<<<<<< HEAD
               icon="i-lucide-edit"
               color="warning"
               variant="ghost"
               size="md"
+=======
+              icon="i-lucide-edit-3"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+>>>>>>> 19ed793 (fix: table display on every page)
               title="Edit Control"
               @click="openEditModal(row.original)"
             />
@@ -346,7 +353,11 @@
               icon="i-lucide-trash-2"
               color="error"
               variant="ghost"
+<<<<<<< HEAD
               size="md"
+=======
+              size="xs"
+>>>>>>> 19ed793 (fix: table display on every page)
               title="Hapus Control"
               @click="confirmDelete(row.original.id)"
             />

@@ -719,7 +719,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const deleteInterview = async (index: number) => {
     if (!selectedAssignmentLetter.value) return
     const item = interviews.value[index]
+<<<<<<< HEAD
     if (!item || !await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus data wawancara ini?' })) return
+=======
+    if (!item || !confirm('Apakah Anda yakin ingin menghapus data wawancara ini?')) return
+>>>>>>> 19ed793 (fix: table display on every page)
     loading.value = true
     const toast = useAppToast()
     try {

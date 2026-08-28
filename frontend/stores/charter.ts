@@ -12,7 +12,11 @@ export const useCharterStore = defineStore('charter', () => {
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
 
+<<<<<<< HEAD
   const columns = [
+=======
+  const columns: (TableColumn<AuditCharter> & { class?: string })[] = [
+>>>>>>> 19ed793 (fix: table display on every page)
     { accessorKey: 'version', header: 'Version', class: 'w-16 whitespace-nowrap text-center' },
     { accessorKey: 'title', header: 'Charter Name', class: 'w-48' },
     { accessorKey: 'content', header: 'Content', class: 'w-48' },

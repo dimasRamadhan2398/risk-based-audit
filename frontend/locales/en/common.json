@@ -1098,6 +1098,92 @@
         "transactionUnit": "IDR Million"
       }
     },
+<<<<<<< HEAD
+=======
+  "analytics": {
+    "title": "AI & Analytics Center",
+    "subtitle": "Integrated Machine Learning & Deep Learning Models (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
+    "statusActive": "4 Trained Models Active & Synchronized",
+    "statusOffline": "Offline - Displaying Saved Real Data",
+    "statusDisconnected": "AI Backend Disconnected",
+    "warningTitleCached": "⚠️ Warning: AI Backend Service Disconnected (Showing Last Real Data)",
+    "warningTitleDisconnected": "⚠️ Warning: AI Analytics Feature Not Running / Not Connected to Backend",
+    "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
+    "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
+    "loading": "Connecting & Loading AI Models...",
+    "summary": {
+      "entitiesScored": "Entities Scored",
+      "anomaliesDetected": "Anomalies Detected",
+      "docsAnalyzed": "Docs Analyzed",
+      "kpiForecasts": "KPI Forecasts"
+    },
+    "tabs": {
+      "riskScoring": "Risk Scoring ML",
+      "anomalyDetection": "Anomaly Detection ML",
+      "indoBERT": "IndoBERT NLP",
+      "kpiLSTM": "KPI PyTorch LSTM"
+    },
+    "xgboost": {
+      "alertTitle": "Department & Entity Risk Scoring ML Model",
+      "alertDesc": "The Machine Learning model dynamically predicts department/branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
+      "chartPredictedVsActual": "Predicted vs Actual Risk Score",
+      "chartFeatureImportance": "Feature Importance (Top Predictors)",
+      "tableTitle": "Entity Risk Score Predictions",
+      "colEntity": "Entity",
+      "colType": "Type",
+      "colRiskCategory": "Risk Category",
+      "colTargetPeriod": "Target Period",
+      "colPredLikelihood": "Pred. Likelihood",
+      "colPredImpact": "Pred. Impact",
+      "colPredScore": "Pred. Score",
+      "colPredRiskLevel": "Pred. Risk Level",
+      "colActual": "Actual",
+      "colActualRiskLevel": "Actual Risk Level",
+      "colTrend": "Trend",
+      "labelPredictedScore": "Predicted Score",
+      "labelActualScore": "Actual Score",
+      "labelFeatureImportance": "Feature Importance",
+      "axisRiskScore": "Risk Score",
+      "axisImportancePct": "Importance (%)"
+    },
+    "isolation": {
+      "alertTitle": "Transaction Anomaly Detection Model",
+      "alertDesc": "The Machine Learning model scans transaction patterns (amount, operating hours, day, new recipients, rounding patterns) to detect fraud anomalies in real-time.",
+      "recordsScanned": "Records Scanned",
+      "anomaliesFound": "Anomalies Found",
+      "contaminationRate": "Contamination Rate",
+      "topCategory": "Top Category",
+      "chartTitle": "Data Pattern Distribution per Anomaly Type",
+      "labelNormalData": "Normal Data ({type})",
+      "labelAnomalies": "Anomalies ({type})",
+      "axisFrequency": "Frequency / Occurrence",
+      "tableTitle": "Detected Anomalies Detail",
+      "colID": "ID",
+      "colEntity": "Entity",
+      "colType": "Type",
+      "colDescription": "Description",
+      "colRiskLevel": "Risk Level",
+      "colDate": "Date",
+      "anomalyTypes": {
+        "fieldworkXAxis": "Fieldwork Duration (Days)",
+        "fieldworkUnit": "Days",
+        "accessPatternXAxis": "System Access Time (Hour 0-23)",
+        "accessPatternUnit": "Hour",
+        "dataAccessXAxis": "Data Export Volume (MB)",
+        "dataAccessUnit": "MB",
+        "inventoryXAxis": "Stock Adjustment Value (IDR Million)",
+        "inventoryUnit": "IDR Million",
+        "expenseReportXAxis": "Expense Claim Amount (IDR Million)",
+        "expenseReportUnit": "IDR Million",
+        "travelExpenseXAxis": "Travel Cost Amount (IDR Million)",
+        "travelExpenseUnit": "IDR Million",
+        "procurementXAxis": "Procurement / Vendor Value (IDR Million)",
+        "procurementUnit": "IDR Million",
+        "transactionXAxis": "Transaction Amount (IDR Million)",
+        "transactionUnit": "IDR Million"
+      }
+    },
+>>>>>>> 19ed793 (fix: table display on every page)
     "nlp": {
       "alertTitle": "IndoBERT NLP Document Analysis Model",
       "alertDesc": "The IndoBERT & Natural Language Processing model analyzes excerpts from Audit Report Results (Indonesian Language) to automatically classify risk categories, sentiment, impact, and likelihood.",

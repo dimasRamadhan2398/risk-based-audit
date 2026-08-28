@@ -166,7 +166,7 @@
           class="w-full"
         >
           <template #version-cell="{ row }">
-            <span class="font-bold text-[var(--text-main)]">{{
+            <span class="font-bold text-[var(--text-main)] whitespace-nowrap">{{
               row.original.version
             }}</span>
           </template>
@@ -196,7 +196,11 @@
             </div>
           </template>
           <template #actions-cell="{ row }">
+<<<<<<< HEAD
             <div class="flex justify-end gap-1.5 whitespace-nowrap">
+=======
+            <div v-if="canManageCharter" class="flex justify-end gap-1.5 whitespace-nowrap">
+>>>>>>> 19ed793 (fix: table display on every page)
               <UButton
                 v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
                 :to="row.original.fileUrl"

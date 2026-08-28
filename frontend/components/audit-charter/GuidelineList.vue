@@ -128,6 +128,10 @@ const columns = [
   { accessorKey: 'name', header: 'Nama Pedoman' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'effective_date', header: 'Mulai Berlaku' },
+<<<<<<< HEAD
+=======
+  { accessorKey: 'file_name', header: 'View Dokumen' },
+>>>>>>> 19ed793 (fix: table display on every page)
   { accessorKey: 'actions', header: '' }
 ]
 

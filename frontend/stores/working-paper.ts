@@ -425,7 +425,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF01 = async (id: string) => {
+<<<<<<< HEAD
     if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+=======
+    if (confirm('Are you sure you want to delete permanently?')) {
+>>>>>>> 19ed793 (fix: table display on every page)
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/headers/${id}`, {
@@ -538,7 +542,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF02 = async (id: string) => {
+<<<<<<< HEAD
     if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+=======
+    if (confirm('Are you sure you want to delete permanently?')) {
+>>>>>>> 19ed793 (fix: table display on every page)
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/risks/${id}`, {
@@ -635,7 +643,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF03 = async (id: string) => {
+<<<<<<< HEAD
     if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+=======
+    if (confirm('Are you sure you want to delete permanently?')) {
+>>>>>>> 19ed793 (fix: table display on every page)
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/samples/${id}`, {
@@ -734,7 +746,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF04 = async (id: string) => {
+<<<<<<< HEAD
     if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+=======
+    if (confirm('Are you sure you want to delete permanently?')) {
+>>>>>>> 19ed793 (fix: table display on every page)
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/causes/${id}`, {
@@ -835,7 +851,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF05 = async (id: string) => {
+<<<<<<< HEAD
     if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+=======
+    if (confirm('Are you sure you want to delete permanently?')) {
+>>>>>>> 19ed793 (fix: table display on every page)
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/plans/${id}`, {

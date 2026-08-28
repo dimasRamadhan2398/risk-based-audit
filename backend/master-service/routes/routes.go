@@ -174,6 +174,11 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
+			if int64(len(dec)) > 10*1024*1024 {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
+				return
+			}
+
 			// Save to uploads/qar-reports
 			uploadsDir := "./uploads/qar-reports"
 			if err := os.MkdirAll(uploadsDir, 0755); err != nil {

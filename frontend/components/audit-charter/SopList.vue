@@ -62,20 +62,14 @@
 
         <!-- Name slot -->
         <template #name-cell="{ row }">
-          <ReadMoreText
-            :text="row.original.name"
-            :max-length="60"
-            text-class="font-semibold text-[var(--text-main)]"
-          />
+          <span class="font-semibold text-[var(--text-main)]">{{ row.original.name }}</span>
         </template>
 
         <!-- Parent Guideline Name slot -->
         <template #guideline_name-cell="{ row }">
-          <ReadMoreText
-            :text="row.original.guideline?.name || '-'"
-            :max-length="50"
-            text-class="text-[var(--text-main)] font-medium"
-          />
+          <span class="text-[var(--text-main)] font-medium">
+            {{ row.original.guideline?.name || '-' }}
+          </span>
         </template>
 
         <!-- Status slot -->
@@ -104,13 +98,13 @@
               :to="row.original.file_url"
               target="_blank"
               icon="i-lucide-eye"
-              color="primary"
+              color="neutral"
               variant="ghost"
               size="md"
             />
             <UButton
               size="md"
-              color="primary"
+              color="warning"
               variant="ghost"
               icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
@@ -134,7 +128,6 @@ import { computed, onMounted } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
 import TableEntities from '~/components/shared/TableEntities.vue'
-import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
@@ -177,7 +170,7 @@ const openAddModal = async () => {
 }
 
 const confirmDelete = async (item: any) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus Petunjuk Teknis/SOP "${item.name}"?`)) {
+  if (await useGlobalModalStore().confirmDelete({ description: `Apakah Anda yakin ingin menghapus Petunjuk Teknis/SOP "${item.name}"?` })) {
     await store.deleteSop(item.id || '')
   }
 }

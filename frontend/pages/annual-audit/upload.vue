@@ -165,17 +165,29 @@
               <div class="flex items-center gap-1">
                 <UButton 
                   icon="i-lucide-eye" 
+<<<<<<< HEAD
                   color="neutral" 
                   variant="ghost" 
                   size="md" 
+=======
+                  color="info" 
+                  variant="ghost" 
+                  size="sm" 
+>>>>>>> 19ed793 (fix: table display on every page)
                   :title="t('annualAudit.upload.actions.view')" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
                 <UButton 
                   icon="i-lucide-download" 
+<<<<<<< HEAD
                   color="success" 
                   variant="ghost" 
                   size="md" 
+=======
+                  color="primary" 
+                  variant="ghost" 
+                  size="sm" 
+>>>>>>> 19ed793 (fix: table display on every page)
                   :title="t('annualAudit.upload.actions.download')" 
                   @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                 />
@@ -183,7 +195,11 @@
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
+<<<<<<< HEAD
                   size="md" 
+=======
+                  size="sm" 
+>>>>>>> 19ed793 (fix: table display on every page)
                   :title="t('annualAudit.upload.actions.delete')" 
                   @click="handleDelete(row.original.id)" 
                 />
@@ -294,7 +310,11 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (id: string) => {
+<<<<<<< HEAD
   if (await useGlobalModalStore().confirmDelete({ description: t('annualAudit.upload.deleteConfirm') })) {
+=======
+  if (confirm(t('annualAudit.upload.deleteConfirm'))) {
+>>>>>>> 19ed793 (fix: table display on every page)
     await store.deleteDocument(id)
   }
 }

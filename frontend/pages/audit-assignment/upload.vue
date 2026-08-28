@@ -289,7 +289,11 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (id: string) => {
+<<<<<<< HEAD
   if (await useGlobalModalStore().confirmDelete({ description: t('auditAssignment.upload.deleteConfirm') })) {
+=======
+  if (confirm(t('auditAssignment.upload.deleteConfirm'))) {
+>>>>>>> 19ed793 (fix: table display on every page)
     await store.deleteDocument(id)
   }
 }
