@@ -27,6 +27,11 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 	}
 	defer file.Close()
 
+	if header.Size > 10*1024*1024 {
+		response.Error(c, http.StatusBadRequest, "BAD_REQUEST", "File size exceeds maximum limit of 10MB", "Max allowed file size is 10MB")
+		return
+	}
+
 	folder := c.DefaultPostForm("folder", "audit")
 
 	attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, folder)

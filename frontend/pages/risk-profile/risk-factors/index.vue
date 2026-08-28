@@ -27,7 +27,7 @@
       <UAlert
         v-if="alertMessage"
         :color="alertType === 'success' ? 'success' : 'error'"
-        variant="solid"
+        variant="outline"
         :title="alertType === 'success' ? t('common.success') : t('common.error')"
         :description="alertMessage"
         icon="i-lucide-info"
@@ -43,42 +43,52 @@
       <template #weighting>
         <div class="space-y-6 mt-6">
           <!-- Validation Status Banner -->
-          <div 
-            class="flex items-center justify-between p-4 rounded-xl border shadow-sm transition-all duration-300"
-            :class="isValidWeightSum ? 'bg-emerald-50/50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800' : 'bg-rose-50/50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-800'"
+          <UCard 
+            class="shadow-sm transition-all duration-300 rounded-xl"
+            :class="isValidWeightSum 
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white border-0' 
+              : 'bg-rose-600 dark:bg-rose-600 text-white border-0'"
+            :ui="{ body: 'p-4 sm:p-4' }"
           >
-            <div class="flex items-center gap-3">
-              <UIcon 
-                :name="isValidWeightSum ? 'i-lucide-check-circle-2' : 'i-lucide-alert-triangle'" 
-                class="w-6 h-6"
-                :class="isValidWeightSum ? 'text-emerald-500' : 'text-rose-500'"
-              />
-              <div>
-                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  <span class="font-bold text-base" :class="isValidWeightSum ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">{{ t('riskFactors.weighting.totalWeight', { total: totalWeight }) }}</span>
-                </p>
-                <p class="text-md text-slate-500 dark:text-slate-400">
-                  {{ isValidWeightSum ? t('riskFactors.weighting.validSum') : t('riskFactors.weighting.invalidSum') }}
-                </p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <UIcon 
+                  :name="isValidWeightSum ? 'i-lucide-check-circle-2' : 'i-lucide-alert-triangle'" 
+                  class="w-6 h-6 text-white shrink-0"
+                />
+                <div>
+                  <p class="text-sm font-semibold text-white">
+                    <span class="font-bold text-base text-white">{{ t('riskFactors.weighting.totalWeight', { total: totalWeight }) }}</span>
+                  </p>
+                  <p class="text-sm text-white/90">
+                    {{ isValidWeightSum ? t('riskFactors.weighting.validSum') : t('riskFactors.weighting.invalidSum') }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 shrink-0">
+                <UBadge 
+                  :color="isValidWeightSum ? 'success' : 'error'" 
+                  size="md" 
+                  variant="solid"
+                  class="bg-white/20 text-white border border-white/30 backdrop-blur-sm"
+                >
+                  {{ isValidWeightSum ? t('riskFactors.weighting.badgeValid') : t('riskFactors.weighting.badgeInvalid') }}
+                </UBadge>
+                <UButton
+                  v-if="canEditRiskFactors"
+                  icon="i-lucide-save"
+                  color="neutral"
+                  variant="solid"
+                  class="bg-white text-slate-900 hover:bg-slate-100 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 font-semibold shadow-sm"
+                  :loading="store.loading"
+                  :disabled="!isValidWeightSum"
+                  @click="saveChanges"
+                >
+                  {{ t('riskFactors.weighting.saveWeights') }}
+                </UButton>
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <UBadge :color="isValidWeightSum ? 'success' : 'error'" size="md" variant="subtle">
-                {{ isValidWeightSum ? t('riskFactors.weighting.badgeValid') : t('riskFactors.weighting.badgeInvalid') }}
-              </UBadge>
-              <UButton
-                v-if="canEditRiskFactors"
-                icon="i-lucide-save"
-                color="primary"
-                variant="solid"
-                :loading="store.loading"
-                :disabled="!isValidWeightSum"
-                @click="saveChanges"
-              >
-                {{ t('riskFactors.weighting.saveWeights') }}
-              </UButton>
-            </div>
-          </div>
+          </UCard>
 
           <div class="flex flex-col gap-8">
             <!-- Catalog Explorer -->

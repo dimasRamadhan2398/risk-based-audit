@@ -65,7 +65,7 @@ ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=
 
 # ── Step 4: Upload ────────────────────────────────────────────────────────────
 echo "🚀 [4/5] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
-scp -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
+rsync -avz -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no" "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
 
 # ── Step 5: Extract & Start on VPS ───────────────────────────────────────────
 echo "🔧 [5/5] Extracting and starting backend on VPS..."

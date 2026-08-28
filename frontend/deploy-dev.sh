@@ -37,7 +37,7 @@ echo "   Archive size: $(du -sh $ARCHIVE | cut -f1)"
 # ── Step 3: Prepare directory & Upload to VPS ───────────────────────────────
 echo "🌐 [3/4] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
 ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
-scp -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
+rsync -avz -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no" "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
 
 # ── Step 4: Extract & Run Container on VPS ──────────────────────────────────
 echo "🚀 [4/4] Starting rbia-frontend-dev container on VPS..."
