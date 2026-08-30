@@ -37,13 +37,43 @@ export const toISODate = (date: Date): string => {
 }
 
 /**
- * Parse ISO date string
+ * Convert date to localized full date string (e.g. "10 Februari 2026" or "10 February 2026")
  */
-export const parseDate = (dateString: string): Date | null => {
+export const formatDateLocale = (
+  date: string | Date | null | undefined,
+  locale: string = 'id'
+): string => {
+  if (!date) return ''
   try {
-    const date = parseISO(dateString)
-    return isValid(date) ? date : null
+    const dateObj = typeof date === 'string' ? parseISO(date) : date
+    if (!dateObj || !isValid(dateObj)) return ''
+    const intlLocale = locale === 'id' ? 'id-ID' : 'en-GB'
+    return new Intl.DateTimeFormat(intlLocale, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(dateObj)
   } catch {
-    return null
+    return ''
   }
+}
+
+/**
+ * Format a start and end date range into a localized period string.
+ * Example (id): "10 Februari 2026 - 20 Maret 2026"
+ * Example (en): "10 February 2026 - 20 March 2026"
+ */
+export const formatPeriod = (
+  startDate?: string | Date | null,
+  endDate?: string | Date | null,
+  locale: string = 'id',
+  separator: string = ' - '
+): string => {
+  const startStr = formatDateLocale(startDate, locale)
+  const endStr = formatDateLocale(endDate, locale)
+
+  if (startStr && endStr) {
+    return `${startStr}${separator}${endStr}`
+  }
+  return startStr || endStr || '-'
 }

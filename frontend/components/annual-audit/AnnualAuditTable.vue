@@ -55,7 +55,7 @@
         </template>
 
         <template #progress-cell="{ row }">
-          <UProgress v-model="store.progressAudit" color="secondary" status />
+          <UProgress v-model="store.progressAudit" color="secondary" status :ui="{ status: 'text-black dark:text-white font-medium' }" />
         </template>
 
         <template #status-cell="{ row }">

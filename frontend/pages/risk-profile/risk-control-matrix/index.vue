@@ -3,41 +3,36 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
-          <NuxtLink to="/risk-profile" class="hover:text-primary-600 transition-colors">Risk Profile</NuxtLink>
+        <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
+          <NuxtLink to="/risk-profile" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Risk Profile</NuxtLink>
           <span>/</span>
-          <span class="text-slate-800 font-medium">Risk Control Matrix</span>
+          <span class="text-slate-800 dark:text-slate-200 font-medium">Risk Control Matrix</span>
         </div>
-        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
           Risk Control Matrix (RCM)
         </h1>
-        <p class="text-sm text-slate-500 mt-1">
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Pengukuran efektivitas internal control berbasis 5 dimensi COSO 2013 & evaluasi risiko terintegrasi.
         </p>
       </div>
 
       <!-- Actions / Filters -->
-      <div class="flex flex-wrap items-center gap-3">
-        <select
+      <div class="flex flex-wrap items-center justify-end gap-3">
+        <USelect
           v-model="rcmStore.selectedYear"
-          class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option :value="2026">Tahun 2026</option>
-          <option :value="2025">Tahun 2025</option>
-          <option :value="2024">Tahun 2024</option>
-        </select>
+          :items="yearOptions"
+          value-key="value"
+          size="md"
+          class="w-36"
+        />
 
-        <select
+        <USelect
           v-model="rcmStore.selectedDepartment"
-          class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option value="All Departments">Semua Departemen / Branch</option>
-          <option value="Head Office">Head Office</option>
-          <option value="Jakarta Branch">Jakarta Branch</option>
-          <option value="Surabaya Branch">Surabaya Branch</option>
-          <option value="Bandung Branch">Bandung Branch</option>
-          <option value="Bali Branch">Bali Branch</option>
-        </select>
+          :items="departmentOptions"
+          value-key="value"
+          size="md"
+          class="w-64"
+        />
 
         <UButton
           color="primary"
@@ -54,26 +49,25 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <!-- Card 1: Yearly Internal Control Effectiveness (2 Cols) -->
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="text-md font-semibold uppercase tracking-wider text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
-              
+              <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
             </div>
-            <span class="text-md font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
+            <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700">
               Tahun: {{ rcmStore.selectedYear }} | Dep: {{ rcmStore.selectedDepartment }}
             </span>
           </div>
-          <h2 class="text-xl font-bold text-slate-900 mt-1">Internal Control Effectiveness</h2>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Internal Control Effectiveness</h2>
         </div>
 
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 rounded-xl p-4 border border-slate-100">
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60">
           <!-- Big Score % -->
-          <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 pb-3 md:pb-0 md:pr-4">
-            <span class="text-md text-slate-500 font-medium">Real Effectiveness Score</span>
+          <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
+            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Real Effectiveness Score</span>
             <div class="flex items-baseline gap-2 mt-1">
-              <span class="text-4xl font-extrabold tracking-tight text-slate-900">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 {{ rcmStore.internalControlEffectiveness }}%
               </span>
             </div>
@@ -86,54 +80,55 @@
 
           <!-- Synchronized Risk Counts & Interpretation -->
           <div class="md:col-span-2 flex flex-col justify-center space-y-2">
-            <div class="flex items-center justify-between text-md">
-              <span class="text-slate-600 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
-              <span class="font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
+              <span class="font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                 {{ rcmStore.totalInherentRisk }} Risiko
               </span>
             </div>
-            <div class="flex items-center justify-between text-md">
-              <span class="text-slate-600 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
-              <span class="font-bold text-red-600 bg-white px-2 py-0.5 rounded border border-slate-200">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
+              <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                 {{ rcmStore.totalResidualRisk }} Risiko
               </span>
             </div>
-            <div class="p-2.5 rounded-lg text-md" :class="rcmStore.effectivenessRating.bgClass">
-              <div class="font-bold flex items-center gap-1.5">
-                <UIcon name="i-lucide-info" class="size-3.5" />
-                Interpretasi Hasil COSO:
-              </div>
-              <p class="mt-0.5 leading-relaxed">{{ rcmStore.effectivenessRating.interpretation }}</p>
-            </div>
+            <UAlert
+              :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
+              variant="subtle"
+              icon="i-lucide-info"
+              :title="'Interpretasi Hasil COSO (' + rcmStore.effectivenessRating.rating + '):'"
+              :description="rcmStore.effectivenessRating.interpretation"
+              class="rounded-xl shadow-xs border-none! bg-transparent! border-transparent!"
+            />
           </div>
         </div>
 
-        <div class="mt-3 text-md text-slate-400 flex items-center gap-1">
-          <UIcon name="i-lucide-check-circle-2" class="size-3.5 text-emerald-500" />
+        <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-4">
+          <UIcon name="i-lucide-check-circle-2" class="size-10 text-emerald-500" />
           <span>Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile.</span>
         </div>
       </div>
 
       <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-900">Rata-Rata COSO 2013</h3>
-            <span class="text-md font-bold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-full border border-primary-100">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO 2013</h3>
+            <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800">
               {{ rcmStore.cosoAverages.totalWeighted }}%
             </span>
           </div>
-          <p class="text-md text-slate-500 mt-0.5">Rata-Rata Bobot 5 Dimensi Kontrol</p>
+          <p class="text-md text-slate-500 dark:text-slate-400 mt-0.5">Rata-Rata Bobot 5 Dimensi Kontrol</p>
 
           <div class="mt-4 space-y-3">
             <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
               <div class="flex justify-between text-md">
-                <span class="font-medium text-slate-700">{{ dim.shortLabel }}</span>
-                <span class="font-bold text-slate-900">{{ getDimAverage(dim.key) }}%</span>
+                <span class="font-medium text-slate-700 dark:text-slate-300">{{ dim.shortLabel }}</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
               </div>
-              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                 <div
-                  class="bg-primary-600 h-full rounded-full transition-all duration-300"
+                  class="bg-primary-600 dark:bg-primary-500 h-full rounded-full transition-all duration-300"
                   :style="{ width: `${getDimAverage(dim.key)}%` }"
                 ></div>
               </div>
@@ -141,71 +136,71 @@
           </div>
         </div>
 
-        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-md text-slate-500">
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-md text-slate-500 dark:text-slate-400">
           <span>Total Kontrol Dievaluasi:</span>
-          <span class="font-bold text-slate-900">{{ rcmStore.filteredRCMList.length }} Item</span>
+          <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.filteredRCMList.length }} Item</span>
         </div>
       </div>
     </div>
 
     <!-- Collapsible Standard Interpretation Table Reference -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <button
-        class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+        class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
         @click="showRatingTable = !showRatingTable"
       >
         <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-book-open" class="size-5 text-primary-600" />
-          <span class="font-bold text-slate-900 text-sm md:text-base">Tabel Standar Interpretasi Rating Efektivitas Kontrol Internal</span>
+          <UIcon name="i-lucide-book-open" class="size-5 text-primary-600 dark:text-primary-400" />
+          <span class="font-bold text-slate-900 dark:text-white text-sm md:text-base">Tabel Standar Interpretasi Rating Efektivitas Kontrol Internal</span>
         </div>
-        <UIcon :name="showRatingTable ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5 text-slate-400" />
+        <UIcon :name="showRatingTable ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5 text-slate-400 dark:text-slate-500" />
       </button>
 
-      <div v-if="showRatingTable" class="px-6 pb-6 border-t border-slate-100 pt-4">
+      <div v-if="showRatingTable" class="px-6 pb-6 border-t border-slate-100 dark:border-slate-800 pt-4">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-md border-collapse">
             <thead>
-              <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold">
+              <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold">
                 <th class="py-2.5 px-4 rounded-l-lg whitespace-nowrap">Total Weighted Score (%)</th>
                 <th class="py-2.5 px-4 whitespace-nowrap">Rating</th>
                 <th class="py-2.5 px-4 rounded-r-lg">Interpretation</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-emerald-600 whitespace-nowrap">90 – 100%</td>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">90 – 100%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Highly Effective</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Controls reliably mitigate risk and require only routine monitoring.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls reliably mitigate risk and require only routine monitoring.</td>
               </tr>
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-sky-600 whitespace-nowrap">80 – 89%</td>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-sky-600 dark:text-sky-400 whitespace-nowrap">80 – 89%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Effective</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Controls function well; only minor improvements are recommended.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls function well; only minor improvements are recommended.</td>
               </tr>
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-amber-600 whitespace-nowrap">70 – 79%</td>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">70 – 79%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Moderately Effective</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Some weaknesses exist; corrective actions should be planned.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Some weaknesses exist; corrective actions should be planned.</td>
               </tr>
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-orange-600 whitespace-nowrap">60 – 69%</td>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-orange-600 dark:text-orange-400 whitespace-nowrap">60 – 69%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Weak</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Significant improvements are needed to reduce risk adequately.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Significant improvements are needed to reduce risk adequately.</td>
               </tr>
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-red-600 whitespace-nowrap">&lt; 60%</td>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-red-600 dark:text-red-400 whitespace-nowrap">&lt; 60%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Ineffective</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Controls do not provide sufficient risk mitigation and require immediate attention.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls do not provide sufficient risk mitigation and require immediate attention.</td>
               </tr>
             </tbody>
           </table>
@@ -213,21 +208,21 @@
       </div>
     </div>
 
-        <!-- Main Risk Control Matrix Table -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
+    <!-- Main Risk Control Matrix Table -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-6 space-y-4">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h3 class="text-lg font-bold text-slate-900">Daftar Risk Control Matrix</h3>
-          <p class="text-sm text-slate-500">Hasil evaluasi 5 Dimensi COSO 2013 (Rating 1 - 5 mewakili 4% - 20% per dimensi)</p>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Daftar Risk Control Matrix</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Hasil evaluasi 5 Dimensi COSO 2013 (Rating 1 - 5 mewakili 4% - 20% per dimensi)</p>
         </div>
         <div class="relative w-full md:w-64">
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Cari risiko / kontrol..."
-            class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-sm text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
-          <UIcon name="i-lucide-search" class="absolute left-3 top-2.5 size-3.5 text-slate-400" />
+          <UIcon name="i-lucide-search" class="absolute left-3 top-2.5 size-3.5 text-slate-400 dark:text-slate-500" />
         </div>
       </div>
 
@@ -244,10 +239,10 @@
         <!-- Risk Code & Event -->
         <template #risk_code-cell="{ row }">
           <div class="space-y-1">
-            <span class="inline-block px-2 py-0.5 bg-primary-50 text-primary-700 font-bold rounded text-xs">
+            <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded text-xs">
               {{ row.original.risk_code }}
             </span>
-            <p class="font-medium text-slate-900 text-sm leading-snug line-clamp-2 break-words" :title="row.original.risk_event">
+            <p class="font-medium text-slate-900 dark:text-white text-sm leading-snug line-clamp-2 break-words" :title="row.original.risk_event">
               {{ row.original.risk_event }}
             </p>
           </div>
@@ -256,10 +251,10 @@
         <!-- Control Code & Description -->
         <template #control_code-cell="{ row }">
           <div class="space-y-1">
-            <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-800 font-extrabold rounded text-xs border border-slate-200">
+            <span class="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded text-xs border border-slate-200 dark:border-slate-700">
               {{ row.original.control_code }}
             </span>
-            <p class="text-slate-600 text-sm leading-relaxed line-clamp-2 break-words" :title="row.original.control_description">
+            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed line-clamp-2 break-words" :title="row.original.control_description">
               {{ row.original.control_description }}
             </p>
           </div>
@@ -268,15 +263,15 @@
         <!-- Department & PIC -->
         <template #department-cell="{ row }">
           <div>
-            <p class="text-sm text-slate-800 font-semibold mb-0.5">{{ row.original.department }}</p>
-            <p class="text-xs text-slate-500">PIC: <strong class="text-slate-700">{{ row.original.control_owner }}</strong></p>
+            <p class="text-sm text-slate-800 dark:text-slate-100 font-semibold mb-0.5">{{ row.original.department }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">PIC: <strong class="text-slate-700 dark:text-slate-200">{{ row.original.control_owner }}</strong></p>
           </div>
         </template>
 
         <!-- Design Rating (1-5) -->
         <template #design_effectiveness_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700">
-            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.design_effectiveness_rating * 4}%`">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.design_effectiveness_rating * 4}%`">
               {{ row.original.design_effectiveness_rating }}
             </span>
           </div>
@@ -284,8 +279,8 @@
 
         <!-- Operating Rating (1-5) -->
         <template #operating_effectiveness_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700">
-            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.operating_effectiveness_rating * 4}%`">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.operating_effectiveness_rating * 4}%`">
               {{ row.original.operating_effectiveness_rating }}
             </span>
           </div>
@@ -293,8 +288,8 @@
 
         <!-- Coverage Rating (1-5) -->
         <template #coverage_completeness_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700">
-            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.coverage_completeness_rating * 4}%`">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.coverage_completeness_rating * 4}%`">
               {{ row.original.coverage_completeness_rating }}
             </span>
           </div>
@@ -302,8 +297,8 @@
 
         <!-- Timeliness Rating (1-5) -->
         <template #timeliness_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700">
-            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.timeliness_rating * 4}%`">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.timeliness_rating * 4}%`">
               {{ row.original.timeliness_rating }}
             </span>
           </div>
@@ -311,8 +306,8 @@
 
         <!-- Automation Rating (1-5) -->
         <template #automation_monitoring_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700">
-            <span class="px-2 py-1 rounded bg-slate-100 text-xs inline-block" :title="`${row.original.automation_monitoring_rating * 4}%`">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.automation_monitoring_rating * 4}%`">
               {{ row.original.automation_monitoring_rating }}
             </span>
           </div>
@@ -321,7 +316,7 @@
         <!-- Total Score (%) -->
         <template #total_weighted_score-cell="{ row }">
           <div class="text-center">
-            <span class="text-xs font-extrabold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-lg border border-primary-100 inline-block">
+            <span class="text-xs font-extrabold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-lg border border-primary-100 dark:border-primary-800 inline-block">
               {{ row.original.total_weighted_score }}%
             </span>
           </div>
@@ -363,17 +358,17 @@
     <!-- Add / Edit Modal -->
     <UModal v-model:open="isModalOpen" title="Manage Risk Control Matrix">
       <template #content>
-        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto">
-          <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-2">
+        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
             {{ isEditMode ? 'Edit Risk Control Matrix' : 'Tambah Risk Control Matrix Baru' }}
           </h3>
 
           <!-- Synchronized Risk Dropdown from Corporate Risk Profile -->
           <div>
-            <label class="block text-md font-semibold text-slate-700 mb-1">Pilih Risiko (Corporate Risk Profile)</label>
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Pilih Risiko (Corporate Risk Profile)</label>
             <select
               v-model="selectedRiskId"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
               @change="onRiskSelected"
             >
               <option value="">-- Pilih Risiko dari Corporate Risk Profile --</option>
@@ -389,41 +384,41 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-md font-semibold text-slate-700 mb-1">Kode Risiko (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kode Risiko (Sinkron)</label>
               <input
                 v-model="formData.risk_code"
                 type="text"
                 readonly
-                class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-600 font-bold cursor-not-allowed"
+                class="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-600 dark:text-slate-400 font-bold cursor-not-allowed"
               />
             </div>
             <div>
-              <label class="block text-md font-semibold text-slate-700 mb-1">Departemen / Branch (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Departemen / Branch (Sinkron)</label>
               <input
                 v-model="formData.department"
                 type="text"
                 readonly
-                class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-600 font-medium cursor-not-allowed"
+                class="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-600 dark:text-slate-400 font-medium cursor-not-allowed"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-md font-semibold text-slate-700 mb-1">Kejadian Risiko / Risk Event (Sinkron)</label>
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kejadian Risiko / Risk Event (Sinkron)</label>
             <textarea
               v-model="formData.risk_event"
               rows="2"
               readonly
-              class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-600 font-medium cursor-not-allowed"
+              class="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-600 dark:text-slate-400 font-medium cursor-not-allowed"
             ></textarea>
           </div>
 
           <!-- Synchronized Control & Mitigation Selection from Risk Mitigation Plans & Controls -->
           <div v-if="availableMitigations.length > 0">
-            <label class="block text-md font-semibold text-slate-700 mb-1">Pilih Risk Control ID (Rencana Mitigasi & Kontrol)</label>
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Pilih Risk Control ID (Rencana Mitigasi & Kontrol)</label>
             <select
               v-model="selectedMitigationId"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
               @change="onControlSelected"
             >
               <option value="">-- Pilih Risk Control ID --</option>
@@ -439,50 +434,50 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-md font-semibold text-slate-700 mb-1">Kode Kontrol (Risk Control ID)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kode Kontrol (Risk Control ID)</label>
               <input
                 v-model="formData.control_code"
                 type="text"
                 placeholder="misal: CTL-FIN-001"
-                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
               />
             </div>
             <div>
-              <label class="block text-md font-semibold text-slate-700 mb-1">PIC / Owner Kontrol (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">PIC / Owner Kontrol (Sinkron)</label>
               <input
                 v-model="formData.control_owner"
                 type="text"
                 placeholder="Finance Manager"
-                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-md font-semibold text-slate-700 mb-1">Deskripsi Aktivitas Pengendalian Internal</label>
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Deskripsi Aktivitas Pengendalian Internal</label>
             <textarea
               v-model="formData.control_description"
               rows="3"
               placeholder="Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan..."
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
             ></textarea>
           </div>
 
           <!-- 5 Dimensions COSO 2013 Rating System -->
-          <div class="space-y-4 pt-2 border-t border-slate-100">
+          <div class="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
             <div class="flex items-center justify-between">
-              <h4 class="font-bold text-slate-900 text-md">Evaluasi 5 Dimensi Internal Control (COSO 2013)</h4>
-              <span class="text-md text-slate-500">Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)</span>
+              <h4 class="font-bold text-slate-900 dark:text-white text-md">Evaluasi 5 Dimensi Internal Control (COSO 2013)</h4>
+              <span class="text-md text-slate-500 dark:text-slate-400">Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)</span>
             </div>
 
             <!-- Dimensi 1: Design -->
-            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="font-bold text-slate-800 text-md">1. Design Effectiveness (20%)</span>
-                  <p class="text-md text-slate-500">Kesesuaian rancangan kontrol terhadap risiko & SOP</p>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">1. Design Effectiveness (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Kesesuaian rancangan kontrol terhadap risiko & SOP</p>
                 </div>
-                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
                   {{ (formData.design_effectiveness_rating || 1) * 4 }}%
                 </span>
               </div>
@@ -501,13 +496,13 @@
             </div>
 
             <!-- Dimensi 2: Operating -->
-            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="font-bold text-slate-800 text-md">2. Operating Effectiveness (20%)</span>
-                  <p class="text-md text-slate-500">Konsistensi eksekusi dan ketiadaan deviasi kontrol</p>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">2. Operating Effectiveness (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Konsistensi eksekusi dan ketiadaan deviasi kontrol</p>
                 </div>
-                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
                   {{ (formData.operating_effectiveness_rating || 1) * 4 }}%
                 </span>
               </div>
@@ -526,13 +521,13 @@
             </div>
 
             <!-- Dimensi 3: Coverage -->
-            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="font-bold text-slate-800 text-md">3. Coverage & Completeness (20%)</span>
-                  <p class="text-md text-slate-500">Cakupan kontrol pada seluruh transaksi/aktivitas</p>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">3. Coverage & Completeness (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Cakupan kontrol pada seluruh transaksi/aktivitas</p>
                 </div>
-                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
                   {{ (formData.coverage_completeness_rating || 1) * 4 }}%
                 </span>
               </div>
@@ -551,13 +546,13 @@
             </div>
 
             <!-- Dimensi 4: Timeliness -->
-            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="font-bold text-slate-800 text-md">4. Timeliness & Frequency (20%)</span>
-                  <p class="text-md text-slate-500">Ketepatan waktu kontrol mendeteksi / mencegah insiden</p>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">4. Timeliness & Frequency (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Ketepatan waktu kontrol mendeteksi / mencegah insiden</p>
                 </div>
-                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
                   {{ (formData.timeliness_rating || 1) * 4 }}%
                 </span>
               </div>
@@ -576,13 +571,13 @@
             </div>
 
             <!-- Dimensi 5: Automation -->
-            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="font-bold text-slate-800 text-md">5. Automation & Monitoring (20%)</span>
-                  <p class="text-md text-slate-500">Tingkat otomatisasi sistemik & continuous monitoring</p>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">5. Automation & Monitoring (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Tingkat otomatisasi sistemik & continuous monitoring</p>
                 </div>
-                <span class="font-extrabold text-primary-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-md">
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
                   {{ (formData.automation_monitoring_rating || 1) * 4 }}%
                 </span>
               </div>
@@ -602,14 +597,14 @@
           </div>
 
           <!-- Total Score Summary in Modal -->
-          <div class="bg-primary-50 p-4 rounded-xl border border-primary-100 flex items-center justify-between">
+          <div class="bg-primary-50 dark:bg-primary-950/60 p-4 rounded-xl border border-primary-100 dark:border-primary-800 flex items-center justify-between">
             <div>
-              <span class="text-md text-primary-900 font-bold">Total Weighted Effectiveness Score:</span>
-              <p class="text-md text-primary-700">
+              <span class="text-md text-primary-900 dark:text-primary-100 font-bold">Total Weighted Effectiveness Score:</span>
+              <p class="text-md text-primary-700 dark:text-primary-300">
                 Interpretasi: <strong>{{ getItemRating(calculatedModalScorePercent).rating }}</strong>
               </p>
             </div>
-            <span class="text-2xl font-extrabold text-primary-700">{{ calculatedModalScorePercent }}%</span>
+            <span class="text-2xl font-extrabold text-primary-700 dark:text-primary-300">{{ calculatedModalScorePercent }}%</span>
           </div>
 
           <!-- Actions -->
@@ -647,6 +642,21 @@ const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
+
+const yearOptions = [
+  { label: 'Tahun 2026', value: 2026 },
+  { label: 'Tahun 2025', value: 2025 },
+  { label: 'Tahun 2024', value: 2024 }
+]
+
+const departmentOptions = [
+  { label: 'Semua Departemen / Branch', value: 'All Departments' },
+  { label: 'Head Office', value: 'Head Office' },
+  { label: 'Jakarta Branch', value: 'Jakarta Branch' },
+  { label: 'Surabaya Branch', value: 'Surabaya Branch' },
+  { label: 'Bandung Branch', value: 'Bandung Branch' },
+  { label: 'Bali Branch', value: 'Bali Branch' }
+]
 
 const columns = computed(() => [
   { accessorKey: 'risk_code', id: 'risk_code', header: 'Kode / Risiko', class: 'w-[16%]' },
@@ -728,23 +738,23 @@ const getItemRating = (scorePercent: number) => {
 const getRatingBadgeClass = (ratingLabel: string) => {
   switch (ratingLabel) {
     case 'Highly Effective':
-      return 'bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
     case 'Effective':
-      return 'bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
     case 'Moderately Effective':
-      return 'bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
     case 'Weak':
-      return 'bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
     default:
-      return 'bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
   }
 }
 
 const getRatingBtnClass = (current: number, star: number) => {
   if (current === star) {
-    return 'bg-primary-600 text-white shadow-sm font-bold border border-primary-700'
+    return 'bg-primary-600 dark:bg-primary-600 text-white shadow-sm font-bold border border-primary-700 dark:border-primary-500'
   }
-  return 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-300'
+  return 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700'
 }
 
 const calculatedModalScorePercent = computed(() => {

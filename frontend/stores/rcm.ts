@@ -114,8 +114,9 @@ export const getEffectivenessInterpretation = (scorePercent: number) => {
       score: scorePercent,
       rating: 'Highly Effective',
       interpretation: 'Controls reliably mitigate risk and require only routine monitoring.',
-      color: 'emerald',
-      bgClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      color: 'success',
+      alertColor: 'success',
+      bgClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800',
       badgeColor: 'emerald'
     }
   } else if (scorePercent >= 80) {
@@ -123,8 +124,9 @@ export const getEffectivenessInterpretation = (scorePercent: number) => {
       score: scorePercent,
       rating: 'Effective',
       interpretation: 'Controls function well; only minor improvements are recommended.',
-      color: 'sky',
-      bgClass: 'bg-sky-50 text-sky-700 border-sky-200',
+      color: 'info',
+      alertColor: 'info',
+      bgClass: 'bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800',
       badgeColor: 'sky'
     }
   } else if (scorePercent >= 70) {
@@ -132,8 +134,9 @@ export const getEffectivenessInterpretation = (scorePercent: number) => {
       score: scorePercent,
       rating: 'Moderately Effective',
       interpretation: 'Some weaknesses exist; corrective actions should be planned.',
-      color: 'amber',
-      bgClass: 'bg-amber-50 text-amber-700 border-amber-200',
+      color: 'warning',
+      alertColor: 'warning',
+      bgClass: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800',
       badgeColor: 'amber'
     }
   } else if (scorePercent >= 60) {
@@ -141,8 +144,9 @@ export const getEffectivenessInterpretation = (scorePercent: number) => {
       score: scorePercent,
       rating: 'Weak',
       interpretation: 'Significant improvements are needed to reduce risk adequately.',
-      color: 'orange',
-      bgClass: 'bg-orange-50 text-orange-700 border-orange-200',
+      color: 'warning',
+      alertColor: 'warning',
+      bgClass: 'bg-orange-50 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800',
       badgeColor: 'orange'
     }
   } else {
@@ -150,8 +154,9 @@ export const getEffectivenessInterpretation = (scorePercent: number) => {
       score: scorePercent,
       rating: 'Ineffective',
       interpretation: 'Controls do not provide sufficient risk mitigation and require immediate attention.',
-      color: 'red',
-      bgClass: 'bg-red-50 text-red-700 border-red-200',
+      color: 'error',
+      alertColor: 'error',
+      bgClass: 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800',
       badgeColor: 'red'
     }
   }

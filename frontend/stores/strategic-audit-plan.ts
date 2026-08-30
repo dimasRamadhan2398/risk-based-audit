@@ -241,17 +241,17 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     // Load on init
     fetchStrategicPlans();
 
-    const columns: TableColumn<StrategicAuditPlan>[] = [
-        { accessorKey: 'code', header: 'Objective ID' },
-        { accessorKey: 'strategicObjective', header: 'Strategic Objective' },
-        { accessorKey: 'kpi', header: 'KPI Name' },
-        { accessorKey: 'unit', header: 'Unit' },
-        { accessorKey: 'selectedPeriod', header: 'Period' },
-        { accessorKey: 'target', header: 'Target' },
-        { accessorKey: 'actual', header: 'Actual' },
-        { accessorKey: 'calculation', header: 'Hitungan' },
-        { accessorKey: 'status', header: 'Keterangan' },
-        { accessorKey: 'actions', header: 'Actions' },
+    const columns: (TableColumn<StrategicAuditPlan> & { class?: string })[] = [
+        { accessorKey: 'code', header: 'Objective ID', class: 'w-28 whitespace-nowrap' },
+        { accessorKey: 'strategicObjective', header: 'Strategic Objective', class: 'max-w-[280px] whitespace-normal break-words font-medium' },
+        { accessorKey: 'kpi', header: 'KPI Name', class: 'max-w-[240px] whitespace-normal break-words font-medium' },
+        { accessorKey: 'unit', header: 'Unit', class: 'w-20 text-center whitespace-nowrap' },
+        { accessorKey: 'selectedPeriod', header: 'Period', class: 'w-28 whitespace-nowrap' },
+        { accessorKey: 'target', header: 'Target', class: 'w-24 whitespace-nowrap' },
+        { accessorKey: 'actual', header: 'Actual', class: 'w-24 whitespace-nowrap' },
+        { accessorKey: 'calculation', header: 'Hitungan', class: 'w-28 whitespace-nowrap' },
+        { accessorKey: 'status', header: 'Keterangan', class: 'w-28 whitespace-nowrap' },
+        { accessorKey: 'actions', header: 'Actions', class: 'w-24 whitespace-nowrap text-center' },
     ];
 
     const getRowActions = (row: any) => [

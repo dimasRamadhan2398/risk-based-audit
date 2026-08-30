@@ -12,6 +12,15 @@
           </span>
         </template>
 
+        <template #auditTitle-cell="{ row }">
+          <div 
+            class="line-clamp-2 overflow-hidden max-w-xs font-medium text-gray-800 dark:text-gray-200"
+            :title="row.original.auditTitle"
+          >
+            {{ row.original.auditTitle || '-' }}
+          </div>
+        </template>
+
         <template #executionPeriod-cell="{ row }">
           <div class="flex items-center gap-1 text-gray-600 ">
             <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
@@ -33,7 +42,7 @@
         </template>
 
         <template #actions-cell="{ row }">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center justify-center gap-1">
             <UButton
               label="Edit"
               size="md"
