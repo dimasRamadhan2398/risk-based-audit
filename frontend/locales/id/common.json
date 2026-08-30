@@ -1095,8 +1095,6 @@
         "transactionUnit": "Rp Juta"
       }
     },
-<<<<<<< HEAD
-=======
   "analytics": {
     "title": "Pusat AI & Analitik",
     "subtitle": "Integrasi Terpadu Model Machine Learning & Deep Learning (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
@@ -1180,7 +1178,6 @@
         "transactionUnit": "Rp Juta"
       }
     },
->>>>>>> 19ed793 (fix: table display on every page)
     "nlp": {
       "alertTitle": "Model Analisis Dokumen IndoBERT NLP",
       "alertDesc": "Model IndoBERT & Natural Language Processing menganalisis kutipan Laporan Hasil Audit (Bahasa Indonesia) untuk mengklasifikasi kategori risiko, sentimen, impact, dan likelihood secara otomatis.",

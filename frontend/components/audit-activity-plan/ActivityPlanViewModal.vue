@@ -26,10 +26,10 @@
             <div class="space-y-3 text-sm">
                 <div class="flex"><strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.planTitle') }}</strong> <span>{{ store.selectedPlan.planTitle }}</span></div>
                 <div class="flex"><strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.planYear') }}</strong> <span>{{ store.selectedPlan.planYear }}</span></div>
-                <div class="flex"><strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.planPeriod') }}</strong> <span>{{ store.selectedPlan.planPeriodStart }} {{ t('auditActivityPlan.form.to') }} {{ store.selectedPlan.planPeriodEnd }}</span></div>
+                <div class="flex"><strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.planPeriod') }}</strong> <span>{{ formatPeriod(store.selectedPlan.planPeriodStart, store.selectedPlan.planPeriodEnd, locale) }}</span></div>
                 <div class="flex"><strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.department') }}</strong> <UBadge variant="soft">{{ store.selectedPlan.department }}</UBadge></div>
                 <div class="flex"><strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.createdBy') }}</strong> <span>{{ store.selectedPlan.createdBy }}</span></div>
-                <div class="flex"><strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.creationDate') }}</strong> <span>{{ new Date(store.selectedPlan.creationDate).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' }) }}</span></div>
+                <div class="flex"><strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.creationDate') }}</strong> <span>{{ formatDateLocale(store.selectedPlan.creationDate, locale) }}</span></div>
             </div>
         </UCard>
 
@@ -129,6 +129,7 @@
 import { computed } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
 import { useI18n } from '~/composables/useI18n'
+import { formatPeriod, formatDateLocale } from '~/utils/dateConverter'
 
 const { t, locale } = useI18n()
 const store = useActivityPlanStore()

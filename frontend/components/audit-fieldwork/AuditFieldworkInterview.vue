@@ -52,7 +52,6 @@
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-1">
           <UButton
-<<<<<<< HEAD
             icon="i-lucide-edit"
             color="warning"
             variant="ghost"
@@ -64,19 +63,6 @@
             color="error"
             variant="ghost"
             size="md"
-=======
-            icon="i-heroicons-pencil-square"
-            color="primary"
-            variant="ghost"
-            size="sm"
-            @click="store.editInterview(row.original)"
-          />
-          <UButton
-            icon="i-heroicons-trash"
-            color="error"
-            variant="ghost"
-            size="sm"
->>>>>>> 19ed793 (fix: table display on every page)
             @click="store.deleteInterview(row.index)"
           />
         </div>

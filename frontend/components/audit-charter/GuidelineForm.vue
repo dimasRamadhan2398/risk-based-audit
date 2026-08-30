@@ -34,16 +34,8 @@
                 maxlength="200"
                 placeholder="e.g. Pedoman Pengelolaan Satuan Audit Internal"
                 class="mt-1 block w-full rounded-md"
-<<<<<<< HEAD
                 @invalid="($event.target as any)?.setCustomValidity('Nama Pedoman wajib diisi dan maksimal 200 karakter')"
                 @input="($event.target as any)?.setCustomValidity('')"
-=======
-<<<<<<< HEAD
-=======
-                @invalid="($event.target as any)?.setCustomValidity('Nama Pedoman wajib diisi dan maksimal 200 karakter')"
-                @input="($event.target as any)?.setCustomValidity('')"
->>>>>>> 7dd76f4 (fix: table display on every page)
->>>>>>> 19ed793 (fix: table display on every page)
               />
             </UFormField>
 

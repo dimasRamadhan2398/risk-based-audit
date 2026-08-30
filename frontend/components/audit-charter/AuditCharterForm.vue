@@ -19,27 +19,6 @@
             />
           </div>
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-                  <div class="space-y-4">
-                    <UFormField
-                      :label="t('auditCharter.form.docTitle')"
-                      class="block text-sm font-medium"
-                      size="lg"
-                    >
-                      <UInput
-                        v-model="store.form.title"
-                        required
-                        type="text"
-                        name="title"
-                        id="title"
-                        class="mt-1 block w-full rounded-md sm:text-sm p-2"
-                        :placeholder="t('auditCharter.form.docTitlePlaceholder')"
-                      />
-                    </UFormField>
-=======
->>>>>>> 19ed793 (fix: table display on every page)
           <div class="space-y-4">
             <UFormField
               :label="t('auditCharter.form.docTitle')"
@@ -59,10 +38,6 @@
                 @input="($event.target as any)?.setCustomValidity('')"
               />
             </UFormField>
-<<<<<<< HEAD
-=======
->>>>>>> 7dd76f4 (fix: table display on every page)
->>>>>>> 19ed793 (fix: table display on every page)
 
             <div class="grid grid-cols-2 gap-4">
               <UFormField
@@ -100,15 +75,6 @@
                 <div class="mt-1 block w-full rounded-md border border-secondary-200 text-primary-900 p-2 sm:text-sm font-bold bg-gray-50">
                   <span>{{ store.form.uploadedBy }}</span>
                 </div>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-              </UForm>
-            </template>
-      </UModal>
-    
-=======
->>>>>>> 19ed793 (fix: table display on every page)
               </UFormField>
 
               <UFormField
@@ -160,13 +126,8 @@
                   :required="!store.isEditing && !store.form.file"
                 />
               </div>
-<<<<<<< HEAD
               <p v-if="store.form.file || store.form.fileName" class="text-md text-gray-500 mt-1">
                 File terpilih: <span class="font-semibold text-gray-700">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
-=======
-              <p v-if="store.form.file" class="text-md text-gray-500 mt-1">
-                File terpilih: <span class="font-semibold text-gray-700">{{ store.form.file.name }}</span>
->>>>>>> 19ed793 (fix: table display on every page)
               </p>
             </UFormField>
 
@@ -202,10 +163,6 @@
       </UForm>
     </template>
   </UModal>
-<<<<<<< HEAD
-=======
->>>>>>> 7dd76f4 (fix: table display on every page)
->>>>>>> 19ed793 (fix: table display on every page)
 </template>
 
 <script setup lang="ts">

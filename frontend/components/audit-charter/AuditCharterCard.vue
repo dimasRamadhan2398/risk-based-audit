@@ -110,24 +110,23 @@
             </div>
           </div>
         </div>
-        <div class="sm:flex sm:flex-row-reverse">
+        <div class="sm:flex sm:flex-row-reverse gap-4">
           <UButton
             v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            :to="store.activeCharter.fileUrl"
-            target="_blank"
-            icon="i-lucide-eye"
-            size="xl"
-            color="neutral"
-            variant="ghost"
+            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf')"
+            icon="i-lucide-download"
+            size="md"
+            color="primary"
+            variant="solid"
+            :label="t('auditCharter.card.download')"
           />
           <UButton
             v-if="canManageCharter"
             :label="t('auditCharter.card.edit')"
             @click="store.handleEdit(store.activeCharter)"
-            color="warning"
+            color="primary"
             icon="i-lucide-edit"
-            variant="ghost"
-            size="xl"
+            variant="outline"
           >
           </UButton>
         </div>
@@ -172,12 +171,20 @@
           </template>
           <template #title-cell="{ row }">
             <div class="font-bold text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.title }}
+              <ReadMoreText
+                :text="row.original.title"
+                :max-length="60"
+                text-class="font-bold text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #content-cell="{ row }">
             <div class="font-normal text-[var(--text-muted)] text-sm break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.content || '-' }}
+              <ReadMoreText
+                :text="row.original.content || '-'"
+                :max-length="75"
+                text-class="text-[var(--text-muted)] text-sm"
+              />
             </div>
           </template>
           <template #date-cell="{ row }">
@@ -187,39 +194,32 @@
           </template>
           <template #approvedBy-cell="{ row }">
             <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.approvedBy }}
+              <ReadMoreText
+                :text="row.original.approvedBy"
+                :max-length="35"
+                text-class="font-medium text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #uploadedBy-cell="{ row }">
             <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.uploadedBy }}
+              <ReadMoreText
+                :text="row.original.uploadedBy"
+                :max-length="35"
+                text-class="font-medium text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #actions-cell="{ row }">
-<<<<<<< HEAD
-            <div class="flex justify-end gap-1.5 whitespace-nowrap">
-=======
             <div v-if="canManageCharter" class="flex justify-end gap-1.5 whitespace-nowrap">
->>>>>>> 19ed793 (fix: table display on every page)
               <UButton
-                v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                :to="row.original.fileUrl"
-                target="_blank"
                 size="md"
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-eye"
-              />
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="warning"
+                color="primary"
                 variant="ghost"
                 icon="i-lucide-edit"
                 @click="store.handleEdit(row.original)"
               />
               <UButton
-                v-if="canManageCharter"
                 size="md"
                 color="error"
                 variant="ghost"
@@ -239,6 +239,7 @@ import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { useGlobalModalStore } from '~/stores/global-modal'
 
 const { t } = useI18n()
 const store = useCharterStore()

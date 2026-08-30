@@ -62,7 +62,11 @@
 
         <!-- Name slot -->
         <template #name-cell="{ row }">
-          <span class="font-semibold text-[var(--text-main)]">{{ row.original.name }}</span>
+          <ReadMoreText
+            :text="row.original.name"
+            :max-length="65"
+            text-class="font-semibold text-[var(--text-main)]"
+          />
         </template>
 
         <!-- Status slot -->
@@ -91,13 +95,13 @@
               :to="row.original.file_url"
               target="_blank"
               icon="i-lucide-eye"
-              color="neutral"
+              color="primary"
               variant="ghost"
               size="md"
             />
             <UButton
               size="md"
-              color="warning"
+              color="primary"
               variant="ghost"
               icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
@@ -120,6 +124,7 @@
 import { computed, onMounted } from 'vue'
 import { useGuidelineStore } from '~/stores/guideline'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { useGlobalModalStore } from '~/stores/global-modal'
 
 const store = useGuidelineStore()
 
@@ -128,10 +133,7 @@ const columns = [
   { accessorKey: 'name', header: 'Nama Pedoman' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'effective_date', header: 'Mulai Berlaku' },
-<<<<<<< HEAD
-=======
   { accessorKey: 'file_name', header: 'View Dokumen' },
->>>>>>> 19ed793 (fix: table display on every page)
   { accessorKey: 'actions', header: '' }
 ]
 

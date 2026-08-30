@@ -1098,8 +1098,6 @@
         "transactionUnit": "IDR Million"
       }
     },
-<<<<<<< HEAD
-=======
   "analytics": {
     "title": "AI & Analytics Center",
     "subtitle": "Integrated Machine Learning & Deep Learning Models (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
@@ -1183,7 +1181,6 @@
         "transactionUnit": "IDR Million"
       }
     },
->>>>>>> 19ed793 (fix: table display on every page)
     "nlp": {
       "alertTitle": "IndoBERT NLP Document Analysis Model",
       "alertDesc": "The IndoBERT & Natural Language Processing model analyzes excerpts from Audit Report Results (Indonesian Language) to automatically classify risk categories, sentiment, impact, and likelihood.",
