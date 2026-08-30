@@ -1538,7 +1538,7 @@ export default defineAppConfig({
           color: "primary",
           variant: "solid",
           class:
-            "text-inverted font-semibold tracking-wider from-primary-300 to-primary-400 bg-gradient-to-br hover:bg-primary/75 active:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary text-secondary-900 shadow-sm",
+            "text-inverted dark:bg-primary-600/90 text-secondary-900 dark:text-white font-semibold tracking-wider hover:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary shadow-sm",
         },
         {
           color: "primary",
