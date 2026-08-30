@@ -152,14 +152,16 @@
 import { ref, computed, watch, useSlots } from 'vue'
 import { getPaginationRowModel } from '@tanstack/vue-table'
 
+import type { TableColumn } from '@nuxt/ui'
+
 defineOptions({ inheritAttrs: false })
 
 export interface TableColumnItem {
   key?: string
   accessorKey?: string
   id?: string
-  label?: unknown
-  header?: unknown
+  label?: string
+  header?: any
   cell?: unknown
   [key: string]: unknown
 }
@@ -167,7 +169,7 @@ export interface TableColumnItem {
 const props = withDefaults(
   defineProps<{
     data?: any[]
-    columns?: (string | TableColumnItem)[]
+    columns?: (string | TableColumnItem | TableColumn<any> | any)[]
     loading?: boolean
     emptyState?: { icon?: string, label?: string, description?: string }
     itemsPerPage?: number

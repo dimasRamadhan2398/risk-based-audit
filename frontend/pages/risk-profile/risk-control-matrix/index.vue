@@ -36,6 +36,7 @@
 
         <UButton
           color="primary"
+          variant="solid"
           class="font-medium shadow-sm"
           @click="openAddModal"
         >
@@ -118,7 +119,6 @@
               {{ rcmStore.cosoAverages.totalWeighted }}%
             </span>
           </div>
-          <p class="text-md text-slate-500 dark:text-slate-400 mt-0.5">Rata-Rata Bobot 5 Dimensi Kontrol</p>
 
           <div class="mt-4 space-y-3">
             <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
@@ -228,7 +228,7 @@
 
       <TableEntities
         :data="filteredList"
-        :columns="columns"
+        :columns="rcmStore.columns"
         :items-per-page="10"
         :empty-state="{
           icon: 'i-lucide-shield-alert',
@@ -238,11 +238,11 @@
       >
         <!-- Risk Code & Event -->
         <template #risk_code-cell="{ row }">
-          <div class="space-y-1">
+          <div class="max-w-[280px] min-w-[220px] whitespace-normal break-words space-y-1">
             <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded text-xs">
               {{ row.original.risk_code }}
             </span>
-            <p class="font-medium text-slate-900 dark:text-white text-sm leading-snug line-clamp-2 break-words" :title="row.original.risk_event">
+            <p class="font-medium text-slate-900 dark:text-white text-sm leading-snug break-words" :title="row.original.risk_event">
               {{ row.original.risk_event }}
             </p>
           </div>
@@ -250,11 +250,11 @@
 
         <!-- Control Code & Description -->
         <template #control_code-cell="{ row }">
-          <div class="space-y-1">
+          <div class="max-w-[280px] min-w-[220px] whitespace-normal break-words space-y-1">
             <span class="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded text-xs border border-slate-200 dark:border-slate-700">
               {{ row.original.control_code }}
             </span>
-            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed line-clamp-2 break-words" :title="row.original.control_description">
+            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed break-words" :title="row.original.control_description">
               {{ row.original.control_description }}
             </p>
           </div>
@@ -262,7 +262,7 @@
 
         <!-- Department & PIC -->
         <template #department-cell="{ row }">
-          <div>
+          <div class="min-w-[140px] whitespace-normal break-words">
             <p class="text-sm text-slate-800 dark:text-slate-100 font-semibold mb-0.5">{{ row.original.department }}</p>
             <p class="text-xs text-slate-500 dark:text-slate-400">PIC: <strong class="text-slate-700 dark:text-slate-200">{{ row.original.control_owner }}</strong></p>
           </div>
@@ -587,14 +587,14 @@
           </div>
 
           <!-- Total Score Summary in Modal -->
-          <div class="bg-primary-50 dark:bg-primary-950/60 p-4 rounded-xl border border-primary-100 dark:border-primary-800 flex items-center justify-between">
+          <div class="bg-primary-600 dark:bg-primary-700 text-white p-4 rounded-xl shadow-md flex items-center justify-between">
             <div>
-              <span class="text-md text-primary-900 dark:text-primary-100 font-bold">Total Weighted Effectiveness Score:</span>
-              <p class="text-md text-primary-700 dark:text-primary-300">
-                Interpretasi: <strong>{{ getItemRating(calculatedModalScorePercent).rating }}</strong>
+              <span class="text-md font-bold text-white">Total Weighted Effectiveness Score:</span>
+              <p class="text-sm text-primary-100 mt-0.5">
+                Interpretasi: <strong class="text-white font-extrabold">{{ getItemRating(calculatedModalScorePercent).rating }}</strong>
               </p>
             </div>
-            <span class="text-2xl font-extrabold text-primary-700 dark:text-primary-300">{{ calculatedModalScorePercent }}%</span>
+            <span class="text-2xl font-extrabold text-white">{{ calculatedModalScorePercent }}%</span>
           </div>
 
           <!-- Actions -->
@@ -632,6 +632,43 @@ const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
+const selectedBranchInModal = ref('All Branches')
+
+const branchModalOptions = [
+  { label: 'Semua Branch / Departemen', value: 'All Branches' },
+  { label: 'Head Office', value: 'Head Office' },
+  { label: 'Jakarta Branch', value: 'Jakarta Branch' },
+  { label: 'Surabaya Branch', value: 'Surabaya Branch' },
+  { label: 'Bandung Branch', value: 'Bandung Branch' },
+  { label: 'Bali Branch', value: 'Bali Branch' }
+]
+
+const riskOptionsForModal = computed(() => {
+  let list = riskProfileStore.risks || []
+  if (selectedBranchInModal.value && selectedBranchInModal.value !== 'All Branches') {
+    list = list.filter(r => (r.branch || r.category || 'Head Office') === selectedBranchInModal.value)
+  }
+  return list.map(r => ({
+    id: String(r.id),
+    value: String(r.id),
+    label: `${riskProfileStore.getFormattedId(r)} - ${r.name}`,
+    code: riskProfileStore.getFormattedId(r),
+    name: r.name,
+    branch: r.branch || r.category || 'Head Office',
+    riskLevel: r.riskLevel
+  }))
+})
+
+const mitigationOptionsForModal = computed(() => {
+  return availableMitigations.value.map(m => ({
+    id: m.id,
+    value: m.id,
+    label: `${m.riskControlId || 'CTL-001'} - ${m.mitigationPlan} (PIC: ${m.pic})`,
+    riskControlId: m.riskControlId,
+    mitigationPlan: m.mitigationPlan,
+    pic: m.pic
+  }))
+})
 
 const yearOptions = [
   { label: 'Tahun 2026', value: 2026 },
@@ -647,20 +684,6 @@ const departmentOptions = [
   { label: 'Bandung Branch', value: 'Bandung Branch' },
   { label: 'Bali Branch', value: 'Bali Branch' }
 ]
-
-const columns = computed(() => [
-  { accessorKey: 'risk_code', id: 'risk_code', header: 'Kode / Risiko', class: 'w-[16%]' },
-  { accessorKey: 'control_code', id: 'control_code', header: 'Risk Control ID & Deskripsi Mitigasi', class: 'w-[20%]' },
-  { accessorKey: 'department', id: 'department', header: 'Departemen / PIC', class: 'w-[14%]' },
-  { accessorKey: 'design_effectiveness_rating', id: 'design_effectiveness_rating', header: 'Design (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'operating_effectiveness_rating', id: 'operating_effectiveness_rating', header: 'Operating (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'coverage_completeness_rating', id: 'coverage_completeness_rating', header: 'Coverage (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'timeliness_rating', id: 'timeliness_rating', header: 'Timeliness (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'automation_monitoring_rating', id: 'automation_monitoring_rating', header: 'Automation (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'total_weighted_score', id: 'total_weighted_score', header: 'Total Score', class: 'w-[7%] text-center' },
-  { accessorKey: 'rating', id: 'rating', header: 'Rating Efektivitas', class: 'w-[9%] text-center' },
-  { accessorKey: 'actions', id: 'actions', header: 'Aksi', class: 'w-[4%] text-right' }
-])
 
 const formData = ref<Partial<RCMItem>>({
   risk_id: '',
@@ -800,9 +823,12 @@ const calculatedModalScorePercent = computed(() => {
   return rcmStore.calculateItemScorePercent(formData.value)
 })
 
-const onRiskSelected = () => {
-  if (!selectedRiskId.value) return
-  const risk = riskProfileStore.getRiskById(selectedRiskId.value)
+const onRiskSelected = (newVal?: any) => {
+  const riskId = typeof newVal === 'object' && newVal !== null ? (newVal.value || newVal.id) : (newVal || selectedRiskId.value)
+  if (!riskId) return
+  selectedRiskId.value = String(riskId)
+
+  const risk = riskProfileStore.getRiskById(riskId)
   if (risk) {
     formData.value.risk_id = String(risk.id)
     formData.value.risk_code = riskProfileStore.getFormattedId(risk)
@@ -813,7 +839,7 @@ const onRiskSelected = () => {
     const firstMit = mits && mits.length > 0 ? mits[0] : undefined
     if (firstMit) {
       selectedMitigationId.value = firstMit.id
-      onControlSelected()
+      onControlSelected(firstMit.id)
     } else {
       selectedMitigationId.value = ''
       formData.value.control_code = 'CTL-' + formData.value.risk_code
@@ -823,10 +849,13 @@ const onRiskSelected = () => {
   }
 }
 
-const onControlSelected = () => {
-  if (!selectedMitigationId.value) return
+const onControlSelected = (newVal?: any) => {
+  const mitId = typeof newVal === 'object' && newVal !== null ? (newVal.value || newVal.id) : (newVal || selectedMitigationId.value)
+  if (!mitId) return
+  selectedMitigationId.value = String(mitId)
+
   const mits = availableMitigations.value
-  const found = mits.find(m => m.id === selectedMitigationId.value)
+  const found = mits.find(m => m.id === mitId)
   if (found) {
     formData.value.control_code = found.riskControlId || ('CTL-' + formData.value.risk_code)
     formData.value.control_description = found.mitigationPlan || found.notes || ''
@@ -834,18 +863,43 @@ const onControlSelected = () => {
   }
 }
 
+const onBranchModalChange = (newBranch?: any) => {
+  const branch = typeof newBranch === 'object' && newBranch !== null ? (newBranch.value || newBranch.label) : (newBranch || selectedBranchInModal.value)
+  selectedBranchInModal.value = branch || 'All Branches'
+  
+  const available = riskOptionsForModal.value
+  if (available.length > 0) {
+    const stillValid = available.some(r => r.value === selectedRiskId.value)
+    if (!stillValid && available[0]) {
+      selectedRiskId.value = available[0].value
+      onRiskSelected(available[0].value)
+    }
+  } else {
+    selectedRiskId.value = ''
+    formData.value.risk_id = ''
+    formData.value.risk_code = ''
+    formData.value.risk_event = ''
+    formData.value.department = selectedBranchInModal.value !== 'All Branches' ? selectedBranchInModal.value : 'Head Office'
+  }
+}
+
 const openAddModal = () => {
   isEditMode.value = false
-  selectedRiskId.value = ''
-  selectedMitigationId.value = ''
   
-  const defaultRisk = riskProfileStore.risks[0]
-  const defaultCode = defaultRisk ? riskProfileStore.getFormattedId(defaultRisk) : 'FIN-001'
-  const defaultEvent = defaultRisk ? defaultRisk.name : 'Target pendapatan dan laba tidak tercapai'
-  const defaultDept = defaultRisk ? (defaultRisk.branch || defaultRisk.category) : 'Head Office'
+  if (rcmStore.selectedDepartment && rcmStore.selectedDepartment !== 'All Departments') {
+    selectedBranchInModal.value = rcmStore.selectedDepartment
+  } else {
+    selectedBranchInModal.value = 'All Branches'
+  }
+
+  const defaultRisks = riskOptionsForModal.value
+  const defaultRiskItem = defaultRisks.length > 0 && defaultRisks[0] ? riskProfileStore.getRiskById(defaultRisks[0].value) : (riskProfileStore.risks && riskProfileStore.risks.length > 0 ? riskProfileStore.risks[0] : undefined)
+  const defaultCode = defaultRiskItem ? riskProfileStore.getFormattedId(defaultRiskItem) : 'FIN-001'
+  const defaultEvent = defaultRiskItem ? defaultRiskItem.name : 'Target pendapatan dan laba tidak tercapai'
+  const defaultDept = defaultRiskItem ? (defaultRiskItem.branch || defaultRiskItem.category || 'Head Office') : 'Head Office'
 
   formData.value = {
-    risk_id: defaultRisk ? String(defaultRisk.id) : '1',
+    risk_id: defaultRiskItem ? String(defaultRiskItem.id) : '1',
     risk_code: defaultCode,
     risk_event: defaultEvent,
     control_code: 'CTL-' + defaultCode,
@@ -866,9 +920,9 @@ const openAddModal = () => {
     notes: ''
   }
 
-  if (defaultRisk) {
-    selectedRiskId.value = String(defaultRisk.id)
-    onRiskSelected()
+  if (defaultRiskItem) {
+    selectedRiskId.value = String(defaultRiskItem.id)
+    onRiskSelected(String(defaultRiskItem.id))
   }
 
   isModalOpen.value = true
@@ -877,6 +931,7 @@ const openAddModal = () => {
 const openEditModal = (item: RCMItem) => {
   isEditMode.value = true
   formData.value = JSON.parse(JSON.stringify(item))
+  selectedBranchInModal.value = item.department || 'All Branches'
   selectedRiskId.value = item.risk_id || ''
   isModalOpen.value = true
 }
