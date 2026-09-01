@@ -13,8 +13,8 @@
       </div>
       <div class="flex items-center gap-2">
         <UButton
-          color="neutral"
-          variant="outline"
+          color="info"
+          variant="ghost"
           icon="i-lucide-upload"
           label="Import Executive Summary"
           to="/audit-result-report/executive-summary-upload"

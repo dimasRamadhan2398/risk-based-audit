@@ -94,7 +94,7 @@ const handleGenerateQR = async () => {
 }
 
 const handleRemove = async (id: string) => {
-  if (!confirm('Are you sure you want to remove this trusted device?')) return
+  if (!await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to remove this trusted device?' })) return
 
   try {
     await $fetch(`${config.public.apiBase}/devices/${id}`, { method: 'DELETE' })

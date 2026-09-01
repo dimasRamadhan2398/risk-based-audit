@@ -2,6 +2,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useUploadPerformanceReportStore } from '~/stores/upload-performance-report'
 import { useToast } from '#imports'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useUploadPerformanceReportStore()
 const toast = useToast()
@@ -80,7 +81,7 @@ const processFile = (file: File) => {
 
   const reader = new FileReader()
   reader.onload = (e) => {
-    form.value.fileContent = e.target?.result as string
+    form.value.file = e.target?.result as string
   }
   reader.readAsDataURL(file)
 }
@@ -113,7 +114,7 @@ const formatBytes = (bytes: number, decimals = 2) => {
 }
 
 const handleUpload = async () => {
-  if (!form.value.title || !form.value.fileName || !form.value.fileContent) {
+  if (!form.value.title || !form.value.fileName || !form.value.period || !form.value.year) {
     toast.add({
       title: 'Formulir Belum Lengkap',
       description: 'Harap lengkapi Judul dan File Dokumen Laporan Kinerja.',
@@ -153,7 +154,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (id: string, title: string) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus dokumen "${title}"?`)) {
+  if (await useGlobalModalStore().confirmDelete({ description: `Apakah Anda yakin ingin menghapus dokumen "${title}"?` })) {
     try {
       await store.deleteReport(id, selectedPeriodFilter.value, parseInt(selectedYearFilter.value))
       toast.add({
@@ -187,17 +188,17 @@ const getPeriodBadgeColor = (period: string) => {
 }
 
 const columns = [
-  { key: 'title', label: 'Judul Dokumen' },
-  { key: 'period', label: 'Periode' },
-  { key: 'year', label: 'Tahun' },
-  { key: 'fileName', label: 'File' },
-  { key: 'created_at', label: 'Tanggal Upload' },
-  { key: 'actions', label: 'Aksi' }
+  { accessorKey: 'title', header: 'Judul Dokumen', class: 'w-[38%]' },
+  { accessorKey: 'period', header: 'Periode', class: 'w-[9%]' },
+  { accessorKey: 'year', header: 'Tahun', class: 'w-[8%]' },
+  { accessorKey: 'fileName', header: 'File', class: 'w-[20%]' },
+  { accessorKey: 'created_at', header: 'Tanggal Upload', class: 'w-[15%]' },
+  { accessorKey: 'actions', header: 'Aksi', class: 'w-[10%]' }
 ]
 </script>
 
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen">
+  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-full">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/kpi-performance" />
@@ -208,10 +209,10 @@ const columns = [
     </div>
 
     <!-- Main Grid -->
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-10">
       <!-- Upload Form Card (Left/Top) -->
-      <div class="lg:col-span-5 space-y-6">
-        <UCard class="shadow-sm border border-gray-200 dark:border-gray-800">
+      <div class="w-full space-y-6">
+        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200 dark:border-gray-800">
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-lucide-upload-cloud" class="w-5 h-5 text-primary" />
@@ -281,13 +282,13 @@ const columns = [
                 @dragover.prevent="isDragging = true"
                 @dragleave.prevent="isDragging = false"
                 @drop.prevent="handleFileDrop"
-                class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors duration-200"
+                class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors duration-200"
                 :class="[
                   isDragging
-                    ? 'border-primary bg-primary/5'
+                    ? 'border-primary bg-blue-50/50 dark:bg-primary-950/30'
                     : form.fileName
                       ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20'
-                      : 'border-gray-300 dark:border-gray-700 hover:border-primary bg-white dark:bg-gray-800'
+                      : 'border-gray-300 dark:border-gray-700 hover:border-primary bg-gray-50 dark:bg-gray-800/60'
                 ]"
               >
                 <input
@@ -298,28 +299,28 @@ const columns = [
                   accept=".pdf,.docx,.doc,.xls,.xlsx"
                 />
 
-                <div v-if="!form.fileName" class="space-y-2">
-                  <UIcon name="i-lucide-file-up" class="w-9 h-9 mx-auto text-gray-400" />
+                <div v-if="!form.fileName" class="space-y-3">
+                  <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-md font-semibold text-gray-700 dark:text-gray-300">Klik untuk upload atau drag & drop file</p>
-                    <p class="text-[11px] text-gray-400 mt-0.5">PDF, DOCX, XLSX hingga 10MB</p>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Klik untuk upload atau drag & drop file</p>
+                    <p class="text-md text-gray-400 mt-1">PDF, DOCX, XLSX hingga 10MB</p>
                   </div>
                 </div>
 
-                <div v-else class="space-y-2">
-                  <UIcon name="i-lucide-file-check-2" class="w-9 h-9 mx-auto text-emerald-500" />
+                <div v-else class="space-y-3">
+                  <UIcon name="i-lucide-file-check-2" class="w-10 h-10 mx-auto text-emerald-500" />
                   <div>
-                    <p class="text-md font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[220px] mx-auto">
+                    <p class="text-sm font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[200px] mx-auto px-2">
                       {{ form.fileName }}
                     </p>
-                    <p class="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">
+                    <p class="text-md text-emerald-600 dark:text-emerald-500 mt-1">
                       {{ formatBytes(selectedFileLength) }}
                     </p>
                   </div>
                   <button
                     type="button"
                     @click.stop="clearFile"
-                    class="text-md text-red-500 hover:underline font-bold mt-1 inline-block"
+                    class="text-md text-red-500 hover:underline font-bold mt-2 block mx-auto"
                   >
                     Ganti File
                   </button>
@@ -335,7 +336,7 @@ const columns = [
               type="submit"
               label="Impor Laporan Kinerja"
               color="primary"
-              class="w-full justify-center font-bold h-10 text-sm"
+              class="w-full justify-center font-bold h-11 text-base"
               :loading="store.loading"
               icon="i-lucide-upload"
               :disabled="!form.title || !form.fileName"
@@ -345,8 +346,8 @@ const columns = [
       </div>
 
       <!-- Uploaded Documents Table (Right/Bottom) -->
-      <div class="lg:col-span-7 space-y-6">
-        <UCard class="shadow-sm border border-gray-200 dark:border-gray-800">
+      <div class="w-full">
+        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div class="flex items-center gap-2">
@@ -369,85 +370,79 @@ const columns = [
             </div>
           </template>
 
-          <div v-if="store.loading && store.uploadedReports.length === 0" class="py-12 text-center">
-            <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-            <p class="text-gray-500 text-md">Memuat daftar dokumen...</p>
-          </div>
+          <TableEntities
+            :data="store.uploadedReports"
+            :columns="columns"
+            :loading="store.loading"
+            :empty-state="{
+              icon: 'i-lucide-folder-open',
+              label: 'Belum Ada Dokumen Terimpor',
+              description: 'Unggah dokumen Laporan Kinerja Q1, Q2, Q3, Q4, atau Tahunan melalui formulir di sebelah kiri.'
+            }"
+          >
+            <template #title-cell="{ row }">
+              <div>
+                <div class="font-bold text-gray-900 dark:text-white">{{ row.original.title }}</div>
+                <div v-if="row.original.description" class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">{{ row.original.description }}</div>
+              </div>
+            </template>
 
-          <div v-else-if="store.uploadedReports.length === 0" class="py-16 text-center space-y-3 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30">
-            <UIcon name="i-lucide-folder-open" class="w-12 h-12 text-gray-300 mx-auto" />
-            <div>
-              <h3 class="text-sm font-bold text-gray-900 dark:text-white">Belum Ada Dokumen Terimpor</h3>
-              <p class="text-md text-gray-500 mt-1">Unggah dokumen Laporan Kinerja Q1, Q2, Q3, Q4, atau Tahunan melalui formulir di sebelah kiri.</p>
-            </div>
-          </div>
+            <template #period-cell="{ row }">
+              <UBadge :color="getPeriodBadgeColor(row.original.period)" variant="subtle" size="md" class="font-bold">
+                {{ row.original.period }}
+              </UBadge>
+            </template>
 
-          <div v-else class="overflow-x-auto">
-            <table class="w-full text-left text-md">
-              <thead class="bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700">
-                <tr>
-                  <th class="py-3 px-4">Judul Dokumen</th>
-                  <th class="py-3 px-3">Periode</th>
-                  <th class="py-3 px-3">Tahun</th>
-                  <th class="py-3 px-3">File</th>
-                  <th class="py-3 px-3">Tanggal Upload</th>
-                  <th class="py-3 px-3 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                <tr v-for="doc in store.uploadedReports" :key="doc.id" class="hover:bg-gray-50/60 dark:hover:bg-gray-800/40">
-                  <td class="py-3 px-4">
-                    <div class="font-bold text-gray-900 dark:text-white">{{ doc.title }}</div>
-                    <div v-if="doc.description" class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">{{ doc.description }}</div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <UBadge :color="getPeriodBadgeColor(doc.period)" variant="subtle" size="md" class="font-bold">
-                      {{ doc.period }}
-                    </UBadge>
-                  </td>
-                  <td class="py-3 px-3 font-medium text-gray-700 dark:text-gray-300">
-                    {{ doc.year }}
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="text-gray-700 dark:text-white font-medium truncate max-w-[140px]" :title="doc.fileName">
-                      {{ doc.fileName }}
-                    </div>
-                    <div class="text-[10px] text-gray-400">{{ formatBytes(doc.fileSize) }}</div>
-                  </td>
-                  <td class="py-3 px-3 text-gray-500">
-                    {{ new Date(doc.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) }}
-                  </td>
-                  <td class="py-3 px-3 text-right">
-                    <div class="flex items-center justify-end gap-1">                  <UButton 
-                    icon="i-lucide-eye" 
-                    color="info" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="View Document"
-                    @click="store.viewDocument(doc.id, doc.fileName)" 
-                  />
-                  <UButton 
-                    icon="i-lucide-download"
-                        color="neutral"
-                        variant="ghost"
-                        size="md"
-                        @click="handleDownload(doc.id, doc.fileName)"
-                        title="Unduh Dokumen"
-                      />
-                      <UButton
-                        icon="i-lucide-trash-2"
-                        color="error"
-                        variant="ghost"
-                        size="md"
-                        @click="handleDelete(doc.id, doc.title)"
-                        title="Hapus Dokumen"
-                      />
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            <template #year-cell="{ row }">
+              <span class="font-medium text-gray-700 dark:text-gray-300">
+                {{ row.original.year }}
+              </span>
+            </template>
+
+            <template #fileName-cell="{ row }">
+              <div>
+                <div class="text-gray-700 dark:text-white font-medium truncate max-w-[140px]" :title="row.original.fileName">
+                  {{ row.original.fileName }}
+                </div>
+                <div class="text-[10px] text-gray-400">{{ formatBytes(row.original.fileSize) }}</div>
+              </div>
+            </template>
+
+            <template #created_at-cell="{ row }">
+              <span class="text-gray-500">
+                {{ new Date(row.original.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) }}
+              </span>
+            </template>
+
+            <template #actions-cell="{ row }">
+              <div class="flex items-center gap-1">
+                <UButton 
+                  icon="i-lucide-eye" 
+                  color="neutral" 
+                  variant="ghost" 
+                  size="md" 
+                  title="Lihat Dokumen"
+                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                />
+                <UButton 
+                  icon="i-lucide-download"
+                  color="success"
+                  variant="ghost"
+                  size="md"
+                  @click="handleDownload(row.original.id, row.original.fileName)"
+                  title="Unduh Dokumen"
+                />
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="ghost"
+                  size="md"
+                  @click="handleDelete(row.original.id, row.original.title)"
+                  title="Hapus Dokumen"
+                />
+              </div>
+            </template>
+          </TableEntities>
         </UCard>
       </div>
     </div>

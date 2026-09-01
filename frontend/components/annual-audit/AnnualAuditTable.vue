@@ -41,7 +41,7 @@
         </template>
 
         <template #riskLevel-cell="{ row }">
-          <div class="flex gap-1 flex-wrap">
+          <div class="flex flex-col gap-1 items-start">
             <UBadge 
               v-for="(act, idx) in ((row.original || row)?.activities || [])" 
               :key="idx"
@@ -50,24 +50,6 @@
               size="md"
             >
               {{ act.riskLevel || '-' }}
-            </UBadge>
-          </div>
-        </template>
-
-        <template #timeline-cell="{ row }">
-          <div class="font-bold text-primary-600 mr-1">{{ (row.original || row)?.year }}</div>
-          <UBadge v-for="q in ((row.original || row)?.quarters || [])" :key="q" color="primary" variant="subtle" size="md">
-            {{ q }}
-          </UBadge>
-          <div class="flex gap-1 flex-wrap mt-1">
-            <UBadge 
-              v-for="idx in (((row.original || row)?.selectedMonths || []).slice().sort((a: number, b: number) => a - b))" 
-              :key="idx"
-              color="primary" 
-              variant="outline" 
-              size="md"
-            >
-              {{ store.monthsList[idx] }}
             </UBadge>
           </div>
         </template>
@@ -86,31 +68,30 @@
         <template #actions-cell="{ row }">
           <div class="flex items-center">
             <UButton
-              label="View"
-              color="primary"
+              icon="i-lucide-eye"
+              color="neutral"
               variant="ghost"
-              size="lg"
+              size="md"
+              title="View"
               @click="store.openViewModal(row.original || row)"
             />
 
-            <span class="text-gray-300">|</span>
-
             <UButton
-              icon="i-heroicons-pencil-square"
-              color="primary"
+              icon="i-lucide-edit"
+              color="warning"
               variant="ghost"
-              size="lg"
-              @click="store.openEditModal(row.original || row)"
+              size="md"
+              title="Edit"
+              @click="store.handleEdit(row.original || row)"
             />
 
-            <span class="text-gray-300">|</span>
-
             <UButton
-              label="Hapus"
+              icon="i-lucide-trash-2"
               color="error"
               variant="ghost"
-              size="lg"
-              @click="store.openDeleteModal((row.original || row)?.id)"
+              size="md"
+              title="Hapus"
+              @click="store.handleDelete((row.original || row)?.id)"
             />
           </div>
         </template>

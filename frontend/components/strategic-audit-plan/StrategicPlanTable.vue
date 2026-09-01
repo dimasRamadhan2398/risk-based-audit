@@ -93,19 +93,24 @@
               :aria-label="t('strategicPlan.actions.viewDetails')"
               @click="store.openViewModal(row.original)"
             />
-            <!-- Dropdown Menu -->
-            <UDropdownMenu
-              :items="getActions(row.original)"
-              aria-label="Actions"
-            >
-              <UButton
-                icon="i-lucide-ellipsis-vertical"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                aria-label="Actions dropdown"
-              />
-            </UDropdownMenu>
+            <UButton
+              icon="i-lucide-edit"
+              color="warning"
+              variant="ghost"
+              size="md"
+              :title="t('strategicPlan.actions.edit')"
+              :aria-label="t('strategicPlan.actions.edit')"
+              @click="store.handleEdit(row.original)"
+            />
+            <UButton
+              icon="i-lucide-trash-2"
+              color="error"
+              variant="ghost"
+              size="md"
+              :title="t('strategicPlan.actions.delete')"
+              :aria-label="t('strategicPlan.actions.delete')"
+              @click="store.handleDelete(row.original.id)"
+            />
           </div>
         </template>
 

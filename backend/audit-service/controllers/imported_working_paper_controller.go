@@ -67,6 +67,11 @@ func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
 		return
 	}
 
+	if int64(len(dec)) > 10*1024*1024 {
+		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+		return
+	}
+
 	// Generate a unique filename to avoid overwrites
 	fileExt := filepath.Ext(fileName)
 	baseName := strings.TrimSuffix(fileName, fileExt)

@@ -71,24 +71,24 @@
                   <template #actions-cell="{ row }">
                     <div class="flex gap-2">
                       <UButton
-                        icon="i-heroicons-eye"
-                        size="sm"
+                        icon="i-lucide-eye"
+                        size="md"
                         color="neutral"
                         variant="ghost"
                         :to="`/working-paper?id=${row.original.id}`"
                         :title="t('auditFieldwork.workingPapers.tooltips.view')"
                       />
                       <UButton
-                        icon="i-heroicons-pencil-square"
-                        size="sm"
-                        color="primary"
+                        icon="i-lucide-edit"
+                        size="md"
+                        color="warning"
                         variant="ghost"
                         :to="`/working-paper?id=${row.original.id}&action=edit`"
                         :title="t('auditFieldwork.workingPapers.tooltips.edit')"
                       />
                       <UButton
-                        icon="i-heroicons-trash"
-                        size="sm"
+                        icon="i-lucide-trash-2"
+                        size="md"
                         color="error"
                         variant="ghost"
                         @click="wpStore.deleteF01(row.original.id!)"

@@ -12,25 +12,27 @@ export const useCharterStore = defineStore('charter', () => {
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
 
-  const columns: TableColumn<AuditCharter>[] = [
-    { accessorKey: 'version', header: 'Version' },
-    { accessorKey: 'title', header: 'Charter Name' },
-    { accessorKey: 'date', header: 'Date' },
-    { accessorKey: 'approvedBy', header: 'Approved By' },
-    { accessorKey: 'uploadedBy', header: 'Uploaded By' },
-    { accessorKey: 'fileName', header: 'Actions' },
-    { accessorKey: 'actions', header: '' },
+  const columns = [
+    { accessorKey: 'version', header: 'Version', class: 'w-16 whitespace-nowrap text-center' },
+    { accessorKey: 'title', header: 'Charter Name', class: 'w-48' },
+    { accessorKey: 'content', header: 'Content', class: 'w-48' },
+    { accessorKey: 'date', header: 'Date', class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'approvedBy', header: 'Approved By', class: 'w-36' },
+    { accessorKey: 'uploadedBy', header: 'Uploaded By', class: 'w-36' },
+    { accessorKey: 'actions', header: '', class: 'w-14 whitespace-nowrap text-center' },
   ]
 
   // Form State
   const form = reactive<CharterFormState>({
     title: '',
     version: '', // Tidak perlu diisi user
+    content: '',
     date: new Date().toISOString().split('T')[0] || '',
-    uploadedBy: 'Dimas (HIA)',
+    uploadedBy: '',
     approvedBy: '',
     isActive: true,
     file: null,
+    fileName: '',
   })
 
   /**
@@ -58,6 +60,11 @@ export const useCharterStore = defineStore('charter', () => {
    * - uploadedBy
    * - approvedBy
    */
+  const getCharterDownloadUrl = (id: string) => {
+    const baseUrl = getAuditServiceBaseUrl()
+    return `${baseUrl}/audit-charters/${id}/download`
+  }
+
   const mapBackendToFrontend = (item: any): AuditCharter => {
     const dateValue =
       item.date ||
@@ -76,9 +83,10 @@ export const useCharterStore = defineStore('charter', () => {
       id: String(item.id),
       title: item.title || item.filename || item.fileName || '-',
       version: item.version || '-',
+      content: item.content || '-',
       date: new Date(dateValue).toISOString().split('T')[0] || '',
       uploadedBy: item.uploaded_by || item.uploadedBy || 'Dimas (HIA)',
-      approvedBy: item.approved_by || item.approvedBy || item.content || '-',
+      approvedBy: item.approved_by || item.approvedBy || '-',
       isActive: item.is_active ?? item.isActive ?? false,
       fileName: item.filename || item.file_name || item.fileName || '-',
       fileSize,
@@ -253,6 +261,7 @@ export const useCharterStore = defineStore('charter', () => {
       }
       formData.append('title', form.title)
       formData.append('version', autoVersion)
+      formData.append('content', form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
@@ -294,6 +303,7 @@ export const useCharterStore = defineStore('charter', () => {
       }
       formData.append('title', form.title)
       formData.append('version', form.version || '')
+      formData.append('content', form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
@@ -416,11 +426,13 @@ export const useCharterStore = defineStore('charter', () => {
     // Reset Form
     form.title = ''
     form.version = ''
+    form.content = ''
     form.date = new Date().toISOString().split('T')[0] || ''
     form.uploadedBy = 'Dimas (HIA)'
     form.approvedBy = ''
     form.isActive = false
     form.file = null
+    form.fileName = ''
   }
 
   const handleEdit = (charter: any) => {
@@ -431,11 +443,13 @@ export const useCharterStore = defineStore('charter', () => {
     // Isi form dengan data lama
     form.title = charter.title
     form.version = charter.version
+    form.content = charter.content && charter.content !== '-' ? charter.content : ''
     form.date = charter.date
     form.uploadedBy = charter.uploadedBy
     form.approvedBy = charter.approvedBy
     form.isActive = charter.isActive
     form.file = null // Reset file input karena file tidak wajib diisi saat edit
+    form.fileName = charter.fileName
 
     // Reset error
     errorMsg.value = ''
@@ -473,6 +487,7 @@ export const useCharterStore = defineStore('charter', () => {
     deleteCharter,
     downloadCharter,
 
+    getCharterDownloadUrl,
     handleEdit,
     handleSubmit,
     closeModal,

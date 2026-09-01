@@ -330,7 +330,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     };
 
     const handleDelete = async (id: number | string) => {
-        if (!confirm("Are you sure you want to delete this Strategic Plan?")) return;
+        if (!await useGlobalModalStore().confirmDelete({ description: "Are you sure you want to delete this Strategic Plan?" })) return;
         loading.value = true;
         errorMsg.value = '';
         try {

@@ -356,7 +356,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
     }
 
     const deleteMitigation = async (id: string, currentRiskId?: string) => {
-        if (!confirm('Apakah Anda yakin ingin menghapus rencana mitigasi ini?')) return
+        if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus rencana mitigasi ini?' })) return
         loading.value = true
         errorMsg.value = ''
         try {

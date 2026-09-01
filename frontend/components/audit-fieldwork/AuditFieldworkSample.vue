@@ -9,49 +9,47 @@
       <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
     </div>
 
-    <!-- Sample List -->
-    <UCard v-if="store.samples.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.samples" :columns="columns">
-        <template #documentName-cell="{ row }">
-          <span class="font-medium">{{ row.original.documentName }}</span>
-        </template>
-        <template #documentNumber-cell="{ row }">
-          <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
-        </template>
-        <template #date-cell="{ row }">
-          <span>{{ row.original.date }}</span>
-        </template>
-        <template #description-cell="{ row }">
-          <span class="text-sm text-gray-600">{{ row.original.description }}</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editSample(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteSample(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-table-cells" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">{{ t('auditFieldwork.sample.empty') }}</p>
-      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
-    </div>
+    <!-- Sample List via TableEntities -->
+    <TableEntities
+      :data="store.samples"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-table-cells',
+        label: t('auditFieldwork.sample.empty')
+      }"
+      class="w-full"
+    >
+      <template #documentName-cell="{ row }">
+        <span class="font-medium">{{ row.original.documentName }}</span>
+      </template>
+      <template #documentNumber-cell="{ row }">
+        <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
+      </template>
+      <template #date-cell="{ row }">
+        <span>{{ row.original.date }}</span>
+      </template>
+      <template #description-cell="{ row }">
+        <span class="text-sm text-gray-600">{{ row.original.description }}</span>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center gap-1">
+          <UButton icon="i-lucide-edit" color="warning" variant="ghost" size="md" @click="store.editSample(row.original)" />
+          <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="md" @click="store.deleteSample(row.index)" />
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Sample Modal -->
-    <Teleport to="body">
-      <div v-if="store.showSampleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingSample ? t('auditFieldwork.sample.modalEdit') : t('auditFieldwork.sample.modalAdd') }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showSampleModal = false }" />
-            </div>
-          </template>
+    <UModal v-model:open="store.showSampleModal" scrollable :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }">
+      <template #content>
+        <div class="relative flex flex-col max-h-[90vh]">
+          <div class="flex items-center justify-between p-5 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
+            <h3 class="text-lg font-bold text-[var(--text-main)]">{{ store.isEditingSample ? t('auditFieldwork.sample.modalEdit') : t('auditFieldwork.sample.modalAdd') }}</h3>
+            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="() => { store.showSampleModal = false }" />
+          </div>
 
-          <UForm @submit.prevent="store.saveSample()" class="space-y-4">
+          <div class="p-6 overflow-y-auto space-y-5">
+            <UForm @submit.prevent="store.saveSample()" class="space-y-4">
             <UFormField :label="t('auditFieldwork.sample.name')" required>
               <UInput v-model="store.sampleForm.documentName" :placeholder="t('auditFieldwork.sample.namePlaceholder')" class="w-full" required />
             </UFormField>
@@ -68,24 +66,24 @@
             <UFormField :label="t('auditFieldwork.sample.description')" required>
               <UTextarea v-model="store.sampleForm.description" :placeholder="t('auditFieldwork.sample.descriptionPlaceholder')" class="w-full" required />
             </UFormField>
-          </UForm>
+            </UForm>
+          </div>
 
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showSampleModal = false }" />
-              <UButton color="primary" :label="store.isEditingSample ? t('common.edit') : t('common.submit')" @click="store.saveSample()" />
-            </div>
-          </template>
-        </UCard>
-      </div>
-    </Teleport>
+          <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
+            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showSampleModal = false }" />
+            <UButton color="primary" :label="store.isEditingSample ? t('common.edit') : t('common.submit')" @click="store.saveSample()" />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
-import { computed } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()

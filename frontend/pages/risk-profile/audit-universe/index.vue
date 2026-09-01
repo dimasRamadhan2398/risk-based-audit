@@ -134,7 +134,7 @@
                     <span class="font-bold text-md text-slate-800 dark:text-slate-200">{{ node.name }}</span>
                     <div v-if="canEditAuditUniverse" class="flex items-center gap-1">
                       <UButton
-                        icon="i-lucide-plus-circle"
+                        icon="i-lucide-plus"
                         color="primary"
                         variant="ghost"
                         size="md"
@@ -142,7 +142,7 @@
                       />
                       <UButton
                         icon="i-lucide-edit"
-                        color="neutral"
+                        color="warning"
                         variant="ghost"
                         size="md"
                         @click="openRenameModal(node)"
@@ -613,7 +613,7 @@ const saveAddCustomNode = async () => {
 }
 
 const deleteCorporateNode = async (id: string) => {
-  if (!confirm('Are you sure you want to delete this entity from Corporate Audit Universe? This will delete all sub-entities and yearly entries.')) return
+  if (!await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this entity from Corporate Audit Universe? This will delete all sub-entities and yearly entries.' })) return
   await store.deleteCorporateNode(id)
   showAlert('Entity deleted successfully from corporate library.', 'success')
   await fetchYearlyUniverse()

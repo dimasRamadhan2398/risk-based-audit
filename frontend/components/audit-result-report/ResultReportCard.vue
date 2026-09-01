@@ -24,16 +24,16 @@
       </div>
       <div class="flex gap-1">
         <UButton
-          color="primary"
+          color="warning"
           variant="ghost"
-          icon="i-heroicons-pencil-square"
+          icon="i-lucide-edit"
           size="md"
           @click="$emit('edit', row)"
         />
         <UButton
           color="neutral"
           variant="ghost"
-          icon="i-heroicons-printer"
+          icon="i-lucide-printer"
           size="md"
           @click="$emit('print', row)"
         />

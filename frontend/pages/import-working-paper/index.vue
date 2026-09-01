@@ -1,10 +1,11 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen">
+  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-full">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-4 mb-6">
+      <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/working-paper" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Import Working Paper</h1>
-        <p class="text-sm text-gray-500">Import reference working papers for auditor guidelines</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.upload.title') }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('workingPaper.upload.subtitle') }}</p>
       </div>
     </div>
 
@@ -12,47 +13,47 @@
     <div class="flex flex-col gap-10">
       <!-- Import Form Card -->
       <div class="w-full space-y-6">
-        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200">
+        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200 dark:border-gray-800">
           <template #header>
-            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-heroicons-arrow-up-tray" class="w-5 h-5 text-primary" />
-              Import Working Paper
+              {{ t('workingPaper.upload.formTitle') }}
             </h3>
           </template>
 
           <form @submit.prevent="handleImport" class="space-y-4">
-            <UFormField label="Document Title" required>
+            <UFormField :label="t('workingPaper.upload.documentTitle')" required>
               <UInput 
                 v-model="form.title" 
-                placeholder="e.g. IT Audit Guidelines 2026" 
+                :placeholder="t('workingPaper.upload.documentTitlePlaceholder')" 
                 class="w-full" 
                 required 
               />
             </UFormField>
 
-            <UFormField label="Description">
+            <UFormField :label="t('workingPaper.upload.description')">
               <UTextarea 
                 v-model="form.description" 
-                placeholder="Optional description of the document..." 
+                :placeholder="t('workingPaper.upload.descriptionPlaceholder')" 
                 :rows="3" 
                 class="w-full" 
               />
             </UFormField>
 
             <!-- File Import Box -->
-            <UFormField label="File Reference" required>
+            <UFormField :label="t('workingPaper.upload.fileLabel')" required>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
                 @dragleave.prevent="isDragging = false"
                 @drop.prevent="handleFileDrop"
-                class="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors duration-200"
+                class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors duration-200"
                 :class="[
                   isDragging 
-                    ? 'border-primary bg-primary-50' 
+                    ? 'border-primary bg-blue-50/50 dark:bg-primary-950/30' 
                     : form.fileName 
-                      ? 'border-green-400 bg-green-50' 
-                      : 'border-gray-300 hover:border-primary'
+                      ? 'border-emerald-400 bg-emerald-50/30 dark:border-emerald-500 dark:bg-emerald-950/20' 
+                      : 'border-gray-300 dark:border-gray-700 hover:border-primary bg-gray-50 dark:bg-gray-800/60'
                 ]"
               >
                 <input 
@@ -63,33 +64,37 @@
                   accept=".pdf,.doc,.docx,.xls,.xlsx"
                 />
                 
-                <div v-if="!form.fileName" class="space-y-2">
-                  <UIcon name="i-heroicons-document-arrow-up" class="w-8 h-8 mx-auto text-gray-400" />
-                  <p class="text-md text-gray-500 font-medium">Click to select or drag & drop</p>
-                  <p class="text-[10px] text-gray-400">PDF, DOCX, XLSX up to 10MB</p>
+                <div v-if="!form.fileName" class="space-y-3">
+                  <UIcon name="i-heroicons-document-arrow-up" class="w-10 h-10 mx-auto text-gray-400" />
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">{{ t('workingPaper.upload.dropzonePrompt') }}</p>
+                    <p class="text-md text-gray-400 mt-1">{{ t('workingPaper.upload.dropzoneHint') }}</p>
+                  </div>
                 </div>
 
-                <div v-else class="space-y-2">
-                  <UIcon name="i-heroicons-document-check" class="w-8 h-8 mx-auto text-green-500" />
-                  <p class="text-md text-green-700 font-bold truncate max-w-full px-2">
-                    {{ form.fileName }}
-                  </p>
-                  <p class="text-[10px] text-green-600">
-                    {{ formatBytes(selectedFileLength) }}
-                  </p>
+                <div v-else class="space-y-3">
+                  <UIcon name="i-heroicons-document-check" class="w-10 h-10 mx-auto text-emerald-500" />
+                  <div>
+                    <p class="text-sm text-emerald-700 dark:text-emerald-400 font-bold truncate max-w-[200px] mx-auto px-2">
+                      {{ form.fileName }}
+                    </p>
+                    <p class="text-md text-emerald-600 dark:text-emerald-500 mt-1">
+                      {{ formatBytes(selectedFileLength) }}
+                    </p>
+                  </div>
                   <button 
                     type="button" 
                     @click.stop="clearFile" 
-                    class="text-md text-red-500 hover:underline font-semibold block mx-auto"
+                    class="text-md text-red-500 hover:underline font-bold mt-2 block mx-auto"
                   >
-                    Remove File
+                    {{ t('workingPaper.upload.removeFile') }}
                   </button>
                 </div>
               </div>
             </UFormField>
 
             <!-- Error message display -->
-            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 p-3 rounded-lg border border-red-200">
+            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-900">
               {{ store.errorMsg }}
             </div>
 
@@ -97,102 +102,91 @@
             <UButton 
               type="submit" 
               color="primary" 
-              class="w-full justify-center font-bold" 
+              class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
               icon="i-heroicons-arrow-up-tray"
               :disabled="!form.title || !form.fileName"
             >
-              Import Document
+              {{ t('workingPaper.upload.submitButton') }}
             </UButton>
           </form>
         </UCard>
       </div>
 
       <!-- Imported Files Table -->
-      <div class="lg:col-span-2">
-        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200">
+      <div class="w-full">
+        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-heroicons-table-cells" class="w-5 h-5 text-primary" />
-                Reference Guidelines Documents
+                {{ t('workingPaper.upload.tableTitle') }}
               </h3>
               <UBadge color="primary" variant="subtle">
-                {{ store.importedPapers.length }} Documents
+                {{ t('workingPaper.upload.documentsCount', { count: store.importedPapers.length }) }}
               </UBadge>
             </div>
           </template>
 
-          <!-- Loading State -->
-          <div v-if="store.loading && store.importedPapers.length === 0" class="py-12 text-center">
-            <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-            <p class="text-gray-500 text-sm">Loading guidelines...</p>
-          </div>
-
-          <!-- Empty State -->
-          <div v-else-if="store.importedPapers.length === 0" class="py-16 text-center space-y-4 rounded-lg">
-            <div class="inline-flex p-4 rounded-full text-gray-400">
-              <UIcon name="i-heroicons-folder-open" class="w-12 h-12" />
-            </div>
-            <div class="max-w-md mx-auto">
-              <h3 class="text-sm font-bold text-gray-900">No guidelines imported</h3>
-              <p class="text-md text-gray-500 mt-1">Import files on the left to make reference documents available for auditors.</p>
-            </div>
-          </div>
-
-          <!-- Table -->
-          <div v-else class="overflow-x-auto">
-            <UTable :data="store.importedPapers" :columns="columns">
-              <template #title-cell="{ row }">
-                <div>
-                  <div class="font-bold text-gray-900 text-sm">{{ row.original.title }}</div>
-                  <div class="text-[11px] text-gray-500 mt-0.5 line-clamp-1">
-                    {{ row.original.description || 'No description' }}
-                  </div>
+          <TableEntities
+            :data="store.importedPapers"
+            :columns="columns"
+            :loading="store.loading"
+            :empty-state="{
+              icon: 'i-heroicons-folder-open',
+              label: t('workingPaper.upload.emptyTitle'),
+              description: t('workingPaper.upload.emptyDesc')
+            }"
+          >
+            <template #title-cell="{ row }">
+              <div>
+                <div class="font-bold text-gray-900 dark:text-white text-sm">{{ row.original.title }}</div>
+                <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
+                  {{ row.original.description || '-' }}
                 </div>
-              </template>
+              </div>
+            </template>
 
-              <template #fileName-cell="{ row }">
-                <div class="flex items-center gap-2 max-w-[200px]">
-                  <UIcon :name="getFileIcon(row.original.fileName)" class="w-5 h-5 flex-shrink-0" :class="getFileIconColor(row.original.fileName)" />
-                  <span class="text-md text-gray-600 truncate" :title="row.original.fileName">{{ row.original.fileName }}</span>
-                </div>
-              </template>
+            <template #fileName-cell="{ row }">
+              <div class="flex items-center gap-2 max-w-[200px]">
+                <UIcon :name="getFileIcon(row.original.fileName)" class="w-5 h-5 flex-shrink-0" :class="getFileIconColor(row.original.fileName)" />
+                <span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px] block" :title="row.original.fileName">{{ row.original.fileName }}</span>
+              </div>
+            </template>
 
-              <template #fileSize-cell="{ row }">
-                <span class="text-md text-gray-500 font-medium">
-                  {{ formatBytes(row.original.fileSize) }}
-                </span>
-              </template>
+            <template #fileSize-cell="{ row }">
+              <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                {{ formatBytes(row.original.fileSize) }}
+              </span>
+            </template>
 
-              <template #created_at-cell="{ row }">
-                <span class="text-md text-gray-500">
-                  {{ formatDate(row.original.created_at) }}
-                </span>
-              </template>
+            <template #created_at-cell="{ row }">
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {{ formatDate(row.original.created_at) }}
+              </span>
+            </template>
 
-              <template #actions-cell="{ row }">
-                <div class="flex items-center gap-1">
-                  <UButton 
-                    icon="i-heroicons-arrow-down-tray" 
-                    color="primary" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="Download File"
-                    @click="store.downloadImportedPaper(row.original.id, row.original.fileName)" 
-                  />
-                  <UButton 
-                    icon="i-heroicons-trash" 
-                    color="error" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="Delete File"
-                    @click="handleDelete(row.original.id)" 
-                  />
-                </div>
-              </template>
-            </UTable>
-          </div>
+            <template #actions-cell="{ row }">
+              <div class="flex items-center gap-1">
+                <UButton 
+                  icon="i-heroicons-arrow-down-tray" 
+                  color="primary" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('workingPaper.upload.actions.download')" 
+                  @click="store.downloadImportedPaper(row.original.id, row.original.fileName)" 
+                />
+                <UButton 
+                  icon="i-heroicons-trash" 
+                  color="error" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('workingPaper.upload.actions.delete')" 
+                  @click="handleDelete(row.original.id)" 
+                />
+              </div>
+            </template>
+          </TableEntities>
         </UCard>
       </div>
     </div>
@@ -200,13 +194,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useImportWorkingPaperStore } from '~/stores/import-working-paper'
+import { useI18n } from '~/composables/useI18n'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
+const { t } = useI18n()
 const store = useImportWorkingPaperStore()
 
-onMounted(() => {
-  store.fetchImportedPapers()
+onMounted(async () => {
+  await store.fetchImportedPapers()
 })
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -221,17 +218,13 @@ const form = ref({
   file: null as any
 })
 
-const columns = [
-  { accessorKey: 'title', header: 'Document Title' },
-  { accessorKey: 'fileName', header: 'File Reference' },
-  { accessorKey: 'fileSize', header: 'Size' },
-  { accessorKey: 'created_at', header: 'Imported At' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
-
-onMounted(async () => {
-  await store.fetchImportedPapers()
-})
+const columns = computed(() => [
+  { accessorKey: 'title', header: t('workingPaper.upload.columns.title'), class: 'w-[42%]' },
+  { accessorKey: 'fileName', header: t('workingPaper.upload.columns.file'), class: 'w-[22%]' },
+  { accessorKey: 'fileSize', header: t('workingPaper.upload.columns.size'), class: 'w-[13%]' },
+  { accessorKey: 'created_at', header: t('workingPaper.upload.columns.date'), class: 'w-[13%]' },
+  { accessorKey: 'actions', header: t('workingPaper.upload.columns.actions'), class: 'w-[10%]' }
+])
 
 const triggerFileSelect = () => {
   fileInput.value?.click()
@@ -255,7 +248,7 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    alert('File size exceeds the 10MB limit.')
+    alert(t('workingPaper.upload.fileSizeLimit'))
     return
   }
 
@@ -296,7 +289,7 @@ const handleImport = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (confirm('Are you sure you want to delete this guidelines document?')) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.upload.deleteConfirm') })) {
     try {
       await store.deleteImportedPaper(id)
     } catch (err) {

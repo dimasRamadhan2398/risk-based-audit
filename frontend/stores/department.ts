@@ -288,7 +288,7 @@ export const useDepartmentStore = defineStore('department', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (department: Department) => {
-    if (!confirm(`Are you sure you want to delete department "${department.department_name}"?`)) {
+    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete department "${department.department_name}"?` })) {
       return
     }
 

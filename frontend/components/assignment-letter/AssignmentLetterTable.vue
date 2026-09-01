@@ -36,20 +36,17 @@
           <div class="flex items-center gap-1">
             <UButton
               size="md"
-              color="primary"
+              color="warning"
               variant="ghost"
-              icon="i-heroicons-pencil-square"
+              icon="i-lucide-edit"
               @click="store.openEditModal(row.original)"
             />
-
-            <span class="text-gray-300">|</span>
-
             <UButton
-              label="Delete"
               size="md"
               color="error"
               variant="ghost"
-              icon="i-heroicons-trash"
+              icon="i-lucide-trash-2"
+              title="Delete"
               @click="store.deleteSuratTugas(row.original.id)"
             />
           </div>

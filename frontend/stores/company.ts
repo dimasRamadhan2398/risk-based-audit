@@ -306,7 +306,7 @@ export const useCompanyStore = defineStore('company', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (company: Company) => {
-    if (!confirm(`Are you sure you want to delete company "${company.company_name}"?`)) {
+    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete company "${company.company_name}"?` })) {
       return
     }
 

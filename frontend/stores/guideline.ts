@@ -18,6 +18,14 @@ export const useGuidelineStore = defineStore('guideline', () => {
   const loading = ref(false)
   const errorMsg = ref('')
 
+  // Pagination State
+  const pagination = ref({
+    page: 1,
+    page_size: 20,
+    total: 0,
+    total_pages: 0
+  })
+
   // Modal & Form State
   const showModal = ref(false)
   const isEditing = ref(false)
@@ -38,20 +46,32 @@ export const useGuidelineStore = defineStore('guideline', () => {
     return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
   }
 
-  const fetchGuidelines = async () => {
+  const fetchGuidelines = async (page?: number, pageSize?: number) => {
+    if (page !== undefined) pagination.value.page = page
+    if (pageSize !== undefined) pagination.value.page_size = pageSize
+
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const authStore = useAuthStore()
-      const response: any = await $fetch(`${baseUrl}/audit-guidelines?page_size=100`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${authStore.token}`
+      const response: any = await $fetch(
+        `${baseUrl}/audit-guidelines?page=${pagination.value.page}&page_size=${pagination.value.page_size}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
         }
-      })
+      )
       if (response && response.data && Array.isArray(response.data.items)) {
         guidelines.value = response.data.items
+        if (response.data.pagination) {
+          pagination.value = {
+            ...pagination.value,
+            ...response.data.pagination
+          }
+        }
       } else {
         guidelines.value = []
       }
@@ -61,6 +81,14 @@ export const useGuidelineStore = defineStore('guideline', () => {
     } finally {
       loading.value = false
     }
+  }
+
+  const setPage = (page: number) => {
+    fetchGuidelines(page)
+  }
+
+  const setPageSize = (size: number) => {
+    fetchGuidelines(1, size)
   }
 
   const handleFileChange = (event: Event) => {
@@ -273,10 +301,13 @@ export const useGuidelineStore = defineStore('guideline', () => {
     guidelines,
     loading,
     errorMsg,
+    pagination,
     showModal,
     isEditing,
     form,
     fetchGuidelines,
+    setPage,
+    setPageSize,
     handleFileChange,
     addGuideline,
     updateGuideline,

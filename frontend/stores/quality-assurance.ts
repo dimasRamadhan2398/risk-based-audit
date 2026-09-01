@@ -484,7 +484,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
     if (!targetReport) return
 
-    if (!confirm('Apakah Anda yakin ingin menghapus laporan Quality Assurance ini?')) {
+    if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus laporan Quality Assurance ini?' })) {
       return
     }
 

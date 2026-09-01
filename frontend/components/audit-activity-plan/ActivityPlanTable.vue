@@ -20,7 +20,7 @@
       </template>
 
       <template #riskLevel-cell="{ row }">
-        <div class="flex gap-1 flex-wrap">
+        <div class="flex flex-col gap-1 items-start">
           <UBadge 
             v-for="(act, idx) in getOriginal(row).plannedActivities" 
             :key="idx"
@@ -54,26 +54,26 @@
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-2">
           <UButton
-            icon="i-heroicons-eye"
-            color="primary"
+            icon="i-lucide-eye"
+            color="neutral"
             variant="ghost"
-            size="sm"
+            size="md"
             @click="store.openViewModal(getOriginal(row))"
           />
           
           <UButton
-            icon="i-heroicons-pencil-square"
-            color="primary"
+            icon="i-lucide-edit"
+            color="warning"
             variant="ghost"
-            size="sm"
+            size="md"
             @click="store.handleEdit(getOriginal(row))"
           />
 
           <UButton
-            icon="i-heroicons-trash"
+            icon="i-lucide-trash-2"
             color="error"
             variant="ghost"
-            size="sm"
+            size="md"
             @click="store.handleDelete(getOriginal(row).id)"
           />
         </div>
@@ -97,7 +97,6 @@ const getOriginal = (row: any) => row.original as any
 
 const columns = computed(() => [
   { accessorKey: 'planTitle', header: t('auditActivityPlan.table.title') },
-  { accessorKey: 'planYear', header: t('auditActivityPlan.table.year') },
   { accessorKey: 'period', header: t('auditActivityPlan.table.period') },
   { accessorKey: 'department', header: t('auditActivityPlan.table.department') },
   { accessorKey: 'riskName', header: t('auditActivityPlan.table.riskName') },

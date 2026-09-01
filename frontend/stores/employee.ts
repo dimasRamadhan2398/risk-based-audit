@@ -323,7 +323,7 @@ export const useEmployeeStore = defineStore('employee', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (employee: Employee) => {
-    if (!confirm(`Are you sure you want to delete employee "${employee.full_name}"?`)) {
+    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete employee "${employee.full_name}"?` })) {
       return
     }
 

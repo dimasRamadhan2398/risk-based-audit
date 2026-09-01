@@ -88,7 +88,6 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
 
   const columns: TableColumn<ActivityPlan>[] = [
     { accessorKey: 'planTitle', header: 'Title' },
-    { accessorKey: 'planYear', header: 'Year' },
     { accessorKey: 'period', header: 'Period' },
     { accessorKey: 'department', header: 'Department/Unit' },
     { accessorKey: 'riskName', header: 'Risk Name' },
@@ -149,7 +148,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
 
   const handleDelete = async (id: string) => {
     const { t } = useI18n();
-    if (!confirm(t("auditActivityPlan.deleteConfirm"))) return;
+    if (!await useGlobalModalStore().confirmDelete({ description: t("auditActivityPlan.deleteConfirm") })) return;
     loading.value = true;
     errorMsg.value = '';
     try {

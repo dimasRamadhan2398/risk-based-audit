@@ -495,6 +495,7 @@
     "title": "Strategic Plan Internal Audit",
     "subtitle": "Strategic Planning for Risk-Based Audit",
     "addObjective": "Add Strategic Objective",
+    "importDocument": "Import Document",
     "errorTitle": "Error",
     "vmg": {
       "title": "Vision, Mission, Goals and Strategic Objective",
@@ -620,6 +621,37 @@
       "poor": "Poor",
       "pending": "Pending",
       "planned": "Planned"
+    },
+    "upload": {
+      "title": "Import Strategic Audit Plan",
+      "subtitle": "Import external Strategic Audit Plan documents",
+      "formTitle": "Import Strategic Audit Plan Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Strategic Audit Plan 2026-2030",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported Strategic Audit Plans",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import Strategic Audit Plan documents to add them to your records.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
     }
   },
   "riskFactors": {
@@ -984,36 +1016,197 @@
     }
   },
   "analytics": {
-    "title": "Analytics",
-    "kpiForecast": {
-      "subFeature": "Sub-Feature 9",
-      "title": "KPI PyTorch LSTM Forecast",
-      "subtitle": "Deep Learning Model (PyTorch LSTM) predicts future KPI performance trends based on historical time series data.",
-      "badge": "PyTorch LSTM Model",
-      "summaryTitle": "KPI Forecast Summary (PyTorch LSTM)",
-      "columns": {
-        "code": "Code",
-        "kpi": "KPI",
-        "currentValue": "Current Value",
-        "forecastedValue": "Forecasted Value",
-        "trend": "Trend",
-        "recommendedAction": "Audit Action Recommendation"
-      },
-      "trends": {
-        "improving": "Improving",
-        "deteriorating": "Deteriorating"
+    "title": "AI & Analytics Center",
+    "subtitle": "Integrated Machine Learning & Deep Learning Models (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
+    "statusActive": "4 Trained Models Active & Synchronized",
+    "statusOffline": "Offline - Displaying Saved Real Data",
+    "statusDisconnected": "AI Backend Disconnected",
+    "warningTitleCached": "⚠️ Warning: AI Backend Service Disconnected (Showing Last Real Data)",
+    "warningTitleDisconnected": "⚠️ Warning: AI Analytics Feature Not Running / Not Connected to Backend",
+    "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
+    "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
+    "loading": "Connecting & Loading AI Models...",
+    "summary": {
+      "entitiesScored": "Entities Scored",
+      "anomaliesDetected": "Anomalies Detected",
+      "docsAnalyzed": "Docs Analyzed",
+      "kpiForecasts": "KPI Forecasts"
+    },
+    "tabs": {
+      "riskScoring": "Risk Scoring ML",
+      "anomalyDetection": "Anomaly Detection ML",
+      "indoBERT": "IndoBERT NLP",
+      "kpiLSTM": "KPI PyTorch LSTM"
+    },
+    "xgboost": {
+      "alertTitle": "Department & Entity Risk Scoring ML Model",
+      "alertDesc": "The Machine Learning model dynamically predicts department/branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
+      "chartPredictedVsActual": "Predicted vs Actual Risk Score",
+      "chartFeatureImportance": "Feature Importance (Top Predictors)",
+      "tableTitle": "Entity Risk Score Predictions",
+      "colEntity": "Entity",
+      "colType": "Type",
+      "colRiskCategory": "Risk Category",
+      "colTargetPeriod": "Target Period",
+      "colPredLikelihood": "Pred. Likelihood",
+      "colPredImpact": "Pred. Impact",
+      "colPredScore": "Pred. Score",
+      "colPredRiskLevel": "Pred. Risk Level",
+      "colActual": "Actual",
+      "colActualRiskLevel": "Actual Risk Level",
+      "colTrend": "Trend",
+      "labelPredictedScore": "Predicted Score",
+      "labelActualScore": "Actual Score",
+      "labelFeatureImportance": "Feature Importance",
+      "axisRiskScore": "Risk Score",
+      "axisImportancePct": "Importance (%)"
+    },
+    "isolation": {
+      "alertTitle": "Transaction Anomaly Detection Model",
+      "alertDesc": "The Machine Learning model scans transaction patterns (amount, operating hours, day, new recipients, rounding patterns) to detect fraud anomalies in real-time.",
+      "recordsScanned": "Records Scanned",
+      "anomaliesFound": "Anomalies Found",
+      "contaminationRate": "Contamination Rate",
+      "topCategory": "Top Category",
+      "chartTitle": "Data Pattern Distribution per Anomaly Type",
+      "labelNormalData": "Normal Data ({type})",
+      "labelAnomalies": "Anomalies ({type})",
+      "axisFrequency": "Frequency / Occurrence",
+      "tableTitle": "Detected Anomalies Detail",
+      "colID": "ID",
+      "colEntity": "Entity",
+      "colType": "Type",
+      "colDescription": "Description",
+      "colRiskLevel": "Risk Level",
+      "colDate": "Date",
+      "anomalyTypes": {
+        "fieldworkXAxis": "Fieldwork Duration (Days)",
+        "fieldworkUnit": "Days",
+        "accessPatternXAxis": "System Access Time (Hour 0-23)",
+        "accessPatternUnit": "Hour",
+        "dataAccessXAxis": "Data Export Volume (MB)",
+        "dataAccessUnit": "MB",
+        "inventoryXAxis": "Stock Adjustment Value (IDR Million)",
+        "inventoryUnit": "IDR Million",
+        "expenseReportXAxis": "Expense Claim Amount (IDR Million)",
+        "expenseReportUnit": "IDR Million",
+        "travelExpenseXAxis": "Travel Cost Amount (IDR Million)",
+        "travelExpenseUnit": "IDR Million",
+        "procurementXAxis": "Procurement / Vendor Value (IDR Million)",
+        "procurementUnit": "IDR Million",
+        "transactionXAxis": "Transaction Amount (IDR Million)",
+        "transactionUnit": "IDR Million"
       }
+    },
+    "nlp": {
+      "alertTitle": "IndoBERT NLP Document Analysis Model",
+      "alertDesc": "The IndoBERT & Natural Language Processing model analyzes excerpts from Audit Report Results (Indonesian Language) to automatically classify risk categories, sentiment, impact, and likelihood.",
+      "chartCategoryTitle": "Auto-Classified Risk Categories",
+      "chartSentimentTitle": "Sentiment Distribution",
+      "tableTitle": "Analyzed Documents",
+      "colDocID": "Doc ID",
+      "colTitle": "Title",
+      "colSource": "Source",
+      "colCategory": "Category",
+      "colSentiment": "Sentiment",
+      "colRiskLevel": "Risk Level"
+    },
+    "timeseries": {
+      "alertTitle": "Time-Series KPI PyTorch LSTM Forecasting Model",
+      "alertDesc": "The Deep Learning model (PyTorch LSTM) predicts future KPI performance trends based on historical time series for early audit planning warnings.",
+      "chartTitle": "KPI Performance Forecast",
+      "chartConfidenceBadge": "Shaded area = confidence interval",
+      "atRiskTitle": "⚠️ At-Risk Departments",
+      "projectedQ3": "% projected Q3",
+      "tableTitle": "KPI Forecast Summary",
+      "colCode": "Code",
+      "colKPI": "KPI",
+      "colEntity": "Entity",
+      "colType": "Type",
+      "colForecastHorizon": "Forecast Horizon",
+      "colCurrent": "Current",
+      "colForecast": "Forecast",
+      "colTrend": "Trend",
+      "colRiskLevel": "Risk Level",
+      "colRecommendedAction": "Recommended Action",
+      "labelActualKPI": "Actual KPI (%)",
+      "labelForecast": "PyTorch LSTM Forecast",
+      "labelUpperBound": "Upper Bound",
+      "labelLowerBound": "Lower Bound",
+      "axisKPIScore": "KPI Score (%)"
     }
   },
   "annualAudit": {
     "title": "Annual Audit Plan",
     "importPlanDocument": "Import Plan Document",
-    "newAuditPlan": "New Audit Plan"
+    "newAuditPlan": "New Audit Plan",
+    "upload": {
+      "title": "Import Annual Audit Plan",
+      "subtitle": "Import external Annual Audit Plan documents (PKPT)",
+      "formTitle": "Import Annual Audit Plan Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Annual Audit Plan PKPT 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported Annual Audit Plans",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import Annual Audit Plan documents to add them to your records.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
+    }
   },
   "assignmentLetter": {
     "title": "Assignment Letter List",
     "importDocument": "Import Document",
-    "createAssignmentLetter": "Create Assignment Letter"
+    "createAssignmentLetter": "Create Assignment Letter",
+    "upload": {
+      "title": "Import Assignment Letter",
+      "subtitle": "Import external Surat Tugas / Assignment Letter documents",
+      "formTitle": "Import Assignment Letter Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Surat Tugas Audit Keuangan Q1 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported Assignment Letters",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import assignment letter documents to add them to your records.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
+    }
   },
   "auditActivityPlan": {
     "title": "Audit Activity Plan",
@@ -1349,125 +1542,341 @@
       }
     }
   },
-  "analytics": {
-    "title": "AI & Analytics Center",
-    "subtitle": "Integrated Machine Learning & Deep Learning Models (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
-    "statusActive": "4 Trained Models Active & Synchronized",
-    "statusOffline": "Offline - Displaying Saved Real Data",
-    "statusDisconnected": "AI Backend Disconnected",
-    "warningTitleCached": "⚠️ Warning: AI Backend Service Disconnected (Showing Last Real Data)",
-    "warningTitleDisconnected": "⚠️ Warning: AI Analytics Feature Not Running / Not Connected to Backend",
-    "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
-    "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
-    "loading": "Connecting & Loading AI Models...",
-    "summary": {
-      "entitiesScored": "Entities Scored",
-      "anomaliesDetected": "Anomalies Detected",
-      "docsAnalyzed": "Docs Analyzed",
-      "kpiForecasts": "KPI Forecasts"
+  "auditAssignment": {
+    "upload": {
+      "title": "Import Audit Assignment",
+      "subtitle": "Import external Audit Assignment documents",
+      "formTitle": "Import Audit Assignment Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Audit Assignment Operational Q1 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported Audit Assignments",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import audit assignment documents to add them to your records.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "date": "Uploaded Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
+    }
+  },
+  "workingPaper": {
+    "upload": {
+      "title": "Import Working Paper Reference",
+      "subtitle": "Import external reference Working Paper documents",
+      "formTitle": "Import Working Paper",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "e.g. IT Audit Guidelines 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional description of the document...",
+      "fileLabel": "File Reference *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Reference Guidelines Documents",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No guidelines imported",
+      "emptyDesc": "Import files to make reference documents available for auditors.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File Reference",
+        "size": "Size",
+        "date": "Imported At",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download File",
+        "delete": "Delete File"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
+    }
+  },
+  "consultingService": {
+    "upload": {
+      "title": "Import Consulting Document",
+      "subtitle": "Import external Consulting Service documents",
+      "formTitle": "Import Consulting Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: IT Consulting Service Report 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported Consulting Documents",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import consulting documents to add them to your records.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
+    }
+  },
+  "executiveSummary": {
+    "upload": {
+      "title": "Import Executive Summary Report",
+      "subtitle": "Import external compiled Executive Summary Report documents",
+      "formTitle": "Import Executive Summary Report Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Compiled Executive Summary Report 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Report",
+      "tableTitle": "Imported Executive Summary Reports",
+      "documentsCount": "{count} Reports",
+      "emptyTitle": "No reports imported",
+      "emptyDesc": "Import compiled executive summary reports to add them to your records.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
+    }
+  },
+  "auditResultReport": {
+    "upload": {
+      "title": "Import Audit Result Report (LHA)",
+      "subtitle": "Import external Laporan Hasil Audit (Audit Result Report) documents",
+      "formTitle": "Import LHA Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Operational Audit Result Report 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported LHA Documents",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import LHA documents to add them to your audit records.",
+      "columns": {
+        "title": "Document Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
+    }
+  },
+  "qualityAssurance": {
+    "importQar": {
+      "title": "Import QAR Report",
+      "subtitle": "Import external Quality Assurance Review (QAR) documents",
+      "formTitle": "Import QAR Report Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: External Quality Assurance Review Report 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported QAR Documents",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import QAR documents to add them to your records.",
+      "columns": {
+        "title": "Assessment Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
     },
-    "tabs": {
-      "riskScoring": "Risk Scoring ML",
-      "anomalyDetection": "Anomaly Detection ML",
-      "indoBERT": "IndoBERT NLP",
-      "kpiLSTM": "KPI PyTorch LSTM"
+    "importIacm": {
+      "title": "Import IACM",
+      "subtitle": "Import external Internal Audit Capability Model (IACM) documents",
+      "formTitle": "Import IACM Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: IACM Assessment Report 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported IACM Documents",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import IACM documents to add them to your records.",
+      "columns": {
+        "title": "Assessment Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
     },
-    "xgboost": {
-      "alertTitle": "Department & Entity Risk Scoring ML Model",
-      "alertDesc": "The Machine Learning model dynamically predicts department/branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
-      "chartPredictedVsActual": "Predicted vs Actual Risk Score",
-      "chartFeatureImportance": "Feature Importance (Top Predictors)",
-      "tableTitle": "Entity Risk Score Predictions",
-      "colEntity": "Entity",
-      "colType": "Type",
-      "colRiskCategory": "Risk Category",
-      "colTargetPeriod": "Target Period",
-      "colPredLikelihood": "Pred. Likelihood",
-      "colPredImpact": "Pred. Impact",
-      "colPredScore": "Pred. Score",
-      "colPredRiskLevel": "Pred. Risk Level",
-      "colActual": "Actual",
-      "colActualRiskLevel": "Actual Risk Level",
-      "colTrend": "Trend",
-      "labelPredictedScore": "Predicted Score",
-      "labelActualScore": "Actual Score",
-      "labelFeatureImportance": "Feature Importance",
-      "axisRiskScore": "Risk Score",
-      "axisImportancePct": "Importance (%)"
+    "importSaiv": {
+      "title": "Import SAIV",
+      "subtitle": "Import external Self Assessment with Independent Validation (SAIV) documents",
+      "formTitle": "Import SAIV Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: SAIV Assessment Report 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported SAIV Documents",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import SAIV documents to add them to your records.",
+      "columns": {
+        "title": "Assessment Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
     },
-    "isolation": {
-      "alertTitle": "Transaction Anomaly Detection Model",
-      "alertDesc": "The Machine Learning model scans transaction patterns (amount, operating hours, day, new recipients, rounding patterns) to detect fraud anomalies in real-time.",
-      "recordsScanned": "Records Scanned",
-      "anomaliesFound": "Anomalies Found",
-      "contaminationRate": "Contamination Rate",
-      "topCategory": "Top Category",
-      "chartTitle": "Data Pattern Distribution per Anomaly Type",
-      "labelNormalData": "Normal Data ({type})",
-      "labelAnomalies": "Anomalies ({type})",
-      "axisFrequency": "Frequency / Occurrence",
-      "tableTitle": "Detected Anomalies Detail",
-      "colID": "ID",
-      "colEntity": "Entity",
-      "colType": "Type",
-      "colDescription": "Description",
-      "colRiskLevel": "Risk Level",
-      "colDate": "Date",
-      "anomalyTypes": {
-        "fieldworkXAxis": "Fieldwork Duration (Days)",
-        "fieldworkUnit": "Days",
-        "accessPatternXAxis": "System Access Time (Hour 0-23)",
-        "accessPatternUnit": "Hour",
-        "dataAccessXAxis": "Data Export Volume (MB)",
-        "dataAccessUnit": "MB",
-        "inventoryXAxis": "Stock Adjustment Value (IDR Million)",
-        "inventoryUnit": "IDR Million",
-        "expenseReportXAxis": "Expense Claim Amount (IDR Million)",
-        "expenseReportUnit": "IDR Million",
-        "travelExpenseXAxis": "Travel Cost Amount (IDR Million)",
-        "travelExpenseUnit": "IDR Million",
-        "procurementXAxis": "Procurement / Vendor Value (IDR Million)",
-        "procurementUnit": "IDR Million",
-        "transactionXAxis": "Transaction Amount (IDR Million)",
-        "transactionUnit": "IDR Million"
-      }
-    },
-    "nlp": {
-      "alertTitle": "IndoBERT NLP Document Analysis Model",
-      "alertDesc": "The IndoBERT & Natural Language Processing model analyzes excerpts from Audit Report Results (Indonesian Language) to automatically classify risk categories, sentiment, impact, and likelihood.",
-      "chartCategoryTitle": "Auto-Classified Risk Categories",
-      "chartSentimentTitle": "Sentiment Distribution",
-      "tableTitle": "Analyzed Documents",
-      "colDocID": "Doc ID",
-      "colTitle": "Title",
-      "colSource": "Source",
-      "colCategory": "Category",
-      "colSentiment": "Sentiment",
-      "colRiskLevel": "Risk Level"
-    },
-    "timeseries": {
-      "alertTitle": "Time-Series KPI PyTorch LSTM Forecasting Model",
-      "alertDesc": "The Deep Learning model (PyTorch LSTM) predicts future KPI performance trends based on historical time series for early audit planning warnings.",
-      "chartTitle": "KPI Performance Forecast",
-      "chartConfidenceBadge": "Shaded area = confidence interval",
-      "atRiskTitle": "⚠️ At-Risk Departments",
-      "projectedQ3": "% projected Q3",
-      "tableTitle": "KPI Forecast Summary",
-      "colCode": "Code",
-      "colKPI": "KPI",
-      "colEntity": "Entity",
-      "colType": "Type",
-      "colForecastHorizon": "Forecast Horizon",
-      "colCurrent": "Current",
-      "colForecast": "Forecast",
-      "colTrend": "Trend",
-      "colRiskLevel": "Risk Level",
-      "colRecommendedAction": "Recommended Action",
-      "labelActualKPI": "Actual KPI (%)",
-      "labelForecast": "PyTorch LSTM Forecast",
-      "labelUpperBound": "Upper Bound",
-      "labelLowerBound": "Lower Bound",
-      "axisKPIScore": "KPI Score (%)"
+    "importPeriodic": {
+      "title": "Import Periodic Self Assessment",
+      "subtitle": "Import external Periodic Self Assessment (RSA) documents",
+      "formTitle": "Import Periodic Self Assessment Document",
+      "documentTitle": "Document Title",
+      "documentTitlePlaceholder": "Ex: Periodic Self Assessment Report 2026",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the document...",
+      "fileLabel": "Import Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop",
+      "dropzoneHint": "PDF, DOC, DOCX, XLSX up to 10MB",
+      "removeFile": "Remove File",
+      "submitButton": "Import Document",
+      "tableTitle": "Imported Periodic Self Assessment Documents",
+      "documentsCount": "{count} Documents",
+      "emptyTitle": "No documents imported",
+      "emptyDesc": "Import Periodic Self Assessment documents to add them to your records.",
+      "columns": {
+        "title": "Assessment Title",
+        "file": "File",
+        "date": "Imported Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete this document?",
+      "fileSizeLimit": "File size exceeds the 10MB limit."
+    }
+  },
+  "kpiPerformance": {
+    "upload": {
+      "title": "Import Performance Report Document",
+      "subtitle": "Upload and manage Q1, Q2, Q3, Q4 and Annual Performance Report documents",
+      "formTitle": "Document Import Form",
+      "periodLabel": "Performance Report Period *",
+      "yearLabel": "Report Year *",
+      "documentTitle": "Document Title *",
+      "documentTitlePlaceholder": "Example: Q1 2026 Internal Audit Performance Report",
+      "description": "Brief Description",
+      "descriptionPlaceholder": "Notes or executive summary of the performance report...",
+      "fileLabel": "Upload Document File *",
+      "dropzonePrompt": "Click to upload or drag & drop file",
+      "dropzoneHint": "PDF, DOCX, XLSX up to 10MB",
+      "changeFile": "Change File",
+      "submitButton": "Import Performance Report",
+      "tableTitle": "Performance Report Documents List",
+      "filterAll": "All",
+      "annual": "Annual",
+      "emptyTitle": "No Documents Imported Yet",
+      "emptyDesc": "Upload Q1, Q2, Q3, Q4, or Annual Performance Report documents using the form above.",
+      "columns": {
+        "title": "Document Title",
+        "period": "Period",
+        "year": "Year",
+        "file": "File",
+        "date": "Upload Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Document",
+        "download": "Download Document",
+        "delete": "Delete Document"
+      },
+      "deleteConfirm": "Are you sure you want to delete document \"{title}\"?",
+      "fileTooLarge": "File Too Large",
+      "fileTooLargeDesc": "Maximum file size is 10MB.",
+      "formIncomplete": "Incomplete Form",
+      "formIncompleteDesc": "Please complete Document Title and Performance Report File.",
+      "uploadSuccess": "Import Successful",
+      "uploadSuccessDesc": "{period} {year} Performance Report document uploaded successfully!",
+      "uploadFailed": "Upload Failed",
+      "uploadFailedDesc": "An error occurred while uploading the document."
     }
   }
 }

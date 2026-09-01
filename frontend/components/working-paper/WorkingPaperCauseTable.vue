@@ -28,16 +28,16 @@
                 <UButton 
                     size="md" 
                     color="warning" 
-                    variant="soft" 
-                    icon="i-heroicons-pencil-square" 
+                    variant="ghost" 
+                    icon="i-lucide-edit" 
                     @click="store.handleEditF04(row.original)" 
                     title="Edit"
                 />
                 <UButton 
                     size="md" 
                     color="error" 
-                    variant="soft" 
-                    icon="i-heroicons-trash" 
+                    variant="ghost" 
+                    icon="i-lucide-trash-2" 
                     @click="store.handleDeleteF04(row.original.id)" 
                     title="Hapus"
                 />

@@ -484,7 +484,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const deletedDocNumbers = ref<string[]>([])
 
   const deleteSummary = async (id: string, docNum?: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus Laporan Eksekutif ini?')) return
+    if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus Laporan Eksekutif ini?' })) return
     loading.value = true
     const item = summaryList.value.find(s => s.id === id || s.nomorDokumen === docNum)
     const targetDocNum = docNum || (item ? item.nomorDokumen : '')

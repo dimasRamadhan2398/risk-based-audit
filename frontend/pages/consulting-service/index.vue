@@ -134,10 +134,9 @@
           <div class="flex items-center gap-1">
             <UButton
               icon="i-lucide-eye"
-              color="primary"
+              color="neutral"
               variant="ghost"
-              size="sm"
-              label="Details"
+              size="md"
               @click="store.openDetail(row.original as any)"
             />
 
@@ -145,17 +144,15 @@
               icon="i-lucide-edit"
               color="warning"
               variant="ghost"
-              size="sm"
-              label="Edit"
+              size="md"
               @click="store.editService(row.original as any)"
             />
 
             <UButton
-              icon="i-lucide-trash"
+              icon="i-lucide-trash-2"
               color="error"
               variant="ghost"
-              size="sm"
-              label="Delete"
+              size="md"
               @click="confirmDelete(row.original as any)"
             />
           </div>
@@ -361,8 +358,8 @@ const filteredServices = computed(() => {
   })
 })
 
-const confirmDelete = (service: any) => {
-  if (confirm('Are you sure you want to delete this consulting assignment?')) {
+const confirmDelete = async (service: any) => {
+  if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this consulting assignment?' })) {
     store.deleteService(service)
   }
 }

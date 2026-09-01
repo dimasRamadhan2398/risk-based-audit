@@ -655,15 +655,17 @@
         <!-- Registered Risks Table on the right -->
         <div class="lg:col-span-7   border border-slate-100 rounded-2xl p-6">
           <h4 class="text-sm font-semibold text-slate-700 mb-4">Registered Risks</h4>
-          <UTable
-            :data="registeredRiskHeatMap"
-            :columns="registeredRiskColumns"
-            :empty-state="{
-              icon: 'i-heroicons-circle-stack-20-solid',
-              label: 'Belum ada data yang dimasukkan ke Risk Heat Map.',
-            }"
-            class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
-          />
+          <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+            <TableEntities
+              :data="registeredRiskHeatMap"
+              :columns="registeredRiskColumns"
+              :empty-state="{
+                icon: 'i-heroicons-circle-stack-20-solid',
+                label: 'Belum ada data yang dimasukkan ke Risk Heat Map.',
+              }"
+              class="w-full"
+            />
+          </UCard>
         </div>
       </div>
     </div>
@@ -729,15 +731,17 @@
             >View Full Report</UButton
           >
         </div>
-        <UTable
-          :data="atrTableData"
-          :columns="tableColumns"
-          :empty-state="{
-            icon: 'i-heroicons-circle-stack-20-solid',
-            label: 'Belum ada data rencana audit.',
-          }"
-          class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
-        />
+        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+          <TableEntities
+            :data="atrTableData"
+            :columns="tableColumns"
+            :empty-state="{
+              icon: 'i-heroicons-circle-stack-20-solid',
+              label: 'Belum ada data rencana audit.',
+            }"
+            class="w-full"
+          />
+        </UCard>
       </div>
     </div>
 
@@ -779,11 +783,13 @@
             Recent Finding Issues
           </h2>
         </div>
-        <UTable
-          :data="recentFindingsData"
-          :columns="auditTableColumns"
-          class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
-        />
+        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+          <TableEntities
+            :data="recentFindingsData"
+            :columns="auditTableColumns"
+            class="w-full"
+          />
+        </UCard>
       </div>
     </div>
 
@@ -796,19 +802,21 @@
             <h3 class="text-lg font-bold text-slate-800">Recent Risk Profiles</h3>
             <p class="text-md text-slate-400 mt-1">Latest risk assessments</p>
           </div>
-          <UButton
-            icon="i-lucide-chevron-right"
-            variant="ghost"
-            color="primary"
-            to="/risk-profile"
-            size="sm"
-          />
+          <UTooltip text="View all Risk Profiles">
+            <UButton
+              icon="i-lucide-chevron-right"
+              variant="ghost"
+              color="primary"
+              to="/risk-profile"
+              size="sm"
+            />
+          </UTooltip>
         </div>
         <div class="space-y-3">
           <div
             v-for="(risk, index) in riskProfileStore.risks.slice(0, 4)"
             :key="risk.id"
-            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover: -50/50 transition-all duration-200"
+            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200"
           >
             <div class="flex items-center gap-3">
               <div
@@ -842,19 +850,21 @@
             <h3 class="text-lg font-bold text-slate-800">Upcoming Audits</h3>
             <p class="text-md text-slate-400 mt-1">Scheduled audit activities</p>
           </div>
-          <UButton
-            icon="i-lucide-chevron-right"
-            variant="ghost"
-            color="primary"
-            to="/annual-audit"
-            size="sm"
-          />
+          <UTooltip text="View all Annual Audits">
+            <UButton
+              icon="i-lucide-chevron-right"
+              variant="ghost"
+              color="primary"
+              to="/annual-audit"
+              size="sm"
+            />
+          </UTooltip>
         </div>
         <div class="space-y-3">
           <div
             v-for="plan in annualPlanStore.plans.slice(0, 4)"
             :key="plan.id"
-            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover: -50/50 transition-all duration-200"
+            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200"
           >
             <div class="flex items-center gap-3">
               <div class="rounded-lg bg-sky-50 w-8 h-8 flex items-center justify-center">

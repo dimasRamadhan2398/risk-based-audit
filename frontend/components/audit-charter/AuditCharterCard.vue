@@ -113,17 +113,18 @@
         <div class="sm:flex sm:flex-row-reverse">
           <UButton
             v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || '')"
-            icon="i-lucide-download"
+            :to="store.activeCharter.fileUrl"
+            target="_blank"
+            icon="i-lucide-eye"
             size="xl"
-            color="primary"
+            color="neutral"
             variant="ghost"
           />
           <UButton
             v-if="canManageCharter"
             :label="t('auditCharter.card.edit')"
             @click="store.handleEdit(store.activeCharter)"
-            color="primary"
+            color="warning"
             icon="i-lucide-edit"
             variant="ghost"
             size="xl"
@@ -165,40 +166,56 @@
           class="w-full"
         >
           <template #version-cell="{ row }">
-            <span class="font-bold text-[var(--text-main)]">{{
+            <span class="font-bold text-[var(--text-main)] whitespace-nowrap">{{
               row.original.version
             }}</span>
           </template>
           <template #title-cell="{ row }">
-            <span class="font-bold text-[var(--text-main)]">{{
-              row.original.title
-            }}</span>
+            <div class="font-bold text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              {{ row.original.title }}
+            </div>
+          </template>
+          <template #content-cell="{ row }">
+            <div class="font-normal text-[var(--text-muted)] text-sm break-words whitespace-normal leading-relaxed min-w-0">
+              {{ row.original.content || '-' }}
+            </div>
           </template>
           <template #date-cell="{ row }">
-            <span class="font-medium text-[var(--text-main)]">{{
+            <span class="font-medium text-[var(--text-main)] whitespace-nowrap">{{
               row.original.date
             }}</span>
           </template>
           <template #approvedBy-cell="{ row }">
-            <span class="font-medium text-[var(--text-main)]">{{
-              row.original.approvedBy
-            }}</span>
+            <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              {{ row.original.approvedBy }}
+            </div>
           </template>
           <template #uploadedBy-cell="{ row }">
-            <span class="font-medium text-[var(--text-main)]">{{
-              row.original.uploadedBy
-            }}</span>
+            <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              {{ row.original.uploadedBy }}
+            </div>
           </template>
           <template #actions-cell="{ row }">
-            <div v-if="canManageCharter" class="flex justify-end gap-2">
+            <div class="flex justify-end gap-1.5 whitespace-nowrap">
               <UButton
+                v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
+                :to="row.original.fileUrl"
+                target="_blank"
                 size="md"
-                color="primary"
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-eye"
+              />
+              <UButton
+                v-if="canManageCharter"
+                size="md"
+                color="warning"
                 variant="ghost"
                 icon="i-lucide-edit"
                 @click="store.handleEdit(row.original)"
               />
               <UButton
+                v-if="canManageCharter"
                 size="md"
                 color="error"
                 variant="ghost"
@@ -224,7 +241,7 @@ const store = useCharterStore()
 const { canManageCharter } = useRbac()
 
 const confirmDelete = async (item: any) => {
-  if (confirm(t('auditCharter.card.deleteConfirm', { title: item.title, version: item.version }))) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('auditCharter.card.deleteConfirm', { title: item.title, version: item.version }) })) {
     await store.deleteCharter(item.id || '')
   }
 }

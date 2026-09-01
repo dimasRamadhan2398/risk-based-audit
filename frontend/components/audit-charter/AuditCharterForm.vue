@@ -34,8 +34,8 @@
                 maxlength="200"
                 class="mt-1 block w-full rounded-md"
                 :placeholder="t('auditCharter.form.docTitlePlaceholder')"
-                @invalid="(e: { target: HTMLInputElement; }) => (e.target as HTMLInputElement).setCustomValidity('Judul maksimal 200 karakter dan wajib diisi')"
-                @input="(e: { target: HTMLInputElement; }) => (e.target as HTMLInputElement).setCustomValidity('')"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 200 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
             </UFormField>
 
@@ -89,8 +89,8 @@
                   maxlength="200"
                   class="mt-1 block w-full rounded-md"
                   :placeholder="t('auditCharter.form.approvedByPlaceholder')"
-                  @invalid="(e: { target: HTMLInputElement; }) => (e.target as HTMLInputElement).setCustomValidity('Penyetuju maksimal 200 karakter dan wajib diisi')"
-                  @input="(e: { target: HTMLInputElement; }) => (e.target as HTMLInputElement).setCustomValidity('')"
+                  @invalid="($event.target as any)?.setCustomValidity('Penyetuju maksimal 200 karakter dan wajib diisi')"
+                  @input="($event.target as any)?.setCustomValidity('')"
                 />
               </UFormField>
             </div>
@@ -126,8 +126,8 @@
                   :required="!store.isEditing && !store.form.file"
                 />
               </div>
-              <p v-if="store.form.file" class="text-md text-gray-500 mt-1">
-                File terpilih: <span class="font-semibold text-gray-700">{{ store.form.file.name }}</span>
+              <p v-if="store.form.file || store.form.fileName" class="text-md text-gray-500 mt-1">
+                File terpilih: <span class="font-semibold text-gray-700">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
               </p>
             </UFormField>
 

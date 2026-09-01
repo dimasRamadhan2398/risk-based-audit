@@ -127,6 +127,7 @@ export interface AuditCharter {
   id: string;
   title: string;
   version: string;
+  content?: string;
   date: string; // ISO Date string (YYYY-MM-DD)
   uploadedBy: string;
   approvedBy: string;
@@ -139,11 +140,13 @@ export interface AuditCharter {
 export interface CharterFormState {
   title: string;
   version: string;
+  content?: string;
   date: string;
   uploadedBy: string;
   approvedBy: string;
   isActive: boolean;
   file: File | null;
+  fileName?: string;
 }
 
 export interface AuditActivities {

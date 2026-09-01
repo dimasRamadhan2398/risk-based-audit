@@ -10,6 +10,7 @@ import type {
 } from '~/types/audit'
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 import { useAuditFieldworkStore } from './audit-fieldwork'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { computed } from 'vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import type { StepperItem } from '@nuxt/ui'
@@ -53,6 +54,7 @@ export const planSchema = z.object({
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
   const fieldworkStore = useAuditFieldworkStore()
+  const toast = useToastNotification()
 
   const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -71,7 +73,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
       // Validasi Ukuran (Contoh: 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        alert('File size too large! Maximum 10MB.')
+        toast.error('File size too large! Maximum 10MB.')
         return
       }
 
@@ -423,12 +425,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF01 = async (id: string) => {
-    if (confirm('Are you sure you want to delete permanently?')) {
-      const baseUrl = getAuditServiceBaseUrl()
-      await $fetch(`${baseUrl}/working-papers/headers/${id}`, {
-        method: 'DELETE'
-      })
-      await fetchAllData()
+    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        await $fetch(`${baseUrl}/working-papers/headers/${id}`, {
+          method: 'DELETE'
+        })
+        await fetchAllData()
+        toast.success('Header Data Successfully Deleted!')
+      } catch (error: any) {
+        toast.error('Failed to delete data: ' + (error?.message || error))
+      }
     }
   }
 
@@ -455,14 +462,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF01.value && editingIdF01.value) {
         await updateF01(editingIdF01.value, { ...headerForm })
-        alert("Header Data Updated Successfully!")
+        toast.success("Header Data Updated Successfully!")
       } else {
         await addF01({ ...headerForm })
-        alert("Header Data Successfully Saved!")
+        toast.success("Header Data Successfully Saved!")
       }
       closeModalF01()
     } catch (error: any) {
-      alert("Failed to save data: " + error.message)
+      toast.error("Failed to save data: " + (error?.message || error))
     }
   }
 
@@ -493,8 +500,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     if (!id) return
     try {
       await deleteF01(id)
-    } catch (error) {
-      alert('Failed to delete data: ' + error)
+    } catch (error: any) {
+      toast.error('Failed to delete data: ' + (error?.message || error))
     }
   }
 
@@ -531,12 +538,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF02 = async (id: string) => {
-    if (confirm('Are you sure you want to delete permanently?')) {
-      const baseUrl = getAuditServiceBaseUrl()
-      await $fetch(`${baseUrl}/working-papers/risks/${id}`, {
-        method: 'DELETE'
-      })
-      await fetchAllData()
+    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        await $fetch(`${baseUrl}/working-papers/risks/${id}`, {
+          method: 'DELETE'
+        })
+        await fetchAllData()
+        toast.success('Risk Data Successfully Deleted!')
+      } catch (error: any) {
+        toast.error('Failed to delete data: ' + (error?.message || error))
+      }
     }
   }
 
@@ -558,14 +570,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF02.value && editingIdF02.value) {
         await updateF02(editingIdF02.value, { ...riskForm })
-        alert("Risk Data Updated Successfully!")
+        toast.success("Risk Data Updated Successfully!")
       } else {
         await addF02({ ...riskForm })
-        alert("Risk Data Successfully Saved!")
+        toast.success("Risk Data Successfully Saved!")
       }
       closeModalF02()
     } catch (error: any) {
-      alert("Failed to save data: " + error.message)
+      toast.error("Failed to save data: " + (error?.message || error))
     }
   }
 
@@ -585,8 +597,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     if (!id) return
     try {
       await deleteF02(id)
-    } catch (error) {
-      alert('Failed to delete data: ' + error)
+    } catch (error: any) {
+      toast.error('Failed to delete data: ' + (error?.message || error))
     }
   }
 
@@ -623,12 +635,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF03 = async (id: string) => {
-    if (confirm('Are you sure you want to delete permanently?')) {
-      const baseUrl = getAuditServiceBaseUrl()
-      await $fetch(`${baseUrl}/working-papers/samples/${id}`, {
-        method: 'DELETE'
-      })
-      await fetchAllData()
+    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        await $fetch(`${baseUrl}/working-papers/samples/${id}`, {
+          method: 'DELETE'
+        })
+        await fetchAllData()
+        toast.success('Sample Data Successfully Deleted!')
+      } catch (error: any) {
+        toast.error('Failed to delete data: ' + (error?.message || error))
+      }
     }
   }
 
@@ -650,14 +667,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF03.value && editingIdF03.value) {
         await updateF03(editingIdF03.value, { ...sampleForm })
-        alert("Sample Data Successfully Updated!")
+        toast.success("Sample Data Successfully Updated!")
       } else {
         await addF03({ ...sampleForm })
-        alert("Sample Data Successfully Saved!")
+        toast.success("Sample Data Successfully Saved!")
       }
       closeModalF03()
     } catch (error: any) {
-      alert("Failed to save data: " + error.message)
+      toast.error("Failed to save data: " + (error?.message || error))
     }
   }
 
@@ -677,8 +694,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     if (!id) return
     try {
       await deleteF03(id)
-    } catch (error) {
-      alert('Failed to delete data: ' + error)
+    } catch (error: any) {
+      toast.error('Failed to delete data: ' + (error?.message || error))
     }
   }
 
@@ -717,12 +734,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF04 = async (id: string) => {
-    if (confirm('Are you sure you want to delete permanently?')) {
-      const baseUrl = getAuditServiceBaseUrl()
-      await $fetch(`${baseUrl}/working-papers/causes/${id}`, {
-        method: 'DELETE'
-      })
-      await fetchAllData()
+    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        await $fetch(`${baseUrl}/working-papers/causes/${id}`, {
+          method: 'DELETE'
+        })
+        await fetchAllData()
+        toast.success('Root Cause Data Successfully Deleted!')
+      } catch (error: any) {
+        toast.error('Failed to delete data: ' + (error?.message || error))
+      }
     }
   }
 
@@ -745,14 +767,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF04.value && editingIdF04.value) {
         await updateF04(editingIdF04.value, { ...causeForm })
-        alert("Root Cause Data Successfully Updated!")
+        toast.success("Root Cause Data Successfully Updated!")
       } else {
         await addF04({ ...causeForm })
-        alert("Root Cause Data Successfully Saved!")
+        toast.success("Root Cause Data Successfully Saved!")
       }
       closeModalF04()
     } catch (error: any) {
-      alert("Failed to save data: " + error.message)
+      toast.error("Failed to save data: " + (error?.message || error))
     }
   }
 
@@ -773,8 +795,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     if (!id) return
     try {
       await deleteF04(id)
-    } catch (error) {
-      alert('Failed to delete data: ' + error)
+    } catch (error: any) {
+      toast.error('Failed to delete data: ' + (error?.message || error))
     }
   }
 
@@ -813,12 +835,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF05 = async (id: string) => {
-    if (confirm('Are you sure you want to delete permanently?')) {
-      const baseUrl = getAuditServiceBaseUrl()
-      await $fetch(`${baseUrl}/working-papers/plans/${id}`, {
-        method: 'DELETE'
-      })
-      await fetchAllData()
+    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        await $fetch(`${baseUrl}/working-papers/plans/${id}`, {
+          method: 'DELETE'
+        })
+        await fetchAllData()
+        toast.success('Action Plan Data Successfully Deleted!')
+      } catch (error: any) {
+        toast.error('Failed to delete data: ' + (error?.message || error))
+      }
     }
   }
 
@@ -841,14 +868,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF05.value && editingIdF05.value) {
         await updateF05(editingIdF05.value, { ...planForm })
-        alert("Action Plan Data Successfully Updated!")
+        toast.success("Action Plan Data Successfully Updated!")
       } else {
         await addF05({ ...planForm })
-        alert("Action Plan Data Successfully Saved!")
+        toast.success("Action Plan Data Successfully Saved!")
       }
       closeModalF05()
     } catch (error: any) {
-      alert("Failed to save data: " + error.message)
+      toast.error("Failed to save data: " + (error?.message || error))
     }
   }
 
@@ -869,8 +896,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     if (!id) return
     try {
       await deleteF05(id)
-    } catch (error) {
-      alert('Failed to delete data: ' + error)
+    } catch (error: any) {
+      toast.error('Failed to delete data: ' + (error?.message || error))
     }
   }
 

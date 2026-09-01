@@ -261,15 +261,12 @@ function editKpiTarget(rowOriginal: any) {
 
         <template #actions-cell="{ row }">
           <UButton
-            color="primary"
-            variant="soft"
+            color="warning"
+            variant="ghost"
             size="md"
-            icon="i-lucide-pencil shadow-md"
-            class="font-semibold rounded-lg"
+            icon="i-lucide-edit"
             @click="editKpiTarget(row.original)"
-          >
-            Edit KPI Targets
-          </UButton>
+          />
         </template>
       </UTable>
 

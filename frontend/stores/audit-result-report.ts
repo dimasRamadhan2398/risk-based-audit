@@ -408,7 +408,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const deleteReport = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this report?')) return
+    if (!await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this report?' })) return
     loading.value = true
     errorMsg.value = ''
     try {

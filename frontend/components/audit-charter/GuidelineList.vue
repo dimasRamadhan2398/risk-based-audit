@@ -2,7 +2,7 @@
   <div>
     <!-- Empty State -->
     <div
-      v-if="store.guidelines.length === 0"
+      v-if="!store.loading && store.guidelines.length === 0"
       class="flex flex-col items-center justify-center p-12 bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl text-center space-y-6 shadow-sm my-4"
     >
       <div class="w-16 h-16 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary-500">
@@ -42,11 +42,18 @@
       <TableEntities
         :data="tableData"
         :columns="columns"
+        :loading="store.loading"
+        :server-side="true"
+        :total="store.pagination.total"
+        :items-per-page="store.pagination.page_size"
+        :page="store.pagination.page"
         :empty-state="{
           icon: 'i-lucide-book-open',
           label: 'Belum ada pedoman audit'
         }"
         class="w-full"
+        @update:page="(p) => store.fetchGuidelines(p)"
+        @update:items-per-page="(size) => store.setPageSize(size)"
       >
         <!-- No slot -->
         <template #no-cell="{ row }">
@@ -84,13 +91,13 @@
               :to="row.original.file_url"
               target="_blank"
               icon="i-lucide-eye"
-              color="primary"
+              color="neutral"
               variant="ghost"
               size="md"
             />
             <UButton
               size="md"
-              color="primary"
+              color="warning"
               variant="ghost"
               icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
@@ -127,7 +134,7 @@ const columns = [
 const tableData = computed(() => {
   return store.guidelines.map((item, index) => ({
     ...item,
-    no: index + 1
+    no: (store.pagination.page - 1) * store.pagination.page_size + index + 1
   }))
 })
 
@@ -148,7 +155,7 @@ const formatMonthYearIndonesian = (val: string) => {
 }
 
 const confirmDelete = async (item: any) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus Pedoman "${item.name}"?`)) {
+  if (await useGlobalModalStore().confirmDelete({ description: `Apakah Anda yakin ingin menghapus Pedoman "${item.name}"?` })) {
     await store.deleteGuideline(item.id || '')
   }
 }

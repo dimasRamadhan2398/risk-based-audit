@@ -296,8 +296,8 @@
 
                   <div v-if="canEditRiskAppetite" class="flex gap-1.5 shrink-0">
                     <UButton 
-                      icon="i-heroicons-pencil-square" 
-                      color="primary" 
+                      icon="i-lucide-edit" 
+                      color="warning" 
                       variant="ghost" 
                       size="md" 
                       @click="openEditModal(stmt)" 
@@ -605,7 +605,7 @@ const handleSubmit = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (confirm(t('riskAppetite.statements.deleteConfirm'))) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('riskAppetite.statements.deleteConfirm') })) {
     try {
       await appetiteStore.deleteStatement(id)
     } catch (error) {

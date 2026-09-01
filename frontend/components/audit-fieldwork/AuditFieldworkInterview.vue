@@ -9,45 +9,65 @@
       <UButton color="primary" icon="i-heroicons-plus" label="Add Interview" @click="store.openInterviewModal()" />
     </div>
 
-    <!-- Interview List -->
-    <UCard v-if="store.interviews.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.interviews" :columns="columns">
-        <template #interviewee-cell="{ row }">
-          <div>
-            <p class="font-medium">{{ row.original.interviewee }}</p>
-            <p class="text-md text-gray-500">{{ row.original.intervieweePosition }}</p>
-          </div>
-        </template>
-        <template #interviewer-cell="{ row }">
-          <div>
-            <p class="font-medium">{{ row.original.interviewer }}</p>
-            <p class="text-md text-gray-500">{{ row.original.interviewerPosition }}</p>
-          </div>
-        </template>
-        <template #topic-cell="{ row }">
-          <UBadge color="primary" variant="subtle">{{ row.original.topic }}</UBadge>
-        </template>
-        <template #file-cell="{ row }">
-          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.original.file.name }}
-          </UButton>
-          <span v-else class="text-gray-400 text-sm">-</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editInterview(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteInterview(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-microphone" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">{{ t('auditFieldwork.interview.empty') }}</p>
-      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.interview.addBtn')" @click="store.openInterviewModal()" />
-    </div>
+    <!-- Interview List via TableEntities -->
+    <TableEntities
+      :data="store.interviews"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-microphone',
+        label: t('auditFieldwork.interview.empty')
+      }"
+      class="w-full"
+    >
+      <template #interviewee-cell="{ row }">
+        <div>
+          <p class="font-semibold text-[var(--text-main)]">{{ row.original.interviewee }}</p>
+          <p class="text-xs text-[var(--text-muted)]">{{ row.original.intervieweePosition }}</p>
+        </div>
+      </template>
+      <template #interviewer-cell="{ row }">
+        <div>
+          <p class="font-semibold text-[var(--text-main)]">{{ row.original.interviewer }}</p>
+          <p class="text-xs text-[var(--text-muted)]">{{ row.original.interviewerPosition }}</p>
+        </div>
+      </template>
+      <template #date-cell="{ row }">
+        <span class="text-sm text-[var(--text-main)]">{{ row.original.date }}</span>
+      </template>
+      <template #topic-cell="{ row }">
+        <UBadge color="primary" variant="subtle" class="font-medium">{{ row.original.topic }}</UBadge>
+      </template>
+      <template #file-cell="{ row }">
+        <UButton
+          v-if="row.original.file"
+          icon="i-heroicons-document-arrow-down"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+        >
+          {{ row.original.file.name }}
+        </UButton>
+        <span v-else class="text-gray-400 text-sm">-</span>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center gap-1">
+          <UButton
+            icon="i-lucide-edit"
+            color="warning"
+            variant="ghost"
+            size="md"
+            @click="store.editInterview(row.original)"
+          />
+          <UButton
+            icon="i-lucide-trash-2"
+            color="error"
+            variant="ghost"
+            size="md"
+            @click="store.deleteInterview(row.index)"
+          />
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Interview Modal -->
     <UModal 
@@ -60,7 +80,7 @@
             <h3 class="text-lg font-bold text-[var(--text-main)]">
               {{ store.isEditingInterview ? t('auditFieldwork.interview.modalEdit') : t('auditFieldwork.interview.modalAdd') }}
             </h3>
-            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="store.showInterviewModal = false" />
+            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="() => { store.showInterviewModal = false; }" />
           </div>
 
           <div class="p-6 overflow-y-auto space-y-5">
@@ -157,7 +177,7 @@
           </div>
 
           <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
-            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="store.showInterviewModal = false" />
+            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showInterviewModal = false; }" />
             <UButton color="primary" :label="store.isEditingInterview ? t('common.edit') : t('common.submit')" @click="store.saveInterview()" />
           </div>
         </div>
@@ -167,18 +187,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
-import { computed } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
 
 const columns = computed(() => [
   { accessorKey: 'interviewee', header: t('auditFieldwork.interview.columns.interviewee') },
-  { accessorKey: 'intervieweePosition', header: t('auditFieldwork.interview.columns.intervieweePosition') },
   { accessorKey: 'interviewer', header: t('auditFieldwork.interview.columns.interviewer') },
-  { accessorKey: 'interviewerPosition', header: t('auditFieldwork.interview.columns.interviewerPosition') },
   { accessorKey: 'date', header: t('auditFieldwork.interview.columns.date') },
   { accessorKey: 'topic', header: t('auditFieldwork.interview.columns.topic') },
   { accessorKey: 'file', header: t('auditFieldwork.interview.columns.file') },

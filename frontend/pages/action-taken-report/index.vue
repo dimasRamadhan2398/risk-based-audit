@@ -13,7 +13,7 @@ interface TableColumn<T> {
   sortable?: boolean
 }
 
-const columns: TableColumn<ActionTakenReport>[] = [
+const columns = [
   { accessorKey: 'auditRef', header: 'Audit Reference', sortable: true },
   { accessorKey: 'title', header: 'Title', sortable: true },
   { accessorKey: 'department', header: 'Department', sortable: true },

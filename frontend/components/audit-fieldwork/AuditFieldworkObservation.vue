@@ -9,45 +9,46 @@
       <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.observation.addBtn')" @click="store.openObservationModal()" />
     </div>
 
-    <!-- Observation List -->
-    <UCard v-if="store.observations.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.observations" :columns="columns">
-        <template #activity-cell="{ row }">
-          <span class="font-medium">{{ row.original.activity }}</span>
-        </template>
-        <template #location-cell="{ row }">
-          <UBadge color="neutral" variant="subtle">{{ row.original.location }}</UBadge>
-        </template>
-        <template #observer-cell="{ row }">
-          <span>{{ row.original.observer }}</span>
-        </template>
-        <template #file-cell="{ row }">
-          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.original.file.name }}
-          </UButton>
-          <span v-else-if="row.original.fileName" class="text-gray-600 text-sm font-semibold">{{ row.original.fileName }}</span>
-          <span v-else class="text-gray-400 text-sm">-</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center gap-1">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editObservation(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteObservation(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-eye" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">{{ t('auditFieldwork.observation.empty') }}</p>
-      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.observation.addBtn')" @click="store.openObservationModal()" />
-    </div>
+    <!-- Observation List via TableEntities -->
+    <TableEntities
+      :data="store.observations"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-eye',
+        label: t('auditFieldwork.observation.empty')
+      }"
+      class="w-full"
+    >
+      <template #activity-cell="{ row }">
+        <span class="font-medium">{{ row.original.activity }}</span>
+      </template>
+      <template #location-cell="{ row }">
+        <UBadge color="neutral" variant="subtle">{{ row.original.location }}</UBadge>
+      </template>
+      <template #date-cell="{ row }">
+        <span class="text-sm text-[var(--text-main)]">{{ row.original.date }}</span>
+      </template>
+      <template #observer-cell="{ row }">
+        <span>{{ row.original.observer }}</span>
+      </template>
+      <template #file-cell="{ row }">
+        <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
+          {{ row.original.file.name }}
+        </UButton>
+        <span v-else-if="row.original.fileName" class="text-gray-600 text-sm font-semibold">{{ row.original.fileName }}</span>
+        <span v-else class="text-gray-400 text-sm">-</span>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center gap-1">
+          <UButton icon="i-lucide-edit" color="warning" variant="ghost" size="md" @click="store.editObservation(row.original)" />
+          <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="md" @click="store.deleteObservation(row.index)" />
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Observation Modal -->
     <UModal 
       v-model:open="store.showObservationModal"
-      :ui="{ content: 'sm:max-w-2xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
     >
       <template #content>
         <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
@@ -55,7 +56,7 @@
             <h3 class="text-lg font-bold text-[var(--text-main)]">
               {{ store.isEditingObservation ? t('auditFieldwork.observation.modalEdit') : t('auditFieldwork.observation.modalAdd') }}
             </h3>
-            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="store.showObservationModal = false" />
+            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="() => { store.showObservationModal = false; }" />
           </div>
 
           <div class="p-6 overflow-y-auto space-y-5">
@@ -109,7 +110,7 @@
           </div>
 
           <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
-            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="store.showObservationModal = false" />
+            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showObservationModal = false; }" />
             <UButton color="primary" :label="store.isEditingObservation ? t('common.edit') : t('common.submit')" @click="store.saveObservation()" />
           </div>
         </div>
@@ -119,9 +120,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
-import { computed } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()

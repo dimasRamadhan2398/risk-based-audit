@@ -1,23 +1,235 @@
+<template>
+  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-full">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-6">
+      <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/strategic-audit-plan" />
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('strategicPlan.upload.title') }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('strategicPlan.upload.subtitle') }}</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex flex-col gap-10">
+      <!-- Import Form Card -->
+      <div class="w-full space-y-6">
+        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200 dark:border-gray-800">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-upload" class="w-5 h-5 text-primary" />
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('strategicPlan.upload.formTitle') }}</h3>
+            </div>
+          </template>
+
+          <form @submit.prevent="handleUpload" class="space-y-6">
+            <UFormField :label="t('strategicPlan.upload.documentTitle')" required>
+              <UInput
+                v-model="form.title"
+                :placeholder="t('strategicPlan.upload.documentTitlePlaceholder')"
+                class="w-full"
+                required
+              />
+            </UFormField>
+
+            <UFormField :label="t('strategicPlan.upload.description')">
+              <UTextarea
+                v-model="form.description"
+                :placeholder="t('strategicPlan.upload.descriptionPlaceholder')"
+                class="w-full"
+                :rows="3"
+              />
+            </UFormField>
+
+            <!-- File Upload Drag Zone -->
+            <div class="space-y-2 pt-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('strategicPlan.upload.fileLabel') }}</label>
+              <div
+                @click="triggerFileSelect"
+                @dragover.prevent="isDragging = true"
+                @dragleave.prevent="isDragging = false"
+                @drop.prevent="handleFileDrop"
+                class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors duration-200"
+                :class="[
+                  isDragging
+                    ? 'border-primary bg-primary/5'
+                    : form.fileName
+                      ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20'
+                      : 'border-gray-300 dark:border-gray-700 hover:border-primary bg-gray-50 dark:bg-gray-800/60'
+                ]"
+              >
+                <input
+                  type="file"
+                  ref="fileInput"
+                  class="hidden"
+                  @change="handleFileSelect"
+                  accept=".pdf,.docx,.doc,.xls,.xlsx"
+                />
+
+                <div v-if="!form.fileName" class="space-y-3">
+                  <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
+                  <div>
+                    <p class="text-sm text-gray-700 dark:text-gray-300 font-semibold">{{ t('strategicPlan.upload.dropzonePrompt') }}</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ t('strategicPlan.upload.dropzoneHint') }}</p>
+                  </div>
+                </div>
+
+                <div v-else class="space-y-3">
+                  <UIcon name="i-lucide-file-check-2" class="w-10 h-10 mx-auto text-emerald-500" />
+                  <div>
+                    <p class="text-sm text-emerald-700 dark:text-emerald-400 font-bold truncate max-w-[240px] mx-auto px-2">
+                      {{ form.fileName }}
+                    </p>
+                    <p class="text-xs text-emerald-600 dark:text-emerald-500 mt-1">
+                      {{ formatBytes(selectedFileLength) }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    @click.stop="clearFile"
+                    class="text-sm text-red-500 hover:underline font-bold mt-2 block mx-auto"
+                  >
+                    {{ t('strategicPlan.upload.removeFile') }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-900">
+              {{ store.errorMsg }}
+            </div>
+
+            <UButton
+              type="submit"
+              :label="t('strategicPlan.upload.submitButton')"
+              color="primary"
+              class="w-full justify-center font-bold h-11 text-base"
+              :loading="store.loading"
+              icon="i-lucide-upload"
+              :disabled="!form.title || !form.fileName"
+            />
+          </form>
+        </UCard>
+      </div>
+
+      <!-- Uploaded Documents Table -->
+      <div class="w-full">
+        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
+          <template #header>
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <UIcon name="i-lucide-list" class="w-5 h-5 text-primary" />
+                {{ t('strategicPlan.upload.tableTitle') }}
+              </h3>
+              <UBadge color="primary" variant="subtle">
+                {{ t('strategicPlan.upload.documentsCount', { count: store.uploadedDocuments.length }) }}
+              </UBadge>
+            </div>
+          </template>
+
+          <TableEntities
+            :data="store.uploadedDocuments"
+            :columns="columns"
+            :loading="store.loading"
+            :empty-state="{
+              icon: 'i-lucide-folder-open',
+              label: t('strategicPlan.upload.emptyTitle'),
+              description: t('strategicPlan.upload.emptyDesc')
+            }"
+          >
+            <template #title-cell="{ row }">
+              <div>
+                <div class="font-bold text-gray-900 dark:text-white text-sm">{{ row.original.title }}</div>
+                <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" v-if="row.original.description">
+                  {{ row.original.description }}
+                </div>
+              </div>
+            </template>
+
+            <template #fileName-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
+                <span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px] block">{{ row.original.fileName }}</span>
+              </div>
+            </template>
+
+            <template #created_at-cell="{ row }">
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {{ formatDate(row.original.created_at) }}
+              </span>
+            </template>
+
+            <template #actions-cell="{ row }">
+              <div class="flex items-center gap-1">
+                <UButton
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="ghost"
+                  size="md"
+                  :title="t('strategicPlan.upload.actions.view')"
+                  @click="store.viewDocument(row.original.id, row.original.fileName)"
+                />
+                <UButton
+                  icon="i-lucide-download"
+                  color="success"
+                  variant="ghost"
+                  size="md"
+                  :title="t('strategicPlan.upload.actions.download')"
+                  @click="store.downloadDocument(row.original.id, row.original.fileName)"
+                />
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="ghost"
+                  size="md"
+                  :title="t('strategicPlan.upload.actions.delete')"
+                  @click="handleDelete(row.original.id)"
+                />
+              </div>
+            </template>
+          </TableEntities>
+        </UCard>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useToast } from '#imports'
+import { ref, computed, onMounted } from 'vue'
+import { useUploadPlanDocumentStore } from '~/stores/upload-plan-document'
+import { useI18n } from '~/composables/useI18n'
+import TableEntities from '~/components/shared/TableEntities.vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 definePageMeta({
   middleware: 'auth'
 })
 
-const toast = useToast()
+const { t } = useI18n()
+const store = useUploadPlanDocumentStore()
+const toast = useToastNotification()
+
+onMounted(() => {
+  store.fetchUploadedDocuments()
+})
+
+const fileInput = ref<HTMLInputElement | null>(null)
+const isDragging = ref(false)
+const selectedFileLength = ref(0)
 
 const form = ref({
   title: '',
   description: '',
   fileName: '',
-  file: null as any
+  fileType: '',
+  fileContent: ''
 })
 
-const fileInput = ref<HTMLInputElement | null>(null)
-const isDragging = ref(false)
-const selectedFileSize = ref(0)
+const columns = computed(() => [
+  { accessorKey: 'title', header: t('strategicPlan.upload.columns.title'), class: 'w-[50%]' },
+  { accessorKey: 'fileName', header: t('strategicPlan.upload.columns.file'), class: 'w-[24%]' },
+  { accessorKey: 'created_at', header: t('strategicPlan.upload.columns.date'), class: 'w-[16%]' },
+  { accessorKey: 'actions', header: t('strategicPlan.upload.columns.actions'), class: 'w-[10%]' }
+])
 
 const triggerFileSelect = () => {
   fileInput.value?.click()
@@ -25,33 +237,32 @@ const triggerFileSelect = () => {
 
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement
-  if (target.files && target.files[0]) {
-    processFile(target.files[0])
+  const file = target.files?.[0]
+  if (file) {
+    processFile(file)
   }
 }
 
 const handleFileDrop = (event: DragEvent) => {
   isDragging.value = false
-  if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
-    processFile(event.dataTransfer.files[0])
+  const file = event.dataTransfer?.files?.[0]
+  if (file) {
+    processFile(file)
   }
 }
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    toast.add({
-      title: 'File Terlalu Besar',
-      description: 'Ukuran file maksimum adalah 10MB.',
-      color: 'error'
-    })
+    toast.error(t('strategicPlan.upload.fileSizeLimit'))
     return
   }
 
-  selectedFileSize.value = file.size
+  selectedFileLength.value = file.size
   form.value.fileName = file.name
+  form.value.fileType = file.type
 
   if (!form.value.title) {
-    form.value.title = `Dokumen Strategic Audit Plan - ${file.name.replace(/\.[^/.]+$/, '')}`
+    form.value.title = `Strategic Audit Plan - ${file.name.replace(/\.[^/.]+$/, '')}`
   }
 
   const reader = new FileReader()
@@ -63,8 +274,9 @@ const processFile = (file: File) => {
 
 const clearFile = () => {
   form.value.fileName = ''
-  form.value.file = null as any
-  selectedFileSize.value = 0
+  form.value.fileType = ''
+  form.value.fileContent = ''
+  selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
   }
@@ -79,134 +291,48 @@ const formatBytes = (bytes: number, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
-const handleUpload = () => {
-  if (!form.value.title || !form.value.fileName) {
-    toast.add({
-      title: 'Formulir Belum Lengkap',
-      description: 'Harap lengkapi Judul dan File Dokumen.',
-      color: 'error'
+const formatDate = (dateString: string) => {
+  if (!dateString) return '-'
+  try {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     })
+  } catch {
+    return dateString
+  }
+}
+
+const handleUpload = async () => {
+  if (!form.value.title || !form.value.fileName) {
     return
   }
 
-  toast.add({
-    title: 'Berhasil Impor',
-    description: `Dokumen "${form.value.title}" berhasil diunggah!`,
-    color: 'success'
-  })
+  try {
+    await store.uploadDocument({
+      title: form.value.title,
+      description: form.value.description,
+      fileName: form.value.fileName,
+      fileType: form.value.fileType,
+      fileContent: form.value.fileContent
+    })
 
-  form.value.title = ''
-  form.value.description = ''
-  clearFile()
+    form.value.title = ''
+    form.value.description = ''
+    clearFile()
+  } catch (error: any) {
+    toast.error(store.errorMsg || 'Gagal mengunggah dokumen.')
+  }
+}
+
+const handleDelete = async (id: string) => {
+  if (await useGlobalModalStore().confirmDelete({ description: t('strategicPlan.upload.deleteConfirm') })) {
+    try {
+      await store.deleteDocument(id)
+    } catch (error: any) {
+      toast.error(store.errorMsg || 'Gagal menghapus dokumen.')
+    }
+  }
 }
 </script>
-
-<template>
-  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen">
-    <!-- Header -->
-    <div class="flex items-center gap-4 mb-6">
-      <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/strategic-audit-plan" />
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Import Strategic Audit Plan</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Unggah dan kelola dokumen Strategic Audit Plan (Peta Strategis Internal Audit)</p>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="max-w-3xl space-y-6">
-      <UCard class="shadow-sm border border-gray-200 dark:border-gray-800">
-        <template #header>
-          <div class="flex items-center gap-2">
-            <UIcon name="i-lucide-upload-cloud" class="w-5 h-5 text-primary" />
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Formulir Impor Dokumen Strategic Audit Plan</h3>
-          </div>
-        </template>
-
-        <form @submit.prevent="handleUpload" class="space-y-5">
-          <div>
-            <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Judul Dokumen *</label>
-            <UInput
-              v-model="form.title"
-              placeholder="Contoh: Dokumen Strategic Audit Plan 2026-2030"
-              class="w-full"
-              required
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Deskripsi Ringkas</label>
-            <UTextarea
-              v-model="form.description"
-              placeholder="Catatan atau ringkasan dokumen..."
-              class="w-full"
-              :rows="3"
-            />
-          </div>
-
-          <!-- File Upload Drag Zone -->
-          <div class="space-y-2 pt-1">
-            <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200">Upload File Dokumen *</label>
-            <div
-              @click="triggerFileSelect"
-              @dragover.prevent="isDragging = true"
-              @dragleave.prevent="isDragging = false"
-              @drop.prevent="handleFileDrop"
-              class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors duration-200"
-              :class="[
-                isDragging
-                  ? 'border-primary bg-primary/5'
-                  : form.fileName
-                    ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20'
-                    : 'border-gray-300 dark:border-gray-700 hover:border-primary bg-white dark:bg-gray-800'
-              ]"
-            >
-              <input
-                type="file"
-                ref="fileInput"
-                class="hidden"
-                @change="handleFileSelect"
-                accept=".pdf,.docx,.doc,.xls,.xlsx"
-              />
-
-              <div v-if="!form.fileName" class="space-y-2">
-                <UIcon name="i-lucide-file-up" class="w-9 h-9 mx-auto text-gray-400" />
-                <div>
-                  <p class="text-md font-semibold text-gray-700 dark:text-gray-300">Klik untuk upload atau drag & drop file</p>
-                  <p class="text-[11px] text-gray-400 mt-0.5">PDF, DOCX, XLSX hingga 10MB</p>
-                </div>
-              </div>
-
-              <div v-else class="space-y-2">
-                <UIcon name="i-lucide-file-check-2" class="w-9 h-9 mx-auto text-emerald-500" />
-                <div>
-                  <p class="text-md font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[260px] mx-auto">
-                    {{ form.fileName }}
-                  </p>
-                  <p class="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">
-                    {{ formatBytes(selectedFileSize) }}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  @click.stop="clearFile"
-                  class="text-md text-red-500 hover:underline font-bold mt-1 inline-block"
-                >
-                  Ganti File
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <UButton
-            type="submit"
-            label="Impor Strategic Audit Plan"
-            color="primary"
-            class="w-full justify-center font-bold h-10 text-sm"
-            icon="i-lucide-upload"
-            :disabled="!form.title || !form.fileName"
-          />
-        </form>
-      </UCard>
-    </div>
-  </div>
-</template>

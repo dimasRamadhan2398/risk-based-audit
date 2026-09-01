@@ -162,7 +162,7 @@ func (ctrl *UploadedAssignmentLetterController) Download(c *gin.Context) {
 		return
 	}
 
-		if len(doc.FileContent) > 0 {
+	if len(doc.FileContent) > 0 {
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
 		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", doc.FileName))

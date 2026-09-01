@@ -246,7 +246,7 @@ export default defineAppConfig({
         {
           color: "primary",
           variant: "soft",
-          class: "bg-primary-500/50 text-primary-600",
+          class: "bg-primary-500/20 text-primary-600",
         },
         {
           color: "primary",

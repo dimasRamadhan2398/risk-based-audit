@@ -1,11 +1,11 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen">
+  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-full">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/quality-assurance" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Import Periodic Self Assessment</h1>
-        <p class="text-sm text-gray-500">Import external Periodic Self Assessment (RSA) documents</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Import Periodic Self Assessment</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Import external Periodic Self Assessment (RSA) documents</p>
       </div>
     </div>
 
@@ -13,9 +13,9 @@
     <div class="flex flex-col gap-10">
       <!-- Import Form Card -->
       <div class="w-full space-y-6">
-        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200">
+        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200 dark:border-gray-800">
           <template #header>
-            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-warning" />
               Import Periodic Self Assessment Document
             </h3>
@@ -40,7 +40,7 @@
             </UFormField>
 
             <div class="space-y-2 pt-2">
-              <label class="block text-sm font-medium text-gray-700">Import Document File *</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Import Document File *</label>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -49,10 +49,10 @@
                 class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors duration-200"
                 :class="[
                   isDragging 
-                    ? 'border-warning bg-orange-50/50' 
+                    ? 'border-warning bg-orange-50/50 dark:bg-orange-950/30' 
                     : form.fileName 
-                      ? 'border-emerald-400 bg-emerald-50/30' 
-                      : 'border-gray-300 hover:border-warning bg-white'
+                      ? 'border-emerald-400 bg-emerald-50/30 dark:border-emerald-500 dark:bg-emerald-950/20' 
+                      : 'border-gray-300 dark:border-gray-700 hover:border-warning bg-gray-50 dark:bg-gray-800/60'
                 ]"
               >
                 <input 
@@ -66,7 +66,7 @@
                 <div v-if="!form.fileName" class="space-y-3">
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-sm text-gray-600 font-semibold">Click to upload or drag & drop</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">Click to upload or drag & drop</p>
                     <p class="text-md text-gray-400 mt-1">PDF, DOC, DOCX, XLSX up to 10MB</p>
                   </div>
                 </div>
@@ -74,10 +74,10 @@
                 <div v-else class="space-y-3">
                   <UIcon name="i-lucide-file-check-2" class="w-10 h-10 mx-auto text-emerald-500" />
                   <div>
-                    <p class="text-sm text-emerald-700 font-bold truncate max-w-[200px] mx-auto px-2">
+                    <p class="text-sm text-emerald-700 dark:text-emerald-400 font-bold truncate max-w-[200px] mx-auto px-2">
                       {{ form.fileName }}
                     </p>
-                    <p class="text-md text-emerald-600 mt-1">
+                    <p class="text-md text-emerald-600 dark:text-emerald-500 mt-1">
                       {{ formatBytes(selectedFileLength) }}
                     </p>
                   </div>
@@ -92,12 +92,12 @@
               </div>
             </div>
 
-            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 p-3 rounded-lg border border-red-200">
+            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-900">
               {{ store.errorMsg }}
             </div>
 
             <UButton 
-              type="submit"
+              type="submit" 
               label="Import Document" 
               color="warning" 
               class="w-full justify-center font-bold h-11 text-base" 
@@ -111,10 +111,10 @@
 
       <!-- Imported Documents Table -->
       <div class="w-full">
-        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 h-full">
+        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-warning" />
                 Imported Periodic Self Assessment Documents
               </h3>
@@ -124,76 +124,69 @@
             </div>
           </template>
 
-          <div v-if="store.loading && store.regularImportedReports.length === 0" class="py-12 text-center">
-            <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-warning animate-spin mx-auto mb-2" />
-            <p class="text-gray-500 text-sm">Loading documents...</p>
-          </div>
-
-          <div v-else-if="store.regularImportedReports.length === 0" class="py-16 text-center space-y-4 rounded-lg border-2 border-dashed border-gray-100 bg-gray-50/50">
-            <div class="inline-flex p-4 rounded-full text-gray-300">
-              <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
-            </div>
-            <div class="max-w-md mx-auto">
-              <h3 class="text-sm font-bold text-gray-900">No documents imported</h3>
-              <p class="text-md text-gray-500 mt-1">Import Periodic Self Assessment documents to add them to your records.</p>
-            </div>
-          </div>
-
-          <div v-else class="overflow-x-auto">
-            <UTable :data="store.regularImportedReports" :columns="columns">
-              <template #title-cell="{ row }">
-                <div>
-                  <div class="font-bold text-gray-900 text-sm">{{ row.original.assessmentTitle }}</div>
-                  <div class="text-[11px] text-gray-500 mt-0.5 line-clamp-1" v-if="row.original.conductedBy">
-                    {{ row.original.conductedBy }}
-                  </div>
+          <TableEntities
+            :data="store.regularImportedReports"
+            :columns="columns"
+            :loading="store.loading"
+            :empty-state="{
+              icon: 'i-lucide-folder-open',
+              label: 'No documents imported',
+              description: 'Import Periodic Self Assessment documents to add them to your records.'
+            }"
+          >
+            <template #title-cell="{ row }">
+              <div>
+                <div class="font-bold text-gray-900 dark:text-white text-sm">{{ row.original.assessmentTitle }}</div>
+                <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" v-if="row.original.conductedBy">
+                  {{ row.original.conductedBy }}
                 </div>
-              </template>
+              </div>
+            </template>
 
-              <template #fileName-cell="{ row }">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
-                  <span class="text-md text-gray-700 truncate max-w-[150px] block">
-                    {{ row.original.attachment ? row.original.attachment.name : 'Periodic_Self_Assessment_Doc.pdf' }}
-                  </span>
-                </div>
-              </template>
-
-              <template #created_at-cell="{ row }">
-                <span class="text-md text-gray-500">
-                  {{ formatDate(row.original.created_at || row.original.period) }}
+            <template #fileName-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
+                <span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px] block">
+                  {{ row.original.attachment ? row.original.attachment.name : 'Periodic_Self_Assessment_Doc.pdf' }}
                 </span>
-              </template>
+              </div>
+            </template>
 
-              <template #actions-cell="{ row }">
-                <div class="flex items-center gap-1">                  <UButton 
-                    icon="i-lucide-eye" 
-                    color="info" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="View Document"
-                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                  />
-                  <UButton 
-                    icon="i-lucide-download" 
-                    color="primary" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="Download Document"
-                    @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
-                  />
-                  <UButton 
-                    icon="i-lucide-trash-2" 
-                    color="error" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="Delete Document"
-                    @click="handleDelete(row.original)" 
-                  />
-                </div>
-              </template>
-            </UTable>
-          </div>
+            <template #created_at-cell="{ row }">
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {{ formatDate(row.original.created_at || row.original.period) }}
+              </span>
+            </template>
+
+            <template #actions-cell="{ row }">
+              <div class="flex items-center gap-1">
+                <UButton 
+                  icon="i-lucide-eye" 
+                  color="neutral" 
+                  variant="ghost" 
+                  size="md" 
+                  title="View Document"
+                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                />
+                <UButton 
+                  icon="i-lucide-download" 
+                  color="success" 
+                  variant="ghost" 
+                  size="md" 
+                  title="Download Document"
+                  @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
+                />
+                <UButton 
+                  icon="i-lucide-trash-2" 
+                  color="error" 
+                  variant="ghost" 
+                  size="md" 
+                  title="Delete Document"
+                  @click="handleDelete(row.original)" 
+                />
+              </div>
+            </template>
+          </TableEntities>
         </UCard>
       </div>
     </div>
@@ -204,6 +197,7 @@
 import { ref, onMounted } from 'vue'
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 import { QAType, QAStatus, type QAReport } from '~/types/quality-assurance'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useQualityAssuranceStore()
 
@@ -224,10 +218,10 @@ const form = ref({
 })
 
 const columns = [
-  { accessorKey: 'title', header: 'Document Title' },
-  { accessorKey: 'fileName', header: 'File' },
-  { accessorKey: 'created_at', header: 'Imported Date' },
-  { accessorKey: 'actions', header: 'Actions' }
+  { accessorKey: 'title', header: 'Document Title', class: 'w-[50%]' },
+  { accessorKey: 'fileName', header: 'File', class: 'w-[24%]' },
+  { accessorKey: 'created_at', header: 'Imported Date', class: 'w-[16%]' },
+  { accessorKey: 'actions', header: 'Actions', class: 'w-[10%]' }
 ]
 
 const triggerFileSelect = () => {
@@ -302,7 +296,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-  if (confirm('Are you sure you want to delete this imported document?')) {
+  if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this imported document?' })) {
     store.selectedReport = report
     await store.deleteReport()
   }

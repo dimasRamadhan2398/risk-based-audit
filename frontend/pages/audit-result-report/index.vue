@@ -140,24 +140,24 @@
                 @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
               />
               <UButton
-                color="primary"
+                color="warning"
                 variant="ghost"
-                icon="i-heroicons-pencil-square"
-                size="sm"
+                icon="i-lucide-edit"
+                size="md"
                 @click="store.editReport(row.original as any)"
               />
               <UButton
                 color="error"
                 variant="ghost"
-                icon="i-heroicons-trash"
-                size="sm"
+                icon="i-lucide-trash-2"
+                size="md"
                 @click="store.deleteReport((row.original as any).id)"
               />
               <UButton
                 color="neutral"
                 variant="ghost"
-                icon="i-heroicons-printer"
-                size="sm"
+                icon="i-lucide-printer"
+                size="md"
                 @click="printReport(row.original as any)"
               />
             </div>

@@ -78,6 +78,10 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 		// Process file upload (optional)
 		file, header, err := c.Request.FormFile("file")
 		if err == nil {
+			if header.Size > 10*1024*1024 {
+				response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+				return
+			}
 			defer file.Close()
 			attachment, errUpload := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
 			if errUpload != nil {
@@ -154,6 +158,10 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 		// Process optional file upload
 		file, header, err := c.Request.FormFile("file")
 		if err == nil { // file is present
+			if header.Size > 10*1024*1024 {
+				response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+				return
+			}
 			defer file.Close()
 			attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
 			if err != nil {
@@ -392,6 +400,31 @@ func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 			c.FileAttachment(filePath, downloadName)
 			return
 		}
+	} else if strings.Contains(fileUrl, "/media/download/") {
+		var safeFileName string
+		if idx := strings.Index(fileUrl, "/media/download/"); idx != -1 {
+			safeFileName = fileUrl[idx+len("/media/download/"):]
+		}
+		
+		decodedPath, err := url.PathUnescape(safeFileName)
+		if err == nil {
+			safeFileName = decodedPath
+		}
+		
+		filePath := filepath.Join("uploads", safeFileName)
+		if _, err := os.Stat(filePath); err == nil {
+			downloadName := result.Filename
+			if downloadName == "" {
+				downloadName = filepath.Base(filePath)
+			}
+			c.FileAttachment(filePath, downloadName)
+			return
+		}
+	}
+
+	if strings.Contains(result.FileUrl, "localhost") || strings.HasPrefix(result.FileUrl, "uploads/") || strings.HasPrefix(result.FileUrl, "/uploads/") {
+		response.NotFound(c, "Audit charter file was not found on the server disk.")
+		return
 	}
 
 	c.Redirect(http.StatusTemporaryRedirect, result.FileUrl)

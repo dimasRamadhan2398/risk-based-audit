@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -98,7 +98,7 @@ func (ctrl *UploadedPerformanceReportController) Upload(c *gin.Context) {
 		FileName:        fileName,
 		FilePath:        filePath,
 		FileSize:        int64(len(dec)),
-		FileContent: dec,
+		FileContent:     dec,
 		FileType:        fileType,
 		Status:          "Uploaded",
 		ParsedKPIsCount: 4,
@@ -177,7 +177,7 @@ func (ctrl *UploadedPerformanceReportController) Download(c *gin.Context) {
 		return
 	}
 
-		if len(doc.FileContent) > 0 {
+	if len(doc.FileContent) > 0 {
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
 		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", doc.FileName))

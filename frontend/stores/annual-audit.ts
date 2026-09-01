@@ -67,15 +67,14 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     window.URL.revokeObjectURL(url)
   }
 
-  const columns: TableColumn<AnnualAuditPlan>[] = [
-    { accessorKey: 'activity', header: 'Activity' },
-    { accessorKey: 'department', header: 'Department' },
-    { accessorKey: 'riskName', header: 'Risk Name' },
-    { accessorKey: 'riskLevel', header: 'Risk Level' },
-    { accessorKey: 'timeline', header: 'Timeline' },
-    { accessorKey: 'progress', header: 'Progress' },
-    { accessorKey: 'status', header: 'Status' },
-    { accessorKey: 'actions', header: 'Actions' }
+  const columns: (TableColumn<AnnualAuditPlan> & { class?: string })[] = [
+    { accessorKey: 'activity', header: 'Activity', class: 'w-44 whitespace-nowrap' },
+    { accessorKey: 'department', header: 'Department', class: 'w-36' },
+    { accessorKey: 'riskName', header: 'Risk Name', class: 'w-52' },
+    { accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'progress', header: 'Progress', class: 'w-36' },
+    { accessorKey: 'status', header: 'Status', class: 'w-20 whitespace-nowrap text-center' },
+    { accessorKey: 'actions', header: 'Actions', class: 'w-36 whitespace-nowrap text-center' }
   ]
 
   const isEditing = ref(false)
@@ -767,7 +766,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     const baseUrl = getAuditServiceBaseUrl()
     if (plan.isUsed) {
-      const confirmed = confirm('Rencana audit ini sudah digunakan dan tidak dapat dihapus permanen. Apakah Anda ingin menonaktifkannya?')
+      const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Rencana audit ini sudah digunakan dan tidak dapat dihapus permanen. Apakah Anda ingin menonaktifkannya?' })
 
       if (!confirmed) return
 
@@ -781,7 +780,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         body: payload
       })
     } else {
-      const confirmed = confirm('Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?')
+      const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?' })
 
       if (!confirmed) return
 

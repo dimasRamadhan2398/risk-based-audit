@@ -3,9 +3,26 @@
   <slot :show-success="showSuccess" :show-error="showError" :show-warning="showWarning" :show-info="showInfo" />
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import { useAppToast } from '~/composables/useAppToast'
 
+export function useToastNotification() {
+  const appToast = useAppToast()
+  return {
+    showSuccess: (title?: string, description?: string) => appToast.success(title || 'Berhasil', description),
+    showError: (title?: string, description?: string) => appToast.error(title || 'Gagal', description),
+    showWarning: (title?: string, description?: string) => appToast.warning(title || 'Peringatan', description),
+    showInfo: (title?: string, description?: string) => appToast.info(title || 'Informasi', description),
+    success: (title?: string, description?: string) => appToast.success(title || 'Berhasil', description),
+    error: (title?: string, description?: string) => appToast.error(title || 'Gagal', description),
+    warning: (title?: string, description?: string) => appToast.warning(title || 'Peringatan', description),
+    info: (title?: string, description?: string) => appToast.info(title || 'Informasi', description),
+    ...appToast
+  }
+}
+</script>
+
+<script setup lang="ts">
 const appToast = useAppToast()
 
 const props = defineProps<{

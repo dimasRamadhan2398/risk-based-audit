@@ -9,52 +9,50 @@
       <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
     </div>
 
-    <!-- Document List -->
-    <UCard v-if="store.documents.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.documents" :columns="columns">
-        <template #documentName-cell="{ row }">
-          <span class="font-medium">{{ row.original.documentName }}</span>
-        </template>
-        <template #description-cell="{ row }">
-          <span class="text-sm text-gray-600">{{ row.original.description }}</span>
-        </template>
-        <template #requiredDate-cell="{ row }">
-          <UBadge color="warning" variant="subtle">{{ row.original.requiredDate }}</UBadge>
-        </template>
-        <template #file-cell="{ row }">
-          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.original.file.name }}
-          </UButton>
-          <span v-else class="text-gray-400 text-sm">-</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editDocument(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteDocument(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-document-duplicate" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">{{ t('auditFieldwork.document.empty') }}</p>
-      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
-    </div>
+    <!-- Document List via TableEntities -->
+    <TableEntities
+      :data="store.documents"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-document-duplicate',
+        label: t('auditFieldwork.document.empty')
+      }"
+      class="w-full"
+    >
+      <template #documentName-cell="{ row }">
+        <span class="font-medium">{{ row.original.documentName }}</span>
+      </template>
+      <template #description-cell="{ row }">
+        <span class="text-sm text-gray-600">{{ row.original.description }}</span>
+      </template>
+      <template #requiredDate-cell="{ row }">
+        <UBadge color="warning" variant="subtle">{{ row.original.requiredDate }}</UBadge>
+      </template>
+      <template #file-cell="{ row }">
+        <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
+          {{ row.original.file.name }}
+        </UButton>
+        <span v-else class="text-gray-400 text-sm">-</span>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center gap-1">
+          <UButton icon="i-lucide-edit" color="warning" variant="ghost" size="md" @click="store.editDocument(row.original)" />
+          <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="md" @click="store.deleteDocument(row.index)" />
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Document Modal -->
-    <Teleport to="body">
-      <div v-if="store.showDocumentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingDocument ? t('auditFieldwork.document.modalEdit') : t('auditFieldwork.document.modalAdd') }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showDocumentModal = false }" />
-            </div>
-          </template>
+    <UModal v-model:open="store.showDocumentModal" scrollable :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }">
+      <template #content>
+        <div class="relative flex flex-col max-h-[90vh]">
+          <div class="flex items-center justify-between p-5 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
+            <h3 class="text-lg font-bold text-[var(--text-main)]">{{ store.isEditingDocument ? t('auditFieldwork.document.modalEdit') : t('auditFieldwork.document.modalAdd') }}</h3>
+            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="() => { store.showDocumentModal = false }" />
+          </div>
 
-          <UForm @submit.prevent="store.saveDocument()" class="space-y-4">
+          <div class="p-6 overflow-y-auto space-y-5">
+            <UForm @submit.prevent="store.saveDocument()" class="space-y-4">
             <UFormField :label="t('auditFieldwork.document.name')" required>
               <UInput v-model="store.documentForm.documentName" :placeholder="t('auditFieldwork.document.namePlaceholder')" class="w-full" required />
             </UFormField>
@@ -80,24 +78,24 @@
                 <span class="font-bold text-sm">{{ store.documentForm.file.name }}</span>
               </div>
             </UFormField>
-          </UForm>
+            </UForm>
+          </div>
 
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showDocumentModal = false }" />
-              <UButton color="primary" :label="store.isEditingDocument ? t('common.edit') : t('common.submit')" @click="store.saveDocument()" />
-            </div>
-          </template>
-        </UCard>
-      </div>
-    </Teleport>
+          <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
+            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showDocumentModal = false }" />
+            <UButton color="primary" :label="store.isEditingDocument ? t('common.edit') : t('common.submit')" @click="store.saveDocument()" />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
-import { computed } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()

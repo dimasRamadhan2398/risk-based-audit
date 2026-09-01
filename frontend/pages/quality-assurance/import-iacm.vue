@@ -1,11 +1,11 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen">
+  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-full">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/quality-assurance" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Import IACM</h1>
-        <p class="text-sm text-gray-500">Import external Internal Audit Capability Model (IACM) documents</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('qualityAssurance.importIacm.title') }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('qualityAssurance.importIacm.subtitle') }}</p>
       </div>
     </div>
 
@@ -13,34 +13,34 @@
     <div class="flex flex-col gap-10">
       <!-- Import Form Card -->
       <div class="w-full space-y-6">
-        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200">
+        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200 dark:border-gray-800">
           <template #header>
-            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-warning" />
-              Import IACM Document
+              {{ t('qualityAssurance.importIacm.formTitle') }}
             </h3>
           </template>
 
           <form @submit.prevent="handleUpload" class="space-y-6">
-            <UFormField label="Document Title" required>
+            <UFormField :label="t('qualityAssurance.importIacm.documentTitle')" required>
               <UInput 
                 v-model="form.title" 
-                placeholder="Ex: Laporan IACM Document 2026" 
+                :placeholder="t('qualityAssurance.importIacm.documentTitlePlaceholder')" 
                 class="w-full"
                 required
               />
             </UFormField>
 
-            <UFormField label="Description">
+            <UFormField :label="t('qualityAssurance.importIacm.description')">
               <UTextarea 
                 v-model="form.description" 
-                placeholder="Brief description of the document..." 
+                :placeholder="t('qualityAssurance.importIacm.descriptionPlaceholder')" 
                 class="w-full"
               />
             </UFormField>
 
             <div class="space-y-2 pt-2">
-              <label class="block text-sm font-medium text-gray-700">Import Document File *</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('qualityAssurance.importIacm.fileLabel') }}</label>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -49,10 +49,10 @@
                 class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors duration-200"
                 :class="[
                   isDragging 
-                    ? 'border-warning bg-orange-50/50' 
+                    ? 'border-warning bg-orange-50/50 dark:bg-orange-950/30' 
                     : form.fileName 
-                      ? 'border-emerald-400 bg-emerald-50/30' 
-                      : 'border-gray-300 hover:border-warning bg-white'
+                      ? 'border-emerald-400 bg-emerald-50/30 dark:border-emerald-500 dark:bg-emerald-950/20' 
+                      : 'border-gray-300 dark:border-gray-700 hover:border-warning bg-gray-50 dark:bg-gray-800/60'
                 ]"
               >
                 <input 
@@ -66,18 +66,18 @@
                 <div v-if="!form.fileName" class="space-y-3">
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-sm text-gray-600 font-semibold">Click to upload or drag & drop</p>
-                    <p class="text-md text-gray-400 mt-1">PDF, DOC, DOCX, XLSX up to 10MB</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">{{ t('qualityAssurance.importIacm.dropzonePrompt') }}</p>
+                    <p class="text-md text-gray-400 mt-1">{{ t('qualityAssurance.importIacm.dropzoneHint') }}</p>
                   </div>
                 </div>
 
                 <div v-else class="space-y-3">
                   <UIcon name="i-lucide-file-check-2" class="w-10 h-10 mx-auto text-emerald-500" />
                   <div>
-                    <p class="text-sm text-emerald-700 font-bold truncate max-w-[200px] mx-auto px-2">
+                    <p class="text-sm text-emerald-700 dark:text-emerald-400 font-bold truncate max-w-[200px] mx-auto px-2">
                       {{ form.fileName }}
                     </p>
-                    <p class="text-md text-emerald-600 mt-1">
+                    <p class="text-md text-emerald-600 dark:text-emerald-500 mt-1">
                       {{ formatBytes(selectedFileLength) }}
                     </p>
                   </div>
@@ -86,19 +86,19 @@
                     @click.stop="clearFile" 
                     class="text-md text-red-500 hover:underline font-bold mt-2 block mx-auto"
                   >
-                    Remove File
+                    {{ t('qualityAssurance.importIacm.removeFile') }}
                   </button>
                 </div>
               </div>
             </div>
 
-            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 p-3 rounded-lg border border-red-200">
+            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-900">
               {{ store.errorMsg }}
             </div>
 
             <UButton 
-              type="submit"
-              label="Import Document" 
+              type="submit" 
+              :label="t('qualityAssurance.importIacm.submitButton')" 
               color="warning" 
               class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
@@ -111,89 +111,82 @@
 
       <!-- Imported Documents Table -->
       <div class="w-full">
-        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 h-full">
+        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-warning" />
-                Imported IACM Documents
+                {{ t('qualityAssurance.importIacm.tableTitle') }}
               </h3>
               <UBadge color="warning" variant="subtle">
-                {{ store.iacmImportedReports.length }} Documents
+                {{ t('qualityAssurance.importIacm.documentsCount', { count: store.iacmImportedReports.length }) }}
               </UBadge>
             </div>
           </template>
 
-          <div v-if="store.loading && store.iacmImportedReports.length === 0" class="py-12 text-center">
-            <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-warning animate-spin mx-auto mb-2" />
-            <p class="text-gray-500 text-sm">Loading documents...</p>
-          </div>
-
-          <div v-else-if="store.iacmImportedReports.length === 0" class="py-16 text-center space-y-4 rounded-lg border-2 border-dashed border-gray-100 bg-gray-50/50">
-            <div class="inline-flex p-4 rounded-full text-gray-300">
-              <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
-            </div>
-            <div class="max-w-md mx-auto">
-              <h3 class="text-sm font-bold text-gray-900">No documents imported</h3>
-              <p class="text-md text-gray-500 mt-1">Import IACM documents to add them to your records.</p>
-            </div>
-          </div>
-
-          <div v-else class="overflow-x-auto">
-            <UTable :data="store.iacmImportedReports" :columns="columns">
-              <template #title-cell="{ row }">
-                <div>
-                  <div class="font-bold text-gray-900 text-sm">{{ row.original.assessmentTitle }}</div>
-                  <div class="text-[11px] text-gray-500 mt-0.5 line-clamp-1" v-if="row.original.conductedBy">
-                    {{ row.original.conductedBy }}
-                  </div>
+          <TableEntities
+            :data="store.iacmImportedReports"
+            :columns="columns"
+            :loading="store.loading"
+            :empty-state="{
+              icon: 'i-lucide-folder-open',
+              label: t('qualityAssurance.importIacm.emptyTitle'),
+              description: t('qualityAssurance.importIacm.emptyDesc')
+            }"
+          >
+            <template #title-cell="{ row }">
+              <div>
+                <div class="font-bold text-gray-900 dark:text-white text-sm">{{ row.original.assessmentTitle }}</div>
+                <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" v-if="row.original.conductedBy">
+                  {{ row.original.conductedBy }}
                 </div>
-              </template>
+              </div>
+            </template>
 
-              <template #fileName-cell="{ row }">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
-                  <span class="text-md text-gray-700 truncate max-w-[150px] block">
-                    {{ row.original.attachment ? row.original.attachment.name : 'IACM_Document.pdf' }}
-                  </span>
-                </div>
-              </template>
-
-              <template #created_at-cell="{ row }">
-                <span class="text-md text-gray-500">
-                  {{ formatDate(row.original.created_at || row.original.period) }}
+            <template #fileName-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
+                <span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px] block">
+                  {{ row.original.attachment ? row.original.attachment.name : 'IACM_Document.pdf' }}
                 </span>
-              </template>
+              </div>
+            </template>
 
-              <template #actions-cell="{ row }">
-                <div class="flex items-center gap-1">                  <UButton 
-                    icon="i-lucide-eye" 
-                    color="info" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="View Document"
-                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                  />
-                  <UButton 
-                    icon="i-lucide-download" 
-                    color="primary" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="Download Document"
-                    @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
-                  />
-                  <UButton 
-                    icon="i-lucide-trash-2" 
-                    color="error" 
-                    variant="ghost" 
-                    size="sm" 
-                    title="Delete Document"
-                    @click="handleDelete(row.original)" 
-                  />
-                </div>
-              </template>
-            </UTable>
-          </div>
+            <template #created_at-cell="{ row }">
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {{ formatDate(row.original.created_at || row.original.period) }}
+              </span>
+            </template>
+
+            <template #actions-cell="{ row }">
+              <div class="flex items-center gap-1">
+                <UButton 
+                  icon="i-lucide-eye" 
+                  color="neutral" 
+                  variant="ghost" 
+                  size="md" 
+                  :title="t('qualityAssurance.importIacm.actions.view')" 
+                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                />
+                <UButton 
+                  icon="i-lucide-download" 
+                  color="success" 
+                  variant="ghost" 
+                  size="md" 
+                  :title="t('qualityAssurance.importIacm.actions.download')" 
+                  @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
+                />
+                <UButton 
+                  icon="i-lucide-trash-2" 
+                  color="error" 
+                  variant="ghost" 
+                  size="md" 
+                  :title="t('qualityAssurance.importIacm.actions.delete')" 
+                  @click="handleDelete(row.original)" 
+                />
+              </div>
+            </template>
+          </TableEntities>
         </UCard>
       </div>
     </div>
@@ -201,10 +194,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 import { QAType, QAStatus, type QAReport } from '~/types/quality-assurance'
+import { useI18n } from '~/composables/useI18n'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
+const { t } = useI18n()
 const store = useQualityAssuranceStore()
 
 onMounted(() => {
@@ -223,12 +219,12 @@ const form = ref({
   file: null as any
 })
 
-const columns = [
-  { accessorKey: 'title', header: 'Document Title' },
-  { accessorKey: 'fileName', header: 'File' },
-  { accessorKey: 'created_at', header: 'Imported Date' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'title', header: t('qualityAssurance.importIacm.columns.title'), class: 'w-[50%]' },
+  { accessorKey: 'fileName', header: t('qualityAssurance.importIacm.columns.file'), class: 'w-[24%]' },
+  { accessorKey: 'created_at', header: t('qualityAssurance.importIacm.columns.date'), class: 'w-[16%]' },
+  { accessorKey: 'actions', header: t('qualityAssurance.importIacm.columns.actions'), class: 'w-[10%]' }
+])
 
 const triggerFileSelect = () => {
   fileInput.value?.click()
@@ -252,7 +248,7 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    alert('File size exceeds the 10MB limit.')
+    alert(t('qualityAssurance.importIacm.fileSizeLimit'))
     return
   }
 
@@ -302,7 +298,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-  if (confirm('Are you sure you want to delete this imported document?')) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importIacm.deleteConfirm') })) {
     store.selectedReport = report
     await store.deleteReport()
   }

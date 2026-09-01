@@ -8,7 +8,7 @@ export interface AssignmentLetterState {
   editingId: string | null;
   assignmentLetterList: AssignmentLetter[];
   form: AssignmentLetterForm;
-  columns: TableColumn<AssignmentLetter>[];
+  columns: (TableColumn<AssignmentLetter> & { class?: string })[];
   options: {
     auditTeam: string[];
     workingUnit: string[];
@@ -215,13 +215,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       ccList: ['President Director']
     },
     columns: [
-      { accessorKey: 'letterNumber', header: 'Letter Number' },
-      { accessorKey: 'auditTitle', header: 'Audit Title / Object' },
-      { accessorKey: 'workingUnit', header: 'Work Unit' },
-      { accessorKey: 'executionPeriod', header: 'Execution Period' },
-      { accessorKey: 'auditTeam', header: 'Audit Team' },
-      { accessorKey: 'status', header: 'Status' },
-      { accessorKey: 'actions', header: 'Actions' }
+      { accessorKey: 'letterNumber', header: 'Letter Number', class: 'w-48 whitespace-nowrap font-medium' },
+      { accessorKey: 'auditTitle', header: 'Audit Title / Object', class: 'w-64' },
+      { accessorKey: 'workingUnit', header: 'Work Unit', class: 'w-36' },
+      { accessorKey: 'executionPeriod', header: 'Execution Period', class: 'w-48 whitespace-nowrap' },
+      { accessorKey: 'auditTeam', header: 'Audit Team', class: 'w-40' },
+      { accessorKey: 'status', header: 'Status', class: 'w-28 whitespace-nowrap text-center' },
+      { accessorKey: 'actions', header: 'Actions', class: 'w-24 whitespace-nowrap text-center' }
     ],
     options: {
       auditTeam: ['SKAI', 'DAI', 'CAE'],
@@ -508,7 +508,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       }
 
       if (this.form.membersList.length < 3) {
-        const proceed = confirm("Template suggests at least 3 team members. Continue saving?")
+        const proceed = await useGlobalModalStore().confirmDelete({ description: "Template suggests at least 3 team members. Continue saving?" })
         if (!proceed) return
       }
 
@@ -607,7 +607,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     },
 
     async deleteSuratTugas(id: string) {
-      if (!confirm("Are you sure you want to delete this assignment letter?")) return
+      if (!await useGlobalModalStore().confirmDelete({ description: "Are you sure you want to delete this assignment letter?" })) return
       this.loading = true
       try {
         const baseUrl = this.getAuditServiceBaseUrl()

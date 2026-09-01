@@ -15,14 +15,6 @@
                 </div>
                 
                 <div class="flex items-center gap-2">
-                  <UButton label="Delete" color="error" icon="i-heroicons-trash" size="md" @click="store.handleDelete(store.selectedPlan.id)"/>
-                  <UButton 
-                    color="warning" 
-                    icon="i-heroicons-pencil-square" 
-                    size="md"
-                    class="font-bold"
-                    @click="store.handleEditFromView(store.selectedPlan)" 
-                  />
                   <UIcon name="i-heroicons-x-mark" @click="store.closeViewModal" class="text-gray-400 hover:text-gray-600 text-3xl ml-2"></UIcon>
                 </div>
               </div>

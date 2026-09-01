@@ -1189,7 +1189,7 @@ const approveReportDirectly = async () => {
 }
 
 const revertToDraft = async () => {
-  if (confirm('Apakah Anda yakin ingin membuka kunci dokumen dan mengembalikannya ke Draft?')) {
+  if (await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin membuka kunci dokumen dan mengembalikannya ke Draft?' })) {
     if (store.currentSummary) {
       await store.updateStatus(store.currentSummary.id, 'Draft')
     }

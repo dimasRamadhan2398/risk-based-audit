@@ -216,6 +216,7 @@ const handleRemind = (audit: any) => {
             icon="i-lucide-eye"
             variant="ghost"
             color="neutral"
+            size="md"
             @click="openDetail(row)"
           />
         </template>
