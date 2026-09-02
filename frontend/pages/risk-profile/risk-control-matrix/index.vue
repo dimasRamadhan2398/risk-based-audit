@@ -617,6 +617,7 @@ import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import type { RiskMitigation } from '~/types/risk'
+import { useGlobalModalStore } from '~/stores/global-modal'
 
 definePageMeta({
   middleware: 'auth'
