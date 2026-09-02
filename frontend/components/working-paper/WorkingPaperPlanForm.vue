@@ -57,7 +57,7 @@
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
             >
-                <UInput type="date" v-model="store.planForm.periodAction" icon="i-heroicons-calendar" class="w-full" />
+                <AppDatePicker v-model="store.planForm.periodAction" class="w-full" />
             </UFormField>
         
 

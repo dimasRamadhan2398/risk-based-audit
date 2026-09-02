@@ -147,7 +147,7 @@
               <!-- Date and Topic -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField :label="t('auditFieldwork.interview.date')" required>
-                  <UInput v-model="store.interviewForm.date" type="date" required class="w-full"/>
+                  <AppDatePicker v-model="store.interviewForm.date" required class="w-full"/>
                 </UFormField>
                 <UFormField :label="t('auditFieldwork.interview.topic')" required>
                   <USelectMenu 

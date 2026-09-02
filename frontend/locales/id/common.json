@@ -1502,6 +1502,24 @@
       "inactive": "Tidak Aktif",
       "uploadFile": "Unggah File Charter (PDF/DOCX)",
       "submit": "Simpan"
+    },
+    "sopForm": {
+      "editTitle": "Edit Petunjuk Teknis / SOP",
+      "addTitle": "Tambah Petunjuk Teknis / SOP Baru",
+      "name": "Nama Petunjuk Teknis / SOP",
+      "namePlaceholder": "contoh: SOP Penyusunan Program Kerja Audit Tahunan",
+      "nameValidation": "Nama SOP wajib diisi dan maksimal 200 karakter",
+      "parentGuideline": "Pedoman Audit Induk",
+      "parentGuidelinePlaceholder": "Pilih Pedoman Audit...",
+      "status": "Status",
+      "active": "Aktif",
+      "underReview": "Sedang Diperbarui",
+      "effectiveDate": "Mulai Berlaku",
+      "fileUpload": "Dokumen SOP / Juknis (PDF)",
+      "selectedFile": "File terpilih:",
+      "saveChanges": "Simpan Perubahan",
+      "addSop": "Tambah SOP",
+      "cancel": "Batal"
     }
   },
   "executiveSummaryUpload": {

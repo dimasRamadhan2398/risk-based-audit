@@ -84,9 +84,8 @@
                 </UFormField>
 
                 <UFormField label="Join Date *" size="lg">
-                  <UInput
+                  <AppDatePicker
                     v-model="store.form.join_date"
-                    type="date"
                     required
                   />
                 </UFormField>

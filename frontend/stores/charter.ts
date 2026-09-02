@@ -12,11 +12,7 @@ export const useCharterStore = defineStore('charter', () => {
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
 
-<<<<<<< HEAD
-  const columns = [
-=======
   const columns: (TableColumn<AuditCharter> & { class?: string })[] = [
->>>>>>> 19ed793 (fix: table display on every page)
     { accessorKey: 'version', header: 'Version', class: 'w-16 whitespace-nowrap text-center' },
     { accessorKey: 'title', header: 'Charter Name', class: 'w-48' },
     { accessorKey: 'content', header: 'Content', class: 'w-48' },
@@ -364,7 +360,7 @@ export const useCharterStore = defineStore('charter', () => {
    *
    * Downloads the audit charter file by ID.
    */
-  const downloadCharter = async (id: string, filename: string) => {
+  const downloadCharter = async (id: string, filename?: string) => {
     loading.value = true
     errorMsg.value = ''
 
@@ -383,7 +379,7 @@ export const useCharterStore = defineStore('charter', () => {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = filename
+      link.download = filename || 'audit-charter.pdf'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -453,7 +449,7 @@ export const useCharterStore = defineStore('charter', () => {
     form.approvedBy = charter.approvedBy
     form.isActive = charter.isActive
     form.file = null // Reset file input karena file tidak wajib diisi saat edit
-    form.fileName = charter.fileName
+    form.fileName = charter.fileName || ''
 
     // Reset error
     errorMsg.value = ''

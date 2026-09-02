@@ -50,11 +50,11 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField label="Start Date" required>
-                    <UInput v-model="store.form.start_date" type="date" :min="todayDate" icon="i-heroicons-calendar" required />
+                    <AppDatePicker v-model="store.form.start_date" :min-date="todayDate" required />
                 </UFormField>
 
                 <UFormField label="End Date" required>
-                    <UInput v-model="store.form.end_date" type="date" :min="minEndDate" icon="i-heroicons-calendar-days" required />
+                    <AppDatePicker v-model="store.form.end_date" :min-date="minEndDate" required />
                 </UFormField>
             </div>
 

@@ -102,11 +102,29 @@
                 </UFormField>
               </div>
 
-              <!-- Mitigation Plan -->
-              <div class="bg-[var(--bg-surface)] p-4 rounded-lg space-y-4 border border-[var(--border-main)]">
-                <h4 class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.testControls.sectionMitigation') }}</h4>
-                <UFormField :label="t('auditFieldwork.testControls.mitigation')">
-                  <UTextarea v-model="store.testControlForm.mitigationPlan" :placeholder="t('auditFieldwork.testControls.mitigationPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
+            <!-- Finding and Recommendation -->
+            <div class="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-lg space-y-4">
+              <h4 class="font-medium text-gray-700 dark:text-gray-200">{{ t('auditFieldwork.testControls.sectionFinding') }}</h4>
+              <UFormField :label="t('auditFieldwork.testControls.finding')">
+                <UTextarea v-model="store.testControlForm.finding" :placeholder="t('auditFieldwork.testControls.findingPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
+              </UFormField>
+              <UFormField :label="t('auditFieldwork.testControls.recommendation')">
+                <UTextarea v-model="store.testControlForm.recommendation" :placeholder="t('auditFieldwork.testControls.recommendationPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
+              </UFormField>
+            </div>
+
+            <!-- Mitigation Plan -->
+            <div class="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-lg space-y-4">
+              <h4 class="font-medium text-gray-700 dark:text-gray-200">{{ t('auditFieldwork.testControls.sectionMitigation') }}</h4>
+              <UFormField :label="t('auditFieldwork.testControls.mitigation')">
+                <UTextarea v-model="store.testControlForm.mitigationPlan" :placeholder="t('auditFieldwork.testControls.mitigationPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
+              </UFormField>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <UFormField :label="t('auditFieldwork.testControls.pic')">
+                  <UInput v-model="store.testControlForm.pic" :placeholder="t('auditFieldwork.testControls.picPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
+                </UFormField>
+                <UFormField :label="t('auditFieldwork.testControls.dueDate')">
+                  <AppDatePicker v-model="store.testControlForm.dueDate" class="w-full" :disabled="store.isReadOnlyTestControl" />
                 </UFormField>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <UFormField :label="t('auditFieldwork.testControls.pic')">
