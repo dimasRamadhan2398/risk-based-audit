@@ -63,7 +63,7 @@
             </UFormField>
 
             <UFormField :label="t('auditFieldwork.document.requiredDate')" required>
-              <UInput v-model="store.documentForm.requiredDate" type="date" class="w-full" required />
+              <AppDatePicker v-model="store.documentForm.requiredDate" class="w-full" required />
             </UFormField>
           
             <UFormField :label="t('auditFieldwork.document.uploadFile')">

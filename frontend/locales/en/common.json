@@ -1421,6 +1421,24 @@
       "inactive": "Inactive",
       "uploadFile": "Upload Charter File (PDF/DOCX)",
       "submit": "Submit"
+    },
+    "sopForm": {
+      "editTitle": "Edit Technical Instruction / SOP",
+      "addTitle": "Add New Technical Instruction / SOP",
+      "name": "Technical Instruction / SOP Name",
+      "namePlaceholder": "e.g. SOP for Annual Audit Work Program Preparation",
+      "nameValidation": "SOP name is required and cannot exceed 200 characters",
+      "parentGuideline": "Parent Audit Guideline",
+      "parentGuidelinePlaceholder": "Select Audit Guideline...",
+      "status": "Status",
+      "active": "Active",
+      "underReview": "Under Review",
+      "effectiveDate": "Effective Date",
+      "fileUpload": "SOP / Technical Instruction Document (PDF)",
+      "selectedFile": "Selected file:",
+      "saveChanges": "Save Changes",
+      "addSop": "Add SOP",
+      "cancel": "Cancel"
     }
   },
   "executiveSummaryUpload": {

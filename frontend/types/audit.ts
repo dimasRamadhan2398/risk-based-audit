@@ -146,6 +146,7 @@ export interface CharterFormState {
   approvedBy: string;
   isActive: boolean;
   file: File | null;
+  fileName?: string;
 }
 
 export interface AuditActivities {

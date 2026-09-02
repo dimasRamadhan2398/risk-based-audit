@@ -60,7 +60,7 @@
                 <UInput v-model="store.sampleForm.documentNumber" :placeholder="t('auditFieldwork.sample.numberPlaceholder')" class="w-full" required />
               </UFormField>
               <UFormField :label="t('auditFieldwork.sample.date')" required>
-                <UInput v-model="store.sampleForm.date" type="date" class="w-full" required />
+                <AppDatePicker v-model="store.sampleForm.date" class="w-full" required />
               </UFormField>
             </div>
 

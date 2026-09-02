@@ -103,9 +103,9 @@
                   </UFormField>
                   <UFormField :label="t('auditActivityPlan.form.planPeriod')" required class="col-span-1 md:col-span-2 w-full">
                     <div class="flex items-center gap-3">
-                      <UInput v-model="store.formState.planPeriodStart" type="date" class="flex-1 w-full" />
+                      <AppDatePicker v-model="store.formState.planPeriodStart" class="flex-1 w-full" />
                       <span class="text-xs font-bold text-gray-400 uppercase">{{ t('auditActivityPlan.form.to') }}</span>
-                      <UInput v-model="store.formState.planPeriodEnd" type="date" class="flex-1 w-full" />
+                      <AppDatePicker v-model="store.formState.planPeriodEnd" class="flex-1 w-full" />
                     </div>
                   </UFormField>
                   <UFormField :label="t('auditActivityPlan.form.department')" required>
@@ -121,7 +121,7 @@
                   </UFormField>
                 </div>
                 <UFormField :label="t('auditActivityPlan.form.creationDate')" class="pt-5">
-                  <UInput v-model="store.formState.creationDate" type="date" class="w-full" readonly />
+                  <AppDatePicker v-model="store.formState.creationDate" class="w-full" disabled />
                 </UFormField>
               </UCard>
             </div>
@@ -234,7 +234,7 @@
                         <UInput v-model="activity.numberOfAuditors" type="number" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.estimatedSchedule')">
-                        <UInput v-model="activity.estimatedSchedule" type="date" class="w-full"/>
+                        <AppDatePicker v-model="activity.estimatedSchedule" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.budgetEstimation')">
                         <UInput v-model="activity.budgetEstimation" type="number" class="w-full">
@@ -392,7 +392,7 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       <UFormField :label="t('auditActivityPlan.form.approvalDate')" required>
-                        <UInput v-model="store.formState.review.approvalDate" type="date" class="w-full"/>
+                        <AppDatePicker v-model="store.formState.review.approvalDate" class="w-full"/>
                       </UFormField>
                     </div>
                     <UFormField :label="t('auditActivityPlan.form.additionalNotes')" class="pt-4">
@@ -421,7 +421,7 @@
                       <UInput v-model="store.formState.attachmentUploadedBy" placeholder="Example: Auditor" class="w-full" />
                     </UFormField>
                     <UFormField :label="t('auditActivityPlan.form.attachmentUploadDate')">
-                      <UInput type="date" v-model="store.formState.attachmentUploadDate" class="w-full"/>
+                      <AppDatePicker v-model="store.formState.attachmentUploadDate" class="w-full"/>
                     </UFormField>
                   </div>
                   <UFormField :label="t('auditActivityPlan.form.uploadAttachmentHere')" size="lg" class="pt-2">

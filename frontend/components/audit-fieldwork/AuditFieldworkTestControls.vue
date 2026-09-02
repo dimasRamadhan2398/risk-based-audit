@@ -114,7 +114,7 @@
                   <UInput v-model="store.testControlForm.pic" :placeholder="t('auditFieldwork.testControls.picPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
                 </UFormField>
                 <UFormField :label="t('auditFieldwork.testControls.dueDate')">
-                  <UInput v-model="store.testControlForm.dueDate" type="date" class="w-full" :disabled="store.isReadOnlyTestControl" />
+                  <AppDatePicker v-model="store.testControlForm.dueDate" class="w-full" :disabled="store.isReadOnlyTestControl" />
                 </UFormField>
               </div>
             </div>

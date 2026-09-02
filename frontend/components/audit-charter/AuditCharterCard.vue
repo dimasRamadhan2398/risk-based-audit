@@ -113,7 +113,7 @@
         <div class="sm:flex sm:flex-row-reverse gap-4">
           <UButton
             v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName)"
+            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf')"
             icon="i-lucide-download"
             size="md"
             color="primary"

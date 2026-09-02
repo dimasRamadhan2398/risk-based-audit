@@ -9,7 +9,7 @@
         <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg leading-6 font-bold" id="modal-title">
-              {{ store.isEditing ? 'Edit Petunjuk Teknis / SOP' : 'Tambah Petunjuk Teknis / SOP Baru' }}
+              {{ store.isEditing ? t('auditCharter.sopForm.editTitle') : t('auditCharter.sopForm.addTitle') }}
             </h3>
             <UButton
               color="neutral"
@@ -22,7 +22,7 @@
           <div class="space-y-4">
             <!-- SOP Name -->
             <UFormField
-              label="Nama Petunjuk Teknis / SOP"
+              :label="t('auditCharter.sopForm.name')"
               class="block text-sm font-medium"
               size="lg"
               required
@@ -31,16 +31,16 @@
                 v-model="store.form.name"
                 required
                 type="text"
-                placeholder="e.g. SOP Penyusunan Program Kerja Audit Tahunan"
+                :placeholder="t('auditCharter.sopForm.namePlaceholder')"
                 class="mt-1 block w-full rounded-md"
-                @invalid="($event.target as any)?.setCustomValidity('Nama SOP wajib diisi dan maksimal 200 karakter')"
+                @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.sopForm.nameValidation'))"
                 @input="($event.target as any)?.setCustomValidity('')"
               />
             </UFormField>
 
             <!-- Parent Guideline Selection -->
             <UFormField
-              label="Pedoman Audit Induk"
+              :label="t('auditCharter.sopForm.parentGuideline')"
               class="block text-sm font-medium"
               size="lg"
               required
@@ -49,7 +49,7 @@
                 v-model="store.form.guideline_id"
                 required
                 :items="guidelineOptions"
-                placeholder="Pilih Pedoman Audit..."
+                :placeholder="t('auditCharter.sopForm.parentGuidelinePlaceholder')"
                 class="mt-1 block w-full rounded-md"
               />
             </UFormField>
@@ -57,7 +57,7 @@
             <div class="grid grid-cols-2 gap-4">
               <!-- Status -->
               <UFormField
-                label="Status"
+                :label="t('auditCharter.sopForm.status')"
                 class="block text-sm font-medium"
                 size="lg"
                 required
@@ -65,14 +65,14 @@
                 <USelect
                   v-model="store.form.status"
                   required
-                  :items="['Aktif', 'Sedang Diperbarui']"
+                  :items="statusOptions"
                   class="mt-1 block w-full rounded-md"
                 />
               </UFormField>
 
               <!-- Effective Date -->
               <UFormField
-                label="Mulai Berlaku"
+                :label="t('auditCharter.sopForm.effectiveDate')"
                 class="block text-sm font-medium"
                 size="lg"
                 required
@@ -88,7 +88,7 @@
 
             <!-- File Upload -->
             <UFormField
-              label="Dokumen SOP / Juknis (PDF)"
+              :label="t('auditCharter.sopForm.fileUpload')"
               class="block text-sm font-medium"
               size="lg"
               :required="!store.isEditing"
@@ -103,7 +103,7 @@
                 />
               </div>
               <p v-if="store.form.fileName" class="text-md text-gray-500 mt-1">
-                File terpilih: <span class="font-semibold text-gray-700">{{ store.form.fileName }}</span>
+                {{ t('auditCharter.sopForm.selectedFile') }} <span class="font-semibold text-gray-700">{{ store.form.fileName }}</span>
               </p>
             </UFormField>
 
@@ -114,7 +114,7 @@
           </div>
         </div>
 
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg">
+        <div class="bg-gray-50 dark:bg-transparent px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg">
           <UButton
             type="submit"
             :loading="store.loading"
@@ -123,7 +123,7 @@
             size="md"
             class="w-full sm:w-auto font-bold"
           >
-            {{ store.isEditing ? 'Simpan Perubahan' : 'Tambah SOP' }}
+            {{ store.isEditing ? t('auditCharter.sopForm.saveChanges') : t('auditCharter.sopForm.addSop') }}
           </UButton>
           <UButton
             type="button"
@@ -133,7 +133,7 @@
             class="w-full sm:w-auto mt-2 sm:mt-0 font-bold"
             @click="store.closeModal"
           >
-            Batal
+            {{ t('common.cancel') }}
           </UButton>
         </div>
       </UForm>
@@ -145,9 +145,16 @@
 import { computed } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
+
+const statusOptions = computed(() => [
+  { label: t('auditCharter.sopForm.active'), value: 'Aktif' },
+  { label: t('auditCharter.sopForm.underReview'), value: 'Sedang Diperbarui' }
+])
 
 const guidelineOptions = computed(() => {
   return guidelineStore.guidelines.map(g => ({

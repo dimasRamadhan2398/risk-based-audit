@@ -32,6 +32,7 @@ export const useCharterStore = defineStore('charter', () => {
     approvedBy: '',
     isActive: true,
     file: null,
+    fileName: '',
   })
 
   /**
@@ -354,7 +355,7 @@ export const useCharterStore = defineStore('charter', () => {
    *
    * Downloads the audit charter file by ID.
    */
-  const downloadCharter = async (id: string, filename: string) => {
+  const downloadCharter = async (id: string, filename?: string) => {
     loading.value = true
     errorMsg.value = ''
 
@@ -373,7 +374,7 @@ export const useCharterStore = defineStore('charter', () => {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = filename
+      link.download = filename || 'audit-charter.pdf'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -426,6 +427,7 @@ export const useCharterStore = defineStore('charter', () => {
     form.approvedBy = ''
     form.isActive = false
     form.file = null
+    form.fileName = ''
   }
 
   const handleEdit = (charter: any) => {
@@ -442,6 +444,7 @@ export const useCharterStore = defineStore('charter', () => {
     form.approvedBy = charter.approvedBy
     form.isActive = charter.isActive
     form.file = null // Reset file input karena file tidak wajib diisi saat edit
+    form.fileName = charter.fileName || ''
 
     // Reset error
     errorMsg.value = ''

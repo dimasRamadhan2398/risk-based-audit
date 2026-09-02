@@ -46,19 +46,15 @@
         >
             <div class="flex items-center gap-4 w-full">
                 <UFormField name="periodStart" class="w-full">
-                    <UInput 
-                        type="date" 
+                    <AppDatePicker 
                         v-model="store.headerForm.periodStart" 
-                        icon="i-heroicons-calendar" 
                         class="w-full"
                     />
                 </UFormField>
                 <span class="text-gray-500 font-bold whitespace-nowrap">s/d</span>
                 <UFormField name="periodEnd" class="w-full">
-                    <UInput 
-                        type="date" 
+                    <AppDatePicker 
                         v-model="store.headerForm.periodEnd" 
-                        icon="i-heroicons-calendar" 
                         class="w-full"
                     />
                 </UFormField>

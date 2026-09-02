@@ -71,7 +71,7 @@
                   <UInput v-model="store.observationForm.location" :placeholder="t('auditFieldwork.observation.locationPlaceholder')" required class="w-full" />
                 </UFormField>
                 <UFormField :label="t('auditFieldwork.observation.date')" required>
-                  <UInput v-model="store.observationForm.date" type="date" required class="w-full" />
+                  <AppDatePicker v-model="store.observationForm.date" required class="w-full" />
                 </UFormField>
               </div>
 
