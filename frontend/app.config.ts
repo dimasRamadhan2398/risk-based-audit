@@ -33,7 +33,13 @@ export default defineAppConfig({
       import: "heroicons:document-arrow-up",
       plan: "lucide:target",
       info: "heroicons:information-circle",
-      copy: "heroicons:document-duplicate"
+      copy: "heroicons:document-duplicate",
+
+      // KPI & metrics
+      kpiChart: "heroicons:chart-bar",
+      kpiCheck: "heroicons:check-circle",
+      kpiShieldCheck: "heroicons:shield-check",
+      kpiShieldAlert: "heroicons:shield-exclamation"
     },
   },
   theme: {
@@ -42,6 +48,9 @@ export default defineAppConfig({
   },
 
   ui: {
+    icon: {
+      base: "shrink-0 align-sub",
+    },
     accordion: {
       slots: {
         root: 'w-full gap-4 flex flex-col',
@@ -608,8 +617,40 @@ export default defineAppConfig({
           }
         }
       },
+      compoundVariants: [
+        {
+          color: 'neutral',
+          variant: 'solid',
+          class: {
+            root: 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900',
+            title: 'text-white dark:text-neutral-900',
+            description: 'text-neutral-300 dark:text-neutral-600'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-neutral-200 dark:ring-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'soft',
+          class: {
+            root: 'bg-neutral-100 dark:bg-neutral-800/60 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'subtle',
+          class: {
+            root: 'bg-neutral-100 dark:bg-neutral-800/60 ring ring-neutral-200 dark:ring-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+          }
+        }
+      ],
       defaultVariants: {
-        variant: 'outline'
+        variant: 'neutral'
       }
     },
     colors: {
