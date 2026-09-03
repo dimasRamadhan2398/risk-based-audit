@@ -2,8 +2,22 @@
     <div class="mt-4 space-y-6">
     <UCard class="shadow-sm mt-10">
         
-        <TableEntities :data="store.filteredDataF01" :columns="store.columnsF01" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }" >
+        <TableEntities
+          :data="store.filteredDataF01"
+          :columns="store.columnsF01"
+          :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }"
+          :ui="{ td: '!whitespace-normal' }"
+        >
         
+        <template #businessProcess-cell="{ row }">
+          <div
+            class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+            style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+          >
+            {{ row.original.businessProcess || '-' }}
+          </div>
+        </template>
+
         <template #teamMembers-cell="{ row }">
           <TeamMembersBadge :members="row.original.teamMembers" />
         </template>
