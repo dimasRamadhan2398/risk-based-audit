@@ -845,6 +845,7 @@
       "empty": "Belum ada dokumen yang dikumpulkan",
       "modalAdd": "Formulir Pengumpulan Dokumen",
       "modalEdit": "Ubah Dokumen",
+      "modalView": "Detail Pengumpulan Dokumen",
       "name": "Nama Dokumen",
       "namePlaceholder": "Contoh: SOP Pengadaan",
       "description": "Deskripsi Dokumen",
@@ -857,6 +858,11 @@
         "requiredDate": "Tanggal Dibutuhkan",
         "file": "Berkas",
         "actions": "Aksi"
+      },
+      "validation": {
+        "nameRequired": "Nama dokumen wajib diisi",
+        "descriptionRequired": "Deskripsi dokumen wajib diisi",
+        "requiredDateRequired": "Tanggal dibutuhkan wajib diisi"
       }
     },
     "sample": {
@@ -866,6 +872,7 @@
       "empty": "Belum ada data sampel",
       "modalAdd": "Formulir Data Sampel",
       "modalEdit": "Ubah Data Sampel",
+      "modalView": "Detail Data Sampel",
       "name": "Nama Dokumen",
       "namePlaceholder": "Contoh: Faktur Pembelian",
       "number": "Nomor Dokumen",

@@ -1112,7 +1112,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     documentName: '',
     description: '',
     requiredDate: '',
-    file: null as File | null
+    file: null as File | null,
+    fileName: '',
+    filePath: '',
+    fileUrl: ''
   })
   const showDocumentModal = ref(false)
   const isEditingDocument = ref(false)
@@ -1120,8 +1123,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const editingDocumentId = ref<any>(null)
 
   const openDocumentModal = () => {
+    const toast = useAppToast()
     if (!selectedAssignmentLetter.value) {
-      alert('Please select an Assignment Letter first!')
+      toast.warning('Silakan pilih Surat Tugas terlebih dahulu!')
       return
     }
     resetDocumentForm()
@@ -1139,6 +1143,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     documentForm.description = item.description
     documentForm.requiredDate = item.requiredDate
     documentForm.file = item.file
+    documentForm.fileName = item.fileName || item.file?.name || ''
+    documentForm.filePath = item.filePath || item.fileUrl || ''
+    documentForm.fileUrl = item.fileUrl || item.filePath || ''
     showDocumentModal.value = true
   }
 
@@ -1153,29 +1160,81 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     documentForm.description = ''
     documentForm.requiredDate = ''
     documentForm.file = null
+    documentForm.fileName = ''
+    documentForm.filePath = ''
+    documentForm.fileUrl = ''
   }
 
   const handleDocumentFileChange = (e: Event) => {
+    const toast = useAppToast()
     const target = e.target as HTMLInputElement
     const file = target.files?.[0]
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        alert('File too large! Maximum 10MB.')
+        toast.error('Ukuran berkas terlalu besar! Maksimal 10MB.')
+        target.value = ''
         return
       }
       documentForm.file = file
+      documentForm.fileName = file.name
     }
   }
 
   const saveDocument = async () => {
-    if (!selectedAssignmentLetter.value || isReadOnlyDocument.value) return
+    if (!selectedAssignmentLetter.value || isReadOnlyDocument.value) return false
+    const toast = useAppToast()
+
+    // Validation: make sure required fields are not empty
+    if (
+      !documentForm.documentName?.trim() ||
+      !documentForm.description?.trim() ||
+      !documentForm.requiredDate?.trim()
+    ) {
+      toast.error('Mohon lengkapi semua data dokumen yang wajib diisi!')
+      return false
+    }
+
     loading.value = true
+    const wasEditing = isEditingDocument.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      let uploadedFilePath = documentForm.filePath || documentForm.fileUrl || ''
+      let uploadedFileName = documentForm.fileName || (documentForm.file ? documentForm.file.name : '')
+
+      // If a new file object is attached, upload it to /media/upload first
+      if (documentForm.file) {
+        try {
+          const safeAssignmentId = (selectedAssignmentLetter.value || 'general').replace(/[\/\\]/g, '-')
+          const safeDocId = (editingDocumentId.value ? String(editingDocumentId.value) : safeAssignmentId).replace(/[\/\\]/g, '-')
+          const folderPath = `Auditsphere/fieldwork/${safeDocId}`
+
+          const formData = new FormData()
+          formData.append('file', documentForm.file)
+          formData.append('folder', folderPath)
+          formData.append('feature_name', 'fieldwork')
+          formData.append('document_id', safeDocId)
+          formData.append('document_name', documentForm.file.name)
+
+          const uploadRes: any = await $fetch(`${baseUrl}/media/upload`, {
+            method: 'POST',
+            body: formData
+          })
+          if (uploadRes?.data?.filePath || uploadRes?.filePath) {
+            uploadedFilePath = uploadRes?.data?.filePath || uploadRes?.filePath
+            uploadedFileName = uploadRes?.data?.fileName || uploadRes?.fileName || documentForm.file.name
+          }
+        } catch (uploadErr) {
+          console.warn('Media upload failed, proceeding with local filename:', uploadErr)
+          uploadedFileName = documentForm.file.name
+        }
+      }
+
       const payload = {
         ...documentForm,
         assignmentLetterId: selectedAssignmentLetter.value,
-        fileName: documentForm.file ? documentForm.file.name : ''
+        fileName: uploadedFileName,
+        filePath: uploadedFilePath,
+        fileUrl: uploadedFilePath
       }
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value].documents
@@ -1188,9 +1247,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         })
         const updatedItem = res?.data || res
         const idx = currentList.findIndex((item: any) => item.id === editingDocumentId.value)
-        if (idx !== -1) {
+        if (idx !== -1 && currentList[idx]) {
+          const existingItem = currentList[idx]
           currentList[idx] = {
-            ...currentList[idx],
+            ...existingItem,
             ...payload,
             id: updatedItem?.id || editingDocumentId.value,
             file: documentForm.file
@@ -1209,24 +1269,33 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           description: documentForm.description,
           requiredDate: documentForm.requiredDate,
           file: documentForm.file,
-          fileName: documentForm.file ? documentForm.file.name : ''
+          fileName: uploadedFileName,
+          filePath: uploadedFilePath,
+          fileUrl: uploadedFilePath
         }
         currentList.push(newItem)
       }
       showDocumentModal.value = false
       resetDocumentForm()
       await fetchDocuments(selectedAssignmentLetter.value)
+      toast.success(wasEditing ? 'Dokumen berhasil diperbarui' : 'Dokumen berhasil ditambahkan')
+      return true
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value].documents
       if (isEditingDocument.value && editingDocumentId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingDocumentId.value)
-        if (idx !== -1) {
+        if (idx !== -1 && currentList[idx]) {
+          const existingItem = currentList[idx]
           currentList[idx] = {
-            ...currentList[idx],
+            ...existingItem,
             ...documentForm,
-            fileName: documentForm.file ? documentForm.file.name : currentList[idx].fileName
+            id: existingItem.id,
+            assignmentLetterId: existingItem.assignmentLetterId,
+            fileName: documentForm.file ? documentForm.file.name : existingItem.fileName,
+            filePath: documentForm.filePath || existingItem.filePath,
+            fileUrl: documentForm.fileUrl || existingItem.fileUrl
           }
         }
       } else {
@@ -1237,15 +1306,27 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           description: documentForm.description,
           requiredDate: documentForm.requiredDate,
           file: documentForm.file,
-          fileName: documentForm.file ? documentForm.file.name : ''
+          fileName: documentForm.file ? documentForm.file.name : (documentForm.fileName || ''),
+          filePath: documentForm.filePath || '',
+          fileUrl: documentForm.fileUrl || ''
         }
         currentList.push(newItem)
       }
       showDocumentModal.value = false
       resetDocumentForm()
+      return true
     } finally {
       loading.value = false
     }
+  }
+
+  const downloadDocumentFile = async (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }) => {
+    return downloadInterviewFile(item)
   }
 
   const deleteDocument = async (index: number) => {
@@ -1655,6 +1736,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     handleDocumentFileChange,
     saveDocument,
     deleteDocument,
+    downloadDocumentFile,
     sampleForm,
     showSampleModal,
     isEditingSample,

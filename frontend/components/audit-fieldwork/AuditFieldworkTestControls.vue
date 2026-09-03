@@ -23,10 +23,11 @@
         icon: 'i-heroicons-shield-check',
         label: t('auditFieldwork.testControls.empty')
       }"
+      :ui="{ td: '!whitespace-normal' }"
       class="w-full"
     >
       <template #controlName-cell="{ row }">
-        <span class="font-medium">{{ row.original.controlName }}</span>
+        <span class="font-medium text-gray-900 dark:text-white">{{ row.original.controlName }}</span>
       </template>
       <template #controlType-cell="{ row }">
         <UBadge :color="getControlTypeColor(row.original.controlType)" variant="subtle">{{ row.original.controlType }}</UBadge>
@@ -35,19 +36,29 @@
         <UBadge :color="getResultColor(row.original.testResult)" variant="solid">{{ row.original.testResult }}</UBadge>
       </template>
       <template #finding-cell="{ row }">
-        <span class="text-sm text-gray-600 line-clamp-2">{{ row.original.finding || '-' }}</span>
+        <div
+          class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+          style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+        >
+          {{ row.original.finding || '-' }}
+        </div>
       </template>
       <template #mitigationPlan-cell="{ row }">
-        <span class="text-sm text-gray-600 line-clamp-2">{{ row.original.mitigationPlan || '-' }}</span>
+        <div
+          class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+          style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+        >
+          {{ row.original.mitigationPlan || '-' }}
+        </div>
       </template>
       <template #dueDate-cell="{ row }">
-        <span class="text-sm text-gray-600 whitespace-nowrap">{{ formatDate(row.original.dueDate) || '-' }}</span>
+        <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ formatDate(row.original.dueDate) || '-' }}</span>
       </template>
       <template #actions-cell="{ row }">
-        <div class="flex items-center gap-1">
-          <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" @click="store.viewTestControl(row.original)" />
-          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editTestControl(row.original)" />
-          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteTestControl(row.index)" />
+        <div class="flex items-center justify-center gap-1">
+          <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" :title="t('common.actions.view') || 'Lihat'" @click="store.viewTestControl(row.original)" />
+          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" :title="t('common.actions.edit') || 'Ubah'" @click="store.editTestControl(row.original)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" :title="t('common.actions.delete') || 'Hapus'" @click="store.deleteTestControl(row.index)" />
         </div>
       </template>
     </TableEntities>
@@ -69,13 +80,25 @@ const store = useAuditFieldworkStore()
 const { t } = useI18n()
 
 const columns = computed(() => [
-  { accessorKey: 'controlName', header: t('auditFieldwork.testControls.columns.name') },
-  { accessorKey: 'controlType', header: t('auditFieldwork.testControls.columns.type') },
-  { accessorKey: 'testResult', header: t('auditFieldwork.testControls.columns.result') },
-  { accessorKey: 'finding', header: t('auditFieldwork.testControls.columns.finding') },
-  { accessorKey: 'mitigationPlan', header: t('auditFieldwork.testControls.columns.mitigation') },
-  { accessorKey: 'dueDate', header: t('auditFieldwork.testControls.columns.dueDate') || t('auditFieldwork.testControls.dueDate') },
-  { accessorKey: 'actions', header: t('auditFieldwork.testControls.columns.actions') }
+  { key: 'controlName', accessorKey: 'controlName', header: t('auditFieldwork.testControls.columns.name'), class: 'w-56 min-w-[180px]' },
+  { key: 'controlType', accessorKey: 'controlType', header: t('auditFieldwork.testControls.columns.type'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  { key: 'testResult', accessorKey: 'testResult', header: t('auditFieldwork.testControls.columns.result'), class: 'w-36 min-w-[130px] whitespace-nowrap' },
+  {
+    key: 'finding',
+    accessorKey: 'finding',
+    header: t('auditFieldwork.testControls.columns.finding'),
+    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    tdClass: '!whitespace-normal break-words'
+  },
+  {
+    key: 'mitigationPlan',
+    accessorKey: 'mitigationPlan',
+    header: t('auditFieldwork.testControls.columns.mitigation'),
+    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    tdClass: '!whitespace-normal break-words'
+  },
+  { key: 'dueDate', accessorKey: 'dueDate', header: t('auditFieldwork.testControls.columns.dueDate') || t('auditFieldwork.testControls.dueDate'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.testControls.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
 
 const getControlTypeColor = (type: string) => {

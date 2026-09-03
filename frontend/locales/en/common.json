@@ -848,6 +848,7 @@
       "empty": "No documents collected yet",
       "modalAdd": "Document Collection Form",
       "modalEdit": "Edit Document",
+      "modalView": "Document Collection Details",
       "name": "Document Name",
       "namePlaceholder": "Example: SOP Procurement",
       "description": "Document Description",
@@ -860,6 +861,11 @@
         "requiredDate": "Required Date",
         "file": "File",
         "actions": "Actions"
+      },
+      "validation": {
+        "nameRequired": "Document name is required",
+        "descriptionRequired": "Document description is required",
+        "requiredDateRequired": "Required date is required"
       }
     },
     "sample": {
@@ -869,6 +875,7 @@
       "empty": "No samples data yet",
       "modalAdd": "Sample Data Form",
       "modalEdit": "Edit Sample Data",
+      "modalView": "Sample Data Details",
       "name": "Document Name",
       "namePlaceholder": "Example: Purchase Invoice",
       "number": "Document Number",
