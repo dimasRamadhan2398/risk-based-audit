@@ -53,20 +53,22 @@
       </div>
     </div>
 
-    <!-- Calendar Dropdown Popover -->
-    <transition
-      enter-active-class="transition duration-150 ease-out"
-      enter-from-class="transform scale-95 opacity-0"
-      enter-to-class="transform scale-100 opacity-100"
-      leave-active-class="transition duration-100 ease-in"
-      leave-from-class="transform scale-100 opacity-100"
-      leave-to-class="transform scale-95 opacity-0"
-    >
-      <div
-        v-if="isOpen"
-        class="absolute z-50 mt-1 w-72 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-xl backdrop-blur-md"
-        :class="dropdownPositionClass"
+    <!-- Calendar Dropdown Popover (Teleported to body for top stacking context & no overflow clipping) -->
+    <Teleport to="body" :disabled="!isMounted">
+      <transition
+        enter-active-class="transition duration-150 ease-out"
+        enter-from-class="transform scale-95 opacity-0"
+        enter-to-class="transform scale-100 opacity-100"
+        leave-active-class="transition duration-100 ease-in"
+        leave-from-class="transform scale-100 opacity-100"
+        leave-to-class="transform scale-95 opacity-0"
       >
+        <div
+          v-if="isOpen"
+          ref="dropdownRef"
+          :style="dropdownStyle"
+          class="w-72 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-2xl backdrop-blur-md z-[99999]"
+        >
         <!-- Calendar Header (Month/Year Navigation) -->
         <div class="flex items-center justify-between mb-3 px-1">
           <div class="flex items-center gap-1">
@@ -162,11 +164,12 @@
         </div>
       </div>
     </transition>
+  </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import {
   format,
   parseISO,
@@ -215,6 +218,9 @@ const emit = defineEmits<{
 }>()
 
 const containerRef = ref<HTMLElement | null>(null)
+const dropdownRef = ref<HTMLElement | null>(null)
+const dropdownStyle = ref<Record<string, string>>({})
+const isMounted = ref(false)
 const isOpen = ref(false)
 
 // Internal text shown in input (formatted as DD/MM/YYYY)
@@ -323,6 +329,42 @@ const nextMonth = () => {
   viewYear.value = newDate.getFullYear()
 }
 
+const updateDropdownPosition = () => {
+  if (!containerRef.value) return
+  const rect = containerRef.value.getBoundingClientRect()
+  const calendarHeight = 330 // Approximate height of calendar popover
+  const calendarWidth = 288 // w-72 = 18rem = 288px
+  const windowHeight = window.innerHeight || document.documentElement.clientHeight
+  const windowWidth = window.innerWidth || document.documentElement.clientWidth
+
+  // If container is totally offscreen, close calendar
+  if (rect.bottom < 0 || rect.top > windowHeight) {
+    isOpen.value = false
+    return
+  }
+
+  // Determine if it should drop up or down based on available viewport space
+  const spaceBelow = windowHeight - rect.bottom
+  const spaceAbove = rect.top
+  const shouldDropUp = props.dropUp || (spaceBelow < calendarHeight && spaceAbove > spaceBelow)
+
+  let top = shouldDropUp ? rect.top - calendarHeight - 6 : rect.bottom + 6
+  if (top < 8) top = 8
+
+  let left = rect.left
+  if (left + calendarWidth > windowWidth - 16) {
+    left = Math.max(16, windowWidth - calendarWidth - 16)
+  }
+
+  dropdownStyle.value = {
+    position: 'fixed',
+    top: `${top}px`,
+    left: `${left}px`,
+    width: `${calendarWidth}px`,
+    zIndex: '99999'
+  }
+}
+
 const openCalendar = () => {
   if (props.disabled) return
   if (props.modelValue) {
@@ -332,7 +374,11 @@ const openCalendar = () => {
       viewYear.value = parsed.getFullYear()
     }
   }
+  updateDropdownPosition()
   isOpen.value = true
+  nextTick(() => {
+    updateDropdownPosition()
+  })
 }
 
 const toggleCalendar = () => {
@@ -416,16 +462,41 @@ const handleBlur = () => {
 
 // Click outside handler to close dropdown
 const handleClickOutside = (event: MouseEvent) => {
-  if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
+  const target = event.target as Node
+  if (
+    containerRef.value &&
+    !containerRef.value.contains(target) &&
+    dropdownRef.value &&
+    !dropdownRef.value.contains(target)
+  ) {
+    isOpen.value = false
+  }
+}
+
+const handleScrollOrResize = () => {
+  if (isOpen.value) {
+    updateDropdownPosition()
+  }
+}
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && isOpen.value) {
     isOpen.value = false
   }
 }
 
 onMounted(() => {
+  isMounted.value = true
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener('resize', handleScrollOrResize)
+  window.addEventListener('scroll', handleScrollOrResize, true)
+  window.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('resize', handleScrollOrResize)
+  window.removeEventListener('scroll', handleScrollOrResize, true)
+  window.removeEventListener('keydown', handleKeyDown)
 })
 </script>

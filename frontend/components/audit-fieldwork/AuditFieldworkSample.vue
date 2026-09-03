@@ -17,24 +17,31 @@
         icon: 'i-heroicons-table-cells',
         label: t('auditFieldwork.sample.empty')
       }"
+      :ui="{ td: '!whitespace-normal' }"
       class="w-full"
     >
       <template #documentName-cell="{ row }">
-        <span class="font-medium">{{ row.original.documentName }}</span>
+        <span class="font-medium text-gray-900 dark:text-white">{{ row.original.documentName }}</span>
       </template>
       <template #documentNumber-cell="{ row }">
         <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
       </template>
       <template #date-cell="{ row }">
-        <span>{{ formatDate(row.original.date) }}</span>
+        <span class="text-sm text-[var(--text-main)]">{{ formatDate(row.original.date) }}</span>
       </template>
       <template #description-cell="{ row }">
-        <span class="text-sm text-gray-600">{{ row.original.description }}</span>
+        <div
+          class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+          style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+        >
+          {{ row.original.description || '-' }}
+        </div>
       </template>
       <template #actions-cell="{ row }">
-        <div class="flex items-center gap-1">
-          <UButton icon="i-lucide-edit" color="warning" variant="ghost" size="md" @click="store.editSample(row.original)" />
-          <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="md" @click="store.deleteSample(row.index)" />
+        <div class="flex items-center justify-center gap-1">
+          <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" :title="t('common.actions.view') || 'Lihat'" @click="store.viewSample(row.original)" />
+          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" :title="t('common.actions.edit') || 'Ubah'" @click="store.editSample(row.original)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" :title="t('common.actions.delete') || 'Hapus'" @click="store.deleteSample(row.index)" />
         </div>
       </template>
     </TableEntities>
@@ -56,10 +63,16 @@ const store = useAuditFieldworkStore()
 const { t } = useI18n()
 
 const columns = computed(() => [
-  { accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name') },
-  { accessorKey: 'documentNumber', header: t('auditFieldwork.sample.columns.number') },
-  { accessorKey: 'date', header: t('auditFieldwork.sample.columns.date') },
-  { accessorKey: 'description', header: t('auditFieldwork.sample.columns.description') },
-  { accessorKey: 'actions', header: t('auditFieldwork.sample.columns.actions') }
+  { key: 'documentName', accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name'), class: 'w-56 min-w-[180px]' },
+  { key: 'documentNumber', accessorKey: 'documentNumber', header: t('auditFieldwork.sample.columns.number'), class: 'w-44 min-w-[140px] whitespace-nowrap' },
+  { key: 'date', accessorKey: 'date', header: t('auditFieldwork.sample.columns.date'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  {
+    key: 'description',
+    accessorKey: 'description',
+    header: t('auditFieldwork.sample.columns.description'),
+    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    tdClass: '!whitespace-normal break-words'
+  },
+  { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.sample.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
 </script>
