@@ -57,18 +57,10 @@
                 class="block text-sm font-medium"
                 size="lg"
               >
-<<<<<<< HEAD
-                <UInput
-                  v-model="store.form.date"
-                  required
-                  type="date"
-                  class="mt-1 block w-full rounded-md"
-=======
                 <AppDatePicker
                   v-model="store.form.date"
                   required
                   class="mt-1"
->>>>>>> 011e037 (fix: date picker)
                 />
               </UFormField>
             </div>

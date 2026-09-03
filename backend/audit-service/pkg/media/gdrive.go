@@ -18,6 +18,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,8 +60,14 @@ func (p *GDriveProvider) loadServiceAccountKey(cfg *config.GDriveConfig) error {
 	var credsJSON string
 	if cfg.CredentialsJSON != "" {
 		credsJSON = cfg.CredentialsJSON
+	} else if cfg.CredentialsJSONPath != "" {
+		data, err := os.ReadFile(cfg.CredentialsJSONPath)
+		if err != nil {
+			return fmt.Errorf("failed to read credentials file from %s: %w", cfg.CredentialsJSONPath, err)
+		}
+		credsJSON = string(data)
 	} else {
-		return fmt.Errorf("credentials_json is empty; set credentials_json in config")
+		return fmt.Errorf("credentials_json and credentials_json_path are empty; set credentials in config")
 	}
 
 	var creds struct {
@@ -175,7 +182,97 @@ func (p *GDriveProvider) Upload(ctx context.Context, file io.Reader, fileName st
 
 	// Fallback to local upload
 	fmt.Printf("[GDrive Fallback] Uploading to Google Drive failed (%v). Falling back to local storage.\n", err)
-	return p.uploadLocal(fileContent, fileName)
+	return p.uploadLocal(fileContent, fileName, folder)
+}
+
+// getOrCreateFolderHierarchy traverses or creates the folder hierarchy in Google Drive
+// pathParts: e.g. ["Auditsphere", "fieldwork", "ST-001"]
+func (p *GDriveProvider) getOrCreateFolderHierarchy(ctx context.Context, accessToken string, pathParts []string) (string, error) {
+	parentID := p.defaultFolderID
+
+	for _, rawPart := range pathParts {
+		part := strings.TrimSpace(rawPart)
+		if part == "" {
+			continue
+		}
+
+		// Search for an existing folder with this name under parentID
+		query := fmt.Sprintf("name = '%s' and mimeType = 'application/vnd.google-apps.folder' and trashed = false", strings.ReplaceAll(part, "'", "\\'"))
+		if parentID != "" {
+			query += fmt.Sprintf(" and '%s' in parents", parentID)
+		} else {
+			query += " and 'root' in parents"
+		}
+
+		searchURL := fmt.Sprintf("https://www.googleapis.com/drive/v3/files?q=%s&fields=files(id,name)&spaces=drive", url.QueryEscape(query))
+		req, err := http.NewRequestWithContext(ctx, "GET", searchURL, nil)
+		if err != nil {
+			return "", err
+		}
+		req.Header.Set("Authorization", "Bearer "+accessToken)
+
+		resp, err := p.httpClient.Do(req)
+		if err != nil {
+			return "", fmt.Errorf("failed to search folder '%s': %w", part, err)
+		}
+
+		respBody, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		var searchResp struct {
+			Files []struct {
+				ID   string `json:"id"`
+				Name string `json:"name"`
+			} `json:"files"`
+		}
+		_ = json.Unmarshal(respBody, &searchResp)
+
+		if len(searchResp.Files) > 0 {
+			parentID = searchResp.Files[0].ID
+			continue
+		}
+
+		// Create folder if not found
+		type createFolderMeta struct {
+			Name     string   `json:"name"`
+			MimeType string   `json:"mimeType"`
+			Parents  []string `json:"parents,omitempty"`
+		}
+		folderMeta := createFolderMeta{
+			Name:     part,
+			MimeType: "application/vnd.google-apps.folder",
+		}
+		if parentID != "" {
+			folderMeta.Parents = []string{parentID}
+		}
+
+		folderJSON, _ := json.Marshal(folderMeta)
+		createReq, err := http.NewRequestWithContext(ctx, "POST", "https://www.googleapis.com/drive/v3/files?fields=id,name", bytes.NewReader(folderJSON))
+		if err != nil {
+			return "", err
+		}
+		createReq.Header.Set("Authorization", "Bearer "+accessToken)
+		createReq.Header.Set("Content-Type", "application/json")
+
+		createResp, err := p.httpClient.Do(createReq)
+		if err != nil {
+			return "", fmt.Errorf("failed to create folder '%s': %w", part, err)
+		}
+		createBody, _ := io.ReadAll(createResp.Body)
+		createResp.Body.Close()
+
+		var createdFolder struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		}
+		if err := json.Unmarshal(createBody, &createdFolder); err != nil || createdFolder.ID == "" {
+			return "", fmt.Errorf("failed to parse created folder '%s' response: %s", part, string(createBody))
+		}
+
+		parentID = createdFolder.ID
+	}
+
+	return parentID, nil
 }
 
 // uploadToGDrive uploads file content to Google Drive.
@@ -185,10 +282,19 @@ func (p *GDriveProvider) uploadToGDrive(ctx context.Context, fileContent []byte,
 		return nil, fmt.Errorf("failed to get access token: %w", err)
 	}
 
-	// Build file metadata
+	// Resolve folder hierarchy if folder path is provided
 	folderID := p.defaultFolderID
-	if folder != "" && folder != "audit" && folder != "default" {
-		folderID = folder
+	cleanFolder := strings.Trim(folder, "/")
+	if cleanFolder != "" && cleanFolder != "default" {
+		parts := strings.Split(cleanFolder, "/")
+		if len(parts) > 0 {
+			resolvedID, err := p.getOrCreateFolderHierarchy(ctx, accessToken, parts)
+			if err == nil && resolvedID != "" {
+				folderID = resolvedID
+			} else {
+				fmt.Printf("[GDrive] Folder hierarchy resolution warning (%v), using defaultFolderID\n", err)
+			}
+		}
 	}
 
 	type fileMetadata struct {
@@ -270,33 +376,33 @@ func (p *GDriveProvider) uploadToGDrive(ctx context.Context, fileContent []byte,
 	}, nil
 }
 
-// uploadLocal saves the file content in the local filesystem.
-func (p *GDriveProvider) uploadLocal(fileContent []byte, fileName string) (*models.MediaAttachment, error) {
-	uploadsDir := "uploads"
+// uploadLocal saves the file content in the local filesystem preserving folder structure.
+func (p *GDriveProvider) uploadLocal(fileContent []byte, fileName string, folder string) (*models.MediaAttachment, error) {
+	cleanFolder := strings.Trim(folder, "/")
+	if cleanFolder == "" {
+		cleanFolder = "Auditsphere/general"
+	}
+	uploadsDir := filepath.Join("uploads", cleanFolder)
 	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create local uploads directory: %w", err)
 	}
 
-	// Generate a unique file name/ID to prevent overwrites
 	fileID := uuid.New().String()
-	safeFileName := fmt.Sprintf("%s_%s", fileID, fileName)
-	filePath := filepath.Join(uploadsDir, safeFileName)
+	filePath := filepath.Join(uploadsDir, fileName)
 
 	// Write to file
 	if err := os.WriteFile(filePath, fileContent, 0644); err != nil {
 		return nil, fmt.Errorf("failed to write local file: %w", err)
 	}
 
-	// Return local attachment metadata
-	// Note: We use http://localhost:8080/api/v1/media/download/ as the public URL via Gateway proxy
-	downloadURL := fmt.Sprintf("http://localhost:8080/api/v1/media/download/%s", safeFileName)
+	relPath := "/" + filepath.ToSlash(filepath.Join("uploads", cleanFolder, fileName))
 
 	return &models.MediaAttachment{
 		FileID:     fileID,
 		FileName:   fileName,
-		FilePath:   downloadURL,
+		FilePath:   relPath,
 		FileSize:   int64(len(fileContent)),
-		FileType:   "application/octet-stream", // Fallback mime type
+		FileType:   "application/octet-stream",
 		UploadedAt: time.Now(),
 	}, nil
 }

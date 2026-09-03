@@ -3,8 +3,11 @@ package media
 import (
 	"audit-service/pkg/response"
 	"audit-service/services/media"
+	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +35,21 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 		return
 	}
 
-	folder := c.DefaultPostForm("folder", "audit")
+	folder := c.PostForm("folder")
+	featureName := c.PostForm("feature_name")
+	documentID := c.PostForm("document_id")
+
+	if folder == "" {
+		if featureName != "" && documentID != "" {
+			folder = fmt.Sprintf("Auditsphere/%s/%s", featureName, documentID)
+		} else if featureName != "" {
+			folder = fmt.Sprintf("Auditsphere/%s", featureName)
+		} else {
+			folder = "Auditsphere/audit"
+		}
+	} else if !strings.HasPrefix(folder, "Auditsphere/") && folder != "Auditsphere" {
+		folder = "Auditsphere/" + strings.TrimPrefix(folder, "/")
+	}
 
 	attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, folder)
 	if err != nil {
@@ -46,5 +63,25 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 func (ctrl *MediaController) Download(c *gin.Context) {
 	id := c.Param("id")
 	filePath := filepath.Join("uploads", id)
+	if _, err := os.Stat(filePath); err == nil {
+		c.File(filePath)
+		return
+	}
+
+	// Search recursively in uploads directory for matching file
+	var foundPath string
+	_ = filepath.Walk("uploads", func(path string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() && (info.Name() == id || strings.HasSuffix(info.Name(), id)) {
+			foundPath = path
+			return filepath.SkipAll
+		}
+		return nil
+	})
+
+	if foundPath != "" {
+		c.File(foundPath)
+		return
+	}
+
 	c.File(filePath)
 }
