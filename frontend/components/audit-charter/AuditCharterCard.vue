@@ -171,12 +171,20 @@
           </template>
           <template #title-cell="{ row }">
             <div class="font-bold text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.title }}
+              <ReadMoreText
+                :text="row.original.title"
+                :max-length="60"
+                text-class="font-bold text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #content-cell="{ row }">
             <div class="font-normal text-[var(--text-muted)] text-sm break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.content || '-' }}
+              <ReadMoreText
+                :text="row.original.content || '-'"
+                :max-length="75"
+                text-class="text-[var(--text-muted)] text-sm"
+              />
             </div>
           </template>
           <template #date-cell="{ row }">
@@ -186,12 +194,20 @@
           </template>
           <template #approvedBy-cell="{ row }">
             <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.approvedBy }}
+              <ReadMoreText
+                :text="row.original.approvedBy"
+                :max-length="35"
+                text-class="font-medium text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #uploadedBy-cell="{ row }">
             <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.uploadedBy }}
+              <ReadMoreText
+                :text="row.original.uploadedBy"
+                :max-length="35"
+                text-class="font-medium text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #actions-cell="{ row }">
@@ -223,6 +239,7 @@ import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()

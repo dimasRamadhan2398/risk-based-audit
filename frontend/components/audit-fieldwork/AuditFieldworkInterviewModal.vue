@@ -2,6 +2,7 @@
   <!-- Interview Modal (View / Add / Edit) -->
   <UModal 
     v-model:open="store.showInterviewModal"
+    :dismissible="false"
     :ui="{ content: 'sm:max-w-2xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
   >
     <template #content>

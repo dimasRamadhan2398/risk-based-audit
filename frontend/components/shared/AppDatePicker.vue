@@ -1,175 +1,157 @@
 <template>
-  <div ref="containerRef" class="relative inline-block w-full">
-    <!-- Input Field -->
-    <div class="relative flex items-center">
-      <input
-        :id="id"
-        :name="name"
-        type="text"
-        :value="displayValue"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        :required="required"
-        maxlength="10"
-        @input="handleTextInput"
-        @blur="handleBlur"
-        @focus="openCalendar"
-        @keydown.down.prevent="openCalendar"
-        :class="[
-          'block w-full rounded-md border text-sm transition-colors duration-150',
-          'bg-white dark:bg-gray-900',
-          'text-gray-900 dark:text-gray-100',
-          'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-          'border-gray-300 dark:border-gray-700',
-          'focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none',
-          disabled ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800' : 'cursor-text',
-          sizeClasses,
-          $attrs.class
-        ]"
-      />
-
-      <!-- Action Icons (Clear + Calendar Button) -->
-      <div class="absolute right-2.5 flex items-center gap-1">
-        <button
-          v-if="!disabled && modelValue"
-          type="button"
-          @click.stop="clearDate"
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5 rounded focus:outline-none"
-          tabindex="-1"
-          title="Clear date"
-        >
-          <UIcon name="i-lucide-x" class="w-3.5 h-3.5" />
-        </button>
-        <button
-          type="button"
+  <div class="relative inline-block w-full">
+    <UPopover v-model:open="isOpen" :disabled="disabled" class="w-full">
+      <!-- Input Field Trigger -->
+      <div class="relative flex items-center w-full">
+        <input
+          :id="id"
+          :name="name"
+          type="text"
+          :value="displayValue"
+          :placeholder="placeholder"
           :disabled="disabled"
-          @click.stop="toggleCalendar"
-          class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-0.5 rounded focus:outline-none disabled:cursor-not-allowed"
-          tabindex="-1"
-          title="Open calendar"
-        >
-          <UIcon name="i-lucide-calendar" class="w-4 h-4" />
-        </button>
-      </div>
-    </div>
+          :required="required"
+          maxlength="10"
+          @input="handleTextInput"
+          @blur="handleBlur"
+          @keydown.down.prevent="isOpen = true"
+          :class="[
+            'block w-full rounded-md border text-sm transition-colors duration-150',
+            'bg-white dark:bg-gray-900',
+            'text-gray-900 dark:text-gray-100',
+            'placeholder:text-gray-400 dark:placeholder:text-gray-500',
+            'border-gray-300 dark:border-gray-700',
+            'focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none',
+            disabled ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800' : 'cursor-text',
+            sizeClasses,
+            $attrs.class
+          ]"
+        />
 
-    <!-- Calendar Dropdown Popover (Teleported to body for top stacking context & no overflow clipping) -->
-    <Teleport to="body" :disabled="!isMounted">
-      <transition
-        enter-active-class="transition duration-150 ease-out"
-        enter-from-class="transform scale-95 opacity-0"
-        enter-to-class="transform scale-100 opacity-100"
-        leave-active-class="transition duration-100 ease-in"
-        leave-from-class="transform scale-100 opacity-100"
-        leave-to-class="transform scale-95 opacity-0"
-      >
-        <div
-          v-if="isOpen"
-          ref="dropdownRef"
-          :style="dropdownStyle"
-          class="w-72 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-2xl backdrop-blur-md z-[99999]"
-        >
-        <!-- Calendar Header (Month/Year Navigation) -->
-        <div class="flex items-center justify-between mb-3 px-1">
-          <div class="flex items-center gap-1">
-            <select
-              v-model="viewMonth"
-              class="text-xs font-semibold bg-transparent text-gray-800 dark:text-gray-200 rounded px-1.5 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer focus:outline-none"
-            >
-              <option v-for="(m, idx) in monthNames" :key="idx" :value="idx" class="dark:bg-gray-900">
-                {{ m }}
-              </option>
-            </select>
-            <select
-              v-model="viewYear"
-              class="text-xs font-semibold bg-transparent text-gray-800 dark:text-gray-200 rounded px-1.5 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer focus:outline-none"
-            >
-              <option v-for="y in yearOptions" :key="y" :value="y" class="dark:bg-gray-900">
-                {{ y }}
-              </option>
-            </select>
-          </div>
-
-          <div class="flex items-center gap-0.5">
-            <button
-              type="button"
-              @click.stop="prevMonth"
-              class="p-1 rounded-md text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              title="Previous month"
-            >
-              <UIcon name="i-lucide-chevron-left" class="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              @click.stop="nextMonth"
-              class="p-1 rounded-md text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              title="Next month"
-            >
-              <UIcon name="i-lucide-chevron-right" class="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Days of Week Header -->
-        <div class="grid grid-cols-7 gap-1 mb-1 text-center">
-          <span
-            v-for="(day, idx) in dayNames"
-            :key="idx"
-            class="text-[11px] font-medium text-gray-400 dark:text-gray-500 py-0.5"
-          >
-            {{ day }}
-          </span>
-        </div>
-
-        <!-- Days Grid -->
-        <div class="grid grid-cols-7 gap-1 text-center">
+        <!-- Action Icons (Clear + Calendar Button) -->
+        <div class="absolute right-2.5 flex items-center gap-1">
           <button
-            v-for="(dayObj, idx) in calendarDays"
-            :key="idx"
-            type="button"
-            :disabled="dayObj.disabled"
-            @click.stop="selectDate(dayObj.date)"
-            :class="[
-              'h-7 w-7 mx-auto rounded-lg text-xs font-medium flex items-center justify-center transition-all duration-100',
-              dayObj.isCurrentMonth ? 'text-gray-800 dark:text-gray-200' : 'text-gray-300 dark:text-gray-600',
-              dayObj.isSelected
-                ? 'bg-primary-600 text-white font-bold shadow-sm hover:bg-primary-700 dark:bg-primary-500'
-                : dayObj.isToday
-                ? 'border border-primary-500 text-primary-600 dark:text-primary-400 font-semibold hover:bg-primary-50 dark:hover:bg-primary-950/40'
-                : 'hover:bg-gray-100 dark:hover:bg-gray-800',
-              dayObj.disabled ? 'opacity-30 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'
-            ]"
-          >
-            {{ dayObj.dayNumber }}
-          </button>
-        </div>
-
-        <!-- Footer Shortcuts -->
-        <div class="mt-3 pt-2 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center px-1">
-          <button
-            type="button"
-            @click.stop="selectToday"
-            class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline"
-          >
-            Hari Ini
-          </button>
-          <button
-            v-if="modelValue"
+            v-if="!disabled && modelValue"
             type="button"
             @click.stop="clearDate"
-            class="text-xs text-gray-400 hover:text-error-600 dark:hover:text-error-400"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5 rounded focus:outline-none cursor-pointer"
+            tabindex="-1"
+            title="Clear date"
           >
-            Hapus
+            <UIcon name="i-lucide-x" class="w-3.5 h-3.5" />
           </button>
+          <div
+            class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-0.5 rounded focus:outline-none disabled:cursor-not-allowed cursor-pointer"
+            title="Open calendar"
+          >
+            <UIcon name="i-lucide-calendar" class="w-4 h-4" />
+          </div>
         </div>
       </div>
-    </transition>
-  </Teleport>
+
+      <template #content>
+        <div class="w-72 p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl">
+          <!-- Calendar Header (Month/Year Navigation) -->
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-1">
+              <select
+                v-model="viewMonth"
+                class="text-xs font-semibold bg-transparent text-gray-800 dark:text-gray-200 rounded px-1.5 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer focus:outline-none"
+              >
+                <option v-for="(m, idx) in monthNames" :key="idx" :value="idx" class="dark:bg-gray-900">
+                  {{ m }}
+                </option>
+              </select>
+              <select
+                v-model="viewYear"
+                class="text-xs font-semibold bg-transparent text-gray-800 dark:text-gray-200 rounded px-1.5 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer focus:outline-none"
+              >
+                <option v-for="y in yearOptions" :key="y" :value="y" class="dark:bg-gray-900">
+                  {{ y }}
+                </option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-0.5">
+              <button
+                type="button"
+                @click.stop="prevMonth"
+                class="p-1 rounded-md text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                title="Previous month"
+              >
+                <UIcon name="i-lucide-chevron-left" class="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                @click.stop="nextMonth"
+                class="p-1 rounded-md text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                title="Next month"
+              >
+                <UIcon name="i-lucide-chevron-right" class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Days of Week Header -->
+          <div class="grid grid-cols-7 gap-1 mb-1 text-center">
+            <span
+              v-for="(day, idx) in dayNames"
+              :key="idx"
+              class="text-[11px] font-medium text-gray-400 dark:text-gray-500 py-0.5"
+            >
+              {{ day }}
+            </span>
+          </div>
+
+          <!-- Days Grid -->
+          <div class="grid grid-cols-7 gap-1 text-center">
+            <button
+              v-for="(dayObj, idx) in calendarDays"
+              :key="idx"
+              type="button"
+              :disabled="dayObj.disabled"
+              @click.stop="selectDate(dayObj.date)"
+              :class="[
+                'h-7 w-7 mx-auto rounded-lg text-xs font-medium flex items-center justify-center transition-all duration-100',
+                dayObj.isCurrentMonth ? 'text-gray-800 dark:text-gray-200' : 'text-gray-300 dark:text-gray-600',
+                dayObj.isSelected
+                  ? 'bg-primary-600 text-white font-bold shadow-sm hover:bg-primary-700 dark:bg-primary-500'
+                  : dayObj.isToday
+                  ? 'border border-primary-500 text-primary-600 dark:text-primary-400 font-semibold hover:bg-primary-50 dark:hover:bg-primary-950/40'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-800',
+                dayObj.disabled ? 'opacity-30 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'
+              ]"
+            >
+              {{ dayObj.dayNumber }}
+            </button>
+          </div>
+
+          <!-- Footer Shortcuts -->
+          <div class="mt-3 pt-2 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center px-1">
+            <button
+              type="button"
+              @click.stop="selectToday"
+              class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline cursor-pointer"
+            >
+              Hari Ini
+            </button>
+            <button
+              v-if="modelValue"
+              type="button"
+              @click.stop="clearDate"
+              class="text-xs text-gray-400 hover:text-error-600 dark:hover:text-error-400 cursor-pointer"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </template>
+    </UPopover>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
 import {
   format,
   parseISO,
@@ -200,15 +182,13 @@ const props = withDefaults(
     size?: 'sm' | 'md' | 'lg'
     minDate?: string // 'YYYY-MM-DD'
     maxDate?: string // 'YYYY-MM-DD'
-    dropUp?: boolean
   }>(),
   {
     modelValue: '',
     placeholder: 'dd/mm/yyyy',
     disabled: false,
     required: false,
-    size: 'md',
-    dropUp: false
+    size: 'md'
   }
 )
 
@@ -217,10 +197,6 @@ const emit = defineEmits<{
   (e: 'change', value: string): void
 }>()
 
-const containerRef = ref<HTMLElement | null>(null)
-const dropdownRef = ref<HTMLElement | null>(null)
-const dropdownStyle = ref<Record<string, string>>({})
-const isMounted = ref(false)
 const isOpen = ref(false)
 
 // Internal text shown in input (formatted as DD/MM/YYYY)
@@ -249,6 +225,20 @@ watch(
   { immediate: true }
 )
 
+// When popover opens, sync viewing calendar to selected date if exists
+watch(
+  () => isOpen.value,
+  (open) => {
+    if (open && props.modelValue) {
+      const parsed = parseISO(props.modelValue)
+      if (isValid(parsed)) {
+        viewMonth.value = parsed.getMonth()
+        viewYear.value = parsed.getFullYear()
+      }
+    }
+  }
+)
+
 // Size classes
 const sizeClasses = computed(() => {
   switch (props.size) {
@@ -259,10 +249,6 @@ const sizeClasses = computed(() => {
     default:
       return 'py-1.5 pl-3 pr-14 text-sm'
   }
-})
-
-const dropdownPositionClass = computed(() => {
-  return props.dropUp ? 'bottom-full mb-1' : 'top-full'
 })
 
 // Localization & Calendar constants
@@ -327,67 +313,6 @@ const nextMonth = () => {
   const newDate = addMonths(viewDate.value, 1)
   viewMonth.value = newDate.getMonth()
   viewYear.value = newDate.getFullYear()
-}
-
-const updateDropdownPosition = () => {
-  if (!containerRef.value) return
-  const rect = containerRef.value.getBoundingClientRect()
-  const calendarHeight = 330 // Approximate height of calendar popover
-  const calendarWidth = 288 // w-72 = 18rem = 288px
-  const windowHeight = window.innerHeight || document.documentElement.clientHeight
-  const windowWidth = window.innerWidth || document.documentElement.clientWidth
-
-  // If container is totally offscreen, close calendar
-  if (rect.bottom < 0 || rect.top > windowHeight) {
-    isOpen.value = false
-    return
-  }
-
-  // Determine if it should drop up or down based on available viewport space
-  const spaceBelow = windowHeight - rect.bottom
-  const spaceAbove = rect.top
-  const shouldDropUp = props.dropUp || (spaceBelow < calendarHeight && spaceAbove > spaceBelow)
-
-  let top = shouldDropUp ? rect.top - calendarHeight - 6 : rect.bottom + 6
-  if (top < 8) top = 8
-
-  let left = rect.left
-  if (left + calendarWidth > windowWidth - 16) {
-    left = Math.max(16, windowWidth - calendarWidth - 16)
-  }
-
-  dropdownStyle.value = {
-    position: 'fixed',
-    top: `${top}px`,
-    left: `${left}px`,
-    width: `${calendarWidth}px`,
-    zIndex: '99999'
-  }
-}
-
-const openCalendar = () => {
-  if (props.disabled) return
-  if (props.modelValue) {
-    const parsed = parseISO(props.modelValue)
-    if (isValid(parsed)) {
-      viewMonth.value = parsed.getMonth()
-      viewYear.value = parsed.getFullYear()
-    }
-  }
-  updateDropdownPosition()
-  isOpen.value = true
-  nextTick(() => {
-    updateDropdownPosition()
-  })
-}
-
-const toggleCalendar = () => {
-  if (props.disabled) return
-  if (isOpen.value) {
-    isOpen.value = false
-  } else {
-    openCalendar()
-  }
 }
 
 const selectDate = (date: Date) => {
@@ -459,44 +384,4 @@ const handleBlur = () => {
     displayValue.value = ''
   }
 }
-
-// Click outside handler to close dropdown
-const handleClickOutside = (event: MouseEvent) => {
-  const target = event.target as Node
-  if (
-    containerRef.value &&
-    !containerRef.value.contains(target) &&
-    dropdownRef.value &&
-    !dropdownRef.value.contains(target)
-  ) {
-    isOpen.value = false
-  }
-}
-
-const handleScrollOrResize = () => {
-  if (isOpen.value) {
-    updateDropdownPosition()
-  }
-}
-
-const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && isOpen.value) {
-    isOpen.value = false
-  }
-}
-
-onMounted(() => {
-  isMounted.value = true
-  document.addEventListener('click', handleClickOutside)
-  window.addEventListener('resize', handleScrollOrResize)
-  window.addEventListener('scroll', handleScrollOrResize, true)
-  window.addEventListener('keydown', handleKeyDown)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-  window.removeEventListener('resize', handleScrollOrResize)
-  window.removeEventListener('scroll', handleScrollOrResize, true)
-  window.removeEventListener('keydown', handleKeyDown)
-})
 </script>
