@@ -103,7 +103,9 @@
     "confirm": "Konfirmasi",
     "yes": "Ya",
     "no": "Tidak",
-    "back": "Kembali"
+    "back": "Kembali",
+    "readMore": "Baca selengkapnya",
+    "readLess": "Sembunyikan"
   },
   "auditExecution": {
     "title": "Status Eksekusi Audit",

@@ -240,6 +240,7 @@ import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useGlobalModalStore } from '~/stores/global-modal'
+import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()

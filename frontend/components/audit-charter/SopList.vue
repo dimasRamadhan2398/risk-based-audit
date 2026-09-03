@@ -62,14 +62,20 @@
 
         <!-- Name slot -->
         <template #name-cell="{ row }">
-          <span class="font-semibold text-[var(--text-main)]">{{ row.original.name }}</span>
+          <ReadMoreText
+            :text="row.original.name"
+            :max-length="60"
+            text-class="font-semibold text-[var(--text-main)]"
+          />
         </template>
 
         <!-- Parent Guideline Name slot -->
         <template #guideline_name-cell="{ row }">
-          <span class="text-[var(--text-main)] font-medium">
-            {{ row.original.guideline?.name || '-' }}
-          </span>
+          <ReadMoreText
+            :text="row.original.guideline?.name || '-'"
+            :max-length="50"
+            text-class="text-[var(--text-main)] font-medium"
+          />
         </template>
 
         <!-- Status slot -->
@@ -128,6 +134,7 @@ import { computed, onMounted } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()

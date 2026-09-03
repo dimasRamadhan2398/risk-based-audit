@@ -103,7 +103,9 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
-    "back": "Back"
+    "back": "Back",
+    "readMore": "Read more",
+    "readLess": "Show less"
   },
   "dashboard": {
     "title": "Home"

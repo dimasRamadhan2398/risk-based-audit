@@ -125,6 +125,7 @@ import { computed, onMounted } from 'vue'
 import { useGuidelineStore } from '~/stores/guideline'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useGlobalModalStore } from '~/stores/global-modal'
+import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const store = useGuidelineStore()
 
