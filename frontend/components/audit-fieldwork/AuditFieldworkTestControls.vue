@@ -40,6 +40,9 @@
       <template #mitigationPlan-cell="{ row }">
         <span class="text-sm text-gray-600 line-clamp-2">{{ row.original.mitigationPlan || '-' }}</span>
       </template>
+      <template #dueDate-cell="{ row }">
+        <span class="text-sm text-gray-600 whitespace-nowrap">{{ formatDate(row.original.dueDate) || '-' }}</span>
+      </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-1">
           <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" @click="store.viewTestControl(row.original)" />
@@ -50,88 +53,7 @@
     </TableEntities>
 
     <!-- Test Control Modal -->
-    <Teleport to="body">
-      <div v-if="store.showTestControlModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">
-                {{ store.isReadOnlyTestControl ? t('auditFieldwork.testControls.modalView') : (store.isEditingTestControl ? t('auditFieldwork.testControls.modalEdit') : t('auditFieldwork.testControls.modalAdd')) }}
-              </h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showTestControlModal = false }" />
-            </div>
-          </template>
-
-          <UForm @submit.prevent="store.saveTestControl()" class="space-y-4">
-            <!-- Control Information -->
-            <div class="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-lg space-y-4">
-              <h4 class="font-medium text-gray-700 dark:text-gray-200">{{ t('auditFieldwork.testControls.sectionControl') }}</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormField :label="t('auditFieldwork.testControls.name')" required>
-                  <UInput v-model="store.testControlForm.controlName" :placeholder="t('auditFieldwork.testControls.namePlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-                </UFormField>
-                <UFormField :label="t('auditFieldwork.testControls.type')" required>
-                  <ReusableSelectMenu v-model="store.testControlForm.controlType" :items="store.options.controlTypes" :placeholder="t('auditFieldwork.testControls.typePlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-                </UFormField>
-              </div>
-              <UFormField :label="t('auditFieldwork.testControls.description')" required>
-                <UTextarea v-model="store.testControlForm.controlDescription" :placeholder="t('auditFieldwork.testControls.descriptionPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-              </UFormField>
-            </div>
-
-            <!-- Test Procedure -->
-            <div class="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-lg space-y-4">
-              <h4 class="font-medium text-gray-700 dark:text-gray-200">{{ t('auditFieldwork.testControls.sectionProcedure') }}</h4>
-              <UFormField :label="t('auditFieldwork.testControls.steps')" required>
-                <UTextarea v-model="store.testControlForm.testProcedure" :placeholder="t('auditFieldwork.testControls.stepsPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-              </UFormField>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormField :label="t('auditFieldwork.testControls.result')" required>
-                  <ReusableSelectMenu v-model="store.testControlForm.testResult" :items="store.options.testResults" :placeholder="t('auditFieldwork.testControls.resultPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-                </UFormField>
-              </div>
-            </div>
-
-            <!-- Finding and Recommendation -->
-            <div class="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-lg space-y-4">
-              <h4 class="font-medium text-gray-700 dark:text-gray-200">{{ t('auditFieldwork.testControls.sectionFinding') }}</h4>
-              <UFormField :label="t('auditFieldwork.testControls.finding')">
-                <UTextarea v-model="store.testControlForm.finding" :placeholder="t('auditFieldwork.testControls.findingPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
-              </UFormField>
-              <UFormField :label="t('auditFieldwork.testControls.recommendation')">
-                <UTextarea v-model="store.testControlForm.recommendation" :placeholder="t('auditFieldwork.testControls.recommendationPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
-              </UFormField>
-            </div>
-
-            <!-- Mitigation Plan -->
-            <div class="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-lg space-y-4">
-              <h4 class="font-medium text-gray-700 dark:text-gray-200">{{ t('auditFieldwork.testControls.sectionMitigation') }}</h4>
-              <UFormField :label="t('auditFieldwork.testControls.mitigation')">
-                <UTextarea v-model="store.testControlForm.mitigationPlan" :placeholder="t('auditFieldwork.testControls.mitigationPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
-              </UFormField>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormField :label="t('auditFieldwork.testControls.pic')">
-                  <UInput v-model="store.testControlForm.pic" :placeholder="t('auditFieldwork.testControls.picPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
-                </UFormField>
-                <UFormField :label="t('auditFieldwork.testControls.dueDate')">
-                  <AppDatePicker v-model="store.testControlForm.dueDate" class="w-full" :disabled="store.isReadOnlyTestControl" />
-                </UFormField>
-              </div>
-            </div>
-          </UForm>
-
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" :label="t('common.close')" v-if="store.isReadOnlyTestControl" @click="() => { store.showTestControlModal = false }" />
-              <template v-else>
-                <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showTestControlModal = false }" />
-                <UButton color="primary" :label="store.isEditingTestControl ? t('common.edit') : t('common.submit')" @click="store.saveTestControl()" />
-              </template>
-            </div>
-          </template>
-        </UCard>
-      </div>
-    </Teleport>
+    <AuditFieldworkTestControlsModal />
   </div>
 </template>
 
@@ -140,6 +62,8 @@ import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { formatDate } from '~/utils/dateConverter'
+import AuditFieldworkTestControlsModal from '~/components/audit-fieldwork/AuditFieldworkTestControlsModal.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
@@ -150,6 +74,7 @@ const columns = computed(() => [
   { accessorKey: 'testResult', header: t('auditFieldwork.testControls.columns.result') },
   { accessorKey: 'finding', header: t('auditFieldwork.testControls.columns.finding') },
   { accessorKey: 'mitigationPlan', header: t('auditFieldwork.testControls.columns.mitigation') },
+  { accessorKey: 'dueDate', header: t('auditFieldwork.testControls.columns.dueDate') || t('auditFieldwork.testControls.dueDate') },
   { accessorKey: 'actions', header: t('auditFieldwork.testControls.columns.actions') }
 ])
 

@@ -13,10 +13,6 @@ export function useToastNotification() {
     showError: (title?: string, description?: string) => appToast.error(title || 'Gagal', description),
     showWarning: (title?: string, description?: string) => appToast.warning(title || 'Peringatan', description),
     showInfo: (title?: string, description?: string) => appToast.info(title || 'Informasi', description),
-    success: (title?: string, description?: string) => appToast.success(title || 'Berhasil', description),
-    error: (title?: string, description?: string) => appToast.error(title || 'Gagal', description),
-    warning: (title?: string, description?: string) => appToast.warning(title || 'Peringatan', description),
-    info: (title?: string, description?: string) => appToast.info(title || 'Informasi', description),
     ...appToast
   }
 }

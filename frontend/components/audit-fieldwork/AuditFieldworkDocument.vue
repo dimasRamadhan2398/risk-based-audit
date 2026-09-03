@@ -26,7 +26,7 @@
         <span class="text-sm text-gray-600">{{ row.original.description }}</span>
       </template>
       <template #requiredDate-cell="{ row }">
-        <UBadge color="warning" variant="subtle">{{ row.original.requiredDate }}</UBadge>
+        <UBadge color="warning" variant="subtle">{{ formatDate(row.original.requiredDate) }}</UBadge>
       </template>
       <template #file-cell="{ row }">
         <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
@@ -43,53 +43,7 @@
     </TableEntities>
 
     <!-- Document Modal -->
-    <Teleport to="body">
-      <div v-if="store.showDocumentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingDocument ? t('auditFieldwork.document.modalEdit') : t('auditFieldwork.document.modalAdd') }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showDocumentModal = false }" />
-            </div>
-          </template>
-
-          <UForm @submit.prevent="store.saveDocument()" class="space-y-4">
-            <UFormField :label="t('auditFieldwork.document.name')" required>
-              <UInput v-model="store.documentForm.documentName" :placeholder="t('auditFieldwork.document.namePlaceholder')" class="w-full" required />
-            </UFormField>
-
-            <UFormField :label="t('auditFieldwork.document.description')" required>
-              <UTextarea v-model="store.documentForm.description" :placeholder="t('auditFieldwork.document.descriptionPlaceholder')" class="w-full" required />
-            </UFormField>
-
-            <UFormField :label="t('auditFieldwork.document.requiredDate')" required>
-              <AppDatePicker v-model="store.documentForm.requiredDate" class="w-full" required />
-            </UFormField>
-          
-            <UFormField :label="t('auditFieldwork.document.uploadFile')">
-              <UInput
-                type="file"
-                icon="i-heroicons-paper-clip"
-                @change="store.handleDocumentFileChange"
-                accept=".pdf,.docx,.doc,.xlsx,.xls"
-                class="w-full"
-              />
-              <div v-if="store.documentForm.file" class="mt-2 flex items-center gap-2">
-                <UIcon name="i-heroicons-document" />
-                <span class="font-bold text-sm">{{ store.documentForm.file.name }}</span>
-              </div>
-            </UFormField>
-          </UForm>
-
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showDocumentModal = false }" />
-              <UButton color="primary" :label="store.isEditingDocument ? t('common.edit') : t('common.submit')" @click="store.saveDocument()" />
-            </div>
-          </template>
-        </UCard>
-      </div>
-    </Teleport>
+    <AuditFieldworkDocumentModal />
   </div>
 </template>
 
@@ -98,6 +52,8 @@ import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { formatDate } from '~/utils/dateConverter'
+import AuditFieldworkDocumentModal from '~/components/audit-fieldwork/AuditFieldworkDocumentModal.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()

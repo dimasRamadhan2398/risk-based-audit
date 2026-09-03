@@ -1,14 +1,24 @@
 import { format, parseISO, isValid } from 'date-fns'
 
 /**
- * Convert date string to formatted string
+ * Convert date string to formatted string (defaults to 'dd/MM/yyyy')
  */
-export const formatDate = (date: string | Date, formatStr: string = 'yyyy-MM-dd'): string => {
+export const formatDate = (
+  date: string | Date | null | undefined,
+  formatStr: string = 'dd/MM/yyyy'
+): string => {
+  if (!date) return ''
   try {
-    const dateObj = typeof date === 'string' ? parseISO(date) : date
-    return isValid(dateObj) ? format(dateObj, formatStr) : ''
+    if (typeof date === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(date.trim()) && formatStr === 'dd/MM/yyyy') {
+      return date.trim()
+    }
+    let dateObj = typeof date === 'string' ? parseISO(date) : date
+    if (!isValid(dateObj) && typeof date === 'string') {
+      dateObj = new Date(date)
+    }
+    return isValid(dateObj) ? format(dateObj, formatStr) : String(date)
   } catch {
-    return ''
+    return typeof date === 'string' ? date : ''
   }
 }
 
@@ -23,10 +33,13 @@ export const formatTime = (date: Date): string => {
 }
 
 /**
- * Convert date to display format
+ * Convert date to display format (dd/MM/yyyy)
  */
-export const toDisplayDate = (date: string | Date): string => {
-  return formatDate(date, 'dd MMM yyyy')
+export const toDisplayDate = (
+  date: string | Date | null | undefined,
+  formatStr: string = 'dd/MM/yyyy'
+): string => {
+  return formatDate(date, formatStr)
 }
 
 /**

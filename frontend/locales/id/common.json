@@ -783,6 +783,7 @@
       "empty": "Belum ada data wawancara",
       "modalAdd": "Tambah Wawancara Baru",
       "modalEdit": "Ubah Wawancara",
+      "modalView": "Detail Wawancara",
       "interviewee": "Auditee (Yang Diwawancarai)",
       "intervieweePlaceholder": "Pilih Auditee",
       "intervieweePosition": "Jabatan Auditee",
@@ -813,6 +814,7 @@
       "empty": "Belum ada data observasi",
       "modalAdd": "Formulir Observasi",
       "modalEdit": "Ubah Observasi",
+      "modalView": "Detail Observasi",
       "activity": "Aktivitas yang Diobservasi",
       "activityPlaceholder": "Contoh: Proses Pengadaan",
       "location": "Lokasi Observasi",
@@ -828,6 +830,12 @@
         "observer": "Petugas",
         "file": "Berkas",
         "actions": "Aksi"
+      },
+      "validation": {
+        "activityRequired": "Aktivitas yang diobservasi wajib diisi",
+        "locationRequired": "Lokasi observasi wajib diisi",
+        "dateRequired": "Tanggal observasi wajib diisi",
+        "observerRequired": "Petugas observasi wajib dipilih"
       }
     },
     "document": {
@@ -912,6 +920,7 @@
         "result": "Hasil Pengujian",
         "finding": "Temuan",
         "mitigation": "Rencana Mitigasi",
+        "dueDate": "Target Tenggat Waktu",
         "actions": "Aksi"
       }
     }

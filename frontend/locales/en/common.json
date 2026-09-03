@@ -786,6 +786,7 @@
       "empty": "No interview data yet",
       "modalAdd": "Add New Interview",
       "modalEdit": "Edit Interview",
+      "modalView": "View Interview Details",
       "interviewee": "Interviewee",
       "intervieweePlaceholder": "Select Auditee",
       "intervieweePosition": "Interviewee Position",
@@ -816,6 +817,7 @@
       "empty": "No observation data yet",
       "modalAdd": "Observation Form",
       "modalEdit": "Edit Observation",
+      "modalView": "View Observation Details",
       "activity": "Activity Observed",
       "activityPlaceholder": "Example: Procurement Process",
       "location": "Observation Location",
@@ -831,6 +833,12 @@
         "observer": "Observer",
         "file": "File",
         "actions": "Actions"
+      },
+      "validation": {
+        "activityRequired": "Observed activity is required",
+        "locationRequired": "Observation location is required",
+        "dateRequired": "Observation date is required",
+        "observerRequired": "Observer is required"
       }
     },
     "document": {
@@ -915,6 +923,7 @@
         "result": "Test Result",
         "finding": "Finding",
         "mitigation": "Mitigation Plan",
+        "dueDate": "Target Due Date",
         "actions": "Actions"
       }
     }
