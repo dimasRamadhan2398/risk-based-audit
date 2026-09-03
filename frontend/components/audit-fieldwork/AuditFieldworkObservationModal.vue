@@ -6,14 +6,114 @@
   >
     <template #content>
       <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
+        <!-- Modal Header -->
         <div class="flex items-center justify-between p-5 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
-          <h3 class="text-lg font-bold text-[var(--text-main)]">
-            {{ store.isReadOnlyObservation ? (t('auditFieldwork.observation.modalView') || 'Detail Observasi') : (store.isEditingObservation ? t('auditFieldwork.observation.modalEdit') : t('auditFieldwork.observation.modalAdd')) }}
-          </h3>
+          <div class="flex items-center gap-2">
+            <div
+              class="p-2 rounded-lg"
+              :class="store.isReadOnlyObservation ? 'bg-blue-500/10 text-blue-500' : 'bg-primary-500/10 text-primary-500'"
+            >
+              <UIcon
+                :name="store.isReadOnlyObservation ? 'i-heroicons-eye' : (store.isEditingObservation ? 'i-heroicons-pencil-square' : 'i-heroicons-plus-circle')"
+                class="w-5 h-5"
+              />
+            </div>
+            <h3 class="text-lg font-bold text-[var(--text-main)]">
+              {{ store.isReadOnlyObservation ? (t('auditFieldwork.observation.modalView') || 'Detail Observasi') : (store.isEditingObservation ? t('auditFieldwork.observation.modalEdit') : t('auditFieldwork.observation.modalAdd')) }}
+            </h3>
+          </div>
           <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="store.showObservationModal = false" />
         </div>
 
-        <div class="p-6 overflow-y-auto space-y-5">
+        <!-- Read-Only Detail View (using UCard for each section) -->
+        <div v-if="store.isReadOnlyObservation" class="p-6 overflow-y-auto space-y-4">
+          <!-- Assignment Letter & Date Header Card -->
+          <UCard color="primary" variant="subtle" class="border border-primary-500/20 shadow-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-primary-500/10 text-primary-500">
+                  <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-primary-500" />
+                </div>
+                <div>
+                  <p class="text-xs font-semibold tracking-wider text-[var(--text-muted)]">Surat Tugas</p>
+                  <p class="text-sm font-bold text-[var(--text-main)]">{{ store.selectedAssignmentLetter || '-' }}</p>
+                </div>
+              </div>
+              <UBadge color="primary" variant="subtle" size="md" class="font-semibold">
+                <UIcon name="i-heroicons-calendar" class="w-4 h-4 mr-1.5" />
+                {{ formatDate(store.observationForm.date) || '-' }}
+              </UBadge>
+            </div>
+          </UCard>
+
+          <!-- Observer & Location Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Location -->
+            <UCard color="primary" variant="subtle" class="border border-primary-500/20 shadow-xs">
+              <template #header>
+                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary-500">
+                  <UIcon name="i-heroicons-map-pin" class="w-4 h-4 text-primary-500" />
+                  <span>{{ t('auditFieldwork.observation.location') }}</span>
+                </div>
+              </template>
+              <p class="text-base font-bold text-[var(--text-main)]">{{ store.observationForm.location || '-' }}</p>
+            </UCard>
+
+            <!-- Observer -->
+            <UCard color="primary" variant="outline" class="border border-primary-500/20 shadow-xs">
+              <template #header>
+                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary-500">
+                  <UIcon name="i-heroicons-user" class="w-4 h-4 text-primary-500" />
+                  <span>{{ t('auditFieldwork.observation.observer') }}</span>
+                </div>
+              </template>
+              <p class="text-base font-bold text-[var(--text-main)]">{{ store.observationForm.observer || '-' }}</p>
+            </UCard>
+          </div>
+
+          <!-- Activity Card -->
+          <UCard color="primary" variant="subtle" class="border border-primary-500/20 shadow-xs">
+            <template #header>
+              <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary-500">
+                <UIcon name="i-heroicons-clipboard-document-list" class="w-4 h-4 text-primary-500" />
+                <span>{{ t('auditFieldwork.observation.activity') }}</span>
+              </div>
+            </template>
+            <p class="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-main)] p-3 rounded-lg border border-[var(--border-main)] whitespace-pre-line">
+              {{ store.observationForm.activity || '-' }}
+            </p>
+          </UCard>
+
+          <!-- File Attachment Card -->
+          <UCard color="primary" variant="subtle" class="border border-primary-500/20 shadow-xs">
+            <template #header>
+              <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary-500">
+                <UIcon name="i-heroicons-paper-clip" class="w-4 h-4 text-primary-500" />
+                <span>{{ t('auditFieldwork.observation.columns.file') }}</span>
+              </div>
+            </template>
+            <div v-if="store.observationForm.file || store.observationForm.fileName" class="flex items-center justify-between p-3 rounded-lg bg-[var(--bg-main)] border border-[var(--border-main)]">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <UIcon name="i-heroicons-document-text" class="w-5 h-5 text-primary-500 shrink-0" />
+                <span class="text-sm font-semibold text-[var(--text-main)] truncate">
+                  {{ store.observationForm.file?.name || store.observationForm.fileName }}
+                </span>
+              </div>
+              <UButton
+                icon="i-heroicons-document-arrow-down"
+                color="primary"
+                variant="solid"
+                size="xs"
+                label="Download"
+                @click="store.downloadInterviewFile(store.observationForm)"
+              />
+            </div>
+            <p v-else class="text-sm text-[var(--text-muted)] italic">Tidak ada berkas terlampir</p>
+          </UCard>
+        </div>
+
+        <!-- Add / Edit Form View -->
+        <div v-else class="p-6 overflow-y-auto space-y-5">
           <UForm @submit.prevent="handleSaveObservation()" class="space-y-4">
             <!-- Activity Textarea similar to StrategicPlanForm -->
             <UFormField :label="t('auditFieldwork.observation.activity')" required :error="errors.activity">
@@ -21,7 +121,6 @@
                 v-model="store.observationForm.activity"
                 :placeholder="t('auditFieldwork.observation.activityPlaceholder')"
                 :rows="2"
-                :disabled="store.isReadOnlyObservation"
                 required
                 class="w-full"
               />
@@ -29,10 +128,10 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <UFormField :label="t('auditFieldwork.observation.location')" required :error="errors.location">
-                <UInput v-model="store.observationForm.location" :placeholder="t('auditFieldwork.observation.locationPlaceholder')" :disabled="store.isReadOnlyObservation" required class="w-full" />
+                <UInput v-model="store.observationForm.location" :placeholder="t('auditFieldwork.observation.locationPlaceholder')" required class="w-full" />
               </UFormField>
               <UFormField :label="t('auditFieldwork.observation.date')" required :error="errors.date">
-                <AppDatePicker v-model="store.observationForm.date" :disabled="store.isReadOnlyObservation" required class="w-full" />
+                <AppDatePicker v-model="store.observationForm.date" required class="w-full" />
               </UFormField>
             </div>
 
@@ -43,7 +142,7 @@
                 value-key="value"
                 label-key="label"
                 :placeholder="t('auditFieldwork.observation.observerPlaceholder')"
-                :disabled="store.isReadOnlyObservation || !store.hasSelectedAssignmentLetter"
+                :disabled="!store.hasSelectedAssignmentLetter"
                 class="w-full"
               >
                 <template #item="{ item }">
@@ -55,9 +154,8 @@
               </USelectMenu>
             </UFormField>
 
-            <UFormField v-if="!store.isReadOnlyObservation || store.observationForm.file || store.observationForm.fileName" :label="t('auditFieldwork.observation.uploadFile')">
+            <UFormField :label="t('auditFieldwork.observation.uploadFile')">
               <UInput
-                v-if="!store.isReadOnlyObservation"
                 type="file"
                 icon="i-heroicons-paper-clip"
                 @change="store.handleObservationFileChange"
@@ -72,6 +170,7 @@
           </UForm>
         </div>
 
+        <!-- Modal Footer -->
         <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
           <template v-if="store.isReadOnlyObservation">
             <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="store.showObservationModal = false" />
@@ -102,6 +201,7 @@
 import { computed, reactive, watch } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
+import { formatDate } from '~/utils/dateConverter'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()

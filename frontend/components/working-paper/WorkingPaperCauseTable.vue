@@ -1,7 +1,30 @@
 <template>
     <div class="mt-4 space-y-6">
         <UCard class="shadow-sm mt-10">
-        <TableEntities :data="store.filteredDataF04" :columns="store.columnsF04" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
+        <TableEntities
+          :data="store.filteredDataF04"
+          :columns="store.columnsF04"
+          :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }"
+          :ui="{ td: '!whitespace-normal' }"
+        >
+            <template #condition-cell="{ row }">
+              <div
+                class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+                style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+              >
+                {{ row.original.condition || '-' }}
+              </div>
+            </template>
+
+            <template #criteria-cell="{ row }">
+              <div
+                class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+                style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+              >
+                {{ row.original.criteria || '-' }}
+              </div>
+            </template>
+
             <template #evidenceFile-cell="{ row }">
                 <div v-if="row.original.evidenceFile" class="flex items-center gap-1 text-blue-600">
                     <UIcon name="i-heroicons-paper-clip" />
