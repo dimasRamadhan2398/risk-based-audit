@@ -100,7 +100,7 @@
             >
               <UInput
                 v-model="form.clientName"
-                placeholder="e.g. Accenture Indonesia"
+                placeholder="Company Name"
                 maxlength="100"
                 class="w-full"
                 @input="handleNameInput"
@@ -137,7 +137,7 @@
                 </span>
                 <UInput
                   v-model="form.slug"
-                  placeholder="accenture"
+                  placeholder=""
                   maxlength="40"
                   class="flex-1 rounded-none"
                   :ui="{ base: 'rounded-none font-mono text-primary font-semibold' }"
@@ -260,7 +260,7 @@
               <UInput
                 v-model="form.adminEmail"
                 type="email"
-                placeholder="cae@accenture.com"
+                placeholder="cae@example.com"
                 class="w-full"
               />
             </AppFormField>
@@ -298,59 +298,134 @@
           v-else-if="currentStep === 3"
           class="space-y-5"
         >
-          <AppFormField
-            label="Google Drive Storage Folder ID"
-            tooltip="Dedicated folder ID on Google Drive for storing interview recordings, working paper attachments, and observation evidence"
-            hint="From Google Drive URL"
-            required
-          >
-            <UInput
-              v-model="form.gdriveFolderId"
-              placeholder="e.g. 1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A"
-              class="w-full font-mono text-xs"
-            />
-          </AppFormField>
-
-          <!-- Assigned Ports & Server IP -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <AppFormField
-              label="Host VPS IP"
-              tooltip="Public IP of the target hosting server running Docker and Nginx"
-              required
-            >
-              <UInput
-                v-model="form.serverIp"
-                placeholder="202.10.34.166"
-                class="w-full font-mono text-xs"
+          <!-- Auto-configuration Toggle Callout -->
+          <div class="p-4 rounded-xl border border-primary-200 dark:border-primary-800/60 bg-gradient-to-r from-primary-50/70 to-blue-50/50 dark:from-primary-950/30 dark:to-blue-950/20 transition-all">
+            <div class="flex items-start gap-3">
+              <UCheckbox
+                v-model="form.autoConfigInfrastructure"
+                class="mt-0.5"
               />
-            </AppFormField>
-
-            <AppFormField
-              label="Assigned Frontend Port"
-              tooltip="Internal container port for this tenant's Nuxt frontend"
-              required
-            >
-              <UInput
-                v-model.number="form.frontendPort"
-                type="number"
-                placeholder="3010"
-                class="w-full font-mono text-xs"
-              />
-            </AppFormField>
-
-            <AppFormField
-              label="Assigned Kong Proxy Port"
-              tooltip="Internal container port for this tenant's Kong Gateway"
-              required
-            >
-              <UInput
-                v-model.number="form.kongPort"
-                type="number"
-                placeholder="8090"
-                class="w-full font-mono text-xs"
-              />
-            </AppFormField>
+              <div class="space-y-1">
+                <label
+                  class="text-xs font-bold text-gray-900 dark:text-white cursor-pointer select-none flex items-center gap-1.5"
+                  @click="form.autoConfigInfrastructure = !form.autoConfigInfrastructure"
+                >
+                  <UIcon
+                    name="i-lucide-sparkles"
+                    class="w-4 h-4 text-primary"
+                  />
+                  Let system automatically configure cloud infrastructure (Recommended)
+                </label>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                  Recommended for most client companies. The platform will automatically allocate container ports, configure the Google Drive evidence vault, assign host gateways, and prepare database clusters without requiring technical network setup.
+                </p>
+              </div>
+            </div>
           </div>
+
+          <!-- Automated Infrastructure Matrix View -->
+          <div
+            v-if="form.autoConfigInfrastructure"
+            class="rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-850/40 p-4 space-y-3"
+          >
+            <div class="flex items-center justify-between text-xs pb-2 border-b border-gray-200/60 dark:border-gray-800">
+              <span class="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                <UIcon
+                  name="i-lucide-cpu"
+                  class="w-4 h-4 text-emerald-500"
+                />
+                Automated Provisioning Matrix
+              </span>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Auto-Configured
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="space-y-1">
+                <span class="text-gray-400 block">Assigned Web Port</span>
+                <span class="font-mono font-medium text-gray-800 dark:text-gray-200">Port {{ form.frontendPort }} (Internal Nuxt)</span>
+              </div>
+              <div class="space-y-1">
+                <span class="text-gray-400 block">Assigned Gateway Port</span>
+                <span class="font-mono font-medium text-gray-800 dark:text-gray-200">Port {{ form.kongPort }} (Kong Gateway)</span>
+              </div>
+              <div class="space-y-1">
+                <span class="text-gray-400 block">Cloud Evidence Vault</span>
+                <span class="font-mono font-medium text-gray-800 dark:text-gray-200 truncate block">Dedicated Silo Vault (Auto-Allocated)</span>
+              </div>
+              <div class="space-y-1">
+                <span class="text-gray-400 block">Host Node Cluster</span>
+                <span class="font-mono font-medium text-gray-800 dark:text-gray-200">{{ form.serverIp }} (Production VPS)</span>
+              </div>
+            </div>
+
+            <div class="pt-1 text-[11px] text-gray-400 flex items-center gap-1">
+              <UIcon
+                name="i-lucide-info"
+                class="w-3.5 h-3.5 text-primary shrink-0"
+              />
+              <span>Uncheck the box above if your DevOps team requires custom container ports or specific Google Drive folder IDs.</span>
+            </div>
+          </div>
+
+          <!-- Manual Configuration Inputs (Only when autoConfigInfrastructure is false) -->
+          <template v-else>
+            <AppFormField
+              label="Google Drive Storage Folder ID"
+              tooltip="Dedicated folder ID on Google Drive for storing interview recordings, working paper attachments, and observation evidence"
+              hint="From Google Drive URL"
+              required
+            >
+              <UInput
+                v-model="form.gdriveFolderId"
+                placeholder="e.g. 1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A"
+                class="w-full font-mono text-xs"
+              />
+            </AppFormField>
+
+            <!-- Assigned Ports & Server IP -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <AppFormField
+                label="Host VPS IP"
+                tooltip="Public IP of the target hosting server running Docker and Nginx"
+                required
+              >
+                <UInput
+                  v-model="form.serverIp"
+                  placeholder="202.10.34.166"
+                  class="w-full font-mono text-xs"
+                />
+              </AppFormField>
+
+              <AppFormField
+                label="Assigned Frontend Port"
+                tooltip="Internal container port for this tenant's Nuxt frontend"
+                required
+              >
+                <UInput
+                  v-model.number="form.frontendPort"
+                  type="number"
+                  placeholder="3010"
+                  class="w-full font-mono text-xs"
+                />
+              </AppFormField>
+
+              <AppFormField
+                label="Assigned Kong Proxy Port"
+                tooltip="Internal container port for this tenant's Kong Gateway"
+                required
+              >
+                <UInput
+                  v-model.number="form.kongPort"
+                  type="number"
+                  placeholder="8090"
+                  class="w-full font-mono text-xs"
+                />
+              </AppFormField>
+            </div>
+          </template>
 
           <!-- Isolated PostgreSQL Database Previews -->
           <div class="space-y-2">
@@ -535,7 +610,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import AppFormField from '~/components/shared/AppFormField.vue'
 import ReusableButton from '~/components/shared/ReusableButton.vue'
 import ReusableSelectMenu from '~/components/shared/ReusableSelectMenu.vue'
@@ -599,24 +674,25 @@ const form = reactive({
   adminEmail: '',
   adminPhone: '',
   enforceMfa: true,
+  autoConfigInfrastructure: true,
   gdriveFolderId: '1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A',
   serverIp: '202.10.34.166',
   frontendPort: props.nextSuggestedPort,
   kongPort: props.nextSuggestedKongPort
 })
 
+const isSlugTouched = ref(false)
+
 // Auto-generate slug from Client Name if user hasn't manually edited it
-const handleNameInput = () => {
-  if (!form.slug || form.slug === 'accenture' || form.slug === 'telkom') {
-    const raw = form.clientName
+watch(() => form.clientName, (name) => {
+  if (!isSlugTouched.value) {
+    form.slug = name
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]/g, '')
-    if (raw) {
-      form.slug = raw.slice(0, 30)
-    }
+      .slice(0, 30)
   }
-}
+})
 
 const sanitizeSlug = () => {
   form.slug = form.slug.toLowerCase().replace(/[^a-z0-9-]/g, '')
@@ -653,6 +729,7 @@ const isCurrentStepValid = computed(() => {
     return form.adminName.trim().length >= 2 && form.adminEmail.includes('@')
   }
   if (currentStep.value === 3) {
+    if (form.autoConfigInfrastructure) return true
     return form.frontendPort > 1000 && form.kongPort > 1000 && form.gdriveFolderId.length > 5
   }
   return true

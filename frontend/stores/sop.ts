@@ -123,7 +123,8 @@ export const useSopStore = defineStore('sop', () => {
 
       const formData = new FormData()
       formData.append('file', form.file)
-      formData.append('folder', 'audit')
+      formData.append('folder', 'Auditsphere/sop')
+      formData.append('feature_name', 'sop')
 
       const response: any = await $fetch(`${baseUrl}/media/upload`, {
         method: 'POST',
@@ -158,6 +159,11 @@ export const useSopStore = defineStore('sop', () => {
   }
 
   const addSop = async () => {
+    if (!form.file && !form.fileUrl) {
+      errorMsg.value = 'Mohon upload file dokumen Petunjuk Teknis / SOP.'
+      return
+    }
+
     loading.value = true
     errorMsg.value = ''
     try {

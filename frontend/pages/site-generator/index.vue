@@ -1,613 +1,928 @@
 <template>
-  <div class="space-y-6 max-w-7xl mx-auto pb-12">
-    <!-- Page Header & Banner -->
-    <div class="rounded-2xl p-6 sm:p-8 bg-gradient-to-r from-primary-900 via-primary-800 to-gray-900 text-white shadow-xl relative overflow-hidden">
-      <!-- Background decorative pattern -->
-      <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
-        <UIcon
-          name="i-lucide-globe"
-          class="w-80 h-80"
-        />
-      </div>
-
-      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="space-y-2 max-w-2xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-primary-200">
-            <UIcon
-              name="i-lucide-layers"
-              class="w-3.5 h-3.5"
-            />
-            AuditSphere Multi-Tenant Cloud Architecture
+  <div class="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300 flex flex-col">
+    <!-- Standalone Header Navigation -->
+    <header class="sticky top-0 z-40 w-full border-b border-[var(--border-main)] bg-[var(--bg-surface)]/85 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <!-- Brand & Context -->
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <Logo class="h-7 w-auto" />
           </div>
-          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            Client Site Generator & Provisioning
-          </h1>
-          <p class="text-sm text-primary-100/90 leading-relaxed">
-            Instantly deploy isolated, enterprise-grade audit portals with dedicated PostgreSQL databases, Kong API Gateways, and Google Drive storage for corporate clients like <span class="font-mono font-semibold text-white underline decoration-primary-400">accenture.auditsphere.id</span> and <span class="font-mono font-semibold text-white underline decoration-primary-400">telkom.auditsphere.id</span>.
-          </p>
+
+          <div class="h-5 w-px bg-[var(--border-main)] hidden sm:block" />
+
+          <div class="hidden sm:flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+              <UIcon
+                name="i-lucide-globe"
+                class="w-3.5 h-3.5"
+              />
+              Client Site Generator
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Gateway Orchestrator Online
+            </span>
+          </div>
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
-          <ReusableButton
-            variant="fill"
-            color="primary"
-            size="lg"
-            icon="i-lucide-plus"
-            class="bg-white text-primary-900 hover:bg-primary-50 shadow-lg font-bold border-none"
-            @click="isModalOpen = true"
-          >
-            Generate New Site
-          </ReusableButton>
+        <!-- Right Header Actions (Without Back to Dashboard) -->
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-[var(--text-muted)] font-mono hidden md:inline">
+            Domain Root: *.auditsphere.id
+          </span>
+          <UColorModeButton />
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- Quick Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-          <UIcon
-            name="i-lucide-check-circle"
-            class="w-6 h-6"
-          />
-        </div>
-        <div>
-          <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-            Active Client Portals
-          </div>
-          <div class="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">
-            {{ activeSitesCount }}
-          </div>
-          <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-0.5 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-            All systems operational
-          </div>
-        </div>
-      </div>
-
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
-          <UIcon
-            name="i-lucide-globe"
-            class="w-6 h-6"
-          />
-        </div>
-        <div>
-          <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-            Domain Root
-          </div>
-          <div class="text-lg font-mono font-bold text-gray-900 dark:text-white mt-0.5">
-            *.auditsphere.id
-          </div>
-          <div class="text-[11px] text-gray-400 font-mono mt-0.5">
-            Wildcard SSL Active
-          </div>
-        </div>
-      </div>
-
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
-          <UIcon
-            name="i-lucide-database"
-            class="w-6 h-6"
-          />
-        </div>
-        <div>
-          <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-            Isolated Databases
-          </div>
-          <div class="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">
-            {{ activeSitesCount * 5 }}
-          </div>
-          <div class="text-[11px] text-purple-600 dark:text-purple-400 font-medium mt-0.5">
-            5 DBs per client tenant
-          </div>
-        </div>
-      </div>
-
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-          <UIcon
-            name="i-lucide-hard-drive"
-            class="w-6 h-6"
-          />
-        </div>
-        <div>
-          <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-            Cloud Evidence Vaults
-          </div>
-          <div class="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">
-            {{ activeSitesCount }}
-          </div>
-          <div class="text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">
-            Google Drive Silo Isolation
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Toolbar: Search, Filters & View Toggle -->
-    <div class="p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3 w-full sm:w-auto">
-        <div class="relative flex-1 sm:w-80">
-          <UIcon
-            name="i-lucide-search"
-            class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-          />
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search by client, domain, or slug..."
-            class="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-          >
-        </div>
-
-        <select
-          v-model="statusFilter"
-          class="text-xs rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+    <!-- Main Content Area: Centered Vertically -->
+    <main class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <!-- Generate New Client Site Card Box -->
+      <div class="w-full max-w-4xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden flex flex-col transition-all">
+        <!-- SUCCESS STATE -->
+        <div
+          v-if="isDeploymentComplete && deployedSite"
+          class="p-8 sm:p-10 space-y-6 text-center"
         >
-          <option value="ALL">
-            All Status
-          </option>
-          <option value="Active">
-            Active
-          </option>
-          <option value="Provisioning">
-            Provisioning
-          </option>
-          <option value="Maintenance">
-            Maintenance
-          </option>
-        </select>
-      </div>
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm animate-bounce">
+            <UIcon
+              name="i-lucide-check-circle"
+              class="w-10 h-10"
+            />
+          </div>
 
-      <div class="flex items-center gap-2 self-end sm:self-auto">
-        <span class="text-xs text-gray-500 font-medium">
-          Showing <span class="text-gray-900 dark:text-white font-bold">{{ filteredSites.length }}</span> client sites
-        </span>
-      </div>
-    </div>
+          <div class="space-y-2 max-w-lg mx-auto">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+              Client Site Successfully Generated!
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              The isolated instance for <span class="font-bold text-gray-900 dark:text-white">{{ deployedSite.clientName }}</span> has been provisioned and is ready for onboarding.
+            </p>
+          </div>
 
-    <!-- Client Sites Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <div
-        v-for="site in filteredSites"
-        :key="site.id"
-        class="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between"
-      >
-        <!-- Card Header -->
-        <div class="p-6 border-b border-gray-100 dark:border-gray-800">
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0"
-                :style="{ backgroundColor: site.brandColor || '#0284c7' }"
+          <!-- Provisioned Details Card -->
+          <div class="max-w-xl mx-auto p-5 rounded-2xl bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 text-left space-y-3.5 text-xs">
+            <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-gray-800">
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Portal URL</span>
+              <a
+                :href="`https://${deployedSite.domain}`"
+                target="_blank"
+                class="font-mono font-bold text-primary hover:underline flex items-center gap-1 text-sm"
               >
-                {{ site.clientName.slice(0, 2).toUpperCase() }}
+                https://{{ deployedSite.domain }}
+                <UIcon
+                  name="i-lucide-external-link"
+                  class="w-3.5 h-3.5"
+                />
+              </a>
+            </div>
+
+            <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-gray-800">
+              <span class="text-gray-500 dark:text-gray-400 font-medium">API Gateway</span>
+              <span class="font-mono text-gray-700 dark:text-gray-300">https://{{ deployedSite.apiDomain }}</span>
+            </div>
+
+            <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-gray-800">
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Container Ports</span>
+              <span class="font-mono text-gray-700 dark:text-gray-300">Frontend: {{ deployedSite.frontendPort }} | Kong: {{ deployedSite.kongPort }}</span>
+            </div>
+
+            <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-gray-800">
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Chief Audit Executive</span>
+              <span class="text-gray-800 dark:text-gray-200 font-medium">{{ deployedSite.adminName }} ({{ deployedSite.adminEmail }})</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Compliance Framework</span>
+              <span class="text-gray-800 dark:text-gray-200 font-medium">{{ deployedSite.complianceFramework }}</span>
+            </div>
+          </div>
+
+          <!-- Automated CLI Command -->
+          <div class="max-w-xl mx-auto text-left space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-500 font-medium">CLI Deployment Command</span>
+              <button
+                type="button"
+                class="text-primary hover:text-primary-700 font-medium flex items-center gap-1"
+                @click="copyText(generatedCliCommand, 'CLI Command')"
+              >
+                <UIcon
+                  name="i-lucide-copy"
+                  class="w-3.5 h-3.5"
+                />
+                Copy
+              </button>
+            </div>
+            <div class="bg-gray-950 text-emerald-400 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-gray-800">
+              <code>{{ generatedCliCommand }}</code>
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-center gap-3">
+            <ReusableButton
+              variant="fill"
+              color="primary"
+              size="md"
+              icon="i-lucide-plus"
+              @click="resetForm"
+            >
+              Generate Another Site
+            </ReusableButton>
+          </div>
+        </div>
+
+        <!-- WIZARD STEP FORM -->
+        <template v-else>
+          <!-- Card Header -->
+          <div class="px-6 sm:px-8 py-5 dark:bg-primary-600 dark:text-secondary flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 border border-primary-200 dark:border-primary-800 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0 shadow-sm">
+                <UIcon
+                  name="i-lucide-globe"
+                  class="w-5 h-5"
+                />
               </div>
               <div>
-                <h3 class="font-bold text-base text-gray-900 dark:text-white flex items-center gap-2">
-                  {{ site.clientName }}
-                </h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ site.industry }}
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-neutral-200!">
+                  Generate New Client Site
+                </h2>
+                <p class="text-xs text-gray-500 dark:text-neutral-200!">
+                  Provision an isolated AuditSphere instance
                 </p>
               </div>
             </div>
 
-            <!-- Status Badge -->
-            <span
-              :class="[
-                'px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shrink-0 select-none',
-                site.status === 'Active'
-                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40'
-                  : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40'
-              ]"
-            >
-              <span
-                class="w-1.5 h-1.5 rounded-full"
-                :class="site.status === 'Active' ? 'bg-emerald-500' : 'bg-amber-500'"
-              />
-              {{ site.status }}
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/50 text-secondary-700 border border-primary/20">
+              Step {{ currentStep }} of {{ steps.length }}
             </span>
           </div>
 
-          <!-- Domains & URLs Display -->
-          <div class="mt-4 space-y-2 bg-gray-50 dark:bg-gray-850/60 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800">
-            <div class="flex items-center justify-between gap-2 text-xs">
-              <span class="text-gray-400 flex items-center gap-1.5 shrink-0">
-                <UIcon
-                  name="i-lucide-globe"
-                  class="w-3.5 h-3.5 text-primary"
-                />
-                Frontend:
-              </span>
-              <a
-                :href="`https://${site.domain}`"
-                target="_blank"
-                class="font-mono font-semibold text-primary hover:underline truncate"
-                :title="`Open https://${site.domain}`"
+          <!-- Step Navigation Stepper -->
+          <div class="px-6 sm:px-8 py-3 bg-gray-50/70 dark:bg-gray-800/40 border-b border-gray-100 dark:border-gray-800">
+            <div class="flex items-center justify-between">
+              <div
+                v-for="(step, idx) in steps"
+                :key="step.id"
+                class="flex items-center gap-2 cursor-pointer select-none"
+                @click="currentStep > idx ? currentStep = idx + 1 : null"
               >
-                https://{{ site.domain }}
-              </a>
-            </div>
-
-            <div class="flex items-center justify-between gap-2 text-xs">
-              <span class="text-gray-400 flex items-center gap-1.5 shrink-0">
+                <div
+                  :class="[
+                    'w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center transition-all duration-200',
+                    currentStep === idx + 1
+                      ? 'bg-primary text-white shadow-sm ring-2 ring-primary/20'
+                      : currentStep > idx + 1
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                  ]"
+                >
+                  <UIcon
+                    v-if="currentStep > idx + 1"
+                    name="i-lucide-check"
+                    class="w-3.5 h-3.5"
+                  />
+                  <span v-else>{{ idx + 1 }}</span>
+                </div>
+                <span
+                  :class="[
+                    'text-xs font-medium hidden sm:inline transition-colors',
+                    currentStep === idx + 1 ? 'text-gray-900 dark:text-white font-semibold' : 'text-gray-500 dark:text-gray-400'
+                  ]"
+                >
+                  {{ step.title }}
+                </span>
                 <UIcon
-                  name="i-lucide-network"
-                  class="w-3.5 h-3.5 text-secondary"
+                  v-if="idx < steps.length - 1"
+                  name="i-lucide-chevron-right"
+                  class="w-3.5 h-3.5 text-gray-300 dark:text-gray-600 hidden sm:inline ml-2"
                 />
-                API Gateway:
-              </span>
-              <span class="font-mono text-gray-600 dark:text-gray-300 truncate">
-                https://{{ site.apiDomain }}
-              </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Card Meta Info -->
-        <div class="px-6 py-4 grid grid-cols-2 gap-3 text-xs border-b border-gray-100 dark:border-gray-800 bg-gray-50/40 dark:bg-gray-850/20">
-          <div>
-            <span class="text-gray-400 block">Lead / Admin</span>
-            <span class="font-medium text-gray-800 dark:text-gray-200">{{ site.adminName }}</span>
-          </div>
-          <div>
-            <span class="text-gray-400 block">Container Ports</span>
-            <span class="font-mono text-gray-700 dark:text-gray-300">FE: {{ site.frontendPort }} | Kong: {{ site.kongPort }}</span>
-          </div>
-          <div>
-            <span class="text-gray-400 block">Database Cluster</span>
-            <span class="font-mono text-gray-700 dark:text-gray-300">rb_audit_*_{{ site.slug }}</span>
-          </div>
-          <div>
-            <span class="text-gray-400 block">Compliance Standard</span>
-            <span class="font-medium text-gray-800 dark:text-gray-200 truncate block">{{ site.complianceFramework }}</span>
-          </div>
-        </div>
-
-        <!-- Card Actions Footer -->
-        <div class="px-6 py-3.5 bg-gray-50 dark:bg-gray-850/80 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <button
-              type="button"
-              class="text-xs text-gray-500 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 font-medium transition-colors"
-              @click="openInspectModal(site)"
+          <!-- Card Body -->
+          <div class="p-6 sm:p-8 space-y-6 flex-1 overflow-y-auto max-h-[62vh]">
+            <!-- STEP 1: Organization & Subdomain -->
+            <div
+              v-if="currentStep === 1"
+              class="space-y-5"
             >
-              <UIcon
-                name="i-lucide-code-2"
-                class="w-3.5 h-3.5"
-              />
-              CLI Script
-            </button>
-            <span class="text-gray-300 dark:text-gray-700">•</span>
-            <button
-              type="button"
-              class="text-xs text-gray-500 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 font-medium transition-colors"
-              @click="openNginxModal(site)"
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <AppFormField
+                  label="Client Organization Name"
+                  tooltip="Official name of the client organization displayed across their portal"
+                  required
+                  counter
+                  :max-count="100"
+                  :model-value="form.clientName"
+                >
+                  <UInput
+                    v-model="form.clientName"
+                    placeholder="Company Name"
+                    maxlength="100"
+                    class="w-full"
+                  />
+                </AppFormField>
+
+                <AppFormField
+                  label="Industry / Sector"
+                  tooltip="Primary industry sector for benchmarking risk metrics"
+                  required
+                >
+                  <ReusableSelectMenu
+                    v-model="form.industry"
+                    :items="industryOptions"
+                    placeholder="Select industry sector"
+                    class="w-full"
+                  />
+                </AppFormField>
+              </div>
+
+              <!-- Subdomain Slug & Live URL Preview -->
+              <div class="space-y-2">
+                <AppFormField
+                  label="Tenant Subdomain Slug"
+                  tooltip="Alphanumeric identifier used for DNS subdomain, database prefixes, and container routing"
+                  required
+                  counter
+                  :max-count="40"
+                  :model-value="form.slug"
+                >
+                  <div class="flex items-center">
+                    <span class="inline-flex items-center px-3 py-2 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm font-mono select-none">
+                      https://
+                    </span>
+                    <UInput
+                      v-model="form.slug"
+                      placeholder="accenture"
+                      maxlength="40"
+                      class="flex-1 rounded-none"
+                      :ui="{ base: 'rounded-none font-mono text-primary font-semibold' }"
+                      @input="sanitizeSlug"
+                    />
+                    <span class="inline-flex items-center px-3 py-2 rounded-r-md border border-l-0 border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-mono font-medium select-none">
+                      .auditsphere.id
+                    </span>
+                  </div>
+                </AppFormField>
+
+                <!-- Live Target Domain Cards Preview -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                  <div class="p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-850/70 flex items-start gap-2.5">
+                    <UIcon
+                      name="i-lucide-laptop"
+                      class="w-4 h-4 text-primary shrink-0 mt-0.5"
+                    />
+                    <div class="text-xs">
+                      <div class="text-gray-400 font-medium">
+                        Frontend Portal Domain
+                      </div>
+                      <div class="font-mono font-semibold text-gray-900 dark:text-white mt-0.5 break-all">
+                        {{ targetDomain }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-850/70 flex items-start gap-2.5">
+                    <UIcon
+                      name="i-lucide-network"
+                      class="w-4 h-4 text-secondary shrink-0 mt-0.5"
+                    />
+                    <div class="text-xs">
+                      <div class="text-gray-400 font-medium">
+                        Kong API Gateway Endpoint
+                      </div>
+                      <div class="font-mono font-semibold text-gray-900 dark:text-white mt-0.5 break-all">
+                        {{ targetApiDomain }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Brand Customization & Framework -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <AppFormField
+                  label="Primary Brand Color"
+                  tooltip="Used for accent highlights on the client's custom theme"
+                  optional
+                >
+                  <div class="flex items-center gap-3">
+                    <input
+                      v-model="form.brandColor"
+                      type="color"
+                      class="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 dark:border-gray-700 p-0.5 bg-white dark:bg-gray-800"
+                    >
+                    <UInput
+                      v-model="form.brandColor"
+                      placeholder="#0284c7"
+                      class="flex-1 font-mono uppercase"
+                      maxlength="7"
+                    />
+                  </div>
+                </AppFormField>
+
+                <AppFormField
+                  label="Compliance Framework"
+                  tooltip="Pre-seeds audit charter guidelines and risk appetite templates"
+                  required
+                >
+                  <ReusableSelectMenu
+                    v-model="form.complianceFramework"
+                    :items="frameworkOptions"
+                    placeholder="Select framework"
+                    class="w-full"
+                  />
+                </AppFormField>
+              </div>
+            </div>
+
+            <!-- STEP 2: Administrator & Security -->
+            <div
+              v-else-if="currentStep === 2"
+              class="space-y-5"
             >
-              <UIcon
-                name="i-lucide-server"
-                class="w-3.5 h-3.5"
-              />
-              Nginx Conf
+              <div class="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40 flex items-center gap-3">
+                <UIcon
+                  name="i-lucide-shield-alert"
+                  class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0"
+                />
+                <p class="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
+                  The initial administrator account will have <strong>Chief Audit Executive (CAE) / Super Admin</strong> privileges on the new tenant instance with automated RBAC seeding.
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <AppFormField
+                  label="Admin Full Name"
+                  tooltip="Full name of the Chief Audit Executive or primary system administrator"
+                  required
+                  counter
+                  :max-count="100"
+                  :model-value="form.adminName"
+                >
+                  <UInput
+                    v-model="form.adminName"
+                    placeholder="e.g. Budi Santoso, CIA, CISA"
+                    maxlength="100"
+                    class="w-full"
+                  />
+                </AppFormField>
+
+                <AppFormField
+                  label="Admin Email Address"
+                  tooltip="Will receive initial login credentials and security alerts"
+                  required
+                >
+                  <UInput
+                    v-model="form.adminEmail"
+                    type="email"
+                    placeholder="cae@example.com"
+                    class="w-full"
+                  />
+                </AppFormField>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <AppFormField
+                  label="Admin Phone / WhatsApp"
+                  tooltip="Emergency contact for security and incident alerts"
+                  optional
+                >
+                  <UInput
+                    v-model="form.adminPhone"
+                    placeholder="+62 812-3456-7890"
+                    class="w-full"
+                  />
+                </AppFormField>
+
+                <AppFormField
+                  label="Two-Factor Authentication (2FA)"
+                  tooltip="Enforce mandatory TOTP Two-Factor Authentication for all tenant auditors"
+                >
+                  <div class="pt-2">
+                    <UCheckbox
+                      v-model="form.enforceMfa"
+                      label="Enforce Mandatory 2FA for all auditors"
+                    />
+                  </div>
+                </AppFormField>
+              </div>
+            </div>
+
+            <!-- STEP 3: Storage & Database Isolation -->
+            <div
+              v-else-if="currentStep === 3"
+              class="space-y-5"
+            >
+              <!-- Auto-configuration Toggle Callout -->
+              <div class="p-4 rounded-xl border border-primary-200 dark:border-primary-800/60 bg-gradient-to-r from-primary-50/70 to-blue-50/50 dark:from-primary-950/30 dark:to-blue-950/20 transition-all">
+                <div class="flex items-start gap-3">
+                  <UCheckbox
+                    v-model="form.autoConfigInfrastructure"
+                    class="mt-0.5"
+                  />
+                  <div class="space-y-1">
+                    <label
+                      class="text-xs font-bold text-gray-900 dark:text-white cursor-pointer select-none flex items-center gap-1.5"
+                      @click="form.autoConfigInfrastructure = !form.autoConfigInfrastructure"
+                    >
+                      <UIcon
+                        name="i-lucide-sparkles"
+                        class="w-4 h-4 text-primary"
+                      />
+                      Let system automatically configure cloud infrastructure (Recommended)
+                    </label>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                      Recommended for most client companies. The platform will automatically allocate container ports, configure the Google Drive evidence vault, assign host gateways, and prepare database clusters without requiring technical network setup.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Automated Infrastructure Matrix View -->
+              <div
+                v-if="form.autoConfigInfrastructure"
+                class="rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-850/40 p-4 space-y-3"
+              >
+                <div class="flex items-center justify-between text-xs pb-2 border-b border-gray-200/60 dark:border-gray-800">
+                  <span class="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <UIcon
+                      name="i-lucide-cpu"
+                      class="w-4 h-4 text-emerald-500"
+                    />
+                    Automated Provisioning Matrix
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Auto-Configured
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div class="space-y-1">
+                    <span class="text-gray-400 block">Assigned Web Port</span>
+                    <span class="font-mono font-medium text-gray-800 dark:text-gray-200">Port {{ form.frontendPort }} (Internal Nuxt)</span>
+                  </div>
+                  <div class="space-y-1">
+                    <span class="text-gray-400 block">Assigned Gateway Port</span>
+                    <span class="font-mono font-medium text-gray-800 dark:text-gray-200">Port {{ form.kongPort }} (Kong Gateway)</span>
+                  </div>
+                  <div class="space-y-1">
+                    <span class="text-gray-400 block">Cloud Evidence Vault</span>
+                    <span class="font-mono font-medium text-gray-800 dark:text-gray-200 truncate block">Dedicated Silo Vault (Auto-Allocated)</span>
+                  </div>
+                  <div class="space-y-1">
+                    <span class="text-gray-400 block">Host Node Cluster</span>
+                    <span class="font-mono font-medium text-gray-800 dark:text-gray-200">{{ form.serverIp }} (Production VPS)</span>
+                  </div>
+                </div>
+
+                <div class="pt-1 text-[11px] text-gray-400 flex items-center gap-1">
+                  <UIcon
+                    name="i-lucide-info"
+                    class="w-3.5 h-3.5 text-primary shrink-0"
+                  />
+                  <span>Uncheck the box above if your DevOps team requires custom container ports or specific Google Drive folder IDs.</span>
+                </div>
+              </div>
+
+              <!-- Manual Configuration Inputs (Only when autoConfigInfrastructure is false) -->
+              <template v-else>
+                <AppFormField
+                  label="Google Drive Storage Folder ID"
+                  tooltip="Dedicated folder ID on Google Drive for storing interview recordings, working paper attachments, and observation evidence"
+                  hint="From Google Drive URL"
+                  required
+                >
+                  <UInput
+                    v-model="form.gdriveFolderId"
+                    placeholder="e.g. 1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A"
+                    class="w-full font-mono text-xs"
+                  />
+                </AppFormField>
+
+                <!-- Assigned Ports & Server IP -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <AppFormField
+                    label="Host VPS IP"
+                    tooltip="Public IP of the target hosting server running Docker and Nginx"
+                    required
+                  >
+                    <UInput
+                      v-model="form.serverIp"
+                      placeholder="202.10.34.166"
+                      class="w-full font-mono text-xs"
+                    />
+                  </AppFormField>
+
+                  <AppFormField
+                    label="Assigned Frontend Port"
+                    tooltip="Internal container port for this tenant's Nuxt frontend"
+                    required
+                  >
+                    <UInput
+                      v-model.number="form.frontendPort"
+                      type="number"
+                      placeholder="3010"
+                      class="w-full font-mono text-xs"
+                    />
+                  </AppFormField>
+
+                  <AppFormField
+                    label="Assigned Kong Proxy Port"
+                    tooltip="Internal container port for this tenant's Kong Gateway"
+                    required
+                  >
+                    <UInput
+                      v-model.number="form.kongPort"
+                      type="number"
+                      placeholder="8090"
+                      class="w-full font-mono text-xs"
+                    />
+                  </AppFormField>
+                </div>
+              </template>
+
+              <!-- Isolated PostgreSQL Database Previews -->
+              <div class="space-y-2">
+                <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                  <UIcon
+                    name="i-lucide-database"
+                    class="w-3.5 h-3.5 text-primary"
+                  />
+                  Dedicated Isolated PostgreSQL Databases (Auto-Generated)
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                  <div
+                    v-for="dbName in generatedDatabases"
+                    :key="dbName"
+                    class="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700/60 flex items-center justify-between"
+                  >
+                    <span>{{ dbName }}</span>
+                    <UIcon
+                      name="i-lucide-lock"
+                      class="w-3.5 h-3.5 text-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 4: Review & Deploy -->
+            <div
+              v-else-if="currentStep === 4"
+              class="space-y-5"
+            >
+              <!-- Overview summary -->
+              <div class="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden text-xs">
+                <div class="bg-gray-50 dark:bg-gray-800/80 px-4 py-2.5 font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                  <span>Tenant Site Provisioning Summary</span>
+                  <span class="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                    <UIcon
+                      name="i-lucide-check-circle-2"
+                      class="w-3.5 h-3.5"
+                    />
+                    Validated
+                  </span>
+                </div>
+                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
+                  <div>
+                    <span class="text-gray-400 block">Organization Name</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ form.clientName }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400 block">Target URL</span>
+                    <span class="font-mono text-primary font-bold">https://{{ targetDomain }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400 block">API Gateway</span>
+                    <span class="font-mono text-gray-700 dark:text-gray-300">https://{{ targetApiDomain }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400 block">Assigned Ports</span>
+                    <span class="font-mono text-gray-700 dark:text-gray-300">FE: {{ form.frontendPort }} | Kong: {{ form.kongPort }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400 block">Chief Audit Executive</span>
+                    <span class="text-gray-700 dark:text-gray-300">{{ form.adminName }} ({{ form.adminEmail }})</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400 block">Google Drive Storage</span>
+                    <span class="font-mono text-gray-700 dark:text-gray-300 truncate block">{{ form.gdriveFolderId || 'Pending ID' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Automated CLI Command Box -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <UIcon
+                      name="i-lucide-terminal"
+                      class="w-3.5 h-3.5 text-primary"
+                    />
+                    Automated Onboarding Command (CLI)
+                  </label>
+                  <button
+                    type="button"
+                    class="text-xs text-primary hover:text-primary-700 flex items-center gap-1 font-medium focus:outline-none"
+                    @click="copyText(generatedCliCommand, 'CLI Command')"
+                  >
+                    <UIcon
+                      name="i-lucide-copy"
+                      class="w-3.5 h-3.5"
+                    />
+                    Copy Command
+                  </button>
+                </div>
+                <div class="bg-gray-950 text-gray-200 p-3.5 rounded-xl font-mono text-xs overflow-x-auto shadow-inner border border-gray-800">
+                  <code>{{ generatedCliCommand }}</code>
+                </div>
+              </div>
+
+              <!-- Provisioning Progress Simulator (when executing) -->
+              <div
+                v-if="isProvisioning"
+                class="p-4 rounded-xl bg-gray-900 text-white space-y-3 font-mono text-xs border border-primary/30"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-primary-400 flex items-center gap-2">
+                    <UIcon
+                      name="i-lucide-loader-2"
+                      class="w-4 h-4 animate-spin"
+                    />
+                    Provisioning {{ targetDomain }}...
+                  </span>
+                  <span class="text-gray-400">{{ provisioningProgress }}%</span>
+                </div>
+                <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                  <div
+                    class="bg-primary h-full transition-all duration-300 rounded-full"
+                    :style="{ width: `${provisioningProgress}%` }"
+                  />
+                </div>
+                <div class="space-y-1 text-[11px] text-gray-300 max-h-32 overflow-y-auto pt-1">
+                  <div
+                    v-for="(log, i) in provisioningLogs"
+                    :key="i"
+                    class="flex items-center gap-2"
+                  >
+                    <span class="text-emerald-400 font-bold">✓</span>
+                    <span>{{ log }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Footer Controls -->
+          <div class="px-6 sm:px-8 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-850 flex items-center justify-between">
+            <button
+              v-if="currentStep > 1"
+              type="button"
+              :disabled="isProvisioning"
+              class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              @click="currentStep--"
+            >
+              Back
             </button>
+            <div v-else />
+
+            <div class="flex items-center gap-2">
+              <ReusableButton
+                v-if="currentStep < steps.length"
+                variant="fill"
+                color="primary"
+                size="sm"
+                :disabled="!isCurrentStepValid"
+                @click="currentStep++"
+              >
+                Continue
+              </ReusableButton>
+
+              <ReusableButton
+                v-else
+                variant="fill"
+                color="primary"
+                size="sm"
+                :loading="isProvisioning"
+                @click="handleProvisionSite"
+              >
+                Generate & Deploy Site
+              </ReusableButton>
+            </div>
           </div>
-
-          <a
-            :href="`https://${site.domain}`"
-            target="_blank"
-            class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-700 hover:underline transition-all"
-          >
-            Visit Portal
-            <UIcon
-              name="i-lucide-external-link"
-              class="w-3.5 h-3.5"
-            />
-          </a>
-        </div>
+        </template>
       </div>
-    </div>
-
-    <!-- Empty State when filter yields 0 -->
-    <div
-      v-if="filteredSites.length === 0"
-      class="p-12 text-center rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-    >
-      <UIcon
-        name="i-lucide-globe-2"
-        class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3"
-      />
-      <h3 class="font-bold text-gray-800 dark:text-gray-200">
-        No client sites matched your search
-      </h3>
-      <p class="text-xs text-gray-500 mt-1">
-        Try modifying your keyword or status filter, or generate a new client site.
-      </p>
-    </div>
-
-    <!-- Modal: Generate New Client Site -->
-    <TenantProvisionModal
-      v-model="isModalOpen"
-      :next-suggested-port="nextPort"
-      :next-suggested-kong-port="nextKongPort"
-      @site-created="onSiteCreated"
-    />
-
-    <!-- Inspect Modal: Automated Onboarding Script -->
-    <UModal
-      v-model="isInspectModalOpen"
-      :ui="{ width: 'sm:max-w-2xl' }"
-    >
-      <div
-        v-if="selectedSite"
-        class="p-6 space-y-4"
-      >
-        <div class="flex items-center justify-between border-b pb-3 border-gray-200 dark:border-gray-800">
-          <div class="flex items-center gap-2">
-            <UIcon
-              name="i-lucide-terminal"
-              class="w-5 h-5 text-primary"
-            />
-            <h3 class="font-bold text-base text-gray-900 dark:text-white">
-              Provisioning Command: {{ selectedSite.clientName }}
-            </h3>
-          </div>
-          <button
-            type="button"
-            class="text-gray-400 hover:text-gray-600 p-1"
-            @click="isInspectModalOpen = false"
-          >
-            <UIcon
-              name="i-lucide-x"
-              class="w-5 h-5"
-            />
-          </button>
-        </div>
-
-        <p class="text-xs text-gray-500 dark:text-gray-400">
-          Execute this automated script on the host server to create the isolated databases, seed standard RBAC roles, configure Nginx, and activate SSL:
-        </p>
-
-        <div class="bg-gray-950 text-emerald-400 p-4 rounded-xl font-mono text-xs overflow-x-auto shadow-inner border border-gray-800">
-          <code>./scripts/onboard-tenant.sh {{ selectedSite.slug }} "{{ selectedSite.clientName }}" "1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A" {{ selectedSite.frontendPort }} {{ selectedSite.kongPort }}</code>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <ReusableButton
-            variant="fill"
-            color="primary"
-            size="sm"
-            @click="isInspectModalOpen = false"
-          >
-            Done
-          </ReusableButton>
-        </div>
-      </div>
-    </UModal>
-
-    <!-- Inspect Modal: Nginx Virtual Host Conf -->
-    <UModal
-      v-model="isNginxModalOpen"
-      :ui="{ width: 'sm:max-w-2xl' }"
-    >
-      <div
-        v-if="selectedSite"
-        class="p-6 space-y-4"
-      >
-        <div class="flex items-center justify-between border-b pb-3 border-gray-200 dark:border-gray-800">
-          <div class="flex items-center gap-2">
-            <UIcon
-              name="i-lucide-server"
-              class="w-5 h-5 text-secondary"
-            />
-            <h3 class="font-bold text-base text-gray-900 dark:text-white">
-              Nginx Virtual Host Config: /etc/nginx/sites-available/{{ selectedSite.domain }}.conf
-            </h3>
-          </div>
-          <button
-            type="button"
-            class="text-gray-400 hover:text-gray-600 p-1"
-            @click="isNginxModalOpen = false"
-          >
-            <UIcon
-              name="i-lucide-x"
-              class="w-5 h-5"
-            />
-          </button>
-        </div>
-
-        <div class="bg-gray-950 text-gray-200 p-4 rounded-xl font-mono text-[11px] overflow-x-auto shadow-inner border border-gray-800 max-h-96">
-          <pre><code>server {
-    listen 80;
-    server_name {{ selectedSite.domain }};
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name {{ selectedSite.domain }};
-
-    ssl_certificate /etc/letsencrypt/live/{{ selectedSite.domain }}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{ selectedSite.domain }}/privkey.pem;
-
-    location / {
-        proxy_pass http://127.0.0.1:{{ selectedSite.frontendPort }};
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-server {
-    listen 443 ssl http2;
-    server_name {{ selectedSite.apiDomain }};
-
-    location / {
-        proxy_pass http://127.0.0.1:{{ selectedSite.kongPort }};
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}</code></pre>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <ReusableButton
-            variant="fill"
-            color="primary"
-            size="sm"
-            @click="isNginxModalOpen = false"
-          >
-            Close
-          </ReusableButton>
-        </div>
-      </div>
-    </UModal>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import TenantProvisionModal from '~/components/site-generator/TenantProvisionModal.vue'
+import { ref, computed, reactive, watch } from 'vue'
+import AppFormField from '~/components/shared/AppFormField.vue'
 import ReusableButton from '~/components/shared/ReusableButton.vue'
+import ReusableSelectMenu from '~/components/shared/ReusableSelectMenu.vue'
+import Logo from '~/components/Logo.vue'
+import { useAppToast } from '~/composables/useAppToast'
 
-interface ClientSite {
-  id: string
+definePageMeta({
+  layout: false
+})
+
+const { success } = useAppToast()
+
+interface DeployedSite {
   clientName: string
   slug: string
   domain: string
   apiDomain: string
   industry: string
-  status: 'Active' | 'Provisioning' | 'Maintenance'
   brandColor: string
   adminName: string
   adminEmail: string
   frontendPort: number
   kongPort: number
   complianceFramework: string
-  createdAt: string
 }
 
-const isModalOpen = ref(false)
-const isInspectModalOpen = ref(false)
-const isNginxModalOpen = ref(false)
-const selectedSite = ref<ClientSite | null>(null)
+const currentStep = ref(1)
+const isProvisioning = ref(false)
+const provisioningProgress = ref(0)
+const provisioningLogs = ref<string[]>([])
+const isDeploymentComplete = ref(false)
+const deployedSite = ref<DeployedSite | null>(null)
 
-const searchQuery = ref('')
-const statusFilter = ref('ALL')
+const steps = [
+  { id: 1, title: 'Organization' },
+  { id: 2, title: 'Administrator' },
+  { id: 3, title: 'Infrastructure' },
+  { id: 4, title: 'Review & Deploy' }
+]
 
-// Initial Showcase Client Tenants: Accenture & Telkom as requested
-const clientSites = ref<ClientSite[]>([
-  {
-    id: 'tenant-1',
-    clientName: 'Accenture Indonesia',
-    slug: 'accenture',
-    domain: 'accenture.auditsphere.id',
-    apiDomain: 'api-accenture.auditsphere.id',
-    industry: 'Consulting & Professional Services',
-    status: 'Active',
-    brandColor: '#A100FF',
-    adminName: 'Budi Santoso, CIA',
-    adminEmail: 'cae@accenture.com',
-    frontendPort: 3010,
-    kongPort: 8090,
-    complianceFramework: 'ISO 27001 + IIA Global Standards',
-    createdAt: '2026-08-15'
-  },
-  {
-    id: 'tenant-2',
-    clientName: 'Telkom Indonesia',
-    slug: 'telkom',
-    domain: 'telkom.auditsphere.id',
-    apiDomain: 'api-telkom.auditsphere.id',
-    industry: 'Telecommunications',
-    status: 'Active',
-    brandColor: '#ED1D24',
-    adminName: 'Siti Rahma, CISA',
-    adminEmail: 'audit@telkom.co.id',
-    frontendPort: 3011,
-    kongPort: 8091,
-    complianceFramework: 'COSO ERM + State-Owned (BUMN) Standard',
-    createdAt: '2026-08-20'
-  },
-  {
-    id: 'tenant-3',
-    clientName: 'Bank Mandiri (Persero) Tbk',
-    slug: 'mandiri',
-    domain: 'mandiri.auditsphere.id',
-    apiDomain: 'api-mandiri.auditsphere.id',
-    industry: 'Banking & Financial Services',
-    status: 'Active',
-    brandColor: '#003D79',
-    adminName: 'Hendro Prasetyo, QIA',
-    adminEmail: 'internal-audit@bankmandiri.co.id',
-    frontendPort: 3012,
-    kongPort: 8092,
-    complianceFramework: 'Bank Indonesia / OJK Regulatory Standard',
-    createdAt: '2026-08-25'
-  },
-  {
-    id: 'tenant-4',
-    clientName: 'Pertamina (Persero)',
-    slug: 'pertamina',
-    domain: 'pertamina.auditsphere.id',
-    apiDomain: 'api-pertamina.auditsphere.id',
-    industry: 'Energy, Oil & Gas',
-    status: 'Active',
-    brandColor: '#00853F',
-    adminName: 'Agus Setiawan, CRMA',
-    adminEmail: 'audit.investigasi@pertamina.com',
-    frontendPort: 3013,
-    kongPort: 8093,
-    complianceFramework: 'ISO 27001 + UU PDP',
-    createdAt: '2026-08-28'
+const industryOptions = [
+  'Consulting & Professional Services',
+  'Telecommunications',
+  'Banking & Financial Services',
+  'Energy, Oil & Gas',
+  'State-Owned Enterprise (BUMN)',
+  'Manufacturing & Supply Chain',
+  'Healthcare & Pharmaceuticals',
+  'Technology & Software'
+]
+
+const frameworkOptions = [
+  'ISO 27001 + IIA Global Standards',
+  'COSO ERM Framework',
+  'Bank Indonesia / OJK Regulatory Standard',
+  'UU PDP (Undang-Undang Perlindungan Data Pribadi)',
+  'NIST Cybersecurity Framework'
+]
+
+const form = reactive({
+  clientName: '',
+  slug: '',
+  industry: 'Consulting & Professional Services',
+  brandColor: '#0284c7',
+  complianceFramework: 'ISO 27001 + IIA Global Standards',
+  adminName: '',
+  adminEmail: '',
+  adminPhone: '',
+  enforceMfa: true,
+  autoConfigInfrastructure: true,
+  gdriveFolderId: '1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A',
+  serverIp: '202.10.34.166',
+  frontendPort: 3014,
+  kongPort: 8094
+})
+
+const isSlugTouched = ref(false)
+
+// Auto-generate slug from Client Name if user hasn't manually edited it
+watch(() => form.clientName, (name) => {
+  if (!isSlugTouched.value) {
+    form.slug = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]/g, '')
+      .slice(0, 30)
   }
-])
-
-const activeSitesCount = computed(() => {
-  return clientSites.value.filter(s => s.status === 'Active').length
 })
 
-const nextPort = computed(() => {
-  const maxFePort = Math.max(...clientSites.value.map(s => s.frontendPort), 3009)
-  return maxFePort + 1
-})
-
-const nextKongPort = computed(() => {
-  const maxKong = Math.max(...clientSites.value.map(s => s.kongPort), 8089)
-  return maxKong + 1
-})
-
-const filteredSites = computed(() => {
-  return clientSites.value.filter((site) => {
-    const matchesSearch
-      = !searchQuery.value
-        || site.clientName.toLowerCase().includes(searchQuery.value.toLowerCase())
-        || site.slug.toLowerCase().includes(searchQuery.value.toLowerCase())
-        || site.domain.toLowerCase().includes(searchQuery.value.toLowerCase())
-        || site.industry.toLowerCase().includes(searchQuery.value.toLowerCase())
-
-    const matchesStatus = statusFilter.value === 'ALL' || site.status === statusFilter.value
-
-    return matchesSearch && matchesStatus
-  })
-})
-
-const openInspectModal = (site: ClientSite) => {
-  selectedSite.value = site
-  isInspectModalOpen.value = true
+const sanitizeSlug = () => {
+  isSlugTouched.value = true
+  form.slug = form.slug.toLowerCase().replace(/[^a-z0-9-]/g, '')
 }
 
-const openNginxModal = (site: ClientSite) => {
-  selectedSite.value = site
-  isNginxModalOpen.value = true
+const targetDomain = computed(() => {
+  return `${form.slug || 'client'}.auditsphere.id`
+})
+
+const targetApiDomain = computed(() => {
+  return `api-${form.slug || 'client'}.auditsphere.id`
+})
+
+const generatedDatabases = computed(() => {
+  const s = form.slug || 'tenant'
+  return [
+    `rb_audit_auth_${s}`,
+    `rb_audit_audit_${s}`,
+    `rb_audit_master_${s}`,
+    `rb_audit_risk_${s}`,
+    `rb_audit_analytics_${s}`
+  ]
+})
+
+const generatedCliCommand = computed(() => {
+  return `./scripts/onboard-tenant.sh ${form.slug || 'slug'} "${form.clientName || 'Client'}" "${form.gdriveFolderId || 'GDRIVE_ID'}" ${form.frontendPort} ${form.kongPort}`
+})
+
+const isCurrentStepValid = computed(() => {
+  if (currentStep.value === 1) {
+    return form.clientName.trim().length >= 2 && form.slug.trim().length >= 2 && !!form.industry
+  }
+  if (currentStep.value === 2) {
+    return form.adminName.trim().length >= 2 && form.adminEmail.includes('@')
+  }
+  if (currentStep.value === 3) {
+    if (form.autoConfigInfrastructure) return true
+    return form.frontendPort > 1000 && form.kongPort > 1000 && form.gdriveFolderId.length > 5
+  }
+  return true
+})
+
+const copyText = async (text: string, label: string) => {
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+    }
+    success('Copied to Clipboard', `${label} copied successfully.`)
+  } catch {
+    success('Copied', text)
+  }
 }
 
-const onSiteCreated = (newSite: ClientSite) => {
-  clientSites.value.unshift(newSite)
+const handleProvisionSite = async () => {
+  isProvisioning.value = true
+  provisioningProgress.value = 10
+  provisioningLogs.value = ['Resolving DNS *.auditsphere.id for ' + targetDomain.value]
+
+  await new Promise(r => setTimeout(r, 600))
+  provisioningProgress.value = 35
+  provisioningLogs.value.push('Created PostgreSQL isolated databases (rb_audit_*_' + form.slug + ')')
+
+  await new Promise(r => setTimeout(r, 700))
+  provisioningProgress.value = 65
+  provisioningLogs.value.push('Executed schema migrations & seeded default RBAC roles')
+
+  await new Promise(r => setTimeout(r, 600))
+  provisioningProgress.value = 85
+  provisioningLogs.value.push('Configured Nginx reverse proxy & Kong Gateway port ' + form.kongPort)
+
+  await new Promise(r => setTimeout(r, 500))
+  provisioningProgress.value = 100
+  provisioningLogs.value.push('SSL Let\'s Encrypt certificate activated for ' + targetDomain.value)
+
+  await new Promise(r => setTimeout(r, 400))
+  isProvisioning.value = false
+
+  deployedSite.value = {
+    clientName: form.clientName,
+    slug: form.slug,
+    domain: targetDomain.value,
+    apiDomain: targetApiDomain.value,
+    industry: form.industry,
+    brandColor: form.brandColor,
+    adminName: form.adminName,
+    adminEmail: form.adminEmail,
+    frontendPort: form.frontendPort,
+    kongPort: form.kongPort,
+    complianceFramework: form.complianceFramework
+  }
+
+  isDeploymentComplete.value = true
+  success('Client Site Provisioned', `${form.clientName} (${targetDomain.value}) is now live.`)
+}
+
+const resetForm = () => {
+  form.clientName = ''
+  form.slug = ''
+  form.industry = 'Consulting & Professional Services'
+  form.brandColor = '#0284c7'
+  form.complianceFramework = 'ISO 27001 + IIA Global Standards'
+  form.adminName = ''
+  form.adminEmail = ''
+  form.adminPhone = ''
+  form.enforceMfa = true
+  form.autoConfigInfrastructure = true
+  form.frontendPort += 1
+  form.kongPort += 1
+  isSlugTouched.value = false
+  currentStep.value = 1
+  isDeploymentComplete.value = false
+  deployedSite.value = null
 }
 </script>

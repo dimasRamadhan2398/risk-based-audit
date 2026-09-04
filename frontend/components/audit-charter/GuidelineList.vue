@@ -15,6 +15,7 @@
         </p>
       </div>
       <UButton
+        v-if="canManageCharter"
         label="Tambah Pedoman Audit"
         @click="() => { store.showModal = true }"
         color="primary"
@@ -32,6 +33,7 @@
           <p class="text-sm text-gray-500">Daftar seluruh Pedoman Audit yang berlaku di perusahaan</p>
         </div>
         <UButton
+          v-if="canManageCharter"
           label="Tambah Pedoman"
           @click="() => { store.showModal = true }"
           color="primary"
@@ -92,14 +94,14 @@
           <div class="flex justify-end gap-1">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
-              :to="row.original.file_url"
-              target="_blank"
               icon="i-lucide-eye"
               color="primary"
               variant="ghost"
               size="md"
+              @click="openFile(row.original.file_url)"
             />
             <UButton
+              v-if="canManageCharter"
               size="md"
               color="primary"
               variant="ghost"
@@ -107,6 +109,7 @@
               @click="store.handleEdit(row.original)"
             />
             <UButton
+              v-if="canManageCharter"
               size="md"
               color="error"
               variant="ghost"
@@ -123,10 +126,12 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const store = useGuidelineStore()
+const { canManageCharter } = useRbac()
 
 const columns = [
   { accessorKey: 'no', header: 'No' },
@@ -158,6 +163,18 @@ const formatMonthYearIndonesian = (val: string) => {
     return `${months[mIndex]} ${year}`
   }
   return val
+}
+
+const openFile = (fileUrl: string) => {
+  if (!fileUrl || fileUrl === '#') return
+  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+    window.open(fileUrl, '_blank')
+    return
+  }
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  const finalUrl = fileUrl.startsWith('/') ? `${baseUrl.replace(/\/api\/v1$/, '')}${fileUrl}` : `${baseUrl}/${fileUrl}`
+  window.open(finalUrl, '_blank')
 }
 
 const confirmDelete = async (item: any) => {

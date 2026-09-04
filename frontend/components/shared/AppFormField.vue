@@ -67,37 +67,34 @@
           {{ typeof optional === 'string' ? optional : 'Optional' }}
         </span>
 
-        <!-- Info Tooltip -->
+        <!-- Info Tooltip with highest z-index & fixed popper strategy -->
         <div
           v-if="tooltip || info || $slots.tooltip || $slots.info"
-          class="relative group/tooltip inline-flex items-center shrink-0"
+          class="relative inline-flex items-center shrink-0 z-[100]"
         >
           <slot name="tooltip">
             <slot name="info">
-              <button
-                type="button"
-                tabindex="-1"
-                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none"
-                :title="tooltip || info"
-                aria-label="More information"
+              <UTooltip
+                v-if="tooltip || info"
+                :text="tooltip || info"
+                :popper="{ placement: 'top', strategy: 'fixed' }"
+                :ui="{ base: 'z-[99999] shadow-2xl text-xs max-w-xs font-normal' }"
               >
-                <UIcon
-                  name="i-lucide-info"
-                  class="w-3.5 h-3.5"
-                />
-              </button>
+                <button
+                  type="button"
+                  tabindex="-1"
+                  class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none flex items-center p-0.5 rounded"
+                  :title="tooltip || info"
+                  aria-label="More information"
+                >
+                  <UIcon
+                    name="i-lucide-info"
+                    class="w-3.5 h-3.5"
+                  />
+                </button>
+              </UTooltip>
             </slot>
           </slot>
-
-          <!-- Hover Popover Tooltip for rich text -->
-          <div
-            v-if="tooltip || info"
-            class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/tooltip:block z-50 w-max max-w-xs px-2.5 py-1 text-xs text-white bg-gray-900 dark:bg-gray-800 rounded-md shadow-lg border border-gray-700/50"
-            role="tooltip"
-          >
-            {{ tooltip || info }}
-            <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900 dark:border-t-gray-800" />
-          </div>
         </div>
 
         <!-- Title Overlimit Warning Badge -->

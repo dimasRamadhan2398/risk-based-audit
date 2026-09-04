@@ -146,10 +146,12 @@ import { computed } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
+const { canManageCharter } = useRbac()
 
 const statusOptions = computed(() => [
   { label: t('auditCharter.sopForm.active'), value: 'Aktif' },
@@ -164,6 +166,7 @@ const guidelineOptions = computed(() => {
 })
 
 const handleSubmit = async () => {
+  if (!canManageCharter.value) return
   if (store.isEditing) {
     await store.updateSop()
   } else {

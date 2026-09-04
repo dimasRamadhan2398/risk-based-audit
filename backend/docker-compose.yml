@@ -152,6 +152,8 @@ services:
         condition: service_healthy
     ports:
       - "8002:8001"
+    volumes:
+      - ./audit-service/pkg/config:/root/pkg/config
     command: sh -c "./audit seed && ./audit serve"
     networks:
       - rb_audit_network

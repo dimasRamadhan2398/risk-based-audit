@@ -117,7 +117,8 @@ export const useGuidelineStore = defineStore('guideline', () => {
 
       const formData = new FormData()
       formData.append('file', form.file)
-      formData.append('folder', 'audit')
+      formData.append('folder', 'Auditsphere/guidelines')
+      formData.append('feature_name', 'guidelines')
 
       const response: any = await $fetch(`${baseUrl}/media/upload`, {
         method: 'POST',
@@ -152,6 +153,11 @@ export const useGuidelineStore = defineStore('guideline', () => {
   }
 
   const addGuideline = async () => {
+    if (!form.file && !form.fileUrl) {
+      errorMsg.value = 'Mohon upload file dokumen Pedoman Audit.'
+      return
+    }
+
     loading.value = true
     errorMsg.value = ''
     try {
