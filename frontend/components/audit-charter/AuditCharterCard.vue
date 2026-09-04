@@ -113,7 +113,7 @@
         <div class="sm:flex sm:flex-row-reverse gap-4">
           <UButton
             v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf')"
+            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
             icon="i-lucide-download"
             size="md"
             color="primary"
@@ -211,8 +211,17 @@
             </div>
           </template>
           <template #actions-cell="{ row }">
-            <div v-if="canManageCharter" class="flex justify-end gap-1.5 whitespace-nowrap">
+            <div class="flex justify-end gap-1.5 whitespace-nowrap">
               <UButton
+                v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
+                size="md"
+                color="primary"
+                variant="ghost"
+                icon="i-lucide-download"
+                @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
+              />
+              <UButton
+                v-if="canManageCharter"
                 size="md"
                 color="primary"
                 variant="ghost"
@@ -220,6 +229,7 @@
                 @click="store.handleEdit(row.original)"
               />
               <UButton
+                v-if="canManageCharter"
                 size="md"
                 color="error"
                 variant="ghost"

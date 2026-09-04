@@ -360,30 +360,18 @@ export const useCharterStore = defineStore('charter', () => {
    *
    * Downloads the audit charter file by ID.
    */
-  const downloadCharter = async (id: string, filename?: string) => {
+  const downloadCharter = async (id: string, filename?: string, fileUrl?: string) => {
     loading.value = true
     errorMsg.value = ''
 
     try {
+      if (fileUrl && (fileUrl.startsWith('http://') || fileUrl.startsWith('https://'))) {
+        window.open(fileUrl, '_blank')
+        return
+      }
+
       const baseUrl = getAuditServiceBaseUrl()
-      console.log(`${baseUrl}/audit-charters/${id}/download`)
-
-      // Gunakan $fetch bawaan Nuxt agar konfigurasi global (seperti Auth Token) terbawa
-      // Tambahkan responseType: 'blob' untuk membaca stream file biner
-      const blob = await $fetch<Blob>(`${baseUrl}/audit-charters/${id}/download`, {
-        method: 'GET',
-        responseType: 'blob'
-      })
-
-      // Proses konversi blob menjadi URL dan inisiasi unduhan (browser)
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = filename || 'audit-charter.pdf'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      window.open(`${baseUrl}/audit-charters/${id}/download`, '_blank')
     } catch (error: any) {
       console.error('Failed to download audit charter:', error)
       errorMsg.value = 'Gagal mengunduh file Audit Charter.'

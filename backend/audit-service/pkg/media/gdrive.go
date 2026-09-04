@@ -196,6 +196,11 @@ func (p *GDriveProvider) getOrCreateFolderHierarchy(ctx context.Context, accessT
 			continue
 		}
 
+		// If defaultFolderID is already the Auditsphere folder, don't create another Auditsphere inside it
+		if p.defaultFolderID != "" && parentID == p.defaultFolderID && strings.EqualFold(part, "auditsphere") {
+			continue
+		}
+
 		// Search for an existing folder with this name under parentID
 		query := fmt.Sprintf("name = '%s' and mimeType = 'application/vnd.google-apps.folder' and trashed = false", strings.ReplaceAll(part, "'", "\\'"))
 		if parentID != "" {
@@ -204,7 +209,7 @@ func (p *GDriveProvider) getOrCreateFolderHierarchy(ctx context.Context, accessT
 			query += " and 'root' in parents"
 		}
 
-		searchURL := fmt.Sprintf("https://www.googleapis.com/drive/v3/files?q=%s&fields=files(id,name)&spaces=drive", url.QueryEscape(query))
+		searchURL := fmt.Sprintf("https://www.googleapis.com/drive/v3/files?q=%s&fields=files(id,name)&spaces=drive&supportsAllDrives=true&includeItemsFromAllDrives=true", url.QueryEscape(query))
 		req, err := http.NewRequestWithContext(ctx, "GET", searchURL, nil)
 		if err != nil {
 			return "", err
@@ -247,7 +252,7 @@ func (p *GDriveProvider) getOrCreateFolderHierarchy(ctx context.Context, accessT
 		}
 
 		folderJSON, _ := json.Marshal(folderMeta)
-		createReq, err := http.NewRequestWithContext(ctx, "POST", "https://www.googleapis.com/drive/v3/files?fields=id,name", bytes.NewReader(folderJSON))
+		createReq, err := http.NewRequestWithContext(ctx, "POST", "https://www.googleapis.com/drive/v3/files?supportsAllDrives=true&fields=id,name", bytes.NewReader(folderJSON))
 		if err != nil {
 			return "", err
 		}
@@ -333,7 +338,7 @@ func (p *GDriveProvider) uploadToGDrive(ctx context.Context, fileContent []byte,
 	w.Close()
 
 	// POST to Drive multipart upload endpoint
-	uploadURL := "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size,mimeType,webViewLink"
+	uploadURL := "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id,name,size,mimeType,webViewLink"
 	req, err := http.NewRequestWithContext(ctx, "POST", uploadURL, &buf)
 	if err != nil {
 		return nil, err
@@ -414,7 +419,7 @@ func (p *GDriveProvider) makePublic(ctx context.Context, accessToken, fileID str
 		"type": "anyone",
 	})
 	req, err := http.NewRequestWithContext(ctx, "POST",
-		fmt.Sprintf("https://www.googleapis.com/drive/v3/files/%s/permissions", fileID),
+		fmt.Sprintf("https://www.googleapis.com/drive/v3/files/%s/permissions?supportsAllDrives=true", fileID),
 		bytes.NewReader(permBody),
 	)
 	if err != nil {
@@ -452,7 +457,7 @@ func (p *GDriveProvider) Delete(ctx context.Context, fileID string) error {
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "DELETE",
-		fmt.Sprintf("https://www.googleapis.com/drive/v3/files/%s", fileID), nil)
+		fmt.Sprintf("https://www.googleapis.com/drive/v3/files/%s?supportsAllDrives=true", fileID), nil)
 	if err != nil {
 		return err
 	}

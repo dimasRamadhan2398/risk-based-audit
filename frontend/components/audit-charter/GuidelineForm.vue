@@ -128,10 +128,13 @@
 
 <script setup lang="ts">
 import { useGuidelineStore } from '~/stores/guideline'
+import { useRbac } from '~/composables/useRbac'
 
 const store = useGuidelineStore()
+const { canManageCharter } = useRbac()
 
 const handleSubmit = async () => {
+  if (!canManageCharter.value) return
   if (store.isEditing) {
     await store.updateGuideline()
   } else {

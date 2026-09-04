@@ -100,6 +100,8 @@ export const useRbac = () => {
    * Module permission helpers matching Settings RBAC matrix
    */
   const canManageCharter = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER]))
+  const canManageGuideline = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER]))
+  const canManageSop = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER]))
   const canEditRiskAppetite = computed(() => isAdmin.value)
   const canEditRiskFactors = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
   const canEditAuditUniverse = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
@@ -117,6 +119,8 @@ export const useRbac = () => {
     canManageAudits,
     canViewRisks,
     canManageCharter,
+    canManageGuideline,
+    canManageSop,
     canEditRiskAppetite,
     canEditRiskFactors,
     canEditAuditUniverse,

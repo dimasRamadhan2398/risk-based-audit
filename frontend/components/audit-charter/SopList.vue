@@ -15,6 +15,7 @@
         </p>
       </div>
       <UButton
+        v-if="canManageCharter"
         label="Tambah Petunjuk Teknis / SOP"
         @click="openAddModal"
         color="primary"
@@ -32,6 +33,7 @@
           <p class="text-sm text-gray-500">Daftar seluruh Petunjuk Teknis dan Standar Operasional Prosedur pelaksanaan audit</p>
         </div>
         <UButton
+          v-if="canManageCharter"
           label="Tambah SOP / Juknis"
           @click="openAddModal"
           color="primary"
@@ -101,14 +103,14 @@
           <div class="flex justify-end gap-1">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
-              :to="row.original.file_url"
-              target="_blank"
               icon="i-lucide-eye"
               color="neutral"
               variant="ghost"
               size="md"
+              @click="openFile(row.original.file_url)"
             />
             <UButton
+              v-if="canManageCharter"
               size="md"
               color="warning"
               variant="ghost"
@@ -116,6 +118,7 @@
               @click="store.handleEdit(row.original)"
             />
             <UButton
+              v-if="canManageCharter"
               size="md"
               color="error"
               variant="ghost"
@@ -133,11 +136,13 @@
 import { computed, onMounted } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
+const { canManageCharter } = useRbac()
 
 const columns = [
   { accessorKey: 'no', header: 'No' },
@@ -174,6 +179,18 @@ const formatMonthYearIndonesian = (val: string) => {
 const openAddModal = async () => {
   await guidelineStore.fetchGuidelines()
   store.showModal = true
+}
+
+const openFile = (fileUrl: string) => {
+  if (!fileUrl || fileUrl === '#') return
+  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+    window.open(fileUrl, '_blank')
+    return
+  }
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  const finalUrl = fileUrl.startsWith('/') ? `${baseUrl.replace(/\/api\/v1$/, '')}${fileUrl}` : `${baseUrl}/${fileUrl}`
+  window.open(finalUrl, '_blank')
 }
 
 const confirmDelete = async (item: any) => {
