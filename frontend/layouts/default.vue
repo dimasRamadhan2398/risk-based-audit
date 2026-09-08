@@ -299,11 +299,11 @@ const rawItems: NavigationMenuItem[][] = [[
       }
     ]
   },
-  {
-    label: 'Client Sites (Site Generator)',
-    icon: 'i-lucide-globe',
-    to: '/site-generator'
-  }
+  // {
+  //   label: 'Client Sites (Site Generator)',
+  //   icon: 'i-lucide-globe',
+  //   to: '/site-generator'
+  // }
 ]]
 
 const searchQuery = ref('')
