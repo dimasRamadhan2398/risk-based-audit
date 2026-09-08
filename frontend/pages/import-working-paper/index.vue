@@ -289,11 +289,7 @@ const handleImport = async () => {
 }
 
 const handleDelete = async (id: string) => {
-<<<<<<< HEAD
   if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.upload.deleteConfirm') })) {
-=======
-  if (confirm(t('workingPaper.upload.deleteConfirm'))) {
->>>>>>> 19ed793 (fix: table display on every page)
     try {
       await store.deleteImportedPaper(id)
     } catch (err) {

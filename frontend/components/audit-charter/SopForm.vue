@@ -31,12 +31,8 @@
                 v-model="store.form.name"
                 required
                 type="text"
-<<<<<<< HEAD
                 maxlength="200"
-                placeholder="e.g. SOP Penyusunan Program Kerja Audit Tahunan"
-=======
                 :placeholder="t('auditCharter.sopForm.namePlaceholder')"
->>>>>>> 011e037 (fix: date picker)
                 class="mt-1 block w-full rounded-md"
                 @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.sopForm.nameValidation'))"
                 @input="($event.target as any)?.setCustomValidity('')"

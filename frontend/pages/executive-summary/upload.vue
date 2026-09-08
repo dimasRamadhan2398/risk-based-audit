@@ -168,15 +168,9 @@
                 />
                 <UButton 
                   icon="i-lucide-download" 
-<<<<<<< HEAD
-                  color="success" 
-                  variant="ghost" 
-                  size="md" 
-=======
                   color="primary" 
                   variant="ghost" 
                   size="sm" 
->>>>>>> 19ed793 (fix: table display on every page)
                   :title="t('executiveSummary.upload.actions.download')" 
                   @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                 />
@@ -184,11 +178,7 @@
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
-<<<<<<< HEAD
-                  size="md" 
-=======
                   size="sm" 
->>>>>>> 19ed793 (fix: table display on every page)
                   :title="t('executiveSummary.upload.actions.delete')" 
                   @click="handleDelete(row.original.id)" 
                 />
@@ -299,11 +289,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (id: string) => {
-<<<<<<< HEAD
   if (await useGlobalModalStore().confirmDelete({ description: t('executiveSummary.upload.deleteConfirm') })) {
-=======
-  if (confirm(t('executiveSummary.upload.deleteConfirm'))) {
->>>>>>> 19ed793 (fix: table display on every page)
     await store.deleteDocument(id)
   }
 }

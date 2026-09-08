@@ -418,29 +418,17 @@ const columns = [
               <div class="flex items-center gap-1">
                 <UButton 
                   icon="i-lucide-eye" 
-<<<<<<< HEAD
-                  color="neutral" 
-                  variant="ghost" 
-                  size="md" 
-=======
                   color="info" 
                   variant="ghost" 
                   size="sm" 
->>>>>>> 19ed793 (fix: table display on every page)
                   title="Lihat Dokumen"
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
                 <UButton 
                   icon="i-lucide-download"
-<<<<<<< HEAD
-                  color="success"
-                  variant="ghost"
-                  size="md"
-=======
                   color="neutral"
                   variant="ghost"
                   size="sm"
->>>>>>> 19ed793 (fix: table display on every page)
                   @click="handleDownload(row.original.id, row.original.fileName)"
                   title="Unduh Dokumen"
                 />
@@ -448,11 +436,7 @@ const columns = [
                   icon="i-lucide-trash-2"
                   color="error"
                   variant="ghost"
-<<<<<<< HEAD
-                  size="md"
-=======
                   size="sm"
->>>>>>> 19ed793 (fix: table display on every page)
                   @click="handleDelete(row.original.id, row.original.title)"
                   title="Hapus Dokumen"
                 />

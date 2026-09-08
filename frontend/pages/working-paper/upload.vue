@@ -178,15 +178,9 @@
                 />
                 <UButton 
                   icon="i-lucide-download" 
-<<<<<<< HEAD
-                  color="success" 
-                  variant="ghost" 
-                  size="md" 
-=======
                   color="primary" 
                   variant="ghost" 
                   size="sm" 
->>>>>>> 19ed793 (fix: table display on every page)
                   :title="t('workingPaper.upload.actions.download')" 
                   @click="store.downloadImportedPaper(row.original.id, row.original.fileName)" 
                 />
@@ -194,11 +188,7 @@
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
-<<<<<<< HEAD
-                  size="md" 
-=======
                   size="sm" 
->>>>>>> 19ed793 (fix: table display on every page)
                   :title="t('workingPaper.upload.actions.delete')" 
                   @click="handleDelete(row.original.id)" 
                 />
@@ -309,11 +299,7 @@ const handleImport = async () => {
 }
 
 const handleDelete = async (id: string) => {
-<<<<<<< HEAD
-  if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.upload.deleteConfirm') })) {
-=======
   if (confirm(t('workingPaper.upload.deleteConfirm'))) {
->>>>>>> 19ed793 (fix: table display on every page)
     try {
       await store.deleteImportedPaper(id)
       toast.showSuccess('Document deleted successfully!')

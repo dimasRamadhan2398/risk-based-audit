@@ -842,11 +842,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const deleteInterview = async (index: number) => {
     if (!selectedAssignmentLetter.value) return
     const item = interviews.value[index]
-<<<<<<< HEAD
     if (!item || !await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus data wawancara ini?' })) return
-=======
-    if (!item || !confirm('Apakah Anda yakin ingin menghapus data wawancara ini?')) return
->>>>>>> 19ed793 (fix: table display on every page)
     loading.value = true
     const toast = useAppToast()
     try {
@@ -854,16 +850,12 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/interviews/${item.id}`, {
         method: 'DELETE'
       })
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.interviews) {
-        fieldworkData.value[selectedAssignmentLetter.value].interviews.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.interviews?.splice(index, 1)
       await fetchInterviews(selectedAssignmentLetter.value)
       toast.success('Data wawancara berhasil dihapus')
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.interviews) {
-        fieldworkData.value[selectedAssignmentLetter.value].interviews.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.interviews?.splice(index, 1)
       toast.success('Data wawancara berhasil dihapus')
     } finally {
       loading.value = false
@@ -1097,15 +1089,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/observations/${item.id}`, {
         method: 'DELETE'
       })
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.observations) {
-        fieldworkData.value[selectedAssignmentLetter.value].observations.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.observations?.splice(index, 1)
       await fetchObservations(selectedAssignmentLetter.value)
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.observations) {
-        fieldworkData.value[selectedAssignmentLetter.value].observations.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.observations?.splice(index, 1)
     } finally {
       loading.value = false
     }
@@ -1343,15 +1331,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/documents/${item.id}`, {
         method: 'DELETE'
       })
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.documents) {
-        fieldworkData.value[selectedAssignmentLetter.value].documents.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.documents?.splice(index, 1)
       await fetchDocuments(selectedAssignmentLetter.value)
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.documents) {
-        fieldworkData.value[selectedAssignmentLetter.value].documents.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.documents?.splice(index, 1)
     } finally {
       loading.value = false
     }
@@ -1491,15 +1475,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/samples/${item.id}`, {
         method: 'DELETE'
       })
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.samples) {
-        fieldworkData.value[selectedAssignmentLetter.value].samples.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.samples?.splice(index, 1)
       await fetchSamples(selectedAssignmentLetter.value)
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.samples) {
-        fieldworkData.value[selectedAssignmentLetter.value].samples.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.samples?.splice(index, 1)
     } finally {
       loading.value = false
     }
@@ -1669,15 +1649,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/test-controls/${item.id}`, {
         method: 'DELETE'
       })
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.testControls) {
-        fieldworkData.value[selectedAssignmentLetter.value].testControls.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.testControls?.splice(index, 1)
       await fetchTestControls(selectedAssignmentLetter.value)
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      if (fieldworkData.value[selectedAssignmentLetter.value]?.testControls) {
-        fieldworkData.value[selectedAssignmentLetter.value].testControls.splice(index, 1)
-      }
+      fieldworkData.value[selectedAssignmentLetter.value]?.testControls?.splice(index, 1)
     } finally {
       loading.value = false
     }
