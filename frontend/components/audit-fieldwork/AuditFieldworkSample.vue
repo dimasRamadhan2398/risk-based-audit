@@ -9,92 +9,70 @@
       <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
     </div>
 
-    <!-- Sample List -->
-    <UCard v-if="store.samples.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.samples" :columns="columns">
-        <template #documentName-cell="{ row }">
-          <span class="font-medium">{{ row.original.documentName }}</span>
-        </template>
-        <template #documentNumber-cell="{ row }">
-          <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
-        </template>
-        <template #date-cell="{ row }">
-          <span>{{ row.original.date }}</span>
-        </template>
-        <template #description-cell="{ row }">
-          <span class="text-sm text-gray-600">{{ row.original.description }}</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editSample(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteSample(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-table-cells" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">{{ t('auditFieldwork.sample.empty') }}</p>
-      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
-    </div>
+    <!-- Sample List via TableEntities -->
+    <TableEntities
+      :data="store.samples"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-table-cells',
+        label: t('auditFieldwork.sample.empty')
+      }"
+      :ui="{ td: '!whitespace-normal' }"
+      class="w-full"
+    >
+      <template #documentName-cell="{ row }">
+        <span class="font-medium text-gray-900 dark:text-white">{{ row.original.documentName }}</span>
+      </template>
+      <template #documentNumber-cell="{ row }">
+        <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
+      </template>
+      <template #date-cell="{ row }">
+        <span class="text-sm text-[var(--text-main)]">{{ formatDate(row.original.date) }}</span>
+      </template>
+      <template #description-cell="{ row }">
+        <div
+          class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+          style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+        >
+          {{ row.original.description || '-' }}
+        </div>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center justify-center gap-1">
+          <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" :title="t('common.actions.view') || 'Lihat'" @click="store.viewSample(row.original)" />
+          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" :title="t('common.actions.edit') || 'Ubah'" @click="store.editSample(row.original)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" :title="t('common.actions.delete') || 'Hapus'" @click="store.deleteSample(row.index)" />
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Sample Modal -->
-    <Teleport to="body">
-      <div v-if="store.showSampleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingSample ? t('auditFieldwork.sample.modalEdit') : t('auditFieldwork.sample.modalAdd') }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showSampleModal = false }" />
-            </div>
-          </template>
-
-          <UForm @submit.prevent="store.saveSample()" class="space-y-4">
-            <UFormField :label="t('auditFieldwork.sample.name')" required>
-              <UInput v-model="store.sampleForm.documentName" :placeholder="t('auditFieldwork.sample.namePlaceholder')" class="w-full" required />
-            </UFormField>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField :label="t('auditFieldwork.sample.number')" required>
-                <UInput v-model="store.sampleForm.documentNumber" :placeholder="t('auditFieldwork.sample.numberPlaceholder')" class="w-full" required />
-              </UFormField>
-              <UFormField :label="t('auditFieldwork.sample.date')" required>
-                <UInput v-model="store.sampleForm.date" type="date" class="w-full" required />
-              </UFormField>
-            </div>
-
-            <UFormField :label="t('auditFieldwork.sample.description')" required>
-              <UTextarea v-model="store.sampleForm.description" :placeholder="t('auditFieldwork.sample.descriptionPlaceholder')" class="w-full" required />
-            </UFormField>
-          </UForm>
-
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showSampleModal = false }" />
-              <UButton color="primary" :label="store.isEditingSample ? t('common.edit') : t('common.submit')" @click="store.saveSample()" />
-            </div>
-          </template>
-        </UCard>
-      </div>
-    </Teleport>
+    <AuditFieldworkSampleModal />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
-import { computed } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
+import { formatDate } from '~/utils/dateConverter'
+import AuditFieldworkSampleModal from '~/components/audit-fieldwork/AuditFieldworkSampleModal.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
 
 const columns = computed(() => [
-  { accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name') },
-  { accessorKey: 'documentNumber', header: t('auditFieldwork.sample.columns.number') },
-  { accessorKey: 'date', header: t('auditFieldwork.sample.columns.date') },
-  { accessorKey: 'description', header: t('auditFieldwork.sample.columns.description') },
-  { accessorKey: 'actions', header: t('auditFieldwork.sample.columns.actions') }
+  { key: 'documentName', accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name'), class: 'w-56 min-w-[180px]' },
+  { key: 'documentNumber', accessorKey: 'documentNumber', header: t('auditFieldwork.sample.columns.number'), class: 'w-44 min-w-[140px] whitespace-nowrap' },
+  { key: 'date', accessorKey: 'date', header: t('auditFieldwork.sample.columns.date'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  {
+    key: 'description',
+    accessorKey: 'description',
+    header: t('auditFieldwork.sample.columns.description'),
+    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    tdClass: '!whitespace-normal break-words'
+  },
+  { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.sample.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
 </script>

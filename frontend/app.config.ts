@@ -33,7 +33,13 @@ export default defineAppConfig({
       import: "heroicons:document-arrow-up",
       plan: "lucide:target",
       info: "heroicons:information-circle",
-      copy: "heroicons:document-duplicate"
+      copy: "heroicons:document-duplicate",
+
+      // KPI & metrics
+      kpiChart: "heroicons:chart-bar",
+      kpiCheck: "heroicons:check-circle",
+      kpiShieldCheck: "heroicons:shield-check",
+      kpiShieldAlert: "heroicons:shield-exclamation"
     },
   },
   theme: {
@@ -42,6 +48,9 @@ export default defineAppConfig({
   },
 
   ui: {
+    icon: {
+      base: "shrink-0 align-sub",
+    },
     accordion: {
       slots: {
         root: 'w-full gap-4 flex flex-col',
@@ -246,7 +255,7 @@ export default defineAppConfig({
         {
           color: "primary",
           variant: "soft",
-          class: "bg-primary-500/50 text-primary-600",
+          class: "bg-primary-500/20 text-primary-600",
         },
         {
           color: "primary",
@@ -608,8 +617,40 @@ export default defineAppConfig({
           }
         }
       },
+      compoundVariants: [
+        {
+          color: 'neutral',
+          variant: 'solid',
+          class: {
+            root: 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900',
+            title: 'text-white dark:text-neutral-900',
+            description: 'text-neutral-300 dark:text-neutral-600'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-neutral-200 dark:ring-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'soft',
+          class: {
+            root: 'bg-neutral-100 dark:bg-neutral-800/60 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'subtle',
+          class: {
+            root: 'bg-neutral-100 dark:bg-neutral-800/60 ring ring-neutral-200 dark:ring-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+          }
+        }
+      ],
       defaultVariants: {
-        variant: 'outline'
+        variant: 'neutral'
       }
     },
     colors: {
@@ -1538,7 +1579,7 @@ export default defineAppConfig({
           color: "primary",
           variant: "solid",
           class:
-            "text-inverted font-semibold tracking-wider from-primary-300 to-primary-400 bg-gradient-to-br hover:bg-primary/75 active:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary text-secondary-900 shadow-sm",
+            "text-inverted dark:bg-primary-600/90 text-secondary-900 dark:text-white font-semibold tracking-wider hover:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary shadow-sm",
         },
         {
           color: "primary",
@@ -1683,11 +1724,73 @@ export default defineAppConfig({
     },
     toast: {
       slots: {
-        root: 'relative group overflow-hidden bg-white dark:bg-neutral-900 shadow-xl rounded-xl ring-1 ring-neutral-200 dark:ring-neutral-800 p-4 flex gap-3 focus:outline-none',
-        title: 'text-sm font-semibold text-neutral-900 dark:text-white',
-        description: 'text-xs text-neutral-500 dark:text-neutral-400 mt-0.5',
-        icon: 'shrink-0 size-5 text-emerald-500 dark:text-emerald-400',
+        root: 'relative group overflow-hidden bg-white dark:bg-neutral-900 shadow-xl rounded-xl p-4 flex gap-3.5 focus:outline-none border-s-4 transition-all duration-200',
+        wrapper: 'min-w-0 flex-1 flex flex-col justify-center',
+        title: 'text-sm font-semibold leading-snug',
+        description: 'text-xs leading-relaxed mt-0.5',
+        icon: 'shrink-0 size-5 mt-0.5',
+        actions: 'flex items-center gap-1.5 shrink-0',
         progress: 'hidden !important',
+        close: 'p-1 -mr-1 -mt-1 rounded-md text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors'
+      },
+      variants: {
+        color: {
+          error: {
+            root: 'border-s-error-500 ring-1 ring-error-500/25 dark:ring-error-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-error-500/10',
+            icon: 'text-error-500 dark:text-error-400',
+            title: 'text-error-950 dark:text-error-50 font-semibold',
+            description: 'text-error-800/80 dark:text-error-200/80'
+          },
+          success: {
+            root: 'border-s-success-500 ring-1 ring-success-500/25 dark:ring-success-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-success-500/10',
+            icon: 'text-success-600 dark:text-success-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          warning: {
+            root: 'border-s-warning-500 ring-1 ring-warning-500/25 dark:ring-warning-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-warning-500/10',
+            icon: 'text-warning-500 dark:text-warning-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          info: {
+            root: 'border-s-info-500 ring-1 ring-info-500/25 dark:ring-info-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-info-500/10',
+            icon: 'text-info-500 dark:text-info-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          primary: {
+            root: 'border-s-primary-500 ring-1 ring-primary-500/25 dark:ring-primary-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-primary-500/10',
+            icon: 'text-primary-500 dark:text-primary-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          secondary: {
+            root: 'border-s-secondary-500 ring-1 ring-secondary-500/25 dark:ring-secondary-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-secondary-500/10',
+            icon: 'text-secondary-500 dark:text-secondary-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          neutral: {
+            root: 'border-s-neutral-400 ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 shadow-lg',
+            icon: 'text-neutral-600 dark:text-neutral-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-400'
+          }
+        }
+      },
+      defaultVariants: {
+        color: 'primary'
+      }
+    },
+    selectMenu: {
+      slots: {
+        content: 'z-[9999]'
+      }
+    },
+    select: {
+      slots: {
+        content: 'z-[9999]'
       }
     },
   },

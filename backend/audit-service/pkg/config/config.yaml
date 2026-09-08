@@ -40,11 +40,11 @@ app:
   rate_limiter_time: 1
 
 gdrive:
-  enabled: false
+  enabled: true
   auth_mode: "service_account"
   credentials_json_path: "./pkg/config/gdrive-credentials.json"
   credentials_json: ""
   client_id: ""
   client_secret: ""
   refresh_token: ""
-  default_folder_id: ""
+  default_folder_id: "1NCUAQx48FtGWPuL49M71GPvUp7afZQHr"

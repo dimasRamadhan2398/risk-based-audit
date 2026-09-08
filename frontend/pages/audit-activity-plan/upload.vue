@@ -1,11 +1,11 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen">
+  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-full">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/audit-activity-plan" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('auditActivityPlan.upload.title') }}</h1>
-        <p class="text-sm text-gray-500">{{ t('auditActivityPlan.upload.subtitle') }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('auditActivityPlan.upload.title') }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('auditActivityPlan.upload.subtitle') }}</p>
       </div>
     </div>
 
@@ -13,9 +13,9 @@
     <div class="flex flex-col gap-10">
       <!-- Import Form Card -->
       <div class="w-full space-y-6">
-        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200">
+        <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200 dark:border-gray-800">
           <template #header>
-            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-primary" />
               {{ t('auditActivityPlan.upload.formTitle') }}
             </h3>
@@ -40,7 +40,7 @@
             </UFormField>
 
             <div class="space-y-2 pt-2">
-              <label class="block text-sm font-medium text-gray-700">{{ t('auditActivityPlan.upload.fileLabel') }}</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditActivityPlan.upload.fileLabel') }}</label>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -49,10 +49,10 @@
                 class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors duration-200"
                 :class="[
                   isDragging 
-                    ? 'border-primary bg-blue-50/50' 
+                    ? 'border-primary bg-blue-50/50 dark:bg-primary-950/30' 
                     : form.fileName 
-                      ? 'border-emerald-400 bg-emerald-50/30' 
-                      : 'border-gray-300 hover:border-primary bg-white'
+                      ? 'border-emerald-400 bg-emerald-50/30 dark:border-emerald-500 dark:bg-emerald-950/20' 
+                      : 'border-gray-300 dark:border-gray-700 hover:border-primary bg-gray-50 dark:bg-gray-800/60'
                 ]"
               >
                 <input 
@@ -66,7 +66,7 @@
                 <div v-if="!form.fileName" class="space-y-3">
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-sm text-gray-600 font-semibold">{{ t('auditActivityPlan.upload.dropzoneLabel') }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">{{ t('auditActivityPlan.upload.dropzoneLabel') }}</p>
                     <p class="text-md text-gray-400 mt-1">{{ t('auditActivityPlan.upload.dropzoneHint') }}</p>
                   </div>
                 </div>
@@ -74,10 +74,10 @@
                 <div v-else class="space-y-3">
                   <UIcon name="i-lucide-file-check-2" class="w-10 h-10 mx-auto text-emerald-500" />
                   <div>
-                    <p class="text-sm text-emerald-700 font-bold truncate max-w-[200px] mx-auto px-2">
+                    <p class="text-sm text-emerald-700 dark:text-emerald-400 font-bold truncate max-w-[200px] mx-auto px-2">
                       {{ form.fileName }}
                     </p>
-                    <p class="text-md text-emerald-600 mt-1">
+                    <p class="text-md text-emerald-600 dark:text-emerald-500 mt-1">
                       {{ formatBytes(selectedFileLength) }}
                     </p>
                   </div>
@@ -92,7 +92,7 @@
               </div>
             </div>
 
-            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 p-3 rounded-lg border border-red-200">
+            <div v-if="store.errorMsg" class="text-sm text-red-600 font-semibold bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-900">
               {{ store.errorMsg }}
             </div>
 
@@ -111,10 +111,10 @@
 
       <!-- Imported Documents Table -->
       <div class="w-full">
-        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 h-full">
+        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-primary" />
                 {{ t('auditActivityPlan.upload.importedTitle') }}
               </h3>
@@ -124,75 +124,67 @@
             </div>
           </template>
 
-          <div v-if="store.loading && store.uploadedDocuments.length === 0" class="py-12 text-center">
-            <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-            <p class="text-gray-500 text-sm">{{ t('auditActivityPlan.upload.loading') }}</p>
-          </div>
-
-          <div v-else-if="store.uploadedDocuments.length === 0" class="py-16 text-center space-y-4 rounded-lg border-2 border-dashed border-gray-100 bg-gray-50/50">
-            <div class="inline-flex p-4 rounded-full text-gray-300">
-              <UIcon name="i-lucide-folder-open" class="w-12 h-12" />
-            </div>
-            <div class="max-w-md mx-auto">
-              <h3 class="text-sm font-bold text-gray-900">{{ t('auditActivityPlan.upload.noDocumentsTitle') }}</h3>
-              <p class="text-md text-gray-500 mt-1">{{ t('auditActivityPlan.upload.noDocumentsDesc') }}</p>
-            </div>
-          </div>
-
-          <div v-else class="overflow-x-auto">
-            <UTable :data="store.uploadedDocuments" :columns="columns">
-              <template #title-cell="{ row }">
-                <div>
-                  <div class="font-bold text-gray-900 text-sm">{{ row.original.title }}</div>
-                  <div class="text-[11px] text-gray-500 mt-0.5 line-clamp-1" v-if="row.original.description">
-                    {{ row.original.description }}
-                  </div>
+          <TableEntities
+            :data="store.uploadedDocuments"
+            :columns="columns"
+            :loading="store.loading"
+            :empty-state="{
+              icon: 'i-lucide-folder-open',
+              label: t('auditActivityPlan.upload.noDocumentsTitle'),
+              description: t('auditActivityPlan.upload.noDocumentsDesc')
+            }"
+          >
+            <template #title-cell="{ row }">
+              <div>
+                <div class="font-bold text-gray-900 dark:text-white text-sm">{{ row.original.title }}</div>
+                <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" v-if="row.original.description">
+                  {{ row.original.description }}
                 </div>
-              </template>
+              </div>
+            </template>
 
-              <template #fileName-cell="{ row }">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
-                  <span class="text-md text-gray-700 truncate max-w-[150px] block">{{ row.original.fileName }}</span>
-                </div>
-              </template>
+            <template #fileName-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
+                <span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px] block">{{ row.original.fileName }}</span>
+              </div>
+            </template>
 
-              <template #created_at-cell="{ row }">
-                <span class="text-md text-gray-500">
-                  {{ formatDate(row.original.created_at) }}
-                </span>
-              </template>
+            <template #created_at-cell="{ row }">
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {{ formatDate(row.original.created_at) }}
+              </span>
+            </template>
 
-              <template #actions-cell="{ row }">
-                <div class="flex items-center gap-1">
-                  <UButton 
-                    icon="i-lucide-eye" 
-                    color="info" 
-                    variant="ghost" 
-                    size="sm" 
-                    :title="t('auditActivityPlan.upload.viewDocument')"
-                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                  />
-                  <UButton 
-                    icon="i-lucide-download" 
-                    color="primary" 
-                    variant="ghost" 
-                    size="sm" 
-                    :title="t('auditActivityPlan.upload.downloadDocument')"
-                    @click="store.downloadDocument(row.original.id, row.original.fileName)" 
-                  />
-                  <UButton 
-                    icon="i-lucide-trash-2" 
-                    color="error" 
-                    variant="ghost" 
-                    size="sm" 
-                    :title="t('auditActivityPlan.upload.deleteDocument')"
-                    @click="handleDelete(row.original.id)" 
-                  />
-                </div>
-              </template>
-            </UTable>
-          </div>
+            <template #actions-cell="{ row }">
+              <div class="flex items-center gap-1">
+                <UButton 
+                  icon="i-lucide-eye" 
+                  color="info" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('auditActivityPlan.upload.viewDocument')"
+                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                />
+                <UButton 
+                  icon="i-lucide-download" 
+                  color="primary" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('auditActivityPlan.upload.downloadDocument')"
+                  @click="store.downloadDocument(row.original.id, row.original.fileName)" 
+                />
+                <UButton 
+                  icon="i-lucide-trash-2" 
+                  color="error" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('auditActivityPlan.upload.deleteDocument')"
+                  @click="handleDelete(row.original.id)" 
+                />
+              </div>
+            </template>
+          </TableEntities>
         </UCard>
       </div>
     </div>
@@ -203,6 +195,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useUploadPlanDocumentStore } from '~/stores/upload-plan-document'
 import { useI18n } from '~/composables/useI18n'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const { t, locale } = useI18n()
 const store = useUploadPlanDocumentStore()
@@ -224,10 +217,10 @@ const form = ref({
 })
 
 const columns = computed(() => [
-  { accessorKey: 'title', header: t('auditActivityPlan.upload.columns.title') },
-  { accessorKey: 'fileName', header: t('auditActivityPlan.upload.columns.file') },
-  { accessorKey: 'created_at', header: t('auditActivityPlan.upload.columns.importedDate') },
-  { accessorKey: 'actions', header: t('auditActivityPlan.upload.columns.actions') }
+  { accessorKey: 'title', header: t('auditActivityPlan.upload.columns.title'), class: 'w-[50%]' },
+  { accessorKey: 'fileName', header: t('auditActivityPlan.upload.columns.file'), class: 'w-[24%]' },
+  { accessorKey: 'created_at', header: t('auditActivityPlan.upload.columns.importedDate'), class: 'w-[16%]' },
+  { accessorKey: 'actions', header: t('auditActivityPlan.upload.columns.actions'), class: 'w-[10%]' }
 ])
 
 const triggerFileSelect = () => {

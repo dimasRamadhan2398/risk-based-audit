@@ -43,7 +43,7 @@
               <label class="font-bold text-gray-700 ">Audit Year</label>
               <UFormField class="md:col-span-3">
                 <div class="flex items-center gap-4">
-                  <UInput v-model="store.form.auditYear" type="date" size="lg" class="flex-1 w-full" />
+                  <AppDatePicker v-model="store.form.auditYear" size="lg" class="flex-1 w-full" />
                 </div>
               </UFormField>
             </div>
@@ -64,9 +64,9 @@
               <label class="font-bold text-gray-700  mt-2">Audit Period</label>
               <UFormField class="md:col-span-3">
                 <div class="flex items-center gap-4">
-                  <UInput v-model="store.form.startPeriod" type="date" size="lg" class="flex-1" :class="{'ring-red-500': store.dateError}" />
+                  <AppDatePicker v-model="store.form.startPeriod" size="lg" class="flex-1" :class="{'ring-red-500': store.dateError}" />
                   <span class="font-bold text-gray-500">to</span>
-                  <UInput v-model="store.form.finishPeriod" type="date" size="lg" class="flex-1" :class="{'ring-red-500': store.dateError}" />
+                  <AppDatePicker v-model="store.form.finishPeriod" size="lg" class="flex-1" :class="{'ring-red-500': store.dateError}" />
                 </div>
                 <p v-if="store.dateError" class="text-red-500 text-sm font-semibold mt-1">{{ store.dateError }}</p>
               </UFormField>

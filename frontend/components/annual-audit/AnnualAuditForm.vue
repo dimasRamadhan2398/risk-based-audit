@@ -324,7 +324,7 @@
                                 />
                             </UFormField>
                             <UFormField label="Attachment Upload Date">
-                                <UInput type="date" v-model="store.form.attachmentUploadDate" class="w-full"/>
+                                <AppDatePicker v-model="store.form.attachmentUploadDate" class="w-full"/>
                             </UFormField>
                             <UFormField
                                 label="Upload your Attachment here"

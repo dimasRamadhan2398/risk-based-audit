@@ -151,7 +151,6 @@ const tabs = computed(() => [
   { label: t('auditFieldwork.tabs.document'), slot: 'tab03', icon: 'i-heroicons-document-duplicate' },
   { label: t('auditFieldwork.tabs.sample'), slot: 'tab04', icon: 'i-heroicons-table-cells' },
   { label: t('auditFieldwork.tabs.testControls'), slot: 'tab05', icon: 'i-heroicons-shield-check' },
-  { label: t('auditFieldwork.tabs.workingPapers'), slot: 'tab06', icon: 'i-heroicons-document-text' }
 ])
 
 const filteredWorkingPapers = computed(() => {

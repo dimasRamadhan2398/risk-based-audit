@@ -80,6 +80,20 @@
     <!-- Strategic KPI Table & Pagination -->
     <UCard variant="soft">
       <TableEntities :data="filteredObjectives" :columns="columns">
+        <!-- Strategic Objective Cell with Text Wrapping -->
+        <template #strategicObjective-cell="{ row }">
+          <div class="max-w-[280px] whitespace-normal break-words font-medium text-gray-900 dark:text-white">
+            {{ row.original.strategicObjective || '-' }}
+          </div>
+        </template>
+
+        <!-- KPI Name Cell with Text Wrapping -->
+        <template #kpi-cell="{ row }">
+          <div class="max-w-[240px] whitespace-normal break-words font-medium text-gray-900 dark:text-white">
+            {{ row.original.kpi || '-' }}
+          </div>
+        </template>
+
         <!-- Action Buttons -->
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
@@ -152,16 +166,16 @@ watch(selectedPeriodType, (newType) => {
 })
 
 const columns = computed(() => [
-  { key: 'code', accessorKey: 'code', label: t('strategicPlan.columns.code'), header: t('strategicPlan.columns.code') },
-  { key: 'strategicObjective', accessorKey: 'strategicObjective', label: t('strategicPlan.columns.objective'), header: t('strategicPlan.columns.objective') },
-  { key: 'kpi', accessorKey: 'kpi', label: t('strategicPlan.columns.kpi'), header: t('strategicPlan.columns.kpi') },
-  { key: 'unit', accessorKey: 'unit', label: t('strategicPlan.columns.unit'), header: t('strategicPlan.columns.unit') },
-  { key: 'selectedPeriod', accessorKey: 'selectedPeriod', label: t('strategicPlan.columns.period'), header: t('strategicPlan.columns.period') },
-  { key: 'target', accessorKey: 'target', label: t('strategicPlan.columns.target'), header: t('strategicPlan.columns.target') },
-  { key: 'actual', accessorKey: 'actual', label: t('strategicPlan.columns.actual'), header: t('strategicPlan.columns.actual') },
-  { key: 'calculation', accessorKey: 'calculation', label: t('strategicPlan.columns.calculation'), header: t('strategicPlan.columns.calculation') },
-  { key: 'status', accessorKey: 'status', label: t('strategicPlan.columns.status'), header: t('strategicPlan.columns.status') },
-  { key: 'actions', accessorKey: 'actions', label: t('strategicPlan.columns.actions'), header: t('strategicPlan.columns.actions') },
+  { key: 'code', accessorKey: 'code', label: t('strategicPlan.columns.code'), header: t('strategicPlan.columns.code'), class: 'w-28 whitespace-nowrap' },
+  { key: 'strategicObjective', accessorKey: 'strategicObjective', label: t('strategicPlan.columns.objective'), header: t('strategicPlan.columns.objective'), class: 'max-w-[280px] whitespace-normal break-words font-medium' },
+  { key: 'kpi', accessorKey: 'kpi', label: t('strategicPlan.columns.kpi'), header: t('strategicPlan.columns.kpi'), class: 'max-w-[240px] whitespace-normal break-words font-medium' },
+  { key: 'unit', accessorKey: 'unit', label: t('strategicPlan.columns.unit'), header: t('strategicPlan.columns.unit'), class: 'w-20 text-center whitespace-nowrap' },
+  { key: 'selectedPeriod', accessorKey: 'selectedPeriod', label: t('strategicPlan.columns.period'), header: t('strategicPlan.columns.period'), class: 'w-28 whitespace-nowrap' },
+  { key: 'target', accessorKey: 'target', label: t('strategicPlan.columns.target'), header: t('strategicPlan.columns.target'), class: 'w-24 whitespace-nowrap' },
+  { key: 'actual', accessorKey: 'actual', label: t('strategicPlan.columns.actual'), header: t('strategicPlan.columns.actual'), class: 'w-24 whitespace-nowrap' },
+  { key: 'calculation', accessorKey: 'calculation', label: t('strategicPlan.columns.calculation'), header: t('strategicPlan.columns.calculation'), class: 'w-28 whitespace-nowrap' },
+  { key: 'status', accessorKey: 'status', label: t('strategicPlan.columns.status'), header: t('strategicPlan.columns.status'), class: 'w-28 whitespace-nowrap' },
+  { key: 'actions', accessorKey: 'actions', label: t('strategicPlan.columns.actions'), header: t('strategicPlan.columns.actions'), class: 'w-24 whitespace-nowrap text-center' },
 ])
 
 const periodTypeOptions = computed(() => [

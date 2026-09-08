@@ -2,23 +2,24 @@
     <div class="mt-4 space-y-6">
     <UCard class="shadow-sm mt-10">
         
-        <TableEntities :data="store.filteredDataF01" :columns="store.columnsF01" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }" >
+        <TableEntities
+          :data="store.filteredDataF01"
+          :columns="store.columnsF01"
+          :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }"
+          :ui="{ td: '!whitespace-normal' }"
+        >
         
+        <template #businessProcess-cell="{ row }">
+          <div
+            class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+            style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+          >
+            {{ row.original.businessProcess || '-' }}
+          </div>
+        </template>
+
         <template #teamMembers-cell="{ row }">
-            <div class="flex flex-wrap gap-1">
-            <UBadge 
-                v-for="member in row.original.teamMembers"
-                :key="member.id"
-                color="neutral" 
-                variant="subtle" 
-                size="lg"
-                class="flex flex-col items-start px-2 py-1"
-            >
-                <span class="font-bold text-primary-700">{{ member.name }}</span>
-                <span class="text-[10px] opacity-70 italic">{{ member.role }}</span>
-            </UBadge>
-            <span v-if="!row.original.teamMembers?.length" class="text-gray-400">-</span>
-            </div>
+          <TeamMembersBadge :members="row.original.teamMembers" />
         </template>
 
         <template #actions-cell="{ row }">

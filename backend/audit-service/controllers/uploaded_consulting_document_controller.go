@@ -55,6 +55,11 @@ func (ctrl *UploadedConsultingDocumentController) Upload(c *gin.Context) {
 		return
 	}
 
+	if int64(len(dec)) > 10*1024*1024 {
+		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+		return
+	}
+
 	fileExt := filepath.Ext(req.FileName)
 	baseName := strings.TrimSuffix(req.FileName, fileExt)
 	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)

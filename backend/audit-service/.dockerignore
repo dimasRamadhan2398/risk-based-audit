@@ -6,12 +6,6 @@
 *.dylib
 *.test
 *.out
-audit-service
-audit-service-test
-audit
-tmp_audit
-tmp_audit.exe
-audit-service.exe
 
 # Archives
 *.tar.gz

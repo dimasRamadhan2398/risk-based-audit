@@ -33,9 +33,8 @@
               </UFormField>
 
               <UFormField label="Report Date" name="reportDate" required>
-                <UInput
+                <AppDatePicker
                   v-model="store.reportForm.reportDate"
-                  type="date"
                   class="w-full"
                 />
               </UFormField>

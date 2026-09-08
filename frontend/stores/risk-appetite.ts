@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import type { TableColumn } from '@nuxt/ui'
 
 export interface RiskAppetite {
   id: string
@@ -14,6 +15,45 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
   const statements = ref<RiskAppetite[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+
+  const columns: (TableColumn<any> & { class?: string })[] = [
+    {
+      accessorKey: 'id',
+      id: 'id',
+      header: 'ID Risiko',
+      class: 'w-[120px] min-w-[100px] whitespace-nowrap'
+    },
+    {
+      accessorKey: 'name',
+      id: 'name',
+      header: 'Nama Risiko & Area',
+      class: 'min-w-[260px] max-w-[380px]'
+    },
+    {
+      accessorKey: 'level',
+      id: 'level',
+      header: 'Level Risiko',
+      class: 'w-[130px] min-w-[130px] text-center whitespace-nowrap'
+    },
+    {
+      accessorKey: 'appetite',
+      id: 'appetite',
+      header: 'Toleransi Appetite',
+      class: 'w-[150px] min-w-[150px] text-center whitespace-nowrap'
+    },
+    {
+      accessorKey: 'mitigationStatus',
+      id: 'mitigationStatus',
+      header: 'Status Mitigasi',
+      class: 'w-[180px] min-w-[180px] whitespace-nowrap'
+    },
+    {
+      accessorKey: 'actions',
+      id: 'actions',
+      header: 'Aksi',
+      class: 'w-[140px] min-w-[140px] text-center whitespace-nowrap'
+    }
+  ]
 
   const getRiskServiceBaseUrl = () => {
     const config = useRuntimeConfig()
@@ -139,6 +179,8 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
 
   return {
     statements,
+    columns,
+    complianceColumns: columns,
     loading,
     errorMsg,
     fetchStatements,

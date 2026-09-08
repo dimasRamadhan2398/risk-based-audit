@@ -200,3 +200,9 @@ p {
     background-image: var(--image-audit-bg);
   }
 }
+
+/* Ensure tooltips always render at the topmost layer above cards, modals, and sticky headers */
+[role="tooltip"],
+[data-popper-placement] {
+  z-index: 99999 !important;
+}

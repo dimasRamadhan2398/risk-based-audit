@@ -75,24 +75,25 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 		}
 		isActive := isActiveStr == "true"
 
-		// Process file upload (optional)
+		// Process file upload (required for charter creation)
 		file, header, err := c.Request.FormFile("file")
-		if err == nil {
-			defer file.Close()
-			attachment, errUpload := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
-			if errUpload != nil {
-				response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", errUpload.Error())
-				return
-			}
-			req.Filename = header.Filename
-			req.FileUrl = attachment.FilePath
-			req.FileSize = attachment.FileSize
-		} else {
-			req.Filename = title + ".pdf"
-			if req.Filename == ".pdf" {
-				req.Filename = "Audit_Charter_" + version + ".pdf"
-			}
+		if err != nil {
+			response.BadRequest(c, "Charter document file is required")
+			return
 		}
+		if header.Size > 10*1024*1024 {
+			response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+			return
+		}
+		defer file.Close()
+		attachment, errUpload := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "Auditsphere/charter")
+		if errUpload != nil {
+			response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", errUpload.Error())
+			return
+		}
+		req.Filename = header.Filename
+		req.FileUrl = attachment.FilePath
+		req.FileSize = attachment.FileSize
 
 		req.Title = title
 		req.Version = version
@@ -154,8 +155,12 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 		// Process optional file upload
 		file, header, err := c.Request.FormFile("file")
 		if err == nil { // file is present
+			if header.Size > 10*1024*1024 {
+				response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+				return
+			}
 			defer file.Close()
-			attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
+			attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "Auditsphere/charter")
 			if err != nil {
 				response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", err.Error())
 				return

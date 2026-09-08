@@ -1,13 +1,26 @@
 <template>
   <div class="w-full space-y-4">
     <!-- Table Container using Nuxt UI UTable -->
-    <div class="overflow-x-auto rounded-xl border border-[var(--border-main)] bg-[var(--bg-main)] shadow-xs">
+    <div
+      class="rounded-xl border border-[var(--border-main)] bg-[var(--bg-main)] shadow-xs w-full transition-all"
+      :class="[
+        isScrollable ? 'overflow-x-auto' : 'overflow-x-hidden'
+      ]"
+    >
       <UTable
         :data="paginatedData"
         :columns="(normalizedColumns as any)"
         :loading="loading"
         :ui="mergedUi"
-        class="w-full"
+        :class="[
+          'w-full',
+          isScrollable
+            ? (effectiveTableLayout === 'fixed' ? 'table-fixed' : 'table-auto')
+            : 'table-fixed min-w-full',
+          effectiveMinWidth ? '' : (isScrollable && effectiveTableLayout === 'auto' ? 'min-w-max' : 'min-w-full'),
+          tableClass
+        ]"
+        :style="effectiveMinWidth ? { minWidth: effectiveMinWidth } : undefined"
       >
         <template
           v-for="col in normalizedColumns"
@@ -17,6 +30,11 @@
             v-if="$slots[`${col.id}-cell`]"
             :name="`${col.id}-cell`"
             v-bind="props"
+          />
+
+          <TeamMembersBadge
+            v-else-if="col.id === 'teamMembers' || col.accessorKey === 'teamMembers'"
+            :members="props.row?.original?.teamMembers || props.getValue()"
           />
 
           <span v-else>
@@ -89,7 +107,7 @@
     <!-- Pagination & Controls Footer using Nuxt UI UPagination -->
     <div
       v-if="showPagination && (totalItems > 0 || !serverSide)"
-      class="flex flex-col sm:flex-row items-center justify-between gap-4 px-3 py-2.5"
+      class="flex flex-col sm:flex-row items-center justify-end gap-4 px-3 py-2.5"
     >
       <!-- Entry Counter & Page Size Selector -->
       <!-- <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
@@ -134,6 +152,8 @@
 import { ref, computed, watch, useSlots } from 'vue'
 import { getPaginationRowModel } from '@tanstack/vue-table'
 
+import type { TableColumn } from '@nuxt/ui'
+
 defineOptions({ inheritAttrs: false })
 
 export interface TableColumnItem {
@@ -141,7 +161,7 @@ export interface TableColumnItem {
   accessorKey?: string
   id?: string
   label?: string
-  header?: string
+  header?: any
   cell?: unknown
   [key: string]: unknown
 }
@@ -149,7 +169,7 @@ export interface TableColumnItem {
 const props = withDefaults(
   defineProps<{
     data?: any[]
-    columns?: (string | TableColumnItem)[]
+    columns?: (string | TableColumnItem | TableColumn<any> | any)[]
     loading?: boolean
     emptyState?: { icon?: string, label?: string, description?: string }
     itemsPerPage?: number
@@ -162,6 +182,12 @@ const props = withDefaults(
     total?: number
     page?: number
     ui?: Record<string, unknown>
+    horizontalScroll?: boolean
+    scrollable?: boolean
+    allowHorizontalScroll?: boolean
+    tableLayout?: 'fixed' | 'auto'
+    minWidth?: string
+    tableClass?: string
   }>(),
   {
     data: () => [],
@@ -177,7 +203,13 @@ const props = withDefaults(
     serverSide: false,
     total: undefined,
     page: 1,
-    ui: () => ({})
+    ui: () => ({}),
+    horizontalScroll: undefined,
+    scrollable: undefined,
+    allowHorizontalScroll: undefined,
+    tableLayout: undefined,
+    minWidth: undefined,
+    tableClass: ''
   }
 )
 
@@ -202,13 +234,39 @@ const normalizedColumns = computed(() => {
     }
     const key = col.key || col.accessorKey || col.id || ''
     const label = col.label || col.header || key
+    
+    const colClass = (col as any).class || ''
+    const colThClass = (col as any).thClass || ''
+    const colTdClass = (col as any).tdClass || ''
+    const existingMeta = (col as any).meta || {}
+    const existingMetaClass = existingMeta.class || {}
+
+    const thClass = [
+      colClass,
+      colThClass,
+      typeof existingMetaClass === 'string' ? existingMetaClass : existingMetaClass.th
+    ].filter(Boolean).join(' ')
+
+    const tdClass = [
+      colClass,
+      colTdClass,
+      typeof existingMetaClass === 'string' ? existingMetaClass : existingMetaClass.td
+    ].filter(Boolean).join(' ')
+
     const normalized: TableColumnItem = {
       ...col,
       key,
       accessorKey: col.accessorKey || key,
       id: col.id || key,
       label,
-      header: col.header || label
+      header: col.header || label,
+      meta: {
+        ...existingMeta,
+        class: {
+          th: thClass,
+          td: tdClass
+        }
+      }
     }
     if (typeof normalized.cell === 'string') {
       delete normalized.cell
@@ -308,9 +366,32 @@ const pageSizeSelectOptions = computed(() => {
   }))
 })
 
-const mergedUi = computed(() => ({
-  th: 'px-4 py-3.5 text-xs text-left font-bold uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-surface)] border-b border-[var(--border-main)]',
-  td: 'px-4 py-3 text-sm text-[var(--text-main)] border-b border-[var(--border-main)]/50',
-  ...props.ui
-}))
+const isScrollable = computed(() => {
+  if (props.horizontalScroll !== undefined) return props.horizontalScroll
+  if (props.scrollable !== undefined) return props.scrollable
+  if (props.allowHorizontalScroll !== undefined) return props.allowHorizontalScroll
+  return true
+})
+
+const effectiveTableLayout = computed(() => {
+  if (props.tableLayout) return props.tableLayout
+  return isScrollable.value ? 'auto' : 'fixed'
+})
+
+const effectiveMinWidth = computed(() => props.minWidth)
+
+const mergedUi = computed(() => {
+  const layoutClass = effectiveTableLayout.value === 'auto' ? 'table-auto' : 'table-fixed'
+  const widthClass = isScrollable.value
+    ? (props.minWidth ? '' : 'min-w-full')
+    : 'min-w-full w-full'
+
+  return {
+    base: `w-full ${layoutClass} ${widthClass}`.trim(),
+    table: `w-full ${layoutClass} ${widthClass}`.trim(),
+    th: 'px-4 py-3.5 text-xs text-left font-bold uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-surface)] border-b border-[var(--border-main)] whitespace-nowrap',
+    td: 'px-4 py-3 text-sm text-[var(--text-main)] border-b border-[var(--border-main)]/50',
+    ...props.ui
+  }
+})
 </script>

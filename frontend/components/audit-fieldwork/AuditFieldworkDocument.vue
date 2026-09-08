@@ -9,104 +9,74 @@
       <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
     </div>
 
-    <!-- Document List -->
-    <UCard v-if="store.documents.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.documents" :columns="columns">
-        <template #documentName-cell="{ row }">
-          <span class="font-medium">{{ row.original.documentName }}</span>
-        </template>
-        <template #description-cell="{ row }">
-          <span class="text-sm text-gray-600">{{ row.original.description }}</span>
-        </template>
-        <template #requiredDate-cell="{ row }">
-          <UBadge color="warning" variant="subtle">{{ row.original.requiredDate }}</UBadge>
-        </template>
-        <template #file-cell="{ row }">
-          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.original.file.name }}
-          </UButton>
-          <span v-else class="text-gray-400 text-sm">-</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editDocument(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteDocument(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-document-duplicate" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">{{ t('auditFieldwork.document.empty') }}</p>
-      <UButton color="primary" variant="soft" class="mt-2" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
-    </div>
+    <!-- Document List via TableEntities -->
+    <TableEntities
+      :data="store.documents"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-document-duplicate',
+        label: t('auditFieldwork.document.empty')
+      }"
+      :ui="{ td: '!whitespace-normal' }"
+      class="w-full"
+    >
+      <template #documentName-cell="{ row }">
+        <span class="font-medium text-gray-900 dark:text-white">{{ row.original.documentName }}</span>
+      </template>
+      <template #description-cell="{ row }">
+        <div class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300">
+          {{ row.original.description || '-' }}
+        </div>
+      </template>
+      <template #requiredDate-cell="{ row }">
+        <UBadge color="warning" variant="subtle" size="md" class="font-semibold">
+          <UIcon name="i-heroicons-calendar" class="w-3.5 h-3.5 mr-1" />
+          {{ formatDate(row.original.requiredDate) }}
+        </UBadge>
+      </template>
+      <template #file-cell="{ row }">
+        <UButton
+          v-if="row.original.file || row.original.fileName"
+          icon="i-heroicons-document-arrow-down"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="store.downloadDocumentFile(row.original)"
+        >
+          {{ row.original.file?.name || row.original.fileName }}
+        </UButton>
+        <span v-else class="text-gray-400 text-sm">-</span>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center gap-1 justify-center">
+          <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" @click="store.viewDocument(row.original)" />
+          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editDocument(row.original)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteDocument(row.index)" />
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Document Modal -->
-    <Teleport to="body">
-      <div v-if="store.showDocumentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingDocument ? t('auditFieldwork.document.modalEdit') : t('auditFieldwork.document.modalAdd') }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="() => { store.showDocumentModal = false }" />
-            </div>
-          </template>
-
-          <UForm @submit.prevent="store.saveDocument()" class="space-y-4">
-            <UFormField :label="t('auditFieldwork.document.name')" required>
-              <UInput v-model="store.documentForm.documentName" :placeholder="t('auditFieldwork.document.namePlaceholder')" class="w-full" required />
-            </UFormField>
-
-            <UFormField :label="t('auditFieldwork.document.description')" required>
-              <UTextarea v-model="store.documentForm.description" :placeholder="t('auditFieldwork.document.descriptionPlaceholder')" class="w-full" required />
-            </UFormField>
-
-            <UFormField :label="t('auditFieldwork.document.requiredDate')" required>
-              <UInput v-model="store.documentForm.requiredDate" type="date" class="w-full" required />
-            </UFormField>
-          
-            <UFormField :label="t('auditFieldwork.document.uploadFile')">
-              <UInput
-                type="file"
-                icon="i-heroicons-paper-clip"
-                @change="store.handleDocumentFileChange"
-                accept=".pdf,.docx,.doc,.xlsx,.xls"
-                class="w-full"
-              />
-              <div v-if="store.documentForm.file" class="mt-2 flex items-center gap-2">
-                <UIcon name="i-heroicons-document" />
-                <span class="font-bold text-sm">{{ store.documentForm.file.name }}</span>
-              </div>
-            </UFormField>
-          </UForm>
-
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showDocumentModal = false }" />
-              <UButton color="primary" :label="store.isEditingDocument ? t('common.edit') : t('common.submit')" @click="store.saveDocument()" />
-            </div>
-          </template>
-        </UCard>
-      </div>
-    </Teleport>
+    <AuditFieldworkDocumentModal />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
-import { computed } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
+import { formatDate } from '~/utils/dateConverter'
+import AuditFieldworkDocumentModal from '~/components/audit-fieldwork/AuditFieldworkDocumentModal.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
 
 const columns = computed(() => [
-  { accessorKey: 'documentName', header: t('auditFieldwork.document.columns.name') },
-  { accessorKey: 'description', header: t('auditFieldwork.document.columns.description') },
-  { accessorKey: 'requiredDate', header: t('auditFieldwork.document.columns.requiredDate') },
-  { accessorKey: 'file', header: t('auditFieldwork.document.columns.file') },
-  { accessorKey: 'actions', header: t('auditFieldwork.document.columns.actions') }
+  { key: 'documentName', accessorKey: 'documentName', header: t('auditFieldwork.document.columns.name'), class: 'w-56 min-w-[180px]' },
+  { key: 'description', accessorKey: 'description', header: t('auditFieldwork.document.columns.description'), class: 'max-w-[300px] whitespace-normal break-words' },
+  { key: 'requiredDate', accessorKey: 'requiredDate', header: t('auditFieldwork.document.columns.requiredDate'), class: 'w-40 min-w-[130px] whitespace-nowrap' },
+  { key: 'file', accessorKey: 'file', header: t('auditFieldwork.document.columns.file'), class: 'w-48 min-w-[100px]' },
+  { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.document.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
 </script>

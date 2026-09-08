@@ -3,8 +3,11 @@ import { ref, computed } from 'vue';
 import type { TableColumn } from '@nuxt/ui'
 import { type ActivityPlan, type ActivityPlanFormState, AuditCategory, AuditDepartment } from '~/types/audit';
 import { RiskLevel } from '~/types/risk';
+import { formatPeriod } from '~/utils/dateConverter';
+import { useI18n } from '~/composables/useI18n';
 
 export const useActivityPlanStore = defineStore('activity-plan', () => {
+  const { t, locale } = useI18n();
   const isModalOpen = ref(false);
   const isViewModalOpen = ref(false);
   const isEditMode = ref(false);
@@ -78,7 +81,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   const filteredPlans = computed(() => {
     return plans.value.map(plan => ({
       ...plan,
-      period: `${plan.planPeriodStart} - ${plan.planPeriodEnd}`,
+      period: formatPeriod(plan.planPeriodStart, plan.planPeriodEnd, locale.value),
       totalActivity: (plan.plannedActivities || []).length,
       totalAuditor: (plan.resourceAuditors || []).length,
       budgetEstimation: plan.budget?.totalEstimatedCost || 0,
@@ -86,15 +89,14 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     }));
   });
 
-  const columns: TableColumn<ActivityPlan>[] = [
-    { accessorKey: 'planTitle', header: 'Title' },
-    { accessorKey: 'planYear', header: 'Year' },
-    { accessorKey: 'period', header: 'Period' },
-    { accessorKey: 'department', header: 'Department/Unit' },
-    { accessorKey: 'riskName', header: 'Risk Name' },
-    { accessorKey: 'riskLevel', header: 'Risk Level' },
-    { accessorKey: 'attachments', header: 'Attachment' },
-    { accessorKey: 'actions', header: 'Actions' }
+  const columns: (TableColumn<ActivityPlan> & { class?: string })[] = [
+    { accessorKey: 'planTitle', header: 'Title', class: 'max-w-[280px] whitespace-normal break-words font-medium' },
+    { accessorKey: 'period', header: 'Period', class: 'min-w-[220px] whitespace-nowrap' },
+    { accessorKey: 'department', header: 'Department/Unit', class: 'w-36' },
+    { accessorKey: 'riskName', header: 'Risk Name', class: 'w-48' },
+    { accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'attachments', header: 'Attachment', class: 'w-28 whitespace-nowrap text-center' },
+    { accessorKey: 'actions', header: 'Actions', class: 'w-28 whitespace-nowrap text-center' }
   ]
 
   const fetchPlans = async () => {

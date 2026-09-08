@@ -10,6 +10,10 @@ const defaultProxyTarget = isProd ? "http://kong:8080/api/v1/**" : "http://local
 const defaultAnalyticsProxyTarget = isProd ? "http://kong:8080/api/analytics/**" : "http://localhost:8080/api/analytics/**";
 
 export default defineNuxtConfig({
+  components: [
+    { path: '~/components/shared', pathPrefix: false },
+    '~/components',
+  ],
   devtools: {
     enabled: false,
   },
@@ -36,6 +40,9 @@ export default defineNuxtConfig({
   routeRules: {
     "/**": {
       ssr: false,
+      headers: {
+        "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet"
+      }
     },
     "/api/v1/**": {
       proxy: process.env.API_BASE_URL_SERVER || defaultProxyTarget
@@ -70,6 +77,9 @@ export default defineNuxtConfig({
           name: "description",
           content: "Enterprise Risk Management and Internal Audit System",
         },
+        { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
+        { name: "googlebot", content: "noindex, nofollow, noarchive, nosnippet" },
+        { name: "bingbot", content: "noindex, nofollow, noarchive, nosnippet" },
       ],
       link: [
         { rel: "icon", type: "image/png", href: "/favicon.png" },

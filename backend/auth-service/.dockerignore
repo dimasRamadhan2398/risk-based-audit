@@ -6,8 +6,6 @@
 *.dylib
 *.test
 *.out
-auth
-auth-service
 
 # Archives
 *.tar.gz

@@ -159,7 +159,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       id: '4',
       type: QAType.REGULAR,
       period: 'Q2 2025',
-      reportName: 'Operational Efficiency Q2',
+      reportName: 'Penilaian Periodik Kualitas Internal Audit',
       result: '8.3/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q2'
@@ -168,7 +168,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       id: '5',
       type: QAType.REGULAR,
       period: 'Q1 2025',
-      reportName: 'Operational Efficiency Q1',
+      reportName: 'Penilaian Reguler Kualitas Internal Audit',
       result: '6.9/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q1'

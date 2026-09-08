@@ -2,7 +2,7 @@
   <div>
     <!-- Empty State -->
     <div
-      v-if="store.sops.length === 0"
+      v-if="!store.loading && store.sops.length === 0"
       class="flex flex-col items-center justify-center p-12 bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl text-center space-y-6 shadow-sm my-4"
     >
       <div class="w-16 h-16 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary-500">
@@ -15,6 +15,7 @@
         </p>
       </div>
       <UButton
+        v-if="canManageCharter"
         label="Tambah Petunjuk Teknis / SOP"
         @click="openAddModal"
         color="primary"
@@ -32,6 +33,7 @@
           <p class="text-sm text-gray-500">Daftar seluruh Petunjuk Teknis dan Standar Operasional Prosedur pelaksanaan audit</p>
         </div>
         <UButton
+          v-if="canManageCharter"
           label="Tambah SOP / Juknis"
           @click="openAddModal"
           color="primary"
@@ -39,75 +41,93 @@
         />
       </div>
 
-      <UCard class="relative overflow-hidden" variant="soft">
-        <UTable
-          :data="tableData"
-          :columns="columns"
-          class="w-full text-sm text-left"
-        >
-          <!-- Parent Guideline Name slot -->
-          <template #guideline_name-cell="{ row }">
-            <span class="text-gray-800 font-semibold">
-              {{ row.original.guideline?.name || '-' }}
-            </span>
-          </template>
+      <TableEntities
+        :data="tableData"
+        :columns="columns"
+        :loading="store.loading"
+        :server-side="true"
+        :total="store.pagination.total"
+        :items-per-page="store.pagination.page_size"
+        :page="store.pagination.page"
+        :empty-state="{
+          icon: 'i-lucide-file-text',
+          label: 'Belum ada petunjuk teknis / SOP'
+        }"
+        class="w-full"
+        @update:page="(p) => store.fetchSops(p)"
+        @update:items-per-page="(size) => store.setPageSize(size)"
+      >
+        <!-- No slot -->
+        <template #no-cell="{ row }">
+          <span class="font-medium text-[var(--text-muted)]">{{ row.original.no }}</span>
+        </template>
 
-          <!-- Status slot -->
-          <template #status-cell="{ row }">
-            <UBadge
-              :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
-              variant="subtle"
-              class="rounded font-semibold"
-            >
-              {{ row.original.status }}
-            </UBadge>
-          </template>
+        <!-- Name slot -->
+        <template #name-cell="{ row }">
+          <ReadMoreText
+            :text="row.original.name"
+            :max-length="60"
+            text-class="font-semibold text-[var(--text-main)]"
+          />
+        </template>
 
-          <!-- Effective date slot -->
-          <template #effective_date-cell="{ row }">
-            <span class="font-medium text-gray-800">{{
-              formatMonthYearIndonesian(row.original.effective_date)
-            }}</span>
-          </template>
+        <!-- Parent Guideline Name slot -->
+        <template #guideline_name-cell="{ row }">
+          <ReadMoreText
+            :text="row.original.guideline?.name || '-'"
+            :max-length="50"
+            text-class="text-[var(--text-main)] font-medium"
+          />
+        </template>
 
-          <!-- File / View Dokumen slot -->
-          <template #file_name-cell="{ row }">
+        <!-- Status slot -->
+        <template #status-cell="{ row }">
+          <UBadge
+            :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
+            variant="subtle"
+            class="rounded font-semibold"
+          >
+            {{ row.original.status }}
+          </UBadge>
+        </template>
+
+        <!-- Effective date slot -->
+        <template #effective_date-cell="{ row }">
+          <span class="font-medium text-[var(--text-main)]">{{
+            formatMonthYearIndonesian(row.original.effective_date)
+          }}</span>
+        </template>
+
+        <!-- Actions slot -->
+        <template #actions-cell="{ row }">
+          <div class="flex justify-end gap-1">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
-              :to="row.original.file_url"
-              target="_blank"
-              icon="i-lucide-external-link"
+              icon="i-lucide-eye"
               color="primary"
-              variant="link"
-              size="sm"
-              class="p-0 font-bold"
-            >
-              View Dokumen
-            </UButton>
-            <span v-else class="text-gray-400 italic">No File</span>
-          </template>
-
-          <!-- Actions slot -->
-          <template #actions-cell="{ row }">
-            <div class="flex justify-end gap-2">
-              <UButton
-                size="sm"
-                color="primary"
-                variant="outline"
-                icon="i-lucide-edit"
-                @click="store.handleEdit(row.original)"
-              />
-              <UButton
-                size="sm"
-                color="error"
-                variant="outline"
-                icon="i-lucide-trash"
-                @click="confirmDelete(row.original)"
-              />
-            </div>
-          </template>
-        </UTable>
-      </UCard>
+              variant="ghost"
+              size="md"
+              @click="openFile(row.original.file_url)"
+            />
+            <UButton
+              v-if="canManageCharter"
+              size="md"
+              color="primary"
+              variant="ghost"
+              icon="i-lucide-edit"
+              @click="store.handleEdit(row.original)"
+            />
+            <UButton
+              v-if="canManageCharter"
+              size="md"
+              color="error"
+              variant="ghost"
+              icon="i-lucide-trash-2"
+              @click="confirmDelete(row.original)"
+            />
+          </div>
+        </template>
+      </TableEntities>
     </div>
   </div>
 </template>
@@ -116,9 +136,13 @@
 import { computed, onMounted } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useRbac } from '~/composables/useRbac'
+import TableEntities from '~/components/shared/TableEntities.vue'
+import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
+const { canManageCharter } = useRbac()
 
 const columns = [
   { accessorKey: 'no', header: 'No' },
@@ -126,14 +150,13 @@ const columns = [
   { accessorKey: 'guideline_name', header: 'Nama Pedoman' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'effective_date', header: 'Mulai Berlaku' },
-  { accessorKey: 'file_name', header: 'View Dokumen' },
   { accessorKey: 'actions', header: '' }
 ]
 
 const tableData = computed(() => {
   return store.sops.map((item, index) => ({
     ...item,
-    no: index + 1
+    no: (store.pagination.page - 1) * store.pagination.page_size + index + 1
   }))
 })
 
@@ -156,6 +179,18 @@ const formatMonthYearIndonesian = (val: string) => {
 const openAddModal = async () => {
   await guidelineStore.fetchGuidelines()
   store.showModal = true
+}
+
+const openFile = (fileUrl: string) => {
+  if (!fileUrl || fileUrl === '#') return
+  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+    window.open(fileUrl, '_blank')
+    return
+  }
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  const finalUrl = fileUrl.startsWith('/') ? `${baseUrl.replace(/\/api\/v1$/, '')}${fileUrl}` : `${baseUrl}/${fileUrl}`
+  window.open(finalUrl, '_blank')
 }
 
 const confirmDelete = async (item: any) => {

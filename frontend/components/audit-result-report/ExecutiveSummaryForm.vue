@@ -456,8 +456,7 @@
               </UFormField>
 
               <UFormField label="Tanggal TTD" required>
-                <UInput
-                  type="date"
+                <AppDatePicker
                   v-model="store.form.signatureTanggal"
                   :disabled="isLocked"
                 />
@@ -610,8 +609,8 @@
                     <td class="p-1">
                       <UTextarea v-model="row.rekomendasi" size="md" placeholder="Tindakan korektif..." :rows="1" :disabled="isLocked" />
                     </td>
-                    <td class="p-1">
-                      <UInput type="date" v-model="row.dueDate" size="md" :disabled="isLocked" />
+                    <td class="p-1 min-w-36">
+                      <AppDatePicker v-model="row.dueDate" size="md" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
                       <UInput v-model="row.picUnit" size="md" placeholder="Manager O&M" :disabled="isLocked" />

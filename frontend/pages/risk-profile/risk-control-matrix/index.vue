@@ -3,44 +3,40 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
-          <NuxtLink to="/risk-profile" class="hover:text-primary-600 transition-colors">Risk Profile</NuxtLink>
+        <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
+          <NuxtLink to="/risk-profile" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Risk Profile</NuxtLink>
           <span>/</span>
-          <span class="text-slate-800 font-medium">Risk Control Matrix</span>
+          <span class="text-slate-800 dark:text-slate-200 font-medium">Risk Control Matrix</span>
         </div>
-        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
           Risk Control Matrix (RCM)
         </h1>
-        <p class="text-sm text-slate-500 mt-1">
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Pengukuran efektivitas internal control berbasis 5 dimensi COSO 2013 & evaluasi risiko terintegrasi.
         </p>
       </div>
 
       <!-- Actions / Filters -->
-      <div class="flex flex-wrap items-center gap-3">
-        <select
+      <div class="flex flex-wrap items-center justify-end gap-3">
+        <USelect
           v-model="rcmStore.selectedYear"
-          class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option :value="2026">Tahun 2026</option>
-          <option :value="2025">Tahun 2025</option>
-          <option :value="2024">Tahun 2024</option>
-        </select>
+          :items="yearOptions"
+          value-key="value"
+          size="md"
+          class="w-36"
+        />
 
-        <select
+        <USelect
           v-model="rcmStore.selectedDepartment"
-          class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option value="All Departments">Semua Departemen / Branch</option>
-          <option value="Head Office">Head Office</option>
-          <option value="Jakarta Branch">Jakarta Branch</option>
-          <option value="Surabaya Branch">Surabaya Branch</option>
-          <option value="Bandung Branch">Bandung Branch</option>
-          <option value="Bali Branch">Bali Branch</option>
-        </select>
+          :items="departmentOptions"
+          value-key="value"
+          size="md"
+          class="w-64"
+        />
 
         <UButton
           color="primary"
+          variant="solid"
           class="font-medium shadow-sm"
           @click="openAddModal"
         >
@@ -54,26 +50,25 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <!-- Card 1: Yearly Internal Control Effectiveness (2 Cols) -->
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="text-md font-semibold uppercase tracking-wider text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
-              
+              <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
             </div>
-            <span class="text-md font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
+            <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700">
               Tahun: {{ rcmStore.selectedYear }} | Dep: {{ rcmStore.selectedDepartment }}
             </span>
           </div>
-          <h2 class="text-xl font-bold text-slate-900 mt-1">Internal Control Effectiveness</h2>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Internal Control Effectiveness</h2>
         </div>
 
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 rounded-xl p-4 border border-slate-100">
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60">
           <!-- Big Score % -->
-          <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 pb-3 md:pb-0 md:pr-4">
-            <span class="text-md text-slate-500 font-medium">Real Effectiveness Score</span>
+          <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
+            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Real Effectiveness Score</span>
             <div class="flex items-baseline gap-2 mt-1">
-              <span class="text-4xl font-extrabold tracking-tight text-slate-900">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 {{ rcmStore.internalControlEffectiveness }}%
               </span>
             </div>
@@ -86,54 +81,54 @@
 
           <!-- Synchronized Risk Counts & Interpretation -->
           <div class="md:col-span-2 flex flex-col justify-center space-y-2">
-            <div class="flex items-center justify-between text-md">
-              <span class="text-slate-600 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
-              <span class="font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
+              <span class="font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                 {{ rcmStore.totalInherentRisk }} Risiko
               </span>
             </div>
-            <div class="flex items-center justify-between text-md">
-              <span class="text-slate-600 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
-              <span class="font-bold text-red-600 bg-white px-2 py-0.5 rounded border border-slate-200">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
+              <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                 {{ rcmStore.totalResidualRisk }} Risiko
               </span>
             </div>
-            <div class="p-2.5 rounded-lg text-md" :class="rcmStore.effectivenessRating.bgClass">
-              <div class="font-bold flex items-center gap-1.5">
-                <UIcon name="i-lucide-info" class="size-3.5" />
-                Interpretasi Hasil COSO:
-              </div>
-              <p class="mt-0.5 leading-relaxed">{{ rcmStore.effectivenessRating.interpretation }}</p>
-            </div>
+            <UAlert
+              :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
+              variant="subtle"
+              icon="i-lucide-info"
+              :title="'Interpretasi Hasil COSO (' + rcmStore.effectivenessRating.rating + '):'"
+              :description="rcmStore.effectivenessRating.interpretation"
+              class="rounded-xl shadow-xs border-none! bg-transparent! border-transparent!"
+            />
           </div>
         </div>
 
-        <div class="mt-3 text-md text-slate-400 flex items-center gap-1">
-          <UIcon name="i-lucide-check-circle-2" class="size-3.5 text-emerald-500" />
+        <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-4">
+          <UIcon name="i-lucide-check-circle-2" class="size-10 text-emerald-500" />
           <span>Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile.</span>
         </div>
       </div>
 
       <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-900">Rata-Rata COSO 2013</h3>
-            <span class="text-md font-bold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-full border border-primary-100">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO 2013</h3>
+            <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800">
               {{ rcmStore.cosoAverages.totalWeighted }}%
             </span>
           </div>
-          <p class="text-md text-slate-500 mt-0.5">Rata-Rata Bobot 5 Dimensi Kontrol</p>
 
           <div class="mt-4 space-y-3">
             <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
               <div class="flex justify-between text-md">
-                <span class="font-medium text-slate-700">{{ dim.shortLabel }}</span>
-                <span class="font-bold text-slate-900">{{ getDimAverage(dim.key) }}%</span>
+                <span class="font-medium text-slate-700 dark:text-slate-300">{{ dim.shortLabel }}</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
               </div>
-              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                 <div
-                  class="bg-primary-600 h-full rounded-full transition-all duration-300"
+                  class="bg-primary-600 dark:bg-primary-500 h-full rounded-full transition-all duration-300"
                   :style="{ width: `${getDimAverage(dim.key)}%` }"
                 ></div>
               </div>
@@ -141,71 +136,71 @@
           </div>
         </div>
 
-        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-md text-slate-500">
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-md text-slate-500 dark:text-slate-400">
           <span>Total Kontrol Dievaluasi:</span>
-          <span class="font-bold text-slate-900">{{ rcmStore.filteredRCMList.length }} Item</span>
+          <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.filteredRCMList.length }} Item</span>
         </div>
       </div>
     </div>
 
     <!-- Collapsible Standard Interpretation Table Reference -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <button
-        class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+        class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
         @click="showRatingTable = !showRatingTable"
       >
         <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-book-open" class="size-5 text-primary-600" />
-          <span class="font-bold text-slate-900 text-sm md:text-base">Tabel Standar Interpretasi Rating Efektivitas Kontrol Internal</span>
+          <UIcon name="i-lucide-book-open" class="size-5 text-primary-600 dark:text-primary-400" />
+          <span class="font-bold text-slate-900 dark:text-white text-sm md:text-base">Tabel Standar Interpretasi Rating Efektivitas Kontrol Internal</span>
         </div>
-        <UIcon :name="showRatingTable ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5 text-slate-400" />
+        <UIcon :name="showRatingTable ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5 text-slate-400 dark:text-slate-500" />
       </button>
 
-      <div v-if="showRatingTable" class="px-6 pb-6 border-t border-slate-100 pt-4">
+      <div v-if="showRatingTable" class="px-6 pb-6 border-t border-slate-100 dark:border-slate-800 pt-4">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-md border-collapse">
             <thead>
-              <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold">
+              <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold">
                 <th class="py-2.5 px-4 rounded-l-lg whitespace-nowrap">Total Weighted Score (%)</th>
                 <th class="py-2.5 px-4 whitespace-nowrap">Rating</th>
                 <th class="py-2.5 px-4 rounded-r-lg">Interpretation</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-emerald-600 whitespace-nowrap">90 – 100%</td>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">90 – 100%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Highly Effective</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Controls reliably mitigate risk and require only routine monitoring.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls reliably mitigate risk and require only routine monitoring.</td>
               </tr>
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-sky-600 whitespace-nowrap">80 – 89%</td>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-sky-600 dark:text-sky-400 whitespace-nowrap">80 – 89%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Effective</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Controls function well; only minor improvements are recommended.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls function well; only minor improvements are recommended.</td>
               </tr>
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-amber-600 whitespace-nowrap">70 – 79%</td>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">70 – 79%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Moderately Effective</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Some weaknesses exist; corrective actions should be planned.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Some weaknesses exist; corrective actions should be planned.</td>
               </tr>
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-orange-600 whitespace-nowrap">60 – 69%</td>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-orange-600 dark:text-orange-400 whitespace-nowrap">60 – 69%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Weak</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Significant improvements are needed to reduce risk adequately.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Significant improvements are needed to reduce risk adequately.</td>
               </tr>
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-2.5 px-4 font-bold text-red-600 whitespace-nowrap">&lt; 60%</td>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                <td class="py-2.5 px-4 font-bold text-red-600 dark:text-red-400 whitespace-nowrap">&lt; 60%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
                   <span class="bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Ineffective</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600">Controls do not provide sufficient risk mitigation and require immediate attention.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls do not provide sufficient risk mitigation and require immediate attention.</td>
               </tr>
             </tbody>
           </table>
@@ -214,291 +209,421 @@
     </div>
 
     <!-- Main Risk Control Matrix Table -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-6 space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h3 class="text-lg font-bold text-slate-900">Daftar Risk Control Matrix</h3>
-          <p class="text-md text-slate-500">Hasil evaluasi 5 Dimensi COSO 2013 (Rating 1 - 5 mewakili 4% - 20% per dimensi)</p>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Daftar Risk Control Matrix</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Hasil evaluasi 5 Dimensi COSO 2013 (Rating 1 - 5 mewakili 4% - 20% per dimensi)</p>
         </div>
         <div class="relative w-full md:w-64">
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Cari risiko / kontrol..."
-            class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-1.5 text-md text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-sm text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
-          <UIcon name="i-lucide-search" class="absolute left-3 top-2.5 size-3.5 text-slate-400" />
+          <UIcon name="i-lucide-search" class="absolute left-3 top-2.5 size-3.5 text-slate-400 dark:text-slate-500" />
         </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-md border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold tracking-wider">
-              <th class="py-3 px-4">Kode / Risiko</th>
-              <th class="py-3 px-4">Risk Control ID & Deskripsi Mitigasi</th>
-              <th class="py-3 px-4">Departemen / PIC</th>
-              <th class="py-3 px-3 text-center" title="Design Effectiveness (20%)">Design (1-5)</th>
-              <th class="py-3 px-3 text-center" title="Operating Effectiveness (20%)">Operating (1-5)</th>
-              <th class="py-3 px-3 text-center" title="Coverage & Completeness (20%)">Coverage (1-5)</th>
-              <th class="py-3 px-3 text-center" title="Timeliness (20%)">Timeliness (1-5)</th>
-              <th class="py-3 px-3 text-center" title="Automation & Monitoring (20%)">Automation (1-5)</th>
-              <th class="py-3 px-4 text-center">Total Score</th>
-              <th class="py-3 px-4 text-center">Rating Efektivitas</th>
-              <th class="py-3 px-4 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr
-              v-for="item in filteredList"
-              :key="item.id"
-              class="hover:bg-slate-50/70 transition-colors"
-            >
-              <!-- Risk Code & Event -->
-              <td class="py-3 px-4 align-top">
-                <span class="inline-block px-2 py-0.5 bg-primary-50 text-primary-700 font-bold rounded text-md mb-1">
-                  {{ item.risk_code }}
-                </span>
-                <p class="font-medium text-slate-900 max-w-[200px] leading-snug line-clamp-2" :title="item.risk_event">
-                  {{ item.risk_event }}
-                </p>
-              </td>
+      <TableEntities
+        :data="filteredList"
+        :columns="rcmStore.columns"
+        :items-per-page="10"
+        :empty-state="{
+          icon: 'i-lucide-shield-alert',
+          label: 'Tidak ada data Risk Control Matrix',
+          description: 'Tidak ada data Risk Control Matrix yang sesuai dengan filter.'
+        }"
+      >
+        <!-- Risk Code & Event -->
+        <template #risk_code-cell="{ row }">
+          <div class="max-w-[280px] min-w-[220px] whitespace-normal break-words space-y-1">
+            <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded text-xs">
+              {{ row.original.risk_code }}
+            </span>
+            <p class="font-medium text-slate-900 dark:text-white text-sm leading-snug break-words" :title="row.original.risk_event">
+              {{ row.original.risk_event }}
+            </p>
+          </div>
+        </template>
 
-              <!-- Control Code (Risk Control ID) & Description -->
-              <td class="py-3 px-4 align-top">
-                <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-800 font-extrabold rounded text-md mb-1 border border-slate-200">
-                  {{ item.control_code }}
-                </span>
-                <p class="text-slate-600 max-w-[240px] leading-relaxed line-clamp-2" :title="item.control_description">
-                  {{ item.control_description }}
-                </p>
-              </td>
+        <!-- Control Code & Description -->
+        <template #control_code-cell="{ row }">
+          <div class="max-w-[280px] min-w-[220px] whitespace-normal break-words space-y-1">
+            <span class="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded text-xs border border-slate-200 dark:border-slate-700">
+              {{ row.original.control_code }}
+            </span>
+            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed break-words" :title="row.original.control_description">
+              {{ row.original.control_description }}
+            </p>
+          </div>
+        </template>
 
-              <!-- Department & PIC -->
-              <td class="py-3 px-4 align-top">
-                <p class="text-md text-slate-800 font-semibold mb-0.5">{{ item.department }}</p>
-                <p class="text-md text-slate-500">PIC: <strong class="text-slate-700">{{ item.control_owner }}</strong></p>
-              </td>
+        <!-- Department & PIC -->
+        <template #department-cell="{ row }">
+          <div class="min-w-[140px] whitespace-normal break-words">
+            <p class="text-sm text-slate-800 dark:text-slate-100 font-semibold mb-0.5">{{ row.original.department }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">PIC: <strong class="text-slate-700 dark:text-slate-200">{{ row.original.control_owner }}</strong></p>
+          </div>
+        </template>
 
-              <!-- COSO Ratings 1-5 -->
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.design_effectiveness_rating * 4}%`">
-                  {{ item.design_effectiveness_rating }}
-                </span>
-              </td>
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.operating_effectiveness_rating * 4}%`">
-                  {{ item.operating_effectiveness_rating }}
-                </span>
-              </td>
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.coverage_completeness_rating * 4}%`">
-                  {{ item.coverage_completeness_rating }}
-                </span>
-              </td>
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.timeliness_rating * 4}%`">
-                  {{ item.timeliness_rating }}
-                </span>
-              </td>
-              <td class="py-3 px-3 text-center align-middle font-bold text-slate-700">
-                <span class="px-2 py-1 rounded bg-slate-100" :title="`${item.automation_monitoring_rating * 4}%`">
-                  {{ item.automation_monitoring_rating }}
-                </span>
-              </td>
+        <!-- Design Rating (1-5) -->
+        <template #design_effectiveness_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.design_effectiveness_rating * 4}%`">
+              {{ row.original.design_effectiveness_rating }}
+            </span>
+          </div>
+        </template>
 
-              <!-- Total Score (%) -->
-              <td class="py-3 px-4 text-center align-middle">
-                <span class="text-sm font-extrabold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-lg border border-primary-100">
-                  {{ item.total_weighted_score }}%
-                </span>
-              </td>
+        <!-- Operating Rating (1-5) -->
+        <template #operating_effectiveness_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.operating_effectiveness_rating * 4}%`">
+              {{ row.original.operating_effectiveness_rating }}
+            </span>
+          </div>
+        </template>
 
-              <!-- Rating Efektivitas Column (With Distinct Color Badges) -->
-              <td class="py-3 px-4 text-center align-middle whitespace-nowrap">
-                <span :class="getRatingBadgeClass(getItemRating(item.total_weighted_score).rating)">
-                  {{ getItemRating(item.total_weighted_score).rating }}
-                </span>
-              </td>
+        <!-- Coverage Rating (1-5) -->
+        <template #coverage_completeness_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.coverage_completeness_rating * 4}%`">
+              {{ row.original.coverage_completeness_rating }}
+            </span>
+          </div>
+        </template>
 
-              <!-- Actions -->
-              <td class="py-3 px-4 text-right align-middle">
-                <div class="flex items-center justify-end gap-1">
-                  <button
-                    class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    title="Edit Control"
-                    @click="openEditModal(item)"
-                  >
-                    <UIcon name="i-lucide-edit-3" class="size-4" />
-                  </button>
-                  <button
-                    class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Hapus Control"
-                    @click="confirmDelete(item.id)"
-                  >
-                    <UIcon name="i-lucide-trash-2" class="size-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
+        <!-- Timeliness Rating (1-5) -->
+        <template #timeliness_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.timeliness_rating * 4}%`">
+              {{ row.original.timeliness_rating }}
+            </span>
+          </div>
+        </template>
 
-            <tr v-if="filteredList.length === 0">
-              <td colspan="11" class="py-8 text-center text-slate-400">
-                Tidak ada data Risk Control Matrix yang sesuai dengan filter.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <!-- Automation Rating (1-5) -->
+        <template #automation_monitoring_rating-cell="{ row }">
+          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.automation_monitoring_rating * 4}%`">
+              {{ row.original.automation_monitoring_rating }}
+            </span>
+          </div>
+        </template>
+
+        <!-- Total Score (%) -->
+        <template #total_weighted_score-cell="{ row }">
+          <div class="text-center">
+            <span class="text-xs font-extrabold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-lg border border-primary-100 dark:border-primary-800 inline-block">
+              {{ row.original.total_weighted_score }}%
+            </span>
+          </div>
+        </template>
+
+        <!-- Rating Efektivitas Column -->
+        <template #rating-cell="{ row }">
+          <div class="text-center whitespace-nowrap">
+            <span :class="getRatingBadgeClass(getItemRating(row.original.total_weighted_score).rating)">
+              {{ getItemRating(row.original.total_weighted_score).rating }}
+            </span>
+          </div>
+        </template>
+
+        <!-- Actions -->
+        <template #actions-cell="{ row }">
+          <div class="flex items-center justify-end gap-1">
+            <UButton
+              icon="i-lucide-edit-3"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              title="Edit Control"
+              @click="openEditModal(row.original)"
+            />
+            <UButton
+              icon="i-lucide-trash-2"
+              color="error"
+              variant="ghost"
+              size="xs"
+              title="Hapus Control"
+              @click="confirmDelete(row.original.id)"
+            />
+          </div>
+        </template>
+      </TableEntities>
     </div>
 
     <!-- Add / Edit Modal -->
     <UModal v-model:open="isModalOpen" title="Manage Risk Control Matrix">
       <template #content>
-        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto">
-          <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-2">
+        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
             {{ isEditMode ? 'Edit Risk Control Matrix' : 'Tambah Risk Control Matrix Baru' }}
           </h3>
 
-          <!-- Synchronized Risk Dropdown from Corporate Risk Profile -->
-          <div>
-            <label class="block text-md font-semibold text-slate-700 mb-1">Pilih Risiko (Corporate Risk Profile)</label>
-            <select
-              v-model="selectedRiskId"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
-              @change="onRiskSelected"
-            >
-              <option value="">-- Pilih Risiko dari Corporate Risk Profile --</option>
-              <option
-                v-for="r in riskProfileStore.risks"
-                :key="r.id"
-                :value="r.id"
+          <!-- Synchronized Branch and Risk Selection from Corporate Risk Profile -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Branch / Departemen
+              </label>
+              <USelectMenu
+                v-model="selectedBranchInModal"
+                :items="branchModalOptions"
+                value-key="value"
+                size="md"
+                class="w-full"
+                placeholder="Pilih Branch..."
+                @update:model-value="onBranchModalChange"
+              />
+            </div>
+
+            <div>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Pilih Nama Risiko (Corporate Risk Profile)
+              </label>
+              <USelectMenu
+                v-model="selectedRiskId"
+                :items="riskOptionsForModal"
+                value-key="value"
+                size="md"
+                class="w-full"
+                placeholder="Pilih Nama Risiko..."
+                @update:model-value="onRiskSelected"
               >
-                {{ riskProfileStore.getFormattedId(r) }} - {{ r.name }} ({{ r.branch || r.category }})
-              </option>
-            </select>
+                <template #item="{ item }">
+                  <div class="flex items-center gap-2 max-w-full w-full py-0.5">
+                    <span class="text-xs font-bold text-primary-600 dark:text-primary-400 shrink-0">[{{ item.code }}]</span>
+                    <span class="truncate text-sm font-medium">{{ item.name }}</span>
+                    <span class="text-xs text-slate-400 shrink-0 ml-auto">({{ item.branch }})</span>
+                  </div>
+                </template>
+              </USelectMenu>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-md font-semibold text-slate-700 mb-1">Kode Risiko (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kode Risiko (Sinkron)</label>
               <input
                 v-model="formData.risk_code"
                 type="text"
                 readonly
-                class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-600 font-bold cursor-not-allowed"
+                class="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-600 dark:text-slate-400 font-bold cursor-not-allowed"
               />
             </div>
             <div>
-              <label class="block text-md font-semibold text-slate-700 mb-1">Departemen / Branch (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Departemen / Branch (Sinkron)</label>
               <input
                 v-model="formData.department"
                 type="text"
                 readonly
-                class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-600 font-medium cursor-not-allowed"
+                class="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-600 dark:text-slate-400 font-medium cursor-not-allowed"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-md font-semibold text-slate-700 mb-1">Kejadian Risiko / Risk Event (Sinkron)</label>
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kejadian Risiko / Risk Event (Sinkron)</label>
             <textarea
               v-model="formData.risk_event"
               rows="2"
               readonly
-              class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-600 font-medium cursor-not-allowed"
+              class="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-600 dark:text-slate-400 font-medium cursor-not-allowed"
             ></textarea>
           </div>
 
           <!-- Synchronized Control & Mitigation Selection from Risk Mitigation Plans & Controls -->
           <div v-if="availableMitigations.length > 0">
-            <label class="block text-md font-semibold text-slate-700 mb-1">Pilih Risk Control ID (Rencana Mitigasi & Kontrol)</label>
-            <select
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Pilih Risk Control ID (Rencana Mitigasi & Kontrol)
+            </label>
+            <USelectMenu
               v-model="selectedMitigationId"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
-              @change="onControlSelected"
-            >
-              <option value="">-- Pilih Risk Control ID --</option>
-              <option
-                v-for="m in availableMitigations"
-                :key="m.id"
-                :value="m.id"
-              >
-                {{ m.riskControlId || 'CTL-001' }} - {{ m.mitigationPlan }} (PIC: {{ m.pic }})
-              </option>
-            </select>
+              :items="mitigationOptionsForModal"
+              value-key="value"
+              size="md"
+              class="w-full"
+              placeholder="Pilih Risk Control ID..."
+              @update:model-value="onControlSelected"
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-md font-semibold text-slate-700 mb-1">Kode Kontrol (Risk Control ID)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kode Kontrol (Risk Control ID)</label>
               <input
                 v-model="formData.control_code"
                 type="text"
                 placeholder="misal: CTL-FIN-001"
-                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
               />
             </div>
             <div>
-              <label class="block text-md font-semibold text-slate-700 mb-1">PIC / Owner Kontrol (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">PIC / Owner Kontrol (Sinkron)</label>
               <input
                 v-model="formData.control_owner"
                 type="text"
                 placeholder="Finance Manager"
-                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-md font-semibold text-slate-700 mb-1">Deskripsi Kontrol Internal (Dari Risk Mitigation Plans)</label>
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Deskripsi Aktivitas Pengendalian Internal</label>
             <textarea
               v-model="formData.control_description"
-              rows="2"
-              placeholder="Deskripsi kontrol internal / rencana mitigasi..."
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              rows="3"
+              placeholder="Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan..."
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
             ></textarea>
           </div>
 
-          <!-- COSO 2013 5 Dimensions Ratings (1-5 Rating) -->
-          <div class="border-t border-slate-100 pt-4 space-y-3">
+          <!-- 5 Dimensions COSO 2013 Rating System -->
+          <div class="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
             <div class="flex items-center justify-between">
-              <h4 class="text-md font-bold text-slate-900 uppercase tracking-wider">Rating 5 Dimensi COSO 2013</h4>
-              <span class="text-md text-slate-500 font-medium">Pilih Skala 1 - 5</span>
+              <h4 class="font-bold text-slate-900 dark:text-white text-md">Evaluasi 5 Dimensi Internal Control (COSO 2013)</h4>
+              <span class="text-md text-slate-500 dark:text-slate-400">Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)</span>
             </div>
-            
-            <div
-              v-for="dim in cosoDimensions"
-              :key="dim.key"
-              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100"
-            >
-              <div>
-                <span class="text-md font-semibold text-slate-800">{{ dim.label }}</span>
+
+            <!-- Dimensi 1: Design -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">1. Design Effectiveness (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Kesesuaian rancangan kontrol terhadap risiko & SOP</p>
+                </div>
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
+                  {{ (formData.design_effectiveness_rating || 1) * 4 }}%
+                </span>
               </div>
-              <div class="flex items-center gap-1.5">
+              <div class="flex gap-2">
                 <button
-                  v-for="star in 5"
+                  v-for="star in [1, 2, 3, 4, 5]"
                   :key="star"
                   type="button"
-                  class="w-9 h-8 rounded-md font-bold text-md transition-colors flex items-center justify-center shadow-md"
-                  :class="getRatingBtnClass((formData as any)[dim.ratingKey], star)"
-                  @click="(formData as any)[dim.ratingKey] = star"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.design_effectiveness_rating || 1, star)"
+                  @click="formData.design_effectiveness_rating = star"
                 >
-                  {{ star }}
+                  {{ star }} ({{ star * 4 }}%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Dimensi 2: Operating -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">2. Operating Effectiveness (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Konsistensi eksekusi dan ketiadaan deviasi kontrol</p>
+                </div>
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
+                  {{ (formData.operating_effectiveness_rating || 1) * 4 }}%
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-for="star in [1, 2, 3, 4, 5]"
+                  :key="star"
+                  type="button"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.operating_effectiveness_rating || 1, star)"
+                  @click="formData.operating_effectiveness_rating = star"
+                >
+                  {{ star }} ({{ star * 4 }}%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Dimensi 3: Coverage -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">3. Coverage & Completeness (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Cakupan kontrol pada seluruh transaksi/aktivitas</p>
+                </div>
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
+                  {{ (formData.coverage_completeness_rating || 1) * 4 }}%
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-for="star in [1, 2, 3, 4, 5]"
+                  :key="star"
+                  type="button"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.coverage_completeness_rating || 1, star)"
+                  @click="formData.coverage_completeness_rating = star"
+                >
+                  {{ star }} ({{ star * 4 }}%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Dimensi 4: Timeliness -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">4. Timeliness & Frequency (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Ketepatan waktu kontrol mendeteksi / mencegah insiden</p>
+                </div>
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
+                  {{ (formData.timeliness_rating || 1) * 4 }}%
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-for="star in [1, 2, 3, 4, 5]"
+                  :key="star"
+                  type="button"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.timeliness_rating || 1, star)"
+                  @click="formData.timeliness_rating = star"
+                >
+                  {{ star }} ({{ star * 4 }}%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Dimensi 5: Automation -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-800 dark:text-slate-200 text-md">5. Automation & Monitoring (20%)</span>
+                  <p class="text-md text-slate-500 dark:text-slate-400">Tingkat otomatisasi sistemik & continuous monitoring</p>
+                </div>
+                <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-md">
+                  {{ (formData.automation_monitoring_rating || 1) * 4 }}%
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-for="star in [1, 2, 3, 4, 5]"
+                  :key="star"
+                  type="button"
+                  class="flex-1 py-1.5 rounded-lg text-md font-semibold transition-all"
+                  :class="getRatingBtnClass(formData.automation_monitoring_rating || 1, star)"
+                  @click="formData.automation_monitoring_rating = star"
+                >
+                  {{ star }} ({{ star * 4 }}%)
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Total Weighted Score Preview in % & Effectiveness Rating -->
-          <div class="bg-primary-50 p-3 rounded-xl border border-primary-100 flex items-center justify-between">
+          <!-- Total Score Summary in Modal -->
+          <div class="bg-primary-600 dark:bg-primary-700 text-white p-4 rounded-xl shadow-md flex items-center justify-between">
             <div>
-              <span class="text-md font-bold text-primary-900 block mb-1">Total Weighted Score Preview:</span>
-              <span :class="getRatingBadgeClass(getItemRating(calculatedModalScorePercent).rating)">
-                {{ getItemRating(calculatedModalScorePercent).rating }}
-              </span>
+              <span class="text-md font-bold text-white">Total Weighted Effectiveness Score:</span>
+              <p class="text-sm text-primary-100 mt-0.5">
+                Interpretasi: <strong class="text-white font-extrabold">{{ getItemRating(calculatedModalScorePercent).rating }}</strong>
+              </p>
             </div>
-            <span class="text-2xl font-extrabold text-primary-700">{{ calculatedModalScorePercent }}%</span>
+            <span class="text-2xl font-extrabold text-white">{{ calculatedModalScorePercent }}%</span>
           </div>
 
           <!-- Actions -->
@@ -519,6 +644,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, type RCMItem } from '~/stores/rcm'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
+import TableEntities from '~/components/shared/TableEntities.vue'
 import type { RiskMitigation } from '~/types/risk'
 
 definePageMeta({
@@ -535,6 +661,58 @@ const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
+const selectedBranchInModal = ref('All Branches')
+
+const branchModalOptions = [
+  { label: 'Semua Branch / Departemen', value: 'All Branches' },
+  { label: 'Head Office', value: 'Head Office' },
+  { label: 'Jakarta Branch', value: 'Jakarta Branch' },
+  { label: 'Surabaya Branch', value: 'Surabaya Branch' },
+  { label: 'Bandung Branch', value: 'Bandung Branch' },
+  { label: 'Bali Branch', value: 'Bali Branch' }
+]
+
+const riskOptionsForModal = computed(() => {
+  let list = riskProfileStore.risks || []
+  if (selectedBranchInModal.value && selectedBranchInModal.value !== 'All Branches') {
+    list = list.filter(r => (r.branch || r.category || 'Head Office') === selectedBranchInModal.value)
+  }
+  return list.map(r => ({
+    id: String(r.id),
+    value: String(r.id),
+    label: `${riskProfileStore.getFormattedId(r)} - ${r.name}`,
+    code: riskProfileStore.getFormattedId(r),
+    name: r.name,
+    branch: r.branch || r.category || 'Head Office',
+    riskLevel: r.riskLevel
+  }))
+})
+
+const mitigationOptionsForModal = computed(() => {
+  return availableMitigations.value.map(m => ({
+    id: m.id,
+    value: m.id,
+    label: `${m.riskControlId || 'CTL-001'} - ${m.mitigationPlan} (PIC: ${m.pic})`,
+    riskControlId: m.riskControlId,
+    mitigationPlan: m.mitigationPlan,
+    pic: m.pic
+  }))
+})
+
+const yearOptions = [
+  { label: 'Tahun 2026', value: 2026 },
+  { label: 'Tahun 2025', value: 2025 },
+  { label: 'Tahun 2024', value: 2024 }
+]
+
+const departmentOptions = [
+  { label: 'Semua Departemen / Branch', value: 'All Departments' },
+  { label: 'Head Office', value: 'Head Office' },
+  { label: 'Jakarta Branch', value: 'Jakarta Branch' },
+  { label: 'Surabaya Branch', value: 'Surabaya Branch' },
+  { label: 'Bandung Branch', value: 'Bandung Branch' },
+  { label: 'Bali Branch', value: 'Bali Branch' }
+]
 
 const formData = ref<Partial<RCMItem>>({
   risk_id: '',
@@ -602,32 +780,35 @@ const getItemRating = (scorePercent: number) => {
 const getRatingBadgeClass = (ratingLabel: string) => {
   switch (ratingLabel) {
     case 'Highly Effective':
-      return 'bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
     case 'Effective':
-      return 'bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
     case 'Moderately Effective':
-      return 'bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
     case 'Weak':
-      return 'bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
     default:
-      return 'bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md shadow-md whitespace-nowrap inline-block'
+      return 'bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
   }
 }
 
 const getRatingBtnClass = (current: number, star: number) => {
   if (current === star) {
-    return 'bg-primary-600 text-white shadow-sm font-bold border border-primary-700'
+    return 'bg-primary-600 dark:bg-primary-600 text-white shadow-sm font-bold border border-primary-700 dark:border-primary-500'
   }
-  return 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-300'
+  return 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700'
 }
 
 const calculatedModalScorePercent = computed(() => {
   return rcmStore.calculateItemScorePercent(formData.value)
 })
 
-const onRiskSelected = () => {
-  if (!selectedRiskId.value) return
-  const risk = riskProfileStore.getRiskById(selectedRiskId.value)
+const onRiskSelected = (newVal?: any) => {
+  const riskId = typeof newVal === 'object' && newVal !== null ? (newVal.value || newVal.id) : (newVal || selectedRiskId.value)
+  if (!riskId) return
+  selectedRiskId.value = String(riskId)
+
+  const risk = riskProfileStore.getRiskById(riskId)
   if (risk) {
     formData.value.risk_id = String(risk.id)
     formData.value.risk_code = riskProfileStore.getFormattedId(risk)
@@ -638,7 +819,7 @@ const onRiskSelected = () => {
     const firstMit = mits && mits.length > 0 ? mits[0] : undefined
     if (firstMit) {
       selectedMitigationId.value = firstMit.id
-      onControlSelected()
+      onControlSelected(firstMit.id)
     } else {
       selectedMitigationId.value = ''
       formData.value.control_code = 'CTL-' + formData.value.risk_code
@@ -648,10 +829,13 @@ const onRiskSelected = () => {
   }
 }
 
-const onControlSelected = () => {
-  if (!selectedMitigationId.value) return
+const onControlSelected = (newVal?: any) => {
+  const mitId = typeof newVal === 'object' && newVal !== null ? (newVal.value || newVal.id) : (newVal || selectedMitigationId.value)
+  if (!mitId) return
+  selectedMitigationId.value = String(mitId)
+
   const mits = availableMitigations.value
-  const found = mits.find(m => m.id === selectedMitigationId.value)
+  const found = mits.find(m => m.id === mitId)
   if (found) {
     formData.value.control_code = found.riskControlId || ('CTL-' + formData.value.risk_code)
     formData.value.control_description = found.mitigationPlan || found.notes || ''
@@ -659,18 +843,43 @@ const onControlSelected = () => {
   }
 }
 
+const onBranchModalChange = (newBranch?: any) => {
+  const branch = typeof newBranch === 'object' && newBranch !== null ? (newBranch.value || newBranch.label) : (newBranch || selectedBranchInModal.value)
+  selectedBranchInModal.value = branch || 'All Branches'
+  
+  const available = riskOptionsForModal.value
+  if (available.length > 0) {
+    const stillValid = available.some(r => r.value === selectedRiskId.value)
+    if (!stillValid && available[0]) {
+      selectedRiskId.value = available[0].value
+      onRiskSelected(available[0].value)
+    }
+  } else {
+    selectedRiskId.value = ''
+    formData.value.risk_id = ''
+    formData.value.risk_code = ''
+    formData.value.risk_event = ''
+    formData.value.department = selectedBranchInModal.value !== 'All Branches' ? selectedBranchInModal.value : 'Head Office'
+  }
+}
+
 const openAddModal = () => {
   isEditMode.value = false
-  selectedRiskId.value = ''
-  selectedMitigationId.value = ''
   
-  const defaultRisk = riskProfileStore.risks[0]
-  const defaultCode = defaultRisk ? riskProfileStore.getFormattedId(defaultRisk) : 'FIN-001'
-  const defaultEvent = defaultRisk ? defaultRisk.name : 'Target pendapatan dan laba tidak tercapai'
-  const defaultDept = defaultRisk ? (defaultRisk.branch || defaultRisk.category) : 'Head Office'
+  if (rcmStore.selectedDepartment && rcmStore.selectedDepartment !== 'All Departments') {
+    selectedBranchInModal.value = rcmStore.selectedDepartment
+  } else {
+    selectedBranchInModal.value = 'All Branches'
+  }
+
+  const defaultRisks = riskOptionsForModal.value
+  const defaultRiskItem = defaultRisks.length > 0 && defaultRisks[0] ? riskProfileStore.getRiskById(defaultRisks[0].value) : (riskProfileStore.risks && riskProfileStore.risks.length > 0 ? riskProfileStore.risks[0] : undefined)
+  const defaultCode = defaultRiskItem ? riskProfileStore.getFormattedId(defaultRiskItem) : 'FIN-001'
+  const defaultEvent = defaultRiskItem ? defaultRiskItem.name : 'Target pendapatan dan laba tidak tercapai'
+  const defaultDept = defaultRiskItem ? (defaultRiskItem.branch || defaultRiskItem.category || 'Head Office') : 'Head Office'
 
   formData.value = {
-    risk_id: defaultRisk ? String(defaultRisk.id) : '1',
+    risk_id: defaultRiskItem ? String(defaultRiskItem.id) : '1',
     risk_code: defaultCode,
     risk_event: defaultEvent,
     control_code: 'CTL-' + defaultCode,
@@ -691,9 +900,9 @@ const openAddModal = () => {
     notes: ''
   }
 
-  if (defaultRisk) {
-    selectedRiskId.value = String(defaultRisk.id)
-    onRiskSelected()
+  if (defaultRiskItem) {
+    selectedRiskId.value = String(defaultRiskItem.id)
+    onRiskSelected(String(defaultRiskItem.id))
   }
 
   isModalOpen.value = true
@@ -702,6 +911,7 @@ const openAddModal = () => {
 const openEditModal = (item: RCMItem) => {
   isEditMode.value = true
   formData.value = JSON.parse(JSON.stringify(item))
+  selectedBranchInModal.value = item.department || 'All Branches'
   selectedRiskId.value = item.risk_id || ''
   isModalOpen.value = true
 }
