@@ -217,8 +217,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       ccList: ['President Director']
     },
     columns: [
-      { accessorKey: 'letterNumber', header: 'Letter Number', class: 'w-48 whitespace-nowrap font-medium' },
-      { accessorKey: 'auditTitle', header: 'Audit Title / Object', class: 'w-64' },
+      { accessorKey: 'letterNumber', header: 'Letter Number', class: 'w-40 whitespace-nowrap font-medium' },
+      { accessorKey: 'auditTitle', header: 'Audit Title / Object', class: 'min-w-[200px] max-w-xs' },
       { accessorKey: 'workingUnit', header: 'Work Unit', class: 'w-36' },
       { accessorKey: 'executionPeriod', header: 'Execution Period', class: 'w-48 whitespace-nowrap' },
       { accessorKey: 'auditTeam', header: 'Audit Team', class: 'w-40' },

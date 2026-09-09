@@ -170,31 +170,34 @@
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
                 <UTooltip :text="t('annualAudit.upload.actions.view')">
-                  <UButton 
-                    icon="i-lucide-eye" 
-                    color="neutral" 
-                    variant="ghost" 
-                    size="md" 
-                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                  />
+                <UButton 
+                  icon="i-lucide-eye" 
+                  color="info" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('annualAudit.upload.actions.view')" 
+                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                />
                 </UTooltip>
                 <UTooltip :text="t('annualAudit.upload.actions.download')">
                 <UButton 
                   icon="i-lucide-download" 
-                  color="success" 
+                  color="primary" 
                   variant="ghost" 
-                  size="md" 
+                  size="sm" 
+                  :title="t('annualAudit.upload.actions.download')" 
                   @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>
                 <UTooltip :text="t('annualAudit.upload.actions.delete')">
-                  <UButton 
-                    icon="i-lucide-trash-2" 
-                    color="error" 
-                    variant="ghost" 
-                    size="md"
-                    @click="handleDelete(row.original.id)" 
-                  />
+                <UButton 
+                  icon="i-lucide-trash-2" 
+                  color="error" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('annualAudit.upload.actions.delete')" 
+                  @click="handleDelete(row.original.id)" 
+                />
                 </UTooltip>
               </div>
             </template>

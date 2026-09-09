@@ -3,10 +3,10 @@ package media
 import (
 	"audit-service/models"
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -18,15 +18,17 @@ func NewLocalProvider() MediaProvider {
 }
 
 func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, fileName string, folder string) (*models.MediaAttachment, error) {
-	// Create uploads directory if it doesn't exist
-	uploadDir := "./uploads"
+	cleanFolder := strings.Trim(folder, "/")
+	if cleanFolder == "" {
+		cleanFolder = "Auditsphere/general"
+	}
+	// Create uploads directory with subfolder structure if it doesn't exist
+	uploadDir := filepath.Join("./uploads", cleanFolder)
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
 		return nil, err
 	}
 
-	// Generate safe file name
-	safeFileName := fmt.Sprintf("%d-%s", time.Now().Unix(), fileName)
-	filePath := filepath.Join(uploadDir, safeFileName)
+	filePath := filepath.Join(uploadDir, fileName)
 
 	// Create the file
 	out, err := os.Create(filePath)
@@ -41,10 +43,12 @@ func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, fileName str
 		return nil, err
 	}
 
+	relPath := "/" + filepath.ToSlash(filepath.Join("uploads", cleanFolder, fileName))
+
 	return &models.MediaAttachment{
-		FileID:     "local-" + safeFileName,
+		FileID:     "local-" + fileName,
 		FileName:   fileName,
-		FilePath:   "/uploads/" + safeFileName,
+		FilePath:   relPath,
 		FileSize:   written,
 		FileType:   "application/octet-stream",
 		UploadedAt: time.Now(),

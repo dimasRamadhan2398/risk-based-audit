@@ -110,27 +110,26 @@
             </div>
           </div>
         </div>
-        <div class="sm:flex sm:flex-row-reverse">
-          <UTooltip text="View Charter">
-            <UButton
-              v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-              :to="store.activeCharter.fileUrl"
-              target="_blank"
-              icon="i-lucide-eye"
-              size="xl"
-              color="neutral"
-              variant="ghost"
-            />
+        <div class="sm:flex sm:flex-row-reverse gap-4">
+          <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
+          <UButton
+            v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
+            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
+            icon="i-lucide-download"
+            size="md"
+            color="primary"
+            variant="solid"
+          />
           </UTooltip>
-          <UTooltip text="Edit Charter">
-            <UButton
-              v-if="canManageCharter"
-              @click="store.handleEdit(store.activeCharter)"
-              color="warning"
-              icon="i-lucide-edit"
-              variant="ghost"
-              size="xl"
-            />
+          <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+          <UButton
+            v-if="canManageCharter"
+            @click="store.handleEdit(store.activeCharter)"
+            color="primary"
+            icon="i-lucide-edit"
+            variant="outline"
+          >
+          </UButton>
           </UTooltip>
         </div>
       </UCard>
@@ -174,12 +173,20 @@
           </template>
           <template #title-cell="{ row }">
             <div class="font-bold text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.title }}
+              <ReadMoreText
+                :text="row.original.title"
+                :max-length="60"
+                text-class="font-bold text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #content-cell="{ row }">
             <div class="font-normal text-[var(--text-muted)] text-sm break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.content || '-' }}
+              <ReadMoreText
+                :text="row.original.content || '-'"
+                :max-length="75"
+                text-class="text-[var(--text-muted)] text-sm"
+              />
             </div>
           </template>
           <template #date-cell="{ row }">
@@ -189,38 +196,45 @@
           </template>
           <template #approvedBy-cell="{ row }">
             <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.approvedBy }}
+              <ReadMoreText
+                :text="row.original.approvedBy"
+                :max-length="35"
+                text-class="font-medium text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #uploadedBy-cell="{ row }">
             <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              {{ row.original.uploadedBy }}
+              <ReadMoreText
+                :text="row.original.uploadedBy"
+                :max-length="35"
+                text-class="font-medium text-[var(--text-main)]"
+              />
             </div>
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1.5 whitespace-nowrap">
-              <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
+              <UTooltip text="View Charter">
                 <UButton
                   v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                  :to="row.original.fileUrl"
-                  target="_blank"
                   size="md"
-                  color="neutral"
+                  color="primary"
                   variant="ghost"
-                  icon="i-lucide-eye"
-                />
+                icon="i-lucide-download"
+                @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
+              />
               </UTooltip>
-              <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+              <UTooltip text="Edit Charter">
               <UButton
                 v-if="canManageCharter"
                 size="md"
-                color="warning"
+                color="primary"
                 variant="ghost"
                 icon="i-lucide-edit"
                 @click="store.handleEdit(row.original)"
               />
               </UTooltip>
-              <UTooltip :text="t('auditCharter.tooltips.deleteCharter')">
+              <UTooltip text="Delete Charter">
               <UButton
                 v-if="canManageCharter"
                 size="md"
@@ -243,6 +257,7 @@ import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()

@@ -30,7 +30,6 @@
               :label="t('auditCharter.form.docTitle')"
               class="block text-sm font-medium"
               size="lg"
-              required
             >
               <UInput
                 v-model="store.form.title"
@@ -67,11 +66,10 @@
                 class="block text-sm font-medium"
                 size="lg"
               >
-                <UInput
+                <AppDatePicker
                   v-model="store.form.date"
                   required
-                  type="date"
-                  class="mt-1 block w-full rounded-md"
+                  class="mt-1"
                 />
               </UFormField>
             </div>
@@ -159,7 +157,6 @@
             variant="solid"
             size="md"
             class="w-full sm:w-auto font-bold"
-            toast="success"
           >
             {{ store.isEditing ? t('common.save') : t('common.submit') }}
           </UButton>
@@ -170,7 +167,6 @@
             size="md"
             class="w-full sm:w-auto mt-2 sm:mt-0 font-bold"
             @click="store.closeModal"
-            toast="error"
           >
             {{ t('common.cancel') }}
           </UButton>

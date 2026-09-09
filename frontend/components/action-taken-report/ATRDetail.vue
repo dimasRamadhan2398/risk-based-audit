@@ -28,29 +28,29 @@
 
           <div class="space-y-6 pb-6">
             <!-- Assignment Letter Info -->
-            <div v-if="store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter" class="p-5 border border-primary-200 dark:border-primary-800 rounded-xl space-y-4 bg-primary-50/50 dark:bg-primary-950/20">
+            <div v-if="store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter" class="p-5 rounded-xl space-y-4 bg-primary-600 dark:bg-primary-800">
               <div class="flex items-center justify-between">
-                <h4 class="text-lg font-bold text-primary-700 dark:text-primary-400">Assignment Letter Information</h4>
-                <UBadge color="primary" variant="subtle">
+                <h4 class="text-lg font-bold text-white">Assignment Letter Information</h4>
+                <UBadge color="neutral" variant="solid" class="bg-white/20 text-white border-0">
                   {{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.letterNumber }}
                 </UBadge>
               </div>
               <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
                 <div>
-                  <p class="font-bold text-gray-500 dark:text-gray-400">Audit Title</p>
-                  <p class="font-medium">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.auditTitle || '-' }}</p>
+                  <p class="font-bold text-primary-100">Audit Title</p>
+                  <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.auditTitle || '-' }}</p>
                 </div>
                 <div>
-                  <p class="font-bold text-gray-500 dark:text-gray-400">Working Unit</p>
-                  <p class="font-medium">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.workingUnit || '-' }}</p>
+                  <p class="font-bold text-primary-100">Working Unit</p>
+                  <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.workingUnit || '-' }}</p>
                 </div>
                 <div>
-                  <p class="font-bold text-gray-500 dark:text-gray-400">Audit Leader</p>
-                  <p class="font-medium">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.leader || '-' }}</p>
+                  <p class="font-bold text-primary-100">Audit Leader</p>
+                  <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.leader || '-' }}</p>
                 </div>
                 <div>
-                  <p class="font-bold text-gray-500 dark:text-gray-400">Period</p>
-                  <p class="font-medium">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.executionPeriod || '-' }}</p>
+                  <p class="font-bold text-primary-100">Period</p>
+                  <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.executionPeriod || '-' }}</p>
                 </div>
               </div>
             </div>

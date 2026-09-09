@@ -3,23 +3,23 @@
     <!-- Header -->
     <div class="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-800">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-tight">{{ t('riskAppetite.title') }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-wider">{{ t('riskAppetite.title') }}</h1>
         <p class="text-md text-gray-500 dark:text-gray-400">{{ t('riskAppetite.subtitle') }}</p>
       </div>
     </div>
 
     <!-- KPI Summary Section -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <UCard :ui="{ body: 'p-5' }" class="shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
+      <UCard :ui="{ body: 'p-5' }" class="group shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('riskAppetite.kpi.complianceLevel') }}</p>
+            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ t('riskAppetite.kpi.complianceLevel') }}</p>
             <h3 class="text-2xl font-black mt-1" :class="complianceColor">
               {{ compliancePercentage }}%
             </h3>
           </div>
-          <div class="p-3 rounded-full" :class="complianceBg">
-            <UIcon :name="complianceIcon" class="w-6 h-6" />
+          <div class="size-12 rounded-xl flex items-center justify-center ring-1 shadow-xs transition-all duration-300 group-hover:scale-105" :class="complianceBg">
+            <UIcon :name="complianceIcon" class="size-6" />
           </div>
         </div>
         <p class="text-[10px] text-gray-400 mt-2 font-medium">
@@ -27,46 +27,49 @@
         </p>
       </UCard>
 
-      <UCard :ui="{ body: 'p-5' }" class="shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
+      <UCard :ui="{ body: 'p-5' }" class="group shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('riskAppetite.kpi.totalRisks') }}</p>
+            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ t('riskAppetite.kpi.totalRisks') }}</p>
             <h3 class="text-2xl font-black mt-1 text-gray-900 dark:text-white">
               {{ totalRisks }}
             </h3>
           </div>
-          <div class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 rounded-full">
-            <UIcon name="i-heroicons-chart-bar" class="w-6 h-6" />
+          <div class="size-12 rounded-xl flex items-center justify-center ring-1 ring-primary-500/20 bg-primary-500/10 text-primary-600 dark:text-primary-400 shadow-xs transition-all duration-300 group-hover:scale-105">
+            <UIcon name="i-heroicons-chart-bar" class="size-6" />
           </div>
         </div>
         <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-2 font-medium">{{ t('riskAppetite.kpi.totalSubtitle') }}</p>
       </UCard>
 
-      <UCard :ui="{ body: 'p-5' }" class="shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
+      <UCard :ui="{ body: 'p-5' }" class="group shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('riskAppetite.kpi.acceptableRisks') }}</p>
-            <h3 class="text-2xl font-black mt-1 text-green-600 dark:text-green-500">
+            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ t('riskAppetite.kpi.acceptableRisks') }}</p>
+            <h3 class="text-2xl font-black mt-1 text-emerald-600 dark:text-emerald-400">
               {{ acceptableCount }}
             </h3>
           </div>
-          <div class="p-3 bg-green-50 dark:bg-green-900/20 text-green-500 dark:text-green-400 rounded-full">
-            <UIcon name="i-heroicons-check-circle" class="w-6 h-6" />
+          <div class="size-12 rounded-xl flex items-center justify-center ring-1 ring-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-xs transition-all duration-300 group-hover:scale-105">
+            <UIcon name="i-heroicons-check-circle" class="size-6" />
           </div>
         </div>
         <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-2 font-medium">{{ t('riskAppetite.kpi.acceptableSubtitle') }}</p>
       </UCard>
 
-      <UCard :ui="{ body: 'p-5' }" class="shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
+      <UCard :ui="{ body: 'p-5' }" class="group shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('riskAppetite.kpi.appetiteViolations') }}</p>
-            <h3 class="text-2xl font-black mt-1" :class="violatingCount > 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white'">
+            <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ t('riskAppetite.kpi.appetiteViolations') }}</p>
+            <h3 class="text-2xl font-black mt-1" :class="violatingCount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'">
               {{ violatingCount }}
             </h3>
           </div>
-          <div class="p-3 rounded-full" :class="violatingCount > 0 ? 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400' : 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500'">
-            <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6" />
+          <div
+            class="size-12 rounded-xl flex items-center justify-center ring-1 shadow-xs transition-all duration-300 group-hover:scale-105"
+            :class="violatingCount > 0 ? 'ring-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400 animate-pulse' : 'ring-neutral-500/20 bg-neutral-500/10 text-neutral-500 dark:text-neutral-400'"
+          >
+            <UIcon name="i-heroicons-exclamation-triangle" class="size-6" />
           </div>
         </div>
         <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-2 font-medium">{{ t('riskAppetite.kpi.violationsSubtitle') }}</p>
@@ -166,79 +169,81 @@
             </div>
 
             <!-- Table -->
-            <div class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900">
-              <UTable :data="filteredComplianceRisks" :columns="complianceColumns">
-                <template #id-cell="{ row }">
-                  <span class="font-mono text-md font-bold text-gray-500 dark:text-gray-400">
-                    {{ profileStore.getFormattedId(row.original) }}
-                  </span>
-                </template>
+            <TableEntities
+              :data="filteredComplianceRisks"
+              :columns="appetiteStore.columns"
+              :loading="loading"
+            >
+              <template #id-cell="{ row }">
+                <span class="font-mono text-md font-bold text-gray-500 dark:text-gray-400">
+                  {{ profileStore.getFormattedId(row.original) }}
+                </span>
+              </template>
 
-                <template #name-cell="{ row }">
-                  <div class="max-w-md whitespace-normal">
-                    <p class="font-bold text-gray-900 dark:text-white text-md">{{ row.original.name }}</p>
-                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ row.original.category }} · {{ row.original.branch || 'Head Office' }}</p>
-                  </div>
-                </template>
+              <template #name-cell="{ row }">
+                <div class="max-w-md whitespace-normal">
+                  <p class="font-bold text-gray-900 dark:text-white text-md">{{ row.original.name }}</p>
+                  <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ row.original.category }} · {{ row.original.branch || 'Head Office' }}</p>
+                </div>
+              </template>
 
-                <template #level-cell="{ row }">
-                  <span 
-                    class="inline-block px-2 py-0.5 rounded text-[10px] font-black text-white"
-                    :style="{ backgroundColor: getRiskLevelColor(row.original) }"
-                  >
-                    {{ getRiskLevelLabel(row.original) }}
-                  </span>
-                </template>
+              <template #level-cell="{ row }">
+                <span 
+                  class="inline-block px-2 py-0.5 rounded text-[10px] font-black text-white"
+                  :style="{ backgroundColor: getRiskLevelColor(row.original) }"
+                >
+                  {{ getRiskLevelLabel(row.original) }}
+                </span>
+              </template>
 
-                <template #appetite-cell="{ row }">
-                  <UBadge 
-                    :color="isAppetiteAcceptable(row.original) ? 'success' : 'warning'" 
-                    variant="subtle"
-                    class="font-black text-[9px]"
-                  >
-                    {{ isAppetiteAcceptable(row.original) ? t('riskAppetite.compliance.acceptableBadge') : t('riskAppetite.compliance.requiredBadge') }}
-                  </UBadge>
-                </template>
+              <template #appetite-cell="{ row }">
+                <UBadge 
+                  :color="isAppetiteAcceptable(row.original) ? 'success' : 'warning'" 
+                  variant="subtle"
+                  class="font-black text-[9px]"
+                >
+                  {{ isAppetiteAcceptable(row.original) ? t('riskAppetite.compliance.acceptableBadge') : t('riskAppetite.compliance.requiredBadge') }}
+                </UBadge>
+              </template>
 
-                <template #mitigationStatus-cell="{ row }">
-                  <div class="flex items-center gap-2">
-                    <template v-if="hasMitigation(row.original.id)">
-                      <UBadge v-if="isMitigationSelesai(row.original.id)" color="success" variant="solid" class="font-black text-[9px]">
-                        {{ t('riskAppetite.compliance.done') }}
-                      </UBadge>
-                      <UBadge v-else color="success" variant="solid" class="font-black text-[9px]">
-                        {{ t('riskAppetite.compliance.activePlan', { count: getMitigationCount(row.original.id) }) }}
-                      </UBadge>
-                    </template>
-                    <template v-else-if="isAppetiteAcceptable(row.original)">
-                      <span class="text-md text-gray-400 dark:text-gray-500 italic">{{ t('riskAppetite.compliance.noneRequired') }}</span>
-                    </template>
-                    <template v-else>
-                      <div class="flex items-center gap-1.5 text-red-600 dark:text-red-500 animate-pulse">
-                        <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
-                        <span class="text-[10px] font-bold uppercase tracking-wider">{{ t('riskAppetite.compliance.missingPlan') }}</span>
-                      </div>
-                    </template>
-                  </div>
-                </template>
+              <template #mitigationStatus-cell="{ row }">
+                <div class="flex items-center gap-2">
+                  <template v-if="hasMitigation(row.original.id)">
+                    <UBadge v-if="isMitigationSelesai(row.original.id)" color="success" variant="solid" class="font-black text-[9px]">
+                      {{ t('riskAppetite.compliance.done') }}
+                    </UBadge>
+                    <UBadge v-else color="success" variant="solid" class="font-black text-[9px]">
+                      {{ t('riskAppetite.compliance.activePlan', { count: getMitigationCount(row.original.id) }) }}
+                    </UBadge>
+                  </template>
+                  <template v-else-if="isAppetiteAcceptable(row.original)">
+                    <span class="text-md text-gray-400 dark:text-gray-500 italic">{{ t('riskAppetite.compliance.noneRequired') }}</span>
+                  </template>
+                  <template v-else>
+                    <div class="flex items-center gap-1.5 text-red-600 dark:text-red-500 animate-pulse">
+                      <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
+                      <span class="text-[10px] font-bold uppercase tracking-wider">{{ t('riskAppetite.compliance.missingPlan') }}</span>
+                    </div>
+                  </template>
+                </div>
+              </template>
 
-                <template #actions-cell="{ row }">
-                  <div class="flex items-center gap-2">
-                    <UButton 
-                      v-if="!isAppetiteAcceptable(row.original)"
-                      :icon="hasMitigation(row.original.id) ? 'i-heroicons-eye' : 'i-heroicons-plus-circle'" 
-                      :label="hasMitigation(row.original.id) ? t('riskAppetite.compliance.viewMitigation') : t('riskAppetite.compliance.addMitigation')" 
-                      :color="hasMitigation(row.original.id) ? 'primary' : 'error'" 
-                      variant="soft" 
-                      size="md" 
-                      class="font-bold"
-                      :to="`/mitigation?id=${row.original.id}`" 
-                    />
-                    <span v-else class="text-md text-gray-400 dark:text-gray-500">-</span>
-                  </div>
-                </template>
-              </UTable>
-            </div>
+              <template #actions-cell="{ row }">
+                <div class="flex items-center gap-2">
+                  <UButton 
+                    v-if="!isAppetiteAcceptable(row.original)"
+                    :icon="hasMitigation(row.original.id) ? 'i-heroicons-eye' : 'i-heroicons-plus-circle'" 
+                    :label="hasMitigation(row.original.id) ? t('riskAppetite.compliance.viewMitigation') : t('riskAppetite.compliance.addMitigation')" 
+                    :color="hasMitigation(row.original.id) ? 'primary' : 'error'" 
+                    variant="soft" 
+                    size="md" 
+                    class="font-bold"
+                    :to="`/mitigation?id=${row.original.id}`" 
+                  />
+                  <span v-else class="text-md text-gray-400 dark:text-gray-500">-</span>
+                </div>
+              </template>
+            </TableEntities>
           </div>
 
           <!-- Tab 3: Statements Registry (CRUD) -->
@@ -289,7 +294,7 @@
                       </UBadge>
                       <span class="text-[10px] font-mono text-gray-400 dark:text-gray-500">{{ t('riskAppetite.statements.limitThreshold', { limit: stmt.threshold_limit }) }}</span>
                     </div>
-                    <p class="text-md font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
+                    <p class="text-md font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                       "{{ stmt.statement }}"
                     </p>
                   </div>
@@ -413,6 +418,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import TableEntities from '~/components/shared/TableEntities.vue'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
@@ -452,21 +458,21 @@ const complianceFilters = computed(() => [
   t('riskAppetite.compliance.filters.violating')
 ])
 
-const complianceColumns = computed(() => [
-  { accessorKey: 'id', header: t('riskAppetite.compliance.columns.id') },
-  { accessorKey: 'name', header: t('riskAppetite.compliance.columns.name') },
-  { accessorKey: 'level', header: t('riskAppetite.compliance.columns.level') },
-  { accessorKey: 'appetite', header: t('riskAppetite.compliance.columns.appetite') },
-  { accessorKey: 'mitigationStatus', header: t('riskAppetite.compliance.columns.status') },
-  { accessorKey: 'actions', header: t('riskAppetite.compliance.columns.actions') }
-])
+
+
+const loading = ref(false)
 
 onMounted(async () => {
-  await Promise.all([
-    profileStore.fetchRisks(),
-    mitigationStore.fetchMitigations(),
-    appetiteStore.fetchStatements()
-  ])
+  loading.value = true
+  try {
+    await Promise.all([
+      profileStore.fetchRisks(),
+      mitigationStore.fetchMitigations(),
+      appetiteStore.fetchStatements()
+    ])
+  } finally {
+    loading.value = false
+  }
 })
 
 // Helpers
@@ -544,16 +550,16 @@ const compliancePercentage = computed(() => {
 // Compliance Colors
 const complianceColor = computed(() => {
   const p = compliancePercentage.value
-  if (p >= 90) return 'text-green-600'
-  if (p >= 70) return 'text-amber-500'
-  return 'text-red-600'
+  if (p >= 90) return 'text-emerald-600 dark:text-emerald-400'
+  if (p >= 70) return 'text-amber-600 dark:text-amber-400'
+  return 'text-rose-600 dark:text-rose-400'
 })
 
 const complianceBg = computed(() => {
   const p = compliancePercentage.value
-  if (p >= 90) return 'bg-green-50 text-green-500'
-  if (p >= 70) return 'bg-amber-50 text-amber-500'
-  return 'bg-red-50 text-red-500'
+  if (p >= 90) return 'ring-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+  if (p >= 70) return 'ring-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400'
+  return 'ring-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400'
 })
 
 const complianceIcon = computed(() => {

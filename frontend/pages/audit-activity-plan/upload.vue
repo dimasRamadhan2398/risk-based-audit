@@ -164,32 +164,35 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UTooltip :text="t('auditActivityPlan.upload.viewDocument')">
-                  <UButton 
-                    icon="i-lucide-eye" 
-                    color="neutral" 
-                    variant="ghost" 
-                    size="md" 
-                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                <UTooltip :text="t('auditActivityPlan.upload.viewDocument')" class="mx-1">
+                <UButton 
+                  icon="i-lucide-eye" 
+                  color="info" 
+                  variant="ghost" 
+                  size="sm" 
+                  
+                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>
-                <UTooltip :text="t('auditActivityPlan.upload.downloadDocument')">
-                  <UButton 
-                    icon="i-lucide-download" 
-                    color="success" 
-                    variant="ghost" 
-                    size="md" 
-                    @click="store.downloadDocument(row.original.id, row.original.fileName)" 
-                  />
+                <UTooltip :text="t('auditActivityPlan.upload.downloadDocument')" class="mx-1">
+                <UButton 
+                  icon="i-lucide-download" 
+                  color="primary" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('auditActivityPlan.upload.downloadDocument')"
+                  @click="store.downloadDocument(row.original.id, row.original.fileName)" 
+                />
                 </UTooltip>
-                <UTooltip :text="t('auditActivityPlan.upload.deleteDocument')">
-                  <UButton 
-                    icon="i-lucide-trash-2" 
-                    color="error" 
-                    variant="ghost" 
-                    size="md" 
-                    @click="handleDelete(row.original.id)" 
-                  />
+                <UTooltip :text="t('auditActivityPlan.upload.deleteDocument')" class="mx-1">
+                <UButton 
+                  icon="i-lucide-trash-2" 
+                  color="error" 
+                  variant="ghost" 
+                  size="sm" 
+                  :title="t('auditActivityPlan.upload.deleteDocument')"
+                  @click="handleDelete(row.original.id)" 
+                />
                 </UTooltip>
               </div>
             </template>

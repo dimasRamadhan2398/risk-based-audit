@@ -77,7 +77,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const newReport = reactive({
     type: QAType.REGULAR,
     assessmentTitle: '',
-    periodQuarter: '',
     periodYear: '',
     status: QAStatus.IN_PROGRESS,
     conductedBy: '',
@@ -96,7 +95,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     Object.assign(newReport, {
       type: QAType.REGULAR,
       assessmentTitle: '',
-      periodQuarter: '',
       periodYear: '',
       status: QAStatus.IN_PROGRESS,
       conductedBy: '',
@@ -110,7 +108,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     {
       id: '1',
       type: QAType.REGULAR,
-      period: 'Q3 2025',
+      period: '2025',
       reportName: 'Operational Efficiency Q3',
       result: '8.7/10',
       status: QAStatus.COMPLETED,
@@ -126,13 +124,13 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     {
       id: '2',
       type: QAType.SAIV,
-      period: 'Cycle 2025',
+      period: '2025',
       reportName: 'Self Assessment GIAS \'22-24',
       result: 'Generally Conformed',
       status: QAStatus.COMPLETED,
-      conductedBy: 'PT Independent Consultant X',
+      conductedBy: 'PT BAI',
       assessmentTitle: 'SAIV - Cycle 2025',
-      validator: 'PT Independent Consultant X',
+      validator: 'PT BAI',
       attachment: {
         name: 'Certificate_SAIV_2025.pdf',
         size: '2.1 MB',
@@ -146,9 +144,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       reportName: 'External QAR (IPPF 2027)',
       result: 'G/C*',
       status: QAStatus.COMPLETED,
-      conductedBy: 'Deloitte Independent Consultant',
+      conductedBy: 'PT BAI',
       assessmentTitle: 'QAR - Year 2025',
-      validator: 'Deloitte Independent Consultant',
+      validator: 'PT BAI',
       attachment: {
         name: 'Report_External_QAR_2025.pdf',
         size: '4.2 MB',
@@ -158,8 +156,8 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     {
       id: '4',
       type: QAType.REGULAR,
-      period: 'Q2 2025',
-      reportName: 'Operational Efficiency Q2',
+      period: '2025',
+      reportName: 'Penilaian Periodik Kualitas Internal Audit',
       result: '8.3/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q2'
@@ -167,8 +165,8 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     {
       id: '5',
       type: QAType.REGULAR,
-      period: 'Q1 2025',
-      reportName: 'Operational Efficiency Q1',
+      period: '2025',
+      reportName: 'Penilaian Reguler Kualitas Internal Audit',
       result: '6.9/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q1'
@@ -180,7 +178,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       reportName: 'BUMN IACM Assessment 2025',
       result: '4',
       status: QAStatus.COMPLETED,
-      conductedBy: 'BPKP / Kementerian BUMN',
+      conductedBy: 'PT BAI',
       assessmentTitle: 'BUMN IACM Assessment 2025'
     }
   ]
@@ -224,7 +222,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
     const reportData = {
       type: newReport.type,
-      period: `${newReport.periodQuarter} ${newReport.periodYear}`.trim() || '2025',
+      period: newReport.periodYear || '2025',
       reportName: newReport.assessmentTitle,
       result: newReport.result,
       status: newReport.status,
@@ -256,8 +254,23 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       closeForm()
       await fetchReports()
     } catch (error: any) {
-      console.error('Failed to save QA report:', error)
-      errorMsg.value = 'Failed to save Quality Assurance report.'
+      console.error('Failed to save QA report (API failed, falling back to local):', error)
+      // Local fallback for frontend testing
+      if (isEditing.value && selectedReport.value) {
+        const index = mockReports.findIndex(r => r.id === selectedReport.value!.id)
+        if (index !== -1) {
+          mockReports[index] = { ...mockReports[index], ...reportData } as QAReport
+        }
+      } else {
+        mockReports.unshift({
+          id: Date.now().toString(),
+          ...reportData
+        } as QAReport)
+      }
+      reports.value = [...mockReports]
+      resetForm()
+      isEditing.value = false
+      closeForm()
     } finally {
       loading.value = false
     }
@@ -295,7 +308,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const importQARReport = async (payload: {
     assessmentTitle: string
     type: string
-    periodQuarter: string
     periodYear: string
     result: string
     status: string
@@ -447,13 +459,10 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
     isEditing.value = true
 
-    const periodParts = (selectedReport.value.period || '').split(' ')
-
     Object.assign(newReport, {
       type: selectedReport.value.type,
       assessmentTitle: selectedReport.value.assessmentTitle,
-      periodQuarter: periodParts[0] || '',
-      periodYear: periodParts[1] || '2025',
+      periodYear: selectedReport.value.period || '2025',
       status: selectedReport.value.status,
       conductedBy: selectedReport.value.conductedBy || '',
       result: selectedReport.value.result,
@@ -505,8 +514,18 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
       await fetchReports()
     } catch (error: any) {
-      console.error('Failed to delete QA report:', error)
-      errorMsg.value = 'Failed to delete Quality Assurance report.'
+      console.error('Failed to delete QA report (API failed, falling back to local):', error)
+      const index = mockReports.findIndex(r => r.id === targetReport.id)
+      if (index !== -1) {
+        mockReports.splice(index, 1)
+        reports.value = [...mockReports]
+        if (selectedReport.value?.id === targetReport.id) {
+          isDetailOpen.value = false
+          selectedReport.value = null
+        }
+      } else {
+        errorMsg.value = 'Failed to delete Quality Assurance report.'
+      }
     } finally {
       loading.value = false
     }

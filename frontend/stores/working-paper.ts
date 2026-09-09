@@ -158,46 +158,94 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   ] satisfies StepperItem[]
 
   const columnsF01 = [
-    { accessorKey: 'assignmentLetterId', header: 'Assignment Letter' },
-    { accessorKey: 'businessProcess', header: 'Business Process' },
-    { accessorKey: 'period', header: 'Period' },
-    { accessorKey: 'location', header: 'Location' },
-    { accessorKey: 'teamMembers', header: 'Team' },
-    { accessorKey: 'actions', header: 'Action' }
+    { key: 'assignmentLetterId', accessorKey: 'assignmentLetterId', header: 'Assignment Letter', class: 'w-48 min-w-[150px]' },
+    {
+      key: 'businessProcess',
+      accessorKey: 'businessProcess',
+      header: 'Business Process',
+      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      tdClass: '!whitespace-normal break-words'
+    },
+    { key: 'period', accessorKey: 'period', header: 'Period', class: 'w-40 min-w-[130px] whitespace-nowrap' },
+    { key: 'location', accessorKey: 'location', header: 'Location', class: 'w-44 min-w-[140px]' },
+    { key: 'teamMembers', accessorKey: 'teamMembers', header: 'Team', class: 'w-48 min-w-[160px]' },
+    { key: 'actions', accessorKey: 'actions', header: 'Action', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
   ]
 
   const columnsF02 = [
-    { accessorKey: 'risk', header: 'Risk' },
-    { accessorKey: 'taxonomy', header: 'Risk Category' },
-    { accessorKey: 'riskLevel', header: 'Risk Level' },
-    { accessorKey: 'controlDescription', header: 'Control Description' },
-    { accessorKey: 'actions', header: 'Action' }
+    {
+      key: 'risk',
+      accessorKey: 'risk',
+      header: 'Risk',
+      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      tdClass: '!whitespace-normal break-words'
+    },
+    { key: 'taxonomy', accessorKey: 'taxonomy', header: 'Risk Category', class: 'w-44 min-w-[140px]' },
+    { key: 'riskLevel', accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-36 min-w-[120px]' },
+    {
+      key: 'controlDescription',
+      accessorKey: 'controlDescription',
+      header: 'Control Description',
+      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      tdClass: '!whitespace-normal break-words'
+    },
+    { key: 'actions', accessorKey: 'actions', header: 'Action', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
   ]
 
   const columnsF03 = [
-    { accessorKey: 'population', header: 'Population' },
-    { accessorKey: 'sampleSize', header: 'Sample Size' },
-    { accessorKey: 'samples', header: 'Sample List' },
-    { accessorKey: 'conclusion', header: 'Conclusion' },
-    { accessorKey: 'actions', header: 'Action' }
+    { key: 'population', accessorKey: 'population', header: 'Population', class: 'w-36 min-w-[120px]' },
+    { key: 'sampleSize', accessorKey: 'sampleSize', header: 'Sample Size', class: 'w-36 min-w-[120px]' },
+    { key: 'samples', accessorKey: 'samples', header: 'Sample List', class: 'min-w-[260px]' },
+    {
+      key: 'conclusion',
+      accessorKey: 'conclusion',
+      header: 'Conclusion',
+      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      tdClass: '!whitespace-normal break-words'
+    },
+    { key: 'actions', accessorKey: 'actions', header: 'Action', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
   ]
 
   const columnsF04 = [
-    { accessorKey: 'condition', header: 'Condition' },
-    { accessorKey: 'criteria', header: 'Criteria' },
-    { accessorKey: 'impact', header: 'Impact' },
-    { accessorKey: 'rootCause', header: 'Root Cause' },
-    { accessorKey: 'evidenceFile', header: 'Evidence Document' },
-    { accessorKey: 'actions', header: 'Action' }
+    {
+      key: 'condition',
+      accessorKey: 'condition',
+      header: 'Condition',
+      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      tdClass: '!whitespace-normal break-words'
+    },
+    {
+      key: 'criteria',
+      accessorKey: 'criteria',
+      header: 'Criteria',
+      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      tdClass: '!whitespace-normal break-words'
+    },
+    { key: 'impact', accessorKey: 'impact', header: 'Impact', class: 'w-56 min-w-[180px]' },
+    { key: 'rootCause', accessorKey: 'rootCause', header: 'Root Cause', class: 'min-w-[220px]' },
+    { key: 'evidenceFile', accessorKey: 'evidenceFile', header: 'Evidence Document', class: 'w-48 min-w-[160px]' },
+    { key: 'actions', accessorKey: 'actions', header: 'Action', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
   ]
 
   const columnsF05 = [
-    { accessorKey: 'recommendation', header: 'Recommendation' },
-    { accessorKey: 'response', header: 'Auditee Response' },
-    { accessorKey: 'actionDescription', header: 'Description' },
-    { accessorKey: 'pic', header: 'PIC' },
-    { accessorKey: 'periodAction', header: 'Target Selesai' },
-    { accessorKey: 'actions', header: 'Actions' },
+    {
+      key: 'recommendation',
+      accessorKey: 'recommendation',
+      header: 'Recommendation',
+      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      tdClass: '!whitespace-normal break-words'
+    },
+    {
+      key: 'response',
+      accessorKey: 'response',
+      header: 'Auditee Response',
+      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      tdClass: '!whitespace-normal break-words'
+    },
+    { key: 'actionDescription', accessorKey: 'actionDescription', header: 'Description', class: 'w-56 min-w-[180px]' },
+    { key: 'pic', accessorKey: 'pic', header: 'PIC', class: 'w-40 min-w-[130px]' },
+    { key: 'periodAction', accessorKey: 'periodAction', header: 'Target Selesai', class: 'w-40 min-w-[130px] whitespace-nowrap' },
+    { key: 'actions', accessorKey: 'actions', header: 'Actions', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' },
   ]
   // --- STATE ---
   const headerForm = reactive<WorkingPaperHeaderForm>({

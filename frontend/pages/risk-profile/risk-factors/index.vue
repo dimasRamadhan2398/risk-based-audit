@@ -31,10 +31,15 @@
         :title="alertType === 'success' ? t('common.success') : t('common.error')"
         :description="alertMessage"
         icon="i-lucide-info"
+        :ui="{ description: 'text-white dark:text-white' }"
         class="shadow-md"
         closable
         @close="alertMessage = ''"
-      />
+      >
+        <template #description>
+          <span class="text-white">{{ alertMessage }}</span>
+        </template>
+      </UAlert>
     </Transition>
 
     <!-- Tabs Navigation -->
@@ -60,7 +65,7 @@
                   <p class="text-sm font-semibold text-white">
                     <span class="font-bold text-base text-white">{{ t('riskFactors.weighting.totalWeight', { total: totalWeight }) }}</span>
                   </p>
-                  <p class="text-sm text-white/90">
+                  <p class="text-sm text-white!">
                     {{ isValidWeightSum ? t('riskFactors.weighting.validSum') : t('riskFactors.weighting.invalidSum') }}
                   </p>
                 </div>
@@ -79,7 +84,7 @@
                   icon="i-lucide-save"
                   color="neutral"
                   variant="solid"
-                  class="bg-white text-slate-900 hover:bg-slate-100 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 font-semibold shadow-sm"
+                  class="bg-white text-slate-900 hover:bg-slate-100 dark:bg-primary-600/90 dark:text-slate-100 dark:hover:bg-slate-100 font-semibold shadow-sm"
                   :loading="store.loading"
                   :disabled="!isValidWeightSum"
                   @click="saveChanges"

@@ -91,4 +91,13 @@ const tabs = computed(() => [
   { label: t('auditFieldwork.tabs.sample'), slot: 'tab04', icon: 'i-heroicons-table-cells' },
   { label: t('auditFieldwork.tabs.testControls'), slot: 'tab05', icon: 'i-heroicons-shield-check' },
 ])
+
+const workingPaperColumns = computed(() => [
+  { accessorKey: 'businessProcess', header: t('auditFieldwork.workingPapers.columns.businessProcess') },
+  { accessorKey: 'period', header: t('auditFieldwork.workingPapers.columns.period') },
+  { accessorKey: 'riskLevel', header: t('auditFieldwork.workingPapers.columns.riskLevel') },
+  { accessorKey: 'rootCause', header: t('auditFieldwork.workingPapers.columns.rootCause') },
+  { accessorKey: 'location', header: t('auditFieldwork.workingPapers.columns.location') },
+  { accessorKey: 'actions', header: t('auditFieldwork.workingPapers.columns.actions') }
+])
 </script>

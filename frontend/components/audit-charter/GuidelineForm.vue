@@ -40,7 +40,7 @@
                 maxlength="100"
                 placeholder="e.g. Pedoman Pengelolaan Satuan Audit Internal"
                 class="mt-1 block w-full rounded-md"
-                @invalid="($event.target as any)?.setCustomValidity('Nama Pedoman wajib diisi dan maksimal 100 karakter')"
+                @invalid="($event.target as any)?.setCustomValidity('Nama Pedoman wajib diisi dan maksimal 200 karakter')"
                 @input="($event.target as any)?.setCustomValidity('')"
               />
               <div class="text-xs text-gray-500 mt-1 text-right">
@@ -137,10 +137,13 @@
 
 <script setup lang="ts">
 import { useGuidelineStore } from '~/stores/guideline'
+import { useRbac } from '~/composables/useRbac'
 
 const store = useGuidelineStore()
+const { canManageCharter } = useRbac()
 
 const handleSubmit = async () => {
+  if (!canManageCharter.value) return
   if (store.isEditing) {
     await store.updateGuideline()
   } else {

@@ -15,6 +15,8 @@ export interface InterviewItem {
   topic: string
   file: File | null
   fileName?: string
+  filePath?: string
+  fileUrl?: string
 }
 
 export interface ObservationItem {
@@ -26,6 +28,8 @@ export interface ObservationItem {
   observer: string
   file: File | null
   fileName?: string
+  filePath?: string
+  fileUrl?: string
 }
 
 export interface DocumentItem {
@@ -36,6 +40,8 @@ export interface DocumentItem {
   requiredDate: string
   file: File | null
   fileName?: string
+  filePath?: string
+  fileUrl?: string
 }
 
 export interface SampleItem {
@@ -564,7 +570,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     date: '',
     topic: '',
     file: null as File | null,
-    fileName: ''
+    fileName: '',
+    filePath: '',
+    fileUrl: ''
   })
   const showInterviewModal = ref(false)
   const isEditingInterview = ref(false)
@@ -595,7 +603,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     interviewForm.date = item.date
     interviewForm.topic = item.topic
     interviewForm.file = item.file
-    interviewForm.fileName = item.fileName || ''
+    interviewForm.fileName = item.fileName || item.file?.name || ''
+    interviewForm.filePath = item.filePath || item.fileUrl || ''
+    interviewForm.fileUrl = item.fileUrl || item.filePath || ''
     showInterviewModal.value = true
   }
 
@@ -614,6 +624,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     interviewForm.topic = ''
     interviewForm.file = null
     interviewForm.fileName = ''
+    interviewForm.filePath = ''
+    interviewForm.fileUrl = ''
   }
 
   const handleInterviewFileChange = (e: Event) => {
@@ -627,6 +639,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         return
       }
       interviewForm.file = file
+      interviewForm.fileName = file.name
     }
   }
 
@@ -635,22 +648,47 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     if (!selectedAssignmentLetter.value || isReadOnlyInterview.value) return
     loading.value = true
     const wasEditing = isEditingInterview.value
-    let uploadedFileName = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.interviews
+      let uploadedFilePath = interviewForm.filePath || interviewForm.fileUrl || ''
+      let uploadedFileName = interviewForm.fileName || (interviewForm.file ? interviewForm.file.name : '')
 
-      uploadedFileName = interviewForm.file ? interviewForm.file.name : (isEditingInterview.value ? currentList.find((item: any) => item.id === editingInterviewId.value)?.fileName || '' : '')
+      // If a new file object is attached, upload it to /media/upload first
       if (interviewForm.file) {
-        const url = await uploadFile(interviewForm.file)
-        if (url) uploadedFileName = url
+        try {
+          const safeAssignmentId = (selectedAssignmentLetter.value || 'general').replace(/[\/\\]/g, '-')
+          const safeDocId = (editingInterviewId.value ? String(editingInterviewId.value) : safeAssignmentId).replace(/[\/\\]/g, '-')
+          const folderPath = `Auditsphere/fieldwork/${safeDocId}`
+
+          const formData = new FormData()
+          formData.append('file', interviewForm.file)
+          formData.append('folder', folderPath)
+          formData.append('feature_name', 'fieldwork')
+          formData.append('document_id', safeDocId)
+          formData.append('document_name', interviewForm.file.name)
+
+          const uploadRes: any = await $fetch(`${baseUrl}/media/upload`, {
+            method: 'POST',
+            body: formData
+          })
+          if (uploadRes?.data?.filePath || uploadRes?.filePath) {
+            uploadedFilePath = uploadRes?.data?.filePath || uploadRes?.filePath
+            uploadedFileName = uploadRes?.data?.fileName || uploadRes?.fileName || interviewForm.file.name
+          }
+        } catch (uploadErr) {
+          console.warn('Media upload failed, proceeding with local filename:', uploadErr)
+          uploadedFileName = interviewForm.file.name
+        }
       }
 
       const payload = {
         ...interviewForm,
         assignmentLetterId: selectedAssignmentLetter.value,
-        fileName: uploadedFileName
+        fileName: uploadedFileName,
+        filePath: uploadedFilePath,
+        fileUrl: uploadedFilePath
       }
 
       let res: any = null
@@ -685,7 +723,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           date: interviewForm.date,
           topic: interviewForm.topic,
           file: interviewForm.file,
-          fileName: uploadedFileName
+          fileName: uploadedFileName,
+          filePath: uploadedFilePath,
+          fileUrl: uploadedFilePath
         }
         currentList.push(newItem)
       }
@@ -697,15 +737,19 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.interviews
+      const currentFileName = interviewForm.file ? interviewForm.file.name : interviewForm.fileName
       if (isEditingInterview.value && editingInterviewId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingInterviewId.value)
-        if (idx !== -1) {
+        if (idx !== -1 && currentList[idx]) {
+          const existingItem = currentList[idx]
           currentList[idx] = {
-            ...currentList[idx]!,
+            ...existingItem,
             ...interviewForm,
-            id: currentList[idx]!.id,
-            assignmentLetterId: currentList[idx]!.assignmentLetterId,
-            fileName: uploadedFileName
+            id: existingItem.id,
+            assignmentLetterId: existingItem.assignmentLetterId,
+            fileName: currentFileName || existingItem.fileName,
+            filePath: interviewForm.filePath || existingItem.filePath,
+            fileUrl: interviewForm.fileUrl || existingItem.fileUrl
           }
         }
       } else {
@@ -719,7 +763,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           date: interviewForm.date,
           topic: interviewForm.topic,
           file: interviewForm.file,
-          fileName: uploadedFileName
+          fileName: currentFileName || '',
+          filePath: interviewForm.filePath || '',
+          fileUrl: interviewForm.fileUrl || ''
         }
         currentList.push(newItem)
       }
@@ -729,6 +775,70 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     } finally {
       loading.value = false
     }
+  }
+
+  const downloadInterviewFile = async (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }) => {
+    const toast = useAppToast()
+    const targetUrl = item.fileUrl || item.filePath
+    const targetName = item.fileName || item.file?.name || 'interview-document.pdf'
+
+    // 1. If an in-memory File instance exists
+    if (item.file instanceof File) {
+      const url = window.URL.createObjectURL(item.file)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = targetName
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+      toast.success(`Mengunduh ${targetName}`)
+      return
+    }
+
+    // 2. If a stored FilePath or FileUrl exists
+    if (targetUrl && targetUrl !== '#') {
+      if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+        window.open(targetUrl, '_blank')
+        toast.success(`Membuka ${targetName}`)
+        return
+      }
+
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        const origin = baseUrl.replace(/\/api\/v1\/?$/, '')
+        const fullUrl = targetUrl.startsWith('/') ? `${origin}${targetUrl}` : `${origin}/${targetUrl}`
+
+        const blob = await $fetch<Blob>(fullUrl, {
+          responseType: 'blob'
+        })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = targetName
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+        toast.success(`Mengunduh ${targetName}`)
+        return
+      } catch (err) {
+        console.warn('Blob download failed, attempting direct open:', err)
+        const baseUrl = getAuditServiceBaseUrl()
+        const origin = baseUrl.replace(/\/api\/v1\/?$/, '')
+        const fullUrl = targetUrl.startsWith('/') ? `${origin}${targetUrl}` : `${origin}/${targetUrl}`
+        window.open(fullUrl, '_blank')
+        return
+      }
+    }
+
+    // 3. Fallback when record has only a filename without an uploaded binary
+    toast.info(`Dokumen "${targetName}" belum diunggah ke server / cloud.`)
   }
 
   const deleteInterview = async (index: number) => {
@@ -765,7 +875,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     date: '',
     observer: '',
     file: null as File | null,
-    fileName: ''
+    fileName: '',
+    filePath: '',
+    fileUrl: ''
   })
   const showObservationModal = ref(false)
   const isEditingObservation = ref(false)
@@ -773,8 +885,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const editingObservationId = ref<any>(null)
 
   const openObservationModal = () => {
+    const toast = useAppToast()
     if (!selectedAssignmentLetter.value) {
-      alert('Please select an Assignment Letter first!')
+      toast.warning('Silakan pilih Surat Tugas terlebih dahulu!')
       return
     }
     resetObservationForm()
@@ -793,7 +906,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     observationForm.date = item.date
     observationForm.observer = item.observer
     observationForm.file = item.file
-    observationForm.fileName = item.fileName || ''
+    observationForm.fileName = item.fileName || item.file?.name || ''
+    observationForm.filePath = item.filePath || item.fileUrl || ''
+    observationForm.fileUrl = item.fileUrl || item.filePath || ''
     showObservationModal.value = true
   }
 
@@ -810,41 +925,83 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     observationForm.observer = ''
     observationForm.file = null
     observationForm.fileName = ''
+    observationForm.filePath = ''
+    observationForm.fileUrl = ''
   }
 
   const handleObservationFileChange = (e: Event) => {
+    const toast = useAppToast()
     const target = e.target as HTMLInputElement
     const file = target.files?.[0]
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        alert('File too large! Maximum 10MB.')
+        toast.error('Ukuran berkas terlalu besar! Maksimal 10MB.')
+        target.value = ''
         return
       }
       observationForm.file = file
+      observationForm.fileName = file.name
     }
   }
 
   const saveObservation = async () => {
+    if (!selectedAssignmentLetter.value || isReadOnlyObservation.value) return false
     const toast = useToastNotification()
-    if (!selectedAssignmentLetter.value || isReadOnlyObservation.value) return
+
+    // Validation: make sure required fields are not empty
+    if (
+      !observationForm.activity?.trim() ||
+      !observationForm.location?.trim() ||
+      !observationForm.date?.trim() ||
+      !observationForm.observer?.trim()
+    ) {
+      toast.info('Mohon lengkapi semua data observasi yang wajib diisi!')
+      return false
+    }
+
     loading.value = true
     const wasEditing = isEditingObservation.value
-    let uploadedFileName = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.observations
+      let uploadedFilePath = observationForm.filePath || observationForm.fileUrl || ''
+      let uploadedFileName = observationForm.fileName || (observationForm.file ? observationForm.file.name : '')
 
-      uploadedFileName = observationForm.file ? observationForm.file.name : (isEditingObservation.value ? currentList.find((item: any) => item.id === editingObservationId.value)?.fileName || '' : '')
+      // If a new file object is attached, upload it to /media/upload first
       if (observationForm.file) {
-        const url = await uploadFile(observationForm.file)
-        if (url) uploadedFileName = url
+        try {
+          const safeAssignmentId = (selectedAssignmentLetter.value || 'general').replace(/[\/\\]/g, '-')
+          const safeDocId = (editingObservationId.value ? String(editingObservationId.value) : safeAssignmentId).replace(/[\/\\]/g, '-')
+          const folderPath = `Auditsphere/fieldwork/${safeDocId}`
+
+          const formData = new FormData()
+          formData.append('file', observationForm.file)
+          formData.append('folder', folderPath)
+          formData.append('feature_name', 'fieldwork')
+          formData.append('document_id', safeDocId)
+          formData.append('document_name', observationForm.file.name)
+
+          const uploadRes: any = await $fetch(`${baseUrl}/media/upload`, {
+            method: 'POST',
+            body: formData
+          })
+          if (uploadRes?.data?.filePath || uploadRes?.filePath) {
+            uploadedFilePath = uploadRes?.data?.filePath || uploadRes?.filePath
+            uploadedFileName = uploadRes?.data?.fileName || uploadRes?.fileName || observationForm.file.name
+          }
+        } catch (uploadErr) {
+          console.warn('Media upload failed, proceeding with local filename:', uploadErr)
+          uploadedFileName = observationForm.file.name
+        }
       }
 
       const payload = {
         ...observationForm,
         assignmentLetterId: selectedAssignmentLetter.value,
-        fileName: uploadedFileName
+        fileName: uploadedFileName,
+        filePath: uploadedFilePath,
+        fileUrl: uploadedFilePath
       }
 
       let res: any = null
@@ -877,7 +1034,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           date: observationForm.date,
           observer: observationForm.observer,
           file: observationForm.file,
-          fileName: uploadedFileName
+          fileName: uploadedFileName,
+          filePath: uploadedFilePath,
+          fileUrl: uploadedFilePath
         }
         currentList.push(newItem)
       }
@@ -885,19 +1044,23 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       resetObservationForm()
       await fetchObservations(selectedAssignmentLetter.value)
       toast.showSuccess(wasEditing ? 'Observasi berhasil diperbarui' : 'Observasi berhasil ditambahkan')
+      return true
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.observations
       if (isEditingObservation.value && editingObservationId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingObservationId.value)
-        if (idx !== -1) {
+        if (idx !== -1 && currentList[idx]) {
+          const existingItem = currentList[idx]
           currentList[idx] = {
-            ...currentList[idx]!,
+            ...existingItem,
             ...observationForm,
-            id: currentList[idx]!.id,
-            assignmentLetterId: currentList[idx]!.assignmentLetterId,
-            fileName: uploadedFileName
+            id: existingItem.id,
+            assignmentLetterId: existingItem.assignmentLetterId,
+            fileName: observationForm.file ? observationForm.file.name : existingItem.fileName,
+            filePath: observationForm.filePath || existingItem.filePath,
+            fileUrl: observationForm.fileUrl || existingItem.fileUrl
           }
         }
       } else {
@@ -909,7 +1072,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           date: observationForm.date,
           observer: observationForm.observer,
           file: observationForm.file,
-          fileName: uploadedFileName
+          fileName: observationForm.file ? observationForm.file.name : (observationForm.fileName || ''),
+          filePath: observationForm.filePath || '',
+          fileUrl: observationForm.fileUrl || ''
         }
         currentList.push(newItem)
       }
@@ -954,7 +1119,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     description: '',
     requiredDate: '',
     file: null as File | null,
-    fileName: ''
+    fileName: '',
+    filePath: '',
+    fileUrl: ''
   })
   const showDocumentModal = ref(false)
   const isEditingDocument = ref(false)
@@ -962,8 +1129,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const editingDocumentId = ref<any>(null)
 
   const openDocumentModal = () => {
+    const toast = useAppToast()
     if (!selectedAssignmentLetter.value) {
-      alert('Please select an Assignment Letter first!')
+      toast.warning('Silakan pilih Surat Tugas terlebih dahulu!')
       return
     }
     resetDocumentForm()
@@ -981,7 +1149,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     documentForm.description = item.description
     documentForm.requiredDate = item.requiredDate
     documentForm.file = item.file
-    documentForm.fileName = item.fileName || ''
+    documentForm.fileName = item.fileName || item.file?.name || ''
+    documentForm.filePath = item.filePath || item.fileUrl || ''
+    documentForm.fileUrl = item.fileUrl || item.filePath || ''
     showDocumentModal.value = true
   }
 
@@ -997,41 +1167,82 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     documentForm.requiredDate = ''
     documentForm.file = null
     documentForm.fileName = ''
+    documentForm.filePath = ''
+    documentForm.fileUrl = ''
   }
 
   const handleDocumentFileChange = (e: Event) => {
+    const toast = useAppToast()
     const target = e.target as HTMLInputElement
     const file = target.files?.[0]
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        alert('File too large! Maximum 10MB.')
+        toast.error('Ukuran berkas terlalu besar! Maksimal 10MB.')
+        target.value = ''
         return
       }
       documentForm.file = file
+      documentForm.fileName = file.name
     }
   }
 
   const saveDocument = async () => {
+    if (!selectedAssignmentLetter.value || isReadOnlyDocument.value) return false
     const toast = useToastNotification()
-    if (!selectedAssignmentLetter.value || isReadOnlyDocument.value) return
+
+    // Validation: make sure required fields are not empty
+    if (
+      !documentForm.documentName?.trim() ||
+      !documentForm.description?.trim() ||
+      !documentForm.requiredDate?.trim()
+    ) {
+      toast.error('Mohon lengkapi semua data dokumen yang wajib diisi!')
+      return false
+    }
+
     loading.value = true
     const wasEditing = isEditingDocument.value
-    let uploadedFileName = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.documents
+      let uploadedFilePath = documentForm.filePath || documentForm.fileUrl || ''
+      let uploadedFileName = documentForm.fileName || (documentForm.file ? documentForm.file.name : '')
 
-      uploadedFileName = documentForm.file ? documentForm.file.name : (isEditingDocument.value ? currentList.find((item: any) => item.id === editingDocumentId.value)?.fileName || '' : '')
+      // If a new file object is attached, upload it to /media/upload first
       if (documentForm.file) {
-        const url = await uploadFile(documentForm.file)
-        if (url) uploadedFileName = url
+        try {
+          const safeAssignmentId = (selectedAssignmentLetter.value || 'general').replace(/[\/\\]/g, '-')
+          const safeDocId = (editingDocumentId.value ? String(editingDocumentId.value) : safeAssignmentId).replace(/[\/\\]/g, '-')
+          const folderPath = `Auditsphere/fieldwork/${safeDocId}`
+
+          const formData = new FormData()
+          formData.append('file', documentForm.file)
+          formData.append('folder', folderPath)
+          formData.append('feature_name', 'fieldwork')
+          formData.append('document_id', safeDocId)
+          formData.append('document_name', documentForm.file.name)
+
+          const uploadRes: any = await $fetch(`${baseUrl}/media/upload`, {
+            method: 'POST',
+            body: formData
+          })
+          if (uploadRes?.data?.filePath || uploadRes?.filePath) {
+            uploadedFilePath = uploadRes?.data?.filePath || uploadRes?.filePath
+            uploadedFileName = uploadRes?.data?.fileName || uploadRes?.fileName || documentForm.file.name
+          }
+        } catch (uploadErr) {
+          console.warn('Media upload failed, proceeding with local filename:', uploadErr)
+          uploadedFileName = documentForm.file.name
+        }
       }
 
       const payload = {
         ...documentForm,
         assignmentLetterId: selectedAssignmentLetter.value,
-        fileName: uploadedFileName
+        fileName: uploadedFileName,
+        filePath: uploadedFilePath,
+        fileUrl: uploadedFilePath
       }
 
       let res: any = null
@@ -1042,9 +1253,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         })
         const updatedItem = res?.data || res
         const idx = currentList.findIndex((item: any) => item.id === editingDocumentId.value)
-        if (idx !== -1) {
+        if (idx !== -1 && currentList[idx]) {
+          const existingItem = currentList[idx]
           currentList[idx] = {
-            ...currentList[idx],
+            ...existingItem,
             ...payload,
             id: updatedItem?.id || editingDocumentId.value,
             file: documentForm.file
@@ -1063,27 +1275,33 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           description: documentForm.description,
           requiredDate: documentForm.requiredDate,
           file: documentForm.file,
-          fileName: uploadedFileName
+          fileName: uploadedFileName,
+          filePath: uploadedFilePath,
+          fileUrl: uploadedFilePath
         }
         currentList.push(newItem)
       }
       showDocumentModal.value = false
       resetDocumentForm()
       await fetchDocuments(selectedAssignmentLetter.value)
-      toast.showSuccess(wasEditing ? 'Document berhasil diperbarui' : 'Document berhasil ditambahkan')
+      toast.showSuccess(wasEditing ? 'Dokumen berhasil diperbarui' : 'Dokumen berhasil ditambahkan')
+      return true
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.documents
       if (isEditingDocument.value && editingDocumentId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingDocumentId.value)
-        if (idx !== -1) {
+        if (idx !== -1 && currentList[idx]) {
+          const existingItem = currentList[idx]
           currentList[idx] = {
-            ...currentList[idx]!,
+            ...existingItem,
             ...documentForm,
-            id: currentList[idx]!.id,
-            assignmentLetterId: currentList[idx]!.assignmentLetterId,
-            fileName: uploadedFileName
+            id: existingItem.id,
+            assignmentLetterId: existingItem.assignmentLetterId,
+            fileName: documentForm.file ? documentForm.file.name : existingItem.fileName,
+            filePath: documentForm.filePath || existingItem.filePath,
+            fileUrl: documentForm.fileUrl || existingItem.fileUrl
           }
         }
       } else {
@@ -1094,16 +1312,28 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           description: documentForm.description,
           requiredDate: documentForm.requiredDate,
           file: documentForm.file,
-          fileName: uploadedFileName
+          fileName: documentForm.file ? documentForm.file.name : (documentForm.fileName || ''),
+          filePath: documentForm.filePath || '',
+          fileUrl: documentForm.fileUrl || ''
         }
         currentList.push(newItem)
       }
       showDocumentModal.value = false
       resetDocumentForm()
       toast.showSuccess(wasEditing ? 'Document berhasil diperbarui' : 'Document berhasil ditambahkan')
+      return true
     } finally {
       loading.value = false
     }
+  }
+
+  const downloadDocumentFile = async (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }) => {
+    return downloadInterviewFile(item)
   }
 
   const deleteDocument = async (index: number) => {
@@ -1579,6 +1809,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     handleInterviewFileChange,
     saveInterview,
     deleteInterview,
+    downloadInterviewFile,
     observationForm,
     showObservationModal,
     isEditingObservation,
@@ -1599,6 +1830,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     handleDocumentFileChange,
     saveDocument,
     deleteDocument,
+    downloadDocumentFile,
     sampleForm,
     showSampleModal,
     isEditingSample,

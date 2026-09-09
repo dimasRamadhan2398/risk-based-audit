@@ -78,9 +78,9 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <UFormField label="Audit Period" class="md:col-span-4" required>
                 <div class="flex items-center gap-4">
-                  <UInput v-model="store.form.startPeriod" type="date" size="lg" class="w-full" :class="{'ring-red-500': store.dateError}" required/>
+                  <AppDatePicker v-model="store.form.startPeriod" size="lg" class="flex-1" :class="{'ring-red-500': store.dateError}" />
                   <span class="font-bold text-gray-500">to</span>
-                  <UInput v-model="store.form.finishPeriod" type="date" size="lg" class="w-full" :class="{'ring-red-500': store.dateError}" required/>
+                  <AppDatePicker v-model="store.form.finishPeriod" size="lg" class="flex-1" :class="{'ring-red-500': store.dateError}" />
                 </div>
                 <p v-if="store.dateError" class="text-red-500 text-sm font-semibold mt-1">{{ store.dateError }}</p>
               </UFormField>

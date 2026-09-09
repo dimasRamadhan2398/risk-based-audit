@@ -23,10 +23,11 @@
         icon: 'i-heroicons-shield-check',
         label: t('auditFieldwork.testControls.empty')
       }"
+      :ui="{ td: '!whitespace-normal' }"
       class="w-full"
     >
       <template #controlName-cell="{ row }">
-        <span class="font-medium">{{ row.original.controlName }}</span>
+        <span class="font-medium text-gray-900 dark:text-white">{{ row.original.controlName }}</span>
       </template>
       <template #controlType-cell="{ row }">
         <UBadge :color="getControlTypeColor(row.original.controlType)" variant="subtle">{{ row.original.controlType }}</UBadge>
@@ -35,35 +36,48 @@
         <UBadge :color="getResultColor(row.original.testResult)" variant="solid">{{ row.original.testResult }}</UBadge>
       </template>
       <template #finding-cell="{ row }">
-        <span class="text-sm text-gray-600 line-clamp-2">{{ row.original.finding || '-' }}</span>
+        <div
+          class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+          style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+        >
+          {{ row.original.finding || '-' }}
+        </div>
       </template>
       <template #mitigationPlan-cell="{ row }">
-        <span class="text-sm text-gray-600 line-clamp-2">{{ row.original.mitigationPlan || '-' }}</span>
+        <div
+          class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+          style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+        >
+          {{ row.original.mitigationPlan || '-' }}
+        </div>
+      </template>
+      <template #dueDate-cell="{ row }">
+        <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ formatDate(row.original.dueDate) || '-' }}</span>
       </template>
       <template #actions-cell="{ row }">
-        <div class="flex items-center gap-1">
-          <UTooltip text="View Test Control">
+        <div class="flex items-center justify-center gap-1">
+          <UTooltip :text="t('common.actions.view') || 'Lihat'">
             <UButton 
-              icon="i-lucide-eye" 
+              icon="i-heroicons-eye" 
               color="neutral" 
               variant="ghost" 
-              size="md" 
+              size="sm"  
               @click="store.viewTestControl(row.original)" />
           </UTooltip>
-          <UTooltip text="Edit Test Control">
+          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
             <UButton 
-              icon="i-lucide-edit" 
-              color="warning" 
+              icon="i-heroicons-pencil-square" 
+              color="primary" 
               variant="ghost" 
-              size="md" 
+              size="sm"
               @click="store.editTestControl(row.original)" />
           </UTooltip>
-          <UTooltip text="Delete Test Control">
+          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
             <UButton 
-              icon="i-lucide-trash-2" 
+              icon="i-heroicons-trash" 
               color="error" 
               variant="ghost" 
-              size="md" 
+              size="sm" 
               @click="store.deleteTestControl(row.index)" />
           </UTooltip>
         </div>
@@ -71,108 +85,7 @@
     </TableEntities>
 
     <!-- Test Control Modal -->
-    <UModal 
-      v-model:open="store.showTestControlModal" 
-      scrollable 
-      :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
-        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
-      }"
-    >
-      <template #content>
-        <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
-          <div class="flex items-center justify-between p-5 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
-            <h3 class="text-lg font-bold text-[var(--text-main)]">
-              {{ store.isReadOnlyTestControl ? t('auditFieldwork.testControls.modalView') : (store.isEditingTestControl ? t('auditFieldwork.testControls.modalEdit') : t('auditFieldwork.testControls.modalAdd')) }}
-            </h3>
-            <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="() => { store.showTestControlModal = false }" />
-          </div>
-
-          <div class="p-6 overflow-y-auto space-y-5">
-            <UForm @submit.prevent="store.saveTestControl()" class="space-y-4">
-              <!-- Control Information -->
-              <div class="bg-[var(--bg-surface)] p-4 rounded-lg space-y-4 border border-[var(--border-main)]">
-                <h4 class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.testControls.sectionControl') }}</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormField :label="t('auditFieldwork.testControls.name')" required>
-                    <UInput 
-                      v-model="store.testControlForm.controlName" 
-                      :placeholder="t('auditFieldwork.testControls.namePlaceholder')" 
-                      class="w-full" 
-                      :disabled="store.isReadOnlyTestControl" 
-                      required 
-                      maxlength="100"
-                      @invalid="($event.target as any)?.setCustomValidity('Nama kontrol maksimal 100 karakter dan wajib diisi')"
-                      @input="($event.target as any)?.setCustomValidity('')"
-                    />
-                    <div class="text-xs text-gray-500 mt-1 text-right">
-                      {{ store.testControlForm.controlName ? store.testControlForm.controlName.length : 0 }}/100
-                    </div>
-                  </UFormField>
-                  <UFormField :label="t('auditFieldwork.testControls.type')" required>
-                    <ReusableSelectMenu v-model="store.testControlForm.controlType" :items="store.options.controlTypes" :placeholder="t('auditFieldwork.testControls.typePlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-                  </UFormField>
-                </div>
-                <UFormField :label="t('auditFieldwork.testControls.description')" required>
-                  <UTextarea v-model="store.testControlForm.controlDescription" :placeholder="t('auditFieldwork.testControls.descriptionPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-                </UFormField>
-              </div>
-
-              <!-- Test Procedure -->
-              <div class="bg-[var(--bg-surface)] p-4 rounded-lg space-y-4 border border-[var(--border-main)]">
-                <h4 class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.testControls.sectionProcedure') }}</h4>
-                <UFormField :label="t('auditFieldwork.testControls.steps')" required>
-                  <UTextarea v-model="store.testControlForm.testProcedure" :placeholder="t('auditFieldwork.testControls.stepsPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-                </UFormField>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormField :label="t('auditFieldwork.testControls.result')" required>
-                    <ReusableSelectMenu v-model="store.testControlForm.testResult" :items="store.options.testResults" :placeholder="t('auditFieldwork.testControls.resultPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
-                  </UFormField>
-                </div>
-              </div>
-
-              <!-- Finding and Recommendation -->
-              <div class="bg-[var(--bg-surface)] p-4 rounded-lg space-y-4 border border-[var(--border-main)]">
-                <h4 class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.testControls.sectionFinding') }}</h4>
-                <UFormField :label="t('auditFieldwork.testControls.finding')">
-                  <UTextarea v-model="store.testControlForm.finding" :placeholder="t('auditFieldwork.testControls.findingPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
-                </UFormField>
-                <UFormField :label="t('auditFieldwork.testControls.recommendation')">
-                  <UTextarea v-model="store.testControlForm.recommendation" :placeholder="t('auditFieldwork.testControls.recommendationPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
-                </UFormField>
-              </div>
-
-              <!-- Mitigation Plan -->
-              <div class="bg-[var(--bg-surface)] p-4 rounded-lg space-y-4 border border-[var(--border-main)]">
-                <h4 class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.testControls.sectionMitigation') }}</h4>
-                <UFormField :label="t('auditFieldwork.testControls.mitigation')">
-                  <UTextarea v-model="store.testControlForm.mitigationPlan" :placeholder="t('auditFieldwork.testControls.mitigationPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
-                </UFormField>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <UFormField :label="t('auditFieldwork.testControls.pic')">
-                    <UInput v-model="store.testControlForm.pic" :placeholder="t('auditFieldwork.testControls.picPlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" />
-                  </UFormField>
-                  <UFormField :label="t('auditFieldwork.testControls.dueDate')">
-                    <UInput v-model="store.testControlForm.dueDate" type="date" class="w-full" :disabled="store.isReadOnlyTestControl" />
-                  </UFormField>
-                </div>
-              </div>
-            </UForm>
-          </div>
-
-          <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
-            <UButton color="neutral" variant="soft" :label="t('common.close')" v-if="store.isReadOnlyTestControl" @click="() => { store.showTestControlModal = false }" />
-            <template v-else>
-              <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showTestControlModal = false }" />
-              <UButton color="primary" :label="store.isEditingTestControl ? t('common.edit') : t('common.submit')" @click="store.saveTestControl()" />
-            </template>
-          </div>
-        </div>
-      </template>
-    </UModal>
+    <AuditFieldworkTestControlsModal />
   </div>
 </template>
 
@@ -181,17 +94,32 @@ import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { formatDate } from '~/utils/dateConverter'
+import AuditFieldworkTestControlsModal from '~/components/audit-fieldwork/AuditFieldworkTestControlsModal.vue'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
 
 const columns = computed(() => [
-  { accessorKey: 'controlName', header: t('auditFieldwork.testControls.columns.name') },
-  { accessorKey: 'controlType', header: t('auditFieldwork.testControls.columns.type') },
-  { accessorKey: 'testResult', header: t('auditFieldwork.testControls.columns.result') },
-  { accessorKey: 'finding', header: t('auditFieldwork.testControls.columns.finding') },
-  { accessorKey: 'mitigationPlan', header: t('auditFieldwork.testControls.columns.mitigation') },
-  { accessorKey: 'actions', header: t('auditFieldwork.testControls.columns.actions') }
+  { key: 'controlName', accessorKey: 'controlName', header: t('auditFieldwork.testControls.columns.name'), class: 'w-56 min-w-[180px]' },
+  { key: 'controlType', accessorKey: 'controlType', header: t('auditFieldwork.testControls.columns.type'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  { key: 'testResult', accessorKey: 'testResult', header: t('auditFieldwork.testControls.columns.result'), class: 'w-36 min-w-[130px] whitespace-nowrap' },
+  {
+    key: 'finding',
+    accessorKey: 'finding',
+    header: t('auditFieldwork.testControls.columns.finding'),
+    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    tdClass: '!whitespace-normal break-words'
+  },
+  {
+    key: 'mitigationPlan',
+    accessorKey: 'mitigationPlan',
+    header: t('auditFieldwork.testControls.columns.mitigation'),
+    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    tdClass: '!whitespace-normal break-words'
+  },
+  { key: 'dueDate', accessorKey: 'dueDate', header: t('auditFieldwork.testControls.columns.dueDate') || t('auditFieldwork.testControls.dueDate'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.testControls.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
 
 const getControlTypeColor = (type: string) => {

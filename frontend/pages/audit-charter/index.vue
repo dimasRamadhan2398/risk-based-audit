@@ -26,21 +26,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import AuditCharterCard from "~/components/audit-charter/AuditCharterCard.vue";
-import AuditCharterForm from "~/components/audit-charter/AuditCharterForm.vue";
-import GuidelineList from "~/components/audit-charter/GuidelineList.vue";
-import GuidelineForm from "~/components/audit-charter/GuidelineForm.vue";
-import SopList from "~/components/audit-charter/SopList.vue";
-import SopForm from "~/components/audit-charter/SopForm.vue";
+import { ref, computed, watch } from 'vue'
+import AuditCharterCard from '~/components/audit-charter/AuditCharterCard.vue'
+import AuditCharterForm from '~/components/audit-charter/AuditCharterForm.vue'
+import GuidelineList from '~/components/audit-charter/GuidelineList.vue'
+import GuidelineForm from '~/components/audit-charter/GuidelineForm.vue'
+import SopList from '~/components/audit-charter/SopList.vue'
+import SopForm from '~/components/audit-charter/SopForm.vue'
 import { useI18n } from '~/composables/useI18n'
+import { triggerScrollReset } from '~/utils/scroll'
 
 const { t } = useI18n()
 const activeTab = ref('charter')
 
+watch(activeTab, () => {
+  triggerScrollReset()
+})
+
 const tabs = computed(() => [
-  {label: t('auditCharter.tabs.charter'), key: 'charter', value: 'charter', icon: 'i-lucide-file-text'},
-  {label: t('auditCharter.tabs.guideline'), key: 'guideline', value: 'guideline', icon: 'i-lucide-book-open'},
-  {label: t('auditCharter.tabs.sop'), key: 'sop', value: 'sop', icon: 'i-lucide-file-check'}
+  { label: t('auditCharter.tabs.charter'), key: 'charter', value: 'charter', icon: 'i-lucide-file-text' },
+  { label: t('auditCharter.tabs.guideline'), key: 'guideline', value: 'guideline', icon: 'i-lucide-book-open' },
+  { label: t('auditCharter.tabs.sop'), key: 'sop', value: 'sop', icon: 'i-lucide-file-check' }
 ])
 </script>

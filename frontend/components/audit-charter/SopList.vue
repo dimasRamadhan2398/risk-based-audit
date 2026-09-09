@@ -15,6 +15,7 @@
         </p>
       </div>
       <UButton
+        v-if="canManageCharter"
         label="Tambah Petunjuk Teknis / SOP"
         @click="openAddModal"
         color="primary"
@@ -32,6 +33,7 @@
           <p class="text-sm text-gray-500">Daftar seluruh Petunjuk Teknis dan Standar Operasional Prosedur pelaksanaan audit</p>
         </div>
         <UButton
+          v-if="canManageCharter"
           label="Tambah SOP / Juknis"
           @click="openAddModal"
           color="primary"
@@ -62,14 +64,20 @@
 
         <!-- Name slot -->
         <template #name-cell="{ row }">
-          <span class="font-semibold text-[var(--text-main)]">{{ row.original.name }}</span>
+          <ReadMoreText
+            :text="row.original.name"
+            :max-length="60"
+            text-class="font-semibold text-[var(--text-main)]"
+          />
         </template>
 
         <!-- Parent Guideline Name slot -->
         <template #guideline_name-cell="{ row }">
-          <span class="text-[var(--text-main)] font-medium">
-            {{ row.original.guideline?.name || '-' }}
-          </span>
+          <ReadMoreText
+            :text="row.original.guideline?.name || '-'"
+            :max-length="50"
+            text-class="text-[var(--text-main)] font-medium"
+          />
         </template>
 
         <!-- Status slot -->
@@ -94,35 +102,36 @@
         <template #actions-cell="{ row }">
           <div class="flex justify-end gap-1">
             <UTooltip text="View SOP">
-              <UButton
-                v-if="row.original.file_url && row.original.file_url !== '#'"
-                :to="row.original.file_url"
-                target="_blank"
-                icon="i-lucide-eye"
-                color="neutral"
-                variant="ghost"
-                size="md"
+            <UButton
+              v-if="row.original.file_url && row.original.file_url !== '#'"
+              icon="i-lucide-eye"
+              color="primary"
+              variant="ghost"
+              size="md"
+              @click="openFile(row.original.file_url)"
             />
             </UTooltip>
             <UTooltip text="Edit SOP">
-              <UButton
-                size="md"
-                color="warning"
-                variant="ghost"
-                icon="i-lucide-edit"
+            <UButton
+              v-if="canManageCharter"
+              size="md"
+              color="primary"
+              variant="ghost"
+              icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
             />
             </UTooltip>
-            <UTooltip text="Delete SOP">
-              <UButton
-                size="md"
-                color="error"
-                variant="ghost"
-                icon="i-lucide-trash-2"
-                @click="confirmDelete(row.original)"
-              />
+            <UTooltip text="Hapus SOP">
+            <UButton
+              v-if="canManageCharter"
+              size="md"
+              color="error"
+              variant="ghost"
+              icon="i-lucide-trash-2"
+              @click="confirmDelete(row.original)"
+            />
             </UTooltip>
-            </div>
+          </div>
         </template>
       </TableEntities>
     </div>
@@ -133,10 +142,13 @@
 import { computed, onMounted } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
+const { canManageCharter } = useRbac()
 
 const columns = [
   { accessorKey: 'no', header: 'No' },
@@ -173,6 +185,18 @@ const formatMonthYearIndonesian = (val: string) => {
 const openAddModal = async () => {
   await guidelineStore.fetchGuidelines()
   store.showModal = true
+}
+
+const openFile = (fileUrl: string) => {
+  if (!fileUrl || fileUrl === '#') return
+  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+    window.open(fileUrl, '_blank')
+    return
+  }
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  const finalUrl = fileUrl.startsWith('/') ? `${baseUrl.replace(/\/api\/v1$/, '')}${fileUrl}` : `${baseUrl}/${fileUrl}`
+  window.open(finalUrl, '_blank')
 }
 
 const confirmDelete = async (item: any) => {
