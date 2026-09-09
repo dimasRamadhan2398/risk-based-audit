@@ -536,11 +536,13 @@ import { useRiskFactorsStore } from '~/stores/risk-factors'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const store = useRiskFactorsStore()
 const auditStore = useAuditUniverseStore()
 const { t } = useI18n()
 const { canEditRiskFactors } = useRbac()
+const toast = useToastNotification()
 
 const tabItems = computed(() => [
   { slot: 'weighting', label: t('riskFactors.tabs.weight'), icon: 'i-lucide-activity' },
@@ -694,6 +696,7 @@ const removeFactorFromCorporate = (item: any) => {
   selectedCorporateList.value = selectedCorporateList.value.filter(
     i => i.standard_risk_factor_id !== item.standard_risk_factor_id
   )
+  toast.showSuccess('Factor berhasil dihapus')
 }
 
 const openGuidelines = (factor: any) => {
@@ -770,16 +773,16 @@ const saveEntityScoring = async () => {
 
   const res = await auditStore.scoreYearlyEntity(selectedYear.value, payload)
   if (res) {
-    showAlert(t('riskFactors.messages.scoresSaved'), 'success')
+    toast.showSuccess('Skor berhasil disimpan')
     await fetchYearlyUniverse()
   } else {
-    showAlert(auditStore.errorMsg || t('riskFactors.messages.scoresSaveFailed'), 'error')
+    toast.showError('Skor gagal disimpan')
   }
 }
 
 const saveChanges = async () => {
   if (!isValidWeightSum.value) {
-    showAlert(t('riskFactors.messages.weightSumMustBe100', { total: totalWeight.value }), 'error')
+    toast.showError(`Jumlah bobot harus 100%, total saat ini: ${totalWeight.value}`)
     return
   }
 
@@ -790,9 +793,9 @@ const saveChanges = async () => {
 
   const success = await store.saveCorporateFactors(payload)
   if (success) {
-    showAlert(t('riskFactors.messages.weightsUpdated'), 'success')
+    toast.showSuccess('Bobot berhasil disimpan')
   } else {
-    showAlert(store.errorMsg || t('riskFactors.messages.weightsUpdateFailed'), 'error')
+    toast.showError('Bobot gagal disimpan')
   }
 }
 

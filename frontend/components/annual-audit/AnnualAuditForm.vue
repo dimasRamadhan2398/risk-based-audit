@@ -1,13 +1,21 @@
 <template>
-    <UModal v-model:open="store.showModal" dismissible class="w-full sm:max-w-4xl bg-[var(--bg-main)] border-[var(--border-main)]">
+    <UModal 
+        v-model:open="store.showModal" 
+        dismissible 
+        :ui="{
+            content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+            header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+            body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+            footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+            overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+        }">
         <template #content>
         <UForm :state="store.form" @submit.prevent="store.handleSubmit">
-            <div class="relative  rounded-xl shadow-2xl flex flex-col max-h-[90vh] transition-colors duration-300">
+            <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh] transition-colors duration-300">
         
-                    <div class="px-6 py-4 border-b rounded-t-xl flex justify-between items-center transition-colors duration-300">
-                        <UIcon name="charter" class="text-primary-500 " size="32"></UIcon>
+                    <div class="px-6 py-4 rounded-t-xl flex justify-between items-center transition-colors duration-300">
                         <h3 class="text-lg font-bold text-[var(--text-main)]">Annual Audit Form</h3>
-                        <UIcon name="close" @click="store.closeModal" class="text-primary-400 hover:text-primary-600  text-2xl cursor-pointer"></UIcon>
+                        <UIcon name="close" @click="store.closeModal" class="text-2xl cursor-pointer"></UIcon>
                     </div>
 
         
@@ -75,7 +83,13 @@
                                                 placeholder="e.g. Audit Operasional Div. Keuangan"
                                                 class="w-full"
                                                 required
+                                                maxlength="100"
+                                                @invalid="($event.target as any)?.setCustomValidity('Nama aktivitas maksimal 100 karakter dan wajib diisi')"
+                                                @input="($event.target as any)?.setCustomValidity('')"
                                             />
+                                            <div class="text-xs text-gray-500 mt-1 text-right">
+                                                {{ activity.name ? activity.name.length : 0 }}/100
+                                            </div>
                                         </UFormField>
 
                                         <UFormField label="Category" size="lg">
@@ -345,7 +359,7 @@
                         </div>
                     </div>
     
-                <div class="px-6 py-4 border-t border-secondary-200  rounded-b-xl flex justify-end gap-3">
+                <div class="px-6 py-4 rounded-b-xl flex justify-end gap-3">
                     <UButton
                         type="submit"
                         :label="store.isEditing ? 'Update Plan' : 'Save Plan'"

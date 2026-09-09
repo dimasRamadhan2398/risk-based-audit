@@ -111,25 +111,27 @@
           </div>
         </div>
         <div class="sm:flex sm:flex-row-reverse">
-          <UButton
-            v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            :to="store.activeCharter.fileUrl"
-            target="_blank"
-            icon="i-lucide-eye"
-            size="xl"
-            color="neutral"
-            variant="ghost"
-          />
-          <UButton
-            v-if="canManageCharter"
-            :label="t('auditCharter.card.edit')"
-            @click="store.handleEdit(store.activeCharter)"
-            color="warning"
-            icon="i-lucide-edit"
-            variant="ghost"
-            size="xl"
-          >
-          </UButton>
+          <UTooltip text="View Charter">
+            <UButton
+              v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
+              :to="store.activeCharter.fileUrl"
+              target="_blank"
+              icon="i-lucide-eye"
+              size="xl"
+              color="neutral"
+              variant="ghost"
+            />
+          </UTooltip>
+          <UTooltip text="Edit Charter">
+            <UButton
+              v-if="canManageCharter"
+              @click="store.handleEdit(store.activeCharter)"
+              color="warning"
+              icon="i-lucide-edit"
+              variant="ghost"
+              size="xl"
+            />
+          </UTooltip>
         </div>
       </UCard>
 
@@ -197,15 +199,18 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1.5 whitespace-nowrap">
-              <UButton
-                v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                :to="row.original.fileUrl"
-                target="_blank"
-                size="md"
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-eye"
-              />
+              <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
+                <UButton
+                  v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
+                  :to="row.original.fileUrl"
+                  target="_blank"
+                  size="md"
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide-eye"
+                />
+              </UTooltip>
+              <UTooltip :text="t('auditCharter.tooltips.editCharter')">
               <UButton
                 v-if="canManageCharter"
                 size="md"
@@ -214,6 +219,8 @@
                 icon="i-lucide-edit"
                 @click="store.handleEdit(row.original)"
               />
+              </UTooltip>
+              <UTooltip :text="t('auditCharter.tooltips.deleteCharter')">
               <UButton
                 v-if="canManageCharter"
                 size="md"
@@ -222,6 +229,7 @@
                 icon="i-lucide-trash-2"
                 @click="confirmDelete(row.original)"
               />
+              </UTooltip>
             </div>
           </template>
         </TableEntities>

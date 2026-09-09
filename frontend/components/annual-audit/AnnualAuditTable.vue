@@ -67,7 +67,8 @@
 
         <template #actions-cell="{ row }">
           <div class="flex items-center">
-            <UButton
+            <UTooltip text="View Annual Audit">
+              <UButton
               icon="i-lucide-eye"
               color="neutral"
               variant="ghost"
@@ -75,7 +76,8 @@
               title="View"
               @click="store.openViewModal(row.original || row)"
             />
-
+            </UTooltip>
+            <UTooltip text="Edit Annual Audit">
             <UButton
               icon="i-lucide-edit"
               color="warning"
@@ -84,15 +86,17 @@
               title="Edit"
               @click="store.handleEdit(row.original || row)"
             />
-
-            <UButton
-              icon="i-lucide-trash-2"
-              color="error"
-              variant="ghost"
-              size="md"
-              title="Hapus"
-              @click="store.handleDelete((row.original || row)?.id)"
-            />
+            </UTooltip>
+            <UTooltip text="Delete Annual Audit">
+              <UButton
+                icon="i-lucide-trash-2"
+                color="error"
+                variant="ghost"
+                size="md"
+                title="Hapus"
+                @click="store.handleDelete((row.original || row)?.id)"
+              />
+            </UTooltip>
           </div>
         </template>
       

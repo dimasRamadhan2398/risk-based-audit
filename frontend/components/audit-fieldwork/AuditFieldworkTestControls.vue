@@ -42,17 +42,48 @@
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-1">
-          <UButton icon="i-lucide-eye" color="neutral" variant="ghost" size="md" @click="store.viewTestControl(row.original)" />
-          <UButton icon="i-lucide-edit" color="warning" variant="ghost" size="md" @click="store.editTestControl(row.original)" />
-          <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="md" @click="store.deleteTestControl(row.index)" />
+          <UTooltip text="View Test Control">
+            <UButton 
+              icon="i-lucide-eye" 
+              color="neutral" 
+              variant="ghost" 
+              size="md" 
+              @click="store.viewTestControl(row.original)" />
+          </UTooltip>
+          <UTooltip text="Edit Test Control">
+            <UButton 
+              icon="i-lucide-edit" 
+              color="warning" 
+              variant="ghost" 
+              size="md" 
+              @click="store.editTestControl(row.original)" />
+          </UTooltip>
+          <UTooltip text="Delete Test Control">
+            <UButton 
+              icon="i-lucide-trash-2" 
+              color="error" 
+              variant="ghost" 
+              size="md" 
+              @click="store.deleteTestControl(row.index)" />
+          </UTooltip>
         </div>
       </template>
     </TableEntities>
 
     <!-- Test Control Modal -->
-    <UModal v-model:open="store.showTestControlModal" scrollable :ui="{ content: 'sm:max-w-4xl bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }">
+    <UModal 
+      v-model:open="store.showTestControlModal" 
+      scrollable 
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
       <template #content>
-        <div class="relative flex flex-col max-h-[90vh]">
+        <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
           <div class="flex items-center justify-between p-5 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
             <h3 class="text-lg font-bold text-[var(--text-main)]">
               {{ store.isReadOnlyTestControl ? t('auditFieldwork.testControls.modalView') : (store.isEditingTestControl ? t('auditFieldwork.testControls.modalEdit') : t('auditFieldwork.testControls.modalAdd')) }}
@@ -67,7 +98,19 @@
                 <h4 class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.testControls.sectionControl') }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <UFormField :label="t('auditFieldwork.testControls.name')" required>
-                    <UInput v-model="store.testControlForm.controlName" :placeholder="t('auditFieldwork.testControls.namePlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />
+                    <UInput 
+                      v-model="store.testControlForm.controlName" 
+                      :placeholder="t('auditFieldwork.testControls.namePlaceholder')" 
+                      class="w-full" 
+                      :disabled="store.isReadOnlyTestControl" 
+                      required 
+                      maxlength="100"
+                      @invalid="($event.target as any)?.setCustomValidity('Nama kontrol maksimal 100 karakter dan wajib diisi')"
+                      @input="($event.target as any)?.setCustomValidity('')"
+                    />
+                    <div class="text-xs text-gray-500 mt-1 text-right">
+                      {{ store.testControlForm.controlName ? store.testControlForm.controlName.length : 0 }}/100
+                    </div>
                   </UFormField>
                   <UFormField :label="t('auditFieldwork.testControls.type')" required>
                     <ReusableSelectMenu v-model="store.testControlForm.controlType" :items="store.options.controlTypes" :placeholder="t('auditFieldwork.testControls.typePlaceholder')" class="w-full" :disabled="store.isReadOnlyTestControl" required />

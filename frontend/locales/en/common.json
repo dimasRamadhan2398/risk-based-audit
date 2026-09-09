@@ -1048,15 +1048,15 @@
       "colType": "Type",
       "colRiskCategory": "Risk Category",
       "colTargetPeriod": "Target Period",
-      "colPredLikelihood": "Pred. Likelihood",
-      "colPredImpact": "Pred. Impact",
-      "colPredScore": "Pred. Score",
-      "colPredRiskLevel": "Pred. Risk Level",
-      "colActual": "Actual",
-      "colActualRiskLevel": "Actual Risk Level",
+      "colPredLikelihood": "Predicted Likelihood",
+      "colPredImpact": "Predicted Impact",
+      "colPredScore": "Predicted Score",
+      "colPredRiskLevel": "Predicted Risk Level",
+      "colActual": "Current Score",
+      "colActualRiskLevel": "Current Risk Level",
       "colTrend": "Trend",
       "labelPredictedScore": "Predicted Score",
-      "labelActualScore": "Actual Score",
+      "labelActualScore": "Current Score",
       "labelFeatureImportance": "Feature Importance",
       "axisRiskScore": "Risk Score",
       "axisImportancePct": "Importance (%)"
@@ -1295,9 +1295,9 @@
       "approvalDate": "Approval Date",
       "additionalNotes": "Additional Notes",
       "attachment": "Attachment",
-      "attachmentCategory": "Attachment Category",
-      "attachmentUploadedBy": "Attachment Uploaded By",
-      "attachmentUploadDate": "Attachment Upload Date",
+      "attachmentCategory": "Category",
+      "attachmentUploadedBy": "Uploaded By",
+      "attachmentUploadDate": "Upload Date",
       "uploadAttachmentHere": "Upload your Attachment here",
       "dropAttachmentsHere": "Drop your attachments here",
       "maxFileSizeDesc": "You can upload multiple files (max. 2MB each)",
@@ -1422,6 +1422,11 @@
       "inactive": "Inactive",
       "uploadFile": "Upload Charter File (PDF/DOCX)",
       "submit": "Submit"
+    },
+    "tooltips": {
+      "viewCharter": "View Charter",
+      "editCharter": "Edit Charter",
+      "deleteCharter": "Delete Charter"
     }
   },
   "executiveSummaryUpload": {

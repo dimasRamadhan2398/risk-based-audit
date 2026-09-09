@@ -1045,15 +1045,15 @@
       "colType": "Tipe",
       "colRiskCategory": "Kategori Risiko",
       "colTargetPeriod": "Target Periode",
-      "colPredLikelihood": "Pred. Likelihood",
-      "colPredImpact": "Pred. Impact",
-      "colPredScore": "Pred. Skor",
-      "colPredRiskLevel": "Pred. Level Risiko",
-      "colActual": "Aktual",
-      "colActualRiskLevel": "Level Risiko Aktual",
+      "colPredLikelihood": "Prediksi Kemungkinan",
+      "colPredImpact": "Prediksi Dampak",
+      "colPredScore": "Prediksi Skor",
+      "colPredRiskLevel": "Prediksi Level Risiko",
+      "colActual": "Skor Saat Ini",
+      "colActualRiskLevel": "Level Risiko Saat Ini",
       "colTrend": "Tren",
       "labelPredictedScore": "Skor Prediksi",
-      "labelActualScore": "Skor Aktual",
+      "labelActualScore": "Skor Saat Ini",
       "labelFeatureImportance": "Feature Importance",
       "axisRiskScore": "Skor Risiko",
       "axisImportancePct": "Kepentingan (%)"
@@ -1419,6 +1419,11 @@
       "inactive": "Tidak Aktif",
       "uploadFile": "Unggah File Charter (PDF/DOCX)",
       "submit": "Simpan"
+    },
+    "tooltips": {
+      "viewCharter": "Lihat Charter",
+      "editCharter": "Edit Charter",
+      "deleteCharter": "Hapus Charter"
     }
   },
   "executiveSummaryUpload": {

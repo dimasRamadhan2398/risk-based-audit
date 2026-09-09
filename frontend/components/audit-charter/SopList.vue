@@ -93,30 +93,36 @@
         <!-- Actions slot -->
         <template #actions-cell="{ row }">
           <div class="flex justify-end gap-1">
-            <UButton
-              v-if="row.original.file_url && row.original.file_url !== '#'"
-              :to="row.original.file_url"
-              target="_blank"
-              icon="i-lucide-eye"
-              color="neutral"
-              variant="ghost"
-              size="md"
+            <UTooltip text="View SOP">
+              <UButton
+                v-if="row.original.file_url && row.original.file_url !== '#'"
+                :to="row.original.file_url"
+                target="_blank"
+                icon="i-lucide-eye"
+                color="neutral"
+                variant="ghost"
+                size="md"
             />
-            <UButton
-              size="md"
-              color="warning"
-              variant="ghost"
-              icon="i-lucide-edit"
+            </UTooltip>
+            <UTooltip text="Edit SOP">
+              <UButton
+                size="md"
+                color="warning"
+                variant="ghost"
+                icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
             />
-            <UButton
-              size="md"
-              color="error"
-              variant="ghost"
-              icon="i-lucide-trash-2"
-              @click="confirmDelete(row.original)"
-            />
-          </div>
+            </UTooltip>
+            <UTooltip text="Delete SOP">
+              <UButton
+                size="md"
+                color="error"
+                variant="ghost"
+                icon="i-lucide-trash-2"
+                @click="confirmDelete(row.original)"
+              />
+            </UTooltip>
+            </div>
         </template>
       </TableEntities>
     </div>

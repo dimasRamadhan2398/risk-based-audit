@@ -34,21 +34,24 @@
 
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
-            <UButton
-              size="md"
-              color="warning"
-              variant="ghost"
-              icon="i-lucide-edit"
+            <UTooltip text="Edit Assignment Letter">
+              <UButton
+                size="md"
+                color="warning"
+                variant="ghost"
+                icon="i-lucide-edit"
               @click="store.openEditModal(row.original)"
             />
-            <UButton
-              size="md"
-              color="error"
-              variant="ghost"
-              icon="i-lucide-trash-2"
-              title="Delete"
-              @click="store.deleteSuratTugas(row.original.id)"
-            />
+            </UTooltip>
+            <UTooltip text="Delete Assignment Letter">
+              <UButton
+                size="md"
+                color="error"
+                variant="ghost"
+                icon="i-lucide-trash-2"
+                @click="store.deleteSuratTugas(row.original.id)"
+              />
+            </UTooltip>
           </div>
         </template>
 

@@ -133,27 +133,33 @@
                   <div class="flex items-center justify-between">
                     <span class="font-bold text-md text-slate-800 dark:text-slate-200">{{ node.name }}</span>
                     <div v-if="canEditAuditUniverse" class="flex items-center gap-1">
-                      <UButton
-                        icon="i-lucide-plus"
-                        color="primary"
-                        variant="ghost"
-                        size="md"
+                      <UTooltip text="Add Sub Entity">
+                        <UButton
+                          icon="i-lucide-plus"
+                          color="primary"
+                          variant="ghost"
+                          size="md"
                         @click="openAddCustomModal(node.id)"
                       />
-                      <UButton
+                      </UTooltip>
+                      <UTooltip text="Rename Parent Entity">
+                        <UButton
                         icon="i-lucide-edit"
                         color="warning"
                         variant="ghost"
                         size="md"
                         @click="openRenameModal(node)"
                       />
-                      <UButton
-                        icon="i-lucide-trash-2"
-                        color="error"
-                        variant="ghost"
-                        size="md"
-                        @click="deleteCorporateNode(node.id)"
-                      />
+                      </UTooltip>
+                      <UTooltip text="Delete Parent Entity">
+                        <UButton
+                          icon="i-lucide-trash-2"
+                          color="error"
+                          variant="ghost"
+                          size="md"
+                          @click="deleteCorporateNode(node.id)"
+                        />
+                      </UTooltip>
                     </div>
                   </div>
 
@@ -166,7 +172,7 @@
                     >
                       <span class="text-md text-slate-600 dark:text-slate-400">{{ sub.name }}</span>
                       <div class="flex items-center gap-1">
-                        <UTooltip text="Rename">
+                        <UTooltip text="Rename Sub Entity">
                           <UButton
                             icon="i-lucide-edit"
                             color="warning"
@@ -175,7 +181,7 @@
                             @click="openRenameModal(sub)"
                           />
                         </UTooltip>
-                        <UTooltip text="Delete">
+                        <UTooltip text="Delete Sub Entity">
                           <UButton
                             icon="i-lucide-trash-2"
                             color="error"
@@ -197,7 +203,16 @@
         </div>
 
         <!-- Scoped Modals inside Tab 1 library template -->
-        <UModal v-model:open="renameModalOpen">
+        <UModal 
+          v-model:open="renameModalOpen"
+          :ui="{
+            content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+            header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+            body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+            footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+            overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+          }"
+        >
           <template #content>
             <UCard>
               <template #header>
@@ -205,12 +220,28 @@
               </template>
               <div class="space-y-4">
                 <UFormField label="Entity Name" class="space-y-2">
-                  <UInput v-model="renameNodeName" placeholder="Enter entity name" color="neutral" class="w-full" />
+                  <UInput 
+                    v-model="renameNodeName" 
+                    placeholder="Enter entity name" 
+                    color="neutral" 
+                    class="w-full"
+                    type="text"
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Nama entitas maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')" 
+                  />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ renameNodeName ? renameNodeName.length : 0 }}/100
+                  </div>
                 </UFormField>
               </div>
               <template #footer>
                 <div class="flex justify-end gap-3">
-                  <UButton color="neutral" variant="outline" label="Cancel" @click="() => { renameModalOpen = false }" />
+                  <UButton 
+                    color="neutral" 
+                    variant="outline" 
+                    label="Cancel" 
+                    @click="() => { renameModalOpen = false }" />
                   <UButton color="primary" label="Save" @click="saveRenameNode" />
                 </div>
               </template>
@@ -218,7 +249,16 @@
           </template>
         </UModal>
 
-        <UModal v-model:open="addCustomModalOpen">
+        <UModal 
+          v-model:open="addCustomModalOpen"
+          :ui="{
+            content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+            header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+            body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+            footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+            overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+          }"  
+        >
           <template #content>
             <UCard>
               <template #header>
@@ -228,13 +268,32 @@
               </template>
               <div class="space-y-4">
                 <UFormField label="Name" class="space-y-1">
-                  <UInput v-model="addCustomNodeName" placeholder="Enter name..." color="neutral" class="w-full" />
+                  <UInput 
+                    v-model="addCustomNodeName" 
+                    placeholder="Enter name..." 
+                    color="neutral" 
+                    class="w-full"
+                    type="text"
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Nama entitas maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')" 
+                  />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ addCustomNodeName ? addCustomNodeName.length : 0 }}/100
+                  </div>
                 </UFormField>
               </div>
               <template #footer>
                 <div class="flex justify-end gap-3">
-                  <UButton color="neutral" variant="outline" label="Cancel" @click="() => { addCustomModalOpen = false }" />
-                  <UButton color="primary" label="Add Node" @click="saveAddCustomNode" />
+                  <UButton 
+                    color="neutral" 
+                    variant="outline" 
+                    label="Cancel" 
+                    @click="() => { addCustomModalOpen = false }" />
+                  <UButton 
+                    color="primary" 
+                    label="Add Node" 
+                    @click="saveAddCustomNode" />
                 </div>
               </template>
             </UCard>
@@ -444,10 +503,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useRiskFactorsStore } from '~/stores/risk-factors'
 import { useRbac } from '~/composables/useRbac'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const store = useAuditUniverseStore()
 const riskFactorsStore = useRiskFactorsStore()
 const { canEditAuditUniverse } = useRbac()
+const toast = useToastNotification()
 
 const tabItems = [
   { slot: 'library', label: '1. Corporate Universe Builder' },
@@ -573,7 +634,7 @@ const saveRenameNode = async () => {
     standard_audit_universe_id: renameNode.value.standard_audit_universe_id
   })
   renameModalOpen.value = false
-  showAlert('Corporate entity name updated successfully.', 'success')
+  toast.showSuccess('Corporate entity name updated successfully.')
 }
 
 // Adding custom nodes
@@ -609,13 +670,13 @@ const saveAddCustomNode = async () => {
     parent_id: corpParentID
   })
   addCustomModalOpen.value = false
-  showAlert('Custom corporate entity added successfully.', 'success')
+  toast.showSuccess('Custom corporate entity added successfully.')
 }
 
 const deleteCorporateNode = async (id: string) => {
   if (!await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this entity from Corporate Audit Universe? This will delete all sub-entities and yearly entries.' })) return
   await store.deleteCorporateNode(id)
-  showAlert('Entity deleted successfully from corporate library.', 'success')
+  toast.showSuccess('Entity deleted successfully from corporate library.')
   await fetchYearlyUniverse()
 }
 
@@ -636,10 +697,10 @@ const toggleYearlySelection = (id: string) => {
 const saveYearlyEstablishment = async () => {
   const success = await store.establishYearlyUniverse(selectedYear.value, selectedYearlyIDs.value)
   if (success) {
-    showAlert(`Successfully established active Audit Universe for year ${selectedYear.value}.`, 'success')
+    toast.showSuccess(`Successfully established active Audit Universe for year ${selectedYear.value}.`)
     await fetchYearlyUniverse()
   } else {
-    showAlert(store.errorMsg || 'Failed to establish yearly audit universe.', 'error')
+    toast.showError(store.errorMsg || 'Failed to establish yearly audit universe.')
   }
 }
 

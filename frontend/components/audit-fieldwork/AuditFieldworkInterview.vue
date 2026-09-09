@@ -39,32 +39,37 @@
       </template>
       <template #file-cell="{ row }">
         <UButton
-          v-if="row.original.file"
+          v-if="row.original.fileName || row.original.file"
           icon="i-heroicons-document-arrow-down"
           color="neutral"
           variant="ghost"
           size="sm"
+          @click="store.downloadFile(row.original.fileName)"
         >
-          {{ row.original.file.name }}
+          {{ row.original.fileName ? row.original.fileName.split('-').slice(1).join('-') : (row.original.file ? row.original.file.name : '') }}
         </UButton>
         <span v-else class="text-gray-400 text-sm">-</span>
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-1">
-          <UButton
-            icon="i-lucide-edit"
-            color="warning"
-            variant="ghost"
-            size="md"
-            @click="store.editInterview(row.original)"
-          />
-          <UButton
-            icon="i-lucide-trash-2"
-            color="error"
-            variant="ghost"
-            size="md"
-            @click="store.deleteInterview(row.index)"
-          />
+          <UTooltip text="Edit Interview">
+            <UButton
+              icon="i-lucide-edit"
+              color="warning"
+              variant="ghost"
+              size="md"
+              @click="store.editInterview(row.original)"
+            />
+          </UTooltip>
+          <UTooltip text="Delete Interview">
+            <UButton
+              icon="i-lucide-trash-2"
+              color="error"
+              variant="ghost"
+              size="md"
+              @click="store.deleteInterview(row.index)"
+            />
+          </UTooltip>
         </div>
       </template>
     </TableEntities>
@@ -72,7 +77,13 @@
     <!-- Interview Modal -->
     <UModal 
       v-model:open="store.showInterviewModal"
-      :ui="{ content: 'sm:max-w-2xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
     >
       <template #content>
         <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
@@ -93,7 +104,13 @@
                     :placeholder="t('auditFieldwork.interview.intervieweePlaceholder')"
                     class="w-full"
                     required
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Nama auditee maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')"
                   />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ store.interviewForm.interviewee ? store.interviewForm.interviewee.length : 0 }}/100
+                  </div>
                 </UFormField>
                 <UFormField :label="t('auditFieldwork.interview.intervieweePosition')" required>
                   <USelectMenu 
@@ -168,9 +185,9 @@
                   accept=".pdf,.docx,.doc"
                   class="w-full"
                 />
-                <div v-if="store.interviewForm.file" class="mt-2 flex items-center gap-2">
+                <div v-if="store.interviewForm.file || store.interviewForm.fileName" class="mt-2 flex items-center gap-2">
                   <UIcon name="i-heroicons-document" />
-                  <span class="font-bold text-sm">{{ store.interviewForm.file.name }}</span>
+                  <span class="font-bold text-sm">{{ store.interviewForm.file ? store.interviewForm.file.name : (store.interviewForm.fileName ? store.interviewForm.fileName.split('-').slice(1).join('-') : '') }}</span>
                 </div>
               </UFormField>
             </UForm>

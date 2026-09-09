@@ -1,7 +1,13 @@
 <template>
   <UModal 
     v-model:open="store.isModalOpen" 
-    :ui="{ content: 'sm:max-w-4xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
+    :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+    }"
   >
     <template #content>
       <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
@@ -96,10 +102,21 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <UFormField :label="t('auditActivityPlan.form.planTitle')" required>
-                    <UInput v-model="store.formState.planTitle" placeholder="Audit of the Year 2026" class="w-full"/>
+                    <UInput 
+                      v-model="store.formState.planTitle" 
+                      placeholder="Audit of the Year 2026" 
+                      class="w-full"
+                      required
+                      maxlength="100"
+                      @invalid="($event.target as any)?.setCustomValidity('Nama aktivitas maksimal 100 karakter dan wajib diisi')"
+                      @input="($event.target as any)?.setCustomValidity('')"
+                    />
+                    <div class="flex justify-end">
+                      <span class="text-xs text-gray-500 dark:text-gray-400">{{ store.formState.planTitle.length }}/100</span>
+                    </div>
                   </UFormField>
                   <UFormField :label="t('auditActivityPlan.form.planYear')" required>
-                    <UInput v-model="store.formState.planYear" class="w-full"/>
+                    <USelectMenu v-model="store.formState.planYear" :items="yearOptions" class="w-full" placeholder="Pilih Tahun" />
                   </UFormField>
                   <UFormField :label="t('auditActivityPlan.form.planPeriod')" required class="col-span-1 md:col-span-2 w-full">
                     <div class="flex items-center gap-3">
@@ -121,7 +138,7 @@
                   </UFormField>
                 </div>
                 <UFormField :label="t('auditActivityPlan.form.creationDate')" class="pt-5">
-                  <UInput v-model="store.formState.creationDate" type="date" class="w-full" readonly />
+                  <UInput v-model="store.formState.creationDate" type="date" class="w-full" disabled />
                 </UFormField>
               </UCard>
             </div>
@@ -163,10 +180,32 @@
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <UFormField :label="t('auditActivityPlan.form.activityTitle')" required>
-                        <UInput v-model="activity.auditName" placeholder="Audit IT Q1" class="w-full"/>
+                        <UInput 
+                          v-model="activity.auditName" 
+                          placeholder="Audit IT Q1" 
+                          class="w-full"
+                          :required="true"
+                          maxlength="100"
+                          @invalid="($event.target as any)?.setCustomValidity('Nama aktivitas maksimal 100 karakter dan wajib diisi')"
+                          @input="($event.target as any)?.setCustomValidity('')"
+                        />
+                        <div class="flex justify-end">
+                          <span class="text-xs text-gray-500 dark:text-gray-400">{{ activity.auditName.length }}/100</span>
+                        </div>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.auditee')" required>
-                        <UInput v-model="activity.auditee" placeholder="Jamil" class="w-full"/>
+                        <UInput 
+                          v-model="activity.auditee" 
+                          placeholder="Jamil" 
+                          class="w-full"
+                          :required="true"
+                          maxlength="100"
+                          @invalid="($event.target as any)?.setCustomValidity('Auditee maksimal 100 karakter dan wajib diisi')"
+                          @input="($event.target as any)?.setCustomValidity('')"
+                        />
+                        <div class="flex justify-end">
+                          <span class="text-xs text-gray-500 dark:text-gray-400">{{ activity.auditee.length }}/100</span>
+                        </div>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.category')" class="col-span-1 md:col-span-2">
                         <USelectMenu
@@ -384,10 +423,30 @@
                     <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{{ t('auditActivityPlan.form.approvedBy') }}</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <UFormField :label="t('auditActivityPlan.form.approverName')" required>
-                        <UInput v-model="store.formState.review.approverName" class="w-full"/>
+                        <UInput 
+                          v-model="store.formState.review.approverName" 
+                          class="w-full"
+                          required
+                          maxlength="100"
+                          @invalid="($event.target as any)?.setCustomValidity('Nama approval maksimal 100 karakter dan wajib diisi')"
+                          @input="($event.target as any)?.setCustomValidity('')"
+                        />
+                        <div class="text-xs text-gray-500 mt-1 text-right">
+                          {{ store.formState.review.approverName ? store.formState.review.approverName.length : 0 }}/100
+                        </div>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.approverPosition')" required>
-                        <UInput v-model="store.formState.review.approverPosition" class="w-full"/>
+                        <UInput 
+                          v-model="store.formState.review.approverPosition" 
+                          class="w-full"
+                          required
+                          maxlength="100"
+                          @invalid="($event.target as any)?.setCustomValidity('Jabatan approval maksimal 100 karakter dan wajib diisi')"
+                          @input="($event.target as any)?.setCustomValidity('')"
+                        />
+                        <div class="text-xs text-gray-500 mt-1 text-right">
+                          {{ store.formState.review.approverPosition ? store.formState.review.approverPosition.length : 0 }}/100
+                        </div>
                       </UFormField>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
@@ -458,7 +517,7 @@
               :label="t('auditActivityPlan.stepper.previous')" 
               color="neutral" 
               variant="outline"
-              @click="currentStep--"
+              @click="() => { currentStep-- }"
             />
 
             <UButton 
@@ -500,6 +559,15 @@ const riskStore = useRiskProfileStore()
 
 const currentStep = ref(0)
 const stepError = ref('')
+
+const yearOptions = computed(() => {
+  const currentYear = new Date().getFullYear()
+  const options = []
+  for (let i = currentYear - 1; i <= currentYear + 5; i++) {
+    options.push(i.toString())
+  }
+  return options
+})
 
 const steps = computed(() => [
   { key: 'basic', label: t('auditActivityPlan.stepper.step1'), icon: 'i-heroicons-information-circle' },

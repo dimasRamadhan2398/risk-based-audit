@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 export interface AuditSop {
   id: string
@@ -22,6 +23,7 @@ export const useSopStore = defineStore('sop', () => {
   const sops = ref<AuditSop[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
 
   // Pagination State
   const pagination = ref({
@@ -194,11 +196,12 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
+      toast.showSuccess('Petunjuk Teknis/SOP berhasil ditambahkan!')
       await fetchSops()
       closeModal()
     } catch (err: any) {
       console.error('Failed to add sop:', err)
-      errorMsg.value = 'Gagal menambahkan Petunjuk Teknis/SOP.'
+      toast.showError('Gagal menambahkan Petunjuk Teknis/SOP.')
     } finally {
       loading.value = false
     }
@@ -242,11 +245,12 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
+      toast.showSuccess('Petunjuk Teknis/SOP berhasil diperbarui!')
       await fetchSops()
       closeModal()
     } catch (err: any) {
       console.error('Failed to update sop:', err)
-      errorMsg.value = 'Gagal memperbarui Petunjuk Teknis/SOP.'
+      toast.showError('Gagal memperbarui Petunjuk Teknis/SOP.')
     } finally {
       loading.value = false
     }
@@ -266,10 +270,11 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
+      toast.showSuccess('Petunjuk Teknis/SOP berhasil dihapus!')
       await fetchSops()
     } catch (err: any) {
       console.error('Failed to delete sop:', err)
-      errorMsg.value = 'Gagal menghapus Petunjuk Teknis/SOP.'
+      toast.showError('Gagal menghapus Petunjuk Teknis/SOP.')
     } finally {
       loading.value = false
     }

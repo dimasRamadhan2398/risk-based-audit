@@ -32,16 +32,29 @@
         <span>{{ row.original.observer }}</span>
       </template>
       <template #file-cell="{ row }">
-        <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-          {{ row.original.file.name }}
+        <UButton v-if="row.original.fileName || row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm" @click="store.downloadFile(row.original.fileName)">
+          {{ row.original.fileName ? row.original.fileName.split('-').slice(1).join('-') : (row.original.file ? row.original.file.name : '') }}
         </UButton>
-        <span v-else-if="row.original.fileName" class="text-gray-600 text-sm font-semibold">{{ row.original.fileName }}</span>
         <span v-else class="text-gray-400 text-sm">-</span>
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-1">
-          <UButton icon="i-lucide-edit" color="warning" variant="ghost" size="md" @click="store.editObservation(row.original)" />
-          <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="md" @click="store.deleteObservation(row.index)" />
+          <UTooltip text="Edit Observation">
+            <UButton 
+              icon="i-lucide-edit" 
+              color="warning" 
+              variant="ghost" 
+              size="md" 
+              @click="store.editObservation(row.original)" />
+          </UTooltip>
+          <UTooltip text="Delete Observation">
+            <UButton 
+              icon="i-lucide-trash-2" 
+              color="error" 
+              variant="ghost" 
+              size="md" 
+              @click="store.deleteObservation(row.index)" />
+          </UTooltip>
         </div>
       </template>
     </TableEntities>
@@ -49,6 +62,13 @@
     <!-- Observation Modal -->
     <UModal 
       v-model:open="store.showObservationModal"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
     >
       <template #content>
         <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
@@ -67,7 +87,18 @@
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField :label="t('auditFieldwork.observation.location')" required>
-                  <UInput v-model="store.observationForm.location" :placeholder="t('auditFieldwork.observation.locationPlaceholder')" required class="w-full" />
+                  <UInput 
+                    v-model="store.observationForm.location" 
+                    :placeholder="t('auditFieldwork.observation.locationPlaceholder')" 
+                    required 
+                    class="w-full" 
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Lokasi observasi maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')"
+                  />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ store.observationForm.location ? store.observationForm.location.length : 0 }}/100
+                  </div>
                 </UFormField>
                 <UFormField :label="t('auditFieldwork.observation.date')" required>
                   <UInput v-model="store.observationForm.date" type="date" required class="w-full" />
@@ -101,9 +132,9 @@
                   accept=".pdf,.docx,.doc"
                   class="w-full"
                 />
-                <div v-if="store.observationForm.file" class="mt-2 flex items-center gap-2">
+                <div v-if="store.observationForm.file || store.observationForm.fileName" class="mt-2 flex items-center gap-2">
                   <UIcon name="i-heroicons-document" />
-                  <span class="font-bold text-sm">{{ store.observationForm.file.name }}</span>
+                  <span class="font-bold text-sm">{{ store.observationForm.file ? store.observationForm.file.name : (store.observationForm.fileName ? store.observationForm.fileName.split('-').slice(1).join('-') : '') }}</span>
                 </div>
               </UFormField>
             </UForm>

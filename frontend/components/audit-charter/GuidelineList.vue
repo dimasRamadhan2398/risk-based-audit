@@ -86,29 +86,35 @@
         <!-- Actions slot -->
         <template #actions-cell="{ row }">
           <div class="flex justify-end gap-1">
-            <UButton
-              v-if="row.original.file_url && row.original.file_url !== '#'"
-              :to="row.original.file_url"
-              target="_blank"
-              icon="i-lucide-eye"
-              color="neutral"
-              variant="ghost"
-              size="md"
-            />
-            <UButton
-              size="md"
-              color="warning"
-              variant="ghost"
-              icon="i-lucide-edit"
-              @click="store.handleEdit(row.original)"
-            />
-            <UButton
-              size="md"
-              color="error"
-              variant="ghost"
-              icon="i-lucide-trash-2"
-              @click="confirmDelete(row.original)"
-            />
+            <UTooltip text="View Guideline">
+              <UButton
+                v-if="row.original.file_url && row.original.file_url !== '#'"
+                :to="row.original.file_url"
+                target="_blank"
+                icon="i-lucide-eye"
+                color="neutral"
+                variant="ghost"
+                size="md"
+              />
+            </UTooltip>
+            <UTooltip text="Edit Guideline">
+              <UButton
+                size="md"
+                color="warning"
+                variant="ghost"
+                icon="i-lucide-edit"
+                @click="store.handleEdit(row.original)"
+              />
+            </UTooltip>
+            <UTooltip text="Delete Guideline">
+              <UButton
+                size="md"
+                color="error"
+                variant="ghost"
+                icon="i-lucide-trash-2"
+                @click="confirmDelete(row.original)"
+              />
+            </UTooltip>
           </div>
         </template>
       </TableEntities>

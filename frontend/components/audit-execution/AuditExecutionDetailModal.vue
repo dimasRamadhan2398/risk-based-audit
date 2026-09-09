@@ -41,8 +41,17 @@ const sendReminder = () => {
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" :ui="{ content: 'sm:max-w-4xl' }" scrollable>
-    <template #content>
+  <UModal 
+    v-model:open="isOpen" 
+    :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+    }"
+  >
+    <template #body>
       <UCard :ui="{ root: 'divide-y divide-gray-100 dark:divide-gray-800' }">
         <template #header>
           <div class="flex items-center justify-between">
@@ -215,18 +224,17 @@ const sendReminder = () => {
             </div>
           </UCard>
         </div>
-
-        <template #footer>
-          <div class="flex justify-end">
-            <UButton
-              :label="t('auditExecution.detailModal.sendReminder')"
-              color="primary"
-              icon="i-lucide-bell"
-              @click="sendReminder"
-            />
-          </div>
-        </template>
       </UCard>
+    </template>
+    <template #footer>
+      <div class="flex justify-end w-full">
+        <UButton
+          :label="t('auditExecution.detailModal.sendReminder')"
+          color="primary"
+          icon="i-lucide-bell"
+          @click="sendReminder"
+        />
+      </div>
     </template>
   </UModal>
 </template>

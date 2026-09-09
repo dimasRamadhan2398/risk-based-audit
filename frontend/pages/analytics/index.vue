@@ -858,14 +858,13 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colEntity') }}</th>
                       <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colType') }}</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colRiskCategory') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colActual') }}</th>
+                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colActualRiskLevel') }}</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colTargetPeriod') }}</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredLikelihood') }}</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredImpact') }}</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredScore') }}</th>
                       <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredRiskLevel') }}</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colActual') }}</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colActualRiskLevel') }}</th>
-                      <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colTrend') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -873,6 +872,17 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       <td class="py-3 px-4 font-bold">{{ row.entity }}</td>
                       <td class="py-3 px-4"><UBadge :color="row.type === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="md">{{ row.type }}</UBadge></td>
                       <td class="text-center py-3 px-4"><UBadge :color="riskCategoryColor(row.riskCategory)" variant="subtle" size="md">{{ row.riskCategory }}</UBadge></td>
+                      <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.actualScore, 1) }}</td>
+                      <td class="text-center py-3 px-4">
+                        <UBadge
+                          :style="{ backgroundColor: getRiskConfig(row.actualRiskLevel).color, color: 'white' }"
+                          variant="solid"
+                          size="md"
+                          class="font-bold"
+                        >
+                          {{ getRiskConfig(row.actualRiskLevel).label }}
+                        </UBadge>
+                      </td>
                       <td class="text-center py-3 px-4"><UBadge color="info" variant="subtle" size="md" class="font-bold">{{ row.targetTimeline || 'Q3 2026' }}</UBadge></td>
                       <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.predictedLikelihood, 1) }}</td>
                       <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.predictedImpact, 1) }}</td>
@@ -887,20 +897,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                           {{ getRiskConfig(row.predictedRiskLevel).label }}
                         </UBadge>
                       </td>
-                      <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.actualScore, 1) }}</td>
-                      <td class="text-center py-3 px-4">
-                        <UBadge
-                          :style="{ backgroundColor: getRiskConfig(row.actualRiskLevel).color, color: 'white' }"
-                          variant="solid"
-                          size="md"
-                          class="font-bold"
-                        >
-                          {{ getRiskConfig(row.actualRiskLevel).label }}
-                        </UBadge>
-                      </td>
-                      <td class="text-center py-3 px-4">
-                        <UIcon :name="trendIcon(row.trend)" class="w-5 h-5" :class="trendColor(row.trend)" />
-                      </td>
+                      
                     </tr>
                   </tbody>
                 </table>

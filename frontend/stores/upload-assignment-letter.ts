@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
@@ -17,7 +18,7 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
   const uploadedDocuments = ref<UploadedAssignmentLetter[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
-
+  const toast = useToastNotification()
 
 
   const fetchUploadedDocuments = async () => {
@@ -25,12 +26,6 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-assignment-letters`, {
         method: 'GET'
       });
@@ -52,14 +47,21 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value as any);
+        }
+      });
       await $fetch(`${baseUrl}/uploaded-assignment-letters`, {
         method: 'POST',
         body: formData
       });
+      toast.showSuccess('Assignment letter document uploaded successfully')
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to upload assignment letter document:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload assignment letter document.';
+      toast.showError(error.data?.message || 'Failed to upload assignment letter document.')
       throw error;
     } finally {
       loading.value = false;
@@ -74,29 +76,24 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       await $fetch(`${baseUrl}/uploaded-assignment-letters/${id}`, {
         method: 'DELETE'
       });
+      toast.showSuccess('Assignment letter document deleted successfully')
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to delete uploaded assignment letter:', error);
-      errorMsg.value = 'Failed to delete assignment letter.';
+      toast.showError(error.data?.message || 'Failed to delete assignment letter.')
       throw error;
     } finally {
       loading.value = false;
     }
   };
 
-    const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-assignment-letters/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
@@ -110,16 +107,10 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
   const downloadDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-assignment-letters/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

@@ -53,29 +53,33 @@
 
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-2">
-          <UButton
-            icon="i-lucide-eye"
-            color="neutral"
-            variant="ghost"
-            size="md"
-            @click="store.openViewModal(getOriginal(row))"
-          />
-          
-          <UButton
-            icon="i-lucide-edit"
-            color="warning"
-            variant="ghost"
-            size="md"
-            @click="store.handleEdit(getOriginal(row))"
-          />
-
-          <UButton
-            icon="i-lucide-trash-2"
-            color="error"
-            variant="ghost"
-            size="md"
-            @click="store.handleDelete(getOriginal(row).id)"
-          />
+          <UTooltip text="View Plan">
+            <UButton
+              icon="i-lucide-eye"
+              color="neutral"
+              variant="ghost"
+              size="md"
+              @click="store.openViewModal(getOriginal(row))"
+            />
+          </UTooltip>
+          <UTooltip text="Edit Plan">
+            <UButton
+              icon="i-lucide-edit"
+              color="warning"
+              variant="ghost"
+              size="md"
+              @click="store.handleEdit(getOriginal(row))"
+            />
+          </UTooltip>
+          <UTooltip text="Delete Plan">
+            <UButton
+              icon="i-lucide-trash-2"
+              color="error"
+              variant="ghost"
+              size="md"
+              @click="store.handleDelete(getOriginal(row).id)"
+            />
+          </UTooltip>
         </div>
       </template>
     </TableEntities>

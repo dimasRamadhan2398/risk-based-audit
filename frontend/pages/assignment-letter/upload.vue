@@ -21,14 +21,20 @@
             </h3>
           </template>
 
-          <form @submit.prevent="handleUpload" class="space-y-6">
+          <UForm @submit.prevent="handleUpload" class="space-y-6">
             <UFormField :label="t('assignmentLetter.upload.documentTitle')" required>
               <UInput 
                 v-model="form.title" 
                 :placeholder="t('assignmentLetter.upload.documentTitlePlaceholder')" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul surat maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('assignmentLetter.upload.description')">
@@ -105,7 +111,7 @@
               icon="i-lucide-upload"
               :disabled="!form.title || !form.fileName"
             />
-          </form>
+          </UForm>
         </UCard>
       </div>
 
@@ -158,30 +164,33 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="neutral" 
-                  variant="ghost" 
-                  size="md" 
-                  :title="t('assignmentLetter.upload.actions.view')" 
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                <UTooltip :text="t('assignmentLetter.upload.actions.view')">
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="neutral" 
+                    variant="ghost" 
+                    size="md" 
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
-                <UButton 
+                </UTooltip>
+                <UTooltip :text="t('assignmentLetter.upload.actions.download')">
+                  <UButton 
                   icon="i-lucide-download" 
                   color="success" 
                   variant="ghost" 
                   size="md" 
-                  :title="t('assignmentLetter.upload.actions.download')" 
                   @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                 />
-                <UButton 
+                </UTooltip>
+                <UTooltip :text="t('assignmentLetter.upload.actions.delete')">
+                  <UButton 
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
                   size="md" 
-                  :title="t('assignmentLetter.upload.actions.delete')" 
                   @click="handleDelete(row.original.id)" 
                 />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>

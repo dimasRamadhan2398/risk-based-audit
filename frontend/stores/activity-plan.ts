@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import type { TableColumn } from '@nuxt/ui'
 import { type ActivityPlan, type ActivityPlanFormState, AuditCategory, AuditDepartment } from '~/types/audit';
 import { RiskLevel } from '~/types/risk';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 
 export const useActivityPlanStore = defineStore('activity-plan', () => {
   const isModalOpen = ref(false);
@@ -10,6 +11,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   const isEditMode = ref(false);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification()
 
   const executionStatusOptions = [
     { label: "Planned", value: "planned" },
@@ -157,9 +159,10 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
         method: 'DELETE'
       });
       await fetchPlans();
+      toast.showSuccess('Activity plan deleted successfully.');
     } catch (error: any) {
       console.error('Failed to delete activity plan:', error);
-      errorMsg.value = 'Failed to delete activity plan.';
+      toast.showError('Failed to delete activity plan.');
     } finally {
       loading.value = false;
     }
@@ -174,12 +177,12 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       // Transform planned activities to match backend expectations if needed
       // but for now we follow existing structure and just ensure fields are there
 
-      const fileList = formState.value.file && formState.value.file.length > 0 
+      const fileList = formState.value.file && formState.value.file.length > 0
         ? formState.value.file.map((f: any) => ({
-            name: f.name,
-            size: Math.round(f.size / 1024) + ' KB',
-            url: '#'
-          }))
+          name: f.name,
+          size: Math.round(f.size / 1024) + ' KB',
+          url: '#'
+        }))
         : [];
 
       const payload = {
@@ -200,25 +203,26 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
         });
 
         for (const act of formState.value.plannedActivities) {
-           await $fetch(`${baseUrl}/audit-activities`, {
-             method: 'POST',
-             body: {
-                title: act.auditName,
-                engagement_subject: act.auditee,
-                audit_type: act.category,
-                justification: act.priority, // or mapped differently
-                audit_purpose: 'Standard Audit',
-                team_size: act.numberOfAuditors,
-                status: 'PLANNED'
-             }
-           });
+          await $fetch(`${baseUrl}/audit-activities`, {
+            method: 'POST',
+            body: {
+              title: act.auditName,
+              engagement_subject: act.auditee,
+              audit_type: act.category,
+              justification: act.priority, // or mapped differently
+              audit_purpose: 'Standard Audit',
+              team_size: act.numberOfAuditors,
+              status: 'PLANNED'
+            }
+          });
         }
       }
       closeModal();
+      toast.showSuccess('Activity plan saved successfully.');
       await fetchPlans();
     } catch (error: any) {
       console.error('Failed to save activity plan:', error);
-      errorMsg.value = 'Failed to save activity plan.';
+      toast.showError('Failed to save activity plan.');
     } finally {
       loading.value = false;
     }
