@@ -38,7 +38,7 @@
     </Transition>
 
     <!-- Tabs Navigation -->
-    <UTabs :items="tabItems" class="w-full">
+    <UTabs v-model="activeTab" :items="tabItems" class="w-full">
       
       <!-- Tab 1: Corporate Universe Builder -->
       <template #library>
@@ -440,7 +440,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useRiskFactorsStore } from '~/stores/risk-factors'
 import { useRbac } from '~/composables/useRbac'
@@ -448,12 +449,23 @@ import { useRbac } from '~/composables/useRbac'
 const store = useAuditUniverseStore()
 const riskFactorsStore = useRiskFactorsStore()
 const { canEditAuditUniverse } = useRbac()
+const route = useRoute()
 
 const tabItems = [
-  { slot: 'library', label: '1. Corporate Universe Builder' },
-  { slot: 'establish', label: '2. Yearly Establishment' },
-  { slot: 'priority', label: '3. Audit Priority' }
+  { value: 'library', slot: 'library', label: '1. Corporate Universe Builder' },
+  { value: 'establish', slot: 'establish', label: '2. Yearly Establishment' },
+  { value: 'priority', slot: 'priority', label: '3. Audit Priority' }
 ]
+
+const activeTab = ref(
+  route.query.tab === 'priority' ? 'priority' : route.query.tab === 'establish' ? 'establish' : 'library'
+)
+
+watch(() => route.query.tab, (newTab) => {
+  if (newTab === 'priority' || newTab === 'establish' || newTab === 'library') {
+    activeTab.value = newTab as string
+  }
+})
 
 // State
 const selectedYear = ref(2026)

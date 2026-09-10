@@ -1,6 +1,46 @@
 import { defineStore } from 'pinia'
 import { AuditCategory, AuditStatus, type AuditExecution } from '~/types/audit'
 
+export function normalizeAuditStatus(status?: string | null, progress?: number): string {
+  if (!status && typeof progress === 'number') {
+    if (progress >= 100) return 'completed'
+    if (progress >= 76) return 'reporting'
+    if (progress >= 51) return 'draft findings'
+    if (progress >= 26) return 'fieldwork'
+    if (progress >= 1) return 'entry meeting'
+    return 'planning'
+  }
+  const clean = String(status || '').toLowerCase().replace(/[\s_-]+/g, ' ').trim()
+  if (clean === 'completed' || clean === 'done' || clean === 'finished' || clean === 'audit completed') {
+    return 'completed'
+  }
+  if (clean === 'reporting' || clean === 'reporting & exit meeting' || clean === 'reporting exit meeting') {
+    return 'reporting'
+  }
+  if (clean === 'draft findings' || clean === 'draft findings & recommendations' || clean === 'draft findings recommendations') {
+    return 'draft findings'
+  }
+  if (clean === 'fieldwork' || clean === 'fieldwork & control testing' || clean === 'fieldwork control testing') {
+    return 'fieldwork'
+  }
+  if (clean === 'entry meeting' || clean === 'entry meeting & scope alignment' || clean === 'entry meeting scope alignment') {
+    return 'entry meeting'
+  }
+  if (clean === 'planning' || clean === 'planned' || clean === 'planning & preparation' || clean === 'planning preparation') {
+    return 'planning'
+  }
+  if (clean === 'in progress') {
+    if (typeof progress === 'number') {
+      if (progress >= 76) return 'reporting'
+      if (progress >= 51) return 'draft findings'
+      if (progress >= 26) return 'fieldwork'
+      if (progress >= 1) return 'entry meeting'
+    }
+    return 'fieldwork'
+  }
+  return clean || 'planning'
+}
+
 export const useAuditExecutionStore = defineStore('audit-execution', {
   state: () => ({
     auditExecutions: [
@@ -11,8 +51,9 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         category: AuditCategory.ASSURANCE,
         progress: 100,
         lead_auditor: 'Dimas P',
-        status: AuditStatus.COMPLETED,
-        status_detail: 'On Time',
+        status: 'completed',
+        status_detail: 'Audit Completed',
+        created_at: '2026-01-15T10:00:00Z',
         sample_data_test_controls: {
           progress: 100,
           description: 'Testing the efficiency of financial controls.'
@@ -36,10 +77,11 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         ref: 'AUD-2026-002',
         name: 'Financial Operations',
         category: AuditCategory.ASSURANCE,
-        progress: 50,
+        progress: 40,
         lead_auditor: 'Sarah',
-        status: AuditStatus.IN_PROGRESS,
-        status_detail: 'On Time',
+        status: 'fieldwork',
+        status_detail: 'Fieldwork & Control Testing',
+        created_at: '2026-04-10T10:00:00Z',
         sample_data_test_controls: {
           progress: 50,
           description: 'Testing the efficiency of controls & risk mitigation for IT security.'
@@ -63,10 +105,11 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         ref: 'AUD-2026-003',
         name: 'Vendor Risk Assessment',
         category: AuditCategory.SPECIAL_AUDIT,
-        progress: 100,
+        progress: 80,
         lead_auditor: 'Budi',
-        status: AuditStatus.COMPLETED,
-        status_detail: 'On Time',
+        status: 'reporting',
+        status_detail: 'Reporting & Exit Meeting',
+        created_at: '2026-07-20T10:00:00Z',
         sample_data_test_controls: {
           progress: 100,
           description: 'Vendor risk assessment'
@@ -88,38 +131,35 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
       {
         id: '4',
         ref: 'AUD-2026-004',
-        name: 'Vendor Risk Assessment',
+        name: 'Human Capital & Payroll',
         category: AuditCategory.SPECIAL_AUDIT,
-        progress: 0,
-        lead_auditor: 'Budi',
-        status: AuditStatus.PLANNED,
+        progress: 15,
+        lead_auditor: 'Budi Santoso',
+        status: 'entry meeting',
+        status_detail: 'Entry Meeting & Scope Alignment',
+        created_at: '2026-10-05T10:00:00Z',
       },
       {
         id: '5',
         ref: 'AUD-2026-005',
-        name: 'Inventory Audit',
+        name: 'Logistics & Warehouse Audit',
+        category: AuditCategory.ASSURANCE,
+        progress: 60,
+        lead_auditor: 'Sarah Putri',
+        status: 'draft findings',
+        status_detail: 'Draft Findings & Recommendations',
+        created_at: '2026-02-20T10:00:00Z',
+      },
+      {
+        id: '6',
+        ref: 'AUD-2026-006',
+        name: 'Procurement Unit Planning',
         category: AuditCategory.ASSURANCE,
         progress: 0,
-        lead_auditor: 'Budi',
-        status: AuditStatus.PLANNED,
-        status_detail: 'On Time',
-        sample_data_test_controls: {
-          progress: 100,
-          description: 'Testing the efficiency of controls & risk mitigation for IT security.'
-        },
-        working_papers: {
-          condition: 'Inventory difference 5% (Warehouse A)',
-          criteria: 'OP Inventory No. 12'
-        },
-        action_plan_improvements: {
-          recommendation: 'Re-count stock & double lock.',
-          deadline: '2026-02-20',
-          pic: 'Logistics Department'
-        },
-        latest_update_progress: {
-          attachment: 'Fiskal_Photo.jpg',
-          description: 'Still counting. Issue: Lack of night shift personnel.'
-        }
+        lead_auditor: 'Rina Wulandari',
+        status: 'planning',
+        status_detail: 'Planning & Preparation',
+        created_at: '2026-03-01T10:00:00Z',
       }
     ] as AuditExecution[],
     loading: false,
@@ -128,9 +168,16 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
 
   getters: {
     getSummary: (state) => {
-      const completed = state.auditExecutions.filter((e: { status: AuditStatus }) => e.status === AuditStatus.COMPLETED).length
-      const inProgress = state.auditExecutions.filter((e: { status: AuditStatus }) => e.status === AuditStatus.IN_PROGRESS).length
-      const planned = state.auditExecutions.filter((e: { status: AuditStatus }) => e.status === AuditStatus.PLANNED).length
+      const completed = state.auditExecutions.filter((e: { status?: string; progress?: number }) => 
+        normalizeAuditStatus(e.status, e.progress) === 'completed'
+      ).length
+      const inProgress = state.auditExecutions.filter((e: { status?: string; progress?: number }) => {
+        const norm = normalizeAuditStatus(e.status, e.progress)
+        return norm === 'entry meeting' || norm === 'fieldwork' || norm === 'draft findings' || norm === 'reporting' || norm === 'in progress'
+      }).length
+      const planned = state.auditExecutions.filter((e: { status?: string; progress?: number }) => 
+        normalizeAuditStatus(e.status, e.progress) === 'planning'
+      ).length
       return { completed, inProgress, planned }
     }
   },
@@ -147,8 +194,9 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
           category: 'Finance',
           progress: 100,
           lead_auditor: 'Dimas P',
-          status: AuditStatus.COMPLETED,
-          status_detail: 'On Time',
+          status: 'completed',
+          status_detail: 'Audit Completed',
+          created_at: '2026-01-15T10:00:00Z',
           sample_data_test_controls: {
             progress: 100,
             description: 'Testing the efficiency of financial controls.'
@@ -172,10 +220,11 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
           ref: 'AUD-2026-002',
           name: 'Financial Operations',
           category: AuditCategory.ASSURANCE,
-          progress: 50,
+          progress: 40,
           lead_auditor: 'Sarah',
-          status: AuditStatus.IN_PROGRESS,
-          status_detail: 'On Time',
+          status: 'fieldwork',
+          status_detail: 'Fieldwork & Control Testing',
+          created_at: '2026-04-10T10:00:00Z',
           sample_data_test_controls: {
             progress: 50,
             description: 'Testing the efficiency of controls & risk mitigation for IT security.'
@@ -199,10 +248,11 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
           ref: 'AUD-2026-003',
           name: 'Vendor Risk Assessment',
           category: AuditCategory.SPECIAL_AUDIT,
-          progress: 100,
+          progress: 80,
           lead_auditor: 'Budi',
-          status: AuditStatus.COMPLETED,
-          status_detail: 'On Time',
+          status: 'reporting',
+          status_detail: 'Reporting & Exit Meeting',
+          created_at: '2026-07-20T10:00:00Z',
           sample_data_test_controls: {
             progress: 100,
             description: 'Vendor risk assessment'
@@ -224,38 +274,35 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         {
           id: '4',
           ref: 'AUD-2026-004',
-          name: 'Vendor Risk Assessment',
+          name: 'Human Capital & Payroll',
           category: AuditCategory.SPECIAL_AUDIT,
-          progress: 0,
-          lead_auditor: 'Budi',
-          status: AuditStatus.PLANNED,
+          progress: 15,
+          lead_auditor: 'Budi Santoso',
+          status: 'entry meeting',
+          status_detail: 'Entry Meeting & Scope Alignment',
+          created_at: '2026-10-05T10:00:00Z',
         },
         {
           id: '5',
           ref: 'AUD-2026-005',
-          name: 'Inventory Audit',
+          name: 'Logistics & Warehouse Audit',
+          category: AuditCategory.ASSURANCE,
+          progress: 60,
+          lead_auditor: 'Sarah Putri',
+          status: 'draft findings',
+          status_detail: 'Draft Findings & Recommendations',
+          created_at: '2026-02-20T10:00:00Z',
+        },
+        {
+          id: '6',
+          ref: 'AUD-2026-006',
+          name: 'Procurement Unit Planning',
           category: AuditCategory.ASSURANCE,
           progress: 0,
-          lead_auditor: 'Budi',
-          status: AuditStatus.PLANNED,
-          status_detail: 'On Time',
-          sample_data_test_controls: {
-            progress: 100,
-            description: 'Testing the efficiency of controls & risk mitigation for IT security.'
-          },
-          working_papers: {
-            condition: 'Inventory difference 5% (Warehouse A)',
-            criteria: 'OP Inventory No. 12'
-          },
-          action_plan_improvements: {
-            recommendation: 'Re-count stock & double lock.',
-            deadline: '2026-02-20',
-            pic: 'Logistics Department'
-          },
-          latest_update_progress: {
-            attachment: 'Fiskal_Photo.jpg',
-            description: 'Still counting. Issue: Lack of night shift personnel.'
-          }
+          lead_auditor: 'Rina Wulandari',
+          status: 'planning',
+          status_detail: 'Planning & Preparation',
+          created_at: '2026-03-01T10:00:00Z',
         }
       ] as AuditExecution[]
 
@@ -267,15 +314,18 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         })
         let items: AuditExecution[] = []
         if (response && response.data && Array.isArray(response.data.items)) {
-        items = response.data.items
-      } else if (response && Array.isArray(response.items)) {
-        items = response.items
+          items = response.data.items
+        } else if (response && Array.isArray(response.items)) {
+          items = response.items
         } else if (Array.isArray(response)) {
           items = response
         }
 
         if (items.length > 0) {
-          this.auditExecutions = items
+          this.auditExecutions = items.map(item => ({
+            ...item,
+            status: normalizeAuditStatus(item.status, item.progress)
+          }))
         } else {
           this.auditExecutions = mockList
         }

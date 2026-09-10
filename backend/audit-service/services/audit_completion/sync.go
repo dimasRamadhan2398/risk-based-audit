@@ -47,7 +47,8 @@ func SyncExecutionStatusToActivity(ctx context.Context, db *gorm.DB, exec *model
 		targetStatus = "COMPLETED"
 	case statusUpper == "REPORTING" || statusUpper == "FINAL_REVIEW":
 		targetStatus = "REPORTING"
-	case exec.Progress > 0 || statusUpper == "IN_PROGRESS" || statusUpper == "IN PROGRESS" || statusUpper == "STARTED":
+	case exec.Progress > 0 || statusUpper == "IN_PROGRESS" || statusUpper == "IN PROGRESS" || statusUpper == "STARTED" ||
+		statusUpper == "ENTRY MEETING" || statusUpper == "ENTRY_MEETING" || statusUpper == "FIELDWORK" || statusUpper == "DRAFT FINDINGS" || statusUpper == "DRAFT_FINDINGS":
 		targetStatus = "IN_PROGRESS"
 	case statusUpper == "CANCELLED" || statusUpper == "CANCELED":
 		targetStatus = "CANCELLED"

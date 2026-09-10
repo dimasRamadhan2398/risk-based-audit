@@ -34,7 +34,7 @@
                 maxlength="200"
                 class="mt-1 block w-full rounded-md"
                 :placeholder="t('auditCharter.form.docTitlePlaceholder')"
-                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 200 karakter dan wajib diisi')"
+                @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.form.docTitleValidation'))"
                 @input="($event.target as any)?.setCustomValidity('')"
               />
             </UFormField>
@@ -88,7 +88,7 @@
                   maxlength="200"
                   class="mt-1 block w-full rounded-md"
                   :placeholder="t('auditCharter.form.approvedByPlaceholder')"
-                  @invalid="($event.target as any)?.setCustomValidity('Penyetuju maksimal 200 karakter dan wajib diisi')"
+                  @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.form.approvedByValidation'))"
                   @input="($event.target as any)?.setCustomValidity('')"
                 />
               </UFormField>
@@ -126,7 +126,7 @@
                 />
               </div>
               <p v-if="store.form.file || store.form.fileName" class="text-md text-gray-500 mt-1">
-                File terpilih: <span class="font-semibold text-gray-700">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
+                {{ t('auditCharter.form.selectedFile') }} <span class="font-semibold text-gray-700">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
               </p>
             </UFormField>
 

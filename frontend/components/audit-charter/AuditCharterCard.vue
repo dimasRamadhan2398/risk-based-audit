@@ -157,7 +157,7 @@
         </h3>
         <TableEntities
           :data="store.historyCharters"
-          :columns="store.columns"
+          :columns="columns"
           :empty-state="{
             icon: 'i-lucide-folder-open',
             label: t('auditCharter.card.emptyHistory'),
@@ -255,6 +255,16 @@ import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 const { t } = useI18n()
 const store = useCharterStore()
 const { canManageCharter } = useRbac()
+
+const columns = computed(() => [
+  { accessorKey: 'version', header: t('auditCharter.card.columns.version'), class: 'w-16 whitespace-nowrap text-center' },
+  { accessorKey: 'title', header: t('auditCharter.card.columns.title'), class: 'w-48' },
+  { accessorKey: 'content', header: t('auditCharter.card.columns.content'), class: 'w-48' },
+  { accessorKey: 'date', header: t('auditCharter.card.columns.date'), class: 'w-28 whitespace-nowrap' },
+  { accessorKey: 'approvedBy', header: t('auditCharter.card.columns.approvedBy'), class: 'w-36' },
+  { accessorKey: 'uploadedBy', header: t('auditCharter.card.columns.uploadedBy'), class: 'w-36' },
+  { accessorKey: 'actions', header: t('auditCharter.card.columns.actions'), class: 'w-14 whitespace-nowrap text-center' },
+])
 
 const confirmDelete = async (item: any) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('auditCharter.card.deleteConfirm', { title: item.title, version: item.version }) })) {

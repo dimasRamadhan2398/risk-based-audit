@@ -18,6 +18,18 @@ export enum AuditStatus {
   REPORTING = "Reporting",
   COMPLETED = "Completed",
   CANCELLED = "Cancelled",
+  PLANNING = "planning",
+  ENTRY_MEETING = "entry meeting",
+  DRAFT_FINDINGS = "draft findings",
+}
+
+export enum AuditExecutionStatus {
+  PLANNING = "planning",
+  ENTRY_MEETING = "entry meeting",
+  FIELDWORK = "fieldwork",
+  DRAFT_FINDINGS = "draft findings",
+  REPORTING = "reporting",
+  COMPLETED = "completed",
 }
 
 export enum AnnualAuditPlanStatus {
@@ -562,8 +574,10 @@ export interface AuditExecution {
   department?: AuditDepartment | string
   progress: number
   lead_auditor: string
-  status: AuditStatus
-  status_detail?: 'Late' | 'On Time'
+  status: AuditStatus | string
+  status_detail?: 'Late' | 'On Time' | string
+  created_at?: string
+  createdAt?: string
   sample_data_test_controls?: {
     progress: number
     description: string

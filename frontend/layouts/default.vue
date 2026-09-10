@@ -25,19 +25,24 @@ const closeMobileMenu = () => {
 
 // 1. Simpan data menu dalam variabel mentah (raw data)
 const rawItems: NavigationMenuItem[][] = [[
+  // 1. Dashboard
   {
     label: 'Dashboard',
-    icon: 'i-lucide-users',
+    icon: 'i-lucide-layout-dashboard',
     to: '/dashboard'
   },
+
+  // 2. Audit Charter
   {
-    label: '1. Audit Charter',
-    icon: 'charter',
+    label: 'Audit Charter',
+    icon: 'i-lucide-scroll-text',
     to: '/audit-charter'
   },
+
+  // 3. Risk Profile & Audit Universe
   {
-    label: '2. Risk Profile',
-    icon: 'i-lucide-inbox',
+    label: 'Risk Profile & Audit Universe',
+    icon: 'i-lucide-shield-alert',
     to: '/risk-profile',
     children: [
       {
@@ -61,106 +66,154 @@ const rawItems: NavigationMenuItem[][] = [[
         to: '/risk-profile/audit-universe'
       },
       {
+        label: 'Audit Priority',
+        icon: 'i-lucide-list-ordered',
+        to: '/risk-profile/audit-universe?tab=priority'
+      },
+      {
         label: 'Risk Control Matrix',
         icon: 'i-lucide-grid',
         to: '/risk-profile/risk-control-matrix'
       }
     ]
   },
+
+  // 4. Audit Planning
   {
-    label: '3. Strategic Audit Plan',
-    icon: 'i-lucide-users',
-    to: '/strategic-audit-plan',
+    label: 'Audit Planning',
+    icon: 'i-lucide-calendar-days',
+    type: 'trigger',
     children: [
       {
-        label: 'Create Strategic Audit Plan',
-        icon: 'i-lucide-layout-dashboard',
-        to: '/strategic-audit-plan'
+        label: 'Strategic Audit Plan',
+        icon: 'i-lucide-target',
+        type: 'trigger',
+        children: [
+          {
+            label: 'Strategic Audit Plan',
+            icon: 'i-lucide-layout-dashboard',
+            to: '/strategic-audit-plan'
+          },
+          {
+            label: 'Import Strategic Audit Plan',
+            icon: 'i-lucide-upload',
+            to: '/strategic-audit-plan/upload'
+          }
+        ]
       },
       {
-        label: 'Import Strategic Audit Plan',
-        icon: 'i-lucide-upload',
-        to: '/strategic-audit-plan/upload'
+        label: 'Internal Audit Performance',
+        icon: 'i-lucide-trending-up',
+        type: 'trigger',
+        children: [
+          {
+            label: 'Internal Audit Performance',
+            icon: 'i-lucide-layout-dashboard',
+            to: '/kpi-performance'
+          },
+          {
+            label: 'Import Laporan Kinerja',
+            icon: 'i-lucide-upload',
+            to: '/kpi-performance/upload'
+          }
+        ]
+      },
+      {
+        label: 'Annual Audit Plan',
+        icon: 'i-lucide-calendar',
+        type: 'trigger',
+        children: [
+          {
+            label: 'Create Annual Audit Plan',
+            icon: 'i-lucide-layout-dashboard',
+            to: '/annual-audit'
+          },
+          {
+            label: 'Import Annual Audit Plan',
+            icon: 'i-lucide-upload',
+            to: '/annual-audit/upload'
+          },
+          {
+            label: 'Audit Execution Status',
+            icon: 'i-lucide-check-circle-2',
+            to: '/audit-execution-status'
+          }
+        ]
+      },
+      {
+        label: 'Audit Activity Plan',
+        icon: 'i-lucide-clipboard-list',
+        type: 'trigger',
+        children: [
+          {
+            label: 'Create Audit Activity Plan',
+            icon: 'i-lucide-layout-dashboard',
+            to: '/audit-activity-plan'
+          },
+          {
+            label: 'Import Audit Activity Plan',
+            icon: 'i-lucide-upload',
+            to: '/audit-activity-plan/upload'
+          }
+        ]
+      },
+      {
+        label: 'Assignment Letter',
+        icon: 'i-lucide-file-signature',
+        type: 'trigger',
+        children: [
+          {
+            label: 'Create Assignment Letter',
+            icon: 'i-lucide-layout-dashboard',
+            to: '/assignment-letter'
+          },
+          {
+            label: 'Import Assignment Letter Document',
+            icon: 'i-lucide-upload',
+            to: '/assignment-letter/upload'
+          }
+        ]
+      },
+      {
+        label: 'Working Paper',
+        icon: 'i-lucide-file-text',
+        type: 'trigger',
+        children: [
+          {
+            label: 'Create Working Paper',
+            icon: 'i-lucide-file-plus',
+            to: '/working-paper'
+          },
+          {
+            label: 'Import Working Paper Document',
+            icon: 'i-lucide-upload',
+            to: '/working-paper/upload'
+          }
+        ]
+      },
+      {
+        label: 'Audit Fieldwork',
+        icon: 'i-lucide-briefcase',
+        to: '/audit-fieldwork'
+      },
+      {
+        label: 'AOI & RCA',
+        icon: 'i-lucide-search-check',
+        to: '/working-paper?step=f04'
+      },
+      {
+        label: 'Action Plan',
+        icon: 'i-lucide-list-todo',
+        to: '/mitigation'
       }
     ]
   },
+
+  // 5. Audit Result Report
   {
-    label: '4. Annual Audit Plan',
-    icon: 'i-lucide-users',
-    to: '/annual-audit',
-    children: [
-      {
-        label: 'Create Annual Audit Plan',
-        icon: 'i-lucide-layout-dashboard',
-        to: '/annual-audit'
-      },
-      {
-        label: 'Import Annual Audit Plan Document',
-        icon: 'i-lucide-upload',
-        to: '/annual-audit/upload'
-      },
-      {
-        label: 'Audit Execution Status',
-        icon: 'i-lucide-users',
-        to: '/audit-execution-status'
-      }
-    ]
-  },
-  {
-    label: '5. Audit Activity Plan',
-    icon: 'i-lucide-users',
-    to: '/audit-activity-plan',
-    children: [
-      {
-        label: 'Create Activity Plan Document',
-        icon: 'i-lucide-layout-dashboard',
-        to: '/audit-activity-plan'
-      },
-      {
-        label: 'Import Activity Plan Document',
-        icon: 'i-lucide-upload',
-        to: '/audit-activity-plan/upload'
-      }
-    ]
-  },
-  {
-    label: '6. Assignment Letter',
-    icon: 'i-lucide-users',
-    to: '/assignment-letter',
-    children: [
-      {
-        label: 'Create Assignment Letter',
-        icon: 'i-lucide-layout-dashboard',
-        to: '/assignment-letter'
-      },
-      {
-        label: 'Import Assignment Letter Document',
-        icon: 'i-lucide-upload',
-        to: '/assignment-letter/upload'
-      }
-    ]
-  },
-  {
-    label: '7. Audit Field Work',
-    icon: 'i-lucide-users',
-    to: '/audit-fieldwork',
-    children: [
-      {
-        label: 'Create Working Paper',
-        icon: 'i-lucide-file-plus',
-        to: '/working-paper'
-      },
-      {
-        label: 'Import Working Paper Document',
-        icon: 'i-lucide-upload',
-        to: '/working-paper/upload'
-      }
-    ]
-  },
-  {
-    label: '8. Audit Result Report',
-    icon: 'i-lucide-file-text',
-    to: '/audit-result-report',
+    label: 'Audit Result Report',
+    icon: 'i-lucide-file-check-2',
+    type: 'trigger',
     children: [
       {
         label: 'Result Reports (LHA)',
@@ -173,14 +226,48 @@ const rawItems: NavigationMenuItem[][] = [[
         to: '/audit-result-report/upload'
       },
       {
-        label: 'Executive Summary',
-        icon: 'i-lucide-presentation',
-        to: '/audit-result-report/executive-summary'
+        label: 'Auto Generate Report',
+        icon: 'i-lucide-sparkles',
+        to: '/audit-result-report'
       },
       {
-        label: 'Import Executive Summary Document',
-        icon: 'i-lucide-upload',
-        to: '/audit-result-report/executive-summary-upload'
+        label: 'Executive Summary',
+        icon: 'i-lucide-presentation',
+        type: 'trigger',
+        children: [
+          {
+            label: 'Executive Summary',
+            icon: 'i-lucide-layout-dashboard',
+            to: '/audit-result-report/executive-summary'
+          },
+          {
+            label: 'Import Executive Summary Document',
+            icon: 'i-lucide-upload',
+            to: '/audit-result-report/executive-summary-upload'
+          }
+        ]
+      },
+      {
+        label: 'Executive Summary Report Kompilasi',
+        icon: 'i-lucide-file-text',
+        type: 'trigger',
+        children: [
+          {
+            label: 'Executive Summary Report Kompilasi',
+            icon: 'i-lucide-presentation',
+            to: '/executive-summary'
+          },
+          {
+            label: 'Import Executive Summary Report',
+            icon: 'i-lucide-upload',
+            to: '/executive-summary/upload'
+          }
+        ]
+      },
+      {
+        label: 'Action Taken Report',
+        icon: 'i-lucide-clipboard-check',
+        to: '/action-taken-report'
       },
       {
         label: 'Client Satisfaction Survey',
@@ -189,31 +276,11 @@ const rawItems: NavigationMenuItem[][] = [[
       }
     ]
   },
+
+  // 6. Consulting Service
   {
-    label: '9. Executive Summary Report',
-    icon: 'i-lucide-file-text',
-    to: '/executive-summary',
-    children: [
-      {
-        label: 'Executive Summary Report Kompilasi',
-        icon: 'i-lucide-presentation',
-        to: '/executive-summary'
-      },
-      {
-        label: 'Import Executive Summary Report',
-        icon: 'i-lucide-upload',
-        to: '/executive-summary/upload'
-      }
-    ]
-  },
-  {
-    label: '10. Action Taken Report',
-    icon: 'i-lucide-users',
-    to: '/action-taken-report'
-  },
-  {
-    label: '11. Consulting Service',
-    icon: 'i-lucide-users',
+    label: 'Consulting Service',
+    icon: 'i-lucide-messages-square',
     to: '/consulting-service',
     children: [
       {
@@ -228,25 +295,10 @@ const rawItems: NavigationMenuItem[][] = [[
       }
     ]
   },
+
+  // 7. Quality Assurance Review
   {
-    label: '12. Internal Audit Performance',
-    icon: 'i-lucide-trending-up',
-    to: '/kpi-performance',
-    children: [
-      {
-        label: 'Internal Audit Performance Dashboard',
-        icon: 'i-lucide-layout-dashboard',
-        to: '/kpi-performance'
-      },
-      {
-        label: 'Import Laporan Kinerja',
-        icon: 'i-lucide-upload',
-        to: '/kpi-performance/upload'
-      }
-    ]
-  },
-  {
-    label: '13. Quality Assurance Review',
+    label: 'Quality Assurance Review',
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [
@@ -277,11 +329,42 @@ const rawItems: NavigationMenuItem[][] = [[
       }
     ]
   },
+
+  // 8. Analytics
   {
     label: 'Analytics',
     icon: 'i-lucide-pie-chart',
-    to: '/analytics'
+    to: '/analytics',
+    children: [
+      {
+        label: 'Risk Scoring Prediction',
+        icon: 'i-lucide-binary',
+        to: '/analytics?tab=xgboost'
+      },
+      {
+        label: 'Anomaly Detection',
+        icon: 'i-lucide-shield-alert',
+        to: '/analytics?tab=isolation'
+      },
+      {
+        label: 'Detected Anomalies Detail',
+        icon: 'i-lucide-table-properties',
+        to: '/analytics?tab=isolation'
+      },
+      {
+        label: 'NLP Analysis',
+        icon: 'i-lucide-file-search',
+        to: '/analytics?tab=nlp'
+      },
+      {
+        label: 'KPI Forecast',
+        icon: 'i-lucide-trending-up',
+        to: '/analytics/kpi-forecast'
+      }
+    ]
   },
+
+  // Master Data
   {
     label: 'Master Data',
     icon: 'i-lucide-database',
@@ -299,73 +382,96 @@ const rawItems: NavigationMenuItem[][] = [[
       }
     ]
   },
-  // {
-  //   label: 'Client Sites (Site Generator)',
-  //   icon: 'i-lucide-globe',
-  //   to: '/site-generator'
-  // }
+
+  // Settings
+  {
+    label: 'Settings',
+    icon: 'i-lucide-settings',
+    to: '/settings',
+    children: [
+      {
+        label: 'General Settings',
+        icon: 'i-lucide-sliders',
+        to: '/settings'
+      },
+      {
+        label: 'Security & 2FA',
+        icon: 'i-lucide-shield-check',
+        to: '/settings/mfa'
+      },
+      {
+        label: 'Trusted Devices',
+        icon: 'i-lucide-laptop',
+        to: '/settings/devices'
+      }
+    ]
+  }
 ]]
 
 const searchQuery = ref('')
-const { canImportPlanDocs, isAdmin, canManageAudits } = useRbac()
+const { isAdmin, canManageAudits } = useRbac()
 
-// 2. Gunakan Computed agar menu bereaksi setiap kali pengguna pindah halaman dan mempertimbangkan Hak Akses (RBAC)
+const isPathActive = (targetPath?: string): boolean => {
+  if (!targetPath) return false
+  if (targetPath.includes('?')) {
+    return route.fullPath === targetPath
+  }
+  const [basePath] = targetPath.split('?')
+  if (basePath === '/dashboard') return route.path === '/dashboard'
+  return route.path === basePath || route.path.startsWith(basePath + '/')
+}
+
+const checkItemActive = (item: NavigationMenuItem): boolean => {
+  if (isPathActive(item.to as string)) return true
+  if (item.children && item.children.length > 0) {
+    return item.children.some(checkItemActive)
+  }
+  return false
+}
+
+const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuItem | null => {
+  // Master data permission check
+  if (item.to === '/master/employee' && !isAdmin.value && !canManageAudits.value) {
+    return null
+  }
+
+  let processedChildren: NavigationMenuItem[] | undefined = undefined
+  if (item.children && item.children.length > 0) {
+    const list = item.children
+      .map(child => processMenuItem(child, q))
+      .filter((c): c is NavigationMenuItem => c !== null)
+    if (list.length > 0) {
+      processedChildren = list
+    }
+  }
+
+  const labelMatches = !q || (item.label?.toLowerCase() || '').includes(q)
+  const hasMatchingChildren = Boolean(processedChildren && processedChildren.length > 0)
+
+  if (q && !labelMatches && !hasMatchingChildren) {
+    return null
+  }
+
+  const isCurrentActive = isPathActive(item.to as string)
+  const hasActiveChild = Boolean(
+    processedChildren?.some(child => child.active || (child.children && child.children.some(checkItemActive)))
+  )
+
+  return {
+    ...item,
+    children: processedChildren,
+    active: isCurrentActive || hasActiveChild,
+    defaultOpen: hasActiveChild || Boolean(item.defaultOpen) || (Boolean(q) && hasMatchingChildren)
+  }
+}
+
+// 2. Gunakan Computed agar menu bereaksi secara rekursif saat pindah halaman dan pencarian
 const items = computed<NavigationMenuItem[][]>(() => {
+  const q = searchQuery.value.toLowerCase().trim()
   return rawItems.map((group) => {
     return group
-      .filter((parent) => {
-        // Master Data is Settings & User Management (NONE for Auditor/Auditee/Viewer)
-        if (parent.to === '/master/employee' && !isAdmin.value && !canManageAudits.value) {
-          return false
-        }
-        return true
-      })
-      .map((parent) => {
-        const q = searchQuery.value.toLowerCase()
-
-        // Filter children according to RBAC (e.g. Import Plan submodules are NONE for Auditor)
-        let filteredChildren = parent.children ? [...parent.children] : undefined
-
-        if (filteredChildren) {
-          filteredChildren = filteredChildren.filter((child) => {
-            const childTo = (child.to as string) || ''
-            // Working paper upload is UPLOAD for Auditor, so allow it.
-            // Other import pages (Annual Audit, Activity Plan, Assignment Letter, QA, Executive Summary, KPI) are NONE for Auditor.
-            if (childTo.includes('/upload') || childTo.includes('/import')) {
-              if (childTo.includes('/working-paper/upload')) return true
-              if (!canImportPlanDocs.value) return false
-            }
-            return true
-          })
-        }
-
-        let childrenMatches = false
-        if (q && filteredChildren) {
-          filteredChildren = filteredChildren.filter(child => (child.label?.toLowerCase() || '').includes(q) || (parent.label?.toLowerCase() || '').includes(q))
-          childrenMatches = filteredChildren.length > 0
-        }
-
-        // Cek apakah ada submenu (child) yang URL-nya cocok dengan URL saat ini
-        const hasActiveChild = filteredChildren?.some(child =>
-          route.path.startsWith(child.to as string)
-        )
-
-        return {
-          ...parent,
-          children: filteredChildren,
-          active: hasActiveChild,
-          defaultOpen: hasActiveChild || parent.defaultOpen || (q.length > 0 && childrenMatches)
-        }
-      }).filter((parent) => {
-        if (parent.children && parent.children.length === 0 && rawItems.some(g => g.some(p => p.to === parent.to && p.children && p.children.length > 0))) {
-          // If parent lost all its children due to RBAC and was only a parent container
-        }
-        if (!searchQuery.value) return true
-        const q = searchQuery.value.toLowerCase()
-        const parentMatches = (parent.label?.toLowerCase() || '').includes(q)
-        const hasVisibleChildren = parent.children && parent.children.length > 0
-        return parentMatches || hasVisibleChildren
-      })
+      .map(item => processMenuItem(item, q))
+      .filter((item): item is NavigationMenuItem => item !== null)
   })
 })
 
@@ -438,6 +544,10 @@ const userDropdownItems = computed(() => [
             :collapsed="collapsed"
             :items="items[0]"
             orientation="vertical"
+            class="w-full"
+            :ui="{
+              childList: 'ps-3 border-l border-[var(--border-main)] ml-2.5 my-0.5 space-y-0.5'
+            }"
           />
         </div>
 
@@ -542,6 +652,9 @@ const userDropdownItems = computed(() => [
               :items="items[0]"
               orientation="vertical"
               class="w-full"
+              :ui="{
+                childList: 'ps-3 border-l border-[var(--border-main)] ml-2.5 my-0.5 space-y-0.5'
+              }"
             />
           </div>
         </div>

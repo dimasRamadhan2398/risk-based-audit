@@ -197,7 +197,7 @@ import { useUploadExecutiveSummaryReportStore } from '~/stores/upload-executive-
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const store = useUploadExecutiveSummaryReportStore()
 
 onMounted(() => {
@@ -305,7 +305,7 @@ const formatBytes = (bytes: number) => {
 const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   const date = new Date(dateString)
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale.value === 'id' ? 'id-ID' : 'en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'

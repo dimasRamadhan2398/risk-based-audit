@@ -379,37 +379,39 @@
     </div>
 
     <!-- Internal Control Effectiveness Section (COSO 2013) -->
-    <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-md font-semibold uppercase tracking-wider text-slate-400">Internal Audit & Risk Metric</span>
-            <UBadge color="neutral" variant="subtle" size="md">COSO 2013</UBadge>
-            <span class="text-md font-semibold text-primary-700 bg-primary-50 border border-primary-100 px-2.5 py-0.5 rounded-md ml-1">
-              Tahun: {{ rcmStore.selectedYear }} | Dep: {{ rcmStore.selectedDepartment }}
-            </span>
+    <UCard class="border border-slate-100 dark:border-gray-800 shadow-sm rounded-2xl">
+      <template #header>
+        <div class="flex flex-row md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex flex-row items-center gap-2">
+              <span class="text-md font-semibold tracking-wider text-slate-400">Internal Audit & Risk Metric</span>
+              <UBadge color="neutral" variant="subtle" size="md">COSO 2013</UBadge>
+              <UBadge variant="solid" color="primary">
+                Tahun: {{ rcmStore.selectedYear }} | Dep: {{ rcmStore.selectedDepartment }}
+              </UBadge>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mt-0.5">
+              Internal Control Effectiveness
+            </h2>
           </div>
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">
-            Internal Control Effectiveness
-          </h2>
+          <UButton to="/risk-profile/risk-control-matrix" variant="outline" color="neutral" size="sm" class="font-medium">
+            Risk Control Matrix &rarr;
+          </UButton>
         </div>
-        <UButton to="/risk-profile/risk-control-matrix" variant="outline" color="neutral" size="sm" class="font-medium">
-          Risk Control Matrix &rarr;
-        </UButton>
-      </div>
+      </template>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         <!-- Effectiveness Score Card -->
-        <div class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between">
+        <UCard class="bg-slate-50 dark:bg-gray-900/50 border border-slate-100 dark:border-gray-800 rounded-xl" :ui="{ body: 'flex flex-col justify-between h-full p-5' }">
           <div>
             <div class="flex justify-between items-start">
               <span class="text-md font-semibold text-slate-500 uppercase tracking-wider">Effectiveness Rating</span>
-              <div class="rounded-lg bg-primary-100 p-1.5 flex items-center justify-center">
-                <UIcon name="i-lucide-shield-check" class="text-primary-600 size-4" />
+              <div class="rounded-lg bg-primary-100 dark:bg-primary-900/50 p-1.5 flex items-center justify-center">
+                <UIcon name="i-lucide-shield-check" class="text-primary-600 dark:text-primary-400 size-4" />
               </div>
             </div>
             <div class="mt-3 flex items-baseline gap-2">
-              <h3 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 {{ rcmStore.internalControlEffectiveness }}%
               </h3>
             </div>
@@ -424,20 +426,20 @@
             </div>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-slate-200/60 text-md text-slate-600 space-y-1">
+          <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-gray-800 text-md text-slate-600 dark:text-gray-300 space-y-1">
             <div class="flex justify-between">
               <span>Inherent Risk (Prioritas):</span>
-              <span class="font-bold text-slate-900">{{ rcmStore.totalInherentRisk }} Risiko</span>
+              <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.totalInherentRisk }} Risiko</span>
             </div>
             <div class="flex justify-between">
               <span>Residual Risk (Sisa):</span>
-              <span class="font-bold text-red-600">{{ rcmStore.totalResidualRisk }} Risiko</span>
+              <span class="font-bold text-red-600 dark:text-red-400">{{ rcmStore.totalResidualRisk }} Risiko</span>
             </div>
           </div>
-        </div>
+        </UCard>
 
         <!-- Interpretation Text -->
-        <div class="lg:col-span-2 bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between">
+        <UCard class="lg:col-span-2 bg-slate-50 dark:bg-gray-900/50 border border-slate-100 dark:border-gray-800 rounded-xl" :ui="{ body: 'flex flex-col justify-between h-full p-5' }">
           <div>
             <span class="text-md font-semibold text-slate-500 uppercase tracking-wider">Interpretasi Hasil COSO 2013</span>
             <div class="mt-2 p-3 rounded-lg border text-md" :class="rcmStore.effectivenessRating.bgClass">
@@ -449,32 +451,32 @@
             </div>
           </div>
 
-          <!-- COSO Dimensions Mini Progress in % -->
-          <div class="mt-4 pt-3 border-t border-slate-200/60 grid grid-cols-5 gap-2 text-center text-md">
+          <!-- COSO Dimensions Mini Progress in %  -->
+          <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-gray-800 grid grid-cols-5 gap-2 text-center text-md">
             <div>
               <span class="block text-slate-500 font-medium">Design</span>
-              <span class="font-bold text-slate-800">{{ rcmStore.cosoAverages.design }}%</span>
+              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.design }}%</span>
             </div>
             <div>
               <span class="block text-slate-500 font-medium">Operating</span>
-              <span class="font-bold text-slate-800">{{ rcmStore.cosoAverages.operating }}%</span>
+              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.operating }}%</span>
             </div>
             <div>
               <span class="block text-slate-500 font-medium">Coverage</span>
-              <span class="font-bold text-slate-800">{{ rcmStore.cosoAverages.coverage }}%</span>
+              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.coverage }}%</span>
             </div>
             <div>
               <span class="block text-slate-500 font-medium">Timeliness</span>
-              <span class="font-bold text-slate-800">{{ rcmStore.cosoAverages.timeliness }}%</span>
+              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.timeliness }}%</span>
             </div>
             <div>
               <span class="block text-slate-500 font-medium">Automation</span>
-              <span class="font-bold text-slate-800">{{ rcmStore.cosoAverages.automation }}%</span>
+              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.automation }}%</span>
             </div>
           </div>
-        </div>
+        </UCard>
       </div>
-    </div>
+    </UCard>
 
     <!-- Charts Section (Third Row) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">

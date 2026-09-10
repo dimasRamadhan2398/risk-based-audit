@@ -558,7 +558,7 @@
       "deleteConfirm": "Apakah Anda yakin ingin menghapus Rencana Strategis ini?"
     },
     "form": {
-      "title": "Informasi Rencana Strategis",
+      "title": "Tambahkan Informasi Strategic Objective",
       "corporateGoal": "Goal Korporat",
       "selectCorporateGoal": "Pilih Goal Korporat",
       "code": "ID Strategic Objective",
@@ -1048,93 +1048,10 @@
       "kpiForecasts": "Prediksi KPI"
     },
     "tabs": {
-      "riskScoring": "Risk Scoring ML",
-      "anomalyDetection": "Deteksi Anomali ML",
-      "indoBERT": "IndoBERT NLP",
-      "kpiLSTM": "KPI PyTorch LSTM"
-    },
-    "xgboost": {
-      "alertTitle": "Model ML Penilaian Risiko Departemen & Entitas",
-      "alertDesc": "Model Machine Learning memprediksi Impact dan Likelihood departemen/cabang secara dinamis berdasarkan achievement KPI, temuan audit lalu, dan volatilitas.",
-      "chartPredictedVsActual": "Skor Risiko: Prediksi vs Aktual",
-      "chartFeatureImportance": "Feature Importance (Prediktor Utama)",
-      "tableTitle": "Prediksi Skor Risiko Entitas",
-      "colEntity": "Entitas",
-      "colType": "Tipe",
-      "colRiskCategory": "Kategori Risiko",
-      "colTargetPeriod": "Target Periode",
-      "colPredLikelihood": "Pred. Likelihood",
-      "colPredImpact": "Pred. Impact",
-      "colPredScore": "Pred. Skor",
-      "colPredRiskLevel": "Pred. Level Risiko",
-      "colActual": "Aktual",
-      "colActualRiskLevel": "Level Risiko Aktual",
-      "colTrend": "Tren",
-      "labelPredictedScore": "Skor Prediksi",
-      "labelActualScore": "Skor Aktual",
-      "labelFeatureImportance": "Feature Importance",
-      "axisRiskScore": "Skor Risiko",
-      "axisImportancePct": "Kepentingan (%)"
-    },
-    "isolation": {
-      "alertTitle": "Model Deteksi Anomali Transaksi",
-      "alertDesc": "Model Machine Learning memindai pola transaksi (jumlah, jam operasional, hari, penerima baru, pola pembulatan) untuk mendeteksi anomali fraud secara real-time.",
-      "recordsScanned": "Data Dipindai",
-      "anomaliesFound": "Anomali Ditemukan",
-      "contaminationRate": "Tingkat Kontaminasi",
-      "topCategory": "Kategori Teratas",
-      "chartTitle": "Distribusi Pola Data per Jenis Anomali",
-      "labelNormalData": "Data Normal ({type})",
-      "labelAnomalies": "Anomali ({type})",
-      "axisFrequency": "Frekuensi / Kemunculan",
-      "tableTitle": "Detail Anomali Terdeteksi",
-      "colID": "ID",
-      "colEntity": "Entitas",
-      "colType": "Jenis",
-      "colDescription": "Deskripsi",
-      "colRiskLevel": "Level Risiko",
-      "colDate": "Tanggal",
-      "anomalyTypes": {
-        "fieldworkXAxis": "Durasi Pengerjaan Fieldwork (Hari)",
-        "fieldworkUnit": "Hari",
-        "accessPatternXAxis": "Waktu Akses Sistem (Jam 0-23)",
-        "accessPatternUnit": "Jam",
-        "dataAccessXAxis": "Volume Export Data (MB)",
-        "dataAccessUnit": "MB",
-        "inventoryXAxis": "Nilai Penyesuaian Stok (Rp Juta)",
-        "inventoryUnit": "Rp Juta",
-        "expenseReportXAxis": "Nominal Klaim Pengeluaran (Rp Juta)",
-        "expenseReportUnit": "Rp Juta",
-        "travelExpenseXAxis": "Nominal Biaya Perjalanan (Rp Juta)",
-        "travelExpenseUnit": "Rp Juta",
-        "procurementXAxis": "Nilai Pengadaan / Vendor (Rp Juta)",
-        "procurementUnit": "Rp Juta",
-        "transactionXAxis": "Nominal Transaksi (Rp Juta)",
-        "transactionUnit": "Rp Juta"
-      }
-    },
-  "analytics": {
-    "title": "Pusat AI & Analitik",
-    "subtitle": "Integrasi Terpadu Model Machine Learning & Deep Learning (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
-    "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
-    "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
-    "statusDisconnected": "AI Backend Terputus",
-    "warningTitleCached": "⚠️ Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
-    "warningTitleDisconnected": "⚠️ Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
-    "warningDescCached": "Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada {time} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
-    "warningDescDisconnected": "Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
-    "loading": "Menghubungkan & Memuat Model AI...",
-    "summary": {
-      "entitiesScored": "Entitas Dinilai",
-      "anomaliesDetected": "Anomali Terdeteksi",
-      "docsAnalyzed": "Dokumen Dianalisis",
-      "kpiForecasts": "Prediksi KPI"
-    },
-    "tabs": {
-      "riskScoring": "Risk Scoring ML",
-      "anomalyDetection": "Deteksi Anomali ML",
-      "indoBERT": "IndoBERT NLP",
-      "kpiLSTM": "KPI PyTorch LSTM"
+      "riskScoring": "Risk Scoring",
+      "anomalyDetection": "Anomaly Detection",
+      "documentProcessing": "Pemrosesan Dokumen",
+      "kpiForecast": "Prediksi KPI"
     },
     "xgboost": {
       "alertTitle": "Model ML Penilaian Risiko Departemen & Entitas",
@@ -1503,23 +1420,91 @@
       "emptyHistory": "Belum ada data riwayat rencana audit.",
       "viewDocument": "Lihat Dokumen",
       "noFile": "Tidak Ada File",
-      "deleteConfirm": "Apakah Anda yakin ingin menghapus Audit Charter \"{title}\" versi {version}?"
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus Audit Charter \"{title}\" versi {version}?",
+      "columns": {
+        "version": "Versi",
+        "title": "Nama Charter",
+        "content": "Konten",
+        "date": "Tanggal",
+        "approvedBy": "Disetujui Oleh",
+        "uploadedBy": "Diupload Oleh",
+        "actions": ""
+      }
     },
     "form": {
       "editTitle": "Edit Audit Charter",
       "uploadTitle": "Tambah Charter Baru",
       "docTitle": "Judul Dokumen",
       "docTitlePlaceholder": "contoh: Internal Audit Charter 2026",
+      "docTitleValidation": "Judul maksimal 200 karakter dan wajib diisi",
       "versionAuto": "Versi (Auto)",
       "date": "Tanggal",
       "uploadedBy": "Diupload Oleh",
       "approvedBy": "Disetujui Oleh",
       "approvedByPlaceholder": "contoh: Komite Audit",
+      "approvedByValidation": "Penyetuju maksimal 200 karakter dan wajib diisi",
       "status": "Status",
       "active": "Aktif",
       "inactive": "Tidak Aktif",
       "uploadFile": "Unggah File Charter (PDF/DOCX)",
+      "selectedFile": "File terpilih:",
       "submit": "Simpan"
+    },
+    "guideline": {
+      "title": "Pedoman Audit",
+      "subtitle": "Daftar seluruh Pedoman Audit yang berlaku di perusahaan",
+      "emptyTitle": "Belum Ada Pedoman Audit",
+      "emptyDesc": "Pedoman Audit mendefinisikan aturan dan standar pelaksanaan audit di perusahaan Anda.",
+      "addGuideline": "Tambah Pedoman Audit",
+      "addGuidelineShort": "Tambah Pedoman",
+      "emptyTable": "Belum ada pedoman audit",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus Pedoman \"{name}\"?",
+      "statusActive": "Aktif",
+      "statusUnderReview": "Sedang Diperbarui",
+      "columns": {
+        "no": "No",
+        "name": "Nama Pedoman",
+        "status": "Status",
+        "effectiveDate": "Mulai Berlaku",
+        "fileName": "Lihat Dokumen",
+        "actions": ""
+      }
+    },
+    "guidelineForm": {
+      "editTitle": "Edit Pedoman Audit",
+      "addTitle": "Tambah Pedoman Audit Baru",
+      "name": "Nama Pedoman",
+      "namePlaceholder": "contoh: Pedoman Pengelolaan Satuan Audit Internal",
+      "nameValidation": "Nama Pedoman wajib diisi dan maksimal 200 karakter",
+      "status": "Status",
+      "statusActive": "Aktif",
+      "statusUnderReview": "Sedang Diperbarui",
+      "effectiveDate": "Mulai Berlaku",
+      "fileUpload": "Dokumen Pedoman (PDF)",
+      "selectedFile": "File terpilih:",
+      "saveChanges": "Simpan Perubahan",
+      "addGuideline": "Tambah Pedoman",
+      "cancel": "Batal"
+    },
+    "sopList": {
+      "title": "Petunjuk Teknis / SOP",
+      "subtitle": "Daftar seluruh Petunjuk Teknis dan Standar Operasional Prosedur pelaksanaan audit",
+      "emptyTitle": "Belum Ada Petunjuk Teknis / SOP",
+      "emptyDesc": "Petunjuk Teknis / SOP merupakan penjabaran detail dari Pedoman Audit untuk panduan teknis auditor.",
+      "addSop": "Tambah Petunjuk Teknis / SOP",
+      "addSopShort": "Tambah SOP / Juknis",
+      "emptyTable": "Belum ada petunjuk teknis / SOP",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus Petunjuk Teknis/SOP \"{name}\"?",
+      "statusActive": "Aktif",
+      "statusUnderReview": "Sedang Diperbarui",
+      "columns": {
+        "no": "No",
+        "name": "Nama Petunjuk Teknis",
+        "guidelineName": "Nama Pedoman",
+        "status": "Status",
+        "effectiveDate": "Mulai Berlaku",
+        "actions": ""
+      }
     },
     "sopForm": {
       "editTitle": "Edit Petunjuk Teknis / SOP",
@@ -1551,16 +1536,22 @@
     "fileUploadLabel": "File Dokumen Impor *",
     "fileDropPrompt": "Klik untuk mengunggah atau tarik & lepas file",
     "fileLimitInfo": "PDF, DOC, DOCX hingga 10MB",
+    "dropzonePrompt": "Klik untuk upload atau drag & drop",
+    "dropzoneHint": "PDF, DOC, DOCX hingga 10MB",
     "removeFile": "Hapus File",
     "submitButton": "Impor Ringkasan Eksekutif",
     "tableHeader": "Ringkasan Eksekutif Terimpor",
+    "tableTitle": "Ringkasan Eksekutif Terimpor",
     "documentsCount": "{count} Dokumen",
     "loadingDocuments": "Memuat dokumen...",
     "emptyTitle": "Belum ada dokumen yang diimpor",
     "emptySubtitle": "Impor dokumen ringkasan eksekutif untuk menambahkan ke catatan Anda.",
+    "emptyDesc": "Impor dokumen ringkasan eksekutif untuk menambahkan ke catatan Anda.",
     "columns": {
+      "title": "Judul Dokumen",
       "documentTitle": "Judul Dokumen",
       "file": "File",
+      "date": "Tanggal Impor",
       "importedDate": "Tanggal Impor",
       "actions": "Aksi"
     },
@@ -1570,7 +1561,9 @@
       "delete": "Hapus Dokumen"
     },
     "confirmDelete": "Apakah Anda yakin ingin menghapus dokumen yang diimpor ini?",
-    "fileSizeLimitAlert": "Ukuran file melebihi batas 10MB."
+    "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen yang diimpor ini?",
+    "fileSizeLimitAlert": "Ukuran file melebihi batas 10MB.",
+    "fileSizeLimit": "Ukuran file melebihi batas 10MB."
   },
   "riskAppetite": {
     "title": "Risk Appetite Statement (RAS)",
@@ -1759,6 +1752,50 @@
     }
   },
   "executiveSummary": {
+    "title": "Executive Summary (LHA Kompilasi)",
+    "subtitle": "Kompilasi Laporan Hasil Audit triwulanan untuk BOD & Komite Audit.",
+    "importButton": "Impor Dokumen",
+    "createNew": "Buat Laporan Kompilasi Baru",
+    "stats": {
+      "total": "Total Kompilasi",
+      "approved": "Disetujui (Approved)",
+      "draft": "Draft",
+      "rejected": "Ditolak (Rejected)"
+    },
+    "quarters": {
+      "q1": "Triwulan 1 (Q1)",
+      "q2": "Triwulan 2 (Q2)",
+      "q3": "Triwulan 3 (Q3)",
+      "q4": "Triwulan 4 (Q4)"
+    },
+    "searchPlaceholder": "Cari nomor dokumen atau bulan...",
+    "showingDocuments": "Menampilkan {count} dokumen",
+    "draftReport": "Draft Laporan",
+    "periodLabel": "Periode:",
+    "actions": {
+      "view": "Lihat Detail",
+      "edit": "Edit Laporan",
+      "delete": "Hapus",
+      "approve": "Setujui",
+      "revertDraft": "Kembalikan ke Draft"
+    },
+    "cardStats": {
+      "reportsCount": "Jumlah LHA",
+      "totalFindings": "Total Temuan",
+      "totalRecommendations": "Total Rekomendasi",
+      "completionClosed": "Penyelesaian (Closed)",
+      "progress": "Progress"
+    },
+    "empty": {
+      "title": "Belum ada Laporan Kompilasi",
+      "desc": "Belum ada berkas Executive Summary yang diunggah untuk Triwulan {quarter} ({year}).",
+      "button": "Mulai Laporan Pertama"
+    },
+    "modal": {
+      "viewTitle": "Detail Laporan Kompilasi",
+      "editTitle": "Edit Laporan Kompilasi",
+      "createTitle": "Buat Laporan Kompilasi Baru"
+    },
     "upload": {
       "title": "Impor Laporan Ringkasan Eksekutif",
       "subtitle": "Impor dokumen Laporan Ringkasan Eksekutif kompilasi eksternal",
@@ -1992,7 +2029,11 @@
       "uploadSuccess": "Berhasil Impor",
       "uploadSuccessDesc": "Dokumen Laporan Kinerja {period} {year} berhasil diunggah!",
       "uploadFailed": "Gagal Mengunggah",
-      "uploadFailedDesc": "Terjadi kesalahan saat mengunggah dokumen."
+      "uploadFailedDesc": "Terjadi kesalahan saat mengunggah dokumen.",
+      "deleteSuccess": "Dokumen Dihapus",
+      "deleteSuccessDesc": "Dokumen Laporan Kinerja berhasil dihapus.",
+      "deleteFailed": "Gagal Menghapus",
+      "deleteFailedDesc": "Terjadi kesalahan saat menghapus dokumen."
     }
   },
   "riskProfile": {

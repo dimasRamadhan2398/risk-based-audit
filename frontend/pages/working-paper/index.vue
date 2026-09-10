@@ -17,7 +17,7 @@
       />
     </div>
 
-    <UStepper :items="store.workingItems" class="w-full">
+    <UStepper v-model="activeStep" :items="store.workingItems" class="w-full">
       
       <template #f01>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
@@ -142,6 +142,26 @@ import { useWorkingPaperStore } from '~/stores/working-paper'
 // Panggil Store
 const store = useWorkingPaperStore()
 const route = useRoute()
+
+const stepMap: Record<string, number> = {
+  f01: 0,
+  f02: 1,
+  f03: 2,
+  f04: 3,
+  f05: 4
+}
+
+const activeStep = ref(
+  route.query.step && typeof route.query.step === 'string' && stepMap[route.query.step] !== undefined
+    ? stepMap[route.query.step]
+    : 0
+)
+
+watch(() => route.query.step, (step) => {
+  if (typeof step === 'string' && stepMap[step] !== undefined) {
+    activeStep.value = stepMap[step]
+  }
+})
 
 onMounted(() => {
   store.fetchAllData()

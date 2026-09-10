@@ -108,7 +108,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   const mockReports: QAReport[] = [
     {
-      id: '1',
+      id: '4f8037e3-5eca-423a-b99c-015b8a835cc4',
       type: QAType.REGULAR,
       period: 'Q3 2025',
       reportName: 'Operational Efficiency Q3',
@@ -124,7 +124,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '2',
+      id: '8fdb7363-9092-4b7a-9c8b-2ef94f46a296',
       type: QAType.SAIV,
       period: 'Cycle 2025',
       reportName: 'Self Assessment GIAS \'22-24',
@@ -140,7 +140,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '3',
+      id: '4c22f5d1-4442-482e-9591-d4615eb18321',
       type: QAType.QAR,
       period: 'Year 2025',
       reportName: 'External QAR (IPPF 2027)',
@@ -156,7 +156,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '4',
+      id: '605c2dbf-61a1-42db-9e46-3f8aeba62cc4',
       type: QAType.REGULAR,
       period: 'Q2 2025',
       reportName: 'Penilaian Periodik Kualitas Internal Audit',
@@ -165,7 +165,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       assessmentTitle: 'RSA - Audit 2025 Q2'
     },
     {
-      id: '5',
+      id: '36fe54aa-df5a-4c3c-810f-74fdb98ca591',
       type: QAType.REGULAR,
       period: 'Q1 2025',
       reportName: 'Penilaian Reguler Kualitas Internal Audit',
@@ -174,7 +174,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       assessmentTitle: 'RSA - Audit 2025 Q1'
     },
     {
-      id: '6',
+      id: 'e0c25c0b-5323-4987-99af-3e8e147a275e',
       type: QAType.IACM,
       period: 'Year 2025',
       reportName: 'BUMN IACM Assessment 2025',
@@ -190,12 +190,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     errorMsg.value = ''
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance`, {
         method: 'GET'
       })
@@ -334,12 +328,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const downloadAttachment = async (id: string, fileName: string) => {
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
         responseType: 'blob'
       })
@@ -357,12 +345,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
         responseType: 'blob'
       })

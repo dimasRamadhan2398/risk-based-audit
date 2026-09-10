@@ -4,19 +4,28 @@ import AuditExecutionDetailModal from '~/components/audit-execution/AuditExecuti
 import { AuditCategory, AuditStatus, EXECUTION_PHASES, getExecutionPhase } from '~/types/audit'
 import { useI18n } from '~/composables/useI18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const store = useAuditExecutionStore()
 store.fetchAuditExecutions()
 const { auditExecutions, getSummary } = storeToRefs(store)
 
 const search = ref('')
 const quarter = ref('')
-const status = ref<AuditStatus | undefined>(undefined)
+const status = ref<string | undefined>(undefined)
 const category = ref<AuditCategory | undefined>(undefined)
 
 const isHelpModalOpen = ref(false)
 
 const quarters = ['Quarter I', 'Quarter II', 'Quarter III', 'Quarter IV']
+
+const statusOptions = computed(() => [
+  { label: locale.value === 'id' ? 'Planning (Perencanaan & Persiapan)' : 'Planning (Planning & Preparation)', value: 'planning' },
+  { label: locale.value === 'id' ? 'Entry Meeting (Entry Meeting & Penyelarasan Scope)' : 'Entry Meeting (Entry Meeting & Scope Alignment)', value: 'entry meeting' },
+  { label: locale.value === 'id' ? 'Fieldwork (Fieldwork & Pengujian Pengendalian)' : 'Fieldwork (Fieldwork & Control Testing)', value: 'fieldwork' },
+  { label: locale.value === 'id' ? 'Draft Findings (Draft Temuan & Rekomendasi)' : 'Draft Findings (Draft Findings & Recommendations)', value: 'draft findings' },
+  { label: locale.value === 'id' ? 'Reporting (Pelaporan & Exit Meeting)' : 'Reporting (Reporting & Exit Meeting)', value: 'reporting' },
+  { label: locale.value === 'id' ? 'Completed (Audit Selesai)' : 'Completed (Audit Completed)', value: 'completed' },
+])
 
 const resetFilters = () => {
   search.value = ''
@@ -33,15 +42,76 @@ const columns = computed(() => [
   { accessorKey: 'actions', header: t('auditExecution.columns.actions') }
 ])
 
+const normalizeStatus = (val?: string | null): string => {
+  if (!val) return ''
+  const clean = String(val).toLowerCase().replace(/[\s_-]+/g, '')
+  if (clean.includes('completed') || clean.includes('selesai') || clean.includes('done')) return 'completed'
+  if (clean.includes('reporting') || clean.includes('report') || clean.includes('pelaporan')) return 'reporting'
+  if (clean.includes('draftfinding') || clean.includes('findings') || clean.includes('temuan')) return 'draftfindings'
+  if (clean.includes('fieldwork')) return 'fieldwork'
+  if (clean.includes('entrymeeting') || clean.includes('entry')) return 'entrymeeting'
+  if (clean.includes('planning') || clean.includes('planned') || clean.includes('perencanaan')) return 'planning'
+  if (clean === 'inprogress') return 'inprogress'
+  if (clean === 'canceled') return 'cancelled'
+  return clean
+}
+
+const isStatusMatch = (auditStatusVal?: string | null, filterStatusVal?: string, progress?: number): boolean => {
+  if (!filterStatusVal) return true
+  const fNorm = normalizeStatus(filterStatusVal)
+  let aNorm = normalizeStatus(auditStatusVal)
+
+  // Fallback to progress if status is empty
+  if (!aNorm && typeof progress === 'number') {
+    if (progress >= 100) aNorm = 'completed'
+    else if (progress >= 76) aNorm = 'reporting'
+    else if (progress >= 51) aNorm = 'draftfindings'
+    else if (progress >= 26) aNorm = 'fieldwork'
+    else if (progress >= 1) aNorm = 'entrymeeting'
+    else aNorm = 'planning'
+  }
+
+  if (aNorm === fNorm) return true
+
+  // If user selected generic "in progress", match any active execution stage
+  if (fNorm === 'inprogress' && (aNorm === 'entrymeeting' || aNorm === 'fieldwork' || aNorm === 'draftfindings' || aNorm === 'reporting')) {
+    return true
+  }
+
+  // If audit record has generic "inprogress", map against target stage by progress
+  if (aNorm === 'inprogress' && typeof progress === 'number') {
+    if (progress >= 76 && fNorm === 'reporting') return true
+    if (progress >= 51 && progress < 76 && fNorm === 'draftfindings') return true
+    if (progress >= 26 && progress < 51 && fNorm === 'fieldwork') return true
+    if (progress >= 1 && progress < 26 && fNorm === 'entrymeeting') return true
+  }
+
+  return false
+}
+
+const getQuarterFromDate = (dateStr?: string): string => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return ''
+  const month = date.getMonth() + 1 // 1-12
+  if (month <= 3) return 'Quarter I'
+  if (month <= 6) return 'Quarter II'
+  if (month <= 9) return 'Quarter III'
+  return 'Quarter IV'
+}
+
 const filteredAudits = computed(() => {
   return auditExecutions.value.filter(audit => {
     const matchesSearch = !search.value || 
                           (audit.name && audit.name.toLowerCase().includes(search.value.toLowerCase())) || 
                           (audit.category && audit.category.toLowerCase().includes(search.value.toLowerCase())) ||
                           (audit.ref && audit.ref.toLowerCase().includes(search.value.toLowerCase()))
-    const matchesCategory = !category.value || audit.category === category.value
-    const matchesStatus = !status.value || audit.status === status.value
-    return matchesSearch && matchesCategory && matchesStatus
+    const matchesCategory = !category.value || 
+                            (audit.category && audit.category.toLowerCase() === category.value.toLowerCase())
+    const matchesStatus = isStatusMatch(audit.status, status.value, audit.progress)
+    const matchesQuarter = !quarter.value || 
+                           getQuarterFromDate((audit as any).created_at || (audit as any).createdAt) === quarter.value
+    return matchesSearch && matchesCategory && matchesStatus && matchesQuarter
   })
 })
 
@@ -130,14 +200,14 @@ const handleRemind = (audit: any) => {
         </div>
       </div>
 
-      <UButton
+      <!-- <UButton
         :label="t('auditExecution.summary.viewPhaseGuide')"
         icon="i-lucide-book-open"
         color="neutral"
         variant="ghost"
         size="md"
         @click="() => { isHelpModalOpen = true }"
-      />
+      /> -->
     </div>
 
     <!-- Filters Section -->
@@ -162,9 +232,10 @@ const handleRemind = (audit: any) => {
       />
       <USelectMenu
         v-model="status"
-        :items="Object.values(AuditStatus)"
+        :items="statusOptions"
+        value-key="value"
         :placeholder="t('auditExecution.filters.statusPlaceholder')"
-        class="w-48"
+        class="w-64"
       />
       <UButton
         label="Reset Filter"

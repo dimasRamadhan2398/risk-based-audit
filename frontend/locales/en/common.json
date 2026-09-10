@@ -561,7 +561,7 @@
       "deleteConfirm": "Are you sure you want to delete this Strategic Plan?"
     },
     "form": {
-      "title": "Strategic Plan Information",
+      "title": "Add Strategic Objective Information",
       "corporateGoal": "Corporate Goal",
       "selectCorporateGoal": "Select Corporate Goal",
       "code": "Objective ID",
@@ -1051,93 +1051,10 @@
       "kpiForecasts": "KPI Forecasts"
     },
     "tabs": {
-      "riskScoring": "Risk Scoring ML",
-      "anomalyDetection": "Anomaly Detection ML",
-      "indoBERT": "IndoBERT NLP",
-      "kpiLSTM": "KPI PyTorch LSTM"
-    },
-    "xgboost": {
-      "alertTitle": "Department & Entity Risk Scoring ML Model",
-      "alertDesc": "The Machine Learning model dynamically predicts department/branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
-      "chartPredictedVsActual": "Predicted vs Actual Risk Score",
-      "chartFeatureImportance": "Feature Importance (Top Predictors)",
-      "tableTitle": "Entity Risk Score Predictions",
-      "colEntity": "Entity",
-      "colType": "Type",
-      "colRiskCategory": "Risk Category",
-      "colTargetPeriod": "Target Period",
-      "colPredLikelihood": "Pred. Likelihood",
-      "colPredImpact": "Pred. Impact",
-      "colPredScore": "Pred. Score",
-      "colPredRiskLevel": "Pred. Risk Level",
-      "colActual": "Actual",
-      "colActualRiskLevel": "Actual Risk Level",
-      "colTrend": "Trend",
-      "labelPredictedScore": "Predicted Score",
-      "labelActualScore": "Actual Score",
-      "labelFeatureImportance": "Feature Importance",
-      "axisRiskScore": "Risk Score",
-      "axisImportancePct": "Importance (%)"
-    },
-    "isolation": {
-      "alertTitle": "Transaction Anomaly Detection Model",
-      "alertDesc": "The Machine Learning model scans transaction patterns (amount, operating hours, day, new recipients, rounding patterns) to detect fraud anomalies in real-time.",
-      "recordsScanned": "Records Scanned",
-      "anomaliesFound": "Anomalies Found",
-      "contaminationRate": "Contamination Rate",
-      "topCategory": "Top Category",
-      "chartTitle": "Data Pattern Distribution per Anomaly Type",
-      "labelNormalData": "Normal Data ({type})",
-      "labelAnomalies": "Anomalies ({type})",
-      "axisFrequency": "Frequency / Occurrence",
-      "tableTitle": "Detected Anomalies Detail",
-      "colID": "ID",
-      "colEntity": "Entity",
-      "colType": "Type",
-      "colDescription": "Description",
-      "colRiskLevel": "Risk Level",
-      "colDate": "Date",
-      "anomalyTypes": {
-        "fieldworkXAxis": "Fieldwork Duration (Days)",
-        "fieldworkUnit": "Days",
-        "accessPatternXAxis": "System Access Time (Hour 0-23)",
-        "accessPatternUnit": "Hour",
-        "dataAccessXAxis": "Data Export Volume (MB)",
-        "dataAccessUnit": "MB",
-        "inventoryXAxis": "Stock Adjustment Value (IDR Million)",
-        "inventoryUnit": "IDR Million",
-        "expenseReportXAxis": "Expense Claim Amount (IDR Million)",
-        "expenseReportUnit": "IDR Million",
-        "travelExpenseXAxis": "Travel Cost Amount (IDR Million)",
-        "travelExpenseUnit": "IDR Million",
-        "procurementXAxis": "Procurement / Vendor Value (IDR Million)",
-        "procurementUnit": "IDR Million",
-        "transactionXAxis": "Transaction Amount (IDR Million)",
-        "transactionUnit": "IDR Million"
-      }
-    },
-  "analytics": {
-    "title": "AI & Analytics Center",
-    "subtitle": "Integrated Machine Learning & Deep Learning Models (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
-    "statusActive": "4 Trained Models Active & Synchronized",
-    "statusOffline": "Offline - Displaying Saved Real Data",
-    "statusDisconnected": "AI Backend Disconnected",
-    "warningTitleCached": "⚠️ Warning: AI Backend Service Disconnected (Showing Last Real Data)",
-    "warningTitleDisconnected": "⚠️ Warning: AI Analytics Feature Not Running / Not Connected to Backend",
-    "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
-    "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
-    "loading": "Connecting & Loading AI Models...",
-    "summary": {
-      "entitiesScored": "Entities Scored",
-      "anomaliesDetected": "Anomalies Detected",
-      "docsAnalyzed": "Docs Analyzed",
-      "kpiForecasts": "KPI Forecasts"
-    },
-    "tabs": {
-      "riskScoring": "Risk Scoring ML",
-      "anomalyDetection": "Anomaly Detection ML",
-      "indoBERT": "IndoBERT NLP",
-      "kpiLSTM": "KPI PyTorch LSTM"
+      "riskScoring": "Risk Scoring",
+      "anomalyDetection": "Anomaly Detection",
+      "documentProcessing": "Document Processing",
+      "kpiForecast": "KPI Forecast"
     },
     "xgboost": {
       "alertTitle": "Department & Entity Risk Scoring ML Model",
@@ -1506,23 +1423,91 @@
       "emptyHistory": "No audit plan history data yet.",
       "viewDocument": "View Document",
       "noFile": "No File",
-      "deleteConfirm": "Are you sure you want to delete Audit Charter \"{title}\" version {version}?"
+      "deleteConfirm": "Are you sure you want to delete Audit Charter \"{title}\" version {version}?",
+      "columns": {
+        "version": "Version",
+        "title": "Charter Name",
+        "content": "Content",
+        "date": "Date",
+        "approvedBy": "Approved By",
+        "uploadedBy": "Uploaded By",
+        "actions": ""
+      }
     },
     "form": {
       "editTitle": "Edit Audit Charter",
       "uploadTitle": "Add New Charter",
       "docTitle": "Document Title",
       "docTitlePlaceholder": "e.g. Internal Audit Charter 2026",
+      "docTitleValidation": "Title is required and cannot exceed 200 characters",
       "versionAuto": "Version (Auto)",
       "date": "Date",
       "uploadedBy": "Uploaded By",
       "approvedBy": "Approved By",
       "approvedByPlaceholder": "e.g. Audit Committee",
+      "approvedByValidation": "Approver is required and cannot exceed 200 characters",
       "status": "Status",
       "active": "Active",
       "inactive": "Inactive",
       "uploadFile": "Upload Charter File (PDF/DOCX)",
+      "selectedFile": "Selected file:",
       "submit": "Submit"
+    },
+    "guideline": {
+      "title": "Audit Guidelines",
+      "subtitle": "Complete list of Audit Guidelines applicable in the company",
+      "emptyTitle": "No Audit Guidelines Yet",
+      "emptyDesc": "Audit Guidelines define the rules and standards for audit execution in your company.",
+      "addGuideline": "Add Audit Guideline",
+      "addGuidelineShort": "Add Guideline",
+      "emptyTable": "No audit guidelines yet",
+      "deleteConfirm": "Are you sure you want to delete Guideline \"{name}\"?",
+      "statusActive": "Active",
+      "statusUnderReview": "Under Review",
+      "columns": {
+        "no": "No",
+        "name": "Guideline Name",
+        "status": "Status",
+        "effectiveDate": "Effective Date",
+        "fileName": "View Document",
+        "actions": ""
+      }
+    },
+    "guidelineForm": {
+      "editTitle": "Edit Audit Guideline",
+      "addTitle": "Add New Audit Guideline",
+      "name": "Guideline Name",
+      "namePlaceholder": "e.g. Internal Audit Unit Management Guideline",
+      "nameValidation": "Guideline name is required and cannot exceed 200 characters",
+      "status": "Status",
+      "statusActive": "Active",
+      "statusUnderReview": "Under Review",
+      "effectiveDate": "Effective Date",
+      "fileUpload": "Guideline Document (PDF)",
+      "selectedFile": "Selected file:",
+      "saveChanges": "Save Changes",
+      "addGuideline": "Add Guideline",
+      "cancel": "Cancel"
+    },
+    "sopList": {
+      "title": "Technical Instructions / SOP",
+      "subtitle": "Complete list of Technical Instructions and Standard Operating Procedures for audit execution",
+      "emptyTitle": "No Technical Instructions / SOP Yet",
+      "emptyDesc": "Technical Instructions / SOP are detailed elaborations of Audit Guidelines for technical auditor guidance.",
+      "addSop": "Add Technical Instruction / SOP",
+      "addSopShort": "Add SOP / Technical Instruction",
+      "emptyTable": "No technical instructions / SOP yet",
+      "deleteConfirm": "Are you sure you want to delete Technical Instruction/SOP \"{name}\"?",
+      "statusActive": "Active",
+      "statusUnderReview": "Under Review",
+      "columns": {
+        "no": "No",
+        "name": "Technical Instruction Name",
+        "guidelineName": "Guideline Name",
+        "status": "Status",
+        "effectiveDate": "Effective Date",
+        "actions": ""
+      }
     },
     "sopForm": {
       "editTitle": "Edit Technical Instruction / SOP",
@@ -1554,16 +1539,22 @@
     "fileUploadLabel": "Import Document File *",
     "fileDropPrompt": "Click to upload or drag & drop",
     "fileLimitInfo": "PDF, DOC, DOCX up to 10MB",
+    "dropzonePrompt": "Click to upload or drag & drop",
+    "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
     "removeFile": "Remove File",
     "submitButton": "Import Executive Summary",
     "tableHeader": "Imported Executive Summaries",
+    "tableTitle": "Imported Executive Summaries",
     "documentsCount": "{count} Documents",
     "loadingDocuments": "Loading documents...",
     "emptyTitle": "No documents imported",
     "emptySubtitle": "Import executive summary documents to add them to your records.",
+    "emptyDesc": "Import executive summary documents to add them to your records.",
     "columns": {
+      "title": "Document Title",
       "documentTitle": "Document Title",
       "file": "File",
+      "date": "Imported Date",
       "importedDate": "Imported Date",
       "actions": "Actions"
     },
@@ -1573,7 +1564,9 @@
       "delete": "Delete Document"
     },
     "confirmDelete": "Are you sure you want to delete this imported document?",
-    "fileSizeLimitAlert": "File size exceeds the 10MB limit."
+    "deleteConfirm": "Are you sure you want to delete this imported document?",
+    "fileSizeLimitAlert": "File size exceeds the 10MB limit.",
+    "fileSizeLimit": "File size exceeds the 10MB limit."
   },
   "riskAppetite": {
     "title": "Risk Appetite Statement (RAS)",
@@ -1762,6 +1755,50 @@
     }
   },
   "executiveSummary": {
+    "title": "Executive Summary (Compiled Audit Reports)",
+    "subtitle": "Quarterly compiled Audit Result Reports for BOD & Audit Committee.",
+    "importButton": "Import Document",
+    "createNew": "Create New Compiled Report",
+    "stats": {
+      "total": "Total Compiled",
+      "approved": "Approved",
+      "draft": "Draft",
+      "rejected": "Rejected"
+    },
+    "quarters": {
+      "q1": "Quarter 1 (Q1)",
+      "q2": "Quarter 2 (Q2)",
+      "q3": "Quarter 3 (Q3)",
+      "q4": "Quarter 4 (Q4)"
+    },
+    "searchPlaceholder": "Search document number or month...",
+    "showingDocuments": "Showing {count} documents",
+    "draftReport": "Draft Report",
+    "periodLabel": "Period:",
+    "actions": {
+      "view": "View Details",
+      "edit": "Edit Report",
+      "delete": "Delete",
+      "approve": "Approve",
+      "revertDraft": "Revert to Draft"
+    },
+    "cardStats": {
+      "reportsCount": "Audit Reports Count",
+      "totalFindings": "Total Findings",
+      "totalRecommendations": "Total Recommendations",
+      "completionClosed": "Completion (Closed)",
+      "progress": "Progress"
+    },
+    "empty": {
+      "title": "No Compiled Reports Yet",
+      "desc": "No Executive Summary compiled for Quarter {quarter} ({year}).",
+      "button": "Start First Report"
+    },
+    "modal": {
+      "viewTitle": "Compiled Report Details",
+      "editTitle": "Edit Compiled Report",
+      "createTitle": "Create New Compiled Report"
+    },
     "upload": {
       "title": "Import Executive Summary Report",
       "subtitle": "Import external compiled Executive Summary Report documents",
@@ -1995,7 +2032,11 @@
       "uploadSuccess": "Import Successful",
       "uploadSuccessDesc": "{period} {year} Performance Report document uploaded successfully!",
       "uploadFailed": "Upload Failed",
-      "uploadFailedDesc": "An error occurred while uploading the document."
+      "uploadFailedDesc": "An error occurred while uploading the document.",
+      "deleteSuccess": "Document Deleted",
+      "deleteSuccessDesc": "Performance Report document deleted successfully.",
+      "deleteFailed": "Failed to Delete",
+      "deleteFailedDesc": "An error occurred while deleting the document."
     }
   },
   "riskProfile": {

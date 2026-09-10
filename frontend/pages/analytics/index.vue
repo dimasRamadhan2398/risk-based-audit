@@ -320,8 +320,8 @@ const activeTab = ref('xgboost')
 const tabItems = computed(() => [
   { key: 'xgboost', label: t('analytics.tabs.riskScoring'), icon: 'i-heroicons-chart-bar-square' },
   { key: 'isolation', label: t('analytics.tabs.anomalyDetection'), icon: 'i-heroicons-shield-exclamation' },
-  { key: 'nlp', label: t('analytics.tabs.indoBERT'), icon: 'i-heroicons-document-magnifying-glass' },
-  { key: 'timeseries', label: t('analytics.tabs.kpiLSTM'), icon: 'i-heroicons-arrow-trending-up' },
+  { key: 'nlp', label: t('analytics.tabs.documentProcessing'), icon: 'i-heroicons-document-magnifying-glass' },
+  { key: 'timeseries', label: t('analytics.tabs.kpiForecast'), icon: 'i-heroicons-arrow-trending-up' },
 ])
 // ─── Tab 1: Dynamic Computed Charts for Risk Scoring ───────────────────────
 const xgboostBarData = computed(() => ({

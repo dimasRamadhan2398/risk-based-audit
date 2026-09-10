@@ -298,11 +298,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-<<<<<<< HEAD
   if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importQar.deleteConfirm') })) {
-=======
-  if (confirm(t('qualityAssurance.importQar.deleteConfirm'))) {
->>>>>>> 19ed793 (fix: table display on every page)
     store.selectedReport = report
     await store.deleteReport()
   }
