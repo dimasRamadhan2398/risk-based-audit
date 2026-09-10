@@ -21,14 +21,20 @@
             </h3>
           </template>
 
-          <form @submit.prevent="handleUpload" class="space-y-6">
+          <UForm @submit.prevent="handleUpload" class="space-y-6">
             <UFormField :label="t('auditActivityPlan.upload.documentTitle')" required>
               <UInput 
                 v-model="form.title" 
                 :placeholder="t('auditActivityPlan.upload.documentTitlePlaceholder')" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('auditActivityPlan.upload.description')">
@@ -105,7 +111,7 @@
               icon="i-lucide-upload"
               :disabled="!form.title || !form.fileName"
             />
-          </form>
+          </UForm>
         </UCard>
       </div>
 
@@ -158,14 +164,16 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="info" 
-                  variant="ghost" 
-                  size="sm" 
-                  :title="t('auditActivityPlan.upload.viewDocument')"
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                />
+                <UTooltip :text="t('auditActivityPlan.upload.viewDocument')" class="mx-1">
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="sm" 
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
+                </UTooltip>
+                <UTooltip :text="t('auditActivityPlan.upload.downloadDocument')" class="mx-1">
                 <UButton 
                   icon="i-lucide-download" 
                   color="primary" 
@@ -174,6 +182,8 @@
                   :title="t('auditActivityPlan.upload.downloadDocument')"
                   @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                 />
+                </UTooltip>
+                <UTooltip :text="t('auditActivityPlan.upload.deleteDocument')" class="mx-1">
                 <UButton 
                   icon="i-lucide-trash-2" 
                   color="error" 
@@ -182,6 +192,7 @@
                   :title="t('auditActivityPlan.upload.deleteDocument')"
                   @click="handleDelete(row.original.id)" 
                 />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>
@@ -196,9 +207,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useUploadPlanDocumentStore } from '~/stores/upload-plan-document'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const { t, locale } = useI18n()
 const store = useUploadPlanDocumentStore()
+const toast = useToastNotification()
 
 onMounted(() => {
   store.fetchUploadedDocuments()
@@ -292,6 +305,7 @@ const handleDelete = async (id: string) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('auditActivityPlan.upload.deleteConfirm') })) {
     await store.deleteDocument(id)
   }
+  toast.showSuccess("Document deleted successfully")
 }
 
 const formatBytes = (bytes: number) => {

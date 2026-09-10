@@ -56,65 +56,6 @@
           <AuditFieldworkTestControls />
         </template>
 
-        <template #tab06>
-          <div class="space-y-4">
-            <div class="flex justify-between items-center p-4">
-              <div>
-                <h2 class="text-lg font-semibold text-gray-900">{{ t('auditFieldwork.workingPapers.title') }}</h2>
-                <p class="text-sm text-gray-500">{{ t('auditFieldwork.workingPapers.subtitle', { letter: store.selectedAssignmentLetter }) }}</p>
-              </div>
-            </div>
-
-            <div v-if="filteredWorkingPapers.length > 0" class="mx-4">
-              <UCard :ui="{ body: 'p-0', root: 'ring-1 ring-gray-200 shadow-sm' }">
-                <UTable :data="filteredWorkingPapers" :columns="workingPaperColumns">
-                  <template #actions-cell="{ row }">
-                    <div class="flex gap-2">
-                      <UButton
-                        icon="i-lucide-eye"
-                        size="md"
-                        color="neutral"
-                        variant="ghost"
-                        :to="`/working-paper?id=${row.original.id}`"
-                        :title="t('auditFieldwork.workingPapers.tooltips.view')"
-                      />
-                      <UButton
-                        icon="i-lucide-edit"
-                        size="md"
-                        color="warning"
-                        variant="ghost"
-                        :to="`/working-paper?id=${row.original.id}&action=edit`"
-                        :title="t('auditFieldwork.workingPapers.tooltips.edit')"
-                      />
-                      <UButton
-                        icon="i-lucide-trash-2"
-                        size="md"
-                        color="error"
-                        variant="ghost"
-                        @click="wpStore.deleteF01(row.original.id!)"
-                        :title="t('auditFieldwork.workingPapers.tooltips.delete')"
-                      />
-                    </div>
-                  </template>
-                </UTable>
-              </UCard>
-            </div>
-
-            <div v-else class="text-center py-12 rounded-xl border-2 border-dashed border-gray-200 mx-4">
-              <UIcon name="i-heroicons-document-text" class="size-16 text-gray-300 mx-auto mb-4" />
-              <h3 class="text-lg font-semibold text-gray-700">{{ t('auditFieldwork.workingPapers.emptyTitle') }}</h3>
-              <p class="text-gray-500 mt-2 max-w-md mx-auto mb-6">
-                {{ t('auditFieldwork.workingPapers.emptyDesc', { letter: store.selectedAssignmentLetter }) }}
-              </p>
-              <UButton 
-                color="primary" 
-                icon="i-heroicons-plus" 
-                :label="t('auditFieldwork.workingPapers.createFirst')" 
-                to="/working-paper?action=create" 
-              />
-            </div>
-          </div>
-        </template>
       </UTabs>
     </div>
 
@@ -131,12 +72,10 @@
 
 <script setup lang="ts">
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
-import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useI18n } from '~/composables/useI18n'
 import { computed, watchEffect } from 'vue'
 
 const store = useAuditFieldworkStore()
-const wpStore = useWorkingPaperStore()
 const { t } = useI18n()
 
 watchEffect(() => {
@@ -152,11 +91,6 @@ const tabs = computed(() => [
   { label: t('auditFieldwork.tabs.sample'), slot: 'tab04', icon: 'i-heroicons-table-cells' },
   { label: t('auditFieldwork.tabs.testControls'), slot: 'tab05', icon: 'i-heroicons-shield-check' },
 ])
-
-const filteredWorkingPapers = computed(() => {
-  if (!store.selectedAssignmentLetter) return []
-  return wpStore.dataF01.filter(wp => wp.assignmentLetterId === store.selectedAssignmentLetter)
-})
 
 const workingPaperColumns = computed(() => [
   { accessorKey: 'businessProcess', header: t('auditFieldwork.workingPapers.columns.businessProcess') },

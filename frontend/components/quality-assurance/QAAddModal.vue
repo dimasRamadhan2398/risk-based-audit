@@ -39,14 +39,9 @@
                 <UFormField label="Assessment Title" required :error="errors.assessmentTitle ? 'Title is required' : ''">
                   <UInput v-model="store.newReport.assessmentTitle" placeholder="Ex: QAR - Audit 2026" class="w-full" />
                 </UFormField>
-                <div class="grid grid-cols-2 gap-4">
-                  <UFormField label="Execution Period">
-                    <USelectMenu v-model="store.newReport.periodQuarter" :items="['Q1', 'Q2', 'Q3', 'Q4']" placeholder="Select Quarter" class="w-full"/>
-                  </UFormField>
-                  <UFormField label="&nbsp;">
-                    <USelectMenu v-model="store.newReport.periodYear" :items="store.periods" placeholder="Select Year" class="w-full"/>
-                  </UFormField>
-                </div>
+                <UFormField label="Execution Period">
+                  <USelectMenu v-model="store.newReport.periodYear" :items="store.periods" placeholder="Select Year" class="w-full"/>
+                </UFormField>
               </div>
             </div>
 
@@ -93,7 +88,7 @@
               <h4 class="font-bold text-gray-700">4. Special Details</h4>
               <div class="grid grid-cols-2 gap-4">
                 <UFormField label="Conducted By">
-                  <UInput v-model="store.newReport.conductedBy" placeholder="Ex: PT Nama Perusahaan" class="w-full"/>
+                  <UInput v-model="store.newReport.conductedBy" placeholder="Ex: PT BAI" class="w-full"/>
                 </UFormField>
                 <UFormField label="Internal Evaluator">
                   <UInput v-model="store.newReport.internalEvaluator" placeholder="Team Name / Lead Auditor..." class="w-full"/>

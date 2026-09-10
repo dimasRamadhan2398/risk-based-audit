@@ -24,22 +24,24 @@
 
         <template #actions-cell="{ row }">
             <div class="flex gap-2">
+              <UTooltip text="Edit Audit Plan">
                 <UButton 
                     size="md" 
                     color="warning" 
                     variant="ghost" 
                     icon="i-lucide-edit" 
                     @click="store.handleEditF01(row.original)" 
-                    
                 />
+              </UTooltip>
+              <UTooltip text="Delete Audit Plan">
                 <UButton 
                     size="md" 
                     color="error" 
                     variant="ghost" 
                     icon="i-lucide-trash-2" 
                     @click="store.handleDeleteF01(row.original.id)" 
-                    
                 />
+              </UTooltip>
             </div>
         </template>
 

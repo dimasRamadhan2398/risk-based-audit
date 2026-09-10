@@ -27,8 +27,14 @@
                 v-model="form.title" 
                 :placeholder="t('workingPaper.upload.documentTitlePlaceholder')" 
                 class="w-full" 
-                required 
+                required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')" 
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('workingPaper.upload.description')">
@@ -41,7 +47,7 @@
             </UFormField>
 
             <!-- File Upload Box -->
-            <UFormField :label="t('workingPaper.upload.fileLabel')" required>
+            <UFormField :label="t('workingPaper.upload.fileLabel')">
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -168,14 +174,17 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="info" 
-                  variant="ghost" 
-                  size="sm" 
-                  :title="t('workingPaper.upload.actions.view')" 
+                <UTooltip :text="t('workingPaper.upload.actions.view')"> 
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="sm" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
+                </UTooltip>
+                
+                <UTooltip :text="t('workingPaper.upload.actions.download')"> 
                 <UButton 
                   icon="i-lucide-download" 
                   color="primary" 
@@ -184,14 +193,17 @@
                   :title="t('workingPaper.upload.actions.download')" 
                   @click="store.downloadImportedPaper(row.original.id, row.original.fileName)" 
                 />
+                </UTooltip>
+                
+                <UTooltip :text="t('workingPaper.upload.actions.delete')"> 
                 <UButton 
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
                   size="sm" 
-                  :title="t('workingPaper.upload.actions.delete')" 
                   @click="handleDelete(row.original.id)" 
                 />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>

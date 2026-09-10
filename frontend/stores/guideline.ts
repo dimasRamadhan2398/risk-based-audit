@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 export interface AuditGuideline {
   id: string
@@ -17,6 +18,7 @@ export const useGuidelineStore = defineStore('guideline', () => {
   const guidelines = ref<AuditGuideline[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
 
   // Pagination State
   const pagination = ref({
@@ -193,11 +195,12 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
+      toast.showSuccess('Pedoman Audit berhasil ditambahkan!')
       await fetchGuidelines()
       closeModal()
     } catch (err: any) {
       console.error('Failed to add guideline:', err)
-      errorMsg.value = 'Gagal menambahkan Pedoman Audit.'
+      toast.showError('Gagal menambahkan Pedoman Audit.')
     } finally {
       loading.value = false
     }
@@ -240,11 +243,12 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
+      toast.showSuccess('Pedoman Audit berhasil diperbarui!')
       await fetchGuidelines()
       closeModal()
     } catch (err: any) {
       console.error('Failed to update guideline:', err)
-      errorMsg.value = 'Gagal memperbarui Pedoman Audit.'
+      toast.showError('Gagal memperbarui Pedoman Audit.')
     } finally {
       loading.value = false
     }
@@ -264,10 +268,11 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
+      toast.showSuccess('Pedoman Audit berhasil dihapus!')
       await fetchGuidelines()
     } catch (err: any) {
       console.error('Failed to delete guideline:', err)
-      errorMsg.value = 'Gagal menghapus Pedoman Audit.'
+      toast.showError('Gagal menghapus Pedoman Audit.')
     } finally {
       loading.value = false
     }

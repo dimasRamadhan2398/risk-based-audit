@@ -101,6 +101,7 @@
         <!-- Actions slot -->
         <template #actions-cell="{ row }">
           <div class="flex justify-end gap-1">
+            <UTooltip text="View SOP">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
               icon="i-lucide-eye"
@@ -109,6 +110,8 @@
               size="md"
               @click="openFile(row.original.file_url)"
             />
+            </UTooltip>
+            <UTooltip text="Edit SOP">
             <UButton
               v-if="canManageCharter"
               size="md"
@@ -117,6 +120,8 @@
               icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
             />
+            </UTooltip>
+            <UTooltip text="Hapus SOP">
             <UButton
               v-if="canManageCharter"
               size="md"
@@ -125,6 +130,7 @@
               icon="i-lucide-trash-2"
               @click="confirmDelete(row.original)"
             />
+            </UTooltip>
           </div>
         </template>
       </TableEntities>

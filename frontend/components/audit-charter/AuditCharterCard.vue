@@ -111,24 +111,27 @@
           </div>
         </div>
         <div class="sm:flex sm:flex-row-reverse gap-4">
-          <UButton
-            v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
-            icon="i-lucide-download"
-            size="md"
-            color="primary"
-            variant="solid"
-            :label="t('auditCharter.card.download')"
-          />
-          <UButton
-            v-if="canManageCharter"
-            :label="t('auditCharter.card.edit')"
-            @click="store.handleEdit(store.activeCharter)"
-            color="primary"
-            icon="i-lucide-edit"
-            variant="outline"
-          >
-          </UButton>
+          <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
+            <UButton
+              v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
+              @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
+              icon="i-lucide-download"
+              size="md"
+              color="primary"
+              variant="solid"
+              :label="t('auditCharter.card.download')"
+            />
+          </UTooltip>
+          <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+            <UButton
+              v-if="canManageCharter"
+              @click="store.handleEdit(store.activeCharter)"
+              color="primary"
+              icon="i-lucide-edit"
+              variant="outline"
+              :label="t('auditCharter.card.edit')"
+            />
+          </UTooltip>
         </div>
       </UCard>
 
@@ -212,30 +215,36 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1.5 whitespace-nowrap">
-              <UButton
-                v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                size="md"
-                color="primary"
-                variant="ghost"
-                icon="i-lucide-download"
-                @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
-              />
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="primary"
-                variant="ghost"
-                icon="i-lucide-edit"
-                @click="store.handleEdit(row.original)"
-              />
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="error"
-                variant="ghost"
-                icon="i-lucide-trash-2"
-                @click="confirmDelete(row.original)"
-              />
+              <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
+                <UButton
+                  v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
+                  size="md"
+                  color="primary"
+                  variant="ghost"
+                  icon="i-lucide-download"
+                  @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
+                />
+              </UTooltip>
+              <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="primary"
+                  variant="ghost"
+                  icon="i-lucide-edit"
+                  @click="store.handleEdit(row.original)"
+                />
+              </UTooltip>
+              <UTooltip :text="t('auditCharter.tooltips.deleteCharter')">
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="error"
+                  variant="ghost"
+                  icon="i-lucide-trash-2"
+                  @click="confirmDelete(row.original)"
+                />
+              </UTooltip>
             </div>
           </template>
         </TableEntities>

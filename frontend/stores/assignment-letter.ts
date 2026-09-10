@@ -1,7 +1,9 @@
 // stores/assignment-letter.ts
+import { toast } from '#build/ui';
 import type { TableColumn } from '@nuxt/ui';
 import { defineStore } from 'pinia'
 import { type AssignmentLetter, type AssignmentLetterForm, type AssignmentLetterStatus, AuditCategory } from '~/types/audit'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
@@ -10,7 +12,7 @@ export interface AssignmentLetterState {
   form: AssignmentLetterForm;
   columns: (TableColumn<AssignmentLetter> & { class?: string })[];
   options: {
-    auditTeam: string[];
+    auditTeam: { value: string, label: string }[];
     workingUnit: string[];
     role: string[];
   };
@@ -224,7 +226,11 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       { accessorKey: 'actions', header: 'Actions', class: 'w-24 whitespace-nowrap text-center' }
     ],
     options: {
-      auditTeam: ['SKAI', 'DAI', 'CAE'],
+      auditTeam: [
+        { value: 'SKAI', label: 'Satuan Kerja Audit Internal' },
+        { value: 'SPI', label: 'Satuan Pengawas Intern' },
+        { value: 'CAE', label: 'Chief Audit Executive' }
+      ],
       workingUnit: ['Production', 'Marketing', 'Finance', 'IT', 'Operations', 'Procurement', 'Maintenance'],
       role: ['Person in Charge', 'Supervisor', 'Chairperson', 'Member'],
     }
@@ -445,6 +451,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
 
     openModal() {
       this.editingId = null
+      this.errorMsg = ''
       Object.assign(this.form, {
         auditTitle: '',
         leader: '',
@@ -467,6 +474,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
 
     openEditModal(letter: AssignmentLetter) {
       this.editingId = letter.id
+      this.errorMsg = ''
 
       Object.assign(this.form, {
         auditTitle: letter.auditTitle,
@@ -497,18 +505,52 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     },
 
     async handleSubmit() {
+      this.errorMsg = ''
+
+      if (!this.form.auditTitle) {
+        this.errorMsg = 'Audit Title must be filled in.'
+        return
+      }
+
+      if (!this.form.category) {
+        this.errorMsg = 'Audit Category must be selected.'
+        return
+      }
+
+      if (!this.form.auditYear) {
+        this.errorMsg = 'Audit Year must be selected.'
+        return
+      }
+
+      if (!this.form.auditTeam) {
+        this.errorMsg = 'Audit Team must be selected.'
+        return
+      }
+
       if (!this.form.workingUnit) {
-        alert("Work unit must be filled in.")
+        this.errorMsg = 'Work unit must be filled in.'
+        return
+      }
+
+      const isMembersValid = this.form.membersList.every(m => m.name && m.role)
+      if (!isMembersValid) {
+        this.errorMsg = 'All team members must have a name and a role.'
+        return
+      }
+
+      const isCcValid = this.form.ccList.every(cc => cc && cc.trim() !== '')
+      if (!isCcValid) {
+        this.errorMsg = 'All CC fields must be filled in or removed.'
         return
       }
 
       if (this.dateError || !this.form.startPeriod || !this.form.finishPeriod) {
-        alert(this.dateError || "Please fill in start and end period.")
+        this.errorMsg = this.dateError || 'Please fill in start and end period.'
         return
       }
 
       if (this.form.membersList.length < 3) {
-        const proceed = await useGlobalModalStore().confirmDelete({ description: "Template suggests at least 3 team members. Continue saving?" })
+        const proceed = await useGlobalModalStore().confirmSubmit({ description: "Template suggests at least 3 team members. Continue saving?" })
         if (!proceed) return
       }
 
@@ -517,6 +559,11 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         const baseUrl = this.getAuditServiceBaseUrl()
         const executionPeriod =
           `${this.form.startPeriod} to ${this.form.finishPeriod}`
+
+        const picMember = this.form.membersList.find(m => m.role === 'Person in Charge')
+        if (picMember) {
+          this.form.leader = picMember.name
+        }
 
         if (this.editingId) {
           const existingLetter = this.assignmentLetterList.find(
@@ -527,12 +574,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
             throw new Error('Assignment letter not found.')
           }
 
-          const payload = {
+          const payload: any = {
             ...this.form,
             letterNumber: existingLetter.letterNumber,
             status: existingLetter.status,
             executionPeriod
           }
+          if (payload.letterDate === '') payload.letterDate = null
 
           await $fetch(
             `${baseUrl}/assignment-letters/${this.editingId}`,
@@ -541,28 +589,31 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
               body: payload
             }
           )
+          useToastNotification().success('Assignment letter updated successfully!')
         } else {
           const letterNumber = this.generateNomorSurat(
             this.form.auditTeam,
             this.form.auditYear
           )
 
-          const payload = {
+          const payload: any = {
             ...this.form,
             letterNumber,
             status: 'Draft',
             executionPeriod
           }
+          if (payload.letterDate === '') payload.letterDate = null
 
           await $fetch(`${baseUrl}/assignment-letters`, {
             method: 'POST',
             body: payload
           })
+          useToastNotification().success('Assignment letter created successfully!')
         }
-
         this.closeModal()
         await this.fetchAssignmentLetters()
       } catch (error: any) {
+
         console.error(
           this.editingId
             ? 'Failed to update assignment letter:'
@@ -570,11 +621,11 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           error
         )
 
-        alert(
-          this.editingId
-            ? 'Failed to update assignment letter.'
-            : 'Failed to save assignment letter.'
-        )
+        this.errorMsg = this.editingId
+          ? 'Failed to update assignment letter.'
+          : 'Failed to save assignment letter.'
+
+        useToastNotification().error(this.errorMsg)
       } finally {
         this.loading = false
       }
@@ -598,9 +649,11 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           method: 'POST',
           body: payload
         })
+        useToastNotification().success('Assignment letter created successfully!')
         await this.fetchAssignmentLetters()
-      } catch (error) {
+      } catch (error: any) {
         console.error(error)
+        useToastNotification().error('Failed to create assignment letter: ' + (error?.message || error))
       } finally {
         this.loading = false
       }
@@ -614,9 +667,11 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         await $fetch(`${baseUrl}/assignment-letters/${id}`, {
           method: 'DELETE'
         })
+        useToastNotification().success('Assignment letter deleted successfully!')
         await this.fetchAssignmentLetters()
-      } catch (error) {
+      } catch (error: any) {
         console.error(error)
+        useToastNotification().error('Failed to delete assignment letter: ' + (error?.message || error))
       } finally {
         this.loading = false
       }
@@ -634,10 +689,12 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
             method: 'PUT',
             body: payload
           })
+          useToastNotification().success(`Assignment letter status changed to ${status}!`)
           await this.fetchAssignmentLetters()
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error(error)
+        useToastNotification().error('Failed to change status: ' + (error?.message || error))
       } finally {
         this.loading = false
       }

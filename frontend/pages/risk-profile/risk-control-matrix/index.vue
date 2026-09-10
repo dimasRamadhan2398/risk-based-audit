@@ -17,21 +17,21 @@
       </div>
 
       <!-- Actions / Filters -->
-      <div class="flex flex-wrap items-center gap-3">
-        <USelectMenu
+      <div class="flex flex-wrap items-center justify-end gap-3">
+        <USelect
           v-model="rcmStore.selectedYear"
-          :items="dynamicYears"
-          value-key="id"
-          label-key="label"
+          :items="yearOptions"
+          value-key="value"
+          size="md"
           class="w-36"
         />
 
-        <USelectMenu
+        <USelect
           v-model="rcmStore.selectedDepartment"
-          :items="dynamicDepartments"
-          value-key="id"
-          label-key="label"
-          class="w-60"
+          :items="departmentOptions"
+          value-key="value"
+          size="md"
+          class="w-64"
         />
 
         <UButton
@@ -334,45 +334,88 @@
         <!-- Actions -->
         <template #actions-cell="{ row }">
           <div class="flex items-center justify-end gap-1">
+            <UTooltip text="Edit Control">
             <UButton
-              icon="i-lucide-edit"
-              color="warning"
+              icon="i-lucide-edit-3"
+              color="neutral"
               variant="ghost"
-              size="md"
+              size="xs"
               title="Edit Control"
               @click="openEditModal(row.original)"
             />
+            </UTooltip>  
+            <UTooltip text="Hapus Control">
             <UButton
               icon="i-lucide-trash-2"
               color="error"
               variant="ghost"
-              size="md"
+              size="xs"
               title="Hapus Control"
               @click="confirmDelete(row.original.id)"
             />
+            </UTooltip>
           </div>
         </template>
       </TableEntities>
     </div>
 
     <!-- Add / Edit Modal -->
-    <UModal v-model:open="isModalOpen" title="Manage Risk Control Matrix">
-      <template #body>
-        <div class="p-6 space-y-4">
-          <!-- Synchronized Risk Dropdown from Corporate Risk Profile -->
-          <div>
-            <label class="block text-md font-semibold text-slate-700 mb-1">Pilih Risiko (Corporate Risk Profile)</label>
-            <USelectMenu
-              v-model="selectedRiskId"
-              :items="riskProfileStore.risks.map(r => ({ id: r.id, label: `${riskProfileStore.getFormattedId(r)} - ${r.name} (${r.branch || r.category})` }))"
-              value-key="id"
-              label-key="label"
-              placeholder="-- Pilih Risiko dari Corporate Risk Profile --"
-              class="w-full"
-              size="lg"
-              searchable
-              @update:model-value="onRiskSelected"
-            />
+    <UModal 
+      v-model:open="isModalOpen" 
+      title="Manage Risk Control Matrix"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
+      <template #content>
+        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
+            {{ isEditMode ? 'Edit Risk Control Matrix' : 'Tambah Risk Control Matrix Baru' }}
+          </h3>
+
+          <!-- Synchronized Branch and Risk Selection from Corporate Risk Profile -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Branch / Departemen
+              </label>
+              <USelectMenu
+                v-model="selectedBranchInModal"
+                :items="branchModalOptions"
+                value-key="value"
+                size="md"
+                class="w-full"
+                placeholder="Pilih Branch..."
+                @update:model-value="onBranchModalChange"
+              />
+            </div>
+
+            <div>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Pilih Nama Risiko (Corporate Risk Profile)
+              </label>
+              <USelectMenu
+                v-model="selectedRiskId"
+                :items="riskOptionsForModal"
+                value-key="value"
+                size="md"
+                class="w-full"
+                placeholder="Pilih Nama Risiko..."
+                @update:model-value="onRiskSelected"
+              >
+                <template #item="{ item }">
+                  <div class="flex items-center gap-2 max-w-full w-full py-0.5">
+                    <span class="text-xs font-bold text-primary-600 dark:text-primary-400 shrink-0">[{{ item.code }}]</span>
+                    <span class="truncate text-sm font-medium">{{ item.name }}</span>
+                    <span class="text-xs text-slate-400 shrink-0 ml-auto">({{ item.branch }})</span>
+                  </div>
+                </template>
+              </USelectMenu>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -408,16 +451,16 @@
 
           <!-- Synchronized Control & Mitigation Selection from Risk Mitigation Plans & Controls -->
           <div v-if="availableMitigations.length > 0">
-            <label class="block text-md font-semibold text-slate-700 mb-1">Pilih Risk Control ID (Rencana Mitigasi & Kontrol)</label>
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Pilih Risk Control ID (Rencana Mitigasi & Kontrol)
+            </label>
             <USelectMenu
               v-model="selectedMitigationId"
-              :items="availableMitigations.map(m => ({ id: m.id, label: `${m.riskControlId || 'CTL-001'} - ${m.mitigationPlan} (PIC: ${m.pic})` }))"
-              value-key="id"
-              label-key="label"
-              placeholder="-- Pilih Risk Control ID --"
+              :items="mitigationOptionsForModal"
+              value-key="value"
+              size="md"
               class="w-full"
-              size="lg"
-              searchable
+              placeholder="Pilih Risk Control ID..."
               @update:model-value="onControlSelected"
             />
           </div>
@@ -428,8 +471,8 @@
               <input
                 v-model="formData.control_code"
                 type="text"
-                class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-md text-slate-600 font-medium cursor-not-allowed"
-                readonly
+                placeholder="misal: CTL-FIN-001"
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-md text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
               />
             </div>
             <div>
@@ -618,6 +661,7 @@ import { useMitigationStore } from '~/stores/mitigation-risk'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import type { RiskMitigation } from '~/types/risk'
 import { useGlobalModalStore } from '~/stores/global-modal'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -626,6 +670,7 @@ definePageMeta({
 const rcmStore = useRCMStore()
 const riskProfileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()
+const toast = useToastNotification()
 
 const searchQuery = ref('')
 const showRatingTable = ref(true)
@@ -634,6 +679,7 @@ const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
 const selectedBranchInModal = ref('All Branches')
+
 
 const branchModalOptions = [
   { label: 'Semua Branch / Departemen', value: 'All Branches' },
@@ -939,14 +985,16 @@ const openEditModal = (item: RCMItem) => {
 
 const saveForm = async () => {
   if (!formData.value.risk_code || !formData.value.risk_event || !formData.value.control_description) {
-    alert('Mohon pilih risiko dan lengkapi deskripsi kontrol.')
+    toast.showWarning('Mohon pilih risiko dan lengkapi deskripsi kontrol.')
     return
   }
 
   if (isEditMode.value && formData.value.id) {
     await rcmStore.updateRCMItem(formData.value as RCMItem)
+    toast.showSuccess('Risk Control Matrix berhasil diupdate')
   } else {
     await rcmStore.addRCMItem(formData.value as any)
+    toast.showSuccess('Risk Control Matrix berhasil ditambahkan')
   }
   isModalOpen.value = false
 }
@@ -954,6 +1002,7 @@ const saveForm = async () => {
 const confirmDelete = async (id: string) => {
   if (await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus baris Risk Control Matrix ini?' })) {
     await rcmStore.deleteRCMItem(id)
+    toast.showSuccess('Risk Control Matrix berhasil dihapus')
   }
 }
 </script>

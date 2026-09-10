@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { TableColumn } from '@nuxt/ui'
 
 export interface RiskAppetite {
@@ -15,6 +16,46 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
   const statements = ref<RiskAppetite[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
+
+  const columns: (TableColumn<any> & { class?: string })[] = [
+    {
+      accessorKey: 'id',
+      id: 'id',
+      header: 'ID Risiko',
+      class: 'w-[120px] min-w-[100px] whitespace-nowrap'
+    },
+    {
+      accessorKey: 'name',
+      id: 'name',
+      header: 'Nama Risiko & Area',
+      class: 'min-w-[260px] max-w-[380px]'
+    },
+    {
+      accessorKey: 'level',
+      id: 'level',
+      header: 'Level Risiko',
+      class: 'w-[130px] min-w-[130px] text-center whitespace-nowrap'
+    },
+    {
+      accessorKey: 'appetite',
+      id: 'appetite',
+      header: 'Toleransi Appetite',
+      class: 'w-[150px] min-w-[150px] text-center whitespace-nowrap'
+    },
+    {
+      accessorKey: 'mitigationStatus',
+      id: 'mitigationStatus',
+      header: 'Status Mitigasi',
+      class: 'w-[180px] min-w-[180px] whitespace-nowrap'
+    },
+    {
+      accessorKey: 'actions',
+      id: 'actions',
+      header: 'Aksi',
+      class: 'w-[140px] min-w-[140px] text-center whitespace-nowrap'
+    }
+  ]
 
   const columns: (TableColumn<any> & { class?: string })[] = [
     {
@@ -128,11 +169,12 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
           status: 'DRAFT'
         }
       })
+      toast.showSuccess('Statement berhasil dibuat')
       await fetchStatements()
       return response
     } catch (error: any) {
       console.error('Failed to create risk appetite statement:', error)
-      errorMsg.value = error.data?.message || 'Failed to create statement.'
+      toast.showError(error.data?.message || 'Gagal membuat statement.')
       throw error
     } finally {
       loading.value = false
@@ -148,11 +190,12 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
         method: 'PUT',
         body: payload
       })
+      toast.showSuccess('Statement berhasil diupdate')
       await fetchStatements()
       return response
     } catch (error: any) {
       console.error('Failed to update risk appetite statement:', error)
-      errorMsg.value = error.data?.message || 'Failed to update statement.'
+      toast.showError(error.data?.message || 'Gagal mengupdate statement.')
       throw error
     } finally {
       loading.value = false
@@ -167,10 +210,11 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       await $fetch(`${baseUrl}/risk-appetite/${id}`, {
         method: 'DELETE'
       })
+      toast.showSuccess('Statement berhasil dihapus')
       await fetchStatements()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete risk appetite statement:', error)
-      errorMsg.value = 'Failed to delete statement.'
+      toast.showError(error.data?.message || 'Gagal menghapus statement.')
       throw error
     } finally {
       loading.value = false

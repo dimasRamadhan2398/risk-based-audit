@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { reactive, ref, computed, watch } from 'vue'
 import { useAssignmentLetterStore } from './assignment-letter'
 import { useAppToast } from '~/composables/useAppToast'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 export interface InterviewItem {
   id: any
@@ -430,6 +431,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     if (!assignmentLetterId) return
     loading.value = true
     errorMsg.value = ''
+    const toast = useToastNotification()
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const [interviewsRes, observationsRes, documentsRes, samplesRes, testControlsRes]: any = await Promise.all([
@@ -455,7 +457,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch fieldwork data:', error)
-      errorMsg.value = 'Failed to load fieldwork data.'
+      toast.showError('Failed to load fieldwork data.')
       if (mockFieldwork[assignmentLetterId]) {
         fieldworkData.value[assignmentLetterId] = JSON.parse(
           JSON.stringify(mockFieldwork[assignmentLetterId])
@@ -486,7 +488,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
       if (Array.isArray(list) && list.length > 0) {
-        fieldworkData.value[assignmentLetterId].interviews = list
+        fieldworkData.value[assignmentLetterId]!.interviews = list
       }
     } catch (error) {
       console.error('Failed to fetch interviews:', error)
@@ -501,7 +503,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
       if (Array.isArray(list) && list.length > 0) {
-        fieldworkData.value[assignmentLetterId].observations = list
+        fieldworkData.value[assignmentLetterId]!.observations = list
       }
     } catch (error) {
       console.error('Failed to fetch observations:', error)
@@ -516,7 +518,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
       if (Array.isArray(list) && list.length > 0) {
-        fieldworkData.value[assignmentLetterId].documents = list
+        fieldworkData.value[assignmentLetterId]!.documents = list
       }
     } catch (error) {
       console.error('Failed to fetch documents:', error)
@@ -531,7 +533,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
       if (Array.isArray(list) && list.length > 0) {
-        fieldworkData.value[assignmentLetterId].samples = list
+        fieldworkData.value[assignmentLetterId]!.samples = list
       }
     } catch (error) {
       console.error('Failed to fetch samples:', error)
@@ -546,7 +548,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
       if (Array.isArray(list) && list.length > 0) {
-        fieldworkData.value[assignmentLetterId].testControls = list
+        fieldworkData.value[assignmentLetterId]!.testControls = list
       }
     } catch (error) {
       console.error('Failed to fetch test controls:', error)
@@ -642,12 +644,14 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const saveInterview = async () => {
+    const toast = useToastNotification()
     if (!selectedAssignmentLetter.value || isReadOnlyInterview.value) return
     loading.value = true
-    const toast = useAppToast()
     const wasEditing = isEditingInterview.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.interviews
       let uploadedFilePath = interviewForm.filePath || interviewForm.fileUrl || ''
       let uploadedFileName = interviewForm.fileName || (interviewForm.file ? interviewForm.file.name : '')
 
@@ -686,8 +690,6 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         filePath: uploadedFilePath,
         fileUrl: uploadedFilePath
       }
-      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].interviews
 
       let res: any = null
       if (isEditingInterview.value && editingInterviewId.value) {
@@ -730,11 +732,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       showInterviewModal.value = false
       resetInterviewForm()
       await fetchInterviews(selectedAssignmentLetter.value)
-      toast.success(wasEditing ? 'Wawancara berhasil diperbarui' : 'Wawancara berhasil ditambahkan')
+      toast.showSuccess(wasEditing ? 'Wawancara berhasil diperbarui' : 'Wawancara berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].interviews
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.interviews
       const currentFileName = interviewForm.file ? interviewForm.file.name : interviewForm.fileName
       if (isEditingInterview.value && editingInterviewId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingInterviewId.value)
@@ -769,7 +771,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showInterviewModal.value = false
       resetInterviewForm()
-      toast.success(wasEditing ? 'Wawancara berhasil diperbarui' : 'Wawancara berhasil ditambahkan')
+      toast.showSuccess(wasEditing ? 'Wawancara berhasil diperbarui' : 'Wawancara berhasil ditambahkan')
     } finally {
       loading.value = false
     }
@@ -840,23 +842,27 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const deleteInterview = async (index: number) => {
+    const toast = useToastNotification()
     if (!selectedAssignmentLetter.value) return
     const item = interviews.value[index]
     if (!item || !await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus data wawancara ini?' })) return
     loading.value = true
-    const toast = useAppToast()
     try {
       const baseUrl = getAuditServiceBaseUrl()
       await $fetch(`${baseUrl}/fieldwork/interviews/${item.id}`, {
         method: 'DELETE'
       })
-      fieldworkData.value[selectedAssignmentLetter.value]?.interviews?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.interviews) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.interviews.splice(index, 1)
+      }
       await fetchInterviews(selectedAssignmentLetter.value)
-      toast.success('Data wawancara berhasil dihapus')
+      toast.showSuccess('Data wawancara berhasil dihapus')
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      fieldworkData.value[selectedAssignmentLetter.value]?.interviews?.splice(index, 1)
-      toast.success('Data wawancara berhasil dihapus')
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.interviews) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.interviews.splice(index, 1)
+      }
+      toast.showSuccess('Data wawancara berhasil dihapus')
     } finally {
       loading.value = false
     }
@@ -940,7 +946,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
   const saveObservation = async () => {
     if (!selectedAssignmentLetter.value || isReadOnlyObservation.value) return false
-    const toast = useAppToast()
+    const toast = useToastNotification()
 
     // Validation: make sure required fields are not empty
     if (
@@ -957,6 +963,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     const wasEditing = isEditingObservation.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.observations
       let uploadedFilePath = observationForm.filePath || observationForm.fileUrl || ''
       let uploadedFileName = observationForm.fileName || (observationForm.file ? observationForm.file.name : '')
 
@@ -995,8 +1003,6 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         filePath: uploadedFilePath,
         fileUrl: uploadedFilePath
       }
-      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].observations
 
       let res: any = null
       if (isEditingObservation.value && editingObservationId.value) {
@@ -1037,12 +1043,12 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       showObservationModal.value = false
       resetObservationForm()
       await fetchObservations(selectedAssignmentLetter.value)
-      toast.success(wasEditing ? 'Observasi berhasil diperbarui' : 'Observasi berhasil ditambahkan')
+      toast.showSuccess(wasEditing ? 'Observasi berhasil diperbarui' : 'Observasi berhasil ditambahkan')
       return true
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].observations
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.observations
       if (isEditingObservation.value && editingObservationId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingObservationId.value)
         if (idx !== -1 && currentList[idx]) {
@@ -1074,12 +1080,14 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showObservationModal.value = false
       resetObservationForm()
+      toast.showSuccess(wasEditing ? 'Observasi berhasil diperbarui' : 'Observasi berhasil ditambahkan')
     } finally {
       loading.value = false
     }
   }
 
   const deleteObservation = async (index: number) => {
+    const toast = useToastNotification()
     if (!selectedAssignmentLetter.value) return
     const item = observations.value[index]
     if (!item || !await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this observation?' })) return
@@ -1089,11 +1097,17 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/observations/${item.id}`, {
         method: 'DELETE'
       })
-      fieldworkData.value[selectedAssignmentLetter.value]?.observations?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.observations) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.observations.splice(index, 1)
+      }
       await fetchObservations(selectedAssignmentLetter.value)
+      toast.showSuccess('Observasi berhasil dihapus')
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      fieldworkData.value[selectedAssignmentLetter.value]?.observations?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.observations) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.observations.splice(index, 1)
+      }
+      toast.showSuccess('Observasi berhasil dihapus')
     } finally {
       loading.value = false
     }
@@ -1174,7 +1188,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
   const saveDocument = async () => {
     if (!selectedAssignmentLetter.value || isReadOnlyDocument.value) return false
-    const toast = useAppToast()
+    const toast = useToastNotification()
 
     // Validation: make sure required fields are not empty
     if (
@@ -1190,6 +1204,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     const wasEditing = isEditingDocument.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.documents
       let uploadedFilePath = documentForm.filePath || documentForm.fileUrl || ''
       let uploadedFileName = documentForm.fileName || (documentForm.file ? documentForm.file.name : '')
 
@@ -1228,8 +1244,6 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         filePath: uploadedFilePath,
         fileUrl: uploadedFilePath
       }
-      ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].documents
 
       let res: any = null
       if (isEditingDocument.value && editingDocumentId.value) {
@@ -1270,12 +1284,12 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       showDocumentModal.value = false
       resetDocumentForm()
       await fetchDocuments(selectedAssignmentLetter.value)
-      toast.success(wasEditing ? 'Dokumen berhasil diperbarui' : 'Dokumen berhasil ditambahkan')
+      toast.showSuccess(wasEditing ? 'Dokumen berhasil diperbarui' : 'Dokumen berhasil ditambahkan')
       return true
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].documents
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.documents
       if (isEditingDocument.value && editingDocumentId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingDocumentId.value)
         if (idx !== -1 && currentList[idx]) {
@@ -1306,6 +1320,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showDocumentModal.value = false
       resetDocumentForm()
+      toast.showSuccess(wasEditing ? 'Document berhasil diperbarui' : 'Document berhasil ditambahkan')
       return true
     } finally {
       loading.value = false
@@ -1322,6 +1337,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const deleteDocument = async (index: number) => {
+    const toast = useToastNotification()
     if (!selectedAssignmentLetter.value) return
     const item = documents.value[index]
     if (!item || !await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this document?' })) return
@@ -1331,11 +1347,17 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/documents/${item.id}`, {
         method: 'DELETE'
       })
-      fieldworkData.value[selectedAssignmentLetter.value]?.documents?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.documents) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.documents.splice(index, 1)
+      }
       await fetchDocuments(selectedAssignmentLetter.value)
+      toast.showSuccess('Document berhasil dihapus')
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      fieldworkData.value[selectedAssignmentLetter.value]?.documents?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.documents) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.documents.splice(index, 1)
+      }
+      toast.showSuccess('Document berhasil dihapus')
     } finally {
       loading.value = false
     }
@@ -1390,8 +1412,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const saveSample = async () => {
+    const toast = useToastNotification()
     if (!selectedAssignmentLetter.value || isReadOnlySample.value) return
     loading.value = true
+    const wasEditing = isEditingSample.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const payload = {
@@ -1399,7 +1423,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         assignmentLetterId: selectedAssignmentLetter.value
       }
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].samples
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.samples
 
       let res: any = null
       if (isEditingSample.value && editingSampleId.value) {
@@ -1435,16 +1459,19 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       showSampleModal.value = false
       resetSampleForm()
       await fetchSamples(selectedAssignmentLetter.value)
+      toast.showSuccess(wasEditing ? 'Sample berhasil diperbarui' : 'Sample berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].samples
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.samples
       if (isEditingSample.value && editingSampleId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingSampleId.value)
         if (idx !== -1) {
           currentList[idx] = {
-            ...currentList[idx],
-            ...sampleForm
+            ...currentList[idx]!,
+            ...sampleForm,
+            id: currentList[idx]!.id,
+            assignmentLetterId: currentList[idx]!.assignmentLetterId
           }
         }
       } else {
@@ -1460,12 +1487,14 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showSampleModal.value = false
       resetSampleForm()
+      toast.showSuccess(wasEditing ? 'Sample berhasil diperbarui' : 'Sample berhasil ditambahkan')
     } finally {
       loading.value = false
     }
   }
 
   const deleteSample = async (index: number) => {
+    const toast = useToastNotification()
     if (!selectedAssignmentLetter.value) return
     const item = samples.value[index]
     if (!item || !await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this sample?' })) return
@@ -1475,11 +1504,17 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/samples/${item.id}`, {
         method: 'DELETE'
       })
-      fieldworkData.value[selectedAssignmentLetter.value]?.samples?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.samples) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.samples.splice(index, 1)
+      }
       await fetchSamples(selectedAssignmentLetter.value)
+      toast.showSuccess('Sample berhasil dihapus')
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      fieldworkData.value[selectedAssignmentLetter.value]?.samples?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.samples) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.samples.splice(index, 1)
+      }
+      toast.showSuccess('Sample berhasil dihapus')
     } finally {
       loading.value = false
     }
@@ -1552,8 +1587,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   const saveTestControl = async () => {
+    const toast = useToastNotification()
     if (!selectedAssignmentLetter.value || isReadOnlyTestControl.value) return
     loading.value = true
+    const wasEditing = isEditingTestControl.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const payload = {
@@ -1561,7 +1598,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         assignmentLetterId: selectedAssignmentLetter.value
       }
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].testControls
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.testControls
 
       let res: any = null
       if (isEditingTestControl.value && editingTestControlId.value) {
@@ -1603,16 +1640,19 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       showTestControlModal.value = false
       resetTestControlForm()
       await fetchTestControls(selectedAssignmentLetter.value)
+      toast.showSuccess(wasEditing ? 'Test Control berhasil diperbarui' : 'Test Control berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
-      const currentList = fieldworkData.value[selectedAssignmentLetter.value].testControls
+      const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.testControls
       if (isEditingTestControl.value && editingTestControlId.value) {
         const idx = currentList.findIndex((item: any) => item.id === editingTestControlId.value)
         if (idx !== -1) {
           currentList[idx] = {
-            ...currentList[idx],
-            ...testControlForm
+            ...currentList[idx]!,
+            ...testControlForm,
+            id: currentList[idx]!.id,
+            assignmentLetterId: currentList[idx]!.assignmentLetterId
           }
         }
       } else {
@@ -1634,12 +1674,14 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showTestControlModal.value = false
       resetTestControlForm()
+      toast.showSuccess(wasEditing ? 'Test Control berhasil diperbarui' : 'Test Control berhasil ditambahkan')
     } finally {
       loading.value = false
     }
   }
 
   const deleteTestControl = async (index: number) => {
+    const toast = useToastNotification()
     if (!selectedAssignmentLetter.value) return
     const item = testControls.value[index]
     if (!item || !await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this test control?' })) return
@@ -1649,11 +1691,17 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       await $fetch(`${baseUrl}/fieldwork/test-controls/${item.id}`, {
         method: 'DELETE'
       })
-      fieldworkData.value[selectedAssignmentLetter.value]?.testControls?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.testControls) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.testControls.splice(index, 1)
+      }
       await fetchTestControls(selectedAssignmentLetter.value)
+      toast.showSuccess('Test Control berhasil dihapus')
     } catch (error) {
       console.error('API delete error, applying local delete:', error)
-      fieldworkData.value[selectedAssignmentLetter.value]?.testControls?.splice(index, 1)
+      if (fieldworkData.value[selectedAssignmentLetter.value]?.testControls) {
+        fieldworkData.value[selectedAssignmentLetter.value]!.testControls.splice(index, 1)
+      }
+      toast.showError('Gagal menghapus Test Control')
     } finally {
       loading.value = false
     }
@@ -1672,6 +1720,72 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const ineffectiveControls = computed(() =>
     testControls.value.filter(tc => tc.testResult === 'Ineffective').length
   )
+
+  const uploadFile = async (file: File): Promise<string> => {
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'fieldwork')
+
+      const response: any = await $fetch(`${baseUrl}/media/upload`, {
+        method: 'POST',
+        body: formData
+      })
+
+      if (response?.success === true && response?.data) {
+        const filePath = response.data.filePath || ''
+        const fileName = filePath.replace('/uploads/', '')
+        return fileName
+      }
+      return ''
+    } catch (err) {
+      console.error('Failed to upload file:', err)
+      return ''
+    }
+  }
+
+  const downloadFile = async (fileName: string) => {
+    if (!fileName) return
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      let headers: Record<string, string> = {}
+      try {
+        const authStore = useAuthStore()
+        if (authStore && authStore.token) {
+          headers['Authorization'] = `Bearer ${authStore.token}`
+        }
+      } catch (e) {
+        // Silently ignore if useAuthStore fails
+      }
+
+      // Download file as a blob using $fetch
+      const response: any = await $fetch(`${baseUrl}/media/download/${encodeURIComponent(fileName)}`, {
+        method: 'GET',
+        headers,
+        responseType: 'blob'
+      })
+
+      const blob = new Blob([response], { type: response.type || 'application/octet-stream' })
+      const url = window.URL.createObjectURL(blob)
+
+      const link = document.createElement('a')
+      link.href = url
+      // Provide a clean original filename without the prepended timestamp
+      const originalFileName = fileName.split('-').slice(1).join('-') || fileName
+      link.download = originalFileName
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+    } catch (err: any) {
+      console.error('Failed to download file:', err)
+      const toast = useAppToast()
+      toast.error('Gagal mengunduh dokumen.')
+    }
+  }
 
   return {
     tabs,
@@ -1742,6 +1856,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlCount,
     effectiveControls,
     ineffectiveControls,
+    uploadFile,
+    downloadFile,
     fetchAllFieldworkData,
     loading,
     errorMsg

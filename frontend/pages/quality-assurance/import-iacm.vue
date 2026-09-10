@@ -276,7 +276,6 @@ const handleUpload = async () => {
     await store.importQARReport({
       assessmentTitle: form.value.title,
       type: QAType.IACM,
-      periodQuarter: 'Yearly',
       periodYear: '2026',
       result: 'Level 4 (Managed)',
       status: QAStatus.COMPLETED,

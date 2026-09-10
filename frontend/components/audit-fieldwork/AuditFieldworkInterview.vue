@@ -59,30 +59,33 @@
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center justify-center gap-1">
-          <UButton
-            icon="i-heroicons-eye"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :title="t('common.actions.view') || 'Detail'"
-            @click="store.viewInterview(row.original)"
-          />
-          <UButton
-            icon="i-lucide-edit"
-            color="warning"
-            variant="ghost"
-            size="sm"
-            :title="t('common.actions.edit') || 'Ubah'"
-            @click="store.editInterview(row.original)"
-          />
-          <UButton
-            icon="i-lucide-trash-2"
-            color="error"
-            variant="ghost"
-            size="sm"
-            :title="t('common.actions.delete') || 'Hapus'"
-            @click="store.deleteInterview(row.index)"
-          />
+          <UTooltip :text="t('common.actions.view') || 'Detail'">
+            <UButton
+              icon="i-heroicons-eye"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="store.viewInterview(row.original)"
+            />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+            <UButton
+              icon="i-heroicons-pencil-square"
+              color="primary"
+              variant="ghost"
+              size="sm"
+              @click="store.editInterview(row.original)"
+            />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+            <UButton
+              icon="i-heroicons-trash"
+              color="error"
+              variant="ghost"
+              size="sm"
+              @click="store.deleteInterview(row.index)"
+            />
+          </UTooltip>
         </div>
       </template>
     </TableEntities>

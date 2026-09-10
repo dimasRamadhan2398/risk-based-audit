@@ -1,6 +1,7 @@
 // stores/charter.ts
 import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { AuditCharter, CharterFormState } from '~/types/audit'
 
 export const useCharterStore = defineStore('charter', () => {
@@ -11,6 +12,7 @@ export const useCharterStore = defineStore('charter', () => {
 
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
+  const toast = useToastNotification()
 
   const columns: (TableColumn<AuditCharter> & { class?: string })[] = [
     { accessorKey: 'version', header: 'Version', class: 'w-16 whitespace-nowrap text-center' },
@@ -275,10 +277,11 @@ export const useCharterStore = defineStore('charter', () => {
         body: formData,
       })
 
+      toast.showSuccess('Audit Charter berhasil ditambahkan!')
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to create audit charter:', error)
-      errorMsg.value = 'Gagal menambahkan Audit Charter.'
+      toast.showError('Gagal menambahkan Audit Charter.')
       throw error
     } finally {
       loading.value = false
@@ -317,10 +320,11 @@ export const useCharterStore = defineStore('charter', () => {
         body: formData,
       })
 
+      toast.showSuccess('Audit Charter berhasil diubah!')
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to update audit charter:', error)
-      errorMsg.value = 'Gagal memperbarui Audit Charter.'
+      toast.showError('Gagal memperbarui Audit Charter.')
       throw error
     } finally {
       loading.value = false
@@ -345,10 +349,11 @@ export const useCharterStore = defineStore('charter', () => {
         }
       })
 
+      toast.showSuccess('Audit Charter berhasil dihapus!')
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to delete audit charter:', error)
-      errorMsg.value = 'Gagal menghapus Audit Charter.'
+      toast.showError('Gagal menghapus Audit Charter.')
       throw error
     } finally {
       loading.value = false
@@ -374,7 +379,7 @@ export const useCharterStore = defineStore('charter', () => {
       window.open(`${baseUrl}/audit-charters/${id}/download`, '_blank')
     } catch (error: any) {
       console.error('Failed to download audit charter:', error)
-      errorMsg.value = 'Gagal mengunduh file Audit Charter.'
+      toast.showError('Gagal mengunduh file Audit Charter.')
       throw error
     } finally {
       loading.value = false
@@ -392,13 +397,12 @@ export const useCharterStore = defineStore('charter', () => {
       if (isEditing.value && editingId.value) {
         // MODE EDIT
         await updateCharter(editingId.value, { ...form })
-        alert('Audit Charter berhasil diperbarui!')
+        toast.showSuccess('Audit Charter berhasil diperbarui!')
       } else {
         // MODE ADD
         await addCharter({ ...form })
-        alert('Audit Charter berhasil diupload!')
+        toast.showSuccess('Audit Charter berhasil diupload!')
       }
-
       closeModal()
     } catch {
       // errorMsg sudah diisi di addCharter/updateCharter

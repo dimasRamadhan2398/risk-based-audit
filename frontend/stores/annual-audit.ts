@@ -5,6 +5,7 @@ import { ref, reactive, computed, watch } from 'vue'
 import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
 import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import type { TablePagination } from '~/types/common'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
@@ -16,6 +17,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     timeline: '',
     auditor: ''
   })
+  const toast = useToastNotification()
 
   // Constants
   const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -154,16 +156,16 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       title: p.title || p.plan_title || '',
       activities: Array.isArray(p.activities)
         ? p.activities.map((a: any) => ({
-            ...a,
-            name: a.name || a.title || '',
-            category: a.category || AuditCategory.ASSURANCE,
-            department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
-            involvedDepartments: a.involvedDepartments || a.involved_departments || [],
-            timelineText: a.timeline_text || a.timelineText || '',
-            auditorCount: a.auditor_count || a.auditorCount || 1,
-            totalMandays: a.total_mandays || a.totalMandays || 0,
-            supervisorName: a.supervisor_name || a.supervisorName || ''
-          }))
+          ...a,
+          name: a.name || a.title || '',
+          category: a.category || AuditCategory.ASSURANCE,
+          department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
+          involvedDepartments: a.involvedDepartments || a.involved_departments || [],
+          timelineText: a.timeline_text || a.timelineText || '',
+          auditorCount: a.auditor_count || a.auditorCount || 1,
+          totalMandays: a.total_mandays || a.totalMandays || 0,
+          supervisorName: a.supervisor_name || a.supervisorName || ''
+        }))
         : [],
       selectedMonths: Array.isArray(p.selectedMonths) ? p.selectedMonths : (Array.isArray(p.selected_months) ? p.selected_months : []),
       quarters: Array.isArray(p.quarters) ? p.quarters : []
@@ -565,22 +567,22 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      alert('⚠️ Mohon lengkapi data pada Activity Detail, Timeline, dan Auditor.')
+      toast.showError('⚠️ Mohon lengkapi data pada Activity Detail, Timeline, dan Auditor.')
       return
     }
 
     try {
       if (isEditing.value && editingId.value) {
         await updatePlan(editingId.value, { ...form })
-        alert('Data Rencana Audit Berhasil Diperbarui!')
+        toast.showSuccess('Data Rencana Audit Berhasil Diperbarui!')
       } else {
         await addPlan({ ...form })
-        alert('Data Rencana Audit Berhasil Disimpan!')
+        toast.showSuccess('Data Rencana Audit Berhasil Disimpan!')
       }
 
       closeModal()
     } catch (err: any) {
-      alert('Gagal menyimpan data: ' + err.message)
+      toast.showError('Gagal menyimpan data: ' + err.message)
     }
   }
 
@@ -614,9 +616,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     if (!id) return
     try {
       await deletePlan(id)
+      toast.showSuccess('Data Rencana Audit Berhasil Dihapus!')
       closeViewModal()
     } catch (error) {
-      alert('Gagal menghapus data: ' + error)
+      toast.showError('Gagal menghapus data: ' + error)
     }
   }
 
@@ -712,10 +715,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       attachmentCategory: form.attachmentCategory,
       attachments: form.file && form.file.length > 0
         ? form.file.map((f: any) => ({
-            name: f.name,
-            size: Math.round(f.size / 1024) + ' KB',
-            url: '#'
-          }))
+          name: f.name,
+          size: Math.round(f.size / 1024) + ' KB',
+          url: '#'
+        }))
         : [],
       attachmentUploadedBy: form.attachmentUploadedBy,
       attachmentUploadDate: form.attachmentUploadDate,
@@ -738,10 +741,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     const fileList = updatedData.file && updatedData.file.length > 0
       ? updatedData.file.map((f: any) => ({
-          name: f.name,
-          size: Math.round(f.size / 1024) + ' KB',
-          url: '#'
-        }))
+        name: f.name,
+        size: Math.round(f.size / 1024) + ' KB',
+        url: '#'
+      }))
       : []
 
     const payload = {

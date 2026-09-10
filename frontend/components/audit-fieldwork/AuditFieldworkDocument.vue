@@ -49,9 +49,30 @@
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-1 justify-center">
-          <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" @click="store.viewDocument(row.original)" />
-          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editDocument(row.original)" />
-          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteDocument(row.index)" />
+          <UTooltip :text="t('common.actions.view') || 'Lihat'">
+            <UButton 
+              icon="i-heroicons-eye" 
+              color="neutral" 
+              variant="ghost" 
+              size="sm" 
+              @click="store.viewDocument(row.original)" />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+            <UButton 
+              icon="i-heroicons-pencil-square" 
+              color="primary" 
+              variant="ghost" 
+              size="sm" 
+              @click="store.editDocument(row.original)" />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+            <UButton 
+              icon="i-heroicons-trash" 
+              color="error" 
+              variant="ghost" 
+              size="sm" 
+              @click="store.deleteDocument(row.index)" />
+          </UTooltip>
         </div>
       </template>
     </TableEntities>

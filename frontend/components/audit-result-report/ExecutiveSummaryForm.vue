@@ -296,7 +296,7 @@
                     {{ formatPercent(row.persentase) }}%
                   </td>
                   <td class="px-6 py-2">
-                    <UInput
+                    <UTextarea
                       v-model="row.keterangan"
                       placeholder="Keterangan tindak lanjut..."
                       class="w-full"
@@ -365,7 +365,13 @@
                       v-model="finding.judulTemuan"
                       placeholder="Judul temuan utama..."
                       :disabled="isLocked"
+                      maxlength="100"
+                      @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                      @input="($event.target as any)?.setCustomValidity('')"
                     />
+                    <div class="text-xs text-gray-500 mt-1 text-right">
+                      {{ finding.judulTemuan ? finding.judulTemuan.length : 0 }}/100
+                    </div>
                   </td>
                   <td class="px-3 py-2">
                     <USelectMenu
@@ -384,7 +390,7 @@
                     />
                   </td>
                   <td class="px-3 py-2">
-                    <UInput
+                    <UTextarea
                       v-model="finding.usulan"
                       placeholder="Contoh: Eskalasi Direksi"
                       :disabled="isLocked"
@@ -452,7 +458,13 @@
                   v-model="store.form.signatureTempat"
                   placeholder="Contoh: Jakarta"
                   :disabled="isLocked"
+                  maxlength="50"
+                  @invalid="($event.target as any)?.setCustomValidity('Tempat TTD maksimal 20 karakter dan wajib diisi')"
+                  @input="($event.target as any)?.setCustomValidity('')"
                 />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ store.form.signatureTempat ? store.form.signatureTempat.length : 0 }}/50
+                </div>
               </UFormField>
 
               <UFormField label="Tanggal TTD" required>
@@ -467,7 +479,13 @@
                   v-model="store.form.signatureNamaKepala"
                   placeholder="Contoh: Budi Santoso, CIA"
                   :disabled="isLocked"
+                  maxlength="50"
+                  @invalid="($event.target as any)?.setCustomValidity('Nama Kepala SPI maksimal 100 karakter dan wajib diisi')"
+                  @input="($event.target as any)?.setCustomValidity('')"
                 />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ store.form.signatureNamaKepala ? store.form.signatureNamaKepala.length : 0 }}/50
+                </div>
               </UFormField>
 
               <UFormField label="NIK Kepala SPI" required>
@@ -475,7 +493,13 @@
                   v-model="store.form.signatureNIK"
                   placeholder="Contoh: SPI-77621"
                   :disabled="isLocked"
+                  maxlength="50"
+                  @invalid="($event.target as any)?.setCustomValidity('NIK Kepala SPI maksimal 20 karakter dan wajib diisi')"
+                  @input="($event.target as any)?.setCustomValidity('')"
                 />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ store.form.signatureNIK ? store.form.signatureNIK.length : 0 }}/50
+                </div>
               </UFormField>
             </div>
           </div>
@@ -589,16 +613,50 @@
                 <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                   <tr v-for="(row, idx) in store.form.matriksKompilasi" :key="idx" class="divide-x divide-gray-100 dark:divide-gray-800 hover:bg-gray-50/50">
                     <td class="p-1">
-                      <UInput v-model="row.nomor" size="md" class="font-mono" placeholder="001/SPI/2026" :disabled="isLocked" />
+                      <UInput 
+                        v-model="row.nomor" 
+                        size="md" 
+                        class="font-mono" 
+                        placeholder="001/SPI/2026" 
+                        :disabled="isLocked" 
+                        maxlength="50"
+                        @invalid="($event.target as any)?.setCustomValidity('Nomor temuan maksimal 50 karakter dan wajib diisi')"
+                        @input="($event.target as any)?.setCustomValidity('')"
+                      />
+                      <div class="text-xs text-gray-500 mt-1 text-right">
+                        {{ row.nomor ? row.nomor.length : 0 }}/50
+                      </div>
                     </td>
                     <td class="p-1">
                       <USelectMenu v-model="row.division" :items="divisionOptions" size="md" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UInput v-model="row.unitKerja" size="md" placeholder="Operation Personnel" :disabled="isLocked" />
+                      <UInput 
+                        v-model="row.unitKerja" 
+                        size="md" 
+                        placeholder="Operation Personnel" 
+                        :disabled="isLocked" 
+                        maxlength="100"
+                        @invalid="($event.target as any)?.setCustomValidity('Unit kerja maksimal 100 karakter dan wajib diisi')"
+                        @input="($event.target as any)?.setCustomValidity('')"
+                      />
+                      <div class="text-xs text-gray-500 mt-1 text-right">
+                        {{ row.unitKerja ? row.unitKerja.length : 0 }}/100
+                      </div>
                     </td>
                     <td class="p-1">
-                      <UInput v-model="row.prosesBisnis" size="md" placeholder="O&M" :disabled="isLocked" />
+                      <UInput 
+                        v-model="row.prosesBisnis" 
+                        size="md" 
+                        placeholder="O&M" 
+                        :disabled="isLocked" 
+                        maxlength="100"
+                        @invalid="($event.target as any)?.setCustomValidity('Proses bisnis maksimal 100 karakter dan wajib diisi')"
+                        @input="($event.target as any)?.setCustomValidity('')"
+                      />
+                      <div class="text-xs text-gray-500 mt-1 text-right">
+                        {{ row.prosesBisnis ? row.prosesBisnis.length : 0 }}/100
+                      </div>
                     </td>
                     <td class="p-1">
                       <UTextarea v-model="row.judulTemuan" size="md" placeholder="Uraian temuan..." :rows="1" :disabled="isLocked" />
@@ -613,7 +671,18 @@
                       <AppDatePicker v-model="row.dueDate" size="md" :disabled="isLocked" />
                     </td>
                     <td class="p-1">
-                      <UInput v-model="row.picUnit" size="md" placeholder="Manager O&M" :disabled="isLocked" />
+                      <UInput 
+                        v-model="row.picUnit" 
+                        size="md" 
+                        placeholder="Manager O&M" 
+                        :disabled="isLocked" 
+                        maxlength="100"
+                        @invalid="($event.target as any)?.setCustomValidity('PIC Unit maksimal 100 karakter dan wajib diisi')"
+                        @input="($event.target as any)?.setCustomValidity('')"
+                      />
+                      <div class="text-xs text-gray-500 mt-1 text-right">
+                        {{ row.picUnit ? row.picUnit.length : 0 }}/100
+                      </div>
                     </td>
                     <td class="p-1">
                       <UInput type="number" v-model.number="row.progres" size="md" placeholder="0" min="0" max="100" class="w-16" :disabled="isLocked" />
@@ -623,7 +692,18 @@
                     </td>
                     <td class="p-1">
                       <div class="flex items-center gap-1">
-                        <UInput v-model="row.buktiTL" size="md" placeholder="Nama bukti..." class="flex-1" :disabled="isLocked" />
+                        <UInput 
+                        v-model="row.buktiTL" 
+                        size="md" 
+                        placeholder="Nama bukti..." 
+                        :disabled="isLocked" 
+                        maxlength="100"
+                        @invalid="($event.target as any)?.setCustomValidity('Bukti TL maksimal 100 karakter dan wajib diisi')"
+                        @input="($event.target as any)?.setCustomValidity('')"
+                      />
+                      <div class="text-xs text-gray-500 mt-1 text-right">
+                        {{ row.buktiTL ? row.buktiTL.length : 0 }}/100
+                      </div>
                         <UButton
                           v-if="!isLocked"
                           color="neutral"

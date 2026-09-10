@@ -175,7 +175,17 @@
     </UCard>
 
     <!-- Survey Form Modal -->
-    <UModal v-model:open="showFormModal" dismissible :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
+    <UModal 
+      v-model:open="showFormModal" 
+      dismissible 
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
       <template #content>
         <div class="flex flex-col h-full max-h-[95vh]">
           <!-- Header -->
@@ -232,7 +242,13 @@
                     v-model="formState.auditeeName"
                     placeholder="Enter your name"
                     class="w-full"
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')"
                   />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ formState.auditeeName ? formState.auditeeName.length : 0 }}/100
+                  </div>
                 </UFormField>
 
                 <UFormField label="Department / Unit" name="department" required>
@@ -376,7 +392,17 @@
     </UModal>
 
     <!-- View Feedback Modal -->
-    <UModal v-model:open="showViewModal" dismissible :ui="{ content: 'sm:max-w-lg bg-[var(--bg-main)] border border-[var(--border-main)]' }">
+    <UModal 
+      v-model:open="showViewModal" 
+      dismissible 
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
       <template #content>
         <div class="flex flex-col h-full max-h-[90vh]">
           <!-- Header -->
@@ -487,6 +513,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAuditExecutionStore } from '~/stores/audit-execution'
 import { useAuditeeSurveyStore, type AuditeeSurvey } from '~/stores/auditee-survey'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const authStore = useAuthStore()
 const reportStore = useAuditResultReportStore()
@@ -501,6 +528,7 @@ const submitting = ref(false)
 const selectedReport = ref<any>(null)
 const viewSurveyDetail = ref<AuditeeSurvey | null>(null)
 const viewReportDetail = ref<any>(null)
+const toast = useToastNotification();
 
 // Initial form state
 const formState = ref({
@@ -667,9 +695,10 @@ const submitSurvey = async () => {
     await refreshAllData()
     
     showFormModal.value = false
+    toast.showSuccess('Survey submitted successfully!')
   } catch (error: any) {
     console.error('Failed to submit survey:', error)
-    alert(error.message || 'Failed to submit satisfaction survey. Please try again.')
+    toast.showError(error.message || 'Failed to submit satisfaction survey. Please try again.')
   } finally {
     submitting.value = false
   }

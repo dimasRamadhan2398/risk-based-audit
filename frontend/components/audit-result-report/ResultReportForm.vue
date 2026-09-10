@@ -1,5 +1,15 @@
 <template>
-  <UModal v-model:open="store.showModal" dismissible :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
+  <UModal 
+    v-model:open="store.showModal" 
+    dismissible 
+    :ui="{
+      content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+      body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+      footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+    }"
+  >
     <template #content>
       <div class="flex flex-col h-full max-h-[90vh]">
         <!-- Header -->
@@ -29,7 +39,13 @@
                   v-model="store.reportForm.reportTitle"
                   placeholder="e.g. Audit Report - Financial Operations 2026"
                   class="w-full"
+                  maxlength="100"
+                  @invalid="($event.target as any)?.setCustomValidity('Report Title maksimal 255 karakter dan wajib diisi')"
+                  @input="($event.target as any)?.setCustomValidity('')"
                 />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ store.reportForm.reportTitle ? store.reportForm.reportTitle.length : 0 }}/100
+                </div>
               </UFormField>
 
               <UFormField label="Report Date" name="reportDate" required>
@@ -95,7 +111,13 @@
                             placeholder="e.g. Keterlambatan rekonsiliasi kas harian"
                             required
                             class="w-full"
+                            maxlength="100"
+                            @invalid="($event.target as any)?.setCustomValidity('Bukti TL maksimal 100 karakter dan wajib diisi')"
+                            @input="($event.target as any)?.setCustomValidity('')"
                           />
+                          <div class="text-xs text-gray-500 mt-1 text-right">
+                            {{ finding.title ? finding.title.length : 0 }}/100
+                          </div>
                         </UFormField>
                         <UFormField label="Action / Tindak Lanjut" size="sm" class="md:col-span-2">
                           <UTextarea

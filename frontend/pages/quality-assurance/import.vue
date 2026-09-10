@@ -276,7 +276,6 @@ const handleUpload = async () => {
     await store.importQARReport({
       assessmentTitle: form.value.title,
       type: QAType.QAR,
-      periodQuarter: 'Q1',
       periodYear: '2026',
       result: 'Generally Conformed',
       status: QAStatus.COMPLETED,

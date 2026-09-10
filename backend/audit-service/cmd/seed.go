@@ -930,17 +930,18 @@ func seedAssignmentLetters(db *gorm.DB) error {
 	}
 	for i := range seeds {
 		var existing models.AssignmentLetter
-		err := db.Where("letter_number = ?", seeds[i].LetterNumber).First(&existing).Error
+		err := db.Unscoped().Where("letter_number = ?", seeds[i].LetterNumber).First(&existing).Error
 		if err == gorm.ErrRecordNotFound {
 			if err := db.Create(&seeds[i]).Error; err != nil {
 				return err
 			}
 		} else {
 			// Update audit title and other fields if existing
-			db.Model(&existing).Updates(map[string]interface{}{
+			db.Unscoped().Model(&existing).Updates(map[string]interface{}{
 				"audit_title":      seeds[i].AuditTitle,
 				"working_unit":     seeds[i].WorkingUnit,
 				"execution_period": seeds[i].ExecutionPeriod,
+				"deleted_at":       nil,
 			})
 		}
 	}

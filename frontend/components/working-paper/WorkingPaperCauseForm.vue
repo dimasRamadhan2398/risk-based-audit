@@ -1,7 +1,16 @@
 <template>
     
-      <UModal v-model:open="store.showModalF04" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
-        <div></div>
+      <UModal 
+        v-model:open="store.showModalF04" 
+        :dismissible="false" 
+        :ui="{
+            content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+            header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+            body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+            footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+            overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+        }"
+    >
         <template #content>
         
         <UForm :schema="causeSchema" :state="store.causeForm" @submit.prevent="store.handleSubmitF04">
@@ -78,15 +87,48 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                 <UFormField label="Why 1" class="font-semibold text-sm" />
-                <UInput class="md:col-span-3" v-model="rca.w1" placeholder="Ex: Staf lupa meminta TTD Manager" />
+                <UInput 
+                    class="md:col-span-3" 
+                    v-model="rca.w1" 
+                    placeholder="Ex: Staf lupa meminta TTD Manager"
+                    required
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Why 1 maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')"
+                />
+                </div>
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ rca.w1 ? rca.w1.length : 0 }}/100
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                 <UFormField label="Why 2" class="font-semibold text-sm" />
-                <UInput class="md:col-span-3" v-model="rca.w2" placeholder="Ex: Karena staf terburu-buru mengejar kuota pengiriman" />
+                <UInput 
+                    class="md:col-span-3" 
+                    v-model="rca.w2" 
+                    placeholder="Ex: Karena staf terburu-buru mengejar kuota pengiriman"
+                    required
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Why 2 maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')" 
+                />
+                </div>
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ rca.w2 ? rca.w2.length : 0 }}/100
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                 <UFormField label="Why 3" class="font-semibold text-sm" />
-                <UInput class="md:col-span-3" v-model="rca.w3" placeholder="-" />
+                <UInput 
+                    class="md:col-span-3" 
+                    v-model="rca.w3" 
+                    placeholder="-"
+                    required
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Why 3 maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')" 
+                />
+                </div>
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ rca.w3 ? rca.w3.length : 0 }}/100
                 </div>
             </div>
 
