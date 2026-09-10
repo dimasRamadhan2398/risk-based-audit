@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
 import { useAssignmentLetterStore } from './assignment-letter'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 export interface FindingItem {
   title: string
@@ -24,6 +25,7 @@ export interface AuditResultReport {
 
 export const useAuditResultReportStore = defineStore('audit-result-report', () => {
   const assignmentLetterStore = useAssignmentLetterStore()
+  const toast = useToastNotification()
 
   // State
   const selectedAssignmentLetter = ref<string>('')
@@ -389,9 +391,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       }
       closeModal()
       await fetchReports()
+      toast.showSuccess('Report saved successfully')
     } catch (error: any) {
       console.error('Failed to save report:', error)
-      alert('Failed to save report: ' + error.message)
+      toast.showError('Failed to save report: ' + error.message)
     } finally {
       loading.value = false
     }
@@ -417,9 +420,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         method: 'DELETE'
       })
       await fetchReports()
+      toast.showSuccess('Report deleted successfully')
     } catch (error: any) {
       console.error('Failed to delete report:', error)
-      alert('Failed to delete report: ' + error.message)
+      toast.showError('Failed to delete report: ' + error.message)
     } finally {
       loading.value = false
     }
@@ -443,7 +447,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       window.URL.revokeObjectURL(url)
     } catch (err: any) {
       console.error('Failed to download docx:', err)
-      alert('Gagal mengunduh dokumen Word LHA: ' + (err.message || err))
+      toast.showError('Gagal mengunduh dokumen Word LHA: ' + (err.message || err))
     }
   }
 

@@ -23,20 +23,25 @@
         <span>{{ row.findingsCount }} Findings</span>
       </div>
       <div class="flex gap-1">
-        <UButton
-          color="warning"
-          variant="ghost"
-          icon="i-lucide-edit"
-          size="md"
-          @click="$emit('edit', row)"
-        />
-        <UButton
-          color="neutral"
-          variant="ghost"
-          icon="i-lucide-printer"
-          size="md"
-          @click="$emit('print', row)"
-        />
+        <UTooltip text="Edit">
+          <UButton
+            color="warning"
+            variant="ghost"
+            icon="i-lucide-edit"
+            size="md"
+            @click="$emit('edit', row)"
+          />
+        </UTooltip>
+
+        <UTooltip text="Print">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-printer"
+            size="md"
+            @click="$emit('print', row)"
+          />
+        </UTooltip>
       </div>
     </div>
   </UCard>

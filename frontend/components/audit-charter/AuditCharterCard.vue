@@ -117,17 +117,17 @@
             @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
             icon="i-lucide-download"
             size="md"
-            color="primary"
-            variant="solid"
+            color="success"
+            variant="ghost"
           />
           </UTooltip>
           <UTooltip :text="t('auditCharter.tooltips.editCharter')">
           <UButton
             v-if="canManageCharter"
             @click="store.handleEdit(store.activeCharter)"
-            color="primary"
+            color="warning"
             icon="i-lucide-edit"
-            variant="outline"
+            variant="ghost"
           >
           </UButton>
           </UTooltip>
@@ -214,11 +214,11 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1.5 whitespace-nowrap">
-              <UTooltip text="View Charter">
+              <UTooltip text="Download Charter">
                 <UButton
                   v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
                   size="md"
-                  color="primary"
+                  color="success"
                   variant="ghost"
                 icon="i-lucide-download"
                 @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
@@ -228,7 +228,7 @@
               <UButton
                 v-if="canManageCharter"
                 size="md"
-                color="primary"
+                color="warning"
                 variant="ghost"
                 icon="i-lucide-edit"
                 @click="store.handleEdit(row.original)"

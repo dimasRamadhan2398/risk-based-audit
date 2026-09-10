@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 export interface FollowUpRow {
   status: 'Closed' | 'In Progress' | 'Overdue'
@@ -82,6 +83,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const isViewing = ref(false)
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
 
   // Default narrative template
   const defaultNarrativeTemplate = (bulan: string, tahun: number = 2026) => {
@@ -437,6 +439,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
       showModal.value = false
       await fetchSummaries()
+      toast.showSuccess('Executive Summary berhasil disimpan!')
 
       // 2-Way Sync: Update matching AuditResultReport item in Result Reports store
       try {
@@ -449,6 +452,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
     } catch (error: any) {
       console.error('Failed to save summary to backend, simulating local save:', error)
+      toast.showError(error.data?.message || 'Gagal menyimpan Executive Summary.')
       // Simulating save in state for offline capabilities
       if (isEditing.value && currentSummary.value) {
         const idx = summaryList.value.findIndex(s => s.id === currentSummary.value!.id)
@@ -497,8 +501,10 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       const baseUrl = getAuditServiceBaseUrl()
       await $fetch(`${baseUrl}/executive-summaries/${id}`, { method: 'DELETE' })
       await fetchSummaries()
-    } catch (error) {
+      toast.showSuccess('Executive Summary berhasil dihapus!')
+    } catch (error: any) {
       console.error('Failed to delete on backend, simulating local deletion:', error)
+      toast.showError(error.data?.message || 'Gagal menghapus Executive Summary.')
     } finally {
       summaryList.value = summaryList.value.filter(s => s.id !== id && s.nomorDokumen !== targetDocNum)
       if (targetDocNum) {
@@ -527,8 +533,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
           body: payload
         })
         await fetchSummaries()
+        toast.showSuccess('Status Executive Summary berhasil diperbarui!')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update status on backend, simulating local update:', error)
       const idx = summaryList.value.findIndex(s => s.id === id)
       if (idx !== -1 && summaryList.value[idx]) {

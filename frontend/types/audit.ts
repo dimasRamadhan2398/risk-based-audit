@@ -301,6 +301,11 @@ export interface TeamMember {
   role: string;
 }
 
+export interface ActivityItem {
+  id: number;
+  name: string;
+}
+
 export interface WorkingPaperHeader {
   id?: string;
   assignmentLetterId: string;
@@ -309,6 +314,7 @@ export interface WorkingPaperHeader {
   period: string;
   location: string;
   teamMembers: TeamMember[];
+  activities: ActivityItem[];
 }
 
 export interface WorkingPaperHeaderForm {
@@ -320,6 +326,7 @@ export interface WorkingPaperHeaderForm {
   periodEnd: string;
   location: string;
   teamMembers: TeamMember[];
+  activities: ActivityItem[];
 }
 
 export interface WorkingPaperRisk {
@@ -346,8 +353,8 @@ export interface WorkingPaperSample {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
-  population: number | null;
-  sampleSize: number | null;
+  population: number | undefined;
+  sampleSize: number | undefined;
   samples: SampleItem[];
   conclusion: string;
 }
@@ -356,8 +363,8 @@ export interface WorkingPaperSampleForm {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
-  population: number | null;
-  sampleSize: number | null;
+  population: number | undefined;
+  sampleSize: number | undefined;
   samples: SampleItem[];
   conclusion: string;
 }

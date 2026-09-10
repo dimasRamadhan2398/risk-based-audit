@@ -258,6 +258,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     teamMembers: [
       { id: Date.now(), name: '', role: '' } // Inisialisasi 1 baris kosong
     ],
+    activities: [
+      { id: Date.now(), name: '' }
+    ],
   })
 
   const riskForm = reactive<WorkingPaperRiskForm>({
@@ -268,8 +271,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   })
 
   const sampleForm = reactive<WorkingPaperSampleForm>({
-    population: null,
-    sampleSize: null,
+    population: undefined,
+    sampleSize: undefined,
     samples: [
       { id: Date.now(), document: '', l1: undefined, l2: undefined, l3: undefined }
     ],
@@ -341,12 +344,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const mockF01: WorkingPaperHeader[] = [
-    { id: 'WP-H-001', assignmentLetterId: 'ST-001/SKAI/2026', auditPurpose: 'Annual Audit', businessProcess: 'Finance & Cash', period: '2026-03-01 s/d 2026-03-31', location: 'Head Office', teamMembers: [{ id: 1, name: 'Zeta Ramadhani', role: 'Chairperson' }] },
-    { id: 'WP-H-002', assignmentLetterId: 'ST-002/SKAI/2026', auditPurpose: 'IT Security Audit', businessProcess: 'IT Operations & ERP', period: '2026-04-01 s/d 2026-04-30', location: 'Data Center', teamMembers: [{ id: 2, name: 'Andi Firmansyah', role: 'Chairperson' }] },
-    { id: 'WP-H-003', assignmentLetterId: 'ST-003/SKAI/2026', auditPurpose: 'Operational Audit', businessProcess: 'Warehouse & Supply Chain', period: '2026-07-01 s/d 2026-07-31', location: 'Gudang Pusat', teamMembers: [{ id: 3, name: 'Rina Wulandari', role: 'Chairperson' }] },
-    { id: 'WP-H-004', assignmentLetterId: 'ST-004/SKAI/2026', auditPurpose: 'Compliance Audit', businessProcess: 'Procurement', period: '2026-08-01 s/d 2026-08-31', location: 'Head Office', teamMembers: [{ id: 4, name: 'Budi Santoso', role: 'Chairperson' }] },
-    { id: 'WP-H-005', assignmentLetterId: 'ST-005/SKAI/2026', auditPurpose: 'HSE Audit', businessProcess: 'K3LH & Maintenance', period: '2026-09-01 s/d 2026-09-30', location: 'Pembangkit PLTU', teamMembers: [{ id: 5, name: 'Dewi Kusumawati', role: 'Chairperson' }] },
-    { id: 'WP-H-020', assignmentLetterId: '020/ST/01/KSIAD/2023', auditPurpose: 'Operational Audit', businessProcess: 'O&M Pembangkit', period: 'Januari 2023 s.d Agustus 2023', location: 'UPDK Kepulauan Riau', teamMembers: [{ id: 6, name: 'Tomy Afrilianto', role: 'Chairperson' }] }
+    { id: 'WP-H-001', assignmentLetterId: 'ST-001/SKAI/2026', auditPurpose: 'Annual Audit', businessProcess: 'Finance & Cash', period: '2026-03-01 s/d 2026-03-31', location: 'Head Office', teamMembers: [{ id: 1, name: 'Zeta Ramadhani', role: 'Chairperson' }], activities: [] },
+    { id: 'WP-H-002', assignmentLetterId: 'ST-002/SKAI/2026', auditPurpose: 'IT Security Audit', businessProcess: 'IT Operations & ERP', period: '2026-04-01 s/d 2026-04-30', location: 'Data Center', teamMembers: [{ id: 2, name: 'Andi Firmansyah', role: 'Chairperson' }], activities: [] },
+    { id: 'WP-H-003', assignmentLetterId: 'ST-003/SKAI/2026', auditPurpose: 'Operational Audit', businessProcess: 'Warehouse & Supply Chain', period: '2026-07-01 s/d 2026-07-31', location: 'Gudang Pusat', teamMembers: [{ id: 3, name: 'Rina Wulandari', role: 'Chairperson' }], activities: [] },
+    { id: 'WP-H-004', assignmentLetterId: 'ST-004/SKAI/2026', auditPurpose: 'Compliance Audit', businessProcess: 'Procurement', period: '2026-08-01 s/d 2026-08-31', location: 'Head Office', teamMembers: [{ id: 4, name: 'Budi Santoso', role: 'Chairperson' }], activities: [] },
+    { id: 'WP-H-005', assignmentLetterId: 'ST-005/SKAI/2026', auditPurpose: 'HSE Audit', businessProcess: 'K3LH & Maintenance', period: '2026-09-01 s/d 2026-09-30', location: 'Pembangkit PLTU', teamMembers: [{ id: 5, name: 'Dewi Kusumawati', role: 'Chairperson' }], activities: [] },
+    { id: 'WP-H-020', assignmentLetterId: '020/ST/01/KSIAD/2023', auditPurpose: 'Operational Audit', businessProcess: 'O&M Pembangkit', period: 'Januari 2023 s.d Agustus 2023', location: 'UPDK Kepulauan Riau', teamMembers: [{ id: 6, name: 'Tomy Afrilianto', role: 'Chairperson' }], activities: [] }
   ]
 
   const mockF02: WorkingPaperRisk[] = [
@@ -444,7 +447,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       businessProcess: headerForm.businessProcess,
       period: auditPeriod,
       location: headerForm.location,
-      teamMembers: headerForm.teamMembers
+      teamMembers: headerForm.teamMembers,
+      activities: headerForm.activities
     }
     const baseUrl = getAuditServiceBaseUrl()
     await $fetch(`${baseUrl}/working-papers/headers`, {
@@ -462,7 +466,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       businessProcess: updatedHeaderData.businessProcess,
       period: auditPeriod,
       location: updatedHeaderData.location,
-      teamMembers: updatedHeaderData.teamMembers
+      teamMembers: updatedHeaderData.teamMembers,
+      activities: updatedHeaderData.activities
     }
     const baseUrl = getAuditServiceBaseUrl()
     await $fetch(`${baseUrl}/working-papers/headers/${id}`, {
@@ -501,6 +506,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       location: '',
       teamMembers: [
         { id: Date.now(), name: '', role: '' }
+      ],
+      activities: [
+        { id: Date.now(), name: '' }
       ]
     })
     showModalF01.value = true
@@ -540,6 +548,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     headerForm.periodEnd = end
     headerForm.location = header.location
     headerForm.teamMembers = header.teamMembers ? header.teamMembers.map((m: any) => ({ ...m })) : []
+    headerForm.activities = header.activities?.length ? header.activities.map((a: any) => ({ ...a })) : [{ id: Date.now(), name: '' }]
 
     showModalF01.value = true
   }
@@ -551,6 +560,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     } catch (error: any) {
       toast.error('Failed to delete data: ' + (error?.message || error))
     }
+  }
+
+  const addActivity = () => {
+    headerForm.activities.push({ id: Date.now(), name: '' })
+  }
+
+  const removeActivity = (index: number) => {
+    headerForm.activities.splice(index, 1)
   }
 
   const addF02 = async (riskForm: WorkingPaperRiskForm) => {
@@ -1076,6 +1093,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     handleDeleteF01, handleDeleteF02, handleDeleteF03, handleDeleteF04, handleDeleteF05,
     addSample, removeSample, addRootCause, removeRootCause, triggerUpload, onFileChange,
     checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile,
+    addActivity, removeActivity,
     loading, errorMsg, fetchAllData
   }
 })

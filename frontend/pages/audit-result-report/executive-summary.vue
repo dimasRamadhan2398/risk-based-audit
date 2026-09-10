@@ -153,17 +153,42 @@
             </div>
             
             <div class="flex gap-2 shrink-0">
-              <UButton color="neutral" variant="ghost" icon="i-lucide-eye" size="sm" @click="store.openView(item)" title="Lihat Detail" />
-              <UButton v-if="item.status !== 'Approved'" color="primary" variant="ghost" icon="i-lucide-edit" size="sm" @click="store.openEditForm(item as any)" title="Edit Laporan" />
-              <UButton color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="store.deleteSummary(item.id, item.nomorDokumen)" title="Hapus" />
-              
+              <UTooltip text="Lihat Detail">
+                <UButton 
+                  color="neutral" 
+                  variant="ghost" 
+                  icon="i-lucide-eye" 
+                  size="md" 
+                  @click="store.openView(item)" 
+                />
+              </UTooltip>
+              <UTooltip text="Edit Laporan">
+                <UButton 
+                  v-if="item.status !== 'Approved'" 
+                  color="warning" 
+                  variant="ghost" 
+                  icon="i-lucide-edit" 
+                  size="md" 
+                  @click="store.openEditForm(item as any)" 
+                />
+              </UTooltip>
+              <UTooltip text="Hapus">
+                <UButton 
+                  color="error" 
+                  variant="ghost" 
+                  icon="i-lucide-trash-2" 
+                  size="md" 
+                  @click="store.deleteSummary(item.id, item.nomorDokumen)" 
+                />
+              </UTooltip>
+
               <!-- Quick Workflow Actions -->
               <UButton
                 v-if="item.status === 'Draft'"
                 color="success"
                 variant="soft"
                 icon="i-lucide-check-circle"
-                size="sm"
+                size="md"
                 label="Approve"
                 @click="store.updateStatus(item.id, 'Approved')"
               />
@@ -172,7 +197,7 @@
                 color="warning"
                 variant="soft"
                 icon="i-lucide-lock"
-                size="sm"
+                size="md"
                 label="Revert Draft"
                 @click="store.updateStatus(item.id, 'Draft')"
               />

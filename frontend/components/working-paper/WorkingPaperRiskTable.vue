@@ -28,22 +28,24 @@
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
+                  <UTooltip text="Edit Risk">
                     <UButton 
                         size="md" 
                         color="warning" 
                         variant="ghost" 
                         icon="i-lucide-edit" 
                         @click="store.handleEditF02(row.original)" 
-                        title="Edit"
                     />
+                  </UTooltip>
+                  <UTooltip text="Delete Risk">
                     <UButton 
                         size="md" 
                         color="error" 
                         variant="ghost" 
                         icon="i-lucide-trash-2" 
                         @click="store.handleDeleteF02(row.original.id)" 
-                        title="Hapus"
                     />
+                  </UTooltip>
                 </div>
             </template>
         </TableEntities>

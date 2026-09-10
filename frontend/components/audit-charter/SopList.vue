@@ -105,7 +105,7 @@
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
               icon="i-lucide-eye"
-              color="primary"
+              color="neutral"
               variant="ghost"
               size="md"
               @click="openFile(row.original.file_url)"
@@ -115,7 +115,7 @@
             <UButton
               v-if="canManageCharter"
               size="md"
-              color="primary"
+              color="warning"
               variant="ghost"
               icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"

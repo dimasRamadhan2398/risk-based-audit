@@ -1,8 +1,16 @@
 <template>
     
-      <UModal v-model:open="store.showModalF03" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
-        <div></div>
-
+      <UModal 
+        v-model:open="store.showModalF03" 
+        :dismissible="false" 
+        :ui="{
+            content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+            header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+            body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+            footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+            overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+        }"
+    >
         <template #content>
         <UForm :schema="sampleSchema" :state="store.sampleForm" @submit.prevent="store.handleSubmitF03">
         <div class="bg-[var(--bg-main)] rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto border border-[var(--border-main)] transition-colors duration-300">
@@ -29,8 +37,20 @@
             </div>
             <div class="space-y-4 max-w-full">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField label="Nama Dokumen" class="font-semibold text-sm" />
-                <UInput class="md:col-span-3" v-model="sampel.document" placeholder="Ex: PO-2026-001" />
+                <UFormField label="Sample Dokumen" class="font-semibold text-sm" required/>
+                <UInput 
+                    class="md:col-span-3" 
+                    v-model="sampel.document" 
+                    placeholder="Ex: PO-2026-001"
+                    required
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Sample Dokumen maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')"
+                />
+                
+                </div>
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ sampel.document ? sampel.document.length : 0 }}/100
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                 <UFormField label="Langkah 1" class="font-semibold text-sm" />
