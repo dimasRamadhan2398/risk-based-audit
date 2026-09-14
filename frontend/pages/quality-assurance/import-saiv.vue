@@ -21,14 +21,20 @@
             </h3>
           </template>
 
-          <form @submit.prevent="handleUpload" class="space-y-6">
+          <UForm @submit.prevent="handleUpload" class="space-y-6">
             <UFormField label="Document Title" required>
               <UInput 
                 v-model="form.title" 
                 placeholder="Ex: Laporan SAIV Document 2026" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField label="Description">
@@ -105,7 +111,7 @@
               icon="i-lucide-upload"
               :disabled="!form.title || !form.fileName"
             />
-          </form>
+          </UForm>
         </UCard>
       </div>
 
@@ -160,30 +166,33 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
+                <UTooltip text="View Document">
                 <UButton 
                   icon="i-lucide-eye" 
                   color="neutral" 
                   variant="ghost" 
                   size="md" 
-                  title="View Document"
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
+                </UTooltip>
+                <UTooltip text="Download Document">
                 <UButton 
                   icon="i-lucide-download" 
                   color="success" 
                   variant="ghost" 
                   size="md" 
-                  title="Download Document"
                   @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
                 />
+                </UTooltip>
+                <UTooltip text="Delete Document">
                 <UButton 
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
                   size="md" 
-                  title="Delete Document"
                   @click="handleDelete(row.original)" 
                 />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>

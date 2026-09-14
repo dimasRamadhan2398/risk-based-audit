@@ -154,14 +154,20 @@
             </div>
             
             <div class="flex gap-2 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
-              <UButton color="neutral" variant="ghost" icon="i-lucide-eye" size="sm" @click="store.openView(item)" title="Lihat Detail" />
-              <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="primary" variant="ghost" icon="i-lucide-edit" size="sm" @click="store.openEditForm(item as any)" title="Edit Laporan" />
-              <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="store.deleteSummary(item.id)" title="Hapus" />
+              <UTooltip text="Lihat Detail">
+                <UButton color="neutral" variant="ghost" icon="i-lucide-eye" size="md" @click="store.openView(item)" />
+              </UTooltip>
+              <UTooltip v-if="item.status !== 'Approved' || isHigherAuthority" text="Edit Laporan">
+                <UButton color="warning" variant="ghost" icon="i-lucide-edit" size="md" @click="store.openEditForm(item as any)" />
+              </UTooltip>
+              <UTooltip v-if="item.status !== 'Approved' || isHigherAuthority" text="Hapus">
+                <UButton color="error" variant="ghost" icon="i-lucide-trash-2" size="md" @click="store.deleteSummary(item.id)" />
+              </UTooltip>
               
               <!-- Quick Workflow Actions -->
               <div v-if="(item.status === 'Draft' && isChiefAuditExecutive) || (item.status === 'Approved' && isHigherAuthority)" class="border-l border-gray-200 dark:border-gray-700 pl-2 ml-1 flex gap-1">
-                <UButton v-if="item.status === 'Draft' && isChiefAuditExecutive" color="success" variant="soft" icon="i-lucide-check" size="sm" label="Approve" @click="store.updateStatus(item.id, 'Approved')" />
-                <UButton v-if="item.status === 'Approved' && isHigherAuthority" color="warning" variant="soft" icon="i-lucide-unlock" size="sm" label="Revert Draft" @click="store.updateStatus(item.id, 'Draft')" />
+                <UButton v-if="item.status === 'Draft' && isChiefAuditExecutive" color="success" variant="soft" icon="i-lucide-check" size="md" label="Approve" @click="store.updateStatus(item.id, 'Approved')" />
+                <UButton v-if="item.status === 'Approved' && isHigherAuthority" color="warning" variant="soft" icon="i-lucide-unlock" size="md" label="Revert Draft" @click="store.updateStatus(item.id, 'Draft')" />
               </div>
             </div>
           </div>

@@ -1,7 +1,17 @@
 <template>
-    <UModal v-model:open="store.isFormOpen" scrollable class="w-full sm:max-w-2xl bg-[var(--bg-main)] border-[var(--border-main)]">
+    <UModal 
+      v-model:open="store.isFormOpen" 
+      scrollable 
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
       <template #content>
-        <UCard :ui="{ header: 'sticky top-0 z-20 px-6 py-4 bg-[var(--bg-main)] border-b border-[var(--border-main)]', body: 'px-6 py-6', footer: 'px-6 py-4'}">
+        <UCard :ui="{ header: 'sticky top-0 z-20 px-6 py-4 bg-[var(--bg-main)] border-b border-[var(--border-main)]', body: 'px-6 py-6 overflow-y-auto max-h-[60vh]', footer: 'px-6 py-4'}">
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-xl font-bold">{{ store.isEditing ? 'Edit Assessment' : 'Add New Assessment' }}</h3>
@@ -37,10 +47,25 @@
               <h4 class="font-bold text-gray-700">2. General Information</h4>
               <div class="space-y-4">
                 <UFormField label="Assessment Title" required :error="errors.assessmentTitle ? 'Title is required' : ''">
-                  <UInput v-model="store.newReport.assessmentTitle" placeholder="Ex: QAR - Audit 2026" class="w-full" />
+                  <UInput 
+                    v-model="store.newReport.assessmentTitle" 
+                    placeholder="Ex: QAR - Audit 2026" 
+                    class="w-full"
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')" 
+                  />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ store.newReport.assessmentTitle ? store.newReport.assessmentTitle.length : 0 }}/100
+                  </div>
                 </UFormField>
                 <UFormField label="Execution Period">
-                  <USelectMenu v-model="store.newReport.periodYear" :items="store.periods" placeholder="Select Year" class="w-full"/>
+                  <USelectMenu 
+                    v-model="store.newReport.periodYear" 
+                    :items="store.periods" 
+                    placeholder="Select Year" 
+                    class="w-full"
+                  />
                 </UFormField>
               </div>
             </div>
@@ -69,7 +94,11 @@
                   />
                   <UInput 
                     v-else-if="store.newReport.type === QAType.REGULAR"
-                    v-model="store.newReport.result" 
+                    v-model="store.newReport.result"
+                    type="number" 
+                    step="0.1" 
+                    min="0" 
+                    max="10" 
                     placeholder="Ex: 8.5/10" 
                     class="w-full"
                   />
@@ -88,10 +117,25 @@
               <h4 class="font-bold text-gray-700">4. Special Details</h4>
               <div class="grid grid-cols-2 gap-4">
                 <UFormField label="Conducted By">
-                  <UInput v-model="store.newReport.conductedBy" placeholder="Ex: PT BAI" class="w-full"/>
+                  <USelectMenu 
+                    v-model="store.newReport.conductedBy" 
+                    :items="['PT BAI', 'External']" 
+                    placeholder="Select Conducted By" 
+                    class="w-full"
+                  />
                 </UFormField>
                 <UFormField label="Internal Evaluator">
-                  <UInput v-model="store.newReport.internalEvaluator" placeholder="Team Name / Lead Auditor..." class="w-full"/>
+                  <UInput 
+                    v-model="store.newReport.internalEvaluator" 
+                    placeholder="Team Name / Lead Auditor..." 
+                    class="w-full"
+                    maxlength="100"
+                    @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                    @input="($event.target as any)?.setCustomValidity('')"
+                  />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ store.newReport.internalEvaluator ? store.newReport.internalEvaluator.length : 0 }}/100
+                  </div>
                 </UFormField>
               </div>
             </div>
@@ -116,7 +160,7 @@
           <template #footer>
             <div class="flex justify-end gap-3">
               <UButton label="Cancel" variant="ghost" color="neutral" @click="store.closeForm" />
-              <UButton :label="store.isEditing ? 'Update Report' : 'Save Report'" color="warning" class="px-8 font-bold" @click="validateAndSave" />
+              <UButton :label="store.isEditing ? 'Update Report' : 'Save Report'" color="primary" class="px-8 font-bold" @click="validateAndSave" />
             </div>
           </template>
         </UCard>

@@ -177,9 +177,9 @@
                 <UTooltip :text="t('workingPaper.upload.actions.view')"> 
                   <UButton 
                     icon="i-lucide-eye" 
-                    color="info" 
+                    color="neutral" 
                     variant="ghost" 
-                    size="sm" 
+                    size="md" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>

@@ -167,20 +167,18 @@
                 <UTooltip :text="t('assignmentLetter.upload.actions.view')">
                 <UButton 
                   icon="i-lucide-eye" 
-                  color="info" 
+                  color="neutral" 
                   variant="ghost" 
-                  size="sm" 
-                  :title="t('assignmentLetter.upload.actions.view')" 
+                  size="md" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>
                 <UTooltip :text="t('assignmentLetter.upload.actions.download')">
                 <UButton 
                   icon="i-lucide-download" 
-                  color="primary" 
+                  color="success" 
                   variant="ghost" 
-                  size="sm" 
-                  :title="t('assignmentLetter.upload.actions.download')" 
+                  size="md"  
                   @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>
@@ -189,8 +187,7 @@
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
-                  size="sm" 
-                  :title="t('assignmentLetter.upload.actions.delete')" 
+                  size="md"  
                   @click="handleDelete(row.original.id)" 
                 />
                 </UTooltip>

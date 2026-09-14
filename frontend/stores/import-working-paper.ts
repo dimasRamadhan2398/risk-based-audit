@@ -28,12 +28,6 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/working-papers/imports`, { method: 'GET' })
       if (response && Array.isArray(response.data)) {
         importedPapers.value = response.data
@@ -66,11 +60,11 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     try {
       const baseUrl = getAuditServiceBaseUrl()
       const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
+      formData.append('title', payload.title)
+      formData.append('description', payload.description)
+      formData.append('fileName', payload.fileName)
+      formData.append('fileType', payload.fileType)
+      formData.append('file', payload.file)
       const response: any = await $fetch(`${baseUrl}/working-papers/imports`, {
         method: 'POST',
         body: formData
@@ -107,12 +101,6 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
   const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/working-papers/imports/${id}/download`, {
         responseType: 'blob'
       })
@@ -129,12 +117,6 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
   const downloadImportedPaper = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/working-papers/imports/${id}/download`, {
         responseType: 'blob'
       })

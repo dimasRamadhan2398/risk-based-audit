@@ -167,20 +167,18 @@
                 <UTooltip :text="t('auditActivityPlan.upload.viewDocument')" class="mx-1">
                 <UButton 
                   icon="i-lucide-eye" 
-                  color="info" 
+                  color="neutral" 
                   variant="ghost" 
-                  size="sm" 
-                  
+                  size="md" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>
                 <UTooltip :text="t('auditActivityPlan.upload.downloadDocument')" class="mx-1">
                 <UButton 
                   icon="i-lucide-download" 
-                  color="primary" 
+                  color="success" 
                   variant="ghost" 
-                  size="sm" 
-                  :title="t('auditActivityPlan.upload.downloadDocument')"
+                  size="md" 
                   @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>
@@ -189,8 +187,7 @@
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
-                  size="sm" 
-                  :title="t('auditActivityPlan.upload.deleteDocument')"
+                  size="md" 
                   @click="handleDelete(row.original.id)" 
                 />
                 </UTooltip>

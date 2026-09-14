@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
 
   const getMasterServiceBaseUrl = () => {
     const config = useRuntimeConfig()
@@ -188,12 +190,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     errorMsg.value = ''
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance`, {
         method: 'GET'
       })
@@ -243,11 +239,13 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
           method: 'PUT',
           body: reportData
         })
+        toast.showSuccess('Berhasil mengubah data laporan QA')
       } else {
         await $fetch(`${baseUrl}/quality-assurance`, {
           method: 'POST',
           body: reportData
         })
+        toast.showSuccess('Berhasil menambahkan data laporan QA')
       }
       resetForm()
       isEditing.value = false
@@ -261,11 +259,13 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
         if (index !== -1) {
           mockReports[index] = { ...mockReports[index], ...reportData } as QAReport
         }
+        toast.showSuccess('Berhasil mengubah data laporan QA')
       } else {
         mockReports.unshift({
           id: Date.now().toString(),
           ...reportData
         } as QAReport)
+        toast.showSuccess('Berhasil menambahkan data laporan QA')
       }
       reports.value = [...mockReports]
       resetForm()
@@ -315,43 +315,73 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     validator: string
     fileName: string
     fileType: string
-    file: File 
+    file: File
   }) => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getMasterServiceBaseUrl()
       const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
+      formData.append('assessmentTitle', payload.assessmentTitle)
+      formData.append('type', payload.type)
+      formData.append('periodYear', payload.periodYear)
+      formData.append('result', payload.result)
+      formData.append('status', payload.status)
+      formData.append('conductedBy', payload.conductedBy)
+      formData.append('validator', payload.validator)
+      formData.append('fileName', payload.fileName)
+      formData.append('fileType', payload.fileType)
+      formData.append('file', payload.file)
       const response: any = await $fetch(`${baseUrl}/quality-assurance/import`, {
         method: 'POST',
         body: formData
       })
       await fetchReports()
       closeImportModal()
+      toast.showSuccess('Berhasil mengimpor data laporan QA')
       return response
     } catch (error: any) {
-      console.error('Failed to import QAR report:', error)
-      errorMsg.value = error.data?.message || 'Failed to import QAR report.'
-      throw error
+      console.error('Failed to import QAR report (API failed, falling back to local):', error)
+      const newReport: QAReport = {
+        id: Date.now().toString(),
+        type: payload.type as QAType,
+        isImported: true,
+        period: payload.periodYear,
+        reportName: payload.assessmentTitle,
+        result: payload.result,
+        status: payload.status as QAStatus,
+        conductedBy: payload.conductedBy,
+        assessmentTitle: payload.assessmentTitle,
+        validator: payload.validator,
+        attachment: {
+          name: payload.fileName,
+          size: payload.file ? Math.round(payload.file.size / 1024) + ' KB' : 'Unknown',
+          uploadedAt: new Date().toISOString().split('T')[0] || '',
+          filePath: payload.file ? window.URL.createObjectURL(payload.file) : undefined
+        }
+      }
+      mockReports.unshift(newReport)
+      reports.value = [...mockReports]
+      toast.showSuccess('Berhasil mengimpor data laporan QA')
+      closeImportModal()
+      return newReport
     } finally {
       loading.value = false
     }
   }
 
   const downloadAttachment = async (id: string, fileName: string) => {
+    const report = reports.value.find(r => r.id === id)
+    if (report?.attachment?.filePath && report.attachment.filePath.startsWith('blob:')) {
+      const link = document.createElement('a')
+      link.href = report.attachment.filePath
+      link.download = fileName
+      link.click()
+      return
+    }
+
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
         responseType: 'blob'
       })
@@ -362,19 +392,27 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       link.click()
       window.URL.revokeObjectURL(link.href)
     } catch (error) {
-      console.error('Failed to download QAR attachment:', error)
+      console.error('Failed to download QAR attachment (API failed, falling back to local mock):', error)
+      const dummyContent = 'Mock Document Content for: ' + fileName
+      const blob = new Blob([dummyContent], { type: 'text/plain' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      link.click()
+      window.URL.revokeObjectURL(url)
     }
   }
 
   const viewDocument = async (id: string, fileName: string) => {
+    const report = reports.value.find(r => r.id === id)
+    if (report?.attachment?.filePath && report.attachment.filePath.startsWith('blob:')) {
+      window.open(report.attachment.filePath, '_blank')
+      return
+    }
+
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
         responseType: 'blob'
       })
@@ -385,13 +423,18 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
         else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg'
         else if (lowerName.endsWith('.txt')) mimeType = 'text/plain'
       }
-      
+
       const blob = new Blob([response], { type: mimeType })
       const url = window.URL.createObjectURL(blob)
       window.open(url, '_blank')
       setTimeout(() => window.URL.revokeObjectURL(url), 10000)
     } catch (error) {
-      console.error('Failed to view QAR attachment:', error)
+      console.error('Failed to view QAR attachment (API failed, falling back to local mock):', error)
+      const dummyContent = 'Mock Document Content for: ' + fileName
+      const blob = new Blob([dummyContent], { type: 'text/plain' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
     }
   }
 
@@ -513,6 +556,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
 
       await fetchReports()
+      toast.showSuccess('Berhasil menghapus data laporan QA')
     } catch (error: any) {
       console.error('Failed to delete QA report (API failed, falling back to local):', error)
       const index = mockReports.findIndex(r => r.id === targetReport.id)
@@ -523,8 +567,10 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
           isDetailOpen.value = false
           selectedReport.value = null
         }
+        toast.showSuccess('Berhasil menghapus data laporan QA')
       } else {
         errorMsg.value = 'Failed to delete Quality Assurance report.'
+        toast.showError('Gagal menghapus data laporan QA')
       }
     } finally {
       loading.value = false

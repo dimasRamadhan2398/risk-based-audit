@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
@@ -17,18 +18,13 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
   const uploadedDocuments = ref<UploadedExecutiveSummaryReport[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification()
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-executive-summary-reports`, {
         method: 'GET'
       });
@@ -50,14 +46,21 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData();
+      formData.append('title', payload.title);
+      formData.append('description', payload.description);
+      formData.append('fileName', payload.fileName);
+      formData.append('fileType', payload.fileType);
+      formData.append('file', payload.file);
       await $fetch(`${baseUrl}/uploaded-executive-summary-reports`, {
         method: 'POST',
         body: formData
       });
       await fetchUploadedDocuments();
+      toast.showSuccess('Laporan berhasil diunggah')
     } catch (error: any) {
       console.error('Failed to upload executive summary report:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload executive summary report.';
+      toast.showError(error.data?.message || 'Gagal mengunggah laporan executive summary')
       throw error;
     } finally {
       loading.value = false;
@@ -73,28 +76,23 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
         method: 'DELETE'
       });
       await fetchUploadedDocuments();
+      toast.showSuccess('Laporan berhasil dihapus')
     } catch (error: any) {
       console.error('Failed to delete uploaded executive summary report:', error);
-      errorMsg.value = 'Failed to delete executive summary report.';
+      toast.showError(error.data?.message || 'Gagal menghapus laporan executive summary')
       throw error;
     } finally {
       loading.value = false;
     }
   };
 
-    const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-executive-summary-reports/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
@@ -108,16 +106,10 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
   const downloadDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-executive-summary-reports/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

@@ -28,7 +28,13 @@
                 :placeholder="t('executiveSummary.upload.documentTitlePlaceholder')" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('executiveSummary.upload.description')">
@@ -158,30 +164,33 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="info" 
-                  variant="ghost" 
-                  size="sm" 
-                  :title="t('executiveSummary.upload.actions.view')" 
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                />
-                <UButton 
-                  icon="i-lucide-download" 
-                  color="success" 
-                  variant="ghost" 
-                  size="md" 
-                  :title="t('executiveSummary.upload.actions.download')" 
-                  @click="store.downloadDocument(row.original.id, row.original.fileName)" 
-                />
-                <UButton 
-                  icon="i-lucide-trash-2" 
+                <UTooltip :text="t('executiveSummary.upload.actions.view')"">
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="neutral" 
+                    variant="ghost" 
+                    size="md" 
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
+                </UTooltip>
+                <UTooltip :text="t('executiveSummary.upload.actions.download')">
+                  <UButton 
+                    icon="i-lucide-download" 
+                    color="success" 
+                    variant="ghost" 
+                    size="md" 
+                    @click="store.downloadDocument(row.original.id, row.original.fileName)" 
+                  />
+                </UTooltip>
+                <UTooltip :text="t('executiveSummary.upload.actions.delete')">
+                  <UButton 
+                    icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
-                  size="md" 
-                  :title="t('executiveSummary.upload.actions.delete')" 
+                  size="md"  
                   @click="handleDelete(row.original.id)" 
                 />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>

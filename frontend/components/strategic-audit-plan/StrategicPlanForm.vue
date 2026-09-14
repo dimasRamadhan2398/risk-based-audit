@@ -40,8 +40,8 @@
             <!-- KPI Title -->
             <UFormField :label="t('strategicPlan.form.kpi')" required>
               <UTextarea
-                v-model="store.form.strategicObjective"
-                :placeholder="t('strategicPlan.form.objectivePlaceholder')"
+                v-model="store.form.kpi"
+                :placeholder="t('strategicPlan.form.kpiPlaceholder')"
                 :rows="2"
                 class="w-full"
               />

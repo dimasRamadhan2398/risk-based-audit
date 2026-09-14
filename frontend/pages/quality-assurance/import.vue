@@ -28,7 +28,13 @@
                 :placeholder="t('qualityAssurance.importQar.documentTitlePlaceholder')" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('qualityAssurance.importQar.description')">
@@ -160,30 +166,33 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
+                <UTooltip :text="t('qualityAssurance.importQar.actions.view')">
                 <UButton 
                   icon="i-lucide-eye" 
                   color="neutral" 
                   variant="ghost" 
                   size="md" 
-                  :title="t('qualityAssurance.importQar.actions.view')" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
+                </UTooltip>
+                <UTooltip :text="t('qualityAssurance.importQar.actions.download')">
                 <UButton 
                   icon="i-lucide-download" 
                   color="success" 
                   variant="ghost" 
                   size="md" 
-                  :title="t('qualityAssurance.importQar.actions.download')" 
                   @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
                 />
+                </UTooltip>
+                <UTooltip :text="t('qualityAssurance.importQar.actions.delete')">
                 <UButton 
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
                   size="md" 
-                  :title="t('qualityAssurance.importQar.actions.delete')" 
                   @click="handleDelete(row.original)" 
                 />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>

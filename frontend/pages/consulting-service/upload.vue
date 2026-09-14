@@ -28,7 +28,13 @@
                 :placeholder="t('consultingService.upload.documentTitlePlaceholder')" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('consultingService.upload.description')">
@@ -158,30 +164,35 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
+                <UTooltip :text="t('consultingService.upload.actions.view')">
                 <UButton 
                   icon="i-lucide-eye" 
                   color="neutral" 
                   variant="ghost" 
                   size="md" 
-                  :title="t('consultingService.upload.actions.view')" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
+                </UTooltip>
+
+                <UTooltip :text="t('consultingService.upload.actions.download')">
                 <UButton 
                   icon="i-lucide-download" 
                   color="success" 
                   variant="ghost" 
                   size="md" 
-                  :title="t('consultingService.upload.actions.download')" 
                   @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                 />
+                </UTooltip>
+
+                <UTooltip :text="t('consultingService.upload.actions.delete')">
                 <UButton 
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
                   size="md" 
-                  :title="t('consultingService.upload.actions.delete')" 
                   @click="handleDelete(row.original.id)" 
                 />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>

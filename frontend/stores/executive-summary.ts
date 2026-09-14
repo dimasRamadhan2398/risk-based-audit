@@ -439,7 +439,6 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
       showModal.value = false
       await fetchSummaries()
-      toast.showSuccess('Executive Summary berhasil disimpan!')
 
       // 2-Way Sync: Update matching AuditResultReport item in Result Reports store
       try {
@@ -452,7 +451,6 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
     } catch (error: any) {
       console.error('Failed to save summary to backend, simulating local save:', error)
-      toast.showError(error.data?.message || 'Gagal menyimpan Executive Summary.')
       // Simulating save in state for offline capabilities
       if (isEditing.value && currentSummary.value) {
         const idx = summaryList.value.findIndex(s => s.id === currentSummary.value!.id)
@@ -480,6 +478,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       } catch (errSync) {
         console.warn('Sync to AuditResultReport failed:', errSync)
       }
+      toast.showSuccess('Executive Summary berhasil disimpan!')
     } finally {
       loading.value = false
     }
@@ -533,7 +532,6 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
           body: payload
         })
         await fetchSummaries()
-        toast.showSuccess('Status Executive Summary berhasil diperbarui!')
       }
     } catch (error: any) {
       console.error('Failed to update status on backend, simulating local update:', error)
@@ -545,6 +543,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
           form.status = newStatus
         }
       }
+      toast.showSuccess('Status Executive Summary berhasil diperbarui!')
     } finally {
       loading.value = false
     }

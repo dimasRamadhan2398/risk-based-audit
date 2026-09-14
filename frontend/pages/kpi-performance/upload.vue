@@ -79,11 +79,7 @@ const processFile = (file: File) => {
     form.value.title = `${periodName} ${form.value.year} - ${file.name.replace(/\.[^/.]+$/, '')}`
   }
 
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    form.value.file = e.target?.result as string
-  }
-  reader.readAsDataURL(file)
+  form.value.file = file
 }
 
 const getExtensionType = (filename: string) => {
@@ -220,7 +216,7 @@ const columns = [
             </div>
           </template>
 
-          <form @submit.prevent="handleUpload" class="space-y-5">
+          <UForm @submit.prevent="handleUpload" class="space-y-5">
             <!-- Period Selector -->
             <div>
               <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Periode Laporan Kinerja *</label>
@@ -260,7 +256,13 @@ const columns = [
                 placeholder="Contoh: Laporan Kinerja Q1 2026 Internal Audit"
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-sm text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </div>
 
             <!-- Description -->
@@ -341,7 +343,7 @@ const columns = [
               icon="i-lucide-upload"
               :disabled="!form.title || !form.fileName"
             />
-          </form>
+          </UForm>
         </UCard>
       </div>
 
@@ -416,30 +418,33 @@ const columns = [
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="neutral" 
-                  variant="ghost" 
-                  size="md" 
-                  title="Lihat Dokumen"
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                />
-                <UButton 
-                  icon="i-lucide-download"
-                  color="success"
-                  variant="ghost"
-                  size="md"
-                  @click="handleDownload(row.original.id, row.original.fileName)"
-                  title="Unduh Dokumen"
-                />
-                <UButton
-                  icon="i-lucide-trash-2"
-                  color="error"
-                  variant="ghost"
-                  size="md"
-                  @click="handleDelete(row.original.id, row.original.title)"
-                  title="Hapus Dokumen"
-                />
+                <UTooltip text="Lihat Dokumen">
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="neutral" 
+                    variant="ghost" 
+                    size="md" 
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
+                </UTooltip>
+                <UTooltip text="Unduh Dokumen">
+                  <UButton 
+                    icon="i-lucide-download"
+                    color="success"
+                    variant="ghost"
+                    size="md"
+                    @click="handleDownload(row.original.id, row.original.fileName)"
+                  />
+                </UTooltip>
+                <UTooltip text="Hapus Dokumen">
+                  <UButton
+                    icon="i-lucide-trash-2"
+                    color="error"
+                    variant="ghost"
+                    size="md"
+                    @click="handleDelete(row.original.id, row.original.title)"
+                  />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>

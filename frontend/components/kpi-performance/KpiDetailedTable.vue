@@ -260,13 +260,15 @@ function editKpiTarget(rowOriginal: any) {
         </template>
 
         <template #actions-cell="{ row }">
+          <UTooltip text="Edit KPI Target">
           <UButton
-            color="warning"
-            variant="ghost"
-            size="md"
-            icon="i-lucide-edit"
-            @click="editKpiTarget(row.original)"
-          />
+              color="warning"
+              variant="ghost"
+              size="md"
+              icon="i-lucide-edit"
+              @click="editKpiTarget(row.original)"
+            />
+          </UTooltip>
         </template>
       </UTable>
 

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
 export interface UploadedPerformanceReport {
@@ -20,6 +21,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
   const uploadedReports = ref<UploadedPerformanceReport[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification()
 
   const fetchUploadedReports = async (period?: string, year?: number) => {
     loading.value = true;
@@ -34,12 +36,6 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
         params.year = year;
       }
 
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-performance-reports`, {
         method: 'GET',
         params
@@ -73,14 +69,23 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData();
+      formData.append('title', payload.title);
+      formData.append('period', payload.period);
+      formData.append('year', String(payload.year));
+      formData.append('description', payload.description);
+      formData.append('fileName', payload.fileName);
+      formData.append('fileType', payload.fileType);
+      formData.append('file', payload.file);
       await $fetch(`${baseUrl}/uploaded-performance-reports`, {
         method: 'POST',
         body: formData
       });
       await fetchUploadedReports(payload.period, payload.year);
+      toast.showSuccess('Performance report uploaded successfully.');
     } catch (error: any) {
       console.error('Failed to upload performance report:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload performance report document.';
+      toast.showError(error.data?.message || 'Failed to upload performance report document.');
       throw error;
     } finally {
       loading.value = false;
@@ -96,9 +101,10 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
         method: 'DELETE'
       });
       await fetchUploadedReports(currentPeriod, currentYear);
+      toast.showSuccess('Performance report deleted successfully.');
     } catch (error: any) {
       console.error('Failed to delete performance report document:', error);
-      errorMsg.value = 'Failed to delete performance report document.';
+      toast.showError(error.data?.message || 'Failed to delete performance report document.');
       throw error;
     } finally {
       loading.value = false;
@@ -108,12 +114,6 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
   const downloadReport = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-performance-reports/${id}/download`, {
         responseType: 'blob'
       });
@@ -129,19 +129,13 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download performance report document:', error);
-      errorMsg.value = 'Failed to download document.';
+      toast.showError(error.data?.message || 'Failed to download document.');
     }
   };
 
   const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-performance-reports/${id}/download`, {
         responseType: 'blob'
       });
@@ -159,7 +153,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view performance report document:', error);
-      errorMsg.value = 'Failed to view document.';
+      toast.showError(error.data?.message || 'Failed to view document.');
     }
   };
 

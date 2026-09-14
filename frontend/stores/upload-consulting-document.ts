@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
@@ -17,18 +18,13 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
   const uploadedDocuments = ref<UploadedConsultingDocument[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification()
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-consulting-documents`, {
         method: 'GET'
       });
@@ -50,14 +46,21 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData();
+      formData.append('title', payload.title);
+      formData.append('description', payload.description);
+      formData.append('fileName', payload.fileName);
+      formData.append('fileType', payload.fileType);
+      formData.append('file', payload.file);
       await $fetch(`${baseUrl}/uploaded-consulting-documents`, {
         method: 'POST',
         body: formData
       });
       await fetchUploadedDocuments();
+      toast.showSuccess('Consulting document uploaded successfully!')
     } catch (error: any) {
       console.error('Failed to upload consulting document:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload consulting document.';
+      toast.showError(error.data?.message || 'Failed to upload consulting document.')
       throw error;
     } finally {
       loading.value = false;
@@ -73,51 +76,40 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
         method: 'DELETE'
       });
       await fetchUploadedDocuments();
+      toast.showSuccess('Consulting document deleted successfully!')
     } catch (error: any) {
       console.error('Failed to delete uploaded consulting document:', error);
-      errorMsg.value = 'Failed to delete consulting document.';
+      toast.showError(error.data?.message || 'Failed to delete consulting document.')
       throw error;
     } finally {
       loading.value = false;
     }
   };
 
-    const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-consulting-documents/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      errorMsg.value = 'Failed to view document.';
+      toast.showError(error.data?.message || 'Failed to view document.')
     }
   };
 
   const downloadDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-consulting-documents/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -129,7 +121,7 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download consulting document:', error);
-      errorMsg.value = 'Failed to download document.';
+      toast.showError(error.data?.message || 'Failed to download document.')
     }
   };
 
