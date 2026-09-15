@@ -216,7 +216,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         try {
             const baseUrl = getAuditServiceBaseUrl();
             const response: any = await $fetch(`${baseUrl}/strategic-plans`, {
-                method: 'GET'
+                method: 'GET',
+                params: {
+                    page: 1,
+                    page_size: 100,
+                    order: 'code ASC'
+                }
             });
             let items: StrategicAuditPlan[] = [];
             if (response && response.data && Array.isArray(response.data.items)) {

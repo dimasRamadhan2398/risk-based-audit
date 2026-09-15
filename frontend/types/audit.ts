@@ -697,7 +697,7 @@ export const EXECUTION_PHASES: ExecutionPhase[] = [
     description: 'Laporan Hasil Audit final diterbitkan & siap untuk pemantauan Tindak Lanjut (Action Plan).',
     icon: 'i-lucide-check-circle-2',
     badgeColor: 'secondary',
-    badgeClass: 'bg-secondary-100 text-secondary-700 dark:bg-secondary-950 dark:text-secondary-300 border border-secondary-300 dark:border-secondary-700',
+    badgeClass: 'bg-secondary-100 text-secondary-700 dark:bg-secondary-950 dark:text-secondary-100 border border-secondary-300 dark:border-secondary-700',
     iconClass: 'text-secondary-600 dark:text-secondary-400',
     numBgClass: 'bg-secondary-600 text-white',
     cardClass: 'border-secondary-300 dark:border-secondary-800 bg-secondary-50/40 dark:bg-secondary-950/30',

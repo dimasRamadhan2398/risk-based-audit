@@ -185,7 +185,7 @@ const handleRemind = (audit: any) => {
     <!-- Summary Section -->
     <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-6">
-        <span class="text-md font-bold text-gray-500 uppercase tracking-wider">{{ t('auditExecution.summary.title') }}</span>
+        <span class="text-md font-bold text-gray-500 tracking-tight">{{ t('auditExecution.summary.title') }}</span>
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.completed', { count: getSummary.completed }) }}</span>
@@ -252,12 +252,12 @@ const handleRemind = (audit: any) => {
         <template #name-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-900 dark:text-white">{{ (row.original || row).name }}</span>
-            <span class="text-md text-gray-500 font-medium">{{ t('auditExecution.table.ref') }} {{ (row.original || row).ref || '-' }} | ({{ (row.original || row).category }})</span>
+            <span class="text-md text-gray-500 font-medium">{{ t('auditExecution.table.ref') }} {{ (row.original || row).ref || '-' }} | {{ (row.original || row).category }}</span>
           </div>
         </template>
 
         <template #phase-cell="{ row }">
-          <UBadge :color="getExecutionPhase(getProgressValue(row)).badgeColor" variant="subtle" size="md">
+          <UBadge :class="getExecutionPhase(getProgressValue(row)).badgeClass" variant="subtle" size="md">
             <UIcon :name="getExecutionPhase(getProgressValue(row)).icon" class="mr-1.5 inline-block text-md" />
             {{ t(`auditExecution.phases.${getExecutionPhase(getProgressValue(row)).step}.shortLabel`) }}
           </UBadge>
