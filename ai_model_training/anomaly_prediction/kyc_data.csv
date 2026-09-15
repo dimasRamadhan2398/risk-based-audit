@@ -1,0 +1,1001 @@
+ID Aktivitas,Entitas,Aktivitas,Profil Risiko,Status Dokumen,Status Approval,TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5),Alasan Anomali
+KYC-0001,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0002,Customer Service SBY,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0003,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0004,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0005,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0006,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0007,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0008,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0009,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0010,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0011,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0012,Customer Service JKT,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0013,Customer Service JKT,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0014,Customer Service JKT,Update Data Nasabah,High,Lengkap,Rejected,Tidak,2,1,-
+KYC-0015,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0016,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0017,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0018,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0019,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0020,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0021,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0022,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,1,-
+KYC-0023,Customer Service SBY,Update Data Nasabah,High,Tidak Lengkap,Approved,Ya (Anomali),5,3,Aktivitas disetujui padahal Dokumen Tidak Lengkap & Nasabah High Risk disetujui tanpa eskalasi
+KYC-0024,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0025,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0026,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0027,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0028,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0029,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0030,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0031,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0032,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0033,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0034,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0035,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0036,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0037,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,2,2,-
+KYC-0038,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0039,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0040,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0041,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0042,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0043,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0044,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0045,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0046,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,1,1,-
+KYC-0047,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0048,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0049,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0050,Onboarding Dept,Update Data Nasabah,High,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0051,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0052,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0053,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,1,-
+KYC-0054,Customer Service JKT,Update Data Nasabah,High,Lengkap,Rejected,Tidak,1,2,-
+KYC-0055,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Pending,Tidak,1,2,-
+KYC-0056,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,2,1,-
+KYC-0057,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0058,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0059,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0060,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0061,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0062,Customer Service SBY,Pembukaan Rekening,High,Tidak Lengkap,Approved,Ya (Anomali),5,3,Aktivitas disetujui padahal Dokumen Tidak Lengkap & Nasabah High Risk disetujui tanpa eskalasi
+KYC-0063,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0064,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0065,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0066,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0067,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0068,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0069,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,1,2,-
+KYC-0070,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0071,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0072,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0073,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0074,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0075,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0076,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0077,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0078,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0079,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0080,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0081,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,1,2,-
+KYC-0082,Customer Service SBY,Update Data Nasabah,High,Lengkap,Pending,Tidak,1,1,-
+KYC-0083,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0084,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0085,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0086,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0087,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0088,Customer Service JKT,Update Data Nasabah,High,Lengkap,Pending,Tidak,1,1,-
+KYC-0089,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0090,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0091,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0092,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0093,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0094,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Rejected,Tidak,2,1,-
+KYC-0095,Customer Service SBY,Update Data Nasabah,High,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0096,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0097,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0098,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0099,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0100,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0101,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0102,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0103,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0104,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0105,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0106,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0107,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0108,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0109,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0110,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0111,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0112,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0113,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0114,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0115,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0116,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0117,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0118,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0119,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0120,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0121,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0122,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0123,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0124,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0125,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0126,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0127,Customer Service JKT,Update Data Nasabah,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0128,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0129,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0130,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0131,Customer Service JKT,Update Data Nasabah,High,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0132,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0133,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0134,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0135,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0136,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0137,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0138,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0139,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0140,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0141,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0142,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0143,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0144,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0145,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0146,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0147,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0148,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0149,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0150,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0151,Customer Service SBY,Update Data Nasabah,High,Lengkap,Pending,Tidak,2,1,-
+KYC-0152,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0153,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0154,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0155,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0156,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0157,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0158,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0159,Onboarding Dept,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0160,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0161,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0162,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0163,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0164,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0165,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0166,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0167,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0168,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0169,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0170,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0171,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,1,1,-
+KYC-0172,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0173,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0174,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0175,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0176,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0177,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0178,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0179,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0180,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0181,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0182,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0183,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0184,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0185,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0186,Customer Service JKT,Update Data Nasabah,High,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0187,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0188,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0189,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0190,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0191,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0192,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0193,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,2,1,-
+KYC-0194,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0195,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0196,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0197,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0198,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0199,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0200,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0201,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0202,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0203,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0204,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0205,Customer Service JKT,Update Data Nasabah,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0206,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0207,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0208,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0209,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0210,Onboarding Dept,Update Data Nasabah,High,Tidak Lengkap,Approved,Ya (Anomali),5,3,Aktivitas disetujui padahal Dokumen Tidak Lengkap & Nasabah High Risk disetujui tanpa eskalasi
+KYC-0211,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0212,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0213,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0214,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,1,-
+KYC-0215,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0216,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0217,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0218,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0219,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0220,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0221,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0222,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0223,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0224,Onboarding Dept,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0225,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0226,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0227,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0228,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0229,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0230,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0231,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0232,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0233,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0234,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0235,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0236,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0237,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0238,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0239,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0240,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,2,2,-
+KYC-0241,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0242,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0243,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,1,1,-
+KYC-0244,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0245,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0246,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0247,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0248,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0249,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0250,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0251,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0252,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0253,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0254,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0255,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0256,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0257,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0258,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0259,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0260,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0261,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0262,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0263,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0264,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0265,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0266,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0267,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0268,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0269,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0270,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0271,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0272,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0273,Onboarding Dept,Pembukaan Rekening,High,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0274,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0275,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0276,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0277,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0278,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0279,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0280,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0281,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0282,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0283,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0284,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0285,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0286,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0287,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0288,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0289,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0290,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0291,Onboarding Dept,Update Data Nasabah,High,Lengkap,Pending,Tidak,1,2,-
+KYC-0292,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0293,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0294,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0295,Customer Service JKT,Pembukaan Rekening,Medium,Tidak Lengkap,Pending,Tidak,1,2,-
+KYC-0296,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0297,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0298,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0299,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0300,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0301,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0302,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0303,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0304,Customer Service SBY,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0305,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,2,2,-
+KYC-0306,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0307,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0308,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0309,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0310,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0311,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0312,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0313,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0314,Customer Service JKT,Update Data Nasabah,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0315,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0316,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0317,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0318,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0319,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0320,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Pending,Tidak,1,1,-
+KYC-0321,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0322,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0323,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0324,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0325,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0326,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Pending,Tidak,1,1,-
+KYC-0327,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0328,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0329,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0330,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0331,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0332,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0333,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0334,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0335,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0336,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0337,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0338,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0339,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0340,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0341,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0342,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0343,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0344,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0345,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0346,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Rejected,Tidak,1,2,-
+KYC-0347,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0348,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0349,Customer Service JKT,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0350,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0351,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0352,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0353,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0354,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0355,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0356,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0357,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0358,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0359,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0360,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0361,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0362,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0363,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0364,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0365,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0366,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0367,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,2,2,-
+KYC-0368,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0369,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0370,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0371,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0372,Customer Service SBY,Update Data Nasabah,High,Lengkap,Pending,Tidak,1,2,-
+KYC-0373,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0374,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0375,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0376,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0377,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0378,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0379,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0380,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,2,1,-
+KYC-0381,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,1,1,-
+KYC-0382,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0383,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0384,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0385,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0386,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0387,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0388,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,1,-
+KYC-0389,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0390,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0391,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0392,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Pending,Tidak,1,2,-
+KYC-0393,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0394,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0395,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0396,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,1,1,-
+KYC-0397,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0398,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0399,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0400,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0401,Onboarding Dept,Update Data Nasabah,Medium,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0402,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0403,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0404,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0405,Customer Service SBY,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0406,Customer Service JKT,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0407,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0408,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0409,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0410,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0411,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0412,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0413,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0414,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0415,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0416,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0417,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0418,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0419,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0420,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0421,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0422,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0423,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0424,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0425,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0426,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0427,Customer Service JKT,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0428,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0429,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0430,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0431,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0432,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0433,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0434,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0435,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0436,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0437,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0438,Onboarding Dept,Update Data Nasabah,High,Lengkap,Pending,Tidak,1,1,-
+KYC-0439,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0440,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0441,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0442,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0443,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0444,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0445,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0446,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0447,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0448,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0449,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0450,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0451,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0452,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0453,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0454,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0455,Onboarding Dept,Update Data Nasabah,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0456,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0457,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0458,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0459,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0460,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0461,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Rejected,Tidak,2,2,-
+KYC-0462,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0463,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,1,1,-
+KYC-0464,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0465,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0466,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0467,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0468,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0469,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0470,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0471,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0472,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0473,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0474,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0475,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0476,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0477,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0478,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0479,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0480,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0481,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0482,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0483,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0484,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0485,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0486,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0487,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0488,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,2,-
+KYC-0489,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0490,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0491,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0492,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0493,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0494,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0495,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0496,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0497,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0498,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Pending,Tidak,1,1,-
+KYC-0499,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0500,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,1,1,-
+KYC-0501,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0502,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0503,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0504,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0505,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0506,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0507,Customer Service SBY,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0508,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0509,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0510,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0511,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0512,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0513,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0514,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0515,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0516,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Rejected,Tidak,1,2,-
+KYC-0517,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0518,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0519,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0520,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0521,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0522,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0523,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0524,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0525,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0526,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0527,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0528,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0529,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0530,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0531,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0532,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0533,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0534,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0535,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0536,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0537,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0538,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,1,1,-
+KYC-0539,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0540,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0541,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0542,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0543,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0544,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0545,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0546,Customer Service JKT,Update Data Nasabah,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0547,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0548,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0549,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,2,1,-
+KYC-0550,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0551,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0552,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0553,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0554,Customer Service SBY,Update Data Nasabah,High,Lengkap,Pending,Tidak,1,2,-
+KYC-0555,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0556,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0557,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0558,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,1,-
+KYC-0559,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0560,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0561,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0562,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0563,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0564,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0565,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0566,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0567,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0568,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0569,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0570,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0571,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0572,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0573,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0574,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0575,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0576,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,1,2,-
+KYC-0577,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0578,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0579,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0580,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0581,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0582,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0583,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0584,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,2,2,-
+KYC-0585,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Pending,Tidak,1,1,-
+KYC-0586,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Rejected,Tidak,2,2,-
+KYC-0587,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0588,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0589,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0590,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0591,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,2,-
+KYC-0592,Onboarding Dept,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0593,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0594,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0595,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0596,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0597,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0598,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0599,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0600,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0601,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0602,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Rejected,Tidak,2,1,-
+KYC-0603,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0604,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0605,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0606,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0607,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0608,Customer Service SBY,Pembukaan Rekening,High,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0609,Customer Service SBY,Update Data Nasabah,High,Tidak Lengkap,Rejected,Tidak,1,1,-
+KYC-0610,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0611,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0612,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0613,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0614,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0615,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0616,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0617,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0618,Onboarding Dept,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0619,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Rejected,Tidak,2,2,-
+KYC-0620,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0621,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0622,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0623,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0624,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0625,Customer Service JKT,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0626,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0627,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0628,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0629,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0630,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0631,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0632,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0633,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0634,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0635,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0636,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0637,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0638,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,2,1,-
+KYC-0639,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0640,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0641,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0642,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0643,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0644,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0645,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0646,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Pending,Tidak,2,2,-
+KYC-0647,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0648,Customer Service JKT,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0649,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0650,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0651,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0652,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0653,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0654,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0655,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0656,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0657,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0658,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0659,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0660,Customer Service JKT,Pembukaan Rekening,High,Tidak Lengkap,Rejected,Tidak,1,1,-
+KYC-0661,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0662,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0663,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0664,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0665,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0666,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0667,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0668,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0669,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0670,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0671,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0672,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0673,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0674,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0675,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0676,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0677,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0678,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0679,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0680,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0681,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0682,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0683,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0684,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0685,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0686,Customer Service JKT,Update Data Nasabah,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0687,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,2,-
+KYC-0688,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0689,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0690,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0691,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0692,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0693,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,1,1,-
+KYC-0694,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,1,-
+KYC-0695,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0696,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0697,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0698,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0699,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0700,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0701,Customer Service SBY,Update Data Nasabah,Medium,Tidak Lengkap,Pending,Tidak,1,2,-
+KYC-0702,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0703,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0704,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0705,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Pending,Tidak,2,2,-
+KYC-0706,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0707,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0708,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0709,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0710,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0711,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0712,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0713,Onboarding Dept,Update Data Nasabah,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0714,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0715,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,2,-
+KYC-0716,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0717,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0718,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0719,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0720,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0721,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0722,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0723,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0724,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0725,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0726,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0727,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0728,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0729,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0730,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0731,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,1,2,-
+KYC-0732,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0733,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0734,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0735,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0736,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,2,2,-
+KYC-0737,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,2,1,-
+KYC-0738,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0739,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0740,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0741,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0742,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,2,1,-
+KYC-0743,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0744,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0745,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0746,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0747,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0748,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0749,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0750,Customer Service SBY,Pembukaan Rekening,High,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0751,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0752,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0753,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0754,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0755,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0756,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0757,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,2,-
+KYC-0758,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0759,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0760,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0761,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0762,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0763,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0764,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0765,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0766,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0767,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0768,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,1,-
+KYC-0769,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0770,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0771,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,2,2,-
+KYC-0772,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0773,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0774,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0775,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Rejected,Tidak,1,2,-
+KYC-0776,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0777,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0778,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0779,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0780,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0781,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0782,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0783,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0784,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0785,Customer Service SBY,Pembukaan Rekening,High,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0786,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0787,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0788,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0789,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0790,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0791,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0792,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0793,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,1,1,-
+KYC-0794,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,1,1,-
+KYC-0795,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0796,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0797,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0798,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0799,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0800,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,1,2,-
+KYC-0801,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0802,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0803,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0804,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0805,Customer Service SBY,Update Data Nasabah,Medium,Tidak Lengkap,Pending,Tidak,2,2,-
+KYC-0806,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0807,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0808,Onboarding Dept,Update Data Nasabah,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0809,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0810,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0811,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0812,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0813,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0814,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0815,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0816,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0817,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0818,Onboarding Dept,Update Data Nasabah,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0819,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0820,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0821,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0822,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0823,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0824,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0825,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0826,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0827,Customer Service SBY,Update Data Nasabah,High,Lengkap,Rejected,Tidak,2,2,-
+KYC-0828,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0829,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0830,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,2,2,-
+KYC-0831,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0832,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0833,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0834,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0835,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0836,Onboarding Dept,Pembukaan Rekening,High,Lengkap,Pending,Tidak,2,1,-
+KYC-0837,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0838,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0839,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0840,Onboarding Dept,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0841,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0842,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0843,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,1,1,-
+KYC-0844,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0845,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0846,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0847,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,2,2,-
+KYC-0848,Customer Service JKT,Update Data Nasabah,High,Tidak Lengkap,Rejected,Tidak,1,1,-
+KYC-0849,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0850,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0851,Customer Service SBY,Pembukaan Rekening,Medium,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0852,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0853,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0854,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0855,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0856,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0857,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0858,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0859,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0860,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0861,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0862,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0863,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0864,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0865,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0866,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0867,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0868,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0869,Onboarding Dept,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0870,Customer Service JKT,Update Data Nasabah,Medium,Tidak Lengkap,Pending,Tidak,2,1,-
+KYC-0871,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0872,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,1,-
+KYC-0873,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0874,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0875,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0876,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0877,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0878,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0879,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0880,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0881,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0882,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,1,-
+KYC-0883,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0884,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0885,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0886,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0887,Customer Service SBY,Pembukaan Rekening,High,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0888,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0889,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0890,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,1,-
+KYC-0891,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0892,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0893,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0894,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0895,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0896,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0897,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0898,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0899,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0900,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0901,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0902,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0903,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,2,1,-
+KYC-0904,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0905,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0906,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,1,2,-
+KYC-0907,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0908,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0909,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0910,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0911,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Pending,Tidak,1,2,-
+KYC-0912,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0913,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,2,-
+KYC-0914,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0915,Onboarding Dept,Update Data Nasabah,High,Lengkap,Rejected,Tidak,2,2,-
+KYC-0916,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0917,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0918,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0919,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0920,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0921,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0922,Customer Service JKT,Pembukaan Rekening,High,Lengkap,Approved,Tidak,2,2,-
+KYC-0923,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0924,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0925,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0926,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0927,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Pending,Tidak,1,2,-
+KYC-0928,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0929,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0930,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0931,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0932,Onboarding Dept,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0933,Customer Service JKT,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0934,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Pending,Tidak,2,1,-
+KYC-0935,Customer Service SBY,Update Data Nasabah,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0936,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0937,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0938,Onboarding Dept,Pembukaan Rekening,High,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0939,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0940,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0941,Onboarding Dept,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0942,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0943,Customer Service SBY,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0944,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0945,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,1,-
+KYC-0946,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0947,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0948,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0949,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0950,Customer Service SBY,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0951,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),4,4,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0952,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0953,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0954,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,1,2,-
+KYC-0955,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0956,Onboarding Dept,Pembukaan Rekening,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0957,Customer Service SBY,Update Data Nasabah,High,Tidak Lengkap,Rejected,Tidak,1,2,-
+KYC-0958,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,2,-
+KYC-0959,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0960,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0961,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0962,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Rejected,Tidak,1,1,-
+KYC-0963,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0964,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0965,Customer Service SBY,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0966,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0967,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Pending,Tidak,1,1,-
+KYC-0968,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0969,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,2,1,-
+KYC-0970,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0971,Customer Service JKT,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0972,Customer Service SBY,Update Data Nasabah,Medium,Lengkap,Rejected,Tidak,1,2,-
+KYC-0973,Customer Service JKT,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,1,-
+KYC-0974,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0975,Onboarding Dept,Update Data Nasabah,Low,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0976,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0977,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0978,Onboarding Dept,Update Data Nasabah,High,Lengkap,Approved,Tidak,2,1,-
+KYC-0979,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0980,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,1,2,-
+KYC-0981,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0982,Onboarding Dept,Update Data Nasabah,High,Lengkap,Approved,Tidak,1,2,-
+KYC-0983,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0984,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0985,Customer Service JKT,Update Data Nasabah,Medium,Lengkap,Approved,Tidak,1,1,-
+KYC-0986,Customer Service JKT,Update Data Nasabah,Low,Tidak Lengkap,Pending,Tidak,2,2,-
+KYC-0987,Customer Service JKT,Pembukaan Rekening,Low,Lengkap,Approved,Tidak,2,1,-
+KYC-0988,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Approved,Tidak,2,2,-
+KYC-0989,Customer Service SBY,Pembukaan Rekening,Low,Tidak Lengkap,Pending,Tidak,2,2,-
+KYC-0990,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0991,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0992,Customer Service JKT,Pembukaan Rekening,Medium,Lengkap,Approved,Tidak,2,1,-
+KYC-0993,Customer Service JKT,Update Data Nasabah,High,Tidak Lengkap,Approved,Ya (Anomali),5,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0994,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,2,-
+KYC-0995,Onboarding Dept,Update Data Nasabah,Medium,Tidak Lengkap,Approved,Ya (Anomali),4,5,Aktivitas disetujui padahal Dokumen Tidak Lengkap
+KYC-0996,Onboarding Dept,Pembukaan Rekening,Low,Lengkap,Pending,Tidak,2,2,-
+KYC-0997,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-0998,Onboarding Dept,Update Data Nasabah,Low,Lengkap,Approved,Tidak,1,1,-
+KYC-0999,Customer Service SBY,Pembukaan Rekening,High,Lengkap,Approved,Ya (Anomali),5,3,Nasabah High Risk disetujui tanpa eskalasi
+KYC-1000,Customer Service SBY,Update Data Nasabah,Low,Lengkap,Rejected,Tidak,1,1,-

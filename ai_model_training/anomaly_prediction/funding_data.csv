@@ -1,0 +1,1001 @@
+ID Transaksi,Entitas,Produk,Nilai Transaksi (Juta Rp),Bunga (%),TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5),Alasan Anomali
+FUND-0001,Medan Branch,Deposito,37581.07,5.48,Ya (Anomali),3,3,Penempatan/Penarikan sangat besar
+FUND-0002,Head Office,Deposito,260.33,4.64,Tidak,1,1,-
+FUND-0003,Bandung Branch,Giro,26276.32,4.63,Ya (Anomali),3,3,Penempatan/Penarikan sangat besar
+FUND-0004,Head Office,Tabungan,67.77,3.15,Tidak,1,1,-
+FUND-0005,Head Office,Deposito,298.28,5.7,Tidak,2,2,-
+FUND-0006,Surabaya Branch,Giro,1025.9,3.27,Tidak,1,1,-
+FUND-0007,Bandung Branch,Tabungan,209.03,4.6,Tidak,2,2,-
+FUND-0008,Bandung Branch,Deposito,249.36,4.25,Tidak,2,1,-
+FUND-0009,Bandung Branch,Tabungan,16737.78,4.18,Ya (Anomali),4,4,Penempatan/Penarikan sangat besar
+FUND-0010,Head Office,Giro,400.84,4.0,Tidak,2,2,-
+FUND-0011,Medan Branch,Deposito,850.38,5.66,Tidak,2,2,-
+FUND-0012,Bandung Branch,Tabungan,151.23,4.11,Tidak,1,2,-
+FUND-0013,Head Office,Deposito,696.94,4.2,Tidak,1,2,-
+FUND-0014,Surabaya Branch,Tabungan,291.82,5.29,Tidak,1,1,-
+FUND-0015,Medan Branch,Giro,541.66,5.82,Tidak,1,2,-
+FUND-0016,Surabaya Branch,Giro,118.18,3.92,Tidak,2,1,-
+FUND-0017,Medan Branch,Deposito,564.48,4.09,Tidak,2,2,-
+FUND-0018,Head Office,Tabungan,56.95,4.32,Tidak,2,1,-
+FUND-0019,Jakarta Branch,Deposito,876.29,5.91,Tidak,2,1,-
+FUND-0020,Medan Branch,Deposito,814.17,5.44,Tidak,1,1,-
+FUND-0021,Surabaya Branch,Tabungan,112.42,5.17,Tidak,1,2,-
+FUND-0022,Head Office,Tabungan,855.73,2.35,Tidak,2,2,-
+FUND-0023,Medan Branch,Tabungan,11.29,2.45,Tidak,1,2,-
+FUND-0024,Jakarta Branch,Giro,799.32,4.37,Tidak,1,2,-
+FUND-0025,Jakarta Branch,Deposito,1191.65,3.44,Tidak,2,2,-
+FUND-0026,Bandung Branch,Deposito,189.81,3.02,Tidak,1,2,-
+FUND-0027,Bandung Branch,Giro,839.13,4.69,Tidak,2,2,-
+FUND-0028,Surabaya Branch,Tabungan,93.02,3.7,Tidak,2,1,-
+FUND-0029,Medan Branch,Giro,393.24,3.89,Tidak,2,2,-
+FUND-0030,Medan Branch,Giro,125.45,2.92,Tidak,1,1,-
+FUND-0031,Bandung Branch,Giro,40.12,4.53,Tidak,1,2,-
+FUND-0032,Medan Branch,Deposito,573.26,4.39,Tidak,2,1,-
+FUND-0033,Medan Branch,Giro,17.97,4.9,Tidak,1,1,-
+FUND-0034,Jakarta Branch,Deposito,215.66,4.41,Tidak,2,1,-
+FUND-0035,Bandung Branch,Deposito,528.23,3.06,Tidak,1,2,-
+FUND-0036,Head Office,Deposito,220.46,3.47,Tidak,1,2,-
+FUND-0037,Bandung Branch,Tabungan,20845.9,5.33,Ya (Anomali),4,5,Penempatan/Penarikan sangat besar
+FUND-0038,Head Office,Deposito,212.48,3.3,Tidak,2,2,-
+FUND-0039,Jakarta Branch,Deposito,417.98,4.65,Tidak,1,2,-
+FUND-0040,Surabaya Branch,Tabungan,423.11,2.24,Tidak,2,2,-
+FUND-0041,Medan Branch,Deposito,122.16,4.76,Tidak,1,1,-
+FUND-0042,Jakarta Branch,Giro,715.63,3.8,Tidak,2,2,-
+FUND-0043,Medan Branch,Giro,1319.87,5.18,Tidak,2,2,-
+FUND-0044,Surabaya Branch,Deposito,2455.33,2.61,Tidak,2,1,-
+FUND-0045,Surabaya Branch,Tabungan,377.98,5.37,Tidak,2,1,-
+FUND-0046,Jakarta Branch,Giro,78.32,5.02,Tidak,2,2,-
+FUND-0047,Surabaya Branch,Tabungan,28.42,4.83,Tidak,2,2,-
+FUND-0048,Head Office,Tabungan,55.86,3.44,Tidak,2,1,-
+FUND-0049,Surabaya Branch,Giro,262.9,3.22,Tidak,1,1,-
+FUND-0050,Medan Branch,Tabungan,1269.08,4.06,Tidak,2,2,-
+FUND-0051,Medan Branch,Giro,126.92,5.41,Tidak,2,2,-
+FUND-0052,Medan Branch,Tabungan,249.52,5.27,Tidak,2,2,-
+FUND-0053,Medan Branch,Giro,790.4,5.22,Tidak,2,2,-
+FUND-0054,Head Office,Deposito,105.29,3.61,Tidak,1,1,-
+FUND-0055,Bandung Branch,Giro,522.18,5.9,Tidak,2,2,-
+FUND-0056,Jakarta Branch,Giro,1290.4,5.45,Tidak,1,1,-
+FUND-0057,Medan Branch,Giro,106.09,5.06,Tidak,2,2,-
+FUND-0058,Surabaya Branch,Giro,239.06,7.68,Ya (Anomali),3,3,Bunga Funding tidak wajar (7.68%)
+FUND-0059,Medan Branch,Tabungan,172.69,5.5,Tidak,1,2,-
+FUND-0060,Surabaya Branch,Deposito,471.35,2.07,Tidak,2,1,-
+FUND-0061,Surabaya Branch,Giro,116.46,4.26,Tidak,1,1,-
+FUND-0062,Medan Branch,Tabungan,493.13,5.02,Tidak,2,1,-
+FUND-0063,Head Office,Deposito,48.78,2.68,Tidak,1,1,-
+FUND-0064,Surabaya Branch,Deposito,598.21,2.71,Tidak,2,1,-
+FUND-0065,Surabaya Branch,Deposito,142.4,2.92,Tidak,2,1,-
+FUND-0066,Medan Branch,Deposito,951.99,4.62,Tidak,1,2,-
+FUND-0067,Surabaya Branch,Giro,540.77,3.62,Tidak,1,2,-
+FUND-0068,Surabaya Branch,Giro,107.33,3.93,Tidak,1,2,-
+FUND-0069,Medan Branch,Tabungan,81.82,2.99,Tidak,1,2,-
+FUND-0070,Medan Branch,Tabungan,581.24,4.33,Tidak,2,1,-
+FUND-0071,Jakarta Branch,Tabungan,908.8,3.29,Tidak,1,1,-
+FUND-0072,Head Office,Deposito,31.78,2.26,Tidak,1,2,-
+FUND-0073,Head Office,Deposito,355.91,4.58,Tidak,1,2,-
+FUND-0074,Surabaya Branch,Giro,1009.98,2.51,Tidak,1,2,-
+FUND-0075,Head Office,Deposito,486.06,5.24,Tidak,2,2,-
+FUND-0076,Surabaya Branch,Deposito,81.44,5.82,Tidak,2,1,-
+FUND-0077,Jakarta Branch,Deposito,837.44,11.65,Ya (Anomali),3,5,Bunga Funding tidak wajar (11.65%)
+FUND-0078,Medan Branch,Tabungan,309.03,3.55,Tidak,1,2,-
+FUND-0079,Medan Branch,Tabungan,1080.49,3.8,Tidak,1,2,-
+FUND-0080,Medan Branch,Giro,36361.42,3.77,Ya (Anomali),5,5,Penempatan/Penarikan sangat besar
+FUND-0081,Head Office,Deposito,678.77,5.83,Tidak,2,1,-
+FUND-0082,Jakarta Branch,Deposito,755.06,3.4,Tidak,2,2,-
+FUND-0083,Head Office,Giro,61.79,2.7,Tidak,2,1,-
+FUND-0084,Head Office,Deposito,21817.79,3.06,Ya (Anomali),3,3,Penempatan/Penarikan sangat besar
+FUND-0085,Jakarta Branch,Deposito,74.71,2.82,Tidak,2,1,-
+FUND-0086,Jakarta Branch,Tabungan,41948.57,4.58,Ya (Anomali),5,4,Penempatan/Penarikan sangat besar
+FUND-0087,Jakarta Branch,Giro,699.31,4.33,Tidak,2,1,-
+FUND-0088,Jakarta Branch,Giro,216.45,2.51,Tidak,2,2,-
+FUND-0089,Medan Branch,Giro,292.88,3.49,Tidak,1,1,-
+FUND-0090,Bandung Branch,Giro,147.67,5.77,Tidak,1,2,-
+FUND-0091,Bandung Branch,Tabungan,528.96,5.55,Tidak,2,1,-
+FUND-0092,Jakarta Branch,Tabungan,947.07,5.45,Tidak,2,2,-
+FUND-0093,Bandung Branch,Deposito,318.59,5.02,Tidak,2,1,-
+FUND-0094,Bandung Branch,Deposito,543.79,5.11,Tidak,2,2,-
+FUND-0095,Jakarta Branch,Deposito,1395.4,7.66,Ya (Anomali),5,5,Bunga Funding tidak wajar (7.66%)
+FUND-0096,Bandung Branch,Deposito,91.66,3.95,Tidak,2,1,-
+FUND-0097,Head Office,Tabungan,690.16,5.03,Tidak,2,1,-
+FUND-0098,Surabaya Branch,Giro,59.22,2.61,Tidak,2,1,-
+FUND-0099,Surabaya Branch,Tabungan,97.68,3.74,Tidak,1,2,-
+FUND-0100,Jakarta Branch,Deposito,1076.21,4.97,Tidak,2,1,-
+FUND-0101,Medan Branch,Tabungan,545.83,5.52,Tidak,1,2,-
+FUND-0102,Jakarta Branch,Giro,487.23,5.26,Tidak,1,2,-
+FUND-0103,Medan Branch,Giro,381.34,4.15,Tidak,2,1,-
+FUND-0104,Surabaya Branch,Tabungan,15.55,5.33,Tidak,2,2,-
+FUND-0105,Jakarta Branch,Tabungan,715.84,4.71,Tidak,1,1,-
+FUND-0106,Head Office,Tabungan,76.6,4.01,Tidak,2,2,-
+FUND-0107,Bandung Branch,Deposito,132.44,5.12,Tidak,2,2,-
+FUND-0108,Medan Branch,Tabungan,108.23,7.91,Ya (Anomali),3,3,Bunga Funding tidak wajar (7.91%)
+FUND-0109,Bandung Branch,Tabungan,32459.38,3.92,Ya (Anomali),4,4,Penempatan/Penarikan sangat besar
+FUND-0110,Bandung Branch,Tabungan,21.6,4.41,Tidak,2,2,-
+FUND-0111,Jakarta Branch,Giro,604.4,2.6,Tidak,1,2,-
+FUND-0112,Bandung Branch,Giro,881.86,2.84,Tidak,2,2,-
+FUND-0113,Head Office,Deposito,674.97,2.49,Tidak,1,2,-
+FUND-0114,Bandung Branch,Deposito,818.15,2.25,Tidak,1,2,-
+FUND-0115,Jakarta Branch,Giro,105.27,3.2,Tidak,1,2,-
+FUND-0116,Head Office,Giro,589.04,2.71,Tidak,2,2,-
+FUND-0117,Surabaya Branch,Giro,1511.0,4.96,Tidak,2,1,-
+FUND-0118,Bandung Branch,Tabungan,100.34,5.92,Tidak,2,1,-
+FUND-0119,Jakarta Branch,Tabungan,608.12,4.35,Tidak,2,2,-
+FUND-0120,Surabaya Branch,Giro,967.74,2.22,Tidak,1,1,-
+FUND-0121,Surabaya Branch,Tabungan,337.84,3.85,Tidak,1,1,-
+FUND-0122,Medan Branch,Tabungan,46375.61,4.82,Ya (Anomali),3,4,Penempatan/Penarikan sangat besar
+FUND-0123,Head Office,Deposito,80.41,2.9,Tidak,1,2,-
+FUND-0124,Bandung Branch,Giro,16.75,3.89,Tidak,2,2,-
+FUND-0125,Jakarta Branch,Giro,171.29,2.15,Tidak,2,2,-
+FUND-0126,Medan Branch,Tabungan,241.98,5.9,Tidak,2,2,-
+FUND-0127,Head Office,Giro,95.03,3.07,Tidak,1,1,-
+FUND-0128,Medan Branch,Deposito,422.76,4.48,Tidak,1,2,-
+FUND-0129,Head Office,Deposito,55.19,5.09,Tidak,2,1,-
+FUND-0130,Head Office,Deposito,78.48,4.19,Tidak,2,2,-
+FUND-0131,Bandung Branch,Giro,784.91,5.31,Tidak,1,2,-
+FUND-0132,Head Office,Giro,88.31,5.92,Tidak,1,2,-
+FUND-0133,Medan Branch,Giro,194.59,3.35,Tidak,1,2,-
+FUND-0134,Head Office,Giro,21.14,2.73,Tidak,2,1,-
+FUND-0135,Bandung Branch,Giro,585.62,2.36,Tidak,1,2,-
+FUND-0136,Bandung Branch,Deposito,268.74,2.91,Tidak,2,1,-
+FUND-0137,Medan Branch,Tabungan,484.54,4.2,Tidak,1,2,-
+FUND-0138,Surabaya Branch,Deposito,85.97,3.71,Tidak,2,1,-
+FUND-0139,Surabaya Branch,Giro,1000.2,2.39,Tidak,1,2,-
+FUND-0140,Head Office,Deposito,783.16,3.16,Tidak,1,2,-
+FUND-0141,Jakarta Branch,Giro,799.91,5.91,Tidak,1,2,-
+FUND-0142,Head Office,Giro,403.56,5.49,Tidak,2,1,-
+FUND-0143,Medan Branch,Deposito,77.48,2.07,Tidak,2,2,-
+FUND-0144,Medan Branch,Giro,1475.33,3.02,Tidak,2,2,-
+FUND-0145,Medan Branch,Tabungan,412.05,8.41,Ya (Anomali),4,5,Bunga Funding tidak wajar (8.41%)
+FUND-0146,Medan Branch,Giro,873.28,4.63,Tidak,2,1,-
+FUND-0147,Medan Branch,Tabungan,123.93,5.86,Tidak,1,1,-
+FUND-0148,Bandung Branch,Tabungan,440.89,5.17,Tidak,2,2,-
+FUND-0149,Surabaya Branch,Giro,1243.08,3.58,Tidak,1,1,-
+FUND-0150,Medan Branch,Deposito,798.15,4.78,Tidak,2,2,-
+FUND-0151,Jakarta Branch,Tabungan,172.11,5.62,Tidak,1,1,-
+FUND-0152,Jakarta Branch,Deposito,111.81,2.81,Tidak,1,2,-
+FUND-0153,Jakarta Branch,Tabungan,300.2,2.61,Tidak,2,2,-
+FUND-0154,Jakarta Branch,Giro,823.81,5.53,Tidak,2,1,-
+FUND-0155,Bandung Branch,Giro,2081.04,3.67,Tidak,2,1,-
+FUND-0156,Jakarta Branch,Tabungan,1078.23,2.66,Tidak,1,2,-
+FUND-0157,Medan Branch,Giro,420.21,2.05,Tidak,1,2,-
+FUND-0158,Head Office,Tabungan,51.37,5.56,Tidak,1,2,-
+FUND-0159,Jakarta Branch,Giro,864.8,5.43,Tidak,1,2,-
+FUND-0160,Bandung Branch,Deposito,328.54,3.26,Tidak,1,2,-
+FUND-0161,Bandung Branch,Giro,350.82,3.43,Tidak,2,1,-
+FUND-0162,Jakarta Branch,Deposito,632.42,2.7,Tidak,2,2,-
+FUND-0163,Head Office,Giro,86.56,2.96,Tidak,2,1,-
+FUND-0164,Jakarta Branch,Deposito,536.55,5.0,Tidak,1,2,-
+FUND-0165,Bandung Branch,Giro,328.65,5.37,Tidak,2,1,-
+FUND-0166,Surabaya Branch,Deposito,573.78,2.51,Tidak,1,1,-
+FUND-0167,Medan Branch,Tabungan,106.11,2.28,Tidak,2,2,-
+FUND-0168,Bandung Branch,Tabungan,173.75,5.35,Tidak,2,1,-
+FUND-0169,Jakarta Branch,Deposito,192.15,4.05,Tidak,2,2,-
+FUND-0170,Medan Branch,Giro,539.45,3.22,Tidak,1,1,-
+FUND-0171,Jakarta Branch,Deposito,786.64,5.06,Tidak,2,1,-
+FUND-0172,Jakarta Branch,Giro,565.44,5.63,Tidak,2,1,-
+FUND-0173,Surabaya Branch,Tabungan,318.42,3.79,Tidak,1,2,-
+FUND-0174,Medan Branch,Giro,1891.81,3.52,Tidak,2,2,-
+FUND-0175,Medan Branch,Tabungan,683.35,2.17,Tidak,2,1,-
+FUND-0176,Surabaya Branch,Giro,182.81,5.43,Tidak,1,2,-
+FUND-0177,Bandung Branch,Giro,19.09,5.22,Tidak,2,1,-
+FUND-0178,Jakarta Branch,Giro,894.2,3.22,Tidak,1,1,-
+FUND-0179,Head Office,Deposito,618.17,2.45,Tidak,1,2,-
+FUND-0180,Jakarta Branch,Deposito,16.24,2.97,Tidak,2,1,-
+FUND-0181,Jakarta Branch,Tabungan,186.37,4.39,Tidak,1,2,-
+FUND-0182,Bandung Branch,Tabungan,1175.98,2.19,Tidak,2,1,-
+FUND-0183,Jakarta Branch,Deposito,1124.21,4.37,Tidak,1,1,-
+FUND-0184,Surabaya Branch,Tabungan,49817.5,2.96,Ya (Anomali),4,3,Penempatan/Penarikan sangat besar
+FUND-0185,Surabaya Branch,Deposito,900.03,2.25,Tidak,1,1,-
+FUND-0186,Medan Branch,Giro,1211.9,2.38,Tidak,1,1,-
+FUND-0187,Head Office,Tabungan,434.05,5.52,Tidak,1,2,-
+FUND-0188,Jakarta Branch,Tabungan,295.11,3.27,Tidak,1,2,-
+FUND-0189,Jakarta Branch,Deposito,302.94,5.57,Tidak,1,1,-
+FUND-0190,Bandung Branch,Tabungan,616.4,4.37,Tidak,1,2,-
+FUND-0191,Surabaya Branch,Tabungan,252.67,2.42,Tidak,1,2,-
+FUND-0192,Head Office,Giro,468.96,5.8,Tidak,2,2,-
+FUND-0193,Medan Branch,Tabungan,46.79,4.54,Tidak,1,2,-
+FUND-0194,Surabaya Branch,Giro,33.36,3.89,Tidak,1,1,-
+FUND-0195,Medan Branch,Deposito,211.25,5.89,Tidak,2,2,-
+FUND-0196,Bandung Branch,Tabungan,174.73,4.44,Tidak,2,2,-
+FUND-0197,Bandung Branch,Giro,13.85,2.02,Tidak,1,1,-
+FUND-0198,Jakarta Branch,Deposito,216.9,2.43,Tidak,1,2,-
+FUND-0199,Head Office,Tabungan,183.71,4.05,Tidak,1,2,-
+FUND-0200,Medan Branch,Deposito,489.95,2.35,Tidak,1,2,-
+FUND-0201,Surabaya Branch,Tabungan,1046.62,4.03,Tidak,1,1,-
+FUND-0202,Bandung Branch,Deposito,80.49,5.97,Tidak,1,2,-
+FUND-0203,Jakarta Branch,Deposito,274.68,3.69,Tidak,1,2,-
+FUND-0204,Jakarta Branch,Giro,195.08,4.43,Tidak,1,1,-
+FUND-0205,Medan Branch,Deposito,10.78,5.28,Tidak,1,2,-
+FUND-0206,Bandung Branch,Tabungan,40.68,3.03,Tidak,1,2,-
+FUND-0207,Head Office,Tabungan,252.12,2.46,Tidak,2,2,-
+FUND-0208,Bandung Branch,Giro,281.46,2.48,Tidak,2,1,-
+FUND-0209,Medan Branch,Tabungan,229.08,2.32,Tidak,1,2,-
+FUND-0210,Medan Branch,Tabungan,234.65,4.71,Tidak,1,1,-
+FUND-0211,Bandung Branch,Tabungan,1232.58,4.54,Tidak,2,2,-
+FUND-0212,Medan Branch,Deposito,74.23,4.9,Tidak,2,1,-
+FUND-0213,Bandung Branch,Deposito,86.66,8.48,Ya (Anomali),3,5,Bunga Funding tidak wajar (8.48%)
+FUND-0214,Surabaya Branch,Tabungan,75.63,2.17,Tidak,1,1,-
+FUND-0215,Bandung Branch,Giro,538.2,4.92,Tidak,1,1,-
+FUND-0216,Bandung Branch,Deposito,568.85,3.72,Tidak,2,1,-
+FUND-0217,Medan Branch,Giro,305.67,5.16,Tidak,1,2,-
+FUND-0218,Medan Branch,Tabungan,1252.26,5.43,Tidak,1,1,-
+FUND-0219,Jakarta Branch,Tabungan,241.95,4.33,Tidak,2,1,-
+FUND-0220,Jakarta Branch,Deposito,244.64,4.75,Tidak,2,2,-
+FUND-0221,Surabaya Branch,Tabungan,1114.08,2.57,Tidak,1,1,-
+FUND-0222,Jakarta Branch,Deposito,528.98,2.1,Tidak,2,1,-
+FUND-0223,Bandung Branch,Tabungan,273.5,2.29,Tidak,1,1,-
+FUND-0224,Medan Branch,Tabungan,236.75,4.42,Tidak,2,2,-
+FUND-0225,Jakarta Branch,Deposito,592.82,3.82,Tidak,2,2,-
+FUND-0226,Jakarta Branch,Deposito,362.06,2.11,Tidak,1,2,-
+FUND-0227,Surabaya Branch,Deposito,25.72,2.16,Tidak,2,2,-
+FUND-0228,Surabaya Branch,Tabungan,715.73,2.09,Tidak,2,1,-
+FUND-0229,Bandung Branch,Tabungan,71.73,5.6,Tidak,2,2,-
+FUND-0230,Medan Branch,Giro,471.84,5.55,Tidak,1,1,-
+FUND-0231,Surabaya Branch,Deposito,1633.84,3.15,Tidak,1,1,-
+FUND-0232,Jakarta Branch,Tabungan,399.8,3.36,Tidak,1,2,-
+FUND-0233,Medan Branch,Tabungan,727.54,4.17,Tidak,1,1,-
+FUND-0234,Medan Branch,Deposito,160.1,3.21,Tidak,1,1,-
+FUND-0235,Jakarta Branch,Giro,167.53,3.37,Tidak,1,1,-
+FUND-0236,Surabaya Branch,Deposito,444.31,3.39,Tidak,1,2,-
+FUND-0237,Jakarta Branch,Giro,345.59,4.5,Tidak,1,1,-
+FUND-0238,Medan Branch,Tabungan,498.29,5.52,Tidak,1,1,-
+FUND-0239,Head Office,Giro,261.38,9.72,Ya (Anomali),5,5,Bunga Funding tidak wajar (9.72%)
+FUND-0240,Head Office,Tabungan,650.32,5.64,Tidak,2,1,-
+FUND-0241,Bandung Branch,Deposito,791.54,2.52,Tidak,2,2,-
+FUND-0242,Jakarta Branch,Deposito,1058.15,3.1,Tidak,1,2,-
+FUND-0243,Jakarta Branch,Deposito,1991.33,3.85,Tidak,1,1,-
+FUND-0244,Bandung Branch,Giro,245.27,4.35,Tidak,2,2,-
+FUND-0245,Bandung Branch,Tabungan,254.32,5.05,Tidak,1,2,-
+FUND-0246,Bandung Branch,Deposito,1013.38,4.31,Tidak,1,1,-
+FUND-0247,Medan Branch,Deposito,733.08,5.31,Tidak,2,2,-
+FUND-0248,Jakarta Branch,Tabungan,67.85,2.8,Tidak,1,1,-
+FUND-0249,Medan Branch,Deposito,27932.76,5.39,Ya (Anomali),3,5,Penempatan/Penarikan sangat besar
+FUND-0250,Bandung Branch,Tabungan,19.65,5.71,Tidak,2,1,-
+FUND-0251,Jakarta Branch,Tabungan,599.69,4.89,Tidak,1,2,-
+FUND-0252,Medan Branch,Tabungan,825.94,3.43,Tidak,2,1,-
+FUND-0253,Medan Branch,Tabungan,14.45,5.83,Tidak,2,2,-
+FUND-0254,Bandung Branch,Tabungan,43365.78,5.31,Ya (Anomali),3,5,Penempatan/Penarikan sangat besar
+FUND-0255,Jakarta Branch,Giro,742.5,5.01,Tidak,1,1,-
+FUND-0256,Bandung Branch,Deposito,485.45,7.39,Ya (Anomali),4,5,Bunga Funding tidak wajar (7.39%)
+FUND-0257,Jakarta Branch,Giro,68.83,3.4,Tidak,2,1,-
+FUND-0258,Head Office,Deposito,1561.83,2.29,Tidak,1,2,-
+FUND-0259,Surabaya Branch,Giro,357.2,2.31,Tidak,2,2,-
+FUND-0260,Surabaya Branch,Tabungan,47.85,2.2,Tidak,2,2,-
+FUND-0261,Surabaya Branch,Deposito,174.95,2.93,Tidak,1,1,-
+FUND-0262,Bandung Branch,Deposito,1192.82,3.62,Tidak,2,2,-
+FUND-0263,Head Office,Giro,521.49,2.9,Tidak,1,1,-
+FUND-0264,Jakarta Branch,Giro,531.8,3.43,Tidak,1,1,-
+FUND-0265,Medan Branch,Deposito,308.33,4.01,Tidak,1,1,-
+FUND-0266,Jakarta Branch,Giro,583.82,2.29,Tidak,2,2,-
+FUND-0267,Medan Branch,Giro,824.71,5.29,Tidak,2,2,-
+FUND-0268,Jakarta Branch,Giro,756.6,2.57,Tidak,1,2,-
+FUND-0269,Head Office,Tabungan,81.84,3.14,Tidak,1,1,-
+FUND-0270,Medan Branch,Tabungan,11874.08,4.99,Ya (Anomali),4,4,Penempatan/Penarikan sangat besar
+FUND-0271,Bandung Branch,Giro,324.59,4.33,Tidak,1,1,-
+FUND-0272,Jakarta Branch,Giro,1346.01,2.33,Tidak,2,1,-
+FUND-0273,Jakarta Branch,Tabungan,1017.01,4.26,Tidak,1,1,-
+FUND-0274,Medan Branch,Tabungan,284.42,5.77,Tidak,2,1,-
+FUND-0275,Bandung Branch,Deposito,47206.84,4.7,Ya (Anomali),3,5,Penempatan/Penarikan sangat besar
+FUND-0276,Bandung Branch,Deposito,634.22,2.67,Tidak,2,1,-
+FUND-0277,Head Office,Tabungan,1515.65,5.04,Tidak,1,2,-
+FUND-0278,Bandung Branch,Giro,771.23,2.42,Tidak,2,1,-
+FUND-0279,Bandung Branch,Giro,1580.96,3.44,Tidak,2,1,-
+FUND-0280,Bandung Branch,Giro,127.15,3.83,Tidak,1,1,-
+FUND-0281,Surabaya Branch,Giro,739.58,2.21,Tidak,2,1,-
+FUND-0282,Head Office,Deposito,129.12,5.4,Tidak,1,2,-
+FUND-0283,Jakarta Branch,Tabungan,131.51,5.52,Tidak,1,2,-
+FUND-0284,Medan Branch,Giro,83.44,3.18,Tidak,1,1,-
+FUND-0285,Jakarta Branch,Deposito,527.58,3.26,Tidak,2,1,-
+FUND-0286,Head Office,Giro,1114.62,2.8,Tidak,2,2,-
+FUND-0287,Medan Branch,Tabungan,69.12,2.23,Tidak,1,1,-
+FUND-0288,Head Office,Deposito,17.4,5.34,Tidak,2,1,-
+FUND-0289,Bandung Branch,Tabungan,76.4,2.08,Tidak,2,2,-
+FUND-0290,Medan Branch,Tabungan,388.51,3.62,Tidak,1,1,-
+FUND-0291,Bandung Branch,Deposito,1665.21,3.86,Tidak,2,1,-
+FUND-0292,Jakarta Branch,Deposito,753.59,3.25,Tidak,2,1,-
+FUND-0293,Jakarta Branch,Deposito,42286.22,5.9,Ya (Anomali),4,3,Penempatan/Penarikan sangat besar
+FUND-0294,Medan Branch,Deposito,183.58,2.07,Tidak,2,1,-
+FUND-0295,Medan Branch,Deposito,242.4,10.23,Ya (Anomali),5,5,Bunga Funding tidak wajar (10.23%)
+FUND-0296,Head Office,Deposito,895.28,4.19,Tidak,1,1,-
+FUND-0297,Head Office,Deposito,92.63,2.83,Tidak,2,2,-
+FUND-0298,Bandung Branch,Giro,472.28,5.75,Tidak,1,1,-
+FUND-0299,Medan Branch,Tabungan,446.39,4.69,Tidak,2,1,-
+FUND-0300,Jakarta Branch,Deposito,536.28,4.12,Tidak,1,1,-
+FUND-0301,Head Office,Giro,124.69,5.11,Tidak,2,2,-
+FUND-0302,Head Office,Giro,949.29,5.58,Tidak,1,2,-
+FUND-0303,Jakarta Branch,Giro,384.61,5.93,Tidak,1,1,-
+FUND-0304,Head Office,Tabungan,840.0,4.57,Tidak,1,2,-
+FUND-0305,Bandung Branch,Deposito,37603.86,4.9,Ya (Anomali),4,3,Penempatan/Penarikan sangat besar
+FUND-0306,Medan Branch,Giro,32.79,2.92,Tidak,2,2,-
+FUND-0307,Jakarta Branch,Tabungan,228.69,5.04,Tidak,2,1,-
+FUND-0308,Medan Branch,Tabungan,1330.15,4.48,Tidak,2,1,-
+FUND-0309,Head Office,Tabungan,316.8,2.72,Tidak,2,2,-
+FUND-0310,Head Office,Giro,1149.8,3.93,Tidak,2,1,-
+FUND-0311,Jakarta Branch,Deposito,384.58,5.98,Tidak,1,2,-
+FUND-0312,Bandung Branch,Giro,516.04,2.44,Tidak,2,2,-
+FUND-0313,Surabaya Branch,Giro,379.64,5.81,Tidak,2,2,-
+FUND-0314,Jakarta Branch,Deposito,106.85,5.68,Tidak,1,1,-
+FUND-0315,Surabaya Branch,Deposito,894.19,2.06,Tidak,2,2,-
+FUND-0316,Surabaya Branch,Deposito,261.43,4.79,Tidak,1,2,-
+FUND-0317,Bandung Branch,Tabungan,972.83,3.57,Tidak,2,1,-
+FUND-0318,Surabaya Branch,Deposito,316.46,2.93,Tidak,2,1,-
+FUND-0319,Surabaya Branch,Giro,976.23,5.05,Tidak,2,2,-
+FUND-0320,Bandung Branch,Deposito,246.59,5.14,Tidak,1,2,-
+FUND-0321,Surabaya Branch,Giro,835.34,2.18,Tidak,1,1,-
+FUND-0322,Surabaya Branch,Tabungan,156.39,5.23,Tidak,1,2,-
+FUND-0323,Surabaya Branch,Giro,10.22,5.58,Tidak,1,1,-
+FUND-0324,Jakarta Branch,Giro,1558.85,5.96,Tidak,2,2,-
+FUND-0325,Jakarta Branch,Deposito,514.54,7.29,Ya (Anomali),5,5,Bunga Funding tidak wajar (7.29%)
+FUND-0326,Jakarta Branch,Deposito,2452.59,4.49,Tidak,2,2,-
+FUND-0327,Bandung Branch,Giro,949.55,3.66,Tidak,1,1,-
+FUND-0328,Head Office,Deposito,23.95,5.9,Tidak,2,1,-
+FUND-0329,Surabaya Branch,Tabungan,1575.43,2.91,Tidak,1,1,-
+FUND-0330,Surabaya Branch,Tabungan,292.27,2.9,Tidak,2,1,-
+FUND-0331,Bandung Branch,Deposito,207.51,3.71,Tidak,2,1,-
+FUND-0332,Surabaya Branch,Tabungan,1180.44,3.72,Tidak,1,2,-
+FUND-0333,Jakarta Branch,Deposito,876.26,5.05,Tidak,1,1,-
+FUND-0334,Head Office,Giro,157.39,2.82,Tidak,2,2,-
+FUND-0335,Medan Branch,Giro,515.36,2.13,Tidak,2,1,-
+FUND-0336,Surabaya Branch,Tabungan,11905.65,5.52,Ya (Anomali),4,3,Penempatan/Penarikan sangat besar
+FUND-0337,Jakarta Branch,Deposito,92.2,4.62,Tidak,2,2,-
+FUND-0338,Medan Branch,Deposito,286.89,10.83,Ya (Anomali),3,3,Bunga Funding tidak wajar (10.83%)
+FUND-0339,Head Office,Tabungan,38.09,4.09,Tidak,1,2,-
+FUND-0340,Medan Branch,Giro,191.16,3.22,Tidak,1,1,-
+FUND-0341,Jakarta Branch,Tabungan,1713.29,4.92,Tidak,1,2,-
+FUND-0342,Medan Branch,Giro,953.34,4.97,Tidak,1,2,-
+FUND-0343,Bandung Branch,Deposito,633.48,3.3,Tidak,2,2,-
+FUND-0344,Medan Branch,Giro,1171.09,3.48,Tidak,2,1,-
+FUND-0345,Surabaya Branch,Tabungan,259.77,5.02,Tidak,1,2,-
+FUND-0346,Surabaya Branch,Deposito,403.18,2.31,Tidak,1,2,-
+FUND-0347,Bandung Branch,Tabungan,448.26,5.12,Tidak,1,2,-
+FUND-0348,Jakarta Branch,Tabungan,470.09,3.06,Tidak,2,2,-
+FUND-0349,Surabaya Branch,Giro,64.08,5.04,Tidak,1,1,-
+FUND-0350,Head Office,Tabungan,1360.97,3.48,Tidak,1,1,-
+FUND-0351,Surabaya Branch,Giro,319.68,4.86,Tidak,2,1,-
+FUND-0352,Surabaya Branch,Deposito,999.13,4.92,Tidak,1,2,-
+FUND-0353,Jakarta Branch,Giro,221.82,2.78,Tidak,1,1,-
+FUND-0354,Medan Branch,Deposito,613.94,5.43,Tidak,2,1,-
+FUND-0355,Surabaya Branch,Giro,352.85,5.79,Tidak,1,1,-
+FUND-0356,Bandung Branch,Tabungan,672.96,5.14,Tidak,1,2,-
+FUND-0357,Medan Branch,Giro,15.74,5.36,Tidak,1,1,-
+FUND-0358,Head Office,Giro,143.92,3.75,Tidak,2,2,-
+FUND-0359,Jakarta Branch,Deposito,38738.16,4.19,Ya (Anomali),4,3,Penempatan/Penarikan sangat besar
+FUND-0360,Head Office,Tabungan,1533.17,4.86,Tidak,2,2,-
+FUND-0361,Medan Branch,Giro,575.29,5.24,Tidak,1,2,-
+FUND-0362,Medan Branch,Tabungan,358.09,11.68,Ya (Anomali),4,5,Bunga Funding tidak wajar (11.68%)
+FUND-0363,Medan Branch,Giro,21505.31,2.05,Ya (Anomali),5,3,Penempatan/Penarikan sangat besar
+FUND-0364,Head Office,Giro,213.27,4.49,Tidak,1,2,-
+FUND-0365,Medan Branch,Tabungan,775.68,2.27,Tidak,2,1,-
+FUND-0366,Head Office,Giro,212.08,11.72,Ya (Anomali),3,4,Bunga Funding tidak wajar (11.72%)
+FUND-0367,Medan Branch,Tabungan,769.33,2.46,Tidak,1,1,-
+FUND-0368,Bandung Branch,Giro,206.71,5.96,Tidak,1,2,-
+FUND-0369,Medan Branch,Deposito,309.02,2.05,Tidak,1,1,-
+FUND-0370,Head Office,Tabungan,1940.61,4.19,Tidak,2,2,-
+FUND-0371,Surabaya Branch,Giro,124.35,4.33,Tidak,2,2,-
+FUND-0372,Medan Branch,Giro,373.65,4.42,Tidak,1,1,-
+FUND-0373,Surabaya Branch,Deposito,595.23,4.2,Tidak,2,2,-
+FUND-0374,Bandung Branch,Tabungan,1308.63,10.48,Ya (Anomali),5,5,Bunga Funding tidak wajar (10.48%)
+FUND-0375,Jakarta Branch,Giro,17.61,3.07,Tidak,1,2,-
+FUND-0376,Bandung Branch,Deposito,623.16,4.7,Tidak,1,1,-
+FUND-0377,Medan Branch,Giro,465.24,3.08,Tidak,1,1,-
+FUND-0378,Surabaya Branch,Tabungan,94.11,2.42,Tidak,1,1,-
+FUND-0379,Surabaya Branch,Giro,123.22,5.53,Tidak,2,1,-
+FUND-0380,Head Office,Giro,20124.06,4.72,Ya (Anomali),5,3,Penempatan/Penarikan sangat besar
+FUND-0381,Surabaya Branch,Giro,490.19,4.9,Tidak,2,2,-
+FUND-0382,Head Office,Giro,354.62,4.66,Tidak,2,2,-
+FUND-0383,Jakarta Branch,Deposito,54.03,5.56,Tidak,2,1,-
+FUND-0384,Medan Branch,Deposito,369.46,5.27,Tidak,1,1,-
+FUND-0385,Head Office,Tabungan,405.79,2.92,Tidak,1,2,-
+FUND-0386,Jakarta Branch,Deposito,540.65,2.82,Tidak,2,2,-
+FUND-0387,Surabaya Branch,Deposito,24.97,5.65,Tidak,1,2,-
+FUND-0388,Surabaya Branch,Tabungan,1220.51,2.31,Tidak,2,1,-
+FUND-0389,Jakarta Branch,Deposito,464.53,2.86,Tidak,2,1,-
+FUND-0390,Surabaya Branch,Deposito,1091.26,3.33,Tidak,2,2,-
+FUND-0391,Jakarta Branch,Tabungan,782.69,3.13,Tidak,2,1,-
+FUND-0392,Head Office,Tabungan,2207.44,3.01,Tidak,2,1,-
+FUND-0393,Head Office,Tabungan,125.47,3.71,Tidak,2,2,-
+FUND-0394,Jakarta Branch,Giro,1244.07,5.46,Tidak,1,1,-
+FUND-0395,Head Office,Giro,274.95,5.15,Tidak,2,2,-
+FUND-0396,Head Office,Tabungan,356.01,5.33,Tidak,1,2,-
+FUND-0397,Head Office,Tabungan,281.84,5.14,Tidak,1,1,-
+FUND-0398,Bandung Branch,Tabungan,122.26,4.4,Tidak,2,1,-
+FUND-0399,Medan Branch,Giro,24.36,3.88,Tidak,1,1,-
+FUND-0400,Surabaya Branch,Giro,15.78,4.85,Tidak,1,1,-
+FUND-0401,Bandung Branch,Deposito,373.27,2.45,Tidak,2,2,-
+FUND-0402,Head Office,Deposito,647.49,4.99,Tidak,2,1,-
+FUND-0403,Jakarta Branch,Tabungan,14.0,5.22,Tidak,1,1,-
+FUND-0404,Head Office,Giro,157.11,4.21,Tidak,1,2,-
+FUND-0405,Medan Branch,Giro,890.47,5.49,Tidak,2,2,-
+FUND-0406,Head Office,Giro,510.13,5.15,Tidak,1,2,-
+FUND-0407,Jakarta Branch,Tabungan,201.81,2.93,Tidak,2,1,-
+FUND-0408,Medan Branch,Deposito,224.54,5.32,Tidak,2,1,-
+FUND-0409,Head Office,Tabungan,221.39,5.54,Tidak,1,2,-
+FUND-0410,Medan Branch,Deposito,185.45,2.05,Tidak,2,1,-
+FUND-0411,Surabaya Branch,Deposito,252.91,4.89,Tidak,1,1,-
+FUND-0412,Surabaya Branch,Tabungan,1003.79,4.96,Tidak,1,1,-
+FUND-0413,Head Office,Deposito,399.76,3.19,Tidak,2,2,-
+FUND-0414,Medan Branch,Deposito,1077.11,4.93,Tidak,2,1,-
+FUND-0415,Jakarta Branch,Giro,73.02,4.33,Tidak,1,2,-
+FUND-0416,Head Office,Deposito,149.68,2.67,Tidak,1,2,-
+FUND-0417,Surabaya Branch,Tabungan,434.21,5.0,Tidak,2,1,-
+FUND-0418,Surabaya Branch,Tabungan,1035.79,5.02,Tidak,1,1,-
+FUND-0419,Head Office,Deposito,123.87,5.01,Tidak,2,1,-
+FUND-0420,Medan Branch,Giro,21.2,4.3,Tidak,1,2,-
+FUND-0421,Surabaya Branch,Giro,1362.48,3.98,Tidak,2,1,-
+FUND-0422,Medan Branch,Deposito,70.68,4.05,Tidak,2,2,-
+FUND-0423,Surabaya Branch,Deposito,1522.5,5.09,Tidak,1,1,-
+FUND-0424,Surabaya Branch,Tabungan,569.27,5.43,Tidak,2,1,-
+FUND-0425,Bandung Branch,Deposito,637.0,2.89,Tidak,1,1,-
+FUND-0426,Surabaya Branch,Giro,708.45,4.79,Tidak,2,2,-
+FUND-0427,Jakarta Branch,Deposito,78.13,2.81,Tidak,2,2,-
+FUND-0428,Head Office,Tabungan,869.07,4.04,Tidak,1,2,-
+FUND-0429,Head Office,Tabungan,273.6,2.05,Tidak,1,1,-
+FUND-0430,Medan Branch,Tabungan,126.57,7.91,Ya (Anomali),5,3,Bunga Funding tidak wajar (7.91%)
+FUND-0431,Surabaya Branch,Tabungan,370.12,3.8,Tidak,1,1,-
+FUND-0432,Jakarta Branch,Tabungan,31.89,5.77,Tidak,2,2,-
+FUND-0433,Medan Branch,Deposito,478.77,4.92,Tidak,1,2,-
+FUND-0434,Bandung Branch,Deposito,33.19,3.48,Tidak,2,1,-
+FUND-0435,Medan Branch,Deposito,900.02,3.52,Tidak,2,1,-
+FUND-0436,Medan Branch,Deposito,60.12,4.53,Tidak,1,2,-
+FUND-0437,Surabaya Branch,Tabungan,287.62,4.32,Tidak,2,1,-
+FUND-0438,Bandung Branch,Giro,575.78,3.4,Tidak,2,1,-
+FUND-0439,Medan Branch,Deposito,634.55,2.83,Tidak,1,1,-
+FUND-0440,Jakarta Branch,Giro,257.77,3.39,Tidak,2,1,-
+FUND-0441,Jakarta Branch,Deposito,293.84,4.42,Tidak,2,1,-
+FUND-0442,Head Office,Deposito,719.96,4.17,Tidak,2,1,-
+FUND-0443,Bandung Branch,Giro,254.05,4.85,Tidak,1,1,-
+FUND-0444,Bandung Branch,Tabungan,998.49,4.4,Tidak,1,2,-
+FUND-0445,Head Office,Deposito,418.14,4.98,Tidak,2,2,-
+FUND-0446,Medan Branch,Deposito,309.62,3.78,Tidak,2,2,-
+FUND-0447,Bandung Branch,Deposito,390.98,4.2,Tidak,1,2,-
+FUND-0448,Jakarta Branch,Giro,386.16,2.9,Tidak,1,2,-
+FUND-0449,Jakarta Branch,Tabungan,541.68,3.11,Tidak,1,2,-
+FUND-0450,Surabaya Branch,Giro,872.0,5.11,Tidak,2,1,-
+FUND-0451,Bandung Branch,Giro,752.86,5.15,Tidak,1,2,-
+FUND-0452,Medan Branch,Tabungan,321.8,2.87,Tidak,1,2,-
+FUND-0453,Head Office,Giro,879.57,5.55,Tidak,1,1,-
+FUND-0454,Head Office,Tabungan,290.17,5.14,Tidak,2,2,-
+FUND-0455,Medan Branch,Deposito,296.72,4.94,Tidak,2,2,-
+FUND-0456,Surabaya Branch,Tabungan,847.56,4.99,Tidak,2,2,-
+FUND-0457,Head Office,Deposito,1177.01,5.31,Tidak,2,2,-
+FUND-0458,Bandung Branch,Giro,12.87,4.7,Tidak,1,2,-
+FUND-0459,Surabaya Branch,Giro,201.44,3.22,Tidak,1,1,-
+FUND-0460,Bandung Branch,Deposito,270.45,8.56,Ya (Anomali),4,4,Bunga Funding tidak wajar (8.56%)
+FUND-0461,Jakarta Branch,Giro,622.36,5.67,Tidak,1,2,-
+FUND-0462,Surabaya Branch,Tabungan,12.68,4.05,Tidak,1,1,-
+FUND-0463,Head Office,Deposito,39320.14,3.61,Ya (Anomali),4,4,Penempatan/Penarikan sangat besar
+FUND-0464,Surabaya Branch,Giro,431.39,4.32,Tidak,1,1,-
+FUND-0465,Surabaya Branch,Deposito,491.86,3.49,Tidak,1,2,-
+FUND-0466,Surabaya Branch,Tabungan,350.76,3.77,Tidak,1,1,-
+FUND-0467,Surabaya Branch,Tabungan,360.59,5.76,Tidak,2,2,-
+FUND-0468,Bandung Branch,Giro,1006.23,3.45,Tidak,1,2,-
+FUND-0469,Jakarta Branch,Tabungan,37.96,4.53,Tidak,1,1,-
+FUND-0470,Medan Branch,Deposito,414.49,2.28,Tidak,1,1,-
+FUND-0471,Surabaya Branch,Tabungan,28116.44,3.66,Ya (Anomali),4,4,Penempatan/Penarikan sangat besar
+FUND-0472,Head Office,Deposito,22.64,4.74,Tidak,2,2,-
+FUND-0473,Surabaya Branch,Deposito,588.7,3.82,Tidak,1,2,-
+FUND-0474,Head Office,Tabungan,1076.91,5.81,Tidak,2,2,-
+FUND-0475,Bandung Branch,Giro,50.91,4.57,Tidak,1,2,-
+FUND-0476,Head Office,Tabungan,616.41,11.58,Ya (Anomali),5,4,Bunga Funding tidak wajar (11.58%)
+FUND-0477,Medan Branch,Deposito,1003.88,2.84,Tidak,2,1,-
+FUND-0478,Jakarta Branch,Deposito,178.8,4.95,Tidak,2,1,-
+FUND-0479,Head Office,Tabungan,1148.29,2.12,Tidak,1,1,-
+FUND-0480,Head Office,Giro,949.93,7.34,Ya (Anomali),5,3,Bunga Funding tidak wajar (7.34%)
+FUND-0481,Jakarta Branch,Giro,192.68,5.57,Tidak,1,2,-
+FUND-0482,Medan Branch,Deposito,102.03,3.66,Tidak,2,2,-
+FUND-0483,Surabaya Branch,Deposito,48.88,5.77,Tidak,2,2,-
+FUND-0484,Head Office,Giro,100.77,5.94,Tidak,2,1,-
+FUND-0485,Jakarta Branch,Tabungan,126.14,2.62,Tidak,2,2,-
+FUND-0486,Bandung Branch,Deposito,886.13,2.08,Tidak,1,2,-
+FUND-0487,Jakarta Branch,Deposito,1861.96,3.21,Tidak,2,1,-
+FUND-0488,Bandung Branch,Giro,49.78,5.11,Tidak,2,1,-
+FUND-0489,Medan Branch,Tabungan,893.97,2.39,Tidak,2,1,-
+FUND-0490,Surabaya Branch,Giro,335.52,2.62,Tidak,2,2,-
+FUND-0491,Jakarta Branch,Tabungan,11.57,3.25,Tidak,2,2,-
+FUND-0492,Head Office,Tabungan,2084.97,3.77,Tidak,1,1,-
+FUND-0493,Medan Branch,Tabungan,236.13,3.13,Tidak,1,2,-
+FUND-0494,Jakarta Branch,Deposito,2410.16,4.19,Tidak,1,2,-
+FUND-0495,Head Office,Giro,77.54,2.18,Tidak,2,1,-
+FUND-0496,Jakarta Branch,Giro,17.97,5.76,Tidak,2,1,-
+FUND-0497,Bandung Branch,Tabungan,420.01,4.62,Tidak,1,2,-
+FUND-0498,Jakarta Branch,Deposito,814.01,2.47,Tidak,2,1,-
+FUND-0499,Jakarta Branch,Deposito,370.62,3.66,Tidak,1,2,-
+FUND-0500,Jakarta Branch,Giro,366.83,5.27,Tidak,1,1,-
+FUND-0501,Medan Branch,Deposito,267.73,5.48,Tidak,2,2,-
+FUND-0502,Jakarta Branch,Deposito,173.85,4.97,Tidak,2,1,-
+FUND-0503,Head Office,Tabungan,972.97,2.66,Tidak,2,2,-
+FUND-0504,Bandung Branch,Deposito,472.98,5.61,Tidak,2,2,-
+FUND-0505,Bandung Branch,Tabungan,780.06,3.48,Tidak,1,2,-
+FUND-0506,Jakarta Branch,Giro,215.85,5.58,Tidak,2,1,-
+FUND-0507,Medan Branch,Deposito,2243.65,9.6,Ya (Anomali),5,5,Bunga Funding tidak wajar (9.6%)
+FUND-0508,Medan Branch,Giro,1032.69,2.0,Tidak,2,2,-
+FUND-0509,Head Office,Giro,92.47,5.0,Tidak,2,2,-
+FUND-0510,Jakarta Branch,Deposito,342.89,2.38,Tidak,1,1,-
+FUND-0511,Bandung Branch,Deposito,126.31,3.17,Tidak,1,1,-
+FUND-0512,Medan Branch,Giro,323.96,3.87,Tidak,1,1,-
+FUND-0513,Jakarta Branch,Deposito,291.05,3.95,Tidak,2,1,-
+FUND-0514,Medan Branch,Tabungan,263.64,5.08,Tidak,1,1,-
+FUND-0515,Medan Branch,Tabungan,124.36,2.12,Tidak,1,1,-
+FUND-0516,Bandung Branch,Deposito,1217.35,4.46,Tidak,2,1,-
+FUND-0517,Surabaya Branch,Giro,27.77,2.2,Tidak,1,1,-
+FUND-0518,Head Office,Deposito,97.58,8.19,Ya (Anomali),5,3,Bunga Funding tidak wajar (8.19%)
+FUND-0519,Head Office,Deposito,114.83,5.66,Tidak,1,2,-
+FUND-0520,Bandung Branch,Giro,36060.63,4.44,Ya (Anomali),3,4,Penempatan/Penarikan sangat besar
+FUND-0521,Medan Branch,Giro,1333.56,4.26,Tidak,1,1,-
+FUND-0522,Jakarta Branch,Tabungan,886.82,2.08,Tidak,2,2,-
+FUND-0523,Medan Branch,Giro,36714.72,2.94,Ya (Anomali),5,5,Penempatan/Penarikan sangat besar
+FUND-0524,Bandung Branch,Tabungan,577.38,4.45,Tidak,2,1,-
+FUND-0525,Head Office,Giro,1090.78,5.79,Tidak,2,2,-
+FUND-0526,Medan Branch,Deposito,38249.85,3.13,Ya (Anomali),5,4,Penempatan/Penarikan sangat besar
+FUND-0527,Head Office,Tabungan,86.72,3.11,Tidak,1,2,-
+FUND-0528,Jakarta Branch,Tabungan,2405.51,2.36,Tidak,2,1,-
+FUND-0529,Head Office,Tabungan,311.48,5.76,Tidak,2,2,-
+FUND-0530,Head Office,Deposito,629.17,2.96,Tidak,1,1,-
+FUND-0531,Surabaya Branch,Deposito,1232.26,3.8,Tidak,1,2,-
+FUND-0532,Surabaya Branch,Deposito,1185.71,2.24,Tidak,2,2,-
+FUND-0533,Surabaya Branch,Deposito,184.26,2.71,Tidak,2,2,-
+FUND-0534,Head Office,Deposito,320.31,5.14,Tidak,1,2,-
+FUND-0535,Bandung Branch,Tabungan,979.43,4.87,Tidak,2,2,-
+FUND-0536,Head Office,Deposito,187.52,3.18,Tidak,2,1,-
+FUND-0537,Bandung Branch,Tabungan,1418.55,4.92,Tidak,2,1,-
+FUND-0538,Bandung Branch,Deposito,105.18,5.29,Tidak,2,1,-
+FUND-0539,Surabaya Branch,Giro,1506.86,4.73,Tidak,2,2,-
+FUND-0540,Medan Branch,Tabungan,448.06,4.53,Tidak,1,2,-
+FUND-0541,Jakarta Branch,Giro,14234.13,2.18,Ya (Anomali),5,4,Penempatan/Penarikan sangat besar
+FUND-0542,Surabaya Branch,Tabungan,274.54,4.8,Tidak,2,1,-
+FUND-0543,Surabaya Branch,Giro,156.47,2.33,Tidak,2,1,-
+FUND-0544,Medan Branch,Deposito,19051.01,2.3,Ya (Anomali),5,4,Penempatan/Penarikan sangat besar
+FUND-0545,Jakarta Branch,Deposito,547.52,2.13,Tidak,1,2,-
+FUND-0546,Head Office,Deposito,429.64,2.69,Tidak,2,1,-
+FUND-0547,Head Office,Tabungan,2064.24,5.27,Tidak,1,1,-
+FUND-0548,Surabaya Branch,Giro,223.49,10.46,Ya (Anomali),5,4,Bunga Funding tidak wajar (10.46%)
+FUND-0549,Jakarta Branch,Deposito,155.75,4.46,Tidak,2,1,-
+FUND-0550,Surabaya Branch,Giro,869.34,5.29,Tidak,2,2,-
+FUND-0551,Bandung Branch,Giro,829.21,3.45,Tidak,1,2,-
+FUND-0552,Surabaya Branch,Deposito,324.33,2.34,Tidak,2,1,-
+FUND-0553,Surabaya Branch,Deposito,249.82,2.88,Tidak,2,1,-
+FUND-0554,Head Office,Giro,317.28,3.54,Tidak,2,1,-
+FUND-0555,Head Office,Deposito,1367.16,2.47,Tidak,1,2,-
+FUND-0556,Head Office,Deposito,332.75,2.13,Tidak,1,2,-
+FUND-0557,Bandung Branch,Deposito,1782.84,4.63,Tidak,2,1,-
+FUND-0558,Head Office,Tabungan,280.36,2.27,Tidak,2,2,-
+FUND-0559,Jakarta Branch,Giro,552.03,9.75,Ya (Anomali),4,3,Bunga Funding tidak wajar (9.75%)
+FUND-0560,Medan Branch,Giro,1648.54,5.6,Tidak,1,1,-
+FUND-0561,Jakarta Branch,Tabungan,395.86,4.13,Tidak,2,1,-
+FUND-0562,Jakarta Branch,Giro,16251.35,3.15,Ya (Anomali),4,3,Penempatan/Penarikan sangat besar
+FUND-0563,Head Office,Deposito,201.14,2.38,Tidak,2,1,-
+FUND-0564,Medan Branch,Giro,915.47,8.9,Ya (Anomali),3,3,Bunga Funding tidak wajar (8.9%)
+FUND-0565,Medan Branch,Deposito,25929.11,2.37,Ya (Anomali),4,5,Penempatan/Penarikan sangat besar
+FUND-0566,Medan Branch,Tabungan,14.05,4.63,Tidak,2,1,-
+FUND-0567,Bandung Branch,Deposito,740.79,2.43,Tidak,1,2,-
+FUND-0568,Head Office,Giro,406.45,3.0,Tidak,2,2,-
+FUND-0569,Medan Branch,Giro,1088.62,2.86,Tidak,2,2,-
+FUND-0570,Bandung Branch,Giro,606.51,4.85,Tidak,2,1,-
+FUND-0571,Surabaya Branch,Tabungan,983.13,2.84,Tidak,1,1,-
+FUND-0572,Surabaya Branch,Tabungan,250.84,2.53,Tidak,1,2,-
+FUND-0573,Bandung Branch,Giro,3030.92,5.12,Tidak,1,1,-
+FUND-0574,Bandung Branch,Deposito,191.56,3.72,Tidak,2,1,-
+FUND-0575,Head Office,Tabungan,282.23,5.55,Tidak,2,1,-
+FUND-0576,Head Office,Giro,79.92,5.11,Tidak,1,2,-
+FUND-0577,Surabaya Branch,Giro,654.1,5.19,Tidak,1,1,-
+FUND-0578,Medan Branch,Tabungan,36.91,5.22,Tidak,2,1,-
+FUND-0579,Surabaya Branch,Tabungan,143.94,2.31,Tidak,2,2,-
+FUND-0580,Medan Branch,Tabungan,163.61,3.22,Tidak,2,1,-
+FUND-0581,Medan Branch,Deposito,1318.08,2.14,Tidak,2,2,-
+FUND-0582,Head Office,Deposito,985.81,2.04,Tidak,2,1,-
+FUND-0583,Jakarta Branch,Giro,198.22,5.13,Tidak,2,2,-
+FUND-0584,Jakarta Branch,Tabungan,427.6,9.68,Ya (Anomali),5,5,Bunga Funding tidak wajar (9.68%)
+FUND-0585,Bandung Branch,Deposito,369.93,2.53,Tidak,2,1,-
+FUND-0586,Head Office,Tabungan,99.17,3.64,Tidak,2,2,-
+FUND-0587,Medan Branch,Giro,55.83,7.25,Ya (Anomali),5,3,Bunga Funding tidak wajar (7.25%)
+FUND-0588,Jakarta Branch,Deposito,708.11,9.21,Ya (Anomali),5,5,Bunga Funding tidak wajar (9.21%)
+FUND-0589,Medan Branch,Deposito,97.99,4.12,Tidak,2,1,-
+FUND-0590,Jakarta Branch,Deposito,93.56,5.04,Tidak,2,1,-
+FUND-0591,Jakarta Branch,Giro,272.51,3.44,Tidak,2,1,-
+FUND-0592,Jakarta Branch,Tabungan,258.72,2.14,Tidak,1,2,-
+FUND-0593,Head Office,Deposito,160.44,4.57,Tidak,1,1,-
+FUND-0594,Surabaya Branch,Giro,140.68,3.19,Tidak,2,1,-
+FUND-0595,Medan Branch,Tabungan,884.54,4.69,Tidak,2,2,-
+FUND-0596,Head Office,Giro,94.99,3.59,Tidak,2,2,-
+FUND-0597,Head Office,Tabungan,16248.06,4.69,Ya (Anomali),5,5,Penempatan/Penarikan sangat besar
+FUND-0598,Head Office,Giro,727.06,3.41,Tidak,2,2,-
+FUND-0599,Head Office,Tabungan,740.52,5.94,Tidak,1,1,-
+FUND-0600,Head Office,Deposito,557.36,4.48,Tidak,2,2,-
+FUND-0601,Bandung Branch,Tabungan,290.73,2.09,Tidak,2,2,-
+FUND-0602,Medan Branch,Giro,472.15,2.4,Tidak,1,1,-
+FUND-0603,Head Office,Giro,348.87,3.88,Tidak,2,1,-
+FUND-0604,Medan Branch,Tabungan,793.82,5.12,Tidak,1,2,-
+FUND-0605,Bandung Branch,Deposito,15403.21,2.24,Ya (Anomali),5,4,Penempatan/Penarikan sangat besar
+FUND-0606,Bandung Branch,Deposito,735.85,8.89,Ya (Anomali),3,3,Bunga Funding tidak wajar (8.89%)
+FUND-0607,Medan Branch,Tabungan,205.65,5.77,Tidak,2,2,-
+FUND-0608,Jakarta Branch,Tabungan,535.52,3.0,Tidak,2,2,-
+FUND-0609,Surabaya Branch,Giro,70.2,4.81,Tidak,1,2,-
+FUND-0610,Jakarta Branch,Deposito,274.98,4.38,Tidak,2,2,-
+FUND-0611,Jakarta Branch,Tabungan,831.9,4.49,Tidak,2,1,-
+FUND-0612,Jakarta Branch,Deposito,568.66,5.11,Tidak,1,2,-
+FUND-0613,Head Office,Tabungan,828.73,4.53,Tidak,2,1,-
+FUND-0614,Bandung Branch,Tabungan,100.7,9.73,Ya (Anomali),3,4,Bunga Funding tidak wajar (9.73%)
+FUND-0615,Jakarta Branch,Deposito,1003.92,5.2,Tidak,2,2,-
+FUND-0616,Bandung Branch,Tabungan,658.85,5.97,Tidak,2,2,-
+FUND-0617,Medan Branch,Tabungan,194.0,4.42,Tidak,1,2,-
+FUND-0618,Surabaya Branch,Giro,156.27,4.32,Tidak,2,2,-
+FUND-0619,Medan Branch,Tabungan,207.13,5.7,Tidak,2,1,-
+FUND-0620,Medan Branch,Tabungan,587.0,2.17,Tidak,1,1,-
+FUND-0621,Head Office,Tabungan,77.49,2.51,Tidak,1,2,-
+FUND-0622,Surabaya Branch,Giro,355.55,3.84,Tidak,1,1,-
+FUND-0623,Medan Branch,Deposito,180.02,4.58,Tidak,1,2,-
+FUND-0624,Medan Branch,Giro,204.84,2.05,Tidak,1,1,-
+FUND-0625,Surabaya Branch,Giro,854.45,2.37,Tidak,2,2,-
+FUND-0626,Surabaya Branch,Deposito,412.72,5.6,Tidak,2,1,-
+FUND-0627,Medan Branch,Giro,2257.51,4.67,Tidak,1,2,-
+FUND-0628,Surabaya Branch,Deposito,49071.77,3.92,Ya (Anomali),5,3,Penempatan/Penarikan sangat besar
+FUND-0629,Medan Branch,Giro,1119.67,2.26,Tidak,2,2,-
+FUND-0630,Medan Branch,Deposito,201.59,3.91,Tidak,1,2,-
+FUND-0631,Head Office,Tabungan,603.15,4.37,Tidak,2,2,-
+FUND-0632,Jakarta Branch,Giro,73.67,4.67,Tidak,2,1,-
+FUND-0633,Medan Branch,Giro,287.51,5.22,Tidak,2,1,-
+FUND-0634,Bandung Branch,Giro,569.97,5.12,Tidak,1,1,-
+FUND-0635,Jakarta Branch,Giro,806.07,3.97,Tidak,2,2,-
+FUND-0636,Jakarta Branch,Tabungan,380.71,4.2,Tidak,2,2,-
+FUND-0637,Jakarta Branch,Giro,748.14,3.11,Tidak,1,1,-
+FUND-0638,Head Office,Tabungan,331.38,8.48,Ya (Anomali),5,4,Bunga Funding tidak wajar (8.48%)
+FUND-0639,Medan Branch,Tabungan,264.72,3.09,Tidak,2,1,-
+FUND-0640,Head Office,Tabungan,1896.82,2.62,Tidak,1,2,-
+FUND-0641,Medan Branch,Tabungan,48.79,5.57,Tidak,2,2,-
+FUND-0642,Head Office,Deposito,745.81,4.8,Tidak,2,1,-
+FUND-0643,Head Office,Deposito,669.11,4.12,Tidak,1,1,-
+FUND-0644,Bandung Branch,Giro,190.5,5.33,Tidak,1,1,-
+FUND-0645,Head Office,Deposito,573.67,5.72,Tidak,2,1,-
+FUND-0646,Surabaya Branch,Deposito,790.36,4.2,Tidak,2,2,-
+FUND-0647,Bandung Branch,Giro,855.78,3.38,Tidak,1,1,-
+FUND-0648,Head Office,Giro,41.53,2.66,Tidak,1,2,-
+FUND-0649,Jakarta Branch,Giro,1425.52,2.46,Tidak,1,2,-
+FUND-0650,Surabaya Branch,Deposito,10.09,5.94,Tidak,2,2,-
+FUND-0651,Surabaya Branch,Deposito,262.88,3.83,Tidak,1,2,-
+FUND-0652,Surabaya Branch,Giro,82.72,4.92,Tidak,1,2,-
+FUND-0653,Bandung Branch,Tabungan,382.49,3.05,Tidak,2,2,-
+FUND-0654,Head Office,Giro,98.69,3.19,Tidak,1,2,-
+FUND-0655,Head Office,Tabungan,608.99,4.48,Tidak,2,1,-
+FUND-0656,Jakarta Branch,Tabungan,61.9,3.45,Tidak,1,2,-
+FUND-0657,Jakarta Branch,Giro,387.48,3.18,Tidak,2,1,-
+FUND-0658,Surabaya Branch,Giro,104.42,2.59,Tidak,2,2,-
+FUND-0659,Jakarta Branch,Giro,242.25,5.48,Tidak,1,1,-
+FUND-0660,Bandung Branch,Deposito,327.36,3.28,Tidak,1,2,-
+FUND-0661,Head Office,Tabungan,793.69,3.26,Tidak,2,2,-
+FUND-0662,Surabaya Branch,Deposito,118.58,3.23,Tidak,2,2,-
+FUND-0663,Jakarta Branch,Deposito,207.03,5.95,Tidak,1,2,-
+FUND-0664,Bandung Branch,Giro,326.99,5.21,Tidak,2,2,-
+FUND-0665,Bandung Branch,Deposito,1137.21,2.04,Tidak,2,1,-
+FUND-0666,Jakarta Branch,Giro,219.16,4.47,Tidak,2,2,-
+FUND-0667,Head Office,Tabungan,428.38,2.91,Tidak,2,1,-
+FUND-0668,Jakarta Branch,Giro,71.91,2.1,Tidak,2,2,-
+FUND-0669,Surabaya Branch,Deposito,707.42,3.84,Tidak,1,1,-
+FUND-0670,Jakarta Branch,Deposito,300.94,2.79,Tidak,2,1,-
+FUND-0671,Bandung Branch,Giro,45.27,4.01,Tidak,2,1,-
+FUND-0672,Jakarta Branch,Giro,304.74,11.33,Ya (Anomali),5,5,Bunga Funding tidak wajar (11.33%)
+FUND-0673,Head Office,Deposito,40547.69,4.29,Ya (Anomali),5,4,Penempatan/Penarikan sangat besar
+FUND-0674,Medan Branch,Tabungan,500.85,10.71,Ya (Anomali),3,5,Bunga Funding tidak wajar (10.71%)
+FUND-0675,Jakarta Branch,Tabungan,974.84,3.54,Tidak,1,2,-
+FUND-0676,Head Office,Giro,117.94,3.08,Tidak,1,2,-
+FUND-0677,Head Office,Tabungan,412.92,2.1,Tidak,1,1,-
+FUND-0678,Bandung Branch,Deposito,159.27,2.81,Tidak,1,2,-
+FUND-0679,Head Office,Giro,873.94,5.11,Tidak,1,1,-
+FUND-0680,Head Office,Deposito,210.53,3.8,Tidak,1,1,-
+FUND-0681,Head Office,Deposito,1391.74,3.81,Tidak,2,2,-
+FUND-0682,Head Office,Tabungan,580.59,5.03,Tidak,2,2,-
+FUND-0683,Surabaya Branch,Giro,13645.63,4.76,Ya (Anomali),4,5,Penempatan/Penarikan sangat besar
+FUND-0684,Surabaya Branch,Giro,523.36,4.68,Tidak,2,1,-
+FUND-0685,Bandung Branch,Tabungan,22.15,3.66,Tidak,1,1,-
+FUND-0686,Jakarta Branch,Deposito,1580.04,2.39,Tidak,2,1,-
+FUND-0687,Head Office,Deposito,259.73,3.26,Tidak,2,2,-
+FUND-0688,Jakarta Branch,Deposito,808.54,2.72,Tidak,1,2,-
+FUND-0689,Jakarta Branch,Deposito,1288.31,8.75,Ya (Anomali),5,5,Bunga Funding tidak wajar (8.75%)
+FUND-0690,Bandung Branch,Giro,1046.96,2.96,Tidak,1,1,-
+FUND-0691,Head Office,Giro,273.54,3.6,Tidak,2,2,-
+FUND-0692,Head Office,Tabungan,213.38,5.2,Tidak,1,2,-
+FUND-0693,Medan Branch,Tabungan,903.72,4.31,Tidak,2,2,-
+FUND-0694,Jakarta Branch,Giro,598.91,2.24,Tidak,1,2,-
+FUND-0695,Jakarta Branch,Giro,267.7,4.19,Tidak,1,2,-
+FUND-0696,Surabaya Branch,Deposito,572.67,2.54,Tidak,2,2,-
+FUND-0697,Medan Branch,Deposito,1500.65,2.63,Tidak,2,2,-
+FUND-0698,Surabaya Branch,Tabungan,126.8,5.97,Tidak,2,1,-
+FUND-0699,Surabaya Branch,Giro,280.98,3.94,Tidak,2,1,-
+FUND-0700,Surabaya Branch,Tabungan,98.05,4.3,Tidak,1,2,-
+FUND-0701,Bandung Branch,Giro,127.93,4.28,Tidak,1,1,-
+FUND-0702,Bandung Branch,Deposito,767.55,3.42,Tidak,2,1,-
+FUND-0703,Surabaya Branch,Tabungan,428.96,4.78,Tidak,2,1,-
+FUND-0704,Medan Branch,Tabungan,344.89,4.44,Tidak,2,2,-
+FUND-0705,Jakarta Branch,Giro,467.27,3.68,Tidak,1,2,-
+FUND-0706,Medan Branch,Deposito,352.83,2.03,Tidak,1,2,-
+FUND-0707,Head Office,Tabungan,449.53,2.1,Tidak,2,2,-
+FUND-0708,Bandung Branch,Deposito,57.94,3.89,Tidak,1,1,-
+FUND-0709,Jakarta Branch,Tabungan,378.42,3.63,Tidak,1,2,-
+FUND-0710,Jakarta Branch,Deposito,999.04,2.09,Tidak,2,1,-
+FUND-0711,Head Office,Giro,840.79,4.39,Tidak,1,2,-
+FUND-0712,Head Office,Tabungan,434.46,5.65,Tidak,2,2,-
+FUND-0713,Surabaya Branch,Tabungan,151.75,2.79,Tidak,2,2,-
+FUND-0714,Bandung Branch,Deposito,288.0,4.35,Tidak,1,1,-
+FUND-0715,Bandung Branch,Deposito,104.27,2.35,Tidak,2,1,-
+FUND-0716,Medan Branch,Tabungan,265.67,3.13,Tidak,2,2,-
+FUND-0717,Surabaya Branch,Giro,562.63,4.6,Tidak,1,2,-
+FUND-0718,Surabaya Branch,Deposito,93.49,2.08,Tidak,2,1,-
+FUND-0719,Surabaya Branch,Deposito,553.88,4.26,Tidak,1,1,-
+FUND-0720,Surabaya Branch,Deposito,646.76,5.99,Tidak,1,2,-
+FUND-0721,Bandung Branch,Tabungan,141.38,2.2,Tidak,2,1,-
+FUND-0722,Bandung Branch,Tabungan,84.32,2.88,Tidak,1,1,-
+FUND-0723,Surabaya Branch,Tabungan,146.6,4.7,Tidak,2,1,-
+FUND-0724,Medan Branch,Tabungan,274.4,3.25,Tidak,2,1,-
+FUND-0725,Jakarta Branch,Giro,1373.19,4.58,Tidak,2,2,-
+FUND-0726,Jakarta Branch,Giro,598.27,5.06,Tidak,1,1,-
+FUND-0727,Medan Branch,Tabungan,566.93,2.52,Tidak,2,1,-
+FUND-0728,Surabaya Branch,Giro,361.05,2.83,Tidak,1,2,-
+FUND-0729,Bandung Branch,Deposito,693.67,4.58,Tidak,2,1,-
+FUND-0730,Jakarta Branch,Deposito,120.72,3.08,Tidak,1,2,-
+FUND-0731,Head Office,Deposito,705.71,3.48,Tidak,2,1,-
+FUND-0732,Head Office,Tabungan,1575.11,2.73,Tidak,1,2,-
+FUND-0733,Medan Branch,Deposito,342.93,2.25,Tidak,1,1,-
+FUND-0734,Surabaya Branch,Giro,837.29,3.27,Tidak,2,2,-
+FUND-0735,Jakarta Branch,Tabungan,983.26,5.43,Tidak,1,1,-
+FUND-0736,Surabaya Branch,Giro,1460.43,4.76,Tidak,1,2,-
+FUND-0737,Jakarta Branch,Deposito,528.84,4.0,Tidak,1,1,-
+FUND-0738,Medan Branch,Deposito,820.75,3.25,Tidak,1,2,-
+FUND-0739,Medan Branch,Deposito,209.36,5.81,Tidak,2,1,-
+FUND-0740,Head Office,Tabungan,1467.07,5.25,Tidak,2,1,-
+FUND-0741,Surabaya Branch,Giro,620.46,2.53,Tidak,1,1,-
+FUND-0742,Head Office,Tabungan,1041.95,3.01,Tidak,2,2,-
+FUND-0743,Surabaya Branch,Tabungan,332.63,4.87,Tidak,2,1,-
+FUND-0744,Head Office,Deposito,915.29,2.67,Tidak,2,1,-
+FUND-0745,Bandung Branch,Tabungan,367.81,4.88,Tidak,2,1,-
+FUND-0746,Bandung Branch,Tabungan,894.69,5.31,Tidak,1,2,-
+FUND-0747,Bandung Branch,Deposito,565.87,5.36,Tidak,2,1,-
+FUND-0748,Bandung Branch,Tabungan,656.17,5.52,Tidak,1,1,-
+FUND-0749,Jakarta Branch,Deposito,34.17,5.55,Tidak,2,2,-
+FUND-0750,Bandung Branch,Deposito,167.74,4.53,Tidak,1,2,-
+FUND-0751,Medan Branch,Deposito,756.95,3.19,Tidak,1,1,-
+FUND-0752,Medan Branch,Deposito,402.91,2.04,Tidak,2,2,-
+FUND-0753,Jakarta Branch,Tabungan,220.87,3.43,Tidak,2,1,-
+FUND-0754,Bandung Branch,Deposito,362.13,5.52,Tidak,2,1,-
+FUND-0755,Bandung Branch,Deposito,33814.65,5.93,Ya (Anomali),3,3,Penempatan/Penarikan sangat besar
+FUND-0756,Bandung Branch,Tabungan,1137.17,5.27,Tidak,1,1,-
+FUND-0757,Head Office,Tabungan,36431.94,2.55,Ya (Anomali),4,4,Penempatan/Penarikan sangat besar
+FUND-0758,Surabaya Branch,Giro,160.28,9.85,Ya (Anomali),3,3,Bunga Funding tidak wajar (9.85%)
+FUND-0759,Head Office,Tabungan,413.52,2.42,Tidak,2,1,-
+FUND-0760,Surabaya Branch,Tabungan,708.88,5.29,Tidak,2,2,-
+FUND-0761,Bandung Branch,Giro,141.88,4.89,Tidak,1,2,-
+FUND-0762,Bandung Branch,Tabungan,47.9,2.97,Tidak,2,2,-
+FUND-0763,Head Office,Tabungan,701.91,2.94,Tidak,1,2,-
+FUND-0764,Head Office,Tabungan,703.67,2.93,Tidak,2,2,-
+FUND-0765,Surabaya Branch,Tabungan,310.92,2.32,Tidak,1,1,-
+FUND-0766,Medan Branch,Giro,1059.63,5.26,Tidak,1,1,-
+FUND-0767,Surabaya Branch,Tabungan,22828.98,2.13,Ya (Anomali),5,4,Penempatan/Penarikan sangat besar
+FUND-0768,Head Office,Tabungan,2432.71,4.15,Tidak,2,2,-
+FUND-0769,Head Office,Giro,222.0,8.17,Ya (Anomali),5,4,Bunga Funding tidak wajar (8.17%)
+FUND-0770,Jakarta Branch,Deposito,10.3,5.31,Tidak,2,2,-
+FUND-0771,Head Office,Giro,45.31,2.93,Tidak,1,1,-
+FUND-0772,Jakarta Branch,Deposito,280.12,3.17,Tidak,1,1,-
+FUND-0773,Medan Branch,Giro,349.58,5.62,Tidak,2,1,-
+FUND-0774,Surabaya Branch,Giro,41.06,5.81,Tidak,2,1,-
+FUND-0775,Surabaya Branch,Tabungan,99.73,3.28,Tidak,1,2,-
+FUND-0776,Jakarta Branch,Deposito,17605.15,4.54,Ya (Anomali),3,3,Penempatan/Penarikan sangat besar
+FUND-0777,Surabaya Branch,Tabungan,333.63,2.69,Tidak,2,1,-
+FUND-0778,Head Office,Deposito,339.71,3.76,Tidak,2,2,-
+FUND-0779,Bandung Branch,Giro,49231.75,5.35,Ya (Anomali),3,5,Penempatan/Penarikan sangat besar
+FUND-0780,Jakarta Branch,Giro,1533.69,5.51,Tidak,2,1,-
+FUND-0781,Surabaya Branch,Deposito,613.55,4.37,Tidak,2,1,-
+FUND-0782,Jakarta Branch,Tabungan,541.71,5.32,Tidak,1,1,-
+FUND-0783,Jakarta Branch,Tabungan,266.66,2.47,Tidak,1,2,-
+FUND-0784,Bandung Branch,Tabungan,1516.12,2.74,Tidak,2,1,-
+FUND-0785,Head Office,Tabungan,673.46,5.88,Tidak,1,2,-
+FUND-0786,Jakarta Branch,Giro,622.01,2.46,Tidak,1,2,-
+FUND-0787,Surabaya Branch,Giro,494.11,4.03,Tidak,2,1,-
+FUND-0788,Medan Branch,Giro,505.19,5.07,Tidak,1,2,-
+FUND-0789,Jakarta Branch,Giro,694.66,4.12,Tidak,1,1,-
+FUND-0790,Jakarta Branch,Giro,868.3,5.7,Tidak,1,2,-
+FUND-0791,Bandung Branch,Tabungan,492.7,5.71,Tidak,2,2,-
+FUND-0792,Head Office,Tabungan,148.43,4.21,Tidak,2,2,-
+FUND-0793,Medan Branch,Tabungan,425.51,4.63,Tidak,1,1,-
+FUND-0794,Surabaya Branch,Tabungan,722.12,4.1,Tidak,2,1,-
+FUND-0795,Medan Branch,Giro,329.82,3.89,Tidak,2,2,-
+FUND-0796,Surabaya Branch,Giro,121.16,3.65,Tidak,2,1,-
+FUND-0797,Head Office,Giro,970.89,4.3,Tidak,2,1,-
+FUND-0798,Surabaya Branch,Deposito,122.92,2.35,Tidak,2,1,-
+FUND-0799,Bandung Branch,Tabungan,141.72,4.18,Tidak,2,2,-
+FUND-0800,Bandung Branch,Tabungan,846.52,2.98,Tidak,2,1,-
+FUND-0801,Bandung Branch,Giro,445.62,4.28,Tidak,1,1,-
+FUND-0802,Bandung Branch,Tabungan,39154.79,3.78,Ya (Anomali),3,3,Penempatan/Penarikan sangat besar
+FUND-0803,Medan Branch,Tabungan,723.19,3.49,Tidak,2,1,-
+FUND-0804,Head Office,Giro,464.94,4.95,Tidak,2,1,-
+FUND-0805,Surabaya Branch,Deposito,322.78,3.03,Tidak,1,1,-
+FUND-0806,Surabaya Branch,Deposito,285.62,5.68,Tidak,1,2,-
+FUND-0807,Bandung Branch,Deposito,345.74,3.78,Tidak,2,1,-
+FUND-0808,Bandung Branch,Giro,728.11,4.28,Tidak,2,1,-
+FUND-0809,Jakarta Branch,Tabungan,953.49,3.73,Tidak,1,1,-
+FUND-0810,Head Office,Giro,498.03,5.76,Tidak,2,2,-
+FUND-0811,Medan Branch,Giro,261.31,10.37,Ya (Anomali),4,3,Bunga Funding tidak wajar (10.37%)
+FUND-0812,Surabaya Branch,Tabungan,337.25,4.48,Tidak,1,2,-
+FUND-0813,Jakarta Branch,Deposito,463.71,2.45,Tidak,2,1,-
+FUND-0814,Jakarta Branch,Deposito,66.09,3.52,Tidak,1,1,-
+FUND-0815,Surabaya Branch,Giro,828.92,4.45,Tidak,2,1,-
+FUND-0816,Medan Branch,Deposito,491.55,4.14,Tidak,2,2,-
+FUND-0817,Jakarta Branch,Giro,289.98,8.79,Ya (Anomali),3,5,Bunga Funding tidak wajar (8.79%)
+FUND-0818,Jakarta Branch,Giro,680.03,2.55,Tidak,1,2,-
+FUND-0819,Head Office,Tabungan,613.43,3.97,Tidak,2,1,-
+FUND-0820,Medan Branch,Tabungan,1390.13,3.24,Tidak,2,2,-
+FUND-0821,Jakarta Branch,Tabungan,67.23,2.71,Tidak,1,2,-
+FUND-0822,Medan Branch,Giro,116.43,3.3,Tidak,2,2,-
+FUND-0823,Surabaya Branch,Tabungan,963.27,10.4,Ya (Anomali),5,5,Bunga Funding tidak wajar (10.4%)
+FUND-0824,Bandung Branch,Deposito,393.23,4.83,Tidak,2,1,-
+FUND-0825,Jakarta Branch,Deposito,31.19,2.85,Tidak,1,2,-
+FUND-0826,Head Office,Giro,559.7,5.43,Tidak,1,2,-
+FUND-0827,Surabaya Branch,Giro,1340.81,4.88,Tidak,2,1,-
+FUND-0828,Medan Branch,Tabungan,657.47,2.21,Tidak,2,2,-
+FUND-0829,Surabaya Branch,Giro,425.53,4.13,Tidak,2,1,-
+FUND-0830,Jakarta Branch,Giro,490.11,3.52,Tidak,1,2,-
+FUND-0831,Medan Branch,Deposito,728.19,5.69,Tidak,1,1,-
+FUND-0832,Bandung Branch,Deposito,498.26,4.67,Tidak,2,1,-
+FUND-0833,Surabaya Branch,Tabungan,213.57,4.11,Tidak,1,2,-
+FUND-0834,Jakarta Branch,Giro,112.76,10.29,Ya (Anomali),4,4,Bunga Funding tidak wajar (10.29%)
+FUND-0835,Head Office,Giro,223.09,4.23,Tidak,1,2,-
+FUND-0836,Medan Branch,Deposito,208.66,4.01,Tidak,2,1,-
+FUND-0837,Surabaya Branch,Giro,214.98,3.9,Tidak,2,1,-
+FUND-0838,Surabaya Branch,Deposito,684.81,4.21,Tidak,2,2,-
+FUND-0839,Bandung Branch,Tabungan,374.92,5.89,Tidak,2,2,-
+FUND-0840,Bandung Branch,Deposito,290.31,11.19,Ya (Anomali),4,5,Bunga Funding tidak wajar (11.19%)
+FUND-0841,Head Office,Giro,247.4,5.31,Tidak,2,2,-
+FUND-0842,Head Office,Tabungan,267.34,5.17,Tidak,1,1,-
+FUND-0843,Jakarta Branch,Deposito,406.5,4.88,Tidak,1,1,-
+FUND-0844,Jakarta Branch,Deposito,259.83,2.4,Tidak,2,2,-
+FUND-0845,Head Office,Tabungan,540.35,3.38,Tidak,1,2,-
+FUND-0846,Head Office,Tabungan,141.56,5.54,Tidak,2,1,-
+FUND-0847,Medan Branch,Deposito,425.79,5.47,Tidak,1,1,-
+FUND-0848,Bandung Branch,Giro,952.53,4.07,Tidak,1,2,-
+FUND-0849,Jakarta Branch,Deposito,164.08,2.81,Tidak,2,1,-
+FUND-0850,Bandung Branch,Tabungan,70.12,3.68,Tidak,2,2,-
+FUND-0851,Bandung Branch,Deposito,43.01,2.66,Tidak,2,1,-
+FUND-0852,Head Office,Tabungan,64.0,4.06,Tidak,1,2,-
+FUND-0853,Medan Branch,Tabungan,390.53,4.97,Tidak,2,1,-
+FUND-0854,Surabaya Branch,Giro,260.51,2.04,Tidak,2,2,-
+FUND-0855,Medan Branch,Tabungan,695.56,2.14,Tidak,2,2,-
+FUND-0856,Medan Branch,Tabungan,116.57,4.15,Tidak,1,1,-
+FUND-0857,Bandung Branch,Giro,942.07,3.26,Tidak,1,1,-
+FUND-0858,Medan Branch,Tabungan,186.92,3.61,Tidak,1,2,-
+FUND-0859,Jakarta Branch,Giro,127.25,3.49,Tidak,2,1,-
+FUND-0860,Bandung Branch,Giro,309.17,5.98,Tidak,1,1,-
+FUND-0861,Jakarta Branch,Tabungan,125.34,5.39,Tidak,1,1,-
+FUND-0862,Surabaya Branch,Tabungan,921.96,5.94,Tidak,2,1,-
+FUND-0863,Bandung Branch,Deposito,250.74,2.04,Tidak,2,1,-
+FUND-0864,Surabaya Branch,Giro,267.95,4.02,Tidak,1,2,-
+FUND-0865,Bandung Branch,Deposito,1895.38,2.48,Tidak,2,2,-
+FUND-0866,Head Office,Tabungan,848.49,10.14,Ya (Anomali),5,3,Bunga Funding tidak wajar (10.14%)
+FUND-0867,Medan Branch,Deposito,124.58,5.72,Tidak,2,1,-
+FUND-0868,Head Office,Giro,254.88,2.26,Tidak,2,1,-
+FUND-0869,Surabaya Branch,Deposito,524.7,5.93,Tidak,2,2,-
+FUND-0870,Medan Branch,Giro,819.34,3.51,Tidak,1,1,-
+FUND-0871,Bandung Branch,Tabungan,1485.25,2.72,Tidak,1,1,-
+FUND-0872,Medan Branch,Tabungan,260.24,5.02,Tidak,1,2,-
+FUND-0873,Jakarta Branch,Giro,139.6,9.37,Ya (Anomali),5,4,Bunga Funding tidak wajar (9.37%)
+FUND-0874,Medan Branch,Tabungan,1013.36,5.82,Tidak,1,2,-
+FUND-0875,Jakarta Branch,Tabungan,216.96,2.07,Tidak,2,1,-
+FUND-0876,Medan Branch,Tabungan,450.1,3.13,Tidak,2,1,-
+FUND-0877,Jakarta Branch,Tabungan,808.25,2.52,Tidak,1,2,-
+FUND-0878,Surabaya Branch,Giro,371.28,3.24,Tidak,1,2,-
+FUND-0879,Head Office,Deposito,394.1,3.44,Tidak,1,2,-
+FUND-0880,Bandung Branch,Deposito,184.74,5.76,Tidak,1,2,-
+FUND-0881,Medan Branch,Tabungan,1006.23,4.76,Tidak,1,2,-
+FUND-0882,Head Office,Deposito,25.44,2.44,Tidak,2,1,-
+FUND-0883,Bandung Branch,Deposito,22455.28,2.88,Ya (Anomali),3,5,Penempatan/Penarikan sangat besar
+FUND-0884,Bandung Branch,Tabungan,536.1,5.36,Tidak,1,2,-
+FUND-0885,Jakarta Branch,Tabungan,638.3,4.05,Tidak,2,2,-
+FUND-0886,Surabaya Branch,Deposito,49.14,2.04,Tidak,2,1,-
+FUND-0887,Surabaya Branch,Giro,315.07,2.03,Tidak,2,1,-
+FUND-0888,Head Office,Tabungan,157.02,3.8,Tidak,1,1,-
+FUND-0889,Surabaya Branch,Giro,76.56,4.09,Tidak,2,1,-
+FUND-0890,Medan Branch,Deposito,51.26,7.94,Ya (Anomali),3,4,Bunga Funding tidak wajar (7.94%)
+FUND-0891,Surabaya Branch,Tabungan,422.69,3.16,Tidak,1,1,-
+FUND-0892,Head Office,Giro,795.09,4.27,Tidak,2,1,-
+FUND-0893,Surabaya Branch,Tabungan,1207.71,4.04,Tidak,2,2,-
+FUND-0894,Medan Branch,Deposito,39.47,5.78,Tidak,1,1,-
+FUND-0895,Jakarta Branch,Giro,1115.65,4.19,Tidak,2,2,-
+FUND-0896,Head Office,Deposito,1529.78,3.3,Tidak,1,2,-
+FUND-0897,Jakarta Branch,Deposito,869.05,4.35,Tidak,1,1,-
+FUND-0898,Jakarta Branch,Tabungan,231.39,7.58,Ya (Anomali),4,3,Bunga Funding tidak wajar (7.58%)
+FUND-0899,Jakarta Branch,Giro,259.54,4.85,Tidak,2,1,-
+FUND-0900,Bandung Branch,Deposito,500.7,5.18,Tidak,1,1,-
+FUND-0901,Bandung Branch,Deposito,481.06,4.28,Tidak,2,1,-
+FUND-0902,Jakarta Branch,Giro,391.93,2.1,Tidak,1,1,-
+FUND-0903,Head Office,Deposito,1019.37,2.85,Tidak,1,1,-
+FUND-0904,Medan Branch,Deposito,61.0,7.29,Ya (Anomali),3,3,Bunga Funding tidak wajar (7.29%)
+FUND-0905,Medan Branch,Giro,15333.07,2.42,Ya (Anomali),4,5,Penempatan/Penarikan sangat besar
+FUND-0906,Surabaya Branch,Giro,223.06,3.54,Tidak,1,1,-
+FUND-0907,Head Office,Giro,799.97,3.94,Tidak,1,2,-
+FUND-0908,Bandung Branch,Giro,146.09,5.24,Tidak,1,1,-
+FUND-0909,Jakarta Branch,Tabungan,14.56,3.04,Tidak,1,2,-
+FUND-0910,Surabaya Branch,Giro,1715.15,3.78,Tidak,2,2,-
+FUND-0911,Medan Branch,Tabungan,431.06,2.56,Tidak,2,1,-
+FUND-0912,Bandung Branch,Tabungan,242.64,8.97,Ya (Anomali),5,3,Bunga Funding tidak wajar (8.97%)
+FUND-0913,Bandung Branch,Tabungan,1596.69,5.87,Tidak,2,2,-
+FUND-0914,Jakarta Branch,Deposito,1709.93,5.58,Tidak,2,2,-
+FUND-0915,Medan Branch,Tabungan,592.01,4.1,Tidak,2,2,-
+FUND-0916,Head Office,Tabungan,35.28,2.21,Tidak,2,1,-
+FUND-0917,Bandung Branch,Deposito,347.67,3.26,Tidak,1,1,-
+FUND-0918,Jakarta Branch,Deposito,1852.53,3.24,Tidak,2,2,-
+FUND-0919,Head Office,Deposito,2057.4,4.31,Tidak,2,1,-
+FUND-0920,Medan Branch,Giro,12563.79,4.86,Ya (Anomali),4,3,Penempatan/Penarikan sangat besar
+FUND-0921,Bandung Branch,Deposito,28413.16,2.84,Ya (Anomali),5,5,Penempatan/Penarikan sangat besar
+FUND-0922,Head Office,Deposito,47.72,5.81,Tidak,2,2,-
+FUND-0923,Head Office,Tabungan,403.51,4.48,Tidak,2,1,-
+FUND-0924,Head Office,Deposito,130.11,2.96,Tidak,1,2,-
+FUND-0925,Bandung Branch,Giro,238.39,2.87,Tidak,2,1,-
+FUND-0926,Bandung Branch,Deposito,815.06,5.82,Tidak,2,2,-
+FUND-0927,Surabaya Branch,Giro,165.16,3.27,Tidak,2,2,-
+FUND-0928,Medan Branch,Deposito,941.73,5.43,Tidak,2,1,-
+FUND-0929,Jakarta Branch,Deposito,41.42,3.25,Tidak,1,2,-
+FUND-0930,Head Office,Deposito,209.78,3.64,Tidak,1,1,-
+FUND-0931,Surabaya Branch,Deposito,844.67,3.22,Tidak,2,2,-
+FUND-0932,Jakarta Branch,Giro,600.32,4.91,Tidak,2,2,-
+FUND-0933,Surabaya Branch,Giro,480.4,4.65,Tidak,1,1,-
+FUND-0934,Bandung Branch,Tabungan,429.98,5.01,Tidak,1,1,-
+FUND-0935,Head Office,Giro,442.93,3.34,Tidak,1,2,-
+FUND-0936,Jakarta Branch,Deposito,375.68,9.46,Ya (Anomali),4,4,Bunga Funding tidak wajar (9.46%)
+FUND-0937,Jakarta Branch,Tabungan,204.9,4.02,Tidak,1,1,-
+FUND-0938,Jakarta Branch,Tabungan,1323.78,2.53,Tidak,1,2,-
+FUND-0939,Jakarta Branch,Tabungan,757.78,2.42,Tidak,1,1,-
+FUND-0940,Jakarta Branch,Deposito,526.28,2.46,Tidak,2,2,-
+FUND-0941,Surabaya Branch,Giro,316.58,4.59,Tidak,1,1,-
+FUND-0942,Head Office,Deposito,52.48,4.56,Tidak,1,2,-
+FUND-0943,Bandung Branch,Tabungan,81.6,4.18,Tidak,1,2,-
+FUND-0944,Bandung Branch,Deposito,65.08,2.65,Tidak,2,1,-
+FUND-0945,Bandung Branch,Deposito,324.86,4.11,Tidak,2,2,-
+FUND-0946,Bandung Branch,Giro,890.67,5.47,Tidak,1,2,-
+FUND-0947,Surabaya Branch,Giro,35.28,2.45,Tidak,1,2,-
+FUND-0948,Medan Branch,Tabungan,253.11,3.04,Tidak,2,1,-
+FUND-0949,Head Office,Deposito,629.54,5.34,Tidak,2,1,-
+FUND-0950,Jakarta Branch,Deposito,519.59,3.1,Tidak,1,2,-
+FUND-0951,Medan Branch,Giro,173.65,3.05,Tidak,2,2,-
+FUND-0952,Bandung Branch,Deposito,656.09,4.79,Tidak,1,2,-
+FUND-0953,Medan Branch,Deposito,43.75,5.9,Tidak,1,2,-
+FUND-0954,Head Office,Deposito,78.68,4.59,Tidak,2,1,-
+FUND-0955,Jakarta Branch,Giro,299.13,11.13,Ya (Anomali),3,4,Bunga Funding tidak wajar (11.13%)
+FUND-0956,Jakarta Branch,Tabungan,326.52,3.71,Tidak,1,1,-
+FUND-0957,Head Office,Tabungan,24402.4,3.25,Ya (Anomali),4,3,Penempatan/Penarikan sangat besar
+FUND-0958,Head Office,Deposito,552.7,4.73,Tidak,2,2,-
+FUND-0959,Bandung Branch,Tabungan,76.91,3.26,Tidak,2,2,-
+FUND-0960,Jakarta Branch,Giro,1028.94,4.39,Tidak,1,2,-
+FUND-0961,Medan Branch,Giro,50.05,3.84,Tidak,2,2,-
+FUND-0962,Surabaya Branch,Tabungan,283.49,2.98,Tidak,2,2,-
+FUND-0963,Surabaya Branch,Tabungan,409.89,2.97,Tidak,1,2,-
+FUND-0964,Head Office,Deposito,868.81,5.64,Tidak,1,2,-
+FUND-0965,Bandung Branch,Tabungan,298.17,5.37,Tidak,2,2,-
+FUND-0966,Surabaya Branch,Deposito,716.62,2.37,Tidak,2,1,-
+FUND-0967,Jakarta Branch,Deposito,43613.93,2.75,Ya (Anomali),4,4,Penempatan/Penarikan sangat besar
+FUND-0968,Head Office,Giro,399.75,5.99,Tidak,1,2,-
+FUND-0969,Medan Branch,Giro,300.57,5.87,Tidak,1,2,-
+FUND-0970,Head Office,Giro,590.68,4.86,Tidak,2,2,-
+FUND-0971,Medan Branch,Giro,601.86,3.14,Tidak,2,2,-
+FUND-0972,Head Office,Tabungan,50.29,4.48,Tidak,1,1,-
+FUND-0973,Head Office,Giro,470.97,3.31,Tidak,1,2,-
+FUND-0974,Head Office,Tabungan,549.98,2.28,Tidak,1,2,-
+FUND-0975,Medan Branch,Giro,1510.95,3.99,Tidak,2,1,-
+FUND-0976,Medan Branch,Tabungan,26.78,3.73,Tidak,1,1,-
+FUND-0977,Head Office,Deposito,754.88,5.16,Tidak,1,1,-
+FUND-0978,Surabaya Branch,Tabungan,49043.44,2.19,Ya (Anomali),5,3,Penempatan/Penarikan sangat besar
+FUND-0979,Bandung Branch,Tabungan,436.57,5.58,Tidak,1,2,-
+FUND-0980,Bandung Branch,Giro,1223.13,3.97,Tidak,1,1,-
+FUND-0981,Bandung Branch,Tabungan,2075.43,2.01,Tidak,1,2,-
+FUND-0982,Medan Branch,Deposito,316.06,5.33,Tidak,2,1,-
+FUND-0983,Medan Branch,Deposito,1481.57,2.79,Tidak,1,2,-
+FUND-0984,Surabaya Branch,Giro,404.46,2.89,Tidak,1,1,-
+FUND-0985,Bandung Branch,Deposito,23427.3,4.08,Ya (Anomali),5,3,Penempatan/Penarikan sangat besar
+FUND-0986,Bandung Branch,Tabungan,66.71,4.05,Tidak,2,2,-
+FUND-0987,Head Office,Deposito,926.35,4.93,Tidak,2,1,-
+FUND-0988,Medan Branch,Giro,100.12,2.95,Tidak,2,2,-
+FUND-0989,Bandung Branch,Tabungan,133.14,7.51,Ya (Anomali),4,3,Bunga Funding tidak wajar (7.51%)
+FUND-0990,Surabaya Branch,Giro,85.76,4.04,Tidak,1,2,-
+FUND-0991,Surabaya Branch,Tabungan,13.43,2.73,Tidak,1,1,-
+FUND-0992,Bandung Branch,Deposito,80.67,2.91,Tidak,1,1,-
+FUND-0993,Medan Branch,Giro,982.79,2.89,Tidak,2,1,-
+FUND-0994,Surabaya Branch,Giro,13933.8,3.96,Ya (Anomali),4,5,Penempatan/Penarikan sangat besar
+FUND-0995,Head Office,Tabungan,678.62,5.5,Tidak,1,1,-
+FUND-0996,Surabaya Branch,Giro,1226.39,3.07,Tidak,2,2,-
+FUND-0997,Jakarta Branch,Tabungan,645.39,10.13,Ya (Anomali),3,3,Bunga Funding tidak wajar (10.13%)
+FUND-0998,Jakarta Branch,Tabungan,538.18,2.94,Tidak,2,1,-
+FUND-0999,Medan Branch,Tabungan,18.53,2.43,Tidak,2,2,-
+FUND-1000,Bandung Branch,Tabungan,3679.5,5.28,Tidak,1,2,-

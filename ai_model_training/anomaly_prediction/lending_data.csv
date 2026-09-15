@@ -1,0 +1,1001 @@
+ID Transaksi,Entitas,Produk,Nilai Plafon (Juta Rp),Bunga (%),Status Dokumen,TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5),Alasan Anomali
+LEND-0001,Medan Branch,Kredit KPR,858.39,15.6,Lengkap,Tidak,1,1,-
+LEND-0002,Medan Branch,Kredit KPR,283.96,15.73,Lengkap,Tidak,1,2,-
+LEND-0003,Surabaya Branch,Kredit Modal Kerja,117.23,12.0,Lengkap,Tidak,2,1,-
+LEND-0004,Bandung Branch,Kredit Multiguna,1302.92,14.06,Lengkap,Tidak,1,1,-
+LEND-0005,Medan Branch,Kredit Multiguna,1063.45,16.87,Lengkap,Tidak,1,2,-
+LEND-0006,Medan Branch,Kredit KPR,1610.3,15.62,Lengkap,Tidak,2,2,-
+LEND-0007,Surabaya Branch,Kredit Modal Kerja,1417.5,16.91,Lengkap,Tidak,1,2,-
+LEND-0008,Medan Branch,Kredit KPR,136.67,16.76,Lengkap,Tidak,1,2,-
+LEND-0009,Medan Branch,Kredit Multiguna,416.75,12.8,Lengkap,Tidak,1,1,-
+LEND-0010,Surabaya Branch,Kredit Modal Kerja,1326.28,15.34,Lengkap,Tidak,1,1,-
+LEND-0011,Surabaya Branch,Kredit KPR,139.43,12.21,Lengkap,Tidak,2,1,-
+LEND-0012,Jakarta Branch,Kredit KPR,150.52,15.48,Tidak Lengkap,Tidak,2,1,-
+LEND-0013,Jakarta Branch,Kredit Modal Kerja,2973.57,8.74,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (8.74%)
+LEND-0014,Medan Branch,Kredit Modal Kerja,1105.19,15.85,Lengkap,Tidak,2,1,-
+LEND-0015,Jakarta Branch,Kredit Modal Kerja,1375.74,13.03,Lengkap,Tidak,2,1,-
+LEND-0016,Surabaya Branch,Kredit Multiguna,207.55,13.89,Lengkap,Tidak,2,1,-
+LEND-0017,Jakarta Branch,Kredit Modal Kerja,306.06,15.34,Lengkap,Tidak,2,1,-
+LEND-0018,Jakarta Branch,Kredit Modal Kerja,1142.53,23.98,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (23.98%)
+LEND-0019,Jakarta Branch,Kredit Modal Kerja,315.99,6.31,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (6.31%)
+LEND-0020,Bandung Branch,Kredit Modal Kerja,496.36,13.67,Lengkap,Tidak,1,1,-
+LEND-0021,Surabaya Branch,Kredit Multiguna,463.39,12.41,Lengkap,Tidak,1,2,-
+LEND-0022,Jakarta Branch,Kredit KPR,111.99,18.79,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (18.79%)
+LEND-0023,Surabaya Branch,Kredit KPR,519.76,13.21,Lengkap,Tidak,2,1,-
+LEND-0024,Jakarta Branch,Kredit Modal Kerja,208.57,15.29,Lengkap,Tidak,1,2,-
+LEND-0025,Surabaya Branch,Kredit KPR,781.09,15.43,Lengkap,Tidak,2,2,-
+LEND-0026,Medan Branch,Kredit KPR,765.48,13.55,Lengkap,Tidak,2,2,-
+LEND-0027,Medan Branch,Kredit Modal Kerja,1477.24,12.3,Tidak Lengkap,Tidak,2,1,-
+LEND-0028,Bandung Branch,Kredit Modal Kerja,174.85,14.35,Lengkap,Tidak,2,1,-
+LEND-0029,Jakarta Branch,Kredit Multiguna,210.36,14.18,Lengkap,Tidak,2,1,-
+LEND-0030,Medan Branch,Kredit KPR,352.17,6.72,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (6.72%)
+LEND-0031,Surabaya Branch,Kredit Multiguna,603.24,15.22,Tidak Lengkap,Tidak,1,2,-
+LEND-0032,Medan Branch,Kredit Multiguna,809.21,14.37,Lengkap,Tidak,2,1,-
+LEND-0033,Medan Branch,Kredit Modal Kerja,778.34,12.87,Lengkap,Tidak,1,2,-
+LEND-0034,Bandung Branch,Kredit Multiguna,918.18,13.27,Lengkap,Tidak,1,2,-
+LEND-0035,Jakarta Branch,Kredit KPR,1056.22,12.66,Lengkap,Tidak,1,1,-
+LEND-0036,Jakarta Branch,Kredit Modal Kerja,1071.94,14.8,Lengkap,Tidak,2,2,-
+LEND-0037,Surabaya Branch,Kredit Multiguna,954.58,17.93,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (17.93%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0038,Medan Branch,Kredit Modal Kerja,2797.64,16.56,Tidak Lengkap,Tidak,1,1,-
+LEND-0039,Bandung Branch,Kredit KPR,176.69,16.01,Lengkap,Tidak,1,2,-
+LEND-0040,Bandung Branch,Kredit KPR,765.23,12.87,Lengkap,Tidak,2,1,-
+LEND-0041,Jakarta Branch,Kredit Modal Kerja,544.68,14.3,Lengkap,Tidak,1,2,-
+LEND-0042,Medan Branch,Kredit KPR,1339.41,14.1,Lengkap,Tidak,2,2,-
+LEND-0043,Medan Branch,Kredit Multiguna,589.8,14.28,Lengkap,Tidak,1,2,-
+LEND-0044,Medan Branch,Kredit KPR,340.49,13.64,Lengkap,Tidak,1,2,-
+LEND-0045,Jakarta Branch,Kredit Modal Kerja,172.45,23.94,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (23.94%)
+LEND-0046,Surabaya Branch,Kredit KPR,941.61,16.56,Lengkap,Tidak,1,1,-
+LEND-0047,Medan Branch,Kredit Multiguna,400.78,13.26,Tidak Lengkap,Tidak,2,1,-
+LEND-0048,Surabaya Branch,Kredit KPR,840.16,15.87,Lengkap,Tidak,1,1,-
+LEND-0049,Medan Branch,Kredit Multiguna,116.62,12.93,Lengkap,Tidak,1,1,-
+LEND-0050,Jakarta Branch,Kredit Modal Kerja,1454.09,15.03,Lengkap,Tidak,1,2,-
+LEND-0051,Bandung Branch,Kredit Multiguna,2120.71,13.93,Lengkap,Tidak,2,2,-
+LEND-0052,Jakarta Branch,Kredit KPR,2414.59,16.34,Lengkap,Tidak,2,2,-
+LEND-0053,Medan Branch,Kredit Modal Kerja,1138.69,14.22,Lengkap,Tidak,2,2,-
+LEND-0054,Medan Branch,Kredit KPR,528.82,14.67,Lengkap,Tidak,1,1,-
+LEND-0055,Jakarta Branch,Kredit Multiguna,2282.25,13.79,Lengkap,Tidak,1,1,-
+LEND-0056,Medan Branch,Kredit KPR,356.78,16.58,Lengkap,Tidak,2,1,-
+LEND-0057,Medan Branch,Kredit Modal Kerja,134.38,12.34,Lengkap,Tidak,1,2,-
+LEND-0058,Bandung Branch,Kredit Modal Kerja,284.89,14.09,Lengkap,Tidak,1,2,-
+LEND-0059,Jakarta Branch,Kredit KPR,1056.6,12.07,Lengkap,Tidak,1,2,-
+LEND-0060,Jakarta Branch,Kredit KPR,2102.75,15.28,Lengkap,Tidak,2,2,-
+LEND-0061,Medan Branch,Kredit Modal Kerja,290.55,16.78,Lengkap,Tidak,1,1,-
+LEND-0062,Bandung Branch,Kredit Modal Kerja,1790.64,13.3,Lengkap,Tidak,1,2,-
+LEND-0063,Bandung Branch,Kredit KPR,557.2,13.92,Lengkap,Tidak,1,1,-
+LEND-0064,Surabaya Branch,Kredit KPR,128.19,14.07,Lengkap,Tidak,2,2,-
+LEND-0065,Jakarta Branch,Kredit Multiguna,4529.57,12.01,Lengkap,Tidak,2,1,-
+LEND-0066,Bandung Branch,Kredit Multiguna,203.11,15.9,Lengkap,Tidak,1,2,-
+LEND-0067,Medan Branch,Kredit Modal Kerja,3027.51,16.38,Tidak Lengkap,Tidak,2,2,-
+LEND-0068,Medan Branch,Kredit Modal Kerja,204.95,16.71,Tidak Lengkap,Tidak,2,1,-
+LEND-0069,Medan Branch,Kredit Multiguna,116.31,15.86,Tidak Lengkap,Tidak,2,1,-
+LEND-0070,Medan Branch,Kredit KPR,1297.44,16.17,Lengkap,Tidak,1,2,-
+LEND-0071,Jakarta Branch,Kredit KPR,1863.41,13.54,Lengkap,Tidak,2,2,-
+LEND-0072,Jakarta Branch,Kredit Modal Kerja,1176.25,13.27,Lengkap,Tidak,2,1,-
+LEND-0073,Jakarta Branch,Kredit Multiguna,191.57,12.77,Lengkap,Tidak,2,1,-
+LEND-0074,Bandung Branch,Kredit Modal Kerja,721.68,15.29,Tidak Lengkap,Tidak,1,1,-
+LEND-0075,Jakarta Branch,Kredit Multiguna,1243.74,16.18,Lengkap,Tidak,2,2,-
+LEND-0076,Surabaya Branch,Kredit Multiguna,2001.94,14.91,Lengkap,Tidak,2,2,-
+LEND-0077,Jakarta Branch,Kredit KPR,464.23,20.32,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (20.32%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0078,Medan Branch,Kredit Multiguna,264.67,14.91,Lengkap,Tidak,2,1,-
+LEND-0079,Medan Branch,Kredit Multiguna,2215.48,16.22,Lengkap,Tidak,1,2,-
+LEND-0080,Medan Branch,Kredit Modal Kerja,4015.25,12.28,Tidak Lengkap,Tidak,1,2,-
+LEND-0081,Surabaya Branch,Kredit Modal Kerja,1527.48,13.77,Lengkap,Tidak,1,2,-
+LEND-0082,Surabaya Branch,Kredit Modal Kerja,1081.9,12.94,Lengkap,Tidak,1,2,-
+LEND-0083,Jakarta Branch,Kredit KPR,440.04,15.05,Lengkap,Tidak,2,2,-
+LEND-0084,Jakarta Branch,Kredit Multiguna,1828.16,14.76,Lengkap,Tidak,2,1,-
+LEND-0085,Jakarta Branch,Kredit Multiguna,5020.88,12.55,Lengkap,Tidak,2,2,-
+LEND-0086,Medan Branch,Kredit KPR,746.27,13.44,Lengkap,Tidak,2,1,-
+LEND-0087,Medan Branch,Kredit Modal Kerja,332.67,16.28,Lengkap,Tidak,1,1,-
+LEND-0088,Bandung Branch,Kredit KPR,1627.02,12.93,Lengkap,Tidak,2,2,-
+LEND-0089,Medan Branch,Kredit Multiguna,809.97,15.27,Lengkap,Tidak,1,1,-
+LEND-0090,Bandung Branch,Kredit Modal Kerja,923.68,15.46,Lengkap,Tidak,2,1,-
+LEND-0091,Bandung Branch,Kredit Modal Kerja,2344.96,14.56,Lengkap,Tidak,2,1,-
+LEND-0092,Medan Branch,Kredit Multiguna,107.64,15.77,Lengkap,Tidak,1,2,-
+LEND-0093,Jakarta Branch,Kredit Multiguna,787.71,14.74,Lengkap,Tidak,2,1,-
+LEND-0094,Medan Branch,Kredit Modal Kerja,233.93,13.72,Lengkap,Tidak,1,1,-
+LEND-0095,Jakarta Branch,Kredit KPR,615.25,18.79,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (18.79%)
+LEND-0096,Medan Branch,Kredit Modal Kerja,757.29,13.25,Lengkap,Tidak,1,2,-
+LEND-0097,Jakarta Branch,Kredit KPR,169.14,14.67,Lengkap,Tidak,1,1,-
+LEND-0098,Bandung Branch,Kredit Multiguna,637.13,16.13,Lengkap,Tidak,2,1,-
+LEND-0099,Bandung Branch,Kredit KPR,1107.14,10.47,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (10.47%)
+LEND-0100,Bandung Branch,Kredit Multiguna,937.64,13.69,Tidak Lengkap,Tidak,2,1,-
+LEND-0101,Medan Branch,Kredit KPR,505.31,16.84,Lengkap,Tidak,2,2,-
+LEND-0102,Medan Branch,Kredit Multiguna,2764.85,14.69,Lengkap,Tidak,1,2,-
+LEND-0103,Bandung Branch,Kredit Modal Kerja,991.99,15.94,Lengkap,Tidak,2,1,-
+LEND-0104,Medan Branch,Kredit Modal Kerja,292.74,12.86,Tidak Lengkap,Tidak,1,1,-
+LEND-0105,Bandung Branch,Kredit Multiguna,796.9,15.16,Lengkap,Tidak,2,1,-
+LEND-0106,Surabaya Branch,Kredit Modal Kerja,1697.45,15.35,Lengkap,Tidak,2,2,-
+LEND-0107,Bandung Branch,Kredit Modal Kerja,2366.88,14.6,Lengkap,Tidak,1,1,-
+LEND-0108,Surabaya Branch,Kredit Modal Kerja,573.84,12.37,Lengkap,Tidak,2,1,-
+LEND-0109,Surabaya Branch,Kredit KPR,297.67,15.81,Lengkap,Tidak,1,1,-
+LEND-0110,Surabaya Branch,Kredit Modal Kerja,1136.7,14.13,Lengkap,Tidak,2,1,-
+LEND-0111,Bandung Branch,Kredit KPR,380.68,11.06,Tidak Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (11.06%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0112,Bandung Branch,Kredit Multiguna,537.39,14.06,Lengkap,Tidak,1,1,-
+LEND-0113,Bandung Branch,Kredit Modal Kerja,226.03,23.43,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (23.43%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0114,Medan Branch,Kredit Multiguna,883.18,16.58,Lengkap,Tidak,2,2,-
+LEND-0115,Jakarta Branch,Kredit KPR,248.55,15.13,Lengkap,Tidak,1,2,-
+LEND-0116,Medan Branch,Kredit KPR,762.14,15.75,Lengkap,Tidak,2,2,-
+LEND-0117,Medan Branch,Kredit Multiguna,1872.17,16.39,Lengkap,Tidak,2,2,-
+LEND-0118,Bandung Branch,Kredit KPR,217.05,16.34,Tidak Lengkap,Tidak,2,2,-
+LEND-0119,Surabaya Branch,Kredit Multiguna,2624.85,12.4,Lengkap,Tidak,2,2,-
+LEND-0120,Bandung Branch,Kredit Modal Kerja,283.26,15.12,Tidak Lengkap,Tidak,1,2,-
+LEND-0121,Medan Branch,Kredit Modal Kerja,788.54,16.03,Lengkap,Tidak,2,2,-
+LEND-0122,Jakarta Branch,Kredit Modal Kerja,226.97,15.4,Lengkap,Tidak,2,2,-
+LEND-0123,Medan Branch,Kredit KPR,2556.58,12.58,Lengkap,Tidak,1,2,-
+LEND-0124,Medan Branch,Kredit Multiguna,1078.94,20.75,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (20.75%)
+LEND-0125,Jakarta Branch,Kredit Multiguna,549.73,14.52,Lengkap,Tidak,2,1,-
+LEND-0126,Medan Branch,Kredit KPR,1117.84,14.21,Lengkap,Tidak,1,1,-
+LEND-0127,Bandung Branch,Kredit Multiguna,368.79,23.96,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (23.96%)
+LEND-0128,Bandung Branch,Kredit Multiguna,177.95,10.64,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (10.64%)
+LEND-0129,Surabaya Branch,Kredit Multiguna,745.09,13.59,Lengkap,Tidak,2,1,-
+LEND-0130,Surabaya Branch,Kredit Modal Kerja,1638.68,13.44,Lengkap,Tidak,2,1,-
+LEND-0131,Jakarta Branch,Kredit Multiguna,458.12,18.34,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (18.34%)
+LEND-0132,Surabaya Branch,Kredit Multiguna,587.27,14.16,Lengkap,Tidak,1,1,-
+LEND-0133,Jakarta Branch,Kredit KPR,102.14,14.28,Lengkap,Tidak,1,1,-
+LEND-0134,Medan Branch,Kredit KPR,1754.2,14.46,Lengkap,Tidak,1,2,-
+LEND-0135,Bandung Branch,Kredit KPR,2152.06,12.74,Lengkap,Tidak,2,1,-
+LEND-0136,Jakarta Branch,Kredit Modal Kerja,2006.56,15.68,Lengkap,Tidak,1,1,-
+LEND-0137,Medan Branch,Kredit KPR,1283.07,14.43,Lengkap,Tidak,2,2,-
+LEND-0138,Medan Branch,Kredit Modal Kerja,906.52,13.98,Lengkap,Tidak,2,2,-
+LEND-0139,Surabaya Branch,Kredit Multiguna,157.93,9.93,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (9.93%)
+LEND-0140,Bandung Branch,Kredit KPR,249.7,15.71,Lengkap,Tidak,2,1,-
+LEND-0141,Medan Branch,Kredit Modal Kerja,202.62,16.15,Lengkap,Tidak,2,1,-
+LEND-0142,Surabaya Branch,Kredit Multiguna,1008.29,16.02,Lengkap,Tidak,1,2,-
+LEND-0143,Jakarta Branch,Kredit Multiguna,266.33,15.39,Lengkap,Tidak,1,2,-
+LEND-0144,Jakarta Branch,Kredit Modal Kerja,3231.81,14.88,Lengkap,Tidak,1,1,-
+LEND-0145,Medan Branch,Kredit KPR,954.19,12.93,Lengkap,Tidak,2,1,-
+LEND-0146,Medan Branch,Kredit Modal Kerja,804.49,13.62,Lengkap,Tidak,2,1,-
+LEND-0147,Medan Branch,Kredit KPR,418.39,15.99,Lengkap,Tidak,2,1,-
+LEND-0148,Bandung Branch,Kredit Modal Kerja,806.0,16.51,Lengkap,Tidak,1,1,-
+LEND-0149,Medan Branch,Kredit Modal Kerja,2575.66,15.42,Lengkap,Tidak,2,2,-
+LEND-0150,Bandung Branch,Kredit Multiguna,1028.06,16.15,Lengkap,Tidak,2,2,-
+LEND-0151,Surabaya Branch,Kredit Multiguna,357.42,13.93,Lengkap,Tidak,2,2,-
+LEND-0152,Surabaya Branch,Kredit Multiguna,5530.79,14.44,Lengkap,Tidak,2,1,-
+LEND-0153,Bandung Branch,Kredit Multiguna,1116.88,13.48,Lengkap,Tidak,2,2,-
+LEND-0154,Medan Branch,Kredit KPR,207.22,13.99,Lengkap,Tidak,2,2,-
+LEND-0155,Bandung Branch,Kredit Multiguna,1007.27,12.62,Lengkap,Tidak,1,1,-
+LEND-0156,Jakarta Branch,Kredit KPR,517.0,15.22,Lengkap,Tidak,2,2,-
+LEND-0157,Surabaya Branch,Kredit Multiguna,281.2,14.37,Lengkap,Tidak,2,2,-
+LEND-0158,Bandung Branch,Kredit Multiguna,4205.79,14.32,Lengkap,Tidak,1,2,-
+LEND-0159,Surabaya Branch,Kredit Modal Kerja,947.62,24.87,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (24.87%)
+LEND-0160,Bandung Branch,Kredit Multiguna,189.19,12.72,Lengkap,Tidak,1,1,-
+LEND-0161,Surabaya Branch,Kredit KPR,385.89,13.78,Lengkap,Tidak,1,2,-
+LEND-0162,Bandung Branch,Kredit Multiguna,278.01,16.77,Lengkap,Tidak,1,1,-
+LEND-0163,Surabaya Branch,Kredit KPR,967.88,14.58,Lengkap,Tidak,2,2,-
+LEND-0164,Surabaya Branch,Kredit Multiguna,1833.84,10.33,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (10.33%)
+LEND-0165,Medan Branch,Kredit Modal Kerja,1507.28,16.62,Lengkap,Tidak,1,1,-
+LEND-0166,Medan Branch,Kredit KPR,170.91,13.46,Lengkap,Tidak,1,2,-
+LEND-0167,Bandung Branch,Kredit KPR,207.48,14.68,Lengkap,Tidak,2,1,-
+LEND-0168,Medan Branch,Kredit KPR,122.07,9.68,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (9.68%)
+LEND-0169,Bandung Branch,Kredit KPR,1383.34,7.01,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (7.01%)
+LEND-0170,Jakarta Branch,Kredit KPR,459.93,12.72,Lengkap,Tidak,2,1,-
+LEND-0171,Medan Branch,Kredit KPR,1988.44,5.84,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (5.84%)
+LEND-0172,Jakarta Branch,Kredit Modal Kerja,1011.75,15.74,Lengkap,Tidak,2,2,-
+LEND-0173,Medan Branch,Kredit Modal Kerja,947.25,12.76,Lengkap,Tidak,2,2,-
+LEND-0174,Medan Branch,Kredit Multiguna,178.16,15.15,Lengkap,Tidak,2,1,-
+LEND-0175,Surabaya Branch,Kredit KPR,956.38,13.12,Lengkap,Tidak,2,1,-
+LEND-0176,Surabaya Branch,Kredit Multiguna,1223.32,14.93,Lengkap,Tidak,2,2,-
+LEND-0177,Bandung Branch,Kredit KPR,754.57,12.74,Lengkap,Tidak,1,1,-
+LEND-0178,Surabaya Branch,Kredit Modal Kerja,1173.28,14.31,Lengkap,Tidak,1,2,-
+LEND-0179,Medan Branch,Kredit KPR,1200.87,13.32,Lengkap,Tidak,1,1,-
+LEND-0180,Bandung Branch,Kredit KPR,3935.14,13.73,Lengkap,Tidak,2,2,-
+LEND-0181,Surabaya Branch,Kredit Multiguna,759.05,7.36,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (7.36%)
+LEND-0182,Bandung Branch,Kredit Modal Kerja,3243.51,12.11,Lengkap,Tidak,2,1,-
+LEND-0183,Medan Branch,Kredit Modal Kerja,226.31,14.21,Lengkap,Tidak,1,1,-
+LEND-0184,Jakarta Branch,Kredit Multiguna,491.63,24.96,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (24.96%)
+LEND-0185,Medan Branch,Kredit KPR,236.0,16.9,Lengkap,Tidak,1,2,-
+LEND-0186,Bandung Branch,Kredit Modal Kerja,578.26,15.53,Lengkap,Tidak,2,2,-
+LEND-0187,Medan Branch,Kredit KPR,1018.97,13.65,Lengkap,Tidak,1,2,-
+LEND-0188,Surabaya Branch,Kredit Modal Kerja,1295.61,16.3,Lengkap,Tidak,2,1,-
+LEND-0189,Medan Branch,Kredit KPR,750.78,13.58,Lengkap,Tidak,2,2,-
+LEND-0190,Jakarta Branch,Kredit KPR,620.37,12.75,Lengkap,Tidak,1,2,-
+LEND-0191,Surabaya Branch,Kredit KPR,4720.76,11.87,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (11.87%)
+LEND-0192,Surabaya Branch,Kredit Multiguna,748.78,12.04,Lengkap,Tidak,2,1,-
+LEND-0193,Medan Branch,Kredit Modal Kerja,1545.47,5.43,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (5.43%)
+LEND-0194,Surabaya Branch,Kredit KPR,2005.18,14.82,Lengkap,Tidak,2,1,-
+LEND-0195,Jakarta Branch,Kredit Multiguna,2588.91,15.61,Lengkap,Tidak,2,2,-
+LEND-0196,Jakarta Branch,Kredit Multiguna,1744.82,15.83,Lengkap,Tidak,2,2,-
+LEND-0197,Jakarta Branch,Kredit KPR,147.38,18.35,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (18.35%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0198,Jakarta Branch,Kredit Modal Kerja,810.03,16.24,Lengkap,Tidak,1,1,-
+LEND-0199,Jakarta Branch,Kredit KPR,3100.74,15.99,Lengkap,Tidak,2,2,-
+LEND-0200,Medan Branch,Kredit KPR,859.6,14.31,Lengkap,Tidak,1,1,-
+LEND-0201,Bandung Branch,Kredit KPR,186.53,15.36,Lengkap,Tidak,2,1,-
+LEND-0202,Surabaya Branch,Kredit KPR,225.8,16.34,Lengkap,Tidak,1,1,-
+LEND-0203,Jakarta Branch,Kredit Multiguna,911.32,16.33,Tidak Lengkap,Tidak,1,2,-
+LEND-0204,Surabaya Branch,Kredit KPR,891.68,13.42,Lengkap,Tidak,2,2,-
+LEND-0205,Medan Branch,Kredit Modal Kerja,874.98,16.99,Tidak Lengkap,Tidak,1,2,-
+LEND-0206,Jakarta Branch,Kredit KPR,1541.75,16.66,Lengkap,Tidak,1,2,-
+LEND-0207,Medan Branch,Kredit Multiguna,1434.34,22.35,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (22.35%)
+LEND-0208,Surabaya Branch,Kredit Multiguna,1042.0,13.02,Lengkap,Tidak,1,1,-
+LEND-0209,Surabaya Branch,Kredit KPR,520.75,14.31,Lengkap,Tidak,2,2,-
+LEND-0210,Jakarta Branch,Kredit KPR,2157.69,13.46,Lengkap,Tidak,1,2,-
+LEND-0211,Jakarta Branch,Kredit Modal Kerja,2857.23,13.22,Lengkap,Tidak,2,1,-
+LEND-0212,Bandung Branch,Kredit Modal Kerja,570.39,12.26,Lengkap,Tidak,2,2,-
+LEND-0213,Bandung Branch,Kredit Modal Kerja,226.65,11.77,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (11.77%)
+LEND-0214,Surabaya Branch,Kredit KPR,2800.87,16.36,Lengkap,Tidak,1,2,-
+LEND-0215,Surabaya Branch,Kredit Multiguna,613.81,14.66,Lengkap,Tidak,2,1,-
+LEND-0216,Jakarta Branch,Kredit Multiguna,441.66,22.75,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (22.75%)
+LEND-0217,Medan Branch,Kredit KPR,3948.47,12.3,Lengkap,Tidak,2,1,-
+LEND-0218,Medan Branch,Kredit Multiguna,570.94,12.55,Lengkap,Tidak,2,2,-
+LEND-0219,Surabaya Branch,Kredit Multiguna,1301.44,16.08,Lengkap,Tidak,2,1,-
+LEND-0220,Medan Branch,Kredit Multiguna,278.22,12.77,Tidak Lengkap,Tidak,2,1,-
+LEND-0221,Jakarta Branch,Kredit Modal Kerja,584.46,12.17,Lengkap,Tidak,1,1,-
+LEND-0222,Jakarta Branch,Kredit Modal Kerja,687.5,16.14,Lengkap,Tidak,2,2,-
+LEND-0223,Jakarta Branch,Kredit KPR,2789.63,8.67,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (8.67%)
+LEND-0224,Surabaya Branch,Kredit Multiguna,623.53,16.77,Lengkap,Tidak,2,1,-
+LEND-0225,Bandung Branch,Kredit KPR,1223.06,15.23,Lengkap,Tidak,2,1,-
+LEND-0226,Medan Branch,Kredit KPR,519.99,12.24,Lengkap,Tidak,2,2,-
+LEND-0227,Bandung Branch,Kredit KPR,1391.56,14.36,Lengkap,Tidak,1,2,-
+LEND-0228,Jakarta Branch,Kredit KPR,571.04,13.9,Lengkap,Tidak,2,1,-
+LEND-0229,Surabaya Branch,Kredit KPR,298.34,12.89,Lengkap,Tidak,1,2,-
+LEND-0230,Medan Branch,Kredit Multiguna,1741.84,16.38,Lengkap,Tidak,2,1,-
+LEND-0231,Bandung Branch,Kredit Modal Kerja,342.37,14.2,Lengkap,Tidak,1,2,-
+LEND-0232,Jakarta Branch,Kredit KPR,4077.11,14.5,Tidak Lengkap,Tidak,2,2,-
+LEND-0233,Jakarta Branch,Kredit Multiguna,702.88,16.48,Lengkap,Tidak,2,1,-
+LEND-0234,Bandung Branch,Kredit KPR,1266.35,15.92,Tidak Lengkap,Tidak,1,1,-
+LEND-0235,Medan Branch,Kredit KPR,248.57,15.8,Lengkap,Tidak,1,1,-
+LEND-0236,Jakarta Branch,Kredit KPR,813.29,14.34,Lengkap,Tidak,2,2,-
+LEND-0237,Bandung Branch,Kredit KPR,2893.87,16.87,Lengkap,Tidak,2,1,-
+LEND-0238,Bandung Branch,Kredit Modal Kerja,196.56,13.04,Lengkap,Tidak,1,2,-
+LEND-0239,Bandung Branch,Kredit KPR,230.06,12.93,Lengkap,Tidak,1,2,-
+LEND-0240,Jakarta Branch,Kredit Modal Kerja,328.8,16.16,Lengkap,Tidak,1,1,-
+LEND-0241,Medan Branch,Kredit KPR,405.73,16.13,Lengkap,Tidak,2,1,-
+LEND-0242,Bandung Branch,Kredit KPR,1115.42,13.14,Tidak Lengkap,Tidak,2,2,-
+LEND-0243,Medan Branch,Kredit Modal Kerja,824.69,15.91,Lengkap,Tidak,2,1,-
+LEND-0244,Bandung Branch,Kredit KPR,342.5,12.87,Tidak Lengkap,Tidak,1,2,-
+LEND-0245,Medan Branch,Kredit KPR,1267.37,13.86,Tidak Lengkap,Tidak,1,1,-
+LEND-0246,Surabaya Branch,Kredit Modal Kerja,2478.79,16.84,Lengkap,Tidak,2,2,-
+LEND-0247,Surabaya Branch,Kredit KPR,160.78,12.84,Lengkap,Tidak,2,1,-
+LEND-0248,Medan Branch,Kredit Multiguna,157.17,14.51,Tidak Lengkap,Tidak,2,2,-
+LEND-0249,Bandung Branch,Kredit KPR,1880.82,16.23,Lengkap,Tidak,1,2,-
+LEND-0250,Surabaya Branch,Kredit KPR,2131.07,16.69,Lengkap,Tidak,1,1,-
+LEND-0251,Bandung Branch,Kredit Modal Kerja,670.7,16.0,Lengkap,Tidak,1,2,-
+LEND-0252,Jakarta Branch,Kredit KPR,204.31,14.04,Lengkap,Tidak,2,1,-
+LEND-0253,Bandung Branch,Kredit KPR,510.73,14.71,Tidak Lengkap,Tidak,1,2,-
+LEND-0254,Jakarta Branch,Kredit Modal Kerja,4064.32,16.93,Lengkap,Tidak,2,2,-
+LEND-0255,Bandung Branch,Kredit Multiguna,391.52,15.92,Lengkap,Tidak,1,1,-
+LEND-0256,Surabaya Branch,Kredit Multiguna,1856.12,16.52,Lengkap,Tidak,2,1,-
+LEND-0257,Surabaya Branch,Kredit Multiguna,4163.17,17.38,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (17.38%)
+LEND-0258,Surabaya Branch,Kredit Modal Kerja,589.88,16.31,Lengkap,Tidak,1,1,-
+LEND-0259,Surabaya Branch,Kredit Multiguna,2981.3,12.43,Lengkap,Tidak,2,1,-
+LEND-0260,Bandung Branch,Kredit KPR,901.9,15.35,Lengkap,Tidak,1,1,-
+LEND-0261,Jakarta Branch,Kredit Multiguna,326.85,15.55,Lengkap,Tidak,1,1,-
+LEND-0262,Bandung Branch,Kredit KPR,572.5,14.25,Lengkap,Tidak,2,2,-
+LEND-0263,Bandung Branch,Kredit Multiguna,744.12,14.39,Lengkap,Tidak,1,2,-
+LEND-0264,Jakarta Branch,Kredit Modal Kerja,877.41,20.78,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (20.78%)
+LEND-0265,Medan Branch,Kredit KPR,1973.08,13.13,Lengkap,Tidak,1,1,-
+LEND-0266,Surabaya Branch,Kredit Multiguna,2330.07,14.09,Lengkap,Tidak,2,2,-
+LEND-0267,Surabaya Branch,Kredit KPR,1409.74,14.16,Lengkap,Tidak,1,1,-
+LEND-0268,Bandung Branch,Kredit Modal Kerja,2907.02,14.49,Tidak Lengkap,Tidak,1,1,-
+LEND-0269,Jakarta Branch,Kredit Modal Kerja,1406.73,13.85,Lengkap,Tidak,2,1,-
+LEND-0270,Bandung Branch,Kredit KPR,3563.44,12.27,Lengkap,Tidak,1,1,-
+LEND-0271,Bandung Branch,Kredit Modal Kerja,1708.81,13.7,Lengkap,Tidak,1,1,-
+LEND-0272,Surabaya Branch,Kredit KPR,2432.2,16.88,Tidak Lengkap,Tidak,2,2,-
+LEND-0273,Jakarta Branch,Kredit Multiguna,177.91,16.53,Lengkap,Tidak,2,2,-
+LEND-0274,Jakarta Branch,Kredit KPR,374.98,12.27,Lengkap,Tidak,1,2,-
+LEND-0275,Jakarta Branch,Kredit KPR,1955.59,16.32,Lengkap,Tidak,2,2,-
+LEND-0276,Surabaya Branch,Kredit Modal Kerja,2361.83,16.29,Lengkap,Tidak,1,2,-
+LEND-0277,Medan Branch,Kredit Multiguna,381.4,12.73,Tidak Lengkap,Tidak,2,1,-
+LEND-0278,Surabaya Branch,Kredit Modal Kerja,151.68,14.81,Lengkap,Tidak,1,1,-
+LEND-0279,Bandung Branch,Kredit Modal Kerja,2783.55,12.58,Tidak Lengkap,Tidak,1,2,-
+LEND-0280,Bandung Branch,Kredit Multiguna,408.15,14.66,Tidak Lengkap,Tidak,2,2,-
+LEND-0281,Medan Branch,Kredit KPR,1596.79,16.98,Lengkap,Tidak,1,2,-
+LEND-0282,Medan Branch,Kredit Modal Kerja,1118.17,13.37,Lengkap,Tidak,2,1,-
+LEND-0283,Jakarta Branch,Kredit KPR,1779.74,16.14,Lengkap,Tidak,1,1,-
+LEND-0284,Jakarta Branch,Kredit KPR,271.62,16.66,Lengkap,Tidak,1,1,-
+LEND-0285,Surabaya Branch,Kredit Modal Kerja,1264.97,15.74,Tidak Lengkap,Tidak,2,1,-
+LEND-0286,Jakarta Branch,Kredit Multiguna,740.66,16.63,Lengkap,Tidak,1,2,-
+LEND-0287,Jakarta Branch,Kredit Modal Kerja,328.6,15.34,Lengkap,Tidak,2,1,-
+LEND-0288,Medan Branch,Kredit Modal Kerja,1626.47,13.87,Lengkap,Tidak,2,1,-
+LEND-0289,Jakarta Branch,Kredit Multiguna,988.55,14.82,Lengkap,Tidak,1,2,-
+LEND-0290,Medan Branch,Kredit Multiguna,1745.4,13.39,Tidak Lengkap,Tidak,2,2,-
+LEND-0291,Jakarta Branch,Kredit Modal Kerja,477.02,12.21,Lengkap,Tidak,1,1,-
+LEND-0292,Bandung Branch,Kredit Modal Kerja,2452.95,13.49,Lengkap,Tidak,2,1,-
+LEND-0293,Surabaya Branch,Kredit KPR,561.11,16.32,Lengkap,Tidak,2,1,-
+LEND-0294,Medan Branch,Kredit Multiguna,462.38,13.64,Lengkap,Tidak,1,2,-
+LEND-0295,Medan Branch,Kredit KPR,1269.74,13.03,Lengkap,Tidak,2,1,-
+LEND-0296,Jakarta Branch,Kredit Modal Kerja,738.52,13.81,Lengkap,Tidak,1,1,-
+LEND-0297,Medan Branch,Kredit Multiguna,339.46,15.39,Lengkap,Tidak,1,2,-
+LEND-0298,Surabaya Branch,Kredit KPR,1046.88,12.21,Lengkap,Tidak,1,2,-
+LEND-0299,Medan Branch,Kredit Modal Kerja,506.88,14.35,Lengkap,Tidak,1,1,-
+LEND-0300,Medan Branch,Kredit Multiguna,4608.07,16.44,Lengkap,Tidak,1,1,-
+LEND-0301,Jakarta Branch,Kredit KPR,188.29,7.22,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (7.22%)
+LEND-0302,Medan Branch,Kredit Multiguna,453.49,13.08,Lengkap,Tidak,1,1,-
+LEND-0303,Jakarta Branch,Kredit Modal Kerja,613.93,15.03,Lengkap,Tidak,2,1,-
+LEND-0304,Medan Branch,Kredit KPR,2630.25,16.04,Lengkap,Tidak,1,2,-
+LEND-0305,Surabaya Branch,Kredit Multiguna,631.59,12.89,Lengkap,Tidak,2,2,-
+LEND-0306,Medan Branch,Kredit KPR,104.03,14.0,Tidak Lengkap,Tidak,1,1,-
+LEND-0307,Bandung Branch,Kredit Multiguna,1583.29,16.09,Lengkap,Tidak,1,1,-
+LEND-0308,Medan Branch,Kredit KPR,899.29,14.32,Lengkap,Tidak,2,2,-
+LEND-0309,Bandung Branch,Kredit KPR,606.83,6.47,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (6.47%)
+LEND-0310,Surabaya Branch,Kredit Multiguna,567.17,12.25,Lengkap,Tidak,1,2,-
+LEND-0311,Medan Branch,Kredit Modal Kerja,441.88,12.09,Lengkap,Tidak,1,2,-
+LEND-0312,Bandung Branch,Kredit KPR,2006.79,13.96,Tidak Lengkap,Tidak,2,2,-
+LEND-0313,Bandung Branch,Kredit Multiguna,683.89,13.45,Tidak Lengkap,Tidak,2,1,-
+LEND-0314,Bandung Branch,Kredit Multiguna,528.54,12.26,Lengkap,Tidak,2,1,-
+LEND-0315,Bandung Branch,Kredit Modal Kerja,1332.21,14.15,Lengkap,Tidak,1,1,-
+LEND-0316,Surabaya Branch,Kredit Multiguna,452.18,14.29,Lengkap,Tidak,1,2,-
+LEND-0317,Bandung Branch,Kredit Modal Kerja,209.07,12.35,Lengkap,Tidak,2,1,-
+LEND-0318,Surabaya Branch,Kredit Modal Kerja,392.19,15.93,Tidak Lengkap,Tidak,2,2,-
+LEND-0319,Surabaya Branch,Kredit Modal Kerja,1637.06,14.23,Lengkap,Tidak,1,2,-
+LEND-0320,Medan Branch,Kredit Multiguna,448.64,12.43,Lengkap,Tidak,1,2,-
+LEND-0321,Bandung Branch,Kredit KPR,141.3,14.66,Tidak Lengkap,Tidak,2,1,-
+LEND-0322,Medan Branch,Kredit KPR,2223.15,12.01,Lengkap,Tidak,1,1,-
+LEND-0323,Surabaya Branch,Kredit Multiguna,1424.48,15.5,Lengkap,Tidak,1,2,-
+LEND-0324,Jakarta Branch,Kredit Modal Kerja,565.48,19.42,Tidak Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (19.42%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0325,Bandung Branch,Kredit KPR,4918.99,16.29,Lengkap,Tidak,2,2,-
+LEND-0326,Jakarta Branch,Kredit KPR,706.29,13.73,Lengkap,Tidak,2,2,-
+LEND-0327,Surabaya Branch,Kredit KPR,900.08,15.34,Lengkap,Tidak,2,2,-
+LEND-0328,Medan Branch,Kredit KPR,873.7,12.64,Lengkap,Tidak,2,1,-
+LEND-0329,Medan Branch,Kredit Modal Kerja,116.27,19.77,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (19.77%)
+LEND-0330,Surabaya Branch,Kredit Multiguna,143.25,14.76,Tidak Lengkap,Tidak,1,1,-
+LEND-0331,Medan Branch,Kredit Modal Kerja,3003.22,12.22,Lengkap,Tidak,2,1,-
+LEND-0332,Medan Branch,Kredit KPR,1440.61,13.53,Lengkap,Tidak,1,1,-
+LEND-0333,Surabaya Branch,Kredit Multiguna,727.9,16.76,Lengkap,Tidak,1,2,-
+LEND-0334,Surabaya Branch,Kredit Modal Kerja,1470.07,15.53,Lengkap,Tidak,1,2,-
+LEND-0335,Bandung Branch,Kredit KPR,1276.03,16.52,Lengkap,Tidak,2,2,-
+LEND-0336,Medan Branch,Kredit KPR,1894.26,16.96,Lengkap,Tidak,1,2,-
+LEND-0337,Jakarta Branch,Kredit Modal Kerja,736.02,16.39,Lengkap,Tidak,1,2,-
+LEND-0338,Bandung Branch,Kredit Multiguna,132.61,15.43,Lengkap,Tidak,1,2,-
+LEND-0339,Jakarta Branch,Kredit KPR,1044.76,15.35,Lengkap,Tidak,2,1,-
+LEND-0340,Bandung Branch,Kredit Modal Kerja,835.65,15.63,Lengkap,Tidak,1,1,-
+LEND-0341,Medan Branch,Kredit KPR,2971.41,16.84,Lengkap,Tidak,1,1,-
+LEND-0342,Bandung Branch,Kredit Modal Kerja,270.8,15.55,Lengkap,Tidak,1,2,-
+LEND-0343,Surabaya Branch,Kredit Modal Kerja,811.37,12.3,Lengkap,Tidak,2,1,-
+LEND-0344,Surabaya Branch,Kredit KPR,2508.97,14.3,Lengkap,Tidak,2,1,-
+LEND-0345,Surabaya Branch,Kredit KPR,1217.17,16.65,Tidak Lengkap,Tidak,1,1,-
+LEND-0346,Medan Branch,Kredit Multiguna,427.24,15.24,Lengkap,Tidak,2,2,-
+LEND-0347,Jakarta Branch,Kredit Modal Kerja,133.17,12.18,Tidak Lengkap,Tidak,1,2,-
+LEND-0348,Surabaya Branch,Kredit Modal Kerja,748.93,14.35,Lengkap,Tidak,1,1,-
+LEND-0349,Bandung Branch,Kredit Multiguna,286.63,12.69,Lengkap,Tidak,2,2,-
+LEND-0350,Jakarta Branch,Kredit KPR,2033.31,16.73,Lengkap,Tidak,1,1,-
+LEND-0351,Medan Branch,Kredit Multiguna,445.17,13.15,Lengkap,Tidak,1,2,-
+LEND-0352,Bandung Branch,Kredit Multiguna,455.0,13.18,Lengkap,Tidak,2,1,-
+LEND-0353,Medan Branch,Kredit Multiguna,368.14,17.2,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (17.2%)
+LEND-0354,Medan Branch,Kredit KPR,2318.93,14.16,Lengkap,Tidak,2,1,-
+LEND-0355,Jakarta Branch,Kredit KPR,476.75,24.5,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (24.5%)
+LEND-0356,Bandung Branch,Kredit KPR,398.6,16.36,Lengkap,Tidak,2,2,-
+LEND-0357,Medan Branch,Kredit Multiguna,2883.84,16.05,Lengkap,Tidak,2,1,-
+LEND-0358,Jakarta Branch,Kredit KPR,1561.14,12.73,Lengkap,Tidak,1,2,-
+LEND-0359,Medan Branch,Kredit Multiguna,1318.08,13.83,Lengkap,Tidak,2,1,-
+LEND-0360,Bandung Branch,Kredit KPR,2306.67,19.13,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (19.13%)
+LEND-0361,Surabaya Branch,Kredit KPR,2032.31,13.03,Lengkap,Tidak,2,2,-
+LEND-0362,Medan Branch,Kredit Modal Kerja,175.78,12.55,Lengkap,Tidak,1,1,-
+LEND-0363,Jakarta Branch,Kredit KPR,886.7,16.53,Lengkap,Tidak,1,1,-
+LEND-0364,Surabaya Branch,Kredit Multiguna,486.26,12.1,Lengkap,Tidak,2,1,-
+LEND-0365,Surabaya Branch,Kredit Multiguna,257.29,16.36,Lengkap,Tidak,1,1,-
+LEND-0366,Surabaya Branch,Kredit KPR,4299.34,15.76,Lengkap,Tidak,2,1,-
+LEND-0367,Medan Branch,Kredit Modal Kerja,902.4,12.24,Tidak Lengkap,Tidak,2,2,-
+LEND-0368,Bandung Branch,Kredit Modal Kerja,494.97,14.18,Lengkap,Tidak,2,1,-
+LEND-0369,Bandung Branch,Kredit KPR,300.38,16.54,Lengkap,Tidak,1,2,-
+LEND-0370,Surabaya Branch,Kredit Modal Kerja,294.5,15.84,Lengkap,Tidak,1,2,-
+LEND-0371,Medan Branch,Kredit Modal Kerja,648.69,15.37,Tidak Lengkap,Tidak,2,2,-
+LEND-0372,Surabaya Branch,Kredit Modal Kerja,1062.72,12.68,Lengkap,Tidak,1,1,-
+LEND-0373,Jakarta Branch,Kredit Modal Kerja,1699.24,15.92,Lengkap,Tidak,2,1,-
+LEND-0374,Surabaya Branch,Kredit Modal Kerja,293.38,16.52,Tidak Lengkap,Tidak,1,2,-
+LEND-0375,Bandung Branch,Kredit Multiguna,2441.11,12.78,Lengkap,Tidak,2,2,-
+LEND-0376,Jakarta Branch,Kredit KPR,3607.91,15.33,Lengkap,Tidak,1,2,-
+LEND-0377,Bandung Branch,Kredit Multiguna,885.73,15.42,Lengkap,Tidak,2,1,-
+LEND-0378,Medan Branch,Kredit Modal Kerja,210.79,16.01,Lengkap,Tidak,2,1,-
+LEND-0379,Surabaya Branch,Kredit Multiguna,639.09,12.49,Lengkap,Tidak,1,2,-
+LEND-0380,Surabaya Branch,Kredit KPR,317.42,15.29,Lengkap,Tidak,2,1,-
+LEND-0381,Medan Branch,Kredit Modal Kerja,111.01,13.49,Lengkap,Tidak,2,2,-
+LEND-0382,Jakarta Branch,Kredit Multiguna,2548.54,13.3,Lengkap,Tidak,1,2,-
+LEND-0383,Bandung Branch,Kredit Multiguna,1135.77,13.7,Lengkap,Tidak,2,2,-
+LEND-0384,Bandung Branch,Kredit KPR,162.04,13.91,Lengkap,Tidak,2,1,-
+LEND-0385,Medan Branch,Kredit KPR,859.62,16.09,Tidak Lengkap,Tidak,1,2,-
+LEND-0386,Bandung Branch,Kredit KPR,1197.61,15.1,Lengkap,Tidak,1,2,-
+LEND-0387,Surabaya Branch,Kredit Modal Kerja,259.93,16.22,Lengkap,Tidak,1,2,-
+LEND-0388,Medan Branch,Kredit KPR,1468.35,14.99,Tidak Lengkap,Tidak,1,1,-
+LEND-0389,Jakarta Branch,Kredit KPR,876.57,16.04,Lengkap,Tidak,2,2,-
+LEND-0390,Surabaya Branch,Kredit Modal Kerja,294.45,13.02,Tidak Lengkap,Tidak,1,2,-
+LEND-0391,Medan Branch,Kredit KPR,1746.41,16.19,Lengkap,Tidak,1,1,-
+LEND-0392,Surabaya Branch,Kredit KPR,1949.08,13.57,Lengkap,Tidak,1,2,-
+LEND-0393,Medan Branch,Kredit KPR,3018.4,13.8,Lengkap,Tidak,2,1,-
+LEND-0394,Surabaya Branch,Kredit Modal Kerja,1959.85,21.88,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (21.88%)
+LEND-0395,Bandung Branch,Kredit Modal Kerja,1350.59,18.17,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (18.17%)
+LEND-0396,Bandung Branch,Kredit Multiguna,233.35,10.68,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (10.68%)
+LEND-0397,Bandung Branch,Kredit Multiguna,145.99,14.8,Tidak Lengkap,Tidak,2,2,-
+LEND-0398,Surabaya Branch,Kredit KPR,317.68,14.82,Lengkap,Tidak,2,2,-
+LEND-0399,Surabaya Branch,Kredit Multiguna,412.55,16.99,Lengkap,Tidak,2,1,-
+LEND-0400,Surabaya Branch,Kredit KPR,428.77,13.62,Lengkap,Tidak,2,2,-
+LEND-0401,Bandung Branch,Kredit Modal Kerja,173.39,18.63,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (18.63%)
+LEND-0402,Bandung Branch,Kredit Modal Kerja,2570.41,21.4,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (21.4%)
+LEND-0403,Medan Branch,Kredit KPR,1021.41,16.93,Lengkap,Tidak,1,2,-
+LEND-0404,Medan Branch,Kredit Modal Kerja,1251.21,13.05,Lengkap,Tidak,2,2,-
+LEND-0405,Jakarta Branch,Kredit Multiguna,146.67,15.09,Lengkap,Tidak,1,2,-
+LEND-0406,Bandung Branch,Kredit Modal Kerja,1341.13,16.63,Lengkap,Tidak,1,2,-
+LEND-0407,Medan Branch,Kredit Modal Kerja,152.22,11.41,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (11.41%)
+LEND-0408,Surabaya Branch,Kredit Modal Kerja,570.59,12.15,Lengkap,Tidak,2,2,-
+LEND-0409,Surabaya Branch,Kredit Multiguna,1736.61,13.25,Lengkap,Tidak,2,2,-
+LEND-0410,Jakarta Branch,Kredit Modal Kerja,141.91,18.46,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (18.46%)
+LEND-0411,Bandung Branch,Kredit Multiguna,483.95,13.14,Lengkap,Tidak,2,2,-
+LEND-0412,Medan Branch,Kredit Modal Kerja,190.27,16.5,Lengkap,Tidak,1,1,-
+LEND-0413,Jakarta Branch,Kredit Modal Kerja,2624.76,15.34,Lengkap,Tidak,1,1,-
+LEND-0414,Jakarta Branch,Kredit Multiguna,482.96,14.35,Tidak Lengkap,Tidak,1,2,-
+LEND-0415,Medan Branch,Kredit Modal Kerja,186.54,12.12,Lengkap,Tidak,1,1,-
+LEND-0416,Bandung Branch,Kredit Multiguna,389.01,13.26,Lengkap,Tidak,1,1,-
+LEND-0417,Jakarta Branch,Kredit Modal Kerja,2665.15,14.74,Lengkap,Tidak,2,1,-
+LEND-0418,Bandung Branch,Kredit KPR,395.91,15.69,Lengkap,Tidak,2,1,-
+LEND-0419,Surabaya Branch,Kredit Modal Kerja,107.35,13.59,Lengkap,Tidak,1,2,-
+LEND-0420,Bandung Branch,Kredit Modal Kerja,137.21,18.46,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (18.46%)
+LEND-0421,Bandung Branch,Kredit Multiguna,129.25,15.22,Lengkap,Tidak,1,2,-
+LEND-0422,Jakarta Branch,Kredit KPR,437.35,6.91,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (6.91%)
+LEND-0423,Jakarta Branch,Kredit KPR,103.89,12.26,Lengkap,Tidak,1,1,-
+LEND-0424,Surabaya Branch,Kredit Modal Kerja,978.86,12.54,Lengkap,Tidak,1,1,-
+LEND-0425,Bandung Branch,Kredit Multiguna,1087.53,15.41,Lengkap,Tidak,1,1,-
+LEND-0426,Surabaya Branch,Kredit Multiguna,376.33,12.64,Tidak Lengkap,Tidak,2,1,-
+LEND-0427,Surabaya Branch,Kredit KPR,346.65,14.55,Lengkap,Tidak,1,2,-
+LEND-0428,Jakarta Branch,Kredit KPR,1783.16,24.03,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (24.03%)
+LEND-0429,Jakarta Branch,Kredit Multiguna,1564.1,20.0,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (20.0%)
+LEND-0430,Bandung Branch,Kredit Modal Kerja,1212.54,12.72,Lengkap,Tidak,2,1,-
+LEND-0431,Medan Branch,Kredit Modal Kerja,1571.33,16.28,Lengkap,Tidak,2,1,-
+LEND-0432,Surabaya Branch,Kredit Modal Kerja,295.09,12.56,Lengkap,Tidak,1,2,-
+LEND-0433,Bandung Branch,Kredit KPR,200.76,12.08,Lengkap,Tidak,1,1,-
+LEND-0434,Medan Branch,Kredit KPR,1694.0,13.28,Lengkap,Tidak,1,2,-
+LEND-0435,Medan Branch,Kredit Multiguna,768.54,16.01,Lengkap,Tidak,1,1,-
+LEND-0436,Bandung Branch,Kredit KPR,587.08,12.74,Lengkap,Tidak,1,2,-
+LEND-0437,Bandung Branch,Kredit Multiguna,189.71,15.57,Tidak Lengkap,Tidak,1,2,-
+LEND-0438,Bandung Branch,Kredit Multiguna,802.84,13.73,Lengkap,Tidak,2,1,-
+LEND-0439,Bandung Branch,Kredit Multiguna,712.15,16.52,Tidak Lengkap,Tidak,1,2,-
+LEND-0440,Medan Branch,Kredit Multiguna,1124.6,16.3,Lengkap,Tidak,1,2,-
+LEND-0441,Medan Branch,Kredit Modal Kerja,1719.66,20.09,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (20.09%)
+LEND-0442,Jakarta Branch,Kredit KPR,550.04,14.43,Tidak Lengkap,Tidak,1,2,-
+LEND-0443,Surabaya Branch,Kredit KPR,3773.16,14.06,Tidak Lengkap,Tidak,1,2,-
+LEND-0444,Jakarta Branch,Kredit Modal Kerja,3205.65,13.19,Lengkap,Tidak,1,2,-
+LEND-0445,Medan Branch,Kredit Modal Kerja,1264.49,16.82,Lengkap,Tidak,2,2,-
+LEND-0446,Jakarta Branch,Kredit Modal Kerja,184.59,13.39,Lengkap,Tidak,1,1,-
+LEND-0447,Medan Branch,Kredit KPR,550.3,14.35,Lengkap,Tidak,2,2,-
+LEND-0448,Medan Branch,Kredit Multiguna,1951.37,5.39,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (5.39%)
+LEND-0449,Bandung Branch,Kredit Modal Kerja,302.82,13.04,Lengkap,Tidak,1,2,-
+LEND-0450,Jakarta Branch,Kredit KPR,1201.37,7.59,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (7.59%)
+LEND-0451,Medan Branch,Kredit KPR,315.06,13.27,Lengkap,Tidak,2,2,-
+LEND-0452,Jakarta Branch,Kredit Modal Kerja,1414.68,12.23,Lengkap,Tidak,2,2,-
+LEND-0453,Bandung Branch,Kredit Multiguna,2091.19,14.01,Lengkap,Tidak,2,2,-
+LEND-0454,Medan Branch,Kredit Modal Kerja,641.12,14.85,Lengkap,Tidak,2,1,-
+LEND-0455,Surabaya Branch,Kredit Multiguna,310.71,12.61,Lengkap,Tidak,1,2,-
+LEND-0456,Medan Branch,Kredit Modal Kerja,2033.55,13.23,Lengkap,Tidak,2,1,-
+LEND-0457,Bandung Branch,Kredit KPR,912.04,15.14,Lengkap,Tidak,2,1,-
+LEND-0458,Medan Branch,Kredit Modal Kerja,257.12,15.61,Lengkap,Tidak,2,1,-
+LEND-0459,Medan Branch,Kredit KPR,622.45,13.56,Lengkap,Tidak,1,1,-
+LEND-0460,Surabaya Branch,Kredit Multiguna,374.9,12.81,Lengkap,Tidak,2,2,-
+LEND-0461,Medan Branch,Kredit KPR,515.51,15.52,Lengkap,Tidak,2,1,-
+LEND-0462,Jakarta Branch,Kredit Modal Kerja,614.9,14.27,Lengkap,Tidak,2,2,-
+LEND-0463,Bandung Branch,Kredit Modal Kerja,230.47,15.74,Lengkap,Tidak,1,2,-
+LEND-0464,Jakarta Branch,Kredit KPR,114.19,14.19,Lengkap,Tidak,1,1,-
+LEND-0465,Jakarta Branch,Kredit Multiguna,911.16,15.59,Lengkap,Tidak,2,2,-
+LEND-0466,Surabaya Branch,Kredit Multiguna,3887.57,14.7,Lengkap,Tidak,2,1,-
+LEND-0467,Medan Branch,Kredit Modal Kerja,638.9,13.93,Tidak Lengkap,Tidak,2,1,-
+LEND-0468,Medan Branch,Kredit Modal Kerja,109.55,12.01,Tidak Lengkap,Tidak,2,2,-
+LEND-0469,Medan Branch,Kredit Modal Kerja,180.93,13.56,Lengkap,Tidak,2,1,-
+LEND-0470,Medan Branch,Kredit Multiguna,245.51,10.44,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (10.44%)
+LEND-0471,Jakarta Branch,Kredit Modal Kerja,723.26,19.3,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (19.3%)
+LEND-0472,Surabaya Branch,Kredit KPR,3488.86,14.87,Lengkap,Tidak,2,1,-
+LEND-0473,Surabaya Branch,Kredit KPR,545.11,15.35,Tidak Lengkap,Tidak,1,1,-
+LEND-0474,Medan Branch,Kredit Multiguna,894.67,22.3,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (22.3%)
+LEND-0475,Jakarta Branch,Kredit Modal Kerja,620.13,14.02,Lengkap,Tidak,1,1,-
+LEND-0476,Medan Branch,Kredit Multiguna,1329.92,13.14,Lengkap,Tidak,1,1,-
+LEND-0477,Jakarta Branch,Kredit KPR,1147.19,12.16,Lengkap,Tidak,1,1,-
+LEND-0478,Bandung Branch,Kredit Multiguna,2420.85,10.07,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (10.07%)
+LEND-0479,Surabaya Branch,Kredit Multiguna,2793.83,13.58,Lengkap,Tidak,2,2,-
+LEND-0480,Surabaya Branch,Kredit KPR,911.99,15.92,Lengkap,Tidak,1,2,-
+LEND-0481,Bandung Branch,Kredit KPR,838.12,14.02,Lengkap,Tidak,2,1,-
+LEND-0482,Bandung Branch,Kredit Multiguna,1848.26,10.06,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (10.06%)
+LEND-0483,Surabaya Branch,Kredit KPR,1555.13,15.11,Tidak Lengkap,Tidak,2,1,-
+LEND-0484,Surabaya Branch,Kredit Multiguna,567.09,12.43,Lengkap,Tidak,1,1,-
+LEND-0485,Bandung Branch,Kredit Multiguna,2077.28,13.32,Lengkap,Tidak,2,2,-
+LEND-0486,Surabaya Branch,Kredit KPR,1043.16,13.51,Lengkap,Tidak,1,1,-
+LEND-0487,Surabaya Branch,Kredit Multiguna,769.67,15.26,Lengkap,Tidak,1,2,-
+LEND-0488,Jakarta Branch,Kredit Modal Kerja,204.05,15.44,Lengkap,Tidak,1,2,-
+LEND-0489,Surabaya Branch,Kredit Multiguna,672.23,16.52,Lengkap,Tidak,1,1,-
+LEND-0490,Jakarta Branch,Kredit KPR,2586.85,15.56,Lengkap,Tidak,2,1,-
+LEND-0491,Jakarta Branch,Kredit Modal Kerja,895.67,14.18,Lengkap,Tidak,2,2,-
+LEND-0492,Medan Branch,Kredit Multiguna,955.54,15.26,Lengkap,Tidak,2,1,-
+LEND-0493,Bandung Branch,Kredit Multiguna,1148.1,15.81,Lengkap,Tidak,2,1,-
+LEND-0494,Surabaya Branch,Kredit KPR,351.2,15.89,Tidak Lengkap,Tidak,1,2,-
+LEND-0495,Medan Branch,Kredit Modal Kerja,597.61,13.25,Lengkap,Tidak,2,2,-
+LEND-0496,Bandung Branch,Kredit KPR,817.38,16.62,Lengkap,Tidak,2,1,-
+LEND-0497,Jakarta Branch,Kredit KPR,563.07,23.08,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (23.08%)
+LEND-0498,Medan Branch,Kredit Modal Kerja,2144.14,12.47,Lengkap,Tidak,2,2,-
+LEND-0499,Medan Branch,Kredit KPR,1018.41,15.39,Lengkap,Tidak,2,2,-
+LEND-0500,Surabaya Branch,Kredit KPR,109.29,15.34,Lengkap,Tidak,2,1,-
+LEND-0501,Bandung Branch,Kredit KPR,174.12,12.84,Lengkap,Tidak,1,1,-
+LEND-0502,Medan Branch,Kredit KPR,708.96,14.56,Lengkap,Tidak,2,1,-
+LEND-0503,Jakarta Branch,Kredit Modal Kerja,979.94,16.79,Lengkap,Tidak,2,1,-
+LEND-0504,Bandung Branch,Kredit Modal Kerja,3077.1,13.64,Tidak Lengkap,Tidak,1,2,-
+LEND-0505,Bandung Branch,Kredit Modal Kerja,893.17,22.14,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (22.14%)
+LEND-0506,Jakarta Branch,Kredit Multiguna,985.81,16.41,Lengkap,Tidak,2,2,-
+LEND-0507,Surabaya Branch,Kredit Modal Kerja,1168.16,14.76,Lengkap,Tidak,1,2,-
+LEND-0508,Jakarta Branch,Kredit KPR,115.65,12.09,Tidak Lengkap,Tidak,1,1,-
+LEND-0509,Jakarta Branch,Kredit Modal Kerja,728.9,14.86,Lengkap,Tidak,1,2,-
+LEND-0510,Bandung Branch,Kredit KPR,2347.17,19.39,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (19.39%)
+LEND-0511,Bandung Branch,Kredit Modal Kerja,137.03,15.57,Lengkap,Tidak,1,1,-
+LEND-0512,Jakarta Branch,Kredit Multiguna,149.16,15.74,Lengkap,Tidak,2,2,-
+LEND-0513,Surabaya Branch,Kredit KPR,1641.9,16.57,Lengkap,Tidak,2,1,-
+LEND-0514,Bandung Branch,Kredit Multiguna,1232.02,16.49,Tidak Lengkap,Tidak,1,1,-
+LEND-0515,Medan Branch,Kredit Modal Kerja,439.79,13.52,Lengkap,Tidak,2,2,-
+LEND-0516,Medan Branch,Kredit Modal Kerja,1346.8,13.89,Lengkap,Tidak,2,2,-
+LEND-0517,Bandung Branch,Kredit Modal Kerja,827.38,16.4,Lengkap,Tidak,1,2,-
+LEND-0518,Jakarta Branch,Kredit Modal Kerja,3361.64,16.25,Lengkap,Tidak,2,1,-
+LEND-0519,Medan Branch,Kredit Modal Kerja,532.76,15.56,Lengkap,Tidak,2,1,-
+LEND-0520,Medan Branch,Kredit KPR,955.03,8.59,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (8.59%)
+LEND-0521,Medan Branch,Kredit Multiguna,644.31,13.23,Lengkap,Tidak,2,2,-
+LEND-0522,Jakarta Branch,Kredit KPR,273.59,19.17,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (19.17%)
+LEND-0523,Surabaya Branch,Kredit Multiguna,1220.03,13.21,Lengkap,Tidak,2,1,-
+LEND-0524,Medan Branch,Kredit Multiguna,838.9,14.78,Lengkap,Tidak,1,1,-
+LEND-0525,Jakarta Branch,Kredit Modal Kerja,1892.79,12.04,Lengkap,Tidak,1,2,-
+LEND-0526,Jakarta Branch,Kredit Multiguna,191.62,15.1,Lengkap,Tidak,1,2,-
+LEND-0527,Surabaya Branch,Kredit Modal Kerja,2367.95,15.13,Lengkap,Tidak,1,2,-
+LEND-0528,Jakarta Branch,Kredit Multiguna,2035.35,14.26,Lengkap,Tidak,2,1,-
+LEND-0529,Jakarta Branch,Kredit Modal Kerja,2779.6,12.25,Lengkap,Tidak,1,2,-
+LEND-0530,Medan Branch,Kredit Modal Kerja,201.74,15.88,Lengkap,Tidak,2,1,-
+LEND-0531,Surabaya Branch,Kredit Modal Kerja,481.04,15.97,Lengkap,Tidak,2,1,-
+LEND-0532,Bandung Branch,Kredit Modal Kerja,3798.04,16.49,Tidak Lengkap,Tidak,2,2,-
+LEND-0533,Bandung Branch,Kredit Modal Kerja,1007.11,24.5,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (24.5%)
+LEND-0534,Surabaya Branch,Kredit Multiguna,888.5,16.93,Lengkap,Tidak,2,2,-
+LEND-0535,Jakarta Branch,Kredit KPR,1357.79,16.84,Lengkap,Tidak,1,1,-
+LEND-0536,Surabaya Branch,Kredit KPR,1139.44,16.24,Lengkap,Tidak,1,1,-
+LEND-0537,Surabaya Branch,Kredit KPR,571.57,15.37,Lengkap,Tidak,1,2,-
+LEND-0538,Surabaya Branch,Kredit Multiguna,571.93,13.63,Lengkap,Tidak,1,2,-
+LEND-0539,Surabaya Branch,Kredit KPR,2365.2,15.92,Lengkap,Tidak,2,1,-
+LEND-0540,Surabaya Branch,Kredit KPR,1408.69,12.4,Lengkap,Tidak,2,2,-
+LEND-0541,Medan Branch,Kredit Multiguna,2414.41,13.01,Lengkap,Tidak,2,1,-
+LEND-0542,Jakarta Branch,Kredit Multiguna,2332.45,16.67,Lengkap,Tidak,1,2,-
+LEND-0543,Medan Branch,Kredit Multiguna,1809.62,15.94,Lengkap,Tidak,2,1,-
+LEND-0544,Medan Branch,Kredit Modal Kerja,2603.74,16.44,Lengkap,Tidak,2,2,-
+LEND-0545,Jakarta Branch,Kredit KPR,735.73,6.87,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (6.87%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0546,Bandung Branch,Kredit Modal Kerja,2348.54,15.53,Lengkap,Tidak,2,1,-
+LEND-0547,Medan Branch,Kredit Modal Kerja,1411.03,15.25,Lengkap,Tidak,2,1,-
+LEND-0548,Surabaya Branch,Kredit Modal Kerja,628.78,12.32,Lengkap,Tidak,2,1,-
+LEND-0549,Bandung Branch,Kredit Multiguna,1138.06,12.22,Lengkap,Tidak,1,2,-
+LEND-0550,Medan Branch,Kredit Multiguna,817.35,21.39,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (21.39%)
+LEND-0551,Medan Branch,Kredit Modal Kerja,4355.3,15.69,Lengkap,Tidak,2,2,-
+LEND-0552,Surabaya Branch,Kredit Multiguna,344.08,5.62,Tidak Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (5.62%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0553,Surabaya Branch,Kredit Multiguna,2554.25,14.74,Lengkap,Tidak,2,1,-
+LEND-0554,Jakarta Branch,Kredit Modal Kerja,1257.43,12.1,Lengkap,Tidak,1,1,-
+LEND-0555,Medan Branch,Kredit KPR,133.8,16.73,Lengkap,Tidak,2,2,-
+LEND-0556,Medan Branch,Kredit Modal Kerja,1036.03,14.65,Lengkap,Tidak,2,1,-
+LEND-0557,Bandung Branch,Kredit KPR,120.43,16.71,Lengkap,Tidak,1,2,-
+LEND-0558,Surabaya Branch,Kredit Modal Kerja,414.0,6.76,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (6.76%)
+LEND-0559,Medan Branch,Kredit Multiguna,125.1,5.85,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (5.85%)
+LEND-0560,Medan Branch,Kredit Multiguna,986.6,12.64,Lengkap,Tidak,1,2,-
+LEND-0561,Bandung Branch,Kredit Multiguna,1943.17,16.67,Lengkap,Tidak,2,2,-
+LEND-0562,Surabaya Branch,Kredit Modal Kerja,2031.36,14.04,Lengkap,Tidak,2,1,-
+LEND-0563,Medan Branch,Kredit Multiguna,1986.77,13.08,Lengkap,Tidak,1,2,-
+LEND-0564,Jakarta Branch,Kredit Modal Kerja,269.6,6.38,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (6.38%)
+LEND-0565,Jakarta Branch,Kredit Multiguna,379.98,15.95,Lengkap,Tidak,1,2,-
+LEND-0566,Medan Branch,Kredit Modal Kerja,1067.29,12.92,Lengkap,Tidak,1,1,-
+LEND-0567,Medan Branch,Kredit Modal Kerja,221.3,14.59,Lengkap,Tidak,1,1,-
+LEND-0568,Surabaya Branch,Kredit Modal Kerja,403.06,13.59,Lengkap,Tidak,2,1,-
+LEND-0569,Jakarta Branch,Kredit KPR,1302.37,12.0,Lengkap,Tidak,2,1,-
+LEND-0570,Surabaya Branch,Kredit KPR,1096.74,6.8,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (6.8%)
+LEND-0571,Jakarta Branch,Kredit Modal Kerja,1641.93,14.58,Lengkap,Tidak,1,2,-
+LEND-0572,Jakarta Branch,Kredit KPR,3397.64,7.82,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (7.82%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0573,Surabaya Branch,Kredit Multiguna,824.3,12.4,Lengkap,Tidak,2,2,-
+LEND-0574,Medan Branch,Kredit Modal Kerja,930.67,14.92,Lengkap,Tidak,2,2,-
+LEND-0575,Surabaya Branch,Kredit Modal Kerja,284.75,12.64,Lengkap,Tidak,2,2,-
+LEND-0576,Surabaya Branch,Kredit KPR,506.29,16.68,Lengkap,Tidak,1,1,-
+LEND-0577,Surabaya Branch,Kredit Multiguna,3209.63,16.12,Lengkap,Tidak,1,1,-
+LEND-0578,Surabaya Branch,Kredit KPR,921.84,13.59,Lengkap,Tidak,2,1,-
+LEND-0579,Medan Branch,Kredit Multiguna,983.46,14.09,Lengkap,Tidak,2,1,-
+LEND-0580,Medan Branch,Kredit Modal Kerja,974.51,16.58,Tidak Lengkap,Tidak,2,2,-
+LEND-0581,Bandung Branch,Kredit KPR,518.45,16.44,Tidak Lengkap,Tidak,1,2,-
+LEND-0582,Surabaya Branch,Kredit KPR,1652.19,13.64,Lengkap,Tidak,1,1,-
+LEND-0583,Surabaya Branch,Kredit Multiguna,509.44,16.77,Lengkap,Tidak,1,2,-
+LEND-0584,Bandung Branch,Kredit KPR,1138.35,15.29,Lengkap,Tidak,1,2,-
+LEND-0585,Medan Branch,Kredit Modal Kerja,375.59,12.06,Lengkap,Tidak,1,2,-
+LEND-0586,Medan Branch,Kredit KPR,564.4,16.53,Lengkap,Tidak,1,1,-
+LEND-0587,Bandung Branch,Kredit Modal Kerja,4294.87,13.84,Lengkap,Tidak,2,1,-
+LEND-0588,Jakarta Branch,Kredit Multiguna,9516.06,15.17,Lengkap,Tidak,2,1,-
+LEND-0589,Surabaya Branch,Kredit Multiguna,1575.32,12.17,Lengkap,Tidak,1,2,-
+LEND-0590,Jakarta Branch,Kredit Multiguna,1130.03,15.61,Lengkap,Tidak,2,2,-
+LEND-0591,Medan Branch,Kredit KPR,164.07,16.49,Lengkap,Tidak,1,2,-
+LEND-0592,Jakarta Branch,Kredit Multiguna,2584.93,13.54,Tidak Lengkap,Tidak,1,1,-
+LEND-0593,Jakarta Branch,Kredit Modal Kerja,3011.03,16.67,Lengkap,Tidak,2,1,-
+LEND-0594,Medan Branch,Kredit KPR,700.97,12.76,Lengkap,Tidak,2,2,-
+LEND-0595,Surabaya Branch,Kredit KPR,416.3,10.79,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (10.79%)
+LEND-0596,Jakarta Branch,Kredit KPR,6003.16,12.97,Lengkap,Tidak,1,1,-
+LEND-0597,Surabaya Branch,Kredit Modal Kerja,155.84,5.37,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (5.37%)
+LEND-0598,Medan Branch,Kredit KPR,1850.17,14.5,Tidak Lengkap,Tidak,2,1,-
+LEND-0599,Surabaya Branch,Kredit KPR,1075.55,16.69,Tidak Lengkap,Tidak,1,2,-
+LEND-0600,Jakarta Branch,Kredit Multiguna,1617.04,12.1,Lengkap,Tidak,1,2,-
+LEND-0601,Medan Branch,Kredit Modal Kerja,1705.54,15.9,Lengkap,Tidak,1,2,-
+LEND-0602,Medan Branch,Kredit KPR,411.25,13.25,Tidak Lengkap,Tidak,2,2,-
+LEND-0603,Jakarta Branch,Kredit KPR,1958.08,16.61,Lengkap,Tidak,2,2,-
+LEND-0604,Surabaya Branch,Kredit KPR,1121.67,12.69,Lengkap,Tidak,1,1,-
+LEND-0605,Bandung Branch,Kredit Modal Kerja,116.04,7.55,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (7.55%)
+LEND-0606,Bandung Branch,Kredit Modal Kerja,1916.34,14.61,Lengkap,Tidak,1,1,-
+LEND-0607,Surabaya Branch,Kredit Modal Kerja,321.5,7.44,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (7.44%)
+LEND-0608,Bandung Branch,Kredit Multiguna,204.58,16.18,Lengkap,Tidak,1,1,-
+LEND-0609,Bandung Branch,Kredit Modal Kerja,272.64,16.26,Lengkap,Tidak,2,1,-
+LEND-0610,Bandung Branch,Kredit Modal Kerja,173.13,10.05,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (10.05%)
+LEND-0611,Jakarta Branch,Kredit Modal Kerja,1295.89,12.71,Lengkap,Tidak,2,1,-
+LEND-0612,Bandung Branch,Kredit Modal Kerja,114.25,6.77,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (6.77%)
+LEND-0613,Bandung Branch,Kredit Modal Kerja,565.39,14.73,Lengkap,Tidak,1,2,-
+LEND-0614,Surabaya Branch,Kredit Modal Kerja,743.76,15.43,Tidak Lengkap,Tidak,1,2,-
+LEND-0615,Bandung Branch,Kredit Modal Kerja,103.72,15.52,Lengkap,Tidak,2,2,-
+LEND-0616,Bandung Branch,Kredit Modal Kerja,923.95,13.82,Lengkap,Tidak,2,1,-
+LEND-0617,Medan Branch,Kredit Modal Kerja,1963.44,15.71,Lengkap,Tidak,2,2,-
+LEND-0618,Jakarta Branch,Kredit Modal Kerja,487.03,16.82,Lengkap,Tidak,2,1,-
+LEND-0619,Surabaya Branch,Kredit Modal Kerja,755.78,16.35,Lengkap,Tidak,1,1,-
+LEND-0620,Bandung Branch,Kredit Multiguna,176.83,16.56,Tidak Lengkap,Tidak,1,2,-
+LEND-0621,Bandung Branch,Kredit Modal Kerja,856.65,13.33,Lengkap,Tidak,2,2,-
+LEND-0622,Bandung Branch,Kredit Multiguna,781.58,13.28,Lengkap,Tidak,2,2,-
+LEND-0623,Jakarta Branch,Kredit KPR,390.17,15.64,Lengkap,Tidak,2,2,-
+LEND-0624,Jakarta Branch,Kredit Multiguna,321.25,15.2,Lengkap,Tidak,1,1,-
+LEND-0625,Medan Branch,Kredit Modal Kerja,303.38,15.89,Lengkap,Tidak,2,1,-
+LEND-0626,Jakarta Branch,Kredit Multiguna,649.43,13.62,Lengkap,Tidak,1,1,-
+LEND-0627,Surabaya Branch,Kredit Multiguna,1810.27,14.06,Lengkap,Tidak,2,2,-
+LEND-0628,Surabaya Branch,Kredit KPR,560.02,9.28,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (9.28%)
+LEND-0629,Bandung Branch,Kredit Modal Kerja,1138.97,14.93,Lengkap,Tidak,2,2,-
+LEND-0630,Surabaya Branch,Kredit Multiguna,4031.63,14.95,Tidak Lengkap,Tidak,2,1,-
+LEND-0631,Medan Branch,Kredit Modal Kerja,314.43,15.5,Lengkap,Tidak,2,2,-
+LEND-0632,Bandung Branch,Kredit KPR,257.85,18.85,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (18.85%)
+LEND-0633,Jakarta Branch,Kredit Modal Kerja,2630.64,13.69,Tidak Lengkap,Tidak,1,1,-
+LEND-0634,Jakarta Branch,Kredit KPR,238.88,23.17,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (23.17%)
+LEND-0635,Surabaya Branch,Kredit Multiguna,132.03,16.22,Lengkap,Tidak,1,2,-
+LEND-0636,Surabaya Branch,Kredit Modal Kerja,3572.83,15.78,Lengkap,Tidak,1,1,-
+LEND-0637,Medan Branch,Kredit Modal Kerja,1002.34,15.39,Lengkap,Tidak,2,2,-
+LEND-0638,Surabaya Branch,Kredit KPR,811.44,9.33,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (9.33%)
+LEND-0639,Bandung Branch,Kredit Multiguna,655.27,16.86,Tidak Lengkap,Tidak,2,1,-
+LEND-0640,Surabaya Branch,Kredit KPR,174.7,13.88,Lengkap,Tidak,2,1,-
+LEND-0641,Jakarta Branch,Kredit Modal Kerja,3138.87,13.37,Tidak Lengkap,Tidak,2,1,-
+LEND-0642,Surabaya Branch,Kredit Multiguna,1121.98,16.12,Lengkap,Tidak,1,1,-
+LEND-0643,Bandung Branch,Kredit KPR,3651.37,13.04,Tidak Lengkap,Tidak,2,2,-
+LEND-0644,Medan Branch,Kredit Multiguna,102.5,9.22,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (9.22%)
+LEND-0645,Surabaya Branch,Kredit Modal Kerja,218.89,13.27,Lengkap,Tidak,2,2,-
+LEND-0646,Jakarta Branch,Kredit Modal Kerja,217.51,16.85,Lengkap,Tidak,2,2,-
+LEND-0647,Surabaya Branch,Kredit Modal Kerja,197.81,6.62,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (6.62%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0648,Medan Branch,Kredit Modal Kerja,4469.62,15.89,Lengkap,Tidak,2,2,-
+LEND-0649,Bandung Branch,Kredit KPR,507.62,13.46,Lengkap,Tidak,2,2,-
+LEND-0650,Surabaya Branch,Kredit KPR,536.5,15.16,Tidak Lengkap,Tidak,2,2,-
+LEND-0651,Medan Branch,Kredit Modal Kerja,771.31,15.28,Lengkap,Tidak,1,1,-
+LEND-0652,Jakarta Branch,Kredit Modal Kerja,297.99,12.59,Tidak Lengkap,Tidak,2,1,-
+LEND-0653,Jakarta Branch,Kredit Modal Kerja,805.6,16.52,Lengkap,Tidak,2,1,-
+LEND-0654,Surabaya Branch,Kredit Modal Kerja,309.36,16.33,Lengkap,Tidak,2,2,-
+LEND-0655,Medan Branch,Kredit KPR,227.93,12.84,Lengkap,Tidak,1,2,-
+LEND-0656,Surabaya Branch,Kredit KPR,262.83,16.64,Lengkap,Tidak,1,1,-
+LEND-0657,Bandung Branch,Kredit Multiguna,2088.56,14.44,Lengkap,Tidak,1,1,-
+LEND-0658,Medan Branch,Kredit KPR,1242.62,15.52,Lengkap,Tidak,1,1,-
+LEND-0659,Bandung Branch,Kredit Multiguna,458.07,15.05,Lengkap,Tidak,2,1,-
+LEND-0660,Medan Branch,Kredit Modal Kerja,236.82,14.35,Tidak Lengkap,Tidak,2,1,-
+LEND-0661,Medan Branch,Kredit Multiguna,1839.63,24.59,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (24.59%)
+LEND-0662,Medan Branch,Kredit Multiguna,1780.18,24.67,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (24.67%)
+LEND-0663,Medan Branch,Kredit Modal Kerja,444.08,14.66,Lengkap,Tidak,1,2,-
+LEND-0664,Surabaya Branch,Kredit Multiguna,3366.09,13.83,Lengkap,Tidak,2,1,-
+LEND-0665,Surabaya Branch,Kredit KPR,2259.84,15.45,Tidak Lengkap,Tidak,1,1,-
+LEND-0666,Surabaya Branch,Kredit Multiguna,2153.06,13.42,Lengkap,Tidak,2,1,-
+LEND-0667,Medan Branch,Kredit KPR,1826.43,15.23,Lengkap,Tidak,1,2,-
+LEND-0668,Jakarta Branch,Kredit Multiguna,358.98,13.02,Lengkap,Tidak,1,1,-
+LEND-0669,Medan Branch,Kredit KPR,353.79,12.75,Lengkap,Tidak,2,2,-
+LEND-0670,Jakarta Branch,Kredit Multiguna,241.49,15.84,Lengkap,Tidak,2,2,-
+LEND-0671,Bandung Branch,Kredit KPR,138.91,14.25,Lengkap,Tidak,1,2,-
+LEND-0672,Surabaya Branch,Kredit KPR,667.09,14.98,Lengkap,Tidak,2,1,-
+LEND-0673,Medan Branch,Kredit Multiguna,134.63,14.11,Lengkap,Tidak,1,2,-
+LEND-0674,Surabaya Branch,Kredit Modal Kerja,547.82,15.52,Tidak Lengkap,Tidak,2,1,-
+LEND-0675,Jakarta Branch,Kredit KPR,2539.7,15.82,Tidak Lengkap,Tidak,1,2,-
+LEND-0676,Medan Branch,Kredit KPR,208.55,9.61,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (9.61%)
+LEND-0677,Bandung Branch,Kredit KPR,799.48,12.46,Lengkap,Tidak,1,2,-
+LEND-0678,Bandung Branch,Kredit Multiguna,965.87,13.19,Lengkap,Tidak,1,2,-
+LEND-0679,Jakarta Branch,Kredit KPR,1405.34,12.8,Tidak Lengkap,Tidak,2,1,-
+LEND-0680,Surabaya Branch,Kredit Multiguna,1340.38,14.14,Lengkap,Tidak,1,2,-
+LEND-0681,Medan Branch,Kredit Modal Kerja,2036.87,15.19,Lengkap,Tidak,1,2,-
+LEND-0682,Bandung Branch,Kredit Multiguna,1987.67,16.4,Lengkap,Tidak,1,2,-
+LEND-0683,Medan Branch,Kredit Multiguna,641.02,13.13,Lengkap,Tidak,2,1,-
+LEND-0684,Jakarta Branch,Kredit Multiguna,1190.24,15.48,Tidak Lengkap,Tidak,1,1,-
+LEND-0685,Jakarta Branch,Kredit KPR,837.89,16.8,Tidak Lengkap,Tidak,1,1,-
+LEND-0686,Medan Branch,Kredit KPR,673.31,12.22,Lengkap,Tidak,1,1,-
+LEND-0687,Surabaya Branch,Kredit Multiguna,1028.93,14.85,Lengkap,Tidak,1,1,-
+LEND-0688,Jakarta Branch,Kredit Multiguna,3014.5,17.18,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (17.18%)
+LEND-0689,Jakarta Branch,Kredit KPR,263.82,16.03,Lengkap,Tidak,1,2,-
+LEND-0690,Medan Branch,Kredit KPR,1501.29,13.63,Tidak Lengkap,Tidak,2,2,-
+LEND-0691,Medan Branch,Kredit Multiguna,1844.66,13.07,Lengkap,Tidak,2,1,-
+LEND-0692,Jakarta Branch,Kredit Multiguna,778.06,13.71,Lengkap,Tidak,1,2,-
+LEND-0693,Medan Branch,Kredit Modal Kerja,727.6,13.05,Lengkap,Tidak,1,1,-
+LEND-0694,Bandung Branch,Kredit Multiguna,105.59,15.28,Lengkap,Tidak,2,1,-
+LEND-0695,Bandung Branch,Kredit Multiguna,630.44,13.25,Lengkap,Tidak,2,2,-
+LEND-0696,Surabaya Branch,Kredit Multiguna,793.9,14.81,Lengkap,Tidak,2,2,-
+LEND-0697,Medan Branch,Kredit Modal Kerja,501.21,14.98,Lengkap,Tidak,1,2,-
+LEND-0698,Jakarta Branch,Kredit KPR,686.98,15.7,Tidak Lengkap,Tidak,2,1,-
+LEND-0699,Surabaya Branch,Kredit KPR,313.43,15.02,Lengkap,Tidak,2,1,-
+LEND-0700,Surabaya Branch,Kredit KPR,1720.45,14.33,Lengkap,Tidak,2,2,-
+LEND-0701,Surabaya Branch,Kredit Multiguna,785.84,13.79,Lengkap,Tidak,2,2,-
+LEND-0702,Bandung Branch,Kredit Modal Kerja,135.31,12.98,Tidak Lengkap,Tidak,1,1,-
+LEND-0703,Medan Branch,Kredit KPR,825.62,12.72,Tidak Lengkap,Tidak,2,1,-
+LEND-0704,Surabaya Branch,Kredit Modal Kerja,1318.17,7.3,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (7.3%)
+LEND-0705,Medan Branch,Kredit Modal Kerja,246.51,13.35,Lengkap,Tidak,2,2,-
+LEND-0706,Surabaya Branch,Kredit KPR,701.76,12.64,Lengkap,Tidak,2,1,-
+LEND-0707,Jakarta Branch,Kredit Multiguna,131.91,13.37,Lengkap,Tidak,2,2,-
+LEND-0708,Medan Branch,Kredit Multiguna,1540.91,15.68,Lengkap,Tidak,2,2,-
+LEND-0709,Medan Branch,Kredit Multiguna,188.55,14.7,Lengkap,Tidak,1,2,-
+LEND-0710,Bandung Branch,Kredit Modal Kerja,112.56,13.27,Lengkap,Tidak,2,1,-
+LEND-0711,Surabaya Branch,Kredit Modal Kerja,390.45,14.19,Lengkap,Tidak,2,1,-
+LEND-0712,Bandung Branch,Kredit Multiguna,714.29,15.99,Lengkap,Tidak,2,1,-
+LEND-0713,Bandung Branch,Kredit Multiguna,222.11,13.08,Lengkap,Tidak,1,2,-
+LEND-0714,Bandung Branch,Kredit KPR,260.38,15.72,Lengkap,Tidak,1,2,-
+LEND-0715,Jakarta Branch,Kredit Modal Kerja,559.32,24.38,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (24.38%)
+LEND-0716,Bandung Branch,Kredit Multiguna,2261.45,10.52,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (10.52%)
+LEND-0717,Surabaya Branch,Kredit Multiguna,528.22,14.83,Lengkap,Tidak,2,2,-
+LEND-0718,Medan Branch,Kredit Modal Kerja,1017.51,12.39,Lengkap,Tidak,1,2,-
+LEND-0719,Jakarta Branch,Kredit Multiguna,871.83,21.88,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (21.88%)
+LEND-0720,Bandung Branch,Kredit Multiguna,1265.07,15.91,Lengkap,Tidak,2,1,-
+LEND-0721,Jakarta Branch,Kredit Multiguna,134.64,14.18,Lengkap,Tidak,1,2,-
+LEND-0722,Jakarta Branch,Kredit KPR,254.85,13.79,Lengkap,Tidak,2,2,-
+LEND-0723,Jakarta Branch,Kredit Modal Kerja,253.19,6.7,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (6.7%)
+LEND-0724,Surabaya Branch,Kredit KPR,287.48,13.78,Lengkap,Tidak,2,1,-
+LEND-0725,Jakarta Branch,Kredit Multiguna,432.88,13.19,Lengkap,Tidak,1,1,-
+LEND-0726,Jakarta Branch,Kredit Multiguna,493.72,12.59,Lengkap,Tidak,1,2,-
+LEND-0727,Jakarta Branch,Kredit Modal Kerja,1403.86,14.55,Tidak Lengkap,Tidak,1,2,-
+LEND-0728,Bandung Branch,Kredit Multiguna,386.32,12.2,Lengkap,Tidak,2,1,-
+LEND-0729,Bandung Branch,Kredit Multiguna,336.96,14.72,Lengkap,Tidak,1,2,-
+LEND-0730,Medan Branch,Kredit Multiguna,379.71,15.77,Tidak Lengkap,Tidak,1,2,-
+LEND-0731,Surabaya Branch,Kredit Multiguna,964.3,8.12,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (8.12%)
+LEND-0732,Jakarta Branch,Kredit Modal Kerja,1723.71,13.07,Lengkap,Tidak,2,2,-
+LEND-0733,Bandung Branch,Kredit KPR,168.22,15.33,Lengkap,Tidak,2,1,-
+LEND-0734,Surabaya Branch,Kredit KPR,1427.98,14.61,Lengkap,Tidak,2,2,-
+LEND-0735,Jakarta Branch,Kredit Modal Kerja,651.63,15.37,Lengkap,Tidak,1,2,-
+LEND-0736,Bandung Branch,Kredit KPR,1303.06,12.17,Lengkap,Tidak,1,2,-
+LEND-0737,Medan Branch,Kredit Modal Kerja,562.46,13.67,Lengkap,Tidak,2,2,-
+LEND-0738,Jakarta Branch,Kredit KPR,4185.99,12.13,Lengkap,Tidak,1,1,-
+LEND-0739,Medan Branch,Kredit Multiguna,281.4,16.79,Lengkap,Tidak,2,1,-
+LEND-0740,Medan Branch,Kredit KPR,754.57,15.3,Lengkap,Tidak,1,2,-
+LEND-0741,Medan Branch,Kredit Multiguna,2294.22,13.22,Lengkap,Tidak,2,1,-
+LEND-0742,Bandung Branch,Kredit Modal Kerja,1847.41,12.91,Lengkap,Tidak,2,1,-
+LEND-0743,Bandung Branch,Kredit Modal Kerja,4173.31,19.73,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (19.73%)
+LEND-0744,Surabaya Branch,Kredit KPR,925.66,23.26,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (23.26%)
+LEND-0745,Surabaya Branch,Kredit KPR,3378.81,14.21,Tidak Lengkap,Tidak,2,1,-
+LEND-0746,Bandung Branch,Kredit Multiguna,623.11,13.6,Lengkap,Tidak,1,2,-
+LEND-0747,Bandung Branch,Kredit Modal Kerja,2081.71,13.04,Lengkap,Tidak,1,2,-
+LEND-0748,Bandung Branch,Kredit KPR,366.3,12.73,Lengkap,Tidak,1,1,-
+LEND-0749,Medan Branch,Kredit Multiguna,1923.77,12.18,Lengkap,Tidak,2,2,-
+LEND-0750,Medan Branch,Kredit Modal Kerja,1097.17,16.5,Lengkap,Tidak,2,2,-
+LEND-0751,Bandung Branch,Kredit Multiguna,3248.54,13.81,Lengkap,Tidak,1,2,-
+LEND-0752,Bandung Branch,Kredit Multiguna,329.17,13.2,Lengkap,Tidak,1,1,-
+LEND-0753,Jakarta Branch,Kredit Modal Kerja,3070.07,12.85,Lengkap,Tidak,1,1,-
+LEND-0754,Bandung Branch,Kredit KPR,2894.11,14.98,Lengkap,Tidak,2,2,-
+LEND-0755,Bandung Branch,Kredit Modal Kerja,2953.04,16.57,Tidak Lengkap,Tidak,1,1,-
+LEND-0756,Medan Branch,Kredit KPR,3381.82,13.6,Lengkap,Tidak,2,1,-
+LEND-0757,Bandung Branch,Kredit KPR,776.63,15.05,Lengkap,Tidak,2,1,-
+LEND-0758,Bandung Branch,Kredit KPR,1652.55,12.5,Tidak Lengkap,Tidak,2,1,-
+LEND-0759,Jakarta Branch,Kredit KPR,583.02,12.22,Lengkap,Tidak,2,2,-
+LEND-0760,Medan Branch,Kredit Multiguna,223.44,12.94,Lengkap,Tidak,2,1,-
+LEND-0761,Surabaya Branch,Kredit Multiguna,1578.94,12.86,Lengkap,Tidak,1,2,-
+LEND-0762,Bandung Branch,Kredit Modal Kerja,185.1,6.41,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (6.41%)
+LEND-0763,Surabaya Branch,Kredit Multiguna,1086.98,14.2,Lengkap,Tidak,1,1,-
+LEND-0764,Surabaya Branch,Kredit Multiguna,627.74,16.97,Lengkap,Tidak,2,2,-
+LEND-0765,Bandung Branch,Kredit Modal Kerja,2326.94,12.44,Lengkap,Tidak,2,1,-
+LEND-0766,Medan Branch,Kredit Modal Kerja,420.23,16.12,Lengkap,Tidak,2,1,-
+LEND-0767,Jakarta Branch,Kredit KPR,1365.69,14.88,Lengkap,Tidak,2,1,-
+LEND-0768,Bandung Branch,Kredit Multiguna,1128.37,13.53,Lengkap,Tidak,1,2,-
+LEND-0769,Surabaya Branch,Kredit Modal Kerja,1008.08,14.53,Tidak Lengkap,Tidak,1,2,-
+LEND-0770,Jakarta Branch,Kredit KPR,1010.07,14.79,Tidak Lengkap,Tidak,1,2,-
+LEND-0771,Surabaya Branch,Kredit Multiguna,565.43,15.86,Tidak Lengkap,Tidak,1,1,-
+LEND-0772,Medan Branch,Kredit Modal Kerja,253.3,16.67,Lengkap,Tidak,1,2,-
+LEND-0773,Medan Branch,Kredit Modal Kerja,957.88,16.02,Lengkap,Tidak,2,1,-
+LEND-0774,Jakarta Branch,Kredit Modal Kerja,5446.26,16.45,Lengkap,Tidak,1,1,-
+LEND-0775,Surabaya Branch,Kredit KPR,159.26,16.98,Lengkap,Tidak,2,1,-
+LEND-0776,Bandung Branch,Kredit Modal Kerja,117.31,15.19,Lengkap,Tidak,1,2,-
+LEND-0777,Medan Branch,Kredit Modal Kerja,765.36,15.34,Lengkap,Tidak,2,2,-
+LEND-0778,Jakarta Branch,Kredit KPR,295.62,16.89,Lengkap,Tidak,1,1,-
+LEND-0779,Bandung Branch,Kredit KPR,3213.45,16.8,Lengkap,Tidak,2,1,-
+LEND-0780,Medan Branch,Kredit Modal Kerja,1614.69,14.15,Lengkap,Tidak,1,1,-
+LEND-0781,Jakarta Branch,Kredit Multiguna,907.28,12.98,Lengkap,Tidak,2,1,-
+LEND-0782,Jakarta Branch,Kredit Modal Kerja,4007.8,15.46,Lengkap,Tidak,1,2,-
+LEND-0783,Jakarta Branch,Kredit Multiguna,1534.81,16.08,Lengkap,Tidak,1,1,-
+LEND-0784,Bandung Branch,Kredit Modal Kerja,1285.44,15.33,Lengkap,Tidak,2,2,-
+LEND-0785,Surabaya Branch,Kredit KPR,1809.61,13.12,Lengkap,Tidak,1,1,-
+LEND-0786,Surabaya Branch,Kredit Modal Kerja,757.27,13.19,Lengkap,Tidak,1,1,-
+LEND-0787,Jakarta Branch,Kredit Modal Kerja,894.58,12.64,Lengkap,Tidak,2,1,-
+LEND-0788,Medan Branch,Kredit KPR,218.73,12.65,Lengkap,Tidak,2,1,-
+LEND-0789,Bandung Branch,Kredit KPR,2945.69,15.13,Lengkap,Tidak,1,1,-
+LEND-0790,Surabaya Branch,Kredit Multiguna,168.77,12.76,Lengkap,Tidak,1,2,-
+LEND-0791,Jakarta Branch,Kredit Multiguna,717.97,16.68,Lengkap,Tidak,2,2,-
+LEND-0792,Bandung Branch,Kredit Modal Kerja,198.96,14.56,Lengkap,Tidak,1,2,-
+LEND-0793,Medan Branch,Kredit Multiguna,2401.0,15.06,Lengkap,Tidak,2,1,-
+LEND-0794,Bandung Branch,Kredit KPR,2385.24,16.08,Lengkap,Tidak,2,1,-
+LEND-0795,Jakarta Branch,Kredit Modal Kerja,942.95,6.73,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (6.73%)
+LEND-0796,Bandung Branch,Kredit Multiguna,381.62,16.83,Lengkap,Tidak,2,2,-
+LEND-0797,Surabaya Branch,Kredit Multiguna,417.29,13.56,Tidak Lengkap,Tidak,1,2,-
+LEND-0798,Surabaya Branch,Kredit Multiguna,625.51,14.52,Tidak Lengkap,Tidak,2,2,-
+LEND-0799,Bandung Branch,Kredit KPR,187.71,13.37,Lengkap,Tidak,2,2,-
+LEND-0800,Bandung Branch,Kredit Modal Kerja,7818.86,14.3,Lengkap,Tidak,1,1,-
+LEND-0801,Medan Branch,Kredit Modal Kerja,293.31,15.94,Tidak Lengkap,Tidak,1,2,-
+LEND-0802,Jakarta Branch,Kredit KPR,1890.28,14.84,Lengkap,Tidak,2,1,-
+LEND-0803,Surabaya Branch,Kredit Modal Kerja,5311.37,15.83,Lengkap,Tidak,2,2,-
+LEND-0804,Medan Branch,Kredit Multiguna,101.51,13.42,Lengkap,Tidak,2,2,-
+LEND-0805,Bandung Branch,Kredit Modal Kerja,699.61,14.6,Lengkap,Tidak,1,1,-
+LEND-0806,Medan Branch,Kredit Modal Kerja,426.44,12.89,Tidak Lengkap,Tidak,1,1,-
+LEND-0807,Surabaya Branch,Kredit KPR,965.78,14.2,Lengkap,Tidak,2,1,-
+LEND-0808,Surabaya Branch,Kredit Multiguna,1066.8,16.91,Lengkap,Tidak,2,1,-
+LEND-0809,Jakarta Branch,Kredit Modal Kerja,1233.71,14.0,Lengkap,Tidak,1,2,-
+LEND-0810,Jakarta Branch,Kredit Multiguna,1491.73,15.13,Lengkap,Tidak,1,2,-
+LEND-0811,Bandung Branch,Kredit Multiguna,165.12,23.5,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (23.5%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0812,Jakarta Branch,Kredit Modal Kerja,1799.25,13.02,Lengkap,Tidak,2,1,-
+LEND-0813,Bandung Branch,Kredit Modal Kerja,169.11,13.78,Lengkap,Tidak,2,2,-
+LEND-0814,Surabaya Branch,Kredit Multiguna,3306.48,12.28,Lengkap,Tidak,2,2,-
+LEND-0815,Bandung Branch,Kredit Modal Kerja,368.46,13.3,Lengkap,Tidak,2,2,-
+LEND-0816,Jakarta Branch,Kredit Multiguna,1179.0,11.15,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (11.15%)
+LEND-0817,Medan Branch,Kredit KPR,380.68,12.42,Lengkap,Tidak,2,2,-
+LEND-0818,Jakarta Branch,Kredit Multiguna,2873.23,13.08,Lengkap,Tidak,1,2,-
+LEND-0819,Bandung Branch,Kredit Modal Kerja,1271.37,15.6,Tidak Lengkap,Tidak,1,1,-
+LEND-0820,Surabaya Branch,Kredit Multiguna,1742.65,15.12,Lengkap,Tidak,2,2,-
+LEND-0821,Jakarta Branch,Kredit Multiguna,1426.99,12.3,Lengkap,Tidak,2,1,-
+LEND-0822,Medan Branch,Kredit KPR,310.22,13.84,Lengkap,Tidak,1,1,-
+LEND-0823,Surabaya Branch,Kredit Modal Kerja,2027.45,17.73,Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (17.73%)
+LEND-0824,Bandung Branch,Kredit Modal Kerja,949.83,15.92,Lengkap,Tidak,1,2,-
+LEND-0825,Jakarta Branch,Kredit KPR,277.1,14.35,Lengkap,Tidak,2,2,-
+LEND-0826,Bandung Branch,Kredit Modal Kerja,867.9,14.3,Lengkap,Tidak,2,1,-
+LEND-0827,Medan Branch,Kredit KPR,843.42,12.08,Lengkap,Tidak,2,2,-
+LEND-0828,Bandung Branch,Kredit Multiguna,1560.07,15.14,Lengkap,Tidak,2,2,-
+LEND-0829,Medan Branch,Kredit Modal Kerja,157.91,13.52,Lengkap,Tidak,1,1,-
+LEND-0830,Surabaya Branch,Kredit Multiguna,984.67,16.73,Lengkap,Tidak,1,2,-
+LEND-0831,Bandung Branch,Kredit Modal Kerja,427.29,12.02,Lengkap,Tidak,2,2,-
+LEND-0832,Bandung Branch,Kredit KPR,1034.33,6.52,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (6.52%)
+LEND-0833,Bandung Branch,Kredit Modal Kerja,1040.99,15.86,Lengkap,Tidak,1,1,-
+LEND-0834,Jakarta Branch,Kredit Multiguna,1794.81,16.5,Lengkap,Tidak,1,2,-
+LEND-0835,Medan Branch,Kredit KPR,597.99,13.29,Lengkap,Tidak,2,1,-
+LEND-0836,Medan Branch,Kredit KPR,437.93,15.08,Lengkap,Tidak,2,2,-
+LEND-0837,Jakarta Branch,Kredit Multiguna,1019.76,16.54,Lengkap,Tidak,2,1,-
+LEND-0838,Surabaya Branch,Kredit KPR,1342.79,14.49,Tidak Lengkap,Tidak,2,2,-
+LEND-0839,Jakarta Branch,Kredit Multiguna,1157.52,13.0,Lengkap,Tidak,2,1,-
+LEND-0840,Surabaya Branch,Kredit Modal Kerja,136.16,12.12,Lengkap,Tidak,1,2,-
+LEND-0841,Bandung Branch,Kredit KPR,2018.01,13.5,Lengkap,Tidak,1,2,-
+LEND-0842,Medan Branch,Kredit Modal Kerja,590.09,13.18,Lengkap,Tidak,2,1,-
+LEND-0843,Surabaya Branch,Kredit Multiguna,737.48,13.04,Lengkap,Tidak,2,2,-
+LEND-0844,Jakarta Branch,Kredit KPR,222.91,18.67,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (18.67%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0845,Jakarta Branch,Kredit Modal Kerja,108.01,19.06,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (19.06%)
+LEND-0846,Jakarta Branch,Kredit KPR,485.17,13.79,Lengkap,Tidak,1,2,-
+LEND-0847,Bandung Branch,Kredit Multiguna,371.71,12.21,Lengkap,Tidak,2,1,-
+LEND-0848,Medan Branch,Kredit KPR,1440.61,16.49,Lengkap,Tidak,2,2,-
+LEND-0849,Surabaya Branch,Kredit KPR,1678.45,12.67,Lengkap,Tidak,2,2,-
+LEND-0850,Bandung Branch,Kredit Modal Kerja,179.21,14.56,Lengkap,Tidak,2,2,-
+LEND-0851,Bandung Branch,Kredit Multiguna,1349.54,15.67,Lengkap,Tidak,2,2,-
+LEND-0852,Bandung Branch,Kredit KPR,2852.18,15.5,Lengkap,Tidak,1,2,-
+LEND-0853,Surabaya Branch,Kredit Modal Kerja,1599.96,15.65,Lengkap,Tidak,1,2,-
+LEND-0854,Jakarta Branch,Kredit Modal Kerja,228.66,15.33,Tidak Lengkap,Tidak,1,2,-
+LEND-0855,Jakarta Branch,Kredit Multiguna,4085.02,12.04,Lengkap,Tidak,2,1,-
+LEND-0856,Surabaya Branch,Kredit Multiguna,2571.97,13.65,Lengkap,Tidak,1,2,-
+LEND-0857,Bandung Branch,Kredit Multiguna,1739.23,16.93,Lengkap,Tidak,2,1,-
+LEND-0858,Medan Branch,Kredit Multiguna,445.29,6.83,Tidak Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (6.83%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0859,Bandung Branch,Kredit Multiguna,496.15,16.94,Lengkap,Tidak,1,1,-
+LEND-0860,Surabaya Branch,Kredit Modal Kerja,1259.63,12.67,Lengkap,Tidak,2,1,-
+LEND-0861,Jakarta Branch,Kredit KPR,2334.62,16.09,Lengkap,Tidak,1,1,-
+LEND-0862,Bandung Branch,Kredit KPR,119.4,14.73,Lengkap,Tidak,1,1,-
+LEND-0863,Bandung Branch,Kredit Modal Kerja,787.34,14.21,Lengkap,Tidak,2,1,-
+LEND-0864,Medan Branch,Kredit Multiguna,923.83,16.44,Lengkap,Tidak,2,1,-
+LEND-0865,Bandung Branch,Kredit Multiguna,2056.18,11.47,Tidak Lengkap,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (11.47%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0866,Bandung Branch,Kredit KPR,1587.36,14.82,Lengkap,Tidak,1,2,-
+LEND-0867,Bandung Branch,Kredit Multiguna,176.5,15.2,Tidak Lengkap,Tidak,2,2,-
+LEND-0868,Jakarta Branch,Kredit Multiguna,1634.05,14.22,Lengkap,Tidak,2,2,-
+LEND-0869,Jakarta Branch,Kredit Modal Kerja,3466.95,15.08,Lengkap,Tidak,2,2,-
+LEND-0870,Bandung Branch,Kredit Multiguna,195.84,14.84,Lengkap,Tidak,2,2,-
+LEND-0871,Surabaya Branch,Kredit KPR,354.63,14.21,Lengkap,Tidak,1,2,-
+LEND-0872,Bandung Branch,Kredit Modal Kerja,3827.99,12.8,Lengkap,Tidak,2,2,-
+LEND-0873,Medan Branch,Kredit Multiguna,250.11,12.1,Lengkap,Tidak,1,2,-
+LEND-0874,Bandung Branch,Kredit Modal Kerja,177.91,14.63,Lengkap,Tidak,2,2,-
+LEND-0875,Jakarta Branch,Kredit KPR,1498.41,18.93,Tidak Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (18.93%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0876,Bandung Branch,Kredit Modal Kerja,273.43,14.33,Lengkap,Tidak,1,1,-
+LEND-0877,Jakarta Branch,Kredit Modal Kerja,590.26,12.62,Lengkap,Tidak,2,1,-
+LEND-0878,Bandung Branch,Kredit Multiguna,950.81,13.64,Lengkap,Tidak,2,2,-
+LEND-0879,Bandung Branch,Kredit KPR,331.52,14.93,Lengkap,Tidak,1,2,-
+LEND-0880,Medan Branch,Kredit KPR,1767.08,15.35,Lengkap,Tidak,1,2,-
+LEND-0881,Medan Branch,Kredit Multiguna,578.86,14.29,Lengkap,Tidak,2,2,-
+LEND-0882,Medan Branch,Kredit KPR,231.87,15.38,Tidak Lengkap,Tidak,1,1,-
+LEND-0883,Surabaya Branch,Kredit Multiguna,1059.89,13.68,Lengkap,Tidak,1,1,-
+LEND-0884,Surabaya Branch,Kredit KPR,1026.1,15.48,Tidak Lengkap,Tidak,2,2,-
+LEND-0885,Jakarta Branch,Kredit KPR,617.17,15.54,Lengkap,Tidak,1,2,-
+LEND-0886,Jakarta Branch,Kredit Multiguna,560.22,16.36,Lengkap,Tidak,2,2,-
+LEND-0887,Bandung Branch,Kredit Modal Kerja,3143.79,16.92,Lengkap,Tidak,1,2,-
+LEND-0888,Surabaya Branch,Kredit Modal Kerja,502.25,15.28,Lengkap,Tidak,1,1,-
+LEND-0889,Medan Branch,Kredit KPR,511.12,12.67,Lengkap,Tidak,1,1,-
+LEND-0890,Surabaya Branch,Kredit Modal Kerja,899.42,13.92,Lengkap,Tidak,1,2,-
+LEND-0891,Jakarta Branch,Kredit KPR,1604.2,12.87,Lengkap,Tidak,2,1,-
+LEND-0892,Surabaya Branch,Kredit Modal Kerja,174.16,15.92,Lengkap,Tidak,1,1,-
+LEND-0893,Medan Branch,Kredit Modal Kerja,714.23,12.14,Lengkap,Tidak,1,2,-
+LEND-0894,Bandung Branch,Kredit Modal Kerja,805.42,16.37,Lengkap,Tidak,2,1,-
+LEND-0895,Medan Branch,Kredit KPR,3757.58,23.91,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (23.91%)
+LEND-0896,Jakarta Branch,Kredit Modal Kerja,1526.03,13.77,Lengkap,Tidak,2,2,-
+LEND-0897,Medan Branch,Kredit Modal Kerja,437.02,14.02,Lengkap,Tidak,1,1,-
+LEND-0898,Surabaya Branch,Kredit KPR,3043.08,12.51,Tidak Lengkap,Tidak,1,2,-
+LEND-0899,Bandung Branch,Kredit Multiguna,1704.99,14.7,Lengkap,Tidak,1,1,-
+LEND-0900,Bandung Branch,Kredit KPR,392.75,14.0,Tidak Lengkap,Tidak,2,2,-
+LEND-0901,Bandung Branch,Kredit Modal Kerja,2116.35,13.06,Lengkap,Tidak,1,2,-
+LEND-0902,Bandung Branch,Kredit Modal Kerja,603.48,12.65,Lengkap,Tidak,1,2,-
+LEND-0903,Jakarta Branch,Kredit Multiguna,1296.87,16.06,Lengkap,Tidak,1,1,-
+LEND-0904,Surabaya Branch,Kredit KPR,2776.81,12.41,Lengkap,Tidak,1,2,-
+LEND-0905,Jakarta Branch,Kredit Multiguna,1475.06,15.13,Lengkap,Tidak,2,1,-
+LEND-0906,Medan Branch,Kredit Modal Kerja,1588.15,8.6,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (8.6%)
+LEND-0907,Bandung Branch,Kredit KPR,303.05,12.14,Lengkap,Tidak,2,1,-
+LEND-0908,Medan Branch,Kredit Multiguna,2139.46,14.0,Lengkap,Tidak,1,2,-
+LEND-0909,Medan Branch,Kredit KPR,300.39,14.94,Lengkap,Tidak,2,1,-
+LEND-0910,Surabaya Branch,Kredit Modal Kerja,1042.12,16.43,Lengkap,Tidak,2,1,-
+LEND-0911,Bandung Branch,Kredit Modal Kerja,1914.59,15.08,Lengkap,Tidak,1,2,-
+LEND-0912,Surabaya Branch,Kredit Modal Kerja,1755.47,15.7,Lengkap,Tidak,2,1,-
+LEND-0913,Surabaya Branch,Kredit KPR,556.98,14.67,Lengkap,Tidak,2,1,-
+LEND-0914,Jakarta Branch,Kredit KPR,627.71,16.92,Lengkap,Tidak,1,2,-
+LEND-0915,Bandung Branch,Kredit Modal Kerja,693.78,16.98,Tidak Lengkap,Tidak,2,1,-
+LEND-0916,Medan Branch,Kredit KPR,1074.4,13.84,Lengkap,Tidak,1,2,-
+LEND-0917,Surabaya Branch,Kredit Multiguna,624.09,15.13,Lengkap,Tidak,1,2,-
+LEND-0918,Surabaya Branch,Kredit KPR,971.01,16.54,Lengkap,Tidak,1,1,-
+LEND-0919,Medan Branch,Kredit Multiguna,624.84,14.59,Lengkap,Tidak,2,2,-
+LEND-0920,Jakarta Branch,Kredit Multiguna,2849.45,14.64,Lengkap,Tidak,1,2,-
+LEND-0921,Bandung Branch,Kredit KPR,325.52,7.08,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (7.08%)
+LEND-0922,Medan Branch,Kredit KPR,1211.62,16.51,Lengkap,Tidak,1,2,-
+LEND-0923,Bandung Branch,Kredit Modal Kerja,1470.72,16.56,Lengkap,Tidak,2,2,-
+LEND-0924,Medan Branch,Kredit KPR,4804.04,14.4,Lengkap,Tidak,1,2,-
+LEND-0925,Medan Branch,Kredit Multiguna,578.21,13.4,Lengkap,Tidak,2,1,-
+LEND-0926,Bandung Branch,Kredit Modal Kerja,1831.59,14.99,Lengkap,Tidak,2,1,-
+LEND-0927,Jakarta Branch,Kredit Multiguna,1338.52,16.75,Lengkap,Tidak,2,2,-
+LEND-0928,Jakarta Branch,Kredit Modal Kerja,125.39,12.1,Lengkap,Tidak,1,1,-
+LEND-0929,Jakarta Branch,Kredit Multiguna,1150.73,15.17,Tidak Lengkap,Tidak,1,2,-
+LEND-0930,Medan Branch,Kredit Multiguna,908.36,12.85,Lengkap,Tidak,1,2,-
+LEND-0931,Surabaya Branch,Kredit Multiguna,260.34,13.64,Lengkap,Tidak,1,1,-
+LEND-0932,Bandung Branch,Kredit KPR,570.49,16.59,Lengkap,Tidak,1,2,-
+LEND-0933,Jakarta Branch,Kredit Multiguna,1278.24,6.51,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (6.51%)
+LEND-0934,Jakarta Branch,Kredit Multiguna,2292.91,16.25,Lengkap,Tidak,1,1,-
+LEND-0935,Surabaya Branch,Kredit KPR,1291.73,16.18,Lengkap,Tidak,2,1,-
+LEND-0936,Bandung Branch,Kredit Multiguna,4507.16,15.43,Lengkap,Tidak,2,2,-
+LEND-0937,Jakarta Branch,Kredit Multiguna,1061.0,22.91,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (22.91%)
+LEND-0938,Medan Branch,Kredit KPR,610.29,15.37,Lengkap,Tidak,1,2,-
+LEND-0939,Bandung Branch,Kredit Multiguna,395.86,13.93,Lengkap,Tidak,1,2,-
+LEND-0940,Bandung Branch,Kredit KPR,1099.3,7.61,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (7.61%)
+LEND-0941,Medan Branch,Kredit Modal Kerja,1387.81,15.01,Lengkap,Tidak,1,1,-
+LEND-0942,Medan Branch,Kredit Multiguna,1101.45,12.51,Lengkap,Tidak,2,1,-
+LEND-0943,Jakarta Branch,Kredit Modal Kerja,296.62,15.68,Lengkap,Tidak,2,2,-
+LEND-0944,Medan Branch,Kredit KPR,493.34,13.24,Lengkap,Tidak,2,2,-
+LEND-0945,Jakarta Branch,Kredit Modal Kerja,1921.41,16.56,Lengkap,Tidak,2,2,-
+LEND-0946,Jakarta Branch,Kredit Multiguna,244.49,13.97,Lengkap,Tidak,2,1,-
+LEND-0947,Surabaya Branch,Kredit KPR,347.11,15.9,Lengkap,Tidak,1,2,-
+LEND-0948,Jakarta Branch,Kredit KPR,546.66,5.93,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (5.93%)
+LEND-0949,Surabaya Branch,Kredit Multiguna,999.26,14.67,Lengkap,Tidak,1,2,-
+LEND-0950,Medan Branch,Kredit Multiguna,2456.13,10.21,Lengkap,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (10.21%)
+LEND-0951,Bandung Branch,Kredit KPR,1355.7,12.3,Lengkap,Tidak,1,1,-
+LEND-0952,Surabaya Branch,Kredit Modal Kerja,993.36,14.19,Lengkap,Tidak,2,2,-
+LEND-0953,Surabaya Branch,Kredit KPR,140.77,19.81,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu tinggi (19.81%)
+LEND-0954,Surabaya Branch,Kredit Multiguna,419.68,12.97,Lengkap,Tidak,1,2,-
+LEND-0955,Jakarta Branch,Kredit KPR,2407.78,12.22,Lengkap,Tidak,2,1,-
+LEND-0956,Jakarta Branch,Kredit KPR,1610.97,12.5,Lengkap,Tidak,1,2,-
+LEND-0957,Surabaya Branch,Kredit Multiguna,113.38,9.18,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (9.18%)
+LEND-0958,Jakarta Branch,Kredit KPR,2654.25,12.47,Lengkap,Tidak,2,1,-
+LEND-0959,Surabaya Branch,Kredit Multiguna,2173.01,16.6,Lengkap,Tidak,2,1,-
+LEND-0960,Surabaya Branch,Kredit Multiguna,279.47,14.49,Lengkap,Tidak,2,2,-
+LEND-0961,Surabaya Branch,Kredit Modal Kerja,1666.28,12.29,Lengkap,Tidak,2,1,-
+LEND-0962,Surabaya Branch,Kredit Modal Kerja,2283.79,9.45,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (9.45%)
+LEND-0963,Jakarta Branch,Kredit KPR,1670.38,15.36,Lengkap,Tidak,2,2,-
+LEND-0964,Jakarta Branch,Kredit Modal Kerja,652.03,11.48,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (11.48%)
+LEND-0965,Bandung Branch,Kredit Modal Kerja,1208.18,9.21,Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (9.21%)
+LEND-0966,Surabaya Branch,Kredit Modal Kerja,1090.3,14.65,Lengkap,Tidak,1,1,-
+LEND-0967,Jakarta Branch,Kredit KPR,2264.67,14.46,Lengkap,Tidak,1,1,-
+LEND-0968,Surabaya Branch,Kredit KPR,573.97,15.28,Lengkap,Tidak,2,1,-
+LEND-0969,Jakarta Branch,Kredit KPR,1248.24,12.89,Tidak Lengkap,Tidak,2,1,-
+LEND-0970,Medan Branch,Kredit Modal Kerja,163.33,13.06,Lengkap,Tidak,1,1,-
+LEND-0971,Surabaya Branch,Kredit Multiguna,2626.8,13.24,Lengkap,Tidak,1,1,-
+LEND-0972,Bandung Branch,Kredit Modal Kerja,119.85,14.62,Lengkap,Tidak,2,1,-
+LEND-0973,Jakarta Branch,Kredit Multiguna,2146.31,12.41,Lengkap,Tidak,1,1,-
+LEND-0974,Jakarta Branch,Kredit KPR,246.29,14.7,Lengkap,Tidak,1,2,-
+LEND-0975,Surabaya Branch,Kredit Multiguna,2090.69,12.84,Lengkap,Tidak,1,2,-
+LEND-0976,Surabaya Branch,Kredit Multiguna,119.91,13.28,Lengkap,Tidak,1,2,-
+LEND-0977,Jakarta Branch,Kredit KPR,452.34,14.74,Lengkap,Tidak,1,1,-
+LEND-0978,Bandung Branch,Kredit KPR,738.6,13.53,Lengkap,Tidak,2,2,-
+LEND-0979,Surabaya Branch,Kredit Modal Kerja,413.38,16.34,Tidak Lengkap,Tidak,2,2,-
+LEND-0980,Bandung Branch,Kredit Multiguna,320.17,13.88,Lengkap,Tidak,2,2,-
+LEND-0981,Medan Branch,Kredit Modal Kerja,1725.09,12.09,Tidak Lengkap,Tidak,1,1,-
+LEND-0982,Jakarta Branch,Kredit Multiguna,1646.36,16.92,Lengkap,Tidak,1,2,-
+LEND-0983,Bandung Branch,Kredit Modal Kerja,1073.82,16.67,Lengkap,Tidak,1,2,-
+LEND-0984,Jakarta Branch,Kredit KPR,401.41,5.23,Tidak Lengkap,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (5.23%) & Pencairan padahal Dokumen Tidak Lengkap
+LEND-0985,Medan Branch,Kredit KPR,437.76,15.01,Lengkap,Tidak,2,2,-
+LEND-0986,Medan Branch,Kredit Multiguna,747.24,12.36,Lengkap,Tidak,2,2,-
+LEND-0987,Surabaya Branch,Kredit Multiguna,486.34,12.08,Lengkap,Tidak,1,1,-
+LEND-0988,Jakarta Branch,Kredit KPR,212.43,13.34,Lengkap,Tidak,1,2,-
+LEND-0989,Bandung Branch,Kredit KPR,2141.36,14.97,Lengkap,Tidak,2,2,-
+LEND-0990,Surabaya Branch,Kredit Multiguna,123.47,12.6,Lengkap,Tidak,1,1,-
+LEND-0991,Medan Branch,Kredit Multiguna,613.38,9.16,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (9.16%)
+LEND-0992,Medan Branch,Kredit KPR,2494.82,8.71,Lengkap,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (8.71%)
+LEND-0993,Bandung Branch,Kredit KPR,724.27,16.4,Lengkap,Tidak,1,2,-
+LEND-0994,Medan Branch,Kredit Multiguna,274.12,12.32,Lengkap,Tidak,2,1,-
+LEND-0995,Jakarta Branch,Kredit Multiguna,3175.3,16.09,Lengkap,Tidak,1,1,-
+LEND-0996,Bandung Branch,Kredit Multiguna,1771.89,15.16,Lengkap,Tidak,2,1,-
+LEND-0997,Bandung Branch,Kredit KPR,1761.87,14.76,Lengkap,Tidak,1,2,-
+LEND-0998,Surabaya Branch,Kredit KPR,247.33,16.67,Lengkap,Tidak,2,2,-
+LEND-0999,Surabaya Branch,Kredit KPR,271.81,13.08,Lengkap,Tidak,1,1,-
+LEND-1000,Bandung Branch,Kredit Multiguna,620.78,16.14,Lengkap,Tidak,2,2,-

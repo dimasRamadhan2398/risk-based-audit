@@ -1,0 +1,1001 @@
+ID Transaksi,Entitas,Produk,Nilai Transaksi (Juta Rp),Jam Transaksi (0-23),TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5),Alasan Anomali
+TRSY-0001,Head Office,Government Bonds,2984.75,7,Tidak,2,2,-
+TRSY-0002,Singapore Branch,Government Bonds,11674.12,10,Tidak,2,1,-
+TRSY-0003,Head Office,FX Spot,1988.5,4,Tidak,2,2,-
+TRSY-0004,Head Office,FX Forward,14525.99,20,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 20)
+TRSY-0005,Head Office,FX Forward,1989.74,16,Tidak,1,1,-
+TRSY-0006,Singapore Branch,Government Bonds,1524.54,14,Tidak,1,1,-
+TRSY-0007,Head Office,FX Forward,3907.07,14,Tidak,2,1,-
+TRSY-0008,Singapore Branch,FX Spot,3739.06,20,Tidak,2,2,-
+TRSY-0009,Singapore Branch,FX Spot,1701.09,17,Tidak,1,1,-
+TRSY-0010,Head Office,FX Forward,581.2,6,Tidak,1,2,-
+TRSY-0011,Singapore Branch,FX Spot,938.02,20,Tidak,1,1,-
+TRSY-0012,Head Office,FX Spot,4603.19,4,Tidak,2,2,-
+TRSY-0013,Singapore Branch,FX Forward,2008.53,9,Tidak,2,2,-
+TRSY-0014,Singapore Branch,FX Forward,2181.75,1,Tidak,2,1,-
+TRSY-0015,Singapore Branch,Government Bonds,554.02,8,Tidak,2,1,-
+TRSY-0016,Head Office,Government Bonds,891.79,20,Tidak,2,2,-
+TRSY-0017,Singapore Branch,Government Bonds,2346.34,13,Tidak,1,2,-
+TRSY-0018,Head Office,FX Spot,28972.83,14,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0019,Head Office,FX Spot,36513.8,16,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0020,Head Office,FX Spot,1327.04,7,Tidak,2,2,-
+TRSY-0021,Singapore Branch,FX Spot,5243.17,6,Tidak,1,1,-
+TRSY-0022,Singapore Branch,FX Forward,3290.63,6,Tidak,2,2,-
+TRSY-0023,Head Office,Government Bonds,6110.64,23,Tidak,1,1,-
+TRSY-0024,Head Office,FX Forward,1573.87,6,Tidak,1,1,-
+TRSY-0025,Head Office,FX Spot,1146.94,17,Tidak,2,1,-
+TRSY-0026,Head Office,Government Bonds,4621.58,8,Tidak,1,2,-
+TRSY-0027,Singapore Branch,FX Spot,628.47,8,Tidak,2,1,-
+TRSY-0028,Singapore Branch,Government Bonds,21261.19,9,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0029,Head Office,Government Bonds,994.09,19,Tidak,1,2,-
+TRSY-0030,Singapore Branch,FX Forward,3897.48,16,Tidak,1,1,-
+TRSY-0031,Head Office,FX Forward,769.19,17,Tidak,2,1,-
+TRSY-0032,Singapore Branch,FX Spot,8917.09,19,Tidak,1,1,-
+TRSY-0033,Head Office,FX Spot,8084.55,2,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 2)
+TRSY-0034,Head Office,FX Spot,1471.99,19,Tidak,1,1,-
+TRSY-0035,Head Office,FX Spot,683.67,22,Tidak,1,2,-
+TRSY-0036,Singapore Branch,Government Bonds,1978.65,20,Tidak,1,1,-
+TRSY-0037,Singapore Branch,FX Spot,1634.33,0,Tidak,1,2,-
+TRSY-0038,Singapore Branch,Government Bonds,9435.17,2,Tidak,2,1,-
+TRSY-0039,Head Office,Government Bonds,25525.58,13,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0040,Singapore Branch,Government Bonds,1068.21,2,Tidak,2,2,-
+TRSY-0041,Singapore Branch,Government Bonds,981.05,13,Tidak,1,2,-
+TRSY-0042,Head Office,FX Forward,27708.55,9,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0043,Singapore Branch,FX Forward,5006.37,10,Tidak,2,2,-
+TRSY-0044,Singapore Branch,FX Forward,5312.55,3,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 3)
+TRSY-0045,Head Office,FX Spot,2083.84,2,Tidak,2,2,-
+TRSY-0046,Singapore Branch,FX Spot,18166.91,19,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 19)
+TRSY-0047,Singapore Branch,FX Forward,15750.53,6,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 6)
+TRSY-0048,Head Office,FX Spot,1445.6,13,Tidak,2,2,-
+TRSY-0049,Head Office,Government Bonds,3430.71,18,Tidak,1,2,-
+TRSY-0050,Singapore Branch,FX Forward,504.41,1,Tidak,1,2,-
+TRSY-0051,Singapore Branch,Government Bonds,15857.51,20,Tidak,2,1,-
+TRSY-0052,Singapore Branch,Government Bonds,3890.73,12,Tidak,2,1,-
+TRSY-0053,Singapore Branch,Government Bonds,1477.39,7,Tidak,2,1,-
+TRSY-0054,Head Office,FX Forward,8072.05,1,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 1)
+TRSY-0055,Singapore Branch,Government Bonds,6762.22,3,Tidak,1,2,-
+TRSY-0056,Head Office,FX Forward,2335.35,0,Tidak,2,1,-
+TRSY-0057,Singapore Branch,FX Spot,4973.99,17,Tidak,1,1,-
+TRSY-0058,Head Office,Government Bonds,2632.49,22,Tidak,2,1,-
+TRSY-0059,Singapore Branch,FX Spot,3044.39,3,Tidak,2,1,-
+TRSY-0060,Singapore Branch,FX Forward,677.17,9,Tidak,2,2,-
+TRSY-0061,Singapore Branch,Government Bonds,1067.98,21,Tidak,1,2,-
+TRSY-0062,Singapore Branch,Government Bonds,12243.2,22,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 22)
+TRSY-0063,Singapore Branch,Government Bonds,759.72,0,Tidak,2,2,-
+TRSY-0064,Head Office,FX Forward,36237.53,18,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0065,Head Office,FX Forward,1799.4,13,Tidak,1,2,-
+TRSY-0066,Singapore Branch,FX Forward,1293.11,17,Tidak,1,1,-
+TRSY-0067,Singapore Branch,Government Bonds,2932.83,22,Tidak,1,1,-
+TRSY-0068,Head Office,FX Spot,13692.52,3,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 3)
+TRSY-0069,Singapore Branch,FX Forward,2582.93,1,Tidak,1,2,-
+TRSY-0070,Head Office,FX Spot,1415.95,14,Tidak,2,2,-
+TRSY-0071,Head Office,FX Forward,1154.54,1,Tidak,2,2,-
+TRSY-0072,Head Office,Government Bonds,35427.69,7,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0073,Singapore Branch,FX Spot,1193.36,9,Tidak,1,2,-
+TRSY-0074,Head Office,FX Spot,5907.04,21,Tidak,2,1,-
+TRSY-0075,Head Office,Government Bonds,2156.17,0,Tidak,1,1,-
+TRSY-0076,Head Office,FX Forward,10161.62,2,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 2)
+TRSY-0077,Head Office,Government Bonds,1965.75,13,Tidak,2,2,-
+TRSY-0078,Singapore Branch,FX Forward,16341.44,23,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 23)
+TRSY-0079,Singapore Branch,FX Forward,664.74,5,Tidak,1,1,-
+TRSY-0080,Singapore Branch,Government Bonds,2001.17,0,Tidak,2,1,-
+TRSY-0081,Singapore Branch,Government Bonds,33303.45,18,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0082,Head Office,FX Forward,1917.62,16,Tidak,2,2,-
+TRSY-0083,Singapore Branch,FX Forward,1142.0,5,Tidak,2,1,-
+TRSY-0084,Head Office,Government Bonds,1978.39,19,Tidak,2,1,-
+TRSY-0085,Singapore Branch,FX Spot,6416.54,2,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 2)
+TRSY-0086,Singapore Branch,FX Spot,777.58,14,Tidak,1,1,-
+TRSY-0087,Head Office,FX Forward,924.55,11,Tidak,1,1,-
+TRSY-0088,Head Office,Government Bonds,2504.67,3,Tidak,2,1,-
+TRSY-0089,Singapore Branch,FX Spot,5073.8,18,Tidak,1,2,-
+TRSY-0090,Head Office,FX Forward,2323.24,21,Tidak,1,2,-
+TRSY-0091,Singapore Branch,Government Bonds,1758.85,4,Tidak,1,1,-
+TRSY-0092,Head Office,FX Forward,12656.36,22,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 22)
+TRSY-0093,Singapore Branch,FX Forward,5328.73,15,Tidak,1,1,-
+TRSY-0094,Head Office,Government Bonds,874.16,6,Tidak,1,1,-
+TRSY-0095,Singapore Branch,FX Spot,886.73,21,Tidak,2,2,-
+TRSY-0096,Head Office,FX Spot,1510.98,18,Tidak,1,1,-
+TRSY-0097,Head Office,FX Forward,1892.64,23,Tidak,2,2,-
+TRSY-0098,Head Office,FX Spot,733.94,23,Tidak,2,1,-
+TRSY-0099,Head Office,FX Forward,4684.41,17,Tidak,1,1,-
+TRSY-0100,Singapore Branch,Government Bonds,2190.35,8,Tidak,1,2,-
+TRSY-0101,Head Office,FX Spot,1199.0,12,Tidak,1,1,-
+TRSY-0102,Head Office,FX Forward,2043.41,9,Tidak,2,2,-
+TRSY-0103,Head Office,Government Bonds,38998.07,11,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0104,Head Office,Government Bonds,11985.77,5,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 5)
+TRSY-0105,Head Office,FX Spot,39213.04,11,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0106,Singapore Branch,Government Bonds,4090.17,14,Tidak,2,2,-
+TRSY-0107,Head Office,FX Spot,6228.9,19,Tidak,1,2,-
+TRSY-0108,Singapore Branch,Government Bonds,31691.5,17,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0109,Head Office,FX Spot,1398.55,21,Tidak,2,1,-
+TRSY-0110,Head Office,FX Spot,1992.33,11,Tidak,1,1,-
+TRSY-0111,Singapore Branch,FX Forward,3735.42,23,Tidak,1,1,-
+TRSY-0112,Head Office,FX Forward,3263.63,1,Tidak,2,1,-
+TRSY-0113,Singapore Branch,FX Forward,788.15,18,Tidak,2,1,-
+TRSY-0114,Head Office,FX Spot,3580.23,1,Tidak,1,2,-
+TRSY-0115,Singapore Branch,FX Forward,1011.5,20,Tidak,1,1,-
+TRSY-0116,Singapore Branch,FX Spot,630.52,11,Tidak,2,2,-
+TRSY-0117,Head Office,FX Forward,1867.27,21,Tidak,1,1,-
+TRSY-0118,Singapore Branch,FX Spot,1736.15,17,Tidak,2,1,-
+TRSY-0119,Singapore Branch,FX Forward,12890.6,21,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 21)
+TRSY-0120,Head Office,FX Spot,5245.11,22,Tidak,1,2,-
+TRSY-0121,Head Office,Government Bonds,1345.27,2,Tidak,2,2,-
+TRSY-0122,Singapore Branch,FX Spot,36549.98,13,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0123,Singapore Branch,FX Spot,1813.63,21,Tidak,2,1,-
+TRSY-0124,Singapore Branch,Government Bonds,1155.33,16,Tidak,1,2,-
+TRSY-0125,Head Office,FX Forward,8030.84,13,Tidak,1,2,-
+TRSY-0126,Head Office,Government Bonds,3431.76,22,Tidak,1,1,-
+TRSY-0127,Singapore Branch,Government Bonds,5494.82,10,Tidak,2,1,-
+TRSY-0128,Head Office,FX Spot,8125.12,0,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 0)
+TRSY-0129,Singapore Branch,Government Bonds,643.5,3,Tidak,2,2,-
+TRSY-0130,Singapore Branch,Government Bonds,851.0,14,Tidak,2,1,-
+TRSY-0131,Singapore Branch,FX Spot,3267.99,11,Tidak,2,1,-
+TRSY-0132,Head Office,FX Forward,2424.46,16,Tidak,2,1,-
+TRSY-0133,Head Office,FX Spot,5274.32,4,Tidak,2,2,-
+TRSY-0134,Head Office,FX Forward,2072.21,15,Tidak,1,2,-
+TRSY-0135,Head Office,Government Bonds,544.96,21,Tidak,1,2,-
+TRSY-0136,Head Office,FX Forward,1977.69,0,Tidak,2,1,-
+TRSY-0137,Singapore Branch,Government Bonds,1318.76,6,Tidak,2,1,-
+TRSY-0138,Head Office,Government Bonds,930.22,16,Tidak,1,1,-
+TRSY-0139,Singapore Branch,Government Bonds,3877.14,11,Tidak,2,2,-
+TRSY-0140,Singapore Branch,Government Bonds,44429.99,9,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0141,Singapore Branch,FX Spot,1808.53,23,Tidak,2,2,-
+TRSY-0142,Singapore Branch,Government Bonds,660.98,15,Tidak,2,2,-
+TRSY-0143,Head Office,Government Bonds,2180.13,14,Tidak,2,1,-
+TRSY-0144,Singapore Branch,FX Forward,3239.11,5,Tidak,2,2,-
+TRSY-0145,Head Office,Government Bonds,4033.83,18,Tidak,2,2,-
+TRSY-0146,Singapore Branch,Government Bonds,3599.2,16,Tidak,2,2,-
+TRSY-0147,Singapore Branch,Government Bonds,3672.41,17,Tidak,1,1,-
+TRSY-0148,Singapore Branch,FX Spot,1258.49,9,Tidak,1,1,-
+TRSY-0149,Singapore Branch,Government Bonds,1724.57,1,Tidak,2,2,-
+TRSY-0150,Head Office,Government Bonds,14463.0,19,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 19)
+TRSY-0151,Head Office,Government Bonds,4492.06,10,Tidak,1,2,-
+TRSY-0152,Head Office,FX Spot,2801.79,16,Tidak,2,2,-
+TRSY-0153,Head Office,FX Forward,5120.25,1,Tidak,2,2,-
+TRSY-0154,Singapore Branch,FX Forward,1123.62,7,Tidak,2,1,-
+TRSY-0155,Singapore Branch,Government Bonds,4767.22,22,Tidak,2,2,-
+TRSY-0156,Head Office,Government Bonds,2369.12,16,Tidak,2,1,-
+TRSY-0157,Head Office,Government Bonds,22146.77,15,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0158,Head Office,FX Forward,1095.79,8,Tidak,2,1,-
+TRSY-0159,Head Office,FX Forward,1567.09,15,Tidak,1,2,-
+TRSY-0160,Head Office,Government Bonds,699.11,17,Tidak,1,1,-
+TRSY-0161,Head Office,FX Spot,1370.58,10,Tidak,1,2,-
+TRSY-0162,Singapore Branch,Government Bonds,4214.7,10,Tidak,1,2,-
+TRSY-0163,Head Office,FX Spot,6489.47,11,Tidak,2,2,-
+TRSY-0164,Singapore Branch,Government Bonds,5699.63,16,Tidak,1,1,-
+TRSY-0165,Singapore Branch,FX Forward,3067.37,1,Tidak,2,2,-
+TRSY-0166,Singapore Branch,Government Bonds,14780.59,19,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 19)
+TRSY-0167,Singapore Branch,FX Forward,2556.11,11,Tidak,2,1,-
+TRSY-0168,Head Office,Government Bonds,2682.1,22,Tidak,1,2,-
+TRSY-0169,Head Office,Government Bonds,831.63,15,Tidak,2,2,-
+TRSY-0170,Singapore Branch,Government Bonds,874.73,1,Tidak,2,1,-
+TRSY-0171,Head Office,FX Spot,1805.15,16,Tidak,1,2,-
+TRSY-0172,Head Office,FX Forward,3466.53,1,Tidak,2,2,-
+TRSY-0173,Head Office,FX Spot,4271.62,18,Tidak,2,2,-
+TRSY-0174,Head Office,FX Forward,5702.13,8,Tidak,2,1,-
+TRSY-0175,Head Office,FX Forward,1023.35,13,Tidak,2,2,-
+TRSY-0176,Head Office,FX Spot,1268.43,13,Tidak,1,2,-
+TRSY-0177,Head Office,FX Forward,4146.56,1,Tidak,1,1,-
+TRSY-0178,Head Office,FX Forward,4268.12,1,Tidak,1,1,-
+TRSY-0179,Head Office,FX Spot,5505.07,9,Tidak,1,2,-
+TRSY-0180,Head Office,FX Forward,3966.06,23,Tidak,1,2,-
+TRSY-0181,Head Office,Government Bonds,2981.47,1,Tidak,1,1,-
+TRSY-0182,Singapore Branch,FX Spot,2325.72,15,Tidak,1,2,-
+TRSY-0183,Singapore Branch,FX Forward,1308.36,9,Tidak,1,2,-
+TRSY-0184,Singapore Branch,Government Bonds,1003.78,11,Tidak,1,1,-
+TRSY-0185,Singapore Branch,FX Spot,654.07,21,Tidak,2,1,-
+TRSY-0186,Singapore Branch,Government Bonds,5624.61,17,Tidak,1,2,-
+TRSY-0187,Singapore Branch,FX Spot,508.74,1,Tidak,1,2,-
+TRSY-0188,Singapore Branch,FX Spot,3318.32,0,Tidak,1,2,-
+TRSY-0189,Head Office,Government Bonds,1451.86,15,Tidak,2,2,-
+TRSY-0190,Head Office,Government Bonds,2416.61,16,Tidak,2,2,-
+TRSY-0191,Head Office,Government Bonds,1487.49,21,Tidak,2,2,-
+TRSY-0192,Singapore Branch,Government Bonds,742.5,22,Tidak,1,1,-
+TRSY-0193,Head Office,Government Bonds,1448.16,17,Tidak,1,1,-
+TRSY-0194,Singapore Branch,FX Forward,3190.08,18,Tidak,2,1,-
+TRSY-0195,Head Office,Government Bonds,2735.98,21,Tidak,1,2,-
+TRSY-0196,Singapore Branch,FX Forward,1778.69,18,Tidak,2,1,-
+TRSY-0197,Singapore Branch,Government Bonds,5423.99,2,Tidak,1,2,-
+TRSY-0198,Head Office,FX Spot,3669.59,3,Tidak,1,1,-
+TRSY-0199,Head Office,Government Bonds,13162.74,2,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 2)
+TRSY-0200,Head Office,Government Bonds,3389.95,2,Tidak,2,1,-
+TRSY-0201,Head Office,Government Bonds,1418.52,2,Tidak,2,1,-
+TRSY-0202,Singapore Branch,Government Bonds,4356.1,1,Tidak,1,1,-
+TRSY-0203,Singapore Branch,Government Bonds,1058.55,17,Tidak,2,2,-
+TRSY-0204,Head Office,FX Spot,2145.57,6,Tidak,2,1,-
+TRSY-0205,Singapore Branch,Government Bonds,603.11,8,Tidak,2,2,-
+TRSY-0206,Head Office,Government Bonds,2109.73,13,Tidak,2,2,-
+TRSY-0207,Singapore Branch,FX Forward,716.18,7,Tidak,2,1,-
+TRSY-0208,Singapore Branch,FX Spot,1280.24,6,Tidak,1,2,-
+TRSY-0209,Singapore Branch,FX Spot,6488.6,8,Tidak,2,1,-
+TRSY-0210,Head Office,FX Forward,1144.88,4,Tidak,2,2,-
+TRSY-0211,Head Office,FX Spot,3260.28,5,Tidak,2,1,-
+TRSY-0212,Head Office,FX Spot,2977.43,3,Tidak,2,1,-
+TRSY-0213,Head Office,FX Spot,4132.66,20,Tidak,2,2,-
+TRSY-0214,Head Office,Government Bonds,518.07,8,Tidak,2,1,-
+TRSY-0215,Singapore Branch,FX Forward,26762.08,12,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0216,Head Office,Government Bonds,3826.04,4,Tidak,2,1,-
+TRSY-0217,Singapore Branch,FX Forward,2054.28,4,Tidak,1,1,-
+TRSY-0218,Head Office,FX Spot,961.51,15,Tidak,2,1,-
+TRSY-0219,Singapore Branch,FX Forward,2927.74,4,Tidak,2,1,-
+TRSY-0220,Head Office,FX Spot,1155.1,4,Tidak,1,1,-
+TRSY-0221,Head Office,FX Spot,3165.18,18,Tidak,2,2,-
+TRSY-0222,Singapore Branch,FX Spot,30327.98,14,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0223,Head Office,Government Bonds,3118.12,11,Tidak,2,1,-
+TRSY-0224,Head Office,FX Forward,777.07,15,Tidak,1,2,-
+TRSY-0225,Singapore Branch,Government Bonds,506.04,9,Tidak,2,1,-
+TRSY-0226,Head Office,Government Bonds,1170.36,0,Tidak,1,2,-
+TRSY-0227,Singapore Branch,Government Bonds,2351.12,7,Tidak,1,2,-
+TRSY-0228,Singapore Branch,FX Spot,1039.01,22,Tidak,1,2,-
+TRSY-0229,Singapore Branch,FX Forward,9803.19,21,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 21)
+TRSY-0230,Singapore Branch,FX Spot,32598.25,16,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0231,Singapore Branch,FX Spot,4397.96,9,Tidak,2,2,-
+TRSY-0232,Singapore Branch,FX Spot,2989.31,14,Tidak,2,2,-
+TRSY-0233,Singapore Branch,Government Bonds,3572.37,2,Tidak,2,1,-
+TRSY-0234,Singapore Branch,FX Forward,2094.5,17,Tidak,1,2,-
+TRSY-0235,Head Office,FX Forward,12478.56,5,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 5)
+TRSY-0236,Singapore Branch,Government Bonds,2566.3,23,Tidak,2,1,-
+TRSY-0237,Head Office,FX Spot,4431.17,1,Tidak,2,2,-
+TRSY-0238,Singapore Branch,FX Forward,19086.34,4,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 4)
+TRSY-0239,Head Office,Government Bonds,1115.08,10,Tidak,2,1,-
+TRSY-0240,Singapore Branch,Government Bonds,2245.07,14,Tidak,2,1,-
+TRSY-0241,Head Office,Government Bonds,2722.62,5,Tidak,2,1,-
+TRSY-0242,Head Office,FX Forward,4385.62,16,Tidak,1,2,-
+TRSY-0243,Singapore Branch,FX Forward,685.09,3,Tidak,1,2,-
+TRSY-0244,Singapore Branch,FX Spot,39378.41,15,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0245,Singapore Branch,FX Spot,1273.6,5,Tidak,2,2,-
+TRSY-0246,Singapore Branch,Government Bonds,921.47,10,Tidak,2,2,-
+TRSY-0247,Head Office,FX Spot,26421.59,13,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0248,Head Office,FX Forward,3424.69,8,Tidak,1,1,-
+TRSY-0249,Head Office,FX Forward,2001.65,7,Tidak,1,2,-
+TRSY-0250,Singapore Branch,FX Spot,2157.8,19,Tidak,2,1,-
+TRSY-0251,Head Office,Government Bonds,3906.4,17,Tidak,2,2,-
+TRSY-0252,Singapore Branch,FX Spot,2392.92,1,Tidak,2,1,-
+TRSY-0253,Singapore Branch,FX Spot,1153.61,22,Tidak,2,2,-
+TRSY-0254,Head Office,FX Forward,4161.63,5,Tidak,2,2,-
+TRSY-0255,Singapore Branch,FX Spot,2596.89,7,Tidak,1,1,-
+TRSY-0256,Head Office,FX Forward,1925.66,14,Tidak,2,1,-
+TRSY-0257,Singapore Branch,FX Spot,10351.2,19,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 19)
+TRSY-0258,Head Office,Government Bonds,2080.75,1,Tidak,1,2,-
+TRSY-0259,Head Office,Government Bonds,688.79,8,Tidak,1,1,-
+TRSY-0260,Head Office,FX Forward,3637.57,0,Tidak,2,1,-
+TRSY-0261,Singapore Branch,FX Forward,6827.56,23,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 23)
+TRSY-0262,Singapore Branch,FX Forward,4336.74,0,Tidak,1,1,-
+TRSY-0263,Singapore Branch,FX Spot,2471.27,21,Tidak,2,1,-
+TRSY-0264,Singapore Branch,FX Spot,11284.69,5,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 5)
+TRSY-0265,Singapore Branch,FX Spot,1427.69,18,Tidak,2,2,-
+TRSY-0266,Singapore Branch,FX Spot,1044.21,3,Tidak,2,1,-
+TRSY-0267,Singapore Branch,FX Forward,1257.31,6,Tidak,2,1,-
+TRSY-0268,Head Office,FX Spot,12946.1,23,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 23)
+TRSY-0269,Head Office,FX Spot,5140.95,23,Tidak,1,2,-
+TRSY-0270,Singapore Branch,Government Bonds,49196.64,8,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0271,Singapore Branch,Government Bonds,3163.54,2,Tidak,1,1,-
+TRSY-0272,Head Office,FX Spot,697.28,11,Tidak,1,2,-
+TRSY-0273,Singapore Branch,FX Spot,10155.5,17,Tidak,2,1,-
+TRSY-0274,Singapore Branch,FX Forward,4261.61,6,Tidak,2,1,-
+TRSY-0275,Head Office,FX Spot,49121.39,17,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0276,Singapore Branch,FX Forward,2988.41,5,Tidak,1,2,-
+TRSY-0277,Head Office,FX Forward,2978.74,9,Tidak,2,1,-
+TRSY-0278,Singapore Branch,FX Forward,3393.08,10,Tidak,2,2,-
+TRSY-0279,Head Office,FX Spot,842.82,10,Tidak,2,2,-
+TRSY-0280,Head Office,FX Spot,1255.28,14,Tidak,2,1,-
+TRSY-0281,Singapore Branch,FX Forward,2250.45,20,Tidak,2,2,-
+TRSY-0282,Head Office,FX Forward,9691.76,4,Tidak,2,1,-
+TRSY-0283,Singapore Branch,Government Bonds,1358.19,7,Tidak,1,1,-
+TRSY-0284,Head Office,Government Bonds,820.13,19,Tidak,2,2,-
+TRSY-0285,Singapore Branch,FX Forward,4337.23,18,Tidak,2,1,-
+TRSY-0286,Head Office,Government Bonds,1075.71,16,Tidak,1,1,-
+TRSY-0287,Singapore Branch,Government Bonds,545.41,6,Tidak,2,1,-
+TRSY-0288,Head Office,FX Forward,1429.29,14,Tidak,1,2,-
+TRSY-0289,Head Office,Government Bonds,12564.32,21,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 21)
+TRSY-0290,Singapore Branch,FX Spot,1577.09,9,Tidak,1,2,-
+TRSY-0291,Singapore Branch,Government Bonds,6598.87,15,Tidak,2,1,-
+TRSY-0292,Singapore Branch,FX Forward,2076.87,0,Tidak,1,1,-
+TRSY-0293,Head Office,Government Bonds,4988.27,23,Tidak,1,1,-
+TRSY-0294,Head Office,FX Forward,2002.63,8,Tidak,1,2,-
+TRSY-0295,Head Office,Government Bonds,999.23,4,Tidak,1,1,-
+TRSY-0296,Head Office,FX Forward,1088.09,17,Tidak,2,1,-
+TRSY-0297,Head Office,Government Bonds,2427.87,21,Tidak,2,1,-
+TRSY-0298,Head Office,FX Spot,7297.3,5,Tidak,2,2,-
+TRSY-0299,Head Office,Government Bonds,1417.41,16,Tidak,2,2,-
+TRSY-0300,Singapore Branch,Government Bonds,31132.68,15,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0301,Head Office,FX Spot,1524.64,22,Tidak,1,2,-
+TRSY-0302,Singapore Branch,FX Spot,950.19,3,Tidak,1,1,-
+TRSY-0303,Head Office,FX Forward,2213.89,14,Tidak,1,2,-
+TRSY-0304,Singapore Branch,FX Spot,3448.4,0,Tidak,2,1,-
+TRSY-0305,Singapore Branch,Government Bonds,1038.82,10,Tidak,2,2,-
+TRSY-0306,Head Office,FX Spot,1352.39,13,Tidak,1,1,-
+TRSY-0307,Singapore Branch,FX Spot,5209.53,17,Tidak,2,2,-
+TRSY-0308,Singapore Branch,FX Spot,6059.21,23,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 23)
+TRSY-0309,Head Office,FX Forward,648.45,18,Tidak,1,2,-
+TRSY-0310,Head Office,FX Forward,652.35,7,Tidak,2,1,-
+TRSY-0311,Singapore Branch,FX Spot,1119.34,19,Tidak,1,2,-
+TRSY-0312,Head Office,FX Forward,2168.36,3,Tidak,2,1,-
+TRSY-0313,Singapore Branch,FX Spot,11028.69,19,Tidak,2,2,-
+TRSY-0314,Head Office,Government Bonds,2291.8,5,Tidak,2,1,-
+TRSY-0315,Singapore Branch,Government Bonds,35563.5,7,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0316,Head Office,FX Forward,35901.13,16,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0317,Head Office,Government Bonds,13525.2,6,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 6)
+TRSY-0318,Singapore Branch,FX Spot,2002.44,0,Tidak,2,2,-
+TRSY-0319,Head Office,FX Spot,1363.53,23,Tidak,2,2,-
+TRSY-0320,Singapore Branch,FX Forward,3909.52,16,Tidak,1,1,-
+TRSY-0321,Singapore Branch,Government Bonds,4590.46,13,Tidak,2,2,-
+TRSY-0322,Singapore Branch,FX Forward,698.3,8,Tidak,1,2,-
+TRSY-0323,Singapore Branch,Government Bonds,679.08,8,Tidak,2,1,-
+TRSY-0324,Head Office,FX Spot,957.42,9,Tidak,1,2,-
+TRSY-0325,Singapore Branch,FX Forward,5680.15,21,Tidak,2,1,-
+TRSY-0326,Head Office,FX Forward,1485.66,10,Tidak,1,2,-
+TRSY-0327,Singapore Branch,FX Forward,1291.11,0,Tidak,2,2,-
+TRSY-0328,Singapore Branch,FX Forward,1320.99,4,Tidak,1,1,-
+TRSY-0329,Singapore Branch,Government Bonds,813.82,14,Tidak,1,1,-
+TRSY-0330,Singapore Branch,Government Bonds,2345.34,15,Tidak,2,2,-
+TRSY-0331,Head Office,FX Spot,1492.73,9,Tidak,1,2,-
+TRSY-0332,Head Office,FX Spot,10868.0,2,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 2)
+TRSY-0333,Singapore Branch,FX Forward,937.18,21,Tidak,1,2,-
+TRSY-0334,Head Office,Government Bonds,1042.8,21,Tidak,1,2,-
+TRSY-0335,Singapore Branch,Government Bonds,2485.2,15,Tidak,2,1,-
+TRSY-0336,Singapore Branch,Government Bonds,1692.54,18,Tidak,2,1,-
+TRSY-0337,Head Office,FX Spot,2242.08,0,Tidak,2,1,-
+TRSY-0338,Head Office,Government Bonds,710.38,6,Tidak,1,1,-
+TRSY-0339,Singapore Branch,FX Spot,7815.61,2,Tidak,2,2,-
+TRSY-0340,Head Office,Government Bonds,5310.36,16,Tidak,1,2,-
+TRSY-0341,Head Office,FX Spot,1211.15,3,Tidak,2,2,-
+TRSY-0342,Singapore Branch,Government Bonds,2824.17,4,Tidak,2,2,-
+TRSY-0343,Head Office,FX Spot,5466.23,20,Tidak,1,1,-
+TRSY-0344,Singapore Branch,Government Bonds,8927.27,22,Tidak,2,2,-
+TRSY-0345,Singapore Branch,Government Bonds,1883.31,6,Tidak,2,2,-
+TRSY-0346,Head Office,Government Bonds,1318.08,0,Tidak,2,1,-
+TRSY-0347,Singapore Branch,FX Forward,829.47,22,Tidak,1,1,-
+TRSY-0348,Head Office,Government Bonds,4451.1,11,Tidak,2,1,-
+TRSY-0349,Head Office,FX Spot,2623.51,0,Tidak,2,2,-
+TRSY-0350,Head Office,FX Forward,2161.05,20,Tidak,2,1,-
+TRSY-0351,Head Office,Government Bonds,4054.11,0,Tidak,2,2,-
+TRSY-0352,Head Office,FX Forward,847.86,9,Tidak,1,1,-
+TRSY-0353,Singapore Branch,FX Spot,1895.07,20,Tidak,1,2,-
+TRSY-0354,Head Office,FX Spot,6633.67,1,Tidak,1,1,-
+TRSY-0355,Singapore Branch,FX Forward,1137.8,10,Tidak,1,2,-
+TRSY-0356,Singapore Branch,Government Bonds,1070.03,17,Tidak,1,1,-
+TRSY-0357,Head Office,FX Forward,2226.17,20,Tidak,1,1,-
+TRSY-0358,Head Office,FX Forward,10700.45,21,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 21)
+TRSY-0359,Head Office,FX Spot,4482.39,21,Tidak,1,1,-
+TRSY-0360,Head Office,FX Spot,3262.6,7,Tidak,2,1,-
+TRSY-0361,Head Office,Government Bonds,4653.13,1,Tidak,2,1,-
+TRSY-0362,Head Office,Government Bonds,1793.73,16,Tidak,2,1,-
+TRSY-0363,Head Office,FX Spot,601.47,7,Tidak,2,2,-
+TRSY-0364,Singapore Branch,FX Spot,14228.13,0,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 0)
+TRSY-0365,Singapore Branch,FX Spot,689.2,22,Tidak,1,1,-
+TRSY-0366,Head Office,FX Forward,1259.22,9,Tidak,2,1,-
+TRSY-0367,Singapore Branch,Government Bonds,541.96,7,Tidak,1,2,-
+TRSY-0368,Head Office,FX Forward,831.59,22,Tidak,1,1,-
+TRSY-0369,Singapore Branch,Government Bonds,2725.06,2,Tidak,1,1,-
+TRSY-0370,Singapore Branch,FX Spot,973.27,19,Tidak,1,2,-
+TRSY-0371,Singapore Branch,FX Spot,1056.27,16,Tidak,1,1,-
+TRSY-0372,Singapore Branch,FX Spot,7111.79,0,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 0)
+TRSY-0373,Head Office,FX Forward,15298.34,6,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 6)
+TRSY-0374,Head Office,FX Spot,1534.16,22,Tidak,1,2,-
+TRSY-0375,Singapore Branch,FX Spot,6326.68,20,Tidak,2,2,-
+TRSY-0376,Head Office,Government Bonds,1992.27,14,Tidak,1,2,-
+TRSY-0377,Head Office,FX Spot,965.93,3,Tidak,2,1,-
+TRSY-0378,Singapore Branch,Government Bonds,2365.22,23,Tidak,2,1,-
+TRSY-0379,Singapore Branch,Government Bonds,2631.04,2,Tidak,2,1,-
+TRSY-0380,Head Office,Government Bonds,669.13,7,Tidak,2,2,-
+TRSY-0381,Head Office,Government Bonds,47324.57,10,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0382,Head Office,Government Bonds,654.16,10,Tidak,2,1,-
+TRSY-0383,Singapore Branch,Government Bonds,1131.19,21,Tidak,1,2,-
+TRSY-0384,Singapore Branch,Government Bonds,2336.7,12,Tidak,1,2,-
+TRSY-0385,Head Office,Government Bonds,3189.32,22,Tidak,1,1,-
+TRSY-0386,Head Office,FX Spot,1722.8,23,Tidak,2,1,-
+TRSY-0387,Singapore Branch,FX Spot,555.03,21,Tidak,1,1,-
+TRSY-0388,Head Office,FX Spot,2658.21,2,Tidak,2,1,-
+TRSY-0389,Head Office,Government Bonds,4158.55,10,Tidak,2,2,-
+TRSY-0390,Head Office,FX Spot,3924.71,6,Tidak,1,1,-
+TRSY-0391,Singapore Branch,FX Spot,601.39,9,Tidak,2,1,-
+TRSY-0392,Head Office,Government Bonds,1029.58,17,Tidak,2,2,-
+TRSY-0393,Singapore Branch,FX Forward,1066.37,16,Tidak,1,1,-
+TRSY-0394,Singapore Branch,FX Spot,2383.61,3,Tidak,2,2,-
+TRSY-0395,Head Office,Government Bonds,5336.83,3,Tidak,2,2,-
+TRSY-0396,Singapore Branch,FX Forward,774.84,12,Tidak,2,2,-
+TRSY-0397,Head Office,Government Bonds,2884.54,17,Tidak,1,1,-
+TRSY-0398,Head Office,FX Spot,563.22,6,Tidak,2,1,-
+TRSY-0399,Singapore Branch,FX Forward,1000.8,22,Tidak,1,1,-
+TRSY-0400,Singapore Branch,FX Forward,3048.5,22,Tidak,1,1,-
+TRSY-0401,Singapore Branch,Government Bonds,1421.12,15,Tidak,2,1,-
+TRSY-0402,Singapore Branch,Government Bonds,1019.21,20,Tidak,2,1,-
+TRSY-0403,Head Office,FX Spot,809.61,1,Tidak,2,2,-
+TRSY-0404,Head Office,Government Bonds,1185.7,11,Tidak,1,1,-
+TRSY-0405,Singapore Branch,FX Forward,23513.5,8,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0406,Head Office,FX Spot,1890.5,3,Tidak,1,2,-
+TRSY-0407,Singapore Branch,FX Forward,1683.89,18,Tidak,1,1,-
+TRSY-0408,Head Office,FX Forward,781.94,23,Tidak,2,1,-
+TRSY-0409,Head Office,FX Spot,1941.88,3,Tidak,2,1,-
+TRSY-0410,Singapore Branch,Government Bonds,3148.58,16,Tidak,1,2,-
+TRSY-0411,Singapore Branch,FX Spot,3901.96,1,Tidak,2,1,-
+TRSY-0412,Head Office,FX Spot,2917.16,3,Tidak,1,1,-
+TRSY-0413,Head Office,Government Bonds,11046.14,4,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 4)
+TRSY-0414,Head Office,Government Bonds,777.51,4,Tidak,2,1,-
+TRSY-0415,Singapore Branch,Government Bonds,813.28,12,Tidak,1,2,-
+TRSY-0416,Singapore Branch,FX Spot,8257.36,8,Tidak,2,2,-
+TRSY-0417,Head Office,FX Forward,1357.63,23,Tidak,1,2,-
+TRSY-0418,Head Office,FX Spot,694.93,3,Tidak,2,1,-
+TRSY-0419,Head Office,FX Spot,795.92,18,Tidak,1,2,-
+TRSY-0420,Singapore Branch,Government Bonds,1833.16,4,Tidak,2,2,-
+TRSY-0421,Singapore Branch,Government Bonds,1715.86,19,Tidak,1,1,-
+TRSY-0422,Head Office,FX Forward,1563.54,14,Tidak,1,2,-
+TRSY-0423,Singapore Branch,FX Forward,2448.17,20,Tidak,2,2,-
+TRSY-0424,Singapore Branch,FX Forward,5442.96,21,Tidak,2,2,-
+TRSY-0425,Singapore Branch,FX Spot,5014.65,18,Tidak,2,2,-
+TRSY-0426,Singapore Branch,FX Spot,632.05,5,Tidak,1,2,-
+TRSY-0427,Head Office,FX Spot,2730.59,20,Tidak,2,2,-
+TRSY-0428,Head Office,FX Spot,648.93,16,Tidak,1,1,-
+TRSY-0429,Singapore Branch,Government Bonds,6748.37,6,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 6)
+TRSY-0430,Head Office,Government Bonds,1793.74,9,Tidak,2,1,-
+TRSY-0431,Singapore Branch,FX Forward,4681.6,3,Tidak,2,1,-
+TRSY-0432,Head Office,FX Spot,2348.74,16,Tidak,2,2,-
+TRSY-0433,Head Office,FX Forward,4473.77,9,Tidak,2,1,-
+TRSY-0434,Head Office,FX Spot,1117.89,1,Tidak,1,2,-
+TRSY-0435,Singapore Branch,FX Spot,3621.99,0,Tidak,2,2,-
+TRSY-0436,Head Office,Government Bonds,1716.89,7,Tidak,1,2,-
+TRSY-0437,Singapore Branch,Government Bonds,641.22,13,Tidak,2,2,-
+TRSY-0438,Head Office,FX Forward,5839.37,21,Tidak,2,1,-
+TRSY-0439,Head Office,Government Bonds,779.0,17,Tidak,2,2,-
+TRSY-0440,Singapore Branch,FX Forward,1315.87,10,Tidak,2,1,-
+TRSY-0441,Head Office,FX Spot,1445.51,19,Tidak,1,2,-
+TRSY-0442,Head Office,Government Bonds,5702.62,4,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 4)
+TRSY-0443,Singapore Branch,FX Forward,8307.11,15,Tidak,2,2,-
+TRSY-0444,Singapore Branch,FX Spot,2437.43,2,Tidak,1,1,-
+TRSY-0445,Singapore Branch,Government Bonds,1175.28,6,Tidak,1,2,-
+TRSY-0446,Singapore Branch,FX Spot,4808.29,7,Tidak,1,2,-
+TRSY-0447,Head Office,FX Forward,915.32,5,Tidak,2,2,-
+TRSY-0448,Singapore Branch,FX Spot,32466.31,16,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0449,Head Office,Government Bonds,838.69,2,Tidak,2,2,-
+TRSY-0450,Singapore Branch,Government Bonds,5199.71,2,Tidak,2,1,-
+TRSY-0451,Head Office,FX Forward,1101.19,8,Tidak,1,1,-
+TRSY-0452,Singapore Branch,Government Bonds,2755.42,1,Tidak,2,2,-
+TRSY-0453,Singapore Branch,FX Spot,4792.16,9,Tidak,2,2,-
+TRSY-0454,Singapore Branch,FX Forward,616.68,12,Tidak,1,1,-
+TRSY-0455,Singapore Branch,Government Bonds,1377.12,16,Tidak,1,1,-
+TRSY-0456,Singapore Branch,Government Bonds,782.32,19,Tidak,2,1,-
+TRSY-0457,Singapore Branch,FX Spot,1265.89,15,Tidak,1,2,-
+TRSY-0458,Head Office,FX Forward,689.67,14,Tidak,2,1,-
+TRSY-0459,Head Office,Government Bonds,2028.94,17,Tidak,2,2,-
+TRSY-0460,Head Office,Government Bonds,1182.64,16,Tidak,2,2,-
+TRSY-0461,Head Office,FX Forward,1529.17,15,Tidak,1,2,-
+TRSY-0462,Head Office,FX Spot,38226.51,12,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0463,Singapore Branch,FX Forward,1237.76,5,Tidak,2,2,-
+TRSY-0464,Singapore Branch,FX Spot,723.78,18,Tidak,1,2,-
+TRSY-0465,Singapore Branch,Government Bonds,560.83,2,Tidak,2,2,-
+TRSY-0466,Singapore Branch,Government Bonds,1830.11,15,Tidak,1,2,-
+TRSY-0467,Head Office,FX Forward,3334.08,2,Tidak,1,2,-
+TRSY-0468,Singapore Branch,FX Spot,12700.47,22,Tidak,1,2,-
+TRSY-0469,Head Office,Government Bonds,41551.1,18,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0470,Head Office,Government Bonds,4669.87,8,Tidak,2,2,-
+TRSY-0471,Head Office,FX Forward,1432.86,10,Tidak,1,2,-
+TRSY-0472,Singapore Branch,FX Spot,9160.41,2,Tidak,2,2,-
+TRSY-0473,Singapore Branch,FX Spot,2589.33,2,Tidak,2,1,-
+TRSY-0474,Singapore Branch,Government Bonds,8906.66,15,Tidak,2,1,-
+TRSY-0475,Head Office,FX Forward,888.01,21,Tidak,1,1,-
+TRSY-0476,Head Office,FX Forward,1256.09,22,Tidak,1,2,-
+TRSY-0477,Head Office,Government Bonds,15594.6,2,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 2)
+TRSY-0478,Head Office,FX Spot,5645.97,3,Tidak,1,2,-
+TRSY-0479,Singapore Branch,FX Spot,522.91,13,Tidak,2,2,-
+TRSY-0480,Singapore Branch,FX Forward,2531.18,2,Tidak,2,2,-
+TRSY-0481,Singapore Branch,FX Spot,855.32,10,Tidak,2,1,-
+TRSY-0482,Singapore Branch,FX Spot,2234.83,12,Tidak,2,2,-
+TRSY-0483,Singapore Branch,FX Spot,1208.05,20,Tidak,2,2,-
+TRSY-0484,Head Office,FX Forward,17801.82,20,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 20)
+TRSY-0485,Singapore Branch,FX Forward,1429.43,3,Tidak,1,2,-
+TRSY-0486,Head Office,Government Bonds,31904.37,11,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0487,Head Office,FX Spot,5025.13,10,Tidak,2,2,-
+TRSY-0488,Singapore Branch,Government Bonds,1855.74,5,Tidak,1,2,-
+TRSY-0489,Singapore Branch,FX Spot,1491.89,13,Tidak,2,2,-
+TRSY-0490,Singapore Branch,FX Forward,3889.51,20,Tidak,2,2,-
+TRSY-0491,Singapore Branch,FX Spot,1995.29,14,Tidak,2,2,-
+TRSY-0492,Singapore Branch,Government Bonds,772.42,14,Tidak,1,2,-
+TRSY-0493,Head Office,FX Forward,3425.32,10,Tidak,1,2,-
+TRSY-0494,Head Office,FX Forward,5631.3,5,Tidak,2,2,-
+TRSY-0495,Head Office,Government Bonds,5235.34,17,Tidak,1,1,-
+TRSY-0496,Singapore Branch,FX Spot,1428.57,14,Tidak,1,2,-
+TRSY-0497,Head Office,FX Forward,534.08,2,Tidak,2,1,-
+TRSY-0498,Singapore Branch,Government Bonds,37760.34,11,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0499,Head Office,Government Bonds,4979.14,12,Tidak,2,2,-
+TRSY-0500,Head Office,Government Bonds,682.15,14,Tidak,1,2,-
+TRSY-0501,Head Office,Government Bonds,9440.05,11,Tidak,2,1,-
+TRSY-0502,Singapore Branch,Government Bonds,6880.94,12,Tidak,2,1,-
+TRSY-0503,Singapore Branch,Government Bonds,1149.25,2,Tidak,2,1,-
+TRSY-0504,Head Office,FX Forward,1451.37,9,Tidak,1,1,-
+TRSY-0505,Singapore Branch,Government Bonds,1925.06,11,Tidak,2,2,-
+TRSY-0506,Singapore Branch,Government Bonds,1450.29,10,Tidak,2,1,-
+TRSY-0507,Head Office,FX Forward,2205.4,21,Tidak,1,1,-
+TRSY-0508,Head Office,Government Bonds,1874.58,1,Tidak,2,1,-
+TRSY-0509,Singapore Branch,Government Bonds,28727.7,11,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0510,Head Office,Government Bonds,17894.44,22,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 22)
+TRSY-0511,Singapore Branch,Government Bonds,3606.91,9,Tidak,2,1,-
+TRSY-0512,Head Office,FX Spot,18736.99,3,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 3)
+TRSY-0513,Singapore Branch,FX Spot,4637.29,3,Tidak,1,1,-
+TRSY-0514,Head Office,Government Bonds,825.07,6,Tidak,1,2,-
+TRSY-0515,Head Office,FX Forward,1108.64,20,Tidak,1,2,-
+TRSY-0516,Singapore Branch,Government Bonds,6604.13,8,Tidak,2,1,-
+TRSY-0517,Singapore Branch,FX Forward,2135.5,17,Tidak,1,2,-
+TRSY-0518,Head Office,Government Bonds,2445.94,2,Tidak,1,1,-
+TRSY-0519,Head Office,FX Forward,31442.9,9,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0520,Head Office,FX Forward,869.01,8,Tidak,1,1,-
+TRSY-0521,Head Office,Government Bonds,945.21,4,Tidak,1,1,-
+TRSY-0522,Singapore Branch,FX Forward,1725.54,17,Tidak,1,1,-
+TRSY-0523,Singapore Branch,FX Forward,14359.44,20,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 20)
+TRSY-0524,Singapore Branch,FX Forward,5842.97,19,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 19)
+TRSY-0525,Head Office,Government Bonds,776.35,3,Tidak,1,1,-
+TRSY-0526,Head Office,FX Forward,1270.0,21,Tidak,2,1,-
+TRSY-0527,Head Office,FX Forward,2448.83,17,Tidak,1,1,-
+TRSY-0528,Singapore Branch,FX Spot,8850.34,20,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 20)
+TRSY-0529,Singapore Branch,FX Forward,638.74,14,Tidak,2,2,-
+TRSY-0530,Singapore Branch,Government Bonds,5483.74,4,Tidak,2,1,-
+TRSY-0531,Singapore Branch,FX Spot,39088.26,14,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0532,Head Office,FX Forward,4255.24,21,Tidak,1,1,-
+TRSY-0533,Head Office,FX Forward,3938.6,9,Tidak,1,1,-
+TRSY-0534,Singapore Branch,Government Bonds,1255.96,11,Tidak,1,2,-
+TRSY-0535,Head Office,FX Forward,1829.47,11,Tidak,2,1,-
+TRSY-0536,Singapore Branch,Government Bonds,1058.71,9,Tidak,1,1,-
+TRSY-0537,Head Office,FX Spot,2354.37,3,Tidak,2,1,-
+TRSY-0538,Head Office,FX Forward,1945.13,15,Tidak,2,2,-
+TRSY-0539,Head Office,Government Bonds,1354.7,3,Tidak,2,2,-
+TRSY-0540,Head Office,Government Bonds,3097.07,4,Tidak,2,2,-
+TRSY-0541,Head Office,Government Bonds,815.6,23,Tidak,2,1,-
+TRSY-0542,Singapore Branch,Government Bonds,1011.58,2,Tidak,2,1,-
+TRSY-0543,Head Office,Government Bonds,1871.03,18,Tidak,1,1,-
+TRSY-0544,Head Office,Government Bonds,1239.28,20,Tidak,2,2,-
+TRSY-0545,Singapore Branch,Government Bonds,5499.08,6,Tidak,1,1,-
+TRSY-0546,Singapore Branch,FX Spot,1490.74,20,Tidak,2,1,-
+TRSY-0547,Head Office,FX Forward,3582.95,2,Tidak,1,2,-
+TRSY-0548,Head Office,FX Forward,6647.96,2,Tidak,2,2,-
+TRSY-0549,Head Office,Government Bonds,1126.35,16,Tidak,1,1,-
+TRSY-0550,Head Office,Government Bonds,723.86,20,Tidak,2,1,-
+TRSY-0551,Singapore Branch,FX Forward,638.75,6,Tidak,1,1,-
+TRSY-0552,Singapore Branch,Government Bonds,18166.64,21,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 21)
+TRSY-0553,Head Office,FX Spot,1785.01,1,Tidak,1,1,-
+TRSY-0554,Singapore Branch,FX Spot,6373.65,14,Tidak,1,1,-
+TRSY-0555,Head Office,FX Spot,1770.16,23,Tidak,2,1,-
+TRSY-0556,Singapore Branch,FX Spot,1763.78,14,Tidak,2,1,-
+TRSY-0557,Head Office,FX Spot,3035.81,17,Tidak,2,1,-
+TRSY-0558,Singapore Branch,Government Bonds,4969.59,16,Tidak,1,1,-
+TRSY-0559,Head Office,Government Bonds,2580.5,20,Tidak,2,1,-
+TRSY-0560,Singapore Branch,Government Bonds,6380.5,17,Tidak,2,1,-
+TRSY-0561,Head Office,FX Spot,1376.56,20,Tidak,1,2,-
+TRSY-0562,Singapore Branch,FX Forward,576.16,23,Tidak,2,2,-
+TRSY-0563,Head Office,Government Bonds,4210.15,3,Tidak,1,1,-
+TRSY-0564,Head Office,FX Forward,1031.29,13,Tidak,2,2,-
+TRSY-0565,Head Office,Government Bonds,2046.53,22,Tidak,2,1,-
+TRSY-0566,Singapore Branch,FX Forward,3417.17,6,Tidak,1,2,-
+TRSY-0567,Head Office,Government Bonds,18172.76,1,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 1)
+TRSY-0568,Head Office,Government Bonds,576.96,14,Tidak,2,1,-
+TRSY-0569,Singapore Branch,FX Forward,1215.65,7,Tidak,1,1,-
+TRSY-0570,Head Office,Government Bonds,551.59,11,Tidak,1,2,-
+TRSY-0571,Singapore Branch,FX Spot,1502.75,11,Tidak,1,2,-
+TRSY-0572,Head Office,Government Bonds,2614.23,0,Tidak,2,1,-
+TRSY-0573,Singapore Branch,FX Forward,4972.17,21,Tidak,1,1,-
+TRSY-0574,Head Office,FX Spot,9227.8,21,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 21)
+TRSY-0575,Head Office,FX Forward,3032.29,16,Tidak,2,1,-
+TRSY-0576,Singapore Branch,FX Forward,2192.71,7,Tidak,1,1,-
+TRSY-0577,Singapore Branch,Government Bonds,2823.23,15,Tidak,2,2,-
+TRSY-0578,Singapore Branch,FX Forward,3475.84,8,Tidak,2,2,-
+TRSY-0579,Head Office,FX Spot,1935.77,12,Tidak,2,2,-
+TRSY-0580,Singapore Branch,Government Bonds,3711.08,14,Tidak,2,2,-
+TRSY-0581,Head Office,Government Bonds,4569.25,0,Tidak,1,1,-
+TRSY-0582,Singapore Branch,Government Bonds,1195.62,14,Tidak,2,2,-
+TRSY-0583,Singapore Branch,Government Bonds,19437.31,19,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 19)
+TRSY-0584,Singapore Branch,FX Spot,856.4,10,Tidak,1,1,-
+TRSY-0585,Head Office,Government Bonds,1115.42,1,Tidak,2,1,-
+TRSY-0586,Singapore Branch,Government Bonds,3508.71,13,Tidak,1,2,-
+TRSY-0587,Singapore Branch,Government Bonds,1582.86,1,Tidak,1,2,-
+TRSY-0588,Head Office,FX Forward,1267.25,13,Tidak,2,1,-
+TRSY-0589,Head Office,FX Spot,2493.44,0,Tidak,2,1,-
+TRSY-0590,Head Office,FX Spot,1114.02,0,Tidak,1,1,-
+TRSY-0591,Head Office,Government Bonds,3181.96,19,Tidak,2,2,-
+TRSY-0592,Head Office,FX Spot,1442.16,10,Tidak,2,2,-
+TRSY-0593,Head Office,FX Spot,726.66,23,Tidak,2,2,-
+TRSY-0594,Singapore Branch,FX Forward,11255.36,0,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 0)
+TRSY-0595,Singapore Branch,FX Forward,4991.72,6,Tidak,1,1,-
+TRSY-0596,Head Office,FX Spot,7251.48,23,Tidak,1,1,-
+TRSY-0597,Head Office,FX Forward,7041.14,7,Tidak,1,2,-
+TRSY-0598,Head Office,FX Spot,852.41,7,Tidak,2,1,-
+TRSY-0599,Singapore Branch,FX Forward,1980.21,11,Tidak,1,1,-
+TRSY-0600,Head Office,FX Forward,2950.55,16,Tidak,2,1,-
+TRSY-0601,Singapore Branch,FX Spot,1906.21,12,Tidak,2,1,-
+TRSY-0602,Head Office,Government Bonds,1813.97,20,Tidak,1,2,-
+TRSY-0603,Head Office,Government Bonds,40255.62,14,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0604,Singapore Branch,FX Forward,2872.88,14,Tidak,2,2,-
+TRSY-0605,Head Office,FX Spot,5979.15,11,Tidak,1,1,-
+TRSY-0606,Head Office,Government Bonds,1316.4,11,Tidak,2,2,-
+TRSY-0607,Head Office,Government Bonds,1607.8,12,Tidak,2,1,-
+TRSY-0608,Singapore Branch,FX Forward,1169.19,23,Tidak,2,2,-
+TRSY-0609,Singapore Branch,FX Spot,1714.21,13,Tidak,1,1,-
+TRSY-0610,Singapore Branch,FX Spot,2963.26,9,Tidak,1,1,-
+TRSY-0611,Head Office,FX Spot,742.36,19,Tidak,1,1,-
+TRSY-0612,Head Office,Government Bonds,2580.94,21,Tidak,2,2,-
+TRSY-0613,Singapore Branch,FX Forward,2445.91,22,Tidak,2,1,-
+TRSY-0614,Head Office,Government Bonds,596.24,8,Tidak,1,2,-
+TRSY-0615,Head Office,FX Forward,3370.04,1,Tidak,1,1,-
+TRSY-0616,Singapore Branch,Government Bonds,920.68,20,Tidak,2,1,-
+TRSY-0617,Singapore Branch,Government Bonds,1391.64,13,Tidak,1,1,-
+TRSY-0618,Head Office,FX Forward,3083.04,0,Tidak,1,1,-
+TRSY-0619,Head Office,Government Bonds,5358.5,0,Tidak,1,2,-
+TRSY-0620,Head Office,FX Forward,2117.82,22,Tidak,1,1,-
+TRSY-0621,Head Office,FX Forward,5219.34,18,Tidak,1,2,-
+TRSY-0622,Singapore Branch,Government Bonds,9541.22,16,Tidak,2,1,-
+TRSY-0623,Singapore Branch,FX Spot,12240.97,21,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 21)
+TRSY-0624,Head Office,FX Forward,4355.15,0,Tidak,2,2,-
+TRSY-0625,Singapore Branch,Government Bonds,1053.29,1,Tidak,2,2,-
+TRSY-0626,Head Office,Government Bonds,2329.57,14,Tidak,2,2,-
+TRSY-0627,Head Office,Government Bonds,23525.48,8,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0628,Singapore Branch,FX Forward,15421.49,23,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 23)
+TRSY-0629,Singapore Branch,FX Spot,4270.22,20,Tidak,2,1,-
+TRSY-0630,Singapore Branch,FX Spot,708.75,8,Tidak,1,1,-
+TRSY-0631,Head Office,FX Forward,2089.97,21,Tidak,1,1,-
+TRSY-0632,Singapore Branch,FX Forward,2155.43,11,Tidak,2,1,-
+TRSY-0633,Head Office,FX Spot,1704.91,5,Tidak,1,2,-
+TRSY-0634,Singapore Branch,Government Bonds,11757.92,17,Tidak,2,2,-
+TRSY-0635,Singapore Branch,FX Spot,42481.27,10,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0636,Singapore Branch,FX Spot,601.94,16,Tidak,1,2,-
+TRSY-0637,Singapore Branch,FX Spot,1409.61,11,Tidak,1,2,-
+TRSY-0638,Singapore Branch,FX Forward,4068.45,16,Tidak,1,1,-
+TRSY-0639,Head Office,FX Spot,895.07,2,Tidak,2,2,-
+TRSY-0640,Head Office,FX Spot,7068.34,16,Tidak,2,2,-
+TRSY-0641,Singapore Branch,FX Forward,1025.94,16,Tidak,1,1,-
+TRSY-0642,Singapore Branch,FX Spot,23313.92,9,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0643,Head Office,FX Spot,2061.76,6,Tidak,1,2,-
+TRSY-0644,Singapore Branch,FX Forward,4180.68,5,Tidak,1,1,-
+TRSY-0645,Singapore Branch,FX Spot,1464.25,18,Tidak,2,1,-
+TRSY-0646,Singapore Branch,Government Bonds,1544.57,6,Tidak,2,1,-
+TRSY-0647,Singapore Branch,Government Bonds,1982.38,14,Tidak,2,1,-
+TRSY-0648,Head Office,Government Bonds,1666.26,15,Tidak,1,1,-
+TRSY-0649,Singapore Branch,FX Spot,1530.26,6,Tidak,2,1,-
+TRSY-0650,Singapore Branch,Government Bonds,6723.63,22,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 22)
+TRSY-0651,Singapore Branch,Government Bonds,1339.71,18,Tidak,1,1,-
+TRSY-0652,Head Office,FX Spot,1346.04,17,Tidak,2,2,-
+TRSY-0653,Singapore Branch,FX Forward,884.07,6,Tidak,1,2,-
+TRSY-0654,Singapore Branch,Government Bonds,2264.31,8,Tidak,2,2,-
+TRSY-0655,Singapore Branch,FX Spot,15619.92,6,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 6)
+TRSY-0656,Head Office,FX Forward,4388.85,14,Tidak,2,2,-
+TRSY-0657,Head Office,FX Spot,587.99,23,Tidak,2,1,-
+TRSY-0658,Head Office,FX Forward,9416.27,0,Tidak,2,1,-
+TRSY-0659,Singapore Branch,Government Bonds,8448.85,16,Tidak,2,1,-
+TRSY-0660,Singapore Branch,FX Spot,826.46,23,Tidak,1,1,-
+TRSY-0661,Head Office,Government Bonds,4602.31,12,Tidak,2,2,-
+TRSY-0662,Singapore Branch,FX Spot,1460.24,23,Tidak,2,2,-
+TRSY-0663,Head Office,FX Forward,1205.5,7,Tidak,1,1,-
+TRSY-0664,Singapore Branch,FX Forward,1442.14,19,Tidak,1,2,-
+TRSY-0665,Head Office,FX Forward,35112.33,12,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0666,Singapore Branch,Government Bonds,5048.63,2,Tidak,1,2,-
+TRSY-0667,Singapore Branch,FX Forward,3303.93,16,Tidak,2,1,-
+TRSY-0668,Singapore Branch,FX Spot,1185.33,13,Tidak,2,2,-
+TRSY-0669,Singapore Branch,FX Forward,2840.58,5,Tidak,2,1,-
+TRSY-0670,Head Office,Government Bonds,1337.33,2,Tidak,1,2,-
+TRSY-0671,Head Office,Government Bonds,2247.57,18,Tidak,1,1,-
+TRSY-0672,Singapore Branch,FX Spot,1368.96,11,Tidak,1,1,-
+TRSY-0673,Head Office,FX Spot,1354.94,10,Tidak,1,1,-
+TRSY-0674,Singapore Branch,Government Bonds,44973.68,16,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0675,Head Office,FX Forward,30994.26,10,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0676,Singapore Branch,Government Bonds,523.49,4,Tidak,2,2,-
+TRSY-0677,Head Office,FX Forward,3853.41,4,Tidak,1,1,-
+TRSY-0678,Head Office,FX Spot,6199.63,12,Tidak,2,1,-
+TRSY-0679,Singapore Branch,FX Spot,1371.75,15,Tidak,1,1,-
+TRSY-0680,Head Office,FX Forward,743.9,14,Tidak,2,1,-
+TRSY-0681,Singapore Branch,FX Spot,7278.69,7,Tidak,1,2,-
+TRSY-0682,Head Office,FX Forward,8014.71,1,Tidak,1,2,-
+TRSY-0683,Head Office,FX Forward,843.91,6,Tidak,1,2,-
+TRSY-0684,Head Office,FX Spot,1296.94,8,Tidak,1,1,-
+TRSY-0685,Head Office,Government Bonds,2283.3,12,Tidak,2,1,-
+TRSY-0686,Singapore Branch,FX Forward,1922.55,6,Tidak,2,1,-
+TRSY-0687,Head Office,Government Bonds,4012.14,3,Tidak,1,2,-
+TRSY-0688,Head Office,FX Spot,3437.87,12,Tidak,1,2,-
+TRSY-0689,Singapore Branch,FX Forward,23794.79,8,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0690,Head Office,Government Bonds,762.08,8,Tidak,2,2,-
+TRSY-0691,Head Office,FX Forward,536.44,13,Tidak,2,2,-
+TRSY-0692,Singapore Branch,FX Spot,3933.64,9,Tidak,2,1,-
+TRSY-0693,Singapore Branch,FX Spot,1514.36,5,Tidak,1,1,-
+TRSY-0694,Head Office,FX Forward,725.23,3,Tidak,1,1,-
+TRSY-0695,Head Office,FX Spot,2524.07,17,Tidak,1,2,-
+TRSY-0696,Head Office,FX Forward,2934.57,1,Tidak,2,2,-
+TRSY-0697,Singapore Branch,Government Bonds,7132.56,6,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 6)
+TRSY-0698,Head Office,FX Spot,3030.46,8,Tidak,1,1,-
+TRSY-0699,Head Office,FX Spot,1583.74,10,Tidak,2,1,-
+TRSY-0700,Singapore Branch,FX Forward,1266.54,23,Tidak,2,1,-
+TRSY-0701,Singapore Branch,Government Bonds,1960.86,8,Tidak,1,1,-
+TRSY-0702,Head Office,FX Forward,1020.26,16,Tidak,2,2,-
+TRSY-0703,Singapore Branch,FX Forward,1487.82,0,Tidak,2,2,-
+TRSY-0704,Singapore Branch,Government Bonds,2706.65,10,Tidak,2,1,-
+TRSY-0705,Head Office,Government Bonds,756.44,6,Tidak,2,1,-
+TRSY-0706,Singapore Branch,Government Bonds,1744.96,7,Tidak,1,2,-
+TRSY-0707,Head Office,Government Bonds,25640.98,16,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0708,Singapore Branch,FX Spot,31965.35,16,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0709,Singapore Branch,Government Bonds,3350.34,8,Tidak,2,1,-
+TRSY-0710,Singapore Branch,Government Bonds,532.71,1,Tidak,2,1,-
+TRSY-0711,Head Office,Government Bonds,1477.83,1,Tidak,1,1,-
+TRSY-0712,Singapore Branch,FX Forward,644.41,13,Tidak,1,2,-
+TRSY-0713,Head Office,FX Spot,889.05,19,Tidak,2,1,-
+TRSY-0714,Singapore Branch,FX Spot,3829.85,10,Tidak,1,1,-
+TRSY-0715,Singapore Branch,Government Bonds,1307.12,20,Tidak,1,1,-
+TRSY-0716,Head Office,FX Spot,3079.08,3,Tidak,2,2,-
+TRSY-0717,Head Office,FX Forward,1141.43,19,Tidak,1,2,-
+TRSY-0718,Head Office,FX Forward,1421.31,7,Tidak,1,1,-
+TRSY-0719,Head Office,Government Bonds,769.72,10,Tidak,2,2,-
+TRSY-0720,Singapore Branch,FX Spot,4869.63,7,Tidak,2,2,-
+TRSY-0721,Head Office,Government Bonds,729.2,17,Tidak,1,2,-
+TRSY-0722,Singapore Branch,FX Spot,584.66,1,Tidak,1,1,-
+TRSY-0723,Singapore Branch,FX Forward,1276.55,6,Tidak,1,1,-
+TRSY-0724,Singapore Branch,FX Spot,886.52,15,Tidak,2,1,-
+TRSY-0725,Head Office,FX Forward,2805.04,9,Tidak,1,2,-
+TRSY-0726,Head Office,Government Bonds,14558.47,11,Tidak,2,2,-
+TRSY-0727,Singapore Branch,Government Bonds,587.99,7,Tidak,1,2,-
+TRSY-0728,Singapore Branch,FX Spot,1699.56,7,Tidak,2,1,-
+TRSY-0729,Head Office,Government Bonds,1396.96,21,Tidak,2,2,-
+TRSY-0730,Singapore Branch,FX Spot,893.34,8,Tidak,2,2,-
+TRSY-0731,Singapore Branch,FX Spot,37050.9,15,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0732,Singapore Branch,FX Spot,3370.85,16,Tidak,2,1,-
+TRSY-0733,Head Office,Government Bonds,2641.96,20,Tidak,1,1,-
+TRSY-0734,Singapore Branch,Government Bonds,2034.68,19,Tidak,2,1,-
+TRSY-0735,Head Office,FX Spot,582.69,16,Tidak,2,2,-
+TRSY-0736,Singapore Branch,FX Spot,530.45,13,Tidak,2,1,-
+TRSY-0737,Head Office,FX Forward,8811.27,1,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 1)
+TRSY-0738,Head Office,Government Bonds,1168.77,2,Tidak,2,2,-
+TRSY-0739,Singapore Branch,Government Bonds,990.54,19,Tidak,2,2,-
+TRSY-0740,Head Office,Government Bonds,611.21,11,Tidak,1,2,-
+TRSY-0741,Head Office,FX Spot,3063.47,15,Tidak,1,2,-
+TRSY-0742,Singapore Branch,FX Spot,3935.98,12,Tidak,1,2,-
+TRSY-0743,Head Office,Government Bonds,816.35,12,Tidak,2,1,-
+TRSY-0744,Singapore Branch,FX Spot,2103.1,19,Tidak,2,1,-
+TRSY-0745,Singapore Branch,FX Spot,3536.13,8,Tidak,2,1,-
+TRSY-0746,Head Office,FX Spot,625.05,2,Tidak,1,1,-
+TRSY-0747,Head Office,Government Bonds,1942.86,14,Tidak,2,2,-
+TRSY-0748,Head Office,FX Spot,1004.34,13,Tidak,1,2,-
+TRSY-0749,Head Office,FX Spot,870.63,22,Tidak,1,1,-
+TRSY-0750,Head Office,FX Forward,1836.57,19,Tidak,1,1,-
+TRSY-0751,Singapore Branch,Government Bonds,888.0,7,Tidak,1,1,-
+TRSY-0752,Head Office,FX Spot,3103.84,13,Tidak,2,1,-
+TRSY-0753,Singapore Branch,FX Spot,775.12,15,Tidak,2,2,-
+TRSY-0754,Head Office,FX Spot,2795.52,15,Tidak,2,2,-
+TRSY-0755,Singapore Branch,Government Bonds,2006.71,21,Tidak,2,2,-
+TRSY-0756,Singapore Branch,FX Spot,1501.26,8,Tidak,1,1,-
+TRSY-0757,Head Office,FX Forward,2145.83,17,Tidak,1,2,-
+TRSY-0758,Singapore Branch,FX Spot,1160.3,14,Tidak,1,1,-
+TRSY-0759,Head Office,FX Forward,2243.32,1,Tidak,2,2,-
+TRSY-0760,Head Office,Government Bonds,713.61,20,Tidak,1,1,-
+TRSY-0761,Singapore Branch,Government Bonds,714.0,7,Tidak,1,2,-
+TRSY-0762,Singapore Branch,FX Spot,1529.62,21,Tidak,2,2,-
+TRSY-0763,Head Office,Government Bonds,717.59,15,Tidak,1,2,-
+TRSY-0764,Singapore Branch,FX Spot,1095.84,8,Tidak,1,2,-
+TRSY-0765,Head Office,Government Bonds,2278.25,11,Tidak,2,2,-
+TRSY-0766,Head Office,FX Forward,19987.84,2,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 2)
+TRSY-0767,Singapore Branch,Government Bonds,983.02,7,Tidak,2,1,-
+TRSY-0768,Head Office,FX Spot,1724.07,10,Tidak,1,2,-
+TRSY-0769,Head Office,Government Bonds,1302.62,1,Tidak,1,2,-
+TRSY-0770,Singapore Branch,FX Spot,6098.99,9,Tidak,2,2,-
+TRSY-0771,Singapore Branch,Government Bonds,1190.37,20,Tidak,2,1,-
+TRSY-0772,Singapore Branch,FX Forward,6185.43,13,Tidak,1,2,-
+TRSY-0773,Singapore Branch,Government Bonds,1463.46,14,Tidak,2,2,-
+TRSY-0774,Singapore Branch,FX Spot,1014.35,12,Tidak,2,2,-
+TRSY-0775,Singapore Branch,Government Bonds,817.89,14,Tidak,2,2,-
+TRSY-0776,Head Office,FX Spot,4377.89,20,Tidak,2,1,-
+TRSY-0777,Head Office,Government Bonds,2069.01,7,Tidak,2,2,-
+TRSY-0778,Head Office,Government Bonds,984.86,3,Tidak,1,2,-
+TRSY-0779,Singapore Branch,FX Forward,2707.05,10,Tidak,2,2,-
+TRSY-0780,Singapore Branch,FX Spot,878.36,6,Tidak,2,2,-
+TRSY-0781,Singapore Branch,Government Bonds,1214.1,23,Tidak,1,2,-
+TRSY-0782,Head Office,FX Forward,551.44,4,Tidak,1,2,-
+TRSY-0783,Singapore Branch,FX Spot,2839.65,19,Tidak,1,2,-
+TRSY-0784,Singapore Branch,FX Spot,6425.89,0,Tidak,1,2,-
+TRSY-0785,Singapore Branch,Government Bonds,763.51,8,Tidak,2,2,-
+TRSY-0786,Singapore Branch,Government Bonds,3343.52,9,Tidak,2,1,-
+TRSY-0787,Head Office,FX Spot,1215.36,11,Tidak,2,1,-
+TRSY-0788,Head Office,FX Forward,1510.45,20,Tidak,1,1,-
+TRSY-0789,Head Office,FX Spot,2920.33,2,Tidak,2,2,-
+TRSY-0790,Head Office,Government Bonds,2537.5,14,Tidak,2,1,-
+TRSY-0791,Head Office,Government Bonds,1067.52,2,Tidak,2,1,-
+TRSY-0792,Singapore Branch,Government Bonds,1386.5,5,Tidak,2,2,-
+TRSY-0793,Singapore Branch,Government Bonds,2919.3,1,Tidak,2,2,-
+TRSY-0794,Singapore Branch,FX Forward,1670.38,9,Tidak,2,1,-
+TRSY-0795,Singapore Branch,Government Bonds,1595.23,9,Tidak,1,1,-
+TRSY-0796,Head Office,Government Bonds,586.02,11,Tidak,2,1,-
+TRSY-0797,Head Office,FX Forward,717.39,10,Tidak,2,1,-
+TRSY-0798,Head Office,FX Spot,3561.05,20,Tidak,1,1,-
+TRSY-0799,Singapore Branch,FX Forward,3617.45,16,Tidak,2,1,-
+TRSY-0800,Head Office,FX Spot,3830.37,14,Tidak,1,1,-
+TRSY-0801,Singapore Branch,FX Forward,39742.96,7,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0802,Singapore Branch,Government Bonds,1198.27,6,Tidak,2,2,-
+TRSY-0803,Singapore Branch,Government Bonds,836.66,21,Tidak,1,1,-
+TRSY-0804,Singapore Branch,FX Forward,3869.26,9,Tidak,1,2,-
+TRSY-0805,Head Office,Government Bonds,1396.42,12,Tidak,1,2,-
+TRSY-0806,Singapore Branch,FX Spot,1496.22,12,Tidak,2,1,-
+TRSY-0807,Singapore Branch,Government Bonds,2066.51,22,Tidak,2,1,-
+TRSY-0808,Singapore Branch,Government Bonds,4387.61,20,Tidak,2,1,-
+TRSY-0809,Head Office,FX Forward,6423.43,22,Tidak,1,2,-
+TRSY-0810,Head Office,FX Spot,4324.05,18,Tidak,2,1,-
+TRSY-0811,Singapore Branch,FX Forward,9954.4,22,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 22)
+TRSY-0812,Singapore Branch,FX Forward,717.11,19,Tidak,1,2,-
+TRSY-0813,Singapore Branch,Government Bonds,4809.01,0,Tidak,1,1,-
+TRSY-0814,Singapore Branch,FX Forward,3318.85,18,Tidak,2,1,-
+TRSY-0815,Head Office,Government Bonds,1491.29,18,Tidak,1,2,-
+TRSY-0816,Singapore Branch,FX Forward,933.11,2,Tidak,1,1,-
+TRSY-0817,Singapore Branch,FX Forward,2343.06,13,Tidak,2,1,-
+TRSY-0818,Singapore Branch,FX Forward,2755.26,5,Tidak,2,1,-
+TRSY-0819,Singapore Branch,FX Forward,1375.23,12,Tidak,2,2,-
+TRSY-0820,Singapore Branch,FX Forward,2235.09,0,Tidak,2,1,-
+TRSY-0821,Singapore Branch,FX Spot,4529.19,23,Tidak,1,1,-
+TRSY-0822,Head Office,FX Forward,1325.84,2,Tidak,1,2,-
+TRSY-0823,Singapore Branch,FX Forward,1363.74,12,Tidak,2,1,-
+TRSY-0824,Singapore Branch,FX Forward,1464.99,9,Tidak,2,1,-
+TRSY-0825,Singapore Branch,Government Bonds,6467.3,18,Tidak,1,2,-
+TRSY-0826,Head Office,FX Forward,1524.21,18,Tidak,2,2,-
+TRSY-0827,Singapore Branch,FX Spot,3666.65,20,Tidak,1,2,-
+TRSY-0828,Singapore Branch,Government Bonds,17512.47,3,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 3)
+TRSY-0829,Head Office,FX Spot,1544.55,22,Tidak,2,2,-
+TRSY-0830,Singapore Branch,Government Bonds,15939.51,6,Ya (Anomali),5,3,Transaksi besar di luar jam kerja (Jam 6)
+TRSY-0831,Singapore Branch,FX Forward,1815.17,16,Tidak,1,2,-
+TRSY-0832,Head Office,Government Bonds,1322.94,14,Tidak,1,1,-
+TRSY-0833,Singapore Branch,FX Forward,21539.3,11,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0834,Singapore Branch,FX Forward,724.95,23,Tidak,2,1,-
+TRSY-0835,Singapore Branch,FX Forward,569.66,11,Tidak,1,1,-
+TRSY-0836,Head Office,FX Forward,1259.29,1,Tidak,2,2,-
+TRSY-0837,Head Office,FX Forward,779.84,7,Tidak,2,2,-
+TRSY-0838,Head Office,FX Spot,1644.67,2,Tidak,2,2,-
+TRSY-0839,Head Office,FX Forward,1607.69,19,Tidak,1,1,-
+TRSY-0840,Head Office,FX Forward,2309.19,7,Tidak,1,2,-
+TRSY-0841,Head Office,Government Bonds,1330.83,4,Tidak,2,2,-
+TRSY-0842,Singapore Branch,FX Spot,618.24,0,Tidak,2,2,-
+TRSY-0843,Singapore Branch,FX Forward,672.69,13,Tidak,2,1,-
+TRSY-0844,Head Office,FX Forward,3495.2,14,Tidak,1,1,-
+TRSY-0845,Singapore Branch,Government Bonds,26213.18,17,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0846,Singapore Branch,FX Spot,1331.4,3,Tidak,2,1,-
+TRSY-0847,Head Office,Government Bonds,25617.08,9,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0848,Singapore Branch,FX Forward,3009.82,4,Tidak,1,1,-
+TRSY-0849,Singapore Branch,FX Forward,2000.87,19,Tidak,2,1,-
+TRSY-0850,Singapore Branch,FX Spot,978.91,14,Tidak,2,1,-
+TRSY-0851,Head Office,FX Forward,2839.03,2,Tidak,2,1,-
+TRSY-0852,Head Office,Government Bonds,2817.55,22,Tidak,1,1,-
+TRSY-0853,Head Office,Government Bonds,3076.77,13,Tidak,2,2,-
+TRSY-0854,Singapore Branch,FX Spot,615.03,2,Tidak,2,1,-
+TRSY-0855,Singapore Branch,Government Bonds,1735.6,13,Tidak,1,1,-
+TRSY-0856,Head Office,Government Bonds,974.87,16,Tidak,2,1,-
+TRSY-0857,Singapore Branch,FX Spot,1268.65,8,Tidak,1,1,-
+TRSY-0858,Head Office,FX Spot,609.81,16,Tidak,2,2,-
+TRSY-0859,Singapore Branch,FX Forward,21327.86,13,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0860,Head Office,FX Forward,1667.65,16,Tidak,1,2,-
+TRSY-0861,Singapore Branch,Government Bonds,26584.91,12,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0862,Head Office,Government Bonds,3022.23,11,Tidak,2,1,-
+TRSY-0863,Head Office,FX Forward,821.85,3,Tidak,1,1,-
+TRSY-0864,Head Office,FX Spot,1420.86,14,Tidak,2,2,-
+TRSY-0865,Singapore Branch,FX Forward,1689.07,20,Tidak,2,1,-
+TRSY-0866,Singapore Branch,Government Bonds,1246.06,14,Tidak,2,1,-
+TRSY-0867,Head Office,FX Spot,1938.14,1,Tidak,2,2,-
+TRSY-0868,Singapore Branch,FX Spot,2325.6,22,Tidak,2,2,-
+TRSY-0869,Head Office,Government Bonds,827.27,19,Tidak,1,1,-
+TRSY-0870,Singapore Branch,Government Bonds,3513.57,4,Tidak,1,2,-
+TRSY-0871,Singapore Branch,FX Forward,2424.46,2,Tidak,1,2,-
+TRSY-0872,Head Office,Government Bonds,3547.44,12,Tidak,2,1,-
+TRSY-0873,Head Office,Government Bonds,922.59,20,Tidak,2,1,-
+TRSY-0874,Singapore Branch,FX Forward,9280.31,23,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 23)
+TRSY-0875,Singapore Branch,Government Bonds,48518.12,11,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0876,Singapore Branch,FX Forward,1171.48,21,Tidak,1,1,-
+TRSY-0877,Singapore Branch,FX Forward,3488.61,2,Tidak,1,2,-
+TRSY-0878,Singapore Branch,Government Bonds,1348.76,6,Tidak,1,2,-
+TRSY-0879,Head Office,FX Spot,1295.96,12,Tidak,2,2,-
+TRSY-0880,Head Office,FX Forward,722.9,5,Tidak,2,2,-
+TRSY-0881,Head Office,Government Bonds,1647.13,21,Tidak,1,1,-
+TRSY-0882,Head Office,FX Spot,5733.76,9,Tidak,2,2,-
+TRSY-0883,Singapore Branch,FX Forward,3572.01,8,Tidak,2,1,-
+TRSY-0884,Singapore Branch,FX Spot,5805.42,4,Tidak,1,2,-
+TRSY-0885,Singapore Branch,FX Spot,5209.55,15,Tidak,1,2,-
+TRSY-0886,Head Office,Government Bonds,2840.76,11,Tidak,1,1,-
+TRSY-0887,Singapore Branch,Government Bonds,1087.38,0,Tidak,2,2,-
+TRSY-0888,Head Office,FX Forward,529.02,4,Tidak,2,1,-
+TRSY-0889,Head Office,FX Spot,1609.95,8,Tidak,2,2,-
+TRSY-0890,Head Office,Government Bonds,2592.59,0,Tidak,2,2,-
+TRSY-0891,Singapore Branch,Government Bonds,3054.39,2,Tidak,2,1,-
+TRSY-0892,Singapore Branch,Government Bonds,1448.57,19,Tidak,2,2,-
+TRSY-0893,Singapore Branch,FX Forward,6076.32,14,Tidak,2,2,-
+TRSY-0894,Head Office,FX Spot,3260.71,4,Tidak,1,1,-
+TRSY-0895,Head Office,FX Spot,2804.56,21,Tidak,2,2,-
+TRSY-0896,Head Office,FX Forward,3589.03,20,Tidak,1,2,-
+TRSY-0897,Singapore Branch,Government Bonds,2271.31,17,Tidak,1,1,-
+TRSY-0898,Singapore Branch,Government Bonds,3464.67,2,Tidak,2,1,-
+TRSY-0899,Head Office,Government Bonds,1293.85,7,Tidak,2,2,-
+TRSY-0900,Head Office,FX Forward,1033.74,1,Tidak,2,1,-
+TRSY-0901,Head Office,FX Spot,514.04,12,Tidak,1,2,-
+TRSY-0902,Singapore Branch,FX Forward,3934.76,14,Tidak,1,2,-
+TRSY-0903,Singapore Branch,Government Bonds,12387.1,6,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 6)
+TRSY-0904,Singapore Branch,FX Forward,854.13,10,Tidak,1,1,-
+TRSY-0905,Singapore Branch,Government Bonds,5633.22,23,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 23)
+TRSY-0906,Head Office,FX Forward,1289.67,15,Tidak,2,2,-
+TRSY-0907,Singapore Branch,Government Bonds,5499.51,7,Tidak,1,2,-
+TRSY-0908,Singapore Branch,Government Bonds,1528.26,21,Tidak,2,1,-
+TRSY-0909,Singapore Branch,FX Forward,1864.49,2,Tidak,2,1,-
+TRSY-0910,Singapore Branch,Government Bonds,11084.55,1,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 1)
+TRSY-0911,Singapore Branch,FX Forward,665.17,10,Tidak,1,2,-
+TRSY-0912,Singapore Branch,FX Spot,1154.32,9,Tidak,2,1,-
+TRSY-0913,Singapore Branch,Government Bonds,1257.34,4,Tidak,2,2,-
+TRSY-0914,Singapore Branch,FX Forward,1598.85,11,Tidak,2,1,-
+TRSY-0915,Head Office,Government Bonds,1836.28,17,Tidak,1,2,-
+TRSY-0916,Head Office,FX Forward,8133.49,3,Tidak,2,2,-
+TRSY-0917,Head Office,Government Bonds,14011.43,21,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 21)
+TRSY-0918,Head Office,Government Bonds,5299.96,9,Tidak,1,2,-
+TRSY-0919,Singapore Branch,Government Bonds,1078.59,6,Tidak,2,1,-
+TRSY-0920,Head Office,FX Forward,1558.32,22,Tidak,2,1,-
+TRSY-0921,Singapore Branch,Government Bonds,825.84,0,Tidak,1,2,-
+TRSY-0922,Singapore Branch,FX Forward,7824.08,10,Tidak,2,2,-
+TRSY-0923,Head Office,Government Bonds,3726.32,19,Tidak,2,2,-
+TRSY-0924,Head Office,FX Spot,726.54,8,Tidak,2,1,-
+TRSY-0925,Head Office,FX Forward,2418.46,22,Tidak,1,2,-
+TRSY-0926,Singapore Branch,FX Spot,3939.16,15,Tidak,2,2,-
+TRSY-0927,Head Office,FX Spot,1770.33,10,Tidak,1,2,-
+TRSY-0928,Head Office,FX Spot,2513.7,10,Tidak,1,1,-
+TRSY-0929,Singapore Branch,Government Bonds,31412.48,8,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0930,Head Office,FX Spot,1346.29,23,Tidak,2,1,-
+TRSY-0931,Singapore Branch,Government Bonds,6182.37,14,Tidak,1,2,-
+TRSY-0932,Singapore Branch,FX Spot,6353.5,17,Tidak,2,1,-
+TRSY-0933,Head Office,Government Bonds,5656.63,1,Tidak,1,2,-
+TRSY-0934,Head Office,Government Bonds,5874.88,13,Tidak,1,1,-
+TRSY-0935,Head Office,Government Bonds,1585.93,7,Tidak,2,2,-
+TRSY-0936,Singapore Branch,FX Forward,6478.99,5,Tidak,2,1,-
+TRSY-0937,Singapore Branch,FX Spot,771.97,21,Tidak,1,2,-
+TRSY-0938,Head Office,Government Bonds,1091.37,12,Tidak,2,1,-
+TRSY-0939,Singapore Branch,Government Bonds,924.44,9,Tidak,2,2,-
+TRSY-0940,Head Office,FX Forward,1567.43,17,Tidak,1,1,-
+TRSY-0941,Head Office,FX Forward,2024.28,6,Tidak,2,1,-
+TRSY-0942,Singapore Branch,FX Spot,9324.8,0,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 0)
+TRSY-0943,Head Office,FX Forward,35765.78,13,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0944,Head Office,FX Forward,13553.19,5,Ya (Anomali),5,4,Transaksi besar di luar jam kerja (Jam 5)
+TRSY-0945,Singapore Branch,FX Spot,2550.09,14,Tidak,1,1,-
+TRSY-0946,Head Office,FX Forward,5104.76,5,Tidak,2,1,-
+TRSY-0947,Singapore Branch,FX Forward,1362.44,9,Tidak,1,2,-
+TRSY-0948,Head Office,FX Forward,3358.28,1,Tidak,1,2,-
+TRSY-0949,Head Office,Government Bonds,838.56,16,Tidak,2,2,-
+TRSY-0950,Singapore Branch,FX Forward,605.27,17,Tidak,1,2,-
+TRSY-0951,Singapore Branch,FX Spot,2733.74,4,Tidak,1,1,-
+TRSY-0952,Head Office,FX Forward,501.16,4,Tidak,1,2,-
+TRSY-0953,Head Office,FX Forward,756.27,8,Tidak,1,1,-
+TRSY-0954,Singapore Branch,Government Bonds,4938.9,20,Tidak,2,1,-
+TRSY-0955,Head Office,Government Bonds,3573.62,19,Tidak,1,2,-
+TRSY-0956,Singapore Branch,FX Spot,671.33,0,Tidak,2,1,-
+TRSY-0957,Head Office,FX Spot,1139.8,15,Tidak,1,1,-
+TRSY-0958,Singapore Branch,FX Spot,17732.85,19,Ya (Anomali),4,4,Transaksi besar di luar jam kerja (Jam 19)
+TRSY-0959,Head Office,FX Spot,598.41,17,Tidak,1,2,-
+TRSY-0960,Head Office,Government Bonds,1007.45,19,Tidak,1,1,-
+TRSY-0961,Singapore Branch,Government Bonds,4410.84,6,Tidak,2,1,-
+TRSY-0962,Singapore Branch,FX Spot,1528.39,12,Tidak,2,1,-
+TRSY-0963,Singapore Branch,Government Bonds,933.37,14,Tidak,1,2,-
+TRSY-0964,Singapore Branch,FX Forward,4409.2,18,Tidak,2,1,-
+TRSY-0965,Head Office,FX Forward,2320.58,7,Tidak,2,2,-
+TRSY-0966,Head Office,FX Spot,687.23,16,Tidak,2,2,-
+TRSY-0967,Head Office,FX Forward,972.39,20,Tidak,2,2,-
+TRSY-0968,Singapore Branch,FX Forward,596.0,15,Tidak,1,2,-
+TRSY-0969,Head Office,Government Bonds,613.9,15,Tidak,2,2,-
+TRSY-0970,Head Office,Government Bonds,755.97,22,Tidak,2,2,-
+TRSY-0971,Head Office,Government Bonds,6680.06,10,Tidak,1,1,-
+TRSY-0972,Singapore Branch,FX Forward,3355.08,16,Tidak,1,1,-
+TRSY-0973,Head Office,FX Spot,9631.52,3,Tidak,2,2,-
+TRSY-0974,Singapore Branch,FX Forward,947.89,4,Tidak,2,2,-
+TRSY-0975,Singapore Branch,FX Forward,1136.81,19,Tidak,2,2,-
+TRSY-0976,Singapore Branch,FX Forward,3532.23,22,Tidak,2,1,-
+TRSY-0977,Head Office,Government Bonds,6112.62,3,Ya (Anomali),4,3,Transaksi besar di luar jam kerja (Jam 3)
+TRSY-0978,Singapore Branch,FX Forward,719.0,23,Tidak,1,1,-
+TRSY-0979,Singapore Branch,Government Bonds,2639.41,14,Tidak,2,1,-
+TRSY-0980,Head Office,FX Forward,47953.52,10,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+TRSY-0981,Head Office,FX Spot,845.38,7,Tidak,1,2,-
+TRSY-0982,Head Office,FX Spot,808.16,21,Tidak,1,2,-
+TRSY-0983,Singapore Branch,FX Forward,3126.76,8,Tidak,2,1,-
+TRSY-0984,Singapore Branch,FX Spot,4638.41,23,Tidak,1,1,-
+TRSY-0985,Singapore Branch,Government Bonds,1533.78,7,Tidak,2,1,-
+TRSY-0986,Head Office,Government Bonds,1522.63,0,Tidak,1,2,-
+TRSY-0987,Head Office,Government Bonds,825.45,4,Tidak,2,2,-
+TRSY-0988,Head Office,Government Bonds,1288.29,5,Tidak,2,2,-
+TRSY-0989,Head Office,Government Bonds,576.4,4,Tidak,1,1,-
+TRSY-0990,Singapore Branch,Government Bonds,2471.1,1,Tidak,1,2,-
+TRSY-0991,Head Office,FX Spot,1089.21,19,Tidak,1,1,-
+TRSY-0992,Head Office,FX Spot,1699.79,17,Tidak,1,1,-
+TRSY-0993,Head Office,FX Forward,6464.07,14,Tidak,1,1,-
+TRSY-0994,Head Office,FX Spot,14235.48,2,Tidak,1,2,-
+TRSY-0995,Singapore Branch,FX Spot,1864.71,0,Tidak,2,2,-
+TRSY-0996,Singapore Branch,FX Spot,4338.28,14,Tidak,1,1,-
+TRSY-0997,Singapore Branch,FX Forward,1451.21,19,Tidak,1,1,-
+TRSY-0998,Singapore Branch,Government Bonds,2403.77,14,Tidak,1,1,-
+TRSY-0999,Singapore Branch,FX Forward,563.73,7,Tidak,1,1,-
+TRSY-1000,Head Office,Government Bonds,1422.49,23,Tidak,2,1,-
