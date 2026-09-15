@@ -47,15 +47,24 @@ export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => 
     try {
       const baseUrl = getAuditServiceBaseUrl();
       const formData = new FormData();
-      Object.keys(payload).forEach(key => {
-        const value = (payload as any)[key];
-        if (value !== undefined && value !== null) {
-          formData.append(key, value);
-        }
-      });
+      // Append primitive fields first
+      formData.append('title', payload.title);
+      formData.append('description', payload.description || '');
+      formData.append('fileName', payload.fileName);
+      formData.append('fileType', payload.fileType || 'application/octet-stream');
+      // Append the actual file object
+      if (payload.file) {
+        formData.append('file', payload.file);
+      }
       await $fetch(`${baseUrl}/uploaded-annual-plans`, {
         method: 'POST',
-        body: formData
+        body: formData,
+        // Explicitly delete any existing Content-Type header so the boundary is generated.
+        headers: {
+          // Nuxt's $fetch will automatically set the correct multipart header.
+          // Setting it to undefined forces the browser to compute it.
+          'Content-Type': undefined as unknown as string
+        }
       });
       await fetchUploadedDocuments();
       toast.showSuccess('Successfully uploaded annual audit plan');
