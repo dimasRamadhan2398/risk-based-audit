@@ -13,6 +13,7 @@ import { useAuditFieldworkStore } from './audit-fieldwork'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { computed } from 'vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
+import { extractErrorMessage } from '~/utils/error'
 import type { StepperItem } from '@nuxt/ui'
 
 import { z } from 'zod'
@@ -338,6 +339,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       dataF05.value = extractItems(resF05)
     } catch (error) {
       console.error('Failed to fetch working papers:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to load working papers.')
     } finally {
       loading.value = false
     }
@@ -485,9 +487,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.success('Header Data Successfully Deleted!')
+        toast.showSuccess('Header Data Successfully Deleted!')
       } catch (error: any) {
-        toast.error('Failed to delete data: ' + (error?.message || error))
+        const detail = extractErrorMessage(error, 'Failed to delete data.')
+        toast.showError('Failed to delete data', detail)
       }
     }
   }
@@ -521,11 +524,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
         toast.success("Header Data Updated Successfully!")
       } else {
         await addF01({ ...headerForm })
-        toast.success("Header Data Successfully Saved!")
+        toast.showSuccess("Header Data Successfully Saved!")
       }
       closeModalF01()
     } catch (error: any) {
-      toast.error("Failed to save data: " + (error?.message || error))
+      const detail = extractErrorMessage(error, 'Failed to save data.')
+      toast.showError("Failed to save data", detail)
     }
   }
 
@@ -610,9 +614,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.success('Risk Data Successfully Deleted!')
+        toast.showSuccess('Risk Data Successfully Deleted!')
       } catch (error: any) {
-        toast.error('Failed to delete data: ' + (error?.message || error))
+        const detail = extractErrorMessage(error, 'Failed to delete data.')
+        toast.showError('Failed to delete data', detail)
       }
     }
   }
@@ -638,11 +643,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
         toast.success("Risk Data Updated Successfully!")
       } else {
         await addF02({ ...riskForm })
-        toast.success("Risk Data Successfully Saved!")
+        toast.showSuccess("Risk Data Successfully Saved!")
       }
       closeModalF02()
     } catch (error: any) {
-      toast.error("Failed to save data: " + (error?.message || error))
+      const detail = extractErrorMessage(error, 'Failed to save data.')
+      toast.showError("Failed to save data", detail)
     }
   }
 
@@ -707,9 +713,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.success('Sample Data Successfully Deleted!')
+        toast.showSuccess('Sample Data Successfully Deleted!')
       } catch (error: any) {
-        toast.error('Failed to delete data: ' + (error?.message || error))
+        const detail = extractErrorMessage(error, 'Failed to delete data.')
+        toast.showError('Failed to delete data', detail)
       }
     }
   }
@@ -735,11 +742,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
         toast.success("Sample Data Successfully Updated!")
       } else {
         await addF03({ ...sampleForm })
-        toast.success("Sample Data Successfully Saved!")
+        toast.showSuccess("Sample Data Successfully Saved!")
       }
       closeModalF03()
     } catch (error: any) {
-      toast.error("Failed to save data: " + (error?.message || error))
+      const detail = extractErrorMessage(error, 'Failed to save data.')
+      toast.showError("Failed to save data", detail)
     }
   }
 
@@ -806,9 +814,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.success('Root Cause Data Successfully Deleted!')
+        toast.showSuccess('Root Cause Data Successfully Deleted!')
       } catch (error: any) {
-        toast.error('Failed to delete data: ' + (error?.message || error))
+        const detail = extractErrorMessage(error, 'Failed to delete data.')
+        toast.showError('Failed to delete data', detail)
       }
     }
   }
@@ -835,11 +844,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
         toast.success("Root Cause Data Successfully Updated!")
       } else {
         await addF04({ ...causeForm })
-        toast.success("Root Cause Data Successfully Saved!")
+        toast.showSuccess("Root Cause Data Successfully Saved!")
       }
       closeModalF04()
     } catch (error: any) {
-      toast.error("Failed to save data: " + (error?.message || error))
+      const detail = extractErrorMessage(error, 'Failed to save data.')
+      toast.showError("Failed to save data", detail)
     }
   }
 
@@ -861,7 +871,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       await deleteF04(id)
     } catch (error: any) {
-      toast.error('Failed to delete data: ' + (error?.message || error))
+      const detail = extractErrorMessage(error, 'Failed to delete data.')
+      toast.showError('Failed to delete data', detail)
     }
   }
 
@@ -907,9 +918,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.success('Action Plan Data Successfully Deleted!')
+        toast.showSuccess('Action Plan Data Successfully Deleted!')
       } catch (error: any) {
-        toast.error('Failed to delete data: ' + (error?.message || error))
+        const detail = extractErrorMessage(error, 'Failed to delete data.')
+        toast.showError('Failed to delete data', detail)
       }
     }
   }
@@ -936,11 +948,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
         toast.success("Action Plan Data Successfully Updated!")
       } else {
         await addF05({ ...planForm })
-        toast.success("Action Plan Data Successfully Saved!")
+        toast.showSuccess("Action Plan Data Successfully Saved!")
       }
       closeModalF05()
     } catch (error: any) {
-      toast.error("Failed to save data: " + (error?.message || error))
+      const detail = extractErrorMessage(error, 'Failed to save data.')
+      toast.showError("Failed to save data", detail)
     }
   }
 

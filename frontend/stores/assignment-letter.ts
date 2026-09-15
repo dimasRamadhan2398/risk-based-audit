@@ -1,9 +1,8 @@
-// stores/assignment-letter.ts
-import { toast } from '#build/ui';
 import type { TableColumn } from '@nuxt/ui';
 import { defineStore } from 'pinia'
 import { type AssignmentLetter, type AssignmentLetterForm, type AssignmentLetterStatus, AuditCategory } from '~/types/audit'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
+import { extractErrorMessage } from '~/utils/error';
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
@@ -428,7 +427,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         }
       } catch (error: any) {
         console.error('Failed to fetch assignment letters:', error)
-        this.errorMsg = 'Failed to load assignment letters.'
+        this.errorMsg = extractErrorMessage(error, 'Failed to load assignment letters.')
         this.assignmentLetterList = mockList
       } finally {
         this.loading = false
@@ -613,19 +612,18 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         this.closeModal()
         await this.fetchAssignmentLetters()
       } catch (error: any) {
-
         console.error(
           this.editingId
             ? 'Failed to update assignment letter:'
             : 'Failed to create assignment letter:',
           error
         )
-
-        this.errorMsg = this.editingId
+        const fallback = this.editingId
           ? 'Failed to update assignment letter.'
           : 'Failed to save assignment letter.'
-
-        useToastNotification().error(this.errorMsg)
+        const detail = extractErrorMessage(error, fallback)
+        this.errorMsg = detail
+        useToastNotification().showError(fallback, detail)
       } finally {
         this.loading = false
       }
@@ -649,11 +647,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           method: 'POST',
           body: payload
         })
-        useToastNotification().success('Assignment letter created successfully!')
+        useToastNotification().showSuccess('Assignment letter created successfully!')
         await this.fetchAssignmentLetters()
       } catch (error: any) {
         console.error(error)
-        useToastNotification().error('Failed to create assignment letter: ' + (error?.message || error))
+        const detail = extractErrorMessage(error, 'Failed to create assignment letter.')
+        this.errorMsg = detail
+        useToastNotification().showError('Failed to create assignment letter.', detail)
       } finally {
         this.loading = false
       }
@@ -667,11 +667,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         await $fetch(`${baseUrl}/assignment-letters/${id}`, {
           method: 'DELETE'
         })
-        useToastNotification().success('Assignment letter deleted successfully!')
+        useToastNotification().showSuccess('Assignment letter deleted successfully!')
         await this.fetchAssignmentLetters()
       } catch (error: any) {
         console.error(error)
-        useToastNotification().error('Failed to delete assignment letter: ' + (error?.message || error))
+        const detail = extractErrorMessage(error, 'Failed to delete assignment letter.')
+        this.errorMsg = detail
+        useToastNotification().showError('Failed to delete assignment letter.', detail)
       } finally {
         this.loading = false
       }
@@ -689,12 +691,14 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
             method: 'PUT',
             body: payload
           })
-          useToastNotification().success(`Assignment letter status changed to ${status}!`)
+          useToastNotification().showSuccess(`Assignment letter status changed to ${status}!`)
           await this.fetchAssignmentLetters()
         }
       } catch (error: any) {
         console.error(error)
-        useToastNotification().error('Failed to change status: ' + (error?.message || error))
+        const detail = extractErrorMessage(error, 'Failed to change status.')
+        this.errorMsg = detail
+        useToastNotification().showError('Failed to change status.', detail)
       } finally {
         this.loading = false
       }

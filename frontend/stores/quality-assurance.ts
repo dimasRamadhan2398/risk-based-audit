@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
@@ -198,7 +199,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch QA reports:', error)
-      errorMsg.value = 'Failed to fetch quality assurance reports.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch quality assurance reports.')
       reports.value = mockReports
     } finally {
       loading.value = false
@@ -249,6 +250,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       await fetchReports()
     } catch (error: any) {
       console.error('Failed to save QA report (API failed, falling back to local):', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to save QA report.')
       // Local fallback for frontend testing
       if (isEditing.value && selectedReport.value) {
         const index = mockReports.findIndex(r => r.id === selectedReport.value!.id)
@@ -330,7 +332,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       return response
     } catch (error: any) {
       console.error('Failed to import QAR report:', error)
-      errorMsg.value = error.data?.message || 'Failed to import QAR report.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to import QAR report.')
       throw error
     } finally {
       loading.value = false
@@ -349,8 +351,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       link.download = fileName
       link.click()
       window.URL.revokeObjectURL(link.href)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to download QAR attachment:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to download QAR attachment.')
     }
   }
 
@@ -372,8 +375,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       const url = window.URL.createObjectURL(blob)
       window.open(url, '_blank')
       setTimeout(() => window.URL.revokeObjectURL(url), 10000)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to view QAR attachment:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to view QAR attachment.')
     }
   }
 
@@ -497,6 +501,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       await fetchReports()
     } catch (error: any) {
       console.error('Failed to delete QA report (API failed, falling back to local):', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to delete Quality Assurance report.')
       const index = mockReports.findIndex(r => r.id === targetReport.id)
       if (index !== -1) {
         mockReports.splice(index, 1)
@@ -505,8 +510,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
           isDetailOpen.value = false
           selectedReport.value = null
         }
-      } else {
-        errorMsg.value = 'Failed to delete Quality Assurance report.'
       }
     } finally {
       loading.value = false

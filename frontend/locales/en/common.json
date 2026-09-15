@@ -94,6 +94,8 @@
     "view": "View",
     "close": "Close",
     "submit": "Submit",
+    "update": "Update",
+    "updateData": "Update Data",
     "search": "Search",
     "loading": "Loading...",
     "error": "Error",
@@ -1688,6 +1690,41 @@
     }
   },
   "workingPaper": {
+    "index": {
+      "title": "Create Working Paper",
+      "subtitle": "Create and manage audit working papers step by step",
+      "importButton": "Import Working Paper",
+      "createButton": "Create Working Paper",
+      "sections": {
+        "headerTitle": "Audit Working Paper Header",
+        "riskTitle": "Audit Working Paper Risk",
+        "sampleTitle": "Audit Working Paper Sample",
+        "causeTitle": "Audit Working Paper Cause Analysis",
+        "planTitle": "Audit Working Paper Action Plan"
+      },
+      "steps": {
+        "header": {
+          "title": "Header",
+          "description": "Add your header"
+        },
+        "riskProfile": {
+          "title": "Risk Profile",
+          "description": "Add your risk profile"
+        },
+        "testSample": {
+          "title": "Test Sample",
+          "description": "Add your test sample"
+        },
+        "aoiRca": {
+          "title": "AOI & RCA",
+          "description": "Add your AOI & RCA"
+        },
+        "actionPlan": {
+          "title": "Action Plan",
+          "description": "Add your action plan"
+        }
+      }
+    },
     "upload": {
       "title": "Import Working Paper Reference",
       "subtitle": "Import external reference Working Paper documents",
@@ -1719,6 +1756,60 @@
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
       "fileSizeLimit": "File size exceeds the 10MB limit."
+    },
+    "riskForm": {
+      "title": "Risk",
+      "risk": "Risk",
+      "riskPlaceholder": "Choose Risk",
+      "riskCategory": "Risk Category",
+      "autoFilledTaxonomy": "Automatically filled when selecting risk",
+      "riskLevel": "Risk Level",
+      "autoFilledRiskLevel": "Automatically filled when selecting risk",
+      "controlDescription": "Description of Tested Controls",
+      "controlDescriptionPlaceholder": "Type the security control/SOP that is being evaluated in the field...",
+      "updateData": "Update Data",
+      "submit": "Submit"
+    },
+    "causeForm": {
+      "title": "Root Cause Analysis",
+      "condition": "Condition (Field Impact)",
+      "conditionPlaceholder": "Ex: Found PO document without relevant Manager's signature on date...",
+      "uploadEvidence": "Upload evidence/photo",
+      "criteria": "Criteria (Related Rules/SOP)",
+      "criteriaPlaceholder": "Search Internal Regulation (e.g. Procurement SOP Chapter IV - Authorization)",
+      "impact": "Impact (Risk Impact)",
+      "impactPlaceholder": "Ex: Potential fraud or fictitious purchases that may cause financial loss...",
+      "rootCauseAnalysis": "Root Cause Analysis",
+      "analysisIndex": "Analysis {index}",
+      "category": "Category",
+      "categoryPlaceholder": "Select Category",
+      "why1": "Why 1",
+      "why1Placeholder": "Ex: Staff forgot to request Manager's signature",
+      "why1Validation": "Why 1 must be at most 100 characters and is required",
+      "why2": "Why 2",
+      "why2Placeholder": "Ex: Because staff were rushing to meet delivery quota",
+      "why2Validation": "Why 2 must be at most 100 characters and is required",
+      "why3": "Why 3",
+      "why3Placeholder": "-",
+      "why3Validation": "Why 3 must be at most 100 characters and is required",
+      "addRootCause": "Add Root Cause Analysis",
+      "updateData": "Update Data",
+      "submit": "Submit"
+    },
+    "planForm": {
+      "title": "Recommendations & Responses",
+      "recommendation": "Auditor Recommendation (Solution)",
+      "recommendationPlaceholder": "Ex: IT team needs to add hard-block feature...",
+      "response": "Auditee Response (Management Response)",
+      "responsePlaceholder": "Ex: We agree, update will be implemented in Q3...",
+      "actionPlanDetail": "Action Plan Details",
+      "actionDescription": "Action Description",
+      "actionDescriptionPlaceholder": "Ex: Staff forgot to request Manager's signature",
+      "pic": "PIC (Person In Charge)",
+      "picPlaceholder": "Search Employee Name Ex: Dimas - IT",
+      "periodAction": "Planning Period",
+      "updateData": "Update Data",
+      "submit": "Submit"
     }
   },
   "consultingService": {

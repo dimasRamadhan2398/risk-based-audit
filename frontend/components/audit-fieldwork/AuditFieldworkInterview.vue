@@ -45,16 +45,28 @@
         </div>
       </template>
       <template #file-cell="{ row }">
-        <UButton
-          v-if="row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath"
-          icon="i-heroicons-document-arrow-down"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          @click="store.downloadInterviewFile(row.original)"
-        >
-          {{ row.original.fileName || row.original.file?.name }}
-        </UButton>
+        <div v-if="row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath" class="flex items-center gap-1">
+          <UButton
+            icon="i-heroicons-document-text"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            class="max-w-[180px] truncate"
+            :title="row.original.fileName || row.original.file?.name"
+            @click="store.previewInterviewFile(row.original)"
+          >
+            <span class="truncate">{{ row.original.fileName || row.original.file?.name }}</span>
+          </UButton>
+          <UTooltip text="Unduh Berkas">
+            <UButton
+              icon="i-heroicons-arrow-down-tray"
+              color="primary"
+              variant="ghost"
+              size="xs"
+              @click="store.downloadInterviewFile(row.original)"
+            />
+          </UTooltip>
+        </div>
         <span v-else class="text-gray-400 text-sm">-</span>
       </template>
       <template #actions-cell="{ row }">

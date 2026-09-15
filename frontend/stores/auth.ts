@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import type { User, LoginCredentials, MFAVerifyPayload } from '~/types/auth'
+import { extractErrorMessage } from '~/utils/error'
+import { getAuthServiceBaseUrl } from '~/composables/useApiUrl'
 
 interface AuthState {
   user: User | null
@@ -69,7 +71,7 @@ export const useAuthStore = defineStore('auth', {
         return data
       }
       catch (error: any) {
-        const msg = error?.data?.error?.message || error?.data?.message || error?.message || 'Login failed'
+        const msg = extractErrorMessage(error, 'Login failed')
         const err = new Error(msg) as any
         err.status = error?.status ?? error?.statusCode ?? error?.response?.status
         err.data = error?.data
@@ -110,7 +112,7 @@ export const useAuthStore = defineStore('auth', {
         return data
       }
       catch (error: any) {
-        const msg = error?.data?.error?.message || error?.data?.message || error?.message || 'MFA verification failed'
+        const msg = extractErrorMessage(error, 'MFA verification failed')
         throw new Error(msg)
       }
     },
@@ -211,7 +213,7 @@ export const useAuthStore = defineStore('auth', {
         }
       }
       catch (error: any) {
-        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to update profile')
+        throw new Error(extractErrorMessage(error, 'Failed to update profile'))
       }
     },
 
@@ -220,14 +222,15 @@ export const useAuthStore = defineStore('auth', {
       const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24
 
       const user: User = {
+        ...data.user,
         id: data.user?.id ?? '',
-        username: data.user?.username ?? '',
         email: data.user?.email ?? '',
         fullName: data.user?.full_name ?? data.user?.fullName ?? '',
-        phone: data.user?.phone,
-        department: data.user?.department,
-        position: data.user?.position,
-        roles: data.user?.roles ?? [],
+        ...(data.user?.username !== undefined ? { username: data.user.username } : {}),
+        ...(data.user?.phone !== undefined ? { phone: data.user.phone } : {}),
+        ...(data.user?.department !== undefined ? { department: data.user.department } : {}),
+        ...(data.user?.position !== undefined ? { position: data.user.position } : {}),
+        ...(data.user?.roles !== undefined ? { roles: data.user.roles } : {}),
       }
 
       this.user = user
@@ -339,7 +342,7 @@ export const useAuthStore = defineStore('auth', {
         )
       }
       catch (error: any) {
-        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to remove device')
+        throw new Error(extractErrorMessage(error, 'Failed to remove device'))
       }
     },
 
@@ -352,7 +355,7 @@ export const useAuthStore = defineStore('auth', {
         })
       }
       catch (error: any) {
-        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to send reset email')
+        throw new Error(extractErrorMessage(error, 'Failed to send reset email'))
       }
     },
 
@@ -365,7 +368,7 @@ export const useAuthStore = defineStore('auth', {
         })
       }
       catch (error: any) {
-        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to reset password')
+        throw new Error(extractErrorMessage(error, 'Failed to reset password'))
       }
     },
   },

@@ -6,6 +6,7 @@ import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAudit
 import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import type { TablePagination } from '~/types/common'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
@@ -465,6 +466,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       }
     } catch (error: unknown) {
       console.warn('Backend API unavailable, using initial mock annual plans:', error)
+      errorMsg.value = extractErrorMessage(error, 'Gagal memuat rencana audit tahunan.')
       const totalItems = plans.value.length
       const pageSize = paginations.value.pageSize || 10
       paginations.value = {
@@ -726,11 +728,20 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
 
     const baseUrl = getAuditServiceBaseUrl()
-    await $fetch(`${baseUrl}/annual-audit-plans`, {
-      method: 'POST',
-      body: payload
-    })
-    await fetchPlans()
+    try {
+      await $fetch(`${baseUrl}/annual-audit-plans`, {
+        method: 'POST',
+        body: payload
+      })
+      toast.showSuccess('Rencana audit tahunan berhasil ditambahkan.')
+      await fetchPlans()
+    } catch (error: any) {
+      console.error('Failed to create annual plan:', error)
+      const detail = extractErrorMessage(error, 'Gagal menambahkan rencana audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal menambahkan rencana audit.', detail)
+      throw error
+    }
   }
 
   const updatePlan = async (id: string, updatedData: AnnualPlanForm) => {
@@ -756,11 +767,20 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       attachments: (updatedData.attachments || []).concat(fileList)
     }
 
-    await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-      method: 'PUT',
-      body: payload
-    })
-    await fetchPlans()
+    try {
+      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+        method: 'PUT',
+        body: payload
+      })
+      toast.showSuccess('Rencana audit tahunan berhasil diperbarui.')
+      await fetchPlans()
+    } catch (error: any) {
+      console.error('Failed to update annual plan:', error)
+      const detail = extractErrorMessage(error, 'Gagal memperbarui rencana audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui rencana audit.', detail)
+      throw error
+    }
   }
 
   const deletePlan = async (id: string) => {
@@ -768,30 +788,39 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     if (!plan) return
 
     const baseUrl = getAuditServiceBaseUrl()
-    if (plan.isUsed) {
-      const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Rencana audit ini sudah digunakan dan tidak dapat dihapus permanen. Apakah Anda ingin menonaktifkannya?' })
+    try {
+      if (plan.isUsed) {
+        const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Rencana audit ini sudah digunakan dan tidak dapat dihapus permanen. Apakah Anda ingin menonaktifkannya?' })
 
-      if (!confirmed) return
+        if (!confirmed) return
 
-      const payload = {
-        ...plan,
-        isActive: false
+        const payload = {
+          ...plan,
+          isActive: false
+        }
+
+        await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+          method: 'PUT',
+          body: payload
+        })
+      } else {
+        const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?' })
+
+        if (!confirmed) return
+
+        await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+          method: 'DELETE'
+        })
       }
-
-      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-        method: 'PUT',
-        body: payload
-      })
-    } else {
-      const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?' })
-
-      if (!confirmed) return
-
-      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-        method: 'DELETE'
-      })
+      toast.showSuccess('Rencana audit tahunan berhasil diproses.')
+      await fetchPlans()
+    } catch (error: any) {
+      console.error('Failed to delete annual plan:', error)
+      const detail = extractErrorMessage(error, 'Gagal menghapus rencana audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus rencana audit.', detail)
+      throw error
     }
-    await fetchPlans()
   }
 
   const createRevision = async (planId: string, changesNote: string, user: string) => {
@@ -821,12 +850,20 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
 
     const baseUrl = getAuditServiceBaseUrl()
-    await $fetch(`${baseUrl}/annual-audit-plans/${planId}`, {
-      method: 'PUT',
-      body: payload
-    })
-    await fetchPlans()
-    alert(`Revised RKAT created (Version ${newVersion}).`)
+    try {
+      await $fetch(`${baseUrl}/annual-audit-plans/${planId}`, {
+        method: 'PUT',
+        body: payload
+      })
+      await fetchPlans()
+      toast.showSuccess(`Revised RKAT created (Version ${newVersion}).`)
+    } catch (error: any) {
+      console.error('Failed to create revision:', error)
+      const detail = extractErrorMessage(error, 'Gagal membuat revisi RKAT.')
+      errorMsg.value = detail
+      toast.showError('Gagal membuat revisi RKAT.', detail)
+      throw error
+    }
   }
 
   const updatePlanStatus = async (id: string, status: AnnualAuditPlanStatus) => {
@@ -835,11 +872,19 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     const baseUrl = getAuditServiceBaseUrl()
     const payload = { ...plan, status: status }
-    await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-      method: 'PUT',
-      body: payload
-    })
-    await fetchPlans()
+    try {
+      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+        method: 'PUT',
+        body: payload
+      })
+      await fetchPlans()
+    } catch (error: any) {
+      console.error('Failed to update plan status:', error)
+      const detail = extractErrorMessage(error, 'Gagal memperbarui status rencana audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui status rencana audit.', detail)
+      throw error
+    }
   }
 
   const handleStaffApprove = async () => {

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface AuditGuideline {
   id: string
@@ -79,7 +80,7 @@ export const useGuidelineStore = defineStore('guideline', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch guidelines:', err)
-      errorMsg.value = 'Gagal mengambil data Pedoman Audit.'
+      errorMsg.value = extractErrorMessage(err, 'Gagal mengambil data Pedoman Audit.')
     } finally {
       loading.value = false
     }
@@ -149,7 +150,9 @@ export const useGuidelineStore = defineStore('guideline', () => {
       )
     } catch (err) {
       console.error('Failed to upload file:', err)
-      errorMsg.value = 'Gagal mengupload file dokumen.'
+      const detail = extractErrorMessage(err, 'Gagal mengupload file dokumen.')
+      errorMsg.value = detail
+      toast.showError('Gagal mengupload file dokumen.', detail)
       throw err
     }
   }
@@ -200,7 +203,9 @@ export const useGuidelineStore = defineStore('guideline', () => {
       closeModal()
     } catch (err: any) {
       console.error('Failed to add guideline:', err)
-      toast.showError('Gagal menambahkan Pedoman Audit.')
+      const detail = extractErrorMessage(err, 'Gagal menambahkan Pedoman Audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal menambahkan Pedoman Audit.', detail)
     } finally {
       loading.value = false
     }
@@ -248,7 +253,9 @@ export const useGuidelineStore = defineStore('guideline', () => {
       closeModal()
     } catch (err: any) {
       console.error('Failed to update guideline:', err)
-      toast.showError('Gagal memperbarui Pedoman Audit.')
+      const detail = extractErrorMessage(err, 'Gagal memperbarui Pedoman Audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui Pedoman Audit.', detail)
     } finally {
       loading.value = false
     }
@@ -272,7 +279,9 @@ export const useGuidelineStore = defineStore('guideline', () => {
       await fetchGuidelines()
     } catch (err: any) {
       console.error('Failed to delete guideline:', err)
-      toast.showError('Gagal menghapus Pedoman Audit.')
+      const detail = extractErrorMessage(err, 'Gagal menghapus Pedoman Audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus Pedoman Audit.', detail)
     } finally {
       loading.value = false
     }

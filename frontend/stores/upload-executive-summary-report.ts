@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { extractErrorMessage } from '~/utils/error';
 
 export interface UploadedExecutiveSummaryReport {
   id: string;
@@ -17,18 +18,13 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
   const uploadedDocuments = ref<UploadedExecutiveSummaryReport[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-executive-summary-reports`, {
         method: 'GET'
       });
@@ -39,7 +35,7 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded executive summary reports:', error);
-      errorMsg.value = 'Failed to load uploaded executive summary reports.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded executive summary reports.');
     } finally {
       loading.value = false;
     }
@@ -50,14 +46,24 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData();
+      Object.keys(payload).forEach(key => {
+        const val = (payload as any)[key];
+        if (val !== undefined && val !== null) {
+          formData.append(key, val);
+        }
+      });
       await $fetch(`${baseUrl}/uploaded-executive-summary-reports`, {
         method: 'POST',
         body: formData
       });
+      toast.showSuccess('Executive summary report uploaded successfully');
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to upload executive summary report:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload executive summary report.';
+      const detail = extractErrorMessage(error, 'Failed to upload executive summary report.');
+      errorMsg.value = detail;
+      toast.showError('Failed to upload executive summary report.', detail);
       throw error;
     } finally {
       loading.value = false;
@@ -72,25 +78,22 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
       await $fetch(`${baseUrl}/uploaded-executive-summary-reports/${id}`, {
         method: 'DELETE'
       });
+      toast.showSuccess('Executive summary report deleted successfully');
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to delete uploaded executive summary report:', error);
-      errorMsg.value = 'Failed to delete executive summary report.';
+      const detail = extractErrorMessage(error, 'Failed to delete executive summary report.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete executive summary report.', detail);
       throw error;
     } finally {
       loading.value = false;
     }
   };
 
-    const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-executive-summary-reports/${id}/download`, {
         responseType: 'blob'
       });
@@ -101,19 +104,15 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      errorMsg.value = 'Failed to view document.';
+      const detail = extractErrorMessage(error, 'Failed to view document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to view document.', detail);
     }
   };
 
   const downloadDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const formData = new FormData()
-      Object.keys(payload).forEach(key => {
-        if (payload[key] !== undefined && payload[key] !== null) {
-          formData.append(key, payload[key])
-        }
-      })
       const response: any = await $fetch(`${baseUrl}/uploaded-executive-summary-reports/${id}/download`, {
         responseType: 'blob'
       });
@@ -129,7 +128,9 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download executive summary report:', error);
-      errorMsg.value = 'Failed to download document.';
+      const detail = extractErrorMessage(error, 'Failed to download document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to download document.', detail);
     }
   };
 

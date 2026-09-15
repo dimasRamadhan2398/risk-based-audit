@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface ConsultingAttachment {
   name: string
@@ -124,7 +125,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       }
     } catch (error) {
       console.error('Failed to fetch consulting services, falling back to mock:', error)
-      errorMsg.value = 'Failed to load consulting services.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to load consulting services.')
       services.value = [...mockServices]
     } finally {
       loading.value = false
@@ -173,7 +174,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       await fetchServices()
     } catch (error: any) {
       console.error('Failed to save consulting service:', error)
-      errorMsg.value = 'Failed to save consulting service.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to save consulting service.')
     } finally {
       loading.value = false
     }
@@ -202,7 +203,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       await fetchServices()
     } catch (error) {
       console.error('Failed to delete consulting service:', error)
-      errorMsg.value = 'Failed to delete consulting service.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to delete consulting service.')
     } finally {
       loading.value = false
     }
@@ -234,6 +235,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       window.URL.revokeObjectURL(link.href)
     } catch (error) {
       console.error('Failed to download consulting attachment:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to download consulting attachment.')
     }
   }
 

@@ -16,50 +16,50 @@
 
         <div class="px-6 py-4 border-b border-secondary-200 rounded-t-xl flex justify-between items-center">
             <UIcon name="charter" class=" text-primary-500" size="32"></UIcon>
-            <h3 class="text-lg font-bold text-secondary-900 ">Rekomendasi & Tanggapan</h3>
+            <h3 class="text-lg font-bold text-secondary-900 ">{{ t('workingPaper.planForm.title') }}</h3>
             <UIcon name="close" @click="store.closeModalF05" class="text-primary-400 hover:text-primary-600 text-2xl">&times;</UIcon>
         </div>
         
         <div class="space-y-6 m-6">
             <UFormField 
-                label="Rekomendasi Auditor (Solusi)" 
+                :label="t('workingPaper.planForm.recommendation')" 
                 name="recommendation" 
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
             >
-                <UTextarea v-model="store.planForm.recommendation" :rows="3" placeholder="Ex: Tim IT perlu menambahkan fitur hard-block..." class="w-full" />
+                <UTextarea v-model="store.planForm.recommendation" :rows="3" :placeholder="t('workingPaper.planForm.recommendationPlaceholder')" class="w-full" />
             </UFormField>
 
             <UFormField 
-                label="Tanggapan Audite (Managemen Response)" 
+                :label="t('workingPaper.planForm.response')" 
                 name="response" 
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
             >
-                <UTextarea v-model="store.planForm.response" :rows="3" placeholder="Ex: Kami setuju, update akan dilakukan di Q3..." class="w-full" />
+                <UTextarea v-model="store.planForm.response" :rows="3" :placeholder="t('workingPaper.planForm.responsePlaceholder')" class="w-full" />
             </UFormField>
 
-            <h2 class="text-xl text-center font-bold text-gray-800  mb-6">Detail Rencana Aksi (Action Plan)</h2>
+            <h2 class="text-xl text-center font-bold text-gray-800  mb-6">{{ t('workingPaper.planForm.actionPlanDetail') }}</h2>
             <UFormField 
-                label="Deskripsi Action" 
+                :label="t('workingPaper.planForm.actionDescription')" 
                 name="actionDescription" 
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
             >
-                <UTextarea v-model="store.planForm.actionDescription" placeholder="Ex: Staf lupa meminta TTD Manager" class="w-full" />
+                <UTextarea v-model="store.planForm.actionDescription" :placeholder="t('workingPaper.planForm.actionDescriptionPlaceholder')" class="w-full" />
             </UFormField>
 
             <UFormField 
-                label="PIC (Penanggung Jawab)" 
+                :label="t('workingPaper.planForm.pic')" 
                 name="pic" 
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
             >
-                <USelectMenu v-model="store.planForm.pic" icon="i-heroicons-magnifying-glass" :items="store.options.pic" placeholder="Cari Nama Karyawan Ex: Dimas - IT" class="w-full" />
+                <USelectMenu v-model="store.planForm.pic" icon="i-heroicons-magnifying-glass" :items="store.options.pic" :placeholder="t('workingPaper.planForm.picPlaceholder')" class="w-full" />
             </UFormField>
 
             <UFormField 
-                label="Periode Perencanaan" 
+                :label="t('workingPaper.planForm.periodAction')" 
                 name="periodAction" 
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
@@ -71,7 +71,7 @@
         <div class="flex justify-end pt-10 border-gray-100">
             <UButton 
                 type="submit"
-                :label="store.isEditingF05 ? 'Update Data' : 'Submit'" 
+                :label="store.isEditingF05 ? t('common.updateData') : t('common.submit')" 
                 color="primary"
             />
         </div>
@@ -85,7 +85,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore, planSchema } from '~/stores/working-paper'
 
+const { t } = useI18n()
 const store = useWorkingPaperStore()
 </script>

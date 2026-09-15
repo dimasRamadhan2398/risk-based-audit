@@ -18,22 +18,22 @@
 
         <div class="px-6 py-4 rounded-t-xl flex justify-between items-center transition-colors duration-300">
             <UIcon name="charter" class="text-primary-500 " size="32"></UIcon>
-            <h3 class="text-lg font-bold text-[var(--text-main)]">Analisis Akar Penyebab</h3>
+            <h3 class="text-lg font-bold text-[var(--text-main)]">{{ t('workingPaper.causeForm.title') }}</h3>
             <UIcon name="close" @click="store.closeModalF04" class="text-[var(--text-muted)] hover:text-[var(--text-main)] text-2xl cursor-pointer"></UIcon>
         </div>
         
         <div class="space-y-6 m-6">
             <UFormField 
-                label="Kondisi (Dampak di Lapangan)" 
+                :label="t('workingPaper.causeForm.condition')" 
                 name="condition" 
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
             >
-                <UTextarea v-model="store.causeForm.condition" :rows="3" placeholder="Ex: Ditemukan dokumen PO tanpa tanda tangan Manager terkait pada tanggal..." class="w-full" />
+                <UTextarea v-model="store.causeForm.condition" :rows="3" :placeholder="t('workingPaper.causeForm.conditionPlaceholder')" class="w-full" />
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-            <UFormField label="Unggah bukti temuan/foto" class="font-semibold text-sm mt-2" />
+            <UFormField :label="t('workingPaper.causeForm.uploadEvidence')" class="font-semibold text-sm mt-2" />
             
             <div class="md:col-span-3">
             <UFormField 
@@ -54,46 +54,46 @@
         </div>
 
             <UFormField 
-                label="Kriteria (Aturan/SOP Terkait)" 
+                :label="t('workingPaper.causeForm.criteria')" 
                 name="criteria" 
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
             >
-                <UInput v-model="store.causeForm.criteria" placeholder="Cari Peraturan Internal (Contoh: SOP Pengadaan Bab IV - Otorisasi)" class="w-full" />
+                <UInput v-model="store.causeForm.criteria" :placeholder="t('workingPaper.causeForm.criteriaPlaceholder')" class="w-full" />
             </UFormField>
 
             <UFormField 
-                label="Dampak (Risk Impact)" 
+                :label="t('workingPaper.causeForm.impact')" 
                 name="impact" 
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
             >
-                <UTextarea v-model="store.causeForm.impact" :rows="3" placeholder="Ex: Potensi fraud atau pembelian fiktif yang dapat merugikan keuangan..." class="w-full" />
+                <UTextarea v-model="store.causeForm.impact" :rows="3" :placeholder="t('workingPaper.causeForm.impactPlaceholder')" class="w-full" />
             </UFormField>
 
-            <h2 class="text-xl text-center font-bold text-gray-800  mb-6">Analisa Akar Masalah</h2>
+            <h2 class="text-xl text-center font-bold text-gray-800  mb-6">{{ t('workingPaper.causeForm.rootCauseAnalysis') }}</h2>
             <div v-for="(rca, index) in store.causeForm.rootCause" :key="rca.id" class="border border-gray-200  rounded-xl p-6 ">
             
             <div class="pb-6 flex justify-between">
-                <h3 class="text-lg font-bold">Analisis {{ index + 1 }}</h3>
+                <h3 class="text-lg font-bold">{{ t('workingPaper.causeForm.analysisIndex', { index: index + 1 }) }}</h3>
                 <UButton icon="i-heroicons-trash" color="error" variant="ghost" @click="store.removeRootCause(index)" />
             </div>
                 
             
             <div class="space-y-4 max-w-full">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField label="Kategori" class="font-semibold text-sm" />
-                <USelectMenu class="md:col-span-3" v-model="rca.method" :items="store.options.rootCauseMethod" />
+                <UFormField :label="t('workingPaper.causeForm.category')" class="font-semibold text-sm" />
+                <USelectMenu class="md:col-span-3" v-model="rca.method" :items="store.options.rootCauseMethod" :placeholder="t('workingPaper.causeForm.categoryPlaceholder')" />
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField label="Why 1" class="font-semibold text-sm" />
+                <UFormField :label="t('workingPaper.causeForm.why1')" class="font-semibold text-sm" />
                 <UInput 
                     class="md:col-span-3" 
                     v-model="rca.w1" 
-                    placeholder="Ex: Staf lupa meminta TTD Manager"
+                    :placeholder="t('workingPaper.causeForm.why1Placeholder')"
                     required
                     maxlength="100"
-                    @invalid="($event.target as any)?.setCustomValidity('Why 1 maksimal 100 karakter dan wajib diisi')"
+                    @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.causeForm.why1Validation'))"
                     @input="($event.target as any)?.setCustomValidity('')"
                 />
                 </div>
@@ -101,14 +101,14 @@
                     {{ rca.w1 ? rca.w1.length : 0 }}/100
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField label="Why 2" class="font-semibold text-sm" />
+                <UFormField :label="t('workingPaper.causeForm.why2')" class="font-semibold text-sm" />
                 <UInput 
                     class="md:col-span-3" 
                     v-model="rca.w2" 
-                    placeholder="Ex: Karena staf terburu-buru mengejar kuota pengiriman"
+                    :placeholder="t('workingPaper.causeForm.why2Placeholder')"
                     required
                     maxlength="100"
-                    @invalid="($event.target as any)?.setCustomValidity('Why 2 maksimal 100 karakter dan wajib diisi')"
+                    @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.causeForm.why2Validation'))"
                     @input="($event.target as any)?.setCustomValidity('')" 
                 />
                 </div>
@@ -116,14 +116,14 @@
                     {{ rca.w2 ? rca.w2.length : 0 }}/100
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField label="Why 3" class="font-semibold text-sm" />
+                <UFormField :label="t('workingPaper.causeForm.why3')" class="font-semibold text-sm" />
                 <UInput 
                     class="md:col-span-3" 
                     v-model="rca.w3" 
-                    placeholder="-"
+                    :placeholder="t('workingPaper.causeForm.why3Placeholder')"
                     required
                     maxlength="100"
-                    @invalid="($event.target as any)?.setCustomValidity('Why 3 maksimal 100 karakter dan wajib diisi')"
+                    @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.causeForm.why3Validation'))"
                     @input="($event.target as any)?.setCustomValidity('')" 
                 />
                 </div>
@@ -135,12 +135,12 @@
             
             </div>
 
-            <UButton color="primary" icon="i-heroicons-plus" variant="soft" label="Tambah Analisa Akar Masalah" @click="store.addRootCause" />
+            <UButton color="primary" icon="i-heroicons-plus" variant="soft" :label="t('workingPaper.causeForm.addRootCause')" @click="store.addRootCause" />
         
         <div class="flex justify-end p-6 border-gray-100">
             <UButton 
                 type="submit"
-                :label="store.isEditingF04 ? 'Update Data' : 'Submit'" 
+                :label="store.isEditingF04 ? t('common.updateData') : t('common.submit')" 
                 color="primary"
             />
         </div>
@@ -155,8 +155,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore, causeSchema } from '~/stores/working-paper'
 
+const { t } = useI18n()
 const store = useWorkingPaperStore()
 
 </script>

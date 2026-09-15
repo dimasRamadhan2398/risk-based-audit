@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { RiskLevel, ImpactLevel, PossibilityLevel } from '~/types/risk'
+import { extractErrorMessage } from '~/utils/error'
 
 // --- Constants (Exported for components) ---
 
@@ -220,6 +221,8 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   const config = useRuntimeConfig()
   const rawRisks = ref<any[]>([])
   const branchesList = ref(branches)
+  const loading = ref(false)
+  const errorMsg = ref('')
 
   // UI State
   const selectedBranch = ref('All Branches')
@@ -258,6 +261,8 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
 
   // Load risks from backend
   const fetchRisks = async () => {
+    loading.value = true
+    errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/risks`)
@@ -272,12 +277,15 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
           displayId: idx + 1
         }))
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch risks, falling back to mock data:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch risks, falling back to mock data.')
       rawRisks.value = initialRiskData.map((r: any, idx: number) => ({
         ...r,
         displayId: idx + 1
       }))
+    } finally {
+      loading.value = false
     }
   }
 
@@ -346,6 +354,8 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   }
 
   async function addRisk(newRiskData: any) {
+    loading.value = true
+    errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/risks`, {
@@ -365,12 +375,17 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
         }
         rawRisks.value.push(createdRisk)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add risk:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to add risk.')
+    } finally {
+      loading.value = false
     }
   }
 
   async function updateRisk(updatedRisk: any) {
+    loading.value = true
+    errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
 
@@ -447,15 +462,21 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
             rawRisks.value = newRawRisks
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to update risk on backend (using local fallback):', error)
+        errorMsg.value = extractErrorMessage(error, 'Failed to update risk on backend.')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update risk:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to update risk.')
+    } finally {
+      loading.value = false
     }
   }
 
   async function deleteRisk(id: string | number): Promise<boolean> {
+    loading.value = true
+    errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
 
@@ -474,9 +495,12 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
       }
 
       return false
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete risk:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to delete risk.')
       return false
+    } finally {
+      loading.value = false
     }
   }
 
@@ -501,6 +525,8 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     addRisk,
     updateRisk,
     deleteRisk,
-    fetchRisks
+    fetchRisks,
+    loading,
+    errorMsg
   }
 })

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { TableColumn } from '@nuxt/ui'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface RiskAppetite {
   id: string
@@ -57,44 +58,6 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
     }
   ]
 
-  const columns: (TableColumn<any> & { class?: string })[] = [
-    {
-      accessorKey: 'id',
-      id: 'id',
-      header: 'ID Risiko',
-      class: 'w-[120px] min-w-[100px] whitespace-nowrap'
-    },
-    {
-      accessorKey: 'name',
-      id: 'name',
-      header: 'Nama Risiko & Area',
-      class: 'min-w-[260px] max-w-[380px]'
-    },
-    {
-      accessorKey: 'level',
-      id: 'level',
-      header: 'Level Risiko',
-      class: 'w-[130px] min-w-[130px] text-center whitespace-nowrap'
-    },
-    {
-      accessorKey: 'appetite',
-      id: 'appetite',
-      header: 'Toleransi Appetite',
-      class: 'w-[150px] min-w-[150px] text-center whitespace-nowrap'
-    },
-    {
-      accessorKey: 'mitigationStatus',
-      id: 'mitigationStatus',
-      header: 'Status Mitigasi',
-      class: 'w-[180px] min-w-[180px] whitespace-nowrap'
-    },
-    {
-      accessorKey: 'actions',
-      id: 'actions',
-      header: 'Aksi',
-      class: 'w-[140px] min-w-[140px] text-center whitespace-nowrap'
-    }
-  ]
 
   const getRiskServiceBaseUrl = () => {
     const config = useRuntimeConfig()
@@ -147,9 +110,9 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       } else {
         statements.value = [...mockStatements]
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch risk appetite statements, falling back to mock:', error)
-      errorMsg.value = 'Failed to load risk appetite statements.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to load risk appetite statements.')
       statements.value = [...mockStatements]
     } finally {
       loading.value = false
@@ -174,7 +137,9 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       return response
     } catch (error: any) {
       console.error('Failed to create risk appetite statement:', error)
-      toast.showError(error.data?.message || 'Gagal membuat statement.')
+      const message = extractErrorMessage(error, 'Gagal membuat statement.')
+      errorMsg.value = message
+      toast.showError('Gagal membuat statement', message)
       throw error
     } finally {
       loading.value = false
@@ -195,7 +160,9 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       return response
     } catch (error: any) {
       console.error('Failed to update risk appetite statement:', error)
-      toast.showError(error.data?.message || 'Gagal mengupdate statement.')
+      const message = extractErrorMessage(error, 'Gagal mengupdate statement.')
+      errorMsg.value = message
+      toast.showError('Gagal mengupdate statement', message)
       throw error
     } finally {
       loading.value = false
@@ -214,7 +181,9 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       await fetchStatements()
     } catch (error: any) {
       console.error('Failed to delete risk appetite statement:', error)
-      toast.showError(error.data?.message || 'Gagal menghapus statement.')
+      const message = extractErrorMessage(error, 'Gagal menghapus statement.')
+      errorMsg.value = message
+      toast.showError('Gagal menghapus statement', message)
       throw error
     } finally {
       loading.value = false

@@ -4,6 +4,7 @@ import type { TableColumn } from '@nuxt/ui'
 import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import { RiskLevel } from '~/types/risk'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface RCMItem {
   id: string
@@ -169,6 +170,8 @@ export const useRCMStore = defineStore('rcm', () => {
   const rcmList = ref<RCMItem[]>([])
   const selectedYear = ref(2026)
   const selectedDepartment = ref('All Departments')
+  const loading = ref(false)
+  const errorMsg = ref('')
 
   const columns: (TableColumn<RCMItem> & { class?: string })[] = [
     { accessorKey: 'risk_code', id: 'risk_code', header: 'Kode / Risiko', class: 'min-w-[240px] max-w-[280px]' },
@@ -331,6 +334,8 @@ export const useRCMStore = defineStore('rcm', () => {
 
   // Fetch RCM list from backend if available
   const fetchRCMList = async () => {
+    loading.value = true
+    errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/rcm?year=${selectedYear.value}&department=${encodeURIComponent(selectedDepartment.value)}`)
@@ -341,13 +346,17 @@ export const useRCMStore = defineStore('rcm', () => {
         }))
         saveToLocalStorage()
       }
-    } catch (error) {
-      // Backend unavailable, use local state
+    } catch (error: any) {
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch RCM list.')
+    } finally {
+      loading.value = false
     }
   }
 
   // CRUD actions
   const addRCMItem = async (newItem: Omit<RCMItem, 'id' | 'total_weighted_score'>) => {
+    loading.value = true
+    errorMsg.value = ''
     const scorePercent = calculateItemScorePercent(newItem)
     const payload: RCMItem = {
       ...newItem,
@@ -364,12 +373,17 @@ export const useRCMStore = defineStore('rcm', () => {
         method: 'POST',
         body: payload
       })
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Backend create error, saved locally.', error)
+      errorMsg.value = extractErrorMessage(error, 'Backend create error, saved locally.')
+    } finally {
+      loading.value = false
     }
   }
 
   const updateRCMItem = async (updatedItem: RCMItem) => {
+    loading.value = true
+    errorMsg.value = ''
     updatedItem.total_weighted_score = calculateItemScorePercent(updatedItem)
     const idx = rcmList.value.findIndex(item => item.id === updatedItem.id)
     if (idx !== -1) {
@@ -383,12 +397,17 @@ export const useRCMStore = defineStore('rcm', () => {
         method: 'PUT',
         body: updatedItem
       })
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Backend update error, updated locally.', error)
+      errorMsg.value = extractErrorMessage(error, 'Backend update error, updated locally.')
+    } finally {
+      loading.value = false
     }
   }
 
   const deleteRCMItem = async (id: string) => {
+    loading.value = true
+    errorMsg.value = ''
     rcmList.value = rcmList.value.filter(item => item.id !== id)
     saveToLocalStorage()
 
@@ -397,8 +416,11 @@ export const useRCMStore = defineStore('rcm', () => {
       await $fetch(`${baseUrl}/rcm/${id}`, {
         method: 'DELETE'
       })
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Backend delete error, deleted locally.', error)
+      errorMsg.value = extractErrorMessage(error, 'Backend delete error, deleted locally.')
+    } finally {
+      loading.value = false
     }
   }
 
@@ -418,6 +440,8 @@ export const useRCMStore = defineStore('rcm', () => {
     fetchRCMList,
     addRCMItem,
     updateRCMItem,
-    deleteRCMItem
+    deleteRCMItem,
+    loading,
+    errorMsg
   }
 })

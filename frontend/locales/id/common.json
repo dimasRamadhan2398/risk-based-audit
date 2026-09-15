@@ -94,6 +94,8 @@
     "view": "Lihat",
     "close": "Tutup",
     "submit": "Kirim",
+    "update": "Perbarui",
+    "updateData": "Perbarui Data",
     "search": "Cari",
     "loading": "Memuat...",
     "error": "Error",
@@ -1685,6 +1687,41 @@
     }
   },
   "workingPaper": {
+    "index": {
+      "title": "Buat Kertas Kerja",
+      "subtitle": "Buat dan kelola kertas kerja audit langkah demi langkah",
+      "importButton": "Impor Kertas Kerja",
+      "createButton": "Buat Kertas Kerja",
+      "sections": {
+        "headerTitle": "Header Kertas Kerja Audit",
+        "riskTitle": "Risiko Kertas Kerja Audit",
+        "sampleTitle": "Sampel Kertas Kerja Audit",
+        "causeTitle": "Analisis Penyebab Kertas Kerja Audit",
+        "planTitle": "Rencana Aksi Kertas Kerja Audit"
+      },
+      "steps": {
+        "header": {
+          "title": "Header",
+          "description": "Tambahkan header Anda"
+        },
+        "riskProfile": {
+          "title": "Profil Risiko",
+          "description": "Tambahkan profil risiko Anda"
+        },
+        "testSample": {
+          "title": "Sampel Pengujian",
+          "description": "Tambahkan sampel pengujian Anda"
+        },
+        "aoiRca": {
+          "title": "AOI & RCA",
+          "description": "Tambahkan AOI & RCA Anda"
+        },
+        "actionPlan": {
+          "title": "Rencana Aksi",
+          "description": "Tambahkan rencana aksi Anda"
+        }
+      }
+    },
     "upload": {
       "title": "Impor Referensi Kertas Kerja",
       "subtitle": "Impor dokumen referensi Kertas Kerja (Working Paper) eksternal",
@@ -1716,6 +1753,60 @@
       },
       "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
       "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    },
+    "riskForm": {
+      "title": "Risiko",
+      "risk": "Risiko",
+      "riskPlaceholder": "Pilih Risiko",
+      "riskCategory": "Kategori Risiko",
+      "autoFilledTaxonomy": "Terisi otomatis saat memilih risiko",
+      "riskLevel": "Tingkat Risiko",
+      "autoFilledRiskLevel": "Terisi otomatis saat memilih risiko",
+      "controlDescription": "Deskripsi Kontrol yang Diuji",
+      "controlDescriptionPlaceholder": "Ketik kontrol keamanan/SOP yang sedang dievaluasi di lapangan...",
+      "updateData": "Perbarui Data",
+      "submit": "Kirim"
+    },
+    "causeForm": {
+      "title": "Analisis Akar Penyebab",
+      "condition": "Kondisi (Dampak di Lapangan)",
+      "conditionPlaceholder": "Contoh: Ditemukan dokumen PO tanpa tanda tangan Manager terkait pada tanggal...",
+      "uploadEvidence": "Unggah bukti temuan/foto",
+      "criteria": "Kriteria (Aturan/SOP Terkait)",
+      "criteriaPlaceholder": "Cari Peraturan Internal (Contoh: SOP Pengadaan Bab IV - Otorisasi)",
+      "impact": "Dampak (Risk Impact)",
+      "impactPlaceholder": "Contoh: Potensi fraud atau pembelian fiktif yang dapat merugikan keuangan...",
+      "rootCauseAnalysis": "Analisis Akar Masalah",
+      "analysisIndex": "Analisis {index}",
+      "category": "Kategori",
+      "categoryPlaceholder": "Pilih Kategori",
+      "why1": "Why 1",
+      "why1Placeholder": "Contoh: Staf lupa meminta TTD Manager",
+      "why1Validation": "Why 1 maksimal 100 karakter dan wajib diisi",
+      "why2": "Why 2",
+      "why2Placeholder": "Contoh: Karena staf terburu-buru mengejar kuota pengiriman",
+      "why2Validation": "Why 2 maksimal 100 karakter dan wajib diisi",
+      "why3": "Why 3",
+      "why3Placeholder": "-",
+      "why3Validation": "Why 3 maksimal 100 karakter dan wajib diisi",
+      "addRootCause": "Tambah Analisa Akar Masalah",
+      "updateData": "Perbarui Data",
+      "submit": "Kirim"
+    },
+    "planForm": {
+      "title": "Rekomendasi & Tanggapan",
+      "recommendation": "Rekomendasi Auditor (Solusi)",
+      "recommendationPlaceholder": "Contoh: Tim IT perlu menambahkan fitur hard-block...",
+      "response": "Tanggapan Auditi (Tanggapan Manajemen)",
+      "responsePlaceholder": "Contoh: Kami setuju, update akan dilakukan di Q3...",
+      "actionPlanDetail": "Detail Rencana Aksi (Action Plan)",
+      "actionDescription": "Deskripsi Aksi",
+      "actionDescriptionPlaceholder": "Contoh: Staf lupa meminta TTD Manager",
+      "pic": "PIC (Penanggung Jawab)",
+      "picPlaceholder": "Cari Nama Karyawan Contoh: Dimas - IT",
+      "periodAction": "Periode Perencanaan",
+      "updateData": "Perbarui Data",
+      "submit": "Kirim"
     }
   },
   "consultingService": {

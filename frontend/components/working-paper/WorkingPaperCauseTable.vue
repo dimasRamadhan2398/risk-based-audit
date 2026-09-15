@@ -38,9 +38,7 @@
                     <div v-for="rca in row.original.rootCause" :key="rca.id" class="text-[11px] leading-tight border-l-2 border-orange-400 pl-2">
                         <div class="font-bold text-lg text-gray-700">{{ rca.method }}</div>
                     <div class="text-gray-500 text-sm italic">
-                        Why 1: {{ rca.w1 || '-' }} <br>
-                        Why 2: {{ rca.w2 || '-' }} <br>
-                        Why 3: {{ rca.w3 || '-' }}
+                        Why: {{ rca.w1 || '-' }} <br>
                     </div>
                     </div>
                 </div>

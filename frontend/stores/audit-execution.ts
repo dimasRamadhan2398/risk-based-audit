@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { AuditCategory, AuditStatus, type AuditExecution } from '~/types/audit'
+import { extractErrorMessage } from '~/utils/error'
 
 export function normalizeAuditStatus(status?: string | null, progress?: number): string {
   if (!status && typeof progress === 'number') {
@@ -331,7 +332,7 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         }
       } catch (err: any) {
         console.error('Failed to fetch audit executions:', err)
-        this.error = err.message
+        this.error = extractErrorMessage(err, 'Failed to load audit executions.')
         this.auditExecutions = mockList
       } finally {
         this.loading = false
@@ -350,6 +351,8 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         await this.fetchAuditExecutions()
       } catch (err: any) {
         console.error('Failed to update audit execution:', err)
+        this.error = extractErrorMessage(err, 'Failed to update audit execution.')
+        throw err
       } finally {
         this.loading = false
       }
