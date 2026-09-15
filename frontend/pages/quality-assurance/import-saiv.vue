@@ -4,8 +4,8 @@
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/quality-assurance" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Import SAIV</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Import external Self Assessment with Independent Validation (SAIV) documents</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('qualityAssurance.importSaiv.title') }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('qualityAssurance.importSaiv.subtitle') }}</p>
       </div>
     </div>
 
@@ -17,15 +17,15 @@
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-warning" />
-              Import SAIV Document
+              {{ t('qualityAssurance.importSaiv.formTitle') }}
             </h3>
           </template>
 
           <UForm @submit.prevent="handleUpload" class="space-y-6">
-            <UFormField label="Document Title" required>
+            <UFormField :label="t('qualityAssurance.importSaiv.documentTitle')" required>
               <UInput 
                 v-model="form.title" 
-                placeholder="Ex: Laporan SAIV Document 2026" 
+                :placeholder="t('qualityAssurance.importSaiv.documentTitlePlaceholder')" 
                 class="w-full"
                 required
                 maxlength="100"
@@ -37,16 +37,16 @@
               </div>
             </UFormField>
 
-            <UFormField label="Description">
+            <UFormField :label="t('qualityAssurance.importSaiv.description')">
               <UTextarea 
                 v-model="form.description" 
-                placeholder="Brief description of the document..." 
+                :placeholder="t('qualityAssurance.importSaiv.descriptionPlaceholder')" 
                 class="w-full"
               />
             </UFormField>
 
             <div class="space-y-2 pt-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Import Document File *</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('qualityAssurance.importSaiv.fileLabel') }}</label>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -65,15 +65,15 @@
                   type="file" 
                   ref="fileInput" 
                   class="hidden" 
-                  @change="handleFileSelect"
+                  @change="handleFileSelect" 
                   accept=".pdf,.docx,.doc,.xls,.xlsx"
                 />
                 
                 <div v-if="!form.fileName" class="space-y-3">
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">Click to upload or drag & drop</p>
-                    <p class="text-md text-gray-400 mt-1">PDF, DOC, DOCX, XLSX up to 10MB</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">{{ t('qualityAssurance.importSaiv.dropzonePrompt') }}</p>
+                    <p class="text-md text-gray-400 mt-1">{{ t('qualityAssurance.importSaiv.dropzoneHint') }}</p>
                   </div>
                 </div>
 
@@ -92,7 +92,7 @@
                     @click.stop="clearFile" 
                     class="text-md text-red-500 hover:underline font-bold mt-2 block mx-auto"
                   >
-                    Remove File
+                    {{ t('qualityAssurance.importSaiv.removeFile') }}
                   </button>
                 </div>
               </div>
@@ -104,7 +104,7 @@
 
             <UButton 
               type="submit" 
-              label="Import Document" 
+              :label="t('qualityAssurance.importSaiv.submitButton')" 
               color="warning" 
               class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
@@ -122,10 +122,10 @@
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-warning" />
-                Imported SAIV Documents
+                {{ t('qualityAssurance.importSaiv.tableTitle') }}
               </h3>
               <UBadge color="warning" variant="subtle">
-                {{ store.saivImportedReports.length }} Documents
+                {{ t('qualityAssurance.importSaiv.documentsCount', { count: store.saivImportedReports.length }) }}
               </UBadge>
             </div>
           </template>
@@ -136,8 +136,8 @@
             :loading="store.loading"
             :empty-state="{
               icon: 'i-lucide-folder-open',
-              label: 'No documents imported',
-              description: 'Import SAIV documents to add them to your records.'
+              label: t('qualityAssurance.importSaiv.emptyTitle'),
+              description: t('qualityAssurance.importSaiv.emptyDesc')
             }"
           >
             <template #title-cell="{ row }">
@@ -169,18 +169,20 @@
                 <UTooltip text="View Document">
                 <UButton 
                   icon="i-lucide-eye" 
-                  color="neutral" 
+                  color="info" 
                   variant="ghost" 
                   size="md" 
+                  :title="t('qualityAssurance.importSaiv.actions.view')"
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>
                 <UTooltip text="Download Document">
                 <UButton 
                   icon="i-lucide-download" 
-                  color="success" 
+                  color="primary" 
                   variant="ghost" 
                   size="md" 
+                  :title="t('qualityAssurance.importSaiv.actions.download')"
                   @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
                 />
                 </UTooltip>
@@ -190,6 +192,7 @@
                   color="error" 
                   variant="ghost" 
                   size="md" 
+                  :title="t('qualityAssurance.importSaiv.actions.delete')"
                   @click="handleDelete(row.original)" 
                 />
                 </UTooltip>
@@ -203,11 +206,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 import { QAType, QAStatus, type QAReport } from '~/types/quality-assurance'
+import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
 
+const { t, locale } = useI18n()
 const store = useQualityAssuranceStore()
 
 onMounted(() => {
@@ -226,12 +231,12 @@ const form = ref({
   file: null as any
 })
 
-const columns = [
-  { accessorKey: 'title', header: 'Document Title', class: 'w-[50%]' },
-  { accessorKey: 'fileName', header: 'File', class: 'w-[24%]' },
-  { accessorKey: 'created_at', header: 'Imported Date', class: 'w-[16%]' },
-  { accessorKey: 'actions', header: 'Actions', class: 'w-[10%]' }
-]
+const columns = computed(() => [
+  { accessorKey: 'title', header: t('qualityAssurance.importSaiv.columns.title'), class: 'w-[50%]' },
+  { accessorKey: 'fileName', header: t('qualityAssurance.importSaiv.columns.file'), class: 'w-[24%]' },
+  { accessorKey: 'created_at', header: t('qualityAssurance.importSaiv.columns.date'), class: 'w-[16%]' },
+  { accessorKey: 'actions', header: t('qualityAssurance.importSaiv.columns.actions'), class: 'w-[10%]' }
+])
 
 const triggerFileSelect = () => {
   fileInput.value?.click()
@@ -255,7 +260,7 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    alert('File size exceeds the 10MB limit.')
+    alert(t('qualityAssurance.importSaiv.fileSizeLimit'))
     return
   }
 
@@ -304,7 +309,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-  if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this imported document?' })) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importSaiv.deleteConfirm') })) {
     store.selectedReport = report
     await store.deleteReport()
   }
@@ -322,7 +327,7 @@ const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   const date = new Date(dateString)
   if (isNaN(date.getTime())) return dateString
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale.value === 'id' ? 'id-ID' : 'en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'

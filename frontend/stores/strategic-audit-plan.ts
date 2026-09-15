@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue';
 import type { TableColumn } from "@nuxt/ui";
 import type { StrategicAuditPlan } from "~/types/audit";
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
+import { extractErrorMessage } from '~/utils/error';
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
@@ -12,7 +13,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const isEditMode = ref(false);
     const loading = ref(false);
     const errorMsg = ref('');
-    const toast = useToastNotification()
+    const toast = useToastNotification();
 
     const openViewModal = (item: StrategicAuditPlan) => {
         selectedViewObjective.value = item;
@@ -215,7 +216,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         try {
             const baseUrl = getAuditServiceBaseUrl();
             const response: any = await $fetch(`${baseUrl}/strategic-plans`, {
-                method: 'GET'
+                method: 'GET',
+                params: {
+                    page: 1,
+                    page_size: 100,
+                    order: 'code ASC'
+                }
             });
             let items: StrategicAuditPlan[] = [];
             if (response && response.data && Array.isArray(response.data.items)) {
@@ -234,7 +240,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             }
         } catch (error: any) {
             console.error('Failed to fetch strategic plans:', error);
-            errorMsg.value = 'Failed to load strategic plans.';
+            errorMsg.value = extractErrorMessage(error, 'Failed to load strategic plans.');
             strategicObjectives.value = [...mockObjectives];
         } finally {
             loading.value = false;
@@ -346,7 +352,9 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             await fetchStrategicPlans();
         } catch (error: any) {
             console.error('Failed to delete strategic plan:', error);
-            toast.showError('Failed to delete strategic plan.');
+            const detail = extractErrorMessage(error, 'Failed to delete strategic plan.');
+            errorMsg.value = detail;
+            toast.showError('Failed to delete strategic plan.', detail);
             strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
         } finally {
             loading.value = false;
@@ -473,7 +481,8 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             closeModal();
         } catch (error: any) {
             console.error('Failed to save strategic plan:', error);
-            const detail = error.data?.error?.message || error.message || 'Gagal menyimpan rencana strategis.';
+            const detail = extractErrorMessage(error, 'Gagal menyimpan rencana strategis.');
+            errorMsg.value = detail;
             toast.showError('Gagal Menyimpan Rencana Strategis', detail);
 
             const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));

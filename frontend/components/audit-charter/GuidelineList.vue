@@ -9,14 +9,14 @@
         <UIcon name="i-lucide-book-open" class="w-8 h-8" />
       </div>
       <div class="space-y-2 max-w-md">
-        <h2 class="text-xl font-bold text-[var(--text-main)]">Belum Ada Pedoman Audit</h2>
+        <h2 class="text-xl font-bold text-[var(--text-main)]">{{ t('auditCharter.guideline.emptyTitle') }}</h2>
         <p class="text-sm text-[var(--text-muted)] leading-relaxed">
-          Pedoman Audit mendefinisikan aturan dan standar pelaksanaan audit di perusahaan Anda.
+          {{ t('auditCharter.guideline.emptyDesc') }}
         </p>
       </div>
       <UButton
         v-if="canManageCharter"
-        label="Tambah Pedoman Audit"
+        :label="t('auditCharter.guideline.addGuideline')"
         @click="() => { store.showModal = true }"
         color="primary"
         size="lg"
@@ -29,12 +29,12 @@
     <div v-else class="space-y-4">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900">Pedoman Audit</h2>
-          <p class="text-sm text-gray-500">Daftar seluruh Pedoman Audit yang berlaku di perusahaan</p>
+          <h2 class="text-2xl font-bold text-gray-900">{{ t('auditCharter.guideline.title') }}</h2>
+          <p class="text-sm text-gray-500">{{ t('auditCharter.guideline.subtitle') }}</p>
         </div>
         <UButton
           v-if="canManageCharter"
-          label="Tambah Pedoman"
+          :label="t('auditCharter.guideline.addGuidelineShort')"
           @click="() => { store.showModal = true }"
           color="primary"
           icon="i-lucide-plus"
@@ -51,7 +51,7 @@
         :page="store.pagination.page"
         :empty-state="{
           icon: 'i-lucide-book-open',
-          label: 'Belum ada pedoman audit'
+          label: t('auditCharter.guideline.emptyTable')
         }"
         class="w-full"
         @update:page="(p) => store.fetchGuidelines(p)"
@@ -78,14 +78,14 @@
             variant="subtle"
             class="rounded font-semibold"
           >
-            {{ row.original.status }}
+            {{ translateStatus(row.original.status) }}
           </UBadge>
         </template>
 
         <!-- Effective date slot -->
         <template #effective_date-cell="{ row }">
           <span class="font-medium text-[var(--text-main)]">{{
-            formatMonthYearIndonesian(row.original.effective_date)
+            formatMonthYear(row.original.effective_date)
           }}</span>
         </template>
 
@@ -96,7 +96,7 @@
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
               icon="i-lucide-eye"
-              color="neutral"
+              color="primary"
               variant="ghost"
               size="md"
               @click="openFile(row.original.file_url)"
@@ -106,7 +106,7 @@
             <UButton
               v-if="canManageCharter"
               size="md"
-              color="warning"
+              color="primary"
               variant="ghost"
               icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
@@ -132,20 +132,24 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { useGlobalModalStore } from '~/stores/global-modal'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
+const { t, locale } = useI18n()
 const store = useGuidelineStore()
 const { canManageCharter } = useRbac()
 
-const columns = [
-  { accessorKey: 'no', header: 'No' },
-  { accessorKey: 'name', header: 'Nama Pedoman' },
-  { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'effective_date', header: 'Mulai Berlaku' },
-  { accessorKey: 'actions', header: '' }
-]
+const columns = computed(() => [
+  { accessorKey: 'no', header: t('auditCharter.guideline.columns.no') },
+  { accessorKey: 'name', header: t('auditCharter.guideline.columns.name') },
+  { accessorKey: 'status', header: t('auditCharter.guideline.columns.status') },
+  { accessorKey: 'effective_date', header: t('auditCharter.guideline.columns.effectiveDate') },
+  { accessorKey: 'file_name', header: t('auditCharter.guideline.columns.fileName') },
+  { accessorKey: 'actions', header: t('auditCharter.guideline.columns.actions') }
+])
 
 const tableData = computed(() => {
   return store.guidelines.map((item, index) => ({
@@ -154,20 +158,32 @@ const tableData = computed(() => {
   }))
 })
 
-const formatMonthYearIndonesian = (val: string) => {
+const translateStatus = (status: string): string => {
+  if (status === 'Aktif') return t('auditCharter.guideline.statusActive')
+  if (status === 'Sedang Diperbarui') return t('auditCharter.guideline.statusUnderReview')
+  return status
+}
+
+const formatMonthYear = (val: string) => {
   if (!val) return '-'
   const parts = val.split('-')
   if (parts.length < 2) return val
   const [year, month] = parts
-  const months = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-  ]
   const mIndex = parseInt(month || '', 10) - 1
-  if (mIndex >= 0 && mIndex < 12) {
-    return `${months[mIndex]} ${year}`
+  if (mIndex < 0 || mIndex >= 12) return val
+
+  if (locale.value === 'id') {
+    const monthsId = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ]
+    return `${monthsId[mIndex]} ${year}`
   }
-  return val
+  const monthsEn = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+  return `${monthsEn[mIndex]} ${year}`
 }
 
 const openFile = (fileUrl: string) => {
@@ -183,7 +199,7 @@ const openFile = (fileUrl: string) => {
 }
 
 const confirmDelete = async (item: any) => {
-  if (await useGlobalModalStore().confirmDelete({ description: `Apakah Anda yakin ingin menghapus Pedoman "${item.name}"?` })) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('auditCharter.guideline.deleteConfirm', { name: item.name }) })) {
     await store.deleteGuideline(item.id || '')
   }
 }

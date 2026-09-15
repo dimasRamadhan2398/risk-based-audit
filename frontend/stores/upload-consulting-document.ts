@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
-
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { extractErrorMessage } from '~/utils/error';
 
 export interface UploadedConsultingDocument {
   id: string;
@@ -18,7 +18,7 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
   const uploadedDocuments = ref<UploadedConsultingDocument[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
-  const toast = useToastNotification()
+  const toast = useToastNotification();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -35,7 +35,7 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded consulting documents:', error);
-      errorMsg.value = 'Failed to load uploaded consulting documents.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded consulting documents.');
     } finally {
       loading.value = false;
     }
@@ -47,20 +47,24 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
     try {
       const baseUrl = getAuditServiceBaseUrl();
       const formData = new FormData();
-      formData.append('title', payload.title);
-      formData.append('description', payload.description);
-      formData.append('fileName', payload.fileName);
-      formData.append('fileType', payload.fileType);
-      formData.append('file', payload.file);
+      Object.keys(payload).forEach(key => {
+        const val = (payload as any)[key];
+        if (val !== undefined && val !== null) {
+          formData.append(key, val);
+        }
+      });
       await $fetch(`${baseUrl}/uploaded-consulting-documents`, {
         method: 'POST',
         body: formData
       });
+      toast.showSuccess('Consulting document uploaded successfully');
       await fetchUploadedDocuments();
       toast.showSuccess('Consulting document uploaded successfully!')
     } catch (error: any) {
       console.error('Failed to upload consulting document:', error);
-      toast.showError(error.data?.message || 'Failed to upload consulting document.')
+      const detail = extractErrorMessage(error, 'Failed to upload consulting document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to upload consulting document.', detail);
       throw error;
     } finally {
       loading.value = false;
@@ -75,11 +79,14 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       await $fetch(`${baseUrl}/uploaded-consulting-documents/${id}`, {
         method: 'DELETE'
       });
+      toast.showSuccess('Consulting document deleted successfully');
       await fetchUploadedDocuments();
       toast.showSuccess('Consulting document deleted successfully!')
     } catch (error: any) {
       console.error('Failed to delete uploaded consulting document:', error);
-      toast.showError(error.data?.message || 'Failed to delete consulting document.')
+      const detail = extractErrorMessage(error, 'Failed to delete consulting document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete consulting document.', detail);
       throw error;
     } finally {
       loading.value = false;
@@ -99,7 +106,9 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      toast.showError(error.data?.message || 'Failed to view document.')
+      const detail = extractErrorMessage(error, 'Failed to view document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to view document.', detail);
     }
   };
 
@@ -121,7 +130,9 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download consulting document:', error);
-      toast.showError(error.data?.message || 'Failed to download document.')
+      const detail = extractErrorMessage(error, 'Failed to download document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to download document.', detail);
     }
   };
 

@@ -28,7 +28,7 @@
               {{ store.isReadOnlyDocument ? (t('auditFieldwork.document.modalView') || 'Detail Pengumpulan Dokumen') : (store.isEditingDocument ? t('auditFieldwork.document.modalEdit') : t('auditFieldwork.document.modalAdd')) }}
             </h3>
           </div>
-          <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="() => { store.showDocumentModal = false; }" />
+          <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="store.showDocumentModal = false" />
         </div>
 
         <!-- Read-Only Detail View -->
@@ -149,7 +149,11 @@
         <!-- Modal Footer -->
         <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
           <template v-if="store.isReadOnlyDocument">
+<<<<<<< HEAD
+            <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="store.showDocumentModal = false" />
+=======
             <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="() => { store.showDocumentModal = false; }" />
+>>>>>>> upstream/main
             <UButton
               color="primary"
               icon="i-heroicons-pencil-square"
@@ -158,7 +162,7 @@
             />
           </template>
           <template v-else>
-            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => { store.showDocumentModal = false; }" />
+            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="store.showDocumentModal = false" />
             <UButton
               color="primary"
               :label="store.isEditingDocument ? t('common.edit') : t('common.submit')"

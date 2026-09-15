@@ -16,7 +16,7 @@ const store = useQualityAssuranceStore()
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="space-y-1">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-tight">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
           Internal Audit Quality Assurance - Integrated Dashboard
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 font-medium">

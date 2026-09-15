@@ -1,8 +1,8 @@
-// stores/charter.ts
 import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { AuditCharter, CharterFormState } from '~/types/audit'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useCharterStore = defineStore('charter', () => {
   // Modal State
@@ -211,7 +211,7 @@ export const useCharterStore = defineStore('charter', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch audit charters:', error)
-      errorMsg.value = 'Gagal mengambil data Audit Charter.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data Audit Charter.')
       charters.value = []
     } finally {
       loading.value = false
@@ -281,7 +281,9 @@ export const useCharterStore = defineStore('charter', () => {
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to create audit charter:', error)
-      toast.showError('Gagal menambahkan Audit Charter.')
+      const detail = extractErrorMessage(error, 'Gagal menambahkan Audit Charter.')
+      errorMsg.value = detail
+      toast.showError('Gagal menambahkan Audit Charter.', detail)
       throw error
     } finally {
       loading.value = false
@@ -324,7 +326,9 @@ export const useCharterStore = defineStore('charter', () => {
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to update audit charter:', error)
-      toast.showError('Gagal memperbarui Audit Charter.')
+      const detail = extractErrorMessage(error, 'Gagal memperbarui Audit Charter.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui Audit Charter.', detail)
       throw error
     } finally {
       loading.value = false
@@ -353,7 +357,9 @@ export const useCharterStore = defineStore('charter', () => {
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to delete audit charter:', error)
-      toast.showError('Gagal menghapus Audit Charter.')
+      const detail = extractErrorMessage(error, 'Gagal menghapus Audit Charter.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus Audit Charter.', detail)
       throw error
     } finally {
       loading.value = false
@@ -379,7 +385,9 @@ export const useCharterStore = defineStore('charter', () => {
       window.open(`${baseUrl}/audit-charters/${id}/download`, '_blank')
     } catch (error: any) {
       console.error('Failed to download audit charter:', error)
-      toast.showError('Gagal mengunduh file Audit Charter.')
+      const detail = extractErrorMessage(error, 'Gagal mengunduh file Audit Charter.')
+      errorMsg.value = detail
+      toast.showError('Gagal mengunduh file Audit Charter.', detail)
       throw error
     } finally {
       loading.value = false

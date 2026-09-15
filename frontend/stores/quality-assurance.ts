@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
@@ -108,7 +109,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   const mockReports: QAReport[] = [
     {
-      id: '1',
+      id: '4f8037e3-5eca-423a-b99c-015b8a835cc4',
       type: QAType.REGULAR,
       period: '2025',
       reportName: 'Operational Efficiency Q3',
@@ -124,7 +125,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '2',
+      id: '8fdb7363-9092-4b7a-9c8b-2ef94f46a296',
       type: QAType.SAIV,
       period: '2025',
       reportName: 'Self Assessment GIAS \'22-24',
@@ -140,7 +141,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '3',
+      id: '4c22f5d1-4442-482e-9591-d4615eb18321',
       type: QAType.QAR,
       period: 'Year 2025',
       reportName: 'External QAR (IPPF 2027)',
@@ -156,7 +157,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '4',
+      id: '605c2dbf-61a1-42db-9e46-3f8aeba62cc4',
       type: QAType.REGULAR,
       period: '2025',
       reportName: 'Penilaian Periodik Kualitas Internal Audit',
@@ -165,7 +166,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       assessmentTitle: 'RSA - Audit 2025 Q2'
     },
     {
-      id: '5',
+      id: '36fe54aa-df5a-4c3c-810f-74fdb98ca591',
       type: QAType.REGULAR,
       period: '2025',
       reportName: 'Penilaian Reguler Kualitas Internal Audit',
@@ -174,7 +175,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       assessmentTitle: 'RSA - Audit 2025 Q1'
     },
     {
-      id: '6',
+      id: 'e0c25c0b-5323-4987-99af-3e8e147a275e',
       type: QAType.IACM,
       period: 'Year 2025',
       reportName: 'BUMN IACM Assessment 2025',
@@ -200,7 +201,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch QA reports:', error)
-      errorMsg.value = 'Failed to fetch quality assurance reports.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch quality assurance reports.')
       reports.value = mockReports
     } finally {
       loading.value = false
@@ -253,6 +254,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       await fetchReports()
     } catch (error: any) {
       console.error('Failed to save QA report (API failed, falling back to local):', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to save QA report.')
       // Local fallback for frontend testing
       if (isEditing.value && selectedReport.value) {
         const index = mockReports.findIndex(r => r.id === selectedReport.value!.id)
@@ -341,30 +343,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       toast.showSuccess('Berhasil mengimpor data laporan QA')
       return response
     } catch (error: any) {
-      console.error('Failed to import QAR report (API failed, falling back to local):', error)
-      const newReport: QAReport = {
-        id: Date.now().toString(),
-        type: payload.type as QAType,
-        isImported: true,
-        period: payload.periodYear,
-        reportName: payload.assessmentTitle,
-        result: payload.result,
-        status: payload.status as QAStatus,
-        conductedBy: payload.conductedBy,
-        assessmentTitle: payload.assessmentTitle,
-        validator: payload.validator,
-        attachment: {
-          name: payload.fileName,
-          size: payload.file ? Math.round(payload.file.size / 1024) + ' KB' : 'Unknown',
-          uploadedAt: new Date().toISOString().split('T')[0] || '',
-          filePath: payload.file ? window.URL.createObjectURL(payload.file) : undefined
-        }
-      }
-      mockReports.unshift(newReport)
-      reports.value = [...mockReports]
-      toast.showSuccess('Berhasil mengimpor data laporan QA')
-      closeImportModal()
-      return newReport
+      console.error('Failed to import QAR report:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to import QAR report.')
+      throw error
     } finally {
       loading.value = false
     }
@@ -391,16 +372,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       link.download = fileName
       link.click()
       window.URL.revokeObjectURL(link.href)
-    } catch (error) {
-      console.error('Failed to download QAR attachment (API failed, falling back to local mock):', error)
-      const dummyContent = 'Mock Document Content for: ' + fileName
-      const blob = new Blob([dummyContent], { type: 'text/plain' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = fileName
-      link.click()
-      window.URL.revokeObjectURL(url)
+    } catch (error: any) {
+      console.error('Failed to download QAR attachment:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to download QAR attachment.')
     }
   }
 
@@ -428,13 +402,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       const url = window.URL.createObjectURL(blob)
       window.open(url, '_blank')
       setTimeout(() => window.URL.revokeObjectURL(url), 10000)
-    } catch (error) {
-      console.error('Failed to view QAR attachment (API failed, falling back to local mock):', error)
-      const dummyContent = 'Mock Document Content for: ' + fileName
-      const blob = new Blob([dummyContent], { type: 'text/plain' })
-      const url = window.URL.createObjectURL(blob)
-      window.open(url, '_blank')
-      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+    } catch (error: any) {
+      console.error('Failed to view QAR attachment:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to view QAR attachment.')
     }
   }
 
@@ -559,6 +529,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       toast.showSuccess('Berhasil menghapus data laporan QA')
     } catch (error: any) {
       console.error('Failed to delete QA report (API failed, falling back to local):', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to delete Quality Assurance report.')
       const index = mockReports.findIndex(r => r.id === targetReport.id)
       if (index !== -1) {
         mockReports.splice(index, 1)

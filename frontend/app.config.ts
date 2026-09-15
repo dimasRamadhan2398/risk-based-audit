@@ -587,6 +587,311 @@ export default defineAppConfig({
       },
     },
 
+    radioGroup: {
+      slots: {
+        root: "relative",
+        fieldset: "flex gap-2",
+        legend: "mb-1.5 block font-medium text-[var(--text-main)]",
+        item: "flex items-start cursor-pointer select-none group",
+        container: "flex items-center",
+        base: "rounded-full ring ring-inset ring-accented overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 bg-default cursor-pointer transition-all duration-200",
+        indicator: "flex items-center justify-center size-full after:bg-default after:rounded-full transition-transform duration-150",
+        wrapper: "w-full",
+        label: "block font-medium text-[var(--text-main)] cursor-pointer select-none",
+        description: "text-[var(--text-muted)] text-sm",
+      },
+      variants: {
+        color: {
+          primary: {
+            base: "focus-visible:outline-primary focus-visible:ring-primary/50 data-[state=checked]:border-primary",
+            indicator: "bg-primary text-inverted",
+          },
+          secondary: {
+            base: "focus-visible:outline-secondary focus-visible:ring-secondary/50 data-[state=checked]:border-secondary",
+            indicator: "bg-secondary text-inverted",
+          },
+          success: {
+            base: "focus-visible:outline-success focus-visible:ring-success/50 data-[state=checked]:border-success",
+            indicator: "bg-success text-inverted",
+          },
+          info: {
+            base: "focus-visible:outline-info focus-visible:ring-info/50 data-[state=checked]:border-info",
+            indicator: "bg-info text-inverted",
+          },
+          warning: {
+            base: "focus-visible:outline-warning focus-visible:ring-warning/50 data-[state=checked]:border-warning",
+            indicator: "bg-warning text-inverted",
+          },
+          error: {
+            base: "focus-visible:outline-error focus-visible:ring-error/50 data-[state=checked]:border-error",
+            indicator: "bg-error text-inverted",
+          },
+          neutral: {
+            base: "focus-visible:outline-inverted focus-visible:ring-inverted/50 data-[state=checked]:border-inverted",
+            indicator: "bg-inverted text-default",
+          },
+        },
+        variant: {
+          list: {
+            item: "",
+          },
+          card: {
+            item: "border border-muted rounded-xl p-3.5 transition-all duration-200 cursor-pointer hover:bg-elevated/40",
+          },
+          table: {
+            item: "border border-muted transition-all duration-200",
+          },
+        },
+        orientation: {
+          horizontal: {
+            fieldset: "flex-row flex-wrap gap-4",
+          },
+          vertical: {
+            fieldset: "flex-col gap-2",
+          },
+        },
+        indicator: {
+          start: {
+            item: "flex-row",
+            wrapper: "ms-2.5",
+          },
+          end: {
+            item: "flex-row-reverse",
+            wrapper: "me-2.5",
+          },
+          hidden: {
+            base: "sr-only",
+            wrapper: "text-center",
+          },
+        },
+        size: {
+          xs: {
+            fieldset: "gap-1",
+            legend: "text-xs",
+            base: "size-3.5",
+            item: "text-xs",
+            container: "h-4",
+            indicator: "after:size-1",
+            wrapper: "text-xs",
+          },
+          sm: {
+            fieldset: "gap-1.5",
+            legend: "text-xs",
+            base: "size-4",
+            item: "text-xs",
+            container: "h-4.5",
+            indicator: "after:size-1.5",
+            wrapper: "text-xs",
+          },
+          md: {
+            fieldset: "gap-2",
+            legend: "text-sm",
+            base: "size-4.5",
+            item: "text-sm",
+            container: "h-5",
+            indicator: "after:size-2",
+            wrapper: "text-sm",
+          },
+          lg: {
+            fieldset: "gap-2.5",
+            legend: "text-sm",
+            base: "size-5",
+            item: "text-sm",
+            container: "h-5.5",
+            indicator: "after:size-2",
+            wrapper: "text-sm",
+          },
+          xl: {
+            fieldset: "gap-3",
+            legend: "text-base",
+            base: "size-6",
+            item: "text-base",
+            container: "h-6",
+            indicator: "after:size-2.5",
+            wrapper: "text-base",
+          },
+        },
+        required: {
+          true: {
+            legend: "after:content-['*'] after:ms-0.5 after:text-error",
+          },
+        },
+        disabled: {
+          true: {
+            item: "opacity-75 cursor-not-allowed",
+            base: "cursor-not-allowed",
+            label: "cursor-not-allowed",
+            description: "cursor-not-allowed",
+          },
+        },
+      },
+      compoundVariants: [
+        {
+          size: "xs",
+          variant: ["card", "table"],
+          class: {
+            item: "p-2.5",
+          },
+        },
+        {
+          size: "sm",
+          variant: ["card", "table"],
+          class: {
+            item: "p-3",
+          },
+        },
+        {
+          size: "md",
+          variant: ["card", "table"],
+          class: {
+            item: "p-3.5",
+          },
+        },
+        {
+          size: "lg",
+          variant: ["card", "table"],
+          class: {
+            item: "p-4",
+          },
+        },
+        {
+          size: "xl",
+          variant: ["card", "table"],
+          class: {
+            item: "p-4.5",
+          },
+        },
+        {
+          orientation: "horizontal",
+          variant: "table",
+          class: {
+            item: "first-of-type:rounded-s-lg last-of-type:rounded-e-lg",
+            fieldset: "gap-0 -space-x-px",
+          },
+        },
+        {
+          orientation: "vertical",
+          variant: "table",
+          class: {
+            item: "first-of-type:rounded-t-lg last-of-type:rounded-b-lg",
+            fieldset: "gap-0 -space-y-px",
+          },
+        },
+        {
+          color: "primary",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary-500/10 dark:has-data-[state=checked]:bg-primary-500/20",
+          },
+        },
+        {
+          color: "secondary",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-secondary has-data-[state=checked]:bg-secondary-500/5",
+          },
+        },
+        {
+          color: "success",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-success has-data-[state=checked]:bg-success-500/5",
+          },
+        },
+        {
+          color: "info",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-info has-data-[state=checked]:bg-info-500/5",
+          },
+        },
+        {
+          color: "warning",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-warning has-data-[state=checked]:bg-warning-500/5",
+          },
+        },
+        {
+          color: "error",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-error has-data-[state=checked]:bg-error-500/5",
+          },
+        },
+        {
+          color: "neutral",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-inverted has-data-[state=checked]:bg-elevated",
+          },
+        },
+        {
+          color: "primary",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-primary/10 has-data-[state=checked]:border-primary/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "secondary",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-secondary/10 has-data-[state=checked]:border-secondary/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "success",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-success/10 has-data-[state=checked]:border-success/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "info",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-info/10 has-data-[state=checked]:border-info/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "warning",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-warning/10 has-data-[state=checked]:border-warning/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "error",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-error/10 has-data-[state=checked]:border-error/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "neutral",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-elevated has-data-[state=checked]:border-inverted/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          variant: ["card", "table"],
+          disabled: true,
+          class: {
+            item: "cursor-not-allowed",
+          },
+        },
+      ],
+      defaultVariants: {
+        size: "md",
+        color: "primary",
+        variant: "list",
+        orientation: "vertical",
+        indicator: "start",
+      },
+    },
+
     container: {
       base: "max-w-(--ui-container) w-full space-y-8 bg-[var(--bg-surface)] px-8 py-4 rounded-xl z-100 block relative shadow-xl border border-[var(--border-main)] transition-all duration-300",
     },
@@ -1781,16 +2086,6 @@ export default defineAppConfig({
       },
       defaultVariants: {
         color: 'primary'
-      }
-    },
-    selectMenu: {
-      slots: {
-        content: 'z-[9999]'
-      }
-    },
-    select: {
-      slots: {
-        content: 'z-[9999]'
       }
     },
     selectMenu: {

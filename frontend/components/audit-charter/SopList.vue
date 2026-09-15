@@ -9,14 +9,14 @@
         <UIcon name="i-lucide-file-text" class="w-8 h-8" />
       </div>
       <div class="space-y-2 max-w-md">
-        <h2 class="text-xl font-bold text-[var(--text-main)]">Belum Ada Petunjuk Teknis / SOP</h2>
+        <h2 class="text-xl font-bold text-[var(--text-main)]">{{ t('auditCharter.sopList.emptyTitle') }}</h2>
         <p class="text-sm text-[var(--text-muted)] leading-relaxed">
-          Petunjuk Teknis / SOP merupakan penjabaran detail dari Pedoman Audit untuk panduan teknis auditor.
+          {{ t('auditCharter.sopList.emptyDesc') }}
         </p>
       </div>
       <UButton
         v-if="canManageCharter"
-        label="Tambah Petunjuk Teknis / SOP"
+        :label="t('auditCharter.sopList.addSop')"
         @click="openAddModal"
         color="primary"
         size="lg"
@@ -29,12 +29,12 @@
     <div v-else class="space-y-4">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900">Petunjuk Teknis / SOP</h2>
-          <p class="text-sm text-gray-500">Daftar seluruh Petunjuk Teknis dan Standar Operasional Prosedur pelaksanaan audit</p>
+          <h2 class="text-2xl font-bold text-gray-900">{{ t('auditCharter.sopList.title') }}</h2>
+          <p class="text-sm text-gray-500">{{ t('auditCharter.sopList.subtitle') }}</p>
         </div>
         <UButton
           v-if="canManageCharter"
-          label="Tambah SOP / Juknis"
+          :label="t('auditCharter.sopList.addSopShort')"
           @click="openAddModal"
           color="primary"
           icon="i-lucide-plus"
@@ -51,7 +51,7 @@
         :page="store.pagination.page"
         :empty-state="{
           icon: 'i-lucide-file-text',
-          label: 'Belum ada petunjuk teknis / SOP'
+          label: t('auditCharter.sopList.emptyTable')
         }"
         class="w-full"
         @update:page="(p) => store.fetchSops(p)"
@@ -87,14 +87,14 @@
             variant="subtle"
             class="rounded font-semibold"
           >
-            {{ row.original.status }}
+            {{ translateStatus(row.original.status) }}
           </UBadge>
         </template>
 
         <!-- Effective date slot -->
         <template #effective_date-cell="{ row }">
           <span class="font-medium text-[var(--text-main)]">{{
-            formatMonthYearIndonesian(row.original.effective_date)
+            formatMonthYear(row.original.effective_date)
           }}</span>
         </template>
 
@@ -142,22 +142,25 @@
 import { computed, onMounted } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { useGlobalModalStore } from '~/stores/global-modal'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
+const { t, locale } = useI18n()
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
 const { canManageCharter } = useRbac()
 
-const columns = [
-  { accessorKey: 'no', header: 'No' },
-  { accessorKey: 'name', header: 'Nama Petunjuk Teknis' },
-  { accessorKey: 'guideline_name', header: 'Nama Pedoman' },
-  { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'effective_date', header: 'Mulai Berlaku' },
-  { accessorKey: 'actions', header: '' }
-]
+const columns = computed(() => [
+  { accessorKey: 'no', header: t('auditCharter.sopList.columns.no') },
+  { accessorKey: 'name', header: t('auditCharter.sopList.columns.name') },
+  { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName') },
+  { accessorKey: 'status', header: t('auditCharter.sopList.columns.status') },
+  { accessorKey: 'effective_date', header: t('auditCharter.sopList.columns.effectiveDate') },
+  { accessorKey: 'actions', header: t('auditCharter.sopList.columns.actions') }
+])
 
 const tableData = computed(() => {
   return store.sops.map((item, index) => ({
@@ -166,20 +169,32 @@ const tableData = computed(() => {
   }))
 })
 
-const formatMonthYearIndonesian = (val: string) => {
+const translateStatus = (status: string): string => {
+  if (status === 'Aktif') return t('auditCharter.sopList.statusActive')
+  if (status === 'Sedang Diperbarui') return t('auditCharter.sopList.statusUnderReview')
+  return status
+}
+
+const formatMonthYear = (val: string) => {
   if (!val) return '-'
   const parts = val.split('-')
   if (parts.length < 2) return val
   const [year, month] = parts
-  const months = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-  ]
   const mIndex = parseInt(month || '', 10) - 1
-  if (mIndex >= 0 && mIndex < 12) {
-    return `${months[mIndex]} ${year}`
+  if (mIndex < 0 || mIndex >= 12) return val
+
+  if (locale.value === 'id') {
+    const monthsId = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ]
+    return `${monthsId[mIndex]} ${year}`
   }
-  return val
+  const monthsEn = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+  return `${monthsEn[mIndex]} ${year}`
 }
 
 const openAddModal = async () => {
@@ -200,7 +215,7 @@ const openFile = (fileUrl: string) => {
 }
 
 const confirmDelete = async (item: any) => {
-  if (await useGlobalModalStore().confirmDelete({ description: `Apakah Anda yakin ingin menghapus Petunjuk Teknis/SOP "${item.name}"?` })) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('auditCharter.sopList.deleteConfirm', { name: item.name }) })) {
     await store.deleteSop(item.id || '')
   }
 }

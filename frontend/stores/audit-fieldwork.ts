@@ -3,6 +3,7 @@ import { reactive, ref, computed, watch } from 'vue'
 import { useAssignmentLetterStore } from './assignment-letter'
 import { useAppToast } from '~/composables/useAppToast'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface InterviewItem {
   id: any
@@ -457,7 +458,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch fieldwork data:', error)
-      toast.showError('Failed to load fieldwork data.')
+      const detail = extractErrorMessage(error, 'Failed to load fieldwork data.')
+      toast.showError('Failed to load fieldwork data.', detail)
       if (mockFieldwork[assignmentLetterId]) {
         fieldworkData.value[assignmentLetterId] = JSON.parse(
           JSON.stringify(mockFieldwork[assignmentLetterId])
@@ -777,6 +779,45 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     }
   }
 
+  const getFilePreviewUrl = (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }): string => {
+    if (item.file instanceof File) {
+      return window.URL.createObjectURL(item.file)
+    }
+    const targetUrl = item.fileUrl || item.filePath
+    if (targetUrl && (targetUrl.startsWith('http://') || targetUrl.startsWith('https://'))) {
+      return targetUrl
+    }
+    const targetName = item.fileName || item.file?.name || ''
+    const baseUrl = getAuditServiceBaseUrl()
+    if (targetName) {
+      return `${baseUrl}/media/download/${encodeURIComponent(targetName)}`
+    }
+    if (targetUrl && targetUrl !== '#') {
+      return targetUrl
+    }
+    return ''
+  }
+
+  const previewInterviewFile = (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }) => {
+    const toast = useAppToast()
+    const previewUrl = getFilePreviewUrl(item)
+    if (!previewUrl) {
+      toast.info('Berkas belum tersedia untuk ditampilkan.')
+      return
+    }
+    window.open(previewUrl, '_blank')
+  }
+
   const downloadInterviewFile = async (item: {
     file?: File | null
     fileName?: string
@@ -784,8 +825,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     fileUrl?: string
   }) => {
     const toast = useAppToast()
-    const targetUrl = item.fileUrl || item.filePath
     const targetName = item.fileName || item.file?.name || 'interview-document.pdf'
+    const targetUrl = item.fileUrl || item.filePath
 
     // 1. If an in-memory File instance exists
     if (item.file instanceof File) {
@@ -802,8 +843,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     }
 
     // 2. If a stored FilePath or FileUrl exists
-    if (targetUrl && targetUrl !== '#') {
-      if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+    if ((targetUrl && targetUrl !== '#') || targetName) {
+      if (targetUrl && (targetUrl.startsWith('http://') || targetUrl.startsWith('https://'))) {
         window.open(targetUrl, '_blank')
         toast.success(`Membuka ${targetName}`)
         return
@@ -811,28 +852,55 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
       try {
         const baseUrl = getAuditServiceBaseUrl()
-        const origin = baseUrl.replace(/\/api\/v1\/?$/, '')
-        const fullUrl = targetUrl.startsWith('/') ? `${origin}${targetUrl}` : `${origin}/${targetUrl}`
+        const candidates: string[] = []
 
-        const blob = await $fetch<Blob>(fullUrl, {
-          responseType: 'blob'
-        })
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = targetName
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        toast.success(`Mengunduh ${targetName}`)
-        return
+        if (targetName) {
+          candidates.push(`${baseUrl}/media/download/${encodeURIComponent(targetName)}?download=true`)
+        }
+        if (targetUrl && targetUrl !== '#') {
+          const origin = baseUrl.replace(/\/api\/v1\/?$/, '')
+          const fullUrl = targetUrl.startsWith('/') ? `${origin}${targetUrl}` : `${origin}/${targetUrl}`
+          candidates.push(fullUrl)
+          candidates.push(targetUrl)
+        }
+
+        let blob: Blob | null = null
+        for (const candidate of candidates) {
+          try {
+            const res = await $fetch<Blob>(candidate, {
+              responseType: 'blob'
+            })
+            // Verify response is an actual binary and not an HTML SPA fallback page
+            if (res && res.type && !res.type.includes('text/html')) {
+              blob = res
+              break
+            }
+          } catch {
+            // try next candidate
+          }
+        }
+
+        if (blob) {
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = targetName
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          window.URL.revokeObjectURL(url)
+          toast.success(`Mengunduh ${targetName}`)
+          return
+        }
+
+        // Direct fallback: trigger attachment download endpoint
+        if (targetName) {
+          window.open(`${baseUrl}/media/download/${encodeURIComponent(targetName)}?download=true`, '_blank')
+          return
+        }
       } catch (err) {
-        console.warn('Blob download failed, attempting direct open:', err)
-        const baseUrl = getAuditServiceBaseUrl()
-        const origin = baseUrl.replace(/\/api\/v1\/?$/, '')
-        const fullUrl = targetUrl.startsWith('/') ? `${origin}${targetUrl}` : `${origin}/${targetUrl}`
-        window.open(fullUrl, '_blank')
+        console.warn('Download failed:', err)
+        toast.error(`Gagal mengunduh berkas ${targetName}`)
         return
       }
     }
@@ -1782,8 +1850,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       setTimeout(() => window.URL.revokeObjectURL(url), 10000)
     } catch (err: any) {
       console.error('Failed to download file:', err)
+      const detail = extractErrorMessage(err, 'Gagal mengunduh dokumen.')
       const toast = useAppToast()
-      toast.error('Gagal mengunduh dokumen.')
+      toast.error('Gagal mengunduh dokumen.', detail)
     }
   }
 
@@ -1810,6 +1879,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     saveInterview,
     deleteInterview,
     downloadInterviewFile,
+    previewInterviewFile,
+    getFilePreviewUrl,
     observationForm,
     showObservationModal,
     isEditingObservation,

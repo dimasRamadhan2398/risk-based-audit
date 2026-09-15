@@ -112,24 +112,25 @@
         </div>
         <div class="sm:flex sm:flex-row-reverse gap-4">
           <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
-          <UButton
-            v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
-            icon="i-lucide-download"
-            size="md"
-            color="success"
-            variant="ghost"
-          />
+            <UButton
+              v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
+              @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
+              icon="i-lucide-download"
+              size="md"
+              color="primary"
+              variant="solid"
+              :label="t('auditCharter.card.download')"
+            />
           </UTooltip>
           <UTooltip :text="t('auditCharter.tooltips.editCharter')">
-          <UButton
-            v-if="canManageCharter"
-            @click="store.handleEdit(store.activeCharter)"
-            color="warning"
-            icon="i-lucide-edit"
-            variant="ghost"
-          >
-          </UButton>
+            <UButton
+              v-if="canManageCharter"
+              @click="store.handleEdit(store.activeCharter)"
+              color="primary"
+              icon="i-lucide-edit"
+              variant="outline"
+              :label="t('auditCharter.card.edit')"
+            />
           </UTooltip>
         </div>
       </UCard>
@@ -159,7 +160,7 @@
         </h3>
         <TableEntities
           :data="store.historyCharters"
-          :columns="store.columns"
+          :columns="columns"
           :empty-state="{
             icon: 'i-lucide-folder-open',
             label: t('auditCharter.card.emptyHistory'),
@@ -214,35 +215,35 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1.5 whitespace-nowrap">
-              <UTooltip text="Download Charter">
+              <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
                 <UButton
                   v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
                   size="md"
-                  color="success"
+                  color="primary"
                   variant="ghost"
-                icon="i-lucide-download"
-                @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
-              />
+                  icon="i-lucide-download"
+                  @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
+                />
               </UTooltip>
-              <UTooltip text="Edit Charter">
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="warning"
-                variant="ghost"
-                icon="i-lucide-edit"
-                @click="store.handleEdit(row.original)"
-              />
+              <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="primary"
+                  variant="ghost"
+                  icon="i-lucide-edit"
+                  @click="store.handleEdit(row.original)"
+                />
               </UTooltip>
-              <UTooltip text="Delete Charter">
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="error"
-                variant="ghost"
-                icon="i-lucide-trash-2"
-                @click="confirmDelete(row.original)"
-              />
+              <UTooltip :text="t('auditCharter.tooltips.deleteCharter')">
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="error"
+                  variant="ghost"
+                  icon="i-lucide-trash-2"
+                  @click="confirmDelete(row.original)"
+                />
               </UTooltip>
             </div>
           </template>
@@ -257,11 +258,22 @@ import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { useGlobalModalStore } from '~/stores/global-modal'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()
 const { canManageCharter } = useRbac()
+
+const columns = computed(() => [
+  { accessorKey: 'version', header: t('auditCharter.card.columns.version'), class: 'w-16 whitespace-nowrap text-center' },
+  { accessorKey: 'title', header: t('auditCharter.card.columns.title'), class: 'w-48' },
+  { accessorKey: 'content', header: t('auditCharter.card.columns.content'), class: 'w-48' },
+  { accessorKey: 'date', header: t('auditCharter.card.columns.date'), class: 'w-28 whitespace-nowrap' },
+  { accessorKey: 'approvedBy', header: t('auditCharter.card.columns.approvedBy'), class: 'w-36' },
+  { accessorKey: 'uploadedBy', header: t('auditCharter.card.columns.uploadedBy'), class: 'w-36' },
+  { accessorKey: 'actions', header: t('auditCharter.card.columns.actions'), class: 'w-14 whitespace-nowrap text-center' },
+])
 
 const confirmDelete = async (item: any) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('auditCharter.card.deleteConfirm', { title: item.title, version: item.version }) })) {

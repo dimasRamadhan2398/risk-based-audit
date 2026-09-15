@@ -67,14 +67,30 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusOK, reports)
 		})
 
-		qa.GET("/:id", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
+		findQAReport := func(param string) (*models.QAReport, error) {
+			id, err := uuid.Parse(param)
 			var report models.QAReport
-			if err := db.First(&report, "id = ?", id).Error; err != nil {
+			if err == nil {
+				if err := db.First(&report, "id = ?", id).Error; err != nil {
+					return nil, err
+				}
+				return &report, nil
+			}
+
+			// Fallback for numeric ID / index (e.g. "1", "2", "3")
+			var num int
+			if _, err := fmt.Sscanf(param, "%d", &num); err == nil && num > 0 {
+				if err := db.Order("created_at DESC").Offset(num - 1).Limit(1).First(&report).Error; err == nil {
+					return &report, nil
+				}
+			}
+
+			return nil, fmt.Errorf("QA report not found")
+		}
+
+		qa.GET("/:id", func(c *gin.Context) {
+			report, err := findQAReport(c.Param("id"))
+			if err != nil {
 				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
 				return
 			}
@@ -98,13 +114,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.PUT("/:id", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
+			existing, err := findQAReport(c.Param("id"))
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var existing models.QAReport
-			if err := db.First(&existing, "id = ?", id).Error; err != nil {
 				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
 				return
 			}
@@ -126,7 +137,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			existing.InternalEvaluator = req.InternalEvaluator
 			existing.Attachment = req.Attachment
 
-			if err := db.Save(&existing).Error; err != nil {
+			if err := db.Save(existing).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update QA report"})
 				return
 			}
@@ -233,13 +244,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.GET("/:id/download", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
+			report, err := findQAReport(c.Param("id"))
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var report models.QAReport
-			if err := db.First(&report, "id = ?", id).Error; err != nil {
 				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
 				return
 			}
@@ -271,20 +277,17 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.DELETE("/:id", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
+			report, err := findQAReport(c.Param("id"))
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
+				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
 				return
 			}
 
-			var report models.QAReport
-			if err := db.First(&report, "id = ?", id).Error; err == nil {
-				if report.Attachment != nil && report.Attachment.FilePath != "" {
-					os.Remove(report.Attachment.FilePath)
-				}
+			if report.Attachment != nil && report.Attachment.FilePath != "" {
+				os.Remove(report.Attachment.FilePath)
 			}
 
-			if err := db.Delete(&models.QAReport{}, "id = ?", id).Error; err != nil {
+			if err := db.Delete(report).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to delete QA report"})
 				return
 			}

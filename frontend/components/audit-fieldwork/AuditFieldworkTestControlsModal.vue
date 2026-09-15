@@ -28,7 +28,7 @@
               {{ store.isReadOnlyTestControl ? (t('auditFieldwork.testControls.modalView') || 'Detail Pengujian Pengendalian') : (store.isEditingTestControl ? t('auditFieldwork.testControls.modalEdit') : t('auditFieldwork.testControls.modalAdd')) }}
             </h3>
           </div>
-          <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="()=> { store.showTestControlModal = false; }" />
+          <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="-my-1" @click="store.showTestControlModal = false" />
         </div>
 
         <!-- Read-Only Detail View (using UCard for each section) -->
@@ -227,7 +227,7 @@
         <!-- Modal Footer -->
         <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
           <template v-if="store.isReadOnlyTestControl">
-            <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="()=> { store.showTestControlModal = false }" />
+            <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="store.showTestControlModal = false" />
             <UButton
               color="primary"
               icon="i-heroicons-pencil-square"
@@ -236,7 +236,7 @@
             />
           </template>
           <template v-else>
-            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => {store.showTestControlModal = false}" />
+            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="store.showTestControlModal = false" />
             <UButton color="primary" :label="store.isEditingTestControl ? t('common.edit') : t('common.submit')" @click="store.saveTestControl()" />
           </template>
         </div>

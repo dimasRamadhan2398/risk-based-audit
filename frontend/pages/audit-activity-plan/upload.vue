@@ -165,13 +165,13 @@
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
                 <UTooltip :text="t('auditActivityPlan.upload.viewDocument')" class="mx-1">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="neutral" 
-                  variant="ghost" 
-                  size="md" 
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                />
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="sm" 
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
                 </UTooltip>
                 <UTooltip :text="t('auditActivityPlan.upload.downloadDocument')" class="mx-1">
                 <UButton 

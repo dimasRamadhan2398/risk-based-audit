@@ -99,14 +99,24 @@
                   {{ store.observationForm.file?.name || store.observationForm.fileName }}
                 </span>
               </div>
-              <UButton
-                icon="i-heroicons-document-arrow-down"
-                color="primary"
-                variant="solid"
-                size="xs"
-                label="Download"
-                @click="store.downloadInterviewFile(store.observationForm)"
-              />
+              <div class="flex items-center gap-1.5 shrink-0">
+                <UButton
+                  icon="i-heroicons-eye"
+                  color="neutral"
+                  variant="ghost"
+                  size="xs"
+                  label="Lihat"
+                  @click="store.previewInterviewFile(store.observationForm)"
+                />
+                <UButton
+                  icon="i-heroicons-document-arrow-down"
+                  color="primary"
+                  variant="solid"
+                  size="xs"
+                  label="Download"
+                  @click="store.downloadInterviewFile(store.observationForm)"
+                />
+              </div>
             </div>
             <p v-else class="text-sm text-[var(--text-muted)] italic">Tidak ada berkas terlampir</p>
           </UCard>

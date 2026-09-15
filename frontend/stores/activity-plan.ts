@@ -6,6 +6,7 @@ import { RiskLevel } from '~/types/risk';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { formatPeriod } from '~/utils/dateConverter';
 import { useI18n } from '~/composables/useI18n';
+import { extractErrorMessage } from '~/utils/error';
 
 export const useActivityPlanStore = defineStore('activity-plan', () => {
   const { t, locale } = useI18n();
@@ -118,7 +119,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch activity plans:', error);
-      errorMsg.value = 'Failed to load activity plans.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load activity plans.');
     } finally {
       loading.value = false;
     }
@@ -165,7 +166,9 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       toast.showSuccess('Activity plan deleted successfully.');
     } catch (error: any) {
       console.error('Failed to delete activity plan:', error);
-      toast.showError('Failed to delete activity plan.');
+      const detail = extractErrorMessage(error, 'Failed to delete activity plan.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete activity plan.', detail);
     } finally {
       loading.value = false;
     }
@@ -225,7 +228,9 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       await fetchPlans();
     } catch (error: any) {
       console.error('Failed to save activity plan:', error);
-      toast.showError('Failed to save activity plan.');
+      const detail = extractErrorMessage(error, 'Failed to save activity plan.');
+      errorMsg.value = detail;
+      toast.showError('Failed to save activity plan.', detail);
     } finally {
       loading.value = false;
     }

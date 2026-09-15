@@ -164,32 +164,35 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UTooltip :text="t('executiveSummary.upload.actions.view')"">
+                <UTooltip :text="t('executiveSummary.upload.actions.view')">
                   <UButton 
                     icon="i-lucide-eye" 
-                    color="neutral" 
+                    color="info" 
                     variant="ghost" 
                     size="md" 
+                    :title="t('executiveSummary.upload.actions.view')" 
                     @click="store.viewDocument(row.original.id, row.original.fileName)" 
                   />
                 </UTooltip>
                 <UTooltip :text="t('executiveSummary.upload.actions.download')">
                   <UButton 
                     icon="i-lucide-download" 
-                    color="success" 
+                    color="primary" 
                     variant="ghost" 
                     size="md" 
+                    :title="t('executiveSummary.upload.actions.download')" 
                     @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                   />
                 </UTooltip>
                 <UTooltip :text="t('executiveSummary.upload.actions.delete')">
                   <UButton 
                     icon="i-lucide-trash-2" 
-                  color="error" 
-                  variant="ghost" 
-                  size="md"  
-                  @click="handleDelete(row.original.id)" 
-                />
+                    color="error" 
+                    variant="ghost" 
+                    size="md" 
+                    :title="t('executiveSummary.upload.actions.delete')" 
+                    @click="handleDelete(row.original.id)" 
+                  />
                 </UTooltip>
               </div>
             </template>
@@ -206,7 +209,7 @@ import { useUploadExecutiveSummaryReportStore } from '~/stores/upload-executive-
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const store = useUploadExecutiveSummaryReportStore()
 
 onMounted(() => {
@@ -314,7 +317,7 @@ const formatBytes = (bytes: number) => {
 const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   const date = new Date(dateString)
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale.value === 'id' ? 'id-ID' : 'en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'

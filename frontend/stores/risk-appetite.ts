@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
-
 import type { TableColumn } from '@nuxt/ui'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface RiskAppetite {
   id: string
@@ -58,6 +58,7 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
     }
   ]
 
+
   const getRiskServiceBaseUrl = () => {
     const config = useRuntimeConfig()
     return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
@@ -109,9 +110,9 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       } else {
         statements.value = [...mockStatements]
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch risk appetite statements, falling back to mock:', error)
-      errorMsg.value = 'Failed to load risk appetite statements.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to load risk appetite statements.')
       statements.value = [...mockStatements]
     } finally {
       loading.value = false
@@ -136,7 +137,9 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       return response
     } catch (error: any) {
       console.error('Failed to create risk appetite statement:', error)
-      toast.showError(error.data?.message || 'Gagal membuat statement.')
+      const message = extractErrorMessage(error, 'Gagal membuat statement.')
+      errorMsg.value = message
+      toast.showError('Gagal membuat statement', message)
       throw error
     } finally {
       loading.value = false
@@ -157,7 +160,9 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       return response
     } catch (error: any) {
       console.error('Failed to update risk appetite statement:', error)
-      toast.showError(error.data?.message || 'Gagal mengupdate statement.')
+      const message = extractErrorMessage(error, 'Gagal mengupdate statement.')
+      errorMsg.value = message
+      toast.showError('Gagal mengupdate statement', message)
       throw error
     } finally {
       loading.value = false
@@ -176,7 +181,9 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       await fetchStatements()
     } catch (error: any) {
       console.error('Failed to delete risk appetite statement:', error)
-      toast.showError(error.data?.message || 'Gagal menghapus statement.')
+      const message = extractErrorMessage(error, 'Gagal menghapus statement.')
+      errorMsg.value = message
+      toast.showError('Gagal menghapus statement', message)
       throw error
     } finally {
       loading.value = false

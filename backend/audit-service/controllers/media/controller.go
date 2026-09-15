@@ -35,9 +35,6 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 		return
 	}
 
-<<<<<<< HEAD
-	folder := c.DefaultPostForm("folder", "audit")
-=======
 	folder := c.PostForm("folder")
 	featureName := c.PostForm("feature_name")
 	documentID := c.PostForm("document_id")
@@ -53,7 +50,6 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 	} else if !strings.HasPrefix(folder, "Auditsphere/") && folder != "Auditsphere" {
 		folder = "Auditsphere/" + strings.TrimPrefix(folder, "/")
 	}
->>>>>>> cbc5d39943d30c4e2499ca6e2d081099b879c9ca
 
 	attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, folder)
 	if err != nil {
@@ -67,25 +63,36 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 func (ctrl *MediaController) Download(c *gin.Context) {
 	id := c.Param("id")
 	filePath := filepath.Join("uploads", id)
-	if _, err := os.Stat(filePath); err == nil {
-		c.File(filePath)
-		return
-	}
+	targetFile := filePath
 
-	// Search recursively in uploads directory for matching file
-	var foundPath string
-	_ = filepath.Walk("uploads", func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() && (info.Name() == id || strings.HasSuffix(info.Name(), id)) {
-			foundPath = path
-			return filepath.SkipAll
+	if _, err := os.Stat(filePath); err != nil {
+		// Search recursively in uploads directory for matching file
+		var foundPath string
+		_ = filepath.Walk("uploads", func(path string, info os.FileInfo, err error) error {
+			if err == nil && !info.IsDir() && (info.Name() == id || strings.HasSuffix(info.Name(), id)) {
+				foundPath = path
+				return filepath.SkipAll
+			}
+			return nil
+		})
+		if foundPath != "" {
+			targetFile = foundPath
 		}
-		return nil
-	})
+	}
 
-	if foundPath != "" {
-		c.File(foundPath)
+	if _, err := os.Stat(targetFile); err != nil {
+		response.Error(c, http.StatusNotFound, "NOT_FOUND", "File not found", err.Error())
 		return
 	}
 
-	c.File(filePath)
+	filename := filepath.Base(targetFile)
+	disposition := "inline"
+	if c.Query("download") == "true" {
+		disposition = "attachment"
+	}
+	c.Header("Content-Disposition", fmt.Sprintf("%s; filename=\"%s\"", disposition, filename))
+	c.Header("Accept-Ranges", "bytes")
+	c.Header("Cache-Control", "public, max-age=86400")
+
+	c.File(targetFile)
 }

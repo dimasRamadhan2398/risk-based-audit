@@ -77,31 +77,9 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 
 		// Process file upload (required for charter creation)
 		file, header, err := c.Request.FormFile("file")
-<<<<<<< HEAD
-		if err == nil {
-			if header.Size > 10*1024*1024 {
-				response.BadRequest(c, "File size exceeds maximum limit of 10MB")
-				return
-			}
-			defer file.Close()
-			attachment, errUpload := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
-			if errUpload != nil {
-				response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", errUpload.Error())
-				return
-			}
-			req.Filename = header.Filename
-			req.FileUrl = attachment.FilePath
-			req.FileSize = attachment.FileSize
-		} else {
-			req.Filename = title + ".pdf"
-			if req.Filename == ".pdf" {
-				req.Filename = "Audit_Charter_" + version + ".pdf"
-			}
-=======
 		if err != nil {
 			response.BadRequest(c, "Charter document file is required")
 			return
->>>>>>> cbc5d39943d30c4e2499ca6e2d081099b879c9ca
 		}
 		if header.Size > 10*1024*1024 {
 			response.BadRequest(c, "File size exceeds maximum limit of 10MB")

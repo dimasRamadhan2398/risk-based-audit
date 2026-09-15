@@ -165,29 +165,29 @@
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
                 <UTooltip :text="t('auditResultReport.upload.actions.view')">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="neutral" 
-                  variant="ghost" 
-                  size="md" 
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                />
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="sm" 
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
                 </UTooltip>
                 <UTooltip :text="t('auditResultReport.upload.actions.download')">
-                <UButton 
-                  icon="i-lucide-download" 
-                  color="success" 
-                  variant="ghost" 
-                  size="md" 
-                  @click="store.downloadDocument(row.original.id, row.original.fileName)" 
-                />
+                  <UButton 
+                    icon="i-lucide-download" 
+                    color="primary" 
+                    variant="ghost" 
+                    size="sm" 
+                    @click="store.downloadDocument(row.original.id, row.original.fileName)" 
+                  />
                 </UTooltip>
                 <UTooltip :text="t('auditResultReport.upload.actions.delete')">
                   <UButton 
                     icon="i-lucide-trash-2" 
                     color="error" 
                     variant="ghost" 
-                    size="md" 
+                    size="sm" 
                     @click="handleDelete(row.original.id)" 
                   />
                 </UTooltip>

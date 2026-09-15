@@ -1,0 +1,43 @@
+# =============================================================================
+# Prometheus Configuration
+# AuditSphere Monitoring - Lightweight for VPS
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+# =============================================================================
+# Scrape Targets
+# =============================================================================
+
+scrape_configs:
+
+  # ── Prometheus Self-Monitoring ───────────────────────────────────
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ── Node Exporter (Host OS: CPU, RAM, Disk, Network) ────────────
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['rbia_node_exporter:9100']
+        labels:
+          instance: 'vps-202.10.34.166'
+
+  # ── Kong Gateway PROD (Admin API /metrics) ──────────────────────
+  - job_name: 'kong-prod'
+    static_configs:
+      - targets: ['rb_audit_kong:8001']
+        labels:
+          environment: 'production'
+    metrics_path: /metrics
+
+  # ── Kong Gateway DEV (Admin API /metrics) ───────────────────────
+  - job_name: 'kong-dev'
+    static_configs:
+      - targets: ['rb_audit_kong_dev:8001']
+        labels:
+          environment: 'development'
+    metrics_path: /metrics

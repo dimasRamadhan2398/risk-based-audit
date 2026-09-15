@@ -1,0 +1,146 @@
+# =============================================================================
+# AuditSphere Monitoring Stack
+# Prometheus + Grafana + Node Exporter + Loki + Promtail
+# =============================================================================
+#
+# Lightweight monitoring stack designed for resource-constrained VPS.
+# All containers have memory limits to prevent OOM on the host.
+#
+# Ports:
+#   - Prometheus:     9090
+#   - Grafana:        9300
+#   - Node Exporter:  9100
+#   - Loki:           3100
+#
+# =============================================================================
+
+name: rbia_monitoring
+
+services:
+
+  # ── Prometheus ─────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rbia_prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--storage.tsdb.retention.size=500MB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    networks:
+      - monitoring_network
+      - rb_audit_network
+      - rb_audit_network_dev
+    restart: unless-stopped
+
+  # ── Grafana ────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rbia_grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_HTTP_PORT=3000
+      - GF_LOG_LEVEL=warn
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "9300:3000"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    networks:
+      - monitoring_network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # ── Node Exporter (Host OS Metrics) ────────────────────────────
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: rbia_node_exporter
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - "9100:9100"
+    deploy:
+      resources:
+        limits:
+          memory: 32M
+    networks:
+      - monitoring_network
+    restart: unless-stopped
+
+  # ── Loki (Log Aggregation) ─────────────────────────────────────
+  loki:
+    image: grafana/loki:latest
+    container_name: rbia_loki
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    networks:
+      - monitoring_network
+    restart: unless-stopped
+
+  # ── Promtail (Docker Log Collector → Loki) ─────────────────────
+  promtail:
+    image: grafana/promtail:latest
+    container_name: rbia_promtail
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    deploy:
+      resources:
+        limits:
+          memory: 48M
+    networks:
+      - monitoring_network
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+
+networks:
+  monitoring_network:
+    name: rbia_monitoring_network
+    driver: bridge
+  rb_audit_network:
+    external: true
+  rb_audit_network_dev:
+    external: true

@@ -58,7 +58,7 @@
       </template>
 
       <template #actions-cell="{ row }">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center justify-center gap-2">
           <UTooltip text="View Plan">
             <UButton
               icon="i-lucide-eye"

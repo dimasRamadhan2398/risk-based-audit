@@ -187,9 +187,9 @@
                 <UTooltip :text="t('workingPaper.upload.actions.download')"> 
                 <UButton 
                   icon="i-lucide-download" 
-                  color="success" 
+                  color="primary" 
                   variant="ghost" 
-                  size="md" 
+                  size="sm" 
                   :title="t('workingPaper.upload.actions.download')" 
                   @click="store.downloadImportedPaper(row.original.id, row.original.fileName)" 
                 />
@@ -200,7 +200,7 @@
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
-                  size="md" 
+                  size="sm" 
                   @click="handleDelete(row.original.id)" 
                 />
                 </UTooltip>
@@ -311,7 +311,7 @@ const handleImport = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.upload.deleteConfirm') })) {
+  if (confirm(t('workingPaper.upload.deleteConfirm'))) {
     try {
       await store.deleteImportedPaper(id)
       toast.showSuccess('Document deleted successfully!')

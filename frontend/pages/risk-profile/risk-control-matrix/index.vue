@@ -660,6 +660,7 @@ import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import type { RiskMitigation } from '~/types/risk'
+import { useGlobalModalStore } from '~/stores/global-modal'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 definePageMeta({
@@ -678,6 +679,7 @@ const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
 const selectedBranchInModal = ref('All Branches')
+
 
 const branchModalOptions = [
   { label: 'Semua Branch / Departemen', value: 'All Branches' },
@@ -729,20 +731,6 @@ const departmentOptions = [
   { label: 'Bandung Branch', value: 'Bandung Branch' },
   { label: 'Bali Branch', value: 'Bali Branch' }
 ]
-
-const columns = computed(() => [
-  { accessorKey: 'risk_code', id: 'risk_code', header: 'Kode / Risiko', class: 'w-[16%]' },
-  { accessorKey: 'control_code', id: 'control_code', header: 'Risk Control ID & Deskripsi Mitigasi', class: 'w-[20%]' },
-  { accessorKey: 'department', id: 'department', header: 'Departemen / PIC', class: 'w-[14%]' },
-  { accessorKey: 'design_effectiveness_rating', id: 'design_effectiveness_rating', header: 'Design (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'operating_effectiveness_rating', id: 'operating_effectiveness_rating', header: 'Operating (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'coverage_completeness_rating', id: 'coverage_completeness_rating', header: 'Coverage (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'timeliness_rating', id: 'timeliness_rating', header: 'Timeliness (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'automation_monitoring_rating', id: 'automation_monitoring_rating', header: 'Automation (1-5)', class: 'w-[6%] text-center' },
-  { accessorKey: 'total_weighted_score', id: 'total_weighted_score', header: 'Total Score', class: 'w-[7%] text-center' },
-  { accessorKey: 'rating', id: 'rating', header: 'Rating Efektivitas', class: 'w-[9%] text-center' },
-  { accessorKey: 'actions', id: 'actions', header: 'Aksi', class: 'w-[4%] text-right' }
-])
 
 const formData = ref<Partial<RCMItem>>({
   risk_id: '',

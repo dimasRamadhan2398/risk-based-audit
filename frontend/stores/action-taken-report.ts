@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { AuditCategory, AuditDepartment, AuditStatus, type ActionTakenReport } from '~/types/audit'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useActionTakenReportStore = defineStore('action-taken-report', () => {
   // State
@@ -227,7 +228,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       }
     } catch (error) {
       console.error('Failed to fetch action taken reports:', error)
-      errorMsg.value = 'Failed to load action taken reports.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to load action taken reports.')
       reportList.value = mockReports
     } finally {
       loading.value = false

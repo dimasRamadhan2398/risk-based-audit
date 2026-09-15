@@ -167,27 +167,27 @@
                 <UTooltip :text="t('executiveSummaryUpload.actions.view')">
                   <UButton 
                     icon="i-lucide-eye" 
-                    color="neutral" 
+                    color="info" 
                     variant="ghost" 
-                    size="md" 
+                    size="sm" 
                     @click="store.viewDocument(row.original.id, row.original.fileName)" 
                   />
                 </UTooltip>
                 <UTooltip :text="t('executiveSummaryUpload.actions.download')">
                   <UButton 
                     icon="i-lucide-download" 
-                    color="success" 
+                    color="primary" 
                     variant="ghost" 
-                    size="md" 
+                    size="sm" 
                     @click="store.downloadDocument(row.original.id, row.original.fileName)" 
-                />
+                  />
                 </UTooltip>
                 <UTooltip :text="t('executiveSummaryUpload.actions.delete')">
                   <UButton 
                     icon="i-lucide-trash-2" 
                     color="error" 
                     variant="ghost" 
-                    size="md" 
+                    size="sm" 
                     @click="handleDelete(row.original.id)" 
                   />
                 </UTooltip>
@@ -207,7 +207,7 @@ import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const store = useUploadExecutiveSummaryStore()
 const toast = useToastNotification();
 
@@ -317,7 +317,7 @@ const formatBytes = (bytes: number) => {
 const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   const date = new Date(dateString)
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale.value === 'id' ? 'id-ID' : 'en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'

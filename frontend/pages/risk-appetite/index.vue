@@ -287,7 +287,7 @@
                       <UBadge 
                         :color="stmt.status === 'APPROVED' ? 'success' : stmt.status === 'SUBMITTED' ? 'warning' : 'neutral'" 
                         size="md" 
-                        variant="soft"
+                        variant="solid"
                         class="font-bold"
                       >
                         {{ stmt.status }}
@@ -425,6 +425,7 @@ import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import { useRiskAppetiteStore, type RiskAppetite } from '~/stores/risk-appetite'
 import { RiskLevel } from '~/types/risk'
+import { useGlobalModalStore } from '~/stores/global-modal'
 
 const { t } = useI18n()
 const { canEditRiskAppetite } = useRbac()

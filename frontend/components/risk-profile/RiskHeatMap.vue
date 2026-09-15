@@ -73,10 +73,10 @@
 
                 <!-- Quarterly Residual Score Inputs -->
                 <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-900/50 space-y-4">
-                  <span class="block text-md font-black uppercase tracking-wider text-primary-500">{{ t('riskProfile.addModal.quarterlyTitle', { year: store.selectedYear }) }}</span>
+                  <span class="block text-md font-black tracking-wider text-primary-500">{{ t('riskProfile.addModal.quarterlyTitle', { year: store.selectedYear }) }}</span>
                   <div class="grid grid-cols-4 gap-4">
                     <div v-for="q in ['q1', 'q2', 'q3', 'q4']" :key="q" class="space-y-2 border-r last:border-0 border-gray-200 dark:border-gray-700 pr-2">
-                      <span class="text-md font-black uppercase text-gray-500">{{ q }}</span>
+                      <span class="text-md font-black text-gray-500">{{ q }}</span>
                       <UFormField :label="t('riskProfile.addModal.impact')">
                         <USelect v-model.number="newRisk[`impact_${q}`]" :items="[1,2,3,4,5]" class="w-full" />
                       </UFormField>
@@ -656,7 +656,7 @@ function getLikelihoodLabel(val) {
 
 // Options for selects
 const categoryOptions = Object.keys(categoryIcons).map(cat => ({ 
-  label: `${categoryIcons[cat]} ${cat}`, 
+  label: `${cat}`, 
   value: cat 
 }))
 

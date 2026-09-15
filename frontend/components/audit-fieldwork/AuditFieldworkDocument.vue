@@ -49,7 +49,7 @@
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center gap-1 justify-center">
-          <UTooltip text="Lihat Dokumen">
+          <UTooltip :text="t('common.actions.view') || 'Lihat'">
             <UButton 
               icon="i-heroicons-eye" 
               color="neutral" 
@@ -57,7 +57,7 @@
               size="sm" 
               @click="store.viewDocument(row.original)" />
           </UTooltip>
-          <UTooltip text="Edit Dokumen">
+          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
             <UButton 
               icon="i-heroicons-pencil-square" 
               color="primary" 
@@ -65,7 +65,7 @@
               size="sm" 
               @click="store.editDocument(row.original)" />
           </UTooltip>
-          <UTooltip text="Hapus Dokumen">
+          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
             <UButton 
               icon="i-heroicons-trash" 
               color="error" 

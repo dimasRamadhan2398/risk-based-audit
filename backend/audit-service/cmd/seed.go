@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"audit-service/models"
@@ -14,7 +15,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var seedDrop bool
+var (
+	seedDrop          bool
+	seedStrategicOnly bool
+)
 
 func init() {
 	seedCmd := &cobra.Command{
@@ -27,6 +31,7 @@ func init() {
 	}
 
 	seedCmd.Flags().BoolVar(&seedDrop, "drop", false, "Drop all tables before seeding (WARNING: destructive)")
+	seedCmd.Flags().BoolVar(&seedStrategicOnly, "strategic-only", false, "Only seed strategic audit plans (100 items)")
 
 	rootCmd.AddCommand(seedCmd)
 }
@@ -43,6 +48,20 @@ func runSeed(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("Failed to connect to database", logger.LogField("error", err))
 		return err
+	}
+
+	if seedStrategicOnly {
+		logger.Info("Seeding only strategic audit plans (100 items)...")
+		if err := db.AutoMigrate(&models.StrategicPlan{}); err != nil {
+			logger.Fatal("Failed to auto-migrate strategic_plans table", logger.LogField("error", err))
+			return err
+		}
+		if err := seedStrategicPlans(db); err != nil {
+			logger.Fatal("Failed to seed strategic plans", logger.LogField("error", err))
+			return err
+		}
+		logger.Info("Database seeding for strategic plans completed successfully")
+		return nil
 	}
 
 	// Run migrations if drop flag is set
@@ -405,134 +424,8 @@ func seedGuidelinesAndSops(db *gorm.DB) error {
 }
 
 func seedStrategicPlans(db *gorm.DB) error {
-	seeds := []models.StrategicPlan{
-		{
-			Code:               "SO-IA01",
-			GoalID:             "1",
-			StrategicObjective: "Memastikan kepatuhan terhadap kebijakan dan regulasi perusahaan dan institusi terkait",
-			KPI:                "Tingkat kepatuhan organisasi terhadap kebijakan dan regulasi yang berlaku",
-			Unit:               "score",
-			HibHig:             "HIG",
-			PeriodType:         "Yearly",
-			SelectedPeriod:     "2026",
-			YearStart:          2024,
-			YearEnd:            2028,
-			KPITargets:         map[string]string{"2024": "80,0", "2025": "82,0", "2026": "84,0", "2027": "85,0", "2028": "86,0"},
-			InternalAuditSO:    "Memastikan kepatuhan terhadap kebijakan dan regulasi perusahaan dan institusi terkait",
-			Actual:             "84,0",
-			Target:             "84,0",
-			Calculation:        "100%",
-			Status:             "Good",
-		},
-		{
-			Code:               "SO-IA02",
-			GoalID:             "2",
-			StrategicObjective: "Melakukan mitigasi terhadap risiko-risiko prioritas operasional dan keuangan",
-			KPI:                "Tercapainya tingkat risiko residual sesuai target perusahaan",
-			Unit:               "indeks",
-			HibHig:             "HIG",
-			PeriodType:         "Yearly",
-			SelectedPeriod:     "2026",
-			YearStart:          2024,
-			YearEnd:            2028,
-			KPITargets:         map[string]string{"2024": "0,80", "2025": "0,83", "2026": "0,85", "2027": "0,87", "2028": "0,90"},
-			InternalAuditSO:    "Melakukan mitigasi terhadap risiko-risiko prioritas operasional dan keuangan",
-			Actual:             "0,85",
-			Target:             "0,85",
-			Calculation:        "100%",
-			Status:             "Good",
-		},
-		{
-			Code:               "SO-IA03",
-			GoalID:             "3",
-			StrategicObjective: "Meningkatkan efisiensi dan penghematan biaya",
-			KPI:                "Biaya operasional terhadap pendapatan operasional (BOPO)",
-			Unit:               "%",
-			HibHig:             "HIB",
-			PeriodType:         "Yearly",
-			SelectedPeriod:     "2026",
-			YearStart:          2024,
-			YearEnd:            2028,
-			KPITargets:         map[string]string{"2024": "62,7", "2025": "62,5", "2026": "62,3", "2027": "62,1", "2028": "62,0"},
-			InternalAuditSO:    "Meningkatkan efisiensi dan penghematan biaya",
-			Actual:             "62,3",
-			Target:             "62,3",
-			Calculation:        "100%",
-			Status:             "Good",
-		},
-		{
-			Code:               "SO-IA04",
-			GoalID:             "4",
-			StrategicObjective: "Melakukan asesmen ulang terhadap risiko-risiko prioritas",
-			KPI:                "Ketepatan risiko-risiko prioritas",
-			Unit:               "%",
-			HibHig:             "HIG",
-			PeriodType:         "Yearly",
-			SelectedPeriod:     "2026",
-			YearStart:          2024,
-			YearEnd:            2028,
-			KPITargets:         map[string]string{"2024": "70", "2025": "75", "2026": "80", "2027": "85", "2028": "88"},
-			InternalAuditSO:    "Melakukan asesmen ulang terhadap risiko-risiko prioritas",
-			Actual:             "80",
-			Target:             "80",
-			Calculation:        "100%",
-			Status:             "Good",
-		},
-		{
-			Code:               "SO-IA05",
-			GoalID:             "5",
-			StrategicObjective: "Menjamin kualitas asurans internal audit",
-			KPI:                "Tingkat kesesuaian internal audit terhadap standar dan ketentuan yang berlaku",
-			Unit:               "predikat/score",
-			HibHig:             "HIG",
-			PeriodType:         "Yearly",
-			SelectedPeriod:     "2026",
-			YearStart:          2024,
-			YearEnd:            2028,
-			KPITargets:         map[string]string{"2024": "78,5", "2025": "80,0", "2026": "83,0", "2027": "85,0", "2028": "85,7"},
-			InternalAuditSO:    "Menjamin kualitas asurans internal audit",
-			Actual:             "83,0",
-			Target:             "83,0",
-			Calculation:        "100%",
-			Status:             "Good",
-		},
-		{
-			Code:               "SO-IA06",
-			GoalID:             "6",
-			StrategicObjective: "Melaksanakan peran strategic partner",
-			KPI:                "Jumlah layanan konsultansi yang dilaksanakan",
-			Unit:               "jumlah",
-			HibHig:             "HIG",
-			PeriodType:         "Yearly",
-			SelectedPeriod:     "2026",
-			YearStart:          2024,
-			YearEnd:            2028,
-			KPITargets:         map[string]string{"2024": "2", "2025": "3", "2026": "4", "2027": "5", "2028": "6"},
-			InternalAuditSO:    "Melaksanakan peran strategic partner",
-			Actual:             "4",
-			Target:             "4",
-			Calculation:        "100%",
-			Status:             "Good",
-		},
-		{
-			Code:               "SO-IA07",
-			GoalID:             "7",
-			StrategicObjective: "Mengembangkan kompetensi internal auditor",
-			KPI:                "Jumlah auditor internal yang memiliki sertifikasi auditor internal",
-			Unit:               "jumlah",
-			HibHig:             "HIG",
-			PeriodType:         "Yearly",
-			SelectedPeriod:     "2026",
-			YearStart:          2024,
-			YearEnd:            2028,
-			KPITargets:         map[string]string{"2024": "5", "2025": "7", "2026": "10", "2027": "13", "2028": "15"},
-			InternalAuditSO:    "Mengembangkan kompetensi internal auditor",
-			Actual:             "10",
-			Target:             "10",
-			Calculation:        "100%",
-			Status:             "Good",
-		},
-	}
+	seeds := getStrategicPlanSeeds()
+	logger.Info(fmt.Sprintf("Seeding %d strategic audit plans...", len(seeds)))
 	for i := range seeds {
 		var existing models.StrategicPlan
 		err := db.Where("code = ?", seeds[i].Code).First(&existing).Error
@@ -540,8 +433,14 @@ func seedStrategicPlans(db *gorm.DB) error {
 			if err := db.Create(&seeds[i]).Error; err != nil {
 				return err
 			}
+		} else if err == nil {
+			seeds[i].ID = existing.ID
+			if err := db.Save(&seeds[i]).Error; err != nil {
+				return err
+			}
 		}
 	}
+	logger.Info(fmt.Sprintf("Successfully processed %d strategic audit plans", len(seeds)))
 	return nil
 }
 
@@ -1397,8 +1296,8 @@ func seedExecutions(db *gorm.DB) error {
 			Category:               "Assurance",
 			Progress:               80,
 			LeadAuditor:            "Zeta Ramadhani",
-			Status:                 "in_progress",
-			StatusDetail:           "Fieldwork Testing",
+			Status:                 models.AuditStatusReporting,
+			StatusDetail:           "Reporting & Exit Meeting",
 			SampleDataTestControls: &models.TestControlsSub{Progress: 90, Description: "Controls over invoice payments checked."},
 			WorkingPapers:          &models.WorkingPapersSub{Condition: "Good", Criteria: "SOP complied"},
 			ActionPlanImprovements: &models.ImprovementsSub{Recommendation: "Add validation check", Deadline: "2026-06-30", PIC: "Finance Team"},
@@ -1410,8 +1309,8 @@ func seedExecutions(db *gorm.DB) error {
 			Category:     "Assurance",
 			Progress:     40,
 			LeadAuditor:  "Andi Firmansyah",
-			Status:       "in_progress",
-			StatusDetail: "Document Review",
+			Status:       models.AuditStatusFieldwork,
+			StatusDetail: "Fieldwork & Control Testing",
 		},
 		{
 			Ref:          "ST-003/SKAI/2026",
@@ -1419,8 +1318,26 @@ func seedExecutions(db *gorm.DB) error {
 			Category:     "Assurance",
 			Progress:     0,
 			LeadAuditor:  "Rina Wulandari",
-			Status:       "planned",
-			StatusDetail: "Preparation of Work Plan",
+			Status:       models.AuditStatusPlanning,
+			StatusDetail: "Planning & Preparation",
+		},
+		{
+			Ref:          "ST-004/SKAI/2026",
+			Name:         "Audit Human Capital & Payroll",
+			Category:     "Assurance",
+			Progress:     15,
+			LeadAuditor:  "Budi Santoso",
+			Status:       models.AuditStatusEntryMeeting,
+			StatusDetail: "Entry Meeting & Scope Alignment",
+		},
+		{
+			Ref:          "ST-005/SKAI/2026",
+			Name:         "Audit Manajemen Logistik & Pergudangan",
+			Category:     "Assurance",
+			Progress:     60,
+			LeadAuditor:  "Sarah Putri",
+			Status:       models.AuditStatusDraftFindings,
+			StatusDetail: "Draft Findings & Recommendations",
 		},
 		{
 			Ref:          "ST-001/SKAI/2025",
@@ -1428,8 +1345,8 @@ func seedExecutions(db *gorm.DB) error {
 			Category:     "Assurance",
 			Progress:     100,
 			LeadAuditor:  "Zeta Ramadhani",
-			Status:       "Completed",
-			StatusDetail: "Completed & Verified",
+			Status:       models.AuditStatusCompleted,
+			StatusDetail: "Audit Completed",
 			CreatedAt:    time.Date(2025, 3, 15, 10, 0, 0, 0, time.UTC),
 		},
 		{
@@ -1438,8 +1355,8 @@ func seedExecutions(db *gorm.DB) error {
 			Category:     "Assurance",
 			Progress:     100,
 			LeadAuditor:  "Rina Wulandari",
-			Status:       "Completed",
-			StatusDetail: "Completed & Verified",
+			Status:       models.AuditStatusCompleted,
+			StatusDetail: "Audit Completed",
 			CreatedAt:    time.Date(2025, 6, 20, 10, 0, 0, 0, time.UTC),
 		},
 		{
@@ -1448,8 +1365,8 @@ func seedExecutions(db *gorm.DB) error {
 			Category:     "Assurance",
 			Progress:     100,
 			LeadAuditor:  "Andi Firmansyah",
-			Status:       "Completed",
-			StatusDetail: "Completed & Verified",
+			Status:       models.AuditStatusCompleted,
+			StatusDetail: "Audit Completed",
 			CreatedAt:    time.Date(2025, 9, 10, 10, 0, 0, 0, time.UTC),
 		},
 		{
@@ -1458,8 +1375,8 @@ func seedExecutions(db *gorm.DB) error {
 			Category:     "Assurance",
 			Progress:     100,
 			LeadAuditor:  "Budi Santoso",
-			Status:       "Completed",
-			StatusDetail: "Completed & Verified",
+			Status:       models.AuditStatusCompleted,
+			StatusDetail: "Audit Completed",
 			CreatedAt:    time.Date(2025, 11, 5, 10, 0, 0, 0, time.UTC),
 		},
 	}

@@ -7,6 +7,7 @@ import type {
   UpdateEmployeeRequest,
   PaginationMeta
 } from '~/types/master'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useEmployeeStore = defineStore('employee', () => {
   // ============= State =============
@@ -85,7 +86,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       pagination.value = response.pagination || pagination.value
     } catch (error: any) {
       console.error('Failed to fetch employees:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal mengambil data employee.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data employee.')
       employees.value = []
     } finally {
       loading.value = false
@@ -104,7 +105,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return await api.getEmployeeById(id)
     } catch (error: any) {
       console.error('Failed to fetch employee:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal mengambil detail employee.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil detail employee.')
       return null
     } finally {
       loading.value = false
@@ -144,7 +145,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to create employee:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal membuat employee baru.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal membuat employee baru.')
       return false
     } finally {
       loading.value = false
@@ -181,7 +182,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to update employee:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal memperbarui employee.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal memperbarui employee.')
       return false
     } finally {
       loading.value = false
@@ -202,7 +203,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to delete employee:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal menghapus employee.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus employee.')
       return false
     } finally {
       loading.value = false

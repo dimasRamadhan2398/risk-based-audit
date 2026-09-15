@@ -42,15 +42,15 @@
         </template>
 
         <template #actions-cell="{ row }">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center justify-center gap-1">
             <UTooltip text="Edit Assignment Letter">
               <UButton
                 size="md"
                 color="warning"
                 variant="ghost"
                 icon="i-lucide-edit"
-              @click="store.openEditModal(row.original)"
-            />
+                @click="store.openEditModal(row.original)"
+              />
             </UTooltip>
             <UTooltip text="Delete Assignment Letter">
               <UButton

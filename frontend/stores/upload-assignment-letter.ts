@@ -4,6 +4,8 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
+import { extractErrorMessage } from '~/utils/error';
+
 export interface UploadedAssignmentLetter {
   id: string;
   title: string;
@@ -36,7 +38,7 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded assignment letters:', error);
-      errorMsg.value = 'Failed to load uploaded assignment letters.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded assignment letters.');
     } finally {
       loading.value = false;
     }
@@ -61,7 +63,9 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to upload assignment letter document:', error);
-      toast.showError(error.data?.message || 'Failed to upload assignment letter document.')
+      const detail = extractErrorMessage(error, 'Failed to upload assignment letter document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to upload assignment letter document.', detail);
       throw error;
     } finally {
       loading.value = false;
@@ -80,7 +84,9 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to delete uploaded assignment letter:', error);
-      toast.showError(error.data?.message || 'Failed to delete assignment letter.')
+      const detail = extractErrorMessage(error, 'Failed to delete assignment letter.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete assignment letter.', detail);
       throw error;
     } finally {
       loading.value = false;
@@ -100,7 +106,9 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      errorMsg.value = 'Failed to view document.';
+      const detail = extractErrorMessage(error, 'Failed to view document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to view document.', detail);
     }
   };
 
@@ -122,7 +130,9 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download assignment letter document:', error);
-      errorMsg.value = 'Failed to download document.';
+      const detail = extractErrorMessage(error, 'Failed to download document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to download document.', detail);
     }
   };
 

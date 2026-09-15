@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import type { VisionMissionGoals, Company } from '~/types/master'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', () => {
   // Config
@@ -58,7 +59,7 @@ export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', ()
       }
     } catch (error: any) {
       console.error('Failed to fetch companies:', error)
-      errorMsg.value = 'Failed to load company data.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to load company data.')
     } finally {
       loading.value = false
     }
@@ -85,6 +86,7 @@ export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', ()
       }
     } catch (error: any) {
       console.error('Failed to fetch VMG:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to load VMG data.')
       activeVmg.value = null
     } finally {
       loading.value = false
@@ -199,7 +201,7 @@ export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', ()
       return true
     } catch (error: any) {
       console.error('Failed to save VMG:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal menyimpan data Visi, Misi, Goals dan Strategic Objective.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal menyimpan data Visi, Misi, Goals dan Strategic Objective.')
       return false
     } finally {
       saving.value = false

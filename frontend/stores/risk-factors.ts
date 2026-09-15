@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface StandardRiskFactor {
   id: string
@@ -42,7 +43,7 @@ export const useRiskFactorsStore = defineStore('risk-factors', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch standard risk factors:', error)
-      errorMsg.value = error.data?.error || 'Failed to fetch standard risk factors.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch standard risk factors.')
     } finally {
       loading.value = false
     }
@@ -59,7 +60,7 @@ export const useRiskFactorsStore = defineStore('risk-factors', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch corporate risk factors:', error)
-      errorMsg.value = error.data?.error || 'Failed to fetch corporate risk factors.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch corporate risk factors.')
     } finally {
       loading.value = false
     }
@@ -81,7 +82,7 @@ export const useRiskFactorsStore = defineStore('risk-factors', () => {
       return false
     } catch (error: any) {
       console.error('Failed to save corporate risk factors:', error)
-      errorMsg.value = error.data?.error || 'Failed to save corporate risk factors.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to save corporate risk factors.')
       return false
     } finally {
       loading.value = false

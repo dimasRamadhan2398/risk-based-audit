@@ -56,6 +56,8 @@
       color="error"
       variant="soft"
       icon="i-lucide-alert-circle"
+      closable
+      @close="store.errorMsg = ''"
       class="mb-4"
     />
 

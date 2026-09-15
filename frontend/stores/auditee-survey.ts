@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { extractErrorMessage } from '~/utils/error';
 
 export interface AuditeeSurvey {
   id?: string;
@@ -40,7 +41,7 @@ export const useAuditeeSurveyStore = defineStore('auditee-survey', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch auditee surveys:', error);
-      errorMsg.value = 'Failed to load auditee surveys.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load auditee surveys.');
     } finally {
       loading.value = false;
     }
@@ -59,7 +60,7 @@ export const useAuditeeSurveyStore = defineStore('auditee-survey', () => {
       return response;
     } catch (error: any) {
       console.error('Failed to create auditee survey:', error);
-      errorMsg.value = error.data?.message || 'Failed to submit the survey.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to submit the survey.');
       throw error;
     } finally {
       loading.value = false;
@@ -77,7 +78,7 @@ export const useAuditeeSurveyStore = defineStore('auditee-survey', () => {
       await fetchSurveys();
     } catch (error: any) {
       console.error('Failed to delete auditee survey:', error);
-      errorMsg.value = 'Failed to delete survey.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to delete survey.');
       throw error;
     } finally {
       loading.value = false;

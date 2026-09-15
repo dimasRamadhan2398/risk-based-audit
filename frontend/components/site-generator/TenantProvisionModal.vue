@@ -9,7 +9,7 @@
   >
     <div class="flex flex-col max-h-[90vh]">
       <!-- Modal Header -->
-      <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-850 flex items-center justify-between">
+      <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-neutral-900 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 border border-primary-200 dark:border-primary-800 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0 shadow-sm">
             <UIcon
@@ -151,7 +151,7 @@
 
             <!-- Live Target Domain Cards Preview -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-              <div class="p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-850/70 flex items-start gap-2.5">
+              <div class="p-3 rounded-xl border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900/90 flex items-start gap-2.5">
                 <UIcon
                   name="i-lucide-laptop"
                   class="w-4 h-4 text-primary shrink-0 mt-0.5"
@@ -160,13 +160,13 @@
                   <div class="text-gray-400 font-medium">
                     Frontend Portal Domain
                   </div>
-                  <div class="font-mono font-semibold text-gray-900 dark:text-white mt-0.5 break-all">
+                  <div class="font-mono font-semibold text-gray-900 dark:text-neutral-100 mt-0.5 break-all">
                     {{ targetDomain }}
                   </div>
                 </div>
               </div>
 
-              <div class="p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-850/70 flex items-start gap-2.5">
+              <div class="p-3 rounded-xl border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900/90 flex items-start gap-2.5">
                 <UIcon
                   name="i-lucide-network"
                   class="w-4 h-4 text-secondary shrink-0 mt-0.5"
@@ -175,7 +175,7 @@
                   <div class="text-gray-400 font-medium">
                     Kong API Gateway Endpoint
                   </div>
-                  <div class="font-mono font-semibold text-gray-900 dark:text-white mt-0.5 break-all">
+                  <div class="font-mono font-semibold text-gray-900 dark:text-neutral-100 mt-0.5 break-all">
                     {{ targetApiDomain }}
                   </div>
                 </div>
@@ -203,19 +203,6 @@
                   maxlength="7"
                 />
               </div>
-            </AppFormField>
-
-            <AppFormField
-              label="Compliance Framework"
-              tooltip="Pre-seeds audit charter guidelines and risk appetite templates"
-              required
-            >
-              <ReusableSelectMenu
-                v-model="form.complianceFramework"
-                :items="frameworkOptions"
-                placeholder="Select framework"
-                class="w-full"
-              />
             </AppFormField>
           </div>
         </div>
@@ -326,7 +313,7 @@
           <!-- Automated Infrastructure Matrix View -->
           <div
             v-if="form.autoConfigInfrastructure"
-            class="rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-850/40 p-4 space-y-3"
+            class="rounded-xl border border-dashed border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/60 p-4 space-y-3"
           >
             <div class="flex items-center justify-between text-xs pb-2 border-b border-gray-200/60 dark:border-gray-800">
               <span class="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
@@ -366,24 +353,47 @@
                 name="i-lucide-info"
                 class="w-3.5 h-3.5 text-primary shrink-0"
               />
-              <span>Uncheck the box above if your DevOps team requires custom container ports or specific Google Drive folder IDs.</span>
+              <span>Evidence is stored directly on the host VPS volume. Google Drive integration is blocked by architecture policy.</span>
             </div>
           </div>
 
           <!-- Manual Configuration Inputs (Only when autoConfigInfrastructure is false) -->
           <template v-else>
             <AppFormField
-              label="Google Drive Storage Folder ID"
-              tooltip="Dedicated folder ID on Google Drive for storing interview recordings, working paper attachments, and observation evidence"
-              hint="From Google Drive URL"
+              label="Host VPS Evidence Storage Directory"
+              tooltip="Dedicated directory on host VPS filesystem for storing working paper attachments and audit observation evidence"
+              hint="VPS Filesystem Path"
               required
             >
-              <UInput
-                v-model="form.gdriveFolderId"
-                placeholder="e.g. 1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A"
-                class="w-full font-mono text-xs"
-              />
+              <div class="flex items-center">
+                <span class="inline-flex items-center px-3 py-2 rounded-l-md border border-r-0 border-gray-300 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-500 dark:text-gray-400 text-xs font-mono select-none">
+                  /var/data/auditsphere/storage/
+                </span>
+                <UInput
+                  v-model="form.vpsStorageDir"
+                  :placeholder="form.slug || 'client'"
+                  class="flex-1 rounded-none font-mono text-xs"
+                />
+              </div>
             </AppFormField>
+
+            <!-- Blocked Google Drive Policy Notice -->
+            <div class="p-3 rounded-xl bg-gray-50 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-800 text-xs flex items-center justify-between">
+              <div class="flex items-center gap-2 text-gray-600 dark:text-neutral-400">
+                <UIcon
+                  name="i-lucide-shield-ban"
+                  class="w-4 h-4 text-red-500 shrink-0"
+                />
+                <span>Third-Party Cloud Storage (Google Drive)</span>
+              </div>
+              <UBadge
+                color="error"
+                variant="subtle"
+                size="xs"
+              >
+                Blocked by Architecture Policy
+              </UBadge>
+            </div>
 
             <!-- Assigned Ports & Server IP -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -491,8 +501,14 @@
                 <span class="text-gray-700 dark:text-gray-300">{{ form.adminName }} ({{ form.adminEmail }})</span>
               </div>
               <div>
-                <span class="text-gray-400 block">Google Drive Storage</span>
-                <span class="font-mono text-gray-700 dark:text-gray-300 truncate block">{{ form.gdriveFolderId || 'Pending ID' }}</span>
+                <span class="text-gray-400 block">Evidence Storage Provider</span>
+                <span class="font-mono text-emerald-600 dark:text-emerald-400 font-medium truncate block flex items-center gap-1">
+                  <UIcon
+                    name="i-lucide-hard-drive"
+                    class="w-3.5 h-3.5"
+                  />
+                  VPS Storage (/var/data/storage/{{ form.vpsStorageDir || form.slug || 'client' }})
+                </span>
               </div>
             </div>
           </div>
@@ -560,7 +576,7 @@
       </div>
 
       <!-- Modal Footer Controls -->
-      <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-850 flex items-center justify-between">
+      <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-neutral-900 flex items-center justify-between">
         <button
           v-if="currentStep > 1"
           type="button"
@@ -675,7 +691,7 @@ const form = reactive({
   adminPhone: '',
   enforceMfa: true,
   autoConfigInfrastructure: true,
-  gdriveFolderId: '1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A',
+  vpsStorageDir: '',
   serverIp: '202.10.34.166',
   frontendPort: props.nextSuggestedPort,
   kongPort: props.nextSuggestedKongPort
@@ -718,7 +734,7 @@ const generatedDatabases = computed(() => {
 })
 
 const generatedCliCommand = computed(() => {
-  return `./scripts/onboard-tenant.sh ${form.slug || 'slug'} "${form.clientName || 'Client'}" "${form.gdriveFolderId || 'GDRIVE_ID'}" ${form.frontendPort} ${form.kongPort}`
+  return `./scripts/onboard-tenant.sh ${form.slug || 'slug'} "${form.clientName || 'Client'}" ${form.frontendPort} ${form.kongPort} --local --empty-data`
 })
 
 const isCurrentStepValid = computed(() => {
@@ -730,7 +746,7 @@ const isCurrentStepValid = computed(() => {
   }
   if (currentStep.value === 3) {
     if (form.autoConfigInfrastructure) return true
-    return form.frontendPort > 1000 && form.kongPort > 1000 && form.gdriveFolderId.length > 5
+    return form.frontendPort > 1000 && form.kongPort > 1000
   }
   return true
 })

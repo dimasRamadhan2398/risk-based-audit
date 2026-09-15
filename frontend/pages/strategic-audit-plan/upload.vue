@@ -170,27 +170,27 @@
                 <UTooltip :text="t('strategicPlan.upload.actions.view')">
                   <UButton
                     icon="i-lucide-eye"
-                    color="neutral"
+                    color="info"
                     variant="ghost"
-                    size="md"
+                    size="sm"
                     @click="store.viewDocument(row.original.id, row.original.fileName)"
                   />
                 </UTooltip>
                 <UTooltip :text="t('strategicPlan.upload.actions.download')">
                   <UButton
-                  icon="i-lucide-download"
-                  color="success"
-                  variant="ghost"
-                  size="md"
-                  @click="store.downloadDocument(row.original.id, row.original.fileName)"
-                />
+                    icon="i-lucide-download"
+                    color="primary"
+                    variant="ghost"
+                    size="sm"
+                    @click="store.downloadDocument(row.original.id, row.original.fileName)"
+                  />
                 </UTooltip>
                 <UTooltip :text="t('strategicPlan.upload.actions.delete')">
                   <UButton
                     icon="i-lucide-trash-2"
                     color="error"
                     variant="ghost"
-                    size="md"
+                    size="sm"
                     @click="handleDelete(row.original.id)"
                   />
                 </UTooltip>

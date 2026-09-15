@@ -54,7 +54,6 @@ func (ctrl *UploadedAssignmentLetterController) Upload(c *gin.Context) {
 		return
 	}
 
-<<<<<<< HEAD
 	openedFile, err := file.Open()
 	if err != nil {
 		response.InternalServerError(c, "failed to open file: "+err.Error())
@@ -70,15 +69,11 @@ func (ctrl *UploadedAssignmentLetterController) Upload(c *gin.Context) {
 
 	fileExt := filepath.Ext(fileName)
 	baseName := strings.TrimSuffix(fileName, fileExt)
-=======
 	if int64(len(dec)) > 10*1024*1024 {
 		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
 		return
 	}
 
-	fileExt := filepath.Ext(req.FileName)
-	baseName := strings.TrimSuffix(req.FileName, fileExt)
->>>>>>> cbc5d39943d30c4e2499ca6e2d081099b879c9ca
 	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 
 	uploadsDir := "./uploads/uploaded-assignment-letters"

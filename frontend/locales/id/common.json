@@ -94,6 +94,8 @@
     "view": "Lihat",
     "close": "Tutup",
     "submit": "Kirim",
+    "update": "Perbarui",
+    "updateData": "Perbarui Data",
     "search": "Cari",
     "loading": "Memuat...",
     "error": "Error",
@@ -558,7 +560,7 @@
       "deleteConfirm": "Apakah Anda yakin ingin menghapus Rencana Strategis ini?"
     },
     "form": {
-      "title": "Informasi Rencana Strategis",
+      "title": "Tambahkan Informasi Strategic Objective",
       "corporateGoal": "Goal Korporat",
       "selectCorporateGoal": "Pilih Goal Korporat",
       "code": "ID Strategic Objective",
@@ -1685,6 +1687,41 @@
     }
   },
   "workingPaper": {
+    "index": {
+      "title": "Buat Kertas Kerja",
+      "subtitle": "Buat dan kelola kertas kerja audit langkah demi langkah",
+      "importButton": "Impor Kertas Kerja",
+      "createButton": "Buat Kertas Kerja",
+      "sections": {
+        "headerTitle": "Header Kertas Kerja Audit",
+        "riskTitle": "Risiko Kertas Kerja Audit",
+        "sampleTitle": "Sampel Kertas Kerja Audit",
+        "causeTitle": "Analisis Penyebab Kertas Kerja Audit",
+        "planTitle": "Rencana Aksi Kertas Kerja Audit"
+      },
+      "steps": {
+        "header": {
+          "title": "Header",
+          "description": "Tambahkan header Anda"
+        },
+        "riskProfile": {
+          "title": "Profil Risiko",
+          "description": "Tambahkan profil risiko Anda"
+        },
+        "testSample": {
+          "title": "Sampel Pengujian",
+          "description": "Tambahkan sampel pengujian Anda"
+        },
+        "aoiRca": {
+          "title": "AOI & RCA",
+          "description": "Tambahkan AOI & RCA Anda"
+        },
+        "actionPlan": {
+          "title": "Rencana Aksi",
+          "description": "Tambahkan rencana aksi Anda"
+        }
+      }
+    },
     "upload": {
       "title": "Impor Referensi Kertas Kerja",
       "subtitle": "Impor dokumen referensi Kertas Kerja (Working Paper) eksternal",
@@ -1716,6 +1753,60 @@
       },
       "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
       "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    },
+    "riskForm": {
+      "title": "Risiko",
+      "risk": "Risiko",
+      "riskPlaceholder": "Pilih Risiko",
+      "riskCategory": "Kategori Risiko",
+      "autoFilledTaxonomy": "Terisi otomatis saat memilih risiko",
+      "riskLevel": "Tingkat Risiko",
+      "autoFilledRiskLevel": "Terisi otomatis saat memilih risiko",
+      "controlDescription": "Deskripsi Kontrol yang Diuji",
+      "controlDescriptionPlaceholder": "Ketik kontrol keamanan/SOP yang sedang dievaluasi di lapangan...",
+      "updateData": "Perbarui Data",
+      "submit": "Kirim"
+    },
+    "causeForm": {
+      "title": "Analisis Akar Penyebab",
+      "condition": "Kondisi (Dampak di Lapangan)",
+      "conditionPlaceholder": "Contoh: Ditemukan dokumen PO tanpa tanda tangan Manager terkait pada tanggal...",
+      "uploadEvidence": "Unggah bukti temuan/foto",
+      "criteria": "Kriteria (Aturan/SOP Terkait)",
+      "criteriaPlaceholder": "Cari Peraturan Internal (Contoh: SOP Pengadaan Bab IV - Otorisasi)",
+      "impact": "Dampak (Risk Impact)",
+      "impactPlaceholder": "Contoh: Potensi fraud atau pembelian fiktif yang dapat merugikan keuangan...",
+      "rootCauseAnalysis": "Analisis Akar Masalah",
+      "analysisIndex": "Analisis {index}",
+      "category": "Kategori",
+      "categoryPlaceholder": "Pilih Kategori",
+      "why1": "Why 1",
+      "why1Placeholder": "Contoh: Staf lupa meminta TTD Manager",
+      "why1Validation": "Why 1 maksimal 100 karakter dan wajib diisi",
+      "why2": "Why 2",
+      "why2Placeholder": "Contoh: Karena staf terburu-buru mengejar kuota pengiriman",
+      "why2Validation": "Why 2 maksimal 100 karakter dan wajib diisi",
+      "why3": "Why 3",
+      "why3Placeholder": "-",
+      "why3Validation": "Why 3 maksimal 100 karakter dan wajib diisi",
+      "addRootCause": "Tambah Analisa Akar Masalah",
+      "updateData": "Perbarui Data",
+      "submit": "Kirim"
+    },
+    "planForm": {
+      "title": "Rekomendasi & Tanggapan",
+      "recommendation": "Rekomendasi Auditor (Solusi)",
+      "recommendationPlaceholder": "Contoh: Tim IT perlu menambahkan fitur hard-block...",
+      "response": "Tanggapan Auditi (Tanggapan Manajemen)",
+      "responsePlaceholder": "Contoh: Kami setuju, update akan dilakukan di Q3...",
+      "actionPlanDetail": "Detail Rencana Aksi (Action Plan)",
+      "actionDescription": "Deskripsi Aksi",
+      "actionDescriptionPlaceholder": "Contoh: Staf lupa meminta TTD Manager",
+      "pic": "PIC (Penanggung Jawab)",
+      "picPlaceholder": "Cari Nama Karyawan Contoh: Dimas - IT",
+      "periodAction": "Periode Perencanaan",
+      "updateData": "Perbarui Data",
+      "submit": "Kirim"
     }
   },
   "consultingService": {
@@ -1985,6 +2076,82 @@
       },
       "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
       "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    },
+    "modal": {
+      "addNewAssessment": "Tambah Penilaian Baru",
+      "editAssessment": "Ubah Penilaian",
+      "selectType": "1. Pilih Jenis Penilaian",
+      "regularDesc": "[Deskripsi: Fokus efisiensi & efektivitas]",
+      "saivDesc": "[Deskripsi: Kepatuhan GIAS + Validasi Eksternal]",
+      "qarDesc": "[Deskripsi: Konsultan Profesional - IPPF 2027 & GIAS 2024]",
+      "iacmDesc": "[Deskripsi: Model Kapabilitas IACM BUMN]",
+      "generalInfo": "2. Informasi Umum",
+      "assessmentTitle": "Judul Penilaian",
+      "titleRequired": "Judul wajib diisi",
+      "titlePlaceholder": "Contoh: QAR - Audit 2026",
+      "executionPeriod": "Periode Pelaksanaan",
+      "selectYear": "Pilih Tahun",
+      "resultsAndStatus": "3. Hasil & Status",
+      "status": "Status",
+      "statusRequired": "Status wajib diisi",
+      "selectStatus": "Pilih Status",
+      "resultScore": "Hasil/Skor",
+      "resultRequired": "Hasil wajib diisi",
+      "selectScore": "Pilih Skor (1-5)",
+      "selectConformance": "Pilih Tingkat Kesesuaian",
+      "regularResultPlaceholder": "Contoh: 8.5/10",
+      "defaultResultPlaceholder": "Contoh: 92%",
+      "specialDetails": "4. Detail Khusus",
+      "conductedBy": "Dilaksanakan Oleh",
+      "conductedByPlaceholder": "Contoh: PT BAI",
+      "internalEvaluator": "Evaluator Internal",
+      "evaluatorPlaceholder": "Nama Tim / Lead Auditor...",
+      "supportingDocuments": "5. Dokumen Pendukung",
+      "uploadLabel": "Klik untuk upload atau drag & drop",
+      "uploadDesc": "PDF, DOCX hingga 10MB",
+      "cancel": "Batal",
+      "updateReport": "Perbarui Laporan",
+      "saveReport": "Simpan Laporan",
+      "validationErrorTitle": "Kesalahan Validasi",
+      "validationErrorDesc": "Mohon isi semua kolom yang wajib diisi (berwarna merah)."
+    },
+    "detailModal": {
+      "title": "Detail: {title}",
+      "generalInfo": "1. Informasi Umum",
+      "assessmentTitle": "Judul Penilaian",
+      "assessmentType": "Jenis Penilaian",
+      "period": "Periode",
+      "results": "2. Hasil",
+      "resultScore": "Hasil/Skor",
+      "status": "Status",
+      "finalProject": "Laporan Akhir",
+      "specialDetails": "3. Detail Khusus",
+      "conductedBy": "Dilaksanakan Oleh:",
+      "validator": "Konsultan Profesional (KAP) / Validator:",
+      "internalEvaluator": "Evaluator Internal:",
+      "supportingDocuments": "4. Dokumen Pendukung",
+      "uploaded": "Terunggah",
+      "noAttachment": "Tidak ada lampiran",
+      "noAttachmentDesc": "Belum ada dokumen yang dilampirkan",
+      "download": "Unduh"
+    },
+    "types": {
+      "regular": "Penilaian Mandiri Reguler (RSA)",
+      "saiv": "Penilaian Mandiri dengan Validasi Independen (SAIV)",
+      "qar": "Tinjauan Penjaminan Kualitas (QAR)",
+      "iacm": "Penilaian IACM BUMN"
+    },
+    "statuses": {
+      "completed": "Selesai",
+      "verified": "Terverifikasi",
+      "inProgress": "Sedang Berjalan",
+      "planned": "Direncanakan"
+    },
+    "conformance": {
+      "fullyConformance": "Sesuai Sepenuhnya (Fully Conformance)",
+      "generallyConformed": "Sebagian Besar Sesuai (Generally Conformed)",
+      "partiallyConform": "Sebagian Sesuai (Partially Conform)",
+      "doesNotConform": "Tidak Sesuai (Does not Conform)"
     }
   },
   "kpiPerformance": {

@@ -169,18 +169,20 @@
                 <UTooltip :text="t('qualityAssurance.importQar.actions.view')">
                 <UButton 
                   icon="i-lucide-eye" 
-                  color="neutral" 
+                  color="info" 
                   variant="ghost" 
                   size="md" 
+                  :title="t('qualityAssurance.importQar.actions.view')" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
                 </UTooltip>
                 <UTooltip :text="t('qualityAssurance.importQar.actions.download')">
                 <UButton 
                   icon="i-lucide-download" 
-                  color="success" 
+                  color="primary" 
                   variant="ghost" 
                   size="md" 
+                  :title="t('qualityAssurance.importQar.actions.download')" 
                   @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
                 />
                 </UTooltip>
@@ -190,6 +192,7 @@
                   color="error" 
                   variant="ghost" 
                   size="md" 
+                  :title="t('qualityAssurance.importQar.actions.delete')" 
                   @click="handleDelete(row.original)" 
                 />
                 </UTooltip>

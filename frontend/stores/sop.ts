@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface AuditSop {
   id: string
@@ -85,7 +86,7 @@ export const useSopStore = defineStore('sop', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch sops:', err)
-      errorMsg.value = 'Gagal mengambil data Petunjuk Teknis/SOP.'
+      errorMsg.value = extractErrorMessage(err, 'Gagal mengambil data Petunjuk Teknis/SOP.')
     } finally {
       loading.value = false
     }
@@ -155,7 +156,9 @@ export const useSopStore = defineStore('sop', () => {
       )
     } catch (err) {
       console.error('Failed to upload file:', err)
-      errorMsg.value = 'Gagal mengupload file dokumen.'
+      const detail = extractErrorMessage(err, 'Gagal mengupload file dokumen.')
+      errorMsg.value = detail
+      toast.showError('Gagal mengupload file dokumen.', detail)
       throw err
     }
   }
@@ -207,7 +210,9 @@ export const useSopStore = defineStore('sop', () => {
       closeModal()
     } catch (err: any) {
       console.error('Failed to add sop:', err)
-      toast.showError('Gagal menambahkan Petunjuk Teknis/SOP.')
+      const detail = extractErrorMessage(err, 'Gagal menambahkan Petunjuk Teknis/SOP.')
+      errorMsg.value = detail
+      toast.showError('Gagal menambahkan Petunjuk Teknis/SOP.', detail)
     } finally {
       loading.value = false
     }
@@ -256,7 +261,9 @@ export const useSopStore = defineStore('sop', () => {
       closeModal()
     } catch (err: any) {
       console.error('Failed to update sop:', err)
-      toast.showError('Gagal memperbarui Petunjuk Teknis/SOP.')
+      const detail = extractErrorMessage(err, 'Gagal memperbarui Petunjuk Teknis/SOP.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui Petunjuk Teknis/SOP.', detail)
     } finally {
       loading.value = false
     }
@@ -280,7 +287,9 @@ export const useSopStore = defineStore('sop', () => {
       await fetchSops()
     } catch (err: any) {
       console.error('Failed to delete sop:', err)
-      toast.showError('Gagal menghapus Petunjuk Teknis/SOP.')
+      const detail = extractErrorMessage(err, 'Gagal menghapus Petunjuk Teknis/SOP.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus Petunjuk Teknis/SOP.', detail)
     } finally {
       loading.value = false
     }
