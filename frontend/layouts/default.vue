@@ -196,16 +196,6 @@ const rawItems: NavigationMenuItem[][] = [[
         icon: 'i-lucide-briefcase',
         to: '/audit-fieldwork'
       },
-      {
-        label: 'AOI & RCA',
-        icon: 'i-lucide-search-check',
-        to: '/working-paper?step=f04'
-      },
-      {
-        label: 'Action Plan',
-        icon: 'i-lucide-list-todo',
-        to: '/mitigation'
-      }
     ]
   },
 
