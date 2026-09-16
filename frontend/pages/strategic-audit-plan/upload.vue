@@ -112,7 +112,7 @@
               class="w-full justify-center font-bold h-11 text-base"
               :loading="store.loading"
               icon="i-lucide-upload"
-              :disabled="!form.title || !form.fileName"
+              :disabled="!form.title || !form.fileName || !form.file"
             />
           </UForm>
         </UCard>
@@ -231,7 +231,7 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  fileContent: ''
+  file: null as File | null
 })
 
 const columns = computed(() => [
@@ -269,23 +269,18 @@ const processFile = (file: File) => {
 
   selectedFileLength.value = file.size
   form.value.fileName = file.name
-  form.value.fileType = file.type
+  form.value.fileType = file.type || 'application/octet-stream'
+  form.value.file = file
 
   if (!form.value.title) {
     form.value.title = `Strategic Audit Plan - ${file.name.replace(/\.[^/.]+$/, '')}`
   }
-
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    form.value.fileContent = e.target?.result as string
-  }
-  reader.readAsDataURL(file)
 }
 
 const clearFile = () => {
   form.value.fileName = ''
   form.value.fileType = ''
-  form.value.fileContent = ''
+  form.value.file = null
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -315,7 +310,7 @@ const formatDate = (dateString: string) => {
 }
 
 const handleUpload = async () => {
-  if (!form.value.title || !form.value.fileName) {
+  if (!form.value.title || !form.value.fileName || !form.value.file) {
     toast.showWarning('Validasi Gagal', 'Mohon lengkapi judul dan file sebelum mengunggah.')
     return
   }
@@ -326,7 +321,7 @@ const handleUpload = async () => {
       description: form.value.description,
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      fileContent: form.value.fileContent
+      file: form.value.file
     })
 
     toast.showSuccess('Upload Berhasil', 'Dokumen berhasil diunggah.')

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -43,32 +44,54 @@ func (ctrl *UploadedPlanDocumentController) Upload(c *gin.Context) {
 	fileName := c.PostForm("fileName")
 	fileType := c.PostForm("fileType")
 
+	var dec []byte
+
+	file, err := c.FormFile("file")
+	if err == nil {
+		openedFile, err := file.Open()
+		if err != nil {
+			response.InternalServerError(c, "failed to open file: "+err.Error())
+			return
+		}
+		defer openedFile.Close()
+
+		dec, err = io.ReadAll(openedFile)
+		if err != nil {
+			response.InternalServerError(c, "failed to read file: "+err.Error())
+			return
+		}
+	} else {
+		// Fallback: check if fileContent was sent as base64 string in form or JSON
+		base64Data := c.PostForm("fileContent")
+		if base64Data == "" && strings.Contains(c.GetHeader("Content-Type"), "application/json") {
+			var req UploadPlanRequest
+			if err := c.ShouldBindJSON(&req); err == nil {
+				title = req.Title
+				description = req.Description
+				fileName = req.FileName
+				fileType = req.FileType
+				base64Data = req.FileContent
+			}
+		}
+
+		if base64Data != "" {
+			if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
+				base64Data = base64Data[idx+8:]
+			}
+			var decErr error
+			dec, decErr = base64.StdEncoding.DecodeString(base64Data)
+			if decErr != nil {
+				response.BadRequest(c, "Invalid base64 file data: "+decErr.Error())
+				return
+			}
+		} else {
+			response.BadRequest(c, "file is required: "+err.Error())
+			return
+		}
+	}
+
 	if title == "" || fileName == "" {
 		response.BadRequest(c, "title and fileName are required")
-		return
-	}
-
-	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
-	if err != nil {
-		response.BadRequest(c, "file is required: "+err.Error())
-		return
-	}
-
-	openedFile, err := file.Open()
-	if err != nil {
-		response.InternalServerError(c, "failed to open file: "+err.Error())
-		return
-	}
-	defer openedFile.Close()
-
-	dec, err := io.ReadAll(openedFile)
-	if err != nil {
-		response.InternalServerError(c, "failed to read file: "+err.Error())
-		return
-	}
-
-	if int64(len(dec)) > 10*1024*1024 {
-		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
 		return
 	}
 

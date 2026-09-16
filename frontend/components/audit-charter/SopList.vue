@@ -49,6 +49,7 @@
         :total="store.pagination.total"
         :items-per-page="store.pagination.page_size"
         :page="store.pagination.page"
+        table-layout="fixed"
         :empty-state="{
           icon: 'i-lucide-file-text',
           label: t('auditCharter.sopList.emptyTable')
@@ -153,14 +154,7 @@ const store = useSopStore()
 const guidelineStore = useGuidelineStore()
 const { canManageCharter } = useRbac()
 
-const columns = computed(() => [
-  { accessorKey: 'no', header: t('auditCharter.sopList.columns.no') },
-  { accessorKey: 'name', header: t('auditCharter.sopList.columns.name') },
-  { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName') },
-  { accessorKey: 'status', header: t('auditCharter.sopList.columns.status') },
-  { accessorKey: 'effective_date', header: t('auditCharter.sopList.columns.effectiveDate') },
-  { accessorKey: 'actions', header: t('auditCharter.sopList.columns.actions') }
-])
+const columns = computed(() => store.columns)
 
 const tableData = computed(() => {
   return store.sops.map((item, index) => ({

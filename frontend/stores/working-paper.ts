@@ -40,7 +40,7 @@ export const sampleSchema = z.object({
 })
 
 export const causeSchema = z.object({
-  condition: z.string().min(1, 'Required'),
+  condition: z.string().min(1, 'Required').max(200, 'Maximum 200 characters'),
   criteria: z.string().min(1, 'Required'),
   impact: z.string().min(1, 'Required')
 })

@@ -49,6 +49,7 @@
         :total="store.pagination.total"
         :items-per-page="store.pagination.page_size"
         :page="store.pagination.page"
+        table-layout="fixed"
         :empty-state="{
           icon: 'i-lucide-book-open',
           label: t('auditCharter.guideline.emptyTable')
@@ -59,39 +60,51 @@
       >
         <!-- No slot -->
         <template #no-cell="{ row }">
-          <span class="font-medium text-[var(--text-muted)]">{{ row.original.no }}</span>
+          <span class="font-medium text-[var(--text-muted)] block text-center">{{ row.original.no }}</span>
         </template>
 
         <!-- Name slot -->
         <template #name-cell="{ row }">
           <ReadMoreText
             :text="row.original.name"
-            :max-length="65"
+            :max-length="75"
             text-class="font-semibold text-[var(--text-main)]"
           />
         </template>
 
         <!-- Status slot -->
         <template #status-cell="{ row }">
-          <UBadge
-            :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
-            variant="subtle"
-            class="rounded font-semibold"
-          >
-            {{ translateStatus(row.original.status) }}
-          </UBadge>
+          <div class="flex justify-center">
+            <UBadge
+              :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
+              variant="subtle"
+              class="rounded font-semibold"
+            >
+              {{ translateStatus(row.original.status) }}
+            </UBadge>
+          </div>
         </template>
 
         <!-- Effective date slot -->
         <template #effective_date-cell="{ row }">
-          <span class="font-medium text-[var(--text-main)]">{{
+          <span class="font-medium text-[var(--text-main)] block text-center">{{
             formatMonthYear(row.original.effective_date)
           }}</span>
         </template>
 
+        <!-- File Name slot -->
+        <template #file_name-cell="{ row }">
+          <div
+            class="line-clamp-2 break-all text-sm font-normal text-[var(--text-main)]"
+            :title="row.original.file_name"
+          >
+            {{ row.original.file_name || '-' }}
+          </div>
+        </template>
+
         <!-- Actions slot -->
         <template #actions-cell="{ row }">
-          <div class="flex justify-end gap-1">
+          <div class="flex justify-center items-center gap-1">
             <UTooltip text="Lihat Pedoman">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
@@ -142,14 +155,7 @@ const { t, locale } = useI18n()
 const store = useGuidelineStore()
 const { canManageCharter } = useRbac()
 
-const columns = computed(() => [
-  { accessorKey: 'no', header: t('auditCharter.guideline.columns.no') },
-  { accessorKey: 'name', header: t('auditCharter.guideline.columns.name') },
-  { accessorKey: 'status', header: t('auditCharter.guideline.columns.status') },
-  { accessorKey: 'effective_date', header: t('auditCharter.guideline.columns.effectiveDate') },
-  { accessorKey: 'file_name', header: t('auditCharter.guideline.columns.fileName') },
-  { accessorKey: 'actions', header: t('auditCharter.guideline.columns.actions') }
-])
+const columns = computed(() => store.columns)
 
 const tableData = computed(() => {
   return store.guidelines.map((item, index) => ({

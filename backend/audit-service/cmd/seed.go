@@ -254,6 +254,12 @@ func runMigrations(db *gorm.DB) error {
 }
 
 func seedAuditMandates(db *gorm.DB) error {
+	var count int64
+	db.Model(&models.AuditMandate{}).Count(&count)
+	if count > 0 {
+		return nil
+	}
+
 	// Create sample audit mandate
 	mandate := &models.AuditMandate{
 		Title:           "Internal Audit Mandate 2024",
@@ -382,8 +388,11 @@ func seedGuidelinesAndSops(db *gorm.DB) error {
 	}
 
 	for i := range guidelines {
-		if err := db.Create(&guidelines[i]).Error; err != nil {
-			return err
+		var existing models.AuditGuideline
+		if err := db.Where("name = ?", guidelines[i].Name).First(&existing).Error; err == gorm.ErrRecordNotFound {
+			if err := db.Create(&guidelines[i]).Error; err != nil {
+				return err
+			}
 		}
 	}
 
@@ -414,12 +423,16 @@ func seedGuidelinesAndSops(db *gorm.DB) error {
 	}
 
 	for i := range sops {
-		if err := db.Create(&sops[i]).Error; err != nil {
-			return err
+		var existing models.AuditSop
+		if err := db.Where("name = ?", sops[i].Name).First(&existing).Error; err == gorm.ErrRecordNotFound {
+			sops[i].GuidelineID = guideline6.ID
+			if err := db.Create(&sops[i]).Error; err != nil {
+				return err
+			}
 		}
 	}
 
-	logger.Info("Sample audit guidelines and SOPs created")
+	logger.Info("Sample audit guidelines and SOPs verified/created")
 	return nil
 }
 
