@@ -1,0 +1,1001 @@
+ID Transaksi,Kategori,Entitas,Nilai Transaksi (Juta Rp),Bunga/Margin (%),Jam Transaksi (0-23),Status Dokumen,Jumlah Gagal Login,TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5),Alasan Anomali
+BANK-TRX-0001,Payment,Head Office,1.69,0.0,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0002,KYC,Medan Branch,0.0,0.0,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0003,Treasury,Bandung Branch,629.13,0.0,8,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0004,KYC,Jakarta Branch,0.0,0.0,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0005,KYC,Bandung Branch,0.0,0.0,17,Tidak Lengkap,0,Ya (Anomali),5,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0006,Lending,Bandung Branch,1831.51,16.03,5,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0007,Treasury,Head Office,946.99,0.0,8,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0008,Treasury,Medan Branch,3178.19,0.0,0,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0009,Treasury,Surabaya Branch,1427.61,0.0,8,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0010,KYC,Medan Branch,0.0,0.0,15,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0011,Payment,Medan Branch,23.98,0.0,12,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0012,Treasury,Bandung Branch,3596.56,0.0,8,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0013,IT Control,Medan Branch,0.0,0.0,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0014,KYC,Jakarta Branch,0.0,0.0,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0015,Lending,Bandung Branch,166.15,16.68,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0016,Payment,Jakarta Branch,30.34,0.0,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0017,IT Control,Surabaya Branch,0.0,0.0,3,Lengkap,9,Ya (Anomali),5,5,Indikasi Brute Force / Gagal Login Tinggi (9 kali)
+BANK-TRX-0018,IT Control,Bandung Branch,0.0,0.0,1,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0019,Lending,Surabaya Branch,2677.38,23.31,5,Lengkap,0,Ya (Anomali),5,3,Bunga Kredit terlalu tinggi (23.31%)
+BANK-TRX-0020,Payment,Bandung Branch,64.75,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0021,KYC,Head Office,0.0,0.0,3,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0022,Funding,Medan Branch,292.87,5.7,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0023,Payment,Head Office,68.84,0.0,18,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0024,Lending,Surabaya Branch,343.42,16.14,5,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0025,IT Control,Medan Branch,0.0,0.0,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0026,KYC,Bandung Branch,0.0,0.0,17,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0027,Payment,Medan Branch,117.94,0.0,12,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0028,Funding,Jakarta Branch,368.65,3.4,8,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0029,Funding,Medan Branch,309.8,3.38,22,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0030,Treasury,Jakarta Branch,1201.79,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0031,Treasury,Medan Branch,3059.76,0.0,12,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0032,Lending,Jakarta Branch,1449.48,14.15,10,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0033,Payment,Surabaya Branch,78.9,0.0,0,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0034,Payment,Head Office,22.17,0.0,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0035,IT Control,Bandung Branch,0.0,0.0,21,Lengkap,1,Tidak,2,2,-
+BANK-TRX-0036,IT Control,Medan Branch,0.0,0.0,6,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0037,IT Control,Head Office,0.0,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0038,Treasury,Bandung Branch,1122.86,0.0,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0039,Payment,Bandung Branch,43.42,0.0,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0040,Payment,Jakarta Branch,71.09,0.0,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0041,Funding,Surabaya Branch,700.39,3.65,6,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0042,Treasury,Surabaya Branch,2082.34,0.0,14,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0043,KYC,Head Office,0.0,0.0,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0044,Treasury,Surabaya Branch,1869.18,0.0,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0045,KYC,Medan Branch,0.0,0.0,0,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0046,Funding,Surabaya Branch,723.66,2.46,16,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0047,Lending,Head Office,1598.3,16.76,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0048,Payment,Surabaya Branch,56.93,0.0,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0049,Funding,Medan Branch,627.0,2.89,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0050,Payment,Jakarta Branch,60.75,0.0,5,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0051,IT Control,Head Office,0.0,0.0,10,Lengkap,1,Tidak,1,1,-
+BANK-TRX-0052,Lending,Jakarta Branch,858.38,13.43,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0053,Lending,Jakarta Branch,762.32,9.47,7,Lengkap,0,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (9.47%)
+BANK-TRX-0054,Funding,Jakarta Branch,21.45,2.83,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0055,Lending,Bandung Branch,1983.4,15.72,13,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0056,KYC,Bandung Branch,0.0,0.0,9,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0057,Lending,Jakarta Branch,363.38,16.95,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0058,Payment,Head Office,30.56,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0059,Payment,Medan Branch,47.88,0.0,8,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0060,Payment,Medan Branch,2074.75,0.0,2,Lengkap,0,Ya (Anomali),4,5,Transfer Payment jumlah besar di dini hari (Jam 2)
+BANK-TRX-0061,Payment,Surabaya Branch,90.0,0.0,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0062,KYC,Head Office,0.0,0.0,7,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0063,Treasury,Bandung Branch,23715.23,0.0,15,Lengkap,0,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+BANK-TRX-0064,IT Control,Jakarta Branch,0.0,0.0,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0065,Funding,Surabaya Branch,710.45,10.57,5,Lengkap,0,Ya (Anomali),5,5,Bunga Funding tidak wajar (10.57%)
+BANK-TRX-0066,Payment,Medan Branch,22.31,0.0,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0067,Lending,Bandung Branch,1029.91,13.29,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0068,Payment,Bandung Branch,96.73,0.0,4,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0069,Lending,Jakarta Branch,636.09,13.53,1,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0070,IT Control,Medan Branch,0.0,0.0,15,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0071,IT Control,Head Office,0.0,0.0,4,Lengkap,1,Tidak,1,1,-
+BANK-TRX-0072,IT Control,Bandung Branch,0.0,0.0,14,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0073,Lending,Jakarta Branch,686.73,12.67,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0074,Payment,Head Office,29.2,0.0,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0075,IT Control,Medan Branch,0.0,0.0,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0076,KYC,Bandung Branch,0.0,0.0,10,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0077,Lending,Head Office,426.36,14.32,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0078,Lending,Head Office,1599.64,12.32,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0079,Payment,Head Office,205.63,0.0,5,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0080,Lending,Bandung Branch,263.23,15.74,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0081,Lending,Bandung Branch,636.56,13.32,17,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0082,IT Control,Surabaya Branch,0.0,0.0,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0083,Payment,Medan Branch,29.02,0.0,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0084,IT Control,Jakarta Branch,0.0,0.0,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0085,IT Control,Head Office,0.0,0.0,20,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0086,Payment,Surabaya Branch,62.35,0.0,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0087,Funding,Jakarta Branch,1355.81,5.61,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0088,IT Control,Surabaya Branch,0.0,0.0,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0089,KYC,Bandung Branch,0.0,0.0,15,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0090,KYC,Head Office,0.0,0.0,14,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0091,Lending,Jakarta Branch,620.9,7.15,20,Lengkap,0,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (7.15%)
+BANK-TRX-0092,KYC,Jakarta Branch,0.0,0.0,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0093,Lending,Jakarta Branch,242.31,13.54,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0094,Funding,Jakarta Branch,267.91,5.75,10,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0095,Payment,Jakarta Branch,4.59,0.0,18,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0096,Payment,Surabaya Branch,57.37,0.0,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0097,Payment,Head Office,43.14,0.0,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0098,KYC,Bandung Branch,0.0,0.0,20,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0099,Funding,Bandung Branch,316.77,4.53,12,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0100,KYC,Bandung Branch,0.0,0.0,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0101,KYC,Bandung Branch,0.0,0.0,18,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0102,Funding,Surabaya Branch,894.38,5.8,1,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0103,Funding,Medan Branch,1295.45,2.44,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0104,Funding,Head Office,39911.77,4.58,3,Lengkap,0,Ya (Anomali),5,3,Penempatan Funding/Penarikan sangat besar
+BANK-TRX-0105,Funding,Jakarta Branch,303.64,4.82,15,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0106,Payment,Medan Branch,10.3,0.0,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0107,Treasury,Bandung Branch,2381.67,0.0,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0108,Treasury,Medan Branch,3747.18,0.0,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0109,Funding,Head Office,256.99,3.95,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0110,Treasury,Jakarta Branch,1148.73,0.0,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0111,Treasury,Jakarta Branch,2297.1,0.0,7,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0112,Funding,Head Office,45238.92,2.13,15,Lengkap,0,Ya (Anomali),4,4,Penempatan Funding/Penarikan sangat besar
+BANK-TRX-0113,Treasury,Head Office,1892.61,0.0,9,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0114,KYC,Bandung Branch,0.0,0.0,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0115,Lending,Jakarta Branch,233.78,16.42,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0116,Lending,Medan Branch,1023.92,15.46,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0117,Funding,Surabaya Branch,68.45,5.1,16,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0118,Payment,Surabaya Branch,26.21,0.0,12,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0119,Funding,Head Office,401.34,3.22,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0120,Payment,Bandung Branch,10.2,0.0,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0121,Lending,Surabaya Branch,177.77,16.71,6,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0122,Funding,Jakarta Branch,90.77,5.94,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0123,IT Control,Head Office,0.0,0.0,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0124,KYC,Medan Branch,0.0,0.0,6,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0125,Treasury,Head Office,4004.52,0.0,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0126,Payment,Medan Branch,19.01,0.0,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0127,IT Control,Head Office,0.0,0.0,23,Lengkap,1,Tidak,2,2,-
+BANK-TRX-0128,Treasury,Head Office,9144.36,0.0,16,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0129,Treasury,Head Office,4035.86,0.0,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0130,Funding,Medan Branch,325.52,2.62,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0131,Treasury,Medan Branch,7613.65,0.0,23,Lengkap,0,Ya (Anomali),4,2,Transaksi Treasury besar di luar jam kerja (Jam 23)
+BANK-TRX-0132,KYC,Head Office,0.0,0.0,3,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0133,IT Control,Surabaya Branch,0.0,0.0,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0134,Treasury,Bandung Branch,923.24,0.0,3,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0135,Funding,Bandung Branch,545.62,5.97,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0136,KYC,Bandung Branch,0.0,0.0,6,Tidak Lengkap,0,Ya (Anomali),4,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0137,Lending,Medan Branch,115.95,16.7,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0138,IT Control,Medan Branch,0.0,0.0,0,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0139,Treasury,Surabaya Branch,2646.37,0.0,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0140,Funding,Bandung Branch,599.54,2.49,23,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0141,Lending,Bandung Branch,2306.22,16.52,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0142,Lending,Head Office,819.28,15.68,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0143,Payment,Medan Branch,176.72,0.0,14,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0144,KYC,Bandung Branch,0.0,0.0,12,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0145,Treasury,Surabaya Branch,4357.96,0.0,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0146,Funding,Surabaya Branch,260.91,3.96,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0147,Payment,Bandung Branch,43.97,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0148,KYC,Medan Branch,0.0,0.0,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0149,Payment,Surabaya Branch,140.76,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0150,IT Control,Head Office,0.0,0.0,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0151,KYC,Surabaya Branch,0.0,0.0,8,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0152,KYC,Jakarta Branch,0.0,0.0,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0153,Treasury,Jakarta Branch,1976.09,0.0,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0154,KYC,Medan Branch,0.0,0.0,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0155,Payment,Bandung Branch,3.75,0.0,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0156,KYC,Medan Branch,0.0,0.0,7,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0157,Treasury,Medan Branch,945.05,0.0,23,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0158,Treasury,Medan Branch,6432.46,0.0,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0159,IT Control,Medan Branch,0.0,0.0,16,Tidak Lengkap,1,Tidak,2,2,-
+BANK-TRX-0160,Payment,Head Office,1.32,0.0,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0161,Lending,Head Office,1528.89,15.08,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0162,Lending,Surabaya Branch,571.29,16.68,17,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0163,KYC,Jakarta Branch,0.0,0.0,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0164,IT Control,Medan Branch,0.0,0.0,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0165,Funding,Surabaya Branch,315.87,4.68,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0166,KYC,Jakarta Branch,0.0,0.0,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0167,IT Control,Bandung Branch,0.0,0.0,9,Lengkap,1,Tidak,2,1,-
+BANK-TRX-0168,Payment,Head Office,80.48,0.0,17,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0169,Payment,Jakarta Branch,21.47,0.0,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0170,Payment,Bandung Branch,124.24,0.0,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0171,Payment,Jakarta Branch,60.47,0.0,9,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0172,Payment,Head Office,3.86,0.0,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0173,IT Control,Head Office,0.0,0.0,22,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0174,IT Control,Surabaya Branch,0.0,0.0,17,Lengkap,1,Tidak,1,1,-
+BANK-TRX-0175,Treasury,Medan Branch,1265.6,0.0,4,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0176,Lending,Jakarta Branch,432.4,12.44,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0177,Payment,Jakarta Branch,21.19,0.0,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0178,Funding,Bandung Branch,454.77,4.55,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0179,IT Control,Head Office,0.0,0.0,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0180,Funding,Jakarta Branch,215.71,4.03,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0181,Funding,Head Office,566.78,3.82,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0182,Funding,Jakarta Branch,791.11,3.74,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0183,Treasury,Surabaya Branch,1251.32,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0184,IT Control,Medan Branch,0.0,0.0,16,Lengkap,2,Tidak,2,2,-
+BANK-TRX-0185,Funding,Jakarta Branch,301.48,5.76,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0186,Payment,Head Office,14.72,0.0,15,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0187,KYC,Surabaya Branch,0.0,0.0,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0188,Funding,Jakarta Branch,104.99,11.52,14,Lengkap,0,Ya (Anomali),4,5,Bunga Funding tidak wajar (11.52%)
+BANK-TRX-0189,Treasury,Bandung Branch,3901.0,0.0,2,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0190,IT Control,Medan Branch,0.0,0.0,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0191,Treasury,Jakarta Branch,1559.33,0.0,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0192,Funding,Surabaya Branch,1199.41,5.58,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0193,IT Control,Bandung Branch,0.0,0.0,8,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0194,KYC,Surabaya Branch,0.0,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0195,Funding,Surabaya Branch,63.85,5.32,12,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0196,Treasury,Bandung Branch,1179.2,0.0,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0197,Lending,Surabaya Branch,668.89,14.98,2,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0198,Payment,Bandung Branch,40.56,0.0,6,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0199,Treasury,Jakarta Branch,3141.01,0.0,20,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0200,IT Control,Bandung Branch,0.0,0.0,17,Lengkap,1,Tidak,2,1,-
+BANK-TRX-0201,Funding,Bandung Branch,255.01,5.59,2,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0202,Payment,Medan Branch,88.59,0.0,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0203,Funding,Bandung Branch,311.79,4.31,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0204,IT Control,Bandung Branch,0.0,0.0,6,Lengkap,5,Ya (Anomali),4,5,Indikasi Brute Force / Gagal Login Tinggi (5 kali)
+BANK-TRX-0205,Funding,Jakarta Branch,379.96,4.63,8,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0206,Lending,Medan Branch,451.49,14.84,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0207,Payment,Head Office,206.42,0.0,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0208,Payment,Jakarta Branch,29.21,0.0,6,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0209,IT Control,Jakarta Branch,0.0,0.0,23,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0210,Lending,Head Office,1051.84,13.13,13,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0211,Treasury,Bandung Branch,1390.1,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0212,Funding,Surabaya Branch,216.02,3.91,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0213,KYC,Medan Branch,0.0,0.0,5,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0214,Funding,Surabaya Branch,314.33,2.34,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0215,Funding,Head Office,239.82,2.88,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0216,Treasury,Jakarta Branch,1471.0,0.0,12,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0217,Funding,Jakarta Branch,63.15,5.73,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0218,Lending,Medan Branch,133.2,14.66,3,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0219,Lending,Jakarta Branch,1168.31,12.81,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0220,Payment,Jakarta Branch,2379.5,0.0,4,Lengkap,0,Ya (Anomali),3,5,Transfer Payment jumlah besar di dini hari (Jam 4)
+BANK-TRX-0221,IT Control,Medan Branch,0.0,0.0,0,Lengkap,1,Tidak,1,1,-
+BANK-TRX-0222,KYC,Medan Branch,0.0,0.0,3,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0223,Funding,Head Office,896.81,3.61,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0224,Funding,Jakarta Branch,147.41,3.49,8,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0225,Treasury,Jakarta Branch,1566.05,0.0,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0226,IT Control,Head Office,0.0,0.0,0,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0227,Lending,Bandung Branch,1856.21,6.16,5,Lengkap,0,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (6.16%)
+BANK-TRX-0228,KYC,Bandung Branch,0.0,0.0,8,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0229,Payment,Bandung Branch,66.74,0.0,6,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0230,Lending,Head Office,2822.72,16.43,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0231,IT Control,Jakarta Branch,0.0,0.0,12,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0232,Payment,Head Office,38.89,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0233,Treasury,Head Office,3129.78,0.0,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0234,Treasury,Bandung Branch,4078.68,0.0,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0235,Funding,Surabaya Branch,238.24,3.73,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0236,IT Control,Jakarta Branch,0.0,0.0,20,Tidak Lengkap,1,Tidak,2,2,-
+BANK-TRX-0237,KYC,Bandung Branch,0.0,0.0,7,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0238,Payment,Surabaya Branch,20.67,0.0,5,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0239,Lending,Surabaya Branch,3932.97,12.03,7,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0240,IT Control,Medan Branch,0.0,0.0,17,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0241,IT Control,Jakarta Branch,0.0,0.0,2,Tidak Lengkap,1,Tidak,2,2,-
+BANK-TRX-0242,Treasury,Surabaya Branch,3558.46,0.0,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0243,Funding,Bandung Branch,462.58,2.1,11,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0244,Funding,Medan Branch,1394.6,2.48,2,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0245,Payment,Jakarta Branch,13.59,0.0,21,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0246,Treasury,Head Office,1579.8,0.0,5,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0247,IT Control,Bandung Branch,0.0,0.0,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0248,KYC,Surabaya Branch,0.0,0.0,22,Tidak Lengkap,0,Ya (Anomali),5,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0249,Treasury,Surabaya Branch,533.46,0.0,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0250,Payment,Bandung Branch,9.9,0.0,1,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0251,Payment,Surabaya Branch,91.07,0.0,5,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0252,Treasury,Medan Branch,1026.56,0.0,16,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0253,Payment,Jakarta Branch,677.26,0.0,2,Lengkap,0,Ya (Anomali),3,5,Transfer Payment jumlah besar di dini hari (Jam 2)
+BANK-TRX-0254,Treasury,Medan Branch,558.14,0.0,1,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0255,Lending,Surabaya Branch,465.91,20.24,22,Lengkap,0,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (20.24%)
+BANK-TRX-0256,Treasury,Head Office,1143.83,0.0,19,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0257,Treasury,Jakarta Branch,5191.89,0.0,7,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0258,Payment,Jakarta Branch,3.59,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0259,Payment,Bandung Branch,82.9,0.0,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0260,Funding,Bandung Branch,1332.48,8.69,3,Lengkap,0,Ya (Anomali),3,4,Bunga Funding tidak wajar (8.69%)
+BANK-TRX-0261,Funding,Head Office,543.53,3.33,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0262,Lending,Jakarta Branch,762.41,15.64,12,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0263,Funding,Head Office,116.97,2.87,14,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0264,Treasury,Bandung Branch,2085.56,0.0,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0265,Payment,Bandung Branch,27.19,0.0,15,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0266,Funding,Jakarta Branch,439.54,5.31,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0267,Funding,Medan Branch,1865.53,2.99,22,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0268,Lending,Surabaya Branch,230.24,24.01,15,Lengkap,0,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (24.01%)
+BANK-TRX-0269,IT Control,Bandung Branch,0.0,0.0,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0270,Lending,Bandung Branch,866.05,11.83,16,Lengkap,0,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (11.83%)
+BANK-TRX-0271,Treasury,Medan Branch,1904.86,0.0,15,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0272,Payment,Medan Branch,22.68,0.0,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0273,Lending,Head Office,4311.41,15.19,7,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0274,Funding,Head Office,482.18,3.79,19,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0275,Payment,Surabaya Branch,2433.3,0.0,2,Lengkap,0,Ya (Anomali),4,3,Transfer Payment jumlah besar di dini hari (Jam 2)
+BANK-TRX-0276,Payment,Surabaya Branch,6.24,0.0,15,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0277,Funding,Jakarta Branch,318.34,3.01,12,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0278,Lending,Head Office,1618.32,15.26,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0279,Funding,Bandung Branch,31.47,4.05,18,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0280,IT Control,Head Office,0.0,0.0,7,Lengkap,2,Tidak,2,1,-
+BANK-TRX-0281,Payment,Bandung Branch,111.17,0.0,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0282,KYC,Medan Branch,0.0,0.0,4,Tidak Lengkap,0,Ya (Anomali),5,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0283,KYC,Head Office,0.0,0.0,19,Tidak Lengkap,0,Ya (Anomali),5,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0284,Treasury,Medan Branch,6231.58,0.0,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0285,Funding,Surabaya Branch,144.56,4.61,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0286,Funding,Surabaya Branch,604.3,2.49,11,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0287,Treasury,Jakarta Branch,905.34,0.0,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0288,Treasury,Head Office,14340.98,0.0,20,Lengkap,0,Ya (Anomali),4,3,Transaksi Treasury besar di luar jam kerja (Jam 20)
+BANK-TRX-0289,Treasury,Medan Branch,1818.32,0.0,19,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0290,Payment,Bandung Branch,65.41,0.0,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0291,IT Control,Surabaya Branch,0.0,0.0,21,Lengkap,1,Tidak,2,1,-
+BANK-TRX-0292,Funding,Surabaya Branch,90.7,9.73,17,Lengkap,0,Ya (Anomali),3,4,Bunga Funding tidak wajar (9.73%)
+BANK-TRX-0293,Payment,Bandung Branch,81.52,0.0,7,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0294,Treasury,Medan Branch,4315.61,0.0,6,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0295,Funding,Medan Branch,2593.86,5.14,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0296,Payment,Head Office,91.86,0.0,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0297,IT Control,Head Office,0.0,0.0,15,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0298,Payment,Jakarta Branch,130.04,0.0,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0299,IT Control,Surabaya Branch,0.0,0.0,5,Lengkap,4,Ya (Anomali),4,4,Indikasi Brute Force / Gagal Login Tinggi (4 kali)
+BANK-TRX-0300,Treasury,Head Office,1339.32,0.0,19,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0301,IT Control,Medan Branch,0.0,0.0,1,Lengkap,1,Tidak,2,1,-
+BANK-TRX-0302,Funding,Bandung Branch,257.11,2.41,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0303,Treasury,Medan Branch,15682.06,0.0,3,Lengkap,0,Ya (Anomali),4,4,Transaksi Treasury besar di luar jam kerja (Jam 3)
+BANK-TRX-0304,Funding,Surabaya Branch,844.45,2.37,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0305,KYC,Medan Branch,0.0,0.0,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0306,Lending,Jakarta Branch,584.58,16.06,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0307,IT Control,Surabaya Branch,0.0,0.0,12,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0308,Lending,Bandung Branch,184.51,12.69,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0309,Lending,Jakarta Branch,191.73,20.76,8,Lengkap,0,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (20.76%)
+BANK-TRX-0310,IT Control,Surabaya Branch,0.0,0.0,20,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0311,Treasury,Bandung Branch,2294.45,0.0,1,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0312,KYC,Jakarta Branch,0.0,0.0,8,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0313,Funding,Jakarta Branch,425.07,2.48,0,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0314,Payment,Surabaya Branch,28.75,0.0,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0315,Funding,Head Office,559.97,5.12,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0316,Payment,Jakarta Branch,34.87,0.0,19,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0317,Funding,Jakarta Branch,400.42,2.9,22,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0318,IT Control,Bandung Branch,0.0,0.0,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0319,KYC,Medan Branch,0.0,0.0,17,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0320,Payment,Surabaya Branch,186.4,0.0,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0321,Treasury,Surabaya Branch,598.57,0.0,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0322,Funding,Head Office,158.58,4.09,2,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0323,Funding,Head Office,83.57,4.61,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0324,Payment,Surabaya Branch,8.29,0.0,10,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0325,Treasury,Head Office,5266.19,0.0,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0326,Treasury,Bandung Branch,3443.24,0.0,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0327,IT Control,Surabaya Branch,0.0,0.0,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0328,IT Control,Head Office,0.0,0.0,19,Lengkap,2,Tidak,2,1,-
+BANK-TRX-0329,IT Control,Surabaya Branch,0.0,0.0,9,Lengkap,2,Tidak,2,1,-
+BANK-TRX-0330,IT Control,Medan Branch,0.0,0.0,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0331,IT Control,Jakarta Branch,0.0,0.0,14,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0332,IT Control,Surabaya Branch,0.0,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0333,KYC,Jakarta Branch,0.0,0.0,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0334,Treasury,Head Office,12489.54,0.0,5,Lengkap,0,Ya (Anomali),4,3,Transaksi Treasury besar di luar jam kerja (Jam 5)
+BANK-TRX-0335,IT Control,Jakarta Branch,0.0,0.0,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0336,Treasury,Surabaya Branch,1571.69,0.0,12,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0337,Treasury,Medan Branch,1666.91,0.0,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0338,Lending,Head Office,2921.85,16.07,23,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0339,KYC,Surabaya Branch,0.0,0.0,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0340,IT Control,Head Office,0.0,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0341,Funding,Bandung Branch,67.81,3.35,5,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0342,Payment,Jakarta Branch,67.28,0.0,2,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0343,Funding,Bandung Branch,452.22,4.21,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0344,KYC,Surabaya Branch,0.0,0.0,6,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0345,Payment,Medan Branch,39.86,0.0,19,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0346,KYC,Head Office,0.0,0.0,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0347,Treasury,Jakarta Branch,1202.88,0.0,8,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0348,Payment,Head Office,29.35,0.0,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0349,Treasury,Surabaya Branch,6112.49,0.0,20,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0350,Funding,Head Office,41.79,5.31,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0351,Funding,Jakarta Branch,765.01,5.31,1,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0352,Payment,Surabaya Branch,7.64,0.0,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0353,Payment,Head Office,10.75,0.0,2,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0354,IT Control,Medan Branch,0.0,0.0,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0355,KYC,Surabaya Branch,0.0,0.0,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0356,IT Control,Surabaya Branch,0.0,0.0,19,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0357,KYC,Medan Branch,0.0,0.0,17,Tidak Lengkap,0,Ya (Anomali),4,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0358,IT Control,Bandung Branch,0.0,0.0,9,Lengkap,1,Tidak,1,2,-
+BANK-TRX-0359,Treasury,Jakarta Branch,1659.12,0.0,1,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0360,Payment,Bandung Branch,3.81,0.0,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0361,Funding,Head Office,121.89,3.53,0,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0362,KYC,Medan Branch,0.0,0.0,3,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0363,KYC,Bandung Branch,0.0,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0364,Funding,Surabaya Branch,404.49,5.2,0,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0365,IT Control,Head Office,0.0,0.0,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0366,KYC,Head Office,0.0,0.0,15,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0367,Treasury,Bandung Branch,2358.19,0.0,21,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0368,Payment,Bandung Branch,43.39,0.0,13,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0369,Funding,Medan Branch,721.31,4.42,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0370,Payment,Jakarta Branch,2488.25,0.0,2,Tidak Lengkap,0,Ya (Anomali),3,5,Transfer Payment jumlah besar di dini hari (Jam 2)
+BANK-TRX-0371,KYC,Bandung Branch,0.0,0.0,2,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0372,KYC,Bandung Branch,0.0,0.0,8,Tidak Lengkap,0,Ya (Anomali),4,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0373,Funding,Surabaya Branch,241.27,3.93,5,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0374,Treasury,Head Office,16067.34,0.0,12,Lengkap,0,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+BANK-TRX-0375,Lending,Jakarta Branch,2204.01,14.83,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0376,Funding,Surabaya Branch,51.57,9.71,1,Lengkap,0,Ya (Anomali),3,3,Bunga Funding tidak wajar (9.71%)
+BANK-TRX-0377,Lending,Medan Branch,705.65,14.95,7,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0378,IT Control,Medan Branch,0.0,0.0,20,Lengkap,2,Tidak,2,2,-
+BANK-TRX-0379,Lending,Bandung Branch,281.61,22.86,1,Lengkap,0,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (22.86%)
+BANK-TRX-0380,Treasury,Bandung Branch,691.13,0.0,3,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0381,IT Control,Medan Branch,0.0,0.0,14,Lengkap,11,Ya (Anomali),4,5,Indikasi Brute Force / Gagal Login Tinggi (11 kali)
+BANK-TRX-0382,Lending,Bandung Branch,124.3,14.08,3,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0383,IT Control,Jakarta Branch,0.0,0.0,12,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0384,Lending,Bandung Branch,478.87,15.64,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0385,Treasury,Head Office,703.99,0.0,12,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0386,Lending,Bandung Branch,891.71,15.39,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0387,Lending,Surabaya Branch,429.34,12.36,19,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0388,Lending,Jakarta Branch,375.32,16.96,17,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0389,Funding,Surabaya Branch,254.86,2.9,5,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0390,Funding,Surabaya Branch,802.62,2.72,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0391,Funding,Head Office,431.8,3.68,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0392,Treasury,Jakarta Branch,15380.76,0.0,22,Lengkap,0,Ya (Anomali),5,4,Transaksi Treasury besar di luar jam kerja (Jam 22)
+BANK-TRX-0393,IT Control,Jakarta Branch,0.0,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0394,KYC,Jakarta Branch,0.0,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0395,Lending,Jakarta Branch,604.18,15.38,4,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0396,Lending,Jakarta Branch,2216.95,16.75,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0397,Treasury,Head Office,967.18,0.0,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0398,Lending,Bandung Branch,641.95,14.42,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0399,Funding,Surabaya Branch,88.05,4.3,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0400,KYC,Jakarta Branch,0.0,0.0,10,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0401,Payment,Bandung Branch,68.79,0.0,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0402,Lending,Bandung Branch,929.87,15.9,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0403,Funding,Surabaya Branch,795.42,4.27,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0404,Payment,Head Office,34.49,0.0,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0405,KYC,Medan Branch,0.0,0.0,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0406,Payment,Medan Branch,37.05,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0407,Funding,Bandung Branch,168.17,3.98,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0408,IT Control,Surabaya Branch,0.0,0.0,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0409,IT Control,Medan Branch,0.0,0.0,20,Lengkap,5,Ya (Anomali),5,4,Indikasi Brute Force / Gagal Login Tinggi (5 kali)
+BANK-TRX-0410,Payment,Bandung Branch,7.7,0.0,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0411,Treasury,Head Office,1144.65,0.0,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0412,Payment,Medan Branch,45.35,0.0,18,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0413,Lending,Bandung Branch,1045.84,16.04,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0414,Lending,Bandung Branch,279.87,13.64,15,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0415,IT Control,Jakarta Branch,0.0,0.0,15,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0416,Treasury,Head Office,17473.11,0.0,0,Lengkap,0,Ya (Anomali),4,4,Transaksi Treasury besar di luar jam kerja (Jam 0)
+BANK-TRX-0417,Funding,Jakarta Branch,627.46,5.09,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0418,Lending,Surabaya Branch,1028.46,13.8,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0419,IT Control,Jakarta Branch,0.0,0.0,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0420,KYC,Jakarta Branch,0.0,0.0,7,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0421,IT Control,Medan Branch,0.0,0.0,16,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0422,Lending,Bandung Branch,1793.25,18.75,4,Lengkap,0,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (18.75%)
+BANK-TRX-0423,Lending,Head Office,158.81,13.6,6,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0424,IT Control,Jakarta Branch,0.0,0.0,19,Lengkap,7,Ya (Anomali),5,4,Indikasi Brute Force / Gagal Login Tinggi (7 kali)
+BANK-TRX-0425,Funding,Head Office,709.49,2.96,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0426,Payment,Jakarta Branch,27.44,0.0,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0427,Lending,Surabaya Branch,2826.38,15.23,5,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0428,IT Control,Jakarta Branch,0.0,0.0,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0429,IT Control,Medan Branch,0.0,0.0,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0430,Treasury,Bandung Branch,3113.56,0.0,4,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0431,Payment,Surabaya Branch,36.1,0.0,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0432,KYC,Jakarta Branch,0.0,0.0,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0433,Funding,Head Office,259.87,2.93,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0434,KYC,Surabaya Branch,0.0,0.0,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0435,Payment,Surabaya Branch,24.12,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0436,Payment,Jakarta Branch,94.58,0.0,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0437,Payment,Surabaya Branch,24.63,0.0,4,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0438,KYC,Head Office,0.0,0.0,21,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0439,Payment,Surabaya Branch,15.29,0.0,4,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0440,IT Control,Head Office,0.0,0.0,22,Tidak Lengkap,1,Tidak,2,1,-
+BANK-TRX-0441,KYC,Jakarta Branch,0.0,0.0,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0442,Payment,Bandung Branch,8.93,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0443,IT Control,Surabaya Branch,0.0,0.0,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0444,Treasury,Bandung Branch,2575.36,0.0,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0445,Payment,Head Office,19.7,0.0,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0446,KYC,Surabaya Branch,0.0,0.0,20,Tidak Lengkap,0,Ya (Anomali),5,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0447,Lending,Medan Branch,1493.62,15.31,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0448,Payment,Bandung Branch,19.77,0.0,22,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0449,Lending,Surabaya Branch,1454.71,15.53,23,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0450,IT Control,Bandung Branch,0.0,0.0,6,Lengkap,1,Tidak,2,1,-
+BANK-TRX-0451,Treasury,Surabaya Branch,3027.91,0.0,4,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0452,Funding,Jakarta Branch,92.13,3.53,0,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0453,Treasury,Bandung Branch,919.46,0.0,12,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0454,Payment,Medan Branch,47.36,0.0,20,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0455,Lending,Medan Branch,1335.77,22.4,17,Lengkap,0,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (22.4%)
+BANK-TRX-0456,Lending,Head Office,1392.34,11.12,12,Tidak Lengkap,0,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (11.12%) & Dokumen Kredit Tidak Lengkap
+BANK-TRX-0457,KYC,Surabaya Branch,0.0,0.0,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0458,Lending,Bandung Branch,386.07,13.35,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0459,KYC,Head Office,0.0,0.0,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0460,IT Control,Bandung Branch,0.0,0.0,4,Lengkap,4,Ya (Anomali),4,4,Indikasi Brute Force / Gagal Login Tinggi (4 kali)
+BANK-TRX-0461,Funding,Surabaya Branch,374.93,3.02,12,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0462,Payment,Medan Branch,1048.5,0.0,3,Lengkap,0,Ya (Anomali),3,4,Transfer Payment jumlah besar di dini hari (Jam 3)
+BANK-TRX-0463,KYC,Jakarta Branch,0.0,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0464,Funding,Medan Branch,1016.95,3.81,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0465,Lending,Head Office,1801.68,14.05,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0466,Lending,Jakarta Branch,247.76,15.37,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0467,Funding,Head Office,540.58,5.72,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0468,Lending,Surabaya Branch,400.57,8.94,19,Lengkap,0,Ya (Anomali),4,3,Bunga Kredit terlalu rendah (8.94%)
+BANK-TRX-0469,IT Control,Jakarta Branch,0.0,0.0,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0470,IT Control,Head Office,0.0,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0471,Funding,Surabaya Branch,1044.51,4.93,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0472,KYC,Medan Branch,0.0,0.0,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0473,KYC,Surabaya Branch,0.0,0.0,19,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0474,Funding,Bandung Branch,620.67,4.98,15,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0475,KYC,Surabaya Branch,0.0,0.0,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0476,KYC,Surabaya Branch,0.0,0.0,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0477,IT Control,Bandung Branch,0.0,0.0,2,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0478,KYC,Head Office,0.0,0.0,8,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0479,Treasury,Head Office,2820.0,0.0,19,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0480,Payment,Surabaya Branch,75.18,0.0,5,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0481,Lending,Bandung Branch,138.43,14.67,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0482,Treasury,Bandung Branch,2153.03,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0483,KYC,Medan Branch,0.0,0.0,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0484,IT Control,Head Office,0.0,0.0,12,Lengkap,1,Tidak,1,2,-
+BANK-TRX-0485,Funding,Jakarta Branch,197.17,5.44,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0486,KYC,Head Office,0.0,0.0,8,Tidak Lengkap,0,Ya (Anomali),5,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0487,IT Control,Head Office,0.0,0.0,16,Lengkap,2,Tidak,1,2,-
+BANK-TRX-0488,Payment,Medan Branch,39.56,0.0,23,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0489,KYC,Jakarta Branch,0.0,0.0,8,Tidak Lengkap,0,Ya (Anomali),5,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0490,Funding,Medan Branch,1897.04,3.75,8,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0491,IT Control,Jakarta Branch,0.0,0.0,0,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0492,IT Control,Surabaya Branch,0.0,0.0,1,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0493,IT Control,Jakarta Branch,0.0,0.0,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0494,Payment,Medan Branch,64.28,0.0,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0495,KYC,Head Office,0.0,0.0,9,Tidak Lengkap,0,Ya (Anomali),5,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0496,Payment,Jakarta Branch,101.0,0.0,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0497,Lending,Jakarta Branch,1438.95,14.38,7,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0498,Lending,Bandung Branch,338.62,21.07,20,Lengkap,0,Ya (Anomali),4,3,Bunga Kredit terlalu tinggi (21.07%)
+BANK-TRX-0499,KYC,Head Office,0.0,0.0,10,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0500,Payment,Surabaya Branch,36.03,0.0,22,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0501,Funding,Medan Branch,294.8,5.02,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0502,IT Control,Surabaya Branch,0.0,0.0,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0503,IT Control,Head Office,0.0,0.0,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0504,KYC,Jakarta Branch,0.0,0.0,7,Tidak Lengkap,0,Ya (Anomali),5,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0505,Lending,Jakarta Branch,305.75,13.1,16,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0506,Lending,Head Office,3593.84,13.3,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0507,IT Control,Jakarta Branch,0.0,0.0,16,Lengkap,1,Tidak,2,1,-
+BANK-TRX-0508,KYC,Jakarta Branch,0.0,0.0,22,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0509,Payment,Jakarta Branch,36.48,0.0,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0510,Lending,Medan Branch,1560.89,14.39,12,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0511,Payment,Medan Branch,30.92,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0512,Lending,Bandung Branch,1292.58,16.13,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0513,Lending,Surabaya Branch,1212.93,14.81,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0514,Treasury,Head Office,3983.73,0.0,0,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0515,Lending,Head Office,655.12,13.21,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0516,Funding,Head Office,1351.21,4.26,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0517,KYC,Bandung Branch,0.0,0.0,7,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0518,KYC,Medan Branch,0.0,0.0,12,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0519,Payment,Bandung Branch,32.98,0.0,7,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0520,Lending,Head Office,322.33,14.07,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0521,Funding,Surabaya Branch,960.89,4.3,10,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0522,Payment,Jakarta Branch,5.55,0.0,0,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0523,Treasury,Medan Branch,964.01,0.0,12,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0524,Payment,Medan Branch,95.5,0.0,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0525,Payment,Bandung Branch,84.65,0.0,23,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0526,Lending,Medan Branch,971.23,14.85,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0527,Treasury,Head Office,1673.15,0.0,23,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0528,Payment,Head Office,105.62,0.0,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0529,Funding,Bandung Branch,112.36,4.4,4,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0530,Funding,Head Office,348.59,2.02,19,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0531,KYC,Surabaya Branch,0.0,0.0,20,Tidak Lengkap,0,Ya (Anomali),4,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0532,Treasury,Bandung Branch,988.17,0.0,7,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0533,Treasury,Surabaya Branch,1836.46,0.0,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0534,KYC,Jakarta Branch,0.0,0.0,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0535,Payment,Surabaya Branch,11.56,0.0,10,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0536,Treasury,Jakarta Branch,1211.16,0.0,19,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0537,Funding,Jakarta Branch,795.56,4.9,14,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0538,Funding,Surabaya Branch,459.88,5.17,18,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0539,Lending,Bandung Branch,1465.81,12.21,6,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0540,Treasury,Head Office,629.09,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0541,Payment,Head Office,32.2,0.0,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0542,KYC,Jakarta Branch,0.0,0.0,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0543,KYC,Jakarta Branch,0.0,0.0,4,Tidak Lengkap,0,Ya (Anomali),5,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0544,Payment,Bandung Branch,2.36,0.0,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0545,IT Control,Medan Branch,0.0,0.0,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0546,Lending,Surabaya Branch,456.2,16.03,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0547,KYC,Jakarta Branch,0.0,0.0,9,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0548,Treasury,Head Office,2697.61,0.0,5,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0549,Lending,Bandung Branch,122.33,12.27,14,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0550,Treasury,Surabaya Branch,1481.05,0.0,15,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0551,Funding,Bandung Branch,1396.11,5.43,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0552,Lending,Surabaya Branch,641.79,16.28,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0553,KYC,Surabaya Branch,0.0,0.0,7,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0554,Lending,Jakarta Branch,214.46,12.89,8,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0555,Lending,Bandung Branch,312.87,13.63,1,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0556,Lending,Bandung Branch,2006.54,9.69,14,Lengkap,0,Ya (Anomali),4,4,Bunga Kredit terlalu rendah (9.69%)
+BANK-TRX-0557,IT Control,Head Office,0.0,0.0,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0558,Lending,Head Office,437.54,12.7,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0559,Treasury,Jakarta Branch,4122.26,0.0,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0560,Funding,Jakarta Branch,182.83,4.95,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0561,Payment,Medan Branch,2895.0,0.0,3,Lengkap,0,Ya (Anomali),4,4,Transfer Payment jumlah besar di dini hari (Jam 3)
+BANK-TRX-0562,Lending,Head Office,1769.04,15.96,13,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0563,KYC,Surabaya Branch,0.0,0.0,8,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0564,Lending,Bandung Branch,2386.27,15.56,8,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0565,KYC,Jakarta Branch,0.0,0.0,22,Tidak Lengkap,0,Ya (Anomali),5,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0566,Treasury,Bandung Branch,1296.14,0.0,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0567,KYC,Bandung Branch,0.0,0.0,9,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0568,Payment,Medan Branch,17.4,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0569,Funding,Head Office,148.85,5.25,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0570,KYC,Jakarta Branch,0.0,0.0,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0571,KYC,Bandung Branch,0.0,0.0,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0572,Funding,Jakarta Branch,36.13,2.55,1,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0573,Payment,Surabaya Branch,17.98,0.0,21,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0574,Lending,Medan Branch,479.79,16.31,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0575,KYC,Surabaya Branch,0.0,0.0,20,Tidak Lengkap,0,Ya (Anomali),4,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0576,Funding,Jakarta Branch,558.52,3.3,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0577,Treasury,Jakarta Branch,1160.76,0.0,1,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0578,Funding,Head Office,693.45,5.13,10,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0579,Treasury,Bandung Branch,742.61,0.0,9,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0580,Payment,Bandung Branch,24.74,0.0,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0581,Lending,Surabaya Branch,614.68,15.96,16,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0582,Funding,Medan Branch,396.5,4.88,7,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0583,IT Control,Bandung Branch,0.0,0.0,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0584,KYC,Head Office,0.0,0.0,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0585,Payment,Surabaya Branch,54.04,0.0,8,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0586,Funding,Surabaya Branch,131.56,5.54,7,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0587,KYC,Head Office,0.0,0.0,13,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0588,Funding,Medan Branch,167.46,4.07,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0589,Treasury,Head Office,2811.47,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0590,Funding,Medan Branch,93.02,7.57,19,Lengkap,0,Ya (Anomali),4,3,Bunga Funding tidak wajar (7.57%)
+BANK-TRX-0591,IT Control,Head Office,0.0,0.0,19,Lengkap,6,Ya (Anomali),4,4,Indikasi Brute Force / Gagal Login Tinggi (6 kali)
+BANK-TRX-0592,Funding,Head Office,361.54,11.82,20,Lengkap,0,Ya (Anomali),3,3,Bunga Funding tidak wajar (11.82%)
+BANK-TRX-0593,Funding,Jakarta Branch,574.61,2.32,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0594,IT Control,Surabaya Branch,0.0,0.0,18,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0595,Payment,Head Office,27.08,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0596,Funding,Head Office,488.43,5.6,16,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0597,IT Control,Bandung Branch,0.0,0.0,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0598,KYC,Surabaya Branch,0.0,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0599,Treasury,Bandung Branch,906.79,0.0,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0600,Treasury,Surabaya Branch,1011.82,0.0,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0601,Funding,Bandung Branch,316.08,3.3,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0602,Payment,Head Office,12.73,0.0,16,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0603,Payment,Head Office,74.28,0.0,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0604,KYC,Jakarta Branch,0.0,0.0,8,Tidak Lengkap,0,Ya (Anomali),4,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0605,Funding,Bandung Branch,46529.19,5.27,14,Lengkap,0,Ya (Anomali),4,5,Penempatan Funding/Penarikan sangat besar
+BANK-TRX-0606,Treasury,Medan Branch,5978.91,0.0,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0607,Payment,Jakarta Branch,57.45,0.0,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0608,Funding,Bandung Branch,201.86,3.1,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0609,Payment,Bandung Branch,133.54,0.0,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0610,IT Control,Jakarta Branch,0.0,0.0,7,Lengkap,6,Ya (Anomali),5,4,Indikasi Brute Force / Gagal Login Tinggi (6 kali)
+BANK-TRX-0611,Payment,Head Office,155.56,0.0,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0612,Treasury,Bandung Branch,1327.44,0.0,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0613,Lending,Head Office,1122.71,15.14,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0614,KYC,Jakarta Branch,0.0,0.0,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0615,KYC,Head Office,0.0,0.0,22,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0616,Treasury,Surabaya Branch,1843.66,0.0,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0617,Payment,Medan Branch,18.24,0.0,10,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0618,Funding,Bandung Branch,230.51,3.16,21,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0619,Payment,Medan Branch,154.9,0.0,21,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0620,Treasury,Head Office,20084.17,0.0,10,Lengkap,0,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+BANK-TRX-0621,KYC,Bandung Branch,0.0,0.0,21,Tidak Lengkap,0,Ya (Anomali),4,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0622,Payment,Head Office,15.81,0.0,12,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0623,KYC,Surabaya Branch,0.0,0.0,17,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0624,Funding,Jakarta Branch,186.05,5.0,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0625,KYC,Bandung Branch,0.0,0.0,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0626,KYC,Surabaya Branch,0.0,0.0,14,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0627,Lending,Surabaya Branch,2894.87,14.22,19,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0628,Lending,Bandung Branch,1268.35,15.78,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0629,IT Control,Head Office,0.0,0.0,14,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0630,Lending,Surabaya Branch,2171.58,15.63,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0631,KYC,Medan Branch,0.0,0.0,22,Tidak Lengkap,0,Ya (Anomali),4,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0632,Treasury,Surabaya Branch,1527.32,0.0,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0633,KYC,Head Office,0.0,0.0,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0634,Treasury,Head Office,886.37,0.0,12,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0635,Treasury,Medan Branch,7743.26,0.0,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0636,Lending,Surabaya Branch,571.37,12.38,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0637,Payment,Head Office,31.51,0.0,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0638,Funding,Bandung Branch,147.02,3.8,0,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0639,Lending,Jakarta Branch,233.13,14.61,23,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0640,Lending,Jakarta Branch,182.53,6.3,2,Lengkap,0,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (6.3%)
+BANK-TRX-0641,Payment,Jakarta Branch,31.54,0.0,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0642,Funding,Surabaya Branch,470.17,2.45,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0643,KYC,Medan Branch,0.0,0.0,22,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0644,IT Control,Head Office,0.0,0.0,6,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0645,IT Control,Bandung Branch,0.0,0.0,11,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0646,KYC,Bandung Branch,0.0,0.0,14,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0647,Lending,Surabaya Branch,2311.29,14.74,4,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0648,Funding,Jakarta Branch,1519.78,3.3,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0649,Lending,Surabaya Branch,1818.09,14.94,7,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0650,Treasury,Medan Branch,3118.68,0.0,9,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0651,Lending,Medan Branch,222.58,12.37,15,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0652,Lending,Head Office,599.08,15.56,7,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0653,KYC,Head Office,0.0,0.0,0,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0654,KYC,Medan Branch,0.0,0.0,11,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0655,KYC,Medan Branch,0.0,0.0,4,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0656,IT Control,Medan Branch,0.0,0.0,2,Lengkap,1,Tidak,2,2,-
+BANK-TRX-0657,Treasury,Surabaya Branch,2027.74,0.0,0,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0658,KYC,Medan Branch,0.0,0.0,3,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0659,Funding,Bandung Branch,135.06,5.82,7,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0660,IT Control,Jakarta Branch,0.0,0.0,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0661,Payment,Medan Branch,94.22,0.0,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0662,Funding,Jakarta Branch,15333.07,2.42,1,Lengkap,0,Ya (Anomali),4,5,Penempatan Funding/Penarikan sangat besar
+BANK-TRX-0663,Funding,Surabaya Branch,213.06,3.54,10,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0664,KYC,Jakarta Branch,0.0,0.0,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0665,Payment,Surabaya Branch,43.96,0.0,20,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0666,Payment,Bandung Branch,14.61,0.0,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0667,IT Control,Surabaya Branch,0.0,0.0,6,Tidak Lengkap,10,Ya (Anomali),5,5,Indikasi Brute Force / Gagal Login Tinggi (10 kali)
+BANK-TRX-0668,Payment,Surabaya Branch,171.51,0.0,1,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0669,Treasury,Head Office,800.37,0.0,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0670,KYC,Medan Branch,0.0,0.0,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0671,Payment,Medan Branch,24.26,0.0,12,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0672,IT Control,Bandung Branch,0.0,0.0,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0673,Treasury,Bandung Branch,7306.45,0.0,19,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0674,Lending,Medan Branch,2359.1,13.74,3,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0675,Lending,Head Office,846.75,13.6,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0676,Treasury,Medan Branch,15739.42,0.0,9,Tidak Lengkap,0,Ya (Anomali),5,3,Nilai Transaksi Treasury melebihi limit wajar
+BANK-TRX-0677,IT Control,Head Office,0.0,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0678,Treasury,Bandung Branch,1273.48,0.0,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0679,KYC,Jakarta Branch,0.0,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0680,KYC,Bandung Branch,0.0,0.0,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0681,Lending,Bandung Branch,376.55,16.92,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0682,Payment,Surabaya Branch,3545.93,0.0,1,Lengkap,0,Ya (Anomali),4,4,Transfer Payment jumlah besar di dini hari (Jam 1)
+BANK-TRX-0683,IT Control,Surabaya Branch,0.0,0.0,20,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0684,Lending,Surabaya Branch,1956.7,12.15,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0685,Payment,Surabaya Branch,8.18,0.0,10,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0686,Payment,Head Office,12.1,0.0,15,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0687,KYC,Medan Branch,0.0,0.0,18,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0688,Funding,Jakarta Branch,136.4,3.16,22,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0689,Funding,Bandung Branch,122.6,4.82,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0690,Treasury,Head Office,7997.81,0.0,23,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0691,KYC,Jakarta Branch,0.0,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0692,Payment,Head Office,20.06,0.0,4,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0693,IT Control,Head Office,0.0,0.0,3,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0694,Funding,Bandung Branch,581.15,3.44,14,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0695,Payment,Medan Branch,2341.32,0.0,3,Lengkap,0,Ya (Anomali),4,5,Transfer Payment jumlah besar di dini hari (Jam 3)
+BANK-TRX-0696,Funding,Surabaya Branch,73.7,3.78,19,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0697,Funding,Medan Branch,1202.55,5.94,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0698,Funding,Bandung Branch,420.8,2.42,23,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0699,IT Control,Bandung Branch,0.0,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0700,KYC,Bandung Branch,0.0,0.0,2,Tidak Lengkap,0,Ya (Anomali),5,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0701,IT Control,Jakarta Branch,0.0,0.0,4,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0702,Lending,Medan Branch,688.12,7.05,5,Lengkap,0,Ya (Anomali),5,3,Bunga Kredit terlalu rendah (7.05%)
+BANK-TRX-0703,Payment,Medan Branch,53.85,0.0,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0704,KYC,Head Office,0.0,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0705,KYC,Head Office,0.0,0.0,7,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0706,KYC,Head Office,0.0,0.0,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0707,KYC,Bandung Branch,0.0,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0708,IT Control,Medan Branch,0.0,0.0,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0709,KYC,Bandung Branch,0.0,0.0,5,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0710,Treasury,Jakarta Branch,1117.29,0.0,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0711,Payment,Head Office,4397.83,0.0,3,Lengkap,0,Ya (Anomali),3,5,Transfer Payment jumlah besar di dini hari (Jam 3)
+BANK-TRX-0712,KYC,Bandung Branch,0.0,0.0,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0713,Payment,Bandung Branch,348.93,0.0,19,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0714,Treasury,Jakarta Branch,2259.12,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0715,Treasury,Surabaya Branch,2698.84,0.0,22,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0716,Payment,Medan Branch,29.61,0.0,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0717,Funding,Surabaya Branch,189.71,4.57,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0718,Lending,Head Office,2396.73,14.22,13,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0719,Funding,Bandung Branch,1744.87,5.28,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0720,Funding,Jakarta Branch,1346.69,4.29,23,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0721,IT Control,Jakarta Branch,0.0,0.0,4,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0722,Funding,Medan Branch,530.98,4.41,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0723,KYC,Surabaya Branch,0.0,0.0,22,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0724,IT Control,Medan Branch,0.0,0.0,19,Lengkap,7,Ya (Anomali),4,4,Indikasi Brute Force / Gagal Login Tinggi (7 kali)
+BANK-TRX-0725,IT Control,Bandung Branch,0.0,0.0,3,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0726,Treasury,Medan Branch,8589.12,0.0,23,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0727,Funding,Jakarta Branch,224.94,2.16,23,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0728,Treasury,Jakarta Branch,11403.42,0.0,1,Tidak Lengkap,0,Ya (Anomali),5,3,Transaksi Treasury besar di luar jam kerja (Jam 1)
+BANK-TRX-0729,Payment,Head Office,52.23,0.0,17,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0730,Lending,Head Office,3696.05,12.33,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0731,IT Control,Bandung Branch,0.0,0.0,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0732,Payment,Surabaya Branch,63.82,0.0,16,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0733,Payment,Medan Branch,7.69,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0734,KYC,Bandung Branch,0.0,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0735,Lending,Head Office,696.09,16.45,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0736,Payment,Medan Branch,56.55,0.0,23,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0737,Payment,Head Office,28.35,0.0,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0738,Lending,Medan Branch,899.78,13.22,11,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0739,Lending,Surabaya Branch,1817.62,16.56,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0740,Payment,Bandung Branch,93.81,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0741,Lending,Medan Branch,195.8,14.73,3,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0742,Payment,Jakarta Branch,11.33,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0743,Payment,Jakarta Branch,3.93,0.0,15,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0744,KYC,Medan Branch,0.0,0.0,12,Tidak Lengkap,0,Ya (Anomali),5,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0745,Funding,Medan Branch,197.81,5.28,3,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0746,Payment,Medan Branch,17.02,0.0,22,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0747,Treasury,Jakarta Branch,2465.13,0.0,16,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0748,IT Control,Jakarta Branch,0.0,0.0,22,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0749,Funding,Medan Branch,69.55,2.5,0,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0750,Funding,Head Office,494.9,5.85,17,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0751,Funding,Head Office,432.27,5.25,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0752,KYC,Surabaya Branch,0.0,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0753,Payment,Bandung Branch,3.89,0.0,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0754,KYC,Head Office,0.0,0.0,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0755,Payment,Jakarta Branch,19.86,0.0,21,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0756,KYC,Head Office,0.0,0.0,12,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0757,KYC,Surabaya Branch,0.0,0.0,0,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0758,IT Control,Surabaya Branch,0.0,0.0,16,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0759,Treasury,Bandung Branch,975.79,0.0,5,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0760,KYC,Head Office,0.0,0.0,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0761,IT Control,Jakarta Branch,0.0,0.0,19,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0762,Lending,Jakarta Branch,1250.21,12.78,15,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0763,Treasury,Medan Branch,1240.57,0.0,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0764,KYC,Jakarta Branch,0.0,0.0,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0765,Funding,Bandung Branch,218.9,3.18,5,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0766,Lending,Bandung Branch,408.82,16.58,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0767,Lending,Jakarta Branch,2475.0,15.28,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0768,IT Control,Jakarta Branch,0.0,0.0,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0769,Lending,Medan Branch,308.63,13.51,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0770,Treasury,Jakarta Branch,810.66,0.0,8,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0771,KYC,Medan Branch,0.0,0.0,15,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0772,KYC,Medan Branch,0.0,0.0,4,Tidak Lengkap,0,Ya (Anomali),4,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0773,Funding,Jakarta Branch,91.27,2.39,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0774,IT Control,Surabaya Branch,0.0,0.0,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0775,Funding,Surabaya Branch,573.91,4.71,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0776,Lending,Medan Branch,708.01,12.2,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0777,Funding,Jakarta Branch,2391.21,5.33,12,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0778,Treasury,Surabaya Branch,2743.52,0.0,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0779,KYC,Jakarta Branch,0.0,0.0,16,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0780,Lending,Jakarta Branch,213.2,15.99,21,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0781,Funding,Jakarta Branch,497.99,3.53,12,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0782,IT Control,Head Office,0.0,0.0,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0783,Treasury,Jakarta Branch,6152.01,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0784,Treasury,Head Office,3174.49,0.0,12,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0785,Funding,Medan Branch,1216.39,3.07,18,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0786,KYC,Surabaya Branch,0.0,0.0,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0787,Funding,Surabaya Branch,235.26,2.11,18,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0788,Lending,Surabaya Branch,367.92,16.12,9,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0789,Funding,Surabaya Branch,20785.2,4.38,2,Lengkap,0,Ya (Anomali),4,3,Penempatan Funding/Penarikan sangat besar
+BANK-TRX-0790,Treasury,Surabaya Branch,659.81,0.0,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0791,Funding,Surabaya Branch,43.85,2.95,18,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0792,KYC,Surabaya Branch,0.0,0.0,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0793,IT Control,Medan Branch,0.0,0.0,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0794,Payment,Jakarta Branch,12.99,0.0,19,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0795,Funding,Bandung Branch,48.55,3.04,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0796,KYC,Head Office,0.0,0.0,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0797,KYC,Bandung Branch,0.0,0.0,9,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0798,IT Control,Bandung Branch,0.0,0.0,4,Tidak Lengkap,9,Ya (Anomali),4,5,Indikasi Brute Force / Gagal Login Tinggi (9 kali)
+BANK-TRX-0799,Treasury,Jakarta Branch,2238.66,0.0,3,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0800,KYC,Jakarta Branch,0.0,0.0,5,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0801,KYC,Jakarta Branch,0.0,0.0,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0802,KYC,Surabaya Branch,0.0,0.0,6,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0803,KYC,Medan Branch,0.0,0.0,6,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0804,Lending,Surabaya Branch,865.29,13.81,17,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0805,Lending,Medan Branch,665.75,16.08,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0806,Treasury,Medan Branch,4853.59,0.0,0,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0807,Funding,Bandung Branch,270.11,4.52,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0808,KYC,Bandung Branch,0.0,0.0,3,Tidak Lengkap,0,Ya (Anomali),5,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0809,IT Control,Medan Branch,0.0,0.0,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0810,Funding,Medan Branch,88.67,4.02,8,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0811,IT Control,Surabaya Branch,0.0,0.0,21,Lengkap,1,Tidak,2,2,-
+BANK-TRX-0812,Funding,Surabaya Branch,28215.8,2.58,13,Tidak Lengkap,0,Ya (Anomali),4,4,Penempatan Funding/Penarikan sangat besar
+BANK-TRX-0813,Treasury,Bandung Branch,3244.15,0.0,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0814,KYC,Jakarta Branch,0.0,0.0,19,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0815,KYC,Medan Branch,0.0,0.0,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0816,Payment,Surabaya Branch,22.67,0.0,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0817,IT Control,Bandung Branch,0.0,0.0,20,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0818,Funding,Surabaya Branch,12229.12,2.12,23,Lengkap,0,Ya (Anomali),4,3,Penempatan Funding/Penarikan sangat besar
+BANK-TRX-0819,Funding,Medan Branch,332.65,3.92,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0820,Lending,Medan Branch,699.89,16.0,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0821,Payment,Head Office,34.9,0.0,21,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0822,Lending,Jakarta Branch,2563.25,13.23,6,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0823,Lending,Head Office,1098.44,14.67,2,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0824,Lending,Bandung Branch,204.41,13.88,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0825,IT Control,Surabaya Branch,0.0,0.0,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0826,IT Control,Bandung Branch,0.0,0.0,23,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0827,Treasury,Medan Branch,1585.75,0.0,9,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0828,Treasury,Head Office,8843.65,0.0,15,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0829,Lending,Head Office,215.95,14.93,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0830,Payment,Head Office,53.21,0.0,21,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0831,Funding,Bandung Branch,559.54,5.11,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0832,IT Control,Medan Branch,0.0,0.0,12,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0833,Payment,Surabaya Branch,222.2,0.0,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0834,KYC,Surabaya Branch,0.0,0.0,11,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0835,IT Control,Bandung Branch,0.0,0.0,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0836,IT Control,Head Office,0.0,0.0,12,Lengkap,13,Ya (Anomali),4,5,Indikasi Brute Force / Gagal Login Tinggi (13 kali)
+BANK-TRX-0837,Treasury,Jakarta Branch,1211.8,0.0,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0838,Funding,Bandung Branch,262.07,5.43,23,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0839,Funding,Bandung Branch,16.01,4.97,10,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0840,KYC,Medan Branch,0.0,0.0,19,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0841,KYC,Surabaya Branch,0.0,0.0,17,Tidak Lengkap,0,Ya (Anomali),4,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0842,IT Control,Bandung Branch,0.0,0.0,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0843,Lending,Bandung Branch,1215.8,12.4,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0844,Treasury,Head Office,985.7,0.0,3,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0845,Treasury,Head Office,2061.89,0.0,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0846,IT Control,Jakarta Branch,0.0,0.0,0,Lengkap,1,Tidak,1,1,-
+BANK-TRX-0847,Payment,Medan Branch,24.66,0.0,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0848,Lending,Jakarta Branch,4166.35,14.0,5,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0849,IT Control,Head Office,0.0,0.0,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0850,Lending,Surabaya Branch,1014.69,12.25,17,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0851,Lending,Head Office,1350.74,16.52,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0852,Lending,Medan Branch,1550.48,12.63,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0853,IT Control,Head Office,0.0,0.0,19,Tidak Lengkap,1,Tidak,1,1,-
+BANK-TRX-0854,Treasury,Medan Branch,979.14,0.0,23,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0855,Treasury,Medan Branch,2560.38,0.0,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0856,Lending,Medan Branch,131.84,24.48,15,Lengkap,0,Ya (Anomali),4,4,Bunga Kredit terlalu tinggi (24.48%)
+BANK-TRX-0857,Payment,Medan Branch,101.66,0.0,6,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0858,Funding,Medan Branch,151.01,5.26,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0859,IT Control,Surabaya Branch,0.0,0.0,9,Lengkap,2,Tidak,2,1,-
+BANK-TRX-0860,Funding,Jakarta Branch,296.65,2.32,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0861,Payment,Bandung Branch,48.88,0.0,23,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0862,IT Control,Jakarta Branch,0.0,0.0,13,Lengkap,8,Ya (Anomali),5,5,Indikasi Brute Force / Gagal Login Tinggi (8 kali)
+BANK-TRX-0863,Lending,Medan Branch,235.59,16.37,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0864,Treasury,Surabaya Branch,771.89,0.0,20,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0865,Funding,Head Office,711.21,4.8,17,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0866,KYC,Surabaya Branch,0.0,0.0,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0867,KYC,Medan Branch,0.0,0.0,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0868,Payment,Surabaya Branch,39.36,0.0,22,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0869,Lending,Surabaya Branch,738.47,14.46,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0870,Funding,Medan Branch,258.35,5.33,23,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0871,Lending,Surabaya Branch,372.25,14.86,16,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0872,Funding,Bandung Branch,56.48,3.34,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0873,Payment,Bandung Branch,19.2,0.0,18,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0874,Payment,Surabaya Branch,19.34,0.0,20,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0875,KYC,Head Office,0.0,0.0,11,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0876,Lending,Medan Branch,692.94,13.78,8,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0877,IT Control,Bandung Branch,0.0,0.0,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0878,KYC,Head Office,0.0,0.0,17,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0879,Lending,Surabaya Branch,121.38,15.55,20,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0880,KYC,Head Office,0.0,0.0,3,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0881,IT Control,Jakarta Branch,0.0,0.0,9,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0882,Treasury,Bandung Branch,4328.43,0.0,6,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0883,Treasury,Surabaya Branch,1369.36,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0884,Treasury,Medan Branch,5227.04,0.0,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0885,Treasury,Surabaya Branch,7939.7,0.0,0,Lengkap,0,Ya (Anomali),4,4,Transaksi Treasury besar di luar jam kerja (Jam 0)
+BANK-TRX-0886,Funding,Medan Branch,1283.84,3.51,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0887,Treasury,Surabaya Branch,2924.0,0.0,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0888,IT Control,Head Office,0.0,0.0,1,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0889,Payment,Head Office,7.03,0.0,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0890,Payment,Head Office,82.04,0.0,8,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0891,Funding,Jakarta Branch,82.0,3.2,6,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0892,Treasury,Medan Branch,3323.72,0.0,21,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0893,Treasury,Head Office,536.39,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0894,Treasury,Jakarta Branch,5911.89,0.0,16,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0895,KYC,Medan Branch,0.0,0.0,1,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0896,Lending,Surabaya Branch,2186.93,12.54,5,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0897,KYC,Jakarta Branch,0.0,0.0,13,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0898,Lending,Bandung Branch,3022.24,15.13,5,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0899,Treasury,Jakarta Branch,7810.2,0.0,1,Lengkap,0,Ya (Anomali),4,2,Transaksi Treasury besar di luar jam kerja (Jam 1)
+BANK-TRX-0900,Treasury,Jakarta Branch,3069.86,0.0,0,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0901,KYC,Medan Branch,0.0,0.0,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0902,KYC,Surabaya Branch,0.0,0.0,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0903,Lending,Bandung Branch,771.29,13.27,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0904,Payment,Head Office,3.88,0.0,1,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0905,Lending,Head Office,156.05,15.13,21,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0906,KYC,Jakarta Branch,0.0,0.0,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0907,IT Control,Medan Branch,0.0,0.0,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0908,KYC,Medan Branch,0.0,0.0,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0909,IT Control,Head Office,0.0,0.0,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0910,Funding,Bandung Branch,775.67,5.21,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0911,KYC,Surabaya Branch,0.0,0.0,15,Tidak Lengkap,0,Ya (Anomali),4,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0912,Funding,Bandung Branch,1386.14,5.13,18,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0913,Payment,Surabaya Branch,14.95,0.0,6,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0914,Lending,Head Office,1314.97,12.36,21,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0915,IT Control,Surabaya Branch,0.0,0.0,11,Lengkap,13,Ya (Anomali),5,4,Indikasi Brute Force / Gagal Login Tinggi (13 kali)
+BANK-TRX-0916,Lending,Medan Branch,152.58,14.01,23,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0917,Funding,Jakarta Branch,215.94,3.6,14,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0918,IT Control,Jakarta Branch,0.0,0.0,7,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0919,Lending,Head Office,1701.74,12.76,5,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0920,KYC,Medan Branch,0.0,0.0,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0921,Treasury,Bandung Branch,2478.83,0.0,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0922,Funding,Medan Branch,247.34,5.12,18,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0923,Lending,Jakarta Branch,291.76,14.77,16,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0924,Funding,Jakarta Branch,525.95,4.58,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0925,Funding,Medan Branch,49.83,5.68,20,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0926,IT Control,Medan Branch,0.0,0.0,19,Tidak Lengkap,0,Tidak,2,1,-
+BANK-TRX-0927,IT Control,Jakarta Branch,0.0,0.0,3,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0928,Treasury,Bandung Branch,1746.53,0.0,13,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0929,KYC,Head Office,0.0,0.0,19,Tidak Lengkap,0,Ya (Anomali),4,5,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0930,Funding,Head Office,544.56,4.48,21,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0931,Lending,Medan Branch,2007.42,12.6,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0932,Payment,Head Office,93.43,0.0,23,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0933,Funding,Jakarta Branch,180.53,2.39,7,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0934,Funding,Jakarta Branch,33.94,5.71,20,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0935,Treasury,Medan Branch,2615.29,0.0,14,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0936,KYC,Medan Branch,0.0,0.0,21,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0937,Payment,Medan Branch,88.69,0.0,19,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0938,IT Control,Bandung Branch,0.0,0.0,13,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0939,IT Control,Head Office,0.0,0.0,8,Lengkap,1,Tidak,2,2,-
+BANK-TRX-0940,Lending,Medan Branch,254.07,14.26,7,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0941,Payment,Surabaya Branch,20.26,0.0,16,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0942,IT Control,Surabaya Branch,0.0,0.0,1,Lengkap,11,Ya (Anomali),5,5,Indikasi Brute Force / Gagal Login Tinggi (11 kali)
+BANK-TRX-0943,Lending,Jakarta Branch,121.94,15.52,23,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0944,KYC,Head Office,0.0,0.0,2,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0945,Lending,Medan Branch,550.77,12.07,7,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0946,IT Control,Surabaya Branch,0.0,0.0,11,Lengkap,1,Tidak,1,1,-
+BANK-TRX-0947,Treasury,Head Office,1260.92,0.0,0,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0948,Treasury,Jakarta Branch,2150.84,0.0,9,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0949,Treasury,Bandung Branch,2810.4,0.0,19,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0950,IT Control,Head Office,0.0,0.0,2,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0951,Treasury,Head Office,2709.29,0.0,5,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0952,Payment,Bandung Branch,103.59,0.0,6,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0953,KYC,Head Office,0.0,0.0,19,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0954,Lending,Jakarta Branch,199.15,14.11,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0955,Lending,Jakarta Branch,2405.71,15.81,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0956,IT Control,Bandung Branch,0.0,0.0,10,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0957,Treasury,Medan Branch,3988.78,0.0,18,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0958,Treasury,Surabaya Branch,2893.76,0.0,4,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0959,Funding,Medan Branch,5.08,2.7,18,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0960,KYC,Head Office,0.0,0.0,10,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0961,Payment,Surabaya Branch,156.08,0.0,23,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0962,Lending,Bandung Branch,1987.05,13.05,11,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0963,Funding,Bandung Branch,148.47,4.52,9,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0964,Funding,Surabaya Branch,31.0,4.01,7,Tidak Lengkap,0,Tidak,1,1,-
+BANK-TRX-0965,IT Control,Jakarta Branch,0.0,0.0,23,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0966,Lending,Surabaya Branch,1366.21,14.63,8,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0967,IT Control,Head Office,0.0,0.0,3,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0968,Payment,Jakarta Branch,59.59,0.0,4,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0969,Funding,Bandung Branch,355.0,4.93,20,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0970,Funding,Surabaya Branch,278.25,5.33,7,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0971,KYC,Medan Branch,0.0,0.0,22,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0972,Payment,Medan Branch,30.26,0.0,8,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0973,Funding,Head Office,1255.1,3.77,14,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0974,Payment,Medan Branch,80.55,0.0,14,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0975,Lending,Surabaya Branch,839.63,7.06,15,Lengkap,0,Ya (Anomali),5,4,Bunga Kredit terlalu rendah (7.06%)
+BANK-TRX-0976,Treasury,Surabaya Branch,959.38,0.0,13,Tidak Lengkap,0,Tidak,1,2,-
+BANK-TRX-0977,Funding,Medan Branch,1085.44,3.24,7,Lengkap,0,Tidak,1,1,-
+BANK-TRX-0978,KYC,Surabaya Branch,0.0,0.0,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0979,Lending,Head Office,247.69,16.44,9,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0980,Payment,Jakarta Branch,6.43,0.0,19,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0981,IT Control,Head Office,0.0,0.0,5,Tidak Lengkap,0,Tidak,2,2,-
+BANK-TRX-0982,Lending,Head Office,390.54,15.67,11,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0983,Funding,Surabaya Branch,548.09,4.47,1,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0984,Payment,Jakarta Branch,104.64,0.0,6,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0985,Treasury,Surabaya Branch,1081.78,0.0,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0986,Lending,Bandung Branch,7638.67,12.72,2,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0987,Funding,Surabaya Branch,463.07,7.16,12,Tidak Lengkap,0,Ya (Anomali),5,4,Bunga Funding tidak wajar (7.16%)
+BANK-TRX-0988,KYC,Surabaya Branch,0.0,0.0,2,Tidak Lengkap,0,Ya (Anomali),4,4,Proses KYC disetujui padahal Dokumen Tidak Lengkap
+BANK-TRX-0989,IT Control,Surabaya Branch,0.0,0.0,17,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0990,Payment,Jakarta Branch,108.36,0.0,10,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0991,Lending,Surabaya Branch,2010.34,15.51,7,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0992,Lending,Jakarta Branch,1395.74,16.73,5,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0993,Treasury,Medan Branch,3683.7,0.0,0,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0994,Treasury,Bandung Branch,3302.96,0.0,0,Lengkap,0,Tidak,1,2,-
+BANK-TRX-0995,KYC,Jakarta Branch,0.0,0.0,22,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0996,IT Control,Medan Branch,0.0,0.0,7,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0997,KYC,Jakarta Branch,0.0,0.0,4,Lengkap,0,Tidak,2,1,-
+BANK-TRX-0998,Funding,Jakarta Branch,339.03,3.07,15,Lengkap,0,Tidak,2,2,-
+BANK-TRX-0999,Funding,Bandung Branch,34.03,3.11,10,Lengkap,0,Tidak,2,1,-
+BANK-TRX-1000,KYC,Head Office,0.0,0.0,4,Lengkap,0,Tidak,1,1,-

@@ -45,19 +45,6 @@
           </div>
         </div>
 
-        <div class="space-y-2 pt-2 border-t border-primary-900">
-          <div class="flex justify-between items-center">
-            <span class="text-[10px] font-bold uppercase tracking-wider">Severity Weight</span>
-            <span class="text-md font-bold">{{ risk.severity }}%</span>
-          </div>
-          <UProgress 
-            :value="risk.severity" 
-            size="sm" 
-            color="primary"
-            :ui="{ progress: { background: 'bg-gradient-to-r from-success-500 via-warning-500 to-error-500' } }"
-          />
-        </div>
-
         <div v-if="risk.description" class="pt-3 border-t border-primary-900">
           <p class="text-[11px] leading-relaxed italic">
             {{ risk.description }}

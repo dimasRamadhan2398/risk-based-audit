@@ -334,6 +334,7 @@
         <!-- Actions -->
         <template #actions-cell="{ row }">
           <div class="flex items-center justify-end gap-1">
+            <UTooltip text="Edit Control">
             <UButton
               icon="i-lucide-edit-3"
               color="neutral"
@@ -342,6 +343,8 @@
               title="Edit Control"
               @click="openEditModal(row.original)"
             />
+            </UTooltip>  
+            <UTooltip text="Hapus Control">
             <UButton
               icon="i-lucide-trash-2"
               color="error"
@@ -350,13 +353,24 @@
               title="Hapus Control"
               @click="confirmDelete(row.original.id)"
             />
+            </UTooltip>
           </div>
         </template>
       </TableEntities>
     </div>
 
     <!-- Add / Edit Modal -->
-    <UModal v-model:open="isModalOpen" title="Manage Risk Control Matrix">
+    <UModal 
+      v-model:open="isModalOpen" 
+      title="Manage Risk Control Matrix"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
       <template #content>
         <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
           <h3 class="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -646,6 +660,8 @@ import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import type { RiskMitigation } from '~/types/risk'
+import { useGlobalModalStore } from '~/stores/global-modal'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -654,6 +670,7 @@ definePageMeta({
 const rcmStore = useRCMStore()
 const riskProfileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()
+const toast = useToastNotification()
 
 const searchQuery = ref('')
 const showRatingTable = ref(true)
@@ -662,6 +679,7 @@ const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
 const selectedBranchInModal = ref('All Branches')
+
 
 const branchModalOptions = [
   { label: 'Semua Branch / Departemen', value: 'All Branches' },
@@ -734,6 +752,55 @@ const formData = ref<Partial<RCMItem>>({
   automation_monitoring_weight: 20,
   automation_monitoring_rating: 3,
   notes: ''
+})
+
+const dynamicYears = computed(() => {
+  const years = new Set<number>()
+  
+  riskProfileStore.risks.forEach(risk => {
+    if (risk.assessments) {
+      risk.assessments.forEach((ass: any) => {
+        if (ass.year) years.add(ass.year)
+      })
+    }
+  })
+  
+  if (rcmStore.selectedYear) {
+    years.add(rcmStore.selectedYear)
+  }
+  
+  if (years.size === 0) {
+    years.add(new Date().getFullYear())
+  }
+  
+  return Array.from(years)
+    .sort((a, b) => b - a)
+    .map(y => ({ id: y, label: `Tahun ${y}` }))
+})
+
+const dynamicDepartments = computed(() => {
+  const depts = new Set<string>()
+  
+  riskProfileStore.risks.forEach(risk => {
+    if (risk.branch) {
+      depts.add(risk.branch)
+    } else if (risk.category) {
+      depts.add(risk.category)
+    }
+  })
+  
+  if (rcmStore.selectedDepartment && rcmStore.selectedDepartment !== 'All Departments') {
+    depts.add(rcmStore.selectedDepartment)
+  }
+  
+  if (depts.size === 0) {
+    depts.add('Head Office')
+  }
+  
+  return [
+    { id: 'All Departments', label: 'Semua Departemen / Branch' },
+    ...Array.from(depts).sort().map(d => ({ id: d, label: d }))
+  ]
 })
 
 onMounted(() => {
@@ -918,21 +985,24 @@ const openEditModal = (item: RCMItem) => {
 
 const saveForm = async () => {
   if (!formData.value.risk_code || !formData.value.risk_event || !formData.value.control_description) {
-    alert('Mohon pilih risiko dan lengkapi deskripsi kontrol.')
+    toast.showWarning('Mohon pilih risiko dan lengkapi deskripsi kontrol.')
     return
   }
 
   if (isEditMode.value && formData.value.id) {
     await rcmStore.updateRCMItem(formData.value as RCMItem)
+    toast.showSuccess('Risk Control Matrix berhasil diupdate')
   } else {
     await rcmStore.addRCMItem(formData.value as any)
+    toast.showSuccess('Risk Control Matrix berhasil ditambahkan')
   }
   isModalOpen.value = false
 }
 
 const confirmDelete = async (id: string) => {
-  if (confirm('Apakah Anda yakin ingin menghapus baris Risk Control Matrix ini?')) {
+  if (await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus baris Risk Control Matrix ini?' })) {
     await rcmStore.deleteRCMItem(id)
+    toast.showSuccess('Risk Control Matrix berhasil dihapus')
   }
 }
 </script>

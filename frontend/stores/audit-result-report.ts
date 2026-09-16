@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
 import { useAssignmentLetterStore } from './assignment-letter'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface FindingItem {
   title: string
@@ -24,6 +26,7 @@ export interface AuditResultReport {
 
 export const useAuditResultReportStore = defineStore('audit-result-report', () => {
   const assignmentLetterStore = useAssignmentLetterStore()
+  const toast = useToastNotification()
 
   // State
   const selectedAssignmentLetter = ref<string>('')
@@ -324,7 +327,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       }
     } catch (error) {
       console.error('Failed to fetch reports, falling back to mock data:', error)
-      errorMsg.value = 'Failed to load audit result reports.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to load audit result reports.')
       reportList.value = [...mockReports]
     } finally {
       loading.value = false
@@ -389,9 +392,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       }
       closeModal()
       await fetchReports()
+      toast.showSuccess('Report saved successfully')
     } catch (error: any) {
       console.error('Failed to save report:', error)
-      alert('Failed to save report: ' + error.message)
+      const detail = extractErrorMessage(error, 'Failed to save report.')
+      errorMsg.value = detail
+      toast.showError('Failed to save report', detail)
     } finally {
       loading.value = false
     }
@@ -408,7 +414,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const deleteReport = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this report?')) return
+    if (!await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this report?' })) return
     loading.value = true
     errorMsg.value = ''
     try {
@@ -417,9 +423,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         method: 'DELETE'
       })
       await fetchReports()
+      toast.showSuccess('Report deleted successfully')
     } catch (error: any) {
       console.error('Failed to delete report:', error)
-      alert('Failed to delete report: ' + error.message)
+      const detail = extractErrorMessage(error, 'Failed to delete report.')
+      errorMsg.value = detail
+      toast.showError('Failed to delete report', detail)
     } finally {
       loading.value = false
     }
@@ -443,7 +452,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       window.URL.revokeObjectURL(url)
     } catch (err: any) {
       console.error('Failed to download docx:', err)
-      alert('Gagal mengunduh dokumen Word LHA: ' + (err.message || err))
+      const detail = extractErrorMessage(err, 'Gagal mengunduh dokumen Word LHA.')
+      toast.showError('Gagal mengunduh dokumen Word LHA', detail)
     }
   }
 

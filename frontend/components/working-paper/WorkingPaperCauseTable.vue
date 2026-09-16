@@ -38,9 +38,7 @@
                     <div v-for="rca in row.original.rootCause" :key="rca.id" class="text-[11px] leading-tight border-l-2 border-orange-400 pl-2">
                         <div class="font-bold text-lg text-gray-700">{{ rca.method }}</div>
                     <div class="text-gray-500 text-sm italic">
-                        Why 1: {{ rca.w1 || '-' }} <br>
-                        Why 2: {{ rca.w2 || '-' }} <br>
-                        Why 3: {{ rca.w3 || '-' }}
+                        Why: {{ rca.w1 || '-' }} <br>
                     </div>
                     </div>
                 </div>
@@ -48,22 +46,24 @@
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
+                <UTooltip text="Edit">
                 <UButton 
                     size="md" 
                     color="warning" 
-                    variant="soft" 
-                    icon="i-heroicons-pencil-square" 
+                    variant="ghost" 
+                    icon="i-lucide-edit" 
                     @click="store.handleEditF04(row.original)" 
-                    title="Edit"
                 />
+                </UTooltip>
+                <UTooltip text="Hapus">
                 <UButton 
                     size="md" 
                     color="error" 
-                    variant="soft" 
-                    icon="i-heroicons-trash" 
+                    variant="ghost" 
+                    icon="i-lucide-trash-2" 
                     @click="store.handleDeleteF04(row.original.id)" 
-                    title="Hapus"
                 />
+                </UTooltip>
                 </div>
             </template>
         </TableEntities>

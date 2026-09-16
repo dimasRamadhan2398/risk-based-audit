@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { extractErrorMessage } from '~/utils/error';
 
 export interface UploadedAuditResultReport {
   id: string;
@@ -17,6 +18,7 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
   const uploadedDocuments = ref<UploadedAuditResultReport[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -33,25 +35,36 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded audit result reports:', error);
-      errorMsg.value = 'Failed to load uploaded LHA documents.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded LHA documents.');
     } finally {
       loading.value = false;
     }
   };
 
-  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; fileContent: string }) => {
+  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; file: File }) => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData();
+      Object.keys(payload).forEach(key => {
+        const val = (payload as any)[key];
+        if (val !== undefined && val !== null) {
+          formData.append(key, val);
+        }
+      });
       await $fetch(`${baseUrl}/uploaded-audit-result-reports`, {
         method: 'POST',
-        body: payload
+        body: formData
       });
+      toast.showSuccess('LHA document uploaded successfully');
       await fetchUploadedDocuments();
+      toast.showSuccess('LHA document uploaded successfully!')
     } catch (error: any) {
       console.error('Failed to upload LHA document:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload LHA document.';
+      const detail = extractErrorMessage(error, 'Failed to upload LHA document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to upload LHA document.', detail);
       throw error;
     } finally {
       loading.value = false;
@@ -66,30 +79,36 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
       await $fetch(`${baseUrl}/uploaded-audit-result-reports/${id}`, {
         method: 'DELETE'
       });
+      toast.showSuccess('LHA document deleted successfully');
       await fetchUploadedDocuments();
+      toast.showSuccess('LHA document deleted successfully!')
     } catch (error: any) {
       console.error('Failed to delete uploaded LHA document:', error);
-      errorMsg.value = 'Failed to delete LHA document.';
+      const detail = extractErrorMessage(error, 'Failed to delete LHA document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete LHA document.', detail);
       throw error;
     } finally {
       loading.value = false;
     }
   };
 
-    const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
       const response: any = await $fetch(`${baseUrl}/uploaded-audit-result-reports/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      errorMsg.value = 'Failed to view document.';
+      const detail = extractErrorMessage(error, 'Failed to view document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to view document.', detail);
     }
   };
 
@@ -99,7 +118,7 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
       const response: any = await $fetch(`${baseUrl}/uploaded-audit-result-reports/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -111,7 +130,9 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download LHA document:', error);
-      errorMsg.value = 'Failed to download document.';
+      const detail = extractErrorMessage(error, 'Failed to download document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to download document.', detail);
     }
   };
 

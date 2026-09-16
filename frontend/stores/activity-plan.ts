@@ -3,8 +3,10 @@ import { ref, computed } from 'vue';
 import type { TableColumn } from '@nuxt/ui'
 import { type ActivityPlan, type ActivityPlanFormState, AuditCategory, AuditDepartment } from '~/types/audit';
 import { RiskLevel } from '~/types/risk';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { formatPeriod } from '~/utils/dateConverter';
 import { useI18n } from '~/composables/useI18n';
+import { extractErrorMessage } from '~/utils/error';
 
 export const useActivityPlanStore = defineStore('activity-plan', () => {
   const { t, locale } = useI18n();
@@ -13,6 +15,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   const isEditMode = ref(false);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification()
 
   const executionStatusOptions = [
     { label: "Planned", value: "planned" },
@@ -116,7 +119,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch activity plans:', error);
-      errorMsg.value = 'Failed to load activity plans.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load activity plans.');
     } finally {
       loading.value = false;
     }
@@ -151,7 +154,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
 
   const handleDelete = async (id: string) => {
     const { t } = useI18n();
-    if (!confirm(t("auditActivityPlan.deleteConfirm"))) return;
+    if (!await useGlobalModalStore().confirmDelete({ description: t("auditActivityPlan.deleteConfirm") })) return;
     loading.value = true;
     errorMsg.value = '';
     try {
@@ -160,9 +163,12 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
         method: 'DELETE'
       });
       await fetchPlans();
+      toast.showSuccess('Activity plan deleted successfully.');
     } catch (error: any) {
       console.error('Failed to delete activity plan:', error);
-      errorMsg.value = 'Failed to delete activity plan.';
+      const detail = extractErrorMessage(error, 'Failed to delete activity plan.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete activity plan.', detail);
     } finally {
       loading.value = false;
     }
@@ -177,12 +183,12 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       // Transform planned activities to match backend expectations if needed
       // but for now we follow existing structure and just ensure fields are there
 
-      const fileList = formState.value.file && formState.value.file.length > 0 
+      const fileList = formState.value.file && formState.value.file.length > 0
         ? formState.value.file.map((f: any) => ({
-            name: f.name,
-            size: Math.round(f.size / 1024) + ' KB',
-            url: '#'
-          }))
+          name: f.name,
+          size: Math.round(f.size / 1024) + ' KB',
+          url: '#'
+        }))
         : [];
 
       const payload = {
@@ -203,25 +209,28 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
         });
 
         for (const act of formState.value.plannedActivities) {
-           await $fetch(`${baseUrl}/audit-activities`, {
-             method: 'POST',
-             body: {
-                title: act.auditName,
-                engagement_subject: act.auditee,
-                audit_type: act.category,
-                justification: act.priority, // or mapped differently
-                audit_purpose: 'Standard Audit',
-                team_size: act.numberOfAuditors,
-                status: 'PLANNED'
-             }
-           });
+          await $fetch(`${baseUrl}/audit-activities`, {
+            method: 'POST',
+            body: {
+              title: act.auditName,
+              engagement_subject: act.auditee,
+              audit_type: act.category,
+              justification: act.priority, // or mapped differently
+              audit_purpose: 'Standard Audit',
+              team_size: act.numberOfAuditors,
+              status: 'PLANNED'
+            }
+          });
         }
       }
       closeModal();
+      toast.showSuccess('Activity plan saved successfully.');
       await fetchPlans();
     } catch (error: any) {
       console.error('Failed to save activity plan:', error);
-      errorMsg.value = 'Failed to save activity plan.';
+      const detail = extractErrorMessage(error, 'Failed to save activity plan.');
+      errorMsg.value = detail;
+      toast.showError('Failed to save activity plan.', detail);
     } finally {
       loading.value = false;
     }

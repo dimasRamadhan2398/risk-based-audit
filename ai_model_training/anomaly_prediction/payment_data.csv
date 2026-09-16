@@ -1,0 +1,1001 @@
+ID Transaksi,Entitas,Produk,Nilai Transaksi (Juta Rp),Jam Transaksi (0-23),Penerima Baru,TARGET: is_anomaly,TARGET: Impact (1-5),TARGET: Likelihood (1-5),Alasan Anomali
+PAYM-0001,Medan Branch,BI-FAST,27.16,14,Tidak,Tidak,1,1,-
+PAYM-0002,Surabaya Branch,RTGS,27.44,21,Tidak,Tidak,1,2,-
+PAYM-0003,Medan Branch,BI-FAST,37.74,15,Tidak,Tidak,2,1,-
+PAYM-0004,Medan Branch,RTGS,6.68,4,Tidak,Tidak,1,2,-
+PAYM-0005,Surabaya Branch,BI-FAST,12.84,5,Tidak,Tidak,1,1,-
+PAYM-0006,Bandung Branch,SKN,36.39,3,Tidak,Tidak,2,2,-
+PAYM-0007,Surabaya Branch,RTGS,65.42,9,Tidak,Tidak,1,1,-
+PAYM-0008,Jakarta Branch,Transfer Internal,122.32,7,Tidak,Tidak,2,1,-
+PAYM-0009,Surabaya Branch,BI-FAST,38.27,16,Tidak,Tidak,2,2,-
+PAYM-0010,Jakarta Branch,SKN,111.15,0,Tidak,Tidak,2,2,-
+PAYM-0011,Medan Branch,RTGS,64.28,12,Tidak,Tidak,1,1,-
+PAYM-0012,Medan Branch,SKN,50.64,1,Ya,Tidak,1,1,-
+PAYM-0013,Medan Branch,BI-FAST,46.46,15,Tidak,Tidak,2,1,-
+PAYM-0014,Medan Branch,Transfer Internal,23.88,11,Ya,Tidak,1,1,-
+PAYM-0015,Jakarta Branch,Transfer Internal,7.28,2,Tidak,Tidak,1,2,-
+PAYM-0016,Medan Branch,Transfer Internal,27.29,18,Tidak,Tidak,1,2,-
+PAYM-0017,Jakarta Branch,RTGS,22.14,9,Tidak,Tidak,2,1,-
+PAYM-0018,Surabaya Branch,Transfer Internal,21.64,4,Tidak,Tidak,2,1,-
+PAYM-0019,Bandung Branch,BI-FAST,242.65,16,Tidak,Tidak,2,1,-
+PAYM-0020,Bandung Branch,RTGS,4.56,10,Tidak,Tidak,2,2,-
+PAYM-0021,Surabaya Branch,BI-FAST,19.17,23,Tidak,Tidak,1,2,-
+PAYM-0022,Surabaya Branch,Transfer Internal,34.13,17,Tidak,Tidak,1,2,-
+PAYM-0023,Bandung Branch,RTGS,191.32,2,Tidak,Tidak,1,2,-
+PAYM-0024,Jakarta Branch,SKN,19.13,3,Tidak,Tidak,2,1,-
+PAYM-0025,Jakarta Branch,SKN,51.49,1,Tidak,Tidak,2,1,-
+PAYM-0026,Surabaya Branch,Transfer Internal,162.14,18,Tidak,Tidak,1,2,-
+PAYM-0027,Surabaya Branch,Transfer Internal,4.19,8,Tidak,Tidak,1,2,-
+PAYM-0028,Medan Branch,RTGS,63.27,23,Tidak,Tidak,1,1,-
+PAYM-0029,Jakarta Branch,Transfer Internal,18.5,2,Tidak,Tidak,2,2,-
+PAYM-0030,Bandung Branch,Transfer Internal,16.2,14,Tidak,Tidak,1,1,-
+PAYM-0031,Surabaya Branch,BI-FAST,27.7,1,Tidak,Tidak,1,2,-
+PAYM-0032,Jakarta Branch,RTGS,67.47,6,Tidak,Tidak,1,2,-
+PAYM-0033,Surabaya Branch,BI-FAST,17.9,2,Tidak,Tidak,1,2,-
+PAYM-0034,Bandung Branch,SKN,37.04,11,Tidak,Tidak,1,1,-
+PAYM-0035,Jakarta Branch,SKN,27.19,7,Tidak,Tidak,1,2,-
+PAYM-0036,Bandung Branch,Transfer Internal,20.6,15,Tidak,Tidak,2,1,-
+PAYM-0037,Surabaya Branch,RTGS,62.02,15,Ya,Tidak,2,1,-
+PAYM-0038,Medan Branch,RTGS,34.96,16,Tidak,Tidak,2,2,-
+PAYM-0039,Surabaya Branch,SKN,23.11,16,Tidak,Tidak,2,2,-
+PAYM-0040,Medan Branch,RTGS,8.56,18,Tidak,Tidak,2,1,-
+PAYM-0041,Jakarta Branch,Transfer Internal,19.18,9,Tidak,Tidak,2,1,-
+PAYM-0042,Medan Branch,RTGS,89.56,6,Ya,Tidak,1,2,-
+PAYM-0043,Surabaya Branch,Transfer Internal,42.42,9,Tidak,Tidak,1,2,-
+PAYM-0044,Medan Branch,BI-FAST,31.14,17,Tidak,Tidak,2,1,-
+PAYM-0045,Bandung Branch,BI-FAST,31.69,11,Tidak,Tidak,1,1,-
+PAYM-0046,Medan Branch,BI-FAST,7.92,17,Ya,Tidak,2,1,-
+PAYM-0047,Bandung Branch,Transfer Internal,34.35,11,Tidak,Tidak,2,1,-
+PAYM-0048,Medan Branch,SKN,102.18,19,Tidak,Tidak,2,1,-
+PAYM-0049,Surabaya Branch,Transfer Internal,43.56,15,Ya,Tidak,1,2,-
+PAYM-0050,Surabaya Branch,RTGS,119.69,14,Ya,Tidak,1,1,-
+PAYM-0051,Bandung Branch,SKN,9.42,9,Ya,Tidak,1,1,-
+PAYM-0052,Medan Branch,RTGS,138.88,12,Tidak,Tidak,1,2,-
+PAYM-0053,Jakarta Branch,Transfer Internal,141.75,23,Tidak,Tidak,2,1,-
+PAYM-0054,Medan Branch,SKN,41.2,22,Tidak,Tidak,1,2,-
+PAYM-0055,Medan Branch,RTGS,7.18,7,Tidak,Tidak,2,2,-
+PAYM-0056,Medan Branch,SKN,108.4,4,Ya,Tidak,1,2,-
+PAYM-0057,Surabaya Branch,RTGS,39.01,23,Tidak,Tidak,1,1,-
+PAYM-0058,Surabaya Branch,Transfer Internal,103.1,5,Tidak,Tidak,2,1,-
+PAYM-0059,Jakarta Branch,Transfer Internal,1242.29,2,Tidak,Ya (Anomali),4,5,Transfer jumlah besar di dini hari (Jam 2)
+PAYM-0060,Jakarta Branch,RTGS,34.67,20,Tidak,Tidak,1,1,-
+PAYM-0061,Bandung Branch,Transfer Internal,7.52,23,Tidak,Tidak,1,2,-
+PAYM-0062,Surabaya Branch,SKN,85.87,7,Tidak,Tidak,1,1,-
+PAYM-0063,Surabaya Branch,Transfer Internal,56.07,2,Tidak,Tidak,2,1,-
+PAYM-0064,Medan Branch,BI-FAST,61.62,6,Tidak,Tidak,1,1,-
+PAYM-0065,Jakarta Branch,BI-FAST,105.75,10,Tidak,Tidak,1,2,-
+PAYM-0066,Jakarta Branch,BI-FAST,19.36,14,Tidak,Tidak,1,1,-
+PAYM-0067,Jakarta Branch,BI-FAST,6.37,23,Tidak,Tidak,2,2,-
+PAYM-0068,Surabaya Branch,Transfer Internal,22.87,19,Tidak,Tidak,2,1,-
+PAYM-0069,Jakarta Branch,Transfer Internal,54.14,5,Ya,Tidak,2,1,-
+PAYM-0070,Surabaya Branch,RTGS,24.81,3,Ya,Tidak,2,2,-
+PAYM-0071,Surabaya Branch,SKN,7.56,18,Tidak,Tidak,1,2,-
+PAYM-0072,Jakarta Branch,RTGS,2435.36,1,Tidak,Ya (Anomali),3,5,Transfer jumlah besar di dini hari (Jam 1)
+PAYM-0073,Jakarta Branch,RTGS,38.03,1,Tidak,Tidak,1,1,-
+PAYM-0074,Surabaya Branch,RTGS,10.27,23,Tidak,Tidak,1,2,-
+PAYM-0075,Surabaya Branch,SKN,2142.74,2,Tidak,Ya (Anomali),4,4,Transfer jumlah besar di dini hari (Jam 2)
+PAYM-0076,Surabaya Branch,Transfer Internal,25.87,17,Tidak,Tidak,1,1,-
+PAYM-0077,Jakarta Branch,SKN,171.31,0,Tidak,Tidak,1,1,-
+PAYM-0078,Bandung Branch,RTGS,50.15,9,Tidak,Tidak,1,2,-
+PAYM-0079,Bandung Branch,Transfer Internal,6.39,9,Ya,Tidak,2,2,-
+PAYM-0080,Bandung Branch,BI-FAST,40.81,7,Ya,Tidak,1,2,-
+PAYM-0081,Bandung Branch,Transfer Internal,8.61,12,Ya,Tidak,2,2,-
+PAYM-0082,Surabaya Branch,BI-FAST,64.52,21,Tidak,Tidak,2,2,-
+PAYM-0083,Bandung Branch,Transfer Internal,47.75,18,Ya,Tidak,1,2,-
+PAYM-0084,Surabaya Branch,BI-FAST,32.42,7,Ya,Tidak,2,1,-
+PAYM-0085,Bandung Branch,BI-FAST,6.06,17,Tidak,Tidak,1,2,-
+PAYM-0086,Medan Branch,BI-FAST,33.23,21,Tidak,Tidak,2,2,-
+PAYM-0087,Medan Branch,Transfer Internal,22.93,17,Tidak,Tidak,1,1,-
+PAYM-0088,Jakarta Branch,BI-FAST,10.1,11,Tidak,Tidak,2,1,-
+PAYM-0089,Jakarta Branch,RTGS,33.76,4,Tidak,Tidak,2,2,-
+PAYM-0090,Bandung Branch,Transfer Internal,52.27,4,Tidak,Tidak,1,1,-
+PAYM-0091,Medan Branch,BI-FAST,24.62,8,Tidak,Tidak,1,2,-
+PAYM-0092,Jakarta Branch,BI-FAST,136.57,0,Tidak,Tidak,2,2,-
+PAYM-0093,Bandung Branch,RTGS,102.81,19,Tidak,Tidak,1,2,-
+PAYM-0094,Jakarta Branch,SKN,22.58,5,Tidak,Tidak,1,2,-
+PAYM-0095,Bandung Branch,SKN,34.98,10,Tidak,Tidak,2,1,-
+PAYM-0096,Bandung Branch,Transfer Internal,103.91,1,Tidak,Tidak,1,1,-
+PAYM-0097,Jakarta Branch,BI-FAST,38.84,7,Tidak,Tidak,1,1,-
+PAYM-0098,Jakarta Branch,BI-FAST,41.02,7,Ya,Tidak,2,2,-
+PAYM-0099,Jakarta Branch,RTGS,36.58,22,Tidak,Tidak,1,1,-
+PAYM-0100,Surabaya Branch,BI-FAST,143.5,9,Tidak,Tidak,2,2,-
+PAYM-0101,Surabaya Branch,SKN,29.24,16,Ya,Tidak,1,2,-
+PAYM-0102,Bandung Branch,Transfer Internal,67.82,7,Tidak,Tidak,2,2,-
+PAYM-0103,Medan Branch,RTGS,3.07,5,Tidak,Tidak,2,1,-
+PAYM-0104,Jakarta Branch,Transfer Internal,48.36,10,Tidak,Tidak,2,2,-
+PAYM-0105,Surabaya Branch,BI-FAST,2436.2,23,Tidak,Ya (Anomali),3,3,Transfer jumlah besar di dini hari (Jam 23)
+PAYM-0106,Bandung Branch,Transfer Internal,4.0,14,Tidak,Tidak,1,1,-
+PAYM-0107,Jakarta Branch,RTGS,129.92,6,Tidak,Tidak,1,1,-
+PAYM-0108,Medan Branch,BI-FAST,103.76,11,Tidak,Tidak,2,1,-
+PAYM-0109,Bandung Branch,SKN,39.29,22,Tidak,Tidak,1,1,-
+PAYM-0110,Medan Branch,RTGS,59.8,15,Tidak,Tidak,1,2,-
+PAYM-0111,Surabaya Branch,BI-FAST,80.57,21,Ya,Tidak,2,1,-
+PAYM-0112,Jakarta Branch,Transfer Internal,33.62,5,Tidak,Tidak,1,1,-
+PAYM-0113,Jakarta Branch,SKN,65.31,0,Tidak,Tidak,2,2,-
+PAYM-0114,Surabaya Branch,RTGS,80.13,9,Tidak,Tidak,1,1,-
+PAYM-0115,Bandung Branch,SKN,28.95,7,Tidak,Tidak,2,2,-
+PAYM-0116,Surabaya Branch,SKN,16.84,12,Tidak,Tidak,2,1,-
+PAYM-0117,Jakarta Branch,SKN,3.14,17,Tidak,Tidak,2,1,-
+PAYM-0118,Medan Branch,RTGS,67.7,20,Tidak,Tidak,2,1,-
+PAYM-0119,Medan Branch,BI-FAST,20.85,22,Tidak,Tidak,2,2,-
+PAYM-0120,Jakarta Branch,BI-FAST,3.04,17,Tidak,Tidak,2,1,-
+PAYM-0121,Medan Branch,SKN,1.83,3,Tidak,Tidak,2,2,-
+PAYM-0122,Surabaya Branch,Transfer Internal,8.78,14,Tidak,Tidak,2,2,-
+PAYM-0123,Jakarta Branch,Transfer Internal,79.23,9,Tidak,Tidak,2,2,-
+PAYM-0124,Medan Branch,BI-FAST,40.54,1,Tidak,Tidak,2,2,-
+PAYM-0125,Bandung Branch,Transfer Internal,13.11,16,Tidak,Tidak,2,1,-
+PAYM-0126,Bandung Branch,SKN,9.6,9,Tidak,Tidak,2,2,-
+PAYM-0127,Bandung Branch,RTGS,14.3,13,Tidak,Tidak,1,2,-
+PAYM-0128,Medan Branch,Transfer Internal,5.8,23,Ya,Tidak,1,1,-
+PAYM-0129,Bandung Branch,RTGS,4.4,0,Tidak,Tidak,2,2,-
+PAYM-0130,Medan Branch,BI-FAST,127.69,9,Tidak,Tidak,1,2,-
+PAYM-0131,Surabaya Branch,RTGS,21.33,3,Tidak,Tidak,1,2,-
+PAYM-0132,Bandung Branch,SKN,12.34,11,Tidak,Tidak,1,1,-
+PAYM-0133,Jakarta Branch,SKN,30.0,16,Tidak,Tidak,1,1,-
+PAYM-0134,Jakarta Branch,RTGS,74.11,22,Tidak,Tidak,2,1,-
+PAYM-0135,Surabaya Branch,Transfer Internal,31.9,8,Tidak,Tidak,2,1,-
+PAYM-0136,Bandung Branch,BI-FAST,52.11,15,Tidak,Tidak,1,1,-
+PAYM-0137,Medan Branch,RTGS,112.38,2,Tidak,Tidak,2,2,-
+PAYM-0138,Bandung Branch,Transfer Internal,37.22,2,Tidak,Tidak,1,1,-
+PAYM-0139,Jakarta Branch,BI-FAST,91.92,23,Tidak,Tidak,2,2,-
+PAYM-0140,Medan Branch,Transfer Internal,96.58,6,Ya,Tidak,1,2,-
+PAYM-0141,Medan Branch,Transfer Internal,24.82,4,Ya,Tidak,1,2,-
+PAYM-0142,Bandung Branch,BI-FAST,61.33,21,Ya,Tidak,1,1,-
+PAYM-0143,Bandung Branch,BI-FAST,4860.28,4,Ya,Ya (Anomali),5,5,Transfer jumlah besar di dini hari (Jam 4) & Penerima Dana Baru (Mencurigakan)
+PAYM-0144,Medan Branch,SKN,12.26,11,Tidak,Tidak,1,1,-
+PAYM-0145,Bandung Branch,SKN,31.6,20,Ya,Tidak,2,1,-
+PAYM-0146,Bandung Branch,Transfer Internal,75.36,3,Ya,Tidak,2,2,-
+PAYM-0147,Jakarta Branch,RTGS,94.24,15,Tidak,Tidak,1,1,-
+PAYM-0148,Surabaya Branch,RTGS,63.88,4,Tidak,Tidak,1,1,-
+PAYM-0149,Jakarta Branch,Transfer Internal,49.71,17,Tidak,Tidak,1,2,-
+PAYM-0150,Medan Branch,RTGS,7.46,2,Tidak,Tidak,2,1,-
+PAYM-0151,Jakarta Branch,BI-FAST,9.2,18,Ya,Tidak,2,1,-
+PAYM-0152,Surabaya Branch,SKN,176.75,21,Tidak,Tidak,1,2,-
+PAYM-0153,Jakarta Branch,BI-FAST,28.45,15,Tidak,Tidak,1,1,-
+PAYM-0154,Jakarta Branch,RTGS,33.64,21,Tidak,Tidak,2,1,-
+PAYM-0155,Bandung Branch,Transfer Internal,5.38,21,Ya,Tidak,2,2,-
+PAYM-0156,Jakarta Branch,BI-FAST,104.84,8,Ya,Tidak,2,2,-
+PAYM-0157,Jakarta Branch,SKN,63.66,14,Tidak,Tidak,1,2,-
+PAYM-0158,Surabaya Branch,SKN,74.61,8,Tidak,Tidak,1,1,-
+PAYM-0159,Bandung Branch,BI-FAST,176.93,12,Tidak,Tidak,1,2,-
+PAYM-0160,Surabaya Branch,BI-FAST,34.1,6,Tidak,Tidak,1,1,-
+PAYM-0161,Bandung Branch,RTGS,66.93,14,Tidak,Tidak,1,1,-
+PAYM-0162,Surabaya Branch,RTGS,280.46,9,Tidak,Tidak,2,2,-
+PAYM-0163,Medan Branch,BI-FAST,142.99,19,Tidak,Tidak,2,2,-
+PAYM-0164,Surabaya Branch,Transfer Internal,48.71,3,Tidak,Tidak,1,1,-
+PAYM-0165,Bandung Branch,RTGS,131.19,18,Ya,Tidak,2,2,-
+PAYM-0166,Bandung Branch,RTGS,36.42,15,Tidak,Tidak,1,1,-
+PAYM-0167,Medan Branch,BI-FAST,68.55,15,Tidak,Tidak,2,1,-
+PAYM-0168,Jakarta Branch,Transfer Internal,26.01,4,Ya,Tidak,2,2,-
+PAYM-0169,Bandung Branch,SKN,25.07,13,Ya,Tidak,2,1,-
+PAYM-0170,Medan Branch,BI-FAST,2.63,7,Tidak,Tidak,2,2,-
+PAYM-0171,Surabaya Branch,BI-FAST,18.68,16,Tidak,Tidak,2,2,-
+PAYM-0172,Jakarta Branch,SKN,450.12,3,Ya,Tidak,1,2,-
+PAYM-0173,Jakarta Branch,BI-FAST,29.52,22,Tidak,Tidak,1,1,-
+PAYM-0174,Bandung Branch,RTGS,1.47,7,Tidak,Tidak,1,2,-
+PAYM-0175,Surabaya Branch,SKN,131.13,21,Tidak,Tidak,1,1,-
+PAYM-0176,Bandung Branch,BI-FAST,93.7,14,Ya,Tidak,1,2,-
+PAYM-0177,Medan Branch,Transfer Internal,54.09,13,Tidak,Tidak,2,2,-
+PAYM-0178,Medan Branch,Transfer Internal,7.92,16,Tidak,Tidak,2,2,-
+PAYM-0179,Jakarta Branch,RTGS,39.35,17,Tidak,Tidak,2,2,-
+PAYM-0180,Medan Branch,RTGS,246.65,8,Tidak,Tidak,1,2,-
+PAYM-0181,Surabaya Branch,BI-FAST,10.46,16,Tidak,Tidak,1,1,-
+PAYM-0182,Jakarta Branch,SKN,2335.62,3,Tidak,Ya (Anomali),4,3,Transfer jumlah besar di dini hari (Jam 3)
+PAYM-0183,Bandung Branch,BI-FAST,13.58,23,Tidak,Tidak,2,2,-
+PAYM-0184,Jakarta Branch,BI-FAST,3.33,1,Tidak,Tidak,1,2,-
+PAYM-0185,Medan Branch,SKN,28.74,17,Tidak,Tidak,1,2,-
+PAYM-0186,Medan Branch,SKN,21.72,1,Tidak,Tidak,2,1,-
+PAYM-0187,Medan Branch,SKN,160.04,10,Tidak,Tidak,1,1,-
+PAYM-0188,Jakarta Branch,SKN,10.12,18,Tidak,Tidak,1,2,-
+PAYM-0189,Jakarta Branch,Transfer Internal,22.26,0,Tidak,Tidak,2,2,-
+PAYM-0190,Jakarta Branch,BI-FAST,8.34,16,Tidak,Tidak,1,1,-
+PAYM-0191,Bandung Branch,SKN,69.58,10,Tidak,Tidak,2,1,-
+PAYM-0192,Bandung Branch,Transfer Internal,29.8,0,Ya,Tidak,2,1,-
+PAYM-0193,Surabaya Branch,BI-FAST,17.18,19,Ya,Tidak,2,1,-
+PAYM-0194,Medan Branch,Transfer Internal,20.82,1,Tidak,Tidak,2,2,-
+PAYM-0195,Medan Branch,Transfer Internal,78.05,18,Ya,Tidak,2,1,-
+PAYM-0196,Jakarta Branch,SKN,15.25,14,Tidak,Tidak,1,1,-
+PAYM-0197,Medan Branch,SKN,1.11,14,Tidak,Tidak,2,2,-
+PAYM-0198,Jakarta Branch,SKN,51.79,14,Tidak,Tidak,2,2,-
+PAYM-0199,Jakarta Branch,Transfer Internal,210.91,20,Tidak,Tidak,2,1,-
+PAYM-0200,Medan Branch,BI-FAST,17.28,17,Ya,Tidak,2,1,-
+PAYM-0201,Medan Branch,Transfer Internal,12.6,18,Tidak,Tidak,2,1,-
+PAYM-0202,Jakarta Branch,Transfer Internal,16.99,1,Ya,Tidak,2,1,-
+PAYM-0203,Bandung Branch,BI-FAST,22.85,13,Tidak,Tidak,1,1,-
+PAYM-0204,Surabaya Branch,BI-FAST,97.87,21,Ya,Tidak,2,1,-
+PAYM-0205,Bandung Branch,SKN,32.59,5,Ya,Tidak,1,1,-
+PAYM-0206,Surabaya Branch,RTGS,33.52,8,Tidak,Tidak,1,2,-
+PAYM-0207,Medan Branch,Transfer Internal,6.47,14,Tidak,Tidak,2,1,-
+PAYM-0208,Jakarta Branch,Transfer Internal,230.82,13,Tidak,Tidak,1,2,-
+PAYM-0209,Medan Branch,Transfer Internal,29.23,15,Tidak,Tidak,2,1,-
+PAYM-0210,Jakarta Branch,BI-FAST,7.89,12,Tidak,Tidak,2,2,-
+PAYM-0211,Bandung Branch,SKN,66.94,11,Tidak,Tidak,1,1,-
+PAYM-0212,Bandung Branch,SKN,18.73,11,Tidak,Tidak,1,1,-
+PAYM-0213,Jakarta Branch,BI-FAST,71.95,17,Tidak,Tidak,1,2,-
+PAYM-0214,Medan Branch,SKN,176.68,19,Tidak,Tidak,2,2,-
+PAYM-0215,Medan Branch,RTGS,2.53,10,Tidak,Tidak,2,1,-
+PAYM-0216,Surabaya Branch,BI-FAST,46.2,0,Tidak,Tidak,2,2,-
+PAYM-0217,Jakarta Branch,BI-FAST,239.63,17,Tidak,Tidak,2,1,-
+PAYM-0218,Surabaya Branch,SKN,68.31,11,Tidak,Tidak,2,1,-
+PAYM-0219,Medan Branch,BI-FAST,72.71,18,Tidak,Tidak,1,2,-
+PAYM-0220,Bandung Branch,SKN,19.47,20,Tidak,Tidak,1,1,-
+PAYM-0221,Surabaya Branch,BI-FAST,5.85,13,Tidak,Tidak,1,1,-
+PAYM-0222,Medan Branch,RTGS,52.02,18,Ya,Tidak,1,1,-
+PAYM-0223,Medan Branch,Transfer Internal,144.27,2,Tidak,Tidak,2,1,-
+PAYM-0224,Jakarta Branch,SKN,37.27,5,Tidak,Tidak,2,1,-
+PAYM-0225,Surabaya Branch,Transfer Internal,151.84,2,Tidak,Tidak,2,1,-
+PAYM-0226,Surabaya Branch,BI-FAST,16.63,3,Tidak,Tidak,1,1,-
+PAYM-0227,Bandung Branch,SKN,4.07,18,Tidak,Tidak,1,1,-
+PAYM-0228,Surabaya Branch,BI-FAST,8.39,5,Tidak,Tidak,1,2,-
+PAYM-0229,Jakarta Branch,RTGS,30.04,5,Tidak,Tidak,1,1,-
+PAYM-0230,Jakarta Branch,Transfer Internal,45.49,6,Tidak,Tidak,1,2,-
+PAYM-0231,Bandung Branch,BI-FAST,11.02,18,Ya,Tidak,1,2,-
+PAYM-0232,Surabaya Branch,BI-FAST,21.1,10,Tidak,Tidak,1,1,-
+PAYM-0233,Medan Branch,SKN,74.83,15,Tidak,Tidak,2,1,-
+PAYM-0234,Bandung Branch,Transfer Internal,34.59,5,Tidak,Tidak,2,2,-
+PAYM-0235,Surabaya Branch,BI-FAST,7.95,22,Tidak,Tidak,1,1,-
+PAYM-0236,Jakarta Branch,BI-FAST,9.9,23,Tidak,Tidak,1,1,-
+PAYM-0237,Jakarta Branch,Transfer Internal,12.95,17,Ya,Tidak,1,2,-
+PAYM-0238,Bandung Branch,BI-FAST,72.83,15,Tidak,Tidak,2,2,-
+PAYM-0239,Medan Branch,RTGS,8.61,3,Tidak,Tidak,2,2,-
+PAYM-0240,Surabaya Branch,Transfer Internal,62.28,4,Ya,Tidak,1,2,-
+PAYM-0241,Surabaya Branch,Transfer Internal,290.11,6,Tidak,Tidak,2,1,-
+PAYM-0242,Medan Branch,BI-FAST,73.01,0,Tidak,Tidak,2,2,-
+PAYM-0243,Surabaya Branch,SKN,80.39,15,Tidak,Tidak,1,1,-
+PAYM-0244,Medan Branch,BI-FAST,2.12,8,Tidak,Tidak,2,2,-
+PAYM-0245,Bandung Branch,RTGS,25.84,22,Ya,Tidak,1,2,-
+PAYM-0246,Bandung Branch,RTGS,94.86,14,Tidak,Tidak,1,2,-
+PAYM-0247,Bandung Branch,BI-FAST,187.29,5,Tidak,Tidak,1,2,-
+PAYM-0248,Jakarta Branch,BI-FAST,85.8,0,Tidak,Tidak,2,2,-
+PAYM-0249,Surabaya Branch,BI-FAST,11.31,15,Ya,Tidak,2,1,-
+PAYM-0250,Bandung Branch,BI-FAST,113.04,23,Tidak,Tidak,1,2,-
+PAYM-0251,Bandung Branch,RTGS,39.2,19,Tidak,Tidak,2,1,-
+PAYM-0252,Medan Branch,Transfer Internal,2.17,21,Tidak,Tidak,1,1,-
+PAYM-0253,Surabaya Branch,SKN,3.09,7,Ya,Tidak,1,2,-
+PAYM-0254,Surabaya Branch,Transfer Internal,77.13,13,Tidak,Tidak,1,1,-
+PAYM-0255,Medan Branch,RTGS,12.42,9,Tidak,Tidak,2,1,-
+PAYM-0256,Jakarta Branch,SKN,205.13,9,Tidak,Tidak,2,1,-
+PAYM-0257,Jakarta Branch,Transfer Internal,10.85,0,Tidak,Tidak,1,2,-
+PAYM-0258,Bandung Branch,BI-FAST,59.45,18,Tidak,Tidak,2,2,-
+PAYM-0259,Medan Branch,BI-FAST,30.04,23,Tidak,Tidak,1,1,-
+PAYM-0260,Surabaya Branch,SKN,122.99,0,Tidak,Tidak,2,2,-
+PAYM-0261,Medan Branch,SKN,41.43,11,Tidak,Tidak,2,2,-
+PAYM-0262,Jakarta Branch,BI-FAST,237.74,16,Tidak,Tidak,1,2,-
+PAYM-0263,Medan Branch,BI-FAST,46.76,12,Tidak,Tidak,1,1,-
+PAYM-0264,Bandung Branch,SKN,43.03,6,Tidak,Tidak,2,2,-
+PAYM-0265,Medan Branch,Transfer Internal,52.61,5,Tidak,Tidak,2,2,-
+PAYM-0266,Surabaya Branch,Transfer Internal,82.51,10,Tidak,Tidak,1,2,-
+PAYM-0267,Jakarta Branch,RTGS,34.52,13,Tidak,Tidak,2,2,-
+PAYM-0268,Surabaya Branch,RTGS,2524.39,1,Tidak,Ya (Anomali),4,4,Transfer jumlah besar di dini hari (Jam 1)
+PAYM-0269,Bandung Branch,RTGS,26.79,16,Tidak,Tidak,1,1,-
+PAYM-0270,Surabaya Branch,Transfer Internal,65.47,13,Tidak,Tidak,2,1,-
+PAYM-0271,Medan Branch,BI-FAST,33.49,1,Tidak,Tidak,2,1,-
+PAYM-0272,Medan Branch,SKN,36.84,5,Tidak,Tidak,2,2,-
+PAYM-0273,Jakarta Branch,Transfer Internal,17.18,0,Tidak,Tidak,2,2,-
+PAYM-0274,Medan Branch,BI-FAST,51.87,13,Tidak,Tidak,1,1,-
+PAYM-0275,Medan Branch,Transfer Internal,18.59,22,Tidak,Tidak,1,2,-
+PAYM-0276,Surabaya Branch,SKN,70.38,20,Tidak,Tidak,2,2,-
+PAYM-0277,Surabaya Branch,SKN,57.99,10,Tidak,Tidak,1,2,-
+PAYM-0278,Medan Branch,RTGS,14.58,8,Tidak,Tidak,1,2,-
+PAYM-0279,Medan Branch,Transfer Internal,29.17,8,Tidak,Tidak,2,2,-
+PAYM-0280,Medan Branch,RTGS,98.04,7,Tidak,Tidak,2,1,-
+PAYM-0281,Surabaya Branch,BI-FAST,4.19,22,Tidak,Tidak,2,2,-
+PAYM-0282,Bandung Branch,RTGS,229.81,3,Tidak,Tidak,1,1,-
+PAYM-0283,Medan Branch,Transfer Internal,69.9,18,Ya,Tidak,2,2,-
+PAYM-0284,Medan Branch,Transfer Internal,238.76,18,Tidak,Tidak,1,2,-
+PAYM-0285,Medan Branch,BI-FAST,54.63,9,Tidak,Tidak,2,1,-
+PAYM-0286,Medan Branch,Transfer Internal,2.45,4,Tidak,Tidak,2,1,-
+PAYM-0287,Bandung Branch,RTGS,38.76,21,Tidak,Tidak,2,1,-
+PAYM-0288,Jakarta Branch,Transfer Internal,19.8,0,Tidak,Tidak,2,2,-
+PAYM-0289,Surabaya Branch,Transfer Internal,27.78,3,Tidak,Tidak,2,2,-
+PAYM-0290,Bandung Branch,BI-FAST,96.44,13,Tidak,Tidak,2,2,-
+PAYM-0291,Bandung Branch,SKN,26.84,20,Ya,Tidak,1,2,-
+PAYM-0292,Surabaya Branch,Transfer Internal,2.57,7,Tidak,Tidak,2,1,-
+PAYM-0293,Jakarta Branch,SKN,16.03,1,Ya,Tidak,2,1,-
+PAYM-0294,Bandung Branch,Transfer Internal,65.61,10,Tidak,Tidak,2,1,-
+PAYM-0295,Jakarta Branch,SKN,4.41,11,Tidak,Tidak,1,1,-
+PAYM-0296,Medan Branch,RTGS,11.49,12,Tidak,Tidak,1,1,-
+PAYM-0297,Jakarta Branch,BI-FAST,24.34,13,Tidak,Tidak,1,2,-
+PAYM-0298,Jakarta Branch,RTGS,16.21,15,Tidak,Tidak,1,1,-
+PAYM-0299,Jakarta Branch,RTGS,99.29,18,Tidak,Tidak,1,2,-
+PAYM-0300,Medan Branch,SKN,82.04,15,Ya,Tidak,2,1,-
+PAYM-0301,Surabaya Branch,Transfer Internal,106.57,13,Tidak,Tidak,2,2,-
+PAYM-0302,Jakarta Branch,BI-FAST,67.21,22,Ya,Tidak,1,2,-
+PAYM-0303,Bandung Branch,BI-FAST,214.48,12,Tidak,Tidak,1,2,-
+PAYM-0304,Medan Branch,Transfer Internal,14.42,17,Ya,Tidak,2,2,-
+PAYM-0305,Jakarta Branch,RTGS,82.14,15,Tidak,Tidak,2,2,-
+PAYM-0306,Bandung Branch,BI-FAST,12.44,5,Tidak,Tidak,1,2,-
+PAYM-0307,Surabaya Branch,SKN,44.08,21,Tidak,Tidak,2,1,-
+PAYM-0308,Surabaya Branch,BI-FAST,60.96,11,Tidak,Tidak,2,2,-
+PAYM-0309,Surabaya Branch,RTGS,79.05,23,Tidak,Tidak,1,1,-
+PAYM-0310,Medan Branch,Transfer Internal,6.32,8,Ya,Tidak,1,2,-
+PAYM-0311,Surabaya Branch,SKN,29.38,13,Tidak,Tidak,1,2,-
+PAYM-0312,Surabaya Branch,SKN,74.54,13,Tidak,Tidak,1,1,-
+PAYM-0313,Bandung Branch,SKN,423.27,21,Tidak,Tidak,1,2,-
+PAYM-0314,Surabaya Branch,Transfer Internal,45.47,3,Tidak,Tidak,2,1,-
+PAYM-0315,Jakarta Branch,BI-FAST,29.69,18,Tidak,Tidak,2,1,-
+PAYM-0316,Bandung Branch,BI-FAST,3.25,17,Tidak,Tidak,2,2,-
+PAYM-0317,Bandung Branch,BI-FAST,76.25,14,Tidak,Tidak,1,1,-
+PAYM-0318,Medan Branch,Transfer Internal,54.59,6,Tidak,Tidak,1,2,-
+PAYM-0319,Bandung Branch,Transfer Internal,21.26,21,Tidak,Tidak,2,1,-
+PAYM-0320,Jakarta Branch,Transfer Internal,4063.55,0,Tidak,Ya (Anomali),5,5,Transfer jumlah besar di dini hari (Jam 0)
+PAYM-0321,Surabaya Branch,RTGS,101.23,14,Tidak,Tidak,1,2,-
+PAYM-0322,Bandung Branch,SKN,17.93,22,Tidak,Tidak,1,1,-
+PAYM-0323,Medan Branch,Transfer Internal,40.25,12,Tidak,Tidak,2,1,-
+PAYM-0324,Surabaya Branch,RTGS,36.24,18,Ya,Tidak,2,2,-
+PAYM-0325,Surabaya Branch,BI-FAST,12.24,22,Tidak,Tidak,1,2,-
+PAYM-0326,Bandung Branch,Transfer Internal,37.82,9,Ya,Tidak,2,2,-
+PAYM-0327,Bandung Branch,SKN,3890.76,3,Tidak,Ya (Anomali),5,5,Transfer jumlah besar di dini hari (Jam 3)
+PAYM-0328,Jakarta Branch,Transfer Internal,14.83,18,Ya,Tidak,1,2,-
+PAYM-0329,Surabaya Branch,RTGS,4.72,12,Tidak,Tidak,1,2,-
+PAYM-0330,Bandung Branch,Transfer Internal,29.62,8,Tidak,Tidak,2,1,-
+PAYM-0331,Bandung Branch,Transfer Internal,3.7,8,Tidak,Tidak,1,2,-
+PAYM-0332,Surabaya Branch,SKN,2.66,12,Tidak,Tidak,1,2,-
+PAYM-0333,Surabaya Branch,SKN,19.45,0,Tidak,Tidak,1,2,-
+PAYM-0334,Bandung Branch,BI-FAST,31.88,20,Tidak,Tidak,2,1,-
+PAYM-0335,Medan Branch,Transfer Internal,104.83,4,Tidak,Tidak,2,1,-
+PAYM-0336,Jakarta Branch,BI-FAST,285.14,16,Tidak,Tidak,1,2,-
+PAYM-0337,Surabaya Branch,RTGS,51.51,3,Ya,Tidak,1,1,-
+PAYM-0338,Jakarta Branch,BI-FAST,10.79,15,Ya,Tidak,1,1,-
+PAYM-0339,Bandung Branch,SKN,4.87,16,Tidak,Tidak,2,2,-
+PAYM-0340,Jakarta Branch,Transfer Internal,110.42,9,Tidak,Tidak,1,2,-
+PAYM-0341,Medan Branch,SKN,15.33,11,Tidak,Tidak,2,1,-
+PAYM-0342,Surabaya Branch,Transfer Internal,38.47,2,Tidak,Tidak,2,1,-
+PAYM-0343,Bandung Branch,RTGS,90.51,23,Tidak,Tidak,1,1,-
+PAYM-0344,Surabaya Branch,BI-FAST,44.78,23,Tidak,Tidak,1,1,-
+PAYM-0345,Jakarta Branch,SKN,119.16,1,Tidak,Tidak,2,2,-
+PAYM-0346,Jakarta Branch,SKN,4894.49,3,Ya,Ya (Anomali),5,5,Transfer jumlah besar di dini hari (Jam 3) & Penerima Dana Baru (Mencurigakan)
+PAYM-0347,Bandung Branch,RTGS,53.15,23,Ya,Tidak,2,1,-
+PAYM-0348,Jakarta Branch,Transfer Internal,115.81,11,Ya,Tidak,1,2,-
+PAYM-0349,Jakarta Branch,Transfer Internal,88.51,7,Tidak,Tidak,2,1,-
+PAYM-0350,Surabaya Branch,SKN,78.6,19,Ya,Tidak,1,2,-
+PAYM-0351,Medan Branch,RTGS,52.96,7,Tidak,Tidak,2,1,-
+PAYM-0352,Bandung Branch,BI-FAST,7.49,17,Tidak,Tidak,2,1,-
+PAYM-0353,Medan Branch,Transfer Internal,34.49,3,Ya,Tidak,2,1,-
+PAYM-0354,Bandung Branch,Transfer Internal,85.11,10,Tidak,Tidak,2,1,-
+PAYM-0355,Medan Branch,BI-FAST,50.31,8,Tidak,Tidak,1,1,-
+PAYM-0356,Jakarta Branch,BI-FAST,5.82,11,Tidak,Tidak,1,1,-
+PAYM-0357,Medan Branch,Transfer Internal,52.91,16,Tidak,Tidak,1,2,-
+PAYM-0358,Medan Branch,Transfer Internal,14.59,7,Tidak,Tidak,2,1,-
+PAYM-0359,Surabaya Branch,BI-FAST,41.16,19,Tidak,Tidak,2,1,-
+PAYM-0360,Surabaya Branch,Transfer Internal,39.61,20,Ya,Tidak,2,2,-
+PAYM-0361,Surabaya Branch,SKN,28.87,12,Tidak,Tidak,2,2,-
+PAYM-0362,Bandung Branch,RTGS,49.74,9,Ya,Tidak,1,1,-
+PAYM-0363,Medan Branch,RTGS,86.69,5,Tidak,Tidak,2,2,-
+PAYM-0364,Jakarta Branch,SKN,2.31,11,Tidak,Tidak,1,1,-
+PAYM-0365,Jakarta Branch,SKN,88.56,8,Tidak,Tidak,1,1,-
+PAYM-0366,Bandung Branch,RTGS,36.63,14,Tidak,Tidak,2,2,-
+PAYM-0367,Surabaya Branch,BI-FAST,67.73,13,Ya,Tidak,2,2,-
+PAYM-0368,Medan Branch,Transfer Internal,4.27,12,Tidak,Tidak,1,1,-
+PAYM-0369,Surabaya Branch,RTGS,11.24,20,Tidak,Tidak,2,2,-
+PAYM-0370,Surabaya Branch,Transfer Internal,97.06,9,Tidak,Tidak,1,2,-
+PAYM-0371,Jakarta Branch,SKN,25.38,19,Ya,Tidak,1,1,-
+PAYM-0372,Bandung Branch,Transfer Internal,62.87,9,Ya,Tidak,1,1,-
+PAYM-0373,Medan Branch,SKN,21.71,20,Tidak,Tidak,2,2,-
+PAYM-0374,Jakarta Branch,Transfer Internal,155.52,11,Tidak,Tidak,1,1,-
+PAYM-0375,Bandung Branch,BI-FAST,141.13,10,Tidak,Tidak,1,2,-
+PAYM-0376,Medan Branch,RTGS,140.01,12,Tidak,Tidak,1,1,-
+PAYM-0377,Surabaya Branch,RTGS,34.78,21,Tidak,Tidak,2,2,-
+PAYM-0378,Medan Branch,RTGS,41.4,19,Tidak,Tidak,1,2,-
+PAYM-0379,Jakarta Branch,RTGS,6.54,21,Ya,Tidak,2,1,-
+PAYM-0380,Surabaya Branch,SKN,106.9,14,Tidak,Tidak,2,2,-
+PAYM-0381,Bandung Branch,Transfer Internal,20.84,2,Tidak,Tidak,1,2,-
+PAYM-0382,Bandung Branch,SKN,80.79,12,Tidak,Tidak,1,2,-
+PAYM-0383,Surabaya Branch,SKN,43.88,6,Ya,Tidak,1,1,-
+PAYM-0384,Surabaya Branch,BI-FAST,31.25,22,Tidak,Tidak,1,1,-
+PAYM-0385,Medan Branch,RTGS,83.26,11,Tidak,Tidak,1,1,-
+PAYM-0386,Medan Branch,Transfer Internal,113.98,20,Ya,Tidak,1,2,-
+PAYM-0387,Surabaya Branch,SKN,140.93,3,Tidak,Tidak,1,1,-
+PAYM-0388,Surabaya Branch,RTGS,51.18,1,Tidak,Tidak,1,2,-
+PAYM-0389,Medan Branch,SKN,203.0,16,Tidak,Tidak,2,2,-
+PAYM-0390,Jakarta Branch,RTGS,45.86,5,Tidak,Tidak,2,2,-
+PAYM-0391,Medan Branch,SKN,24.07,13,Tidak,Tidak,1,2,-
+PAYM-0392,Jakarta Branch,Transfer Internal,28.35,16,Tidak,Tidak,2,2,-
+PAYM-0393,Medan Branch,RTGS,5.86,16,Ya,Tidak,1,1,-
+PAYM-0394,Bandung Branch,Transfer Internal,26.45,7,Tidak,Tidak,2,1,-
+PAYM-0395,Surabaya Branch,SKN,47.33,19,Tidak,Tidak,1,2,-
+PAYM-0396,Bandung Branch,SKN,24.02,7,Tidak,Tidak,1,2,-
+PAYM-0397,Surabaya Branch,Transfer Internal,19.33,21,Tidak,Tidak,2,1,-
+PAYM-0398,Medan Branch,BI-FAST,59.59,23,Tidak,Tidak,2,2,-
+PAYM-0399,Medan Branch,BI-FAST,86.87,1,Ya,Tidak,2,1,-
+PAYM-0400,Bandung Branch,SKN,32.27,7,Tidak,Tidak,2,1,-
+PAYM-0401,Surabaya Branch,RTGS,21.98,9,Tidak,Tidak,1,1,-
+PAYM-0402,Bandung Branch,BI-FAST,144.79,17,Tidak,Tidak,2,2,-
+PAYM-0403,Surabaya Branch,RTGS,10.67,2,Tidak,Tidak,1,2,-
+PAYM-0404,Surabaya Branch,Transfer Internal,1971.95,1,Tidak,Ya (Anomali),3,5,Transfer jumlah besar di dini hari (Jam 1)
+PAYM-0405,Medan Branch,RTGS,53.75,9,Tidak,Tidak,1,2,-
+PAYM-0406,Surabaya Branch,BI-FAST,79.61,22,Tidak,Tidak,2,1,-
+PAYM-0407,Bandung Branch,Transfer Internal,107.6,21,Tidak,Tidak,1,2,-
+PAYM-0408,Surabaya Branch,Transfer Internal,5.16,18,Tidak,Tidak,2,2,-
+PAYM-0409,Bandung Branch,SKN,98.56,0,Ya,Tidak,2,1,-
+PAYM-0410,Medan Branch,BI-FAST,49.95,2,Ya,Tidak,2,2,-
+PAYM-0411,Surabaya Branch,Transfer Internal,29.97,13,Tidak,Tidak,1,2,-
+PAYM-0412,Surabaya Branch,Transfer Internal,90.63,11,Tidak,Tidak,2,2,-
+PAYM-0413,Surabaya Branch,RTGS,31.3,18,Tidak,Tidak,2,2,-
+PAYM-0414,Jakarta Branch,SKN,51.91,15,Ya,Tidak,2,1,-
+PAYM-0415,Jakarta Branch,BI-FAST,40.01,23,Ya,Tidak,1,1,-
+PAYM-0416,Bandung Branch,BI-FAST,83.22,11,Tidak,Tidak,2,2,-
+PAYM-0417,Surabaya Branch,Transfer Internal,7.17,9,Ya,Tidak,2,2,-
+PAYM-0418,Jakarta Branch,RTGS,13.62,20,Tidak,Tidak,1,2,-
+PAYM-0419,Jakarta Branch,BI-FAST,1.43,0,Tidak,Tidak,1,2,-
+PAYM-0420,Bandung Branch,SKN,1.98,4,Tidak,Tidak,1,2,-
+PAYM-0421,Surabaya Branch,RTGS,277.39,6,Tidak,Tidak,2,1,-
+PAYM-0422,Bandung Branch,BI-FAST,65.22,14,Tidak,Tidak,1,2,-
+PAYM-0423,Medan Branch,BI-FAST,8.75,10,Tidak,Tidak,2,2,-
+PAYM-0424,Jakarta Branch,BI-FAST,1.93,12,Tidak,Tidak,2,2,-
+PAYM-0425,Medan Branch,BI-FAST,44.4,2,Ya,Tidak,2,1,-
+PAYM-0426,Medan Branch,SKN,114.43,3,Tidak,Tidak,1,2,-
+PAYM-0427,Bandung Branch,Transfer Internal,108.59,0,Tidak,Tidak,2,2,-
+PAYM-0428,Surabaya Branch,RTGS,104.55,23,Tidak,Tidak,1,2,-
+PAYM-0429,Jakarta Branch,RTGS,123.27,7,Tidak,Tidak,2,1,-
+PAYM-0430,Jakarta Branch,SKN,134.94,22,Tidak,Tidak,2,2,-
+PAYM-0431,Medan Branch,RTGS,13.82,19,Ya,Tidak,1,2,-
+PAYM-0432,Bandung Branch,SKN,9.64,13,Tidak,Tidak,2,1,-
+PAYM-0433,Surabaya Branch,RTGS,25.81,12,Tidak,Tidak,1,2,-
+PAYM-0434,Bandung Branch,RTGS,3.58,20,Tidak,Tidak,1,2,-
+PAYM-0435,Surabaya Branch,Transfer Internal,9.3,23,Tidak,Tidak,2,1,-
+PAYM-0436,Jakarta Branch,RTGS,98.63,4,Tidak,Tidak,2,2,-
+PAYM-0437,Surabaya Branch,RTGS,30.99,2,Tidak,Tidak,1,1,-
+PAYM-0438,Bandung Branch,BI-FAST,199.79,1,Tidak,Tidak,2,1,-
+PAYM-0439,Medan Branch,BI-FAST,10.38,21,Tidak,Tidak,2,2,-
+PAYM-0440,Jakarta Branch,RTGS,1614.82,0,Tidak,Ya (Anomali),5,4,Transfer jumlah besar di dini hari (Jam 0)
+PAYM-0441,Medan Branch,SKN,71.43,2,Tidak,Tidak,1,2,-
+PAYM-0442,Bandung Branch,BI-FAST,8.33,14,Tidak,Tidak,1,2,-
+PAYM-0443,Jakarta Branch,BI-FAST,69.03,15,Tidak,Tidak,2,2,-
+PAYM-0444,Medan Branch,BI-FAST,30.08,11,Tidak,Tidak,2,2,-
+PAYM-0445,Surabaya Branch,Transfer Internal,96.63,15,Tidak,Tidak,1,2,-
+PAYM-0446,Bandung Branch,RTGS,112.47,8,Ya,Tidak,2,1,-
+PAYM-0447,Surabaya Branch,RTGS,84.74,15,Ya,Tidak,2,2,-
+PAYM-0448,Surabaya Branch,SKN,34.68,22,Tidak,Tidak,2,1,-
+PAYM-0449,Surabaya Branch,RTGS,18.07,15,Tidak,Tidak,1,2,-
+PAYM-0450,Bandung Branch,Transfer Internal,32.99,18,Tidak,Tidak,2,2,-
+PAYM-0451,Jakarta Branch,Transfer Internal,2.49,7,Ya,Tidak,1,1,-
+PAYM-0452,Jakarta Branch,Transfer Internal,31.58,19,Tidak,Tidak,2,2,-
+PAYM-0453,Bandung Branch,RTGS,11.03,13,Tidak,Tidak,1,1,-
+PAYM-0454,Medan Branch,Transfer Internal,49.21,5,Tidak,Tidak,2,2,-
+PAYM-0455,Medan Branch,RTGS,164.87,8,Tidak,Tidak,1,2,-
+PAYM-0456,Jakarta Branch,Transfer Internal,12.97,21,Tidak,Tidak,1,1,-
+PAYM-0457,Medan Branch,RTGS,22.69,11,Tidak,Tidak,2,2,-
+PAYM-0458,Medan Branch,Transfer Internal,91.44,18,Ya,Tidak,1,1,-
+PAYM-0459,Jakarta Branch,BI-FAST,22.67,7,Tidak,Tidak,1,1,-
+PAYM-0460,Bandung Branch,SKN,35.85,19,Tidak,Tidak,1,2,-
+PAYM-0461,Jakarta Branch,Transfer Internal,106.88,0,Ya,Tidak,1,1,-
+PAYM-0462,Jakarta Branch,RTGS,122.14,0,Tidak,Tidak,2,1,-
+PAYM-0463,Medan Branch,BI-FAST,50.54,1,Tidak,Tidak,2,1,-
+PAYM-0464,Medan Branch,BI-FAST,92.08,19,Tidak,Tidak,1,1,-
+PAYM-0465,Jakarta Branch,Transfer Internal,31.89,0,Tidak,Tidak,2,1,-
+PAYM-0466,Bandung Branch,Transfer Internal,114.18,15,Tidak,Tidak,1,2,-
+PAYM-0467,Jakarta Branch,SKN,87.77,16,Tidak,Tidak,1,1,-
+PAYM-0468,Surabaya Branch,SKN,3.33,17,Tidak,Tidak,1,2,-
+PAYM-0469,Surabaya Branch,Transfer Internal,12.19,1,Tidak,Tidak,1,1,-
+PAYM-0470,Medan Branch,Transfer Internal,69.35,14,Tidak,Tidak,2,1,-
+PAYM-0471,Surabaya Branch,Transfer Internal,80.73,17,Tidak,Tidak,1,2,-
+PAYM-0472,Surabaya Branch,RTGS,8.98,18,Tidak,Tidak,1,1,-
+PAYM-0473,Bandung Branch,SKN,49.89,3,Ya,Tidak,2,1,-
+PAYM-0474,Jakarta Branch,Transfer Internal,5.35,16,Tidak,Tidak,1,1,-
+PAYM-0475,Bandung Branch,RTGS,4.05,15,Tidak,Tidak,2,2,-
+PAYM-0476,Surabaya Branch,RTGS,53.05,12,Ya,Tidak,2,2,-
+PAYM-0477,Surabaya Branch,SKN,55.5,14,Tidak,Tidak,2,2,-
+PAYM-0478,Jakarta Branch,Transfer Internal,73.95,10,Ya,Tidak,1,1,-
+PAYM-0479,Medan Branch,BI-FAST,60.89,13,Tidak,Tidak,2,1,-
+PAYM-0480,Jakarta Branch,Transfer Internal,74.53,13,Tidak,Tidak,2,2,-
+PAYM-0481,Jakarta Branch,SKN,20.34,19,Tidak,Tidak,1,1,-
+PAYM-0482,Medan Branch,RTGS,2.83,12,Tidak,Tidak,2,2,-
+PAYM-0483,Surabaya Branch,BI-FAST,7.54,3,Ya,Tidak,1,2,-
+PAYM-0484,Jakarta Branch,SKN,9.38,8,Ya,Tidak,1,1,-
+PAYM-0485,Jakarta Branch,RTGS,14.01,4,Tidak,Tidak,2,2,-
+PAYM-0486,Surabaya Branch,SKN,12.94,12,Ya,Tidak,1,1,-
+PAYM-0487,Medan Branch,SKN,55.92,8,Tidak,Tidak,2,2,-
+PAYM-0488,Jakarta Branch,Transfer Internal,10.66,7,Tidak,Tidak,2,1,-
+PAYM-0489,Jakarta Branch,Transfer Internal,49.89,12,Tidak,Tidak,2,2,-
+PAYM-0490,Jakarta Branch,Transfer Internal,8.72,11,Tidak,Tidak,2,2,-
+PAYM-0491,Medan Branch,BI-FAST,17.95,17,Tidak,Tidak,2,1,-
+PAYM-0492,Medan Branch,BI-FAST,29.86,22,Ya,Tidak,1,2,-
+PAYM-0493,Bandung Branch,Transfer Internal,18.12,2,Tidak,Tidak,1,1,-
+PAYM-0494,Jakarta Branch,BI-FAST,13.21,23,Ya,Tidak,1,1,-
+PAYM-0495,Medan Branch,Transfer Internal,18.79,22,Tidak,Tidak,1,1,-
+PAYM-0496,Bandung Branch,BI-FAST,1.79,14,Tidak,Tidak,2,2,-
+PAYM-0497,Jakarta Branch,BI-FAST,12.39,17,Tidak,Tidak,2,1,-
+PAYM-0498,Jakarta Branch,RTGS,182.25,16,Tidak,Tidak,1,1,-
+PAYM-0499,Medan Branch,BI-FAST,39.48,5,Tidak,Tidak,1,2,-
+PAYM-0500,Medan Branch,SKN,77.14,18,Ya,Tidak,2,2,-
+PAYM-0501,Medan Branch,RTGS,7.0,14,Tidak,Tidak,1,1,-
+PAYM-0502,Medan Branch,SKN,100.75,6,Tidak,Tidak,1,2,-
+PAYM-0503,Medan Branch,BI-FAST,174.12,21,Tidak,Tidak,2,1,-
+PAYM-0504,Surabaya Branch,SKN,12.09,6,Ya,Tidak,1,1,-
+PAYM-0505,Surabaya Branch,Transfer Internal,59.65,15,Ya,Tidak,2,2,-
+PAYM-0506,Bandung Branch,RTGS,15.83,15,Tidak,Tidak,1,2,-
+PAYM-0507,Medan Branch,SKN,13.59,8,Tidak,Tidak,2,2,-
+PAYM-0508,Bandung Branch,Transfer Internal,43.97,23,Ya,Tidak,1,1,-
+PAYM-0509,Bandung Branch,SKN,95.68,9,Tidak,Tidak,2,1,-
+PAYM-0510,Jakarta Branch,SKN,86.96,22,Ya,Tidak,1,1,-
+PAYM-0511,Bandung Branch,BI-FAST,63.28,16,Ya,Tidak,1,2,-
+PAYM-0512,Surabaya Branch,SKN,149.39,6,Tidak,Tidak,2,1,-
+PAYM-0513,Jakarta Branch,BI-FAST,274.81,7,Tidak,Tidak,1,1,-
+PAYM-0514,Medan Branch,SKN,17.24,12,Tidak,Tidak,1,1,-
+PAYM-0515,Jakarta Branch,SKN,145.71,17,Tidak,Tidak,1,1,-
+PAYM-0516,Jakarta Branch,RTGS,75.05,10,Tidak,Tidak,1,1,-
+PAYM-0517,Surabaya Branch,SKN,29.82,11,Tidak,Tidak,1,1,-
+PAYM-0518,Bandung Branch,Transfer Internal,22.14,14,Tidak,Tidak,2,1,-
+PAYM-0519,Surabaya Branch,Transfer Internal,201.53,16,Ya,Tidak,2,2,-
+PAYM-0520,Jakarta Branch,Transfer Internal,18.18,2,Tidak,Tidak,1,1,-
+PAYM-0521,Medan Branch,Transfer Internal,12.15,11,Ya,Tidak,2,1,-
+PAYM-0522,Bandung Branch,RTGS,140.6,6,Tidak,Tidak,1,2,-
+PAYM-0523,Jakarta Branch,SKN,206.24,16,Tidak,Tidak,1,2,-
+PAYM-0524,Jakarta Branch,Transfer Internal,9.43,6,Tidak,Tidak,1,1,-
+PAYM-0525,Medan Branch,RTGS,96.8,5,Tidak,Tidak,2,2,-
+PAYM-0526,Jakarta Branch,Transfer Internal,55.27,22,Tidak,Tidak,2,2,-
+PAYM-0527,Jakarta Branch,RTGS,59.42,10,Tidak,Tidak,1,1,-
+PAYM-0528,Jakarta Branch,SKN,79.42,16,Tidak,Tidak,1,1,-
+PAYM-0529,Surabaya Branch,BI-FAST,6.85,9,Tidak,Tidak,1,1,-
+PAYM-0530,Jakarta Branch,RTGS,1.04,2,Tidak,Tidak,1,1,-
+PAYM-0531,Surabaya Branch,Transfer Internal,65.21,1,Tidak,Tidak,2,1,-
+PAYM-0532,Jakarta Branch,BI-FAST,58.39,0,Tidak,Tidak,1,2,-
+PAYM-0533,Medan Branch,SKN,102.9,18,Ya,Tidak,1,2,-
+PAYM-0534,Medan Branch,SKN,87.38,7,Ya,Tidak,1,1,-
+PAYM-0535,Jakarta Branch,SKN,11.35,10,Ya,Tidak,2,1,-
+PAYM-0536,Jakarta Branch,BI-FAST,6.7,7,Tidak,Tidak,2,2,-
+PAYM-0537,Surabaya Branch,SKN,89.57,7,Tidak,Tidak,2,2,-
+PAYM-0538,Medan Branch,BI-FAST,91.86,12,Tidak,Tidak,1,1,-
+PAYM-0539,Medan Branch,BI-FAST,45.29,0,Tidak,Tidak,1,2,-
+PAYM-0540,Jakarta Branch,RTGS,7.44,14,Tidak,Tidak,2,2,-
+PAYM-0541,Jakarta Branch,SKN,69.34,18,Tidak,Tidak,1,1,-
+PAYM-0542,Bandung Branch,Transfer Internal,61.61,19,Tidak,Tidak,2,2,-
+PAYM-0543,Medan Branch,SKN,39.99,5,Tidak,Tidak,2,1,-
+PAYM-0544,Medan Branch,BI-FAST,9.61,18,Tidak,Tidak,2,2,-
+PAYM-0545,Bandung Branch,Transfer Internal,112.08,5,Tidak,Tidak,1,2,-
+PAYM-0546,Surabaya Branch,BI-FAST,35.46,9,Ya,Tidak,1,2,-
+PAYM-0547,Medan Branch,BI-FAST,183.16,19,Tidak,Tidak,1,1,-
+PAYM-0548,Surabaya Branch,Transfer Internal,158.48,17,Tidak,Tidak,1,1,-
+PAYM-0549,Medan Branch,SKN,285.03,22,Tidak,Tidak,2,1,-
+PAYM-0550,Jakarta Branch,RTGS,60.24,20,Tidak,Tidak,1,2,-
+PAYM-0551,Bandung Branch,RTGS,18.3,18,Tidak,Tidak,1,1,-
+PAYM-0552,Surabaya Branch,RTGS,46.99,16,Tidak,Tidak,2,1,-
+PAYM-0553,Surabaya Branch,RTGS,16.6,8,Ya,Tidak,2,1,-
+PAYM-0554,Medan Branch,SKN,73.97,21,Tidak,Tidak,2,1,-
+PAYM-0555,Surabaya Branch,BI-FAST,4.33,5,Tidak,Tidak,2,2,-
+PAYM-0556,Bandung Branch,BI-FAST,260.82,9,Tidak,Tidak,2,2,-
+PAYM-0557,Surabaya Branch,BI-FAST,3.18,8,Tidak,Tidak,2,2,-
+PAYM-0558,Medan Branch,BI-FAST,16.14,11,Tidak,Tidak,2,2,-
+PAYM-0559,Bandung Branch,Transfer Internal,128.24,15,Tidak,Tidak,1,2,-
+PAYM-0560,Bandung Branch,BI-FAST,5.48,6,Tidak,Tidak,2,1,-
+PAYM-0561,Medan Branch,BI-FAST,29.68,17,Tidak,Tidak,2,1,-
+PAYM-0562,Jakarta Branch,SKN,77.05,10,Tidak,Tidak,1,2,-
+PAYM-0563,Bandung Branch,SKN,31.29,3,Tidak,Tidak,1,1,-
+PAYM-0564,Surabaya Branch,RTGS,1.25,18,Tidak,Tidak,2,2,-
+PAYM-0565,Surabaya Branch,RTGS,20.29,3,Ya,Tidak,2,1,-
+PAYM-0566,Bandung Branch,RTGS,8.37,0,Tidak,Tidak,1,2,-
+PAYM-0567,Medan Branch,BI-FAST,24.31,8,Tidak,Tidak,1,1,-
+PAYM-0568,Medan Branch,BI-FAST,4.93,19,Tidak,Tidak,1,1,-
+PAYM-0569,Medan Branch,RTGS,110.22,12,Tidak,Tidak,2,2,-
+PAYM-0570,Bandung Branch,SKN,21.6,22,Tidak,Tidak,1,2,-
+PAYM-0571,Surabaya Branch,BI-FAST,53.63,12,Ya,Tidak,2,1,-
+PAYM-0572,Bandung Branch,BI-FAST,9.86,17,Ya,Tidak,1,2,-
+PAYM-0573,Bandung Branch,RTGS,37.63,20,Tidak,Tidak,2,2,-
+PAYM-0574,Bandung Branch,RTGS,12.36,10,Tidak,Tidak,1,2,-
+PAYM-0575,Surabaya Branch,BI-FAST,29.6,3,Tidak,Tidak,1,1,-
+PAYM-0576,Bandung Branch,RTGS,16.19,17,Tidak,Tidak,1,2,-
+PAYM-0577,Jakarta Branch,SKN,47.52,1,Tidak,Tidak,1,1,-
+PAYM-0578,Surabaya Branch,Transfer Internal,30.78,14,Tidak,Tidak,2,2,-
+PAYM-0579,Medan Branch,RTGS,113.86,12,Tidak,Tidak,1,1,-
+PAYM-0580,Jakarta Branch,SKN,36.82,6,Ya,Tidak,2,2,-
+PAYM-0581,Jakarta Branch,SKN,46.47,9,Tidak,Tidak,2,2,-
+PAYM-0582,Bandung Branch,BI-FAST,10.55,11,Tidak,Tidak,1,1,-
+PAYM-0583,Jakarta Branch,SKN,60.31,6,Tidak,Tidak,1,1,-
+PAYM-0584,Bandung Branch,RTGS,22.85,8,Tidak,Tidak,1,2,-
+PAYM-0585,Bandung Branch,Transfer Internal,140.63,17,Tidak,Tidak,1,1,-
+PAYM-0586,Bandung Branch,SKN,31.84,5,Ya,Tidak,1,1,-
+PAYM-0587,Bandung Branch,RTGS,1.04,1,Tidak,Tidak,1,1,-
+PAYM-0588,Surabaya Branch,BI-FAST,1.71,18,Tidak,Tidak,2,1,-
+PAYM-0589,Medan Branch,Transfer Internal,2.71,23,Ya,Tidak,2,2,-
+PAYM-0590,Bandung Branch,RTGS,43.03,10,Ya,Tidak,2,1,-
+PAYM-0591,Jakarta Branch,SKN,28.78,18,Tidak,Tidak,2,2,-
+PAYM-0592,Jakarta Branch,SKN,58.57,13,Tidak,Tidak,2,2,-
+PAYM-0593,Medan Branch,BI-FAST,15.67,2,Tidak,Tidak,2,2,-
+PAYM-0594,Bandung Branch,SKN,82.07,16,Tidak,Tidak,1,1,-
+PAYM-0595,Surabaya Branch,BI-FAST,11.53,8,Tidak,Tidak,1,1,-
+PAYM-0596,Medan Branch,SKN,4.59,19,Tidak,Tidak,2,1,-
+PAYM-0597,Bandung Branch,Transfer Internal,40.02,22,Tidak,Tidak,2,1,-
+PAYM-0598,Jakarta Branch,Transfer Internal,47.63,2,Tidak,Tidak,2,2,-
+PAYM-0599,Bandung Branch,Transfer Internal,35.19,3,Tidak,Tidak,2,2,-
+PAYM-0600,Surabaya Branch,Transfer Internal,69.8,18,Ya,Tidak,1,1,-
+PAYM-0601,Surabaya Branch,BI-FAST,20.39,9,Tidak,Tidak,2,1,-
+PAYM-0602,Jakarta Branch,BI-FAST,20.7,17,Tidak,Tidak,1,2,-
+PAYM-0603,Medan Branch,RTGS,28.04,17,Tidak,Tidak,1,2,-
+PAYM-0604,Medan Branch,BI-FAST,35.7,19,Tidak,Tidak,2,1,-
+PAYM-0605,Jakarta Branch,RTGS,14.03,15,Tidak,Tidak,2,2,-
+PAYM-0606,Jakarta Branch,BI-FAST,35.14,23,Tidak,Tidak,1,2,-
+PAYM-0607,Jakarta Branch,BI-FAST,44.13,0,Tidak,Tidak,1,1,-
+PAYM-0608,Surabaya Branch,SKN,134.9,9,Tidak,Tidak,2,1,-
+PAYM-0609,Bandung Branch,SKN,3.84,23,Tidak,Tidak,2,1,-
+PAYM-0610,Jakarta Branch,BI-FAST,93.33,1,Tidak,Tidak,2,2,-
+PAYM-0611,Surabaya Branch,SKN,9.77,10,Ya,Tidak,2,2,-
+PAYM-0612,Jakarta Branch,Transfer Internal,17.13,21,Tidak,Tidak,1,1,-
+PAYM-0613,Jakarta Branch,RTGS,5.54,2,Tidak,Tidak,2,2,-
+PAYM-0614,Medan Branch,SKN,21.07,21,Tidak,Tidak,1,2,-
+PAYM-0615,Bandung Branch,BI-FAST,46.72,11,Tidak,Tidak,1,2,-
+PAYM-0616,Surabaya Branch,RTGS,15.35,7,Tidak,Tidak,2,2,-
+PAYM-0617,Bandung Branch,Transfer Internal,25.75,0,Tidak,Tidak,1,1,-
+PAYM-0618,Jakarta Branch,RTGS,261.49,22,Ya,Tidak,1,1,-
+PAYM-0619,Bandung Branch,SKN,33.41,20,Ya,Tidak,1,2,-
+PAYM-0620,Jakarta Branch,SKN,4.37,22,Tidak,Tidak,2,1,-
+PAYM-0621,Jakarta Branch,SKN,23.38,2,Ya,Tidak,1,2,-
+PAYM-0622,Jakarta Branch,Transfer Internal,49.99,11,Ya,Tidak,1,1,-
+PAYM-0623,Jakarta Branch,BI-FAST,108.24,10,Tidak,Tidak,1,1,-
+PAYM-0624,Jakarta Branch,BI-FAST,37.07,6,Tidak,Tidak,2,2,-
+PAYM-0625,Jakarta Branch,RTGS,125.87,12,Tidak,Tidak,1,2,-
+PAYM-0626,Surabaya Branch,BI-FAST,37.8,13,Tidak,Tidak,2,1,-
+PAYM-0627,Bandung Branch,Transfer Internal,23.55,23,Tidak,Tidak,2,1,-
+PAYM-0628,Surabaya Branch,Transfer Internal,31.88,1,Ya,Tidak,2,2,-
+PAYM-0629,Jakarta Branch,RTGS,4.95,23,Tidak,Tidak,2,1,-
+PAYM-0630,Surabaya Branch,SKN,21.67,5,Ya,Tidak,2,1,-
+PAYM-0631,Bandung Branch,SKN,52.85,18,Tidak,Tidak,2,1,-
+PAYM-0632,Surabaya Branch,RTGS,3485.36,1,Tidak,Ya (Anomali),5,4,Transfer jumlah besar di dini hari (Jam 1)
+PAYM-0633,Surabaya Branch,RTGS,28.2,18,Tidak,Tidak,1,1,-
+PAYM-0634,Jakarta Branch,Transfer Internal,36.41,7,Tidak,Tidak,2,2,-
+PAYM-0635,Jakarta Branch,BI-FAST,17.06,6,Tidak,Tidak,2,2,-
+PAYM-0636,Bandung Branch,RTGS,18.81,21,Tidak,Tidak,2,2,-
+PAYM-0637,Bandung Branch,Transfer Internal,11.02,5,Tidak,Tidak,1,2,-
+PAYM-0638,Bandung Branch,Transfer Internal,87.42,7,Tidak,Tidak,1,2,-
+PAYM-0639,Surabaya Branch,RTGS,7.53,17,Tidak,Tidak,1,1,-
+PAYM-0640,Jakarta Branch,RTGS,131.53,10,Tidak,Tidak,2,1,-
+PAYM-0641,Medan Branch,BI-FAST,49.36,20,Tidak,Tidak,2,1,-
+PAYM-0642,Surabaya Branch,SKN,18.26,13,Tidak,Tidak,1,2,-
+PAYM-0643,Surabaya Branch,SKN,35.13,15,Tidak,Tidak,2,1,-
+PAYM-0644,Medan Branch,SKN,4.62,10,Tidak,Tidak,2,2,-
+PAYM-0645,Jakarta Branch,BI-FAST,130.89,2,Tidak,Tidak,1,1,-
+PAYM-0646,Medan Branch,Transfer Internal,40.4,20,Tidak,Tidak,2,2,-
+PAYM-0647,Jakarta Branch,RTGS,12.07,14,Tidak,Tidak,1,2,-
+PAYM-0648,Bandung Branch,SKN,15.26,9,Tidak,Tidak,2,1,-
+PAYM-0649,Jakarta Branch,RTGS,28.44,6,Tidak,Tidak,1,1,-
+PAYM-0650,Medan Branch,RTGS,30.98,9,Tidak,Tidak,1,1,-
+PAYM-0651,Jakarta Branch,SKN,54.07,5,Ya,Tidak,2,1,-
+PAYM-0652,Jakarta Branch,BI-FAST,5.21,3,Tidak,Tidak,1,2,-
+PAYM-0653,Jakarta Branch,BI-FAST,59.83,11,Tidak,Tidak,1,1,-
+PAYM-0654,Bandung Branch,SKN,33.27,16,Tidak,Tidak,2,2,-
+PAYM-0655,Jakarta Branch,RTGS,16.02,22,Tidak,Tidak,1,1,-
+PAYM-0656,Bandung Branch,Transfer Internal,6.74,17,Tidak,Tidak,1,2,-
+PAYM-0657,Surabaya Branch,Transfer Internal,29.91,2,Tidak,Tidak,1,2,-
+PAYM-0658,Bandung Branch,Transfer Internal,51.64,22,Tidak,Tidak,2,2,-
+PAYM-0659,Medan Branch,Transfer Internal,48.09,23,Tidak,Tidak,1,2,-
+PAYM-0660,Bandung Branch,RTGS,1.7,19,Tidak,Tidak,1,2,-
+PAYM-0661,Surabaya Branch,SKN,152.96,23,Ya,Tidak,2,2,-
+PAYM-0662,Bandung Branch,RTGS,110.57,8,Ya,Tidak,2,2,-
+PAYM-0663,Jakarta Branch,BI-FAST,20.54,6,Tidak,Tidak,1,1,-
+PAYM-0664,Jakarta Branch,RTGS,4.11,16,Tidak,Tidak,1,1,-
+PAYM-0665,Surabaya Branch,RTGS,13.29,17,Tidak,Tidak,2,2,-
+PAYM-0666,Surabaya Branch,Transfer Internal,50.83,16,Tidak,Tidak,2,2,-
+PAYM-0667,Jakarta Branch,Transfer Internal,5.73,18,Tidak,Tidak,2,1,-
+PAYM-0668,Surabaya Branch,SKN,50.08,12,Tidak,Tidak,2,1,-
+PAYM-0669,Jakarta Branch,SKN,11.65,22,Tidak,Tidak,2,2,-
+PAYM-0670,Surabaya Branch,BI-FAST,128.97,5,Tidak,Tidak,1,2,-
+PAYM-0671,Surabaya Branch,Transfer Internal,27.69,1,Tidak,Tidak,1,1,-
+PAYM-0672,Surabaya Branch,Transfer Internal,24.92,7,Tidak,Tidak,2,2,-
+PAYM-0673,Jakarta Branch,Transfer Internal,26.51,18,Ya,Tidak,1,1,-
+PAYM-0674,Surabaya Branch,Transfer Internal,76.71,6,Ya,Tidak,1,2,-
+PAYM-0675,Surabaya Branch,RTGS,66.06,17,Tidak,Tidak,2,2,-
+PAYM-0676,Medan Branch,RTGS,40.34,13,Ya,Tidak,2,2,-
+PAYM-0677,Bandung Branch,SKN,15.69,18,Ya,Tidak,1,2,-
+PAYM-0678,Medan Branch,Transfer Internal,57.15,11,Tidak,Tidak,2,2,-
+PAYM-0679,Surabaya Branch,BI-FAST,9.47,19,Tidak,Tidak,2,2,-
+PAYM-0680,Jakarta Branch,SKN,26.38,22,Tidak,Tidak,2,1,-
+PAYM-0681,Jakarta Branch,SKN,11.04,12,Tidak,Tidak,1,1,-
+PAYM-0682,Bandung Branch,RTGS,16.25,10,Tidak,Tidak,1,1,-
+PAYM-0683,Jakarta Branch,RTGS,33.91,15,Tidak,Tidak,1,2,-
+PAYM-0684,Surabaya Branch,BI-FAST,36.73,11,Ya,Tidak,2,2,-
+PAYM-0685,Medan Branch,Transfer Internal,82.21,21,Tidak,Tidak,1,1,-
+PAYM-0686,Surabaya Branch,BI-FAST,9.14,3,Ya,Tidak,2,2,-
+PAYM-0687,Bandung Branch,BI-FAST,59.65,17,Ya,Tidak,2,2,-
+PAYM-0688,Bandung Branch,BI-FAST,42.1,21,Ya,Tidak,1,2,-
+PAYM-0689,Medan Branch,SKN,9.76,10,Tidak,Tidak,1,1,-
+PAYM-0690,Jakarta Branch,RTGS,63.78,6,Tidak,Tidak,1,1,-
+PAYM-0691,Surabaya Branch,RTGS,3.19,20,Tidak,Tidak,1,2,-
+PAYM-0692,Jakarta Branch,RTGS,16.4,3,Tidak,Tidak,1,2,-
+PAYM-0693,Jakarta Branch,BI-FAST,50.89,20,Tidak,Tidak,2,2,-
+PAYM-0694,Surabaya Branch,SKN,33.99,1,Tidak,Tidak,1,2,-
+PAYM-0695,Medan Branch,BI-FAST,39.45,22,Ya,Tidak,1,1,-
+PAYM-0696,Surabaya Branch,SKN,32.5,17,Tidak,Tidak,1,2,-
+PAYM-0697,Medan Branch,Transfer Internal,4.37,7,Tidak,Tidak,2,1,-
+PAYM-0698,Bandung Branch,BI-FAST,73.78,12,Ya,Tidak,1,1,-
+PAYM-0699,Bandung Branch,Transfer Internal,55.67,12,Ya,Tidak,1,2,-
+PAYM-0700,Surabaya Branch,Transfer Internal,61.73,20,Tidak,Tidak,2,1,-
+PAYM-0701,Bandung Branch,RTGS,36.58,17,Tidak,Tidak,1,1,-
+PAYM-0702,Bandung Branch,BI-FAST,80.88,17,Tidak,Tidak,2,1,-
+PAYM-0703,Surabaya Branch,Transfer Internal,26.51,23,Tidak,Tidak,2,1,-
+PAYM-0704,Bandung Branch,RTGS,26.02,4,Ya,Tidak,2,1,-
+PAYM-0705,Medan Branch,BI-FAST,45.17,8,Tidak,Tidak,1,1,-
+PAYM-0706,Bandung Branch,Transfer Internal,3976.89,0,Tidak,Ya (Anomali),5,3,Transfer jumlah besar di dini hari (Jam 0)
+PAYM-0707,Medan Branch,SKN,10.16,12,Tidak,Tidak,1,2,-
+PAYM-0708,Bandung Branch,BI-FAST,72.55,5,Tidak,Tidak,2,1,-
+PAYM-0709,Surabaya Branch,BI-FAST,4.54,0,Tidak,Tidak,2,1,-
+PAYM-0710,Surabaya Branch,BI-FAST,86.41,6,Tidak,Tidak,1,2,-
+PAYM-0711,Medan Branch,SKN,21.47,12,Tidak,Tidak,1,1,-
+PAYM-0712,Bandung Branch,Transfer Internal,45.15,21,Ya,Tidak,2,2,-
+PAYM-0713,Surabaya Branch,Transfer Internal,2.66,22,Ya,Tidak,1,2,-
+PAYM-0714,Surabaya Branch,SKN,12.91,16,Ya,Tidak,1,2,-
+PAYM-0715,Medan Branch,RTGS,11.08,22,Tidak,Tidak,1,2,-
+PAYM-0716,Bandung Branch,BI-FAST,11.97,10,Tidak,Tidak,2,1,-
+PAYM-0717,Medan Branch,RTGS,3.82,12,Tidak,Tidak,1,1,-
+PAYM-0718,Surabaya Branch,RTGS,8.62,9,Tidak,Tidak,1,1,-
+PAYM-0719,Medan Branch,SKN,62.79,3,Tidak,Tidak,2,1,-
+PAYM-0720,Jakarta Branch,BI-FAST,36.92,4,Ya,Tidak,1,2,-
+PAYM-0721,Medan Branch,SKN,32.2,12,Tidak,Tidak,2,2,-
+PAYM-0722,Surabaya Branch,SKN,144.0,6,Tidak,Tidak,1,2,-
+PAYM-0723,Medan Branch,BI-FAST,46.8,18,Tidak,Tidak,1,1,-
+PAYM-0724,Jakarta Branch,RTGS,16.82,6,Tidak,Tidak,1,1,-
+PAYM-0725,Bandung Branch,BI-FAST,5.37,17,Tidak,Tidak,1,1,-
+PAYM-0726,Jakarta Branch,Transfer Internal,14.45,10,Tidak,Tidak,1,1,-
+PAYM-0727,Medan Branch,Transfer Internal,117.65,9,Tidak,Tidak,2,2,-
+PAYM-0728,Jakarta Branch,RTGS,22.31,10,Ya,Tidak,2,2,-
+PAYM-0729,Jakarta Branch,SKN,5.78,16,Ya,Tidak,2,1,-
+PAYM-0730,Bandung Branch,RTGS,33.13,11,Tidak,Tidak,1,2,-
+PAYM-0731,Surabaya Branch,BI-FAST,22.79,9,Tidak,Tidak,1,2,-
+PAYM-0732,Jakarta Branch,BI-FAST,3.08,18,Tidak,Tidak,1,1,-
+PAYM-0733,Jakarta Branch,RTGS,12.63,13,Tidak,Tidak,1,1,-
+PAYM-0734,Medan Branch,RTGS,28.19,14,Tidak,Tidak,1,2,-
+PAYM-0735,Medan Branch,RTGS,18.33,2,Tidak,Tidak,1,2,-
+PAYM-0736,Surabaya Branch,Transfer Internal,78.55,21,Tidak,Tidak,2,2,-
+PAYM-0737,Medan Branch,Transfer Internal,10.8,23,Tidak,Tidak,2,2,-
+PAYM-0738,Medan Branch,Transfer Internal,58.58,13,Tidak,Tidak,1,1,-
+PAYM-0739,Medan Branch,SKN,14.22,6,Tidak,Tidak,1,2,-
+PAYM-0740,Surabaya Branch,RTGS,47.51,17,Ya,Tidak,2,2,-
+PAYM-0741,Medan Branch,BI-FAST,41.02,6,Tidak,Tidak,2,1,-
+PAYM-0742,Surabaya Branch,Transfer Internal,7.8,14,Tidak,Tidak,1,1,-
+PAYM-0743,Medan Branch,BI-FAST,9.57,2,Ya,Tidak,2,1,-
+PAYM-0744,Surabaya Branch,SKN,34.22,23,Tidak,Tidak,2,2,-
+PAYM-0745,Jakarta Branch,RTGS,59.29,12,Ya,Tidak,2,1,-
+PAYM-0746,Jakarta Branch,RTGS,16.57,22,Ya,Tidak,1,1,-
+PAYM-0747,Bandung Branch,BI-FAST,75.3,11,Tidak,Tidak,2,2,-
+PAYM-0748,Medan Branch,BI-FAST,30.28,19,Ya,Tidak,2,1,-
+PAYM-0749,Medan Branch,SKN,64.66,21,Tidak,Tidak,1,1,-
+PAYM-0750,Bandung Branch,RTGS,38.54,22,Tidak,Tidak,2,1,-
+PAYM-0751,Jakarta Branch,BI-FAST,264.24,9,Tidak,Tidak,2,1,-
+PAYM-0752,Bandung Branch,RTGS,57.72,15,Tidak,Tidak,1,1,-
+PAYM-0753,Surabaya Branch,BI-FAST,36.04,19,Tidak,Tidak,2,2,-
+PAYM-0754,Jakarta Branch,SKN,2.09,12,Tidak,Tidak,1,2,-
+PAYM-0755,Jakarta Branch,RTGS,33.81,16,Ya,Tidak,2,1,-
+PAYM-0756,Medan Branch,RTGS,49.46,12,Tidak,Tidak,2,2,-
+PAYM-0757,Jakarta Branch,Transfer Internal,29.66,18,Tidak,Tidak,2,2,-
+PAYM-0758,Medan Branch,RTGS,71.98,21,Tidak,Tidak,1,1,-
+PAYM-0759,Surabaya Branch,SKN,14.81,16,Tidak,Tidak,2,2,-
+PAYM-0760,Surabaya Branch,Transfer Internal,22.21,5,Tidak,Tidak,1,2,-
+PAYM-0761,Jakarta Branch,BI-FAST,167.18,1,Ya,Tidak,1,2,-
+PAYM-0762,Bandung Branch,Transfer Internal,10.47,9,Ya,Tidak,1,2,-
+PAYM-0763,Surabaya Branch,Transfer Internal,32.67,20,Tidak,Tidak,1,1,-
+PAYM-0764,Bandung Branch,Transfer Internal,69.77,19,Tidak,Tidak,1,1,-
+PAYM-0765,Medan Branch,BI-FAST,1508.67,23,Tidak,Ya (Anomali),4,3,Transfer jumlah besar di dini hari (Jam 23)
+PAYM-0766,Surabaya Branch,RTGS,25.67,3,Ya,Tidak,1,1,-
+PAYM-0767,Surabaya Branch,RTGS,8.22,7,Tidak,Tidak,1,2,-
+PAYM-0768,Surabaya Branch,BI-FAST,6.61,1,Ya,Tidak,2,2,-
+PAYM-0769,Bandung Branch,BI-FAST,9.36,5,Tidak,Tidak,1,1,-
+PAYM-0770,Medan Branch,SKN,31.22,0,Ya,Tidak,2,2,-
+PAYM-0771,Bandung Branch,SKN,49.09,5,Ya,Tidak,2,1,-
+PAYM-0772,Surabaya Branch,BI-FAST,53.05,6,Tidak,Tidak,2,1,-
+PAYM-0773,Jakarta Branch,SKN,107.13,2,Ya,Tidak,2,2,-
+PAYM-0774,Medan Branch,SKN,31.58,14,Tidak,Tidak,1,1,-
+PAYM-0775,Bandung Branch,Transfer Internal,125.56,20,Tidak,Tidak,2,2,-
+PAYM-0776,Bandung Branch,RTGS,4.37,11,Tidak,Tidak,1,1,-
+PAYM-0777,Bandung Branch,BI-FAST,122.4,5,Tidak,Tidak,1,1,-
+PAYM-0778,Jakarta Branch,Transfer Internal,110.81,18,Tidak,Tidak,1,2,-
+PAYM-0779,Surabaya Branch,BI-FAST,32.72,18,Tidak,Tidak,2,1,-
+PAYM-0780,Surabaya Branch,BI-FAST,6.61,0,Tidak,Tidak,1,1,-
+PAYM-0781,Medan Branch,Transfer Internal,123.89,3,Tidak,Tidak,2,1,-
+PAYM-0782,Surabaya Branch,RTGS,52.4,22,Tidak,Tidak,2,1,-
+PAYM-0783,Medan Branch,RTGS,15.7,5,Ya,Tidak,1,2,-
+PAYM-0784,Surabaya Branch,BI-FAST,16.02,4,Tidak,Tidak,1,2,-
+PAYM-0785,Jakarta Branch,BI-FAST,45.92,11,Tidak,Tidak,1,1,-
+PAYM-0786,Medan Branch,SKN,62.71,5,Tidak,Tidak,1,2,-
+PAYM-0787,Bandung Branch,BI-FAST,5.99,15,Tidak,Tidak,2,2,-
+PAYM-0788,Medan Branch,Transfer Internal,10.77,4,Tidak,Tidak,2,1,-
+PAYM-0789,Medan Branch,SKN,105.21,12,Ya,Tidak,1,2,-
+PAYM-0790,Jakarta Branch,RTGS,116.17,14,Tidak,Tidak,2,1,-
+PAYM-0791,Jakarta Branch,BI-FAST,120.32,0,Tidak,Tidak,2,2,-
+PAYM-0792,Surabaya Branch,RTGS,32.99,5,Tidak,Tidak,1,2,-
+PAYM-0793,Bandung Branch,RTGS,38.56,10,Tidak,Tidak,1,2,-
+PAYM-0794,Jakarta Branch,BI-FAST,75.54,2,Tidak,Tidak,1,2,-
+PAYM-0795,Medan Branch,Transfer Internal,15.88,11,Ya,Tidak,1,2,-
+PAYM-0796,Medan Branch,RTGS,144.19,1,Tidak,Tidak,1,1,-
+PAYM-0797,Jakarta Branch,Transfer Internal,32.04,0,Tidak,Tidak,1,1,-
+PAYM-0798,Bandung Branch,BI-FAST,276.01,16,Tidak,Tidak,2,1,-
+PAYM-0799,Surabaya Branch,RTGS,24.72,1,Tidak,Tidak,2,2,-
+PAYM-0800,Medan Branch,RTGS,10.59,13,Ya,Tidak,2,1,-
+PAYM-0801,Surabaya Branch,SKN,15.3,14,Tidak,Tidak,2,1,-
+PAYM-0802,Bandung Branch,BI-FAST,24.35,20,Tidak,Tidak,1,1,-
+PAYM-0803,Jakarta Branch,SKN,27.04,10,Tidak,Tidak,2,1,-
+PAYM-0804,Surabaya Branch,Transfer Internal,32.93,10,Tidak,Tidak,1,2,-
+PAYM-0805,Surabaya Branch,BI-FAST,8.08,12,Tidak,Tidak,1,2,-
+PAYM-0806,Medan Branch,Transfer Internal,149.21,3,Tidak,Tidak,1,1,-
+PAYM-0807,Bandung Branch,BI-FAST,3417.39,1,Tidak,Ya (Anomali),3,5,Transfer jumlah besar di dini hari (Jam 1)
+PAYM-0808,Medan Branch,Transfer Internal,42.38,2,Tidak,Tidak,2,1,-
+PAYM-0809,Jakarta Branch,SKN,39.04,6,Tidak,Tidak,1,2,-
+PAYM-0810,Bandung Branch,BI-FAST,146.77,18,Ya,Tidak,1,1,-
+PAYM-0811,Bandung Branch,RTGS,106.31,22,Tidak,Tidak,1,1,-
+PAYM-0812,Bandung Branch,Transfer Internal,34.19,15,Tidak,Tidak,2,2,-
+PAYM-0813,Medan Branch,BI-FAST,183.86,21,Tidak,Tidak,2,1,-
+PAYM-0814,Jakarta Branch,RTGS,26.08,22,Tidak,Tidak,1,2,-
+PAYM-0815,Jakarta Branch,RTGS,189.1,4,Tidak,Tidak,1,1,-
+PAYM-0816,Medan Branch,Transfer Internal,26.94,13,Tidak,Tidak,1,2,-
+PAYM-0817,Jakarta Branch,Transfer Internal,29.2,23,Ya,Tidak,1,1,-
+PAYM-0818,Jakarta Branch,RTGS,4.33,8,Tidak,Tidak,2,1,-
+PAYM-0819,Surabaya Branch,SKN,15.21,23,Tidak,Tidak,1,2,-
+PAYM-0820,Jakarta Branch,SKN,49.61,19,Tidak,Tidak,2,2,-
+PAYM-0821,Jakarta Branch,BI-FAST,81.1,12,Tidak,Tidak,2,1,-
+PAYM-0822,Surabaya Branch,SKN,12.42,2,Tidak,Tidak,1,1,-
+PAYM-0823,Jakarta Branch,SKN,3.0,2,Tidak,Tidak,2,1,-
+PAYM-0824,Medan Branch,Transfer Internal,4.29,11,Tidak,Tidak,1,2,-
+PAYM-0825,Bandung Branch,BI-FAST,61.74,1,Tidak,Tidak,2,2,-
+PAYM-0826,Bandung Branch,RTGS,24.14,13,Tidak,Tidak,2,2,-
+PAYM-0827,Surabaya Branch,Transfer Internal,81.03,9,Tidak,Tidak,1,1,-
+PAYM-0828,Surabaya Branch,RTGS,123.42,19,Tidak,Tidak,2,2,-
+PAYM-0829,Bandung Branch,SKN,13.2,5,Tidak,Tidak,1,1,-
+PAYM-0830,Jakarta Branch,BI-FAST,12.51,9,Ya,Tidak,1,1,-
+PAYM-0831,Surabaya Branch,SKN,68.46,15,Tidak,Tidak,1,2,-
+PAYM-0832,Medan Branch,SKN,81.72,18,Tidak,Tidak,1,2,-
+PAYM-0833,Medan Branch,SKN,94.8,21,Ya,Tidak,1,1,-
+PAYM-0834,Jakarta Branch,RTGS,5.41,11,Tidak,Tidak,1,2,-
+PAYM-0835,Medan Branch,Transfer Internal,159.02,12,Tidak,Tidak,1,1,-
+PAYM-0836,Bandung Branch,BI-FAST,30.86,12,Tidak,Tidak,2,1,-
+PAYM-0837,Bandung Branch,Transfer Internal,22.03,8,Ya,Tidak,1,1,-
+PAYM-0838,Jakarta Branch,Transfer Internal,14.06,0,Tidak,Tidak,1,2,-
+PAYM-0839,Medan Branch,SKN,18.1,10,Tidak,Tidak,1,2,-
+PAYM-0840,Bandung Branch,BI-FAST,17.02,10,Tidak,Tidak,1,2,-
+PAYM-0841,Jakarta Branch,BI-FAST,67.21,1,Tidak,Tidak,2,2,-
+PAYM-0842,Bandung Branch,BI-FAST,83.59,13,Ya,Tidak,2,1,-
+PAYM-0843,Jakarta Branch,BI-FAST,125.24,4,Tidak,Tidak,1,1,-
+PAYM-0844,Medan Branch,BI-FAST,18.3,18,Tidak,Tidak,1,1,-
+PAYM-0845,Jakarta Branch,SKN,10.79,23,Tidak,Tidak,1,1,-
+PAYM-0846,Bandung Branch,SKN,57.66,18,Tidak,Tidak,2,1,-
+PAYM-0847,Jakarta Branch,Transfer Internal,139.11,22,Tidak,Tidak,1,1,-
+PAYM-0848,Surabaya Branch,SKN,1.05,17,Tidak,Tidak,1,2,-
+PAYM-0849,Surabaya Branch,SKN,57.87,23,Tidak,Tidak,2,2,-
+PAYM-0850,Surabaya Branch,RTGS,55.88,20,Ya,Tidak,2,2,-
+PAYM-0851,Medan Branch,SKN,54.13,16,Tidak,Tidak,2,2,-
+PAYM-0852,Surabaya Branch,RTGS,22.77,15,Ya,Tidak,1,2,-
+PAYM-0853,Medan Branch,RTGS,34.75,5,Ya,Tidak,1,1,-
+PAYM-0854,Bandung Branch,SKN,99.58,15,Tidak,Tidak,2,1,-
+PAYM-0855,Jakarta Branch,SKN,25.0,14,Tidak,Tidak,2,2,-
+PAYM-0856,Medan Branch,Transfer Internal,92.95,0,Tidak,Tidak,2,1,-
+PAYM-0857,Medan Branch,RTGS,123.9,9,Tidak,Tidak,2,2,-
+PAYM-0858,Medan Branch,RTGS,45.12,9,Ya,Tidak,1,1,-
+PAYM-0859,Medan Branch,BI-FAST,30.36,16,Tidak,Tidak,2,2,-
+PAYM-0860,Medan Branch,SKN,58.09,15,Tidak,Tidak,2,1,-
+PAYM-0861,Bandung Branch,RTGS,48.44,20,Tidak,Tidak,1,2,-
+PAYM-0862,Jakarta Branch,RTGS,45.79,0,Tidak,Tidak,1,1,-
+PAYM-0863,Jakarta Branch,BI-FAST,84.1,1,Ya,Tidak,1,2,-
+PAYM-0864,Surabaya Branch,SKN,41.99,15,Tidak,Tidak,1,2,-
+PAYM-0865,Bandung Branch,Transfer Internal,25.92,4,Tidak,Tidak,2,2,-
+PAYM-0866,Surabaya Branch,RTGS,107.19,0,Ya,Tidak,2,1,-
+PAYM-0867,Bandung Branch,RTGS,952.18,1,Tidak,Ya (Anomali),4,4,Transfer jumlah besar di dini hari (Jam 1)
+PAYM-0868,Jakarta Branch,Transfer Internal,19.03,7,Tidak,Tidak,2,2,-
+PAYM-0869,Surabaya Branch,RTGS,17.26,15,Tidak,Tidak,1,2,-
+PAYM-0870,Bandung Branch,Transfer Internal,2564.39,1,Tidak,Ya (Anomali),5,5,Transfer jumlah besar di dini hari (Jam 1)
+PAYM-0871,Surabaya Branch,RTGS,226.98,15,Tidak,Tidak,2,2,-
+PAYM-0872,Bandung Branch,Transfer Internal,119.17,11,Tidak,Tidak,1,1,-
+PAYM-0873,Bandung Branch,SKN,85.03,12,Ya,Tidak,2,2,-
+PAYM-0874,Surabaya Branch,BI-FAST,250.11,8,Tidak,Tidak,2,2,-
+PAYM-0875,Surabaya Branch,SKN,2.19,22,Tidak,Tidak,2,2,-
+PAYM-0876,Bandung Branch,BI-FAST,38.01,15,Ya,Tidak,2,1,-
+PAYM-0877,Surabaya Branch,BI-FAST,22.32,12,Tidak,Tidak,2,1,-
+PAYM-0878,Medan Branch,BI-FAST,21.65,18,Tidak,Tidak,2,2,-
+PAYM-0879,Jakarta Branch,Transfer Internal,11.71,5,Tidak,Tidak,1,1,-
+PAYM-0880,Medan Branch,RTGS,153.77,11,Tidak,Tidak,1,2,-
+PAYM-0881,Surabaya Branch,RTGS,3.95,18,Tidak,Tidak,1,1,-
+PAYM-0882,Jakarta Branch,Transfer Internal,2.98,9,Tidak,Tidak,2,1,-
+PAYM-0883,Bandung Branch,SKN,31.36,4,Tidak,Tidak,1,1,-
+PAYM-0884,Medan Branch,SKN,32.8,12,Tidak,Tidak,2,2,-
+PAYM-0885,Medan Branch,RTGS,4.5,12,Tidak,Tidak,2,2,-
+PAYM-0886,Jakarta Branch,Transfer Internal,92.57,13,Tidak,Tidak,2,1,-
+PAYM-0887,Bandung Branch,SKN,61.95,18,Tidak,Tidak,1,2,-
+PAYM-0888,Medan Branch,BI-FAST,23.84,16,Tidak,Tidak,1,1,-
+PAYM-0889,Surabaya Branch,BI-FAST,10.07,8,Tidak,Tidak,2,2,-
+PAYM-0890,Jakarta Branch,BI-FAST,73.55,4,Tidak,Tidak,2,2,-
+PAYM-0891,Bandung Branch,RTGS,5.71,12,Tidak,Tidak,2,2,-
+PAYM-0892,Bandung Branch,RTGS,3.04,11,Ya,Tidak,1,1,-
+PAYM-0893,Surabaya Branch,BI-FAST,77.37,19,Tidak,Tidak,2,1,-
+PAYM-0894,Bandung Branch,RTGS,35.25,21,Tidak,Tidak,1,1,-
+PAYM-0895,Medan Branch,SKN,33.1,10,Tidak,Tidak,2,2,-
+PAYM-0896,Surabaya Branch,BI-FAST,8.94,18,Tidak,Tidak,2,2,-
+PAYM-0897,Jakarta Branch,BI-FAST,10.43,0,Tidak,Tidak,2,2,-
+PAYM-0898,Surabaya Branch,RTGS,56.28,14,Tidak,Tidak,2,2,-
+PAYM-0899,Jakarta Branch,Transfer Internal,67.64,10,Tidak,Tidak,1,1,-
+PAYM-0900,Surabaya Branch,RTGS,86.06,3,Tidak,Tidak,1,2,-
+PAYM-0901,Bandung Branch,Transfer Internal,4.14,6,Tidak,Tidak,2,2,-
+PAYM-0902,Jakarta Branch,SKN,96.19,20,Tidak,Tidak,1,2,-
+PAYM-0903,Medan Branch,SKN,21.44,17,Tidak,Tidak,2,2,-
+PAYM-0904,Bandung Branch,SKN,39.36,9,Tidak,Tidak,1,1,-
+PAYM-0905,Medan Branch,Transfer Internal,54.32,7,Tidak,Tidak,2,1,-
+PAYM-0906,Medan Branch,RTGS,241.64,19,Ya,Tidak,1,2,-
+PAYM-0907,Medan Branch,Transfer Internal,35.94,13,Tidak,Tidak,2,1,-
+PAYM-0908,Surabaya Branch,RTGS,59.85,7,Tidak,Tidak,1,1,-
+PAYM-0909,Surabaya Branch,SKN,91.01,21,Tidak,Tidak,1,1,-
+PAYM-0910,Jakarta Branch,Transfer Internal,205.83,2,Tidak,Tidak,2,2,-
+PAYM-0911,Bandung Branch,SKN,29.24,8,Tidak,Tidak,1,1,-
+PAYM-0912,Medan Branch,RTGS,3.58,15,Tidak,Tidak,1,2,-
+PAYM-0913,Bandung Branch,Transfer Internal,44.77,8,Tidak,Tidak,1,1,-
+PAYM-0914,Jakarta Branch,Transfer Internal,5.34,5,Tidak,Tidak,2,2,-
+PAYM-0915,Surabaya Branch,BI-FAST,16.15,10,Tidak,Tidak,2,1,-
+PAYM-0916,Surabaya Branch,Transfer Internal,13.64,19,Tidak,Tidak,2,1,-
+PAYM-0917,Jakarta Branch,BI-FAST,37.36,17,Tidak,Tidak,1,1,-
+PAYM-0918,Jakarta Branch,SKN,34.7,22,Tidak,Tidak,2,1,-
+PAYM-0919,Jakarta Branch,SKN,36.13,12,Tidak,Tidak,2,1,-
+PAYM-0920,Jakarta Branch,BI-FAST,29.33,0,Ya,Tidak,1,1,-
+PAYM-0921,Jakarta Branch,SKN,5.94,17,Tidak,Tidak,2,1,-
+PAYM-0922,Bandung Branch,Transfer Internal,73.84,16,Tidak,Tidak,1,1,-
+PAYM-0923,Surabaya Branch,SKN,41.8,18,Tidak,Tidak,2,2,-
+PAYM-0924,Medan Branch,BI-FAST,3.63,17,Tidak,Tidak,1,1,-
+PAYM-0925,Medan Branch,RTGS,24.67,17,Tidak,Tidak,1,1,-
+PAYM-0926,Jakarta Branch,RTGS,6.75,20,Tidak,Tidak,2,1,-
+PAYM-0927,Medan Branch,RTGS,25.32,5,Tidak,Tidak,1,2,-
+PAYM-0928,Jakarta Branch,RTGS,4.86,22,Tidak,Tidak,2,2,-
+PAYM-0929,Surabaya Branch,Transfer Internal,45.77,19,Tidak,Tidak,2,1,-
+PAYM-0930,Surabaya Branch,RTGS,8.08,7,Tidak,Tidak,2,2,-
+PAYM-0931,Jakarta Branch,SKN,48.47,4,Ya,Tidak,2,2,-
+PAYM-0932,Surabaya Branch,BI-FAST,45.81,22,Tidak,Tidak,2,2,-
+PAYM-0933,Jakarta Branch,Transfer Internal,28.06,7,Tidak,Tidak,2,1,-
+PAYM-0934,Medan Branch,BI-FAST,8.63,10,Tidak,Tidak,2,2,-
+PAYM-0935,Medan Branch,SKN,22.81,11,Tidak,Tidak,1,1,-
+PAYM-0936,Medan Branch,RTGS,29.98,17,Ya,Tidak,1,2,-
+PAYM-0937,Bandung Branch,SKN,29.76,2,Ya,Tidak,1,2,-
+PAYM-0938,Surabaya Branch,RTGS,37.19,4,Tidak,Tidak,2,1,-
+PAYM-0939,Jakarta Branch,Transfer Internal,5.95,7,Tidak,Tidak,2,1,-
+PAYM-0940,Medan Branch,SKN,30.25,19,Tidak,Tidak,2,2,-
+PAYM-0941,Bandung Branch,SKN,68.07,20,Ya,Tidak,2,1,-
+PAYM-0942,Bandung Branch,SKN,1.07,8,Tidak,Tidak,2,1,-
+PAYM-0943,Surabaya Branch,Transfer Internal,65.55,2,Tidak,Tidak,1,2,-
+PAYM-0944,Jakarta Branch,RTGS,28.9,16,Tidak,Tidak,2,1,-
+PAYM-0945,Surabaya Branch,Transfer Internal,10.28,12,Tidak,Tidak,1,2,-
+PAYM-0946,Bandung Branch,Transfer Internal,21.59,19,Tidak,Tidak,1,1,-
+PAYM-0947,Jakarta Branch,SKN,18.95,8,Ya,Tidak,1,2,-
+PAYM-0948,Medan Branch,Transfer Internal,100.1,11,Tidak,Tidak,2,1,-
+PAYM-0949,Bandung Branch,Transfer Internal,4647.22,4,Tidak,Ya (Anomali),4,3,Transfer jumlah besar di dini hari (Jam 4)
+PAYM-0950,Bandung Branch,BI-FAST,163.17,13,Tidak,Tidak,2,1,-
+PAYM-0951,Bandung Branch,BI-FAST,10.04,20,Tidak,Tidak,2,1,-
+PAYM-0952,Surabaya Branch,Transfer Internal,14.32,12,Tidak,Tidak,2,1,-
+PAYM-0953,Jakarta Branch,RTGS,5.42,9,Tidak,Tidak,2,1,-
+PAYM-0954,Bandung Branch,BI-FAST,26.44,18,Tidak,Tidak,2,2,-
+PAYM-0955,Medan Branch,BI-FAST,45.19,2,Tidak,Tidak,1,1,-
+PAYM-0956,Medan Branch,RTGS,8.2,13,Ya,Tidak,1,2,-
+PAYM-0957,Jakarta Branch,SKN,69.3,8,Tidak,Tidak,2,1,-
+PAYM-0958,Medan Branch,BI-FAST,42.42,3,Tidak,Tidak,1,2,-
+PAYM-0959,Bandung Branch,BI-FAST,15.06,8,Ya,Tidak,1,1,-
+PAYM-0960,Jakarta Branch,BI-FAST,54.01,14,Tidak,Tidak,1,1,-
+PAYM-0961,Medan Branch,Transfer Internal,13.15,8,Ya,Tidak,1,2,-
+PAYM-0962,Bandung Branch,SKN,7.97,17,Tidak,Tidak,1,2,-
+PAYM-0963,Surabaya Branch,RTGS,16.48,11,Tidak,Tidak,2,1,-
+PAYM-0964,Bandung Branch,SKN,102.13,1,Tidak,Tidak,1,1,-
+PAYM-0965,Medan Branch,BI-FAST,68.07,0,Ya,Tidak,1,1,-
+PAYM-0966,Surabaya Branch,SKN,13.88,5,Tidak,Tidak,2,1,-
+PAYM-0967,Surabaya Branch,BI-FAST,61.03,23,Tidak,Tidak,1,2,-
+PAYM-0968,Bandung Branch,SKN,1.12,15,Tidak,Tidak,1,2,-
+PAYM-0969,Bandung Branch,Transfer Internal,11.5,23,Tidak,Tidak,2,2,-
+PAYM-0970,Surabaya Branch,Transfer Internal,6.54,20,Tidak,Tidak,2,1,-
+PAYM-0971,Jakarta Branch,RTGS,10.34,3,Ya,Tidak,1,1,-
+PAYM-0972,Surabaya Branch,RTGS,135.43,17,Tidak,Tidak,1,1,-
+PAYM-0973,Jakarta Branch,BI-FAST,23.98,23,Tidak,Tidak,1,1,-
+PAYM-0974,Medan Branch,Transfer Internal,28.5,5,Tidak,Tidak,2,2,-
+PAYM-0975,Jakarta Branch,BI-FAST,5.24,20,Tidak,Tidak,1,1,-
+PAYM-0976,Jakarta Branch,SKN,28.07,13,Tidak,Tidak,2,2,-
+PAYM-0977,Surabaya Branch,SKN,14.71,8,Ya,Tidak,2,2,-
+PAYM-0978,Jakarta Branch,Transfer Internal,48.95,10,Tidak,Tidak,1,2,-
+PAYM-0979,Jakarta Branch,BI-FAST,15.99,4,Tidak,Tidak,2,2,-
+PAYM-0980,Medan Branch,SKN,110.48,22,Tidak,Tidak,1,1,-
+PAYM-0981,Medan Branch,RTGS,52.29,15,Tidak,Tidak,2,2,-
+PAYM-0982,Bandung Branch,Transfer Internal,13.55,8,Tidak,Tidak,2,1,-
+PAYM-0983,Bandung Branch,Transfer Internal,104.36,2,Tidak,Tidak,2,1,-
+PAYM-0984,Bandung Branch,Transfer Internal,263.29,21,Tidak,Tidak,1,2,-
+PAYM-0985,Medan Branch,Transfer Internal,11.42,15,Tidak,Tidak,1,1,-
+PAYM-0986,Medan Branch,RTGS,19.39,19,Tidak,Tidak,1,1,-
+PAYM-0987,Medan Branch,SKN,10.19,9,Ya,Tidak,1,1,-
+PAYM-0988,Medan Branch,RTGS,96.41,15,Tidak,Tidak,1,2,-
+PAYM-0989,Jakarta Branch,Transfer Internal,154.43,0,Tidak,Tidak,2,2,-
+PAYM-0990,Bandung Branch,Transfer Internal,11.07,12,Ya,Tidak,2,2,-
+PAYM-0991,Surabaya Branch,Transfer Internal,57.27,12,Tidak,Tidak,2,1,-
+PAYM-0992,Surabaya Branch,Transfer Internal,9.42,5,Tidak,Tidak,1,2,-
+PAYM-0993,Jakarta Branch,RTGS,58.76,4,Tidak,Tidak,2,1,-
+PAYM-0994,Jakarta Branch,SKN,31.1,4,Tidak,Tidak,1,1,-
+PAYM-0995,Jakarta Branch,Transfer Internal,182.01,4,Tidak,Tidak,2,2,-
+PAYM-0996,Medan Branch,SKN,97.56,1,Ya,Tidak,2,2,-
+PAYM-0997,Jakarta Branch,SKN,10.33,4,Tidak,Tidak,2,1,-
+PAYM-0998,Bandung Branch,RTGS,29.54,23,Tidak,Tidak,2,1,-
+PAYM-0999,Medan Branch,SKN,39.04,11,Tidak,Tidak,1,1,-
+PAYM-1000,Surabaya Branch,SKN,4643.74,4,Ya,Ya (Anomali),5,4,Transfer jumlah besar di dini hari (Jam 4) & Penerima Dana Baru (Mencurigakan)

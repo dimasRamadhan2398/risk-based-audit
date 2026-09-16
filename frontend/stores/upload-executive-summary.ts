@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { extractErrorMessage } from '~/utils/error';
 
 export interface UploadedExecutiveSummary {
   id: string;
@@ -17,6 +19,7 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
   const uploadedDocuments = ref<UploadedExecutiveSummary[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -33,25 +36,34 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded executive summaries:', error);
-      errorMsg.value = 'Failed to load uploaded executive summary documents.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded executive summary documents.');
     } finally {
       loading.value = false;
     }
   };
 
-  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; fileContent: string }) => {
+  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; file: File }) => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData();
+      formData.append('title', payload.title);
+      formData.append('description', payload.description);
+      formData.append('fileName', payload.fileName);
+      formData.append('fileType', payload.fileType);
+      formData.append('file', payload.file);
       await $fetch(`${baseUrl}/uploaded-executive-summaries`, {
         method: 'POST',
-        body: payload
+        body: formData
       });
+      toast.showSuccess('Executive summary document uploaded successfully.');
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to upload executive summary document:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload executive summary document.';
+      const detail = extractErrorMessage(error, 'Failed to upload executive summary document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to upload executive summary document.', detail);
       throw error;
     } finally {
       loading.value = false;
@@ -66,37 +78,42 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
       await $fetch(`${baseUrl}/uploaded-executive-summaries/${id}`, {
         method: 'DELETE'
       });
+      toast.showSuccess('Executive summary document deleted successfully.');
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to delete uploaded executive summary document:', error);
-      errorMsg.value = 'Failed to delete executive summary document.';
+      const detail = extractErrorMessage(error, 'Failed to delete executive summary document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete executive summary document.', detail);
       throw error;
     } finally {
       loading.value = false;
     }
   };
 
-    const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
       const response: any = await $fetch(`${baseUrl}/uploaded-executive-summaries/${id}/download`, {
         responseType: 'blob'
       });
-      let mimeType = 'application/pdf'
+      let mimeType = 'application/pdf';
       if (fileName) {
-        const lowerName = fileName.toLowerCase()
-        if (lowerName.endsWith('.png')) mimeType = 'image/png'
-        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg'
-        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain'
+        const lowerName = fileName.toLowerCase();
+        if (lowerName.endsWith('.png')) mimeType = 'image/png';
+        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg';
+        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain';
       }
-      
+
       const blob = new Blob([response], { type: mimeType });
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      errorMsg.value = 'Failed to view document.';
+      const detail = extractErrorMessage(error, 'Failed to view document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to view document.', detail);
     }
   };
 
@@ -106,7 +123,7 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
       const response: any = await $fetch(`${baseUrl}/uploaded-executive-summaries/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -118,7 +135,9 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download executive summary document:', error);
-      errorMsg.value = 'Failed to download document.';
+      const detail = extractErrorMessage(error, 'Failed to download document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to download document.', detail);
     }
   };
 

@@ -18,6 +18,18 @@ export enum AuditStatus {
   REPORTING = "Reporting",
   COMPLETED = "Completed",
   CANCELLED = "Cancelled",
+  PLANNING = "planning",
+  ENTRY_MEETING = "entry meeting",
+  DRAFT_FINDINGS = "draft findings",
+}
+
+export enum AuditExecutionStatus {
+  PLANNING = "planning",
+  ENTRY_MEETING = "entry meeting",
+  FIELDWORK = "fieldwork",
+  DRAFT_FINDINGS = "draft findings",
+  REPORTING = "reporting",
+  COMPLETED = "completed",
 }
 
 export enum AnnualAuditPlanStatus {
@@ -301,6 +313,11 @@ export interface TeamMember {
   role: string;
 }
 
+export interface ActivityItem {
+  id: number;
+  name: string;
+}
+
 export interface WorkingPaperHeader {
   id?: string;
   assignmentLetterId: string;
@@ -309,6 +326,7 @@ export interface WorkingPaperHeader {
   period: string;
   location: string;
   teamMembers: TeamMember[];
+  activities: ActivityItem[];
 }
 
 export interface WorkingPaperHeaderForm {
@@ -320,6 +338,7 @@ export interface WorkingPaperHeaderForm {
   periodEnd: string;
   location: string;
   teamMembers: TeamMember[];
+  activities: ActivityItem[];
 }
 
 export interface WorkingPaperRisk {
@@ -346,8 +365,8 @@ export interface WorkingPaperSample {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
-  population: number | null;
-  sampleSize: number | null;
+  population: number | undefined;
+  sampleSize: number | undefined;
   samples: SampleItem[];
   conclusion: string;
 }
@@ -356,8 +375,8 @@ export interface WorkingPaperSampleForm {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
-  population: number | null;
-  sampleSize: number | null;
+  population: number | undefined;
+  sampleSize: number | undefined;
   samples: SampleItem[];
   conclusion: string;
 }
@@ -562,8 +581,10 @@ export interface AuditExecution {
   department?: AuditDepartment | string
   progress: number
   lead_auditor: string
-  status: AuditStatus
-  status_detail?: 'Late' | 'On Time'
+  status: AuditStatus | string
+  status_detail?: 'Late' | 'On Time' | string
+  created_at?: string
+  createdAt?: string
   sample_data_test_controls?: {
     progress: number
     description: string
@@ -676,7 +697,7 @@ export const EXECUTION_PHASES: ExecutionPhase[] = [
     description: 'Laporan Hasil Audit final diterbitkan & siap untuk pemantauan Tindak Lanjut (Action Plan).',
     icon: 'i-lucide-check-circle-2',
     badgeColor: 'secondary',
-    badgeClass: 'bg-secondary-100 text-secondary-700 dark:bg-secondary-950 dark:text-secondary-300 border border-secondary-300 dark:border-secondary-700',
+    badgeClass: 'bg-secondary-100 text-secondary-700 dark:bg-secondary-950 dark:text-secondary-100 border border-secondary-300 dark:border-secondary-700',
     iconClass: 'text-secondary-600 dark:text-secondary-400',
     numBgClass: 'bg-secondary-600 text-white',
     cardClass: 'border-secondary-300 dark:border-secondary-800 bg-secondary-50/40 dark:bg-secondary-950/30',

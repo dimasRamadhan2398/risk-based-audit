@@ -118,12 +118,12 @@
         <template #attachment-cell="{ row }">
           <div v-if="(row.original as any).attachment" class="flex items-center gap-1.5">
             <UButton
-              icon="i-heroicons-document-arrow-down"
+              icon="i-lucide-download"
               color="primary"
               variant="ghost"
               size="sm"
               :label="(row.original as any).attachment.name"
-              @click="store.downloadAttachment((row.original as any).id, (row.original as any).attachment.name)"
+              @click="store.viewAttachment((row.original as any).id, (row.original as any).attachment.name)"
             />
           </div>
           <span v-else class="text-gray-400 italic text-md">No file</span>
@@ -132,41 +132,57 @@
         <!-- Actions Cell -->
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
-            <UButton
-              icon="i-lucide-eye"
-              color="primary"
-              variant="ghost"
-              size="sm"
-              label="Details"
-              @click="store.openDetail(row.original as any)"
-            />
+            <UTooltip text="View Details" >
+              <UButton
+                icon="i-lucide-eye"
+                color="neutral"
+                variant="ghost"
+                size="md"
+                @click="store.openDetail(row.original as any)"
+              />
+            </UTooltip>
 
-            <UButton
-              icon="i-lucide-edit"
-              color="warning"
-              variant="ghost"
-              size="sm"
-              label="Edit"
+            <UTooltip text="Edit">
+              <UButton
+                icon="i-lucide-edit"
+                color="warning"
+                variant="ghost"
+                size="md"
               @click="store.editService(row.original as any)"
             />
+            </UTooltip>
 
-            <UButton
-              icon="i-lucide-trash"
-              color="error"
-              variant="ghost"
-              size="sm"
-              label="Delete"
-              @click="confirmDelete(row.original as any)"
-            />
+            <UTooltip text="Delete">
+              <UButton
+                icon="i-lucide-trash-2"
+                color="error"
+                variant="ghost"
+                size="md"
+                @click="confirmDelete(row.original as any)"
+              />
+            </UTooltip>
           </div>
         </template>
       </TableEntities>
     </UCard>
 
     <!-- Form Modal -->
-    <UModal v-model:open="store.isFormOpen" class="w-full max-w-2xl">
+    <UModal 
+      v-model:open="store.isFormOpen" 
+      class="w-full max-w-2xl"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
       <template #content>
-        <UCard class="w-full shadow-2xl">
+        <UCard 
+          class="w-full shadow-2xl flex flex-col max-h-[90vh]"
+          :ui="{ body: 'overflow-y-auto flex-1' }"
+        >
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -178,7 +194,18 @@
 
           <UForm @submit.prevent="store.saveService" class="space-y-4">
             <UFormField label="Project Title" required>
-              <UInput v-model="store.newService.title" placeholder="Advisory on Policy Revisions" class="w-full" required />
+              <UInput 
+                v-model="store.newService.title" 
+                placeholder="Advisory on Policy Revisions" 
+                class="w-full" 
+                required 
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
+              />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ store.newService.title ? store.newService.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,7 +228,18 @@
               </UFormField>
 
               <UFormField label="Consultant / Lead Auditor" required>
-                <UInput v-model="store.newService.consultantName" placeholder="John Doe" class="w-full" required />
+                <UInput 
+                  v-model="store.newService.consultantName" 
+                  placeholder="John Doe" 
+                  class="w-full" 
+                  required 
+                  maxlength="50"
+                  @invalid="($event.target as any)?.setCustomValidity('Consultant maksimal 50 karakter dan wajib diisi')"
+                  @input="($event.target as any)?.setCustomValidity('')"
+                />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ store.newService.consultantName ? store.newService.consultantName.length : 0 }}/50
+                </div>
               </UFormField>
             </div>
 
@@ -243,9 +281,21 @@
     </UModal>
 
     <!-- Detail Modal -->
-    <UModal v-model:open="store.isDetailOpen" class="w-full max-w-2xl">
+    <UModal 
+      v-model:open="store.isDetailOpen" 
+      class="w-full max-w-2xl"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
       <template #content>
-        <UCard class="w-full shadow-2xl">
+        <UCard 
+          class="w-full shadow-2xl flex flex-col max-h-[90vh]"
+        >
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">Assignment Details</h3>
@@ -361,8 +411,8 @@ const filteredServices = computed(() => {
   })
 })
 
-const confirmDelete = (service: any) => {
-  if (confirm('Are you sure you want to delete this consulting assignment?')) {
+const confirmDelete = async (service: any) => {
+  if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this consulting assignment?' })) {
     store.deleteService(service)
   }
 }

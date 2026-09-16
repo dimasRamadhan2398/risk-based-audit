@@ -16,10 +16,7 @@
           <div class="space-y-5">
 
             <!-- Link to Goal -->
-            <div class="form-row" v-if="vmgStore.activeVmg?.goals?.length">
-              <label class="form-label text-gray-700 dark:text-white">
-                {{ t('strategicPlan.form.corporateGoal') }} <span class="text-orange-500">*</span>
-              </label>
+            <UFormField v-if="vmgStore.activeVmg?.goals?.length" :label="t('strategicPlan.form.corporateGoal')" required>  
               <USelectMenu
                 v-model="store.form.goalId"
                 :items="goalOptions"
@@ -28,36 +25,30 @@
                 class="w-full"
                 required
               />
-            </div>
+            </UFormField>
 
             <!-- Strategic Objective -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">
-                {{ t('strategicPlan.form.objective') }} <span class="text-orange-500">*</span>
-              </label>
+            <UFormField :label="t('strategicPlan.form.objective')" required>
               <UTextarea
                 v-model="store.form.strategicObjective"
                 :placeholder="t('strategicPlan.form.objectivePlaceholder')"
                 :rows="2"
                 class="w-full"
               />
-            </div>
+            </UFormField>
 
             <!-- KPI Title -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">
-                {{ t('strategicPlan.form.kpi') }} <span class="text-orange-500">*</span>
-              </label>
-              <UInput
+            <UFormField :label="t('strategicPlan.form.kpi')" required>
+              <UTextarea
                 v-model="store.form.kpi"
                 :placeholder="t('strategicPlan.form.kpiPlaceholder')"
+                :rows="2"
                 class="w-full"
               />
-            </div>
+            </UFormField>
 
             <!-- Unit -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.unit') }}</label>
+            <UFormField :label="t('strategicPlan.form.unit')" required>
               <USelectMenu
                 v-model="store.form.unit"
                 :items="store.unitOptions"
@@ -65,7 +56,7 @@
                 :placeholder="t('strategicPlan.form.selectUnit')"
                 class="w-full"
               />
-            </div>
+            </UFormField>
 
             <!-- HIB/HIG Radio -->
             <div class="form-row">
@@ -148,18 +139,15 @@
             <TargetRealizationMatrix />
 
             <!-- Status (Read Only) -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.status') }}</label>
-              <div class="readonly-field">
-                {{ formatStatus(store.computedStatus) }}
-              </div>
-            </div>
+            <UFormField :label="t('strategicPlan.form.status')" required>
+              <UInput :value="formatStatus(store.computedStatus)" disabled />
+            </UFormField>
 
           </div>
         </UForm>
       </template>
       <template #footer>
-        <div class="flex flex-row justify-end gap-3">
+        <div class="flex flex-row justify-end gap-3 w-full">
           <UButton
             :label="t('strategicPlan.form.cancel')"
             variant="ghost"

@@ -55,35 +55,33 @@
 
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
+            <UTooltip text="View Detail">
             <UButton
               icon="i-lucide-eye"
-              label="Details"
               color="neutral"
               variant="ghost"
-              size="sm"
-              class="font-bold"
+              size="md"
               @click="store.openDetail(row.original)"
             />
-
+            </UTooltip>
+            <UTooltip text="Edit Report">
             <UButton
               icon="i-lucide-edit"
-              label="Edit"
               color="warning"
               variant="ghost"
-              size="sm"
-              class="font-bold"
+              size="md"
               @click="store.editReport(row.original)"
             />
-
+            </UTooltip>
+            <UTooltip text="Delete Report">
             <UButton
-              icon="i-lucide-trash"
-              label="Delete"
+              icon="i-lucide-trash-2"
               color="error"
               variant="ghost"
-              size="sm"
-              class="font-bold"
+              size="md"
               @click="store.deleteReport(row.original)"
             />
+            </UTooltip>
           </div>
         </template>
       </TableEntities>

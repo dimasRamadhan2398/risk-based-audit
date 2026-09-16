@@ -2,7 +2,13 @@
   <!-- Test Control Modal (View / Add / Edit) -->
   <UModal 
     v-model:open="store.showTestControlModal"
-    :ui="{ content: 'sm:max-w-4xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
+    :ui="{
+      content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+      body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+      footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+    }"
   >
     <template #content>
       <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">

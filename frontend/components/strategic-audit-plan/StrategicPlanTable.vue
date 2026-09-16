@@ -98,28 +98,33 @@
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
             <!-- Direct View Details Button -->
-            <UButton
-              icon="i-lucide-eye"
-              color="neutral"
-              variant="ghost"
-              size="md"
-              :title="t('strategicPlan.actions.viewDetails')"
-              :aria-label="t('strategicPlan.actions.viewDetails')"
-              @click="store.openViewModal(row.original)"
-            />
-            <!-- Dropdown Menu -->
-            <UDropdownMenu
-              :items="getActions(row.original)"
-              aria-label="Actions"
-            >
+            <UTooltip :text="t('strategicPlan.actions.viewDetails')">
               <UButton
-                icon="i-lucide-ellipsis-vertical"
+                icon="i-lucide-eye"
                 color="neutral"
                 variant="ghost"
                 size="md"
-                aria-label="Actions dropdown"
+                @click="store.openViewModal(row.original)"
               />
-            </UDropdownMenu>
+            </UTooltip>
+            <UTooltip :text="t('strategicPlan.actions.edit')">
+              <UButton
+                icon="i-lucide-edit"
+                color="warning"
+                variant="ghost"
+                size="md"
+                @click="store.handleEdit(row.original)"
+              />
+            </UTooltip>
+            <UTooltip :text="t('strategicPlan.actions.delete')">
+              <UButton
+                icon="i-lucide-trash-2"
+                color="error"
+                variant="ghost"
+                size="md"
+                @click="store.handleDelete(row.original.id)"
+              />
+            </UTooltip>
           </div>
         </template>
 

@@ -29,7 +29,13 @@
             v-model:open="isAddModalOpen"
             :title="t('riskProfile.addModal.title')" 
             :description="t('riskProfile.addModal.desc')"
-            :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
+            :ui="{
+              content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+              header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+              body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+              footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+              overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+            }"
           >
             <UButton 
               icon="i-heroicons-plus"
@@ -40,9 +46,20 @@
             />
 
             <template #body>
-              <form @submit.prevent="submitNewRisk" class="space-y-4">
+              <UForm @submit.prevent="submitNewRisk" class="space-y-4">
                 <UFormField :label="t('riskProfile.addModal.name')" required>
-                  <UInput v-model="newRisk.name" :placeholder="t('riskProfile.addModal.namePlaceholder')" class="w-full" />
+                  <UInput 
+                  v-model="newRisk.name" 
+                  :placeholder="t('riskProfile.addModal.namePlaceholder')" 
+                  class="w-full" 
+                  type="text"
+                  maxlength="100"
+                  @invalid="$event.target['setCustomValidity'] && $event.target['setCustomValidity']('Nama Risiko wajib diisi dan maksimal 100 karakter')"
+                  @input="$event.target['setCustomValidity'] && $event.target['setCustomValidity']('')"
+                  />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ newRisk.name ? newRisk.name.length : 0 }}/100
+                  </div>
                 </UFormField>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -56,10 +73,10 @@
 
                 <!-- Quarterly Residual Score Inputs -->
                 <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-900/50 space-y-4">
-                  <span class="block text-md font-black uppercase tracking-wider text-primary-500">{{ t('riskProfile.addModal.quarterlyTitle', { year: store.selectedYear }) }}</span>
+                  <span class="block text-md font-black tracking-wider text-primary-500">{{ t('riskProfile.addModal.quarterlyTitle', { year: store.selectedYear }) }}</span>
                   <div class="grid grid-cols-4 gap-4">
                     <div v-for="q in ['q1', 'q2', 'q3', 'q4']" :key="q" class="space-y-2 border-r last:border-0 border-gray-200 dark:border-gray-700 pr-2">
-                      <span class="text-md font-black uppercase text-gray-500">{{ q }}</span>
+                      <span class="text-md font-black text-gray-500">{{ q }}</span>
                       <UFormField :label="t('riskProfile.addModal.impact')">
                         <USelect v-model.number="newRisk[`impact_${q}`]" :items="[1,2,3,4,5]" class="w-full" />
                       </UFormField>
@@ -73,11 +90,11 @@
                 <UFormField :label="t('riskProfile.addModal.description')">
                   <UTextarea v-model="newRisk.description" :placeholder="t('riskProfile.addModal.descriptionPlaceholder')" class="w-full" />
                 </UFormField>
-              </form>
+              </UForm>
             </template>
 
             <template #footer>
-              <div class="flex justify-end gap-3">
+              <div class="flex justify-end gap-3 w-full">
                 <UButton :label="t('common.cancel')" color="neutral" variant="ghost" @click="isAddModalOpen = false" />
                 <UButton :label="t('riskProfile.addModal.saveBtn')" color="primary" @click="submitNewRisk" />
               </div>
@@ -305,7 +322,7 @@
                 <div
                   v-for="risk in getTabRisks(item.key)"
                   :key="risk.id"
-                  class="group flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 hover:shadow-md bg-white dark:bg-gray-900"
+                  class="group flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 hover:shadow-md"
                   :class="getItemBorderClass(risk)"
                 >
                   <!-- Formatted ID Badge -->
@@ -326,10 +343,6 @@
                       <span class="text-[10px] font-bold flex items-center gap-1">
                         {{ categoryIcons[risk.category] }} {{ risk.category }}
                       </span>
-                      <span>·</span>
-                      <span class="text-[10px] font-bold">
-                        Severity: {{ risk.severity }}%
-                      </span>
                     </div>
                   </div>
 
@@ -348,14 +361,22 @@
                     <UModal 
                       :title="t('riskProfile.detailModal.title', { id: store.getFormattedId(risk) })"
                       :description="t('riskProfile.detailModal.desc')"
-                      :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
+                      :ui="{
+                        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+                        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+                        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+                        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+                        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+                      }"
                     >
-                      <UButton
-                        icon="i-heroicons-eye"
-                        color="neutral"
-                        variant="ghost"
-                        size="sm"
-                      />
+                      <UTooltip text="View Risk">
+                        <UButton
+                          icon="i-heroicons-eye"
+                          color="neutral"
+                          variant="ghost"
+                          size="md"
+                        />
+                      </UTooltip>
 
                       <template #body>
                         <div class="space-y-6">
@@ -404,15 +425,6 @@
                             </div>
                           </div>
 
-                          <!-- Severity Progress -->
-                          <div class="space-y-2 pt-4 border-t border-gray-100 dark:border-gray-800">
-                            <div class="flex justify-between items-center">
-                              <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.severityWeight') }}</span>
-                              <span class="text-sm font-black text-gray-700 dark:text-gray-300">{{ risk.severity }}%</span>
-                            </div>
-                            <UMeter :value="risk.severity" color="primary" size="md" />
-                          </div>
-
                           <!-- Description -->
                           <div v-if="risk.description" class="space-y-1 pt-4 border-t border-gray-100 dark:border-gray-800">
                             <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.description') }}</div>
@@ -437,21 +449,25 @@
                     </UModal>
 
                     <!-- Edit Risk Button -->
-                    <UButton
-                      icon="i-heroicons-pencil-square"
-                      color="warning"
-                      variant="ghost"
-                      size="sm"
-                      @click="handleOpenEditModal(risk)"
-                    />
-                    
-                    <UButton
-                      icon="i-heroicons-trash"
-                      color="error"
-                      variant="ghost"
-                      size="sm"
-                      @click="handleDeleteRisk(risk.id)"
-                    /> 
+                    <UTooltip text="Edit Risk">
+                      <UButton
+                        icon="i-lucide-edit"
+                        color="warning"
+                        variant="ghost"
+                        size="md"
+                        @click="handleOpenEditModal(risk)"
+                      />
+                    </UTooltip>
+
+                    <UTooltip text="Delete Risk">
+                      <UButton
+                        icon="i-heroicons-trash"
+                        color="error"
+                        variant="ghost"
+                        size="md"
+                        @click="promptDeleteRisk(risk)"
+                      /> 
+                  </UTooltip>
                   </div>
                 </div>  
               </TransitionGroup>
@@ -467,12 +483,28 @@
       v-model:open="store.isFormOpen"
       :title="store.selectedRisk ? t('riskProfile.editModal.title', { name: store.selectedRisk.name }) : t('riskProfile.editModal.titleDefault')"
       :description="t('riskProfile.editModal.desc')"
-      :ui="{ content: 'sm:max-w-2xl' }"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
     >
       <template #body>
         <div v-if="store.selectedRisk" class="space-y-4">
           <UFormField :label="t('riskProfile.addModal.name')" required>
-            <UInput v-model="store.selectedRisk.name" class="w-full" />
+            <UInput 
+              v-model="store.selectedRisk.name" 
+              class="w-full"
+              type="text"
+              maxlength="100"
+              @invalid="$event.target['setCustomValidity'] && $event.target['setCustomValidity']('Nama Risiko wajib diisi dan maksimal 100 karakter')"
+              @input="$event.target['setCustomValidity'] && $event.target['setCustomValidity']('')"
+            />
+            <div class="text-xs text-gray-500 mt-1 text-right">
+              {{ store.selectedRisk.name ? store.selectedRisk.name.length : 0 }}/100
+            </div>
           </UFormField>
 
           <div class="grid grid-cols-2 gap-4">
@@ -516,9 +548,49 @@
           />
           <UButton 
             :label="t('riskProfile.editModal.updateBtn')" 
-            color="warning" 
+            color="primary" 
             @click="submitEditRisk" 
           />
+        </div>
+      </template>
+    </UModal>
+
+    <!-- Delete Confirmation Modal -->
+    <UModal 
+      v-model:open="isDeleteModalOpen"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
+      <template #header>
+        <div class="flex items-center justify-between w-full">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-error-50 dark:bg-error-900/20 flex items-center justify-center text-error-500 font-black text-lg leading-none">
+              !
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+              Hapus "{{ riskToDelete?.name }}"?
+            </h3>
+          </div>
+          <UButton color="neutral" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isDeleteModalOpen = false" />
+        </div>
+      </template>
+
+      <template #body>
+        <p class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">
+          Apakah Anda yakin ingin menghapus data risiko ini?<br />
+          Tindakan ini permanen dan tidak dapat dibatalkan.
+        </p>
+      </template>
+
+      <template #footer>
+        <div class="flex justify-end gap-3 w-full">
+          <UButton label="Batal" color="neutral" variant="ghost" @click="isDeleteModalOpen = false" />
+          <UButton label="Ya, Hapus Data" color="error" @click="confirmDeleteRisk" />
         </div>
       </template>
     </UModal>
@@ -536,16 +608,19 @@ import {
   impactLabels, 
   likelihoodLabels 
 } from '~/stores/risk-profile'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const store = useRiskProfileStore()
 const { getRiskLevel, getRiskScore } = store
 const { t } = useI18n()
-const toast = useToast()
+const toast = useToastNotification()
 
 // Local state for UI
 const dragOverCell = ref(null)
 const activeRiskTab = ref('priority')
 const isAddModalOpen = ref(false)
+const isDeleteModalOpen = ref(false)
+const riskToDelete = ref(null)
 
 // Form state for new risk
 const newRisk = ref({
@@ -581,7 +656,7 @@ function getLikelihoodLabel(val) {
 
 // Options for selects
 const categoryOptions = Object.keys(categoryIcons).map(cat => ({ 
-  label: `${categoryIcons[cat]} ${cat}`, 
+  label: `${cat}`, 
   value: cat 
 }))
 
@@ -597,11 +672,7 @@ const likelihoodOptions = Object.entries(likelihoodLabels).map(([val, label]) =>
 
 function submitNewRisk() {
   if (!newRisk.value.name) {
-    toast.add({
-      title: t('riskProfile.toasts.validationError'),
-      description: t('riskProfile.toasts.nameRequired'),
-      color: 'error'
-    })
+    toast.showError(t('riskProfile.toasts.nameRequired'))
     return
   }
 
@@ -630,12 +701,7 @@ function submitNewRisk() {
   }
 
   store.addRisk(payload)
-  toast.add({
-    title: t('riskProfile.toasts.riskAdded'),
-    description: t('riskProfile.toasts.riskAddedDesc', { name: newRisk.value.name }),
-    color: 'success',
-    icon: 'i-heroicons-check-circle'
-  })
+  toast.showSuccess(t('riskProfile.toasts.riskAdded', { name: newRisk.value.name }))
   
   // Reset form
   newRisk.value = {
@@ -745,11 +811,11 @@ const getCellBgClass = (l, i) => {
 const getItemBorderClass = (risk) => {
   const level = store.getRiskLevel(risk.likelihood, risk.impact)
   const map = {
-    'low': 'border-green-500/20 bg-green-500/5',
-    'low-moderate': 'border-lime-500/20 bg-lime-500/5',
-    'moderate': 'border-yellow-500/20 bg-yellow-500/5',
-    'moderate-high': 'border-orange-500/20 bg-orange-500/5',
-    'high': 'border-red-500/20 bg-red-500/5'
+    'low': 'border-green-500/30 bg-green-50 dark:bg-green-500/10 hover:bg-green-100 dark:hover:bg-green-500/20',
+    'low-moderate': 'border-lime-500/30 bg-lime-50 dark:bg-lime-500/10 hover:bg-lime-100 dark:hover:bg-lime-500/20',
+    'moderate': 'border-yellow-500/30 bg-yellow-50 dark:bg-yellow-500/10 hover:bg-yellow-100 dark:hover:bg-yellow-500/20',
+    'moderate-high': 'border-orange-500/30 bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-100 dark:hover:bg-orange-500/20',
+    'high': 'border-red-500/30 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20'
   }
   return map[level]
 }
@@ -789,11 +855,7 @@ function getQLevelCellStyle(risk, quarter) {
 
 function submitEditRisk() {
   store.updateRisk(store.selectedRisk);
-  toast.add({ 
-    title: t('riskProfile.toasts.riskUpdated'), 
-    description: t('riskProfile.toasts.riskUpdatedDesc'), 
-    color: 'success' 
-  });
+  toast.showSuccess(t('riskProfile.toasts.riskUpdated'));
   store.isFormOpen = false;
 }
 
@@ -842,34 +904,26 @@ function onDrop(e, newLikelihood, newImpact) {
 
     store.updateRisk({ ...droppedRisk, likelihood: newLikelihood, impact: newImpact })
     
-    toast.add({
-      title: t('riskProfile.toasts.positionUpdated'),
-      description: t('riskProfile.toasts.positionUpdatedDesc', { name: droppedRisk.name, l: newLikelihood, i: newImpact, period: store.selectedPeriod }),
-      color: 'primary',
-      icon: 'i-heroicons-arrows-right-left'
-    })
+    toast.showSuccess(t('riskProfile.toasts.positionUpdated', { name: droppedRisk.name, l: newLikelihood, i: newImpact, period: store.selectedPeriod }))
   } catch (err) {
     console.error('Drop failed:', err)
+    toast.showError(t('riskProfile.toasts.positionUpdateFailed'))
   }
 }
 
-async function handleDeleteRisk(id) {
-  const risk = store.risks.find(r => r.id === id)
+function promptDeleteRisk(risk) {
+  riskToDelete.value = risk
+  isDeleteModalOpen.value = true
+}
 
-  if (!risk) return
-  const confirmed = confirm(
-    `Apakah Anda yakin ingin menghapus Risk "${risk.name}"?`
-  )
+async function confirmDeleteRisk() {
+  if (!riskToDelete.value) return
 
-  if (!confirmed) return
-
-  await store.deleteRisk(id)
-  toast.add({
-    title: t('riskProfile.toasts.riskDeleted'),
-    description: t('riskProfile.toasts.riskDeletedDesc', { name: risk.name }),
-    color: 'error',
-    icon: 'i-heroicons-trash'
-  })
+  await store.deleteRisk(riskToDelete.value.id)
+  toast.showSuccess(t('riskProfile.toasts.riskDeleted', { name: riskToDelete.value.name }))
+  
+  isDeleteModalOpen.value = false
+  riskToDelete.value = null
 }
 
 </script>

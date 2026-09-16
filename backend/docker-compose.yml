@@ -71,7 +71,7 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "cub kafka-ready 1 30 -b 127.0.0.1:29092 || exit 1"]
+      test: ["CMD-SHELL", "cub kafka-ready 1 30 -b kafka:29092 || exit 1"]
       interval: 10s
       timeout: 40s
       retries: 10

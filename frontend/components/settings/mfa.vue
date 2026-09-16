@@ -239,6 +239,7 @@
 <script setup lang="ts">
 import QRCode from 'qrcode'
 import { useAuthStore } from '~/stores/auth'
+import { extractErrorMessage } from '~/utils/error'
 
 const config = useRuntimeConfig()
 const authStore = useAuthStore()
@@ -296,7 +297,7 @@ const handleSetup = async () => {
   } catch (err: any) {
     toast.add({
       title: 'Setup Gagal',
-      description: err.data?.message || err.message || 'Gagal memulai setup MFA.',
+      description: extractErrorMessage(err, 'Gagal memulai setup MFA.'),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
@@ -339,7 +340,7 @@ const handleVerifySetup = async () => {
   } catch (err: any) {
     toast.add({
       title: 'Verifikasi Gagal',
-      description: err.data?.message || err.message || 'Kode verifikasi tidak valid.',
+      description: extractErrorMessage(err, 'Kode verifikasi tidak valid.'),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
@@ -376,7 +377,7 @@ const handleDisable = async () => {
   } catch (err: any) {
     toast.add({
       title: 'Gagal Menonaktifkan',
-      description: err.data?.message || err.message || 'Password yang Anda masukkan salah.',
+      description: extractErrorMessage(err, 'Password yang Anda masukkan salah.'),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })

@@ -4,8 +4,8 @@
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/quality-assurance" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Import Periodic Self Assessment</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Import external Periodic Self Assessment (RSA) documents</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('qualityAssurance.importPeriodic.title') }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('qualityAssurance.importPeriodic.subtitle') }}</p>
       </div>
     </div>
 
@@ -17,30 +17,36 @@
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-warning" />
-              Import Periodic Self Assessment Document
+              {{ t('qualityAssurance.importPeriodic.formTitle') }}
             </h3>
           </template>
 
-          <form @submit.prevent="handleUpload" class="space-y-6">
-            <UFormField label="Document Title" required>
+          <UForm @submit.prevent="handleUpload" class="space-y-6">
+            <UFormField :label="t('qualityAssurance.importPeriodic.documentTitle')" required>
               <UInput 
                 v-model="form.title" 
-                placeholder="Ex: Periodic Self Assessment Document 2026" 
+                :placeholder="t('qualityAssurance.importPeriodic.documentTitlePlaceholder')" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
-            <UFormField label="Description">
+            <UFormField :label="t('qualityAssurance.importPeriodic.description')">
               <UTextarea 
                 v-model="form.description" 
-                placeholder="Brief description of the document..." 
+                :placeholder="t('qualityAssurance.importPeriodic.descriptionPlaceholder')" 
                 class="w-full"
               />
             </UFormField>
 
             <div class="space-y-2 pt-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Import Document File *</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('qualityAssurance.importPeriodic.fileLabel') }}</label>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -59,15 +65,15 @@
                   type="file" 
                   ref="fileInput" 
                   class="hidden" 
-                  @change="handleFileSelect"
+                  @change="handleFileSelect" 
                   accept=".pdf,.docx,.doc,.xls,.xlsx"
                 />
                 
                 <div v-if="!form.fileName" class="space-y-3">
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">Click to upload or drag & drop</p>
-                    <p class="text-md text-gray-400 mt-1">PDF, DOC, DOCX, XLSX up to 10MB</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">{{ t('qualityAssurance.importPeriodic.dropzonePrompt') }}</p>
+                    <p class="text-md text-gray-400 mt-1">{{ t('qualityAssurance.importPeriodic.dropzoneHint') }}</p>
                   </div>
                 </div>
 
@@ -86,7 +92,7 @@
                     @click.stop="clearFile" 
                     class="text-md text-red-500 hover:underline font-bold mt-2 block mx-auto"
                   >
-                    Remove File
+                    {{ t('qualityAssurance.importPeriodic.removeFile') }}
                   </button>
                 </div>
               </div>
@@ -98,14 +104,14 @@
 
             <UButton 
               type="submit" 
-              label="Import Document" 
+              :label="t('qualityAssurance.importPeriodic.submitButton')" 
               color="warning" 
               class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
               icon="i-lucide-upload"
               :disabled="!form.title || !form.fileName"
             />
-          </form>
+          </UForm>
         </UCard>
       </div>
 
@@ -116,10 +122,10 @@
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-warning" />
-                Imported Periodic Self Assessment Documents
+                {{ t('qualityAssurance.importPeriodic.tableTitle') }}
               </h3>
               <UBadge color="warning" variant="subtle">
-                {{ store.regularImportedReports.length }} Documents
+                {{ t('qualityAssurance.importPeriodic.documentsCount', { count: store.regularImportedReports.length }) }}
               </UBadge>
             </div>
           </template>
@@ -130,8 +136,8 @@
             :loading="store.loading"
             :empty-state="{
               icon: 'i-lucide-folder-open',
-              label: 'No documents imported',
-              description: 'Import Periodic Self Assessment documents to add them to your records.'
+              label: t('qualityAssurance.importPeriodic.emptyTitle'),
+              description: t('qualityAssurance.importPeriodic.emptyDesc')
             }"
           >
             <template #title-cell="{ row }">
@@ -160,30 +166,36 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="info" 
-                  variant="ghost" 
-                  size="sm" 
-                  title="View Document"
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                />
-                <UButton 
-                  icon="i-lucide-download" 
-                  color="primary" 
-                  variant="ghost" 
-                  size="sm" 
-                  title="Download Document"
-                  @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
-                />
-                <UButton 
-                  icon="i-lucide-trash-2" 
-                  color="error" 
-                  variant="ghost" 
-                  size="sm" 
-                  title="Delete Document"
-                  @click="handleDelete(row.original)" 
-                />
+                <UTooltip text="View Document">
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="md"  
+                    :title="t('qualityAssurance.importPeriodic.actions.view')"
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
+                </UTooltip>
+                <UTooltip text="Download Document">
+                  <UButton 
+                    icon="i-lucide-download" 
+                    color="primary" 
+                    variant="ghost" 
+                    size="md" 
+                    :title="t('qualityAssurance.importPeriodic.actions.download')"
+                    @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
+                  />
+                </UTooltip>
+                <UTooltip text="Delete Document">
+                  <UButton 
+                    icon="i-lucide-trash-2" 
+                    color="error" 
+                    variant="ghost" 
+                    size="md" 
+                    :title="t('qualityAssurance.importPeriodic.actions.delete')"
+                    @click="handleDelete(row.original)" 
+                  />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>
@@ -194,11 +206,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 import { QAType, QAStatus, type QAReport } from '~/types/quality-assurance'
+import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
 
+const { t, locale } = useI18n()
 const store = useQualityAssuranceStore()
 
 onMounted(() => {
@@ -214,15 +228,15 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  fileContent: ''
+  file: null as any
 })
 
-const columns = [
-  { accessorKey: 'title', header: 'Document Title', class: 'w-[50%]' },
-  { accessorKey: 'fileName', header: 'File', class: 'w-[24%]' },
-  { accessorKey: 'created_at', header: 'Imported Date', class: 'w-[16%]' },
-  { accessorKey: 'actions', header: 'Actions', class: 'w-[10%]' }
-]
+const columns = computed(() => [
+  { accessorKey: 'title', header: t('qualityAssurance.importPeriodic.columns.title'), class: 'w-[50%]' },
+  { accessorKey: 'fileName', header: t('qualityAssurance.importPeriodic.columns.file'), class: 'w-[24%]' },
+  { accessorKey: 'created_at', header: t('qualityAssurance.importPeriodic.columns.date'), class: 'w-[16%]' },
+  { accessorKey: 'actions', header: t('qualityAssurance.importPeriodic.columns.actions'), class: 'w-[10%]' }
+])
 
 const triggerFileSelect = () => {
   fileInput.value?.click()
@@ -246,7 +260,7 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    alert('File size exceeds the 10MB limit.')
+    alert(t('qualityAssurance.importPeriodic.fileSizeLimit'))
     return
   }
 
@@ -254,17 +268,13 @@ const processFile = (file: File) => {
   form.value.fileType = file.type || 'application/octet-stream'
   selectedFileLength.value = file.size
 
-  const reader = new FileReader()
-  reader.onload = () => {
-    form.value.fileContent = reader.result as string
-  }
-  reader.readAsDataURL(file)
+  form.value.file = file
 }
 
 const clearFile = () => {
   form.value.fileName = ''
   form.value.fileType = ''
-  form.value.fileContent = ''
+  form.value.file = null as any
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -278,7 +288,6 @@ const handleUpload = async () => {
     await store.importQARReport({
       assessmentTitle: form.value.title,
       type: QAType.REGULAR,
-      periodQuarter: 'Q1',
       periodYear: '2026',
       result: 'Generally Conformed',
       status: QAStatus.COMPLETED,
@@ -286,7 +295,7 @@ const handleUpload = async () => {
       validator: 'Internal Evaluator',
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      fileContent: form.value.fileContent
+      file: form.value.file
     })
     
     if (!store.errorMsg) {
@@ -300,7 +309,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-  if (confirm('Are you sure you want to delete this imported document?')) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importPeriodic.deleteConfirm') })) {
     store.selectedReport = report
     await store.deleteReport()
   }
@@ -318,7 +327,7 @@ const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   const date = new Date(dateString)
   if (isNaN(date.getTime())) return dateString
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale.value === 'id' ? 'id-ID' : 'en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'

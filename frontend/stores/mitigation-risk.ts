@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import type { RiskMitigation, RiskMitigationForm } from '~/types/risk'
 import { useRiskProfileStore } from '~/stores/risk-profile'
+import { extractErrorMessage } from '~/utils/error'
 
 export const initialMitigationsData: RiskMitigation[] = [
   {
@@ -215,6 +216,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
             }
         } catch (error: any) {
             console.warn('Backend mitigations unavailable, using initial data.', error)
+            errorMsg.value = extractErrorMessage(error, 'Backend mitigations unavailable, using initial data.')
         } finally {
             loading.value = false
         }
@@ -296,8 +298,9 @@ export const useMitigationStore = defineStore('mitigation', () => {
                         body: payloadWithMonitoring
                     })
                     await fetchMitigations(currentRiskId)
-                } catch (e) {
+                } catch (e: any) {
                     console.warn('Backend update failed, saved locally.')
+                    errorMsg.value = extractErrorMessage(e, 'Backend update failed, saved locally.')
                     mitigations.value = [...mitigations.value]
                 }
             } else {
@@ -315,15 +318,16 @@ export const useMitigationStore = defineStore('mitigation', () => {
                         body: { ...payload, monitoring: newMonitoring }
                     })
                     await fetchMitigations(currentRiskId)
-                } catch (e) {
+                } catch (e: any) {
                     console.warn('Backend create failed, saved locally.')
+                    errorMsg.value = extractErrorMessage(e, 'Backend create failed, saved locally.')
                     mitigations.value = [...mitigations.value]
                 }
             }
             closeForm()
         } catch (error: any) {
             console.error('Failed to save mitigation:', error)
-            errorMsg.value = 'Failed to save mitigation.'
+            errorMsg.value = extractErrorMessage(error, 'Failed to save mitigation.')
         } finally {
             loading.value = false
         }
@@ -349,14 +353,14 @@ export const useMitigationStore = defineStore('mitigation', () => {
             await fetchMitigations(currentRiskId)
         } catch (error: any) {
             console.error('Failed to update monitoring:', error)
-            errorMsg.value = 'Failed to update monitoring.'
+            errorMsg.value = extractErrorMessage(error, 'Failed to update monitoring.')
         } finally {
             loading.value = false
         }
     }
 
     const deleteMitigation = async (id: string, currentRiskId?: string) => {
-        if (!confirm('Apakah Anda yakin ingin menghapus rencana mitigasi ini?')) return
+        if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus rencana mitigasi ini?' })) return
         loading.value = true
         errorMsg.value = ''
         try {
@@ -367,7 +371,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
             await fetchMitigations(currentRiskId)
         } catch (error: any) {
             console.error('Failed to delete mitigation:', error)
-            errorMsg.value = 'Failed to delete mitigation.'
+            errorMsg.value = extractErrorMessage(error, 'Failed to delete mitigation.')
         } finally {
             loading.value = false
         }

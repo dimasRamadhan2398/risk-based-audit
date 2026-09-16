@@ -28,7 +28,13 @@
                 :placeholder="t('executiveSummaryUpload.documentTitlePlaceholder')" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('executiveSummaryUpload.descriptionLabel')">
@@ -158,30 +164,33 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="info" 
-                  variant="ghost" 
-                  size="sm" 
-                  :title="t('executiveSummaryUpload.actions.view')"
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                />
-                <UButton 
-                  icon="i-lucide-download" 
-                  color="primary" 
-                  variant="ghost" 
-                  size="sm" 
-                  :title="t('executiveSummaryUpload.actions.download')"
-                  @click="store.downloadDocument(row.original.id, row.original.fileName)" 
-                />
-                <UButton 
-                  icon="i-lucide-trash-2" 
-                  color="error" 
-                  variant="ghost" 
-                  size="sm" 
-                  :title="t('executiveSummaryUpload.actions.delete')"
-                  @click="handleDelete(row.original.id)" 
-                />
+                <UTooltip :text="t('executiveSummaryUpload.actions.view')">
+                  <UButton 
+                    icon="i-lucide-eye" 
+                    color="info" 
+                    variant="ghost" 
+                    size="sm" 
+                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  />
+                </UTooltip>
+                <UTooltip :text="t('executiveSummaryUpload.actions.download')">
+                  <UButton 
+                    icon="i-lucide-download" 
+                    color="primary" 
+                    variant="ghost" 
+                    size="sm" 
+                    @click="store.downloadDocument(row.original.id, row.original.fileName)" 
+                  />
+                </UTooltip>
+                <UTooltip :text="t('executiveSummaryUpload.actions.delete')">
+                  <UButton 
+                    icon="i-lucide-trash-2" 
+                    color="error" 
+                    variant="ghost" 
+                    size="sm" 
+                    @click="handleDelete(row.original.id)" 
+                  />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>
@@ -196,9 +205,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useUploadExecutiveSummaryStore } from '~/stores/upload-executive-summary'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const store = useUploadExecutiveSummaryStore()
+const toast = useToastNotification();
 
 onMounted(() => {
   store.fetchUploadedDocuments()
@@ -213,7 +224,7 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  fileContent: ''
+  file: null as any
 })
 
 const columns = computed(() => [
@@ -253,17 +264,13 @@ const processFile = (file: File) => {
   form.value.fileType = file.type || 'application/octet-stream'
   selectedFileLength.value = file.size
 
-  const reader = new FileReader()
-  reader.onload = () => {
-    form.value.fileContent = reader.result as string
-  }
-  reader.readAsDataURL(file)
+  form.value.file = file
 }
 
 const clearFile = () => {
   form.value.fileName = ''
   form.value.fileType = ''
-  form.value.fileContent = ''
+  form.value.file = null as any
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -279,7 +286,7 @@ const handleUpload = async () => {
       description: form.value.description,
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      fileContent: form.value.fileContent
+      file: form.value.file
     })
     
     if (!store.errorMsg) {
@@ -293,8 +300,9 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (confirm(t('executiveSummaryUpload.confirmDelete'))) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('executiveSummaryUpload.confirmDelete') })) {
     await store.deleteDocument(id)
+    toast.success(t('executiveSummaryUpload.deleted'))
   }
 }
 
@@ -309,7 +317,7 @@ const formatBytes = (bytes: number) => {
 const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   const date = new Date(dateString)
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale.value === 'id' ? 'id-ID' : 'en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'

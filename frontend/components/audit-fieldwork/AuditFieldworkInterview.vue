@@ -45,44 +45,59 @@
         </div>
       </template>
       <template #file-cell="{ row }">
-        <UButton
-          v-if="row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath"
-          icon="i-heroicons-document-arrow-down"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          @click="store.downloadInterviewFile(row.original)"
-        >
-          {{ row.original.fileName || row.original.file?.name }}
-        </UButton>
+        <div v-if="row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath" class="flex items-center gap-1">
+          <UButton
+            icon="i-heroicons-document-text"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            class="max-w-[180px] truncate"
+            :title="row.original.fileName || row.original.file?.name"
+            @click="store.previewInterviewFile(row.original)"
+          >
+            <span class="truncate">{{ row.original.fileName || row.original.file?.name }}</span>
+          </UButton>
+          <UTooltip text="Unduh Berkas">
+            <UButton
+              icon="i-heroicons-arrow-down-tray"
+              color="primary"
+              variant="ghost"
+              size="xs"
+              @click="store.downloadInterviewFile(row.original)"
+            />
+          </UTooltip>
+        </div>
         <span v-else class="text-gray-400 text-sm">-</span>
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center justify-center gap-1">
-          <UButton
-            icon="i-heroicons-eye"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :title="t('common.actions.view') || 'Detail'"
-            @click="store.viewInterview(row.original)"
-          />
-          <UButton
-            icon="i-heroicons-pencil-square"
-            color="primary"
-            variant="ghost"
-            size="sm"
-            :title="t('common.actions.edit') || 'Ubah'"
-            @click="store.editInterview(row.original)"
-          />
-          <UButton
-            icon="i-heroicons-trash"
-            color="error"
-            variant="ghost"
-            size="sm"
-            :title="t('common.actions.delete') || 'Hapus'"
-            @click="store.deleteInterview(row.index)"
-          />
+          <UTooltip :text="t('common.actions.view') || 'Detail'">
+            <UButton
+              icon="i-heroicons-eye"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="store.viewInterview(row.original)"
+            />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+            <UButton
+              icon="i-heroicons-pencil-square"
+              color="primary"
+              variant="ghost"
+              size="sm"
+              @click="store.editInterview(row.original)"
+            />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+            <UButton
+              icon="i-heroicons-trash"
+              color="error"
+              variant="ghost"
+              size="sm"
+              @click="store.deleteInterview(row.index)"
+            />
+          </UTooltip>
         </div>
       </template>
     </TableEntities>

@@ -22,7 +22,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 40s
       retries: 5
@@ -193,7 +193,7 @@ services:
     restart: unless-stopped
 
   kong:
-    image: kong:3.4
+    image: kong:3.8
     user: root
     container_name: rb_audit_kong
     volumes:
@@ -215,7 +215,7 @@ services:
       - "8009:8001"
       - "8444:8444"
     healthcheck:
-      test: ["CMD", "kong", "health"]
+      test: [ "CMD", "kong", "health" ]
       interval: 10s
       timeout: 40s
       retries: 5

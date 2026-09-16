@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -38,22 +39,59 @@ type UploadPlanRequest struct {
 }
 
 func (ctrl *UploadedPlanDocumentController) Upload(c *gin.Context) {
-	var req UploadPlanRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
-		return
+	title := c.PostForm("title")
+	description := c.PostForm("description")
+	fileName := c.PostForm("fileName")
+	fileType := c.PostForm("fileType")
+
+	var dec []byte
+
+	file, err := c.FormFile("file")
+	if err == nil {
+		openedFile, err := file.Open()
+		if err != nil {
+			response.InternalServerError(c, "failed to open file: "+err.Error())
+			return
+		}
+		defer openedFile.Close()
+
+		dec, err = io.ReadAll(openedFile)
+		if err != nil {
+			response.InternalServerError(c, "failed to read file: "+err.Error())
+			return
+		}
+	} else {
+		// Fallback: check if fileContent was sent as base64 string in form or JSON
+		base64Data := c.PostForm("fileContent")
+		if base64Data == "" && strings.Contains(c.GetHeader("Content-Type"), "application/json") {
+			var req UploadPlanRequest
+			if err := c.ShouldBindJSON(&req); err == nil {
+				title = req.Title
+				description = req.Description
+				fileName = req.FileName
+				fileType = req.FileType
+				base64Data = req.FileContent
+			}
+		}
+
+		if base64Data != "" {
+			if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
+				base64Data = base64Data[idx+8:]
+			}
+			var decErr error
+			dec, decErr = base64.StdEncoding.DecodeString(base64Data)
+			if decErr != nil {
+				response.BadRequest(c, "Invalid base64 file data: "+decErr.Error())
+				return
+			}
+		} else {
+			response.BadRequest(c, "file is required: "+err.Error())
+			return
+		}
 	}
 
-	// Clean base64 string if it contains metadata prefix
-	base64Data := req.FileContent
-	if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
-		base64Data = base64Data[idx+8:]
-	}
-
-	// Decode base64
-	dec, err := base64.StdEncoding.DecodeString(base64Data)
-	if err != nil {
-		response.BadRequest(c, "Invalid base64 file data: "+err.Error())
+	if title == "" || fileName == "" {
+		response.BadRequest(c, "title and fileName are required")
 		return
 	}
 
@@ -63,8 +101,8 @@ func (ctrl *UploadedPlanDocumentController) Upload(c *gin.Context) {
 	}
 
 	// Generate a unique filename to avoid overwrites
-	fileExt := filepath.Ext(req.FileName)
-	baseName := strings.TrimSuffix(req.FileName, fileExt)
+	fileExt := filepath.Ext(fileName)
+	baseName := strings.TrimSuffix(fileName, fileExt)
 	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 
 	// Save file to disk
@@ -82,12 +120,13 @@ func (ctrl *UploadedPlanDocumentController) Upload(c *gin.Context) {
 	// Save metadata in database
 	paper := models.UploadedPlanDocument{
 		ID:          uuid.New(),
-		Title:       req.Title,
-		Description: req.Description,
-		FileName:    req.FileName,
+		Title:       title,
+		Description: description,
+		FileName:    fileName,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
-		FileType:    req.FileType,
+		FileContent: dec,
+		FileType:    fileType,
 	}
 
 	if err := ctrl.DB.Create(&paper).Error; err != nil {
@@ -156,6 +195,19 @@ func (ctrl *UploadedPlanDocumentController) Download(c *gin.Context) {
 			return
 		}
 		response.InternalServerError(c, "Failed to fetch uploaded plan document")
+		return
+	}
+
+		if len(paper.FileContent) > 0 {
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", paper.FileName))
+		if paper.FileType != "" {
+			c.Header("Content-Type", paper.FileType)
+		} else {
+			c.Header("Content-Type", "application/octet-stream")
+		}
+		c.Data(http.StatusOK, paper.FileType, paper.FileContent)
 		return
 	}
 

@@ -28,7 +28,13 @@
                 :placeholder="t('qualityAssurance.importQar.documentTitlePlaceholder')" 
                 class="w-full"
                 required
+                maxlength="100"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('qualityAssurance.importQar.description')">
@@ -160,30 +166,36 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
+                <UTooltip :text="t('qualityAssurance.importQar.actions.view')">
                 <UButton 
                   icon="i-lucide-eye" 
                   color="info" 
                   variant="ghost" 
-                  size="sm" 
+                  size="md" 
                   :title="t('qualityAssurance.importQar.actions.view')" 
                   @click="store.viewDocument(row.original.id, row.original.fileName)" 
                 />
+                </UTooltip>
+                <UTooltip :text="t('qualityAssurance.importQar.actions.download')">
                 <UButton 
                   icon="i-lucide-download" 
                   color="primary" 
                   variant="ghost" 
-                  size="sm" 
+                  size="md" 
                   :title="t('qualityAssurance.importQar.actions.download')" 
                   @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
                 />
+                </UTooltip>
+                <UTooltip :text="t('qualityAssurance.importQar.actions.delete')">
                 <UButton 
                   icon="i-lucide-trash-2" 
                   color="error" 
                   variant="ghost" 
-                  size="sm" 
+                  size="md" 
                   :title="t('qualityAssurance.importQar.actions.delete')" 
                   @click="handleDelete(row.original)" 
                 />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>
@@ -216,7 +228,7 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  fileContent: ''
+  file: null as any
 })
 
 const columns = computed(() => [
@@ -256,17 +268,13 @@ const processFile = (file: File) => {
   form.value.fileType = file.type || 'application/octet-stream'
   selectedFileLength.value = file.size
 
-  const reader = new FileReader()
-  reader.onload = () => {
-    form.value.fileContent = reader.result as string
-  }
-  reader.readAsDataURL(file)
+  form.value.file = file
 }
 
 const clearFile = () => {
   form.value.fileName = ''
   form.value.fileType = ''
-  form.value.fileContent = ''
+  form.value.file = null as any
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -280,7 +288,6 @@ const handleUpload = async () => {
     await store.importQARReport({
       assessmentTitle: form.value.title,
       type: QAType.QAR,
-      periodQuarter: 'Q1',
       periodYear: '2026',
       result: 'Generally Conformed',
       status: QAStatus.COMPLETED,
@@ -288,7 +295,7 @@ const handleUpload = async () => {
       validator: 'External Consultant',
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      fileContent: form.value.fileContent
+      file: form.value.file
     })
     
     if (!store.errorMsg) {
@@ -302,7 +309,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-  if (confirm(t('qualityAssurance.importQar.deleteConfirm'))) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importQar.deleteConfirm') })) {
     store.selectedReport = report
     await store.deleteReport()
   }

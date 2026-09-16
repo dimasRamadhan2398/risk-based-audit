@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { extractErrorMessage } from '~/utils/error';
 
 export interface KPIAchievement {
   id: string;
@@ -96,7 +97,7 @@ export const usePerformanceStore = defineStore('performance', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch dashboard summary:', err);
-      error.value = err.message || 'Failed to fetch dashboard summary';
+      error.value = extractErrorMessage(err, 'Failed to fetch dashboard summary');
     } finally {
       loading.value = false;
     }
@@ -115,7 +116,7 @@ export const usePerformanceStore = defineStore('performance', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch monthly trends:', err);
-      error.value = err.message || 'Failed to fetch monthly trends';
+      error.value = extractErrorMessage(err, 'Failed to fetch monthly trends');
     } finally {
       loading.value = false;
     }
@@ -147,7 +148,7 @@ export const usePerformanceStore = defineStore('performance', () => {
         kpiAchievements.value = fetched;
       }
     } catch (err: any) {
-      error.value = err.message || 'Failed to fetch KPI achievements';
+      error.value = extractErrorMessage(err, 'Failed to fetch KPI achievements');
       kpiAchievements.value = [...mockKpis];
     } finally {
       loading.value = false;
@@ -170,7 +171,7 @@ export const usePerformanceStore = defineStore('performance', () => {
         workPlanRealizations.value = [...mockRealizations];
       }
     } catch (err: any) {
-      error.value = err.message || 'Failed to fetch Work Plan realizations';
+      error.value = extractErrorMessage(err, 'Failed to fetch Work Plan realizations');
       workPlanRealizations.value = [...mockRealizations];
     } finally {
       loading.value = false;

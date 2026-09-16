@@ -1,5 +1,15 @@
 <template>
-    <UModal v-model:open="store.showViewModal" dismissible class="w-full sm:max-w-5xl bg-[var(--bg-main)] border-[var(--border-main)]">
+    <UModal 
+      v-model:open="store.showViewModal" 
+      dismissible 
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+      >
       <template #content>
         <div v-if="store.selectedPlan" class="relative   rounded-xl shadow-2xl flex flex-col max-h-[95vh] overflow-y-auto p-8">
           <template v-if="store.selectedPlan">
@@ -15,15 +25,6 @@
                 </div>
                 
                 <div class="flex items-center gap-2">
-                  <UButton label="Delete" color="error" icon="i-heroicons-trash" size="md" @click="store.handleDelete(store.selectedPlan.id)"/>
-                  <UButton 
-                    label="Edit Data" 
-                    color="warning" 
-                    icon="i-heroicons-pencil-square" 
-                    size="md"
-                    class="font-bold"
-                    @click="store.handleEditFromView(store.selectedPlan)" 
-                  />
                   <UIcon name="i-heroicons-x-mark" @click="store.closeViewModal" class="text-gray-400 hover:text-gray-600 text-3xl ml-2"></UIcon>
                 </div>
               </div>

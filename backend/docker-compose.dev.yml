@@ -235,7 +235,7 @@ services:
     restart: unless-stopped
 
   kong:
-    image: kong:3.4
+    image: kong:3.8
     container_name: rb_audit_kong_dev
     volumes:
       - ./kong-gateway/kong/dev:/usr/local/kong/declarative

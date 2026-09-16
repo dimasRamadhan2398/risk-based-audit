@@ -2,7 +2,13 @@
   <UModal
     v-model:open="store.showModal"
     :dismissible="false"
-    class="w-full sm:max-w-4xl bg-[var(--bg-main)] border-[var(--border-main)]"
+    :ui="{
+      content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+      body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+      footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+    }"
   >
     <template #content>
       <UForm @submit.prevent="store.handleSubmit">
@@ -31,12 +37,15 @@
                 type="text"
                 name="title"
                 id="title"
-                maxlength="200"
+                maxlength="100"
                 class="mt-1 block w-full rounded-md"
                 :placeholder="t('auditCharter.form.docTitlePlaceholder')"
-                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 200 karakter dan wajib diisi')"
+                @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.form.docTitleValidation'))"
                 @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ store.form.title ? store.form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <div class="grid grid-cols-2 gap-4">
@@ -85,12 +94,15 @@
                   v-model="store.form.approvedBy"
                   required
                   type="text"
-                  maxlength="200"
+                  maxlength="100"
                   class="mt-1 block w-full rounded-md"
                   :placeholder="t('auditCharter.form.approvedByPlaceholder')"
-                  @invalid="($event.target as any)?.setCustomValidity('Penyetuju maksimal 200 karakter dan wajib diisi')"
+                  @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.form.approvedByValidation'))"
                   @input="($event.target as any)?.setCustomValidity('')"
                 />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ store.form.approvedBy ? store.form.approvedBy.length : 0 }}/100
+                </div>
               </UFormField>
             </div>
 
@@ -126,7 +138,7 @@
                 />
               </div>
               <p v-if="store.form.file || store.form.fileName" class="text-md text-gray-500 mt-1">
-                File terpilih: <span class="font-semibold text-gray-700">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
+                {{ t('auditCharter.form.selectedFile') }} <span class="font-semibold text-gray-700">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
               </p>
             </UFormField>
 
@@ -170,4 +182,5 @@ import { useI18n } from '~/composables/useI18n'
 
 const { t } = useI18n()
 const store = useCharterStore()
+
 </script>

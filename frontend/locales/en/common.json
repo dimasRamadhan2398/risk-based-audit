@@ -94,6 +94,8 @@
     "view": "View",
     "close": "Close",
     "submit": "Submit",
+    "update": "Update",
+    "updateData": "Update Data",
     "search": "Search",
     "loading": "Loading...",
     "error": "Error",
@@ -561,7 +563,7 @@
       "deleteConfirm": "Are you sure you want to delete this Strategic Plan?"
     },
     "form": {
-      "title": "Strategic Plan Information",
+      "title": "Add Strategic Objective Information",
       "corporateGoal": "Corporate Goal",
       "selectCorporateGoal": "Select Corporate Goal",
       "code": "Objective ID",
@@ -698,7 +700,8 @@
       "weightInfo": "Weight: {weight}% | Weighted: {weighted}",
       "selectEntityTitle": "Select Auditable Entity",
       "selectEntityDesc": "Choose a year and active auditable entity from the dropdowns above to begin risk scoring.",
-      "saveBtn": "Save Scoring & Calculate"
+      "saveBtn": "Save Scoring & Calculate",
+      "guidelinesTooltip": "Scoring Scale Guidelines"
     },
     "priority": {
       "title": "Audit Priority ({year})",
@@ -938,100 +941,100 @@
     }
   },
   "riskProfile": {
-      "title": "Corporate Risk Profile",
-      "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
-      "total": "Total",
-      "priority": "Priority",
-      "addRisk": "Add Risk",
-      "filterBranch": "Filter Branch/Dept",
-      "allBranches": "All Branches",
-      "fiscalYear": "Fiscal Year",
-      "period": "Period",
-      "riskLevels": "Risk Levels",
-      "likelihoodLevel": "LIKELIHOOD LEVEL",
-      "impactLevel": "IMPACT LEVEL",
-      "quickTip": {
-        "title": "Quick Tip",
-        "desc": "Drag and drop risks to update their status. Switch quarters to track risk changes over time."
-      },
-      "tabs": {
-        "priority": "Priority Risks ({count})",
-        "all": "All Risks ({count})",
-        "progress": "Risk Progress Table"
-      },
-      "table": {
-        "no": "No",
-        "riskEvent": "Risk Event",
-        "impactScale": "Impact Scale",
-        "likelihoodScale": "Likelihood Scale",
-        "riskLevel": "Risk Level"
-      },
-      "addModal": {
-        "title": "Add New Corporate Risk",
-        "desc": "Enter the details of the new risk to be added to the heatmap.",
-        "name": "Risk Name",
-        "namePlaceholder": "e.g. Target pendapatan dan laba tidak tercapai",
-        "category": "Category",
-        "branch": "Branch / Dept",
-        "quarterlyTitle": "Quarterly Residual Score Tracking (FY {year})",
-        "impact": "Impact",
-        "likelihood": "Likelihood",
-        "description": "Risk Description",
-        "descriptionPlaceholder": "Describe the risk and its potential consequences...",
-        "saveBtn": "Save Risk"
-      },
-      "editModal": {
-        "title": "Edit Risk: {name}",
-        "titleDefault": "Edit Risk",
-        "desc": "Modify the assessment parameters or quarterly scoring details.",
-        "updateBtn": "Update Risk"
-      },
-      "detailModal": {
-        "title": "Risk Detail: # {id}",
-        "desc": "Complete assessment data and categorization for this risk event.",
-        "category": "Category",
-        "riskLevel": "Risk Level",
-        "riskEventName": "Risk Event Name",
-        "impactPeriod": "Impact ({period})",
-        "likelihoodPeriod": "Likelihood ({period})",
-        "severityWeight": "Severity Weight",
-        "description": "Description",
-        "mitigationBtn": "Go to Mitigation Plan"
-      },
-      "toasts": {
-        "validationError": "Validation Error",
-        "nameRequired": "Risk name is required.",
-        "riskAdded": "Risk Added",
-        "riskAddedDesc": "\"{name}\" successfully added to the profile.",
-        "riskUpdated": "Risk Updated",
-        "riskUpdatedDesc": "Changes saved successfully.",
-        "positionUpdated": "Risk Position Updated",
-        "positionUpdatedDesc": "\"{name}\" moved to {l}×{i} for {period}",
-        "riskDeleted": "Risk Deleted",
-        "riskDeletedDesc": "\"{name}\" has been removed."
-      },
-      "impactLabels": {
-        "1": "Very Low",
-        "2": "Low",
-        "3": "Moderate",
-        "4": "High",
-        "5": "Very High"
-      },
-      "likelihoodLabels": {
-        "1": "Very Rare",
-        "2": "Rare",
-        "3": "Possible",
-        "4": "Likely",
-        "5": "Very Likely"
-      },
-      "riskLevelLabels": {
-        "low": "Low",
-        "low-moderate": "Low to Moderate",
-        "moderate": "Moderate",
-        "moderate-high": "Moderate to High",
-        "high": "High"
-      }
+    "title": "Corporate Risk Profile",
+    "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
+    "total": "Total",
+    "priority": "Priority",
+    "addRisk": "Add Risk",
+    "filterBranch": "Filter Branch/Dept",
+    "allBranches": "All Branches",
+    "fiscalYear": "Fiscal Year",
+    "period": "Period",
+    "riskLevels": "Risk Levels",
+    "likelihoodLevel": "LIKELIHOOD LEVEL",
+    "impactLevel": "IMPACT LEVEL",
+    "quickTip": {
+      "title": "Quick Tip",
+      "desc": "Drag and drop risks to update their status. Switch quarters to track risk changes over time."
     },
+    "tabs": {
+      "priority": "Priority Risks ({count})",
+      "all": "All Risks ({count})",
+      "progress": "Risk Progress Table"
+    },
+    "table": {
+      "no": "No",
+      "riskEvent": "Risk Event",
+      "impactScale": "Impact Scale",
+      "likelihoodScale": "Likelihood Scale",
+      "riskLevel": "Risk Level"
+    },
+    "addModal": {
+      "title": "Add New Corporate Risk",
+      "desc": "Enter the details of the new risk to be added to the heatmap.",
+      "name": "Risk Name",
+      "namePlaceholder": "e.g. Target pendapatan dan laba tidak tercapai",
+      "category": "Category",
+      "branch": "Branch / Dept",
+      "quarterlyTitle": "Quarterly Residual Score Tracking (FY {year})",
+      "impact": "Impact",
+      "likelihood": "Likelihood",
+      "description": "Risk Description",
+      "descriptionPlaceholder": "Describe the risk and its potential consequences...",
+      "saveBtn": "Save Risk"
+    },
+    "editModal": {
+      "title": "Edit Risk: {name}",
+      "titleDefault": "Edit Risk",
+      "desc": "Modify the assessment parameters or quarterly scoring details.",
+      "updateBtn": "Update Risk"
+    },
+    "detailModal": {
+      "title": "Risk Detail: # {id}",
+      "desc": "Complete assessment data and categorization for this risk event.",
+      "category": "Category",
+      "riskLevel": "Risk Level",
+      "riskEventName": "Risk Event Name",
+      "impactPeriod": "Impact ({period})",
+      "likelihoodPeriod": "Likelihood ({period})",
+      "severityWeight": "Severity Weight",
+      "description": "Description",
+      "mitigationBtn": "Go to Mitigation Plan"
+    },
+    "toasts": {
+      "validationError": "Validation Error",
+      "nameRequired": "Risk name is required.",
+      "riskAdded": "Risk Added",
+      "riskAddedDesc": "\"{name}\" successfully added to the profile.",
+      "riskUpdated": "Risk Updated",
+      "riskUpdatedDesc": "Changes saved successfully.",
+      "positionUpdated": "Risk Position Updated",
+      "positionUpdatedDesc": "\"{name}\" moved to {l}×{i} for {period}",
+      "riskDeleted": "Risk Deleted",
+      "riskDeletedDesc": "\"{name}\" has been removed."
+    },
+    "impactLabels": {
+      "1": "Very Low",
+      "2": "Low",
+      "3": "Moderate",
+      "4": "High",
+      "5": "Very High"
+    },
+    "likelihoodLabels": {
+      "1": "Very Rare",
+      "2": "Rare",
+      "3": "Possible",
+      "4": "Likely",
+      "5": "Very Likely"
+    },
+    "riskLevelLabels": {
+      "low": "Low",
+      "low-moderate": "Low to Moderate",
+      "moderate": "Moderate",
+      "moderate-high": "Moderate to High",
+      "high": "High"
+    }
+  },
   "analytics": {
     "title": "AI & Analytics Center",
     "subtitle": "Integrated Machine Learning & Deep Learning Models (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
@@ -1050,10 +1053,10 @@
       "kpiForecasts": "KPI Forecasts"
     },
     "tabs": {
-      "riskScoring": "Risk Scoring ML",
-      "anomalyDetection": "Anomaly Detection ML",
-      "indoBERT": "IndoBERT NLP",
-      "kpiLSTM": "KPI PyTorch LSTM"
+      "riskScoring": "Risk Scoring",
+      "anomalyDetection": "Anomaly Detection",
+      "documentProcessing": "Document Processing",
+      "kpiForecast": "KPI Forecast"
     },
     "xgboost": {
       "alertTitle": "Department & Entity Risk Scoring ML Model",
@@ -1422,23 +1425,91 @@
       "emptyHistory": "No audit plan history data yet.",
       "viewDocument": "View Document",
       "noFile": "No File",
-      "deleteConfirm": "Are you sure you want to delete Audit Charter \"{title}\" version {version}?"
+      "deleteConfirm": "Are you sure you want to delete Audit Charter \"{title}\" version {version}?",
+      "columns": {
+        "version": "Version",
+        "title": "Charter Name",
+        "content": "Content",
+        "date": "Date",
+        "approvedBy": "Approved By",
+        "uploadedBy": "Uploaded By",
+        "actions": ""
+      }
     },
     "form": {
       "editTitle": "Edit Audit Charter",
-      "uploadTitle": "Upload New Charter",
+      "uploadTitle": "Add New Charter",
       "docTitle": "Document Title",
       "docTitlePlaceholder": "e.g. Internal Audit Charter 2026",
+      "docTitleValidation": "Title is required and cannot exceed 200 characters",
       "versionAuto": "Version (Auto)",
       "date": "Date",
       "uploadedBy": "Uploaded By",
       "approvedBy": "Approved By",
       "approvedByPlaceholder": "e.g. Audit Committee",
+      "approvedByValidation": "Approver is required and cannot exceed 200 characters",
       "status": "Status",
       "active": "Active",
       "inactive": "Inactive",
       "uploadFile": "Upload Charter File (PDF/DOCX)",
+      "selectedFile": "Selected file:",
       "submit": "Submit"
+    },
+    "guideline": {
+      "title": "Audit Guidelines",
+      "subtitle": "Complete list of Audit Guidelines applicable in the company",
+      "emptyTitle": "No Audit Guidelines Yet",
+      "emptyDesc": "Audit Guidelines define the rules and standards for audit execution in your company.",
+      "addGuideline": "Add Audit Guideline",
+      "addGuidelineShort": "Add Guideline",
+      "emptyTable": "No audit guidelines yet",
+      "deleteConfirm": "Are you sure you want to delete Guideline \"{name}\"?",
+      "statusActive": "Active",
+      "statusUnderReview": "Under Review",
+      "columns": {
+        "no": "No",
+        "name": "Guideline Name",
+        "status": "Status",
+        "effectiveDate": "Effective Date",
+        "fileName": "View Document",
+        "actions": ""
+      }
+    },
+    "guidelineForm": {
+      "editTitle": "Edit Audit Guideline",
+      "addTitle": "Add New Audit Guideline",
+      "name": "Guideline Name",
+      "namePlaceholder": "e.g. Internal Audit Unit Management Guideline",
+      "nameValidation": "Guideline name is required and cannot exceed 200 characters",
+      "status": "Status",
+      "statusActive": "Active",
+      "statusUnderReview": "Under Review",
+      "effectiveDate": "Effective Date",
+      "fileUpload": "Guideline Document (PDF)",
+      "selectedFile": "Selected file:",
+      "saveChanges": "Save Changes",
+      "addGuideline": "Add Guideline",
+      "cancel": "Cancel"
+    },
+    "sopList": {
+      "title": "Technical Instructions / SOP",
+      "subtitle": "Complete list of Technical Instructions and Standard Operating Procedures for audit execution",
+      "emptyTitle": "No Technical Instructions / SOP Yet",
+      "emptyDesc": "Technical Instructions / SOP are detailed elaborations of Audit Guidelines for technical auditor guidance.",
+      "addSop": "Add Technical Instruction / SOP",
+      "addSopShort": "Add SOP / Technical Instruction",
+      "emptyTable": "No technical instructions / SOP yet",
+      "deleteConfirm": "Are you sure you want to delete Technical Instruction/SOP \"{name}\"?",
+      "statusActive": "Active",
+      "statusUnderReview": "Under Review",
+      "columns": {
+        "no": "No",
+        "name": "Technical Instruction Name",
+        "guidelineName": "Guideline Name",
+        "status": "Status",
+        "effectiveDate": "Effective Date",
+        "actions": ""
+      }
     },
     "sopForm": {
       "editTitle": "Edit Technical Instruction / SOP",
@@ -1470,16 +1541,22 @@
     "fileUploadLabel": "Import Document File *",
     "fileDropPrompt": "Click to upload or drag & drop",
     "fileLimitInfo": "PDF, DOC, DOCX up to 10MB",
+    "dropzonePrompt": "Click to upload or drag & drop",
+    "dropzoneHint": "PDF, DOC, DOCX up to 10MB",
     "removeFile": "Remove File",
     "submitButton": "Import Executive Summary",
     "tableHeader": "Imported Executive Summaries",
+    "tableTitle": "Imported Executive Summaries",
     "documentsCount": "{count} Documents",
     "loadingDocuments": "Loading documents...",
     "emptyTitle": "No documents imported",
     "emptySubtitle": "Import executive summary documents to add them to your records.",
+    "emptyDesc": "Import executive summary documents to add them to your records.",
     "columns": {
+      "title": "Document Title",
       "documentTitle": "Document Title",
       "file": "File",
+      "date": "Imported Date",
       "importedDate": "Imported Date",
       "actions": "Actions"
     },
@@ -1489,7 +1566,9 @@
       "delete": "Delete Document"
     },
     "confirmDelete": "Are you sure you want to delete this imported document?",
-    "fileSizeLimitAlert": "File size exceeds the 10MB limit."
+    "deleteConfirm": "Are you sure you want to delete this imported document?",
+    "fileSizeLimitAlert": "File size exceeds the 10MB limit.",
+    "fileSizeLimit": "File size exceeds the 10MB limit."
   },
   "riskAppetite": {
     "title": "Risk Appetite Statement (RAS)",
@@ -1557,7 +1636,7 @@
     "statements": {
       "title": "Appetite Statements Management",
       "subtitle": "Official written policy declarations and threshold configurations",
-      "newBtn": "New Statement",
+      "newBtn": "Add Statement",
       "emptyTitle": "No appetite statements",
       "emptyDesc": "Create official policy declarations to establish limits.",
       "limitThreshold": "Limit Threshold: {limit}%",
@@ -1565,7 +1644,7 @@
       "deleteError": "Failed to delete statement.",
       "saveError": "Failed to save appetite statement.",
       "modal": {
-        "newTitle": "New Appetite Statement",
+        "newTitle": "Add New Appetite Statement",
         "editTitle": "Edit Appetite Statement",
         "statementLabel": "Statement Policy Text",
         "statementPlaceholder": "e.g. Low and Low to Moderate level risks are acceptable...",
@@ -1611,6 +1690,41 @@
     }
   },
   "workingPaper": {
+    "index": {
+      "title": "Create Working Paper",
+      "subtitle": "Create and manage audit working papers step by step",
+      "importButton": "Import Working Paper",
+      "createButton": "Create Working Paper",
+      "sections": {
+        "headerTitle": "Audit Working Paper Header",
+        "riskTitle": "Audit Working Paper Risk",
+        "sampleTitle": "Audit Working Paper Sample",
+        "causeTitle": "Audit Working Paper Cause Analysis",
+        "planTitle": "Audit Working Paper Action Plan"
+      },
+      "steps": {
+        "header": {
+          "title": "Header",
+          "description": "Add your header"
+        },
+        "riskProfile": {
+          "title": "Risk Profile",
+          "description": "Add your risk profile"
+        },
+        "testSample": {
+          "title": "Test Sample",
+          "description": "Add your test sample"
+        },
+        "aoiRca": {
+          "title": "AOI & RCA",
+          "description": "Add your AOI & RCA"
+        },
+        "actionPlan": {
+          "title": "Action Plan",
+          "description": "Add your action plan"
+        }
+      }
+    },
     "upload": {
       "title": "Import Working Paper Reference",
       "subtitle": "Import external reference Working Paper documents",
@@ -1642,6 +1756,60 @@
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
       "fileSizeLimit": "File size exceeds the 10MB limit."
+    },
+    "riskForm": {
+      "title": "Risk",
+      "risk": "Risk",
+      "riskPlaceholder": "Choose Risk",
+      "riskCategory": "Risk Category",
+      "autoFilledTaxonomy": "Automatically filled when selecting risk",
+      "riskLevel": "Risk Level",
+      "autoFilledRiskLevel": "Automatically filled when selecting risk",
+      "controlDescription": "Description of Tested Controls",
+      "controlDescriptionPlaceholder": "Type the security control/SOP that is being evaluated in the field...",
+      "updateData": "Update Data",
+      "submit": "Submit"
+    },
+    "causeForm": {
+      "title": "Root Cause Analysis",
+      "condition": "Condition (Field Impact)",
+      "conditionPlaceholder": "Ex: Found PO document without relevant Manager's signature on date...",
+      "uploadEvidence": "Upload evidence/photo",
+      "criteria": "Criteria (Related Rules/SOP)",
+      "criteriaPlaceholder": "Search Internal Regulation (e.g. Procurement SOP Chapter IV - Authorization)",
+      "impact": "Impact (Risk Impact)",
+      "impactPlaceholder": "Ex: Potential fraud or fictitious purchases that may cause financial loss...",
+      "rootCauseAnalysis": "Root Cause Analysis",
+      "analysisIndex": "Analysis {index}",
+      "category": "Category",
+      "categoryPlaceholder": "Select Category",
+      "why1": "Why",
+      "why1Placeholder": "Ex: Staff forgot to request Manager's signature",
+      "why1Validation": "Why must be at most 100 characters and is required",
+      "why2": "Why 2",
+      "why2Placeholder": "Ex: Because staff were rushing to meet delivery quota",
+      "why2Validation": "Why 2 must be at most 100 characters and is required",
+      "why3": "Why 3",
+      "why3Placeholder": "-",
+      "why3Validation": "Why 3 must be at most 100 characters and is required",
+      "addRootCause": "Add Root Cause Analysis",
+      "updateData": "Update Data",
+      "submit": "Submit"
+    },
+    "planForm": {
+      "title": "Recommendations & Responses",
+      "recommendation": "Auditor Recommendation (Solution)",
+      "recommendationPlaceholder": "Ex: IT team needs to add hard-block feature...",
+      "response": "Auditee Response (Management Response)",
+      "responsePlaceholder": "Ex: We agree, update will be implemented in Q3...",
+      "actionPlanDetail": "Action Plan Details",
+      "actionDescription": "Action Description",
+      "actionDescriptionPlaceholder": "Ex: Staff forgot to request Manager's signature",
+      "pic": "PIC (Person In Charge)",
+      "picPlaceholder": "Search Employee Name Ex: Dimas - IT",
+      "periodAction": "Planning Period",
+      "updateData": "Update Data",
+      "submit": "Submit"
     }
   },
   "consultingService": {
@@ -1678,6 +1846,50 @@
     }
   },
   "executiveSummary": {
+    "title": "Executive Summary (Compiled Audit Reports)",
+    "subtitle": "Quarterly compiled Audit Result Reports for BOD & Audit Committee.",
+    "importButton": "Import Document",
+    "createNew": "Create New Compiled Report",
+    "stats": {
+      "total": "Total Compiled",
+      "approved": "Approved",
+      "draft": "Draft",
+      "rejected": "Rejected"
+    },
+    "quarters": {
+      "q1": "Quarter 1 (Q1)",
+      "q2": "Quarter 2 (Q2)",
+      "q3": "Quarter 3 (Q3)",
+      "q4": "Quarter 4 (Q4)"
+    },
+    "searchPlaceholder": "Search document number or month...",
+    "showingDocuments": "Showing {count} documents",
+    "draftReport": "Draft Report",
+    "periodLabel": "Period:",
+    "actions": {
+      "view": "View Details",
+      "edit": "Edit Report",
+      "delete": "Delete",
+      "approve": "Approve",
+      "revertDraft": "Revert to Draft"
+    },
+    "cardStats": {
+      "reportsCount": "Audit Reports Count",
+      "totalFindings": "Total Findings",
+      "totalRecommendations": "Total Recommendations",
+      "completionClosed": "Completion (Closed)",
+      "progress": "Progress"
+    },
+    "empty": {
+      "title": "No Compiled Reports Yet",
+      "desc": "No Executive Summary compiled for Quarter {quarter} ({year}).",
+      "button": "Start First Report"
+    },
+    "modal": {
+      "viewTitle": "Compiled Report Details",
+      "editTitle": "Edit Compiled Report",
+      "createTitle": "Create New Compiled Report"
+    },
     "upload": {
       "title": "Import Executive Summary Report",
       "subtitle": "Import external compiled Executive Summary Report documents",
@@ -1867,6 +2079,82 @@
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
       "fileSizeLimit": "File size exceeds the 10MB limit."
+    },
+    "modal": {
+      "addNewAssessment": "Add New Assessment",
+      "editAssessment": "Edit Assessment",
+      "selectType": "1. Select Assessment Type",
+      "regularDesc": "[Description: Efficiency & effectiveness focus]",
+      "saivDesc": "[Description: GIAS Compliance + External Validation]",
+      "qarDesc": "[Description: Professional Consultant - IPPF 2027 & GIAS 2024]",
+      "iacmDesc": "[Description: BUMN IACM Capability Model]",
+      "generalInfo": "2. General Information",
+      "assessmentTitle": "Assessment Title",
+      "titleRequired": "Title is required",
+      "titlePlaceholder": "Ex: QAR - Audit 2026",
+      "executionPeriod": "Execution Period",
+      "selectYear": "Select Year",
+      "resultsAndStatus": "3. Results & Status",
+      "status": "Status",
+      "statusRequired": "Status is required",
+      "selectStatus": "Select Status",
+      "resultScore": "Result/Score",
+      "resultRequired": "Result is required",
+      "selectScore": "Select Score (1-5)",
+      "selectConformance": "Select Conformance",
+      "regularResultPlaceholder": "Ex: 8.5/10",
+      "defaultResultPlaceholder": "Ex: 92%",
+      "specialDetails": "4. Special Details",
+      "conductedBy": "Conducted By",
+      "conductedByPlaceholder": "Ex: PT BAI",
+      "internalEvaluator": "Internal Evaluator",
+      "evaluatorPlaceholder": "Team Name / Lead Auditor...",
+      "supportingDocuments": "5. Supporting Documents",
+      "uploadLabel": "Click to upload or drag and drop",
+      "uploadDesc": "PDF, DOCX up to 10MB",
+      "cancel": "Cancel",
+      "updateReport": "Update Report",
+      "saveReport": "Save Report",
+      "validationErrorTitle": "Validation Error",
+      "validationErrorDesc": "Please fill in all required fields (marked in red)."
+    },
+    "detailModal": {
+      "title": "Detail: {title}",
+      "generalInfo": "1. General Information",
+      "assessmentTitle": "Assessment Title",
+      "assessmentType": "Assessment Type",
+      "period": "Period",
+      "results": "2. Results",
+      "resultScore": "Result/Score",
+      "status": "Status",
+      "finalProject": "Final Project",
+      "specialDetails": "3. Special Details",
+      "conductedBy": "Conducted By:",
+      "validator": "Professional Consultant (KAP) / Validator:",
+      "internalEvaluator": "Internal Evaluator:",
+      "supportingDocuments": "4. Supporting Documents",
+      "uploaded": "Uploaded",
+      "noAttachment": "No attachment",
+      "noAttachmentDesc": "No document attached",
+      "download": "Download"
+    },
+    "types": {
+      "regular": "Regular Self Assessment (RSA)",
+      "saiv": "Self Assessment w/ Independent Validation (SAIV)",
+      "qar": "Quality Assurance Review (QAR)",
+      "iacm": "BUMN IACM Assessment"
+    },
+    "statuses": {
+      "completed": "Completed",
+      "verified": "Verified",
+      "inProgress": "In Progress",
+      "planned": "Planned"
+    },
+    "conformance": {
+      "fullyConformance": "Fully Conformance",
+      "generallyConformed": "Generally Conformed",
+      "partiallyConform": "Partially Conform",
+      "doesNotConform": "Does not Conform"
     }
   },
   "kpiPerformance": {
@@ -1911,7 +2199,11 @@
       "uploadSuccess": "Import Successful",
       "uploadSuccessDesc": "{period} {year} Performance Report document uploaded successfully!",
       "uploadFailed": "Upload Failed",
-      "uploadFailedDesc": "An error occurred while uploading the document."
+      "uploadFailedDesc": "An error occurred while uploading the document.",
+      "deleteSuccess": "Document Deleted",
+      "deleteSuccessDesc": "Performance Report document deleted successfully.",
+      "deleteFailed": "Failed to Delete",
+      "deleteFailedDesc": "An error occurred while deleting the document."
     }
   },
   "riskProfile": {

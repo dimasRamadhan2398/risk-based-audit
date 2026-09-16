@@ -1,5 +1,9 @@
+import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { useI18n } from '~/composables/useI18n'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface AuditSop {
   id: string
@@ -22,6 +26,8 @@ export const useSopStore = defineStore('sop', () => {
   const sops = ref<AuditSop[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
+  const { t } = useI18n()
 
   // Pagination State
   const pagination = ref({
@@ -35,6 +41,15 @@ export const useSopStore = defineStore('sop', () => {
   const showModal = ref(false)
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
+
+  const columns = computed<(TableColumn<AuditSop> & { class?: string })[]>(() => [
+    { accessorKey: 'no', header: t('auditCharter.sopList.columns.no'), class: 'w-16 whitespace-nowrap text-center' },
+    { accessorKey: 'name', header: t('auditCharter.sopList.columns.name'), class: 'w-48' },
+    { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName'), class: 'w-48' },
+    { accessorKey: 'status', header: t('auditCharter.sopList.columns.status'), class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'effective_date', header: t('auditCharter.sopList.columns.effectiveDate'), class: 'w-36 whitespace-nowrap text-center' },
+    { accessorKey: 'actions', header: t('auditCharter.sopList.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }
+  ])
 
   const form = reactive({
     name: '',
@@ -83,7 +98,7 @@ export const useSopStore = defineStore('sop', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch sops:', err)
-      errorMsg.value = 'Gagal mengambil data Petunjuk Teknis/SOP.'
+      errorMsg.value = extractErrorMessage(err, 'Gagal mengambil data Petunjuk Teknis/SOP.')
     } finally {
       loading.value = false
     }
@@ -153,7 +168,9 @@ export const useSopStore = defineStore('sop', () => {
       )
     } catch (err) {
       console.error('Failed to upload file:', err)
-      errorMsg.value = 'Gagal mengupload file dokumen.'
+      const detail = extractErrorMessage(err, 'Gagal mengupload file dokumen.')
+      errorMsg.value = detail
+      toast.showError('Gagal mengupload file dokumen.', detail)
       throw err
     }
   }
@@ -200,11 +217,14 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
+      toast.showSuccess('Petunjuk Teknis/SOP berhasil ditambahkan!')
       await fetchSops()
       closeModal()
     } catch (err: any) {
       console.error('Failed to add sop:', err)
-      errorMsg.value = 'Gagal menambahkan Petunjuk Teknis/SOP.'
+      const detail = extractErrorMessage(err, 'Gagal menambahkan Petunjuk Teknis/SOP.')
+      errorMsg.value = detail
+      toast.showError('Gagal menambahkan Petunjuk Teknis/SOP.', detail)
     } finally {
       loading.value = false
     }
@@ -248,11 +268,14 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
+      toast.showSuccess('Petunjuk Teknis/SOP berhasil diperbarui!')
       await fetchSops()
       closeModal()
     } catch (err: any) {
       console.error('Failed to update sop:', err)
-      errorMsg.value = 'Gagal memperbarui Petunjuk Teknis/SOP.'
+      const detail = extractErrorMessage(err, 'Gagal memperbarui Petunjuk Teknis/SOP.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui Petunjuk Teknis/SOP.', detail)
     } finally {
       loading.value = false
     }
@@ -272,10 +295,13 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
+      toast.showSuccess('Petunjuk Teknis/SOP berhasil dihapus!')
       await fetchSops()
     } catch (err: any) {
       console.error('Failed to delete sop:', err)
-      errorMsg.value = 'Gagal menghapus Petunjuk Teknis/SOP.'
+      const detail = extractErrorMessage(err, 'Gagal menghapus Petunjuk Teknis/SOP.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus Petunjuk Teknis/SOP.', detail)
     } finally {
       loading.value = false
     }
@@ -320,6 +346,7 @@ export const useSopStore = defineStore('sop', () => {
     pagination,
     showModal,
     isEditing,
+    columns,
     form,
     fetchSops,
     setPage,

@@ -1,5 +1,9 @@
+import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { useI18n } from '~/composables/useI18n'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface AuditGuideline {
   id: string
@@ -17,6 +21,8 @@ export const useGuidelineStore = defineStore('guideline', () => {
   const guidelines = ref<AuditGuideline[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
+  const { t } = useI18n()
 
   // Pagination State
   const pagination = ref({
@@ -30,6 +36,15 @@ export const useGuidelineStore = defineStore('guideline', () => {
   const showModal = ref(false)
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
+
+  const columns = computed<(TableColumn<AuditGuideline> & { class?: string })[]>(() => [
+    { accessorKey: 'no', header: t('auditCharter.guideline.columns.no'), class: 'w-16 whitespace-nowrap text-center' },
+    { accessorKey: 'name', header: t('auditCharter.guideline.columns.name'), class: 'min-w-[280px]' },
+    { accessorKey: 'status', header: t('auditCharter.guideline.columns.status'), class: 'w-32 whitespace-nowrap text-center' },
+    { accessorKey: 'effective_date', header: t('auditCharter.guideline.columns.effectiveDate'), class: 'w-40 whitespace-nowrap text-center' },
+    { accessorKey: 'file_name', header: t('auditCharter.guideline.columns.fileName'), class: 'w-64 min-w-[220px]' },
+    { accessorKey: 'actions', header: t('auditCharter.guideline.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }
+  ])
 
   const form = reactive({
     name: '',
@@ -77,7 +92,7 @@ export const useGuidelineStore = defineStore('guideline', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch guidelines:', err)
-      errorMsg.value = 'Gagal mengambil data Pedoman Audit.'
+      errorMsg.value = extractErrorMessage(err, 'Gagal mengambil data Pedoman Audit.')
     } finally {
       loading.value = false
     }
@@ -147,7 +162,9 @@ export const useGuidelineStore = defineStore('guideline', () => {
       )
     } catch (err) {
       console.error('Failed to upload file:', err)
-      errorMsg.value = 'Gagal mengupload file dokumen.'
+      const detail = extractErrorMessage(err, 'Gagal mengupload file dokumen.')
+      errorMsg.value = detail
+      toast.showError('Gagal mengupload file dokumen.', detail)
       throw err
     }
   }
@@ -193,11 +210,14 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
+      toast.showSuccess('Pedoman Audit berhasil ditambahkan!')
       await fetchGuidelines()
       closeModal()
     } catch (err: any) {
       console.error('Failed to add guideline:', err)
-      errorMsg.value = 'Gagal menambahkan Pedoman Audit.'
+      const detail = extractErrorMessage(err, 'Gagal menambahkan Pedoman Audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal menambahkan Pedoman Audit.', detail)
     } finally {
       loading.value = false
     }
@@ -240,11 +260,14 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
+      toast.showSuccess('Pedoman Audit berhasil diperbarui!')
       await fetchGuidelines()
       closeModal()
     } catch (err: any) {
       console.error('Failed to update guideline:', err)
-      errorMsg.value = 'Gagal memperbarui Pedoman Audit.'
+      const detail = extractErrorMessage(err, 'Gagal memperbarui Pedoman Audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui Pedoman Audit.', detail)
     } finally {
       loading.value = false
     }
@@ -264,10 +287,13 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
+      toast.showSuccess('Pedoman Audit berhasil dihapus!')
       await fetchGuidelines()
     } catch (err: any) {
       console.error('Failed to delete guideline:', err)
-      errorMsg.value = 'Gagal menghapus Pedoman Audit.'
+      const detail = extractErrorMessage(err, 'Gagal menghapus Pedoman Audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus Pedoman Audit.', detail)
     } finally {
       loading.value = false
     }
@@ -310,6 +336,7 @@ export const useGuidelineStore = defineStore('guideline', () => {
     pagination,
     showModal,
     isEditing,
+    columns,
     form,
     fetchGuidelines,
     setPage,

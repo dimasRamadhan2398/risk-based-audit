@@ -9,14 +9,14 @@
         <UIcon name="i-lucide-book-open" class="w-8 h-8" />
       </div>
       <div class="space-y-2 max-w-md">
-        <h2 class="text-xl font-bold text-[var(--text-main)]">Belum Ada Pedoman Audit</h2>
+        <h2 class="text-xl font-bold text-[var(--text-main)]">{{ t('auditCharter.guideline.emptyTitle') }}</h2>
         <p class="text-sm text-[var(--text-muted)] leading-relaxed">
-          Pedoman Audit mendefinisikan aturan dan standar pelaksanaan audit di perusahaan Anda.
+          {{ t('auditCharter.guideline.emptyDesc') }}
         </p>
       </div>
       <UButton
         v-if="canManageCharter"
-        label="Tambah Pedoman Audit"
+        :label="t('auditCharter.guideline.addGuideline')"
         @click="() => { store.showModal = true }"
         color="primary"
         size="lg"
@@ -29,12 +29,12 @@
     <div v-else class="space-y-4">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900">Pedoman Audit</h2>
-          <p class="text-sm text-gray-500">Daftar seluruh Pedoman Audit yang berlaku di perusahaan</p>
+          <h2 class="text-2xl font-bold text-gray-900">{{ t('auditCharter.guideline.title') }}</h2>
+          <p class="text-sm text-gray-500">{{ t('auditCharter.guideline.subtitle') }}</p>
         </div>
         <UButton
           v-if="canManageCharter"
-          label="Tambah Pedoman"
+          :label="t('auditCharter.guideline.addGuidelineShort')"
           @click="() => { store.showModal = true }"
           color="primary"
           icon="i-lucide-plus"
@@ -49,9 +49,10 @@
         :total="store.pagination.total"
         :items-per-page="store.pagination.page_size"
         :page="store.pagination.page"
+        table-layout="fixed"
         :empty-state="{
           icon: 'i-lucide-book-open',
-          label: 'Belum ada pedoman audit'
+          label: t('auditCharter.guideline.emptyTable')
         }"
         class="w-full"
         @update:page="(p) => store.fetchGuidelines(p)"
@@ -59,39 +60,52 @@
       >
         <!-- No slot -->
         <template #no-cell="{ row }">
-          <span class="font-medium text-[var(--text-muted)]">{{ row.original.no }}</span>
+          <span class="font-medium text-[var(--text-muted)] block text-center">{{ row.original.no }}</span>
         </template>
 
         <!-- Name slot -->
         <template #name-cell="{ row }">
           <ReadMoreText
             :text="row.original.name"
-            :max-length="65"
+            :max-length="75"
             text-class="font-semibold text-[var(--text-main)]"
           />
         </template>
 
         <!-- Status slot -->
         <template #status-cell="{ row }">
-          <UBadge
-            :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
-            variant="subtle"
-            class="rounded font-semibold"
-          >
-            {{ row.original.status }}
-          </UBadge>
+          <div class="flex justify-center">
+            <UBadge
+              :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
+              variant="subtle"
+              class="rounded font-semibold"
+            >
+              {{ translateStatus(row.original.status) }}
+            </UBadge>
+          </div>
         </template>
 
         <!-- Effective date slot -->
         <template #effective_date-cell="{ row }">
-          <span class="font-medium text-[var(--text-main)]">{{
-            formatMonthYearIndonesian(row.original.effective_date)
+          <span class="font-medium text-[var(--text-main)] block text-center">{{
+            formatMonthYear(row.original.effective_date)
           }}</span>
+        </template>
+
+        <!-- File Name slot -->
+        <template #file_name-cell="{ row }">
+          <div
+            class="line-clamp-2 break-all text-sm font-normal text-[var(--text-main)]"
+            :title="row.original.file_name"
+          >
+            {{ row.original.file_name || '-' }}
+          </div>
         </template>
 
         <!-- Actions slot -->
         <template #actions-cell="{ row }">
-          <div class="flex justify-end gap-1">
+          <div class="flex justify-center items-center gap-1">
+            <UTooltip text="Lihat Pedoman">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
               icon="i-lucide-eye"
@@ -100,6 +114,8 @@
               size="md"
               @click="openFile(row.original.file_url)"
             />
+            </UTooltip>
+            <UTooltip text="Edit Pedoman">
             <UButton
               v-if="canManageCharter"
               size="md"
@@ -108,6 +124,8 @@
               icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
             />
+            </UTooltip>
+            <UTooltip text="Hapus Pedoman">
             <UButton
               v-if="canManageCharter"
               size="md"
@@ -116,6 +134,7 @@
               icon="i-lucide-trash-2"
               @click="confirmDelete(row.original)"
             />
+            </UTooltip>
           </div>
         </template>
       </TableEntities>
@@ -126,21 +145,17 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { useGlobalModalStore } from '~/stores/global-modal'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
+const { t, locale } = useI18n()
 const store = useGuidelineStore()
 const { canManageCharter } = useRbac()
 
-const columns = [
-  { accessorKey: 'no', header: 'No' },
-  { accessorKey: 'name', header: 'Nama Pedoman' },
-  { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'effective_date', header: 'Mulai Berlaku' },
-  { accessorKey: 'file_name', header: 'View Dokumen' },
-  { accessorKey: 'actions', header: '' }
-]
+const columns = computed(() => store.columns)
 
 const tableData = computed(() => {
   return store.guidelines.map((item, index) => ({
@@ -149,20 +164,32 @@ const tableData = computed(() => {
   }))
 })
 
-const formatMonthYearIndonesian = (val: string) => {
+const translateStatus = (status: string): string => {
+  if (status === 'Aktif') return t('auditCharter.guideline.statusActive')
+  if (status === 'Sedang Diperbarui') return t('auditCharter.guideline.statusUnderReview')
+  return status
+}
+
+const formatMonthYear = (val: string) => {
   if (!val) return '-'
   const parts = val.split('-')
   if (parts.length < 2) return val
   const [year, month] = parts
-  const months = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-  ]
   const mIndex = parseInt(month || '', 10) - 1
-  if (mIndex >= 0 && mIndex < 12) {
-    return `${months[mIndex]} ${year}`
+  if (mIndex < 0 || mIndex >= 12) return val
+
+  if (locale.value === 'id') {
+    const monthsId = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ]
+    return `${monthsId[mIndex]} ${year}`
   }
-  return val
+  const monthsEn = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+  return `${monthsEn[mIndex]} ${year}`
 }
 
 const openFile = (fileUrl: string) => {
@@ -178,7 +205,7 @@ const openFile = (fileUrl: string) => {
 }
 
 const confirmDelete = async (item: any) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus Pedoman "${item.name}"?`)) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('auditCharter.guideline.deleteConfirm', { name: item.name }) })) {
     await store.deleteGuideline(item.id || '')
   }
 }

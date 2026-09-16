@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -29,39 +29,54 @@ func NewUploadedAnnualPlanController(db *gorm.DB) *UploadedAnnualPlanController 
 	return &UploadedAnnualPlanController{DB: db}
 }
 
+// The request is received as multipart/form-data, so we no longer need a struct for JSON binding.
+// The fields are extracted manually from the form.
+// Keeping the struct for documentation purposes only (not used in binding).
 type UploadAnnualPlanRequest struct {
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
-	FileName    string `json:"fileName" binding:"required"`
-	FileType    string `json:"fileType"`
-	FileContent string `json:"fileContent" binding:"required"` // Base64 encoded string
+	Title       string
+	Description string
+	FileName    string
+	FileType    string
+	// FileContent is omitted because the file is streamed directly.
 }
 
 func (ctrl *UploadedAnnualPlanController) Upload(c *gin.Context) {
-	var req UploadAnnualPlanRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+	title := c.PostForm("title")
+	description := c.PostForm("description")
+	fileName := c.PostForm("fileName")
+	fileType := c.PostForm("fileType")
+
+	if title == "" || fileName == "" {
+		response.BadRequest(c, "title and fileName are required")
 		return
 	}
 
-	base64Data := req.FileContent
-	if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
-		base64Data = base64Data[idx+8:]
-	}
-
-	dec, err := base64.StdEncoding.DecodeString(base64Data)
+	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
 	if err != nil {
-		response.BadRequest(c, "Invalid base64 file data: "+err.Error())
+		response.BadRequest(c, "file is required: "+err.Error())
 		return
 	}
 
+	openedFile, err := file.Open()
+	if err != nil {
+		response.InternalServerError(c, "failed to open file: "+err.Error())
+		return
+	}
+	defer openedFile.Close()
+
+	dec, err := io.ReadAll(openedFile)
+	if err != nil {
+		response.InternalServerError(c, "failed to read file: "+err.Error())
+		return
+	}
+
+	fileExt := filepath.Ext(fileName)
+	baseName := strings.TrimSuffix(fileName, fileExt)
 	if int64(len(dec)) > 10*1024*1024 {
 		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
 		return
 	}
 
-	fileExt := filepath.Ext(req.FileName)
-	baseName := strings.TrimSuffix(req.FileName, fileExt)
 	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 
 	uploadsDir := "./uploads/uploaded-annual-plans"
@@ -77,12 +92,13 @@ func (ctrl *UploadedAnnualPlanController) Upload(c *gin.Context) {
 
 	doc := models.UploadedAnnualPlan{
 		ID:          uuid.New(),
-		Title:       req.Title,
-		Description: req.Description,
-		FileName:    req.FileName,
+		Title:       title,
+		Description: description,
+		FileName:    fileName,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
-		FileType:    req.FileType,
+		FileContent: dec,
+		FileType:    fileType,
 	}
 
 	if err := ctrl.DB.Create(&doc).Error; err != nil {
@@ -151,6 +167,19 @@ func (ctrl *UploadedAnnualPlanController) Download(c *gin.Context) {
 			return
 		}
 		response.InternalServerError(c, "Failed to fetch document")
+		return
+	}
+
+	if len(doc.FileContent) > 0 {
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", doc.FileName))
+		if doc.FileType != "" {
+			c.Header("Content-Type", doc.FileType)
+		} else {
+			c.Header("Content-Type", "application/octet-stream")
+		}
+		c.Data(http.StatusOK, doc.FileType, doc.FileContent)
 		return
 	}
 

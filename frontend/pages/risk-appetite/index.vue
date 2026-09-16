@@ -87,7 +87,7 @@
                 <UIcon name="i-heroicons-information-circle" class="w-5 h-5" />
                 {{ t('riskAppetite.guidelines.title') }}
               </h3>
-              <p class="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
+              <p class="text-md text-blue-800 dark:text-blue-200 leading-relaxed">
                 {{ t('riskAppetite.guidelines.desc') }}
               </p>
             </div>
@@ -257,8 +257,7 @@
                 v-if="canEditRiskAppetite"
                 :label="t('riskAppetite.statements.newBtn')" 
                 icon="i-heroicons-plus" 
-                color="warning" 
-                class="font-bold shadow-md shadow-orange-500/10"
+                color="primary" 
                 @click="openAddModal" 
               />
             </div>
@@ -269,7 +268,7 @@
                 <UIcon name="i-heroicons-clipboard-document-list" class="w-12 h-12" />
               </div>
               <div class="max-w-md mx-auto">
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ t('riskAppetite.statements.emptyTitle') }}</h3>
+                <h3 class="text-md font-bold text-gray-900 dark:text-white">{{ t('riskAppetite.statements.emptyTitle') }}</h3>
                 <p class="text-md text-gray-500 dark:text-gray-400 mt-1">{{ t('riskAppetite.statements.emptyDesc') }}</p>
               </div>
             </div>
@@ -279,7 +278,7 @@
               <UCard 
                 v-for="stmt in appetiteStore.statements" 
                 :key="stmt.id" 
-                class="border border-gray-200 dark:border-gray-800 dark:bg-gray-900 shadow-sm hover:shadow transition-shadow"
+                class="border border-gray-200 dark:border-gray-800 dark:bg-gray-900 shadow-md hover:shadow transition-shadow"
                 :ui="{ body: 'p-5' }"
               >
                 <div class="flex justify-between items-start gap-4">
@@ -301,20 +300,24 @@
                   </div>
 
                   <div v-if="canEditRiskAppetite" class="flex gap-1.5 shrink-0">
-                    <UButton 
-                      icon="i-heroicons-pencil-square" 
-                      color="primary" 
-                      variant="ghost" 
-                      size="sm" 
-                      @click="openEditModal(stmt)" 
-                    />
-                    <UButton 
-                      icon="i-heroicons-trash" 
-                      color="error" 
-                      variant="ghost" 
-                      size="sm" 
-                      @click="handleDelete(stmt.id)" 
-                    />
+                    <UTooltip :text="t('riskAppetite.statements.modal.editTitle')">
+                      <UButton 
+                        icon="i-lucide-edit" 
+                        color="warning" 
+                        variant="ghost" 
+                        size="md" 
+                        @click="openEditModal(stmt)"
+                      />
+                    </UTooltip>
+                    <UTooltip text="Delete Appetite Statement">
+                      <UButton 
+                        icon="i-heroicons-trash" 
+                        color="error" 
+                        variant="ghost" 
+                        size="md" 
+                        @click="handleDelete(stmt.id)" 
+                      />
+                    </UTooltip>
                   </div>
                 </div>
               </UCard>
@@ -327,63 +330,87 @@
     <!-- CRUD Form Modal -->
     <UModal 
       v-model:open="isModalOpen" 
-      :title="isEditing ? t('riskAppetite.statements.modal.editTitle') : t('riskAppetite.statements.modal.newTitle')" 
-      :ui="{ 
-        content: 'sm:max-w-lg bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden',
-        header: 'border-b border-[var(--border-main)] bg-[var(--bg-surface)] text-[var(--text-main)] p-6',
-        body: 'p-6 bg-[var(--bg-surface)] text-[var(--text-main)]',
-        footer: 'border-t border-[var(--border-main)] bg-[var(--bg-surface)] p-6 flex justify-end gap-3',
-        title: 'text-xl font-bold text-[var(--text-main)]',
-        close: 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+      :dismissible="false"
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
-      <template #body>
-        <form @submit.prevent="handleSubmit" class="space-y-5">
-          <UFormField :label="t('riskAppetite.statements.modal.statementLabel')" required class="font-medium text-[var(--text-main)]">
-            <UTextarea 
-              v-model="form.statement" 
-              :placeholder="t('riskAppetite.statements.modal.statementPlaceholder')" 
-              :rows="4" 
-              class="w-full bg-[var(--bg-surface)] text-[var(--text-main)] border-[var(--border-main)]" 
-              required 
-            />
-          </UFormField>
-
-          <div class="grid grid-cols-2 gap-4">
-            <UFormField :label="t('riskAppetite.statements.modal.thresholdLabel')" required class="font-medium text-[var(--text-main)]">
-              <UInput 
-                v-model.number="form.threshold_limit" 
-                type="number" 
-                step="0.01" 
-                placeholder="10.00" 
-                class="w-full bg-[var(--bg-surface)] text-[var(--text-main)] border-[var(--border-main)]" 
-                required 
+      <template #content>
+        <UForm @submit.prevent="handleSubmit">
+          <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg leading-6 font-bold" id="modal-title">
+                {{ isEditing ? t('riskAppetite.statements.modal.editTitle') : t('riskAppetite.statements.modal.newTitle') }}
+              </h3>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                @click="() => { isModalOpen = false }"
               />
-            </UFormField>
+            </div>
 
-            <UFormField :label="t('riskAppetite.statements.modal.statusLabel')" required class="font-medium text-[var(--text-main)]">
-              <USelect 
-                v-model="form.status" 
-                :items="['DRAFT', 'SUBMITTED', 'APPROVED']" 
-                class="w-full bg-[var(--bg-surface)] text-[var(--text-main)] border-[var(--border-main)]" 
-                required 
-              />
-            </UFormField>
+            <div class="space-y-4">
+              <UFormField :label="t('riskAppetite.statements.modal.statementLabel')" required class="block text-sm font-medium" size="lg">
+                <UTextarea 
+                  v-model="form.statement" 
+                  :placeholder="t('riskAppetite.statements.modal.statementPlaceholder')" 
+                  :rows="4" 
+                  class="mt-1 block w-full rounded-md" 
+                  required 
+                />
+              </UFormField>
+
+              <div class="grid grid-cols-2 gap-4">
+                <UFormField :label="t('riskAppetite.statements.modal.thresholdLabel')" required class="block text-sm font-medium" size="lg">
+                  <UInput 
+                    v-model.number="form.threshold_limit" 
+                    type="number" 
+                    step="0.01" 
+                    placeholder="10.00" 
+                    class="mt-1 block w-full rounded-md" 
+                    required 
+                  />
+                </UFormField>
+
+                <UFormField :label="t('riskAppetite.statements.modal.statusLabel')" required class="block text-sm font-medium" size="lg">
+                  <USelect 
+                    v-model="form.status" 
+                    :items="['DRAFT', 'SUBMITTED', 'APPROVED']" 
+                    class="mt-1 block w-full rounded-md" 
+                    required 
+                  />
+                </UFormField>
+              </div>
+            </div>
           </div>
-        </form>
-      </template>
-
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton :label="t('riskAppetite.statements.modal.cancel')" color="neutral" variant="ghost" @click="() => { isModalOpen = false }" />
-          <UButton 
-            :label="isEditing ? t('riskAppetite.statements.modal.save') : t('riskAppetite.statements.modal.create')" 
-            color="warning" 
-            class="font-bold"
-            :loading="appetiteStore.loading"
-            @click="handleSubmit()" 
-          />
-        </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg">
+            <UButton
+              type="submit"
+              :loading="appetiteStore.loading"
+              color="primary"
+              variant="solid"
+              size="md"
+              class="w-full sm:w-auto font-bold"
+            >
+              {{ isEditing ? t('riskAppetite.statements.modal.save') : t('riskAppetite.statements.modal.create') }}
+            </UButton>
+            <UButton
+              type="button"
+              color="neutral"
+              variant="outline"
+              size="md"
+              class="w-full sm:w-auto mt-2 sm:mt-0 font-bold"
+              @click="() => { isModalOpen = false }"
+            >
+              {{ t('riskAppetite.statements.modal.cancel') }}
+            </UButton>
+          </div>
+        </UForm>
       </template>
     </UModal>
   </div>
@@ -398,6 +425,7 @@ import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import { useRiskAppetiteStore, type RiskAppetite } from '~/stores/risk-appetite'
 import { RiskLevel } from '~/types/risk'
+import { useGlobalModalStore } from '~/stores/global-modal'
 
 const { t } = useI18n()
 const { canEditRiskAppetite } = useRbac()
@@ -594,7 +622,7 @@ const handleSubmit = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (confirm(t('riskAppetite.statements.deleteConfirm'))) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('riskAppetite.statements.deleteConfirm') })) {
     try {
       await appetiteStore.deleteStatement(id)
     } catch (error) {

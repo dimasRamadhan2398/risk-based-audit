@@ -7,6 +7,7 @@ import type {
   UpdateDepartmentRequest,
   PaginationMeta
 } from '~/types/master'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useDepartmentStore = defineStore('department', () => {
   // ============= State =============
@@ -76,7 +77,7 @@ export const useDepartmentStore = defineStore('department', () => {
       pagination.value = response.pagination || pagination.value
     } catch (error: any) {
       console.error('Failed to fetch departments:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal mengambil data department.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data department.')
       departments.value = []
     } finally {
       loading.value = false
@@ -95,7 +96,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return await api.getDepartmentById(id)
     } catch (error: any) {
       console.error('Failed to fetch department:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal mengambil detail department.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil detail department.')
       return null
     } finally {
       loading.value = false
@@ -127,7 +128,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to create department:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal membuat department baru.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal membuat department baru.')
       return false
     } finally {
       loading.value = false
@@ -158,7 +159,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to update department:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal memperbarui department.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal memperbarui department.')
       return false
     } finally {
       loading.value = false
@@ -179,7 +180,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to delete department:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal menghapus department.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus department.')
       return false
     } finally {
       loading.value = false
@@ -288,7 +289,7 @@ export const useDepartmentStore = defineStore('department', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (department: Department) => {
-    if (!confirm(`Are you sure you want to delete department "${department.department_name}"?`)) {
+    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete department "${department.department_name}"?` })) {
       return
     }
 

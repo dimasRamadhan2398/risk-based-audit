@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -66,14 +67,30 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusOK, reports)
 		})
 
-		qa.GET("/:id", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
+		findQAReport := func(param string) (*models.QAReport, error) {
+			id, err := uuid.Parse(param)
 			var report models.QAReport
-			if err := db.First(&report, "id = ?", id).Error; err != nil {
+			if err == nil {
+				if err := db.First(&report, "id = ?", id).Error; err != nil {
+					return nil, err
+				}
+				return &report, nil
+			}
+
+			// Fallback for numeric ID / index (e.g. "1", "2", "3")
+			var num int
+			if _, err := fmt.Sscanf(param, "%d", &num); err == nil && num > 0 {
+				if err := db.Order("created_at DESC").Offset(num - 1).Limit(1).First(&report).Error; err == nil {
+					return &report, nil
+				}
+			}
+
+			return nil, fmt.Errorf("QA report not found")
+		}
+
+		qa.GET("/:id", func(c *gin.Context) {
+			report, err := findQAReport(c.Param("id"))
+			if err != nil {
 				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
 				return
 			}
@@ -97,13 +114,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.PUT("/:id", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
+			existing, err := findQAReport(c.Param("id"))
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var existing models.QAReport
-			if err := db.First(&existing, "id = ?", id).Error; err != nil {
 				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
 				return
 			}
@@ -125,7 +137,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			existing.InternalEvaluator = req.InternalEvaluator
 			existing.Attachment = req.Attachment
 
-			if err := db.Save(&existing).Error; err != nil {
+			if err := db.Save(existing).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update QA report"})
 				return
 			}
@@ -133,35 +145,43 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.POST("/import", func(c *gin.Context) {
-			type ImportQARRequest struct {
-				AssessmentTitle   string `json:"assessmentTitle" binding:"required"`
-				Type              string `json:"type" binding:"required"`
-				PeriodQuarter     string `json:"periodQuarter"`
-				PeriodYear        string `json:"periodYear" binding:"required"`
-				Result            string `json:"result" binding:"required"`
-				Status            string `json:"status" binding:"required"`
-				ConductedBy       string `json:"conductedBy"`
-				Validator         string `json:"validator"`
-				InternalEvaluator string `json:"internalEvaluator"`
-				FileName          string `json:"fileName" binding:"required"`
-				FileType          string `json:"fileType"`
-				FileContent       string `json:"fileContent" binding:"required"` // Base64
-			}
+			assessmentTitle := c.PostForm("assessmentTitle")
+			typeParam := c.PostForm("type")
+			periodQuarter := c.PostForm("periodQuarter")
+			periodYear := c.PostForm("periodYear")
+			result := c.PostForm("result")
+			status := c.PostForm("status")
+			conductedBy := c.PostForm("conductedBy")
+			validator := c.PostForm("validator")
+			internalEvaluator := c.PostForm("internalEvaluator")
+			fileName := c.PostForm("fileName")
 
-			var req ImportQARRequest
-			if err := c.ShouldBindJSON(&req); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+			if assessmentTitle == "" || typeParam == "" || periodYear == "" || result == "" || status == "" || fileName == "" {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Missing required fields"})
 				return
 			}
 
-			// Clean and decode base64
-			base64Data := req.FileContent
-			if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
-				base64Data = base64Data[idx+8:]
-			}
-			dec, err := base64.StdEncoding.DecodeString(base64Data)
+			file, err := c.FormFile("file")
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid base64 file data: " + err.Error()})
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "file is required: " + err.Error()})
+				return
+			}
+
+			openedFile, err := file.Open()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "failed to open file: " + err.Error()})
+				return
+			}
+			defer openedFile.Close()
+
+			dec, err := io.ReadAll(openedFile)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "failed to read file: " + err.Error()})
+				return
+			}
+
+			if int64(len(dec)) > 10*1024*1024 {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
 				return
 			}
 
@@ -176,8 +196,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to create uploads directory: " + err.Error()})
 				return
 			}
-			fileExt := filepath.Ext(req.FileName)
-			baseName := strings.TrimSuffix(req.FileName, fileExt)
+			fileExt := filepath.Ext(fileName)
+			baseName := strings.TrimSuffix(fileName, fileExt)
 			uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 			filePath := filepath.Join(uploadsDir, uniqueFileName)
 			if err := os.WriteFile(filePath, dec, 0644); err != nil {
@@ -186,27 +206,28 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			}
 
 			// Construct Period
-			period := fmt.Sprintf("%s %s", req.PeriodQuarter, req.PeriodYear)
+			period := fmt.Sprintf("%s %s", periodQuarter, periodYear)
 			period = strings.TrimSpace(period)
 			if period == "" {
-				period = req.PeriodYear
+				period = periodYear
 			}
 
 			// Create QAReport
 			report := models.QAReport{
 				ID:                uuid.New(),
-				Type:              req.Type,
+				Type:              typeParam,
 				IsImported:        true,
 				Period:            period,
-				ReportName:        req.AssessmentTitle,
-				Result:            req.Result,
-				Status:            req.Status,
-				ConductedBy:       req.ConductedBy,
-				AssessmentTitle:   req.AssessmentTitle,
-				Validator:         req.Validator,
-				InternalEvaluator: req.InternalEvaluator,
+				ReportName:        assessmentTitle,
+				Result:            result,
+				Status:            status,
+				ConductedBy:       conductedBy,
+				AssessmentTitle:   assessmentTitle,
+				Validator:         validator,
+				InternalEvaluator: internalEvaluator,
+				FileContent:       dec,
 				Attachment: &models.QAReportAttachment{
-					Name:       req.FileName,
+					Name:       fileName,
 					Size:       fmt.Sprintf("%.2f MB", float64(len(dec))/(1024*1024)),
 					UploadedAt: time.Now().Format("2006-01-02"),
 					FilePath:   filePath,
@@ -223,19 +244,23 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.GET("/:id/download", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
+			report, err := findQAReport(c.Param("id"))
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var report models.QAReport
-			if err := db.First(&report, "id = ?", id).Error; err != nil {
 				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
 				return
 			}
 
 			if report.Attachment == nil || report.Attachment.FilePath == "" {
 				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "This report does not have an attached file"})
+				return
+			}
+
+			if len(report.FileContent) > 0 {
+				c.Header("Content-Description", "File Transfer")
+				c.Header("Content-Transfer-Encoding", "binary")
+				c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", report.Attachment.Name))
+				c.Header("Content-Type", "application/octet-stream")
+				c.Data(http.StatusOK, "application/octet-stream", report.FileContent)
 				return
 			}
 
@@ -252,20 +277,17 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.DELETE("/:id", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
+			report, err := findQAReport(c.Param("id"))
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
+				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
 				return
 			}
 
-			var report models.QAReport
-			if err := db.First(&report, "id = ?", id).Error; err == nil {
-				if report.Attachment != nil && report.Attachment.FilePath != "" {
-					os.Remove(report.Attachment.FilePath)
-				}
+			if report.Attachment != nil && report.Attachment.FilePath != "" {
+				os.Remove(report.Attachment.FilePath)
 			}
 
-			if err := db.Delete(&models.QAReport{}, "id = ?", id).Error; err != nil {
+			if err := db.Delete(report).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to delete QA report"})
 				return
 			}
@@ -427,6 +449,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				ConsultantName: req.ConsultantName,
 				Status:         req.Status,
 				Notes:          req.Notes,
+				FileContent:    dec,
 				Attachment: &models.ConsultingAttachment{
 					Name:       req.FileName,
 					Size:       fmt.Sprintf("%.2f MB", float64(len(dec))/(1024*1024)),
@@ -458,6 +481,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 			if service.Attachment == nil || service.Attachment.FilePath == "" {
 				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "This record does not have an attached file"})
+				return
+			}
+
+			if len(service.FileContent) > 0 {
+				c.Header("Content-Description", "File Transfer")
+				c.Header("Content-Transfer-Encoding", "binary")
+				c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", service.Attachment.Name))
+				c.Header("Content-Type", "application/octet-stream")
+				c.Data(http.StatusOK, "application/octet-stream", service.FileContent)
 				return
 			}
 

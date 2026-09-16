@@ -397,6 +397,31 @@ func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 			c.FileAttachment(filePath, downloadName)
 			return
 		}
+	} else if strings.Contains(fileUrl, "/media/download/") {
+		var safeFileName string
+		if idx := strings.Index(fileUrl, "/media/download/"); idx != -1 {
+			safeFileName = fileUrl[idx+len("/media/download/"):]
+		}
+		
+		decodedPath, err := url.PathUnescape(safeFileName)
+		if err == nil {
+			safeFileName = decodedPath
+		}
+		
+		filePath := filepath.Join("uploads", safeFileName)
+		if _, err := os.Stat(filePath); err == nil {
+			downloadName := result.Filename
+			if downloadName == "" {
+				downloadName = filepath.Base(filePath)
+			}
+			c.FileAttachment(filePath, downloadName)
+			return
+		}
+	}
+
+	if strings.Contains(result.FileUrl, "localhost") || strings.HasPrefix(result.FileUrl, "uploads/") || strings.HasPrefix(result.FileUrl, "/uploads/") {
+		response.NotFound(c, "Audit charter file was not found on the server disk.")
+		return
 	}
 
 	c.Redirect(http.StatusTemporaryRedirect, result.FileUrl)

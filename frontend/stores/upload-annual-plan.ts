@@ -1,4 +1,8 @@
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { extractErrorMessage } from '~/utils/error';
 
 export interface UploadedAnnualPlan {
   id: string;
@@ -14,8 +18,7 @@ export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => 
   const uploadedDocuments = ref<UploadedAnnualPlan[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
-
-
+  const toast = useToastNotification();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -32,25 +35,44 @@ export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => 
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded annual plans:', error);
-      errorMsg.value = 'Failed to load uploaded annual audit plans.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded annual audit plans.');
     } finally {
       loading.value = false;
     }
   };
 
-  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; fileContent: string }) => {
+  const uploadDocument = async (payload: { title: string; description: string; fileName: string; fileType: string; file: File }) => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
+      const formData = new FormData();
+      // Append primitive fields first
+      formData.append('title', payload.title);
+      formData.append('description', payload.description || '');
+      formData.append('fileName', payload.fileName);
+      formData.append('fileType', payload.fileType || 'application/octet-stream');
+      // Append the actual file object
+      if (payload.file) {
+        formData.append('file', payload.file);
+      }
       await $fetch(`${baseUrl}/uploaded-annual-plans`, {
         method: 'POST',
-        body: payload
+        body: formData,
+        // Explicitly delete any existing Content-Type header so the boundary is generated.
+        headers: {
+          // Nuxt's $fetch will automatically set the correct multipart header.
+          // Setting it to undefined forces the browser to compute it.
+          'Content-Type': undefined as unknown as string
+        }
       });
       await fetchUploadedDocuments();
+      toast.showSuccess('Successfully uploaded annual audit plan');
     } catch (error: any) {
       console.error('Failed to upload annual audit plan:', error);
-      errorMsg.value = error.data?.message || 'Failed to upload annual audit plan.';
+      const detail = extractErrorMessage(error, 'Failed to upload annual audit plan.');
+      errorMsg.value = detail;
+      toast.showError('Failed to upload annual audit plan.', detail);
       throw error;
     } finally {
       loading.value = false;
@@ -66,29 +88,34 @@ export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => 
         method: 'DELETE'
       });
       await fetchUploadedDocuments();
+      toast.showSuccess('Successfully deleted annual audit plan');
     } catch (error: any) {
       console.error('Failed to delete uploaded annual audit plan:', error);
-      errorMsg.value = 'Failed to delete annual audit plan.';
+      const detail = extractErrorMessage(error, 'Failed to delete annual audit plan.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete annual audit plan.', detail);
       throw error;
     } finally {
       loading.value = false;
     }
   };
 
-    const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName: string) => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
       const response: any = await $fetch(`${baseUrl}/uploaded-annual-plans/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      errorMsg.value = 'Failed to view document.';
+      const detail = extractErrorMessage(error, 'Failed to view document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to view document.', detail);
     }
   };
 
@@ -98,7 +125,7 @@ export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => 
       const response: any = await $fetch(`${baseUrl}/uploaded-annual-plans/${id}/download`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response], { type: response.type || 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -110,7 +137,9 @@ export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => 
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download annual audit plan document:', error);
-      errorMsg.value = 'Failed to download document.';
+      const detail = extractErrorMessage(error, 'Failed to download document.');
+      errorMsg.value = detail;
+      toast.showError('Failed to download document.', detail);
     }
   };
 

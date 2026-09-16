@@ -17,6 +17,7 @@ type UploadedPerformanceReport struct {
 	FilePath        string         `gorm:"type:varchar(500);not null" json:"filePath"`
 	FileSize        int64          `gorm:"type:bigint" json:"fileSize"`
 	FileType        string         `gorm:"type:varchar(100)" json:"fileType"`
+	FileContent []byte         `gorm:"type:bytea" json:"-"`
 	Status          string         `gorm:"type:varchar(50);default:'Uploaded'" json:"status"`
 	ParsedKPIsCount int            `gorm:"type:int;default:0" json:"parsedKpisCount"`
 	CreatedAt       time.Time      `json:"created_at"`

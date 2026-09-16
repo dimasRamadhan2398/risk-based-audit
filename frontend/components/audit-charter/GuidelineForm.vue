@@ -2,14 +2,20 @@
   <UModal
     v-model:open="store.showModal"
     :dismissible="false"
-    class="w-full sm:max-w-4xl bg-[var(--bg-main)] border-[var(--border-main)]"
+    :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
   >
     <template #content>
       <UForm @submit.prevent="handleSubmit">
         <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg leading-6 font-bold" id="modal-title">
-              {{ store.isEditing ? 'Edit Pedoman Audit' : 'Tambah Pedoman Audit Baru' }}
+              {{ store.isEditing ? t('auditCharter.guidelineForm.editTitle') : t('auditCharter.guidelineForm.addTitle') }}
             </h3>
             <UButton
               color="neutral"
@@ -22,7 +28,7 @@
           <div class="space-y-4">
             <!-- Guideline Name -->
             <UFormField
-              label="Nama Pedoman"
+              :label="t('auditCharter.guidelineForm.name')"
               class="block text-sm font-medium"
               size="lg"
               required
@@ -31,17 +37,21 @@
                 v-model="store.form.name"
                 required
                 type="text"
-                placeholder="e.g. Pedoman Pengelolaan Satuan Audit Internal"
+                maxlength="100"
+                :placeholder="t('auditCharter.guidelineForm.namePlaceholder')"
                 class="mt-1 block w-full rounded-md"
-                @invalid="($event.target as any)?.setCustomValidity('Nama Pedoman wajib diisi dan maksimal 200 karakter')"
+                @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.guidelineForm.nameValidation'))"
                 @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ store.form.name ? store.form.name.length : 0 }}/100
+              </div>
             </UFormField>
 
             <div class="grid grid-cols-2 gap-4">
               <!-- Status -->
               <UFormField
-                label="Status"
+                :label="t('auditCharter.guidelineForm.status')"
                 class="block text-sm font-medium"
                 size="lg"
                 required
@@ -49,14 +59,14 @@
                 <USelect
                   v-model="store.form.status"
                   required
-                  :items="['Aktif', 'Sedang Diperbarui']"
+                  :items="statusOptions"
                   class="mt-1 block w-full rounded-md"
                 />
               </UFormField>
 
               <!-- Effective Date -->
               <UFormField
-                label="Mulai Berlaku"
+                :label="t('auditCharter.guidelineForm.effectiveDate')"
                 class="block text-sm font-medium"
                 size="lg"
                 required
@@ -72,7 +82,7 @@
 
             <!-- File Upload -->
             <UFormField
-              label="Dokumen Pedoman (PDF)"
+              :label="t('auditCharter.guidelineForm.fileUpload')"
               class="block text-sm font-medium"
               size="lg"
               :required="!store.isEditing"
@@ -87,7 +97,7 @@
                 />
               </div>
               <p v-if="store.form.fileName" class="text-md text-gray-500 mt-1">
-                File terpilih: <span class="font-semibold text-gray-700">{{ store.form.fileName }}</span>
+                {{ t('auditCharter.guidelineForm.selectedFile') }} <span class="font-semibold text-gray-700">{{ store.form.fileName }}</span>
               </p>
             </UFormField>
 
@@ -107,7 +117,7 @@
             size="md"
             class="w-full sm:w-auto font-bold"
           >
-            {{ store.isEditing ? 'Simpan Perubahan' : 'Tambah Pedoman' }}
+            {{ store.isEditing ? t('auditCharter.guidelineForm.saveChanges') : t('auditCharter.guidelineForm.addGuideline') }}
           </UButton>
           <UButton
             type="button"
@@ -117,7 +127,7 @@
             class="w-full sm:w-auto mt-2 sm:mt-0 font-bold"
             @click="store.closeModal"
           >
-            Batal
+            {{ t('auditCharter.guidelineForm.cancel') }}
           </UButton>
         </div>
       </UForm>
@@ -126,11 +136,18 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useGuidelineStore } from '~/stores/guideline'
+import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 
+const { t } = useI18n()
 const store = useGuidelineStore()
 const { canManageCharter } = useRbac()
+const statusOptions = computed(() => [
+  { label: t('auditCharter.guidelineForm.statusActive'), value: 'Aktif' },
+  { label: t('auditCharter.guidelineForm.statusUnderReview'), value: 'Sedang Diperbarui' }
+])
 
 const handleSubmit = async () => {
   if (!canManageCharter.value) return

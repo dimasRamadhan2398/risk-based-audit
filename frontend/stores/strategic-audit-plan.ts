@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import type { TableColumn } from "@nuxt/ui";
 import type { StrategicAuditPlan } from "~/types/audit";
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
+import { extractErrorMessage } from '~/utils/error';
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
@@ -11,6 +13,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const isEditMode = ref(false);
     const loading = ref(false);
     const errorMsg = ref('');
+    const toast = useToastNotification();
 
     const openViewModal = (item: StrategicAuditPlan) => {
         selectedViewObjective.value = item;
@@ -84,7 +87,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             if (actual === 0) return '';
             result = (target / actual) * 100;
         }
-        
+
         return `${result.toFixed(2)}%`;
     });
 
@@ -213,7 +216,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         try {
             const baseUrl = getAuditServiceBaseUrl();
             const response: any = await $fetch(`${baseUrl}/strategic-plans`, {
-                method: 'GET'
+                method: 'GET',
+                params: {
+                    page: 1,
+                    page_size: 100,
+                    order: 'code ASC'
+                }
             });
             let items: StrategicAuditPlan[] = [];
             if (response && response.data && Array.isArray(response.data.items)) {
@@ -227,11 +235,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             if (items.length > 0) {
                 strategicObjectives.value = items;
             } else {
+                toast.showInfo('Informasi', 'Data kosong, menampilkan data contoh (mock).');
                 strategicObjectives.value = [...mockObjectives];
             }
         } catch (error: any) {
             console.error('Failed to fetch strategic plans:', error);
-            errorMsg.value = 'Failed to load strategic plans.';
+            errorMsg.value = extractErrorMessage(error, 'Failed to load strategic plans.');
             strategicObjectives.value = [...mockObjectives];
         } finally {
             loading.value = false;
@@ -330,7 +339,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     };
 
     const handleDelete = async (id: number | string) => {
-        if (!confirm("Are you sure you want to delete this Strategic Plan?")) return;
+        if (!await useGlobalModalStore().confirmDelete({ description: "Are you sure you want to delete this Strategic Plan?" })) return;
         loading.value = true;
         errorMsg.value = '';
         try {
@@ -338,10 +347,14 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             await $fetch(`${baseUrl}/strategic-plans/${id}`, {
                 method: 'DELETE'
             });
+            toast.showSuccess('Rencana Strategis Dihapus', 'Data berhasil dihapus secara permanen.');
             strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
             await fetchStrategicPlans();
         } catch (error: any) {
             console.error('Failed to delete strategic plan:', error);
+            const detail = extractErrorMessage(error, 'Failed to delete strategic plan.');
+            errorMsg.value = detail;
+            toast.showError('Failed to delete strategic plan.', detail);
             strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
         } finally {
             loading.value = false;
@@ -384,12 +397,17 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     };
 
     const handleSubmit = async () => {
+        if (!form.value.strategicObjective) {
+            toast.showWarning('Validasi Gagal', 'Kolom Strategic Objective (Tujuan Strategis) harus diisi.');
+            return;
+        }
+
         cleanKpiMaps();
 
         if (!form.value.code) {
             form.value.code = `SO-IA${String(strategicObjectives.value.length + 1).padStart(2, '0')}`;
         }
-        
+
         const startY = form.value.yearStart || currentYear;
         const endY = form.value.yearEnd || (startY + 4);
         const targets = form.value.kpiTargets as Record<string, string>;
@@ -419,7 +437,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                 }
             }
         }
-        
+
         if (currentTarget !== undefined && currentTarget !== '') {
             form.value.target = String(currentTarget);
         }
@@ -428,7 +446,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         }
         form.value.calculation = computedCalculation.value;
         form.value.status = computedStatus.value;
-        
+
         loading.value = true;
         errorMsg.value = '';
         const appToast = useAppToast();
@@ -447,7 +465,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                     body: form.value
                 });
             }
-            
+
             const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
             if (idx !== -1) {
                 strategicObjectives.value[idx] = { ...form.value } as StrategicAuditPlan;
@@ -455,17 +473,17 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                 strategicObjectives.value.push({ ...form.value, id: String(Date.now()) } as StrategicAuditPlan);
             }
 
-            appToast.success(
+            await fetchStrategicPlans();
+            toast.showSuccess(
                 editModeState ? 'Rencana Strategis Diperbarui' : 'Rencana Strategis Dibuat',
                 `Rencana Strategis "${form.value.strategicObjective || form.value.code}" berhasil disimpan.`
             );
-
             closeModal();
-            await fetchStrategicPlans();
         } catch (error: any) {
             console.error('Failed to save strategic plan:', error);
-            const detail = error.data?.error?.message || error.message || 'Gagal menyimpan rencana strategis.';
-            appToast.error('Gagal Menyimpan Rencana Strategis', detail);
+            const detail = extractErrorMessage(error, 'Gagal menyimpan rencana strategis.');
+            errorMsg.value = detail;
+            toast.showError('Gagal Menyimpan Rencana Strategis', detail);
 
             const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
             if (idx !== -1) {

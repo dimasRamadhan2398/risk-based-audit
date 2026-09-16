@@ -8,6 +8,7 @@ import type {
   PaginationMeta,
   CompanyType
 } from '~/types/master'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useCompanyStore = defineStore('company', () => {
   // ============= State =============
@@ -82,7 +83,7 @@ export const useCompanyStore = defineStore('company', () => {
       pagination.value = response.pagination || pagination.value
     } catch (error: any) {
       console.error('Failed to fetch companies:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal mengambil data company.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data company.')
       companies.value = []
     } finally {
       loading.value = false
@@ -101,7 +102,7 @@ export const useCompanyStore = defineStore('company', () => {
       return await api.getCompanyById(id)
     } catch (error: any) {
       console.error('Failed to fetch company:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal mengambil detail company.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil detail company.')
       return null
     } finally {
       loading.value = false
@@ -137,7 +138,7 @@ export const useCompanyStore = defineStore('company', () => {
       return true
     } catch (error: any) {
       console.error('Failed to create company:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal membuat company baru.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal membuat company baru.')
       return false
     } finally {
       loading.value = false
@@ -172,7 +173,7 @@ export const useCompanyStore = defineStore('company', () => {
       return true
     } catch (error: any) {
       console.error('Failed to update company:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal memperbarui company.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal memperbarui company.')
       return false
     } finally {
       loading.value = false
@@ -193,7 +194,7 @@ export const useCompanyStore = defineStore('company', () => {
       return true
     } catch (error: any) {
       console.error('Failed to delete company:', error)
-      errorMsg.value = error?.data?.message || error?.message || 'Gagal menghapus company.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus company.')
       return false
     } finally {
       loading.value = false
@@ -306,7 +307,7 @@ export const useCompanyStore = defineStore('company', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (company: Company) => {
-    if (!confirm(`Are you sure you want to delete company "${company.company_name}"?`)) {
+    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete company "${company.company_name}"?` })) {
       return
     }
 

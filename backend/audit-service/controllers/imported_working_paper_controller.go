@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -38,22 +38,37 @@ type ImportRequest struct {
 }
 
 func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
-	var req ImportRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+	title := c.PostForm("title")
+	description := c.PostForm("description")
+	fileName := c.PostForm("fileName")
+	fileType := c.PostForm("fileType")
+
+	if title == "" || fileName == "" {
+		response.BadRequest(c, "title and fileName are required")
 		return
 	}
 
-	// Clean base64 string if it contains metadata prefix
-	base64Data := req.FileContent
-	if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
-		base64Data = base64Data[idx+8:]
+	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
+	if err != nil {
+		response.BadRequest(c, "file is required: "+err.Error())
+		return
 	}
 
-	// Decode base64
-	dec, err := base64.StdEncoding.DecodeString(base64Data)
+	openedFile, err := file.Open()
 	if err != nil {
-		response.BadRequest(c, "Invalid base64 file data: "+err.Error())
+		response.InternalServerError(c, "failed to open file: "+err.Error())
+		return
+	}
+	defer openedFile.Close()
+
+	dec, err := io.ReadAll(openedFile)
+	if err != nil {
+		response.InternalServerError(c, "failed to read file: "+err.Error())
+		return
+	}
+
+	if int64(len(dec)) > 10*1024*1024 {
+		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
 		return
 	}
 
@@ -63,8 +78,8 @@ func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
 	}
 
 	// Generate a unique filename to avoid overwrites
-	fileExt := filepath.Ext(req.FileName)
-	baseName := strings.TrimSuffix(req.FileName, fileExt)
+	fileExt := filepath.Ext(fileName)
+	baseName := strings.TrimSuffix(fileName, fileExt)
 	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
 
 	// Save file to disk
@@ -82,12 +97,13 @@ func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
 	// Save metadata in database
 	paper := models.ImportedWorkingPaper{
 		ID:          uuid.New(),
-		Title:       req.Title,
-		Description: req.Description,
-		FileName:    req.FileName,
+		Title:       title,
+		Description: description,
+		FileName:    fileName,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
-		FileType:    req.FileType,
+		FileContent: dec,
+		FileType:    fileType,
 	}
 
 	if err := ctrl.DB.Create(&paper).Error; err != nil {
@@ -156,6 +172,19 @@ func (ctrl *ImportedWorkingPaperController) Download(c *gin.Context) {
 			return
 		}
 		response.InternalServerError(c, "Failed to fetch imported working paper")
+		return
+	}
+
+		if len(paper.FileContent) > 0 {
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", paper.FileName))
+		if paper.FileType != "" {
+			c.Header("Content-Type", paper.FileType)
+		} else {
+			c.Header("Content-Type", "application/octet-stream")
+		}
+		c.Data(http.StatusOK, paper.FileType, paper.FileContent)
 		return
 	}
 

@@ -2,6 +2,7 @@
   <UApp :toaster="toaster">
     <NuxtLayout>
       <NuxtPage />
+      <GlobalConfirmationModal />
     </NuxtLayout>
   </UApp>
 </template>

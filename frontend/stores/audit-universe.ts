@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface StandardAuditUniverse {
   id: string
@@ -55,10 +57,6 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
   const loading = ref(false)
   const errorMsg = ref('')
 
-  const getRiskServiceBaseUrlLocal = () => {
-    return getRiskServiceBaseUrl()
-  }
-
   const fetchStandardUniverse = async () => {
     loading.value = true
     errorMsg.value = ''
@@ -70,7 +68,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch standard audit universe:', error)
-      errorMsg.value = error.data?.error || 'Failed to fetch standard audit universe.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch standard audit universe.')
     } finally {
       loading.value = false
     }
@@ -87,7 +85,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch corporate audit universe:', error)
-      errorMsg.value = error.data?.error || 'Failed to fetch corporate audit universe.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch corporate audit universe.')
     } finally {
       loading.value = false
     }
@@ -109,7 +107,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
       return null
     } catch (error: any) {
       console.error('Failed to save corporate audit universe node:', error)
-      errorMsg.value = error.data?.error || 'Failed to save corporate audit universe node.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to save corporate audit universe node.')
       return null
     } finally {
       loading.value = false
@@ -131,7 +129,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
       return false
     } catch (error: any) {
       console.error('Failed to delete corporate audit universe node:', error)
-      errorMsg.value = error.data?.error || 'Failed to delete corporate audit universe node.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to delete corporate audit universe node.')
       return false
     } finally {
       loading.value = false
@@ -149,7 +147,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch yearly audit universe:', error)
-      errorMsg.value = error.data?.error || 'Failed to fetch yearly audit universe.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch yearly audit universe.')
     } finally {
       loading.value = false
     }
@@ -171,7 +169,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
       return false
     } catch (error: any) {
       console.error('Failed to establish yearly universe:', error)
-      errorMsg.value = error.data?.error || 'Failed to establish yearly universe.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to establish yearly universe.')
       return false
     } finally {
       loading.value = false
@@ -195,7 +193,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
       return null
     } catch (error: any) {
       console.error('Failed to score yearly entity:', error)
-      errorMsg.value = error.data?.error || 'Failed to save risk score.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to save risk score.')
       return null
     } finally {
       loading.value = false

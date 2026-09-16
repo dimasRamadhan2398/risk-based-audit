@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface FollowUpRow {
   status: 'Closed' | 'In Progress' | 'Overdue'
@@ -82,6 +84,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const isViewing = ref(false)
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
 
   // Default narrative template
   const defaultNarrativeTemplate = (bulan: string, tahun: number = 2026) => {
@@ -320,6 +323,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
     } catch (error) {
       console.error('Failed to fetch executive summaries, falling back to mock data:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to load executive summaries.')
       summaryList.value = [...mockSummaries]
     } finally {
       loading.value = false
@@ -449,6 +453,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
     } catch (error: any) {
       console.error('Failed to save summary to backend, simulating local save:', error)
+      const detail = extractErrorMessage(error, 'Gagal menyimpan Executive Summary.')
+      errorMsg.value = detail
+      toast.showError('Gagal menyimpan Executive Summary.', detail)
       // Simulating save in state for offline capabilities
       if (isEditing.value && currentSummary.value) {
         const idx = summaryList.value.findIndex(s => s.id === currentSummary.value!.id)
@@ -476,6 +483,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       } catch (errSync) {
         console.warn('Sync to AuditResultReport failed:', errSync)
       }
+      toast.showSuccess('Executive Summary berhasil disimpan!')
     } finally {
       loading.value = false
     }
@@ -484,7 +492,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const deletedDocNumbers = ref<string[]>([])
 
   const deleteSummary = async (id: string, docNum?: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus Laporan Eksekutif ini?')) return
+    if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus Laporan Eksekutif ini?' })) return
     loading.value = true
     const item = summaryList.value.find(s => s.id === id || s.nomorDokumen === docNum)
     const targetDocNum = docNum || (item ? item.nomorDokumen : '')
@@ -497,8 +505,12 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       const baseUrl = getAuditServiceBaseUrl()
       await $fetch(`${baseUrl}/executive-summaries/${id}`, { method: 'DELETE' })
       await fetchSummaries()
-    } catch (error) {
+      toast.showSuccess('Executive Summary berhasil dihapus!')
+    } catch (error: any) {
       console.error('Failed to delete on backend, simulating local deletion:', error)
+      const detail = extractErrorMessage(error, 'Gagal menghapus Executive Summary.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus Executive Summary.', detail)
     } finally {
       summaryList.value = summaryList.value.filter(s => s.id !== id && s.nomorDokumen !== targetDocNum)
       if (targetDocNum) {
@@ -528,8 +540,11 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         })
         await fetchSummaries()
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update status on backend, simulating local update:', error)
+      const detail = extractErrorMessage(error, 'Gagal memperbarui status Executive Summary.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui status Executive Summary.', detail)
       const idx = summaryList.value.findIndex(s => s.id === id)
       if (idx !== -1 && summaryList.value[idx]) {
         summaryList.value[idx].status = newStatus
@@ -538,6 +553,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
           form.status = newStatus
         }
       }
+      toast.showSuccess('Status Executive Summary berhasil diperbarui!')
     } finally {
       loading.value = false
     }

@@ -49,8 +49,8 @@
 
 <script setup lang="ts">
 import QRCode from 'qrcode'
-
 import type { TableColumn } from '@nuxt/ui'
+import { extractErrorMessage } from '~/utils/error'
 
 interface Device {
   id: string
@@ -77,7 +77,9 @@ const fetchDevices = async () => {
   try {
     const { data } = await $fetch<any>(`${config.public.apiBase}/devices`)
     devices.value = data
-  } catch (err) {}
+  } catch (err: any) {
+    console.error('Failed to fetch devices:', err)
+  }
 }
 
 const handleGenerateQR = async () => {
@@ -89,19 +91,19 @@ const handleGenerateQR = async () => {
     }
     showQRModal.value = true
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'error' })
+    toast.add({ title: 'Error', description: extractErrorMessage(err, 'Failed to enroll device'), color: 'error' })
   }
 }
 
 const handleRemove = async (id: string) => {
-  if (!confirm('Are you sure you want to remove this trusted device?')) return
+  if (!await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to remove this trusted device?' })) return
 
   try {
     await $fetch(`${config.public.apiBase}/devices/${id}`, { method: 'DELETE' })
     toast.add({ title: 'Device removed' })
     await fetchDevices()
   } catch (err: any) {
-    toast.add({ title: 'Error', description: err.message, color: 'error' })
+    toast.add({ title: 'Error', description: extractErrorMessage(err, 'Failed to remove device'), color: 'error' })
   }
 }
 

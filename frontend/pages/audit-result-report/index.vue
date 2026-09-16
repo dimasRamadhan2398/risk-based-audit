@@ -130,36 +130,34 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center">
+              <UTooltip text="Generate LHA (.docx)">
               <UButton
                 color="success"
                 variant="soft"
                 icon="i-heroicons-arrow-down-tray"
                 size="sm"
                 label="Docx"
-                title="Download LHA (.docx)"
                 @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
               />
-              <UButton
-                color="primary"
-                variant="ghost"
-                icon="i-heroicons-pencil-square"
-                size="sm"
-                @click="store.editReport(row.original as any)"
-              />
-              <UButton
-                color="error"
-                variant="ghost"
-                icon="i-heroicons-trash"
-                size="sm"
-                @click="store.deleteReport((row.original as any).id)"
-              />
-              <UButton
-                color="neutral"
-                variant="ghost"
-                icon="i-heroicons-printer"
-                size="sm"
-                @click="printReport(row.original as any)"
-              />
+              </UTooltip>
+              <UTooltip text="Edit">
+                <UButton
+                  color="warning"
+                  variant="ghost"
+                  icon="i-lucide-edit"
+                  size="md"
+                  @click="store.editReport(row.original as any)"
+                />
+              </UTooltip>
+              <UTooltip text="Cetak">
+                <UButton
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide-printer"
+                  size="md"
+                  @click="printReport(row.original as any)"
+                />
+              </UTooltip>
             </div>
           </template>
         </TableEntities>
@@ -198,9 +196,11 @@
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import ResultReportForm from '~/components/audit-result-report/ResultReportForm.vue'
 import { useRbac } from '~/composables/useRbac'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const store = useAuditResultReportStore()
 const { canImportPlanDocs } = useRbac()
+const toast = useToastNotification()
 
 const columns = [
   { accessorKey: 'reportNumber', header: 'No. LHA / ID' },
@@ -240,6 +240,6 @@ const getGroupedFindings = (findings: any[] | undefined) => {
 }
 
 const printReport = (report: any) => {
-  alert(`Printing report: ${report.reportTitle}`)
+  toast.showSuccess(`Printing report: ${report.reportTitle}`)
 }
 </script>

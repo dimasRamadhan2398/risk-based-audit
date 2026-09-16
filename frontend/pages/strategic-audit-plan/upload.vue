@@ -21,14 +21,21 @@
             </div>
           </template>
 
-          <form @submit.prevent="handleUpload" class="space-y-6">
+          <UForm @submit.prevent="handleUpload" class="space-y-6">
             <UFormField :label="t('strategicPlan.upload.documentTitle')" required>
               <UInput
                 v-model="form.title"
-                :placeholder="t('strategicPlan.upload.documentTitlePlaceholder')"
                 class="w-full"
                 required
+                type="text"
+                maxlength="100"
+                :placeholder="t('strategicPlan.upload.documentTitlePlaceholder')"
+                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                @input="($event.target as any)?.setCustomValidity('')"
               />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.title ? form.title.length : 0 }}/100
+              </div>
             </UFormField>
 
             <UFormField :label="t('strategicPlan.upload.description')">
@@ -105,9 +112,9 @@
               class="w-full justify-center font-bold h-11 text-base"
               :loading="store.loading"
               icon="i-lucide-upload"
-              :disabled="!form.title || !form.fileName"
+              :disabled="!form.title || !form.fileName || !form.file"
             />
-          </form>
+          </UForm>
         </UCard>
       </div>
 
@@ -160,30 +167,33 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UButton
-                  icon="i-lucide-eye"
-                  color="info"
-                  variant="ghost"
-                  size="sm"
-                  :title="t('strategicPlan.upload.actions.view')"
-                  @click="store.viewDocument(row.original.id, row.original.fileName)"
-                />
-                <UButton
-                  icon="i-lucide-download"
-                  color="primary"
-                  variant="ghost"
-                  size="sm"
-                  :title="t('strategicPlan.upload.actions.download')"
-                  @click="store.downloadDocument(row.original.id, row.original.fileName)"
-                />
-                <UButton
-                  icon="i-lucide-trash-2"
-                  color="error"
-                  variant="ghost"
-                  size="sm"
-                  :title="t('strategicPlan.upload.actions.delete')"
-                  @click="handleDelete(row.original.id)"
-                />
+                <UTooltip :text="t('strategicPlan.upload.actions.view')">
+                  <UButton
+                    icon="i-lucide-eye"
+                    color="info"
+                    variant="ghost"
+                    size="sm"
+                    @click="store.viewDocument(row.original.id, row.original.fileName)"
+                  />
+                </UTooltip>
+                <UTooltip :text="t('strategicPlan.upload.actions.download')">
+                  <UButton
+                    icon="i-lucide-download"
+                    color="primary"
+                    variant="ghost"
+                    size="sm"
+                    @click="store.downloadDocument(row.original.id, row.original.fileName)"
+                  />
+                </UTooltip>
+                <UTooltip :text="t('strategicPlan.upload.actions.delete')">
+                  <UButton
+                    icon="i-lucide-trash-2"
+                    color="error"
+                    variant="ghost"
+                    size="sm"
+                    @click="handleDelete(row.original.id)"
+                  />
+                </UTooltip>
               </div>
             </template>
           </TableEntities>
@@ -221,7 +231,7 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  fileContent: ''
+  file: null as File | null
 })
 
 const columns = computed(() => [
@@ -253,29 +263,24 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    toast.error(t('strategicPlan.upload.fileSizeLimit'))
+    toast.showError(t('strategicPlan.upload.fileSizeLimit'))
     return
   }
 
   selectedFileLength.value = file.size
   form.value.fileName = file.name
-  form.value.fileType = file.type
+  form.value.fileType = file.type || 'application/octet-stream'
+  form.value.file = file
 
   if (!form.value.title) {
     form.value.title = `Strategic Audit Plan - ${file.name.replace(/\.[^/.]+$/, '')}`
   }
-
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    form.value.fileContent = e.target?.result as string
-  }
-  reader.readAsDataURL(file)
 }
 
 const clearFile = () => {
   form.value.fileName = ''
   form.value.fileType = ''
-  form.value.fileContent = ''
+  form.value.file = null
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -305,7 +310,8 @@ const formatDate = (dateString: string) => {
 }
 
 const handleUpload = async () => {
-  if (!form.value.title || !form.value.fileName) {
+  if (!form.value.title || !form.value.fileName || !form.value.file) {
+    toast.showWarning('Validasi Gagal', 'Mohon lengkapi judul dan file sebelum mengunggah.')
     return
   }
 
@@ -315,23 +321,25 @@ const handleUpload = async () => {
       description: form.value.description,
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      fileContent: form.value.fileContent
+      file: form.value.file
     })
 
+    toast.showSuccess('Upload Berhasil', 'Dokumen berhasil diunggah.')
     form.value.title = ''
     form.value.description = ''
     clearFile()
   } catch (error: any) {
-    toast.error(store.errorMsg || 'Gagal mengunggah dokumen.')
+    toast.showError(store.errorMsg || 'Gagal mengunggah dokumen.')
   }
 }
 
 const handleDelete = async (id: string) => {
-  if (confirm(t('strategicPlan.upload.deleteConfirm'))) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('strategicPlan.upload.deleteConfirm') })) {
     try {
       await store.deleteDocument(id)
+      toast.showSuccess('Hapus Berhasil', 'Dokumen berhasil dihapus.')
     } catch (error: any) {
-      toast.error(store.errorMsg || 'Gagal menghapus dokumen.')
+      toast.showError(store.errorMsg || 'Gagal menghapus dokumen.')
     }
   }
 }
