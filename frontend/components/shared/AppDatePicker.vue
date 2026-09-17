@@ -29,19 +29,19 @@
         />
 
         <!-- Action Icons (Clear + Calendar Button) -->
-        <div class="absolute right-2.5 flex items-center gap-1">
+        <div class="absolute inset-y-0 right-2.5 flex items-center gap-1 pointer-events-none">
           <button
             v-if="!disabled && modelValue"
             type="button"
             @click.stop="clearDate"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5 rounded focus:outline-none cursor-pointer"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5 rounded focus:outline-none cursor-pointer pointer-events-auto flex items-center justify-center"
             tabindex="-1"
             title="Clear date"
           >
             <UIcon name="i-lucide-x" class="w-3.5 h-3.5" />
           </button>
           <div
-            class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-0.5 rounded focus:outline-none disabled:cursor-not-allowed cursor-pointer"
+            class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-0.5 rounded focus:outline-none disabled:cursor-not-allowed cursor-pointer pointer-events-auto flex items-center justify-center"
             title="Open calendar"
           >
             <UIcon name="i-lucide-calendar" class="w-4 h-4" />
