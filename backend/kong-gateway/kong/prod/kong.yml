@@ -132,6 +132,7 @@ services:
           - /api/v1/mfa
           - /api/v1/devices
           - /api/v1/confidentiality
+          - /api/v1/resend
 
         strip_path: false
 

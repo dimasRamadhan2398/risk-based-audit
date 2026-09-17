@@ -31,7 +31,6 @@
           <template #default="{ item, open }">
             <UButton color="neutral" variant="ghost" class="w-full justify-between">                                                                                                                      
               <span class="font-medium ">{{ item.label }}</span>                                                                                                                      
-              <UIcon :name="open ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5" />
             </UButton>
           </template>
           <template #content="{ item }">

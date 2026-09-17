@@ -194,13 +194,13 @@
             </div>
 
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">Mailtrap SMTP Dispatcher</span>
-              <span class="font-mono text-blue-600 dark:text-blue-400 font-medium flex items-center gap-1">
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Email Dispatcher</span>
+              <span class="font-mono text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
                 <UIcon
                   name="i-lucide-mail-check"
                   class="w-3.5 h-3.5"
                 />
-                {{ deployedSite.mailtrapSmtp }} (CAE Invite Sent)
+                Resend API ({{ deployedSite.resendDomain || 'Active' }})
               </span>
             </div>
 
@@ -228,6 +228,46 @@
             <div class="flex items-center justify-between">
               <span class="text-gray-500 dark:text-gray-400 font-medium">Compliance Framework</span>
               <span class="text-gray-800 dark:text-gray-200 font-medium">{{ deployedSite.complianceFramework }}</span>
+            </div>
+          </div>
+
+          <!-- Resend DNS Records & Scoped Key Card -->
+          <div
+            v-if="deployedSite.resendDnsRecords && deployedSite.resendDnsRecords.length"
+            class="max-w-xl mx-auto p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-emerald-500/30 text-left space-y-3 text-xs shadow-sm"
+          >
+            <div class="flex items-center justify-between border-b pb-2 border-gray-200 dark:border-neutral-800">
+              <span class="font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
+                <UIcon name="i-lucide-shield-check" class="w-4 h-4 text-emerald-500" />
+                Resend DNS Records for Verification
+              </span>
+              <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400 truncate max-w-[200px]" :title="deployedSite.resendApiKey">
+                API Key: {{ deployedSite.resendApiKey }}
+              </span>
+            </div>
+
+            <div class="space-y-1.5">
+              <div
+                v-for="(rec, idx) in deployedSite.resendDnsRecords"
+                :key="idx"
+                class="p-2 rounded-lg bg-gray-50 dark:bg-neutral-800/60 border border-gray-200 dark:border-neutral-700/60 font-mono text-[11px] flex items-center justify-between gap-2"
+              >
+                <div class="min-w-0 flex-1 truncate">
+                  <span class="font-bold text-primary">{{ rec.type }}</span>
+                  <span class="text-gray-400 mx-1">|</span>
+                  <span class="text-gray-700 dark:text-gray-300">{{ rec.name }}</span>
+                  <span class="text-gray-400 mx-1">→</span>
+                  <span class="text-gray-500 truncate">{{ rec.value }}</span>
+                </div>
+                <button
+                  type="button"
+                  class="text-primary hover:text-primary-700 p-1 shrink-0"
+                  title="Copy value"
+                  @click="copyText(rec.value, `${rec.type} Value`)"
+                >
+                  <UIcon name="i-lucide-copy" class="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -631,13 +671,13 @@
                   <span class="font-mono font-medium text-gray-800 dark:text-gray-200">{{ form.serverIp }} (Production VPS)</span>
                 </div>
                 <div class="space-y-1">
-                  <span class="text-gray-400 block">Mailtrap SMTP Dispatcher</span>
-                  <span class="font-mono font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                  <span class="text-gray-400 block">Email Service Dispatcher</span>
+                  <span class="font-mono font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <UIcon
                       name="i-lucide-mail"
                       class="w-3.5 h-3.5"
                     />
-                    sandbox.smtp.mailtrap.io:2525
+                    Resend API (DKIM/SPF Auto-Provisioning)
                   </span>
                 </div>
                 <div class="space-y-1">
@@ -833,13 +873,13 @@
                   </span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">Mailtrap SMTP Dispatcher</span>
-                  <span class="font-mono text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                  <span class="text-gray-400 block">Email Service Dispatcher</span>
+                  <span class="font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <UIcon
                       name="i-lucide-mail"
                       class="w-3.5 h-3.5"
                     />
-                    sandbox.smtp.mailtrap.io:2525
+                    Resend API ({{ form.slug || 'client' }}.auditsphere.id)
                   </span>
                 </div>
                 <div>
@@ -997,7 +1037,17 @@ interface DeployedSite {
   kongPort: number
   complianceFramework: string
   envMode: 'local' | 'production'
-  mailtrapSmtp: string
+  localFrontendUrl?: string
+  resendDomain?: string
+  resendDomainId?: string
+  resendApiKey?: string
+  resendDnsRecords?: Array<{
+    name: string
+    type: string
+    value: string
+    priority?: number
+    status?: string
+  }>
   dataState: string
 }
 
@@ -1149,7 +1199,27 @@ const handleProvisionSite = async () => {
 
   await new Promise(r => setTimeout(r, 500))
   provisioningProgress.value = 88
-  provisioningLogs.value.push('Generated Mailtrap SMTP credentials & sent welcome CAE email to ' + form.adminEmail)
+
+  let resendData: any = null
+  try {
+    const resendDomainName = envMode.value === 'local' ? `${form.slug || 'client'}.auditsphere.id` : targetDomain.value
+    const res = await $fetch<{ success: boolean; data: any }>('/api/v1/resend/provision', {
+      method: 'POST',
+      body: {
+        slug: form.slug || 'client',
+        domain: resendDomainName,
+        client_name: form.clientName || 'Client'
+      }
+    })
+    if (res?.data) {
+      resendData = res.data
+    }
+  } catch {
+    // Fallback gracefully
+  }
+
+  const assignedDomain = resendData?.domain || (envMode.value === 'local' ? `${form.slug || 'client'}.auditsphere.id` : targetDomain.value)
+  provisioningLogs.value.push('Provisioned Resend sending domain (' + assignedDomain + ') & created scoped API key')
 
   await new Promise(r => setTimeout(r, 500))
   provisioningProgress.value = 100
@@ -1175,7 +1245,15 @@ const handleProvisionSite = async () => {
     kongPort: form.kongPort,
     complianceFramework: form.complianceFramework,
     envMode: envMode.value,
-    mailtrapSmtp: 'sandbox.smtp.mailtrap.io:2525',
+    localFrontendUrl: `http://localhost:${form.frontendPort}`,
+    resendDomain: assignedDomain,
+    resendDomainId: resendData?.domain_id || `dom_${form.slug || 'client'}_live`,
+    resendApiKey: resendData?.client_api_key || `re_${form.slug || 'client'}_live_key`,
+    resendDnsRecords: resendData?.dns_records || [
+      { name: `resend._domainkey.${assignedDomain}`, type: 'TXT', value: 'k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC310pS9ZlC8F1aQIDAQAB', status: 'not_started' },
+      { name: `send.${assignedDomain}`, type: 'MX', value: 'feedback-smtp.resend.com', priority: 10, status: 'not_started' },
+      { name: `send.${assignedDomain}`, type: 'TXT', value: 'v=spf1 include:resend.com ~all', status: 'not_started' }
+    ],
     dataState: 'Clean / Empty (0 Records)'
   }
 

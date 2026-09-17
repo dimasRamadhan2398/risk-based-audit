@@ -55,7 +55,7 @@
                 size="lg"
                 disabled
               >
-                <div class="mt-1 block w-full rounded-md border border-secondary-200 text-primary-900 p-2 sm:text-sm font-bold bg-gray-50">
+                <div class="mt-1 block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-gray-800">
                   <span v-if="store.isEditing">{{ store.form.version }}</span>
                   <span v-else>v{{ store.nextVersion }}</span>
                 </div>
@@ -80,7 +80,7 @@
                 class="block text-sm font-medium"
                 size="lg"
               >
-                <div class="mt-1 block w-full rounded-md border border-secondary-200 text-primary-900 p-2 sm:text-sm font-bold bg-gray-50">
+                <div class="mt-1 block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-gray-800">
                   <span>{{ store.form.uploadedBy }}</span>
                 </div>
               </UFormField>
@@ -149,7 +149,7 @@
 
           </div>
         </div>
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg">
+        <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl">
           <UButton
             type="submit"
             :loading="store.loading"

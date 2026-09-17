@@ -105,27 +105,27 @@
         <!-- Actions slot -->
         <template #actions-cell="{ row }">
           <div class="flex justify-center items-center gap-1">
-            <UTooltip text="Lihat Pedoman">
+            <UTooltip :text="t('auditCharter.tooltips.viewGuideline')">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
               icon="i-lucide-eye"
-              color="primary"
+              color="neutral"
               variant="ghost"
               size="md"
               @click="openFile(row.original.file_url)"
             />
             </UTooltip>
-            <UTooltip text="Edit Pedoman">
+            <UTooltip :text="t('auditCharter.tooltips.editGuideline')">
             <UButton
               v-if="canManageCharter"
               size="md"
-              color="primary"
+              color="warning"
               variant="ghost"
               icon="i-lucide-edit"
               @click="store.handleEdit(row.original)"
             />
             </UTooltip>
-            <UTooltip text="Hapus Pedoman">
+            <UTooltip :text="t('auditCharter.tooltips.deleteGuideline')">
             <UButton
               v-if="canManageCharter"
               size="md"

@@ -3,10 +3,12 @@ import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
+import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
 
 const route = useRoute()
 const authStore = useAuthStore()
+const { t, locale, setLocale } = useI18n()
 
 const isMobileMenuOpen = ref(false)
 
@@ -24,54 +26,54 @@ const closeMobileMenu = () => {
 }
 
 // 1. Simpan data menu dalam variabel mentah (raw data)
-const rawItems: NavigationMenuItem[][] = [[
+const rawItems = computed<NavigationMenuItem[][]>(() => [[
   // 1. Dashboard
   {
-    label: 'Dashboard',
+    label: t('navigation.dashboard'),
     icon: 'i-lucide-layout-dashboard',
     to: '/dashboard'
   },
 
   // 2. Audit Charter
   {
-    label: 'Audit Charter',
+    label: t('navigation.auditCharter'),
     icon: 'i-lucide-scroll-text',
     to: '/audit-charter'
   },
 
   // 3. Risk Profile & Audit Universe
   {
-    label: 'Risk Profile & Audit Universe',
+    label: t('navigation.riskProfileUniverse'),
     icon: 'i-lucide-shield-alert',
     to: '/risk-profile',
     children: [
       {
-        label: 'Corporate Risk Profile',
+        label: t('navigation.corporateRiskProfile'),
         icon: 'i-lucide-users',
         to: '/risk-profile'
       },
       {
-        label: 'Risk Appetite Statement',
+        label: t('navigation.riskAppetiteStatement'),
         icon: 'i-lucide-clipboard-check',
         to: '/risk-appetite'
       },
       {
-        label: 'Risk Factors',
+        label: t('navigation.riskFactors'),
         icon: 'i-lucide-activity',
         to: '/risk-profile/risk-factors'
       },
       {
-        label: 'Audit Universe',
+        label: t('navigation.auditUniverse'),
         icon: 'i-lucide-globe',
         to: '/risk-profile/audit-universe'
       },
       {
-        label: 'Audit Priority',
+        label: t('navigation.auditPriority'),
         icon: 'i-lucide-list-ordered',
         to: '/risk-profile/audit-universe?tab=priority'
       },
       {
-        label: 'Risk Control Matrix',
+        label: t('navigation.riskControlMatrix'),
         icon: 'i-lucide-grid',
         to: '/risk-profile/risk-control-matrix'
       }
@@ -80,187 +82,182 @@ const rawItems: NavigationMenuItem[][] = [[
 
   // 4. Audit Planning
   {
-    label: 'Audit Planning',
+    label: t('navigation.auditPlanning'),
     icon: 'i-lucide-calendar-days',
     type: 'trigger',
     children: [
       {
-        label: 'Strategic Audit Plan',
+        label: t('navigation.strategicAuditPlan'),
         icon: 'i-lucide-target',
         type: 'trigger',
         children: [
           {
-            label: 'Strategic Audit Plan',
+            label: t('navigation.strategicAuditPlan'),
             icon: 'i-lucide-layout-dashboard',
             to: '/strategic-audit-plan'
           },
           {
-            label: 'Import Strategic Audit Plan',
+            label: t('navigation.importStrategicAuditPlan'),
             icon: 'i-lucide-upload',
             to: '/strategic-audit-plan/upload'
           }
         ]
       },
       {
-        label: 'Internal Audit Performance',
+        label: t('navigation.internalAuditPerformance'),
         icon: 'i-lucide-trending-up',
         type: 'trigger',
         children: [
           {
-            label: 'Internal Audit Performance',
+            label: t('navigation.internalAuditPerformance'),
             icon: 'i-lucide-layout-dashboard',
             to: '/kpi-performance'
           },
           {
-            label: 'Import Laporan Kinerja',
+            label: t('navigation.importPerformanceReport'),
             icon: 'i-lucide-upload',
             to: '/kpi-performance/upload'
           }
         ]
       },
       {
-        label: 'Annual Audit Plan',
+        label: t('navigation.annualAuditPlan'),
         icon: 'i-lucide-calendar',
         type: 'trigger',
         children: [
           {
-            label: 'Create Annual Audit Plan',
+            label: t('navigation.createAnnualAuditPlan'),
             icon: 'i-lucide-layout-dashboard',
             to: '/annual-audit'
           },
           {
-            label: 'Import Annual Audit Plan',
+            label: t('navigation.importAnnualAuditPlan'),
             icon: 'i-lucide-upload',
             to: '/annual-audit/upload'
           },
           {
-            label: 'Audit Execution Status',
+            label: t('navigation.auditExecutionStatus'),
             icon: 'i-lucide-check-circle-2',
             to: '/audit-execution-status'
           }
         ]
       },
       {
-        label: 'Audit Activity Plan',
+        label: t('navigation.auditActivityPlan'),
         icon: 'i-lucide-clipboard-list',
         type: 'trigger',
         children: [
           {
-            label: 'Create Audit Activity Plan',
+            label: t('navigation.createAuditActivityPlan'),
             icon: 'i-lucide-layout-dashboard',
             to: '/audit-activity-plan'
           },
           {
-            label: 'Import Audit Activity Plan',
+            label: t('navigation.importAuditActivityPlan'),
             icon: 'i-lucide-upload',
             to: '/audit-activity-plan/upload'
           }
         ]
       },
       {
-        label: 'Assignment Letter',
+        label: t('navigation.assignmentLetter'),
         icon: 'i-lucide-file-signature',
         type: 'trigger',
         children: [
           {
-            label: 'Create Assignment Letter',
+            label: t('navigation.createAssignmentLetter'),
             icon: 'i-lucide-layout-dashboard',
             to: '/assignment-letter'
           },
           {
-            label: 'Import Assignment Letter Document',
+            label: t('navigation.importAssignmentLetter'),
             icon: 'i-lucide-upload',
             to: '/assignment-letter/upload'
           }
         ]
       },
       {
-        label: 'Working Paper',
+        label: t('navigation.workingPaper'),
         icon: 'i-lucide-file-text',
         type: 'trigger',
         children: [
           {
-            label: 'Create Working Paper',
+            label: t('navigation.createWorkingPaper'),
             icon: 'i-lucide-file-plus',
             to: '/working-paper'
           },
           {
-            label: 'Import Working Paper Document',
+            label: t('navigation.importWorkingPaper'),
             icon: 'i-lucide-upload',
             to: '/working-paper/upload'
           }
         ]
       },
       {
-        label: 'Audit Fieldwork',
+        label: t('navigation.auditFieldwork'),
         icon: 'i-lucide-briefcase',
         to: '/audit-fieldwork'
-      },
+      }
     ]
   },
 
   // 5. Audit Result Report
   {
-    label: 'Audit Result Report',
+    label: t('navigation.auditResultReport'),
     icon: 'i-lucide-file-check-2',
     type: 'trigger',
     children: [
       {
-        label: 'Result Reports (LHA)',
+        label: t('navigation.resultReportsLha'),
         icon: 'i-lucide-list',
         to: '/audit-result-report'
       },
       {
-        label: 'Import LHA Document',
+        label: t('navigation.importLhaDocument'),
         icon: 'i-lucide-upload',
         to: '/audit-result-report/upload'
       },
       {
-        label: 'Auto Generate Report',
-        icon: 'i-lucide-sparkles',
-        to: '/audit-result-report'
-      },
-      {
-        label: 'Executive Summary',
+        label: t('navigation.executiveSummary'),
         icon: 'i-lucide-presentation',
         type: 'trigger',
         children: [
           {
-            label: 'Executive Summary',
+            label: t('navigation.executiveSummary'),
             icon: 'i-lucide-layout-dashboard',
             to: '/audit-result-report/executive-summary'
           },
           {
-            label: 'Import Executive Summary Document',
+            label: t('navigation.importExecutiveSummary'),
             icon: 'i-lucide-upload',
             to: '/audit-result-report/executive-summary-upload'
           }
         ]
       },
       {
-        label: 'Executive Summary Report Kompilasi',
+        label: t('navigation.executiveSummaryCompilation'),
         icon: 'i-lucide-file-text',
         type: 'trigger',
         children: [
           {
-            label: 'Executive Summary Report Kompilasi',
+            label: t('navigation.createExecutiveSummaryCompilation'),
             icon: 'i-lucide-presentation',
             to: '/executive-summary'
           },
           {
-            label: 'Import Executive Summary Report',
+            label: t('navigation.importExecutiveSummaryCompilation'),
             icon: 'i-lucide-upload',
             to: '/executive-summary/upload'
           }
         ]
       },
       {
-        label: 'Action Taken Report',
+        label: t('navigation.actionTakenReport'),
         icon: 'i-lucide-clipboard-check',
         to: '/action-taken-report'
       },
       {
-        label: 'Client Satisfaction Survey',
+        label: t('navigation.clientSatisfactionSurvey'),
         icon: 'i-lucide-smile',
         to: '/audit-result-report/satisfaction-survey'
       }
@@ -269,17 +266,17 @@ const rawItems: NavigationMenuItem[][] = [[
 
   // 6. Consulting Service
   {
-    label: 'Consulting Service',
+    label: t('navigation.consultingService'),
     icon: 'i-lucide-messages-square',
     to: '/consulting-service',
     children: [
       {
-        label: 'Consulting Service Dashboard',
+        label: t('navigation.consultingServiceDashboard'),
         icon: 'i-lucide-layout-dashboard',
         to: '/consulting-service'
       },
       {
-        label: 'Import Consulting Document',
+        label: t('navigation.importConsultingDocument'),
         icon: 'i-lucide-upload',
         to: '/consulting-service/upload'
       }
@@ -288,32 +285,32 @@ const rawItems: NavigationMenuItem[][] = [[
 
   // 7. Quality Assurance Review
   {
-    label: 'Quality Assurance Review',
+    label: t('navigation.qualityAssuranceReview'),
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
     children: [
       {
-        label: 'Quality Assurance Dashboard',
+        label: t('navigation.qualityAssuranceDashboard'),
         icon: 'i-lucide-layout-dashboard',
         to: '/quality-assurance'
       },
       {
-        label: 'Import Periodic Self Assessment',
+        label: t('navigation.importPeriodicSelfAssessment'),
         icon: 'i-lucide-upload',
         to: '/quality-assurance/import-periodic-self-assessment'
       },
       {
-        label: 'Import SAIV',
+        label: t('navigation.importSaiv'),
         icon: 'i-lucide-upload',
         to: '/quality-assurance/import-saiv'
       },
       {
-        label: 'Import QAR Report',
+        label: t('navigation.importQarReport'),
         icon: 'i-lucide-upload',
         to: '/quality-assurance/import'
       },
       {
-        label: 'Import IACM',
+        label: t('navigation.importIacm'),
         icon: 'i-lucide-upload',
         to: '/quality-assurance/import-iacm'
       }
@@ -322,32 +319,32 @@ const rawItems: NavigationMenuItem[][] = [[
 
   // 8. Analytics
   {
-    label: 'Analytics',
+    label: t('navigation.analytics'),
     icon: 'i-lucide-pie-chart',
     to: '/analytics',
     children: [
       {
-        label: 'Risk Scoring Prediction',
+        label: t('navigation.riskScoringPrediction'),
         icon: 'i-lucide-binary',
         to: '/analytics?tab=xgboost'
       },
       {
-        label: 'Anomaly Detection',
+        label: t('navigation.anomalyDetection'),
         icon: 'i-lucide-shield-alert',
         to: '/analytics?tab=isolation'
       },
       {
-        label: 'Detected Anomalies Detail',
+        label: t('navigation.detectedAnomaliesDetail'),
         icon: 'i-lucide-table-properties',
         to: '/analytics?tab=isolation'
       },
       {
-        label: 'NLP Analysis',
+        label: t('navigation.nlpAnalysis'),
         icon: 'i-lucide-file-search',
         to: '/analytics?tab=nlp'
       },
       {
-        label: 'KPI Forecast',
+        label: t('navigation.kpiForecast'),
         icon: 'i-lucide-trending-up',
         to: '/analytics/kpi-forecast'
       }
@@ -356,17 +353,17 @@ const rawItems: NavigationMenuItem[][] = [[
 
   // Master Data
   {
-    label: 'Master Data',
+    label: t('navigation.masterData'),
     icon: 'i-lucide-database',
     to: '/master/employee',
     children: [
       {
-        label: 'Employee Management',
+        label: t('navigation.employeeManagement'),
         icon: 'i-lucide-users-round',
         to: '/master/employee'
       },
       {
-        label: 'Department',
+        label: t('navigation.department'),
         icon: 'i-lucide-building-2',
         to: '/master/department'
       }
@@ -375,28 +372,28 @@ const rawItems: NavigationMenuItem[][] = [[
 
   // Settings
   {
-    label: 'Settings',
+    label: t('navigation.settings'),
     icon: 'i-lucide-settings',
     to: '/settings',
     children: [
       {
-        label: 'General Settings',
+        label: t('navigation.generalSettings'),
         icon: 'i-lucide-sliders',
         to: '/settings'
       },
       {
-        label: 'Security & 2FA',
+        label: t('navigation.security2fa'),
         icon: 'i-lucide-shield-check',
         to: '/settings/mfa'
       },
       {
-        label: 'Trusted Devices',
+        label: t('navigation.trustedDevices'),
         icon: 'i-lucide-laptop',
         to: '/settings/devices'
       }
     ]
   }
-]]
+]])
 
 const searchQuery = ref('')
 const { isAdmin, canManageAudits } = useRbac()
@@ -458,7 +455,7 @@ const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuIte
 // 2. Gunakan Computed agar menu bereaksi secara rekursif saat pindah halaman dan pencarian
 const items = computed<NavigationMenuItem[][]>(() => {
   const q = searchQuery.value.toLowerCase().trim()
-  return rawItems.map((group) => {
+  return rawItems.value.map((group) => {
     return group
       .map(item => processMenuItem(item, q))
       .filter((item): item is NavigationMenuItem => item !== null)
@@ -475,14 +472,14 @@ const userDropdownItems = computed(() => [
   ],
   [
     {
-      label: 'Settings',
+      label: t('navigation.userMenu.settings'),
       icon: 'i-lucide-settings',
       to: '/settings'
     }
   ],
   [
     {
-      label: 'Logout',
+      label: t('navigation.userMenu.logout'),
       icon: 'i-lucide-log-out',
       onSelect: async () => {
         await authStore.logout()
@@ -523,7 +520,7 @@ const userDropdownItems = computed(() => [
           <UInput
             v-if="!collapsed"
             v-model="searchQuery"
-            placeholder="Search..."
+            :placeholder="t('navigation.searchPlaceholder')"
             icon="i-lucide-search"
             color="neutral"
             variant="outline"
@@ -564,7 +561,26 @@ const userDropdownItems = computed(() => [
             />
             <Logo class="h-6 w-auto text-2xl" />
           </div>
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
+            <!-- Language Switcher Toggle -->
+            <div class="flex items-center gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-main)] shadow-sm">
+              <button
+                type="button"
+                class="px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+                :class="locale === 'id' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+                @click="setLocale('id')"
+              >
+                <span>🇮🇩</span> ID
+              </button>
+              <button
+                type="button"
+                class="px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+                :class="locale === 'en' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+                @click="setLocale('en')"
+              >
+                <span>🇬🇧</span> EN
+              </button>
+            </div>
             <UColorModeButton />
             <UButton
               v-if="!authStore.isLoggedIn"
@@ -572,7 +588,7 @@ const userDropdownItems = computed(() => [
               color="primary"
               variant="solid"
             >
-              Login
+              {{ t('auth.login.button') }}
             </UButton>
             <UDropdownMenu
               v-else
@@ -607,8 +623,8 @@ const userDropdownItems = computed(() => [
               icon="i-lucide-alert-triangle"
               color="warning"
               variant="solid"
-              title="Security Warning"
-              description="Your account was recently accessed from a new device. If this wasn't you, please change your password immediately."
+              :title="t('navigation.securityWarningTitle')"
+              :description="t('navigation.securityWarningDesc')"
               :closable="true"
               @close="authStore.isNewDevice = false"
             />

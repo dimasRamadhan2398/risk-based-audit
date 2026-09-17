@@ -49,6 +49,7 @@ func (r *Registry) Serve() {
 	r.mfa()
 	r.trustedDevices()
 	r.confidentiality()
+	r.resend()
 }
 
 // auth registers auth routes
@@ -146,5 +147,15 @@ func (r *Registry) confidentiality() {
 	{
 		confidentiality.GET("/status", r.controller.GetConfidentiality().GetStatus)
 		confidentiality.POST("/accept", r.controller.GetConfidentiality().Accept)
+	}
+}
+
+// resend registers Resend email provisioning routes.
+func (r *Registry) resend() {
+	resend := r.group.Group("/resend")
+	{
+		// POST /api/v1/resend/provision
+		// Registers a sending domain on Resend and returns a scoped API key + DNS records.
+		resend.POST("/provision", r.controller.GetResend().ProvisionClientDomain)
 	}
 }

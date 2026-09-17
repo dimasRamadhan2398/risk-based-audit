@@ -111,7 +111,7 @@
           </div>
         </div>
         <div class="sm:flex sm:flex-row-reverse gap-4">
-          <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
+          <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
             <UButton
               v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
               @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
@@ -128,7 +128,7 @@
               @click="store.handleEdit(store.activeCharter)"
               color="primary"
               icon="i-lucide-edit"
-              variant="outline"
+              variant="ghost"
               :label="t('auditCharter.card.edit')"
             />
           </UTooltip>
@@ -215,7 +215,7 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1.5 whitespace-nowrap">
-              <UTooltip :text="t('auditCharter.tooltips.viewCharter')">
+              <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
                 <UButton
                   v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
                   size="md"
@@ -229,7 +229,7 @@
                 <UButton
                   v-if="canManageCharter"
                   size="md"
-                  color="primary"
+                  color="warning"
                   variant="ghost"
                   icon="i-lucide-edit"
                   @click="store.handleEdit(row.original)"

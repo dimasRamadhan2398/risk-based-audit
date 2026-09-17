@@ -101,8 +101,8 @@
 
         <!-- Actions slot -->
         <template #actions-cell="{ row }">
-          <div class="flex justify-end gap-1">
-            <UTooltip text="View SOP">
+          <div class="flex justify-center items-center gap-1">
+            <UTooltip :text="t('auditCharter.tooltips.viewSop')">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
               icon="i-lucide-eye"
@@ -112,7 +112,7 @@
               @click="openFile(row.original.file_url)"
             />
             </UTooltip>
-            <UTooltip text="Edit SOP">
+            <UTooltip :text="t('auditCharter.tooltips.editSop')">
             <UButton
               v-if="canManageCharter"
               size="md"
@@ -122,7 +122,7 @@
               @click="store.handleEdit(row.original)"
             />
             </UTooltip>
-            <UTooltip text="Hapus SOP">
+            <UTooltip :text="t('auditCharter.tooltips.deleteSop')">
             <UButton
               v-if="canManageCharter"
               size="md"

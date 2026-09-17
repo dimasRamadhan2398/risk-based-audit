@@ -211,6 +211,7 @@
       "activity": "Activity",
       "permissions": "Permissions",
       "dataSources": "Data Sources",
+      "emailService": "Email Service (Resend)",
       "faq": "FAQ"
     },
     "titles": {
@@ -220,6 +221,7 @@
       "activity": "Activity",
       "permissions": "Permissions",
       "datasource": "Data Source Connections",
+      "email": "Email Dispatcher (Resend API)",
       "faq": "FAQ"
     },
     "general": {
@@ -1528,6 +1530,18 @@
       "saveChanges": "Save Changes",
       "addSop": "Add SOP",
       "cancel": "Cancel"
+    },
+    "tooltips": {
+      "viewCharter": "Download Audit Charter",
+      "downloadCharter": "Download Audit Charter",
+      "editCharter": "Edit Audit Charter",
+      "deleteCharter": "Delete Audit Charter",
+      "viewGuideline": "View Guideline",
+      "editGuideline": "Edit Guideline",
+      "deleteGuideline": "Delete Guideline",
+      "viewSop": "View Technical Instruction / SOP",
+      "editSop": "Edit Technical Instruction / SOP",
+      "deleteSop": "Delete Technical Instruction / SOP"
     }
   },
   "executiveSummaryUpload": {
@@ -2295,6 +2309,208 @@
       "riskAddedDesc": "Successfully added new risk: {name}",
       "riskUpdated": "Risk Updated",
       "riskUpdatedDesc": "Successfully updated risk details."
+    }
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "auditCharter": "Audit Charter",
+    "riskProfileUniverse": "Risk Profile & Audit Universe",
+    "corporateRiskProfile": "Corporate Risk Profile",
+    "riskAppetiteStatement": "Risk Appetite Statement",
+    "riskFactors": "Risk Factors",
+    "auditUniverse": "Audit Universe",
+    "auditPriority": "Audit Priority",
+    "riskControlMatrix": "Risk Control Matrix",
+    "auditPlanning": "Audit Planning",
+    "strategicAuditPlan": "Strategic Audit Plan",
+    "importStrategicAuditPlan": "Import Strategic Audit Plan",
+    "internalAuditPerformance": "Internal Audit Performance",
+    "importPerformanceReport": "Import Performance Report",
+    "annualAuditPlan": "Annual Audit Plan",
+    "createAnnualAuditPlan": "Create Annual Audit Plan",
+    "importAnnualAuditPlan": "Import Annual Audit Plan",
+    "auditExecutionStatus": "Audit Execution Status",
+    "auditActivityPlan": "Audit Activity Plan",
+    "createAuditActivityPlan": "Create Audit Activity Plan",
+    "importAuditActivityPlan": "Import Audit Activity Plan",
+    "assignmentLetter": "Assignment Letter",
+    "createAssignmentLetter": "Create Assignment Letter",
+    "importAssignmentLetter": "Import Assignment Letter Document",
+    "workingPaper": "Working Paper",
+    "createWorkingPaper": "Create Working Paper",
+    "importWorkingPaper": "Import Working Paper Document",
+    "auditFieldwork": "Audit Fieldwork",
+    "auditResultReport": "Audit Result Report",
+    "resultReportsLha": "Result Reports (LHA)",
+    "importLhaDocument": "Import LHA Document",
+    "executiveSummary": "Executive Summary",
+    "importExecutiveSummary": "Import Executive Summary Document",
+    "executiveSummaryCompilation": "Executive Summary Compilation Report",
+    "createExecutiveSummaryCompilation": "Create Executive Summary Compilation Report",
+    "importExecutiveSummaryCompilation": "Import Executive Summary Report",
+    "actionTakenReport": "Action Taken Report",
+    "clientSatisfactionSurvey": "Client Satisfaction Survey",
+    "consultingService": "Consulting Service",
+    "consultingServiceDashboard": "Consulting Service Dashboard",
+    "importConsultingDocument": "Import Consulting Document",
+    "qualityAssuranceReview": "Quality Assurance Review",
+    "qualityAssuranceDashboard": "Quality Assurance Dashboard",
+    "importPeriodicSelfAssessment": "Import Periodic Self Assessment",
+    "importSaiv": "Import SAIV",
+    "importQarReport": "Import QAR Report",
+    "importIacm": "Import IACM",
+    "analytics": "Analytics",
+    "riskScoringPrediction": "Risk Scoring Prediction",
+    "anomalyDetection": "Anomaly Detection",
+    "detectedAnomaliesDetail": "Detected Anomalies Detail",
+    "nlpAnalysis": "NLP Analysis",
+    "kpiForecast": "KPI Forecast",
+    "masterData": "Master Data",
+    "employeeManagement": "Employee Management",
+    "department": "Department",
+    "settings": "Settings",
+    "generalSettings": "General Settings",
+    "security2fa": "Security & 2FA",
+    "trustedDevices": "Trusted Devices",
+    "searchPlaceholder": "Search...",
+    "userMenu": {
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "securityWarningTitle": "Security Warning",
+    "securityWarningDesc": "Your account was recently accessed from a new device. If this wasn't you, please change your password immediately."
+  },
+  "satisfactionSurvey": {
+    "title": "Client Satisfaction Survey",
+    "subtitle": "Fill in the satisfaction questionnaire for published audit result reports",
+    "hideExplanation": "Hide Explanation",
+    "showExplanation": "Metric Explanations",
+    "cards": {
+      "avgCsat": {
+        "title": "Average CSAT Score",
+        "tooltip": "Average satisfaction score from all auditee surveys (scale 1 - 5) covering clarity, professionalism, and timeliness.",
+        "target": "Target: ≥ 4.5",
+        "targetMet": "Meets Quality Standards",
+        "targetNotMet": "Needs Score Improvement",
+        "description": "Measures audit service quality and recommendation acceptance rate by auditee work units."
+      },
+      "totalSurveys": {
+        "title": "Total Surveys Submitted",
+        "unit": "Surveys",
+        "tooltip": "Total evaluation questionnaires completed and submitted by auditees from all published audit reports (Final status).",
+        "publishedCount": "{count} Published Reports",
+        "pendingCount": "{count} Pending Surveys",
+        "description": "Accumulated formal feedback serving as the basis for internal audit engagement performance evaluation."
+      },
+      "responseRate": {
+        "title": "Response Rate",
+        "tooltip": "Percentage of published audit reports that have completed client satisfaction surveys. Target: ≥ 80%.",
+        "target": "Target: ≥ 80%",
+        "statusHigh": "High Participation Rate",
+        "statusLow": "Needs Response Encouragement",
+        "description": "Reflects auditee compliance and responsiveness in evaluating the internal audit team."
+      }
+    },
+    "guide": {
+      "title": "CSAT Metrics Guide & Explanation (Client Satisfaction Survey)",
+      "subtitle": "Detailed explanation of definitions, functions, parameters, and measurement targets for each statistical indicator above",
+      "csat": {
+        "title": "1. Average CSAT Score",
+        "definition": "Average satisfaction score given by auditees across completed questionnaires on a 1 - 5 Likert scale.",
+        "dimensionsTitle": "3 Evaluation Dimensions:",
+        "clarity": "Clarity of audit findings, criteria, and actionable recommendations.",
+        "professionalism": "Ethics, objectivity, integrity, and competence of the audit team.",
+        "timeliness": "Punctuality of audit report publication and fieldwork completion.",
+        "target": "Target Benchmark: Minimum 4.5 / 5.0 (\"Excellent\" Category)"
+      },
+      "surveys": {
+        "title": "2. Total Surveys Submitted",
+        "definition": "Total number of satisfaction questionnaires successfully completed and submitted by auditee representatives.",
+        "flowTitle": "Validation Flow:",
+        "flow1": "Only audit reports with Final/Published status can be evaluated.",
+        "flow2": "Each published report is expected to receive 1 formal feedback from the auditee unit.",
+        "flow3": "Reports without survey submissions are marked as Pending Survey.",
+        "note": "Note: Updated in real-time with each new survey submission."
+      },
+      "rate": {
+        "title": "3. Response Rate",
+        "definition": "The ratio of evaluated audit reports to total published audit reports.",
+        "formulaTitle": "Calculation Formula:",
+        "formula": "(Reports with Survey / Total Published Reports) × 100%",
+        "desc": "High response rate ensures statistical objectivity and representativeness.",
+        "target": "Performance Target: Minimum 80% auditee engagement."
+      }
+    },
+    "table": {
+      "title": "Published Reports & Survey Status",
+      "refresh": "Refresh",
+      "columns": {
+        "reportNumber": "No. LHA",
+        "reportTitle": "Report Title",
+        "department": "Department",
+        "publishDate": "Publish Date",
+        "status": "Status",
+        "surveyStatus": "Survey Status",
+        "action": "Action"
+      },
+      "surveyStatus": {
+        "submitted": "Submitted ({score}/5)",
+        "pending": "Pending Survey"
+      },
+      "actions": {
+        "fill": "Fill Survey",
+        "view": "View Feedback"
+      },
+      "empty": {
+        "title": "No Published Reports",
+        "desc": "There are currently no published (Final) audit result reports available to evaluate."
+      }
+    },
+    "formModal": {
+      "title": "Auditee Satisfaction Questionnaire",
+      "subtitle": "Please rate your satisfaction with our audit process",
+      "reportNumber": "Report Number",
+      "department": "Department",
+      "reportTitle": "Report Title",
+      "auditeeName": "Your Name (Auditee)",
+      "auditeeNamePlaceholder": "Enter your name",
+      "auditeeNameValidation": "Name is required and maximum 100 characters",
+      "departmentLabel": "Department / Unit",
+      "q1Title": "1. Clarity of Audit Findings & Recommendations",
+      "q1Desc": "Clarity of audit findings and recommendations provided in the report.",
+      "q2Title": "2. Professionalism of the Audit Team",
+      "q2Desc": "Professionalism, objectivity, and work ethics of the internal audit team.",
+      "q3Title": "3. Timeliness of Audit Report Delivery",
+      "q3Desc": "Punctuality in delivering the audit result report according to schedule.",
+      "ratingScale": {
+        "1": "Very Dissatisfied",
+        "2": "Dissatisfied",
+        "3": "Neutral",
+        "4": "Satisfied",
+        "5": "Very Satisfied"
+      },
+      "estimatedScore": "Estimated CSAT Score",
+      "estimatedScoreFormula": "Average: (Clarity + Professionalism + Timeliness) / 3",
+      "comments": "Additional Comments / Suggestions",
+      "commentsPlaceholder": "Tell us what went well or what we can improve...",
+      "cancel": "Cancel",
+      "submit": "Submit Survey",
+      "alreadySubmitted": "A survey has already been submitted for this audit report!",
+      "success": "Survey submitted successfully!",
+      "error": "Failed to submit satisfaction survey. Please try again."
+    },
+    "viewModal": {
+      "title": "Submitted Survey Details",
+      "submittedBy": "Submitted By",
+      "department": "Department",
+      "clarity": "Clarity Rating",
+      "professionalism": "Professionalism Rating",
+      "timeliness": "Timeliness Rating",
+      "overallScore": "CSAT Overall Score",
+      "overallScoreSubtitle": "Average calculated score",
+      "comments": "Comments / Feedback",
+      "noComments": "No additional comments provided.",
+      "close": "Close"
     }
   }
 }
