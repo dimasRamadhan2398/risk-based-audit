@@ -64,7 +64,7 @@
 
         <div class="border-t border-gray-400 my-4"></div>
 
-        <div class="flex justify-between items-start">
+        <div class="flex flex-row justify-between items-start">
           <div>
             <UBadge
               :label="t('auditCharter.card.currentlyActive')"
@@ -76,18 +76,22 @@
             <h2 class="text-3xl font-bold text-[var(--text-main)] mb-4">
               {{ store.activeCharter.title }}
             </h2>
-            <div class="flex items-center gap-4 text-sm text-gray-500 mb-6">
+            <div class="flex items-center text-sm text-gray-500 mb-6 gap-4">
               <UBadge class="rounded inline-block" size="lg" color="error">
                 v{{ store.activeCharter.version }}
               </UBadge>
-              <UIcon name="i-lucide-calendar" size="md"></UIcon>
-              <span class="flex items-center gap-1">{{
-                store.activeCharter.date
-              }}</span>
-              <UIcon name="i-lucide-file-text" size="md"></UIcon>
-              <span class="flex items-center gap-1">{{
-                store.activeCharter.fileName
-              }}</span>
+              <div class="flex items-center gap-1">
+                <UIcon name="i-lucide-calendar" size="md"></UIcon>
+                <span class="flex items-center">{{
+                  store.activeCharter.date
+                }}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <UIcon name="i-lucide-file-text" size="md"></UIcon>
+                  <span class="flex items-center">{{
+                  store.activeCharter.fileName
+                }}</span>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 bg-[var(--bg-surface)] gap-8 mb-6 p-4 rounded-lg transition-colors duration-300">
