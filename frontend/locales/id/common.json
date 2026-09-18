@@ -208,6 +208,7 @@
       "activity": "Aktivitas Perangkat",
       "permissions": "Hak Akses & Izin",
       "dataSources": "Koneksi Data",
+      "emailService": "Layanan Email",
       "faq": "FAQ / Bantuan"
     },
     "titles": {
@@ -217,6 +218,7 @@
       "activity": "Aktivitas Perangkat",
       "permissions": "Pengaturan Hak Akses & Role",
       "datasource": "Koneksi Sumber Data Audit",
+      "email": "Layanan Pengirim Email (Resend API)",
       "faq": "Frequently Asked Questions (FAQ)"
     },
     "general": {
@@ -1537,6 +1539,18 @@
       "saveChanges": "Simpan Perubahan",
       "addSop": "Tambah SOP",
       "cancel": "Batal"
+    },
+    "tooltips": {
+      "viewCharter": "Unduh Audit Charter",
+      "downloadCharter": "Unduh Audit Charter",
+      "editCharter": "Edit Audit Charter",
+      "deleteCharter": "Hapus Audit Charter",
+      "viewGuideline": "Lihat Pedoman",
+      "editGuideline": "Edit Pedoman",
+      "deleteGuideline": "Hapus Pedoman",
+      "viewSop": "Lihat Petunjuk Teknis / SOP",
+      "editSop": "Edit Petunjuk Teknis / SOP",
+      "deleteSop": "Hapus Petunjuk Teknis / SOP"
     }
   },
   "executiveSummaryUpload": {
@@ -1792,9 +1806,9 @@
       "analysisIndex": "Analisis {index}",
       "category": "Kategori",
       "categoryPlaceholder": "Pilih Kategori",
-      "why1": "Why 1",
+      "why1": "Why",
       "why1Placeholder": "Contoh: Staf lupa meminta TTD Manager",
-      "why1Validation": "Why 1 maksimal 100 karakter dan wajib diisi",
+      "why1Validation": "Why maksimal 100 karakter dan wajib diisi",
       "why2": "Why 2",
       "why2Placeholder": "Contoh: Karena staf terburu-buru mengejar kuota pengiriman",
       "why2Validation": "Why 2 maksimal 100 karakter dan wajib diisi",
@@ -2304,6 +2318,208 @@
       "riskAddedDesc": "Berhasil menambahkan risiko baru: {name}",
       "riskUpdated": "Risiko Diperbarui",
       "riskUpdatedDesc": "Berhasil memperbarui detail risiko."
+    }
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "auditCharter": "Audit Charter",
+    "riskProfileUniverse": "Profil Risiko & Universe Audit",
+    "corporateRiskProfile": "Profil Risiko Korporat",
+    "riskAppetiteStatement": "Pernyataan Selera Risiko",
+    "riskFactors": "Faktor Risiko",
+    "auditUniverse": "Universe Audit",
+    "auditPriority": "Prioritas Audit",
+    "riskControlMatrix": "Matriks Kontrol Risiko",
+    "auditPlanning": "Perencanaan Audit",
+    "strategicAuditPlan": "Rencana Audit Strategis",
+    "importStrategicAuditPlan": "Impor Rencana Audit Strategis",
+    "internalAuditPerformance": "Kinerja Audit Internal",
+    "importPerformanceReport": "Impor Laporan Kinerja",
+    "annualAuditPlan": "Rencana Audit Tahunan",
+    "createAnnualAuditPlan": "Buat Rencana Audit Tahunan",
+    "importAnnualAuditPlan": "Impor Rencana Audit Tahunan",
+    "auditExecutionStatus": "Status Pelaksanaan Audit",
+    "auditActivityPlan": "Rencana Kegiatan Audit",
+    "createAuditActivityPlan": "Buat Rencana Kegiatan Audit",
+    "importAuditActivityPlan": "Impor Rencana Kegiatan Audit",
+    "assignmentLetter": "Surat Tugas",
+    "createAssignmentLetter": "Buat Surat Tugas",
+    "importAssignmentLetter": "Impor Dokumen Surat Tugas",
+    "workingPaper": "Kertas Kerja",
+    "createWorkingPaper": "Buat Kertas Kerja",
+    "importWorkingPaper": "Impor Dokumen Kertas Kerja",
+    "auditFieldwork": "Pelaksanaan Lapangan",
+    "auditResultReport": "Laporan Hasil Audit",
+    "resultReportsLha": "Daftar Laporan Hasil Audit (LHA)",
+    "importLhaDocument": "Impor Dokumen LHA",
+    "executiveSummary": "Ringkasan Eksekutif",
+    "importExecutiveSummary": "Impor Dokumen Ringkasan Eksekutif",
+    "executiveSummaryCompilation": "Laporan Kompilasi Ringkasan Eksekutif",
+    "createExecutiveSummaryCompilation": "Buat Laporan Kompilasi Ringkasan Eksekutif",
+    "importExecutiveSummaryCompilation": "Impor Laporan Kompilasi Ringkasan Eksekutif",
+    "actionTakenReport": "Laporan Tindak Lanjut",
+    "clientSatisfactionSurvey": "Survei Kepuasan Klien",
+    "consultingService": "Layanan Konsultasi",
+    "consultingServiceDashboard": "Dashboard Layanan Konsultasi",
+    "importConsultingDocument": "Impor Dokumen Konsultasi",
+    "qualityAssuranceReview": "Quality Assurance Review",
+    "qualityAssuranceDashboard": "Quality Assurance Dashboard",
+    "importPeriodicSelfAssessment": "Impor Penilaian Mandiri Periodik",
+    "importSaiv": "Impor SAIV",
+    "importQarReport": "Impor Laporan QAR",
+    "importIacm": "Impor IACM",
+    "analytics": "Analitik",
+    "riskScoringPrediction": "Prediksi Penilaian Risiko",
+    "anomalyDetection": "Deteksi Anomali",
+    "detectedAnomaliesDetail": "Detail Anomali Terdeteksi",
+    "nlpAnalysis": "Analisis NLP",
+    "kpiForecast": "Prakiraan KPI",
+    "masterData": "Data Master",
+    "employeeManagement": "Manajemen Karyawan",
+    "department": "Departemen",
+    "settings": "Pengaturan",
+    "generalSettings": "Pengaturan Umum",
+    "security2fa": "Keamanan & 2FA",
+    "trustedDevices": "Perangkat Tepercaya",
+    "searchPlaceholder": "Cari...",
+    "userMenu": {
+      "settings": "Pengaturan",
+      "logout": "Keluar"
+    },
+    "securityWarningTitle": "Peringatan Keamanan",
+    "securityWarningDesc": "Akun Anda baru saja diakses dari perangkat baru. Jika ini bukan Anda, segera ubah kata sandi Anda."
+  },
+  "satisfactionSurvey": {
+    "title": "Survei Kepuasan Klien",
+    "subtitle": "Isi kuesioner kepuasan untuk laporan hasil audit yang telah dipublikasikan",
+    "hideExplanation": "Sembunyikan Penjelasan",
+    "showExplanation": "Penjelasan Kotak Statistik",
+    "cards": {
+      "avgCsat": {
+        "title": "Average CSAT Score",
+        "tooltip": "Rata-rata skor kepuasan auditee dari seluruh survei (skala 1 - 5) mencakup kejelasan, profesionalisme, dan ketepatan waktu.",
+        "target": "Target: ≥ 4.5",
+        "targetMet": "Memenuhi Standar Mutu",
+        "targetNotMet": "Perlu Peningkatan Skor",
+        "description": "Mengukur mutu layanan audit dan tingkat penerimaan rekomendasi oleh unit kerja auditee."
+      },
+      "totalSurveys": {
+        "title": "Total Surveys Submitted",
+        "unit": "Survei",
+        "tooltip": "Jumlah kuesioner evaluasi yang telah diisi dan disubmit oleh auditee dari seluruh LHA terbit (status Final).",
+        "publishedCount": "{count} LHA Terbit",
+        "pendingCount": "{count} Menunggu Pengisian",
+        "description": "Akumulasi feedback resmi yang menjadi basis evaluasi kinerja penugasan audit internal."
+      },
+      "responseRate": {
+        "title": "Response Rate",
+        "tooltip": "Persentase partisipasi pengisian survei dari seluruh Laporan Hasil Audit (LHA) yang telah dipublikasikan. Target: ≥ 80%.",
+        "target": "Target: ≥ 80%",
+        "statusHigh": "Partisipasi Sangat Baik",
+        "statusLow": "Perlu Dorongan Respons",
+        "description": "Menunjukkan tingkat kepatuhan dan keaktifan auditee dalam mengevaluasi tim audit."
+      }
+    },
+    "guide": {
+      "title": "Panduan & Penjelasan Kotak Statistik CSAT (Client Satisfaction Survey)",
+      "subtitle": "Penjelasan detail mengenai definisi, fungsi, parameter, dan target pengukuran setiap indikator statistik di atas",
+      "csat": {
+        "title": "1. Average CSAT Score",
+        "definition": "Rata-rata nilai kepuasan auditee dari kuesioner yang telah diisi. Menggunakan skala Likert 1 s/d 5.",
+        "dimensionsTitle": "3 Dimensi Penilaian:",
+        "clarity": "Kejelasan temuan, dasar kriteria, dan rekomendasi audit.",
+        "professionalism": "Etika, integritas, dan kompetensi tim auditor.",
+        "timeliness": "Ketepatan waktu penerbitan laporan dan pelaksanaan tugas.",
+        "target": "Target Benchmark: Minimal 4.5 / 5.0 (Kategori \"Sangat Baik\")"
+      },
+      "surveys": {
+        "title": "2. Total Surveys Submitted",
+        "definition": "Jumlah total kuesioner survei kepuasan yang telah berhasil diselesaikan dan dikirimkan oleh pihak auditee.",
+        "flowTitle": "Alur Validasi:",
+        "flow1": "Hanya Laporan Hasil Audit (LHA) berstatus Final/Published yang dapat dievaluasi.",
+        "flow2": "Setiap laporan berstatus Final diharapkan memiliki 1 feedback resmi dari perwakilan auditee.",
+        "flow3": "Laporan yang belum terisi ditandai status Pending Survey.",
+        "note": "Keterangan: Diperbarui real-time setiap ada survei baru yang masuk."
+      },
+      "rate": {
+        "title": "3. Response Rate (Tingkat Respon)",
+        "definition": "Rasio persentase LHA yang telah dievaluasi terhadap keseluruhan LHA yang telah dipublikasikan.",
+        "formulaTitle": "Rumus Perhitungan:",
+        "formula": "(LHA dengan Survei / Total LHA Terbit) × 100%",
+        "desc": "Tingkat respons tinggi menjamin objektivitas dan representativitas penilaian mutu audit.",
+        "target": "Target Kinerja: Minimal 80% partisipasi unit kerja."
+      }
+    },
+    "table": {
+      "title": "Daftar Laporan Terbit & Status Survei",
+      "refresh": "Segarkan",
+      "columns": {
+        "reportNumber": "No. LHA",
+        "reportTitle": "Judul Laporan",
+        "department": "Departemen",
+        "publishDate": "Tanggal Terbit",
+        "status": "Status",
+        "surveyStatus": "Status Survei",
+        "action": "Aksi"
+      },
+      "surveyStatus": {
+        "submitted": "Terisi ({score}/5)",
+        "pending": "Menunggu Survei"
+      },
+      "actions": {
+        "fill": "Isi Survei",
+        "view": "Lihat Feedback"
+      },
+      "empty": {
+        "title": "Belum Ada Laporan Terbit",
+        "desc": "Saat ini belum ada Laporan Hasil Audit (LHA) berstatus Final yang tersedia untuk dievaluasi."
+      }
+    },
+    "formModal": {
+      "title": "Kuesioner Kepuasan Auditee",
+      "subtitle": "Berikan penilaian Anda terhadap proses pelaksanaan audit",
+      "reportNumber": "Nomor Laporan",
+      "department": "Departemen",
+      "reportTitle": "Judul Laporan",
+      "auditeeName": "Nama Anda (Auditee)",
+      "auditeeNamePlaceholder": "Masukkan nama Anda",
+      "auditeeNameValidation": "Nama wajib diisi dan maksimal 100 karakter",
+      "departmentLabel": "Departemen / Unit",
+      "q1Title": "1. Kejelasan Temuan & Rekomendasi Audit",
+      "q1Desc": "Kejelasan temuan audit dan rekomendasi perbaikan yang diberikan.",
+      "q2Title": "2. Profesionalisme Tim Auditor",
+      "q2Desc": "Profesionalitas, objektivitas, serta etika tim auditor internal selama proses audit.",
+      "q3Title": "3. Ketepatan Waktu Penyampaian Laporan",
+      "q3Desc": "Ketepatan waktu penyampaian laporan hasil audit (LHA) dari jadwal yang ditentukan.",
+      "ratingScale": {
+        "1": "Sangat Tidak Puas",
+        "2": "Tidak Puas",
+        "3": "Netral",
+        "4": "Puas",
+        "5": "Sangat Puas"
+      },
+      "estimatedScore": "Estimasi Skor CSAT",
+      "estimatedScoreFormula": "Rata-rata: (Kejelasan + Profesionalisme + Ketepatan Waktu) / 3",
+      "comments": "Komentar / Saran Tambahan",
+      "commentsPlaceholder": "Sampaikan hal positif atau area yang perlu ditingkatkan...",
+      "cancel": "Batal",
+      "submit": "Kirim Survei",
+      "alreadySubmitted": "Survei untuk laporan audit ini sudah pernah dikirimkan sebelumnya!",
+      "success": "Survei berhasil dikirimkan!",
+      "error": "Gagal mengirimkan survei kepuasan. Silakan coba kembali."
+    },
+    "viewModal": {
+      "title": "Detail Survei yang Dikirimkan",
+      "submittedBy": "Dikirimkan Oleh",
+      "department": "Departemen",
+      "clarity": "Penilaian Kejelasan",
+      "professionalism": "Penilaian Profesionalisme",
+      "timeliness": "Penilaian Ketepatan Waktu",
+      "overallScore": "Skor Keseluruhan CSAT",
+      "overallScoreSubtitle": "Skor rata-rata yang dihitung",
+      "comments": "Komentar / Feedback",
+      "noComments": "Tidak ada komentar tambahan yang diberikan.",
+      "close": "Tutup"
     }
   }
 }

@@ -26,10 +26,9 @@
           </div>
 
           <div class="space-y-4">
-            <UFormField
+            <ReusableFormField
               :label="t('auditCharter.form.docTitle')"
-              class="block text-sm font-medium"
-              size="lg"
+              required
             >
               <UInput
                 v-model="store.form.title"
@@ -38,7 +37,7 @@
                 name="title"
                 id="title"
                 maxlength="100"
-                class="mt-1 block w-full rounded-md"
+                class="block w-full rounded-md"
                 :placeholder="t('auditCharter.form.docTitlePlaceholder')"
                 @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.form.docTitleValidation'))"
                 @input="($event.target as any)?.setCustomValidity('')"
@@ -46,56 +45,48 @@
               <div class="text-xs text-gray-500 mt-1 text-right">
                 {{ store.form.title ? store.form.title.length : 0 }}/100
               </div>
-            </UFormField>
+            </ReusableFormField>
 
             <div class="grid grid-cols-2 gap-4">
-              <UFormField
+              <ReusableFormField
                 :label="t('auditCharter.form.versionAuto')"
-                class="block text-sm font-medium"
-                size="lg"
-                disabled
               >
-                <div class="mt-1 block w-full rounded-md border border-secondary-200 text-primary-900 p-2 sm:text-sm font-bold bg-gray-50">
+                <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-gray-800">
                   <span v-if="store.isEditing">{{ store.form.version }}</span>
                   <span v-else>v{{ store.nextVersion }}</span>
                 </div>
-              </UFormField>
+              </ReusableFormField>
 
-              <UFormField
+              <ReusableFormField
                 :label="t('auditCharter.form.date')"
-                class="block text-sm font-medium"
-                size="lg"
+                required
               >
                 <AppDatePicker
                   v-model="store.form.date"
                   required
-                  class="mt-1"
                 />
-              </UFormField>
+              </ReusableFormField>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-              <UFormField
+              <ReusableFormField
                 :label="t('auditCharter.form.uploadedBy')"
-                class="block text-sm font-medium"
-                size="lg"
               >
-                <div class="mt-1 block w-full rounded-md border border-secondary-200 text-primary-900 p-2 sm:text-sm font-bold bg-gray-50">
+                <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-gray-800">
                   <span>{{ store.form.uploadedBy }}</span>
                 </div>
-              </UFormField>
+              </ReusableFormField>
 
-              <UFormField
+              <ReusableFormField
                 :label="t('auditCharter.form.approvedBy')"
-                class="block text-sm font-medium"
-                size="lg"
+                required
               >
                 <UInput
                   v-model="store.form.approvedBy"
                   required
                   type="text"
                   maxlength="100"
-                  class="mt-1 block w-full rounded-md"
+                  class="block w-full rounded-md"
                   :placeholder="t('auditCharter.form.approvedByPlaceholder')"
                   @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.form.approvedByValidation'))"
                   @input="($event.target as any)?.setCustomValidity('')"
@@ -103,13 +94,11 @@
                 <div class="text-xs text-gray-500 mt-1 text-right">
                   {{ store.form.approvedBy ? store.form.approvedBy.length : 0 }}/100
                 </div>
-              </UFormField>
+              </ReusableFormField>
             </div>
 
-            <UFormField
+            <ReusableFormField
               :label="t('auditCharter.form.status')"
-              class="block text-sm font-medium"
-              size="lg"
             >
               <URadioGroup
                 v-model="store.form.isActive"
@@ -118,29 +107,27 @@
                   { label: t('auditCharter.form.inactive'), value: false }
                 ]"
                 orientation="horizontal"
-                class="mt-2"
+                class="mt-1"
               />
-            </UFormField>
+            </ReusableFormField>
 
-            <UFormField
+            <ReusableFormField
               :label="t('auditCharter.form.uploadFile')"
-              class="block text-sm font-medium"
-              size="lg"
               :required="!store.isEditing"
             >
-              <div class="mt-1 flex items-center gap-4">
+              <div class="flex items-center gap-4">
                 <input
                   type="file"
                   accept=".pdf,.docx,.doc"
                   @change="store.handleFileChange"
-                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
                   :required="!store.isEditing && !store.form.file"
                 />
               </div>
               <p v-if="store.form.file || store.form.fileName" class="text-md text-gray-500 mt-1">
-                {{ t('auditCharter.form.selectedFile') }} <span class="font-semibold text-gray-700">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
+                {{ t('auditCharter.form.selectedFile') }} <span class="font-semibold text-gray-700 dark:text-gray-300">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
               </p>
-            </UFormField>
+            </ReusableFormField>
 
             <!-- Error message display -->
             <div v-if="store.errorMsg" class="p-3 bg-error-50 text-error-700 rounded-lg text-sm font-semibold">
@@ -149,7 +136,7 @@
 
           </div>
         </div>
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg">
+        <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl">
           <UButton
             type="submit"
             :loading="store.loading"
@@ -179,6 +166,7 @@
 <script setup lang="ts">
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
+import ReusableFormField from '~/components/shared/ReusableFormField.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()

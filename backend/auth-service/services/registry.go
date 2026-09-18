@@ -8,6 +8,7 @@ import (
 	confidentialityServices "auth-service/services/confidentiality"
 	emailServices "auth-service/services/email"
 	mfaServices "auth-service/services/mfa"
+	resendServices "auth-service/services/resend"
 	roleServices "auth-service/services/role"
 	trustedDevicesServices "auth-service/services/trusted-devices"
 	userServices "auth-service/services/user"
@@ -75,8 +76,14 @@ type IServiceRegistry interface {
 	GetTrustedDevicesService() trustedDevicesServices.TrustedDevicesServiceInterface
 	GetEmailService() emailServices.EmailServiceInterface
 	GetConfidentialityService() confidentialityServices.ConfidentialityServiceInterface
+	GetResendService() resendServices.ResendServiceInterface
 }
 
 func NewServiceRegistry(repository repositories.IRepositoryRegistry) IServiceRegistry {
 	return &Registry{repository: repository}
+}
+
+// GetResendService implements IServiceRegistry.
+func (r *Registry) GetResendService() resendServices.ResendServiceInterface {
+	return resendServices.NewResendService(r.repository.GetConfig().Resend.MasterAPIKey)
 }

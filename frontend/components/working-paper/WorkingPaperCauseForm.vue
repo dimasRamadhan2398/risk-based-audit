@@ -29,7 +29,16 @@
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm mt-2' }"
             >
-                <UTextarea v-model="store.causeForm.condition" :rows="3" :placeholder="t('workingPaper.causeForm.conditionPlaceholder')" class="w-full" />
+                <UTextarea 
+                    v-model="store.causeForm.condition" 
+                    :rows="3" 
+                    :placeholder="t('workingPaper.causeForm.conditionPlaceholder')" 
+                    class="w-full"
+                    maxlength="200"
+                />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ store.causeForm.condition ? store.causeForm.condition.length : 0 }}/200
+                </div>
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
@@ -96,39 +105,6 @@
                     @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.causeForm.why1Validation'))"
                     @input="($event.target as any)?.setCustomValidity('')"
                 />
-                </div>
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                    {{ rca.w1 ? rca.w1.length : 0 }}/100
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField :label="t('workingPaper.causeForm.why2')" class="font-semibold text-sm" />
-                <UInput 
-                    class="md:col-span-3" 
-                    v-model="rca.w2" 
-                    :placeholder="t('workingPaper.causeForm.why2Placeholder')"
-                    required
-                    maxlength="100"
-                    @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.causeForm.why2Validation'))"
-                    @input="($event.target as any)?.setCustomValidity('')" 
-                />
-                </div>
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                    {{ rca.w2 ? rca.w2.length : 0 }}/100
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField :label="t('workingPaper.causeForm.why3')" class="font-semibold text-sm" />
-                <UInput 
-                    class="md:col-span-3" 
-                    v-model="rca.w3" 
-                    :placeholder="t('workingPaper.causeForm.why3Placeholder')"
-                    required
-                    maxlength="100"
-                    @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.causeForm.why3Validation'))"
-                    @input="($event.target as any)?.setCustomValidity('')" 
-                />
-                </div>
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                    {{ rca.w3 ? rca.w3.length : 0 }}/100
                 </div>
             </div>
 

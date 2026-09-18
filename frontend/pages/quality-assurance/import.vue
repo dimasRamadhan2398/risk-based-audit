@@ -16,7 +16,7 @@
         <UCard :ui="{ body: 'p-6' }" class="shadow-sm border border-gray-200 dark:border-gray-800">
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <UIcon name="i-lucide-upload" class="w-5 h-5 text-warning" />
+              <UIcon name="i-lucide-upload" class="w-5 h-5 text-primary" />
               {{ t('qualityAssurance.importQar.formTitle') }}
             </h3>
           </template>
@@ -55,10 +55,10 @@
                 class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors duration-200"
                 :class="[
                   isDragging 
-                    ? 'border-warning bg-orange-50/50 dark:bg-orange-950/30' 
+                    ? 'border-primary bg-orange-50/50 dark:bg-orange-950/30' 
                     : form.fileName 
                       ? 'border-emerald-400 bg-emerald-50/30 dark:border-emerald-500 dark:bg-emerald-950/20' 
-                      : 'border-gray-300 dark:border-gray-700 hover:border-warning bg-gray-50 dark:bg-gray-800/60'
+                      : 'border-gray-300 dark:border-gray-700 hover:border-primary bg-gray-50 dark:bg-gray-800/60'
                 ]"
               >
                 <input 
@@ -105,7 +105,7 @@
             <UButton 
               type="submit" 
               :label="t('qualityAssurance.importQar.submitButton')" 
-              color="warning" 
+              color="primary" 
               class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
               icon="i-lucide-upload"
@@ -121,10 +121,10 @@
           <template #header>
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <UIcon name="i-lucide-list" class="w-5 h-5 text-warning" />
+                <UIcon name="i-lucide-list" class="w-5 h-5 text-primary" />
                 {{ t('qualityAssurance.importQar.tableTitle') }}
               </h3>
-              <UBadge color="warning" variant="subtle">
+              <UBadge color="primary" variant="subtle">
                 {{ t('qualityAssurance.importQar.documentsCount', { count: store.qarImportedReports.length }) }}
               </UBadge>
             </div>

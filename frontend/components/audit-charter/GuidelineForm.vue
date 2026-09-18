@@ -108,7 +108,7 @@
           </div>
         </div>
 
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg">
+        <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl">
           <UButton
             type="submit"
             :loading="store.loading"

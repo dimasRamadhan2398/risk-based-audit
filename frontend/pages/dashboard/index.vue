@@ -387,7 +387,7 @@
               <span class="text-md font-semibold tracking-wider text-slate-400">Internal Audit & Risk Metric</span>
               <UBadge color="neutral" variant="subtle" size="md">COSO 2013</UBadge>
               <UBadge variant="solid" color="primary">
-                Tahun: {{ rcmStore.selectedYear }} | Dep: {{ rcmStore.selectedDepartment }}
+                Tahun: {{ rcmStore.selectedYear }} | {{ rcmStore.selectedDepartment }}
               </UBadge>
             </div>
             <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mt-0.5">

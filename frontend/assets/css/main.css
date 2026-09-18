@@ -206,3 +206,18 @@ p {
 [data-popper-placement] {
   z-index: 99999 !important;
 }
+
+/* Mengembalikan kursor tangan telunjuk untuk SEMUA tombol di seluruh web */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a {
+  cursor: pointer;
+}
+
+/* Kursor dilarang khusus saat tombol sedang dinonaktifkan (disabled) */
+button:disabled,
+button[disabled],
+button[aria-disabled="true"],
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed !important;
+}

@@ -1,6 +1,8 @@
+import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { useI18n } from '~/composables/useI18n'
 import { extractErrorMessage } from '~/utils/error'
 
 export interface AuditSop {
@@ -25,6 +27,7 @@ export const useSopStore = defineStore('sop', () => {
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
+  const { t } = useI18n()
 
   // Pagination State
   const pagination = ref({
@@ -38,6 +41,15 @@ export const useSopStore = defineStore('sop', () => {
   const showModal = ref(false)
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
+
+  const columns = computed<(TableColumn<AuditSop> & { class?: string })[]>(() => [
+    { accessorKey: 'no', header: t('auditCharter.sopList.columns.no'), class: 'w-16 whitespace-nowrap text-center' },
+    { accessorKey: 'name', header: t('auditCharter.sopList.columns.name'), class: 'w-48' },
+    { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName'), class: 'w-48' },
+    { accessorKey: 'status', header: t('auditCharter.sopList.columns.status'), class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'effective_date', header: t('auditCharter.sopList.columns.effectiveDate'), class: 'w-36 whitespace-nowrap text-center' },
+    { accessorKey: 'actions', header: t('auditCharter.sopList.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }
+  ])
 
   const form = reactive({
     name: '',
@@ -334,6 +346,7 @@ export const useSopStore = defineStore('sop', () => {
     pagination,
     showModal,
     isEditing,
+    columns,
     form,
     fetchSops,
     setPage,

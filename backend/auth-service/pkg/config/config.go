@@ -32,6 +32,7 @@ type Config struct {
 	KafkaConsumer    KafkaConsumerConfig `mapstructure:"kafka_consumer"`
 	App              AppMeta             `mapstructure:"app"      json:"app"`
 	SMTP             SMTPConfig          `mapstructure:"smtp"`
+	Resend           ResendConfig        `mapstructure:"resend"`
 }
 
 type AppMeta struct {
@@ -85,6 +86,13 @@ type SMTPConfig struct {
 	From     string `mapstructure:"from"`
 }
 
+type ResendConfig struct {
+	// MasterAPIKey is the Resend full-access API key used by the site-generator
+	// to register new sending domains and create per-tenant scoped keys.
+	// Load this from RESEND_MASTER_API_KEY env var — never commit the real value.
+	MasterAPIKey string `mapstructure:"master_api_key"`
+}
+
 func setDefaults() {
 	viper.SetDefault("app.appName", "Risk Based Internal Audit Auth Service")
 	viper.SetDefault("app.appEnv", "development")
@@ -112,6 +120,7 @@ func setDefaults() {
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
 	viper.SetDefault("smtp.host", "sandbox.smtp.mailtrap.io")
 	viper.SetDefault("smtp.port", 2525)
+	viper.SetDefault("resend.master_api_key", "") // Override via RESEND_MASTER_API_KEY env var
 }
 
 func Load(configPath string) (*Config, error) {

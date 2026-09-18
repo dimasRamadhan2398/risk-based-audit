@@ -39,6 +39,9 @@ smtp:
   password: "" # Fill with Mailtrap password
   from: "no-reply@rbia.com"
 
+resend:
+  master_api_key: "" # Set via RESEND_MASTER_API_KEY env var — never hardcode
+
 app:
   app_name: risk-based-internal-audit
   app_env: development

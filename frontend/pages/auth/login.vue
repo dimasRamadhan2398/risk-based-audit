@@ -124,12 +124,6 @@
               >
               <span class="text-sm text-[var(--text-muted)]">{{ t('auth.login.rememberMe') }}</span>
             </label>
-            <NuxtLink
-              to="/auth/forgot-password"
-              class="text-sm text-primary-500 hover:text-primary-600 transition-colors"
-            >
-              {{ t('auth.login.forgotPassword') }}
-            </NuxtLink>
           </div>
 
           <!-- Error alert -->

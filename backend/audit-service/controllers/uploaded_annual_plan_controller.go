@@ -29,12 +29,15 @@ func NewUploadedAnnualPlanController(db *gorm.DB) *UploadedAnnualPlanController 
 	return &UploadedAnnualPlanController{DB: db}
 }
 
+// The request is received as multipart/form-data, so we no longer need a struct for JSON binding.
+// The fields are extracted manually from the form.
+// Keeping the struct for documentation purposes only (not used in binding).
 type UploadAnnualPlanRequest struct {
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
-	FileName    string `json:"fileName" binding:"required"`
-	FileType    string `json:"fileType"`
-	FileContent string `json:"fileContent" binding:"required"` // Base64 encoded string
+	Title       string
+	Description string
+	FileName    string
+	FileType    string
+	// FileContent is omitted because the file is streamed directly.
 }
 
 func (ctrl *UploadedAnnualPlanController) Upload(c *gin.Context) {

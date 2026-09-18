@@ -103,7 +103,7 @@ describe('Navigation Grouping Structure in default.vue', () => {
     expect(content).toContain("label: 'Auto Generate Report'")
     expect(content).toContain("label: 'Executive Summary'")
     expect(content).toContain("label: 'Import Executive Summary Document'")
-    expect(content).toContain("to: '/audit-result-report/executive-summary-upload'")
+    expect(content).toContain("to: '/executive-summary-upload'")
     expect(content).toContain("label: 'Executive Summary Report Kompilasi'")
     expect(content).toContain("label: 'Import Executive Summary Report'")
     expect(content).toContain("to: '/executive-summary/upload'")
