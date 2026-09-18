@@ -77,17 +77,16 @@ describe('Navigation Grouping Structure in default.vue', () => {
     expect(content).toContain("to: '/audit-result-report/upload'")
 
     // Executive Summary Individual
-    expect(content).toContain("t('navigation.executiveSummary')")
-    expect(content).toContain("to: '/audit-result-report/executive-summary'")
+    expect(content).toContain("t('navigation.executiveSummaryIndividual')")
+    expect(content).toContain("to: '/executive-summary'")
     expect(content).toContain("t('navigation.importExecutiveSummary')")
-    expect(content).toContain("to: '/audit-result-report/executive-summary-upload'")
+    expect(content).toContain("to: '/executive-summary/upload'")
 
     // Executive Summary Compilation
     expect(content).toContain("t('navigation.executiveSummaryCompilation')")
-    expect(content).toContain("t('navigation.createExecutiveSummaryCompilation')")
-    expect(content).toContain("to: '/executive-summary'")
+    expect(content).toContain("to: '/executive-summary-compilation'")
     expect(content).toContain("t('navigation.importExecutiveSummaryCompilation')")
-    expect(content).toContain("to: '/executive-summary/upload'")
+    expect(content).toContain("to: '/executive-summary-compilation/upload'")
 
     expect(content).toContain("t('navigation.actionTakenReport')")
     expect(content).toContain("to: '/action-taken-report'")
