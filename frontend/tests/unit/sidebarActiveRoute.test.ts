@@ -15,10 +15,11 @@ describe('Sidebar Active Route Logic', () => {
     '/strategic-audit-plan/upload',
     '/audit-result-report',
     '/audit-result-report/upload',
-    '/audit-result-report/executive-summary',
-    '/audit-result-report/executive-summary-upload',
     '/executive-summary',
     '/executive-summary/upload',
+    '/executive-summary-compilation',
+    '/executive-summary-compilation/upload',
+    '/action-taken-report',
     '/analytics?tab=xgboost',
     '/analytics?tab=isolation',
     '/settings',
@@ -66,25 +67,20 @@ describe('Sidebar Active Route Logic', () => {
     }
   }
 
-  it('only highlights Import Executive Summary Report when on /executive-summary/upload', () => {
+  it('only highlights Import Executive Summary Individual when on /executive-summary/upload', () => {
     const isPathActive = createIsPathActive({
       path: '/executive-summary/upload',
       fullPath: '/executive-summary/upload',
       query: {}
     })
 
-    // Import Executive Summary Compilation should be active
     expect(isPathActive('/executive-summary/upload')).toBe(true)
-
-    // Create Executive Summary Compilation should NOT be active
     expect(isPathActive('/executive-summary')).toBe(false)
-
-    // Individual Executive Summary menus should NOT be active
-    expect(isPathActive('/audit-result-report/executive-summary')).toBe(false)
-    expect(isPathActive('/audit-result-report/executive-summary-upload')).toBe(false)
+    expect(isPathActive('/executive-summary-compilation')).toBe(false)
+    expect(isPathActive('/executive-summary-compilation/upload')).toBe(false)
   })
 
-  it('only highlights Create Executive Summary Compilation when on /executive-summary', () => {
+  it('only highlights Executive Summary Individual when on /executive-summary', () => {
     const isPathActive = createIsPathActive({
       path: '/executive-summary',
       fullPath: '/executive-summary',
@@ -93,7 +89,34 @@ describe('Sidebar Active Route Logic', () => {
 
     expect(isPathActive('/executive-summary')).toBe(true)
     expect(isPathActive('/executive-summary/upload')).toBe(false)
-    expect(isPathActive('/audit-result-report/executive-summary')).toBe(false)
+    expect(isPathActive('/executive-summary-compilation')).toBe(false)
+    expect(isPathActive('/executive-summary-compilation/upload')).toBe(false)
+  })
+
+  it('only highlights Import Executive Summary Compilation when on /executive-summary-compilation/upload', () => {
+    const isPathActive = createIsPathActive({
+      path: '/executive-summary-compilation/upload',
+      fullPath: '/executive-summary-compilation/upload',
+      query: {}
+    })
+
+    expect(isPathActive('/executive-summary-compilation/upload')).toBe(true)
+    expect(isPathActive('/executive-summary-compilation')).toBe(false)
+    expect(isPathActive('/executive-summary')).toBe(false)
+    expect(isPathActive('/executive-summary/upload')).toBe(false)
+  })
+
+  it('only highlights Executive Summary Compilation when on /executive-summary-compilation', () => {
+    const isPathActive = createIsPathActive({
+      path: '/executive-summary-compilation',
+      fullPath: '/executive-summary-compilation',
+      query: {}
+    })
+
+    expect(isPathActive('/executive-summary-compilation')).toBe(true)
+    expect(isPathActive('/executive-summary-compilation/upload')).toBe(false)
+    expect(isPathActive('/executive-summary')).toBe(false)
+    expect(isPathActive('/executive-summary/upload')).toBe(false)
   })
 
   it('only highlights Import LHA Document when on /audit-result-report/upload', () => {

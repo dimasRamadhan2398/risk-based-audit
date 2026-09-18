@@ -218,19 +218,21 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         to: '/audit-result-report/upload'
       },
       {
-        label: t('navigation.executiveSummary'),
+        label: t('navigation.executiveSummaryIndividual'),
         icon: 'i-lucide-presentation',
         type: 'trigger',
         children: [
           {
-            label: t('navigation.executiveSummary'),
+            label: t('navigation.createExecutiveSummary'),
             icon: 'i-lucide-layout-dashboard',
-            to: '/audit-result-report/executive-summary'
+            to: '/executive-summary',
+            exact: true
           },
           {
             label: t('navigation.importExecutiveSummary'),
             icon: 'i-lucide-upload',
-            to: '/audit-result-report/executive-summary-upload'
+            to: '/executive-summary/upload',
+            exact: true
           }
         ]
       },
@@ -242,12 +244,14 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
           {
             label: t('navigation.createExecutiveSummaryCompilation'),
             icon: 'i-lucide-presentation',
-            to: '/executive-summary'
+            to: '/executive-summary-compilation',
+            exact: true
           },
           {
             label: t('navigation.importExecutiveSummaryCompilation'),
             icon: 'i-lucide-upload',
-            to: '/executive-summary/upload'
+            to: '/executive-summary-compilation/upload',
+            exact: true
           }
         ]
       },
@@ -573,7 +577,7 @@ const userDropdownItems = computed(() => [
             v-model="searchQuery"
             :placeholder="t('navigation.searchPlaceholder')"
             icon="i-lucide-search"
-            color="neutral"
+            color="primary"
             variant="outline"
             class="w-full"
           />

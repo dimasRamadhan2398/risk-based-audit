@@ -2355,7 +2355,9 @@
     "auditResultReport": "Audit Result Report",
     "resultReportsLha": "Result Reports (LHA)",
     "importLhaDocument": "Import LHA Document",
+    "executiveSummaryIndividual": "Executive Summary (Individual)",
     "executiveSummary": "Executive Summary",
+    "createExecutiveSummary": "Create Executive Summary",
     "importExecutiveSummary": "Import Executive Summary Document",
     "executiveSummaryCompilation": "Executive Summary Compilation Report",
     "createExecutiveSummaryCompilation": "Create Executive Summary Compilation Report",
@@ -2428,7 +2430,7 @@
       "subtitle": "Detailed explanation of definitions, functions, parameters, and measurement targets for each statistical indicator above",
       "csat": {
         "title": "1. Average CSAT Score",
-        "definition": "Average satisfaction score given by auditees across completed questionnaires on a 1 - 5 Likert scale.",
+        "definition": "Average satisfaction score given by auditees across completed questionnaires on a 1 - 5 Likert scale",
         "dimensionsTitle": "3 Evaluation Dimensions:",
         "clarity": "Clarity of audit findings, criteria, and actionable recommendations.",
         "professionalism": "Ethics, objectivity, integrity, and competence of the audit team.",
@@ -2437,7 +2439,7 @@
       },
       "surveys": {
         "title": "2. Total Surveys Submitted",
-        "definition": "Total number of satisfaction questionnaires successfully completed and submitted by auditee representatives.",
+        "definition": "Total number of satisfaction questionnaires successfully completed and submitted by auditee representatives",
         "flowTitle": "Validation Flow:",
         "flow1": "Only audit reports with Final/Published status can be evaluated.",
         "flow2": "Each published report is expected to receive 1 formal feedback from the auditee unit.",
@@ -2446,7 +2448,7 @@
       },
       "rate": {
         "title": "3. Response Rate",
-        "definition": "The ratio of evaluated audit reports to total published audit reports.",
+        "definition": "The ratio of evaluated audit reports to total published audit reports",
         "formulaTitle": "Calculation Formula:",
         "formula": "(Reports with Survey / Total Published Reports) × 100%",
         "desc": "High response rate ensures statistical objectivity and representativeness.",

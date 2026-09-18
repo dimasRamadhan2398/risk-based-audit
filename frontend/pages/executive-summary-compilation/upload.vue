@@ -2,10 +2,10 @@
   <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-full">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
-      <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/audit-result-report/executive-summary" />
+      <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/executive-summary-compilation" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('executiveSummaryUpload.headerTitle') }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('executiveSummaryUpload.headerSubtitle') }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('executiveSummary.upload.title') }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('executiveSummary.upload.subtitle') }}</p>
       </div>
     </div>
 
@@ -17,15 +17,15 @@
           <template #header>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-upload" class="w-5 h-5 text-primary" />
-              {{ t('executiveSummaryUpload.formHeader') }}
+              {{ t('executiveSummary.upload.formTitle') }}
             </h3>
           </template>
 
           <form @submit.prevent="handleUpload" class="space-y-6">
-            <UFormField :label="t('executiveSummaryUpload.documentTitleLabel')" required>
+            <UFormField :label="t('executiveSummary.upload.documentTitle')" required>
               <UInput 
                 v-model="form.title" 
-                :placeholder="t('executiveSummaryUpload.documentTitlePlaceholder')" 
+                :placeholder="t('executiveSummary.upload.documentTitlePlaceholder')" 
                 class="w-full"
                 required
                 maxlength="100"
@@ -37,16 +37,16 @@
               </div>
             </UFormField>
 
-            <UFormField :label="t('executiveSummaryUpload.descriptionLabel')">
+            <UFormField :label="t('executiveSummary.upload.description')">
               <UTextarea 
                 v-model="form.description" 
-                :placeholder="t('executiveSummaryUpload.descriptionPlaceholder')" 
+                :placeholder="t('executiveSummary.upload.descriptionPlaceholder')" 
                 class="w-full"
               />
             </UFormField>
 
             <div class="space-y-2 pt-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('executiveSummaryUpload.fileUploadLabel') }}</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('executiveSummary.upload.fileLabel') }}</label>
               <div 
                 @click="triggerFileSelect"
                 @dragover.prevent="isDragging = true"
@@ -72,8 +72,8 @@
                 <div v-if="!form.fileName" class="space-y-3">
                   <UIcon name="i-lucide-file-up" class="w-10 h-10 mx-auto text-gray-400" />
                   <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">{{ t('executiveSummaryUpload.fileDropPrompt') }}</p>
-                    <p class="text-md text-gray-400 mt-1">{{ t('executiveSummaryUpload.fileLimitInfo') }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 font-semibold">{{ t('executiveSummary.upload.dropzonePrompt') }}</p>
+                    <p class="text-md text-gray-400 mt-1">{{ t('executiveSummary.upload.dropzoneHint') }}</p>
                   </div>
                 </div>
 
@@ -92,7 +92,7 @@
                     @click.stop="clearFile" 
                     class="text-md text-red-500 hover:underline font-bold mt-2 block mx-auto"
                   >
-                    {{ t('executiveSummaryUpload.removeFile') }}
+                    {{ t('executiveSummary.upload.removeFile') }}
                   </button>
                 </div>
               </div>
@@ -104,7 +104,7 @@
 
             <UButton 
               type="submit" 
-              :label="t('executiveSummaryUpload.submitButton')" 
+              :label="t('executiveSummary.upload.submitButton')" 
               color="primary" 
               class="w-full justify-center font-bold h-11 text-base" 
               :loading="store.loading"
@@ -122,10 +122,10 @@
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-lucide-list" class="w-5 h-5 text-primary" />
-                {{ t('executiveSummaryUpload.tableHeader') }}
+                {{ t('executiveSummary.upload.tableTitle') }}
               </h3>
               <UBadge color="primary" variant="subtle">
-                {{ t('executiveSummaryUpload.documentsCount', { count: store.uploadedDocuments.length }) }}
+                {{ t('executiveSummary.upload.documentsCount', { count: store.uploadedDocuments.length }) }}
               </UBadge>
             </div>
           </template>
@@ -136,8 +136,8 @@
             :loading="store.loading"
             :empty-state="{
               icon: 'i-lucide-folder-open',
-              label: t('executiveSummaryUpload.emptyTitle'),
-              description: t('executiveSummaryUpload.emptySubtitle')
+              label: t('executiveSummary.upload.emptyTitle'),
+              description: t('executiveSummary.upload.emptyDesc')
             }"
           >
             <template #title-cell="{ row }">
@@ -164,30 +164,33 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UTooltip :text="t('executiveSummaryUpload.actions.view')">
+                <UTooltip :text="t('executiveSummary.upload.actions.view')">
                   <UButton 
                     icon="i-lucide-eye" 
                     color="info" 
                     variant="ghost" 
-                    size="sm" 
+                    size="md" 
+                    :title="t('executiveSummary.upload.actions.view')" 
                     @click="store.viewDocument(row.original.id, row.original.fileName)" 
                   />
                 </UTooltip>
-                <UTooltip :text="t('executiveSummaryUpload.actions.download')">
+                <UTooltip :text="t('executiveSummary.upload.actions.download')">
                   <UButton 
                     icon="i-lucide-download" 
                     color="primary" 
                     variant="ghost" 
-                    size="sm" 
+                    size="md" 
+                    :title="t('executiveSummary.upload.actions.download')" 
                     @click="store.downloadDocument(row.original.id, row.original.fileName)" 
                   />
                 </UTooltip>
-                <UTooltip :text="t('executiveSummaryUpload.actions.delete')">
+                <UTooltip :text="t('executiveSummary.upload.actions.delete')">
                   <UButton 
                     icon="i-lucide-trash-2" 
                     color="error" 
                     variant="ghost" 
-                    size="sm" 
+                    size="md" 
+                    :title="t('executiveSummary.upload.actions.delete')" 
                     @click="handleDelete(row.original.id)" 
                   />
                 </UTooltip>
@@ -202,14 +205,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useUploadExecutiveSummaryStore } from '~/stores/upload-executive-summary'
+import { useUploadExecutiveSummaryReportStore } from '~/stores/upload-executive-summary-report'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
-import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const { t, locale } = useI18n()
-const store = useUploadExecutiveSummaryStore()
-const toast = useToastNotification();
+const store = useUploadExecutiveSummaryReportStore()
 
 onMounted(() => {
   store.fetchUploadedDocuments()
@@ -228,10 +229,10 @@ const form = ref({
 })
 
 const columns = computed(() => [
-  { accessorKey: 'title', header: t('executiveSummaryUpload.columns.documentTitle'), class: 'w-[50%]' },
-  { accessorKey: 'fileName', header: t('executiveSummaryUpload.columns.file'), class: 'w-[24%]' },
-  { accessorKey: 'created_at', header: t('executiveSummaryUpload.columns.importedDate'), class: 'w-[16%]' },
-  { accessorKey: 'actions', header: t('executiveSummaryUpload.columns.actions'), class: 'w-[10%]' }
+  { accessorKey: 'title', header: t('executiveSummary.upload.columns.title'), class: 'w-[50%]' },
+  { accessorKey: 'fileName', header: t('executiveSummary.upload.columns.file'), class: 'w-[24%]' },
+  { accessorKey: 'created_at', header: t('executiveSummary.upload.columns.date'), class: 'w-[16%]' },
+  { accessorKey: 'actions', header: t('executiveSummary.upload.columns.actions'), class: 'w-[10%]' }
 ])
 
 const triggerFileSelect = () => {
@@ -256,7 +257,7 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    alert(t('executiveSummaryUpload.fileSizeLimitAlert'))
+    alert(t('executiveSummary.upload.fileSizeLimit'))
     return
   }
 
@@ -300,9 +301,8 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (await useGlobalModalStore().confirmDelete({ description: t('executiveSummaryUpload.confirmDelete') })) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('executiveSummary.upload.deleteConfirm') })) {
     await store.deleteDocument(id)
-    toast.success(t('executiveSummaryUpload.deleted'))
   }
 }
 

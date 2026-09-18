@@ -4,28 +4,28 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-lucide-presentation" class="size-7 text-primary-500" />
-          {{ t('executiveSummary.title') }}
+          <UIcon name="i-lucide-file-text" class="size-7 text-primary-500" />
+          Executive Summary (Laporan Individual)
         </h1>
         <p class="text-gray-500 dark:text-gray-400 mt-1">
-          {{ t('executiveSummary.subtitle') }}
+          Rangkuman eksekutif resmi untuk setiap Laporan Hasil Audit (LHA) secara individual.
         </p>
       </div>
       <div class="flex items-center gap-2">
         <UButton
-          color="neutral"
-          variant="outline"
+          color="info"
+          variant="ghost"
           icon="i-lucide-upload"
-          :label="t('executiveSummary.importButton')"
+          label="Import Executive Summary"
           to="/executive-summary/upload"
           class="font-bold shadow"
         />
         <UButton
           color="primary"
           icon="i-lucide-plus"
-          :label="t('executiveSummary.createNew')"
+          label="Buat Executive Summary Baru"
           class="font-bold"
-          @click="store.openNewForm(activeQuarter)"
+          @click="store.openNewForm(1)"
         />
       </div>
     </div>
@@ -38,7 +38,7 @@
             <UIcon name="i-lucide-file-text" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.stats.total') }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Total Rangkuman Individual</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ store.summaryList.length }}</div>
           </div>
         </div>
@@ -50,7 +50,7 @@
             <UIcon name="i-lucide-check-circle" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.stats.approved') }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Disetujui (Approved)</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
               {{ store.summaryList.filter(s => s.status === 'Approved').length }}
             </div>
@@ -64,7 +64,7 @@
             <UIcon name="i-lucide-edit-3" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.stats.draft') }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Draft</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
               {{ store.summaryList.filter(s => s.status === 'Draft').length }}
             </div>
@@ -78,7 +78,7 @@
             <UIcon name="i-lucide-alert-triangle" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.stats.rejected') }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Ditolak (Rejected)</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
               {{ store.summaryList.filter(s => s.status === 'Rejected').length }}
             </div>
@@ -87,42 +87,38 @@
       </UCard>
     </div>
 
-    <!-- Quarter Tabs -->
+    <!-- Main List & Filter Card -->
     <UCard class="overflow-hidden">
-      <template #header>
-        <div class="flex justify-between items-center">
-          <div class="flex border-b border-gray-200 dark:border-gray-800 w-full">
-            <button
-              v-for="q in quarters"
-              :key="q.num"
-              @click="activeQuarter = q.num"
-              class="px-6 py-3 font-semibold text-sm transition-all border-b-2"
-              :class="activeQuarter === q.num 
-                ? 'border-primary-500 text-primary-600 dark:text-primary-400 font-bold' 
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-            >
-              {{ q.label }}
-            </button>
-          </div>
-        </div>
-      </template>
-
       <!-- Search and Filters -->
       <div class="mb-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="w-full md:w-80">
-          <UInput
-            v-model="searchQuery"
-            icon="i-lucide-search"
-            :placeholder="t('executiveSummary.searchPlaceholder')"
-            class="w-full"
-          />
+        <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto flex-1">
+          <div class="w-full md:w-80">
+            <USelectMenu
+              v-model="selectedAssignmentLetter"
+              :items="assignmentLetterOptions"
+              placeholder="Filter berdasarkan Surat Tugas..."
+              class="w-full"
+            >
+              <template #leading>
+                <UIcon name="i-heroicons-document-text" class="size-4 text-primary-500" />
+              </template>
+            </USelectMenu>
+          </div>
+          <div class="w-full md:w-80">
+            <UInput
+              v-model="searchQuery"
+              icon="i-lucide-search"
+              placeholder="Cari nomor ID LHA..."
+              class="w-full"
+            />
+          </div>
         </div>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-          {{ t('executiveSummary.showingDocuments', { count: filteredSummaries.length }) }}
+        <div class="text-sm text-gray-500 dark:text-gray-400 shrink-0">
+          Menampilkan <span class="font-semibold">{{ filteredSummaries.length }}</span> dokumen executive summary
         </div>
       </div>
 
-      <!-- Document History Cards -->
+      <!-- Document Cards List -->
       <div v-if="filteredSummaries.length > 0" class="space-y-4">
         <div 
           v-for="item in filteredSummaries" 
@@ -137,13 +133,16 @@
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummary.draftReport') }}</h3>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || 'Draft LHA' }}</h3>
                   <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
                     {{ item.status }}
                   </UBadge>
+                  <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
+                    Surat Tugas: {{ item.assignmentLetterId }}
+                  </UBadge>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {{ t('executiveSummary.periodLabel') }} <span class="font-semibold text-gray-700 dark:text-gray-300">{{ item.periodeBulan }} {{ item.tahun }}</span>
+                  Periode Audit: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ item.periodeBulan }} {{ item.tahun }}</span>
                   <span v-if="item.dokumenPath" class="mx-2">•</span>
                   <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400">
                     <UIcon name="i-lucide-paperclip" class="size-3" />
@@ -153,100 +152,146 @@
               </div>
             </div>
             
-            <div class="flex gap-2 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
-              <UButton color="neutral" variant="ghost" icon="i-lucide-eye" size="sm" @click="store.openView(item)" :title="t('executiveSummary.actions.view')" />
-              <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="primary" variant="ghost" icon="i-lucide-edit" size="sm" @click="store.openEditForm(item as any)" :title="t('executiveSummary.actions.edit')" />
-              <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="store.deleteSummary(item.id)" :title="t('executiveSummary.actions.delete')" />
-              
+            <div class="flex gap-2 shrink-0">
+              <UTooltip text="Lihat Detail">
+                <UButton 
+                  color="neutral" 
+                  variant="ghost" 
+                  icon="i-lucide-eye" 
+                  size="md" 
+                  @click="store.openView(item)" 
+                />
+              </UTooltip>
+              <UTooltip text="Edit Laporan">
+                <UButton 
+                  v-if="item.status !== 'Approved'" 
+                  color="warning" 
+                  variant="ghost" 
+                  icon="i-lucide-edit" 
+                  size="md" 
+                  @click="store.openEditForm(item as any)" 
+                />
+              </UTooltip>
+              <UTooltip text="Hapus">
+                <UButton 
+                  color="error" 
+                  variant="ghost" 
+                  icon="i-lucide-trash-2" 
+                  size="md" 
+                  @click="store.deleteSummary(item.id, item.nomorDokumen)" 
+                />
+              </UTooltip>
+
               <!-- Quick Workflow Actions -->
-              <div v-if="(item.status === 'Draft' && isChiefAuditExecutive) || (item.status === 'Approved' && isHigherAuthority)" class="border-l border-gray-200 dark:border-gray-700 pl-2 ml-1 flex gap-1">
-                <UButton v-if="item.status === 'Draft' && isChiefAuditExecutive" color="success" variant="soft" icon="i-lucide-check" size="sm" :label="t('executiveSummary.actions.approve')" @click="store.updateStatus(item.id, 'Approved')" />
-                <UButton v-if="item.status === 'Approved' && isHigherAuthority" color="warning" variant="soft" icon="i-lucide-unlock" size="sm" :label="t('executiveSummary.actions.revertDraft')" @click="store.updateStatus(item.id, 'Draft')" />
-              </div>
+              <UButton
+                v-if="item.status === 'Draft'"
+                color="success"
+                variant="soft"
+                icon="i-lucide-check-circle"
+                size="md"
+                label="Approve"
+                @click="store.updateStatus(item.id, 'Approved')"
+              />
+              <UButton
+                v-if="item.status === 'Approved'"
+                color="warning"
+                variant="soft"
+                icon="i-lucide-lock"
+                size="md"
+                label="Revert Draft"
+                @click="store.updateStatus(item.id, 'Draft')"
+              />
             </div>
           </div>
 
-          <!-- Stats Overview -->
-          <div class="p-5 grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-gray-800 text-center">
-            <div>
-              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('executiveSummary.cardStats.reportsCount') }}</span>
-              <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.jumlahLaporan }}</span>
+          <!-- Body Info & Metrics -->
+          <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Narrative Preview -->
+            <div class="md:col-span-2 space-y-2">
+              <span class="text-md font-bold uppercase tracking-wider text-gray-400">Ringkasan Utama Executive Summary</span>
+              <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed italic">
+                "{{ item.narrative || 'Belum ada ringkasan narasi.' }}"
+              </p>
             </div>
-            <div class="pt-4 md:pt-0">
-              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
-              <span class="block text-2xl font-bold text-gray-800 dark:text-white">
-                {{ Number(item.risikoTinggi) + Number(item.risikoSedang) + Number(item.risikoRendah) }}
-              </span>
-              <div class="flex justify-center gap-2 mt-1.5 text-md">
-                <span class="text-error-600 font-semibold bg-error-50 dark:bg-error-950/50 px-1.5 rounded">{{ item.risikoTinggi }} H</span>
-                <span class="text-warning-600 font-semibold bg-warning-50 dark:bg-warning-950/50 px-1.5 rounded">{{ item.risikoSedang }} M</span>
-                <span class="text-success-600 font-semibold bg-success-50 dark:bg-success-950/50 px-1.5 rounded">{{ item.risikoRendah }} L</span>
-              </div>
-            </div>
-            <div class="pt-4 md:pt-0">
-              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('executiveSummary.cardStats.totalRecommendations') }}</span>
-              <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.jumlahRekomendasi }}</span>
-            </div>
-            <div class="pt-4 md:pt-0 flex flex-col justify-center items-center">
-              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('executiveSummary.cardStats.completionClosed') }}</span>
-              <div class="w-full max-w-[120px]">
-                <div class="flex justify-between text-md font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <span>{{ t('executiveSummary.cardStats.progress') }}</span>
-                  <span class="text-success-600">{{ item.followUpTable?.[0]?.jumlah ? Math.round((Number(item.followUpTable[0].jumlah) / ((Number(item.followUpTable[0].jumlah) || 0) + (Number(item.followUpTable[1]?.jumlah) || 0) + (Number(item.followUpTable[2]?.jumlah) || 0))) * 100) : 0 }}%</span>
+
+            <!-- Metrics Overview -->
+            <div class="bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl space-y-3 border border-gray-100 dark:border-gray-700/50">
+              <div class="text-md font-bold uppercase tracking-wider text-gray-400">Statistik Temuan & Rekomendasi</div>
+              <div class="grid grid-cols-2 gap-2 text-center">
+                <div class="bg-white dark:bg-gray-800 p-2 rounded border">
+                  <div class="text-md text-gray-400">Risiko Tinggi</div>
+                  <div class="text-lg font-bold text-error-600">{{ item.risikoTinggi || 0 }}</div>
                 </div>
-                <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
-                  <div class="bg-success-500 h-2 rounded-full transition-all" :style="{ width: `${item.followUpTable?.[0]?.jumlah ? Math.round((Number(item.followUpTable[0].jumlah) / ((Number(item.followUpTable[0].jumlah) || 0) + (Number(item.followUpTable[1]?.jumlah) || 0) + (Number(item.followUpTable[2]?.jumlah) || 0))) * 100) : 0}%` }"></div>
+                <div class="bg-white dark:bg-gray-800 p-2 rounded border">
+                  <div class="text-md text-gray-400">Total Rekomendasi</div>
+                  <div class="text-lg font-bold text-primary-600">{{ item.jumlahRekomendasi || 0 }}</div>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <!-- Narrative Snippet -->
-          <div v-if="item.narrative" class="px-5 pb-5 pt-0">
-            <div class="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-3 text-sm text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-800">
-              <UIcon name="i-lucide-quote" class="size-4 text-gray-300 mr-2 inline-block -mt-1" />
-              <span class="italic line-clamp-2">{{ item.narrative }}</span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div v-else class="text-center py-16 bg-gray-50 dark:bg-gray-900 rounded-lg border border-dashed border-gray-200 dark:border-gray-800">
-        <UIcon name="i-lucide-presentation" class="size-16 text-gray-300 mx-auto mb-4" />
-        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">{{ t('executiveSummary.empty.title') }}</h3>
-        <p class="text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto mb-6">
-          {{ t('executiveSummary.empty.desc', { quarter: activeQuarter, year: 2026 }) }}
+      <div v-else class="text-center py-12">
+        <UIcon name="i-lucide-file-x" class="size-16 text-gray-300 mx-auto mb-3" />
+        <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300">Belum Ada Executive Summary</h3>
+        <p class="text-sm text-gray-500 mt-1 max-w-md mx-auto">
+          Tidak ditemukan dokumen executive summary individual untuk pencarian/filter ini. Silakan buat baru.
         </p>
         <UButton
           color="primary"
           icon="i-lucide-plus"
-          :label="t('executiveSummary.empty.button')"
-          @click="store.openNewForm(activeQuarter)"
+          label="Buat Executive Summary Baru"
+          class="mt-4 font-bold"
+          @click="store.openNewForm(1)"
         />
       </div>
     </UCard>
 
-    <!-- Modal Form (Create / Edit / View) -->
-    <UModal v-model:open="store.showModal" fullscreen :prevent-close="store.loading">
+    <!-- Fullscreen Builder Modal -->
+    <UModal v-model:open="store.showModal" fullscreen>
       <template #content>
-        <UCard class="flex flex-col h-full" :ui="{ body: 'flex-1 overflow-y-auto p-0', footer: 'border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900' }">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <UIcon name="i-lucide-presentation" class="size-5 text-primary-500" />
-                {{ store.isViewing ? t('executiveSummary.modal.viewTitle') : (store.isEditing ? t('executiveSummary.modal.editTitle') : t('executiveSummary.modal.createTitle')) }}
-                <UBadge v-if="store.currentSummary" :color="getStatusColor(store.form.status)" variant="soft" class="ml-2 font-bold uppercase">
-                  {{ store.form.status }}
-                </UBadge>
-              </h3>
-              <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="() => { store.showModal = false }" />
+        <div class="flex flex-col h-screen bg-white dark:bg-gray-900">
+          <!-- Modal Header Bar -->
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-800 shrink-0">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg text-primary-600">
+                <UIcon name="i-lucide-file-signature" class="size-6" />
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                  {{ store.isViewing ? 'Detail Executive Summary Individual' : store.isEditing ? 'Edit Executive Summary Individual' : 'Buat Executive Summary Individual' }}
+                </h2>
+                <p class="text-md text-gray-500">ID LHA: {{ store.form.nomorDokumen || 'Draft' }}</p>
+              </div>
             </div>
-          </template>
 
-          <!-- Form content handles all sections -->
-          <ExecutiveSummaryCompilationForm />
-        </UCard>
+            <div class="flex items-center gap-3">
+              <UButton
+                v-if="!store.isViewing && store.form.status !== 'Approved'"
+                color="primary"
+                icon="i-lucide-save"
+                label="Simpan Laporan"
+                class="font-bold" 
+                :loading="store.loading"
+                @click="store.saveForm"
+              />
+              <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                label="Tutup"
+                @click="() => { store.showModal = false }"
+              />
+            </div>
+          </div>
+
+          <!-- Form Component Body -->
+          <div class="flex-1 overflow-hidden">
+            <ExecutiveSummaryIndividualForm />
+          </div>
+        </div>
       </template>
     </UModal>
   </div>
@@ -254,58 +299,152 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useExecutiveSummaryStore } from '~/stores/executive-summary'
-import { useAuthStore } from '~/stores/auth'
-import { useI18n } from '~/composables/useI18n'
-import { UserRole } from '~/types/auth'
-import ExecutiveSummaryCompilationForm from '~/components/audit-result-report/ExecutiveSummaryCompilationForm.vue'
+import { useExecutiveSummaryStore, type ExecutiveSummary } from '~/stores/executive-summary'
+import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import ExecutiveSummaryIndividualForm from '~/components/audit-result-report/ExecutiveSummaryIndividualForm.vue'
 
 definePageMeta({
   middleware: 'auth'
 })
 
-const { t } = useI18n()
 const store = useExecutiveSummaryStore()
-const authStore = useAuthStore()
-
-const activeQuarter = ref(1)
+const auditReportStore = useAuditResultReportStore()
+const assignmentLetterStore = useAssignmentLetterStore()
 const searchQuery = ref('')
+const selectedAssignmentLetter = ref('')
 
-const quarters = computed(() => [
-  { num: 1, label: t('executiveSummary.quarters.q1') },
-  { num: 2, label: t('executiveSummary.quarters.q2') },
-  { num: 3, label: t('executiveSummary.quarters.q3') },
-  { num: 4, label: t('executiveSummary.quarters.q4') }
-])
-
-// Role checks
-const isChiefAuditExecutive = computed(() => {
-  return authStore.user?.roles.includes(UserRole.CHIEF_AUDIT_EXECUTIVE) || authStore.user?.roles.includes(UserRole.ADMIN)
+const assignmentLetterOptions = computed(() => {
+  const lettersFromStore = assignmentLetterStore.assignmentLetterList.map((st: any) => st.letterNumber)
+  const lettersFromReports = auditReportStore.reportList.map((r: any) => r.assignmentLetterId).filter(Boolean)
+  const combined = Array.from(new Set([...lettersFromStore, ...lettersFromReports, 'ST-001/SKAI/2026', 'ST-002/SKAI/2026', 'ST-003/SKAI/2026', '020/ST/01/KSIAD/2023']))
+  return ['All Assignment Letters', ...combined]
 })
 
-const isHigherAuthority = computed(() => {
-  // Komite audit mapped as admin or explicit audit_committee role
-  return authStore.user?.roles.includes(UserRole.ADMIN) || authStore.user?.roles.includes('audit_committee')
+// Load stores on mount
+if (!store.loading) {
+  store.fetchSummaries()
+}
+if (!auditReportStore.loading) {
+  auditReportStore.fetchReports()
+}
+
+// Map month string
+const getMonthName = (mStr: string) => {
+  const m = parseInt(mStr)
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+  return months[m - 1] || 'April'
+}
+
+// Synced list combining Executive Summaries and Result Reports LHA items
+const syncedSummaries = computed(() => {
+  const summaries: (ExecutiveSummary & { assignmentLetterId?: string })[] = JSON.parse(JSON.stringify(store.summaryList))
+
+  auditReportStore.reportList.forEach(lha => {
+    const lhaNum = lha.reportNumber || (lha as any).report_number
+    if (!lhaNum) return
+
+    const existingIndex = summaries.findIndex(s => s.nomorDokumen === (lhaNum || ''))
+    if (existingIndex >= 0) {
+      const existing = summaries[existingIndex]
+      if (!existing) return
+      existing.assignmentLetterId = lha.assignmentLetterId
+      // Keep narrative and findingsCount in sync with LHA
+      if (lha.executiveSummary && (!existing.narrative || existing.narrative.startsWith('Executive Summary Individual untuk'))) {
+        existing.narrative = lha.executiveSummary
+      }
+      if (lha.findingsCount && existing.jumlahRekomendasi === 0 && lha.findingsCount > 0) {
+        existing.jumlahRekomendasi = lha.findingsCount
+      }
+    } else {
+      if (!store.deletedDocNumbers.includes(lhaNum)) {
+        // Automatically add synced Executive Summary card for this LHA ID
+        const dateParts = lha.reportDate ? lha.reportDate.split('-') : ['2026', '04', '15']
+        const yr = parseInt(dateParts[0] || '2026') || 2026
+        const mo = getMonthName(dateParts[1] || '04')
+
+        summaries.push({
+          id: `ES-${lha.id}`,
+          assignmentLetterId: lha.assignmentLetterId,
+          quarter: mo === 'Januari' || mo === 'Februari' || mo === 'Maret' ? 1 : mo === 'April' || mo === 'Mei' || mo === 'Juni' ? 2 : 3,
+          periodeBulan: `${mo} ${yr}`,
+          tahun: yr,
+          nomorDokumen: lhaNum,
+          dokumenPath: `Executive_Summary_${lhaNum.replace(/[\/\s]/g, '_')}.pdf`,
+          status: lha.status === 'Final' ? 'Approved' : 'Draft',
+          narrative: lha.executiveSummary || `Executive Summary untuk ${lha.reportTitle} (${lhaNum}).`,
+          jumlahLaporan: 1,
+          risikoTinggi: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 1,
+          risikoSedang: (lha.findings || []).filter(f => f.category === 'Quite Significant').length || 0,
+          risikoRendah: (lha.findings || []).filter(f => f.category === 'Not Significant').length || 0,
+          jumlahRekomendasi: lha.findingsCount || (lha.findings?.length || 0),
+          followUpTable: [],
+          topFindings: (lha.findings || []).map(f => ({
+            unitDivision: lha.reportTitle.includes('Keuangan') ? 'Finance' : 'Operasi',
+            judulTemuan: f.title,
+            risiko: f.category === 'Very Significant' || f.category === 'Significant' ? 'Tinggi' : f.category === 'Quite Significant' ? 'Sedang' : 'Rendah',
+            statusTL: 'In Progress',
+            usulan: 'Rekomendasi Perbaikan'
+          })),
+          matriksKompilasi: [],
+          akarMasalah: 'Penguatan sistem pengendalian internal dan efektivitas otomatisasi SOP.',
+          kesimpulan: 'Tata kelola dan pengendalian internal berjalan baik dengan rekomendasi perbaikan berkala.',
+          signatureTempat: 'Jakarta' as string,
+          signatureTanggal: lha.reportDate || '2026-04-15',
+          signatureNamaKepala: 'Head of SKAI',
+          signatureNIK: 'NIK-100240'
+        })
+      }
+    }
+  })
+
+  // Map missing assignmentLetterId for initial items
+  summaries.forEach(s => {
+    if (!s.assignmentLetterId) {
+      const matchLha = auditReportStore.reportList.find(l => l.reportNumber === s.nomorDokumen)
+      if (matchLha) {
+        s.assignmentLetterId = matchLha.assignmentLetterId
+      } else if (s.nomorDokumen.includes('021')) {
+        s.assignmentLetterId = 'ST-001/SKAI/2026'
+      } else if (s.nomorDokumen.includes('020')) {
+        s.assignmentLetterId = '020/ST/01/KSIAD/2023'
+      } else if (s.nomorDokumen.includes('022')) {
+        s.assignmentLetterId = 'ST-002/SKAI/2026'
+      } else if (s.nomorDokumen.includes('023')) {
+        s.assignmentLetterId = 'ST-003/SKAI/2026'
+      }
+    }
+  })
+
+  return summaries.filter(s => !store.deletedDocNumbers.includes(s.nomorDokumen))
+})
+
+const filteredSummaries = computed(() => {
+  let list = syncedSummaries.value
+
+  if (selectedAssignmentLetter.value && selectedAssignmentLetter.value !== 'All Assignment Letters') {
+    list = list.filter(s => s.assignmentLetterId === selectedAssignmentLetter.value)
+  }
+
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    list = list.filter(s => 
+      s.nomorDokumen.toLowerCase().includes(q) ||
+      s.periodeBulan.toLowerCase().includes(q) ||
+      (s.assignmentLetterId && s.assignmentLetterId.toLowerCase().includes(q)) ||
+      (s.narrative && s.narrative.toLowerCase().includes(q))
+    )
+  }
+
+  return list
 })
 
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'Approved': return 'success'
-    case 'Rejected': return 'error'
     case 'Draft': return 'warning'
+    case 'Rejected': return 'error'
     default: return 'neutral'
   }
 }
-
-const filteredSummaries = computed(() => {
-  return store.summaryList.filter(s => {
-    const qMatches = s.quarter === activeQuarter.value
-    const searchLower = searchQuery.value.toLowerCase()
-    const matchesSearch = !searchQuery.value ||
-      s.nomorDokumen.toLowerCase().includes(searchLower) ||
-      s.periodeBulan.toLowerCase().includes(searchLower)
-    
-    return qMatches && matchesSearch
-  })
-})
 </script>
