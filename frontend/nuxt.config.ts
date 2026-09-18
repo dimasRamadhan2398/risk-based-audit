@@ -45,8 +45,7 @@ export default defineNuxtConfig({
         "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet"
       }
     },
-    "/audit-result-report/executive-summary": { redirect: "/executive-summary" },
-    "/audit-result-report/executive-summary/upload": { redirect: "/executive-summary/upload" },
+    "/executive-summary-upload": { redirect: "/audit-result-report/executive-summary-upload" },
     "/api/v1/**": {
       proxy: process.env.API_BASE_URL_SERVER || defaultProxyTarget
     },

@@ -245,7 +245,7 @@
           </template>
 
           <!-- Form content handles all sections -->
-          <ExecutiveSummaryForm />
+          <ExecutiveSummaryCompilationForm />
         </UCard>
       </template>
     </UModal>
@@ -258,7 +258,7 @@ import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { UserRole } from '~/types/auth'
-import ExecutiveSummaryForm from '~/components/audit-result-report/ExecutiveSummaryForm.vue'
+import ExecutiveSummaryCompilationForm from '~/components/audit-result-report/ExecutiveSummaryCompilationForm.vue'
 
 definePageMeta({
   middleware: 'auth'
