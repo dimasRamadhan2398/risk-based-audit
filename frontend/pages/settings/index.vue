@@ -94,11 +94,6 @@
               <SettingsDataSource />
             </div>
 
-            <!-- Email Service (Resend API) Section -->
-            <div v-if="activeTab === 'email'">
-              <SettingsEmail />
-            </div>
-
             <!-- FAQ Section -->
             <div v-if="activeTab === 'faq'">
               <SettingsFaq />
