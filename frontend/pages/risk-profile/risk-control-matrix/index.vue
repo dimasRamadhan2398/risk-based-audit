@@ -233,7 +233,10 @@
         :items-per-page="10"
         table-layout="fixed"
         min-width="1630px"
-        :ui="{ tr: 'hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group' }"
+        :ui="{
+          root: 'relative overflow-visible',
+          tr: 'hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group'
+        }"
         :empty-state="{
           icon: 'i-lucide-shield-alert',
           label: 'Tidak ada data Risk Control Matrix',
