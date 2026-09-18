@@ -39,6 +39,7 @@ export interface AnomalyRecord {
   id: string
   entity: string
   type: string
+  category?: string
   anomalyScore: number
   description: string
   severity: 'Critical' | 'High' | 'Medium' | 'Low'
@@ -47,6 +48,7 @@ export interface AnomalyRecord {
   frequency?: number
   isAnomaly: boolean
   riskLevel: RiskLevel
+  xMetric?: number
 }
 
 export interface ScatterPoint {
@@ -159,44 +161,54 @@ export function useXGBoostData() {
 
 export function useIsolationForestData() {
   const anomalies: AnomalyRecord[] = [
-    { id: 'ANM-001', entity: 'Jakarta Branch', type: 'Transaction', anomalyScore: -0.92, description: 'Unusual after-hours bulk payment processing — 47 transactions totaling Rp 2.3B within 12 minutes', severity: 'Critical', date: '2026-05-28', amount: 2300000000, frequency: 47, isAnomaly: true, riskLevel: RiskLevel.HIGH },
-    { id: 'ANM-002', entity: 'Head Office', type: 'Access Pattern', anomalyScore: -0.87, description: 'Repeated failed authentication attempts on financial system by terminated employee credentials', severity: 'Critical', date: '2026-06-01', amount: 0, frequency: 156, isAnomaly: true, riskLevel: RiskLevel.HIGH },
-    { id: 'ANM-003', entity: 'Finance Dept', type: 'Expense Report', anomalyScore: -0.81, description: 'Duplicate vendor invoices detected — same amounts, sequential invoice numbers, different dates', severity: 'High', date: '2026-05-15', amount: 450000000, frequency: 12, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH },
-    { id: 'ANM-004', entity: 'Surabaya Branch', type: 'Fieldwork', anomalyScore: -0.76, description: 'Audit fieldwork completion time 4.2σ below historical average — potential superficial review', severity: 'High', date: '2026-05-20', amount: 0, frequency: 3, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH },
-    { id: 'ANM-005', entity: 'Bali Branch', type: 'Procurement', anomalyScore: -0.72, description: 'Single-source procurement exceeding threshold without required competitive bidding documentation', severity: 'High', date: '2026-06-03', amount: 780000000, frequency: 5, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH },
-    { id: 'ANM-006', entity: 'Bandung Branch', type: 'Travel Expense', anomalyScore: -0.68, description: 'Travel reimbursement patterns showing systematic rounding to exact Rp 500K increments', severity: 'Medium', date: '2026-05-10', amount: 45000000, frequency: 18, isAnomaly: true, riskLevel: RiskLevel.MODERATE },
-    { id: 'ANM-007', entity: 'IT Dept', type: 'Data Access', anomalyScore: -0.63, description: 'Unusual data export volume from CRM system — 3x average daily export size', severity: 'Medium', date: '2026-06-05', amount: 0, frequency: 7, isAnomaly: true, riskLevel: RiskLevel.MODERATE },
-    { id: 'ANM-008', entity: 'Operations Dept', type: 'Inventory', anomalyScore: -0.55, description: 'Inventory adjustment entries without supporting documentation in warehouse system', severity: 'Medium', date: '2026-05-22', amount: 120000000, frequency: 9, isAnomaly: true, riskLevel: RiskLevel.MODERATE },
+    { id: 'BANK-TRX-0001', entity: 'Cabang Medan', type: 'IT Control', anomalyScore: -0.95, description: 'Aktivitas akses administratif basis data core banking pada dini hari (02:00) tanpa tiket Change Request', severity: 'Critical', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 7 },
+    { id: 'BANK-TRX-0003', entity: 'Cabang Bali', type: 'Funding', anomalyScore: -0.91, description: 'Pemberian suku bunga deposito ekstrem (8.86%) di atas batas penjaminan LPS tanpa persetujuan ALCO', severity: 'Critical', date: '2026-06-01', amount: 21465500000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 21465.5 },
+    { id: 'BANK-TRX-0007', entity: 'Kantor Pusat', type: 'Lending', anomalyScore: -0.89, description: 'Pencairan kredit bernilai Rp 66.662 Juta dengan bunga murah ekstrem (4.18%) melanggar BMPK', severity: 'Critical', date: '2026-06-01', amount: 66662330000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 66662.33 },
+    { id: 'BANK-TRX-0009', entity: 'Cabang Jakarta', type: 'Treasury', anomalyScore: -0.84, description: 'Transaksi valas dealing room bernilai Rp 62.412 Juta di luar rentang kuotasi pasar resmi', severity: 'High', date: '2026-06-01', amount: 62412080000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 62412.08 },
+    { id: 'BANK-TRX-0014', entity: 'Cabang Surabaya', type: 'KYC', anomalyScore: -0.82, description: 'Profil transaksi nasabah high risk deviasi 123.5% dari profil historis tanpa pembaruan EDD', severity: 'High', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 123.53 },
+    { id: 'BANK-TRX-0018', entity: 'Cabang Bandung', type: 'Payment', anomalyScore: -0.78, description: 'Transaksi pembayaran split-bill berulang dengan frekuensi tinggi mendekati batas threshold harian', severity: 'High', date: '2026-06-01', amount: 55950000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 55.95 },
   ]
 
-  // Generate scatter plot data: normal + anomaly points
+  // Generate scatter plot data covering 6 bank categories
   const scatterData: ScatterPoint[] = []
-  // Normal points
-  for (let i = 0; i < 80; i++) {
-    scatterData.push({
-      x: Math.round((Math.random() * 40 + 10) * 100) / 100,
-      y: Math.round((Math.random() * 30 + 5) * 100) / 100,
-      isAnomaly: false,
-    })
-  }
-  // Anomaly points (outliers)
-  const anomalyPoints: ScatterPoint[] = [
-    { x: 92.5, y: 47.0, isAnomaly: true, label: 'ANM-001' },
-    { x: 5.0, y: 156.0, isAnomaly: true, label: 'ANM-002' },
-    { x: 85.3, y: 12.0, isAnomaly: true, label: 'ANM-003' },
-    { x: 15.0, y: 3.0, isAnomaly: true, label: 'ANM-004' },
-    { x: 78.0, y: 5.0, isAnomaly: true, label: 'ANM-005' },
-    { x: 45.0, y: 65.0, isAnomaly: true, label: 'ANM-006' },
-    { x: 8.0, y: 85.0, isAnomaly: true, label: 'ANM-007' },
-    { x: 62.0, y: 9.0, isAnomaly: true, label: 'ANM-008' },
-  ]
-  scatterData.push(...anomalyPoints)
+  const bankCategories = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
+  
+  // Normal points for each category
+  bankCategories.forEach((cat) => {
+    for (let i = 0; i < 15; i++) {
+      let xVal = 0
+      if (cat === 'Funding') xVal = Math.round(Math.random() * 800 + 50)
+      else if (cat === 'Lending') xVal = Math.round(Math.random() * 3000 + 200)
+      else if (cat === 'Treasury') xVal = Math.round(Math.random() * 5000 + 500)
+      else if (cat === 'Payment') xVal = Math.round(Math.random() * 150 + 5)
+      else if (cat === 'KYC') xVal = Math.round(Math.random() * 25 + 1)
+      else xVal = Math.round(Math.random() * 3)
+
+      scatterData.push({
+        x: xVal,
+        y: Math.round(Math.random() * 25 + 10),
+        type: cat,
+        isAnomaly: false,
+        label: `NORM-${cat.substring(0, 3).toUpperCase()}-${i+1}`
+      })
+    }
+  })
+
+  // Anomaly outlier points
+  scatterData.push(
+    { x: 21465.5, y: 55.0, type: 'Funding', isAnomaly: true, label: 'BANK-TRX-0003' },
+    { x: 66662.33, y: 58.0, type: 'Lending', isAnomaly: true, label: 'BANK-TRX-0007' },
+    { x: 62412.08, y: 52.0, type: 'Treasury', isAnomaly: true, label: 'BANK-TRX-0009' },
+    { x: 55.95, y: 48.0, type: 'Payment', isAnomaly: true, label: 'BANK-TRX-0018' },
+    { x: 123.53, y: 46.0, type: 'KYC', isAnomaly: true, label: 'BANK-TRX-0014' },
+    { x: 7.0, y: 50.0, type: 'IT Control', isAnomaly: true, label: 'BANK-TRX-0001' }
+  )
 
   const summary: AnomalySummary = {
-    totalScanned: 12847,
-    anomaliesFound: anomalies.length,
-    contaminationRate: 0.062,
-    topCategory: 'Transaction',
+    totalScanned: 1200,
+    anomaliesFound: 150,
+    contaminationRate: 0.125,
+    topCategory: 'Funding',
   }
 
   return { anomalies, scatterData, summary }
@@ -277,7 +289,7 @@ export function useTimeSeriesData() {
 export function useAnalyticsSummary() {
   return {
     totalEntitiesScored: 10,
-    anomaliesDetected: 8,
+    anomaliesDetected: 150,
     documentsAnalyzed: 10,
     kpiAlerts: 3,
   }

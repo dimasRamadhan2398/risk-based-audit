@@ -131,10 +131,32 @@ def get_current_target_timeline() -> str:
     quarter = (month - 1) // 3 + 1
     return f"Q{quarter} {year}"
 
-def map_anomaly_type(description: str) -> str:
-    """Map anomaly description keywords to data type categories."""
-    desc_lower = description.lower()
-    if any(w in desc_lower for w in ['login', 'authentication', 'akses', 'credential', 'password', 'user']):
+def map_anomaly_type(description: str, category: Optional[str] = None) -> str:
+    """Map anomaly category and description keywords to bank or operational categories."""
+    if category:
+        cat_clean = category.strip()
+        for bank_cat in ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']:
+            if cat_clean.lower() == bank_cat.lower():
+                return bank_cat
+
+    desc_lower = (description or "").lower()
+
+    # Check 6 banking categories by domain terminology
+    if any(w in desc_lower for w in ['funding', 'deposito', 'simpanan', 'tabungan', 'bilyet', 'giro', 'lps', 'alco']):
+        return 'Funding'
+    if any(w in desc_lower for w in ['lending', 'kredit', 'pinjaman', 'debitur', 'agunan', 'bmpk', 'plafon', 'fasilitas kredit']):
+        return 'Lending'
+    if any(w in desc_lower for w in ['treasury', 'dealing room', 'swift', 'pasar uang', 'forex', 'valas', 'sukuk', 'obligasi', 'money market']):
+        return 'Treasury'
+    if any(w in desc_lower for w in ['payment', 'kliring', 'rtgs', 'bi-fast', 'qris', 'switching', 'teller cash', 'kartu kredit', 'kartu debit']):
+        return 'Payment'
+    if any(w in desc_lower for w in ['kyc', 'cdd', 'edd', 'watchlist', 'pep', 'beneficial owner', 'profil nasabah', 'high risk watchlist']):
+        return 'KYC'
+    if any(w in desc_lower for w in ['it control', 'core banking', 'host-to-host', 'gagal login', 'credential', 'bypass', 'unauthorized access']):
+        return 'IT Control'
+
+    # Legacy operational categories
+    if any(w in desc_lower for w in ['login', 'authentication', 'akses', 'password', 'user']):
         return 'Access Pattern'
     if any(w in desc_lower for w in ['reimbursement', 'klaim', 'pengeluaran', 'expense', 'listrik', 'operasional']):
         return 'Expense Report'
@@ -163,13 +185,24 @@ class DepartmentRiskRequest(BaseModel):
     assessment_month: int = Field(6, ge=1, le=12)
 
 class AnomalyRequest(BaseModel):
+    # Common / Legacy fields
     entity: str = Field("Jakarta Branch", description="Entity name")
-    description: str = Field("Pembayaran vendor", description="Transaction description")
-    amount: float = Field(15.5, ge=0.0, description="Amount in million IDR")
-    hour_of_day: int = Field(14, ge=0, le=23)
-    day_of_week: int = Field(3, ge=1, le=7)
-    is_new_beneficiary: int = Field(0, ge=0, le=1)
-    is_round_amount: int = Field(0, ge=0, le=1)
+    description: Optional[str] = Field("Pembayaran vendor", description="Transaction description")
+    amount: Optional[float] = Field(15.5, ge=0.0, description="Amount in million IDR")
+    hour_of_day: Optional[int] = Field(14, ge=0, le=23)
+    day_of_week: Optional[int] = Field(3, ge=1, le=7)
+    is_new_beneficiary: Optional[int] = Field(0, ge=0, le=1)
+    is_round_amount: Optional[int] = Field(0, ge=0, le=1)
+
+    # Bank-specific fields (with backward-compatible defaults)
+    category: Optional[str] = Field(None, description="Bank category: Funding, Lending, Treasury, Payment, KYC, IT Control")
+    channel: Optional[str] = Field("Cabang / Teller", description="Transaction channel")
+    interest_margin: Optional[float] = Field(0.0, description="Bunga/Margin (%)")
+    document_status: Optional[str] = Field("Lengkap", description="Status Dokumen: Lengkap / Tidak Lengkap")
+    failed_logins: Optional[int] = Field(0, description="Jumlah Gagal Login")
+    customer_risk_profile: Optional[str] = Field("Low Risk", description="Tingkat Risiko Nasabah: Low Risk, Medium Risk, High Risk, PEP / High Risk Watchlist")
+    authorization_status: Optional[str] = Field("Terverifikasi Dual Control (Maker-Checker)", description="Status Otorisasi")
+    historical_dev_pct: Optional[float] = Field(5.0, description="Deviasi terhadap Profil Historis (%)")
 
 class TextAnalysisRequest(BaseModel):
     text: str = Field("Ditemukan indikasi ketidaksesuaian prosedur dalam otorisasi transaksi kas besar.", description="Audit finding text")
@@ -384,44 +417,155 @@ def get_department_risk_batch():
 # ----------------------------------------------------------------------
 @app.post("/predict/anomaly")
 def predict_anomaly(req: AnomalyRequest):
+    bank_cats = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
+    mapped_type = map_anomaly_type(req.description or '', req.category)
+    is_bank_trx = (req.category in bank_cats) or (mapped_type in bank_cats)
+
+    # ------------------------------------------------------------------
+    # 1. Fallback when anomaly_bundle is not loaded
+    # ------------------------------------------------------------------
     if anomaly_bundle is None:
-        is_anom = req.amount > 500 or req.hour_of_day < 6 or req.is_new_beneficiary == 1
+        amt_val = float(req.amount or 0.0)
+        hour_val = int(req.hour_of_day if req.hour_of_day is not None else 12)
+        is_anom = amt_val > 500 or hour_val < 6 or (req.is_new_beneficiary == 1) or ((req.failed_logins or 0) >= 3)
         anom_score = 0.88 if is_anom else 0.15
         imp_idx = 5 if is_anom else 2
         lik_idx = 5 if is_anom else 1
+        score = float(imp_idx * lik_idx)
+        chosen_type = req.category if (req.category in bank_cats) else mapped_type
+        x_val = get_metric_x_value(chosen_type, amt_val, hour_val, 1, float(req.historical_dev_pct or 0.0), int(req.failed_logins or 0))
         return {
             "id": f"ANM-{np.random.randint(100, 999)}",
             "entity": req.entity,
-            "type": map_anomaly_type(req.description),
+            "type": chosen_type,
             "anomaly_score": round(anom_score, 4),
-            "description": f"{req.description} - Rp {req.amount}M (Jam {req.hour_of_day}:00)",
+            "description": f"{req.description or chosen_type} - Rp {amt_val:,.2f}M (Jam {hour_val}:00)",
             "severity": "Critical" if is_anom else "Low",
             "date": "2026-06-01",
-            "amount": req.amount * 1000000,
+            "amount": amt_val * 1000000,
             "is_anomaly": is_anom,
             "predicted_impact": imp_idx,
             "predicted_likelihood": lik_idx,
-            "risk_level": "HIGH" if is_anom else "LOW"
+            "risk_level": score_to_risk_level(score),
+            "xMetric": x_val,
+            "target_timeline": get_current_target_timeline()
         }
 
     try:
-        log_amount = np.log1p(req.amount)
-        is_weekend = 1 if req.day_of_week in [6, 7] else 0
-        is_night = 1 if (req.hour_of_day >= 22 or req.hour_of_day <= 5) else 0
-        amount_per_hour = req.amount / (req.hour_of_day + 1)
-        hour_sin = np.sin(2 * np.pi * req.hour_of_day / 24)
-        hour_cos = np.cos(2 * np.pi * req.hour_of_day / 24)
-        day_sin = np.sin(2 * np.pi * (req.day_of_week - 1) / 7)
-        day_cos = np.cos(2 * np.pi * (req.day_of_week - 1) / 7)
+        # ------------------------------------------------------------------
+        # 2. Bank Transaction Model Pipeline
+        # ------------------------------------------------------------------
+        bank_model = anomaly_bundle.get('bank_model')
+        if is_bank_trx and bank_model is not None:
+            b_cat = req.category if (req.category in bank_cats) else mapped_type
+            b_amt = float(req.amount if req.amount is not None else 0.0)
+            b_hour = int(req.hour_of_day if req.hour_of_day is not None else 12)
+            b_log_amt = np.log1p(b_amt)
+            b_sin_h = np.sin(2 * np.pi * b_hour / 24.0)
+            b_cos_h = np.cos(2 * np.pi * b_hour / 24.0)
+            b_is_night = 1 if (b_hour < 6 or b_hour > 22) else 0
+            b_auth = req.authorization_status or "Terverifikasi Dual Control (Maker-Checker)"
+            b_unauth = 1 if b_auth == "Override / Tanpa Otorisasi" else 0
+            b_doc = req.document_status or "Lengkap"
+            b_doc_def = 1 if b_doc == "Tidak Lengkap" else 0
+            b_cust_risk = req.customer_risk_profile or "Low Risk"
+            b_high_risk = 1 if b_cust_risk in ["High Risk", "PEP / High Risk Watchlist"] else 0
+            b_fails = int(req.failed_logins or 0)
+            b_brute = 1 if b_fails >= 5 else 0
+            b_comp = b_unauth * 2 + b_doc_def * 2 + b_brute * 2 + b_high_risk * 1 + b_is_night * 1
+            b_interest = float(req.interest_margin if req.interest_margin is not None else 0.0)
+            b_hist_dev = float(req.historical_dev_pct if req.historical_dev_pct is not None else 5.0)
+
+            bank_row = {
+                'Kategori': b_cat,
+                'Entitas': req.entity.strip(),
+                'Kanal Transaksi': req.channel or "Cabang / Teller",
+                'Status Dokumen': b_doc,
+                'Tingkat Risiko Nasabah': b_cust_risk,
+                'Status Otorisasi / Maker-Checker': b_auth,
+                'Nilai Transaksi (Juta Rp)': b_amt,
+                'log_amount': b_log_amt,
+                'Bunga/Margin (%)': b_interest,
+                'Jam Transaksi (0-23)': b_hour,
+                'sin_hour': b_sin_h,
+                'cos_hour': b_cos_h,
+                'Jumlah Gagal Login': b_fails,
+                'Deviasi terhadap Profil Historis (%)': b_hist_dev,
+                'is_night_txn': b_is_night,
+                'is_unauthorized_override': b_unauth,
+                'is_doc_defect': b_doc_def,
+                'is_high_risk_cust': b_high_risk,
+                'is_brute_force': b_brute,
+                'composite_bank_risk': b_comp
+            }
+
+            df_single = pd.DataFrame([bank_row])
+            prep = bank_model['preprocessor']
+            X_scaled = prep.transform(df_single[bank_model['cat_cols'] + bank_model['num_cols']])
+
+            b_clf = bank_model['classifier']
+            b_iso = bank_model.get('isolation_forest')
+            thresh = bank_model.get('best_threshold', 0.40)
+
+            if hasattr(b_clf, "predict_proba"):
+                prob_sup = float(b_clf.predict_proba(X_scaled)[0, 1])
+            else:
+                prob_sup = float(b_clf.predict(X_scaled)[0])
+
+            if b_iso is not None:
+                raw_score = float(b_iso.decision_function(X_scaled)[0])
+                unsup_score = float(1.0 / (1.0 + np.exp(raw_score * 4.0)))
+                prob = float(0.70 * prob_sup + 0.30 * unsup_score)
+            else:
+                prob = prob_sup
+
+            is_anom = bool(prob >= thresh)
+            imp_idx = int(bank_model['impact_classifier'].predict(X_scaled)[0]) + 1
+            lik_idx = int(bank_model['likelihood_classifier'].predict(X_scaled)[0]) + 1
+            score = float(imp_idx * lik_idx)
+            sev = "Critical" if (is_anom and score >= 16) else ("High" if is_anom else "Medium")
+            x_metric = get_metric_x_value(b_cat, b_amt, b_hour, 1, b_hist_dev, b_fails)
+
+            return {
+                "id": f"BANK-ANM-{np.random.randint(100, 999)}",
+                "entity": req.entity,
+                "type": b_cat,
+                "anomaly_score": round(prob, 4),
+                "description": f"{req.description or b_cat} - Rp {b_amt:,.2f}M (Jam {b_hour}:00)",
+                "severity": sev,
+                "date": "2026-06-01",
+                "amount": b_amt * 1000000,
+                "is_anomaly": is_anom,
+                "predicted_impact": imp_idx,
+                "predicted_likelihood": lik_idx,
+                "risk_level": score_to_risk_level(score),
+                "xMetric": x_metric,
+                "target_timeline": get_current_target_timeline()
+            }
+
+        # ------------------------------------------------------------------
+        # 3. Operational General Anomaly Pipeline (Backward Compatibility)
+        # ------------------------------------------------------------------
+        amt_val = float(req.amount if req.amount is not None else 15.0)
+        hour_val = int(req.hour_of_day if req.hour_of_day is not None else 12)
+        day_val = int(req.day_of_week if req.day_of_week is not None else 3)
+        log_amount = np.log1p(amt_val)
+        is_weekend = 1 if day_val in [6, 7] else 0
+        is_night = 1 if (hour_val >= 22 or hour_val <= 5) else 0
+        amount_per_hour = amt_val / (hour_val + 1)
+        hour_sin = np.sin(2 * np.pi * hour_val / 24)
+        hour_cos = np.cos(2 * np.pi * hour_val / 24)
+        day_sin = np.sin(2 * np.pi * (day_val - 1) / 7)
+        day_cos = np.cos(2 * np.pi * (day_val - 1) / 7)
 
         row = [
             req.entity.strip(),
-            req.description.strip(),
-            req.amount,
-            req.hour_of_day,
-            req.day_of_week,
-            req.is_new_beneficiary,
-            req.is_round_amount,
+            (req.description or "Pengeluaran").strip(),
+            amt_val,
+            hour_val,
+            day_val,
+            int(req.is_new_beneficiary or 0),
+            int(req.is_round_amount or 0),
             log_amount,
             is_weekend,
             is_night,
@@ -456,85 +600,185 @@ def predict_anomaly(req: AnomalyRequest):
             prob = prob_sup
 
         is_anom = bool(prob >= thresh)
-
         imp_idx = int(anomaly_bundle['impact_classifier'].predict(X_scaled)[0]) + 1
         lik_idx = int(anomaly_bundle['likelihood_classifier'].predict(X_scaled)[0]) + 1
         score = float(imp_idx * lik_idx)
-
         sev = "Critical" if (is_anom and score >= 16) else ("High" if is_anom else "Medium")
+        x_metric = get_metric_x_value(mapped_type, amt_val, hour_val, 1)
 
         return {
             "id": f"ANM-{np.random.randint(100, 999)}",
             "entity": req.entity,
-            "type": map_anomaly_type(req.description),
+            "type": mapped_type,
             "anomaly_score": round(prob, 4),
-            "description": f"{req.description} - Rp {req.amount}M (Jam {req.hour_of_day}:00)",
+            "description": f"{req.description or 'Transaksi'} - Rp {amt_val:,.2f}M (Jam {hour_val}:00)",
             "severity": sev,
             "date": "2026-06-01",
-            "amount": req.amount * 1000000,
+            "amount": amt_val * 1000000,
             "is_anomaly": is_anom,
             "predicted_impact": imp_idx,
             "predicted_likelihood": lik_idx,
-            "risk_level": score_to_risk_level(score)
+            "risk_level": score_to_risk_level(score),
+            "xMetric": x_metric,
+            "target_timeline": get_current_target_timeline()
         }
     except Exception as e:
         print(f"Anomaly inference error: {e}")
-        is_anom = req.amount > 500 or req.hour_of_day < 6
+        amt_val = float(req.amount if req.amount is not None else 15.0)
+        hour_val = int(req.hour_of_day if req.hour_of_day is not None else 12)
+        is_anom = amt_val > 500 or hour_val < 6
+        chosen_type = req.category if (req.category in bank_cats) else mapped_type
         return {
             "id": "ANM-001",
             "entity": req.entity,
-            "type": map_anomaly_type(req.description),
+            "type": chosen_type,
             "anomaly_score": 0.85 if is_anom else 0.15,
-            "description": f"{req.description} - Rp {req.amount}M",
+            "description": f"{req.description or chosen_type} - Rp {amt_val:,.2f}M",
             "severity": "High" if is_anom else "Low",
             "date": "2026-06-01",
-            "amount": req.amount * 1000000,
+            "amount": amt_val * 1000000,
             "is_anomaly": is_anom,
             "predicted_impact": 4 if is_anom else 2,
             "predicted_likelihood": 4 if is_anom else 1,
-            "risk_level": "HIGH" if is_anom else "LOW"
+            "risk_level": "HIGH" if is_anom else "LOW",
+            "xMetric": get_metric_x_value(chosen_type, amt_val, hour_val, 1),
+            "target_timeline": get_current_target_timeline()
         }
 
-def get_metric_x_value(atype: str, amt: float, hour: int, idx: int) -> float:
+def get_metric_x_value(atype: str, amt: float, hour: int, idx: int, deviasi: float = 0.0, gagal_login: int = 0) -> float:
     """Calculate type-specific X-axis metric value based on anomaly category."""
-    if atype == 'Fieldwork':
-        # Fieldwork completion duration in days (e.g. 14 to 48 days)
+    # 6 Banking Categories
+    if atype == 'Funding':
+        return round(float(amt if amt > 0 else 350.0), 2)
+    elif atype == 'Lending':
+        return round(float(amt if amt > 0 else 1200.0), 2)
+    elif atype == 'Treasury':
+        return round(float(amt if amt > 0 else 2500.0), 2)
+    elif atype == 'Payment':
+        return round(float(amt if amt > 0 else 45.0), 2)
+    elif atype == 'KYC':
+        return round(float(deviasi if deviasi > 0 else 15.5 + (idx * 11) % 85), 2)
+    elif atype == 'IT Control':
+        return float(gagal_login if gagal_login > 0 else max(1, (idx % 8)))
+
+    # Legacy Operational Categories
+    elif atype == 'Fieldwork':
         return round(float(14 + (idx * 7) % 35), 1)
     elif atype == 'Access Pattern':
-        # Access time / hour of day (0 to 23)
         return float(hour)
     elif atype == 'Data Access':
-        # Data export volume in MB (e.g. 80 to 850 MB)
         return round(float(80 + (idx * 75) % 770), 1)
     elif atype == 'Inventory':
-        # Inventory adjustment variance in Rp Juta (e.g. 15 to 250 Juta)
         return round(float(amt if amt > 0 else 45.0), 2)
     else:
-        # Transaction / Expense / Procurement / Travel Expense monetary amount in Rp Juta
         return round(float(amt if amt > 0 else 25.0), 2)
 
 @app.get("/predict/anomaly/batch")
 def get_anomaly_batch():
+    bank_csv = os.path.join(AI_TRAINING_DIR, 'anomaly_prediction', 'bank_transaction_anomaly_data.csv')
     anom_csv = os.path.join(AI_TRAINING_DIR, 'anomaly_prediction', 'anomaly_data.csv')
-    if os.path.exists(anom_csv):
+
+    # Prefer new bank transaction dataset if available
+    if os.path.exists(bank_csv):
+        df = pd.read_csv(bank_csv)
+        anom_df = df[df['TARGET: is_anomaly'].astype(str).str.strip() == 'Ya (Anomali)']
+        bank_categories = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
+
+        # Ensure representation of every single bank category
+        selected_indices = []
+        for cat in bank_categories:
+            cat_anoms = anom_df[anom_df['Kategori'] == cat]
+            if len(cat_anoms) > 0:
+                selected_indices.extend(cat_anoms.index[:2].tolist())
+
+        # Fill remaining slots up to 14 items
+        for idx in anom_df.index:
+            if idx not in selected_indices and len(selected_indices) < 14:
+                selected_indices.append(idx)
+
+        anom_rows = df.loc[selected_indices]
+        anomalies_list = []
+
+        for idx, r in anom_rows.iterrows():
+            trx_id = str(r['ID Transaksi']) if 'ID Transaksi' in r else f"BANK-TRX-{idx+1}"
+            ent = str(r['Entitas']).strip()
+            cat = str(r['Kategori']).strip()
+            amt = float(pd.to_numeric(r['Nilai Transaksi (Juta Rp)'], errors='coerce') or 0.0)
+            hour = int(pd.to_numeric(r['Jam Transaksi (0-23)'], errors='coerce') or 12)
+            interest = float(pd.to_numeric(r['Bunga/Margin (%)'], errors='coerce') or 0.0)
+            fails = int(pd.to_numeric(r['Jumlah Gagal Login'], errors='coerce') or 0)
+            deviasi = float(pd.to_numeric(r['Deviasi terhadap Profil Historis (%)'], errors='coerce') or 0.0)
+            desc = str(r['Alasan Anomali']).strip() if (str(r.get('Alasan Anomali', '-')).strip() != '-') else f"Transaksi anomali {cat} pada {ent}"
+
+            req_obj = AnomalyRequest(
+                entity=ent,
+                description=desc,
+                amount=amt,
+                hour_of_day=hour,
+                category=cat,
+                channel=str(r.get('Kanal Transaksi', 'Cabang / Teller')).strip(),
+                interest_margin=interest,
+                document_status=str(r.get('Status Dokumen', 'Lengkap')).strip(),
+                failed_logins=fails,
+                customer_risk_profile=str(r.get('Tingkat Risiko Nasabah', 'Low Risk')).strip(),
+                authorization_status=str(r.get('Status Otorisasi / Maker-Checker', 'Terverifikasi Dual Control (Maker-Checker)')).strip(),
+                historical_dev_pct=deviasi
+            )
+            pred = predict_anomaly(req_obj)
+            pred['id'] = trx_id
+            pred['type'] = cat
+            pred['xMetric'] = get_metric_x_value(cat, amt, hour, idx, deviasi, fails)
+            pred['target_timeline'] = get_current_target_timeline()
+            anomalies_list.append(pred)
+
+        # Deterministic Scatter points generation across 6 bank categories
+        scatter_data = []
+        for idx, r in df.head(120).iterrows():
+            cat = str(r['Kategori']).strip()
+            amt = float(pd.to_numeric(r['Nilai Transaksi (Juta Rp)'], errors='coerce') or 0.0)
+            hour = int(pd.to_numeric(r['Jam Transaksi (0-23)'], errors='coerce') or 12)
+            fails = int(pd.to_numeric(r['Jumlah Gagal Login'], errors='coerce') or 0)
+            deviasi = float(pd.to_numeric(r['Deviasi terhadap Profil Historis (%)'], errors='coerce') or 0.0)
+            is_anom = (str(r['TARGET: is_anomaly']).strip() == 'Ya (Anomali)')
+            x_val = get_metric_x_value(cat, amt, hour, idx, deviasi, fails)
+
+            # Sumbu Y: Risk score / jam transaksi
+            y_val = round(float(hour * 2.5 + (idx % 9)), 2)
+            if is_anom:
+                y_val = round(float(25.0 + (hour * 1.5) + (idx % 12)), 2)
+
+            scatter_data.append({
+                "x": x_val,
+                "y": y_val,
+                "type": cat,
+                "is_anomaly": is_anom,
+                "label": str(r['ID Transaksi']) if 'ID Transaksi' in r else f"BANK-{idx}"
+            })
+
+        summary = {
+            "totalScanned": len(df),
+            "anomaliesFound": len(anom_df),
+            "contaminationRate": round(len(anom_df) / max(len(df), 1), 3),
+            "topCategory": "Funding"
+        }
+
+        return {
+            "anomalies": anomalies_list,
+            "scatter_data": scatter_data,
+            "summary": summary
+        }
+
+    # Fallback to general operational dataset
+    elif os.path.exists(anom_csv):
         df = pd.read_csv(anom_csv)
     else:
-        # Fallback default dataframe if CSV is temporarily inaccessible
         df = pd.DataFrame([
             {"ID Transaksi": "ANM-001", "Entitas": "Jakarta Branch", "Deskripsi": "Pengeluaran Klaim Operasional Melebihi Batas Toleransi", "amount (dalam Juta Rp)": "450", "hour_of_day (0-23)": 23, "day_of_week (1-7)": 6, "is_new_beneficiary (1=Ya, 0=Tidak)": 1, "is_round_amount (1=Ya, 0=Tidak)": 1, "TARGET: is_anomaly": "Ya (Anomali)"},
             {"ID Transaksi": "ANM-002", "Entitas": "Head Office", "Deskripsi": "Login Akses Sistem di Luar Jam Kerja oleh User Non-Aktif", "amount (dalam Juta Rp)": "0", "hour_of_day (0-23)": 2, "day_of_week (1-7)": 7, "is_new_beneficiary (1=Ya, 0=Tidak)": 0, "is_round_amount (1=Ya, 0=Tidak)": 0, "TARGET: is_anomaly": "Ya (Anomali)"},
-            {"ID Transaksi": "ANM-003", "Entitas": "Finance Dept", "Deskripsi": "Pembayaran Invoice Pengadaan Tanpa Berita Acara Serah Terima", "amount (dalam Juta Rp)": "780", "hour_of_day (0-23)": 18, "day_of_week (1-7)": 5, "is_new_beneficiary (1=Ya, 0=Tidak)": 1, "is_round_amount (1=Ya, 0=Tidak)": 1, "TARGET: is_anomaly": "Ya (Anomali)"},
-            {"ID Transaksi": "ANM-004", "Entitas": "Surabaya Branch", "Deskripsi": "Transfer Kas Rekening Internal Tanpa Otorisasi Bertingkat", "amount (dalam Juta Rp)": "320", "hour_of_day (0-23)": 22, "day_of_week (1-7)": 6, "is_new_beneficiary (1=Ya, 0=Tidak)": 0, "is_round_amount (1=Ya, 0=Tidak)": 1, "TARGET: is_anomaly": "Ya (Anomali)"},
-            {"ID Transaksi": "ANM-005", "Entitas": "Bandung Branch", "Deskripsi": "Reimbursement Perjalanan Dinas dengan Angka Bulat Berulang", "amount (dalam Juta Rp)": "45", "hour_of_day (0-23)": 1, "day_of_week (1-7)": 7, "is_new_beneficiary (1=Ya, 0=Tidak)": 0, "is_round_amount (1=Ya, 0=Tidak)": 1, "TARGET: is_anomaly": "Ya (Anomali)"},
-            {"ID Transaksi": "ANM-006", "Entitas": "IT Dept", "Deskripsi": "Export Data Pelanggan Massal dari Database Utama", "amount (dalam Juta Rp)": "0", "hour_of_day (0-23)": 3, "day_of_week (1-7)": 7, "is_new_beneficiary (1=Ya, 0=Tidak)": 0, "is_round_amount (1=Ya, 0=Tidak)": 0, "TARGET: is_anomaly": "Ya (Anomali)"},
-            {"ID Transaksi": "ANM-007", "Entitas": "Operations Dept", "Deskripsi": "Penyesuaian Stok Gudang Tanpa Dokumen Pendukung Audit", "amount (dalam Juta Rp)": "120", "hour_of_day (0-23)": 20, "day_of_week (1-7)": 5, "is_new_beneficiary (1=Ya, 0=Tidak)": 0, "is_round_amount (1=Ya, 0=Tidak)": 0, "TARGET: is_anomaly": "Ya (Anomali)"},
-            {"ID Transaksi": "ANM-008", "Entitas": "Bali Branch", "Deskripsi": "Pemeriksaan Lapangan dan Review Audit Tidak Lengkap", "amount (dalam Juta Rp)": "0", "hour_of_day (0-23)": 4, "day_of_week (1-7)": 6, "is_new_beneficiary (1=Ya, 0=Tidak)": 0, "is_round_amount (1=Ya, 0=Tidak)": 0, "TARGET: is_anomaly": "Ya (Anomali)"}
+            {"ID Transaksi": "ANM-003", "Entitas": "Finance Dept", "Deskripsi": "Pembayaran Invoice Pengadaan Tanpa Berita Acara Serah Terima", "amount (dalam Juta Rp)": "780", "hour_of_day (0-23)": 18, "day_of_week (1-7)": 5, "is_new_beneficiary (1=Ya, 0=Tidak)": 1, "is_round_amount (1=Ya, 0=Tidak)": 1, "TARGET: is_anomaly": "Ya (Anomali)"}
         ])
 
-    # Filter real anomaly rows deterministically covering different anomaly types
     anom_df = df[df['TARGET: is_anomaly'] == 'Ya (Anomali)']
-    
-    # Pick deterministic representative rows for each mapped type
     seen_types = set()
     selected_indices = []
     for idx, r in anom_df.iterrows():
@@ -547,7 +791,6 @@ def get_anomaly_batch():
             break
 
     anom_rows = df.loc[selected_indices]
-
     anomalies_list = []
     for idx, r in anom_rows.iterrows():
         trx_id = str(r['ID Transaksi']) if 'ID Transaksi' in r else f"ANM-00{idx+1}"
@@ -574,7 +817,6 @@ def get_anomaly_batch():
         pred['target_timeline'] = get_current_target_timeline()
         anomalies_list.append(pred)
 
-    # Deterministic Scatter points generation based on actual dataset rows with type-specific X metrics
     scatter_data = []
     for idx, r in df.head(80).iterrows():
         amt_raw = str(r['amount (dalam Juta Rp)']).replace(',', '')
@@ -594,8 +836,8 @@ def get_anomaly_batch():
 
     summary = {
         "totalScanned": len(df),
-        "anomaliesFound": len(df[df['TARGET: is_anomaly'] == 'Ya (Anomali)']),
-        "contaminationRate": round(len(df[df['TARGET: is_anomaly'] == 'Ya (Anomali)']) / len(df), 3),
+        "anomaliesFound": len(anom_df),
+        "contaminationRate": round(len(anom_df) / max(len(df), 1), 3),
         "topCategory": "Transaction"
     }
 

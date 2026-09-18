@@ -1199,4 +1199,3 @@ TRX-1197,Surabaya Branch,Pembayaran Vendor,182.51,0,6,0,0,Ya (Anomali),5,3
 TRX-1198,Bandung Branch,Biaya Jamuan Klien,174.49,23,6,0,0,Ya (Anomali),5,5
 TRX-1199,Jakarta Branch,Pembayaran Gaji Lembur,70.25,3,1,0,0,Tidak,4,3
 TRX-1200,Bandung Branch,Pembayaran Gaji Lembur,7.97,5,4,1,1,Ya (Anomali),2,5
-TX-2026-909,Medan Branch,Transfer luar biasa malam hari tanpa otorisasi,3400.0,23,7,1,1,Ya (Anomali),5,5

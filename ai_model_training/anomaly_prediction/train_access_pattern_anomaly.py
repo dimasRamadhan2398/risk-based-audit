@@ -32,6 +32,13 @@ print("\n======================================================================"
 print(" 1. BILINGUAL TRANSLATION & FEATURE ENGINEERING PIPELINE ")
 print("======================================================================")
 
+# Column name standardization (Indonesian <-> English headers)
+col_rename = {}
+if 'Peran User' in df_raw.columns and 'User Role' not in df_raw.columns:
+    col_rename['Peran User'] = 'User Role'
+if col_rename:
+    df_raw = df_raw.rename(columns=col_rename)
+
 # Apply Translation Layer to normalize Indonesian & English terms to canonical forms
 print("Applying Translation / Mapping Layer (Normalizing ID <-> EN)...")
 df = normalize_dataframe(df_raw, target_standard='en')
@@ -44,8 +51,9 @@ df[text_columns] = df[text_columns].apply(lambda col: col.astype("string").str.s
 numeric_cols = ['is_terminated_user (1=Ya, 0=Tidak)', 'failed_login_attempts', 'hour_of_day (0-23)', 'day_of_week (1-7)', 'ip_risk_score (0.0-1.0)', 'data_export_volume_mb']
 df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
 
-# Step 3: Deduplication
-duplicate_cols = [col for col in df.columns if col != 'ID Log']
+# Step 3: Deduplication (ignoring identifier columns)
+id_cols = [c for c in ['ID Akses', 'ID Log', 'User ID'] if c in df.columns]
+duplicate_cols = [col for col in df.columns if col not in id_cols]
 df = df.drop_duplicates(subset=duplicate_cols).reset_index(drop=True)
 print(f"Initial rows: {initial_rows} | Clean rows after deduplication: {len(df)}")
 
@@ -62,20 +70,25 @@ df['day_sin'] = np.sin(2 * np.pi * (df['day_of_week (1-7)'] - 1) / 7)
 df['day_cos'] = np.cos(2 * np.pi * (df['day_of_week (1-7)'] - 1) / 7)
 
 # Input Feature Columns List
-feature_cols = [
-    'Entitas', 'User Role', 'Deskripsi Akses',
+cat_cols = [c for c in ['Entitas', 'User Role', 'Deskripsi Akses'] if c in df.columns]
+num_feature_cols = [
     'is_terminated_user (1=Ya, 0=Tidak)', 'failed_login_attempts', 
     'hour_of_day (0-23)', 'day_of_week (1-7)', 'ip_risk_score (0.0-1.0)', 
     'data_export_volume_mb', 'log_failed_attempts', 'log_export_mb',
     'is_weekend', 'is_night', 'risk_composite_score',
     'hour_sin', 'hour_cos', 'day_sin', 'day_cos'
 ]
+feature_cols = cat_cols + num_feature_cols
 
 X_raw = df[feature_cols].values
-print(f"Selected {len(feature_cols)} clean security input features.")
+print(f"Selected {len(feature_cols)} clean security input features ({len(cat_cols)} categorical: {cat_cols}, {len(num_feature_cols)} numeric).")
 
-# One-Hot Encoding for categorical columns (0: Entitas, 1: User Role, 2: Deskripsi Akses)
-ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(sparse_output=False, handle_unknown='ignore'), [0, 1, 2])], remainder='passthrough')
+# One-Hot Encoding for categorical columns
+cat_indices = list(range(len(cat_cols)))
+ct = ColumnTransformer(
+    transformers=[('encoder', OneHotEncoder(sparse_output=False, handle_unknown='ignore'), cat_indices)], 
+    remainder='passthrough'
+)
 X = np.array(ct.fit_transform(X_raw))
 print(f"Encoded Feature matrix shape: {X.shape}")
 

@@ -9,6 +9,7 @@ const defaultPythonAiUrl = '/api/python-ai';
 const defaultProxyTarget = isProd ? "http://kong:8080/api/v1/**" : "http://localhost:8080/api/v1/**";
 const defaultAnalyticsProxyTarget = isProd ? "http://kong:8080/api/analytics/**" : "http://localhost:8080/api/analytics/**";
 const defaultUploadsProxyTarget = isProd ? "http://kong:8080/uploads/**" : "http://localhost:8080/uploads/**";
+const defaultPythonAiProxyTarget = isProd ? "http://python-ai:8000/**" : "http://localhost:8000/**";
 
 export default defineNuxtConfig({
   components: [
@@ -50,6 +51,9 @@ export default defineNuxtConfig({
     },
     "/api/analytics/**": {
       proxy: process.env.ANALYTICS_API_BASE_URL_SERVER || defaultAnalyticsProxyTarget
+    },
+    "/api/python-ai/**": {
+      proxy: process.env.PYTHON_AI_BASE_URL_SERVER || defaultPythonAiProxyTarget
     },
     "/uploads/**": {
       proxy: process.env.UPLOADS_BASE_URL_SERVER || defaultUploadsProxyTarget

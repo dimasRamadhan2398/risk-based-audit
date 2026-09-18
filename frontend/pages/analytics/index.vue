@@ -143,6 +143,8 @@ const getRiskConfig = (level: string) => {
 }
 
 // ─── LocalStorage Persistent Cache Helpers ──────────────────────────────
+const CACHE_KEY = 'auditsphere_real_analytics_cache_v5'
+
 const saveRealCache = () => {
   if (typeof window === 'undefined') return
   try {
@@ -154,7 +156,10 @@ const saveRealCache = () => {
       nlp: nlpState.value,
       timeseries: timeseriesState.value
     }
-    localStorage.setItem('auditsphere_real_analytics_cache_v3', JSON.stringify(cacheObj))
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj))
+    localStorage.removeItem('auditsphere_real_analytics_cache_v4')
+    localStorage.removeItem('auditsphere_real_analytics_cache_v3')
+    localStorage.removeItem('auditsphere_real_analytics_cache')
     lastSyncedTime.value = timeStr
   } catch (e) {
     console.warn('Failed to save real analytics cache', e)
@@ -164,9 +169,23 @@ const saveRealCache = () => {
 const loadRealCache = (): boolean => {
   if (typeof window === 'undefined') return false
   try {
-    const raw = localStorage.getItem('auditsphere_real_analytics_cache_v3') || localStorage.getItem('auditsphere_real_analytics_cache')
+    // Invalidate old caches that contain deprecated operational categories
+    localStorage.removeItem('auditsphere_real_analytics_cache_v4')
+    localStorage.removeItem('auditsphere_real_analytics_cache_v3')
+    localStorage.removeItem('auditsphere_real_analytics_cache')
+
+    const raw = localStorage.getItem(CACHE_KEY)
     if (!raw) return false
     const parsed = JSON.parse(raw)
+
+    // Ensure cached anomalies include the new banking categories
+    const bankCats = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
+    const hasBank = parsed.isolation?.anomalies?.some((a: any) => bankCats.includes(a.type))
+    if (!hasBank) {
+      localStorage.removeItem(CACHE_KEY)
+      return false
+    }
+
     if (parsed.xgboost) xgboostState.value = parsed.xgboost
     if (parsed.isolation) isolationState.value = parsed.isolation
     if (parsed.nlp) nlpState.value = parsed.nlp
@@ -229,12 +248,13 @@ const fetchAnalytics = async () => {
           isolationState.value.anomalies = bData.anomalies.map((a: any) => ({
             id: a.id || 'ANM-001',
             entity: a.entity || 'Jakarta Branch',
-            type: a.type || 'Transaction',
+            type: a.type || 'Funding',
             anomalyScore: a.anomaly_score ?? a.anomalyScore ?? 0.85,
             description: a.description || '',
             severity: a.severity || 'High',
             date: a.date || '2026-06-01',
             amount: a.amount ?? 0,
+            xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 0),
             isAnomaly: a.is_anomaly !== undefined ? a.is_anomaly : true,
             riskLevel: a.risk_level || a.riskLevel || 'HIGH'
           }))
@@ -243,9 +263,14 @@ const fetchAnalytics = async () => {
           isolationState.value.scatterData = bData.scatter_data.map((s: any) => ({
             x: s.x ?? 0,
             y: s.y ?? 0,
+            type: s.type,
             isAnomaly: s.is_anomaly ?? false,
             label: s.label || ''
           }))
+        }
+        if (bData.summary) {
+          isolationState.value.summary = bData.summary
+          summary.value.anomaliesDetected = bData.summary.anomaliesFound || isolationState.value.anomalies.length
         }
       }
 
@@ -400,6 +425,42 @@ interface AnomalyTypeConfig {
 }
 
 const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => ({
+  'Funding': {
+    xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
+  },
+  'Lending': {
+    xAxisTitle: t('analytics.isolation.anomalyTypes.lendingXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.lendingUnit'),
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
+  },
+  'Treasury': {
+    xAxisTitle: t('analytics.isolation.anomalyTypes.treasuryXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.treasuryUnit'),
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(99,102,241,0.85)', border: 'rgba(99,102,241,1)', style: 'rectRot' }
+  },
+  'Payment': {
+    xAxisTitle: t('analytics.isolation.anomalyTypes.paymentXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.paymentUnit'),
+    formatX: (val) => `Rp ${val}M`,
+    colors: { bg: 'rgba(245,158,11,0.85)', border: 'rgba(245,158,11,1)', style: 'rect' }
+  },
+  'KYC': {
+    xAxisTitle: t('analytics.isolation.anomalyTypes.kycXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.kycUnit'),
+    formatX: (val) => `${val}%`,
+    colors: { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'star' }
+  },
+  'IT Control': {
+    xAxisTitle: t('analytics.isolation.anomalyTypes.itControlXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.itControlUnit'),
+    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.itControlUnit')}`,
+    colors: { bg: 'rgba(20,184,166,0.85)', border: 'rgba(20,184,166,1)', style: 'crossRot' }
+  },
   'Fieldwork': {
     xAxisTitle: t('analytics.isolation.anomalyTypes.fieldworkXAxis'),
     unit: t('analytics.isolation.anomalyTypes.fieldworkUnit'),
@@ -450,7 +511,7 @@ const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => ({
   }
 }))
 
-const selectedAnomalyType = ref('Expense Report')
+const selectedAnomalyType = ref('Funding')
 
 const availableAnomalyTypes = computed(() => {
   const types = new Set<string>()
@@ -460,12 +521,31 @@ const availableAnomalyTypes = computed(() => {
   anomalies.forEach((a: any) => { if (a.type) types.add(a.type) })
   scatterData.forEach((s: any) => { if (s.type) types.add(s.type) })
 
-  if (types.size === 0) {
-    ['Expense Report', 'Travel Expense', 'Procurement', 'Access Pattern', 'Fieldwork', 'Data Access', 'Inventory', 'Transaction'].forEach(t => types.add(t))
-  }
-
-  return Array.from(types).filter(t => t !== 'All')
+  const validBankTypes = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
+  const filtered = Array.from(types).filter(t => validBankTypes.includes(t))
+  return filtered.length > 0 ? filtered : validBankTypes
 })
+
+const tableCategoryFilter = ref('All')
+
+const filteredTableAnomalies = computed(() => {
+  if (tableCategoryFilter.value === 'All') {
+    return isolationState.value.anomalies
+  }
+  return isolationState.value.anomalies.filter((a: any) => a.type === tableCategoryFilter.value)
+})
+
+const getCategoryBadgeColor = (type: string) => {
+  switch (type) {
+    case 'Funding': return 'success'
+    case 'Lending': return 'error'
+    case 'Treasury': return 'primary'
+    case 'Payment': return 'warning'
+    case 'KYC': return 'secondary'
+    case 'IT Control': return 'info'
+    default: return 'neutral'
+  }
+}
 
 watchEffect(() => {
   if ((selectedAnomalyType.value === 'All' || !selectedAnomalyType.value || !availableAnomalyTypes.value.includes(selectedAnomalyType.value)) && availableAnomalyTypes.value.length > 0) {
@@ -489,9 +569,8 @@ const getScatterChartForType = (typeFilter: string) => {
     const matchedScatter = scatterData.find((s: any) => s.label === a.id)
     let xVal = matchedScatter?.x ?? a.xMetric
     if (xVal === undefined || xVal === null) {
-      if (typeFilter === 'Fieldwork') xVal = 24
-      else if (typeFilter === 'Access Pattern') xVal = 2
-      else if (typeFilter === 'Data Access') xVal = 450
+      if (typeFilter === 'KYC') xVal = 25
+      else if (typeFilter === 'IT Control') xVal = 4
       else xVal = a.amount ? a.amount / 1000000 : 15
     }
     return {
@@ -501,12 +580,12 @@ const getScatterChartForType = (typeFilter: string) => {
   })
 
   const defaultConfig: AnomalyTypeConfig = {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.transactionXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.transactionUnit'),
+    xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
+    unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
     formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
+    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
   }
-  const config = anomalyTypeConfigs.value[typeFilter] || anomalyTypeConfigs.value['Transaction'] || defaultConfig
+  const config = anomalyTypeConfigs.value[typeFilter] || anomalyTypeConfigs.value['Funding'] || defaultConfig
   const colors = config.colors
 
   return {
@@ -771,7 +850,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
             </div>
             <div>
               <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.summary.anomaliesDetected') }}</div>
-              <div class="text-2xl font-black text-rose-600 dark:text-rose-400">{{ summary.anomaliesDetected }}</div>
+              <div class="text-2xl font-black text-rose-600 dark:text-rose-400">{{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}</div>
             </div>
           </div>
         </UCard>
@@ -928,19 +1007,19 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
               <UCard>
                 <div class="text-center">
                   <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.anomaliesFound') }}</div>
-                  <div class="text-2xl font-black text-rose-500 mt-1">{{ summary.anomaliesDetected }}</div>
+                  <div class="text-2xl font-black text-rose-500 mt-1">{{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}</div>
                 </div>
               </UCard>
               <UCard>
                 <div class="text-center">
                   <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.contaminationRate') }}</div>
-                  <div class="text-2xl font-black text-amber-500 mt-1">{{ formatNum((isolationState.summary?.contaminationRate || 0) * 100, 1) }}%</div>
+                  <div class="text-2xl font-black text-amber-500 mt-1">{{ formatNum((isolationState.summary?.contaminationRate || 0.125) * 100, 1) }}%</div>
                 </div>
               </UCard>
               <UCard>
                 <div class="text-center">
                   <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.topCategory') }}</div>
-                  <div class="text-2xl font-black text-indigo-500 mt-1">{{ isolationState.summary?.topCategory || 'Transaction' }}</div>
+                  <div class="text-2xl font-black text-indigo-500 mt-1">{{ isolationState.summary?.topCategory || 'Funding' }}</div>
                 </div>
               </UCard>
             </div>
@@ -961,7 +1040,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       :color="selectedAnomalyType === t ? 'primary' : 'neutral'"
                       :variant="selectedAnomalyType === t ? 'solid' : 'ghost'"
                       size="md"
-                      @click="() => { selectedAnomalyType = t }"
+                      @click="() => { selectedAnomalyType = t; tableCategoryFilter = t; }"
                     >
                       {{ t }}
                     </UButton>
@@ -976,9 +1055,33 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
             <!-- Anomalies Table -->
             <UCard>
               <template #header>
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-table-cells" class="text-rose-500" />
-                  <h3 class="font-bold">{{ t('analytics.isolation.tableTitle') }}</h3>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex items-center gap-2">
+                    <UIcon name="i-heroicons-table-cells" class="text-rose-500" />
+                    <h3 class="font-bold">{{ t('analytics.isolation.tableTitle') }}</h3>
+                  </div>
+                  <!-- Filter Kategori Tabel -->
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-xs text-gray-400 font-medium mr-1">Filter:</span>
+                    <UButton
+                      size="xs"
+                      :color="tableCategoryFilter === 'All' ? 'primary' : 'neutral'"
+                      :variant="tableCategoryFilter === 'All' ? 'solid' : 'ghost'"
+                      @click="tableCategoryFilter = 'All'"
+                    >
+                      Semua ({{ isolationState.anomalies.length }})
+                    </UButton>
+                    <UButton
+                      v-for="cat in availableAnomalyTypes"
+                      :key="cat"
+                      size="xs"
+                      :color="tableCategoryFilter === cat ? 'primary' : 'neutral'"
+                      :variant="tableCategoryFilter === cat ? 'solid' : 'ghost'"
+                      @click="tableCategoryFilter = cat"
+                    >
+                      {{ cat }} ({{ isolationState.anomalies.filter((a: any) => a.type === cat).length }})
+                    </UButton>
+                  </div>
                 </div>
               </template>
               <div class="overflow-x-auto">
@@ -994,10 +1097,12 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="a in isolationState.anomalies" :key="a.id" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <tr v-for="a in filteredTableAnomalies" :key="a.id" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <td class="py-3 px-3 font-mono font-bold text-md">{{ a.id }}</td>
                       <td class="py-3 px-3 font-bold">{{ a.entity }}</td>
-                      <td class="py-3 px-3"><UBadge color="neutral" variant="subtle" size="md">{{ a.type }}</UBadge></td>
+                      <td class="py-3 px-3">
+                        <UBadge :color="getCategoryBadgeColor(a.type)" variant="subtle" size="md">{{ a.type }}</UBadge>
+                      </td>
                       <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">{{ a.description }}</td>
                       <td class="text-center py-3 px-3">
                         <UBadge

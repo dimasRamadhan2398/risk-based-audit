@@ -26,7 +26,18 @@ ENTITIES_MAP = {
     'departemen operasional': 'Operations Dept',
     'operations dept': 'Operations Dept',
     'hukum & kepatuhan': 'Legal & Compliance',
-    'legal & compliance': 'Legal & Compliance'
+    'legal & compliance': 'Legal & Compliance',
+    'cabang medan': 'Medan Branch',
+    'medan branch': 'Medan Branch',
+    'unit onboarding nasabah': 'Customer Onboarding Unit',
+    'customer onboarding unit': 'Customer Onboarding Unit',
+    'unit perbankan digital': 'Digital Banking Unit',
+    'digital banking unit': 'Digital Banking Unit',
+    'cabang singapura': 'Singapore Branch',
+    'singapore branch': 'Singapore Branch',
+    'treasury jakarta': 'Treasury Jakarta',
+    'treasury surabaya': 'Treasury Surabaya',
+    'treasury medan': 'Treasury Medan'
 }
 
 RISK_CATEGORY_MAP = {
@@ -57,7 +68,17 @@ USER_ROLE_MAP = {
     'dukungan it': 'IT Support',
     'it support': 'IT Support',
     'mantan pegawai': 'Ex-Employee',
-    'ex-employee': 'Ex-Employee'
+    'ex-employee': 'Ex-Employee',
+    'staf audit': 'Audit Staff',
+    'audit staff': 'Audit Staff',
+    'auditor senior': 'Senior Auditor',
+    'senior auditor': 'Senior Auditor',
+    'tamu eksternal': 'External Guest',
+    'external guest': 'External Guest',
+    'operator core banking': 'Core Banking Operator',
+    'core banking operator': 'Core Banking Operator',
+    'administrator database': 'Database Administrator',
+    'database administrator': 'Database Administrator'
 }
 
 KPI_NAME_MAP = {
@@ -129,7 +150,10 @@ MASTER_INDONESIAN_MAP = {
     'Very Significant': 'Sangat Signifikan',
     'Significant': 'Signifikan',
     'Quite Significant': 'Cukup Signifikan',
-    'Not Significant': 'Tidak Signifikan'
+    'Not Significant': 'Tidak Signifikan',
+    'Audit Staff': 'Staf Audit',
+    'Senior Auditor': 'Auditor Senior',
+    'External Guest': 'Tamu Eksternal'
 }
 
 

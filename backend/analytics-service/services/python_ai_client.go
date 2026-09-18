@@ -42,13 +42,21 @@ type DepartmentRiskRequest struct {
 }
 
 type AnomalyRequest struct {
-	Entity           string  `json:"entity"`
-	Description      string  `json:"description"`
-	Amount           float64 `json:"amount"`
-	HourOfDay        int     `json:"hour_of_day"`
-	DayOfWeek        int     `json:"day_of_week"`
-	IsNewBeneficiary int     `json:"is_new_beneficiary"`
-	IsRoundAmount    int     `json:"is_round_amount"`
+	Entity              string  `json:"entity"`
+	Description         string  `json:"description,omitempty"`
+	Amount              float64 `json:"amount,omitempty"`
+	HourOfDay           int     `json:"hour_of_day,omitempty"`
+	DayOfWeek           int     `json:"day_of_week,omitempty"`
+	IsNewBeneficiary    int     `json:"is_new_beneficiary,omitempty"`
+	IsRoundAmount       int     `json:"is_round_amount,omitempty"`
+	Category            string  `json:"category,omitempty"`
+	Channel             string  `json:"channel,omitempty"`
+	InterestMargin      float64 `json:"interest_margin,omitempty"`
+	DocumentStatus      string  `json:"document_status,omitempty"`
+	FailedLogins        int     `json:"failed_logins,omitempty"`
+	CustomerRiskProfile string  `json:"customer_risk_profile,omitempty"`
+	AuthorizationStatus string  `json:"authorization_status,omitempty"`
+	HistoricalDevPct    float64 `json:"historical_dev_pct,omitempty"`
 }
 
 type TextRequest struct {
@@ -82,6 +90,7 @@ type AnomalyResponse struct {
 	ID                  string  `json:"id"`
 	Entity              string  `json:"entity"`
 	Type                string  `json:"type"`
+	Category            string  `json:"category,omitempty"`
 	AnomalyScore        float64 `json:"anomaly_score"`
 	Description         string  `json:"description"`
 	Severity            string  `json:"severity"`
@@ -91,6 +100,8 @@ type AnomalyResponse struct {
 	PredictedImpact     int     `json:"predicted_impact"`
 	PredictedLikelihood int     `json:"predicted_likelihood"`
 	RiskLevel           string  `json:"risk_level"`
+	XMetric             float64 `json:"xMetric,omitempty"`
+	TargetTimeline      string  `json:"target_timeline,omitempty"`
 }
 
 type IndoBERTResponse struct {

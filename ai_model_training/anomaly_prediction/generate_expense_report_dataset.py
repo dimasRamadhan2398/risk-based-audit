@@ -33,7 +33,7 @@ def generate():
     exp_target_anom = np.where(is_exp_anom == 1, 'Ya (Anomali)', 'Tidak')
 
     exp_impact = np.clip(np.ceil(claim_amount / 8.0) + np.random.choice([0, 1], size=N_SAMPLES, p=[0.7, 0.3]), 1, 5).astype(int)
-    exp_likelihood = np.clip(np.ceil(dup_claims + seq_invoice * 2.0 + (days_since_last == 0) * 1.5) + np.random.choice([0, 1], size=N_SAMPLES, p=[0.7, 0.3]), 1, 5).astype(int)
+    exp_likelihood = np.clip(np.ceil(dup_claims * 1.2 + seq_invoice * 1.8 + over_limit * 1.5 + (days_since_last <= 2) * 1.0) + np.random.choice([0, 1], size=N_SAMPLES, p=[0.7, 0.3]), 1, 5).astype(int)
 
     df_expense = pd.DataFrame({
         'ID Klaim': [f'CLM-{i+1:04d}' for i in range(N_SAMPLES)],

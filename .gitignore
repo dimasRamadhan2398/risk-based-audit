@@ -26,6 +26,8 @@ Thumbs.db
 *.bin
 *.iso
 *.dmg
+*.pkl
+*.pth
 **/model/
 
 # Build artifacts & caches

@@ -113,9 +113,13 @@ for target_name, config in targets_config.items():
         target_classes = list(range(len(le.classes_)))
         target_class_names = [str(c) for c in le.classes_]
     
-    # 80/20 Stratified Train-Test Split
+    # 80/20 Stratified Train-Test Split (with safe fallback if any class has < 2 samples)
+    unique_classes, class_counts = np.unique(y, return_counts=True)
+    can_stratify = np.all(class_counts >= 2)
+    stratify_target = y if can_stratify else None
+
     X_train, X_test, y_train, y_test = train_test_split(
-        X_clean, y, test_size=0.2, random_state=42, stratify=y
+        X_clean, y, test_size=0.2, random_state=42, stratify=stratify_target
     )
     
     # Feature Scaling
@@ -218,6 +222,6 @@ for target_name, config in targets_config.items():
     print(f"\n[WINNER] Best Model: {winner['model_name']} (Accuracy: {winner['test_acc']*100:.2f}%)")
     
     print(f"\n--- Classification Report for Winner ({winner['model_name']}) ---")
-    print(confusion_matrix(y_test, winner['y_pred']))
     names = config['class_names'] if config['is_binary'] else target_class_names
-    print(classification_report(y_test, winner['y_pred'], target_names=names, zero_division=0))
+    print(confusion_matrix(y_test, winner['y_pred'], labels=target_classes))
+    print(classification_report(y_test, winner['y_pred'], labels=target_classes, target_names=names, zero_division=0))

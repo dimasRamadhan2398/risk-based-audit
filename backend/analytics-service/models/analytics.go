@@ -22,9 +22,15 @@ type TrendPoint struct {
 }
 
 type Anomaly struct {
-	Description string `json:"description"`
-	Severity    string `json:"severity"` // e.g., "High", "Medium"
-	Date        string `json:"date"`
+	ID          string  `json:"id,omitempty"`
+	Entity      string  `json:"entity,omitempty"`
+	Type        string  `json:"type,omitempty"`
+	Description string  `json:"description"`
+	Severity    string  `json:"severity"` // e.g., "High", "Medium"
+	Date        string  `json:"date"`
+	Amount      float64 `json:"amount,omitempty"`
+	RiskLevel   string  `json:"risk_level,omitempty"`
+	XMetric     float64 `json:"xMetric,omitempty"`
 }
 
 // PredictiveAnalysis represents future risk trends

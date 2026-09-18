@@ -112,7 +112,7 @@ anom_imp_clf.fit(X_anom_scaled, y_anom_imp)
 anom_lik_clf = RandomForestClassifier(n_estimators=200, class_weight='balanced', random_state=42)
 anom_lik_clf.fit(X_anom_scaled, y_anom_lik)
 
-# 1d. Train 8 Domain-Specific Sub-Models
+# 1d. Train 8 Domain-Specific Sub-Models + 7 Banking Sub-Models
 sub_domain_files = {
     'access_pattern': 'access_pattern_data.csv',
     'audit_budget': 'audit_budget_data.csv',
@@ -121,7 +121,14 @@ sub_domain_files = {
     'inventory': 'inventory_data.csv',
     'mitigation_overdue': 'mitigation_overdue_data.csv',
     'repeat_finding': 'repeat_finding_data.csv',
-    'risk_score_spike': 'risk_score_spike_data.csv'
+    'risk_score_spike': 'risk_score_spike_data.csv',
+    'bank_transaction': 'bank_transaction_anomaly_data.csv',
+    'funding': 'funding_data.csv',
+    'lending': 'lending_data.csv',
+    'treasury': 'treasury_data.csv',
+    'payment': 'payment_data.csv',
+    'kyc': 'kyc_data.csv',
+    'it_control': 'it_control_data.csv'
 }
 
 sub_models_bundle = {}
@@ -130,7 +137,7 @@ for domain_name, csv_filename in sub_domain_files.items():
     sub_csv_path = os.path.join(CURRENT_DIR, 'anomaly_prediction', csv_filename)
     if os.path.exists(sub_csv_path):
         df_sub = pd.read_csv(sub_csv_path)
-        feat_cols = [c for c in df_sub.columns if not c.startswith('TARGET') and not c.startswith('ID') and c != 'User ID']
+        feat_cols = [c for c in df_sub.columns if not c.startswith('TARGET') and not c.startswith('ID') and c != 'User ID' and c != 'Alasan Anomali']
         
         cat_cols = [c for c in feat_cols if (df_sub[c].dtype == object or df_sub[c].dtype == 'string') and df_sub[c].nunique() <= 50]
         num_cols = [c for c in feat_cols if df_sub[c].dtype in ['int64', 'float64']]
@@ -177,6 +184,95 @@ for domain_name, csv_filename in sub_domain_files.items():
         }
         print(f" -> Trained domain sub-model [{domain_name}]")
 
+# 1e. Train Dedicated Bank Transaction Cross-Category Anomaly Model Suite
+print(" -> Training Dedicated Bank Transaction Anomaly Model...")
+bank_csv = os.path.join(CURRENT_DIR, 'anomaly_prediction', 'bank_transaction_anomaly_data.csv')
+bank_model_bundle = None
+
+if os.path.exists(bank_csv):
+    df_bank = pd.read_csv(bank_csv)
+    
+    df_bank['log_amount'] = np.log1p(pd.to_numeric(df_bank['Nilai Transaksi (Juta Rp)'], errors='coerce').fillna(0.0))
+    jam_txn = pd.to_numeric(df_bank['Jam Transaksi (0-23)'], errors='coerce').fillna(12)
+    df_bank['sin_hour'] = np.sin(2 * np.pi * jam_txn / 24.0)
+    df_bank['cos_hour'] = np.cos(2 * np.pi * jam_txn / 24.0)
+    df_bank['is_night_txn'] = ((jam_txn < 6) | (jam_txn > 22)).astype(int)
+    df_bank['is_unauthorized_override'] = (df_bank['Status Otorisasi / Maker-Checker'].astype(str) == 'Override / Tanpa Otorisasi').astype(int)
+    df_bank['is_doc_defect'] = (df_bank['Status Dokumen'].astype(str) == 'Tidak Lengkap').astype(int)
+    df_bank['is_high_risk_cust'] = (df_bank['Tingkat Risiko Nasabah'].astype(str).isin(['High Risk', 'PEP / High Risk Watchlist'])).astype(int)
+    gagal_login = pd.to_numeric(df_bank['Jumlah Gagal Login'], errors='coerce').fillna(0)
+    df_bank['is_brute_force'] = (gagal_login >= 5).astype(int)
+    
+    df_bank['composite_bank_risk'] = (
+        df_bank['is_unauthorized_override'] * 2 +
+        df_bank['is_doc_defect'] * 2 +
+        df_bank['is_brute_force'] * 2 +
+        df_bank['is_high_risk_cust'] * 1 +
+        df_bank['is_night_txn'] * 1
+    )
+    
+    bank_cat_cols = [
+        'Kategori', 'Entitas', 'Kanal Transaksi',
+        'Status Dokumen', 'Tingkat Risiko Nasabah',
+        'Status Otorisasi / Maker-Checker'
+    ]
+    
+    bank_num_cols = [
+        'Nilai Transaksi (Juta Rp)', 'log_amount', 'Bunga/Margin (%)',
+        'Jam Transaksi (0-23)', 'sin_hour', 'cos_hour',
+        'Jumlah Gagal Login', 'Deviasi terhadap Profil Historis (%)',
+        'is_night_txn', 'is_unauthorized_override', 'is_doc_defect',
+        'is_high_risk_cust', 'is_brute_force', 'composite_bank_risk'
+    ]
+    
+    for c in bank_cat_cols:
+        df_bank[c] = df_bank[c].astype(str)
+    for c in bank_num_cols:
+        df_bank[c] = pd.to_numeric(df_bank[c], errors='coerce').fillna(0.0)
+        
+    bank_preprocessor = ColumnTransformer(
+        transformers=[
+            ('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), bank_cat_cols),
+            ('num', StandardScaler(), bank_num_cols)
+        ]
+    )
+    
+    X_bank_raw = df_bank[bank_cat_cols + bank_num_cols]
+    X_bank_scaled = bank_preprocessor.fit_transform(X_bank_raw)
+    
+    y_bank_is = np.where(df_bank['TARGET: is_anomaly'].astype(str).str.strip() == 'Ya (Anomali)', 1, 0)
+    y_bank_imp = pd.to_numeric(df_bank['TARGET: Impact (1-5)'], errors='coerce').fillna(3).values.astype(int) - 1
+    y_bank_lik = pd.to_numeric(df_bank['TARGET: Likelihood (1-5)'], errors='coerce').fillna(3).values.astype(int) - 1
+    
+    bank_pos = max((y_bank_is == 1).sum(), 1)
+    bank_neg = (y_bank_is == 0).sum()
+    bank_scale_pos = bank_neg / bank_pos
+    
+    bank_clf = XGBClassifier(scale_pos_weight=bank_scale_pos, eval_metric='logloss', max_depth=4, random_state=42)
+    bank_clf.fit(X_bank_scaled, y_bank_is)
+    
+    bank_iso = IsolationForest(contamination=max(0.05, float(y_bank_is.mean())), random_state=42)
+    bank_iso.fit(X_bank_scaled)
+    
+    bank_imp_clf = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+    bank_imp_clf.fit(X_bank_scaled, y_bank_imp)
+    
+    bank_lik_clf = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+    bank_lik_clf.fit(X_bank_scaled, y_bank_lik)
+    
+    bank_model_bundle = {
+        'classifier': bank_clf,
+        'isolation_forest': bank_iso,
+        'impact_classifier': bank_imp_clf,
+        'likelihood_classifier': bank_lik_clf,
+        'preprocessor': bank_preprocessor,
+        'cat_cols': bank_cat_cols,
+        'num_cols': bank_num_cols,
+        'best_threshold': 0.40,
+        'known_categories': sorted(df_bank['Kategori'].unique().tolist())
+    }
+    print(" -> Trained bank_model successfully.")
+
 # Save complete Anomaly Model Suite
 anomaly_bundle = {
     'classifier': anom_clf,
@@ -189,13 +285,14 @@ anomaly_bundle = {
     'feature_cols': feature_cols_anom,
     'known_entitas': sorted(df_anom['Entitas'].unique().tolist()),
     'known_deskripsi': sorted(df_anom['Deskripsi'].unique().tolist()),
+    'bank_model': bank_model_bundle,
     'sub_models': sub_models_bundle
 }
 
 with open(os.path.join(OUTPUT_MODEL_DIR, 'anomaly_bundle.pkl'), 'wb') as f:
     pickle.dump(anomaly_bundle, f)
 
-print(" -> Saved enhanced anomaly_bundle.pkl with IsolationForest & 8 Domain Sub-Models successfully.")
+print(" -> Saved enhanced anomaly_bundle.pkl with IsolationForest, bank_model & 15 Sub-Models successfully.")
 
 # ======================================================================
 # 2. DEPARTMENT RISK PREDICTION MODEL SUITE
