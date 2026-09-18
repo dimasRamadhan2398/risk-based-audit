@@ -9,6 +9,9 @@ concurrency:
   group: auditsphere-development
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   deploy-dev-vps:
     name: Deploy Dev to VPS
@@ -17,6 +20,8 @@ jobs:
     steps:
       - name: Execute SSH Dev Deployment
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -26,6 +31,7 @@ jobs:
           timeout: 60m
           command_timeout: 60m
           script_stop: true
+          envs: GH_TOKEN
           script: |
             set -Eeuo pipefail
             export LOCK_FILE="/tmp/auditsphere_deploy_dev.lock"
@@ -35,6 +41,7 @@ jobs:
               # Configuration
               # ================================================================
               REPO_URL="https://github.com/RauMomo/risk-based-audit.git"
+              REPO_AUTH_URL="https://x-access-token:${GH_TOKEN}@github.com/RauMomo/risk-based-audit.git"
               REPO_DIR="/app/rbia-repo-dev"
               BACKEND_DIR="$REPO_DIR/backend"
               FRONTEND_DIR="$REPO_DIR/frontend"
@@ -103,10 +110,11 @@ jobs:
               rm -rf "$REPO_DIR"
 
               echo "📥 Cloning branch '$TARGET_BRANCH' from $REPO_URL..."
-              if ! git clone --depth 1 --branch "$TARGET_BRANCH" "$REPO_URL" "$REPO_DIR" 2>&1; then
+              if ! git clone --depth 1 --branch "$TARGET_BRANCH" "$REPO_AUTH_URL" "$REPO_DIR" 2>&1; then
                 echo "⚠️ Branch '$TARGET_BRANCH' not found. Falling back to 'main'..."
-                git clone --depth 1 --branch main "$REPO_URL" "$REPO_DIR" 2>&1
+                git clone --depth 1 --branch main "$REPO_AUTH_URL" "$REPO_DIR" 2>&1
               fi
+              (cd "$REPO_DIR" && git remote set-url origin "$REPO_URL")
               echo "   ✓ clone OK"
 
               cd "$REPO_DIR"
