@@ -105,11 +105,11 @@ anom_clf.fit(X_anom_scaled, y_anom_is)
 iso_forest_anom = IsolationForest(contamination=0.20, random_state=42)
 iso_forest_anom.fit(X_anom_scaled)
 
-# 1c. Impact & Likelihood Classifiers
-anom_imp_clf = RandomForestClassifier(n_estimators=200, class_weight='balanced', random_state=42)
+# 1c. Impact & Likelihood Classifiers (bounded depth for optimal size < 25MB)
+anom_imp_clf = RandomForestClassifier(n_estimators=50, max_depth=7, class_weight='balanced', random_state=42)
 anom_imp_clf.fit(X_anom_scaled, y_anom_imp)
 
-anom_lik_clf = RandomForestClassifier(n_estimators=200, class_weight='balanced', random_state=42)
+anom_lik_clf = RandomForestClassifier(n_estimators=50, max_depth=7, class_weight='balanced', random_state=42)
 anom_lik_clf.fit(X_anom_scaled, y_anom_lik)
 
 # 1d. Train 8 Domain-Specific Sub-Models + 7 Banking Sub-Models
@@ -167,10 +167,10 @@ for domain_name, csv_filename in sub_domain_files.items():
         sub_iso = IsolationForest(contamination=max(0.05, float(y_sub_is.mean())), random_state=42)
         sub_iso.fit(X_sub_scaled)
         
-        sub_imp_clf = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+        sub_imp_clf = RandomForestClassifier(n_estimators=25, max_depth=5, class_weight='balanced', random_state=42)
         sub_imp_clf.fit(X_sub_scaled, y_sub_imp)
         
-        sub_lik_clf = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+        sub_lik_clf = RandomForestClassifier(n_estimators=25, max_depth=5, class_weight='balanced', random_state=42)
         sub_lik_clf.fit(X_sub_scaled, y_sub_lik)
         
         sub_models_bundle[domain_name] = {
@@ -254,10 +254,10 @@ if os.path.exists(bank_csv):
     bank_iso = IsolationForest(contamination=max(0.05, float(y_bank_is.mean())), random_state=42)
     bank_iso.fit(X_bank_scaled)
     
-    bank_imp_clf = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+    bank_imp_clf = RandomForestClassifier(n_estimators=40, max_depth=6, class_weight='balanced', random_state=42)
     bank_imp_clf.fit(X_bank_scaled, y_bank_imp)
     
-    bank_lik_clf = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+    bank_lik_clf = RandomForestClassifier(n_estimators=40, max_depth=6, class_weight='balanced', random_state=42)
     bank_lik_clf.fit(X_bank_scaled, y_bank_lik)
     
     bank_model_bundle = {
