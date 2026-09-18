@@ -56,6 +56,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		departments.DELETE("/:id", controller.GetDepartment().Delete)
 	}
 
+	employees := api.Group("/employees")
+	{
+		employees.GET("", controller.GetEmployee().FindAll)
+		employees.GET("/:id", controller.GetEmployee().FindById)
+		employees.POST("", controller.GetEmployee().Create)
+		employees.PUT("/:id", controller.GetEmployee().Update)
+		employees.DELETE("/:id", controller.GetEmployee().Delete)
+	}
+
 	qa := api.Group("/quality-assurance")
 	{
 		qa.GET("", func(c *gin.Context) {
