@@ -1884,13 +1884,13 @@ export default defineAppConfig({
           color: "primary",
           variant: "solid",
           class:
-            "text-inverted dark:bg-primary-600/90 text-secondary-900 dark:text-white font-semibold tracking-wider hover:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary shadow-sm",
+            "text-inverted dark:bg-primary-600/90 text-neutral-50 dark:text-white font-semibold tracking-wider hover:bg-primary/75 disabled:bg-neutral-600 aria-disabled:bg-neutral-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary shadow-sm",
         },
         {
           color: "primary",
           variant: "outline",
           class:
-            "ring ring-inset ring-primary/50 text-primary hover:bg-primary/10 active:bg-primary/10 disabled:bg-transparent aria-disabled:bg-transparent dark:disabled:bg-transparent dark:aria-disabled:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            "ring ring-inset ring-primary/50 text-primary hover:bg-primary/10 active:bg-primary/10 disabled:bg-neutral-600 aria-disabled:bg-neutral-600 dark:disabled:bg-transparent dark:aria-disabled:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         },
         {
           color: "primary",
@@ -2090,11 +2090,13 @@ export default defineAppConfig({
     },
     selectMenu: {
       slots: {
+        base: 'data-[state=open]:ring-2 data-[state=open]:ring-primary focus:ring-accented',
         content: 'z-[9999]'
       }
     },
     select: {
       slots: {
+        base: 'data-[state=open]:ring-2 data-[state=open]:ring-primary focus:ring-accented',
         content: 'z-[9999]'
       }
     },

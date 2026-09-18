@@ -5,6 +5,7 @@ import type {
   UpdateEmployeeRequest,
   ListEmployeesResponse
 } from '~/types/master'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useEmployeeApi = () => {
   const config = useRuntimeConfig()

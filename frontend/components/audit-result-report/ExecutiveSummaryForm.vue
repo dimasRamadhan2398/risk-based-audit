@@ -567,24 +567,6 @@
                   size="sm"
                   @click="downloadExcelTemplate"
                 />
-                <UButton
-                  v-if="!isLocked"
-                  color="warning"
-                  variant="outline"
-                  icon="i-lucide-file-spreadsheet"
-                  label="Simulasikan Impor Excel"
-                  size="sm"
-                  @click="simulateExcelImport"
-                />
-                <UButton
-                  v-if="!isLocked"
-                  color="primary"
-                  variant="soft"
-                  icon="i-lucide-plus"
-                  label="Tambah Baris Temuan"
-                  size="sm"
-                  @click="addMatrixRow"
-                />
               </div>
             </div>
           </div>
@@ -727,6 +709,22 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <!-- Tombol di paling bawah matrix grid table untuk menambahkan row baru matriks induk kompilasi temuan -->
+            <div v-if="!isLocked" class="p-3 bg-gray-50 dark:bg-gray-800/60 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3">
+              <UButton
+                type="button"
+                color="primary"
+                variant="soft"
+                icon="i-lucide-plus"
+                label="Tambah Baris Temuan"
+                size="sm"
+                @click="addMatrixRow"
+              />
+              <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                {{ store.form.matriksKompilasi.length }} temuan
+              </span>
             </div>
           </div>
           

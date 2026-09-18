@@ -225,12 +225,12 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
           {
             label: t('navigation.executiveSummary'),
             icon: 'i-lucide-layout-dashboard',
-            to: '/audit-result-report/executive-summary'
+            to: 'executive-summary'
           },
           {
             label: t('navigation.importExecutiveSummary'),
             icon: 'i-lucide-upload',
-            to: '/audit-result-report/executive-summary-upload'
+            to: 'executive-summary-upload'
           }
         ]
       },

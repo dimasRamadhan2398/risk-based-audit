@@ -5,6 +5,7 @@ import type {
   UpdateDepartmentRequest,
   ListDepartmentsResponse
 } from '~/types/master'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useDepartmentApi = () => {
   const config = useRuntimeConfig()

@@ -5,6 +5,7 @@ import type {
   UpdateCompanyRequest,
   ListCompaniesResponse
 } from '~/types/master'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useCompanyApi = () => {
   const config = useRuntimeConfig()

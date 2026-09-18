@@ -60,29 +60,28 @@
 
             <!-- HIB/HIG Radio -->
             <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">
-                {{ t('strategicPlan.form.hibHig') }} <span class="text-orange-500">*</span>
-              </label>
-              <div class="flex flex-col gap-2">
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    v-model="store.form.hibHig"
-                    value="HIG"
-                    class="accent-orange-500 w-4 h-4"
-                  />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.higLabel') }}</span>
-                </label>
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    v-model="store.form.hibHig"
-                    value="HIB"
-                    class="accent-orange-500 w-4 h-4"
-                  />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.hibLabel') }}</span>
-                </label>
-              </div>
+            <UFormField :label="t('strategicPlan.form.hibHig')" required>
+              <URadioGroup
+                v-model="store.form.hibHig"
+                :items="[
+                  { label: t('strategicPlan.form.higLabel'), value: 'HIG' },
+                  { label: t('strategicPlan.form.hibLabel'), value: 'HIB' }
+                ]"
+                color="primary"
+              />
+            </UFormField>
+
+            <!-- Period Type Radio -->
+            <UFormField :label="t('strategicPlan.form.periodType')" required>
+              <URadioGroup
+                v-model="store.form.periodType"
+                :items="[
+                  { label: t('strategicPlan.form.quartal'), value: 'Quartal' },
+                  { label: t('strategicPlan.form.yearly'), value: 'Yearly' }
+                ]"
+                color="primary"
+              />
+            </UFormField>
             </div>
 
             <!-- Period Type Radio -->
