@@ -14,6 +14,16 @@
           </div>
 
           <div class="divide-y divide-gray-100 dark:divide-gray-800/70">
+            <!-- Email Notifications Main Toggle -->
+            <div class="flex items-center justify-between py-3.5">
+              <div class="space-y-0.5 min-w-0 flex-1">
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('settings.general.emailNotifications') }}</p>
+                <p class="text-md text-gray-500 dark:text-gray-400">{{ t('settings.general.emailNotificationsDesc') }}</p>
+              </div>
+              <USwitch v-model="settings.emailNotifications" color="primary" />
+            </div>
+
+            <!-- Individual Notification Settings -->
             <div
               v-for="item in notificationSettings"
               :key="item.key"
@@ -25,7 +35,7 @@
               </div>
               <USwitch
                 :model-value="settings[item.key]"
-                :disabled="item.disabled"
+                :disabled="item.disabled || !settings.emailNotifications"
                 color="primary"
                 @update:model-value="(val: boolean) => settings[item.key] = val"
               />
@@ -120,6 +130,7 @@ import { z } from 'zod'
 
 const { t, locale, setLocale } = useI18n()
 const toast = useToast()
+const colorMode = useColorMode()
 
 type Settings = {
   emailNotifications: boolean
@@ -147,9 +158,25 @@ const settings = ref<Settings>({
   twoFactor: false,
 })
 
+// Apply dark mode to the app
+watch(() => settings.value.darkMode, (isDark) => {
+  colorMode.preference = isDark ? 'dark' : 'light'
+  localStorage.setItem('nuxt-color-mode', isDark ? 'dark' : 'light')
+})
+
+// Sync locale with settings
 watch(locale, (newLoc) => {
   settings.value.language = newLoc === 'id' ? 'Bahasa Indonesia' : 'English'
 }, { immediate: true })
+
+// Load saved dark mode preference on mount
+onMounted(() => {
+  const savedColorMode = localStorage.getItem('nuxt-color-mode')
+  if (savedColorMode) {
+    settings.value.darkMode = savedColorMode === 'dark'
+    colorMode.preference = savedColorMode as 'light' | 'dark'
+  }
+})
 
 const accordionItems = computed<AccordionItem[]>(() => [
   {

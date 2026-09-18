@@ -111,9 +111,6 @@
 
       <!-- Actions -->
       <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-        <UButton variant="subtle" color="neutral" class="rounded-xl font-semibold px-5" @click="resetForm">
-          {{ t('settings.profile.cancel') }}
-        </UButton>
         <UButton color="primary" class="rounded-xl font-bold px-6" :loading="saving" @click="saveProfile">
           {{ t('settings.profile.saveChanges') }}
         </UButton>

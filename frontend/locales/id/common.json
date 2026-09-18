@@ -2523,5 +2523,145 @@
       "noComments": "Tidak ada komentar tambahan yang diberikan.",
       "close": "Tutup"
     }
+  },
+  "rcm": {
+    "breadcrumb": {
+      "riskProfile": "Profil Risiko",
+      "rcm": "Risk Control Matrix"
+    },
+    "header": {
+      "title": "Risk Control Matrix (RCM)",
+      "subtitle": "Pengukuran efektivitas internal control berbasis 5 dimensi COSO 2013 & evaluasi risiko terintegrasi.",
+      "addControlMatrix": "Tambah Control Matrix"
+    },
+    "filters": {
+      "yearOption": "Tahun {year}",
+      "allDepartments": "Semua Departemen / Branch",
+      "allBranches": "Semua Branch / Departemen"
+    },
+    "cards": {
+      "effectiveness": {
+        "badge": "Pengukuran Tutup Buku Akhir Tahun",
+        "periodInfo": "Tahun: {year} | {department}",
+        "title": "Internal Control Effectiveness",
+        "realScore": "Skor Efektivitas Riil",
+        "inherentRiskLabel": "Inherent Risk (Risiko Prioritas Awal Tahun):",
+        "riskCount": "{count} Risiko",
+        "residualRiskLabel": "Residual Risk (Sisa Risiko Tutup Buku):",
+        "cosoInterpretation": "Interpretasi Hasil COSO ({rating}):",
+        "syncNote": "Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile."
+      },
+      "coso": {
+        "title": "Rata-Rata COSO 2013",
+        "totalControls": "Total Kontrol Dievaluasi:",
+        "itemsCount": "{count} Item"
+      }
+    },
+    "dimensions": {
+      "design": "Design",
+      "operating": "Operating",
+      "coverage": "Coverage",
+      "timeliness": "Timeliness",
+      "automation": "Automation",
+      "designFullName": "1. Design Effectiveness (20%)",
+      "designDesc": "Kesesuaian rancangan kontrol terhadap risiko & SOP",
+      "operatingFullName": "2. Operating Effectiveness (20%)",
+      "operatingDesc": "Konsistensi eksekusi dan ketiadaan deviasi kontrol",
+      "coverageFullName": "3. Coverage & Completeness (20%)",
+      "coverageDesc": "Cakupan kontrol pada seluruh transaksi/aktivitas",
+      "timelinessFullName": "4. Timeliness & Frequency (20%)",
+      "timelinessDesc": "Ketepatan waktu kontrol mendeteksi / mencegah insiden",
+      "automationFullName": "5. Automation & Monitoring (20%)",
+      "automationDesc": "Tingkat otomatisasi sistemik & continuous monitoring"
+    },
+    "interpretationTable": {
+      "toggle": "Tabel Standar Interpretasi Rating Efektivitas Kontrol Internal",
+      "headers": {
+        "totalWeightedScore": "Total Weighted Score (%)",
+        "rating": "Rating",
+        "interpretation": "Interpretasi"
+      },
+      "ratings": {
+        "highlyEffective": "Sangat Efektif",
+        "effective": "Efektif",
+        "moderatelyEffective": "Cukup Efektif",
+        "weak": "Lemah",
+        "ineffective": "Tidak Efektif"
+      },
+      "descriptions": {
+        "highlyEffective": "Kontrol memitigasi risiko secara andal dan hanya memerlukan pemantauan rutin.",
+        "effective": "Kontrol berfungsi dengan baik; hanya perbaikan kecil yang disarankan.",
+        "moderatelyEffective": "Terdapat beberapa kelemahan; tindakan korektif harus direncanakan.",
+        "weak": "Perbaikan signifikan diperlukan untuk mengurangi risiko secara memadai.",
+        "ineffective": "Kontrol tidak memberikan mitigasi risiko yang memadai dan memerlukan perhatian segera."
+      }
+    },
+    "table": {
+      "title": "Daftar Risk Control Matrix",
+      "subtitle": "Hasil evaluasi 5 Dimensi COSO 2013 (Rating 1 - 5 mewakili 4% - 20% per dimensi)",
+      "searchPlaceholder": "Cari risiko / kontrol...",
+      "empty": {
+        "label": "Tidak ada data Risk Control Matrix",
+        "description": "Tidak ada data Risk Control Matrix yang sesuai dengan filter."
+      },
+      "columns": {
+        "riskCode": "Kode / Risiko",
+        "controlCode": "Risk Control ID & Deskripsi Mitigasi",
+        "department": "Departemen / PIC",
+        "design": "Design",
+        "operating": "Operating",
+        "coverage": "Coverage",
+        "timeliness": "Timeliness",
+        "automation": "Automation",
+        "totalScore": "Total Score",
+        "rating": "Rating Efektivitas",
+        "actions": "Aksi"
+      },
+      "cells": {
+        "pic": "PIC:"
+      },
+      "actions": {
+        "edit": "Edit Control",
+        "delete": "Hapus Control"
+      }
+    },
+    "modal": {
+      "manageTitle": "Kelola Risk Control Matrix",
+      "editTitle": "Edit Risk Control Matrix",
+      "addTitle": "Tambah Risk Control Matrix Baru",
+      "branchLabel": "Branch / Departemen",
+      "branchPlaceholder": "Pilih Branch...",
+      "riskSelectLabel": "Pilih Nama Risiko (Corporate Risk Profile)",
+      "riskSelectPlaceholder": "Pilih Nama Risiko...",
+      "riskCodeLabel": "Kode Risiko (Sinkron)",
+      "departmentLabel": "Departemen / Branch (Sinkron)",
+      "riskEventLabel": "Kejadian Risiko / Risk Event (Sinkron)",
+      "controlSelectLabel": "Pilih Risk Control ID (Rencana Mitigasi & Kontrol)",
+      "controlSelectPlaceholder": "Pilih Risk Control ID...",
+      "controlCodeLabel": "Kode Kontrol (Risk Control ID)",
+      "controlCodePlaceholder": "misal: CTL-FIN-001",
+      "controlOwnerLabel": "PIC / Owner Kontrol (Sinkron)",
+      "controlOwnerPlaceholder": "Finance Manager",
+      "controlDescLabel": "Deskripsi Aktivitas Pengendalian Internal",
+      "controlDescPlaceholder": "Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan...",
+      "evaluationTitle": "Evaluasi 5 Dimensi Internal Control (COSO 2013)",
+      "evaluationWeight": "Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)",
+      "totalWeightedScore": "Total Weighted Effectiveness Score:",
+      "interpretation": "Interpretasi:",
+      "cancel": "Batal",
+      "save": "Simpan Kontrol Matrix"
+    },
+    "toasts": {
+      "validationWarning": "Mohon pilih risiko dan lengkapi deskripsi kontrol.",
+      "updateSuccess": "Risk Control Matrix berhasil diperbarui",
+      "addSuccess": "Risk Control Matrix berhasil ditambahkan",
+      "deleteSuccess": "Risk Control Matrix berhasil dihapus"
+    },
+    "confirmDelete": {
+      "description": "Apakah Anda yakin ingin menghapus baris Risk Control Matrix ini?"
+    },
+    "defaults": {
+      "mitigationDescPrefix": "Aktivitas mitigasi & pengawasan internal untuk "
+    }
   }
 }
