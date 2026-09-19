@@ -1067,7 +1067,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       size="xs"
                       :color="tableCategoryFilter === 'All' ? 'primary' : 'neutral'"
                       :variant="tableCategoryFilter === 'All' ? 'solid' : 'ghost'"
-                      @click="tableCategoryFilter = 'All'"
+                      @click="() => { tableCategoryFilter = 'All' }"
                     >
                       Semua ({{ isolationState.anomalies.length }})
                     </UButton>
@@ -1077,7 +1077,7 @@ const pct = (v: number) => `${((v || 0) * 100).toFixed(1)}%`
                       size="xs"
                       :color="tableCategoryFilter === cat ? 'primary' : 'neutral'"
                       :variant="tableCategoryFilter === cat ? 'solid' : 'ghost'"
-                      @click="tableCategoryFilter = cat"
+                      @click="() => { tableCategoryFilter = cat }"
                     >
                       {{ cat }} ({{ isolationState.anomalies.filter((a: any) => a.type === cat).length }})
                     </UButton>
