@@ -236,7 +236,7 @@ jobs:
                 git clone --depth 1 "$REPO_URL" "$REPO_DIR"
                 cd "$REPO_DIR"
                 git fetch --depth 1 origin "$DEPLOY_SHA"
-                git checkout "$DEPLOY_SHA"
+                git checkout "$DEPLOY_SHA" 
               fi
 
               # Overlay pre-compiled backend
