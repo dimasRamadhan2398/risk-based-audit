@@ -677,7 +677,7 @@
                       name="i-lucide-mail"
                       class="w-3.5 h-3.5"
                     />
-                    Resend API (DKIM/SPF Auto-Provisioning)
+                    Email API
                   </span>
                 </div>
                 <div class="space-y-1">

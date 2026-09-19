@@ -335,7 +335,6 @@
         content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
         header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
         body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
@@ -380,7 +379,8 @@
                 <UFormField :label="t('riskAppetite.statements.modal.statusLabel')" required class="block text-sm font-medium" size="lg">
                   <USelect 
                     v-model="form.status" 
-                    :items="['DRAFT', 'SUBMITTED', 'APPROVED']" 
+                    :items="statusOptions" 
+                    value-key="value"
                     class="mt-1 block w-full rounded-md" 
                     required 
                   />
@@ -388,7 +388,7 @@
               </div>
             </div>
           </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg">
+          <div class="border-t border-gray-100 dark:border-gray-800 bg-transparent px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl">
             <UButton
               type="submit"
               :loading="appetiteStore.loading"
@@ -445,6 +445,12 @@ const form = ref({
   threshold_limit: 10.00,
   status: 'DRAFT'
 })
+
+const statusOptions = [
+  { label: 'DRAFT', value: 'DRAFT' },
+  { label: 'SUBMITTED', value: 'SUBMITTED' },
+  { label: 'APPROVED', value: 'APPROVED' }
+]
 
 const tabs = computed(() => [
   { label: t('riskAppetite.tabs.overview'), key: 'overview' as const, value: 'overview', icon: 'i-heroicons-information-circle' },
@@ -610,10 +616,20 @@ const openEditModal = (stmt: RiskAppetite) => {
 
 const handleSubmit = async () => {
   try {
+    const rawStatus = typeof form.value.status === 'object' && form.value.status !== null
+      ? (form.value.status as any).value
+      : form.value.status
+
+    const payload = {
+      statement: form.value.statement,
+      threshold_limit: Number(form.value.threshold_limit),
+      status: rawStatus || 'DRAFT'
+    }
+
     if (isEditing.value) {
-      await appetiteStore.updateStatement(editingId.value, form.value)
+      await appetiteStore.updateStatement(editingId.value, payload)
     } else {
-      await appetiteStore.createStatement(form.value)
+      await appetiteStore.createStatement(payload)
     }
     isModalOpen.value = false
   } catch (error) {

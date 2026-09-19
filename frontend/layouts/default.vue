@@ -218,19 +218,21 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         to: '/audit-result-report/upload'
       },
       {
-        label: t('navigation.executiveSummary'),
+        label: t('navigation.executiveSummaryIndividual'),
         icon: 'i-lucide-presentation',
         type: 'trigger',
         children: [
           {
-            label: t('navigation.executiveSummary'),
+            label: t('navigation.createExecutiveSummary'),
             icon: 'i-lucide-layout-dashboard',
-            to: 'executive-summary'
+            to: '/executive-summary',
+            exact: true
           },
           {
             label: t('navigation.importExecutiveSummary'),
             icon: 'i-lucide-upload',
-            to: 'executive-summary-upload'
+            to: '/executive-summary/upload',
+            exact: true
           }
         ]
       },
@@ -242,12 +244,14 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
           {
             label: t('navigation.createExecutiveSummaryCompilation'),
             icon: 'i-lucide-presentation',
-            to: '/executive-summary'
+            to: '/executive-summary-compilation',
+            exact: true
           },
           {
             label: t('navigation.importExecutiveSummaryCompilation'),
             icon: 'i-lucide-upload',
-            to: '/executive-summary/upload'
+            to: '/executive-summary-compilation/upload',
+            exact: true
           }
         ]
       },
@@ -398,14 +402,65 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
 const searchQuery = ref('')
 const { isAdmin, canManageAudits } = useRbac()
 
+// Pre-collected set of all explicit menu paths to avoid prefix matching when navigating to a registered menu route
+const allMenuPaths = computed(() => {
+  const paths = new Set<string>()
+  const extractPaths = (menuItems: NavigationMenuItem[]) => {
+    for (const item of menuItems) {
+      if (item.to && typeof item.to === 'string') {
+        const [base] = item.to.split('?')
+        if (base) {
+          paths.add(base.replace(/\/$/, '') || '/')
+        }
+      }
+      if (item.children) {
+        extractPaths(item.children)
+      }
+    }
+  }
+  rawItems.value.forEach(group => extractPaths(group))
+  return paths
+})
+
 const isPathActive = (targetPath?: string): boolean => {
   if (!targetPath) return false
+
+  // Handle explicit query parameter matching (e.g. ?tab=priority or ?tab=xgboost)
   if (targetPath.includes('?')) {
-    return route.fullPath === targetPath
+    const [targetBase, targetQueryStr] = targetPath.split('?')
+    const currentBase = route.path.replace(/\/$/, '') || '/'
+    const normTargetBase = (targetBase || '').replace(/\/$/, '') || '/'
+
+    if (currentBase !== normTargetBase) return false
+
+    const targetParams = new URLSearchParams(targetQueryStr)
+    for (const [key, value] of targetParams.entries()) {
+      if (route.query[key] !== value) {
+        return false
+      }
+    }
+    return true
   }
-  const [basePath] = targetPath.split('?')
-  if (basePath === '/dashboard') return route.path === '/dashboard'
-  return route.path === basePath || route.path.startsWith(basePath + '/')
+
+  // If target path does not specify query params, but route has a tab query, do not activate
+  if (route.query.tab) {
+    return false
+  }
+
+  const currentPath = route.path.replace(/\/$/, '') || '/'
+  const targetBase = targetPath.replace(/\/$/, '') || '/'
+
+  // Exact path match
+  if (currentPath === targetBase) {
+    return true
+  }
+
+  // Fallback prefix match ONLY for unlisted subroutes (e.g., dynamic detail views)
+  if (!allMenuPaths.value.has(currentPath) && currentPath.startsWith(targetBase + '/')) {
+    return true
+  }
+
+  return false
 }
 
 const checkItemActive = (item: NavigationMenuItem): boolean => {
@@ -522,7 +577,7 @@ const userDropdownItems = computed(() => [
             v-model="searchQuery"
             :placeholder="t('navigation.searchPlaceholder')"
             icon="i-lucide-search"
-            color="neutral"
+            color="primary"
             variant="outline"
             class="w-full"
           />

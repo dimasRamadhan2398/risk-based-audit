@@ -1,33 +1,33 @@
 <template>
   <div class="wrapper-vertical-expanded space-y-6">
     <!-- Database registration check panel -->
-    <UCard class="w-full border-l-4 border-success-500">
+    <UCard class="w-full border-l-4 border-emerald-500 bg-gradient-to-br from-emerald-50/50 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/20">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex items-start gap-4">
-          <div class="rounded-full bg-success-500/10 p-2 text-success-600 shrink-0">
-            <UIcon name="i-lucide-shield-check" class="size-8" />
+          <div class="rounded-full bg-emerald-500/20 dark:bg-emerald-500/30 p-2.5 text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-200 dark:border-emerald-900/50">
+            <UIcon name="i-lucide-shield-check" class="size-7" />
           </div>
           <div class="space-y-1">
             <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ t('settings.activity.verificationTitle') }}</h4>
             <p class="text-md text-gray-600 dark:text-gray-300">
               {{ t('settings.activity.deviceText') }}
-              <span class="font-mono font-semibold bg-secondary-900 dark:bg-secondary-500 px-1 py-0.5 rounded-xl text-primary-200">
-                {{ currentDevice.deviceName }} (Fingerprint: {{ currentDevice.deviceFingerprint }})
+              <span class="font-mono font-semibold bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded-lg text-slate-900 dark:text-slate-100">
+                {{ currentDevice.deviceName }} ({{ currentDevice.deviceFingerprint.slice(0, 8) }}...)
               </span>
             </p>
           </div>
         </div>
 
         <div class="shrink-0 self-start sm:self-center">
-          <div v-if="dbStatus.checked" class="px-3.5 py-2 rounded-lg bg-success-50 dark:bg-success-950/40 border border-success-200 dark:border-success-800/60 text-sm text-success-700 dark:text-success-400 flex items-center gap-2 font-medium">
+          <div v-if="dbStatus.checked" class="px-3.5 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-sm text-emerald-700 dark:text-emerald-400 flex items-center gap-2 font-medium">
             <span class="relative flex h-2.5 w-2.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-success-500"></span>
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
             <span>{{ t('settings.activity.registeredYes', { fingerprint: dbStatus.lastLoginFingerprint }) }}</span>
           </div>
-          <div v-else class="px-3.5 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-sm text-gray-500 flex items-center gap-2 animate-pulse">
-            <span class="flex h-2.5 w-2.5 rounded-full bg-gray-400"></span>
+          <div v-else class="px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2 animate-pulse">
+            <span class="flex h-2.5 w-2.5 rounded-full bg-slate-400"></span>
             <span>{{ t('settings.activity.checkingDb') }}</span>
           </div>
         </div>
@@ -38,7 +38,7 @@
       :title="t('settings.activity.securityTipsTitle')"
       :description="t('settings.activity.securityTipsDesc')"
       icon="i-lucide-alert-triangle"
-      color="secondary"
+      color="amber"
       variant="outline"
     />
 
@@ -61,11 +61,11 @@
 
       <div class="space-y-4 w-full">
         <!-- Current active session device (always shown) -->
-        <div class="flex items-stretch gap-4 p-4 rounded-lg border border-primary-500/20 bg-primary-500/5 w-full">
+        <div class="flex items-stretch gap-4 p-4 rounded-xl border border-cyan-200 dark:border-cyan-900/40 bg-gradient-to-br from-cyan-50/50 to-blue-50/50 dark:from-cyan-950/20 dark:to-blue-950/20 w-full shadow-sm">
           <div class="flex flex-row justify-between items-stretch w-full">
             <div class="flex flex-row gap-4">
-              <div class="rounded-full bg-primary-100 dark:bg-primary-950 w-10 h-10 flex items-center justify-center shrink-0">
-                <UIcon :name="currentDevice.deviceType === 'mobile' ? 'i-lucide-smartphone' : 'i-lucide-laptop'" class="text-primary-600 size-5" />
+              <div class="rounded-full bg-cyan-500/20 dark:bg-cyan-500/30 w-10 h-10 flex items-center justify-center shrink-0 border border-cyan-200 dark:border-cyan-900/50">
+                <UIcon :name="currentDevice.deviceType === 'mobile' ? 'i-lucide-smartphone' : 'i-lucide-laptop'" class="text-cyan-600 dark:text-cyan-400 size-5" />
               </div>
               <div class="flex-1 min-w-0 w-full">
                 <div class="flex items-center gap-3">
@@ -91,11 +91,11 @@
 
         <!-- Loaded list of other trusted devices -->
         <template v-if="trustedDevices.length > 0">
-          <div v-for="device in trustedDevices" :key="device.id" class="flex items-stretch gap-4 p-4 rounded-lg border border-gray-200 dark:border-gray-800 w-full">
+          <div v-for="device in trustedDevices" :key="device.id" class="flex items-stretch gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-gradient-to-br from-slate-50/30 to-gray-50/30 dark:from-slate-900/20 dark:to-gray-900/20 w-full hover:shadow-sm transition-shadow">
             <div class="flex flex-row justify-between items-stretch w-full">
               <div class="flex flex-row gap-4">
-                <div class="rounded-full bg-gray-100 dark:bg-gray-800 w-10 h-10 flex items-center justify-center shrink-0">
-                  <UIcon :name="device.deviceType === 'mobile' ? 'i-lucide-smartphone' : 'i-lucide-laptop'" class="text-gray-600 size-5" />
+                <div class="rounded-full bg-slate-200 dark:bg-slate-700 w-10 h-10 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-600">
+                  <UIcon :name="device.deviceType === 'mobile' ? 'i-lucide-smartphone' : 'i-lucide-laptop'" class="text-slate-600 dark:text-slate-400 size-5" />
                 </div>
                 <div class="flex-1 min-w-0 w-full">
                   <div class="flex items-center gap-3">
@@ -125,15 +125,15 @@
           </div>
         </template>
         
-        <div v-else-if="!loading" class="text-center py-6 text-sm text-gray-500 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
-          <UIcon name="i-lucide-info" class="size-6 text-gray-400 mx-auto mb-2" />
-          <p>{{ t('settings.activity.noDevices') }}</p>
-          <p class="text-md text-gray-400 mt-1">{{ t('settings.activity.noDevicesSub') }}</p>
+        <div v-else-if="!loading" class="text-center py-8 text-sm text-slate-600 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/30 dark:bg-slate-900/20">
+          <UIcon name="i-lucide-info" class="size-8 text-slate-400 mx-auto mb-3" />
+          <p class="font-medium">{{ t('settings.activity.noDevices') }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-500 mt-2">{{ t('settings.activity.noDevicesSub') }}</p>
         </div>
       </div>
     </UCard>
 
-    <UCard class="w-full">
+    <UCard class="w-full" variant="outline" color="neutral">
       <template #header>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('settings.activity.aboutTitle') }}</h3>
       </template>  

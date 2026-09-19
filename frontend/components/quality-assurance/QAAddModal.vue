@@ -11,7 +11,7 @@
     }"
   >
     <template #content>
-      <UCard :ui="{ header: 'sticky top-0 z-20 px-6 py-4 bg-[var(--bg-main)] border-b border-[var(--border-main)]', body: 'px-6 py-6', footer: 'px-6 py-4' }">
+      <UCard :ui="{ root: 'flex flex-col max-h-[90vh] overflow-hidden', header: 'shrink-0 px-6 py-4 bg-[var(--bg-main)] border-b border-[var(--border-main)]', body: 'px-6 py-6 overflow-y-auto flex-1', footer: 'shrink-0 px-6 py-4 border-t border-[var(--border-main)]' }">
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-bold">
@@ -204,7 +204,7 @@
             />
             <UButton
               :label="store.isEditing ? t('qualityAssurance.modal.updateReport') : t('qualityAssurance.modal.saveReport')"
-              color="warning"
+              color="primary"
               class="px-8 font-bold"
               @click="validateAndSave"
             />

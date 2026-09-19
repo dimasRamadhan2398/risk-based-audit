@@ -21,39 +21,39 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <!-- 1. CSAT Average Card (Primary Fill Color) -->
       <UCard
-        :ui="{ body: 'p-6', background: 'bg-transparent' }"
-        class="relative overflow-hidden bg-primary-600 dark:bg-primary-500 text-white shadow-lg rounded-2xl border-0"
+        :ui="{ body: 'p-6 text-white dark:text-white', background: 'bg-transparent' }"
+        class="relative overflow-hidden bg-primary-600 dark:bg-primary-600 text-white dark:text-white shadow-lg rounded-2xl border-0"
       >
         <div class="relative z-10 flex flex-col justify-between h-full">
           <div class="flex items-start justify-between gap-3">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold uppercase tracking-wider text-white/90">
+                <span class="text-xs font-bold uppercase tracking-wider text-white">
                   {{ t('satisfactionSurvey.cards.avgCsat.title') }}
                 </span>
                 <UTooltip :text="t('satisfactionSurvey.cards.avgCsat.tooltip')">
-                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white/80 hover:text-white cursor-pointer transition-colors" />
+                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white hover:text-white/80 cursor-pointer transition-colors" />
                 </UTooltip>
               </div>
               <h3 class="text-4xl font-black text-white mt-2 tracking-tight">
-                {{ averageCsat.toFixed(1) }} <span class="text-lg font-medium text-white/80">/ 5.0</span>
+                {{ averageCsat.toFixed(1) }} <span class="text-lg font-medium text-white">/ 5.0</span>
               </h3>
             </div>
             <div class="p-3.5 bg-white/20 rounded-2xl border border-white/25 backdrop-blur-sm shadow-inner shrink-0 text-white">
-              <UIcon name="i-heroicons-face-smile" class="size-8" />
+              <UIcon name="i-heroicons-face-smile" class="size-8 text-white" />
             </div>
           </div>
 
           <div class="mt-4 pt-3 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
             <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white">
-              <UIcon name="i-heroicons-sparkles" class="size-3.5 text-amber-300" />
+              <UIcon name="i-heroicons-sparkles" class="size-3.5 text-white" />
               {{ t('satisfactionSurvey.cards.avgCsat.target') }}
             </span>
-            <span class="text-xs text-white/90 font-medium">
+            <span class="text-xs text-white font-medium">
               {{ averageCsat >= 4.5 ? t('satisfactionSurvey.cards.avgCsat.targetMet') : t('satisfactionSurvey.cards.avgCsat.targetNotMet') }}
             </span>
           </div>
-          <p class="text-[11px] text-white/80 mt-2 leading-relaxed">
+          <p class="text-[11px] !text-white mt-2 leading-relaxed">
             {{ t('satisfactionSurvey.cards.avgCsat.description') }}
           </p>
         </div>
@@ -64,40 +64,40 @@
 
       <!-- 2. Total Surveys Card (Secondary Fill Color) -->
       <UCard
-        :ui="{ body: 'p-6', background: 'bg-transparent' }"
-        class="relative overflow-hidden bg-secondary-600 dark:bg-secondary-500 text-white shadow-lg rounded-2xl border-0"
+        :ui="{ body: 'p-6 text-white dark:text-white', background: 'bg-transparent' }"
+        class="relative overflow-hidden bg-secondary-600 dark:bg-secondary-600 text-white dark:text-white shadow-lg rounded-2xl border-0"
       >
         <div class="relative z-10 flex flex-col justify-between h-full">
           <div class="flex items-start justify-between gap-3">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold uppercase tracking-wider text-white/90">
+                <span class="text-xs font-bold uppercase tracking-wider text-white">
                   {{ t('satisfactionSurvey.cards.totalSurveys.title') }}
                 </span>
                 <UTooltip :text="t('satisfactionSurvey.cards.totalSurveys.tooltip')">
-                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white/80 hover:text-white cursor-pointer transition-colors" />
+                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white hover:text-white/80 cursor-pointer transition-colors" />
                 </UTooltip>
               </div>
               <h3 class="text-4xl font-black text-white mt-2 tracking-tight">
                 {{ surveysStore.surveys.length }}
-                <span class="text-lg font-normal text-white/80">{{ t('satisfactionSurvey.cards.totalSurveys.unit') }}</span>
+                <span class="text-lg font-normal text-white">{{ t('satisfactionSurvey.cards.totalSurveys.unit') }}</span>
               </h3>
             </div>
             <div class="p-3.5 bg-white/20 rounded-2xl border border-white/25 backdrop-blur-sm shadow-inner shrink-0 text-white">
-              <UIcon name="i-heroicons-document-check" class="size-8" />
+              <UIcon name="i-heroicons-document-check" class="size-8 text-white" />
             </div>
           </div>
 
           <div class="mt-4 pt-3 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
             <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white">
-              <UIcon name="i-heroicons-document-text" class="size-3.5 text-white/90" />
+              <UIcon name="i-heroicons-document-text" class="size-3.5 text-white" />
               {{ t('satisfactionSurvey.cards.totalSurveys.publishedCount', { count: publishedReports.length }) }}
             </span>
-            <span class="text-xs text-white/90 font-medium">
+            <span class="text-xs text-white font-medium">
               {{ t('satisfactionSurvey.cards.totalSurveys.pendingCount', { count: Math.max(0, publishedReports.length - surveysStore.surveys.length) }) }}
             </span>
           </div>
-          <p class="text-[11px] text-white/80 mt-2 leading-relaxed">
+          <p class="text-[11px] !text-white mt-2 leading-relaxed">
             {{ t('satisfactionSurvey.cards.totalSurveys.description') }}
           </p>
         </div>
@@ -108,18 +108,18 @@
 
       <!-- 3. Response Rate Card (Success Fill Color) -->
       <UCard
-        :ui="{ body: 'p-6', background: 'bg-transparent' }"
-        class="relative overflow-hidden bg-success-600 dark:bg-success-500 text-white shadow-lg rounded-2xl border-0"
+        :ui="{ body: 'p-6 text-white dark:text-white', background: 'bg-transparent' }"
+        class="relative overflow-hidden bg-success-600 dark:bg-success-600 text-white dark:text-white shadow-lg rounded-2xl border-0"
       >
         <div class="relative z-10 flex flex-col justify-between h-full">
           <div class="flex items-start justify-between gap-3">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold uppercase tracking-wider text-white/90">
+                <span class="text-xs font-bold uppercase tracking-wider text-white">
                   {{ t('satisfactionSurvey.cards.responseRate.title') }}
                 </span>
                 <UTooltip :text="t('satisfactionSurvey.cards.responseRate.tooltip')">
-                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white/80 hover:text-white cursor-pointer transition-colors" />
+                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white hover:text-white/80 cursor-pointer transition-colors" />
                 </UTooltip>
               </div>
               <h3 class="text-4xl font-black text-white mt-2 tracking-tight">
@@ -127,7 +127,7 @@
               </h3>
             </div>
             <div class="p-3.5 bg-white/20 rounded-2xl border border-white/25 backdrop-blur-sm shadow-inner shrink-0 text-white">
-              <UIcon name="i-heroicons-chart-bar-solid" class="size-8" />
+              <UIcon name="i-heroicons-chart-bar-solid" class="size-8 text-white" />
             </div>
           </div>
 
@@ -143,14 +143,14 @@
 
           <div class="mt-4 pt-3 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
             <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white">
-              <UIcon name="i-heroicons-flag" class="size-3.5 text-white/90" />
+              <UIcon name="i-heroicons-flag" class="size-3.5 text-white" />
               {{ t('satisfactionSurvey.cards.responseRate.target') }}
             </span>
-            <span class="text-xs text-white/90 font-medium">
+            <span class="text-xs text-white font-medium">
               {{ responseRate >= 80 ? t('satisfactionSurvey.cards.responseRate.statusHigh') : t('satisfactionSurvey.cards.responseRate.statusLow') }}
             </span>
           </div>
-          <p class="text-[11px] text-white/80 mt-2 leading-relaxed">
+          <p class="text-[11px] !text-white mt-2 leading-relaxed">
             {{ t('satisfactionSurvey.cards.responseRate.description') }}
           </p>
         </div>
@@ -174,9 +174,6 @@
             <h3 class="text-base font-bold text-gray-900 dark:text-white">
               {{ t('satisfactionSurvey.guide.title') }}
             </h3>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              {{ t('satisfactionSurvey.guide.subtitle') }}
-            </p>
           </div>
         </div>
         <UButton
@@ -196,8 +193,7 @@
             <span>{{ t('satisfactionSurvey.guide.csat.title') }}</span>
           </div>
           <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-            <strong>{{ t('satisfactionSurvey.guide.csat.definition').split(':')[0] }}:</strong>
-            {{ t('satisfactionSurvey.guide.csat.definition').includes(':') ? t('satisfactionSurvey.guide.csat.definition').split(':')[1] : t('satisfactionSurvey.guide.csat.definition') }}
+            <strong>{{ t('satisfactionSurvey.guide.csat.definition').split(':')[0] }}</strong>
           </p>
           <div class="space-y-1 text-gray-500 dark:text-gray-400">
             <p><strong>{{ t('satisfactionSurvey.guide.csat.dimensionsTitle') }}</strong></p>
@@ -207,8 +203,9 @@
               <li><strong>Timeliness:</strong> {{ t('satisfactionSurvey.guide.csat.timeliness') }}</li>
             </ul>
           </div>
-          <div class="pt-2 text-[11px] text-primary-600 dark:text-primary-400 font-semibold border-t border-gray-100 dark:border-gray-800">
-            🎯 {{ t('satisfactionSurvey.guide.csat.target') }}
+          <div class="pt-2 text-[11px] text-primary-600 dark:text-primary-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
+            <UIcon name="i-lucide-target" class="size-3.5 shrink-0" />
+            <span>{{ t('satisfactionSurvey.guide.csat.target') }}</span>
           </div>
         </div>
 
@@ -219,8 +216,7 @@
             <span>{{ t('satisfactionSurvey.guide.surveys.title') }}</span>
           </div>
           <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-            <strong>{{ t('satisfactionSurvey.guide.surveys.definition').split(':')[0] }}:</strong>
-            {{ t('satisfactionSurvey.guide.surveys.definition').includes(':') ? t('satisfactionSurvey.guide.surveys.definition').split(':')[1] : t('satisfactionSurvey.guide.surveys.definition') }}
+            <strong>{{ t('satisfactionSurvey.guide.surveys.definition').split(':')[0] }}</strong>
           </p>
           <div class="space-y-1 text-gray-500 dark:text-gray-400">
             <p><strong>{{ t('satisfactionSurvey.guide.surveys.flowTitle') }}</strong></p>
@@ -230,8 +226,9 @@
               <li>{{ t('satisfactionSurvey.guide.surveys.flow3') }}</li>
             </ul>
           </div>
-          <div class="pt-2 text-[11px] text-secondary-600 dark:text-secondary-400 font-semibold border-t border-gray-100 dark:border-gray-800">
-            📊 {{ t('satisfactionSurvey.guide.surveys.note') }}
+          <div class="pt-2 text-[11px] text-secondary-600 dark:text-secondary-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
+            <UIcon name="i-lucide-bar-chart-2" class="size-3.5 shrink-0" />
+            <span>{{ t('satisfactionSurvey.guide.surveys.note') }}</span>
           </div>
         </div>
 
@@ -242,8 +239,7 @@
             <span>{{ t('satisfactionSurvey.guide.rate.title') }}</span>
           </div>
           <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-            <strong>{{ t('satisfactionSurvey.guide.rate.definition').split(':')[0] }}:</strong>
-            {{ t('satisfactionSurvey.guide.rate.definition').includes(':') ? t('satisfactionSurvey.guide.rate.definition').split(':')[1] : t('satisfactionSurvey.guide.rate.definition') }}
+            <strong>{{ t('satisfactionSurvey.guide.rate.definition').split(':')[0] }}</strong>
           </p>
           <div class="space-y-1 text-gray-500 dark:text-gray-400">
             <p><strong>{{ t('satisfactionSurvey.guide.rate.formulaTitle') }}</strong></p>
@@ -252,8 +248,9 @@
             </div>
             <p class="mt-1">{{ t('satisfactionSurvey.guide.rate.desc') }}</p>
           </div>
-          <div class="pt-2 text-[11px] text-success-600 dark:text-success-400 font-semibold border-t border-gray-100 dark:border-gray-800">
-            🎯 {{ t('satisfactionSurvey.guide.rate.target') }}
+          <div class="pt-2 text-[11px] text-success-600 dark:text-success-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
+            <UIcon name="i-lucide-target" class="size-3.5 shrink-0" />
+            <span>{{ t('satisfactionSurvey.guide.rate.target') }}</span>
           </div>
         </div>
       </div>
@@ -539,18 +536,21 @@
               </div>
 
               <!-- Computed Preview of Overall Score -->
-              <div class="p-4 bg-gradient-to-r from-gray-50 to-slate-100 dark:from-slate-900 dark:to-slate-850 border border-gray-200 dark:border-gray-855 rounded-xl flex items-center justify-between">
+              <UCard
+                :ui="{ body: 'p-4 text-white dark:text-white flex items-center justify-between', background: 'bg-transparent' }"
+                class="bg-primary-600 text-white dark:text-white shadow-md rounded-xl border-0"
+              >
                 <div>
-                  <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider block">{{ t('satisfactionSurvey.formModal.estimatedScore') }}</span>
-                  <span class="text-md text-gray-400 mt-0.5">{{ t('satisfactionSurvey.formModal.estimatedScoreFormula') }}</span>
+                  <span class="text-sm font-bold uppercase tracking-wider block text-white">{{ t('satisfactionSurvey.formModal.estimatedScore') }}</span>
+                  <span class="text-xs text-white/90 mt-0.5 block">{{ t('satisfactionSurvey.formModal.estimatedScoreFormula') }}</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-2xl font-extrabold text-primary-600 dark:text-primary-400">
+                  <span class="text-2xl font-extrabold text-white">
                     {{ computedOverallScore.toFixed(2) }}
                   </span>
-                  <span class="text-sm text-gray-500">/ 5.0</span>
+                  <span class="text-sm text-white/90 font-medium"> / 5.0</span>
                 </div>
-              </div>
+              </UCard>
 
               <!-- Comments -->
               <UFormField :label="t('satisfactionSurvey.formModal.comments')" name="comments">

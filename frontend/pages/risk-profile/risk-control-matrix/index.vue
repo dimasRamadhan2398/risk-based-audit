@@ -226,10 +226,17 @@
         </div>
       </div>
 
+      <div class="rcm-table">
       <TableEntities
         :data="filteredList"
         :columns="rcmStore.columns"
         :items-per-page="10"
+        table-layout="fixed"
+        min-width="1630px"
+        :ui="{
+          root: 'relative overflow-visible',
+          tr: 'hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group'
+        }"
         :empty-state="{
           icon: 'i-lucide-shield-alert',
           label: 'Tidak ada data Risk Control Matrix',
@@ -238,7 +245,7 @@
       >
         <!-- Risk Code & Event -->
         <template #risk_code-cell="{ row }">
-          <div class="max-w-[280px] min-w-[220px] whitespace-normal break-words space-y-1">
+          <div class="w-full whitespace-normal break-words space-y-1 pr-1">
             <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded text-xs">
               {{ row.original.risk_code }}
             </span>
@@ -250,7 +257,7 @@
 
         <!-- Control Code & Description -->
         <template #control_code-cell="{ row }">
-          <div class="max-w-[280px] min-w-[220px] whitespace-normal break-words space-y-1">
+          <div class="w-full whitespace-normal break-words space-y-1 pr-1">
             <span class="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded text-xs border border-slate-200 dark:border-slate-700">
               {{ row.original.control_code }}
             </span>
@@ -357,6 +364,7 @@
           </div>
         </template>
       </TableEntities>
+      </div>
     </div>
 
     <!-- Add / Edit Modal -->
@@ -652,6 +660,42 @@
     </UModal>
   </div>
 </template>
+
+<style scoped>
+/* Freeze the first two columns of the RCM table during horizontal scroll.
+   Offsets must match the column widths declared in stores/rcm.ts. */
+.rcm-table :deep(th:nth-child(-n + 2)),
+.rcm-table :deep(td:nth-child(-n + 2)) {
+  position: sticky;
+}
+
+.rcm-table :deep(th:nth-child(1)),
+.rcm-table :deep(td:nth-child(1)) {
+  left: 0;
+}
+
+.rcm-table :deep(th:nth-child(2)),
+.rcm-table :deep(td:nth-child(2)) {
+  left: 280px;
+  border-right: 1px solid var(--border-main);
+}
+
+/* Opaque fills so scrolled cells cannot bleed through. The theme variables
+   already flip under .dark, so no dark-mode override is needed. */
+.rcm-table :deep(td:nth-child(-n + 2)) {
+  z-index: 1;
+  background-color: var(--bg-main);
+}
+
+.rcm-table :deep(th:nth-child(-n + 2)) {
+  z-index: 2;
+  background-color: var(--bg-surface);
+}
+
+.rcm-table :deep(tbody tr:hover td:nth-child(-n + 2)) {
+  background-color: var(--bg-surface);
+}
+</style>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'

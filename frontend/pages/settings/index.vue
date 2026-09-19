@@ -94,11 +94,6 @@
               <SettingsDataSource />
             </div>
 
-            <!-- Email Service (Resend API) Section -->
-            <div v-if="activeTab === 'email'">
-              <SettingsEmail />
-            </div>
-
             <!-- FAQ Section -->
             <div v-if="activeTab === 'faq'">
               <SettingsFaq />
@@ -131,7 +126,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 const { t } = useI18n()
 
-const validTabs = ['profile', 'settings', 'mfa', 'activity', 'permissions', 'datasource', 'email', 'faq']
+const validTabs = ['profile', 'settings', 'mfa', 'activity', 'permissions', 'datasource', 'faq']
 const initialTab = computed(() => {
   const tabQuery = route.query.tab as string
   return validTabs.includes(tabQuery) ? tabQuery : 'profile'
@@ -216,14 +211,6 @@ const links = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === 'datasource',
   },
   {
-    label: t('settings.sidebar.emailService'),
-    icon: 'i-lucide-mail',
-    slot: 'email' as const,
-    onSelect: () => selectTab('email'),
-    onClick: () => selectTab('email'),
-    active: activeTab.value === 'email',
-  },
-  {
     label: t('settings.sidebar.faq'),
     icon: 'i-lucide-help-circle',
     slot: 'faq' as const,
@@ -241,7 +228,6 @@ const currentPageTitle = computed(() => {
     activity: t('settings.titles.activity'),
     permissions: t('settings.titles.permissions'),
     datasource: t('settings.titles.datasource'),
-    email: t('settings.titles.email'),
     faq: t('settings.titles.faq'),
   }
   return titles[activeTab.value] || t('settings.titles.settings')

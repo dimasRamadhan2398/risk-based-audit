@@ -1,25 +1,25 @@
 <template>
   <div class="space-y-6 w-full">
-    <UCard class="w-full overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl">
+    <UCard variant="outline" color="neutral" class="w-full overflow-hidden shadow-sm rounded-2xl">
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center gap-3">
             <div
-              class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300"
-              :class="isMfaEnabled 
-                ? (isDisabling ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400')
-                : 'bg-primary-500/10 text-primary-600 dark:text-primary-400'"
+              class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 shadow-sm"
+              :class="isMfaEnabled
+                ? (isDisabling ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50')
+                : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50'"
             >
-              <UIcon 
-                :name="isMfaEnabled ? (isDisabling ? 'i-lucide-shield-alert' : 'i-lucide-shield-check') : 'i-lucide-shield-alert'" 
-                class="w-6 h-6" 
+              <UIcon
+                :name="isMfaEnabled ? (isDisabling ? 'i-lucide-shield-alert' : 'i-lucide-shield-check') : 'i-lucide-shield-alert'"
+                class="w-6 h-6"
               />
             </div>
             <div>
-              <h3 class="text-lg font-bold text-white">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                 {{ isDisabling ? t('settings.mfa.modalTitle') : t('settings.mfa.title') }}
               </h3>
-              <p class="text-xs sm:text-sm text-white/80">
+              <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                 {{ isDisabling ? t('settings.mfa.modalSubtitle') : t('settings.mfa.subtitle') }}
               </p>
             </div>
@@ -27,14 +27,17 @@
 
           <div v-if="!loadingStatus" class="self-start sm:self-center">
             <UBadge
-              :color="isMfaEnabled ? (isDisabling ? 'error' : 'success') : 'warning'"
-              variant="solid"
+              :color="isMfaEnabled ? (isDisabling ? 'rose' : 'emerald') : 'amber'"
+              variant="soft"
               size="md"
-              class="font-bold px-3.5 py-1.5 rounded-full shadow-md text-white"
+              class="font-bold px-3.5 py-1.5 rounded-full"
             >
               <template #leading>
-                <span 
-                  class="w-2 h-2 rounded-full bg-white animate-pulse" 
+                <span
+                  class="w-2 h-2 rounded-full"
+                  :class="isMfaEnabled
+                    ? (isDisabling ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500 animate-pulse')
+                    : 'bg-amber-500 animate-pulse'"
                 />
               </template>
               {{ isMfaEnabled ? (isDisabling ? t('settings.mfa.confirmDisable') : t('settings.mfa.activeProtected')) : t('settings.mfa.notEnabled') }}
@@ -52,8 +55,8 @@
 
       <!-- State 1 & 2: MFA Disabled Flow (Begin Component / Setup Stepper) -->
       <div v-else-if="!isMfaEnabled" class="space-y-6 p-2">
-        <div class="p-4 rounded-xl bg-primary-900/40 dark:bg-primary-950/60 border border-primary-100 dark:border-primary-900/40 text-primary-900 dark:text-primary-200 text-sm flex items-start gap-3">
-          <UIcon name="i-lucide-info" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0 mt-0.5" />
+        <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-amber-900 dark:text-amber-200 text-sm flex items-start gap-3">
+          <UIcon name="i-lucide-info" class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <p>
             {{ t('settings.mfa.infoText') }}
           </p>
@@ -74,21 +77,21 @@
         </div>
 
         <!-- MFA Setup Stepper Component -->
-        <div v-else class="space-y-6 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 bg-gray-50/50 dark:bg-gray-900/50">
+        <div v-else class="space-y-6 border border-amber-200 dark:border-amber-900/30 rounded-2xl p-6 bg-gradient-to-br from-amber-50/50 to-yellow-50/50 dark:from-amber-950/20 dark:to-yellow-950/10">
           <div class="flex flex-col lg:flex-row gap-8 items-start">
             <!-- QR Code Box -->
-            <div class="flex flex-col items-center gap-2 bg-gray-100 dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm shrink-0">
-              <img v-if="qrCodeDataURL" :src="qrCodeDataURL" alt="MFA QR Code" class="w-44 h-44 rounded-lg" />
+            <div class="flex flex-col items-center gap-2 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/40 shadow-sm shrink-0">
+              <img v-if="qrCodeDataURL" :src="qrCodeDataURL" alt="MFA QR Code" class="w-44 h-44 rounded-lg border border-gray-200 dark:border-gray-700" />
               <div v-else class="w-44 h-44 flex items-center justify-center text-gray-400 text-sm animate-pulse">
                 Membuat QR Code...
               </div>
-              <span class="text-md text-gray-500 font-medium">Pindai QR Code</span>
+              <span class="text-md text-gray-600 dark:text-gray-300 font-medium">Pindai QR Code</span>
             </div>
 
             <!-- Steps -->
             <div class="space-y-4 flex-1">
               <h4 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <span class="w-6 h-6 rounded-full bg-primary text-white text-md flex items-center justify-center font-bold">1</span>
+                <span class="w-6 h-6 rounded-full bg-amber-500 text-white text-md flex items-center justify-center font-bold">1</span>
                 {{ t('settings.mfa.scanTitle') }}
               </h4>
               <p class="text-sm text-gray-600 dark:text-gray-300">
@@ -156,31 +159,31 @@
         <!-- MFA Active UCard Component (Natural Surface Theme & Full Width) -->
         <UCard
           variant="outline"
-          class="w-full bg-[var(--bg-surface)]/60 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs"
+          class="w-full bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/20 border border-emerald-200 dark:border-emerald-900/40 rounded-xl shadow-xs"
         >
           <div class="flex items-start gap-4">
-            <div class="p-2 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 shrink-0">
+            <div class="p-2.5 rounded-xl bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-200 dark:border-emerald-900/50">
               <UIcon name="i-lucide-shield-check" class="w-6 h-6" />
             </div>
             <div class="space-y-1">
               <h4 class="text-base font-bold text-gray-900 dark:text-white">{{ t('settings.mfa.mfaActiveTitle') }}</h4>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
+              <p class="text-sm text-gray-600 dark:text-gray-400">
                 {{ t('settings.mfa.mfaActiveDesc') }}
               </p>
             </div>
           </div>
         </UCard>
 
-        <div class="pt-2 flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
+        <div class="pt-4 flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
           <div>
             <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('settings.mfa.disableTitle') }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('settings.mfa.disableDesc') }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('settings.mfa.disableDesc') }}</p>
           </div>
           <UButton
             icon="i-lucide-shield-off"
-            color="error"
-            variant="solid"
-            class="font-bold rounded-xl px-5 py-2.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white shadow-md transition-all duration-200 cursor-pointer"
+            color="rose"
+            variant="soft"
+            class="font-bold rounded-xl px-5 py-2.5 transition-all duration-200 cursor-pointer"
             @click="isDisabling = true"
           >
             {{ t('settings.mfa.disableButton') }}
@@ -189,12 +192,12 @@
       </div>
 
       <!-- State 4: MFA Confirm Disable Component (Displayed conditionally when disabling) -->
-      <div v-else class="space-y-6 p-4 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/20">
-        <div class="flex items-start gap-3 p-4 rounded-xl bg-red-500/20 border border-red-500/30 text-white">
-          <UIcon name="i-lucide-alert-triangle" class="w-6 h-6 text-red-400 shrink-0 mt-0.5" />
+      <div v-else class="space-y-6 p-4 rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-gradient-to-br from-rose-50/50 to-red-50/50 dark:from-rose-950/20 dark:to-red-950/20">
+        <div class="flex items-start gap-3 p-4 rounded-xl bg-rose-500/15 dark:bg-rose-500/20 border border-rose-200 dark:border-rose-900/40 text-rose-900 dark:text-rose-100">
+          <UIcon name="i-lucide-alert-triangle" class="w-6 h-6 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           <div class="space-y-1">
-            <h4 class="text-sm font-bold text-white">{{ t('settings.mfa.modalTitle') }}</h4>
-            <p class="text-xs text-white/90">
+            <h4 class="text-sm font-bold">{{ t('settings.mfa.modalTitle') }}</h4>
+            <p class="text-xs opacity-90">
               {{ t('settings.mfa.modalPrompt') }}
             </p>
           </div>

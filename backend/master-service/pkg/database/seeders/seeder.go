@@ -1716,9 +1716,9 @@ func (s *Seeder) SeedQAReports() error {
 			ReportName:      "External QAR (IPPF 2027)",
 			Result:          "G/C*",
 			Status:          "Completed",
-			ConductedBy:     "Deloitte Independent Consultant",
+			ConductedBy:     "PT BAI Independent Consultant",
 			AssessmentTitle: "QAR - Year 2025",
-			Validator:       "Deloitte Independent Consultant",
+			Validator:       "PT BAI Independent Consultant",
 			Attachment: &models.QAReportAttachment{
 				Name:       "Report_External_QAR_2025.pdf",
 				Size:       "4.2 MB",

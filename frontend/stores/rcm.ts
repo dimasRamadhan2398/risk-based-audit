@@ -174,17 +174,17 @@ export const useRCMStore = defineStore('rcm', () => {
   const errorMsg = ref('')
 
   const columns: (TableColumn<RCMItem> & { class?: string })[] = [
-    { accessorKey: 'risk_code', id: 'risk_code', header: 'Kode / Risiko', class: 'min-w-[240px] max-w-[280px]' },
-    { accessorKey: 'control_code', id: 'control_code', header: 'Risk Control ID & Deskripsi Mitigasi', class: 'min-w-[260px] max-w-[300px]' },
-    { accessorKey: 'department', id: 'department', header: 'Departemen / PIC', class: 'min-w-[150px]' },
-    { accessorKey: 'design_effectiveness_rating', id: 'design_effectiveness_rating', header: 'Design (1-5)', class: 'w-[75px] min-w-[75px] text-center' },
-    { accessorKey: 'operating_effectiveness_rating', id: 'operating_effectiveness_rating', header: 'Operating (1-5)', class: 'w-[75px] min-w-[75px] text-center' },
-    { accessorKey: 'coverage_completeness_rating', id: 'coverage_completeness_rating', header: 'Coverage (1-5)', class: 'w-[75px] min-w-[75px] text-center' },
-    { accessorKey: 'timeliness_rating', id: 'timeliness_rating', header: 'Timeliness (1-5)', class: 'w-[75px] min-w-[75px] text-center' },
-    { accessorKey: 'automation_monitoring_rating', id: 'automation_monitoring_rating', header: 'Automation (1-5)', class: 'w-[75px] min-w-[75px] text-center' },
-    { accessorKey: 'total_weighted_score', id: 'total_weighted_score', header: 'Total Score', class: 'w-[95px] min-w-[90px] text-center' },
-    { accessorKey: 'rating', id: 'rating', header: 'Rating Efektivitas', class: 'w-[120px] min-w-[120px] text-center' },
-    { accessorKey: 'actions', id: 'actions', header: 'Aksi', class: 'w-[70px] min-w-[70px] text-center' }
+    { accessorKey: 'risk_code', id: 'risk_code', header: 'Kode / Risiko', class: 'w-[280px] min-w-[280px]' },
+    { accessorKey: 'control_code', id: 'control_code', header: 'Risk Control ID & Deskripsi Mitigasi', class: 'w-[320px] min-w-[320px]' },
+    { accessorKey: 'department', id: 'department', header: 'Departemen / PIC', class: 'w-[170px] min-w-[170px]' },
+    { accessorKey: 'design_effectiveness_rating', id: 'design_effectiveness_rating', header: 'Design', class: 'w-[100px] min-w-[100px] text-center' },
+    { accessorKey: 'operating_effectiveness_rating', id: 'operating_effectiveness_rating', header: 'Operating', class: 'w-[100px] min-w-[100px] text-center' },
+    { accessorKey: 'coverage_completeness_rating', id: 'coverage_completeness_rating', header: 'Coverage', class: 'w-[100px] min-w-[100px] text-center' },
+    { accessorKey: 'timeliness_rating', id: 'timeliness_rating', header: 'Timeliness', class: 'w-[100px] min-w-[100px] text-center' },
+    { accessorKey: 'automation_monitoring_rating', id: 'automation_monitoring_rating', header: 'Automation', class: 'w-[110px] min-w-[110px] text-center' },
+    { accessorKey: 'total_weighted_score', id: 'total_weighted_score', header: 'Total Score', class: 'w-[110px] min-w-[110px] text-center' },
+    { accessorKey: 'rating', id: 'rating', header: 'Rating Efektivitas', class: 'w-[150px] min-w-[150px] text-center' },
+    { accessorKey: 'actions', id: 'actions', header: 'Aksi', class: 'w-[90px] min-w-[90px] text-center' }
   ]
 
   const LOCAL_STORAGE_KEY = 'rcm_items_v2'

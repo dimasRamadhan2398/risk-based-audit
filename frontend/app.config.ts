@@ -905,6 +905,15 @@ export default defineAppConfig({
         footer: 'p-4 sm:px-6'
       },
       variants: {
+        color: {
+          primary: '',
+          secondary: '',
+          success: '',
+          info: '',
+          warning: '',
+          error: '',
+          neutral: ''
+        },
         variant: {
           solid: {
             root: 'bg-inverted text-inverted',
@@ -923,40 +932,230 @@ export default defineAppConfig({
         }
       },
       compoundVariants: [
+        // ===== Primary =====
+        {
+          color: 'primary',
+          variant: 'solid',
+          class: {
+            root: 'bg-primary-600 dark:bg-primary-500 text-white divide-y divide-primary-500/20 dark:divide-primary-400/20',
+            title: 'text-white',
+            description: 'text-primary-100 dark:text-primary-200'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-primary-200 dark:ring-primary-900/40 divide-y divide-primary-200 dark:divide-primary-900/40 text-primary-900 dark:text-primary-100'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'soft',
+          class: {
+            root: 'bg-primary-50 dark:bg-primary-950/30 divide-y divide-primary-200 dark:divide-primary-900/40 text-primary-900 dark:text-primary-100'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'subtle',
+          class: {
+            root: 'bg-primary-50 dark:bg-primary-950/30 ring ring-primary-200 dark:ring-primary-900/40 divide-y divide-primary-200 dark:divide-primary-900/40 text-primary-900 dark:text-primary-100'
+          }
+        },
+
+        // ===== Secondary =====
+        {
+          color: 'secondary',
+          variant: 'solid',
+          class: {
+            root: 'bg-secondary-600 dark:bg-secondary-500 text-white divide-y divide-secondary-500/20 dark:divide-secondary-400/20',
+            title: 'text-white',
+            description: 'text-secondary-100 dark:text-secondary-200'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-secondary-200 dark:ring-secondary-900/40 divide-y divide-secondary-200 dark:divide-secondary-900/40 text-secondary-900 dark:text-secondary-100'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'soft',
+          class: {
+            root: 'bg-secondary-50 dark:bg-secondary-950/30 divide-y divide-secondary-200 dark:divide-secondary-900/40 text-secondary-900 dark:text-secondary-100'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'subtle',
+          class: {
+            root: 'bg-secondary-50 dark:bg-secondary-950/30 ring ring-secondary-200 dark:ring-secondary-900/40 divide-y divide-secondary-200 dark:divide-secondary-900/40 text-secondary-900 dark:text-secondary-100'
+          }
+        },
+
+        // ===== Success =====
+        {
+          color: 'success',
+          variant: 'solid',
+          class: {
+            root: 'bg-success-600 dark:bg-success-500 text-white divide-y divide-success-500/20 dark:divide-success-400/20',
+            title: 'text-white',
+            description: 'text-success-100 dark:text-success-200'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-success-200 dark:ring-success-900/40 divide-y divide-success-200 dark:divide-success-900/40 text-success-900 dark:text-success-100'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'soft',
+          class: {
+            root: 'bg-success-50 dark:bg-success-950/30 divide-y divide-success-200 dark:divide-success-900/40 text-success-900 dark:text-success-100'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'subtle',
+          class: {
+            root: 'bg-success-50 dark:bg-success-950/30 ring ring-success-200 dark:ring-success-900/40 divide-y divide-success-200 dark:divide-success-900/40 text-success-900 dark:text-success-100'
+          }
+        },
+
+        // ===== Info =====
+        {
+          color: 'info',
+          variant: 'solid',
+          class: {
+            root: 'bg-info-600 dark:bg-info-500 text-white divide-y divide-info-500/20 dark:divide-info-400/20',
+            title: 'text-white',
+            description: 'text-info-100 dark:text-info-200'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-info-200 dark:ring-info-900/40 divide-y divide-info-200 dark:divide-info-900/40 text-info-900 dark:text-info-100'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'soft',
+          class: {
+            root: 'bg-info-50 dark:bg-info-950/30 divide-y divide-info-200 dark:divide-info-900/40 text-info-900 dark:text-info-100'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'subtle',
+          class: {
+            root: 'bg-info-50 dark:bg-info-950/30 ring ring-info-200 dark:ring-info-900/40 divide-y divide-info-200 dark:divide-info-900/40 text-info-900 dark:text-info-100'
+          }
+        },
+
+        // ===== Warning =====
+        {
+          color: 'warning',
+          variant: 'solid',
+          class: {
+            root: 'bg-warning-500 dark:bg-warning-500 text-neutral-950 font-medium divide-y divide-warning-400/20 dark:divide-warning-400/30',
+            title: 'text-neutral-950',
+            description: 'text-neutral-900 dark:text-neutral-950'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-warning-200 dark:ring-warning-900/40 divide-y divide-warning-200 dark:divide-warning-900/40 text-warning-900 dark:text-warning-100'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'soft',
+          class: {
+            root: 'bg-warning-50 dark:bg-warning-950/30 divide-y divide-warning-200 dark:divide-warning-900/40 text-warning-900 dark:text-warning-100'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'subtle',
+          class: {
+            root: 'bg-warning-50 dark:bg-warning-950/30 ring ring-warning-200 dark:ring-warning-900/40 divide-y divide-warning-200 dark:divide-warning-900/40 text-warning-900 dark:text-warning-100'
+          }
+        },
+
+        // ===== Error =====
+        {
+          color: 'error',
+          variant: 'solid',
+          class: {
+            root: 'bg-error-600 dark:bg-error-500 text-white divide-y divide-error-500/20 dark:divide-error-400/20',
+            title: 'text-white',
+            description: 'text-error-100 dark:text-error-200'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-error-200 dark:ring-error-900/40 divide-y divide-error-200 dark:divide-error-900/40 text-error-900 dark:text-error-100'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'soft',
+          class: {
+            root: 'bg-error-50 dark:bg-error-950/30 divide-y divide-error-200 dark:divide-error-900/40 text-error-900 dark:text-error-100'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'subtle',
+          class: {
+            root: 'bg-error-50 dark:bg-error-950/30 ring ring-error-200 dark:ring-error-900/40 divide-y divide-error-200 dark:divide-error-900/40 text-error-900 dark:text-error-100'
+          }
+        },
+
+        // ===== Neutral =====
         {
           color: 'neutral',
           variant: 'solid',
           class: {
-            root: 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900',
-            title: 'text-white dark:text-neutral-900',
-            description: 'text-neutral-300 dark:text-neutral-600'
+            root: 'bg-neutral-900 dark:bg-slate-900 text-white dark:text-slate-100 divide-y divide-neutral-700 dark:divide-slate-700',
+            title: 'text-white dark:text-slate-100',
+            description: 'text-neutral-300 dark:text-slate-400'
           }
         },
         {
           color: 'neutral',
           variant: 'outline',
           class: {
-            root: 'bg-white dark:bg-neutral-900 ring ring-neutral-200 dark:ring-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+            root: 'bg-white dark:bg-slate-900 ring ring-neutral-200 dark:ring-slate-700 divide-y divide-neutral-200 dark:divide-slate-700 text-neutral-900 dark:text-slate-100'
           }
         },
         {
           color: 'neutral',
           variant: 'soft',
           class: {
-            root: 'bg-neutral-100 dark:bg-neutral-800/60 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+            root: 'bg-neutral-100 dark:bg-slate-800/60 divide-y divide-neutral-200 dark:divide-slate-700 text-neutral-900 dark:text-slate-100'
           }
         },
         {
           color: 'neutral',
           variant: 'subtle',
           class: {
-            root: 'bg-neutral-100 dark:bg-neutral-800/60 ring ring-neutral-200 dark:ring-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-900 dark:text-neutral-100'
+            root: 'bg-neutral-100 dark:bg-slate-800/60 ring ring-neutral-200 dark:ring-slate-700 divide-y divide-neutral-200 dark:divide-slate-700 text-neutral-900 dark:text-slate-100'
           }
         }
-      ],
-      defaultVariants: {
-        variant: 'neutral'
-      }
+      ]
     },
     colors: {
       primary: "primary",
@@ -1249,7 +1448,7 @@ export default defineAppConfig({
         header: "flex items-center gap-1.5 p-4 sm:px-6 min-h-16 text-[var(--text-main)]",
         wrapper: "",
         body: "flex-1 p-4 sm:p-6 text-[var(--text-main)]",
-        footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6 text-[var(--text-main)]",
+        footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6 text-[var(--text-main)] bg-transparent",
         title: "text-[var(--text-main)] font-semibold text-2xl",
         description: "mt-1 text-[var(--text-muted)] text-sm",
         close: "absolute top-4 end-4 text-[var(--text-muted)] hover:text-[var(--text-main)]",
