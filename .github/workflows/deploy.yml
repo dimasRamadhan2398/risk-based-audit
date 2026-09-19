@@ -10,9 +10,6 @@ concurrency:
   group: auditsphere-production
   cancel-in-progress: false
 
-permissions:
-  contents: read
-
 jobs:
   build-and-deploy-prod:
     name: Build & Deploy Production to VPS
@@ -76,7 +73,6 @@ jobs:
           DEPLOY_SHA: ${{ github.sha }}
           DEPLOY_REF: ${{ github.ref_name }}
           DEPLOY_ACTOR: ${{ github.actor }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -86,7 +82,7 @@ jobs:
           timeout: 30m
           command_timeout: 30m
           script_stop: true
-          envs: DEPLOY_SHA,DEPLOY_REF,DEPLOY_ACTOR,GH_TOKEN
+          envs: DEPLOY_SHA,DEPLOY_REF,DEPLOY_ACTOR
           script: |
             set -Eeuo pipefail
 
@@ -230,21 +226,17 @@ jobs:
 
               # Sync repository
               log "📦 Syncing repository code..."
-              REPO_AUTH_URL="https://x-access-token:${GH_TOKEN}@github.com/RauMomo/risk-based-audit.git"
               if [ -d "$REPO_DIR/.git" ]; then
                 cd "$REPO_DIR"
-                git remote set-url origin "$REPO_AUTH_URL"
                 git fetch --depth 1 origin "$DEPLOY_SHA"
                 git reset --hard "$DEPLOY_SHA"
                 git clean -fd
-                git remote set-url origin "$REPO_URL"
               else
                 rm -rf "$REPO_DIR"
-                git clone --depth 1 "$REPO_AUTH_URL" "$REPO_DIR"
+                git clone --depth 1 "$REPO_URL" "$REPO_DIR"
                 cd "$REPO_DIR"
                 git fetch --depth 1 origin "$DEPLOY_SHA"
                 git checkout "$DEPLOY_SHA"
-                git remote set-url origin "$REPO_URL"
               fi
 
               # Overlay pre-compiled backend
