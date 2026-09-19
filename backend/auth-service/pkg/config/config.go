@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -128,7 +129,12 @@ func Load(configPath string) (*Config, error) {
 	viper.SetConfigType("yaml")
 
 	setDefaults()
-	// Allow environment variables to override
+	// Allow environment variables to override.
+	// The replacer maps nested keys to conventional env var names, so
+	// `resend.master_api_key` is read from RESEND_MASTER_API_KEY. Without it
+	// viper looks up the literal "RESEND.MASTER_API_KEY" and the override
+	// silently never applies.
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {

@@ -153,9 +153,12 @@ func (r *Registry) confidentiality() {
 // resend registers Resend email provisioning routes.
 func (r *Registry) resend() {
 	resend := r.group.Group("/resend")
+	resend.Use(r.authMiddleware.Authenticate())
+	resend.Use(r.authMiddleware.RequireRoles("ADMIN"))
 	{
 		// POST /api/v1/resend/provision
 		// Registers a sending domain on Resend and returns a scoped API key + DNS records.
+		// ADMIN only: this spends real Resend account quota and mints sending keys.
 		resend.POST("/provision", r.controller.GetResend().ProvisionClientDomain)
 	}
 }
