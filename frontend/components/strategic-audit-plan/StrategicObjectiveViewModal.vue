@@ -6,7 +6,7 @@
       content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden',
       header: 'border-b border-gray-100 dark:border-gray-800 p-5 font-bold text-gray-900 dark:text-white shrink-0',
       body: 'p-6 space-y-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-      footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0 bg-white dark:bg-gray-900',
+      footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
       overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
   >

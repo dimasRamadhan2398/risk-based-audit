@@ -341,13 +341,20 @@ onMounted(() => {
 })
 
 // ─── Tab Navigation ─────────────────────────────────────────────────────────
-const activeTab = ref('xgboost')
+const activeTab = ref((route.query.tab as string) || 'xgboost')
 const tabItems = computed(() => [
   { key: 'xgboost', label: t('analytics.tabs.riskScoring'), icon: 'i-heroicons-chart-bar-square' },
   { key: 'isolation', label: t('analytics.tabs.anomalyDetection'), icon: 'i-heroicons-shield-exclamation' },
   { key: 'nlp', label: t('analytics.tabs.documentProcessing'), icon: 'i-heroicons-document-magnifying-glass' },
   { key: 'timeseries', label: t('analytics.tabs.kpiForecast'), icon: 'i-heroicons-arrow-trending-up' },
 ])
+
+// Sync activeTab whenever the ?tab= query param changes (e.g. sidebar navigation)
+watch(
+  () => route.query.tab,
+  (tab) => { activeTab.value = (tab as string) || 'xgboost' },
+  { immediate: true }
+)
 // ─── Tab 1: Dynamic Computed Charts for Risk Scoring ───────────────────────
 const xgboostBarData = computed(() => ({
   labels: xgboostState.value.predictions.map((p: any) => p.entity || 'Entity'),

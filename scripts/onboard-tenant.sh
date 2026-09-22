@@ -74,17 +74,22 @@ EOSQL
 
 # 2. Run Migrations & Seeds
 echo "==> [2/5] Running schema migrations & role seeding..."
-(cd backend/auth-service && DB_NAME=rb_audit_auth_${SLUG} ./auth migrate up && DB_NAME=rb_audit_auth_${SLUG} ./auth seed)
-(cd backend/audit-service && DB_NAME=rb_audit_audit_${SLUG} ./audit migrate up)
-(cd backend/master-service && DB_NAME=rb_audit_master_${SLUG} ./master migrate up)
+# NOTE: the target database MUST be passed as DATABASE_NAME, not DB_NAME.
+# Each service reads `database.name` through viper's env-key replacer, which
+# maps that key to DATABASE_NAME. DB_NAME is not bound to anything, so using it
+# silently falls back to the shared database in config.yaml and migrates/seeds
+# the wrong tenant.
+(cd backend/auth-service && DATABASE_NAME=rb_audit_auth_${SLUG} ./auth migrate up && DATABASE_NAME=rb_audit_auth_${SLUG} ./auth seed)
+(cd backend/audit-service && DATABASE_NAME=rb_audit_audit_${SLUG} ./audit migrate up)
+(cd backend/master-service && DATABASE_NAME=rb_audit_master_${SLUG} ./master migrate up)
 if [ "$EMPTY_DATA" = true ]; then
     echo "==> [2/5] Creating empty data state for risk-service (no demo data)..."
-    (cd backend/risk-service && DB_NAME=rb_audit_risk_${SLUG} ./risk migrate up)
+    (cd backend/risk-service && DATABASE_NAME=rb_audit_risk_${SLUG} ./risk migrate up)
 else
     echo "==> [2/5] Seeding demo risk universe dataset..."
-    (cd backend/risk-service && DB_NAME=rb_audit_risk_${SLUG} ./risk migrate up && DB_NAME=rb_audit_risk_${SLUG} ./risk seed)
+    (cd backend/risk-service && DATABASE_NAME=rb_audit_risk_${SLUG} ./risk migrate up && DATABASE_NAME=rb_audit_risk_${SLUG} ./risk seed)
 fi
-(cd backend/analytics-service && DB_NAME=rb_audit_analytics_${SLUG} ./analytics migrate up)
+(cd backend/analytics-service && DATABASE_NAME=rb_audit_analytics_${SLUG} ./analytics migrate up)
 
 # 3. Provision Dedicated VPS Storage Silo
 echo "==> [3/5] Provisioning dedicated VPS evidence storage silo at $VPS_STORAGE_DIR..."

@@ -330,27 +330,22 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
       {
         label: t('navigation.riskScoringPrediction'),
         icon: 'i-lucide-binary',
-        to: '/analytics?tab=xgboost'
+        to: { path: '/analytics', query: { tab: 'xgboost' } }
       },
       {
         label: t('navigation.anomalyDetection'),
         icon: 'i-lucide-shield-alert',
-        to: '/analytics?tab=isolation'
-      },
-      {
-        label: t('navigation.detectedAnomaliesDetail'),
-        icon: 'i-lucide-table-properties',
-        to: '/analytics?tab=isolation'
+        to: { path: '/analytics', query: { tab: 'isolation' } }
       },
       {
         label: t('navigation.nlpAnalysis'),
         icon: 'i-lucide-file-search',
-        to: '/analytics?tab=nlp'
+        to: { path: '/analytics', query: { tab: 'nlp' } } 
       },
       {
         label: t('navigation.kpiForecast'),
         icon: 'i-lucide-trending-up',
-        to: '/analytics/kpi-forecast'
+        to: { path: '/analytics', query: { tab: 'kpi-forecast' } }
       }
     ]
   },
@@ -403,12 +398,26 @@ const searchQuery = ref('')
 const { isAdmin, canManageAudits } = useRbac()
 
 // Pre-collected set of all explicit menu paths to avoid prefix matching when navigating to a registered menu route
+// A nav item's `to` may be a path string or a route-location object; both must
+// reduce to the same "path?query" form the matching logic below compares against.
+const toPathString = (to?: unknown): string => {
+  if (typeof to === 'string') return to
+  if (!to || typeof to !== 'object') return ''
+  const loc = to as { path?: string, query?: Record<string, unknown> }
+  if (!loc.path) return ''
+  const entries = Object.entries(loc.query ?? {})
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(([key, value]) => [key, String(value)] as [string, string])
+  return entries.length ? `${loc.path}?${new URLSearchParams(entries).toString()}` : loc.path
+}
+
 const allMenuPaths = computed(() => {
   const paths = new Set<string>()
   const extractPaths = (menuItems: NavigationMenuItem[]) => {
     for (const item of menuItems) {
-      if (item.to && typeof item.to === 'string') {
-        const [base] = item.to.split('?')
+      const target = toPathString(item.to)
+      if (target) {
+        const [base] = target.split('?')
         if (base) {
           paths.add(base.replace(/\/$/, '') || '/')
         }
@@ -422,7 +431,8 @@ const allMenuPaths = computed(() => {
   return paths
 })
 
-const isPathActive = (targetPath?: string): boolean => {
+const isPathActive = (to?: unknown): boolean => {
+  const targetPath = toPathString(to)
   if (!targetPath) return false
 
   // Handle explicit query parameter matching (e.g. ?tab=priority or ?tab=xgboost)
@@ -464,7 +474,7 @@ const isPathActive = (targetPath?: string): boolean => {
 }
 
 const checkItemActive = (item: NavigationMenuItem): boolean => {
-  if (isPathActive(item.to as string)) return true
+  if (isPathActive(item.to)) return true
   if (item.children && item.children.length > 0) {
     return item.children.some(checkItemActive)
   }
@@ -494,7 +504,7 @@ const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuIte
     return null
   }
 
-  const isCurrentActive = isPathActive(item.to as string)
+  const isCurrentActive = isPathActive(item.to)
   const hasActiveChild = Boolean(
     processedChildren?.some(child => child.active || (child.children && child.children.some(checkItemActive)))
   )

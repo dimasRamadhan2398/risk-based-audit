@@ -379,104 +379,106 @@
     </div>
 
     <!-- Internal Control Effectiveness Section (COSO 2013) -->
-    <UCard class="border border-slate-100 dark:border-gray-800 shadow-sm rounded-2xl">
-      <template #header>
-        <div class="flex flex-row md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div class="flex flex-row items-center gap-2">
-              <span class="text-md font-semibold tracking-wider text-slate-400">Internal Audit & Risk Metric</span>
-              <UBadge color="neutral" variant="subtle" size="md">COSO 2013</UBadge>
-              <UBadge variant="solid" color="primary">
-                Tahun: {{ rcmStore.selectedYear }} | {{ rcmStore.selectedDepartment }}
-              </UBadge>
-            </div>
-            <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mt-0.5">
-              Internal Control Effectiveness
-            </h2>
-          </div>
-          <UButton to="/risk-profile/risk-control-matrix" variant="outline" color="neutral" size="sm" class="font-medium">
-            Risk Control Matrix &rarr;
-          </UButton>
-        </div>
-      </template>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        <!-- Effectiveness Score Card -->
-        <UCard class="bg-slate-50 dark:bg-gray-900/50 border border-slate-100 dark:border-gray-800 rounded-xl" :ui="{ body: 'flex flex-col justify-between h-full p-5' }">
-          <div>
-            <div class="flex justify-between items-start">
-              <span class="text-md font-semibold text-slate-500 uppercase tracking-wider">Effectiveness Rating</span>
-              <div class="rounded-lg bg-primary-100 dark:bg-primary-900/50 p-1.5 flex items-center justify-center">
-                <UIcon name="i-lucide-shield-check" class="text-primary-600 dark:text-primary-400 size-4" />
-              </div>
+      <!-- Card 1: Yearly Internal Control Effectiveness (2 Cols) -->
+      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
             </div>
-            <div class="mt-3 flex items-baseline gap-2">
-              <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <div class="flex items-center gap-2 min-w-max">
+              <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700">
+                Tahun: {{ rcmStore.selectedYear }} | {{ rcmStore.selectedDepartment }}
+              </span>
+              <UButton to="/risk-profile/risk-control-matrix" variant="outline" color="neutral" size="sm" class="font-medium">
+                Risk Control Matrix &rarr;
+              </UButton>
+            </div>
+          </div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Internal Control Effectiveness</h2>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60">
+          <!-- Big Score % -->
+          <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
+            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Real Effectiveness Score</span>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 {{ rcmStore.internalControlEffectiveness }}%
-              </h3>
+              </span>
             </div>
             <div class="mt-2">
-              <UBadge
-                :color="rcmStore.effectivenessRating.badgeColor as any"
-                variant="solid"
-                class="font-bold px-2.5 py-1"
-              >
+              <span :class="getRatingBadgeClass(rcmStore.effectivenessRating.rating)">
                 {{ rcmStore.effectivenessRating.rating }}
-              </UBadge>
+              </span>
             </div>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-gray-800 text-md text-slate-600 dark:text-gray-300 space-y-1">
-            <div class="flex justify-between">
-              <span>Inherent Risk (Prioritas):</span>
-              <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.totalInherentRisk }} Risiko</span>
+          <!-- Synchronized Risk Counts & Interpretation -->
+          <div class="md:col-span-2 flex flex-col justify-center space-y-2">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
+              <span class="font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                {{ rcmStore.totalInherentRisk }} Risiko
+              </span>
             </div>
-            <div class="flex justify-between">
-              <span>Residual Risk (Sisa):</span>
-              <span class="font-bold text-red-600 dark:text-red-400">{{ rcmStore.totalResidualRisk }} Risiko</span>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
+              <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                {{ rcmStore.totalResidualRisk }} Risiko
+              </span>
             </div>
+            <UAlert
+              :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
+              variant="subtle"
+              icon="i-lucide-info"
+              :title="'Interpretasi Hasil COSO (' + rcmStore.effectivenessRating.rating + '):'"
+              :description="rcmStore.effectivenessRating.interpretation"
+              class="rounded-xl shadow-xs border-none! bg-transparent! border-transparent!"
+            />
           </div>
-        </UCard>
+        </div>
 
-        <!-- Interpretation Text -->
-        <UCard class="lg:col-span-2 bg-slate-50 dark:bg-gray-900/50 border border-slate-100 dark:border-gray-800 rounded-xl" :ui="{ body: 'flex flex-col justify-between h-full p-5' }">
-          <div>
-            <span class="text-md font-semibold text-slate-500 uppercase tracking-wider">Interpretasi Hasil COSO 2013</span>
-            <div class="mt-2 p-3 rounded-lg border text-md" :class="rcmStore.effectivenessRating.bgClass">
-              <p class="font-bold flex items-center gap-1.5 mb-1">
-                <UIcon name="i-lucide-check-circle-2" class="size-4" />
-                {{ rcmStore.effectivenessRating.rating }} ({{ rcmStore.internalControlEffectiveness }}%)
-              </p>
-              <p class="leading-relaxed">{{ rcmStore.effectivenessRating.interpretation }}</p>
-            </div>
-          </div>
-
-          <!-- COSO Dimensions Mini Progress in %  -->
-          <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-gray-800 grid grid-cols-5 gap-2 text-center text-md">
-            <div>
-              <span class="block text-slate-500 font-medium">Design</span>
-              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.design }}%</span>
-            </div>
-            <div>
-              <span class="block text-slate-500 font-medium">Operating</span>
-              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.operating }}%</span>
-            </div>
-            <div>
-              <span class="block text-slate-500 font-medium">Coverage</span>
-              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.coverage }}%</span>
-            </div>
-            <div>
-              <span class="block text-slate-500 font-medium">Timeliness</span>
-              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.timeliness }}%</span>
-            </div>
-            <div>
-              <span class="block text-slate-500 font-medium">Automation</span>
-              <span class="font-bold text-slate-800 dark:text-gray-200">{{ rcmStore.cosoAverages.automation }}%</span>
-            </div>
-          </div>
-        </UCard>
+        <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-4">
+          <UIcon name="i-lucide-check-circle-2" class="size-10 text-emerald-500" />
+          <span>Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile.</span>
+        </div>
       </div>
-    </UCard>
+
+      <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO 2013</h3>
+            <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800">
+              {{ rcmStore.cosoAverages.totalWeighted }}%
+            </span>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
+              <div class="flex justify-between text-md">
+                <span class="font-medium text-slate-700 dark:text-slate-300">{{ dim.shortLabel }}</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div
+                  class="bg-primary-600 dark:bg-primary-500 h-full rounded-full transition-all duration-300"
+                  :style="{ width: `${getDimAverage(dim.key)}%` }"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-md text-slate-500 dark:text-slate-400">
+          <span>Total Kontrol Dievaluasi:</span>
+          <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.filteredRCMList.length }} Item</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Charts Section (Third Row) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -918,7 +920,7 @@ import { useActionTakenReportStore } from "~/stores/action-taken-report";
 import { useAuditExecutionStore } from "~/stores/audit-execution";
 import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
-import { useRCMStore } from "~/stores/rcm";
+import { useRCMStore, cosoDimensions } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
 import { AuditStatus } from "~/types/audit";
 import { UBadge } from "#components";
@@ -947,6 +949,33 @@ const auditExecutionStore = useAuditExecutionStore();
 const auditResultStore = useAuditResultReportStore();
 const authStore = useAuthStore();
 const rcmStore = useRCMStore();
+
+// ─── Internal Control Effectiveness (COSO 2013) ─────────────
+const getDimAverage = (dimKey: string) => {
+  const map: Record<string, number> = {
+    design_effectiveness: rcmStore.cosoAverages.design,
+    operating_effectiveness: rcmStore.cosoAverages.operating,
+    coverage_completeness: rcmStore.cosoAverages.coverage,
+    timeliness: rcmStore.cosoAverages.timeliness,
+    automation_monitoring: rcmStore.cosoAverages.automation,
+  };
+  return map[dimKey] || 0;
+};
+
+const getRatingBadgeClass = (ratingLabel: string) => {
+  switch (ratingLabel) {
+    case "Highly Effective":
+      return "bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+    case "Effective":
+      return "bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+    case "Moderately Effective":
+      return "bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+    case "Weak":
+      return "bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+    default:
+      return "bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+  }
+};
 
 // AI & Analytics Composables
 const timeseriesData = useTimeSeriesData();

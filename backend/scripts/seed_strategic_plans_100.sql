@@ -10,8 +10,8 @@ BEGIN;
 -- Ensure table and extension exist
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Clean existing SO-IA seed records to prevent duplicates and ensure latest definitions
-DELETE FROM strategic_plans WHERE code LIKE 'SO-IA%';
+-- Clean existing SO-IA seed records (SO-IA01 to SO-IA100) to prevent duplicates and ensure latest definitions
+DELETE FROM strategic_plans WHERE code ~ '^SO-IA(0[1-9]|[1-9][0-9]|100)$';
 
 INSERT INTO strategic_plans (
     id, code, goal_id, strategic_objective, kpi, unit, hib_hig, period_type,

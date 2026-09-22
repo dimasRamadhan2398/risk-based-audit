@@ -1,24 +1,19 @@
 _format_version: "3.0"
 _transform: true
 
-# ============================================================
-# GLOBAL PLUGINS
-# ============================================================
+# =============================================================================
+# Kong declarative config — tenant: __CLIENT_NAME__ (__SLUG__)
+#
+# GENERATED FILE. Do not edit by hand.
+# Rendered from scripts/templates/kong-tenant.yml.tpl by
+# scripts/generate-tenant-stack.sh. Re-run the generator to regenerate.
+#
+# Every upstream points at this tenant's own containers (suffixed __SLUG__)
+# so the gateway can never route to another tenant's services, even though
+# all tenants share the rb_audit_network bridge.
+# =============================================================================
 
 plugins:
-
-  # ==========================================================
-  # CORS
-  # ==========================================================
-  #
-  # Only allow the production frontend.
-  #
-  # IMPORTANT:
-  # - Do NOT use "*"
-  # - Do NOT include Access-Control-Allow-Origin in headers
-  # - credentials=true requires explicit origins
-  #
-  # ==========================================================
 
   - name: prometheus
     config:
@@ -28,10 +23,19 @@ plugins:
       bandwidth_metrics: true
       upstream_health_metrics: true
 
+  # ---------------------------------------------------------------------------
+  # CORS — this tenant's origin only.
+  #
+  # The frontend normally calls /api/v1 same-origin and the Nuxt server proxies
+  # to this gateway, so CORS is not on the hot path. These origins only matter
+  # for clients hitting __PROTO__://__API_DOMAIN__ directly (Postman, scripts,
+  # a future mobile client). Never widen this to "*" — credentials: true makes
+  # a wildcard origin both invalid and a cross-tenant leak.
+  # ---------------------------------------------------------------------------
   - name: cors
     config:
       origins:
-        - "https://auditsphere.app"
+        - "__PROTO__://__DOMAIN__"
 
       methods:
         - GET
@@ -59,21 +63,12 @@ plugins:
 
       max_age: 3600
 
-
-  # ==========================================================
-  # GLOBAL RATE LIMITING
-  # ==========================================================
+  # ---------------------------------------------------------------------------
+  # RATE LIMITING
   #
-  # Baseline protection against:
-  # - abuse
-  # - accidental request storms
-  # - scraping
-  # - excessive API usage
-  #
-  # For multi-node Kong, consider Redis/cluster policy.
-  #
-  # ==========================================================
-
+  # policy: local means the counter lives in this tenant's Kong worker, so each
+  # tenant gets its own budget rather than sharing one pool.
+  # ---------------------------------------------------------------------------
   - name: rate-limiting
     config:
       minute: 100
@@ -81,49 +76,29 @@ plugins:
       policy: local
       limit_by: ip
 
-
-  # ==========================================================
-  # BOT DETECTION
-  # ==========================================================
-  #
-  # Production is stricter than DEV.
-  #
-  # NOTE:
-  # curl/python/Go clients are intentionally NOT blocked here.
-  # Blocking them globally can interfere with legitimate
-  # integrations, monitoring, CI/CD and API clients.
-  #
-  # ==========================================================
-
   - name: bot-detection
     config:
       allow:
         - "googlebot"
         - "bingbot"
-
       deny:
         - "sqlmap"
         - "nikto"
         - "nmap"
 
 
-# ============================================================
-# SERVICES
-# ============================================================
-
 services:
 
-  # ==========================================================
+  # ===========================================================================
   # AUTH SERVICE
-  # ==========================================================
+  # ===========================================================================
 
   - name: auth-service
-    url: http://auth-service:8001
+    url: http://auth-service-__SLUG__:8001
 
     routes:
 
       - name: auth-routes-v1
-
         paths:
           - /api/v1/auth
           - /api/v1/users
@@ -132,71 +107,55 @@ services:
           - /api/v1/mfa
           - /api/v1/devices
           - /api/v1/confidentiality
-          - /api/v1/resend
-
         strip_path: false
 
-
-  # ==========================================================
+  # ---------------------------------------------------------------------------
   # LEGACY MFA
-  # ==========================================================
+  # ---------------------------------------------------------------------------
 
   - name: auth-service-legacy-mfa
-    url: http://auth-service:8001/api/v1/mfa
+    url: http://auth-service-__SLUG__:8001/api/v1/mfa
 
     routes:
 
       - name: auth-route-legacy-mfa
-
         paths:
           - /api/mfa
-
         strip_path: true
 
-
-  # ==========================================================
+  # ---------------------------------------------------------------------------
   # LEGACY DEVICES
-  # ==========================================================
+  # ---------------------------------------------------------------------------
 
   - name: auth-service-legacy-devices
-    url: http://auth-service:8001/api/v1/devices
+    url: http://auth-service-__SLUG__:8001/api/v1/devices
 
     routes:
 
       - name: auth-route-legacy-devices
-
         paths:
           - /api/devices
-
         strip_path: true
 
-
-  # ==========================================================
+  # ===========================================================================
   # AUDIT SERVICE
-  # ==========================================================
+  # ===========================================================================
 
   - name: audit-service
-    url: http://audit-service:8001
+    url: http://audit-service-__SLUG__:8001
 
     routes:
 
       - name: audit-routes
-
         paths:
 
-          # --------------------------------------------------
-          # Audit Governance
-          # --------------------------------------------------
-
+          # Audit Charter / Governance
           - /api/v1/audit-charters
           - /api/v1/audit-guidelines
           - /api/v1/audit-sops
           - /api/v1/audit-mandates
 
-          # --------------------------------------------------
           # Audit Planning
-          # --------------------------------------------------
-
           - /api/v1/audit-assignments
           - /api/v1/audit-activities
           - /api/v1/annual-audit-plans
@@ -204,27 +163,18 @@ services:
           - /api/v1/strategic-plans
           - /api/v1/assignment-letters
 
-          # --------------------------------------------------
           # Audit Execution
-          # --------------------------------------------------
-
           - /api/v1/audit-executions
           - /api/v1/fieldwork
           - /api/v1/working-papers
 
-          # --------------------------------------------------
           # Audit Results
-          # --------------------------------------------------
-
           - /api/v1/audit-result-reports
           - /api/v1/auditee-surveys
           - /api/v1/executive-summaries
           - /api/v1/action-taken-reports
 
-          # --------------------------------------------------
           # Documents
-          # --------------------------------------------------
-
           - /api/v1/uploaded-plan-documents
           - /api/v1/uploaded-annual-plans
           - /api/v1/uploaded-assignment-letters
@@ -234,90 +184,96 @@ services:
           - /api/v1/uploaded-consulting-documents
           - /api/v1/uploaded-performance-reports
 
-          # --------------------------------------------------
           # Media
-          # --------------------------------------------------
-
           - /api/v1/media
           - /uploads
 
-          # --------------------------------------------------
           # Performance
-          # --------------------------------------------------
-
           - /api/v1/performance
 
         strip_path: false
 
-
-  # ==========================================================
+  # ===========================================================================
   # MASTER SERVICE
-  # ==========================================================
+  # ===========================================================================
 
   - name: master-service
-    url: http://master-service:8002
+    url: http://master-service-__SLUG__:8002
 
     routes:
 
       - name: master-routes
-
         paths:
 
+          # Organization
           - /api/v1/companies
           - /api/v1/business-units
           - /api/v1/departments
           - /api/v1/employees
+
+          # Quality Assurance
           - /api/v1/quality-assurance
+
+          # Consulting
           - /api/v1/consulting-services
+
+          # Corporate Strategy
           - /api/v1/vision-mission-goals
+
+          # Data Sources
           - /api/v1/data-sources
 
         strip_path: false
 
-
-  # ==========================================================
+  # ===========================================================================
   # RISK SERVICE
-  # ==========================================================
+  # ===========================================================================
 
   - name: risk-service
-    url: http://risk-service:8002
+    url: http://risk-service-__SLUG__:8002
 
     routes:
 
       - name: risk-routes
-
         paths:
 
+          # Risk Management
           - /api/v1/risks
           - /api/v1/mitigations
           - /api/v1/risk-factors
+
+          # Audit Universe
           - /api/v1/audit-universe
+
+          # Risk Appetite
           - /api/v1/risk-appetite
+
+          # Risk & Control Matrix
           - /api/v1/rcm
 
         strip_path: false
 
-
-  # ==========================================================
+  # ===========================================================================
   # ANALYTICS SERVICE
-  # ==========================================================
+  # ===========================================================================
 
   - name: analytics-service
-    url: http://analytics-service:8084
+    url: http://analytics-service-__SLUG__:8084
 
     routes:
 
       - name: analytics-routes
-
         paths:
           - /api/analytics
-
         strip_path: false
 
-
-  # ==========================================================
+  # ===========================================================================
   # PYTHON AI SERVICE
-  # ==========================================================
+  #
+  # Shared with the control-plane stack: the model server holds no tenant data,
+  # it scores payloads passed in per request. Routed through this tenant's
+  # gateway so rate limiting and bot detection still apply per tenant.
+  # ===========================================================================
 
   - name: python-ai-service
     url: http://python-ai:8000
@@ -325,8 +281,6 @@ services:
     routes:
 
       - name: python-ai-routes
-
         paths:
           - /api/python-ai
-
         strip_path: true

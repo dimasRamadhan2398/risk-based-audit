@@ -5,20 +5,10 @@ import type {
   UpdateEmployeeRequest,
   ListEmployeesResponse
 } from '~/types/master'
-import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { getMasterServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useEmployeeApi = () => {
-  const config = useRuntimeConfig()
-
-  // Base URL for master-service
-  const baseUrl = config.public.masterServiceBaseUrl || 'http://localhost:8002/api/v1'
-
-  /**
-   * Get base URL - with fallback to auditServiceBaseUrl if masterServiceBaseUrl not configured
-   */
-  const getBaseUrl = () => {
-    return getAuditServiceBaseUrl()
-  }
+  const getBaseUrl = () => getMasterServiceBaseUrl()
 
   /**
    * Get all employees (with pagination)
@@ -39,14 +29,35 @@ export const useEmployeeApi = () => {
       method: 'GET'
     })
 
-    // Handle different response formats
+    // Handle different response formats: response.data as array, or response.data.employees, or response.employees
+    let employeesList: Employee[] = Array.isArray(response.data)
+      ? response.data
+      : (response.data?.employees || response.employees || response.data?.data || [])
+
+    // Support client-side search filtering if query provided
+    if (params?.search && params.search.trim()) {
+      const q = params.search.trim().toLowerCase()
+      employeesList = employeesList.filter((emp: any) =>
+        emp.full_name?.toLowerCase().includes(q) ||
+        emp.employee_code?.toLowerCase().includes(q) ||
+        emp.email?.toLowerCase().includes(q) ||
+        emp.phone?.toLowerCase().includes(q)
+      )
+    }
+
+    const paginationData = response.data?.pagination || response.pagination
+    const total = paginationData?.total ?? employeesList.length
+    const pageSize = paginationData?.page_size ?? (params?.page_size || 10)
+    const page = paginationData?.page ?? (params?.page || 1)
+    const totalPages = paginationData?.total_pages ?? (Math.ceil(total / pageSize) || 1)
+
     return {
-      employees: response.data?.employees || response.employees || [],
-      pagination: response.data?.pagination || response.pagination || {
-        page: params?.page || 1,
-        page_size: params?.page_size || 10,
-        total: 0,
-        total_pages: 0
+      employees: employeesList,
+      pagination: {
+        page,
+        page_size: pageSize,
+        total,
+        total_pages: totalPages
       }
     }
   }
@@ -109,7 +120,9 @@ export const useEmployeeApi = () => {
       params: { page: 1, page_size: 1000 }
     })
 
-    const employees = response.data?.employees || response.employees || []
+    const employees = Array.isArray(response.data)
+      ? response.data
+      : (response.data?.employees || response.employees || response.data?.data || [])
     return Array.isArray(employees) ? employees : []
   }
 

@@ -133,6 +133,10 @@ services:
         condition: service_healthy
     ports:
       - "8101:8001"
+    environment:
+      # Resend full-access key used to provision per-tenant sending domains.
+      # Leave unset to keep the service in mock mode (no real Resend calls).
+      - RESEND_MASTER_API_KEY=${RESEND_MASTER_API_KEY:-}
     command: sh -c "./auth --config ./pkg/config/config.yaml seed && ./auth --config ./pkg/config/config.yaml serve"
     networks:
       - rb_audit_network_dev

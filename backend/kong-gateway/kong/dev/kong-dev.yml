@@ -224,6 +224,7 @@ services:
           - /api/v1/companies
           - /api/v1/business-units
           - /api/v1/departments
+          - /api/v1/employees
 
           # Quality Assurance
           - /api/v1/quality-assurance

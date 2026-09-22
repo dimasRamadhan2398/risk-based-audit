@@ -76,7 +76,8 @@
           <USelect
             v-model="form.department"
             :placeholder="t('settings.profile.selectDepartment')"
-            :options="departments"
+            :items="departments"
+            value-key="value"
             size="lg"
             class="w-full"
           />
@@ -141,8 +142,13 @@ const departments = [
   { label: 'Internal Audit', value: 'internal-audit' },
   { label: 'Risk Management', value: 'risk-management' },
   { label: 'Compliance', value: 'compliance' },
-  { label: 'Finance', value: 'finance' },
+  { label: 'Finance & Accounting', value: 'finance' },
   { label: 'Information Technology', value: 'it' },
+  { label: 'Human Resources (HRD)', value: 'hrd' },
+  { label: 'Operations', value: 'operations' },
+  { label: 'Legal', value: 'legal' },
+  { label: 'Procurement', value: 'procurement' },
+  { label: 'Corporate Secretary', value: 'corporate-secretary' },
 ]
 
 const form = ref({
