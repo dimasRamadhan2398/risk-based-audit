@@ -17,6 +17,8 @@ type FieldworkInterview struct {
 	Date                string         `gorm:"type:varchar(100)" json:"date"`
 	Topic               string         `gorm:"type:text" json:"topic"`
 	FileName            string         `gorm:"type:varchar(255)" json:"fileName,omitempty"`
+	FilePath            string         `gorm:"type:varchar(500)" json:"filePath,omitempty"`
+	FileUrl             string         `gorm:"type:varchar(500)" json:"fileUrl,omitempty"`
 	CreatedAt           time.Time      `json:"created_at"`
 	UpdatedAt           time.Time      `json:"updated_at"`
 	DeletedAt           gorm.DeletedAt `gorm:"index" json:"-"`
@@ -34,6 +36,8 @@ type FieldworkObservation struct {
 	Date               string         `gorm:"type:varchar(100)" json:"date"`
 	Observer           string         `gorm:"type:varchar(200)" json:"observer"`
 	FileName           string         `gorm:"type:varchar(255)" json:"fileName,omitempty"`
+	FilePath           string         `gorm:"type:varchar(500)" json:"filePath,omitempty"`
+	FileUrl            string         `gorm:"type:varchar(500)" json:"fileUrl,omitempty"`
 	CreatedAt          time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`
@@ -50,6 +54,8 @@ type FieldworkDocument struct {
 	Description        string         `gorm:"type:text" json:"description"`
 	RequiredDate       string         `gorm:"type:varchar(100)" json:"requiredDate"`
 	FileName           string         `gorm:"type:varchar(255)" json:"fileName,omitempty"`
+	FilePath           string         `gorm:"type:varchar(500)" json:"filePath,omitempty"`
+	FileUrl            string         `gorm:"type:varchar(500)" json:"fileUrl,omitempty"`
 	CreatedAt          time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`

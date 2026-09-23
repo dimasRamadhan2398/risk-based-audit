@@ -71,6 +71,7 @@ export enum PossibilityLevel {
 export interface RiskMitigation {
   id: string
   riskId: string
+  riskControlId?: string
   riskEvent: string
   mitigationPlan: string
   supervisor: string
@@ -83,6 +84,7 @@ export interface RiskMitigation {
 }
 
 export interface RiskMitigationForm {
+  riskControlId?: string
   riskEvent: string
   mitigationPlan: string
   supervisor: string

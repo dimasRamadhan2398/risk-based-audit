@@ -1,22 +1,38 @@
 <template>
   <div>
+    <UAlert
+      v-if="store.errorMsg"
+      color="error"
+      variant="soft"
+      icon="i-lucide-circle-alert"
+      :title="t('auditCharter.card.loadError')"
+      :description="store.errorMsg"
+      class="mb-4"
+    />
+
+    <div v-if="store.loading" class="space-y-3 py-6">
+      <USkeleton class="h-24 w-full" />
+      <USkeleton class="h-48 w-full" />
+    </div>
+
     <!-- Empty State when there are no charters at all -->
     <div
-      v-if="store.charters.length === 0"
+      v-else-if="store.charters.length === 0"
       class="flex flex-col items-center justify-center p-12 bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl text-center space-y-6 shadow-sm my-4"
     >
       <div class="w-16 h-16 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary-500">
         <UIcon name="i-lucide-file-text" class="w-8 h-8" />
       </div>
       <div class="space-y-2 max-w-md">
-        <h2 class="text-xl font-bold text-[var(--text-main)]">Belum Ada Audit Charter</h2>
+        <h2 class="text-xl font-bold text-[var(--text-main)]">{{ t('auditCharter.card.emptyTitle') }}</h2>
         <p class="text-sm text-[var(--text-muted)] leading-relaxed">
-          Audit Charter adalah dokumen formal yang mendefinisikan tujuan, wewenang, dan tanggung jawab fungsi Audit Internal. Unggah dokumen pertama Anda untuk memulai.
+          {{ t('auditCharter.card.emptyDesc') }}
         </p>
       </div>
       <UButton
-        label="Unggah Audit Charter Baru"
-        @click="store.showModal = true"
+        v-if="canManageCharter"
+        :label="t('auditCharter.card.uploadNew')"
+        @click="() => { store.showModal = true }"
         color="primary"
         size="lg"
         class="rounded-xl px-6 py-3 font-semibold transition-all duration-200"
@@ -34,11 +50,12 @@
       >
         <div class="flex justify-between items-center">
           <h1 class="text-2xl font-bold text-gray-900">
-            Active Audit Charter
+            {{ t('auditCharter.card.activeTitle') }}
           </h1>
           <UButton
-            label="Add Charter"
-            @click="store.showModal = true"
+            v-if="canManageCharter"
+            :label="t('auditCharter.card.addCharter')"
+            @click="() => { store.showModal = true }"
             color="primary"
             icon="i-lucide-plus"
           >
@@ -47,10 +64,10 @@
 
         <div class="border-t border-gray-400 my-4"></div>
 
-        <div class="flex justify-between items-start">
+        <div class="flex flex-row justify-between items-start">
           <div>
             <UBadge
-              label="CURRENTLY ACTIVE"
+              :label="t('auditCharter.card.currentlyActive')"
               class="px-2.5 py-0.5 mb-4 rounded inline-block"
               size="xl"
               color="success"
@@ -59,32 +76,36 @@
             <h2 class="text-3xl font-bold text-[var(--text-main)] mb-4">
               {{ store.activeCharter.title }}
             </h2>
-            <div class="flex items-center gap-4 text-sm text-gray-500 mb-6">
+            <div class="flex items-center text-sm text-gray-500 mb-6 gap-4">
               <UBadge class="rounded inline-block" size="lg" color="error">
                 v{{ store.activeCharter.version }}
               </UBadge>
-              <UIcon name="i-lucide-calendar" size="md"></UIcon>
-              <span class="flex items-center gap-1">{{
-                store.activeCharter.date
-              }}</span>
-              <UIcon name="i-lucide-file-text" size="md"></UIcon>
-              <span class="flex items-center gap-1">{{
-                store.activeCharter.fileName
-              }}</span>
+              <div class="flex items-center gap-1">
+                <UIcon name="i-lucide-calendar" size="md"></UIcon>
+                <span class="flex items-center">{{
+                  store.activeCharter.date
+                }}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <UIcon name="i-lucide-file-text" size="md"></UIcon>
+                  <span class="flex items-center">{{
+                  store.activeCharter.fileName
+                }}</span>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 bg-[var(--bg-surface)] gap-8 mb-6 p-4 rounded-lg transition-colors duration-300">
               <div>
-                <p class="text-xs text-[var(--text-muted)] uppercase tracking-wider">
-                  Uploaded By
+                <p class="text-md text-[var(--text-muted)] uppercase tracking-wider">
+                  {{ t('auditCharter.card.uploadedBy') }}
                 </p>
                 <p class="font-medium text-[var(--text-main)]">
                   {{ store.activeCharter.uploadedBy }}
                 </p>
               </div>
               <div>
-                <p class="text-xs text-[var(--text-muted)] uppercase tracking-wider">
-                  Approved By
+                <p class="text-md text-[var(--text-muted)] uppercase tracking-wider">
+                  {{ t('auditCharter.card.approvedBy') }}
                 </p>
                 <p class="font-medium text-[var(--text-main)]">
                   {{ store.activeCharter.approvedBy }}
@@ -94,25 +115,27 @@
           </div>
         </div>
         <div class="sm:flex sm:flex-row-reverse gap-4">
-          <UButton
-            v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
-            :to="store.activeCharter.fileUrl"
-            target="_blank"
-            icon="i-lucide-download"
-            size="md"
-            color="primary"
-            variant="solid"
-          >
-            Download
-          </UButton>
-          <UButton
-            label="Edit"
-            @click="store.handleEdit(store.activeCharter)"
-            color="primary"
-            icon="i-lucide-edit"
-            variant="outline"
-          >
-          </UButton>
+          <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
+            <UButton
+              v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
+              @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
+              icon="i-lucide-download"
+              size="md"
+              color="primary"
+              variant="solid"
+              :label="t('auditCharter.card.download')"
+            />
+          </UTooltip>
+          <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+            <UButton
+              v-if="canManageCharter"
+              @click="store.handleEdit(store.activeCharter)"
+              color="primary"
+              icon="i-lucide-edit"
+              variant="ghost"
+              :label="t('auditCharter.card.edit')"
+            />
+          </UTooltip>
         </div>
       </UCard>
 
@@ -121,11 +144,12 @@
         <div class="flex justify-between items-center">
           <UIcon name="i-lucide-alert-triangle" size="lg" class="text-warning-600"></UIcon>
           <p class="text-secondary-700">
-            Belum ada Audit Charter yang aktif. Silakan upload atau aktifkan dokumen.
+            {{ t('auditCharter.card.noActiveCharterWarning') }}
           </p>
           <UButton
-            label="Add Charter"
-            @click="store.showModal = true"
+            v-if="canManageCharter"
+            :label="t('auditCharter.card.addCharter')"
+            @click="() => { store.showModal = true }"
             color="primary"
             icon="i-lucide-plus"
           >
@@ -134,72 +158,100 @@
       </UCard>
 
       <!-- History Table -->
-      <div>
-        <UCard class="relative group" variant="soft">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">
-            History Audit Charter
-          </h3>
-          <UTable
-            :data="store.historyCharters"
-            :columns="store.columns"
-            :empty-state="{
-              icon: 'i-lucide-folder-open',
-              label: 'Belum ada data history rencana audit.',
-            }"
-            class="w-full text-sm text-left"
-          >
-            <template #version-data="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.version
-              }}</span>
-            </template>
-            <template #title-data="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.title
-              }}</span>
-            </template>
-            <template #date-data="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.date
-              }}</span>
-            </template>
-            <template #approvedBy-data="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.approvedBy
-              }}</span>
-            </template>
-            <template #uploadedBy-data="{ row }">
-              <span class="font-bold text-gray-800">{{
-                row.original.uploadedBy
-              }}</span>
-            </template>
-            <template #fileName-cell="{ row }">
-              <UButton
-                v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                :to="row.original.fileUrl"
-                target="_blank"
-                icon="i-lucide-download"
-                color="primary"
-                size="md"
-              >
-                {{ row.original.fileName }}
-              </UButton>
-              <span v-else>{{ row.original.fileName }}</span>
-            </template>
-            <template #actions-cell="{ row }">
-              <div class="flex justify-end">
+      <div class="space-y-3">
+        <h3 class="text-lg font-semibold text-[var(--text-main)]">
+          {{ t('auditCharter.card.historyTitle') }}
+        </h3>
+        <TableEntities
+          :data="store.historyCharters"
+          :columns="columns"
+          :empty-state="{
+            icon: 'i-lucide-folder-open',
+            label: t('auditCharter.card.emptyHistory'),
+          }"
+          class="w-full"
+        >
+          <template #version-cell="{ row }">
+            <span class="font-bold text-[var(--text-main)] whitespace-nowrap">{{
+              row.original.version
+            }}</span>
+          </template>
+          <template #title-cell="{ row }">
+            <div class="font-bold text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              <ReadMoreText
+                :text="row.original.title"
+                :max-length="60"
+                text-class="font-bold text-[var(--text-main)]"
+              />
+            </div>
+          </template>
+          <template #content-cell="{ row }">
+            <div class="font-normal text-[var(--text-muted)] text-sm break-words whitespace-normal leading-relaxed min-w-0">
+              <ReadMoreText
+                :text="row.original.content || '-'"
+                :max-length="75"
+                text-class="text-[var(--text-muted)] text-sm"
+              />
+            </div>
+          </template>
+          <template #date-cell="{ row }">
+            <span class="font-medium text-[var(--text-main)] whitespace-nowrap">{{
+              row.original.date
+            }}</span>
+          </template>
+          <template #approvedBy-cell="{ row }">
+            <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              <ReadMoreText
+                :text="row.original.approvedBy"
+                :max-length="35"
+                text-class="font-medium text-[var(--text-main)]"
+              />
+            </div>
+          </template>
+          <template #uploadedBy-cell="{ row }">
+            <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+              <ReadMoreText
+                :text="row.original.uploadedBy"
+                :max-length="35"
+                text-class="font-medium text-[var(--text-main)]"
+              />
+            </div>
+          </template>
+          <template #actions-cell="{ row }">
+            <div class="flex justify-end gap-1.5 whitespace-nowrap">
+              <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
                 <UButton
-                  label="Edit"
+                  v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
                   size="md"
                   color="primary"
-                  variant="outline"
+                  variant="ghost"
+                  icon="i-lucide-download"
+                  @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
+                />
+              </UTooltip>
+              <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="warning"
+                  variant="ghost"
                   icon="i-lucide-edit"
                   @click="store.handleEdit(row.original)"
                 />
-              </div>
-            </template>
-          </UTable>
-        </UCard>
+              </UTooltip>
+              <UTooltip :text="t('auditCharter.tooltips.deleteCharter')">
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="error"
+                  variant="ghost"
+                  icon="i-lucide-trash-2"
+                  @click="confirmDelete(row.original)"
+                />
+              </UTooltip>
+            </div>
+          </template>
+        </TableEntities>
       </div>
     </div>
   </div>
@@ -207,8 +259,31 @@
 
 <script setup lang="ts">
 import { useCharterStore } from '~/stores/charter'
+import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
+import TableEntities from '~/components/shared/TableEntities.vue'
+import { useGlobalModalStore } from '~/stores/global-modal'
+import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
+const { t } = useI18n()
 const store = useCharterStore()
+const { canManageCharter } = useRbac()
+
+const columns = computed(() => [
+  { accessorKey: 'version', header: t('auditCharter.card.columns.version'), class: 'w-16 whitespace-nowrap text-center' },
+  { accessorKey: 'title', header: t('auditCharter.card.columns.title'), class: 'w-48' },
+  { accessorKey: 'content', header: t('auditCharter.card.columns.content'), class: 'w-48' },
+  { accessorKey: 'date', header: t('auditCharter.card.columns.date'), class: 'w-28 whitespace-nowrap' },
+  { accessorKey: 'approvedBy', header: t('auditCharter.card.columns.approvedBy'), class: 'w-36' },
+  { accessorKey: 'uploadedBy', header: t('auditCharter.card.columns.uploadedBy'), class: 'w-36' },
+  { accessorKey: 'actions', header: t('auditCharter.card.columns.actions'), class: 'w-14 whitespace-nowrap text-center' },
+])
+
+const confirmDelete = async (item: any) => {
+  if (await useGlobalModalStore().confirmDelete({ description: t('auditCharter.card.deleteConfirm', { title: item.title, version: item.version }) })) {
+    await store.deleteCharter(item.id || '')
+  }
+}
 
 onMounted(async () => {
   await store.fetchCharters()

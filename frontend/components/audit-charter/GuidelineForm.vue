@@ -1,0 +1,160 @@
+<template>
+  <UModal
+    v-model:open="store.showModal"
+    :dismissible="false"
+    :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+  >
+    <template #content>
+      <UForm @submit.prevent="handleSubmit">
+        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg leading-6 font-bold" id="modal-title">
+              {{ store.isEditing ? t('auditCharter.guidelineForm.editTitle') : t('auditCharter.guidelineForm.addTitle') }}
+            </h3>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              @click="store.closeModal"
+            />
+          </div>
+
+          <div class="space-y-4">
+            <!-- Guideline Name -->
+            <UFormField
+              :label="t('auditCharter.guidelineForm.name')"
+              class="block text-sm font-medium"
+              size="lg"
+              required
+            >
+              <UInput
+                v-model="store.form.name"
+                required
+                type="text"
+                maxlength="100"
+                :placeholder="t('auditCharter.guidelineForm.namePlaceholder')"
+                class="mt-1 block w-full rounded-md"
+                @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.guidelineForm.nameValidation'))"
+                @input="($event.target as any)?.setCustomValidity('')"
+              />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ store.form.name ? store.form.name.length : 0 }}/100
+              </div>
+            </UFormField>
+
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Status -->
+              <UFormField
+                :label="t('auditCharter.guidelineForm.status')"
+                class="block text-sm font-medium"
+                size="lg"
+                required
+              >
+                <USelect
+                  v-model="store.form.status"
+                  required
+                  :items="statusOptions"
+                  class="mt-1 block w-full rounded-md"
+                />
+              </UFormField>
+
+              <!-- Effective Date -->
+              <UFormField
+                :label="t('auditCharter.guidelineForm.effectiveDate')"
+                class="block text-sm font-medium"
+                size="lg"
+                required
+              >
+                <UInput
+                  v-model="store.form.effective_date"
+                  required
+                  type="month"
+                  class="mt-1 block w-full rounded-md"
+                />
+              </UFormField>
+            </div>
+
+            <!-- File Upload -->
+            <UFormField
+              :label="t('auditCharter.guidelineForm.fileUpload')"
+              class="block text-sm font-medium"
+              size="lg"
+              :required="!store.isEditing"
+            >
+              <div class="mt-1 flex items-center gap-4">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  @change="store.handleFileChange"
+                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                  :required="!store.isEditing && !store.form.fileUrl"
+                />
+              </div>
+              <p v-if="store.form.fileName" class="text-md text-gray-500 mt-1">
+                {{ t('auditCharter.guidelineForm.selectedFile') }} <span class="font-semibold text-gray-700">{{ store.form.fileName }}</span>
+              </p>
+            </UFormField>
+
+            <!-- Error message display -->
+            <div v-if="store.errorMsg" class="p-3 bg-error-50 text-error-700 rounded-lg text-sm font-semibold">
+              {{ store.errorMsg }}
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl">
+          <UButton
+            type="submit"
+            :loading="store.loading"
+            color="primary"
+            variant="solid"
+            size="md"
+            class="w-full sm:w-auto font-bold"
+          >
+            {{ store.isEditing ? t('auditCharter.guidelineForm.saveChanges') : t('auditCharter.guidelineForm.addGuideline') }}
+          </UButton>
+          <UButton
+            type="button"
+            color="neutral"
+            variant="outline"
+            size="md"
+            class="w-full sm:w-auto mt-2 sm:mt-0 font-bold"
+            @click="store.closeModal"
+          >
+            {{ t('auditCharter.guidelineForm.cancel') }}
+          </UButton>
+        </div>
+      </UForm>
+    </template>
+  </UModal>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useGuidelineStore } from '~/stores/guideline'
+import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
+
+const { t } = useI18n()
+const store = useGuidelineStore()
+const { canManageCharter } = useRbac()
+const statusOptions = computed(() => [
+  { label: t('auditCharter.guidelineForm.statusActive'), value: 'Aktif' },
+  { label: t('auditCharter.guidelineForm.statusUnderReview'), value: 'Sedang Diperbarui' }
+])
+
+const handleSubmit = async () => {
+  if (!canManageCharter.value) return
+  if (store.isEditing) {
+    await store.updateGuideline()
+  } else {
+    await store.addGuideline()
+  }
+}
+</script>

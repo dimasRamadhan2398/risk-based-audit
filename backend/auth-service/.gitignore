@@ -47,7 +47,6 @@ tmp/
 temp/
 
 # Docker
-.dockerignore
 
 # Compiled binary
 auth

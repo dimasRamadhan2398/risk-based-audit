@@ -1,28 +1,53 @@
 <template>
     <div class="mt-4 space-y-6">
         <UCard class="shadow-sm mt-10">
-        <UTable :data="store.dataF05" :columns="store.columnsF05" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }" >
+        <TableEntities
+          :data="store.filteredDataF05"
+          :columns="store.columnsF05"
+          :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }"
+          :ui="{ td: '!whitespace-normal' }"
+        >
+            <template #recommendation-cell="{ row }">
+              <div
+                class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+                style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+              >
+                {{ row.original.recommendation || '-' }}
+              </div>
+            </template>
+
+            <template #response-cell="{ row }">
+              <div
+                class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+                style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+              >
+                {{ row.original.response || '-' }}
+              </div>
+            </template>
+
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
+                  <UTooltip text="Edit">
                     <UButton 
                         size="md" 
                         color="warning" 
-                        variant="soft" 
-                        icon="i-heroicons-pencil-square" 
+                        variant="ghost" 
+                        icon="i-lucide-edit" 
                         @click="store.handleEditF05(row.original)" 
-                        title="Edit"
                     />
+                  </UTooltip>
+                  <UTooltip text="Hapus">
                     <UButton 
                         size="md" 
                         color="error" 
-                        variant="soft" 
-                        icon="i-heroicons-trash" 
+                        variant="ghost" 
+                        icon="i-lucide-trash-2" 
                         @click="store.handleDeleteF05(row.original.id)" 
-                        title="Hapus"
                     />
+                  </UTooltip>
                 </div>
             </template>
-        </UTable>
+        </TableEntities>
         </UCard>
     </div>
 </template>

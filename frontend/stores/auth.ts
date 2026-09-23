@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import type { User, LoginCredentials, MFAVerifyPayload } from '~/types/auth'
+import { extractErrorMessage } from '~/utils/error'
+import { getAuthServiceBaseUrl } from '~/composables/useApiUrl'
 
 interface AuthState {
   user: User | null
@@ -37,7 +39,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/auth/login`,
+          `${getAuthServiceBaseUrl()}/auth/login`,
           {
             method: 'POST',
             body: {
@@ -69,8 +71,11 @@ export const useAuthStore = defineStore('auth', {
         return data
       }
       catch (error: any) {
-        const msg = error?.data?.error?.message || error?.data?.message || error?.message || 'Login failed'
-        throw new Error(msg)
+        const msg = extractErrorMessage(error, 'Login failed')
+        const err = new Error(msg) as any
+        err.status = error?.status ?? error?.statusCode ?? error?.response?.status
+        err.data = error?.data
+        throw err
       }
     },
 
@@ -80,7 +85,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/auth/verify-mfa-login`,
+          `${getAuthServiceBaseUrl()}/auth/verify-mfa-login`,
           {
             method: 'POST',
             body: {
@@ -107,7 +112,7 @@ export const useAuthStore = defineStore('auth', {
         return data
       }
       catch (error: any) {
-        const msg = error?.data?.error?.message || error?.data?.message || error?.message || 'MFA verification failed'
+        const msg = extractErrorMessage(error, 'MFA verification failed')
         throw new Error(msg)
       }
     },
@@ -118,7 +123,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/confidentiality/status`,
+          `${getAuthServiceBaseUrl()}/confidentiality/status`,
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -137,7 +142,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         await $fetch(
-          `${config.public.authServiceBaseUrl}/confidentiality/accept`,
+          `${getAuthServiceBaseUrl()}/confidentiality/accept`,
           {
             method: 'POST',
             headers: { Authorization: `Bearer ${this.token}` },
@@ -164,7 +169,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/users/${this.user.id}`,
+          `${getAuthServiceBaseUrl()}/users/${this.user.id}`,
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -178,12 +183,12 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /** Update user profile (PUT /api/v1/users/:id) */
-    async updateProfile(profile: { fullName: string, phone: string, department: string }) {
+    async updateProfile(profile: { fullName: string, phone: string, department: string, position?: string }) {
       if (!this.token || !this.user?.id) return
       const config = useRuntimeConfig()
       try {
         await $fetch(
-          `${config.public.authServiceBaseUrl}/users/${this.user.id}`,
+          `${getAuthServiceBaseUrl()}/users/${this.user.id}`,
           {
             method: 'PUT',
             headers: { Authorization: `Bearer ${this.token}` },
@@ -191,6 +196,7 @@ export const useAuthStore = defineStore('auth', {
               full_name: profile.fullName,
               phone: profile.phone,
               department: profile.department,
+              position: profile.position,
             },
           },
         )
@@ -199,6 +205,7 @@ export const useAuthStore = defineStore('auth', {
           this.user.fullName = profile.fullName
           this.user.phone = profile.phone
           this.user.department = profile.department
+          this.user.position = profile.position
 
           // Re-cookie updated user
           const userCookie = useCookie('auth-user')
@@ -206,7 +213,7 @@ export const useAuthStore = defineStore('auth', {
         }
       }
       catch (error: any) {
-        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to update profile')
+        throw new Error(extractErrorMessage(error, 'Failed to update profile'))
       }
     },
 
@@ -215,13 +222,15 @@ export const useAuthStore = defineStore('auth', {
       const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24
 
       const user: User = {
+        ...data.user,
         id: data.user?.id ?? '',
-        username: data.user?.username ?? '',
         email: data.user?.email ?? '',
         fullName: data.user?.full_name ?? data.user?.fullName ?? '',
-        phone: data.user?.phone,
-        department: data.user?.department,
-        roles: data.user?.roles ?? [],
+        ...(data.user?.username !== undefined ? { username: data.user.username } : {}),
+        ...(data.user?.phone !== undefined ? { phone: data.user.phone } : {}),
+        ...(data.user?.department !== undefined ? { department: data.user.department } : {}),
+        ...(data.user?.position !== undefined ? { position: data.user.position } : {}),
+        ...(data.user?.roles !== undefined ? { roles: data.user.roles } : {}),
       }
 
       this.user = user
@@ -241,7 +250,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         if (this.token) {
-          await $fetch(`${config.public.authServiceBaseUrl}/auth/logout`, {
+          await $fetch(`${getAuthServiceBaseUrl()}/auth/logout`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${this.token}` },
           })
@@ -273,22 +282,30 @@ export const useAuthStore = defineStore('auth', {
 
     /** Restore session from cookies on app init */
     async fetchUser() {
-      const tokenCookie = useCookie('auth-token')
-      const userCookie = useCookie('auth-user')
+      const tokenCookie = useCookie<string | null>('auth-token')
+      const userCookie = useCookie<any>('auth-user')
+
+      console.log('[AuthStore] fetchUser() cookies read: token =', tokenCookie.value ? 'present' : 'missing', 'user =', typeof userCookie.value, userCookie.value)
 
       if (!tokenCookie.value || !userCookie.value) {
+        console.log('[AuthStore] fetchUser() failed: one or both cookies are missing.')
         this._initialized = true
         return
       }
 
       try {
-        const user = JSON.parse(userCookie.value)
+        let user = userCookie.value
+        if (typeof user === 'string') {
+          user = JSON.parse(user)
+        }
         this.user = user
         this.token = tokenCookie.value
         this.isAuthenticated = true
         this._initialized = true
+        console.log('[AuthStore] Session successfully restored for user:', this.user?.username)
       }
-      catch {
+      catch (err) {
+        console.error('[AuthStore] Failed to restore session from cookie:', err)
         this._initialized = true
         this._clearState()
       }
@@ -299,7 +316,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         const response = await $fetch<any>(
-          `${config.public.authServiceBaseUrl}/devices`,
+          `${getAuthServiceBaseUrl()}/devices`,
           {
             headers: { Authorization: `Bearer ${this.token}` },
           },
@@ -317,7 +334,7 @@ export const useAuthStore = defineStore('auth', {
       const config = useRuntimeConfig()
       try {
         await $fetch(
-          `${config.public.authServiceBaseUrl}/devices/${deviceId}`,
+          `${getAuthServiceBaseUrl()}/devices/${deviceId}`,
           {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${this.token}` },
@@ -325,33 +342,33 @@ export const useAuthStore = defineStore('auth', {
         )
       }
       catch (error: any) {
-        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to remove device')
+        throw new Error(extractErrorMessage(error, 'Failed to remove device'))
       }
     },
 
     async forgotPassword(email: string) {
       const config = useRuntimeConfig()
       try {
-        await $fetch(`${config.public.authServiceBaseUrl}/auth/forgot-password`, {
+        await $fetch(`${getAuthServiceBaseUrl()}/auth/forgot-password`, {
           method: 'POST',
           body: { email },
         })
       }
       catch (error: any) {
-        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to send reset email')
+        throw new Error(extractErrorMessage(error, 'Failed to send reset email'))
       }
     },
 
     async resetPassword(token: string, password: string) {
       const config = useRuntimeConfig()
       try {
-        await $fetch(`${config.public.authServiceBaseUrl}/auth/reset-password`, {
+        await $fetch(`${getAuthServiceBaseUrl()}/auth/reset-password`, {
           method: 'POST',
           body: { token, password },
         })
       }
       catch (error: any) {
-        throw new Error(error?.data?.error?.message || error?.data?.message || 'Failed to reset password')
+        throw new Error(extractErrorMessage(error, 'Failed to reset password'))
       }
     },
   },

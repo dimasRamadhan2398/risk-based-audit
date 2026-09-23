@@ -17,6 +17,7 @@ type User struct {
 	FullName  string    `gorm:"type:varchar(100)" json:"full_name"`
 	Phone     string    `gorm:"type:varchar(20)" json:"phone"`
 	Department string  `gorm:"type:varchar(100)" json:"department"`
+	Position   string  `gorm:"type:varchar(100)" json:"position"`
 	IsActive  bool      `gorm:"default:true" json:"is_active"`
 	Roles     []Role    `gorm:"many2many:user_roles;" json:"roles"`
 	LockedUntil     *time.Time     `json:"locked_until,omitempty"` 

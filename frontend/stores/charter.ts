@@ -1,7 +1,8 @@
-// stores/charter.ts
 import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { AuditCharter, CharterFormState } from '~/types/audit'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useCharterStore = defineStore('charter', () => {
   // Modal State
@@ -11,26 +12,29 @@ export const useCharterStore = defineStore('charter', () => {
 
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
+  const toast = useToastNotification()
 
-  const columns: TableColumn<AuditCharter>[] = [
-    { accessorKey: 'version', header: 'Version' },
-    { accessorKey: 'title', header: 'Charter Name' },
-    { accessorKey: 'date', header: 'Date' },
-    { accessorKey: 'approvedBy', header: 'Approved By' },
-    { accessorKey: 'uploadedBy', header: 'Uploaded By' },
-    { accessorKey: 'fileName', header: 'Actions' },
-    { accessorKey: 'actions', header: '' },
+  const columns: (TableColumn<AuditCharter> & { class?: string })[] = [
+    { accessorKey: 'version', header: 'Version', class: 'w-16 whitespace-nowrap text-center' },
+    { accessorKey: 'title', header: 'Charter Name', class: 'w-48' },
+    { accessorKey: 'content', header: 'Content', class: 'w-48' },
+    { accessorKey: 'date', header: 'Date', class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'approvedBy', header: 'Approved By', class: 'w-36' },
+    { accessorKey: 'uploadedBy', header: 'Uploaded By', class: 'w-36' },
+    { accessorKey: 'actions', header: '', class: 'w-14 whitespace-nowrap text-center' },
   ]
 
   // Form State
   const form = reactive<CharterFormState>({
     title: '',
     version: '', // Tidak perlu diisi user
+    content: '',
     date: new Date().toISOString().split('T')[0] || '',
-    uploadedBy: 'Dimas (HIA)',
+    uploadedBy: '',
     approvedBy: '',
     isActive: true,
     file: null,
+    fileName: '',
   })
 
   /**
@@ -58,6 +62,11 @@ export const useCharterStore = defineStore('charter', () => {
    * - uploadedBy
    * - approvedBy
    */
+  const getCharterDownloadUrl = (id: string) => {
+    const baseUrl = getAuditServiceBaseUrl()
+    return `${baseUrl}/audit-charters/${id}/download`
+  }
+
   const mapBackendToFrontend = (item: any): AuditCharter => {
     const dateValue =
       item.date ||
@@ -76,9 +85,10 @@ export const useCharterStore = defineStore('charter', () => {
       id: String(item.id),
       title: item.title || item.filename || item.fileName || '-',
       version: item.version || '-',
+      content: item.content || '-',
       date: new Date(dateValue).toISOString().split('T')[0] || '',
       uploadedBy: item.uploaded_by || item.uploadedBy || 'Dimas (HIA)',
-      approvedBy: item.approved_by || item.approvedBy || item.content || '-',
+      approvedBy: item.approved_by || item.approvedBy || '-',
       isActive: item.is_active ?? item.isActive ?? false,
       fileName: item.filename || item.file_name || item.fileName || '-',
       fileSize,
@@ -96,11 +106,13 @@ export const useCharterStore = defineStore('charter', () => {
    * 4. [...]
    */
   const extractItemsFromResponse = (response: any) => {
-    if (Array.isArray(response?.data?.charters)) {
-            return response.data.charters
-        }
-        return []
-    }
+    if (Array.isArray(response?.data?.charters)) return response.data.charters
+    if (Array.isArray(response?.data?.items)) return response.data.items
+    if (Array.isArray(response?.data)) return response.data
+    if (Array.isArray(response?.charters)) return response.charters
+    if (Array.isArray(response)) return response
+    return []
+  }
 
   const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement
@@ -182,8 +194,12 @@ export const useCharterStore = defineStore('charter', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
 
+      const authStore = useAuthStore()
       const response: any = await $fetch(`${baseUrl}/audit-charters`, {
         method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
       })
 
       const items = extractItemsFromResponse(response)
@@ -195,7 +211,7 @@ export const useCharterStore = defineStore('charter', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch audit charters:', error)
-      errorMsg.value = 'Gagal mengambil data Audit Charter.'
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data Audit Charter.')
       charters.value = []
     } finally {
       loading.value = false
@@ -210,7 +226,7 @@ export const useCharterStore = defineStore('charter', () => {
       const reader = new FileReader()
       reader.onload = () => {
         // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
-        const base64 = (reader.result as string).split(',')[1]
+        const base64 = (reader.result as string).split(',')[1] || ''
         resolve(base64)
       }
       reader.onerror = reject
@@ -247,19 +263,27 @@ export const useCharterStore = defineStore('charter', () => {
       }
       formData.append('title', form.title)
       formData.append('version', autoVersion)
+      formData.append('content', form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
+      const authStore = useAuthStore()
       await $fetch(`${baseUrl}/audit-charters`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        },
         body: formData,
       })
 
+      toast.showSuccess('Audit Charter berhasil ditambahkan!')
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to create audit charter:', error)
-      errorMsg.value = 'Gagal menambahkan Audit Charter.'
+      const detail = extractErrorMessage(error, 'Gagal menambahkan Audit Charter.')
+      errorMsg.value = detail
+      toast.showError('Gagal menambahkan Audit Charter.', detail)
       throw error
     } finally {
       loading.value = false
@@ -284,19 +308,27 @@ export const useCharterStore = defineStore('charter', () => {
       }
       formData.append('title', form.title)
       formData.append('version', form.version || '')
+      formData.append('content', form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
+      const authStore = useAuthStore()
       await $fetch(`${baseUrl}/audit-charters/${id}`, {
         method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        },
         body: formData,
       })
 
+      toast.showSuccess('Audit Charter berhasil diubah!')
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to update audit charter:', error)
-      errorMsg.value = 'Gagal memperbarui Audit Charter.'
+      const detail = extractErrorMessage(error, 'Gagal memperbarui Audit Charter.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui Audit Charter.', detail)
       throw error
     } finally {
       loading.value = false
@@ -313,14 +345,21 @@ export const useCharterStore = defineStore('charter', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl()
 
+      const authStore = useAuthStore()
       await $fetch(`${baseUrl}/audit-charters/${id}`, {
         method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
       })
 
+      toast.showSuccess('Audit Charter berhasil dihapus!')
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to delete audit charter:', error)
-      errorMsg.value = 'Gagal menghapus Audit Charter.'
+      const detail = extractErrorMessage(error, 'Gagal menghapus Audit Charter.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus Audit Charter.', detail)
       throw error
     } finally {
       loading.value = false
@@ -332,33 +371,23 @@ export const useCharterStore = defineStore('charter', () => {
    *
    * Downloads the audit charter file by ID.
    */
-  const downloadCharter = async (id: string, filename: string) => {
+  const downloadCharter = async (id: string, filename?: string, fileUrl?: string) => {
     loading.value = true
     errorMsg.value = ''
 
     try {
+      if (fileUrl && (fileUrl.startsWith('http://') || fileUrl.startsWith('https://'))) {
+        window.open(fileUrl, '_blank')
+        return
+      }
+
       const baseUrl = getAuditServiceBaseUrl()
-      console.log(`${baseUrl}/audit-charters/${id}/download`)
-
-      // Gunakan $fetch bawaan Nuxt agar konfigurasi global (seperti Auth Token) terbawa
-      // Tambahkan responseType: 'blob' untuk membaca stream file biner
-      const blob = await $fetch<Blob>(`${baseUrl}/audit-charters/${id}/download`, {
-        method: 'GET',
-        responseType: 'blob'
-      })
-
-      // Proses konversi blob menjadi URL dan inisiasi unduhan (browser)
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      window.open(`${baseUrl}/audit-charters/${id}/download`, '_blank')
     } catch (error: any) {
       console.error('Failed to download audit charter:', error)
-      errorMsg.value = 'Gagal mengunduh file Audit Charter.'
+      const detail = extractErrorMessage(error, 'Gagal mengunduh file Audit Charter.')
+      errorMsg.value = detail
+      toast.showError('Gagal mengunduh file Audit Charter.', detail)
       throw error
     } finally {
       loading.value = false
@@ -376,13 +405,12 @@ export const useCharterStore = defineStore('charter', () => {
       if (isEditing.value && editingId.value) {
         // MODE EDIT
         await updateCharter(editingId.value, { ...form })
-        alert('Audit Charter berhasil diperbarui!')
+        toast.showSuccess('Audit Charter berhasil diperbarui!')
       } else {
         // MODE ADD
         await addCharter({ ...form })
-        alert('Audit Charter berhasil diupload!')
+        toast.showSuccess('Audit Charter berhasil diupload!')
       }
-
       closeModal()
     } catch {
       // errorMsg sudah diisi di addCharter/updateCharter
@@ -398,11 +426,13 @@ export const useCharterStore = defineStore('charter', () => {
     // Reset Form
     form.title = ''
     form.version = ''
+    form.content = ''
     form.date = new Date().toISOString().split('T')[0] || ''
     form.uploadedBy = 'Dimas (HIA)'
     form.approvedBy = ''
     form.isActive = false
     form.file = null
+    form.fileName = ''
   }
 
   const handleEdit = (charter: any) => {
@@ -413,11 +443,13 @@ export const useCharterStore = defineStore('charter', () => {
     // Isi form dengan data lama
     form.title = charter.title
     form.version = charter.version
+    form.content = charter.content && charter.content !== '-' ? charter.content : ''
     form.date = charter.date
     form.uploadedBy = charter.uploadedBy
     form.approvedBy = charter.approvedBy
     form.isActive = charter.isActive
     form.file = null // Reset file input karena file tidak wajib diisi saat edit
+    form.fileName = charter.fileName || ''
 
     // Reset error
     errorMsg.value = ''
@@ -455,6 +487,7 @@ export const useCharterStore = defineStore('charter', () => {
     deleteCharter,
     downloadCharter,
 
+    getCharterDownloadUrl,
     handleEdit,
     handleSubmit,
     closeModal,

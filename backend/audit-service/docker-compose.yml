@@ -45,7 +45,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2182:2181"
+      - "2186:2181"
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
     networks:
@@ -58,14 +58,14 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9093:9092"
-      - "29093:29092"
+      - "9097:9092"
+      - "29097:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAIN:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: PLAIN://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092,OUTSIDE://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092,OUTSIDE://localhost:9097
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAIN
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_LOG_RETENTION_HOURS: 168

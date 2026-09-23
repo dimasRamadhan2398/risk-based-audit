@@ -1,5 +1,15 @@
 <template>
-    <UModal v-model:open="store.showViewModal" dismissible class="w-full sm:max-w-5xl">
+    <UModal 
+      v-model:open="store.showViewModal" 
+      dismissible 
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+      >
       <template #content>
         <div v-if="store.selectedPlan" class="relative   rounded-xl shadow-2xl flex flex-col max-h-[95vh] overflow-y-auto p-8">
           <template v-if="store.selectedPlan">
@@ -15,15 +25,6 @@
                 </div>
                 
                 <div class="flex items-center gap-2">
-                  <UButton label="Delete" color="error" icon="i-heroicons-trash" size="md" @click="store.handleDelete(store.selectedPlan.id)"/>
-                  <UButton 
-                    label="Edit Data" 
-                    color="warning" 
-                    icon="i-heroicons-pencil-square" 
-                    size="md"
-                    class="font-bold"
-                    @click="store.handleEditFromView(store.selectedPlan)" 
-                  />
                   <UIcon name="i-heroicons-x-mark" @click="store.closeViewModal" class="text-gray-400 hover:text-gray-600 text-3xl ml-2"></UIcon>
                 </div>
               </div>
@@ -64,7 +65,7 @@
                   >
                     <template #header>
                       <div class="flex items-center justify-between border-b border-gray-200  pb-2">
-                        <span class="text-xs uppercase text-gray-500 tracking-wider">
+                        <span class="text-md uppercase text-gray-500 tracking-wider">
                           Sub-Activity {{ Number(index) + 1 }}
                         </span>
                       </div>
@@ -87,6 +88,19 @@
                       <span class="font-semibold text-gray-800  flex items-center gap-1">
                         {{ activity.department }}
                       </span>
+                    </div>
+
+                    <div class="flex items-start">
+                      <span class="font-bold text-gray-600  w-44 text-sm">Associated Risk</span>
+                      <span class="font-semibold text-gray-800  flex-1">{{ activity.riskName || '-' }}</span>
+                    </div>
+
+                    <div class="flex items-center">
+                      <span class="font-bold text-gray-600  w-44 text-sm">Risk Level</span>
+                      <UBadge v-if="activity.riskLevel" size="md" :color="store.getRiskLevelColor ? store.getRiskLevelColor(activity.riskLevel) : 'neutral'" variant="soft">
+                        {{ activity.riskLevel }}
+                      </UBadge>
+                      <span v-else class="text-gray-400 text-sm">-</span>
                     </div>
                   </UCard>
 
@@ -142,7 +156,7 @@
                         <div class="flex items-center gap-2">
                           <UIcon name="i-heroicons-document-text" class="text-gray-500" />
                           <span class="font-semibold text-gray-800">{{ file.name }}</span>
-                          <UBadge color="neutral" variant="soft" size="xs">{{ file.size }}</UBadge>
+                          <UBadge color="neutral" variant="soft" size="md">{{ file.size }}</UBadge>
                         </div>
                         <UButton :to="file.url" target="_blank" icon="i-heroicons-arrow-down-tray" size="sm" color="primary" variant="link" label="Download" />
                       </li>
@@ -161,7 +175,7 @@
                       color="primary" 
                       variant="soft" 
                       icon="i-heroicons-document-duplicate" 
-                      @click="isCreatingRevision = true"
+                      @click="() => { isCreatingRevision = true }"
                     >
                       Create Revised RKAT
                     </UButton>
@@ -173,7 +187,7 @@
                     <UTextarea v-model="revisionNote" placeholder="Describe the reason for this mid-year revision..." class="w-full" />
                   </UFormField>
                   <div class="mt-4 flex justify-end gap-2">
-                    <UButton color="neutral" variant="ghost" @click="isCreatingRevision = false">Cancel</UButton>
+                    <UButton color="neutral" variant="ghost" @click="() => { isCreatingRevision = false }">Cancel</UButton>
                     <UButton color="primary" icon="i-heroicons-check" @click="submitRevision" :disabled="!revisionNote">Submit Revision</UButton>
                   </div>
                 </div>
@@ -208,7 +222,7 @@
                   class="w-full"
                 >
                   <template #draft>
-                    <UFormField v-if="authStore.user?.role === UserRole.AUDIT_STAFF" label="Audit Staff Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
+                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.AUDIT_STAFF)" label="Audit Staff Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
                       <UTextarea v-model="store.selectedPlan.staffApprovalNote" placeholder="Write your note or reason to approve" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleStaffApprove()">Approve</UButton>
@@ -221,7 +235,7 @@
                   </template>
 
                   <template #review>
-                    <UFormField v-if="authStore.user?.role === UserRole.AUDIT_MANAGER" label="Audit Manager Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
+                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.AUDIT_MANAGER)" label="Audit Manager Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
                       <UTextarea v-model="store.selectedPlan.managerApprovalNote" placeholder="Write your note or reason to approve" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleManagerApprove()">Approve</UButton>
@@ -234,7 +248,7 @@
                   </template>
 
                   <template #approval>
-                    <UFormField v-if="authStore.user?.role === UserRole.CHIEF_AUDIT_EXECUTIVE" label="Chief Audit Executive Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
+                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.CHIEF_AUDIT_EXECUTIVE)" label="Chief Audit Executive Note / Reason" class="p-4 mt-4 bg-gray-50 rounded-lg text-center border">
                       <UTextarea v-model="store.selectedPlan.chiefApprovalNote" placeholder="Write your note or reason to approve" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleChiefApprove()">Approve</UButton>

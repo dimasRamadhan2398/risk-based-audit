@@ -249,6 +249,14 @@ docker run -p 3000:3000 rbia-frontend
 3. Run linting and type checking before committing
 4. Use conventional commit messages
 
+
+## Features
+- Risk Management
+- Audit Planning
+- Audit Execution
+- Audit Reporting
+
 ## License
 
 Private - All rights reserved
+

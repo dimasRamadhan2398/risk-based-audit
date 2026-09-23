@@ -84,9 +84,8 @@
                 </UFormField>
 
                 <UFormField label="Join Date *" size="lg">
-                  <UInput
+                  <AppDatePicker
                     v-model="store.form.join_date"
-                    type="date"
                     required
                   />
                 </UFormField>
@@ -130,7 +129,7 @@
                     placeholder="Company UUID"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Enter Company UUID</p>
+                  <p class="text-md text-gray-500 mt-1">Enter Company UUID</p>
                 </UFormField>
 
                 <UFormField label="Department ID *" size="lg">
@@ -140,7 +139,7 @@
                     placeholder="Department UUID"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Enter Department UUID</p>
+                  <p class="text-md text-gray-500 mt-1">Enter Department UUID</p>
                 </UFormField>
 
                 <UFormField label="Job Role ID *" size="lg">
@@ -150,7 +149,7 @@
                     placeholder="Job Role UUID"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Enter Job Role UUID</p>
+                  <p class="text-md text-gray-500 mt-1">Enter Job Role UUID</p>
                 </UFormField>
 
                 <UFormField label="Work Location ID" size="lg">
@@ -215,7 +214,7 @@
           </div>
 
           <!-- Footer -->
-          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-xl flex justify-end gap-3">
+          <div class="px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-main)] rounded-b-xl flex justify-end gap-3">
             <UButton
               label="Cancel"
               color="neutral"

@@ -5,6 +5,7 @@ import type {
   UpdateCompanyRequest,
   ListCompaniesResponse
 } from '~/types/master'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useCompanyApi = () => {
   const config = useRuntimeConfig()
@@ -13,10 +14,7 @@ export const useCompanyApi = () => {
    * Get base URL - with fallback to auditServiceBaseUrl if masterServiceBaseUrl not configured
    */
   const getBaseUrl = () => {
-    const masterUrl = config.public.masterServiceBaseUrl
-    if (masterUrl) return masterUrl
-    // Fallback to audit service URL as they share the same port
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+    return getAuditServiceBaseUrl()
   }
 
   /**
@@ -39,13 +37,15 @@ export const useCompanyApi = () => {
     })
 
     // Handle different response formats
+    const rawData = response.data
+    const companies = Array.isArray(rawData) ? rawData : (rawData?.companies || response.companies || [])
     return {
-      companies: response.data?.companies || response.companies || [],
-      pagination: response.data?.pagination || response.pagination || {
+      companies,
+      pagination: (!Array.isArray(rawData) && rawData?.pagination) || response.pagination || {
         page: params?.page || 1,
         page_size: params?.page_size || 10,
-        total: 0,
-        total_pages: 0
+        total: companies.length,
+        total_pages: 1
       }
     }
   }
@@ -108,8 +108,8 @@ export const useCompanyApi = () => {
       params: { page: 1, page_size: 1000 }
     })
 
-    const companies = response.data?.companies || response.companies || []
-    return Array.isArray(companies) ? companies : []
+    const companiesList = Array.isArray(response.data) ? response.data : (response.data?.companies || response.companies || [])
+    return Array.isArray(companiesList) ? companiesList : []
   }
 
   return {

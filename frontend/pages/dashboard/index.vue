@@ -13,7 +13,7 @@
         <UButton
           variant="outline"
           color="neutral"
-          class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm font-medium"
+          class="  border border-slate-200 text-slate-700 hover: -50 shadow-sm font-medium"
           :loading="isSyncing"
           @click="handleSync"
         >
@@ -33,7 +33,7 @@
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Card 1: Total Risks -->
       <div
-        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Total Risks</p>
@@ -46,7 +46,7 @@
             {{ totalRisks }}
           </h3>
           <div
-            class="flex items-center gap-1 text-xs font-semibold text-emerald-500 mt-1"
+            class="flex items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
           >
             <span>↑ 12%</span>
             <span class="text-slate-400 font-normal">from last month</span>
@@ -56,7 +56,7 @@
 
       <!-- Card 2: High Risk -->
       <div
-        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">High Risk</p>
@@ -66,7 +66,7 @@
         </div>
         <div class="mt-2">
           <h3 class="text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
-          <div class="flex items-center gap-1 text-xs font-semibold text-red-500 mt-1">
+          <div class="flex items-center gap-1 text-md font-semibold text-red-500 mt-1">
             <span>↑ 3</span>
             <span class="text-slate-400 font-normal">requires attention</span>
           </div>
@@ -75,7 +75,7 @@
 
       <!-- Card 3: Audit Plans -->
       <div
-        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Audit Plans</p>
@@ -87,7 +87,7 @@
           <h3 class="text-3xl font-bold text-slate-900 tracking-tight">
             {{ auditPlansCount }}
           </h3>
-          <div class="flex items-center gap-1 text-xs font-semibold text-sky-500 mt-1">
+          <div class="flex items-center gap-1 text-md font-semibold text-sky-500 mt-1">
             <span>Active</span>
             <span class="text-slate-400 font-normal">this quarter</span>
           </div>
@@ -96,7 +96,7 @@
 
       <!-- Card 4: Completed -->
       <div
-        class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Completed</p>
@@ -109,7 +109,7 @@
             {{ completedAuditsCount }}
           </h3>
           <div
-            class="flex items-center gap-1 text-xs font-semibold text-emerald-500 mt-1"
+            class="flex items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
           >
             <span>Updated</span>
             <span class="text-slate-400 font-normal">this month</span>
@@ -119,17 +119,17 @@
     </div>
 
     <!-- Audit Statistics Section (Second Row) -->
-    <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+    <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-bold text-slate-800">Audit Statistics</h3>
       </div>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Planned Audits -->
         <div
-          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
         >
           <div class="flex justify-between items-start">
-            <span class="text-xs font-semibold text-slate-500">Planned Audits</span>
+            <span class="text-md font-semibold text-slate-500">Planned Audits</span>
             <div class="rounded-lg bg-indigo-50 p-1.5 flex items-center justify-center">
               <UIcon name="i-lucide-info" class="text-indigo-600 size-4" />
             </div>
@@ -147,10 +147,10 @@
 
         <!-- Open Findings -->
         <div
-          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
         >
           <div class="flex justify-between items-start">
-            <span class="text-xs font-semibold text-slate-500">Open Findings</span>
+            <span class="text-md font-semibold text-slate-500">Open Findings</span>
             <div class="rounded-lg bg-amber-50 p-1.5 flex items-center justify-center">
               <UIcon name="i-lucide-alert-triangle" class="text-amber-600 size-4" />
             </div>
@@ -168,10 +168,10 @@
 
         <!-- Execution Status -->
         <div
-          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
         >
           <div class="flex justify-between items-start">
-            <span class="text-xs font-semibold text-slate-500">Execution Status</span>
+            <span class="text-md font-semibold text-slate-500">Execution Status</span>
             <div class="rounded-lg bg-sky-50 p-1.5 flex items-center justify-center">
               <UIcon name="i-lucide-play" class="text-sky-600 size-4" />
             </div>
@@ -189,10 +189,10 @@
 
         <!-- ATR Compliance -->
         <div
-          class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
         >
           <div class="flex justify-between items-start">
-            <span class="text-xs font-semibold text-slate-500">ATR Compliance</span>
+            <span class="text-md font-semibold text-slate-500">ATR Compliance</span>
             <div class="rounded-lg bg-emerald-50 p-1.5 flex items-center justify-center">
               <UIcon name="i-lucide-check-square" class="text-emerald-600 size-4" />
             </div>
@@ -210,23 +210,287 @@
       </div>
     </div>
 
+    <!-- Dedicated AI Section: KPI Forecasting & Anomaly Detection -->
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Predictive Intelligence & Anomaly Analytics
+            </h2>
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Analisis proyeksi masa depan KPI dan deteksi anomali finansial/operasional.
+          </p>
+        </div>
+
+        <NuxtLink
+          to="/analytics"
+          class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 self-start sm:self-auto"
+        >
+          <span>Buka Deep Analytics Center</span>
+          <span>&rarr;</span>
+        </NuxtLink>
+      </div>
+
+      <!-- Grid of 2 Main Analytics Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- CARD 1: KPI FORECASTING (PyTorch LSTM) -->
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-6 flex flex-col justify-between space-y-6">
+          <div>
+            <!-- Card Header -->
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                    KPI Performance Forecasting
+                  </h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Proyeksi tren historis vs estimasi Q3 2026 - Q1 2027 (Interval Kepercayaan 95%)
+                </p>
+              </div>
+
+              <NuxtLink to="/analytics/kpi-forecast" class="text-xs font-semibold text-violet-600 hover:underline">
+                Rincian
+              </NuxtLink>
+            </div>
+
+            <!-- Line Chart Component -->
+            <div class="h-[280px] w-full relative">
+              <Line :data="kpiChartData" :options="kpiChartOptions" />
+            </div>
+
+            <!-- Forecast Highlights Table / Cards -->
+            <div class="mt-6 space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                At-Risk KPI Projections & Audit Recommendations
+              </h4>
+
+              <div
+                v-for="kpi in timeseriesData.kpiForecasts.slice(0, 3)"
+                :key="kpi.code"
+                class="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-xs font-bold text-violet-600 dark:text-violet-400">{{ kpi.code }}</span>
+                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ kpi.kpiName }}</span>
+                    <UBadge :color="getTrendBadgeColor(kpi.trend) as any" variant="subtle" size="sm" class="font-semibold text-[10px]">
+                      {{ kpi.trend }}
+                    </UBadge>
+                  </div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ kpi.recommendedAction }}
+                  </p>
+                </div>
+
+                <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
+                  <span class="text-xs text-slate-400">Proyeksi</span>
+                  <span class="text-sm font-extrabold font-mono text-violet-600 dark:text-violet-400">
+                    {{ kpi.forecastedValue }}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Footer Info -->
+          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+            <span class="flex items-center gap-1.5">
+              <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-violet-500" />
+              Interval Prediksi ±4.8% MAPE
+            </span>
+            <span class="font-medium text-slate-700 dark:text-slate-300">Target Horizon: Q3 2026</span>
+          </div>
+        </div>
+
+        <!-- CARD 2: ANOMALY DETECTION (Isolation Forest) -->
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-6 flex flex-col justify-between space-y-6">
+          <div>
+            <!-- Card Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                    Transaction Anomaly Detection
+                  </h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Deteksi pencilan transaksi & pola tak wajar berbasis machine learning yang tidak terawasi
+                </p>
+              </div>
+            </div>
+
+            <!-- Scatter Chart Component -->
+            <div class="h-[280px] w-full relative">
+              <Scatter :data="anomalyScatterChartData" :options="anomalyScatterOptions" />
+            </div>
+
+            <!-- Top Detected Anomaly List -->
+            <div class="mt-6 space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                Critical Anomaly Alerts Requiring Investigation
+              </h4>
+
+              <div
+                v-for="anm in filteredAnomalies.slice(0, 3)"
+                :key="anm.id"
+                class="p-3.5 rounded-xl border border-rose-100 dark:border-rose-900/40 bg-rose-50/40 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <UBadge :color="getSeverityColor(anm.severity) as any" variant="solid" size="sm" class="font-bold text-[10px]">
+                      {{ anm.severity }}
+                    </UBadge>
+                    <span class="font-mono text-xs font-bold text-slate-900 dark:text-slate-100">{{ anm.id }}</span>
+                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400">· {{ anm.entity }}</span>
+                  </div>
+                  <p class="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                    {{ anm.description }}
+                  </p>
+                </div>
+
+                <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
+                  <span class="text-xs font-mono text-rose-600 dark:text-rose-400 font-bold">
+                    Score: {{ anm.anomalyScore }}
+                  </span>
+                  <span v-if="anm.amount" class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    Rp {{ (anm.amount / 1000000).toLocaleString() }}M
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Footer Info -->
+          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+            <span class="flex items-center gap-1.5">
+              <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" />
+              Tingkat Kontaminasi: {{ (isolationData.summary.contaminationRate * 100).toFixed(1) }}%
+            </span>
+            <NuxtLink to="/analytics" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline">
+              Kelola Semua {{ isolationData.anomalies.length }} Anomali &rarr;
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Internal Control Effectiveness Section (COSO 2013) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Card 1: Yearly Internal Control Effectiveness (2 Cols) -->
+      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
+            </div>
+            <div class="flex items-center gap-2 min-w-max">
+              <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700">
+                Tahun: {{ rcmStore.selectedYear }} | {{ rcmStore.selectedDepartment }}
+              </span>
+              <UButton to="/risk-profile/risk-control-matrix" variant="outline" color="neutral" size="sm" class="font-medium">
+                Risk Control Matrix &rarr;
+              </UButton>
+            </div>
+          </div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Internal Control Effectiveness</h2>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60">
+          <!-- Big Score % -->
+          <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
+            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Real Effectiveness Score</span>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                {{ rcmStore.internalControlEffectiveness }}%
+              </span>
+            </div>
+            <div class="mt-2">
+              <span :class="getRatingBadgeClass(rcmStore.effectivenessRating.rating)">
+                {{ rcmStore.effectivenessRating.rating }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Synchronized Risk Counts & Interpretation -->
+          <div class="md:col-span-2 flex flex-col justify-center space-y-2">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
+              <span class="font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                {{ rcmStore.totalInherentRisk }} Risiko
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600 dark:text-slate-300 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
+              <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                {{ rcmStore.totalResidualRisk }} Risiko
+              </span>
+            </div>
+            <UAlert
+              :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
+              variant="subtle"
+              icon="i-lucide-info"
+              :title="'Interpretasi Hasil COSO (' + rcmStore.effectivenessRating.rating + '):'"
+              :description="rcmStore.effectivenessRating.interpretation"
+              class="rounded-xl shadow-xs border-none! bg-transparent! border-transparent!"
+            />
+          </div>
+        </div>
+
+        <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-4">
+          <UIcon name="i-lucide-check-circle-2" class="size-10 text-emerald-500" />
+          <span>Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile.</span>
+        </div>
+      </div>
+
+      <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO 2013</h3>
+            <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800">
+              {{ rcmStore.cosoAverages.totalWeighted }}%
+            </span>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
+              <div class="flex justify-between text-md">
+                <span class="font-medium text-slate-700 dark:text-slate-300">{{ dim.shortLabel }}</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div
+                  class="bg-primary-600 dark:bg-primary-500 h-full rounded-full transition-all duration-300"
+                  :style="{ width: `${getDimAverage(dim.key)}%` }"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-md text-slate-500 dark:text-slate-400">
+          <span>Total Kontrol Dievaluasi:</span>
+          <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.filteredRCMList.length }} Item</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Charts Section (Third Row) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- Inherent vs Residual Risk by Department Chart -->
       <div
-        class="lg:col-span-8 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-8   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
       >
         <div>
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-bold text-slate-800">
               Inherent vs Residual Risk by Department
             </h3>
-            <USelect
-              v-model="activeYear"
-              :options="yearlyFilters"
-              size="sm"
-              class="w-24 bg-white"
-            />
           </div>
           <div class="h-[350px] w-full">
             <BarChart
@@ -253,18 +517,18 @@
         <div class="flex justify-center gap-6 mt-4 border-t border-slate-50 pt-4">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-[#ff5c02]"></span>
-            <span class="text-xs font-semibold text-slate-600">Inherent Risk</span>
+            <span class="text-md font-semibold text-slate-600">Inherent Risk</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-[#4d00ff]"></span>
-            <span class="text-xs font-semibold text-slate-600">Residual Risk</span>
+            <span class="text-md font-semibold text-slate-600">Residual Risk</span>
           </div>
         </div>
       </div>
 
       <!-- Action Taken Report Donut Chart -->
       <div
-        class="lg:col-span-4 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-4   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
       >
         <div>
           <div class="flex items-center justify-between mb-6">
@@ -302,7 +566,7 @@
             >
           </div>
           <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+            <span class="w-2.5 h-2.5 rounded-full  -400"></span>
             <span class="text-[11px] font-semibold text-slate-600"
               >In Progress ({{ atrStore.stats.wipPercent }}%)</span
             >
@@ -318,7 +582,7 @@
     </div>
 
     <!-- Risk Heat Map & Registered Risk (Fourth Row) -->
-    <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+    <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-bold text-slate-900 tracking-tight">Risk Profiles</h2>
         <UButton to="/risk-profile" variant="ghost" color="neutral" size="sm"
@@ -329,7 +593,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <!-- Heat Map Grid on the left -->
         <div
-          class="lg:col-span-5 flex flex-col items-center bg-slate-50/50 border border-slate-100 rounded-2xl p-6"
+          class="lg:col-span-5 flex flex-col items-center  -50/50 border border-slate-100 rounded-2xl p-6"
         >
           <h4 class="text-sm font-semibold text-slate-700 mb-6 w-full text-left">
             Risk Heat Map
@@ -338,7 +602,7 @@
             <!-- Y-axis label -->
             <div class="flex flex-col items-center">
               <span
-                class="text-xs font-semibold text-slate-500 uppercase tracking-wider origin-center -rotate-90 whitespace-nowrap"
+                class="text-md font-semibold text-slate-500 uppercase tracking-wider origin-center -rotate-90 whitespace-nowrap"
               >
                 Probability
               </span>
@@ -349,7 +613,7 @@
                 <template v-for="y in 5" :key="y">
                   <template v-for="x in 5" :key="`${x}-${y}`">
                     <div
-                      class="w-10 h-10 flex items-center justify-center text-xs font-semibold rounded shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                      class="w-10 h-10 flex items-center justify-center text-md font-semibold rounded shadow-sm hover:scale-105 transition-transform cursor-pointer"
                       :class="getHeatMapCellColor(x, y)"
                       :title="`Impact: ${x}, Probability: ${6 - y}, Risk: ${getRiskLevel(
                         x,
@@ -361,7 +625,7 @@
               </div>
               <div class="flex justify-center mt-1">
                 <span
-                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                  class="text-md font-semibold text-slate-500 uppercase tracking-wider"
                   >Impact</span
                 >
               </div>
@@ -393,17 +657,19 @@
         </div>
 
         <!-- Registered Risks Table on the right -->
-        <div class="lg:col-span-7 bg-white border border-slate-100 rounded-2xl p-6">
+        <div class="lg:col-span-7   border border-slate-100 rounded-2xl p-6">
           <h4 class="text-sm font-semibold text-slate-700 mb-4">Registered Risks</h4>
-          <UTable
-            :data="registeredRiskHeatMap"
-            :columns="registeredRiskColumns"
-            :empty-state="{
-              icon: 'i-heroicons-circle-stack-20-solid',
-              label: 'Belum ada data yang dimasukkan ke Risk Heat Map.',
-            }"
-            class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
-          />
+          <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+            <TableEntities
+              :data="registeredRiskHeatMap"
+              :columns="registeredRiskColumns"
+              :empty-state="{
+                icon: 'i-heroicons-circle-stack-20-solid',
+                label: 'Belum ada data yang dimasukkan ke Risk Heat Map.',
+              }"
+              class="w-full"
+            />
+          </UCard>
         </div>
       </div>
     </div>
@@ -412,7 +678,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- Audit Planning Coverage -->
       <div
-        class="lg:col-span-4 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-4   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
       >
         <div>
           <div class="flex items-center justify-between mb-6">
@@ -423,7 +689,7 @@
           </div>
           <div class="space-y-4">
             <div class="flex justify-between items-center">
-              <span class="text-xs font-semibold text-slate-500">Overall Progress</span>
+              <span class="text-md font-semibold text-slate-500">Overall Progress</span>
               <h5 class="text-base font-bold text-indigo-600">
                 {{ progressModel }}% Completed
               </h5>
@@ -461,7 +727,7 @@
 
       <!-- Action Taken Reports Table -->
       <div
-        class="lg:col-span-8 bg-white border border-slate-100 shadow-sm rounded-2xl p-6"
+        class="lg:col-span-8   border border-slate-100 shadow-sm rounded-2xl p-6"
       >
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-bold text-slate-800">Action Taken Reports (ATR)</h3>
@@ -469,22 +735,24 @@
             >View Full Report</UButton
           >
         </div>
-        <UTable
-          :data="atrTableData"
-          :columns="tableColumns"
-          :empty-state="{
-            icon: 'i-heroicons-circle-stack-20-solid',
-            label: 'Belum ada data rencana audit.',
-          }"
-          class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
-        />
+        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+          <TableEntities
+            :data="atrTableData"
+            :columns="tableColumns"
+            :empty-state="{
+              icon: 'i-heroicons-circle-stack-20-solid',
+              label: 'Belum ada data rencana audit.',
+            }"
+            class="w-full"
+          />
+        </UCard>
       </div>
     </div>
 
     <!-- Sixth Row: Audit Execution Status & Recent Finding Issues -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Audit Execution Status -->
-      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-bold text-slate-900 tracking-tight">
             Audit Execution Status
@@ -501,7 +769,7 @@
               <h3 class="text-sm font-semibold text-slate-700">
                 {{ item.name }}
               </h3>
-              <p class="text-xs font-bold text-indigo-600">{{ item.percentage }}%</p>
+              <p class="text-md font-bold text-indigo-600">{{ item.percentage }}%</p>
             </div>
             <UProgress
               :model-value="item.percentage"
@@ -513,58 +781,62 @@
       </div>
 
       <!-- Recent Finding Issues -->
-      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6">
+      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold text-slate-900 tracking-tight">
             Recent Finding Issues
           </h2>
         </div>
-        <UTable
-          :data="recentFindingsData"
-          :columns="auditTableColumns"
-          class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden"
-        />
+        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+          <TableEntities
+            :data="recentFindingsData"
+            :columns="auditTableColumns"
+            class="w-full"
+          />
+        </UCard>
       </div>
     </div>
 
     <!-- Seventh Row: Recent Risk Profiles & Upcoming Audits -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Recent Risk Profiles -->
-      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-lg font-bold text-slate-800">Recent Risk Profiles</h3>
-            <p class="text-xs text-slate-400 mt-1">Latest risk assessments</p>
+            <p class="text-md text-slate-400 mt-1">Latest risk assessments</p>
           </div>
-          <UButton
-            icon="i-lucide-chevron-right"
-            variant="ghost"
-            color="primary"
-            to="/risk-profile"
-            size="sm"
-          />
+          <UTooltip text="View all Risk Profiles">
+            <UButton
+              icon="i-lucide-chevron-right"
+              variant="ghost"
+              color="primary"
+              to="/risk-profile"
+              size="sm"
+            />
+          </UTooltip>
         </div>
         <div class="space-y-3">
           <div
             v-for="(risk, index) in riskProfileStore.risks.slice(0, 4)"
             :key="risk.id"
-            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50/50 transition-all duration-200"
+            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200"
           >
             <div class="flex items-center gap-3">
               <div
                 class="rounded-full bg-indigo-50 w-8 h-8 flex items-center justify-center"
               >
-                <span class="text-xs font-bold text-indigo-700">{{ index + 1 }}</span>
+                <span class="text-md font-bold text-indigo-700">{{ index + 1 }}</span>
               </div>
               <div>
                 <p class="text-sm font-bold text-slate-800">
                   {{ risk.name }}
                 </p>
-                <p class="text-xs text-slate-400 mt-0.5">{{ risk.category }}</p>
+                <p class="text-md text-slate-400 mt-0.5">{{ risk.category }}</p>
               </div>
             </div>
             <UBadge
-              :color="risk.impact * risk.likelihood > 15 ? 'red' : 'warning'"
+              :color="risk.impact * risk.likelihood > 15 ? 'error' : 'warning'"
               variant="soft"
               size="sm"
               class="font-semibold"
@@ -576,25 +848,27 @@
       </div>
 
       <!-- Upcoming Audits -->
-      <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-lg font-bold text-slate-800">Upcoming Audits</h3>
-            <p class="text-xs text-slate-400 mt-1">Scheduled audit activities</p>
+            <p class="text-md text-slate-400 mt-1">Scheduled audit activities</p>
           </div>
-          <UButton
-            icon="i-lucide-chevron-right"
-            variant="ghost"
-            color="primary"
-            to="/annual-audit"
-            size="sm"
-          />
+          <UTooltip text="View all Annual Audits">
+            <UButton
+              icon="i-lucide-chevron-right"
+              variant="ghost"
+              color="primary"
+              to="/annual-audit"
+              size="sm"
+            />
+          </UTooltip>
         </div>
         <div class="space-y-3">
           <div
             v-for="plan in annualPlanStore.plans.slice(0, 4)"
             :key="plan.id"
-            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50/50 transition-all duration-200"
+            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200"
           >
             <div class="flex items-center gap-3">
               <div class="rounded-lg bg-sky-50 w-8 h-8 flex items-center justify-center">
@@ -602,7 +876,7 @@
               </div>
               <div>
                 <p class="text-sm font-bold text-slate-800">{{ plan.code }}</p>
-                <p class="text-xs text-slate-400 mt-0.5">Status: {{ plan.status }}</p>
+                <p class="text-md text-slate-400 mt-0.5">Status: {{ plan.status }}</p>
               </div>
             </div>
             <UBadge color="info" variant="soft" size="sm" class="font-semibold"
@@ -623,6 +897,22 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { Line, Scatter } from "vue-chartjs";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from "chart.js";
+import {
+  useTimeSeriesData,
+  useIsolationForestData
+} from "~/composables/useAnalyticsData";
 import { useI18n } from "~/composables/useI18n";
 import { useRiskProfileStore } from "~/stores/risk-profile";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
@@ -630,8 +920,21 @@ import { useActionTakenReportStore } from "~/stores/action-taken-report";
 import { useAuditExecutionStore } from "~/stores/audit-execution";
 import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
+import { useRCMStore, cosoDimensions } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
 import { AuditStatus } from "~/types/audit";
+import { UBadge } from "#components";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 definePageMeta({
   middleware: "auth",
@@ -645,9 +948,298 @@ const atrStore = useActionTakenReportStore();
 const auditExecutionStore = useAuditExecutionStore();
 const auditResultStore = useAuditResultReportStore();
 const authStore = useAuthStore();
+const rcmStore = useRCMStore();
 
-const UButton = resolveComponent("UButton");
-const UBadge = resolveComponent("UBadge");
+// ─── Internal Control Effectiveness (COSO 2013) ─────────────
+const getDimAverage = (dimKey: string) => {
+  const map: Record<string, number> = {
+    design_effectiveness: rcmStore.cosoAverages.design,
+    operating_effectiveness: rcmStore.cosoAverages.operating,
+    coverage_completeness: rcmStore.cosoAverages.coverage,
+    timeliness: rcmStore.cosoAverages.timeliness,
+    automation_monitoring: rcmStore.cosoAverages.automation,
+  };
+  return map[dimKey] || 0;
+};
+
+const getRatingBadgeClass = (ratingLabel: string) => {
+  switch (ratingLabel) {
+    case "Highly Effective":
+      return "bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+    case "Effective":
+      return "bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+    case "Moderately Effective":
+      return "bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+    case "Weak":
+      return "bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+    default:
+      return "bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
+  }
+};
+
+// AI & Analytics Composables
+const timeseriesData = useTimeSeriesData();
+const isolationData = useIsolationForestData();
+const filteredAnomalies = computed(() => isolationData.anomalies);
+
+// ─── KPI Forecasting Line Chart Config ─────────────────────
+const kpiChartData = computed(() => ({
+  labels: timeseriesData.historicalKPI.map((p) => p.period),
+  datasets: [
+    {
+      label: "Actual KPI Score (%)",
+      data: timeseriesData.historicalKPI.map((p) => p.actual),
+      borderColor: "#4f46e5",
+      backgroundColor: "rgba(79, 70, 229, 0.15)",
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      pointBackgroundColor: "#4f46e5",
+      pointBorderColor: "#ffffff",
+      pointBorderWidth: 2,
+      spanGaps: false,
+    },
+    {
+      label: "KPI Forecast (%)",
+      data: timeseriesData.historicalKPI.map((p) => p.forecast),
+      borderColor: "#8b5cf6",
+      backgroundColor: "rgba(139, 92, 246, 0.15)",
+      borderDash: [6, 4],
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      pointStyle: "rectRot",
+      pointBackgroundColor: "#8b5cf6",
+      pointBorderColor: "#ffffff",
+      pointBorderWidth: 2,
+      spanGaps: false,
+    },
+    {
+      label: "Upper Bound (95% CI)",
+      data: timeseriesData.historicalKPI.map((p) => p.upperBound),
+      borderColor: "transparent",
+      backgroundColor: "rgba(139, 92, 246, 0.08)",
+      fill: "+1",
+      tension: 0.4,
+      pointRadius: 0,
+      spanGaps: false,
+    },
+    {
+      label: "Lower Bound (95% CI)",
+      data: timeseriesData.historicalKPI.map((p) => p.lowerBound),
+      borderColor: "transparent",
+      backgroundColor: "rgba(139, 92, 246, 0.08)",
+      fill: "-1",
+      tension: 0.4,
+      pointRadius: 0,
+      spanGaps: false,
+    },
+  ],
+}));
+
+const kpiChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: "top" as const,
+      labels: {
+        usePointStyle: true,
+        font: { family: "Inter, sans-serif", size: 12, weight: "bold" as const },
+        filter: (item: any) =>
+          !["Upper Bound (95% CI)", "Lower Bound (95% CI)"].includes(item.text),
+      },
+    },
+    tooltip: {
+      backgroundColor: "rgba(15, 23, 42, 0.9)",
+      titleFont: { size: 13, weight: "bold" as const },
+      bodyFont: { size: 12 },
+      padding: 12,
+      cornerRadius: 10,
+      callbacks: {
+        label: (ctx: any) => {
+          if (
+            ["Upper Bound (95% CI)", "Lower Bound (95% CI)"].includes(
+              ctx.dataset.label
+            )
+          )
+            return "";
+          return `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%`;
+        },
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      ticks: { font: { family: "Inter, sans-serif", size: 11 } },
+    },
+    y: {
+      min: 50,
+      max: 85,
+      grid: { color: "rgba(226, 232, 240, 0.6)" },
+      ticks: {
+        font: { family: "Inter, sans-serif", size: 11 },
+        callback: (v: any) => `${v}%`,
+      },
+      title: {
+        display: true,
+        text: "KPI Index Score (%)",
+        font: { size: 12, weight: "bold" as const },
+      },
+    },
+  },
+};
+
+// ─── Anomaly Detection Scatter Chart Config ────────────
+
+const anomalyScatterChartData = computed(() => {
+  const normalPoints = isolationData.scatterData.filter((s) => !s.isAnomaly);
+  const anomalyList = filteredAnomalies.value;
+
+  const criticalPoints = anomalyList
+    .filter((a) => a.severity === "Critical")
+    .map((a, idx) => ({
+      x: a.anomalyScore * -100,
+      y: (idx + 1) * 12 + 15,
+      label: a.id,
+      title: a.entity,
+    }));
+
+  const highPoints = anomalyList
+    .filter((a) => a.severity === "High")
+    .map((a, idx) => ({
+      x: a.anomalyScore * -100,
+      y: (idx + 1) * 9 + 8,
+      label: a.id,
+      title: a.entity,
+    }));
+
+  const mediumPoints = anomalyList
+    .filter((a) => a.severity === "Medium")
+    .map((a, idx) => ({
+      x: a.anomalyScore * -100,
+      y: (idx + 1) * 7 + 5,
+      label: a.id,
+      title: a.entity,
+    }));
+
+  return {
+    datasets: [
+      {
+        label: "Baseline Operational Data",
+        data: normalPoints.map((p) => ({ x: p.x, y: p.y })),
+        backgroundColor: "rgba(148, 163, 184, 0.35)",
+        borderColor: "rgba(148, 163, 184, 0.6)",
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      },
+      {
+        label: "Critical Anomalies",
+        data: criticalPoints,
+        backgroundColor: "#ef4444",
+        borderColor: "#b91c1c",
+        pointRadius: 9,
+        pointHoverRadius: 12,
+        pointStyle: "triangle",
+      },
+      {
+        label: "High Severity Outliers",
+        data: highPoints,
+        backgroundColor: "#f97316",
+        borderColor: "#c2410c",
+        pointRadius: 8,
+        pointHoverRadius: 10,
+        pointStyle: "rectRot",
+      },
+      {
+        label: "Medium Risk Outliers",
+        data: mediumPoints,
+        backgroundColor: "#eab308",
+        borderColor: "#a16207",
+        pointRadius: 7,
+        pointHoverRadius: 9,
+        pointStyle: "circle",
+      },
+    ],
+  };
+});
+
+const anomalyScatterOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: "top" as const,
+      labels: {
+        usePointStyle: true,
+        font: { family: "Inter, sans-serif", size: 11, weight: "bold" as const },
+      },
+    },
+    tooltip: {
+      backgroundColor: "rgba(15, 23, 42, 0.9)",
+      titleFont: { size: 13, weight: "bold" as const },
+      bodyFont: { size: 12 },
+      padding: 12,
+      cornerRadius: 10,
+      callbacks: {
+        label: (ctx: any) => {
+          const pt = ctx.raw;
+          if (pt.label) {
+            return `[${pt.label}] ${pt.title}: Anomaly Score ${pt.x?.toFixed(1)}`;
+          }
+          return `Normal Baseline Point (Score: ${pt.x?.toFixed(1)})`;
+        },
+      },
+    },
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: "Anomaly Deviation Index",
+        font: { size: 11, weight: "bold" as const },
+      },
+      grid: { color: "rgba(226, 232, 240, 0.6)" },
+      ticks: { font: { size: 11 } },
+    },
+    y: {
+      title: {
+        display: true,
+        text: "Frequency / Transaction Spread",
+        font: { size: 11, weight: "bold" as const },
+      },
+      grid: { display: false },
+      ticks: { font: { size: 11 } },
+    },
+  },
+};
+
+const getSeverityColor = (sev: string) => {
+  switch (sev) {
+    case "Critical":
+      return "error";
+    case "High":
+      return "warning";
+    case "Medium":
+      return "info";
+    default:
+      return "neutral";
+  }
+};
+
+const getTrendBadgeColor = (trend: string) => {
+  switch (trend) {
+    case "Improving":
+      return "success";
+    case "Declining":
+      return "error";
+    default:
+      return "warning";
+  }
+};
 
 // Sync state and action simulation
 const isSyncing = ref(false);
@@ -838,7 +1430,7 @@ const registeredRiskColumns = [
       const rawObject = row.row.original;
       return h("div", { class: "flex flex-col" }, [
         h("span", { class: "font-bold" }, rawObject.name),
-        h("span", { class: "text-xs text-slate-400" }, rawObject.category),
+        h("span", { class: "text-md text-slate-400" }, rawObject.category),
       ]);
     },
   },
@@ -876,15 +1468,21 @@ const dashboardExecutionStatus = computed(() => {
     .slice(0, 3);
 });
 
-// Recent Findings
+// Recent Findings — flattened from Audit Result Report findings
 const recentFindingsData = computed(() => {
-  return auditResultStore.reportList
-    .map((r) => ({
-      audit_finding: r.reportTitle,
-      audit_category: r.overallRating,
-      severity: r.findingsCount > 5 ? "High" : r.findingsCount > 2 ? "Medium" : "Low",
-    }))
-    .slice(0, 3);
+  const rows: { audit_finding: string; findings_category: string }[] = []
+  for (const report of auditResultStore.reportList) {
+    if (report.findings && report.findings.length > 0) {
+      for (const f of report.findings) {
+        const findings_category = f.category || ''
+        rows.push({
+          audit_finding: f.title,
+          findings_category
+        })
+      }
+    }
+  }
+  return rows.slice(0, 5)
 });
 
 const auditTableColumns = [
@@ -895,22 +1493,21 @@ const auditTableColumns = [
       const rawObject = row.row.original;
       return h("div", { class: "flex flex-col" }, [
         h("span", { class: "font-bold" }, rawObject.audit_finding),
-        h("span", { class: "text-xs text-slate-400" }, rawObject.audit_category),
       ]);
     },
   },
   {
-    accessorKey: "severity",
-    header: "Severity",
+    accessorKey: "findings_category",
+    header: "Findings Category",
     cell: (row: any) => {
-      const severity = row.getValue();
+      const findings_category = row.getValue();
       return h(
         UBadge,
         {
-          color: severity === "High" ? "red" : severity === "Medium" ? "orange" : "green",
+          color: findings_category === "Very Significant" ? "error" : findings_category === "Significant" ? "error" : findings_category === "Quite Significant" ? "warning" : "success",
           variant: "soft",
         },
-        () => severity
+        () => findings_category
       );
     },
   },

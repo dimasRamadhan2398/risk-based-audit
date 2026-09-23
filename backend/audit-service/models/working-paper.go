@@ -13,6 +13,11 @@ type TeamMember struct {
 	Role string `json:"role"`
 }
 
+type ActivityItem struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
 type WorkingPaperHeader struct {
 	ID                 uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	AssignmentLetterID string         `gorm:"type:varchar(100);index" json:"assignmentLetterId"`
@@ -21,6 +26,7 @@ type WorkingPaperHeader struct {
 	Period             string         `gorm:"type:varchar(100)" json:"period"`
 	Location           string         `gorm:"type:varchar(255)" json:"location"`
 	TeamMembers        []TeamMember   `gorm:"serializer:json" json:"teamMembers"`
+	Activities         []ActivityItem `gorm:"serializer:json" json:"activities"`
 	CreatedAt          time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`

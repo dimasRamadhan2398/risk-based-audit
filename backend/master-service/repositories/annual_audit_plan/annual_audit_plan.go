@@ -21,7 +21,7 @@ func (r *AnnualAuditPlanRepository) Update(plan *models.AnnualAuditPlan) error {
 func (r *AnnualAuditPlanRepository) Delete(id uuid.UUID) error { return r.BaseRepository.Delete(&models.AnnualAuditPlan{ID: id}) }
 func (r *AnnualAuditPlanRepository) FindByID(id uuid.UUID) (*models.AnnualAuditPlan, error) {
 	var plan models.AnnualAuditPlan
-	if err := r.GetDB().Preload("AuditPeriod").Preload("RiskRegister").Preload("Department").Preload("ApprovedBy").Preload("RequestedBy").First(&plan, id).Error; err != nil {
+	if err := r.GetDB().Preload("AuditPeriod").Preload("RiskRegister").Preload("Department").Preload("ApprovedBy").Preload("RequestedBy").Preload("Activities.InvolvedDepartments").First(&plan, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound { return nil, apperrors.ErrNotFound }
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func (r *AnnualAuditPlanRepository) FindByID(id uuid.UUID) (*models.AnnualAuditP
 }
 func (r *AnnualAuditPlanRepository) FindByCode(code string) (*models.AnnualAuditPlan, error) {
 	var plan models.AnnualAuditPlan
-	if err := r.GetDB().Where("plan_code = ?", code).First(&plan).Error; err != nil {
+	if err := r.GetDB().Preload("Activities.InvolvedDepartments").Where("plan_code = ?", code).First(&plan).Error; err != nil {
 		if err == gorm.ErrRecordNotFound { return nil, apperrors.ErrNotFound }
 		return nil, err
 	}
@@ -37,6 +37,7 @@ func (r *AnnualAuditPlanRepository) FindByCode(code string) (*models.AnnualAudit
 }
 func (r *AnnualAuditPlanRepository) FindAll() ([]*models.AnnualAuditPlan, error) {
 	var plans []*models.AnnualAuditPlan
-	if err := r.GetDB().Preload("AuditPeriod").Preload("RiskRegister").Preload("Department").Preload("ApprovedBy").Preload("RequestedBy").Find(&plans).Error; err != nil { return nil, err }
+	if err := r.GetDB().Preload("AuditPeriod").Preload("RiskRegister").Preload("Department").Preload("ApprovedBy").Preload("RequestedBy").Preload("Activities.InvolvedDepartments").Find(&plans).Error; err != nil { return nil, err }
 	return plans, nil
 }
+

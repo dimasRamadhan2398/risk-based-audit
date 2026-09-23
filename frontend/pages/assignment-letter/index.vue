@@ -1,18 +1,31 @@
 <template>
-  <div class="p-6 max-w-7xl mx-auto space-y-6">
+  <div class="p-6 max-w-full mx-auto space-y-6">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 ">Assignment Letter List</h1>
+        <h1 class="text-2xl font-bold text-gray-900 ">{{ t('assignmentLetter.title') }}</h1>
       </div>
-      <UButton
-        label="Create Assignment Letter"
-        icon="i-heroicons-plus"
-        color="primary"
-        size="lg"
-        class="font-bold shadow-md"
-        @click="store.openModal"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          v-if="canImportPlanDocs"
+          :label="t('assignmentLetter.importDocument')"
+          icon="i-lucide-upload"
+          color="neutral"
+          variant="outline"
+          size="lg"
+          class="font-bold shadow-md"
+          to="/assignment-letter/upload"
+        />
+        <UButton
+          v-if="canManageAssignmentLetter"
+          :label="t('assignmentLetter.createAssignmentLetter')"
+          icon="i-heroicons-plus"
+          color="primary"
+          size="lg"
+          class="font-bold shadow-md"
+          @click="store.openModal"
+        />
+      </div>
     </div>
 
     <AssignmentLetterTable />
@@ -26,7 +39,11 @@
 import AssignmentLetterForm from '~/components/assignment-letter/AssignmentLetterForm.vue';
 import AssignmentLetterTable from '~/components/assignment-letter/AssignmentLetterTable.vue';
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
+const { t } = useI18n()
+const { canManageAssignmentLetter, canImportPlanDocs } = useRbac()
 const store = useAssignmentLetterStore()
 store.fetchAssignmentLetters()
 

@@ -64,7 +64,7 @@
                     min="1"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Department hierarchy level</p>
+                  <p class="text-md text-gray-500 mt-1">Department hierarchy level</p>
                 </UFormField>
 
                 <UFormField label="Description" size="lg" class="md:col-span-2">
@@ -115,7 +115,7 @@
                     placeholder="Company UUID"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Enter Company UUID</p>
+                  <p class="text-md text-gray-500 mt-1">Enter Company UUID</p>
                 </UFormField>
 
                 <UFormField label="Person In Charge (PIC) ID *" size="lg">
@@ -125,7 +125,7 @@
                     placeholder="Employee UUID (PIC)"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Enter Employee UUID who is the PIC</p>
+                  <p class="text-md text-gray-500 mt-1">Enter Employee UUID who is the PIC</p>
                 </UFormField>
 
                 <UFormField label="Business Unit ID" size="lg">
@@ -140,7 +140,7 @@
           </div>
 
           <!-- Footer -->
-          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-xl flex justify-end gap-3">
+          <div class="px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-main)] rounded-b-xl flex justify-end gap-3">
             <UButton
               label="Cancel"
               color="neutral"

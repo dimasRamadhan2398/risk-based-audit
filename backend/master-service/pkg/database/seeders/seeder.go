@@ -50,6 +50,8 @@ func (s *Seeder) RunAll() error {
 		{"AuditUniverse", s.SeedAuditUniverse},
 		{"AuditWorkpapers", s.SeedAuditWorkpapers},
 		{"VisionMissionGoals", s.SeedVisionMissionGoals},
+		{"QAReports", s.SeedQAReports},
+		{"ConsultingServices", s.SeedConsultingServices},
 	}
 
 	for _, seeder := range seeders {
@@ -560,6 +562,108 @@ func (s *Seeder) SeedEmployees() error {
 			IsActive:          true,
 			JoinDate:          joinDate,
 		},
+		{
+			EmployeeCode:      "EMP001",
+			FullName:          "System Administrator",
+			Email:             "admin@company.com",
+			Phone:             "+6281234567890",
+			CompanyID:         company.ID,
+			DepartmentID:      itDept.ID,
+			JobRoleID:         mgrIT.ID,
+			LevelGrade:        8,
+			WorkLocationID:    &hqLocation.ID,
+			ResidenceAddress:  "Jl. Jendral Sudirman Kav. 52-53, Jakarta",
+			ResidenceCity:     "Jakarta",
+			ResidenceProvince: "DKI Jakarta",
+			ResidencePostal:   "12190",
+			IsActive:          true,
+			JoinDate:          joinDate,
+		},
+		{
+			EmployeeCode:      "EMP002",
+			FullName:          "John Auditor",
+			Email:             "auditor@company.com",
+			Phone:             "+6281234567891",
+			CompanyID:         company.ID,
+			DepartmentID:      auditDept.ID,
+			JobRoleID:         auditorRole.ID,
+			LevelGrade:        5,
+			WorkLocationID:    &hqLocation.ID,
+			ResidenceAddress:  "Jl. HR Rasuna Said Blok X-5, Jakarta",
+			ResidenceCity:     "Jakarta",
+			ResidenceProvince: "DKI Jakarta",
+			ResidencePostal:   "12950",
+			IsActive:          true,
+			JoinDate:          joinDate,
+		},
+		{
+			EmployeeCode:      "EMP003",
+			FullName:          "Alice Department Head",
+			Email:             "depthead@company.com",
+			Phone:             "+6281234567892",
+			CompanyID:         company.ID,
+			DepartmentID:      opsDept.ID,
+			JobRoleID:         mgrFinance.ID,
+			LevelGrade:        7,
+			WorkLocationID:    &hqLocation.ID,
+			ResidenceAddress:  "Jl. MH Thamrin No. 28-30, Jakarta",
+			ResidenceCity:     "Jakarta",
+			ResidenceProvince: "DKI Jakarta",
+			ResidencePostal:   "10350",
+			IsActive:          true,
+			JoinDate:          joinDate,
+		},
+		{
+			EmployeeCode:      "EMP004",
+			FullName:          "Bob Auditee",
+			Email:             "auditee@company.com",
+			Phone:             "+6281234567893",
+			CompanyID:         company.ID,
+			DepartmentID:      finDept.ID,
+			JobRoleID:         dirFinance.ID,
+			LevelGrade:        4,
+			WorkLocationID:    &hqLocation.ID,
+			ResidenceAddress:  "Jl. Gatot Subroto No. 40, Jakarta",
+			ResidenceCity:     "Jakarta",
+			ResidenceProvince: "DKI Jakarta",
+			ResidencePostal:   "12930",
+			IsActive:          true,
+			JoinDate:          joinDate,
+		},
+		{
+			EmployeeCode:      "EMP005",
+			FullName:          "Carol Viewer",
+			Email:             "viewer@company.com",
+			Phone:             "+6281234567894",
+			CompanyID:         company.ID,
+			DepartmentID:      finDept.ID,
+			JobRoleID:         dirFinance.ID,
+			LevelGrade:        8,
+			WorkLocationID:    &hqLocation.ID,
+			ResidenceAddress:  "Jl. Asia Afrika No. 8, Jakarta",
+			ResidenceCity:     "Jakarta",
+			ResidenceProvince: "DKI Jakarta",
+			ResidencePostal:   "10270",
+			IsActive:          true,
+			JoinDate:          joinDate,
+		},
+		{
+			EmployeeCode:      "EMP007",
+			FullName:          "New Department Head",
+			Email:             "new_dept_head@company.com",
+			Phone:             "+6281234567897",
+			CompanyID:         company.ID,
+			DepartmentID:      finDept.ID,
+			JobRoleID:         mgrFinance.ID,
+			LevelGrade:        6,
+			WorkLocationID:    &hqLocation.ID,
+			ResidenceAddress:  "Jl. Senopati No. 12, Jakarta",
+			ResidenceCity:     "Jakarta",
+			ResidenceProvince: "DKI Jakarta",
+			ResidencePostal:   "12110",
+			IsActive:          true,
+			JoinDate:          joinDate,
+		},
 	}
 
 	for i := range employees {
@@ -749,6 +853,7 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 	if err != nil {
 		return err
 	}
+	finDept, _ := getByName[models.Department](s.DB, "department_code", "DEPT-001")
 	itDept, err := getByName[models.Department](s.DB, "department_code", "DEPT-002")
 	if err != nil {
 		return err
@@ -757,6 +862,8 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 	if err != nil {
 		return err
 	}
+	opsDept, _ := getByName[models.Department](s.DB, "department_code", "DEPT-004")
+
 	requester, err := getByName[models.Employee](s.DB, "employee_code", "EMP-0004")
 	if err != nil {
 		return err
@@ -774,25 +881,75 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 	seeds := []models.AnnualAuditPlan{
 		{
 			PlanCode:         "AAP-2026-001",
-			PlanTitle:        "IT Security Governance Audit",
-			Description:      "Risk-based audit over IT security governance controls",
+			PlanTitle:        "Program Kerja Pemeriksaan Tahunan 2026",
+			Description:      "Risk-based annual audit plan over operational and IT controls",
 			AuditPeriodID:    period.ID,
 			RiskRegisterID:   &risk1.ID,
 			DepartmentID:     itDept.ID,
 			Priority:         models.AuditPlanPriorityHigh,
 			Status:           models.AuditPlanStatusApproved,
-			EstimatedDays:    20,
-			PlannedStartDate: time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC),
-			PlannedEndDate:   time.Date(2026, 2, 28, 0, 0, 0, 0, time.UTC),
+			EstimatedDays:    77,
+			PlannedStartDate: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
+			PlannedEndDate:   time.Date(2026, 12, 31, 0, 0, 0, 0, time.UTC),
 			ApprovedByID:     &approver.ID,
 			ApprovedAt:       &approvedAt,
-			ApprovalNotes:    "Approved in annual committee meeting.",
+			ApprovalNotes:    "Approved in annual audit committee meeting.",
 			RequestedByID:    requester.ID,
 			RevisionNumber:   1,
+			Activities: []models.AnnualAuditPlanActivity{
+				{
+					ItemNumber:         "1.1",
+					Category:           models.CategoryAssurance,
+					GroupTitle:         "Audit Kantor Pusat & Unit Kerja",
+					Title:              "Audit Siklus Pendapatan & Piutang",
+					InvolvedDepartments: []models.Department{finDept, opsDept},
+					TimelineText:       "Jan - Feb",
+					AuditorCount:       3,
+					TotalMandays:       15,
+					SupervisorName:     "Budi Santoso",
+					NotesObjective:     "Fokus pada validitas Sales Revenue dan piutang tertagih",
+				},
+				{
+					ItemNumber:         "1.2",
+					Category:           models.CategoryAssurance,
+					GroupTitle:         "Audit Kantor Pusat & Unit Kerja",
+					Title:              "Audit Pengadaan & COGS",
+					InvolvedDepartments: []models.Department{finDept, opsDept},
+					TimelineText:       "Mar - Apr",
+					AuditorCount:       3,
+					TotalMandays:       20,
+					SupervisorName:     "Budi Santoso",
+					NotesObjective:     "Review efisiensi biaya bahan baku & vendor management",
+				},
+				{
+					ItemNumber:         "2.2",
+					Category:           models.CategoryAssurance,
+					GroupTitle:         "Audit Khusus/Investigasi",
+					Title:              "Audit TI (Keamanan Data)",
+					InvolvedDepartments: []models.Department{itDept},
+					TimelineText:       "Sep",
+					AuditorCount:       2,
+					TotalMandays:       14,
+					SupervisorName:     "Eksternal Ahli",
+					NotesObjective:     "Audit kerentanan sistem keuangan & cyber security",
+				},
+				{
+					ItemNumber:         "1.1",
+					Category:           models.CategoryConsulting,
+					GroupTitle:         "Layanan Konsultansi",
+					Title:              "Review Implementasi ERP Baru",
+					InvolvedDepartments: []models.Department{itDept, finDept},
+					TimelineText:       "Jul - Sep",
+					AuditorCount:       2,
+					TotalMandays:       30,
+					SupervisorName:     "Head of Audit",
+					NotesObjective:     "Memberikan masukan kontrol sistem pada modul Keuangan",
+				},
+			},
 		},
 		{
 			PlanCode:         "AAP-2026-002",
-			PlanTitle:        "Internal Audit Quality Review",
+			PlanTitle:        "Internal Audit Quality & Compliance Plan",
 			Description:      "Quality assessment of internal audit execution practices",
 			AuditPeriodID:    period.ID,
 			DepartmentID:     auditDept.ID,
@@ -803,6 +960,20 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 			PlannedEndDate:   time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC),
 			RequestedByID:    requester.ID,
 			RevisionNumber:   1,
+			Activities: []models.AnnualAuditPlanActivity{
+				{
+					ItemNumber:         "1.1",
+					Category:           models.CategoryOther,
+					GroupTitle:         "Kegiatan Lainnya",
+					Title:              "Penyusunan Laporan Tahunan Audit",
+					InvolvedDepartments: []models.Department{auditDept},
+					TimelineText:       "Des",
+					AuditorCount:       3,
+					TotalMandays:       10,
+					SupervisorName:     "Head of Audit",
+					NotesObjective:     "Rekapitulasi temuan dan efektivitas internal control",
+				},
+			},
 		},
 	}
 	for i := range seeds {
@@ -1327,7 +1498,7 @@ func (s *Seeder) SeedAuditUniverse() error {
 		RiskRating:      "HIGH",
 		LastAuditYear:   intPtr(2024),
 		LastAuditDate:   timePtr(time.Date(2024, 8, 30, 0, 0, 0, 0, time.UTC)),
-		LastAuditResult: "SATISFACTORY",
+		LastAuditResult: "Significant",
 		AuditFrequency:  1,
 		IsMandatory:     true,
 		IsHighPriority:  true,
@@ -1420,52 +1591,63 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 		return err
 	}
 
-	// Seeder 1: Draft VMG (Belum Approved)
+	// Seeder 1: Published VMG (Tahun Aktif 2026-2031)
 	seeds := []models.VisionMissionGoals{
 		{
-			CompanyID:      company.ID,
-			Period:         "2026 - 2031",
-			EffectiveDate:  timePtr(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
-			Vision:         "Menjadi perusahaan investasi terkemuka di Asia Tenggara dengan pertumbuhan berkelanjutan dan tata kelola perusahaan yang excellent.",
-			Mission:        "1. Menyediakan layanan investasi berkualitas tinggi dengan fokus pada keberlanjutan\n2. Mengembangkan SDM yang profesional dan berintegritas\n3. Menerapkan teknologi digital untuk meningkatkan efisiensi operasional\n4. Menjaga kepatuhan terhadap regulasi dan standar etika bisnis",
-			Version:        "v1.0",
-			Status:         models.VmgStatusDraft,
-			Notes:          "Draft awal untuk periode 2026-2031, menunggu review dari Direksi",
-			CreatedBy:      "Ahmad Wijaya",
-			ModifiedBy:     "Ahmad Wijaya",
+			CompanyID:     company.ID,
+			Period:        "2026 - 2031",
+			EffectiveDate: timePtr(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Vision:        "Menjadi unit audit internal yang terpercaya, profesional, dan memberikan nilai tambah dalam mendukung tata kelola perusahaan yang baik.",
+			Mission:       "1. Melaksanakan audit berbasis risiko secara independen dan objektif\n2. Memberikan rekomendasi yang konstruktif untuk perbaikan proses bisnis\n3. Meningkatkan kompetensi dan profesionalisme auditor internal\n4. Mendukung penerapan Good Corporate Governance (GCG)",
+			Version:       "v1.0",
+			Status:        models.VmgStatusPublished,
+			Notes:         "Published VMG untuk periode 2026-2031",
+			CreatedBy:     "Ahmad Wijaya",
+			ModifiedBy:    "Ahmad Wijaya",
 			Goals: []models.VmgGoal{
 				{
 					GoalCode:           "G-001",
-					GoalName:           "Peningkatan Revenue",
-					GoalDescription:     "Meningkatkan pendapatan perusahaan secara konsisten setiap tahun",
-					StrategicObjective:  "SO-001: Growth & Profitability",
-					KPI:                "Pendapatan per Tahun",
-					Target:             "15%",
+					GoalName:           "Peningkatan Efektivitas Audit Berbasis Risiko",
+					GoalDescription:    "Meningkatkan cakupan dan ketepatan audit berbasis risiko",
+					StrategicObjective: "SO-001: Risk-Based Audit Excellence",
+					KPI:                "Persentase Rencana Audit Terealisasi",
+					Target:             "100%",
 					Unit:               "%",
 					BaselineYear:       "2025",
-					BaselineValue:      "Rp 500 Miliar",
+					BaselineValue:      "90%",
 				},
 				{
 					GoalCode:           "G-002",
-					GoalName:           "Efisiensi Biaya Operasional",
-					GoalDescription:     "Mengurangi biaya operasional tanpa mengorbankan kualitas layanan",
-					StrategicObjective:  "SO-002: Operational Excellence",
-					KPI:                "Rasio Biaya terhadap Pendapatan",
-					Target:             "25%",
+					GoalName:           "Peningkatan Kualitas Rekomendasi Audit",
+					GoalDescription:    "Meningkatkan rasio tindak lanjut rekomendasi audit oleh auditee",
+					StrategicObjective: "SO-002: Action Plan Follow-up",
+					KPI:                "Rasio Penyelesaian Temuan",
+					Target:             "95%",
 					Unit:               "%",
 					BaselineYear:       "2025",
-					BaselineValue:      "30%",
+					BaselineValue:      "85%",
 				},
 				{
 					GoalCode:           "G-003",
-					GoalName:           "Kepuasan Pelanggan",
-					GoalDescription:     "Meningkatkan indeks kepuasan pelanggan",
-					StrategicObjective:  "SO-003: Customer Satisfaction",
-					KPI:                "Customer Satisfaction Index",
-					Target:             "85%",
+					GoalName:           "Peningkatan Kompetensi Auditor",
+					GoalDescription:    "Meningkatkan jumlah sertifikasi profesional yang dimiliki auditor",
+					StrategicObjective: "SO-003: Auditor Professionalism",
+					KPI:                "Persentase Auditor Bersertifikat (CIA/CISA/QIA)",
+					Target:             "80%",
 					Unit:               "%",
 					BaselineYear:       "2025",
-					BaselineValue:      "75%",
+					BaselineValue:      "60%",
+				},
+				{
+					GoalCode:           "G-004",
+					GoalName:           "Memperkuat Peran Consulting",
+					GoalDescription:    "Meningkatkan kontribusi kegiatan consulting/advisory bagi operasional bisnis",
+					StrategicObjective: "SO-004: Value-Added Consulting",
+					KPI:                "Indeks Kepuasan Auditee terhadap Advisory",
+					Target:             "90%",
+					Unit:               "%",
+					BaselineYear:       "2025",
+					BaselineValue:      "80%",
 				},
 			},
 		},
@@ -1474,22 +1656,22 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 	// Seeder 2: Published VMG dari periode sebelumnya
 	effectiveDate := timePtr(time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC))
 	seeds = append(seeds, models.VisionMissionGoals{
-		CompanyID:      company.ID,
-		Period:         "2021 - 2025",
-		EffectiveDate:  effectiveDate,
-		Vision:         "Menjadi perusahaan investasi terkemuka di Indonesia dengan pertumbuhan berkelanjutan.",
-		Mission:        "1. Memberikan nilai tambah bagi shareholder\n2. Mengembangkan SDM yang kompeten\n3. Meningkatkan efisiensi operasional melalui digitalisasi",
-		Version:        "v1.0",
-		Status:         models.VmgStatusPublished,
-		Notes:          "VMG periode 2021-2025 yang sudah selesai",
-		CreatedBy:      "Budi Santoso",
-		ModifiedBy:     "Budi Santoso",
+		CompanyID:     company.ID,
+		Period:        "2021 - 2025",
+		EffectiveDate: effectiveDate,
+		Vision:        "Menjadi perusahaan investasi terkemuka di Indonesia dengan pertumbuhan berkelanjutan.",
+		Mission:       "1. Memberikan nilai tambah bagi shareholder\n2. Mengembangkan SDM yang kompeten\n3. Meningkatkan efisiensi operasional melalui digitalisasi",
+		Version:       "v1.0",
+		Status:        models.VmgStatusPublished,
+		Notes:         "VMG periode 2021-2025 yang sudah selesai",
+		CreatedBy:     "Budi Santoso",
+		ModifiedBy:    "Budi Santoso",
 		Goals: []models.VmgGoal{
 			{
 				GoalCode:           "G-001",
-				GoalName:           "Pencapaian Target Penjualan",
-				GoalDescription:     "Mencapai target penjualan yang ditetapkan",
-				StrategicObjective:  "SO-001: Sales Growth",
+				GoalName:           "Handal dalam asurans dan consulting ",
+				GoalDescription:    "Mengelola resiko untuk mencapai kinerja terbaik",
+				StrategicObjective: "SO-001: Sales Growth",
 				KPI:                "Total Penjualan",
 				Target:             "Rp 1 Triliun",
 				Unit:               "Rp",
@@ -1498,9 +1680,9 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 			},
 			{
 				GoalCode:           "G-002",
-				GoalName:           "Digital Transformation",
-				GoalDescription:     "Implementasi sistem digital untuk seluruh proses bisnis",
-				StrategicObjective:  "SO-002: Technology",
+				GoalName:           "Intelligent Risk Based Audit System",
+				GoalDescription:    "Implementasi sistem digital untuk seluruh proses bisnis audit",
+				StrategicObjective: "SO-002: Technology",
 				KPI:                "Prosentase Digitalisasi",
 				Target:             "80%",
 				Unit:               "%",
@@ -1514,22 +1696,22 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 	subsidiary, err := getByName[models.Company](s.DB, "company_code", "AIFL-FIN")
 	if err == nil {
 		seeds = append(seeds, models.VisionMissionGoals{
-			CompanyID:      subsidiary.ID,
-			Period:         "2026 - 2030",
-			EffectiveDate:  timePtr(time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)),
-			Vision:         "Menjadi perusahaan jasa keuangan terpercaya yang memberikan layanan innovative dan sustainable.",
-			Mission:        "1. Menyediakan produk keuangan yang sesuai kebutuhanNasabah\n2. Menerapkan risk management yang prudent\n3. Berkomitmen pada good corporate governance",
-			Version:        "v1.0",
-			Status:         models.VmgStatusInReview,
-			Notes:          "Sedang dalam proses review oleh parent company",
-			CreatedBy:      "Citra Dewi",
-			ModifiedBy:     "Citra Dewi",
+			CompanyID:     subsidiary.ID,
+			Period:        "2026 - 2030",
+			EffectiveDate: timePtr(time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)),
+			Vision:        "Menjadi perusahaan jasa keuangan terpercaya yang memberikan layanan innovative dan sustainable.",
+			Mission:       "1. Menyediakan produk keuangan yang sesuai kebutuhanNasabah\n2. Menerapkan risk management yang prudent\n3. Berkomitmen pada good corporate governance",
+			Version:       "v1.0",
+			Status:        models.VmgStatusInReview,
+			Notes:         "Sedang dalam proses review oleh parent company",
+			CreatedBy:     "Citra Dewi",
+			ModifiedBy:    "Citra Dewi",
 			Goals: []models.VmgGoal{
 				{
 					GoalCode:           "G-001",
 					GoalName:           "AUM Growth",
-					GoalDescription:     "Meningkatkan Assets Under Management",
-					StrategicObjective:  "SO-001: Asset Growth",
+					GoalDescription:    "Meningkatkan Assets Under Management",
+					StrategicObjective: "SO-001: Asset Growth",
 					KPI:                "Total AUM",
 					Target:             "Rp 5 Triliun",
 					Unit:               "Rp",
@@ -1539,8 +1721,8 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 				{
 					GoalCode:           "G-002",
 					GoalName:           "Risk Management Excellence",
-					GoalDescription:     "Meningkatkan kualitas risk management framework",
-					StrategicObjective:  "SO-002: Risk Management",
+					GoalDescription:    "Meningkatkan kualitas risk management framework",
+					StrategicObjective: "SO-002: Risk Management",
 					KPI:                "Risk Maturity Level",
 					Target:             "Level 4",
 					Unit:               "Level",
@@ -1550,8 +1732,8 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 				{
 					GoalCode:           "G-003",
 					GoalName:           "Compliance Rate",
-					GoalDescription:     "Memastikan kepatuhan terhadap seluruh regulasi yang berlaku",
-					StrategicObjective:  "SO-003: Compliance",
+					GoalDescription:    "Memastikan kepatuhan terhadap seluruh regulasi yang berlaku",
+					StrategicObjective: "SO-003: Compliance",
 					KPI:                "Compliance Index",
 					Target:             "98%",
 					Unit:               "%",
@@ -1561,8 +1743,8 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 				{
 					GoalCode:           "G-004",
 					GoalName:           "Employee Development",
-					GoalDescription:     "Mengembangkan kapabilitas dan kesejahteraan karyawan",
-					StrategicObjective:  "SO-004: Human Capital",
+					GoalDescription:    "Mengembangkan kapabilitas dan kesejahteraan karyawan",
+					StrategicObjective: "SO-004: Human Capital",
 					KPI:                "Training Hours per Employee",
 					Target:             "40",
 					Unit:               "Hours",
@@ -1587,10 +1769,156 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 		} else if err != nil {
 			return fmt.Errorf("failed to check existing VMG: %w", err)
 		} else {
-			fmt.Printf("  Skipped VisionMissionGoals: %s (already exists)\n", seeds[i].Period)
+			// update to published just in case
+			s.DB.Model(&existing).Update("status", seeds[i].Status)
+			fmt.Printf("  Updated VisionMissionGoals: %s (status to %s)\n", seeds[i].Period, seeds[i].Status)
 		}
 	}
 
+	return nil
+}
+
+func (s *Seeder) SeedQAReports() error {
+	seeds := []models.QAReport{
+		{
+			Type:              "Regular Self Assessment (RSA)",
+			Period:            "Q3 2025",
+			ReportName:        "Operational Efficiency Q3",
+			Result:            "8.7/10",
+			Status:            "Completed",
+			ConductedBy:       "Internal Audit Team A",
+			AssessmentTitle:   "RSA - Audit 2025 Q3",
+			InternalEvaluator: "Internal Audit Team A",
+			Attachment: &models.QAReportAttachment{
+				Name:       "Report_RSA_Q3_2025.pdf",
+				Size:       "1.5 MB",
+				UploadedAt: "2025-10-01",
+				FilePath:   "",
+			},
+		},
+		{
+			Type:            "Self Assessment w/ Independent Validation (SAIV)",
+			Period:          "Cycle 2025",
+			ReportName:      "Self Assessment GIAS '22-24",
+			Result:          "Generally Conformed",
+			Status:          "Completed",
+			ConductedBy:     "PT Independent Consultant X",
+			AssessmentTitle: "SAIV - Cycle 2025",
+			Validator:       "PT Independent Consultant X",
+			Attachment: &models.QAReportAttachment{
+				Name:       "Certificate_SAIV_2025.pdf",
+				Size:       "2.1 MB",
+				UploadedAt: "2025-11-15",
+				FilePath:   "",
+			},
+		},
+		{
+			Type:            "Quality Assurance Review (QAR)",
+			Period:          "Year 2025",
+			ReportName:      "External QAR (IPPF 2027)",
+			Result:          "G/C*",
+			Status:          "Completed",
+			ConductedBy:     "PT BAI Independent Consultant",
+			AssessmentTitle: "QAR - Year 2025",
+			Validator:       "PT BAI Independent Consultant",
+			Attachment: &models.QAReportAttachment{
+				Name:       "Report_External_QAR_2025.pdf",
+				Size:       "4.2 MB",
+				UploadedAt: "2025-12-20",
+				FilePath:   "",
+			},
+		},
+		{
+			Type:            "Regular Self Assessment (RSA)",
+			Period:          "Q2 2025",
+			ReportName:      "Operational Efficiency Q2",
+			Result:          "8.3/10",
+			Status:          "Completed",
+			AssessmentTitle: "RSA - Audit 2025 Q2",
+		},
+		{
+			Type:            "Regular Self Assessment (RSA)",
+			Period:          "Q1 2025",
+			ReportName:      "Operational Efficiency Q1",
+			Result:          "6.9/10",
+			Status:          "Completed",
+			AssessmentTitle: "RSA - Audit 2025 Q1",
+		},
+		{
+			Type:            "BUMN IACM Assessment",
+			Period:          "Year 2025",
+			ReportName:      "BUMN IACM Assessment 2025",
+			Result:          "4",
+			Status:          "Completed",
+			ConductedBy:     "BPKP / Kementerian BUMN",
+			AssessmentTitle: "BUMN IACM Assessment 2025",
+		},
+	}
+
+	for i := range seeds {
+		var existing models.QAReport
+		err := s.DB.Where("report_name = ? AND period = ?", seeds[i].ReportName, seeds[i].Period).First(&existing).Error
+		if err == gorm.ErrRecordNotFound {
+			if err := s.DB.Create(&seeds[i]).Error; err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (s *Seeder) SeedConsultingServices() error {
+	seeds := []models.ConsultingService{
+		{
+			Title:          "Review & Assessment SOP Procurement & Purchasing",
+			Category:       "Policy & SOP Review",
+			RequestorDept:  "Procurement",
+			Period:         "Q1 2026",
+			ConsultantName: "Budi Hartanto",
+			Status:         "Completed",
+			Notes:          "Rekomendasi perbaikan kontrol persetujuan pembelian di atas Rp 100jt telah disetujui.",
+			Attachment: &models.ConsultingAttachment{
+				Name:       "SOP_Procurement_Review_Report.pdf",
+				Size:       "1.2 MB",
+				UploadedAt: "2026-03-10",
+				FilePath:   "",
+			},
+		},
+		{
+			Title:          "IT Security Governance Assessment & Training",
+			Category:       "IT Advisory",
+			RequestorDept:  "IT",
+			Period:         "Q2 2026",
+			ConsultantName: "Wahyu Hidayat",
+			Status:         "In Progress",
+			Notes:          "Melakukan review celah keamanan dan melatih staf IT tentang standar ISO 27001.",
+			Attachment: &models.ConsultingAttachment{
+				Name:       "IT_Security_Audit_Scope.pdf",
+				Size:       "850 KB",
+				UploadedAt: "2026-05-18",
+				FilePath:   "",
+			},
+		},
+		{
+			Title:          "Corporate Governance & Compliance Assessment",
+			Category:       "Governance Assessment",
+			RequestorDept:  "Legal",
+			Period:         "Q3 2026",
+			ConsultantName: "Carolina Wijaya",
+			Status:         "Planned",
+			Notes:          "Asesmen keselarasan kebijakan internal perusahaan terhadap regulasi POJK terbaru.",
+		},
+	}
+
+	for i := range seeds {
+		var existing models.ConsultingService
+		err := s.DB.Where("title = ? AND period = ?", seeds[i].Title, seeds[i].Period).First(&existing).Error
+		if err == gorm.ErrRecordNotFound {
+			if err := s.DB.Create(&seeds[i]).Error; err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 

@@ -1,13 +1,15 @@
 package controllers
 
 import (
-	"encoding/base64"
 	"net/http"
+	"net/url"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"audit-service/models"
+	pkgErrors "audit-service/pkg/errors"
 	"audit-service/pkg/response"
 	svcCharter "audit-service/services/audit_charter"
 	svcMedia "audit-service/services/media"
@@ -73,27 +75,30 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 		}
 		isActive := isActiveStr == "true"
 
-		// Process file upload
+		// Process file upload (required for charter creation)
 		file, header, err := c.Request.FormFile("file")
 		if err != nil {
-			response.BadRequest(c, "File is required for creating a charter")
+			response.BadRequest(c, "Charter document file is required")
+			return
+		}
+		if header.Size > 10*1024*1024 {
+			response.BadRequest(c, "File size exceeds maximum limit of 10MB")
 			return
 		}
 		defer file.Close()
-
-		attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
-		if err != nil {
-			response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", err.Error())
+		attachment, errUpload := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "Auditsphere/charter")
+		if errUpload != nil {
+			response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", errUpload.Error())
 			return
 		}
+		req.Filename = header.Filename
+		req.FileUrl = attachment.FilePath
+		req.FileSize = attachment.FileSize
 
 		req.Title = title
 		req.Version = version
-		req.Filename = header.Filename
 		req.Content = content
 		req.IsActive = &isActive
-		req.FileUrl = attachment.FilePath
-		req.FileSize = attachment.FileSize
 	} else {
 		if err := c.ShouldBindJSON(&req); err != nil {
 			response.BadRequest(c, err.Error())
@@ -150,8 +155,12 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 		// Process optional file upload
 		file, header, err := c.Request.FormFile("file")
 		if err == nil { // file is present
+			if header.Size > 10*1024*1024 {
+				response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+				return
+			}
 			defer file.Close()
-			attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "audit")
+			attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "Auditsphere/charter")
 			if err != nil {
 				response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", err.Error())
 				return
@@ -346,6 +355,7 @@ func (ctrl *AuditCharterController) SetActiveCharter(c *gin.Context) {
 // @Router /api/v1/audit-charters/{id}/download [get]
 func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 	idParam := c.Param("id")
+
 	id, err := uuid.Parse(idParam)
 	if err != nil {
 		response.BadRequest(c, "Invalid audit charter ID")
@@ -358,22 +368,63 @@ func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 		return
 	}
 
-	// Decode base64 content
-	content, err := base64.StdEncoding.DecodeString(result.Content)
-	if err != nil {
-		response.InternalServerError(c, "Failed to decode charter content")
+	if result.FileUrl == "" {
+		response.NotFound(c, "Audit charter file was not found")
 		return
 	}
 
-	// Determine content type from filename extension
-	filename := result.Filename
-	ext := strings.ToLower(filepath.Ext(filename))
-	contentType := getContentType(ext)
+	// Handle local uploads by directly serving the file attachment
+	fileUrl := result.FileUrl
+	if strings.Contains(fileUrl, "/uploads/") || strings.HasPrefix(fileUrl, "uploads/") {
+		var relativePath string
+		if idx := strings.Index(fileUrl, "/uploads/"); idx != -1 {
+			relativePath = fileUrl[idx+len("/uploads/"):]
+		} else {
+			relativePath = strings.TrimPrefix(fileUrl, "uploads/")
+		}
 
-	// Set response headers for file download
-	c.Header("Content-Disposition", "attachment; filename="+filename)
-	c.Header("Content-Type", contentType)
-	c.Data(http.StatusOK, contentType, content)
+		decodedPath, err := url.PathUnescape(relativePath)
+		if err == nil {
+			relativePath = decodedPath
+		}
+
+		filePath := filepath.Join("uploads", relativePath)
+		if _, err := os.Stat(filePath); err == nil {
+			downloadName := result.Filename
+			if downloadName == "" {
+				downloadName = filepath.Base(filePath)
+			}
+			c.FileAttachment(filePath, downloadName)
+			return
+		}
+	} else if strings.Contains(fileUrl, "/media/download/") {
+		var safeFileName string
+		if idx := strings.Index(fileUrl, "/media/download/"); idx != -1 {
+			safeFileName = fileUrl[idx+len("/media/download/"):]
+		}
+		
+		decodedPath, err := url.PathUnescape(safeFileName)
+		if err == nil {
+			safeFileName = decodedPath
+		}
+		
+		filePath := filepath.Join("uploads", safeFileName)
+		if _, err := os.Stat(filePath); err == nil {
+			downloadName := result.Filename
+			if downloadName == "" {
+				downloadName = filepath.Base(filePath)
+			}
+			c.FileAttachment(filePath, downloadName)
+			return
+		}
+	}
+
+	if strings.Contains(result.FileUrl, "localhost") || strings.HasPrefix(result.FileUrl, "uploads/") || strings.HasPrefix(result.FileUrl, "/uploads/") {
+		response.NotFound(c, "Audit charter file was not found on the server disk.")
+		return
+	}
+
+	c.Redirect(http.StatusTemporaryRedirect, result.FileUrl)
 }
 
 // getContentType returns the MIME type based on file extension
@@ -396,7 +447,7 @@ func getContentType(ext string) string {
 
 // handleError handles service errors
 func (ctrl *AuditCharterController) handleError(c *gin.Context, err error) {
-	if appErr, ok := err.(*response.AppError); ok {
+	if appErr, ok := err.(*pkgErrors.AppError); ok {
 		response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
 		return
 	}

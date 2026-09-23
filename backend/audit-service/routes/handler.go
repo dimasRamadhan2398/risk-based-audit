@@ -1,12 +1,19 @@
 package routes
 
 import (
+	"fmt"
+	"net/http"
+	"strings"
+
 	"audit-service/controllers"
 	"audit-service/controllers/crud"
 	"audit-service/models"
+	"audit-service/pkg/docxbuilder"
 	"audit-service/pkg/middleware"
+	"audit-service/pkg/redis"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +23,7 @@ type RouteHandler struct {
 	registry       *RouteRegistry
 	authMiddleware *middleware.AuthMiddleware
 	db             *gorm.DB
+	redisClient    *redis.Client // may be nil
 }
 
 // NewRouteHandler creates a new route handler
@@ -23,12 +31,14 @@ func NewRouteHandler(
 	engine *gin.Engine,
 	authMiddleware *middleware.AuthMiddleware,
 	db *gorm.DB,
+	redisClient *redis.Client,
 ) *RouteHandler {
 	return &RouteHandler{
 		engine:         engine,
 		registry:       NewRouteRegistry(),
 		authMiddleware: authMiddleware,
 		db:             db,
+		redisClient:    redisClient,
 	}
 }
 
@@ -68,6 +78,26 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditCharters.GET("/:id", h.registry.AuditCharter.GetCharter)
 		auditCharters.PUT("/:id", h.registry.AuditCharter.UpdateCharter)
 		auditCharters.DELETE("/:id", h.registry.AuditCharter.DeleteCharter)
+	}
+
+	// Audit Guidelines routes
+	auditGuidelines := apiV1.Group("/audit-guidelines")
+	{
+		auditGuidelines.GET("", crud.List(h.db, "AuditGuideline", func() interface{} { return &[]models.AuditGuideline{} }))
+		auditGuidelines.GET("/:id", crud.GetByID(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
+		auditGuidelines.POST("", crud.Create(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
+		auditGuidelines.PUT("/:id", crud.Update(h.db, "AuditGuideline", func() interface{} { return &models.AuditGuideline{} }))
+		auditGuidelines.DELETE("/:id", h.deleteAuditGuideline)
+	}
+
+	// Audit SOPs routes
+	auditSops := apiV1.Group("/audit-sops")
+	{
+		auditSops.GET("", crud.List(h.db, "AuditSop", func() interface{} { return &[]models.AuditSop{} }, "Guideline"))
+		auditSops.GET("/:id", crud.GetByID(h.db, "AuditSop", func() interface{} { return &models.AuditSop{} }, "Guideline"))
+		auditSops.POST("", crud.Create(h.db, "AuditSop", func() interface{} { return &models.AuditSop{} }))
+		auditSops.PUT("/:id", crud.Update(h.db, "AuditSop", func() interface{} { return &models.AuditSop{} }))
+		auditSops.DELETE("/:id", crud.Delete(h.db, "AuditSop", func() interface{} { return &models.AuditSop{} }))
 	}
 
 	// Audit Mandate routes
@@ -119,8 +149,8 @@ func (h *RouteHandler) RegisterRoutes() {
 	// 2. Activity Plan
 	activityPlans := apiV1.Group("/activity-plans")
 	{
-		activityPlans.GET("", crud.List(h.db, "ActivityPlan", func() interface{} { return &[]models.ActivityPlan{} }, "AnnualPlan"))
-		activityPlans.GET("/:id", crud.GetByID(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }, "AnnualPlan"))
+		activityPlans.GET("", crud.List(h.db, "ActivityPlan", func() interface{} { return &[]models.ActivityPlan{} }))
+		activityPlans.GET("/:id", crud.GetByID(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
 		activityPlans.POST("", crud.Create(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
 		activityPlans.PUT("/:id", crud.Update(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
 		activityPlans.DELETE("/:id", crud.Delete(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
@@ -276,21 +306,122 @@ func (h *RouteHandler) RegisterRoutes() {
 		importedWorkingPapers.GET("/:id/download", importedWorkingPaperCtrl.Download)
 	}
 
+	// 16c. Uploaded Plan Documents
+	uploadedPlanDocumentCtrl := controllers.NewUploadedPlanDocumentController(h.db)
+	uploadedPlanDocuments := apiV1.Group("/uploaded-plan-documents")
+	{
+		uploadedPlanDocuments.GET("", uploadedPlanDocumentCtrl.List)
+		uploadedPlanDocuments.POST("", uploadedPlanDocumentCtrl.Upload)
+		uploadedPlanDocuments.DELETE("/:id", uploadedPlanDocumentCtrl.Delete)
+		uploadedPlanDocuments.GET("/:id/download", uploadedPlanDocumentCtrl.Download)
+	}
+
+	// 16d. Uploaded Annual Plans
+	uploadedAnnualPlanCtrl := controllers.NewUploadedAnnualPlanController(h.db)
+	uploadedAnnualPlans := apiV1.Group("/uploaded-annual-plans")
+	{
+		uploadedAnnualPlans.GET("", uploadedAnnualPlanCtrl.List)
+		uploadedAnnualPlans.POST("", uploadedAnnualPlanCtrl.Upload)
+		uploadedAnnualPlans.DELETE("/:id", uploadedAnnualPlanCtrl.Delete)
+		uploadedAnnualPlans.GET("/:id/download", uploadedAnnualPlanCtrl.Download)
+	}
+
+	// 16e. Uploaded Assignment Letters
+	uploadedAssignmentLetterCtrl := controllers.NewUploadedAssignmentLetterController(h.db)
+	uploadedAssignmentLetters := apiV1.Group("/uploaded-assignment-letters")
+	{
+		uploadedAssignmentLetters.GET("", uploadedAssignmentLetterCtrl.List)
+		uploadedAssignmentLetters.POST("", uploadedAssignmentLetterCtrl.Upload)
+		uploadedAssignmentLetters.DELETE("/:id", uploadedAssignmentLetterCtrl.Delete)
+		uploadedAssignmentLetters.GET("/:id/download", uploadedAssignmentLetterCtrl.Download)
+	}
+
+	// 16f. Uploaded Audit Result Reports
+	uploadedAuditResultReportCtrl := controllers.NewUploadedAuditResultReportController(h.db)
+	uploadedAuditResultReports := apiV1.Group("/uploaded-audit-result-reports")
+	{
+		uploadedAuditResultReports.GET("", uploadedAuditResultReportCtrl.List)
+		uploadedAuditResultReports.POST("", uploadedAuditResultReportCtrl.Upload)
+		uploadedAuditResultReports.DELETE("/:id", uploadedAuditResultReportCtrl.Delete)
+		uploadedAuditResultReports.GET("/:id/download", uploadedAuditResultReportCtrl.Download)
+	}
+
+	// 16g. Uploaded Executive Summaries
+	uploadedExecutiveSummaryCtrl := controllers.NewUploadedExecutiveSummaryController(h.db)
+	uploadedExecutiveSummaries := apiV1.Group("/uploaded-executive-summaries")
+	{
+		uploadedExecutiveSummaries.GET("", uploadedExecutiveSummaryCtrl.List)
+		uploadedExecutiveSummaries.POST("", uploadedExecutiveSummaryCtrl.Upload)
+		uploadedExecutiveSummaries.DELETE("/:id", uploadedExecutiveSummaryCtrl.Delete)
+		uploadedExecutiveSummaries.GET("/:id/download", uploadedExecutiveSummaryCtrl.Download)
+	}
+
+	// 16h. Uploaded Executive Summary Reports
+	uploadedExecutiveSummaryReportCtrl := controllers.NewUploadedExecutiveSummaryReportController(h.db)
+	uploadedExecutiveSummaryReports := apiV1.Group("/uploaded-executive-summary-reports")
+	{
+		uploadedExecutiveSummaryReports.GET("", uploadedExecutiveSummaryReportCtrl.List)
+		uploadedExecutiveSummaryReports.POST("", uploadedExecutiveSummaryReportCtrl.Upload)
+		uploadedExecutiveSummaryReports.DELETE("/:id", uploadedExecutiveSummaryReportCtrl.Delete)
+		uploadedExecutiveSummaryReports.GET("/:id/download", uploadedExecutiveSummaryReportCtrl.Download)
+	}
+
+	// 16i. Uploaded Consulting Documents
+	uploadedConsultingDocumentCtrl := controllers.NewUploadedConsultingDocumentController(h.db)
+	uploadedConsultingDocuments := apiV1.Group("/uploaded-consulting-documents")
+	{
+		uploadedConsultingDocuments.GET("", uploadedConsultingDocumentCtrl.List)
+		uploadedConsultingDocuments.POST("", uploadedConsultingDocumentCtrl.Upload)
+		uploadedConsultingDocuments.DELETE("/:id", uploadedConsultingDocumentCtrl.Delete)
+		uploadedConsultingDocuments.GET("/:id/download", uploadedConsultingDocumentCtrl.Download)
+	}
+
+	// 16j. Uploaded Performance Reports (Q1, Q2, Q3, Q4, Tahunan)
+	uploadedPerformanceReportCtrl := controllers.NewUploadedPerformanceReportController(h.db)
+	uploadedPerformanceReports := apiV1.Group("/uploaded-performance-reports")
+	{
+		uploadedPerformanceReports.GET("", uploadedPerformanceReportCtrl.List)
+		uploadedPerformanceReports.POST("", uploadedPerformanceReportCtrl.Upload)
+		uploadedPerformanceReports.DELETE("/:id", uploadedPerformanceReportCtrl.Delete)
+		uploadedPerformanceReports.GET("/:id/download", uploadedPerformanceReportCtrl.Download)
+	}
+
 	// 17. Audit Result Reports
 	auditResultReports := apiV1.Group("/audit-result-reports")
 	{
 		auditResultReports.GET("", crud.List(h.db, "AuditResultReport", func() interface{} { return &[]models.AuditResultReport{} }))
+		auditResultReports.GET("/:id/download-docx", h.downloadAuditResultReportDocx)
 		auditResultReports.GET("/:id", crud.GetByID(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 		auditResultReports.POST("", crud.Create(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 		auditResultReports.PUT("/:id", crud.Update(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 		auditResultReports.DELETE("/:id", crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 	}
 
+	// 17c. Auditee Surveys
+	auditeeSurveys := apiV1.Group("/auditee-surveys")
+	{
+		auditeeSurveys.GET("", crud.List(h.db, "AuditeeSurvey", func() interface{} { return &[]models.AuditeeSurvey{} }))
+		auditeeSurveys.GET("/:id", crud.GetByID(h.db, "AuditeeSurvey", func() interface{} { return &models.AuditeeSurvey{} }))
+		auditeeSurveys.POST("", crud.Create(h.db, "AuditeeSurvey", func() interface{} { return &models.AuditeeSurvey{} }))
+		auditeeSurveys.PUT("/:id", crud.Update(h.db, "AuditeeSurvey", func() interface{} { return &models.AuditeeSurvey{} }))
+		auditeeSurveys.DELETE("/:id", crud.Delete(h.db, "AuditeeSurvey", func() interface{} { return &models.AuditeeSurvey{} }))
+	}
+
+	// 17b. Executive Summary Reports
+	executiveSummaries := apiV1.Group("/executive-summaries")
+	{
+		executiveSummaries.GET("", crud.List(h.db, "ExecutiveSummary", func() interface{} { return &[]models.ExecutiveSummary{} }))
+		executiveSummaries.GET("/:id", crud.GetByID(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+		executiveSummaries.POST("", crud.Create(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+		executiveSummaries.PUT("/:id", crud.Update(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+		executiveSummaries.DELETE("/:id", crud.Delete(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+	}
+
 	// 18. Action Taken Reports
 	actionTakenReports := apiV1.Group("/action-taken-reports")
 	{
-		actionTakenReports.GET("", crud.List(h.db, "ActionTakenReport", func() interface{} { return &[]models.ActionTakenReport{} }))
-		actionTakenReports.GET("/:id", crud.GetByID(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
+		actionTakenReports.GET("", crud.List(h.db, "ActionTakenReport", func() interface{} { return &[]models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
+		actionTakenReports.GET("/:id", crud.GetByID(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
 		actionTakenReports.POST("", crud.Create(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
 		actionTakenReports.PUT("/:id", crud.Update(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
 		actionTakenReports.DELETE("/:id", crud.Delete(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
@@ -300,5 +431,173 @@ func (h *RouteHandler) RegisterRoutes() {
 	media := apiV1.Group("/media")
 	{
 		media.POST("/upload", h.registry.Media.Upload)
+		media.GET("/download/:id", h.registry.Media.Download)
 	}
+
+	// 20. Performance routes
+	perfStatsCtrl := controllers.NewPerformanceStatsController(h.db, h.redisClient)
+	performance := apiV1.Group("/performance")
+	{
+		performance.GET("/dashboard-summary", perfStatsCtrl.GetDashboardSummary)
+		performance.GET("/monthly-trends", perfStatsCtrl.GetMonthlyTrends)
+		performance.GET("/kpi-breakdown", perfStatsCtrl.GetKpiBreakdown)
+		performance.GET("/completion-analysis", perfStatsCtrl.GetCompletionAnalysis)
+		performance.GET("/completion-history", perfStatsCtrl.GetCompletionHistory)
+		performance.GET("/export-pdf", perfStatsCtrl.ExportPdfReport)
+
+		performance.GET("/kpi", crud.List(h.db, "KPIAchievement", func() interface{} { return &[]models.KPIAchievement{} }))
+		performance.GET("/kpi/:id", crud.GetByID(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
+		performance.POST("/kpi", crud.Create(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
+		performance.PUT("/kpi/:id", crud.Update(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
+		performance.DELETE("/kpi/:id", crud.Delete(h.db, "KPIAchievement", func() interface{} { return &models.KPIAchievement{} }))
+
+		performance.GET("/realization", crud.List(h.db, "WorkPlanRealization", func() interface{} { return &[]models.WorkPlanRealization{} }))
+		performance.GET("/realization/:id", crud.GetByID(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
+		performance.POST("/realization", crud.Create(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
+		performance.PUT("/realization/:id", crud.Update(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
+		performance.DELETE("/realization/:id", crud.Delete(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
+	}
+}
+
+func (h *RouteHandler) deleteAuditGuideline(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid AuditGuideline ID",
+		})
+		return
+	}
+
+	var guideline models.AuditGuideline
+
+	if err := h.db.First(&guideline, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "Audit guideline not found",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to fetch AuditGuideline",
+		})
+		return
+	}
+
+	err = h.db.Transaction(func(tx *gorm.DB) error {
+		// Soft-delete seluruh SOP/Juknis yang menggunakan Pedoman ini.
+		if err := tx.
+			Where("guideline_id = ?", id).
+			Delete(&models.AuditSop{}).Error; err != nil {
+			return err
+		}
+
+		// Setelah child record berhasil dihapus, soft-delete Pedoman.
+		if err := tx.Delete(&guideline).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to delete AuditGuideline",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "AuditGuideline deleted successfully",
+	})
+}
+
+func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	var report models.AuditResultReport
+	if err := h.db.First(&report, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Audit result report not found"})
+		return
+	}
+
+	// Fetch related entities by AssignmentLetterID
+	var st models.AssignmentLetter
+	if report.AssignmentLetterID != "" {
+		h.db.Where("letter_number = ?", report.AssignmentLetterID).First(&st)
+	}
+
+	var interviews []models.FieldworkInterview
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&interviews)
+	}
+
+	var observations []models.FieldworkObservation
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&observations)
+	}
+
+	var fieldworkDocs []models.FieldworkDocument
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&fieldworkDocs)
+	}
+
+	var fieldworkSamples []models.FieldworkSample
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&fieldworkSamples)
+	}
+
+	var wpHeader models.WorkingPaperHeader
+	if report.AssignmentLetterID != "" {
+		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).First(&wpHeader)
+	}
+
+	var wpRisks []models.WorkingPaperRisk
+	if report.AssignmentLetterID != "" {
+		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpRisks)
+	}
+
+	var wpSamples []models.WorkingPaperSample
+	if report.AssignmentLetterID != "" {
+		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpSamples)
+	}
+
+	var wpCauses []models.WorkingPaperCause
+	if report.AssignmentLetterID != "" {
+		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpCauses)
+	}
+
+	var wpPlans []models.WorkingPaperPlan
+	if report.AssignmentLetterID != "" {
+		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpPlans)
+	}
+
+	var importedWPs []models.ImportedWorkingPaper
+	h.db.Find(&importedWPs)
+
+	docxBytes, err := docxbuilder.GenerateAuditReportDocx(&report, &st, interviews, observations, fieldworkDocs, fieldworkSamples, &wpHeader, wpRisks, wpSamples, wpCauses, wpPlans, importedWPs)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate Docx file", "details": err.Error()})
+		return
+	}
+
+	cleanNum := strings.ReplaceAll(report.ReportNumber, "/", "_")
+	cleanNum = strings.ReplaceAll(cleanNum, " ", "")
+	if cleanNum == "" {
+		cleanNum = "LHA"
+	}
+	filename := fmt.Sprintf("LHA_%s.docx", cleanNum)
+
+	c.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+	c.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", docxBytes)
 }

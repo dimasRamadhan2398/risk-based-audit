@@ -1,13 +1,13 @@
 <template>
-  <UModal v-model:open="store.isFormOpen" :dismissible="false" :ui="{ content: 'sm:max-w-2xl' }">
+  <UModal v-model:open="store.isFormOpen" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
     
     <div></div>
 
     <template #content>
       <UForm :state="store.form" @submit.prevent="() => store.handleSubmit(props.currentRiskId)">
-        <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
           
-          <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center">
+          <div class="px-6 py-4 rounded-t-xl flex justify-between items-center">
             <h3 class="text-lg font-bold text-[var(--text-main)]">
               {{ store.isEditing ? 'Edit Mitigation & Control Plan' : 'Tambah Mitigation & Control Plan' }}
             </h3>
@@ -18,7 +18,7 @@
             
 
             <UFormField label="Mitigation Plan & Controls" required>
-              <UInput v-model="store.form.mitigationPlan" placeholder="Explain the mitigation plan and controls in detail..." class="w-full" required />
+              <UTextarea v-model="store.form.mitigationPlan" :rows="4" autoresize placeholder="Explain the mitigation plan and controls in detail..." class="w-full" required />
             </UFormField>
 
             <UFormField label="Supervisor" required>
@@ -50,11 +50,11 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField label="Start Date" required>
-                    <UInput v-model="store.form.start_date" type="date" icon="i-heroicons-calendar" required />
+                    <AppDatePicker v-model="store.form.start_date" :min-date="todayDate" required />
                 </UFormField>
 
                 <UFormField label="End Date" required>
-                    <UInput v-model="store.form.end_date" type="date" icon="i-heroicons-calendar-days" required />
+                    <AppDatePicker v-model="store.form.end_date" :min-date="minEndDate" required />
                 </UFormField>
             </div>
 
@@ -64,7 +64,7 @@
 
           </div>
       
-          <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end gap-3">
+          <div class="px-6 py-4 rounded-b-xl flex justify-end gap-3">
             <UButton label="Cancel" color="neutral" variant="outline" @click="store.closeForm" />
             <UButton :label="store.isEditing ? 'Save Changes' : 'Save Mitigation'" color="primary" type="submit" />
           </div>
@@ -76,6 +76,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 
 // Menerima Risk ID dari halaman induk agar mitigasi tersambung dengan risiko yang tepat
@@ -84,4 +85,25 @@ const props = defineProps<{
 }>()
 
 const store = useMitigationStore()
+
+// Mendapatkan tanggal hari ini dalam format YYYY-MM-DD untuk batas minimum pemilihan tanggal
+const todayDate = computed(() => {
+  const today = new Date()
+  // Adjust timezone offset to get the correct local date string
+  const offset = today.getTimezoneOffset()
+  const localDate = new Date(today.getTime() - (offset * 60 * 1000))
+  return localDate.toISOString().split('T')[0]
+})
+
+// Menghitung batas minimum untuk End Date (minimal 7 hari setelah Start Date)
+const minEndDate = computed(() => {
+  if (store.form.start_date) {
+    const startDate = new Date(store.form.start_date)
+    startDate.setDate(startDate.getDate() + 7)
+    const offset = startDate.getTimezoneOffset()
+    const localDate = new Date(startDate.getTime() - (offset * 60 * 1000))
+    return localDate.toISOString().split('T')[0]
+  }
+  return todayDate.value
+})
 </script>

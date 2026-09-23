@@ -127,18 +127,18 @@ func (s *VisionMissionGoalsService) Create(ctx *base.BaseService, vmg *models.Vi
 		vmg.Version = "v1.0"
 	}
 
-	// Create the main VMG record
-	if err := s.repo.Create(vmg); err != nil {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to create Vision, Mission & Goals", 500, err)
-	}
-
-	// Create goals if provided
+	// Set VmgID and IDs for goals before creating
+	vmg.ID = uuid.New() // Ensure VMG ID is generated
 	for i := range vmg.Goals {
 		vmg.Goals[i].VmgID = vmg.ID
-		vmg.Goals[i].ID = uuid.New()
-		if err := s.repo.CreateGoal(&vmg.Goals[i]); err != nil {
-			return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to create goal", 500, err)
+		if vmg.Goals[i].ID == uuid.Nil {
+			vmg.Goals[i].ID = uuid.New()
 		}
+	}
+
+	// Create the main VMG record (this also inserts goals via GORM association)
+	if err := s.repo.Create(vmg); err != nil {
+		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to create Vision, Mission & Goals", 500, err)
 	}
 
 	return vmg, nil

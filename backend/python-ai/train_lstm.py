@@ -1,8 +1,7 @@
 import os
-import numpy as np
-
-# Use the CPU only to prevent CUDA segfaults
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+import numpy as np
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential

@@ -1,20 +1,33 @@
 // stores/annual-plan.ts
-import type { TableColumn } from '@nuxt/ui';
+import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
 import { ref, reactive, computed, watch } from 'vue'
 import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
+import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import type { TablePagination } from '~/types/common'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
-
   const showModal = ref(false)
-  const errorMsg = ref("")
-  const progressAudit = ref(50);
+  const errorMsg = ref('')
+  const progressAudit = ref(50)
   const loading = ref(false)
+  const validationErrors = reactive({
+    activityDetail: '',
+    timeline: '',
+    auditor: ''
+  })
+  const toast = useToastNotification()
 
   // Constants
   const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const attachmentCategoryOptions = ['Plan', 'Evidence', 'Charter', 'Other']
-  const open = ref(false)
+  const paginations = ref<TablePagination>({
+    pageSize: 10,
+    currentIndex: 1,
+    totalPages: 1
+  })
 
   const approvalStepperItems = ref([
     {
@@ -38,32 +51,33 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       description: 'System',
       icon: 'i-lucide-check-circle'
     }
-  ]) as any;
+  ]) as any
 
   const handleDownload = (plan: any) => {
-    if (!plan) return;
+    if (!plan) return
 
-    const dataStr = JSON.stringify(plan, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const dataStr = JSON.stringify(plan, null, 2)
+    const blob = new Blob([dataStr], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
 
-    a.href = url;
-    a.download = `${plan.code}-annual-audit-plan.json`;
-    document.body.appendChild(a);
-    a.click();
+    a.href = url
+    a.download = `${plan.code}-annual-audit-plan.json`
+    document.body.appendChild(a)
+    a.click()
 
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  };
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  }
 
-  const columns: TableColumn<AnnualAuditPlan>[] = [
-    { accessorKey: 'activity', header: 'Activity' },
-    { accessorKey: 'department', header: 'Department' },
-    { accessorKey: 'timeline', header: 'Timeline' },
-    { accessorKey: 'progress', header: 'Progress' },
-    { accessorKey: 'status', header: 'Status' },
-    { accessorKey: 'actions', header: 'Actions' },
+  const columns: (TableColumn<AnnualAuditPlan> & { class?: string })[] = [
+    { accessorKey: 'activity', header: 'Activity', class: 'w-44 whitespace-nowrap' },
+    { accessorKey: 'department', header: 'Department', class: 'w-36' },
+    { accessorKey: 'riskName', header: 'Risk Name', class: 'w-52' },
+    { accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'progress', header: 'Progress', class: 'w-36' },
+    { accessorKey: 'status', header: 'Status', class: 'w-20 whitespace-nowrap text-center' },
+    { accessorKey: 'actions', header: 'Actions', class: 'w-36 whitespace-nowrap text-center' }
   ]
 
   const isEditing = ref(false)
@@ -74,21 +88,102 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // --- STATE UNTUK FILTER ---
   const searchCode = ref('')
-  const selectedDepartment = ref<string | undefined>(undefined)
-  const selectedStatus = ref<string | undefined>(undefined)
+  const selectedDepartment = ref<AuditDepartment | undefined>(undefined)
+  const selectedStatus = ref<AnnualAuditPlanStatus | undefined>(undefined)
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
   const yearOptions = ['2026', '2027', '2028', '2029', '2030']
+  const departmentOptions = Object.values(AuditDepartment)
+  const statusOptions = Object.values(AnnualAuditPlanStatus)
+
+  const initialMockPlans: any[] = [
+    {
+      id: 'mock-1',
+      code: 'PKAT-2026-ASR-001',
+      version: 'v1.0',
+      status: AnnualAuditPlanStatus.WORK_IN_PROGRESS,
+      year: '2026',
+      quarters: ['Q1', 'Q2'],
+      selectedMonths: [0, 1, 3, 4],
+      auditorCount: 3,
+      daysPerAuditor: 10,
+      totalMandays: 30,
+      supervisorId: 'S01',
+      supervisorName: 'Budi Santoso (Mgr)',
+      notes: 'Audit operasional TI dan infrastruktur data center',
+      isActive: true,
+      activities: [
+        {
+          name: 'Audit Keamanan Siber & IT Infrastructure',
+          category: AuditCategory.ASSURANCE,
+          department: AuditDepartment.IT,
+          riskName: 'Kelemahan Kontrol Akses & Server Downtime',
+          riskLevel: 'High'
+        }
+      ]
+    },
+    {
+      id: 'mock-2',
+      code: 'PKAT-2026-ASR-002',
+      version: 'v1.0',
+      status: AnnualAuditPlanStatus.DONE,
+      year: '2026',
+      quarters: ['Q2', 'Q3'],
+      selectedMonths: [4, 5, 7],
+      auditorCount: 2,
+      daysPerAuditor: 8,
+      totalMandays: 16,
+      supervisorId: 'S02',
+      supervisorName: 'Siti Aminah (Snr)',
+      notes: 'Audit kepatuhan regulasi OJK & laporan keuangan bulanan',
+      isActive: true,
+      activities: [
+        {
+          name: 'Audit Kepatuhan Keuangan & Pajak',
+          category: AuditCategory.ASSURANCE,
+          department: AuditDepartment.FINANCE,
+          riskName: 'Penyimpangan Rekonsiliasi Bank',
+          riskLevel: 'Medium'
+        }
+      ]
+    }
+  ]
+
+  const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
+    if (!Array.isArray(rawPlans)) return []
+    return rawPlans.map(p => ({
+      ...p,
+      code: p.code || p.plan_code || '',
+      title: p.title || p.plan_title || '',
+      activities: Array.isArray(p.activities)
+        ? p.activities.map((a: any) => ({
+          ...a,
+          name: a.name || a.title || '',
+          category: a.category || AuditCategory.ASSURANCE,
+          department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
+          involvedDepartments: a.involvedDepartments || a.involved_departments || [],
+          timelineText: a.timeline_text || a.timelineText || '',
+          auditorCount: a.auditor_count || a.auditorCount || 1,
+          totalMandays: a.total_mandays || a.totalMandays || 0,
+          supervisorName: a.supervisor_name || a.supervisorName || ''
+        }))
+        : [],
+      selectedMonths: Array.isArray(p.selectedMonths) ? p.selectedMonths : (Array.isArray(p.selected_months) ? p.selected_months : []),
+      quarters: Array.isArray(p.quarters) ? p.quarters : []
+    }))
+  }
+
+  const plans = ref<AnnualAuditPlan[]>(normalizePlans(initialMockPlans))
 
   // --- COMPUTED: FILTER DATA ---
   const filteredPlans = computed(() => {
-    return plans.value.filter(plan => {
-      const matchCode = !searchCode.value ||
-        (plan.code || '').toLowerCase().includes(searchCode.value.toLowerCase()) ||
-        (plan.activities || []).some(act => (act.name || '').toLowerCase().includes(searchCode.value.toLowerCase()))
+    return (plans.value || []).filter((plan) => {
+      const matchCode = !searchCode.value
+        || (plan.code || '').toLowerCase().includes(searchCode.value.toLowerCase())
+        || (plan.activities || []).some(act => (act.name || '').toLowerCase().includes(searchCode.value.toLowerCase()))
 
-      const matchDept = !selectedDepartment.value ||
-        (plan.activities || []).some(act => act.department === selectedDepartment.value)
+      const matchDept = !selectedDepartment.value
+        || (plan.activities || []).some(act => act.department === selectedDepartment.value)
 
       const matchStatus = !selectedStatus.value || plan.status === selectedStatus.value
 
@@ -138,6 +233,15 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       case 'Not Available': return 'bg-gray-400'
       default: return 'bg-gray-200'
     }
+  }
+
+  const getRiskLevelColor = (level?: string) => {
+    if (!level) return 'neutral'
+    const lvl = level.toLowerCase()
+    if (lvl.includes('high')) return 'error'
+    if (lvl.includes('mod') || lvl.includes('medium')) return 'warning'
+    if (lvl.includes('low')) return 'success'
+    return 'neutral'
   }
 
   // State untuk menyimpan ID baris yang sedang "Read More"
@@ -200,7 +304,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const q1Count = form.selectedMonths.filter(m => m <= 2).length
     const totalCount = form.selectedMonths.length
     if (totalCount > 0 && (q1Count / totalCount) > 0.4 && totalCount > 3) {
-      return "Beban kerja Triwulan I terlalu tinggi (>40%). Mohon ratakan jadwal."
+      return 'Beban kerja Triwulan I terlalu tinggi (>40%). Mohon ratakan jadwal.'
     }
     return null
   })
@@ -224,7 +328,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.activities.push({
       name: '',
       category: AuditCategory.ASSURANCE,
-      department: AuditDepartment.IT,
+      department: AuditDepartment.IT
     })
   }
 
@@ -234,9 +338,45 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
+  const getCategoryCode = (category?: string): string => {
+    if (!category) return 'ASR'
+    const cat = category.toLowerCase()
+    if (cat.includes('assurance') && !cat.includes('quality')) return 'ASR'
+    if (cat.includes('special')) return 'SPE'
+    if (cat.includes('specific')) return 'SPR'
+    if (cat.includes('consulting')) return 'CON'
+    if (cat.includes('investigation')) return 'INV'
+    if (cat.includes('quality') || cat.includes('qar')) return 'QAR'
+    if (cat.includes('follow')) return 'FLW'
+    const cleaned = category.replace(/[^a-zA-Z]/g, '')
+    return cleaned.length >= 3 ? cleaned.slice(0, 3).toUpperCase() : 'ASR'
+  }
+
+  const generateAutoCode = () => {
+    if (isEditing.value) return
+
+    const yr = form.year || yearOptions[0] || new Date().getFullYear().toString()
+    const catCode = getCategoryCode(form.activities[0]?.category)
+
+    const seq = (plans.value.length + 1).toString().padStart(3, '0')
+    form.code = `PKAT-${yr}-${catCode}-${seq}`
+  }
+
+  watch(
+    [() => form.year, () => form.activities[0]?.category],
+    () => {
+      if (!isEditing.value && showModal.value) {
+        generateAutoCode()
+      }
+    }
+  )
+
   const openModal = () => {
     isEditing.value = false
     editingId.value = null
+
+    clearValidationErrors()
+    const defaultYear = yearOptions[0] || new Date().getFullYear().toString()
 
     Object.assign(form, {
       code: '',
@@ -258,68 +398,201 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       attachmentCategory: '',
       attachmentUploadedBy: '',
       attachmentUploadDate: '',
-      year: ''
+      year: defaultYear
     })
+
+    generateAutoCode()
     showModal.value = true
   }
 
   const closeModal = () => showModal.value = false
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  const yearlyUniverse = ref<any[]>([])
+
+  const fetchYearlyUniverse = async (year: number) => {
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/audit-universe/year/${year}`)
+      if (response && response.success) {
+        yearlyUniverse.value = response.data
+      }
+    } catch (error) {
+      console.error('Failed to fetch yearly universe for annual plan:', error)
+    }
   }
 
-  const plans = ref<AnnualAuditPlan[]>([])
+  watch(
+    () => filteredPlans.value.length,
+    (total) => {
+      const size = paginations.value.pageSize || 10
+      const pages = Math.ceil(total / size) || 1
+      paginations.value.totalPages = pages
+      if (paginations.value.currentIndex > pages) {
+        paginations.value.currentIndex = Math.max(1, pages)
+      }
+    },
+    { immediate: true }
+  )
 
   const fetchPlans = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/annual-audit-plans`, {
+      const response = await $fetch<Record<string, unknown>>(`${baseUrl}/annual-audit-plans`, {
         method: 'GET'
       })
-      if (response && Array.isArray(response.items)) {
-        plans.value = response.items
-      } else if (Array.isArray(response)) {
-        plans.value = response
+      if (response && response.data && typeof response.data === 'object' && Array.isArray((response.data as Record<string, unknown>).items) && ((response.data as Record<string, unknown>).items as unknown[]).length > 0) {
+        plans.value = normalizePlans((response.data as Record<string, unknown>).items as unknown[])
+      } else if (response && response.data && Array.isArray(response.data) && response.data.length > 0) {
+        plans.value = normalizePlans(response.data)
+      } else if (response && Array.isArray(response.items) && response.items.length > 0) {
+        plans.value = normalizePlans(response.items)
+      } else if (Array.isArray(response) && response.length > 0) {
+        plans.value = normalizePlans(response)
       }
-    } catch (error: any) {
-      console.error('Failed to fetch annual plans:', error)
-      errorMsg.value = 'Gagal mengambil rencana audit tahunan.'
+
+      // Bind and update paginations data after fetching plans
+      const resPagination = response?.pagination as Record<string, unknown> | undefined
+      const totalItems = (resPagination?.total as number | undefined) ?? (response?.total as number | undefined) ?? plans.value.length
+      const pageSize = (resPagination?.pageSize as number | undefined) ?? (resPagination?.page_size as number | undefined) ?? paginations.value.pageSize ?? 10
+      const currentIndex = (resPagination?.currentIndex as number | undefined) ?? (resPagination?.page as number | undefined) ?? paginations.value.currentIndex ?? 1
+      const totalPages = (resPagination?.totalPages as number | undefined) ?? (resPagination?.total_pages as number | undefined) ?? Math.ceil(totalItems / pageSize) ?? 1
+
+      paginations.value = {
+        pageSize,
+        currentIndex,
+        totalPages
+      }
+    } catch (error: unknown) {
+      console.warn('Backend API unavailable, using initial mock annual plans:', error)
+      errorMsg.value = extractErrorMessage(error, 'Gagal memuat rencana audit tahunan.')
+      const totalItems = plans.value.length
+      const pageSize = paginations.value.pageSize || 10
+      paginations.value = {
+        pageSize,
+        currentIndex: 1,
+        totalPages: Math.ceil(totalItems / pageSize) || 1
+      }
     } finally {
       loading.value = false
     }
   }
 
-  const handleSubmit = async () => {
-    if (form.selectedMonths.length === 0) {
-      alert("⚠️ Wajib memilih minimal 1 bulan pelaksanaan.")
-      return
+  const clearValidationErrors = () => {
+    validationErrors.activityDetail = ''
+    validationErrors.timeline = ''
+    validationErrors.auditor = ''
+  }
+
+  const validateForm = () => {
+    clearValidationErrors()
+
+    const activityErrors: string[] = []
+    const timelineErrors: string[] = []
+    const auditorErrors: string[] = []
+
+    // 1. Activity Detail
+    if (!form.code.trim()) {
+      activityErrors.push('Activity Code wajib diisi.')
     }
+
+    if (!form.activities.length) {
+      activityErrors.push('Minimal harus ada 1 aktivitas.')
+    }
+
+    form.activities.forEach((activity, index) => {
+      if (!activity.name?.trim()) {
+        activityErrors.push(
+          `Activity Name pada Sub-Aktivitas ${index + 1} wajib diisi.`
+        )
+      }
+
+      if (!activity.category) {
+        activityErrors.push(
+          `Category pada Sub-Aktivitas ${index + 1} wajib dipilih.`
+        )
+      }
+
+      if (!activity.department) {
+        activityErrors.push(
+          `Department pada Sub-Aktivitas ${index + 1} wajib dipilih.`
+        )
+      }
+
+      if (!activity.riskName?.trim()) {
+        activityErrors.push(
+          `Auditable Entity pada Sub-Aktivitas ${index + 1} wajib dipilih.`
+        )
+      }
+    })
+
+    // 2. Timeline
+    if (!form.year) {
+      timelineErrors.push('Year wajib dipilih.')
+    }
+
+    if (form.selectedMonths.length === 0) {
+      timelineErrors.push('Minimal 1 bulan pelaksanaan wajib dipilih.')
+    }
+
+    // 3. Auditor
+    if (
+      !Number.isInteger(form.auditorCount)
+      || form.auditorCount < 1
+      || form.auditorCount > 10
+    ) {
+      auditorErrors.push('Number of Auditors harus antara 1 sampai 10.')
+    }
+
+    if (
+      !Number.isFinite(form.daysPerAuditor)
+      || form.daysPerAuditor < 1
+    ) {
+      auditorErrors.push('Duration harus minimal 1 hari.')
+    }
+
     if (!form.supervisorId) {
-      alert("⚠️ Wajib memilih Supervisor.")
+      auditorErrors.push('Supervisor wajib dipilih.')
+    }
+
+    validationErrors.activityDetail = activityErrors.join(' ')
+    validationErrors.timeline = timelineErrors.join(' ')
+    validationErrors.auditor = auditorErrors.join(' ')
+
+    return (
+      activityErrors.length === 0
+      && timelineErrors.length === 0
+      && auditorErrors.length === 0
+    )
+  }
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast.showError('⚠️ Mohon lengkapi data pada Activity Detail, Timeline, dan Auditor.')
       return
     }
 
     try {
       if (isEditing.value && editingId.value) {
         await updatePlan(editingId.value, { ...form })
-        alert("Data Rencana Audit Berhasil Diperbarui!")
+        toast.showSuccess('Data Rencana Audit Berhasil Diperbarui!')
       } else {
         await addPlan({ ...form })
-        alert("Data Rencana Audit Berhasil Disimpan!")
+        toast.showSuccess('Data Rencana Audit Berhasil Disimpan!')
       }
+
       closeModal()
     } catch (err: any) {
-      alert("Gagal menyimpan data: " + err.message)
+      toast.showError('Gagal menyimpan data: ' + err.message)
     }
   }
 
   const handleEdit = (plan: any) => {
     isEditing.value = true
     editingId.value = plan.id
+
+    clearValidationErrors()
 
     form.code = plan.code
     form.version = plan.version || 'v1.0'
@@ -345,52 +618,53 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     if (!id) return
     try {
       await deletePlan(id)
+      toast.showSuccess('Data Rencana Audit Berhasil Dihapus!')
       closeViewModal()
     } catch (error) {
-      alert('Gagal menghapus data: ' + error)
+      toast.showError('Gagal menghapus data: ' + error)
     }
   }
 
   const handleFileChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (!file) return;
+    const target = event.target as HTMLInputElement
+    const file = target.files?.[0]
+    if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      errorMsg.value = "File terlalu besar! Maksimal 5MB.";
-      form.file = null;
-      target.value = "";
-      return;
+      errorMsg.value = 'File terlalu besar! Maksimal 5MB.'
+      form.file = null
+      target.value = ''
+      return
     }
 
     const allowedTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
-    ];
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/msword'
+    ]
 
     if (!allowedTypes.includes(file.type)) {
-      errorMsg.value = "Format file tidak valid. Gunakan PDF atau DOCX.";
-      form.file = null;
-      target.value = "";
-      return;
+      errorMsg.value = 'Format file tidak valid. Gunakan PDF atau DOCX.'
+      form.file = null
+      target.value = ''
+      return
     }
 
-    errorMsg.value = "";
-    form.file = [file];
-  };
+    errorMsg.value = ''
+    form.file = [file]
+  }
 
   const supervisors = ref([
     { id: 'S01', name: 'Budi Santoso (Mgr)', workload: 5 },
     { id: 'S02', name: 'Siti Aminah (Snr)', workload: 8 },
-    { id: 'S03', name: 'John Doe (Mgr)', workload: 2 },
+    { id: 'S03', name: 'John Doe (Mgr)', workload: 2 }
   ])
 
   const TEAM_CAPACITY_PER_YEAR = 10 * 220 * 0.7
-  
+
   const calculateQuarters = (months: number[]) => {
     const qSet = new Set<string>()
-    months.forEach(m => {
+    months.forEach((m) => {
       if (m >= 0 && m <= 2) qSet.add('Q1')
       else if (m >= 3 && m <= 5) qSet.add('Q2')
       else if (m >= 6 && m <= 8) qSet.add('Q3')
@@ -410,11 +684,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   }
 
   const checkScheduleGaps = (months: number[]) => {
-    if (months.length === 0) return "Wajib pilih minimal 1 bulan."
+    if (months.length === 0) return 'Wajib pilih minimal 1 bulan.'
     const sorted = [...months].sort((a, b) => a - b)
     for (let i = 0; i < sorted.length - 1; i++) {
       if (sorted[i + 1]! - sorted[i]! > 1) {
-        return "⚠️ Warning: Ada gap bulan kosong. Pastikan continuous coverage jika diperlukan."
+        return '⚠️ Warning: Ada gap bulan kosong. Pastikan continuous coverage jika diperlukan.'
       }
     }
     return null
@@ -441,18 +715,33 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       notes: form.notes,
       year: parseInt(form.year) || 2026,
       attachmentCategory: form.attachmentCategory,
-      attachments: [],
+      attachments: form.file && form.file.length > 0
+        ? form.file.map((f: any) => ({
+          name: f.name,
+          size: Math.round(f.size / 1024) + ' KB',
+          url: '#'
+        }))
+        : [],
       attachmentUploadedBy: form.attachmentUploadedBy,
       attachmentUploadDate: form.attachmentUploadDate,
       isActive: form.isActive
     }
 
     const baseUrl = getAuditServiceBaseUrl()
-    await $fetch(`${baseUrl}/annual-audit-plans`, {
-      method: 'POST',
-      body: payload
-    })
-    await fetchPlans()
+    try {
+      await $fetch(`${baseUrl}/annual-audit-plans`, {
+        method: 'POST',
+        body: payload
+      })
+      toast.showSuccess('Rencana audit tahunan berhasil ditambahkan.')
+      await fetchPlans()
+    } catch (error: any) {
+      console.error('Failed to create annual plan:', error)
+      const detail = extractErrorMessage(error, 'Gagal menambahkan rencana audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal menambahkan rencana audit.', detail)
+      throw error
+    }
   }
 
   const updatePlan = async (id: string, updatedData: AnnualPlanForm) => {
@@ -461,19 +750,37 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
     const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
 
+    const fileList = updatedData.file && updatedData.file.length > 0
+      ? updatedData.file.map((f: any) => ({
+        name: f.name,
+        size: Math.round(f.size / 1024) + ' KB',
+        url: '#'
+      }))
+      : []
+
     const payload = {
       ...updatedData,
       quarters: quarters,
       totalMandays: totalMandays,
       supervisorName: supervisor?.name || 'Unknown',
-      year: parseInt(updatedData.year) || 2026
+      year: parseInt(updatedData.year) || 2026,
+      attachments: (updatedData.attachments || []).concat(fileList)
     }
 
-    await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-      method: 'PUT',
-      body: payload
-    })
-    await fetchPlans()
+    try {
+      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+        method: 'PUT',
+        body: payload
+      })
+      toast.showSuccess('Rencana audit tahunan berhasil diperbarui.')
+      await fetchPlans()
+    } catch (error: any) {
+      console.error('Failed to update annual plan:', error)
+      const detail = extractErrorMessage(error, 'Gagal memperbarui rencana audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui rencana audit.', detail)
+      throw error
+    }
   }
 
   const deletePlan = async (id: string) => {
@@ -481,21 +788,39 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     if (!plan) return
 
     const baseUrl = getAuditServiceBaseUrl()
-    if (plan.isUsed) {
-      // Soft deactivate
-      const payload = { ...plan, isActive: false }
-      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-        method: 'PUT',
-        body: payload
-      })
-    } else {
-      if (confirm('Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?')) {
+    try {
+      if (plan.isUsed) {
+        const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Rencana audit ini sudah digunakan dan tidak dapat dihapus permanen. Apakah Anda ingin menonaktifkannya?' })
+
+        if (!confirmed) return
+
+        const payload = {
+          ...plan,
+          isActive: false
+        }
+
+        await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+          method: 'PUT',
+          body: payload
+        })
+      } else {
+        const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?' })
+
+        if (!confirmed) return
+
         await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
           method: 'DELETE'
         })
       }
+      toast.showSuccess('Rencana audit tahunan berhasil diproses.')
+      await fetchPlans()
+    } catch (error: any) {
+      console.error('Failed to delete annual plan:', error)
+      const detail = extractErrorMessage(error, 'Gagal menghapus rencana audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal menghapus rencana audit.', detail)
+      throw error
     }
-    await fetchPlans()
   }
 
   const createRevision = async (planId: string, changesNote: string, user: string) => {
@@ -525,12 +850,20 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
 
     const baseUrl = getAuditServiceBaseUrl()
-    await $fetch(`${baseUrl}/annual-audit-plans/${planId}`, {
-      method: 'PUT',
-      body: payload
-    })
-    await fetchPlans()
-    alert(`Revised RKAT created (Version ${newVersion}).`)
+    try {
+      await $fetch(`${baseUrl}/annual-audit-plans/${planId}`, {
+        method: 'PUT',
+        body: payload
+      })
+      await fetchPlans()
+      toast.showSuccess(`Revised RKAT created (Version ${newVersion}).`)
+    } catch (error: any) {
+      console.error('Failed to create revision:', error)
+      const detail = extractErrorMessage(error, 'Gagal membuat revisi RKAT.')
+      errorMsg.value = detail
+      toast.showError('Gagal membuat revisi RKAT.', detail)
+      throw error
+    }
   }
 
   const updatePlanStatus = async (id: string, status: AnnualAuditPlanStatus) => {
@@ -539,11 +872,19 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     const baseUrl = getAuditServiceBaseUrl()
     const payload = { ...plan, status: status }
-    await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-      method: 'PUT',
-      body: payload
-    })
-    await fetchPlans()
+    try {
+      await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+        method: 'PUT',
+        body: payload
+      })
+      await fetchPlans()
+    } catch (error: any) {
+      console.error('Failed to update plan status:', error)
+      const detail = extractErrorMessage(error, 'Gagal memperbarui status rencana audit.')
+      errorMsg.value = detail
+      toast.showError('Gagal memperbarui status rencana audit.', detail)
+      throw error
+    }
   }
 
   const handleStaffApprove = async () => {
@@ -590,13 +931,14 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   return {
     plans, supervisors, monthsList, yearOptions, supervisorOptions, attachmentCategoryOptions,
     showModal, isEditing, editingId, showViewModal, selectedPlan, progressAudit, approvalStepperItems,
-    searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading,
+    searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading, validationErrors,
     filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
-    computedQuarters,
-    clearFilters, openViewModal, closeViewModal, toggleMonth, addActivity, removeActivity, handleDownload,
+    computedQuarters, paginations, pagination: paginations,
+    clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
+    toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
-    getStatusColor, handleFileChange, fetchPlans,
+    getStatusColor, handleFileChange, fetchPlans, generateAutoCode, getCategoryCode,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
-    createRevision
+    createRevision, getRiskLevelColor, yearlyUniverse, fetchYearlyUniverse
   }
 })

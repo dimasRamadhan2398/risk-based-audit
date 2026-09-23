@@ -3,146 +3,127 @@
     <!-- Header with Add Button -->
     <div class="flex justify-between items-center p-4">
       <div>
-        <h2 class="text-lg font-semibold">Interview List</h2>
-        <p class="text-sm text-gray-500">Manage interview list with interviewees and interviewers</p>
+        <p class="text-sm text-gray-500">{{ t('auditFieldwork.interview.subtitle') }}</p>
+        <h2 class="text-lg font-semibold">{{ t('auditFieldwork.interview.title') }}</h2>
       </div>
+      <UButton color="primary" icon="i-heroicons-plus" label="Add Interview" @click="store.openInterviewModal()" />
     </div>
 
-    <!-- Interview List -->
-    <UCard v-if="store.interviews.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.interviews" :columns="columns">
-        <template #interviewee-cell="{ row }">
-          <div>
-            <p class="font-medium">{{ row.original.interviewee }}</p>
-            <p class="text-xs text-gray-500">{{ row.original.intervieweePosition }}</p>
-          </div>
-        </template>
-        <template #interviewer-cell="{ row }">
-          <div>
-            <p class="font-medium">{{ row.original.interviewer }}</p>
-            <p class="text-xs text-gray-500">{{ row.original.interviewerPosition }}</p>
-          </div>
-        </template>
-        <template #topic-cell="{ row }">
-          <UBadge color="primary" variant="subtle">{{ row.original.topic }}</UBadge>
-        </template>
-        <template #file-cell="{ row }">
-          <UButton v-if="row.original.file" icon="i-heroicons-document-arrow-down" color="neutral" variant="ghost" size="sm">
-            {{ row.original.file.name }}
+    <!-- Interview List via TableEntities -->
+    <TableEntities
+      :data="store.interviews"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-microphone',
+        label: t('auditFieldwork.interview.empty')
+      }"
+      class="w-full"
+    >
+      <template #interviewee-cell="{ row }">
+        <div>
+          <p class="font-semibold text-[var(--text-main)]">{{ row.original.interviewee }}</p>
+          <p class="text-xs text-[var(--text-muted)]">{{ row.original.intervieweePosition }}</p>
+        </div>
+      </template>
+      <template #interviewer-cell="{ row }">
+        <div>
+          <p class="font-semibold text-[var(--text-main)]">{{ row.original.interviewer }}</p>
+          <p class="text-xs text-[var(--text-muted)]">{{ row.original.interviewerPosition }}</p>
+        </div>
+      </template>
+      <template #date-cell="{ row }">
+        <span class="text-sm text-[var(--text-main)]">{{ formatDate(row.original.date) }}</span>
+      </template>
+      <template #topic-cell="{ row }">
+        <div
+          class="line-clamp-2 overflow-hidden max-w-xs"
+          :title="row.original.topic"
+        >
+          <UBadge color="primary" variant="subtle" class="font-medium whitespace-normal break-words">
+            {{ row.original.topic }}
+          </UBadge>
+        </div>
+      </template>
+      <template #file-cell="{ row }">
+        <div v-if="row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath" class="flex items-center gap-1">
+          <UButton
+            icon="i-heroicons-document-text"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            class="max-w-[180px] truncate"
+            :title="row.original.fileName || row.original.file?.name"
+            @click="store.previewInterviewFile(row.original)"
+          >
+            <span class="truncate">{{ row.original.fileName || row.original.file?.name }}</span>
           </UButton>
-          <span v-else class="text-gray-400 text-sm">-</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editInterview(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteInterview(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
+          <UTooltip text="Unduh Berkas">
+            <UButton
+              icon="i-heroicons-arrow-down-tray"
+              color="primary"
+              variant="ghost"
+              size="xs"
+              @click="store.downloadInterviewFile(row.original)"
+            />
+          </UTooltip>
+        </div>
+        <span v-else class="text-gray-400 text-sm">-</span>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center justify-center gap-1">
+          <UTooltip :text="t('common.actions.view') || 'Detail'">
+            <UButton
+              icon="i-heroicons-eye"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="store.viewInterview(row.original)"
+            />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+            <UButton
+              icon="i-heroicons-pencil-square"
+              color="primary"
+              variant="ghost"
+              size="sm"
+              @click="store.editInterview(row.original)"
+            />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+            <UButton
+              icon="i-heroicons-trash"
+              color="error"
+              variant="ghost"
+              size="sm"
+              @click="store.deleteInterview(row.index)"
+            />
+          </UTooltip>
+        </div>
+      </template>
+    </TableEntities>
 
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-microphone" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">No interview data yet</p>
-      <UButton color="primary" variant="soft" class="mt-2" label="Add First Interview" @click="store.openInterviewModal()" />
-    </div>
-
-    <!-- Interview Modal -->
-    <Teleport to="body">
-      <div v-if="store.showInterviewModal" class="fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingInterview ? 'Edit Interview' : 'Add New Interview' }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showInterviewModal = false" />
-            </div>
-          </template>
-
-          <UForm @submit.prevent="store.saveInterview()" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Interviewee" required>
-                <USelectMenu
-                  v-model="store.interviewForm.interviewee"
-                  :items="store.memberOptions"
-                  value-key="value"
-                  placeholder="Select Auditee"
-                  :disabled="!store.hasSelectedAssignmentLetter"
-                  class="w-full"
-                  required
-                />
-              </UFormField>
-              <UFormField label="Interviewee Position" required>
-                <USelectMenu v-model="store.interviewForm.intervieweePosition" :items="store.options.positions" placeholder="Select Auditee Position" required class="w-full" />
-              </UFormField>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Interviewer" required>
-                <USelectMenu
-                  v-model="store.interviewForm.interviewer"
-                  :items="store.memberOptions"
-                  value-key="value"
-                  placeholder="Select Interviewer"
-                  :disabled="!store.hasSelectedAssignmentLetter"
-                  class="w-full"
-                  required
-                />
-              </UFormField>
-              <UFormField label="Interviewer Position" required>
-                <USelectMenu v-model="store.interviewForm.interviewerPosition" :items="store.options.positions" placeholder="Select Interviewer Position" required class="w-full" />
-              </UFormField>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Interview Date" required>
-                <UInput v-model="store.interviewForm.date" type="date" required class="w-full"/>
-              </UFormField>
-              <UFormField label="Interview Topic" required>
-                <USelectMenu v-model="store.interviewForm.topic" :items="store.options.auditTopics" placeholder="Select Interview Topic" required class="w-full" />
-              </UFormField>
-            </div>
-
-            <UFormField label="Upload File (PDF/DOCX)">
-              <UInput
-                type="file"
-                icon="i-heroicons-paper-clip"
-                @change="store.handleInterviewFileChange"
-                accept=".pdf,.docx,.doc"
-                class="w-full"
-              />
-              <div v-if="store.interviewForm.file" class="mt-2 flex items-center gap-2">
-                <UIcon name="i-heroicons-document" />
-                <span class="font-bold text-sm">{{ store.interviewForm.file.name }}</span>
-              </div>
-            </UFormField>
-          </UForm>
-
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showInterviewModal = false" />
-              <UButton color="primary" :label="store.isEditingInterview ? 'Update' : 'Submit'" @click="store.saveInterview()" />
-            </div>
-          </template>
-        </UCard>
-      </div>
-    </Teleport>
+    <!-- Interview Modal (View / Add / Edit) -->
+    <AuditFieldworkInterviewModal />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useI18n } from '~/composables/useI18n'
+import TableEntities from '~/components/shared/TableEntities.vue'
+import { formatDate } from '~/utils/dateConverter'
+import AuditFieldworkInterviewModal from '~/components/audit-fieldwork/AuditFieldworkInterviewModal.vue'
 
 const store = useAuditFieldworkStore()
+const { t } = useI18n()
 
-const columns = [
-  { accessorKey: 'interviewee', header: 'Interviewee' },
-  { accessorKey: 'intervieweePosition', header: 'Interviewee Position' },
-  { accessorKey: 'interviewer', header: 'Interviewer' },
-  { accessorKey: 'interviewerPosition', header: 'Interviewer Position' },
-  { accessorKey: 'date', header: 'Date' },
-  { accessorKey: 'topic', header: 'Topic' },
-  { accessorKey: 'file', header: 'File' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'interviewee', header: t('auditFieldwork.interview.columns.interviewee'), class: 'w-52 min-w-[180px]' },
+  { accessorKey: 'interviewer', header: t('auditFieldwork.interview.columns.interviewer'), class: 'w-52 min-w-[180px]' },
+  { accessorKey: 'date', header: t('auditFieldwork.interview.columns.date'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  { accessorKey: 'topic', header: t('auditFieldwork.interview.columns.topic'), class: 'w-64 min-w-[180px] max-w-xs' },
+  { accessorKey: 'file', header: t('auditFieldwork.interview.columns.file'), class: 'w-48 min-w-[100px]' },
+  { accessorKey: 'actions', header: t('auditFieldwork.interview.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
+])
 </script>

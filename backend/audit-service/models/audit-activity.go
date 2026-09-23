@@ -12,6 +12,7 @@ type PlannedActivity struct {
 	AuditName         string `json:"auditName"`
 	Auditee           string `json:"auditee"`
 	Category          string `json:"category"`
+	RiskName          string `json:"riskName"`
 	RiskLevel         string `json:"riskLevel"`
 	Duration          int    `json:"duration"`
 	Priority          string `json:"priority"`
@@ -44,22 +45,26 @@ type PlanReview struct {
 }
 
 type ActivityPlan struct {
-	ID                uuid.UUID         `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	PlanTitle         string            `gorm:"type:varchar(255)" json:"planTitle"`
-	PlanYear          string            `gorm:"type:varchar(50)" json:"planYear"`
-	PlanPeriodStart   string            `gorm:"type:varchar(100)" json:"planPeriodStart"`
-	PlanPeriodEnd     string            `gorm:"type:varchar(100)" json:"planPeriodEnd"`
-	Department        string            `gorm:"type:varchar(255)" json:"department"`
-	CreatedBy         string            `gorm:"type:varchar(255)" json:"createdBy"`
-	CreationDate      string            `gorm:"type:varchar(100)" json:"creationDate"`
-	PlannedActivities []PlannedActivity `gorm:"serializer:json" json:"plannedActivities"`
-	ResourceAuditors  []ResourceAuditor `gorm:"serializer:json" json:"resourceAuditors"`
-	Budget            PlanBudget        `gorm:"serializer:json" json:"budget"`
-	Review            PlanReview        `gorm:"serializer:json" json:"review"`
-	Status            string            `gorm:"type:varchar(50);default:'PLANNED'" json:"status"`
-	CreatedAt         time.Time         `json:"created_at"`
-	UpdatedAt         time.Time         `json:"updated_at"`
-	DeletedAt         gorm.DeletedAt    `gorm:"index" json:"-"`
+	ID                   uuid.UUID                `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	PlanTitle            string                   `gorm:"type:varchar(255)" json:"planTitle"`
+	PlanYear             string                   `gorm:"type:varchar(50)" json:"planYear"`
+	PlanPeriodStart      string                   `gorm:"type:varchar(100)" json:"planPeriodStart"`
+	PlanPeriodEnd        string                   `gorm:"type:varchar(100)" json:"planPeriodEnd"`
+	Department           string                   `gorm:"type:varchar(255)" json:"department"`
+	CreatedBy            string                   `gorm:"type:varchar(255)" json:"createdBy"`
+	CreationDate         string                   `gorm:"type:varchar(100)" json:"creationDate"`
+	PlannedActivities    []PlannedActivity        `gorm:"serializer:json" json:"plannedActivities"`
+	ResourceAuditors     []ResourceAuditor        `gorm:"serializer:json" json:"resourceAuditors"`
+	Budget               PlanBudget               `gorm:"serializer:json" json:"budget"`
+	Review               PlanReview               `gorm:"serializer:json" json:"review"`
+	Status               string                   `gorm:"type:varchar(50);default:'PLANNED'" json:"status"`
+	AttachmentCategory   string                   `gorm:"type:varchar(100)" json:"attachmentCategory"`
+	Attachments          []AnnualAuditAttachment  `gorm:"serializer:json" json:"attachments"`
+	AttachmentUploadedBy string                   `gorm:"type:varchar(255)" json:"attachmentUploadedBy"`
+	AttachmentUploadDate string                   `gorm:"type:varchar(100)" json:"attachmentUploadDate"`
+	CreatedAt            time.Time                `json:"created_at"`
+	UpdatedAt            time.Time                `json:"updated_at"`
+	DeletedAt            gorm.DeletedAt           `gorm:"index" json:"-"`
 }
 
 func (ActivityPlan) TableName() string {

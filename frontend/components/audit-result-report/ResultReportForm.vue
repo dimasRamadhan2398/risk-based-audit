@@ -1,11 +1,21 @@
 <template>
-  <UModal v-model:open="store.showModal" dismissible class="w-full sm:max-w-2xl">
+  <UModal 
+    v-model:open="store.showModal" 
+    dismissible 
+    :ui="{
+      content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+      body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+      footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+    }"
+  >
     <template #content>
       <div class="flex flex-col h-full max-h-[90vh]">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center">
+        <div class="px-6 py-4 border-b border-gray-200 rounded-t-xl flex justify-between items-center">
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-primary-100 rounded-lg">
+            <div class="p-2 rounded-lg">
               <UIcon name="i-heroicons-document-text" class="text-primary-600 size-6" />
             </div>
             <h3 class="text-lg font-bold text-gray-900">
@@ -29,24 +39,23 @@
                   v-model="store.reportForm.reportTitle"
                   placeholder="e.g. Audit Report - Financial Operations 2026"
                   class="w-full"
+                  maxlength="100"
+                  @invalid="($event.target as any)?.setCustomValidity('Report Title maksimal 255 karakter dan wajib diisi')"
+                  @input="($event.target as any)?.setCustomValidity('')"
                 />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ store.reportForm.reportTitle ? store.reportForm.reportTitle.length : 0 }}/100
+                </div>
               </UFormField>
 
               <UFormField label="Report Date" name="reportDate" required>
-                <UInput
+                <AppDatePicker
                   v-model="store.reportForm.reportDate"
-                  type="date"
                   class="w-full"
                 />
               </UFormField>
 
-              <UFormField label="Overall Rating" name="overallRating" required>
-                <USelectMenu
-                  v-model="store.reportForm.overallRating"
-                  :items="['Satisfactory', 'Needs Improvement', 'Unsatisfactory']"
-                  class="w-full"
-                />
-              </UFormField>
+
 
               <UFormField label="Findings Count" name="findingsCount">
                 <UInput
@@ -64,14 +73,76 @@
                 />
               </UFormField>
 
-              <UFormField label="Executive Summary" name="executiveSummary" class="md:col-span-2">
-                <UTextarea
-                  v-model="store.reportForm.executiveSummary"
-                  placeholder="Provide a high-level summary of the audit results..."
-                  :rows="6"
-                  class="w-full"
-                />
-              </UFormField>
+              <!-- Findings List Editor -->
+              <div class="md:col-span-2 space-y-4 pt-4 border-t border-gray-100">
+                <div class="flex justify-between items-center">
+                  <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+                    <UIcon name="i-heroicons-list-bullet" class="text-primary-600" />
+                    Findings
+                  </h4>
+                  <UButton
+                    label="Add Finding"
+                    size="md"
+                    color="primary"
+                    variant="soft"
+                    icon="i-heroicons-plus"
+                    @click="() => { if (!store.reportForm.findings) store.reportForm.findings = []; store.reportForm.findings.push({ title: '', category: 'Significant', action: '' }) }"
+                  />
+                </div>
+                
+                <div class="space-y-3">
+                  <div
+                    v-for="(finding, idx) in store.reportForm.findings"
+                    :key="idx"
+                    class="flex items-start gap-3 bg-slate-50 dark:bg-slate-850 p-3 rounded-lg border border-slate-100 dark:border-slate-800"
+                  >
+                    <div class="flex-1 space-y-2">
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <UFormField label="Category" size="sm" class="md:col-span-1">
+                          <USelectMenu
+                            v-model="finding.category"
+                            :items="['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']"
+                            class="w-full"
+                          />
+                        </UFormField>
+                        <UFormField label="Finding Description / Title" size="sm" class="md:col-span-1">
+                          <UInput
+                            v-model="finding.title"
+                            placeholder="e.g. Keterlambatan rekonsiliasi kas harian"
+                            required
+                            class="w-full"
+                            maxlength="100"
+                            @invalid="($event.target as any)?.setCustomValidity('Bukti TL maksimal 100 karakter dan wajib diisi')"
+                            @input="($event.target as any)?.setCustomValidity('')"
+                          />
+                          <div class="text-xs text-gray-500 mt-1 text-right">
+                            {{ finding.title ? finding.title.length : 0 }}/100
+                          </div>
+                        </UFormField>
+                        <UFormField label="Action / Tindak Lanjut" size="sm" class="md:col-span-2">
+                          <UTextarea
+                            v-model="finding.action"
+                            placeholder="e.g. Evaluasi SOP dan pelatihan ulang"
+                            :rows="2"
+                            class="w-full"
+                          />
+                        </UFormField>
+                      </div>
+                    </div>
+                    <UButton
+                      color="error"
+                      variant="ghost"
+                      icon="i-heroicons-trash"
+                      size="sm"
+                      class="mt-6"
+                      @click="() => { store.reportForm.findings.splice(idx, 1) }"
+                    />
+                  </div>
+                  <div v-if="!store.reportForm.findings || store.reportForm.findings.length === 0" class="text-center py-4 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 text-md text-slate-400">
+                    No findings added yet. Click "Add Finding" to list significant findings.
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Footer Actions -->

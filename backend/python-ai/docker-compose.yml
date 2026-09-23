@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_python_ai
     ports:
+      - "8000:8000"
       - "8005:8000"
     environment:
       - PYTHONUNBUFFERED=1

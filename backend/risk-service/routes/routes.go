@@ -9,9 +9,12 @@ import (
 )
 
 type RiskRoute struct {
-	riskCtrl       *controllers.RiskController
-	mitigationCtrl *controllers.MitigationController
-	group          *gin.RouterGroup
+	riskCtrl          *controllers.RiskController
+	mitigationCtrl    *controllers.MitigationController
+	riskFactorCtrl    *controllers.RiskFactorController
+	auditUniverseCtrl *controllers.AuditUniverseController
+	rcmCtrl           *controllers.RCMController
+	group             *gin.RouterGroup
 }
 
 type IRiskRoute interface {
@@ -21,12 +24,18 @@ type IRiskRoute interface {
 func NewRiskRoute(
 	riskCtrl *controllers.RiskController,
 	mitigationCtrl *controllers.MitigationController,
+	riskFactorCtrl *controllers.RiskFactorController,
+	auditUniverseCtrl *controllers.AuditUniverseController,
+	rcmCtrl *controllers.RCMController,
 	group *gin.RouterGroup,
 ) IRiskRoute {
 	return &RiskRoute{
-		riskCtrl:       riskCtrl,
-		mitigationCtrl: mitigationCtrl,
-		group:          group,
+		riskCtrl:          riskCtrl,
+		mitigationCtrl:    mitigationCtrl,
+		riskFactorCtrl:    riskFactorCtrl,
+		auditUniverseCtrl: auditUniverseCtrl,
+		rcmCtrl:           rcmCtrl,
+		group:             group,
 	}
 }
 
@@ -62,5 +71,27 @@ func (r *RiskRoute) Run() {
 		apiV1.POST("/mitigations", r.mitigationCtrl.CreateMitigation)
 		apiV1.PUT("/mitigations/:id", r.mitigationCtrl.UpdateMitigation)
 		apiV1.DELETE("/mitigations/:id", r.mitigationCtrl.DeleteMitigation)
+
+		// New routes for Risk Factors
+		apiV1.GET("/risk-factors/standard", r.riskFactorCtrl.ListStandardRiskFactors)
+		apiV1.GET("/risk-factors/corporate", r.riskFactorCtrl.ListCorporateRiskFactors)
+		apiV1.POST("/risk-factors/corporate", r.riskFactorCtrl.UpdateCorporateRiskFactors)
+
+		// New routes for Audit Universe
+		apiV1.GET("/audit-universe/standard", r.auditUniverseCtrl.ListStandardAuditUniverse)
+		apiV1.GET("/audit-universe/corporate", r.auditUniverseCtrl.ListCorporateAuditUniverse)
+		apiV1.POST("/audit-universe/corporate", r.auditUniverseCtrl.CreateOrUpdateCorporateNode)
+		apiV1.DELETE("/audit-universe/corporate/:id", r.auditUniverseCtrl.DeleteCorporateNode)
+
+		apiV1.GET("/audit-universe/year/:year", r.auditUniverseCtrl.ListYearlyAuditUniverse)
+		apiV1.POST("/audit-universe/year/:year", r.auditUniverseCtrl.EstablishYearlyUniverse)
+		apiV1.POST("/audit-universe/year/:year/score", r.auditUniverseCtrl.ScoreYearlyEntity)
+
+		// Routes for Risk Control Matrix (RCM)
+		apiV1.GET("/rcm", r.rcmCtrl.ListRCM)
+		apiV1.POST("/rcm", r.rcmCtrl.CreateRCM)
+		apiV1.PUT("/rcm/:id", r.rcmCtrl.UpdateRCM)
+		apiV1.DELETE("/rcm/:id", r.rcmCtrl.DeleteRCM)
+		apiV1.GET("/rcm/summary", r.rcmCtrl.GetRCMSummary)
 	}
 }

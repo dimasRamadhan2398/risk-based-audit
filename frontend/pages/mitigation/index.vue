@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-7xl mx-auto space-y-6">
+  <div class="p-6 max-w-full mx-auto space-y-6">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
       <div>

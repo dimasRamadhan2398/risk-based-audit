@@ -99,11 +99,11 @@ export const calculateRiskLevel = (
   impact: ImpactLevel,
   possibility: PossibilityLevel
 ): RiskLevel => {
-  const score = Number(impact) * Number(possibility)
+  const score = 2 * Number(impact) + Number(possibility)
 
-  if (score <= 4) return RiskLevel.LOW
-  if (score <= 8) return RiskLevel.LOW_MODERATE
-  if (score <= 12) return RiskLevel.MODERATE
-  if (score <= 16) return RiskLevel.MODERATE_HIGH
+  if (score <= 5) return RiskLevel.LOW
+  if (score <= 7) return RiskLevel.LOW_MODERATE
+  if (score <= 9) return RiskLevel.MODERATE
+  if (score <= 11) return RiskLevel.MODERATE_HIGH
   return RiskLevel.HIGH
 }

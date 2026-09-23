@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -9,6 +10,7 @@ import (
 	ctrlCharter "audit-service/controllers/audit_charter"
 	ctrlMandate "audit-service/controllers/audit_mandate"
 	ctrlMedia "audit-service/controllers/media"
+	"audit-service/models"
 	"audit-service/pkg/database"
 	"audit-service/pkg/logger"
 	"audit-service/pkg/media"
@@ -19,6 +21,7 @@ import (
 	svcActivity "audit-service/services/audit_activity"
 	svcAssignment "audit-service/services/audit_assignment"
 	svcCharter "audit-service/services/audit_charter"
+	svcCompletion "audit-service/services/audit_completion"
 	svcMandate "audit-service/services/audit_mandate"
 	svcMedia "audit-service/services/media"
 
@@ -55,6 +58,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	defer logger.Sync()
 
 	logger.Info("Starting Audit Service", logger.LogField("port", cfg.Server.Port))
+	fmt.Printf("GDrive Enabled Config Value: %v\n", cfg.GDrive.Enabled)
 
 	// Set Gin mode
 	if cfg.Server.Mode == "release" {
@@ -70,6 +74,28 @@ func runServe(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Auto-migrate uploaded document tables and analyzer snapshot on startup
+	_ = db.AutoMigrate(
+		&models.UploadedPlanDocument{},
+		&models.UploadedAnnualPlan{},
+		&models.UploadedAssignmentLetter{},
+		&models.UploadedAuditResultReport{},
+		&models.UploadedExecutiveSummary{},
+		&models.UploadedExecutiveSummaryReport{},
+		&models.UploadedConsultingDocument{},
+		&models.UploadedPerformanceReport{},
+		&models.ImportedWorkingPaper{},
+		&models.AuditCompletionSnapshot{},
+		&models.WorkingPaperHeader{},
+		&models.WorkingPaperRisk{},
+		&models.WorkingPaperSample{},
+		&models.WorkingPaperCause{},
+		&models.WorkingPaperPlan{},
+		&models.FieldworkInterview{},
+		&models.FieldworkObservation{},
+		&models.FieldworkDocument{},
+	)
+
 	// Initialize Redis
 	redisClient, err := redis.NewRedisConnection(&cfg.Redis)
 	if err != nil {
@@ -78,6 +104,15 @@ func runServe(cmd *cobra.Command, args []string) error {
 	if redisClient != nil {
 		defer redisClient.Close()
 	}
+
+	// Start the Audit Completion Analyzer background goroutine.
+	// It runs every 5 minutes, caches results in Redis, and persists
+	// snapshots for historical trending.
+	analyzerCtx, cancelAnalyzer := context.WithCancel(context.Background())
+	defer cancelAnalyzer()
+	completionAnalyzer := svcCompletion.NewAuditCompletionAnalyzer(db, redisClient)
+	go completionAnalyzer.Start(analyzerCtx)
+	logger.Info("[AuditCompletionAnalyzer] Background goroutine launched")
 
 	// Initialize base repository
 	baseRepo := repositories.NewBaseRepository(db)
@@ -99,8 +134,8 @@ func runServe(cmd *cobra.Command, args []string) error {
 		}
 		logger.Info("Using Google Drive as media provider")
 	} else {
-		mediaProvider = media.NewImageKitProvider(&cfg.ImageKit)
-		logger.Info("Using ImageKit as media provider")
+		mediaProvider = media.NewLocalProvider()
+		logger.Info("Using Local Dummy Provider as media provider")
 	}
 
 	// Initialize services
@@ -125,6 +160,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	routeRegistry.SetAuditActivityController(auditActivityCtrl)
 	routeRegistry.SetMediaController(mediaCtrl)
 
+
 	// Initialize middleware
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
 
@@ -135,6 +171,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 	engine.Use(gin.Recovery())
 	engine.Use(middleware.CORSMiddleware())
 	engine.Use(middleware.LoggerMiddleware())
+
+	// Serve static uploads
+	engine.Static("/uploads", "./uploads")
 
 	// Health check endpoint
 	engine.GET("/health", func(c *gin.Context) {
@@ -155,7 +194,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Initialize route handler
-	routeHandler := routes.NewRouteHandler(engine, authMiddleware, db)
+	routeHandler := routes.NewRouteHandler(engine, authMiddleware, db, redisClient)
 	routeHandler.SetRegistry(routeRegistry)
 	routeHandler.RegisterRoutes()
 

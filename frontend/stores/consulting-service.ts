@@ -1,0 +1,362 @@
+import { defineStore } from 'pinia'
+import { ref, reactive, computed } from 'vue'
+import { extractErrorMessage } from '~/utils/error'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+
+export interface ConsultingAttachment {
+  name: string
+  size: string
+  uploadedAt: string
+}
+
+export interface ConsultingService {
+  id: string
+  title: string
+  category: string
+  requestorDept: string
+  period: string
+  consultantName: string
+  status: string
+  notes?: string
+  attachment?: ConsultingAttachment
+  created_at?: string
+  updated_at?: string
+}
+
+export const useConsultingServiceStore = defineStore('consulting-service', () => {
+  const services = ref<ConsultingService[]>([])
+  const loading = ref(false)
+  const errorMsg = ref('')
+  const toast = useToastNotification()
+
+  const isFormOpen = ref(false)
+  const isDetailOpen = ref(false)
+  const isImportOpen = ref(false)
+  const isEditing = ref(false)
+  const selectedService = ref<ConsultingService | null>(null)
+
+  const categories = ['Operational Advisory', 'IT Advisory', 'Training & Workshops', 'Policy & SOP Review', 'Governance Assessment']
+  const statuses = ['Planned', 'In Progress', 'Completed', 'Cancelled']
+  const departments = ['IT', 'Finance', 'HR', 'Ops', 'Procurement', 'Legal', 'Sales']
+  const quarters = ['Q1', 'Q2', 'Q3', 'Q4']
+  const years = ['2024', '2025', '2026', '2027']
+
+  const newService = reactive({
+    title: '',
+    category: 'Operational Advisory',
+    requestorDept: 'IT',
+    periodQuarter: 'Q1',
+    periodYear: '2026',
+    consultantName: '',
+    status: 'Planned',
+    notes: '',
+    attachment: null as File | null | undefined
+  })
+
+  const resetForm = () => {
+    Object.assign(newService, {
+      title: '',
+      category: 'Operational Advisory',
+      requestorDept: 'IT',
+      periodQuarter: 'Q1',
+      periodYear: '2026',
+      consultantName: '',
+      status: 'Planned',
+      notes: '',
+      attachment: null
+    })
+  }
+
+  const getMasterServiceBaseUrl = () => {
+    return getAuditServiceBaseUrl()
+  }
+
+  const mockServices: ConsultingService[] = [
+    {
+      id: 'CS-001',
+      title: 'Review & Assessment SOP Procurement & Purchasing',
+      category: 'Policy & SOP Review',
+      requestorDept: 'Procurement',
+      period: 'Q1 2026',
+      consultantName: 'Budi Hartanto',
+      status: 'Completed',
+      notes: 'Rekomendasi perbaikan kontrol persetujuan pembelian di atas Rp 100jt telah disetujui.',
+      attachment: {
+        name: 'SOP_Procurement_Review_Report.pdf',
+        size: '1.2 MB',
+        uploadedAt: '2026-03-10'
+      }
+    },
+    {
+      id: 'CS-002',
+      title: 'IT Security Governance Assessment & Training',
+      category: 'IT Advisory',
+      requestorDept: 'IT',
+      period: 'Q2 2026',
+      consultantName: 'Wahyu Hidayat',
+      status: 'In Progress',
+      notes: 'Melakukan review celah keamanan dan melatih staf IT tentang standar ISO 27001.',
+      attachment: {
+        name: 'IT_Security_Audit_Scope.pdf',
+        size: '850 KB',
+        uploadedAt: '2026-05-18'
+      }
+    },
+    {
+      id: 'CS-003',
+      title: 'Corporate Governance & Compliance Assessment',
+      category: 'Governance Assessment',
+      requestorDept: 'Legal',
+      period: 'Q3 2026',
+      consultantName: 'Carolina Wijaya',
+      status: 'Planned',
+      notes: 'Asesmen keselarasan kebijakan internal perusahaan terhadap regulasi POJK terbaru.'
+    }
+  ]
+
+  const fetchServices = async () => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const data: any = await $fetch(`${baseUrl}/consulting-services`)
+      if (Array.isArray(data) && data.length > 0) {
+        services.value = data
+      } else {
+        services.value = [...mockServices]
+      }
+    } catch (error) {
+      console.error('Failed to fetch consulting services, falling back to mock:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to load consulting services.')
+      services.value = [...mockServices]
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = error => reject(error)
+  })
+
+  const saveService = async () => {
+    if (!newService.title || !newService.consultantName) {
+      errorMsg.value = 'Title and Consultant Name are required.'
+      return
+    }
+    loading.value = true
+    errorMsg.value = ''
+
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      if (isEditing.value && selectedService.value) {
+        const payload = {
+          title: newService.title,
+          category: newService.category,
+          requestorDept: newService.requestorDept,
+          period: `${newService.periodQuarter} ${newService.periodYear}`.trim(),
+          consultantName: newService.consultantName,
+          status: newService.status,
+          notes: newService.notes,
+          attachment: newService.attachment && !(newService.attachment instanceof File)
+            ? newService.attachment
+            : selectedService.value?.attachment
+        }
+        await $fetch(`${baseUrl}/consulting-services/${selectedService.value.id}`, {
+          method: 'PUT',
+          body: payload
+        })
+        if (newService.attachment instanceof File) {
+          toast.showError('Warning: Update file pada edit belum didukung oleh server backend.')
+        }
+      } else {
+        if (newService.attachment && newService.attachment instanceof File) {
+          const base64 = await toBase64(newService.attachment)
+          const importPayload = {
+            title: newService.title,
+            category: newService.category,
+            requestorDept: newService.requestorDept,
+            period: `${newService.periodQuarter} ${newService.periodYear}`.trim(),
+            consultantName: newService.consultantName,
+            status: newService.status,
+            notes: newService.notes,
+            fileName: newService.attachment.name,
+            fileType: newService.attachment.type || 'application/octet-stream',
+            fileContent: base64
+          }
+          await $fetch(`${baseUrl}/consulting-services/import`, {
+            method: 'POST',
+            body: importPayload
+          })
+        } else {
+          const payload = {
+            title: newService.title,
+            category: newService.category,
+            requestorDept: newService.requestorDept,
+            period: `${newService.periodQuarter} ${newService.periodYear}`.trim(),
+            consultantName: newService.consultantName,
+            status: newService.status,
+            notes: newService.notes
+          }
+          await $fetch(`${baseUrl}/consulting-services`, {
+            method: 'POST',
+            body: payload
+          })
+        }
+      }
+      resetForm()
+      isEditing.value = false
+      isFormOpen.value = false
+      toast.showSuccess('Consulting service berhasil disimpan')
+      await fetchServices()
+    } catch (error: any) {
+      console.error('Failed to save consulting service:', error)
+      toast.showError(error.data?.message || 'Gagal menyimpan consulting service')
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const deleteService = async (service?: ConsultingService) => {
+    const targetService = service || selectedService.value
+
+    if (!targetService) return
+
+    loading.value = true
+    errorMsg.value = ''
+
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+
+      await $fetch(`${baseUrl}/consulting-services/${targetService.id}`, {
+        method: 'DELETE'
+      })
+
+      if (selectedService.value?.id === targetService.id) {
+        isDetailOpen.value = false
+        selectedService.value = null
+      }
+      toast.showSuccess('Consulting service berhasil dihapus')
+      await fetchServices()
+    } catch (error: any) {
+      console.error('Failed to delete consulting service:', error)
+      toast.showError(error.data?.message || 'Gagal menghapus consulting service')
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const handleFileUpload = (files: FileList) => {
+    if (files.length > 0) {
+      const file = files[0]
+      if (!file) return
+
+      if (file.size > 10 * 1024 * 1024) {
+        errorMsg.value = 'File is too large (max 10MB)'
+        return
+      }
+      newService.attachment = markRaw(file) as any
+      errorMsg.value = ''
+    }
+  }
+
+  const downloadAttachment = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/consulting-services/${id}/download`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response], { type: response.type || 'application/octet-stream' })
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = fileName
+      link.click()
+      window.URL.revokeObjectURL(link.href)
+    } catch (error) {
+      console.error('Failed to download consulting attachment:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to download consulting attachment.')
+    }
+  }
+
+  const viewAttachment = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/consulting-services/${id}/download`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response], { type: response.type || 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+    } catch (error) {
+      console.error('Failed to view consulting attachment:', error)
+      toast.showError('Failed to view document.')
+    }
+  }
+
+  const openForm = () => {
+    isEditing.value = false
+    resetForm()
+    isFormOpen.value = true
+  }
+
+  const editService = (service?: ConsultingService) => {
+    if (service) {
+      selectedService.value = service
+    }
+
+    if (!selectedService.value) return
+
+    isEditing.value = true
+
+    const periodParts = (selectedService.value.period || '').split(' ')
+
+    Object.assign(newService, {
+      title: selectedService.value.title,
+      category: selectedService.value.category,
+      requestorDept: selectedService.value.requestorDept,
+      periodQuarter: periodParts[0] || 'Q1',
+      periodYear: periodParts[1] || '2026',
+      consultantName: selectedService.value.consultantName,
+      status: selectedService.value.status,
+      notes: selectedService.value.notes || '',
+      attachment: selectedService.value.attachment ? { ...selectedService.value.attachment } : null
+    })
+
+    isDetailOpen.value = false
+    isFormOpen.value = true
+  }
+
+  const closeForm = () => {
+    isFormOpen.value = false
+  }
+
+  const openDetail = (service: ConsultingService) => {
+    selectedService.value = service
+    isDetailOpen.value = true
+  }
+
+  const closeDetail = () => {
+    isDetailOpen.value = false
+    selectedService.value = null
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Completed': return 'success'
+      case 'In Progress': return 'warning'
+      case 'Planned': return 'primary'
+      case 'Cancelled': return 'error'
+      default: return 'neutral'
+    }
+  }
+
+  return {
+    services, loading, errorMsg, isFormOpen, isDetailOpen, isImportOpen, isEditing, selectedService,
+    categories, statuses, departments, quarters, years, newService,
+    fetchServices, saveService, deleteService, handleFileUpload, downloadAttachment, viewAttachment,
+    openForm, editService, closeForm, openDetail, closeDetail, getStatusColor
+  }
+})

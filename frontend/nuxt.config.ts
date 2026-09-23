@@ -2,14 +2,24 @@ import yaml from "@rollup/plugin-yaml";
 import { fileURLToPath } from "node:url";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
-export default defineNuxtConfig({
-  devtools: {
-    enabled: true,
+const isProd = process.env.NODE_ENV === 'production';
+const defaultBaseUrl = '/api/v1';
+const defaultAnalyticsUrl = '/api/analytics';
+const defaultPythonAiUrl = '/api/python-ai';
+const defaultProxyTarget = isProd ? "http://kong:8080/api/v1/**" : "http://localhost:8080/api/v1/**";
+const defaultAnalyticsProxyTarget = isProd ? "http://kong:8080/api/analytics/**" : "http://localhost:8080/api/analytics/**";
+const defaultUploadsProxyTarget = isProd ? "http://kong:8080/uploads/**" : "http://localhost:8080/uploads/**";
+const defaultPythonAiProxyTarget = isProd ? "http://python-ai:8000/**" : "http://localhost:8000/**";
 
-    timeline: {
-      enabled: true,
-    },
+export default defineNuxtConfig({
+  components: [
+    { path: '~/components/shared', pathPrefix: false },
+    '~/components',
+  ],
+  devtools: {
+    enabled: false,
   },
+  telemetry: false,
   modules: [
     "@pinia/nuxt",
     "@nuxt/ui",
@@ -19,11 +29,42 @@ export default defineNuxtConfig({
     "nuxt-charts",
     "nuxt-chatgpt",
   ],
+  fonts: {
+    providers: {
+      google: false,
+      bunny: false,
+      fontshare: false,
+      fontsource: false,
+      adobe: false
+    }
+  },
+  ssr: false,
   routeRules: {
-    "/dashboard": {
+    "/**": {
       ssr: false,
-      prerender: true,
+      headers: {
+        "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet"
+      }
     },
+    "/executive-summary-upload": { redirect: "/executive-summary/upload" },
+    "/audit-result-report/executive-summary": { redirect: "/executive-summary" },
+    "/audit-result-report/executive-summary-upload": { redirect: "/executive-summary/upload" },
+    "/audit-result-report/executive-summary/upload": { redirect: "/executive-summary/upload" },
+    "/audit-result-report/executive-summary-compilation": { redirect: "/executive-summary-compilation" },
+    "/audit-result-report/executive-summary-compilation/upload": { redirect: "/executive-summary-compilation/upload" },
+    "/executive-summary-compilation-upload": { redirect: "/executive-summary-compilation/upload" },
+    "/api/v1/**": {
+      proxy: process.env.API_BASE_URL_SERVER || defaultProxyTarget
+    },
+    "/api/analytics/**": {
+      proxy: process.env.ANALYTICS_API_BASE_URL_SERVER || defaultAnalyticsProxyTarget
+    },
+    "/api/python-ai/**": {
+      proxy: process.env.PYTHON_AI_BASE_URL_SERVER || defaultPythonAiProxyTarget
+    },
+    "/uploads/**": {
+      proxy: process.env.UPLOADS_BASE_URL_SERVER || defaultUploadsProxyTarget
+    }
   },
   alias: {
     "@": fileURLToPath(new URL("./", import.meta.url)),
@@ -51,6 +92,9 @@ export default defineNuxtConfig({
           name: "description",
           content: "Enterprise Risk Management and Internal Audit System",
         },
+        { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
+        { name: "googlebot", content: "noindex, nofollow, noarchive, nosnippet" },
+        { name: "bingbot", content: "noindex, nofollow, noarchive, nosnippet" },
       ],
       link: [
         { rel: "icon", type: "image/png", href: "/favicon.png" },
@@ -81,12 +125,13 @@ export default defineNuxtConfig({
 
     // Public keys (exposed to client)
     public: {
-      apiBase: process.env.API_BASE_URL || "http://localhost:8080/api/v1",
-      analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || "http://localhost:8080/api/analytics",
-      authServiceBaseUrl: process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL || 'http://localhost:8080/api/v1',
-      auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || 'http://localhost:8080/api/v1',
-      riskServiceBaseUrl: process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL || 'http://localhost:8080/api/v1',
-      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || 'http://localhost:8080/api/v1',
+      apiBase: process.env.API_BASE_URL || defaultBaseUrl,
+      analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || defaultAnalyticsUrl,
+      pythonAiBaseUrl: process.env.PYTHON_AI_BASE_URL || defaultPythonAiUrl,
+      authServiceBaseUrl: process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL || defaultBaseUrl,
+      auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || defaultBaseUrl,
+      riskServiceBaseUrl: process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL || defaultBaseUrl,
+      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || defaultBaseUrl,
     },
   },
 

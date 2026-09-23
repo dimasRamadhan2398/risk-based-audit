@@ -1,5 +1,15 @@
 <template>
-    <UModal v-model:open="store.showModal" scrollable>
+    <UModal 
+      v-model:open="store.showModal" 
+      scrollable 
+      :ui="{
+        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
       <template #content>
         <UCard :ui="{ 
           header: 'px-6 py-4',
@@ -27,6 +37,34 @@
           </template>
 
           <div class="space-y-6 pb-6">
+            <!-- Assignment Letter Info -->
+            <div v-if="store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter" class="p-5 rounded-xl space-y-4 bg-primary-600 dark:bg-primary-800">
+              <div class="flex items-center justify-between">
+                <h4 class="text-lg font-bold text-white">Assignment Letter Information</h4>
+                <UBadge color="neutral" variant="solid" class="bg-white/20 text-white border-0">
+                  {{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.letterNumber }}
+                </UBadge>
+              </div>
+              <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                <div>
+                  <p class="font-bold text-primary-100">Audit Title</p>
+                  <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.auditTitle || '-' }}</p>
+                </div>
+                <div>
+                  <p class="font-bold text-primary-100">Working Unit</p>
+                  <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.workingUnit || '-' }}</p>
+                </div>
+                <div>
+                  <p class="font-bold text-primary-100">Audit Leader</p>
+                  <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.leader || '-' }}</p>
+                </div>
+                <div>
+                  <p class="font-bold text-primary-100">Period</p>
+                  <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.executionPeriod || '-' }}</p>
+                </div>
+              </div>
+            </div>
+
             <!-- Category & Context -->
             <div class="p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
               <h4 class="text-lg font-bold">Category & Context</h4>

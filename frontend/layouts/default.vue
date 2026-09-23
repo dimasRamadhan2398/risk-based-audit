@@ -1,129 +1,529 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
+import { useI18n } from '~/composables/useI18n'
+import { triggerScrollReset } from '~/utils/scroll'
 
-// Gunakan useRoute untuk mendapatkan URL saat ini
 const route = useRoute()
 const authStore = useAuthStore()
+const { t, locale, setLocale } = useI18n()
+
+const isMobileMenuOpen = ref(false)
+
+watch(() => route.fullPath, () => {
+  isMobileMenuOpen.value = false
+  triggerScrollReset()
+})
+
+const openMobileMenu = () => {
+  isMobileMenuOpen.value = true
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
 
 // 1. Simpan data menu dalam variabel mentah (raw data)
-const rawItems: NavigationMenuItem[][] = [[
+const rawItems = computed<NavigationMenuItem[][]>(() => [[
+  // 1. Dashboard
   {
-    label: 'Dashboard',
-    icon: 'i-lucide-users',
-    to: '/dashboard' 
+    label: t('navigation.dashboard'),
+    icon: 'i-lucide-layout-dashboard',
+    to: '/dashboard'
   },
+
+  // 2. Audit Charter
   {
-    label: '1. Audit Charter',
-    icon: 'charter',
+    label: t('navigation.auditCharter'),
+    icon: 'i-lucide-scroll-text',
     to: '/audit-charter'
-  }, 
-  {
-    label: '2. Risk Profile',
-    icon: 'i-lucide-inbox',
-    to: '/risk-profile'
-  }, 
-  {
-    label: '3. Strategic Audit Plan',
-    icon: 'i-lucide-users',
-    to: '/strategic-audit-plan',
-    children: [
-      {
-        label: 'KPI Performance',
-        icon: 'i-lucide-users',
-        to: '/kpi-performance',
-      },
-    ]
   },
+
+  // 3. Risk Profile & Audit Universe
   {
-    label: '4. Annual Audit Plan',
-    icon: 'i-lucide-users',
-    to: '/annual-audit',
+    label: t('navigation.riskProfileUniverse'),
+    icon: 'i-lucide-shield-alert',
+    to: '/risk-profile',
     children: [
       {
-        label: 'Audit Execution Status',
+        label: t('navigation.corporateRiskProfile'),
         icon: 'i-lucide-users',
-        to: '/audit-execution-status',
+        to: '/risk-profile'
+      },
+      {
+        label: t('navigation.riskAppetiteStatement'),
+        icon: 'i-lucide-clipboard-check',
+        to: '/risk-appetite'
+      },
+      {
+        label: t('navigation.riskFactors'),
+        icon: 'i-lucide-activity',
+        to: '/risk-profile/risk-factors'
+      },
+      {
+        label: t('navigation.auditUniverse'),
+        icon: 'i-lucide-globe',
+        to: '/risk-profile/audit-universe'
+      },
+      {
+        label: t('navigation.auditPriority'),
+        icon: 'i-lucide-list-ordered',
+        to: '/risk-profile/audit-universe?tab=priority'
+      },
+      {
+        label: t('navigation.riskControlMatrix'),
+        icon: 'i-lucide-grid',
+        to: '/risk-profile/risk-control-matrix'
       }
     ]
   },
+
+  // 4. Audit Planning
   {
-    label: '5. Audit Activity Plan',
-    icon: 'i-lucide-users',
-    to: '/audit-activity-plan'
-  }, 
-  {
-    label: '6. Assignment Letter',
-    icon: 'i-lucide-users',
-    to: '/assignment-letter',
-  },
-  {
-    label: '7. Audit Field Work',
-    icon: 'i-lucide-users',
-    to: '/audit-fieldwork',
+    label: t('navigation.auditPlanning'),
+    icon: 'i-lucide-calendar-days',
+    type: 'trigger',
     children: [
       {
-        label: 'Create Working Paper',
-        icon: 'i-lucide-file-plus',
-        to: '/working-paper',
+        label: t('navigation.strategicAuditPlan'),
+        icon: 'i-lucide-target',
+        type: 'trigger',
+        children: [
+          {
+            label: t('navigation.strategicAuditPlan'),
+            icon: 'i-lucide-layout-dashboard',
+            to: '/strategic-audit-plan'
+          },
+          {
+            label: t('navigation.importStrategicAuditPlan'),
+            icon: 'i-lucide-upload',
+            to: '/strategic-audit-plan/upload'
+          }
+        ]
       },
       {
-        label: 'Import Working Paper',
-        icon: 'i-lucide-upload',
-        to: '/import-working-paper',
+        label: t('navigation.internalAuditPerformance'),
+        icon: 'i-lucide-trending-up',
+        type: 'trigger',
+        children: [
+          {
+            label: t('navigation.internalAuditPerformance'),
+            icon: 'i-lucide-layout-dashboard',
+            to: '/kpi-performance'
+          },
+          {
+            label: t('navigation.importPerformanceReport'),
+            icon: 'i-lucide-upload',
+            to: '/kpi-performance/upload'
+          }
+        ]
       },
+      {
+        label: t('navigation.annualAuditPlan'),
+        icon: 'i-lucide-calendar',
+        type: 'trigger',
+        children: [
+          {
+            label: t('navigation.createAnnualAuditPlan'),
+            icon: 'i-lucide-layout-dashboard',
+            to: '/annual-audit'
+          },
+          {
+            label: t('navigation.importAnnualAuditPlan'),
+            icon: 'i-lucide-upload',
+            to: '/annual-audit/upload'
+          },
+          {
+            label: t('navigation.auditExecutionStatus'),
+            icon: 'i-lucide-check-circle-2',
+            to: '/audit-execution-status'
+          }
+        ]
+      },
+      {
+        label: t('navigation.auditActivityPlan'),
+        icon: 'i-lucide-clipboard-list',
+        type: 'trigger',
+        children: [
+          {
+            label: t('navigation.createAuditActivityPlan'),
+            icon: 'i-lucide-layout-dashboard',
+            to: '/audit-activity-plan'
+          },
+          {
+            label: t('navigation.importAuditActivityPlan'),
+            icon: 'i-lucide-upload',
+            to: '/audit-activity-plan/upload'
+          }
+        ]
+      },
+      {
+        label: t('navigation.assignmentLetter'),
+        icon: 'i-lucide-file-signature',
+        type: 'trigger',
+        children: [
+          {
+            label: t('navigation.createAssignmentLetter'),
+            icon: 'i-lucide-layout-dashboard',
+            to: '/assignment-letter'
+          },
+          {
+            label: t('navigation.importAssignmentLetter'),
+            icon: 'i-lucide-upload',
+            to: '/assignment-letter/upload'
+          }
+        ]
+      },
+      {
+        label: t('navigation.workingPaper'),
+        icon: 'i-lucide-file-text',
+        type: 'trigger',
+        children: [
+          {
+            label: t('navigation.createWorkingPaper'),
+            icon: 'i-lucide-file-plus',
+            to: '/working-paper'
+          },
+          {
+            label: t('navigation.importWorkingPaper'),
+            icon: 'i-lucide-upload',
+            to: '/working-paper/upload'
+          }
+        ]
+      },
+      {
+        label: t('navigation.auditFieldwork'),
+        icon: 'i-lucide-briefcase',
+        to: '/audit-fieldwork'
+      }
     ]
   },
+
+  // 5. Audit Result Report
   {
-    label: '8. Audit Result Report',
-    icon: 'i-lucide-users',
-    to: '/audit-result-report',
-  },
-  {
-    label: '9. Action Taken Report',
-    icon: 'i-lucide-users',
-    to: '/action-taken-report',
+    label: t('navigation.auditResultReport'),
+    icon: 'i-lucide-file-check-2',
+    type: 'trigger',
+    children: [
+      {
+        label: t('navigation.resultReportsLha'),
+        icon: 'i-lucide-list',
+        to: '/audit-result-report'
+      },
+      {
+        label: t('navigation.importLhaDocument'),
+        icon: 'i-lucide-upload',
+        to: '/audit-result-report/upload'
+      },
+      {
+        label: t('navigation.executiveSummaryIndividual'),
+        icon: 'i-lucide-presentation',
+        type: 'trigger',
+        children: [
+          {
+            label: t('navigation.createExecutiveSummary'),
+            icon: 'i-lucide-layout-dashboard',
+            to: '/executive-summary',
+            exact: true
+          },
+          {
+            label: t('navigation.importExecutiveSummary'),
+            icon: 'i-lucide-upload',
+            to: '/executive-summary/upload',
+            exact: true
+          }
+        ]
+      },
+      {
+        label: t('navigation.executiveSummaryCompilation'),
+        icon: 'i-lucide-file-text',
+        type: 'trigger',
+        children: [
+          {
+            label: t('navigation.createExecutiveSummaryCompilation'),
+            icon: 'i-lucide-presentation',
+            to: '/executive-summary-compilation',
+            exact: true
+          },
+          {
+            label: t('navigation.importExecutiveSummaryCompilation'),
+            icon: 'i-lucide-upload',
+            to: '/executive-summary-compilation/upload',
+            exact: true
+          }
+        ]
+      },
+      {
+        label: t('navigation.actionTakenReport'),
+        icon: 'i-lucide-clipboard-check',
+        to: '/action-taken-report'
+      },
+      {
+        label: t('navigation.clientSatisfactionSurvey'),
+        icon: 'i-lucide-smile',
+        to: '/audit-result-report/satisfaction-survey'
+      }
+    ]
   },
 
+  // 6. Consulting Service
   {
-    label: '10. Consulting Service',
-    icon: 'i-lucide-users',
+    label: t('navigation.consultingService'),
+    icon: 'i-lucide-messages-square',
     to: '/consulting-service',
+    children: [
+      {
+        label: t('navigation.consultingServiceDashboard'),
+        icon: 'i-lucide-layout-dashboard',
+        to: '/consulting-service'
+      },
+      {
+        label: t('navigation.importConsultingDocument'),
+        icon: 'i-lucide-upload',
+        to: '/consulting-service/upload'
+      }
+    ]
   },
-  
+
+  // 7. Quality Assurance Review
   {
-    label: '11. Quality Assurance Review',
+    label: t('navigation.qualityAssuranceReview'),
     icon: 'i-lucide-shield-check',
     to: '/quality-assurance',
+    children: [
+      {
+        label: t('navigation.qualityAssuranceDashboard'),
+        icon: 'i-lucide-layout-dashboard',
+        to: '/quality-assurance'
+      },
+      {
+        label: t('navigation.importPeriodicSelfAssessment'),
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import-periodic-self-assessment'
+      },
+      {
+        label: t('navigation.importSaiv'),
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import-saiv'
+      },
+      {
+        label: t('navigation.importQarReport'),
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import'
+      },
+      {
+        label: t('navigation.importIacm'),
+        icon: 'i-lucide-upload',
+        to: '/quality-assurance/import-iacm'
+      }
+    ]
   },
+
+  // 8. Analytics
   {
-    label: 'Analytics',
+    label: t('navigation.analytics'),
     icon: 'i-lucide-pie-chart',
     to: '/analytics',
-  },
-  
-]]
-
-// 2. Gunakan Computed agar menu bereaksi setiap kali pengguna pindah halaman
-const items = computed<NavigationMenuItem[][]>(() => {
-  return rawItems.map(group => {
-    return group.map(parent => {
-      
-      // Cek apakah ada submenu (child) yang URL-nya cocok dengan URL saat ini
-      const hasActiveChild = parent.children?.some(child => 
-        route.path.startsWith(child.to as string)
-      )
-
-      return {
-        ...parent,
-        // Jika ada child yang aktif, buat parent menyala (active: true) 
-        // dan otomatis terbuka dropdown-nya (defaultOpen: true)
-        active: hasActiveChild,
-        defaultOpen: hasActiveChild || parent.defaultOpen
+    children: [
+      {
+        label: t('navigation.riskScoringPrediction'),
+        icon: 'i-lucide-binary',
+        to: { path: '/analytics', query: { tab: 'xgboost' } }
+      },
+      {
+        label: t('navigation.anomalyDetection'),
+        icon: 'i-lucide-shield-alert',
+        to: { path: '/analytics', query: { tab: 'isolation' } }
+      },
+      {
+        label: t('navigation.nlpAnalysis'),
+        icon: 'i-lucide-file-search',
+        to: { path: '/analytics', query: { tab: 'nlp' } } 
+      },
+      {
+        label: t('navigation.kpiForecast'),
+        icon: 'i-lucide-trending-up',
+        to: { path: '/analytics', query: { tab: 'kpi-forecast' } }
       }
-    })
+    ]
+  },
+
+  // Master Data
+  {
+    label: t('navigation.masterData'),
+    icon: 'i-lucide-database',
+    to: '/master/employee',
+    children: [
+      {
+        label: t('navigation.employeeManagement'),
+        icon: 'i-lucide-users-round',
+        to: '/master/employee'
+      },
+      {
+        label: t('navigation.department'),
+        icon: 'i-lucide-building-2',
+        to: '/master/department'
+      }
+    ]
+  },
+
+  // Settings
+  {
+    label: t('navigation.settings'),
+    icon: 'i-lucide-settings',
+    to: '/settings',
+    children: [
+      {
+        label: t('navigation.generalSettings'),
+        icon: 'i-lucide-sliders',
+        to: '/settings'
+      },
+      {
+        label: t('navigation.security2fa'),
+        icon: 'i-lucide-shield-check',
+        to: '/settings/mfa'
+      },
+      {
+        label: t('navigation.trustedDevices'),
+        icon: 'i-lucide-laptop',
+        to: '/settings/devices'
+      }
+    ]
+  }
+]])
+
+const searchQuery = ref('')
+const { isAdmin, canManageAudits } = useRbac()
+
+// Pre-collected set of all explicit menu paths to avoid prefix matching when navigating to a registered menu route
+// A nav item's `to` may be a path string or a route-location object; both must
+// reduce to the same "path?query" form the matching logic below compares against.
+const toPathString = (to?: unknown): string => {
+  if (typeof to === 'string') return to
+  if (!to || typeof to !== 'object') return ''
+  const loc = to as { path?: string, query?: Record<string, unknown> }
+  if (!loc.path) return ''
+  const entries = Object.entries(loc.query ?? {})
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(([key, value]) => [key, String(value)] as [string, string])
+  return entries.length ? `${loc.path}?${new URLSearchParams(entries).toString()}` : loc.path
+}
+
+const allMenuPaths = computed(() => {
+  const paths = new Set<string>()
+  const extractPaths = (menuItems: NavigationMenuItem[]) => {
+    for (const item of menuItems) {
+      const target = toPathString(item.to)
+      if (target) {
+        const [base] = target.split('?')
+        if (base) {
+          paths.add(base.replace(/\/$/, '') || '/')
+        }
+      }
+      if (item.children) {
+        extractPaths(item.children)
+      }
+    }
+  }
+  rawItems.value.forEach(group => extractPaths(group))
+  return paths
+})
+
+const isPathActive = (to?: unknown): boolean => {
+  const targetPath = toPathString(to)
+  if (!targetPath) return false
+
+  // Handle explicit query parameter matching (e.g. ?tab=priority or ?tab=xgboost)
+  if (targetPath.includes('?')) {
+    const [targetBase, targetQueryStr] = targetPath.split('?')
+    const currentBase = route.path.replace(/\/$/, '') || '/'
+    const normTargetBase = (targetBase || '').replace(/\/$/, '') || '/'
+
+    if (currentBase !== normTargetBase) return false
+
+    const targetParams = new URLSearchParams(targetQueryStr)
+    for (const [key, value] of targetParams.entries()) {
+      if (route.query[key] !== value) {
+        return false
+      }
+    }
+    return true
+  }
+
+  // If target path does not specify query params, but route has a tab query, do not activate
+  if (route.query.tab) {
+    return false
+  }
+
+  const currentPath = route.path.replace(/\/$/, '') || '/'
+  const targetBase = targetPath.replace(/\/$/, '') || '/'
+
+  // Exact path match
+  if (currentPath === targetBase) {
+    return true
+  }
+
+  // Fallback prefix match ONLY for unlisted subroutes (e.g., dynamic detail views)
+  if (!allMenuPaths.value.has(currentPath) && currentPath.startsWith(targetBase + '/')) {
+    return true
+  }
+
+  return false
+}
+
+const checkItemActive = (item: NavigationMenuItem): boolean => {
+  if (isPathActive(item.to)) return true
+  if (item.children && item.children.length > 0) {
+    return item.children.some(checkItemActive)
+  }
+  return false
+}
+
+const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuItem | null => {
+  // Master data permission check
+  if (item.to === '/master/employee' && !isAdmin.value && !canManageAudits.value) {
+    return null
+  }
+
+  let processedChildren: NavigationMenuItem[] | undefined = undefined
+  if (item.children && item.children.length > 0) {
+    const list = item.children
+      .map(child => processMenuItem(child, q))
+      .filter((c): c is NavigationMenuItem => c !== null)
+    if (list.length > 0) {
+      processedChildren = list
+    }
+  }
+
+  const labelMatches = !q || (item.label?.toLowerCase() || '').includes(q)
+  const hasMatchingChildren = Boolean(processedChildren && processedChildren.length > 0)
+
+  if (q && !labelMatches && !hasMatchingChildren) {
+    return null
+  }
+
+  const isCurrentActive = isPathActive(item.to)
+  const hasActiveChild = Boolean(
+    processedChildren?.some(child => child.active || (child.children && child.children.some(checkItemActive)))
+  )
+
+  return {
+    ...item,
+    children: processedChildren,
+    active: isCurrentActive || hasActiveChild,
+    defaultOpen: hasActiveChild || Boolean(item.defaultOpen) || (Boolean(q) && hasMatchingChildren)
+  }
+}
+
+// 2. Gunakan Computed agar menu bereaksi secara rekursif saat pindah halaman dan pencarian
+const items = computed<NavigationMenuItem[][]>(() => {
+  const q = searchQuery.value.toLowerCase().trim()
+  return rawItems.value.map((group) => {
+    return group
+      .map(item => processMenuItem(item, q))
+      .filter((item): item is NavigationMenuItem => item !== null)
   })
 })
 
@@ -137,14 +537,14 @@ const userDropdownItems = computed(() => [
   ],
   [
     {
-      label: 'Settings',
+      label: t('navigation.userMenu.settings'),
       icon: 'i-lucide-settings',
       to: '/settings'
     }
   ],
   [
     {
-      label: 'Logout',
+      label: t('navigation.userMenu.logout'),
       icon: 'i-lucide-log-out',
       onSelect: async () => {
         await authStore.logout()
@@ -156,70 +556,120 @@ const userDropdownItems = computed(() => [
 
 <template>
   <UDashboardGroup>
-  <UDashboardSidebar 
-    collapsible 
-    resizable
-    :min-size="20"
-    :default-size="25"
-    :max-size="30"
-    :collapsed-size="0"
-    :ui="{ footer: 'border-t border-default' }"
-  >
-    <template #header="{ collapsed }">
-      <Logo v-if="!collapsed" class="h-8 w-auto shrink-0" hide-subtitle text-class="text-xl" />
-      <Logo v-else icon-only class="h-6 w-auto mx-auto" />
-      <UDashboardSidebarCollapse variant="subtle" />
-    </template>
+    <UDashboardSidebar
+      id="main-sidebar-final"
+      collapsible
+      resizable
+      :min-size="21"
+      :default-size="21"
+      :max-size="35"
+      :collapsed-size="0"
+    >
+      <template #header="{ collapsed }">
+        <Logo
+          v-if="!collapsed"
+          class="h-7 w-auto shrink-0"
+          hide-subtitle
+          text-class="text-xl"
+        />
+        <Logo
+          v-else
+          icon-only
+          class="h-6 w-auto mx-auto"
+        />
+        <UDashboardSidebarCollapse variant="subtle" />
+      </template>
 
-    <template #default="{ collapsed }">
-      <UButton
-        :label="collapsed ? undefined : 'Search...'"
-        icon="i-lucide-search"
-        color="neutral"
-        variant="outline"
-        block
-        :square="collapsed"
-      >
-        <template v-if="!collapsed" #trailing>
-          <div class="flex items-center gap-0.5 ms-auto">
-            
-          </div>
-        </template>
-      </UButton>
+      <template #default="{ collapsed }">
+        <div class="flex flex-col gap-3">
+          <UInput
+            v-if="!collapsed"
+            v-model="searchQuery"
+            :placeholder="t('navigation.searchPlaceholder')"
+            icon="i-lucide-search"
+            color="primary"
+            variant="outline"
+            class="w-full"
+          />
 
-      <UNavigationMenu
-        :collapsed="collapsed"
-        :items="items[0]"
-        orientation="vertical"
-      />
+          <UNavigationMenu
+            :collapsed="collapsed"
+            :items="items[0]"
+            orientation="vertical"
+            class="w-full"
+            :ui="{
+              childList: 'ps-3 border-l border-[var(--border-main)] ml-2.5 my-0.5 space-y-0.5'
+            }"
+          />
+        </div>
 
-      <UNavigationMenu
-        v-if="items[1]" 
-        :collapsed="collapsed"
-        :items="items[1]"
-        orientation="vertical"
-        class="mt-auto"
-      />
-    </template>
-    
-  </UDashboardSidebar>
+        <UNavigationMenu
+          v-if="items[1]"
+          :collapsed="collapsed"
+          :items="items[1]"
+          orientation="vertical"
+          class="mt-auto pt-3 border-t border-[var(--border-main)]"
+        />
+      </template>
+    </UDashboardSidebar>
 
-  <UDashboardPanel>
-    <template #header>
+    <UDashboardPanel>
+      <template #header>
         <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)]">
-          <Logo class="h-6 w-auto mx-auto text-2xl" />
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
+            <UButton
+              icon="i-lucide-menu"
+              color="neutral"
+              variant="ghost"
+              class="lg:hidden"
+              @click="openMobileMenu"
+            />
+            <Logo class="h-6 w-auto text-2xl" />
+          </div>
+          <div class="flex items-center gap-3">
+            <!-- Language Switcher Toggle -->
+            <div class="flex items-center gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-main)] shadow-sm">
+              <button
+                type="button"
+                class="px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+                :class="locale === 'id' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+                @click="setLocale('id')"
+              >
+                <span>🇮🇩</span> ID
+              </button>
+              <button
+                type="button"
+                class="px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+                :class="locale === 'en' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+                @click="setLocale('en')"
+              >
+                <span>🇬🇧</span> EN
+              </button>
+            </div>
             <UColorModeButton />
-            <UButton v-if="!authStore.isLoggedIn" to="/auth/login" color="primary" variant="solid">Login</UButton>
-            <UDropdownMenu v-else :items="userDropdownItems">
-              <UAvatar :alt="authStore.getUser?.fullName || 'User'" size="md" />
-              
+            <UButton
+              v-if="!authStore.isLoggedIn"
+              to="/auth/login"
+              color="primary"
+              variant="solid"
+            >
+              {{ t('auth.login.button') }}
+            </UButton>
+            <UDropdownMenu
+              v-else
+              :items="userDropdownItems"
+            >
+              <UAvatar
+                :alt="authStore.getUser?.fullName || 'User'"
+                size="md"
+              />
+
               <template #account-item="{ item }">
                 <div class="text-left">
                   <p class="text-sm font-medium text-gray-900 truncate">
                     {{ item.label }}
                   </p>
-                  <p class="text-xs text-gray-500 truncate">
+                  <p class="text-md text-gray-500 truncate">
                     {{ authStore.getUser?.email }}
                   </p>
                 </div>
@@ -227,27 +677,59 @@ const userDropdownItems = computed(() => [
             </UDropdownMenu>
           </div>
         </div>
-    </template>
-    <template #body>
-      <div class="min-h-screen bg-[var(--bg-main)] min-w-max transition-colors duration-300">
-        <div v-if="authStore.isNewDevice" class="max-w-7xl mx-auto p-4 pb-0">
-          <UAlert
-            icon="i-lucide-alert-triangle"
-            color="warning"
-            variant="solid"
-            title="Security Warning"
-            description="Your account was recently accessed from a new device. If this wasn't you, please change your password immediately."
-            :closable="true"
-            @close="authStore.isNewDevice = false"
-          />
+      </template>
+      <template #body>
+        <div class="min-h-screen bg-[var(--bg-main)] min-w-max transition-colors duration-300">
+          <div
+            v-if="authStore.isNewDevice"
+            class="max-w-7xl mx-auto p-4 pb-0"
+          >
+            <UAlert
+              icon="i-lucide-alert-triangle"
+              color="warning"
+              variant="solid"
+              :title="t('navigation.securityWarningTitle')"
+              :description="t('navigation.securityWarningDesc')"
+              :closable="true"
+              @close="authStore.isNewDevice = false"
+            />
+          </div>
+          <UMain class="max-w-7xl mx-auto">
+            <slot />
+          </UMain>
         </div>
-        <UMain class="max-w-7xl mx-auto">
-          <slot />
-        </UMain>
-      </div>
-    </template>
-  </UDashboardPanel>
+      </template>
+    </UDashboardPanel>
 
-  
+    <!-- Mobile Navigation Slideover -->
+    <USlideover
+      v-model:open="isMobileMenuOpen"
+      side="left"
+    >
+      <template #content>
+        <div class="flex flex-col h-full bg-[var(--bg-main)] border-r border-[var(--border-main)] overflow-y-auto w-72">
+          <div class="flex items-center justify-between p-4 border-b border-[var(--border-main)]">
+            <Logo class="h-6 w-auto text-xl" />
+            <UButton
+              icon="i-lucide-x"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="closeMobileMenu"
+            />
+          </div>
+          <div class="flex-1 p-4 space-y-4">
+            <UNavigationMenu
+              :items="items[0]"
+              orientation="vertical"
+              class="w-full"
+              :ui="{
+                childList: 'ps-3 border-l border-[var(--border-main)] ml-2.5 my-0.5 space-y-0.5'
+              }"
+            />
+          </div>
+        </div>
+      </template>
+    </USlideover>
   </UDashboardGroup>
 </template>

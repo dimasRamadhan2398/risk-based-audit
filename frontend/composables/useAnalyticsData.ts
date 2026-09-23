@@ -10,11 +10,12 @@ import { RiskLevel } from '~/types/risk'
 export interface RiskScorePrediction {
   entity: string
   type: 'Branch' | 'Department'
+  riskCategory: string
+  targetTimeline: string
   predictedLikelihood: number
   predictedImpact: number
   predictedScore: number
   actualScore: number
-  confidence: number
   delta: number
   trend: 'up' | 'down' | 'stable'
   predictedRiskLevel: RiskLevel
@@ -38,6 +39,7 @@ export interface AnomalyRecord {
   id: string
   entity: string
   type: string
+  category?: string
   anomalyScore: number
   description: string
   severity: 'Critical' | 'High' | 'Medium' | 'Low'
@@ -46,11 +48,13 @@ export interface AnomalyRecord {
   frequency?: number
   isAnomaly: boolean
   riskLevel: RiskLevel
+  xMetric?: number
 }
 
 export interface ScatterPoint {
   x: number
   y: number
+  type?: string
   isAnomaly: boolean
   label?: string
 }
@@ -81,20 +85,18 @@ export interface SentimentDistribution {
   negative: number
 }
 
-export interface TopKeyword {
-  word: string
-  count: number
-  category: string
-}
+
 
 export interface KPIForecast {
   kpiName: string
   code: string
   unit: string
+  entity: string
+  entityType: 'Department' | 'Branch'
+  targetHorizon: string
   currentValue: number
   forecastedValue: number
   trend: 'Improving' | 'Declining' | 'Stable'
-  alertLevel: 'None' | 'Watch' | 'Warning' | 'Critical'
   recommendedAction: string
   riskLevel: RiskLevel
 }
@@ -119,16 +121,16 @@ export interface AtRiskDepartment {
 
 export function useXGBoostData() {
   const predictions: RiskScorePrediction[] = [
-    { entity: 'Head Office', type: 'Branch', predictedLikelihood: 4.2, predictedImpact: 4.6, predictedScore: 19.3, actualScore: 20, confidence: 0.94, delta: -0.7, trend: 'up', predictedRiskLevel: RiskLevel.HIGH, actualRiskLevel: RiskLevel.HIGH },
-    { entity: 'Jakarta Branch', type: 'Branch', predictedLikelihood: 3.8, predictedImpact: 4.1, predictedScore: 15.6, actualScore: 16, confidence: 0.91, delta: -0.4, trend: 'up', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'Surabaya Branch', type: 'Branch', predictedLikelihood: 3.5, predictedImpact: 3.9, predictedScore: 13.7, actualScore: 14, confidence: 0.89, delta: -0.3, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'Bandung Branch', type: 'Branch', predictedLikelihood: 3.1, predictedImpact: 3.4, predictedScore: 10.5, actualScore: 11, confidence: 0.87, delta: -0.5, trend: 'down', predictedRiskLevel: RiskLevel.MODERATE, actualRiskLevel: RiskLevel.MODERATE },
-    { entity: 'Bali Branch', type: 'Branch', predictedLikelihood: 3.3, predictedImpact: 4.0, predictedScore: 13.2, actualScore: 13, confidence: 0.90, delta: 0.2, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'Finance Dept', type: 'Department', predictedLikelihood: 4.5, predictedImpact: 4.8, predictedScore: 21.6, actualScore: 22, confidence: 0.93, delta: -0.4, trend: 'up', predictedRiskLevel: RiskLevel.HIGH, actualRiskLevel: RiskLevel.HIGH },
-    { entity: 'IT Dept', type: 'Department', predictedLikelihood: 4.0, predictedImpact: 4.3, predictedScore: 17.2, actualScore: 18, confidence: 0.88, delta: -0.8, trend: 'up', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'HR Dept', type: 'Department', predictedLikelihood: 2.8, predictedImpact: 3.0, predictedScore: 8.4, actualScore: 9, confidence: 0.85, delta: -0.6, trend: 'down', predictedRiskLevel: RiskLevel.MODERATE, actualRiskLevel: RiskLevel.MODERATE },
-    { entity: 'Operations Dept', type: 'Department', predictedLikelihood: 3.6, predictedImpact: 3.7, predictedScore: 13.3, actualScore: 13, confidence: 0.91, delta: 0.3, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'Legal & Compliance', type: 'Department', predictedLikelihood: 3.2, predictedImpact: 4.2, predictedScore: 13.4, actualScore: 14, confidence: 0.86, delta: -0.6, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
+    { entity: 'Head Office', type: 'Branch', riskCategory: 'Financial', targetTimeline: 'Q3 2026', predictedLikelihood: 4.2, predictedImpact: 4.6, predictedScore: 19.3, actualScore: 20, delta: -0.7, trend: 'up', predictedRiskLevel: RiskLevel.HIGH, actualRiskLevel: RiskLevel.HIGH },
+    { entity: 'Jakarta Branch', type: 'Branch', riskCategory: 'Operational', targetTimeline: 'Q3 2026', predictedLikelihood: 3.8, predictedImpact: 4.1, predictedScore: 15.6, actualScore: 16, delta: -0.4, trend: 'up', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
+    { entity: 'Surabaya Branch', type: 'Branch', riskCategory: 'Technology', targetTimeline: 'Q3 2026', predictedLikelihood: 3.5, predictedImpact: 3.9, predictedScore: 13.7, actualScore: 14, delta: -0.3, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
+    { entity: 'Bandung Branch', type: 'Branch', riskCategory: 'Compliance', targetTimeline: 'Q3 2026', predictedLikelihood: 3.1, predictedImpact: 3.4, predictedScore: 10.5, actualScore: 11, delta: -0.5, trend: 'down', predictedRiskLevel: RiskLevel.MODERATE, actualRiskLevel: RiskLevel.MODERATE },
+    { entity: 'Bali Branch', type: 'Branch', riskCategory: 'Strategic', targetTimeline: 'Q3 2026', predictedLikelihood: 3.3, predictedImpact: 4.0, predictedScore: 13.2, actualScore: 13, delta: 0.2, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
+    { entity: 'Finance Dept', type: 'Department', riskCategory: 'Financial', targetTimeline: 'Q3 2026', predictedLikelihood: 4.5, predictedImpact: 4.8, predictedScore: 21.6, actualScore: 22, delta: -0.4, trend: 'up', predictedRiskLevel: RiskLevel.HIGH, actualRiskLevel: RiskLevel.HIGH },
+    { entity: 'IT Dept', type: 'Department', riskCategory: 'Technology', targetTimeline: 'Q3 2026', predictedLikelihood: 4.0, predictedImpact: 4.3, predictedScore: 17.2, actualScore: 18, delta: -0.8, trend: 'up', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
+    { entity: 'HR Dept', type: 'Department', riskCategory: 'Reputational', targetTimeline: 'Q3 2026', predictedLikelihood: 2.8, predictedImpact: 3.0, predictedScore: 8.4, actualScore: 9, delta: -0.6, trend: 'down', predictedRiskLevel: RiskLevel.MODERATE, actualRiskLevel: RiskLevel.MODERATE },
+    { entity: 'Operations Dept', type: 'Department', riskCategory: 'Operational', targetTimeline: 'Q3 2026', predictedLikelihood: 3.6, predictedImpact: 3.7, predictedScore: 13.3, actualScore: 13, delta: 0.3, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
+    { entity: 'Legal & Compliance', type: 'Department', riskCategory: 'Legal', targetTimeline: 'Q3 2026', predictedLikelihood: 3.2, predictedImpact: 4.2, predictedScore: 13.4, actualScore: 14, delta: -0.6, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
   ]
 
   const featureImportance: FeatureImportance[] = [
@@ -159,44 +161,54 @@ export function useXGBoostData() {
 
 export function useIsolationForestData() {
   const anomalies: AnomalyRecord[] = [
-    { id: 'ANM-001', entity: 'Jakarta Branch', type: 'Transaction', anomalyScore: -0.92, description: 'Unusual after-hours bulk payment processing — 47 transactions totaling Rp 2.3B within 12 minutes', severity: 'Critical', date: '2026-05-28', amount: 2300000000, frequency: 47, isAnomaly: true, riskLevel: RiskLevel.HIGH },
-    { id: 'ANM-002', entity: 'Head Office', type: 'Access Pattern', anomalyScore: -0.87, description: 'Repeated failed authentication attempts on financial system by terminated employee credentials', severity: 'Critical', date: '2026-06-01', amount: 0, frequency: 156, isAnomaly: true, riskLevel: RiskLevel.HIGH },
-    { id: 'ANM-003', entity: 'Finance Dept', type: 'Expense Report', anomalyScore: -0.81, description: 'Duplicate vendor invoices detected — same amounts, sequential invoice numbers, different dates', severity: 'High', date: '2026-05-15', amount: 450000000, frequency: 12, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH },
-    { id: 'ANM-004', entity: 'Surabaya Branch', type: 'Fieldwork', anomalyScore: -0.76, description: 'Audit fieldwork completion time 4.2σ below historical average — potential superficial review', severity: 'High', date: '2026-05-20', amount: 0, frequency: 3, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH },
-    { id: 'ANM-005', entity: 'Bali Branch', type: 'Procurement', anomalyScore: -0.72, description: 'Single-source procurement exceeding threshold without required competitive bidding documentation', severity: 'High', date: '2026-06-03', amount: 780000000, frequency: 5, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH },
-    { id: 'ANM-006', entity: 'Bandung Branch', type: 'Travel Expense', anomalyScore: -0.68, description: 'Travel reimbursement patterns showing systematic rounding to exact Rp 500K increments', severity: 'Medium', date: '2026-05-10', amount: 45000000, frequency: 18, isAnomaly: true, riskLevel: RiskLevel.MODERATE },
-    { id: 'ANM-007', entity: 'IT Dept', type: 'Data Access', anomalyScore: -0.63, description: 'Unusual data export volume from CRM system — 3x average daily export size', severity: 'Medium', date: '2026-06-05', amount: 0, frequency: 7, isAnomaly: true, riskLevel: RiskLevel.MODERATE },
-    { id: 'ANM-008', entity: 'Operations Dept', type: 'Inventory', anomalyScore: -0.55, description: 'Inventory adjustment entries without supporting documentation in warehouse system', severity: 'Medium', date: '2026-05-22', amount: 120000000, frequency: 9, isAnomaly: true, riskLevel: RiskLevel.MODERATE },
+    { id: 'BANK-TRX-0001', entity: 'Cabang Medan', type: 'IT Control', anomalyScore: -0.95, description: 'Aktivitas akses administratif basis data core banking pada dini hari (02:00) tanpa tiket Change Request', severity: 'Critical', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 7 },
+    { id: 'BANK-TRX-0003', entity: 'Cabang Bali', type: 'Funding', anomalyScore: -0.91, description: 'Pemberian suku bunga deposito ekstrem (8.86%) di atas batas penjaminan LPS tanpa persetujuan ALCO', severity: 'Critical', date: '2026-06-01', amount: 21465500000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 21465.5 },
+    { id: 'BANK-TRX-0007', entity: 'Kantor Pusat', type: 'Lending', anomalyScore: -0.89, description: 'Pencairan kredit bernilai Rp 66.662 Juta dengan bunga murah ekstrem (4.18%) melanggar BMPK', severity: 'Critical', date: '2026-06-01', amount: 66662330000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 66662.33 },
+    { id: 'BANK-TRX-0009', entity: 'Cabang Jakarta', type: 'Treasury', anomalyScore: -0.84, description: 'Transaksi valas dealing room bernilai Rp 62.412 Juta di luar rentang kuotasi pasar resmi', severity: 'High', date: '2026-06-01', amount: 62412080000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 62412.08 },
+    { id: 'BANK-TRX-0014', entity: 'Cabang Surabaya', type: 'KYC', anomalyScore: -0.82, description: 'Profil transaksi nasabah high risk deviasi 123.5% dari profil historis tanpa pembaruan EDD', severity: 'High', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 123.53 },
+    { id: 'BANK-TRX-0018', entity: 'Cabang Bandung', type: 'Payment', anomalyScore: -0.78, description: 'Transaksi pembayaran split-bill berulang dengan frekuensi tinggi mendekati batas threshold harian', severity: 'High', date: '2026-06-01', amount: 55950000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 55.95 },
   ]
 
-  // Generate scatter plot data: normal + anomaly points
+  // Generate scatter plot data covering 6 bank categories
   const scatterData: ScatterPoint[] = []
-  // Normal points
-  for (let i = 0; i < 80; i++) {
-    scatterData.push({
-      x: Math.round((Math.random() * 40 + 10) * 100) / 100,
-      y: Math.round((Math.random() * 30 + 5) * 100) / 100,
-      isAnomaly: false,
-    })
-  }
-  // Anomaly points (outliers)
-  const anomalyPoints: ScatterPoint[] = [
-    { x: 92.5, y: 47.0, isAnomaly: true, label: 'ANM-001' },
-    { x: 5.0, y: 156.0, isAnomaly: true, label: 'ANM-002' },
-    { x: 85.3, y: 12.0, isAnomaly: true, label: 'ANM-003' },
-    { x: 15.0, y: 3.0, isAnomaly: true, label: 'ANM-004' },
-    { x: 78.0, y: 5.0, isAnomaly: true, label: 'ANM-005' },
-    { x: 45.0, y: 65.0, isAnomaly: true, label: 'ANM-006' },
-    { x: 8.0, y: 85.0, isAnomaly: true, label: 'ANM-007' },
-    { x: 62.0, y: 9.0, isAnomaly: true, label: 'ANM-008' },
-  ]
-  scatterData.push(...anomalyPoints)
+  const bankCategories = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
+  
+  // Normal points for each category
+  bankCategories.forEach((cat) => {
+    for (let i = 0; i < 15; i++) {
+      let xVal = 0
+      if (cat === 'Funding') xVal = Math.round(Math.random() * 800 + 50)
+      else if (cat === 'Lending') xVal = Math.round(Math.random() * 3000 + 200)
+      else if (cat === 'Treasury') xVal = Math.round(Math.random() * 5000 + 500)
+      else if (cat === 'Payment') xVal = Math.round(Math.random() * 150 + 5)
+      else if (cat === 'KYC') xVal = Math.round(Math.random() * 25 + 1)
+      else xVal = Math.round(Math.random() * 3)
+
+      scatterData.push({
+        x: xVal,
+        y: Math.round(Math.random() * 25 + 10),
+        type: cat,
+        isAnomaly: false,
+        label: `NORM-${cat.substring(0, 3).toUpperCase()}-${i+1}`
+      })
+    }
+  })
+
+  // Anomaly outlier points
+  scatterData.push(
+    { x: 21465.5, y: 55.0, type: 'Funding', isAnomaly: true, label: 'BANK-TRX-0003' },
+    { x: 66662.33, y: 58.0, type: 'Lending', isAnomaly: true, label: 'BANK-TRX-0007' },
+    { x: 62412.08, y: 52.0, type: 'Treasury', isAnomaly: true, label: 'BANK-TRX-0009' },
+    { x: 55.95, y: 48.0, type: 'Payment', isAnomaly: true, label: 'BANK-TRX-0018' },
+    { x: 123.53, y: 46.0, type: 'KYC', isAnomaly: true, label: 'BANK-TRX-0014' },
+    { x: 7.0, y: 50.0, type: 'IT Control', isAnomaly: true, label: 'BANK-TRX-0001' }
+  )
 
   const summary: AnomalySummary = {
-    totalScanned: 12847,
-    anomaliesFound: anomalies.length,
-    contaminationRate: 0.062,
-    topCategory: 'Transaction',
+    totalScanned: 1200,
+    anomaliesFound: 150,
+    contaminationRate: 0.125,
+    topCategory: 'Funding',
   }
 
   return { anomalies, scatterData, summary }
@@ -232,25 +244,7 @@ export function useIndoBERTData() {
     'Strategic': 1,
   }
 
-  const topKeywords: TopKeyword[] = [
-    { word: 'pengendalian internal', count: 28, category: 'Financial' },
-    { word: 'kepatuhan', count: 24, category: 'Compliance' },
-    { word: 'keamanan siber', count: 21, category: 'Technology' },
-    { word: 'risiko kredit', count: 19, category: 'Financial' },
-    { word: 'prosedur audit', count: 17, category: 'Operations' },
-    { word: 'tata kelola', count: 15, category: 'Governance' },
-    { word: 'pelatihan', count: 14, category: 'Human Resources' },
-    { word: 'pengadaan', count: 13, category: 'Operations' },
-    { word: 'fraud', count: 12, category: 'Financial' },
-    { word: 'mitigasi risiko', count: 11, category: 'Strategic' },
-    { word: 'pencucian uang', count: 10, category: 'Compliance' },
-    { word: 'otorisasi', count: 9, category: 'Financial' },
-    { word: 'backup data', count: 8, category: 'Technology' },
-    { word: 'whistle-blowing', count: 7, category: 'Governance' },
-    { word: 'KYC', count: 6, category: 'Compliance' },
-  ]
-
-  return { documents, sentimentDistribution, categoryDistribution, topKeywords }
+  return { documents, sentimentDistribution, categoryDistribution }
 }
 
 export function useTimeSeriesData() {
@@ -267,12 +261,12 @@ export function useTimeSeriesData() {
   ]
 
   const kpiForecasts: KPIForecast[] = [
-    { kpiName: 'Revenue Operational Cost', code: 'SO-IA01', unit: '%', currentValue: 33.33, forecastedValue: 28.5, trend: 'Declining', alertLevel: 'Critical', recommendedAction: 'Prioritize operational cost audit — projected KPI miss by 15% next quarter', riskLevel: RiskLevel.HIGH },
-    { kpiName: 'Customer Satisfaction Index', code: 'SO-IA02', unit: 'Score', currentValue: 94.44, forecastedValue: 91.2, trend: 'Declining', alertLevel: 'Watch', recommendedAction: 'Monitor service quality metrics — moderate decline expected', riskLevel: RiskLevel.MODERATE },
-    { kpiName: 'Audit Response Time', code: 'SO-IA03', unit: 'Hour', currentValue: 200.00, forecastedValue: 210.5, trend: 'Improving', alertLevel: 'None', recommendedAction: 'KPI on track — maintain current audit workflow efficiency', riskLevel: RiskLevel.LOW },
-    { kpiName: 'Internal Control Effectiveness', code: 'SO-IA04', unit: '%', currentValue: 82.0, forecastedValue: 78.3, trend: 'Declining', alertLevel: 'Warning', recommendedAction: 'Schedule comprehensive control testing — predicted effectiveness drop', riskLevel: RiskLevel.MODERATE_HIGH },
-    { kpiName: 'Compliance Adherence Rate', code: 'SO-IA05', unit: '%', currentValue: 91.5, forecastedValue: 93.1, trend: 'Improving', alertLevel: 'None', recommendedAction: 'Compliance trending positively — continue current regulatory monitoring', riskLevel: RiskLevel.LOW },
-    { kpiName: 'Risk Mitigation Completion', code: 'SO-IA06', unit: '%', currentValue: 67.0, forecastedValue: 58.2, trend: 'Declining', alertLevel: 'Critical', recommendedAction: 'Escalate mitigation backlog to management — significant completion rate decline projected', riskLevel: RiskLevel.HIGH },
+    { kpiName: 'Revenue Operational Cost', code: 'SO-IA01', unit: '%', entity: 'Finance Dept', entityType: 'Department', targetHorizon: 'Q3 2026', currentValue: 33.33, forecastedValue: 28.5, trend: 'Declining', recommendedAction: 'Prioritize operational cost audit — projected KPI miss by 15% next quarter', riskLevel: RiskLevel.HIGH },
+    { kpiName: 'Customer Satisfaction Index', code: 'SO-IA02', unit: 'Score', entity: 'Jakarta Branch', entityType: 'Branch', targetHorizon: 'Q3 2026', currentValue: 94.44, forecastedValue: 91.2, trend: 'Declining', recommendedAction: 'Monitor service quality metrics — moderate decline expected', riskLevel: RiskLevel.MODERATE },
+    { kpiName: 'Audit Response Time', code: 'SO-IA03', unit: 'Hour', entity: 'HR Dept', entityType: 'Department', targetHorizon: 'Q3 2026', currentValue: 200.00, forecastedValue: 210.5, trend: 'Improving', recommendedAction: 'KPI on track — maintain current audit workflow efficiency', riskLevel: RiskLevel.LOW },
+    { kpiName: 'Internal Control Effectiveness', code: 'SO-IA04', unit: '%', entity: 'Bandung Branch', entityType: 'Branch', targetHorizon: 'Q3 2026', currentValue: 82.0, forecastedValue: 78.3, trend: 'Declining', recommendedAction: 'Schedule comprehensive control testing — predicted effectiveness drop', riskLevel: RiskLevel.MODERATE_HIGH },
+    { kpiName: 'Compliance Adherence Rate', code: 'SO-IA05', unit: '%', entity: 'Finance Dept', entityType: 'Department', targetHorizon: 'Q3 2026', currentValue: 91.5, forecastedValue: 93.1, trend: 'Improving', recommendedAction: 'Compliance trending positively — continue current regulatory monitoring', riskLevel: RiskLevel.LOW },
+    { kpiName: 'Risk Mitigation Completion', code: 'SO-IA06', unit: '%', entity: 'Jakarta Branch', entityType: 'Branch', targetHorizon: 'Q3 2026', currentValue: 67.0, forecastedValue: 58.2, trend: 'Declining', recommendedAction: 'Escalate mitigation backlog to management — significant completion rate decline projected', riskLevel: RiskLevel.HIGH },
   ]
 
   const atRiskDepartments: AtRiskDepartment[] = [
@@ -295,7 +289,7 @@ export function useTimeSeriesData() {
 export function useAnalyticsSummary() {
   return {
     totalEntitiesScored: 10,
-    anomaliesDetected: 8,
+    anomaliesDetected: 150,
     documentsAnalyzed: 10,
     kpiAlerts: 3,
   }

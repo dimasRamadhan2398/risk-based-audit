@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -32,6 +33,7 @@ type Config struct {
 	KafkaConsumer    KafkaConsumerConfig `mapstructure:"kafka_consumer"`
 	App              AppMeta             `mapstructure:"app"      json:"app"`
 	SMTP             SMTPConfig          `mapstructure:"smtp"`
+	Resend           ResendConfig        `mapstructure:"resend"`
 }
 
 type AppMeta struct {
@@ -85,6 +87,13 @@ type SMTPConfig struct {
 	From     string `mapstructure:"from"`
 }
 
+type ResendConfig struct {
+	// MasterAPIKey is the Resend full-access API key used by the site-generator
+	// to register new sending domains and create per-tenant scoped keys.
+	// Load this from RESEND_MASTER_API_KEY env var — never commit the real value.
+	MasterAPIKey string `mapstructure:"master_api_key"`
+}
+
 func setDefaults() {
 	viper.SetDefault("app.appName", "Risk Based Internal Audit Auth Service")
 	viper.SetDefault("app.appEnv", "development")
@@ -112,6 +121,7 @@ func setDefaults() {
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
 	viper.SetDefault("smtp.host", "sandbox.smtp.mailtrap.io")
 	viper.SetDefault("smtp.port", 2525)
+	viper.SetDefault("resend.master_api_key", "") // Override via RESEND_MASTER_API_KEY env var
 }
 
 func Load(configPath string) (*Config, error) {
@@ -119,7 +129,12 @@ func Load(configPath string) (*Config, error) {
 	viper.SetConfigType("yaml")
 
 	setDefaults()
-	// Allow environment variables to override
+	// Allow environment variables to override.
+	// The replacer maps nested keys to conventional env var names, so
+	// `resend.master_api_key` is read from RESEND_MASTER_API_KEY. Without it
+	// viper looks up the literal "RESEND.MASTER_API_KEY" and the override
+	// silently never applies.
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {

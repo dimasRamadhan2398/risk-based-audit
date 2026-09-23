@@ -2,13 +2,28 @@ import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import type { TableColumn } from "@nuxt/ui";
 import type { StrategicAuditPlan } from "~/types/audit";
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
+import { extractErrorMessage } from '~/utils/error';
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const isAddModalOpen = ref(false);
+    const isViewModalOpen = ref(false);
+    const selectedViewObjective = ref<StrategicAuditPlan | null>(null);
     const isEditMode = ref(false);
     const loading = ref(false);
     const errorMsg = ref('');
+    const toast = useToastNotification();
+
+    const openViewModal = (item: StrategicAuditPlan) => {
+        selectedViewObjective.value = item;
+        isViewModalOpen.value = true;
+    };
+
+    const closeViewModal = () => {
+        isViewModalOpen.value = false;
+        selectedViewObjective.value = null;
+    };
 
     const unitOptions = [
         { label: 'Percentage (%)', value: '%' },
@@ -27,15 +42,17 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const form = ref<Partial<StrategicAuditPlan>>({
         code: '',
-        corporateStrategicObjective: '',
+        goalId: '',
+        strategicObjective: '',
         kpi: '',
-        unitOfMeasurement: '',
-        dataType: 'HIG',
+        unit: '',
+        hibHig: 'HIG',
         periodType: 'Quartal',
         selectedPeriod: 'Q1',
         yearStart: currentYear,
         yearEnd: currentYear + 4,
         kpiTargets: {},
+        kpiActuals: {},
         internalAuditSO: '',
         actual: '',
         target: '',
@@ -63,14 +80,14 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         if (!form.value.actual || !form.value.target) return '';
 
         let result = 0;
-        if (form.value.dataType === 'HIG') {
+        if (form.value.hibHig === 'HIG') {
             if (target === 0) return '';
             result = (actual / target) * 100;
         } else {
             if (actual === 0) return '';
             result = (target / actual) * 100;
         }
-        
+
         return `${result.toFixed(2)}%`;
     });
 
@@ -80,7 +97,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         if (!form.value.actual || !form.value.target) return '';
 
         let ratio = 0;
-        if (form.value.dataType === 'HIG') {
+        if (form.value.hibHig === 'HIG') {
             if (target === 0) return '';
             ratio = actual / target;
         } else {
@@ -97,57 +114,101 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         {
             id: '1',
             code: 'SO-IA01',
-            corporateStrategicObjective: 'Improve Audit Efficiency',
-            kpi: 'Revenue Operational Cost',
-            unitOfMeasurement: '%',
-            dataType: 'HIG',
-            periodType: 'Quartal',
-            selectedPeriod: 'Q1',
-            kpiTargets: { 2024: '300', 2025: '350', 2026: '400', 2027: '450', 2028: '500' },
-            internalAuditSO: 'Optimize resource allocation',
-            actual: '100',
-            target: '300',
-            calculation: '33.33%',
-            status: 'Poor',
-        },
-        {
-            id: 2,
-            code: 'SO-IA02',
-            strategicObjective: 'Strengthen Internal Control',
-            kpi: 'Customer Satisfaction Index',
-            unit: 'Score',
+            strategicObjective: 'Penyelesaian Rencana Audit / Audit Plan Completion',
+            kpi: 'Audit Completion Rate',
+            unit: '%',
             hibHig: 'HIG',
-            periodType: 'Yearly',
-            selectedPeriod: '2025',
-            yearStart: 2022,
-            yearEnd: 2026,
-            actual: '85',
-            target: '90',
-            calculation: '94.44%',
+            periodType: 'Quartal',
+            selectedPeriod: 'Q1-2026',
+            yearStart: 2026,
+            yearEnd: 2027,
+            kpiTargets: { 'Q1-2026': '95', 'Q2-2026': '95', 'Q3-2026': '95', 'Q4-2026': '95', 'Q1-2027': '98', 'Q2-2027': '98', 'Q3-2027': '98', 'Q4-2027': '98' },
+            kpiActuals: { 'Q1-2026': '97', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
+            internalAuditSO: 'Tingkatkan efisiensi pelaksanaan audit tahunan',
+            actual: '97',
+            target: '95',
+            calculation: '102.11%',
             status: 'Good',
         },
         {
-            id: 3,
-            code: 'SO-IA03',
-            strategicObjective: 'Improve Compliance',
-            kpi: 'Audit Response Time',
-            unit: 'Hour',
-            hibHig: 'HIB',
+            id: '2',
+            code: 'SO-IA02',
+            strategicObjective: 'Ketepatan Waktu Penyampaian Laporan / Report Timeliness',
+            kpi: 'Report Timeliness',
+            unit: '%',
+            hibHig: 'HIG',
+            yearStart: 2026,
+            yearEnd: 2027,
+            kpiTargets: { 'Q1-2026': '95', 'Q2-2026': '95', 'Q3-2026': '95', 'Q4-2026': '95', 'Q1-2027': '98', 'Q2-2027': '98', 'Q3-2027': '98', 'Q4-2027': '98' },
+            kpiActuals: { 'Q1-2026': '98', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
+            internalAuditSO: 'Percepat penyampaian LHA ke pihak manajemen',
             periodType: 'Quartal',
-            selectedPeriod: 'Q2',
-            actual: '24',
-            target: '48',
-            calculation: '50.00%',
+            selectedPeriod: 'Q1-2026',
+            actual: '98',
+            target: '95',
+            calculation: '103.16%',
+            status: 'Good',
+        },
+        {
+            id: '3',
+            code: 'SO-IA03',
+            strategicObjective: 'Kepuasan Auditee & Klien / Client Satisfaction',
+            kpi: 'Client Satisfaction',
+            unit: 'Score',
+            hibHig: 'HIG',
+            yearStart: 2024,
+            yearEnd: 2028,
+            kpiTargets: { '2024': '4.0', '2025': '4.2', '2026': '4.5', '2027': '4.8', '2028': '5.0' },
+            kpiActuals: { '2024': '4.2', '2025': '4.5', '2026': '4.7', '2027': '', '2028': '' },
+            internalAuditSO: 'Tingkatkan kualitas layanan & rekomendasi audit',
+            periodType: 'Yearly',
+            selectedPeriod: '2026',
+            actual: '4.7',
+            target: '4.5',
+            calculation: '104.44%',
+            status: 'Good',
+        },
+        {
+            id: '4',
+            code: 'SO-IA04',
+            strategicObjective: 'Penyelesaian Tindak Lanjut / Action Plan Closed',
+            kpi: 'Action Plan Closed',
+            unit: '%',
+            hibHig: 'HIG',
+            yearStart: 2026,
+            yearEnd: 2027,
+            kpiTargets: { 'Q1-2026': '90', 'Q2-2026': '90', 'Q3-2026': '90', 'Q4-2026': '90', 'Q1-2027': '95', 'Q2-2027': '95', 'Q3-2027': '95', 'Q4-2027': '95' },
+            kpiActuals: { 'Q1-2026': '87', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
+            internalAuditSO: 'Memastikan seluruh temuan audit ditindaklanjuti auditee',
+            periodType: 'Quartal',
+            selectedPeriod: 'Q1-2026',
+            actual: '87',
+            target: '90',
+            calculation: '96.67%',
+            status: 'Moderate',
+        },
+        {
+            id: '5',
+            code: 'SO-IA05',
+            strategicObjective: 'Tingkat Penyelesaian Bulanan / Monthly Completion Rate',
+            kpi: 'Monthly Completion Rate',
+            unit: '%',
+            hibHig: 'HIG',
+            yearStart: 2026,
+            yearEnd: 2027,
+            kpiTargets: { 'Q1-2026': '90', 'Q2-2026': '90', 'Q3-2026': '90', 'Q4-2026': '90', 'Q1-2027': '95', 'Q2-2027': '95', 'Q3-2027': '95', 'Q4-2027': '95' },
+            kpiActuals: { 'Q1-2026': '95', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
+            internalAuditSO: 'Monitoring progres penyelesaian audit per bulan',
+            periodType: 'Quartal',
+            selectedPeriod: 'Q1-2026',
+            actual: '95',
+            target: '90',
+            calculation: '105.56%',
             status: 'Good',
         },
     ];
 
     const strategicObjectives = ref<StrategicAuditPlan[]>([...mockObjectives]);
-
-    const getAuditServiceBaseUrl = () => {
-        const config = useRuntimeConfig()
-        return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-    }
 
     const fetchStrategicPlans = async () => {
         loading.value = true;
@@ -155,10 +216,17 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         try {
             const baseUrl = getAuditServiceBaseUrl();
             const response: any = await $fetch(`${baseUrl}/strategic-plans`, {
-                method: 'GET'
+                method: 'GET',
+                params: {
+                    page: 1,
+                    page_size: 100,
+                    order: 'code ASC'
+                }
             });
             let items: StrategicAuditPlan[] = [];
-            if (response && Array.isArray(response.items)) {
+            if (response && response.data && Array.isArray(response.data.items)) {
+                items = response.data.items;
+            } else if (response && Array.isArray(response.items)) {
                 items = response.items;
             } else if (Array.isArray(response)) {
                 items = response;
@@ -167,12 +235,13 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             if (items.length > 0) {
                 strategicObjectives.value = items;
             } else {
-                strategicObjectives.value = mockObjectives;
+                toast.showInfo('Informasi', 'Data kosong, menampilkan data contoh (mock).');
+                strategicObjectives.value = [...mockObjectives];
             }
         } catch (error: any) {
             console.error('Failed to fetch strategic plans:', error);
-            errorMsg.value = 'Failed to load strategic plans.';
-            strategicObjectives.value = mockObjectives;
+            errorMsg.value = extractErrorMessage(error, 'Failed to load strategic plans.');
+            strategicObjectives.value = [...mockObjectives];
         } finally {
             loading.value = false;
         }
@@ -181,50 +250,17 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     // Load on init
     fetchStrategicPlans();
 
-    const columns: TableColumn<StrategicAuditPlan>[] = [
-        {
-            accessorKey: 'code',
-            header: 'Objective ID',
-            cell: (row) => row.getValue(),
-        },
-        {
-            accessorKey: 'corporateStrategicObjective',
-            header: 'Strategic Objective',
-        },
-        {
-            accessorKey: 'kpi',
-            header: 'KPI Name',
-        },
-        {
-            accessorKey: 'unitOfMeasurement',
-            header: 'Unit',
-        },
-        {
-            accessorKey: 'selectedPeriod',
-            header: 'Period',
-        },
-        {
-            accessorKey: 'target',
-            header: 'Target',
-        },
-        {
-            accessorKey: 'actual',
-            header: 'Actual',
-        },
-        {
-            accessorKey: 'calculation',
-            header: 'Hitungan',
-        },
-        {
-            accessorKey: 'status',
-            header: 'Keterangan',
-            cell: 'status-cell',
-        },
-        {
-            accessorKey: 'actions',
-            header: 'Actions',
-            cell: 'actions-cell',
-        },
+    const columns: (TableColumn<StrategicAuditPlan> & { class?: string })[] = [
+        { accessorKey: 'code', header: 'Objective ID', class: 'w-28 whitespace-nowrap' },
+        { accessorKey: 'strategicObjective', header: 'Strategic Objective', class: 'max-w-[280px] whitespace-normal break-words font-medium' },
+        { accessorKey: 'kpi', header: 'KPI Name', class: 'max-w-[240px] whitespace-normal break-words font-medium' },
+        { accessorKey: 'unit', header: 'Unit', class: 'w-20 text-center whitespace-nowrap' },
+        { accessorKey: 'selectedPeriod', header: 'Period', class: 'w-28 whitespace-nowrap' },
+        { accessorKey: 'target', header: 'Target', class: 'w-24 whitespace-nowrap' },
+        { accessorKey: 'actual', header: 'Actual', class: 'w-24 whitespace-nowrap' },
+        { accessorKey: 'calculation', header: 'Hitungan', class: 'w-28 whitespace-nowrap' },
+        { accessorKey: 'status', header: 'Keterangan', class: 'w-28 whitespace-nowrap' },
+        { accessorKey: 'actions', header: 'Actions', class: 'w-24 whitespace-nowrap text-center' },
     ];
 
     const getRowActions = (row: any) => [
@@ -245,17 +281,26 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     ];
 
     const resetForm = () => {
+        const startY = currentYear;
+        const initialTargets: Record<string, string> = {};
+        const initialActuals: Record<string, string> = {};
+        for (let i = 0; i < 5; i++) {
+            initialTargets[startY + i] = '';
+            initialActuals[startY + i] = '';
+        }
         form.value = {
             code: '',
-            corporateStrategicObjective: '',
+            goalId: '',
+            strategicObjective: '',
             kpi: '',
-            unitOfMeasurement: '',
-            dataType: 'HIG',
-            periodType: 'Quartal',
-            selectedPeriod: 'Q1',
-            yearStart: currentYear,
-            yearEnd: currentYear + 4,
-            kpiTargets: {},
+            unit: '%',
+            hibHig: 'HIG',
+            periodType: 'Yearly',
+            selectedPeriod: String(startY),
+            yearStart: startY,
+            yearEnd: startY + 4,
+            kpiTargets: initialTargets,
+            kpiActuals: initialActuals,
             internalAuditSO: '',
             actual: '',
             target: '',
@@ -278,12 +323,23 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const handleEdit = (item: any) => {
         isEditMode.value = true;
-        form.value = { ...item };
+        const startY = item.yearStart || currentYear;
+        const endY = item.yearEnd || (startY + 4);
+        const targets: Record<string, string> = { ...(item.kpiTargets || {}) };
+        const actuals: Record<string, string> = { ...(item.kpiActuals || {}) };
+
+        form.value = {
+            ...item,
+            yearStart: startY,
+            yearEnd: endY,
+            kpiTargets: targets,
+            kpiActuals: actuals,
+        };
         isAddModalOpen.value = true;
     };
 
     const handleDelete = async (id: number | string) => {
-        if (!confirm("Are you sure you want to delete this Strategic Plan?")) return;
+        if (!await useGlobalModalStore().confirmDelete({ description: "Are you sure you want to delete this Strategic Plan?" })) return;
         loading.value = true;
         errorMsg.value = '';
         try {
@@ -291,24 +347,114 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             await $fetch(`${baseUrl}/strategic-plans/${id}`, {
                 method: 'DELETE'
             });
+            toast.showSuccess('Rencana Strategis Dihapus', 'Data berhasil dihapus secara permanen.');
+            strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
             await fetchStrategicPlans();
         } catch (error: any) {
             console.error('Failed to delete strategic plan:', error);
-            errorMsg.value = 'Failed to delete strategic plan.';
+            const detail = extractErrorMessage(error, 'Failed to delete strategic plan.');
+            errorMsg.value = detail;
+            toast.showError('Failed to delete strategic plan.', detail);
+            strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
         } finally {
             loading.value = false;
         }
     };
 
+    const cleanKpiMaps = () => {
+        if (!form.value.kpiTargets) form.value.kpiTargets = {};
+        if (!form.value.kpiActuals) form.value.kpiActuals = {};
+
+        const cleanedTargets: Record<string, string> = {};
+        const cleanedActuals: Record<string, string> = {};
+
+        if (form.value.periodType === 'Quartal') {
+            for (const [key, val] of Object.entries(form.value.kpiTargets)) {
+                if (!/^\d{4}$/.test(key) && val !== undefined && val !== null) {
+                    cleanedTargets[key] = String(val);
+                }
+            }
+            for (const [key, val] of Object.entries(form.value.kpiActuals)) {
+                if (!/^\d{4}$/.test(key) && val !== undefined && val !== null) {
+                    cleanedActuals[key] = String(val);
+                }
+            }
+        } else {
+            for (const [key, val] of Object.entries(form.value.kpiTargets)) {
+                if (/^\d{4}$/.test(key) && val !== undefined && val !== null) {
+                    cleanedTargets[key] = String(val);
+                }
+            }
+            for (const [key, val] of Object.entries(form.value.kpiActuals)) {
+                if (/^\d{4}$/.test(key) && val !== undefined && val !== null) {
+                    cleanedActuals[key] = String(val);
+                }
+            }
+        }
+
+        form.value.kpiTargets = cleanedTargets;
+        form.value.kpiActuals = cleanedActuals;
+    };
+
     const handleSubmit = async () => {
+        if (!form.value.strategicObjective) {
+            toast.showWarning('Validasi Gagal', 'Kolom Strategic Objective (Tujuan Strategis) harus diisi.');
+            return;
+        }
+
+        cleanKpiMaps();
+
+        if (!form.value.code) {
+            form.value.code = `SO-IA${String(strategicObjectives.value.length + 1).padStart(2, '0')}`;
+        }
+
+        const startY = form.value.yearStart || currentYear;
+        const endY = form.value.yearEnd || (startY + 4);
+        const targets = form.value.kpiTargets as Record<string, string>;
+        const actuals = form.value.kpiActuals as Record<string, string>;
+
+        const selPeriod = form.value.selectedPeriod || (form.value.periodType === 'Quartal' ? `Q1-${startY}` : String(startY));
+        let currentTarget = targets[selPeriod] || targets['Q1-' + startY] || targets[String(startY)] || form.value.target;
+        let currentActual = actuals[selPeriod] || actuals['Q1-' + startY] || actuals[String(startY)] || form.value.actual;
+
+        if (form.value.periodType === 'Quartal') {
+            if (!currentTarget) {
+                for (let y = startY; y <= endY; y++) {
+                    for (const q of ['Q1', 'Q2', 'Q3', 'Q4']) {
+                        const k = `${q}-${y}`;
+                        if (targets[k]) { currentTarget = targets[k]; break; }
+                    }
+                    if (currentTarget) break;
+                }
+            }
+            if (!currentActual) {
+                for (let y = startY; y <= endY; y++) {
+                    for (const q of ['Q1', 'Q2', 'Q3', 'Q4']) {
+                        const k = `${q}-${y}`;
+                        if (actuals[k]) { currentActual = actuals[k]; break; }
+                    }
+                    if (currentActual) break;
+                }
+            }
+        }
+
+        if (currentTarget !== undefined && currentTarget !== '') {
+            form.value.target = String(currentTarget);
+        }
+        if (currentActual !== undefined && currentActual !== '') {
+            form.value.actual = String(currentActual);
+        }
         form.value.calculation = computedCalculation.value;
         form.value.status = computedStatus.value;
-        
+
         loading.value = true;
         errorMsg.value = '';
+        const appToast = useAppToast();
+        const editModeState = isEditMode.value;
+
         try {
             const baseUrl = getAuditServiceBaseUrl();
-            if (isEditMode.value) {
+            if (editModeState) {
                 await $fetch(`${baseUrl}/strategic-plans/${form.value.id}`, {
                     method: 'PUT',
                     body: form.value
@@ -319,17 +465,40 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                     body: form.value
                 });
             }
-            closeModal();
+
+            const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
+            if (idx !== -1) {
+                strategicObjectives.value[idx] = { ...form.value } as StrategicAuditPlan;
+            } else {
+                strategicObjectives.value.push({ ...form.value, id: String(Date.now()) } as StrategicAuditPlan);
+            }
+
             await fetchStrategicPlans();
+            toast.showSuccess(
+                editModeState ? 'Rencana Strategis Diperbarui' : 'Rencana Strategis Dibuat',
+                `Rencana Strategis "${form.value.strategicObjective || form.value.code}" berhasil disimpan.`
+            );
+            closeModal();
         } catch (error: any) {
             console.error('Failed to save strategic plan:', error);
-            errorMsg.value = 'Failed to save strategic plan.';
+            const detail = extractErrorMessage(error, 'Gagal menyimpan rencana strategis.');
+            errorMsg.value = detail;
+            toast.showError('Gagal Menyimpan Rencana Strategis', detail);
+
+            const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
+            if (idx !== -1) {
+                strategicObjectives.value[idx] = { ...form.value } as StrategicAuditPlan;
+            } else {
+                strategicObjectives.value.push({ ...form.value, id: String(Date.now()) } as StrategicAuditPlan);
+            }
+            closeModal();
         } finally {
             loading.value = false;
         }
     };
 
     watch(() => form.value.periodType, (newType) => {
+        cleanKpiMaps();
         if (newType === 'Quartal') {
             form.value.selectedPeriod = 'Q1';
         } else {
@@ -348,6 +517,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     return {
         columns, strategicObjectives, isAddModalOpen, isEditMode, form,
+        isViewModalOpen, selectedViewObjective, openViewModal, closeViewModal,
         unitOptions, yearOptions, availablePeriods, computedCalculation, computedStatus,
         getRowActions, openModal, closeModal, handleEdit, handleDelete, handleSubmit,
         fetchStrategicPlans, loading, errorMsg

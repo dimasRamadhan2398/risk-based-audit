@@ -3,7 +3,11 @@ package media
 import (
 	"audit-service/pkg/response"
 	"audit-service/services/media"
+	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,7 +30,26 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 	}
 	defer file.Close()
 
-	folder := c.DefaultPostForm("folder", "audit")
+	if header.Size > 10*1024*1024 {
+		response.Error(c, http.StatusBadRequest, "BAD_REQUEST", "File size exceeds maximum limit of 10MB", "Max allowed file size is 10MB")
+		return
+	}
+
+	folder := c.PostForm("folder")
+	featureName := c.PostForm("feature_name")
+	documentID := c.PostForm("document_id")
+
+	if folder == "" {
+		if featureName != "" && documentID != "" {
+			folder = fmt.Sprintf("Auditsphere/%s/%s", featureName, documentID)
+		} else if featureName != "" {
+			folder = fmt.Sprintf("Auditsphere/%s", featureName)
+		} else {
+			folder = "Auditsphere/audit"
+		}
+	} else if !strings.HasPrefix(folder, "Auditsphere/") && folder != "Auditsphere" {
+		folder = "Auditsphere/" + strings.TrimPrefix(folder, "/")
+	}
 
 	attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, folder)
 	if err != nil {
@@ -35,4 +58,41 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 	}
 
 	response.Success(c, http.StatusOK, "File uploaded successfully", attachment)
+}
+
+func (ctrl *MediaController) Download(c *gin.Context) {
+	id := c.Param("id")
+	filePath := filepath.Join("uploads", id)
+	targetFile := filePath
+
+	if _, err := os.Stat(filePath); err != nil {
+		// Search recursively in uploads directory for matching file
+		var foundPath string
+		_ = filepath.Walk("uploads", func(path string, info os.FileInfo, err error) error {
+			if err == nil && !info.IsDir() && (info.Name() == id || strings.HasSuffix(info.Name(), id)) {
+				foundPath = path
+				return filepath.SkipAll
+			}
+			return nil
+		})
+		if foundPath != "" {
+			targetFile = foundPath
+		}
+	}
+
+	if _, err := os.Stat(targetFile); err != nil {
+		response.Error(c, http.StatusNotFound, "NOT_FOUND", "File not found", err.Error())
+		return
+	}
+
+	filename := filepath.Base(targetFile)
+	disposition := "inline"
+	if c.Query("download") == "true" {
+		disposition = "attachment"
+	}
+	c.Header("Content-Disposition", fmt.Sprintf("%s; filename=\"%s\"", disposition, filename))
+	c.Header("Accept-Ranges", "bytes")
+	c.Header("Cache-Control", "public, max-age=86400")
+
+	c.File(targetFile)
 }

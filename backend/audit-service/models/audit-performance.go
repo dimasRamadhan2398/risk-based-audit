@@ -11,6 +11,8 @@ import (
 type KPIAchievement struct {
 	ID              uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	Year            int            `gorm:"type:int;not null" json:"year"`
+	Period          string         `gorm:"type:varchar(20);default:'Tahunan'" json:"period"` // Q1, Q2, Q3, Q4, Tahunan
+	ReportID        *uuid.UUID     `gorm:"type:uuid;index" json:"report_id,omitempty"`
 	KPIName         string         `gorm:"type:varchar(255);not null" json:"kpi_name"`
 	Target          float64        `gorm:"type:decimal(15,2)" json:"target"`
 	Actual          float64        `gorm:"type:decimal(15,2)" json:"actual"`

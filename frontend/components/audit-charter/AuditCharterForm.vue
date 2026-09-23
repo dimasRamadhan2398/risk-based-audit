@@ -1,167 +1,174 @@
 <template>
-    
-      <UModal
-        v-model:open="store.showModal"
-        :dismissible="false"
-        class="w-full sm:max-w-4xl bg-secondary-100"
-      >
-            <template #content>
-              <UForm @submit.prevent="store.handleSubmit">
-                <div
-                  class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
-                >
-                  <div class="flex justify-between items-center">
-                    <h3
-                      class="text-lg leading-6 font-medium mb-4"
-                      id="modal-title"
-                    >
-                      Upload New Charter
-                    </h3>
-                    <UIcon
-                      name="close"
-                      @click="store.closeModal"
-                      class="text-2xl"
-                      >&times;</UIcon
-                    >
-                  </div>
+  <UModal
+    v-model:open="store.showModal"
+    :dismissible="false"
+    :ui="{
+      content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
+      body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+      footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+    }"
+  >
+    <template #content>
+      <UForm @submit.prevent="store.handleSubmit">
+        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg leading-6 font-bold" id="modal-title">
+              {{ store.isEditing ? t('auditCharter.form.editTitle') : t('auditCharter.form.uploadTitle') }}
+            </h3>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              @click="store.closeModal"
+            />
+          </div>
 
-                  <div class="space-y-4">
-                    <UFormField
-                      label="Judul Dokumen"
-                      class="block text-sm font-medium"
-                      size="lg"
-                    >
-                      <UInput
-                        v-model="store.form.title"
-                        required
-                        type="text"
-                        name="title"
-                        id="title"
-                        class="mt-1 block w-full rounded-md sm:text-sm p-2"
-                        placeholder="e.g. Internal Audit Charter 2026"
-                      />
-                    </UFormField>
+          <div class="space-y-4">
+            <ReusableFormField
+              :label="t('auditCharter.form.docTitle')"
+              required
+            >
+              <UInput
+                v-model="store.form.title"
+                required
+                type="text"
+                name="title"
+                id="title"
+                maxlength="100"
+                class="block w-full rounded-md"
+                :placeholder="t('auditCharter.form.docTitlePlaceholder')"
+                @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.form.docTitleValidation'))"
+                @input="($event.target as any)?.setCustomValidity('')"
+              />
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ store.form.title ? store.form.title.length : 0 }}/100
+              </div>
+            </ReusableFormField>
 
-                    <div class="grid grid-cols-2 gap-4">
-                      <UFormField
-                        label="Versi (Auto)"
-                        class="block text-sm font-medium"
-                        size="lg"
-                        disabled
-                      >
-                        <div
-                          class="mt-1 block w-full rounded-md border border-secondary-200 bg-neutral-300 text-primary-900 p-2 sm:text-sm font-bold"
-                        >
-                          <span v-if="store.isEditing">{{ store.form.version }}</span>
-                          <span v-else 
-                            >v{{ store.nextVersion }}</span
-                          >
-                        </div>
-                      </UFormField>
-
-                      <UFormField
-                        label="Tanggal"
-                        class="block text-sm font-medium"
-                        size="lg"
-                      >
-                        <UInput
-                          v-model="store.form.date"
-                          required
-                          type="date"
-                          class="mt-1 block w-full rounded-md sm:text-sm"
-                        />
-                      </UFormField>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                      <UFormField
-                        label="Diupload Oleh"
-                        class="block text-sm font-medium"
-                        size="lg"
-                      >
-                        <div
-                          class="mt-1 block w-full rounded-md border border-secondary-200 bg-neutral-300 text-primary-900 p-2 sm:text-sm font-bold"
-                        >
-                          <span>{{ store.form.uploadedBy }}</span>
-                        </div>
-                      </UFormField>
-
-                      <UFormField
-                        label="Disetujui Oleh"
-                        class="block text-sm font-medium"
-                        size="lg"
-                      >
-                        <UInput
-                          v-model="store.form.approvedBy"
-                          required
-                          type="text"
-                          class="mt-1 block w-full rounded-md sm:text-sm"
-                          placeholder="e.g. Audit Committee"
-                        />
-                      </UFormField>
-                    </div>
-
-                    <UFormField
-                      label="Status"
-                      class="block text-sm font-medium"
-                      size="lg"
-                    >
-                      <URadioGroup
-                        v-model="store.form.isActive"
-                        :items="[
-                          { label: 'Active', value: true },
-                          { label: 'Inactive', value: false }
-                        ]"
-                        orientation="horizontal"
-                        class="mt-2"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      label="Upload File Charter (PDF/DOCX)"
-                      :error="store.errorMsg"
-                      class="block text-sm font-medium"
-                      size="lg"
-                    >
-                      <UInput
-                        type="file"
-                        icon="i-heroicons-paper-clip"
-                        @change="store.handleFileChange"
-                        accept=".pdf,.docx,.doc"
-                        class="w-full"
-                      />
-
-                      <div
-                        v-if="store.form.file"
-                        class="mt-2 flex items-center gap-2 text-sm p-2 rounded"
-                      >
-                        <UIcon name="i-heroicons-document" />
-                        <span class="font-bold">{{ store.form.file.name }}</span>
-                      </div>
-                    </UFormField>
-
-                  </div>
+            <div class="grid grid-cols-2 gap-4">
+              <ReusableFormField
+                :label="t('auditCharter.form.versionAuto')"
+              >
+                <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-gray-800">
+                  <span v-if="store.isEditing">{{ store.form.version }}</span>
+                  <span v-else>v{{ store.nextVersion }}</span>
                 </div>
-                <div
-                  class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"
-                >
-                  <UButton
-                    type="submit"
-                    color="primary"
-                    class="w-full inline-flex justify-center rounded-md px-4 py-2 sm:ml-3 sm:w-auto sm:text-sm"
-                    label="Submit"
-                  >
-                  </UButton>
+              </ReusableFormField>
+
+              <ReusableFormField
+                :label="t('auditCharter.form.date')"
+                required
+              >
+                <AppDatePicker
+                  v-model="store.form.date"
+                  required
+                />
+              </ReusableFormField>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <ReusableFormField
+                :label="t('auditCharter.form.uploadedBy')"
+              >
+                <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-gray-800">
+                  <span>{{ store.form.uploadedBy }}</span>
                 </div>
-              </UForm>
-            </template>
-      </UModal>
-    
+              </ReusableFormField>
+
+              <ReusableFormField
+                :label="t('auditCharter.form.approvedBy')"
+                required
+              >
+                <UInput
+                  v-model="store.form.approvedBy"
+                  required
+                  type="text"
+                  maxlength="100"
+                  class="block w-full rounded-md"
+                  :placeholder="t('auditCharter.form.approvedByPlaceholder')"
+                  @invalid="($event.target as any)?.setCustomValidity(t('auditCharter.form.approvedByValidation'))"
+                  @input="($event.target as any)?.setCustomValidity('')"
+                />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ store.form.approvedBy ? store.form.approvedBy.length : 0 }}/100
+                </div>
+              </ReusableFormField>
+            </div>
+
+            <ReusableFormField
+              :label="t('auditCharter.form.status')"
+            >
+              <URadioGroup
+                v-model="store.form.isActive"
+                :items="[
+                  { label: t('auditCharter.form.active'), value: true },
+                  { label: t('auditCharter.form.inactive'), value: false }
+                ]"
+                orientation="horizontal"
+                class="mt-1"
+              />
+            </ReusableFormField>
+
+            <ReusableFormField
+              :label="t('auditCharter.form.uploadFile')"
+              :required="!store.isEditing"
+            >
+              <div class="flex items-center gap-4">
+                <input
+                  type="file"
+                  accept=".pdf,.docx,.doc"
+                  @change="store.handleFileChange"
+                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
+                  :required="!store.isEditing && !store.form.file"
+                />
+              </div>
+              <p v-if="store.form.file || store.form.fileName" class="text-md text-gray-500 mt-1">
+                {{ t('auditCharter.form.selectedFile') }} <span class="font-semibold text-gray-700 dark:text-gray-300">{{ store.form.file ? store.form.file.name : store.form.fileName }}</span>
+              </p>
+            </ReusableFormField>
+
+            <!-- Error message display -->
+            <div v-if="store.errorMsg" class="p-3 bg-error-50 text-error-700 rounded-lg text-sm font-semibold">
+              {{ store.errorMsg }}
+            </div>
+
+          </div>
+        </div>
+        <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl">
+          <UButton
+            type="submit"
+            :loading="store.loading"
+            color="primary"
+            variant="solid"
+            size="md"
+            class="w-full sm:w-auto font-bold"
+          >
+            {{ store.isEditing ? t('common.save') : t('common.submit') }}
+          </UButton>
+          <UButton
+            type="button"
+            color="neutral"
+            variant="outline"
+            size="md"
+            class="w-full sm:w-auto mt-2 sm:mt-0 font-bold"
+            @click="store.closeModal"
+          >
+            {{ t('common.cancel') }}
+          </UButton>
+        </div>
+      </UForm>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
 import { useCharterStore } from '~/stores/charter'
+import { useI18n } from '~/composables/useI18n'
+import ReusableFormField from '~/components/shared/ReusableFormField.vue'
 
-// Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
+const { t } = useI18n()
 const store = useCharterStore()
+
 </script>

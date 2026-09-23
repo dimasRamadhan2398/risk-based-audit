@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { extractErrorMessage } from '~/utils/error'
 
 export interface ImportedWorkingPaper {
   id: string
@@ -17,6 +19,7 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
   const importedPapers = ref<ImportedWorkingPaper[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
 
   const getAuditServiceBaseUrl = () => {
     const config = useRuntimeConfig()
@@ -31,14 +34,18 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       const response: any = await $fetch(`${baseUrl}/working-papers/imports`, { method: 'GET' })
       if (response && Array.isArray(response.data)) {
         importedPapers.value = response.data
+      } else if (response && response.data && Array.isArray(response.data.items)) {
+        importedPapers.value = response.data.items
       } else if (response && Array.isArray(response.items)) {
         importedPapers.value = response.items
       } else if (Array.isArray(response)) {
         importedPapers.value = response
+      } else {
+        importedPapers.value = []
       }
     } catch (error) {
       console.error('Failed to fetch imported working papers:', error)
-      errorMsg.value = 'Failed to load imported working papers.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to load imported working papers.')
     } finally {
       loading.value = false
     }
@@ -49,21 +56,31 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     description: string
     fileName: string
     fileType: string
-    fileContent: string // base64
+    file: File
   }) => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      const formData = new FormData()
+      Object.keys(payload).forEach(key => {
+        const val = (payload as any)[key]
+        if (val !== undefined && val !== null) {
+          formData.append(key, val)
+        }
+      })
       const response: any = await $fetch(`${baseUrl}/working-papers/imports`, {
         method: 'POST',
-        body: payload
+        body: formData
       })
+      toast.showSuccess('Working paper imported successfully')
       await fetchImportedPapers()
       return response
     } catch (error: any) {
-      console.error('Failed to import working paper:', error)
-      errorMsg.value = error.data?.message || 'Failed to import working paper.'
+      console.error('Failed to upload working paper:', error)
+      const detail = extractErrorMessage(error, 'Failed to upload working paper.')
+      errorMsg.value = detail
+      toast.showError('Failed to upload working paper.', detail)
       throw error
     } finally {
       loading.value = false
@@ -78,13 +95,34 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       await $fetch(`${baseUrl}/working-papers/imports/${id}`, {
         method: 'DELETE'
       })
+      toast.showSuccess('Imported working paper deleted successfully')
       await fetchImportedPapers()
     } catch (error) {
       console.error('Failed to delete imported working paper:', error)
-      errorMsg.value = 'Failed to delete imported working paper.'
+      const detail = extractErrorMessage(error, 'Failed to delete imported working paper.')
+      errorMsg.value = detail
+      toast.showError('Failed to delete imported working paper.', detail)
       throw error
     } finally {
       loading.value = false
+    }
+  }
+
+  const viewDocument = async (id: string, fileName: string) => {
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/working-papers/imports/${id}/download`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response], { type: response.type || 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+    } catch (error) {
+      console.error('Failed to view document:', error)
+      const detail = extractErrorMessage(error, 'Failed to view document.')
+      errorMsg.value = detail
+      toast.showError('Failed to view document.', detail)
     }
   }
 
@@ -102,7 +140,9 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       window.URL.revokeObjectURL(link.href)
     } catch (error) {
       console.error('Failed to download imported working paper:', error)
-      errorMsg.value = 'Failed to download file.'
+      const detail = extractErrorMessage(error, 'Failed to download file.')
+      errorMsg.value = detail
+      toast.showError('Failed to download file.', detail)
     }
   }
 
@@ -113,6 +153,7 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     fetchImportedPapers,
     importWorkingPaper,
     deleteImportedPaper,
-    downloadImportedPaper
+    downloadImportedPaper,
+    viewDocument
   }
 })

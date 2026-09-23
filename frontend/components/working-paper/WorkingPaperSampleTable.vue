@@ -2,57 +2,80 @@
     <div class="mt-4 space-y-6">
         <UCard class="shadow-sm mt-10">
         
-        <UTable :data="store.dataF03" :columns="store.columnsF03" :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }">
+        <TableEntities
+          :data="store.filteredDataF03"
+          :columns="store.columnsF03"
+          :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }"
+          :ui="{ td: '!whitespace-normal' }"
+        >
             <template #samples-cell="{ row }">
-            <div class="flex flex-col gap-2 max-w-md">
-                <div 
-                v-for="s in row.original.samples" 
-                :key="s.id" 
-                class="text-sm p-2 border rounded bg-gray-50  border-gray-200 "
+              <div class="flex flex-col gap-2 max-w-md py-1">
+                <UCard
+                  v-for="s in row.original.samples"
+                  :key="s.id"
+                  :ui="{
+                    root: 'border border-gray-200 dark:border-gray-700 rounded-lg shadow-none',
+                    body: 'p-2.5 sm:p-2.5',
+                  }"
                 >
-                <div class="flex justify-between font-bold mb-1">
-                    <span>{{ s.document || 'Tanpa Nama Dokumen' }}</span>
-                    <UBadge 
-                    :color="store.checkSampleStatus(s) ? 'success' : 'error'" 
-                    size="md" 
-                    variant="subtle"
+                  <div class="flex items-start justify-between gap-2 mb-1.5">
+                    <span class="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-snug">
+                      {{ s.document || 'Tanpa Nama Dokumen' }}
+                    </span>
+                    <UBadge
+                      :color="store.checkSampleStatus(s) ? 'success' : 'error'"
+                      size="sm"
+                      variant="subtle"
+                      class="shrink-0"
                     >
-                    {{ store.checkSampleStatus(s) ? 'Efektif' : 'Tidak Efektif' }}
+                      {{ store.checkSampleStatus(s) ? 'Efektif' : 'Tidak Efektif' }}
                     </UBadge>
-                </div>
-                <div class="text-sm text-gray-500 italic">
-                    L1: {{ s.l1 || '-' }} | L2: {{ s.l2 || '-' }} | L3: {{ s.l3 || '-' }}
-                </div>
-                </div>
-                
-                <span v-if="!row.original.samples?.length" class="text-gray-400 italic text-xs">
-                Tidak ada data sampel
-                </span>
-            </div>
+                  </div>
+                  <USeparator class="my-1.5" />
+                  <div class="text-xs text-gray-500 dark:text-gray-400 italic">
+                    L1: {{ s.l1 || '-' }} &nbsp;|&nbsp; L2: {{ s.l2 || '-' }} &nbsp;|&nbsp; L3: {{ s.l3 || '-' }}
+                  </div>
+                </UCard>
+
+                <p v-if="!row.original.samples?.length" class="text-sm text-gray-400 dark:text-gray-500 italic">
+                  Tidak ada data sampel
+                </p>
+              </div>
+            </template>
+
+            <template #conclusion-cell="{ row }">
+              <div
+                class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+                style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+              >
+                {{ row.original.conclusion || '-' }}
+              </div>
             </template>
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
+                  <UTooltip text="Edit Risk">
                     <UButton 
                         size="md" 
                         color="warning" 
-                        variant="soft" 
-                        icon="i-heroicons-pencil-square" 
+                        variant="ghost" 
+                        icon="i-lucide-edit" 
                         @click="store.handleEditF03(row.original)" 
-                        title="Edit"
                     />
+                  </UTooltip>
+                  <UTooltip text="Delete Risk">
                     <UButton 
                         size="md" 
                         color="error" 
-                        variant="soft" 
-                        icon="i-heroicons-trash" 
-                        @click="store.handleDeleteF03(row.original.id)" 
-                        title="Hapus"
+                        variant="ghost" 
+                        icon="i-lucide-trash-2" 
+                        @click="store.handleDeleteF03(row.original.id)"
                     />
+                  </UTooltip>
                 </div>
             </template>
 
-        </UTable>
+        </TableEntities>
         </UCard>
     </div>
 </template>

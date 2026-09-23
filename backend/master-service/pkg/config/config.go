@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -108,7 +109,12 @@ func Load(configPath string) (*Config, error) {
 	viper.SetConfigType("yaml")
 
 	setDefaults()
-	// Allow environment variables to override
+	// Allow environment variables to override.
+	// The replacer maps nested keys to conventional env var names, so
+	// `database.name` is read from DATABASE_NAME. Without it viper looks up
+	// the literal "DATABASE.NAME" and the override silently never applies —
+	// which made per-tenant onboarding migrate the shared database instead.
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {

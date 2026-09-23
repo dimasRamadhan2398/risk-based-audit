@@ -1,14 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
+import { extractErrorMessage } from '~/utils/error'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
   const errorMsg = ref('')
+  const toast = useToastNotification()
 
   const getMasterServiceBaseUrl = () => {
     const config = useRuntimeConfig()
-    return config.public.masterServiceBaseUrl || 'http://localhost:8003/api/v1'
+    return config.public.masterServiceBaseUrl || config.public.apiBase || '/api/v1'
   }
 
   const columns = [
@@ -17,6 +20,8 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     { accessorKey: 'reportName', header: 'Report Name', sortable: true },
     { accessorKey: 'result', header: 'Result/Score', sortable: true },
     { accessorKey: 'status', header: 'Status', sortable: true },
+    { accessorKey: 'conductedBy', header: 'Conducted By', sortable: true },
+    { accessorKey: 'viewReport', header: 'View Report' },
     { accessorKey: 'actions', header: 'Action' }
   ]
 
@@ -30,13 +35,35 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     }
   }
 
-  const getTypeIconColor = (type: QAType) => {
-    switch (type) {
-      case QAType.REGULAR: return 'bg-amber-400'
-      case QAType.SAIV: return 'bg-blue-500'
-      case QAType.QAR: return 'bg-gray-100 border'
-      default: return 'bg-gray-300'
+  const matchQAType = (type: string, target: QAType | string): boolean => {
+    if (!type || !target) return false
+    if (type === target) return true
+
+    const t = type.toLowerCase().trim()
+    const targetStr = target.toLowerCase().trim()
+
+    if (target === QAType.REGULAR || targetStr.includes('regular') || targetStr.includes('rsa')) {
+      return t.includes('regular') || t.includes('rsa')
     }
+    if (target === QAType.QAR || targetStr.includes('qar') || targetStr.includes('quality assurance review')) {
+      return t.includes('qar') || t.includes('quality assurance review')
+    }
+    if (target === QAType.SAIV || targetStr.includes('saiv') || targetStr.includes('independent validation')) {
+      return t.includes('saiv')
+    }
+    if (target === QAType.IACM || targetStr.includes('iacm') || targetStr.includes('bumn')) {
+      return t.includes('iacm')
+    }
+
+    return false
+  }
+
+  const getTypeIconColor = (type: string) => {
+    if (matchQAType(type, QAType.REGULAR)) return 'bg-amber-400'
+    if (matchQAType(type, QAType.SAIV)) return 'bg-blue-500'
+    if (matchQAType(type, QAType.QAR)) return 'bg-gray-100 border'
+    if (matchQAType(type, QAType.IACM)) return 'bg-indigo-500'
+    return 'bg-gray-300'
   }
 
   const page = ref(1)
@@ -53,9 +80,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const newReport = reactive({
     type: QAType.REGULAR,
     assessmentTitle: '',
-    periodQuarter: '',
     periodYear: '',
     status: QAStatus.IN_PROGRESS,
+    conductedBy: '',
     result: '',
     internalEvaluator: '',
     attachment: null as File | null | undefined
@@ -71,9 +98,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     Object.assign(newReport, {
       type: QAType.REGULAR,
       assessmentTitle: '',
-      periodQuarter: '',
       periodYear: '',
       status: QAStatus.IN_PROGRESS,
+      conductedBy: '',
       result: '',
       internalEvaluator: '',
       attachment: null
@@ -82,12 +109,13 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   const mockReports: QAReport[] = [
     {
-      id: '1',
+      id: '4f8037e3-5eca-423a-b99c-015b8a835cc4',
       type: QAType.REGULAR,
-      period: 'Q3 2025',
+      period: '2025',
       reportName: 'Operational Efficiency Q3',
       result: '8.7/10',
       status: QAStatus.COMPLETED,
+      conductedBy: 'Internal Audit Team A',
       assessmentTitle: 'RSA - Audit 2025 Q3',
       internalEvaluator: 'Internal Audit Team A',
       attachment: {
@@ -97,14 +125,15 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '2',
+      id: '8fdb7363-9092-4b7a-9c8b-2ef94f46a296',
       type: QAType.SAIV,
-      period: 'Cycle 2025',
+      period: '2025',
       reportName: 'Self Assessment GIAS \'22-24',
-      result: '92%',
+      result: 'Generally Conformed',
       status: QAStatus.COMPLETED,
+      conductedBy: 'PT BAI',
       assessmentTitle: 'SAIV - Cycle 2025',
-      validator: 'PT Independent Consultant X',
+      validator: 'PT BAI',
       attachment: {
         name: 'Certificate_SAIV_2025.pdf',
         size: '2.1 MB',
@@ -112,14 +141,15 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '3',
+      id: '4c22f5d1-4442-482e-9591-d4615eb18321',
       type: QAType.QAR,
       period: 'Year 2025',
       reportName: 'External QAR (IPPF 2027)',
       result: 'G/C*',
       status: QAStatus.COMPLETED,
+      conductedBy: 'PT BAI',
       assessmentTitle: 'QAR - Year 2025',
-      validator: 'Deloitte Independent Consultant',
+      validator: 'PT BAI',
       attachment: {
         name: 'Report_External_QAR_2025.pdf',
         size: '4.2 MB',
@@ -127,22 +157,32 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     },
     {
-      id: '4',
+      id: '605c2dbf-61a1-42db-9e46-3f8aeba62cc4',
       type: QAType.REGULAR,
-      period: 'Q2 2025',
-      reportName: 'Operational Efficiency Q2',
+      period: '2025',
+      reportName: 'Penilaian Periodik Kualitas Internal Audit',
       result: '8.3/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q2'
     },
     {
-      id: '5',
+      id: '36fe54aa-df5a-4c3c-810f-74fdb98ca591',
       type: QAType.REGULAR,
-      period: 'Q1 2025',
-      reportName: 'Operational Efficiency Q1',
+      period: '2025',
+      reportName: 'Penilaian Reguler Kualitas Internal Audit',
       result: '6.9/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q1'
+    },
+    {
+      id: 'e0c25c0b-5323-4987-99af-3e8e147a275e',
+      type: QAType.IACM,
+      period: 'Year 2025',
+      reportName: 'BUMN IACM Assessment 2025',
+      result: '4',
+      status: QAStatus.COMPLETED,
+      conductedBy: 'PT BAI',
+      assessmentTitle: 'BUMN IACM Assessment 2025'
     }
   ]
 
@@ -161,7 +201,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch QA reports:', error)
-      errorMsg.value = 'Failed to fetch quality assurance reports.'
+      errorMsg.value = extractErrorMessage(error, 'Failed to fetch quality assurance reports.')
       reports.value = mockReports
     } finally {
       loading.value = false
@@ -179,10 +219,11 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
     const reportData = {
       type: newReport.type,
-      period: `${newReport.periodQuarter} ${newReport.periodYear}`.trim() || '2025',
+      period: newReport.periodYear || '2025',
       reportName: newReport.assessmentTitle,
       result: newReport.result,
       status: newReport.status,
+      conductedBy: newReport.conductedBy,
       assessmentTitle: newReport.assessmentTitle,
       internalEvaluator: newReport.internalEvaluator,
       attachment: newReport.attachment ? {
@@ -199,19 +240,39 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
           method: 'PUT',
           body: reportData
         })
+        toast.showSuccess('Berhasil mengubah data laporan QA')
       } else {
         await $fetch(`${baseUrl}/quality-assurance`, {
           method: 'POST',
           body: reportData
         })
+        toast.showSuccess('Berhasil menambahkan data laporan QA')
       }
       resetForm()
       isEditing.value = false
       closeForm()
       await fetchReports()
     } catch (error: any) {
-      console.error('Failed to save QA report:', error)
-      errorMsg.value = 'Failed to save Quality Assurance report.'
+      console.error('Failed to save QA report (API failed, falling back to local):', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to save QA report.')
+      // Local fallback for frontend testing
+      if (isEditing.value && selectedReport.value) {
+        const index = mockReports.findIndex(r => r.id === selectedReport.value!.id)
+        if (index !== -1) {
+          mockReports[index] = { ...mockReports[index], ...reportData } as QAReport
+        }
+        toast.showSuccess('Berhasil mengubah data laporan QA')
+      } else {
+        mockReports.unshift({
+          id: Date.now().toString(),
+          ...reportData
+        } as QAReport)
+        toast.showSuccess('Berhasil menambahkan data laporan QA')
+      }
+      reports.value = [...mockReports]
+      resetForm()
+      isEditing.value = false
+      closeForm()
     } finally {
       loading.value = false
     }
@@ -224,30 +285,173 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const selectedPeriod = ref('')
   const selectedStatus = ref('')
 
+  const resetFilters = () => {
+    searchQuery.value = ''
+    selectedType.value = ''
+    selectedPeriod.value = ''
+    selectedStatus.value = ''
+    page.value = 1
+  }
+
   const isFormOpen = ref(false)
+  const isImportOpen = ref(false)
   const isDetailOpen = ref(false)
   const selectedReport = ref<QAReport | null>(null)
 
+  const openImportModal = () => {
+    isImportOpen.value = true
+    errorMsg.value = ''
+  }
+
+  const closeImportModal = () => {
+    isImportOpen.value = false
+  }
+
+  const importQARReport = async (payload: {
+    assessmentTitle: string
+    type: string
+    periodYear: string
+    result: string
+    status: string
+    conductedBy: string
+    validator: string
+    fileName: string
+    fileType: string
+    file: File
+  }) => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const formData = new FormData()
+      formData.append('assessmentTitle', payload.assessmentTitle)
+      formData.append('type', payload.type)
+      formData.append('periodYear', payload.periodYear)
+      formData.append('result', payload.result)
+      formData.append('status', payload.status)
+      formData.append('conductedBy', payload.conductedBy)
+      formData.append('validator', payload.validator)
+      formData.append('fileName', payload.fileName)
+      formData.append('fileType', payload.fileType)
+      formData.append('file', payload.file)
+      const response: any = await $fetch(`${baseUrl}/quality-assurance/import`, {
+        method: 'POST',
+        body: formData
+      })
+      await fetchReports()
+      closeImportModal()
+      toast.showSuccess('Berhasil mengimpor data laporan QA')
+      return response
+    } catch (error: any) {
+      console.error('Failed to import QAR report:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to import QAR report.')
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const downloadAttachment = async (id: string, fileName: string) => {
+    const report = reports.value.find(r => r.id === id)
+    if (report?.attachment?.filePath && report.attachment.filePath.startsWith('blob:')) {
+      const link = document.createElement('a')
+      link.href = report.attachment.filePath
+      link.download = fileName
+      link.click()
+      return
+    }
+
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response], { type: response.type || 'application/octet-stream' })
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = fileName
+      link.click()
+      window.URL.revokeObjectURL(link.href)
+    } catch (error: any) {
+      console.error('Failed to download QAR attachment:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to download QAR attachment.')
+    }
+  }
+
+  const viewDocument = async (id: string, fileName: string) => {
+    const report = reports.value.find(r => r.id === id)
+    if (report?.attachment?.filePath && report.attachment.filePath.startsWith('blob:')) {
+      window.open(report.attachment.filePath, '_blank')
+      return
+    }
+
+    try {
+      const baseUrl = getMasterServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
+        responseType: 'blob'
+      })
+      let mimeType = 'application/pdf'
+      if (fileName) {
+        const lowerName = fileName.toLowerCase()
+        if (lowerName.endsWith('.png')) mimeType = 'image/png'
+        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg'
+        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain'
+      }
+
+      const blob = new Blob([response], { type: mimeType })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+    } catch (error: any) {
+      console.error('Failed to view QAR attachment:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to view QAR attachment.')
+    }
+  }
+
   const filteredReports = computed(() => {
     return reports.value.filter(report => {
+      if (report.isImported) return false
+
       const matchesSearch = (report.reportName || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         (report.assessmentTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
-      const matchesType = !selectedType.value || report.type === selectedType.value
+      const matchesType = !selectedType.value || matchQAType(report.type, selectedType.value)
       const matchesPeriod = !selectedPeriod.value || (report.period || '').includes(selectedPeriod.value)
       const matchesStatus = !selectedStatus.value || report.status === selectedStatus.value
       return matchesSearch && matchesType && matchesPeriod && matchesStatus
     })
   })
 
+  const importedReports = computed(() => {
+    return reports.value.filter(report => report.isImported)
+  })
+
+  const regularImportedReports = computed(() => {
+    return reports.value.filter(report => report.isImported && matchQAType(report.type, QAType.REGULAR))
+  })
+
+  const saivImportedReports = computed(() => {
+    return reports.value.filter(report => report.isImported && matchQAType(report.type, QAType.SAIV))
+  })
+
+  const qarImportedReports = computed(() => {
+    return reports.value.filter(report => report.isImported && matchQAType(report.type, QAType.QAR))
+  })
+
+  const iacmImportedReports = computed(() => {
+    return reports.value.filter(report => report.isImported && matchQAType(report.type, QAType.IACM))
+  })
+
   const summary = computed(() => {
-    const regular = reports.value.filter(r => r.type === QAType.REGULAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
-    const qar = reports.value.filter(r => r.type === QAType.QAR).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
-    const saiv = reports.value.filter(r => r.type === QAType.SAIV).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const regular = reports.value.filter(r => matchQAType(r.type, QAType.REGULAR)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const qar = reports.value.filter(r => matchQAType(r.type, QAType.QAR)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const saiv = reports.value.filter(r => matchQAType(r.type, QAType.SAIV)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    const iacm = reports.value.filter(r => matchQAType(r.type, QAType.IACM)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
 
     return {
       regular: regular || { result: '-', period: '-', status: QAStatus.PLANNED },
       qar: qar || { result: '-', period: '-', status: QAStatus.PLANNED },
-      saiv: saiv || { result: '-', period: '-', status: QAStatus.PLANNED }
+      saiv: saiv || { result: '-', period: '-', status: QAStatus.PLANNED },
+      iacm: iacm || { result: '-', period: '-', status: QAStatus.PLANNED }
     }
   })
 
@@ -259,23 +463,26 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     isFormOpen.value = true
   }
 
-  const editReport = () => {
+  const editReport = (report?: QAReport) => {
+    if (report) {
+      selectedReport.value = report
+    }
+
     if (!selectedReport.value) return
+
     isEditing.value = true
-    
-    // Populate form
-    const periodParts = (selectedReport.value.period || '').split(' ')
+
     Object.assign(newReport, {
       type: selectedReport.value.type,
       assessmentTitle: selectedReport.value.assessmentTitle,
-      periodQuarter: periodParts[0] || '',
-      periodYear: periodParts[1] || '2025',
+      periodYear: selectedReport.value.period || '2025',
       status: selectedReport.value.status,
+      conductedBy: selectedReport.value.conductedBy || '',
       result: selectedReport.value.result,
-      internalEvaluator: selectedReport.value.internalEvaluator,
+      internalEvaluator: selectedReport.value.internalEvaluator || '',
       attachment: null
     })
-    
+
     isDetailOpen.value = false
     isFormOpen.value = true
   }
@@ -294,31 +501,58 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     selectedReport.value = null
   }
 
-  const deleteReport = async () => {
-    if (!selectedReport.value) return
-    if (!confirm('Apakah Anda yakin ingin menghapus laporan Quality Assurance ini?')) return
+  const deleteReport = async (report?: QAReport) => {
+    const targetReport = report || selectedReport.value
+
+    if (!targetReport) return
+
+    if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus laporan Quality Assurance ini?' })) {
+      return
+    }
+
     loading.value = true
     errorMsg.value = ''
+
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      await $fetch(`${baseUrl}/quality-assurance/${selectedReport.value.id}`, {
+
+      await $fetch(`${baseUrl}/quality-assurance/${targetReport.id}`, {
         method: 'DELETE'
       })
-      closeDetail()
+
+      if (selectedReport.value?.id === targetReport.id) {
+        isDetailOpen.value = false
+        selectedReport.value = null
+      }
+
       await fetchReports()
+      toast.showSuccess('Berhasil menghapus data laporan QA')
     } catch (error: any) {
-      console.error('Failed to delete QA report:', error)
-      errorMsg.value = 'Failed to delete Quality Assurance report.'
+      console.error('Failed to delete QA report (API failed, falling back to local):', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to delete Quality Assurance report.')
+      const index = mockReports.findIndex(r => r.id === targetReport.id)
+      if (index !== -1) {
+        mockReports.splice(index, 1)
+        reports.value = [...mockReports]
+        if (selectedReport.value?.id === targetReport.id) {
+          isDetailOpen.value = false
+          selectedReport.value = null
+        }
+        toast.showSuccess('Berhasil menghapus data laporan QA')
+      } else {
+        errorMsg.value = 'Failed to delete Quality Assurance report.'
+        toast.showError('Gagal menghapus data laporan QA')
+      }
     } finally {
       loading.value = false
     }
   }
 
   return {
-    reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isDetailOpen, columns,
-    selectedReport, filteredReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
-    handleFileUpload, saveReport, openForm, closeForm, openDetail, closeDetail, getStatusColor, getTypeIconColor,
-    editReport, isEditing, deleteReport, fetchReports, loading, errorMsg
+    reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isImportOpen, isDetailOpen, columns,
+    selectedReport, filteredReports, importedReports, regularImportedReports, saivImportedReports, qarImportedReports, iacmImportedReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
+    handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, viewDocument, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor, matchQAType,
+    editReport, isEditing, deleteReport, fetchReports, resetFilters, loading, errorMsg
   }
 })
 export { QAType, QAStatus }

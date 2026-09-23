@@ -2,14 +2,57 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
 	"risk-service/models"
+	"risk-service/pkg/database"
+	"risk-service/pkg/logger"
 
 	"github.com/google/uuid"
+	"github.com/spf13/cobra"
 	"gorm.io/gorm"
 )
+
+func init() {
+	rootCmd.AddCommand(seedCmd)
+}
+
+var seedCmd = &cobra.Command{
+	Use:   "seed",
+	Short: "Seed initial data for risk-service",
+	RunE:  runSeed,
+}
+
+func runSeed(cmd *cobra.Command, args []string) error {
+	if err := initConfig(); err != nil {
+		return err
+	}
+	if err := initLogger(); err != nil {
+		return err
+	}
+	defer logger.Sync()
+
+	db, err := database.NewPostgresConnection(&cfg.Database)
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	if err := seedInitialRisks(db); err != nil {
+		return err
+	}
+
+	if err := seedRiskLevels(db); err != nil {
+		return err
+	}
+
+	if err := seedRiskFactorsAndUniverse(db); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func seedInitialRisks(db *gorm.DB) error {
 	var count int64
@@ -249,48 +292,6 @@ func seedInitialRisks(db *gorm.DB) error {
 
 	log.Println("Seeding finished successfully.")
 	return nil
-}
-
-package main
-
-import (
-	"fmt"
-	"os"
-
-	"risk-service/models"
-	"risk-service/pkg/config"
-	"risk-service/pkg/database"
-	"risk-service/pkg/logger"
-
-	"github.com/spf13/cobra"
-	"gorm.io/gorm"
-)
-
-func init() {
-	rootCmd.AddCommand(seedCmd)
-}
-
-var seedCmd = &cobra.Command{
-	Use:   "seed",
-	Short: "Seed initial data for risk-service",
-	RunE:  runSeed,
-}
-
-func runSeed(cmd *cobra.Command, args []string) error {
-	if err := initConfig(); err != nil {
-		return err
-	}
-	if err := initLogger(); err != nil {
-		return err
-	}
-	defer logger.Sync()
-
-	db, err := database.NewPostgresConnection(&cfg.Database)
-	if err != nil {
-		return fmt.Errorf("failed to connect to database: %w", err)
-	}
-
-	return seedRiskLevels(db)
 }
 
 func seedRiskLevels(db *gorm.DB) error {

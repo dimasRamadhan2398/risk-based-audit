@@ -32,6 +32,12 @@ export interface TableColumn {
   width?: string;
 }
 
+export interface TablePagination {
+  pageSize: number;
+  currentIndex: number;
+  totalPages: number;
+}
+
 export type Quarter = 1 | 2 | 3 | 4;
 export type ImpactKey = `impact_q${Quarter}`;
 export type PossibilityKey = `possibility_q${Quarter}`;

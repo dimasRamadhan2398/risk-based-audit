@@ -1,6 +1,6 @@
 <template>
     <UCard class="rounded-xl shadow-sm overflow-hidden" variant="soft">
-      <UTable
+      <TableEntities
         :columns="store.columns"
         :data="store.assignmentLetterList"
         :empty-state="{ icon: 'i-heroicons-document-text', label: 'No assignment letters yet. Click Create Assignment Letter to start.' }"
@@ -10,6 +10,15 @@
           <span class="font-bold text-orange-600 ">
             {{ row.original.letterNumber }}
           </span>
+        </template>
+
+        <template #auditTitle-cell="{ row }">
+          <div 
+            class="line-clamp-2 overflow-hidden max-w-xs font-medium text-gray-800 dark:text-gray-200"
+            :title="row.original.auditTitle"
+          >
+            {{ row.original.auditTitle || '-' }}
+          </div>
         </template>
 
         <template #executionPeriod-cell="{ row }">
@@ -22,7 +31,7 @@
         <template #auditTeam-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-800 ">{{ row.original.leader }} (PIC)</span>
-            <span class="text-xs text-gray-500">{{ row.original.auditTeam }}</span>
+            <span class="text-md text-gray-500">{{ row.original.auditTeam }}</span>
           </div>
         </template>
 
@@ -32,28 +41,30 @@
           </UBadge>
         </template>
 
-        <!-- <template #actions-cell="{ row }">
-            <div class="flex gap-2">
-            <UButton 
-                size="md" 
-                color="warning" 
-                variant="soft" 
-                icon="i-heroicons-pencil-square" 
-                @click="store.handleEditF04(row.original)" 
-                title="Edit"
-            />
-            <UButton 
-                size="md" 
-                color="error" 
-                variant="soft" 
-                icon="i-heroicons-trash" 
-                @click="store.handleDeleteF04(row.original.id)" 
-                title="Hapus"
-            />
-            </div>
-        </template> -->
+        <template #actions-cell="{ row }">
+          <div class="flex items-center justify-center gap-1">
+            <UTooltip text="Edit Assignment Letter">
+              <UButton
+                size="md"
+                color="warning"
+                variant="ghost"
+                icon="i-lucide-edit"
+                @click="store.openEditModal(row.original)"
+              />
+            </UTooltip>
+            <UTooltip text="Delete Assignment Letter">
+              <UButton
+                size="md"
+                color="error"
+                variant="ghost"
+                icon="i-lucide-trash-2"
+                @click="store.deleteSuratTugas(row.original.id)"
+              />
+            </UTooltip>
+          </div>
+        </template>
 
-      </UTable>
+      </TableEntities>
     </UCard>
 </template>
 

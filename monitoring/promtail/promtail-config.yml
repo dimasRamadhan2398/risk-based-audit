@@ -1,0 +1,53 @@
+# =============================================================================
+# Promtail Configuration
+# Collects Docker container logs and ships to Loki
+# =============================================================================
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: warn
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://rbia_loki:3100/loki/api/v1/push
+
+scrape_configs:
+
+  # ── Docker Container Logs ──────────────────────────────────────
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*-json.log
+
+    pipeline_stages:
+      - docker: {}
+
+      # Extract container name from the path
+      - regex:
+          source: filename
+          expression: '/var/lib/docker/containers/(?P<container_id>[^/]+)/.*'
+
+      - labels:
+          container_id:
+
+  # ── System Logs ────────────────────────────────────────────────
+  - job_name: syslog
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: syslog
+          __path__: /var/log/messages
+
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\S+\s+\S+\s+\S+)\s+(?P<hostname>\S+)\s+(?P<app>\S+?)(\[(?P<pid>\d+)\])?:\s+(?P<message>.*)$'
+      - labels:
+          hostname:
+          app:

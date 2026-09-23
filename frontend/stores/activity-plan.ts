@@ -3,13 +3,19 @@ import { ref, computed } from 'vue';
 import type { TableColumn } from '@nuxt/ui'
 import { type ActivityPlan, type ActivityPlanFormState, AuditCategory, AuditDepartment } from '~/types/audit';
 import { RiskLevel } from '~/types/risk';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
+import { formatPeriod } from '~/utils/dateConverter';
+import { useI18n } from '~/composables/useI18n';
+import { extractErrorMessage } from '~/utils/error';
 
 export const useActivityPlanStore = defineStore('activity-plan', () => {
+  const { t, locale } = useI18n();
   const isModalOpen = ref(false);
   const isViewModalOpen = ref(false);
   const isEditMode = ref(false);
   const loading = ref(false);
   const errorMsg = ref('');
+  const toast = useToastNotification()
 
   const executionStatusOptions = [
     { label: "Planned", value: "planned" },
@@ -57,7 +63,12 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       approverPosition: '',
       approvalDate: '',
       additionalNotes: ''
-    }
+    },
+    attachmentCategory: '',
+    attachmentUploadedBy: '',
+    attachmentUploadDate: '',
+    attachments: [],
+    file: []
   });
 
   const formState = ref<ActivityPlanFormState>(getInitialFormState());
@@ -73,7 +84,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   const filteredPlans = computed(() => {
     return plans.value.map(plan => ({
       ...plan,
-      period: `${plan.planPeriodStart} - ${plan.planPeriodEnd}`,
+      period: formatPeriod(plan.planPeriodStart, plan.planPeriodEnd, locale.value),
       totalActivity: (plan.plannedActivities || []).length,
       totalAuditor: (plan.resourceAuditors || []).length,
       budgetEstimation: plan.budget?.totalEstimatedCost || 0,
@@ -81,17 +92,14 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     }));
   });
 
-  const columns: TableColumn<ActivityPlan>[] = [
-    { accessorKey: 'planTitle', header: 'Title' },
-    { accessorKey: 'planYear', header: 'Year' },
-    { accessorKey: 'period', header: 'Period' },
-    { accessorKey: 'department', header: 'Department/Unit' },
-    { accessorKey: 'totalActivity', header: 'Total Auditor Team' },
-    { accessorKey: 'totalAuditor', header: 'Total Auditor' },
-    { accessorKey: 'budgetEstimation', header: 'Budget Estimation' },
-    { accessorKey: 'budgetAllocated', header: 'Budget Allocated' },
-    { accessorKey: 'createdBy', header: 'Created By' },
-    { accessorKey: 'actions', header: 'Actions' }
+  const columns: (TableColumn<ActivityPlan> & { class?: string })[] = [
+    { accessorKey: 'planTitle', header: 'Title', class: 'max-w-[280px] whitespace-normal break-words font-medium' },
+    { accessorKey: 'period', header: 'Period', class: 'min-w-[220px] whitespace-nowrap' },
+    { accessorKey: 'department', header: 'Department/Unit', class: 'w-36' },
+    { accessorKey: 'riskName', header: 'Risk Name', class: 'w-48' },
+    { accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'attachments', header: 'Attachment', class: 'w-28 whitespace-nowrap text-center' },
+    { accessorKey: 'actions', header: 'Actions', class: 'w-28 whitespace-nowrap text-center' }
   ]
 
   const fetchPlans = async () => {
@@ -102,14 +110,16 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       const response: any = await $fetch(`${baseUrl}/activity-plans`, {
         method: 'GET'
       });
-      if (response && Array.isArray(response.items)) {
+      if (response && response.data && Array.isArray(response.data.items)) {
+        plans.value = response.data.items
+      } else if (response && Array.isArray(response.items)) {
         plans.value = response.items;
       } else if (Array.isArray(response)) {
         plans.value = response;
       }
     } catch (error: any) {
       console.error('Failed to fetch activity plans:', error);
-      errorMsg.value = 'Failed to load activity plans.';
+      errorMsg.value = extractErrorMessage(error, 'Failed to load activity plans.');
     } finally {
       loading.value = false;
     }
@@ -143,7 +153,8 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this activity plan?")) return;
+    const { t } = useI18n();
+    if (!await useGlobalModalStore().confirmDelete({ description: t("auditActivityPlan.deleteConfirm") })) return;
     loading.value = true;
     errorMsg.value = '';
     try {
@@ -152,9 +163,12 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
         method: 'DELETE'
       });
       await fetchPlans();
+      toast.showSuccess('Activity plan deleted successfully.');
     } catch (error: any) {
       console.error('Failed to delete activity plan:', error);
-      errorMsg.value = 'Failed to delete activity plan.';
+      const detail = extractErrorMessage(error, 'Failed to delete activity plan.');
+      errorMsg.value = detail;
+      toast.showError('Failed to delete activity plan.', detail);
     } finally {
       loading.value = false;
     }
@@ -169,39 +183,54 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       // Transform planned activities to match backend expectations if needed
       // but for now we follow existing structure and just ensure fields are there
 
+      const fileList = formState.value.file && formState.value.file.length > 0
+        ? formState.value.file.map((f: any) => ({
+          name: f.name,
+          size: Math.round(f.size / 1024) + ' KB',
+          url: '#'
+        }))
+        : [];
+
+      const payload = {
+        ...formState.value,
+        attachments: isEditMode.value ? (formState.value.attachments || []).concat(fileList) : fileList
+      };
+
       if (isEditMode.value) {
         const planId = (formState.value as ActivityPlan).id;
         await $fetch(`${baseUrl}/activity-plans/${planId}`, {
           method: 'PUT',
-          body: formState.value
+          body: payload
         });
       } else {
-        // Also save to audit-activities if they are separate in backend
         await $fetch(`${baseUrl}/activity-plans`, {
           method: 'POST',
-          body: formState.value
+          body: payload
         });
 
         for (const act of formState.value.plannedActivities) {
-           await $fetch(`${baseUrl}/audit-activities`, {
-             method: 'POST',
-             body: {
-                title: act.auditName,
-                engagement_subject: act.auditee,
-                audit_type: act.category,
-                justification: act.priority, // or mapped differently
-                audit_purpose: 'Standard Audit',
-                team_size: act.numberOfAuditors,
-                status: 'PLANNED'
-             }
-           });
+          await $fetch(`${baseUrl}/audit-activities`, {
+            method: 'POST',
+            body: {
+              title: act.auditName,
+              engagement_subject: act.auditee,
+              audit_type: act.category,
+              justification: act.priority, // or mapped differently
+              audit_purpose: 'Standard Audit',
+              team_size: act.numberOfAuditors,
+              status: 'PLANNED'
+            }
+          });
         }
       }
       closeModal();
+      toast.showSuccess('Activity plan saved successfully.');
       await fetchPlans();
     } catch (error: any) {
       console.error('Failed to save activity plan:', error);
-      errorMsg.value = 'Failed to save activity plan.';
+      const detail = extractErrorMessage(error, 'Failed to save activity plan.');
+      errorMsg.value = detail;
+      toast.showError('Failed to save activity plan.', detail);
     } finally {
       loading.value = false;
     }
@@ -240,11 +269,51 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     formState.value.resourceAuditors.splice(index, 1);
   }
 
+  const attachmentCategoryOptions = ['Plan', 'Evidence', 'Charter', 'Other'];
+
+  const handleFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      errorMsg.value = "File terlalu besar! Maksimal 5MB.";
+      formState.value.file = null;
+      target.value = "";
+      return;
+    }
+
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      errorMsg.value = "Format file tidak valid. Gunakan PDF atau DOCX.";
+      formState.value.file = null;
+      target.value = "";
+      return;
+    }
+
+    errorMsg.value = "";
+    formState.value.file = [file];
+  };
+
+  const getRiskLevelColor = (level?: string) => {
+    if (!level) return 'neutral'
+    const lvl = level.toLowerCase()
+    if (lvl.includes('high')) return 'error'
+    if (lvl.includes('mod') || lvl.includes('medium')) return 'warning'
+    if (lvl.includes('low')) return 'success'
+    return 'neutral'
+  }
+
   return {
     isModalOpen, isViewModalOpen, isEditMode, priorityOptions, riskLevelOptions,
     formState, plans, selectedPlan, columns, filteredPlans,
     openModal, closeModal, openViewModal, closeViewModal, handleEdit, handleDelete, savePlan,
     addPlannedActivity, removePlannedActivity, addResourceAuditor, removeResourceAuditor,
-    fetchPlans, loading, errorMsg
+    fetchPlans, loading, errorMsg, getRiskLevelColor, attachmentCategoryOptions, handleFileChange
   };
 });

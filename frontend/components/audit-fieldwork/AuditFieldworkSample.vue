@@ -3,95 +3,97 @@
     <!-- Header with Add Button -->
     <div class="flex justify-between items-center">
       <div>
-        <h3 class="text-lg font-semibold">Sample Data</h3>
-        <p class="text-sm text-gray-500">Manage sample data for audit testing</p>
+        <h3 class="text-lg font-semibold">{{ t('auditFieldwork.sample.title') }}</h3>
+        <p class="text-sm text-gray-500">{{ t('auditFieldwork.sample.subtitle') }}</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" label="Add Sample" @click="store.openSampleModal()" />
+      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
     </div>
 
-    <!-- Sample List -->
-    <UCard v-if="store.samples.length > 0" :ui="{ body: 'p-4' }">
-      <UTable :data="store.samples" :columns="columns">
-        <template #documentName-cell="{ row }">
-          <span class="font-medium">{{ row.original.documentName }}</span>
-        </template>
-        <template #documentNumber-cell="{ row }">
-          <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
-        </template>
-        <template #date-cell="{ row }">
-          <span>{{ row.original.date }}</span>
-        </template>
-        <template #description-cell="{ row }">
-          <span class="text-sm text-gray-600">{{ row.original.description }}</span>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex items-center">
-            <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" @click="store.editSample(row.original)" />
-            <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="store.deleteSample(row.index)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-8">
-      <UIcon name="i-heroicons-table-cells" class="size-12 text-gray-300 mx-auto mb-2" />
-      <p class="text-gray-500">No samples data yet</p>
-      <UButton color="primary" variant="soft" class="mt-2" label="Add Sample" @click="store.openSampleModal()" />
-    </div>
+    <!-- Sample List via TableEntities -->
+    <TableEntities
+      :data="store.samples"
+      :columns="columns"
+      :empty-state="{
+        icon: 'i-heroicons-table-cells',
+        label: t('auditFieldwork.sample.empty')
+      }"
+      :ui="{ td: '!whitespace-normal' }"
+      class="w-full"
+    >
+      <template #documentName-cell="{ row }">
+        <span class="font-medium text-gray-900 dark:text-white">{{ row.original.documentName }}</span>
+      </template>
+      <template #documentNumber-cell="{ row }">
+        <UBadge color="neutral" variant="subtle">{{ row.original.documentNumber }}</UBadge>
+      </template>
+      <template #date-cell="{ row }">
+        <span class="text-sm text-[var(--text-main)]">{{ formatDate(row.original.date) }}</span>
+      </template>
+      <template #description-cell="{ row }">
+        <div
+          class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
+          style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+        >
+          {{ row.original.description || '-' }}
+        </div>
+      </template>
+      <template #actions-cell="{ row }">
+        <div class="flex items-center justify-center gap-1">
+          <UTooltip :text="t('common.actions.view') || 'Lihat'">
+            <UButton 
+              icon="i-heroicons-eye" 
+              color="neutral" 
+              variant="ghost" 
+              size="sm" 
+              @click="store.viewSample(row.original)" />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+            <UButton 
+              icon="i-heroicons-pencil-square" 
+              color="primary" 
+              variant="ghost" 
+              size="sm" 
+              @click="store.editSample(row.original)" />
+          </UTooltip>
+          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+            <UButton 
+              icon="i-heroicons-trash" 
+              color="error" 
+              variant="ghost" 
+              size="sm" 
+              @click="store.deleteSample(row.index)" />
+          </UTooltip>
+        </div>
+      </template>
+    </TableEntities>
 
     <!-- Sample Modal -->
-    <Teleport to="body">
-      <div v-if="store.showSampleModal" class="fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-4">
-        <UCard class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">{{ store.isEditingSample ? 'Edit Sample Data' : 'Sample Data Form' }}</h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.showSampleModal = false" />
-            </div>
-          </template>
-
-          <UForm @submit.prevent="store.saveSample()" class="space-y-4">
-            <UFormField label="Document Name" required>
-              <UInput v-model="store.sampleForm.documentName" placeholder="Example: Purchase Invoice" class="w-full" required />
-            </UFormField>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UFormField label="Document Number" required>
-                <UInput v-model="store.sampleForm.documentNumber" placeholder="Example: INV/2026/001" class="w-full"required />
-              </UFormField>
-              <UFormField label="Date" required>
-                <UInput v-model="store.sampleForm.date" type="date" class="w-full" required />
-              </UFormField>
-            </div>
-
-            <UFormField label="Description" required>
-              <UTextarea v-model="store.sampleForm.description" placeholder="Describe the content or details of this sample" class="w-full" required />
-            </UFormField>
-          </UForm>
-
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="neutral" variant="soft" label="Cancel" @click="store.showSampleModal = false" />
-              <UButton color="primary" :label="store.isEditingSample ? 'Update' : 'Submit'" @click="store.saveSample()" />
-            </div>
-          </template>
-        </UCard>
-      </div>
-    </Teleport>
+    <AuditFieldworkSampleModal />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useI18n } from '~/composables/useI18n'
+import TableEntities from '~/components/shared/TableEntities.vue'
+import { formatDate } from '~/utils/dateConverter'
+import AuditFieldworkSampleModal from '~/components/audit-fieldwork/AuditFieldworkSampleModal.vue'
 
 const store = useAuditFieldworkStore()
+const { t } = useI18n()
 
-const columns = [
-  { accessorKey: 'documentName', header: 'Document Name' },
-  { accessorKey: 'documentNumber', header: 'Document Number' },
-  { accessorKey: 'date', header: 'Date' },
-  { accessorKey: 'description', header: 'Description' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { key: 'documentName', accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name'), class: 'w-56 min-w-[180px]' },
+  { key: 'documentNumber', accessorKey: 'documentNumber', header: t('auditFieldwork.sample.columns.number'), class: 'w-44 min-w-[140px] whitespace-nowrap' },
+  { key: 'date', accessorKey: 'date', header: t('auditFieldwork.sample.columns.date'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  {
+    key: 'description',
+    accessorKey: 'description',
+    header: t('auditFieldwork.sample.columns.description'),
+    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    tdClass: '!whitespace-normal break-words'
+  },
+  { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.sample.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
+])
 </script>

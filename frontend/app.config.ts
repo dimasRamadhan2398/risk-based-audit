@@ -33,7 +33,13 @@ export default defineAppConfig({
       import: "heroicons:document-arrow-up",
       plan: "lucide:target",
       info: "heroicons:information-circle",
-      copy: "heroicons:document-duplicate"
+      copy: "heroicons:document-duplicate",
+
+      // KPI & metrics
+      kpiChart: "heroicons:chart-bar",
+      kpiCheck: "heroicons:check-circle",
+      kpiShieldCheck: "heroicons:shield-check",
+      kpiShieldAlert: "heroicons:shield-exclamation"
     },
   },
   theme: {
@@ -42,6 +48,9 @@ export default defineAppConfig({
   },
 
   ui: {
+    icon: {
+      base: "shrink-0 align-sub",
+    },
     accordion: {
       slots: {
         root: 'w-full gap-4 flex flex-col',
@@ -63,121 +72,106 @@ export default defineAppConfig({
       }
     },
     alert: {
-      slots: {
-        root: 'relative overflow-hidden w-full rounded-lg p-4 flex gap-2.5',
-        wrapper: 'min-w-0 flex-1 flex flex-col',
-        title: 'font-semibold text-lg',
-        description: 'text-sm opacity-90 tracking-wide font-medium',
-        icon: 'shrink-0 size-7',
-        avatar: 'shrink-0',
-        avatarSize: '2xl',
-        actions: 'flex flex-wrap gap-1.5 shrink-0',
-        close: 'p-0'
+  slots: {
+    // pl-5 sengaja lebih lebar dari pr-4 untuk kasih ruang si "spine" tab di kiri
+    root: 'relative isolate overflow-hidden w-full rounded-lg pl-5 pr-4 py-3.5 flex gap-3 ring-1 ring-transparent transition-colors duration-200 before:absolute before:inset-y-2.5 before:left-2 before:w-[3px] before:rounded-full before:content-[""] before:transition-colors before:duration-200',
+    wrapper: 'min-w-0 flex-1 flex flex-col gap-0.5',
+    title: 'font-semibold text-[15px] tracking-tight leading-snug',
+    description: 'text-[13px] leading-relaxed opacity-80 font-normal',
+    icon: 'shrink-0 size-5 mt-0.5 opacity-90',
+    avatar: 'shrink-0',
+    avatarSize: '2xl',
+    actions: 'flex flex-wrap gap-2 shrink-0 mt-2',
+    close: 'p-0 -mr-1 -mt-1'
+  },
+  variants: {
+    color: {
+      primary: '',
+      secondary: '',
+      success: '',
+      info: '',
+      warning: '',
+      error: '',
+      neutral: ''
+    },
+    variant: {
+      solid: '',
+      outline: '',
+      soft: '',
+      subtle: '',
+      none: ''
+    },
+    orientation: {
+      horizontal: {
+        root: 'items-center',
+        actions: 'items-center'
       },
-      variants: {
-        color: {
-          primary: '',
-          secondary: '',
-          success: '',
-          info: '',
-          warning: '',
-          error: '',
-          neutral: ''
-        },
-        variant: {
-          solid: '',
-          outline: '',
-          soft: '',
-          subtle: ''
-        },
-        orientation: {
-          horizontal: {
-            root: 'items-center',
-            actions: 'items-center'
-          },
-          vertical: {
-            root: 'items-start',
-            actions: 'items-start mt-2.5'
-          }
-        },
-        title: {
-          true: {
-            description: 'mt-1'
-          }
-        }
-      },
-      compoundVariants: [
-        {
-          color: 'primary',
-          variant: 'solid',
-          class: {
-            root: 'bg-primary text-inverted'
-          }
-        },
-        {
-          color: 'primary',
-          variant: 'outline',
-          class: {
-            root: 'text-primary ring ring-inset ring-primary/25'
-          }
-        },
-        {
-          color: 'primary',
-          variant: 'soft',
-          class: {
-            root: 'bg-primary/10 text-primary'
-          }
-        },
-        {
-          color: 'primary',
-          variant: 'subtle',
-          class: {
-            root: 'bg-primary/10 text-primary ring ring-inset ring-primary/25'
-          }
-        },
-        {
-          color: 'info',
-          variant: 'subtle',
-          class: {
-            root: 'ring-info/10 bg-info-700/20',
-            icon: "text-info-700 font-bold",
-            description: "text-info-700"
-          }
-        },
-        {
-          color: 'neutral',
-          variant: 'solid',
-          class: {
-            root: 'text-inverted bg-inverted'
-          }
-        },
-        {
-          color: 'neutral',
-          variant: 'outline',
-          class: {
-            root: 'text-highlighted bg-default ring ring-inset ring-default'
-          }
-        },
-        {
-          color: 'neutral',
-          variant: 'soft',
-          class: {
-            root: 'text-highlighted bg-elevated/50'
-          }
-        },
-        {
-          color: 'neutral',
-          variant: 'subtle',
-          class: {
-            root: 'text-highlighted bg-elevated/50 ring ring-inset ring-accented'
-          }
-        }
-      ],
-      defaultVariants: {
-        color: 'primary',
-        variant: 'solid'
+      vertical: {
+        root: 'items-start',
+        actions: 'items-start mt-2.5'
       }
     },
+    title: {
+      true: {
+        description: 'mt-1'
+      }
+    }
+  },
+  compoundVariants: [
+    // ===== Primary =====
+    { color: 'primary', variant: 'solid', class: { root: 'bg-primary-600 dark:bg-primary-500 text-white before:bg-primary-300 dark:before:bg-primary-200' } },
+    { color: 'primary', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-primary-500/30 dark:ring-primary-400/30 text-primary-700 dark:text-primary-400 before:bg-primary-500 dark:before:bg-primary-400' } },
+    { color: 'primary', variant: 'soft', class: { root: 'bg-primary-500/10 dark:bg-primary-400/10 text-primary-700 dark:text-primary-400 before:bg-primary-500 dark:before:bg-primary-400' } },
+    { color: 'primary', variant: 'subtle', class: { root: 'bg-primary-500/10 dark:bg-primary-400/10 ring-primary-500/25 dark:ring-primary-400/25 text-primary-700 dark:text-primary-400 before:bg-primary-500 dark:before:bg-primary-400' } },
+    { color: 'primary', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-primary-700 dark:text-primary-400' } },
+
+    // ===== Secondary =====
+    { color: 'secondary', variant: 'solid', class: { root: 'bg-secondary-600 dark:bg-secondary-500 text-white before:bg-secondary-300 dark:before:bg-secondary-200' } },
+    { color: 'secondary', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-secondary-500/30 dark:ring-secondary-400/30 text-secondary-700 dark:text-secondary-400 before:bg-secondary-500 dark:before:bg-secondary-400' } },
+    { color: 'secondary', variant: 'soft', class: { root: 'bg-secondary-500/10 dark:bg-secondary-400/10 text-secondary-700 dark:text-secondary-400 before:bg-secondary-500 dark:before:bg-secondary-400' } },
+    { color: 'secondary', variant: 'subtle', class: { root: 'bg-secondary-500/10 dark:bg-secondary-400/10 ring-secondary-500/25 dark:ring-secondary-400/25 text-secondary-700 dark:text-secondary-400 before:bg-secondary-500 dark:before:bg-secondary-400' } },
+    { color: 'secondary', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-secondary-700 dark:text-secondary-400' } },
+
+    // ===== Success =====
+    { color: 'success', variant: 'solid', class: { root: 'bg-success-600 dark:bg-success-500 text-white before:bg-success-300 dark:before:bg-success-200' } },
+    { color: 'success', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-success-500/30 dark:ring-success-400/30 text-success-700 dark:text-success-400 before:bg-success-500 dark:before:bg-success-400' } },
+    { color: 'success', variant: 'soft', class: { root: 'bg-success-500/10 dark:bg-success-400/10 text-success-700 dark:text-success-400 before:bg-success-500 dark:before:bg-success-400' } },
+    { color: 'success', variant: 'subtle', class: { root: 'bg-success-500/10 dark:bg-success-400/10 ring-success-500/25 dark:ring-success-400/25 text-success-700 dark:text-success-400 before:bg-success-500 dark:before:bg-success-400' } },
+    { color: 'success', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-success-700 dark:text-success-400' } },
+
+    // ===== Info =====
+    { color: 'info', variant: 'solid', class: { root: 'bg-info-600 dark:bg-info-500 text-white before:bg-info-300 dark:before:bg-info-200' } },
+    { color: 'info', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-info-500/30 dark:ring-info-400/30 text-info-700 dark:text-info-400 before:bg-info-500 dark:before:bg-info-400' } },
+    { color: 'info', variant: 'soft', class: { root: 'bg-info-500/10 dark:bg-info-400/10 text-info-700 dark:text-info-400 before:bg-info-500 dark:before:bg-info-400' } },
+    { color: 'info', variant: 'subtle', class: { root: 'bg-info-500/10 dark:bg-info-400/10 ring-info-500/25 dark:ring-info-400/25 text-info-700 dark:text-info-400 before:bg-info-500 dark:before:bg-info-400' } },
+    { color: 'info', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-info-700 dark:text-info-400' } },
+
+    // ===== Warning (fill terang -> teks gelap, spine pakai gelap transparan biar tetap ada kontras "stempel") =====
+    { color: 'warning', variant: 'solid', class: { root: 'bg-warning-500 dark:bg-warning-500 text-neutral-950 font-medium before:bg-neutral-950/25' } },
+    { color: 'warning', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-warning-500/30 dark:ring-warning-400/30 text-warning-700 dark:text-warning-400 before:bg-warning-500 dark:before:bg-warning-400' } },
+    { color: 'warning', variant: 'soft', class: { root: 'bg-warning-500/10 dark:bg-warning-400/10 text-warning-700 dark:text-warning-400 before:bg-warning-500 dark:before:bg-warning-400' } },
+    { color: 'warning', variant: 'subtle', class: { root: 'bg-warning-500/10 dark:bg-warning-400/10 ring-warning-500/25 dark:ring-warning-400/25 text-warning-700 dark:text-warning-400 before:bg-warning-500 dark:before:bg-warning-400' } },
+    { color: 'warning', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-warning-700 dark:text-warning-400' } },
+
+    // ===== Error =====
+    { color: 'error', variant: 'solid', class: { root: 'bg-error-600 dark:bg-error-500 text-white before:bg-error-300 dark:before:bg-error-200' } },
+    { color: 'error', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-error-500/30 dark:ring-error-400/30 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },
+    { color: 'error', variant: 'soft', class: { root: 'bg-error-500/10 dark:bg-error-400/10 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },
+    { color: 'error', variant: 'subtle', class: { root: 'bg-error-500/10 dark:bg-error-400/10 ring-error-500/25 dark:ring-error-400/25 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },
+    { color: 'error', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-error-700 dark:text-error-400' } },
+
+    // ===== Neutral (inverted di solid, biar tetap punya "berat" tanpa nyolok) =====
+    { color: 'neutral', variant: 'solid', class: { root: 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 before:bg-neutral-500 dark:before:bg-neutral-400' } },
+    { color: 'neutral', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-neutral-300 dark:ring-neutral-700 text-neutral-800 dark:text-neutral-200 before:bg-neutral-400 dark:before:bg-neutral-500' } },
+    { color: 'neutral', variant: 'soft', class: { root: 'bg-neutral-100 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 before:bg-neutral-400 dark:before:bg-neutral-500' } },
+    { color: 'neutral', variant: 'subtle', class: { root: 'bg-neutral-100 dark:bg-neutral-800/60 ring-neutral-300 dark:ring-neutral-700 text-neutral-800 dark:text-neutral-200 before:bg-neutral-400 dark:before:bg-neutral-500' } },
+    { color: 'neutral', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-neutral-800 dark:text-neutral-200' } }
+  ],
+  defaultVariants: {
+    color: 'primary',
+    variant: 'solid'
+  }
+},
     badge: {
       slots: {
         base: "font-medium inline-flex items-center",
@@ -261,7 +255,7 @@ export default defineAppConfig({
         {
           color: "primary",
           variant: "soft",
-          class: "bg-primary-500/50 text-primary-600",
+          class: "bg-primary-500/20 text-primary-600",
         },
         {
           color: "primary",
@@ -593,35 +587,575 @@ export default defineAppConfig({
       },
     },
 
+    radioGroup: {
+      slots: {
+        root: "relative",
+        fieldset: "flex gap-2",
+        legend: "mb-1.5 block font-medium text-[var(--text-main)]",
+        item: "flex items-start cursor-pointer select-none group",
+        container: "flex items-center",
+        base: "rounded-full ring ring-inset ring-accented overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 bg-default cursor-pointer transition-all duration-200",
+        indicator: "flex items-center justify-center size-full after:bg-default after:rounded-full transition-transform duration-150",
+        wrapper: "w-full",
+        label: "block font-medium text-[var(--text-main)] cursor-pointer select-none",
+        description: "text-[var(--text-muted)] text-sm",
+      },
+      variants: {
+        color: {
+          primary: {
+            base: "focus-visible:outline-primary focus-visible:ring-primary/50 data-[state=checked]:border-primary",
+            indicator: "bg-primary text-inverted",
+          },
+          secondary: {
+            base: "focus-visible:outline-secondary focus-visible:ring-secondary/50 data-[state=checked]:border-secondary",
+            indicator: "bg-secondary text-inverted",
+          },
+          success: {
+            base: "focus-visible:outline-success focus-visible:ring-success/50 data-[state=checked]:border-success",
+            indicator: "bg-success text-inverted",
+          },
+          info: {
+            base: "focus-visible:outline-info focus-visible:ring-info/50 data-[state=checked]:border-info",
+            indicator: "bg-info text-inverted",
+          },
+          warning: {
+            base: "focus-visible:outline-warning focus-visible:ring-warning/50 data-[state=checked]:border-warning",
+            indicator: "bg-warning text-inverted",
+          },
+          error: {
+            base: "focus-visible:outline-error focus-visible:ring-error/50 data-[state=checked]:border-error",
+            indicator: "bg-error text-inverted",
+          },
+          neutral: {
+            base: "focus-visible:outline-inverted focus-visible:ring-inverted/50 data-[state=checked]:border-inverted",
+            indicator: "bg-inverted text-default",
+          },
+        },
+        variant: {
+          list: {
+            item: "",
+          },
+          card: {
+            item: "border border-muted rounded-xl p-3.5 transition-all duration-200 cursor-pointer hover:bg-elevated/40",
+          },
+          table: {
+            item: "border border-muted transition-all duration-200",
+          },
+        },
+        orientation: {
+          horizontal: {
+            fieldset: "flex-row flex-wrap gap-4",
+          },
+          vertical: {
+            fieldset: "flex-col gap-2",
+          },
+        },
+        indicator: {
+          start: {
+            item: "flex-row",
+            wrapper: "ms-2.5",
+          },
+          end: {
+            item: "flex-row-reverse",
+            wrapper: "me-2.5",
+          },
+          hidden: {
+            base: "sr-only",
+            wrapper: "text-center",
+          },
+        },
+        size: {
+          xs: {
+            fieldset: "gap-1",
+            legend: "text-xs",
+            base: "size-3.5",
+            item: "text-xs",
+            container: "h-4",
+            indicator: "after:size-1",
+            wrapper: "text-xs",
+          },
+          sm: {
+            fieldset: "gap-1.5",
+            legend: "text-xs",
+            base: "size-4",
+            item: "text-xs",
+            container: "h-4.5",
+            indicator: "after:size-1.5",
+            wrapper: "text-xs",
+          },
+          md: {
+            fieldset: "gap-2",
+            legend: "text-sm",
+            base: "size-4.5",
+            item: "text-sm",
+            container: "h-5",
+            indicator: "after:size-2",
+            wrapper: "text-sm",
+          },
+          lg: {
+            fieldset: "gap-2.5",
+            legend: "text-sm",
+            base: "size-5",
+            item: "text-sm",
+            container: "h-5.5",
+            indicator: "after:size-2",
+            wrapper: "text-sm",
+          },
+          xl: {
+            fieldset: "gap-3",
+            legend: "text-base",
+            base: "size-6",
+            item: "text-base",
+            container: "h-6",
+            indicator: "after:size-2.5",
+            wrapper: "text-base",
+          },
+        },
+        required: {
+          true: {
+            legend: "after:content-['*'] after:ms-0.5 after:text-error",
+          },
+        },
+        disabled: {
+          true: {
+            item: "opacity-75 cursor-not-allowed",
+            base: "cursor-not-allowed",
+            label: "cursor-not-allowed",
+            description: "cursor-not-allowed",
+          },
+        },
+      },
+      compoundVariants: [
+        {
+          size: "xs",
+          variant: ["card", "table"],
+          class: {
+            item: "p-2.5",
+          },
+        },
+        {
+          size: "sm",
+          variant: ["card", "table"],
+          class: {
+            item: "p-3",
+          },
+        },
+        {
+          size: "md",
+          variant: ["card", "table"],
+          class: {
+            item: "p-3.5",
+          },
+        },
+        {
+          size: "lg",
+          variant: ["card", "table"],
+          class: {
+            item: "p-4",
+          },
+        },
+        {
+          size: "xl",
+          variant: ["card", "table"],
+          class: {
+            item: "p-4.5",
+          },
+        },
+        {
+          orientation: "horizontal",
+          variant: "table",
+          class: {
+            item: "first-of-type:rounded-s-lg last-of-type:rounded-e-lg",
+            fieldset: "gap-0 -space-x-px",
+          },
+        },
+        {
+          orientation: "vertical",
+          variant: "table",
+          class: {
+            item: "first-of-type:rounded-t-lg last-of-type:rounded-b-lg",
+            fieldset: "gap-0 -space-y-px",
+          },
+        },
+        {
+          color: "primary",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary-500/10 dark:has-data-[state=checked]:bg-primary-500/20",
+          },
+        },
+        {
+          color: "secondary",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-secondary has-data-[state=checked]:bg-secondary-500/5",
+          },
+        },
+        {
+          color: "success",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-success has-data-[state=checked]:bg-success-500/5",
+          },
+        },
+        {
+          color: "info",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-info has-data-[state=checked]:bg-info-500/5",
+          },
+        },
+        {
+          color: "warning",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-warning has-data-[state=checked]:bg-warning-500/5",
+          },
+        },
+        {
+          color: "error",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-error has-data-[state=checked]:bg-error-500/5",
+          },
+        },
+        {
+          color: "neutral",
+          variant: "card",
+          class: {
+            item: "has-data-[state=checked]:border-inverted has-data-[state=checked]:bg-elevated",
+          },
+        },
+        {
+          color: "primary",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-primary/10 has-data-[state=checked]:border-primary/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "secondary",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-secondary/10 has-data-[state=checked]:border-secondary/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "success",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-success/10 has-data-[state=checked]:border-success/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "info",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-info/10 has-data-[state=checked]:border-info/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "warning",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-warning/10 has-data-[state=checked]:border-warning/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "error",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-error/10 has-data-[state=checked]:border-error/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          color: "neutral",
+          variant: "table",
+          class: {
+            item: "has-data-[state=checked]:bg-elevated has-data-[state=checked]:border-inverted/50 has-data-[state=checked]:z-[1]",
+          },
+        },
+        {
+          variant: ["card", "table"],
+          disabled: true,
+          class: {
+            item: "cursor-not-allowed",
+          },
+        },
+      ],
+      defaultVariants: {
+        size: "md",
+        color: "primary",
+        variant: "list",
+        orientation: "vertical",
+        indicator: "start",
+      },
+    },
+
     container: {
       base: "max-w-(--ui-container) w-full space-y-8 bg-[var(--bg-surface)] px-8 py-4 rounded-xl z-100 block relative shadow-xl border border-[var(--border-main)] transition-all duration-300",
     },
     card: {
       slots: {
-        root: "rounded-xl overflow-hidden border-2 border-slate-300 transition-all duration-300 shadow-md hover:shadow-lg",
-        header: "p-4 sm:px-6 border-b border-[var(--border-main)] bg-[var(--bg-surface)]",
-        body: "p-4 sm:p-6",
-        footer: "p-4 sm:px-6 border-t border-[var(--border-main)] bg-[var(--bg-surface)]",
+        root: 'rounded-lg overflow-hidden',
+        header: 'p-4 sm:px-6',
+        title: 'text-highlighted font-semibold',
+        description: 'mt-1 text-muted text-sm',
+        body: 'p-4 sm:p-6',
+        footer: 'p-4 sm:px-6'
       },
       variants: {
+        color: {
+          primary: '',
+          secondary: '',
+          success: '',
+          info: '',
+          warning: '',
+          error: '',
+          neutral: ''
+        },
         variant: {
           solid: {
-            root: "bg-[var(--bg-main)] text-[var(--text-main)]",
+            root: 'bg-inverted text-inverted',
+            title: 'text-inverted',
+            description: 'text-dimmed'
           },
           outline: {
-            root: "bg-[var(--bg-main)] border border-[var(--border-main)]",
+            root: 'bg-default ring ring-default divide-y divide-default'
           },
           soft: {
-            root: "bg-[var(--bg-surface)] rounded-xl z-100 block relative shadow-lg",
+            root: 'bg-elevated/50 divide-y divide-default'
           },
           subtle: {
-            root: "bg-[var(--bg-surface)]/50 ring ring-[var(--border-main)] divide-y divide-[var(--border-main)]",
-          },
+            root: 'bg-elevated/50 ring ring-default divide-y divide-default'
+          }
+        }
+      },
+      compoundVariants: [
+        // ===== Primary =====
+        {
+          color: 'primary',
+          variant: 'solid',
+          class: {
+            root: 'bg-primary-600 dark:bg-primary-500 text-white divide-y divide-primary-500/20 dark:divide-primary-400/20',
+            title: 'text-white',
+            description: 'text-primary-100 dark:text-primary-200'
+          }
         },
-      },
-      defaultVariants: {
-        variant: "outline",
-      },
+        {
+          color: 'primary',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-primary-200 dark:ring-primary-900/40 divide-y divide-primary-200 dark:divide-primary-900/40 text-primary-900 dark:text-primary-100'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'soft',
+          class: {
+            root: 'bg-primary-50 dark:bg-primary-950/30 divide-y divide-primary-200 dark:divide-primary-900/40 text-primary-900 dark:text-primary-100'
+          }
+        },
+        {
+          color: 'primary',
+          variant: 'subtle',
+          class: {
+            root: 'bg-primary-50 dark:bg-primary-950/30 ring ring-primary-200 dark:ring-primary-900/40 divide-y divide-primary-200 dark:divide-primary-900/40 text-primary-900 dark:text-primary-100'
+          }
+        },
+
+        // ===== Secondary =====
+        {
+          color: 'secondary',
+          variant: 'solid',
+          class: {
+            root: 'bg-secondary-600 dark:bg-secondary-500 text-white divide-y divide-secondary-500/20 dark:divide-secondary-400/20',
+            title: 'text-white',
+            description: 'text-secondary-100 dark:text-secondary-200'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-secondary-200 dark:ring-secondary-900/40 divide-y divide-secondary-200 dark:divide-secondary-900/40 text-secondary-900 dark:text-secondary-100'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'soft',
+          class: {
+            root: 'bg-secondary-50 dark:bg-secondary-950/30 divide-y divide-secondary-200 dark:divide-secondary-900/40 text-secondary-900 dark:text-secondary-100'
+          }
+        },
+        {
+          color: 'secondary',
+          variant: 'subtle',
+          class: {
+            root: 'bg-secondary-50 dark:bg-secondary-950/30 ring ring-secondary-200 dark:ring-secondary-900/40 divide-y divide-secondary-200 dark:divide-secondary-900/40 text-secondary-900 dark:text-secondary-100'
+          }
+        },
+
+        // ===== Success =====
+        {
+          color: 'success',
+          variant: 'solid',
+          class: {
+            root: 'bg-success-600 dark:bg-success-500 text-white divide-y divide-success-500/20 dark:divide-success-400/20',
+            title: 'text-white',
+            description: 'text-success-100 dark:text-success-200'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-success-200 dark:ring-success-900/40 divide-y divide-success-200 dark:divide-success-900/40 text-success-900 dark:text-success-100'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'soft',
+          class: {
+            root: 'bg-success-50 dark:bg-success-950/30 divide-y divide-success-200 dark:divide-success-900/40 text-success-900 dark:text-success-100'
+          }
+        },
+        {
+          color: 'success',
+          variant: 'subtle',
+          class: {
+            root: 'bg-success-50 dark:bg-success-950/30 ring ring-success-200 dark:ring-success-900/40 divide-y divide-success-200 dark:divide-success-900/40 text-success-900 dark:text-success-100'
+          }
+        },
+
+        // ===== Info =====
+        {
+          color: 'info',
+          variant: 'solid',
+          class: {
+            root: 'bg-info-600 dark:bg-info-500 text-white divide-y divide-info-500/20 dark:divide-info-400/20',
+            title: 'text-white',
+            description: 'text-info-100 dark:text-info-200'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-info-200 dark:ring-info-900/40 divide-y divide-info-200 dark:divide-info-900/40 text-info-900 dark:text-info-100'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'soft',
+          class: {
+            root: 'bg-info-50 dark:bg-info-950/30 divide-y divide-info-200 dark:divide-info-900/40 text-info-900 dark:text-info-100'
+          }
+        },
+        {
+          color: 'info',
+          variant: 'subtle',
+          class: {
+            root: 'bg-info-50 dark:bg-info-950/30 ring ring-info-200 dark:ring-info-900/40 divide-y divide-info-200 dark:divide-info-900/40 text-info-900 dark:text-info-100'
+          }
+        },
+
+        // ===== Warning =====
+        {
+          color: 'warning',
+          variant: 'solid',
+          class: {
+            root: 'bg-warning-500 dark:bg-warning-500 text-neutral-950 font-medium divide-y divide-warning-400/20 dark:divide-warning-400/30',
+            title: 'text-neutral-950',
+            description: 'text-neutral-900 dark:text-neutral-950'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-warning-200 dark:ring-warning-900/40 divide-y divide-warning-200 dark:divide-warning-900/40 text-warning-900 dark:text-warning-100'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'soft',
+          class: {
+            root: 'bg-warning-50 dark:bg-warning-950/30 divide-y divide-warning-200 dark:divide-warning-900/40 text-warning-900 dark:text-warning-100'
+          }
+        },
+        {
+          color: 'warning',
+          variant: 'subtle',
+          class: {
+            root: 'bg-warning-50 dark:bg-warning-950/30 ring ring-warning-200 dark:ring-warning-900/40 divide-y divide-warning-200 dark:divide-warning-900/40 text-warning-900 dark:text-warning-100'
+          }
+        },
+
+        // ===== Error =====
+        {
+          color: 'error',
+          variant: 'solid',
+          class: {
+            root: 'bg-error-600 dark:bg-error-500 text-white divide-y divide-error-500/20 dark:divide-error-400/20',
+            title: 'text-white',
+            description: 'text-error-100 dark:text-error-200'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-neutral-900 ring ring-error-200 dark:ring-error-900/40 divide-y divide-error-200 dark:divide-error-900/40 text-error-900 dark:text-error-100'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'soft',
+          class: {
+            root: 'bg-error-50 dark:bg-error-950/30 divide-y divide-error-200 dark:divide-error-900/40 text-error-900 dark:text-error-100'
+          }
+        },
+        {
+          color: 'error',
+          variant: 'subtle',
+          class: {
+            root: 'bg-error-50 dark:bg-error-950/30 ring ring-error-200 dark:ring-error-900/40 divide-y divide-error-200 dark:divide-error-900/40 text-error-900 dark:text-error-100'
+          }
+        },
+
+        // ===== Neutral =====
+        {
+          color: 'neutral',
+          variant: 'solid',
+          class: {
+            root: 'bg-neutral-900 dark:bg-slate-900 text-white dark:text-slate-100 divide-y divide-neutral-700 dark:divide-slate-700',
+            title: 'text-white dark:text-slate-100',
+            description: 'text-neutral-300 dark:text-slate-400'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'outline',
+          class: {
+            root: 'bg-white dark:bg-slate-900 ring ring-neutral-200 dark:ring-slate-700 divide-y divide-neutral-200 dark:divide-slate-700 text-neutral-900 dark:text-slate-100'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'soft',
+          class: {
+            root: 'bg-neutral-100 dark:bg-slate-800/60 divide-y divide-neutral-200 dark:divide-slate-700 text-neutral-900 dark:text-slate-100'
+          }
+        },
+        {
+          color: 'neutral',
+          variant: 'subtle',
+          class: {
+            root: 'bg-neutral-100 dark:bg-slate-800/60 ring ring-neutral-200 dark:ring-slate-700 divide-y divide-neutral-200 dark:divide-slate-700 text-neutral-900 dark:text-slate-100'
+          }
+        }
+      ]
     },
     colors: {
       primary: "primary",
@@ -910,14 +1444,14 @@ export default defineAppConfig({
       slots: {
         overlay: "fixed inset-0",
         content:
-          "bg-secondary-50 divide-y divide-default flex flex-col focus:outline-none",
-        header: "flex items-center gap-1.5 p-4 sm:px-6 min-h-16",
+          "bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-main)] divide-y divide-[var(--border-main)] flex flex-col focus:outline-none",
+        header: "flex items-center gap-1.5 p-4 sm:px-6 min-h-16 text-[var(--text-main)]",
         wrapper: "",
-        body: "flex-1 p-4 sm:p-6",
-        footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6",
-        title: "text-highlighted font-semibold text-2xl",
-        description: "mt-1 text-muted text-sm",
-        close: "absolute top-4 end-4",
+        body: "flex-1 p-4 sm:p-6 text-[var(--text-main)]",
+        footer: "flex flex-row justify-between gap-1.5 p-4 sm:px-6 text-[var(--text-main)] bg-transparent",
+        title: "text-[var(--text-main)] font-semibold text-2xl",
+        description: "mt-1 text-[var(--text-muted)] text-sm",
+        close: "absolute top-4 end-4 text-[var(--text-muted)] hover:text-[var(--text-main)]",
       },
       variants: {
         transition: {
@@ -1549,13 +2083,13 @@ export default defineAppConfig({
           color: "primary",
           variant: "solid",
           class:
-            "text-inverted font-semibold tracking-wider from-primary-300 to-primary-400 bg-gradient-to-br hover:bg-primary/75 active:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary text-secondary-900 shadow-sm",
+            "text-inverted dark:bg-primary-600/90 text-neutral-50 dark:text-white font-semibold tracking-wider hover:bg-primary/75 disabled:bg-neutral-600 aria-disabled:bg-neutral-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary shadow-sm",
         },
         {
           color: "primary",
           variant: "outline",
           class:
-            "ring ring-inset ring-primary/50 text-primary hover:bg-primary/10 active:bg-primary/10 disabled:bg-transparent aria-disabled:bg-transparent dark:disabled:bg-transparent dark:aria-disabled:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            "ring ring-inset ring-primary/50 text-primary hover:bg-primary/10 active:bg-primary/10 disabled:bg-neutral-600 aria-disabled:bg-neutral-600 dark:disabled:bg-transparent dark:aria-disabled:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         },
         {
           color: "primary",
@@ -1669,6 +2203,101 @@ export default defineAppConfig({
           bg: "bg-primary-500",
         },
       },
+    },
+
+    /**
+     * UTable — override dark-mode text to pure white on all tables app-wide.
+     * Slot names come from the Nuxt UI v3 table theme (table$1).
+     *   th:    header cells  (default: text-highlighted)
+     *   td:    body cells    (default: text-muted)
+     *   empty: empty state   (default: text-muted)
+     */
+    table: {
+      slots: {
+        th: 'px-4 py-3.5 text-sm text-left rtl:text-right font-semibold text-gray-700 dark:text-white',
+        td: 'p-4 text-sm whitespace-nowrap text-gray-600 dark:text-white',
+        empty: 'py-6 text-center text-sm text-gray-500 dark:text-white',
+      }
+    },
+    dashboardSidebar: {
+      slots: {
+        body: 'p-3 flex flex-col justify-start gap-y-2',
+        header: 'px-4 py-3 border-b border-gray-200 dark:border-gray-800',
+        footer: 'p-0'
+      }
+    },
+    toast: {
+      slots: {
+        root: 'relative group overflow-hidden bg-white dark:bg-neutral-900 shadow-xl rounded-xl p-4 flex gap-3.5 focus:outline-none border-s-4 transition-all duration-200',
+        wrapper: 'min-w-0 flex-1 flex flex-col justify-center',
+        title: 'text-sm font-semibold leading-snug',
+        description: 'text-xs leading-relaxed mt-0.5',
+        icon: 'shrink-0 size-5 mt-0.5',
+        actions: 'flex items-center gap-1.5 shrink-0',
+        progress: 'hidden !important',
+        close: 'p-1 -mr-1 -mt-1 rounded-md text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors'
+      },
+      variants: {
+        color: {
+          error: {
+            root: 'border-s-error-500 ring-1 ring-error-500/25 dark:ring-error-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-error-500/10',
+            icon: 'text-error-500 dark:text-error-400',
+            title: 'text-error-950 dark:text-error-50 font-semibold',
+            description: 'text-error-800/80 dark:text-error-200/80'
+          },
+          success: {
+            root: 'border-s-success-500 ring-1 ring-success-500/25 dark:ring-success-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-success-500/10',
+            icon: 'text-success-600 dark:text-success-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          warning: {
+            root: 'border-s-warning-500 ring-1 ring-warning-500/25 dark:ring-warning-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-warning-500/10',
+            icon: 'text-warning-500 dark:text-warning-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          info: {
+            root: 'border-s-info-500 ring-1 ring-info-500/25 dark:ring-info-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-info-500/10',
+            icon: 'text-info-500 dark:text-info-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          primary: {
+            root: 'border-s-primary-500 ring-1 ring-primary-500/25 dark:ring-primary-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-primary-500/10',
+            icon: 'text-primary-500 dark:text-primary-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          secondary: {
+            root: 'border-s-secondary-500 ring-1 ring-secondary-500/25 dark:ring-secondary-500/30 bg-white dark:bg-neutral-900 shadow-lg shadow-secondary-500/10',
+            icon: 'text-secondary-500 dark:text-secondary-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-300'
+          },
+          neutral: {
+            root: 'border-s-neutral-400 ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 shadow-lg',
+            icon: 'text-neutral-600 dark:text-neutral-400',
+            title: 'text-neutral-900 dark:text-white font-semibold',
+            description: 'text-neutral-600 dark:text-neutral-400'
+          }
+        }
+      },
+      defaultVariants: {
+        color: 'primary'
+      }
+    },
+    selectMenu: {
+      slots: {
+        base: 'data-[state=open]:ring-2 data-[state=open]:ring-primary focus:ring-accented',
+        content: 'z-[9999]'
+      }
+    },
+    select: {
+      slots: {
+        base: 'data-[state=open]:ring-2 data-[state=open]:ring-primary focus:ring-accented',
+        content: 'z-[9999]'
+      }
     },
   },
 });
