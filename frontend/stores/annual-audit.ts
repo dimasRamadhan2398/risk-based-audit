@@ -611,6 +611,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.isActive = plan.isActive
     form.year = plan.year || ''
 
+    if (!form.code) {
+      const yr = form.year || yearOptions[0] || new Date().getFullYear().toString()
+      const catCode = getCategoryCode(form.activities[0]?.category)
+      const seq = (plans.value.length + 1).toString().padStart(3, '0')
+      form.code = `PKAT-${yr}-${catCode}-${seq}`
+    }
+
     showModal.value = true
   }
 

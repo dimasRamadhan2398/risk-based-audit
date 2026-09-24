@@ -74,13 +74,13 @@
 
       <UCard :ui="{ body: 'p-4' }">
         <div class="flex items-center gap-3">
-          <div class="p-3 bg-error-50 dark:bg-error-950 rounded-lg text-error-600">
-            <UIcon name="i-lucide-alert-triangle" class="size-6" />
+          <div class="p-3 bg-info-50 dark:bg-info-950 rounded-lg text-info-600">
+            <UIcon name="i-lucide-list-checks" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">Ditolak (Rejected)</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Jumlah Penanganan / Handling</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
-              {{ store.summaryList.filter(s => s.status === 'Rejected').length }}
+              {{ totalHandling }}
             </div>
           </div>
         </div>
@@ -135,15 +135,13 @@
                 <div class="flex items-center gap-2 flex-wrap">
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || 'Draft LHA' }}</h3>
                   <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
-                    {{ item.status }}
+                    Status: {{ item.status }}
                   </UBadge>
                   <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
                     Surat Tugas: {{ item.assignmentLetterId }}
                   </UBadge>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Periode Audit: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ item.periodeBulan }} {{ item.tahun }}</span>
-                  <span v-if="item.dokumenPath" class="mx-2">•</span>
                   <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400">
                     <UIcon name="i-lucide-paperclip" class="size-3" />
                     {{ item.dokumenPath }}
@@ -159,6 +157,8 @@
                   variant="ghost" 
                   icon="i-lucide-eye" 
                   size="md" 
+                  title="Lihat Detail"
+                  aria-label="Lihat Detail"
                   @click="store.openView(item)" 
                 />
               </UTooltip>
@@ -182,25 +182,6 @@
                 />
               </UTooltip>
 
-              <!-- Quick Workflow Actions -->
-              <UButton
-                v-if="item.status === 'Draft'"
-                color="success"
-                variant="soft"
-                icon="i-lucide-check-circle"
-                size="md"
-                label="Approve"
-                @click="store.updateStatus(item.id, 'Approved')"
-              />
-              <UButton
-                v-if="item.status === 'Approved'"
-                color="warning"
-                variant="soft"
-                icon="i-lucide-lock"
-                size="md"
-                label="Revert Draft"
-                @click="store.updateStatus(item.id, 'Draft')"
-              />
             </div>
           </div>
 
@@ -265,6 +246,9 @@
                 </h2>
                 <p class="text-xs sm:text-sm text-gray-500">ID LHA: {{ store.form.nomorDokumen || 'Draft' }}</p>
               </div>
+              <UBadge :color="getStatusColor(store.form.status)" variant="soft" class="font-bold uppercase">
+                Status: {{ store.form.status }}
+              </UBadge>
             </div>
 
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
@@ -314,6 +298,12 @@ const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const searchQuery = ref('')
 const selectedAssignmentLetter = ref('')
+
+const totalHandling = computed(() => {
+  return store.summaryList.reduce((total, summary) => {
+    return total + (summary.followUpTable || []).reduce((count, row) => count + Number(row.jumlah || 0), 0)
+  }, 0)
+})
 
 const assignmentLetterOptions = computed(() => {
   const lettersFromStore = assignmentLetterStore.assignmentLetterList.map((st: any) => st.letterNumber)
@@ -431,7 +421,6 @@ const filteredSummaries = computed(() => {
     const q = searchQuery.value.toLowerCase()
     list = list.filter(s => 
       s.nomorDokumen.toLowerCase().includes(q) ||
-      s.periodeBulan.toLowerCase().includes(q) ||
       (s.assignmentLetterId && s.assignmentLetterId.toLowerCase().includes(q)) ||
       (s.narrative && s.narrative.toLowerCase().includes(q))
     )

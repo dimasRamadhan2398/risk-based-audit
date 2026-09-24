@@ -74,13 +74,13 @@
 
       <UCard :ui="{ body: 'p-4' }">
         <div class="flex items-center gap-3">
-          <div class="p-3 bg-error-50 dark:bg-error-950 rounded-lg text-error-600">
-            <UIcon name="i-lucide-alert-triangle" class="size-6" />
+          <div class="p-3 bg-info-50 dark:bg-info-950 rounded-lg text-info-600">
+            <UIcon name="i-lucide-list-checks" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.stats.rejected') }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">Jumlah Penanganan / Handling</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
-              {{ store.summaryList.filter(s => s.status === 'Rejected').length }}
+              {{ totalHandling }}
             </div>
           </div>
         </div>
@@ -139,11 +139,11 @@
                 <div class="flex items-center gap-2 flex-wrap">
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummary.draftReport') }}</h3>
                   <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
-                    {{ item.status }}
+                    Status: {{ item.status }}
                   </UBadge>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {{ t('executiveSummary.periodLabel') }} <span class="font-semibold text-gray-700 dark:text-gray-300">{{ item.periodeBulan }} {{ item.tahun }}</span>
+                  Periode: <span class="font-semibold text-gray-700 dark:text-gray-300">Kuartal {{ item.quarter }} {{ item.tahun }}</span>
                   <span v-if="item.dokumenPath" class="mx-2">•</span>
                   <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400">
                     <UIcon name="i-lucide-paperclip" class="size-3" />
@@ -158,11 +158,6 @@
               <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="primary" variant="ghost" icon="i-lucide-edit" size="sm" @click="store.openEditForm(item as any)" :title="t('executiveSummary.actions.edit')" />
               <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="store.deleteSummary(item.id)" :title="t('executiveSummary.actions.delete')" />
               
-              <!-- Quick Workflow Actions -->
-              <div v-if="(item.status === 'Draft' && isChiefAuditExecutive) || (item.status === 'Approved' && isHigherAuthority)" class="border-l border-gray-200 dark:border-gray-700 pl-2 ml-1 flex gap-1">
-                <UButton v-if="item.status === 'Draft' && isChiefAuditExecutive" color="success" variant="soft" icon="i-lucide-check" size="sm" :label="t('executiveSummary.actions.approve')" @click="store.updateStatus(item.id, 'Approved')" />
-                <UButton v-if="item.status === 'Approved' && isHigherAuthority" color="warning" variant="soft" icon="i-lucide-unlock" size="sm" :label="t('executiveSummary.actions.revertDraft')" @click="store.updateStatus(item.id, 'Draft')" />
-              </div>
             </div>
           </div>
 
@@ -236,8 +231,8 @@
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-lucide-presentation" class="size-5 text-primary-500" />
                 {{ store.isViewing ? t('executiveSummary.modal.viewTitle') : (store.isEditing ? t('executiveSummary.modal.editTitle') : t('executiveSummary.modal.createTitle')) }}
-                <UBadge v-if="store.currentSummary" :color="getStatusColor(store.form.status)" variant="soft" class="ml-2 font-bold uppercase">
-                  {{ store.form.status }}
+                <UBadge :color="getStatusColor(store.form.status)" variant="soft" class="ml-2 font-bold uppercase">
+                  Status: {{ store.form.status }}
                 </UBadge>
               </h3>
               <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="() => { store.showModal = false }" />
@@ -271,17 +266,18 @@ const authStore = useAuthStore()
 const activeQuarter = ref(1)
 const searchQuery = ref('')
 
+const totalHandling = computed(() => {
+  return store.summaryList.reduce((total, summary) => {
+    return total + (summary.followUpTable || []).reduce((count, row) => count + Number(row.jumlah || 0), 0)
+  }, 0)
+})
+
 const quarters = computed(() => [
   { num: 1, label: t('executiveSummary.quarters.q1') },
   { num: 2, label: t('executiveSummary.quarters.q2') },
   { num: 3, label: t('executiveSummary.quarters.q3') },
   { num: 4, label: t('executiveSummary.quarters.q4') }
 ])
-
-// Role checks
-const isChiefAuditExecutive = computed(() => {
-  return authStore.user?.roles.includes(UserRole.CHIEF_AUDIT_EXECUTIVE) || authStore.user?.roles.includes(UserRole.ADMIN)
-})
 
 const isHigherAuthority = computed(() => {
   // Komite audit mapped as admin or explicit audit_committee role
@@ -303,7 +299,8 @@ const filteredSummaries = computed(() => {
     const searchLower = searchQuery.value.toLowerCase()
     const matchesSearch = !searchQuery.value ||
       s.nomorDokumen.toLowerCase().includes(searchLower) ||
-      s.periodeBulan.toLowerCase().includes(searchLower)
+      `kuartal ${s.quarter}`.includes(searchLower) ||
+      String(s.tahun).includes(searchLower)
     
     return qMatches && matchesSearch
   })

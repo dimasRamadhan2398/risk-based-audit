@@ -67,9 +67,10 @@
                   <UInput
                     v-model="store.form.code"
                     required
+                    disabled
                     type="text"
-                    placeholder="e.g. PKAT-2026-ASR-001"
-                    class="w-full font-mono text-sm"
+                    placeholder="Terisi otomatis"
+                    class="w-full font-mono text-sm bg-gray-100 dark:bg-gray-800"
                   />
                 </UFormField>
               </div>
