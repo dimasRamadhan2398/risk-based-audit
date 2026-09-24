@@ -82,6 +82,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		&models.UploadedAuditResultReport{},
 		&models.UploadedExecutiveSummary{},
 		&models.UploadedExecutiveSummaryReport{},
+		&models.ExecutiveSummary{},
 		&models.UploadedConsultingDocument{},
 		&models.UploadedPerformanceReport{},
 		&models.ImportedWorkingPaper{},

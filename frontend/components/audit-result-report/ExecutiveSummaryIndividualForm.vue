@@ -52,7 +52,7 @@
             <p class="text-sm text-gray-400">Detail identitas laporan kompilasi dan unggahan dokumen resmi.</p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <UFormField label="Pilih LHA / ID Laporan Hasil Audit">
               <USelectMenu
                 v-model="selectedLhaId"
@@ -61,27 +61,6 @@
                 class="w-full font-semibold"
                 :disabled="isLocked"
                 @update:modelValue="onLhaSelect"
-              />
-            </UFormField>
-
-            <UFormField label="Tahun Laporan" required>
-              <USelectMenu
-                v-model="store.form.tahun"
-                :items="[2026, 2025, 2024, 2023]"
-                placeholder="Pilih Tahun"
-                class="w-full font-semibold"
-                :disabled="isLocked"
-              />
-            </UFormField>
-
-            <UFormField label="Periode Bulan" required>
-              <USelectMenu
-                v-model="store.form.periodeBulan"
-                :items="monthOptions"
-                placeholder="Pilih Bulan"
-                class="w-full font-semibold"
-                :disabled="isLocked"
-                @update:modelValue="onMonthChange"
               />
             </UFormField>
 
@@ -160,89 +139,6 @@
               class="w-full"
               :disabled="isLocked"
             />
-          </div>
-        </section>
-
-        <!-- 3. Section Statistik Kompilasi -->
-        <section id="sec-stats" class="space-y-6 scroll-mt-6">
-          <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
-            <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-              <span class="text-primary-500">III.</span> Section II: Statistik Kompilasi
-            </h2>
-            <p class="text-sm text-gray-400">Data kuantitatif total laporan, temuan (breakdown risiko), dan rekomendasi.</p>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <UFormField label="Jumlah Laporan (LHA)" required>
-              <UInput
-                type="number"
-                v-model.number="store.form.jumlahLaporan"
-                placeholder="Contoh: 12"
-                class="w-full font-bold"
-                :disabled="isLocked"
-                min="0"
-              />
-            </UFormField>
-
-            <UFormField label="Jumlah Rekomendasi" required>
-              <UInput
-                type="number"
-                v-model.number="store.form.jumlahRekomendasi"
-                placeholder="Contoh: 48"
-                class="w-full font-bold"
-                :disabled="isLocked"
-                min="0"
-              />
-            </UFormField>
-
-            <!-- Auto calculated fields -->
-            <UFormField label="Total Temuan (Auto-Sum)">
-              <UInput
-                v-model="totalTemuanSummary"
-                class="w-full font-bold bg-gray-50 dark:bg-gray-800"
-                disabled
-                title="Jumlah otomatis dari breakdown tingkat risiko"
-              >
-                <template #trailing>
-                  <span class="text-md text-gray-400">Temuan</span>
-                </template>
-              </UInput>
-            </UFormField>
-          </div>
-
-          <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
-            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">Breakdown Temuan Berdasarkan Risiko</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <UFormField label="Risiko Tinggi (High)">
-                <UInput
-                  type="number"
-                  v-model.number="store.form.risikoTinggi"
-                  class="w-full border-l-4 border-error-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
-                />
-              </UFormField>
-
-              <UFormField label="Risiko Sedang (Medium)">
-                <UInput
-                  type="number"
-                  v-model.number="store.form.risikoSedang"
-                  class="w-full border-l-4 border-warning-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
-                />
-              </UFormField>
-
-              <UFormField label="Risiko Rendah (Low)">
-                <UInput
-                  type="number"
-                  v-model.number="store.form.risikoRendah"
-                  class="w-full border-l-4 border-success-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
-                />
-              </UFormField>
-            </div>
           </div>
         </section>
 
@@ -494,45 +390,33 @@
           </div>
         </section>
 
-        <!-- 7. Section VI: System Generated Charts -->
-        <section id="sec-charts" class="space-y-6 scroll-mt-6 bg-gray-50 dark:bg-gray-900/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-800">
+        <!-- Catatan Executive untuk Auditor -->
+        <section v-if="store.isViewing" id="sec-notes" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-              <span class="text-primary-500">VII.</span> Section VI: Tren & Grafik (System Generated Visuals)
+              <UIcon name="i-lucide-message-square-text" class="size-5 text-primary-500" />
+              Noted dari Executive untuk Auditor
             </h2>
-            <p class="text-sm text-gray-400">Visualisasi otomatis yang digenerate sistem berdasarkan data Section III dan Matriks Induk.</p>
+            <p class="text-sm text-gray-400">Catatan tindak lanjut atau arahan Executive kepada Auditor.</p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Pie Chart: Status Tindak Lanjut -->
-            <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
-              <template #header>
-                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">% Status Tindak Lanjut</h5>
-              </template>
-              <div class="size-full max-h-52 max-w-52">
-                <Doughnut v-if="renderCharts" :data="pieChartData" :options="chartOptions" />
-              </div>
-            </UCard>
-
-            <!-- Bar Chart: Temuan Per Bulan -->
-            <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
-              <template #header>
-                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">Jumlah Temuan per Bulan</h5>
-              </template>
-              <div class="w-full h-52">
-                <Bar v-if="renderCharts" :data="barChartData" :options="{ ...chartOptions, scales: { y: { beginAtZero: true } } }" />
-              </div>
-            </UCard>
-
-            <!-- Line Chart: Aging Rekomendasi -->
-            <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
-              <template #header>
-                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">Aging Rekomendasi (Progress Rata-rata %)</h5>
-              </template>
-              <div class="w-full h-52">
-                <Line v-if="renderCharts" :data="lineChartData" :options="{ ...chartOptions, scales: { y: { min: 0, max: 100 } } }" />
-              </div>
-            </UCard>
+          <UFormField label="Noted">
+            <UTextarea
+              v-model="store.form.executiveNote"
+              placeholder="Tuliskan catatan untuk Auditor..."
+              :rows="5"
+              class="w-full"
+              :disabled="!canWriteExecutiveNote"
+            />
+          </UFormField>
+          <div v-if="canWriteExecutiveNote" class="flex justify-end">
+            <UButton
+              color="primary"
+              icon="i-lucide-save"
+              label="Simpan Catatan"
+              :loading="store.loading"
+              @click="store.saveExecutiveNote"
+            />
           </div>
         </section>
 
@@ -567,16 +451,6 @@
             :loading="store.loading"
             @click="saveReportDraft"
           />
-          <UButton
-            v-if="!isLocked && isChiefAuditExecutive"
-            color="success"
-            variant="solid"
-            icon="i-lucide-check-circle"
-            label="Setujui Laporan (Approve)"
-            class="font-bold px-6"
-            :loading="store.loading"
-            @click="approveReportDirectly"
-          />
         </template>
         
         <!-- Locked/Unlocked Overrides -->
@@ -591,16 +465,6 @@
             :loading="store.loading"
             @click="approveReportDirectly"
           />
-          <UButton
-            v-if="store.form.status === 'Approved' && isHigherAuthority"
-            color="warning"
-            variant="solid"
-            icon="i-lucide-unlock"
-            label="Buka Kunci (Revert to Draft)"
-            class="font-bold px-6"
-            :loading="store.loading"
-            @click="revertToDraft"
-          />
         </template>
       </div>
     </div>
@@ -608,73 +472,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
-import { Doughnut, Bar, Line } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-} from 'chart.js'
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler)
-
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
-const renderCharts = ref(false)
 const scrollContainer = ref<HTMLElement | null>(null)
 
 // Navigation links
-const sections = [
+const sections = computed(() => [
   { id: 'sec-upload', index: '1', title: 'Navigation & Upload' },
   { id: 'sec-narrative', index: '2', title: 'Narrative Summary' },
-  { id: 'sec-stats', index: '3', title: 'Statistik Temuan' },
-  { id: 'sec-followup', index: '4', title: 'Status Tindak Lanjut' },
-  { id: 'sec-topfindings', index: '5', title: 'Temuan Signifikan' },
-  { id: 'sec-analysis', index: '6', title: 'Akar Masalah' },
-  { id: 'sec-charts', index: '7', title: 'Tren & Grafik' }
-]
+  { id: 'sec-followup', index: '3', title: 'Status Tindak Lanjut' },
+  { id: 'sec-topfindings', index: '4', title: 'Temuan Signifikan' },
+  { id: 'sec-analysis', index: '5', title: 'Akar Masalah' },
+  ...(store.isViewing ? [{ id: 'sec-notes', index: '6', title: 'Noted' }] : [])
+])
 
 // Dropdown options
 const divisionOptions = ['OP', 'KK/KSD', 'IT', 'FIN', 'HR', 'LEG']
-
-const monthOptions = computed(() => {
-  if (store.form.quarter === 1) return ['Januari', 'Februari', 'Maret']
-  if (store.form.quarter === 2) return ['April', 'Mei', 'Juni']
-  if (store.form.quarter === 3) return ['Juli', 'Agustus', 'September']
-  return ['Oktober', 'November', 'Desember']
-})
 
 // Role computed checks
 const isChiefAuditExecutive = computed(() => {
   return authStore.user?.roles.includes(UserRole.CHIEF_AUDIT_EXECUTIVE) || authStore.user?.roles.includes(UserRole.ADMIN)
 })
 
-const isHigherAuthority = computed(() => {
-  return authStore.user?.roles.includes(UserRole.ADMIN) || authStore.user?.roles.includes('audit_committee')
-})
-
 const isLocked = computed(() => {
   return store.form.status === 'Approved'
 })
 
-// Section II computed auto-sum
-const totalTemuanSummary = computed(() => {
-  return (store.form.risikoTinggi || 0) + (store.form.risikoSedang || 0) + (store.form.risikoRendah || 0)
-})
+const canWriteExecutiveNote = computed(() => Boolean(isChiefAuditExecutive.value))
 
 // Section III computed auto-sums
 const totalFollowUpCount = computed(() => {
@@ -692,13 +523,6 @@ const recalculatePercentages = () => {
 // Helper formatting percentage
 const formatPercent = (val: number) => {
   return val ? val.toFixed(1) : '0.0'
-}
-
-// Dropdown change behavior
-const onMonthChange = (val: any) => {
-  if (!store.form.narrative || store.form.narrative.startsWith('Periode ')) {
-    store.form.narrative = store.defaultNarrativeTemplate(store.form.periodeBulan, store.form.tahun)
-  }
 }
 
 const resetNarrativeToDefault = () => {
@@ -750,13 +574,6 @@ const removeTopFinding = (idx: number) => {
   store.form.topFindings.splice(idx, 1)
 }
 
-// Charting Visuals data providers
-const statusBadgeColorMap = {
-  Closed: 'success',
-  'In Progress': 'info',
-  Overdue: 'error'
-}
-
 const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
   const colors = {
     Closed: 'bg-success-100 text-success-800 dark:bg-success-950 dark:text-success-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
@@ -765,118 +582,6 @@ const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
   }
   return colors[status]
 }
-
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'bottom' as const,
-      labels: {
-        boxWidth: 12,
-        font: { size: 10 }
-      }
-    }
-  }
-}
-
-// Pie Chart (Section III Data)
-const pieChartData = computed(() => {
-  const labels = ['Closed', 'In Progress', 'Overdue']
-  const data = store.form.followUpTable.map(r => r.jumlah || 0)
-  
-  return {
-    labels,
-    datasets: [{
-      data,
-      backgroundColor: ['#1fc16b', '#00d4f9', '#fc423f'],
-      hoverOffset: 4
-    }]
-  }
-})
-
-// Bar Chart (Monthly distribution from Matrix)
-const barChartData = computed(() => {
-  // Extract month count from matrix due dates
-  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-  const counts = Array(12).fill(0)
-
-  store.form.matriksKompilasi.forEach(row => {
-    if (!row.dueDate) return
-    const date = new Date(row.dueDate)
-    if (!isNaN(date.getTime())) {
-      counts[date.getMonth()]++
-    }
-  })
-
-  // Determine active quarter's months to display
-  let labels = ['Januari', 'Februari', 'Maret']
-  let data = counts.slice(0, 3)
-
-  if (store.form.quarter === 2) {
-    labels = ['April', 'Mei', 'Juni']
-    data = counts.slice(3, 6)
-  } else if (store.form.quarter === 3) {
-    labels = ['Juli', 'Agustus', 'September']
-    data = counts.slice(6, 9)
-  } else if (store.form.quarter === 4) {
-    labels = ['Oktober', 'November', 'Desember']
-    data = counts.slice(9, 12)
-  }
-
-  // Fallback to dummy data if matrix is empty
-  if (store.form.matriksKompilasi.length === 0) {
-    data = [2, 5, 3]
-  }
-
-  return {
-    labels,
-    datasets: [{
-      label: 'Jumlah Temuan',
-      data,
-      backgroundColor: '#ff5c02',
-      borderRadius: 4
-    }]
-  }
-})
-
-// Line Chart (Aging Recommendation progress by Month)
-const lineChartData = computed(() => {
-  let labels = ['Januari', 'Februari', 'Maret']
-  let data = [65, 80, 95] // Fallback
-
-  if (store.form.quarter === 2) {
-    labels = ['April', 'Mei', 'Juni']
-    data = [70, 75, 88]
-  } else if (store.form.quarter === 3) {
-    labels = ['Juli', 'Agustus', 'September']
-    data = [60, 68, 72]
-  } else if (store.form.quarter === 4) {
-    labels = ['Oktober', 'November', 'Desember']
-    data = [80, 85, 92]
-  }
-
-  // Calculate actual average progress from matrix if items exist
-  if (store.form.matriksKompilasi.length > 0) {
-    const totalProg = store.form.matriksKompilasi.reduce((acc, r) => acc + (r.progres || 0), 0)
-    const avgProg = totalProg / store.form.matriksKompilasi.length
-    // Plot a line trending toward the current average
-    data = [Math.round(avgProg * 0.7), Math.round(avgProg * 0.85), Math.round(avgProg)]
-  }
-
-  return {
-    labels,
-    datasets: [{
-      label: 'Progres Tindak Lanjut (%)',
-      data,
-      borderColor: '#4d00ff',
-      backgroundColor: 'rgba(77, 0, 255, 0.1)',
-      borderWidth: 2,
-      fill: true,
-      tension: 0.3
-    }]
-  }
-})
 
 // Form submission & workflow helpers
 const saveReportDraft = async () => {
@@ -895,25 +600,8 @@ const saveReportDraft = async () => {
 }
 
 const approveReportDirectly = async () => {
-  if (!store.form.nomorDokumen) {
-    alert('Nomor dokumen wajib diisi.')
-    return
-  }
-  if (!store.form.dokumenPath) {
-    alert('Unggah dokumen resmi wajib diisi.')
-    return
-  }
-
-  // Set status Approved
-  store.form.status = 'Approved'
-  await store.saveForm()
-}
-
-const revertToDraft = async () => {
-  if (await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin membuka kunci dokumen dan mengembalikannya ke Draft?' })) {
-    if (store.currentSummary) {
-      await store.updateStatus(store.currentSummary.id, 'Draft')
-    }
+  if (store.currentSummary) {
+    await store.updateStatus(store.currentSummary.id, 'Approved')
   }
 }
 
@@ -928,7 +616,7 @@ const scrollToSection = (id: string) => {
 
 const onScroll = () => {
   const scrollOffset = 150
-  for (const sec of sections) {
+  for (const sec of sections.value) {
     const el = document.getElementById(sec.id)
     if (el) {
       const rect = el.getBoundingClientRect()
@@ -976,12 +664,4 @@ const onLhaSelect = (val: any) => {
   }
 }
 
-// Chart rendering delay to prevent sizing glitches in modal
-onMounted(() => {
-  nextTick(() => {
-    setTimeout(() => {
-      renderCharts.value = true
-    }, 300)
-  })
-})
 </script>

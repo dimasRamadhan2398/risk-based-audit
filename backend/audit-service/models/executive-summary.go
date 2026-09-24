@@ -15,7 +15,8 @@ type ExecutiveSummary struct {
 	NomorDokumen        string         `gorm:"type:varchar(100)" json:"nomorDokumen"`
 	DokumenPath         string         `gorm:"type:varchar(255)" json:"dokumenPath"` // Uploaded file
 	Status              string         `gorm:"type:varchar(50);default:'Draft'" json:"status"` // Draft, Approved, Rejected
-	
+	ExecutiveNote       string         `gorm:"type:text" json:"executiveNote"`                // Note from Executive to Auditor
+
 	// Section I
 	Narrative           string         `gorm:"type:text" json:"narrative"`
 
