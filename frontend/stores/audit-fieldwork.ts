@@ -792,7 +792,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     if (targetUrl && (targetUrl.startsWith('http://') || targetUrl.startsWith('https://'))) {
       return targetUrl
     }
-    const targetName = item.fileName || item.file?.name || ''
+    const targetName = item.fileName || item.file || ''
     const baseUrl = getAuditServiceBaseUrl()
     if (targetName) {
       return `${baseUrl}/media/download/${encodeURIComponent(targetName)}`
@@ -1927,6 +1927,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlCount,
     effectiveControls,
     ineffectiveControls,
+    mockFieldwork,
+    fieldworkData,
     uploadFile,
     downloadFile,
     fetchAllFieldworkData,

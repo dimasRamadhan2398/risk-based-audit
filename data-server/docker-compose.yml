@@ -1,0 +1,188 @@
+# ============================================================================
+# AuditSphere Data Hub — Docker Compose
+# 6 Services: Nginx, CBS Sim, Data Lake, Data Hub API, CAATT Engine, AI Engine
+# ============================================================================
+
+services:
+  # ─── 1. Nginx Gateway (Reverse Proxy + Basic Auth) ─────────────────────────
+  nginx-gateway:
+    image: nginx:1.27-alpine
+    container_name: auditsphere_nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/htpasswd:/etc/nginx/.htpasswd:ro
+    depends_on:
+      caatt-engine:
+        condition: service_started
+    networks:
+      - auditsphere_data_net
+    restart: unless-stopped
+
+  # ─── 2. PostgreSQL: CBS Simulator ──────────────────────────────────────────
+  postgres-cbs-sim:
+    image: postgres:16-alpine
+    container_name: auditsphere_cbs
+    environment:
+      POSTGRES_USER: ${CBS_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${CBS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${CBS_POSTGRES_DB:-cbs_simulator}
+    volumes:
+      - cbs_data:/var/lib/postgresql/data
+      - ./init-cbs-simulator.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - auditsphere_data_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CBS_POSTGRES_USER:-postgres} -d ${CBS_POSTGRES_DB:-cbs_simulator}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # ─── 3. PostgreSQL: Data Lake (Bronze / Silver / Gold) ─────────────────────
+  postgres-datalake:
+    image: postgres:16-alpine
+    container_name: auditsphere_datalake
+    environment:
+      POSTGRES_USER: ${DATALAKE_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATALAKE_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DATALAKE_POSTGRES_DB:-auditsphere_datalake}
+      ETL_USER_PASSWORD: ${ETL_USER_PASSWORD}
+      AUDITOR_AI_PASSWORD: ${AUDITOR_AI_PASSWORD}
+      DATAHUB_API_PASSWORD: ${DATAHUB_API_PASSWORD}
+    volumes:
+      - datalake_data:/var/lib/postgresql/data
+      - ./init-datalake.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - auditsphere_data_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATALAKE_POSTGRES_USER:-postgres} -d ${DATALAKE_POSTGRES_DB:-auditsphere_datalake}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 512M
+
+  # ─── 4. Data Hub API (FastAPI REST Gateway) ────────────────────────────────
+  data-hub-api:
+    build:
+      context: ./data-hub-api
+      dockerfile: Dockerfile
+    container_name: auditsphere_datahub_api
+    ports:
+      - "${DATA_HUB_PORT:-8100}:8100"
+    environment:
+      DATABASE_URL: "postgresql://${DATALAKE_POSTGRES_USER:-postgres}:${DATALAKE_POSTGRES_PASSWORD}@postgres-datalake:5432/${DATALAKE_POSTGRES_DB:-auditsphere_datalake}"
+      CBS_DATABASE_URL: "postgresql://${CBS_POSTGRES_USER:-postgres}:${CBS_POSTGRES_PASSWORD}@postgres-cbs-sim:5432/${CBS_POSTGRES_DB:-cbs_simulator}"
+      API_KEY: ${DATA_HUB_API_KEY}
+      ETL_USER: etl_user
+      ETL_USER_PASSWORD: ${ETL_USER_PASSWORD}
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - hub_data:/app/data
+    depends_on:
+      postgres-datalake:
+        condition: service_healthy
+      postgres-cbs-sim:
+        condition: service_healthy
+    networks:
+      - auditsphere_data_net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # ─── 5. CAATT Engine (JupyterLab + dlt + 11 Techniques) ───────────────────
+  caatt-engine:
+    build:
+      context: .
+      dockerfile: caatt-engine/Dockerfile
+    container_name: auditsphere_caatt
+    environment:
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN}
+      DATALAKE_HOST: postgres-datalake
+      DATALAKE_PORT: "5432"
+      DATALAKE_DB: ${DATALAKE_POSTGRES_DB:-auditsphere_datalake}
+      DATALAKE_USER: etl_user
+      DATALAKE_PASSWORD: ${ETL_USER_PASSWORD}
+      CBS_HOST: postgres-cbs-sim
+      CBS_PORT: "5432"
+      CBS_DB: ${CBS_POSTGRES_DB:-cbs_simulator}
+      CBS_USER: ${CBS_POSTGRES_USER:-postgres}
+      CBS_PASSWORD: ${CBS_POSTGRES_PASSWORD}
+      DATA_HUB_URL: "http://data-hub-api:8100"
+      AI_ENGINE_URL: "http://ai-engine:8000"
+    volumes:
+      - jupyter_data:/home/jovyan/work
+      - ./notebooks:/home/jovyan/notebooks
+    depends_on:
+      postgres-datalake:
+        condition: service_healthy
+      postgres-cbs-sim:
+        condition: service_healthy
+    networks:
+      - auditsphere_data_net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 768M
+
+  # ─── 6. AI Engine (FastAPI + PyTorch + XGBoost) ────────────────────────────
+  ai-engine:
+    build:
+      context: ./ai-engine
+      dockerfile: Dockerfile
+    container_name: auditsphere_ai_engine
+    ports:
+      - "${AI_ENGINE_PORT:-8006}:8000"
+    environment:
+      DATABASE_URL: "postgresql://etl_user:${ETL_USER_PASSWORD}@postgres-datalake:5432/${DATALAKE_POSTGRES_DB:-auditsphere_datalake}"
+      GOLD_SCHEMA: gold
+      API_KEY: ${AI_ENGINE_API_KEY}
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ai_models:/app/models
+      - ./ai-training-data:/app/ai_model_training:ro
+    depends_on:
+      postgres-datalake:
+        condition: service_healthy
+    networks:
+      - auditsphere_data_net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+# ─── Networks ────────────────────────────────────────────────────────────────
+networks:
+  auditsphere_data_net:
+    driver: bridge
+
+# ─── Volumes ─────────────────────────────────────────────────────────────────
+volumes:
+  cbs_data:
+  datalake_data:
+  hub_data:
+  ai_models:
+  jupyter_data:

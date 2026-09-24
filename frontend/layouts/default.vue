@@ -5,6 +5,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
+import { label } from 'happy-dom/lib/PropertySymbol.js'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -328,25 +329,72 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
     to: '/analytics',
     children: [
       {
-        label: t('navigation.riskScoringPrediction'),
-        icon: 'i-lucide-binary',
-        to: { path: '/analytics', query: { tab: 'xgboost' } }
+        label: 'AI Insights',
+        icon: 'i-heroicons-cpu-chip',
+        children: [
+          {
+            label: t('navigation.riskScoringPrediction'),
+            icon: 'i-lucide-binary',
+            to: '/analytics/ai/risk-scoring'
+          },
+          {
+            label: t('navigation.anomalyDetection'),
+            icon: 'i-lucide-shield-alert',
+            to: '/analytics/ai/anomaly-detection'
+          },
+          {
+            label: t('navigation.nlpAnalysis'),
+            icon: 'i-lucide-file-search',
+            to: '/analytics/ai/nlp' 
+          },
+          {
+            label: t('navigation.kpiForecast'),
+            icon: 'i-lucide-trending-up',
+            to: '/analytics/ai/kpi-forecast'
+          },
+        ]
       },
       {
-        label: t('navigation.anomalyDetection'),
-        icon: 'i-lucide-shield-alert',
-        to: { path: '/analytics', query: { tab: 'isolation' } }
+        label: 'CAATT Insight',
+        icon: 'i-heroicons-chart-bar',
+        children: [
+          {
+            label: t('navigation.caattFullPopulation'),
+            icon: 'i-lucide-check-check',
+            to: '/analytics/caatt/full-population'
+          },
+          {
+            label: t('navigation.caattDuplicateGap'),
+            icon: 'i-lucide-copy-x',
+            to: '/analytics/caatt/duplicate-gap'
+          },
+          {
+            label: t('navigation.caattBenford'),
+            icon: 'i-lucide-calculator',
+            to: '/analytics/caatt/benford'
+          },
+          {
+            label: t('navigation.caattStratification'),
+            icon: 'i-lucide-layers',
+            to: '/analytics/caatt/stratification'
+          },
+          {
+            label: t('navigation.caattReconciliation'),
+            icon: 'i-lucide-git-compare',
+            to: '/analytics/caatt/reconciliation'
+          },
+          {
+            label: t('navigation.caattPolicy'),
+            icon: 'i-lucide-alert-triangle',
+            to: '/analytics/caatt/policy'
+          },
+          {
+            label: t('navigation.caattDataQuality'),
+            icon: 'i-lucide-gauge',
+            to: '/analytics/caatt/data-quality'
+          }
+        ]
       },
-      {
-        label: t('navigation.nlpAnalysis'),
-        icon: 'i-lucide-file-search',
-        to: { path: '/analytics', query: { tab: 'nlp' } } 
-      },
-      {
-        label: t('navigation.kpiForecast'),
-        icon: 'i-lucide-trending-up',
-        to: { path: '/analytics', query: { tab: 'kpi-forecast' } }
-      }
     ]
   },
 

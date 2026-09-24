@@ -1096,6 +1096,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     showModalF01, showModalF02, showModalF03, showModalF04, showModalF05,
     isEditingF01, isEditingF02, isEditingF03, isEditingF04, isEditingF05,
     dataF01, dataF02, dataF03, dataF04, dataF05,
+    mockF01, mockF02, mockF03, mockF04, mockF05,
     filteredDataF01, filteredDataF02, filteredDataF03, filteredDataF04, filteredDataF05,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,

@@ -40,7 +40,7 @@ app:
   rate_limiter_time: 1
 
 gdrive:
-  enabled: true
+  enabled: false
   auth_mode: "service_account"
   credentials_json_path: "./pkg/config/gdrive-credentials.json"
   credentials_json: ""

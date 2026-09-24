@@ -12,6 +12,7 @@ import (
 
 type PythonAIClient struct {
 	baseURL string
+	apiKey  string
 	client  *http.Client
 }
 
@@ -20,8 +21,16 @@ func NewPythonAIClient() *PythonAIClient {
 	if baseURL == "" {
 		baseURL = "http://localhost:8000" // Default fallback for local dev
 	}
+	apiKey := os.Getenv("PYTHON_AI_API_KEY")
+	if apiKey == "" {
+		apiKey = os.Getenv("AI_API_KEY")
+	}
+	if apiKey == "" {
+		apiKey = "dev-ai-api-key"
+	}
 	return &PythonAIClient{
 		baseURL: baseURL,
+		apiKey:  apiKey,
 		client: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -207,6 +216,8 @@ func (c *PythonAIClient) getJSON(endpoint string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("X-API-Key", c.apiKey)
+	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -232,6 +243,8 @@ func (c *PythonAIClient) postJSON(endpoint string, body interface{}) ([]byte, er
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", c.apiKey)
+	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.client.Do(req)
 	if err != nil {

@@ -1035,8 +1035,8 @@
     }
   },
   "analytics": {
-    "title": "Pusat AI & Analitik",
-    "subtitle": "Integrasi Terpadu Model Machine Learning & Deep Learning (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
+    "title": "Pusat Data Analitik",
+    "subtitle": "Data Analitik Komperehensive menggunakan Engine CAATT & Engine AI",
     "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
     "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
     "statusDisconnected": "AI Backend Terputus",
@@ -1055,7 +1055,14 @@
       "riskScoring": "Risk Scoring",
       "anomalyDetection": "Anomaly Detection",
       "documentProcessing": "Pemrosesan Dokumen",
-      "kpiForecast": "Prediksi KPI"
+      "kpiForecast": "Prediksi KPI",
+      "caattFullPopulation": "100% Populasi",
+      "caattDuplicateGap": "Duplikat & Gap",
+      "caattBenford": "Hukum Benford",
+      "caattStratification": "Stratifikasi & Aging",
+      "caattReconciliation": "Rekonsiliasi Sistem",
+      "caattPolicy": "Kepatuhan Kebijakan",
+      "caattDataQuality": "Kualitas Data"
     },
     "xgboost": {
       "alertTitle": "Model ML Penilaian Risiko Departemen & Entitas",
@@ -2376,6 +2383,13 @@
     "detectedAnomaliesDetail": "Detail Anomali Terdeteksi",
     "nlpAnalysis": "Analisis NLP",
     "kpiForecast": "Prakiraan KPI",
+    "caattFullPopulation": "Pengujian 100% Populasi",
+    "caattDuplicateGap": "Integritas Duplikat & Gap",
+    "caattBenford": "Analisis Hukum Benford",
+    "caattStratification": "Stratifikasi & Aging",
+    "caattReconciliation": "Rekonsiliasi Lintas Sistem",
+    "caattPolicy": "Kepatuhan Kebijakan Perbankan",
+    "caattDataQuality": "Dashboard Kualitas Data",
     "masterData": "Data Master",
     "employeeManagement": "Manajemen Karyawan",
     "department": "Departemen",

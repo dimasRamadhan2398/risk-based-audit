@@ -134,14 +134,11 @@ export function useXGBoostData() {
   ]
 
   const featureImportance: FeatureImportance[] = [
-    { feature: 'Prior Audit Findings Count', importance: 0.28 },
-    { feature: 'KPI Achievement Rate', importance: 0.22 },
-    { feature: 'Transaction Volume', importance: 0.17 },
-    { feature: 'Employee Turnover Rate', importance: 0.12 },
-    { feature: 'Compliance Score', importance: 0.09 },
-    { feature: 'Outstanding Mitigations', importance: 0.06 },
-    { feature: 'Previous Risk Score', importance: 0.04 },
-    { feature: 'External Audit Flags', importance: 0.02 },
+    { feature: 'Prior Audit Findings Count', importance: 0.36 },
+    { feature: 'KPI Achievement Rate', importance: 0.29 },
+    { feature: 'Transaction Volume', importance: 0.22 },
+    { feature: 'Outstanding Mitigations', importance: 0.08 },
+    { feature: 'Previous Risk Score', importance: 0.05 },
   ]
 
   const modelMetrics: ModelMetrics = {
@@ -172,7 +169,7 @@ export function useIsolationForestData() {
   // Generate scatter plot data covering 6 bank categories
   const scatterData: ScatterPoint[] = []
   const bankCategories = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
-  
+
   // Normal points for each category
   bankCategories.forEach((cat) => {
     for (let i = 0; i < 15; i++) {
@@ -189,7 +186,7 @@ export function useIsolationForestData() {
         y: Math.round(Math.random() * 25 + 10),
         type: cat,
         isAnomaly: false,
-        label: `NORM-${cat.substring(0, 3).toUpperCase()}-${i+1}`
+        label: `NORM-${cat.substring(0, 3).toUpperCase()}-${i + 1}`
       })
     }
   })
@@ -294,3 +291,290 @@ export function useAnalyticsSummary() {
     kpiAlerts: 3,
   }
 }
+
+// ─── CAATT Analytics Types & Generators ──────────────────────────────────────
+
+// 1. Full Population Testing
+export interface CAATTFullPopulationRecord {
+  id: string
+  testDate: string
+  branchName: string
+  accountId: string
+  customerName: string
+  category: string
+  transactionAmount: number
+  thresholdLimit: number
+  excessAmount: number
+  violationType: string
+  status: 'FLAGGED' | 'UNDER_REVIEW' | 'RESOLVED'
+}
+
+export interface CAATTFullPopulationSummary {
+  totalTested: number
+  totalViolations: number
+  avgViolationRate: number
+  branchesTested: number
+  categoriesTested: number
+}
+
+export function useCAATTFullPopulationData() {
+  const records: CAATTFullPopulationRecord[] = [
+    { id: 'FPT-001', testDate: '2026-06-01', branchName: 'Cabang Jakarta', accountId: 'ACC-100293', customerName: 'PT Mega Pratama', category: 'Lending Plafond', transactionAmount: 12500000000, thresholdLimit: 10000000000, excessAmount: 2500000000, violationType: 'Plafond Exceeded', status: 'FLAGGED' },
+    { id: 'FPT-002', testDate: '2026-06-01', branchName: 'Cabang Surabaya', accountId: 'ACC-209118', customerName: 'CV Bintang Sejahtera', category: 'Cash Withdrawal', transactionAmount: 750000000, thresholdLimit: 500000000, excessAmount: 250000000, violationType: 'Daily Limit Exceeded', status: 'FLAGGED' },
+    { id: 'FPT-003', testDate: '2026-06-02', branchName: 'Cabang Medan', accountId: 'ACC-304192', customerName: 'Hendra Wijaya', category: 'Single Transfer', transactionAmount: 1500000000, thresholdLimit: 1000000000, excessAmount: 500000000, violationType: 'Single Transfer Limit', status: 'UNDER_REVIEW' },
+    { id: 'FPT-004', testDate: '2026-06-02', branchName: 'Kantor Pusat', accountId: 'ACC-001092', customerName: 'PT Sentosa Global', category: 'Treasury FX', transactionAmount: 45000000000, thresholdLimit: 30000000000, excessAmount: 15000000000, violationType: 'ALCO Approval Required', status: 'FLAGGED' },
+    { id: 'FPT-005', testDate: '2026-06-03', branchName: 'Cabang Bandung', accountId: 'ACC-408129', customerName: 'Dewi Sartika', category: 'Overdraft', transactionAmount: 350000000, thresholdLimit: 200000000, excessAmount: 150000000, violationType: 'Unauthorized Overdraft', status: 'RESOLVED' },
+    { id: 'FPT-006', testDate: '2026-06-03', branchName: 'Cabang Bali', accountId: 'ACC-501239', customerName: 'I Made Sudarta', category: 'Special Rate', transactionAmount: 8500000000, thresholdLimit: 5000000000, excessAmount: 3500000000, violationType: 'Interest Rate Cap', status: 'UNDER_REVIEW' },
+  ]
+
+  const summary: CAATTFullPopulationSummary = {
+    totalTested: 12480,
+    totalViolations: 142,
+    avgViolationRate: 1.14,
+    branchesTested: 6,
+    categoriesTested: 5,
+  }
+
+  return { records, summary }
+}
+
+// 2. Duplicate & Gap Detection
+export interface CAATTDuplicateGapRecord {
+  id: string
+  testDate: string
+  resultType: 'DUPLICATE' | 'GAP'
+  branchName: string
+  referenceNo: string
+  accountId: string
+  amount: number
+  description: string
+  occurrences: number
+  status: 'OPEN' | 'INVESTIGATING' | 'RESOLVED'
+}
+
+export interface CAATTDuplicateGapSummary {
+  totalDuplicates: number
+  totalGaps: number
+  branchesAffected: number
+}
+
+export function useCAATTDuplicateGapData() {
+  const records: CAATTDuplicateGapRecord[] = [
+    { id: 'DG-001', testDate: '2026-06-01', resultType: 'DUPLICATE', branchName: 'Cabang Jakarta', referenceNo: 'TRX-2026-8819', accountId: 'ACC-100293', amount: 85000000, description: 'Transfer ganda dalam 42 detik ke rekening penerima identik', occurrences: 2, status: 'OPEN' },
+    { id: 'DG-002', testDate: '2026-06-01', resultType: 'GAP', branchName: 'Cabang Surabaya', referenceNo: 'GL-VOUCH-2026-00412', accountId: 'GL-101.01', amount: 0, description: 'Nomor voucher GL hilang: 00413 s/d 00415 (3 nomor berurutan hilang)', occurrences: 3, status: 'INVESTIGATING' },
+    { id: 'DG-003', testDate: '2026-06-02', resultType: 'DUPLICATE', branchName: 'Cabang Medan', referenceNo: 'INV-2026-0192', accountId: 'ACC-304192', amount: 120000000, description: 'Pencairan biaya ganda untuk nomor invoice vendor yang sama', occurrences: 2, status: 'RESOLVED' },
+    { id: 'DG-004', testDate: '2026-06-02', resultType: 'GAP', branchName: 'Kantor Pusat', referenceNo: 'CHK-2026-00991', accountId: 'ACC-001092', amount: 0, description: 'Nomor warkat kliring cek hilang: 00992 s/d 00994', occurrences: 3, status: 'OPEN' },
+    { id: 'DG-005', testDate: '2026-06-03', resultType: 'DUPLICATE', branchName: 'Cabang Bandung', referenceNo: 'TRX-2026-9014', accountId: 'ACC-408129', amount: 45000000, description: 'Debit rekening berulang tanpa otorisasi nasabah kedua', occurrences: 2, status: 'OPEN' },
+  ]
+
+  const summary: CAATTDuplicateGapSummary = {
+    totalDuplicates: 38,
+    totalGaps: 14,
+    branchesAffected: 5,
+  }
+
+  return { records, summary }
+}
+
+// 3. Benford's Law
+export interface CAATTBenfordRecord {
+  digit: number
+  actualCount: number
+  actualPct: number
+  expectedPct: number
+  deviationPct: number
+  isSignificant: boolean
+}
+
+export interface CAATTBenfordSummary {
+  totalDigitsAnalyzed: number
+  significantDeviations: number
+  conclusion: string
+}
+
+export function useCAATTBenfordData() {
+  const records: CAATTBenfordRecord[] = [
+    { digit: 1, actualCount: 3612, actualPct: 28.9, expectedPct: 30.1, deviationPct: -1.2, isSignificant: false },
+    { digit: 2, actualCount: 2180, actualPct: 17.4, expectedPct: 17.6, deviationPct: -0.2, isSignificant: false },
+    { digit: 3, actualCount: 1620, actualPct: 13.0, expectedPct: 12.5, deviationPct: 0.5, isSignificant: false },
+    { digit: 4, actualCount: 1210, actualPct: 9.7, expectedPct: 9.7, deviationPct: 0.0, isSignificant: false },
+    { digit: 5, actualCount: 1340, actualPct: 10.7, expectedPct: 7.9, deviationPct: 2.8, isSignificant: true },
+    { digit: 6, actualCount: 820, actualPct: 6.6, expectedPct: 6.7, deviationPct: -0.1, isSignificant: false },
+    { digit: 7, actualCount: 690, actualPct: 5.5, expectedPct: 5.8, deviationPct: -0.3, isSignificant: false },
+    { digit: 8, actualCount: 550, actualPct: 4.4, expectedPct: 5.1, deviationPct: -0.7, isSignificant: false },
+    { digit: 9, actualCount: 478, actualPct: 3.8, expectedPct: 4.6, deviationPct: -0.8, isSignificant: false },
+  ]
+
+  const summary: CAATTBenfordSummary = {
+    totalDigitsAnalyzed: 9,
+    significantDeviations: 1,
+    conclusion: 'MINOR DEVIATION (Lonjakan digit 5 mengindikasikan potensi structuring Rp 49.xxx.xxx)',
+  }
+
+  return { records, summary }
+}
+
+// 4. Stratification & Aging
+export interface CAATTStratificationRecord {
+  stratumLabel: string
+  minValue: number
+  maxValue: number
+  category: string
+  trxCount: number
+  totalAmount: number
+  pctCount: number
+  pctAmount: number
+}
+
+export interface CAATTStratificationSummary {
+  totalTransactions: number
+  totalAmount: number
+  totalStrata: number
+  categories: number
+}
+
+export function useCAATTStratificationData() {
+  const records: CAATTStratificationRecord[] = [
+    { stratumLabel: '< Rp 10 Juta', minValue: 0, maxValue: 10000000, category: 'Retail', trxCount: 8420, totalAmount: 32500000000, pctCount: 67.4, pctAmount: 8.1 },
+    { stratumLabel: 'Rp 10M - 50M', minValue: 10000000, maxValue: 50000000, category: 'Commercial', trxCount: 2840, totalAmount: 71000000000, pctCount: 22.7, pctAmount: 17.7 },
+    { stratumLabel: 'Rp 50M - 100M', minValue: 50000000, maxValue: 100000000, category: 'Corporate', trxCount: 890, totalAmount: 66750000000, pctCount: 7.1, pctAmount: 16.6 },
+    { stratumLabel: 'Rp 100M - 500M', minValue: 100000000, maxValue: 500000000, category: 'High Value', trxCount: 280, totalAmount: 84000000000, pctCount: 2.2, pctAmount: 20.9 },
+    { stratumLabel: '> Rp 500 Juta', minValue: 500000000, maxValue: 99999999999, category: 'Wholesale / Inst', trxCount: 65, totalAmount: 147500000000, pctCount: 0.6, pctAmount: 36.7 },
+  ]
+
+  const summary: CAATTStratificationSummary = {
+    totalTransactions: 12495,
+    totalAmount: 401750000000,
+    totalStrata: 5,
+    categories: 5,
+  }
+
+  return { records, summary }
+}
+
+// 5. Cross-System Reconciliation
+export interface CAATTReconciliationRecord {
+  testDate: string
+  systemA: string
+  systemB: string
+  module: string
+  totalRecordsA: number
+  totalRecordsB: number
+  matchedRecords: number
+  unmatchedA: number
+  unmatchedB: number
+  matchRatePct: number
+  totalDifference: number
+  status: 'BALANCED' | 'DISCREPANCY_FLAGGED' | 'PERFECT_MATCH' | 'PENDING_SETTLEMENT'
+}
+
+export interface CAATTReconciliationSummary {
+  avgMatchRate: number
+  totalUnmatched: number
+  totalDifference: number
+}
+
+export function useCAATTReconciliationData() {
+  const records: CAATTReconciliationRecord[] = [
+    { testDate: '2026-06-01', systemA: 'Core Banking (CBS)', systemB: 'General Ledger (GL)', module: 'Giro & Tabungan', totalRecordsA: 12500, totalRecordsB: 12498, matchedRecords: 12495, unmatchedA: 5, unmatchedB: 3, matchRatePct: 99.96, totalDifference: 4500000, status: 'BALANCED' },
+    { testDate: '2026-06-01', systemA: 'Loan Origination (LOS)', systemB: 'Core Banking (CBS)', module: 'Kredit Komersial', totalRecordsA: 450, totalRecordsB: 448, matchedRecords: 447, unmatchedA: 3, unmatchedB: 1, matchRatePct: 99.33, totalDifference: 250000000, status: 'DISCREPANCY_FLAGGED' },
+    { testDate: '2026-06-01', systemA: 'Treasury Trading', systemB: 'General Ledger (GL)', module: 'Forex Dealing', totalRecordsA: 180, totalRecordsB: 180, matchedRecords: 180, unmatchedA: 0, unmatchedB: 0, matchRatePct: 100.00, totalDifference: 0, status: 'PERFECT_MATCH' },
+    { testDate: '2026-06-01', systemA: 'ATM Switch', systemB: 'Core Banking (CBS)', module: 'Interbank Switching', totalRecordsA: 6400, totalRecordsB: 6392, matchedRecords: 6388, unmatchedA: 12, unmatchedB: 4, matchRatePct: 99.81, totalDifference: 18500000, status: 'PENDING_SETTLEMENT' },
+  ]
+
+  const summary: CAATTReconciliationSummary = {
+    avgMatchRate: 99.78,
+    totalUnmatched: 28,
+    totalDifference: 273000000,
+  }
+
+  return { records, summary }
+}
+
+// 6. Policy & Rule Compliance
+export interface CAATTPolicyRecord {
+  id: string
+  testDate: string
+  ruleName: string
+  branchName: string
+  customerName: string
+  severity: 'Critical' | 'High' | 'Medium' | 'Low'
+  description: string
+  status: 'OPEN' | 'INVESTIGATING' | 'UNDER_REVIEW' | 'RESOLVED'
+}
+
+export interface CAATTPolicySummary {
+  totalViolations: number
+  critical: number
+  high: number
+  medium: number
+  low: number
+  uniqueRulesViolated: number
+  branchesAffected: number
+}
+
+export function useCAATTPolicyData() {
+  const records: CAATTPolicyRecord[] = [
+    { id: 'PV-001', testDate: '2026-06-01', ruleName: 'Batas Maksimum Suku Bunga Deposito', branchName: 'Cabang Bali', customerName: 'PT Sinar Bali', severity: 'Critical', description: 'Suku bunga deposito 8.86% melebihi batas penjaminan LPS (4.25%) tanpa persetujuan ALCO', status: 'OPEN' },
+    { id: 'PV-002', testDate: '2026-06-01', ruleName: 'Batas Maksimum Pemberian Kredit (BMPK)', branchName: 'Kantor Pusat', customerName: 'PT Mitra Sentosa Abadi', severity: 'Critical', description: 'Plafond kredit konsorsium melanggar 20% modal disetor entitas terkait', status: 'OPEN' },
+    { id: 'PV-003', testDate: '2026-06-02', ruleName: 'Otorisasi Transaksi Dual Control', branchName: 'Cabang Jakarta', customerName: 'Internal Vault', severity: 'High', description: 'Pengeluaran kas fisik Rp 500 Juta dilakukan tanpa otorisasi Branch Manager', status: 'INVESTIGATING' },
+    { id: 'PV-004', testDate: '2026-06-02', ruleName: 'Kelengkapan Dokumen Jaminan Kredit', branchName: 'Cabang Medan', customerName: 'Hendra Pratama', severity: 'Medium', description: 'Pencairan kredit sebelum sertifikat hak tanggungan (SHT) terbit', status: 'UNDER_REVIEW' },
+    { id: 'PV-005', testDate: '2026-06-03', ruleName: 'Monitoring Rekening Dormant', branchName: 'Cabang Bandung', customerName: 'Siti Nurhaliza', severity: 'Medium', description: 'Aktivasi rekening dormant > 12 bulan tanpa verifikasi tatap muka', status: 'RESOLVED' },
+  ]
+
+  const summary: CAATTPolicySummary = {
+    totalViolations: 32,
+    critical: 4,
+    high: 9,
+    medium: 14,
+    low: 5,
+    uniqueRulesViolated: 8,
+    branchesAffected: 6,
+  }
+
+  return { records, summary }
+}
+
+// 7. Data Quality Dashboard
+export interface CAATTDataQualityRecord {
+  tableName: string
+  zone: 'Bronze' | 'Silver' | 'Gold'
+  totalRows: number
+  completenessPct: number
+  accuracyPct: number
+  timelinessDays: number
+  duplicateCount: number
+  status: 'EXCELLENT' | 'GOOD' | 'NEEDS_CLEANSING' | 'RAW_INGESTED'
+}
+
+export interface CAATTDataQualitySummary {
+  avgCompleteness: number
+  avgAccuracy: number
+  avgTimelinessDays: number
+  tablesProfiled: number
+  totalRowsProfiled: number
+}
+
+export function useCAATTDataQualityData() {
+  const records: CAATTDataQualityRecord[] = [
+    { tableName: 'gold.fact_transactions', zone: 'Gold', totalRows: 125000, completenessPct: 99.85, accuracyPct: 99.92, timelinessDays: 0.2, duplicateCount: 0, status: 'EXCELLENT' },
+    { tableName: 'gold.fact_loans', zone: 'Gold', totalRows: 8500, completenessPct: 98.40, accuracyPct: 99.10, timelinessDays: 0.5, duplicateCount: 0, status: 'GOOD' },
+    { tableName: 'gold.dim_accounts', zone: 'Gold', totalRows: 45000, completenessPct: 99.95, accuracyPct: 99.98, timelinessDays: 0.1, duplicateCount: 0, status: 'EXCELLENT' },
+    { tableName: 'silver.cbs_transactions', zone: 'Silver', totalRows: 125000, completenessPct: 99.50, accuracyPct: 99.80, timelinessDays: 0.2, duplicateCount: 24, status: 'GOOD' },
+    { tableName: 'silver.cbs_customers', zone: 'Silver', totalRows: 38000, completenessPct: 97.20, accuracyPct: 98.50, timelinessDays: 1.0, duplicateCount: 18, status: 'NEEDS_CLEANSING' },
+    { tableName: 'bronze.cbs_daily_transactions', zone: 'Bronze', totalRows: 125500, completenessPct: 99.10, accuracyPct: 99.20, timelinessDays: 0.1, duplicateCount: 500, status: 'RAW_INGESTED' },
+  ]
+
+  const summary: CAATTDataQualitySummary = {
+    avgCompleteness: 98.99,
+    avgAccuracy: 99.41,
+    avgTimelinessDays: 0.4,
+    tablesProfiled: 6,
+    totalRowsProfiled: 467000,
+  }
+
+  const overallQualityScore = 99.20
+
+  return { records, summary, overallQualityScore }
+}
+

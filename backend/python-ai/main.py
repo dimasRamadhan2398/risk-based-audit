@@ -314,14 +314,11 @@ def predict_department_risk(req: DepartmentRiskRequest):
             "delta": round(score - actual_s, 1),
             "trend": "up" if score > actual_s else ("down" if score < actual_s else "stable"),
             "feature_importance": {
-                "Prior Audit Findings Count": 0.28,
-                "KPI Achievement Rate": 0.22,
-                "Transaction Volume": 0.17,
-                "Employee Turnover Rate": 0.12,
-                "Compliance Score": 0.09,
-                "Outstanding Mitigations": 0.06,
-                "Previous Risk Score": 0.04,
-                "External Audit Flags": 0.02
+                "Prior Audit Findings Count": 0.36,
+                "KPI Achievement Rate": 0.29,
+                "Transaction Volume": 0.22,
+                "Outstanding Mitigations": 0.08,
+                "Previous Risk Score": 0.05,
             }
         }
     except Exception as e:
@@ -341,10 +338,11 @@ def predict_department_risk(req: DepartmentRiskRequest):
             "delta": 0.0,
             "trend": "stable",
             "feature_importance": {
-                "Prior Audit Findings Count": 0.28,
-                "KPI Achievement Rate": 0.22,
-                "Transaction Volume": 0.17,
-                "Employee Turnover Rate": 0.12
+                "Prior Audit Findings Count": 0.36,
+                "KPI Achievement Rate": 0.29,
+                "Transaction Volume": 0.22,
+                "Outstanding Mitigations": 0.08,
+                "Previous Risk Score": 0.05,
             }
         }
 
@@ -388,14 +386,11 @@ def get_department_risk_batch():
         results.append(res)
 
     feature_imp = [
-        {"feature": "Prior Audit Findings Count", "importance": 0.28},
-        {"feature": "KPI Achievement Rate", "importance": 0.22},
-        {"feature": "Transaction Volume", "importance": 0.17},
-        {"feature": "Employee Turnover Rate", "importance": 0.12},
-        {"feature": "Compliance Score", "importance": 0.09},
-        {"feature": "Outstanding Mitigations", "importance": 0.06},
-        {"feature": "Previous Risk Score", "importance": 0.04},
-        {"feature": "External Audit Flags", "importance": 0.02}
+        {"feature": "Prior Audit Findings Count", "importance": 0.36},
+        {"feature": "KPI Achievement Rate", "importance": 0.29},
+        {"feature": "Transaction Volume", "importance": 0.22},
+        {"feature": "Outstanding Mitigations", "importance": 0.08},
+        {"feature": "Previous Risk Score", "importance": 0.05},
     ]
 
     metrics = {

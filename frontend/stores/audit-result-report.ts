@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { useAssignmentLetterStore } from './assignment-letter'
+import { useWorkingPaperStore } from './working-paper'
+import { useAuditFieldworkStore } from './audit-fieldwork'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 
@@ -8,6 +10,9 @@ export interface FindingItem {
   title: string
   category: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
   action?: string
+  source?: string
+  impact?: string
+  criteria?: string
 }
 
 export interface AuditResultReport {
@@ -292,7 +297,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       if (cat === 'Insignificant') cat = 'Not Significant'
       return {
         ...f,
-        category: cat
+        category: cat,
+        source: f.source || 'Audit Features'
       }
     })
 
@@ -337,12 +343,203 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   // Fetch on initialization
   fetchReports()
 
+  const isAutoDetecting = ref(false)
+
+  // Local fallback aggregation from Working Paper and Fieldwork stores
+  const getLocalAutoFindings = (targetLetter: string): FindingItem[] => {
+    const findings: FindingItem[] = []
+    const existingTitles = new Set<string>()
+
+    const wpStore = useWorkingPaperStore()
+    const fwStore = useAuditFieldworkStore()
+
+    // 1. Digital Working Paper (AOI & RCA F04 + Plan F05 + Risk F02)
+    const allCauses = (wpStore.dataF04 && wpStore.dataF04.length > 0) ? wpStore.dataF04 : (wpStore.mockF04 || [])
+    const allPlans = (wpStore.dataF05 && wpStore.dataF05.length > 0) ? wpStore.dataF05 : (wpStore.mockF05 || [])
+    const allRisks = (wpStore.dataF02 && wpStore.dataF02.length > 0) ? wpStore.dataF02 : (wpStore.mockF02 || [])
+
+    const stCauses = allCauses.filter((c: any) => (c.workingPaperId || c.assignmentLetterId) === targetLetter)
+    const stPlans = allPlans.filter((p: any) => (p.workingPaperId || p.assignmentLetterId) === targetLetter)
+    const stRisks = allRisks.filter((r: any) => (r.workingPaperId || r.assignmentLetterId) === targetLetter)
+
+    let defaultCat: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant' = 'Significant'
+    for (const r of stRisks) {
+      const lvl = String(r.riskLevel || '').toUpperCase()
+      if (lvl === 'HIGH' || lvl === 'CRITICAL') {
+        defaultCat = 'Very Significant'
+        break
+      } else if (lvl === 'MODERATE' || lvl === 'MEDIUM') {
+        defaultCat = 'Significant'
+      } else if (lvl === 'LOW') {
+        defaultCat = 'Quite Significant'
+      }
+    }
+
+    stCauses.forEach((cause: any, idx: number) => {
+      const cond = (cause.condition || '').trim()
+      if (!cond) return
+      const key = cond.toLowerCase()
+      if (existingTitles.has(key)) return
+      existingTitles.add(key)
+
+      let action = ''
+      if (stPlans[idx]) {
+        action = stPlans[idx]?.actionDescription || stPlans[idx]?.recommendation || ''
+      } else if (stPlans.length > 0 && stPlans[0]) {
+        action = stPlans[0]?.actionDescription || stPlans[0]?.recommendation || ''
+      }
+
+      let cat = defaultCat
+      const condLower = cond.toLowerCase()
+      if (condLower.includes('kritis') || condLower.includes('overhaul') || condLower.includes('mfa') || condLower.includes('override') || condLower.includes('transisi')) {
+        cat = 'Very Significant'
+      }
+
+      findings.push({
+        title: cond,
+        category: cat,
+        action,
+        source: 'Digital Working Paper (KKA - AOI & RCA)',
+        impact: cause.impact || '',
+        criteria: cause.criteria || ''
+      })
+    })
+
+    // 2. Audit Fieldwork Test Controls
+    if (typeof (fwStore as any).ensureDataExists === 'function') {
+      (fwStore as any).ensureDataExists()
+    }
+    const testControlsList = (fwStore.fieldworkData && fwStore.fieldworkData[targetLetter]?.testControls?.length)
+      ? fwStore.fieldworkData[targetLetter].testControls
+      : ((fwStore.mockFieldwork && (fwStore.mockFieldwork as any)[targetLetter]?.testControls) || [])
+
+    testControlsList.forEach((tc: any) => {
+      const findingText = (tc.finding || '').trim()
+      const resultUpper = (tc.testResult || '').toUpperCase()
+
+      if (findingText || resultUpper === 'INEFFECTIVE' || resultUpper === 'PARTIALLY EFFECTIVE') {
+        const title = findingText || `Kelemahan Kontrol: ${tc.controlName || 'Internal Control'}`
+        const key = title.toLowerCase()
+        if (existingTitles.has(key)) return
+        existingTitles.add(key)
+
+        const action = (tc.mitigationPlan || tc.recommendation || '').trim()
+        let cat: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant' = 'Significant'
+        if (resultUpper === 'INEFFECTIVE') {
+          cat = 'Very Significant'
+        } else if (resultUpper === 'PARTIALLY EFFECTIVE') {
+          cat = 'Significant'
+        }
+
+        findings.push({
+          title,
+          category: cat,
+          action,
+          source: 'Audit Fieldwork (Test Controls)'
+        })
+      }
+    })
+
+    // Fallback to pre-existing reports if still empty
+    if (findings.length === 0) {
+      const existingReport = reportList.value.find(r => r.assignmentLetterId === targetLetter)
+      if (existingReport && existingReport.findings && existingReport.findings.length > 0) {
+        return existingReport.findings.map(f => ({
+          ...f,
+          source: (f as any).source || 'Audit Record'
+        }))
+      }
+    }
+
+    return findings
+  }
+
+  // Fetch auto-findings from Backend with fallback to local stores
+  const fetchAutoFindings = async (stNumber?: string): Promise<FindingItem[]> => {
+    const targetLetter = stNumber || selectedAssignmentLetter.value || reportForm.assignmentLetterId
+    if (!targetLetter) return []
+
+    isAutoDetecting.value = true
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const res: any = await $fetch(`${baseUrl}/audit-result-reports/auto-findings?assignmentLetterId=${encodeURIComponent(targetLetter)}`, {
+        method: 'GET'
+      })
+      if (res && res.data && Array.isArray(res.data.findings) && res.data.findings.length > 0) {
+        return res.data.findings.map((f: any) => ({
+          title: f.title,
+          category: f.category || 'Significant',
+          action: f.action || '',
+          source: f.source || 'Audit Features',
+          impact: f.impact || '',
+          criteria: f.criteria || ''
+        }))
+      }
+    } catch (err) {
+      console.warn('Backend auto-findings API not reachable or returned empty, falling back to local audit stores:', err)
+    } finally {
+      isAutoDetecting.value = false
+    }
+
+    return getLocalAutoFindings(targetLetter)
+  }
+
+  const autoPopulateFindings = async (stNumber?: string) => {
+    const targetLetter = stNumber || selectedAssignmentLetter.value || reportForm.assignmentLetterId
+    if (!targetLetter) return
+    const autoFindings = await fetchAutoFindings(targetLetter)
+    if (autoFindings.length > 0) {
+      reportForm.findings = JSON.parse(JSON.stringify(autoFindings))
+      reportForm.findingsCount = autoFindings.length
+    }
+  }
+
+  const runAutoDetectFindings = async (mode: 'replace' | 'merge' = 'replace') => {
+    const targetLetter = reportForm.assignmentLetterId || selectedAssignmentLetter.value
+    if (!targetLetter) {
+      toast.showWarning('Peringatan', 'Silakan pilih Assignment Letter terlebih dahulu.')
+      return
+    }
+    const detected = await fetchAutoFindings(targetLetter)
+    if (detected.length === 0) {
+      toast.showWarning('Informasi', `Tidak ada temuan audit baru yang terdeteksi untuk ${targetLetter}.`)
+      return
+    }
+
+    if (mode === 'replace' || !reportForm.findings || reportForm.findings.length === 0) {
+      reportForm.findings = JSON.parse(JSON.stringify(detected))
+    } else {
+      const existing = new Set(reportForm.findings.map(f => f.title.toLowerCase().trim()))
+      detected.forEach(d => {
+        if (!existing.has(d.title.toLowerCase().trim())) {
+          reportForm.findings.push(JSON.parse(JSON.stringify(d)))
+          existing.add(d.title.toLowerCase().trim())
+        }
+      })
+    }
+    reportForm.findingsCount = reportForm.findings.length
+    toast.showSuccess('Temuan Terisi Otomatis', `${detected.length} temuan berhasil ditarik dari modul KKA & Fieldwork.`)
+  }
+
   // Actions
-  const openModal = () => {
+  const openModal = async () => {
     resetForm()
     isEditing.value = false
     editingId.value = null
     showModal.value = true
+
+    if (selectedAssignmentLetter.value) {
+      reportForm.assignmentLetterId = selectedAssignmentLetter.value
+      const stData = assignmentLetterStore.assignmentLetterList.find(
+        (st: any) => st.letterNumber === selectedAssignmentLetter.value
+      )
+      if (stData?.auditTitle) {
+        reportForm.reportTitle = `Laporan Hasil Audit - ${stData.auditTitle}`
+      } else {
+        reportForm.reportTitle = `Laporan Hasil Audit - ${selectedAssignmentLetter.value}`
+      }
+      await autoPopulateFindings(selectedAssignmentLetter.value)
+    }
   }
 
   const closeModal = () => {
@@ -371,11 +568,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         reportDate: reportForm.reportDate,
         report_date: reportForm.reportDate,
         reportNumber: reportForm.reportNumber,
-        findingsCount: Number(reportForm.findingsCount || reportForm.findings?.length || 0),
+        findingsCount: Number(reportForm.findings?.length || reportForm.findingsCount || 0),
         findings: (reportForm.findings || []).map(f => ({
           title: f.title,
           category: f.category,
-          action: f.action || ''
+          action: f.action || '',
+          source: (f as any).source || 'Audit Features'
         })),
         status: reportForm.status
       }
@@ -516,6 +714,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     clearExecutiveSummaryField,
     loading,
     errorMsg,
-    fetchReports
+    fetchReports,
+    isAutoDetecting,
+    fetchAutoFindings,
+    runAutoDetectFindings,
+    autoPopulateFindings
   }
 })

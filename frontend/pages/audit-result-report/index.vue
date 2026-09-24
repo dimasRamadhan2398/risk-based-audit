@@ -1,26 +1,28 @@
 <template>
   <div>
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Audit Result Report</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Result Report</h1>
         <p class="text-gray-500">Finalize and publish audit results and findings</p>
       </div>
-      <UButton
-        v-if="canImportPlanDocs"
-        color="neutral"
-        variant="outline"
-        icon="i-lucide-upload"
-        label="Import LHA Document"
-        to="/audit-result-report/upload"
-        class="font-bold shadow"
-      />
+      <div class="flex flex-wrap items-center gap-2">
+        <UButton
+          v-if="canImportPlanDocs"
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-upload"
+          label="Import LHA Document"
+          to="/audit-result-report/upload"
+          class="font-bold shadow"
+        />
+      </div>
     </div>
 
     <!-- Assignment Letter Selector -->
     <UCard class="mb-6" :ui="{ body: 'p-4' }">
       <div class="flex flex-col md:flex-row md:items-center gap-4">
         <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Select Assignment Letter (Audit)
           </label>
           <USelectMenu
@@ -39,9 +41,9 @@
           <UIcon name="i-heroicons-exclamation-triangle" class="size-4 inline mr-1" />
           No Assignment Letter with Published status. Please create and publish an Assignment Letter first.
         </div>
-        <div v-else-if="store.selectedAssignmentLetter" class="text-sm text-green-600">
-          <UIcon name="i-heroicons-check-circle" class="size-4 inline mr-1" />
-          Audit: {{ store.selectedAssignmentLetter }}
+        <div v-else-if="store.selectedAssignmentLetter" class="text-sm text-green-600 flex items-center gap-2">
+          <UIcon name="i-heroicons-check-circle" class="size-4 inline" />
+          <span>Audit: <strong>{{ store.selectedAssignmentLetter }}</strong></span>
         </div>
         <div v-else class="text-sm text-gray-600">
           <UIcon name="i-heroicons-document-text" class="size-4 inline mr-1" />
@@ -60,7 +62,7 @@
             </span>
           </template>
           <template #reportDate-cell="{ row }">
-            <span class="text-sm font-medium text-gray-700">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ row.original.reportDate || (row.original as any).report_date?.split('T')[0] || '-' }}
             </span>
           </template>
@@ -71,7 +73,7 @@
           </template>
           <template #findingsCount-cell="{ row }">
             <div class="flex flex-col gap-2 min-w-[30px]">
-              <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center justify-center bg-gray-50 rounded">
+              <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded">
                 <span class="text-md font-semibold">{{ group.count }}</span>
               </div>
             </div>
@@ -94,9 +96,12 @@
                   </UButton>
                   <template #content>
                     <div class="p-3 max-w-sm max-h-60 overflow-y-auto">
-                      <h4 class="text-md font-bold text-gray-900 mb-2 border-b pb-1">{{ group.category }} Findings</h4>
-                      <ul class="list-disc pl-4 text-md text-gray-700 space-y-1">
-                        <li v-for="(item, idx) in group.items" :key="idx" class="leading-relaxed">{{ item.title }}</li>
+                      <h4 class="text-md font-bold text-gray-900 dark:text-white mb-2 border-b pb-1">{{ group.category }} Findings</h4>
+                      <ul class="list-disc pl-4 text-md text-gray-700 dark:text-gray-300 space-y-1">
+                        <li v-for="(item, idx) in group.items" :key="idx" class="leading-relaxed">
+                          {{ item.title }}
+                          <span v-if="item.source" class="text-[10px] text-gray-400 block italic">({{ item.source }})</span>
+                        </li>
                       </ul>
                     </div>
                   </template>
@@ -114,11 +119,11 @@
                   </UButton>
                   <template #content>
                     <div class="p-3 max-w-sm max-h-60 overflow-y-auto">
-                      <h4 class="text-md font-bold text-gray-900 mb-2 border-b pb-1">{{ group.category }} Actions</h4>
-                      <ul class="list-disc pl-4 text-md text-gray-700 space-y-1">
+                      <h4 class="text-md font-bold text-gray-900 dark:text-white mb-2 border-b pb-1">{{ group.category }} Actions</h4>
+                      <ul class="list-disc pl-4 text-md text-gray-700 dark:text-gray-300 space-y-1">
                         <li v-for="(item, idx) in group.items" :key="idx" class="leading-relaxed">
-                          <span class="font-semibold block mb-0.5 text-gray-800">{{ item.title }}:</span>
-                          <span class="text-primary-700 block mb-1">{{ item.action || 'No action defined' }}</span>
+                          <span class="font-semibold block mb-0.5 text-gray-800 dark:text-gray-200">{{ item.title }}:</span>
+                          <span class="text-primary-700 dark:text-primary-400 block mb-1">{{ item.action || 'No action defined' }}</span>
                         </li>
                       </ul>
                     </div>
@@ -130,15 +135,25 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center">
+              <UTooltip text="Sync Temuan Otomatis dari KKA & Fieldwork">
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  icon="i-heroicons-sparkles"
+                  size="sm"
+                  label="Sync"
+                  @click="syncReportFindings(row.original as any)"
+                />
+              </UTooltip>
               <UTooltip text="Generate LHA (.docx)">
-              <UButton
-                color="success"
-                variant="soft"
-                icon="i-heroicons-arrow-down-tray"
-                size="sm"
-                label="Docx"
-                @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
-              />
+                <UButton
+                  color="success"
+                  variant="soft"
+                  icon="i-heroicons-arrow-down-tray"
+                  size="sm"
+                  label="Docx"
+                  @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
+                />
               </UTooltip>
               <UTooltip text="Edit">
                 <UButton
@@ -163,25 +178,31 @@
         </TableEntities>
       </UCard>
 
-      <div v-else class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-        <UIcon name="i-heroicons-document-plus" class="size-16 text-gray-300 mx-auto mb-4" />
-        <h3 class="text-lg font-semibold text-gray-700">No Reports Created</h3>
-        <p class="text-gray-500 mt-2 max-w-md mx-auto mb-6">
-          No audit result reports have been created for this assignment letter yet.
+      <div v-else class="text-center py-16 bg-gray-50 dark:bg-gray-850/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800">
+        <div class="p-4 bg-primary-50 dark:bg-primary-950/40 rounded-full w-fit mx-auto mb-4 text-primary-600">
+          <UIcon name="i-heroicons-sparkles" class="size-12" />
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Belum Ada Laporan Hasil Audit (LHA)</h3>
+        <p class="text-gray-500 mt-2 max-w-md mx-auto mb-6 text-sm">
+          Belum ada laporan yang dibuat untuk surat tugas ini. Anda dapat membuat laporan dengan temuan audit yang langsung terisi otomatis dari modul KKA dan Fieldwork.
         </p>
-        <UButton
-          color="primary"
-          icon="i-heroicons-plus"
-          label="Create First Report"
-          @click="store.openModal"
-        />
+        <div class="flex justify-center gap-3">
+          <UButton
+            color="primary"
+            icon="i-heroicons-sparkles"
+            label="Buat Laporan dengan Temuan Otomatis"
+            size="lg"
+            class="font-bold shadow"
+            @click="store.openModal"
+          />
+        </div>
       </div>
     </div>
 
     <!-- Empty State -->
     <div v-else class="text-center py-16">
-      <UIcon name="i-heroicons-document-magnifying-glass" class="size-20 text-gray-200 mx-auto mb-4" />
-      <h3 class="text-lg font-semibold text-gray-700 text-center">Select Assignment Letter</h3>
+      <UIcon name="i-heroicons-document-magnifying-glass" class="size-20 text-gray-200 dark:text-gray-800 mx-auto mb-4" />
+      <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center">Select Assignment Letter</h3>
       <p class="text-gray-500 mt-2 max-w-md mx-auto text-center">
         Please select an assignment letter to view or manage its audit result reports.
       </p>
@@ -239,7 +260,13 @@ const getGroupedFindings = (findings: any[] | undefined) => {
   })
 }
 
+const syncReportFindings = async (report: any) => {
+  store.editReport(report)
+  await store.runAutoDetectFindings('merge')
+}
+
 const printReport = (report: any) => {
   toast.showSuccess(`Printing report: ${report.reportTitle}`)
 }
 </script>
+
