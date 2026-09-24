@@ -195,11 +195,11 @@ def run_silver_to_gold(engine):
             LEFT JOIN silver.cust_cleaned cu ON cu.customer_id = l.customer_id
             LEFT JOIN silver.ref_branches b ON b.branch_id = l.branch_id
             LEFT JOIN (
-                SELECT product_id, product_name, min_rate, max_rate, max_plafond,
-                       MAX(CASE WHEN rule_type = 'TENOR_LIMIT' THEN max_value END) AS max_tenor
+                SELECT p.product_id, p.product_name, p.min_rate, p.max_rate, p.max_plafond,
+                       MAX(CASE WHEN pp.rule_type = 'TENOR_LIMIT' THEN pp.max_value END) AS max_tenor
                 FROM bronze.cb_products p
                 LEFT JOIN bronze.cb_product_policies pp ON pp.product_id = p.product_id
-                GROUP BY p.product_id, product_name, min_rate, max_rate, max_plafond
+                GROUP BY p.product_id, p.product_name, p.min_rate, p.max_rate, p.max_plafond
             ) p ON p.product_id = l.product_id
         """))
 
