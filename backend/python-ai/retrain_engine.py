@@ -13,8 +13,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from xgboost import XGBClassifier
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "models")
-AI_TRAINING_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "ai_model_training"))
+MODEL_DIR = os.getenv("MODEL_DIR", os.path.join(BASE_DIR, "models"))
+AI_TRAINING_DIR = os.getenv("AI_TRAINING_DIR", "/app/ai_model_training" if os.path.exists("/app/ai_model_training") else os.path.abspath(os.path.join(BASE_DIR, "..", "..", "ai_model_training")))
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 def set_seed(seed=42):
@@ -39,7 +39,28 @@ class PyTorchLSTMRegressor(nn.Module):
         return self.fc(out[:, -1, :])
 
 
-import requests
+try:
+    import requests
+except ImportError:
+    import urllib.request
+    import json
+    class _RequestsFallback:
+        def get(self, url, timeout=3):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "AuditSphere-AI"})
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    class _Resp:
+                        status_code = resp.status
+                        def json(self):
+                            return json.loads(resp.read().decode())
+                    return _Resp()
+            except Exception:
+                class _FailedResp:
+                    status_code = 500
+                    def json(self):
+                        return {}
+                return _FailedResp()
+    requests = _RequestsFallback()
 
 class AutoRetrainEngine:
     """

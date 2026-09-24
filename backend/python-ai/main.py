@@ -25,14 +25,17 @@ app.add_middleware(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "models")
+MODEL_DIR = os.getenv("MODEL_DIR", os.path.join(BASE_DIR, "models"))
 
 def resolve_ai_training_dir() -> str:
+    env_dir = os.getenv("AI_TRAINING_DIR")
+    if env_dir and os.path.exists(env_dir):
+        return env_dir
     candidates = [
+        "/app/ai_model_training",
         os.path.abspath(os.path.join(BASE_DIR, "..", "..", "ai_model_training")),
         os.path.abspath(os.path.join(BASE_DIR, "..", "ai_model_training")),
         os.path.abspath(os.path.join(BASE_DIR, "ai_model_training")),
-        "/app/ai_model_training",
         "C:\\Users\\Dimas\\risk-based-audit\\ai_model_training"
     ]
     for c in candidates:
@@ -42,6 +45,19 @@ def resolve_ai_training_dir() -> str:
 
 AI_TRAINING_DIR = resolve_ai_training_dir()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+API_KEY = os.getenv("API_KEY", "")
+
+@app.middleware("http")
+async def verify_api_key_middleware(request, call_next):
+    if request.url.path in ("/health", "/docs", "/openapi.json"):
+        return await call_next(request)
+    if API_KEY:
+        header_key = request.headers.get("X-API-Key")
+        if header_key != API_KEY:
+            from fastapi.responses import JSONResponse
+            return JSONResponse(status_code=401, content={"detail": "Invalid or missing API key"})
+    return await call_next(request)
 
 # --- Load Model Bundles ---
 anomaly_bundle = None
