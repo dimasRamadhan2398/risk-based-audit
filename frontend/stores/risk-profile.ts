@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { RiskLevel, ImpactLevel, PossibilityLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
+import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 
 // --- Constants (Exported for components) ---
 
@@ -235,9 +236,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   const selectedYear = ref(2026)
   const selectedPeriod = ref('Q1')
 
-  const getRiskServiceBaseUrl = () => {
-    return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
-  }
+
 
   // Dynamic mapped risks based on selectedYear and selectedPeriod
   const risks = computed(() => {

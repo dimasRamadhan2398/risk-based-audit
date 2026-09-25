@@ -7,6 +7,7 @@ import KpiDetailedTable from '~/components/kpi-performance/KpiDetailedTable.vue'
 import { usePerformanceStore } from '~/stores/performance'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useUploadPerformanceReportStore } from '~/stores/upload-performance-report'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 const perfStore = usePerformanceStore()
 const spStore = useStrategicPlanStore()
@@ -36,8 +37,7 @@ watch([year, selectedPeriod], () => {
 })
 
 const exportPDF = () => {
-  const config = useRuntimeConfig()
-  const auditBaseUrl = config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  const auditBaseUrl = getAuditServiceBaseUrl()
   const reportUrl = `${auditBaseUrl}/performance/export-pdf?year=${year.value}`
 
   useToast().add({

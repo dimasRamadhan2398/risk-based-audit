@@ -11,6 +11,13 @@ const defaultAnalyticsProxyTarget = isProd ? "http://kong:8080/api/analytics/**"
 const defaultUploadsProxyTarget = isProd ? "http://kong:8080/uploads/**" : "http://localhost:8080/uploads/**";
 const defaultPythonAiProxyTarget = isProd ? "http://python-ai:8000/**" : "http://localhost:8000/**";
 
+const sanitizePublicUrl = (url: string | undefined, defaultVal: string) => {
+  if (!url || (isProd && url.includes('localhost'))) {
+    return defaultVal;
+  }
+  return url;
+};
+
 export default defineNuxtConfig({
   components: [
     { path: '~/components/shared', pathPrefix: false },
@@ -125,13 +132,13 @@ export default defineNuxtConfig({
 
     // Public keys (exposed to client)
     public: {
-      apiBase: process.env.API_BASE_URL || defaultBaseUrl,
-      analyticsApiBase: process.env.ANALYTICS_API_BASE_URL || defaultAnalyticsUrl,
-      pythonAiBaseUrl: process.env.PYTHON_AI_BASE_URL || defaultPythonAiUrl,
-      authServiceBaseUrl: process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL || defaultBaseUrl,
-      auditServiceBaseUrl: process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL || defaultBaseUrl,
-      riskServiceBaseUrl: process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL || defaultBaseUrl,
-      masterServiceBaseUrl: process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL || defaultBaseUrl,
+      apiBase: sanitizePublicUrl(process.env.API_BASE_URL, defaultBaseUrl),
+      analyticsApiBase: sanitizePublicUrl(process.env.ANALYTICS_API_BASE_URL, defaultAnalyticsUrl),
+      pythonAiBaseUrl: sanitizePublicUrl(process.env.PYTHON_AI_BASE_URL, defaultPythonAiUrl),
+      authServiceBaseUrl: sanitizePublicUrl(process.env.NUXT_PUBLIC_AUTH_SERVICE_BASE_URL, defaultBaseUrl),
+      auditServiceBaseUrl: sanitizePublicUrl(process.env.NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL, defaultBaseUrl),
+      riskServiceBaseUrl: sanitizePublicUrl(process.env.NUXT_PUBLIC_RISK_SERVICE_BASE_URL, defaultBaseUrl),
+      masterServiceBaseUrl: sanitizePublicUrl(process.env.NUXT_PUBLIC_MASTER_SERVICE_BASE_URL, defaultBaseUrl),
     },
   },
 

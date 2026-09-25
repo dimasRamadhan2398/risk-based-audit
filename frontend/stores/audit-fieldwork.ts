@@ -4,6 +4,7 @@ import { useAssignmentLetterStore } from './assignment-letter'
 import { useAppToast } from '~/composables/useAppToast'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface InterviewItem {
   id: any
@@ -75,10 +76,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const loading = ref(false)
   const errorMsg = ref('')
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const publishedAssignmentLetters = computed(() => {
     return assignmentLetterStore.assignmentLetterList

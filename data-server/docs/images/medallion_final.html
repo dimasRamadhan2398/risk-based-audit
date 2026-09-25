@@ -322,7 +322,7 @@
       </div>
       <div class="title-text">
         <h1>AuditSphere Data Hub — Medallion Lakehouse & Feature Mapping</h1>
-        <p>End-to-End Data Lifecycle: External Banking Ingestion, 3-Zone Lakehouse, and 3 Tiers of AuditSphere Application Consumption</p>
+        <p>End-to-End Data Lifecycle: Dynamic Multi-Source Ingestion, 3-Zone Lakehouse, AI Retraining Pool, and AuditSphere Application Tiers</p>
       </div>
     </div>
     <div class="meta-badges">
@@ -358,28 +358,25 @@
         </marker>
       </defs>
 
-      <!-- 1. Converging Ingress into Bronze (Enters left side of Bronze at x=55, y=500) -->
-      <!-- CBS (280, 235) -> enters Bronze top-left -->
-      <path d="M 280 235 C 280 255, 120 255, 120 370" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
-      <!-- LOS (850, 235) -> enters Bronze top-center -->
-      <path d="M 850 235 C 850 255, 260 255, 260 370" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
-      <!-- GL (1420, 235) -> enters Bronze top-right -->
-      <path d="M 1420 235 C 1420 255, 400 255, 400 370" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
+      <!-- 1. Converging Ingress into Bronze (Enters top of Bronze Zone) -->
+      <!-- Multi-RDBMS Connectors (316, 235) -> enters Bronze top-left at x=140 -->
+      <path d="M 316 235 C 316 270, 140 270, 140 370" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
+      <!-- Schema Introspect & Mapping (913, 235) -> enters Bronze top-center at x=280 -->
+      <path d="M 913 235 C 913 275, 280 275, 280 370" stroke="#a855f7" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
+      <!-- Banking Core & Satellites (1510, 235) -> enters Bronze top-right at x=420 -->
+      <path d="M 1510 235 C 1510 280, 420 280, 420 370" stroke="#10b981" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
 
-      <!-- 2. Audit DB (2180, 235) Sync to Bronze (enters top at x=520) -->
-      <path d="M 2050 235 C 2050 260, 520 260, 520 370" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="6 3" fill="none" marker-end="url(#m-arr-cyan)"/>
+      <!-- 2. Audit DB (2050, 235) Sync to Bronze (enters top at x=560) -->
+      <path d="M 2050 235 C 2050 285, 560 285, 560 370" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="6 3" fill="none" marker-end="url(#m-arr-cyan)"/>
 
-      <!-- 3. Audit DB Bypass to CRUD Features (Routes down right margin x=2485, completely avoiding all cards) -->
-      <path d="M 2380 235 C 2485 235, 2485 860, 2485 1060 C 2485 1100, 480 1100, 480 970" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#m-arr-blue)"/>
+      <!-- 3. Audit DB Direct OLTP Bypass to CRUD Features (bypasses Lakehouse down the right margin x=2496, across Gap 2 at y=820, enters Tier 3 at x=400) -->
+      <path d="M 2350 235 C 2496 235, 2496 350, 2496 550 L 2496 820 L 400 820 L 400 860" stroke="#06b6d4" stroke-width="2.2" stroke-dasharray="6 4" fill="none" marker-end="url(#m-arr-cyan)"/>
 
-      <!-- 4. Audit DB to Enriched Features (Workflow link) -->
-      <path d="M 2200 235 C 2200 480, 1310 820, 1310 970" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#m-arr-blue)"/>
+      <!-- 4. Gold Zone (bottom left x=1620, y=787) to Enriched Features (enters Tier 3 at x=1162, y=860) -->
+      <path d="M 1620 787 C 1620 825, 1162 825, 1162 860" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#m-arr-green)"/>
 
-      <!-- 5. Gold Zone (bottom center x=1950, y=780) to Enriched Features (x=1380, y=970) -->
-      <path d="M 1850 780 C 1850 860, 1380 860, 1380 970" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#m-arr-green)"/>
-
-      <!-- 6. Gold Zone (bottom right x=2120, y=780) to Pure Analytics (x=2120, y=970) -->
-      <path d="M 2120 780 L 2120 970" stroke="#10b981" stroke-width="3.5" fill="none" marker-end="url(#m-arr-green)"/>
+      <!-- 5. Gold Zone (bottom center x=2018, y=787) to Pure Analytics (enters Tier 3 at x=2018, y=860) -->
+      <path d="M 2018 787 L 2018 860" stroke="#10b981" stroke-width="3.5" fill="none" marker-end="url(#m-arr-green)"/>
     </svg>
 
     <!-- ==================================================================== -->
@@ -391,65 +388,71 @@
           <div class="tier-icon" style="background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.4);">
             <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
           </div>
-          <h2>1. Sumber Data (Data Ingestion & Master Origins)</h2>
-          <span>External Banking Core, Satellite Systems & Audit Server Operational DB</span>
+          <h2>1. Sumber Data (Multi-Source Ingestion & Master Origins)</h2>
+          <span>External Enterprise RDBMS, Dynamic Catalog Introspection, Core Banking & Audit Server DB</span>
         </div>
-        <span class="badge-tag" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">INGESTION LAYER</span>
+        <span class="badge-tag" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">MULTI-SOURCE INGESTION</span>
       </div>
 
       <div class="grid-sources">
-        <!-- CBS -->
+        <!-- 1. Enterprise Multi-RDBMS & APIs -->
         <div class="card" style="border-left: 4px solid #38bdf8;">
           <div class="card-head">
             <div class="card-name">
-              <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 22h19v-3H2v3zm15-12h3v7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
-              Core Banking (CBS)
+              <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+              Enterprise Multi-Source Connectors
             </div>
-            <span class="pill" style="color:#38bdf8;">ETL / DB / API</span>
+            <span class="pill" style="color:#38bdf8;">SQLAlchemy / Pool</span>
           </div>
-          <div class="card-sub">Mutasi transaksi rekening nasabah, saldo tabungan/giro, mutasi kas harian, transfer antar bank.</div>
+          <div class="card-sub">Koneksi multi-database dinamis dengan connection pooling, enkripsi SSL/TLS, dan penjadwalan fleksibel (Manual, Hourly, Daily, Realtime CDC).</div>
           <div class="card-pill-list">
-            <span class="pill">Transactions</span>
-            <span class="pill">Accounts</span>
-            <span class="pill">Customers</span>
+            <span class="pill" style="color:#38bdf8; font-weight:700;">PostgreSQL</span>
+            <span class="pill">MySQL</span>
+            <span class="pill">Oracle DB</span>
+            <span class="pill">SQL Server</span>
+            <span class="pill">SAP HANA</span>
+            <span class="pill">REST API</span>
           </div>
         </div>
 
-        <!-- LOS -->
-        <div class="card" style="border-left: 4px solid #38bdf8;">
+        <!-- 2. Schema Introspection & Scope Mapping -->
+        <div class="card" style="border-left: 4px solid #a855f7;">
           <div class="card-head">
-            <div class="card-name">
-              <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-              Loan Origination (LOS)
+            <div class="card-name" style="color:#c084fc;">
+              <svg viewBox="0 0 24 24" fill="#a855f7"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              Live Schema Introspect & Scope Router
             </div>
-            <span class="pill" style="color:#38bdf8;">REST API</span>
+            <span class="pill" style="color:#c084fc;">Real Catalog API</span>
           </div>
-          <div class="card-sub">Aplikasi pengajuan kredit, limit plafon, agunan, hasil scoring debitur, status persetujuan komite.</div>
+          <div class="card-sub">Inspeksi katalog tabel & kolom otomatis, deteksi Primary Key untuk deduplikasi data, live data preview, dan routing ke 4 scope enterprise audit.</div>
           <div class="card-pill-list">
-            <span class="pill">Loan Portfolio</span>
-            <span class="pill">Collateral</span>
-            <span class="pill">Approvals</span>
+            <span class="pill" style="color:#c084fc;">risk_management</span>
+            <span class="pill" style="color:#38bdf8;">audit_features</span>
+            <span class="pill" style="color:#34d399;">qar_features</span>
+            <span class="pill" style="color:#f59e0b; font-weight:700;">data_analytics (AI)</span>
           </div>
         </div>
 
-        <!-- GL & Delivery -->
-        <div class="card" style="border-left: 4px solid #38bdf8;">
+        <!-- 3. Banking Systems & Satellites -->
+        <div class="card" style="border-left: 4px solid #10b981;">
           <div class="card-head">
-            <div class="card-name">
-              <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-              GL & Delivery Channels
+            <div class="card-name" style="color:#34d399;">
+              <svg viewBox="0 0 24 24" fill="#34d399"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 22h19v-3H2v3zm15-12h3v7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
+              Core Banking & Satellites (CBS/LOS)
             </div>
-            <span class="pill" style="color:#38bdf8;">Batch / Feed</span>
+            <span class="pill" style="color:#34d399;">dlt / CDC / Batch</span>
           </div>
-          <div class="card-sub">Jurnal buku besar akuntansi, transaksi valas treasury, event log ATM switch & mobile banking.</div>
+          <div class="card-sub">Mutasi rekening nasabah CBS, portofolio & plafon kredit LOS, pembukuan GL treasury, serta log event digital channel (ATM switch & mobile).</div>
           <div class="card-pill-list">
-            <span class="pill">GL Entries</span>
+            <span class="pill">CBS Mutasi</span>
+            <span class="pill">LOS Plafon</span>
+            <span class="pill">GL Balancing</span>
             <span class="pill">ATM Switch</span>
-            <span class="pill">Audit Logs</span>
+            <span class="pill">10K+ Simulator</span>
           </div>
         </div>
 
-        <!-- Audit Server DB -->
+        <!-- 4. Audit Server DB -->
         <div class="card" style="border-left: 4px solid #06b6d4; background:rgba(6, 182, 212, 0.08);">
           <div class="card-head">
             <div class="card-name" style="color:#22d3ee;">
@@ -458,12 +461,13 @@
             </div>
             <span class="pill" style="color:#22d3ee;">Source of Truth</span>
           </div>
-          <div class="card-sub">Master entitas & operasional audit harian. User CRUD langsung di sini. Disinkronkan ke Lakehouse.</div>
+          <div class="card-sub">Master entitas operasional audit harian & kredensial terenkripsi. User CRUD langsung di sini. Disinkronkan asinkron ke Lakehouse via VPN.</div>
           <div class="card-pill-list">
             <span class="pill" style="color:#22d3ee;">Companies</span>
             <span class="pill" style="color:#22d3ee;">Departments</span>
             <span class="pill" style="color:#22d3ee;">Risks</span>
             <span class="pill" style="color:#22d3ee;">Charters</span>
+            <span class="pill" style="color:#22d3ee;">Findings</span>
           </div>
         </div>
       </div>
@@ -479,7 +483,7 @@
             <svg viewBox="0 0 24 24" fill="#34d399"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z"/></svg>
           </div>
           <h2>2. Data Lakehouse Architecture (PostgreSQL 16 Multi-Zona)</h2>
-          <span>Bronze (Raw Append-Only) ➔ Silver (Cleaned & Validated) ➔ Gold (Star Schema, CAATT & AI Predictions)</span>
+          <span>Bronze (Raw Multi-Source) ➔ Silver (Cleaned & Scoped) ➔ Gold (Star Schema, AI Pool & Retrain Webhook)</span>
         </div>
         <span class="badge-tag" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">MEDALLION PIPELINE</span>
       </div>
@@ -496,24 +500,24 @@
               <span class="pill" style="color:#fbbf24;">Role: etl_user (CRUD)</span>
             </div>
             <div class="card-sub" style="margin-top:6px;">
-              Data mentah append-only persis seperti aslinya dari sistem sumber. Tidak ada validasi tipe data ketat untuk mencegah data drop.
+              Data mentah append-only persis seperti aslinya dari sistem sumber & database eksternal terdaftar. Skema fleksibel tanpa validasi ketat.
             </div>
 
             <div style="margin-top: 14px; background:rgba(15,23,42,0.65); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
               <div style="font-size:11px; font-weight:700; color:#fbbf24; text-transform:uppercase; margin-bottom:6px;">Tabel Skema bronze.*:</div>
               <div style="font-size:11.5px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; line-height:1.7;">
-                &bull; bronze.cbs_transactions_raw<br/>
-                &bull; bronze.cbs_accounts_raw<br/>
-                &bull; bronze.cbs_customers_raw<br/>
-                &bull; bronze.sync_master_companies<br/>
-                &bull; bronze.sync_master_departments<br/>
-                &bull; bronze.sync_risk_registers
+                &bull; bronze.registered_sources (Connection Registry)<br/>
+                &bull; bronze.&lt;src&gt;_&lt;table&gt; (Dynamic Multi-Source Raw)<br/>
+                &bull; bronze.cb_transactions, cb_accounts, cb_loans<br/>
+                &bull; bronze.cb_gl_entries, cb_branches, cb_documents<br/>
+                &bull; bronze.sync_companies, sync_departments<br/>
+                &bull; bronze.sync_risk_registers & sync_findings
               </div>
             </div>
           </div>
 
           <div style="font-size:11px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
-            Ingest via: <strong style="color:#f59e0b;">Data Hub API (:8100) &bull; dlt Ingestion</strong>
+            Ingest via: <strong style="color:#f59e0b;">Data Hub API (:8100 /sources/ingest) &bull; Dynamic Multi-Source Ingestion</strong>
           </div>
         </div>
 
@@ -523,10 +527,10 @@
             <svg viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
           </div>
           <div class="arrow-tag" style="color:#fbbf24;">
-            dlt / Python<br/>ETL
+            Python / dlt<br/>Transform
           </div>
           <div style="font-size:9.5px; color:#94a3b8;">
-            Clean &bull; Cast<br/>Deduplicate
+            Clean &bull; PK Dedup<br/>Scope Routing
           </div>
         </div>
 
@@ -541,24 +545,24 @@
               <span class="pill" style="color:#e2e8f0;">dlt / Python ETL</span>
             </div>
             <div class="card-sub" style="margin-top:6px;">
-              Pembersihan data, type casting (tipe data eksplisit), deduplikasi transaksi, normalisasi model relasional & integritas referensial.
+              Pembersihan data, type casting (tipe data eksplisit), deduplikasi transaksi berdasarkan Audit Key, normalisasi & integritas referensial.
             </div>
 
             <div style="margin-top: 14px; background:rgba(15,23,42,0.65); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
               <div style="font-size:11px; font-weight:700; color:#cbd5e1; text-transform:uppercase; margin-bottom:6px;">Tabel Skema silver.*:</div>
               <div style="font-size:11.5px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; line-height:1.7;">
-                &bull; silver.cbs_transactions_clean<br/>
-                &bull; silver.ref_customers & ref_accounts<br/>
-                &bull; silver.ref_products & ref_branches<br/>
-                &bull; silver.ref_companies & ref_depts<br/>
-                &bull; silver.ref_risk_categories<br/>
+                &bull; silver.external_source_data (Deduplicated JSONB)<br/>
+                &bull; silver.trx_cleaned (Hour, DOW, Round Amt, DPD)<br/>
+                &bull; silver.loan_cleaned (LTV Ratio, Collectability)<br/>
+                &bull; silver.acct_cleaned, cust_cleaned, gl_cleaned<br/>
+                &bull; silver.ref_companies, ref_departments, ref_risks<br/>
                 &bull; silver.audit_working_papers_norm
               </div>
             </div>
           </div>
 
           <div style="font-size:11px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
-            Proses: <strong style="color:#cbd5e1;">Deduplication &bull; Cast Types &bull; Referential Checks</strong>
+            Proses: <strong style="color:#cbd5e1;">Audit Key Deduplication &bull; Cast Types &bull; Scope Validation</strong>
           </div>
         </div>
 
@@ -568,10 +572,10 @@
             <svg viewBox="0 0 24 24" fill="#34d399"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
           </div>
           <div class="arrow-tag" style="color:#34d399;">
-            SQL Views<br/>& Stars
+            Enrichment &<br/>AI Pool Feed
           </div>
           <div style="font-size:9.5px; color:#94a3b8;">
-            Aggregations<br/>50+ Views
+            Star Schema<br/>AI Webhook
           </div>
         </div>
 
@@ -581,41 +585,41 @@
             <div class="card-head">
               <div class="card-name" style="color:#34d399;">
                 <span style="width:12px;height:12px;border-radius:50%;background:#34d399;display:inline-block;box-shadow:0 0 10px #34d399;"></span>
-                GOLD ZONE (Star Schema + 50 Views + CAATT + AI)
+                GOLD ZONE (Star Schema + AI Pool + 50 Views + CAATT)
               </div>
               <span class="pill" style="color:#34d399; border-color:rgba(16,185,129,0.3);">Role: auditor_ai (Read-Only)</span>
             </div>
             <div class="card-sub" style="margin-top:6px;">
-              Data analitik teragregasi tingkat tinggi, Star Schema bisnis, hasil pengujian CAATT, dan prediksi model AI yang siap dikonsumsi langsung.
+              Data analitik teragregasi tingkat tinggi, Star Schema bisnis, Pool Data Training AI dengan auto-retrain trigger, dan pengujian CAATT.
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:14px;">
               <div style="background:rgba(15,23,42,0.7); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
-                <div style="font-size:11px; font-weight:700; color:#34d399; text-transform:uppercase; margin-bottom:4px;">Star Schema Facts & Dims:</div>
+                <div style="font-size:11px; font-weight:700; color:#34d399; text-transform:uppercase; margin-bottom:4px;">Star Schema & AI Pool:</div>
                 <div style="font-size:11px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; line-height:1.6;">
-                  &bull; fact_transactions<br/>
-                  &bull; fact_loans<br/>
-                  &bull; fact_gl_entries<br/>
-                  &bull; dim_customers<br/>
-                  &bull; dim_accounts & dim_depts
+                  &bull; <strong>gold.fact_external_audit_data</strong><br/>
+                  &bull; <strong>gold.ai_training_pool</strong> (Feature Pool)<br/>
+                  &bull; fact_transactions & fact_loans<br/>
+                  &bull; dim_customers & dim_accounts<br/>
+                  &bull; 50+ Enterprise Specialized Views
                 </div>
               </div>
 
               <div style="background:rgba(15,23,42,0.7); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
-                <div style="font-size:11px; font-weight:700; color:#fb923c; text-transform:uppercase; margin-bottom:4px;">CAATT & AI Predictions:</div>
+                <div style="font-size:11px; font-weight:700; color:#fb923c; text-transform:uppercase; margin-bottom:4px;">CAATT & AI Auto-Retrain:</div>
                 <div style="font-size:11px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; line-height:1.6;">
-                  &bull; caatt_full_population_results<br/>
-                  &bull; caatt_duplicate_gap_results<br/>
-                  &bull; caatt_benford_results<br/>
-                  &bull; ai_risk_score_predictions<br/>
-                  &bull; ai_anomaly_predictions
+                  &bull; caatt_full_population & benford<br/>
+                  &bull; caatt_duplicate_gap & reconcile<br/>
+                  &bull; ai_risk_score & anomaly_predict<br/>
+                  &bull; <strong>Webhook:</strong> /retrain/auto trigger<br/>
+                  &bull; <strong>Atomic Hot-Reload</strong> Models
                 </div>
               </div>
             </div>
           </div>
 
           <div style="font-size:11px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
-            Akses: <strong style="color:#34d399;">High Performance Star Schema &bull; 50+ Specialized Views &bull; Read-Only Enclave</strong>
+            Akses: <strong style="color:#34d399;">auditor_ai (Read-Only) &bull; AI Training Pool &bull; 7 CAATT APIs &bull; 50+ Specialized Views</strong>
           </div>
         </div>
       </div>

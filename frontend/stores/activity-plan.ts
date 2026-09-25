@@ -7,6 +7,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { formatPeriod } from '~/utils/dateConverter';
 import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
 export const useActivityPlanStore = defineStore('activity-plan', () => {
   const { t, locale } = useI18n();
@@ -76,10 +77,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   const plans = ref<ActivityPlan[]>([]);
   const selectedPlan = ref<ActivityPlan | null>(null);
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const filteredPlans = computed(() => {
     return plans.value.map(plan => ({

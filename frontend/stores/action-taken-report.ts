@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { AuditCategory, AuditDepartment, AuditStatus, type ActionTakenReport } from '~/types/audit'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useActionTakenReportStore = defineStore('action-taken-report', () => {
   // State
@@ -198,10 +199,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
   const loading = ref(false)
   const errorMsg = ref('')
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const fetchReports = async () => {
     loading.value = true

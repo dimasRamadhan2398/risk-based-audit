@@ -11,6 +11,7 @@ import {
   type KPIForecast
 } from '~/composables/useAnalyticsData'
 import { riskLevelConfig } from '~/stores/risk-profile'
+import { getAnalyticsServiceBaseUrl, getPythonAiBaseUrl } from '~/composables/useApiUrl'
 
 // Module-level singletons so all AI Insight sub-pages share data & connection status
 const initialXGB = useXGBoostData()
@@ -109,8 +110,8 @@ const loadRealCache = (): boolean => {
 export const useAiAnalytics = () => {
   const config = useRuntimeConfig()
 
-  const getAnalyticsUrl = () => config.public.analyticsApiBase || '/api/analytics'
-  const getPythonAiUrl = () => config.public.pythonAiBaseUrl || '/api/python-ai'
+  const getAnalyticsUrl = () => getAnalyticsServiceBaseUrl()
+  const getPythonAiUrl = () => getPythonAiBaseUrl()
 
   const safeApiFetch = async (endpoint: string, options: any = {}): Promise<any> => {
     const analyticsUrl = getAnalyticsUrl()

@@ -212,6 +212,19 @@
     border-radius: 6px;
     font-weight: 600;
   }
+  .zone-external .zone-title-text h2 {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+  }
+  .zone-external .zone-title-text span {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .zone-external .zone-tag {
+    font-size: 10px;
+    padding: 3px 7px;
+  }
 
   /* Cards */
   .card {
@@ -460,13 +473,13 @@
       </div>
       <div class="title-text">
         <h1>AuditSphere Data Hub — System Topology & Infrastructure Architecture</h1>
-        <p>Enterprise Deployment Model: Cross-Server WireGuard Mesh, Microservices, Medallion Lakehouse & AI Engine</p>
+        <p>Enterprise Deployment Model: Multi-Source Enterprise Ingestion, WireGuard Mesh, Medallion Lakehouse & AI Retrain Engine</p>
       </div>
     </div>
     <div class="meta-badges">
       <div class="badge badge-primary">
         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#38bdf8;box-shadow:0 0 8px #38bdf8;"></span>
-        Dual-Node Enclave
+        Multi-Source Ingestion Hub
       </div>
       <div class="badge badge-danger">
         <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
@@ -474,7 +487,7 @@
       </div>
       <div class="badge badge-success">
         <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-        Zero Public Port Exposure
+        Automated AI Retrain Loop
       </div>
     </div>
   </div>
@@ -536,8 +549,8 @@
 
       <!-- 6. External Data Sources to Data Hub API (Right edge x=2000) -->
       <path d="M 2070 190 C 2030 190, 2015 280, 2000 280" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
-      <path d="M 2070 325 C 2030 325, 2015 310, 2000 310" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
-      <path d="M 2070 460 C 2030 460, 2015 340, 2000 340" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
+      <path d="M 2070 325 C 2030 325, 2015 310, 2000 310" stroke="#c084fc" stroke-width="2.5" fill="none" marker-end="url(#arr-p)"/>
+      <path d="M 2070 460 C 2030 460, 2015 340, 2000 340" stroke="#fbbf24" stroke-width="2.5" fill="none" marker-end="url(#arr-a)"/>
       <path d="M 2070 595 C 2030 595, 2015 370, 2000 370" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
 
       <!-- 7. Internal Data Hub Connections -->
@@ -552,6 +565,9 @@
 
       <!-- CAATT (1740, 620) -> CBS Sim (1740, 680) -->
       <path d="M 1740 620 L 1740 680" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="5 3" fill="none" marker-end="url(#arr-b)"/>
+
+      <!-- 8. Webhook Auto-Retrain: Data Hub API (1515, 335) -> AI Engine (1490, 335) -->
+      <path d="M 1515 335 L 1495 335" stroke="#c084fc" stroke-width="2" stroke-dasharray="4 2" fill="none" marker-end="url(#arr-p)"/>
     </svg>
 
     <!-- ZONE 1: AUDIT SERVER -->
@@ -590,10 +606,11 @@
           </div>
           <span class="port-badge">:3000 / :80</span>
         </div>
-        <div class="card-desc">Vue 3 + PrimeVue enterprise single-page application. Menyediakan antarmuka Audit Universe, Risk Heatmap, 4 Tab AI Analytics, dan 7 Tab CAATT Analytics.</div>
+        <div class="card-desc">Vue 3 + PrimeVue enterprise single-page application. Menyediakan antarmuka <strong>Data Source Manager & Schema Explorer</strong>, Audit Universe, Risk Heatmap, 4 Tab AI Analytics, dan 7 Tab CAATT Analytics.</div>
         <div class="card-tags">
           <span class="mini-tag">Nuxt.js 3</span>
-          <span class="mini-tag">Tailwind CSS</span>
+          <span class="mini-tag">Data Source UI</span>
+          <span class="mini-tag">Schema Explorer</span>
           <span class="mini-tag">Pinia Store</span>
           <span class="mini-tag">ApexCharts</span>
         </div>
@@ -625,7 +642,7 @@
               master-service
             </div>
             <div style="display:flex; gap:6px;">
-              <span class="mini-tag" style="color:#22d3ee;">Entity CRUD + Sync</span>
+              <span class="mini-tag" style="color:#22d3ee;">Data Source Mgr</span>
               <span class="port-badge">:8003</span>
             </div>
           </div>
@@ -686,10 +703,18 @@
       </div>
 
       <div class="tunnel-routes">
+        <div class="tunnel-pill" style="border-left: 3px solid #38bdf8;">
+          <div class="tunnel-pill-title" style="color:#38bdf8;">
+            <span class="anchor-dot" style="background:#38bdf8;"></span>
+            Data Sources & Schema
+          </div>
+          <div class="tunnel-pill-desc">master-svc ➔ :8100 (/sources/*)</div>
+        </div>
+
         <div class="tunnel-pill" style="border-left: 3px solid #c084fc;">
           <div class="tunnel-pill-title" style="color:#c084fc;">
             <span class="anchor-dot" style="background:#c084fc;"></span>
-            AI Predictions
+            AI Predictions & Retrain
           </div>
           <div class="tunnel-pill-desc">analytics-svc ➔ :8000 (FastAPI)</div>
         </div>
@@ -789,11 +814,12 @@
               </div>
               <span class="port-badge" style="color:#c084fc;">:8000</span>
             </div>
-            <div class="card-desc">FastAPI ML Inference & Auto-Retraining Engine: 4 predictive suites (XGBoost, Isolation Forest, IndoBERT, LSTM) + <strong>Atomic Hot Reload</strong>.</div>
+            <div class="card-desc">FastAPI ML Inference & Auto-Retraining Engine: 4 predictive suites (XGBoost, Isolation Forest, IndoBERT, LSTM), <strong>Webhook /retrain/auto</strong>, dan Atomic Hot Reload.</div>
             <div class="card-tags">
               <span class="mini-tag">XGBoost</span>
               <span class="mini-tag">PyTorch LSTM</span>
               <span class="mini-tag">Isolation Forest</span>
+              <span class="mini-tag">/retrain/auto</span>
               <span class="mini-tag">Hot-Swap</span>
             </div>
           </div>
@@ -806,12 +832,13 @@
               </div>
               <span class="port-badge" style="color:#fb923c;">:8100</span>
             </div>
-            <div class="card-desc">FastAPI Gateway untuk Ingestion (real-time/batch), Master Data Sync, Pipeline Orchestration & 7 CAATT endpoints.</div>
+            <div class="card-desc">FastAPI Gateway untuk Ingestion Multi-Sumber (`/sources/ingest`), Introspeksi Skema (`/sources/{id}/schema`), Pipeline Medallion, dan Notifikasi Webhook Auto-Retrain AI.</div>
             <div class="card-tags">
               <span class="mini-tag">FastAPI</span>
-              <span class="mini-tag">API Key Header</span>
+              <span class="mini-tag">Multi-Source Ingest</span>
+              <span class="mini-tag">Schema Introspect</span>
+              <span class="mini-tag">AI Retrain Webhook</span>
               <span class="mini-tag">7 CAATT APIs</span>
-              <span class="mini-tag">Gold Serving</span>
             </div>
           </div>
         </div>
@@ -861,12 +888,12 @@
               </div>
               <span class="port-badge" style="color:#34d399;">Host :5433 (Int: 5432)</span>
             </div>
-            <div class="card-desc">Repositori Data Lakehouse Medallion Multi-Zona: <strong>Bronze</strong> (raw append-only), <strong>Silver</strong> (cleaned & deduplicated), <strong>Gold</strong> (Star Schema + 50 Views).</div>
+            <div class="card-desc">Repositori Data Lakehouse Medallion: <strong>Bronze</strong> (registered_sources, &lt;src&gt;_&lt;table&gt;, cb_*), <strong>Silver</strong> (external_source_data deduped, *_cleaned), <strong>Gold</strong> (fact_external_audit_data, ai_training_pool, Star Schema + 50 Views).</div>
             <div class="card-tags">
-              <span class="mini-tag">Bronze Zone</span>
-              <span class="mini-tag">Silver Zone</span>
-              <span class="mini-tag">Gold Views</span>
-              <span class="mini-tag">Roles: etl / auditor</span>
+              <span class="mini-tag">registered_sources</span>
+              <span class="mini-tag">external_source_data</span>
+              <span class="mini-tag">ai_training_pool</span>
+              <span class="mini-tag">50+ Gold Views</span>
             </div>
           </div>
 
@@ -895,80 +922,89 @@
     <div class="zone zone-external">
       <div class="zone-header">
         <div class="zone-header-title">
-          <div class="zone-icon" style="background: rgba(148, 163, 184, 0.2); border: 1px solid rgba(148, 163, 184, 0.4);">
-            <svg viewBox="0 0 24 24" fill="#94a3b8"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+          <div class="zone-icon" style="background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
           </div>
           <div class="zone-title-text">
-            <h2>Sumber Data Eksternal</h2>
-            <span>Banking Systems & Channels</span>
+            <h2>Sumber Data Terintegrasi</h2>
+            <span>Multi-Source Ingestion & Satellites</span>
           </div>
         </div>
-        <span class="zone-tag" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3);">EXTERNAL</span>
+        <span class="zone-tag" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3);">MULTI-SOURCE</span>
+      </div>
+
+      <div class="card accent-blue" style="margin-top: 15px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+            Multi-RDBMS Enterprise Connectors
+          </div>
+          <span class="port-badge">:5432 / :3306 / :1521 / :1433</span>
+        </div>
+        <div class="card-desc">Konektor database terpusat: PostgreSQL, MySQL, Oracle DB, SQL Server, SAP HANA, AWS S3, REST API. Mendukung connection pooling, SSL/TLS, dan credential encryption di Master DB.</div>
+        <div class="card-tags">
+          <span class="mini-tag">PostgreSQL</span>
+          <span class="mini-tag">MySQL</span>
+          <span class="mini-tag">Oracle</span>
+          <span class="mini-tag">MSSQL</span>
+          <span class="mini-tag">SAP HANA</span>
+        </div>
+      </div>
+
+      <div class="card accent-purple" style="margin-top: 15px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#c084fc"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            Live Schema Introspection & Catalog
+          </div>
+          <span class="port-badge">information_schema</span>
+        </div>
+        <div class="card-desc">Introspeksi skema database otomatis: inspeksi live metadata tabel, tipe data kolom, constraint Primary Key untuk deduplikasi, serta perhitungan jumlah baris secara real-time.</div>
+        <div class="card-tags">
+          <span class="mini-tag">Catalog API</span>
+          <span class="mini-tag">PK Detection</span>
+          <span class="mini-tag">Live Preview</span>
+          <span class="mini-tag">Column Types</span>
+        </div>
+      </div>
+
+      <div class="card accent-amber" style="margin-top: 15px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z"/></svg>
+            Scope Router & Anomaly Rule Engine
+          </div>
+          <span class="port-badge">Audit Mapping</span>
+        </div>
+        <div class="card-desc">Pemetaan tabel ke 4 cakupan modul (risk_management, audit_features, qar_features, data_analytics) serta aktivasi 6 aturan anomali (Benford, Z-Score, Round Amt, Velocity, Duplicate).</div>
+        <div class="card-tags">
+          <span class="mini-tag">4 Target Scopes</span>
+          <span class="mini-tag">AI Pool Feed</span>
+          <span class="mini-tag">Anomaly Rules</span>
+          <span class="mini-tag">Deduplication</span>
+        </div>
       </div>
 
       <div class="card accent-slate" style="margin-top: 15px;">
         <div class="card-header">
           <div class="card-title">
             <svg viewBox="0 0 24 24" fill="#94a3b8"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 22h19v-3H2v3zm15-12h3v7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
-            Core Banking (CBS)
+            Core Banking & Delivery (CBS/LOS/GL)
           </div>
-          <span class="port-badge">ETL / DB / API</span>
+          <span class="port-badge">Simulator & Core</span>
         </div>
-        <div class="card-desc">Mutasi transaksi nasabah, saldo simpanan, penarikan tunai, transfer antar-bank, otorisasi transaksi teller/BO.</div>
+        <div class="card-desc">Sistem perbankan operasional: Core Banking (CBS mutasi rekening/nasabah), Loan Origination (LOS kredit & agunan), GL treasury balancing, serta ATM/Mobile Switch event logs.</div>
         <div class="card-tags">
-          <span class="mini-tag">Daily GL Batch</span>
-          <span class="mini-tag">Realtime CDC</span>
-        </div>
-      </div>
-
-      <div class="card accent-slate" style="margin-top: 15px;">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24" fill="#94a3b8"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-            Loan Origination (LOS)
-          </div>
-          <span class="port-badge">REST API</span>
-        </div>
-        <div class="card-desc">Aplikasi kredit perbankan, evaluasi agunan, skor risiko calon debitur, approval komite kredit, pencairan pinjaman.</div>
-        <div class="card-tags">
-          <span class="mini-tag">Loan Approvals</span>
-          <span class="mini-tag">Collateral Data</span>
-        </div>
-      </div>
-
-      <div class="card accent-slate" style="margin-top: 15px;">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24" fill="#94a3b8"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-            General Ledger & Treasury
-          </div>
-          <span class="port-badge">Daily Feed</span>
-        </div>
-        <div class="card-desc">Jurnal akuntansi neraca & laba rugi, penempatan pasar uang, transaksi valas treasury, rekening nostro/vostro.</div>
-        <div class="card-tags">
+          <span class="mini-tag">CBS Mutasi</span>
+          <span class="mini-tag">LOS Kredit</span>
           <span class="mini-tag">GL Balancing</span>
-          <span class="mini-tag">3-Way Match</span>
-        </div>
-      </div>
-
-      <div class="card accent-slate" style="margin-top: 15px;">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24" fill="#94a3b8"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-            Delivery Channels (ATM/Mobile)
-          </div>
-          <span class="port-badge">Event Stream</span>
-        </div>
-        <div class="card-desc">Log kanal digital, ATM transaction switch, mobile banking audit trails, deteksi anomali penarikan tunai serentak.</div>
-        <div class="card-tags">
           <span class="mini-tag">ATM Switch</span>
-          <span class="mini-tag">Mobile Log</span>
         </div>
       </div>
 
       <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; margin-top:20px;">
-        <div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:4px;">Pipeline Ekstraksi Ingest:</div>
-        <div style="font-size:11px; color:#cbd5e1; line-height:1.5;">Data diekstrak via dlt / batch REST API ke <code style="color:#fb923c;">auditsphere_datahub_api (:8100)</code> untuk dicatat ke Bronze zone tanpa validasi tipe ketat.</div>
+        <div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:4px;">Multi-Source Ingestion Pipeline:</div>
+        <div style="font-size:11px; color:#cbd5e1; line-height:1.5;">Data diekstrak via Data Hub API (<code style="color:#fb923c;">:8100 /sources/ingest</code>), di-introspeksi skemanya, dan dipetakan ke Bronze Zone secara sekuensial/paralel dengan pelacakan progres realtime.</div>
       </div>
     </div>
 

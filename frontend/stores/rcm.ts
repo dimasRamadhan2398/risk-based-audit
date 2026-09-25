@@ -5,6 +5,7 @@ import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import { RiskLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
+import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface RCMItem {
   id: string
@@ -214,9 +215,7 @@ export const useRCMStore = defineStore('rcm', () => {
 
   initStoreData()
 
-  const getRiskServiceBaseUrl = () => {
-    return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
-  }
+
 
   // Calculate rating (1-5) to percentage (4%, 8%, 12%, 16%, 20%)
   const ratingToPercent = (rating: number): number => {

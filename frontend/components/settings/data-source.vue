@@ -723,13 +723,11 @@
 </template>
 
 <script setup lang="ts">
+import { getMasterServiceBaseUrl } from '~/composables/useApiUrl'
+
 const toast = useToast()
 const { t } = useI18n()
 const config = useRuntimeConfig()
-
-const getMasterServiceBaseUrl = () => {
-  return config.public.masterServiceBaseUrl || 'http://localhost:8002/api/v1'
-}
 
 export interface TableColumn {
   name: string

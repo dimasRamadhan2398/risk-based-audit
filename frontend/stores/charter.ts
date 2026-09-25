@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { AuditCharter, CharterFormState } from '~/types/audit'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useCharterStore = defineStore('charter', () => {
   // Modal State
@@ -37,16 +38,7 @@ export const useCharterStore = defineStore('charter', () => {
     fileName: '',
   })
 
-  /**
-   * Base URL audit-service.
-   *
-   * Pastikan di frontend/.env sudah ada:
-   * NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=http://localhost:8002/api/v1
-   */
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   /**
    * Mapper dari response backend ke format yang dipakai frontend.

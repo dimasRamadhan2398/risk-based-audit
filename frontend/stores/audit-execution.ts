@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { AuditCategory, AuditStatus, type AuditExecution } from '~/types/audit'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export function normalizeAuditStatus(status?: string | null, progress?: number): string {
   if (!status && typeof progress === 'number') {
@@ -308,8 +309,7 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
       ] as AuditExecution[]
 
       try {
-        const config = useRuntimeConfig()
-        const baseUrl = config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+        const baseUrl = getAuditServiceBaseUrl()
         const response: any = await $fetch(`${baseUrl}/audit-executions`, {
           method: 'GET'
         })
@@ -342,8 +342,7 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
     async updateAuditExecution(id: string, payload: Partial<AuditExecution>) {
       this.loading = true
       try {
-        const config = useRuntimeConfig()
-        const baseUrl = config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+        const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/audit-executions/${id}`, {
           method: 'PUT',
           body: payload

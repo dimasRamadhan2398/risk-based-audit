@@ -4,6 +4,7 @@ import { ref, reactive, computed } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useI18n } from '~/composables/useI18n'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface AuditSop {
   id: string
@@ -62,10 +63,7 @@ export const useSopStore = defineStore('sop', () => {
     fileSize: 0
   })
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const fetchSops = async (page?: number, pageSize?: number) => {
     if (page !== undefined) pagination.value.page = page

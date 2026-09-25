@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface FollowUpRow {
   status: 'Closed' | 'In Progress' | 'Overdue'
@@ -120,10 +121,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     signatureNIK: ''
   })
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const mockSummaries: ExecutiveSummary[] = [
     {

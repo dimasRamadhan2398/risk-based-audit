@@ -5,6 +5,7 @@ import { useWorkingPaperStore } from './working-paper'
 import { useAuditFieldworkStore } from './audit-fieldwork'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface FindingItem {
   title: string
@@ -168,10 +169,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
 
   const hasSelectedAssignmentLetter = computed(() => !!selectedAssignmentLetter.value && selectedAssignmentLetter.value !== '')
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const loading = ref(false)
   const errorMsg = ref('')

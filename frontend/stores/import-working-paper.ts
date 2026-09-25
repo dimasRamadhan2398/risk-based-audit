@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface ImportedWorkingPaper {
   id: string
@@ -20,11 +21,6 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
-
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
 
   const fetchImportedPapers = async () => {
     loading.value = true
