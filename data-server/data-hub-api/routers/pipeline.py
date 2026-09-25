@@ -2,7 +2,9 @@
 Data Hub API — Pipeline Router
 Endpoints for ETL pipeline management: trigger, status, health.
 """
+from typing import Optional, List
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+from pydantic import BaseModel
 from sqlalchemy import text
 
 from main import engine, cbs_engine
@@ -10,6 +12,11 @@ from services.etl_service import run_cbs_etl_pipeline
 from services.transform_service import run_bronze_to_silver, run_silver_to_gold
 
 router = APIRouter()
+
+class PipelineRequest(BaseModel):
+    source_ids: Optional[List[str]] = None
+    mode: str = "cbs"  # "cbs" | "selected" | "all"
+    run_transform: bool = True
 
 # Track pipeline state
 pipeline_state = {"status": "idle", "last_run": None, "last_error": None, "records_processed": 0}
@@ -43,8 +50,18 @@ def _run_full_pipeline():
 
 
 @router.post("/run")
-def trigger_pipeline(background_tasks: BackgroundTasks):
-    """Trigger the full ETL pipeline: CBS → Bronze → Silver → Gold."""
+def trigger_pipeline(background_tasks: BackgroundTasks, req: Optional[PipelineRequest] = None):
+    """Trigger the ETL pipeline: CBS or multi-source."""
+    if req and (req.mode in ("selected", "all") or (req.source_ids and len(req.source_ids) > 0)):
+        from routers.sources import trigger_multi_ingest, IngestRequest
+        ingest_req = IngestRequest(
+            source_ids=req.source_ids or [],
+            mode=req.mode,
+            run_transform=req.run_transform
+        )
+        return trigger_multi_ingest(ingest_req, background_tasks)
+
+    # Default CBS pipeline (backward compatible)
     if pipeline_state["status"] == "running":
         return {"status": "already_running", "message": "Pipeline is already running"}
 

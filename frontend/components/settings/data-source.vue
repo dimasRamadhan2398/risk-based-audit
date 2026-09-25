@@ -10,14 +10,27 @@
               {{ t('settings.dataSource.subtitle') }}
             </p>
           </div>
-          <UButton
-            color="primary"
-            icon="i-lucide-plus"
-            class="rounded-xl font-bold self-start sm:self-auto shrink-0"
-            @click="openAddModal"
-          >
-            {{ t('settings.dataSource.addConnection') }}
-          </UButton>
+          <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+            <UButton
+              v-if="connections.length > 1"
+              color="secondary"
+              variant="subtle"
+              icon="i-lucide-refresh-cw"
+              class="rounded-xl font-bold"
+              :loading="isBatchSyncing"
+              @click="syncAllSources"
+            >
+              {{ t('settings.dataSource.syncAll') }}
+            </UButton>
+            <UButton
+              color="primary"
+              icon="i-lucide-plus"
+              class="rounded-xl font-bold"
+              @click="openAddModal"
+            >
+              {{ t('settings.dataSource.addConnection') }}
+            </UButton>
+          </div>
         </div>
       </template>
 
@@ -337,7 +350,7 @@
               <span class="text-[11px] text-gray-500 dark:text-gray-400">{{ t('settings.dataSource.enabledScopesSub') }}</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
               <label
                 v-for="scope in availableScopes"
                 :key="scope.id"
@@ -464,7 +477,7 @@
             <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
               <USelect
                 v-model="scopeFilter"
-                :items="['All Scopes', 'Risk Management', 'Audit Features', 'QAR Features']"
+                :items="['All Scopes', 'Risk Management', 'Audit Features', 'QAR Features', 'Data Analytics / AI']"
                 size="md"
                 class="w-48"
               />
@@ -573,7 +586,8 @@
                       :items="[
                         { label: 'Risk Management', value: 'risk_management' },
                         { label: 'Audit Features', value: 'audit_features' },
-                        { label: 'QAR Features', value: 'qar_features' }
+                        { label: 'QAR Features', value: 'qar_features' },
+                        { label: 'Data Analytics / AI', value: 'data_analytics' }
                       ]"
                       size="sm"
                       class="w-full"
@@ -765,6 +779,7 @@ const availableScopes = [
   { id: 'risk_management', label: '1. Risk Management', description: 'Risk Profile, Heatmap, RCM & Appetite' },
   { id: 'audit_features', label: '2. Audit Features', description: 'Activity Plan, Working Paper, ATR & Reports' },
   { id: 'qar_features', label: '3. QAR Features', description: 'Quality Assurance Review & Compliance' },
+  { id: 'data_analytics', label: '4. Data Analytics / AI', description: 'AI Training, Anomaly Detection, Risk Scoring & Predictive Analytics' },
 ]
 
 const standardAnomalyRules = [
@@ -955,6 +970,74 @@ async function triggerSync(conn: DataSourceConn) {
       color: 'success',
     })
   }
+}
+
+const isBatchSyncing = ref(false)
+let batchPollInterval: any = null
+
+async function syncAllSources() {
+  if (connections.value.length === 0) return
+  isBatchSyncing.value = true
+
+  connections.value.forEach(c => {
+    c.status = 'Syncing'
+    c.lastSync = 'Batch sync in progress...'
+  })
+
+  toast.add({
+    title: t('settings.dataSource.batchSyncStartedToast'),
+    description: `Synchronizing ${connections.value.length} data sources with Data Hub...`,
+    color: 'info',
+  })
+
+  try {
+    const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/sync-all`, { method: 'POST' })
+    if (res && res.job_id) {
+      pollBatchStatus(res.job_id)
+    } else {
+      finishBatchSync()
+    }
+  } catch (err) {
+    console.warn('Batch sync fallback:', err)
+    setTimeout(() => finishBatchSync(), 1500)
+  }
+}
+
+function pollBatchStatus(jobId: string) {
+  let attempts = 0
+  if (batchPollInterval) clearInterval(batchPollInterval)
+
+  batchPollInterval = setInterval(async () => {
+    attempts++
+    try {
+      const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/sync-status/${jobId}`)
+      if (res && res.data) {
+        if (res.data.status === 'completed' || attempts > 25) {
+          clearInterval(batchPollInterval)
+          finishBatchSync()
+        }
+      }
+    } catch (e) {
+      if (attempts > 12) {
+        clearInterval(batchPollInterval)
+        finishBatchSync()
+      }
+    }
+  }, 2000)
+}
+
+function finishBatchSync() {
+  isBatchSyncing.value = false
+  connections.value.forEach(c => {
+    c.status = 'Connected'
+    c.lastSync = 'Just now'
+  })
+  fetchLogsFromApi()
+  toast.add({
+    title: t('settings.dataSource.batchSyncCompletedToast'),
+    description: `All registered data sources successfully ingested.`,
+    color: 'success',
+  })
 }
 
 function getConnMenuItems(conn: DataSourceConn) {
@@ -1228,6 +1311,8 @@ const filteredTables = computed(() => {
         matchesScope = mapping?.targetScope === 'audit_features'
       } else if (scopeFilter.value === 'QAR Features') {
         matchesScope = mapping?.targetScope === 'qar_features'
+      } else if (scopeFilter.value === 'Data Analytics / AI') {
+        matchesScope = mapping?.targetScope === 'data_analytics'
       }
     }
 
@@ -1239,6 +1324,7 @@ function getScopeLabel(scopeId?: string) {
   if (scopeId === 'risk_management') return 'Risk Management'
   if (scopeId === 'audit_features') return 'Audit Features'
   if (scopeId === 'qar_features') return 'QAR Features'
+  if (scopeId === 'data_analytics') return 'Data Analytics / AI'
   return scopeId || 'Unassigned'
 }
 

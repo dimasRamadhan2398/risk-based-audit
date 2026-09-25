@@ -90,13 +90,14 @@ app.add_middleware(
 )
 
 # ─── Import Routers ─────────────────────────────────────────────────────────
-from routers import ingest, serve, sync, pipeline, caatt
+from routers import ingest, serve, sync, pipeline, caatt, sources
 
 app.include_router(ingest.router, prefix="/api/v1/ingest", tags=["Ingest"], dependencies=[Depends(verify_api_key)])
 app.include_router(serve.router, prefix="/api/v1/gold", tags=["Serve Gold Zone"], dependencies=[Depends(verify_api_key)])
 app.include_router(sync.router, prefix="/api/v1/sync", tags=["Master Data Sync"], dependencies=[Depends(verify_api_key)])
 app.include_router(pipeline.router, prefix="/api/v1/pipeline", tags=["ETL Pipeline"], dependencies=[Depends(verify_api_key)])
 app.include_router(caatt.router, prefix="/api/v1/caatt", tags=["CAATT Analytics"], dependencies=[Depends(verify_api_key)])
+app.include_router(sources.router, prefix="/api/v1/sources", tags=["Data Sources"], dependencies=[Depends(verify_api_key)])
 
 
 # ─── Health (no auth) ───────────────────────────────────────────────────────

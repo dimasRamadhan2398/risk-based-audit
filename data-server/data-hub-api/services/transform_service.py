@@ -3,6 +3,7 @@ Data Hub API — Transform Service
 Bronze → Silver (clean + deduplicate)
 Silver → Gold (enrich + aggregate)
 """
+import json
 import math
 from sqlalchemy import text
 
@@ -232,3 +233,87 @@ def run_silver_to_gold(engine):
         conn.commit()
 
     print("[Transform] Silver → Gold completed.")
+
+
+# ─── Generic Multi-Source Transforms ─────────────────────────────────────────
+
+def transform_source_bronze_to_silver(engine, source_id, source_name, table_name, mapping, df):
+    """Generic Bronze → Silver for external sources."""
+    pk = mapping.get("auditField")
+    if not pk or pk not in df.columns:
+        pk = df.columns[0]
+    df_clean = df.drop_duplicates(subset=[pk], keep="last")
+    
+    record_cols = [c for c in df_clean.columns if not c.startswith("_")]
+    
+    with engine.connect() as conn:
+        conn.execute(text("""
+            DELETE FROM silver.external_source_data
+            WHERE source_id = :sid AND table_name = :table
+        """), {"sid": source_id, "table": table_name})
+        
+        for _, row in df_clean[record_cols].iterrows():
+            conn.execute(text("""
+                INSERT INTO silver.external_source_data (source_id, source_name, table_name, record_data, dedup_key, target_scope)
+                VALUES (:sid, :sname, :table, :data, :key, :scope)
+            """), {
+                "sid": source_id, "sname": source_name, "table": table_name,
+                "data": json.dumps(row.to_dict(), default=str),
+                "key": str(row.get(pk, "")),
+                "scope": mapping.get("targetScope", "audit_features")
+            })
+        conn.commit()
+
+
+def transform_source_silver_to_gold(engine, source_id, source_name, table_name, mapping):
+    """Generic Silver → Gold for external sources."""
+    target_scope = mapping.get("targetScope", "audit_features")
+    target_module = mapping.get("targetModule", "")
+    anomaly_rules = mapping.get("anomalyRules", [])
+    
+    with engine.connect() as conn:
+        conn.execute(text("""
+            DELETE FROM gold.fact_external_audit_data
+            WHERE source_id = :sid AND table_name = :table
+        """), {"sid": source_id, "table": table_name})
+
+        conn.execute(text("""
+            INSERT INTO gold.fact_external_audit_data 
+                (source_id, source_name, table_name, target_scope, target_module, record_data, anomaly_flags)
+            SELECT source_id, source_name, table_name, target_scope, :module, record_data, :rules::jsonb
+            FROM silver.external_source_data
+            WHERE source_id = :sid AND table_name = :table
+        """), {
+            "sid": source_id, "table": table_name,
+            "module": target_module,
+            "rules": json.dumps(anomaly_rules)
+        })
+        conn.commit()
+
+
+def feed_ai_training_pool(engine, source_id, source_name, table_name, mapping):
+    """Copy Gold data to AI Training Pool for sources with 'data_analytics' scope."""
+    with engine.connect() as conn:
+        conn.execute(text("""
+            DELETE FROM gold.ai_training_pool
+            WHERE source_id = :sid AND table_name = :table
+        """), {"sid": source_id, "table": table_name})
+
+        conn.execute(text("""
+            INSERT INTO gold.ai_training_pool 
+                (source_id, source_name, table_name, record_data, feature_type)
+            SELECT source_id, source_name, table_name, record_data, 
+                   CASE 
+                       WHEN :scope = 'risk_management' THEN 'risk_score'
+                       WHEN :module ILIKE '%anomal%' THEN 'anomaly'
+                       WHEN :module ILIKE '%text%' OR :module ILIKE '%document%' THEN 'text'
+                       ELSE 'anomaly'
+                   END
+            FROM gold.fact_external_audit_data
+            WHERE source_id = :sid AND table_name = :table
+        """), {
+            "sid": source_id, "table": table_name,
+            "scope": mapping.get("targetScope", ""),
+            "module": mapping.get("targetModule", "")
+        })
+        conn.commit()

@@ -862,11 +862,76 @@ CREATE TABLE gold.cached_data_source_connections (
 );
 
 -- ============================================================================
+-- EXTERNAL DATA SOURCES & AI POOL (Multi-source integration)
+-- ============================================================================
+
+-- Bronze zone: Registered external sources from Audit Server
+CREATE TABLE IF NOT EXISTS bronze.registered_sources (
+    id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source_id         UUID NOT NULL UNIQUE,     -- ID from data_source_connections (Audit Server)
+    name              VARCHAR(255) NOT NULL,
+    source_type       VARCHAR(50) NOT NULL,      -- postgres, mysql, oracle, mssql, etc.
+    host              VARCHAR(255) NOT NULL,
+    port              INTEGER NOT NULL DEFAULT 5432,
+    database_name     VARCHAR(255) NOT NULL,
+    username          VARCHAR(255),
+    password_encrypted TEXT,
+    ssl_enabled       BOOLEAN DEFAULT TRUE,
+    sync_schedule     VARCHAR(100) DEFAULT 'Manual Only',
+    scopes            JSONB DEFAULT '[]',        -- ["risk_management","audit_features","qar_features","data_analytics"]
+    data_mappings     JSONB DEFAULT '[]',
+    status            VARCHAR(50) DEFAULT 'registered',
+    last_sync_at      TIMESTAMPTZ,
+    records_synced    INTEGER DEFAULT 0,
+    created_at        TIMESTAMPTZ DEFAULT NOW(),
+    updated_at        TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Silver zone: Generic cleaned external source data
+CREATE TABLE IF NOT EXISTS silver.external_source_data (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source_id      UUID NOT NULL,
+    source_name    VARCHAR(255),
+    table_name     VARCHAR(255),
+    record_data    JSONB NOT NULL,
+    dedup_key      VARCHAR(512),
+    target_scope   VARCHAR(100),
+    validated_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Gold zone: Enriched external audit data
+CREATE TABLE IF NOT EXISTS gold.fact_external_audit_data (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source_id      UUID NOT NULL,
+    source_name    VARCHAR(255),
+    table_name     VARCHAR(255),
+    target_scope   VARCHAR(100),
+    target_module  VARCHAR(255),
+    record_data    JSONB NOT NULL,
+    anomaly_flags  JSONB DEFAULT '[]',
+    processed_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Gold zone: AI Training Pool (populated only if scope includes "data_analytics")
+CREATE TABLE IF NOT EXISTS gold.ai_training_pool (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source_id      UUID NOT NULL,
+    source_name    VARCHAR(255),
+    table_name     VARCHAR(255),
+    record_data    JSONB NOT NULL,
+    feature_type   VARCHAR(100),              -- anomaly, risk_score, text, performance
+    labels         JSONB DEFAULT '{}',
+    ingested_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================================
 -- INDEXES
 -- ============================================================================
 CREATE INDEX idx_bronze_trx_loaded ON bronze.cb_transactions(_loaded_at);
+CREATE INDEX idx_bronze_registered_sources_sid ON bronze.registered_sources(source_id);
 CREATE INDEX idx_silver_trx_date ON silver.trx_cleaned(trx_date);
 CREATE INDEX idx_silver_trx_category ON silver.trx_cleaned(category);
+CREATE INDEX idx_silver_ext_data_src ON silver.external_source_data(source_id, table_name);
 CREATE INDEX idx_gold_fact_trx_date ON gold.fact_transactions(trx_date);
 CREATE INDEX idx_gold_fact_trx_cat ON gold.fact_transactions(category);
 CREATE INDEX idx_gold_fact_trx_branch ON gold.fact_transactions(branch_id);
@@ -875,6 +940,18 @@ CREATE INDEX idx_gold_fact_gl_date ON gold.fact_gl_entries(gl_date);
 CREATE INDEX idx_gold_anomaly_train ON gold.anomaly_training_data(is_anomaly);
 CREATE INDEX idx_gold_caatt_exc_src ON gold.caatt_exceptions(source_test);
 CREATE INDEX idx_gold_freshness ON gold.data_freshness_log(source_name, is_new);
+CREATE INDEX idx_gold_ext_audit_data_scope ON gold.fact_external_audit_data(target_scope, source_id);
+CREATE INDEX idx_gold_ai_pool_source ON gold.ai_training_pool(source_id, feature_type);
+CREATE INDEX idx_gold_ai_pool_ingested ON gold.ai_training_pool(ingested_at DESC);
+
+-- Privileges for roles on all tables
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA bronze TO etl_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA silver TO etl_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA gold   TO etl_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA gold TO auditor_ai;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA bronze TO datahub_api;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA silver TO datahub_api;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA gold TO datahub_api;
 
 -- Done
 SELECT 'Data Lake initialized successfully' AS status,
