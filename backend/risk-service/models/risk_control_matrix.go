@@ -1,6 +1,7 @@
 package models
 
 import (
+	"math"
 	"time"
 
 	"github.com/google/uuid"
@@ -54,11 +55,32 @@ func (RiskControlMatrix) TableName() string {
 }
 
 func (rcm *RiskControlMatrix) CalculateWeightedScore() float64 {
-	score := (float64(rcm.DesignEffectivenessRating) * rcm.DesignEffectivenessWeight / 100.0) +
-		(float64(rcm.OperatingEffectivenessRating) * rcm.OperatingEffectivenessWeight / 100.0) +
-		(float64(rcm.CoverageCompletenessRating) * rcm.CoverageCompletenessWeight / 100.0) +
-		(float64(rcm.TimelinessRating) * rcm.TimelinessWeight / 100.0) +
-		(float64(rcm.AutomationMonitoringRating) * rcm.AutomationMonitoringWeight / 100.0)
-	rcm.TotalWeightedScore = score
-	return score
+	desWeight := rcm.DesignEffectivenessWeight
+	if desWeight <= 0 {
+		desWeight = 20.0
+	}
+	opWeight := rcm.OperatingEffectivenessWeight
+	if opWeight <= 0 {
+		opWeight = 20.0
+	}
+	covWeight := rcm.CoverageCompletenessWeight
+	if covWeight <= 0 {
+		covWeight = 20.0
+	}
+	timeWeight := rcm.TimelinessWeight
+	if timeWeight <= 0 {
+		timeWeight = 20.0
+	}
+	autoWeight := rcm.AutomationMonitoringWeight
+	if autoWeight <= 0 {
+		autoWeight = 20.0
+	}
+
+	score := (float64(rcm.DesignEffectivenessRating) / 5.0 * desWeight) +
+		(float64(rcm.OperatingEffectivenessRating) / 5.0 * opWeight) +
+		(float64(rcm.CoverageCompletenessRating) / 5.0 * covWeight) +
+		(float64(rcm.TimelinessRating) / 5.0 * timeWeight) +
+		(float64(rcm.AutomationMonitoringRating) / 5.0 * autoWeight)
+	rcm.TotalWeightedScore = math.Round(score*100) / 100
+	return rcm.TotalWeightedScore
 }

@@ -782,6 +782,7 @@ const formData = ref<Partial<RCMItem>>({
   risk_event: '',
   control_code: '',
   control_description: '',
+  control_type: 'Preventive',
   control_owner: 'Finance Manager',
   department: 'Head Office',
   year: 2026,
@@ -990,11 +991,12 @@ const openAddModal = () => {
   const defaultDept = defaultRiskItem ? (defaultRiskItem.branch || defaultRiskItem.category || 'Head Office') : 'Head Office'
 
   formData.value = {
-    risk_id: defaultRiskItem ? String(defaultRiskItem.id) : '1',
+    risk_id: defaultRiskItem ? String(defaultRiskItem.id) : '',
     risk_code: defaultCode,
     risk_event: defaultEvent,
     control_code: 'CTL-' + defaultCode,
     control_description: 'Review bulanan pencapaian KPI sales dan monitoring piutang usaha secara ketat.',
+    control_type: 'Preventive',
     control_owner: 'Finance Manager',
     department: defaultDept,
     year: rcmStore.selectedYear,
@@ -1022,6 +1024,9 @@ const openAddModal = () => {
 const openEditModal = (item: RCMItem) => {
   isEditMode.value = true
   formData.value = JSON.parse(JSON.stringify(item))
+  if (!formData.value.control_type) {
+    formData.value.control_type = 'Preventive'
+  }
   selectedBranchInModal.value = item.department || 'All Branches'
   selectedRiskId.value = item.risk_id || ''
   isModalOpen.value = true
@@ -1033,14 +1038,18 @@ const saveForm = async () => {
     return
   }
 
-  if (isEditMode.value && formData.value.id) {
-    await rcmStore.updateRCMItem(formData.value as RCMItem)
-    toast.showSuccess('Risk Control Matrix berhasil diupdate')
-  } else {
-    await rcmStore.addRCMItem(formData.value as any)
-    toast.showSuccess('Risk Control Matrix berhasil ditambahkan')
+  try {
+    if (isEditMode.value && formData.value.id) {
+      await rcmStore.updateRCMItem(formData.value as RCMItem)
+      toast.showSuccess('Risk Control Matrix berhasil diupdate')
+    } else {
+      await rcmStore.addRCMItem(formData.value as any)
+      toast.showSuccess('Risk Control Matrix berhasil ditambahkan')
+    }
+    isModalOpen.value = false
+  } catch (err: any) {
+    toast.showError(rcmStore.errorMsg || err?.message || 'Gagal menyimpan data ke server.')
   }
-  isModalOpen.value = false
 }
 
 const confirmDelete = async (id: string) => {

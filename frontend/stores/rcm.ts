@@ -14,6 +14,7 @@ export interface RCMItem {
   risk_event: string
   control_code: string
   control_description: string
+  control_type?: string
   control_owner: string
   department: string
   year: number
@@ -28,6 +29,8 @@ export interface RCMItem {
   automation_monitoring_weight: number
   automation_monitoring_rating: number
   total_weighted_score: number // 20% - 100%
+  inherent_risk?: number
+  residual_risk?: number
   notes?: string
 }
 
@@ -196,15 +199,17 @@ export const useRCMStore = defineStore('rcm', () => {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
       if (saved) {
         try {
-          rcmList.value = JSON.parse(saved)
-          return
+          const parsed = JSON.parse(saved)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            rcmList.value = parsed
+            return
+          }
         } catch (e) {
           console.error('Failed to parse saved RCM items:', e)
         }
       }
     }
     rcmList.value = JSON.parse(JSON.stringify(initialRCMData))
-    saveToLocalStorage()
   }
 
   const saveToLocalStorage = () => {
@@ -331,13 +336,15 @@ export const useRCMStore = defineStore('rcm', () => {
     }
   })
 
+  const isValidUUID = (str?: string) => Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str))
+
   // Fetch RCM list from backend if available
   const fetchRCMList = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/rcm?year=${selectedYear.value}&department=${encodeURIComponent(selectedDepartment.value)}`)
+      const response: any = await $fetch(`${baseUrl}/rcm`)
       if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
         rcmList.value = response.data.map((item: any) => ({
           ...item,
@@ -346,35 +353,78 @@ export const useRCMStore = defineStore('rcm', () => {
         saveToLocalStorage()
       }
     } catch (error: any) {
-      errorMsg.value = extractErrorMessage(error, 'Failed to fetch RCM list.')
+      console.warn('Failed to fetch RCM list from backend:', error)
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data RCM dari server.')
     } finally {
       loading.value = false
     }
   }
 
   // CRUD actions
-  const addRCMItem = async (newItem: Omit<RCMItem, 'id' | 'total_weighted_score'>) => {
+  const addRCMItem = async (newItem: Omit<RCMItem, 'id' | 'total_weighted_score'> & { id?: string }) => {
     loading.value = true
     errorMsg.value = ''
     const scorePercent = calculateItemScorePercent(newItem)
-    const payload: RCMItem = {
-      ...newItem,
-      id: `rcm-${Date.now()}`,
-      total_weighted_score: scorePercent
+
+    const requestPayload: any = {
+      risk_code: newItem.risk_code,
+      risk_event: newItem.risk_event,
+      control_code: newItem.control_code,
+      control_description: newItem.control_description,
+      control_type: newItem.control_type || 'Preventive',
+      control_owner: newItem.control_owner || 'Department Lead',
+      department: newItem.department || 'Head Office',
+      year: newItem.year || selectedYear.value,
+      design_effectiveness_weight: newItem.design_effectiveness_weight || 20,
+      design_effectiveness_rating: newItem.design_effectiveness_rating || 3,
+      operating_effectiveness_weight: newItem.operating_effectiveness_weight || 20,
+      operating_effectiveness_rating: newItem.operating_effectiveness_rating || 3,
+      coverage_completeness_weight: newItem.coverage_completeness_weight || 20,
+      coverage_completeness_rating: newItem.coverage_completeness_rating || 3,
+      timeliness_weight: newItem.timeliness_weight || 20,
+      timeliness_rating: newItem.timeliness_rating || 3,
+      automation_monitoring_weight: newItem.automation_monitoring_weight || 20,
+      automation_monitoring_rating: newItem.automation_monitoring_rating || 3,
+      total_weighted_score: scorePercent,
+      notes: newItem.notes || ''
     }
 
-    rcmList.value.unshift(payload)
+    if (isValidUUID(newItem.risk_id)) {
+      requestPayload.risk_id = newItem.risk_id
+    }
+
+    // Temporary local ID in case offline
+    const tempId = `rcm-${Date.now()}`
+    const localItem: RCMItem = {
+      ...requestPayload,
+      id: tempId,
+      risk_id: newItem.risk_id
+    }
+
+    rcmList.value.unshift(localItem)
     saveToLocalStorage()
 
     try {
       const baseUrl = getRiskServiceBaseUrl()
-      await $fetch(`${baseUrl}/rcm`, {
+      const response: any = await $fetch(`${baseUrl}/rcm`, {
         method: 'POST',
-        body: payload
+        body: requestPayload
       })
+
+      if (response && (response.success || response.id)) {
+        const serverItem = response.data || response
+        if (serverItem && serverItem.id) {
+          localItem.id = serverItem.id
+          if (serverItem.risk_id) {
+            localItem.risk_id = serverItem.risk_id
+          }
+          saveToLocalStorage()
+        }
+      }
     } catch (error: any) {
       console.warn('Backend create error, saved locally.', error)
-      errorMsg.value = extractErrorMessage(error, 'Backend create error, saved locally.')
+      errorMsg.value = extractErrorMessage(error, 'Gagal menyimpan ke server backend, data disimpan lokal.')
+      throw error
     } finally {
       loading.value = false
     }
@@ -390,15 +440,33 @@ export const useRCMStore = defineStore('rcm', () => {
       saveToLocalStorage()
     }
 
+    const requestPayload: any = {
+      ...updatedItem,
+      risk_id: isValidUUID(updatedItem.risk_id) ? updatedItem.risk_id : undefined,
+      control_type: updatedItem.control_type || 'Preventive'
+    }
+
     try {
       const baseUrl = getRiskServiceBaseUrl()
-      await $fetch(`${baseUrl}/rcm/${updatedItem.id}`, {
+      const response: any = await $fetch(`${baseUrl}/rcm/${updatedItem.id}`, {
         method: 'PUT',
-        body: updatedItem
+        body: requestPayload
       })
+      if (response && (response.success || response.id)) {
+        const serverItem = response.data || response
+        if (serverItem && idx !== -1) {
+          rcmList.value[idx] = {
+            ...rcmList.value[idx],
+            ...serverItem,
+            total_weighted_score: calculateItemScorePercent(serverItem)
+          }
+          saveToLocalStorage()
+        }
+      }
     } catch (error: any) {
       console.warn('Backend update error, updated locally.', error)
-      errorMsg.value = extractErrorMessage(error, 'Backend update error, updated locally.')
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengupdate ke server backend, data diupdate lokal.')
+      throw error
     } finally {
       loading.value = false
     }
@@ -417,7 +485,8 @@ export const useRCMStore = defineStore('rcm', () => {
       })
     } catch (error: any) {
       console.warn('Backend delete error, deleted locally.', error)
-      errorMsg.value = extractErrorMessage(error, 'Backend delete error, deleted locally.')
+      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus dari server backend.')
+      throw error
     } finally {
       loading.value = false
     }
