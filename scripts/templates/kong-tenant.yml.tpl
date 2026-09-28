@@ -35,7 +35,7 @@ plugins:
   - name: cors
     config:
       origins:
-        - "__PROTO__://__DOMAIN__"
+        - "__TENANT_ORIGIN__"
 
       methods:
         - GET
@@ -210,6 +210,8 @@ services:
           - /api/v1/business-units
           - /api/v1/departments
           - /api/v1/employees
+          - /api/v1/job-roles
+          - /api/v1/locations
 
           # Quality Assurance
           - /api/v1/quality-assurance

@@ -167,6 +167,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// Create Gin engine
 	engine := gin.New()
 
+
 	// Apply global middleware
 	engine.Use(gin.Recovery())
 	engine.Use(middleware.CORSMiddleware())

@@ -1,20 +1,36 @@
-// Department API Composable
 import type {
   Department,
   CreateDepartmentRequest,
   UpdateDepartmentRequest,
   ListDepartmentsResponse
 } from '~/types/master'
-import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { getMasterServiceBaseUrl } from '~/composables/useApiUrl'
+import { useAuthStore } from '~/stores/auth'
 
 export const useDepartmentApi = () => {
   const config = useRuntimeConfig()
 
   /**
-   * Get base URL - with fallback to auditServiceBaseUrl if masterServiceBaseUrl not configured
+   * Helper to get auth headers
+   */
+  const getAuthHeaders = (): Record<string, string> => {
+    const headers: Record<string, string> = {}
+    try {
+      const authStore = useAuthStore()
+      if (authStore.token) {
+        headers['Authorization'] = `Bearer ${authStore.token}`
+      }
+    } catch {
+      // Store might not be ready yet in SSR
+    }
+    return headers
+  }
+
+  /**
+   * Get base URL from masterServiceBaseUrl
    */
   const getBaseUrl = () => {
-    return getAuditServiceBaseUrl()
+    return getMasterServiceBaseUrl()
   }
 
   /**
@@ -33,7 +49,8 @@ export const useDepartmentApi = () => {
     if (params?.search) url.searchParams.set('search', params.search)
 
     const response = await $fetch<any>(url.toString(), {
-      method: 'GET'
+      method: 'GET',
+      headers: getAuthHeaders()
     })
 
     // Handle different response formats
@@ -54,7 +71,8 @@ export const useDepartmentApi = () => {
    */
   const getDepartmentById = async (id: string): Promise<Department> => {
     const response = await $fetch<any>(`${getBaseUrl()}/departments/${id}`, {
-      method: 'GET'
+      method: 'GET',
+      headers: getAuthHeaders()
     })
 
     return response.data || response
@@ -67,6 +85,7 @@ export const useDepartmentApi = () => {
   const createDepartment = async (payload: CreateDepartmentRequest): Promise<Department> => {
     const response = await $fetch<any>(`${getBaseUrl()}/departments`, {
       method: 'POST',
+      headers: getAuthHeaders(),
       body: payload
     })
 
@@ -80,6 +99,7 @@ export const useDepartmentApi = () => {
   const updateDepartment = async (id: string, payload: UpdateDepartmentRequest): Promise<Department> => {
     const response = await $fetch<any>(`${getBaseUrl()}/departments/${id}`, {
       method: 'PUT',
+      headers: getAuthHeaders(),
       body: payload
     })
 
@@ -92,7 +112,8 @@ export const useDepartmentApi = () => {
    */
   const deleteDepartment = async (id: string): Promise<void> => {
     await $fetch(`${getBaseUrl()}/departments/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAuthHeaders()
     })
   }
 
@@ -101,13 +122,19 @@ export const useDepartmentApi = () => {
    * GET /api/v1/departments (fetch all)
    */
   const getAllDepartments = async (): Promise<Department[]> => {
-    const response = await $fetch<any>(`${getBaseUrl()}/departments`, {
-      method: 'GET',
-      params: { page: 1, page_size: 1000 }
-    })
+    try {
+      const response = await $fetch<any>(`${getBaseUrl()}/departments`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+        params: { page: 1, page_size: 1000 }
+      })
 
-    const departments = response.data?.departments || response.departments || []
-    return Array.isArray(departments) ? departments : []
+      const departments = response.data?.departments || response.departments || (Array.isArray(response.data) ? response.data : [])
+      return Array.isArray(departments) ? departments : []
+    } catch (err) {
+      console.error('Failed to fetch departments:', err)
+      return []
+    }
   }
 
   return {

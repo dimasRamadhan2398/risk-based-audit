@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"risk-service/controllers"
 	"risk-service/models"
@@ -28,6 +29,21 @@ func init() {
 	rootCmd.AddCommand(serveCmd)
 }
 
+// seedOnBoot reports whether the demo seeders should run at startup.
+// Unset or unparseable means true, preserving the historical behaviour.
+func seedOnBoot() bool {
+	v, ok := os.LookupEnv("SEED_ON_BOOT")
+	if !ok {
+		return true
+	}
+	enabled, err := strconv.ParseBool(v)
+	if err != nil {
+		log.Printf("Warning: SEED_ON_BOOT=%q is not a boolean, defaulting to enabled", v)
+		return true
+	}
+	return enabled
+}
+
 func runServe(cmd *cobra.Command, args []string) error {
 	if err := initConfig(); err != nil {
 		return err
@@ -42,19 +58,34 @@ func runServe(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Seed initial risks if the DB is empty
-	if err := seedInitialRisks(db); err != nil {
-		log.Printf("Warning: Seeding failed: %v", err)
-	}
+	// Boot-time demo seeding.
+	//
+	// This used to run unconditionally, which made a clean-slate tenant
+	// impossible: any freshly migrated risk database came up holding ~570 rows
+	// of sample data (risk profiles, registers, assessments, audit universe)
+	// the moment the container started — regardless of whether the operator
+	// asked for demo data. Provisioning a client instance would hand them
+	// someone else's example risks.
+	//
+	// Defaults to enabled so the shared dev and prod stacks keep behaving as
+	// they always have. Tenant stacks set SEED_ON_BOOT=false.
+	if seedOnBoot() {
+		// Seed initial risks if the DB is empty
+		if err := seedInitialRisks(db); err != nil {
+			log.Printf("Warning: Seeding failed: %v", err)
+		}
 
-	// Seed initial appetite statements if empty
-	if err := seedInitialAppetite(db); err != nil {
-		log.Printf("Warning: Appetite seeding failed: %v", err)
-	}
+		// Seed initial appetite statements if empty
+		if err := seedInitialAppetite(db); err != nil {
+			log.Printf("Warning: Appetite seeding failed: %v", err)
+		}
 
-	// Seed initial risk factors and audit universe if empty
-	if err := seedRiskFactorsAndUniverse(db); err != nil {
-		log.Printf("Warning: Risk Factors & Universe seeding failed: %v", err)
+		// Seed initial risk factors and audit universe if empty
+		if err := seedRiskFactorsAndUniverse(db); err != nil {
+			log.Printf("Warning: Risk Factors & Universe seeding failed: %v", err)
+		}
+	} else {
+		log.Println("SEED_ON_BOOT=false: skipping demo risk seeding (clean slate)")
 	}
 
 	r := gin.Default()
@@ -79,8 +110,10 @@ func runServe(cmd *cobra.Command, args []string) error {
 	})
 
 	// Seed initial RCM matrix items if empty
-	if err := seedInitialRCM(db); err != nil {
-		log.Printf("Warning: RCM seeding failed: %v", err)
+	if seedOnBoot() {
+		if err := seedInitialRCM(db); err != nil {
+			log.Printf("Warning: RCM seeding failed: %v", err)
+		}
 	}
 
 	// Initialize Layers

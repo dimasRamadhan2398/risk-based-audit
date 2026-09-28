@@ -3,49 +3,102 @@
 # AuditSphere Automated Tenant Onboarding Script
 # Usage: ./scripts/onboard-tenant.sh <tenant_slug> <client_name> [frontend_port] [kong_port] [--local] [--empty-data]
 # Example: ./scripts/onboard-tenant.sh accenture "Accenture" 3014 8094 --local --empty-data
+#
+# Options:
+#   --local            Target <slug>.localhost over http; skip Nginx + Certbot
+#   --empty-data       Migrate only, no demo records (default)
+#   --with-demo-data   Also run the demo seeders
+#   --skip-start       Provision everything but leave the stack stopped
+#
+# Pipeline: generate the tenant stack -> create its databases -> build images
+# -> migrate inside the containers -> allocate storage -> start -> expose.
 # =============================================================================
 
-set -e
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REGISTRY="$ROOT_DIR/backend/tenants/registry.tsv"
+
+die() { echo "Error: $*" >&2; exit 1; }
 
 SLUG=${1:?"Error: Tenant slug is required (e.g. accenture)"}
 CLIENT_NAME=${2:?"Error: Client name is required (e.g. 'Accenture')"}
 
 # Parse ports - support direct ports without Google Drive ID parameter
-if [[ "$3" =~ ^[0-9]+$ ]]; then
-    FE_PORT=${3:-3010}
-    KONG_PORT=${4:-8090}
+if [[ "${3:-}" =~ ^[0-9]+$ ]]; then
+    FE_PORT=${3}
+    KONG_PORT=${4:-}
 else
-    if [[ "$4" =~ ^[0-9]+$ ]]; then
-        FE_PORT=${4:-3010}
-        KONG_PORT=${5:-8090}
+    if [[ "${4:-}" =~ ^[0-9]+$ ]]; then
+        FE_PORT=${4}
+        KONG_PORT=${5:-}
     else
-        FE_PORT=3010
-        KONG_PORT=8090
+        FE_PORT=""
+        KONG_PORT=""
     fi
 fi
+[[ "$KONG_PORT" =~ ^[0-9]+$ ]] || KONG_PORT=""
 
 IS_LOCAL=false
 EMPTY_DATA=true
-VPS_STORAGE_DIR="/var/data/auditsphere/storage/${SLUG}"
-LOCAL_UPLOAD_DIR="backend/audit-service/uploads/${SLUG}"
+SKIP_START=false
 
 for arg in "$@"; do
     case $arg in
         --local) IS_LOCAL=true ;;
         --with-demo-data) EMPTY_DATA=false ;;
         --empty-data) EMPTY_DATA=true ;;
+        --skip-start) SKIP_START=true ;;
     esac
 done
 
 if [ "$IS_LOCAL" = true ]; then
-    DOMAIN="${SLUG}.localhost:${FE_PORT}"
-    API_DOMAIN="localhost:${KONG_PORT}"
     PROTO="http"
+    STORAGE_DIR="$ROOT_DIR/backend/audit-service/uploads/${SLUG}"
 else
-    DOMAIN="${SLUG}.auditsphere.id"
-    API_DOMAIN="api-${SLUG}.auditsphere.id"
     PROTO="https"
+    STORAGE_DIR="/var/data/auditsphere/storage/${SLUG}"
 fi
+
+TENANT_DIR="$ROOT_DIR/backend/tenants/${SLUG}"
+
+# -----------------------------------------------------------------------------
+# [1/7] Generate the tenant's Compose stack and Kong config
+#
+# This allocates the host ports and Redis index, so it runs before anything
+# that needs to know them. --force makes re-onboarding an existing tenant safe:
+# the generator reuses that tenant's ports and signing secrets.
+# -----------------------------------------------------------------------------
+echo ""
+echo "==> [1/7] Generating isolated tenant stack for $CLIENT_NAME..."
+
+GEN_ARGS=("$SLUG" "$CLIENT_NAME" --force)
+[ "$IS_LOCAL" = true ] && GEN_ARGS+=(--local)
+[ -n "$FE_PORT" ]   && GEN_ARGS+=(--fe-port "$FE_PORT")
+[ -n "$KONG_PORT" ] && GEN_ARGS+=(--kong-port "$KONG_PORT")
+
+bash "$SCRIPT_DIR/generate-tenant-stack.sh" "${GEN_ARGS[@]}"
+
+# Read back what was actually allocated — the generator may have skipped past a
+# requested port if another tenant already holds it.
+registry_field() { awk -F'\t' -v s="$SLUG" -v c="$1" 'NR>1 && $1==s {print $c; exit}' "$REGISTRY"; }
+DOMAIN_HOST=$(registry_field 3)
+API_DOMAIN_HOST=$(registry_field 4)
+FE_PORT=$(registry_field 5)
+KONG_PORT=$(registry_field 6)
+REDIS_DB=$(registry_field 8)
+[ -n "$FE_PORT" ] || die "tenant '$SLUG' is missing from $REGISTRY after generation"
+
+if [ "$IS_LOCAL" = true ]; then
+    DOMAIN="${DOMAIN_HOST}:${FE_PORT}"
+    API_DOMAIN="localhost:${KONG_PORT}"
+else
+    DOMAIN="$DOMAIN_HOST"
+    API_DOMAIN="$API_DOMAIN_HOST"
+fi
+
+COMPOSE=(docker compose --project-directory "$TENANT_DIR" --env-file "$TENANT_DIR/.env")
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
@@ -54,56 +107,140 @@ echo "║          Mode      : $([ "$IS_LOCAL" = true ] && echo "Localhost Dev (
 echo "║          Domain    : $PROTO://$DOMAIN                        "
 echo "║          API Domain: $PROTO://$API_DOMAIN                    "
 echo "║          Storage   : VPS Dedicated Silo Vault                "
-echo "║          StorageDir: $VPS_STORAGE_DIR                        "
+echo "║          StorageDir: $STORAGE_DIR                            "
 echo "║          GoogleDrv : Blocked / Disabled by Architecture      "
 echo "║          FE Port   : $FE_PORT  |  Kong Port: $KONG_PORT      "
+echo "║          Redis DB  : $REDIS_DB (isolated logical index)      "
 echo "║          Data State: $([ "$EMPTY_DATA" = true ] && echo "Clean / Empty Data" || echo "Demo Pre-seeded")"
 echo "║          Email Svc : Resend API (DKIM/SPF Auto-Provisioned)  "
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
 
-# 1. Create Databases in PostgreSQL
-echo "==> [1/5] Provisioning isolated PostgreSQL databases for $CLIENT_NAME..."
-docker exec -i rb_audit_postgres psql -U postgres <<EOSQL
-CREATE DATABASE rb_audit_auth_${SLUG};
-CREATE DATABASE rb_audit_audit_${SLUG};
-CREATE DATABASE rb_audit_master_${SLUG};
-CREATE DATABASE rb_audit_risk_${SLUG};
-CREATE DATABASE rb_audit_analytics_${SLUG};
-EOSQL
+# -----------------------------------------------------------------------------
+# [2/7] Create the isolated databases
+#
+# analytics-service is intentionally absent: cmd/main.go starts a gin server and
+# opens no database handle, so an rb_audit_analytics_<slug> database would never
+# be connected to.
+# -----------------------------------------------------------------------------
+echo "==> [2/7] Provisioning isolated PostgreSQL databases for $CLIENT_NAME..."
 
-# 2. Run Migrations & Seeds
-echo "==> [2/5] Running schema migrations & role seeding..."
-# NOTE: the target database MUST be passed as DATABASE_NAME, not DB_NAME.
-# Each service reads `database.name` through viper's env-key replacer, which
-# maps that key to DATABASE_NAME. DB_NAME is not bound to anything, so using it
-# silently falls back to the shared database in config.yaml and migrates/seeds
-# the wrong tenant.
-(cd backend/auth-service && DATABASE_NAME=rb_audit_auth_${SLUG} ./auth migrate up && DATABASE_NAME=rb_audit_auth_${SLUG} ./auth seed)
-(cd backend/audit-service && DATABASE_NAME=rb_audit_audit_${SLUG} ./audit migrate up)
-(cd backend/master-service && DATABASE_NAME=rb_audit_master_${SLUG} ./master migrate up)
+PG_CONTAINER=""
+for candidate in rb_audit_postgres rb_audit_postgres_dev; do
+    if docker ps --format '{{.Names}}' | grep -qx "$candidate"; then
+        PG_CONTAINER="$candidate"
+        break
+    fi
+done
+[ -n "$PG_CONTAINER" ] \
+    || die "no running Postgres container found (looked for rb_audit_postgres, rb_audit_postgres_dev). Start the control-plane stack first."
+
+for svc in auth audit master risk; do
+    DB="rb_audit_${svc}_${SLUG}"
+    # CREATE DATABASE has no IF NOT EXISTS, and re-onboarding an existing tenant
+    # is a normal operation (recovery, config change), so check first.
+    if docker exec -i "$PG_CONTAINER" psql -U postgres -tAc \
+            "SELECT 1 FROM pg_database WHERE datname='${DB}'" | grep -q 1; then
+        echo "    -> ${DB} already exists, leaving it untouched"
+    else
+        docker exec -i "$PG_CONTAINER" psql -U postgres -c "CREATE DATABASE ${DB};" >/dev/null
+        echo "    -> created ${DB}"
+    fi
+done
+
+# -----------------------------------------------------------------------------
+# [3/7] Build the tenant images
+# -----------------------------------------------------------------------------
+echo ""
+echo "==> [3/7] Building tenant service images..."
+"${COMPOSE[@]}" build
+
+# -----------------------------------------------------------------------------
+# [4/7] Migrate and seed, inside the containers
+#
+# These run through `compose run` rather than as host binaries. The services
+# resolve Postgres at the hostname `postgres`, which is a Docker network alias —
+# it does not resolve on the host, and backend/docker-compose.yml publishes no
+# Postgres port, so host-run migrations cannot reach the database at all.
+#
+# Running in-container also means DATABASE_NAME comes from the generated compose
+# file, so a tenant migration can no longer be aimed at the shared database.
+#
+# Each service's migrate verb differs — they are not interchangeable:
+#     auth   -> migrate up      audit  -> migrate up
+#     master -> migrate         risk   -> up
+# -----------------------------------------------------------------------------
+echo ""
+echo "==> [4/7] Running schema migrations & role seeding..."
+
+run_svc() {  # run_svc <compose-service> <command...>
+    local svc=$1; shift
+    "${COMPOSE[@]}" run --rm --no-deps "$svc" "$@"
+}
+
+run_svc "auth-service-${SLUG}"   ./auth migrate up
+run_svc "auth-service-${SLUG}"   ./auth seed          # roles & permissions — required to log in
+run_svc "audit-service-${SLUG}"  ./audit migrate up
+run_svc "master-service-${SLUG}" ./master migrate
+run_svc "risk-service-${SLUG}"   ./risk up
+
 if [ "$EMPTY_DATA" = true ]; then
-    echo "==> [2/5] Creating empty data state for risk-service (no demo data)..."
-    (cd backend/risk-service && DATABASE_NAME=rb_audit_risk_${SLUG} ./risk migrate up)
+    echo "    -> empty data state: demo seeders skipped (0 business records)"
 else
-    echo "==> [2/5] Seeding demo risk universe dataset..."
-    (cd backend/risk-service && DATABASE_NAME=rb_audit_risk_${SLUG} ./risk migrate up && DATABASE_NAME=rb_audit_risk_${SLUG} ./risk seed)
+    echo "    -> seeding demo dataset..."
+    run_svc "audit-service-${SLUG}"  ./audit seed
+    run_svc "master-service-${SLUG}" ./master seed
+    run_svc "risk-service-${SLUG}"   ./risk seed
 fi
-(cd backend/analytics-service && DATABASE_NAME=rb_audit_analytics_${SLUG} ./analytics migrate up)
 
-# 3. Provision Dedicated VPS Storage Silo
-echo "==> [3/5] Provisioning dedicated VPS evidence storage silo at $VPS_STORAGE_DIR..."
-mkdir -p "${LOCAL_UPLOAD_DIR}"
-chmod 755 "${LOCAL_UPLOAD_DIR}" 2>/dev/null || true
-echo "    -> Local storage volume allocated at ${LOCAL_UPLOAD_DIR}"
+# -----------------------------------------------------------------------------
+# [5/7] Provision the dedicated storage silo
+# -----------------------------------------------------------------------------
+echo ""
+echo "==> [5/7] Provisioning dedicated evidence storage silo at $STORAGE_DIR..."
+mkdir -p "$STORAGE_DIR"
+chmod 755 "$STORAGE_DIR" 2>/dev/null || true
+echo "    -> storage volume allocated, bind-mounted into audit-service at /root/uploads"
 echo "    -> Google Drive API provider: BLOCKED / DISABLED by architecture policy"
 
-# 4. Generate Host Nginx Configuration (Production only)
-if [ "$IS_LOCAL" = true ]; then
-    echo "==> [4/5] Local environment detected: skipping production Nginx reverse proxy configuration."
+# -----------------------------------------------------------------------------
+# [6/7] Start the tenant stack
+# -----------------------------------------------------------------------------
+echo ""
+if [ "$SKIP_START" = true ]; then
+    echo "==> [6/7] --skip-start given: leaving the stack stopped."
 else
-    echo "==> [4/5] Generating Nginx reverse proxy configuration for $DOMAIN..."
-    cat <<NGINXCONF > /etc/nginx/sites-available/${DOMAIN}.conf
+    echo "==> [6/7] Starting tenant stack (5 services + Kong + frontend)..."
+    "${COMPOSE[@]}" up -d
+    "${COMPOSE[@]}" ps
+fi
+
+# -----------------------------------------------------------------------------
+# [7/7] Expose it: host Nginx vhost + SSL (production only)
+# -----------------------------------------------------------------------------
+echo ""
+if [ "$IS_LOCAL" = true ]; then
+    echo "==> [7/7] Local environment: skipping Nginx reverse proxy and SSL."
+    echo "    -> reach the tenant directly at http://localhost:${FE_PORT}"
+else
+    echo "==> [7/7] Generating Nginx reverse proxy configuration for $DOMAIN..."
+
+    # Nginx layout differs by distribution: Debian/Ubuntu splits vhosts into
+    # sites-available + a sites-enabled symlink, while RHEL/CentOS (which this
+    # VPS runs) includes /etc/nginx/conf.d/*.conf directly. Writing to the wrong
+    # one either fails outright or silently produces a vhost nginx never loads.
+    if [ -d /etc/nginx/sites-available ]; then
+        NGINX_CONF="/etc/nginx/sites-available/${DOMAIN}.conf"
+        NGINX_LINK="/etc/nginx/sites-enabled/${DOMAIN}.conf"
+    elif [ -d /etc/nginx/conf.d ]; then
+        NGINX_CONF="/etc/nginx/conf.d/${DOMAIN}.conf"
+        NGINX_LINK=""
+    else
+        die "no recognised Nginx vhost directory (/etc/nginx/sites-available or /etc/nginx/conf.d)"
+    fi
+    echo "    -> writing $NGINX_CONF"
+
+    cat <<NGINXCONF > "$NGINX_CONF"
 server {
     listen 80;
     server_name ${DOMAIN};
@@ -123,6 +260,7 @@ server {
 server {
     listen 80;
     server_name ${API_DOMAIN};
+    client_max_body_size 100m;
     location / {
         proxy_pass http://127.0.0.1:${KONG_PORT};
         proxy_http_version 1.1;
@@ -134,23 +272,29 @@ server {
 }
 NGINXCONF
 
-    ln -sf /etc/nginx/sites-available/${DOMAIN}.conf /etc/nginx/sites-enabled/
+    [ -n "$NGINX_LINK" ] && ln -sf "$NGINX_CONF" "$NGINX_LINK"
     if command -v nginx > /dev/null 2>&1; then
         nginx -t && systemctl reload nginx
     fi
-fi
 
-# 5. Issue SSL Certificates via Certbot (Production only)
-if [ "$IS_LOCAL" = true ]; then
-    echo "==> [5/5] Local environment: SSL certificates not required (HTTP on localhost RFC 6761)."
-else
-    echo "==> [5/5] Provisioning SSL certificates via Certbot..."
-    if command -v certbot > /dev/null 2>&1; then
-        certbot --nginx -d ${DOMAIN} -d ${API_DOMAIN} --agree-tos -m admin@auditsphere.id --non-interactive || echo "Notice: Certbot step deferred until DNS propagates."
+    # Certbot needs the domain to resolve to this host before it can complete
+    # the HTTP-01 challenge, so a tenant provisioned ahead of its DNS record
+    # will fail here. That is not fatal: the tenant serves plain HTTP until
+    # someone re-runs certbot once the record propagates.
+    echo "    -> provisioning SSL certificates via Certbot..."
+    if ! host "$DOMAIN" > /dev/null 2>&1; then
+        echo "    ! $DOMAIN does not resolve yet — skipping Certbot."
+        echo "      Add an A record for ${DOMAIN} and ${API_DOMAIN} -> this host, then run:"
+        echo "      certbot --nginx -d ${DOMAIN} -d ${API_DOMAIN} --agree-tos -m admin@auditsphere.app --non-interactive"
+    elif command -v certbot > /dev/null 2>&1; then
+        certbot --nginx -d ${DOMAIN} -d ${API_DOMAIN} --agree-tos -m admin@auditsphere.app --non-interactive \
+            || echo "    ! Certbot deferred — the tenant is serving plain HTTP until you re-run it."
     fi
 fi
 
-# 6. Summary Output
+# -----------------------------------------------------------------------------
+# Summary
+# -----------------------------------------------------------------------------
 echo ""
 echo "=============================================================="
 echo "🎉 Client $CLIENT_NAME successfully onboarded!"
@@ -159,10 +303,20 @@ if [ "$IS_LOCAL" = true ]; then
 echo "   Direct Local : http://localhost:${FE_PORT}"
 fi
 echo "   API Endpoint : $PROTO://${API_DOMAIN}"
-echo "   Data State   : Empty Data / Clean Slate (0 Business Records)"
-echo "   Databases    : rb_audit_*_${SLUG} (5 Schemas Migrated)"
-echo "   Storage Silo : VPS Dedicated Storage Silo ($VPS_STORAGE_DIR)"
+echo "   Stack Dir    : backend/tenants/${SLUG}"
+echo "   Data State   : $([ "$EMPTY_DATA" = true ] && echo "Empty Data / Clean Slate (0 Business Records)" || echo "Demo Pre-seeded")"
+echo "   Databases    : rb_audit_{auth,audit,master,risk}_${SLUG}"
+echo "   Redis DB     : ${REDIS_DB} (isolated logical index)"
+echo "   Storage Silo : ${STORAGE_DIR}"
 echo "   Google Drive : Blocked / Disabled (Local VPS Storage Active)"
-echo "   Email Svc    : Resend API (DKIM/SPF Active)"
+echo "   Email Svc    : Resend API (provision separately from the Site Generator)"
 echo "=============================================================="
+echo ""
+echo "⚠️  Before handing this instance to the client:"
+echo "   1. The auth seeder creates the default admin account (admin / password123)."
+echo "      Rotate it — it is identical on every tenant."
+echo "   2. Resend provisioning is a separate step; this script does not create"
+echo "      the sending domain or inject the scoped API key."
+echo "   3. Back up backend/tenants/${SLUG}/.env — it holds this tenant's JWT"
+echo "      signing secret and is not in git."
 echo ""

@@ -197,6 +197,42 @@ export interface UpdateDepartmentRequest {
   is_active?: boolean
 }
 
+// ============= Job Role Types =============
+
+export type JobPositionType =
+  | 'STAFF'
+  | 'SUPERVISOR'
+  | 'MANAGER'
+  | 'SENIOR_MANAGER'
+  | 'GENERAL_MANAGER'
+  | 'DIRECTOR'
+
+export interface JobRole {
+  id: string
+  job_role_code: string
+  job_role_name: string
+  job_role_description?: string
+  job_position_type: JobPositionType
+  is_active: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+// ============= Location Types =============
+
+export interface Location {
+  id: string
+  name: string
+  address?: string
+  city?: string
+  province?: string
+  postal_code?: string
+  country?: string
+  is_active: boolean
+  created_at?: string
+  updated_at?: string
+}
+
 // ============= Pagination Types =============
 
 export interface PaginationMeta {

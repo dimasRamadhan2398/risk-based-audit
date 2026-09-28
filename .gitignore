@@ -9,6 +9,12 @@ gdrive-credentials.json
 .env
 .env.local
 
+# Per-tenant signing secrets, written by scripts/generate-tenant-stack.sh.
+# Covered by the `.env` rule above; spelled out so it is not lost if that rule
+# is ever narrowed. The generated docker-compose.yml and kong.yml next to these
+# hold no secrets and are meant to be committed.
+backend/tenants/*/.env
+
 # OS files
 .DS_Store
 Thumbs.db

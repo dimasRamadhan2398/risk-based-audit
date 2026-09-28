@@ -462,7 +462,7 @@
                   </span>
                   <UInput
                     v-model="form.slug"
-                    placeholder="accenture"
+                    placeholder="bai"
                     maxlength="40"
                     class="flex-1 rounded-none"
                     :ui="{ base: 'rounded-none font-mono text-primary font-semibold' }"
@@ -525,7 +525,7 @@
             </div>
 
             <!-- Brand Customization & Framework -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div class="grid grid-cols-1 gap-4 pt-2">
               <AppFormField
                 label="Primary Brand Color"
                 tooltip="Used for accent highlights on the client's custom theme"
@@ -546,7 +546,7 @@
                 </div>
               </AppFormField>
 
-              <AppFormField
+              <!-- <AppFormField
                 label="Compliance Framework"
                 tooltip="Pre-seeds audit charter guidelines and risk appetite templates"
                 required
@@ -557,7 +557,7 @@
                   placeholder="Select framework"
                   class="w-full"
                 />
-              </AppFormField>
+              </AppFormField> -->
             </div>
           </div>
 

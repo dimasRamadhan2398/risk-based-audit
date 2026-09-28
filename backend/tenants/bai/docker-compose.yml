@@ -1,5 +1,5 @@
 # =============================================================================
-# Tenant stack — __CLIENT_NAME__ (__SLUG__)
+# Tenant stack — PT BAI (bai)
 #
 # GENERATED FILE. Do not edit by hand.
 # Rendered from scripts/templates/docker-compose.tenant.yml.tpl by
@@ -10,14 +10,14 @@
 #     postgres, redis, kafka, python-ai
 #
 # Per tenant (isolated): the five Go services, Kong, and the Nuxt frontend.
-# Every service name carries the __SLUG__ suffix so its network alias is unique
+# Every service name carries the bai suffix so its network alias is unique
 # on the shared bridge — without that, two tenants both publishing the alias
 # "auth-service" would make cross-tenant routing a DNS coin flip.
 #
-# Build contexts are relative to this file's location: backend/tenants/__SLUG__/
+# Build contexts are relative to this file's location: backend/tenants/bai/
 # =============================================================================
 
-name: rb_audit_tenant___SLUG__
+name: rb_audit_tenant_bai
 
 x-tenant-env: &tenant-env
   # Isolated database per service. The config key is `database.name`, which
@@ -37,13 +37,13 @@ x-tenant-env: &tenant-env
   # be raised in the Redis config.
   REDIS_HOST: redis
   REDIS_PORT: "6379"
-  REDIS_DB: "__REDIS_DB__"
+  REDIS_DB: "1"
 
   # Per-tenant signing material. The stock config.yaml ships one hardcoded
   # jwt.secret shared by every service in the repo — leaving it in place would
   # mean a token minted for one tenant validates on every other tenant.
-  JWT_SECRET: __JWT_SECRET__
-  APP_SIGNATURE_KEY: __SIGNATURE_KEY__
+  JWT_SECRET: ${TENANT_JWT_SECRET:?TENANT_JWT_SECRET missing — start this stack with --env-file .env}
+  APP_SIGNATURE_KEY: ${TENANT_SIGNATURE_KEY:?TENANT_SIGNATURE_KEY missing — start this stack with --env-file .env}
 
   APP_APP_ENV: production
 
@@ -52,16 +52,16 @@ services:
   # ===========================================================================
   # AUTH SERVICE
   # ===========================================================================
-  auth-service-__SLUG__:
+  auth-service-bai:
     build:
       context: ../../auth-service
       dockerfile: Dockerfile
     image: rb_audit_auth_service:latest
-    container_name: rb_audit___SLUG___auth_service
+    container_name: rb_audit_bai_auth_service
     environment:
       <<: *tenant-env
-      DATABASE_NAME: rb_audit_auth___SLUG__
-      KAFKA_SERVICE_NAME: auth-service-__SLUG__
+      DATABASE_NAME: rb_audit_auth_bai
+      KAFKA_SERVICE_NAME: auth-service-bai
       # Tenant services must not be able to mint Resend sending domains — that
       # is a control-plane privilege. The /api/v1/resend route is absent from
       # this tenant's Kong config; leaving the key empty is the second lock.
@@ -77,16 +77,16 @@ services:
   # ===========================================================================
   # AUDIT SERVICE
   # ===========================================================================
-  audit-service-__SLUG__:
+  audit-service-bai:
     build:
       context: ../../audit-service
       dockerfile: Dockerfile
     image: rb_audit_audit_service:latest
-    container_name: rb_audit___SLUG___audit_service
+    container_name: rb_audit_bai_audit_service
     environment:
       <<: *tenant-env
-      DATABASE_NAME: rb_audit_audit___SLUG__
-      KAFKA_SERVICE_NAME: audit-service-__SLUG__
+      DATABASE_NAME: rb_audit_audit_bai
+      KAFKA_SERVICE_NAME: audit-service-bai
       # Evidence stays in this tenant's VPS silo. Google Drive is blocked by
       # architecture policy — the shared service-account credentials would put
       # every tenant's fieldwork in one Drive account.
@@ -94,7 +94,7 @@ services:
     volumes:
       # Dedicated evidence silo. audit-service writes to ./uploads relative to
       # its WORKDIR (/root), and serves it back at GET /uploads.
-      - __STORAGE_DIR__:/root/uploads
+      - /Users/a/Projects/risk-based-audit/backend/audit-service/uploads/bai:/root/uploads
     command: ["./audit", "serve"]
     networks:
       - rb_audit_network
@@ -103,16 +103,16 @@ services:
   # ===========================================================================
   # MASTER SERVICE
   # ===========================================================================
-  master-service-__SLUG__:
+  master-service-bai:
     build:
       context: ../../master-service
       dockerfile: Dockerfile
     image: rb_audit_master_service:latest
-    container_name: rb_audit___SLUG___master_service
+    container_name: rb_audit_bai_master_service
     environment:
       <<: *tenant-env
-      DATABASE_NAME: rb_audit_master___SLUG__
-      KAFKA_SERVICE_NAME: master-service-__SLUG__
+      DATABASE_NAME: rb_audit_master_bai
+      KAFKA_SERVICE_NAME: master-service-bai
     command: ["./master", "serve"]
     networks:
       - rb_audit_network
@@ -121,16 +121,16 @@ services:
   # ===========================================================================
   # RISK SERVICE
   # ===========================================================================
-  risk-service-__SLUG__:
+  risk-service-bai:
     build:
       context: ../../risk-service
       dockerfile: Dockerfile
     image: rb_audit_risk_service:latest
-    container_name: rb_audit___SLUG___risk_service
+    container_name: rb_audit_bai_risk_service
     environment:
       <<: *tenant-env
-      DATABASE_NAME: rb_audit_risk___SLUG__
-      KAFKA_SERVICE_NAME: risk-service-__SLUG__
+      DATABASE_NAME: rb_audit_risk_bai
+      KAFKA_SERVICE_NAME: risk-service-bai
       # risk-service is the only service that seeds at boot. Left enabled it
       # injects ~570 rows of sample risk data into any empty tenant database
       # the moment the container starts, so a client's "clean slate" instance
@@ -148,12 +148,12 @@ services:
   # it forwards scoring requests to the shared python-ai model server. Run per
   # tenant anyway so this tenant's Kong has an upstream it owns.
   # ===========================================================================
-  analytics-service-__SLUG__:
+  analytics-service-bai:
     build:
       context: ../../analytics-service
       dockerfile: Dockerfile
     image: rb_audit_analytics_service:latest
-    container_name: rb_audit___SLUG___analytics_service
+    container_name: rb_audit_bai_analytics_service
     environment:
       PYTHON_AI_URL: http://python-ai:8000
     networks:
@@ -163,15 +163,15 @@ services:
   # ===========================================================================
   # KONG GATEWAY
   # ===========================================================================
-  kong-__SLUG__:
+  kong-bai:
     image: kong:3.4
-    container_name: rb_audit___SLUG___kong
+    container_name: rb_audit_bai_kong
     depends_on:
-      - auth-service-__SLUG__
-      - audit-service-__SLUG__
-      - master-service-__SLUG__
-      - risk-service-__SLUG__
-      - analytics-service-__SLUG__
+      - auth-service-bai
+      - audit-service-bai
+      - master-service-bai
+      - risk-service-bai
+      - analytics-service-bai
     volumes:
       - ./kong:/usr/local/kong/declarative:ro
     environment:
@@ -186,11 +186,11 @@ services:
       KONG_CLIENT_MAX_BODY_SIZE: 100m
       KONG_NGINX_PROXY_CLIENT_MAX_BODY_SIZE: 100m
     ports:
-      # Bound to loopback: host Nginx terminates TLS for __API_DOMAIN__ and
+      # Bound to loopback: host Nginx terminates TLS for localhost and
       # proxies here. Publishing 0.0.0.0 would expose the tenant API gateway
       # on the VPS public IP, bypassing Nginx and the certificate.
-      - "127.0.0.1:__KONG_PORT__:8080"
-      - "127.0.0.1:__KONG_ADMIN_PORT__:8001"
+      - "127.0.0.1:8090:8080"
+      - "127.0.0.1:8019:8001"
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
@@ -204,16 +204,16 @@ services:
   # ===========================================================================
   # FRONTEND (Nuxt 4)
   # ===========================================================================
-  frontend-__SLUG__:
+  frontend-bai:
     build:
       context: ../../../frontend
       dockerfile: Dockerfile
     image: rb_audit_frontend:latest
-    container_name: rb_audit___SLUG___frontend
+    container_name: rb_audit_bai_frontend
     depends_on:
-      - kong-__SLUG__
+      - kong-bai
     ports:
-      - "127.0.0.1:__FE_PORT__:3000"
+      - "127.0.0.1:3010:3000"
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -231,9 +231,9 @@ services:
       NUXT_PUBLIC_MASTER_SERVICE_BASE_URL: /api/v1
 
       # Server-side proxy target: this tenant's gateway, by container alias.
-      API_BASE_URL_SERVER: http://kong-__SLUG__:8080/api/v1/**
-      ANALYTICS_API_BASE_URL_SERVER: http://kong-__SLUG__:8080/api/analytics/**
-      PYTHON_AI_BASE_URL_SERVER: http://kong-__SLUG__:8080/api/python-ai/**
+      API_BASE_URL_SERVER: http://kong-bai:8080/api/v1/**
+      ANALYTICS_API_BASE_URL_SERVER: http://kong-bai:8080/api/analytics/**
+      PYTHON_AI_BASE_URL_SERVER: http://kong-bai:8080/api/python-ai/**
     networks:
       - rb_audit_network
     restart: unless-stopped
