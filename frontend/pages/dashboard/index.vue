@@ -1,19 +1,20 @@
 <template>
-  <div class="p-4 md:p-6 space-y-8 min-h-screen">
+  <div class="p-4 sm:p-6 space-y-6 sm:space-y-8 min-h-screen overflow-x-hidden">
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+      <div class="min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
         <p class="text-sm text-slate-500 mt-1.5">
           Welcome back, {{ authStore.getUser?.fullName || "Andi" }}. Here's your risk &
           audit performance overview.
         </p>
       </div>
-      <div>
+      <div class="shrink-0">
         <UButton
           variant="outline"
           color="neutral"
-          class="  border border-slate-200 text-slate-700 hover: -50 shadow-sm font-medium"
+          block
+          class="  border border-slate-200 text-slate-700 hover: -50 shadow-sm font-medium sm:w-auto sm:inline-flex"
           :loading="isSyncing"
           @click="handleSync"
         >
@@ -33,7 +34,7 @@
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Card 1: Total Risks -->
       <div
-        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-5 sm:p-6 flex flex-col justify-between min-h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Total Risks</p>
@@ -42,11 +43,11 @@
           </div>
         </div>
         <div class="mt-2">
-          <h3 class="text-3xl font-bold text-slate-900 tracking-tight">
+          <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             {{ totalRisks }}
           </h3>
           <div
-            class="flex items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
+            class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
           >
             <span>↑ 12%</span>
             <span class="text-slate-400 font-normal">from last month</span>
@@ -56,7 +57,7 @@
 
       <!-- Card 2: High Risk -->
       <div
-        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-5 sm:p-6 flex flex-col justify-between min-h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">High Risk</p>
@@ -65,8 +66,8 @@
           </div>
         </div>
         <div class="mt-2">
-          <h3 class="text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
-          <div class="flex items-center gap-1 text-md font-semibold text-red-500 mt-1">
+          <h3 class="text-2xl sm:text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
+          <div class="flex flex-wrap items-center gap-1 text-md font-semibold text-red-500 mt-1">
             <span>↑ 3</span>
             <span class="text-slate-400 font-normal">requires attention</span>
           </div>
@@ -75,7 +76,7 @@
 
       <!-- Card 3: Audit Plans -->
       <div
-        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-5 sm:p-6 flex flex-col justify-between min-h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Audit Plans</p>
@@ -84,7 +85,7 @@
           </div>
         </div>
         <div class="mt-2">
-          <h3 class="text-3xl font-bold text-slate-900 tracking-tight">
+          <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             {{ auditPlansCount }}
           </h3>
           <div class="flex items-center gap-1 text-md font-semibold text-sky-500 mt-1">
@@ -96,7 +97,7 @@
 
       <!-- Card 4: Completed -->
       <div
-        class="  border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between h-[135px]"
+        class="  border border-slate-100 shadow-sm rounded-2xl p-5 sm:p-6 flex flex-col justify-between min-h-[135px]"
       >
         <div class="flex justify-between items-start">
           <p class="text-sm font-semibold text-slate-500">Completed</p>
@@ -105,11 +106,11 @@
           </div>
         </div>
         <div class="mt-2">
-          <h3 class="text-3xl font-bold text-emerald-600 tracking-tight">
+          <h3 class="text-2xl sm:text-3xl font-bold text-emerald-600 tracking-tight">
             {{ completedAuditsCount }}
           </h3>
           <div
-            class="flex items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
+            class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
           >
             <span>Updated</span>
             <span class="text-slate-400 font-normal">this month</span>
@@ -119,14 +120,14 @@
     </div>
 
     <!-- Audit Statistics Section (Second Row) -->
-    <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
+    <div class="  border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6 space-y-6">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-bold text-slate-800">Audit Statistics</h3>
       </div>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Planned Audits -->
         <div
-          class=" border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" border border-slate-100 rounded-xl p-5 flex flex-col justify-between min-h-[120px]"
         >
           <div class="flex justify-between items-start">
             <span class="text-md font-semibold text-slate-500">Planned Audits</span>
@@ -147,7 +148,7 @@
 
         <!-- Open Findings -->
         <div
-          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between min-h-[120px]"
         >
           <div class="flex justify-between items-start">
             <span class="text-md font-semibold text-slate-500">Open Findings</span>
@@ -168,7 +169,7 @@
 
         <!-- Execution Status -->
         <div
-          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between min-h-[120px]"
         >
           <div class="flex justify-between items-start">
             <span class="text-md font-semibold text-slate-500">Execution Status</span>
@@ -189,7 +190,7 @@
 
         <!-- ATR Compliance -->
         <div
-          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between h-[120px]"
+          class=" -50 border border-slate-100 rounded-xl p-5 flex flex-col justify-between min-h-[120px]"
         >
           <div class="flex justify-between items-start">
             <span class="text-md font-semibold text-slate-500">ATR Compliance</span>
@@ -237,13 +238,13 @@
       <!-- Grid of 2 Main Analytics Cards -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- CARD 1: KPI FORECASTING (PyTorch LSTM) -->
-        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-6 flex flex-col justify-between space-y-6">
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-4 sm:p-6 flex flex-col justify-between space-y-6 min-w-0">
           <div>
             <!-- Card Header -->
-            <div class="flex items-center justify-between mb-4">
-              <div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                  <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                     KPI Performance Forecasting
                   </h3>
                 </div>
@@ -252,13 +253,13 @@
                 </p>
               </div>
 
-              <NuxtLink to="/analytics/kpi-forecast" class="text-xs font-semibold text-violet-600 hover:underline">
+              <NuxtLink to="/analytics/kpi-forecast" class="text-xs font-semibold text-violet-600 hover:underline shrink-0 self-start sm:self-auto">
                 Rincian
               </NuxtLink>
             </div>
 
             <!-- Line Chart Component -->
-            <div class="h-[280px] w-full relative">
+            <div class="h-[220px] sm:h-[280px] w-full relative">
               <Line :data="kpiChartData" :options="kpiChartOptions" />
             </div>
 
@@ -273,8 +274,8 @@
                 :key="kpi.code"
                 class="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
-                <div class="space-y-1">
-                  <div class="flex items-center gap-2">
+                <div class="space-y-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
                     <span class="font-mono text-xs font-bold text-violet-600 dark:text-violet-400">{{ kpi.code }}</span>
                     <span class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ kpi.kpiName }}</span>
                     <UBadge :color="getTrendBadgeColor(kpi.trend) as any" variant="subtle" size="sm" class="font-semibold text-[10px]">
@@ -297,7 +298,7 @@
           </div>
 
           <!-- Bottom Footer Info -->
-          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1.5">
               <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-violet-500" />
               Interval Prediksi ±4.8% MAPE
@@ -307,13 +308,13 @@
         </div>
 
         <!-- CARD 2: ANOMALY DETECTION (Isolation Forest) -->
-        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-6 flex flex-col justify-between space-y-6">
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-4 sm:p-6 flex flex-col justify-between space-y-6 min-w-0">
           <div>
             <!-- Card Header -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                     Transaction Anomaly Detection
                   </h3>
                 </div>
@@ -324,7 +325,7 @@
             </div>
 
             <!-- Scatter Chart Component -->
-            <div class="h-[280px] w-full relative">
+            <div class="h-[220px] sm:h-[280px] w-full relative">
               <Scatter :data="anomalyScatterChartData" :options="anomalyScatterOptions" />
             </div>
 
@@ -339,8 +340,8 @@
                 :key="anm.id"
                 class="p-3.5 rounded-xl border border-rose-100 dark:border-rose-900/40 bg-rose-50/40 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
-                <div class="space-y-1">
-                  <div class="flex items-center gap-2">
+                <div class="space-y-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
                     <UBadge :color="getSeverityColor(anm.severity) as any" variant="solid" size="sm" class="font-bold text-[10px]">
                       {{ anm.severity }}
                     </UBadge>
@@ -365,7 +366,7 @@
           </div>
 
           <!-- Bottom Footer Info -->
-          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1.5">
               <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" />
               Tingkat Kontaminasi: {{ (isolationData.summary.contaminationRate * 100).toFixed(1) }}%
@@ -382,13 +383,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       <!-- Card 1: Yearly Internal Control Effectiveness (2 Cols) -->
-      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
               <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
             </div>
-            <div class="flex items-center gap-2 min-w-max">
+            <div class="flex flex-wrap items-center gap-2">
               <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700">
                 Tahun: {{ rcmStore.selectedYear }} | {{ rcmStore.selectedDepartment }}
               </span>
@@ -417,16 +418,16 @@
           </div>
 
           <!-- Synchronized Risk Counts & Interpretation -->
-          <div class="md:col-span-2 flex flex-col justify-center space-y-2">
-            <div class="flex items-center justify-between text-sm">
+          <div class="md:col-span-2 flex flex-col justify-center space-y-2 min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
               <span class="text-slate-600 dark:text-slate-300 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
-              <span class="font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+              <span class="font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
                 {{ rcmStore.totalInherentRisk }} Risiko
               </span>
             </div>
-            <div class="flex items-center justify-between text-sm">
+            <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
               <span class="text-slate-600 dark:text-slate-300 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
-              <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+              <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
                 {{ rcmStore.totalResidualRisk }} Risiko
               </span>
             </div>
@@ -441,18 +442,18 @@
           </div>
         </div>
 
-        <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-4">
-          <UIcon name="i-lucide-check-circle-2" class="size-10 text-emerald-500" />
+        <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-3 sm:gap-4">
+          <UIcon name="i-lucide-check-circle-2" class="size-8 sm:size-10 shrink-0 text-emerald-500" />
           <span>Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile.</span>
         </div>
       </div>
 
       <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-2">
             <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO 2013</h3>
-            <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800">
+            <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800 whitespace-nowrap shrink-0">
               {{ rcmStore.cosoAverages.totalWeighted }}%
             </span>
           </div>
@@ -484,22 +485,22 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- Inherent vs Residual Risk by Department Chart -->
       <div
-        class="lg:col-span-8   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-8 min-w-0   border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6 flex flex-col justify-between"
       >
         <div>
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-slate-800">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800">
               Inherent vs Residual Risk by Department
             </h3>
           </div>
-          <div class="h-[350px] w-full">
+          <div class="w-full" :style="{ height: `${barChartHeight}px` }">
             <BarChart
               :data="mainRiskData"
               :categories="riskCategories"
               :x-formatter="xFormatter"
               :y-axis="['inherentRisk', 'residualRisk']"
               :radius="6"
-              :height="350"
+              :height="barChartHeight"
               :hide-legend="true"
               :x-axis-config="{
                 tickTextColor: '#64748b',
@@ -514,7 +515,7 @@
           </div>
         </div>
         <!-- Custom Legend -->
-        <div class="flex justify-center gap-6 mt-4 border-t border-slate-50 pt-4">
+        <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 border-t border-slate-50 pt-4">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-[#ff5c02]"></span>
             <span class="text-md font-semibold text-slate-600">Inherent Risk</span>
@@ -528,22 +529,22 @@
 
       <!-- Action Taken Report Donut Chart -->
       <div
-        class="lg:col-span-4   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-4 min-w-0   border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6 flex flex-col justify-between"
       >
         <div>
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-slate-800">Action Taken Report</h3>
+          <div class="flex items-center justify-between gap-2 mb-6">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800">Action Taken Report</h3>
             <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
               >Details</UButton
             >
           </div>
-          <div class="h-[220px] w-full relative flex items-center justify-center">
+          <div class="w-full relative flex items-center justify-center" :style="{ height: `${donutChartHeight}px` }">
             <DonutChart
               :data="atrDonutData.map((item) => item.value)"
               :categories="atrCategories"
               :radius="8"
               :arc-width="26"
-              :height="220"
+              :height="donutChartHeight"
               :hide-legend="true"
             >
               <div class="text-center flex flex-col items-center justify-center">
@@ -582,25 +583,25 @@
     </div>
 
     <!-- Risk Heat Map & Registered Risk (Fourth Row) -->
-    <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Risk Profiles</h2>
+    <div class="  border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6 space-y-6">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Risk Profiles</h2>
         <UButton to="/risk-profile" variant="ghost" color="neutral" size="sm"
           >Configure</UButton
         >
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         <!-- Heat Map Grid on the left -->
         <div
-          class="lg:col-span-5 flex flex-col items-center  -50/50 border border-slate-100 rounded-2xl p-6"
+          class="lg:col-span-5 min-w-0 flex flex-col items-center  -50/50 border border-slate-100 rounded-2xl p-4 sm:p-6"
         >
           <h4 class="text-sm font-semibold text-slate-700 mb-6 w-full text-left">
             Risk Heat Map
           </h4>
-          <div class="flex flex-row gap-4 items-center">
+          <div class="flex flex-row gap-2 sm:gap-4 items-center w-full justify-center">
             <!-- Y-axis label -->
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center shrink-0">
               <span
                 class="text-md font-semibold text-slate-500 uppercase tracking-wider origin-center -rotate-90 whitespace-nowrap"
               >
@@ -609,11 +610,11 @@
             </div>
             <!-- Heat map grid -->
             <div class="flex flex-col gap-2">
-              <div class="grid grid-cols-5 gap-1.5">
+              <div class="grid grid-cols-5 gap-1 sm:gap-1.5">
                 <template v-for="y in 5" :key="y">
                   <template v-for="x in 5" :key="`${x}-${y}`">
                     <div
-                      class="w-10 h-10 flex items-center justify-center text-md font-semibold rounded shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                      class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-md font-semibold rounded shadow-sm hover:scale-105 transition-transform cursor-pointer"
                       :class="getHeatMapCellColor(x, y)"
                       :title="`Impact: ${x}, Probability: ${6 - y}, Risk: ${getRiskLevel(
                         x,
@@ -657,7 +658,7 @@
         </div>
 
         <!-- Registered Risks Table on the right -->
-        <div class="lg:col-span-7   border border-slate-100 rounded-2xl p-6">
+        <div class="lg:col-span-7 min-w-0   border border-slate-100 rounded-2xl p-4 sm:p-6">
           <h4 class="text-sm font-semibold text-slate-700 mb-4">Registered Risks</h4>
           <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
             <TableEntities
@@ -678,19 +679,19 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- Audit Planning Coverage -->
       <div
-        class="lg:col-span-4   border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col justify-between"
+        class="lg:col-span-4 min-w-0   border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6 flex flex-col justify-between"
       >
         <div>
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-slate-800">Audit Planning Coverage</h3>
+          <div class="flex items-center justify-between gap-2 mb-6">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800">Audit Planning Coverage</h3>
             <UButton to="/annual-audit" variant="ghost" color="neutral" size="sm"
               >Configure</UButton
             >
           </div>
           <div class="space-y-4">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-wrap justify-between items-center gap-x-3 gap-y-1">
               <span class="text-md font-semibold text-slate-500">Overall Progress</span>
-              <h5 class="text-base font-bold text-indigo-600">
+              <h5 class="text-base font-bold text-indigo-600 whitespace-nowrap">
                 {{ progressModel }}% Completed
               </h5>
             </div>
@@ -727,10 +728,10 @@
 
       <!-- Action Taken Reports Table -->
       <div
-        class="lg:col-span-8   border border-slate-100 shadow-sm rounded-2xl p-6"
+        class="lg:col-span-8 min-w-0   border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6"
       >
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold text-slate-800">Action Taken Reports (ATR)</h3>
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <h3 class="text-base sm:text-lg font-bold text-slate-800">Action Taken Reports (ATR)</h3>
           <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
             >View Full Report</UButton
           >
@@ -752,9 +753,9 @@
     <!-- Sixth Row: Audit Execution Status & Recent Finding Issues -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Audit Execution Status -->
-      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight">
+      <div class="min-w-0   border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6 space-y-6">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
             Audit Execution Status
           </h2>
           <UBadge color="primary" label="Q4 2025" variant="soft"></UBadge>
@@ -765,11 +766,11 @@
             :key="index"
             class="space-y-2"
           >
-            <div class="flex justify-between items-center">
-              <h3 class="text-sm font-semibold text-slate-700">
+            <div class="flex justify-between items-center gap-3">
+              <h3 class="text-sm font-semibold text-slate-700 min-w-0 truncate">
                 {{ item.name }}
               </h3>
-              <p class="text-md font-bold text-indigo-600">{{ item.percentage }}%</p>
+              <p class="text-md font-bold text-indigo-600 shrink-0">{{ item.percentage }}%</p>
             </div>
             <UProgress
               :model-value="item.percentage"
@@ -781,9 +782,9 @@
       </div>
 
       <!-- Recent Finding Issues -->
-      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6">
+      <div class="min-w-0   border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
             Recent Finding Issues
           </h2>
         </div>
@@ -800,9 +801,9 @@
     <!-- Seventh Row: Recent Risk Profiles & Upcoming Audits -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Recent Risk Profiles -->
-      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
-        <div class="flex items-center justify-between">
-          <div>
+      <div class="min-w-0   border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6 space-y-6">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
             <h3 class="text-lg font-bold text-slate-800">Recent Risk Profiles</h3>
             <p class="text-md text-slate-400 mt-1">Latest risk assessments</p>
           </div>
@@ -820,26 +821,26 @@
           <div
             v-for="(risk, index) in riskProfileStore.risks.slice(0, 4)"
             :key="risk.id"
-            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200"
+            class="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-200"
           >
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 min-w-0">
               <div
-                class="rounded-full bg-indigo-50 w-8 h-8 flex items-center justify-center"
+                class="rounded-full bg-indigo-50 w-8 h-8 shrink-0 flex items-center justify-center"
               >
                 <span class="text-md font-bold text-indigo-700">{{ index + 1 }}</span>
               </div>
-              <div>
-                <p class="text-sm font-bold text-slate-800">
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-slate-800 truncate">
                   {{ risk.name }}
                 </p>
-                <p class="text-md text-slate-400 mt-0.5">{{ risk.category }}</p>
+                <p class="text-md text-slate-400 mt-0.5 truncate">{{ risk.category }}</p>
               </div>
             </div>
             <UBadge
               :color="risk.impact * risk.likelihood > 15 ? 'error' : 'warning'"
               variant="soft"
               size="sm"
-              class="font-semibold"
+              class="font-semibold shrink-0"
             >
               {{ risk.impact * risk.likelihood > 15 ? "High" : "Medium" }}
             </UBadge>
@@ -848,9 +849,9 @@
       </div>
 
       <!-- Upcoming Audits -->
-      <div class="  border border-slate-100 shadow-sm rounded-2xl p-6 space-y-6">
-        <div class="flex items-center justify-between">
-          <div>
+      <div class="min-w-0   border border-slate-100 shadow-sm rounded-2xl p-4 sm:p-6 space-y-6">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
             <h3 class="text-lg font-bold text-slate-800">Upcoming Audits</h3>
             <p class="text-md text-slate-400 mt-1">Scheduled audit activities</p>
           </div>
@@ -868,18 +869,18 @@
           <div
             v-for="plan in annualPlanStore.plans.slice(0, 4)"
             :key="plan.id"
-            class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200"
+            class="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-200"
           >
-            <div class="flex items-center gap-3">
-              <div class="rounded-lg bg-sky-50 w-8 h-8 flex items-center justify-center">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="rounded-lg bg-sky-50 w-8 h-8 shrink-0 flex items-center justify-center">
                 <UIcon name="i-lucide-calendar" class="text-sky-600 size-4" />
               </div>
-              <div>
-                <p class="text-sm font-bold text-slate-800">{{ plan.code }}</p>
-                <p class="text-md text-slate-400 mt-0.5">Status: {{ plan.status }}</p>
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-slate-800 truncate">{{ plan.code }}</p>
+                <p class="text-md text-slate-400 mt-0.5 truncate">Status: {{ plan.status }}</p>
               </div>
             </div>
-            <UBadge color="info" variant="soft" size="sm" class="font-semibold"
+            <UBadge color="info" variant="soft" size="sm" class="font-semibold shrink-0"
               >Scheduled</UBadge
             >
           </div>
@@ -976,6 +977,12 @@ const getRatingBadgeClass = (ratingLabel: string) => {
       return "bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
   }
 };
+
+// ─── Responsive breakpoints & chart sizing ──────────────────
+// SSR renders the desktop size; the media query re-evaluates on hydration.
+const isMobile = useMediaQuery("(max-width: 639px)");
+const barChartHeight = computed(() => (isMobile.value ? 280 : 350));
+const donutChartHeight = computed(() => (isMobile.value ? 180 : 220));
 
 // AI & Analytics Composables
 const timeseriesData = useTimeSeriesData();

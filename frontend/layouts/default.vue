@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
@@ -13,9 +13,60 @@ const { t, locale, setLocale } = useI18n()
 
 const isMobileMenuOpen = ref(false)
 
+let savedSidebarScrollTop = 0
+
+const getSidebarContainer = (): HTMLElement | null => {
+  if (typeof document === 'undefined') return null
+  return (
+    document.querySelector('.sidebar-scroll-container') ||
+    document.querySelector('#main-sidebar-final [data-slot="body"]') ||
+    document.querySelector('[id*="sidebar"] [data-slot="body"]')
+  ) as HTMLElement | null
+}
+
+const updateSidebarScroll = () => {
+  const el = getSidebarContainer()
+  if (el) {
+    savedSidebarScrollTop = el.scrollTop
+  }
+}
+
+const restoreSidebarScroll = () => {
+  if (savedSidebarScrollTop <= 0) return
+  const el = getSidebarContainer()
+  if (el && Math.abs(el.scrollTop - savedSidebarScrollTop) > 1) {
+    el.scrollTop = savedSidebarScrollTop
+  }
+}
+
+const handleSidebarClick = () => {
+  updateSidebarScroll()
+}
+
+onMounted(() => {
+  const el = getSidebarContainer()
+  if (el) {
+    el.addEventListener('scroll', updateSidebarScroll, { passive: true })
+  }
+})
+
+onBeforeUnmount(() => {
+  const el = getSidebarContainer()
+  if (el) {
+    el.removeEventListener('scroll', updateSidebarScroll)
+  }
+})
+
 watch(() => route.fullPath, () => {
   isMobileMenuOpen.value = false
+  updateSidebarScroll()
   triggerScrollReset()
+  nextTick(() => {
+    restoreSidebarScroll()
+    requestAnimationFrame(restoreSidebarScroll)
+    setTimeout(restoreSidebarScroll, 50)
+    setTimeout(restoreSidebarScroll, 150)
+  })
 })
 
 const openMobileMenu = () => {
@@ -417,29 +468,29 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
     ]
   },
 
-  // Settings
-  {
-    label: t('navigation.settings'),
-    icon: 'i-lucide-settings',
-    to: '/settings',
-    children: [
-      {
-        label: t('navigation.generalSettings'),
-        icon: 'i-lucide-sliders',
-        to: '/settings'
-      },
-      {
-        label: t('navigation.security2fa'),
-        icon: 'i-lucide-shield-check',
-        to: '/settings/mfa'
-      },
-      {
-        label: t('navigation.trustedDevices'),
-        icon: 'i-lucide-laptop',
-        to: '/settings/devices'
-      }
-    ]
-  }
+  // // Settings
+  // {
+  //   label: t('navigation.settings'),
+  //   icon: 'i-lucide-settings',
+  //   to: '/settings',
+  //   children: [
+  //     {
+  //       label: t('navigation.generalSettings'),
+  //       icon: 'i-lucide-sliders',
+  //       to: '/settings'
+  //     },
+  //     {
+  //       label: t('navigation.security2fa'),
+  //       icon: 'i-lucide-shield-check',
+  //       to: '/settings/mfa'
+  //     },
+  //     {
+  //       label: t('navigation.trustedDevices'),
+  //       icon: 'i-lucide-laptop',
+  //       to: '/settings/devices'
+  //     }
+  //   ]
+  // }
 ]])
 
 const searchQuery = ref('')
@@ -612,6 +663,8 @@ const userDropdownItems = computed(() => [
       :default-size="21"
       :max-size="35"
       :collapsed-size="0"
+      :ui="{ body: 'sidebar-scroll-container' }"
+      @click="handleSidebarClick"
     >
       <template #header="{ collapsed }">
         <Logo

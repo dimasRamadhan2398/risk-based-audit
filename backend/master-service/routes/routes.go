@@ -67,6 +67,24 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		employees.DELETE("/:id", controller.GetEmployee().Delete)
 	}
 
+	jobRoles := api.Group("/job-roles")
+	{
+		jobRoles.GET("", controller.GetJobRole().FindAll)
+		jobRoles.GET("/:id", controller.GetJobRole().FindById)
+		jobRoles.POST("", controller.GetJobRole().Create)
+		jobRoles.PUT("/:id", controller.GetJobRole().Update)
+		jobRoles.DELETE("/:id", controller.GetJobRole().Delete)
+	}
+
+	locations := api.Group("/locations")
+	{
+		locations.GET("", controller.GetLocation().FindAll)
+		locations.GET("/:id", controller.GetLocation().FindById)
+		locations.POST("", controller.GetLocation().Create)
+		locations.PUT("/:id", controller.GetLocation().Update)
+		locations.DELETE("/:id", controller.GetLocation().Delete)
+	}
+
 	qa := api.Group("/quality-assurance")
 	{
 		qa.GET("", func(c *gin.Context) {

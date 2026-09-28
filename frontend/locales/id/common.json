@@ -224,6 +224,7 @@
     "general": {
       "cardTitle": "Pengaturan Umum",
       "emailNotifications": "Notifikasi Email",
+      "emailNotificationsDesc": "Terima notifikasi email untuk peringatan, tenggat waktu, dan pembaruan sistem",
       "criticalAlerts": "Peringatan Kritis",
       "criticalAlertsDesc": "Notifikasi prioritas tinggi",
       "deadlineReminder": "Pengingat Batas Waktu",

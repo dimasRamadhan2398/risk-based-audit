@@ -227,6 +227,7 @@
     "general": {
       "cardTitle": "General Settings",
       "emailNotifications": "Email Notifications",
+      "emailNotificationsDesc": "Receive email notifications for alerts, deadlines, and updates",
       "criticalAlerts": "Critical Alerts",
       "criticalAlertsDesc": "High priority notifications",
       "deadlineReminder": "Deadline Reminder",
