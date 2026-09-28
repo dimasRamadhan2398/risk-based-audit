@@ -662,12 +662,11 @@
   },
   "riskFactors": {
     "title": "Faktor Risiko & Pengaturan Pembobotan",
-    "subtitle": "Konfigurasi bobot risiko, lakukan penilaian area kerja, dan lihat prioritas audit yang dihitung.",
+    "subtitle": "Konfigurasi bobot risiko dan lakukan penilaian area kerja.",
     "backToHeatmap": "Kembali ke Heat Map",
     "tabs": {
       "weight": "1. Bobot",
-      "score": "2. Skor Risiko",
-      "priority": "3. Prioritas Audit"
+      "score": "2. Skor Risiko"
     },
     "weighting": {
       "totalWeight": "Total Bobot: {total}%",
@@ -686,7 +685,28 @@
       "weightCol": "Bobot (%)",
       "action": "Aksi",
       "noFactorsTitle": "Belum Ada Faktor Risiko Korporat Terpilih",
-      "noFactorsDesc": "Centang faktor risiko standar di sebelah kiri untuk mengaktifkannya."
+      "noFactorsDesc": "Centang faktor risiko standar di sebelah kiri untuk mengaktifkannya.",
+      "addFactor": "Tambah Faktor",
+      "editFactor": "Ubah Faktor",
+      "deleteFactor": "Hapus Faktor",
+      "addModalTitle": "Tambah Faktor Risiko Standar",
+      "addModalSubtitle": "Tambahkan faktor risiko baru ke dalam katalog standar",
+      "editModalTitle": "Ubah Faktor Risiko Standar",
+      "editModalSubtitle": "Perbarui informasi faktor risiko dan kriteria penilaiannya",
+      "deleteModalTitle": "Hapus Faktor Risiko Standar",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus faktor risiko standar \"{name}\"? Ini juga akan menghapus pembobotan korporat yang terkait dengannya.",
+      "deleteConfirmDesc": "Apakah Anda yakin ingin menghapus faktor risiko standar ini? Tindakan ini juga akan menghapus seluruh pembobotan korporat yang terkait dengannya.",
+      "factorName": "Nama Faktor Risiko",
+      "factorNamePlaceholder": "contoh: Keamanan Siber & Privasi Data",
+      "factorDesc": "Deskripsi",
+      "factorDescPlaceholder": "Deskripsi singkat mengenai faktor risiko ini...",
+      "guidelinesSection": "Panduan Skala Penilaian (1 - 5)",
+      "guidelinesSubtitle": "Skor 5 (Tinggi) s/d Skor 1 (Rendah)",
+      "scoreDescPlaceholder": "Karakteristik atau kriteria untuk skor {score}...",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "delete": "Hapus",
+      "viewGuidelines": "Lihat Panduan"
     },
     "scoring": {
       "title": "🎯 Skor Risiko",
@@ -735,7 +755,13 @@
       "scoresSaveFailed": "Gagal menyimpan skor risiko.",
       "weightSumMustBe100": "Total bobot harus tepat 100%. Jumlah saat ini: {total}%",
       "weightsUpdated": "Bobot faktor risiko korporat berhasil diperbarui.",
-      "weightsUpdateFailed": "Gagal menyimpan bobot faktor risiko korporat."
+      "weightsUpdateFailed": "Gagal menyimpan bobot faktor risiko korporat.",
+      "factorCreated": "Faktor risiko standar berhasil dibuat.",
+      "factorUpdated": "Faktor risiko standar berhasil diperbarui.",
+      "factorDeleted": "Faktor risiko standar berhasil dihapus.",
+      "factorCreateFailed": "Gagal membuat faktor risiko standar.",
+      "factorUpdateFailed": "Gagal memperbarui faktor risiko standar.",
+      "factorDeleteFailed": "Gagal menghapus faktor risiko standar."
     },
     "scoreLabels": {
       "1": "Rendah (1)",
@@ -744,6 +770,24 @@
       "4": "Sedang ke Tinggi (4)",
       "5": "Tinggi (5)"
     }
+  },
+  "auditPriority": {
+    "title": "Prioritas Audit",
+    "subtitle": "Prioritas Rencana Audit Tahunan berdasarkan tingkat risiko yang dihitung.",
+    "backToHeatmap": "Kembali ke Heat Map",
+    "goToUniverse": "Universe Audit",
+    "goToScoring": "Faktor Risiko & Penilaian",
+    "selectYear": "Tahun Audit",
+    "totalEntities": "Total Entitas Ditetapkan",
+    "prioritizedEntities": "Diprioritaskan",
+    "nonPrioritized": "Tidak Diprioritaskan",
+    "searchPlaceholder": "Cari entitas auditee...",
+    "filterStatus": "Filter Status",
+    "allStatus": "Semua Entitas",
+    "onlyPrioritized": "Hanya Diprioritaskan",
+    "onlyNonPrioritized": "Tidak Diprioritaskan",
+    "refresh": "Segarkan",
+    "ruleInfo": "Prioritas Audit = Tingkat Risiko Sedang ke Tinggi atau Tinggi"
   },
   "auditFieldwork": {
     "title": "Audit Fieldwork",

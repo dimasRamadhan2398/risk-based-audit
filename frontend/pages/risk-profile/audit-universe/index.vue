@@ -369,130 +369,6 @@
           </UCard>
         </div>
       </template>
-
-      <!-- Tab 3: Rekapitulasi & Priorities (Priority) -->
-      <template #priority>
-        <div class="mt-6 space-y-6">
-          <UCard class="shadow-sm border border-[var(--border-main)]">
-            <template #header>
-              <div class="flex items-center justify-between">
-                <div>
-                  <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
-                    Audit Priority ({{ selectedYear }})
-                  </h2>
-                  <p class="text-md text-slate-500 mt-0.5">
-                    Annual Audit Plan priorities based on calculated risk levels.
-                  </p>
-                </div>
-                <div class="flex items-center gap-4">
-                  <UBadge color="success" variant="subtle" class="font-bold">
-                    {{ prioritizedCount }} Prioritized
-                  </UBadge>
-                  <UBadge color="info" variant="solid" class="font-bold">
-                    Audit Priority = Risk Level Medium to High or High
-                  </UBadge>
-                </div>
-              </div>
-            </template>
-
-            <!-- Recap Table -->
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-850/50">
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">No</th>
-                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Auditable Entity</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Risk Index</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Risk Level</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">Audit Priority*</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                  <tr 
-                    v-for="(ent, idx) in sortedYearlyUniverse" 
-                    :key="ent.id"
-                    class="hover:bg-slate-50/50 dark:hover:bg-slate-800/10"
-                    :class="ent.audit_priority ? 'bg-primary-50/10' : ''"
-                  >
-                    <td class="px-6 py-4 text-slate-500 font-medium">{{ idx + 1 }}</td>
-                    <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
-                      {{ ent.corporate_audit_universe?.name }}
-                    </td>
-                    <td class="px-6 py-4 text-center font-semibold text-slate-700 dark:text-slate-300">
-                      {{ ent.risk_index?.toFixed(1) }}%
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                      <UBadge :color="getRiskLevelBadgeColor(ent.risk_level)" size="md" class="font-bold">
-                        {{ ent.risk_level || 'N/A' }}
-                      </UBadge>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                      <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                        <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
-                        <span>√ Priority</span>
-                      </div>
-                      <span v-else class="text-slate-400 text-md">-</span>
-                    </td>
-                  </tr>
-                  <tr v-if="yearlyUniverse.length === 0">
-                    <td colspan="5" class="text-center py-10 text-slate-400 text-md">
-                      No established auditable entities for year {{ selectedYear }}.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <template #footer>
-              <div class="flex items-center justify-between text-md text-slate-400">
-                <span>Sorted by Risk Index (descending)</span>
-              </div>
-            </template>
-          </UCard>
-
-          <!-- Risk Index Level Info -->
-          <UCard class="shadow-sm border border-[var(--border-main)] bg-slate-50/50 dark:bg-slate-900/30">
-            <template #header>
-              <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">
-                Corporate Risk Index Level Information
-              </h3>
-            </template>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-md text-left">
-                <thead class="bg-slate-100 dark:bg-slate-800">
-                  <tr>
-                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Risk Index</th>
-                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Risk Level</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">80 - 100%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-red-500/100 dark:bg-red-500/100">High</UBadge></td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">60 - 79%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-orange-500/100 dark:bg-orange-500/100">Moderate to High</UBadge></td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">40 - 59%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-yellow-500/100 dark:bg-yellow-500/100">Moderate</UBadge></td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">20 - 39%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-lime-500/100 dark:bg-lime-500/100">Low to Moderate</UBadge></td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium">0 - 19%</td>
-                    <td class="px-4 py-2"><UBadge size="md" class="font-bold w-28 justify-center bg-green-500/100 dark:bg-green-500/100">Low</UBadge></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </UCard>
-
-        </div>
-      </template>
     </UTabs>
 
   </div>
@@ -510,19 +386,21 @@ const store = useAuditUniverseStore()
 const riskFactorsStore = useRiskFactorsStore()
 const route = useRoute()
 const toast = useToastNotification()
+const { canEditAuditUniverse } = useRbac()
 
 const tabItems = [
   { value: 'library', slot: 'library', label: '1. Corporate Universe Builder' },
-  { value: 'establish', slot: 'establish', label: '2. Yearly Establishment' },
-  { value: 'priority', slot: 'priority', label: '3. Audit Priority' }
+  { value: 'establish', slot: 'establish', label: '2. Yearly Establishment' }
 ]
 
 const activeTab = ref(
-  route.query.tab === 'priority' ? 'priority' : route.query.tab === 'establish' ? 'establish' : 'library'
+  route.query.tab === 'establish' ? 'establish' : 'library'
 )
 
 watch(() => route.query.tab, (newTab) => {
-  if (newTab === 'priority' || newTab === 'establish' || newTab === 'library') {
+  if (newTab === 'priority') {
+    navigateTo('/risk-profile/audit-priority')
+  } else if (newTab === 'establish' || newTab === 'library') {
     activeTab.value = newTab as string
   }
 })
@@ -546,6 +424,10 @@ const addCustomNodeName = ref('')
 
 // Lifecycle
 onMounted(async () => {
+  if (route.query.tab === 'priority') {
+    navigateTo('/risk-profile/audit-priority')
+    return
+  }
   await store.fetchStandardUniverse()
   await store.fetchCorporateUniverse()
   await riskFactorsStore.fetchCorporateFactors()
@@ -556,14 +438,7 @@ const standardUniverse = computed(() => store.standardUniverse)
 const corporateUniverse = computed(() => store.corporateUniverse)
 const yearlyUniverse = computed(() => store.yearlyUniverse)
 
-const sortedYearlyUniverse = computed(() => {
-  return [...store.yearlyUniverse]
-    .sort((a, b) => (b.risk_index || 0) - (a.risk_index || 0))
-})
 
-const prioritizedCount = computed(() => {
-  return store.yearlyUniverse.filter(ent => ent.audit_priority).length
-})
 
 // Methods
 const fetchYearlyUniverse = async () => {
@@ -715,17 +590,7 @@ const saveYearlyEstablishment = async () => {
   }
 }
 
-const getRiskLevelBadgeColor = (level?: string) => {
-  if (!level) return 'neutral'
-  switch (level) {
-    case 'High': return 'error'
-    case 'Medium to High': return 'warning'
-    case 'Medium': return 'primary'
-    case 'Low to Medium': return 'info'
-    case 'Low': return 'success'
-    default: return 'neutral'
-  }
-}
+
 
 // Alert helper
 const showAlert = (msg: string, type: string) => {

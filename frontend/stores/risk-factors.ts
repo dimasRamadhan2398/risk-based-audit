@@ -89,6 +89,76 @@ export const useRiskFactorsStore = defineStore('risk-factors', () => {
     }
   }
 
+  const createStandardFactor = async (payload: { name: string; description?: string; score_guidelines?: string }) => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risk-factors/standard`, {
+        method: 'POST',
+        body: payload
+      })
+      if (response && response.success) {
+        await fetchStandardFactors()
+        return response.data
+      }
+      return null
+    } catch (error: any) {
+      console.error('Failed to create standard risk factor:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to create standard risk factor.')
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const updateStandardFactor = async (id: string, payload: { name: string; description?: string; score_guidelines?: string }) => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risk-factors/standard/${id}`, {
+        method: 'PUT',
+        body: payload
+      })
+      if (response && response.success) {
+        await fetchStandardFactors()
+        await fetchCorporateFactors()
+        return response.data
+      }
+      return null
+    } catch (error: any) {
+      console.error('Failed to update standard risk factor:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to update standard risk factor.')
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const deleteStandardFactor = async (id: string) => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/risk-factors/standard/${id}`, {
+        method: 'DELETE'
+      })
+      if (response && response.success) {
+        await fetchStandardFactors()
+        await fetchCorporateFactors()
+        return true
+      }
+      return false
+    } catch (error: any) {
+      console.error('Failed to delete standard risk factor:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to delete standard risk factor.')
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     standardFactors,
     corporateFactors,
@@ -96,6 +166,9 @@ export const useRiskFactorsStore = defineStore('risk-factors', () => {
     errorMsg,
     fetchStandardFactors,
     fetchCorporateFactors,
-    saveCorporateFactors
+    saveCorporateFactors,
+    createStandardFactor,
+    updateStandardFactor,
+    deleteStandardFactor
   }
 })

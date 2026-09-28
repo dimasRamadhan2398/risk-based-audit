@@ -28,7 +28,7 @@ describe('Navigation Grouping Structure in default.vue', () => {
     expect(content).toContain("t('navigation.riskFactors')")
     expect(content).toContain("t('navigation.auditUniverse')")
     expect(content).toContain("t('navigation.auditPriority')")
-    expect(content).toContain("to: '/risk-profile/audit-universe?tab=priority'")
+    expect(content).toContain("to: '/risk-profile/audit-priority'")
     expect(content).toContain("t('navigation.riskControlMatrix')")
   })
 

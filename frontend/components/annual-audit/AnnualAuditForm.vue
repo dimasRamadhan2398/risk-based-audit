@@ -109,7 +109,7 @@
                         @invalid="($event.target as any)?.setCustomValidity('Nama aktivitas maksimal 100 karakter dan wajib diisi')"
                         @input="($event.target as any)?.setCustomValidity('')"
                       />
-                      <div class="text-xs text-gray-500 mt-1 text-right">
+                      <div class="text-md text-gray-500 mt-1 text-right">
                         {{ activity.name ? activity.name.length : 0 }}/100
                       </div>
                     </UFormField>

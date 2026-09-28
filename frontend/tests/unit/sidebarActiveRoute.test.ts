@@ -9,7 +9,7 @@ describe('Sidebar Active Route Logic', () => {
     '/risk-appetite',
     '/risk-profile/risk-factors',
     '/risk-profile/audit-universe',
-    '/risk-profile/audit-universe?tab=priority',
+    '/risk-profile/audit-priority',
     '/risk-profile/risk-control-matrix',
     '/strategic-audit-plan',
     '/strategic-audit-plan/upload',
@@ -130,24 +130,27 @@ describe('Sidebar Active Route Logic', () => {
     expect(isPathActive('/audit-result-report')).toBe(false)
   })
 
-  it('correctly isolates query tabs such as Audit Priority', () => {
-    const isPathActivePriority = createIsPathActive({
-      path: '/risk-profile/audit-universe',
-      fullPath: '/risk-profile/audit-universe?tab=priority',
-      query: { tab: 'priority' }
-    })
-
-    expect(isPathActivePriority('/risk-profile/audit-universe?tab=priority')).toBe(true)
-    expect(isPathActivePriority('/risk-profile/audit-universe')).toBe(false)
-
-    const isPathActiveUniverse = createIsPathActive({
-      path: '/risk-profile/audit-universe',
-      fullPath: '/risk-profile/audit-universe',
+  it('correctly matches standalone route /risk-profile/audit-priority', () => {
+    const isPathActive = createIsPathActive({
+      path: '/risk-profile/audit-priority',
+      fullPath: '/risk-profile/audit-priority',
       query: {}
     })
 
-    expect(isPathActiveUniverse('/risk-profile/audit-universe')).toBe(true)
-    expect(isPathActiveUniverse('/risk-profile/audit-universe?tab=priority')).toBe(false)
+    expect(isPathActive('/risk-profile/audit-priority')).toBe(true)
+    expect(isPathActive('/risk-profile/audit-universe')).toBe(false)
+  })
+
+  it('correctly isolates query tabs such as Analytics XGBoost', () => {
+    const isPathActiveXgboost = createIsPathActive({
+      path: '/analytics',
+      fullPath: '/analytics?tab=xgboost',
+      query: { tab: 'xgboost' }
+    })
+
+    expect(isPathActiveXgboost('/analytics?tab=xgboost')).toBe(true)
+    expect(isPathActiveXgboost('/analytics?tab=isolation')).toBe(false)
+    expect(isPathActiveXgboost('/analytics')).toBe(false)
   })
 
   it('allows prefix matching fallback only for unlisted detail routes', () => {

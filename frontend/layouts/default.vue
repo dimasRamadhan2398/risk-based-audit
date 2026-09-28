@@ -71,7 +71,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
       {
         label: t('navigation.auditPriority'),
         icon: 'i-lucide-list-ordered',
-        to: '/risk-profile/audit-universe?tab=priority'
+        to: '/risk-profile/audit-priority'
       },
       {
         label: t('navigation.riskControlMatrix'),

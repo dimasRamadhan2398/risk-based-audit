@@ -101,9 +101,21 @@
               <UCard class="shadow-sm border border-[var(--border-main)]">
                 <template #header>
                   <div class="space-y-3">
-                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
-                      {{ t('riskFactors.weighting.standardFactorsTitle') }}
-                    </h2>
+                    <div class="flex items-center justify-between gap-4">
+                      <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
+                        {{ t('riskFactors.weighting.standardFactorsTitle') }}
+                      </h2>
+                      <UButton
+                        v-if="canEditRiskFactors"
+                        icon="i-lucide-plus"
+                        color="primary"
+                        size="sm"
+                        variant="solid"
+                        @click="openAddFactorModal"
+                      >
+                        {{ t('riskFactors.weighting.addFactor') }}
+                      </UButton>
+                    </div>
                     <UInput
                       v-model="searchQuery"
                       icon="i-lucide-search"
@@ -119,21 +131,52 @@
                   <div 
                     v-for="factor in filteredStandardFactors" 
                     :key="factor.id"
-                    class="py-3 flex items-start justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 p-2 rounded-lg transition-colors duration-200"
+                    class="py-3 flex items-start justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 p-2 rounded-lg transition-colors duration-200 group"
                   >
                     <div class="cursor-pointer flex-1" @click="openGuidelines(factor)">
-                      <h3 class="text-md font-semibold text-slate-800 dark:text-slate-200">
+                      <h3 class="text-md font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                         {{ factor.name }}
                       </h3>
                       <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
                         {{ factor.description }}
                       </p>
                     </div>
-                    <div class="flex items-center gap-2">
-                      <UCheckbox
-                        :model-value="isFactorSelected(factor.id)"
-                        @update:model-value="toggleFactorSelection(factor)"
-                      />
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <UTooltip :text="t('riskFactors.weighting.viewGuidelines')">
+                        <UButton
+                          icon="i-lucide-book-open"
+                          color="neutral"
+                          variant="ghost"
+                          size="md"
+                          @click.stop="openGuidelines(factor)"
+                        />
+                      </UTooltip>
+                      <template v-if="canEditRiskFactors">
+                        <UTooltip :text="t('riskFactors.weighting.editFactor')">
+                          <UButton
+                            icon="i-lucide-edit"
+                            color="warning"
+                            variant="ghost"
+                            size="md"
+                            @click.stop="openEditFactorModal(factor)"
+                          />
+                        </UTooltip>
+                        <UTooltip :text="t('riskFactors.weighting.deleteFactor')">
+                          <UButton
+                            icon="i-lucide-trash-2"
+                            color="error"
+                            variant="ghost"
+                            size="md"
+                            @click.stop="openDeleteFactorModal(factor)"
+                          />
+                        </UTooltip>
+                      </template>
+                      <div class="ml-1 pl-2 border-l border-slate-200 dark:border-slate-700">
+                        <UCheckbox
+                          :model-value="isFactorSelected(factor.id)"
+                          @update:model-value="toggleFactorSelection(factor)"
+                        />
+                      </div>
                     </div>
                   </div>
                   <div v-if="filteredStandardFactors.length === 0" class="text-center py-8 text-md text-slate-400">
@@ -353,183 +396,249 @@
           </UCard>
         </div>
       </template>
-
-      <!-- Tab 3: Rekapitulasi & Priorities -->
-      <template #priority>
-        <div class="mt-6 space-y-6">
-          <UCard class="shadow-sm border border-[var(--border-main)]">
-            <template #header>
-              <div class="flex items-center justify-between">
-                <div>
-                  <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 font-space">
-                    {{ t('riskFactors.priority.title', { year: selectedYear }) }}
-                  </h2>
-                  <p class="text-md text-slate-500 mt-0.5">
-                    {{ t('riskFactors.priority.subtitle') }}
-                  </p>
-                </div>
-                <div class="flex items-center gap-4">
-                  <UBadge color="success" variant="subtle" class="font-bold">
-                    {{ t('riskFactors.priority.prioritizedCount', { count: prioritizedCount }) }}
-                  </UBadge>
-                  <UBadge color="info" variant="solid" class="font-bold">
-                    {{ t('riskFactors.priority.priorityRule') }}
-                  </UBadge>
-                </div>
-              </div>
-            </template>
-
-            <!-- Recap Table -->
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-850/50">
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.no') }}</th>
-                    <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.auditableEntity') }}</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.riskIndex') }}</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.riskLevel') }}</th>
-                    <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.priority.auditPriorityCol') }}</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                  <tr 
-                    v-for="(ent, idx) in sortedYearlyUniverse" 
-                    :key="ent.id"
-                    class="hover:bg-slate-50/50 dark:hover:bg-slate-800/10"
-                    :class="ent.audit_priority ? 'bg-primary-50/10' : ''"
-                  >
-                    <td class="px-6 py-4 text-slate-500 font-medium">{{ idx + 1 }}</td>
-                    <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
-                      {{ ent.corporate_audit_universe?.name }}
-                    </td>
-                    <td class="px-6 py-4 text-center font-semibold text-slate-700 dark:text-slate-300">
-                      {{ ent.risk_index?.toFixed(1) }}%
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                      <UBadge :color="getRiskLevelBadgeColor(ent.risk_level)" size="md" class="font-bold">
-                        {{ formatRiskLevel(ent.risk_level) }}
-                      </UBadge>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                      <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-success-600 dark:text-success-400 font-bold">
-                        <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-success-500" />
-                        <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
-                      </div>
-                      <span v-else class="text-slate-400 text-md">-</span>
-                    </td>
-                  </tr>
-                  <tr v-if="yearlyUniverse.length === 0">
-                    <td colspan="5" class="text-center py-10 text-slate-400 text-md">
-                      {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <template #footer>
-              <div class="flex items-center justify-between text-[10px] text-slate-400">
-                <span>{{ t('riskFactors.priority.sortedNote') }}</span>
-              </div>
-            </template>
-          </UCard>
-
-          <!-- Risk Index Level Info -->
-          <UCard class="shadow-sm border border-[var(--border-main)] bg-slate-50/50 dark:bg-slate-900/30">
-            <template #header>
-              <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">
-                {{ t('riskFactors.priority.levelInfoTitle') }}
-              </h3>
-            </template>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-md text-center">
-                <thead class="bg-slate-100 dark:bg-slate-800">
-                  <tr>
-                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300 text-center">{{ t('riskFactors.priority.riskIndex') }}</th>
-                    <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300 text-center">{{ t('riskFactors.priority.riskLevel') }}</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">80 - 100%</td>
-                    <td class="px-4 py-2 text-center flex justify-center">
-                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #F44336;">
-                        {{ t('riskFactors.priority.levels.high') }}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">60 - 79%</td>
-                    <td class="px-4 py-2 text-center flex justify-center">
-                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #FF9800;">
-                        {{ t('riskFactors.priority.levels.moderateToHigh') }}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">40 - 59%</td>
-                    <td class="px-4 py-2 text-center flex justify-center">
-                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #FFC107;">
-                        {{ t('riskFactors.priority.levels.moderate') }}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">20 - 39%</td>
-                    <td class="px-4 py-2 text-center flex justify-center">
-                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #8BC34A;">
-                        {{ t('riskFactors.priority.levels.lowToModerate') }}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium text-center">0 - 19%</td>
-                    <td class="px-4 py-2 text-center flex justify-center">
-                      <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #4CAF50;">
-                        {{ t('riskFactors.priority.levels.low') }}
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </UCard>
-        </div>
-      </template>
     </UTabs>
 
     <!-- Scoring Scale Guidelines Modal -->
-    <UModal v-model:open="guidelinesModalOpen">
+    <!-- Scoring Scale Guidelines Modal -->
+    <UModal 
+      v-model:open="guidelinesModalOpen"
+      :ui="{ content: 'sm:max-w-xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
+    >
       <template #content>
-        <UCard>
-          <template #header>
-            <h3 class="font-bold text-base text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              {{ t('riskFactors.guidelines.modalTitle', { name: detailFactor?.name }) }}
-            </h3>
-          </template>
+        <div class="relative flex flex-col max-h-[85vh] transition-colors duration-300">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-primary-500/10 text-primary-500 dark:bg-primary-500/20">
+                <UIcon name="i-lucide-book-open" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-[var(--text-main)]">
+                  {{ t('riskFactors.guidelines.modalTitle', { name: detailFactor?.name }) }}
+                </h3>
+                <p class="text-md text-[var(--text-muted)] mt-0.5">{{ t('riskFactors.weighting.guidelinesSection') }}</p>
+              </div>
+            </div>
+            <UButton
+              icon="i-lucide-x"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              class="rounded-lg text-[var(--text-muted)] hover:text-[var(--text-main)]"
+              @click="() => { guidelinesModalOpen = false; }"
+            />
+          </div>
           
-          <div v-if="detailFactor" class="space-y-4">
-            <p class="text-md text-slate-500 dark:text-slate-400">{{ detailFactor.description }}</p>
-            <div class="space-y-3 mt-4">
+          <div v-if="detailFactor" class="p-6 overflow-y-auto space-y-4 flex-1">
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-md text-slate-600 dark:text-slate-300 leading-relaxed">
+              <span class="font-semibold text-slate-800 dark:text-slate-200 block mb-0.5">Deskripsi Faktor:</span>
+              {{ detailFactor.description || '-' }}
+            </div>
+            <div class="space-y-2.5">
               <div 
                 v-for="guide in parsedGuidelines" 
                 :key="guide.score" 
-                class="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex items-start gap-3"
+                class="p-3 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-900/40 flex items-start gap-3 shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
               >
                 <div 
-                  class="w-6 h-6 rounded-full flex items-center justify-center text-md font-bold shrink-0 mt-0.5"
+                  class="w-7 h-7 rounded-lg flex items-center justify-center text-md font-bold shrink-0 mt-0.5 shadow-md"
                   :class="getScoreColor(guide.score)"
                 >
                   {{ guide.score }}
                 </div>
-                <div>
-                  <p class="text-md font-bold text-slate-700 dark:text-slate-300">{{ getScoreLabel(guide.score) }}</p>
-                  <p class="text-md text-slate-500 dark:text-slate-400 mt-0.5 font-sans leading-normal">{{ guide.desc }}</p>
+                <div class="flex-1">
+                  <p class="text-md font-bold text-slate-800 dark:text-slate-200">{{ getScoreLabel(guide.score) }}</p>
+                  <p class="text-md text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">{{ guide.desc }}</p>
                 </div>
               </div>
             </div>
           </div>
-        </UCard>
+        </div>
+      </template>
+    </UModal>
+
+    <!-- Add / Edit Standard Risk Factor Modal -->
+    <UModal 
+      v-model:open="factorModalOpen"
+      :ui="{ content: 'sm:max-w-2xl md:max-w-3xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
+    >
+      <template #content>
+        <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
+            <div class="flex items-center gap-3">
+              <div 
+                class="p-2.5 rounded-xl"
+                :class="isEditingFactor ? 'bg-amber-500/10 text-amber-500 dark:bg-amber-500/20' : 'bg-primary-500/10 text-primary-500 dark:bg-primary-500/20'"
+              >
+                <UIcon :name="isEditingFactor ? 'i-lucide-edit-3' : 'i-lucide-plus-circle'" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-[var(--text-main)]">
+                  {{ isEditingFactor ? t('riskFactors.weighting.editModalTitle') : t('riskFactors.weighting.addModalTitle') }}
+                </h3>
+                <p class="text-md text-[var(--text-muted)] mt-0.5">
+                  {{ isEditingFactor ? t('riskFactors.weighting.editModalSubtitle') : t('riskFactors.weighting.addModalSubtitle') }}
+                </p>
+              </div>
+            </div>
+            <UButton
+              icon="i-lucide-x"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              class="rounded-lg text-[var(--text-muted)] hover:text-[var(--text-main)]"
+              @click="() => { factorModalOpen = false; }"
+            />
+          </div>
+
+          <form @submit.prevent="saveFactorForm" class="px-6 py-4 overflow-y-auto space-y-3.5 flex-1 max-h-[calc(90vh-130px)]">
+            <!-- Factor Name -->
+            <UFormField :label="t('riskFactors.weighting.factorName')" required>
+              <UInput
+                v-model="factorForm.name"
+                :placeholder="t('riskFactors.weighting.factorNamePlaceholder')"
+                class="w-full"
+                maxlength="200"
+                required
+              />
+            </UFormField>
+
+            <!-- Factor Description -->
+            <UFormField :label="t('riskFactors.weighting.factorDesc')">
+              <UTextarea
+                v-model="factorForm.description"
+                :placeholder="t('riskFactors.weighting.factorDescPlaceholder')"
+                class="w-full"
+                :rows="2"
+              />
+            </UFormField>
+
+            <!-- Score Guidelines Section -->
+            <div class="space-y-2.5 pt-2.5 border-t border-[var(--border-main)]">
+              <div class="flex items-center justify-between">
+                <div>
+                  <label class="text-md font-bold text-[var(--text-main)] uppercase tracking-wider block">
+                    {{ t('riskFactors.weighting.guidelinesSection') }}
+                  </label>
+                  <p class="text-[11px] text-[var(--text-muted)] mt-0.5">
+                    {{ t('riskFactors.weighting.guidelinesSubtitle') }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <div
+                  v-for="scoreItem in factorForm.scores"
+                  :key="scoreItem.score"
+                  class="flex flex-col sm:flex-row sm:items-center gap-2.5 p-2 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                >
+                  <div class="flex items-center gap-2 sm:w-44 shrink-0">
+                    <div
+                      class="w-6 h-6 rounded-md flex items-center justify-center text-md font-bold shrink-0 shadow-md"
+                      :class="getScoreColor(scoreItem.score)"
+                    >
+                      {{ scoreItem.score }}
+                    </div>
+                    <span class="text-md font-semibold text-slate-700 dark:text-slate-200 truncate">
+                      {{ getScoreLabel(scoreItem.score) }}
+                    </span>
+                  </div>
+                  <div class="flex-1">
+                    <UInput
+                      v-model="scoreItem.desc"
+                      size="sm"
+                      :placeholder="t('riskFactors.weighting.scoreDescPlaceholder', { score: scoreItem.score })"
+                      class="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)]">
+            <UButton
+              color="neutral"
+              variant="outline"
+              size="md"
+              class="rounded-xl font-medium"
+              :label="t('riskFactors.weighting.cancel')"
+              @click="() => { factorModalOpen = false; }"
+            />
+            <UButton
+              color="primary"
+              variant="solid"
+              size="md"
+              class="rounded-xl font-semibold shadow-sm"
+              :loading="factorSubmitting"
+              icon="i-lucide-save"
+              :label="t('riskFactors.weighting.save')"
+              @click="saveFactorForm"
+            />
+          </div>
+        </div>
+      </template>
+    </UModal>
+
+    <!-- Delete Confirmation Modal -->
+    <UModal 
+      v-model:open="deleteModalOpen"
+      :ui="{ 
+        content: 'sm:max-w-md w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' 
+      }"
+    >
+      <template #content>
+        <div class="p-6 space-y-4">
+          <!-- Header with warning icon -->
+          <div class="flex items-start gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-error-50 dark:bg-error-950/50 text-error-600 dark:text-error-400 flex items-center justify-center shrink-0 ring-4 ring-error-500/10">
+              <UIcon name="i-lucide-alert-triangle" class="w-5 h-5" />
+            </div>
+            <div class="flex-1 min-w-0 pt-0.5">
+              <h3 class="text-base font-bold text-[var(--text-main)] leading-snug">
+                {{ t('riskFactors.weighting.deleteModalTitle') }}
+              </h3>
+              <p class="text-md text-[var(--text-muted)] mt-1">
+                {{ t('riskFactors.weighting.deleteConfirmDesc') }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Highlight Factor Name pill -->
+          <div v-if="factorToDelete" class="p-3 rounded-xl bg-error-50/50 dark:bg-error-950/30 border border-error-200 dark:border-error-800/60 flex items-center gap-2.5">
+            <UIcon name="i-lucide-activity" class="w-4 h-4 text-error-600 dark:text-error-400 shrink-0" />
+            <div class="min-w-0 flex-1">
+              <p class="text-md font-semibold text-error-900 dark:text-error-200 truncate">
+                {{ factorToDelete.name }}
+              </p>
+              <p v-if="factorToDelete.description" class="text-[11px] text-error-700/80 dark:text-error-400/80 truncate mt-0.5">
+                {{ factorToDelete.description }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Actions Footer -->
+          <div class="flex items-center justify-end gap-2.5 pt-2">
+            <UButton
+              color="neutral"
+              variant="outline"
+              size="md"
+              class="rounded-xl font-medium"
+              :label="t('riskFactors.weighting.cancel')"
+              :disabled="deleteSubmitting"
+              @click="() => { deleteModalOpen = false; }"
+            />
+            <UButton
+              color="error"
+              variant="solid"
+              size="md"
+              class="rounded-xl font-semibold shadow-sm"
+              :loading="deleteSubmitting"
+              icon="i-lucide-trash-2"
+              :label="t('riskFactors.weighting.delete')"
+              @click="confirmDeleteFactor"
+            />
+          </div>
+        </div>
       </template>
     </UModal>
   </div>
@@ -551,8 +660,7 @@ const toast = useToastNotification()
 
 const tabItems = computed(() => [
   { slot: 'weighting', label: t('riskFactors.tabs.weight'), icon: 'i-lucide-activity' },
-  { slot: 'scoring', label: t('riskFactors.tabs.score'), icon: 'i-lucide-award' },
-  { slot: 'priority', label: t('riskFactors.tabs.priority'), icon: 'i-lucide-list-checks' }
+  { slot: 'scoring', label: t('riskFactors.tabs.score'), icon: 'i-lucide-award' }
 ])
 
 // State
@@ -562,6 +670,27 @@ const detailFactor = ref<any>(null)
 const guidelinesModalOpen = ref(false)
 const alertMessage = ref('')
 const alertType = ref('success')
+
+// Modals for Standard Risk Factors CRUD
+const factorModalOpen = ref(false)
+const isEditingFactor = ref(false)
+const editingFactorId = ref<string | null>(null)
+const factorSubmitting = ref(false)
+const factorForm = ref({
+  name: '',
+  description: '',
+  scores: [
+    { score: 5, desc: '' },
+    { score: 4, desc: '' },
+    { score: 3, desc: '' },
+    { score: 2, desc: '' },
+    { score: 1, desc: '' }
+  ]
+})
+
+const deleteModalOpen = ref(false)
+const factorToDelete = ref<any>(null)
+const deleteSubmitting = ref(false)
 
 // For scoring workspace:
 const selectedYear = ref(2026)
@@ -656,14 +785,7 @@ const dropdownEntities = computed(() => {
   }))
 })
 
-const sortedYearlyUniverse = computed(() => {
-  return [...auditStore.yearlyUniverse]
-    .sort((a, b) => (b.risk_index || 0) - (a.risk_index || 0))
-})
 
-const prioritizedCount = computed(() => {
-  return auditStore.yearlyUniverse.filter(ent => ent.audit_priority).length
-})
 
 const totalWeightedScore = computed(() => {
   return scoringRows.value.reduce((sum, item) => sum + (item.score * item.weight || 0), 0)
@@ -804,6 +926,132 @@ const saveChanges = async () => {
   }
 }
 
+const getDefaultScores = () => [
+  { score: 5, desc: 'High – Major contributor to enterprise risk' },
+  { score: 4, desc: 'Medium to High – Significant risk affecting key operations' },
+  { score: 3, desc: 'Medium – Moderate risk exposure with limited enterprise impact' },
+  { score: 2, desc: 'Low to Medium – Low risk operations with minimal impact' },
+  { score: 1, desc: 'Low – Administrative or routine activity with minimal risk' }
+]
+
+const openAddFactorModal = () => {
+  isEditingFactor.value = false
+  editingFactorId.value = null
+  factorForm.value = {
+    name: '',
+    description: '',
+    scores: getDefaultScores()
+  }
+  factorModalOpen.value = true
+}
+
+const openEditFactorModal = (factor: any) => {
+  isEditingFactor.value = true
+  editingFactorId.value = factor.id
+  let parsedScores = getDefaultScores()
+  if (factor.score_guidelines) {
+    try {
+      const parsed = JSON.parse(factor.score_guidelines)
+      if (Array.isArray(parsed)) {
+        parsedScores = [5, 4, 3, 2, 1].map(scoreNum => {
+          const found = parsed.find((item: any) => item.score === scoreNum)
+          return {
+            score: scoreNum,
+            desc: found?.desc || ''
+          }
+        })
+      }
+    } catch (e) {
+      console.error('Failed to parse guidelines for editing:', e)
+    }
+  }
+
+  factorForm.value = {
+    name: factor.name || '',
+    description: factor.description || '',
+    scores: parsedScores
+  }
+  factorModalOpen.value = true
+}
+
+const saveFactorForm = async () => {
+  if (!factorForm.value.name.trim()) {
+    toast.showError('Name is required')
+    return
+  }
+
+  factorSubmitting.value = true
+  try {
+    const guidelinesJson = JSON.stringify(factorForm.value.scores.map(s => ({
+      score: s.score,
+      desc: s.desc.trim()
+    })))
+
+    const payload = {
+      name: factorForm.value.name.trim(),
+      description: factorForm.value.description.trim(),
+      score_guidelines: guidelinesJson
+    }
+
+    if (isEditingFactor.value && editingFactorId.value) {
+      const result = await store.updateStandardFactor(editingFactorId.value, payload)
+      if (result) {
+        toast.showSuccess(t('riskFactors.messages.factorUpdated'))
+        factorModalOpen.value = false
+        if (detailFactor.value?.id === editingFactorId.value) {
+          detailFactor.value = result
+        }
+      } else {
+        toast.showError(store.errorMsg || t('riskFactors.messages.factorUpdateFailed'))
+      }
+    } else {
+      const result = await store.createStandardFactor(payload)
+      if (result) {
+        toast.showSuccess(t('riskFactors.messages.factorCreated'))
+        factorModalOpen.value = false
+      } else {
+        toast.showError(store.errorMsg || t('riskFactors.messages.factorCreateFailed'))
+      }
+    }
+  } catch (err: any) {
+    toast.showError(err.message || 'Operation failed')
+  } finally {
+    factorSubmitting.value = false
+  }
+}
+
+const openDeleteFactorModal = (factor: any) => {
+  factorToDelete.value = factor
+  deleteModalOpen.value = true
+}
+
+const confirmDeleteFactor = async () => {
+  if (!factorToDelete.value) return
+  deleteSubmitting.value = true
+  try {
+    const id = factorToDelete.value.id
+    const success = await store.deleteStandardFactor(id)
+    if (success) {
+      toast.showSuccess(t('riskFactors.messages.factorDeleted'))
+      const idx = selectedCorporateList.value.findIndex(item => item.standard_risk_factor_id === id)
+      if (idx >= 0) {
+        selectedCorporateList.value.splice(idx, 1)
+      }
+      if (detailFactor.value?.id === id) {
+        detailFactor.value = store.standardFactors.length > 0 ? store.standardFactors[0] : null
+      }
+      deleteModalOpen.value = false
+      factorToDelete.value = null
+    } else {
+      toast.showError(store.errorMsg || t('riskFactors.messages.factorDeleteFailed'))
+    }
+  } catch (err: any) {
+    toast.showError(err.message || 'Failed to delete')
+  } finally {
+    deleteSubmitting.value = false
+  }
+}
+
 const getScoreColor = (score: number) => {
   switch (score) {
     case 5: return 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'
@@ -821,29 +1069,7 @@ const getScoreLabel = (score: number) => {
   return label !== labelKey ? label : ''
 }
 
-const formatRiskLevel = (level?: string) => {
-  if (!level) return 'N/A'
-  switch (level) {
-    case 'High': return t('riskFactors.priority.levels.high')
-    case 'Medium to High': return t('riskFactors.priority.levels.moderateToHigh')
-    case 'Medium': return t('riskFactors.priority.levels.moderate')
-    case 'Low to Medium': return t('riskFactors.priority.levels.lowToModerate')
-    case 'Low': return t('riskFactors.priority.levels.low')
-    default: return level
-  }
-}
 
-const getRiskLevelBadgeColor = (level?: string) => {
-  if (!level) return 'neutral'
-  switch (level) {
-    case 'High': return 'error'
-    case 'Medium to High': return 'warning'
-    case 'Medium': return 'primary'
-    case 'Low to Medium': return 'info'
-    case 'Low': return 'success'
-    default: return 'neutral'
-  }
-}
 
 const showAlert = (msg: string, type: string) => {
   alertMessage.value = msg

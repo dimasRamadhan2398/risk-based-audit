@@ -665,12 +665,11 @@
   },
   "riskFactors": {
     "title": "Risk Factors & Scoring Settings",
-    "subtitle": "Configure risk weights, perform workspace scoring, and view computed audit priorities.",
+    "subtitle": "Configure risk weights and perform workspace scoring.",
     "backToHeatmap": "Back to Heat Map",
     "tabs": {
       "weight": "1. Weight",
-      "score": "2. Risk Score",
-      "priority": "3. Audit Priority"
+      "score": "2. Risk Score"
     },
     "weighting": {
       "totalWeight": "Total Weight: {total}%",
@@ -689,7 +688,28 @@
       "weightCol": "Weight (%)",
       "action": "Action",
       "noFactorsTitle": "No Corporate Risk Factors Selected",
-      "noFactorsDesc": "Check standard risk factors on the left to activate them."
+      "noFactorsDesc": "Check standard risk factors on the left to activate them.",
+      "addFactor": "Add Factor",
+      "editFactor": "Edit Factor",
+      "deleteFactor": "Delete Factor",
+      "addModalTitle": "Add Standard Risk Factor",
+      "addModalSubtitle": "Add a new risk factor to the standard catalog",
+      "editModalTitle": "Edit Standard Risk Factor",
+      "editModalSubtitle": "Update risk factor details and scoring rubric criteria",
+      "deleteModalTitle": "Delete Standard Risk Factor",
+      "deleteConfirm": "Are you sure you want to delete standard risk factor \"{name}\"? This will also remove any corporate weights associated with it.",
+      "deleteConfirmDesc": "Are you sure you want to delete this standard risk factor? This will also remove any corporate weights associated with it.",
+      "factorName": "Factor Name",
+      "factorNamePlaceholder": "e.g. Cybersecurity & Data Privacy",
+      "factorDesc": "Description",
+      "factorDescPlaceholder": "Brief description of this risk factor...",
+      "guidelinesSection": "Scoring Scale Guidelines (1 - 5)",
+      "guidelinesSubtitle": "Score 5 (High) to Score 1 (Low)",
+      "scoreDescPlaceholder": "Characteristics or criteria for score {score}...",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "viewGuidelines": "View Guidelines"
     },
     "scoring": {
       "title": "🎯 Risk Score",
@@ -738,7 +758,13 @@
       "scoresSaveFailed": "Failed to save risk scores.",
       "weightSumMustBe100": "Total weight must be exactly 100%. Current sum: {total}%",
       "weightsUpdated": "Corporate risk factors weights successfully updated.",
-      "weightsUpdateFailed": "Failed to save corporate risk factor weights."
+      "weightsUpdateFailed": "Failed to save corporate risk factor weights.",
+      "factorCreated": "Standard risk factor created successfully.",
+      "factorUpdated": "Standard risk factor updated successfully.",
+      "factorDeleted": "Standard risk factor deleted successfully.",
+      "factorCreateFailed": "Failed to create standard risk factor.",
+      "factorUpdateFailed": "Failed to update standard risk factor.",
+      "factorDeleteFailed": "Failed to delete standard risk factor."
     },
     "scoreLabels": {
       "1": "Low (1)",
@@ -747,6 +773,24 @@
       "4": "Medium to High (4)",
       "5": "High (5)"
     }
+  },
+  "auditPriority": {
+    "title": "Audit Priority",
+    "subtitle": "Annual Audit Plan priorities based on calculated risk levels.",
+    "backToHeatmap": "Back to Heat Map",
+    "goToUniverse": "Audit Universe",
+    "goToScoring": "Risk Factors & Scoring",
+    "selectYear": "Audit Year",
+    "totalEntities": "Established Entities",
+    "prioritizedEntities": "Prioritized",
+    "nonPrioritized": "Non-Prioritized",
+    "searchPlaceholder": "Search auditable entities...",
+    "filterStatus": "Filter Status",
+    "allStatus": "All Entities",
+    "onlyPrioritized": "Prioritized Only",
+    "onlyNonPrioritized": "Non-Prioritized",
+    "refresh": "Refresh",
+    "ruleInfo": "Audit Priority = Risk Level Medium to High or High"
   },
   "auditFieldwork": {
     "title": "Audit Fieldwork",
