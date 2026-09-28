@@ -67,14 +67,59 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   }
 
   const page = ref(1)
-  const pageCount = 5
+  const pageCount = 10
   const items = computed(() => {
-    return filteredReports.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
+    return filteredReports.value
   })
 
   const qaTypes = Object.values(QAType)
   const qaStatuses = Object.values(QAStatus)
-  const periods = ['2025', '2024', '2023']
+  const periods = ['2026', '2025', '2024', '2023']
+
+  const parsePeriodWeight = (period?: string, createdAt?: string): number => {
+    let year = 0
+    let quarter = 0
+
+    if (period) {
+      const yearMatch = period.match(/\b(20\d{2})\b/)
+      if (yearMatch && yearMatch[1]) {
+        year = parseInt(yearMatch[1], 10)
+      }
+      const qMatch = period.match(/Q([1-4])/i)
+      if (qMatch && qMatch[1]) {
+        quarter = parseInt(qMatch[1], 10)
+      }
+    }
+
+    if (year === 0 && createdAt) {
+      const d = new Date(createdAt)
+      if (!isNaN(d.getTime())) {
+        year = d.getFullYear()
+        quarter = Math.floor(d.getMonth() / 3) + 1
+      }
+    }
+
+    return year * 10 + quarter
+  }
+
+  const compareReportsDesc = (a: QAReport, b: QAReport): number => {
+    const weightA = parsePeriodWeight(a.period, a.created_at)
+    const weightB = parsePeriodWeight(b.period, b.created_at)
+
+    if (weightB !== weightA) {
+      return weightB - weightA
+    }
+
+    if (a.created_at && b.created_at) {
+      const timeA = new Date(a.created_at).getTime()
+      const timeB = new Date(b.created_at).getTime()
+      if (!isNaN(timeA) && !isNaN(timeB) && timeB !== timeA) {
+        return timeB - timeA
+      }
+    }
+
+    return (b.period || '').localeCompare(a.period || '')
+  }
 
   // Form State
   const newReport = reactive({
@@ -111,7 +156,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     {
       id: '4f8037e3-5eca-423a-b99c-015b8a835cc4',
       type: QAType.REGULAR,
-      period: '2025',
+      period: 'Q3 2025',
       reportName: 'Operational Efficiency Q3',
       result: '8.7/10',
       status: QAStatus.COMPLETED,
@@ -127,13 +172,13 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     {
       id: '8fdb7363-9092-4b7a-9c8b-2ef94f46a296',
       type: QAType.SAIV,
-      period: '2025',
+      period: 'Cycle 2025',
       reportName: 'Self Assessment GIAS \'22-24',
       result: 'Generally Conformed',
       status: QAStatus.COMPLETED,
-      conductedBy: 'PT BAI',
+      conductedBy: 'PT Independent Consultant X',
       assessmentTitle: 'SAIV - Cycle 2025',
-      validator: 'PT BAI',
+      validator: 'PT Independent Consultant X',
       attachment: {
         name: 'Certificate_SAIV_2025.pdf',
         size: '2.1 MB',
@@ -147,9 +192,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       reportName: 'External QAR (IPPF 2027)',
       result: 'G/C*',
       status: QAStatus.COMPLETED,
-      conductedBy: 'PT BAI',
+      conductedBy: 'Deloitte Independent Consultant',
       assessmentTitle: 'QAR - Year 2025',
-      validator: 'PT BAI',
+      validator: 'Deloitte Independent Consultant',
       attachment: {
         name: 'Report_External_QAR_2025.pdf',
         size: '4.2 MB',
@@ -159,8 +204,8 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     {
       id: '605c2dbf-61a1-42db-9e46-3f8aeba62cc4',
       type: QAType.REGULAR,
-      period: '2025',
-      reportName: 'Penilaian Periodik Kualitas Internal Audit',
+      period: 'Q2 2025',
+      reportName: 'Operational Efficiency Q2',
       result: '8.3/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q2'
@@ -168,8 +213,8 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     {
       id: '36fe54aa-df5a-4c3c-810f-74fdb98ca591',
       type: QAType.REGULAR,
-      period: '2025',
-      reportName: 'Penilaian Reguler Kualitas Internal Audit',
+      period: 'Q1 2025',
+      reportName: 'Operational Efficiency Q1',
       result: '6.9/10',
       status: QAStatus.COMPLETED,
       assessmentTitle: 'RSA - Audit 2025 Q1'
@@ -181,7 +226,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       reportName: 'BUMN IACM Assessment 2025',
       result: '4',
       status: QAStatus.COMPLETED,
-      conductedBy: 'PT BAI',
+      conductedBy: 'BPKP / Kementerian BUMN',
       assessmentTitle: 'BUMN IACM Assessment 2025'
     }
   ]
@@ -409,16 +454,18 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   }
 
   const filteredReports = computed(() => {
-    return reports.value.filter(report => {
-      if (report.isImported) return false
+    return reports.value
+      .filter(report => {
+        if (report.isImported) return false
 
-      const matchesSearch = (report.reportName || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        (report.assessmentTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
-      const matchesType = !selectedType.value || matchQAType(report.type, selectedType.value)
-      const matchesPeriod = !selectedPeriod.value || (report.period || '').includes(selectedPeriod.value)
-      const matchesStatus = !selectedStatus.value || report.status === selectedStatus.value
-      return matchesSearch && matchesType && matchesPeriod && matchesStatus
-    })
+        const matchesSearch = (report.reportName || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+          (report.assessmentTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
+        const matchesType = !selectedType.value || matchQAType(report.type, selectedType.value)
+        const matchesPeriod = !selectedPeriod.value || (report.period || '').includes(selectedPeriod.value)
+        const matchesStatus = !selectedStatus.value || report.status === selectedStatus.value
+        return matchesSearch && matchesType && matchesPeriod && matchesStatus
+      })
+      .sort(compareReportsDesc)
   })
 
   const importedReports = computed(() => {
@@ -442,10 +489,42 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   })
 
   const summary = computed(() => {
-    const regular = reports.value.filter(r => matchQAType(r.type, QAType.REGULAR)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
-    const qar = reports.value.filter(r => matchQAType(r.type, QAType.QAR)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
-    const saiv = reports.value.filter(r => matchQAType(r.type, QAType.SAIV)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
-    const iacm = reports.value.filter(r => matchQAType(r.type, QAType.IACM)).sort((a, b) => (b.period || '').localeCompare(a.period || ''))[0]
+    // Only non-imported reports (the exact reports displayed in QATable)
+    const tableReports = reports.value.filter(r => !r.isImported)
+
+    const getLatestForType = (targetType: QAType) => {
+      // 1. If matching in filteredReports (respects period, search, status filters)
+      const inFiltered = filteredReports.value.filter(r => matchQAType(r.type, targetType))
+      if (inFiltered.length > 0) {
+        return inFiltered.slice().sort(compareReportsDesc)[0]
+      }
+
+      // 2. If filtered out by selectedType filter, check matching tableReports with other filters
+      const inTable = tableReports.filter(r => matchQAType(r.type, targetType))
+      const withOtherFilters = inTable.filter(r => {
+        const matchesSearch = !searchQuery.value ||
+          (r.reportName || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+          (r.assessmentTitle || '').toLowerCase().includes(searchQuery.value.toLowerCase())
+        const matchesPeriod = !selectedPeriod.value || (r.period || '').includes(selectedPeriod.value)
+        const matchesStatus = !selectedStatus.value || r.status === selectedStatus.value
+        return matchesSearch && matchesPeriod && matchesStatus
+      })
+      if (withOtherFilters.length > 0) {
+        return withOtherFilters.slice().sort(compareReportsDesc)[0]
+      }
+
+      // 3. Fallback to latest non-imported report of this type
+      if (inTable.length > 0) {
+        return inTable.slice().sort(compareReportsDesc)[0]
+      }
+
+      return null
+    }
+
+    const regular = getLatestForType(QAType.REGULAR)
+    const qar = getLatestForType(QAType.QAR)
+    const saiv = getLatestForType(QAType.SAIV)
+    const iacm = getLatestForType(QAType.IACM)
 
     return {
       regular: regular || { result: '-', period: '-', status: QAStatus.PLANNED },

@@ -56,7 +56,7 @@
               <span class="text-gray-500 font-medium">Status</span>
               <div class="flex items-center space-x-2">
                 <div :class="['w-3 h-3 rounded-full', store.getStatusColor((store.summary.qar as any).status)]"></div>
-                <span class="font-bold text-sm">{{ (store.summary.qar as any).status === QAStatus.COMPLETED ? 'Verified' : (store.summary.qar as any).status }}</span>
+                <span class="font-bold text-sm">{{ (store.summary.qar as any).status }}</span>
               </div>
             </div>
           </div>
@@ -86,7 +86,7 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-500 font-medium">Validator</span>
-              <span class="font-bold text-sm truncate max-w-[120px]">{{ (store.summary.saiv as any).validator }}</span>
+              <span class="font-bold text-sm truncate max-w-[120px]">{{ (store.summary.saiv as any).validator || (store.summary.saiv as any).conductedBy || '-' }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-500 font-medium">Status</span>
@@ -118,7 +118,7 @@
           <div class="space-y-3">
             <div class="flex justify-between items-center">
               <span class="text-gray-500 font-medium">Capability Level</span>
-              <span class="font-bold text-indigo-600 text-lg">{{ (store.summary.iacm as any).result }} / 5</span>
+              <span class="font-bold text-indigo-600 text-lg">{{ formatIacmResult((store.summary.iacm as any).result) }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-500 font-medium">Period</span>
@@ -173,5 +173,12 @@ const formatOverallConclusion = (result: string) => {
     return 'Does not Conform'
   }
   return result
+}
+
+const formatIacmResult = (result?: string) => {
+  if (!result || result === '-') return '-'
+  const trimmed = result.trim()
+  if (trimmed.includes('/')) return trimmed
+  return `${trimmed} / 5`
 }
 </script>

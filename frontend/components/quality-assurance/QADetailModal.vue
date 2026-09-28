@@ -70,7 +70,7 @@
                   {{ t('qualityAssurance.detailModal.resultScore') }}
                 </p>
                 <p class="col-span-2 text-xl font-bold">
-                  {{ (store.matchQAType(store.selectedReport?.type!, QAType.QAR) || store.matchQAType(store.selectedReport?.type!, QAType.SAIV)) ? formatOverallConclusion(store.selectedReport?.result!) : store.selectedReport?.result }}
+                  {{ formatDetailResult(store.selectedReport) }}
                 </p>
               </div>
               <div class="grid grid-cols-3 gap-4">
@@ -236,5 +236,23 @@ const formatOverallConclusion = (result: string) => {
     return t('qualityAssurance.conformance.doesNotConform')
   }
   return result
+}
+
+const formatIacmResult = (result?: string) => {
+  if (!result || result === '-') return '-'
+  const trimmed = result.trim()
+  if (trimmed.includes('/')) return trimmed
+  return `${trimmed} / 5`
+}
+
+const formatDetailResult = (report: any) => {
+  if (!report || !report.result) return '-'
+  if (store.matchQAType(report.type, QAType.QAR) || store.matchQAType(report.type, QAType.SAIV)) {
+    return formatOverallConclusion(report.result)
+  }
+  if (store.matchQAType(report.type, QAType.IACM)) {
+    return formatIacmResult(report.result)
+  }
+  return report.result
 }
 </script>
