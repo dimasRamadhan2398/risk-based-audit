@@ -8,6 +8,7 @@ import { usePerformanceStore } from '~/stores/performance'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useUploadPerformanceReportStore } from '~/stores/upload-performance-report'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { extractErrorMessage } from '~/utils/error'
 
 const perfStore = usePerformanceStore()
 const spStore = useStrategicPlanStore()
@@ -36,7 +37,7 @@ watch([year, selectedPeriod], () => {
   loadData()
 })
 
-const exportPDF = () => {
+const exportPDF = async () => {
   const auditBaseUrl = getAuditServiceBaseUrl()
   const reportUrl = `${auditBaseUrl}/performance/export-pdf?year=${year.value}`
 
@@ -46,7 +47,26 @@ const exportPDF = () => {
     color: 'success'
   })
 
-  window.open(reportUrl, '_blank')
+  // Open the tab synchronously so the popup blocker allows it, then load the
+  // PDF through $fetch (which carries the auth token) instead of a bare URL
+  const tab = window.open('', '_blank')
+  try {
+    const pdf = await $fetch<Blob>(reportUrl, { responseType: 'blob' })
+    const url = window.URL.createObjectURL(pdf)
+    if (tab) {
+      tab.location.href = url
+    } else {
+      window.open(url, '_blank')
+    }
+    setTimeout(() => window.URL.revokeObjectURL(url), 60000)
+  } catch (error) {
+    tab?.close()
+    useToast().add({
+      title: 'Failed to generate PDF report',
+      description: extractErrorMessage(error, 'Please try again.'),
+      color: 'error'
+    })
+  }
 }
 </script>
 

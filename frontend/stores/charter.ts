@@ -373,8 +373,18 @@ export const useCharterStore = defineStore('charter', () => {
         return
       }
 
+      // Fetched with $fetch so the auth token is sent; a bare window.open to
+      // the API would be rejected with 401
       const baseUrl = getAuditServiceBaseUrl()
-      window.open(`${baseUrl}/audit-charters/${id}/download`, '_blank')
+      const blob = await $fetch<Blob>(`${baseUrl}/audit-charters/${id}/download`, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename || 'audit-charter.pdf'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
     } catch (error: any) {
       console.error('Failed to download audit charter:', error)
       const detail = extractErrorMessage(error, 'Gagal mengunduh file Audit Charter.')
