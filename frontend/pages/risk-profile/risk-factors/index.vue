@@ -1,9 +1,9 @@
 <template>
-  <div class="space-y-8 p-6 max-w-full mx-auto">
+  <div class="space-y-6 sm:space-y-8 p-4 sm:p-6 max-w-full mx-auto">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-main)] pb-5">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
           {{ t('riskFactors.title') }}
         </h1>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -318,12 +318,12 @@
             <!-- Scoring Area when activeYearlyEntity is selected -->
             <div v-if="activeYearlyEntity" class="space-y-6">
               <!-- Calculations overview -->
-              <div class="grid grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-850/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                <div class="text-center border-r border-slate-200 dark:border-slate-800">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-850/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div class="text-center border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-slate-800 pb-3 sm:pb-0">
                   <p class="text-md text-slate-500">{{ t('riskFactors.scoring.weightedScoreSum') }}</p>
                   <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ totalWeightedScore.toFixed(2) }}</p>
                 </div>
-                <div class="text-center border-r border-slate-200 dark:border-slate-800">
+                <div class="text-center border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-slate-800 pb-3 sm:pb-0">
                   <p class="text-md text-slate-500">{{ t('riskFactors.scoring.riskIndex') }}</p>
                   <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ activeYearlyEntity.risk_index?.toFixed(1) }}%</p>
                 </div>
@@ -399,14 +399,13 @@
     </UTabs>
 
     <!-- Scoring Scale Guidelines Modal -->
-    <!-- Scoring Scale Guidelines Modal -->
     <UModal 
       v-model:open="guidelinesModalOpen"
-      :ui="{ content: 'sm:max-w-xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
+      :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-xl bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
     >
       <template #content>
         <div class="relative flex flex-col max-h-[85vh] transition-colors duration-300">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
+          <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
             <div class="flex items-center gap-3">
               <div class="p-2.5 rounded-xl bg-primary-500/10 text-primary-500 dark:bg-primary-500/20">
                 <UIcon name="i-lucide-book-open" class="w-5 h-5" />
@@ -459,11 +458,11 @@
     <!-- Add / Edit Standard Risk Factor Modal -->
     <UModal 
       v-model:open="factorModalOpen"
-      :ui="{ content: 'sm:max-w-2xl md:max-w-3xl w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
+      :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl md:max-w-3xl bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' }"
     >
       <template #content>
         <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
+          <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
             <div class="flex items-center gap-3">
               <div 
                 class="p-2.5 rounded-xl"
@@ -490,7 +489,7 @@
             />
           </div>
 
-          <form @submit.prevent="saveFactorForm" class="px-6 py-4 overflow-y-auto space-y-3.5 flex-1 max-h-[calc(90vh-130px)]">
+          <form @submit.prevent="saveFactorForm" class="px-4 sm:px-6 py-4 overflow-y-auto space-y-3.5 flex-1 max-h-[calc(90vh-130px)]">
             <!-- Factor Name -->
             <UFormField :label="t('riskFactors.weighting.factorName')" required>
               <UInput
@@ -555,12 +554,12 @@
             </div>
           </form>
 
-          <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)]">
+          <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 sm:gap-2.5 px-4 sm:px-6 py-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)]">
             <UButton
               color="neutral"
               variant="outline"
               size="md"
-              class="rounded-xl font-medium"
+              class="w-full sm:w-auto rounded-xl font-medium"
               :label="t('riskFactors.weighting.cancel')"
               @click="() => { factorModalOpen = false; }"
             />
@@ -568,7 +567,7 @@
               color="primary"
               variant="solid"
               size="md"
-              class="rounded-xl font-semibold shadow-sm"
+              class="w-full sm:w-auto rounded-xl font-semibold shadow-sm"
               :loading="factorSubmitting"
               icon="i-lucide-save"
               :label="t('riskFactors.weighting.save')"
@@ -583,11 +582,11 @@
     <UModal 
       v-model:open="deleteModalOpen"
       :ui="{ 
-        content: 'sm:max-w-md w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' 
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-md bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden' 
       }"
     >
       <template #content>
-        <div class="p-6 space-y-4">
+        <div class="p-4 sm:p-6 space-y-4">
           <!-- Header with warning icon -->
           <div class="flex items-start gap-3.5">
             <div class="w-10 h-10 rounded-xl bg-error-50 dark:bg-error-950/50 text-error-600 dark:text-error-400 flex items-center justify-center shrink-0 ring-4 ring-error-500/10">
@@ -617,12 +616,12 @@
           </div>
 
           <!-- Actions Footer -->
-          <div class="flex items-center justify-end gap-2.5 pt-2">
+          <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 sm:gap-2.5 pt-2">
             <UButton
               color="neutral"
               variant="outline"
               size="md"
-              class="rounded-xl font-medium"
+              class="w-full sm:w-auto rounded-xl font-medium"
               :label="t('riskFactors.weighting.cancel')"
               :disabled="deleteSubmitting"
               @click="() => { deleteModalOpen = false; }"
@@ -631,7 +630,7 @@
               color="error"
               variant="solid"
               size="md"
-              class="rounded-xl font-semibold shadow-sm"
+              class="w-full sm:w-auto rounded-xl font-semibold shadow-sm"
               :loading="deleteSubmitting"
               icon="i-lucide-trash-2"
               :label="t('riskFactors.weighting.delete')"

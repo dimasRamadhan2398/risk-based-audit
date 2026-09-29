@@ -1,21 +1,22 @@
 <template>
-  <div class="space-y-8 p-6 max-w-full mx-auto">
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-8 min-w-0">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-main)] pb-5">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
           {{ t('auditPriority.title') !== 'auditPriority.title' ? t('auditPriority.title') : t('navigation.auditPriority') }}
         </h1>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
           {{ t('riskFactors.priority.subtitle') }}
         </p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
         <UButton
           to="/risk-profile"
           icon="i-lucide-arrow-left"
           color="neutral"
           variant="outline"
+          class="w-full sm:w-auto"
         >
           {{ t('riskFactors.backToHeatmap') }}
         </UButton>
@@ -24,6 +25,7 @@
           icon="i-lucide-globe"
           color="neutral"
           variant="outline"
+          class="w-full sm:w-auto"
         >
           {{ t('auditPriority.goToUniverse') !== 'auditPriority.goToUniverse' ? t('auditPriority.goToUniverse') : 'Audit Universe' }}
         </UButton>
@@ -32,6 +34,7 @@
           icon="i-lucide-activity"
           color="neutral"
           variant="outline"
+          class="w-full sm:w-auto"
         >
           {{ t('auditPriority.goToScoring') !== 'auditPriority.goToScoring' ? t('auditPriority.goToScoring') : 'Risk Factors & Scoring' }}
         </UButton>
@@ -146,19 +149,19 @@
             </p>
           </div>
           <!-- Search & Filter Controls -->
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <UInput
               v-model="searchQuery"
               icon="i-lucide-search"
               size="sm"
               :placeholder="t('auditPriority.searchPlaceholder') !== 'auditPriority.searchPlaceholder' ? t('auditPriority.searchPlaceholder') : 'Search auditable entities...'"
-              class="w-64"
+              class="w-full sm:w-64"
             />
             <USelect
               v-model="statusFilter"
               :items="statusFilterOptions"
               size="sm"
-              class="w-44"
+              class="w-full sm:w-44"
             />
             <UBadge color="success" variant="subtle" class="font-bold">
               {{ prioritizedCount }} Prioritized

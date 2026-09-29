@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Title Card -->
-    <div class="flex justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md">
+    <div class="flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-lg bg-primary-50 dark:bg-primary-950 flex items-center justify-center">
           <UIcon name="i-heroicons-shield-check" class="text-primary-600 dark:text-primary-400 text-xl font-bold" />

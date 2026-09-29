@@ -1,20 +1,20 @@
 <template>
-  <div>
-    <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ t('auditFieldwork.title') }}</h1>
-    <p class="text-gray-500 mb-6">{{ t('auditFieldwork.subtitle') }}</p>
+  <div class="p-4 sm:p-6 min-w-0">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ t('auditFieldwork.title') }}</h1>
+    <p class="text-gray-500 dark:text-gray-400 mb-6">{{ t('auditFieldwork.subtitle') }}</p>
 
     <!-- Assignment Letter Selector -->
     <UCard class="mb-6" :ui="{ body: 'p-4' }">
       <div class="flex flex-col md:flex-row md:items-center gap-4">
         <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('auditFieldwork.assignmentLetter.label') }}
           </label>
           <USelectMenu
             v-model="store.selectedAssignmentLetter"
             :items="store.publishedAssignmentLetters"
             :placeholder="t('auditFieldwork.assignmentLetter.placeholder')"
-            class="w-full md:w-96"
+            class="w-full sm:max-w-md"
             :disabled="store.publishedAssignmentLetters.length === 0"
           >
             <template #leading>

@@ -1,15 +1,15 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-8 bg-gray-50 dark:bg-gray-950 min-h-screen">
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-6 sm:space-y-8 bg-gray-50 dark:bg-gray-950 min-h-screen min-w-0">
     <!-- Header -->
     <div class="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-800">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-wider">{{ t('riskAppetite.title') }}</h1>
-        <p class="text-md text-gray-500 dark:text-gray-400">{{ t('riskAppetite.subtitle') }}</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-wider">{{ t('riskAppetite.title') }}</h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{{ t('riskAppetite.subtitle') }}</p>
       </div>
     </div>
 
     <!-- KPI Summary Section -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       <UCard :ui="{ body: 'p-5' }" class="group shadow-md border border-gray-200 dark:border-gray-800 dark:bg-gray-900 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center justify-between">
           <div>
@@ -81,8 +81,8 @@
       <UTabs v-model="activeTab" :items="tabs" class="w-full">
         <template #content="{ item }">
           <!-- Tab 1: Guidelines & Rules -->
-          <div v-if="item.key === 'overview'" class="p-6 space-y-6">
-            <div class="bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl p-5 space-y-3">
+          <div v-if="item.key === 'overview'" class="p-4 sm:p-6 space-y-6">
+            <div class="bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl p-4 sm:p-5 space-y-3">
               <h3 class="text-base font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
                 <UIcon name="i-heroicons-information-circle" class="w-5 h-5" />
                 {{ t('riskAppetite.guidelines.title') }}
@@ -94,7 +94,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Zone 1: Acceptable -->
-              <div class="border border-green-200 dark:border-green-900/50 bg-green-50/20 dark:bg-green-900/20 rounded-xl p-6 space-y-4">
+              <div class="border border-green-200 dark:border-green-900/50 bg-green-50/20 dark:bg-green-900/20 rounded-xl p-4 sm:p-6 space-y-4">
                 <div class="flex items-center gap-3">
                   <div class="p-2 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-lg">
                     <UIcon name="i-heroicons-check-badge" class="w-6 h-6" />
@@ -122,7 +122,7 @@
               </div>
 
               <!-- Zone 2: Mitigation Required -->
-              <div class="border border-orange-200 dark:border-orange-900/50 bg-orange-50/20 dark:bg-orange-900/20 rounded-xl p-6 space-y-4">
+              <div class="border border-orange-200 dark:border-orange-900/50 bg-orange-50/20 dark:bg-orange-900/20 rounded-xl p-4 sm:p-6 space-y-4">
                 <div class="flex items-center gap-3">
                   <div class="p-2 bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 rounded-lg">
                     <UIcon name="i-heroicons-shield-exclamation" class="w-6 h-6" />
@@ -156,15 +156,15 @@
           </div>
 
           <!-- Tab 2: Compliance Validation -->
-          <div v-else-if="item.key === 'compliance'" class="p-6 space-y-6">
+          <div v-else-if="item.key === 'compliance'" class="p-4 sm:p-6 space-y-6">
             <!-- Filter & View Controls -->
-            <div class="flex justify-between items-center pb-4 border-b border-gray-100 dark:border-gray-800">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
               <div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('riskAppetite.compliance.registryTitle') }}</h3>
                 <p class="text-md text-gray-500 dark:text-gray-400">{{ t('riskAppetite.compliance.registryDesc') }}</p>
               </div>
               <div class="flex gap-3">
-                <USelect v-model="complianceFilter" :items="complianceFilters" />
+                <USelect v-model="complianceFilter" :items="complianceFilters" class="w-full sm:w-auto" />
               </div>
             </div>
 
@@ -247,8 +247,8 @@
           </div>
 
           <!-- Tab 3: Statements Registry (CRUD) -->
-          <div v-else-if="item.key === 'statements'" class="p-6 space-y-6">
-            <div class="flex justify-between items-center pb-4 border-b border-gray-100 dark:border-gray-800">
+          <div v-else-if="item.key === 'statements'" class="p-4 sm:p-6 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
               <div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('riskAppetite.statements.title') }}</h3>
                 <p class="text-md text-gray-500 dark:text-gray-400">{{ t('riskAppetite.statements.subtitle') }}</p>
@@ -258,6 +258,7 @@
                 :label="t('riskAppetite.statements.newBtn')" 
                 icon="i-heroicons-plus" 
                 color="primary" 
+                class="w-full sm:w-auto justify-center"
                 @click="openAddModal" 
               />
             </div>
@@ -332,9 +333,9 @@
       v-model:open="isModalOpen" 
       :dismissible="false"
       :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
@@ -364,7 +365,7 @@
                 />
               </UFormField>
 
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <UFormField :label="t('riskAppetite.statements.modal.thresholdLabel')" required class="block text-sm font-medium" size="lg">
                   <UInput 
                     v-model.number="form.threshold_limit" 
@@ -388,7 +389,17 @@
               </div>
             </div>
           </div>
-          <div class="border-t border-gray-100 dark:border-gray-800 bg-transparent px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl">
+          <div class="border-t border-gray-100 dark:border-gray-800 bg-transparent px-4 py-3 sm:px-6 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 rounded-b-2xl">
+            <UButton
+              type="button"
+              color="neutral"
+              variant="outline"
+              size="md"
+              class="w-full sm:w-auto font-bold"
+              @click="() => { isModalOpen = false }"
+            >
+              {{ t('riskAppetite.statements.modal.cancel') }}
+            </UButton>
             <UButton
               type="submit"
               :loading="appetiteStore.loading"
@@ -398,16 +409,6 @@
               class="w-full sm:w-auto font-bold"
             >
               {{ isEditing ? t('riskAppetite.statements.modal.save') : t('riskAppetite.statements.modal.create') }}
-            </UButton>
-            <UButton
-              type="button"
-              color="neutral"
-              variant="outline"
-              size="md"
-              class="w-full sm:w-auto mt-2 sm:mt-0 font-bold"
-              @click="() => { isModalOpen = false }"
-            >
-              {{ t('riskAppetite.statements.modal.cancel') }}
             </UButton>
           </div>
         </UForm>

@@ -704,7 +704,11 @@ func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
 	// Fetch related entities by AssignmentLetterID
 	var st models.AssignmentLetter
 	if report.AssignmentLetterID != "" {
-		h.db.Where("letter_number = ?", report.AssignmentLetterID).First(&st)
+		if err := h.db.Where("letter_number = ?", report.AssignmentLetterID).First(&st).Error; err != nil {
+			if _, parseErr := uuid.Parse(report.AssignmentLetterID); parseErr == nil {
+				h.db.Where("id = ?", report.AssignmentLetterID).First(&st)
+			}
+		}
 	}
 
 	var interviews []models.FieldworkInterview

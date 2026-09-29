@@ -1,5 +1,5 @@
 <template>
-  <UModal v-model:open="store.isFormOpen" :dismissible="false" :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }">
+  <UModal v-model:open="store.isFormOpen" :dismissible="false" :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl overflow-hidden' }">
     
     <div></div>
 
@@ -7,14 +7,14 @@
       <UForm :state="store.form" @submit.prevent="() => store.handleSubmit(props.currentRiskId)">
         <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
           
-          <div class="px-6 py-4 rounded-t-xl flex justify-between items-center">
+          <div class="px-4 sm:px-6 py-4 rounded-t-xl flex justify-between items-center border-b border-[var(--border-main)]">
             <h3 class="text-lg font-bold text-[var(--text-main)]">
               {{ store.isEditing ? 'Edit Mitigation & Control Plan' : 'Tambah Mitigation & Control Plan' }}
             </h3>
             <UIcon name="close" @click="store.closeForm" class="text-[var(--text-muted)] hover:text-[var(--text-main)] text-2xl cursor-pointer">&times;</UIcon>
           </div>
 
-          <div class="p-6 overflow-y-auto space-y-5">
+          <div class="p-4 sm:p-6 overflow-y-auto space-y-5">
             
 
             <UFormField label="Mitigation Plan & Controls" required>
@@ -64,9 +64,9 @@
 
           </div>
       
-          <div class="px-6 py-4 rounded-b-xl flex justify-end gap-3">
-            <UButton label="Cancel" color="neutral" variant="outline" @click="store.closeForm" />
-            <UButton :label="store.isEditing ? 'Save Changes' : 'Save Mitigation'" color="primary" type="submit" />
+          <div class="px-4 sm:px-6 py-4 rounded-b-xl border-t border-[var(--border-main)] flex flex-col-reverse sm:flex-row justify-end gap-3">
+            <UButton label="Cancel" color="neutral" variant="outline" class="w-full sm:w-auto" @click="store.closeForm" />
+            <UButton :label="store.isEditing ? 'Save Changes' : 'Save Mitigation'" color="primary" class="w-full sm:w-auto font-bold" type="submit" />
           </div>
       
         </div>

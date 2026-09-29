@@ -3,15 +3,15 @@
     v-model:open="store.isFormOpen"
     scrollable
     :ui="{
-      content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-      header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-      body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+      body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
       footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
       overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
   >
     <template #content>
-      <UCard :ui="{ root: 'flex flex-col max-h-[90vh] overflow-hidden', header: 'shrink-0 px-6 py-4 bg-[var(--bg-main)] border-b border-[var(--border-main)]', body: 'px-6 py-6 overflow-y-auto flex-1', footer: 'shrink-0 px-6 py-4 border-t border-[var(--border-main)]' }">
+      <UCard :ui="{ root: 'flex flex-col max-h-[90vh] overflow-hidden', header: 'shrink-0 px-4 sm:px-6 py-4 bg-[var(--bg-main)] border-b border-[var(--border-main)]', body: 'px-4 sm:px-6 py-4 sm:py-6 overflow-y-auto flex-1', footer: 'shrink-0 px-4 sm:px-6 py-4 border-t border-[var(--border-main)]' }">
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-bold">
@@ -87,7 +87,7 @@
             <h4 class="font-bold text-gray-700 dark:text-gray-200">
               {{ t('qualityAssurance.modal.resultsAndStatus') }}
             </h4>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <UFormField
                 :label="t('qualityAssurance.modal.status')"
                 required
@@ -145,7 +145,7 @@
             <h4 class="font-bold text-gray-700 dark:text-gray-200">
               {{ t('qualityAssurance.modal.specialDetails') }}
             </h4>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <UFormField :label="t('qualityAssurance.modal.conductedBy')">
                 <UInput
                   v-model="store.newReport.conductedBy"
@@ -195,17 +195,18 @@
         </div>
 
         <template #footer>
-          <div class="flex justify-end gap-3">
+          <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
             <UButton
               :label="t('qualityAssurance.modal.cancel')"
               variant="ghost"
               color="neutral"
+              class="w-full sm:w-auto"
               @click="store.closeForm"
             />
             <UButton
               :label="store.isEditing ? t('qualityAssurance.modal.updateReport') : t('qualityAssurance.modal.saveReport')"
               color="primary"
-              class="px-8 font-bold"
+              class="w-full sm:w-auto px-8 font-bold"
               @click="validateAndSave"
             />
           </div>

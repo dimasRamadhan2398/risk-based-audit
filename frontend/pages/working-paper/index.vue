@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen">
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-0">
     
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 ">{{ t('workingPaper.index.title') }}</h1>
-        <p class="text-sm text-gray-500">{{ t('workingPaper.index.subtitle') }}</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.title') }}</h1>
+        <p class="text-xs sm:text-sm text-gray-500">{{ t('workingPaper.index.subtitle') }}</p>
       </div>
       <UButton
         :label="t('workingPaper.index.importButton')"
@@ -12,24 +12,24 @@
         color="neutral"
         variant="outline"
         size="md"
-        class="font-bold shadow"
+        class="font-bold shadow w-full sm:w-auto justify-center"
         to="/working-paper/upload"
       />
     </div>
 
-    <UStepper v-model="activeStep" :items="stepItems" class="w-full">
+    <UStepper v-model="activeStep" :items="stepItems" class="w-full" :ui="{ header: 'flex overflow-x-auto pb-2 min-w-0 sm:overflow-visible' }">
       
       <template #f01>
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 ">{{ t('workingPaper.index.sections.headerTitle') }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.headerTitle') }}</h1>
           </div>
           <UButton 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
             size="lg" 
-            class="font-bold shadow-md"
+            class="font-bold shadow-md w-full sm:w-auto justify-center"
             @click="store.openModalF01()" 
           />
         </div>
@@ -41,16 +41,16 @@
       </template>
 
       <template #f02>
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 ">{{ t('workingPaper.index.sections.riskTitle') }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.riskTitle') }}</h1>
           </div>
           <UButton 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
             size="lg" 
-            class="font-bold shadow-md"
+            class="font-bold shadow-md w-full sm:w-auto justify-center"
             @click="store.openModalF02()" 
           />
         </div>
@@ -62,16 +62,16 @@
       </template>
 
       <template #f03>
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 ">{{ t('workingPaper.index.sections.sampleTitle') }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.sampleTitle') }}</h1>
           </div>
           <UButton 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
             size="lg" 
-            class="font-bold shadow-md"
+            class="font-bold shadow-md w-full sm:w-auto justify-center"
             @click="store.openModalF03()" 
           />
         </div>
@@ -82,16 +82,16 @@
       </template>
 
       <template #f04>
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 ">{{ t('workingPaper.index.sections.causeTitle') }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.causeTitle') }}</h1>
           </div>
           <UButton 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
             size="lg" 
-            class="font-bold shadow-md"
+            class="font-bold shadow-md w-full sm:w-auto justify-center"
             @click="store.openModalF04()" 
           />
         </div>
@@ -102,16 +102,16 @@
       </template>
 
       <template #f05>
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 ">{{ t('workingPaper.index.sections.planTitle') }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.planTitle') }}</h1>
           </div>
           <UButton 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
             size="lg" 
-            class="font-bold shadow-md"
+            class="font-bold shadow-md w-full sm:w-auto justify-center"
             @click="store.openModalF05()" 
           />
         </div>

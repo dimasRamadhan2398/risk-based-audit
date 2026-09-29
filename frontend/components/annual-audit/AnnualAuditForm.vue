@@ -3,9 +3,9 @@
     v-model:open="store.showModal"
     dismissible
     :ui="{
-      content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-      header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-      body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+      body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
       footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
       overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
@@ -16,7 +16,7 @@
         @submit.prevent="store.handleSubmit"
       >
         <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh] transition-colors duration-300">
-          <div class="px-6 py-4 rounded-t-xl flex justify-between items-center transition-colors duration-300">
+          <div class="px-4 sm:px-6 py-4 rounded-t-xl flex justify-between items-center transition-colors duration-300">
             <h3 class="text-lg font-bold text-[var(--text-main)]">
               Annual Audit Form
             </h3>
@@ -27,7 +27,7 @@
             />
           </div>
 
-          <div class="p-6 overflow-y-auto space-y-4">
+          <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
             <div class="space-y-4">
               <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b border-[var(--border-main)] pb-2">
                 1. Activity Detail
@@ -474,11 +474,19 @@
             </div>
           </div>
 
-          <div class="px-6 py-4 rounded-b-xl flex justify-end gap-3">
+          <div class="px-4 sm:px-6 py-4 rounded-b-xl flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              class="w-full sm:w-auto"
+              label="Batal"
+              @click="() => store.closeModal()"
+            />
             <UButton
               type="submit"
               :label="store.isEditing ? 'Update Plan' : 'Save Plan'"
               color="primary"
+              class="w-full sm:w-auto font-bold"
               :disabled="!!store.quarterAlert || store.utilizationData.color === 'red'"
             />
           </div>

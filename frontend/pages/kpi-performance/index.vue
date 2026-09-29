@@ -51,7 +51,7 @@ const exportPDF = () => {
 </script>
 
 <template>
-  <div class="p-6 space-y-8 print:p-0 print:space-y-4 print:bg-white print:text-black">
+  <div class="p-4 sm:p-6 space-y-6 sm:space-y-8 print:p-0 print:space-y-4 print:bg-white print:text-black min-w-0">
     <!-- Printable Document Header (Visible only during PDF Print) -->
     <div class="hidden print:block border-b-2 border-primary-600 pb-4 mb-6">
       <div class="flex justify-between items-center">
@@ -77,28 +77,29 @@ const exportPDF = () => {
     <!-- Screen Header (Hidden during PDF Print) -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Internal Audit Performance</h1>
-        <p class="text-sm font-semibold text-gray-500 mt-1">Monitor and track internal audit performance metrics & Laporan Kinerja (Q1, Q2, Q3, Q4, Tahunan)</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Internal Audit Performance</h1>
+        <p class="text-xs sm:text-sm font-semibold text-gray-500 mt-1">Monitor and track internal audit performance metrics & Laporan Kinerja (Q1, Q2, Q3, Q4, Tahunan)</p>
       </div>
-      <div class="flex flex-wrap items-center gap-3">
+      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
         <!-- Period Selector -->
         <USelect
           v-model="selectedPeriod"
           :items="periodOptions"
-          class="w-32"
+          class="w-full sm:w-32"
           placeholder="Periode"
         />
         <!-- Year Selector -->
         <USelect
           v-model="year"
           :items="yearOptions"
-          class="w-28"
+          class="w-full sm:w-28"
         />
         <!-- Upload Laporan Kinerja Button -->
         <UButton
           label="Impor Laporan Kinerja"
           icon="i-lucide-upload"
           color="primary"
+          class="w-full sm:w-auto justify-center"
           to="/kpi-performance/upload"
         />
 
@@ -108,7 +109,7 @@ const exportPDF = () => {
           icon="i-lucide-download"
           color="warning"
           variant="outline"
-          class="font-bold shadow-sm"
+          class="font-bold shadow-sm w-full sm:w-auto justify-center"
           @click="exportPDF"
         />
       </div>

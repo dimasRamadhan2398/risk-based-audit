@@ -1,18 +1,18 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6">
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-6 min-w-0">
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 ">{{ t('assignmentLetter.title') }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('assignmentLetter.title') }}</h1>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
         <UButton
           :label="t('assignmentLetter.importDocument')"
           icon="i-lucide-upload"
           color="neutral"
           variant="outline"
           size="lg"
-          class="font-bold shadow-md"
+          class="font-bold shadow-md w-full sm:w-auto"
           to="/audit-assignment/upload"
         />
         <UButton
@@ -20,7 +20,7 @@
           icon="i-heroicons-plus"
           color="primary"
           size="lg"
-          class="font-bold shadow-md"
+          class="font-bold shadow-md w-full sm:w-auto"
           @click="store.openModal"
         />
       </div>

@@ -1,17 +1,17 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6">
-    <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-900 "> 
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-6 min-w-0">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"> 
         {{ t('annualAudit.title') }}
       </h1>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
         <UButton
           v-if="canImportPlanDocs"
           :label="t('annualAudit.importPlanDocument')"
           to="/annual-audit/upload"
           color="neutral"
           variant="outline"
-          class="px-4 font-bold shadow flex gap-2"
+          class="w-full sm:w-auto justify-center px-4 font-bold shadow flex gap-2"
           icon="i-lucide-upload"
         />
         <UButton
@@ -19,7 +19,7 @@
           :label="t('annualAudit.newAuditPlan')" 
           @click="store.openModal()"
           color="primary" 
-          class="px-4 font-bold shadow-lg flex gap-2"
+          class="w-full sm:w-auto justify-center px-4 font-bold shadow-lg flex gap-2"
           icon="i-lucide-plus"
         />
       </div>

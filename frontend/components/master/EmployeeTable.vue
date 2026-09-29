@@ -1,24 +1,25 @@
 <template>
   <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
     <template #header>
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 class="text-lg font-bold">Employee List</h2>
         <UButton
           label="Add Employee"
           icon="i-heroicons-plus"
           color="primary"
+          class="w-full sm:w-auto"
           @click="store.openCreateModal"
         />
       </div>
     </template>
 
     <!-- Search & Filter -->
-    <div class="mb-4 flex gap-4 items-center">
+    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
       <UInput
         v-model="searchInput"
         placeholder="Search employee..."
         icon="i-heroicons-magnifying-glass"
-        class="w-64"
+        class="w-full sm:w-64"
         @keyup.enter="handleSearch"
       />
       <UButton

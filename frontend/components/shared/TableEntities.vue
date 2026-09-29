@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full space-y-4">
+  <div class="w-full min-w-0 space-y-4">
     <!-- Table Container using Nuxt UI UTable -->
     <div
       class="rounded-xl border border-[var(--border-main)] bg-[var(--bg-main)] shadow-xs w-full transition-all"
@@ -107,30 +107,8 @@
     <!-- Pagination & Controls Footer using Nuxt UI UPagination -->
     <div
       v-if="showPagination && (totalItems > 0 || !serverSide)"
-      class="flex flex-col sm:flex-row items-center justify-end gap-4 px-3 py-2.5"
+      class="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-4 px-2 sm:px-3 py-2.5 overflow-x-auto max-w-full"
     >
-      <!-- Entry Counter & Page Size Selector -->
-      <!-- <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
-        <span>
-          Showing <strong class="font-semibold text-[var(--text-main)]">{{ startItem }}</strong> to
-          <strong class="font-semibold text-[var(--text-main)]">{{ endItem }}</strong> of
-          <strong class="font-semibold text-[var(--text-main)]">{{ totalItems }}</strong> entries
-        </span>
-        <div
-          v-if="showPageSize"
-          class="flex items-center gap-1.5 ml-2"
-        >
-          <span>Per page:</span>
-          <USelect
-            v-model="perPage"
-            :items="pageSizeSelectOptions"
-            value-key="value"
-            size="xs"
-            class="w-20"
-          />
-        </div>
-      </div> -->
-
       <!-- UPagination Control -->
      <UPagination
         v-if="totalItems > 0"
@@ -143,6 +121,7 @@
         active-color="primary"
         color="neutral"
         variant="outline"
+        class="max-w-full overflow-x-auto"
       />
     </div>
   </div>

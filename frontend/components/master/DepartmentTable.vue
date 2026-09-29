@@ -1,24 +1,25 @@
 <template>
   <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
     <template #header>
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 class="text-lg font-bold">Department List</h2>
         <UButton
           label="Add Department"
           icon="i-heroicons-plus"
           color="primary"
+          class="w-full sm:w-auto"
           @click="store.openCreateModal"
         />
       </div>
     </template>
 
     <!-- Search & Filter -->
-    <div class="mb-4 flex gap-4 items-center">
+    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
       <UInput
         v-model="searchInput"
         placeholder="Search department..."
         icon="i-heroicons-magnifying-glass"
-        class="w-64"
+        class="w-full sm:w-64"
         @keyup.enter="handleSearch"
       />
       <UButton
@@ -66,7 +67,7 @@
       :total="store.pagination.total"
       :items-per-page="store.pagination.page_size"
       :page="store.pagination.page"
-      @update:page="(p) => store.fetchDepartments(p)"
+      @update:page="(p) => store.setPage(p)"
       @update:items-per-page="(size) => store.setPageSize(size)"
     >
       <template #department_code-cell="{ row }">

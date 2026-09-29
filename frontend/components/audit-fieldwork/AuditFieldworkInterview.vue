@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <!-- Header with Add Button -->
-    <div class="flex justify-between items-center p-4">
+    <div class="flex flex-col sm:flex-row justify-between items-center p-4">
       <div>
         <p class="text-sm text-gray-500">{{ t('auditFieldwork.interview.subtitle') }}</p>
         <h2 class="text-lg font-semibold">{{ t('auditFieldwork.interview.title') }}</h2>

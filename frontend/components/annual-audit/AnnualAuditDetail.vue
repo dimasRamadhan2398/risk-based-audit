@@ -3,15 +3,15 @@
       v-model:open="store.showViewModal" 
       dismissible 
       :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
       >
       <template #content>
-        <div v-if="store.selectedPlan" class="relative   rounded-xl shadow-2xl flex flex-col max-h-[95vh] overflow-y-auto p-8">
+        <div v-if="store.selectedPlan" class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto p-4 sm:p-8">
           <template v-if="store.selectedPlan">
               <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
@@ -110,26 +110,83 @@
                 </div>
               </UCard>
 
-              <UCard class="border border-gray-200  rounded-lg p-6">
+              <UCard class="border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:p-6">
                 <template #header>
-                  <h3 class="text-lg font-bold text-gray-800  mb-6">2. Timeline</h3>
+                  <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">2. Timeline</h3>
                 </template>
                 <div class="space-y-4">
-                  <div class="flex items-center"><span class="font-bold text-gray-700  w-48">Year</span><span class="font-semibold text-gray-800 ">{{ store.selectedPlan.year }}</span></div>
-                  <div class="flex items-center"><span class="font-bold text-gray-700  w-48">Quarter Distribution</span><span class="font-semibold text-gray-800 ">{{ store.selectedPlan.quarters?.map((q: any) => `[ ${q} ]`).join(' ') || '-' }}</span></div>
-                  <div class="flex items-center"><span class="font-bold text-gray-700  w-48">Execution Month</span><span class="font-semibold text-gray-800 ">{{ store.selectedPlan.selectedMonths?.slice().sort((a: number, b: number) => a - b).map((m: number) => `[ ${store.monthsList[m]} ]`).join(' ') || '-' }}</span></div>
+                  <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
+                    <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Year</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedPlan.year }}</span>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
+                    <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Quarter Distribution</span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      <template v-if="store.selectedPlan.quarters?.length">
+                        <UBadge v-for="q in store.selectedPlan.quarters" :key="q" color="primary" variant="subtle" size="sm" class="font-semibold">
+                          {{ q }}
+                        </UBadge>
+                      </template>
+                      <span v-else class="text-gray-400 dark:text-gray-500 text-sm">-</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:items-center py-2">
+                    <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Execution Month</span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      <template v-if="store.selectedPlan.selectedMonths?.length">
+                        <UBadge 
+                          v-for="m in store.selectedPlan.selectedMonths.slice().sort((a: number, b: number) => a - b)" 
+                          :key="m" 
+                          color="neutral" 
+                          variant="subtle" 
+                          size="sm"
+                          class="font-medium"
+                        >
+                          {{ store.monthsList[m] || m }}
+                        </UBadge>
+                      </template>
+                      <span v-else class="text-gray-400 dark:text-gray-500 text-sm">-</span>
+                    </div>
+                  </div>
                 </div>
               </UCard>
 
-              <UCard class="border border-gray-200  rounded-lg p-6">
+              <UCard class="border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:p-6">
                 <template #header>
-                  <h3 class="text-lg font-bold text-gray-800  mb-6">3. Auditor Resources</h3>
+                  <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">3. Auditor Resources</h3>
                 </template>
                 <div class="space-y-4">
-                  <div class="flex items-center"><span class="font-bold text-gray-700  w-48">Supervisor</span><span class="font-semibold text-gray-800 ">{{ store.getSupervisorName(store.selectedPlan.supervisorId) }}</span></div>
-                  <div class="flex items-center"><span class="font-bold text-gray-700  w-48">Time Allocation</span><span class="font-semibold text-gray-800 ">👥 {{ store.selectedPlan.auditorCount }} Auditor ⏱️ {{ store.selectedPlan.daysPerAuditor }} Days Duration</span></div>
-                  <div class="flex items-center"><span class="font-bold text-gray-700  w-48">Total Mandays</span><span class="font-semibold text-gray-800 ">🔥 {{ store.selectedPlan.auditorCount * store.selectedPlan.daysPerAuditor }} Mandays</span></div>
-                  <div class="flex items-center"><span class="font-bold text-gray-700  w-48">Estimated Capacity</span><span class="font-semibold text-gray-800 ">[🟢 Optimal (60-80%)] Total Load: 0.6% from Annual Capacity</span></div>
+                  <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
+                    <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Supervisor</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.getSupervisorName(store.selectedPlan.supervisorId) }}</span>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
+                    <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Time Allocation</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md text-sm font-medium">
+                        <UIcon name="i-heroicons-user-group" class="w-4 h-4 text-primary-500" />
+                        {{ store.selectedPlan.auditorCount }} Auditor
+                      </span>
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md text-sm font-medium">
+                        <UIcon name="i-heroicons-clock" class="w-4 h-4 text-amber-500" />
+                        {{ store.selectedPlan.daysPerAuditor }} Days Duration
+                      </span>
+                    </div>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
+                    <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Total Mandays</span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded-md text-sm border border-primary-200 dark:border-primary-800">
+                      <UIcon name="i-heroicons-bolt" class="w-4 h-4 text-primary-500" />
+                      {{ (store.selectedPlan.auditorCount || 0) * (store.selectedPlan.daysPerAuditor || 0) }} Mandays
+                    </span>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:items-center py-2">
+                    <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Estimated Capacity</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <UBadge color="success" variant="subtle" size="sm">Optimal (60-80%)</UBadge>
+                      <span class="text-sm text-gray-600 dark:text-gray-300">Total Load: 0.6% from Annual Capacity</span>
+                    </div>
+                  </div>
                 </div>
               </UCard>
 

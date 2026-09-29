@@ -2,57 +2,76 @@
   <UModal
     v-model:open="store.isDetailOpen"
     scrollable
-    class="w-full sm:max-w-2xl bg-[var(--bg-main)] border-[var(--border-main)]"
+    :ui="{
+      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden'
+    }"
   >
     <template #content>
-      <UCard :ui="{ header: 'px-6 py-4', body: 'px-6 py-6', footer: 'px-6 py-4' }">
+      <UCard 
+        class="flex flex-col h-full max-h-[90vh] overflow-hidden"
+        :ui="{ 
+          root: 'flex flex-col h-full max-h-[90vh] overflow-hidden',
+          header: 'shrink-0 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800', 
+          body: 'px-4 sm:px-6 py-4 sm:py-6 overflow-y-auto flex-1 min-h-0', 
+          footer: 'shrink-0 px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-800' 
+        }"
+      >
         <template #header>
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3 min-w-0">
+              <UButton
+                icon="i-lucide-arrow-left"
+                color="neutral"
+                variant="ghost"
+                :aria-label="t('common.close')"
+                @click="store.closeDetail"
+              />
+              <h3 class="text-lg sm:text-xl font-bold truncate">
+                {{ t('qualityAssurance.detailModal.title', { title: store.selectedReport?.assessmentTitle || '' }) }}
+              </h3>
+            </div>
             <UButton
-              icon="i-lucide-arrow-left"
+              icon="i-lucide-x"
               color="neutral"
               variant="ghost"
               :aria-label="t('common.close')"
+              class="-my-1"
               @click="store.closeDetail"
             />
-
-            <h3 class="text-xl font-bold">
-              {{ t('qualityAssurance.detailModal.title', { title: store.selectedReport?.assessmentTitle || '' }) }}
-            </h3>
           </div>
         </template>
 
-        <div class="space-y-10">
+        <div class="space-y-8 sm:space-y-10">
           <!-- Section 1 -->
           <div class="space-y-4">
             <h4 class="text-lg font-bold text-gray-900 dark:text-white">
               {{ t('qualityAssurance.detailModal.generalInfo') }}
             </h4>
-            <div class="p-6 border border-gray-100 dark:border-gray-800 rounded-xl space-y-6">
-              <div class="grid grid-cols-3 gap-4">
-                <p class="font-bold text-gray-700">
+            <div class="p-4 sm:p-6 border border-gray-100 dark:border-gray-800 rounded-xl space-y-4 sm:space-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                <p class="font-bold text-gray-700 dark:text-gray-300">
                   {{ t('qualityAssurance.detailModal.assessmentTitle') }}
                 </p>
-                <p class="col-span-2 font-medium">
+                <p class="col-span-1 sm:col-span-2 font-medium">
                   {{ store.selectedReport?.assessmentTitle }}
                 </p>
               </div>
-              <div class="grid grid-cols-3 gap-4">
-                <p class="font-bold text-gray-700">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                <p class="font-bold text-gray-700 dark:text-gray-300">
                   {{ t('qualityAssurance.detailModal.assessmentType') }}
                 </p>
-                <div class="col-span-2 flex items-center space-x-2">
+                <div class="col-span-1 sm:col-span-2 flex items-center space-x-2">
                   <div :class="['w-4 h-4 rounded-full', store.getTypeIconColor(store.selectedReport?.type!)]" />
                   <p class="font-medium">
                     {{ getTypeLabel(store.selectedReport?.type!) }}
                   </p>
                 </div>
               </div>
-              <div class="grid grid-cols-3 gap-4">
-                <p class="font-bold text-gray-700">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                <p class="font-bold text-gray-700 dark:text-gray-300">
                   {{ t('qualityAssurance.detailModal.period') }}
                 </p>
-                <p class="col-span-2 font-medium">
+                <p class="col-span-1 sm:col-span-2 font-medium">
                   {{ store.selectedReport?.period }}
                 </p>
               </div>
@@ -64,20 +83,20 @@
             <h4 class="text-lg font-bold text-gray-900 dark:text-white">
               {{ t('qualityAssurance.detailModal.results') }}
             </h4>
-            <div class="p-6 border border-gray-100 dark:border-gray-800 rounded-xl space-y-6">
-              <div class="grid grid-cols-3 gap-4">
-                <p class="font-bold text-gray-700">
+            <div class="p-4 sm:p-6 border border-gray-100 dark:border-gray-800 rounded-xl space-y-4 sm:space-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                <p class="font-bold text-gray-700 dark:text-gray-300">
                   {{ t('qualityAssurance.detailModal.resultScore') }}
                 </p>
-                <p class="col-span-2 text-xl font-bold">
+                <p class="col-span-1 sm:col-span-2 text-xl font-bold">
                   {{ formatDetailResult(store.selectedReport) }}
                 </p>
               </div>
-              <div class="grid grid-cols-3 gap-4">
-                <p class="font-bold text-gray-700">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                <p class="font-bold text-gray-700 dark:text-gray-300">
                   {{ t('qualityAssurance.detailModal.status') }}
                 </p>
-                <div class="col-span-2 flex items-center space-x-2">
+                <div class="col-span-1 sm:col-span-2 flex items-center space-x-2">
                   <div :class="['w-4 h-4 rounded-full', store.getStatusColor(store.selectedReport?.status!)]" />
                   <p class="font-bold">
                     {{ getStatusLabel(store.selectedReport?.status!) }} ({{ t('qualityAssurance.detailModal.finalProject') }})
@@ -95,26 +114,26 @@
             <h4 class="text-lg font-bold text-gray-900 dark:text-white">
               {{ t('qualityAssurance.detailModal.specialDetails') }}
             </h4>
-            <div class="p-6 border border-gray-100 dark:border-gray-800 rounded-xl space-y-6">
+            <div class="p-4 sm:p-6 border border-gray-100 dark:border-gray-800 rounded-xl space-y-4 sm:space-y-6">
               <div
                 v-if="store.selectedReport?.conductedBy"
-                class="grid grid-cols-3 gap-4"
+                class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4"
               >
-                <p class="font-bold text-gray-700">
+                <p class="font-bold text-gray-700 dark:text-gray-300">
                   {{ t('qualityAssurance.detailModal.conductedBy') }}
                 </p>
-                <p class="col-span-2 font-bold text-orange-500">
+                <p class="col-span-1 sm:col-span-2 font-bold text-orange-500">
                   {{ store.selectedReport?.conductedBy }}
                 </p>
               </div>
               <div
                 v-if="store.selectedReport?.validator || store.selectedReport?.internalEvaluator"
-                class="grid grid-cols-3 gap-4"
+                class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4"
               >
-                <p class="font-bold text-gray-700">
+                <p class="font-bold text-gray-700 dark:text-gray-300">
                   {{ store.selectedReport?.validator ? t('qualityAssurance.detailModal.validator') : t('qualityAssurance.detailModal.internalEvaluator') }}
                 </p>
-                <p class="col-span-2 font-bold">
+                <p class="col-span-1 sm:col-span-2 font-bold">
                   {{ store.selectedReport?.validator || store.selectedReport?.internalEvaluator }}
                 </p>
               </div>
@@ -179,6 +198,18 @@
             </div>
           </div>
         </div>
+
+        <template #footer>
+          <div class="flex justify-end">
+            <UButton
+              color="neutral"
+              variant="outline"
+              :label="t('common.close')"
+              class="w-full sm:w-auto font-semibold px-5"
+              @click="store.closeDetail"
+            />
+          </div>
+        </template>
       </UCard>
     </template>
   </UModal>

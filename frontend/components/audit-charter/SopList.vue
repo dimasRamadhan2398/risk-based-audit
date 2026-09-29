@@ -27,7 +27,7 @@
 
     <!-- Data State -->
     <div v-else class="space-y-4">
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col sm:flex-row justify-between items-center">
         <div>
           <h2 class="text-2xl font-bold text-gray-900">{{ t('auditCharter.sopList.title') }}</h2>
           <p class="text-sm text-gray-500">{{ t('auditCharter.sopList.subtitle') }}</p>
@@ -49,7 +49,6 @@
         :total="store.pagination.total"
         :items-per-page="store.pagination.page_size"
         :page="store.pagination.page"
-        table-layout="fixed"
         :empty-state="{
           icon: 'i-lucide-file-text',
           label: t('auditCharter.sopList.emptyTable')

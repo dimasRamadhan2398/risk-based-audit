@@ -194,41 +194,42 @@ function editKpiTarget(rowOriginal: any) {
       />
     </div>
 
-    <div class="flex flex-wrap items-center gap-4">
+    <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full">
       <UInput
         v-model="search"
         icon="i-lucide-search"
         placeholder="Search Report"
-        class="w-64"
+        class="w-full sm:w-64"
       />
       <USelectMenu
         v-model="category"
         :items="categories"
         placeholder="Select Category"
-        class="w-48"
+        class="w-full sm:w-48"
       />
       <USelectMenu
         v-model="period"
         :items="periods"
         placeholder="Select Period"
-        class="w-48"
+        class="w-full sm:w-48"
       />
       <USelectMenu
         v-model="status"
         :items="statuses"
         placeholder="Select Status"
-        class="w-48"
+        class="w-full sm:w-48"
       />
       <UButton
         label="Reset Filter"
         icon="i-lucide-rotate-ccw"
         color="neutral"
         variant="outline"
+        class="w-full sm:w-auto justify-center"
         @click="resetFilters"
       />
     </div>
 
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto shadow-sm">
       <UTable :columns="columns" :data="filteredData" :ui="{ th: 'bg-gray-100 dark:bg-gray-800/50' }">
         <template #metric-cell="{ row }">
           <span class="font-bold text-gray-900 dark:text-white">{{ row.original.metric }}</span>

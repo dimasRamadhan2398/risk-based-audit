@@ -76,7 +76,7 @@ const {
     />
 
     <!-- AI Summary Stats Cards (Transferred from index.vue:L1205-L1250) -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <!-- Card 1: Risk Scoring -->
       <NuxtLink to="/analytics/ai/risk-scoring" class="block group">
         <UCard

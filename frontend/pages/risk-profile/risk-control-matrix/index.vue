@@ -17,13 +17,13 @@
       </div>
 
       <!-- Actions / Filters -->
-      <div class="flex flex-wrap items-center justify-end gap-3">
+      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3 w-full md:w-auto">
         <USelect
           v-model="rcmStore.selectedYear"
           :items="yearOptions"
           value-key="value"
           size="md"
-          class="w-36"
+          class="w-full sm:w-36"
         />
 
         <USelect
@@ -31,13 +31,13 @@
           :items="departmentOptions"
           value-key="value"
           size="md"
-          class="w-64"
+          class="w-full sm:w-64"
         />
 
         <UButton
           color="primary"
           variant="solid"
-          class="font-medium shadow-sm"
+          class="font-medium shadow-sm w-full sm:w-auto justify-center"
           @click="openAddModal"
         >
           <UIcon name="i-lucide-plus" class="size-4 mr-1.5" />
@@ -209,7 +209,7 @@
     </div>
 
     <!-- Main Risk Control Matrix Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-6 space-y-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h3 class="text-lg font-bold text-slate-900 dark:text-white">Daftar Risk Control Matrix</h3>
@@ -226,12 +226,12 @@
         </div>
       </div>
 
-      <div class="rcm-table">
+      <div class="rcm-table w-full min-w-0">
       <TableEntities
         :data="filteredList"
         :columns="rcmStore.columns"
         :items-per-page="10"
-        table-layout="fixed"
+        table-layout="auto"
         min-width="1630px"
         :ui="{
           root: 'relative overflow-visible',
@@ -372,15 +372,15 @@
       v-model:open="isModalOpen" 
       title="Manage Risk Control Matrix"
       :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
       <template #content>
-        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+        <div class="p-4 sm:p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
           <h3 class="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
             {{ isEditMode ? 'Edit Risk Control Matrix' : 'Tambah Risk Control Matrix Baru' }}
           </h3>
@@ -662,38 +662,41 @@
 </template>
 
 <style scoped>
-/* Freeze the first two columns of the RCM table during horizontal scroll.
-   Offsets must match the column widths declared in stores/rcm.ts. */
-.rcm-table :deep(th:nth-child(-n + 2)),
-.rcm-table :deep(td:nth-child(-n + 2)) {
-  position: sticky;
-}
+/* Freeze the first two columns of the RCM table during horizontal scroll ONLY on desktop.
+   On mobile/tablet (< 1280px), disable sticky so all columns (Department, PIC, Ratings, Actions)
+   can be freely scrolled to and are not obscured by frozen columns. */
+@media (min-width: 1280px) {
+  .rcm-table :deep(th:nth-child(-n + 2)),
+  .rcm-table :deep(td:nth-child(-n + 2)) {
+    position: sticky;
+  }
 
-.rcm-table :deep(th:nth-child(1)),
-.rcm-table :deep(td:nth-child(1)) {
-  left: 0;
-}
+  .rcm-table :deep(th:nth-child(1)),
+  .rcm-table :deep(td:nth-child(1)) {
+    left: 0;
+  }
 
-.rcm-table :deep(th:nth-child(2)),
-.rcm-table :deep(td:nth-child(2)) {
-  left: 280px;
-  border-right: 1px solid var(--border-main);
-}
+  .rcm-table :deep(th:nth-child(2)),
+  .rcm-table :deep(td:nth-child(2)) {
+    left: 280px;
+    border-right: 1px solid var(--border-main);
+  }
 
-/* Opaque fills so scrolled cells cannot bleed through. The theme variables
-   already flip under .dark, so no dark-mode override is needed. */
-.rcm-table :deep(td:nth-child(-n + 2)) {
-  z-index: 1;
-  background-color: var(--bg-main);
-}
+  /* Opaque fills so scrolled cells cannot bleed through. The theme variables
+     already flip under .dark, so no dark-mode override is needed. */
+  .rcm-table :deep(td:nth-child(-n + 2)) {
+    z-index: 1;
+    background-color: var(--bg-main);
+  }
 
-.rcm-table :deep(th:nth-child(-n + 2)) {
-  z-index: 2;
-  background-color: var(--bg-surface);
-}
+  .rcm-table :deep(th:nth-child(-n + 2)) {
+    z-index: 2;
+    background-color: var(--bg-surface);
+  }
 
-.rcm-table :deep(tbody tr:hover td:nth-child(-n + 2)) {
-  background-color: var(--bg-surface);
+  .rcm-table :deep(tbody tr:hover td:nth-child(-n + 2)) {
+    background-color: var(--bg-surface);
+  }
 }
 </style>
 

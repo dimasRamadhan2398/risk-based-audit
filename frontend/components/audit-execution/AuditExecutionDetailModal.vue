@@ -44,9 +44,9 @@ const sendReminder = () => {
   <UModal 
     v-model:open="isOpen" 
     :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
@@ -72,7 +72,7 @@ const sendReminder = () => {
 
         <div class="space-y-6">
           <!-- Lifecycle Stepper Component -->
-          <div class="p-5 border border-primary-200 dark:border-primary-800/60 rounded-xl bg-gradient-to-b from-primary-50/40 to-transparent dark:from-primary-950/20 dark:to-transparent space-y-4">
+          <div class="p-4 sm:p-5 border border-primary-200 dark:border-primary-800/60 rounded-xl bg-gradient-to-b from-primary-50/40 to-transparent dark:from-primary-950/20 dark:to-transparent space-y-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <UIcon name="i-lucide-route" class="text-primary-600 dark:text-primary-400 text-lg" />
@@ -84,7 +84,7 @@ const sendReminder = () => {
             </div>
 
             <!-- Stepper Steps Grid -->
-            <div class="grid grid-cols-6 gap-2 pt-2">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 pt-2">
               <div
                 v-for="phase in EXECUTION_PHASES"
                 :key="phase.step"
@@ -232,6 +232,7 @@ const sendReminder = () => {
           :label="t('auditExecution.detailModal.sendReminder')"
           color="primary"
           icon="i-lucide-bell"
+          class="w-full sm:w-auto justify-center"
           @click="sendReminder"
         />
       </div>

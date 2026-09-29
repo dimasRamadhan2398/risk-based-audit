@@ -45,9 +45,9 @@ export const useSopStore = defineStore('sop', () => {
 
   const columns = computed<(TableColumn<AuditSop> & { class?: string })[]>(() => [
     { accessorKey: 'no', header: t('auditCharter.sopList.columns.no'), class: 'w-16 whitespace-nowrap text-center' },
-    { accessorKey: 'name', header: t('auditCharter.sopList.columns.name'), class: 'w-48' },
-    { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName'), class: 'w-48' },
-    { accessorKey: 'status', header: t('auditCharter.sopList.columns.status'), class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'name', header: t('auditCharter.sopList.columns.name'), class: 'min-w-[260px]' },
+    { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName'), class: 'min-w-[220px]' },
+    { accessorKey: 'status', header: t('auditCharter.sopList.columns.status'), class: 'w-32 whitespace-nowrap text-center' },
     { accessorKey: 'effective_date', header: t('auditCharter.sopList.columns.effectiveDate'), class: 'w-36 whitespace-nowrap text-center' },
     { accessorKey: 'actions', header: t('auditCharter.sopList.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }
   ])

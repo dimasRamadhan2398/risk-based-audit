@@ -44,26 +44,42 @@
 
       <UDashboardPanel>
         <template #header>
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-            <div class="flex items-center gap-3">
+          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
               <UButton
                 icon="i-lucide-arrow-left"
                 color="neutral"
                 variant="ghost"
                 size="sm"
-                class="rounded-xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800"
+                class="rounded-xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0"
                 @click="goBack"
               >
                 {{ t('common.back') }}
               </UButton>
-              <div class="h-4 w-px bg-gray-200 dark:bg-gray-700"></div>
-              <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{ currentPageTitle }}</h1>
+              <div class="h-4 w-px bg-gray-200 dark:bg-gray-700 shrink-0"></div>
+              <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">{{ currentPageTitle }}</h1>
             </div>
+          </div>
+          <!-- Mobile & Tablet Scrollable Tab Bar (visible on < lg when sidebar is hidden) -->
+          <div class="lg:hidden border-b border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] px-3 py-2 overflow-x-auto flex items-center gap-1.5 scrollbar-none">
+            <button
+              v-for="link in links"
+              :key="link.slot"
+              type="button"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 shrink-0"
+              :class="activeTab === link.slot
+                ? 'bg-primary-500 text-white shadow-xs'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              @click="selectTab(link.slot as string)"
+            >
+              <UIcon :name="link.icon" class="size-4" />
+              <span>{{ link.label }}</span>
+            </button>
           </div>
         </template>
 
         <template #body>
-          <div class="p-6">
+          <div class="p-4 sm:p-6">
             <!-- My Profile Section -->
             <div v-if="activeTab === 'profile'">
               <SettingsProfile />

@@ -208,7 +208,7 @@ const columns = computed(() => [
 </script>
 
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6 min-h-screen min-w-full">
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-6 min-h-screen w-full min-w-0">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
       <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/kpi-performance" />

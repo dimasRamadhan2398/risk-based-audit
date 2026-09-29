@@ -280,7 +280,7 @@ const scatterOptions = computed(() => {
       />
 
       <!-- Summary Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <UCard>
           <div class="text-center">
             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.recordsScanned') }}</div>

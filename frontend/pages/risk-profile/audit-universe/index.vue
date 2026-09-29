@@ -1,9 +1,9 @@
 <template>
-  <div class="space-y-8 p-6 max-w-full mx-auto">
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-8 min-w-0">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-main)] pb-5">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
           Audit Universe Configuration
         </h1>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -16,6 +16,7 @@
           icon="i-lucide-arrow-left"
           color="neutral"
           variant="outline"
+          class="w-full sm:w-auto"
         >
           Back to Heat Map
         </UButton>
@@ -42,10 +43,10 @@
       
       <!-- Tab 1: Corporate Universe Builder -->
       <template #library>
-        <div class="flex flex-col gap-8 mt-6">
+        <div class="grid grid-cols-1 lg:grid-cols-1 gap-6 mt-6">
           <!-- Left Column: Standard Library Explorer -->
           <div class="space-y-6">
-            <UCard class="shadow-sm border border-[var(--border-main)]">
+            <UCard class="shadow-sm border border-[var(--border-main)] h-full">
               <template #header>
                 <div>
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
@@ -103,9 +104,9 @@
 
           <!-- Right Column: Corporate Universe Explorer & Editor -->
           <div>
-            <UCard class="shadow-sm border border-[var(--border-main)]">
+            <UCard class="shadow-sm border border-[var(--border-main)] h-full">
               <template #header>
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
                     Corporate Audit Universe
                   </h2>
@@ -116,6 +117,7 @@
                       color="primary"
                       icon="i-lucide-plus"
                       label="Add Custom Entity"
+                      class="w-full sm:w-auto"
                       @click="openAddCustomModal(null)"
                     />
                     <UBadge color="primary" variant="subtle">{{ corporateUniverse.length }} Entity</UBadge>
@@ -206,9 +208,9 @@
         <UModal 
           v-model:open="renameModalOpen"
           :ui="{
-            content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-            header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-            body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+            content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+            header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+            body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
             footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
             overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
           }"
@@ -236,13 +238,14 @@
                 </UFormField>
               </div>
               <template #footer>
-                <div class="flex justify-end gap-3">
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
                   <UButton 
                     color="neutral" 
                     variant="outline" 
                     label="Cancel" 
+                    class="w-full sm:w-auto"
                     @click="() => { renameModalOpen = false }" />
-                  <UButton color="primary" label="Save" @click="saveRenameNode" />
+                  <UButton color="primary" label="Save" class="w-full sm:w-auto" @click="saveRenameNode" />
                 </div>
               </template>
             </UCard>
@@ -252,9 +255,9 @@
         <UModal 
           v-model:open="addCustomModalOpen"
           :ui="{
-            content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-            header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-            body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+            content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+            header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+            body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
             footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
             overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
           }"  
@@ -284,15 +287,17 @@
                 </UFormField>
               </div>
               <template #footer>
-                <div class="flex justify-end gap-3">
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
                   <UButton 
                     color="neutral" 
                     variant="outline" 
                     label="Cancel" 
+                    class="w-full sm:w-auto"
                     @click="() => { addCustomModalOpen = false }" />
                   <UButton 
                     color="primary" 
                     label="Add Node" 
+                    class="w-full sm:w-auto"
                     @click="saveAddCustomNode" />
                 </div>
               </template>
@@ -315,22 +320,25 @@
                     Select Auditable Entities from the Corporate Audit Universe active for auditing in year {{ selectedYear }}.
                   </p>
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-sm font-semibold text-slate-700">Target Year:</span>
-                  <USelect
-                    v-model.number="selectedYear"
-                    :items="[2025, 2026, 2027, 2028]"
-                    size="sm"
-                    color="neutral"
-                    class="w-24"
-                    @update:model-value="fetchYearlyUniverse"
-                  />
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Target Year:</span>
+                    <USelect
+                      v-model.number="selectedYear"
+                      :items="[2025, 2026, 2027, 2028]"
+                      size="sm"
+                      color="neutral"
+                      class="w-24"
+                      @update:model-value="fetchYearlyUniverse"
+                    />
+                  </div>
                   <UButton
                     size="sm"
                     color="primary"
                     variant="solid"
                     icon="i-lucide-check-circle"
                     label="Establish Active Universe"
+                    class="w-full sm:w-auto"
                     @click="saveYearlyEstablishment"
                   />
                 </div>

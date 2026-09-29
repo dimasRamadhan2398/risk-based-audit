@@ -38,7 +38,7 @@
       :title="t('settings.activity.securityTipsTitle')"
       :description="t('settings.activity.securityTipsDesc')"
       icon="i-lucide-alert-triangle"
-      color="amber"
+      color="warning"
       variant="outline"
     />
 
@@ -61,66 +61,63 @@
 
       <div class="space-y-4 w-full">
         <!-- Current active session device (always shown) -->
-        <div class="flex items-stretch gap-4 p-4 rounded-xl border border-cyan-200 dark:border-cyan-900/40 bg-gradient-to-br from-cyan-50/50 to-blue-50/50 dark:from-cyan-950/20 dark:to-blue-950/20 w-full shadow-sm">
-          <div class="flex flex-row justify-between items-stretch w-full">
-            <div class="flex flex-row gap-4">
-              <div class="rounded-full bg-cyan-500/20 dark:bg-cyan-500/30 w-10 h-10 flex items-center justify-center shrink-0 border border-cyan-200 dark:border-cyan-900/50">
-                <UIcon :name="currentDevice.deviceType === 'mobile' ? 'i-lucide-smartphone' : 'i-lucide-laptop'" class="text-cyan-600 dark:text-cyan-400 size-5" />
-              </div>
-              <div class="flex-1 min-w-0 w-full">
-                <div class="flex items-center gap-3">
-                  <p class="font-medium text-gray-900 dark:text-white">{{ currentDevice.deviceName }}</p>
-                  <UBadge :label="t('settings.activity.activeSession')" color="primary" variant="solid" size="md" />
-                  <UBadge :label="t('settings.activity.online')" color="success" variant="soft" size="md" />
-                </div>
-                <h6 class="text-sm flex flex-row gap-2 mt-1 text-gray-600 dark:text-gray-300">
-                  <UIcon name="i-lucide-fingerprint" class="size-4 text-gray-400" />
-                  Fingerprint: {{ currentDevice.deviceFingerprint }}
-                </h6>
-                <p class="text-md text-gray-500 mt-1 flex flex-row items-center gap-1.5">
-                  <UIcon name="i-lucide-clock" class="size-4" />
-                  {{ t('settings.activity.justNow') }}
-                </p>
-              </div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-cyan-200 dark:border-cyan-900/40 bg-gradient-to-br from-cyan-50/50 to-blue-50/50 dark:from-cyan-950/20 dark:to-blue-950/20 w-full shadow-sm">
+          <div class="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+            <div class="rounded-full bg-cyan-500/20 dark:bg-cyan-500/30 w-10 h-10 flex items-center justify-center shrink-0 border border-cyan-200 dark:border-cyan-900/50">
+              <UIcon :name="currentDevice.deviceType === 'mobile' ? 'i-lucide-smartphone' : 'i-lucide-laptop'" class="text-cyan-600 dark:text-cyan-400 size-5" />
             </div>
-            <div class="text-md text-gray-400 self-center">
-              {{ t('settings.activity.thisDevice') }}
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <p class="font-medium text-gray-900 dark:text-white truncate">{{ currentDevice.deviceName }}</p>
+                <UBadge :label="t('settings.activity.activeSession')" color="primary" variant="solid" size="sm" />
+                <UBadge :label="t('settings.activity.online')" color="success" variant="soft" size="sm" />
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-1.5 truncate">
+                <UIcon name="i-lucide-fingerprint" class="size-3.5 text-gray-400 shrink-0" />
+                <span class="truncate">Fingerprint: {{ currentDevice.deviceFingerprint }}</span>
+              </p>
+              <p class="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
+                <UIcon name="i-lucide-clock" class="size-3.5 shrink-0" />
+                <span>{{ t('settings.activity.justNow') }}</span>
+              </p>
             </div>
+          </div>
+          <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 shrink-0 self-end sm:self-center px-2 py-1 rounded-md bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            {{ t('settings.activity.thisDevice') }}
           </div>
         </div>
 
         <!-- Loaded list of other trusted devices -->
         <template v-if="trustedDevices.length > 0">
-          <div v-for="device in trustedDevices" :key="device.id" class="flex items-stretch gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-gradient-to-br from-slate-50/30 to-gray-50/30 dark:from-slate-900/20 dark:to-gray-900/20 w-full hover:shadow-sm transition-shadow">
-            <div class="flex flex-row justify-between items-stretch w-full">
-              <div class="flex flex-row gap-4">
-                <div class="rounded-full bg-slate-200 dark:bg-slate-700 w-10 h-10 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-600">
-                  <UIcon :name="device.deviceType === 'mobile' ? 'i-lucide-smartphone' : 'i-lucide-laptop'" class="text-slate-600 dark:text-slate-400 size-5" />
-                </div>
-                <div class="flex-1 min-w-0 w-full">
-                  <div class="flex items-center gap-3">
-                    <p class="font-medium text-gray-900 dark:text-white">{{ device.deviceName }}</p>
-                    <UBadge v-if="device.deviceFingerprint === currentDevice.deviceFingerprint" :label="t('settings.activity.thisDevice')" color="primary" variant="soft" size="md" />
-                  </div>
-                  <h6 class="text-sm flex flex-row gap-2 mt-1 text-gray-600 dark:text-gray-300">
-                    <UIcon name="i-lucide-globe" class="size-4 text-gray-400" />
-                    IP: {{ device.ipAddress }} · Fingerprint: {{ device.deviceFingerprint }}
-                  </h6>
-                  <p class="text-md text-gray-500 mt-1 flex flex-row items-center gap-1.5">
-                    <UIcon name="i-lucide-clock" class="size-4" />
-                    {{ t('settings.activity.registeredAt', { date: formatTime(device.createdAt) }) }}
-                  </p>
-                </div>
+          <div v-for="device in trustedDevices" :key="device.id" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-gradient-to-br from-slate-50/30 to-gray-50/30 dark:from-slate-900/20 dark:to-gray-900/20 w-full hover:shadow-sm transition-shadow">
+            <div class="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+              <div class="rounded-full bg-slate-200 dark:bg-slate-700 w-10 h-10 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-600">
+                <UIcon :name="device.deviceType === 'mobile' ? 'i-lucide-smartphone' : 'i-lucide-laptop'" class="text-slate-600 dark:text-slate-400 size-5" />
               </div>
-              <div class="self-center">
-                <UButton
-                  :label="t('settings.activity.remove')"
-                  variant="ghost"
-                  color="error"
-                  size="sm"
-                  @click="confirmRelease(device.id, device.deviceName)"
-                />
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="font-medium text-gray-900 dark:text-white truncate">{{ device.deviceName }}</p>
+                  <UBadge v-if="device.deviceFingerprint === currentDevice.deviceFingerprint" :label="t('settings.activity.thisDevice')" color="primary" variant="soft" size="sm" />
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-1.5 truncate">
+                  <UIcon name="i-lucide-globe" class="size-3.5 text-gray-400 shrink-0" />
+                  <span class="truncate">IP: {{ device.ipAddress }} · Fingerprint: {{ device.deviceFingerprint }}</span>
+                </p>
+                <p class="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
+                  <UIcon name="i-lucide-clock" class="size-3.5 shrink-0" />
+                  <span>{{ t('settings.activity.registeredAt', { date: formatTime(device.createdAt) }) }}</span>
+                </p>
               </div>
+            </div>
+            <div class="shrink-0 self-end sm:self-center">
+              <UButton
+                :label="t('settings.activity.remove')"
+                variant="ghost"
+                color="error"
+                size="sm"
+                icon="i-lucide-trash"
+                @click="confirmRelease(device.id, device.deviceName)"
+              />
             </div>
           </div>
         </template>

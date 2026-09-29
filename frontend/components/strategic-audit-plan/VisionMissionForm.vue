@@ -2,7 +2,7 @@
   <UModal
     v-model:open="store.isModalOpen"
     :title="t('strategicPlan.vmg.modalTitle')"
-    :ui="{ content: 'sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
+    :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
   >
     <template #body>
       <UForm :state="store.form" @submit.prevent="handleSubmit">
@@ -146,11 +146,12 @@
           </div>
 
           <!-- Footer Actions -->
-          <div class="flex justify-end gap-3 pt-4 border-t border-[var(--border-main)]">
+          <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-[var(--border-main)]">
             <UButton
               :label="t('strategicPlan.vmg.cancel')"
               color="neutral"
               variant="ghost"
+              class="w-full sm:w-auto"
               @click="() => { store.isModalOpen = false }"
             />
             <UButton
@@ -158,6 +159,7 @@
               :label="t('strategicPlan.vmg.saveData')"
               color="primary"
               variant="solid"
+              class="w-full sm:w-auto font-bold"
               :loading="store.saving"
             />
           </div>

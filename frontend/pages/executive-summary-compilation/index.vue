@@ -1,37 +1,37 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 min-w-0">
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-lucide-presentation" class="size-7 text-primary-500" />
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <UIcon name="i-lucide-presentation" class="size-6 sm:size-7 text-primary-500 shrink-0" />
           {{ t('executiveSummary.title') }}
         </h1>
-        <p class="text-gray-500 dark:text-gray-400 mt-1">
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
           {{ t('executiveSummary.subtitle') }}
         </p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
         <UButton
           color="neutral"
           variant="outline"
           icon="i-lucide-upload"
           :label="t('executiveSummary.importButton')"
           to="/executive-summary-compilation/upload"
-          class="font-bold shadow"
+          class="font-bold shadow w-full sm:w-auto justify-center"
         />
         <UButton
           color="primary"
           icon="i-lucide-plus"
           :label="t('executiveSummary.createNew')"
-          class="font-bold"
+          class="font-bold w-full sm:w-auto justify-center"
           @click="store.openNewForm(activeQuarter)"
         />
       </div>
     </div>
 
     <!-- Stats Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <UCard :ui="{ body: 'p-4' }">
         <div class="flex items-center gap-3">
           <div class="p-3 bg-primary-50 dark:bg-primary-950 rounded-lg text-primary-600">

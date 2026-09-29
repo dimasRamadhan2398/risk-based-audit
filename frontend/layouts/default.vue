@@ -5,7 +5,6 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
-import { label } from 'happy-dom/lib/PropertySymbol.js'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -716,35 +715,35 @@ const userDropdownItems = computed(() => [
 
     <UDashboardPanel>
       <template #header>
-        <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)]">
-          <div class="flex items-center gap-3">
+        <div class="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)] gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0">
             <UButton
               icon="i-lucide-menu"
               color="neutral"
               variant="ghost"
-              class="lg:hidden"
+              class="lg:hidden shrink-0"
               @click="openMobileMenu"
             />
-            <Logo class="h-6 w-auto text-2xl" />
+            <Logo class="shrink-0" text-class="text-base sm:text-xl" />
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <!-- Language Switcher Toggle -->
-            <div class="flex items-center gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-main)] shadow-sm">
+            <div class="flex items-center gap-0.5 sm:gap-1 bg-[var(--bg-surface)] p-0.5 sm:p-1 rounded-xl border border-[var(--border-main)] shadow-xs">
               <button
                 type="button"
-                class="px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
-                :class="locale === 'id' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+                class="px-1.5 sm:px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+                :class="locale === 'id' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
                 @click="setLocale('id')"
               >
-                <span>🇮🇩</span> ID
+                <span>🇮🇩</span> <span class="hidden xs:inline">ID</span>
               </button>
               <button
                 type="button"
-                class="px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
-                :class="locale === 'en' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+                class="px-1.5 sm:px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+                :class="locale === 'en' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
                 @click="setLocale('en')"
               >
-                <span>🇬🇧</span> EN
+                <span>🇬🇧</span> <span class="hidden xs:inline">EN</span>
               </button>
             </div>
             <UColorModeButton />
@@ -753,6 +752,7 @@ const userDropdownItems = computed(() => [
               to="/auth/login"
               color="primary"
               variant="solid"
+              size="sm"
             >
               {{ t('auth.login.button') }}
             </UButton>
@@ -780,7 +780,7 @@ const userDropdownItems = computed(() => [
         </div>
       </template>
       <template #body>
-        <div class="min-h-screen bg-[var(--bg-main)] min-w-max transition-colors duration-300">
+        <div class="min-h-screen bg-[var(--bg-main)] w-full min-w-0 overflow-x-hidden transition-colors duration-300">
           <div
             v-if="authStore.isNewDevice"
             class="max-w-7xl mx-auto p-4 pb-0"
@@ -795,7 +795,7 @@ const userDropdownItems = computed(() => [
               @close="authStore.isNewDevice = false"
             />
           </div>
-          <UMain class="max-w-7xl mx-auto">
+          <UMain class="w-full max-w-7xl mx-auto min-w-0">
             <slot />
           </UMain>
         </div>
@@ -806,11 +806,12 @@ const userDropdownItems = computed(() => [
     <USlideover
       v-model:open="isMobileMenuOpen"
       side="left"
+      :ui="{ content: 'w-72 sm:w-80 max-w-[85vw]' }"
     >
       <template #content>
-        <div class="flex flex-col h-full bg-[var(--bg-main)] border-r border-[var(--border-main)] overflow-y-auto w-72">
-          <div class="flex items-center justify-between p-4 border-b border-[var(--border-main)]">
-            <Logo class="h-6 w-auto text-xl" />
+        <div class="flex flex-col h-full bg-[var(--bg-main)] border-r border-[var(--border-main)] overflow-y-auto">
+          <div class="flex items-center justify-between p-4 border-b border-[var(--border-main)] shrink-0">
+            <Logo class="shrink-0" text-class="text-lg sm:text-xl" />
             <UButton
               icon="i-lucide-x"
               color="neutral"
@@ -819,7 +820,18 @@ const userDropdownItems = computed(() => [
               @click="closeMobileMenu"
             />
           </div>
-          <div class="flex-1 p-4 space-y-4">
+          <!-- Mobile search input -->
+          <div class="p-3 border-b border-[var(--border-main)] shrink-0">
+            <UInput
+              v-model="searchQuery"
+              :placeholder="t('navigation.searchPlaceholder')"
+              icon="i-lucide-search"
+              color="primary"
+              variant="outline"
+              class="w-full"
+            />
+          </div>
+          <div class="flex-1 p-3 space-y-4 overflow-y-auto">
             <UNavigationMenu
               :items="items[0]"
               orientation="vertical"
@@ -827,6 +839,13 @@ const userDropdownItems = computed(() => [
               :ui="{
                 childList: 'ps-3 border-l border-[var(--border-main)] ml-2.5 my-0.5 space-y-0.5'
               }"
+            />
+          </div>
+          <div v-if="items[1]" class="p-3 border-t border-[var(--border-main)] shrink-0">
+            <UNavigationMenu
+              :items="items[1]"
+              orientation="vertical"
+              class="w-full"
             />
           </div>
         </div>

@@ -1,16 +1,17 @@
 <template>
-  <div class="p-6 max-w-full mx-auto space-y-6">
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-6 min-w-0">
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Risk Mitigation Plan</h1>
-        <p><strong>Risk ID:</strong> {{ riskProfileStore.getFormattedId(currentRisk) }} - {{ currentRiskName }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Risk Mitigation Plan</h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1"><strong>Risk ID:</strong> {{ riskProfileStore.getFormattedId(currentRisk) }} - {{ currentRiskName }}</p>
       </div>
       <UButton
         icon="i-heroicons-arrow-left"
         variant="ghost"
         color="neutral"
         label="Back to Detail"
+        class="w-full sm:w-auto"
         @click="goBack"
       />
     </div>

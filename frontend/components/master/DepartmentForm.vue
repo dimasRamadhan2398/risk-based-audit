@@ -1,11 +1,11 @@
 <template>
-  <UModal v-model:open="store.showModal" dismissible class="w-full sm:max-w-xl">
+  <UModal v-model:open="store.showModal" dismissible :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }">
     <template #content>
       <UForm :state="store.form" @submit.prevent="store.handleSubmit">
         <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh] border border-[var(--border-main)] transition-colors duration-300">
 
           <!-- Header -->
-          <div class="px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center transition-colors duration-300">
+          <div class="px-4 sm:px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] rounded-t-xl flex justify-between items-center transition-colors duration-300">
             <div class="flex items-center gap-3">
               <UIcon name="i-heroicons-building-office" class="text-primary-500 text-2xl" />
               <h3 class="text-lg font-bold text-[var(--text-main)]">
@@ -20,7 +20,7 @@
           </div>
 
           <!-- Body -->
-          <div class="p-6 overflow-y-auto space-y-4">
+          <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
             <!-- Error Message -->
             <UAlert
               v-if="store.errorMsg"
@@ -140,17 +140,19 @@
           </div>
 
           <!-- Footer -->
-          <div class="px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-main)] rounded-b-xl flex justify-end gap-3">
+          <div class="px-4 sm:px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-main)] rounded-b-xl flex flex-col-reverse sm:flex-row justify-end gap-3">
             <UButton
               label="Cancel"
               color="neutral"
               variant="soft"
+              class="w-full sm:w-auto"
               @click="store.closeModal"
             />
             <UButton
               :label="store.isEditing ? 'Update' : 'Create'"
               color="primary"
               :loading="store.loading"
+              class="w-full sm:w-auto font-bold"
               type="submit"
             />
           </div>

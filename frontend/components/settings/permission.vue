@@ -38,25 +38,25 @@
           </h4>
           <div class="flex flex-wrap items-center gap-4 text-xs">
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border bg-emerald-800 text-emerald-700 border-emerald-200 dark:bg-emerald-800 dark:text-emerald-300 dark:border-emerald-800">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-emerald-600 text-white shadow-xs">
                 FULL
               </span>
               <span class="text-gray-600 dark:text-gray-300">Full Access (Create, Read, Update, Delete, Approval)</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border bg-amber-800 text-amber-700 border-amber-200 dark:bg-amber-800 dark:text-amber-300 dark:border-amber-800">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-amber-500 text-white shadow-xs">
                 LIMITED / ACTION
               </span>
               <span class="text-gray-600 dark:text-gray-300">Restricted operational action (Draft, Edit, Respond, Review, etc.)</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border bg-slate-800 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-sky-600 text-white shadow-xs">
                 READ
               </span>
               <span class="text-gray-600 dark:text-gray-300">Read-Only access</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border bg-slate-800 text-slate-400 border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-800">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-slate-500 text-white shadow-xs">
                 NONE
               </span>
               <span class="text-gray-600 dark:text-gray-300">No access / Hidden from navigation</span>
@@ -257,38 +257,22 @@ const filteredMatrix = computed(() => {
 
 function getBadgeClass(val: string): string {
   const base =
-    'inline-flex items-center justify-center px-2.5 py-1 rounded-md font-semibold text-xs leading-none transition-colors border'
+    'inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors shadow-xs'
 
   if (val === 'FULL') {
-    return (
-      base +
-      ' bg-emerald-800 text-emerald-700 border-emerald-200' +
-      ' dark:bg-emerald-800 dark:text-emerald-300 dark:border-emerald-800'
-    )
+    return base + ' bg-emerald-600 text-white'
   }
 
   if (val === 'READ') {
-    return (
-      base +
-      ' bg-slate-800 text-slate-600 border-slate-200' +
-      ' dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
-    )
+    return base + ' bg-sky-600 text-white'
   }
 
   if (val === 'NONE') {
-    return (
-      base +
-      ' bg-slate-800 text-slate-400 border-slate-200' +
-      ' dark:bg-slate-800 dark:text-slate-500 dark:border-slate-800'
-    )
+    return base + ' bg-slate-500 text-white'
   }
 
   // Action-specific / Limited access
-  return (
-    base +
-    ' bg-amber-800 text-amber-700 border-amber-200' +
-    ' dark:bg-amber-800 dark:text-amber-300 dark:border-amber-800'
-  )
+  return base + ' bg-amber-500 text-white'
 }
 
 function exportMatrix() {

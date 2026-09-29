@@ -1,38 +1,38 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 min-w-0">
     <!-- Header Section -->
     <UCard variant="soft">
       <template #header>
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <div class="flex flex-col gap-2">
-              <h1 class="text-3xl font-bold text-[var(--text-main)]">
-                {{ t('strategicPlan.title') }}
-              </h1>
-              <p class="text-sm text-[var(--text-muted)]">
-                {{ t('strategicPlan.subtitle') }}
-              </p>
-            </div>
-            <div class="flex items-center gap-2">
-              <UButton
-                v-if="canImportPlanDocs"
-                :label="t('strategicPlan.importDocument')"
-                to="/strategic-audit-plan/upload"
-                color="neutral"
-                variant="outline"
-                size="sm"
-                icon="i-lucide-upload"
-              />
-              <UButton
-                v-if="canManageStrategicPlan"
-                icon="add"
-                :label="t('strategicPlan.addObjective')"
-                variant="solid"
-                color="primary"
-                size="sm"
-                @click="store.openModal()"
-              />
-            </div>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex flex-col gap-1">
+            <h1 class="text-2xl sm:text-3xl font-bold text-[var(--text-main)]">
+              {{ t('strategicPlan.title') }}
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--text-muted)]">
+              {{ t('strategicPlan.subtitle') }}
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <UButton
+              v-if="canImportPlanDocs"
+              :label="t('strategicPlan.importDocument')"
+              to="/strategic-audit-plan/upload"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              class="w-full sm:w-auto justify-center"
+              icon="i-lucide-upload"
+            />
+            <UButton
+              v-if="canManageStrategicPlan"
+              icon="add"
+              :label="t('strategicPlan.addObjective')"
+              variant="solid"
+              color="primary"
+              size="sm"
+              class="w-full sm:w-auto justify-center"
+              @click="store.openModal()"
+            />
           </div>
         </div>
       </template>

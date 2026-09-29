@@ -3,19 +3,23 @@
       v-model:open="store.showModal" 
       scrollable 
       :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
       <template #content>
-        <UCard :ui="{ 
-          header: 'px-6 py-4',
-          body: 'px-6 py-2',
-          footer: 'px-6 py-4'
-        }">
+        <UCard 
+          class="flex flex-col h-full max-h-[90vh] overflow-hidden"
+          :ui="{ 
+            root: 'flex flex-col h-full max-h-[90vh] overflow-hidden',
+            header: 'px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0',
+            body: 'px-4 sm:px-6 py-4 overflow-y-auto flex-1 min-h-0',
+            footer: 'px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-800 shrink-0'
+          }"
+        >
           <template #header>
             <div class="flex items-center justify-between">
               <div class="space-y-1">
@@ -38,14 +42,14 @@
 
           <div class="space-y-6 pb-6">
             <!-- Assignment Letter Info -->
-            <div v-if="store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter" class="p-5 rounded-xl space-y-4 bg-primary-600 dark:bg-primary-800">
+            <div v-if="store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter" class="p-4 sm:p-5 rounded-xl space-y-4 bg-primary-600 dark:bg-primary-800">
               <div class="flex items-center justify-between">
                 <h4 class="text-lg font-bold text-white">Assignment Letter Information</h4>
                 <UBadge color="neutral" variant="solid" class="bg-white/20 text-white border-0">
                   {{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.letterNumber }}
                 </UBadge>
               </div>
-              <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
                 <div>
                   <p class="font-bold text-primary-100">Audit Title</p>
                   <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.auditTitle || '-' }}</p>
@@ -66,9 +70,9 @@
             </div>
 
             <!-- Category & Context -->
-            <div class="p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
+            <div class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
               <h4 class="text-lg font-bold">Category & Context</h4>
-              <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                 <div class="space-y-1">
                   <p class="text-sm font-bold">Audit Object</p>
                   <p class="text-sm">{{ store.selectedReport?.auditObject || '-' }}</p>
@@ -81,35 +85,35 @@
             </div>
 
             <!-- Detail Findings -->
-            <div class="p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
+            <div class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
               <h4 class="text-lg font-bold">Detail Findings</h4>
               <div class="space-y-4">
-                <div class="flex">
-                  <p class="w-1/3 text-sm font-bold">Condition</p>
-                  <p class="w-2/3 text-sm">{{ store.selectedReport?.condition || '-' }}</p>
+                <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
+                  <p class="w-full sm:w-1/3 text-sm font-bold">Condition</p>
+                  <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.condition || '-' }}</p>
                 </div>
-                <div class="flex">
-                  <p class="w-1/3 text-sm font-bold">Criteria</p>
-                  <p class="w-2/3 text-sm">{{ store.selectedReport?.criteria || '-' }}</p>
+                <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
+                  <p class="w-full sm:w-1/3 text-sm font-bold">Criteria</p>
+                  <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.criteria || '-' }}</p>
                 </div>
               </div>
             </div>
 
             <!-- Corrective Action Plan -->
-            <div class="p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
+            <div class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
               <h4 class="text-lg font-bold">Corrective Action Plan</h4>
               <div class="space-y-4">
-                <div class="flex">
-                  <p class="w-1/3 text-sm font-bold">Recommendation</p>
-                  <p class="w-2/3 text-sm">{{ store.selectedReport?.recommendation || '-' }}</p>
+                <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
+                  <p class="w-full sm:w-1/3 text-sm font-bold">Recommendation</p>
+                  <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.recommendation || '-' }}</p>
                 </div>
-                <div class="flex">
-                  <p class="w-1/3 text-sm font-bold">Deadline</p>
-                  <p class="w-2/3 text-sm">{{ store.selectedReport?.deadline || '-' }}</p>
+                <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
+                  <p class="w-full sm:w-1/3 text-sm font-bold">Deadline</p>
+                  <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.deadline || '-' }}</p>
                 </div>
-                <div class="flex">
-                  <p class="w-1/3 text-sm font-bold">PIC</p>
-                  <p class="w-2/3 text-sm">{{ store.selectedReport?.pic || '-' }}</p>
+                <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
+                  <p class="w-full sm:w-1/3 text-sm font-bold">PIC</p>
+                  <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.pic || '-' }}</p>
                 </div>
               </div>
             </div>
@@ -117,18 +121,18 @@
             <div class="border-t border-gray-300 dark:border-gray-600 my-2"></div>
 
             <!-- Latest Progress Update -->
-            <div class="p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
+            <div class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
               <h4 class="text-lg font-bold">Latest Progress Update</h4>
               <div class="space-y-4">
-                <div class="flex">
-                  <p class="w-1/3 text-sm font-bold">Attachment</p>
-                  <div class="w-2/3 flex items-center space-x-1 text-sm font-bold cursor-pointer">
+                <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
+                  <p class="w-full sm:w-1/3 text-sm font-bold">Attachment</p>
+                  <div class="w-full sm:w-2/3 flex items-center space-x-1 text-sm font-bold cursor-pointer">
                     <span>[ 📄 {{ store.selectedReport?.attachment || 'No attachment' }} ]</span>
                   </div>
                 </div>
-                <div class="flex">
-                  <p class="w-1/3 text-sm font-bold">Description</p>
-                  <p class="w-2/3 text-sm">{{ store.selectedReport?.progressDescription || '-' }}</p>
+                <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
+                  <p class="w-full sm:w-1/3 text-sm font-bold">Description</p>
+                  <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.progressDescription || '-' }}</p>
                 </div>
               </div>
             </div>
@@ -139,7 +143,7 @@
               <UButton
                 color="primary"
                 label="Kirim Pengingat"
-                class="px-6 py-2.5 font-bold"
+                class="w-full sm:w-auto px-6 py-2.5 font-bold"
                 @click="store.closeModal"
               />
             </div>
