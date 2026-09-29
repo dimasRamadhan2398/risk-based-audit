@@ -19,6 +19,7 @@ type UserRepositoryInterface interface {
 	FindByID(id uuid.UUID) (*models.User, error)
 	FindByUsername(username string) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
+	FindByEmployeeID(employeeID string) (*models.User, error)
 	FindMany(offset, limit int, search, department string, isActive *bool) ([]*models.User, error)
 	Count(search, department string, isActive *bool) (int64, error)
 	AssignRoles(userID uuid.UUID, roleNames []string) error
@@ -79,6 +80,18 @@ func (r *UserRepository) FindByUsername(username string) (*models.User, error) {
 func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 	if err := r.GetDB().Preload("Roles").Where("email = ?", email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, apperrors.ErrNotFound
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+// FindByEmployeeID finds a user by the employee code it is linked to
+func (r *UserRepository) FindByEmployeeID(employeeID string) (*models.User, error) {
+	var user models.User
+	if err := r.GetDB().Preload("Roles").Where("employee_id = ?", employeeID).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, apperrors.ErrNotFound
 		}

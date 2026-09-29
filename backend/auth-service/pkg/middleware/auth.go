@@ -113,3 +113,28 @@ func (m *AuthMiddleware) RequireRoles(roles ...string) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// RequireSelfOrRoles lets a request through when the path parameter names the
+// caller's own user ID, or when the caller has one of the given roles. Used for
+// endpoints a user may call on their own account (e.g. their profile).
+func (m *AuthMiddleware) RequireSelfOrRoles(param string, roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if userID, _ := c.Get("user_id"); userID != nil && userID == c.Param(param) {
+			c.Next()
+			return
+		}
+		m.RequireRoles(roles...)(c)
+	}
+}
+
+// HasRole reports whether the authenticated caller has the given role
+func HasRole(c *gin.Context, role string) bool {
+	userRoles, _ := c.Get("roles")
+	roleList, _ := userRoles.([]string)
+	for _, r := range roleList {
+		if strings.EqualFold(r, role) {
+			return true
+		}
+	}
+	return false
+}

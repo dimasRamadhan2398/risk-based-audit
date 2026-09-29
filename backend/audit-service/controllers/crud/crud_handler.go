@@ -2,7 +2,6 @@ package crud
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -14,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 )
 
@@ -55,33 +55,59 @@ func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads .
 		offset := (page - 1) * pageSize
 
 		items := newSlice()
+
+		// Column names coming from the request (filters, order, search) are only
+		// accepted when they exist on the model, and are passed to GORM as quoted
+		// columns rather than raw SQL, to rule out SQL injection.
+		columns, err := modelColumns(db, items)
+		if err != nil {
+			response.InternalServerError(c, "Failed to fetch "+modelName)
+			return
+		}
+
+		orderBy, ok := parseOrder(c.DefaultQuery("order", "created_at DESC"), columns)
+		if !ok {
+			response.BadRequest(c, "Invalid order parameter")
+			return
+		}
+
 		query := db.Model(items)
 
 		for _, p := range preloads {
 			query = query.Preload(p)
 		}
 
-		// Apply search on common text fields
+		// Apply search on common text fields the model actually has
 		if search != "" {
-			query = query.Where("title ILIKE ? OR name ILIKE ?", "%"+search+"%", "%"+search+"%")
+			match := ilikeAny{Value: "%" + search + "%"}
+			for _, col := range []string{"title", "name"} {
+				if columns[col] {
+					match.Columns = append(match.Columns, col)
+				}
+			}
+			if len(match.Columns) > 0 {
+				query = query.Where(match)
+			}
 		}
 
-		// Apply filters from query params
+		// Apply filters from query params; unknown columns are ignored
 		for key, values := range c.Request.URL.Query() {
 			if key == "page" || key == "page_size" || key == "search" || key == "order" {
 				continue
 			}
+			col := toSnakeCase(key)
+			if !columns[col] {
+				continue
+			}
 			if len(values) > 0 && values[0] != "" {
-				col := toSnakeCase(key)
-				query = query.Where(fmt.Sprintf("%s = ?", col), values[0])
+				query = query.Where(clause.Eq{Column: clause.Column{Name: col}, Value: values[0]})
 			}
 		}
 
 		var total int64
 		query.Count(&total)
 
-		order := c.DefaultQuery("order", "created_at DESC")
-		if err := query.Order(order).Offset(offset).Limit(pageSize).Find(items).Error; err != nil {
+		if err := query.Order(orderBy).Offset(offset).Limit(pageSize).Find(items).Error; err != nil {
 			response.InternalServerError(c, "Failed to fetch "+modelName)
 			return
 		}
@@ -96,6 +122,70 @@ func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads .
 			},
 		})
 	}
+}
+
+// modelColumns returns the set of database column names of a model (or a
+// pointer to a slice of models)
+func modelColumns(db *gorm.DB, model interface{}) (map[string]bool, error) {
+	stmt := &gorm.Statement{DB: db}
+	if err := stmt.Parse(model); err != nil {
+		return nil, err
+	}
+	columns := make(map[string]bool, len(stmt.Schema.Fields))
+	for _, field := range stmt.Schema.Fields {
+		if field.DBName != "" {
+			columns[field.DBName] = true
+		}
+	}
+	return columns, nil
+}
+
+// parseOrder turns "column [ASC|DESC]" (comma separated for several columns)
+// into an ORDER BY clause, rejecting anything that is not a known column
+func parseOrder(raw string, columns map[string]bool) (clause.OrderBy, bool) {
+	var orderBy clause.OrderBy
+	for _, part := range strings.Split(raw, ",") {
+		fields := strings.Fields(part)
+		if len(fields) == 0 || len(fields) > 2 {
+			return orderBy, false
+		}
+		col := toSnakeCase(fields[0])
+		if !columns[col] {
+			return orderBy, false
+		}
+		desc := false
+		if len(fields) == 2 {
+			switch strings.ToUpper(fields[1]) {
+			case "ASC":
+			case "DESC":
+				desc = true
+			default:
+				return orderBy, false
+			}
+		}
+		orderBy.Columns = append(orderBy.Columns, clause.OrderByColumn{Column: clause.Column{Name: col}, Desc: desc})
+	}
+	return orderBy, true
+}
+
+// ilikeAny matches Value case-insensitively against any of Columns:
+// ("col1" ILIKE ? OR "col2" ILIKE ?). Column names are quoted, never interpolated.
+type ilikeAny struct {
+	Columns []string
+	Value   string
+}
+
+func (e ilikeAny) Build(builder clause.Builder) {
+	builder.WriteByte('(')
+	for i, col := range e.Columns {
+		if i > 0 {
+			builder.WriteString(" OR ")
+		}
+		builder.WriteQuoted(clause.Column{Name: col})
+		builder.WriteString(" ILIKE ")
+		builder.AddVar(builder, e.Value)
+	}
+	builder.WriteByte(')')
 }
 
 // GetByID returns a single record by ID

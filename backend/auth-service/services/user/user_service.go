@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"strings"
 
 	"auth-service/models"
 	baseService "auth-service/pkg/base"
@@ -20,6 +21,8 @@ type UserServiceInterface interface {
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	GetUser(ctx context.Context, id uuid.UUID) (*models.UserResponse, error)
 	ListUsers(ctx context.Context, req *models.ListUsersRequest) ([]*models.UserResponse, *utils.PaginationResponse, error)
+	FindUserByEmployee(ctx context.Context, employeeCode, email string) (*models.UserResponse, error)
+	AdminResetPassword(ctx context.Context, actorID, targetID uuid.UUID, ipAddress string) (*models.AdminResetPasswordResponse, error)
 }
 
 // UserService handles user business logic
@@ -163,6 +166,102 @@ func (s *UserService) ListUsers(ctx context.Context, req *models.ListUsersReques
 	return responses, paginationResp, nil
 }
 
+// FindUserByEmployee finds the login account linked to a master-data employee.
+// Accounts are linked through users.employee_id = employees.employee_code; the
+// email is used as a fallback for accounts created before the codes lined up.
+func (s *UserService) FindUserByEmployee(ctx context.Context, employeeCode, email string) (*models.UserResponse, error) {
+	if employeeCode != "" {
+		user, err := s.userRepo.FindByEmployeeID(employeeCode)
+		if err == nil {
+			return s.userToResponse(user), nil
+		}
+		if !errors.Is(err, errors.ErrNotFound) {
+			s.LogError("Failed to find user by employee code", utils.LogField("error", err))
+			return nil, errors.ErrInternalServer
+		}
+	}
+
+	if email != "" {
+		user, err := s.userRepo.FindByEmail(email)
+		if err == nil {
+			return s.userToResponse(user), nil
+		}
+		if !errors.Is(err, errors.ErrNotFound) {
+			s.LogError("Failed to find user by email", utils.LogField("error", err))
+			return nil, errors.ErrInternalServer
+		}
+	}
+
+	return nil, errors.Wrap("USER_ACCOUNT_NOT_FOUND", "This employee has no login account", 404, nil)
+}
+
+// AdminResetPassword replaces a user's password with a random temporary one and
+// forces them to change it at next login. Admins cannot reset their own
+// password here (they use change-password) or another admin's password (that
+// goes through the platform super-admin), so one compromised admin account
+// cannot take over the others.
+func (s *UserService) AdminResetPassword(ctx context.Context, actorID, targetID uuid.UUID, ipAddress string) (*models.AdminResetPasswordResponse, error) {
+	if actorID == targetID {
+		return nil, errors.Wrap("CANNOT_RESET_OWN_PASSWORD", "Use change password to update your own password", 400, nil)
+	}
+
+	user, err := s.userRepo.FindByID(targetID)
+	if err != nil {
+		if errors.Is(err, errors.ErrNotFound) {
+			return nil, errors.Wrap(errors.ErrNotFound.Code, "User not found", errors.ErrNotFound.StatusCode, nil)
+		}
+		s.LogError("Failed to find user for password reset", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+
+	for _, role := range user.Roles {
+		if strings.EqualFold(role.Name, "ADMIN") {
+			return nil, errors.Wrap("CANNOT_RESET_ADMIN_PASSWORD", "Admin passwords can only be reset by the platform administrator", 403, nil)
+		}
+	}
+
+	tempPassword, err := utils.GenerateTemporaryPassword()
+	if err != nil {
+		s.LogError("Failed to generate temporary password", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+
+	hashedPassword, err := utils.HashPassword(tempPassword)
+	if err != nil {
+		s.LogError("Failed to hash password", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+
+	user.PasswordHash = hashedPassword
+	user.MustChangePassword = true
+	user.LockedUntil = nil
+	if err := s.userRepo.Update(user); err != nil {
+		s.LogError("Failed to reset password", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+
+	s.LogInfo("Password reset by admin",
+		utils.LogField("user_id", user.ID),
+		utils.LogField("reset_by", actorID),
+	)
+
+	// Send to Kafka for centralized audit logging
+	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {
+		s.kafkaProducer.Info(ctx, "Password reset by admin", map[string]interface{}{
+			"user_id":    user.ID.String(),
+			"username":   user.Username,
+			"reset_by":   actorID.String(),
+			"ip_address": ipAddress,
+		})
+	}
+
+	return &models.AdminResetPasswordResponse{
+		UserID:            user.ID.String(),
+		Username:          user.Username,
+		TemporaryPassword: tempPassword,
+	}, nil
+}
+
 // userToResponse converts a user model to a response DTO
 func (s *UserService) userToResponse(user *models.User) *models.UserResponse {
 	roles := make([]string, len(user.Roles))
@@ -172,6 +271,7 @@ func (s *UserService) userToResponse(user *models.User) *models.UserResponse {
 
 	return &models.UserResponse{
 		ID:         user.ID.String(),
+		EmployeeID: user.EmployeeID,
 		Username:   user.Username,
 		Email:      user.Email,
 		FullName:   user.FullName,
@@ -180,6 +280,7 @@ func (s *UserService) userToResponse(user *models.User) *models.UserResponse {
 		Position:   user.Position,
 		IsActive:   user.IsActive,
 		Roles:      roles,
+		MustChangePassword: user.MustChangePassword,
 		CreatedAt:  user.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:  user.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}

@@ -181,6 +181,7 @@ func (s *AuthService) completeLogin(ctx context.Context, user *models.User, fing
 			Phone:      user.Phone,
 			Department: user.Department,
 			Roles:      roles,
+			MustChangePassword: user.MustChangePassword,
 		},
 		IsNewDevice: isNewDevice,
 	}, nil
@@ -401,6 +402,10 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 		return errors.ErrInvalidCredentials
 	}
 
+	if req.NewPassword == req.OldPassword {
+		return errors.Wrap("PASSWORD_UNCHANGED", "New password must be different from current password", 400, nil)
+	}
+
 	// Hash new password
 	hashedPassword, err := utils.HashPassword(req.NewPassword)
 	if err != nil {
@@ -409,6 +414,8 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 	}
 
 	user.PasswordHash = hashedPassword
+	// Clears the flag set by an admin reset
+	user.MustChangePassword = false
 	if err := s.userRepo.Update(user); err != nil {
 		s.LogError("Failed to update password", utils.LogField("error", err))
 		return errors.ErrInternalServer

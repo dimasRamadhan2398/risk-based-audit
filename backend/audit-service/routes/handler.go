@@ -63,7 +63,10 @@ func (h *RouteHandler) RegisterRoutes() {
 		})
 	})
 
+	// Every API route requires a valid JWT. Kong does not check tokens for
+	// this service, so without this the whole API was reachable anonymously.
 	apiV1 := h.engine.Group("/api/v1")
+	apiV1.Use(h.authMiddleware.Authenticate())
 
 	// Audit Charter routes
 	auditCharters := apiV1.Group("/audit-charters")

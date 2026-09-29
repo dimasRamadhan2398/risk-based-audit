@@ -19,6 +19,9 @@ type User struct {
 	Department string  `gorm:"type:varchar(100)" json:"department"`
 	Position   string  `gorm:"type:varchar(100)" json:"position"`
 	IsActive  bool      `gorm:"default:true" json:"is_active"`
+	// MustChangePassword is set when an admin resets the password; the user
+	// has to replace the temporary password before using the app.
+	MustChangePassword bool `gorm:"default:false" json:"must_change_password"`
 	Roles     []Role    `gorm:"many2many:user_roles;" json:"roles"`
 	LockedUntil     *time.Time     `json:"locked_until,omitempty"` 
 	LastLoginFingerprint string    `gorm:"type:varchar(255)" json:"last_login_fingerprint"`

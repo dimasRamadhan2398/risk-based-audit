@@ -217,6 +217,27 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    /** Change own password (POST /api/v1/auth/change-password) */
+    async changePassword(oldPassword: string, newPassword: string) {
+      try {
+        await $fetch(`${getAuthServiceBaseUrl()}/auth/change-password`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.token}` },
+          body: { old_password: oldPassword, new_password: newPassword },
+        })
+      }
+      catch (error: any) {
+        throw new Error(extractErrorMessage(error, 'Failed to change password'))
+      }
+
+      // An admin-issued temporary password has now been replaced
+      if (this.user?.mustChangePassword) {
+        this.user.mustChangePassword = false
+        const userCookie = useCookie('auth-user')
+        userCookie.value = JSON.stringify(this.user)
+      }
+    },
+
     /** Persist session data to store and cookies */
     async _persistSession(data: any, rememberMe?: boolean) {
       const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24
@@ -231,6 +252,7 @@ export const useAuthStore = defineStore('auth', {
         ...(data.user?.department !== undefined ? { department: data.user.department } : {}),
         ...(data.user?.position !== undefined ? { position: data.user.position } : {}),
         ...(data.user?.roles !== undefined ? { roles: data.user.roles } : {}),
+        mustChangePassword: data.user?.must_change_password ?? false,
       }
 
       this.user = user

@@ -132,9 +132,11 @@ const availableAnomalyTypes = computed(() => {
   anomalies.forEach((a: any) => { if (a.type) types.add(a.type) })
   scatterData.forEach((s: any) => { if (s.type) types.add(s.type) })
 
-  const validBankTypes = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
-  const filtered = Array.from(types).filter(t => validBankTypes.includes(t))
-  return filtered.length > 0 ? filtered : validBankTypes
+  const validTypes = Object.keys(anomalyTypeConfigs.value)
+  const filtered = Array.from(types).filter(t => validTypes.includes(t))
+  if (filtered.length > 0) return filtered
+  if (types.size > 0) return Array.from(types)
+  return ['Transaction', 'Funding', 'Lending', 'Treasury', 'Payment', 'Procurement', 'Expense Report']
 })
 
 const tableCategoryFilter = ref('All')
@@ -154,6 +156,12 @@ const getCategoryBadgeColor = (type: string) => {
     case 'Payment': return 'warning'
     case 'KYC': return 'secondary'
     case 'IT Control': return 'info'
+    case 'Transaction': return 'error'
+    case 'Procurement': return 'primary'
+    case 'Expense Report': return 'warning'
+    case 'Travel Expense': return 'success'
+    case 'Inventory': return 'neutral'
+    case 'Fieldwork': return 'secondary'
     default: return 'neutral'
   }
 }

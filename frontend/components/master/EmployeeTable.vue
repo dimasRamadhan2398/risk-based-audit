@@ -109,6 +109,15 @@
             @click="store.handleEdit(row.original)"
           />
           <UButton
+            v-if="isAdmin"
+            icon="i-heroicons-key"
+            color="warning"
+            variant="ghost"
+            size="sm"
+            title="Reset Password"
+            @click="openResetPassword(row.original)"
+          />
+          <UButton
             icon="i-heroicons-trash"
             color="error"
             variant="ghost"
@@ -118,13 +127,31 @@
         </div>
       </template>
     </TableEntities>
+
+    <EmployeeResetPasswordModal
+      v-if="isAdmin"
+      v-model:open="showResetPassword"
+      :employee="resetPasswordEmployee"
+    />
   </UCard>
 </template>
 
 <script setup lang="ts">
 import { useEmployeeStore } from '~/stores/employee'
+import EmployeeResetPasswordModal from '~/components/master/EmployeeResetPasswordModal.vue'
+import type { Employee } from '~/types/master'
 
 const store = useEmployeeStore()
+const { isAdmin } = useRbac()
+
+// Admin-only: reset the password of the login account linked to an employee
+const showResetPassword = ref(false)
+const resetPasswordEmployee = ref<Employee | null>(null)
+
+const openResetPassword = (employee: Employee) => {
+  resetPasswordEmployee.value = employee
+  showResetPassword.value = true
+}
 
 // Local search state
 const searchInput = ref(store.search)

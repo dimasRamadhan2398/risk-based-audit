@@ -132,11 +132,22 @@ func (r *Registry) users() {
 	users := r.group.Group("/users")
 	users.Use(r.authMiddleware.Authenticate())
 	{
-		users.GET("", r.controller.GetUser().ListUsers)
-		users.POST("", r.controller.GetUser().CreateUser)
-		users.GET("/:id", r.controller.GetUser().GetUser)
-		users.PUT("/:id", r.controller.GetUser().UpdateUser)
-		users.DELETE("/:id", r.controller.GetUser().DeleteUser)
+		// Users may read and update their own profile; admins may do it for anyone
+		selfOrAdmin := r.authMiddleware.RequireSelfOrRoles("id", "ADMIN")
+		users.GET("/:id", selfOrAdmin, r.controller.GetUser().GetUser)
+		users.PUT("/:id", selfOrAdmin, r.controller.GetUser().UpdateUser)
+
+		adminOnly := users.Group("")
+		adminOnly.Use(r.authMiddleware.RequireRoles("ADMIN"))
+		{
+			adminOnly.GET("", r.controller.GetUser().ListUsers)
+			adminOnly.POST("", r.controller.GetUser().CreateUser)
+			adminOnly.DELETE("/:id", r.controller.GetUser().DeleteUser)
+
+			// Used by the Employee master page to reset a linked account's password
+			adminOnly.GET("/lookup", r.controller.GetUser().LookupByEmployee)
+			adminOnly.POST("/:id/reset-password", r.controller.GetUser().ResetPassword)
+		}
 	}
 }
 

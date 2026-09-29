@@ -44,6 +44,7 @@ type UserInfo struct {
 	Phone     string   `json:"phone"`
 	Department string  `json:"department"`
 	Roles     []string `json:"roles"`
+	MustChangePassword bool `json:"must_change_password"`
 }
 
 // ChangePasswordRequest represents a change password request
@@ -85,6 +86,7 @@ type ListUsersRequest struct {
 // UserResponse represents a user response
 type UserResponse struct {
 	ID         string  `json:"id"`
+	EmployeeID string  `json:"employee_id"`
 	Username   string  `json:"username"`
 	Email      string  `json:"email"`
 	FullName   string  `json:"full_name"`
@@ -93,8 +95,17 @@ type UserResponse struct {
 	Position   string  `json:"position"`
 	IsActive   bool    `json:"is_active"`
 	Roles      []string `json:"roles"`
+	MustChangePassword bool `json:"must_change_password"`
 	CreatedAt  string  `json:"created_at"`
 	UpdatedAt  string  `json:"updated_at"`
+}
+
+// AdminResetPasswordResponse is returned once to the admin after a reset;
+// the temporary password is not stored anywhere in plain text.
+type AdminResetPasswordResponse struct {
+	UserID            string `json:"user_id"`
+	Username          string `json:"username"`
+	TemporaryPassword string `json:"temporary_password"`
 }
 
 // MFA DTOs
