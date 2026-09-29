@@ -380,10 +380,21 @@
       }"
     >
       <template #content>
-        <div class="p-4 sm:p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-          <h3 class="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
-            {{ isEditMode ? 'Edit Risk Control Matrix' : 'Tambah Risk Control Matrix Baru' }}
-          </h3>
+        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+          <div class="flex items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-2">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              {{ isEditMode ? 'Edit Risk Control Matrix' : 'Tambah Risk Control Matrix Baru' }}
+            </h3>
+            <UButton
+              type="button"
+              icon="i-lucide-x"
+              color="neutral"
+              variant="ghost"
+              aria-label="Tutup form Risk Control Matrix"
+              title="Tutup"
+              @click="isModalOpen = false"
+            />
+          </div>
 
           <!-- Synchronized Branch and Risk Selection from Corporate Risk Profile -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

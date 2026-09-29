@@ -211,17 +211,33 @@ p {
   z-index: 99999 !important;
 }
 
-/* Mengembalikan kursor tangan telunjuk untuk SEMUA tombol di seluruh web */
+/* Keep every interactive control visually discoverable across feature modules. */
 button:not(:disabled),
 [role="button"]:not([aria-disabled="true"]),
-a {
+a,
+select:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+[role="tab"]:not([aria-disabled="true"]),
+[role="option"]:not([aria-disabled="true"]),
+[role="checkbox"]:not([aria-disabled="true"]),
+[role="radio"]:not([aria-disabled="true"]),
+[role="combobox"]:not([aria-disabled="true"]) {
   cursor: pointer;
 }
 
-/* Kursor dilarang khusus saat tombol sedang dinonaktifkan (disabled) */
+/* Disabled controls must remain visibly unavailable. */
 button:disabled,
 button[disabled],
 button[aria-disabled="true"],
-[role="button"][aria-disabled="true"] {
+select:disabled,
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled,
+[role="button"][aria-disabled="true"],
+[role="tab"][aria-disabled="true"],
+[role="option"][aria-disabled="true"],
+[role="checkbox"][aria-disabled="true"],
+[role="radio"][aria-disabled="true"],
+[role="combobox"][aria-disabled="true"] {
   cursor: not-allowed !important;
 }
