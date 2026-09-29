@@ -1,5 +1,21 @@
 {
   "auth": {
+    "forceChangePassword": {
+      "title": "Ganti Password Anda",
+      "subtitle": "Password Anda telah di-reset oleh administrator. Buat password baru untuk melanjutkan.",
+      "currentPassword": "Password Sementara",
+      "newPassword": "Password Baru",
+      "confirmPassword": "Konfirmasi Password Baru",
+      "submit": "Simpan Password Baru",
+      "logout": "Keluar",
+      "rules": "Minimal 8 karakter, mengandung huruf besar, huruf kecil, dan angka.",
+      "errors": {
+        "required": "Wajib diisi",
+        "weak": "Password minimal 8 karakter dan mengandung huruf besar, huruf kecil, dan angka",
+        "mismatch": "Password baru tidak sama",
+        "same": "Password baru harus berbeda dari password sementara"
+      }
+    },
     "login": {
       "title": "Selamat Datang",
       "subtitle": "Silahkan login terlebih dahulu",
@@ -1854,7 +1870,7 @@
       "conditionPlaceholder": "Contoh: Ditemukan dokumen PO tanpa tanda tangan Manager terkait pada tanggal...",
       "uploadEvidence": "Unggah bukti temuan/foto",
       "criteria": "Kriteria (Aturan/SOP Terkait)",
-      "criteriaPlaceholder": "Cari Peraturan Internal (Contoh: SOP Pengadaan Bab IV - Otorisasi)",
+      "criteriaPlaceholder": "Pilih peraturan internal / SOP",
       "impact": "Dampak (Risk Impact)",
       "impactPlaceholder": "Contoh: Potensi fraud atau pembelian fiktif yang dapat merugikan keuangan...",
       "rootCauseAnalysis": "Analisis Akar Masalah",

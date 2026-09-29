@@ -5,6 +5,7 @@ import (
 
 	"auth-service/models"
 	"auth-service/pkg/base"
+	"auth-service/pkg/middleware"
 	apperrors "auth-service/pkg/errors"
 	"auth-service/pkg/response"
 	"auth-service/pkg/validations"
@@ -21,6 +22,8 @@ type UserControllerInterface interface {
 	DeleteUser(c *gin.Context)
 	GetUser(c *gin.Context)
 	ListUsers(c *gin.Context)
+	LookupByEmployee(c *gin.Context)
+	ResetPassword(c *gin.Context)
 }
 
 // UserController handles user HTTP requests
@@ -90,6 +93,12 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 
 	var req models.UpdateUserRequest
 	if !ctrl.ValidateRequest(c, &req) {
+		return
+	}
+
+	// Users can edit their own profile, but only an admin can (de)activate accounts
+	if req.IsActive != nil && !middleware.HasRole(c, "ADMIN") {
+		response.Forbidden(c, "Only an admin can change account status")
 		return
 	}
 
@@ -206,4 +215,73 @@ func (ctrl *UserController) ListUsers(c *gin.Context) {
 		"users":      users,
 		"pagination": pagination,
 	})
+}
+
+// LookupByEmployee finds the login account linked to a master-data employee
+// @Summary Lookup User By Employee
+// @Description Find the login account of an employee by employee code, falling back to email (ADMIN only)
+// @Tags users
+// @Produce json
+// @Security Bearer
+// @Param employee_code query string false "Employee code"
+// @Param email query string false "Employee email"
+// @Success 200 {object} response.Response{data=models.UserResponse}
+// @Router /api/v1/users/lookup [get]
+func (ctrl *UserController) LookupByEmployee(c *gin.Context) {
+	employeeCode := c.Query("employee_code")
+	email := c.Query("email")
+	if employeeCode == "" && email == "" {
+		response.BadRequest(c, "employee_code or email is required")
+		return
+	}
+
+	user, err := ctrl.userService.FindUserByEmployee(c.Request.Context(), employeeCode, email)
+	if err != nil {
+		appErr, ok := err.(*apperrors.AppError)
+		if ok {
+			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		} else {
+			response.InternalServerError(c, err.Error())
+		}
+		return
+	}
+
+	response.OK(c, "User retrieved successfully", user)
+}
+
+// ResetPassword resets a user's password to a temporary one (ADMIN only)
+// @Summary Reset User Password
+// @Description Generate a temporary password for a user and force a password change at next login (ADMIN only)
+// @Tags users
+// @Produce json
+// @Security Bearer
+// @Param id path string true "User ID"
+// @Success 200 {object} response.Response{data=models.AdminResetPasswordResponse}
+// @Router /api/v1/users/{id}/reset-password [post]
+func (ctrl *UserController) ResetPassword(c *gin.Context) {
+	targetID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+
+	actorIDStr, _ := ctrl.GetUserID(c)
+	actorID, err := uuid.Parse(actorIDStr)
+	if err != nil {
+		response.Unauthorized(c, "Invalid user session")
+		return
+	}
+
+	result, err := ctrl.userService.AdminResetPassword(c.Request.Context(), actorID, targetID, c.ClientIP())
+	if err != nil {
+		appErr, ok := err.(*apperrors.AppError)
+		if ok {
+			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		} else {
+			response.InternalServerError(c, err.Error())
+		}
+		return
+	}
+
+	response.OK(c, "Password reset successfully", result)
 }

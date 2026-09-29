@@ -130,6 +130,7 @@ import { z } from 'zod'
 
 const { t, locale, setLocale } = useI18n()
 const toast = useToast()
+const authStore = useAuthStore()
 const colorMode = useColorMode()
 
 type Settings = {
@@ -295,17 +296,17 @@ async function changePassword() {
   isChangingPassword.value = true
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1200))
-    passwordSuccess.value = t('settings.general.successMessage')
+    await authStore.changePassword(passwordForm.value.currPassword, passwordForm.value.newPassword)
     resetPasswordForm()
+    passwordSuccess.value = t('settings.general.successMessage')
     toast.add({
       title: 'Password Updated',
       description: t('settings.general.successMessage'),
       color: 'success',
       icon: 'i-lucide-check-circle',
     })
-  } catch (error) {
-    passwordErrors.value.currPassword = 'Failed to change password. Please try again.'
+  } catch (error: any) {
+    passwordErrors.value.currPassword = error?.message || 'Failed to change password. Please try again.'
   } finally {
     isChangingPassword.value = false
   }

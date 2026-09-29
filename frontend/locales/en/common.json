@@ -1,5 +1,21 @@
 {
   "auth": {
+    "forceChangePassword": {
+      "title": "Change Your Password",
+      "subtitle": "Your password was reset by an administrator. Set a new password to continue.",
+      "currentPassword": "Temporary Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "submit": "Save New Password",
+      "logout": "Sign out",
+      "rules": "At least 8 characters, with uppercase, lowercase and a number.",
+      "errors": {
+        "required": "This field is required",
+        "weak": "Password must be at least 8 characters and contain uppercase, lowercase and a number",
+        "mismatch": "New passwords do not match",
+        "same": "New password must be different from the temporary password"
+      }
+    },
     "login": {
       "title": "Welcome Back",
       "subtitle": "Please log in to continue",
@@ -1857,7 +1873,7 @@
       "conditionPlaceholder": "Ex: Found PO document without relevant Manager's signature on date...",
       "uploadEvidence": "Upload evidence/photo",
       "criteria": "Criteria (Related Rules/SOP)",
-      "criteriaPlaceholder": "Search Internal Regulation (e.g. Procurement SOP Chapter IV - Authorization)",
+      "criteriaPlaceholder": "Select an internal regulation / SOP",
       "impact": "Impact (Risk Impact)",
       "impactPlaceholder": "Ex: Potential fraud or fictitious purchases that may cause financial loss...",
       "rootCauseAnalysis": "Root Cause Analysis",

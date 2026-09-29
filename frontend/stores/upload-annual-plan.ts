@@ -58,13 +58,10 @@ export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => 
       }
       await $fetch(`${baseUrl}/uploaded-annual-plans`, {
         method: 'POST',
-        body: formData,
-        // Explicitly delete any existing Content-Type header so the boundary is generated.
-        headers: {
-          // Nuxt's $fetch will automatically set the correct multipart header.
-          // Setting it to undefined forces the browser to compute it.
-          'Content-Type': undefined as unknown as string
-        }
+        // No Content-Type header: the browser sets multipart/form-data with the
+        // boundary itself. Passing `'Content-Type': undefined` sent the literal
+        // string "undefined", so the backend could not parse any form field.
+        body: formData
       });
       await fetchUploadedDocuments();
       toast.showSuccess('Successfully uploaded annual audit plan');

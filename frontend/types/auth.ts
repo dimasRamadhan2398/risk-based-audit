@@ -8,6 +8,7 @@ export interface User {
   department?: string
   position?: string
   roles: string[]
+  mustChangePassword?: boolean
   createdAt?: string
   updatedAt?: string
 }
