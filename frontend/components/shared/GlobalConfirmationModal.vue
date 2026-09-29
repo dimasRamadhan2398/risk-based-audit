@@ -27,9 +27,12 @@
     </template>
 
     <template #body>
-      <div v-if="store.options?.type === 'submit'">
-        <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Apakah Anda yakin ingin menyimpan data ini?</p>
-        <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Data yang disimpan akan direkam ke dalam sistem.</p>
+      <div v-if="store.options?.body?.length">
+        <p v-for="(line, index) in store.options.body" :key="index" class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">{{ line }}</p>
+      </div>
+      <div v-else-if="store.options?.type === 'submit'">
+        <p class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Apakah Anda yakin ingin menyimpan data ini?</p>
+        <p class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Data yang disimpan akan direkam ke dalam sistem.</p>
       </div>
       <div v-else>
         <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Apakah Anda yakin ingin menghapus data ini?</p>
@@ -38,10 +41,10 @@
     </template>
 
     <template #footer>
-      <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 w-full">
-        <UButton label="Batal" color="neutral" variant="ghost" class="w-full sm:w-auto justify-center" @click="store.resolve(false)" />
-        <UButton v-if="store.options?.type === 'submit'" label="Ya, Simpan Data" color="primary" class="w-full sm:w-auto justify-center" @click="store.resolve(true)" />
-        <UButton v-else label="Ya, Hapus Data" color="error" class="w-full sm:w-auto justify-center" @click="store.resolve(true)" />
+      <div class="flex justify-end gap-3 w-full">
+        <UButton label="Batal" color="neutral" variant="ghost" @click="store.resolve(false)" />
+        <UButton v-if="store.options?.type === 'submit'" :label="store.options?.confirmLabel || 'Ya, Simpan Data'" color="primary" @click="store.resolve(true)" />
+        <UButton v-else label="Ya, Hapus Data" color="error" @click="store.resolve(true)" />
       </div>
     </template>
   </UModal>

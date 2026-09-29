@@ -1,4 +1,10 @@
 {
+  "assignmentLetterPublish": {
+    "title": "Publish surat tugas \"{number}\"?",
+    "confirmQuestion": "Apakah Anda yakin ingin menyimpan dan mem-publish data ini?",
+    "availability": "Setelah di-publish, surat tugas akan tersedia di Audit Fieldwork dan Audit Result Report.",
+    "confirmButton": "Ya, Publish"
+  },
   "auth": {
     "forceChangePassword": {
       "title": "Ganti Password Anda",

@@ -1,4 +1,10 @@
 {
+  "assignmentLetterPublish": {
+    "title": "Publish assignment letter \"{number}\"?",
+    "confirmQuestion": "Are you sure you want to save and publish this data?",
+    "availability": "Once published, it becomes available in Audit Fieldwork and Audit Result Report.",
+    "confirmButton": "Yes, Publish"
+  },
   "auth": {
     "forceChangePassword": {
       "title": "Change Your Password",

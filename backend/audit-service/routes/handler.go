@@ -174,8 +174,12 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		assignmentLetters.GET("", crud.List(h.db, "AssignmentLetter", func() interface{} { return &[]models.AssignmentLetter{} }))
 		assignmentLetters.GET("/:id", crud.GetByID(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
-		assignmentLetters.POST("", crud.Create(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
-		assignmentLetters.PUT("/:id", crud.Update(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+		// Only the roles allowed by the RBAC matrix ("Create / Publish Letter")
+		// may publish or otherwise change a letter's status
+		letterStatusGuard := middleware.RequireRolesForStatusChange(h.db, "assignment_letters", "Draft",
+			"ADMIN", "AUDIT_MANAGER", "CHIEF_AUDIT_EXECUTIVE")
+		assignmentLetters.POST("", letterStatusGuard, crud.Create(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+		assignmentLetters.PUT("/:id", letterStatusGuard, crud.Update(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
 		assignmentLetters.DELETE("/:id", crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
 	}
 

@@ -4,6 +4,7 @@ import { type AssignmentLetter, type AssignmentLetterForm, type AssignmentLetter
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { extractErrorMessage } from '~/utils/error';
 import { getAuditServiceBaseUrl as resolveAuditUrl } from '~/composables/useApiUrl';
+import { useI18n } from '~/composables/useI18n';
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
@@ -679,21 +680,33 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       }
     },
 
+    async publishLetter(letter: AssignmentLetter) {
+      const { t } = useI18n()
+      const confirmed = await useGlobalModalStore().confirmSubmit({
+        // The confirmation modal shows `description` as its header
+        description: t('assignmentLetterPublish.title', { number: letter.letterNumber }),
+        body: [
+          t('assignmentLetterPublish.confirmQuestion'),
+          t('assignmentLetterPublish.availability')
+        ],
+        confirmLabel: t('assignmentLetterPublish.confirmButton')
+      })
+      if (!confirmed) return
+      await this.changeStatus(letter.id, 'Published')
+    },
+
     async changeStatus(id: string, status: AssignmentLetterStatus) {
       this.loading = true
       try {
         const baseUrl = this.getAuditServiceBaseUrl()
-        // Find existing to construct payload
-        const existing = this.assignmentLetterList.find(s => s.id === id)
-        if (existing) {
-          const payload = { ...existing, status }
-          await $fetch(`${baseUrl}/assignment-letters/${id}`, {
-            method: 'PUT',
-            body: payload
-          })
-          useToastNotification().showSuccess(`Assignment letter status changed to ${status}!`)
-          await this.fetchAssignmentLetters()
-        }
+        // Send only the status: the update is a partial update, and resending
+        // the whole table row would overwrite other fields with display data
+        await $fetch(`${baseUrl}/assignment-letters/${id}`, {
+          method: 'PUT',
+          body: { status }
+        })
+        useToastNotification().showSuccess(`Assignment letter status changed to ${status}!`)
+        await this.fetchAssignmentLetters()
       } catch (error: any) {
         console.error(error)
         const detail = extractErrorMessage(error, 'Failed to change status.')
