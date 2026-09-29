@@ -14,7 +14,7 @@
           variant="outline"
           color="neutral"
           block
-          class="  border border-slate-200 text-slate-700 hover: -50 shadow-sm font-medium sm:w-auto sm:inline-flex"
+          class="cursor-pointer border border-slate-200 text-slate-700 shadow-sm font-medium sm:w-auto sm:inline-flex"
           :loading="isSyncing"
           @click="handleSync"
         >

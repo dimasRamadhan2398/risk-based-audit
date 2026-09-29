@@ -74,14 +74,24 @@ const processFile = (file: File) => {
   selectedFileLength.value = file.size
   form.value.fileName = file.name
   form.value.fileType = file.type || getExtensionType(file.name)
+  form.value.file = file
+  updateGeneratedTitle()
+}
 
-  if (!form.value.title) {
-    const periodName = form.value.period === 'Tahunan' ? t('kpiPerformance.upload.annual') : `Q${form.value.period.replace(/\D/g, '')}`
-    form.value.title = `${periodName} ${form.value.year} - ${file.name.replace(/\.[^/.]+$/, '')}`
+const updateGeneratedTitle = () => {
+  if (!form.value.fileName) {
+    form.value.title = ''
+    return
   }
 
-  form.value.file = file
+  const periodName = form.value.period === 'Tahunan'
+    ? t('kpiPerformance.upload.annual')
+    : `Q${form.value.period.replace(/\D/g, '')}`
+  const fileBaseName = form.value.fileName.replace(/\.[^/.]+$/, '')
+  form.value.title = `${periodName} ${form.value.year} - ${fileBaseName}`.slice(0, 100)
 }
+
+watch([() => form.value.period, () => form.value.year, locale], updateGeneratedTitle)
 
 const getExtensionType = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase()
@@ -95,6 +105,7 @@ const clearFile = () => {
   form.value.fileName = ''
   form.value.fileType = ''
   form.value.file = null as any
+  form.value.title = ''
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -268,11 +279,11 @@ const columns = computed(() => [
               <UInput
                 v-model="form.title"
                 :placeholder="t('kpiPerformance.upload.documentTitlePlaceholder')"
-                class="w-full"
+                class="w-full bg-gray-100 dark:bg-gray-800"
+                disabled
+                aria-readonly="true"
                 required
                 maxlength="100"
-                @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter')"
-                @input="($event.target as any)?.setCustomValidity('')"
               />
               <div class="text-sm text-gray-500 mt-1 text-right">
                 {{ form.title ? form.title.length : 0 }}/100

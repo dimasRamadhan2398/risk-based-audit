@@ -186,11 +186,6 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
             label: t('navigation.importAnnualAuditPlan'),
             icon: 'i-lucide-upload',
             to: '/annual-audit/upload'
-          },
-          {
-            label: t('navigation.auditExecutionStatus'),
-            icon: 'i-lucide-check-circle-2',
-            to: '/audit-execution-status'
           }
         ]
       },
@@ -225,6 +220,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
             label: t('navigation.importAssignmentLetter'),
             icon: 'i-lucide-upload',
             to: '/assignment-letter/upload'
+          },
+          {
+            label: t('navigation.auditExecutionStatus'),
+            icon: 'i-lucide-check-circle-2',
+            to: '/audit-execution-status'
           }
         ]
       },
