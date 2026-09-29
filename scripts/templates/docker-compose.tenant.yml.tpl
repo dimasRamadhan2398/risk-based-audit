@@ -131,6 +131,11 @@ services:
       <<: *tenant-env
       DATABASE_NAME: rb_audit_risk___SLUG__
       KAFKA_SERVICE_NAME: risk-service-__SLUG__
+      # risk-service is the only service that seeds at boot. Left enabled it
+      # injects ~570 rows of sample risk data into any empty tenant database
+      # the moment the container starts, so a client's "clean slate" instance
+      # would ship pre-loaded with someone else's example risks.
+      SEED_ON_BOOT: "false"
     command: ["./risk", "serve"]
     networks:
       - rb_audit_network

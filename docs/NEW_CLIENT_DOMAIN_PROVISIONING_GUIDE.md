@@ -197,56 +197,70 @@ sudo nginx -t && sudo systemctl reload nginx
 Each microservice in AuditSphere connects to its own database. For Accenture, we create isolated databases with the prefix `rb_audit_*_accenture`.
 
 ### 1. Create Tenant Databases in PostgreSQL
-Connect to the PostgreSQL instance (or execute inside `rb_audit_postgres` container):
+
+`scripts/onboard-tenant.sh` does this for you (step 2), skipping any database
+that already exists so re-onboarding a tenant is safe. To do it by hand:
 
 ```bash
-docker exec -i rb_audit_postgres psql -U postgres <<EOF
--- Create isolated databases for Accenture
+docker exec -i rb_audit_postgres psql -U postgres <<EOSQL
 CREATE DATABASE rb_audit_auth_accenture;
 CREATE DATABASE rb_audit_audit_accenture;
 CREATE DATABASE rb_audit_master_accenture;
 CREATE DATABASE rb_audit_risk_accenture;
-CREATE DATABASE rb_audit_analytics_accenture;
-
--- (Optional) Create dedicated user with isolated privileges
-CREATE USER db_user_accenture WITH ENCRYPTED PASSWORD 'AccentureSecurePassword2026!';
-GRANT ALL PRIVILEGES ON DATABASE rb_audit_auth_accenture TO db_user_accenture;
-GRANT ALL PRIVILEGES ON DATABASE rb_audit_audit_accenture TO db_user_accenture;
-GRANT ALL PRIVILEGES ON DATABASE rb_audit_master_accenture TO db_user_accenture;
-GRANT ALL PRIVILEGES ON DATABASE rb_audit_risk_accenture TO db_user_accenture;
-GRANT ALL PRIVILEGES ON DATABASE rb_audit_analytics_accenture TO db_user_accenture;
-EOF
+EOSQL
 ```
 
-### 2. Run Database Migrations & Initial Seeders
-Run migrations for each Go microservice pointing to the new databases:
-
-```bash
-# 1. Auth Service Migrations & Default RBAC Seeding
-(cd backend/auth-service && \
-  DB_NAME=rb_audit_auth_accenture ./auth --config ./pkg/config/config.yaml migrate up && \
-  DB_NAME=rb_audit_auth_accenture ./auth --config ./pkg/config/config.yaml seed)
-
-# 2. Audit Service Migrations
-(cd backend/audit-service && \
-  DB_NAME=rb_audit_audit_accenture ./audit --config ./pkg/config/config.yaml migrate up)
-
-# 3. Master Service Migrations & Organization Seeder
-(cd backend/master-service && \
-  DB_NAME=rb_audit_master_accenture ./master --config ./pkg/config/config.yaml migrate up)
-
-# 4. Risk Service Migrations & Seed Risk Universe
-(cd backend/risk-service && \
-  DB_NAME=rb_audit_risk_accenture ./risk --config ./pkg/config/config.yaml migrate up && \
-  DB_NAME=rb_audit_risk_accenture ./risk --config ./pkg/config/config.yaml seed)
-
-# 5. Analytics Service Migrations
-(cd backend/analytics-service && \
-  DB_NAME=rb_audit_analytics_accenture ./analytics --config ./pkg/config/config.yaml migrate up)
-```
+There is no `rb_audit_analytics_accenture`. `analytics-service` is stateless —
+`cmd/main.go` starts a gin server and opens no database handle — so an analytics
+database would be created and never connected to.
 
 > [!NOTE]
-> The auth seeder automatically initializes standard roles: `Super Admin`, `Chief Audit Executive (CAE)`, `Audit Team Leader`, `Auditor`, and `Auditee`, ready for the Accenture internal audit team.
+> The services authenticate as the `postgres` superuser from their config, so a
+> per-tenant database user is not wired up today. Adding one means overriding
+> `DATABASE_USERNAME` / `DATABASE_PASSWORD` in the tenant's generated compose
+> file as well as creating the role — granting privileges alone changes nothing.
+
+### 2. Run Database Migrations & Initial Seeders
+
+Run these **inside the tenant's containers**, not on the host:
+
+```bash
+TENANT=backend/tenants/accenture
+COMPOSE="docker compose --project-directory $TENANT --env-file $TENANT/.env"
+
+$COMPOSE run --rm --no-deps auth-service-accenture   ./auth migrate up
+$COMPOSE run --rm --no-deps auth-service-accenture   ./auth seed      # roles & permissions
+$COMPOSE run --rm --no-deps audit-service-accenture  ./audit migrate up
+$COMPOSE run --rm --no-deps master-service-accenture ./master migrate
+$COMPOSE run --rm --no-deps risk-service-accenture   ./risk up
+
+# Demo dataset only — skip these for a clean, empty tenant
+$COMPOSE run --rm --no-deps audit-service-accenture  ./audit seed
+$COMPOSE run --rm --no-deps master-service-accenture ./master seed
+$COMPOSE run --rm --no-deps risk-service-accenture   ./risk seed
+```
+
+> [!WARNING]
+> **Do not run the migration binaries from the host.** The services resolve
+> Postgres at the hostname `postgres`, a Docker network alias that does not
+> resolve outside the bridge, and `backend/docker-compose.yml` publishes no
+> Postgres port — so a host-run migration cannot reach the database at all.
+
+> [!WARNING]
+> **The env var is `DATABASE_NAME`, not `DB_NAME`.** The config key is
+> `database.name`, which viper's env-key replacer maps to `DATABASE_NAME`.
+> `DB_NAME` is bound to nothing: setting it is silently ignored and the service
+> falls back to the shared database in `config.yaml` — migrating and seeding the
+> wrong tenant. Running through the tenant's compose file avoids the trap
+> entirely, since `DATABASE_NAME` is already set there per service.
+
+The migrate verbs are **not** interchangeable between services — see the table
+in [Phase 6](#phase-6-automated-tenant-onboarding-script). In particular
+`./risk migrate up` fails, and `./analytics migrate up` boots a web server that
+never exits.
+
+> [!NOTE]
+> The auth seeder automatically initializes standard roles: `Super Admin`, `Chief Audit Executive (CAE)`, `Audit Team Leader`, `Auditor`, and `Auditee`, ready for the Accenture internal audit team. It also creates the default `admin` / `password123` account — rotate it before handover.
 
 ---
 
@@ -303,155 +317,99 @@ gdrive:
 
 ## Phase 4: Backend Microservices & Kong Gateway Setup
 
-### 1. Update Kong Gateway Declarative Configuration (`kong.yml`)
-Add the new client domain to the CORS allowed origins in `backend/kong-gateway/kong/prod/kong.yml`:
+### 1. Tenant Kong Gateway Configuration
 
-```yaml
-plugins:
-  - name: cors
-    config:
-      origins:
-        - "https://auditsphere.app"
-        - "https://accenture.auditsphere.id" # <-- Add new client domain
-      methods:
-        - GET
-        - POST
-        - PUT
-        - PATCH
-        - DELETE
-        - OPTIONS
-      headers:
-        - Accept
-        - Authorization
-        - Cache-Control
-        - Content-Type
-        - Origin
-        - X-Requested-With
-        - X-CSRF-Token
-      credentials: true
-      max_age: 3600
-```
+Each tenant runs **its own Kong container** with its own declarative config at
+`backend/tenants/<slug>/kong/kong.yml`, rendered by the generator from
+`scripts/templates/kong-tenant.yml.tpl`. Do not add client domains to the shared
+`backend/kong-gateway/kong/prod/kong.yml` — that gateway belongs to the control
+plane (`auditsphere.app`) and routes to the shared services.
 
-Reload Kong declarative configuration:
+Two things in the tenant config are worth knowing about:
+
+**Every upstream is tenant-scoped.** Routes point at `auth-service-<slug>`,
+`audit-service-<slug>` and so on, so the gateway has no route that could reach
+another tenant's services even though all containers share one bridge network.
+
+**`/api/v1/resend` is deliberately absent.** Minting Resend sending domains is a
+control-plane privilege; a tenant gateway exposing it would let one client
+provision email for any domain. The tenant's `auth-service` also runs with an
+empty `RESEND_MASTER_API_KEY` as a second lock.
+
+CORS is set to the tenant's own origin only. It is not on the hot path — the
+frontend calls `/api/v1` same-origin and the Nuxt server proxies to the gateway —
+but it matters for clients hitting `api-<slug>.auditsphere.id` directly. Never
+widen it to `"*"`: with `credentials: true` a wildcard origin is both invalid
+and a cross-tenant leak.
+
+Validate a generated config before starting the stack:
 ```bash
-curl -i -X POST http://localhost:8009/config \
-  -F config=@/usr/local/kong/declarative/kong.yml
+docker run --rm -e KONG_DATABASE=off \
+  -v "$PWD/backend/tenants/accenture/kong:/cfg:ro" \
+  kong:3.4 kong config parse /cfg/kong.yml
 ```
 
-### 2. Tenant Docker Compose Configuration (`docker-compose.accenture.yml`)
-For isolated microservice instances, create `backend/docker-compose.accenture.yml`:
+### 2. Tenant Docker Compose Configuration
 
-```yaml
-name: rbia_accenture
+Do not hand-write this file. `scripts/generate-tenant-stack.sh` renders it from
+`scripts/templates/docker-compose.tenant.yml.tpl` into
+`backend/tenants/<slug>/docker-compose.yml`, along with the tenant's Kong config:
 
-services:
-  accenture-auth:
-    image: rb-audit-auth:latest
-    container_name: rbia_auth_accenture
-    environment:
-      - DATABASE_NAME=rb_audit_auth_accenture
-      - PORT=8011
-    networks:
-      - rb_audit_network
-    restart: unless-stopped
-
-  accenture-audit:
-    image: rb-audit-audit:latest
-    container_name: rbia_audit_accenture
-    environment:
-      - DATABASE_NAME=rb_audit_audit_accenture
-      - GDRIVE_ENABLED=true
-      - GDRIVE_DEFAULT_FOLDER_ID=1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A
-      - PORT=8012
-    networks:
-      - rb_audit_network
-    restart: unless-stopped
-
-  accenture-master:
-    image: rb-audit-master:latest
-    container_name: rbia_master_accenture
-    environment:
-      - DATABASE_NAME=rb_audit_master_accenture
-      - PORT=8013
-    networks:
-      - rb_audit_network
-    restart: unless-stopped
-
-  accenture-risk:
-    image: rb-audit-risk:latest
-    container_name: rbia_risk_accenture
-    environment:
-      - DATABASE_NAME=rb_audit_risk_accenture
-      - PORT=8014
-    networks:
-      - rb_audit_network
-    restart: unless-stopped
-
-  accenture-kong:
-    image: kong:3.4
-    container_name: rbia_kong_accenture
-    volumes:
-      - ./kong-gateway/kong/accenture:/usr/local/kong/declarative
-    environment:
-      KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
-      KONG_PROXY_LISTEN: 0.0.0.0:8090
-      KONG_ADMIN_LISTEN: 0.0.0.0:8019
-    ports:
-      - "8090:8090"
-      - "8019:8019"
-    networks:
-      - rb_audit_network
-    restart: unless-stopped
-
-networks:
-  rb_audit_network:
-    external: true
+```bash
+./scripts/generate-tenant-stack.sh accenture "Accenture"
 ```
+
+The generator does the bookkeeping that is easy to get wrong by hand:
+
+| Concern | How the generator handles it |
+| :--- | :--- |
+| **Host ports** | Allocated from `backend/tenants/registry.tsv`, starting at 3010 / 8090 / 8019 and skipping any port another tenant already holds. |
+| **Service naming** | Every service is suffixed with the slug (`auth-service-accenture`). All tenants share the `rb_audit_network` bridge, so two tenants both claiming the alias `auth-service` would make cross-tenant routing a DNS coin flip. |
+| **Database routing** | `DATABASE_NAME` per service, set in the compose file. The config key is `database.name`, which viper's env-key replacer maps to `DATABASE_NAME` — `DB_NAME` is bound to nothing and silently falls back to the shared database. |
+| **Token isolation** | A fresh `JWT_SECRET` and `APP_SIGNATURE_KEY` per tenant, written to `backend/tenants/<slug>/.env` (mode 600, gitignored). The stock `config.yaml` ships one hardcoded `jwt.secret` for every service in the repo — left in place, a token minted for one tenant validates on every other tenant. |
+| **Redis isolation** | A dedicated logical DB index per tenant. Sessions, MFA challenges and rate-limit counters are unprefixed keys; on a shared index they collide. Redis defaults to 16 databases, so index 0 (control plane) plus 15 tenants is the ceiling. |
+| **Storage** | The tenant's evidence silo is bind-mounted into `audit-service` at `/root/uploads`, and `GDRIVE_ENABLED=false` keeps fieldwork out of the shared Drive service account. |
+| **Port exposure** | Kong and the frontend publish on `127.0.0.1` only, so the host Nginx vhost is the sole way in and the TLS certificate cannot be bypassed. |
+
+Regenerating an existing tenant requires `--force`, and reuses its ports, Redis
+index and secrets — rotating `JWT_SECRET` would sign out every active auditor.
+
+> [!WARNING]
+> Both Dockerfiles copy pre-built artefacts rather than compiling: the Go
+> services need their `linux/amd64` binaries present, and the frontend needs
+> `frontend/.output`. A build succeeds with a stale or missing artefact and only
+> fails at container start, so the generator's preflight checks for both.
 
 ---
 
 ## Phase 5: Frontend (Nuxt 4) Deployment & Branding
 
-### 1. Deploy Tenant Frontend Container
-Deploy a dedicated Nuxt container listening on port `3010`:
+### 1. Tenant Frontend Container
 
-```bash
-mkdir -p /app/rbia-frontend-accenture
-cd /app/rbia-frontend-accenture
-```
+The tenant's Nuxt container is part of the generated stack — there is no
+separate `/app/rbia-frontend-<slug>` directory to create. It runs the same
+`frontend/Dockerfile` image as every other tenant; only its environment differs.
 
-Create `/app/rbia-frontend-accenture/.env`:
-```env
-API_BASE_URL=https://api-accenture.auditsphere.id/api/v1
-ANALYTICS_API_BASE_URL=https://api-accenture.auditsphere.id/api/analytics
-NUXT_PUBLIC_AUTH_SERVICE_BASE_URL=https://api-accenture.auditsphere.id/api/v1
-NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=https://api-accenture.auditsphere.id/api/v1
-NUXT_PUBLIC_RISK_SERVICE_BASE_URL=https://api-accenture.auditsphere.id/api/v1
-NUXT_PUBLIC_MASTER_SERVICE_BASE_URL=https://api-accenture.auditsphere.id/api/v1
-NUXT_PUBLIC_TENANT_NAME="Accenture"
-NUXT_PUBLIC_TENANT_LOGO="/branding/accenture-logo.png"
-```
+The generated service points the browser and the server at different places, on
+purpose:
 
-Create `/app/rbia-frontend-accenture/docker-compose.yml`:
 ```yaml
-version: '3.8'
+# Browser-facing: same-origin, so no preflight and no third-party cookies.
+API_BASE_URL: /api/v1
+ANALYTICS_API_BASE_URL: /api/analytics
 
-services:
-  frontend-accenture:
-    image: rbia-frontend-prod:latest
-    container_name: rbia_frontend_accenture
-    ports:
-      - "3010:3000"
-    env_file:
-      - .env
-    restart: unless-stopped
+# Server-side: Nuxt proxies those paths to this tenant's own gateway.
+API_BASE_URL_SERVER: http://kong-accenture:8080/api/v1/**
+ANALYTICS_API_BASE_URL_SERVER: http://kong-accenture:8080/api/analytics/**
 ```
 
-Start the container:
-```bash
-docker compose up -d
-```
+Pointing the browser at `https://api-accenture.auditsphere.id` directly also
+works — the Nginx vhost and the tenant Kong CORS origin are both provisioned for
+it — but the same-origin default avoids CORS on the request path entirely.
+
+The container publishes on `127.0.0.1:<fe_port>`; the host Nginx vhost from
+Phase 1 is what makes it reachable at the client's domain.
+
 
 ### 2. Client Branding & Customization
 To customize the logo and brand for Accenture in `frontend/components/Logo.vue`:
@@ -462,95 +420,85 @@ To customize the logo and brand for Accenture in `frontend/components/Logo.vue`:
 
 ## Phase 6: Automated Tenant Onboarding Script
 
-To onboard new clients in under 2 minutes, use the following bash automation script:
+`scripts/onboard-tenant.sh` runs the whole pipeline. It calls the stack
+generator from Phase 4 first, so the ports and secrets exist before anything
+needs them.
 
-`scripts/onboard-tenant.sh`:
 ```bash
-#!/bin/bash
-# =============================================================================
-# AuditSphere Automated Tenant Onboarding Script
-# Usage: ./scripts/onboard-tenant.sh <tenant_slug> <client_name> <gdrive_folder_id> <frontend_port> <kong_port>
-# Example: ./scripts/onboard-tenant.sh accenture "Accenture" "1bX7yZ9kL0mN8pQ2rS4tU6vW8xYz1234A" 3010 8090
-# =============================================================================
+chmod +x scripts/onboard-tenant.sh scripts/generate-tenant-stack.sh
 
-set -e
+# Production
+./scripts/onboard-tenant.sh accenture "Accenture" 3010 8090
 
-SLUG=${1:?"Error: Tenant slug is required (e.g. accenture)"}
-CLIENT_NAME=${2:?"Error: Client name is required (e.g. 'Accenture')"}
-GDRIVE_ID=${3:?"Error: Google Drive Folder ID is required"}
-FE_PORT=${4:-3010}
-KONG_PORT=${5:-8090}
-
-DOMAIN="${SLUG}.auditsphere.id"
-API_DOMAIN="api-${SLUG}.auditsphere.id"
-
-echo "╔══════════════════════════════════════════════════════════════╗"
-echo "║          AuditSphere Client Onboarding: $CLIENT_NAME         "
-echo "║          Domain    : $DOMAIN                                 "
-echo "║          API Domain: $API_DOMAIN                             "
-echo "║          GDrive ID : $GDRIVE_ID                              "
-echo "╚══════════════════════════════════════════════════════════════╝"
-
-# 1. Create Databases
-echo "==> [1/5] Creating isolated PostgreSQL databases..."
-docker exec -i rb_audit_postgres psql -U postgres <<EOSQL
-CREATE DATABASE rb_audit_auth_${SLUG};
-CREATE DATABASE rb_audit_audit_${SLUG};
-CREATE DATABASE rb_audit_master_${SLUG};
-CREATE DATABASE rb_audit_risk_${SLUG};
-CREATE DATABASE rb_audit_analytics_${SLUG};
-EOSQL
-
-# 2. Run Migrations & Seeds
-echo "==> [2/5] Running schema migrations & initial seeds..."
-(cd backend/auth-service && DB_NAME=rb_audit_auth_${SLUG} ./auth migrate up && DB_NAME=rb_audit_auth_${SLUG} ./auth seed)
-(cd backend/audit-service && DB_NAME=rb_audit_audit_${SLUG} ./audit migrate up)
-(cd backend/master-service && DB_NAME=rb_audit_master_${SLUG} ./master migrate up)
-(cd backend/risk-service && DB_NAME=rb_audit_risk_${SLUG} ./risk migrate up && DB_NAME=rb_audit_risk_${SLUG} ./risk seed)
-(cd backend/analytics-service && DB_NAME=rb_audit_analytics_${SLUG} ./analytics migrate up)
-
-# 3. Generate Nginx Config
-echo "==> [3/5] Generating Nginx reverse proxy configuration..."
-cat <<NGINXCONF > /etc/nginx/sites-available/${DOMAIN}.conf
-server {
-    listen 80;
-    server_name ${DOMAIN};
-    location / {
-        proxy_pass http://127.0.0.1:${FE_PORT};
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-    }
-}
-server {
-    listen 80;
-    server_name ${API_DOMAIN};
-    location / {
-        proxy_pass http://127.0.0.1:${KONG_PORT};
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-    }
-}
-NGINXCONF
-
-ln -sf /etc/nginx/sites-available/${DOMAIN}.conf /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
-
-# 4. Issue SSL Certificates
-echo "==> [4/5] Provisioning SSL certificates via Certbot..."
-certbot --nginx -d ${DOMAIN} -d ${API_DOMAIN} --agree-tos -m admin@auditsphere.id --non-interactive || echo "Warning: Certbot skipped or DNS not yet propagated"
-
-# 5. Launch Tenant Stack
-echo "==> [5/5] Tenant stack successfully initialized!"
-echo "--------------------------------------------------------------"
-echo "Client $CLIENT_NAME is ready at: https://${DOMAIN}"
-echo "API Endpoint at: https://${API_DOMAIN}"
-echo "--------------------------------------------------------------"
+# Local development — <slug>.localhost, plain HTTP, no Nginx or Certbot
+./scripts/onboard-tenant.sh accenture "Accenture" 3010 8090 --local --empty-data
 ```
 
-Make the script executable:
-```bash
-chmod +x scripts/onboard-tenant.sh
-```
+| Flag | Effect |
+| :--- | :--- |
+| `--local` | Target `<slug>.localhost` over HTTP; skip the Nginx vhost and Certbot |
+| `--empty-data` | Migrate only — no demo records (**default**) |
+| `--with-demo-data` | Also run the demo seeders for audit, master and risk |
+| `--skip-start` | Provision everything but leave the stack stopped |
+
+The port arguments are requests, not guarantees: if another tenant already holds
+a port, the generator takes the next free one and the script reports what was
+actually allocated. `backend/tenants/registry.tsv` is the source of truth.
+
+### What each step does
+
+| Step | Action |
+| :--- | :--- |
+| 1 | Generate the tenant's compose stack and Kong config; allocate ports, Redis index, secrets |
+| 2 | Create `rb_audit_{auth,audit,master,risk}_<slug>`, skipping any that already exist |
+| 3 | Build the tenant service images |
+| 4 | Run migrations and the role seeder **inside the containers** |
+| 5 | Create the dedicated evidence storage silo |
+| 6 | Start the stack (5 services + Kong + frontend) |
+| 7 | Write the Nginx vhost and issue certificates (production only) |
+
+There is no `rb_audit_analytics_<slug>` database. `analytics-service` is
+stateless — `cmd/main.go` starts a gin server and opens no database handle; it
+forwards scoring requests to the shared `python-ai` model server.
+
+### Why migrations run inside the containers
+
+The services resolve Postgres at the hostname `postgres`, which is a Docker
+network alias. It does not resolve on the host, and `backend/docker-compose.yml`
+publishes no Postgres port — so running the migration binaries from the host
+cannot reach the database at all. Step 4 uses `docker compose run --rm --no-deps`
+instead, which also means `DATABASE_NAME` comes from the generated compose file
+and a tenant migration can no longer be aimed at the shared database.
+
+The migrate verbs differ per service and are **not** interchangeable:
+
+| Service | Migrate | Seed |
+| :--- | :--- | :--- |
+| `auth` | `./auth migrate up` | `./auth seed` |
+| `audit` | `./audit migrate up` | `./audit seed` |
+| `master` | `./master migrate` | `./master seed` |
+| `risk` | `./risk up` | `./risk seed` |
+
+`./risk migrate up` fails with `unknown command "migrate"`, and
+`./analytics migrate up` ignores its arguments and boots the HTTP server — under
+`set -e` that hangs the script indefinitely rather than erroring.
+
+The auth seeder is not optional even for an empty-data tenant: it creates the
+roles and permissions required to log in.
+
+> [!WARNING]
+> **Rotate the default admin before handing over the instance.** The auth seeder
+> creates `admin` / `password123`, identical on every tenant.
+
+> [!IMPORTANT]
+> Back up `backend/tenants/<slug>/.env` alongside the tenant's database. It
+> holds the JWT signing secret and is not in git; losing it signs out every
+> auditor on that instance.
+
+Resend sending-domain provisioning is **not** part of this script — run it from
+the Site Generator, which calls `POST /api/v1/resend/provision` on the
+control-plane auth-service.
+
 
 ---
 

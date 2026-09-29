@@ -78,8 +78,10 @@
             :placeholder="t('settings.profile.selectDepartment')"
             :items="departments"
             value-key="value"
+            label-key="label"
             size="lg"
             class="w-full"
+            :loading="loadingDepartments"
           />
         </UFormField>
 
@@ -122,6 +124,8 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
+import type { Department } from '~/types/master'
 
 const props = defineProps({
   accept: {
@@ -135,21 +139,17 @@ const props = defineProps({
 })
 
 const authStore = useAuthStore()
+const departmentApi = useDepartmentApi()
 const toast = useToast()
 const { t } = useI18n()
 
-const departments = [
-  { label: 'Internal Audit', value: 'internal-audit' },
-  { label: 'Risk Management', value: 'risk-management' },
-  { label: 'Compliance', value: 'compliance' },
-  { label: 'Finance & Accounting', value: 'finance' },
-  { label: 'Information Technology', value: 'it' },
-  { label: 'Human Resources (HRD)', value: 'hrd' },
-  { label: 'Operations', value: 'operations' },
-  { label: 'Legal', value: 'legal' },
-  { label: 'Procurement', value: 'procurement' },
-  { label: 'Corporate Secretary', value: 'corporate-secretary' },
-]
+interface DepartmentOption {
+  label: string
+  value: string
+}
+
+const departments = ref<DepartmentOption[]>([])
+const loadingDepartments = ref(false)
 
 const form = ref({
   fullName: '',
@@ -170,12 +170,100 @@ const userInitial = computed(() => {
   return name.charAt(0).toUpperCase()
 })
 
+const legacyMapping: Record<string, string> = {
+  'internal-audit': 'Internal Audit',
+  'it': 'Information Technology',
+  'information-technology': 'Information Technology',
+  'finance': 'Finance & Accounting',
+  'finance-accounting': 'Finance & Accounting',
+  'operations': 'Operations',
+  'risk-management': 'Risk Management',
+  'compliance': 'Compliance',
+  'hrd': 'Human Resources (HRD)',
+  'human-resources': 'Human Resources (HRD)',
+  'legal': 'Legal',
+  'procurement': 'Procurement',
+  'corporate-secretary': 'Corporate Secretary',
+}
+
+const resolveDepartmentSelection = (val?: string) => {
+  const current = (val || form.value.department || '').trim()
+  if (!current) return
+
+  // 1. Exact match on value
+  const exact = departments.value.find(d => d.value === current)
+  if (exact) {
+    form.value.department = exact.value
+    return
+  }
+
+  // 2. Case-insensitive match on value or label
+  const curLower = current.toLowerCase()
+  const ciMatch = departments.value.find(
+    d => d.value.toLowerCase() === curLower || d.label.toLowerCase() === curLower
+  )
+  if (ciMatch) {
+    form.value.department = ciMatch.value
+    return
+  }
+
+  // 3. Check legacy aliases / slugs
+  const mapped = legacyMapping[curLower]
+  if (mapped) {
+    const mapMatch = departments.value.find(
+      d => d.value.toLowerCase() === mapped.toLowerCase() || d.label.toLowerCase() === mapped.toLowerCase()
+    )
+    if (mapMatch) {
+      form.value.department = mapMatch.value
+      return
+    }
+  }
+
+  // 4. If current value exists but is not in master departments, retain it as an option
+  const fallbackLabel = mapped || current
+  departments.value.push({
+    label: fallbackLabel,
+    value: fallbackLabel,
+  })
+  form.value.department = fallbackLabel
+}
+
+const fetchDepartments = async () => {
+  loadingDepartments.value = true
+  try {
+    const list = await departmentApi.getAllDepartments()
+    const activeDepartments = list.filter((d: Department) => d.is_active !== false)
+
+    // Build options from master department API
+    departments.value = activeDepartments.map((d: Department) => ({
+      label: d.department_name,
+      value: d.department_name,
+    }))
+
+    // Resolve current selection with the newly loaded master options
+    if (form.value.department || authStore.user?.department) {
+      resolveDepartmentSelection(form.value.department || authStore.user?.department)
+    }
+  } catch (err) {
+    console.error('Failed to load master departments:', err)
+  } finally {
+    loadingDepartments.value = false
+  }
+}
+
 const syncFormFromStore = () => {
   if (authStore.user) {
     form.value.fullName = authStore.user.fullName || authStore.user.username || ''
     form.value.email = authStore.user.email || ''
     form.value.phone = authStore.user.phone || ''
-    form.value.department = authStore.user.department || 'internal-audit'
+    const dept = authStore.user.department || ''
+    if (dept) {
+      if (departments.value.length > 0) {
+        resolveDepartmentSelection(dept)
+      } else {
+        form.value.department = dept
+      }
+    }
     form.value.position = authStore.user.position || ''
   }
 }
@@ -187,7 +275,14 @@ const fetchProfileData = async () => {
       form.value.fullName = profile.full_name || profile.fullName || authStore.user?.username || ''
       form.value.email = profile.email || authStore.user?.email || ''
       form.value.phone = profile.phone || ''
-      form.value.department = profile.department || 'internal-audit'
+      const dept = profile.department || authStore.user?.department || ''
+      if (dept) {
+        if (departments.value.length > 0) {
+          resolveDepartmentSelection(dept)
+        } else {
+          form.value.department = dept
+        }
+      }
       form.value.position = profile.position || ''
     } else {
       syncFormFromStore()
@@ -197,13 +292,20 @@ const fetchProfileData = async () => {
   }
 }
 
-onMounted(() => {
-  fetchProfileData()
+onMounted(async () => {
+  await Promise.all([
+    fetchDepartments(),
+    fetchProfileData(),
+  ])
+  if (form.value.department) {
+    resolveDepartmentSelection(form.value.department)
+  }
 })
 
 watch(() => authStore.user, syncFormFromStore, { immediate: true })
 
 const resetForm = () => {
+  fetchDepartments()
   fetchProfileData()
   clearStatus()
 }

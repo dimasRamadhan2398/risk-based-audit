@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { extractErrorMessage } from '~/utils/error';
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
 export interface KPIAchievement {
   id: string;
@@ -79,10 +80,7 @@ export const usePerformanceStore = defineStore('performance', () => {
     { id: '3', year: 2025, audit_annual_plan_id: 'AP-2025-01', planned_activities: 10, executed_activities: 9, realization_rate: 90.00, annual_plan: { title: 'Rencana Audit Tahunan 2025' } }
   ];
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig();
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1';
-  };
+
 
   const fetchDashboardSummary = async (year: number = 2026) => {
     loading.value = true;

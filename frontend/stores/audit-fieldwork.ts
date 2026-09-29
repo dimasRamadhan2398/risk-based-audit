@@ -4,6 +4,7 @@ import { useAssignmentLetterStore } from './assignment-letter'
 import { useAppToast } from '~/composables/useAppToast'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface InterviewItem {
   id: any
@@ -75,10 +76,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const loading = ref(false)
   const errorMsg = ref('')
 
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   const publishedAssignmentLetters = computed(() => {
     return assignmentLetterStore.assignmentLetterList
@@ -792,7 +790,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     if (targetUrl && (targetUrl.startsWith('http://') || targetUrl.startsWith('https://'))) {
       return targetUrl
     }
-    const targetName = item.fileName || item.file?.name || ''
+    const targetName = item.fileName || item.file || ''
     const baseUrl = getAuditServiceBaseUrl()
     if (targetName) {
       return `${baseUrl}/media/download/${encodeURIComponent(targetName)}`
@@ -803,7 +801,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     return ''
   }
 
-  const previewInterviewFile = (item: {
+  const previewInterviewFile = async (item: {
     file?: File | null
     fileName?: string
     filePath?: string
@@ -815,7 +813,29 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       toast.info('Berkas belum tersedia untuk ditampilkan.')
       return
     }
-    window.open(previewUrl, '_blank')
+
+    // Blob URLs and external links open directly; our API needs the auth
+    // token, which a plain window.open cannot send
+    if (!previewUrl.startsWith(getAuditServiceBaseUrl())) {
+      window.open(previewUrl, '_blank')
+      return
+    }
+
+    // Open the tab synchronously so the popup blocker allows it
+    const tab = window.open('', '_blank')
+    try {
+      const blob = await $fetch<Blob>(previewUrl, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(blob)
+      if (tab) {
+        tab.location.href = url
+      } else {
+        window.open(url, '_blank')
+      }
+      setTimeout(() => window.URL.revokeObjectURL(url), 60000)
+    } catch (err) {
+      tab?.close()
+      toast.error(extractErrorMessage(err, 'Gagal membuka berkas.'))
+    }
   }
 
   const downloadInterviewFile = async (item: {
@@ -893,11 +913,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           return
         }
 
-        // Direct fallback: trigger attachment download endpoint
-        if (targetName) {
-          window.open(`${baseUrl}/media/download/${encodeURIComponent(targetName)}?download=true`, '_blank')
-          return
-        }
+        // Every candidate was already fetched with the auth token above, so a
+        // bare window.open to the API would only fail with 401
+        toast.error(`Berkas ${targetName} tidak ditemukan.`)
+        return
       } catch (err) {
         console.warn('Download failed:', err)
         toast.error(`Gagal mengunduh berkas ${targetName}`)
@@ -1927,6 +1946,8 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlCount,
     effectiveControls,
     ineffectiveControls,
+    mockFieldwork,
+    fieldworkData,
     uploadFile,
     downloadFile,
     fetchAllFieldworkData,

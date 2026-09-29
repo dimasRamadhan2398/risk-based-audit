@@ -68,7 +68,14 @@
                 class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm' }"
             >
-                <UInput v-model="store.causeForm.criteria" :placeholder="t('workingPaper.causeForm.criteriaPlaceholder')" class="w-full" />
+                <USelectMenu
+                    v-model="store.causeForm.criteria"
+                    :items="store.criteriaOptions"
+                    value-key="value"
+                    :loading="store.loadingSopOptions"
+                    :placeholder="t('workingPaper.causeForm.criteriaPlaceholder')"
+                    class="w-full"
+                />
             </UFormField>
 
             <UFormField 

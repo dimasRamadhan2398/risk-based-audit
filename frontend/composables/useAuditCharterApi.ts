@@ -6,9 +6,10 @@ export type AuditCharterPayload = {
   is_active: boolean
 }
 
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+
 export const useAuditCharterApi = () => {
-  const config = useRuntimeConfig()
-  const baseUrl = config.public.auditServiceBaseUrl
+  const baseUrl = getAuditServiceBaseUrl()
 
   const getAuditCharters = async () => {
     return await $fetch(`${baseUrl}/audit-charters`, {

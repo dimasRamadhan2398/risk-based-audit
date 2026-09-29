@@ -30,5 +30,17 @@ func SetupRoutes(r *gin.Engine) {
 		api.GET("/performance-trend/batch", analyticsController.GetPerformanceTrendBatch)
 
 		api.POST("/retrain/auto", analyticsController.TriggerAutoRetrain)
+		
+		// CAATT Analytics routes
+		caatt := api.Group("/caatt")
+		{
+			caatt.GET("/full-population", analyticsController.GetFullPopulation)
+			caatt.GET("/duplicate-gap", analyticsController.GetDuplicateGap)
+			caatt.GET("/benford", analyticsController.GetBenfordAnalysis)
+			caatt.GET("/stratification", analyticsController.GetStratification)
+			caatt.GET("/reconciliation", analyticsController.GetReconciliation)
+			caatt.GET("/policy-violations", analyticsController.GetPolicyViolations)
+			caatt.GET("/data-quality", analyticsController.GetDataQualityMetrics)
+		}
 	}
 }

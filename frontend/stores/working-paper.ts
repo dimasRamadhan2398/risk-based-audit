@@ -822,6 +822,42 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
+  // F-04 criteria options: the SOPs registered under Audit Charter
+  const sopOptions = ref<{ label: string, value: string, description?: string }[]>([])
+  const loadingSopOptions = ref(false)
+
+  const fetchSopOptions = async () => {
+    loadingSopOptions.value = true
+    try {
+      const authStore = useAuthStore()
+      const response: any = await $fetch(`${getAuditServiceBaseUrl()}/audit-sops`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${authStore.token}` },
+        query: { page_size: 100, order: 'name ASC' },
+      })
+      const items = response?.data?.items ?? []
+      sopOptions.value = items.map((sop: any) => ({
+        label: sop.name,
+        value: sop.name,
+        description: [sop.guideline?.name, sop.status].filter(Boolean).join(' · '),
+      }))
+    } catch (error) {
+      console.error('Failed to fetch SOP options:', error)
+      sopOptions.value = []
+    } finally {
+      loadingSopOptions.value = false
+    }
+  }
+
+  // Keeps an existing criteria that is not (or no longer) an SOP selectable when editing
+  const criteriaOptions = computed(() => {
+    const current = causeForm.criteria
+    if (current && !sopOptions.value.some(o => o.value === current)) {
+      return [{ label: current, value: current }, ...sopOptions.value]
+    }
+    return sopOptions.value
+  })
+
   const openModalF04 = () => {
     isEditingF04.value = false
     editingIdF04.value = null
@@ -834,6 +870,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       evidenceFile: null,
       rootCause: []
     })
+    fetchSopOptions()
     showModalF04.value = true
   }
 
@@ -863,6 +900,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     causeForm.evidenceFile = cause.evidenceFile ? new File([], cause.evidenceFile) : null
     causeForm.rootCause = cause.rootCause ? cause.rootCause.map((rca: any) => ({ ...rca })) : []
 
+    fetchSopOptions()
     showModalF04.value = true
   }
 
@@ -1096,6 +1134,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     showModalF01, showModalF02, showModalF03, showModalF04, showModalF05,
     isEditingF01, isEditingF02, isEditingF03, isEditingF04, isEditingF05,
     dataF01, dataF02, dataF03, dataF04, dataF05,
+    mockF01, mockF02, mockF03, mockF04, mockF05,
     filteredDataF01, filteredDataF02, filteredDataF03, filteredDataF04, filteredDataF05,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,
@@ -1107,6 +1146,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     addSample, removeSample, addRootCause, removeRootCause, triggerUpload, onFileChange,
     checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile,
     addActivity, removeActivity,
+    criteriaOptions, loadingSopOptions,
     loading, errorMsg, fetchAllData
   }
 })

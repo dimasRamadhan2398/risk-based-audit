@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { TableColumn } from '@nuxt/ui'
 import { extractErrorMessage } from '~/utils/error'
+import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface RiskAppetite {
   id: string
@@ -59,10 +60,7 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
   ]
 
 
-  const getRiskServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
-  }
+
 
   const mockStatements: RiskAppetite[] = [
     {

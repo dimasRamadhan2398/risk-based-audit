@@ -143,6 +143,7 @@
 import { computed, onMounted } from 'vue'
 import { useSopStore } from '~/stores/sop'
 import { useGuidelineStore } from '~/stores/guideline'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
@@ -202,8 +203,7 @@ const openFile = (fileUrl: string) => {
     window.open(fileUrl, '_blank')
     return
   }
-  const config = useRuntimeConfig()
-  const baseUrl = config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+  const baseUrl = getAuditServiceBaseUrl()
   const finalUrl = fileUrl.startsWith('/') ? `${baseUrl.replace(/\/api\/v1$/, '')}${fileUrl}` : `${baseUrl}/${fileUrl}`
   window.open(finalUrl, '_blank')
 }

@@ -36,6 +36,131 @@ func GetEffectivenessRating(score float64) (string, string) {
 	}
 }
 
+type RCMRequest struct {
+	ID                           *string  `json:"id,omitempty"`
+	RiskID                       *string  `json:"risk_id,omitempty"`
+	RiskCode                     string   `json:"risk_code"`
+	RiskEvent                    string   `json:"risk_event"`
+	ControlCode                  string   `json:"control_code"`
+	ControlDescription           string   `json:"control_description"`
+	ControlType                  string   `json:"control_type"`
+	ControlOwner                 string   `json:"control_owner"`
+	Department                   string   `json:"department"`
+	Year                         int      `json:"year"`
+	DesignEffectivenessWeight    float64  `json:"design_effectiveness_weight"`
+	DesignEffectivenessRating    int      `json:"design_effectiveness_rating"`
+	OperatingEffectivenessWeight float64  `json:"operating_effectiveness_weight"`
+	OperatingEffectivenessRating int      `json:"operating_effectiveness_rating"`
+	CoverageCompletenessWeight   float64  `json:"coverage_completeness_weight"`
+	CoverageCompletenessRating   int      `json:"coverage_completeness_rating"`
+	TimelinessWeight             float64  `json:"timeliness_weight"`
+	TimelinessRating             int      `json:"timeliness_rating"`
+	AutomationMonitoringWeight   float64  `json:"automation_monitoring_weight"`
+	AutomationMonitoringRating   int      `json:"automation_monitoring_rating"`
+	TotalWeightedScore           float64  `json:"total_weighted_score"`
+	InherentRisk                 int      `json:"inherent_risk"`
+	ResidualRisk                 int      `json:"residual_risk"`
+	Notes                        string   `json:"notes"`
+}
+
+func parseRCMRequest(req *RCMRequest, target *models.RiskControlMatrix) {
+	if req.RiskID != nil && *req.RiskID != "" {
+		if parsed, err := uuid.Parse(*req.RiskID); err == nil {
+			target.RiskID = &parsed
+		} else {
+			target.RiskID = nil
+		}
+	} else {
+		target.RiskID = nil
+	}
+
+	target.RiskCode = req.RiskCode
+	target.RiskEvent = req.RiskEvent
+	target.ControlCode = req.ControlCode
+	target.ControlDescription = req.ControlDescription
+	if req.ControlType != "" {
+		target.ControlType = req.ControlType
+	} else if target.ControlType == "" {
+		target.ControlType = "Preventive"
+	}
+	target.ControlOwner = req.ControlOwner
+	target.Department = req.Department
+	if req.Year != 0 {
+		target.Year = req.Year
+	} else if target.Year == 0 {
+		target.Year = 2026
+	}
+
+	if req.DesignEffectivenessWeight > 0 {
+		target.DesignEffectivenessWeight = req.DesignEffectivenessWeight
+	} else if target.DesignEffectivenessWeight <= 0 {
+		target.DesignEffectivenessWeight = 20.0
+	}
+	if req.DesignEffectivenessRating > 0 {
+		target.DesignEffectivenessRating = req.DesignEffectivenessRating
+	} else if target.DesignEffectivenessRating <= 0 {
+		target.DesignEffectivenessRating = 3
+	}
+
+	if req.OperatingEffectivenessWeight > 0 {
+		target.OperatingEffectivenessWeight = req.OperatingEffectivenessWeight
+	} else if target.OperatingEffectivenessWeight <= 0 {
+		target.OperatingEffectivenessWeight = 20.0
+	}
+	if req.OperatingEffectivenessRating > 0 {
+		target.OperatingEffectivenessRating = req.OperatingEffectivenessRating
+	} else if target.OperatingEffectivenessRating <= 0 {
+		target.OperatingEffectivenessRating = 3
+	}
+
+	if req.CoverageCompletenessWeight > 0 {
+		target.CoverageCompletenessWeight = req.CoverageCompletenessWeight
+	} else if target.CoverageCompletenessWeight <= 0 {
+		target.CoverageCompletenessWeight = 20.0
+	}
+	if req.CoverageCompletenessRating > 0 {
+		target.CoverageCompletenessRating = req.CoverageCompletenessRating
+	} else if target.CoverageCompletenessRating <= 0 {
+		target.CoverageCompletenessRating = 3
+	}
+
+	if req.TimelinessWeight > 0 {
+		target.TimelinessWeight = req.TimelinessWeight
+	} else if target.TimelinessWeight <= 0 {
+		target.TimelinessWeight = 20.0
+	}
+	if req.TimelinessRating > 0 {
+		target.TimelinessRating = req.TimelinessRating
+	} else if target.TimelinessRating <= 0 {
+		target.TimelinessRating = 3
+	}
+
+	if req.AutomationMonitoringWeight > 0 {
+		target.AutomationMonitoringWeight = req.AutomationMonitoringWeight
+	} else if target.AutomationMonitoringWeight <= 0 {
+		target.AutomationMonitoringWeight = 20.0
+	}
+	if req.AutomationMonitoringRating > 0 {
+		target.AutomationMonitoringRating = req.AutomationMonitoringRating
+	} else if target.AutomationMonitoringRating <= 0 {
+		target.AutomationMonitoringRating = 3
+	}
+
+	if req.InherentRisk > 0 {
+		target.InherentRisk = req.InherentRisk
+	} else if target.InherentRisk <= 0 {
+		target.InherentRisk = 20
+	}
+	if req.ResidualRisk > 0 {
+		target.ResidualRisk = req.ResidualRisk
+	} else if target.ResidualRisk <= 0 {
+		target.ResidualRisk = 8
+	}
+
+	target.Notes = req.Notes
+	target.CalculateWeightedScore()
+}
+
 func (ctrl *RCMController) ListRCM(c *gin.Context) {
 	yearStr := c.Query("year")
 	dept := c.Query("department")
@@ -63,6 +188,10 @@ func (ctrl *RCMController) ListRCM(c *gin.Context) {
 		return
 	}
 
+	if list == nil {
+		list = []models.RiskControlMatrix{}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "RCM items retrieved successfully",
@@ -71,8 +200,8 @@ func (ctrl *RCMController) ListRCM(c *gin.Context) {
 }
 
 func (ctrl *RCMController) CreateRCM(c *gin.Context) {
-	var item models.RiskControlMatrix
-	if err := c.ShouldBindJSON(&item); err != nil {
+	var req RCMRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
 			"error": gin.H{
@@ -83,8 +212,18 @@ func (ctrl *RCMController) CreateRCM(c *gin.Context) {
 		return
 	}
 
-	item.ID = uuid.New()
-	item.CalculateWeightedScore()
+	var item models.RiskControlMatrix
+	if req.ID != nil && *req.ID != "" {
+		if parsedID, err := uuid.Parse(*req.ID); err == nil {
+			item.ID = parsedID
+		} else {
+			item.ID = uuid.New()
+		}
+	} else {
+		item.ID = uuid.New()
+	}
+
+	parseRCMRequest(&req, &item)
 
 	if err := ctrl.db.Create(&item).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -118,7 +257,7 @@ func (ctrl *RCMController) UpdateRCM(c *gin.Context) {
 		return
 	}
 
-	var req models.RiskControlMatrix
+	var req RCMRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
@@ -142,32 +281,7 @@ func (ctrl *RCMController) UpdateRCM(c *gin.Context) {
 		return
 	}
 
-	// Update fields
-	existing.RiskCode = req.RiskCode
-	existing.RiskEvent = req.RiskEvent
-	existing.ControlCode = req.ControlCode
-	existing.ControlDescription = req.ControlDescription
-	existing.ControlType = req.ControlType
-	existing.ControlOwner = req.ControlOwner
-	existing.Department = req.Department
-	existing.Year = req.Year
-
-	existing.DesignEffectivenessWeight = req.DesignEffectivenessWeight
-	existing.DesignEffectivenessRating = req.DesignEffectivenessRating
-	existing.OperatingEffectivenessWeight = req.OperatingEffectivenessWeight
-	existing.OperatingEffectivenessRating = req.OperatingEffectivenessRating
-	existing.CoverageCompletenessWeight = req.CoverageCompletenessWeight
-	existing.CoverageCompletenessRating = req.CoverageCompletenessRating
-	existing.TimelinessWeight = req.TimelinessWeight
-	existing.TimelinessRating = req.TimelinessRating
-	existing.AutomationMonitoringWeight = req.AutomationMonitoringWeight
-	existing.AutomationMonitoringRating = req.AutomationMonitoringRating
-
-	existing.InherentRisk = req.InherentRisk
-	existing.ResidualRisk = req.ResidualRisk
-	existing.Notes = req.Notes
-
-	existing.CalculateWeightedScore()
+	parseRCMRequest(&req, &existing)
 
 	if err := ctrl.db.Save(&existing).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

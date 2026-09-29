@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { type AssignmentLetter, type AssignmentLetterForm, type AssignmentLetterStatus, AuditCategory } from '~/types/audit'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { extractErrorMessage } from '~/utils/error';
+import { getAuditServiceBaseUrl as resolveAuditUrl } from '~/composables/useApiUrl';
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
@@ -254,8 +255,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
   },
   actions: {
     getAuditServiceBaseUrl() {
-      const config = useRuntimeConfig()
-      return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
+      return resolveAuditUrl();
     },
 
     async fetchAssignmentLetters() {

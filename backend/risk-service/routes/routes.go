@@ -74,6 +74,9 @@ func (r *RiskRoute) Run() {
 
 		// New routes for Risk Factors
 		apiV1.GET("/risk-factors/standard", r.riskFactorCtrl.ListStandardRiskFactors)
+		apiV1.POST("/risk-factors/standard", r.riskFactorCtrl.CreateStandardRiskFactor)
+		apiV1.PUT("/risk-factors/standard/:id", r.riskFactorCtrl.UpdateStandardRiskFactor)
+		apiV1.DELETE("/risk-factors/standard/:id", r.riskFactorCtrl.DeleteStandardRiskFactor)
 		apiV1.GET("/risk-factors/corporate", r.riskFactorCtrl.ListCorporateRiskFactors)
 		apiV1.POST("/risk-factors/corporate", r.riskFactorCtrl.UpdateCorporateRiskFactors)
 

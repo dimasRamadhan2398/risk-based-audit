@@ -20,6 +20,7 @@
 #   --kong-port <n>         Pin the Kong proxy host port (default: auto)
 #   --kong-admin-port <n>   Pin the Kong admin host port (default: auto)
 #   --storage-dir <path>    Evidence silo host path      (default: per env)
+#   --base-domain <fqdn>    Parent domain for the tenant (default: auditsphere.app)
 #   --force                 Overwrite an existing tenant's generated files
 #
 # Example:
@@ -44,6 +45,13 @@ BASE_FE_PORT=3010
 BASE_KONG_PORT=8090
 BASE_KONG_ADMIN_PORT=8019
 BASE_REDIS_DB=1   # index 0 belongs to the control-plane stack
+
+# The registered, delegated domain. Tenants are subdomains of it. Overridable
+# with --base-domain or BASE_DOMAIN for staging or a future second domain.
+# NOTE: auditsphere.id is NOT registered — it has no NS or SOA records and the
+# .id registry returns DOMAIN NOT FOUND. Earlier drafts of the provisioning
+# docs assumed it; anything provisioned under it can never resolve.
+BASE_DOMAIN=${BASE_DOMAIN:-auditsphere.app}
 
 die() { echo "Error: $*" >&2; exit 1; }
 
@@ -70,6 +78,7 @@ while [ $# -gt 0 ]; do
         --kong-port)        KONG_PORT=${2:?"--kong-port needs a value"}; shift ;;
         --kong-admin-port)  KONG_ADMIN_PORT=${2:?"--kong-admin-port needs a value"}; shift ;;
         --storage-dir)      STORAGE_DIR=${2:?"--storage-dir needs a value"}; shift ;;
+        --base-domain)      BASE_DOMAIN=${2:?"--base-domain needs a value"}; shift ;;
         *) die "unknown option: $1" ;;
     esac
     shift
@@ -89,8 +98,8 @@ if [ "$IS_LOCAL" = true ]; then
     DEFAULT_STORAGE_DIR="$ROOT_DIR/backend/audit-service/uploads/${SLUG}"
 else
     PROTO="https"
-    DOMAIN_HOST="${SLUG}.auditsphere.id"
-    API_DOMAIN_HOST="api-${SLUG}.auditsphere.id"
+    DOMAIN_HOST="${SLUG}.${BASE_DOMAIN}"
+    API_DOMAIN_HOST="api-${SLUG}.${BASE_DOMAIN}"
     DEFAULT_STORAGE_DIR="/var/data/auditsphere/storage/${SLUG}"
 fi
 STORAGE_DIR=${STORAGE_DIR:-$DEFAULT_STORAGE_DIR}
@@ -153,6 +162,15 @@ for p in "$FE_PORT" "$KONG_PORT" "$KONG_ADMIN_PORT"; do
     [[ "$p" =~ ^[0-9]+$ ]] || die "port '$p' is not numeric"
 done
 
+# The CORS origin must match what the browser sends in the Origin header,
+# which includes the port on localhost (there is no Nginx vhost in front of a
+# local tenant) but not in production, where 443 is implicit.
+if [ "$IS_LOCAL" = true ]; then
+    TENANT_ORIGIN="${PROTO}://${DOMAIN_HOST}:${FE_PORT}"
+else
+    TENANT_ORIGIN="${PROTO}://${DOMAIN_HOST}"
+fi
+
 # ── Secrets ──────────────────────────────────────────────────────────────────
 # Reused if the tenant's .env already holds them, so regeneration does not log
 # every auditor out.
@@ -197,29 +215,34 @@ umask 022
 # if the stack is started without --env-file rather than booting with an empty
 # secret.
 
+# Values interpolated into the sed replacement side must be escaped: a bare `&`
+# expands to the whole match, so "Ernst & Young" would render as
+# "Ernst __CLIENT_NAME__ Young". `|` is the delimiter and `\` starts an escape.
+sed_escape() { printf '%s' "$1" | sed -e 's/[\\&|]/\\&/g'; }
+
+CLIENT_NAME_ESC=$(sed_escape "$CLIENT_NAME")
+STORAGE_DIR_ESC=$(sed_escape "$STORAGE_DIR")
+
 render() {  # render <template> <destination>
     sed \
         -e "s|__SLUG__|${SLUG}|g" \
-        -e "s|__CLIENT_NAME__|${CLIENT_NAME}|g" \
-        -e "s|__DOMAIN__|${PROTO}://${DOMAIN_HOST}|g" \
+        -e "s|__CLIENT_NAME__|${CLIENT_NAME_ESC}|g" \
+        -e "s|__TENANT_ORIGIN__|${TENANT_ORIGIN}|g" \
+        -e "s|__DOMAIN__|${DOMAIN_HOST}|g" \
         -e "s|__API_DOMAIN__|${API_DOMAIN_HOST}|g" \
         -e "s|__PROTO__|${PROTO}|g" \
         -e "s|__FE_PORT__|${FE_PORT}|g" \
         -e "s|__KONG_PORT__|${KONG_PORT}|g" \
         -e "s|__KONG_ADMIN_PORT__|${KONG_ADMIN_PORT}|g" \
         -e "s|__REDIS_DB__|${REDIS_DB}|g" \
-        -e "s|__STORAGE_DIR__|${STORAGE_DIR}|g" \
+        -e "s|__STORAGE_DIR__|${STORAGE_DIR_ESC}|g" \
         -e "s|__JWT_SECRET__|\${TENANT_JWT_SECRET:?TENANT_JWT_SECRET missing — start this stack with --env-file $(basename "$ENV_FILE")}|g" \
         -e "s|__SIGNATURE_KEY__|\${TENANT_SIGNATURE_KEY:?TENANT_SIGNATURE_KEY missing — start this stack with --env-file $(basename "$ENV_FILE")}|g" \
         "$1" > "$2"
 }
 
-# __DOMAIN__ expands to a full origin (scheme included) for the Kong CORS
-# plugin, so strip the duplicated scheme the template writes in front of it.
 render "$TEMPLATE_DIR/docker-compose.tenant.yml.tpl" "$TENANT_DIR/docker-compose.yml"
 render "$TEMPLATE_DIR/kong-tenant.yml.tpl" "$TENANT_DIR/kong/kong.yml"
-sed -i.bak "s|${PROTO}://${PROTO}://|${PROTO}://|g" "$TENANT_DIR/kong/kong.yml"
-rm -f "$TENANT_DIR/kong/kong.yml.bak"
 
 # ── Record ───────────────────────────────────────────────────────────────────
 
@@ -258,8 +281,8 @@ cat <<SUMMARY
  Tenant stack generated: $CLIENT_NAME ($SLUG)
 ==============================================================
  Directory     : backend/tenants/$SLUG
- Frontend      : $PROTO://$DOMAIN_HOST          -> 127.0.0.1:$FE_PORT
- API Gateway   : $PROTO://$API_DOMAIN_HOST      -> 127.0.0.1:$KONG_PORT
+ Frontend      : $TENANT_ORIGIN  -> 127.0.0.1:$FE_PORT
+ API Gateway   : $PROTO://$API_DOMAIN_HOST  -> 127.0.0.1:$KONG_PORT
  Kong Admin    : 127.0.0.1:$KONG_ADMIN_PORT (loopback only)
  Redis DB      : $REDIS_DB
  Storage silo  : $STORAGE_DIR

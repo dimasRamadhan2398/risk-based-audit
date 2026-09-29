@@ -6,6 +6,7 @@ WORKDIR /root/
 
 # Copy pre-compiled binary
 COPY master .
+RUN chmod +x master
 
 # Copy config files
 COPY pkg/config ./pkg/config

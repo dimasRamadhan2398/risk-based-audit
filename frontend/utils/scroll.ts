@@ -17,19 +17,41 @@ export const resetScrollPosition = () => {
     document.body.scrollLeft = 0
   }
 
-  // 2. Reset UDashboardPanel body containers (data-slot="body")
+  // 2. Reset UDashboardPanel body containers (data-slot="body"), strictly EXCLUDING sidebars
   const dashboardBodies = document.querySelectorAll('[data-slot="body"]')
   dashboardBodies.forEach((el) => {
     if (el instanceof HTMLElement) {
+      // Protect any sidebar container or element within sidebar
+      if (
+        el.classList.contains('sidebar-scroll-container') ||
+        el.closest('.sidebar-scroll-container') ||
+        el.closest('#main-sidebar-final') ||
+        el.closest('[id*="sidebar"]') ||
+        el.closest('aside') ||
+        el.closest('nav') ||
+        el.closest('[data-slot="root"][id*="-sidebar-"]')
+      ) {
+        return
+      }
       el.scrollTop = 0
       el.scrollLeft = 0
     }
   })
 
-  // 3. Reset any main content wrappers
+  // 3. Reset any main content wrappers (excluding sidebar)
   const mainContainers = document.querySelectorAll('main, [role="main"]')
   mainContainers.forEach((el) => {
     if (el instanceof HTMLElement) {
+      if (
+        el.classList.contains('sidebar-scroll-container') ||
+        el.closest('.sidebar-scroll-container') ||
+        el.closest('#main-sidebar-final') ||
+        el.closest('[id*="sidebar"]') ||
+        el.closest('aside') ||
+        el.closest('nav')
+      ) {
+        return
+      }
       el.scrollTop = 0
       el.scrollLeft = 0
     }

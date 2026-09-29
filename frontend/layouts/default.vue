@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
+import { label } from 'happy-dom/lib/PropertySymbol.js'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -12,9 +13,60 @@ const { t, locale, setLocale } = useI18n()
 
 const isMobileMenuOpen = ref(false)
 
+let savedSidebarScrollTop = 0
+
+const getSidebarContainer = (): HTMLElement | null => {
+  if (typeof document === 'undefined') return null
+  return (
+    document.querySelector('.sidebar-scroll-container') ||
+    document.querySelector('#main-sidebar-final [data-slot="body"]') ||
+    document.querySelector('[id*="sidebar"] [data-slot="body"]')
+  ) as HTMLElement | null
+}
+
+const updateSidebarScroll = () => {
+  const el = getSidebarContainer()
+  if (el) {
+    savedSidebarScrollTop = el.scrollTop
+  }
+}
+
+const restoreSidebarScroll = () => {
+  if (savedSidebarScrollTop <= 0) return
+  const el = getSidebarContainer()
+  if (el && Math.abs(el.scrollTop - savedSidebarScrollTop) > 1) {
+    el.scrollTop = savedSidebarScrollTop
+  }
+}
+
+const handleSidebarClick = () => {
+  updateSidebarScroll()
+}
+
+onMounted(() => {
+  const el = getSidebarContainer()
+  if (el) {
+    el.addEventListener('scroll', updateSidebarScroll, { passive: true })
+  }
+})
+
+onBeforeUnmount(() => {
+  const el = getSidebarContainer()
+  if (el) {
+    el.removeEventListener('scroll', updateSidebarScroll)
+  }
+})
+
 watch(() => route.fullPath, () => {
   isMobileMenuOpen.value = false
+  updateSidebarScroll()
   triggerScrollReset()
+  nextTick(() => {
+    restoreSidebarScroll()
+    requestAnimationFrame(restoreSidebarScroll)
+    setTimeout(restoreSidebarScroll, 50)
+    setTimeout(restoreSidebarScroll, 150)
+  })
 })
 
 const openMobileMenu = () => {
@@ -70,7 +122,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
       {
         label: t('navigation.auditPriority'),
         icon: 'i-lucide-list-ordered',
-        to: '/risk-profile/audit-universe?tab=priority'
+        to: '/risk-profile/audit-priority'
       },
       {
         label: t('navigation.riskControlMatrix'),
@@ -328,25 +380,72 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
     to: '/analytics',
     children: [
       {
-        label: t('navigation.riskScoringPrediction'),
-        icon: 'i-lucide-binary',
-        to: { path: '/analytics', query: { tab: 'xgboost' } }
+        label: 'AI Insights',
+        icon: 'i-heroicons-cpu-chip',
+        children: [
+          {
+            label: t('navigation.riskScoringPrediction'),
+            icon: 'i-lucide-binary',
+            to: '/analytics/ai/risk-scoring'
+          },
+          {
+            label: t('navigation.anomalyDetection'),
+            icon: 'i-lucide-shield-alert',
+            to: '/analytics/ai/anomaly-detection'
+          },
+          {
+            label: t('navigation.nlpAnalysis'),
+            icon: 'i-lucide-file-search',
+            to: '/analytics/ai/nlp' 
+          },
+          {
+            label: t('navigation.kpiForecast'),
+            icon: 'i-lucide-trending-up',
+            to: '/analytics/ai/kpi-forecast'
+          },
+        ]
       },
       {
-        label: t('navigation.anomalyDetection'),
-        icon: 'i-lucide-shield-alert',
-        to: { path: '/analytics', query: { tab: 'isolation' } }
+        label: 'CAATT Insight',
+        icon: 'i-heroicons-chart-bar',
+        children: [
+          {
+            label: t('navigation.caattFullPopulation'),
+            icon: 'i-lucide-check-check',
+            to: '/analytics/caatt/full-population'
+          },
+          {
+            label: t('navigation.caattDuplicateGap'),
+            icon: 'i-lucide-copy-x',
+            to: '/analytics/caatt/duplicate-gap'
+          },
+          {
+            label: t('navigation.caattBenford'),
+            icon: 'i-lucide-calculator',
+            to: '/analytics/caatt/benford'
+          },
+          {
+            label: t('navigation.caattStratification'),
+            icon: 'i-lucide-layers',
+            to: '/analytics/caatt/stratification'
+          },
+          {
+            label: t('navigation.caattReconciliation'),
+            icon: 'i-lucide-git-compare',
+            to: '/analytics/caatt/reconciliation'
+          },
+          {
+            label: t('navigation.caattPolicy'),
+            icon: 'i-lucide-alert-triangle',
+            to: '/analytics/caatt/policy'
+          },
+          {
+            label: t('navigation.caattDataQuality'),
+            icon: 'i-lucide-gauge',
+            to: '/analytics/caatt/data-quality'
+          }
+        ]
       },
-      {
-        label: t('navigation.nlpAnalysis'),
-        icon: 'i-lucide-file-search',
-        to: { path: '/analytics', query: { tab: 'nlp' } } 
-      },
-      {
-        label: t('navigation.kpiForecast'),
-        icon: 'i-lucide-trending-up',
-        to: { path: '/analytics', query: { tab: 'kpi-forecast' } }
-      }
     ]
   },
 
@@ -369,29 +468,29 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
     ]
   },
 
-  // Settings
-  {
-    label: t('navigation.settings'),
-    icon: 'i-lucide-settings',
-    to: '/settings',
-    children: [
-      {
-        label: t('navigation.generalSettings'),
-        icon: 'i-lucide-sliders',
-        to: '/settings'
-      },
-      {
-        label: t('navigation.security2fa'),
-        icon: 'i-lucide-shield-check',
-        to: '/settings/mfa'
-      },
-      {
-        label: t('navigation.trustedDevices'),
-        icon: 'i-lucide-laptop',
-        to: '/settings/devices'
-      }
-    ]
-  }
+  // // Settings
+  // {
+  //   label: t('navigation.settings'),
+  //   icon: 'i-lucide-settings',
+  //   to: '/settings',
+  //   children: [
+  //     {
+  //       label: t('navigation.generalSettings'),
+  //       icon: 'i-lucide-sliders',
+  //       to: '/settings'
+  //     },
+  //     {
+  //       label: t('navigation.security2fa'),
+  //       icon: 'i-lucide-shield-check',
+  //       to: '/settings/mfa'
+  //     },
+  //     {
+  //       label: t('navigation.trustedDevices'),
+  //       icon: 'i-lucide-laptop',
+  //       to: '/settings/devices'
+  //     }
+  //   ]
+  // }
 ]])
 
 const searchQuery = ref('')
@@ -564,6 +663,8 @@ const userDropdownItems = computed(() => [
       :default-size="21"
       :max-size="35"
       :collapsed-size="0"
+      :ui="{ body: 'sidebar-scroll-container' }"
+      @click="handleSidebarClick"
     >
       <template #header="{ collapsed }">
         <Logo

@@ -126,7 +126,10 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_analytics_service
     environment:
-      - PYTHON_AI_URL=http://python-ai:8000
+      - PYTHON_AI_URL=${PYTHON_AI_URL:-http://python-ai:8000}
+      - PYTHON_AI_API_KEY=${PYTHON_AI_API_KEY:-dev-ai-api-key}
+      - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
+      - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-dev-api-key}
     depends_on:
       postgres:
         condition: service_started
@@ -177,6 +180,9 @@ services:
         condition: service_healthy
     ports:
       - "8003:8002"
+    environment:
+      - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
+      - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-dev-api-key}
     command: sh -c "./master seed && ./master serve"
     networks:
       - rb_audit_network

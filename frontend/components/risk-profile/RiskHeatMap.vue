@@ -5,7 +5,7 @@
       <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="flex items-center gap-4">
           <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shadow-lg shadow-primary/20">
-            <UIcon name="i-heroicons-chart-bar-square" class="w-8 h-8" />
+            <UIcon name="i-heroicons-fire" class="w-8 h-8" />
           </div>
           <div>
             <h1 class="text-2xl font-extrabold tracking-tight">{{ t('riskProfile.title') }}</h1>

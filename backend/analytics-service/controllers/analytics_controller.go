@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"analytics-service/services"
@@ -164,5 +165,122 @@ func (c *AnalyticsController) TriggerAutoRetrain(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data":   res,
+	})
+}
+
+// ─── CAATT Analytics Handlers ────────────────────────────────────────────────
+
+// GetFullPopulation handles GET /api/analytics/caatt/full-population
+func (c *AnalyticsController) GetFullPopulation(ctx *gin.Context) {
+	limitStr := ctx.DefaultQuery("limit", "100")
+	limit := 100
+	fmt.Sscanf(limitStr, "%d", &limit)
+
+	res, err := c.service.GetCAATTFullPopulation(limit)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"data":    res.Data,
+		"summary": res.Summary,
+	})
+}
+
+// GetDuplicateGap handles GET /api/analytics/caatt/duplicate-gap
+func (c *AnalyticsController) GetDuplicateGap(ctx *gin.Context) {
+	resultType := ctx.Query("result_type")
+	limitStr := ctx.DefaultQuery("limit", "100")
+	limit := 100
+	fmt.Sscanf(limitStr, "%d", &limit)
+
+	res, err := c.service.GetCAATTDuplicateGap(resultType, limit)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"data":    res.Data,
+		"summary": res.Summary,
+	})
+}
+
+// GetBenfordAnalysis handles GET /api/analytics/caatt/benford
+func (c *AnalyticsController) GetBenfordAnalysis(ctx *gin.Context) {
+	res, err := c.service.GetCAATTBenford()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"data":    res.Data,
+		"summary": res.Summary,
+	})
+}
+
+// GetStratification handles GET /api/analytics/caatt/stratification
+func (c *AnalyticsController) GetStratification(ctx *gin.Context) {
+	category := ctx.Query("category")
+
+	res, err := c.service.GetCAATTStratification(category)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"data":    res.Data,
+		"summary": res.Summary,
+	})
+}
+
+// GetReconciliation handles GET /api/analytics/caatt/reconciliation
+func (c *AnalyticsController) GetReconciliation(ctx *gin.Context) {
+	res, err := c.service.GetCAATTReconciliation()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"data":    res.Data,
+		"summary": res.Summary,
+	})
+}
+
+// GetPolicyViolations handles GET /api/analytics/caatt/policy-violations
+func (c *AnalyticsController) GetPolicyViolations(ctx *gin.Context) {
+	severity := ctx.Query("severity")
+	limitStr := ctx.DefaultQuery("limit", "100")
+	limit := 100
+	fmt.Sscanf(limitStr, "%d", &limit)
+
+	res, err := c.service.GetCAATTPolicyViolations(severity, limit)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"data":    res.Data,
+		"summary": res.Summary,
+	})
+}
+
+// GetDataQualityMetrics handles GET /api/analytics/caatt/data-quality
+func (c *AnalyticsController) GetDataQualityMetrics(ctx *gin.Context) {
+	res, err := c.service.GetDataQualityMetrics()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":                "success",
+		"data":                  res.Data,
+		"summary":               res.Summary,
+		"overall_quality_score": res.OverallQualityScore,
 	})
 }

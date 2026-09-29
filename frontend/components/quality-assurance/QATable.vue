@@ -2,7 +2,7 @@
     <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
       <TableEntities
         :columns="store.columns"
-        :data="store.items"
+        :data="store.filteredReports"
         class="w-full"
       >
         <template #type-cell="{ row }: { row: any }">
@@ -24,7 +24,7 @@
 
         <template #result-cell="{ row }: { row: any }">
           <span class="font-bold">
-            {{ (store.matchQAType(row.original.type, QAType.QAR) || store.matchQAType(row.original.type, QAType.SAIV)) ? formatOverallConclusion(row.original.result) : row.original.result }}
+            {{ formatResult(row.original) }}
           </span>
         </template>
 
@@ -94,10 +94,12 @@ import { useQualityAssuranceStore, QAType } from '~/stores/quality-assurance'
 const store = useQualityAssuranceStore()
 
 const formatTypeLabel = (type: string) => {
+  if (!type) return '-'
   if (store.matchQAType(type, QAType.REGULAR)) return 'Regular'
   if (store.matchQAType(type, QAType.SAIV)) return 'SAIV'
   if (store.matchQAType(type, QAType.IACM)) return 'BUMN IACM'
-  return 'QAR'
+  if (store.matchQAType(type, QAType.QAR)) return 'QAR'
+  return type
 }
 
 const openReportFile = (row: any) => {
@@ -123,5 +125,23 @@ const formatOverallConclusion = (result: string) => {
     return 'Does not Conform'
   }
   return result
+}
+
+const formatIacmResult = (result?: string) => {
+  if (!result || result === '-') return '-'
+  const trimmed = result.trim()
+  if (trimmed.includes('/')) return trimmed
+  return `${trimmed} / 5`
+}
+
+const formatResult = (row: any) => {
+  if (!row || !row.result) return '-'
+  if (store.matchQAType(row.type, QAType.QAR) || store.matchQAType(row.type, QAType.SAIV)) {
+    return formatOverallConclusion(row.result)
+  }
+  if (store.matchQAType(row.type, QAType.IACM)) {
+    return formatIacmResult(row.result)
+  }
+  return row.result
 }
 </script>

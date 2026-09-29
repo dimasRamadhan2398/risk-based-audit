@@ -267,6 +267,8 @@ services:
           - /api/v1/business-units
           - /api/v1/departments
           - /api/v1/employees
+          - /api/v1/job-roles
+          - /api/v1/locations
           - /api/v1/quality-assurance
           - /api/v1/consulting-services
           - /api/v1/vision-mission-goals

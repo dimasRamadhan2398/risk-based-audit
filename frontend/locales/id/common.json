@@ -1,5 +1,21 @@
 {
   "auth": {
+    "forceChangePassword": {
+      "title": "Ganti Password Anda",
+      "subtitle": "Password Anda telah di-reset oleh administrator. Buat password baru untuk melanjutkan.",
+      "currentPassword": "Password Sementara",
+      "newPassword": "Password Baru",
+      "confirmPassword": "Konfirmasi Password Baru",
+      "submit": "Simpan Password Baru",
+      "logout": "Keluar",
+      "rules": "Minimal 8 karakter, mengandung huruf besar, huruf kecil, dan angka.",
+      "errors": {
+        "required": "Wajib diisi",
+        "weak": "Password minimal 8 karakter dan mengandung huruf besar, huruf kecil, dan angka",
+        "mismatch": "Password baru tidak sama",
+        "same": "Password baru harus berbeda dari password sementara"
+      }
+    },
     "login": {
       "title": "Selamat Datang",
       "subtitle": "Silahkan login terlebih dahulu",
@@ -224,6 +240,7 @@
     "general": {
       "cardTitle": "Pengaturan Umum",
       "emailNotifications": "Notifikasi Email",
+      "emailNotificationsDesc": "Terima notifikasi email untuk peringatan, tenggat waktu, dan pembaruan sistem",
       "criticalAlerts": "Peringatan Kritis",
       "criticalAlertsDesc": "Notifikasi prioritas tinggi",
       "deadlineReminder": "Pengingat Batas Waktu",
@@ -387,6 +404,9 @@
       "lastSynced": "Terakhir Sinkron",
       "test": "Uji Koneksi",
       "syncNow": "Sinkronkan Sekarang",
+      "syncAll": "Sinkronkan Semua",
+      "batchSyncStartedToast": "Sinkronisasi Massal Dimulai",
+      "batchSyncCompletedToast": "Sinkronisasi Massal Selesai",
       "editConnection": "Edit Koneksi",
       "viewCredentials": "Lihat Kredensial & SSL",
       "deleteConnection": "Hapus Koneksi",
@@ -659,12 +679,11 @@
   },
   "riskFactors": {
     "title": "Faktor Risiko & Pengaturan Pembobotan",
-    "subtitle": "Konfigurasi bobot risiko, lakukan penilaian area kerja, dan lihat prioritas audit yang dihitung.",
+    "subtitle": "Konfigurasi bobot risiko dan lakukan penilaian area kerja.",
     "backToHeatmap": "Kembali ke Heat Map",
     "tabs": {
       "weight": "1. Bobot",
-      "score": "2. Skor Risiko",
-      "priority": "3. Prioritas Audit"
+      "score": "2. Skor Risiko"
     },
     "weighting": {
       "totalWeight": "Total Bobot: {total}%",
@@ -683,7 +702,28 @@
       "weightCol": "Bobot (%)",
       "action": "Aksi",
       "noFactorsTitle": "Belum Ada Faktor Risiko Korporat Terpilih",
-      "noFactorsDesc": "Centang faktor risiko standar di sebelah kiri untuk mengaktifkannya."
+      "noFactorsDesc": "Centang faktor risiko standar di sebelah kiri untuk mengaktifkannya.",
+      "addFactor": "Tambah Faktor",
+      "editFactor": "Ubah Faktor",
+      "deleteFactor": "Hapus Faktor",
+      "addModalTitle": "Tambah Faktor Risiko Standar",
+      "addModalSubtitle": "Tambahkan faktor risiko baru ke dalam katalog standar",
+      "editModalTitle": "Ubah Faktor Risiko Standar",
+      "editModalSubtitle": "Perbarui informasi faktor risiko dan kriteria penilaiannya",
+      "deleteModalTitle": "Hapus Faktor Risiko Standar",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus faktor risiko standar \"{name}\"? Ini juga akan menghapus pembobotan korporat yang terkait dengannya.",
+      "deleteConfirmDesc": "Apakah Anda yakin ingin menghapus faktor risiko standar ini? Tindakan ini juga akan menghapus seluruh pembobotan korporat yang terkait dengannya.",
+      "factorName": "Nama Faktor Risiko",
+      "factorNamePlaceholder": "contoh: Keamanan Siber & Privasi Data",
+      "factorDesc": "Deskripsi",
+      "factorDescPlaceholder": "Deskripsi singkat mengenai faktor risiko ini...",
+      "guidelinesSection": "Panduan Skala Penilaian (1 - 5)",
+      "guidelinesSubtitle": "Skor 5 (Tinggi) s/d Skor 1 (Rendah)",
+      "scoreDescPlaceholder": "Karakteristik atau kriteria untuk skor {score}...",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "delete": "Hapus",
+      "viewGuidelines": "Lihat Panduan"
     },
     "scoring": {
       "title": "🎯 Skor Risiko",
@@ -732,7 +772,13 @@
       "scoresSaveFailed": "Gagal menyimpan skor risiko.",
       "weightSumMustBe100": "Total bobot harus tepat 100%. Jumlah saat ini: {total}%",
       "weightsUpdated": "Bobot faktor risiko korporat berhasil diperbarui.",
-      "weightsUpdateFailed": "Gagal menyimpan bobot faktor risiko korporat."
+      "weightsUpdateFailed": "Gagal menyimpan bobot faktor risiko korporat.",
+      "factorCreated": "Faktor risiko standar berhasil dibuat.",
+      "factorUpdated": "Faktor risiko standar berhasil diperbarui.",
+      "factorDeleted": "Faktor risiko standar berhasil dihapus.",
+      "factorCreateFailed": "Gagal membuat faktor risiko standar.",
+      "factorUpdateFailed": "Gagal memperbarui faktor risiko standar.",
+      "factorDeleteFailed": "Gagal menghapus faktor risiko standar."
     },
     "scoreLabels": {
       "1": "Rendah (1)",
@@ -741,6 +787,24 @@
       "4": "Sedang ke Tinggi (4)",
       "5": "Tinggi (5)"
     }
+  },
+  "auditPriority": {
+    "title": "Prioritas Audit",
+    "subtitle": "Prioritas Rencana Audit Tahunan berdasarkan tingkat risiko yang dihitung.",
+    "backToHeatmap": "Kembali ke Heat Map",
+    "goToUniverse": "Universe Audit",
+    "goToScoring": "Faktor Risiko & Penilaian",
+    "selectYear": "Tahun Audit",
+    "totalEntities": "Total Entitas Ditetapkan",
+    "prioritizedEntities": "Diprioritaskan",
+    "nonPrioritized": "Tidak Diprioritaskan",
+    "searchPlaceholder": "Cari entitas auditee...",
+    "filterStatus": "Filter Status",
+    "allStatus": "Semua Entitas",
+    "onlyPrioritized": "Hanya Diprioritaskan",
+    "onlyNonPrioritized": "Tidak Diprioritaskan",
+    "refresh": "Segarkan",
+    "ruleInfo": "Prioritas Audit = Tingkat Risiko Sedang ke Tinggi atau Tinggi"
   },
   "auditFieldwork": {
     "title": "Audit Fieldwork",
@@ -1035,8 +1099,8 @@
     }
   },
   "analytics": {
-    "title": "Pusat AI & Analitik",
-    "subtitle": "Integrasi Terpadu Model Machine Learning & Deep Learning (Department Risk ML, Anomaly Detection, IndoBERT NLP, PyTorch LSTM)",
+    "title": "Pusat Data Analitik",
+    "subtitle": "Data Analitik Komperehensive menggunakan Engine CAATT & Engine AI",
     "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
     "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
     "statusDisconnected": "AI Backend Terputus",
@@ -1055,7 +1119,14 @@
       "riskScoring": "Risk Scoring",
       "anomalyDetection": "Anomaly Detection",
       "documentProcessing": "Pemrosesan Dokumen",
-      "kpiForecast": "Prediksi KPI"
+      "kpiForecast": "Prediksi KPI",
+      "caattFullPopulation": "100% Populasi",
+      "caattDuplicateGap": "Duplikat & Gap",
+      "caattBenford": "Hukum Benford",
+      "caattStratification": "Stratifikasi & Aging",
+      "caattReconciliation": "Rekonsiliasi Sistem",
+      "caattPolicy": "Kepatuhan Kebijakan",
+      "caattDataQuality": "Kualitas Data"
     },
     "xgboost": {
       "alertTitle": "Model ML Penilaian Risiko Departemen & Entitas",
@@ -1799,7 +1870,7 @@
       "conditionPlaceholder": "Contoh: Ditemukan dokumen PO tanpa tanda tangan Manager terkait pada tanggal...",
       "uploadEvidence": "Unggah bukti temuan/foto",
       "criteria": "Kriteria (Aturan/SOP Terkait)",
-      "criteriaPlaceholder": "Cari Peraturan Internal (Contoh: SOP Pengadaan Bab IV - Otorisasi)",
+      "criteriaPlaceholder": "Pilih peraturan internal / SOP",
       "impact": "Dampak (Risk Impact)",
       "impactPlaceholder": "Contoh: Potensi fraud atau pembelian fiktif yang dapat merugikan keuangan...",
       "rootCauseAnalysis": "Analisis Akar Masalah",
@@ -2376,6 +2447,13 @@
     "detectedAnomaliesDetail": "Detail Anomali Terdeteksi",
     "nlpAnalysis": "Analisis NLP",
     "kpiForecast": "Prakiraan KPI",
+    "caattFullPopulation": "Pengujian 100% Populasi",
+    "caattDuplicateGap": "Integritas Duplikat & Gap",
+    "caattBenford": "Analisis Hukum Benford",
+    "caattStratification": "Stratifikasi & Aging",
+    "caattReconciliation": "Rekonsiliasi Lintas Sistem",
+    "caattPolicy": "Kepatuhan Kebijakan Perbankan",
+    "caattDataQuality": "Dashboard Kualitas Data",
     "masterData": "Data Master",
     "employeeManagement": "Manajemen Karyawan",
     "department": "Departemen",

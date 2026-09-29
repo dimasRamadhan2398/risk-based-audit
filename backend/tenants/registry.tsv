@@ -1,0 +1,2 @@
+slug	client_name	domain	api_domain	fe_port	kong_port	kong_admin_port	redis_db	created_at
+bai	PT BAI	bai.localhost	localhost	3010	8090	8019	1	2026-09-19T04:00:36Z

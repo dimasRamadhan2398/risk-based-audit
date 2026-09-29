@@ -3,6 +3,7 @@ import { ref, reactive, computed } from 'vue'
 import type { RiskMitigation, RiskMitigationForm } from '~/types/risk'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { extractErrorMessage } from '~/utils/error'
+import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const initialMitigationsData: RiskMitigation[] = [
   {
@@ -145,10 +146,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
     const loading = ref(false)
     const errorMsg = ref('')
 
-    const getRiskServiceBaseUrl = () => {
-        const config = useRuntimeConfig()
-        return config.public.riskServiceBaseUrl || 'http://localhost:8004/api/v1'
-    }
+
 
     // Data Master untuk Dropdown
     const picOptions = ['Finance Manager', 'Sales Director', 'IT Security Lead', 'Head of Internal Audit', 'Dimas', 'Budi', 'Caca', 'Dedi', 'Eka', 'Fahmi']

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"risk-service/models"
@@ -19,10 +20,16 @@ func NewRiskFactorController(db *gorm.DB) *RiskFactorController {
 	return &RiskFactorController{db: db}
 }
 
+type StandardRiskFactorReq struct {
+	Name            string `json:"name" binding:"required"`
+	Description     string `json:"description"`
+	ScoreGuidelines string `json:"score_guidelines"`
+}
+
 // ListStandardRiskFactors returns all standard risk factors from library
 func (ctrl *RiskFactorController) ListStandardRiskFactors(c *gin.Context) {
 	var factors []models.StandardRiskFactor
-	if err := ctrl.db.Order("id asc").Find(&factors).Error; err != nil {
+	if err := ctrl.db.Order("name asc").Find(&factors).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 			"error":   "Failed to fetch standard risk factors: " + err.Error(),
@@ -33,6 +40,179 @@ func (ctrl *RiskFactorController) ListStandardRiskFactors(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    factors,
+	})
+}
+
+// CreateStandardRiskFactor adds a new standard risk factor to the library
+func (ctrl *RiskFactorController) CreateStandardRiskFactor(c *gin.Context) {
+	var req StandardRiskFactorReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	if req.Name == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Name is required",
+		})
+		return
+	}
+
+	guidelines := req.ScoreGuidelines
+	if guidelines == "" {
+		defaultGuidelines := []struct {
+			Score int    `json:"score"`
+			Desc  string `json:"desc"`
+		}{
+			{Score: 5, Desc: "High – Major contributor to enterprise risk"},
+			{Score: 4, Desc: "Medium to High – Significant risk affecting key operations"},
+			{Score: 3, Desc: "Medium – Moderate risk exposure with limited enterprise impact"},
+			{Score: 2, Desc: "Low to Medium – Low risk operations with minimal impact"},
+			{Score: 1, Desc: "Low – Administrative or routine activity with minimal risk"},
+		}
+		b, _ := json.Marshal(defaultGuidelines)
+		guidelines = string(b)
+	}
+
+	now := time.Now()
+	factor := models.StandardRiskFactor{
+		ID:              uuid.New(),
+		Name:            req.Name,
+		Description:     req.Description,
+		ScoreGuidelines: guidelines,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}
+
+	if err := ctrl.db.Create(&factor).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to create standard risk factor: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "Standard risk factor created successfully",
+		"data":    factor,
+	})
+}
+
+// UpdateStandardRiskFactor updates an existing standard risk factor
+func (ctrl *RiskFactorController) UpdateStandardRiskFactor(c *gin.Context) {
+	idStr := c.Param("id")
+	factorID, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid factor ID format",
+		})
+		return
+	}
+
+	var req StandardRiskFactorReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	var factor models.StandardRiskFactor
+	if err := ctrl.db.First(&factor, "id = ?", factorID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Standard risk factor not found",
+		})
+		return
+	}
+
+	factor.Name = req.Name
+	factor.Description = req.Description
+	if req.ScoreGuidelines != "" {
+		factor.ScoreGuidelines = req.ScoreGuidelines
+	}
+	factor.UpdatedAt = time.Now()
+
+	if err := ctrl.db.Save(&factor).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to update standard risk factor: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Standard risk factor updated successfully",
+		"data":    factor,
+	})
+}
+
+// DeleteStandardRiskFactor deletes a standard risk factor and cleans up associated corporate weights
+func (ctrl *RiskFactorController) DeleteStandardRiskFactor(c *gin.Context) {
+	idStr := c.Param("id")
+	factorID, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid factor ID format",
+		})
+		return
+	}
+
+	var factor models.StandardRiskFactor
+	if err := ctrl.db.First(&factor, "id = ?", factorID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Standard risk factor not found",
+		})
+		return
+	}
+
+	err = ctrl.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Delete dependent scores for any corporate risk factors linked to this standard factor
+		var corpFactors []models.CorporateRiskFactor
+		if err := tx.Where("standard_risk_factor_id = ?", factorID).Find(&corpFactors).Error; err != nil {
+			return err
+		}
+
+		for _, cf := range corpFactors {
+			if err := tx.Where("corporate_risk_factor_id = ?", cf.ID).Delete(&models.AuditUniverseRiskScore{}).Error; err != nil {
+				return err
+			}
+		}
+
+		// 2. Delete corporate risk factors linked to this factor
+		if err := tx.Where("standard_risk_factor_id = ?", factorID).Delete(&models.CorporateRiskFactor{}).Error; err != nil {
+			return err
+		}
+
+		// 3. Delete the standard risk factor
+		if err := tx.Delete(&factor).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to delete standard risk factor: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Standard risk factor deleted successfully",
 	})
 }
 

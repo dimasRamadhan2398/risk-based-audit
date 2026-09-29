@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { AuditCharter, CharterFormState } from '~/types/audit'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useCharterStore = defineStore('charter', () => {
   // Modal State
@@ -37,16 +38,7 @@ export const useCharterStore = defineStore('charter', () => {
     fileName: '',
   })
 
-  /**
-   * Base URL audit-service.
-   *
-   * Pastikan di frontend/.env sudah ada:
-   * NUXT_PUBLIC_AUDIT_SERVICE_BASE_URL=http://localhost:8002/api/v1
-   */
-  const getAuditServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.auditServiceBaseUrl || 'http://localhost:8002/api/v1'
-  }
+
 
   /**
    * Mapper dari response backend ke format yang dipakai frontend.
@@ -381,8 +373,18 @@ export const useCharterStore = defineStore('charter', () => {
         return
       }
 
+      // Fetched with $fetch so the auth token is sent; a bare window.open to
+      // the API would be rejected with 401
       const baseUrl = getAuditServiceBaseUrl()
-      window.open(`${baseUrl}/audit-charters/${id}/download`, '_blank')
+      const blob = await $fetch<Blob>(`${baseUrl}/audit-charters/${id}/download`, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename || 'audit-charter.pdf'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
     } catch (error: any) {
       console.error('Failed to download audit charter:', error)
       const detail = extractErrorMessage(error, 'Gagal mengunduh file Audit Charter.')

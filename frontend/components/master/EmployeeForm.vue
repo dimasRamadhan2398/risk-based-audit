@@ -122,49 +122,61 @@
               </h4>
 
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField label="Company ID *" size="lg">
-                  <UInput
+                <UFormField label="Company *" size="lg">
+                  <USelectMenu
                     v-model="store.form.company_id"
-                    type="text"
-                    placeholder="Company UUID"
+                    :items="options.companyOptions"
+                    value-key="value"
+                    :loading="options.loading"
+                    placeholder="Select company"
+                    class="w-full"
                     required
                   />
-                  <p class="text-md text-gray-500 mt-1">Enter Company UUID</p>
                 </UFormField>
 
-                <UFormField label="Department ID *" size="lg">
-                  <UInput
+                <UFormField label="Department *" size="lg">
+                  <USelectMenu
                     v-model="store.form.department_id"
-                    type="text"
-                    placeholder="Department UUID"
+                    :items="options.departmentOptions"
+                    value-key="value"
+                    :loading="options.loading"
+                    placeholder="Select department"
+                    class="w-full"
                     required
                   />
-                  <p class="text-md text-gray-500 mt-1">Enter Department UUID</p>
                 </UFormField>
 
-                <UFormField label="Job Role ID *" size="lg">
-                  <UInput
+                <UFormField label="Job Role *" size="lg">
+                  <USelectMenu
                     v-model="store.form.job_role_id"
-                    type="text"
-                    placeholder="Job Role UUID"
+                    :items="options.jobRoleOptions"
+                    value-key="value"
+                    :loading="options.loading"
+                    placeholder="Select job role"
+                    class="w-full"
                     required
                   />
-                  <p class="text-md text-gray-500 mt-1">Enter Job Role UUID</p>
                 </UFormField>
 
-                <UFormField label="Work Location ID" size="lg">
-                  <UInput
+                <UFormField label="Work Location" size="lg">
+                  <USelectMenu
                     v-model="store.form.work_location_id"
-                    type="text"
-                    placeholder="Location UUID (optional)"
+                    :items="workLocationItems"
+                    value-key="value"
+                    :loading="options.loading"
+                    placeholder="Select work location (optional)"
+                    class="w-full"
                   />
                 </UFormField>
 
-                <UFormField label="Manager ID" size="lg">
-                  <UInput
+                <UFormField label="Manager" size="lg">
+                  <USelectMenu
                     v-model="store.form.manager_id"
-                    type="text"
-                    placeholder="Manager UUID (optional)"
+                    :items="managerItems"
+                    value-key="value"
+                    :loading="options.loading"
+                    placeholder="Select manager (optional)"
+                    class="w-full"
                   />
                 </UFormField>
               </div>
@@ -236,6 +248,28 @@
 
 <script setup lang="ts">
 import { useEmployeeStore } from '~/stores/employee'
+import { useMasterOptionsStore } from '~/stores/master-options'
 
 const store = useEmployeeStore()
+const options = useMasterOptionsStore()
+
+// Optional relations get an explicit empty choice so they can be cleared again.
+const noneOption = { label: '— None —', value: '' }
+
+const workLocationItems = computed(() => [noneOption, ...options.locationOptions])
+
+// An employee cannot be their own manager.
+const managerItems = computed(() => [
+  noneOption,
+  ...options.employeeOptions.filter((o) => o.value !== store.editingId)
+])
+
+// Load the reference lists the first time the modal is opened.
+watch(
+  () => store.showModal,
+  (open) => {
+    if (open) options.fetchAll()
+  },
+  { immediate: true }
+)
 </script>

@@ -1,0 +1,33 @@
+# Secrets
+.env
+
+# Database volumes
+volumes/
+
+# AI model files (large binaries)
+ai-models/*.pkl
+ai-models/*.pth
+ai-models/*.json
+ai-models/*.pt
+
+# Jupyter checkpoints
+notebooks/.ipynb_checkpoints/
+notebooks/**/.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# WireGuard private keys
+wireguard/*private*
+wireguard/*.key
+!wireguard/wg0-server.conf.example
+
+# Nginx generated
+nginx/htpasswd
+
+# OS
+.DS_Store
+Thumbs.db

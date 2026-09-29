@@ -70,7 +70,10 @@ export const useEmployeeStore = defineStore('employee', () => {
   /**
    * Fetch employees with pagination
    */
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (page?: number) => {
+    if (page !== undefined) {
+      pagination.value.page = page
+    }
     loading.value = true
     errorMsg.value = ''
 
@@ -298,6 +301,18 @@ export const useEmployeeStore = defineStore('employee', () => {
     }
     if (!form.email.trim()) {
       errorMsg.value = 'Email is required.'
+      return
+    }
+    if (!form.company_id) {
+      errorMsg.value = 'Company is required.'
+      return
+    }
+    if (!form.department_id) {
+      errorMsg.value = 'Department is required.'
+      return
+    }
+    if (!form.job_role_id) {
+      errorMsg.value = 'Job role is required.'
       return
     }
 
