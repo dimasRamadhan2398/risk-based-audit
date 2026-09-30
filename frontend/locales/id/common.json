@@ -5,6 +5,22 @@
     "availability": "Setelah di-publish, surat tugas akan tersedia di Audit Fieldwork dan Audit Result Report.",
     "confirmButton": "Ya, Publish"
   },
+  "globalConfirmation": {
+    "submit": {
+      "title": "Simpan Data?",
+      "titleWithItem": "Simpan \"{itemName}\"?",
+      "question": "Apakah Anda yakin ingin menyimpan data ini?",
+      "note": "Data yang disimpan akan direkam ke dalam sistem.",
+      "confirmButton": "Ya, Simpan Data"
+    },
+    "delete": {
+      "title": "Hapus Data?",
+      "titleWithItem": "Hapus \"{itemName}\"?",
+      "question": "Apakah Anda yakin ingin menghapus data ini?",
+      "note": "Tindakan ini permanen dan tidak dapat dibatalkan.",
+      "confirmButton": "Ya, Hapus Data"
+    }
+  },
   "auth": {
     "forceChangePassword": {
       "title": "Ganti Password Anda",
