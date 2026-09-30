@@ -43,6 +43,16 @@
 
         <template #actions-cell="{ row }">
           <div class="flex items-center justify-center gap-1">
+            <UTooltip v-if="canManageAssignmentLetter && row.original.status === 'Draft'" text="Publish Assignment Letter">
+              <UButton
+                size="md"
+                color="success"
+                variant="ghost"
+                icon="i-lucide-send"
+                :loading="store.loading"
+                @click="store.publishLetter(row.original)"
+              />
+            </UTooltip>
             <UTooltip text="Edit Assignment Letter">
               <UButton
                 size="md"
@@ -72,5 +82,7 @@
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 const store = useAssignmentLetterStore()
+// Publishing is limited to the roles in the RBAC matrix ("Create / Publish Letter")
+const { canManageAssignmentLetter } = useRbac()
 
 </script>

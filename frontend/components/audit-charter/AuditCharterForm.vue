@@ -47,7 +47,7 @@
               <ReusableFormField
                 :label="t('auditCharter.form.versionAuto')"
               >
-                <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-gray-800">
+                <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-black">
                   <span v-if="store.isEditing">{{ store.form.version }}</span>
                   <span v-else>v{{ store.nextVersion }}</span>
                 </div>
@@ -59,6 +59,7 @@
               >
                 <AppDatePicker
                   v-model="store.form.date"
+                  class="dark:!bg-black"
                   required
                 />
               </ReusableFormField>
@@ -68,7 +69,7 @@
               <ReusableFormField
                 :label="t('auditCharter.form.uploadedBy')"
               >
-                <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-gray-800">
+                <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-black">
                   <span>{{ store.form.uploadedBy }}</span>
                 </div>
               </ReusableFormField>
@@ -129,7 +130,6 @@
             <div v-if="store.errorMsg" class="p-3 bg-error-50 text-error-700 rounded-lg text-sm font-semibold">
               {{ store.errorMsg }}
             </div>
-
           </div>
         <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 flex flex-col-reverse sm:flex-row-reverse gap-3 rounded-b-2xl shrink-0">
           <UButton
@@ -165,5 +165,4 @@ import ReusableFormField from '~/components/shared/ReusableFormField.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()
-
 </script>

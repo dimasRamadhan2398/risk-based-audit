@@ -150,8 +150,10 @@ export const useMitigationStore = defineStore('mitigation', () => {
 
     // Data Master untuk Dropdown
     const picOptions = ['Finance Manager', 'Sales Director', 'IT Security Lead', 'Head of Internal Audit', 'Dimas', 'Budi', 'Caca', 'Dedi', 'Eka', 'Fahmi']
+        .sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
     const supervisorOptions = ['Dimas', 'Budi', 'Caca', 'Dedi', 'Eka', 'Fahmi']
     const unitInChargeOptions = ['Sales', 'Marketing', 'Product Development', 'Operasional', 'Financial']
+        .sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
 
     // Form State
     const form = reactive<RiskMitigationForm>({

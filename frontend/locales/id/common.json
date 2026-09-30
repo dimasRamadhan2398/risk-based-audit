@@ -1,4 +1,26 @@
 {
+  "assignmentLetterPublish": {
+    "title": "Publish surat tugas \"{number}\"?",
+    "confirmQuestion": "Apakah Anda yakin ingin menyimpan dan mem-publish data ini?",
+    "availability": "Setelah di-publish, surat tugas akan tersedia di Audit Fieldwork dan Audit Result Report.",
+    "confirmButton": "Ya, Publish"
+  },
+  "globalConfirmation": {
+    "submit": {
+      "title": "Simpan Data?",
+      "titleWithItem": "Simpan \"{itemName}\"?",
+      "question": "Apakah Anda yakin ingin menyimpan data ini?",
+      "note": "Data yang disimpan akan direkam ke dalam sistem.",
+      "confirmButton": "Ya, Simpan Data"
+    },
+    "delete": {
+      "title": "Hapus Data?",
+      "titleWithItem": "Hapus \"{itemName}\"?",
+      "question": "Apakah Anda yakin ingin menghapus data ini?",
+      "note": "Tindakan ini permanen dan tidak dapat dibatalkan.",
+      "confirmButton": "Ya, Hapus Data"
+    }
+  },
   "auth": {
     "forceChangePassword": {
       "title": "Ganti Password Anda",
@@ -2401,7 +2423,7 @@
     "auditUniverse": "Universe Audit",
     "auditPriority": "Prioritas Audit",
     "riskControlMatrix": "Matriks Kontrol Risiko",
-    "auditPlanning": "Perencanaan Audit",
+    "auditPlanning": "Perencanaan Audit & Fieldwork",
     "strategicAuditPlan": "Rencana Audit Strategis",
     "importStrategicAuditPlan": "Impor Rencana Audit Strategis",
     "internalAuditPerformance": "Kinerja Audit Internal",

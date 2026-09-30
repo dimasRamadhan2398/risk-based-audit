@@ -42,17 +42,6 @@
     <!-- Main Content Area -->
     <div class="col-span-1 lg:col-span-3 overflow-y-auto p-6 lg:p-8 h-full space-y-8 bg-white dark:bg-gray-900 shadow-sm" ref="scrollContainer" @scroll="onScroll">
       
-      <!-- Sync Warning Notification (Rule 2) -->
-      <UAlert
-        v-if="isSyncWarning"
-        icon="i-lucide-alert-triangle"
-        color="warning"
-        variant="solid"
-        title="Peringatan Sinkronisasi"
-        description="Jumlah total temuan di ringkasan (Section II) tidak sinkron dengan total data di Matriks Induk. Harap periksa kembali."
-        class="shadow-sm border-l-4 border-warning-600 mb-2"
-      />
-
       <form @submit.prevent class="space-y-12">
         <!-- 1. Metadata & Document Upload -->
         <section id="sec-upload" class="space-y-6 scroll-mt-6">
@@ -85,14 +74,13 @@
               />
             </UFormField>
 
-            <UFormField label="Periode Bulan" required>
+            <UFormField label="Periode Kuartal" required>
               <USelectMenu
-                v-model="store.form.periodeBulan"
-                :items="monthOptions"
-                placeholder="Pilih Bulan"
+                v-model="reportingQuarter"
+                :items="quarterOptions"
+                placeholder="Pilih Kuartal"
                 class="w-full font-semibold"
                 :disabled="isLocked"
-                @update:modelValue="onMonthChange"
               />
             </UFormField>
 
@@ -505,240 +493,36 @@
           </div>
         </section>
 
-        <!-- 7. Section VI: System Generated Charts -->
-        <section id="sec-charts" class="space-y-6 scroll-mt-6 bg-gray-50 dark:bg-gray-900/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-800">
+        <!-- Catatan Executive untuk Auditor -->
+        <section v-if="store.isViewing" id="sec-notes" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-              <span class="text-primary-500">VII.</span> Section VI: Tren & Grafik (System Generated Visuals)
+              <UIcon name="i-lucide-message-square-text" class="size-5 text-primary-500" />
+              Noted dari Executive untuk Auditor
             </h2>
-            <p class="text-sm text-gray-400">Visualisasi otomatis yang digenerate sistem berdasarkan data Section III dan Matriks Induk.</p>
+            <p class="text-sm text-gray-400">Catatan tindak lanjut atau arahan Executive kepada Auditor.</p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Pie Chart: Status Tindak Lanjut -->
-            <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
-              <template #header>
-                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">% Status Tindak Lanjut</h5>
-              </template>
-              <div class="size-full max-h-52 max-w-52">
-                <Doughnut v-if="renderCharts" :data="pieChartData" :options="chartOptions" />
-              </div>
-            </UCard>
-
-            <!-- Bar Chart: Temuan Per Bulan -->
-            <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
-              <template #header>
-                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">Jumlah Temuan per Bulan</h5>
-              </template>
-              <div class="w-full h-52">
-                <Bar v-if="renderCharts" :data="barChartData" :options="{ ...chartOptions, scales: { y: { beginAtZero: true } } }" />
-              </div>
-            </UCard>
-
-            <!-- Line Chart: Aging Rekomendasi -->
-            <UCard class="flex flex-col h-80" :ui="{ body: 'flex-1 relative flex items-center justify-center p-4' }">
-              <template #header>
-                <h5 class="text-md font-bold uppercase tracking-wider text-gray-400 text-center">Aging Rekomendasi (Progress Rata-rata %)</h5>
-              </template>
-              <div class="w-full h-52">
-                <Line v-if="renderCharts" :data="lineChartData" :options="{ ...chartOptions, scales: { y: { min: 0, max: 100 } } }" />
-              </div>
-            </UCard>
+          <UFormField label="Noted">
+            <UTextarea
+              v-model="store.form.executiveNote"
+              placeholder="Tuliskan catatan untuk Auditor..."
+              :rows="5"
+              class="w-full"
+              :disabled="!canWriteExecutiveNote"
+            />
+          </UFormField>
+          <div v-if="canWriteExecutiveNote" class="flex justify-end">
+            <UButton
+              color="primary"
+              icon="i-lucide-save"
+              label="Simpan Catatan"
+              :loading="store.loading"
+              @click="store.saveExecutiveNote"
+            />
           </div>
         </section>
 
-        <!-- 8. Section VIII: Matriks Induk Kompilasi -->
-        <section id="sec-matrix" class="space-y-6 scroll-mt-6">
-          <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span class="text-primary-500">VIII.</span> Lampiran: Matriks Induk Kompilasi Temuan
-                </h2>
-                <p class="text-sm text-gray-400">Tabel data grid detail untuk semua temuan yang dikompilasi pada triwulan ini.</p>
-              </div>
-              <div class="flex gap-2 flex-wrap">
-                <UButton
-                  v-if="!isLocked"
-                  color="success"
-                  variant="outline"
-                  icon="i-lucide-download"
-                  label="Unduh Template Excel"
-                  size="sm"
-                  @click="downloadExcelTemplate"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Matrix Grid Table -->
-          <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-            <div class="overflow-x-auto w-full max-h-[500px] overflow-y-auto">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 font-medium text-md">
-                <thead class="bg-gray-100 dark:bg-gray-800 sticky top-0 z-10">
-                  <tr class="divide-x divide-gray-200 dark:divide-gray-800">
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-28">Nomor (A)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-24">Div (B)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-40">Unit Kerja (C)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-32">Proses Bisnis (D)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-52">Judul Temuan (E)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-28">Risiko (F)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-52">Rekomendasi (G)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-32">Due Date (H)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-32">PIC Unit (I)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-20">Prog% (J)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-28">Status (K)</th>
-                    <th class="px-3 py-3 text-left font-bold text-gray-500 uppercase w-32">Bukti (L)</th>
-                    <th v-if="!isLocked" class="px-3 py-3 text-center font-bold text-gray-500 uppercase w-12 sticky right-0 bg-gray-100 dark:bg-gray-800">X</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                  <tr v-for="(row, idx) in store.form.matriksKompilasi" :key="idx" class="divide-x divide-gray-100 dark:divide-gray-800 hover:bg-gray-50/50">
-                    <td class="p-1">
-                      <UInput 
-                        v-model="row.nomor" 
-                        size="md" 
-                        class="font-mono" 
-                        placeholder="001/SPI/2026" 
-                        :disabled="isLocked" 
-                        maxlength="50"
-                        @invalid="($event.target as any)?.setCustomValidity('Nomor temuan maksimal 50 karakter dan wajib diisi')"
-                        @input="($event.target as any)?.setCustomValidity('')"
-                      />
-                      <div class="text-xs text-gray-500 mt-1 text-right">
-                        {{ row.nomor ? row.nomor.length : 0 }}/50
-                      </div>
-                    </td>
-                    <td class="p-1">
-                      <USelectMenu v-model="row.division" :items="divisionOptions" size="md" :disabled="isLocked" />
-                    </td>
-                    <td class="p-1">
-                      <UInput 
-                        v-model="row.unitKerja" 
-                        size="md" 
-                        placeholder="Operation Personnel" 
-                        :disabled="isLocked" 
-                        maxlength="100"
-                        @invalid="($event.target as any)?.setCustomValidity('Unit kerja maksimal 100 karakter dan wajib diisi')"
-                        @input="($event.target as any)?.setCustomValidity('')"
-                      />
-                      <div class="text-xs text-gray-500 mt-1 text-right">
-                        {{ row.unitKerja ? row.unitKerja.length : 0 }}/100
-                      </div>
-                    </td>
-                    <td class="p-1">
-                      <UInput 
-                        v-model="row.prosesBisnis" 
-                        size="md" 
-                        placeholder="O&M" 
-                        :disabled="isLocked" 
-                        maxlength="100"
-                        @invalid="($event.target as any)?.setCustomValidity('Proses bisnis maksimal 100 karakter dan wajib diisi')"
-                        @input="($event.target as any)?.setCustomValidity('')"
-                      />
-                      <div class="text-xs text-gray-500 mt-1 text-right">
-                        {{ row.prosesBisnis ? row.prosesBisnis.length : 0 }}/100
-                      </div>
-                    </td>
-                    <td class="p-1">
-                      <UTextarea v-model="row.judulTemuan" size="md" placeholder="Uraian temuan..." :rows="1" :disabled="isLocked" />
-                    </td>
-                    <td class="p-1">
-                      <USelectMenu v-model="row.nilaiRisiko" :items="['Tinggi', 'Sedang', 'Rendah']" size="md" :disabled="isLocked" />
-                    </td>
-                    <td class="p-1">
-                      <UTextarea v-model="row.rekomendasi" size="md" placeholder="Tindakan korektif..." :rows="1" :disabled="isLocked" />
-                    </td>
-                    <td class="p-1 min-w-36">
-                      <AppDatePicker v-model="row.dueDate" size="md" :disabled="isLocked" />
-                    </td>
-                    <td class="p-1">
-                      <UInput 
-                        v-model="row.picUnit" 
-                        size="md" 
-                        placeholder="Manager O&M" 
-                        :disabled="isLocked" 
-                        maxlength="100"
-                        @invalid="($event.target as any)?.setCustomValidity('PIC Unit maksimal 100 karakter dan wajib diisi')"
-                        @input="($event.target as any)?.setCustomValidity('')"
-                      />
-                      <div class="text-xs text-gray-500 mt-1 text-right">
-                        {{ row.picUnit ? row.picUnit.length : 0 }}/100
-                      </div>
-                    </td>
-                    <td class="p-1">
-                      <UInput type="number" v-model.number="row.progres" size="md" placeholder="0" min="0" max="100" class="w-16" :disabled="isLocked" />
-                    </td>
-                    <td class="p-1">
-                      <USelectMenu v-model="row.status" :items="['Closed', 'In Progress', 'Overdue']" size="md" :disabled="isLocked" />
-                    </td>
-                    <td class="p-1">
-                      <div class="flex items-center gap-1">
-                        <UInput 
-                        v-model="row.buktiTL" 
-                        size="md" 
-                        placeholder="Nama bukti..." 
-                        :disabled="isLocked" 
-                        maxlength="100"
-                        @invalid="($event.target as any)?.setCustomValidity('Bukti TL maksimal 100 karakter dan wajib diisi')"
-                        @input="($event.target as any)?.setCustomValidity('')"
-                      />
-                      <div class="text-xs text-gray-500 mt-1 text-right">
-                        {{ row.buktiTL ? row.buktiTL.length : 0 }}/100
-                      </div>
-                        <UButton
-                          v-if="!isLocked"
-                          color="neutral"
-                          variant="ghost"
-                          icon="i-lucide-paperclip"
-                          size="md"
-                          title="Lampirkan File"
-                          @click="simulateAttachmentUpload(idx)"
-                        />
-                      </div>
-                    </td>
-                    <td v-if="!isLocked" class="p-1 text-center sticky right-0 bg-white dark:bg-gray-900">
-                      <UButton
-                        color="error"
-                        variant="ghost"
-                        icon="i-lucide-x"
-                        size="md"
-                        @click="removeMatrixRow(idx)"
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Tombol di paling bawah matrix grid table untuk menambahkan row baru matriks induk kompilasi temuan -->
-            <div v-if="!isLocked" class="p-3 bg-gray-50 dark:bg-gray-800/60 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3">
-              <UButton
-                type="button"
-                color="primary"
-                variant="soft"
-                icon="i-lucide-plus"
-                label="Tambah Baris Temuan"
-                size="sm"
-                @click="addMatrixRow"
-              />
-              <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                {{ store.form.matriksKompilasi.length }} temuan
-              </span>
-            </div>
-          </div>
-          
-          <div v-if="store.form.matriksKompilasi.length === 0" class="text-center py-10 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
-            Belum ada detail baris temuan pada lampiran matriks induk.
-            <button v-if="!isLocked" type="button" @click="addMatrixRow" class="text-primary-500 font-bold ml-1 hover:underline">
-              Tambah baris manual
-            </button>
-            atau
-            <button v-if="!isLocked" type="button" @click="simulateExcelImport" class="text-warning-600 font-bold ml-1 hover:underline">
-              Impor data simulasi Excel
-            </button>
-          </div>
-        </section>
       </form>
     </div>
 
@@ -770,16 +554,6 @@
             :loading="store.loading"
             @click="saveReportDraft"
           />
-          <UButton
-            v-if="!isLocked && isChiefAuditExecutive"
-            color="success"
-            variant="solid"
-            icon="i-lucide-check-circle"
-            label="Setujui Laporan (Approve)"
-            class="font-bold px-6"
-            :loading="store.loading"
-            @click="approveReportDirectly"
-          />
         </template>
         
         <!-- Locked/Unlocked Overrides -->
@@ -794,16 +568,6 @@
             :loading="store.loading"
             @click="approveReportDirectly"
           />
-          <UButton
-            v-if="store.form.status === 'Approved' && isHigherAuthority"
-            color="warning"
-            variant="solid"
-            icon="i-lucide-unlock"
-            label="Buka Kunci (Revert to Draft)"
-            class="font-bold px-6"
-            :loading="store.loading"
-            @click="revertToDraft"
-          />
         </template>
       </div>
     </div>
@@ -811,55 +575,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
-import { Doughnut, Bar, Line } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-} from 'chart.js'
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler)
-
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
-const renderCharts = ref(false)
 const scrollContainer = ref<HTMLElement | null>(null)
 
 // Navigation links
-const sections = [
+const sections = computed(() => [
   { id: 'sec-upload', index: '1', title: 'Navigation & Upload' },
   { id: 'sec-narrative', index: '2', title: 'Narrative Summary' },
   { id: 'sec-stats', index: '3', title: 'Statistik Kompilasi' },
   { id: 'sec-followup', index: '4', title: 'Status Tindak Lanjut' },
   { id: 'sec-topfindings', index: '5', title: 'Top 5 Significant' },
   { id: 'sec-analysis', index: '6', title: 'Akar Masalah' },
-  { id: 'sec-charts', index: '7', title: 'Tren & Grafik' },
-  { id: 'sec-matrix', index: '8', title: 'Matriks Induk' }
-]
+  ...(store.isViewing ? [{ id: 'sec-notes', index: '7', title: 'Noted' }] : [])
+])
 
 // Dropdown options
 const divisionOptions = ['OP', 'KK/KSD', 'IT', 'FIN', 'HR', 'LEG']
 
-const monthOptions = computed(() => {
-  if (store.form.quarter === 1) return ['Januari', 'Februari', 'Maret']
-  if (store.form.quarter === 2) return ['April', 'Mei', 'Juni']
-  if (store.form.quarter === 3) return ['Juli', 'Agustus', 'September']
-  return ['Oktober', 'November', 'Desember']
+const quarterOptions = ['Kuartal I', 'Kuartal II', 'Kuartal III', 'Kuartal IV']
+const reportingQuarter = computed({
+  get: (): string => quarterOptions[store.form.quarter - 1] ?? 'Kuartal I',
+  set: (value: string) => {
+    const quarterIndex = quarterOptions.indexOf(value)
+    store.form.quarter = quarterIndex >= 0 ? quarterIndex + 1 : 1
+    store.form.periodeBulan = quarterOptions[store.form.quarter - 1] ?? 'Kuartal I'
+  }
 })
 
 // Role computed checks
@@ -867,13 +615,11 @@ const isChiefAuditExecutive = computed(() => {
   return authStore.user?.roles.includes(UserRole.CHIEF_AUDIT_EXECUTIVE) || authStore.user?.roles.includes(UserRole.ADMIN)
 })
 
-const isHigherAuthority = computed(() => {
-  return authStore.user?.roles.includes(UserRole.ADMIN) || authStore.user?.roles.includes('audit_committee')
-})
-
 const isLocked = computed(() => {
   return store.form.status === 'Approved'
 })
+
+const canWriteExecutiveNote = computed(() => Boolean(isChiefAuditExecutive.value))
 
 // Section II computed auto-sum
 const totalTemuanSummary = computed(() => {
@@ -885,19 +631,6 @@ const totalFollowUpCount = computed(() => {
   return store.form.followUpTable.reduce((acc, row) => acc + (row.jumlah || 0), 0)
 })
 
-// Rule 2: Warning sync check
-const isSyncWarning = computed(() => {
-  const matrixTinggi = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Tinggi').length
-  const matrimdedang = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Sedang').length
-  const matrixRendah = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Rendah').length
-
-  const sumTinggi = store.form.risikoTinggi || 0
-  const sumSedang = store.form.risikoSedang || 0
-  const sumRendah = store.form.risikoRendah || 0
-
-  return sumTinggi !== matrixTinggi || sumSedang !== matrimdedang || sumRendah !== matrixRendah
-})
-
 // Force recalculate Section III percentages
 const recalculatePercentages = () => {
   const total = totalFollowUpCount.value
@@ -906,46 +639,13 @@ const recalculatePercentages = () => {
   })
 }
 
-// Recalculate stats counts automatically from matrix when simulated excel imports or updates
-const syncStatsFromMatrix = () => {
-  const high = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Tinggi').length
-  const med = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Sedang').length
-  const low = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Rendah').length
-  
-  store.form.risikoTinggi = high
-  store.form.risikoSedang = med
-  store.form.risikoRendah = low
-}
-
-// Watch matrix changes to sync status counts
-watch(() => store.form.matriksKompilasi, () => {
-  // Sync status counts in Section III
-  const closed = store.form.matriksKompilasi.filter(r => r.status === 'Closed').length
-  const inProg = store.form.matriksKompilasi.filter(r => r.status === 'In Progress').length
-  const overdue = store.form.matriksKompilasi.filter(r => r.status === 'Overdue').length
-
-  if (store.form.matriksKompilasi.length > 0 && store.form.followUpTable.length >= 3) {
-    store.form.followUpTable[0]!.jumlah = closed
-    store.form.followUpTable[1]!.jumlah = inProg
-    store.form.followUpTable[2]!.jumlah = overdue
-    recalculatePercentages()
-  }
-}, { deep: true })
-
 // Helper formatting percentage
 const formatPercent = (val: number) => {
   return val ? val.toFixed(1) : '0.0'
 }
 
-// Dropdown change behavior
-const onMonthChange = (val: any) => {
-  if (!store.form.narrative || store.form.narrative.startsWith('Periode ')) {
-    store.form.narrative = store.defaultNarrativeTemplate(store.form.periodeBulan, store.form.tahun)
-  }
-}
-
 const resetNarrativeToDefault = () => {
-  store.form.narrative = store.defaultNarrativeTemplate(store.form.periodeBulan, store.form.tahun)
+  store.form.narrative = store.defaultNarrativeTemplate(reportingQuarter.value, store.form.tahun)
 }
 
 // File Upload Handler (with corrupted file simulation & validation)
@@ -993,126 +693,6 @@ const removeTopFinding = (idx: number) => {
   store.form.topFindings.splice(idx, 1)
 }
 
-// Section VIII: Matriks Induk manual addition methods
-const addMatrixRow = () => {
-  store.form.matriksKompilasi.push({
-    nomor: `00${store.form.matriksKompilasi.length + 1}/SPI/2026`,
-    division: 'OP',
-    unitKerja: '',
-    prosesBisnis: '',
-    judulTemuan: '',
-    nilaiRisiko: 'Sedang',
-    rekomendasi: '',
-    dueDate: (new Date().toISOString().split('T')[0]) as string,
-    picUnit: '',
-    progres: 0,
-    status: 'In Progress',
-    buktiTL: ''
-  })
-}
-
-const removeMatrixRow = (idx: number) => {
-  store.form.matriksKompilasi.splice(idx, 1)
-}
-
-const simulateAttachmentUpload = (idx: number) => {
-  const attachmentName = prompt('Masukkan nama file attachment bukti TL:', 'BA Serah Terima Alat.pdf')
-  if (attachmentName) {
-    const row = store.form.matriksKompilasi[idx]
-    if (row) {
-      row.buktiTL = attachmentName
-    }
-  }
-}
-
-// Download Excel Template Simulation
-const downloadExcelTemplate = () => {
-  // Creating virtual CSV template download
-  const headers = 'Nomor,Division,Unit Kerja,Proses Bisnis,Judul Temuan,Nilai Risiko,Rekomendasi,Due Date,PIC Unit,% Progres,Status,Bukti TL'
-  const sample = '001/SPI/2026,OP,Division Operation Personnel,O&M,Keterlambatan Kalibrasi Alat Berat,Tinggi,Segera lakukan kalibrasi,2026-03-15,Manager O&M,40,Overdue,BA Kalibrasi 1.pdf'
-  const csvContent = 'data:text/csv;charset=utf-8,' + headers + '\n' + sample
-  const encodedUri = encodeURI(csvContent)
-  const link = document.createElement('a')
-  link.setAttribute('href', encodedUri)
-  link.setAttribute('download', 'template_matriks_kompilasi.csv')
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
-
-// Excel Import Simulation
-const simulateExcelImport = () => {
-  // Populate the matrix table with standard mockup entries
-  store.form.matriksKompilasi = [
-    {
-      nomor: '001/SPI/2026',
-      division: 'OP',
-      unitKerja: 'Division Operation Personnel',
-      prosesBisnis: 'O&M',
-      judulTemuan: 'Keterlambatan Kalibrasi Alat Berat',
-      nilaiRisiko: 'Tinggi',
-      rekomendasi: 'Segera lakukan kalibrasi ulang alat berat pendukung produksi',
-      dueDate: '2026-03-15',
-      picUnit: 'Manager O&M',
-      progres: 40,
-      status: 'Overdue',
-      buktiTL: 'BA Kalibrasi 1.pdf'
-    },
-    {
-      nomor: '002/SPI/2026',
-      division: 'KK/KSD',
-      unitKerja: 'Division KSD',
-      prosesBisnis: 'K3',
-      judulTemuan: 'Ketidakpatuhan Prosedur K3 Tambang',
-      nilaiRisiko: 'Tinggi',
-      rekomendasi: 'Sediakan APD tambahan dan lakukan training harian kepada petugas lapangan',
-      dueDate: '2026-04-10',
-      picUnit: 'Manager K3',
-      progres: 80,
-      status: 'In Progress',
-      buktiTL: ''
-    },
-    {
-      nomor: '003/SPI/2026',
-      division: 'IT',
-      unitKerja: 'Core Technology Center',
-      prosesBisnis: 'Security',
-      judulTemuan: 'Pencadangan Backup Server Utama Tertunda',
-      nilaiRisiko: 'Sedang',
-      rekomendasi: 'Siapkan backup offsite otomatis harian',
-      dueDate: '2026-02-28',
-      picUnit: 'Manager Security IT',
-      progres: 100,
-      status: 'Closed',
-      buktiTL: 'Log Pencadangan Offsite.pdf'
-    },
-    {
-      nomor: '004/SPI/2026',
-      division: 'FIN',
-      unitKerja: 'Corporate Treasury',
-      prosesBisnis: 'Procurement',
-      judulTemuan: 'Dokumen Pajak Mitra Tidak Lengkap',
-      nilaiRisiko: 'Rendah',
-      rekomendasi: 'Lengkapi arsip dokumen NPWP vendor baru',
-      dueDate: '2026-05-20',
-      picUnit: 'Supervisor Pajak',
-      progres: 100,
-      status: 'Closed',
-      buktiTL: 'Berkas Pajak Mitra Q1.pdf'
-    }
-  ]
-  
-  // Auto-sync stats to Section II
-  syncStatsFromMatrix()
-}
-
-// Charting Visuals data providers
-const statusBadgeColorMap = {
-  Closed: 'success',
-  'In Progress': 'info',
-  Overdue: 'error'
-}
-
 const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
   const colors = {
     Closed: 'bg-success-100 text-success-800 dark:bg-success-950 dark:text-success-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
@@ -1121,118 +701,6 @@ const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
   }
   return colors[status]
 }
-
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'bottom' as const,
-      labels: {
-        boxWidth: 12,
-        font: { size: 10 }
-      }
-    }
-  }
-}
-
-// Pie Chart (Section III Data)
-const pieChartData = computed(() => {
-  const labels = ['Closed', 'In Progress', 'Overdue']
-  const data = store.form.followUpTable.map(r => r.jumlah || 0)
-  
-  return {
-    labels,
-    datasets: [{
-      data,
-      backgroundColor: ['#1fc16b', '#00d4f9', '#fc423f'],
-      hoverOffset: 4
-    }]
-  }
-})
-
-// Bar Chart (Monthly distribution from Matrix)
-const barChartData = computed(() => {
-  // Extract month count from matrix due dates
-  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-  const counts = Array(12).fill(0)
-
-  store.form.matriksKompilasi.forEach(row => {
-    if (!row.dueDate) return
-    const date = new Date(row.dueDate)
-    if (!isNaN(date.getTime())) {
-      counts[date.getMonth()]++
-    }
-  })
-
-  // Determine active quarter's months to display
-  let labels = ['Januari', 'Februari', 'Maret']
-  let data = counts.slice(0, 3)
-
-  if (store.form.quarter === 2) {
-    labels = ['April', 'Mei', 'Juni']
-    data = counts.slice(3, 6)
-  } else if (store.form.quarter === 3) {
-    labels = ['Juli', 'Agustus', 'September']
-    data = counts.slice(6, 9)
-  } else if (store.form.quarter === 4) {
-    labels = ['Oktober', 'November', 'Desember']
-    data = counts.slice(9, 12)
-  }
-
-  // Fallback to dummy data if matrix is empty
-  if (store.form.matriksKompilasi.length === 0) {
-    data = [2, 5, 3]
-  }
-
-  return {
-    labels,
-    datasets: [{
-      label: 'Jumlah Temuan',
-      data,
-      backgroundColor: '#ff5c02',
-      borderRadius: 4
-    }]
-  }
-})
-
-// Line Chart (Aging Recommendation progress by Month)
-const lineChartData = computed(() => {
-  let labels = ['Januari', 'Februari', 'Maret']
-  let data = [65, 80, 95] // Fallback
-
-  if (store.form.quarter === 2) {
-    labels = ['April', 'Mei', 'Juni']
-    data = [70, 75, 88]
-  } else if (store.form.quarter === 3) {
-    labels = ['Juli', 'Agustus', 'September']
-    data = [60, 68, 72]
-  } else if (store.form.quarter === 4) {
-    labels = ['Oktober', 'November', 'Desember']
-    data = [80, 85, 92]
-  }
-
-  // Calculate actual average progress from matrix if items exist
-  if (store.form.matriksKompilasi.length > 0) {
-    const totalProg = store.form.matriksKompilasi.reduce((acc, r) => acc + (r.progres || 0), 0)
-    const avgProg = totalProg / store.form.matriksKompilasi.length
-    // Plot a line trending toward the current average
-    data = [Math.round(avgProg * 0.7), Math.round(avgProg * 0.85), Math.round(avgProg)]
-  }
-
-  return {
-    labels,
-    datasets: [{
-      label: 'Progres Tindak Lanjut (%)',
-      data,
-      borderColor: '#4d00ff',
-      backgroundColor: 'rgba(77, 0, 255, 0.1)',
-      borderWidth: 2,
-      fill: true,
-      tension: 0.3
-    }]
-  }
-})
 
 // Form submission & workflow helpers
 const saveReportDraft = async () => {
@@ -1246,30 +714,14 @@ const saveReportDraft = async () => {
   }
   
   // Set status Draft
+  store.form.periodeBulan = reportingQuarter.value
   store.form.status = 'Draft'
   await store.saveForm()
 }
 
 const approveReportDirectly = async () => {
-  if (!store.form.nomorDokumen) {
-    alert('Nomor dokumen wajib diisi.')
-    return
-  }
-  if (!store.form.dokumenPath) {
-    alert('Unggah dokumen resmi wajib diisi.')
-    return
-  }
-
-  // Set status Approved
-  store.form.status = 'Approved'
-  await store.saveForm()
-}
-
-const revertToDraft = async () => {
-  if (await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin membuka kunci dokumen dan mengembalikannya ke Draft?' })) {
-    if (store.currentSummary) {
-      await store.updateStatus(store.currentSummary.id, 'Draft')
-    }
+  if (store.currentSummary) {
+    await store.updateStatus(store.currentSummary.id, 'Approved')
   }
 }
 
@@ -1284,7 +736,7 @@ const scrollToSection = (id: string) => {
 
 const onScroll = () => {
   const scrollOffset = 150
-  for (const sec of sections) {
+  for (const sec of sections.value) {
     const el = document.getElementById(sec.id)
     if (el) {
       const rect = el.getBoundingClientRect()
@@ -1332,12 +784,4 @@ const onLhaSelect = (val: any) => {
   }
 }
 
-// Chart rendering delay to prevent sizing glitches in modal
-onMounted(() => {
-  nextTick(() => {
-    setTimeout(() => {
-      renderCharts.value = true
-    }, 300)
-  })
-})
 </script>

@@ -4,6 +4,9 @@ export interface GlobalModalOptions {
   itemName?: string;
   title?: string;
   description?: string;
+  // Optional overrides; the default body text and button label are used when omitted
+  body?: string[];
+  confirmLabel?: string;
   type?: 'delete' | 'submit';
 }
 

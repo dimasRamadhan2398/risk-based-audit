@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
@@ -42,6 +42,7 @@ export interface ExecutiveSummary {
   nomorDokumen: string
   dokumenPath: string
   status: 'Draft' | 'Approved' | 'Rejected'
+  executiveNote?: string
 
   // Section I
   narrative: string
@@ -100,6 +101,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     nomorDokumen: '',
     dokumenPath: '',
     status: 'Draft',
+    executiveNote: '',
     narrative: '',
     jumlahLaporan: 0,
     risikoTinggi: 0,
@@ -378,6 +380,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       nomorDokumen: '',
       dokumenPath: '',
       status: 'Draft',
+      executiveNote: '',
       narrative: defaultNarrativeTemplate(defaultMonth, 2026),
       jumlahLaporan: 0,
       risikoTinggi: 0,
@@ -523,20 +526,58 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     }
   }
 
-  const updateStatus = async (id: string, newStatus: 'Draft' | 'Approved' | 'Rejected') => {
+  const saveExecutiveNote = async () => {
+    if (!currentSummary.value) return
+
     loading.value = true
+    errorMsg.value = ''
+    const note = form.executiveNote?.trim() || ''
+    const updated: ExecutiveSummary = {
+      ...currentSummary.value,
+      ...JSON.parse(JSON.stringify(form)),
+      executiveNote: note
+    }
+
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      // Fetch current item
+      await $fetch(`${baseUrl}/executive-summaries/${currentSummary.value.id}`, {
+        method: 'PUT',
+        body: serializeSummaryForBackend(updated)
+      })
+
+      const index = summaryList.value.findIndex(summary => summary.id === currentSummary.value?.id)
+      if (index !== -1) summaryList.value[index] = updated
+      currentSummary.value = updated
+      form.executiveNote = note
+      toast.showSuccess('Catatan Executive berhasil disimpan untuk Auditor.')
+    } catch (error: any) {
+      console.error('Failed to save executive note:', error)
+      const detail = extractErrorMessage(error, 'Gagal menyimpan catatan Executive.')
+      errorMsg.value = detail
+      toast.showError('Gagal menyimpan catatan Executive.', detail)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const updateStatus = async (id: string, newStatus: 'Draft' | 'Approved' | 'Rejected') => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
       const item = summaryList.value.find(s => s.id === id)
+        || (currentSummary.value?.id === id ? currentSummary.value : null)
       if (item) {
-        const updated = { ...item, status: newStatus }
+        const updated: ExecutiveSummary = { ...item, status: newStatus }
         const payload = serializeSummaryForBackend(updated)
         await $fetch(`${baseUrl}/executive-summaries/${id}`, {
           method: 'PUT',
           body: payload
         })
         await fetchSummaries()
+        currentSummary.value = updated
+        Object.assign(form, JSON.parse(JSON.stringify(updated)))
+        toast.showSuccess('Status Executive Summary berhasil diperbarui!')
       }
     } catch (error: any) {
       console.error('Failed to update status on backend, simulating local update:', error)
@@ -551,7 +592,6 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
           form.status = newStatus
         }
       }
-      toast.showSuccess('Status Executive Summary berhasil diperbarui!')
     } finally {
       loading.value = false
     }
@@ -574,6 +614,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     openEditForm,
     openView,
     saveForm,
+    saveExecutiveNote,
     deleteSummary,
     updateStatus,
     fetchSummaries,

@@ -73,6 +73,7 @@ jobs:
           DEPLOY_SHA: ${{ github.sha }}
           DEPLOY_REF: ${{ github.ref_name }}
           DEPLOY_ACTOR: ${{ github.actor }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -82,7 +83,7 @@ jobs:
           timeout: 30m
           command_timeout: 30m
           script_stop: true
-          envs: DEPLOY_SHA,DEPLOY_REF,DEPLOY_ACTOR
+          envs: DEPLOY_SHA,DEPLOY_REF,DEPLOY_ACTOR,GH_TOKEN
           script: |
             set -Eeuo pipefail
 
@@ -224,19 +225,28 @@ jobs:
 
               export GIT_TERMINAL_PROMPT=0
 
+              # Private repo: authenticate the fetch with a short-lived token.
+              # The token is passed on the command line only, never written to
+              # .git/config or to any credential store.
+              if [ -z "${GH_TOKEN:-}" ]; then
+                fail "GH_TOKEN is empty; cannot fetch private repository."
+              fi
+              REPO_AUTH_URL="https://x-access-token:${GH_TOKEN}@github.com/RauMomo/risk-based-audit.git"
+
               # Sync repository
               log "📦 Syncing repository code..."
               if [ -d "$REPO_DIR/.git" ]; then
                 cd "$REPO_DIR"
-                git fetch --depth 1 origin "$DEPLOY_SHA"
+                git fetch --depth 1 "$REPO_AUTH_URL" "$DEPLOY_SHA"
                 git reset --hard "$DEPLOY_SHA"
                 git clean -fd
               else
                 rm -rf "$REPO_DIR"
-                git clone --depth 1 "$REPO_URL" "$REPO_DIR"
+                git clone --depth 1 "$REPO_AUTH_URL" "$REPO_DIR"
                 cd "$REPO_DIR"
-                git fetch --depth 1 origin "$DEPLOY_SHA"
-                git checkout "$DEPLOY_SHA" 
+                git remote set-url origin "$REPO_URL"
+                git fetch --depth 1 "$REPO_AUTH_URL" "$DEPLOY_SHA"
+                git checkout "$DEPLOY_SHA"
               fi
 
               # Overlay pre-compiled backend

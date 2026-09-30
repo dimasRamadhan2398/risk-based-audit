@@ -27,21 +27,24 @@
     </template>
 
     <template #body>
-      <div v-if="store.options?.type === 'submit'">
-        <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Apakah Anda yakin ingin menyimpan data ini?</p>
-        <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Data yang disimpan akan direkam ke dalam sistem.</p>
+      <div v-if="store.options?.body?.length">
+        <p v-for="(line, index) in store.options.body" :key="index" class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">{{ line }}</p>
+      </div>
+      <div v-else-if="store.options?.type === 'submit'">
+        <p class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">{{ t('globalConfirmation.submit.question') }}</p>
+        <p class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">{{ t('globalConfirmation.submit.note') }}</p>
       </div>
       <div v-else>
-        <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Apakah Anda yakin ingin menghapus data ini?</p>
-        <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">Tindakan ini permanen dan tidak dapat dibatalkan.</p>
+        <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">{{ t('globalConfirmation.delete.question') }}</p>
+        <p class="text-sm sm:text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">{{ t('globalConfirmation.delete.note') }}</p>
       </div>
     </template>
 
     <template #footer>
-      <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 w-full">
-        <UButton label="Batal" color="neutral" variant="ghost" class="w-full sm:w-auto justify-center" @click="store.resolve(false)" />
-        <UButton v-if="store.options?.type === 'submit'" label="Ya, Simpan Data" color="primary" class="w-full sm:w-auto justify-center" @click="store.resolve(true)" />
-        <UButton v-else label="Ya, Hapus Data" color="error" class="w-full sm:w-auto justify-center" @click="store.resolve(true)" />
+      <div class="flex justify-end gap-3 w-full">
+        <UButton :label="t('common.cancel')" color="neutral" variant="ghost" @click="store.resolve(false)" />
+        <UButton v-if="store.options?.type === 'submit'" :label="store.options?.confirmLabel || t('globalConfirmation.submit.confirmButton')" color="primary" @click="store.resolve(true)" />
+        <UButton v-else :label="t('globalConfirmation.delete.confirmButton')" color="error" @click="store.resolve(true)" />
       </div>
     </template>
   </UModal>
@@ -50,22 +53,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useGlobalModalStore } from '~/stores/global-modal'
+import { useI18n } from '~/composables/useI18n'
 
 const store = useGlobalModalStore()
+const { t } = useI18n()
 
 const title = computed(() => {
   if (store.options?.title) return store.options.title
   if (store.options?.type === 'submit') {
-    if (store.options?.itemName) return `Simpan "${store.options.itemName}"?`
-    return 'Simpan Data?'
+    if (store.options?.itemName) return t('globalConfirmation.submit.titleWithItem', { itemName: store.options.itemName })
+    return t('globalConfirmation.submit.title')
   }
-  if (store.options?.itemName) return `Hapus "${store.options.itemName}"?`
-  return 'Hapus Data?'
+  if (store.options?.itemName) return t('globalConfirmation.delete.titleWithItem', { itemName: store.options.itemName })
+  return t('globalConfirmation.delete.title')
 })
 
 const description = computed(() => {
   if (store.options?.description) return store.options.description
-  if (store.options?.type === 'submit') return 'Apakah Anda yakin ingin menyimpan data ini?'
-  return 'Apakah Anda yakin ingin menghapus data ini?<br />Tindakan ini permanen dan tidak dapat dibatalkan.'
+  if (store.options?.type === 'submit') return t('globalConfirmation.submit.question')
+  return t('globalConfirmation.delete.question')
 })
 </script>

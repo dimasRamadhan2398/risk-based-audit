@@ -67,9 +67,11 @@
                   <UInput
                     v-model="store.form.code"
                     required
+                    disabled
+                    aria-readonly="true"
                     type="text"
-                    placeholder="e.g. PKAT-2026-ASR-001"
-                    class="w-full font-mono text-sm"
+                    placeholder="Terisi otomatis"
+                    class="w-full font-mono text-sm bg-gray-100 dark:bg-gray-800"
                   />
                 </UFormField>
               </div>
@@ -253,8 +255,14 @@
               <UFormField
                 label="Select Months"
                 size="lg"
+                required
               >
-                <div class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-2 p-4">
+                <div
+                  class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-2 p-4"
+                  role="group"
+                  aria-label="Select Months"
+                  aria-required="true"
+                >
                   <div
                     v-for="(month, idx) in store.monthsList"
                     :key="idx"
@@ -316,12 +324,14 @@
                 <UFormField
                   label="Number of Auditors (1-10)"
                   size="lg"
+                  required
                 >
                   <UInput
                     v-model.number="store.form.auditorCount"
                     type="number"
                     min="1"
                     max="10"
+                    required
                     class="w-full"
                   />
                   <p class="text-md text-gray-500 mt-1">
@@ -332,11 +342,13 @@
                 <UFormField
                   label="Duration (Days)"
                   size="lg"
+                  required
                 >
                   <UInput
                     v-model.number="store.form.daysPerAuditor"
                     type="number"
                     min="1"
+                    required
                   />
                 </UFormField>
 
@@ -355,6 +367,7 @@
                 <UFormField
                   label="Supervisor"
                   size="lg"
+                  required
                 >
                   <USelectMenu
                     :model-value="(store.form.supervisorId as any)"
@@ -363,6 +376,7 @@
                     option-key="label"
                     placeholder="-- Choose Supervisor --"
                     class="w-full rounded-md shadow-sm"
+                    required
                     @update:model-value="(val: any) => store.form.supervisorId = val"
                   />
 
@@ -446,7 +460,9 @@
                 <UInput
                   v-model="store.form.attachmentUploadedBy"
                   placeholder="Attachment Uploaded By"
-                  class="w-full"
+                  class="w-full bg-gray-100 dark:bg-gray-800"
+                  disabled
+                  aria-readonly="true"
                 />
               </UFormField>
               <UFormField label="Attachment Upload Date">
@@ -501,11 +517,34 @@ import { computed, watch, onMounted } from 'vue'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
+import { useAuthStore } from '~/stores/auth'
 import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment } from '~/types/audit'
 
 const store = useAnnualPlanStore()
 const riskStore = useRiskProfileStore()
 const auditUniverseStore = useAuditUniverseStore()
+const authStore = useAuthStore()
+
+const roleLabels: Record<string, string> = {
+  admin: 'System Administrator',
+  auditor: 'Auditor',
+  department_head: 'Department Head',
+  auditee: 'Auditee',
+  viewer: 'Viewer',
+  audit_staff: 'Audit Staff',
+  audit_manager: 'Audit Manager',
+  chief_audit_executive: 'Chief Audit Executive'
+}
+
+const signedInRoleLabel = computed(() => {
+  const role = authStore.user?.roles?.[0]
+  if (!role) return ''
+  return roleLabels[role] || role
+    .split('_')
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+})
 
 const statusOptions = Object.values(AnnualAuditPlanStatus) as AnnualAuditPlanStatus[]
 const categoryOptions = Object.values(AuditCategory) as AuditCategory[]
@@ -524,8 +563,9 @@ onMounted(() => {
   loadAuditUniverseData()
 })
 
-watch(() => store.showModal, (isOpen) => {
+watch([() => store.showModal, signedInRoleLabel], ([isOpen]) => {
   if (isOpen) {
+    store.form.attachmentUploadedBy = signedInRoleLabel.value
     loadAuditUniverseData()
   }
 })
