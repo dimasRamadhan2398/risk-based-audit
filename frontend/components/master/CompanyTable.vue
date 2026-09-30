@@ -2,9 +2,9 @@
   <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h2 class="text-lg font-bold">Department List</h2>
+        <h2 class="text-lg font-bold">Company List</h2>
         <UButton
-          label="Add Department"
+          label="Add Company"
           icon="i-heroicons-plus"
           color="primary"
           class="w-full sm:w-auto"
@@ -17,9 +17,9 @@
     <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
       <UInput
         v-model="searchInput"
-        placeholder="Search department..."
+        placeholder="Search company code, name, or tax ID..."
         icon="i-heroicons-magnifying-glass"
-        class="w-full sm:w-64"
+        class="w-full sm:w-72"
         @keyup.enter="handleSearch"
       />
       <UButton
@@ -52,15 +52,15 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="store.departments.length === 0" class="py-8 text-center">
-      <UIcon name="i-heroicons-building-office" class="text-4xl text-gray-400 mb-2" />
-      <p class="text-gray-500">No departments found.</p>
+    <div v-else-if="store.companies.length === 0" class="py-8 text-center">
+      <UIcon name="i-heroicons-building-office-2" class="text-4xl text-gray-400 mb-2" />
+      <p class="text-gray-500">No companies found.</p>
     </div>
 
     <!-- Table & Pagination via TableEntities -->
     <TableEntities
       v-else
-      :data="store.departments"
+      :data="store.companies"
       :columns="store.columns"
       :loading="store.loading"
       :server-side="true"
@@ -70,36 +70,50 @@
       @update:page="(p) => store.setPage(p)"
       @update:items-per-page="(size) => store.setPageSize(size)"
     >
-      <template #department_code-cell="{ row }">
-        <span class="font-medium text-primary-600">{{ row.original.department_code }}</span>
-      </template>
-
-      <template #department_name-cell="{ row }">
-        <div class="font-medium">{{ row.original.department_name }}</div>
-      </template>
-
-      <template #company_id-cell="{ row }">
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {{ options.labelFor(options.companyOptions, row.original.company_id) || '-' }}
+      <template #company_code-cell="{ row }">
+        <span class="font-semibold text-primary-600 dark:text-primary-400">
+          {{ row.original.company_code || row.original.code }}
         </span>
       </template>
 
-      <template #department_description-cell="{ row }">
-        <span class="text-gray-600 text-sm">
-          {{ row.original.department_description || '-' }}
+      <template #company_name-cell="{ row }">
+        <div>
+          <div class="font-medium text-gray-900 dark:text-white">
+            {{ row.original.company_name || row.original.name }}
+          </div>
+          <div v-if="row.original.legal_name && row.original.legal_name !== (row.original.company_name || row.original.name)" class="text-xs text-gray-500">
+            {{ row.original.legal_name }}
+          </div>
+        </div>
+      </template>
+
+      <template #legal_name-cell="{ row }">
+        <span class="text-sm text-gray-600 dark:text-gray-400">
+          {{ row.original.legal_name || '-' }}
         </span>
       </template>
 
-      <template #level-cell="{ row }">
-        <UBadge color="neutral" variant="soft">
-          Level {{ row.original.level }}
+      <template #company_type-cell="{ row }">
+        <UBadge
+          :color="getTypeBadgeColor(row.original.company_type)"
+          variant="subtle"
+          size="sm"
+        >
+          {{ row.original.company_type }}
         </UBadge>
+      </template>
+
+      <template #tax_id-cell="{ row }">
+        <span class="text-sm font-mono text-gray-600 dark:text-gray-400">
+          {{ row.original.tax_id || '-' }}
+        </span>
       </template>
 
       <template #is_active-cell="{ row }">
         <UBadge
           :color="row.original.is_active ? 'success' : 'error'"
           variant="subtle"
+          size="sm"
         >
           {{ row.original.is_active ? 'Active' : 'Inactive' }}
         </UBadge>
@@ -128,15 +142,11 @@
 </template>
 
 <script setup lang="ts">
-import { useDepartmentStore } from '~/stores/department'
-import { useMasterOptionsStore } from '~/stores/master-options'
+import { useCompanyStore } from '~/stores/company'
 
-const store = useDepartmentStore()
-const options = useMasterOptionsStore()
+const store = useCompanyStore()
 
-// Local search state
 const searchInput = ref(store.search)
-const pageSize = ref(store.pagination.page_size)
 
 const handleSearch = () => {
   store.setSearch(searchInput.value)
@@ -147,13 +157,20 @@ const resetSearch = () => {
   store.setSearch('')
 }
 
-const handlePageSizeChange = (value: any) => {
-  store.setPageSize(Number(value))
+const getTypeBadgeColor = (type?: string) => {
+  switch (type?.toUpperCase()) {
+    case 'HOLDING':
+      return 'secondary'
+    case 'SUBSIDIARY':
+      return 'primary'
+    case 'BRANCH':
+      return 'info'
+    default:
+      return 'neutral'
+  }
 }
 
-// Fetch data on mount
 onMounted(() => {
-  options.fetchAll()
-  store.fetchDepartments()
+  store.fetchCompanies()
 })
 </script>

@@ -180,12 +180,6 @@ func (d *DepartmentService) validateReferences(department *models.Department) er
 	if department.CompanyID == uuid.Nil {
 		return apperrors.Wrap("COMPANY_ID_REQUIRED", "company_id is required", 400, nil)
 	}
-	if department.BusinessUnitID == uuid.Nil {
-		return apperrors.Wrap("BUSINESS_UNIT_ID_REQUIRED", "business_unit_id is required", 400, nil)
-	}
-	if department.PicID == uuid.Nil {
-		return apperrors.Wrap("PIC_ID_REQUIRED", "pic_id is required", 400, nil)
-	}
 
 	companyExists, err := d.departmentRepo.CompanyExists(department.CompanyID)
 	if err != nil {
@@ -195,36 +189,40 @@ func (d *DepartmentService) validateReferences(department *models.Department) er
 		return apperrors.Wrap("COMPANY_NOT_FOUND", "Company not found", 404, nil)
 	}
 
-	businessUnitExists, err := d.departmentRepo.BusinessUnitExists(department.BusinessUnitID)
-	if err != nil {
-		return apperrors.Wrap("DATABASE_ERROR", "Failed to validate business unit", 500, err)
-	}
-	if !businessUnitExists {
-		return apperrors.Wrap("BUSINESS_UNIT_NOT_FOUND", "Business unit not found", 404, nil)
+	if department.BusinessUnitID != nil && *department.BusinessUnitID != uuid.Nil {
+		businessUnitExists, err := d.departmentRepo.BusinessUnitExists(*department.BusinessUnitID)
+		if err != nil {
+			return apperrors.Wrap("DATABASE_ERROR", "Failed to validate business unit", 500, err)
+		}
+		if !businessUnitExists {
+			return apperrors.Wrap("BUSINESS_UNIT_NOT_FOUND", "Business unit not found", 404, nil)
+		}
+
+		businessUnitBelongs, err := d.departmentRepo.BusinessUnitBelongsToCompany(*department.BusinessUnitID, department.CompanyID)
+		if err != nil {
+			return apperrors.Wrap("DATABASE_ERROR", "Failed to validate business unit company", 500, err)
+		}
+		if !businessUnitBelongs {
+			return apperrors.Wrap("BUSINESS_UNIT_COMPANY_MISMATCH", "Business unit does not belong to the selected company", 409, nil)
+		}
 	}
 
-	businessUnitBelongs, err := d.departmentRepo.BusinessUnitBelongsToCompany(department.BusinessUnitID, department.CompanyID)
-	if err != nil {
-		return apperrors.Wrap("DATABASE_ERROR", "Failed to validate business unit company", 500, err)
-	}
-	if !businessUnitBelongs {
-		return apperrors.Wrap("BUSINESS_UNIT_COMPANY_MISMATCH", "Business unit does not belong to the selected company", 409, nil)
-	}
+	if department.PicID != nil && *department.PicID != uuid.Nil {
+		picExists, err := d.departmentRepo.EmployeeExists(*department.PicID)
+		if err != nil {
+			return apperrors.Wrap("DATABASE_ERROR", "Failed to validate PIC", 500, err)
+		}
+		if !picExists {
+			return apperrors.Wrap("PIC_NOT_FOUND", "PIC employee not found", 404, nil)
+		}
 
-	picExists, err := d.departmentRepo.EmployeeExists(department.PicID)
-	if err != nil {
-		return apperrors.Wrap("DATABASE_ERROR", "Failed to validate PIC", 500, err)
-	}
-	if !picExists {
-		return apperrors.Wrap("PIC_NOT_FOUND", "PIC employee not found", 404, nil)
-	}
-
-	picBelongs, err := d.departmentRepo.EmployeeBelongsToCompany(department.PicID, department.CompanyID)
-	if err != nil {
-		return apperrors.Wrap("DATABASE_ERROR", "Failed to validate PIC company", 500, err)
-	}
-	if !picBelongs {
-		return apperrors.Wrap("PIC_COMPANY_MISMATCH", "PIC employee does not belong to the selected company", 409, nil)
+		picBelongs, err := d.departmentRepo.EmployeeBelongsToCompany(*department.PicID, department.CompanyID)
+		if err != nil {
+			return apperrors.Wrap("DATABASE_ERROR", "Failed to validate PIC company", 500, err)
+		}
+		if !picBelongs {
+			return apperrors.Wrap("PIC_COMPANY_MISMATCH", "PIC employee does not belong to the selected company", 409, nil)
+		}
 	}
 
 	return nil

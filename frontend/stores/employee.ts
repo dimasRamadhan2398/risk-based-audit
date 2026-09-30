@@ -133,12 +133,12 @@ export const useEmployeeStore = defineStore('employee', () => {
         department_id: form.department_id,
         job_role_id: form.job_role_id,
         level_grade: form.level_grade,
-        work_location_id: form.work_location_id || undefined,
+        work_location_id: (form.work_location_id && form.work_location_id !== '__none__') ? form.work_location_id : undefined,
         residence_address: form.residence_address || undefined,
         residence_city: form.residence_city || undefined,
         residence_province: form.residence_province || undefined,
         residence_postal_code: form.residence_postal_code || undefined,
-        manager_id: form.manager_id || undefined,
+        manager_id: (form.manager_id && form.manager_id !== '__none__') ? form.manager_id : undefined,
         is_active: form.is_active,
         join_date: form.join_date
       }
@@ -171,12 +171,12 @@ export const useEmployeeStore = defineStore('employee', () => {
         department_id: form.department_id || undefined,
         job_role_id: form.job_role_id || undefined,
         level_grade: form.level_grade || undefined,
-        work_location_id: form.work_location_id || undefined,
+        work_location_id: (form.work_location_id && form.work_location_id !== '__none__') ? form.work_location_id : undefined,
         residence_address: form.residence_address || undefined,
         residence_city: form.residence_city || undefined,
         residence_province: form.residence_province || undefined,
         residence_postal_code: form.residence_postal_code || undefined,
-        manager_id: form.manager_id || undefined,
+        manager_id: (form.manager_id && form.manager_id !== '__none__') ? form.manager_id : undefined,
         is_active: form.is_active
       }
 

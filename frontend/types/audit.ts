@@ -440,6 +440,8 @@ export interface AssignmentLetterForm {
   startPeriod: string;  // Format YYYY-MM-DD
   finishPeriod: string; // Format YYYY-MM-DD
   workingUnit: string;
+  companyId?: string;
+  companyName?: string;
   auditPurpose: string;
   letterDate?: string;
   caeSignature?: string;

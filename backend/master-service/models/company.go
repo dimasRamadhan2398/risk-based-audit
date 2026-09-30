@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -40,4 +41,17 @@ type Company struct {
 	CreatedAt     time.Time      `json:"created_at"`
 	UpdatedAt     time.Time      `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+func (c Company) MarshalJSON() ([]byte, error) {
+	type Alias Company
+	return json.Marshal(&struct {
+		Alias
+		CompanyCode string `json:"company_code"`
+		CompanyName string `json:"company_name"`
+	}{
+		Alias:       Alias(c),
+		CompanyCode: c.CompanyCode,
+		CompanyName: c.CompanyName,
+	})
 }

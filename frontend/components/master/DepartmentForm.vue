@@ -1,5 +1,10 @@
 <template>
-  <UModal v-model:open="store.showModal" dismissible :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }">
+  <UModal
+    v-model:open="store.showModal"
+    dismissible
+    @update:open="(val: boolean) => { if (!val) store.closeModal() }"
+    :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }"
+  >
     <template #content>
       <UForm :state="store.form" @submit.prevent="store.handleSubmit">
         <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh] border border-[var(--border-main)] transition-colors duration-300">
@@ -12,11 +17,14 @@
                 {{ store.isEditing ? 'Edit Department' : 'Add New Department' }}
               </h3>
             </div>
-            <UIcon
-              name="i-heroicons-x-mark"
+            <button
+              type="button"
               @click="store.closeModal"
-              class="text-primary-400 hover:text-primary-600 text-2xl cursor-pointer"
-            />
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-lg focus:outline-none"
+              aria-label="Close modal"
+            >
+              <UIcon name="i-heroicons-x-mark" class="text-2xl" />
+            </button>
           </div>
 
           <!-- Body -->
@@ -108,32 +116,45 @@
               </h4>
 
               <div class="grid grid-cols-1 gap-4">
-                <UFormField label="Company ID *" size="lg">
-                  <UInput
+                <UFormField label="Company *" size="lg">
+                  <USelectMenu
                     v-model="store.form.company_id"
-                    type="text"
-                    placeholder="Company UUID"
+                    :items="options.companyOptions"
+                    value-key="value"
+                    :loading="options.loading"
+                    placeholder="Select company"
+                    class="w-full"
                     required
                   />
-                  <p class="text-md text-gray-500 mt-1">Enter Company UUID</p>
+                  <p class="text-xs text-gray-500 mt-1">Select the company this department belongs to</p>
                 </UFormField>
 
-                <UFormField label="Person In Charge (PIC) ID *" size="lg">
-                  <UInput
+                <UFormField label="Person In Charge (PIC)" size="lg">
+                  <USelectMenu
                     v-model="store.form.pic_id"
-                    type="text"
-                    placeholder="Employee UUID (PIC)"
-                    required
+                    :items="picItems"
+                    value-key="value"
+                    :loading="options.loading"
+                    :clear="true"
+                    placeholder="Select PIC employee (optional)"
+                    class="w-full"
+                    @update:model-value="onPicChange"
                   />
-                  <p class="text-md text-gray-500 mt-1">Enter Employee UUID who is the PIC</p>
+                  <p class="text-xs text-gray-500 mt-1">Select employee who leads this department</p>
                 </UFormField>
 
-                <UFormField label="Business Unit ID" size="lg">
-                  <UInput
+                <UFormField label="Business Unit" size="lg">
+                  <USelectMenu
                     v-model="store.form.business_unit_id"
-                    type="text"
-                    placeholder="Business Unit UUID (optional)"
+                    :items="businessUnitItems"
+                    value-key="value"
+                    :loading="options.loading"
+                    :clear="true"
+                    placeholder="Select business unit (optional)"
+                    class="w-full"
+                    @update:model-value="onBusinessUnitChange"
                   />
+                  <p class="text-xs text-gray-500 mt-1">Select business unit if applicable</p>
                 </UFormField>
               </div>
             </div>
@@ -146,6 +167,7 @@
               color="neutral"
               variant="soft"
               class="w-full sm:w-auto"
+              type="button"
               @click="store.closeModal"
             />
             <UButton
@@ -164,6 +186,58 @@
 
 <script setup lang="ts">
 import { useDepartmentStore } from '~/stores/department'
+import { useMasterOptionsStore } from '~/stores/master-options'
 
 const store = useDepartmentStore()
+const options = useMasterOptionsStore()
+
+const noneOption = { label: '— None —', value: '__none__' }
+
+const onPicChange = (val: any) => {
+  if (!val || val === '__none__') {
+    store.form.pic_id = ''
+  }
+}
+
+const onBusinessUnitChange = (val: any) => {
+  if (!val || val === '__none__') {
+    store.form.business_unit_id = ''
+  }
+}
+
+const businessUnitItems = computed(() => {
+  let list = options.businessUnits
+  if (store.form.company_id) {
+    list = list.filter((bu: any) => !bu.company_id || bu.company_id === store.form.company_id)
+  }
+  return [
+    noneOption,
+    ...list.map((b: any) => ({
+      label: b.business_unit_code ? `${b.business_unit_name} (${b.business_unit_code})` : b.business_unit_name,
+      value: b.id
+    }))
+  ]
+})
+
+const picItems = computed(() => {
+  let list = options.employees
+  if (store.form.company_id) {
+    list = list.filter((emp: any) => !emp.company_id || emp.company_id === store.form.company_id)
+  }
+  return [
+    noneOption,
+    ...list.map((e: any) => ({
+      label: e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name,
+      value: e.id
+    }))
+  ]
+})
+
+watch(
+  () => store.showModal,
+  (open) => {
+    if (open) options.fetchAll()
+  },
+  { immediate: true }
+)
 </script>

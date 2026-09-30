@@ -156,7 +156,7 @@ export interface Department {
   department_code: string
   department_name: string
   department_description?: string
-  pic_id: string
+  pic_id?: string
   level: number
   company_id: string
   business_unit_id?: string
@@ -169,7 +169,7 @@ export interface DepartmentFormState {
   department_code: string
   department_name: string
   department_description?: string
-  pic_id: string
+  pic_id?: string
   level: number
   company_id: string
   business_unit_id?: string
@@ -180,7 +180,7 @@ export interface CreateDepartmentRequest {
   department_code: string
   department_name: string
   department_description?: string
-  pic_id: string
+  pic_id?: string
   level: number
   company_id: string
   business_unit_id?: string

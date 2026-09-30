@@ -45,6 +45,7 @@ export const useDepartmentStore = defineStore('department', () => {
   const columns: TableColumn<Department>[] = [
     { accessorKey: 'department_code', header: 'Code' },
     { accessorKey: 'department_name', header: 'Department Name' },
+    { accessorKey: 'company_id', header: 'Company' },
     { accessorKey: 'department_description', header: 'Description' },
     { accessorKey: 'level', header: 'Level' },
     { accessorKey: 'is_active', header: 'Status' },
@@ -116,10 +117,10 @@ export const useDepartmentStore = defineStore('department', () => {
         department_code: form.department_code,
         department_name: form.department_name,
         department_description: form.department_description || '',
-        pic_id: form.pic_id,
+        pic_id: (form.pic_id && form.pic_id !== '__none__') ? form.pic_id : undefined,
         level: form.level,
         company_id: form.company_id,
-        business_unit_id: form.business_unit_id || undefined,
+        business_unit_id: (form.business_unit_id && form.business_unit_id !== '__none__') ? form.business_unit_id : undefined,
         is_active: form.is_active
       }
 
@@ -147,10 +148,10 @@ export const useDepartmentStore = defineStore('department', () => {
       const payload: UpdateDepartmentRequest = {
         department_name: form.department_name || undefined,
         department_description: form.department_description || undefined,
-        pic_id: form.pic_id || undefined,
+        pic_id: (form.pic_id && form.pic_id !== '__none__') ? form.pic_id : '',
         level: form.level || undefined,
         company_id: form.company_id || undefined,
-        business_unit_id: form.business_unit_id || undefined,
+        business_unit_id: (form.business_unit_id && form.business_unit_id !== '__none__') ? form.business_unit_id : '',
         is_active: form.is_active
       }
 
@@ -210,7 +211,7 @@ export const useDepartmentStore = defineStore('department', () => {
     form.department_code = department.department_code
     form.department_name = department.department_name
     form.department_description = department.department_description || ''
-    form.pic_id = department.pic_id
+    form.pic_id = department.pic_id || ''
     form.level = department.level
     form.company_id = department.company_id
     form.business_unit_id = department.business_unit_id || ''
@@ -249,20 +250,16 @@ export const useDepartmentStore = defineStore('department', () => {
    */
   const handleSubmit = async () => {
     // Validation
-    if (!form.department_code.trim()) {
+    if (!form.department_code?.trim()) {
       errorMsg.value = 'Department code is required.'
       return
     }
-    if (!form.department_name.trim()) {
+    if (!form.department_name?.trim()) {
       errorMsg.value = 'Department name is required.'
       return
     }
-    if (!form.company_id.trim()) {
+    if (!form.company_id?.trim()) {
       errorMsg.value = 'Company is required.'
-      return
-    }
-    if (!form.pic_id.trim()) {
-      errorMsg.value = 'Person in Charge (PIC) is required.'
       return
     }
 

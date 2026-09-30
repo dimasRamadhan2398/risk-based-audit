@@ -9,6 +9,7 @@ import (
 	"audit-service/controllers/crud"
 	"audit-service/models"
 	"audit-service/pkg/docxbuilder"
+	"audit-service/pkg/masterclient"
 	"audit-service/pkg/middleware"
 	"audit-service/pkg/redis"
 
@@ -761,6 +762,15 @@ func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
 
 	var importedWPs []models.ImportedWorkingPaper
 	h.db.Find(&importedWPs)
+
+	// Resolve Company Name dynamically from master-service / st / report
+	resolvedComp := masterclient.ResolveCompanyName(c.Request.Context(), report.CompanyID, report.CompanyName, st.CompanyID, st.CompanyName, st.WorkingUnit, report.Department)
+	if report.CompanyName == "" {
+		report.CompanyName = resolvedComp
+	}
+	if st.CompanyName == "" {
+		st.CompanyName = resolvedComp
+	}
 
 	docxBytes, err := docxbuilder.GenerateAuditReportDocx(&report, &st, interviews, observations, fieldworkDocs, fieldworkSamples, &wpHeader, wpRisks, wpSamples, wpCauses, wpPlans, importedWPs)
 	if err != nil {

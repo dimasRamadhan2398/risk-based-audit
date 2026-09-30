@@ -2458,6 +2458,7 @@
     "caattPolicy": "Banking Policy Compliance",
     "caattDataQuality": "Data Quality Dashboard",
     "masterData": "Master Data",
+    "company": "Company",
     "employeeManagement": "Employee Management",
     "department": "Department",
     "settings": "Settings",

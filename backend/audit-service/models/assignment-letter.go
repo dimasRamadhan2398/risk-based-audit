@@ -26,6 +26,8 @@ type AssignmentLetter struct {
 	StartPeriod        string              `gorm:"type:varchar(100)" json:"startPeriod"`
 	FinishPeriod       string              `gorm:"type:varchar(100)" json:"finishPeriod"`
 	WorkingUnit        string              `gorm:"type:varchar(255)" json:"workingUnit"`
+	CompanyID          *uuid.UUID          `gorm:"type:uuid;index" json:"companyId,omitempty"`
+	CompanyName        string              `gorm:"type:varchar(255)" json:"companyName,omitempty"`
 	ExecutionPeriod    string              `gorm:"type:varchar(255)" json:"executionPeriod"`
 	AuditPurpose       string              `gorm:"type:text" json:"auditPurpose"`
 	LetterDate         *time.Time          `json:"letterDate"`
@@ -48,6 +50,7 @@ func (a *AssignmentLetter) UnmarshalJSON(data []byte) error {
 	type Alias AssignmentLetter
 	aux := struct {
 		LetterDate *string `json:"letterDate"`
+		CompanyID  *string `json:"companyId"`
 		*Alias
 	}{
 		Alias: (*Alias)(a),
@@ -55,6 +58,17 @@ func (a *AssignmentLetter) UnmarshalJSON(data []byte) error {
 
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
+	}
+
+	if aux.CompanyID != nil {
+		cidStr := strings.TrimSpace(*aux.CompanyID)
+		if cidStr == "" || cidStr == "null" {
+			a.CompanyID = nil
+		} else if parsedID, err := uuid.Parse(cidStr); err == nil {
+			a.CompanyID = &parsedID
+		} else {
+			a.CompanyID = nil
+		}
 	}
 
 	if aux.LetterDate != nil {

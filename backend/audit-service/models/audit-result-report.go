@@ -19,6 +19,8 @@ type AuditResultReport struct {
 	Title              string         `gorm:"type:varchar(255)" json:"title"`
 	AuditObject        string         `gorm:"type:varchar(255)" json:"audit_object"`
 	Department         string         `gorm:"type:varchar(100)" json:"department"`
+	CompanyID          *uuid.UUID     `gorm:"type:uuid;index" json:"company_id,omitempty"`
+	CompanyName        string         `gorm:"type:varchar(255)" json:"company_name,omitempty"`
 	AuditPeriod        string         `gorm:"type:varchar(100)" json:"audit_period"`
 	ExecutiveSummary   string         `gorm:"type:text" json:"executive_summary"`
 	Scope              string         `gorm:"type:text" json:"scope"`
@@ -49,6 +51,8 @@ func (r *AuditResultReport) UnmarshalJSON(data []byte) error {
 	aux := struct {
 		ReportDate    *string `json:"report_date"`
 		ReportDateAlt *string `json:"reportDate"`
+		CompanyID     *string `json:"company_id"`
+		CompanyIDAlt  *string `json:"companyId"`
 		*Alias
 	}{
 		Alias: (*Alias)(r),
@@ -56,6 +60,21 @@ func (r *AuditResultReport) UnmarshalJSON(data []byte) error {
 
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
+	}
+
+	targetCompID := aux.CompanyID
+	if targetCompID == nil {
+		targetCompID = aux.CompanyIDAlt
+	}
+	if targetCompID != nil {
+		cidStr := strings.TrimSpace(*targetCompID)
+		if cidStr == "" || cidStr == "null" {
+			r.CompanyID = nil
+		} else if parsedID, err := uuid.Parse(cidStr); err == nil {
+			r.CompanyID = &parsedID
+		} else {
+			r.CompanyID = nil
+		}
 	}
 
 	targetDate := aux.ReportDate

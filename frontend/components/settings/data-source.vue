@@ -335,7 +335,7 @@
                     variant="ghost"
                     size="md"
                     :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                    @click="showPassword = !showPassword"
+                    @click="() => { showPassword = !showPassword }"
                   />
                 </template>
               </UInput>

@@ -452,17 +452,22 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
   {
     label: t('navigation.masterData'),
     icon: 'i-lucide-database',
-    to: '/master/employee',
+    to: '/master/company',
     children: [
       {
-        label: t('navigation.employeeManagement'),
-        icon: 'i-lucide-users-round',
-        to: '/master/employee'
+        label: t('navigation.company'),
+        icon: 'i-lucide-building',
+        to: '/master/company'
       },
       {
         label: t('navigation.department'),
         icon: 'i-lucide-building-2',
         to: '/master/department'
+      },
+      {
+        label: t('navigation.employeeManagement'),
+        icon: 'i-lucide-users-round',
+        to: '/master/employee'
       }
     ]
   },

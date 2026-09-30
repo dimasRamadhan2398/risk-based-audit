@@ -371,7 +371,7 @@ func (s *Seeder) SeedDepartments() error {
 			DepartmentDescription: "Handles financial accounting and reporting",
 			Level:                 1,
 			CompanyID:             company.ID,
-			BusinessUnitID:        corpBU.ID,
+			BusinessUnitID:        &corpBU.ID,
 			IsActive:              true,
 		},
 		{
@@ -380,7 +380,7 @@ func (s *Seeder) SeedDepartments() error {
 			DepartmentDescription: "Manages infrastructure and applications",
 			Level:                 1,
 			CompanyID:             company.ID,
-			BusinessUnitID:        corpBU.ID,
+			BusinessUnitID:        &corpBU.ID,
 			IsActive:              true,
 		},
 		{
@@ -389,7 +389,7 @@ func (s *Seeder) SeedDepartments() error {
 			DepartmentDescription: "Performs independent audit assurance",
 			Level:                 1,
 			CompanyID:             company.ID,
-			BusinessUnitID:        corpBU.ID,
+			BusinessUnitID:        &corpBU.ID,
 			IsActive:              true,
 		},
 		{
@@ -398,7 +398,7 @@ func (s *Seeder) SeedDepartments() error {
 			DepartmentDescription: "Runs core operational activities",
 			Level:                 1,
 			CompanyID:             company.ID,
-			BusinessUnitID:        opsBU.ID,
+			BusinessUnitID:        &opsBU.ID,
 			IsActive:              true,
 		},
 	}

@@ -205,6 +205,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       startPeriod: '',
       finishPeriod: '',
       workingUnit: '',
+      companyId: '',
+      companyName: '',
       auditPurpose: '',
       letterDate: '',
       caeSignature: '',
@@ -460,6 +462,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         startPeriod: '',
         finishPeriod: '',
         workingUnit: '',
+        companyId: '',
+        companyName: '',
         auditPurpose: '',
         letterDate: '',
         caeSignature: '',
@@ -484,6 +488,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         startPeriod: letter.startPeriod,
         finishPeriod: letter.finishPeriod,
         workingUnit: letter.workingUnit,
+        companyId: letter.companyId || '',
+        companyName: letter.companyName || '',
         auditPurpose: letter.auditPurpose,
         letterDate: letter.letterDate
           ? String(letter.letterDate).slice(0, 10)
@@ -580,6 +586,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
             executionPeriod
           }
           if (payload.letterDate === '') payload.letterDate = null
+          if (!payload.companyId) delete payload.companyId
 
           await $fetch(
             `${baseUrl}/assignment-letters/${this.editingId}`,
@@ -602,6 +609,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
             executionPeriod
           }
           if (payload.letterDate === '') payload.letterDate = null
+          if (!payload.companyId) delete payload.companyId
 
           await $fetch(`${baseUrl}/assignment-letters`, {
             method: 'POST',

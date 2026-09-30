@@ -26,7 +26,7 @@
                 variant="ghost"
                 icon="i-heroicons-x-mark-20-solid"
                 class="-my-1"
-                @click="store.closeModalF02"
+                @click="() => {store.closeModalF02}"
               />
             </div>
 
@@ -79,7 +79,7 @@
                 color="neutral"
                 variant="ghost"
                 :label="t('common.cancel')"
-                @click="store.closeModalF02"
+                @click="() => {store.closeModalF02}"
               />
               <UButton 
                 type="submit"

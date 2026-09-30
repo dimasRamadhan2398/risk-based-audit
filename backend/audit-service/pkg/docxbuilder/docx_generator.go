@@ -126,6 +126,11 @@ func buildDocumentXML(
 	var body bytes.Buffer
 
 	companyName := "PT AIFL Indonesia"
+	if report != nil && report.CompanyName != "" {
+		companyName = report.CompanyName
+	} else if st != nil && st.CompanyName != "" {
+		companyName = st.CompanyName
+	}
 
 	repNumber := xmlEsc(report.ReportNumber)
 	if repNumber == "" {

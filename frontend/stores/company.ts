@@ -124,7 +124,7 @@ export const useCompanyStore = defineStore('company', () => {
         legal_name: form.legal_name || undefined,
         tax_id: form.tax_id || undefined,
         company_type: form.company_type,
-        parent_id: form.parent_id || undefined,
+        parent_id: (form.parent_id && form.parent_id !== '__none__') ? form.parent_id : undefined,
         location_id: form.location_id || undefined,
         phone: form.phone || undefined,
         email: form.email || undefined,
@@ -135,6 +135,11 @@ export const useCompanyStore = defineStore('company', () => {
 
       await api.createCompany(payload)
       await fetchCompanies()
+      try {
+        useMasterOptionsStore().fetchAll(true)
+      } catch {
+        // ignore if store not initialized
+      }
       return true
     } catch (error: any) {
       console.error('Failed to create company:', error)
@@ -155,11 +160,12 @@ export const useCompanyStore = defineStore('company', () => {
     try {
       const api = useCompanyApi()
       const payload: UpdateCompanyRequest = {
+        company_code: form.company_code || undefined,
         company_name: form.company_name || undefined,
         legal_name: form.legal_name || undefined,
         tax_id: form.tax_id || undefined,
         company_type: form.company_type || undefined,
-        parent_id: form.parent_id || undefined,
+        parent_id: (form.parent_id && form.parent_id !== '__none__') ? form.parent_id : '',
         location_id: form.location_id || undefined,
         phone: form.phone || undefined,
         email: form.email || undefined,
@@ -170,6 +176,11 @@ export const useCompanyStore = defineStore('company', () => {
 
       await api.updateCompany(id, payload)
       await fetchCompanies()
+      try {
+        useMasterOptionsStore().fetchAll(true)
+      } catch {
+        // ignore if store not initialized
+      }
       return true
     } catch (error: any) {
       console.error('Failed to update company:', error)
@@ -191,6 +202,11 @@ export const useCompanyStore = defineStore('company', () => {
       const api = useCompanyApi()
       await api.deleteCompany(id)
       await fetchCompanies()
+      try {
+        useMasterOptionsStore().fetchAll(true)
+      } catch {
+        // ignore if store not initialized
+      }
       return true
     } catch (error: any) {
       console.error('Failed to delete company:', error)

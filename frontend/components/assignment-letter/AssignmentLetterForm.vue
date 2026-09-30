@@ -92,6 +92,22 @@
               </UFormField>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+              <UFormField label="Company / Entity" class="md:col-span-4">
+                <USelectMenu 
+                  v-model="store.form.companyId" 
+                  :items="companySelectItems" 
+                  value-key="value" 
+                  placeholder="Select Company / Entity (Optional)" 
+                  size="lg" 
+                  class="w-full"
+                  :clear="true"
+                  :loading="masterOptions.loading"
+                  @update:model-value="onCompanyChange"
+                />
+              </UFormField>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
               <UFormField label="Team Members" class="md:col-span-4 space-y-3" required>
                 <div v-for="(member, index) in store.form.membersList" :key="index" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -179,9 +195,36 @@
 
 <script setup lang="ts">
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useMasterOptionsStore } from '~/stores/master-options'
 
 const store = useAssignmentLetterStore()
+const masterOptions = useMasterOptionsStore()
 
 const categoryOptions = ['Assurance', 'Special Audit', 'Specific Reason', 'Consulting Services', 'Follow-Up Audit', 'Investigation', 'Quality Assurance Review']
 
+const noneOption = { label: '— None (Default PT AIFL Indonesia) —', value: '__none__' }
+const companySelectItems = computed(() => [
+  noneOption,
+  ...masterOptions.companyOptions
+])
+
+const onCompanyChange = (val: string) => {
+  if (!val || val === '__none__') {
+    store.form.companyId = ''
+    store.form.companyName = ''
+    return
+  }
+  const comp = masterOptions.companyOptions.find(c => c.value === val)
+  store.form.companyName = comp ? comp.label : ''
+}
+
+watch(
+  () => store.isModalOpen,
+  (open) => {
+    if (open) {
+      masterOptions.fetchAll()
+    }
+  },
+  { immediate: true }
+)
 </script>

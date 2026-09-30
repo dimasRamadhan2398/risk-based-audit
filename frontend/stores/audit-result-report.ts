@@ -28,6 +28,8 @@ export interface AuditResultReport {
   findingsCount: number
   category?: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
   department?: string
+  companyId?: string
+  companyName?: string
 }
 
 export const useAuditResultReportStore = defineStore('audit-result-report', () => {
@@ -152,7 +154,9 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     reportDate: new Date().toISOString().split('T')[0] as string,
     status: 'Draft' as 'Draft' | 'Final',
     findingsCount: 0,
-    findings: [] as FindingItem[]
+    findings: [] as FindingItem[],
+    companyId: '',
+    companyName: ''
   })
 
   // Computed
@@ -305,7 +309,9 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportNumber: item.reportNumber || item.report_number || '020/LHA/01/KS IAD/2023',
       findingsCount: item.findingsCount || item.findings_count || mappedFindings.length || 0,
       findings: mappedFindings,
-      reportDate: dateVal || new Date().toISOString().split('T')[0]
+      reportDate: dateVal || new Date().toISOString().split('T')[0],
+      companyId: item.companyId || item.company_id || '',
+      companyName: item.companyName || item.company_name || ''
     }
   }
 
@@ -490,6 +496,17 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportForm.findings = JSON.parse(JSON.stringify(autoFindings))
       reportForm.findingsCount = autoFindings.length
     }
+    const stData = assignmentLetterStore.assignmentLetterList.find(
+      (st: any) => st.letterNumber === targetLetter
+    )
+    if (stData) {
+      if (!reportForm.companyId && (stData as any).companyId) {
+        reportForm.companyId = (stData as any).companyId
+      }
+      if (!reportForm.companyName && (stData as any).companyName) {
+        reportForm.companyName = (stData as any).companyName
+      }
+    }
   }
 
   const runAutoDetectFindings = async (mode: 'replace' | 'merge' = 'replace') => {
@@ -536,6 +553,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       } else {
         reportForm.reportTitle = `Laporan Hasil Audit - ${selectedAssignmentLetter.value}`
       }
+      if (stData) {
+        reportForm.companyId = (stData as any).companyId || ''
+        reportForm.companyName = (stData as any).companyName || ''
+      }
       await autoPopulateFindings(selectedAssignmentLetter.value)
     }
   }
@@ -551,7 +572,9 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportDate: new Date().toISOString().split('T')[0] as string,
       status: 'Draft',
       findingsCount: 0,
-      findings: []
+      findings: [],
+      companyId: '',
+      companyName: ''
     })
   }
 
@@ -574,6 +597,14 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
           source: (f as any).source || 'Audit Features'
         })),
         status: reportForm.status
+      }
+      if (reportForm.companyId) {
+        payload.companyId = reportForm.companyId
+        payload.company_id = reportForm.companyId
+      }
+      if (reportForm.companyName) {
+        payload.companyName = reportForm.companyName
+        payload.company_name = reportForm.companyName
       }
       if (isEditing.value && editingId.value) {
         await $fetch(`${baseUrl}/audit-result-reports/${editingId.value}`, {
@@ -602,6 +633,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   const editReport = (report: AuditResultReport) => {
     Object.assign(reportForm, {
       ...report,
+      companyId: report.companyId || '',
+      companyName: report.companyName || '',
       findings: report.findings ? JSON.parse(JSON.stringify(report.findings)) : []
     })
     isEditing.value = true

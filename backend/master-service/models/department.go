@@ -12,7 +12,7 @@ type Department struct {
 	DepartmentCode        string         `gorm:"type:varchar(50);uniqueIndex;not null" json:"department_code"`
 	DepartmentName        string         `gorm:"type:varchar(100);uniqueIndex;not null" json:"department_name"`
 	DepartmentDescription string         `gorm:"type:text" json:"department_description"`
-	PicID                 uuid.UUID      `gorm:"type:uuid;not null;index" json:"pic_id"`
+	PicID                 *uuid.UUID     `gorm:"type:uuid;index" json:"pic_id"`
 	Level                 int            `gorm:"type:int;not null" json:"level"`
 	IsActive              bool           `gorm:"default:true" json:"is_active"`
 	CreatedAt             time.Time      `json:"created_at"`
@@ -22,6 +22,6 @@ type Department struct {
 	CompanyID uuid.UUID `gorm:"type:uuid;not null;index" json:"company_id"`
 	Company   Company   `gorm:"foreignKey:CompanyID" json:"company"`
 
-	BusinessUnitID uuid.UUID    `gorm:"type:uuid;not null;index" json:"business_unit_id"`
-	BusinessUnit   BusinessUnit `gorm:"foreignKey:BusinessUnitID" json:"business_unit,omitempty"`
+	BusinessUnitID *uuid.UUID    `gorm:"type:uuid;index" json:"business_unit_id"`
+	BusinessUnit   *BusinessUnit `gorm:"foreignKey:BusinessUnitID" json:"business_unit,omitempty"`
 }
