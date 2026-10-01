@@ -1,10 +1,10 @@
 <template>
-  <div class="max-w-full mx-auto space-y-6">
+  <div class="p-4 sm:p-6 max-w-full mx-auto space-y-6 min-w-0">
     <!-- Page Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Department Management</h1>
-        <p class="text-gray-500 mt-1">Manage department data for the organization</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Department Management</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">Manage department data for the organization</p>
       </div>
     </div>
 

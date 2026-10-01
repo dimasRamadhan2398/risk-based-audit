@@ -41,7 +41,7 @@
       </div>
 
       <!-- Card following the design system -->
-      <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl shadow-2xl px-8 py-10 transition-all duration-300">
+      <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl shadow-2xl px-5 sm:px-8 py-7 sm:py-10 transition-all duration-300">
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
           <Logo class="mb-5 h-12" />

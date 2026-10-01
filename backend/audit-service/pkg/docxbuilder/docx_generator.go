@@ -143,6 +143,11 @@ func buildDocumentXML(
 		auditObj = "Departemen Keuangan & Operasional"
 	}
 
+	auditTitle := auditObj
+	if st != nil && st.AuditTitle != "" {
+		auditTitle = xmlEsc(st.AuditTitle)
+	}
+
 	auditPeriod := xmlEsc(report.AuditPeriod)
 	if auditPeriod == "" && st != nil && st.ExecutionPeriod != "" {
 		auditPeriod = xmlEsc(st.ExecutionPeriod)
@@ -171,7 +176,7 @@ func buildDocumentXML(
 	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">No. : %s</w:t></w:r></w:p>`, repNumber))
 	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="22"/></w:rPr><w:t xml:space="preserve">Tanggal : %s</w:t></w:r></w:p>`, escapedDateStr))
 	body.WriteString(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">PADA</w:t></w:r></w:p>`)
-	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">%s</w:t></w:r></w:p>`, auditObj))
+	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">%s</w:t></w:r></w:p>`, auditTitle))
 	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">PERIODE : %s</w:t></w:r></w:p>`, auditPeriod))
 
 	body.WriteString(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr></w:p>`)

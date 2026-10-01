@@ -1438,7 +1438,7 @@ export default defineAppConfig({
       }
     },
     main: {
-      base: "min-h-[calc(100vh-var(--ui-header-height))] max-w-8xl px-24 py-16",
+      base: "min-h-[calc(100vh-var(--ui-header-height))] w-full max-w-8xl px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8 lg:px-10",
     },
     modal: {
       slots: {
@@ -1468,7 +1468,7 @@ export default defineAppConfig({
           },
           false: {
             content:
-              "w-[calc(100vw-1rem)] min-w-4xl max-w-lg rounded-lg shadow-lg ring ring-default",
+              "w-[calc(100vw-2rem)] sm:w-full max-w-2xl rounded-xl shadow-xl ring ring-default max-h-[calc(100dvh-2rem)] overflow-y-auto",
           },
         },
         overlay: {

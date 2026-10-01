@@ -101,7 +101,7 @@ const dqChartOptions = computed(() => ({
       </UCard>
 
       <!-- Summary Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <UCard class="border border-indigo-100 dark:border-indigo-900/50">
           <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Rata-Rata Kelengkapan</div>
           <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ dqState.summary.avgCompleteness }}%</div>

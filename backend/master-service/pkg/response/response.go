@@ -1,21 +1,27 @@
 package response
 
 import (
-	"net/http"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type Response struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message,omitempty"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   *ErrorDetail `json:"error,omitempty"`
+	Success bool   `json:"success"`
+	Message string `json:"message,omitempty"`
+	// Code mirrors Error.Code on error responses so clients can read a stable
+	// machine-readable code at the top level. Omitted on success.
+	Code  string       `json:"code,omitempty"`
+	Data  interface{}  `json:"data,omitempty"`
+	Error *ErrorDetail `json:"error,omitempty"`
 }
 
 type ErrorDetail struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 	Details string `json:"details,omitempty"`
+	// Fields maps request field names (JSON) to field-level codes
+	// (e.g. REQUIRED, INVALID_FORMAT, ALREADY_EXISTS). Validation errors only.
+	Fields map[string]string `json:"fields,omitempty"`
 }
 
 // Success sends a successful response
@@ -29,12 +35,20 @@ func Success(c *gin.Context, statusCode int, message string, data interface{}) {
 
 // Error sends an error response
 func Error(c *gin.Context, statusCode int, code string, message string, details string) {
+	ErrorWithFields(c, statusCode, code, message, details, nil)
+}
+
+// ErrorWithFields sends an error response including field-level codes.
+// details must never contain raw DB/driver output.
+func ErrorWithFields(c *gin.Context, statusCode int, code string, message string, details string, fields map[string]string) {
 	c.JSON(statusCode, Response{
 		Success: false,
+		Code:    code,
 		Error: &ErrorDetail{
 			Code:    code,
 			Message: message,
 			Details: details,
+			Fields:  fields,
 		},
 	})
 }

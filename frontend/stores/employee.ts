@@ -7,13 +7,15 @@ import type {
   UpdateEmployeeRequest,
   PaginationMeta
 } from '~/types/master'
-import { extractErrorMessage } from '~/utils/error'
+import { getUserErrorMessage } from '~/utils/error'
+import { useI18n } from '~/composables/useI18n'
 
 export const useEmployeeStore = defineStore('employee', () => {
   // ============= State =============
   const employees = ref<Employee[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const { t } = useI18n()
 
   // Modal State
   const showModal = ref(false)
@@ -49,16 +51,16 @@ export const useEmployeeStore = defineStore('employee', () => {
     join_date: new Date().toISOString().split('T')[0] || ''
   })
 
-  // Table Columns
-  const columns: TableColumn<Employee>[] = [
-    { accessorKey: 'employee_code', header: 'Code' },
-    { accessorKey: 'full_name', header: 'Full Name' },
-    { accessorKey: 'email', header: 'Email' },
-    { accessorKey: 'phone', header: 'Phone' },
-    { accessorKey: 'level_grade', header: 'Level' },
-    { accessorKey: 'is_active', header: 'Status' },
+  // Table Columns (computed so headers follow the active locale)
+  const columns = computed<TableColumn<Employee>[]>(() => [
+    { accessorKey: 'employee_code', header: t('masterData.employee.columns.code') },
+    { accessorKey: 'full_name', header: t('masterData.employee.columns.fullName') },
+    { accessorKey: 'email', header: t('masterData.employee.columns.email') },
+    { accessorKey: 'phone', header: t('masterData.employee.columns.phone') },
+    { accessorKey: 'level_grade', header: t('masterData.employee.columns.level') },
+    { accessorKey: 'is_active', header: t('masterData.employee.columns.status') },
     { accessorKey: 'actions', header: '' }
-  ]
+  ])
 
   // ============= Getters =============
   const totalPages = computed(() => pagination.value.total_pages)
@@ -89,7 +91,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       pagination.value = response.pagination || pagination.value
     } catch (error: any) {
       console.error('Failed to fetch employees:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data employee.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchEmployees' })
       employees.value = []
     } finally {
       loading.value = false
@@ -108,7 +110,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return await api.getEmployeeById(id)
     } catch (error: any) {
       console.error('Failed to fetch employee:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil detail employee.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchEmployee' })
       return null
     } finally {
       loading.value = false
@@ -148,7 +150,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to create employee:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal membuat employee baru.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.createEmployee' })
       return false
     } finally {
       loading.value = false
@@ -185,7 +187,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to update employee:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal memperbarui employee.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.updateEmployee' })
       return false
     } finally {
       loading.value = false
@@ -206,7 +208,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to delete employee:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus employee.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.deleteEmployee' })
       return false
     } finally {
       loading.value = false
@@ -292,27 +294,27 @@ export const useEmployeeStore = defineStore('employee', () => {
   const handleSubmit = async () => {
     // Validation
     if (!form.employee_code.trim()) {
-      errorMsg.value = 'Employee code is required.'
+      errorMsg.value = t('masterData.validation.employeeCodeRequired')
       return
     }
     if (!form.full_name.trim()) {
-      errorMsg.value = 'Full name is required.'
+      errorMsg.value = t('masterData.validation.fullNameRequired')
       return
     }
     if (!form.email.trim()) {
-      errorMsg.value = 'Email is required.'
+      errorMsg.value = t('masterData.validation.emailRequired')
       return
     }
     if (!form.company_id) {
-      errorMsg.value = 'Company is required.'
+      errorMsg.value = t('masterData.validation.companyRequired')
       return
     }
     if (!form.department_id) {
-      errorMsg.value = 'Department is required.'
+      errorMsg.value = t('masterData.validation.departmentRequired')
       return
     }
     if (!form.job_role_id) {
-      errorMsg.value = 'Job role is required.'
+      errorMsg.value = t('masterData.validation.jobRoleRequired')
       return
     }
 
@@ -339,7 +341,7 @@ export const useEmployeeStore = defineStore('employee', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (employee: Employee) => {
-    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete employee "${employee.full_name}"?` })) {
+    if (!await useGlobalModalStore().confirmDelete({ description: t('masterData.employee.deleteConfirm', { name: employee.full_name }) })) {
       return
     }
 

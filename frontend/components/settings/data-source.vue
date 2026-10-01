@@ -239,11 +239,13 @@
       :description="isEditMode ? t('settings.dataSource.modalEditDesc') : t('settings.dataSource.modalAddDesc')"
       :close="{ color: 'neutral', variant: 'outline', onClick: closeModal }"
       dismissible
-      class="sm:max-w-2xl"
+      class="w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl"
       :ui="{
-        content: 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl',
-        header: 'border-b border-gray-100 dark:border-gray-800 pb-4',
-        body: 'p-6 space-y-4 bg-white dark:bg-gray-900',
+        content: 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'px-6 py-5 border-b border-gray-100 dark:border-gray-800 pr-14',
+        title: 'text-lg font-bold text-gray-900 dark:text-white leading-snug',
+        description: 'text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed',
+        body: 'p-4 sm:p-6 space-y-4 bg-white dark:bg-gray-900 max-h-[80vh] overflow-y-auto',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
@@ -426,11 +428,13 @@
       :description="t('settings.dataSource.schemaSubtitle')"
       :close="{ color: 'neutral', variant: 'outline', onClick: closeSchemaModal }"
       dismissible
-      class="sm:max-w-5xl"
+      class="w-[calc(100vw-2rem)] sm:w-full sm:max-w-5xl"
       :ui="{
-        content: 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl',
-        header: 'border-b border-gray-100 dark:border-gray-800 pb-4',
-        body: 'p-6 space-y-6 bg-white dark:bg-gray-900 max-h-[80vh] overflow-y-auto',
+        content: 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden',
+        header: 'px-6 py-5 border-b border-gray-100 dark:border-gray-800 pr-14',
+        title: 'text-lg font-bold text-gray-900 dark:text-white leading-snug',
+        description: 'text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed',
+        body: 'p-4 sm:p-6 space-y-6 bg-white dark:bg-gray-900 max-h-[80vh] overflow-y-auto',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >
@@ -682,11 +686,13 @@
       :description="`${t('settings.dataSource.sampleRecordsDesc')} ${previewTableName} (${selectedConnForSchema?.name || ''})`"
       :close="{ color: 'neutral', variant: 'outline', onClick: () => { isPreviewModalOpen = false } }"
       dismissible
-      class="sm:max-w-4xl"
+      class="w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl"
       :ui="{
-        content: 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl',
-        header: 'border-b border-gray-100 dark:border-gray-800 pb-4',
-        body: 'p-6 space-y-4 bg-white dark:bg-gray-900 max-h-[75vh] overflow-y-auto',
+        content: 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden',
+        header: 'px-6 py-5 border-b border-gray-100 dark:border-gray-800 pr-14',
+        title: 'text-lg font-bold text-gray-900 dark:text-white leading-snug',
+        description: 'text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed',
+        body: 'p-4 sm:p-6 space-y-4 bg-white dark:bg-gray-900 max-h-[75vh] overflow-y-auto',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
     >

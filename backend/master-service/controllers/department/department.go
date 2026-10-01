@@ -3,6 +3,7 @@ package department
 import (
 	"master-service/models"
 	"master-service/pkg/base"
+	apperrors "master-service/pkg/errors"
 	"master-service/pkg/response"
 	"master-service/pkg/validations"
 	departmentSvc "master-service/services/department"
@@ -137,21 +138,21 @@ func (d *DepartmentController) Create(ctx *gin.Context) {
 	// Parse UUIDs
 	companyID, err := uuid.Parse(req.CompanyID)
 	if err != nil {
-		response.BadRequest(ctx, "Invalid company_id format")
+		d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"company_id": apperrors.FieldInvalidFormat}))
 		return
 	}
 	department.CompanyID = companyID
 
 	picID, err := uuid.Parse(req.PicID)
 	if err != nil {
-		response.BadRequest(ctx, "Invalid pic_id format")
+		d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"pic_id": apperrors.FieldInvalidFormat}))
 		return
 	}
 	department.PicID = picID
 
 	businessUnitID, err := uuid.Parse(req.BusinessUnitID)
 	if err != nil {
-		response.BadRequest(ctx, "Invalid business_unit_id format")
+		d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"business_unit_id": apperrors.FieldInvalidFormat}))
 		return
 	}
 	department.BusinessUnitID = businessUnitID
@@ -185,7 +186,7 @@ func (d *DepartmentController) Update(ctx *gin.Context) {
 	if req.PicID != nil {
 		picID, err := uuid.Parse(*req.PicID)
 		if err != nil {
-			response.BadRequest(ctx, "Invalid pic_id format")
+			d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"pic_id": apperrors.FieldInvalidFormat}))
 			return
 		}
 		existingDepartment.PicID = picID
@@ -194,7 +195,7 @@ func (d *DepartmentController) Update(ctx *gin.Context) {
 	if req.CompanyID != nil {
 		companyID, err := uuid.Parse(*req.CompanyID)
 		if err != nil {
-			response.BadRequest(ctx, "Invalid company_id format")
+			d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"company_id": apperrors.FieldInvalidFormat}))
 			return
 		}
 		existingDepartment.CompanyID = companyID
@@ -203,7 +204,7 @@ func (d *DepartmentController) Update(ctx *gin.Context) {
 	if req.BusinessUnitID != nil {
 		businessUnitID, err := uuid.Parse(*req.BusinessUnitID)
 		if err != nil {
-			response.BadRequest(ctx, "Invalid business_unit_id format")
+			d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"business_unit_id": apperrors.FieldInvalidFormat}))
 			return
 		}
 		existingDepartment.BusinessUnitID = businessUnitID

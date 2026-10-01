@@ -270,7 +270,7 @@
               </h4>
 
               <div
-                v-for="kpi in timeseriesData.kpiForecasts.slice(0, 3)"
+                v-for="kpi in (timeseriesState.kpiForecasts || []).slice(0, 3)"
                 :key="kpi.code"
                 class="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
@@ -290,7 +290,7 @@
                 <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
                   <span class="text-xs text-slate-400">Proyeksi</span>
                   <span class="text-sm font-extrabold font-mono text-violet-600 dark:text-violet-400">
-                    {{ kpi.forecastedValue }}%
+                    {{ kpi.forecastedValue }}{{ kpi.unit === "%" ? "%" : "" }}
                   </span>
                 </div>
               </div>
@@ -369,10 +369,10 @@
           <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1.5">
               <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" />
-              Tingkat Kontaminasi: {{ (isolationData.summary.contaminationRate * 100).toFixed(1) }}%
+              Tingkat Kontaminasi: {{ ((isolationState.summary?.contaminationRate || 0) * 100).toFixed(1) }}%
             </span>
             <NuxtLink to="/analytics" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline">
-              Kelola Semua {{ isolationData.anomalies.length }} Anomali &rarr;
+              Kelola Semua {{ (isolationState.anomalies || []).length }} Anomali &rarr;
             </NuxtLink>
           </div>
         </div>
@@ -897,7 +897,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { Line, Scatter } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -910,10 +910,14 @@ import {
   Legend,
   Filler
 } from "chart.js";
+import { useAiAnalytics } from "~/composables/useAiAnalytics";
 import {
-  useTimeSeriesData,
-  useIsolationForestData
-} from "~/composables/useAnalyticsData";
+  buildAnomalyScatterPoints,
+  createAnomalyTypeConfigs,
+  getAnomalyTypeConfig,
+  listAnomalyTypes,
+  resolveAnomalyType,
+} from "~/composables/useAnomalyScatter";
 import { useI18n } from "~/composables/useI18n";
 import { useRiskProfileStore } from "~/stores/risk-profile";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
@@ -985,17 +989,51 @@ const barChartHeight = computed(() => (isMobile.value ? 280 : 350));
 const donutChartHeight = computed(() => (isMobile.value ? 180 : 220));
 
 // AI & Analytics Composables
-const timeseriesData = useTimeSeriesData();
-const isolationData = useIsolationForestData();
-const filteredAnomalies = computed(() => isolationData.anomalies);
+// The KPI forecast chart shares its state with /analytics/ai/kpi-forecast so
+// both charts always render the same series.
+const { timeseriesState, isolationState, fetchAiAnalytics } = useAiAnalytics();
+
+// The anomaly card mirrors the "Transaction" tab of /analytics/ai/anomaly-detection:
+// same state, same category, same point builder.
+const anomalyTypeConfigs = computed(() => createAnomalyTypeConfigs(t));
+
+const availableAnomalyTypes = computed(() =>
+  listAnomalyTypes(
+    isolationState.value.anomalies,
+    isolationState.value.scatterData,
+    Object.keys(anomalyTypeConfigs.value)
+  )
+);
+
+const dashboardAnomalyType = computed(() =>
+  resolveAnomalyType(availableAnomalyTypes.value, "Transaction")
+);
+
+const anomalyConfig = computed(() =>
+  getAnomalyTypeConfig(t, dashboardAnomalyType.value)
+);
+
+const filteredAnomalies = computed(() =>
+  (isolationState.value.anomalies || []).filter(
+    (a: any) => a.type === dashboardAnomalyType.value
+  )
+);
+
+onMounted(() => {
+  fetchAiAnalytics();
+});
 
 // ─── KPI Forecasting Line Chart Config ─────────────────────
+const historicalKPI = computed<any[]>(
+  () => timeseriesState.value.historicalKPI || []
+);
+
 const kpiChartData = computed(() => ({
-  labels: timeseriesData.historicalKPI.map((p) => p.period),
+  labels: historicalKPI.value.map((p) => p.period || ""),
   datasets: [
     {
-      label: "Actual KPI Score (%)",
-      data: timeseriesData.historicalKPI.map((p) => p.actual),
+      label: t("analytics.timeseries.labelActualKPI"),
+      data: historicalKPI.value.map((p) => p.actual ?? null),
       borderColor: "#4f46e5",
       backgroundColor: "rgba(79, 70, 229, 0.15)",
       tension: 0.4,
@@ -1008,8 +1046,8 @@ const kpiChartData = computed(() => ({
       spanGaps: false,
     },
     {
-      label: "KPI Forecast (%)",
-      data: timeseriesData.historicalKPI.map((p) => p.forecast),
+      label: t("analytics.timeseries.labelForecast"),
+      data: historicalKPI.value.map((p) => p.forecast ?? null),
       borderColor: "#8b5cf6",
       backgroundColor: "rgba(139, 92, 246, 0.15)",
       borderDash: [6, 4],
@@ -1024,8 +1062,8 @@ const kpiChartData = computed(() => ({
       spanGaps: false,
     },
     {
-      label: "Upper Bound (95% CI)",
-      data: timeseriesData.historicalKPI.map((p) => p.upperBound),
+      label: t("analytics.timeseries.labelUpperBound"),
+      data: historicalKPI.value.map((p) => p.upperBound ?? null),
       borderColor: "transparent",
       backgroundColor: "rgba(139, 92, 246, 0.08)",
       fill: "+1",
@@ -1034,8 +1072,8 @@ const kpiChartData = computed(() => ({
       spanGaps: false,
     },
     {
-      label: "Lower Bound (95% CI)",
-      data: timeseriesData.historicalKPI.map((p) => p.lowerBound),
+      label: t("analytics.timeseries.labelLowerBound"),
+      data: historicalKPI.value.map((p) => p.lowerBound ?? null),
       borderColor: "transparent",
       backgroundColor: "rgba(139, 92, 246, 0.08)",
       fill: "-1",
@@ -1046,183 +1084,146 @@ const kpiChartData = computed(() => ({
   ],
 }));
 
-const kpiChartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "top" as const,
-      labels: {
-        usePointStyle: true,
-        font: { family: "Inter, sans-serif", size: 12, weight: "bold" as const },
-        filter: (item: any) =>
-          !["Upper Bound (95% CI)", "Lower Bound (95% CI)"].includes(item.text),
+const kpiChartOptions = computed(() => {
+  const boundLabels = [
+    t("analytics.timeseries.labelUpperBound"),
+    t("analytics.timeseries.labelLowerBound"),
+  ];
+
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+        labels: {
+          usePointStyle: true,
+          font: { family: "Inter, sans-serif", size: 12, weight: "bold" as const },
+          filter: (item: any) => !boundLabels.includes(item.text),
+        },
       },
-    },
-    tooltip: {
-      backgroundColor: "rgba(15, 23, 42, 0.9)",
-      titleFont: { size: 13, weight: "bold" as const },
-      bodyFont: { size: 12 },
-      padding: 12,
-      cornerRadius: 10,
-      callbacks: {
-        label: (ctx: any) => {
-          if (
-            ["Upper Bound (95% CI)", "Lower Bound (95% CI)"].includes(
-              ctx.dataset.label
-            )
-          )
-            return "";
-          return `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%`;
+      tooltip: {
+        backgroundColor: "rgba(15, 23, 42, 0.9)",
+        titleFont: { size: 13, weight: "bold" as const },
+        bodyFont: { size: 12 },
+        padding: 12,
+        cornerRadius: 10,
+        callbacks: {
+          label: (ctx: any) => {
+            if (boundLabels.includes(ctx.dataset.label)) return "";
+            return `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%`;
+          },
         },
       },
     },
-  },
-  scales: {
-    x: {
-      grid: { display: false },
-      ticks: { font: { family: "Inter, sans-serif", size: 11 } },
-    },
-    y: {
-      min: 50,
-      max: 85,
-      grid: { color: "rgba(226, 232, 240, 0.6)" },
-      ticks: {
-        font: { family: "Inter, sans-serif", size: 11 },
-        callback: (v: any) => `${v}%`,
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { family: "Inter, sans-serif", size: 11 } },
       },
-      title: {
-        display: true,
-        text: "KPI Index Score (%)",
-        font: { size: 12, weight: "bold" as const },
+      // No fixed min/max: the forecast range comes from the model, so clamping
+      // the axis would clip the confidence band.
+      y: {
+        grid: { color: "rgba(226, 232, 240, 0.6)" },
+        ticks: {
+          font: { family: "Inter, sans-serif", size: 11 },
+          callback: (v: any) => `${v}%`,
+        },
+        title: {
+          display: true,
+          text: t("analytics.timeseries.axisKPIScore"),
+          font: { size: 12, weight: "bold" as const },
+        },
       },
     },
-  },
-};
+  };
+});
 
 // ─── Anomaly Detection Scatter Chart Config ────────────
 
 const anomalyScatterChartData = computed(() => {
-  const normalPoints = isolationData.scatterData.filter((s) => !s.isAnomaly);
-  const anomalyList = filteredAnomalies.value;
-
-  const criticalPoints = anomalyList
-    .filter((a) => a.severity === "Critical")
-    .map((a, idx) => ({
-      x: a.anomalyScore * -100,
-      y: (idx + 1) * 12 + 15,
-      label: a.id,
-      title: a.entity,
-    }));
-
-  const highPoints = anomalyList
-    .filter((a) => a.severity === "High")
-    .map((a, idx) => ({
-      x: a.anomalyScore * -100,
-      y: (idx + 1) * 9 + 8,
-      label: a.id,
-      title: a.entity,
-    }));
-
-  const mediumPoints = anomalyList
-    .filter((a) => a.severity === "Medium")
-    .map((a, idx) => ({
-      x: a.anomalyScore * -100,
-      y: (idx + 1) * 7 + 5,
-      label: a.id,
-      title: a.entity,
-    }));
+  const typeFilter = dashboardAnomalyType.value;
+  const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(
+    isolationState.value.anomalies,
+    isolationState.value.scatterData,
+    typeFilter
+  );
+  const colors = anomalyConfig.value.colors;
 
   return {
     datasets: [
       {
-        label: "Baseline Operational Data",
-        data: normalPoints.map((p) => ({ x: p.x, y: p.y })),
-        backgroundColor: "rgba(148, 163, 184, 0.35)",
-        borderColor: "rgba(148, 163, 184, 0.6)",
+        label: t("analytics.isolation.labelNormalData", { type: typeFilter }),
+        data: normalPoints,
+        backgroundColor: "rgba(59,130,246,0.3)",
+        borderColor: "rgba(59,130,246,0.5)",
         pointRadius: 4,
         pointHoverRadius: 6,
       },
       {
-        label: "Critical Anomalies",
-        data: criticalPoints,
-        backgroundColor: "#ef4444",
-        borderColor: "#b91c1c",
-        pointRadius: 9,
-        pointHoverRadius: 12,
-        pointStyle: "triangle",
-      },
-      {
-        label: "High Severity Outliers",
-        data: highPoints,
-        backgroundColor: "#f97316",
-        borderColor: "#c2410c",
+        label: t("analytics.isolation.labelAnomalies", { type: typeFilter }),
+        data: anomalyPoints,
+        backgroundColor: colors.bg,
+        borderColor: colors.border,
         pointRadius: 8,
         pointHoverRadius: 10,
-        pointStyle: "rectRot",
-      },
-      {
-        label: "Medium Risk Outliers",
-        data: mediumPoints,
-        backgroundColor: "#eab308",
-        borderColor: "#a16207",
-        pointRadius: 7,
-        pointHoverRadius: 9,
-        pointStyle: "circle",
+        pointStyle: colors.style,
       },
     ],
   };
 });
 
-const anomalyScatterOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "top" as const,
-      labels: {
-        usePointStyle: true,
-        font: { family: "Inter, sans-serif", size: 11, weight: "bold" as const },
+const anomalyScatterOptions = computed(() => {
+  const config = anomalyConfig.value;
+
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+        labels: {
+          usePointStyle: true,
+          font: { family: "Inter, sans-serif", size: 11, weight: "bold" as const },
+        },
       },
-    },
-    tooltip: {
-      backgroundColor: "rgba(15, 23, 42, 0.9)",
-      titleFont: { size: 13, weight: "bold" as const },
-      bodyFont: { size: 12 },
-      padding: 12,
-      cornerRadius: 10,
-      callbacks: {
-        label: (ctx: any) => {
-          const pt = ctx.raw;
-          if (pt.label) {
-            return `[${pt.label}] ${pt.title}: Anomaly Score ${pt.x?.toFixed(1)}`;
-          }
-          return `Normal Baseline Point (Score: ${pt.x?.toFixed(1)})`;
+      tooltip: {
+        backgroundColor: "rgba(15, 23, 42, 0.9)",
+        titleFont: { size: 13, weight: "bold" as const },
+        bodyFont: { size: 12 },
+        padding: 12,
+        cornerRadius: 10,
+        callbacks: {
+          label: (ctx: any) => {
+            const formattedX = config.formatX(ctx.parsed.x);
+            const metricName = config.xAxisTitle.split(" (")[0];
+            return `${metricName}: ${formattedX}, ${t("analytics.isolation.axisFrequency")}: ${ctx.parsed.y}`;
+          },
         },
       },
     },
-  },
-  scales: {
-    x: {
-      title: {
-        display: true,
-        text: "Anomaly Deviation Index",
-        font: { size: 11, weight: "bold" as const },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: config.xAxisTitle,
+          font: { size: 11, weight: "bold" as const },
+        },
+        grid: { color: "rgba(226, 232, 240, 0.6)" },
+        ticks: { font: { size: 11 } },
       },
-      grid: { color: "rgba(226, 232, 240, 0.6)" },
-      ticks: { font: { size: 11 } },
-    },
-    y: {
-      title: {
-        display: true,
-        text: "Frequency / Transaction Spread",
-        font: { size: 11, weight: "bold" as const },
+      y: {
+        title: {
+          display: true,
+          text: t("analytics.isolation.axisFrequency"),
+          font: { size: 11, weight: "bold" as const },
+        },
+        grid: { display: false },
+        ticks: { font: { size: 11 } },
       },
-      grid: { display: false },
-      ticks: { font: { size: 11 } },
     },
-  },
-};
+  };
+});
 
 const getSeverityColor = (sev: string) => {
   switch (sev) {
@@ -1242,6 +1243,7 @@ const getTrendBadgeColor = (trend: string) => {
     case "Improving":
       return "success";
     case "Declining":
+    case "Deteriorating":
       return "error";
     default:
       return "warning";
@@ -1362,24 +1364,9 @@ const riskCategories = {
   residualRisk: { name: "Residual Risk", color: "#4d00ff" },
 };
 
-// Simplified risk data for bar chart based on real risk data
-const mainRiskData = computed(() => {
-  const departments = ["Finance", "IT", "Operations", "Legal", "HR"];
-  return departments.map((dept) => {
-    const deptRisks = riskProfileStore.risks.filter(
-      (r) => r.category === dept || (dept === "IT" && r.category === "Technology")
-    );
-    return {
-      name: dept,
-      inherentRisk:
-        deptRisks.reduce((sum, r) => sum + r.impact * r.likelihood, 0) /
-        (deptRisks.length || 1),
-      residualRisk:
-        deptRisks.reduce((sum, r) => sum + r.impact * r.likelihood * 0.6, 0) /
-        (deptRisks.length || 1), // Mocking residual as 60% of inherent
-    };
-  });
-});
+// Inherent (Q1) vs Residual (Q4) exposure per department, straight from the
+// Corporate Risk Profile — the same series the RCM summary reports.
+const mainRiskData = computed(() => rcmStore.inherentVsResidualByDepartment);
 
 const yearlyFilters = [2024, 2025, 2026];
 const activeYear = ref(2026);

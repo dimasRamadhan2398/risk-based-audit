@@ -48,8 +48,8 @@
         class="relative group"
         variant="soft"
       >
-        <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-gray-900">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
             {{ t('auditCharter.card.activeTitle') }}
           </h1>
           <UButton
@@ -58,14 +58,15 @@
             @click="() => { store.showModal = true }"
             color="primary"
             icon="i-lucide-plus"
+            class="w-full sm:w-auto"
           >
           </UButton>
         </div>
 
         <div class="border-t border-gray-400 my-4"></div>
 
-        <div class="flex flex-row justify-between items-start">
-          <div>
+        <div class="flex flex-col sm:flex-row justify-between items-start">
+          <div class="w-full">
             <UBadge
               :label="t('auditCharter.card.currentlyActive')"
               class="px-2.5 py-0.5 mb-4 rounded inline-block"
@@ -73,10 +74,10 @@
               color="success"
             >
             </UBadge>
-            <h2 class="text-3xl font-bold text-[var(--text-main)] mb-4">
+            <h2 class="text-2xl sm:text-3xl font-bold text-[var(--text-main)] mb-4 break-words">
               {{ store.activeCharter.title }}
             </h2>
-            <div class="flex items-center text-sm text-gray-500 mb-6 gap-4">
+            <div class="flex flex-wrap items-center text-sm text-gray-500 mb-6 gap-3 sm:gap-4">
               <UBadge class="rounded inline-block" size="lg" color="error">
                 v{{ store.activeCharter.version }}
               </UBadge>
@@ -88,13 +89,13 @@
               </div>
               <div class="flex items-center gap-1">
                 <UIcon name="i-lucide-file-text" size="md"></UIcon>
-                  <span class="flex items-center">{{
+                  <span class="flex items-center truncate max-w-[200px]">{{
                   store.activeCharter.fileName
                 }}</span>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 bg-[var(--bg-surface)] gap-8 mb-6 p-4 rounded-lg transition-colors duration-300">
+            <div class="grid grid-cols-1 sm:grid-cols-2 bg-[var(--bg-surface)] gap-4 sm:gap-8 mb-6 p-4 rounded-lg transition-colors duration-300">
               <div>
                 <p class="text-md text-[var(--text-muted)] uppercase tracking-wider">
                   {{ t('auditCharter.card.uploadedBy') }}
@@ -114,8 +115,8 @@
             </div>
           </div>
         </div>
-        <div class="sm:flex sm:flex-row-reverse gap-4">
-          <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
+        <div class="flex flex-col sm:flex-row-reverse gap-3 sm:gap-4">
+          <UTooltip :text="t('auditCharter.tooltips.downloadCharter')" class="w-full sm:w-auto">
             <UButton
               v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
               @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
@@ -123,16 +124,18 @@
               size="md"
               color="primary"
               variant="solid"
+              class="w-full sm:w-auto"
               :label="t('auditCharter.card.download')"
             />
           </UTooltip>
-          <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+          <UTooltip :text="t('auditCharter.tooltips.editCharter')" class="w-full sm:w-auto">
             <UButton
               v-if="canManageCharter"
               @click="store.handleEdit(store.activeCharter)"
               color="primary"
               icon="i-lucide-edit"
               variant="ghost"
+              class="w-full sm:w-auto"
               :label="t('auditCharter.card.edit')"
             />
           </UTooltip>

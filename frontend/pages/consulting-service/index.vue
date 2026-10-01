@@ -1,41 +1,41 @@
 <template>
-  <div class="p-6 space-y-8 max-w-full mx-auto min-h-screen">
+  <div class="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-full mx-auto min-h-screen min-w-0">
     <!-- Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="space-y-1">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-tight">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-tight">
           Consulting Services Dashboard
         </h1>
-        <p class="text-lg text-gray-600 dark:text-gray-400 font-medium">
+        <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">
           Manage advisory, review, and training consulting projects.
         </p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
         <UButton
           color="neutral"
           variant="outline"
           label="Import Document"
           icon="i-lucide-upload"
-          class="px-5 py-2.5 font-bold rounded-lg shadow"
+          class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto"
           to="/consulting-service/upload"
         />
         <UButton
           color="primary"
           label="New Assignment"
           icon="i-lucide-plus"
-          class="px-6 py-2.5 font-bold rounded-lg shadow-lg"
+          class="px-6 py-2.5 font-bold rounded-lg shadow-lg w-full sm:w-auto"
           @click="store.openForm()"
         />
       </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       <UCard class="border-l-4 border-primary-500 shadow-md">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-md font-semibold text-gray-500 uppercase tracking-wider">Total Assignments</p>
-            <p class="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">{{ store.services.length }}</p>
+            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Assignments</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">{{ store.services.length }}</p>
           </div>
           <div class="p-3 bg-primary-50 dark:bg-primary-950 rounded-full text-primary-500">
             <UIcon name="i-lucide-clipboard-list" class="w-6 h-6" />
@@ -46,8 +46,8 @@
       <UCard class="border-l-4 border-warning-500 shadow-md">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-md font-semibold text-gray-500 uppercase tracking-wider">In Progress</p>
-            <p class="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">In Progress</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
               {{ store.services.filter(s => s.status === 'In Progress').length }}
             </p>
           </div>
@@ -60,8 +60,8 @@
       <UCard class="border-l-4 border-success-500 shadow-md">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-md font-semibold text-gray-500 uppercase tracking-wider">Completed</p>
-            <p class="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">Completed</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
               {{ store.services.filter(s => s.status === 'Completed').length }}
             </p>
           </div>
@@ -74,8 +74,8 @@
       <UCard class="border-l-4 border-gray-500 shadow-md">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-md font-semibold text-gray-500 uppercase tracking-wider">Planned</p>
-            <p class="text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">Planned</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
               {{ store.services.filter(s => s.status === 'Planned').length }}
             </p>
           </div>
@@ -88,7 +88,7 @@
 
     <!-- Filters -->
     <UCard class="shadow-sm">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <UFormField label="Search Title">
           <UInput v-model="filters.search" placeholder="Search by project title..." icon="i-lucide-search" class="w-full" />
         </UFormField>
@@ -167,13 +167,13 @@
     </UCard>
 
     <!-- Form Modal -->
+    <!-- Form Modal -->
     <UModal 
       v-model:open="store.isFormOpen" 
-      class="w-full max-w-2xl"
       :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
@@ -181,7 +181,7 @@
       <template #content>
         <UCard 
           class="w-full shadow-2xl flex flex-col max-h-[90vh]"
-          :ui="{ body: 'overflow-y-auto flex-1' }"
+          :ui="{ body: 'overflow-y-auto flex-1 p-4 sm:p-6' }"
         >
           <template #header>
             <div class="flex items-center justify-between">
@@ -208,7 +208,7 @@
               </div>
             </UFormField>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <UFormField label="Category">
                 <USelect v-model="store.newService.category" :items="store.categories" class="w-full" />
               </UFormField>
@@ -218,7 +218,7 @@
               </UFormField>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <UFormField label="Period Quarter">
                 <USelect v-model="store.newService.periodQuarter" :items="store.quarters" class="w-full" />
               </UFormField>
@@ -260,7 +260,7 @@
                   @change="(e: any) => store.handleFileUpload(e.target.files)"
                 />
                 <UIcon name="i-lucide-upload-cloud" class="w-10 h-10 text-gray-400 mx-auto mb-2" />
-                <p class="text-sm font-medium text-gray-700">
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {{ store.newService.attachment ? store.newService.attachment.name : 'Click or Drag file to upload' }}
                 </p>
                 <p class="text-md text-gray-500 mt-1">PDF or DOCX (max. 10MB)</p>
@@ -271,9 +271,9 @@
               {{ store.errorMsg }}
             </div>
 
-            <div class="flex justify-end gap-3 pt-4 border-t">
-              <UButton label="Cancel" color="neutral" variant="ghost" @click="store.closeForm" />
-              <UButton type="submit" label="Save Assignment" color="primary" :loading="store.loading" />
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t">
+              <UButton label="Cancel" color="neutral" variant="ghost" class="w-full sm:w-auto" @click="store.closeForm" />
+              <UButton type="submit" label="Save Assignment" color="primary" class="w-full sm:w-auto font-bold" :loading="store.loading" />
             </div>
           </UForm>
         </UCard>
@@ -283,11 +283,10 @@
     <!-- Detail Modal -->
     <UModal 
       v-model:open="store.isDetailOpen" 
-      class="w-full max-w-2xl"
       :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
@@ -295,6 +294,7 @@
       <template #content>
         <UCard 
           class="w-full shadow-2xl flex flex-col max-h-[90vh]"
+          :ui="{ body: 'p-4 sm:p-6' }"
         >
           <template #header>
             <div class="flex items-center justify-between">
@@ -311,7 +311,7 @@
               </UBadge>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 text-sm bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
               <div>
                 <span class="text-md text-gray-400 block">Category</span>
                 <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedService.category }}</span>

@@ -174,8 +174,12 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		assignmentLetters.GET("", crud.List(h.db, "AssignmentLetter", func() interface{} { return &[]models.AssignmentLetter{} }))
 		assignmentLetters.GET("/:id", crud.GetByID(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
-		assignmentLetters.POST("", crud.Create(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
-		assignmentLetters.PUT("/:id", crud.Update(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+		// Only the roles allowed by the RBAC matrix ("Create / Publish Letter")
+		// may publish or otherwise change a letter's status
+		letterStatusGuard := middleware.RequireRolesForStatusChange(h.db, "assignment_letters", "Draft",
+			"ADMIN", "AUDIT_MANAGER", "CHIEF_AUDIT_EXECUTIVE")
+		assignmentLetters.POST("", letterStatusGuard, crud.Create(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+		assignmentLetters.PUT("/:id", letterStatusGuard, crud.Update(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
 		assignmentLetters.DELETE("/:id", crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
 	}
 
@@ -707,7 +711,11 @@ func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
 	// Fetch related entities by AssignmentLetterID
 	var st models.AssignmentLetter
 	if report.AssignmentLetterID != "" {
-		h.db.Where("letter_number = ?", report.AssignmentLetterID).First(&st)
+		if err := h.db.Where("letter_number = ?", report.AssignmentLetterID).First(&st).Error; err != nil {
+			if _, parseErr := uuid.Parse(report.AssignmentLetterID); parseErr == nil {
+				h.db.Where("id = ?", report.AssignmentLetterID).First(&st)
+			}
+		}
 	}
 
 	var interviews []models.FieldworkInterview

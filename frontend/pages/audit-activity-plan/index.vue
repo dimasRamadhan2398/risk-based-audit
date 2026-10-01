@@ -1,18 +1,18 @@
 <template>
-  <div class="space-y-6">
+  <div class="p-4 sm:p-6 space-y-6 min-w-0">
     <!-- Header Section -->
     <UCard variant="soft">
       <template #header>
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex flex-col gap-2">
-            <h1 class="text-3xl font-bold text-[var(--text-main)]">
+            <h1 class="text-2xl sm:text-3xl font-bold text-[var(--text-main)]">
               {{ t('auditActivityPlan.title') }}
             </h1>
             <p class="text-sm text-[var(--text-muted)]">
               {{ t('auditActivityPlan.subtitle') }}
             </p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <UButton
               v-if="canImportPlanDocs"
               icon="i-lucide-upload"
@@ -20,6 +20,7 @@
               variant="outline"
               color="neutral"
               size="sm"
+              class="w-full sm:w-auto font-bold"
               to="/audit-activity-plan/upload"
             />
             <UButton
@@ -28,6 +29,7 @@
               variant="solid"
               color="primary"
               size="sm"
+              class="w-full sm:w-auto font-bold"
               @click="store.openModal()"
             />
           </div>

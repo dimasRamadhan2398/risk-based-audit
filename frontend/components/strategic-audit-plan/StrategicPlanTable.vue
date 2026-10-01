@@ -79,17 +79,17 @@
 
     <!-- Strategic KPI Table & Pagination -->
     <UCard variant="soft">
-      <TableEntities :data="filteredObjectives" :columns="columns">
+      <TableEntities :data="filteredObjectives" :columns="columns" :ui="{ root: 'overflow-visible' }">
         <!-- Strategic Objective Cell with Text Wrapping -->
         <template #strategicObjective-cell="{ row }">
-          <div class="max-w-[280px] whitespace-normal break-words font-medium text-gray-900 dark:text-white">
+          <div class="whitespace-normal break-words font-medium text-gray-900 dark:text-white">
             {{ row.original.strategicObjective || '-' }}
           </div>
         </template>
 
         <!-- KPI Name Cell with Text Wrapping -->
         <template #kpi-cell="{ row }">
-          <div class="max-w-[240px] whitespace-normal break-words font-medium text-gray-900 dark:text-white">
+          <div class="whitespace-normal break-words font-medium text-gray-900 dark:text-white">
             {{ row.original.kpi || '-' }}
           </div>
         </template>
@@ -171,9 +171,8 @@ watch(selectedPeriodType, (newType) => {
 })
 
 const columns = computed(() => [
-  { key: 'code', accessorKey: 'code', label: t('strategicPlan.columns.code'), header: t('strategicPlan.columns.code'), class: 'w-28 whitespace-nowrap' },
-  { key: 'strategicObjective', accessorKey: 'strategicObjective', label: t('strategicPlan.columns.objective'), header: t('strategicPlan.columns.objective'), class: 'max-w-[280px] whitespace-normal break-words font-medium' },
-  { key: 'kpi', accessorKey: 'kpi', label: t('strategicPlan.columns.kpi'), header: t('strategicPlan.columns.kpi'), class: 'max-w-[240px] whitespace-normal break-words font-medium' },
+  { key: 'strategicObjective', accessorKey: 'strategicObjective', label: t('strategicPlan.columns.objective'), header: t('strategicPlan.columns.objective'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words font-medium sticky left-0', thClass: 'z-20 !bg-[var(--bg-surface)]', tdClass: 'z-10 bg-[var(--bg-main)]' },
+  { key: 'kpi', accessorKey: 'kpi', label: t('strategicPlan.columns.kpi'), header: t('strategicPlan.columns.kpi'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words font-medium sticky left-[130px] sm:left-[220px] border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]', thClass: 'z-20 !bg-[var(--bg-surface)]', tdClass: 'z-10 bg-[var(--bg-main)]' },
   { key: 'unit', accessorKey: 'unit', label: t('strategicPlan.columns.unit'), header: t('strategicPlan.columns.unit'), class: 'w-20 text-center whitespace-nowrap' },
   { key: 'selectedPeriod', accessorKey: 'selectedPeriod', label: t('strategicPlan.columns.period'), header: t('strategicPlan.columns.period'), class: 'w-28 whitespace-nowrap' },
   { key: 'target', accessorKey: 'target', label: t('strategicPlan.columns.target'), header: t('strategicPlan.columns.target'), class: 'w-24 whitespace-nowrap' },
@@ -280,8 +279,7 @@ const filteredObjectives = computed(() => {
   if (searchQuery.value.trim() !== '') {
     const q = searchQuery.value.toLowerCase()
     list = list.filter(item => {
-      return (item.code && item.code.toLowerCase().includes(q)) ||
-             (item.strategicObjective && item.strategicObjective.toLowerCase().includes(q)) ||
+      return (item.strategicObjective && item.strategicObjective.toLowerCase().includes(q)) ||
              (item.kpi && item.kpi.toLowerCase().includes(q))
     })
   }

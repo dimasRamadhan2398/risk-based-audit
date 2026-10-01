@@ -162,11 +162,11 @@ const handleRemind = (audit: any) => {
 </script>
 
 <template>
-  <div class="p-6 space-y-6">
-    <div class="flex items-center justify-between">
+  <div class="p-4 sm:p-6 space-y-6 min-w-0">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('auditExecution.title') }}</h1>
-        <p class="text-md text-gray-500 dark:text-gray-400 mt-1">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('auditExecution.title') }}</h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
           {{ t('auditExecution.subtitle') }}
         </p>
       </div>
@@ -177,14 +177,14 @@ const handleRemind = (audit: any) => {
         color="primary"
         variant="soft"
         size="md"
-        class="font-bold"
+        class="font-bold w-full sm:w-auto justify-center"
         @click="() => { isHelpModalOpen = true }"
       />
     </div>
 
     <!-- Summary Section -->
     <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
-      <div class="flex flex-wrap items-center gap-6">
+      <div class="flex flex-wrap items-center gap-4 sm:gap-6">
         <span class="text-md font-bold text-gray-500 tracking-tight">{{ t('auditExecution.summary.title') }}</span>
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
@@ -199,49 +199,41 @@ const handleRemind = (audit: any) => {
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.planned', { count: getSummary.planned }) }}</span>
         </div>
       </div>
-
-      <!-- <UButton
-        :label="t('auditExecution.summary.viewPhaseGuide')"
-        icon="i-lucide-book-open"
-        color="neutral"
-        variant="ghost"
-        size="md"
-        @click="() => { isHelpModalOpen = true }"
-      /> -->
     </div>
 
     <!-- Filters Section -->
-    <div class="flex flex-wrap items-center gap-4">
+    <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full">
       <UInput
         v-model="search"
         icon="i-lucide-search"
         :placeholder="t('auditExecution.filters.searchPlaceholder')"
-        class="w-48"
+        class="w-full sm:w-48"
       />
       <USelectMenu
         v-model="quarter"
         :items="quarters"
         :placeholder="t('auditExecution.filters.quarterPlaceholder')"
-        class="w-48"
+        class="w-full sm:w-48"
       />
       <USelectMenu
         v-model="category"
         :items="Object.values(AuditCategory)"
         :placeholder="t('auditExecution.filters.categoryPlaceholder')"
-        class="w-48"
+        class="w-full sm:w-48"
       />
       <USelectMenu
         v-model="status"
         :items="statusOptions"
         value-key="value"
         :placeholder="t('auditExecution.filters.statusPlaceholder')"
-        class="w-64"
+        class="w-full sm:w-64"
       />
       <UButton
         label="Reset Filter"
         icon="i-lucide-rotate-ccw"
         color="neutral"
         variant="outline"
+        class="w-full sm:w-auto justify-center"
         @click="resetFilters"
       />
     </div>
@@ -307,9 +299,9 @@ const handleRemind = (audit: any) => {
     <UModal 
       v-model:open="isHelpModalOpen" 
       :ui="{
-          content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-          header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-          body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+          content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+          header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+          body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
           footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
           overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }" 

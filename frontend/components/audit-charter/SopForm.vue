@@ -3,29 +3,25 @@
     v-model:open="store.showModal"
     :dismissible="false"
     :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
-        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
-      }"
+      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+    }"
   >
     <template #content>
-      <UForm @submit.prevent="handleSubmit">
-        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg leading-6 font-bold" id="modal-title">
-              {{ store.isEditing ? t('auditCharter.sopForm.editTitle') : t('auditCharter.sopForm.addTitle') }}
-            </h3>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-lucide-x"
-              @click="store.closeModal"
-            />
-          </div>
+      <UForm @submit.prevent="handleSubmit" class="flex flex-col max-h-[90vh] overflow-hidden flex-1 min-h-0">
+        <div class="px-4 py-4 sm:px-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center shrink-0">
+          <h3 class="text-lg leading-6 font-bold" id="modal-title">
+            {{ store.isEditing ? t('auditCharter.sopForm.editTitle') : t('auditCharter.sopForm.addTitle') }}
+          </h3>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-x"
+            @click="store.closeModal"
+          />
+        </div>
 
-          <div class="space-y-4">
+        <div class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
             <!-- SOP Name -->
             <UFormField
               :label="t('auditCharter.sopForm.name')"
@@ -64,7 +60,7 @@
               />
             </UFormField>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Status -->
               <UFormField
                 :label="t('auditCharter.sopForm.status')"
@@ -122,9 +118,9 @@
               {{ store.errorMsg }}
             </div>
           </div>
-        </div>
+        
 
-        <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl">
+        <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 flex flex-col-reverse sm:flex-row-reverse gap-3 rounded-b-2xl shrink-0">
           <UButton
             type="submit"
             :loading="store.loading"
@@ -140,7 +136,7 @@
             color="neutral"
             variant="outline"
             size="md"
-            class="w-full sm:w-auto mt-2 sm:mt-0 font-bold"
+            class="w-full sm:w-auto font-bold"
             @click="store.closeModal"
           >
             {{ t('common.cancel') }}

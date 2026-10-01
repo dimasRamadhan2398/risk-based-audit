@@ -2,9 +2,9 @@
   <UModal 
     v-model:open="store.isModalOpen" 
     :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
@@ -12,9 +12,9 @@
     <template #content>
       <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
         <!-- Header -->
-        <div class="flex items-center justify-between p-5 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
+        <div class="flex items-center justify-between p-4 sm:p-5 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
           <div>
-            <h3 class="text-xl font-bold text-[var(--text-main)]">
+            <h3 class="text-lg sm:text-xl font-bold text-[var(--text-main)]">
               {{ store.isEditMode ? t('auditActivityPlan.editPlan') : t('auditActivityPlan.form.createPlanTitle') }}
             </h3>
             <p class="text-xs text-[var(--text-muted)] mt-0.5">
@@ -30,44 +30,42 @@
           />
         </div>
 
-        <!-- Stepper Navigation Header (Full Width) -->
-        <div class="w-full px-6 py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
-          <div class="w-full flex items-center justify-between gap-2">
-            <div 
-              v-for="(step, idx) in steps" 
-              :key="step.key"
-              class="flex items-center flex-1 min-w-0 cursor-pointer group"
-              @click="goToStep(idx)"
-            >
-              <div class="flex items-center gap-2.5 shrink-0">
+        <!-- Stepper Navigation Header (Full Width with horizontal scroll) -->
+        <div class="w-full px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] overflow-x-auto scrollbar-thin">
+          <div class="flex items-center min-w-max gap-3 sm:gap-4 px-1">
+            <template v-for="(step, idx) in steps" :key="step.key">
+              <div 
+                class="flex items-center gap-2 sm:gap-2.5 cursor-pointer group select-none shrink-0"
+                @click="goToStep(idx)"
+              >
                 <div 
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300"
+                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shrink-0"
                   :class="currentStep === idx 
                     ? 'bg-primary text-white shadow-md ring-4 ring-primary/20 scale-105' 
                     : currentStep > idx 
                       ? 'bg-secondary text-white shadow-sm' 
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'"
                 >
-                  <UIcon v-if="currentStep > idx" name="i-heroicons-check" class="w-4 h-4 stroke-[3]" />
+                  <UIcon v-if="currentStep > idx" name="i-heroicons-check" class="w-3.5 h-3.5 stroke-[3]" />
                   <span v-else>{{ idx + 1 }}</span>
                 </div>
                 <span 
-                  class="text-xs font-bold truncate transition-colors"
+                  class="text-xs font-semibold whitespace-nowrap transition-colors"
                   :class="currentStep === idx 
-                    ? 'text-primary font-black' 
+                    ? 'text-primary font-bold' 
                     : currentStep > idx 
-                      ? 'text-secondary font-bold' 
-                      : 'text-gray-400 dark:text-gray-500'"
+                      ? 'text-secondary font-semibold' 
+                      : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'"
                 >
                   {{ step.label }}
                 </span>
               </div>
               <div 
                 v-if="idx < steps.length - 1" 
-                class="flex-1 h-1 mx-3 rounded transition-all duration-300"
+                class="w-5 sm:w-8 h-0.5 rounded transition-all duration-300 shrink-0"
                 :class="currentStep > idx ? 'bg-secondary' : 'bg-gray-200 dark:bg-gray-800'"
               ></div>
-            </div>
+            </template>
           </div>
         </div>
 
@@ -370,23 +368,65 @@
                       {{ t('auditActivityPlan.form.budgetPlanning') }}
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <UFormField :label="t('auditActivityPlan.form.totalEstimatedCost')">
-                        <UInput v-model="store.formState.budget.totalEstimatedCost" type="number" class="w-full">
-                          <template #trailing>
-                            <span class="text-xs text-gray-400 dark:text-gray-500 font-medium select-none pr-1">
-                              {{ t('auditActivityPlan.form.millionRupiah') }}
-                            </span>
-                          </template>
-                        </UInput>
+                      <UFormField :label="`${t('auditActivityPlan.form.totalEstimatedCost')} (${t('auditActivityPlan.form.millionRupiah')})`">
+                        <div class="relative flex items-center w-full">
+                          <UInput 
+                            v-model.number="store.formState.budget.totalEstimatedCost" 
+                            type="number" 
+                            min="0"
+                            step="1"
+                            class="w-full"
+                            :ui="{ base: 'pr-14' }"
+                          />
+                          <div class="absolute right-1.5 flex items-center gap-0.5 z-10">
+                            <button
+                              type="button"
+                              title="Kurangi"
+                              class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              @click="store.formState.budget.totalEstimatedCost = Math.max(0, (Number(store.formState.budget.totalEstimatedCost) || 0) - 1)"
+                            >
+                              <UIcon name="i-heroicons-chevron-down" class="size-4" />
+                            </button>
+                            <button
+                              type="button"
+                              title="Tambah"
+                              class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              @click="store.formState.budget.totalEstimatedCost = (Number(store.formState.budget.totalEstimatedCost) || 0) + 1"
+                            >
+                              <UIcon name="i-heroicons-chevron-up" class="size-4" />
+                            </button>
+                          </div>
+                        </div>
                       </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.totalAllocatedBudget')">
-                        <UInput v-model="store.formState.budget.totalAllocatedBudget" type="number" class="w-full">
-                          <template #trailing>
-                            <span class="text-xs text-gray-400 dark:text-gray-500 font-medium select-none pr-1">
-                              {{ t('auditActivityPlan.form.millionRupiah') }}
-                            </span>
-                          </template>
-                        </UInput>
+                      <UFormField :label="`${t('auditActivityPlan.form.totalAllocatedBudget')} (${t('auditActivityPlan.form.millionRupiah')})`">
+                        <div class="relative flex items-center w-full">
+                          <UInput 
+                            v-model.number="store.formState.budget.totalAllocatedBudget" 
+                            type="number" 
+                            min="0"
+                            step="1"
+                            class="w-full"
+                            :ui="{ base: 'pr-14' }"
+                          />
+                          <div class="absolute right-1.5 flex items-center gap-0.5 z-10">
+                            <button
+                              type="button"
+                              title="Kurangi"
+                              class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              @click="store.formState.budget.totalAllocatedBudget = Math.max(0, (Number(store.formState.budget.totalAllocatedBudget) || 0) - 1)"
+                            >
+                              <UIcon name="i-heroicons-chevron-down" class="size-4" />
+                            </button>
+                            <button
+                              type="button"
+                              title="Tambah"
+                              class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              @click="store.formState.budget.totalAllocatedBudget = (Number(store.formState.budget.totalAllocatedBudget) || 0) + 1"
+                            >
+                              <UIcon name="i-heroicons-chevron-up" class="size-4" />
+                            </button>
+                          </div>
+                        </div>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.budgetNotes')" class="col-span-1 md:col-span-2">
                         <UTextarea v-model="store.formState.budget.budgetNotes" class="w-full" :rows="3"/>
@@ -502,21 +542,23 @@
         </div>
 
         <!-- Stepper Navigation Footer -->
-        <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-between items-center">
+        <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3">
           <UButton 
             :label="t('auditActivityPlan.form.cancel')" 
             color="neutral" 
             variant="ghost" 
+            class="w-full sm:w-auto"
             @click="store.closeModal" 
           />
 
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
             <UButton 
               v-if="currentStep > 0"
               icon="i-heroicons-arrow-left"
               :label="t('auditActivityPlan.stepper.previous')" 
               color="neutral" 
               variant="outline"
+              class="flex-1 sm:flex-none"
               @click="() => { currentStep-- }"
             />
 
@@ -525,7 +567,7 @@
               trailing-icon="i-heroicons-arrow-right"
               :label="t('auditActivityPlan.stepper.next')" 
               color="primary" 
-              class="font-bold shadow-md shadow-primary/20"
+              class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
               @click="handleNext"
             />
 
@@ -534,7 +576,7 @@
               icon="i-heroicons-check"
               :label="store.isEditMode ? t('auditActivityPlan.form.update') : t('auditActivityPlan.form.create')" 
               color="primary" 
-              class="font-bold shadow-md shadow-primary/20"
+              class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
               @click="handleFormSubmit"
             />
           </div>

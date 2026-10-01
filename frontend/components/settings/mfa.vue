@@ -3,7 +3,7 @@
     <UCard variant="outline" color="neutral" class="w-full overflow-hidden shadow-sm rounded-2xl">
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 min-w-0">
             <div
               class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 shadow-sm"
               :class="isMfaEnabled
@@ -15,19 +15,19 @@
                 class="w-6 h-6"
               />
             </div>
-            <div>
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+            <div class="min-w-0">
+              <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
                 {{ isDisabling ? t('settings.mfa.modalTitle') : t('settings.mfa.title') }}
               </h3>
-              <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 break-words">
                 {{ isDisabling ? t('settings.mfa.modalSubtitle') : t('settings.mfa.subtitle') }}
               </p>
             </div>
           </div>
 
-          <div v-if="!loadingStatus" class="self-start sm:self-center">
+          <div v-if="!loadingStatus" class="self-start sm:self-center shrink-0">
             <UBadge
-              :color="isMfaEnabled ? (isDisabling ? 'rose' : 'emerald') : 'amber'"
+              :color="isMfaEnabled ? (isDisabling ? 'error' : 'success') : 'warning'"
               variant="soft"
               size="md"
               class="font-bold px-3.5 py-1.5 rounded-full"
@@ -174,16 +174,16 @@
           </div>
         </UCard>
 
-        <div class="pt-4 flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
-          <div>
+        <div class="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-gray-200 dark:border-gray-800">
+          <div class="min-w-0">
             <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('settings.mfa.disableTitle') }}</p>
-            <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('settings.mfa.disableDesc') }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 break-words">{{ t('settings.mfa.disableDesc') }}</p>
           </div>
           <UButton
             icon="i-lucide-shield-off"
-            color="rose"
+            color="error"
             variant="soft"
-            class="font-bold rounded-xl px-5 py-2.5 transition-all duration-200 cursor-pointer"
+            class="font-bold rounded-xl px-5 py-2.5 transition-all duration-200 cursor-pointer w-full sm:w-auto shrink-0 justify-center"
             @click="isDisabling = true"
           >
             {{ t('settings.mfa.disableButton') }}

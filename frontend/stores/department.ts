@@ -7,13 +7,15 @@ import type {
   UpdateDepartmentRequest,
   PaginationMeta
 } from '~/types/master'
-import { extractErrorMessage } from '~/utils/error'
+import { getUserErrorMessage } from '~/utils/error'
+import { useI18n } from '~/composables/useI18n'
 
 export const useDepartmentStore = defineStore('department', () => {
   // ============= State =============
   const departments = ref<Department[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const { t } = useI18n()
 
   // Modal State
   const showModal = ref(false)
@@ -77,7 +79,7 @@ export const useDepartmentStore = defineStore('department', () => {
       pagination.value = response.pagination || pagination.value
     } catch (error: any) {
       console.error('Failed to fetch departments:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data department.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchDepartments' })
       departments.value = []
     } finally {
       loading.value = false
@@ -96,7 +98,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return await api.getDepartmentById(id)
     } catch (error: any) {
       console.error('Failed to fetch department:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil detail department.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchDepartment' })
       return null
     } finally {
       loading.value = false
@@ -128,7 +130,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to create department:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal membuat department baru.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.createDepartment' })
       return false
     } finally {
       loading.value = false
@@ -159,7 +161,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to update department:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal memperbarui department.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.updateDepartment' })
       return false
     } finally {
       loading.value = false
@@ -180,7 +182,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to delete department:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus department.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.deleteDepartment' })
       return false
     } finally {
       loading.value = false
@@ -250,19 +252,19 @@ export const useDepartmentStore = defineStore('department', () => {
   const handleSubmit = async () => {
     // Validation
     if (!form.department_code.trim()) {
-      errorMsg.value = 'Department code is required.'
+      errorMsg.value = t('masterData.validation.departmentCodeRequired')
       return
     }
     if (!form.department_name.trim()) {
-      errorMsg.value = 'Department name is required.'
+      errorMsg.value = t('masterData.validation.departmentNameRequired')
       return
     }
     if (!form.company_id.trim()) {
-      errorMsg.value = 'Company is required.'
+      errorMsg.value = t('masterData.validation.companyRequired')
       return
     }
     if (!form.pic_id.trim()) {
-      errorMsg.value = 'Person in Charge (PIC) is required.'
+      errorMsg.value = t('masterData.validation.picRequired')
       return
     }
 

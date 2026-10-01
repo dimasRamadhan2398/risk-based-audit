@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <!-- Header with Statistics and Add Button -->
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row justify-between items-center">
       <div>
         <h3 class="text-lg font-semibold">{{ t('auditFieldwork.testControls.title') }}</h3>
         <p class="text-sm text-gray-500">{{ t('auditFieldwork.testControls.subtitle') }}</p>

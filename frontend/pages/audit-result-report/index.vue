@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="p-4 sm:p-6 min-w-0">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Result Report</h1>
-        <p class="text-gray-500">Finalize and publish audit results and findings</p>
+        <p class="text-gray-500 dark:text-gray-400">Finalize and publish audit results and findings</p>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         <UButton
           v-if="canImportPlanDocs"
           color="neutral"
@@ -13,7 +13,7 @@
           icon="i-lucide-upload"
           label="Import LHA Document"
           to="/audit-result-report/upload"
-          class="font-bold shadow"
+          class="w-full sm:w-auto font-bold shadow"
         />
       </div>
     </div>
@@ -29,7 +29,7 @@
             v-model="store.selectedAssignmentLetter"
             :items="store.publishedAssignmentLetters"
             placeholder="Select Assignment Letter to audit"
-            class="w-full md:w-96"
+            class="w-full sm:max-w-md"
             :disabled="store.publishedAssignmentLetters.length === 0"
           >
             <template #leading>

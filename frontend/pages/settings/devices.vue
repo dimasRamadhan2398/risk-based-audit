@@ -6,9 +6,9 @@
       <div class="space-y-6">
         <UCard>
           <template #header>
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h3 class="text-lg font-semibold">Registered Devices</h3>
-              <UButton icon="i-lucide-qr-code" @click="handleGenerateQR">Register New Device</UButton>
+              <UButton icon="i-lucide-qr-code" class="w-full sm:w-auto justify-center" @click="handleGenerateQR">Register New Device</UButton>
             </div>
           </template>
 
@@ -27,7 +27,7 @@
           </UTable>
         </UCard>
 
-        <UModal v-model="showQRModal">
+        <UModal v-model="showQRModal" :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-md' }">
           <UCard>
             <template #header>Register Device</template>
             <div class="flex flex-col items-center py-6">

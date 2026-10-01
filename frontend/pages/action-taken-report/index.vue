@@ -54,13 +54,13 @@ const items = computed(() => {
 </script>
 
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-4 sm:p-6 space-y-6 min-w-0">
     <div class="flex flex-col space-y-4">
       <h1 class="text-2xl font-bold">Action Taken Report</h1>
       
       <div class="space-y-2">
         <p class="text-sm font-bold">Status Summary:</p>
-        <div class="flex items-center space-x-6">
+        <div class="flex flex-wrap items-center gap-3 sm:gap-6">
           <div class="flex items-center space-x-2">
             <div class="w-4 h-4 rounded-full bg-emerald-500"></div>
             <span class="text-sm font-bold">{{ store.stats.donePercent }}% Done</span>
@@ -77,26 +77,26 @@ const items = computed(() => {
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-4">
+    <div class="flex flex-wrap items-center gap-3 sm:gap-4">
       <UInput
         v-model="store.searchQuery"
         icon="i-lucide-search"
         placeholder="Search Finding"
-        class="w-full max-w-md"
+        class="w-full sm:max-w-md"
         size="md"
       />
       <USelectMenu
         v-model="(store.selectedDepartment as any)"
         :items="Object.values(AuditDepartment)"
         placeholder="Choose Department"
-        class="w-full max-w-[200px]"
+        class="w-full sm:w-52"
         size="md"
       />
       <USelectMenu
         v-model="(store.selectedStatus as any)"
         :items="Object.values(AuditStatus)"
         placeholder="Choose Status"
-        class="w-full max-w-[200px]"
+        class="w-full sm:w-52"
         size="md"
       />
       <UButton
@@ -105,6 +105,7 @@ const items = computed(() => {
         color="neutral"
         variant="outline"
         size="md"
+        class="w-full sm:w-auto"
         @click="resetFilters"
       />
     </div>
