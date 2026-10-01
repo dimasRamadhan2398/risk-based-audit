@@ -5,27 +5,8 @@ import type {
   ListDepartmentsResponse
 } from '~/types/master'
 import { getMasterServiceBaseUrl } from '~/composables/useApiUrl'
-import { useAuthStore } from '~/stores/auth'
 
 export const useDepartmentApi = () => {
-  const config = useRuntimeConfig()
-
-  /**
-   * Helper to get auth headers
-   */
-  const getAuthHeaders = (): Record<string, string> => {
-    const headers: Record<string, string> = {}
-    try {
-      const authStore = useAuthStore()
-      if (authStore.token) {
-        headers['Authorization'] = `Bearer ${authStore.token}`
-      }
-    } catch {
-      // Store might not be ready yet in SSR
-    }
-    return headers
-  }
-
   /**
    * Get base URL from masterServiceBaseUrl
    */
@@ -42,15 +23,16 @@ export const useDepartmentApi = () => {
     page_size?: number
     search?: string
   }): Promise<ListDepartmentsResponse> => {
-    const url = new URL(`${getBaseUrl()}/departments`)
-
-    if (params?.page) url.searchParams.set('page', String(params.page))
-    if (params?.page_size) url.searchParams.set('page_size', String(params.page_size))
-    if (params?.search) url.searchParams.set('search', params.search)
-
-    const response = await $fetch<any>(url.toString(), {
+    // Base URLs are relative (/api/v1) in production, so build the query with
+    // ofetch's `query` option instead of `new URL()`, which throws on relative URLs.
+    // ofetch drops undefined values, so unset params are simply omitted.
+    const response = await $fetch<any>(`${getBaseUrl()}/departments`, {
       method: 'GET',
-      headers: getAuthHeaders()
+      query: {
+        page: params?.page || undefined,
+        page_size: params?.page_size || undefined,
+        search: params?.search || undefined
+      }
     })
 
     // Handle different response formats
@@ -71,8 +53,7 @@ export const useDepartmentApi = () => {
    */
   const getDepartmentById = async (id: string): Promise<Department> => {
     const response = await $fetch<any>(`${getBaseUrl()}/departments/${id}`, {
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: 'GET'
     })
 
     return response.data || response
@@ -85,7 +66,6 @@ export const useDepartmentApi = () => {
   const createDepartment = async (payload: CreateDepartmentRequest): Promise<Department> => {
     const response = await $fetch<any>(`${getBaseUrl()}/departments`, {
       method: 'POST',
-      headers: getAuthHeaders(),
       body: payload
     })
 
@@ -99,7 +79,6 @@ export const useDepartmentApi = () => {
   const updateDepartment = async (id: string, payload: UpdateDepartmentRequest): Promise<Department> => {
     const response = await $fetch<any>(`${getBaseUrl()}/departments/${id}`, {
       method: 'PUT',
-      headers: getAuthHeaders(),
       body: payload
     })
 
@@ -112,8 +91,7 @@ export const useDepartmentApi = () => {
    */
   const deleteDepartment = async (id: string): Promise<void> => {
     await $fetch(`${getBaseUrl()}/departments/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
+      method: 'DELETE'
     })
   }
 
@@ -125,7 +103,6 @@ export const useDepartmentApi = () => {
     try {
       const response = await $fetch<any>(`${getBaseUrl()}/departments`, {
         method: 'GET',
-        headers: getAuthHeaders(),
         params: { page: 1, page_size: 1000 }
       })
 

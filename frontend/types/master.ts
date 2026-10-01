@@ -233,6 +233,36 @@ export interface Location {
   updated_at?: string
 }
 
+export interface LocationFormState {
+  name: string
+  address: string
+  city: string
+  province?: string
+  postal_code?: string
+  country?: string
+  is_active: boolean
+}
+
+export interface CreateLocationRequest {
+  name: string
+  address: string
+  city: string
+  province?: string
+  postal_code?: string
+  country?: string
+  is_active: boolean
+}
+
+export interface UpdateLocationRequest {
+  name?: string
+  address?: string
+  city?: string
+  province?: string
+  postal_code?: string
+  country?: string
+  is_active?: boolean
+}
+
 // ============= Pagination Types =============
 
 export interface PaginationMeta {

@@ -2,11 +2,13 @@ package base
 
 import (
 	apperrors "master-service/pkg/errors"
+	"master-service/pkg/logger"
 	"master-service/pkg/response"
 	"master-service/pkg/validations"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // BaseController provides common controller operations
@@ -21,30 +23,32 @@ func NewBaseController(validator *validations.Validator) *BaseController {
 	}
 }
 
-// ValidateRequest validates a request struct
+// ValidateRequest binds and validates a JSON body. On failure it responds with
+// INVALID_REQUEST_BODY or VALIDATION_FAILED (+ fields); raw parser/validator
+// text is logged, never returned.
 func (c *BaseController) ValidateRequest(ctx *gin.Context, req interface{}) bool {
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		response.BadRequest(ctx, err.Error())
+		c.RespondError(ctx, apperrors.FromBinding(err, req))
 		return false
 	}
 
 	if err := c.validator.Validate(req); err != nil {
-		response.BadRequest(ctx, err.Error())
+		c.RespondError(ctx, apperrors.FromBinding(err, req))
 		return false
 	}
 
 	return true
 }
 
-// ValidateQuery validates a query struct
+// ValidateQuery binds and validates query parameters.
 func (c *BaseController) ValidateQuery(ctx *gin.Context, req interface{}) bool {
 	if err := ctx.ShouldBindQuery(req); err != nil {
-		response.BadRequest(ctx, err.Error())
+		c.RespondError(ctx, apperrors.FromBinding(err, req))
 		return false
 	}
 
 	if err := c.validator.Validate(req); err != nil {
-		response.BadRequest(ctx, err.Error())
+		c.RespondError(ctx, apperrors.FromBinding(err, req))
 		return false
 	}
 
@@ -86,14 +90,46 @@ func (c *BaseController) GetRoles(ctx *gin.Context) []string {
 	return []string{}
 }
 
+// RespondError writes a client-safe error response. The error is normalised
+// to a stable code and human-readable message (DB/driver errors are mapped via
+// pgconn codes); the underlying technical error is logged, never returned.
 func (c *BaseController) RespondError(ctx *gin.Context, err error) {
-	if appErr, ok := err.(*apperrors.AppError); ok {
-		details := ""
-		if appErr.Err != nil {
-			details = appErr.Err.Error()
-		}
-		response.Error(ctx, appErr.StatusCode, appErr.Code, appErr.Message, details)
+	RespondError(ctx, err)
+}
+
+// RespondError is the package-level form of BaseController.RespondError.
+func RespondError(ctx *gin.Context, err error) {
+	appErr := apperrors.Normalize(err, apperrors.OpFromHTTPMethod(ctx.Request.Method))
+	if appErr == nil {
+		appErr = apperrors.Internal("", nil)
+	}
+	status := appErr.StatusCode
+	if status == 0 {
+		status = http.StatusInternalServerError
+	}
+
+	logError(ctx, status, appErr)
+	response.ErrorWithFields(ctx, status, appErr.Code, appErr.Message, "", appErr.Fields)
+}
+
+func logError(ctx *gin.Context, status int, appErr *apperrors.AppError) {
+	log := logger.GetLogger()
+	if log == nil {
 		return
 	}
-	response.Error(ctx, http.StatusInternalServerError, "INTERNAL_ERROR", "An unexpected error occurred", "")
+	fields := []zap.Field{
+		zap.String("code", appErr.Code),
+		zap.Int("status", status),
+		zap.String("method", ctx.Request.Method),
+		zap.String("path", ctx.FullPath()),
+	}
+	if appErr.Err != nil {
+		fields = append(fields, zap.Error(appErr.Err))
+	}
+	switch {
+	case status >= http.StatusInternalServerError:
+		log.Error("request failed", fields...)
+	case appErr.Err != nil:
+		log.Warn("request rejected", fields...)
+	}
 }

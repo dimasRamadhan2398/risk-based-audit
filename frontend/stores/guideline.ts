@@ -38,9 +38,9 @@ export const useGuidelineStore = defineStore('guideline', () => {
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
 
-  const columns = computed<(TableColumn<AuditGuideline> & { class?: string })[]>(() => [
+  const columns = computed<(TableColumn<AuditGuideline> & { class?: string, thClass?: string, tdClass?: string })[]>(() => [
     { accessorKey: 'no', header: t('auditCharter.guideline.columns.no'), class: 'w-16 whitespace-nowrap text-center' },
-    { accessorKey: 'name', header: t('auditCharter.guideline.columns.name'), class: 'min-w-[260px]' },
+    { accessorKey: 'name', header: t('auditCharter.guideline.columns.name'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words sticky left-0 border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]', thClass: 'z-20 !bg-[var(--bg-surface)]', tdClass: 'z-10 bg-[var(--bg-main)]' },
     { accessorKey: 'status', header: t('auditCharter.guideline.columns.status'), class: 'w-32 whitespace-nowrap text-center' },
     { accessorKey: 'effective_date', header: t('auditCharter.guideline.columns.effectiveDate'), class: 'w-36 whitespace-nowrap text-center' },
     { accessorKey: 'file_name', header: t('auditCharter.guideline.columns.fileName'), class: 'min-w-[220px]' },

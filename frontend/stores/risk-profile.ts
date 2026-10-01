@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { RiskLevel, ImpactLevel, PossibilityLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { useLocationApi } from '~/composables/useLocationApi'
 
 // --- Constants (Exported for components) ---
 
@@ -208,7 +209,10 @@ const initialRiskData = [
   }
 ]
 
-const branches = [
+// Fallback branch list, used only until the Location master data loads (or when
+// the master service is unreachable). The authoritative list is the Location
+// master (/master/location → GET /api/v1/locations).
+const fallbackBranches = [
   'Head Office',
   'Jakarta Branch',
   'Surabaya Branch',
@@ -221,7 +225,7 @@ const branches = [
 export const useRiskProfileStore = defineStore('risk-profile', () => {
   const config = useRuntimeConfig()
   const rawRisks = ref<any[]>([])
-  const branchesList = ref(branches)
+  const masterBranches = ref<string[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
 
@@ -237,6 +241,34 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   const selectedPeriod = ref('Q1')
 
 
+
+  /**
+   * Branch options: the Location master data, plus any branch that already
+   * appears on a risk (so existing records stay selectable), falling back to
+   * the seed list while the master data is still loading.
+   */
+  const branchesList = computed(() => {
+    const fromRisks = rawRisks.value
+      .map((r: any) => r.branch)
+      .filter((b: any): b is string => Boolean(b))
+
+    const merged = Array.from(new Set([...masterBranches.value, ...fromRisks]))
+    return merged.length > 0 ? merged : [...fallbackBranches]
+  })
+
+  /** Load branch names from the Location master (/api/v1/locations). */
+  const fetchBranches = async () => {
+    try {
+      const locations = await useLocationApi().getAllLocations()
+      masterBranches.value = locations
+        .filter((l: any) => l.is_active !== false)
+        .map((l: any) => l.name)
+        .filter(Boolean)
+    } catch (error: any) {
+      console.error('Failed to fetch branch master data:', error)
+      masterBranches.value = []
+    }
+  }
 
   // Dynamic mapped risks based on selectedYear and selectedPeriod
   const risks = computed(() => {
@@ -290,6 +322,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
 
   // Fetch immediately
   fetchRisks()
+  fetchBranches()
 
   // Helper to re-map display IDs after changes
   const updateDisplayIds = () => {
@@ -525,6 +558,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     updateRisk,
     deleteRisk,
     fetchRisks,
+    fetchBranches,
     loading,
     errorMsg
   }

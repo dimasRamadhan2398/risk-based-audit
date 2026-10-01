@@ -145,7 +145,8 @@
     "no": "No",
     "back": "Back",
     "readMore": "Read more",
-    "readLess": "Show less"
+    "readLess": "Show less",
+    "create": "Create"
   },
   "dashboard": {
     "title": "Home"
@@ -1030,25 +1031,34 @@
   },
   "riskProfile": {
     "title": "Corporate Risk Profile",
-    "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
+    "subtitle": "Enterprise Risk Profile for Fiscal Year {year} - {period}",
     "total": "Total",
     "priority": "Priority",
     "addRisk": "Add Risk",
-    "filterBranch": "Filter Branch/Dept",
-    "allBranches": "All Branches",
+    "filterBranch": "Filter by Branch",
     "fiscalYear": "Fiscal Year",
     "period": "Period",
     "riskLevels": "Risk Levels",
-    "likelihoodLevel": "LIKELIHOOD LEVEL",
-    "impactLevel": "IMPACT LEVEL",
+    "likelihoodLevel": "Likelihood Level",
+    "impactLevel": "Impact Level",
+    "allBranches": "All Branches",
+    "addModal": {
+      "title": "Add New Risk Event",
+      "desc": "Define a new risk event and its initial quarterly assessments.",
+      "name": "Risk Name",
+      "namePlaceholder": "Enter risk name",
+      "category": "Category",
+      "branch": "Branch / Division",
+      "quarterlyTitle": "Quarterly Residual Score {year}",
+      "impact": "Impact",
+      "likelihood": "Likelihood",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the risk context, causes, and impacts",
+      "saveBtn": "Save Risk Event"
+    },
     "quickTip": {
       "title": "Quick Tip",
-      "desc": "Drag and drop risks to update their status. Switch quarters to track risk changes over time."
-    },
-    "tabs": {
-      "priority": "Priority Risks ({count})",
-      "all": "All Risks ({count})",
-      "progress": "Risk Progress Table"
+      "desc": "Drag and drop risk badges to adjust their likelihood or impact. The risk score will automatically update."
     },
     "table": {
       "no": "No",
@@ -1057,70 +1067,57 @@
       "likelihoodScale": "Likelihood Scale",
       "riskLevel": "Risk Level"
     },
-    "addModal": {
-      "title": "Add New Corporate Risk",
-      "desc": "Enter the details of the new risk to be added to the heatmap.",
-      "name": "Risk Name",
-      "namePlaceholder": "e.g. Target pendapatan dan laba tidak tercapai",
-      "category": "Category",
-      "branch": "Branch / Dept",
-      "quarterlyTitle": "Quarterly Residual Score Tracking (FY {year})",
-      "impact": "Impact",
-      "likelihood": "Likelihood",
-      "description": "Risk Description",
-      "descriptionPlaceholder": "Describe the risk and its potential consequences...",
-      "saveBtn": "Save Risk"
-    },
-    "editModal": {
-      "title": "Edit Risk: {name}",
-      "titleDefault": "Edit Risk",
-      "desc": "Modify the assessment parameters or quarterly scoring details.",
-      "updateBtn": "Update Risk"
+    "tabs": {
+      "priority": "Priority ({count})",
+      "all": "All Risks ({count})",
+      "progress": "Quarterly Progress"
     },
     "detailModal": {
-      "title": "Risk Detail: # {id}",
-      "desc": "Complete assessment data and categorization for this risk event.",
+      "title": "Risk Details - {id}",
+      "desc": "Comprehensive view of the risk event and its assessments.",
       "category": "Category",
       "riskLevel": "Risk Level",
       "riskEventName": "Risk Event Name",
-      "impactPeriod": "Impact ({period})",
-      "likelihoodPeriod": "Likelihood ({period})",
+      "impactPeriod": "Impact (Period {period})",
+      "likelihoodPeriod": "Likelihood (Period {period})",
       "severityWeight": "Severity Weight",
       "description": "Description",
-      "mitigationBtn": "Go to Mitigation Plan"
+      "mitigationBtn": "View Mitigation Plan"
     },
-    "toasts": {
-      "validationError": "Validation Error",
-      "nameRequired": "Risk name is required.",
-      "riskAdded": "Risk Added",
-      "riskAddedDesc": "\"{name}\" successfully added to the profile.",
-      "riskUpdated": "Risk Updated",
-      "riskUpdatedDesc": "Changes saved successfully.",
-      "positionUpdated": "Risk Position Updated",
-      "positionUpdatedDesc": "\"{name}\" moved to {l}×{i} for {period}",
-      "riskDeleted": "Risk Deleted",
-      "riskDeletedDesc": "\"{name}\" has been removed."
-    },
-    "impactLabels": {
-      "1": "Very Low",
-      "2": "Low",
-      "3": "Moderate",
-      "4": "High",
-      "5": "Very High"
-    },
-    "likelihoodLabels": {
-      "1": "Very Rare",
-      "2": "Rare",
-      "3": "Possible",
-      "4": "Likely",
-      "5": "Very Likely"
+    "editModal": {
+      "title": "Edit Risk - {name}",
+      "titleDefault": "Edit Risk",
+      "desc": "Modify risk details and adjust quarterly assessments.",
+      "updateBtn": "Update Risk"
     },
     "riskLevelLabels": {
       "low": "Low",
-      "low-moderate": "Low to Moderate",
+      "low-moderate": "Low-Moderate",
       "moderate": "Moderate",
-      "moderate-high": "Moderate to High",
+      "moderate-high": "Moderate-High",
       "high": "High"
+    },
+    "impactLabels": {
+      "1": "Insignificant",
+      "2": "Minor",
+      "3": "Moderate",
+      "4": "Major",
+      "5": "Catastrophic"
+    },
+    "likelihoodLabels": {
+      "1": "Rare",
+      "2": "Unlikely",
+      "3": "Possible",
+      "4": "Likely",
+      "5": "Almost Certain"
+    },
+    "toasts": {
+      "validationError": "Validation Error",
+      "nameRequired": "Risk Name is required",
+      "riskAdded": "Risk Added",
+      "riskAddedDesc": "Successfully added new risk: {name}",
+      "riskUpdated": "Risk Updated",
+      "riskUpdatedDesc": "Successfully updated risk details."
     }
   },
   "analytics": {
@@ -2325,97 +2322,6 @@
       "deleteFailedDesc": "An error occurred while deleting the document."
     }
   },
-  "riskProfile": {
-    "title": "Corporate Risk Profile",
-    "subtitle": "Enterprise Risk Profile for Fiscal Year {year} - {period}",
-    "total": "Total",
-    "priority": "Priority",
-    "addRisk": "Add Risk",
-    "filterBranch": "Filter by Branch",
-    "fiscalYear": "Fiscal Year",
-    "period": "Period",
-    "riskLevels": "Risk Levels",
-    "likelihoodLevel": "Likelihood Level",
-    "impactLevel": "Impact Level",
-    "allBranches": "All Branches",
-    "addModal": {
-      "title": "Add New Risk Event",
-      "desc": "Define a new risk event and its initial quarterly assessments.",
-      "name": "Risk Name",
-      "namePlaceholder": "Enter risk name",
-      "category": "Category",
-      "branch": "Branch / Division",
-      "quarterlyTitle": "Quarterly Residual Score {year}",
-      "impact": "Impact",
-      "likelihood": "Likelihood",
-      "description": "Description",
-      "descriptionPlaceholder": "Describe the risk context, causes, and impacts",
-      "saveBtn": "Save Risk Event"
-    },
-    "quickTip": {
-      "title": "Quick Tip",
-      "desc": "Drag and drop risk badges to adjust their likelihood or impact. The risk score will automatically update."
-    },
-    "table": {
-      "no": "No",
-      "riskEvent": "Risk Event",
-      "impactScale": "Impact Scale",
-      "likelihoodScale": "Likelihood Scale",
-      "riskLevel": "Risk Level"
-    },
-    "tabs": {
-      "priority": "Priority ({count})",
-      "all": "All Risks ({count})",
-      "progress": "Quarterly Progress"
-    },
-    "detailModal": {
-      "title": "Risk Details - {id}",
-      "desc": "Comprehensive view of the risk event and its assessments.",
-      "category": "Category",
-      "riskLevel": "Risk Level",
-      "riskEventName": "Risk Event Name",
-      "impactPeriod": "Impact (Period {period})",
-      "likelihoodPeriod": "Likelihood (Period {period})",
-      "severityWeight": "Severity Weight",
-      "description": "Description",
-      "mitigationBtn": "View Mitigation Plan"
-    },
-    "editModal": {
-      "title": "Edit Risk - {name}",
-      "titleDefault": "Edit Risk",
-      "desc": "Modify risk details and adjust quarterly assessments.",
-      "updateBtn": "Update Risk"
-    },
-    "riskLevelLabels": {
-      "low": "Low",
-      "low-moderate": "Low-Moderate",
-      "moderate": "Moderate",
-      "moderate-high": "Moderate-High",
-      "high": "High"
-    },
-    "impactLabels": {
-      "1": "Insignificant",
-      "2": "Minor",
-      "3": "Moderate",
-      "4": "Major",
-      "5": "Catastrophic"
-    },
-    "likelihoodLabels": {
-      "1": "Rare",
-      "2": "Unlikely",
-      "3": "Possible",
-      "4": "Likely",
-      "5": "Almost Certain"
-    },
-    "toasts": {
-      "validationError": "Validation Error",
-      "nameRequired": "Risk Name is required",
-      "riskAdded": "Risk Added",
-      "riskAddedDesc": "Successfully added new risk: {name}",
-      "riskUpdated": "Risk Updated",
-      "riskUpdatedDesc": "Successfully updated risk details."
-    }
-  },
   "navigation": {
     "dashboard": "Dashboard",
     "auditCharter": "Audit Charter",
@@ -2492,7 +2398,8 @@
       "logout": "Logout"
     },
     "securityWarningTitle": "Security Warning",
-    "securityWarningDesc": "Your account was recently accessed from a new device. If this wasn't you, please change your password immediately."
+    "securityWarningDesc": "Your account was recently accessed from a new device. If this wasn't you, please change your password immediately.",
+    "location": "Branch / Location"
   },
   "satisfactionSurvey": {
     "title": "Client Satisfaction Survey",
@@ -2765,6 +2672,147 @@
     },
     "defaults": {
       "mitigationDescPrefix": "Internal control & mitigation activities for "
+    }
+  },
+  "errors": {
+    "network": "Unable to reach the server. Please check your internet connection and try again.",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "forbidden": "You do not have permission to perform this action.",
+    "notFound": "The requested data could not be found. It may have been deleted.",
+    "validation": "Some of the data entered is invalid. Please review the form and try again.",
+    "conflict": "This data conflicts with an existing record. Please review it and try again.",
+    "tooManyRequests": "Too many requests. Please wait a moment and try again.",
+    "server": "The server encountered a problem. Please try again in a few moments.",
+    "unknown": "Something went wrong. Please try again in a few moments.",
+    "codes": {
+      "EMPLOYEE_NOT_FOUND": "The employee could not be found. It may have been deleted.",
+      "EMPLOYEE_CODE_ALREADY_EXISTS": "This employee code is already in use. Please use a different code.",
+      "EMPLOYEE_EMAIL_ALREADY_EXISTS": "This email is already registered to another employee.",
+      "INVALID_EMPLOYEE_ID": "The employee reference is invalid. Please reload the page and try again.",
+      "DEPARTMENT_NOT_FOUND": "The department could not be found. It may have been deleted.",
+      "DEPARTMENT_CODE_ALREADY_EXISTS": "This department code is already in use. Please use a different code.",
+      "DEPARTMENT_NAME_ALREADY_EXISTS": "A department with this name already exists.",
+      "INVALID_DEPARTMENT_ID": "The department reference is invalid. Please reload the page and try again.",
+      "COMPANY_NOT_FOUND": "The selected company could not be found.",
+      "COMPANY_CODE_ALREADY_EXISTS": "This company code is already in use. Please use a different code.",
+      "COMPANY_ID_REQUIRED": "Company is required.",
+      "INVALID_COMPANY_ID": "The company reference is invalid. Please reload the page and try again.",
+      "BUSINESS_UNIT_NOT_FOUND": "The selected business unit could not be found.",
+      "BUSINESS_UNIT_ID_REQUIRED": "Business unit is required.",
+      "BUSINESS_UNIT_COMPANY_MISMATCH": "The selected business unit does not belong to the selected company.",
+      "PIC_NOT_FOUND": "The selected person in charge (PIC) could not be found.",
+      "PIC_ID_REQUIRED": "Person in charge (PIC) is required.",
+      "PIC_COMPANY_MISMATCH": "The selected person in charge (PIC) does not belong to the selected company.",
+      "DUPLICATE_ENTRY": "This data already exists.",
+      "TOKEN_EXPIRED": "Your session has expired. Please sign in again.",
+      "INVALID_TOKEN": "Your session is no longer valid. Please sign in again.",
+      "COMPANY_TAX_ID_ALREADY_EXISTS": "This tax ID (NPWP) is already registered to another company.",
+      "VALIDATION_FAILED": "Some fields are missing or invalid. Please review the form and try again.",
+      "INVALID_REQUEST_BODY": "The submitted data could not be processed. Please review the form and try again.",
+      "INVALID_ID": "The data reference is invalid. Please reload the page and try again.",
+      "VALUE_TOO_LONG": "One of the values exceeds the maximum allowed length.",
+      "REFERENCE_NOT_FOUND": "A selected related record no longer exists. Please reload the page and choose again.",
+      "FOREIGN_KEY_VIOLATION": "This data cannot be deleted because it is still used by other records."
+    }
+  },
+  "masterData": {
+    "errors": {
+      "fetchEmployees": "Failed to load employee data.",
+      "fetchEmployee": "Failed to load employee details.",
+      "createEmployee": "Failed to create the employee.",
+      "updateEmployee": "Failed to update the employee.",
+      "deleteEmployee": "Failed to delete the employee.",
+      "fetchDepartments": "Failed to load department data.",
+      "fetchDepartment": "Failed to load department details.",
+      "createDepartment": "Failed to create the department.",
+      "updateDepartment": "Failed to update the department.",
+      "deleteDepartment": "Failed to delete the department.",
+      "fetchCompanies": "Failed to load company data.",
+      "fetchCompany": "Failed to load company details.",
+      "createCompany": "Failed to create the company.",
+      "updateCompany": "Failed to update the company.",
+      "deleteCompany": "Failed to delete the company.",
+      "fetchLocations": "Failed to load branch/location data.",
+      "fetchLocation": "Failed to load the branch/location.",
+      "createLocation": "Failed to create the branch/location.",
+      "updateLocation": "Failed to update the branch/location.",
+      "deleteLocation": "Failed to delete the branch/location."
+    },
+    "validation": {
+      "employeeCodeRequired": "Employee code is required.",
+      "fullNameRequired": "Full name is required.",
+      "emailRequired": "Email is required.",
+      "companyRequired": "Company is required.",
+      "departmentRequired": "Department is required.",
+      "jobRoleRequired": "Job role is required.",
+      "departmentCodeRequired": "Department code is required.",
+      "departmentNameRequired": "Department name is required.",
+      "picRequired": "Person in charge (PIC) is required.",
+      "companyCodeRequired": "Company code is required.",
+      "companyNameRequired": "Company name is required.",
+      "companyTypeRequired": "Company type is required.",
+      "locationNameRequired": "Branch/location name is required",
+      "locationAddressRequired": "Address is required",
+      "locationCityRequired": "City is required"
+    },
+    "employee": {
+      "title": "Employee Management",
+      "subtitle": "Manage employee data for the organization",
+      "listTitle": "Employee List",
+      "add": "Add Employee",
+      "searchPlaceholder": "Search employee...",
+      "reset": "Reset",
+      "empty": "No employees found.",
+      "level": "Level {level}",
+      "active": "Active",
+      "inactive": "Inactive",
+      "resetPassword": "Reset Password",
+      "deleteConfirm": "Are you sure you want to delete employee \"{name}\"?",
+      "columns": {
+        "code": "Code",
+        "fullName": "Full Name",
+        "email": "Email",
+        "phone": "Phone",
+        "level": "Level",
+        "status": "Status"
+      }
+    },
+    "location": {
+      "title": "Branch / Location Management",
+      "subtitle": "Manage branch and office location master data",
+      "listTitle": "Branch / Location List",
+      "add": "Add Branch / Location",
+      "searchPlaceholder": "Search branch or city...",
+      "search": "Search",
+      "reset": "Reset",
+      "empty": "No branches or locations found.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "deleteConfirm": "Are you sure you want to delete branch/location \"{name}\"?",
+      "createTitle": "Add New Branch / Location",
+      "editTitle": "Edit Branch / Location",
+      "sectionInfo": "Branch / Location Information",
+      "fieldName": "Branch / Location Name *",
+      "fieldNamePlaceholder": "e.g. Surabaya Branch",
+      "fieldAddress": "Address *",
+      "fieldAddressPlaceholder": "Street address",
+      "fieldCity": "City *",
+      "fieldCityPlaceholder": "e.g. Surabaya",
+      "fieldProvince": "Province",
+      "fieldProvincePlaceholder": "e.g. Jawa Timur",
+      "fieldPostalCode": "Postal Code",
+      "fieldCountry": "Country",
+      "status": "Status",
+      "created": "Branch/location created successfully.",
+      "updated": "Branch/location updated successfully.",
+      "deleted": "Branch/location deleted successfully.",
+      "columns": {
+        "name": "Branch / Location",
+        "city": "City",
+        "province": "Province",
+        "address": "Address",
+        "status": "Status"
+      }
     }
   }
 }

@@ -251,7 +251,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     fetchStrategicPlans();
 
     const columns: (TableColumn<StrategicAuditPlan> & { class?: string })[] = [
-        { accessorKey: 'code', header: 'Objective ID', class: 'w-28 whitespace-nowrap' },
         { accessorKey: 'strategicObjective', header: 'Strategic Objective', class: 'max-w-[280px] whitespace-normal break-words font-medium' },
         { accessorKey: 'kpi', header: 'KPI Name', class: 'max-w-[240px] whitespace-normal break-words font-medium' },
         { accessorKey: 'unit', header: 'Unit', class: 'w-20 text-center whitespace-nowrap' },

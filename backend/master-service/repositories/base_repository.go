@@ -7,6 +7,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// dbErr wraps a GORM/driver error as ErrDatabase while keeping the original
+// error in the chain, so errors.As can still find *pgconn.PgError (unique /
+// FK violations) and map it to a client-safe code. The message text is the
+// same as before ("Database error: <cause>") and is only ever logged.
+func dbErr(err error) error {
+	return fmt.Errorf("%w: %w", apperrors.ErrDatabase, err)
+}
+
 // BaseRepository provides common database operations for all repositories
 type BaseRepository struct {
 	DB *gorm.DB
@@ -20,7 +28,7 @@ func NewBaseRepository(db *gorm.DB) *BaseRepository {
 // Create creates a new record
 func (r *BaseRepository) Create(entity interface{}) error {
 	if err := r.DB.Create(entity).Error; err != nil {
-		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return dbErr(err)
 	}
 	return nil
 }
@@ -28,7 +36,7 @@ func (r *BaseRepository) Create(entity interface{}) error {
 // CreateTx creates a new record within a transaction
 func (r *BaseRepository) CreateTx(tx *gorm.DB, entity interface{}) error {
 	if err := tx.Create(entity).Error; err != nil {
-		return apperrors.ErrDatabase
+		return dbErr(err)
 	}
 	return nil
 }
@@ -36,7 +44,7 @@ func (r *BaseRepository) CreateTx(tx *gorm.DB, entity interface{}) error {
 // Update updates a record
 func (r *BaseRepository) Update(entity interface{}) error {
 	if err := r.DB.Save(entity).Error; err != nil {
-		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return dbErr(err)
 	}
 	return nil
 }
@@ -44,7 +52,7 @@ func (r *BaseRepository) Update(entity interface{}) error {
 // UpdateTx updates a record within a transaction
 func (r *BaseRepository) UpdateTx(tx *gorm.DB, entity interface{}) error {
 	if err := tx.Save(entity).Error; err != nil {
-		return apperrors.ErrDatabase
+		return dbErr(err)
 	}
 	return nil
 }
@@ -52,7 +60,7 @@ func (r *BaseRepository) UpdateTx(tx *gorm.DB, entity interface{}) error {
 // Delete deletes a record (soft delete if using DeletedAt)
 func (r *BaseRepository) Delete(entity interface{}) error {
 	if err := r.DB.Delete(entity).Error; err != nil {
-		return apperrors.ErrDatabase
+		return dbErr(err)
 	}
 	return nil
 }
@@ -60,7 +68,7 @@ func (r *BaseRepository) Delete(entity interface{}) error {
 // HardDelete permanently deletes a record
 func (r *BaseRepository) HardDelete(entity interface{}) error {
 	if err := r.DB.Unscoped().Delete(entity).Error; err != nil {
-		return apperrors.ErrDatabase
+		return dbErr(err)
 	}
 	return nil
 }
@@ -71,7 +79,7 @@ func (r *BaseRepository) FindByID(entity interface{}, id interface{}) error {
 		if err == gorm.ErrRecordNotFound {
 			return apperrors.ErrNotFound
 		}
-		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return dbErr(err)
 	}
 	return nil
 }
@@ -86,7 +94,7 @@ func (r *BaseRepository) FindByIDWithPreload(entity interface{}, id interface{},
 		if err == gorm.ErrRecordNotFound {
 			return apperrors.ErrNotFound
 		}
-		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return dbErr(err)
 	}
 	return nil
 }
@@ -97,7 +105,7 @@ func (r *BaseRepository) FindOne(entity interface{}, condition interface{}, args
 		if err == gorm.ErrRecordNotFound {
 			return apperrors.ErrNotFound
 		}
-		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return dbErr(err)
 	}
 	return nil
 }
@@ -138,7 +146,7 @@ func (r *BaseRepository) FindMany(entities interface{}, conditions map[string]in
 	}
 
 	if err := query.Find(entities).Error; err != nil {
-		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return dbErr(err)
 	}
 	return nil
 }
@@ -165,7 +173,7 @@ func (r *BaseRepository) Count(model interface{}, conditions map[string]interfac
 	}
 
 	if err := query.Count(&count).Error; err != nil {
-		return 0, fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return 0, dbErr(err)
 	}
 	return count, nil
 }
@@ -174,7 +182,7 @@ func (r *BaseRepository) Count(model interface{}, conditions map[string]interfac
 func (r *BaseRepository) Exists(model interface{}, condition interface{}, args ...interface{}) (bool, error) {
 	var count int64
 	if err := r.DB.Model(model).Where(condition, args...).Count(&count).Error; err != nil {
-		return false, fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return false, dbErr(err)
 	}
 	return count > 0, nil
 }
@@ -192,7 +200,7 @@ func (r *BaseRepository) GetDB() *gorm.DB {
 // Raw executes a raw SQL query
 func (r *BaseRepository) Raw(result interface{}, sql string, args ...interface{}) error {
 	if err := r.DB.Raw(sql, args...).Scan(result).Error; err != nil {
-		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return dbErr(err)
 	}
 	return nil
 }
@@ -200,7 +208,7 @@ func (r *BaseRepository) Raw(result interface{}, sql string, args ...interface{}
 // Exec executes a raw SQL statement
 func (r *BaseRepository) Exec(sql string, args ...interface{}) error {
 	if err := r.DB.Exec(sql, args...).Error; err != nil {
-		return fmt.Errorf("%w: %v", apperrors.ErrDatabase, err)
+		return dbErr(err)
 	}
 	return nil
 }

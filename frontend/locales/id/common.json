@@ -145,7 +145,8 @@
     "no": "Tidak",
     "back": "Kembali",
     "readMore": "Baca selengkapnya",
-    "readLess": "Sembunyikan"
+    "readLess": "Sembunyikan",
+    "create": "Buat"
   },
   "auditExecution": {
     "title": "Status Eksekusi Audit",
@@ -1026,98 +1027,94 @@
     }
   },
   "riskProfile": {
-    "title": "Profil Risiko Perusahaan",
-    "subtitle": "Heat Map Risiko Interaktif — Tahun Buku {year} ({period})",
+    "title": "Profil Risiko Korporat",
+    "subtitle": "Profil Risiko Perusahaan Tahun Anggaran {year} - {period}",
     "total": "Total",
     "priority": "Prioritas",
     "addRisk": "Tambah Risiko",
-    "filterBranch": "Filter Cabang/Dept",
-    "allBranches": "Semua Cabang",
-    "fiscalYear": "Tahun Buku",
+    "filterBranch": "Filter Cabang",
+    "fiscalYear": "Tahun Anggaran",
     "period": "Periode",
     "riskLevels": "Tingkat Risiko",
-    "likelihoodLevel": "TINGKAT KEMUNGKINAN",
-    "impactLevel": "TINGKAT DAMPAK",
+    "likelihoodLevel": "Tingkat Kemungkinan",
+    "impactLevel": "Tingkat Dampak",
+    "allBranches": "Semua Cabang",
+    "addModal": {
+      "title": "Tambah Kejadian Risiko",
+      "desc": "Tentukan kejadian risiko baru dan penilaian awal kuartalannya.",
+      "name": "Nama Risiko",
+      "namePlaceholder": "Masukkan nama risiko",
+      "category": "Kategori",
+      "branch": "Cabang / Divisi",
+      "quarterlyTitle": "Skor Residu Kuartalan {year}",
+      "impact": "Dampak",
+      "likelihood": "Kemungkinan",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Jelaskan konteks, penyebab, dan dampak risiko",
+      "saveBtn": "Simpan Kejadian Risiko"
+    },
     "quickTip": {
       "title": "Tips Cepat",
-      "desc": "Tarik dan lepas risiko untuk memperbarui statusnya. Ganti kuartal untuk memantau perubahan risiko dari waktu ke waktu."
-    },
-    "tabs": {
-      "priority": "Risiko Prioritas ({count})",
-      "all": "Semua Risiko ({count})",
-      "progress": "Tabel Perkembangan Risiko"
+      "desc": "Geser dan lepas lencana risiko untuk menyesuaikan kemungkinan atau dampaknya. Skor risiko akan diperbarui secara otomatis."
     },
     "table": {
       "no": "No",
-      "riskEvent": "Peristiwa Risiko",
+      "riskEvent": "Kejadian Risiko",
       "impactScale": "Skala Dampak",
       "likelihoodScale": "Skala Kemungkinan",
-      "riskLevel": "Level Risiko"
+      "riskLevel": "Tingkat Risiko"
     },
-    "addModal": {
-      "title": "Tambah Risiko Perusahaan Baru",
-      "desc": "Masukkan rincian risiko baru yang akan ditambahkan ke heat map.",
-      "name": "Nama Risiko",
-      "namePlaceholder": "Contoh: Target pendapatan dan laba tidak tercapai",
-      "category": "Kategori",
-      "branch": "Cabang / Departemen",
-      "quarterlyTitle": "Pelacakan Skor Residual Triwulanan (FY {year})",
-      "impact": "Dampak",
-      "likelihood": "Kemungkinan",
-      "description": "Deskripsi Risiko",
-      "descriptionPlaceholder": "Jelaskan risiko dan potensi dampaknya...",
-      "saveBtn": "Simpan Risiko"
-    },
-    "editModal": {
-      "title": "Ubah Risiko: {name}",
-      "titleDefault": "Ubah Risiko",
-      "desc": "Ubah parameter penilaian atau rincian skor triwulanan.",
-      "updateBtn": "Perbarui Risiko"
+    "tabs": {
+      "priority": "Prioritas ({count})",
+      "all": "Semua Risiko ({count})",
+      "progress": "Kemajuan Kuartalan"
     },
     "detailModal": {
-      "title": "Detail Risiko: # {id}",
-      "desc": "Data penilaian lengkap dan pengkategorian untuk peristiwa risiko ini.",
+      "title": "Detail Risiko - {id}",
+      "desc": "Tampilan komprehensif dari kejadian risiko dan penilaiannya.",
       "category": "Kategori",
       "riskLevel": "Tingkat Risiko",
-      "riskEventName": "Nama Peristiwa Risiko",
-      "impactPeriod": "Dampak ({period})",
-      "likelihoodPeriod": "Kemungkinan ({period})",
+      "riskEventName": "Nama Kejadian Risiko",
+      "impactPeriod": "Dampak (Periode {period})",
+      "likelihoodPeriod": "Kemungkinan (Periode {period})",
       "severityWeight": "Bobot Keparahan",
       "description": "Deskripsi",
-      "mitigationBtn": "Buka Rencana Mitigasi"
+      "mitigationBtn": "Lihat Rencana Mitigasi"
     },
-    "toasts": {
-      "validationError": "Kesalahan Validasi",
-      "nameRequired": "Nama risiko wajib diisi.",
-      "riskAdded": "Risiko Ditambahkan",
-      "riskAddedDesc": "\"{name}\" berhasil ditambahkan ke profil.",
-      "riskUpdated": "Risiko Diperbarui",
-      "riskUpdatedDesc": "Perubahan berhasil disimpan.",
-      "positionUpdated": "Posisi Risiko Diperbarui",
-      "positionUpdatedDesc": "\"{name}\" dipindahkan ke {l}×{i} untuk {period}",
-      "riskDeleted": "Risiko Dihapus",
-      "riskDeletedDesc": "\"{name}\" telah dihapus."
+    "editModal": {
+      "title": "Edit Risiko - {name}",
+      "titleDefault": "Edit Risiko",
+      "desc": "Ubah detail risiko dan sesuaikan penilaian kuartalan.",
+      "updateBtn": "Perbarui Risiko"
+    },
+    "riskLevelLabels": {
+      "low": "Rendah",
+      "low-moderate": "Rendah-Sedang",
+      "moderate": "Sedang",
+      "moderate-high": "Sedang-Tinggi",
+      "high": "Tinggi"
     },
     "impactLabels": {
-      "1": "Sangat Rendah",
-      "2": "Rendah",
+      "1": "Sangat Kecil",
+      "2": "Kecil",
       "3": "Sedang",
-      "4": "Tinggi",
-      "5": "Sangat Tinggi"
+      "4": "Besar",
+      "5": "Sangat Besar"
     },
     "likelihoodLabels": {
       "1": "Sangat Jarang",
       "2": "Jarang",
       "3": "Mungkin",
       "4": "Sering",
-      "5": "Hampir Pasti"
+      "5": "Sangat Sering"
     },
-    "riskLevelLabels": {
-      "low": "Rendah",
-      "low-moderate": "Rendah ke Sedang",
-      "moderate": "Sedang",
-      "moderate-high": "Sedang ke Tinggi",
-      "high": "Tinggi"
+    "toasts": {
+      "validationError": "Kesalahan Validasi",
+      "nameRequired": "Nama Risiko wajib diisi",
+      "riskAdded": "Risiko Ditambahkan",
+      "riskAddedDesc": "Berhasil menambahkan risiko baru: {name}",
+      "riskUpdated": "Risiko Diperbarui",
+      "riskUpdatedDesc": "Berhasil memperbarui detail risiko."
     }
   },
   "analytics": {
@@ -2322,97 +2319,6 @@
       "deleteFailedDesc": "Terjadi kesalahan saat menghapus dokumen."
     }
   },
-  "riskProfile": {
-    "title": "Profil Risiko Korporat",
-    "subtitle": "Profil Risiko Perusahaan Tahun Anggaran {year} - {period}",
-    "total": "Total",
-    "priority": "Prioritas",
-    "addRisk": "Tambah Risiko",
-    "filterBranch": "Filter Cabang",
-    "fiscalYear": "Tahun Anggaran",
-    "period": "Periode",
-    "riskLevels": "Tingkat Risiko",
-    "likelihoodLevel": "Tingkat Kemungkinan",
-    "impactLevel": "Tingkat Dampak",
-    "allBranches": "Semua Cabang",
-    "addModal": {
-      "title": "Tambah Kejadian Risiko",
-      "desc": "Tentukan kejadian risiko baru dan penilaian awal kuartalannya.",
-      "name": "Nama Risiko",
-      "namePlaceholder": "Masukkan nama risiko",
-      "category": "Kategori",
-      "branch": "Cabang / Divisi",
-      "quarterlyTitle": "Skor Residu Kuartalan {year}",
-      "impact": "Dampak",
-      "likelihood": "Kemungkinan",
-      "description": "Deskripsi",
-      "descriptionPlaceholder": "Jelaskan konteks, penyebab, dan dampak risiko",
-      "saveBtn": "Simpan Kejadian Risiko"
-    },
-    "quickTip": {
-      "title": "Tips Cepat",
-      "desc": "Geser dan lepas lencana risiko untuk menyesuaikan kemungkinan atau dampaknya. Skor risiko akan diperbarui secara otomatis."
-    },
-    "table": {
-      "no": "No",
-      "riskEvent": "Kejadian Risiko",
-      "impactScale": "Skala Dampak",
-      "likelihoodScale": "Skala Kemungkinan",
-      "riskLevel": "Tingkat Risiko"
-    },
-    "tabs": {
-      "priority": "Prioritas ({count})",
-      "all": "Semua Risiko ({count})",
-      "progress": "Kemajuan Kuartalan"
-    },
-    "detailModal": {
-      "title": "Detail Risiko - {id}",
-      "desc": "Tampilan komprehensif dari kejadian risiko dan penilaiannya.",
-      "category": "Kategori",
-      "riskLevel": "Tingkat Risiko",
-      "riskEventName": "Nama Kejadian Risiko",
-      "impactPeriod": "Dampak (Periode {period})",
-      "likelihoodPeriod": "Kemungkinan (Periode {period})",
-      "severityWeight": "Bobot Keparahan",
-      "description": "Deskripsi",
-      "mitigationBtn": "Lihat Rencana Mitigasi"
-    },
-    "editModal": {
-      "title": "Edit Risiko - {name}",
-      "titleDefault": "Edit Risiko",
-      "desc": "Ubah detail risiko dan sesuaikan penilaian kuartalan.",
-      "updateBtn": "Perbarui Risiko"
-    },
-    "riskLevelLabels": {
-      "low": "Rendah",
-      "low-moderate": "Rendah-Sedang",
-      "moderate": "Sedang",
-      "moderate-high": "Sedang-Tinggi",
-      "high": "Tinggi"
-    },
-    "impactLabels": {
-      "1": "Sangat Kecil",
-      "2": "Kecil",
-      "3": "Sedang",
-      "4": "Besar",
-      "5": "Sangat Besar"
-    },
-    "likelihoodLabels": {
-      "1": "Sangat Jarang",
-      "2": "Jarang",
-      "3": "Mungkin",
-      "4": "Sering",
-      "5": "Sangat Sering"
-    },
-    "toasts": {
-      "validationError": "Kesalahan Validasi",
-      "nameRequired": "Nama Risiko wajib diisi",
-      "riskAdded": "Risiko Ditambahkan",
-      "riskAddedDesc": "Berhasil menambahkan risiko baru: {name}",
-      "riskUpdated": "Risiko Diperbarui",
-      "riskUpdatedDesc": "Berhasil memperbarui detail risiko."
-    }
-  },
   "navigation": {
     "dashboard": "Dashboard",
     "auditCharter": "Audit Charter",
@@ -2489,7 +2395,8 @@
       "logout": "Keluar"
     },
     "securityWarningTitle": "Peringatan Keamanan",
-    "securityWarningDesc": "Akun Anda baru saja diakses dari perangkat baru. Jika ini bukan Anda, segera ubah kata sandi Anda."
+    "securityWarningDesc": "Akun Anda baru saja diakses dari perangkat baru. Jika ini bukan Anda, segera ubah kata sandi Anda.",
+    "location": "Cabang / Lokasi"
   },
   "satisfactionSurvey": {
     "title": "Survei Kepuasan Klien",
@@ -2762,6 +2669,147 @@
     },
     "defaults": {
       "mitigationDescPrefix": "Aktivitas mitigasi & pengawasan internal untuk "
+    }
+  },
+  "errors": {
+    "network": "Tidak dapat terhubung ke server. Periksa koneksi internet Anda, lalu coba lagi.",
+    "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk kembali.",
+    "forbidden": "Anda tidak memiliki izin untuk melakukan tindakan ini.",
+    "notFound": "Data yang diminta tidak ditemukan. Data tersebut mungkin telah dihapus.",
+    "validation": "Sebagian data yang dimasukkan tidak valid. Periksa kembali formulir, lalu coba lagi.",
+    "conflict": "Data ini bertentangan dengan data yang sudah ada. Periksa kembali, lalu coba lagi.",
+    "tooManyRequests": "Terlalu banyak permintaan. Mohon tunggu sebentar, lalu coba lagi.",
+    "server": "Terjadi kendala pada server. Silakan coba lagi dalam beberapa saat.",
+    "unknown": "Terjadi kesalahan. Silakan coba lagi dalam beberapa saat.",
+    "codes": {
+      "EMPLOYEE_NOT_FOUND": "Karyawan tidak ditemukan. Data tersebut mungkin telah dihapus.",
+      "EMPLOYEE_CODE_ALREADY_EXISTS": "Kode karyawan ini sudah digunakan. Gunakan kode lain.",
+      "EMPLOYEE_EMAIL_ALREADY_EXISTS": "Email ini sudah terdaftar pada karyawan lain.",
+      "INVALID_EMPLOYEE_ID": "Referensi karyawan tidak valid. Muat ulang halaman, lalu coba lagi.",
+      "DEPARTMENT_NOT_FOUND": "Departemen tidak ditemukan. Data tersebut mungkin telah dihapus.",
+      "DEPARTMENT_CODE_ALREADY_EXISTS": "Kode departemen ini sudah digunakan. Gunakan kode lain.",
+      "DEPARTMENT_NAME_ALREADY_EXISTS": "Departemen dengan nama ini sudah ada.",
+      "INVALID_DEPARTMENT_ID": "Referensi departemen tidak valid. Muat ulang halaman, lalu coba lagi.",
+      "COMPANY_NOT_FOUND": "Perusahaan yang dipilih tidak ditemukan.",
+      "COMPANY_CODE_ALREADY_EXISTS": "Kode perusahaan ini sudah digunakan. Gunakan kode lain.",
+      "COMPANY_ID_REQUIRED": "Perusahaan wajib diisi.",
+      "INVALID_COMPANY_ID": "Referensi perusahaan tidak valid. Muat ulang halaman, lalu coba lagi.",
+      "BUSINESS_UNIT_NOT_FOUND": "Unit bisnis yang dipilih tidak ditemukan.",
+      "BUSINESS_UNIT_ID_REQUIRED": "Unit bisnis wajib diisi.",
+      "BUSINESS_UNIT_COMPANY_MISMATCH": "Unit bisnis yang dipilih tidak termasuk dalam perusahaan yang dipilih.",
+      "PIC_NOT_FOUND": "Penanggung jawab (PIC) yang dipilih tidak ditemukan.",
+      "PIC_ID_REQUIRED": "Penanggung jawab (PIC) wajib diisi.",
+      "PIC_COMPANY_MISMATCH": "Penanggung jawab (PIC) yang dipilih tidak termasuk dalam perusahaan yang dipilih.",
+      "DUPLICATE_ENTRY": "Data ini sudah ada.",
+      "TOKEN_EXPIRED": "Sesi Anda telah berakhir. Silakan masuk kembali.",
+      "INVALID_TOKEN": "Sesi Anda tidak lagi valid. Silakan masuk kembali.",
+      "COMPANY_TAX_ID_ALREADY_EXISTS": "NPWP ini sudah terdaftar pada perusahaan lain.",
+      "VALIDATION_FAILED": "Beberapa isian belum diisi atau tidak valid. Periksa kembali formulir, lalu coba lagi.",
+      "INVALID_REQUEST_BODY": "Data yang dikirim tidak dapat diproses. Periksa kembali formulir, lalu coba lagi.",
+      "INVALID_ID": "Referensi data tidak valid. Muat ulang halaman, lalu coba lagi.",
+      "VALUE_TOO_LONG": "Salah satu isian melebihi panjang maksimum yang diizinkan.",
+      "REFERENCE_NOT_FOUND": "Data terkait yang dipilih sudah tidak tersedia. Muat ulang halaman, lalu pilih kembali.",
+      "FOREIGN_KEY_VIOLATION": "Data ini tidak dapat dihapus karena masih digunakan oleh data lain."
+    }
+  },
+  "masterData": {
+    "errors": {
+      "fetchEmployees": "Gagal memuat data karyawan.",
+      "fetchEmployee": "Gagal memuat detail karyawan.",
+      "createEmployee": "Gagal menambahkan karyawan.",
+      "updateEmployee": "Gagal memperbarui data karyawan.",
+      "deleteEmployee": "Gagal menghapus karyawan.",
+      "fetchDepartments": "Gagal memuat data departemen.",
+      "fetchDepartment": "Gagal memuat detail departemen.",
+      "createDepartment": "Gagal menambahkan departemen.",
+      "updateDepartment": "Gagal memperbarui data departemen.",
+      "deleteDepartment": "Gagal menghapus departemen.",
+      "fetchCompanies": "Gagal memuat data perusahaan.",
+      "fetchCompany": "Gagal memuat detail perusahaan.",
+      "createCompany": "Gagal menambahkan perusahaan.",
+      "updateCompany": "Gagal memperbarui data perusahaan.",
+      "deleteCompany": "Gagal menghapus perusahaan.",
+      "fetchLocations": "Gagal memuat data cabang/lokasi.",
+      "fetchLocation": "Gagal memuat data cabang/lokasi.",
+      "createLocation": "Gagal membuat cabang/lokasi.",
+      "updateLocation": "Gagal memperbarui cabang/lokasi.",
+      "deleteLocation": "Gagal menghapus cabang/lokasi."
+    },
+    "validation": {
+      "employeeCodeRequired": "Kode karyawan wajib diisi.",
+      "fullNameRequired": "Nama lengkap wajib diisi.",
+      "emailRequired": "Email wajib diisi.",
+      "companyRequired": "Perusahaan wajib diisi.",
+      "departmentRequired": "Departemen wajib diisi.",
+      "jobRoleRequired": "Jabatan wajib diisi.",
+      "departmentCodeRequired": "Kode departemen wajib diisi.",
+      "departmentNameRequired": "Nama departemen wajib diisi.",
+      "picRequired": "Penanggung jawab (PIC) wajib diisi.",
+      "companyCodeRequired": "Kode perusahaan wajib diisi.",
+      "companyNameRequired": "Nama perusahaan wajib diisi.",
+      "companyTypeRequired": "Jenis perusahaan wajib diisi.",
+      "locationNameRequired": "Nama cabang/lokasi wajib diisi",
+      "locationAddressRequired": "Alamat wajib diisi",
+      "locationCityRequired": "Kota wajib diisi"
+    },
+    "employee": {
+      "title": "Manajemen Karyawan",
+      "subtitle": "Kelola data karyawan organisasi",
+      "listTitle": "Daftar Karyawan",
+      "add": "Tambah Karyawan",
+      "searchPlaceholder": "Cari karyawan...",
+      "reset": "Atur Ulang",
+      "empty": "Tidak ada data karyawan.",
+      "level": "Level {level}",
+      "active": "Aktif",
+      "inactive": "Tidak Aktif",
+      "resetPassword": "Atur Ulang Kata Sandi",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus karyawan \"{name}\"?",
+      "columns": {
+        "code": "Kode",
+        "fullName": "Nama Lengkap",
+        "email": "Email",
+        "phone": "Telepon",
+        "level": "Level",
+        "status": "Status"
+      }
+    },
+    "location": {
+      "title": "Manajemen Cabang / Lokasi",
+      "subtitle": "Kelola data induk cabang dan lokasi kantor",
+      "listTitle": "Daftar Cabang / Lokasi",
+      "add": "Tambah Cabang / Lokasi",
+      "searchPlaceholder": "Cari cabang atau kota...",
+      "search": "Cari",
+      "reset": "Reset",
+      "empty": "Data cabang atau lokasi tidak ditemukan.",
+      "active": "Aktif",
+      "inactive": "Tidak Aktif",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus cabang/lokasi \"{name}\"?",
+      "createTitle": "Tambah Cabang / Lokasi Baru",
+      "editTitle": "Ubah Cabang / Lokasi",
+      "sectionInfo": "Informasi Cabang / Lokasi",
+      "fieldName": "Nama Cabang / Lokasi *",
+      "fieldNamePlaceholder": "mis. Cabang Surabaya",
+      "fieldAddress": "Alamat *",
+      "fieldAddressPlaceholder": "Alamat jalan",
+      "fieldCity": "Kota *",
+      "fieldCityPlaceholder": "mis. Surabaya",
+      "fieldProvince": "Provinsi",
+      "fieldProvincePlaceholder": "mis. Jawa Timur",
+      "fieldPostalCode": "Kode Pos",
+      "fieldCountry": "Negara",
+      "status": "Status",
+      "created": "Cabang/lokasi berhasil dibuat.",
+      "updated": "Cabang/lokasi berhasil diperbarui.",
+      "deleted": "Cabang/lokasi berhasil dihapus.",
+      "columns": {
+        "name": "Cabang / Lokasi",
+        "city": "Kota",
+        "province": "Provinsi",
+        "address": "Alamat",
+        "status": "Status"
+      }
     }
   }
 }
