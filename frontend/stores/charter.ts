@@ -18,7 +18,6 @@ export const useCharterStore = defineStore('charter', () => {
   const columns: (TableColumn<AuditCharter> & { class?: string })[] = [
     { accessorKey: 'version', header: 'Version', class: 'w-16 whitespace-nowrap text-center' },
     { accessorKey: 'title', header: 'Charter Name', class: 'w-48' },
-    { accessorKey: 'content', header: 'Content', class: 'w-48' },
     { accessorKey: 'date', header: 'Date', class: 'w-28 whitespace-nowrap' },
     { accessorKey: 'approvedBy', header: 'Approved By', class: 'w-36' },
     { accessorKey: 'uploadedBy', header: 'Uploaded By', class: 'w-36' },
@@ -31,7 +30,7 @@ export const useCharterStore = defineStore('charter', () => {
     version: '', // Tidak perlu diisi user
     content: '',
     date: new Date().toISOString().split('T')[0] || '',
-    uploadedBy: '',
+    uploadedBy: 'Dimas (HIA)',
     approvedBy: '',
     isActive: true,
     file: null,
@@ -73,14 +72,26 @@ export const useCharterStore = defineStore('charter', () => {
         ? `${(Number(item.file_size || item.fileSize) / 1024 / 1024).toFixed(2)} MB`
         : item.fileSize || '-'
 
+    const approvedBy =
+      item.approved_by ||
+      item.approvedBy ||
+      (item.content && item.content !== '-' && !item.content.includes('establishes the authority')
+        ? item.content
+        : '-')
+
+    const uploadedBy =
+      item.uploaded_by ||
+      item.uploadedBy ||
+      'Dimas (HIA)'
+
     return {
       id: String(item.id),
       title: item.title || item.filename || item.fileName || '-',
       version: item.version || '-',
       content: item.content || '-',
-      date: new Date(dateValue).toISOString().split('T')[0] || '',
-      uploadedBy: item.uploaded_by || item.uploadedBy || 'Dimas (HIA)',
-      approvedBy: item.approved_by || item.approvedBy || '-',
+      date: item.date || new Date(dateValue).toISOString().split('T')[0] || '',
+      uploadedBy,
+      approvedBy,
       isActive: item.is_active ?? item.isActive ?? false,
       fileName: item.filename || item.file_name || item.fileName || '-',
       fileSize,
@@ -255,8 +266,11 @@ export const useCharterStore = defineStore('charter', () => {
       }
       formData.append('title', form.title)
       formData.append('version', autoVersion)
-      formData.append('content', form.content || '')
+      formData.append('content', form.approvedBy || form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
+      formData.append('approved_by', form.approvedBy || '')
+      formData.append('uploadedBy', form.uploadedBy || 'Dimas (HIA)')
+      formData.append('uploaded_by', form.uploadedBy || 'Dimas (HIA)')
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
@@ -300,8 +314,11 @@ export const useCharterStore = defineStore('charter', () => {
       }
       formData.append('title', form.title)
       formData.append('version', form.version || '')
-      formData.append('content', form.content || '')
+      formData.append('content', form.approvedBy || form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
+      formData.append('approved_by', form.approvedBy || '')
+      formData.append('uploadedBy', form.uploadedBy || 'Dimas (HIA)')
+      formData.append('uploaded_by', form.uploadedBy || 'Dimas (HIA)')
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
@@ -447,8 +464,8 @@ export const useCharterStore = defineStore('charter', () => {
     form.version = charter.version
     form.content = charter.content && charter.content !== '-' ? charter.content : ''
     form.date = charter.date
-    form.uploadedBy = charter.uploadedBy
-    form.approvedBy = charter.approvedBy
+    form.uploadedBy = charter.uploadedBy && charter.uploadedBy !== '-' ? charter.uploadedBy : 'Dimas (HIA)'
+    form.approvedBy = charter.approvedBy && charter.approvedBy !== '-' ? charter.approvedBy : ''
     form.isActive = charter.isActive
     form.file = null // Reset file input karena file tidak wajib diisi saat edit
     form.fileName = charter.fileName || ''

@@ -65,9 +65,21 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 	if contentType == "multipart/form-data" {
 		title := c.PostForm("title")
 		version := c.PostForm("version")
-		content := c.PostForm("approvedBy")
+		approvedBy := c.PostForm("approvedBy")
+		if approvedBy == "" {
+			approvedBy = c.PostForm("approved_by")
+		}
+		uploadedBy := c.PostForm("uploadedBy")
+		if uploadedBy == "" {
+			uploadedBy = c.PostForm("uploaded_by")
+		}
+		if uploadedBy == "" {
+			uploadedBy = "Dimas (HIA)"
+		}
+		date := c.PostForm("date")
+		content := c.PostForm("content")
 		if content == "" {
-			content = c.PostForm("approved_by")
+			content = approvedBy
 		}
 		isActiveStr := c.PostForm("isActive")
 		if isActiveStr == "" {
@@ -98,6 +110,9 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 		req.Title = title
 		req.Version = version
 		req.Content = content
+		req.ApprovedBy = approvedBy
+		req.UploadedBy = uploadedBy
+		req.Date = date
 		req.IsActive = &isActive
 	} else {
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -138,9 +153,18 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 	contentType := c.ContentType()
 	if contentType == "multipart/form-data" {
 		title := c.PostForm("title")
-		content := c.PostForm("approvedBy")
-		if content == "" {
-			content = c.PostForm("approved_by")
+		approvedBy := c.PostForm("approvedBy")
+		if approvedBy == "" {
+			approvedBy = c.PostForm("approved_by")
+		}
+		uploadedBy := c.PostForm("uploadedBy")
+		if uploadedBy == "" {
+			uploadedBy = c.PostForm("uploaded_by")
+		}
+		date := c.PostForm("date")
+		content := c.PostForm("content")
+		if content == "" && approvedBy != "" {
+			content = approvedBy
 		}
 		isActiveStr := c.PostForm("isActive")
 		if isActiveStr == "" {
@@ -150,6 +174,9 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 
 		req.Title = &title
 		req.Content = &content
+		req.ApprovedBy = &approvedBy
+		req.UploadedBy = &uploadedBy
+		req.Date = &date
 		req.IsActive = &isActive
 
 		// Process optional file upload

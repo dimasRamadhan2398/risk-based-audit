@@ -188,15 +188,6 @@
               />
             </div>
           </template>
-          <template #content-cell="{ row }">
-            <div class="font-normal text-[var(--text-muted)] text-sm break-words whitespace-normal leading-relaxed min-w-0">
-              <ReadMoreText
-                :text="row.original.content || '-'"
-                :max-length="75"
-                text-class="text-[var(--text-muted)] text-sm"
-              />
-            </div>
-          </template>
           <template #date-cell="{ row }">
             <span class="font-medium text-[var(--text-main)] whitespace-nowrap">{{
               row.original.date
@@ -275,7 +266,6 @@ const { canManageCharter } = useRbac()
 const columns = computed(() => [
   { accessorKey: 'version', header: t('auditCharter.card.columns.version'), class: 'w-16 whitespace-nowrap text-center' },
   { accessorKey: 'title', header: t('auditCharter.card.columns.title'), class: 'w-48' },
-  { accessorKey: 'content', header: t('auditCharter.card.columns.content'), class: 'w-48' },
   { accessorKey: 'date', header: t('auditCharter.card.columns.date'), class: 'w-28 whitespace-nowrap' },
   { accessorKey: 'approvedBy', header: t('auditCharter.card.columns.approvedBy'), class: 'w-36' },
   { accessorKey: 'uploadedBy', header: t('auditCharter.card.columns.uploadedBy'), class: 'w-36' },
