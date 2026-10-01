@@ -109,15 +109,29 @@
 
       <!-- Search and Filters -->
       <div class="mb-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="w-full md:w-80">
-          <UInput
-            v-model="searchQuery"
-            icon="i-lucide-search"
-            :placeholder="t('executiveSummary.searchPlaceholder')"
-            class="w-full"
-          />
+        <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto flex-1">
+          <div class="w-full md:w-80">
+            <USelectMenu
+              v-model="selectedAssignmentLetter"
+              :items="assignmentLetterOptions"
+              placeholder="Filter berdasarkan Surat Tugas..."
+              class="w-full"
+            >
+              <template #leading>
+                <UIcon name="i-heroicons-document-text" class="size-4 text-primary-500" />
+              </template>
+            </USelectMenu>
+          </div>
+          <div class="w-full md:w-80">
+            <UInput
+              v-model="searchQuery"
+              icon="i-lucide-search"
+              :placeholder="t('executiveSummary.searchPlaceholder')"
+              class="w-full"
+            />
+          </div>
         </div>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
+        <div class="text-sm text-gray-500 dark:text-gray-400 shrink-0">
           {{ t('executiveSummary.showingDocuments', { count: filteredSummaries.length }) }}
         </div>
       </div>
@@ -140,6 +154,10 @@
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummary.draftReport') }}</h3>
                   <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
                     Status: {{ item.status }}
+                  </UBadge>
+                  <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
+                    <UIcon name="i-lucide-file-signature" class="size-3 mr-1" />
+                    {{ item.assignmentLetterId }}
                   </UBadge>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -203,6 +221,23 @@
               <span class="italic line-clamp-2">{{ item.narrative }}</span>
             </div>
           </div>
+
+          <!-- Note dari Executive untuk Auditor (Hanya muncul jika diisi oleh Admin/CAE/Audit Manager) -->
+          <div v-if="item.executiveNote && item.executiveNote.trim()" class="px-5 pb-5 pt-0">
+            <div class="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3.5 flex items-start gap-3">
+              <div class="p-1.5 bg-amber-100 dark:bg-amber-900/60 rounded-lg text-amber-700 dark:text-amber-400 shrink-0 mt-0.5">
+                <UIcon name="i-lucide-message-square-text" class="size-4" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
+                  <span>Noted dari Executive untuk Auditor</span>
+                </div>
+                <p class="text-sm text-amber-900 dark:text-amber-200/90 whitespace-pre-line leading-relaxed">
+                  {{ item.executiveNote }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -249,10 +284,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useExecutiveSummaryStore } from '~/stores/executive-summary'
+import { useExecutiveSummaryStore, loadPersistedExecutiveSummaryOverrides } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { UserRole } from '~/types/auth'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import ExecutiveSummaryCompilationForm from '~/components/audit-result-report/ExecutiveSummaryCompilationForm.vue'
 
 definePageMeta({
@@ -262,9 +299,36 @@ definePageMeta({
 const { t } = useI18n()
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
+const assignmentLetterStore = useAssignmentLetterStore()
+const auditReportStore = useAuditResultReportStore()
 
 const activeQuarter = ref(1)
 const searchQuery = ref('')
+const selectedAssignmentLetter = ref('')
+
+const assignmentLetterOptions = computed(() => {
+  const lettersFromStore = assignmentLetterStore.assignmentLetterList
+    .map((st: any) => st.letterNumber)
+    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+  const lettersFromReports = auditReportStore.reportList
+    .map((r: any) => r.assignmentLetterId)
+    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+  const lettersFromSummaries = store.summaryList
+    .map((s: any) => s.assignmentLetterId)
+    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+
+  const combined = Array.from(new Set([
+    'ST-001/SKAI/2026',
+    ...lettersFromStore, 
+    ...lettersFromReports, 
+    ...lettersFromSummaries,
+    'ST-002/SKAI/2026', 
+    'ST-003/SKAI/2026', 
+    'ST-004/SKAI/2026', 
+    'ST-005/SKAI/2026'
+  ]))
+  return ['All Assignment Letters', ...combined]
+})
 
 const totalHandling = computed(() => {
   return store.summaryList.reduce((total, summary) => {
@@ -294,15 +358,56 @@ const getStatusColor = (status: string) => {
 }
 
 const filteredSummaries = computed(() => {
-  return store.summaryList.filter(s => {
+  const overrides = loadPersistedExecutiveSummaryOverrides()
+  const rawSummaries = store.summaryList.filter(s => 
+    s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' &&
+    s.nomorDokumen !== '020/LHA/01/KS IAD/2023' &&
+    s.nomorDokumen !== '019/LHA/01/KS IAD/2025'
+  )
+
+  const docMap = new Map<string, ExecutiveSummary>()
+  rawSummaries.forEach(s => {
+    const override = overrides[s.nomorDokumen] || overrides[s.id]
+    const updated = override ? { ...s, ...override } : { ...s }
+    if (updated.nomorDokumen) {
+      docMap.set(updated.nomorDokumen, updated)
+    }
+  })
+
+  const summaries = Array.from(docMap.values()).map(updated => {
+    // Synchronize jumlahLaporan with individual LHAs count matching quarter or assignment letter
+    const matchingIndividualLhas = auditReportStore.reportList.filter(r => {
+      if (r.reportNumber === '020/LHA/01/KS IAD/2023' || r.reportNumber === '019/LHA/01/KS IAD/2025') return false
+      if (updated.assignmentLetterId && r.assignmentLetterId === updated.assignmentLetterId) return true
+      const dateParts = r.reportDate ? r.reportDate.split('-') : []
+      const m = parseInt(dateParts[1] || '0')
+      const q = m <= 3 ? 1 : m <= 6 ? 2 : m <= 9 ? 3 : 4
+      return q === updated.quarter
+    })
+
+    if (matchingIndividualLhas.length > 0 && (!updated.jumlahLaporan || updated.jumlahLaporan <= 1)) {
+      updated.jumlahLaporan = matchingIndividualLhas.length
+      const totalRecs = matchingIndividualLhas.reduce((sum, r) => sum + (r.findingsCount || r.findings?.length || 1), 0)
+      if (!updated.jumlahRekomendasi) updated.jumlahRekomendasi = totalRecs
+    }
+
+    return updated
+  })
+
+  return summaries.filter(s => {
     const qMatches = s.quarter === activeQuarter.value
+    const stMatches = !selectedAssignmentLetter.value ||
+      selectedAssignmentLetter.value === 'All Assignment Letters' ||
+      s.assignmentLetterId === selectedAssignmentLetter.value
+
     const searchLower = searchQuery.value.toLowerCase()
     const matchesSearch = !searchQuery.value ||
       s.nomorDokumen.toLowerCase().includes(searchLower) ||
+      (s.assignmentLetterId && s.assignmentLetterId.toLowerCase().includes(searchLower)) ||
       `kuartal ${s.quarter}`.includes(searchLower) ||
       String(s.tahun).includes(searchLower)
     
-    return qMatches && matchesSearch
+    return qMatches && stMatches && matchesSearch
   })
 })
 </script>

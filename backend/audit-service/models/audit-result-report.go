@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -116,6 +117,37 @@ func (r *AuditResultReport) UnmarshalJSON(data []byte) error {
 		r.ReportDate = nil
 	}
 
+	return nil
+}
+
+func (r *AuditResultReport) BeforeCreate(tx *gorm.DB) error {
+	if strings.TrimSpace(r.ReportNumber) == "" {
+		year := time.Now().Year()
+		month := int(time.Now().Month())
+		if r.ReportDate != nil {
+			year = r.ReportDate.Year()
+			month = int(r.ReportDate.Month())
+		}
+
+		var reports []AuditResultReport
+		tx.Model(&AuditResultReport{}).Unscoped().Select("report_number").Find(&reports)
+
+		maxSeq := 20
+		prefix := "/LHA/"
+		for _, rep := range reports {
+			numStr := strings.TrimSpace(rep.ReportNumber)
+			if strings.Contains(numStr, prefix) {
+				parts := strings.Split(numStr, "/")
+				if len(parts) > 0 {
+					var seq int
+					if _, err := fmt.Sscanf(parts[0], "%d", &seq); err == nil && seq > maxSeq {
+						maxSeq = seq
+					}
+				}
+			}
+		}
+		r.ReportNumber = fmt.Sprintf("%03d/LHA/%02d/KS IAD/%d", maxSeq+1, month, year)
+	}
 	return nil
 }
 

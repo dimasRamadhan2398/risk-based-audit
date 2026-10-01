@@ -18,10 +18,15 @@
         >
         <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
           <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-              <UIcon :name="store.editingId ? 'i-heroicons-pencil-square' : 'i-heroicons-document-plus'" class="w-6 h-6 text-orange-500" />
-              {{ store.editingId ? 'Edit Assignment Letter' : 'Add Assignment Letter' }}
-            </h2>
+            <div>
+              <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                <UIcon :name="store.editingId ? 'i-heroicons-pencil-square' : 'i-heroicons-document-plus'" class="w-6 h-6 text-orange-500" />
+                {{ store.editingId ? 'Edit Assignment Letter' : 'Add Assignment Letter' }}
+              </h2>
+              <p class="text-xs text-gray-500 mt-1">
+                Nomor Surat Tugas: <span class="font-mono font-semibold text-orange-600 dark:text-orange-400">{{ store.editingId ? (store.assignmentLetterList.find(l => l.id === store.editingId)?.letterNumber || store.generateNomorSurat(store.form.auditTeam, store.form.auditYear)) : store.generateNomorSurat(store.form.auditTeam, store.form.auditYear) }}</span>
+              </p>
+            </div>
             <UIcon name="i-heroicons-x-mark" @click="store.closeModal" size="xl" class="cursor-pointer" />
           </div>
 

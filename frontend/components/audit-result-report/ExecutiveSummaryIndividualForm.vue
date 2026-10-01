@@ -52,7 +52,7 @@
             <p class="text-sm text-gray-400">Detail identitas laporan kompilasi dan unggahan dokumen resmi.</p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="w-full">
             <UFormField label="Pilih LHA / ID Laporan Hasil Audit">
               <USelectMenu
                 v-model="selectedLhaId"
@@ -63,15 +63,32 @@
                 @update:modelValue="onLhaSelect"
               />
             </UFormField>
+          </div>
 
-            <UFormField label="Nomor Dokumen Internal (ID LHA)" required>
-              <UInput
-                v-model="store.form.nomorDokumen"
-                placeholder="Contoh: 021/LHA/01/KS IAD/2026"
-                class="w-full font-mono text-sm"
-                disabled
-              />
-            </UFormField>
+          <!-- Assignment Letter Linked Context Card -->
+          <div v-if="linkedAssignmentLetter" class="bg-primary-50/60 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-800/60 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-400 rounded-lg">
+                <UIcon name="i-lucide-file-signature" class="size-5" />
+              </div>
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-2">
+                  <span>Surat Tugas: {{ linkedAssignmentLetter.letterNumber }}</span>
+                  <UBadge color="primary" variant="subtle" size="xs">{{ linkedAssignmentLetter.status || 'Published' }}</UBadge>
+                </div>
+                <div class="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
+                  {{ linkedAssignmentLetter.auditTitle }}
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+              <div v-if="linkedAssignmentLetter.leader">
+                <span class="text-gray-400">Ketua Tim:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.leader }}</span>
+              </div>
+              <div v-if="linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear">
+                <span class="text-gray-400">Periode:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear }}</span>
+              </div>
+            </div>
           </div>
 
           <!-- Document Upload Field -->
@@ -211,15 +228,26 @@
                 </h2>
                 <p class="text-sm text-gray-400">Matriks temuan kritikal terpenting yang butuh eskalasi/tindakan jajaran direksi.</p>
               </div>
-              <UButton
-                v-if="!isLocked && store.form.topFindings.length < 5"
-                color="primary"
-                variant="soft"
-                icon="i-lucide-plus-circle"
-                label="Tambah Temuan"
-                size="sm"
-                @click="addTopFinding"
-              />
+              <div class="flex items-center gap-2">
+                <UButton
+                  v-if="!isLocked"
+                  color="neutral"
+                  variant="outline"
+                  icon="i-lucide-refresh-cw"
+                  label="Sinkronkan Temuan dari LHA"
+                  size="sm"
+                  @click="syncFindingsFromLha()"
+                />
+                <UButton
+                  v-if="!isLocked && store.form.topFindings.length < 5"
+                  color="primary"
+                  variant="soft"
+                  icon="i-lucide-plus-circle"
+                  label="Tambah Temuan"
+                  size="sm"
+                  @click="addTopFinding"
+                />
+              </div>
             </div>
           </div>
 
@@ -305,11 +333,22 @@
 
         <!-- 6. Qualitative Analysis (Section V & VII) -->
         <section id="sec-analysis" class="space-y-6 scroll-mt-6">
-          <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
-            <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-              <span class="text-primary-500">VI.</span> Section V & VII: Analisis Temuan Berulang & Kesimpulan
-            </h2>
-            <p class="text-sm text-gray-400">Deskripsi tema berulang, akar masalah, dan usulan task force atau arah kebijakan manajemen.</p>
+          <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                <span class="text-primary-500">VI.</span> Section V & VII: Analisis Temuan Berulang & Kesimpulan
+              </h2>
+              <p class="text-sm text-gray-400">Deskripsi tema berulang, akar masalah, dan usulan task force atau arah kebijakan manajemen.</p>
+            </div>
+            <UButton
+              v-if="!isLocked"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide-refresh-cw"
+              label="Sinkronkan Analisis dari LHA"
+              size="sm"
+              @click="syncFindingsFromLha()"
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -403,7 +442,7 @@
           <UFormField label="Noted">
             <UTextarea
               v-model="store.form.executiveNote"
-              placeholder="Tuliskan catatan untuk Auditor..."
+              :placeholder="canWriteExecutiveNote ? 'Tuliskan catatan untuk Auditor...' : (store.form.executiveNote ? '' : 'Belum ada catatan dari Executive.')"
               :rows="5"
               class="w-full"
               :disabled="!canWriteExecutiveNote"
@@ -456,7 +495,7 @@
         <!-- Locked/Unlocked Overrides -->
         <template v-else>
           <UButton
-            v-if="store.form.status === 'Draft' && isChiefAuditExecutive"
+            v-if="isDraft && canApprove"
             color="success"
             variant="solid"
             icon="i-lucide-check"
@@ -475,9 +514,11 @@
 import { ref, computed } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
+import { useRbac } from '~/composables/useRbac'
 import { UserRole } from '~/types/auth'
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
+const { canReviewExecutiveSummary } = useRbac()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
@@ -496,16 +537,15 @@ const sections = computed(() => [
 // Dropdown options
 const divisionOptions = ['OP', 'KK/KSD', 'IT', 'FIN', 'HR', 'LEG']
 
-// Role computed checks
-const isChiefAuditExecutive = computed(() => {
-  return authStore.user?.roles.includes(UserRole.CHIEF_AUDIT_EXECUTIVE) || authStore.user?.roles.includes(UserRole.ADMIN)
-})
+// Role computed checks: Admin, CAE, and Audit Manager can write note & approve draft
+const canWriteExecutiveNote = computed(() => Boolean(canReviewExecutiveSummary.value))
+const canApprove = computed(() => Boolean(canReviewExecutiveSummary.value))
+const isChiefAuditExecutive = computed(() => Boolean(canReviewExecutiveSummary.value))
+const isDraft = computed(() => String(store.form.status || '').toLowerCase() === 'draft')
 
 const isLocked = computed(() => {
   return store.form.status === 'Approved'
 })
-
-const canWriteExecutiveNote = computed(() => Boolean(isChiefAuditExecutive.value))
 
 // Section III computed auto-sums
 const totalFollowUpCount = computed(() => {
@@ -629,39 +669,218 @@ const onScroll = () => {
   }
 }
 
-// LHA Result Reports Store Integration for 2-Way Sync
+// Assignment Letter & LHA Stores Integration for 2-Way Sync
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 const auditReportStore = useAuditResultReportStore()
+const assignmentLetterStore = useAssignmentLetterStore()
+
 if (!auditReportStore.loading && auditReportStore.reportList.length === 0) {
   auditReportStore.fetchReports()
 }
 
+const assignmentLetterDropdownOptions = computed(() => {
+  const lettersFromStore = assignmentLetterStore.assignmentLetterList
+    .filter((st: any) => st.letterNumber && st.letterNumber.startsWith('ST-') && st.letterNumber.includes('2026'))
+    .map((st: any) => ({
+      label: `${st.letterNumber} - ${st.auditTitle || ''}`,
+      value: st.letterNumber,
+      letter: st
+    }))
+  const uniqueNumbers = new Set(lettersFromStore.map(l => l.value))
+  
+  auditReportStore.reportList.forEach(r => {
+    if (r.assignmentLetterId && r.assignmentLetterId.startsWith('ST-') && r.assignmentLetterId.includes('2026') && !uniqueNumbers.has(r.assignmentLetterId)) {
+      uniqueNumbers.add(r.assignmentLetterId)
+      lettersFromStore.push({
+        label: `${r.assignmentLetterId} - ${r.reportTitle || ''}`,
+        value: r.assignmentLetterId,
+        letter: { letterNumber: r.assignmentLetterId, auditTitle: r.reportTitle, leader: 'Lead Auditor' } as any
+      })
+    }
+  })
+
+  // Ensure default known letters strictly format ST-XXX/SKAI/2026
+  const defaults = ['ST-001/SKAI/2026', 'ST-002/SKAI/2026', 'ST-003/SKAI/2026', 'ST-004/SKAI/2026', 'ST-005/SKAI/2026']
+  defaults.forEach(defNum => {
+    if (!uniqueNumbers.has(defNum)) {
+      uniqueNumbers.add(defNum)
+      lettersFromStore.push({
+        label: defNum,
+        value: defNum,
+        letter: { letterNumber: defNum, auditTitle: 'Audit Penugasan', leader: 'Head of SKAI' } as any
+      })
+    }
+  })
+
+  return lettersFromStore
+})
+
+interface AssignmentLetterDropdownItem {
+  label: string
+  value: string
+  letter: any
+}
+
+const selectedAssignmentLetter = ref<AssignmentLetterDropdownItem | undefined>(
+  assignmentLetterDropdownOptions.value.find(o => o.value === (store.form.assignmentLetterId || 'ST-001/SKAI/2026')) ||
+  assignmentLetterDropdownOptions.value[0]
+)
+
+const linkedAssignmentLetter = computed(() => {
+  const stNum = selectedAssignmentLetter.value?.value || store.form.assignmentLetterId || 'ST-001/SKAI/2026'
+
+  if (!stNum) return null
+  return (assignmentLetterStore.assignmentLetterList.find(st => st.letterNumber === stNum) as any) || {
+    letterNumber: stNum,
+    auditTitle: store.form.narrative ? store.form.narrative.slice(0, 70) + '...' : 'Penugasan Audit SPI',
+    status: 'Published' as any,
+    leader: 'Head of SKAI',
+    executionPeriod: `${store.form.periodeBulan} ${store.form.tahun}`,
+    auditYear: String(store.form.tahun || new Date().getFullYear())
+  }
+})
+
 const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any }>> = computed(() => {
-  return auditReportStore.reportList.map(r => ({
-    label: `${r.reportNumber || (r as any).report_number} - ${r.reportTitle}`,
-    value: r.reportNumber || (r as any).report_number,
-    report: r
-  }))
+  return auditReportStore.reportList
+    .filter(r => {
+      const num = r.reportNumber || (r as any).report_number
+      return num && num !== 'DOC-EXSUM-Q1-2026' && num !== '020/LHA/01/KS IAD/2023' && num !== '019/LHA/01/KS IAD/2025'
+    })
+    .map(r => ({
+      label: `${r.reportNumber || (r as any).report_number} - ${r.reportTitle}`,
+      value: r.reportNumber || (r as any).report_number,
+      report: r
+    }))
 })
 
 const selectedLhaId = ref<{ label: string; value: string; report: any } | undefined>(
   lhaDropdownOptions.value.find(o => o.value === store.form.nomorDokumen)
 )
 
+const onAssignmentLetterSelect = (val: any) => {
+  if (!val) return
+  const selectedNum = typeof val === 'object' ? val.value : val
+  store.form.assignmentLetterId = selectedNum
+  const found = assignmentLetterDropdownOptions.value.find(o => o.value === selectedNum)
+  if (found) {
+    selectedAssignmentLetter.value = found
+  }
+
+  // Auto-find and link corresponding LHA if exists
+  const matchingLha = auditReportStore.reportList.find(r => r.assignmentLetterId === selectedNum)
+  if (matchingLha) {
+    onLhaSelect(matchingLha.reportNumber)
+  }
+}
+
+const syncFindingsFromLha = (lhaItem?: any) => {
+  const targetDoc = typeof selectedLhaId.value === 'object'
+    ? (selectedLhaId.value as any)?.value
+    : (selectedLhaId.value || store.form.nomorDokumen)
+
+  const item = lhaItem || auditReportStore.reportList.find(r => 
+    (r.reportNumber || (r as any).report_number) === targetDoc
+  )
+  if (!item) return
+
+  store.form.nomorDokumen = item.reportNumber || (item as any).report_number
+  if (item.assignmentLetterId) {
+    store.form.assignmentLetterId = item.assignmentLetterId
+    const found = assignmentLetterDropdownOptions.value.find(o => o.value === item.assignmentLetterId)
+    if (found) selectedAssignmentLetter.value = found
+  }
+  if (item.executiveSummary) {
+    store.form.narrative = item.executiveSummary
+  }
+
+  const findings = item.findings || []
+  if (findings.length > 0) {
+    store.form.topFindings = findings.slice(0, 5).map((f: any) => {
+      let div = item.department || 'OP'
+      if (item.reportTitle?.includes('Keuangan')) div = 'FIN'
+      else if (item.reportTitle?.includes('Sistem') || item.reportTitle?.includes('ERP') || item.reportTitle?.includes('TI')) div = 'IT'
+      else if (item.reportTitle?.includes('SDM') || item.reportTitle?.includes('Payroll')) div = 'HR'
+      else if (item.reportTitle?.includes('Procurement') || item.reportTitle?.includes('SCM')) div = 'KK/KSD'
+
+      let risiko: 'Tinggi' | 'Sedang' | 'Rendah' = 'Tinggi'
+      if (f.category === 'Very Significant' || f.category === 'Significant') risiko = 'Tinggi'
+      else if (f.category === 'Quite Significant') risiko = 'Sedang'
+      else if (f.category === 'Not Significant') risiko = 'Rendah'
+
+      return {
+        unitDivision: div,
+        judulTemuan: f.title || f.finding || '',
+        risiko,
+        statusTL: 'In Progress',
+        usulan: f.action || f.recommendation || 'Perbaikan SOP dan Kontrol Pengendalian Internal'
+      }
+    })
+
+    store.form.risikoTinggi = findings.filter((f: any) => ['Very Significant', 'Significant'].includes(f.category)).length
+    store.form.risikoSedang = findings.filter((f: any) => f.category === 'Quite Significant').length
+    store.form.risikoRendah = findings.filter((f: any) => f.category === 'Not Significant').length
+  }
+
+  if (item.findingsCount) {
+    store.form.jumlahRekomendasi = item.findingsCount
+  } else if (findings.length > 0) {
+    store.form.jumlahRekomendasi = findings.length
+  }
+
+  // Section V & VII: Analisis Temuan Berulang & Kesimpulan
+  if ((item as any).findingSummary || (item as any).finding_summary) {
+    store.form.akarMasalah = (item as any).findingSummary || (item as any).finding_summary
+  } else if (findings.length > 0) {
+    store.form.akarMasalah = `Analisis temuan berulang mengidentifikasi kelemahan pada kepatuhan SOP dan monitoring: ${findings.slice(0, 2).map((f: any) => f.title).join('; ')}.`
+  }
+
+  if ((item as any).conclusion) {
+    store.form.kesimpulan = (item as any).conclusion
+  } else if (!store.form.kesimpulan && item.reportTitle) {
+    store.form.kesimpulan = `Tata kelola dan pengendalian internal pada ${item.reportTitle} berjalan cukup memadai dengan prioritas penyelesaian rekomendasi temuan signifikan.`
+  }
+
+  selectedLhaId.value = lhaDropdownOptions.value.find(o => o.value === store.form.nomorDokumen)
+}
+
 const onLhaSelect = (val: any) => {
   if (!val) return
   const selectedNum = typeof val === 'object' ? val.value : val
   const item = auditReportStore.reportList.find(r => (r.reportNumber || (r as any).report_number) === selectedNum)
   if (item) {
-    store.form.nomorDokumen = item.reportNumber || (item as any).report_number
-    if (item.executiveSummary) {
-      store.form.narrative = item.executiveSummary
-    }
-    if (item.findingsCount) {
-      store.form.jumlahRekomendasi = item.findingsCount
-    }
+    syncFindingsFromLha(item)
   }
 }
+
+// Watch initial state when opening form
+watch(() => store.form.assignmentLetterId, (newVal) => {
+  if (newVal && selectedAssignmentLetter.value?.value !== newVal) {
+    const found = assignmentLetterDropdownOptions.value.find(o => o.value === newVal)
+    if (found) selectedAssignmentLetter.value = found
+  }
+}, { immediate: true })
+
+watch(() => store.form.nomorDokumen, (newDoc) => {
+  if (newDoc) {
+    selectedLhaId.value = lhaDropdownOptions.value.find(o => o.value === newDoc)
+    if (!store.form.assignmentLetterId) {
+      const match = auditReportStore.reportList.find(r => r.reportNumber === newDoc)
+      if (match && match.assignmentLetterId) {
+        store.form.assignmentLetterId = match.assignmentLetterId
+        const found = assignmentLetterDropdownOptions.value.find(o => o.value === match.assignmentLetterId)
+        if (found) selectedAssignmentLetter.value = found
+      }
+    }
+    // If findings are empty, auto-sync from LHA
+    if (store.form.topFindings.length === 0) {
+      const match = auditReportStore.reportList.find(r => r.reportNumber === newDoc)
+      if (match) {
+        syncFindingsFromLha(match)
+      }
+    }
+  }
+}, { immediate: true })
 
 </script>

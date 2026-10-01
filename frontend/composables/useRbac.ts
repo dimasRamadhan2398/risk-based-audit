@@ -8,34 +8,100 @@ import { UserRole } from '~/types/auth'
 export const useRbac = () => {
   const authStore = useAuthStore()
 
+  const cleanStr = (r: string | UserRole) => String(r || '').toLowerCase().replace(/[\s_-]+/g, '')
   const normalize = (r: string | UserRole) => String(r || '').toLowerCase().trim()
+
+  const getUserRoles = (): string[] => {
+    let u: any = authStore.user
+    if (!u) {
+      try {
+        const userCookie = useCookie<any>('auth-user')
+        if (userCookie.value) {
+          u = typeof userCookie.value === 'string' ? JSON.parse(userCookie.value) : userCookie.value
+        }
+      } catch {}
+      if (!u && typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('auth-user') || localStorage.getItem('user')
+          if (stored) u = JSON.parse(stored)
+        } catch {}
+      }
+    }
+    if (!u) return []
+
+    const roles: string[] = []
+    if (Array.isArray(u.roles)) roles.push(...u.roles)
+    if (u.role) roles.push(u.role)
+    if (u.position) roles.push(u.position)
+    return roles
+  }
+
+  const matchesRole = (userRole: string, targetRole: string): boolean => {
+    const u = cleanStr(userRole)
+    const t = cleanStr(targetRole)
+    if (!u || !t) return false
+    if (u === t) return true
+
+    // CAE / Chief Audit Executive / Executive
+    const caeAliases = ['chiefauditexecutive', 'cae', 'executive', 'kepalaspi', 'headofskai']
+    if (caeAliases.includes(t) && caeAliases.includes(u)) return true
+
+    // Admin
+    const adminAliases = ['admin', 'superadmin', 'administrator']
+    if (adminAliases.includes(t) && adminAliases.includes(u)) return true
+
+    // Audit Manager
+    const managerAliases = ['auditmanager', 'manager', 'manageraudit']
+    if (managerAliases.includes(t) && managerAliases.includes(u)) return true
+
+    // Auditor
+    const auditorAliases = ['auditor', 'auditstaff', 'staffaudit', 'leadauditor']
+    if (auditorAliases.includes(t) && auditorAliases.includes(u)) return true
+
+    return false
+  }
 
   /**
    * Check if the current user has a specific role (case-insensitive).
    */
   const hasRole = (role: UserRole | string): boolean => {
-    if (!authStore.user?.roles || !Array.isArray(authStore.user.roles)) return false
-    const target = normalize(role)
-    return authStore.user.roles.some(r => normalize(r) === target)
+    const userRoles = getUserRoles()
+    if (!userRoles.length) return false
+    return userRoles.some(r => matchesRole(r, role))
   }
 
   /**
    * Check if the current user has any of the provided roles (case-insensitive).
    */
   const hasAnyRole = (roles: (UserRole | string)[]): boolean => {
-    if (!authStore.user?.roles || !Array.isArray(authStore.user.roles)) return false
-    const targets = roles.map(normalize)
-    return authStore.user.roles.some(r => targets.includes(normalize(r)))
+    const userRoles = getUserRoles()
+    if (!userRoles.length) return false
+    return roles.some(target => userRoles.some(r => matchesRole(r, target)))
   }
 
   /**
    * Check if the current user has all of the provided roles (case-insensitive).
    */
   const hasAllRoles = (roles: (UserRole | string)[]): boolean => {
-    if (!authStore.user?.roles || !Array.isArray(authStore.user.roles)) return false
-    const userRoles = authStore.user.roles.map(normalize)
-    return roles.every(role => userRoles.includes(normalize(role)))
+    const userRoles = getUserRoles()
+    if (!userRoles.length) return false
+    return userRoles.every(target => userRoles.some(r => matchesRole(r, target)))
   }
+
+  /**
+   * Check if current user is Admin, CAE, or Audit Manager for Executive Summary
+   */
+  const canReviewExecutiveSummary = computed(() => hasAnyRole([
+    UserRole.ADMIN,
+    UserRole.CHIEF_AUDIT_EXECUTIVE,
+    UserRole.AUDIT_MANAGER,
+    'admin',
+    'chief_audit_executive',
+    'audit_manager',
+    'cae',
+    'executive',
+    'head_of_skai',
+  ]))
 
   /**
    * Check if the current user is an admin.
@@ -128,6 +194,7 @@ export const useRbac = () => {
     canManageAnnualPlan,
     canManageAssignmentLetter,
     canImportPlanDocs,
+    canReviewExecutiveSummary,
     primaryRole,
   }
 }

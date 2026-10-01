@@ -55,7 +55,7 @@
     <!-- Main Content -->
     <div v-if="store.hasSelectedAssignmentLetter">
       <UCard v-if="store.filteredReports.length > 0" class="overflow-hidden overflow-x-auto">
-        <TableEntities :data="store.filteredReports" :columns="columns">
+        <UTable :data="store.filteredReports" :columns="columns">
           <template #reportNumber-cell="{ row }">
             <span class="font-mono text-md font-semibold text-primary-600 dark:text-primary-400">
               {{ row.original.reportNumber || (row.original as any).report_number || '-' }}
@@ -175,7 +175,7 @@
               </UTooltip>
             </div>
           </template>
-        </TableEntities>
+        </UTable>
       </UCard>
 
       <div v-else class="text-center py-16 bg-gray-50 dark:bg-gray-850/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800">
@@ -230,7 +230,7 @@ const columns = [
   { accessorKey: 'findingsCount', header: 'Findings' },
   { accessorKey: 'category', header: 'Category' },
   { accessorKey: 'listOfFinding', header: 'List of Finding' },
-  { accessorKey: 'action', header: 'Action' },
+  { accessorKey: 'action', header: 'Action Plan' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'actions', header: '' }
 ]

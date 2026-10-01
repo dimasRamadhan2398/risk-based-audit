@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -106,6 +107,43 @@ func (a *AssignmentLetter) UnmarshalJSON(data []byte) error {
 		a.LetterDate = nil
 	}
 
+	return nil
+}
+
+func (a *AssignmentLetter) BeforeCreate(tx *gorm.DB) error {
+	if strings.TrimSpace(a.LetterNumber) == "" {
+		year := strings.TrimSpace(a.AuditYear)
+		if len(year) > 4 {
+			year = year[:4]
+		}
+		if year == "" {
+			year = fmt.Sprintf("%d", time.Now().Year())
+		}
+		team := strings.TrimSpace(a.AuditTeam)
+		if team == "" {
+			team = "SKAI"
+		}
+
+		var letters []AssignmentLetter
+		tx.Model(&AssignmentLetter{}).Unscoped().Select("letter_number").Find(&letters)
+
+		maxSeq := 0
+		prefix := "ST-"
+		for _, l := range letters {
+			numStr := strings.ToUpper(strings.TrimSpace(l.LetterNumber))
+			if strings.HasPrefix(numStr, prefix) {
+				parts := strings.Split(numStr, "/")
+				if len(parts) > 0 {
+					var seq int
+					numPart := strings.TrimPrefix(parts[0], prefix)
+					if _, err := fmt.Sscanf(numPart, "%d", &seq); err == nil && seq > maxSeq {
+						maxSeq = seq
+					}
+				}
+			}
+		}
+		a.LetterNumber = fmt.Sprintf("ST-%03d/%s/%s", maxSeq+1, strings.ToUpper(team), year)
+	}
 	return nil
 }
 

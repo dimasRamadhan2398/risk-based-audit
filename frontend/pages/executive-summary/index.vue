@@ -210,6 +210,23 @@
               </div>
             </div>
           </div>
+
+          <!-- Note dari Executive untuk Auditor (Hanya muncul jika diisi oleh Admin/CAE/Audit Manager) -->
+          <div v-if="item.executiveNote && item.executiveNote.trim()" class="px-5 pb-5 pt-0">
+            <div class="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3.5 flex items-start gap-3">
+              <div class="p-1.5 bg-amber-100 dark:bg-amber-900/60 rounded-lg text-amber-700 dark:text-amber-400 shrink-0 mt-0.5">
+                <UIcon name="i-lucide-message-square-text" class="size-4" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
+                  <span>Noted dari Executive untuk Auditor</span>
+                </div>
+                <p class="text-sm text-amber-900 dark:text-amber-200/90 whitespace-pre-line leading-relaxed">
+                  {{ item.executiveNote }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -284,7 +301,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useExecutiveSummaryStore, type ExecutiveSummary } from '~/stores/executive-summary'
+import { useExecutiveSummaryStore, loadPersistedExecutiveSummaryOverrides, type ExecutiveSummary } from '~/stores/executive-summary'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ExecutiveSummaryIndividualForm from '~/components/audit-result-report/ExecutiveSummaryIndividualForm.vue'
@@ -306,9 +323,26 @@ const totalHandling = computed(() => {
 })
 
 const assignmentLetterOptions = computed(() => {
-  const lettersFromStore = assignmentLetterStore.assignmentLetterList.map((st: any) => st.letterNumber)
-  const lettersFromReports = auditReportStore.reportList.map((r: any) => r.assignmentLetterId).filter(Boolean)
-  const combined = Array.from(new Set([...lettersFromStore, ...lettersFromReports, 'ST-001/SKAI/2026', 'ST-002/SKAI/2026', 'ST-003/SKAI/2026', '020/ST/01/KSIAD/2023']))
+  const lettersFromStore = assignmentLetterStore.assignmentLetterList
+    .map((st: any) => st.letterNumber)
+    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+  const lettersFromReports = auditReportStore.reportList
+    .map((r: any) => r.assignmentLetterId)
+    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+  const lettersFromSummaries = store.summaryList
+    .map((s: any) => s.assignmentLetterId)
+    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+
+  const combined = Array.from(new Set([
+    'ST-001/SKAI/2026',
+    ...lettersFromStore, 
+    ...lettersFromReports, 
+    ...lettersFromSummaries,
+    'ST-002/SKAI/2026', 
+    'ST-003/SKAI/2026', 
+    'ST-004/SKAI/2026', 
+    'ST-005/SKAI/2026'
+  ]))
   return ['All Assignment Letters', ...combined]
 })
 
@@ -324,45 +358,89 @@ if (!auditReportStore.loading) {
 const getMonthName = (mStr: string) => {
   const m = parseInt(mStr)
   const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-  return months[m - 1] || 'April'
+  return months[m - 1] || 'Januari'
 }
 
 // Synced list combining Executive Summaries and Result Reports LHA items
 const syncedSummaries = computed(() => {
-  const summaries: (ExecutiveSummary & { assignmentLetterId?: string })[] = JSON.parse(JSON.stringify(store.summaryList))
+  const overrides = loadPersistedExecutiveSummaryOverrides()
+  const rawList: (ExecutiveSummary & { assignmentLetterId?: string })[] = JSON.parse(JSON.stringify(store.summaryList))
 
+  // Filter out any dummy / non-standard legacy documents
+  const filteredRaw = rawList.filter(s => 
+    s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' &&
+    s.nomorDokumen !== '020/LHA/01/KS IAD/2023' &&
+    s.nomorDokumen !== '019/LHA/01/KS IAD/2025'
+  )
+
+  // Map to deduplicate strictly by nomorDokumen
+  const docMap = new Map<string, ExecutiveSummary & { assignmentLetterId?: string }>()
+
+  filteredRaw.forEach(s => {
+    const override = overrides[s.nomorDokumen] || overrides[s.id]
+    if (override) {
+      if (override.status) s.status = override.status as any
+      if (override.executiveNote !== undefined) s.executiveNote = override.executiveNote
+      if (override.assignmentLetterId) s.assignmentLetterId = override.assignmentLetterId
+    }
+    if (s.nomorDokumen) {
+      docMap.set(s.nomorDokumen, s)
+    }
+  })
+
+  // Synchronize with LHA items from auditReportStore
   auditReportStore.reportList.forEach(lha => {
     const lhaNum = lha.reportNumber || (lha as any).report_number
-    if (!lhaNum) return
+    if (!lhaNum || lhaNum === 'DOC-EXSUM-Q1-2026' || lhaNum === '020/LHA/01/KS IAD/2023' || lhaNum === '019/LHA/01/KS IAD/2025') return
 
-    const existingIndex = summaries.findIndex(s => s.nomorDokumen === (lhaNum || ''))
-    if (existingIndex >= 0) {
-      const existing = summaries[existingIndex]
-      if (!existing) return
-      existing.assignmentLetterId = lha.assignmentLetterId
-      // Keep narrative and findingsCount in sync with LHA
+    if (docMap.has(lhaNum)) {
+      const existing = docMap.get(lhaNum)!
+      if (lha.assignmentLetterId && (!existing.assignmentLetterId || !existing.assignmentLetterId.startsWith('ST-'))) {
+        existing.assignmentLetterId = lha.assignmentLetterId
+      }
       if (lha.executiveSummary && (!existing.narrative || existing.narrative.startsWith('Executive Summary Individual untuk'))) {
         existing.narrative = lha.executiveSummary
       }
       if (lha.findingsCount && existing.jumlahRekomendasi === 0 && lha.findingsCount > 0) {
         existing.jumlahRekomendasi = lha.findingsCount
       }
+      const override = overrides[lhaNum] || overrides[existing.id]
+      if (override?.executiveNote !== undefined) {
+        existing.executiveNote = override.executiveNote
+      }
+      if (override?.status) {
+        existing.status = override.status as any
+      }
     } else {
       if (!store.deletedDocNumbers.includes(lhaNum)) {
-        // Automatically add synced Executive Summary card for this LHA ID
-        const dateParts = lha.reportDate ? lha.reportDate.split('-') : ['2026', '04', '15']
+        const dateParts = lha.reportDate ? lha.reportDate.split('-') : ['2026', '01', '15']
         const yr = parseInt(dateParts[0] || '2026') || 2026
-        const mo = getMonthName(dateParts[1] || '04')
+        const mo = getMonthName(dateParts[1] || '01')
 
-        summaries.push({
+        const override = overrides[lhaNum] || overrides[`ES-${lha.id}`]
+        let itemStatus: 'Draft' | 'Approved' | 'Rejected' = 
+          (lha.status === 'Final' || (lha.status as any) === 'Approved' || (lha.status as any) === 'APPROVED') ? 'Approved' : 'Draft'
+        let itemNote = (lha as any).executiveNote || (lha as any).executive_note || ''
+
+        if (override) {
+          if (override.status) itemStatus = override.status as any
+          if (override.executiveNote !== undefined) itemNote = override.executiveNote
+        }
+
+        const fallbackSt = lha.assignmentLetterId && lha.assignmentLetterId.startsWith('ST-')
+          ? lha.assignmentLetterId
+          : 'ST-001/SKAI/2026'
+
+        docMap.set(lhaNum, {
           id: `ES-${lha.id}`,
-          assignmentLetterId: lha.assignmentLetterId,
+          assignmentLetterId: fallbackSt,
           quarter: mo === 'Januari' || mo === 'Februari' || mo === 'Maret' ? 1 : mo === 'April' || mo === 'Mei' || mo === 'Juni' ? 2 : 3,
           periodeBulan: `${mo} ${yr}`,
           tahun: yr,
           nomorDokumen: lhaNum,
           dokumenPath: `Executive_Summary_${lhaNum.replace(/[\/\s]/g, '_')}.pdf`,
-          status: lha.status === 'Final' ? 'Approved' : 'Draft',
+          status: itemStatus,
+          executiveNote: itemNote,
           narrative: lha.executiveSummary || `Executive Summary untuk ${lha.reportTitle} (${lhaNum}).`,
           jumlahLaporan: 1,
           risikoTinggi: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 1,
@@ -389,25 +467,30 @@ const syncedSummaries = computed(() => {
     }
   })
 
-  // Map missing assignmentLetterId for initial items
-  summaries.forEach(s => {
-    if (!s.assignmentLetterId) {
-      const matchLha = auditReportStore.reportList.find(l => l.reportNumber === s.nomorDokumen)
-      if (matchLha) {
-        s.assignmentLetterId = matchLha.assignmentLetterId
-      } else if (s.nomorDokumen.includes('021')) {
+  // Ensure every item has a valid ST-XXX/SKAI/2026 assignmentLetterId
+  const result: (ExecutiveSummary & { assignmentLetterId?: string })[] = []
+  docMap.forEach(s => {
+    if (!s.assignmentLetterId || !s.assignmentLetterId.startsWith('ST-')) {
+      if (s.nomorDokumen.includes('021')) {
         s.assignmentLetterId = 'ST-001/SKAI/2026'
-      } else if (s.nomorDokumen.includes('020')) {
-        s.assignmentLetterId = '020/ST/01/KSIAD/2023'
       } else if (s.nomorDokumen.includes('022')) {
         s.assignmentLetterId = 'ST-002/SKAI/2026'
       } else if (s.nomorDokumen.includes('023')) {
         s.assignmentLetterId = 'ST-003/SKAI/2026'
+      } else if (s.nomorDokumen.includes('024')) {
+        s.assignmentLetterId = 'ST-004/SKAI/2026'
+      } else if (s.nomorDokumen.includes('025')) {
+        s.assignmentLetterId = 'ST-005/SKAI/2026'
+      } else {
+        s.assignmentLetterId = 'ST-001/SKAI/2026'
       }
+    }
+    if (!store.deletedDocNumbers.includes(s.nomorDokumen)) {
+      result.push(s)
     }
   })
 
-  return summaries.filter(s => !store.deletedDocNumbers.includes(s.nomorDokumen))
+  return result
 })
 
 const filteredSummaries = computed(() => {

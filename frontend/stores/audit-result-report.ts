@@ -41,12 +41,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   const reportList = ref<AuditResultReport[]>([
     {
       id: 'R-001',
-      reportNumber: '020/LHA/01/KS IAD/2023',
-      assignmentLetterId: '020/ST/01/KSIAD/2023',
-      reportTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau',
-      executiveSummary: 'Audit Operasional Tahun 2023 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.',
+      reportNumber: '020/LHA/01/KS IAD/2026',
+      assignmentLetterId: 'ST-001/SKAI/2026',
+      reportTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau 2026',
+      executiveSummary: 'Audit Operasional Tahun 2026 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.',
       category: 'Significant',
-      reportDate: '2023-09-22',
+      reportDate: '2026-01-22',
       status: 'Final',
       findingsCount: 8,
       findings: [
@@ -131,7 +131,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportNumber: '025/LHA/01/KS IAD/2026',
       assignmentLetterId: 'ST-005/SKAI/2026',
       reportTitle: 'Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit 2026',
-      executiveSummary: 'Executive Summary Individual DOC-EXSUM-Q1-2026 untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit.',
+      executiveSummary: 'Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (025/LHA/01/KS IAD/2026).',
       category: 'Very Significant',
       reportDate: '2026-09-15',
       status: 'Final',
@@ -181,12 +181,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   const mockReports: AuditResultReport[] = [
     {
       id: 'R-001',
-      reportNumber: '020/LHA/01/KS IAD/2023',
-      assignmentLetterId: '020/ST/01/KSIAD/2023',
-      reportTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau',
-      executiveSummary: 'Audit Operasional Tahun 2023 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.',
+      reportNumber: '020/LHA/01/KS IAD/2026',
+      assignmentLetterId: 'ST-001/SKAI/2026',
+      reportTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau 2026',
+      executiveSummary: 'Audit Operasional Tahun 2026 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.',
       category: 'Significant',
-      reportDate: '2023-09-22',
+      reportDate: '2026-01-22',
       status: 'Final',
       findingsCount: 8,
       findings: [
@@ -271,7 +271,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportNumber: '025/LHA/01/KS IAD/2026',
       assignmentLetterId: 'ST-005/SKAI/2026',
       reportTitle: 'Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit 2026',
-      executiveSummary: 'Executive Summary Individual DOC-EXSUM-Q1-2026 untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit.',
+      executiveSummary: 'Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (025/LHA/01/KS IAD/2026).',
       category: 'Very Significant',
       reportDate: '2026-09-15',
       status: 'Final',
@@ -283,6 +283,42 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       ]
     }
   ]
+
+  const generateReportNumber = (dateStr?: string, unitCode: string = '01'): string => {
+    let year = new Date().getFullYear().toString()
+    let month = '01'
+    if (dateStr) {
+      const cleanDate = (dateStr.split('T')[0] || '').trim()
+      const parts = cleanDate.split('-')
+      if (parts.length === 3 && parts[0] && parts[1]) {
+        year = parts[0]
+        month = parts[1].padStart(2, '0')
+      } else {
+        const d = new Date(dateStr)
+        if (!isNaN(d.getFullYear())) {
+          year = d.getFullYear().toString()
+          month = (d.getMonth() + 1).toString().padStart(2, '0')
+        }
+      }
+    }
+
+    let maxSeq = 20
+    const lhaRegex = /^(\d+)\/LHA/i
+    for (const r of reportList.value) {
+      const num = r.reportNumber || (r as any).report_number
+      if (num) {
+        const match = num.match(lhaRegex)
+        if (match && match[1]) {
+          const parsed = parseInt(match[1], 10)
+          if (!isNaN(parsed) && parsed > maxSeq) {
+            maxSeq = parsed
+          }
+        }
+      }
+    }
+    const nextSeq = (maxSeq + 1).toString().padStart(3, '0')
+    return `${nextSeq}/LHA/${month}/KS IAD/${year}`
+  }
 
   const mapReportItem = (item: any): AuditResultReport => {
     let dateVal = item.reportDate || item.report_date || item.created_at || ''
@@ -304,12 +340,15 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       }
     })
 
+    const finalReportDate = dateVal || new Date().toISOString().split('T')[0]
+    const defaultDynamicNum = generateReportNumber(finalReportDate)
+
     return {
       ...item,
-      reportNumber: item.reportNumber || item.report_number || '020/LHA/01/KS IAD/2023',
+      reportNumber: item.reportNumber || item.report_number || defaultDynamicNum,
       findingsCount: item.findingsCount || item.findings_count || mappedFindings.length || 0,
       findings: mappedFindings,
-      reportDate: dateVal || new Date().toISOString().split('T')[0],
+      reportDate: finalReportDate,
       companyId: item.companyId || item.company_id || '',
       companyName: item.companyName || item.company_name || ''
     }
@@ -566,10 +605,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const resetForm = () => {
+    const defaultDate = new Date().toISOString().split('T')[0] as string
     Object.assign(reportForm, {
-      assignmentLetterId: selectedAssignmentLetter.value,
+      reportNumber: generateReportNumber(defaultDate),
+      assignmentLetterId: selectedAssignmentLetter.value || 'ST-001/SKAI/2026',
       reportTitle: '',
-      reportDate: new Date().toISOString().split('T')[0] as string,
+      reportDate: defaultDate,
       status: 'Draft',
       findingsCount: 0,
       findings: [],
@@ -583,6 +624,9 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      if (!reportForm.reportNumber) {
+        reportForm.reportNumber = generateReportNumber(reportForm.reportDate)
+      }
       const payload: any = {
         assignmentLetterId: reportForm.assignmentLetterId || selectedAssignmentLetter.value || 'ST-001/SKAI/2026',
         reportTitle: reportForm.reportTitle,
@@ -633,6 +677,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   const editReport = (report: AuditResultReport) => {
     Object.assign(reportForm, {
       ...report,
+      reportNumber: report.reportNumber || (report as any).report_number || generateReportNumber(report.reportDate),
       companyId: report.companyId || '',
       companyName: report.companyName || '',
       findings: report.findings ? JSON.parse(JSON.stringify(report.findings)) : []
@@ -749,6 +794,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     isAutoDetecting,
     fetchAutoFindings,
     runAutoDetectFindings,
-    autoPopulateFindings
+    autoPopulateFindings,
+    generateReportNumber,
+    resetForm
   }
 })

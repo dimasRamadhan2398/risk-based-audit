@@ -116,4 +116,39 @@ describe('Audit Result Report Store - Automated Findings Detection', () => {
     expect(findings[0].title).toBe('API Detected Ineffective Backup Control')
     expect(findings[0].category).toBe('Very Significant')
   })
+
+  it('should dynamically generate Report Number (LHA ID) with auto-increment and dynamic month/year', async () => {
+    const store = useAuditResultReportStore()
+    
+    // Test with specific date: 2026-10-15
+    const dynamicNum = store.generateReportNumber('2026-10-15')
+    expect(dynamicNum).toMatch(/^\d{3}\/LHA\/10\/KS IAD\/2026$/)
+
+    // Test with different year and month: 2027-02-01
+    const futureNum = store.generateReportNumber('2027-02-01')
+    expect(futureNum).toMatch(/^\d{3}\/LHA\/02\/KS IAD\/2027$/)
+
+    // Check that resetForm initializes reportForm.reportNumber dynamically
+    store.resetForm()
+    expect(store.reportForm.reportNumber).toBeTruthy()
+    expect(store.reportForm.reportNumber).toMatch(/^\d{3}\/LHA\/\d{2}\/KS IAD\/\d{4}$/)
+  })
+
+  it('should dynamically generate Assignment Letter number with sanitized year and highest sequence', async () => {
+    const { useAssignmentLetterStore } = await import('~/stores/assignment-letter')
+    const alStore = useAssignmentLetterStore()
+
+    // Test clean year
+    const st1 = alStore.generateNomorSurat('SKAI', '2026')
+    expect(st1).toMatch(/^ST-\d{3}\/SKAI\/2026$/)
+
+    // Test full date format like 2026-05-20 from datepicker
+    const st2 = alStore.generateNomorSurat('SKAI', '2026-05-20')
+    expect(st2).toMatch(/^ST-\d{3}\/SKAI\/2026$/)
+
+    // Test fallback to default SKAI and current year when empty
+    const currentYear = new Date().getFullYear().toString()
+    const stDefault = alStore.generateNomorSurat('', '')
+    expect(stDefault).toBe(`ST-006/SKAI/${currentYear}`)
+  })
 })
