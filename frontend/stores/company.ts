@@ -8,13 +8,15 @@ import type {
   PaginationMeta,
   CompanyType
 } from '~/types/master'
-import { extractErrorMessage } from '~/utils/error'
+import { getUserErrorMessage } from '~/utils/error'
+import { useI18n } from '~/composables/useI18n'
 
 export const useCompanyStore = defineStore('company', () => {
   // ============= State =============
   const companies = ref<Company[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const { t } = useI18n()
 
   // Modal State
   const showModal = ref(false)
@@ -83,7 +85,7 @@ export const useCompanyStore = defineStore('company', () => {
       pagination.value = response.pagination || pagination.value
     } catch (error: any) {
       console.error('Failed to fetch companies:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data company.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchCompanies' })
       companies.value = []
     } finally {
       loading.value = false
@@ -102,7 +104,7 @@ export const useCompanyStore = defineStore('company', () => {
       return await api.getCompanyById(id)
     } catch (error: any) {
       console.error('Failed to fetch company:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil detail company.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchCompany' })
       return null
     } finally {
       loading.value = false
@@ -143,7 +145,7 @@ export const useCompanyStore = defineStore('company', () => {
       return true
     } catch (error: any) {
       console.error('Failed to create company:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal membuat company baru.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.createCompany' })
       return false
     } finally {
       loading.value = false
@@ -184,7 +186,7 @@ export const useCompanyStore = defineStore('company', () => {
       return true
     } catch (error: any) {
       console.error('Failed to update company:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal memperbarui company.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.updateCompany' })
       return false
     } finally {
       loading.value = false
@@ -210,7 +212,7 @@ export const useCompanyStore = defineStore('company', () => {
       return true
     } catch (error: any) {
       console.error('Failed to delete company:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus company.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.deleteCompany' })
       return false
     } finally {
       loading.value = false
@@ -288,15 +290,15 @@ export const useCompanyStore = defineStore('company', () => {
   const handleSubmit = async () => {
     // Validation
     if (!form.company_code.trim()) {
-      errorMsg.value = 'Company code is required.'
+      errorMsg.value = t('masterData.validation.companyCodeRequired')
       return
     }
     if (!form.company_name.trim()) {
-      errorMsg.value = 'Company name is required.'
+      errorMsg.value = t('masterData.validation.companyNameRequired')
       return
     }
     if (!form.company_type) {
-      errorMsg.value = 'Company type is required.'
+      errorMsg.value = t('masterData.validation.companyTypeRequired')
       return
     }
 

@@ -43,10 +43,10 @@ export const useSopStore = defineStore('sop', () => {
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
 
-  const columns = computed<(TableColumn<AuditSop> & { class?: string })[]>(() => [
+  const columns = computed<(TableColumn<AuditSop> & { class?: string, thClass?: string, tdClass?: string })[]>(() => [
     { accessorKey: 'no', header: t('auditCharter.sopList.columns.no'), class: 'w-16 whitespace-nowrap text-center' },
-    { accessorKey: 'name', header: t('auditCharter.sopList.columns.name'), class: 'min-w-[260px]' },
-    { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName'), class: 'min-w-[220px]' },
+    { accessorKey: 'name', header: t('auditCharter.sopList.columns.name'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words sticky left-0 border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]', thClass: 'z-20 !bg-[var(--bg-surface)]', tdClass: 'z-10 bg-[var(--bg-main)]' },
+    { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words' },
     { accessorKey: 'status', header: t('auditCharter.sopList.columns.status'), class: 'w-32 whitespace-nowrap text-center' },
     { accessorKey: 'effective_date', header: t('auditCharter.sopList.columns.effectiveDate'), class: 'w-36 whitespace-nowrap text-center' },
     { accessorKey: 'actions', header: t('auditCharter.sopList.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }

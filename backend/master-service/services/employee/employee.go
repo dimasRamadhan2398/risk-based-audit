@@ -5,6 +5,7 @@ import (
 	"master-service/pkg/base"
 	apperrors "master-service/pkg/errors"
 	repo "master-service/repositories/employee"
+	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
@@ -28,37 +29,58 @@ func NewEmployeeService(employeeRepo repo.IEmployeeRepository) EmployeeServiceIn
 	}
 }
 
-func (s *EmployeeService) Create(ctx *base.BaseService, employee *models.Employee) (*models.Employee, error) {
-	if s.employeeRepo == nil {
-		return nil, apperrors.Wrap("SERVICE_UNAVAILABLE", "Employee repository is unavailable", 500, nil)
-	}
-	if employee == nil {
-		return nil, apperrors.Wrap("INVALID_REQUEST", "Employee payload is required", 400, nil)
-	}
+var (
+	errEmployeeCodeExists = apperrors.New(apperrors.CodeEmployeeCodeAlreadyExists,
+		"An employee with this employee code already exists.", http.StatusConflict).
+		WithFields(map[string]string{"employee_code": apperrors.FieldAlreadyExists})
+	errEmployeeEmailExists = apperrors.New(apperrors.CodeEmployeeEmailAlreadyExists,
+		"An employee with this email already exists.", http.StatusConflict).
+		WithFields(map[string]string{"email": apperrors.FieldAlreadyExists})
+)
 
+// normalizeAndValidate trims input and reports all missing required fields at once.
+func normalizeAndValidate(employee *models.Employee) error {
 	employee.EmployeeCode = strings.TrimSpace(employee.EmployeeCode)
 	employee.Email = strings.TrimSpace(strings.ToLower(employee.Email))
+
+	fields := map[string]string{}
 	if employee.EmployeeCode == "" {
-		return nil, apperrors.Wrap("VALIDATION_ERROR", "Employee code is required", 400, nil)
+		fields["employee_code"] = apperrors.FieldRequired
 	}
 	if employee.Email == "" {
-		return nil, apperrors.Wrap("VALIDATION_ERROR", "Employee email is required", 400, nil)
+		fields["email"] = apperrors.FieldRequired
+	}
+	if len(fields) > 0 {
+		return apperrors.ValidationFailed("", fields)
+	}
+	return nil
+}
+
+func (s *EmployeeService) Create(ctx *base.BaseService, employee *models.Employee) (*models.Employee, error) {
+	if s.employeeRepo == nil {
+		return nil, apperrors.Internal("", nil)
+	}
+	if employee == nil {
+		return nil, apperrors.New(apperrors.CodeInvalidRequestBody, apperrors.MsgInvalidRequestBody, http.StatusBadRequest)
+	}
+	if err := normalizeAndValidate(employee); err != nil {
+		return nil, err
 	}
 
 	if _, err := s.employeeRepo.FindByCode(employee.EmployeeCode); err == nil {
-		return nil, apperrors.Wrap("EMPLOYEE_CODE_ALREADY_EXISTS", "Employee code already exists", 409, nil)
+		return nil, errEmployeeCodeExists
 	} else if err != apperrors.ErrNotFound {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to validate employee code", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to validate the employee code.")
 	}
 
 	if _, err := s.employeeRepo.FindByEmail(employee.Email); err == nil {
-		return nil, apperrors.Wrap("EMPLOYEE_EMAIL_ALREADY_EXISTS", "Employee email already exists", 409, nil)
+		return nil, errEmployeeEmailExists
 	} else if err != apperrors.ErrNotFound {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to validate employee email", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to validate the employee email.")
 	}
 
 	if err := s.employeeRepo.Create(employee); err != nil {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to create employee", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpCreate, "Failed to create the employee.")
 	}
 
 	return employee, nil
@@ -67,18 +89,18 @@ func (s *EmployeeService) Create(ctx *base.BaseService, employee *models.Employe
 func (s *EmployeeService) Delete(ctx *base.BaseService, id string) error {
 	employeeID, err := uuid.Parse(id)
 	if err != nil {
-		return apperrors.Wrap("INVALID_EMPLOYEE_ID", "Invalid employee ID format", 400, err)
+		return apperrors.InvalidID(err)
 	}
 
 	if _, err := s.employeeRepo.FindByID(employeeID); err != nil {
 		if err == apperrors.ErrNotFound {
-			return err
+			return apperrors.ErrEmployeeNotFound
 		}
-		return apperrors.Wrap("DATABASE_ERROR", "Failed to find employee", 500, err)
+		return apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
 	}
 
 	if err := s.employeeRepo.Delete(employeeID); err != nil {
-		return apperrors.Wrap("DATABASE_ERROR", "Failed to delete employee", 500, err)
+		return apperrors.DB(err, apperrors.OpDelete, "Failed to delete the employee.")
 	}
 
 	return nil
@@ -87,7 +109,7 @@ func (s *EmployeeService) Delete(ctx *base.BaseService, id string) error {
 func (s *EmployeeService) FindAll(ctx *base.BaseService) (*[]models.Employee, error) {
 	employees, err := s.employeeRepo.FindAll()
 	if err != nil {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to fetch employees", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load employees.")
 	}
 
 	result := make([]models.Employee, 0, len(employees))
@@ -103,15 +125,15 @@ func (s *EmployeeService) FindAll(ctx *base.BaseService) (*[]models.Employee, er
 func (s *EmployeeService) FindById(ctx *base.BaseService, id string) (*models.Employee, error) {
 	employeeID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, apperrors.Wrap("INVALID_EMPLOYEE_ID", "Invalid employee ID format", 400, err)
+		return nil, apperrors.InvalidID(err)
 	}
 
 	employee, err := s.employeeRepo.FindByID(employeeID)
 	if err != nil {
 		if err == apperrors.ErrNotFound {
-			return nil, err
+			return nil, apperrors.ErrEmployeeNotFound
 		}
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to fetch employee", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
 	}
 
 	return employee, nil
@@ -119,47 +141,41 @@ func (s *EmployeeService) FindById(ctx *base.BaseService, id string) (*models.Em
 
 func (s *EmployeeService) Update(ctx *base.BaseService, id string, employee *models.Employee) (*models.Employee, error) {
 	if s.employeeRepo == nil {
-		return nil, apperrors.Wrap("SERVICE_UNAVAILABLE", "Employee repository is unavailable", 500, nil)
+		return nil, apperrors.Internal("", nil)
 	}
 	if employee == nil {
-		return nil, apperrors.Wrap("INVALID_REQUEST", "Employee payload is required", 400, nil)
+		return nil, apperrors.New(apperrors.CodeInvalidRequestBody, apperrors.MsgInvalidRequestBody, http.StatusBadRequest)
 	}
-
-	employee.EmployeeCode = strings.TrimSpace(employee.EmployeeCode)
-	employee.Email = strings.TrimSpace(strings.ToLower(employee.Email))
-	if employee.EmployeeCode == "" {
-		return nil, apperrors.Wrap("VALIDATION_ERROR", "Employee code is required", 400, nil)
-	}
-	if employee.Email == "" {
-		return nil, apperrors.Wrap("VALIDATION_ERROR", "Employee email is required", 400, nil)
+	if err := normalizeAndValidate(employee); err != nil {
+		return nil, err
 	}
 
 	employeeID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, apperrors.Wrap("INVALID_EMPLOYEE_ID", "Invalid employee ID format", 400, err)
+		return nil, apperrors.InvalidID(err)
 	}
 
 	existingEmployee, err := s.employeeRepo.FindByID(employeeID)
 	if err != nil {
 		if err == apperrors.ErrNotFound {
-			return nil, err
+			return nil, apperrors.ErrEmployeeNotFound
 		}
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to fetch employee", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
 	}
 
 	if existingEmployee.EmployeeCode != employee.EmployeeCode {
 		if _, err := s.employeeRepo.FindByCode(employee.EmployeeCode); err == nil {
-			return nil, apperrors.Wrap("EMPLOYEE_CODE_ALREADY_EXISTS", "Employee code already exists", 409, nil)
+			return nil, errEmployeeCodeExists
 		} else if err != apperrors.ErrNotFound {
-			return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to validate employee code", 500, err)
+			return nil, apperrors.DB(err, apperrors.OpRead, "Failed to validate the employee code.")
 		}
 	}
 
 	if existingEmployee.Email != employee.Email {
 		if _, err := s.employeeRepo.FindByEmail(employee.Email); err == nil {
-			return nil, apperrors.Wrap("EMPLOYEE_EMAIL_ALREADY_EXISTS", "Employee email already exists", 409, nil)
+			return nil, errEmployeeEmailExists
 		} else if err != apperrors.ErrNotFound {
-			return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to validate employee email", 500, err)
+			return nil, apperrors.DB(err, apperrors.OpRead, "Failed to validate the employee email.")
 		}
 	}
 
@@ -181,7 +197,7 @@ func (s *EmployeeService) Update(ctx *base.BaseService, id string, employee *mod
 	existingEmployee.JoinDate = employee.JoinDate
 
 	if err := s.employeeRepo.Update(existingEmployee); err != nil {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to update employee", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpUpdate, "Failed to update the employee.")
 	}
 
 	return existingEmployee, nil

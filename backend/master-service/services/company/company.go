@@ -5,6 +5,7 @@ import (
 	"master-service/pkg/base"
 	apperrors "master-service/pkg/errors"
 	repo "master-service/repositories/company"
+	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
@@ -19,53 +20,59 @@ type CompanyServiceInterface interface {
 }
 type CompanyService struct{ companyRepo repo.ICompanyRepository }
 
+var errCompanyCodeExists = apperrors.New(apperrors.CodeCompanyCodeAlreadyExists,
+	"A company with this code already exists.", http.StatusConflict).
+	WithFields(map[string]string{"code": apperrors.FieldAlreadyExists})
+
+var errInvalidCompanyBody = apperrors.New(apperrors.CodeInvalidRequestBody, apperrors.MsgInvalidRequestBody, http.StatusBadRequest)
+
 func NewCompanyService(companyRepo repo.ICompanyRepository) CompanyServiceInterface {
 	return &CompanyService{companyRepo: companyRepo}
 }
 func (s *CompanyService) Create(ctx *base.BaseService, company *models.Company) (*models.Company, error) {
 	if s.companyRepo == nil {
-		return nil, apperrors.Wrap("SERVICE_UNAVAILABLE", "Company repository is unavailable", 500, nil)
+		return nil, apperrors.Internal("", nil)
 	}
 	if company == nil {
-		return nil, apperrors.Wrap("INVALID_REQUEST", "Company payload is required", 400, nil)
+		return nil, errInvalidCompanyBody
 	}
 
 	company.CompanyCode = strings.TrimSpace(company.CompanyCode)
 	company.CompanyName = strings.TrimSpace(company.CompanyName)
 	if company.CompanyCode == "" {
-		return nil, apperrors.Wrap("VALIDATION_ERROR", "Company code is required", 400, nil)
+		return nil, apperrors.ValidationFailed("", map[string]string{"code": apperrors.FieldRequired})
 	}
 
 	if _, err := s.companyRepo.FindByCode(company.CompanyCode); err == nil {
-		return nil, apperrors.Wrap("COMPANY_CODE_ALREADY_EXISTS", "Company code already exists", 409, nil)
+		return nil, errCompanyCodeExists
 	} else if err != apperrors.ErrNotFound {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to validate company code", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to validate the company code.")
 	}
 	if err := s.companyRepo.Create(company); err != nil {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to create company", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpCreate, "Failed to create the company.")
 	}
 	return company, nil
 }
 func (s *CompanyService) Delete(ctx *base.BaseService, id string) error {
 	companyID, err := uuid.Parse(id)
 	if err != nil {
-		return apperrors.Wrap("INVALID_COMPANY_ID", "Invalid company ID format", 400, err)
+		return apperrors.InvalidID(err)
 	}
 	if _, err := s.companyRepo.FindByID(companyID); err != nil {
 		if err == apperrors.ErrNotFound {
-			return err
+			return apperrors.ErrCompanyNotFound
 		}
-		return apperrors.Wrap("DATABASE_ERROR", "Failed to find company", 500, err)
+		return apperrors.DB(err, apperrors.OpRead, "Failed to load the company.")
 	}
 	if err := s.companyRepo.Delete(companyID); err != nil {
-		return apperrors.Wrap("DATABASE_ERROR", "Failed to delete company", 500, err)
+		return apperrors.DB(err, apperrors.OpDelete, "Failed to delete the company.")
 	}
 	return nil
 }
 func (s *CompanyService) FindAll(ctx *base.BaseService) (*[]models.Company, error) {
 	companies, err := s.companyRepo.FindAll()
 	if err != nil {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to fetch companies", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load companies.")
 	}
 	result := make([]models.Company, 0, len(companies))
 	for _, company := range companies {
@@ -78,41 +85,41 @@ func (s *CompanyService) FindAll(ctx *base.BaseService) (*[]models.Company, erro
 func (s *CompanyService) FindById(ctx *base.BaseService, id string) (*models.Company, error) {
 	companyID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, apperrors.Wrap("INVALID_COMPANY_ID", "Invalid company ID format", 400, err)
+		return nil, apperrors.InvalidID(err)
 	}
 	company, err := s.companyRepo.FindByID(companyID)
 	if err != nil {
 		if err == apperrors.ErrNotFound {
-			return nil, err
+			return nil, apperrors.ErrCompanyNotFound
 		}
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to fetch company", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load the company.")
 	}
 	return company, nil
 }
 func (s *CompanyService) Update(ctx *base.BaseService, id string, company *models.Company) (*models.Company, error) {
 	if s.companyRepo == nil {
-		return nil, apperrors.Wrap("SERVICE_UNAVAILABLE", "Company repository is unavailable", 500, nil)
+		return nil, apperrors.Internal("", nil)
 	}
 	if company == nil {
-		return nil, apperrors.Wrap("INVALID_REQUEST", "Company payload is required", 400, nil)
+		return nil, errInvalidCompanyBody
 	}
 
 	companyID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, apperrors.Wrap("INVALID_COMPANY_ID", "Invalid company ID format", 400, err)
+		return nil, apperrors.InvalidID(err)
 	}
 	existingCompany, err := s.companyRepo.FindByID(companyID)
 	if err != nil {
 		if err == apperrors.ErrNotFound {
-			return nil, err
+			return nil, apperrors.ErrCompanyNotFound
 		}
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to fetch company", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load the company.")
 	}
 	if existingCompany.CompanyCode != company.CompanyCode {
 		if _, err := s.companyRepo.FindByCode(company.CompanyCode); err == nil {
-			return nil, apperrors.Wrap("COMPANY_CODE_ALREADY_EXISTS", "Company code already exists", 409, nil)
+			return nil, errCompanyCodeExists
 		} else if err != apperrors.ErrNotFound {
-			return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to validate company code", 500, err)
+			return nil, apperrors.DB(err, apperrors.OpRead, "Failed to validate the company code.")
 		}
 	}
 	existingCompany.CompanyCode = company.CompanyCode
@@ -128,7 +135,7 @@ func (s *CompanyService) Update(ctx *base.BaseService, id string, company *model
 	existingCompany.IsActive = company.IsActive
 	existingCompany.EstablishedAt = company.EstablishedAt
 	if err := s.companyRepo.Update(existingCompany); err != nil {
-		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to update company", 500, err)
+		return nil, apperrors.DB(err, apperrors.OpUpdate, "Failed to update the company.")
 	}
 	return existingCompany, nil
 }

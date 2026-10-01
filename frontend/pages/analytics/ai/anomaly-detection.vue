@@ -9,6 +9,12 @@ import {
   Legend
 } from 'chart.js'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
+import {
+  buildAnomalyScatterPoints,
+  createAnomalyTypeConfigs,
+  listAnomalyTypes,
+  type AnomalyTypeConfig
+} from '~/composables/useAnomalyScatter'
 import { useI18n } from '~/composables/useI18n'
 import AiInsightHeader from '~/components/analytics/AiInsightHeader.vue'
 
@@ -28,116 +34,17 @@ onMounted(() => {
   fetchAiAnalytics()
 })
 
-interface AnomalyTypeConfig {
-  xAxisTitle: string
-  unit: string
-  formatX: (val: number) => string
-  colors: { bg: string, border: string, style: string }
-}
-
-const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => ({
-  'Funding': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
-  },
-  'Lending': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.lendingXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.lendingUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
-  },
-  'Treasury': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.treasuryXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.treasuryUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(99,102,241,0.85)', border: 'rgba(99,102,241,1)', style: 'rectRot' }
-  },
-  'Payment': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.paymentXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.paymentUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(245,158,11,0.85)', border: 'rgba(245,158,11,1)', style: 'rect' }
-  },
-  'KYC': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.kycXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.kycUnit'),
-    formatX: (val) => `${val}%`,
-    colors: { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'star' }
-  },
-  'IT Control': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.itControlXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.itControlUnit'),
-    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.itControlUnit')}`,
-    colors: { bg: 'rgba(20,184,166,0.85)', border: 'rgba(20,184,166,1)', style: 'crossRot' }
-  },
-  'Fieldwork': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.fieldworkXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.fieldworkUnit'),
-    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.fieldworkUnit')}`,
-    colors: { bg: 'rgba(139,92,246,0.85)', border: 'rgba(139,92,246,1)', style: 'star' }
-  },
-  'Access Pattern': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.accessPatternXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.accessPatternUnit'),
-    formatX: (val) => `${t('analytics.isolation.anomalyTypes.accessPatternUnit')} ${val}:00`,
-    colors: { bg: 'rgba(249,115,22,0.85)', border: 'rgba(249,115,22,1)', style: 'rectRot' }
-  },
-  'Data Access': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.dataAccessXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.dataAccessUnit'),
-    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.dataAccessUnit')}`,
-    colors: { bg: 'rgba(59,130,246,0.85)', border: 'rgba(59,130,246,1)', style: 'rect' }
-  },
-  'Inventory': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.inventoryXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.inventoryUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(107,114,128,0.85)', border: 'rgba(107,114,128,1)', style: 'star' }
-  },
-  'Expense Report': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.expenseReportXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.expenseReportUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(234,179,8,0.85)', border: 'rgba(234,179,8,1)', style: 'rect' }
-  },
-  'Travel Expense': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.travelExpenseXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.travelExpenseUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'rectRot' }
-  },
-  'Procurement': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.procurementXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.procurementUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'triangle' }
-  },
-  'Transaction': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.transactionXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.transactionUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
-  }
-}))
+const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => createAnomalyTypeConfigs(t))
 
 const selectedAnomalyType = ref('Funding')
 
-const availableAnomalyTypes = computed(() => {
-  const types = new Set<string>()
-  const anomalies = isolationState.value.anomalies || []
-  const scatterData = isolationState.value.scatterData || []
-
-  anomalies.forEach((a: any) => { if (a.type) types.add(a.type) })
-  scatterData.forEach((s: any) => { if (s.type) types.add(s.type) })
-
-  const validTypes = Object.keys(anomalyTypeConfigs.value)
-  const filtered = Array.from(types).filter(t => validTypes.includes(t))
-  if (filtered.length > 0) return filtered
-  if (types.size > 0) return Array.from(types)
-  return ['Transaction', 'Funding', 'Lending', 'Treasury', 'Payment', 'Procurement', 'Expense Report']
-})
+const availableAnomalyTypes = computed(() =>
+  listAnomalyTypes(
+    isolationState.value.anomalies,
+    isolationState.value.scatterData,
+    Object.keys(anomalyTypeConfigs.value)
+  )
+)
 
 const tableCategoryFilter = ref('All')
 
@@ -176,27 +83,11 @@ watchEffect(() => {
 })
 
 const getScatterChartForType = (typeFilter: string) => {
-  const anomalies = isolationState.value.anomalies || []
-  const scatterData = isolationState.value.scatterData || []
-
-  const filteredAnomalies = anomalies.filter((a: any) => a.type === typeFilter)
-  const normalPoints = scatterData
-    .filter((s: any) => !s.isAnomaly && (s.type === typeFilter || !s.type))
-    .map((s: any) => ({ x: s.x ?? 0, y: s.y ?? 0 }))
-  
-  const anomalyPoints = filteredAnomalies.map((a: any) => {
-    const matchedScatter = scatterData.find((s: any) => s.label === a.id)
-    let xVal = matchedScatter?.x ?? a.xMetric
-    if (xVal === undefined || xVal === null) {
-      if (typeFilter === 'KYC') xVal = 25
-      else if (typeFilter === 'IT Control') xVal = 4
-      else xVal = a.amount ? a.amount / 1000000 : 15
-    }
-    return {
-      x: xVal,
-      y: matchedScatter?.y ?? 20
-    }
-  })
+  const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(
+    isolationState.value.anomalies,
+    isolationState.value.scatterData,
+    typeFilter
+  )
 
   const defaultConfig: AnomalyTypeConfig = {
     xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),

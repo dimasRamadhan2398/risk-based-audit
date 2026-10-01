@@ -114,6 +114,60 @@ export const initialRCMData: RCMItem[] = [
   }
 ]
 
+export interface DepartmentRiskExposure {
+  name: string
+  inherentRisk: number
+  residualRisk: number
+  riskCount: number
+}
+
+const roundScore = (val: number) => Math.round(val * 10) / 10
+
+/**
+ * Inherent vs Residual risk exposure per department, derived from the Corporate
+ * Risk Profile.
+ *
+ * Inherent is the start-of-year (Q1) assessment and residual the end-of-year
+ * (Q4) one — the same definitions the RCM summary uses for its risk counts.
+ * Both are `impact × likelihood` averaged over the department's risks, and a
+ * risk with no assessment for the year contributes its base score to both
+ * series (nothing mitigated yet). Takes raw CRP risks, so the result does not
+ * depend on which period the Risk Profile page happens to be showing.
+ */
+export const computeInherentVsResidualByDepartment = (
+  rawRisks: any[] = [],
+  year: number
+): DepartmentRiskExposure[] => {
+  const groups = new Map<string, { inherent: number, residual: number, count: number }>()
+
+  ;(rawRisks || []).forEach((risk: any) => {
+    const department = risk?.branch || risk?.department
+    if (!department) return
+
+    const assessment = risk.assessments?.find((a: any) => a.year === year)
+    const baseImpact = risk.impact ?? 0
+    const baseLikelihood = risk.likelihood ?? 0
+
+    const inherent =
+      (assessment?.impact_q1 ?? baseImpact) * (assessment?.likelihood_q1 ?? baseLikelihood)
+    const residual =
+      (assessment?.impact_q4 ?? baseImpact) * (assessment?.likelihood_q4 ?? baseLikelihood)
+
+    const group = groups.get(department) || { inherent: 0, residual: 0, count: 0 }
+    group.inherent += inherent
+    group.residual += residual
+    group.count += 1
+    groups.set(department, group)
+  })
+
+  return Array.from(groups.entries()).map(([name, g]) => ({
+    name,
+    inherentRisk: roundScore(g.inherent / g.count),
+    residualRisk: roundScore(g.residual / g.count),
+    riskCount: g.count
+  }))
+}
+
 export const getEffectivenessInterpretation = (scorePercent: number) => {
   if (scorePercent >= 90) {
     return {
@@ -286,6 +340,11 @@ export const useRCMStore = defineStore('rcm', () => {
 
   const totalInherentRisk = computed(() => synchronizedRiskCounts.value.inherent)
   const totalResidualRisk = computed(() => synchronizedRiskCounts.value.residual)
+
+  // Per-department exposure for the "Inherent vs Residual Risk by Department" chart
+  const inherentVsResidualByDepartment = computed(() =>
+    computeInherentVsResidualByDepartment(riskProfileStore.rawRisks, selectedYear.value)
+  )
 
   // Formula: (1 - Residual Risk / Inherent Risk) * 100%
   const internalControlEffectiveness = computed(() => {
@@ -500,6 +559,7 @@ export const useRCMStore = defineStore('rcm', () => {
     columns,
     totalInherentRisk,
     totalResidualRisk,
+    inherentVsResidualByDepartment,
     internalControlEffectiveness,
     effectivenessRating,
     cosoAverages,

@@ -19,14 +19,16 @@ export const useEmployeeApi = () => {
     page_size?: number
     search?: string
   }): Promise<ListEmployeesResponse> => {
-    const url = new URL(`${getBaseUrl()}/employees`)
-
-    if (params?.page) url.searchParams.set('page', String(params.page))
-    if (params?.page_size) url.searchParams.set('page_size', String(params.page_size))
-    if (params?.search) url.searchParams.set('search', params.search)
-
-    const response = await $fetch<any>(url.toString(), {
-      method: 'GET'
+    // Base URLs are relative (/api/v1) in production, so build the query with
+    // ofetch's `query` option instead of `new URL()`, which throws on relative URLs.
+    // ofetch drops undefined values, so unset params are simply omitted.
+    const response = await $fetch<any>(`${getBaseUrl()}/employees`, {
+      method: 'GET',
+      query: {
+        page: params?.page || undefined,
+        page_size: params?.page_size || undefined,
+        search: params?.search || undefined
+      }
     })
 
     // Handle different response formats: response.data as array, or response.data.employees, or response.employees
@@ -38,10 +40,10 @@ export const useEmployeeApi = () => {
     if (params?.search && params.search.trim()) {
       const q = params.search.trim().toLowerCase()
       employeesList = employeesList.filter((emp: any) =>
-        emp.full_name?.toLowerCase().includes(q) ||
-        emp.employee_code?.toLowerCase().includes(q) ||
-        emp.email?.toLowerCase().includes(q) ||
-        emp.phone?.toLowerCase().includes(q)
+        emp.full_name?.toLowerCase().includes(q)
+        || emp.employee_code?.toLowerCase().includes(q)
+        || emp.email?.toLowerCase().includes(q)
+        || emp.phone?.toLowerCase().includes(q)
       )
     }
 

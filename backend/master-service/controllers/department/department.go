@@ -3,6 +3,7 @@ package department
 import (
 	"master-service/models"
 	"master-service/pkg/base"
+	apperrors "master-service/pkg/errors"
 	"master-service/pkg/response"
 	"master-service/pkg/validations"
 	departmentSvc "master-service/services/department"
@@ -137,7 +138,7 @@ func (d *DepartmentController) Create(ctx *gin.Context) {
 	// Parse UUIDs
 	companyID, err := uuid.Parse(req.CompanyID)
 	if err != nil {
-		response.BadRequest(ctx, "Invalid company_id format")
+		d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"company_id": apperrors.FieldInvalidFormat}))
 		return
 	}
 	department.CompanyID = companyID
@@ -202,7 +203,7 @@ func (d *DepartmentController) Update(ctx *gin.Context) {
 	if req.CompanyID != nil {
 		companyID, err := uuid.Parse(*req.CompanyID)
 		if err != nil {
-			response.BadRequest(ctx, "Invalid company_id format")
+			d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"company_id": apperrors.FieldInvalidFormat}))
 			return
 		}
 		existingDepartment.CompanyID = companyID

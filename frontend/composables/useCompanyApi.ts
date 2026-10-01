@@ -43,15 +43,16 @@ export const useCompanyApi = () => {
     page_size?: number
     search?: string
   }): Promise<ListCompaniesResponse> => {
-    const url = new URL(`${getBaseUrl()}/companies`)
-
-    if (params?.page) url.searchParams.set('page', String(params.page))
-    if (params?.page_size) url.searchParams.set('page_size', String(params.page_size))
-    if (params?.search) url.searchParams.set('search', params.search)
-
-    const response = await $fetch<any>(url.toString(), {
+    // Base URLs are relative (/api/v1) in production, so build the query with
+    // ofetch's `query` option instead of `new URL()`, which throws on relative URLs.
+    // ofetch drops undefined values, so unset params are simply omitted.
+    const response = await $fetch<any>(`${getBaseUrl()}/companies`, {
       method: 'GET',
-      headers: getAuthHeaders()
+      query: {
+        page: params?.page || undefined,
+        page_size: params?.page_size || undefined,
+        search: params?.search || undefined
+      }
     })
 
     const rawData = response.data
