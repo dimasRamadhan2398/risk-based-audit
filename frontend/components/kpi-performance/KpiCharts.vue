@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from '~/composables/useI18n'
+import { kpiMonthLabel } from '~/utils/kpiPerformanceLabels'
 import { usePerformanceStore } from '~/stores/performance'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import {
@@ -33,6 +35,7 @@ const props = defineProps({
   }
 })
 
+const { t } = useI18n()
 const perfStore = usePerformanceStore()
 const spStore = useStrategicPlanStore()
 
@@ -43,6 +46,9 @@ const findSpMetric = (keywords: string[]) => {
     return keywords.some(kw => kpiName.includes(kw.toLowerCase()))
   })
 }
+
+// Month labels may come from the API as English abbreviations; translate known ones, keep others as-is.
+const monthLabel = (label: string) => kpiMonthLabel(t, label)
 
 const barChartData = computed(() => {
   let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
@@ -65,10 +71,10 @@ const barChartData = computed(() => {
   }
 
   return {
-    labels,
+    labels: labels.map(monthLabel),
     datasets: [
       {
-        label: 'Monthly Completion Rate',
+        label: t('kpiPerformance.charts.monthlyCompletionRate'),
         backgroundColor: '#4D00FF',
         borderRadius: 4,
         data: monthlyData,
@@ -147,10 +153,10 @@ const lineChartData = computed(() => {
   }
 
   return {
-    labels,
+    labels: labels.map(monthLabel),
     datasets: [
       {
-        label: 'Timeliness (%)',
+        label: t('kpiPerformance.charts.timeliness'),
         borderColor: '#10B981',
         backgroundColor: '#10B981',
         pointBackgroundColor: '#10B981',
@@ -161,7 +167,7 @@ const lineChartData = computed(() => {
         yAxisID: 'y'
       },
       {
-        label: 'CSAT Score',
+        label: t('kpiPerformance.charts.csatScore'),
         borderColor: '#F97316',
         backgroundColor: '#F97316',
         pointBackgroundColor: '#F97316',
@@ -230,7 +236,7 @@ const lineChartOptions = {
     <UCard :ui="{ body: 'p-6' }" class="bg-white dark:bg-gray-900 shadow-sm border border-gray-100 dark:border-gray-800">
       <div class="flex items-center gap-2 mb-6">
         <UIcon name="i-lucide-bar-chart-2" class="w-5 h-5 text-gray-400" />
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Monthly Completion Rate</h3>
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('kpiPerformance.charts.monthlyCompletionRate') }}</h3>
       </div>
       <div class="h-64">
         <Bar :data="barChartData" :options="barChartOptions" />
@@ -242,16 +248,16 @@ const lineChartOptions = {
       <div class="flex flex-col mb-6">
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-activity" class="w-5 h-5 text-gray-400" />
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white">CSAT & Timeliness Trend</h3>
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('kpiPerformance.charts.trendTitle') }}</h3>
         </div>
         <div class="flex items-center justify-center gap-6 mt-2">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span class="text-md font-semibold text-emerald-500">Timeliness (%)</span>
+            <span class="text-md font-semibold text-emerald-500">{{ t('kpiPerformance.charts.timeliness') }}</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-            <span class="text-md font-semibold text-orange-500">CSAT Score</span>
+            <span class="text-md font-semibold text-orange-500">{{ t('kpiPerformance.charts.csatScore') }}</span>
           </div>
         </div>
       </div>

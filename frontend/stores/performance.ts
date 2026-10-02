@@ -2,6 +2,18 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { extractErrorMessage } from '~/utils/error';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { useI18n } from '~/composables/useI18n';
+import {
+  buildKpiBreakdownParams,
+  emptyKpiBreakdownPagination,
+  mergeDistinct,
+  parseKpiBreakdownPagination,
+  KPI_BREAKDOWN_DEFAULT_PAGE_SIZE,
+  KPI_BREAKDOWN_MAX_PAGE_SIZE,
+  type KpiBreakdownItem,
+  type KpiBreakdownPagination,
+  type KpiBreakdownQuery
+} from '~/utils/kpiBreakdown';
 
 export interface KPIAchievement {
   id: string;
@@ -56,6 +68,7 @@ export interface MonthlyTrendData {
 }
 
 export const usePerformanceStore = defineStore('performance', () => {
+  const { t } = useI18n();
   const kpiAchievements = ref<KPIAchievement[]>([]);
   const workPlanRealizations = ref<WorkPlanRealization[]>([]);
   const dashboardCards = ref<SummaryCardData[]>([]);
@@ -63,24 +76,124 @@ export const usePerformanceStore = defineStore('performance', () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  const mockKpis: KPIAchievement[] = [
-    { id: '1', year: 2026, period: 'Tahunan', kpi_name: 'Penyelesaian Program Kerja Audit Tahunan (PKAT)', target: 100, actual: 92, achievement_rate: 92, notes: '1 audit operasional ditunda ke Q1 2027 karena restrukturisasi unit bisnis' },
-    { id: '2', year: 2026, period: 'Tahunan', kpi_name: 'Persentase Tindak Lanjut Rekomendasi Audit', target: 85, actual: 88, achievement_rate: 103.5, notes: 'Melebihi target karena implementasi sistem monitoring otomatis baru' },
-    { id: '3', year: 2026, period: 'Tahunan', kpi_name: 'Indeks Kepuasan Auditee terhadap Layanan Audit', target: 80, actual: 82, achievement_rate: 102.5, notes: 'Survei akhir tahun menunjukkan kepuasan tinggi terhadap kejelasan rekomendasi' },
-    { id: '4', year: 2026, period: 'Tahunan', kpi_name: 'Rata-rata Waktu Penyampaian Laporan Hasil Audit (LHA)', target: 14, actual: 15, achievement_rate: 93.3, notes: 'Target 14 hari kerja setelah exit meeting, rata-rata aktual 15 hari kerja' },
-    { id: '5', year: 2025, kpi_name: 'Penyelesaian Program Kerja Audit Tahunan (PKAT)', target: 100, actual: 90, achievement_rate: 90, notes: '9 dari 10 rencana audit terlaksana dengan baik' },
-    { id: '6', year: 2025, kpi_name: 'Persentase Tindak Lanjut Rekomendasi Audit', target: 85, actual: 86, achievement_rate: 101.2, notes: 'Peningkatan penyelesaian tindak lanjut di semester 2' },
-    { id: '7', year: 2025, kpi_name: 'Indeks Kepuasan Auditee terhadap Layanan Audit', target: 80, actual: 84, achievement_rate: 105.0, notes: 'Survei kepuasan auditee menunjukkan hasil sangat memuaskan' },
-    { id: '8', year: 2025, kpi_name: 'Rata-rata Waktu Penyampaian Laporan Hasil Audit (LHA)', target: 14, actual: 13.5, achievement_rate: 103.7, notes: 'Penyampaian LHA rata-rata 13.5 hari kerja' }
-  ];
+  // --- KPI Detailed Breakdown (server-side filtered and paged) ---
+  // Kept apart from `loading`/`error` above so the table does not flicker with the cards and charts.
+  const kpiBreakdown = ref<KpiBreakdownItem[]>([]);
+  const kpiBreakdownPagination = ref<KpiBreakdownPagination>(emptyKpiBreakdownPagination());
+  const kpiBreakdownLoading = ref(false);
+  const kpiBreakdownError = ref<string | null>(null);
+  // `search` here is the applied (debounced) term; the input box holds the live text.
+  const kpiBreakdownQuery = ref<KpiBreakdownQuery>({
+    year: new Date().getFullYear(),
+    page: 1,
+    pageSize: KPI_BREAKDOWN_DEFAULT_PAGE_SIZE,
+    search: '',
+    category: '',
+    status: '',
+    period: ''
+  });
+  // Category/period values seen for the current year, for the filter menus (the API has no facet list).
+  const kpiBreakdownCategories = ref<string[]>([]);
+  const kpiBreakdownPeriods = ref<string[]>([]);
+  let kpiBreakdownRequestId = 0;
+  let kpiBreakdownSearchTimer: ReturnType<typeof setTimeout> | null = null;
+  const KPI_BREAKDOWN_SEARCH_DEBOUNCE_MS = 300;
 
-  const mockRealizations: WorkPlanRealization[] = [
-    { id: '1', year: 2026, audit_annual_plan_id: 'AP-2026-01', planned_activities: 12, executed_activities: 11, realization_rate: 91.67, annual_plan: { title: 'Rencana Audit Tahunan 2026' } },
-    { id: '2', year: 2026, audit_annual_plan_id: 'AP-2026-02', planned_activities: 8, executed_activities: 8, realization_rate: 100.00, annual_plan: { title: 'Audit Investigatif & Khusus 2026' } },
-    { id: '3', year: 2025, audit_annual_plan_id: 'AP-2025-01', planned_activities: 10, executed_activities: 9, realization_rate: 90.00, annual_plan: { title: 'Rencana Audit Tahunan 2025' } }
-  ];
+  const fetchKpiBreakdown = async () => {
+    const requestId = ++kpiBreakdownRequestId;
+    const query = { ...kpiBreakdownQuery.value };
+    kpiBreakdownLoading.value = true;
+    kpiBreakdownError.value = null;
+    try {
+      const baseUrl = getAuditServiceBaseUrl();
+      const response: any = await $fetch(`${baseUrl}/performance/kpi-breakdown`, {
+        params: buildKpiBreakdownParams(query)
+      });
+      // A newer request (filter/page change) was started meanwhile; its result wins.
+      if (requestId !== kpiBreakdownRequestId) return;
 
+      const items: KpiBreakdownItem[] = Array.isArray(response?.data?.items) ? response.data.items : [];
+      const pagination = parseKpiBreakdownPagination(response?.data?.pagination, query);
 
+      // The requested page no longer exists (e.g. rows were removed): jump to the last one.
+      if (items.length === 0 && pagination.total > 0 && pagination.total_pages > 0 && query.page > pagination.total_pages) {
+        kpiBreakdownQuery.value.page = pagination.total_pages;
+        await fetchKpiBreakdown();
+        return;
+      }
+
+      kpiBreakdown.value = items;
+      kpiBreakdownPagination.value = pagination;
+      kpiBreakdownQuery.value.page = pagination.page;
+      kpiBreakdownQuery.value.pageSize = pagination.page_size;
+      kpiBreakdownCategories.value = mergeDistinct(kpiBreakdownCategories.value, items.map(i => i.category));
+      kpiBreakdownPeriods.value = mergeDistinct(kpiBreakdownPeriods.value, items.map(i => i.period));
+    } catch (err: any) {
+      if (requestId !== kpiBreakdownRequestId) return;
+      console.error('Failed to fetch KPI breakdown:', err);
+      kpiBreakdownError.value = extractErrorMessage(err, t('kpiPerformance.store.fetchBreakdownFailed'));
+      kpiBreakdown.value = [];
+      kpiBreakdownPagination.value = emptyKpiBreakdownPagination(query.pageSize);
+    } finally {
+      if (requestId === kpiBreakdownRequestId) kpiBreakdownLoading.value = false;
+    }
+  };
+
+  const cancelKpiBreakdownSearch = () => {
+    if (kpiBreakdownSearchTimer) {
+      clearTimeout(kpiBreakdownSearchTimer);
+      kpiBreakdownSearchTimer = null;
+    }
+  };
+
+  /** Change year/filters/page size; anything that changes goes back to page 1 and refetches. */
+  const setKpiBreakdownFilters = (changes: Partial<Omit<KpiBreakdownQuery, 'page'>>) => {
+    const current = kpiBreakdownQuery.value;
+    const next: KpiBreakdownQuery = { ...current, ...changes, page: 1 };
+    next.pageSize = Math.min(KPI_BREAKDOWN_MAX_PAGE_SIZE, Math.max(1, Number(next.pageSize) || KPI_BREAKDOWN_DEFAULT_PAGE_SIZE));
+    next.search = (next.search ?? '').trim();
+    next.category = next.category ?? '';
+    next.status = next.status ?? '';
+    next.period = next.period ?? '';
+    const changed = (Object.keys(changes) as Array<keyof KpiBreakdownQuery>).some(k => next[k] !== current[k]);
+    if (!changed) return;
+    if ('search' in changes) cancelKpiBreakdownSearch();
+    if (next.year !== current.year) {
+      kpiBreakdownCategories.value = [];
+      kpiBreakdownPeriods.value = [];
+    }
+    kpiBreakdownQuery.value = next;
+    return fetchKpiBreakdown();
+  };
+
+  /** Debounced search: only the last term typed within the window is sent. */
+  const setKpiBreakdownSearch = (term: string) => {
+    cancelKpiBreakdownSearch();
+    const value = (term ?? '').trim();
+    if (value === kpiBreakdownQuery.value.search) return;
+    kpiBreakdownSearchTimer = setTimeout(() => {
+      kpiBreakdownSearchTimer = null;
+      setKpiBreakdownFilters({ search: value });
+    }, KPI_BREAKDOWN_SEARCH_DEBOUNCE_MS);
+  };
+
+  const setKpiBreakdownPage = (page: number) => {
+    const target = Math.max(1, Math.trunc(Number(page)) || 1);
+    if (target === kpiBreakdownQuery.value.page) return;
+    kpiBreakdownQuery.value.page = target;
+    return fetchKpiBreakdown();
+  };
+
+  /** First load / year prop change: a new year starts at page 1, the same year reloads the current page. */
+  const loadKpiBreakdown = (year: number) => {
+    if (year !== kpiBreakdownQuery.value.year) return setKpiBreakdownFilters({ year });
+    return fetchKpiBreakdown();
+  };
+
+  const resetKpiBreakdownFilters = () => {
+    cancelKpiBreakdownSearch();
+    return setKpiBreakdownFilters({ search: '', category: '', status: '', period: '' });
+  };
 
   const fetchDashboardSummary = async (year: number = 2026) => {
     loading.value = true;
@@ -95,7 +208,7 @@ export const usePerformanceStore = defineStore('performance', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch dashboard summary:', err);
-      error.value = extractErrorMessage(err, 'Failed to fetch dashboard summary');
+      error.value = extractErrorMessage(err, t('kpiPerformance.store.fetchDashboardSummaryFailed'));
     } finally {
       loading.value = false;
     }
@@ -114,7 +227,7 @@ export const usePerformanceStore = defineStore('performance', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch monthly trends:', err);
-      error.value = extractErrorMessage(err, 'Failed to fetch monthly trends');
+      error.value = extractErrorMessage(err, t('kpiPerformance.store.fetchMonthlyTrendsFailed'));
     } finally {
       loading.value = false;
     }
@@ -132,13 +245,12 @@ export const usePerformanceStore = defineStore('performance', () => {
       const response: any = await $fetch(`${baseUrl}/performance/kpi`, {
         params
       });
+      // Only what the API returned: an empty response stays empty.
       let fetched: KPIAchievement[] = [];
-      if (response && Array.isArray(response.data) && response.data.length > 0) {
+      if (response && Array.isArray(response.data)) {
         fetched = response.data;
-      } else if (Array.isArray(response) && response.length > 0) {
+      } else if (Array.isArray(response)) {
         fetched = response;
-      } else {
-        fetched = [...mockKpis];
       }
       if (period && period !== 'Semua') {
         kpiAchievements.value = fetched.filter(item => !item.period || item.period === period);
@@ -146,8 +258,8 @@ export const usePerformanceStore = defineStore('performance', () => {
         kpiAchievements.value = fetched;
       }
     } catch (err: any) {
-      error.value = extractErrorMessage(err, 'Failed to fetch KPI achievements');
-      kpiAchievements.value = [...mockKpis];
+      error.value = extractErrorMessage(err, t('kpiPerformance.store.fetchKpiFailed'));
+      kpiAchievements.value = [];
     } finally {
       loading.value = false;
     }
@@ -161,16 +273,16 @@ export const usePerformanceStore = defineStore('performance', () => {
       const response: any = await $fetch(`${baseUrl}/performance/realization`, {
         params: { year }
       });
-      if (response && Array.isArray(response.data) && response.data.length > 0) {
+      if (response && Array.isArray(response.data)) {
         workPlanRealizations.value = response.data;
-      } else if (Array.isArray(response) && response.length > 0) {
+      } else if (Array.isArray(response)) {
         workPlanRealizations.value = response;
       } else {
-        workPlanRealizations.value = [...mockRealizations];
+        workPlanRealizations.value = [];
       }
     } catch (err: any) {
-      error.value = extractErrorMessage(err, 'Failed to fetch Work Plan realizations');
-      workPlanRealizations.value = [...mockRealizations];
+      error.value = extractErrorMessage(err, t('kpiPerformance.store.fetchRealizationFailed'));
+      workPlanRealizations.value = [];
     } finally {
       loading.value = false;
     }
@@ -186,6 +298,19 @@ export const usePerformanceStore = defineStore('performance', () => {
     fetchDashboardSummary,
     fetchMonthlyTrends,
     fetchKPIAchievements,
-    fetchWorkPlanRealizations
+    fetchWorkPlanRealizations,
+    kpiBreakdown,
+    kpiBreakdownPagination,
+    kpiBreakdownLoading,
+    kpiBreakdownError,
+    kpiBreakdownQuery,
+    kpiBreakdownCategories,
+    kpiBreakdownPeriods,
+    fetchKpiBreakdown,
+    loadKpiBreakdown,
+    setKpiBreakdownFilters,
+    setKpiBreakdownSearch,
+    setKpiBreakdownPage,
+    resetKpiBreakdownFilters
   };
 });

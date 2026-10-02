@@ -5,7 +5,7 @@
       <div>
         <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <UIcon name="i-lucide-file-text" class="size-6 sm:size-7 text-primary-500 shrink-0" />
-          Executive Summary (Laporan Individual)
+          {{ t('navigation.executiveSummaryIndividual') }}
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
           Rangkuman eksekutif resmi untuk setiap Laporan Hasil Audit (LHA) secara individual.
@@ -284,10 +284,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 import { useExecutiveSummaryStore, type ExecutiveSummary } from '~/stores/executive-summary'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ExecutiveSummaryIndividualForm from '~/components/audit-result-report/ExecutiveSummaryIndividualForm.vue'
+
+const { t } = useI18n()
 
 definePageMeta({
   middleware: 'auth'

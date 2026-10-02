@@ -241,3 +241,11 @@ input[type="radio"]:disabled,
 [role="combobox"][aria-disabled="true"] {
   cursor: not-allowed !important;
 }
+
+/* Dashboard card chrome shared by every dashboard card (matches the KPI Forecasting / Anomaly cards) */
+.dashboard-card {
+  @apply bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl;
+}
+.dashboard-subcard {
+  @apply rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40;
+}

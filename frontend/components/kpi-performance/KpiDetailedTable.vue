@@ -1,7 +1,22 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { usePerformanceStore } from '~/stores/performance'
+import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
+import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
+import {
+  formatKpiGap,
+  formatKpiValue,
+  kpiBreakdownRangeText,
+  kpiCategoryText,
+  kpiGapClass,
+  kpiStatusColor,
+  mergeDistinct,
+  KPI_BREAKDOWN_PAGE_SIZES,
+  KPI_BREAKDOWN_STATUSES,
+  type KpiBreakdownItem
+} from '~/utils/kpiBreakdown'
 import StrategicPlanForm from '~/components/strategic-audit-plan/StrategicPlanForm.vue'
 
 const props = defineProps({
@@ -11,181 +26,122 @@ const props = defineProps({
   }
 })
 
+const { t, locale } = useI18n()
 const store = useStrategicPlanStore()
 const perfStore = usePerformanceStore()
+const { canManageStrategicPlan } = useRbac()
 
-const search = ref('')
-const category = ref()
-const period = ref()
-const status = ref()
+// Filtering, search, paging, gap and status all happen on the backend (GET /performance/kpi-breakdown);
+// this component only holds the inputs and renders the page it gets back.
+const query = computed(() => perfStore.kpiBreakdownQuery)
+const pagination = computed(() => perfStore.kpiBreakdownPagination)
+const rows = computed(() => perfStore.kpiBreakdown)
 
-const categories = ['Operational', 'Financial', 'Quality', 'Issue', 'Efficiency']
-const periods = ['Q1', 'Q2', 'Q3', 'Q4', '2025', '2026']
-const statuses = ['On Track', 'Exceeded', 'Completed', 'Needs Attention']
+watch(() => props.year, year => perfStore.loadKpiBreakdown(year), { immediate: true })
+
+// Live text in the box; the store debounces it before it becomes part of the query.
+const search = ref(query.value.search)
+watch(search, value => perfStore.setKpiBreakdownSearch(value))
+
+type FilterKey = 'category' | 'status' | 'period'
+const filterModel = (key: FilterKey) => computed<string | undefined>({
+  get: () => query.value[key] || undefined,
+  set: (value) => { perfStore.setKpiBreakdownFilters({ [key]: value ?? '' }) }
+})
+const category = filterModel('category')
+const period = filterModel('period')
+const status = filterModel('status')
+
+const pageSize = computed<number>({
+  get: () => query.value.pageSize,
+  set: (value) => { perfStore.setKpiBreakdownFilters({ pageSize: Number(value) }) }
+})
+const page = computed<number>({
+  get: () => query.value.page,
+  set: (value) => { perfStore.setKpiBreakdownPage(value) }
+})
+
+const hasFilters = computed(() => !!(query.value.search || query.value.category || query.value.status || query.value.period))
 
 const resetFilters = () => {
   search.value = ''
-  category.value = undefined
-  period.value = undefined
-  status.value = undefined
+  perfStore.resetKpiBreakdownFilters()
 }
 
-// We will map the store data to fit the image's structure
-// The store has `kpi`, `target`, `actual`, `status`, `unit`
-// We'll calculate `gap` and assign a random category if missing
-const tableData = computed(() => {
-  return store.strategicObjectives.map((obj: any, index: number) => {
-    const achievement = perfStore.kpiAchievements.find((a: any) => {
-      const kName = a.kpi_name.toLowerCase()
-      const oName = (obj.kpi || obj.strategicObjective || '').toLowerCase()
-      return kName.includes(oName) || oName.includes(kName)
-    })
+// Raw values are what the API filters on and what the colour mapping uses; only the label is translated.
+const categoryLabel = (value?: string) => kpiCategoryText(kpiValueLabel(t, 'categories', value))
+const statusLabel = (value?: string) => kpiValueLabel(t, 'statuses', value)
+// Achievement rows use 'Tahunan' for the annual period (see the page-level period selector).
+const periodLabel = (value: string) => value === 'Tahunan' ? t('kpiPerformance.upload.annual') : value
 
-    let targetVal = parseFloat(obj.target || '0')
-    if (obj.kpiTargets) {
-      const tgt = obj.kpiTargets[props.year] || obj.kpiTargets[String(props.year)]
-      if (tgt) targetVal = parseFloat(tgt)
-    }
+// The API has no category/period list, so the menus offer the values seen in this year's rows.
+// Categories are always "" today, which hides that filter until the backend provides them.
+const sortValues = (values: string[]) => [...values].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+const categoryItems = computed(() =>
+  sortValues(mergeDistinct(perfStore.kpiBreakdownCategories, [], query.value.category)).map(value => ({ label: categoryLabel(value), value }))
+)
+const periodItems = computed(() =>
+  sortValues(mergeDistinct(perfStore.kpiBreakdownPeriods, [], query.value.period)).map(value => ({ label: periodLabel(value), value }))
+)
+const statusItems = computed(() => KPI_BREAKDOWN_STATUSES.map((value): { label: string, value: string } => ({ label: statusLabel(value), value })))
+const pageSizeItems = KPI_BREAKDOWN_PAGE_SIZES.map(value => ({ label: String(value), value }))
 
-    let actualVal = parseFloat(obj.actual || '0')
-    if (achievement) {
-      actualVal = achievement.actual
-    }
+const numberLocale = computed(() => locale.value === 'id' ? 'id-ID' : 'en-US')
+const formatValue = (value: number, unit: string) => formatKpiValue(value, unit, numberLocale.value)
+const formatGap = (item: KpiBreakdownItem) => formatKpiGap(item.gap, item.unit, numberLocale.value)
 
-    let gap = ''
-    let gapValue = 0
-    let isPositive = false
+const rangeText = computed(() => kpiBreakdownRangeText(t, pagination.value))
 
-    if (targetVal !== 0) {
-      if (obj.hibHig === 'HIG') {
-        gapValue = actualVal - targetVal
-      } else {
-        gapValue = targetVal - actualVal
-      }
-      isPositive = gapValue >= 0
-      
-      const sign = gapValue > 0 ? '+' : ''
-      gap = `${sign}${Number.isInteger(gapValue) ? gapValue : gapValue.toFixed(1)}${obj.unit === '%' ? '%' : ''}`
-    } else {
-       gap = '0'
-    }
-
-    let mappedStatus = 'On Track'
-    let statusColor = 'bg-emerald-500'
-
-    if (targetVal > 0) {
-      const achRate = (actualVal / targetVal) * 100
-      if (achRate >= 100) {
-        mappedStatus = 'Exceeded'
-        statusColor = 'bg-secondary-500'
-      } else if (achRate >= 80) {
-        mappedStatus = 'On Track'
-        statusColor = 'bg-emerald-500'
-      } else {
-        mappedStatus = 'Needs Attention'
-        statusColor = 'bg-red-500'
+const columns = computed(() => [
+  // Same width as the KPI column in StrategicPlanTable; long names wrap onto more lines.
+  {
+    accessorKey: 'metric',
+    header: t('kpiPerformance.table.columns.metric'),
+    meta: {
+      class: {
+        th: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal',
+        td: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words'
       }
     }
+  },
+  { accessorKey: 'category', header: t('kpiPerformance.table.columns.category') },
+  { accessorKey: 'target', header: t('kpiPerformance.table.columns.target') },
+  { accessorKey: 'actual', header: t('kpiPerformance.table.columns.actual') },
+  { accessorKey: 'gap', header: t('kpiPerformance.table.columns.gap') },
+  { accessorKey: 'status', header: t('kpiPerformance.table.columns.status') },
+  ...(canManageStrategicPlan.value ? [{ accessorKey: 'actions', header: t('kpiPerformance.table.columns.actions') }] : [])
+])
 
-    let mappedCategory = categories[index % categories.length]
-
-    return {
-      id: obj.id,
-      metric: obj.kpi,
-      category: mappedCategory,
-      target: `${targetVal}${obj.unit === '%' ? '%' : ''}`,
-      actual: `${actualVal}${obj.unit === '%' ? '%' : ''}`,
-      gap: gap,
-      gapIsPositive: isPositive,
-      status: mappedStatus,
-      statusColor: statusColor,
-      rawPeriod: obj.selectedPeriod,
-      rawObj: obj,
-    }
-  })
-})
-
-const filteredData = computed(() => {
-  let data = [...tableData.value]
-
-  perfStore.kpiAchievements.forEach(kpi => {
-     const exists = data.some(d => d.metric.toLowerCase().includes(kpi.kpi_name.toLowerCase()) || kpi.kpi_name.toLowerCase().includes(d.metric.toLowerCase()))
-     if (!exists && kpi.year === props.year) {
-        data.push({
-           id: kpi.id,
-           metric: kpi.kpi_name,
-           category: 'Corporate',
-           target: `${kpi.target}`,
-           actual: `${kpi.actual}`,
-           gap: `${(kpi.actual - kpi.target).toFixed(1)}`,
-           gapIsPositive: kpi.actual >= kpi.target,
-           status: kpi.achievement_rate >= 100 ? 'Exceeded' : (kpi.achievement_rate >= 80 ? 'On Track' : 'Needs Attention'),
-           statusColor: kpi.achievement_rate >= 100 ? 'bg-secondary-500' : (kpi.achievement_rate >= 80 ? 'bg-emerald-500' : 'bg-red-500'),
-           rawPeriod: kpi.year.toString(),
-           rawObj: kpi,
-        })
-     }
-  })
-
-  if (search.value) {
-    data = data.filter((item: any) => item.metric.toLowerCase().includes(search.value.toLowerCase()))
-  }
-  if (category.value) {
-    data = data.filter((item: any) => item.category === category.value)
-  }
-  if (period.value) {
-    data = data.filter((item: any) => item.rawPeriod === period.value)
-  }
-  if (status.value) {
-    data = data.filter((item: any) => item.status === status.value)
-  }
-
-  if (data.length < 5 && !search.value && !category.value && !period.value && !status.value) {
-     const mockData: any[] = [
-       { id: 101, metric: 'Audit Plan Completion Rate', category: 'Operational', target: '100%', actual: '97%', gap: '3%', gapIsPositive: true, status: 'On Track', statusColor: 'bg-emerald-500', rawPeriod: '2026' },
-       { id: 102, metric: 'Cost Variance to Budget', category: 'Financial', target: '5%', actual: '2.3%', gap: '2.7%', gapIsPositive: true, status: 'On Track', statusColor: 'bg-emerald-500', rawPeriod: '2026' },
-       { id: 103, metric: 'Auditee Satisfaction (CSAT)', category: 'Quality', target: '4.5', actual: '4.7', gap: '+0.2', gapIsPositive: true, status: 'Exceeded', statusColor: 'bg-secondary-500', rawPeriod: '2026' },
-       { id: 104, metric: 'High-risk Issue Resolution', category: 'Issue', target: '100%', actual: '100%', gap: '0%', gapIsPositive: true, status: 'Selesai', statusColor: 'bg-emerald-500', rawPeriod: '2026' },
-       { id: 105, metric: 'Reporting Timeliness', category: 'Efficiency', target: '90%', actual: '95%', gap: '+5%', gapIsPositive: true, status: 'Exceeded', statusColor: 'bg-secondary-500', rawPeriod: '2026' },
-     ]
-     mockData.forEach(mock => {
-        if (!data.find((d: any) => d.metric === mock.metric)) {
-           data.push(mock)
-        }
-     })
-  }
-
-  return data
-})
-
-const columns = [
-  { accessorKey: 'metric', header: 'KPI Metric' },
-  { accessorKey: 'category', header: 'Category' },
-  { accessorKey: 'target', header: 'Target' },
-  { accessorKey: 'actual', header: 'Actual' },
-  { accessorKey: 'gap', header: 'Gap' },
-  { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
-
-function editKpiTarget(rowOriginal: any) {
-  const existing = store.strategicObjectives.find(o => String(o.id) === String(rowOriginal.id) || o.kpi === rowOriginal.metric)
-  if (existing) {
-    store.handleEdit(existing)
-  } else {
-    store.openModal()
-    store.form.kpi = rowOriginal.metric
-    store.form.strategicObjective = rowOriginal.metric
+// Strategic-plan rows open the plan form with a fresh copy of that plan: the form PUTs the whole
+// object, so editing a stale list entry could overwrite newer data. Achievement rows come from
+// uploaded performance reports and are not editable here.
+const openingPlanId = ref<string | null>(null)
+async function editKpiTarget(item: KpiBreakdownItem) {
+  if (item.source !== 'strategic_plan' || openingPlanId.value) return
+  openingPlanId.value = item.id
+  try {
+    const plan = await store.fetchStrategicPlanById(item.id)
+    if (plan) store.handleEdit(plan)
+  } finally {
+    openingPlanId.value = null
   }
 }
+
+// The form closes itself after a save; reload the current page so edited/new targets show up.
+watch(() => store.isAddModalOpen, (open, wasOpen) => {
+  if (wasOpen && !open) perfStore.fetchKpiBreakdown()
+})
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-bold text-gray-900 dark:text-white">KPI Detailed Breakdown</h2>
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+        {{ t('kpiPerformance.table.title') }}
+      </h2>
       <UButton
-        label="Set KPI Targets"
+        v-if="canManageStrategicPlan"
+        :label="t('kpiPerformance.table.setTargets')"
         icon="i-lucide-plus"
         color="primary"
         size="sm"
@@ -198,89 +154,171 @@ function editKpiTarget(rowOriginal: any) {
       <UInput
         v-model="search"
         icon="i-lucide-search"
-        placeholder="Search Report"
+        :placeholder="t('kpiPerformance.table.searchPlaceholder')"
         class="w-full sm:w-64"
       />
       <USelectMenu
+        v-if="categoryItems.length"
         v-model="category"
-        :items="categories"
-        placeholder="Select Category"
+        :items="categoryItems"
+        value-key="value"
+        :placeholder="t('kpiPerformance.table.selectCategory')"
         class="w-full sm:w-48"
       />
       <USelectMenu
+        v-if="periodItems.length"
         v-model="period"
-        :items="periods"
-        placeholder="Select Period"
+        :items="periodItems"
+        value-key="value"
+        :placeholder="t('kpiPerformance.table.selectPeriod')"
         class="w-full sm:w-48"
       />
       <USelectMenu
         v-model="status"
-        :items="statuses"
-        placeholder="Select Status"
+        :items="statusItems"
+        value-key="value"
+        :placeholder="t('kpiPerformance.table.selectStatus')"
         class="w-full sm:w-48"
       />
       <UButton
-        label="Reset Filter"
+        :label="t('kpiPerformance.table.resetFilter')"
         icon="i-lucide-rotate-ccw"
         color="neutral"
         variant="outline"
         class="w-full sm:w-auto justify-center"
+        :disabled="!hasFilters && !search"
         @click="resetFilters"
       />
     </div>
 
     <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto shadow-sm">
-      <UTable :columns="columns" :data="filteredData" :ui="{ th: 'bg-gray-100 dark:bg-gray-800/50' }">
+      <UTable
+        :columns="columns"
+        :data="rows"
+        :loading="perfStore.kpiBreakdownLoading"
+        :ui="{ th: 'bg-gray-100 dark:bg-gray-800/50' }"
+      >
         <template #metric-cell="{ row }">
-          <span class="font-bold text-gray-900 dark:text-white">{{ row.original.metric }}</span>
+          <span class="block font-bold text-gray-900 dark:text-white whitespace-normal break-words">{{ row.original.metric }}</span>
         </template>
-        
+
         <template #category-cell="{ row }">
-          <span class="font-semibold text-gray-900 dark:text-white">{{ row.original.category }}</span>
+          <span class="font-semibold text-gray-900 dark:text-white">{{ categoryLabel(row.original.category) }}</span>
         </template>
 
         <template #target-cell="{ row }">
-          <span class="font-bold text-gray-900 dark:text-white">{{ row.original.target }}</span>
+          <span class="font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ formatValue(row.original.target, row.original.unit) }}</span>
         </template>
 
         <template #actual-cell="{ row }">
-          <span class="font-bold text-gray-900 dark:text-white">{{ row.original.actual }}</span>
+          <span class="font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ formatValue(row.original.actual, row.original.unit) }}</span>
         </template>
 
         <template #gap-cell="{ row }">
-          <span :class="['font-bold', row.original.gapIsPositive ? 'text-emerald-500' : 'text-red-500', row.original.gap === '0%' ? 'text-gray-900 dark:text-white' : '']">
-            {{ row.original.gap }}
+          <span :class="['font-bold whitespace-nowrap', kpiGapClass(row.original)]">
+            {{ formatGap(row.original) }}
           </span>
         </template>
 
         <template #status-cell="{ row }">
           <div class="flex items-center gap-2">
-            <span :class="['w-3 h-3 rounded-full', row.original.statusColor]"></span>
-            <span class="font-semibold text-gray-900 dark:text-white">{{ row.original.status }}</span>
+            <span :class="['w-3 h-3 rounded-full shrink-0', kpiStatusColor(row.original.status)]" />
+            <span class="font-semibold text-gray-900 dark:text-white">{{ statusLabel(row.original.status) }}</span>
           </div>
         </template>
 
         <template #actions-cell="{ row }">
-          <UTooltip text="Edit KPI Target">
-          <UButton
+          <UTooltip
+            :text="row.original.source === 'strategic_plan' ? t('kpiPerformance.table.editTarget') : t('kpiPerformance.table.editUnavailable')"
+          >
+            <UButton
               color="warning"
               variant="ghost"
               size="md"
               icon="i-lucide-edit"
+              :disabled="row.original.source !== 'strategic_plan'"
+              :loading="openingPlanId === row.original.id"
+              :aria-label="t('kpiPerformance.table.editTarget')"
               @click="editKpiTarget(row.original)"
             />
           </UTooltip>
         </template>
+
+        <template #loading>
+          <div class="flex items-center justify-center gap-2 py-8 text-sm text-gray-500">
+            <UIcon
+              name="i-lucide-loader-2"
+              class="w-5 h-5 animate-spin"
+            />
+            {{ t('kpiPerformance.table.loading') }}
+          </div>
+        </template>
+
+        <template #empty>
+          <div
+            v-if="perfStore.kpiBreakdownError"
+            class="flex flex-col items-center justify-center gap-2 py-8 text-center"
+          >
+            <UIcon
+              name="i-lucide-alert-triangle"
+              class="w-8 h-8 text-red-500"
+            />
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">
+              {{ t('kpiPerformance.table.errorTitle') }}
+            </p>
+            <p class="text-sm text-gray-500">
+              {{ perfStore.kpiBreakdownError }}
+            </p>
+            <UButton
+              :label="t('kpiPerformance.table.retry')"
+              icon="i-lucide-refresh-cw"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              @click="perfStore.fetchKpiBreakdown()"
+            />
+          </div>
+          <div
+            v-else
+            class="flex flex-col items-center justify-center gap-2 py-8 text-center"
+          >
+            <UIcon
+              name="i-lucide-database"
+              class="w-8 h-8 text-gray-400"
+            />
+            <p class="text-sm font-medium text-gray-500">
+              {{ hasFilters ? t('kpiPerformance.table.emptyFiltered') : t('kpiPerformance.table.empty', { year: props.year }) }}
+            </p>
+          </div>
+        </template>
       </UTable>
 
-      <!-- Pagination Placeholder -->
-      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" size="md" />
-          <span class="text-sm font-medium">1 / 10</span>
-          <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="md" />
+      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <span class="text-md text-gray-500 font-semibold">{{ rangeText }}</span>
+        <div
+          v-if="pagination.total > 0"
+          class="flex flex-wrap items-center justify-center gap-3"
+        >
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">{{ t('kpiPerformance.table.rowsPerPage') }}</span>
+            <USelect
+              v-model="pageSize"
+              :items="pageSizeItems"
+              size="sm"
+              class="w-20"
+            />
+          </div>
+          <UPagination
+            v-if="pagination.total_pages > 1"
+            v-model:page="page"
+            :items-per-page="pagination.page_size"
+            :total="pagination.total"
+            size="sm"
+            active-color="primary"
+            color="neutral"
+            variant="outline"
+          />
         </div>
-        <span class="text-md text-gray-500 font-semibold">Showing 1 - {{ filteredData.length }} of 50 data</span>
       </div>
     </div>
 

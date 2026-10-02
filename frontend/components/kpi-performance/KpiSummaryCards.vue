@@ -2,6 +2,8 @@
 import { usePerformanceStore } from '~/stores/performance'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { computed } from 'vue'
+import { useI18n } from '~/composables/useI18n'
+import { kpiSubMetric, type KpiSubMetric } from '~/utils/kpiPerformanceLabels'
 
 const props = defineProps({
   year: {
@@ -10,6 +12,7 @@ const props = defineProps({
   }
 })
 
+const { t } = useI18n()
 const store = usePerformanceStore()
 const spStore = useStrategicPlanStore()
 
@@ -42,6 +45,16 @@ const getTargetForYear = (metric: any, defaultVal: string): string => {
   return metric?.target ? (metric.unit === 'Score' ? `${parseFloat(metric.target).toFixed(1)} / 5.0` : `${metric.target}${metric.unit || '%'}`) : defaultVal
 }
 
+// The dashboard-summary API returns English display strings for sub-metrics;
+// known formats are translated, anything else is shown raw (see utils/kpiPerformanceLabels.ts).
+const localizeSubMetric = (sub: KpiSubMetric) => kpiSubMetric(t, sub)
+
+const cardTitle = (key: string, fallback: string) => {
+  const path = `kpiPerformance.summary.cards.${key}`
+  const label = t(path)
+  return label === path ? fallback : label
+}
+
 const cards = computed(() => {
   const iconMap: Record<string, { icon: string; color: string; bg: string }> = {
     audit_completion_rate: { icon: 'i-lucide-target', color: 'text-orange-500', bg: 'bg-orange-100 dark:bg-orange-900/30' },
@@ -54,15 +67,16 @@ const cards = computed(() => {
     return store.dashboardCards.map(c => {
       const iconConfig = iconMap[c.key] || { icon: 'i-lucide-target', color: 'text-orange-500', bg: 'bg-orange-100 dark:bg-orange-900/30' }
       return {
-        title: c.title,
+        title: cardTitle(c.key, c.title),
         value: c.value,
         target: c.target,
-        trend: c.trend,
+        // `gap` is the signed delta (e.g. "+2.0%"); fall back to the API's own text if it is missing.
+        trend: c.gap ? t('kpiPerformance.summary.vsTarget', { gap: c.gap }) : c.trend,
         trendUp: c.trend_up,
         icon: iconConfig.icon,
         iconColor: iconConfig.color,
         iconBg: iconConfig.bg,
-        subMetrics: c.sub_metrics
+        subMetrics: c.sub_metrics?.map(localizeSubMetric)
       }
     })
   }
@@ -74,7 +88,7 @@ const cards = computed(() => {
   const completionActualNum = parseFloat(spCompletion?.actual || '92')
   const completionTargetNum = getTargetValueForYear(spCompletion, 90)
   const completionGap = (completionActualNum - completionTargetNum).toFixed(1)
-  const completionTrend = `${parseFloat(completionGap) >= 0 ? '+' : ''}${completionGap}% vs target`
+  const completionTrend = t('kpiPerformance.summary.vsTarget', { gap: `${parseFloat(completionGap) >= 0 ? '+' : ''}${completionGap}%` })
   const completionTrendUp = completionActualNum >= completionTargetNum
 
   // 2. Report Timeliness
@@ -84,7 +98,7 @@ const cards = computed(() => {
   const timelinessActualNum = parseFloat(spTimeliness?.actual || '98')
   const timelinessTargetNum = getTargetValueForYear(spTimeliness, 90)
   const timelinessGap = (timelinessActualNum - timelinessTargetNum).toFixed(1)
-  const timelinessTrend = `${parseFloat(timelinessGap) >= 0 ? '+' : ''}${timelinessGap}% vs target`
+  const timelinessTrend = t('kpiPerformance.summary.vsTarget', { gap: `${parseFloat(timelinessGap) >= 0 ? '+' : ''}${timelinessGap}%` })
   const timelinessTrendUp = timelinessActualNum >= timelinessTargetNum
 
   // 3. Client Satisfaction
@@ -94,7 +108,7 @@ const cards = computed(() => {
   const csatActualNum = parseFloat(spCsat?.actual || '4.0')
   const csatTargetNum = getTargetValueForYear(spCsat, 4.0)
   const csatGap = (csatActualNum - csatTargetNum).toFixed(1)
-  const csatTrend = `${parseFloat(csatGap) >= 0 ? '+' : ''}${csatGap} vs target`
+  const csatTrend = t('kpiPerformance.summary.vsTarget', { gap: `${parseFloat(csatGap) >= 0 ? '+' : ''}${csatGap}` })
   const csatTrendUp = csatActualNum >= csatTargetNum
 
   // 4. Action Plan Closed
@@ -104,12 +118,12 @@ const cards = computed(() => {
   const actionPlanActualNum = parseFloat(spActionPlan?.actual || '87')
   const actionPlanTargetNum = getTargetValueForYear(spActionPlan, 90)
   const actionPlanGap = (actionPlanActualNum - actionPlanTargetNum).toFixed(1)
-  const actionPlanTrend = `${parseFloat(actionPlanGap) >= 0 ? '+' : ''}${actionPlanGap}% vs target`
+  const actionPlanTrend = t('kpiPerformance.summary.vsTarget', { gap: `${parseFloat(actionPlanGap) >= 0 ? '+' : ''}${actionPlanGap}%` })
   const actionPlanTrendUp = actionPlanActualNum >= actionPlanTargetNum
 
   return [
     {
-      title: 'Audit Completion Rate',
+      title: t('kpiPerformance.summary.cards.audit_completion_rate'),
       value: completionVal,
       target: completionTarget,
       trend: completionTrend,
@@ -118,16 +132,16 @@ const cards = computed(() => {
       iconColor: 'text-orange-500',
       iconBg: 'bg-orange-100 dark:bg-orange-900/30',
       subMetrics: [
-        {
+        localizeSubMetric({
           title: 'Operational Completion Rate (Started Audits)',
           value: '92.0%',
           target: '90%',
           trend: '11 completed / 12 started'
-        }
+        })
       ]
     },
     {
-      title: 'Report Timeliness',
+      title: t('kpiPerformance.summary.cards.report_timeliness'),
       value: timelinessVal,
       target: timelinessTarget,
       trend: timelinessTrend,
@@ -136,16 +150,16 @@ const cards = computed(() => {
       iconColor: 'text-orange-500',
       iconBg: 'bg-orange-100 dark:bg-orange-900/30',
       subMetrics: [
-        {
+        localizeSubMetric({
           title: 'Avg Drafting Cycle-Time',
           value: '12.5 days',
           target: '< 14 days',
           trend: '-1.5 days vs target'
-        }
+        })
       ]
     },
     {
-      title: 'Client Satisfaction',
+      title: t('kpiPerformance.summary.cards.client_satisfaction'),
       value: csatVal,
       target: csatTarget,
       trend: csatTrend,
@@ -154,16 +168,16 @@ const cards = computed(() => {
       iconColor: 'text-orange-500',
       iconBg: 'bg-orange-100 dark:bg-orange-900/30',
       subMetrics: [
-        {
+        localizeSubMetric({
           title: 'Survey Response Rate',
           value: '85.5%',
           target: '80%',
           trend: '12 responses from 14 completed audits'
-        }
+        })
       ]
     },
     {
-      title: 'Action Plan Closed',
+      title: t('kpiPerformance.summary.cards.action_plan_closed'),
       value: actionPlanVal,
       target: actionPlanTarget,
       trend: actionPlanTrend,
@@ -172,12 +186,12 @@ const cards = computed(() => {
       iconColor: 'text-orange-500',
       iconBg: 'bg-orange-100 dark:bg-orange-900/30',
       subMetrics: [
-        {
+        localizeSubMetric({
           title: 'Open / Pending Action Plans',
           value: '4 open',
           target: '0 overdue',
           trend: '31 total recommendations registered'
-        }
+        })
       ]
     }
   ]
@@ -192,7 +206,7 @@ const cards = computed(() => {
           <UIcon :name="card.icon" :class="['w-6 h-6', card.iconColor]" />
         </div>
         <div class="bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400 text-md font-semibold px-2 py-1 rounded">
-          Target: {{ card.target }}
+          {{ t('kpiPerformance.summary.targetBadge', { value: card.target }) }}
         </div>
       </div>
       <div class="space-y-1">

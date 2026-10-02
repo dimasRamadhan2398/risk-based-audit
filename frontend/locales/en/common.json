@@ -150,6 +150,12 @@
   },
   "dashboard": {
     "title": "Home",
+    "planningExecution": {
+      "title": "Audit Planning & Execution",
+      "coverageTitle": "Audit Planning Coverage",
+      "executionTitle": "Audit Execution Status",
+      "configure": "Configure"
+    },
     "registeredRisks": {
       "columns": {
         "level": "Risk Level"
@@ -566,6 +572,16 @@
     "addObjective": "Add Strategic Objective",
     "importDocument": "Import Document",
     "errorTitle": "Error",
+    "toast": {
+      "validationTitle": "Validation failed",
+      "objectiveRequired": "The Strategic Objective field is required.",
+      "updatedTitle": "Strategic plan updated",
+      "createdTitle": "Strategic plan created",
+      "savedDesc": "Strategic plan \"{name}\" saved successfully.",
+      "saveFailedTitle": "Failed to save strategic plan",
+      "saveFailedFallback": "Failed to save strategic plan.",
+      "loadOneFailed": "Failed to load the strategic plan."
+    },
     "vmg": {
       "title": "Vision, Mission, Goals and Strategic Objective",
       "emptyTitle": "Vision, Mission, Goals and Strategic Objective have not been added",
@@ -832,6 +848,55 @@
       "3": "Medium (3)",
       "4": "Medium to High (4)",
       "5": "High (5)"
+    }
+  },
+  "auditUniverse": {
+    "title": "Audit Universe Configuration",
+    "subtitle": "Manage your Corporate Audit Universe library and establish active entities for yearly planning.",
+    "backToHeatmap": "Back to Heat Map",
+    "tabs": {
+      "library": "1. Corporate Universe Builder",
+      "establish": "2. Yearly Establishment"
+    },
+    "library": {
+      "standardTitle": "Standard Audit Universe Library",
+      "standardSubtitle": "Select standard entities to include them in your Corporate Audit Universe.",
+      "corporateTitle": "Corporate Audit Universe",
+      "addCustomEntity": "Add Custom Entity",
+      "entityCount": "{count} Entity",
+      "addSubEntity": "Add Sub Entity",
+      "renameParentEntity": "Rename Parent Entity",
+      "deleteParentEntity": "Delete Parent Entity",
+      "renameSubEntity": "Rename Sub Entity",
+      "deleteSubEntity": "Delete Sub Entity",
+      "emptyState": "Corporate Audit Universe is empty. Select from standard library or add custom ones."
+    },
+    "establish": {
+      "title": "📅 2. Establish {year} Audit Universe",
+      "subtitle": "Select Auditable Entities from the Corporate Audit Universe active for auditing in year {year}.",
+      "targetYear": "Target Year:",
+      "establishBtn": "Establish Active Universe"
+    },
+    "modals": {
+      "renameTitle": "Rename Entity",
+      "entityNameLabel": "Entity Name",
+      "entityNamePlaceholder": "Enter entity name",
+      "entityNameValidation": "Entity name is required and must be at most 100 characters",
+      "addSubEntityTitle": "Add Sub-Entity",
+      "addCustomEntityTitle": "Add Custom Corporate Entity",
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter name...",
+      "addNode": "Add Node",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "messages": {
+      "entityRenamed": "Corporate entity name updated successfully.",
+      "entityAdded": "Custom corporate entity added successfully.",
+      "deleteConfirmDesc": "Are you sure you want to delete this entity from Corporate Audit Universe? This will delete all sub-entities and yearly entries.",
+      "entityDeleted": "Entity deleted successfully from corporate library.",
+      "establishSuccess": "Successfully established active Audit Universe for year {year}.",
+      "establishFailed": "Failed to establish yearly audit universe."
     }
   },
   "auditPriority": {
@@ -2343,6 +2408,137 @@
       "deleteSuccessDesc": "Performance Report document deleted successfully.",
       "deleteFailed": "Failed to Delete",
       "deleteFailedDesc": "An error occurred while deleting the document."
+    },
+    "page": {
+      "subtitle": "Monitor and track internal audit performance metrics and performance reports (Q1, Q2, Q3, Q4, Annual)",
+      "periodPlaceholder": "Period",
+      "exportPdf": "Export PDF",
+      "importedBanner": "Imported performance report documents ({count} reports)",
+      "activeReport": "Active performance report:",
+      "manageDocuments": "Manage report documents",
+      "pdfGenerating": "Generating executive PDF report...",
+      "pdfGeneratingDesc": "Opening the official KPI performance PDF report for year {year}...",
+      "pdfFailed": "Failed to generate PDF report",
+      "pdfFailedFallback": "Please try again.",
+      "print": {
+        "division": "INTERNAL AUDIT DIVISION",
+        "reportTitle": "KPI Performance Report - Year {year}",
+        "generatedOn": "Generated on: {date}",
+        "systemName": "Risk-Based Audit System",
+        "confidential": "Confidential - Internal Use Only",
+        "preparedBy": "Prepared by:",
+        "reviewedBy": "Reviewed by:",
+        "approvedBy": "Approved by:",
+        "roleSpecialist": "Internal Audit Specialist",
+        "roleQualityManager": "Audit Quality Manager",
+        "roleCae": "Chief Audit Executive (CAE)"
+      }
+    },
+    "summary": {
+      "targetBadge": "Target: {value}",
+      "vsTarget": "{gap} vs target",
+      "cards": {
+        "audit_completion_rate": "Audit completion rate",
+        "report_timeliness": "Report timeliness",
+        "client_satisfaction": "Client satisfaction",
+        "action_plan_closed": "Action plan closed"
+      },
+      "subTitles": {
+        "operationalCompletion": "Operational completion rate (started audits)",
+        "avgDraftingCycle": "Average drafting cycle time",
+        "surveyResponseRate": "Survey response rate",
+        "openPendingActionPlans": "Open / pending action plans"
+      },
+      "text": {
+        "days": "{count} days",
+        "daysVsTarget": "{count} days vs target",
+        "lessThanDays": "< {count} days",
+        "openCount": "{count} open",
+        "overdueCount": "{count} overdue",
+        "completedOfStarted": "{completed} completed / {started} started",
+        "responsesFrom": "{responses} responses from {audits} completed audits",
+        "totalRecommendations": "{count} total recommendations registered"
+      }
+    },
+    "charts": {
+      "monthlyCompletionRate": "Monthly completion rate",
+      "trendTitle": "CSAT and timeliness trend",
+      "timeliness": "Timeliness (%)",
+      "csatScore": "CSAT score",
+      "months": {
+        "jan": "Jan",
+        "feb": "Feb",
+        "mar": "Mar",
+        "apr": "Apr",
+        "may": "May",
+        "jun": "Jun",
+        "jul": "Jul",
+        "aug": "Aug",
+        "sep": "Sep",
+        "oct": "Oct",
+        "nov": "Nov",
+        "dec": "Dec"
+      }
+    },
+    "table": {
+      "title": "KPI detailed breakdown",
+      "setTargets": "Set KPI targets",
+      "searchPlaceholder": "Search KPI metric",
+      "selectCategory": "Select category",
+      "selectPeriod": "Select period",
+      "selectStatus": "Select status",
+      "resetFilter": "Reset filters",
+      "editTarget": "Edit KPI target",
+      "editUnavailable": "Comes from an uploaded performance report; edit it there",
+      "showing": "Showing {from}-{to} of {total}",
+      "showingNone": "No data to show",
+      "rowsPerPage": "Rows per page",
+      "loading": "Loading KPI data...",
+      "empty": "No KPI data for {year}",
+      "emptyFiltered": "No KPI matches the current filters",
+      "errorTitle": "Could not load the KPI breakdown",
+      "retry": "Try again",
+      "columns": {
+        "metric": "KPI metric",
+        "category": "Category",
+        "target": "Target",
+        "actual": "Actual",
+        "gap": "Gap",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "categories": {
+        "Operational": "Operational",
+        "Financial": "Financial",
+        "Quality": "Quality",
+        "Issue": "Issue",
+        "Efficiency": "Efficiency",
+        "Corporate": "Corporate"
+      },
+      "statuses": {
+        "On Track": "On track",
+        "Exceeded": "Exceeded",
+        "Completed": "Completed",
+        "Selesai": "Completed",
+        "Needs Attention": "Needs attention",
+        "No Target": "No target"
+      }
+    },
+    "store": {
+      "fetchDashboardSummaryFailed": "Failed to fetch dashboard summary",
+      "fetchMonthlyTrendsFailed": "Failed to fetch monthly trends",
+      "fetchKpiFailed": "Failed to fetch KPI achievements",
+      "fetchBreakdownFailed": "Failed to fetch the KPI breakdown",
+      "fetchRealizationFailed": "Failed to fetch work plan realizations",
+      "loadReportsFailed": "Failed to load uploaded performance report documents.",
+      "uploadedDocument": "Performance report document uploaded successfully",
+      "uploadedReport": "Performance report uploaded successfully.",
+      "uploadFailed": "Failed to upload performance report document.",
+      "deletedDocument": "Performance report document deleted successfully",
+      "deletedReport": "Performance report deleted successfully.",
+      "deleteFailed": "Failed to delete performance report document.",
+      "downloadFailed": "Failed to download document.",
+      "viewFailed": "Failed to view document."
     }
   },
   "navigation": {
