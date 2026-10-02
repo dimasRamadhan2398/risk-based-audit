@@ -29,6 +29,11 @@ type ActionTakenReport struct {
 	CreatedAt           time.Time         `json:"created_at"`
 	UpdatedAt           time.Time         `json:"updated_at"`
 	DeletedAt           gorm.DeletedAt    `gorm:"index" json:"-"`
+
+	// Derived on load/save from Deadline and Status (see action-taken-report-status.go);
+	// never stored, and request values are ignored
+	IsOverdue   bool `gorm:"-" json:"isOverdue"`
+	DaysOverdue int  `gorm:"-" json:"daysOverdue"`
 }
 
 func (r *ActionTakenReport) BeforeSave(tx *gorm.DB) error {

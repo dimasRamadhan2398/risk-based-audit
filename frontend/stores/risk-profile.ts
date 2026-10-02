@@ -211,8 +211,9 @@ const initialRiskData = [
 
 // Fallback branch list, used only until the Location master data loads (or when
 // the master service is unreachable). The authoritative list is the Location
-// master (/master/location → GET /api/v1/locations).
-const fallbackBranches = [
+// master (/master/location → GET /api/v1/locations); these names mirror
+// backend/master-service/pkg/database/seeders LocationSeeds.
+export const fallbackBranches = [
   'Head Office',
   'Jakarta Branch',
   'Surabaya Branch',
@@ -225,7 +226,7 @@ const fallbackBranches = [
 export const useRiskProfileStore = defineStore('risk-profile', () => {
   const config = useRuntimeConfig()
   const rawRisks = ref<any[]>([])
-  const masterBranches = ref<string[]>([])
+  const masterLocations = ref<{ id: string, name: string }[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
 
@@ -252,21 +253,36 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
       .map((r: any) => r.branch)
       .filter((b: any): b is string => Boolean(b))
 
-    const merged = Array.from(new Set([...masterBranches.value, ...fromRisks]))
+    const fromMaster = masterLocations.value.map(l => l.name)
+    const merged = Array.from(new Set([...fromMaster, ...fromRisks]))
     return merged.length > 0 ? merged : [...fallbackBranches]
   })
+
+  /**
+   * The Location master ID for a branch name, so a saved risk carries a real
+   * reference (risk_profile.location_id) and not just a label.
+   */
+  const locationIdForBranch = (branch?: string): string | undefined => {
+    if (!branch) return undefined
+    return masterLocations.value.find(l => l.name === branch)?.id
+  }
+
+  /** Attach location_id to a risk payload when the branch is known master data. */
+  const withLocationId = (payload: any) => {
+    const locationId = locationIdForBranch(payload?.branch)
+    return locationId ? { ...payload, location_id: locationId } : payload
+  }
 
   /** Load branch names from the Location master (/api/v1/locations). */
   const fetchBranches = async () => {
     try {
       const locations = await useLocationApi().getAllLocations()
-      masterBranches.value = locations
-        .filter((l: any) => l.is_active !== false)
-        .map((l: any) => l.name)
-        .filter(Boolean)
+      masterLocations.value = locations
+        .filter((l: any) => l.is_active !== false && l.name)
+        .map((l: any) => ({ id: l.id, name: l.name }))
     } catch (error: any) {
       console.error('Failed to fetch branch master data:', error)
-      masterBranches.value = []
+      masterLocations.value = []
     }
   }
 
@@ -392,7 +408,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/risks`, {
         method: 'POST',
-        body: newRiskData
+        body: withLocationId(newRiskData)
       })
 
       const isSuccess = response && (response.success || response.id)
@@ -481,7 +497,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
       try {
         const response: any = await $fetch(`${baseUrl}/risks/${updatedRisk.id}`, {
           method: 'PUT',
-          body: payload
+          body: withLocationId(payload)
         })
         if (response && response.success) {
           if (idx !== -1) {
@@ -559,6 +575,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     deleteRisk,
     fetchRisks,
     fetchBranches,
+    locationIdForBranch,
     loading,
     errorMsg
   }

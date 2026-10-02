@@ -71,6 +71,12 @@ func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads .
 			return
 		}
 
+		// Sort keys such as created_at are not unique (a batch insert gives every
+		// row the same timestamp), and Postgres does not keep ties in a stable
+		// order across LIMIT/OFFSET queries, so pages could skip or repeat rows.
+		// Break ties on the primary key.
+		orderBy = withIDTiebreaker(orderBy, columns)
+
 		query := db.Model(items)
 
 		for _, p := range preloads {
@@ -105,7 +111,10 @@ func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads .
 		}
 
 		var total int64
-		query.Count(&total)
+		if err := query.Count(&total).Error; err != nil {
+			response.InternalServerError(c, "Failed to fetch "+modelName)
+			return
+		}
 
 		if err := query.Order(orderBy).Offset(offset).Limit(pageSize).Find(items).Error; err != nil {
 			response.InternalServerError(c, "Failed to fetch "+modelName)
@@ -166,6 +175,21 @@ func parseOrder(raw string, columns map[string]bool) (clause.OrderBy, bool) {
 		orderBy.Columns = append(orderBy.Columns, clause.OrderByColumn{Column: clause.Column{Name: col}, Desc: desc})
 	}
 	return orderBy, true
+}
+
+// withIDTiebreaker appends "id" to the ORDER BY when the model has an id column
+// that is not already part of the ordering, so the order is total
+func withIDTiebreaker(orderBy clause.OrderBy, columns map[string]bool) clause.OrderBy {
+	if !columns["id"] {
+		return orderBy
+	}
+	for _, col := range orderBy.Columns {
+		if col.Column.Name == "id" {
+			return orderBy
+		}
+	}
+	orderBy.Columns = append(orderBy.Columns, clause.OrderByColumn{Column: clause.Column{Name: "id"}})
+	return orderBy
 }
 
 // ilikeAny matches Value case-insensitively against any of Columns:

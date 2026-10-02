@@ -100,3 +100,49 @@ func (r *AuditResultReport) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+
+// BeforeSave keeps FindingsCount equal to len(Findings) on every create/save,
+// whatever the client sent. For map updates (crud.Update) the count follows
+// the "findings" value being written; an update that only sends
+// findings_count is reset to the stored findings' length.
+func (r *AuditResultReport) BeforeSave(tx *gorm.DB) error {
+	if dest, ok := tx.Statement.Dest.(map[string]interface{}); ok {
+		if v, present := dest["findings"]; present {
+			tx.Statement.SetColumn("findings_count", countFindings(v))
+		} else if _, present := dest["findings_count"]; present {
+			tx.Statement.SetColumn("findings_count", len(r.Findings))
+		}
+		return nil
+	}
+	r.FindingsCount = len(r.Findings)
+	return nil
+}
+
+// countFindings counts the findings in a map-update value: a JSON array as
+// []byte/string (what crud.Update produces), a decoded slice, or nil.
+func countFindings(v interface{}) int {
+	switch val := v.(type) {
+	case nil:
+		return 0
+	case []AuditReportFinding:
+		return len(val)
+	case []interface{}:
+		return len(val)
+	case []byte:
+		return countJSONArray(val)
+	case string:
+		return countJSONArray([]byte(val))
+	case json.RawMessage:
+		return countJSONArray(val)
+	default:
+		return 0
+	}
+}
+
+func countJSONArray(b []byte) int {
+	var items []json.RawMessage
+	if err := json.Unmarshal(b, &items); err != nil {
+		return 0
+	}
+	return len(items)
+}

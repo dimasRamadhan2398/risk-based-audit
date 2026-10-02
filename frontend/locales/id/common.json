@@ -148,6 +148,28 @@
     "readLess": "Sembunyikan",
     "create": "Buat"
   },
+  "dashboard": {
+    "registeredRisks": {
+      "columns": {
+        "level": "Tingkat Risiko"
+      }
+    },
+    "recentFindings": {
+      "title": "Temuan Audit Terbaru",
+      "empty": "Belum ada temuan audit yang tercatat.",
+      "error": "Gagal memuat temuan terbaru.",
+      "columns": {
+        "finding": "Temuan Audit",
+        "category": "Kategori Temuan"
+      },
+      "categories": {
+        "verySignificant": "Sangat Signifikan",
+        "significant": "Signifikan",
+        "quiteSignificant": "Cukup Signifikan",
+        "notSignificant": "Tidak Signifikan"
+      }
+    }
+  },
   "auditExecution": {
     "title": "Status Eksekusi Audit",
     "subtitle": "Transparansi progres & tahapan siklus audit dari perencanaan hingga penyelesaian LHA.",
@@ -2036,6 +2058,9 @@
     }
   },
   "auditResultReport": {
+    "form": {
+      "assignmentLetterRequired": "Pilih Surat Tugas terlebih dahulu sebelum menyimpan laporan."
+    },
     "upload": {
       "title": "Impor Laporan Hasil Audit (LHA)",
       "subtitle": "Impor dokumen Laporan Hasil Audit (LHA) eksternal",
@@ -2810,6 +2835,35 @@
         "address": "Alamat",
         "status": "Status"
       }
+    }
+  },
+  "actionTakenReport": {
+    "statusSummary": "Ringkasan Status:",
+    "status": {
+      "planned": "Direncanakan",
+      "inProgress": "Sedang Berjalan",
+      "completed": "Selesai",
+      "cancelled": "Dibatalkan",
+      "overdue": "Terlambat"
+    },
+    "summary": {
+      "done": "{percent}% Selesai",
+      "inProgress": "{percent}% Sedang Berjalan",
+      "planned": "{percent}% Direncanakan",
+      "overdue": "{percent}% Terlambat",
+      "cancelled": "{percent}% Dibatalkan"
+    },
+    "summaryHint": "Terlambat = melewati tenggat dan belum selesai atau dibatalkan (tanggal Asia/Jakarta).",
+    "filter": {
+      "statusPlaceholder": "Pilih Status"
+    },
+    "daysOverdue": "Terlambat {days} hari",
+    "detail": {
+      "status": "Status"
+    },
+    "dashboard": {
+      "centerLabel": "Selesai",
+      "legend": "{label} ({percent}%)"
     }
   }
 }

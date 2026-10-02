@@ -23,6 +23,15 @@ type RiskProfile struct {
 	RiskScore      int          `gorm:"not null;default:0" json:"risk_score"`   // Impact × Likelihood
 	SeverityWeight float64      `gorm:"type:decimal(5,4);default:0" json:"severity_weight"`
 
+	// Branch / location scope (optional).
+	//
+	// DepartmentID stays the accountable owner; this is *where* the risk sits.
+	// Locations are master data owned by master-service (separate database), so
+	// the ID is a soft reference and the name is denormalised for display and
+	// grouping — the same reason OwnerID/DepartmentID carry no FK constraint.
+	LocationID   *uuid.UUID `gorm:"type:uuid;index" json:"location_id,omitempty"`
+	LocationName string     `gorm:"type:varchar(100)" json:"location_name"`
+
 	// Relation to RiskLevel
 	RiskLevelID *uuid.UUID `gorm:"type:uuid;index" json:"risk_level_id"`
 	RiskLevel   *RiskLevel `gorm:"foreignKey:RiskLevelID" json:"risk_level,omitempty"`

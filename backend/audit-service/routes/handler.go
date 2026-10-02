@@ -6,7 +6,9 @@ import (
 	"strings"
 
 	"audit-service/controllers"
+	ctrlATR "audit-service/controllers/action_taken_report"
 	"audit-service/controllers/crud"
+	ctrlFindings "audit-service/controllers/findings"
 	"audit-service/models"
 	"audit-service/pkg/docxbuilder"
 	"audit-service/pkg/middleware"
@@ -398,6 +400,7 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		auditResultReports.GET("", crud.List(h.db, "AuditResultReport", func() interface{} { return &[]models.AuditResultReport{} }))
 		auditResultReports.GET("/auto-findings", h.getAutoFindings)
+		auditResultReports.GET("/recent-findings", ctrlFindings.Recent(h.db))
 		auditResultReports.GET("/:id/download-docx", h.downloadAuditResultReportDocx)
 		auditResultReports.GET("/:id", crud.GetByID(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 		auditResultReports.POST("", crud.Create(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
@@ -430,8 +433,10 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		actionTakenReports.GET("", crud.List(h.db, "ActionTakenReport", func() interface{} { return &[]models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
 		actionTakenReports.GET("/:id", crud.GetByID(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
-		actionTakenReports.POST("", crud.Create(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
-		actionTakenReports.PUT("/:id", crud.Update(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
+		// isOverdue/daysOverdue are derived in the model's AfterFind/AfterSave hooks;
+		// NormalizeRequest canonicalises status and strips those derived fields
+		actionTakenReports.POST("", ctrlATR.NormalizeRequest(), crud.Create(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
+		actionTakenReports.PUT("/:id", ctrlATR.NormalizeRequest(), crud.Update(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
 		actionTakenReports.DELETE("/:id", crud.Delete(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
 	}
 
@@ -544,143 +549,24 @@ func (h *RouteHandler) getAutoFindings(c *gin.Context) {
 		return
 	}
 
+	// Live findings: KKA (F04 causes / F05 plans / F02 risks), fieldwork test
+	// controls and ATRs of this assignment letter (see controllers/findings)
+	var src ctrlFindings.LiveSources
+	h.db.Where("working_paper_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.Causes)
+	h.db.Where("working_paper_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.Plans)
+	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&src.Risks)
+	h.db.Where("assignment_letter_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.TestControls)
+	h.db.Where("audit_ref = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.ActionReports)
+
 	var findings []AutoFindingItem
-	existingTitles := make(map[string]bool)
-
-	// 1. Fetch Working Paper Causes (Tab F04 AOI & RCA)
-	var wpCauses []models.WorkingPaperCause
-	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&wpCauses)
-
-	// Fetch Working Paper Plans (Tab F05 Action Plan)
-	var wpPlans []models.WorkingPaperPlan
-	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&wpPlans)
-
-	// Fetch Working Paper Risks (Tab F02 Risk Profile)
-	var wpRisks []models.WorkingPaperRisk
-	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&wpRisks)
-
-	// Determine default category from risk level if available
-	defaultCategory := "Significant"
-	for _, r := range wpRisks {
-		rLevel := strings.ToUpper(strings.TrimSpace(r.RiskLevel))
-		if rLevel == "HIGH" || rLevel == "CRITICAL" || rLevel == "VERY HIGH" {
-			defaultCategory = "Very Significant"
-			break
-		} else if rLevel == "MODERATE" || rLevel == "MEDIUM" {
-			defaultCategory = "Significant"
-		}
-	}
-
-	for idx, cause := range wpCauses {
-		cond := strings.TrimSpace(cause.Condition)
-		if cond == "" {
-			continue
-		}
-		titleKey := strings.ToLower(cond)
-		if existingTitles[titleKey] {
-			continue
-		}
-		existingTitles[titleKey] = true
-
-		action := ""
-		if idx < len(wpPlans) {
-			if wpPlans[idx].ActionDescription != "" {
-				action = wpPlans[idx].ActionDescription
-			} else if wpPlans[idx].Recommendation != "" {
-				action = wpPlans[idx].Recommendation
-			}
-		} else if len(wpPlans) > 0 {
-			if wpPlans[0].ActionDescription != "" {
-				action = wpPlans[0].ActionDescription
-			} else {
-				action = wpPlans[0].Recommendation
-			}
-		}
-
-		cat := defaultCategory
-		condLower := strings.ToLower(cond)
-		if strings.Contains(condLower, "kritis") || strings.Contains(condLower, "critical") || strings.Contains(condLower, "tidak sesuai") || strings.Contains(condLower, "override") || strings.Contains(condLower, "mfa") {
-			cat = "Very Significant"
-		}
-
+	for _, f := range ctrlFindings.Derive(src) {
 		findings = append(findings, AutoFindingItem{
-			Title:    cond,
-			Category: cat,
-			Action:   action,
-			Source:   "Digital Working Paper (KKA - AOI & RCA)",
-			Impact:   cause.Impact,
-			Criteria: cause.Criteria,
-		})
-	}
-
-	// 2. Fetch Fieldwork Test Controls
-	var testControls []models.FieldworkTestControl
-	h.db.Where("assignment_letter_id = ?", assignmentLetterId).Find(&testControls)
-
-	for _, tc := range testControls {
-		findingText := strings.TrimSpace(tc.Finding)
-		resultUpper := strings.ToUpper(strings.TrimSpace(tc.TestResult))
-
-		if findingText != "" || resultUpper == "INEFFECTIVE" || resultUpper == "PARTIALLY EFFECTIVE" {
-			title := findingText
-			if title == "" {
-				title = fmt.Sprintf("Kelemahan Kontrol: %s", tc.ControlName)
-			}
-
-			titleKey := strings.ToLower(title)
-			if existingTitles[titleKey] {
-				continue
-			}
-			existingTitles[titleKey] = true
-
-			action := strings.TrimSpace(tc.MitigationPlan)
-			if action == "" {
-				action = strings.TrimSpace(tc.Recommendation)
-			}
-
-			cat := "Significant"
-			if resultUpper == "INEFFECTIVE" {
-				cat = "Very Significant"
-			} else if resultUpper == "PARTIALLY EFFECTIVE" {
-				cat = "Significant"
-			}
-
-			findings = append(findings, AutoFindingItem{
-				Title:    title,
-				Category: cat,
-				Action:   action,
-				Source:   "Audit Fieldwork (Test Controls)",
-			})
-		}
-	}
-
-	// 3. Check Action Taken Reports for this assignment letter
-	var actionReports []models.ActionTakenReport
-	h.db.Where("audit_ref = ?", assignmentLetterId).Find(&actionReports)
-	for _, atr := range actionReports {
-		cond := strings.TrimSpace(atr.Condition)
-		if cond == "" {
-			cond = strings.TrimSpace(atr.Title)
-		}
-		if cond == "" {
-			continue
-		}
-		titleKey := strings.ToLower(cond)
-		if existingTitles[titleKey] {
-			continue
-		}
-		existingTitles[titleKey] = true
-
-		act := strings.TrimSpace(atr.Recommendation)
-		if act == "" {
-			act = strings.TrimSpace(atr.ProgressDescription)
-		}
-
-		findings = append(findings, AutoFindingItem{
-			Title:    cond,
-			Category: "Significant",
-			Action:   act,
-			Source:   "Action Taken Report (ATR)",
+			Title:    f.Title,
+			Category: f.Category,
+			Action:   f.Action,
+			Source:   f.Source,
+			Impact:   f.Impact,
+			Criteria: f.Criteria,
 		})
 	}
 

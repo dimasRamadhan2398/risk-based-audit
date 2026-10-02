@@ -149,7 +149,27 @@
     "create": "Create"
   },
   "dashboard": {
-    "title": "Home"
+    "title": "Home",
+    "registeredRisks": {
+      "columns": {
+        "level": "Risk Level"
+      }
+    },
+    "recentFindings": {
+      "title": "Recent Finding Issues",
+      "empty": "No audit findings recorded yet.",
+      "error": "Failed to load recent findings.",
+      "columns": {
+        "finding": "Audit Finding",
+        "category": "Findings Category"
+      },
+      "categories": {
+        "verySignificant": "Very Significant",
+        "significant": "Significant",
+        "quiteSignificant": "Quite Significant",
+        "notSignificant": "Not Significant"
+      }
+    }
   },
   "auditExecution": {
     "title": "Audit Execution Status",
@@ -2039,6 +2059,9 @@
     }
   },
   "auditResultReport": {
+    "form": {
+      "assignmentLetterRequired": "Select an assignment letter before saving the report."
+    },
     "upload": {
       "title": "Import Audit Result Report (LHA)",
       "subtitle": "Import external Laporan Hasil Audit (Audit Result Report) documents",
@@ -2813,6 +2836,35 @@
         "address": "Address",
         "status": "Status"
       }
+    }
+  },
+  "actionTakenReport": {
+    "statusSummary": "Status Summary:",
+    "status": {
+      "planned": "Planned",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "overdue": "Overdue"
+    },
+    "summary": {
+      "done": "{percent}% Done",
+      "inProgress": "{percent}% Work In Progress",
+      "planned": "{percent}% Planned",
+      "overdue": "{percent}% Overdue",
+      "cancelled": "{percent}% Cancelled"
+    },
+    "summaryHint": "Overdue = past the deadline and not completed or cancelled (Asia/Jakarta date).",
+    "filter": {
+      "statusPlaceholder": "Choose Status"
+    },
+    "daysOverdue": "{days} days overdue",
+    "detail": {
+      "status": "Status"
+    },
+    "dashboard": {
+      "centerLabel": "Completed",
+      "legend": "{label} ({percent}%)"
     }
   }
 }
