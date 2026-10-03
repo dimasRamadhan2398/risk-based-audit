@@ -214,14 +214,22 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ResultReportForm from '~/components/audit-result-report/ResultReportForm.vue'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const store = useAuditResultReportStore()
+const assignmentLetterStore = useAssignmentLetterStore()
 const { canImportPlanDocs } = useRbac()
 const toast = useToastNotification()
+
+onMounted(() => {
+  assignmentLetterStore.fetchAssignmentLetters()
+  store.fetchReports()
+})
 
 const columns = [
   { accessorKey: 'reportNumber', header: 'No. LHA / ID' },

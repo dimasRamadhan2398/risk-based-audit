@@ -133,6 +133,15 @@ describe('Working Paper Sample Form & Store - Button & Modal Actions', () => {
     expect(store.showModalF03).toBe(false)
   })
 
+  it('closeModalF02 should close the risk form modal', () => {
+    const store = useWorkingPaperStore()
+    store.openModalF02()
+    expect(store.showModalF02).toBe(true)
+
+    store.closeModalF02()
+    expect(store.showModalF02).toBe(false)
+  })
+
   it('fieldworkSampleOptions should return available options for documents', () => {
     const store = useWorkingPaperStore()
     expect(Array.isArray(store.fieldworkSampleOptions)).toBe(true)
@@ -249,5 +258,20 @@ describe('Working Paper Sample Form & Store - Button & Modal Actions', () => {
     expect(item.l1).toBe('Pass')
     expect(item.l2).toBe('Fail')
     expect(item.l3).toBe('Pass')
+  })
+
+  it('WorkingPaperRiskForm component properly calls closeModalF02 without non-calling arrow function block', async () => {
+    const fs = await import('node:fs')
+    const path = await import('node:path')
+    const content = fs.readFileSync(path.resolve(__dirname, '../../components/working-paper/WorkingPaperRiskForm.vue'), 'utf-8')
+    
+    // Ensure no broken `() => {store.closeModalF02}` pattern exists
+    expect(content).not.toContain('{store.closeModalF02}')
+    expect(content).not.toContain('{ store.closeModalF02 }')
+
+    // Ensure store.closeModalF02() is attached to both header close and cancel buttons
+    const matches = content.match(/store\.closeModalF02\(\)/g)
+    expect(matches).not.toBeNull()
+    expect(matches?.length).toBeGreaterThanOrEqual(2)
   })
 })

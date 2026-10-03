@@ -140,6 +140,7 @@ import WorkingPaperRiskTable from '~/components/working-paper/WorkingPaperRiskTa
 import WorkingPaperSampleForm from '~/components/working-paper/WorkingPaperSampleForm.vue';
 import WorkingPaperSampleTable from '~/components/working-paper/WorkingPaperSampleTable.vue';
 import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 const { t } = useI18n()
 
@@ -202,6 +203,8 @@ watch(() => route.query.step, (step) => {
 
 onMounted(() => {
   store.fetchAllData()
+  const assignmentLetterStore = useAssignmentLetterStore()
+  assignmentLetterStore.fetchAssignmentLetters().catch(() => {})
   const { id, action } = route.query
   
   if (action === 'create') {

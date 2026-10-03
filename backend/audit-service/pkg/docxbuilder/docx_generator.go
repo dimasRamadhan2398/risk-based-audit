@@ -252,8 +252,28 @@ func buildDocumentXML(
 	body.WriteString(`<w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">4. Data Sample (Uji Petik Dokumen)</w:t></w:r></w:p>`)
 	if len(fieldworkSamples) > 0 {
 		for idx, smp := range fieldworkSamples {
-			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   %d. Dokumen: %s | No Dokumen: %s | Tanggal: %s | Keterangan: %s</w:t></w:r></w:p>`,
-				idx+1, xmlEsc(smp.DocumentName), xmlEsc(smp.DocumentNumber), xmlEsc(smp.Date), xmlEsc(smp.Description)))
+			docName := smp.DocumentName
+			if docName == "" {
+				docName = "Dokumen Sampel"
+			}
+			docNum := smp.DocumentNumber
+			if docNum == "" {
+				docNum = "-"
+			}
+			dateVal := smp.Date
+			if dateVal == "" {
+				dateVal = "-"
+			}
+			descVal := smp.Description
+			if descVal == "" {
+				descVal = "-"
+			}
+			fileInfo := ""
+			if smp.FileName != "" {
+				fileInfo = fmt.Sprintf(" | Berkas Terlampir: %s", xmlEsc(smp.FileName))
+			}
+			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   %d. Dokumen: %s | No Dokumen: %s | Tanggal: %s | Keterangan: %s%s</w:t></w:r></w:p>`,
+				idx+1, xmlEsc(docName), xmlEsc(docNum), xmlEsc(dateVal), xmlEsc(descVal), fileInfo))
 		}
 	} else {
 		body.WriteString(`<w:p><w:r><w:t xml:space="preserve">   Tidak ada sampel dokumen tercatat.</w:t></w:r></w:p>`)
@@ -264,9 +284,39 @@ func buildDocumentXML(
 
 	// 1. Header
 	body.WriteString(`<w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">1. Tahap Header Working Paper</w:t></w:r></w:p>`)
-	if wpHeader != nil {
-		body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   • Process Bisnis: %s | Periode: %s | Lokasi: %s</w:t></w:r></w:p>`,
-			xmlEsc(wpHeader.BusinessProcess), xmlEsc(wpHeader.Period), xmlEsc(wpHeader.Location)))
+	if wpHeader != nil && (wpHeader.BusinessProcess != "" || wpHeader.Period != "" || wpHeader.Location != "" || len(wpHeader.Activities) > 0 || len(wpHeader.TeamMembers) > 0) {
+		if wpHeader.BusinessProcess != "" {
+			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   • Proses Bisnis : %s</w:t></w:r></w:p>`, xmlEsc(wpHeader.BusinessProcess)))
+		}
+		if wpHeader.AuditPurpose != "" {
+			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   • Tujuan Audit  : %s</w:t></w:r></w:p>`, xmlEsc(wpHeader.AuditPurpose)))
+		}
+		if wpHeader.Period != "" {
+			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   • Periode Audit : %s</w:t></w:r></w:p>`, xmlEsc(wpHeader.Period)))
+		}
+		if wpHeader.Location != "" {
+			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   • Lokasi Audit  : %s</w:t></w:r></w:p>`, xmlEsc(wpHeader.Location)))
+		}
+
+		if len(wpHeader.Activities) > 0 {
+			body.WriteString(`<w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">   • Rincian Aktivitas (Activities):</w:t></w:r></w:p>`)
+			for aIdx, act := range wpHeader.Activities {
+				if act.Name != "" {
+					body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">     %d. %s</w:t></w:r></w:p>`, aIdx+1, xmlEsc(act.Name)))
+				}
+			}
+		}
+
+		if len(wpHeader.TeamMembers) > 0 {
+			body.WriteString(`<w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">   • Susunan Tim Audit (Team Members):</w:t></w:r></w:p>`)
+			for mIdx, tm := range wpHeader.TeamMembers {
+				role := tm.Role
+				if role == "" {
+					role = "Member"
+				}
+				body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">     %d. %s (%s)</w:t></w:r></w:p>`, mIdx+1, xmlEsc(tm.Name), xmlEsc(role)))
+			}
+		}
 	} else {
 		body.WriteString(`<w:p><w:r><w:t xml:space="preserve">   Header Kertas Kerja disesuaikan dengan Surat Tugas.</w:t></w:r></w:p>`)
 	}
@@ -297,9 +347,43 @@ func buildDocumentXML(
 			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   %d. Populasi: %s | Jumlah Sampel: %d | Kesimpulan: %s</w:t></w:r></w:p>`,
 				idx+1, xmlEsc(pop), ss, xmlEsc(ws.Conclusion)))
 			if len(ws.Samples) > 0 {
-				body.WriteString(`<w:p><w:r><w:t xml:space="preserve">      Daftar Sampel Dokumen:</w:t></w:r></w:p>`)
-				for _, sDoc := range ws.Samples {
-					body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">      - Dokumen: %s</w:t></w:r></w:p>`, xmlEsc(sDoc.Document)))
+				body.WriteString(`<w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">      Daftar Sampel Dokumen &amp; Hasil Pengujian:</w:t></w:r></w:p>`)
+				for sIdx, sDoc := range ws.Samples {
+					status := "Efektif"
+					if !isSampleDocEffective(sDoc) {
+						status = "Tidak Efektif"
+					}
+
+					docTitle := sDoc.Document
+					if docTitle == "" {
+						docTitle = "Dokumen Sampel"
+					}
+					refDoc := ""
+					if sDoc.FieldworkDocument != "" {
+						refDoc = fmt.Sprintf(" [Ref Fieldwork: %s]", xmlEsc(sDoc.FieldworkDocument))
+					}
+
+					body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">      %d.%d. Dokumen: %s%s - Status: %s</w:t></w:r></w:p>`,
+						idx+1, sIdx+1, xmlEsc(docTitle), refDoc, status))
+
+					hasSteps := sDoc.Step1 != "" || sDoc.Step2 != "" || sDoc.Step3 != ""
+					if hasSteps {
+						if sDoc.Step1 != "" {
+							body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">         • L1: %s -> %s</w:t></w:r></w:p>`,
+								xmlEsc(sDoc.Step1), formatTestResult(sDoc.L1)))
+						}
+						if sDoc.Step2 != "" {
+							body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">         • L2: %s -> %s</w:t></w:r></w:p>`,
+								xmlEsc(sDoc.Step2), formatTestResult(sDoc.L2)))
+						}
+						if sDoc.Step3 != "" {
+							body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">         • L3: %s -> %s</w:t></w:r></w:p>`,
+								xmlEsc(sDoc.Step3), formatTestResult(sDoc.L3)))
+						}
+					} else if sDoc.L1 != nil || sDoc.L2 != nil || sDoc.L3 != nil {
+						body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">         • Hasil: L1: %s | L2: %s | L3: %s</w:t></w:r></w:p>`,
+							formatTestResult(sDoc.L1), formatTestResult(sDoc.L2), formatTestResult(sDoc.L3)))
+					}
 				}
 			}
 		}
@@ -409,3 +493,49 @@ func buildDocumentXML(
 	_ = time.Now()
 	return docXml, nil
 }
+
+func formatTestResult(val any) string {
+	if val == nil {
+		return "-"
+	}
+	switch v := val.(type) {
+	case bool:
+		if v {
+			return "Pass"
+		}
+		return "Fail"
+	case string:
+		l := strings.ToLower(strings.TrimSpace(v))
+		if l == "pass" || l == "true" {
+			return "Pass"
+		}
+		if l == "fail" || l == "false" {
+			return "Fail"
+		}
+		if v == "" {
+			return "-"
+		}
+		return v
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func isSampleDocEffective(s models.SampleDoc) bool {
+	isFail := func(val any) bool {
+		if val == nil {
+			return false
+		}
+		switch v := val.(type) {
+		case bool:
+			return !v
+		case string:
+			l := strings.ToLower(strings.TrimSpace(v))
+			return l == "fail" || l == "false"
+		default:
+			return false
+		}
+	}
+	return !isFail(s.L1) && !isFail(s.L2) && !isFail(s.L3)
+}
+

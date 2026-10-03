@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"audit-service/controllers"
 	ctrlATR "audit-service/controllers/action_taken_report"
@@ -598,56 +599,83 @@ func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
 	// Fetch related entities by AssignmentLetterID
 	var st models.AssignmentLetter
 	if report.AssignmentLetterID != "" {
-		if err := h.db.Where("letter_number = ?", report.AssignmentLetterID).First(&st).Error; err != nil {
-			if _, parseErr := uuid.Parse(report.AssignmentLetterID); parseErr == nil {
-				h.db.Where("id = ?", report.AssignmentLetterID).First(&st)
+		trimmedLetterID := strings.TrimSpace(report.AssignmentLetterID)
+		if err := h.db.Where("letter_number = ?", trimmedLetterID).First(&st).Error; err != nil {
+			if _, parseErr := uuid.Parse(trimmedLetterID); parseErr == nil {
+				h.db.Where("id = ?", trimmedLetterID).First(&st)
 			}
 		}
 	}
 
-	var interviews []models.FieldworkInterview
+	altIDs := []string{}
 	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&interviews)
+		altIDs = append(altIDs, strings.TrimSpace(report.AssignmentLetterID))
+	}
+	if st.LetterNumber != "" && st.LetterNumber != report.AssignmentLetterID {
+		altIDs = append(altIDs, strings.TrimSpace(st.LetterNumber))
+	}
+	if st.ID != uuid.Nil {
+		altIDs = append(altIDs, st.ID.String())
+	}
+
+	var interviews []models.FieldworkInterview
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Find(&interviews)
 	}
 
 	var observations []models.FieldworkObservation
-	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&observations)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Find(&observations)
 	}
 
 	var fieldworkDocs []models.FieldworkDocument
-	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&fieldworkDocs)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Find(&fieldworkDocs)
 	}
 
 	var fieldworkSamples []models.FieldworkSample
-	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&fieldworkSamples)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Find(&fieldworkSamples)
 	}
 
 	var wpHeader models.WorkingPaperHeader
-	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).First(&wpHeader)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).First(&wpHeader)
+	}
+	// Fallback/sync header fields from Assignment Letter if empty
+	if wpHeader.AuditPurpose == "" && st.AuditPurpose != "" {
+		wpHeader.AuditPurpose = st.AuditPurpose
+	}
+	if len(wpHeader.TeamMembers) == 0 && len(st.MembersList) > 0 {
+		members := make([]models.TeamMember, 0, len(st.MembersList))
+		for idx, m := range st.MembersList {
+			members = append(members, models.TeamMember{
+				ID:   time.Now().UnixMilli() + int64(idx),
+				Name: m.Name,
+				Role: m.Role,
+			})
+		}
+		wpHeader.TeamMembers = members
 	}
 
 	var wpRisks []models.WorkingPaperRisk
-	if report.AssignmentLetterID != "" {
-		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpRisks)
+	if len(altIDs) > 0 {
+		h.db.Where("working_paper_id IN ? OR assignment_letter_id IN ?", altIDs, altIDs).Find(&wpRisks)
 	}
 
 	var wpSamples []models.WorkingPaperSample
-	if report.AssignmentLetterID != "" {
-		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpSamples)
+	if len(altIDs) > 0 {
+		h.db.Where("working_paper_id IN ?", altIDs).Find(&wpSamples)
 	}
 
 	var wpCauses []models.WorkingPaperCause
-	if report.AssignmentLetterID != "" {
-		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpCauses)
+	if len(altIDs) > 0 {
+		h.db.Where("working_paper_id IN ?", altIDs).Find(&wpCauses)
 	}
 
 	var wpPlans []models.WorkingPaperPlan
-	if report.AssignmentLetterID != "" {
-		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpPlans)
+	if len(altIDs) > 0 {
+		h.db.Where("working_paper_id IN ?", altIDs).Find(&wpPlans)
 	}
 
 	var importedWPs []models.ImportedWorkingPaper

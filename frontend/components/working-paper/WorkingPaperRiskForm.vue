@@ -22,11 +22,12 @@
                 <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">{{ t('workingPaper.riskForm.title') }}</h3>
               </div>
               <UButton
+                type="button"
                 color="neutral"
                 variant="ghost"
                 icon="i-heroicons-x-mark-20-solid"
                 class="-my-1"
-                @click="() => {store.closeModalF02}"
+                @click="store.closeModalF02()"
               />
             </div>
 
@@ -76,10 +77,11 @@
             <!-- Pinned Footer -->
             <div class="px-5 sm:px-6 py-3.5 border-t border-gray-100 dark:border-gray-800 flex justify-end items-center gap-3 shrink-0 bg-gray-50/70 dark:bg-gray-800/40">
               <UButton
+                type="button"
                 color="neutral"
                 variant="ghost"
                 :label="t('common.cancel')"
-                @click="() => {store.closeModalF02}"
+                @click="store.closeModalF02()"
               />
               <UButton 
                 type="submit"

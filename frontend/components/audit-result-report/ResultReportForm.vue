@@ -386,7 +386,9 @@
 <script setup lang="ts">
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useMasterOptionsStore } from '~/stores/master-options'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useAuditResultReportStore()
 const masterOptions = useMasterOptionsStore()
 

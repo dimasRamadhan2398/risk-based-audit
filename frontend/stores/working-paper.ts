@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, watch } from 'vue'
 import type {
   WorkingPaperHeaderForm, WorkingPaperRiskForm, WorkingPaperSampleForm,
   WorkingPaperCauseForm, WorkingPaperPlanForm, SampleItem, WorkingPaperHeader,
@@ -10,6 +10,7 @@ import type {
 } from '~/types/audit'
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 import { useAuditFieldworkStore } from './audit-fieldwork'
+import { useAssignmentLetterStore } from './assignment-letter'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import { extractErrorMessage } from '~/utils/error'
@@ -55,6 +56,7 @@ export const planSchema = z.object({
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
   const fieldworkStore = useAuditFieldworkStore()
+  const assignmentLetterStore = useAssignmentLetterStore()
   const toast = useToastNotification()
 
   const fileInput = ref<HTMLInputElement | null>(null)
@@ -256,13 +258,48 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     periodStart: '',
     periodEnd: '',
     location: '',
-    teamMembers: [
-      { id: Date.now(), name: '', role: '' } // Inisialisasi 1 baris kosong
-    ],
+    teamMembers: [],
     activities: [
       { id: Date.now(), name: '' }
     ]
   })
+
+  const syncFromAssignmentLetter = (letterNumberOrId: string) => {
+    if (!letterNumberOrId) {
+      headerForm.auditPurpose = ''
+      headerForm.teamMembers = []
+      return
+    }
+
+    const trimmed = String(letterNumberOrId).trim()
+    const letter = assignmentLetterStore.assignmentLetterList.find(
+      (l: any) => l.letterNumber === trimmed || l.id === trimmed
+    )
+
+    if (letter) {
+      if (letter.auditPurpose) {
+        headerForm.auditPurpose = letter.auditPurpose
+      }
+      if (Array.isArray(letter.membersList) && letter.membersList.length > 0) {
+        headerForm.teamMembers = letter.membersList.map((m: any, idx: number) => ({
+          id: Date.now() + idx,
+          name: m.name || '',
+          role: m.role || 'Member'
+        }))
+      } else {
+        headerForm.teamMembers = []
+      }
+    }
+  }
+
+  watch(
+    () => headerForm.assignmentLetterId,
+    (newVal) => {
+      if (newVal) {
+        syncFromAssignmentLetter(newVal)
+      }
+    }
+  )
 
   const riskForm = reactive<WorkingPaperRiskForm>({
     risk: '',
@@ -329,6 +366,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     loading.value = true
     errorMsg.value = ''
     try {
+      if (assignmentLetterStore.assignmentLetterList.length <= 3) {
+        assignmentLetterStore.fetchAssignmentLetters().catch(() => {})
+      }
       const baseUrl = getAuditServiceBaseUrl()
 
       const resF01: any = await $fetch(`${baseUrl}/working-papers/headers`, { method: 'GET' })
@@ -462,21 +502,27 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF01.value = false
     editingIdF01.value = null
 
+    const initialLetter = fieldworkStore.selectedAssignmentLetter || 
+      (options.assignmentLetter.length > 0 ? options.assignmentLetter[0] : '')
+
     // Reset Form
     Object.assign(headerForm, {
-      assignmentLetterId: fieldworkStore.selectedAssignmentLetter || '',
+      assignmentLetterId: initialLetter,
       auditPurpose: '',
       businessProcess: '',
       periodStart: '',
       periodEnd: '',
       location: '',
-      teamMembers: [
-        { id: Date.now(), name: '', role: '' }
-      ],
+      teamMembers: [],
       activities: [
         { id: Date.now(), name: '' }
       ]
     })
+
+    if (initialLetter) {
+      syncFromAssignmentLetter(initialLetter)
+    }
+
     showModalF01.value = true
   }
 
@@ -516,6 +562,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     headerForm.location = header.location
     headerForm.teamMembers = header.teamMembers ? header.teamMembers.map((m: any) => ({ ...m })) : []
     headerForm.activities = header.activities?.length ? header.activities.map((a: any) => ({ ...a })) : [{ id: Date.now(), name: '' }]
+
+    if ((!headerForm.teamMembers || headerForm.teamMembers.length === 0) && headerForm.assignmentLetterId) {
+      syncFromAssignmentLetter(headerForm.assignmentLetterId)
+    }
 
     showModalF01.value = true
   }
@@ -1258,6 +1308,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     addSample, removeSample, addRootCause, removeRootCause, triggerUpload, onFileChange,
     checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile,
     addActivity, removeActivity,
+    syncFromAssignmentLetter,
     criteriaOptions, loadingSopOptions,
     fieldworkSampleOptions,
     loading, errorMsg, fetchAllData

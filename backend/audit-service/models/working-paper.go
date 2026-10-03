@@ -39,6 +39,46 @@ func (WorkingPaperHeader) TableName() string {
 	return "working_paper_headers"
 }
 
+func (w *WorkingPaperHeader) BeforeCreate(tx *gorm.DB) error {
+	w.syncFromAssignmentLetter(tx)
+	return nil
+}
+
+func (w *WorkingPaperHeader) BeforeUpdate(tx *gorm.DB) error {
+	w.syncFromAssignmentLetter(tx)
+	return nil
+}
+
+func (w *WorkingPaperHeader) syncFromAssignmentLetter(tx *gorm.DB) {
+	if w.AssignmentLetterID == "" {
+		return
+	}
+	var st AssignmentLetter
+	letterID := strings.TrimSpace(w.AssignmentLetterID)
+	err := tx.Where("letter_number = ?", letterID).First(&st).Error
+	if err != nil {
+		if _, parseErr := uuid.Parse(letterID); parseErr == nil {
+			_ = tx.Where("id = ?", letterID).First(&st).Error
+		}
+	}
+	if st.ID != uuid.Nil {
+		if w.AuditPurpose == "" && st.AuditPurpose != "" {
+			w.AuditPurpose = st.AuditPurpose
+		}
+		if len(w.TeamMembers) == 0 && len(st.MembersList) > 0 {
+			members := make([]TeamMember, 0, len(st.MembersList))
+			for idx, m := range st.MembersList {
+				members = append(members, TeamMember{
+					ID:   time.Now().UnixMilli() + int64(idx),
+					Name: m.Name,
+					Role: m.Role,
+				})
+			}
+			w.TeamMembers = members
+		}
+	}
+}
+
 type WorkingPaperRisk struct {
 	ID                 uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	WorkingPaperID     string         `gorm:"type:varchar(100);index" json:"workingPaperId"` // Link back if needed, or assignment letter ID
