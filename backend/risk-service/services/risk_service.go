@@ -7,20 +7,71 @@ import (
 	"github.com/google/uuid"
 )
 
-var branchToUUID = map[string]string{
+// defaultBranchName is used when a risk carries no location at all.
+const defaultBranchName = "Head Office"
+
+// legacyBranchToUUID / legacyUUIDToBranch encode branch names as sentinel
+// department IDs. This predates risk_profile.location_id: the branch a risk
+// belonged to was stuffed into DepartmentID, which capped the CRP at these five
+// names and silently relabelled anything else as "Head Office".
+//
+// They are kept so rows written before location_id existed still resolve, and so
+// clients that only send a branch name keep working. New writes set LocationID /
+// LocationName instead; prefer those when reading.
+var legacyBranchToUUID = map[string]string{
 	"Head Office":     "00000000-0000-0000-0000-000000000001",
-	"Jakarta Branch":   "00000000-0000-0000-0000-000000000002",
-	"Surabaya Branch":  "00000000-0000-0000-0000-000000000003",
-	"Bandung Branch":   "00000000-0000-0000-0000-000000000004",
-	"Bali Branch":      "00000000-0000-0000-0000-000000000005",
+	"Jakarta Branch":  "00000000-0000-0000-0000-000000000002",
+	"Surabaya Branch": "00000000-0000-0000-0000-000000000003",
+	"Bandung Branch":  "00000000-0000-0000-0000-000000000004",
+	"Bali Branch":     "00000000-0000-0000-0000-000000000005",
 }
 
-var uuidToBranch = map[string]string{
+var legacyUUIDToBranch = map[string]string{
 	"00000000-0000-0000-0000-000000000001": "Head Office",
 	"00000000-0000-0000-0000-000000000002": "Jakarta Branch",
 	"00000000-0000-0000-0000-000000000003": "Surabaya Branch",
 	"00000000-0000-0000-0000-000000000004": "Bandung Branch",
 	"00000000-0000-0000-0000-000000000005": "Bali Branch",
+}
+
+// resolveBranchName is the branch label a risk is reported under: its location
+// name when set, else the legacy sentinel department mapping, else the default.
+func resolveBranchName(profile models.RiskProfile) string {
+	if profile.LocationName != "" {
+		return profile.LocationName
+	}
+	if name, ok := legacyUUIDToBranch[profile.DepartmentID.String()]; ok {
+		return name
+	}
+	return defaultBranchName
+}
+
+// applyLocation writes the request's branch/location onto a profile.
+//
+// Any branch name is accepted now, not just the five legacy ones; the sentinel
+// DepartmentID is still written for known names so older readers keep working.
+func applyLocation(profile *models.RiskProfile, req *RiskRequest) {
+	if req.Branch != "" {
+		profile.LocationName = req.Branch
+	}
+
+	if req.LocationID != "" {
+		if locID, err := uuid.Parse(req.LocationID); err == nil {
+			profile.LocationID = &locID
+		}
+	}
+
+	if sentinel, ok := legacyBranchToUUID[req.Branch]; ok {
+		profile.DepartmentID = uuid.MustParse(sentinel)
+	}
+}
+
+// locationIDString renders a profile's location ID for API responses.
+func locationIDString(profile models.RiskProfile) string {
+	if profile.LocationID == nil {
+		return ""
+	}
+	return profile.LocationID.String()
 }
 
 type RiskAssessmentReq struct {
@@ -50,6 +101,7 @@ type RiskAssessmentRes struct {
 
 type RiskResponse struct {
 	ID          string              `json:"id"`
+	LocationID  string              `json:"location_id,omitempty"`
 	Name        string              `json:"name"`
 	Impact      int                 `json:"impact"`
 	Likelihood  int                 `json:"likelihood"`
@@ -62,6 +114,7 @@ type RiskResponse struct {
 
 type RiskRequest struct {
 	Name        string              `json:"name"`
+	LocationID  string              `json:"location_id"`
 	Impact      int                 `json:"impact"`
 	Likelihood  int                 `json:"likelihood"`
 	Severity    int                 `json:"severity"`
@@ -94,10 +147,7 @@ func (s *riskService) GetAll() ([]RiskResponse, error) {
 
 	data := make([]RiskResponse, 0)
 	for _, reg := range registers {
-		branch := uuidToBranch[reg.Profile.DepartmentID.String()]
-		if branch == "" {
-			branch = "Head Office"
-		}
+		branch := resolveBranchName(reg.Profile)
 
 		assessmentsRes := make([]RiskAssessmentRes, 0)
 		for _, ast := range reg.Assessments {
@@ -117,6 +167,7 @@ func (s *riskService) GetAll() ([]RiskResponse, error) {
 
 		data = append(data, RiskResponse{
 			ID:          reg.ID.String(),
+			LocationID:  locationIDString(reg.Profile),
 			Name:        reg.RiskEvent,
 			Impact:      reg.InherentImpact,
 			Likelihood:  reg.InherentLikelihood,
@@ -133,18 +184,14 @@ func (s *riskService) GetAll() ([]RiskResponse, error) {
 
 func (s *riskService) Create(req *RiskRequest) (*RiskResponse, error) {
 	pID := uuid.New()
-	deptID := uuid.Nil
-	if val, ok := branchToUUID[req.Branch]; ok {
-		deptID = uuid.MustParse(val)
-	}
-
 	profile := models.RiskProfile{
 		ID:           pID,
-		DepartmentID: deptID,
+		DepartmentID: uuid.Nil,
 		OwnerID:      uuid.Nil,
 		Category:     req.Category,
 		Description:  req.Description,
 	}
+	applyLocation(&profile, req)
 
 	if err := s.repo.CreateProfile(&profile); err != nil {
 		return nil, err
@@ -230,6 +277,7 @@ func (s *riskService) Create(req *RiskRequest) (*RiskResponse, error) {
 
 	return &RiskResponse{
 		ID:          regID.String(),
+		LocationID:  locationIDString(profile),
 		Name:        req.Name,
 		Impact:      req.Impact,
 		Likelihood:  req.Likelihood,
@@ -259,9 +307,7 @@ func (s *riskService) Update(id uuid.UUID, req *RiskRequest) (*RiskResponse, err
 
 	register.Profile.Category = req.Category
 	register.Profile.Description = req.Description
-	if val, ok := branchToUUID[req.Branch]; ok {
-		register.Profile.DepartmentID = uuid.MustParse(val)
-	}
+	applyLocation(&register.Profile, req)
 
 	if err := s.repo.SaveProfile(&register.Profile); err != nil {
 		return nil, err
@@ -323,6 +369,7 @@ func (s *riskService) Update(id uuid.UUID, req *RiskRequest) (*RiskResponse, err
 
 	return &RiskResponse{
 		ID:          id.String(),
+		LocationID:  locationIDString(register.Profile),
 		Name:        req.Name,
 		Impact:      req.Impact,
 		Likelihood:  req.Likelihood,

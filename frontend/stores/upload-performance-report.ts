@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 import { extractErrorMessage } from '~/utils/error';
+import { useI18n } from '~/composables/useI18n';
 
 export interface UploadedPerformanceReport {
   id: string;
@@ -23,6 +24,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification();
+  const { t } = useI18n();
 
   const fetchUploadedReports = async (period?: string, year?: number) => {
     loading.value = true;
@@ -51,7 +53,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded performance reports:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded performance report documents.');
+      errorMsg.value = extractErrorMessage(error, t('kpiPerformance.store.loadReportsFailed'));
     } finally {
       loading.value = false;
     }
@@ -81,14 +83,14 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('Performance report document uploaded successfully');
+      toast.showSuccess(t('kpiPerformance.store.uploadedDocument'));
       await fetchUploadedReports(payload.period, payload.year);
-      toast.showSuccess('Performance report uploaded successfully.');
+      toast.showSuccess(t('kpiPerformance.store.uploadedReport'));
     } catch (error: any) {
       console.error('Failed to upload performance report:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload performance report document.');
+      const detail = extractErrorMessage(error, t('kpiPerformance.store.uploadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to upload performance report document.', detail);
+      toast.showError(t('kpiPerformance.store.uploadFailed'), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -103,14 +105,14 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       await $fetch(`${baseUrl}/uploaded-performance-reports/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('Performance report document deleted successfully');
+      toast.showSuccess(t('kpiPerformance.store.deletedDocument'));
       await fetchUploadedReports(currentPeriod, currentYear);
-      toast.showSuccess('Performance report deleted successfully.');
+      toast.showSuccess(t('kpiPerformance.store.deletedReport'));
     } catch (error: any) {
       console.error('Failed to delete performance report document:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete performance report document.');
+      const detail = extractErrorMessage(error, t('kpiPerformance.store.deleteFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to delete performance report document.', detail);
+      toast.showError(t('kpiPerformance.store.deleteFailed'), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -135,9 +137,9 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download performance report document:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('kpiPerformance.store.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download document.', detail);
+      toast.showError(t('kpiPerformance.store.downloadFailed'), detail);
     }
   };
 
@@ -161,9 +163,9 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (error: any) {
       console.error('Failed to view performance report document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('kpiPerformance.store.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('kpiPerformance.store.viewFailed'), detail);
     }
   };
 

@@ -13,7 +13,7 @@ import { resolve } from 'node:path'
 import { setActivePinia, createPinia } from 'pinia'
 
 import { useLocationStore } from '~/stores/location'
-import { useRiskProfileStore } from '~/stores/risk-profile'
+import { useRiskProfileStore, fallbackBranches } from '~/stores/risk-profile'
 
 vi.mock('#app', () => ({
   useRuntimeConfig: () => ({
@@ -198,6 +198,82 @@ describe('Corporate Risk Profile branch filter', () => {
     store.rawRisks = []
 
     expect(store.branches.length).toBeGreaterThan(0)
+  })
+})
+
+describe('Risks carry a location reference', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('sends location_id alongside the branch name when saving a risk', async () => {
+    const fetchMock = vi.fn(async (url: string) =>
+      String(url).includes('/locations') ? okResponse(seededLocations) : okResponse([])
+    )
+    global.$fetch = fetchMock
+
+    const store = useRiskProfileStore()
+    await store.fetchBranches()
+
+    await store.addRisk({
+      name: 'Kegagalan rekonsiliasi kas cabang',
+      category: 'Operations',
+      branch: 'Surabaya Branch',
+      impact: 4,
+      likelihood: 3,
+      assessments: []
+    })
+
+    const post = fetchMock.mock.calls.find(([, opts]: any) => opts?.method === 'POST')
+    expect(post, 'no POST /risks was issued').toBeTruthy()
+    expect(post[1].body).toMatchObject({
+      branch: 'Surabaya Branch',
+      location_id: 'loc-2'
+    })
+  })
+
+  it('omits location_id for a branch that is not master data', async () => {
+    const fetchMock = vi.fn(async (url: string) =>
+      String(url).includes('/locations') ? okResponse(seededLocations) : okResponse([])
+    )
+    global.$fetch = fetchMock
+
+    const store = useRiskProfileStore()
+    await store.fetchBranches()
+
+    expect(store.locationIdForBranch('Surabaya Branch')).toBe('loc-2')
+    expect(store.locationIdForBranch('Nowhere Branch')).toBeUndefined()
+
+    await store.addRisk({ name: 'Risiko tanpa cabang induk', branch: 'Nowhere Branch', assessments: [] })
+
+    const post = fetchMock.mock.calls.find(([, opts]: any) => opts?.method === 'POST')
+    expect(post[1].body.location_id).toBeUndefined()
+    expect(post[1].body.branch).toBe('Nowhere Branch')
+  })
+})
+
+describe('Branch names match the backend location seeds', () => {
+  const SEEDER = resolve(
+    __dirname,
+    '../../../backend/master-service/pkg/database/seeders/seeder.go'
+  )
+
+  it('every CRP fallback branch exists in LocationSeeds', () => {
+    const seeder = readFileSync(SEEDER, 'utf-8')
+    const seedBlock = seeder.slice(
+      seeder.indexOf('var LocationSeeds = []models.Location{'),
+      seeder.indexOf('var renamedLocations')
+    )
+    const seededNames = Array.from(seedBlock.matchAll(/Name:\s*"([^"]+)"/g)).map((m) => m[1])
+
+    expect(seededNames.length).toBeGreaterThan(0)
+    for (const branch of fallbackBranches) {
+      expect(
+        seededNames.includes(branch),
+        `branch "${branch}" is offered by the risk profile but not seeded as a location`
+      ).toBe(true)
+    }
   })
 })
 

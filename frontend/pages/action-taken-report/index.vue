@@ -3,9 +3,11 @@
 import ATRDetail from '~/components/action-taken-report/ATRDetail.vue'
 import { useActionTakenReportStore } from '~/stores/action-taken-report'
 import { AuditDepartment, AuditStatus } from '~/types/audit'
-import type { ActionTakenReport } from '~/types/audit'
+import { useI18n } from '~/composables/useI18n'
+import { ATR_OVERDUE_FILTER, ATR_STATUSES, atrStatusI18nKey, type AtrSliceKey } from '~/utils/actionTakenReport'
 
 const store = useActionTakenReportStore()
+const { t } = useI18n()
 
 interface TableColumn<T> {
   accessorKey: keyof T | string
@@ -22,22 +24,42 @@ const columns = [
   { accessorKey: 'actions', header: 'Actions' }
 ]
 
+// Same palette for the summary dots and the table status dots; Overdue is reserved for the red badge.
+const sliceColors: Record<AtrSliceKey, string> = {
+  completed: 'bg-emerald-500',
+  inProgress: 'bg-amber-400',
+  planned: 'bg-sky-400',
+  overdue: 'bg-rose-500',
+  cancelled: 'bg-gray-400'
+}
+
+const sliceLabelKeys: Record<AtrSliceKey, string> = {
+  completed: 'actionTakenReport.summary.done',
+  inProgress: 'actionTakenReport.summary.inProgress',
+  planned: 'actionTakenReport.summary.planned',
+  overdue: 'actionTakenReport.summary.overdue',
+  cancelled: 'actionTakenReport.summary.cancelled'
+}
+
 const getStatusColor = (status: string) => {
   switch (status) {
-    case AuditStatus.COMPLETED: return 'bg-green-500'
-    case AuditStatus.IN_PROGRESS: return 'bg-yellow-500'
-    case AuditStatus.PLANNED: return 'bg-gray-500'
-    case AuditStatus.CANCELLED: return 'bg-red-500'
-    default: return 'bg-gray-500'
+    case AuditStatus.COMPLETED: return sliceColors.completed
+    case AuditStatus.IN_PROGRESS: return sliceColors.inProgress
+    case AuditStatus.PLANNED: return sliceColors.planned
+    case AuditStatus.CANCELLED: return sliceColors.cancelled
+    default: return 'bg-gray-300'
   }
 }
 
 const getStatusLabel = (status: string) => {
-  if (status === AuditStatus.CANCELLED) return 'Cancelled'
-  if (status === AuditStatus.IN_PROGRESS) return 'In Progress'
-  if (status === AuditStatus.COMPLETED) return 'Completed'
-  if (status === AuditStatus.PLANNED) return 'Planned'
+  const key = atrStatusI18nKey(status)
+  return key ? t(key) : status
 }
+
+const statusOptions = computed(() => [
+  ...ATR_STATUSES.map(status => ({ label: getStatusLabel(status), value: status as string })),
+  { label: t('actionTakenReport.status.overdue'), value: ATR_OVERDUE_FILTER }
+])
 
 const page = ref(1)
 const pageCount = 5
@@ -59,21 +81,14 @@ const items = computed(() => {
       <h1 class="text-2xl font-bold">Action Taken Report</h1>
       
       <div class="space-y-2">
-        <p class="text-sm font-bold">Status Summary:</p>
+        <p class="text-sm font-bold">{{ t('actionTakenReport.statusSummary') }}</p>
         <div class="flex flex-wrap items-center gap-3 sm:gap-6">
-          <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 rounded-full bg-emerald-500"></div>
-            <span class="text-sm font-bold">{{ store.stats.donePercent }}% Done</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 rounded-full bg-amber-400"></div>
-            <span class="text-sm font-bold">{{ store.stats.wipPercent }}% Work In Progress</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 rounded-full bg-rose-500"></div>
-            <span class="text-sm font-bold">{{ store.stats.latePercent }}% Late</span>
+          <div v-for="slice in store.stats.breakdown" :key="slice.key" class="flex items-center space-x-2">
+            <div :class="['w-4 h-4 rounded-full', sliceColors[slice.key]]"></div>
+            <span class="text-sm font-bold">{{ t(sliceLabelKeys[slice.key], { percent: slice.percent }) }}</span>
           </div>
         </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('actionTakenReport.summaryHint') }}</p>
       </div>
     </div>
 
@@ -94,8 +109,9 @@ const items = computed(() => {
       />
       <USelectMenu
         v-model="(store.selectedStatus as any)"
-        :items="Object.values(AuditStatus)"
-        placeholder="Choose Status"
+        :items="statusOptions"
+        value-key="value"
+        :placeholder="t('actionTakenReport.filter.statusPlaceholder')"
         class="w-full sm:w-52"
         size="md"
       />
@@ -120,6 +136,13 @@ const items = computed(() => {
           <div class="flex items-center space-x-2">
             <div :class="['w-4 h-4 rounded-full', getStatusColor(row.original.status)]"></div>
             <span class="text-sm font-medium">{{ getStatusLabel(row.original.status) }}</span>
+            <UBadge
+              v-if="row.original.isOverdue"
+              color="error"
+              variant="subtle"
+              size="sm"
+              :label="t('actionTakenReport.status.overdue')"
+            />
           </div>
         </template>
 

@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { AuditCategory, AuditDepartment, AuditStatus, type ActionTakenReport } from '~/types/audit'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { ATR_OVERDUE_FILTER, computeAtrStats, normalizeAtrItem } from '~/utils/actionTakenReport'
 
 export const useActionTakenReportStore = defineStore('action-taken-report', () => {
   // State
@@ -12,7 +13,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       auditRef: 'ST-001/SKAI/2026',
       title: 'Rekonsiliasi Kas Harian dan Arus Kas',
       department: AuditDepartment.FINANCE,
-      deadline: '15 Apr 2026',
+      deadline: '2026-04-15',
       status: AuditStatus.COMPLETED,
       auditObject: 'Manajemen Keuangan Utama',
       findingCategory: AuditCategory.ASSURANCE,
@@ -48,7 +49,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       auditRef: 'ST-002/SKAI/2026',
       title: 'Pemasangan SMTP Alert Backup ERP',
       department: AuditDepartment.IT,
-      deadline: '20 Apr 2026',
+      deadline: '2026-04-20',
       status: AuditStatus.COMPLETED,
       auditObject: 'IT Infrastructure',
       findingCategory: AuditCategory.ASSURANCE,
@@ -84,7 +85,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       auditRef: 'ST-003/SKAI/2026',
       title: 'Opname Stok Fisik Gudang Utama',
       department: AuditDepartment.OPS,
-      deadline: '15 May 2026',
+      deadline: '2026-05-15',
       status: AuditStatus.IN_PROGRESS,
       auditObject: 'Manajemen Gudang Utama',
       findingCategory: AuditCategory.SPECIAL_AUDIT,
@@ -120,7 +121,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       auditRef: 'ST-004/SKAI/2026',
       title: 'Evaluasi Kontrak Vendor SCM',
       department: AuditDepartment.OPS,
-      deadline: '01 Jun 2026',
+      deadline: '2026-06-01',
       status: AuditStatus.PLANNED,
       auditObject: 'Manajemen Vendor',
       findingCategory: AuditCategory.CONSULTING_SERVICES,
@@ -155,7 +156,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       auditRef: 'ST-005/SKAI/2026',
       title: 'Sertifikasi Peralatan Pemadam Hidran',
       department: AuditDepartment.OPS,
-      deadline: '15 Jun 2026',
+      deadline: '2026-06-15',
       status: AuditStatus.CANCELLED,
       auditObject: 'Fasilitas K3LH',
       findingCategory: AuditCategory.INVESTIGATION,
@@ -188,7 +189,14 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
     }
   ]
 
-  const reportList = ref<ActionTakenReport[]>([...mockReports])
+  // Normalize on load: canonical AuditStatus casing + isOverdue/daysOverdue (API value or client fallback).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw API rows
+  const normalizeReports = (items: any[]): ActionTakenReport[] => {
+    const now = new Date()
+    return items.map(item => normalizeAtrItem(item, now) as ActionTakenReport)
+  }
+
+  const reportList = ref<ActionTakenReport[]>(normalizeReports(mockReports))
   const searchQuery = ref('')
   const selectedDepartment = ref('')
   const selectedStatus = ref('')
@@ -216,18 +224,11 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
         items = response
       }
 
-      if (items.length > 0) {
-        reportList.value = items.map((item: any) => ({
-          ...item,
-          assignmentLetter: item.assignment_letter || item.assignmentLetter
-        }))
-      } else {
-        reportList.value = mockReports
-      }
+      reportList.value = normalizeReports(items.length > 0 ? items : mockReports)
     } catch (error) {
       console.error('Failed to fetch action taken reports:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to load action taken reports.')
-      reportList.value = mockReports
+      reportList.value = normalizeReports(mockReports)
     } finally {
       loading.value = false
     }
@@ -242,30 +243,14 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       const matchesSearch = (report.auditRef?.toLowerCase() || '').includes(searchQuery.value.toLowerCase()) ||
         (report.title?.toLowerCase() || '').includes(searchQuery.value.toLowerCase())
       const matchesDept = !selectedDepartment.value || report.department === selectedDepartment.value
-      const matchesStatus = !selectedStatus.value || report.status === selectedStatus.value
+      const matchesStatus = !selectedStatus.value
+        || (selectedStatus.value === ATR_OVERDUE_FILTER ? !!report.isOverdue : report.status === selectedStatus.value)
       return matchesSearch && matchesDept && matchesStatus
     })
   })
 
-  const stats = computed(() => {
-    const total = reportList.value.length
-    if (total === 0) {
-      return {
-        donePercent: 0,
-        wipPercent: 0,
-        latePercent: 0
-      }
-    }
-    const done = reportList.value.filter(r => r.status === AuditStatus.COMPLETED).length
-    const wip = reportList.value.filter(r => r.status === AuditStatus.IN_PROGRESS).length
-    const late = reportList.value.filter(r => r.status === AuditStatus.CANCELLED).length
-
-    return {
-      donePercent: Math.round((done / total) * 100),
-      wipPercent: Math.round((wip / total) * 100),
-      latePercent: Math.round((late / total) * 100)
-    }
-  })
+  // Single source of truth for the ATR page summary and the dashboard (see computeAtrStats).
+  const stats = computed(() => computeAtrStats(reportList.value))
 
   // Actions
   const openDetail = (report: ActionTakenReport) => {

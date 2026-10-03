@@ -577,6 +577,10 @@ export interface ActionTakenReport {
   pic?: string
   attachment?: string
   progressDescription?: string
+  /** Derived (read-only): deadline passed and not COMPLETED/CANCELLED. From the API, or computed client-side. */
+  isOverdue?: boolean
+  /** Derived (read-only): whole days past the deadline when overdue, else 0. */
+  daysOverdue?: number
 }
 
 export interface AuditExecution {

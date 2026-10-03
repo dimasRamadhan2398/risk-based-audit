@@ -4,10 +4,10 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-main)] pb-5">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-space">
-          Audit Universe Configuration
+          {{ t('auditUniverse.title') }}
         </h1>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Manage your Corporate Audit Universe library and establish active entities for yearly planning.
+          {{ t('auditUniverse.subtitle') }}
         </p>
       </div>
       <div class="flex items-center gap-3">
@@ -18,7 +18,7 @@
           variant="outline"
           class="w-full sm:w-auto"
         >
-          Back to Heat Map
+          {{ t('auditUniverse.backToHeatmap') }}
         </UButton>
       </div>
     </div>
@@ -29,7 +29,7 @@
         v-if="alertMessage"
         :color="alertType === 'success' ? 'success' : 'error'"
         variant="solid"
-        :title="alertType === 'success' ? 'Success' : 'Error'"
+        :title="alertType === 'success' ? t('common.success') : t('common.error')"
         :description="alertMessage"
         icon="i-lucide-info"
         class="shadow-md"
@@ -50,10 +50,10 @@
               <template #header>
                 <div>
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
-                    Standard Audit Universe Library
+                    {{ t('auditUniverse.library.standardTitle') }}
                   </h2>
                   <p class="text-md text-slate-500 mt-0.5">
-                    Select standard entities to include them in your Corporate Audit Universe.
+                    {{ t('auditUniverse.library.standardSubtitle') }}
                   </p>
                 </div>
               </template>
@@ -108,7 +108,7 @@
               <template #header>
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
-                    Corporate Audit Universe
+                    {{ t('auditUniverse.library.corporateTitle') }}
                   </h2>
                   <div class="flex items-center gap-2">
                     <UButton
@@ -116,11 +116,11 @@
                       size="md"
                       color="primary"
                       icon="i-lucide-plus"
-                      label="Add Custom Entity"
+                      :label="t('auditUniverse.library.addCustomEntity')"
                       class="w-full sm:w-auto"
                       @click="openAddCustomModal(null)"
                     />
-                    <UBadge color="primary" variant="subtle">{{ corporateUniverse.length }} Entity</UBadge>
+                    <UBadge color="primary" variant="subtle">{{ t('auditUniverse.library.entityCount', { count: corporateUniverse.length }) }}</UBadge>
                   </div>
                 </div>
               </template>
@@ -135,7 +135,7 @@
                   <div class="flex items-center justify-between">
                     <span class="font-bold text-md text-slate-800 dark:text-slate-200">{{ node.name }}</span>
                     <div v-if="canEditAuditUniverse" class="flex items-center gap-1">
-                      <UTooltip text="Add Sub Entity">
+                      <UTooltip :text="t('auditUniverse.library.addSubEntity')">
                         <UButton
                           icon="i-lucide-plus"
                           color="primary"
@@ -144,7 +144,7 @@
                         @click="openAddCustomModal(node.id)"
                       />
                       </UTooltip>
-                      <UTooltip text="Rename Parent Entity">
+                      <UTooltip :text="t('auditUniverse.library.renameParentEntity')">
                         <UButton
                         icon="i-lucide-edit"
                         color="warning"
@@ -153,7 +153,7 @@
                         @click="openRenameModal(node)"
                       />
                       </UTooltip>
-                      <UTooltip text="Delete Parent Entity">
+                      <UTooltip :text="t('auditUniverse.library.deleteParentEntity')">
                         <UButton
                           icon="i-lucide-trash-2"
                           color="error"
@@ -174,7 +174,7 @@
                     >
                       <span class="text-md text-slate-600 dark:text-slate-400">{{ sub.name }}</span>
                       <div class="flex items-center gap-1">
-                        <UTooltip text="Rename Sub Entity">
+                        <UTooltip :text="t('auditUniverse.library.renameSubEntity')">
                           <UButton
                             icon="i-lucide-edit"
                             color="warning"
@@ -183,7 +183,7 @@
                             @click="openRenameModal(sub)"
                           />
                         </UTooltip>
-                        <UTooltip text="Delete Sub Entity">
+                        <UTooltip :text="t('auditUniverse.library.deleteSubEntity')">
                           <UButton
                             icon="i-lucide-trash-2"
                             color="error"
@@ -198,7 +198,7 @@
                 </div>
               </div>
               <div v-else class="text-center py-16 text-slate-400 text-md">
-                Corporate Audit Universe is empty. Select from standard library or add custom ones.
+                {{ t('auditUniverse.library.emptyState') }}
               </div>
             </UCard>
           </div>
@@ -218,19 +218,19 @@
           <template #content>
             <UCard>
               <template #header>
-                <h3 class="font-bold text-base text-slate-800 dark:text-slate-100">Rename Entity</h3>
+                <h3 class="font-bold text-base text-slate-800 dark:text-slate-100">{{ t('auditUniverse.modals.renameTitle') }}</h3>
               </template>
               <div class="space-y-4">
-                <UFormField label="Entity Name" class="space-y-2">
-                  <UInput 
-                    v-model="renameNodeName" 
-                    placeholder="Enter entity name" 
-                    color="neutral" 
+                <UFormField :label="t('auditUniverse.modals.entityNameLabel')" class="space-y-2">
+                  <UInput
+                    v-model="renameNodeName"
+                    :placeholder="t('auditUniverse.modals.entityNamePlaceholder')"
+                    color="neutral"
                     class="w-full"
                     type="text"
                     maxlength="100"
-                    @invalid="($event.target as any)?.setCustomValidity('Nama entitas maksimal 100 karakter dan wajib diisi')"
-                    @input="($event.target as any)?.setCustomValidity('')" 
+                    @invalid="($event.target as any)?.setCustomValidity(t('auditUniverse.modals.entityNameValidation'))"
+                    @input="($event.target as any)?.setCustomValidity('')"
                   />
                   <div class="text-xs text-gray-500 mt-1 text-right">
                     {{ renameNodeName ? renameNodeName.length : 0 }}/100
@@ -239,13 +239,13 @@
               </div>
               <template #footer>
                 <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
-                  <UButton 
-                    color="neutral" 
-                    variant="outline" 
-                    label="Cancel" 
+                  <UButton
+                    color="neutral"
+                    variant="outline"
+                    :label="t('auditUniverse.modals.cancel')"
                     class="w-full sm:w-auto"
                     @click="() => { renameModalOpen = false }" />
-                  <UButton color="primary" label="Save" class="w-full sm:w-auto" @click="saveRenameNode" />
+                  <UButton color="primary" :label="t('auditUniverse.modals.save')" class="w-full sm:w-auto" @click="saveRenameNode" />
                 </div>
               </template>
             </UCard>
@@ -266,20 +266,20 @@
             <UCard>
               <template #header>
                 <h3 class="font-bold text-base text-slate-800 dark:text-slate-100">
-                  {{ addCustomParentID ? 'Add Sub-Entity' : 'Add Custom Corporate Entity' }}
+                  {{ addCustomParentID ? t('auditUniverse.modals.addSubEntityTitle') : t('auditUniverse.modals.addCustomEntityTitle') }}
                 </h3>
               </template>
               <div class="space-y-4">
-                <UFormField label="Name" class="space-y-1">
-                  <UInput 
-                    v-model="addCustomNodeName" 
-                    placeholder="Enter name..." 
-                    color="neutral" 
+                <UFormField :label="t('auditUniverse.modals.nameLabel')" class="space-y-1">
+                  <UInput
+                    v-model="addCustomNodeName"
+                    :placeholder="t('auditUniverse.modals.namePlaceholder')"
+                    color="neutral"
                     class="w-full"
                     type="text"
                     maxlength="100"
-                    @invalid="($event.target as any)?.setCustomValidity('Nama entitas maksimal 100 karakter dan wajib diisi')"
-                    @input="($event.target as any)?.setCustomValidity('')" 
+                    @invalid="($event.target as any)?.setCustomValidity(t('auditUniverse.modals.entityNameValidation'))"
+                    @input="($event.target as any)?.setCustomValidity('')"
                   />
                   <div class="text-xs text-gray-500 mt-1 text-right">
                     {{ addCustomNodeName ? addCustomNodeName.length : 0 }}/100
@@ -288,15 +288,15 @@
               </div>
               <template #footer>
                 <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
-                  <UButton 
-                    color="neutral" 
-                    variant="outline" 
-                    label="Cancel" 
+                  <UButton
+                    color="neutral"
+                    variant="outline"
+                    :label="t('auditUniverse.modals.cancel')"
                     class="w-full sm:w-auto"
                     @click="() => { addCustomModalOpen = false }" />
-                  <UButton 
-                    color="primary" 
-                    label="Add Node" 
+                  <UButton
+                    color="primary"
+                    :label="t('auditUniverse.modals.addNode')"
                     class="w-full sm:w-auto"
                     @click="saveAddCustomNode" />
                 </div>
@@ -314,15 +314,15 @@
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space flex items-center gap-2">
-                    📅 2. Establish {{ selectedYear }} Audit Universe
+                    {{ t('auditUniverse.establish.title', { year: selectedYear }) }}
                   </h2>
                   <p class="text-md text-slate-500 mt-0.5">
-                    Select Auditable Entities from the Corporate Audit Universe active for auditing in year {{ selectedYear }}.
+                    {{ t('auditUniverse.establish.subtitle', { year: selectedYear }) }}
                   </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
                   <div class="flex items-center gap-2">
-                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Target Year:</span>
+                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t('auditUniverse.establish.targetYear') }}</span>
                     <USelect
                       v-model.number="selectedYear"
                       :items="[2025, 2026, 2027, 2028]"
@@ -337,7 +337,7 @@
                     color="primary"
                     variant="solid"
                     icon="i-lucide-check-circle"
-                    label="Establish Active Universe"
+                    :label="t('auditUniverse.establish.establishBtn')"
                     class="w-full sm:w-auto"
                     @click="saveYearlyEstablishment"
                   />
@@ -387,6 +387,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useRiskFactorsStore } from '~/stores/risk-factors'
+import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
@@ -394,12 +395,13 @@ const store = useAuditUniverseStore()
 const riskFactorsStore = useRiskFactorsStore()
 const route = useRoute()
 const toast = useToastNotification()
+const { t } = useI18n()
 const { canEditAuditUniverse } = useRbac()
 
-const tabItems = [
-  { value: 'library', slot: 'library', label: '1. Corporate Universe Builder' },
-  { value: 'establish', slot: 'establish', label: '2. Yearly Establishment' }
-]
+const tabItems = computed(() => [
+  { value: 'library', slot: 'library', label: t('auditUniverse.tabs.library') },
+  { value: 'establish', slot: 'establish', label: t('auditUniverse.tabs.establish') }
+])
 
 const activeTab = ref(
   route.query.tab === 'establish' ? 'establish' : 'library'
@@ -528,7 +530,7 @@ const saveRenameNode = async () => {
     standard_audit_universe_id: renameNode.value.standard_audit_universe_id
   })
   renameModalOpen.value = false
-  toast.showSuccess('Corporate entity name updated successfully.')
+  toast.showSuccess(t('auditUniverse.messages.entityRenamed'))
 }
 
 // Adding custom nodes
@@ -564,13 +566,13 @@ const saveAddCustomNode = async () => {
     parent_id: corpParentID
   })
   addCustomModalOpen.value = false
-  toast.showSuccess('Custom corporate entity added successfully.')
+  toast.showSuccess(t('auditUniverse.messages.entityAdded'))
 }
 
 const deleteCorporateNode = async (id: string) => {
-  if (!await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete this entity from Corporate Audit Universe? This will delete all sub-entities and yearly entries.' })) return
+  if (!await useGlobalModalStore().confirmDelete({ description: t('auditUniverse.messages.deleteConfirmDesc') })) return
   await store.deleteCorporateNode(id)
-  toast.showSuccess('Entity deleted successfully from corporate library.')
+  toast.showSuccess(t('auditUniverse.messages.entityDeleted'))
   await fetchYearlyUniverse()
 }
 
@@ -591,10 +593,10 @@ const toggleYearlySelection = (id: string) => {
 const saveYearlyEstablishment = async () => {
   const success = await store.establishYearlyUniverse(selectedYear.value, selectedYearlyIDs.value)
   if (success) {
-    toast.showSuccess(`Successfully established active Audit Universe for year ${selectedYear.value}.`)
+    toast.showSuccess(t('auditUniverse.messages.establishSuccess', { year: selectedYear.value }))
     await fetchYearlyUniverse()
   } else {
-    toast.showError(store.errorMsg || 'Failed to establish yearly audit universe.')
+    toast.showError(store.errorMsg || t('auditUniverse.messages.establishFailed'))
   }
 }
 

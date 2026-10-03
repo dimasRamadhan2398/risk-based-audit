@@ -24,11 +24,16 @@
             <div class="flex items-center justify-between">
               <div class="space-y-1">
                 <h3 class="text-xl font-bold">Action Taken Report Detail</h3>
-                <p class="text-sm font-bold">
-                  Ref: {{ store.selectedReport?.auditRef }} | Status: [ <span :class="modalStatusDetails.class">
-                    {{ modalStatusDetails.icon }} {{ store.selectedReport?.status }}
-                  </span> ]
-                </p>
+                <div class="flex flex-wrap items-center gap-2 text-sm font-bold">
+                  <span>Ref: {{ store.selectedReport?.auditRef }} | {{ t('actionTakenReport.detail.status') }}:</span>
+                  <UBadge :color="modalStatusDetails.color" variant="subtle" :label="modalStatusDetails.label" />
+                  <UBadge
+                    v-if="store.selectedReport?.isOverdue"
+                    color="error"
+                    variant="solid"
+                    :label="t('actionTakenReport.status.overdue')"
+                  />
+                </div>
               </div>
               <UButton
                 color="neutral"
@@ -109,7 +114,16 @@
                 </div>
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
                   <p class="w-full sm:w-1/3 text-sm font-bold">Deadline</p>
-                  <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.deadline || '-' }}</p>
+                  <div class="w-full sm:w-2/3 flex flex-wrap items-center gap-2 text-sm">
+                    <span>{{ store.selectedReport?.deadline || '-' }}</span>
+                    <UBadge
+                      v-if="store.selectedReport?.isOverdue"
+                      color="error"
+                      variant="subtle"
+                      size="sm"
+                      :label="t('actionTakenReport.daysOverdue', { days: store.selectedReport?.daysOverdue ?? 0 })"
+                    />
+                  </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
                   <p class="w-full sm:w-1/3 text-sm font-bold">PIC</p>
@@ -157,17 +171,23 @@
 import { computed } from 'vue'
 import { useActionTakenReportStore } from '~/stores/action-taken-report'
 import { AuditStatus } from '~/types/audit'
+import { useI18n } from '~/composables/useI18n'
+import { atrStatusI18nKey } from '~/utils/actionTakenReport'
 
 const store = useActionTakenReportStore()
+const { t } = useI18n()
 
-const modalStatusDetails = computed(() => {
-  const status = store.selectedReport?.status
+type BadgeColor = 'success' | 'warning' | 'info' | 'neutral'
+
+const modalStatusDetails = computed<{ color: BadgeColor, label: string }>(() => {
+  const status = store.selectedReport?.status ?? ''
+  const key = atrStatusI18nKey(status)
+  const label = key ? t(key) : (status || '-')
   switch (status) {
-    case AuditStatus.COMPLETED: return { class: 'success', icon: '🟢' }
-    case AuditStatus.IN_PROGRESS: return { class: 'warning', icon: '🟡' }
-    case AuditStatus.PLANNED: return { class: 'neutral', icon: '⚪' }
-    case AuditStatus.CANCELLED: return { class: 'error', icon: '🔴' }
-    default: return { class: 'neutral', icon: '' }
+    case AuditStatus.COMPLETED: return { color: 'success', label }
+    case AuditStatus.IN_PROGRESS: return { color: 'warning', label }
+    case AuditStatus.PLANNED: return { color: 'info', label }
+    default: return { color: 'neutral', label }
   }
 })
 

@@ -7,9 +7,13 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
+export type FindingCategory = 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
+
+export const FINDING_CATEGORIES: FindingCategory[] = ['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']
+
 export interface FindingItem {
   title: string
-  category: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
+  category: FindingCategory
   action?: string
   source?: string
   impact?: string
@@ -32,120 +36,30 @@ export interface AuditResultReport {
   companyName?: string
 }
 
+// GET /audit-result-reports/recent-findings item
+export interface RecentFinding {
+  title: string
+  category: FindingCategory
+  action: string
+  source: string
+  assignmentLetterId: string
+  reportId: string | null
+  date: string
+}
+
 export const useAuditResultReportStore = defineStore('audit-result-report', () => {
   const assignmentLetterStore = useAssignmentLetterStore()
   const toast = useToastNotification()
 
   // State
   const selectedAssignmentLetter = ref<string>('')
-  const reportList = ref<AuditResultReport[]>([
-    {
-      id: 'R-001',
-      reportNumber: '020/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-001/SKAI/2026',
-      reportTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau 2026',
-      executiveSummary: 'Audit Operasional Tahun 2026 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.',
-      category: 'Significant',
-      reportDate: '2026-01-22',
-      status: 'Final',
-      findingsCount: 8,
-      findings: [
-        { title: 'Pengelolaan Manajemen Risiko Belum Sepenuhnya Sesuai Kebijakan Masa Transisi HSH', category: 'Very Significant', action: 'Perbaikan SOP' },
-        { title: 'Pelaksanaan Overhaul UPDK KEPRI Belum Optimal Terjadi PE 6 Hari pada ME+ PLTU TBK #1', category: 'Very Significant', action: 'Evaluasi jadwal' },
-        { title: 'Peralatan Lab Milik Perusahaan Belum Digunakan Secara Optimal Sebagai Pembanding Surveyor', category: 'Significant', action: 'Kalibrasi ulang' },
-        { title: 'Data Maturity Level Manajemen Aset Belum Lengkap Terbatalnya Fitur Maximo WPC', category: 'Significant', action: 'Update Maximo' },
-        { title: 'Terdapat Penyusunan HPS dan Pemanfaatan ERP Tidak Sesuai Ketentuan SCM', category: 'Significant', action: 'Review HPS' },
-        { title: 'Program Pemeliharaan Aset Tetap Belum Diakui Kepemilikannya Menggunakan Anggaran Operasi', category: 'Quite Significant', action: 'Inventarisasi aset' },
-        { title: 'Terdapat Kontrak Pekerjaan Sejenis Yang Tidak Digabungkan (Strategi Squeezing)', category: 'Quite Significant', action: 'Review kontrak' },
-        { title: 'Pengelolaan K3 dan Keamanan di UPDK KEPRI Belum Optimal (Fire Fighting & Lightning)', category: 'Significant', action: 'Audit K3' }
-      ]
-    },
-    {
-      id: 'R-002',
-      reportNumber: '021/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-001/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Operasional Keuangan 2025',
-      executiveSummary: 'Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
-      category: 'Significant',
-      reportDate: '2026-04-15',
-      status: 'Draft',
-      findingsCount: 5,
-      findings: [
-        { title: 'Keterlambatan rekonsiliasi kas harian cabang utama', category: 'Very Significant', action: 'Perbaikan jadwal harian' },
-        { title: 'Kelemahan kontrol otorisasi transaksi di atas Rp 500jt', category: 'Very Significant', action: 'Review limit otorisasi' },
-        { title: 'Selisih pencatatan inventaris fisik vs buku besar', category: 'Very Significant', action: 'Stok opname ulang' },
-        { title: 'Dokumentasi bukti transfer eksternal tidak lengkap', category: 'Significant', action: 'Lengkapi berkas transfer' },
-        { title: 'Akses user kasir tidak di-nonaktifkan setelah mutasi', category: 'Significant', action: 'Nonaktifkan akun user' }
-      ]
-    },
-    {
-      id: 'R-003',
-      reportNumber: '022/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-002/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Keamanan Sistem Informasi & ERP 2026',
-      executiveSummary: 'Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP serta backup data.',
-      category: 'Very Significant',
-      reportDate: '2026-05-02',
-      status: 'Final',
-      findingsCount: 4,
-      findings: [
-        { title: 'Keterlambatan patch keamanan server database ERP', category: 'Very Significant', action: 'Update patch rutin' },
-        { title: 'Akses Superadmin ERP belum menggunakan Multi-Factor Authentication', category: 'Very Significant', action: 'Implementasi MFA mandatory' },
-        { title: 'Prosedur Backup Data belum diuji pemulihannya secara berkala', category: 'Significant', action: 'Jadwalkan DRC drill' },
-        { title: 'Log audit aktivitas sistem informasi belum di-review mingguan', category: 'Quite Significant', action: 'Setup SOC log alert' }
-      ]
-    },
-    {
-      id: 'R-004',
-      reportNumber: '023/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-003/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Operasional Gudang & Persediaan Logistik 2026',
-      executiveSummary: 'Audit mengevaluasi akurasi pencatatan stok gudang persediaan dan pengelolaan distribusi.',
-      category: 'Significant',
-      reportDate: '2026-08-10',
-      status: 'Draft',
-      findingsCount: 3,
-      findings: [
-        { title: 'Selisih fisik barang material persediaan gudang cabang', category: 'Significant', action: 'Investigasi selisih stok' },
-        { title: 'Suhu penyimpanan gudang bahan kimia belum terpantau 24/7', category: 'Quite Significant', action: 'Pasang IoT sensor suhu' },
-        { title: 'Pengeluaran material proyek tanpa Work Order yang disetujui', category: 'Significant', action: 'Kunci sistem release barang' }
-      ]
-    },
-    {
-      id: 'R-005',
-      reportNumber: '024/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-004/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Kepatuhan Procurement & SCM 2026',
-      executiveSummary: 'Audit evaluasi pelaksanaan rekomendasi audit internal dan kepatuhan pengadaan SCM.',
-      category: 'Quite Significant',
-      reportDate: '2026-08-18',
-      status: 'Final',
-      findingsCount: 2,
-      findings: [
-        { title: 'Penyusunan HPS pengadaan komponen turbin belum melampirkan kertas kerja survei harga', category: 'Quite Significant', action: 'Lampirkan bukti survei HPS' },
-        { title: 'Monitoring pencairan jaminan bank vendor belum terintegrasi ERP', category: 'Not Significant', action: 'Fitur reminder otomatis ERP' }
-      ]
-    },
-    {
-      id: 'R-006',
-      reportNumber: '025/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-005/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit 2026',
-      executiveSummary: 'Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (025/LHA/01/KS IAD/2026).',
-      category: 'Very Significant',
-      reportDate: '2026-09-15',
-      status: 'Final',
-      findingsCount: 3,
-      findings: [
-        { title: 'Inspeksi berkala sistem pemadam kebakaran hidran belum 100% terlaksana', category: 'Very Significant', action: 'Jadwalkan pemeliharaan hidran' },
-        { title: 'Sertifikasi K3LH teknisi pemeliharaan pembangkit belum di-renew', category: 'Significant', action: 'Daftarkan pelatihan sertifikasi' },
-        { title: 'APBD K3 belum memadai untuk instalasi area berisiko tinggi', category: 'Quite Significant', action: 'Pengadaan APD tambahan' }
-      ]
-    }
-  ])
+  const reportList = ref<AuditResultReport[]>([])
   const showModal = ref(false)
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
+
+  // Field validation errors for the ARR form, as i18n keys ('' = no error).
+  const formErrors = reactive({ assignmentLetterId: '' })
 
   const reportForm = reactive({
     reportNumber: '',
@@ -173,116 +87,15 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
 
   const hasSelectedAssignmentLetter = computed(() => !!selectedAssignmentLetter.value && selectedAssignmentLetter.value !== '')
 
-
-
   const loading = ref(false)
   const errorMsg = ref('')
 
-  const mockReports: AuditResultReport[] = [
-    {
-      id: 'R-001',
-      reportNumber: '020/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-001/SKAI/2026',
-      reportTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau 2026',
-      executiveSummary: 'Audit Operasional Tahun 2026 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.',
-      category: 'Significant',
-      reportDate: '2026-01-22',
-      status: 'Final',
-      findingsCount: 8,
-      findings: [
-        { title: 'Pengelolaan Manajemen Risiko Belum Sepenuhnya Sesuai Kebijakan Masa Transisi HSH', category: 'Very Significant', action: 'Perbaikan SOP' },
-        { title: 'Pelaksanaan Overhaul UPDK KEPRI Belum Optimal Terjadi PE 6 Hari pada ME+ PLTU TBK #1', category: 'Very Significant', action: 'Evaluasi jadwal' },
-        { title: 'Peralatan Lab Milik Perusahaan Belum Digunakan Secara Optimal Sebagai Pembanding Surveyor', category: 'Significant', action: 'Kalibrasi ulang' },
-        { title: 'Data Maturity Level Manajemen Aset Belum Lengkap Terbatalnya Fitur Maximo WPC', category: 'Significant', action: 'Update Maximo' },
-        { title: 'Terdapat Penyusunan HPS dan Pemanfaatan ERP Tidak Sesuai Ketentuan SCM', category: 'Significant', action: 'Review HPS' },
-        { title: 'Program Pemeliharaan Aset Tetap Belum Diakui Kepemilikannya Menggunakan Anggaran Operasi', category: 'Quite Significant', action: 'Inventarisasi aset' },
-        { title: 'Terdapat Kontrak Pekerjaan Sejenis Yang Tidak Digabungkan (Strategi Squeezing)', category: 'Quite Significant', action: 'Review kontrak' },
-        { title: 'Pengelolaan K3 dan Keamanan di UPDK KEPRI Belum Optimal (Fire Fighting & Lightning)', category: 'Significant', action: 'Audit K3' }
-      ]
-    },
-    {
-      id: 'R-002',
-      reportNumber: '021/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-001/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Operasional Keuangan 2025',
-      executiveSummary: 'Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
-      category: 'Significant',
-      reportDate: '2026-04-15',
-      status: 'Draft',
-      findingsCount: 5,
-      findings: [
-        { title: 'Keterlambatan rekonsiliasi kas harian cabang utama', category: 'Very Significant', action: 'Perbaikan jadwal harian' },
-        { title: 'Kelemahan kontrol otorisasi transaksi di atas Rp 500jt', category: 'Very Significant', action: 'Review limit otorisasi' },
-        { title: 'Selisih pencatatan inventaris fisik vs buku besar', category: 'Very Significant', action: 'Stok opname ulang' },
-        { title: 'Dokumentasi bukti transfer eksternal tidak lengkap', category: 'Significant', action: 'Lengkapi berkas transfer' },
-        { title: 'Akses user kasir tidak di-nonaktifkan setelah mutasi', category: 'Significant', action: 'Nonaktifkan akun user' }
-      ]
-    },
-    {
-      id: 'R-003',
-      reportNumber: '022/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-002/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Keamanan Sistem Informasi & ERP 2026',
-      executiveSummary: 'Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP serta backup data.',
-      category: 'Very Significant',
-      reportDate: '2026-05-02',
-      status: 'Final',
-      findingsCount: 4,
-      findings: [
-        { title: 'Keterlambatan patch keamanan server database ERP', category: 'Very Significant', action: 'Update patch rutin' },
-        { title: 'Akses Superadmin ERP belum menggunakan Multi-Factor Authentication', category: 'Very Significant', action: 'Implementasi MFA mandatory' },
-        { title: 'Prosedur Backup Data belum diuji pemulihannya secara berkala', category: 'Significant', action: 'Jadwalkan DRC drill' },
-        { title: 'Log audit aktivitas sistem informasi belum di-review mingguan', category: 'Quite Significant', action: 'Setup SOC log alert' }
-      ]
-    },
-    {
-      id: 'R-004',
-      reportNumber: '023/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-003/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Operasional Gudang & Persediaan Logistik 2026',
-      executiveSummary: 'Audit mengevaluasi akurasi pencatatan stok gudang persediaan dan pengelolaan distribusi.',
-      category: 'Significant',
-      reportDate: '2026-08-10',
-      status: 'Draft',
-      findingsCount: 3,
-      findings: [
-        { title: 'Selisih fisik barang material persediaan gudang cabang', category: 'Significant', action: 'Investigasi selisih stok' },
-        { title: 'Suhu penyimpanan gudang bahan kimia belum terpantau 24/7', category: 'Quite Significant', action: 'Pasang IoT sensor suhu' },
-        { title: 'Pengeluaran material proyek tanpa Work Order yang disetujui', category: 'Significant', action: 'Kunci sistem release barang' }
-      ]
-    },
-    {
-      id: 'R-005',
-      reportNumber: '024/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-004/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Kepatuhan Procurement & SCM 2026',
-      executiveSummary: 'Audit evaluasi pelaksanaan rekomendasi audit internal dan kepatuhan pengadaan SCM.',
-      category: 'Quite Significant',
-      reportDate: '2026-08-18',
-      status: 'Final',
-      findingsCount: 2,
-      findings: [
-        { title: 'Penyusunan HPS pengadaan komponen turbin belum melampirkan kertas kerja survei harga', category: 'Quite Significant', action: 'Lampirkan bukti survei HPS' },
-        { title: 'Monitoring pencairan jaminan bank vendor belum terintegrasi ERP', category: 'Not Significant', action: 'Fitur reminder otomatis ERP' }
-      ]
-    },
-    {
-      id: 'R-006',
-      reportNumber: '025/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-005/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit 2026',
-      executiveSummary: 'Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (025/LHA/01/KS IAD/2026).',
-      category: 'Very Significant',
-      reportDate: '2026-09-15',
-      status: 'Final',
-      findingsCount: 3,
-      findings: [
-        { title: 'Inspeksi berkala sistem pemadam kebakaran hidran belum 100% terlaksana', category: 'Very Significant', action: 'Jadwalkan pemeliharaan hidran' },
-        { title: 'Sertifikasi K3LH teknisi pemeliharaan pembangkit belum di-renew', category: 'Significant', action: 'Daftarkan pelatihan sertifikasi' },
-        { title: 'APBD K3 belum memadai untuk instalasi area berisiko tinggi', category: 'Quite Significant', action: 'Pengadaan APD tambahan' }
-      ]
-    }
-  ]
+  const normalizeFindingCategory = (raw: unknown): FindingCategory => {
+    if (raw === 'Moderately Significant') return 'Quite Significant'
+    if (raw === 'Insignificant') return 'Not Significant'
+    if (FINDING_CATEGORIES.includes(raw as FindingCategory)) return raw as FindingCategory
+    return 'Quite Significant'
+  }
 
   const generateReportNumber = (dateStr?: string, unitCode: string = '01'): string => {
     let year = new Date().getFullYear().toString()
@@ -329,16 +142,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     const findingsArr = item.findings || item.Findings || []
 
     // Map legacy severity to category
-    const mappedFindings = findingsArr.map((f: any) => {
-      let cat = f.category || f.severity || 'Quite Significant'
-      if (cat === 'Moderately Significant') cat = 'Quite Significant'
-      if (cat === 'Insignificant') cat = 'Not Significant'
-      return {
-        ...f,
-        category: cat,
-        source: f.source || 'Audit Features'
-      }
-    })
+    const mappedFindings = findingsArr.map((f: any) => ({
+      ...f,
+      category: normalizeFindingCategory(f.category || f.severity),
+      source: f.source || 'Audit Features'
+    }))
 
     const finalReportDate = dateVal || new Date().toISOString().split('T')[0]
     const defaultDynamicNum = generateReportNumber(finalReportDate)
@@ -369,15 +177,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         items = response
       }
 
-      if (items.length > 0) {
-        reportList.value = items.map(mapReportItem)
-      } else {
-        reportList.value = [...mockReports]
-      }
+      reportList.value = items.map(mapReportItem)
     } catch (error) {
-      console.error('Failed to fetch reports, falling back to mock data:', error)
+      console.error('Failed to fetch reports:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to load audit result reports.')
-      reportList.value = [...mockReports]
+      reportList.value = []
     } finally {
       loading.value = false
     }
@@ -385,6 +189,45 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
 
   // Fetch on initialization
   fetchReports()
+
+  // Dashboard "Recent Finding Issues": saved ARR findings merged server-side with
+  // live KKA / fieldwork findings, deduped and sorted newest first.
+  const recentFindings = ref<RecentFinding[]>([])
+  const recentFindingsLoading = ref(false)
+  const recentFindingsError = ref('')
+
+  const fetchRecentFindings = async (limit = 5) => {
+    recentFindingsLoading.value = true
+    recentFindingsError.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const res = await $fetch<{ data?: { items?: Partial<RecentFinding>[] } }>(
+        `${baseUrl}/audit-result-reports/recent-findings?limit=${limit}`,
+        { method: 'GET' }
+      )
+      const items = Array.isArray(res?.data?.items) ? res.data.items : []
+      recentFindings.value = items
+        .map((f): RecentFinding => ({
+          title: f.title || '',
+          category: normalizeFindingCategory(f.category),
+          action: f.action || '',
+          source: f.source || '',
+          assignmentLetterId: f.assignmentLetterId || '',
+          reportId: f.reportId ?? null,
+          date: f.date || ''
+        }))
+        .filter(f => f.title)
+        // The backend already sorts; keep newest first even if it ever doesn't.
+        .sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0))
+        .slice(0, limit)
+    } catch (error) {
+      console.error('Failed to fetch recent findings:', error)
+      recentFindingsError.value = extractErrorMessage(error, 'Failed to load recent findings.')
+      recentFindings.value = []
+    } finally {
+      recentFindingsLoading.value = false
+    }
+  }
 
   const isAutoDetecting = ref(false)
 
@@ -396,10 +239,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     const wpStore = useWorkingPaperStore()
     const fwStore = useAuditFieldworkStore()
 
-    // 1. Digital Working Paper (AOI & RCA F04 + Plan F05 + Risk F02)
-    const allCauses = (wpStore.dataF04 && wpStore.dataF04.length > 0) ? wpStore.dataF04 : (wpStore.mockF04 || [])
-    const allPlans = (wpStore.dataF05 && wpStore.dataF05.length > 0) ? wpStore.dataF05 : (wpStore.mockF05 || [])
-    const allRisks = (wpStore.dataF02 && wpStore.dataF02.length > 0) ? wpStore.dataF02 : (wpStore.mockF02 || [])
+    // 1. Digital Working Paper (AOI & RCA F04 + Plan F05 + Risk F02) — loaded data only
+    const allCauses: any[] = wpStore.dataF04 || []
+    const allPlans: any[] = wpStore.dataF05 || []
+    const allRisks: any[] = wpStore.dataF02 || []
 
     const stCauses = allCauses.filter((c: any) => (c.workingPaperId || c.assignmentLetterId) === targetLetter)
     const stPlans = allPlans.filter((p: any) => (p.workingPaperId || p.assignmentLetterId) === targetLetter)
@@ -448,13 +291,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       })
     })
 
-    // 2. Audit Fieldwork Test Controls
-    if (typeof (fwStore as any).ensureDataExists === 'function') {
-      (fwStore as any).ensureDataExists()
-    }
-    const testControlsList = (fwStore.fieldworkData && fwStore.fieldworkData[targetLetter]?.testControls?.length)
-      ? fwStore.fieldworkData[targetLetter].testControls
-      : ((fwStore.mockFieldwork && (fwStore.mockFieldwork as any)[targetLetter]?.testControls) || [])
+    // 2. Audit Fieldwork Test Controls — loaded data only
+    const testControlsList: any[] = fwStore.fieldworkData?.[targetLetter]?.testControls || []
 
     testControlsList.forEach((tc: any) => {
       const findingText = (tc.finding || '').trim()
@@ -564,7 +402,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportForm.findings = JSON.parse(JSON.stringify(detected))
     } else {
       const existing = new Set(reportForm.findings.map(f => f.title.toLowerCase().trim()))
-      detected.forEach(d => {
+      detected.forEach((d) => {
         if (!existing.has(d.title.toLowerCase().trim())) {
           reportForm.findings.push(JSON.parse(JSON.stringify(d)))
           existing.add(d.title.toLowerCase().trim())
@@ -606,6 +444,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
 
   const resetForm = () => {
     const defaultDate = new Date().toISOString().split('T')[0] as string
+    formErrors.assignmentLetterId = ''
     Object.assign(reportForm, {
       reportNumber: generateReportNumber(defaultDate),
       assignmentLetterId: selectedAssignmentLetter.value || 'ST-001/SKAI/2026',
@@ -620,6 +459,14 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const saveReport = async () => {
+    // A report always belongs to an assignment letter. Editing keeps the report's
+    // own letter (the field is disabled); creating may fall back to the page filter.
+    const letter = String(reportForm.assignmentLetterId || (isEditing.value ? '' : selectedAssignmentLetter.value) || '').trim()
+    if (!letter) {
+      formErrors.assignmentLetterId = 'auditResultReport.form.assignmentLetterRequired'
+      return
+    }
+    formErrors.assignmentLetterId = ''
     loading.value = true
     errorMsg.value = ''
     try {
@@ -628,7 +475,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         reportForm.reportNumber = generateReportNumber(reportForm.reportDate)
       }
       const payload: any = {
-        assignmentLetterId: reportForm.assignmentLetterId || selectedAssignmentLetter.value || 'ST-001/SKAI/2026',
+        assignmentLetterId: letter,
         reportTitle: reportForm.reportTitle,
         reportDate: reportForm.reportDate,
         report_date: reportForm.reportDate,
@@ -675,6 +522,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const editReport = (report: AuditResultReport) => {
+    formErrors.assignmentLetterId = ''
     Object.assign(reportForm, {
       ...report,
       reportNumber: report.reportNumber || (report as any).report_number || generateReportNumber(report.reportDate),
@@ -777,6 +625,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     showModal,
     isEditing,
     reportForm,
+    formErrors,
     publishedAssignmentLetters,
     filteredReports,
     hasSelectedAssignmentLetter,
@@ -791,6 +640,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     loading,
     errorMsg,
     fetchReports,
+    recentFindings,
+    recentFindingsLoading,
+    recentFindingsError,
+    fetchRecentFindings,
     isAutoDetecting,
     fetchAutoFindings,
     runAutoDetectFindings,

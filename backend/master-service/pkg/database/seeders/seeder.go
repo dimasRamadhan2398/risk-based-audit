@@ -65,42 +65,87 @@ func (s *Seeder) RunAll() error {
 	return nil
 }
 
+// LocationSeeds is the branch/location master data.
+//
+// The names here are the branch labels the Corporate Risk Profile and the Risk
+// Control Matrix group by, so they must stay in sync with the branch options the
+// frontend offers.
+var LocationSeeds = []models.Location{
+	{
+		Name:       "Head Office",
+		Address:    "Wisma AIFL, Jl. Jend. Sudirman Kav. 52-53",
+		City:       "Jakarta Selatan",
+		Province:   "DKI Jakarta",
+		PostalCode: "12190",
+		Country:    "Indonesia",
+		Latitude:   float64Ptr(-6.2088),
+		Longitude:  float64Ptr(106.8166),
+		IsActive:   true,
+	},
+	{
+		Name:       "Jakarta Branch",
+		Address:    "Gedung Menara Thamrin, Jl. M.H. Thamrin Kav. 3",
+		City:       "Jakarta Pusat",
+		Province:   "DKI Jakarta",
+		PostalCode: "10250",
+		Country:    "Indonesia",
+		Latitude:   float64Ptr(-6.1944),
+		Longitude:  float64Ptr(106.8229),
+		IsActive:   true,
+	},
+	{
+		Name:       "Surabaya Branch",
+		Address:    "Graha Pena, Jl. Ahmad Yani No. 88",
+		City:       "Surabaya",
+		Province:   "Jawa Timur",
+		PostalCode: "60234",
+		Country:    "Indonesia",
+		Latitude:   float64Ptr(-7.2575),
+		Longitude:  float64Ptr(112.7521),
+		IsActive:   true,
+	},
+	{
+		Name:       "Bandung Branch",
+		Address:    "Jl. Braga No. 99",
+		City:       "Bandung",
+		Province:   "Jawa Barat",
+		PostalCode: "40111",
+		Country:    "Indonesia",
+		Latitude:   float64Ptr(-6.9175),
+		Longitude:  float64Ptr(107.6191),
+		IsActive:   true,
+	},
+	{
+		Name:       "Bali Branch",
+		Address:    "Jl. Sunset Road No. 18, Kuta",
+		City:       "Badung",
+		Province:   "Bali",
+		PostalCode: "80361",
+		Country:    "Indonesia",
+		Latitude:   float64Ptr(-8.7210),
+		Longitude:  float64Ptr(115.1750),
+		IsActive:   true,
+	},
+}
+
+// renamedLocations maps superseded location names to their current name, so
+// databases seeded before the rename converge instead of ending up with both
+// rows (FirstOrCreate matches on name).
+var renamedLocations = map[string]string{
+	"AIFL Headquarters": "Head Office",
+}
+
 func (s *Seeder) SeedLocations() error {
-	seeds := []models.Location{
-		{
-			Name:       "AIFL Headquarters",
-			Address:    "Wisma AIFL, Jl. Jend. Sudirman Kav. 52-53",
-			City:       "Jakarta Selatan",
-			Province:   "DKI Jakarta",
-			PostalCode: "12190",
-			Country:    "Indonesia",
-			Latitude:   float64Ptr(-6.2088),
-			Longitude:  float64Ptr(106.8166),
-			IsActive:   true,
-		},
-		{
-			Name:       "Surabaya Branch",
-			Address:    "Graha Pena, Jl. Ahmad Yani No. 88",
-			City:       "Surabaya",
-			Province:   "Jawa Timur",
-			PostalCode: "60234",
-			Country:    "Indonesia",
-			Latitude:   float64Ptr(-7.2575),
-			Longitude:  float64Ptr(112.7521),
-			IsActive:   true,
-		},
-		{
-			Name:       "Bandung Branch",
-			Address:    "Jl. Braga No. 99",
-			City:       "Bandung",
-			Province:   "Jawa Barat",
-			PostalCode: "40111",
-			Country:    "Indonesia",
-			Latitude:   float64Ptr(-6.9175),
-			Longitude:  float64Ptr(107.6191),
-			IsActive:   true,
-		},
+	for oldName, newName := range renamedLocations {
+		if err := s.DB.Model(&models.Location{}).
+			Where("name = ?", oldName).
+			Update("name", newName).Error; err != nil {
+			return err
+		}
 	}
+
+	seeds := make([]models.Location, len(LocationSeeds))
+	copy(seeds, LocationSeeds)
 
 	for i := range seeds {
 		if err := s.DB.FirstOrCreate(&seeds[i], models.Location{Name: seeds[i].Name}).Error; err != nil {
@@ -111,7 +156,7 @@ func (s *Seeder) SeedLocations() error {
 }
 
 func (s *Seeder) SeedCompanies() error {
-	hqLocation, err := getByName[models.Location](s.DB, "name", "AIFL Headquarters")
+	hqLocation, err := getByName[models.Location](s.DB, "name", "Head Office")
 	if err != nil {
 		return err
 	}
@@ -415,7 +460,7 @@ func (s *Seeder) SeedEmployees() error {
 	if err != nil {
 		return err
 	}
-	hqLocation, err := getByName[models.Location](s.DB, "name", "AIFL Headquarters")
+	hqLocation, err := getByName[models.Location](s.DB, "name", "Head Office")
 	if err != nil {
 		return err
 	}

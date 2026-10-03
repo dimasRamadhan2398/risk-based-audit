@@ -291,8 +291,8 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 		{
 			Title:        "Audit Completion Rate",
 			Key:          "audit_completion_rate",
-			Value:        fmt.Sprintf("%.1f%s", completionActual, completionUnit),
-			Target:       fmt.Sprintf("%.0f%s", completionTarget, completionUnit),
+			Value:        formatWithUnit("%.1f", completionActual, completionUnit),
+			Target:       formatWithUnit("%.0f", completionTarget, completionUnit),
 			ActualNumber: completionActual,
 			TargetNumber: completionTarget,
 			Gap:          fmt.Sprintf("%+.1f%%", completionGap),
@@ -311,8 +311,8 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 		{
 			Title:        "Report Timeliness",
 			Key:          "report_timeliness",
-			Value:        fmt.Sprintf("%.0f%s", timelinessActual, timelinessUnit),
-			Target:       fmt.Sprintf("%.0f%s", timelinessTarget, timelinessUnit),
+			Value:        formatWithUnit("%.0f", timelinessActual, timelinessUnit),
+			Target:       formatWithUnit("%.0f", timelinessTarget, timelinessUnit),
 			ActualNumber: timelinessActual,
 			TargetNumber: timelinessTarget,
 			Gap:          fmt.Sprintf("%+.1f%%", timelinessGap),
@@ -351,8 +351,8 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 		{
 			Title:        "Action Plan Closed",
 			Key:          "action_plan_closed",
-			Value:        fmt.Sprintf("%.0f%s", actionPlanActual, actionPlanUnit),
-			Target:       fmt.Sprintf("%.0f%s", actionPlanTarget, actionPlanUnit),
+			Value:        formatWithUnit("%.0f", actionPlanActual, actionPlanUnit),
+			Target:       formatWithUnit("%.0f", actionPlanTarget, actionPlanUnit),
 			ActualNumber: actionPlanActual,
 			TargetNumber: actionPlanTarget,
 			Gap:          fmt.Sprintf("%+.1f%%", actionPlanGap),
@@ -540,16 +540,7 @@ func (c *PerformanceStatsController) GetMonthlyTrends(ctx *gin.Context) {
 	})
 }
 
-// GetKpiBreakdown merges Strategic Plan objectives with live actual performance
-func (c *PerformanceStatsController) GetKpiBreakdown(ctx *gin.Context) {
-	var strategicPlans []models.StrategicPlan
-	c.db.Find(&strategicPlans)
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    strategicPlans,
-	})
-}
+// GetKpiBreakdown lives in performance_kpi_breakdown.go.
 
 // ExportPdfReport renders an executive PDF report matching the app design system
 func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
@@ -916,3 +907,14 @@ func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
 	ctx.String(http.StatusOK, htmlContent)
 }
 
+
+
+// formatWithUnit renders a KPI number with its unit. Symbol units ("%") stay attached
+// ("90%"), word units get a space ("14 Day") so they don't read as "14Day".
+func formatWithUnit(format string, value float64, unit string) string {
+	number := fmt.Sprintf(format, value)
+	if unit == "" || unit == "%" {
+		return number + unit
+	}
+	return number + " " + unit
+}

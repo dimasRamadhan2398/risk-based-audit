@@ -71,6 +71,6 @@ describe('Audit Priority Feature Restructuring', () => {
     expect(enCommon.auditPriority.title).toBe('Audit Priority')
 
     expect(idCommon.auditPriority).toBeDefined()
-    expect(idCommon.auditPriority.title).toBe('Prioritas Audit')
+    expect(idCommon.auditPriority.title).toBe('Audit Priority')
   })
 })

@@ -11,34 +11,34 @@ import (
 )
 
 type AuditResultReport struct {
-	ID                 uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	ActivityPlanID     *uuid.UUID     `gorm:"type:uuid;index" json:"activity_plan_id"`
-	AssignmentLetterID string         `gorm:"type:varchar(100)" json:"assignmentLetterId"`
-	ReportTitle        string         `gorm:"type:varchar(255)" json:"reportTitle"`
-	FindingsCount      int            `gorm:"type:int" json:"findingsCount"`
-	ReportNumber       string         `gorm:"type:varchar(100);index" json:"reportNumber"`
-	Title              string         `gorm:"type:varchar(255)" json:"title"`
-	AuditObject        string         `gorm:"type:varchar(255)" json:"audit_object"`
-	Department         string         `gorm:"type:varchar(100)" json:"department"`
-	CompanyID          *uuid.UUID     `gorm:"type:uuid;index" json:"company_id,omitempty"`
-	CompanyName        string         `gorm:"type:varchar(255)" json:"company_name,omitempty"`
-	AuditPeriod        string         `gorm:"type:varchar(100)" json:"audit_period"`
-	ExecutiveSummary   string         `gorm:"type:text" json:"executive_summary"`
-	Scope              string         `gorm:"type:text" json:"scope"`
-	Methodology        string         `gorm:"type:text" json:"methodology"`
-	FindingSummary     string         `gorm:"type:text" json:"finding_summary"`
-	Recommendation     string         `gorm:"type:text" json:"recommendation"`
-	Conclusion         string         `gorm:"type:text" json:"conclusion"`
-	PreparedBy         string         `gorm:"type:varchar(200)" json:"prepared_by"`
-	ReviewedBy         string         `gorm:"type:varchar(200)" json:"reviewed_by"`
-	ApprovedBy         string         `gorm:"type:varchar(200)" json:"approved_by"`
-	ReportDate         *time.Time     `json:"report_date"`
-	Status             string         `gorm:"type:varchar(50);default:'DRAFT'" json:"status"`
-	Attachment         string         `gorm:"type:varchar(500)" json:"attachment"`
+	ID                 uuid.UUID            `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	ActivityPlanID     *uuid.UUID           `gorm:"type:uuid;index" json:"activity_plan_id"`
+	AssignmentLetterID string               `gorm:"type:varchar(100)" json:"assignmentLetterId"`
+	ReportTitle        string               `gorm:"type:varchar(255)" json:"reportTitle"`
+	FindingsCount      int                  `gorm:"type:int" json:"findingsCount"`
+	ReportNumber       string               `gorm:"type:varchar(100);index" json:"reportNumber"`
+	Title              string               `gorm:"type:varchar(255)" json:"title"`
+	AuditObject        string               `gorm:"type:varchar(255)" json:"audit_object"`
+	Department         string               `gorm:"type:varchar(100)" json:"department"`
+	CompanyID          *uuid.UUID           `gorm:"type:uuid;index" json:"company_id,omitempty"`
+	CompanyName        string               `gorm:"type:varchar(255)" json:"company_name,omitempty"`
+	AuditPeriod        string               `gorm:"type:varchar(100)" json:"audit_period"`
+	ExecutiveSummary   string               `gorm:"type:text" json:"executive_summary"`
+	Scope              string               `gorm:"type:text" json:"scope"`
+	Methodology        string               `gorm:"type:text" json:"methodology"`
+	FindingSummary     string               `gorm:"type:text" json:"finding_summary"`
+	Recommendation     string               `gorm:"type:text" json:"recommendation"`
+	Conclusion         string               `gorm:"type:text" json:"conclusion"`
+	PreparedBy         string               `gorm:"type:varchar(200)" json:"prepared_by"`
+	ReviewedBy         string               `gorm:"type:varchar(200)" json:"reviewed_by"`
+	ApprovedBy         string               `gorm:"type:varchar(200)" json:"approved_by"`
+	ReportDate         *time.Time           `json:"report_date"`
+	Status             string               `gorm:"type:varchar(50);default:'DRAFT'" json:"status"`
+	Attachment         string               `gorm:"type:varchar(500)" json:"attachment"`
 	Findings           []AuditReportFinding `gorm:"serializer:json" json:"findings"`
-	CreatedAt          time.Time      `json:"created_at"`
-	UpdatedAt          time.Time      `json:"updated_at"`
-	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`
+	CreatedAt          time.Time            `json:"created_at"`
+	UpdatedAt          time.Time            `json:"updated_at"`
+	DeletedAt          gorm.DeletedAt       `gorm:"index" json:"-"`
 }
 
 type AuditReportFinding struct {
@@ -151,3 +151,48 @@ func (r *AuditResultReport) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+// BeforeSave keeps FindingsCount equal to len(Findings) on every create/save,
+// whatever the client sent. For map updates (crud.Update) the count follows
+// the "findings" value being written; an update that only sends
+// findings_count is reset to the stored findings' length.
+func (r *AuditResultReport) BeforeSave(tx *gorm.DB) error {
+	if dest, ok := tx.Statement.Dest.(map[string]interface{}); ok {
+		if v, present := dest["findings"]; present {
+			tx.Statement.SetColumn("findings_count", countFindings(v))
+		} else if _, present := dest["findings_count"]; present {
+			tx.Statement.SetColumn("findings_count", len(r.Findings))
+		}
+		return nil
+	}
+	r.FindingsCount = len(r.Findings)
+	return nil
+}
+
+// countFindings counts the findings in a map-update value: a JSON array as
+// []byte/string (what crud.Update produces), a decoded slice, or nil.
+func countFindings(v interface{}) int {
+	switch val := v.(type) {
+	case nil:
+		return 0
+	case []AuditReportFinding:
+		return len(val)
+	case []interface{}:
+		return len(val)
+	case []byte:
+		return countJSONArray(val)
+	case string:
+		return countJSONArray([]byte(val))
+	case json.RawMessage:
+		return countJSONArray(val)
+	default:
+		return 0
+	}
+}
+
+func countJSONArray(b []byte) int {
+	var items []json.RawMessage
+	if err := json.Unmarshal(b, &items); err != nil {
+		return 0
+	}
+	return len(items)
+}

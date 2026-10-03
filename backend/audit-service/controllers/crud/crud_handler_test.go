@@ -106,3 +106,49 @@ func TestListDefaultOrder(t *testing.T) {
 		t.Errorf("default order missing:\n%s", strings.Join(sqls, "\n"))
 	}
 }
+
+func TestListOrderHasIDTiebreaker(t *testing.T) {
+	for _, tc := range []struct{ query, want string }{
+		{"", `ORDER BY "created_at" DESC,"id" LIMIT`},
+		{"order=status", `ORDER BY "status","id" LIMIT`},
+		// id already in the ordering: not appended again
+		{"order=id+DESC", `ORDER BY "id" DESC LIMIT`},
+		{"order=status,id", `ORDER BY "status","id" LIMIT`},
+	} {
+		code, sqls := runList(t, tc.query)
+		if code != http.StatusOK {
+			t.Fatalf("%q: got %d, want 200", tc.query, code)
+		}
+		all := strings.Join(sqls, "\n")
+		if !strings.Contains(all, tc.want) {
+			t.Errorf("%q: expected %q in SQL:\n%s", tc.query, tc.want, all)
+		}
+	}
+}
+
+func TestListCountMatchesFindFilters(t *testing.T) {
+	code, sqls := runList(t, "status=DONE&search=kas")
+	if code != http.StatusOK {
+		t.Fatalf("got %d, want 200", code)
+	}
+	if len(sqls) != 2 {
+		t.Fatalf("expected count + find, got %d statements:\n%s", len(sqls), strings.Join(sqls, "\n"))
+	}
+	where := func(sql string) string {
+		i := strings.Index(sql, "WHERE")
+		if i < 0 {
+			return ""
+		}
+		end := len(sql)
+		if j := strings.Index(sql, " ORDER BY"); j > i {
+			end = j
+		}
+		return sql[i:end]
+	}
+	if !strings.Contains(sqls[0], "count(*)") {
+		t.Fatalf("first statement is not the count:\n%s", sqls[0])
+	}
+	if w0, w1 := where(sqls[0]), where(sqls[1]); w0 == "" || w0 != w1 {
+		t.Errorf("count and find WHERE differ:\ncount: %s\nfind:  %s", w0, w1)
+	}
+}

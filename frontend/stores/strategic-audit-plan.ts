@@ -4,6 +4,7 @@ import type { TableColumn } from "@nuxt/ui";
 import type { StrategicAuditPlan } from "~/types/audit";
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { extractErrorMessage } from '~/utils/error';
+import { useI18n } from '~/composables/useI18n';
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
@@ -14,6 +15,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const loading = ref(false);
     const errorMsg = ref('');
     const toast = useToastNotification();
+    const { t } = useI18n();
 
     const openViewModal = (item: StrategicAuditPlan) => {
         selectedViewObjective.value = item;
@@ -110,105 +112,8 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         return 'Poor';
     });
 
-    const mockObjectives: StrategicAuditPlan[] = [
-        {
-            id: '1',
-            code: 'SO-IA01',
-            strategicObjective: 'Penyelesaian Rencana Audit / Audit Plan Completion',
-            kpi: 'Audit Completion Rate',
-            unit: '%',
-            hibHig: 'HIG',
-            periodType: 'Quartal',
-            selectedPeriod: 'Q1-2026',
-            yearStart: 2026,
-            yearEnd: 2027,
-            kpiTargets: { 'Q1-2026': '95', 'Q2-2026': '95', 'Q3-2026': '95', 'Q4-2026': '95', 'Q1-2027': '98', 'Q2-2027': '98', 'Q3-2027': '98', 'Q4-2027': '98' },
-            kpiActuals: { 'Q1-2026': '97', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
-            internalAuditSO: 'Tingkatkan efisiensi pelaksanaan audit tahunan',
-            actual: '97',
-            target: '95',
-            calculation: '102.11%',
-            status: 'Good',
-        },
-        {
-            id: '2',
-            code: 'SO-IA02',
-            strategicObjective: 'Ketepatan Waktu Penyampaian Laporan / Report Timeliness',
-            kpi: 'Report Timeliness',
-            unit: '%',
-            hibHig: 'HIG',
-            yearStart: 2026,
-            yearEnd: 2027,
-            kpiTargets: { 'Q1-2026': '95', 'Q2-2026': '95', 'Q3-2026': '95', 'Q4-2026': '95', 'Q1-2027': '98', 'Q2-2027': '98', 'Q3-2027': '98', 'Q4-2027': '98' },
-            kpiActuals: { 'Q1-2026': '98', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
-            internalAuditSO: 'Percepat penyampaian LHA ke pihak manajemen',
-            periodType: 'Quartal',
-            selectedPeriod: 'Q1-2026',
-            actual: '98',
-            target: '95',
-            calculation: '103.16%',
-            status: 'Good',
-        },
-        {
-            id: '3',
-            code: 'SO-IA03',
-            strategicObjective: 'Kepuasan Auditee & Klien / Client Satisfaction',
-            kpi: 'Client Satisfaction',
-            unit: 'Score',
-            hibHig: 'HIG',
-            yearStart: 2024,
-            yearEnd: 2028,
-            kpiTargets: { '2024': '4.0', '2025': '4.2', '2026': '4.5', '2027': '4.8', '2028': '5.0' },
-            kpiActuals: { '2024': '4.2', '2025': '4.5', '2026': '4.7', '2027': '', '2028': '' },
-            internalAuditSO: 'Tingkatkan kualitas layanan & rekomendasi audit',
-            periodType: 'Yearly',
-            selectedPeriod: '2026',
-            actual: '4.7',
-            target: '4.5',
-            calculation: '104.44%',
-            status: 'Good',
-        },
-        {
-            id: '4',
-            code: 'SO-IA04',
-            strategicObjective: 'Penyelesaian Tindak Lanjut / Action Plan Closed',
-            kpi: 'Action Plan Closed',
-            unit: '%',
-            hibHig: 'HIG',
-            yearStart: 2026,
-            yearEnd: 2027,
-            kpiTargets: { 'Q1-2026': '90', 'Q2-2026': '90', 'Q3-2026': '90', 'Q4-2026': '90', 'Q1-2027': '95', 'Q2-2027': '95', 'Q3-2027': '95', 'Q4-2027': '95' },
-            kpiActuals: { 'Q1-2026': '87', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
-            internalAuditSO: 'Memastikan seluruh temuan audit ditindaklanjuti auditee',
-            periodType: 'Quartal',
-            selectedPeriod: 'Q1-2026',
-            actual: '87',
-            target: '90',
-            calculation: '96.67%',
-            status: 'Moderate',
-        },
-        {
-            id: '5',
-            code: 'SO-IA05',
-            strategicObjective: 'Tingkat Penyelesaian Bulanan / Monthly Completion Rate',
-            kpi: 'Monthly Completion Rate',
-            unit: '%',
-            hibHig: 'HIG',
-            yearStart: 2026,
-            yearEnd: 2027,
-            kpiTargets: { 'Q1-2026': '90', 'Q2-2026': '90', 'Q3-2026': '90', 'Q4-2026': '90', 'Q1-2027': '95', 'Q2-2027': '95', 'Q3-2027': '95', 'Q4-2027': '95' },
-            kpiActuals: { 'Q1-2026': '95', 'Q2-2026': '', 'Q3-2026': '', 'Q4-2026': '', 'Q1-2027': '', 'Q2-2027': '', 'Q3-2027': '', 'Q4-2027': '' },
-            internalAuditSO: 'Monitoring progres penyelesaian audit per bulan',
-            periodType: 'Quartal',
-            selectedPeriod: 'Q1-2026',
-            actual: '95',
-            target: '90',
-            calculation: '105.56%',
-            status: 'Good',
-        },
-    ];
-
-    const strategicObjectives = ref<StrategicAuditPlan[]>([...mockObjectives]);
+    // Only what the API returned: no sample objectives before the first load, on an empty list or on an error.
+    const strategicObjectives = ref<StrategicAuditPlan[]>([]);
 
     const fetchStrategicPlans = async () => {
         loading.value = true;
@@ -232,20 +137,29 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
                 items = response;
             }
 
-            if (items.length > 0) {
-                strategicObjectives.value = items;
-            } else {
-                toast.showInfo('Informasi', 'Data kosong, menampilkan data contoh (mock).');
-                strategicObjectives.value = [...mockObjectives];
-            }
+            strategicObjectives.value = items;
         } catch (error: any) {
             console.error('Failed to fetch strategic plans:', error);
             errorMsg.value = extractErrorMessage(error, 'Failed to load strategic plans.');
-            strategicObjectives.value = [...mockObjectives];
+            strategicObjectives.value = [];
         } finally {
             loading.value = false;
         }
     }
+
+    /** One plan by id, e.g. to edit a row that is not in the (first 100) loaded objectives. Null on failure. */
+    const fetchStrategicPlanById = async (id: string | number): Promise<StrategicAuditPlan | null> => {
+        try {
+            const baseUrl = getAuditServiceBaseUrl();
+            const response: any = await $fetch(`${baseUrl}/strategic-plans/${id}`);
+            const plan = response?.data ?? response;
+            return plan && plan.id ? plan as StrategicAuditPlan : null;
+        } catch (error: any) {
+            console.error('Failed to fetch strategic plan:', error);
+            toast.showError(t('strategicPlan.toast.loadOneFailed'), extractErrorMessage(error, t('strategicPlan.toast.loadOneFailed')));
+            return null;
+        }
+    };
 
     // Load on init
     fetchStrategicPlans();
@@ -397,7 +311,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
     const handleSubmit = async () => {
         if (!form.value.strategicObjective) {
-            toast.showWarning('Validasi Gagal', 'Kolom Strategic Objective (Tujuan Strategis) harus diisi.');
+            toast.showWarning(t('strategicPlan.toast.validationTitle'), t('strategicPlan.toast.objectiveRequired'));
             return;
         }
 
@@ -474,15 +388,15 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
             await fetchStrategicPlans();
             toast.showSuccess(
-                editModeState ? 'Rencana Strategis Diperbarui' : 'Rencana Strategis Dibuat',
-                `Rencana Strategis "${form.value.strategicObjective || form.value.code}" berhasil disimpan.`
+                editModeState ? t('strategicPlan.toast.updatedTitle') : t('strategicPlan.toast.createdTitle'),
+                t('strategicPlan.toast.savedDesc', { name: form.value.strategicObjective || form.value.code || '' })
             );
             closeModal();
         } catch (error: any) {
             console.error('Failed to save strategic plan:', error);
-            const detail = extractErrorMessage(error, 'Gagal menyimpan rencana strategis.');
+            const detail = extractErrorMessage(error, t('strategicPlan.toast.saveFailedFallback'));
             errorMsg.value = detail;
-            toast.showError('Gagal Menyimpan Rencana Strategis', detail);
+            toast.showError(t('strategicPlan.toast.saveFailedTitle'), detail);
 
             const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
             if (idx !== -1) {
@@ -519,6 +433,6 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         isViewModalOpen, selectedViewObjective, openViewModal, closeViewModal,
         unitOptions, yearOptions, availablePeriods, computedCalculation, computedStatus,
         getRowActions, openModal, closeModal, handleEdit, handleDelete, handleSubmit,
-        fetchStrategicPlans, loading, errorMsg
+        fetchStrategicPlans, fetchStrategicPlanById, loading, errorMsg
     };
 });
