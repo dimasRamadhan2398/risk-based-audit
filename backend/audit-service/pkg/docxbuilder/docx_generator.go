@@ -286,18 +286,18 @@ func buildDocumentXML(
 	body.WriteString(`<w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">3. Tahap Test Sample</w:t></w:r></w:p>`)
 	if len(wpSamples) > 0 {
 		for idx, ws := range wpSamples {
-			pop := 0
-			if ws.Population != nil {
+			pop := "-"
+			if ws.Population != nil && *ws.Population != "" {
 				pop = *ws.Population
 			}
 			ss := 0
 			if ws.SampleSize != nil {
 				ss = *ws.SampleSize
 			}
-			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   %d. Populasi: %d | Jumlah Sampel: %d | Kesimpulan: %s</w:t></w:r></w:p>`,
-				idx+1, pop, ss, xmlEsc(ws.Conclusion)))
+			body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">   %d. Populasi: %s | Jumlah Sampel: %d | Kesimpulan: %s</w:t></w:r></w:p>`,
+				idx+1, xmlEsc(pop), ss, xmlEsc(ws.Conclusion)))
 			if len(ws.Samples) > 0 {
-				body.WriteString(`<w:p><w:r><w:t xml:space="preserve">      Daftar Sampel:</w:t></w:r></w:p>`)
+				body.WriteString(`<w:p><w:r><w:t xml:space="preserve">      Daftar Sampel Dokumen:</w:t></w:r></w:p>`)
 				for _, sDoc := range ws.Samples {
 					body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">      - Dokumen: %s</w:t></w:r></w:p>`, xmlEsc(sDoc.Document)))
 				}

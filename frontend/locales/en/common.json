@@ -1,4 +1,11 @@
 {
+  "actions": {
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "download": "Download",
+    "upload": "Upload"
+  },
   "assignmentLetterPublish": {
     "title": "Publish assignment letter \"{number}\"?",
     "confirmQuestion": "Are you sure you want to save and publish this data?",
@@ -146,7 +153,18 @@
     "back": "Back",
     "readMore": "Read more",
     "readLess": "Show less",
-    "create": "Create"
+    "create": "Create",
+    "quickTip": {
+      "title": "Quick Tip",
+      "desc": "Practical guidance tips"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete",
+      "download": "Download",
+      "upload": "Upload"
+    }
   },
   "dashboard": {
     "title": "Home"
@@ -965,7 +983,8 @@
     "sample": {
       "title": "Sample Data",
       "subtitle": "Manage sample data for audit testing",
-      "addBtn": "Add Sample",
+      "documentListLabel": "List of Sample Documents",
+      "addBtn": "Add Document Sample",
       "empty": "No samples data yet",
       "modalAdd": "Sample Data Form",
       "modalEdit": "Edit Sample Data",
@@ -977,11 +996,13 @@
       "date": "Date",
       "description": "Description",
       "descriptionPlaceholder": "Describe the content or details of this sample",
+      "uploadFile": "Upload Document File",
       "columns": {
         "name": "Document Name",
         "number": "Document Number",
         "date": "Date",
         "description": "Description",
+        "file": "Attached Document",
         "actions": "Actions"
       }
     },

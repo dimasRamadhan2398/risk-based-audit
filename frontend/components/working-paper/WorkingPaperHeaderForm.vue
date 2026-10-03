@@ -45,7 +45,8 @@
         >
             <UInput 
                 v-model="store.headerForm.businessProcess" 
-                class="w-full" 
+                class="w-full"
+                placeholder="e.g Name Business Process"
                 :maxlength="100"
                 @invalid="($event.target as any)?.setCustomValidity('Business Process Name maksimal 100 karakter dan wajib diisi')"
                 @input="($event.target as any)?.setCustomValidity('')"

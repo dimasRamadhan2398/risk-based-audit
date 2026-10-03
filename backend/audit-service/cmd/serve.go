@@ -97,6 +97,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 		&models.FieldworkDocument{},
 	)
 
+	// Ensure population column in working_paper_samples is varchar(255)
+	db.Exec("ALTER TABLE working_paper_samples ALTER COLUMN population TYPE varchar(255) USING population::varchar;")
+
 	// Initialize Redis
 	redisClient, err := redis.NewRedisConnection(&cfg.Redis)
 	if err != nil {

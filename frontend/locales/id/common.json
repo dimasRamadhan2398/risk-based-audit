@@ -1,4 +1,11 @@
 {
+  "actions": {
+    "view": "Lihat",
+    "edit": "Ubah",
+    "delete": "Hapus",
+    "download": "Unduh",
+    "upload": "Unggah"
+  },
   "assignmentLetterPublish": {
     "title": "Publish surat tugas \"{number}\"?",
     "confirmQuestion": "Apakah Anda yakin ingin menyimpan dan mem-publish data ini?",
@@ -128,15 +135,15 @@
     "save": "Simpan",
     "cancel": "Batal",
     "delete": "Hapus",
-    "edit": "Edit",
+    "edit": "Ubah",
     "view": "Lihat",
     "close": "Tutup",
-    "submit": "Kirim",
+    "submit": "Simpan",
     "update": "Perbarui",
     "updateData": "Perbarui Data",
     "search": "Cari",
     "loading": "Memuat...",
-    "error": "Error",
+    "error": "Gagal",
     "success": "Berhasil",
     "warning": "Peringatan",
     "info": "Informasi",
@@ -146,7 +153,18 @@
     "back": "Kembali",
     "readMore": "Baca selengkapnya",
     "readLess": "Sembunyikan",
-    "create": "Buat"
+    "create": "Tambah",
+    "quickTip": {
+      "title": "Tips Cepat",
+      "desc": "Informasi panduan praktis"
+    },
+    "actions": {
+      "view": "Lihat",
+      "edit": "Ubah",
+      "delete": "Hapus",
+      "download": "Unduh",
+      "upload": "Unggah"
+    }
   },
   "auditExecution": {
     "title": "Status Eksekusi Audit",
@@ -962,7 +980,8 @@
     "sample": {
       "title": "Data Sampel",
       "subtitle": "Kelola data sampel untuk pengujian audit",
-      "addBtn": "Tambah Sampel",
+      "documentListLabel": "Daftar Sampel Dokumen",
+      "addBtn": "Tambah Sampel Dokumen",
       "empty": "Belum ada data sampel",
       "modalAdd": "Formulir Data Sampel",
       "modalEdit": "Ubah Data Sampel",
@@ -974,11 +993,13 @@
       "date": "Tanggal",
       "description": "Deskripsi",
       "descriptionPlaceholder": "Jelaskan isi atau rincian sampel ini",
+      "uploadFile": "Unggah Berkas Dokumen",
       "columns": {
         "name": "Nama Dokumen",
         "number": "Nomor Dokumen",
         "date": "Tanggal",
         "description": "Deskripsi",
+        "file": "Dokumen Lampiran",
         "actions": "Aksi"
       }
     },

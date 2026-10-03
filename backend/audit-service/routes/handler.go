@@ -440,8 +440,8 @@ func (h *RouteHandler) RegisterRoutes() {
 	media := apiV1.Group("/media")
 	{
 		media.POST("/upload", h.registry.Media.Upload)
-		media.GET("/download/:id", h.registry.Media.Download)
 	}
+	h.engine.GET("/api/v1/media/download/:id", h.registry.Media.Download)
 
 	// 20. Performance routes
 	perfStatsCtrl := controllers.NewPerformanceStatsController(h.db, h.redisClient)

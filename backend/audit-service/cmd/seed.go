@@ -1169,11 +1169,11 @@ func seedWorkingPapers(db *gorm.DB) error {
 	}
 
 	// 3. Samples
-	pop := 150
+	pop := "150"
 	sz := 15
-	pop2 := 40
+	pop2 := "40"
 	sz2 := 10
-	pop3 := 200
+	pop3 := "200"
 	sz3 := 20
 	tVal := true
 	fVal := false

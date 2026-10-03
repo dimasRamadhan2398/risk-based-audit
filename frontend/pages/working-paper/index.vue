@@ -17,7 +17,7 @@
       />
     </div>
 
-    <UStepper v-model="activeStep" :items="stepItems" class="w-full" :ui="{ header: 'flex overflow-x-auto pb-2 min-w-0 sm:overflow-visible' }">
+    <UStepper v-model="activeStep" :items="stepItems" :linear="false" class="w-full" :ui="{ header: 'flex overflow-x-auto pb-2 min-w-0 sm:overflow-visible' }">
       
       <template #f01>
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6">

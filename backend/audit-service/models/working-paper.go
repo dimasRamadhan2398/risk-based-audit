@@ -1,6 +1,9 @@
 package models
 
 import (
+	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -53,23 +56,101 @@ func (WorkingPaperRisk) TableName() string {
 }
 
 type SampleDoc struct {
-	ID       int64  `json:"id"`
-	Document string `json:"document"`
-	L1       *bool  `json:"l1"`
-	L2       *bool  `json:"l2"`
-	L3       *bool  `json:"l3"`
+	ID                int64  `json:"id"`
+	FieldworkDocument string `json:"fieldworkDocument,omitempty"`
+	Document          string `json:"document"`
+	Step1             string `json:"step1,omitempty"`
+	Step2             string `json:"step2,omitempty"`
+	Step3             string `json:"step3,omitempty"`
+	L1                any    `json:"l1"`
+	L2                any    `json:"l2"`
+	L3                any    `json:"l3"`
+}
+
+// UnmarshalJSON handles flexible parsing of L1, L2, L3 which can be boolean, string ("Pass"/"Fail"), or nil
+func (s *SampleDoc) UnmarshalJSON(data []byte) error {
+	type Alias SampleDoc
+	aux := &struct {
+		L1 any `json:"l1"`
+		L2 any `json:"l2"`
+		L3 any `json:"l3"`
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	parseResult := func(val any) any {
+		if val == nil {
+			return nil
+		}
+		switch v := val.(type) {
+		case bool:
+			return v
+		case string:
+			lower := strings.ToLower(strings.TrimSpace(v))
+			if lower == "pass" || lower == "true" {
+				return true
+			}
+			if lower == "fail" || lower == "false" {
+				return false
+			}
+			return v
+		default:
+			return v
+		}
+	}
+
+	s.L1 = parseResult(aux.L1)
+	s.L2 = parseResult(aux.L2)
+	s.L3 = parseResult(aux.L3)
+	return nil
 }
 
 type WorkingPaperSample struct {
 	ID             uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	WorkingPaperID string         `gorm:"type:varchar(100);index" json:"workingPaperId"`
-	Population     *int           `gorm:"type:int" json:"population"`
+	Population     *string        `gorm:"type:varchar(255)" json:"population"`
 	SampleSize     *int           `gorm:"type:int" json:"sampleSize"`
 	Samples        []SampleDoc    `gorm:"serializer:json" json:"samples"`
 	Conclusion     string         `gorm:"type:text" json:"conclusion"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
 	DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+func (w *WorkingPaperSample) UnmarshalJSON(data []byte) error {
+	type Alias WorkingPaperSample
+	aux := &struct {
+		Population interface{} `json:"population"`
+		*Alias
+	}{
+		Alias: (*Alias)(w),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if aux.Population != nil {
+		switch v := aux.Population.(type) {
+		case string:
+			w.Population = &v
+		case float64:
+			str := fmt.Sprintf("%.0f", v)
+			w.Population = &str
+		case int:
+			str := fmt.Sprintf("%d", v)
+			w.Population = &str
+		default:
+			str := fmt.Sprintf("%v", v)
+			w.Population = &str
+		}
+	} else {
+		w.Population = nil
+	}
+	return nil
 }
 
 func (WorkingPaperSample) TableName() string {

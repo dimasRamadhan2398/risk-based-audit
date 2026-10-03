@@ -87,6 +87,43 @@
               {{ store.sampleForm.description || '-' }}
             </p>
           </UCard>
+
+          <!-- File Attachment Card -->
+          <UCard color="primary" variant="subtle" class="border border-primary-500/20 shadow-xs">
+            <template #header>
+              <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary-500">
+                <UIcon name="i-heroicons-paper-clip" class="w-4 h-4 text-primary-500" />
+                <span>{{ t('auditFieldwork.document.columns.file') || 'Berkas Dokumen' }}</span>
+              </div>
+            </template>
+            <div v-if="store.sampleForm.file || store.sampleForm.fileName" class="flex items-center justify-between p-3 rounded-lg bg-[var(--bg-main)] border border-[var(--border-main)]">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <UIcon name="i-heroicons-document-text" class="w-5 h-5 text-primary-500 shrink-0" />
+                <span class="text-sm font-semibold text-[var(--text-main)] truncate">
+                  {{ store.sampleForm.file?.name || store.sampleForm.fileName }}
+                </span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <UButton
+                  icon="i-heroicons-eye"
+                  color="neutral"
+                  variant="soft"
+                  size="xs"
+                  :label="t('common.actions.view') || 'Lihat'"
+                  @click="store.viewSampleFile(store.sampleForm)"
+                />
+                <UButton
+                  icon="i-heroicons-document-arrow-down"
+                  color="primary"
+                  variant="solid"
+                  size="xs"
+                  label="Download"
+                  @click="store.downloadSampleFile(store.sampleForm)"
+                />
+              </div>
+            </div>
+            <p v-else class="text-sm text-[var(--text-muted)] italic">Tidak ada berkas terlampir</p>
+          </UCard>
         </div>
 
         <!-- Add / Edit Form View -->
@@ -108,13 +145,27 @@
             <UFormField :label="t('auditFieldwork.sample.description')" required>
               <UTextarea v-model="store.sampleForm.description" :placeholder="t('auditFieldwork.sample.descriptionPlaceholder')" :rows="3" class="w-full" required />
             </UFormField>
+
+            <UFormField :label="t('auditFieldwork.document.uploadFile') || 'Upload Dokumen'">
+              <UInput
+                type="file"
+                icon="i-heroicons-paper-clip"
+                @change="store.handleSampleFileChange"
+                accept=".pdf,.docx,.doc,.xlsx,.xls,.png,.jpg,.jpeg"
+                class="w-full"
+              />
+              <div v-if="store.sampleForm.file || store.sampleForm.fileName" class="mt-2 flex items-center gap-2">
+                <UIcon name="i-heroicons-document" />
+                <span class="font-bold text-sm">{{ store.sampleForm.file?.name || store.sampleForm.fileName }}</span>
+              </div>
+            </UFormField>
           </UForm>
         </div>
 
         <!-- Modal Footer -->
         <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
           <template v-if="store.isReadOnlySample">
-            <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="store.showSampleModal = false" />
+            <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="() => {store.showSampleModal = false;}" />
             <UButton
               color="primary"
               icon="i-heroicons-pencil-square"
@@ -123,7 +174,7 @@
             />
           </template>
           <template v-else>
-            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="store.showSampleModal = false" />
+            <UButton color="neutral" variant="soft" :label="t('common.cancel')" @click="() => {store.showSampleModal = false;}" />
             <UButton color="primary" :label="store.isEditingSample ? t('common.edit') : t('common.submit')" @click="store.saveSample()" />
           </template>
         </div>

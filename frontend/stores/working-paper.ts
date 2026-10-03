@@ -14,6 +14,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { computed } from 'vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import type { StepperItem } from '@nuxt/ui'
 
 import { z } from 'zod'
@@ -34,8 +35,8 @@ export const riskSchema = z.object({
 })
 
 export const sampleSchema = z.object({
-  population: z.number().min(1, 'Required'),
-  sampleSize: z.number().min(1, 'Required'),
+  population: z.union([z.string().min(1, 'Required'), z.number().min(1, 'Required')]),
+  sampleSize: z.coerce.number().min(1, 'Required'),
   conclusion: z.string().min(1, 'Required')
 })
 
@@ -194,7 +195,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   ]
 
   const columnsF03 = [
-    { key: 'population', accessorKey: 'population', header: 'Population', class: 'w-36 min-w-[120px]' },
+    { key: 'population', accessorKey: 'population', header: 'Total Populasi', class: 'w-48 min-w-[140px] whitespace-normal break-words', tdClass: '!whitespace-normal break-words' },
     { key: 'sampleSize', accessorKey: 'sampleSize', header: 'Sample Size', class: 'w-36 min-w-[120px]' },
     { key: 'samples', accessorKey: 'samples', header: 'Sample List', class: 'min-w-[260px]' },
     {
@@ -272,10 +273,20 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   })
 
   const sampleForm = reactive<WorkingPaperSampleForm>({
-    population: undefined,
+    population: '',
     sampleSize: undefined,
     samples: [
-      { id: Date.now(), document: '', l1: undefined, l2: undefined, l3: undefined }
+      {
+        id: Date.now(),
+        fieldworkDocument: '',
+        document: '',
+        step1: '',
+        l1: undefined,
+        step2: '',
+        l2: undefined,
+        step3: '',
+        l3: undefined
+      }
     ],
     conclusion: '',
   })
@@ -673,12 +684,24 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
+  const formatSampleForPayload = (s: any) => ({
+    id: s.id || Date.now(),
+    fieldworkDocument: s.fieldworkDocument || '',
+    document: s.document || '',
+    step1: s.step1 || '',
+    l1: s.l1 === 'Pass' || s.l1 === true ? true : (s.l1 === 'Fail' || s.l1 === false ? false : null),
+    step2: s.step2 || '',
+    l2: s.l2 === 'Pass' || s.l2 === true ? true : (s.l2 === 'Fail' || s.l2 === false ? false : null),
+    step3: s.step3 || '',
+    l3: s.l3 === 'Pass' || s.l3 === true ? true : (s.l3 === 'Fail' || s.l3 === false ? false : null),
+  })
+
   const addF03 = async (sampleForm: WorkingPaperSampleForm) => {
     const newSample = {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
-      population: sampleForm.population,
+      population: sampleForm.population != null ? String(sampleForm.population) : '',
       sampleSize: sampleForm.sampleSize,
-      samples: sampleForm.samples,
+      samples: (sampleForm.samples || []).map(formatSampleForPayload),
       conclusion: sampleForm.conclusion
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -692,9 +715,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const updateF03 = async (id: string, updatedData: WorkingPaperSampleForm) => {
     const payload = {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
-      population: updatedData.population,
+      population: updatedData.population != null ? String(updatedData.population) : '',
       sampleSize: updatedData.sampleSize,
-      samples: updatedData.samples,
+      samples: (updatedData.samples || []).map(formatSampleForPayload),
       conclusion: updatedData.conclusion
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -727,11 +750,31 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     // Reset Form
     Object.assign(sampleForm, {
-      population: 0,
-      sampleSize: 0,
-      samples: [],
+      population: '',
+      sampleSize: undefined,
+      samples: [
+        {
+          id: Date.now(),
+          fieldworkDocument: '',
+          document: '',
+          step1: '',
+          l1: undefined,
+          step2: '',
+          l2: undefined,
+          step3: '',
+          l3: undefined
+        }
+      ],
       conclusion: ''
     })
+
+    const letter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
+    if (letter && typeof (fieldworkStore as any).fetchSamples === 'function') {
+      (fieldworkStore as any).fetchSamples(letter).catch(() => {})
+    } else if (letter && typeof fieldworkStore.fetchAllFieldworkData === 'function') {
+      fieldworkStore.fetchAllFieldworkData(letter).catch(() => {})
+    }
+
     showModalF03.value = true
   }
 
@@ -755,10 +798,55 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF03.value = true
     editingIdF03.value = sample.id
 
-    sampleForm.population = sample.population
+    sampleForm.population = sample.population != null ? String(sample.population) : ''
     sampleForm.sampleSize = sample.sampleSize
-    sampleForm.samples = sample.samples ? sample.samples.map((s: any) => ({ ...s })) : []
+    let parsedSamples: any[] = []
+    if (Array.isArray(sample.samples)) {
+      parsedSamples = sample.samples
+    } else if (typeof sample.samples === 'string') {
+      try {
+        parsedSamples = JSON.parse(sample.samples)
+      } catch {
+        parsedSamples = []
+      }
+    }
+    const normalizeResult = (val: any) => {
+      if (val === true || val === 'Pass' || (typeof val === 'string' && val.toLowerCase() === 'pass')) return 'Pass'
+      if (val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')) return 'Fail'
+      return undefined
+    }
+
+    sampleForm.samples = parsedSamples.length > 0
+      ? parsedSamples.map((s: any) => ({
+          id: s.id || Date.now(),
+          fieldworkDocument: s.fieldworkDocument || '',
+          document: s.document || '',
+          step1: s.step1 || '',
+          l1: normalizeResult(s.l1),
+          step2: s.step2 || '',
+          l2: normalizeResult(s.l2),
+          step3: s.step3 || '',
+          l3: normalizeResult(s.l3)
+        }))
+      : [{
+          id: Date.now(),
+          fieldworkDocument: '',
+          document: '',
+          step1: '',
+          l1: undefined,
+          step2: '',
+          l2: undefined,
+          step3: '',
+          l3: undefined
+        }]
     sampleForm.conclusion = sample.conclusion
+
+    const letter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
+    if (letter && typeof (fieldworkStore as any).fetchSamples === 'function') {
+      (fieldworkStore as any).fetchSamples(letter).catch(() => {})
+    } else if (letter && typeof fieldworkStore.fetchAllFieldworkData === 'function') {
+      fieldworkStore.fetchAllFieldworkData(letter).catch(() => {})
+    }
 
     showModalF03.value = true
   }
@@ -1021,9 +1109,13 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const addSample = () => {
     sampleForm.samples.push({
       id: Date.now(),
+      fieldworkDocument: '',
       document: '',
+      step1: '',
       l1: undefined,
+      step2: '',
       l2: undefined,
+      step3: '',
       l3: undefined
     })
   }
@@ -1034,8 +1126,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // --- GETTERS: Cek Efektivitas Sampel ---
   // Return true = Efektif, Return false = Tidak Efektif
-  const checkSampleStatus = (sampel: SampleItem): boolean => {
-    if (sampel.l1 === 'Fail' || sampel.l2 === 'Fail' || sampel.l3 === 'Fail') {
+  const checkSampleStatus = (sampel?: Partial<SampleItem>): boolean => {
+    if (!sampel) return false
+    const isFail = (val: any) => val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')
+    if (isFail(sampel.l1) || isFail(sampel.l2) || isFail(sampel.l3)) {
       return false
     }
     return true
@@ -1127,6 +1221,72 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     rootCauseMethod: [...ROOT_CAUSE_METHOD_OPTIONS],
   }
 
+  const fieldworkSampleOptions = computed(() => {
+    const list: { label: string; value: string; documentName: string; documentNumber: string }[] = []
+    const seen = new Set<string>()
+
+    const addOption = (docName?: string, docNum?: string) => {
+      const name = (docName || '').trim()
+      const num = (docNum || '').trim()
+      if (!name && !num) return
+
+      const label = name && num ? `${name} (${num})` : (name || num)
+      if (!seen.has(label)) {
+        seen.add(label)
+        list.push({
+          label,
+          value: label,
+          documentName: name,
+          documentNumber: num
+        })
+      }
+    }
+
+    // 1. Current selected letter in fieldwork or working paper
+    const currentLetter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter || 'ST-001/SKAI/2026'
+    const activeSamples = fieldworkStore.fieldworkData?.[currentLetter]?.samples || fieldworkStore.samples || []
+    if (Array.isArray(activeSamples)) {
+      activeSamples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
+    }
+
+    // 2. All samples from loaded fieldworkData
+    if (fieldworkStore.fieldworkData) {
+      Object.values(fieldworkStore.fieldworkData).forEach((data: any) => {
+        if (Array.isArray(data?.samples)) {
+          data.samples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
+        }
+      })
+    }
+
+    // 3. Fallback from mockFieldwork
+    if (fieldworkStore.mockFieldwork) {
+      Object.values(fieldworkStore.mockFieldwork).forEach((data: any) => {
+        if (Array.isArray(data?.samples)) {
+          data.samples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
+        }
+      })
+    }
+
+    // 4. Existing documents in sampleForm if editing
+    if (sampleForm?.samples) {
+      sampleForm.samples.forEach((s: any) => {
+        if (s.fieldworkDocument) {
+          addOption(s.fieldworkDocument)
+        }
+      })
+    }
+
+    // 5. Default fallback sample items if nothing loaded yet
+    if (list.length === 0) {
+      addOption('Procurement Invoice', 'INV-2025-0988')
+      addOption('Bank Statement Reconciliation', 'BR-2025-12')
+      addOption('Sample log akses superadmin database ERP', 'LOG-ERP-2026-001')
+      addOption('Sample otorisasi pengeluaran barang persediaan', 'GI-2026-044')
+    }
+
+    return list
+  })
+
   return {
     headerForm, riskForm, sampleForm, causeForm, planForm,
     options, dateErrorMessage, isDateError, tabs, workingItems,
@@ -1134,8 +1294,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     showModalF01, showModalF02, showModalF03, showModalF04, showModalF05,
     isEditingF01, isEditingF02, isEditingF03, isEditingF04, isEditingF05,
     dataF01, dataF02, dataF03, dataF04, dataF05,
-    mockF01, mockF02, mockF03, mockF04, mockF05,
     filteredDataF01, filteredDataF02, filteredDataF03, filteredDataF04, filteredDataF05,
+    addF03,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,
     openModalF01, openModalF02, openModalF03, openModalF04, openModalF05,
@@ -1147,6 +1307,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile,
     addActivity, removeActivity,
     criteriaOptions, loadingSopOptions,
+    fieldworkSampleOptions,
     loading, errorMsg, fetchAllData
   }
 })

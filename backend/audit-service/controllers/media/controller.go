@@ -5,6 +5,7 @@ import (
 	"audit-service/services/media"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -62,16 +63,41 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 
 func (ctrl *MediaController) Download(c *gin.Context) {
 	id := c.Param("id")
-	filePath := filepath.Join("uploads", id)
-	targetFile := filePath
+	if unescaped, err := url.QueryUnescape(id); err == nil {
+		id = unescaped
+	}
 
-	if _, err := os.Stat(filePath); err != nil {
-		// Search recursively in uploads directory for matching file
+	// Also support query param "path" or "filepath"
+	reqPath := c.Query("path")
+	if reqPath == "" {
+		reqPath = c.Query("filepath")
+	}
+	if reqPath != "" {
+		if unescaped, err := url.QueryUnescape(reqPath); err == nil {
+			reqPath = unescaped
+		}
+	}
+
+	targetFile := filepath.Join("uploads", id)
+	if reqPath != "" {
+		clean := strings.TrimPrefix(reqPath, "/")
+		if strings.HasPrefix(clean, "uploads/") {
+			targetFile = filepath.FromSlash(clean)
+		} else {
+			targetFile = filepath.Join("uploads", filepath.FromSlash(clean))
+		}
+	}
+
+	if _, err := os.Stat(targetFile); err != nil {
+		// Search recursively in uploads directory for matching file by name or suffix
 		var foundPath string
+		cleanID := filepath.Base(id)
 		_ = filepath.Walk("uploads", func(path string, info os.FileInfo, err error) error {
-			if err == nil && !info.IsDir() && (info.Name() == id || strings.HasSuffix(info.Name(), id)) {
-				foundPath = path
-				return filepath.SkipAll
+			if err == nil && !info.IsDir() {
+				if info.Name() == cleanID || strings.HasSuffix(filepath.ToSlash(path), cleanID) {
+					foundPath = path
+					return filepath.SkipAll
+				}
 			}
 			return nil
 		})

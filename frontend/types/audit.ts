@@ -293,9 +293,13 @@ export interface AuditDataState {
 
 export interface SampleItem {
   id: number;
+  fieldworkDocument?: string;
   document: string;
+  step1?: string;
   l1: TestResult;
+  step2?: string;
   l2: TestResult;
+  step3?: string;
   l3: TestResult;
 }
 
@@ -365,7 +369,7 @@ export interface WorkingPaperSample {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
-  population: number | undefined;
+  population: string | number | undefined;
   sampleSize: number | undefined;
   samples: SampleItem[];
   conclusion: string;
@@ -375,7 +379,7 @@ export interface WorkingPaperSampleForm {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
-  population: number | undefined;
+  population: string | number | undefined;
   sampleSize: number | undefined;
   samples: SampleItem[];
   conclusion: string;

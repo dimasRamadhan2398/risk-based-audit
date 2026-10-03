@@ -53,6 +53,10 @@ export interface SampleItem {
   documentNumber: string
   date: string
   description: string
+  file?: File | null
+  fileName?: string
+  filePath?: string
+  fileUrl?: string
 }
 
 export interface TestControlItem {
@@ -1451,11 +1455,24 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   // Sample Form
-  const sampleForm = reactive({
+  const sampleForm = reactive<{
+    documentName: string
+    documentNumber: string
+    date: string
+    description: string
+    file: File | null
+    fileName: string
+    filePath: string
+    fileUrl: string
+  }>({
     documentName: '',
     documentNumber: '',
     date: '',
-    description: ''
+    description: '',
+    file: null,
+    fileName: '',
+    filePath: '',
+    fileUrl: ''
   })
   const showSampleModal = ref(false)
   const isEditingSample = ref(false)
@@ -1482,6 +1499,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     sampleForm.documentNumber = item.documentNumber
     sampleForm.date = item.date
     sampleForm.description = item.description
+    sampleForm.file = item.file || null
+    sampleForm.fileName = item.fileName || (item.file ? item.file.name : '')
+    sampleForm.filePath = item.filePath || ''
+    sampleForm.fileUrl = item.fileUrl || item.filePath || ''
     showSampleModal.value = true
   }
 
@@ -1496,6 +1517,19 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     sampleForm.documentNumber = ''
     sampleForm.date = ''
     sampleForm.description = ''
+    sampleForm.file = null
+    sampleForm.fileName = ''
+    sampleForm.filePath = ''
+    sampleForm.fileUrl = ''
+  }
+
+  const handleSampleFileChange = (e: Event) => {
+    const target = e.target as HTMLInputElement
+    if (target.files && target.files.length > 0 && target.files[0]) {
+      const selectedFile: File = target.files[0]
+      sampleForm.file = selectedFile
+      sampleForm.fileName = selectedFile.name
+    }
   }
 
   const saveSample = async () => {
@@ -1505,12 +1539,49 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     const wasEditing = isEditingSample.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const payload = {
-        ...sampleForm,
-        assignmentLetterId: selectedAssignmentLetter.value
-      }
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.samples
+      let uploadedFilePath = sampleForm.filePath || sampleForm.fileUrl || ''
+      let uploadedFileName = sampleForm.fileName || (sampleForm.file ? sampleForm.file.name : '')
+
+      // If a new file object is attached, upload it to /media/upload first
+      if (sampleForm.file) {
+        try {
+          const safeAssignmentId = (selectedAssignmentLetter.value || 'general').replace(/[\/\\]/g, '-')
+          const safeSampleId = (editingSampleId.value ? String(editingSampleId.value) : safeAssignmentId).replace(/[\/\\]/g, '-')
+          const folderPath = `Auditsphere/fieldwork/samples/${safeSampleId}`
+
+          const formData = new FormData()
+          formData.append('file', sampleForm.file)
+          formData.append('folder', folderPath)
+          formData.append('feature_name', 'fieldwork-sample')
+          formData.append('document_id', safeSampleId)
+          formData.append('document_name', sampleForm.file.name)
+
+          const uploadRes: any = await $fetch(`${baseUrl}/media/upload`, {
+            method: 'POST',
+            body: formData
+          })
+          if (uploadRes?.data?.filePath || uploadRes?.filePath) {
+            uploadedFilePath = uploadRes?.data?.filePath || uploadRes?.filePath
+            uploadedFileName = uploadRes?.data?.fileName || uploadRes?.fileName || sampleForm.file.name
+          }
+        } catch (uploadErr) {
+          console.warn('Media upload failed, proceeding with local filename:', uploadErr)
+          uploadedFileName = sampleForm.file.name
+        }
+      }
+
+      const payload = {
+        documentName: sampleForm.documentName,
+        documentNumber: sampleForm.documentNumber,
+        date: sampleForm.date,
+        description: sampleForm.description,
+        assignmentLetterId: selectedAssignmentLetter.value,
+        fileName: uploadedFileName,
+        filePath: uploadedFilePath,
+        fileUrl: uploadedFilePath
+      }
 
       let res: any = null
       if (isEditingSample.value && editingSampleId.value) {
@@ -1524,6 +1595,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           currentList[idx] = {
             ...currentList[idx],
             ...payload,
+            file: sampleForm.file,
             id: updatedItem?.id || editingSampleId.value
           }
         }
@@ -1539,7 +1611,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           documentName: sampleForm.documentName,
           documentNumber: sampleForm.documentNumber,
           date: sampleForm.date,
-          description: sampleForm.description
+          description: sampleForm.description,
+          file: sampleForm.file,
+          fileName: uploadedFileName,
+          filePath: uploadedFilePath,
+          fileUrl: uploadedFilePath
         }
         currentList.push(newItem)
       }
@@ -1568,7 +1644,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           documentName: sampleForm.documentName,
           documentNumber: sampleForm.documentNumber,
           date: sampleForm.date,
-          description: sampleForm.description
+          description: sampleForm.description,
+          file: sampleForm.file,
+          fileName: sampleForm.fileName,
+          filePath: sampleForm.filePath,
+          fileUrl: sampleForm.fileUrl
         }
         currentList.push(newItem)
       }
@@ -1577,6 +1657,85 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       toast.showSuccess(wasEditing ? 'Sample berhasil diperbarui' : 'Sample berhasil ditambahkan')
     } finally {
       loading.value = false
+    }
+  }
+
+  const downloadSampleFile = async (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }) => {
+    return downloadInterviewFile(item)
+  }
+
+  const viewSampleFile = async (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }) => {
+    const toast = useToastNotification()
+    const targetName = item.fileName || item.file?.name
+    const targetUrl = item.fileUrl || item.filePath
+
+    // 1. If an in-memory File instance exists
+    if (item.file instanceof File) {
+      const url = window.URL.createObjectURL(item.file)
+      window.open(url, '_blank')
+      return
+    }
+
+    // 2. If a stored FilePath or FileUrl is external link
+    if (targetUrl && (targetUrl.startsWith('http://') || targetUrl.startsWith('https://'))) {
+      window.open(targetUrl, '_blank')
+      return
+    }
+
+    const baseUrl = getAuditServiceBaseUrl()
+    let viewUrl = ''
+    if (targetName) {
+      viewUrl = `${baseUrl}/media/download/${encodeURIComponent(targetName)}`
+    } else if (targetUrl) {
+      if (targetUrl.startsWith('/uploads')) {
+        viewUrl = targetUrl
+      } else {
+        const origin = baseUrl.replace(/\/api\/v1\/?$/, '')
+        viewUrl = targetUrl.startsWith('/') ? `${origin}${targetUrl}` : `${origin}/${targetUrl}`
+      }
+    }
+
+    if (!viewUrl) {
+      toast.showWarning('Berkas belum tersedia untuk ditampilkan.')
+      return
+    }
+
+    const tab = window.open('', '_blank')
+    try {
+      if (viewUrl.startsWith('/uploads') || !viewUrl.startsWith('http')) {
+        if (tab) {
+          tab.location.href = viewUrl
+        } else {
+          window.open(viewUrl, '_blank')
+        }
+        return
+      }
+
+      const blob = await $fetch<Blob>(viewUrl, { responseType: 'blob' })
+      const blobUrl = window.URL.createObjectURL(blob)
+      if (tab) {
+        tab.location.href = blobUrl
+      } else {
+        window.open(blobUrl, '_blank')
+      }
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 60000)
+    } catch {
+      if (tab && viewUrl) {
+        tab.location.href = viewUrl
+      } else {
+        tab?.close()
+        toast.showError('Gagal membuka dokumen.')
+      }
     }
   }
 
@@ -1928,8 +2087,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     openSampleModal,
     editSample,
     viewSample,
+    handleSampleFileChange,
     saveSample,
     deleteSample,
+    downloadSampleFile,
+    viewSampleFile,
     testControlForm,
     showTestControlModal,
     isEditingTestControl,

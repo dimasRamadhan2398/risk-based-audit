@@ -37,6 +37,23 @@
           {{ row.original.description || '-' }}
         </div>
       </template>
+      <template #file-cell="{ row }">
+        <div v-if="row.original.file || row.original.fileName" class="flex items-center gap-1">
+          <UTooltip :text="t('common.actions.download') || 'Unduh Berkas'">
+            <UButton
+              icon="i-heroicons-document-arrow-down"
+              color="primary"
+              variant="ghost"
+              size="xs"
+              class="max-w-[140px] truncate"
+              @click="store.downloadSampleFile(row.original)"
+            >
+              <span class="truncate">{{ row.original.file?.name || row.original.fileName }}</span>
+            </UButton>
+          </UTooltip>
+        </div>
+        <span v-else class="text-gray-400 text-sm">-</span>
+      </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center justify-center gap-1">
           <UTooltip :text="t('common.actions.view') || 'Lihat'">
@@ -84,16 +101,17 @@ const store = useAuditFieldworkStore()
 const { t } = useI18n()
 
 const columns = computed(() => [
-  { key: 'documentName', accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name'), class: 'w-56 min-w-[180px]' },
-  { key: 'documentNumber', accessorKey: 'documentNumber', header: t('auditFieldwork.sample.columns.number'), class: 'w-44 min-w-[140px] whitespace-nowrap' },
-  { key: 'date', accessorKey: 'date', header: t('auditFieldwork.sample.columns.date'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  { key: 'documentName', accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name'), class: 'w-52 min-w-[170px]' },
+  { key: 'documentNumber', accessorKey: 'documentNumber', header: t('auditFieldwork.sample.columns.number'), class: 'w-40 min-w-[130px] whitespace-nowrap' },
+  { key: 'date', accessorKey: 'date', header: t('auditFieldwork.sample.columns.date'), class: 'w-32 min-w-[110px] whitespace-nowrap' },
   {
     key: 'description',
     accessorKey: 'description',
     header: t('auditFieldwork.sample.columns.description'),
-    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    class: 'w-72 min-w-[200px] max-w-xs !whitespace-normal break-words',
     tdClass: '!whitespace-normal break-words'
   },
+  { key: 'file', accessorKey: 'file', header: t('auditFieldwork.sample.columns.file') || 'Berkas', class: 'w-48 min-w-[150px]' },
   { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.sample.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
 </script>

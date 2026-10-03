@@ -2,6 +2,8 @@
 import { ref, computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { usePerformanceStore } from '~/stores/performance'
+import { useGlobalModalStore } from '~/stores/global-modal'
+import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import StrategicPlanForm from '~/components/strategic-audit-plan/StrategicPlanForm.vue'
 
 const props = defineProps({
@@ -13,11 +15,16 @@ const props = defineProps({
 
 const store = useStrategicPlanStore()
 const perfStore = usePerformanceStore()
+const modalStore = useGlobalModalStore()
+const toast = useToastNotification()
 
 const search = ref('')
 const category = ref()
 const period = ref()
 const status = ref()
+
+const deletedIds = ref<(string | number)[]>([])
+const deletedMetrics = ref<string[]>([])
 
 const categories = ['Operational', 'Financial', 'Quality', 'Issue', 'Efficiency']
 const periods = ['Q1', 'Q2', 'Q3', 'Q4', '2025', '2026']
@@ -127,6 +134,14 @@ const filteredData = computed(() => {
      }
   })
 
+  // Filter out locally deleted items
+  if (deletedIds.value.length > 0 || deletedMetrics.value.length > 0) {
+    data = data.filter((item: any) =>
+      !deletedIds.value.includes(item.id) &&
+      !deletedMetrics.value.some((m: string) => item.metric.toLowerCase().includes(m) || m.includes(item.metric.toLowerCase()))
+    )
+  }
+
   if (search.value) {
     data = data.filter((item: any) => item.metric.toLowerCase().includes(search.value.toLowerCase()))
   }
@@ -149,7 +164,9 @@ const filteredData = computed(() => {
        { id: 105, metric: 'Reporting Timeliness', category: 'Efficiency', target: '90%', actual: '95%', gap: '+5%', gapIsPositive: true, status: 'Exceeded', statusColor: 'bg-secondary-500', rawPeriod: '2026' },
      ]
      mockData.forEach(mock => {
-        if (!data.find((d: any) => d.metric === mock.metric)) {
+        if (!data.find((d: any) => d.metric === mock.metric) &&
+            !deletedIds.value.includes(mock.id) &&
+            !deletedMetrics.value.some((m: string) => mock.metric.toLowerCase().includes(m) || m.includes(mock.metric.toLowerCase()))) {
            data.push(mock)
         }
      })
@@ -176,6 +193,36 @@ function editKpiTarget(rowOriginal: any) {
     store.openModal()
     store.form.kpi = rowOriginal.metric
     store.form.strategicObjective = rowOriginal.metric
+  }
+}
+
+async function deleteKpiTarget(rowOriginal: any) {
+  const existing = store.strategicObjectives.find(
+    o => String(o.id) === String(rowOriginal.id) || o.kpi === rowOriginal.metric
+  )
+
+  if (existing) {
+    const prevCount = store.strategicObjectives.length
+    await store.handleDelete(existing.id)
+    if (store.strategicObjectives.length < prevCount || !store.strategicObjectives.some(o => o.id === existing.id)) {
+      deletedMetrics.value.push(rowOriginal.metric.toLowerCase())
+      deletedIds.value.push(rowOriginal.id)
+    }
+  } else {
+    const confirmed = await modalStore.confirmDelete({
+      itemName: rowOriginal.metric
+    })
+    if (!confirmed) return
+
+    deletedMetrics.value.push(rowOriginal.metric.toLowerCase())
+    deletedIds.value.push(rowOriginal.id)
+
+    // Remove from perfStore if present
+    perfStore.kpiAchievements = perfStore.kpiAchievements.filter(
+      (k: any) => String(k.id) !== String(rowOriginal.id) && k.kpi_name.toLowerCase() !== rowOriginal.metric.toLowerCase()
+    )
+
+    toast.showSuccess('KPI Target Dihapus', 'Data KPI berhasil dihapus.')
   }
 }
 </script>
@@ -261,15 +308,26 @@ function editKpiTarget(rowOriginal: any) {
         </template>
 
         <template #actions-cell="{ row }">
-          <UTooltip text="Edit KPI Target">
-          <UButton
-              color="warning"
-              variant="ghost"
-              size="md"
-              icon="i-lucide-edit"
-              @click="editKpiTarget(row.original)"
-            />
-          </UTooltip>
+          <div class="flex items-center gap-1">
+            <UTooltip text="Edit KPI Target">
+              <UButton
+                color="warning"
+                variant="ghost"
+                size="md"
+                icon="i-lucide-edit"
+                @click="editKpiTarget(row.original)"
+              />
+            </UTooltip>
+            <UTooltip text="Delete KPI Target">
+              <UButton
+                color="error"
+                variant="ghost"
+                size="md"
+                icon="i-lucide-trash-2"
+                @click="deleteKpiTarget(row.original)"
+              />
+            </UTooltip>
+          </div>
         </template>
       </UTable>
 
