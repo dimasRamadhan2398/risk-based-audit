@@ -477,7 +477,7 @@ export interface PlannedAuditActivity {
   priority: string;
   numberOfAuditors: number;
   estimatedSchedule: string;
-  budgetEstimation: string;
+  budgetEstimation: number;
 }
 
 export interface ResourceAuditor {
