@@ -7,13 +7,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"audit-service/models"
 	"audit-service/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
+
+type mockAuthMiddleware struct {
+	handler gin.HandlerFunc
+}
+
+func (m *mockAuthMiddleware) Authenticate() gin.HandlerFunc {
+	return m.handler
+}
 
 func TestAssignmentLetterCreate(t *testing.T) {
 	gin.SetMode(gin.TestMode)
@@ -24,22 +31,50 @@ func TestAssignmentLetterCreate(t *testing.T) {
 		t.Fatalf("failed to open in-memory database: %v", err)
 	}
 
-	// Auto migrate the AssignmentLetter model
-	if err := db.AutoMigrate(&models.AssignmentLetter{}); err != nil {
-		t.Fatalf("failed to migrate AssignmentLetter: %v", err)
+	// SQLite doesn't support gen_random_uuid(), so we create the table manually
+	if err := db.Exec(`
+		CREATE TABLE assignment_letters (
+			id TEXT PRIMARY KEY,
+			letter_number VARCHAR(100) NOT NULL UNIQUE,
+			status VARCHAR(50) DEFAULT 'Draft',
+			audit_title VARCHAR(255),
+			leader VARCHAR(200),
+			category VARCHAR(100),
+			audit_year VARCHAR(10),
+			audit_team VARCHAR(100),
+			start_period VARCHAR(100),
+			finish_period VARCHAR(100),
+			working_unit VARCHAR(255),
+			company_id TEXT,
+			company_name VARCHAR(255),
+			execution_period VARCHAR(255),
+			audit_purpose TEXT,
+			letter_date DATETIME,
+			cae_signature TEXT,
+			members_list TEXT,
+			purpose_list TEXT,
+			scope_list TEXT,
+			cc_list TEXT,
+			created_at DATETIME,
+			updated_at DATETIME,
+			deleted_at DATETIME
+		)
+	`).Error; err != nil {
+		t.Fatalf("failed to create assignment_letters table: %v", err)
 	}
 
 	// Setup Gin engine
 	engine := gin.New()
 
 	// Create mock authentication middleware that allows all requests
-	auth := &middleware.AuthMiddleware{}
 	mockAuth := func(c *gin.Context) {
 		c.Set("user_id", "test-user-id")
 		c.Set("roles", []string{"AUDITOR"})
 		c.Next()
 	}
-	engine.Use(mockAuth)
+
+	// Create a mock auth middleware with a working Authenticate method
+	auth := &mockAuthMiddleware{handler: mockAuth}
 
 	// Create route handler and register routes
 	routeHandler := NewRouteHandler(engine, auth, db, nil)

@@ -686,24 +686,32 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
-  const formatSampleForPayload = (s: any) => ({
-    id: s.id || Date.now(),
-    fieldworkDocument: s.fieldworkDocument || '',
-    document: s.document || '',
-    step1: s.step1 || '',
-    l1: s.l1 === 'Pass' || s.l1 === true ? true : (s.l1 === 'Fail' || s.l1 === false ? false : null),
-    step2: s.step2 || '',
-    l2: s.l2 === 'Pass' || s.l2 === true ? true : (s.l2 === 'Fail' || s.l2 === false ? false : null),
-    step3: s.step3 || '',
-    l3: s.l3 === 'Pass' || s.l3 === true ? true : (s.l3 === 'Fail' || s.l3 === false ? false : null),
-  })
+  // Helper function to convert TestResult strings to booleans for API submission
+  const convertSampleTestResults = (samples: SampleItem[]) => {
+    return samples.map(sample => ({
+      ...sample,
+      l1: sample.l1 === 'Pass' ? true : sample.l1 === 'Fail' ? false : null,
+      l2: sample.l2 === 'Pass' ? true : sample.l2 === 'Fail' ? false : null,
+      l3: sample.l3 === 'Pass' ? true : sample.l3 === 'Fail' ? false : null
+    }))
+  }
+
+  // Helper function to convert boolean values back to TestResult strings for form editing
+  const convertBooleanToTestResult = (samples: any[]): SampleItem[] => {
+    return samples.map(sample => ({
+      ...sample,
+      l1: sample.l1 === true ? 'Pass' : sample.l1 === false ? 'Fail' : undefined,
+      l2: sample.l2 === true ? 'Pass' : sample.l2 === false ? 'Fail' : undefined,
+      l3: sample.l3 === true ? 'Pass' : sample.l3 === false ? 'Fail' : undefined
+    }))
+  }
 
   const addF03 = async (sampleForm: WorkingPaperSampleForm) => {
     const newSample = {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
       population: sampleForm.population != null ? String(sampleForm.population) : '',
       sampleSize: sampleForm.sampleSize,
-      samples: (sampleForm.samples || []).map(formatSampleForPayload),
+      samples: convertSampleTestResults(sampleForm.samples),
       conclusion: sampleForm.conclusion
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -719,7 +727,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
       population: updatedData.population != null ? String(updatedData.population) : '',
       sampleSize: updatedData.sampleSize,
-      samples: (updatedData.samples || []).map(formatSampleForPayload),
+      samples: convertSampleTestResults(updatedData.samples),
       conclusion: updatedData.conclusion
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -802,6 +810,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     sampleForm.population = sample.population != null ? String(sample.population) : ''
     sampleForm.sampleSize = sample.sampleSize
+
+    // Convert boolean values from backend back to string for form editing
     let parsedSamples: any[] = []
     if (Array.isArray(sample.samples)) {
       parsedSamples = sample.samples
@@ -812,24 +822,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
         parsedSamples = []
       }
     }
-    const normalizeResult = (val: any) => {
-      if (val === true || val === 'Pass' || (typeof val === 'string' && val.toLowerCase() === 'pass')) return 'Pass'
-      if (val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')) return 'Fail'
-      return undefined
-    }
 
     sampleForm.samples = parsedSamples.length > 0
-      ? parsedSamples.map((s: any) => ({
-          id: s.id || Date.now(),
-          fieldworkDocument: s.fieldworkDocument || '',
-          document: s.document || '',
-          step1: s.step1 || '',
-          l1: normalizeResult(s.l1),
-          step2: s.step2 || '',
-          l2: normalizeResult(s.l2),
-          step3: s.step3 || '',
-          l3: normalizeResult(s.l3)
-        }))
+      ? convertBooleanToTestResult(parsedSamples)
       : [{
           id: Date.now(),
           fieldworkDocument: '',
@@ -1128,6 +1123,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // --- GETTERS: Cek Efektivitas Sampel ---
   // Return true = Efektif, Return false = Tidak Efektif
+  // Handles both string values (from form) and boolean values (from backend API)
   const checkSampleStatus = (sampel?: Partial<SampleItem>): boolean => {
     if (!sampel) return false
     const isFail = (val: any) => val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')
