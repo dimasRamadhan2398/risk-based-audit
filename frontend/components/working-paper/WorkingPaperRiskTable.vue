@@ -5,7 +5,7 @@
         <TableEntities
           :data="store.filteredDataF02"
           :columns="store.columnsF02"
-          :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' }"
+          :empty-state="store.hasAssignmentLetter ? { icon: 'i-heroicons-circle-stack', label: 'No data saved yet.' } : { icon: 'i-heroicons-document-magnifying-glass', label: t('workingPaper.index.selectLetterFirst') }"
           :ui="{ td: '!whitespace-normal' }"
         >
             <template #risk-cell="{ row }">
@@ -55,7 +55,9 @@
 
 <script setup lang="ts">
 import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useI18n } from '~/composables/useI18n'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
+const { t } = useI18n()
 const store = useWorkingPaperStore()
 </script>

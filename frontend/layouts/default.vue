@@ -228,6 +228,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         ]
       },
       {
+        label: t('navigation.auditFieldwork'),
+        icon: 'i-lucide-briefcase',
+        to: '/audit-fieldwork'
+      },
+      {
         label: t('navigation.workingPaper'),
         icon: 'i-lucide-file-text',
         type: 'trigger',
@@ -244,11 +249,6 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
           }
         ]
       },
-      {
-        label: t('navigation.auditFieldwork'),
-        icon: 'i-lucide-briefcase',
-        to: '/audit-fieldwork'
-      }
     ]
   },
 

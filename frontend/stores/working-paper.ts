@@ -161,7 +161,6 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   ] satisfies StepperItem[]
 
   const columnsF01 = [
-    { key: 'assignmentLetterId', accessorKey: 'assignmentLetterId', header: 'Assignment Letter', class: 'w-48 min-w-[150px]' },
     {
       key: 'businessProcess',
       accessorKey: 'businessProcess',
@@ -393,35 +392,23 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
-  const filteredDataF01 = computed(() => {
-    const list = dataF01.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => wp.assignmentLetterId === fieldworkStore.selectedAssignmentLetter)
-  })
+  // Every table is scoped to the assignment letter selected in Audit Fieldwork,
+  // and stays empty until one is selected. The tables carry no assignment
+  // letter column, so an unscoped list would mix rows from different letters
+  // with no way to tell them apart.
+  const byLetter = <T>(list: T[], letterOf: (row: T) => string | undefined): T[] => {
+    const letter = fieldworkStore.selectedAssignmentLetter
+    if (!letter) return []
+    return list.filter(row => letterOf(row) === letter)
+  }
+  const childLetter = (row: any) => row.workingPaperId || row.assignmentLetterId
+  const hasAssignmentLetter = computed(() => !!fieldworkStore.selectedAssignmentLetter)
 
-  const filteredDataF02 = computed(() => {
-    const list = dataF02.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF03 = computed(() => {
-    const list = dataF03.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF04 = computed(() => {
-    const list = dataF04.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF05 = computed(() => {
-    const list = dataF05.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
+  const filteredDataF01 = computed(() => byLetter(dataF01.value, wp => wp.assignmentLetterId))
+  const filteredDataF02 = computed(() => byLetter(dataF02.value, childLetter))
+  const filteredDataF03 = computed(() => byLetter(dataF03.value, childLetter))
+  const filteredDataF04 = computed(() => byLetter(dataF04.value, childLetter))
+  const filteredDataF05 = computed(() => byLetter(dataF05.value, childLetter))
 
   const isEditingF01 = ref(false)
   const isEditingF02 = ref(false)
@@ -502,8 +489,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF01.value = false
     editingIdF01.value = null
 
-    const initialLetter = fieldworkStore.selectedAssignmentLetter || 
-      (options.assignmentLetter.length > 0 ? options.assignmentLetter[0] : '')
+    // The form has no assignment letter field: a new working paper always
+    // belongs to the letter selected in Audit Fieldwork. Without one there is
+    // nothing to attach it to, so refuse rather than guess.
+    const initialLetter = fieldworkStore.selectedAssignmentLetter
+    if (!initialLetter) {
+      toast.showWarning('No assignment letter selected', 'Select an assignment letter in Audit Fieldwork before creating a working paper.')
+      return
+    }
 
     // Reset Form
     Object.assign(headerForm, {
@@ -519,9 +512,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       ]
     })
 
-    if (initialLetter) {
-      syncFromAssignmentLetter(initialLetter)
-    }
+    syncFromAssignmentLetter(initialLetter)
 
     showModalF01.value = true
   }
@@ -1241,7 +1232,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
 
     // 1. Current selected letter in fieldwork or working paper
-    const currentLetter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter || 'ST-001/SKAI/2026'
+    const currentLetter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
     const activeSamples = fieldworkStore.fieldworkData?.[currentLetter]?.samples || fieldworkStore.samples || []
     if (Array.isArray(activeSamples)) {
       activeSamples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
@@ -1293,6 +1284,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF01, isEditingF02, isEditingF03, isEditingF04, isEditingF05,
     dataF01, dataF02, dataF03, dataF04, dataF05,
     filteredDataF01, filteredDataF02, filteredDataF03, filteredDataF04, filteredDataF05,
+    hasAssignmentLetter,
     addF03,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,

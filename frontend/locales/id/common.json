@@ -1933,7 +1933,10 @@
   "workingPaper": {
     "index": {
       "title": "Create Working Paper",
-      "subtitle": "Buat dan kelola kertas kerja audit langkah demi langkah",
+      "assignmentLetterLabel": "Surat Tugas",
+      "noAssignmentLetter": "Belum ada surat tugas yang dipilih.",
+      "goToFieldwork": "Pilih di Audit Fieldwork",
+      "selectLetterFirst": "Pilih surat tugas di Audit Fieldwork untuk menampilkan data.",
       "importButton": "Impor Kertas Kerja",
       "createButton": "Buat Kertas Kerja",
       "sections": {

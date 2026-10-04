@@ -1934,7 +1934,10 @@
   "workingPaper": {
     "index": {
       "title": "Create Working Paper",
-      "subtitle": "Create and manage audit working papers step by step",
+      "assignmentLetterLabel": "Assignment Letter",
+      "noAssignmentLetter": "No assignment letter selected.",
+      "goToFieldwork": "Select one in Audit Fieldwork",
+      "selectLetterFirst": "Select an assignment letter in Audit Fieldwork to view the data.",
       "importButton": "Import Working Paper",
       "createButton": "Create Working Paper",
       "sections": {

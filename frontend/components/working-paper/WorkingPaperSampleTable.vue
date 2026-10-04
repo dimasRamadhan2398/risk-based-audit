@@ -4,7 +4,7 @@
       <TableEntities
         :data="store.filteredDataF03"
         :columns="columns"
-        :empty-state="{ icon: 'i-heroicons-circle-stack', label: t('workingPaper.sampleTable.emptyState') }"
+        :empty-state="store.hasAssignmentLetter ? { icon: 'i-heroicons-circle-stack', label: t('workingPaper.sampleTable.emptyState') } : { icon: 'i-heroicons-document-magnifying-glass', label: t('workingPaper.index.selectLetterFirst') }"
         :ui="{ td: '!whitespace-normal' }"
       >
         <template #population-cell="{ row }">
