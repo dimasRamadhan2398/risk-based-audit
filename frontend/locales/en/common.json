@@ -2052,6 +2052,22 @@
       "periodAction": "Planning Period",
       "updateData": "Update Data",
       "submit": "Submit"
+    },
+    "sampleTable": {
+      "emptyState": "No data saved yet.",
+      "noDocumentName": "Unnamed Document",
+      "effective": "Effective",
+      "ineffective": "Ineffective",
+      "noSampleData": "No sample data",
+      "editSample": "Edit Sample",
+      "deleteSample": "Delete Sample",
+      "columns": {
+        "population": "Total Population",
+        "sampleSize": "Sample Size",
+        "samples": "Sample List",
+        "conclusion": "Conclusion",
+        "actions": "Action"
+      }
     }
   },
   "consultingService": {

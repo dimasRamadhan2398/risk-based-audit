@@ -3,8 +3,8 @@
     <UCard class="shadow-sm mt-10">
       <TableEntities
         :data="store.filteredDataF03"
-        :columns="store.columnsF03"
-        :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }"
+        :columns="columns"
+        :empty-state="{ icon: 'i-heroicons-circle-stack', label: t('workingPaper.sampleTable.emptyState') }"
         :ui="{ td: '!whitespace-normal' }"
       >
         <template #population-cell="{ row }">
@@ -29,7 +29,7 @@
                     {{ s.fieldworkDocument }}
                   </div>
                   <span class="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-snug">
-                    {{ s.document || 'Tanpa Nama Dokumen' }}
+                    {{ s.document || t('workingPaper.sampleTable.noDocumentName') }}
                   </span>
                 </div>
                 <UBadge
@@ -38,7 +38,7 @@
                   variant="subtle"
                   class="shrink-0"
                 >
-                  {{ store.checkSampleStatus(s) ? 'Efektif' : 'Tidak Efektif' }}
+                  {{ store.checkSampleStatus(s) ? t('workingPaper.sampleTable.effective') : t('workingPaper.sampleTable.ineffective') }}
                 </UBadge>
               </div>
               <USeparator class="my-1.5" />
@@ -62,7 +62,7 @@
             </UCard>
 
             <p v-if="!getSamples(row.original).length" class="text-sm text-gray-400 dark:text-gray-500 italic">
-              Tidak ada data sampel
+              {{ t('workingPaper.sampleTable.noSampleData') }}
             </p>
           </div>
         </template>
@@ -78,7 +78,7 @@
 
         <template #actions-cell="{ row }">
           <div class="flex gap-2">
-            <UTooltip text="Edit Sampel">
+            <UTooltip :text="t('workingPaper.sampleTable.editSample')">
               <UButton 
                 size="md" 
                 color="warning" 
@@ -87,13 +87,13 @@
                 @click="store.handleEditF03(row.original)" 
               />
             </UTooltip>
-            <UTooltip text="Hapus Sampel">
+            <UTooltip :text="t('workingPaper.sampleTable.deleteSample')">
               <UButton 
                 size="md" 
                 color="error" 
                 variant="ghost" 
                 icon="i-lucide-trash-2" 
-                @click="store.handleDeleteF03(row.original.id)"
+                @click="store.handleDeleteF03(row.original.id)" 
               />
             </UTooltip>
           </div>
@@ -104,9 +104,26 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 
+const { t } = useI18n()
 const store = useWorkingPaperStore()
+
+const columns = computed(() => [
+  { key: 'population', accessorKey: 'population', header: t('workingPaper.sampleTable.columns.population'), class: 'w-48 min-w-[140px] whitespace-normal break-words', tdClass: '!whitespace-normal break-words' },
+  { key: 'sampleSize', accessorKey: 'sampleSize', header: t('workingPaper.sampleTable.columns.sampleSize'), class: 'w-36 min-w-[120px]' },
+  { key: 'samples', accessorKey: 'samples', header: t('workingPaper.sampleTable.columns.samples'), class: 'min-w-[260px]' },
+  {
+    key: 'conclusion',
+    accessorKey: 'conclusion',
+    header: t('workingPaper.sampleTable.columns.conclusion'),
+    class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+    tdClass: '!whitespace-normal break-words'
+  },
+  { key: 'actions', accessorKey: 'actions', header: t('workingPaper.sampleTable.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
+])
 
 const formatResult = (val: any) => {
   if (val === true || val === 'Pass' || (typeof val === 'string' && val.toLowerCase() === 'pass')) return 'Pass'

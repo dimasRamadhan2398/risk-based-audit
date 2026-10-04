@@ -2051,6 +2051,22 @@
       "periodAction": "Periode Perencanaan",
       "updateData": "Perbarui Data",
       "submit": "Kirim"
+    },
+    "sampleTable": {
+      "emptyState": "Belum ada data tersimpan.",
+      "noDocumentName": "Tanpa Nama Dokumen",
+      "effective": "Efektif",
+      "ineffective": "Tidak Efektif",
+      "noSampleData": "Tidak ada data sampel",
+      "editSample": "Edit Sampel",
+      "deleteSample": "Hapus Sampel",
+      "columns": {
+        "population": "Total Populasi",
+        "sampleSize": "Sample Size",
+        "samples": "Sample List",
+        "conclusion": "Conclusion",
+        "actions": "Action"
+      }
     }
   },
   "consultingService": {
