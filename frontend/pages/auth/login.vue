@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-[var(--bg-main)] transition-colors duration-300">
-    <!-- Animated background subtle gradients aligned with brand secondary/primary -->
-    <div class="absolute inset-0 opacity-30 dark:opacity-20" />
+    <!-- Dark overlay backdrop -->
+    <div class="absolute inset-0 bg-black/40 dark:bg-black/50 opacity-30 dark:opacity-20" />
     <div
       class="absolute inset-0 opacity-5"
       :style="{
@@ -41,7 +41,7 @@
       </div>
 
       <!-- Card following the design system -->
-      <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl shadow-2xl px-5 sm:px-8 py-7 sm:py-10 transition-all duration-300">
+      <div class="bg-[var(--bg-surface)]/95 backdrop-blur-md border border-[var(--border-main)] rounded-2xl shadow-2xl px-5 sm:px-8 py-7 sm:py-10 transition-all duration-300">
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
           <Logo class="mb-5 h-12" />
