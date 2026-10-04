@@ -94,6 +94,11 @@
           </div>
         </template>
 
+        <!-- Category: translated label of the raw value, "-" when not set -->
+        <template #category-cell="{ row }">
+          <span class="whitespace-nowrap text-gray-900 dark:text-white">{{ categoryLabel(row.original.category) }}</span>
+        </template>
+
         <!-- Action Buttons -->
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
@@ -151,6 +156,7 @@ import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
 import type { StrategicAuditPlan } from '~/types/audit'
+import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
@@ -173,6 +179,7 @@ watch(selectedPeriodType, (newType) => {
 const columns = computed(() => [
   { key: 'strategicObjective', accessorKey: 'strategicObjective', label: t('strategicPlan.columns.objective'), header: t('strategicPlan.columns.objective'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words font-medium sticky left-0', thClass: 'z-20 !bg-[var(--bg-surface)]', tdClass: 'z-10 bg-[var(--bg-main)]' },
   { key: 'kpi', accessorKey: 'kpi', label: t('strategicPlan.columns.kpi'), header: t('strategicPlan.columns.kpi'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words font-medium sticky left-[130px] sm:left-[220px] border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]', thClass: 'z-20 !bg-[var(--bg-surface)]', tdClass: 'z-10 bg-[var(--bg-main)]' },
+  { key: 'category', accessorKey: 'category', label: t('strategicPlan.columns.category'), header: t('strategicPlan.columns.category'), class: 'w-28 whitespace-nowrap' },
   { key: 'unit', accessorKey: 'unit', label: t('strategicPlan.columns.unit'), header: t('strategicPlan.columns.unit'), class: 'w-20 text-center whitespace-nowrap' },
   { key: 'selectedPeriod', accessorKey: 'selectedPeriod', label: t('strategicPlan.columns.period'), header: t('strategicPlan.columns.period'), class: 'w-28 whitespace-nowrap' },
   { key: 'target', accessorKey: 'target', label: t('strategicPlan.columns.target'), header: t('strategicPlan.columns.target'), class: 'w-24 whitespace-nowrap' },
@@ -218,6 +225,8 @@ const resetFilters = () => {
   selectedYear.value = 'ALL'
   selectedQuartal.value = 'ALL'
 }
+
+const categoryLabel = (value?: string) => kpiValueLabel(t, 'categories', value) || '-'
 
 const formatStatus = (status: string) => {
   if (!status) return '-'

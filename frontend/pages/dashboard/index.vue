@@ -1029,6 +1029,8 @@ onMounted(() => {
   annualPlanStore.fetchPlans();
   // Recent Finding Issues card (ARR + KKA + fieldwork, merged by the backend).
   auditResultStore.fetchRecentFindings(5);
+  // RCM-based figures (control effectiveness etc.) come only from the risk-service API.
+  rcmStore.fetchRCMList();
 });
 
 // ─── KPI Forecasting Line Chart Config ─────────────────────

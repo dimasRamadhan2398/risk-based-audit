@@ -109,6 +109,8 @@ func (c *PerformanceStatsController) GetKpiBreakdown(ctx *gin.Context) {
 	}
 
 	rows := BuildKpiBreakdownRows(plans, achievements, q.Year)
+	// Filter options come from every row of the year, before search/filters/paging.
+	filters := KpiBreakdownFilterOptions(rows)
 	rows = FilterKpiBreakdownRows(rows, q)
 	SortKpiBreakdownRows(rows)
 	items, pagination := PaginateKpiBreakdownRows(rows, q.Page, q.PageSize)
@@ -116,7 +118,80 @@ func (c *PerformanceStatsController) GetKpiBreakdown(ctx *gin.Context) {
 	response.OK(ctx, "KPI breakdown fetched successfully", gin.H{
 		"items":      items,
 		"pagination": pagination,
+		"filters":    filters,
 	})
+}
+
+// KpiBreakdownFilters lists the values the category and period filters can take
+// for the requested year.
+type KpiBreakdownFilters struct {
+	Categories []string `json:"categories"`
+	Periods    []string `json:"periods"`
+}
+
+// KpiBreakdownFilterOptions returns the distinct non-empty categories (sorted
+// alphabetically) and periods (sorted by periodSortKey) of rows. Both slices are
+// non-nil so they encode as [] rather than null.
+func KpiBreakdownFilterOptions(rows []KpiBreakdownItem) KpiBreakdownFilters {
+	categories := []string{}
+	periods := []string{}
+	seenCategory := map[string]bool{}
+	seenPeriod := map[string]bool{}
+	for _, r := range rows {
+		if r.Category != "" && !seenCategory[r.Category] {
+			seenCategory[r.Category] = true
+			categories = append(categories, r.Category)
+		}
+		if r.Period != "" && !seenPeriod[r.Period] {
+			seenPeriod[r.Period] = true
+			periods = append(periods, r.Period)
+		}
+	}
+	sort.Strings(categories)
+	sort.SliceStable(periods, func(i, j int) bool {
+		gi, ki := periodSortKey(periods[i])
+		gj, kj := periodSortKey(periods[j])
+		if gi != gj {
+			return gi < gj
+		}
+		if ki != kj {
+			return ki < kj
+		}
+		return periods[i] < periods[j]
+	})
+	return KpiBreakdownFilters{Categories: categories, Periods: periods}
+}
+
+// periodSortKey orders the period filter options naturally:
+//
+//	group 0: years             "2025" < "2026"           (by year)
+//	group 1: bare quarters     "Q1" < "Q2" < "Q3" < "Q4"
+//	group 2: quarter-year      "Q4-2025" < "Q1-2026" < "Q2-2026"   (by year, then quarter)
+//	group 3: anything else     alphabetical (e.g. "Semester 1")
+//	group 4: "Tahunan"         always last (case-insensitive)
+//
+// Quarter matching is case-insensitive ("q1" sorts with "Q1"); ties within a
+// group fall back to plain string order so the result is deterministic.
+func periodSortKey(p string) (group int, key int) {
+	s := strings.TrimSpace(p)
+	if strings.EqualFold(s, "Tahunan") {
+		return 4, 0
+	}
+	if y, err := strconv.Atoi(s); err == nil && y > 0 && len(s) == 4 {
+		return 0, y
+	}
+	if len(s) >= 2 && (s[0] == 'Q' || s[0] == 'q') && s[1] >= '1' && s[1] <= '4' {
+		quarter := int(s[1] - '0')
+		if len(s) == 2 {
+			return 1, quarter
+		}
+		if s[2] == '-' {
+			if y, err := strconv.Atoi(s[3:]); err == nil && y > 0 && len(s[3:]) == 4 {
+				return 2, y*10 + quarter
+			}
+		}
+	}
+	return 3, 0
 }
 
 // BuildKpiBreakdownRows merges the plans active in year with the year's KPI
@@ -137,10 +212,12 @@ func BuildKpiBreakdownRows(plans []models.StrategicPlan, achievements []models.K
 		if t, ok := yearTarget(p, year); ok {
 			target = t
 		}
-		actual := parseLeadingFloat(p.Actual)
+		// actualKnown is false when the plan has no numeric actual and no achievement
+		// matches it, i.e. nothing has been recorded yet (see newKpiBreakdownItem).
+		actual, actualKnown := leadingFloat(p.Actual)
 		for _, a := range achievements {
 			if kpiNamesMatch(planName, a.KPIName) {
-				actual = a.Actual
+				actual, actualKnown = a.Actual, true
 				break
 			}
 		}
@@ -149,10 +226,16 @@ func BuildKpiBreakdownRows(plans []models.StrategicPlan, achievements []models.K
 		if metric == "" {
 			metric = strings.TrimSpace(p.StrategicObjective)
 		}
-		rows = append(rows, newKpiBreakdownItem(
-			p.ID.String(), KpiSourceStrategicPlan, metric, p.SelectedPeriod, p.Unit,
-			target, actual, higherIsGood(p.HibHig),
-		))
+		rows = append(rows, newKpiBreakdownItem(KpiBreakdownItem{
+			ID:       p.ID.String(),
+			Source:   KpiSourceStrategicPlan,
+			Metric:   metric,
+			Category: p.Category,
+			Period:   p.SelectedPeriod,
+			Unit:     p.Unit,
+			Target:   target,
+			Actual:   actual,
+		}, actualKnown, higherIsGood(p.HibHig)))
 	}
 
 	for _, a := range achievements {
@@ -166,48 +249,77 @@ func BuildKpiBreakdownRows(plans []models.StrategicPlan, achievements []models.K
 		if matched {
 			continue
 		}
-		// KPI achievements carry no HIB/HIG flag; they are treated as higher-is-good,
-		// as the frontend did (gap = actual - target), which also agrees with the
-		// actual/target achievement rate used for the status.
-		rows = append(rows, newKpiBreakdownItem(
-			a.ID.String(), KpiSourceKpiAchievement, strings.TrimSpace(a.KPIName), a.Period, "",
-			a.Target, a.Actual, true,
-		))
+		// KPI achievements carry no HIB/HIG flag and no category; they are treated as
+		// higher-is-good (gap = actual - target, rate = actual/target) and have
+		// category "".
+		rows = append(rows, newKpiBreakdownItem(KpiBreakdownItem{
+			ID:     a.ID.String(),
+			Source: KpiSourceKpiAchievement,
+			Metric: strings.TrimSpace(a.KPIName),
+			Period: a.Period,
+			Target: a.Target,
+			Actual: a.Actual,
+		}, true, true))
 	}
 	return rows
 }
 
-func newKpiBreakdownItem(id, source, metric, period, unit string, target, actual float64, hig bool) KpiBreakdownItem {
+// newKpiBreakdownItem fills Gap, GapIsPositive, AchievementRate and Status of
+// base from its Target and Actual.
+//
+// Gap: HIG actual - target, HIB target - actual (positive = better than target).
+//
+// Achievement rate, mirroring the plan view modal (StrategicObjectiveViewModal.vue):
+//
+//	target <= 0                     → rate null, "No Target"
+//	HIG                             → actual / target * 100
+//	HIB                             → target / actual * 100 (lower actual is better)
+//	HIB, actual == 0                → rate null, "Exceeded" (the modal's +Infinity,
+//	                                  which JSON cannot carry)
+//	HIB, actual < 0                 → negative rate → "Needs Attention" (as the modal)
+//	HIB, nothing recorded           → rate 0, "Needs Attention" (actualKnown false: the
+//	                                  modal shows no rate; a missing actual must not
+//	                                  read as a perfect 0 for HIB, and this matches what
+//	                                  HIG gets for a missing actual)
+//
+// Status from the rate: >= 100 Exceeded, >= 80 On Track, else Needs Attention.
+func newKpiBreakdownItem(base KpiBreakdownItem, actualKnown, hig bool) KpiBreakdownItem {
+	item := base
+	target, actual := item.Target, item.Actual
+
 	gap := target - actual
 	if hig {
 		gap = actual - target
 	}
-	gap = finite(gap)
-
-	item := KpiBreakdownItem{
-		ID:            id,
-		Source:        source,
-		Metric:        metric,
-		Category:      "", // neither StrategicPlan nor KPIAchievement has a category field
-		Period:        period,
-		Unit:          unit,
-		Target:        target,
-		Actual:        actual,
-		Gap:           gap,
-		GapIsPositive: gap >= 0,
-		Status:        KpiStatusNoTarget,
+	item.Gap = finite(gap)
+	item.GapIsPositive = item.Gap >= 0
+	item.AchievementRate = nil
+	item.Status = KpiStatusNoTarget
+	if target <= 0 {
+		return item
 	}
-	if target > 0 {
-		rate := finite(actual / target * 100)
-		item.AchievementRate = &rate
-		switch {
-		case rate >= 100:
-			item.Status = KpiStatusExceeded
-		case rate >= 80:
-			item.Status = KpiStatusOnTrack
-		default:
-			item.Status = KpiStatusNeedsAttention
-		}
+
+	var rate float64
+	switch {
+	case hig:
+		rate = actual / target * 100
+	case !actualKnown:
+		rate = 0
+	case actual == 0:
+		item.Status = KpiStatusExceeded
+		return item
+	default:
+		rate = target / actual * 100
+	}
+	rate = finite(rate)
+	item.AchievementRate = &rate
+	switch {
+	case rate >= 100:
+		item.Status = KpiStatusExceeded
+	case rate >= 80:
+		item.Status = KpiStatusOnTrack
+	default:
+		item.Status = KpiStatusNeedsAttention
 	}
 	return item
 }

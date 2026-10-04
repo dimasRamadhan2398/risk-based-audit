@@ -13,7 +13,7 @@ vi.mock('#app', () => ({
 
 global.$fetch = vi.fn()
 
-describe('RCM Store - Persistence and API handling', () => {
+describe('RCM Store - API handling', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
@@ -168,5 +168,113 @@ describe('RCM Store - Persistence and API handling', () => {
       expect.objectContaining({ method: 'DELETE' })
     )
     expect(store.rcmList.find(i => i.id === 'del-item-id')).toBeUndefined()
+  })
+})
+
+const row = (id: string, extra: any = {}) => ({
+  id,
+  risk_code: 'FIN-001',
+  risk_event: 'Event',
+  control_code: `CTL-${id}`,
+  control_description: 'Desc',
+  control_owner: 'Owner',
+  department: 'Head Office',
+  year: 2026,
+  design_effectiveness_weight: 20,
+  design_effectiveness_rating: 3,
+  operating_effectiveness_weight: 20,
+  operating_effectiveness_rating: 3,
+  coverage_completeness_weight: 20,
+  coverage_completeness_rating: 3,
+  timeliness_weight: 20,
+  timeliness_rating: 3,
+  automation_monitoring_weight: 20,
+  automation_monitoring_rating: 3,
+  total_weighted_score: 60,
+  ...extra
+})
+
+describe('RCM Store - no dummy data, server is the source of truth', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear()
+    }
+  })
+
+  it('starts empty (no dummy rows) before anything is fetched', () => {
+    const store = useRCMStore()
+    expect(store.rcmList).toEqual([])
+    expect(store.filteredRCMList).toEqual([])
+  })
+
+  it('ignores and clears the old localStorage cache (rcm_items_v2)', () => {
+    localStorage.setItem('rcm_items_v2', JSON.stringify([row('cached-1')]))
+    const store = useRCMStore()
+    expect(store.rcmList).toEqual([])
+    expect(localStorage.getItem('rcm_items_v2')).toBeNull()
+  })
+
+  it('an empty API response gives an empty list', async () => {
+    const store = useRCMStore()
+    store.rcmList = [row('old-1')]
+    vi.mocked($fetch).mockResolvedValueOnce({ success: true, data: [] })
+    await store.fetchRCMList()
+    expect(store.rcmList).toEqual([])
+  })
+
+  it('an API error gives an empty list and an error message', async () => {
+    const store = useRCMStore()
+    store.rcmList = [row('old-1')]
+    vi.mocked($fetch).mockRejectedValueOnce(new Error('Network error'))
+    await store.fetchRCMList()
+    expect(store.rcmList).toEqual([])
+    expect(store.errorMsg).toBeTruthy()
+  })
+
+  it('a failed create does not add a row', async () => {
+    const store = useRCMStore()
+    store.rcmList = [row('a')]
+    vi.mocked($fetch).mockRejectedValueOnce(new Error('500'))
+    const { id, total_weighted_score, ...input } = row('new')
+    await expect(store.addRCMItem(input)).rejects.toThrow()
+    expect(store.rcmList.map(i => i.id)).toEqual(['a'])
+  })
+
+  it('a failed update leaves the row unchanged', async () => {
+    const store = useRCMStore()
+    store.rcmList = [row('a', { control_description: 'Original' })]
+    vi.mocked($fetch).mockRejectedValueOnce(new Error('500'))
+    await expect(store.updateRCMItem(row('a', { control_description: 'Changed' }))).rejects.toThrow()
+    expect(store.rcmList[0].control_description).toBe('Original')
+  })
+
+  it('a successful update replaces the row with the server version', async () => {
+    const store = useRCMStore()
+    store.rcmList = [row('a', { control_description: 'Original' })]
+    vi.mocked($fetch).mockResolvedValueOnce({ success: true, data: row('a', { control_description: 'From server', design_effectiveness_rating: 5 }) })
+    await store.updateRCMItem(row('a', { control_description: 'Changed' }))
+    const call = vi.mocked($fetch).mock.calls.find(c => c[1]?.method === 'PUT')
+    expect(call[0]).toContain('/rcm/a')
+    expect(call[1]).toMatchObject({ method: 'PUT' })
+    expect(call[1].body.id).toBeUndefined()
+    expect(store.rcmList[0].control_description).toBe('From server')
+    expect(store.rcmList[0].total_weighted_score).toBe(20 + 12 * 4)
+  })
+
+  it('a failed delete keeps the row', async () => {
+    const store = useRCMStore()
+    store.rcmList = [row('a')]
+    vi.mocked($fetch).mockRejectedValueOnce(new Error('500'))
+    await expect(store.deleteRCMItem('a')).rejects.toThrow()
+    expect(store.rcmList.map(i => i.id)).toEqual(['a'])
+  })
+
+  it('never writes RCM rows to localStorage', async () => {
+    const store = useRCMStore()
+    vi.mocked($fetch).mockResolvedValueOnce({ success: true, data: [row('a')] })
+    await store.fetchRCMList()
+    expect(localStorage.getItem('rcm_items_v2')).toBeNull()
   })
 })

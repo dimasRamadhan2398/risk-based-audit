@@ -10,6 +10,7 @@ import (
 	ctrlATR "audit-service/controllers/action_taken_report"
 	"audit-service/controllers/crud"
 	ctrlFindings "audit-service/controllers/findings"
+	ctrlStrategicPlan "audit-service/controllers/strategic_plan"
 	"audit-service/models"
 	"audit-service/pkg/docxbuilder"
 	"audit-service/pkg/masterclient"
@@ -168,8 +169,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		strategicPlans.GET("", crud.List(h.db, "StrategicPlan", func() interface{} { return &[]models.StrategicPlan{} }))
 		strategicPlans.GET("/:id", crud.GetByID(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
-		strategicPlans.POST("", crud.Create(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
-		strategicPlans.PUT("/:id", crud.Update(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
+		// category must be empty or one of models.StrategicPlanCategories (400 otherwise)
+		strategicPlans.POST("", ctrlStrategicPlan.ValidateCategory(), crud.Create(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
+		strategicPlans.PUT("/:id", ctrlStrategicPlan.ValidateCategory(), crud.Update(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
 		strategicPlans.DELETE("/:id", crud.Delete(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
 	}
 

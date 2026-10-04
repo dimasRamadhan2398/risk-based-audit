@@ -766,6 +766,7 @@ const userDropdownItems = computed(() => [
               :items="userDropdownItems"
             >
               <UAvatar
+                :src="authStore.getUser?.avatarUrl || undefined"
                 :alt="authStore.getUser?.fullName || 'User'"
                 size="md"
               />

@@ -248,15 +248,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const computedQuarters = computed(() => calculateQuarters(form.selectedMonths))
   const scheduleWarning = computed(() => checkScheduleGaps(form.selectedMonths))
 
-  const quarterAlert = computed(() => {
-    const q1Count = form.selectedMonths.filter(m => m <= 2).length
-    const totalCount = form.selectedMonths.length
-    if (totalCount > 0 && (q1Count / totalCount) > 0.4 && totalCount > 3) {
-      return 'Beban kerja Triwulan I terlalu tinggi (>40%). Mohon ratakan jadwal.'
-    }
-    return null
-  })
-
   const supervisorOptions = computed(() => {
     return supervisors.value.map(s => ({
       id: s.id,
@@ -913,7 +904,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     plans, supervisors, monthsList, yearOptions, supervisorOptions, attachmentCategoryOptions,
     showModal, isEditing, editingId, showViewModal, selectedPlan, progressAudit, approvalStepperItems,
     searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading, validationErrors,
-    filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
+    filteredPlans, totalMandays, selectedSupervisor, scheduleWarning, utilizationData,
     computedQuarters, paginations, pagination: paginations,
     clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,

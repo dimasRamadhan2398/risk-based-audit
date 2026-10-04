@@ -43,6 +43,7 @@ type UserInfo struct {
 	FullName  string   `json:"full_name"`
 	Phone     string   `json:"phone"`
 	Department string  `json:"department"`
+	AvatarURL string   `json:"avatar_url"`
 	Roles     []string `json:"roles"`
 	MustChangePassword bool `json:"must_change_password"`
 }
@@ -72,6 +73,8 @@ type UpdateUserRequest struct {
 	Department *string  `json:"department" validate:"omitempty,max=100"`
 	Position   *string  `json:"position" validate:"omitempty,max=100"`
 	IsActive   *bool    `json:"is_active"`
+	// AvatarURL: absent/null = unchanged, "" = clear, otherwise a data URL (png/jpeg/webp, <= 300000 chars).
+	AvatarURL  *string  `json:"avatar_url"`
 }
 
 // ListUsersRequest represents a list users request
@@ -94,6 +97,7 @@ type UserResponse struct {
 	Department string  `json:"department"`
 	Position   string  `json:"position"`
 	IsActive   bool    `json:"is_active"`
+	AvatarURL  string  `json:"avatar_url"`
 	Roles      []string `json:"roles"`
 	MustChangePassword bool `json:"must_change_password"`
 	CreatedAt  string  `json:"created_at"`

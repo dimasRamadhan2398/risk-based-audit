@@ -556,6 +556,8 @@ export interface StrategicAuditPlan {
   target: string;
   calculation: string;
   status: string;
+  /** "Operational" | "Financial" | "Quality" | "Issue" | "Efficiency", or "" when not set (older rows). */
+  category?: string;
 }
 
 export interface ActionTakenReport {

@@ -19,6 +19,8 @@ type User struct {
 	Department string  `gorm:"type:varchar(100)" json:"department"`
 	Position   string  `gorm:"type:varchar(100)" json:"position"`
 	IsActive  bool      `gorm:"default:true" json:"is_active"`
+	// AvatarURL holds a size-capped image data URL (data:image/...;base64,...); nil = no avatar.
+	AvatarURL *string `gorm:"type:text" json:"avatar_url"`
 	// MustChangePassword is set when an admin resets the password; the user
 	// has to replace the temporary password before using the app.
 	MustChangePassword bool `gorm:"default:false" json:"must_change_password"`

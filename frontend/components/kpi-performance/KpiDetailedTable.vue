@@ -12,9 +12,9 @@ import {
   formatKpiValue,
   kpiBreakdownRangeText,
   kpiCategoryText,
+  kpiFilterMenuValues,
   kpiGapClass,
   kpiStatusColor,
-  mergeDistinct,
   KPI_BREAKDOWN_PAGE_SIZES,
   KPI_BREAKDOWN_STATUSES,
   type KpiBreakdownItem
@@ -79,19 +79,19 @@ const resetFilters = () => {
 }
 
 // Raw values are what the API filters on and what the colour mapping uses; only the label is translated.
+// Status, gap and achievement are shown exactly as the API computed them (incl. HIB plans); nothing is recomputed here.
 const categoryLabel = (value?: string) => kpiCategoryText(kpiValueLabel(t, 'categories', value))
 const statusLabel = (value?: string) => kpiValueLabel(t, 'statuses', value)
 // Achievement rows use 'Tahunan' for the annual period (see the page-level period selector).
 const periodLabel = (value: string) => value === 'Tahunan' ? t('kpiPerformance.upload.annual') : value
 
-// The API has no category/period list, so the menus offer the values seen in this year's rows.
-// Categories are always "" today, which hides that filter until the backend provides them.
-const sortValues = (values: string[]) => [...values].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+// Menu options come from the API's `data.filters` for the year (already sorted there). Without it
+// (older backend) or with no values, the menu is hidden; an active value stays listed so it can be cleared.
 const categoryItems = computed(() =>
-  sortValues(mergeDistinct(perfStore.kpiBreakdownCategories, [], query.value.category)).map(value => ({ label: categoryLabel(value), value }))
+  kpiFilterMenuValues(perfStore.kpiBreakdownFilters.categories, query.value.category).map(value => ({ label: categoryLabel(value), value }))
 )
 const periodItems = computed(() =>
-  sortValues(mergeDistinct(perfStore.kpiBreakdownPeriods, [], query.value.period)).map(value => ({ label: periodLabel(value), value }))
+  kpiFilterMenuValues(perfStore.kpiBreakdownFilters.periods, query.value.period).map(value => ({ label: periodLabel(value), value }))
 )
 const statusItems = computed(() => KPI_BREAKDOWN_STATUSES.map((value): { label: string, value: string } => ({ label: statusLabel(value), value })))
 const pageSizeItems = KPI_BREAKDOWN_PAGE_SIZES.map(value => ({ label: String(value), value }))
@@ -153,6 +153,8 @@ async function deleteKpiTarget(rowOriginal: any) {
 }
 // Strategic-plan rows open the plan form with a fresh copy of that plan: the form PUTs the whole
 // object, so editing a stale list entry could overwrite newer data. Achievement rows come from
+// Strategic-plan rows open the plan form with a fresh copy of that plan: the form PUTs every field
+// it edits, so editing a stale list entry could overwrite newer data. Achievement rows come from
 // uploaded performance reports and are not editable here.
 const openingPlanId = ref<string | null>(null)
 async function editKpiTarget(item: KpiBreakdownItem) {

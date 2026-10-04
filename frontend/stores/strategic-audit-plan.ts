@@ -5,6 +5,7 @@ import type { StrategicAuditPlan } from "~/types/audit";
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { extractErrorMessage } from '~/utils/error';
 import { useI18n } from '~/composables/useI18n';
+import { buildStrategicPlanPayload, strategicPlanErrorField, strategicPlanFormFromPlan } from '~/utils/strategicPlanPayload';
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
@@ -13,7 +14,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const selectedViewObjective = ref<StrategicAuditPlan | null>(null);
     const isEditMode = ref(false);
     const loading = ref(false);
+    // A save in flight (separate from `loading`, which is also true while the list loads).
+    const saving = ref(false);
     const errorMsg = ref('');
+    // Error of the last failed save, shown inside the form; `formFieldErrors` ties it to a field when the backend says which.
+    const formError = ref('');
+    const formFieldErrors = ref<Partial<Record<'category', string>>>({});
     const toast = useToastNotification();
     const { t } = useI18n();
 
@@ -48,6 +54,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         strategicObjective: '',
         kpi: '',
         unit: '',
+        category: '',
         hibHig: 'HIG',
         periodType: 'Quartal',
         selectedPeriod: 'Q1',
@@ -207,6 +214,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             strategicObjective: '',
             kpi: '',
             unit: '%',
+            category: '',
             hibHig: 'HIG',
             periodType: 'Yearly',
             selectedPeriod: String(startY),
@@ -220,6 +228,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             calculation: '',
             status: '',
         };
+        clearFormErrors();
+    };
+
+    const clearFormErrors = () => {
+        formError.value = '';
+        formFieldErrors.value = {};
     };
 
     const openModal = () => {
@@ -241,18 +255,20 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         const targets: Record<string, string> = { ...(item.kpiTargets || {}) };
         const actuals: Record<string, string> = { ...(item.kpiActuals || {}) };
 
+        // Only the fields the form edits (plus the id): the rest of the row is never sent back on save.
         form.value = {
-            ...item,
+            ...strategicPlanFormFromPlan(item),
             yearStart: startY,
             yearEnd: endY,
             kpiTargets: targets,
             kpiActuals: actuals,
         };
+        clearFormErrors();
         isAddModalOpen.value = true;
     };
 
     const handleDelete = async (id: number | string) => {
-        if (!await useGlobalModalStore().confirmDelete({ description: "Are you sure you want to delete this Strategic Plan?" })) return;
+        if (!await useGlobalModalStore().confirmDelete({ description: t('strategicPlan.toast.confirmDelete') })) return;
         loading.value = true;
         errorMsg.value = '';
         try {
@@ -260,15 +276,15 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             await $fetch(`${baseUrl}/strategic-plans/${id}`, {
                 method: 'DELETE'
             });
-            toast.showSuccess('Rencana Strategis Dihapus', 'Data berhasil dihapus secara permanen.');
+            toast.showSuccess(t('strategicPlan.toast.deletedTitle'), t('strategicPlan.toast.deletedDesc'));
             strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
             await fetchStrategicPlans();
         } catch (error: any) {
+            // The row stays: it was not deleted on the server.
             console.error('Failed to delete strategic plan:', error);
-            const detail = extractErrorMessage(error, 'Failed to delete strategic plan.');
+            const detail = extractErrorMessage(error, t('strategicPlan.toast.deleteFailedFallback'));
             errorMsg.value = detail;
-            toast.showError('Failed to delete strategic plan.', detail);
-            strategicObjectives.value = strategicObjectives.value.filter(o => o.id !== id);
+            toast.showError(t('strategicPlan.toast.deleteFailedTitle'), detail);
         } finally {
             loading.value = false;
         }
@@ -310,6 +326,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     };
 
     const handleSubmit = async () => {
+        if (saving.value) return;
         if (!form.value.strategicObjective) {
             toast.showWarning(t('strategicPlan.toast.validationTitle'), t('strategicPlan.toast.objectiveRequired'));
             return;
@@ -360,54 +377,48 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         form.value.calculation = computedCalculation.value;
         form.value.status = computedStatus.value;
 
+        saving.value = true;
         loading.value = true;
         errorMsg.value = '';
-        const appToast = useAppToast();
+        clearFormErrors();
         const editModeState = isEditMode.value;
+        const savedName = form.value.strategicObjective || form.value.code || '';
 
         try {
             const baseUrl = getAuditServiceBaseUrl();
+            const body = buildStrategicPlanPayload(form.value);
             if (editModeState) {
                 await $fetch(`${baseUrl}/strategic-plans/${form.value.id}`, {
                     method: 'PUT',
-                    body: form.value
+                    body
                 });
             } else {
                 await $fetch(`${baseUrl}/strategic-plans`, {
                     method: 'POST',
-                    body: form.value
+                    body
                 });
             }
-
-            const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
-            if (idx !== -1) {
-                strategicObjectives.value[idx] = { ...form.value } as StrategicAuditPlan;
-            } else {
-                strategicObjectives.value.push({ ...form.value, id: String(Date.now()) } as StrategicAuditPlan);
-            }
-
-            await fetchStrategicPlans();
-            toast.showSuccess(
-                editModeState ? t('strategicPlan.toast.updatedTitle') : t('strategicPlan.toast.createdTitle'),
-                t('strategicPlan.toast.savedDesc', { name: form.value.strategicObjective || form.value.code || '' })
-            );
-            closeModal();
         } catch (error: any) {
+            // Nothing was saved: the list stays as it is and the modal stays open with the input, so the user can fix and retry.
             console.error('Failed to save strategic plan:', error);
             const detail = extractErrorMessage(error, t('strategicPlan.toast.saveFailedFallback'));
-            errorMsg.value = detail;
+            formError.value = detail;
+            const field = strategicPlanErrorField(error, detail);
+            if (field) formFieldErrors.value = { [field]: detail };
             toast.showError(t('strategicPlan.toast.saveFailedTitle'), detail);
-
-            const idx = strategicObjectives.value.findIndex(o => String(o.id) === String(form.value.id));
-            if (idx !== -1) {
-                strategicObjectives.value[idx] = { ...form.value } as StrategicAuditPlan;
-            } else {
-                strategicObjectives.value.push({ ...form.value, id: String(Date.now()) } as StrategicAuditPlan);
-            }
-            closeModal();
-        } finally {
+            saving.value = false;
             loading.value = false;
+            return;
         }
+
+        // Saved: show the list as the server has it now (with the server's id) rather than the local form.
+        toast.showSuccess(
+            editModeState ? t('strategicPlan.toast.updatedTitle') : t('strategicPlan.toast.createdTitle'),
+            t('strategicPlan.toast.savedDesc', { name: savedName })
+        );
+        saving.value = false;
+        closeModal();
+        await fetchStrategicPlans();
     };
 
     watch(() => form.value.periodType, (newType) => {
@@ -433,6 +444,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         isViewModalOpen, selectedViewObjective, openViewModal, closeViewModal,
         unitOptions, yearOptions, availablePeriods, computedCalculation, computedStatus,
         getRowActions, openModal, closeModal, handleEdit, handleDelete, handleSubmit,
-        fetchStrategicPlans, fetchStrategicPlanById, loading, errorMsg
+        fetchStrategicPlans, fetchStrategicPlanById, loading, saving, errorMsg,
+        formError, formFieldErrors, clearFormErrors
     };
 });

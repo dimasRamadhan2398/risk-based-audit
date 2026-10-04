@@ -348,7 +348,7 @@
       "subtitle": "Kelola detail akun pribadi dan preferensi Anda.",
       "changePhoto": "Ubah Foto",
       "remove": "Hapus Foto",
-      "fileLimits": "JPG, PNG, WebP atau GIF. Maksimal {size}MB.",
+      "fileLimits": "JPG, PNG atau WebP. Maksimal {size}MB. Foto akan dipotong menjadi persegi dan diperkecil secara otomatis.",
       "fullName": "Nama Lengkap",
       "fullNameHelp": "Nama tampilan Anda yang terlihat di seluruh aplikasi.",
       "fullNamePlaceholder": "Masukkan nama lengkap Anda",
@@ -367,7 +367,19 @@
       "toastSuccessTitle": "Profil Diperbarui",
       "toastSuccessDesc": "Informasi profil Anda telah berhasil disimpan ke server.",
       "toastErrorTitle": "Gagal Menyimpan",
-      "toastErrorDesc": "Terjadi kesalahan saat menyimpan profil."
+      "toastErrorDesc": "Terjadi kesalahan saat menyimpan profil.",
+      "avatarInvalidType": "Format tidak didukung. Silakan pilih gambar JPG, PNG, atau WebP.",
+      "avatarTooLargeInput": "Ukuran file terlalu besar. Ukuran maksimal adalah {size}MB.",
+      "avatarReadFailed": "Gagal membaca gambar. Silakan pilih file lain.",
+      "avatarTooLargeOutput": "Foto masih terlalu besar setelah diperkecil. Silakan pilih gambar yang lebih sederhana.",
+      "avatarRejected": "Server menolak foto tersebut. Silakan pilih gambar JPG, PNG, atau WebP yang lain.",
+      "avatarReady": "{name} siap digunakan. Klik Simpan Perubahan untuk menerapkannya.",
+      "avatarRemovePending": "Foto akan dihapus setelah Anda mengklik Simpan Perubahan.",
+      "avatarProcessing": "Memproses foto...",
+      "departmentSearchPlaceholder": "Cari departemen...",
+      "departmentsEmpty": "Departemen tidak ditemukan",
+      "departmentsLoadFailed": "Daftar departemen tidak dapat dimuat.",
+      "departmentsRetry": "Coba lagi"
     },
     "mfa": {
       "title": "Autentikasi Dua Faktor (2FA / MFA)",
@@ -597,7 +609,12 @@
       "savedDesc": "Rencana Strategis \"{name}\" berhasil disimpan.",
       "saveFailedTitle": "Gagal Menyimpan Rencana Strategis",
       "saveFailedFallback": "Gagal menyimpan rencana strategis.",
-      "loadOneFailed": "Gagal memuat rencana strategis."
+      "loadOneFailed": "Gagal memuat rencana strategis.",
+      "confirmDelete": "Apakah Anda yakin ingin menghapus rencana strategis ini?",
+      "deletedTitle": "Rencana Strategis Dihapus",
+      "deletedDesc": "Data berhasil dihapus secara permanen.",
+      "deleteFailedTitle": "Gagal Menghapus Rencana Strategis",
+      "deleteFailedFallback": "Gagal menghapus rencana strategis."
     },
     "vmg": {
       "title": "Visi, Misi, Goals dan Strategic Objective",
@@ -651,7 +668,8 @@
       "actual": "Realisasi",
       "calculation": "Hitungan",
       "status": "Keterangan",
-      "actions": "Aksi"
+      "actions": "Aksi",
+      "category": "Kategori"
     },
     "actions": {
       "title": "Aksi",
@@ -695,7 +713,9 @@
       "status": "Keterangan",
       "cancel": "Batal",
       "submit": "Simpan",
-      "update": "Perbarui"
+      "update": "Perbarui",
+      "category": "Kategori",
+      "selectCategory": "Pilih kategori (opsional)"
     },
     "viewModal": {
       "title": "Detail Strategic Objective",
@@ -2478,7 +2498,8 @@
         "completedOfStarted": "{completed} selesai / {started} dimulai",
         "responsesFrom": "{responses} respons dari {audits} audit selesai",
         "totalRecommendations": "{count} total rekomendasi terdaftar"
-      }
+      },
+      "noData": "Belum ada data"
     },
     "charts": {
       "monthlyCompletionRate": "Tingkat Penyelesaian Bulanan",
@@ -2498,7 +2519,8 @@
         "oct": "Okt",
         "nov": "Nov",
         "dec": "Des"
-      }
+      },
+      "noData": "Belum ada data tren untuk {year}"
     },
     "table": {
       "title": "Rincian Detail KPI",
@@ -2946,6 +2968,7 @@
       "TOKEN_EXPIRED": "Sesi Anda telah berakhir. Silakan masuk kembali.",
       "INVALID_TOKEN": "Sesi Anda tidak lagi valid. Silakan masuk kembali.",
       "COMPANY_TAX_ID_ALREADY_EXISTS": "NPWP ini sudah terdaftar pada perusahaan lain.",
+      "INVALID_AVATAR": "Foto profil tidak dapat digunakan. Pilih gambar PNG, JPEG, atau WebP lalu coba lagi.",
       "VALIDATION_FAILED": "Beberapa isian belum diisi atau tidak valid. Periksa kembali formulir, lalu coba lagi.",
       "INVALID_REQUEST_BODY": "Data yang dikirim tidak dapat diproses. Periksa kembali formulir, lalu coba lagi.",
       "INVALID_ID": "Referensi data tidak valid. Muat ulang halaman, lalu coba lagi.",
