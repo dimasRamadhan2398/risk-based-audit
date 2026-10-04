@@ -178,12 +178,6 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
 
-      // Transform planned activities to match backend expectations
-      const transformedActivities = formState.value.plannedActivities.map(activity => ({
-        ...activity,
-        budgetEstimation: String(activity.budgetEstimation)
-      }));
-
       const fileList = formState.value.file && formState.value.file.length > 0
         ? formState.value.file.map((f: any) => ({
           name: f.name,
@@ -194,7 +188,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
 
       const payload = {
         ...formState.value,
-        plannedActivities: transformedActivities,
+        plannedActivities: formState.value.plannedActivities,
         attachments: isEditMode.value ? (formState.value.attachments || []).concat(fileList) : fileList
       };
 

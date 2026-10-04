@@ -8,17 +8,17 @@ import (
 )
 
 type PlannedActivity struct {
-	ID                string `json:"id"`
-	AuditName         string `json:"auditName"`
-	Auditee           string `json:"auditee"`
-	Category          string `json:"category"`
-	RiskName          string `json:"riskName"`
-	RiskLevel         string `json:"riskLevel"`
-	Duration          int    `json:"duration"`
-	Priority          string `json:"priority"`
-	NumberOfAuditors  int    `json:"numberOfAuditors"`
-	EstimatedSchedule string `json:"estimatedSchedule"`
-	BudgetEstimation  string `json:"budgetEstimation"`
+	ID                string  `json:"id"`
+	AuditName         string  `json:"auditName"`
+	Auditee           string  `json:"auditee"`
+	Category          string  `json:"category"`
+	RiskName          string  `json:"riskName"`
+	RiskLevel         string  `json:"riskLevel"`
+	Duration          int     `json:"duration"`
+	Priority          string  `json:"priority"`
+	NumberOfAuditors  int     `json:"numberOfAuditors"`
+	EstimatedSchedule string  `json:"estimatedSchedule"`
+	BudgetEstimation  float64 `json:"budgetEstimation"`
 }
 
 type ResourceAuditor struct {

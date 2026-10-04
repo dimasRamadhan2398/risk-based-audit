@@ -274,7 +274,7 @@
                         <AppDatePicker v-model="activity.estimatedSchedule" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.budgetEstimation')">
-                        <UInput v-model="activity.budgetEstimation" type="number" class="w-full">
+                        <UInput v-model="activity.budgetEstimation" type="number" class="w-full [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden [&[type=number]]:appearance-none">
                           <template #trailing>
                             <span class="text-xs text-gray-400 dark:text-gray-500 font-medium select-none pr-1">
                               {{ t('auditActivityPlan.form.millionRupiah') }}
