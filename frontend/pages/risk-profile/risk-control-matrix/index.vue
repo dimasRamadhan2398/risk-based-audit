@@ -729,6 +729,7 @@ const rcmStore = useRCMStore()
 const riskProfileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()
 const toast = useToastNotification()
+const { fiscalYears } = useFiscalYear()
 
 const searchQuery = ref('')
 const showRatingTable = ref(true)
@@ -775,11 +776,12 @@ const mitigationOptionsForModal = computed(() => {
   }))
 })
 
-const yearOptions = [
-  { label: 'Tahun 2026', value: 2026 },
-  { label: 'Tahun 2025', value: 2025 },
-  { label: 'Tahun 2024', value: 2024 }
-]
+const yearOptions = computed(() => {
+  return fiscalYears.value.map(y => ({
+    label: `Tahun ${y}`,
+    value: y
+  }))
+})
 
 const departmentOptions = [
   { label: 'Semua Departemen / Branch', value: 'All Departments' },

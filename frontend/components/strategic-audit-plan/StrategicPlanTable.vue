@@ -151,6 +151,7 @@ import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
 import type { StrategicAuditPlan } from '~/types/audit'
+import { getFiscalYears } from '~/composables/useFiscalYear'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
@@ -190,11 +191,7 @@ const periodTypeOptions = computed(() => [
 
 const yearFilterOptions = computed(() => [
   { label: t('strategicPlan.filters.allYears'), value: 'ALL' },
-  { label: '2024', value: '2024' },
-  { label: '2025', value: '2025' },
-  { label: '2026', value: '2026' },
-  { label: '2027', value: '2027' },
-  { label: '2028', value: '2028' },
+  ...getFiscalYears().map(y => ({ label: String(y), value: String(y) }))
 ])
 
 const quartalFilterOptions = computed(() => [

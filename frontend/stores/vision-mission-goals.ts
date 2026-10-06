@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import type { VisionMissionGoals, Company } from '~/types/master'
 import { extractErrorMessage } from '~/utils/error'
+import { getFiscalYears } from '~/composables/useFiscalYear'
 
 export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', () => {
   // Config
@@ -25,15 +26,12 @@ export const useVisionMissionGoalsStore = defineStore('vision-mission-goals', ()
     misis: [''] as string[],
     goals: [{ id: '', goal_code: 'G-001', goal_name: '' }] as Array<{ id?: string; goal_code: string; goal_name: string }>,
     yearStart: new Date().getFullYear(),
-    yearEnd: new Date().getFullYear() + 4
+    yearEnd: new Date().getFullYear() + 3
   })
 
-  // Year options for dropdown (e.g. from current year - 10 to current year + 20)
+  // Dynamic 5-year fiscal year options for dropdown
   const currentYear = new Date().getFullYear()
-  const yearOptions = Array.from({ length: 31 }, (_, i) => {
-    const year = currentYear - 10 + i
-    return { label: String(year), value: year }
-  })
+  const yearOptions = getFiscalYears().map(y => ({ label: String(y), value: y }))
 
   // Fetch all companies and then fetch the active VMG
   const fetchCompaniesAndVmg = async () => {

@@ -126,7 +126,7 @@
         <UFormField :label="t('riskProfile.fiscalYear')" size="sm" class="font-bold w-1/2">
           <USelect
             v-model.number="store.selectedYear"
-            :items="[2025, 2026, 2027]"
+            :items="fiscalYears"
             icon="i-heroicons-calendar"
             class="w-full"
           />
@@ -265,7 +265,15 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <tr v-if="filteredRisks.length === 0">
+                      <td colspan="14" class="py-12 text-center text-gray-500 dark:text-gray-400">
+                        <UIcon name="i-heroicons-inbox" class="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                        <p class="font-medium text-sm">{{ t('riskProfile.emptyTitle', { year: store.selectedYear }) }}</p>
+                        <p class="text-xs text-gray-400 mt-1">{{ t('riskProfile.emptyDesc') }}</p>
+                      </td>
+                    </tr>
                     <tr 
+                      v-else
                       v-for="(risk, index) in filteredRisks" 
                       :key="risk.id" 
                       class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 text-center font-medium"
@@ -316,7 +324,32 @@
 
             <!-- Tabs: Priority / All List -->
             <div v-else>
+              <div 
+                v-if="getTabRisks(item.key).length === 0" 
+                class="text-center py-12 px-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 space-y-3"
+              >
+                <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                  <UIcon name="i-heroicons-inbox" class="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200">
+                    {{ t('riskProfile.emptyTitle', { year: store.selectedYear }) }}
+                  </h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">
+                    {{ t('riskProfile.emptyDesc') }}
+                  </p>
+                </div>
+                <UButton
+                  icon="i-heroicons-plus"
+                  :label="t('riskProfile.addRisk')"
+                  color="primary"
+                  size="sm"
+                  variant="outline"
+                  @click="isAddModalOpen = true"
+                />
+              </div>
               <TransitionGroup 
+                v-else
                 name="list" 
                 tag="div" 
                 class="space-y-3"
@@ -617,11 +650,13 @@ import {
   likelihoodLabels 
 } from '~/stores/risk-profile'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { useFiscalYear } from '~/composables/useFiscalYear'
 
 const store = useRiskProfileStore()
 const { getRiskLevel, getRiskScore } = store
 const { t } = useI18n()
 const toast = useToastNotification()
+const { fiscalYears } = useFiscalYear()
 
 // Local state for UI
 const dragOverCell = ref(null)

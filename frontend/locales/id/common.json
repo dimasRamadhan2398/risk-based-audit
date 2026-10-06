@@ -1177,6 +1177,8 @@
       "all": "Semua Risiko ({count})",
       "progress": "Kemajuan Kuartalan"
     },
+    "emptyTitle": "Belum ada data risiko untuk tahun {year}",
+    "emptyDesc": "Data risiko 3 tahun ke depan dikosongkan dan harus diinput oleh user.",
     "detailModal": {
       "title": "Detail Risiko - {id}",
       "desc": "Tampilan komprehensif dari kejadian risiko dan penilaiannya.",

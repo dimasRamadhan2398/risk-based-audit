@@ -4,13 +4,14 @@ import { useUploadPerformanceReportStore } from '~/stores/upload-performance-rep
 import { useI18n } from '~/composables/useI18n'
 import { useToast } from '#imports'
 import TableEntities from '~/components/shared/TableEntities.vue'
+import { getFiscalYears } from '~/composables/useFiscalYear'
 
 const { t, locale } = useI18n()
 const store = useUploadPerformanceReportStore()
 const toast = useToast()
 
 const selectedPeriodFilter = ref('Semua')
-const selectedYearFilter = ref('2026')
+const selectedYearFilter = ref(new Date().getFullYear().toString())
 const periodFilterOptions = computed(() => [
   { label: t('kpiPerformance.upload.filterAll'), value: 'Semua' },
   { label: 'Q1', value: 'Q1' },
@@ -19,12 +20,12 @@ const periodFilterOptions = computed(() => [
   { label: 'Q4', value: 'Q4' },
   { label: t('kpiPerformance.upload.annual'), value: 'Tahunan' }
 ])
-const yearOptions = [2024, 2025, 2026, 2027, 2028]
+const yearOptions = getFiscalYears()
 
 const form = ref({
   title: '',
   period: 'Q1',
-  year: 2026,
+  year: new Date().getFullYear(),
   description: '',
   fileName: '',
   fileType: '',

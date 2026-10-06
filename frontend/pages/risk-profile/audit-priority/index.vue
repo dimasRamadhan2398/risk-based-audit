@@ -66,13 +66,11 @@
               {{ t('auditPriority.selectYear') !== 'auditPriority.selectYear' ? t('auditPriority.selectYear') : 'Audit Year' }}
             </p>
             <div class="flex items-center gap-2 mt-1.5">
-              <UInput
+              <USelect
                 v-model.number="selectedYear"
-                type="number"
+                :items="fiscalYears"
                 size="sm"
-                class="w-24 font-bold"
-                :min="2020"
-                :max="2035"
+                class="w-28 font-bold"
               />
               <UButton
                 icon="i-lucide-refresh-cw"
@@ -361,12 +359,14 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
+import { useFiscalYear } from '~/composables/useFiscalYear'
 
 const store = useAuditUniverseStore()
 const { t } = useI18n()
 
 // State
-const selectedYear = ref(2026)
+const { fiscalYears, selectedFiscalYear } = useFiscalYear()
+const selectedYear = selectedFiscalYear
 const searchQuery = ref('')
 const statusFilter = ref<'all' | 'prioritized' | 'non_prioritized'>('all')
 const alertMessage = ref('')

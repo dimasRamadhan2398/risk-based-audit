@@ -6,6 +6,7 @@ import { useMitigationStore } from '~/stores/mitigation-risk'
 import { RiskLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { useFiscalYear } from '~/composables/useFiscalYear'
 
 export interface RCMItem {
   id: string
@@ -138,6 +139,8 @@ export const computeInherentVsResidualByDepartment = (
   rawRisks: any[] = [],
   year: number
 ): DepartmentRiskExposure[] => {
+  const currentYear = new Date().getFullYear()
+  const isFutureYear = year > currentYear
   const groups = new Map<string, { inherent: number, residual: number, count: number }>()
 
   ;(rawRisks || []).forEach((risk: any) => {
@@ -145,6 +148,11 @@ export const computeInherentVsResidualByDepartment = (
     if (!department) return
 
     const assessment = risk.assessments?.find((a: any) => a.year === year)
+    if (isFutureYear && !assessment) {
+      // Future year risks must be inputted by user; exclude risks without an assessment for that year
+      return
+    }
+
     const baseImpact = risk.impact ?? 0
     const baseLikelihood = risk.likelihood ?? 0
 
@@ -226,7 +234,8 @@ export const useRCMStore = defineStore('rcm', () => {
   const config = useRuntimeConfig()
   const riskProfileStore = useRiskProfileStore()
   const rcmList = ref<RCMItem[]>([])
-  const selectedYear = ref(2026)
+  const { selectedFiscalYear } = useFiscalYear()
+  const selectedYear = selectedFiscalYear
   const selectedDepartment = ref('All Departments')
   const loading = ref(false)
   const errorMsg = ref('')
@@ -294,8 +303,12 @@ export const useRCMStore = defineStore('rcm', () => {
 
   // Filtered RCM list by selected year & department
   const filteredRCMList = computed(() => {
+    const currentYear = new Date().getFullYear()
+    const isFutureYear = selectedYear.value > currentYear
+
     return rcmList.value.filter(item => {
-      const matchYear = !item.year || item.year === selectedYear.value
+      const itemYear = item.year || (isFutureYear ? null : 2026)
+      const matchYear = itemYear === selectedYear.value
       const matchDept = selectedDepartment.value === 'All Departments' || item.department === selectedDepartment.value
       return matchYear && matchDept
     })
@@ -311,16 +324,22 @@ export const useRCMStore = defineStore('rcm', () => {
       return r.branch === selectedDepartment.value || r.category === selectedDepartment.value
     })
 
+    if (filteredRisks.length === 0) {
+      return {
+        inherent: 0,
+        residual: 0
+      }
+    }
+
     // Inherent Risks: Priority risks (Moderate, Moderate to High, High)
     const priorityRisks = filteredRisks.filter(r => {
       const lvl = riskProfileStore.getRiskLevel(r.likelihood, r.impact)
       return lvl === RiskLevel.MODERATE || lvl === RiskLevel.MODERATE_HIGH || lvl === RiskLevel.HIGH
     })
 
-    const inherentCount = priorityRisks.length || (filteredRisks.length > 0 ? filteredRisks.length : 20)
+    const inherentCount = priorityRisks.length || filteredRisks.length
 
     // Residual Risks: Remaining high/moderate risks after mitigation
-    // We compute residual risk score or count from assessments (Q4 / end of year)
     const residualRisks = priorityRisks.filter(r => {
       const assessment = r.assessments?.find((a: any) => a.year === selectedYear.value)
       const q4Impact = assessment?.impact_q4 ?? r.impact
@@ -329,8 +348,7 @@ export const useRCMStore = defineStore('rcm', () => {
       return q4Level === RiskLevel.MODERATE || q4Level === RiskLevel.MODERATE_HIGH || q4Level === RiskLevel.HIGH
     })
 
-    // Fallback calculation: If Q4 assessment isn't updated yet, simulate mitigation reduction
-    const residualCount = residualRisks.length > 0 ? residualRisks.length : Math.max(1, Math.round(inherentCount * 0.4))
+    const residualCount = residualRisks.length
 
     return {
       inherent: inherentCount,
@@ -559,6 +577,7 @@ export const useRCMStore = defineStore('rcm', () => {
     columns,
     totalInherentRisk,
     totalResidualRisk,
+    synchronizedRiskCounts,
     inherentVsResidualByDepartment,
     internalControlEffectiveness,
     effectivenessRating,

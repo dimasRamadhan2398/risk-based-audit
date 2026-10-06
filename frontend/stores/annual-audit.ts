@@ -7,6 +7,7 @@ import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/use
 import type { TablePagination } from '~/types/common'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
@@ -92,7 +93,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const selectedStatus = ref<AnnualAuditPlanStatus | undefined>(undefined)
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
-  const yearOptions = ['2026', '2027', '2028', '2029', '2030']
+  const yearOptions = getFiscalYearStrings()
   const departmentOptions = Object.values(AuditDepartment)
   const statusOptions = Object.values(AnnualAuditPlanStatus)
 
@@ -303,7 +304,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const generateAutoCode = () => {
     if (isEditing.value) return
 
-    const yr = form.year || yearOptions[0] || new Date().getFullYear().toString()
+    const yr = form.year || new Date().getFullYear().toString()
     const catCode = getCategoryCode(form.activities[0]?.category)
 
     const seq = (plans.value.length + 1).toString().padStart(3, '0')
@@ -324,7 +325,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     editingId.value = null
 
     clearValidationErrors()
-    const defaultYear = yearOptions[0] || new Date().getFullYear().toString()
+    const defaultYear = new Date().getFullYear().toString()
 
     Object.assign(form, {
       code: '',
@@ -586,7 +587,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.year = plan.year || ''
 
     if (!form.code) {
-      const yr = form.year || yearOptions[0] || new Date().getFullYear().toString()
+      const yr = form.year || new Date().getFullYear().toString()
       const catCode = getCategoryCode(form.activities[0]?.category)
       const seq = (plans.value.length + 1).toString().padStart(3, '0')
       form.code = `PKAT-${yr}-${catCode}-${seq}`

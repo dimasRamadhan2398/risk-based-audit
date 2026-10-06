@@ -5,6 +5,7 @@ import type { StrategicAuditPlan } from "~/types/audit";
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { extractErrorMessage } from '~/utils/error';
 import { useI18n } from '~/composables/useI18n';
+import { getFiscalYears } from '~/composables/useFiscalYear';
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
@@ -37,10 +38,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     ];
 
     const currentYear = new Date().getFullYear();
-    const yearOptions = Array.from({ length: 20 }, (_, i) => {
-        const year = currentYear - 5 + i;
-        return { label: String(year), value: year };
-    });
+    const yearOptions = getFiscalYears().map(y => ({ label: String(y), value: y }));
 
     const form = ref<Partial<StrategicAuditPlan>>({
         code: '',
@@ -52,7 +50,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         periodType: 'Quartal',
         selectedPeriod: 'Q1',
         yearStart: currentYear,
-        yearEnd: currentYear + 4,
+        yearEnd: currentYear + 3,
         kpiTargets: {},
         kpiActuals: {},
         internalAuditSO: '',

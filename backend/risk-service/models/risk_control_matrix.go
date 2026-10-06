@@ -18,7 +18,7 @@ type RiskControlMatrix struct {
 	ControlType        string         `gorm:"type:varchar(30);not null" json:"control_type"` // Preventive, Detective, Corrective
 	ControlOwner       string         `gorm:"type:varchar(100);not null" json:"control_owner"`
 	Department         string         `gorm:"type:varchar(100);not null" json:"department"`
-	Year               int            `gorm:"type:int;not null;default:2026" json:"year"`
+	Year               int            `gorm:"type:int;not null" json:"year"`
 
 	// COSO 2013 5 Dimensions (Weight % & Rating 1-5)
 	DesignEffectivenessWeight    float64 `gorm:"type:decimal(5,2);default:20.0" json:"design_effectiveness_weight"`

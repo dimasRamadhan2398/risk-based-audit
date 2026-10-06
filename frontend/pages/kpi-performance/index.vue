@@ -10,6 +10,7 @@ import { useUploadPerformanceReportStore } from '~/stores/upload-performance-rep
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { extractErrorMessage } from '~/utils/error'
 import { useI18n } from '~/composables/useI18n'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 const { t, locale } = useI18n()
 
@@ -17,9 +18,9 @@ const perfStore = usePerformanceStore()
 const spStore = useStrategicPlanStore()
 const uploadStore = useUploadPerformanceReportStore()
 
-const year = ref('2026')
+const year = ref(new Date().getFullYear().toString())
 const selectedPeriod = ref('Semua')
-const yearOptions = ['2024', '2025', '2026', '2027', '2028', '2029', '2030']
+const yearOptions = getFiscalYearStrings()
 // 'Semua' and 'Tahunan' are data values (compared in the store and sent to the API); only the label is translated.
 const periodOptions = computed(() => [
   { label: t('kpiPerformance.upload.filterAll'), value: 'Semua' },

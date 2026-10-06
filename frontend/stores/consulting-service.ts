@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import { extractErrorMessage } from '~/utils/error'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 export interface ConsultingAttachment {
   name: string
@@ -39,14 +40,14 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
   const statuses = ['Planned', 'In Progress', 'Completed', 'Cancelled']
   const departments = ['IT', 'Finance', 'HR', 'Ops', 'Procurement', 'Legal', 'Sales']
   const quarters = ['Q1', 'Q2', 'Q3', 'Q4']
-  const years = ['2024', '2025', '2026', '2027']
+  const years = getFiscalYearStrings()
 
   const newService = reactive({
     title: '',
     category: 'Operational Advisory',
     requestorDept: 'IT',
     periodQuarter: 'Q1',
-    periodYear: '2026',
+    periodYear: new Date().getFullYear().toString(),
     consultantName: '',
     status: 'Planned',
     notes: '',
@@ -59,7 +60,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       category: 'Operational Advisory',
       requestorDept: 'IT',
       periodQuarter: 'Q1',
-      periodYear: '2026',
+      periodYear: new Date().getFullYear().toString(),
       consultantName: '',
       status: 'Planned',
       notes: '',

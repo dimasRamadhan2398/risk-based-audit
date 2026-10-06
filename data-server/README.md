@@ -13,7 +13,23 @@ Platform data analytics terpusat untuk **AuditSphere (PT Bina Audita Indonesia)*
 * **VPN IP (WireGuard):** `10.0.0.1/24`
 * **Audit Server Peer:** `202.10.34.166` (`10.0.0.2/24`)
 
-### Topologi Jaringan & Keamanan
+### 1.1 Arsitektur Solusi Eksekutif (Untuk Direksi & Pitching Klien Enterprise)
+
+Diagram arsitektur tingkat tinggi yang dirancang khusus untuk presentasi kepada jajaran Direksi, Komite Audit, serta *sales pitch* ke calon klien perbankan/korporat. Diagram ini menonjolkan alur nilai bisnis, pengujian 100% populasi, otomasi kerja audit, serta jaminan keamanan data *bank-grade*.
+
+![Arsitektur Solusi Eksekutif & Value Delivery](docs/images/data_server_executive_architecture.png)
+
+#### 4 Pilar Nilai Solusi AuditSphere:
+1. **Universal & Non-Intrusif Ingestion:** Terhubung ke Core Banking (CBS), LOS Kredit, ERP/GL, dan SLIK OJK dengan akun *100% Read-Only* tanpa membebani server produksi (*zero-impact*).
+2. **Audit Lakehouse Multi-Zona (Medallion):** Repositori anti-tamper (Bronze bukti hukum mentah, Silver data terintegrasi & rekonsiliasi, Gold data mart siap analisis super cepat).
+3. **Otak Analitik & AI Hub:** Menguji 100% populasi transaksi melalui 12+ modul CAATT otomatis (Benford's Law, Fuzzy Match benturan kepentingan) serta model AI (Isolation Forest anomaly & IndoBERT memo parser).
+4. **Ruang Kontrol Direksi & Auditor Suite:** Menampilkan *Enterprise Risk Heatmap* real-time satu layar bagi Direksi, sekaligus memangkas siklus kerja auditor hingga 70% melalui otomasi KKA & LHA 1-klik.
+
+---
+
+### 1.2 Topologi Teknis & Infrastruktur Jaringan (Untuk Tim IT & DevOps)
+
+Diagram topologi mendalam mengenai pengkabelan jaringan virtual privat (WireGuard VPN), pemetaan port container Docker, dan segmentasi service backend.
 
 ![Topologi Jaringan & Server Data Hub](docs/images/data_server_topology_architecture.png)
 

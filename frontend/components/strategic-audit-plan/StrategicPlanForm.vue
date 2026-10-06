@@ -84,33 +84,6 @@
             </UFormField>
             </div>
 
-            <!-- Period Type Radio -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">
-                {{ t('strategicPlan.form.periodType') }} <span class="text-orange-500">*</span>
-              </label>
-              <div class="flex flex-col gap-2">
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    v-model="store.form.periodType"
-                    value="Quartal"
-                    class="accent-orange-500 w-4 h-4"
-                  />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.quartal') }}</span>
-                </label>
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    v-model="store.form.periodType"
-                    value="Yearly"
-                    class="accent-orange-500 w-4 h-4"
-                  />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.yearly') }}</span>
-                </label>
-              </div>
-            </div>
-
             <!-- Periode: Dari Tahun / Sampai Tahun -->
             <div class="form-row">
               <label class="form-label text-gray-700 dark:text-white">{{ t('strategicPlan.form.period') }}</label>

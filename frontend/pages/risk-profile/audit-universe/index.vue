@@ -325,7 +325,7 @@
                     <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ t('auditUniverse.establish.targetYear') }}</span>
                     <USelect
                       v-model.number="selectedYear"
-                      :items="[2025, 2026, 2027, 2028]"
+                      :items="fiscalYears"
                       size="sm"
                       color="neutral"
                       class="w-24"
@@ -390,6 +390,7 @@ import { useRiskFactorsStore } from '~/stores/risk-factors'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { useFiscalYear } from '~/composables/useFiscalYear'
 
 const store = useAuditUniverseStore()
 const riskFactorsStore = useRiskFactorsStore()
@@ -416,9 +417,14 @@ watch(() => route.query.tab, (newTab) => {
 })
 
 // State
-const selectedYear = ref(2026)
+const { fiscalYears, selectedFiscalYear } = useFiscalYear()
+const selectedYear = selectedFiscalYear
 const alertMessage = ref('')
 const alertType = ref('success')
+
+watch(selectedYear, async () => {
+  await fetchYearlyUniverse()
+})
 
 // Local state for Yearly selection checkboxes
 const selectedYearlyIDs = ref<string[]>([])

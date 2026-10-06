@@ -594,6 +594,7 @@ import { useRiskProfileStore } from '~/stores/risk-profile'
 import { AuditCategory, AuditDepartment } from '~/types/audit';
 import { useI18n } from '~/composables/useI18n'
 import ReusableButton from '~/components/shared/ReusableButton.vue'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 const { t } = useI18n()
 const store = useActivityPlanStore()
@@ -602,14 +603,7 @@ const riskStore = useRiskProfileStore()
 const currentStep = ref(0)
 const stepError = ref('')
 
-const yearOptions = computed(() => {
-  const currentYear = new Date().getFullYear()
-  const options = []
-  for (let i = currentYear - 1; i <= currentYear + 5; i++) {
-    options.push(i.toString())
-  }
-  return options
-})
+const yearOptions = computed(() => getFiscalYearStrings())
 
 const steps = computed(() => [
   { key: 'basic', label: t('auditActivityPlan.stepper.step1'), icon: 'i-heroicons-information-circle' },

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"risk-service/models"
 	"risk-service/repositories"
 
@@ -239,7 +241,7 @@ func (s *riskService) Create(req *RiskRequest) (*RiskResponse, error) {
 		ast := models.RiskAssessment{
 			ID:             uuid.New(),
 			RiskRegisterID: regID,
-			Year:           2026,
+			Year:           time.Now().Year(),
 			ImpactQ1:       req.Impact,
 			ImpactQ2:       req.Impact,
 			ImpactQ3:       req.Impact,

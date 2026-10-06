@@ -3,6 +3,7 @@ import { ref, computed, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
 import { extractErrorMessage } from '~/utils/error'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
@@ -74,7 +75,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   const qaTypes = Object.values(QAType)
   const qaStatuses = Object.values(QAStatus)
-  const periods = ['2026', '2025', '2024', '2023']
+  const periods = getFiscalYearStrings()
 
   const parsePeriodWeight = (period?: string, createdAt?: string): number => {
     let year = 0
@@ -264,7 +265,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
     const reportData = {
       type: newReport.type,
-      period: newReport.periodYear || '2025',
+      period: newReport.periodYear || new Date().getFullYear().toString(),
       reportName: newReport.assessmentTitle,
       result: newReport.result,
       status: newReport.status,
@@ -554,7 +555,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     Object.assign(newReport, {
       type: selectedReport.value.type,
       assessmentTitle: selectedReport.value.assessmentTitle,
-      periodYear: selectedReport.value.period || '2025',
+      periodYear: selectedReport.value.period || new Date().getFullYear().toString(),
       status: selectedReport.value.status,
       conductedBy: selectedReport.value.conductedBy || '',
       result: selectedReport.value.result,

@@ -58,7 +58,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <UFormField label="Audit Year" class="md:col-span-4" required>
-                  <UInput v-model="store.form.auditYear" type="date" size="lg" class="flex-1 w-full" required/>
+                <USelectMenu v-model="store.form.auditYear" :items="yearOptions" size="lg" class="w-full" required />
               </UFormField>
             </div>
 
@@ -201,11 +201,13 @@
 <script setup lang="ts">
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useMasterOptionsStore } from '~/stores/master-options'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 const store = useAssignmentLetterStore()
 const masterOptions = useMasterOptionsStore()
 
 const categoryOptions = ['Assurance', 'Special Audit', 'Specific Reason', 'Consulting Services', 'Follow-Up Audit', 'Investigation', 'Quality Assurance Review']
+const yearOptions = computed(() => store.options.yearOptions || getFiscalYearStrings())
 
 const noneOption = { label: '— None (Default PT AIFL Indonesia) —', value: '__none__' }
 const companySelectItems = computed(() => [

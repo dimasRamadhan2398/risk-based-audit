@@ -1178,6 +1178,8 @@
       "all": "All Risks ({count})",
       "progress": "Quarterly Progress"
     },
+    "emptyTitle": "No risk data available for year {year}",
+    "emptyDesc": "Risk profile data for future years must be inputted by the user.",
     "detailModal": {
       "title": "Risk Details - {id}",
       "desc": "Comprehensive view of the risk event and its assessments.",

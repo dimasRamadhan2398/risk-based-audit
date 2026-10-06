@@ -56,10 +56,11 @@ type MonthlyTrendResponse struct {
 
 // GetDashboardSummary returns calculated actuals vs strategic plan targets for 4 core KPI cards
 func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	// 1. Fetch Strategic Plan targets for reference
@@ -380,10 +381,11 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 // GetCompletionAnalysis returns the full drill-down from the analyzer.
 // GET /api/v1/performance/completion-analysis?year=2026
 func (c *PerformanceStatsController) GetCompletionAnalysis(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	// Try cache first
@@ -419,10 +421,11 @@ func (c *PerformanceStatsController) GetCompletionAnalysis(ctx *gin.Context) {
 // useful for populating the monthly completion trend chart.
 // GET /api/v1/performance/completion-history?year=2026
 func (c *PerformanceStatsController) GetCompletionHistory(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	var snapshots []models.AuditCompletionSnapshot
@@ -480,10 +483,11 @@ func (c *PerformanceStatsController) GetCompletionHistory(ctx *gin.Context) {
 
 // GetMonthlyTrends returns 12-month aggregated trends for Bar and Line charts
 func (c *PerformanceStatsController) GetMonthlyTrends(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	labels := []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
@@ -544,10 +548,11 @@ func (c *PerformanceStatsController) GetMonthlyTrends(ctx *gin.Context) {
 
 // ExportPdfReport renders an executive PDF report matching the app design system
 func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	nowStr := time.Now().Format("02 January 2006, 15:04 MST")

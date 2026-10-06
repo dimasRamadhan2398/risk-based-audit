@@ -4,6 +4,7 @@ import { RiskLevel, ImpactLevel, PossibilityLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useLocationApi } from '~/composables/useLocationApi'
+import { useFiscalYear } from '~/composables/useFiscalYear'
 
 // --- Constants (Exported for components) ---
 
@@ -238,7 +239,8 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   const modalMode = ref('preview')
 
   // Year & Quarter State
-  const selectedYear = ref(2026)
+  const { selectedFiscalYear } = useFiscalYear()
+  const selectedYear = selectedFiscalYear
   const selectedPeriod = ref('Q1')
 
 
@@ -288,22 +290,33 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
 
   // Dynamic mapped risks based on selectedYear and selectedPeriod
   const risks = computed(() => {
-    return rawRisks.value.map(risk => {
-      const assessment = risk.assessments?.find((a: any) => a.year === selectedYear.value)
-      const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', etc.
+    const currentYear = new Date().getFullYear()
+    const isFutureYear = selectedYear.value > currentYear
 
-      const impact = (assessment && assessment[`impact_${periodKey}`]) ? assessment[`impact_${periodKey}`] : risk.impact
-      const likelihood = (assessment && assessment[`likelihood_${periodKey}`]) ? assessment[`likelihood_${periodKey}`] : risk.likelihood
+    return rawRisks.value
+      .filter(risk => {
+        if (isFutureYear) {
+          // Data 3 tahun kedepan dikosongkan terlebih dahulu karena harus diinput oleh user
+          return risk.assessments?.some((a: any) => a.year === selectedYear.value)
+        }
+        return true
+      })
+      .map(risk => {
+        const assessment = risk.assessments?.find((a: any) => a.year === selectedYear.value)
+        const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', etc.
 
-      const riskLevel = assessment ? assessment[`risk_level_${periodKey}`] : 'Low'
+        const impact = (assessment && assessment[`impact_${periodKey}`]) ? assessment[`impact_${periodKey}`] : risk.impact
+        const likelihood = (assessment && assessment[`likelihood_${periodKey}`]) ? assessment[`likelihood_${periodKey}`] : risk.likelihood
 
-      return {
-        ...risk,
-        impact: impact || 3,
-        likelihood: likelihood || 3,
-        riskLevel: riskLevel || 'Low'
-      }
-    })
+        const riskLevel = assessment ? assessment[`risk_level_${periodKey}`] : 'Low'
+
+        return {
+          ...risk,
+          impact: impact || 3,
+          likelihood: likelihood || 3,
+          riskLevel: riskLevel || 'Low'
+        }
+      })
   })
 
   // Load risks from backend
@@ -426,6 +439,29 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     } catch (error: any) {
       console.error('Failed to add risk:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to add risk.')
+      const fallbackRisk = {
+        ...newRiskData,
+        id: rawRisks.value.length + 1,
+        displayId: rawRisks.value.length + 1,
+        assessments: newRiskData.assessments || [
+          {
+            year: selectedYear.value,
+            impact_q1: newRiskData.impact_q1 || newRiskData.impact || 3,
+            impact_q2: newRiskData.impact_q2 || newRiskData.impact || 3,
+            impact_q3: newRiskData.impact_q3 || newRiskData.impact || 3,
+            impact_q4: newRiskData.impact_q4 || newRiskData.impact || 3,
+            likelihood_q1: newRiskData.likelihood_q1 || newRiskData.likelihood || 3,
+            likelihood_q2: newRiskData.likelihood_q2 || newRiskData.likelihood || 3,
+            likelihood_q3: newRiskData.likelihood_q3 || newRiskData.likelihood || 3,
+            likelihood_q4: newRiskData.likelihood_q4 || newRiskData.likelihood || 3,
+            risk_level_q1: 'Low',
+            risk_level_q2: 'Low',
+            risk_level_q3: 'Low',
+            risk_level_q4: 'Low'
+          }
+        ]
+      }
+      rawRisks.value.push(fallbackRisk)
     } finally {
       loading.value = false
     }

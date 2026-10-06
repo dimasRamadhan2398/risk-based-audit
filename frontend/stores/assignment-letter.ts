@@ -5,6 +5,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error';
 import { getAuditServiceBaseUrl as resolveAuditUrl } from '~/composables/useApiUrl';
 import { useI18n } from '~/composables/useI18n';
+import { getFiscalYearStrings } from '~/composables/useFiscalYear';
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
@@ -16,6 +17,7 @@ export interface AssignmentLetterState {
     auditTeam: { value: string, label: string }[];
     workingUnit: string[];
     role: string[];
+    yearOptions: string[];
   };
   loading: boolean;
   errorMsg: string;
@@ -211,6 +213,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       ],
       workingUnit: ['Production', 'Marketing', 'Finance', 'IT', 'Operations', 'Procurement', 'Maintenance'],
       role: ['Person in Charge', 'Supervisor', 'Chairperson', 'Member'],
+      yearOptions: getFiscalYearStrings()
     }
   }),
 
