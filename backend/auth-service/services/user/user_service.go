@@ -2,6 +2,9 @@ package services
 
 import (
 	"context"
+	"encoding/base64"
+	"net/http"
+	"regexp"
 	"strings"
 
 	"auth-service/models"
@@ -17,7 +20,7 @@ import (
 // UserServiceInterface defines the user service interface
 type UserServiceInterface interface {
 	CreateUser(ctx context.Context, req *models.CreateUserRequest) error
-	UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) error
+	UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) (*models.UserResponse, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	GetUser(ctx context.Context, id uuid.UUID) (*models.UserResponse, error)
 	ListUsers(ctx context.Context, req *models.ListUsersRequest) ([]*models.UserResponse, *utils.PaginationResponse, error)
@@ -80,14 +83,51 @@ func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequ
 	return nil
 }
 
-// UpdateUser updates a user
-func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) error {
-	user, err := s.userRepo.FindByID(id)
-	if err != nil {
-		return err
+// MaxAvatarDataURLLength caps the avatar data URL string (about 220 KB of image bytes).
+const MaxAvatarDataURLLength = 300000
+
+var avatarDataURLPattern = regexp.MustCompile(`^data:image/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$`)
+
+// invalidAvatar builds the 400 error returned when avatar_url is not acceptable.
+func invalidAvatar(msg string) *errors.AppError {
+	return errors.New("INVALID_AVATAR", msg, http.StatusBadRequest)
+}
+
+// ValidateAvatarDataURL validates a non-empty avatar data URL.
+func ValidateAvatarDataURL(v string) error {
+	if len(v) > MaxAvatarDataURLLength {
+		return invalidAvatar("avatar_url is too large (max 300000 characters)")
+	}
+	m := avatarDataURLPattern.FindStringSubmatch(v)
+	if m == nil {
+		return invalidAvatar("avatar_url must be a data URL like data:image/(png|jpeg|webp);base64,<data>")
+	}
+	if dec, err := base64.StdEncoding.DecodeString(m[2]); err != nil || len(dec) == 0 {
+		return invalidAvatar("avatar_url contains invalid base64 data")
+	}
+	return nil
+}
+
+func avatarOrEmpty(p *string) string {
+	if p == nil {
+		return ""
+	}
+	return *p
+}
+
+// UpdateUser updates a user. Only fields present in the request are changed.
+func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) (*models.UserResponse, error) {
+	if req.AvatarURL != nil && *req.AvatarURL != "" {
+		if err := ValidateAvatarDataURL(*req.AvatarURL); err != nil {
+			return nil, err
+		}
 	}
 
-	// Update fields
+	user, err := s.userRepo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
 	if req.FullName != nil {
 		user.FullName = *req.FullName
 	}
@@ -103,14 +143,22 @@ func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.
 	if req.IsActive != nil {
 		user.IsActive = *req.IsActive
 	}
+	if req.AvatarURL != nil {
+		if *req.AvatarURL == "" {
+			user.AvatarURL = nil
+		} else {
+			v := *req.AvatarURL
+			user.AvatarURL = &v
+		}
+	}
 
 	if err := s.userRepo.Update(user); err != nil {
 		s.LogError("Failed to update user", utils.LogField("error", err))
-		return errors.ErrInternalServer
+		return nil, errors.ErrInternalServer
 	}
 
 	s.LogInfo("User updated successfully", utils.LogField("user_id", user.ID))
-	return nil
+	return s.userToResponse(user), nil
 }
 
 // DeleteUser deletes a user
@@ -279,6 +327,7 @@ func (s *UserService) userToResponse(user *models.User) *models.UserResponse {
 		Department: user.Department,
 		Position:   user.Position,
 		IsActive:   user.IsActive,
+		AvatarURL:  avatarOrEmpty(user.AvatarURL),
 		Roles:      roles,
 		MustChangePassword: user.MustChangePassword,
 		CreatedAt:  user.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),

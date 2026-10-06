@@ -106,8 +106,22 @@ const store = useActivityPlanStore()
 const getOriginal = (row: any) => row.original as any
 
 const columns = computed(() => [
-  { accessorKey: 'planTitle', header: t('auditActivityPlan.table.title'), class: 'max-w-[280px] whitespace-normal break-words font-medium' },
-  { accessorKey: 'period', header: t('auditActivityPlan.table.period'), class: 'min-w-[220px] whitespace-nowrap' },
+  // First two columns are frozen (sticky) so the rest scrolls horizontally. Fixed widths keep the
+  // second column's left offset exact; same pattern as StrategicPlanTable.
+  {
+    accessorKey: 'planTitle',
+    header: t('auditActivityPlan.table.title'),
+    class: 'w-[160px] min-w-[160px] max-w-[160px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] whitespace-normal break-words font-medium sticky left-0',
+    thClass: 'z-20 !bg-[var(--bg-surface)]',
+    tdClass: 'z-10 bg-[var(--bg-main)]'
+  },
+  {
+    accessorKey: 'period',
+    header: t('auditActivityPlan.table.period'),
+    class: 'w-[150px] min-w-[150px] max-w-[150px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal sm:whitespace-nowrap sticky left-[160px] sm:left-[280px] border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+    thClass: 'z-20 !bg-[var(--bg-surface)]',
+    tdClass: 'z-10 bg-[var(--bg-main)]'
+  },
   { accessorKey: 'department', header: t('auditActivityPlan.table.department'), class: 'w-36' },
   { accessorKey: 'riskName', header: t('auditActivityPlan.table.riskName'), class: 'w-48' },
   { accessorKey: 'riskLevel', header: t('auditActivityPlan.table.riskLevel'), class: 'w-28 whitespace-nowrap' },

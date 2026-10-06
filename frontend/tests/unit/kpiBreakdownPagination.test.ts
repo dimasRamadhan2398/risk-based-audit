@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import { createApp, defineComponent, h, nextTick, type App } from 'vue'
 import { setActivePinia, createPinia } from 'pinia'
 import en from '~/locales/en/common.json'
 import id from '~/locales/id/common.json'
@@ -18,15 +19,21 @@ import {
   kpiBreakdownRange,
   kpiBreakdownRangeText,
   kpiCategoryText,
+  kpiFilterMenuValues,
   kpiGapClass,
-  kpiStatusColor
+  kpiStatusColor,
+  parseKpiBreakdownFilters
 } from '~/utils/kpiBreakdown'
+import KpiDetailedTable from '~/components/kpi-performance/KpiDetailedTable.vue'
 
 const showInfo = vi.fn()
 const showError = vi.fn()
 vi.mock('~/components/shared/ToastNotification.vue', () => ({
   useToastNotification: () => ({ showSuccess: vi.fn(), showError, showWarning: vi.fn(), showInfo })
 }))
+// The table is mounted below without the plan form and with a read-only user.
+vi.mock('~/components/strategic-audit-plan/StrategicPlanForm.vue', () => ({ default: { render: () => null } }))
+vi.mock('~/composables/useRbac', () => ({ useRbac: () => ({ canManageStrategicPlan: { value: false } }) }))
 
 // Same lookup semantics as composables/useI18n.ts: missing key returns the key itself.
 const makeT = (dict: object): TranslateFn => (key, params) => {
@@ -76,7 +83,7 @@ const item = (n: number, extra: Record<string, unknown> = {}) => ({
 })
 
 /** A fake backend for a data set of `total` rows, honouring page / page_size like the real one. */
-const pagedBackend = (total: number) => fake(async (_url: string, opts: FetchOpts = {}) => {
+const pagedBackend = (total: number, filters?: unknown) => fake(async (_url: string, opts: FetchOpts = {}) => {
   const page = Number(opts.params?.page ?? 1)
   const pageSize = Number(opts.params?.page_size ?? 10)
   const start = (page - 1) * pageSize
@@ -86,7 +93,8 @@ const pagedBackend = (total: number) => fake(async (_url: string, opts: FetchOpt
     message: 'ok',
     data: {
       items: Array.from({ length: count }, (_, i) => item(start + i + 1)),
-      pagination: { page, page_size: pageSize, total, total_pages: total ? Math.ceil(total / pageSize) : 0 }
+      pagination: { page, page_size: pageSize, total, total_pages: total ? Math.ceil(total / pageSize) : 0 },
+      ...(filters === undefined ? {} : { filters })
     }
   }
 })
@@ -308,24 +316,156 @@ describe('KPI breakdown store: stale, empty and error responses', () => {
     g.$fetch = fake(async () => ({
       success: true,
       data: {
-        items: [item(1), item(2, { period: 'Tahunan' }), item(3, { period: '2026' }), item(4, { category: 'Financial' })],
-        pagination: { page: 1, page_size: 10, total: 4, total_pages: 1 }
+        items: [item(1), item(2, { period: 'Tahunan', source: 'kpi_achievement' }), item(3, { category: 'Financial' })],
+        pagination: { page: 1, page_size: 10, total: 3, total_pages: 1 },
+        filters: { categories: ['Financial'], periods: ['Q1', 'Tahunan'] }
       }
     }))
     const store = usePerformanceStore()
     await store.loadKpiBreakdown(2026)
-    expect(store.kpiBreakdown.map(r => r.category)).toEqual(['', '', '', 'Financial'])
-    expect(store.kpiBreakdownCategories).toEqual(['Financial'])
-    expect(store.kpiBreakdownPeriods).toEqual(['Q1', 'Tahunan', '2026'])
+    expect(store.kpiBreakdown.map(r => r.category)).toEqual(['', '', 'Financial'])
     expect(kpiCategoryText(kpiValueLabel(tEn, 'categories', ''))).toBe('-')
     expect(kpiCategoryText(kpiValueLabel(tId, 'categories', 'Financial'))).toBe('Keuangan')
   })
+})
 
-  it('with only "" categories there are no category filter options', async () => {
+describe('KPI breakdown filter options come from data.filters', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('uses data.filters as sent (server order), not the values seen in the loaded page', async () => {
+    // The page only has Q1 / "" rows; the year has more categories and periods than this page shows.
+    const filters = { categories: ['Efficiency', 'Financial', 'Quality'], periods: ['2026', 'Q1', 'Q2', 'Tahunan'] }
+    g.$fetch = pagedBackend(30, filters)
+    const store = usePerformanceStore()
+    await store.loadKpiBreakdown(2026)
+    expect(store.kpiBreakdownFilters).toEqual(filters)
+
+    // Paging or filtering does not narrow the menus: they are whatever the latest response lists.
+    await store.setKpiBreakdownPage(3)
+    await store.setKpiBreakdownFilters({ category: 'Financial' })
+    expect(store.kpiBreakdownFilters).toEqual(filters)
+  })
+
+  it('a category picked from the options is sent as the category filter', async () => {
+    g.$fetch = pagedBackend(30, { categories: ['Financial', 'Quality'], periods: ['Q1'] })
+    const store = usePerformanceStore()
+    await store.loadKpiBreakdown(2026)
+    const picked = nth(store.kpiBreakdownFilters.categories, 1)
+    await store.setKpiBreakdownFilters({ category: picked })
+    expect(lastParams()).toEqual({ year: 2026, page: 1, page_size: 10, category: 'Quality' })
+  })
+
+  it('missing filters (older backend) or empty lists give no options', async () => {
     g.$fetch = pagedBackend(5)
     const store = usePerformanceStore()
     await store.loadKpiBreakdown(2026)
-    expect(store.kpiBreakdownCategories).toEqual([])
+    expect(store.kpiBreakdownFilters).toEqual({ categories: [], periods: [] })
+
+    g.$fetch = pagedBackend(5, { categories: [], periods: [] })
+    await store.fetchKpiBreakdown()
+    expect(store.kpiBreakdownFilters).toEqual({ categories: [], periods: [] })
+  })
+
+  it('a year change drops the previous year\'s options until the new response arrives', async () => {
+    g.$fetch = pagedBackend(5, { categories: ['Financial'], periods: ['Q1'] })
+    const store = usePerformanceStore()
+    await store.loadKpiBreakdown(2026)
+    let resolveNext: (v: unknown) => void = () => {}
+    g.$fetch = fake(() => new Promise((resolve) => {
+      resolveNext = resolve
+    }))
+    const pending = store.loadKpiBreakdown(2025)
+    expect(store.kpiBreakdownFilters).toEqual({ categories: [], periods: [] })
+    resolveNext({ success: true, data: { items: [], pagination: { page: 1, page_size: 10, total: 0, total_pages: 0 }, filters: { categories: [], periods: ['Tahunan'] } } })
+    await pending
+    expect(store.kpiBreakdownFilters).toEqual({ categories: [], periods: ['Tahunan'] })
+  })
+
+  it('parseKpiBreakdownFilters drops blanks, non-strings and duplicates and tolerates junk', () => {
+    expect(parseKpiBreakdownFilters(undefined)).toEqual({ categories: [], periods: [] })
+    expect(parseKpiBreakdownFilters(null)).toEqual({ categories: [], periods: [] })
+    expect(parseKpiBreakdownFilters('x')).toEqual({ categories: [], periods: [] })
+    expect(parseKpiBreakdownFilters({ categories: 'Financial', periods: null })).toEqual({ categories: [], periods: [] })
+    expect(parseKpiBreakdownFilters({ categories: ['Financial', '', ' ', 3, 'Financial'], periods: ['Q2', 'Q1'] }))
+      .toEqual({ categories: ['Financial'], periods: ['Q2', 'Q1'] })
+  })
+
+  it('menu values: the options, plus an active value so it can still be cleared', () => {
+    expect(kpiFilterMenuValues([], '')).toEqual([])
+    expect(kpiFilterMenuValues(['Financial'], '')).toEqual(['Financial'])
+    expect(kpiFilterMenuValues([], 'Quality')).toEqual(['Quality'])
+  })
+})
+
+// Minimal stand-ins for the Nuxt UI components the table renders; a select menu exposes its placeholder and items.
+const stub = (name: string, props: string[] = []) => defineComponent({
+  name,
+  props,
+  setup: (p, { slots }) => () => h('div', { 'data-stub': name }, slots.default?.())
+})
+const SelectMenuStub = defineComponent({
+  props: ['modelValue', 'items', 'placeholder'],
+  setup: p => () => h('div', { 'data-stub': 'USelectMenu', 'data-placeholder': p.placeholder, 'data-items': JSON.stringify(p.items) })
+})
+
+describe('KpiDetailedTable: category and period menus', () => {
+  let app: App | null = null
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    g.getAuditServiceBaseUrl = () => '/api/v1'
+  })
+  afterEach(() => {
+    app?.unmount()
+    app = null
+    document.body.innerHTML = ''
+  })
+
+  const mountTable = async (filters?: unknown) => {
+    const breakdown = pagedBackend(3, filters)
+    g.$fetch = fake(async (url, opts) => url.includes('/performance/kpi-breakdown') ? breakdown(url, opts) : { success: true, data: { items: [] } })
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    app = createApp({ render: () => h(KpiDetailedTable, { year: 2026 }) })
+    app.use(createPinia())
+    for (const name of ['UButton', 'UInput', 'USelect', 'UTable', 'UTooltip', 'UIcon', 'UPagination']) app.component(name, stub(name))
+    app.component('USelectMenu', SelectMenuStub)
+    app.mount(container)
+    await flush()
+    await nextTick()
+    const menus = Array.from(container.querySelectorAll('[data-stub="USelectMenu"]'))
+    const menu = (placeholder: string) => {
+      const el = menus.find(m => m.getAttribute('data-placeholder') === placeholder)
+      return el ? JSON.parse(el.getAttribute('data-items') || '[]') as Array<{ label: string, value: string }> : null
+    }
+    return {
+      category: menu(en.kpiPerformance.table.selectCategory),
+      period: menu(en.kpiPerformance.table.selectPeriod),
+      status: menu(en.kpiPerformance.table.selectStatus)
+    }
+  }
+
+  it('shows category and period menus with the options from data.filters ("Tahunan" via its label)', async () => {
+    const menus = await mountTable({ categories: ['Financial', 'Quality'], periods: ['Q1', 'Tahunan'] })
+    expect(menus.category).toEqual([{ label: 'Financial', value: 'Financial' }, { label: 'Quality', value: 'Quality' }])
+    expect(menus.period).toEqual([{ label: 'Q1', value: 'Q1' }, { label: en.kpiPerformance.upload.annual, value: 'Tahunan' }])
+    expect(menus.status).not.toBeNull()
+  })
+
+  it('hides both menus when data.filters is missing (older backend)', async () => {
+    const menus = await mountTable()
+    expect(menus.category).toBeNull()
+    expect(menus.period).toBeNull()
+    expect(menus.status).not.toBeNull()
+  })
+
+  it('hides a menu whose list is empty', async () => {
+    const menus = await mountTable({ categories: [], periods: ['Q1'] })
+    expect(menus.category).toBeNull()
+    expect(menus.period).toEqual([{ label: 'Q1', value: 'Q1' }])
   })
 })
 
@@ -369,8 +509,12 @@ describe('KPI breakdown display helpers', () => {
     expect(kpiGapClass({ gap: 5, gapIsPositive: true, status: 'No Target' })).toContain('text-gray-900')
   })
 
-  it('the table no longer builds rows itself (no merge, index category or mock rows)', () => {
+  it('the table no longer builds rows itself (no merge, index category or mock rows) and does not recompute status', () => {
     const src = readFileSync(resolve(__dirname, '../../components/kpi-performance/KpiDetailedTable.vue'), 'utf8')
+    // Status / achievement come from the API (HIB is handled there); the table only maps them to labels and colours.
+    expect(src).not.toMatch(/achievementRate/)
+    expect(src).not.toMatch(/hibHig/)
+    expect(src).not.toMatch(/status\s*=\s*['"](Exceeded|On Track|Needs Attention)/)
     expect(src).not.toMatch(/categories\.length/)
     expect(src).not.toMatch(/mockData/)
     expect(src).not.toMatch(/strategicObjectives/)

@@ -284,16 +284,6 @@
                   />
                   {{ store.scheduleWarning }}
                 </div>
-                <div
-                  v-if="store.quarterAlert"
-                  class="flex items-center gap-2 text-error-600 p-4 m-4 rounded-lg text-sm border border-error-200"
-                >
-                  <UIcon
-                    name="alert"
-                    class=" text-error-500"
-                  />
-                  {{ store.quarterAlert }}
-                </div>
 
                 <div class="text-sm text-gray-600 p-4 m-4 rounded border">
                   <span class="font-bold">Distribusi Triwulan:</span>
@@ -503,7 +493,7 @@
               :label="store.isEditing ? 'Update Plan' : 'Save Plan'"
               color="primary"
               class="w-full sm:w-auto font-bold"
-              :disabled="!!store.quarterAlert || store.utilizationData.color === 'red'"
+              :disabled="store.utilizationData.color === 'red'"
             />
           </div>
         </div>

@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { kpiMonthLabel } from '~/utils/kpiPerformanceLabels'
+import { hasSeriesData, kpiChartSeries } from '~/utils/kpiPerformanceDisplay'
 import { usePerformanceStore } from '~/stores/performance'
-import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import {
   Chart as ChartJS,
   Title,
@@ -37,52 +37,27 @@ const props = defineProps({
 
 const { t } = useI18n()
 const perfStore = usePerformanceStore()
-const spStore = useStrategicPlanStore()
-
-const findSpMetric = (keywords: string[]) => {
-  if (!spStore.strategicObjectives || spStore.strategicObjectives.length === 0) return null
-  return spStore.strategicObjectives.find((item: any) => {
-    const kpiName = (item.kpi || item.strategicObjective || '').toLowerCase()
-    return keywords.some(kw => kpiName.includes(kw.toLowerCase()))
-  })
-}
 
 // Month labels may come from the API as English abbreviations; translate known ones, keep others as-is.
 const monthLabel = (label: string) => kpiMonthLabel(t, label)
 
-const barChartData = computed(() => {
-  let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-  let monthlyData = [85, 90, 95, 92, 98, 100]
+// Only GET /performance/monthly-trends data; with no series the chart shows an empty state instead.
+const series = computed(() => kpiChartSeries(perfStore.monthlyTrends))
+const hasCompletionData = computed(() => hasSeriesData(series.value.completion))
+const hasTrendData = computed(() => hasSeriesData(series.value.timeliness, series.value.csat))
 
-  if (perfStore.monthlyTrends && perfStore.monthlyTrends.completion_rate_series && perfStore.monthlyTrends.completion_rate_series.length > 0) {
-    labels = perfStore.monthlyTrends.labels
-    monthlyData = perfStore.monthlyTrends.completion_rate_series
-  } else {
-    const spMonthly = findSpMetric(['monthly completion', 'completion rate', 'pkat'])
-    const actualVal = parseFloat(spMonthly?.actual || '95')
-    monthlyData = [
-      Math.round(actualVal * 0.88),
-      Math.round(actualVal * 0.92),
-      Math.round(actualVal * 0.95),
-      Math.round(actualVal * 0.93),
-      Math.round(actualVal * 0.98),
-      Math.min(100, Math.round(actualVal))
-    ]
-  }
-
-  return {
-    labels: labels.map(monthLabel),
-    datasets: [
-      {
-        label: t('kpiPerformance.charts.monthlyCompletionRate'),
-        backgroundColor: '#4D00FF',
-        borderRadius: 4,
-        data: monthlyData,
-        barPercentage: 0.6
-      }
-    ]
-  }
-})
+const barChartData = computed(() => ({
+  labels: series.value.labels.map(monthLabel),
+  datasets: [
+    {
+      label: t('kpiPerformance.charts.monthlyCompletionRate'),
+      backgroundColor: '#4D00FF',
+      borderRadius: 4,
+      data: series.value.completion,
+      barPercentage: 0.6
+    }
+  ]
+}))
 
 const barChartOptions = {
   responsive: true,
@@ -117,69 +92,33 @@ const barChartOptions = {
   }
 }
 
-const lineChartData = computed(() => {
-  let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-  let timelinessData = [85, 87, 90, 88, 92, 98]
-  let csatData = [4.2, 4.3, 4.5, 4.4, 4.6, 4.7]
-
-  if (perfStore.monthlyTrends && perfStore.monthlyTrends.timeliness_series && perfStore.monthlyTrends.timeliness_series.length > 0) {
-    labels = perfStore.monthlyTrends.labels
-    timelinessData = perfStore.monthlyTrends.timeliness_series
-    csatData = perfStore.monthlyTrends.csat_series
-  } else {
-    const spTimeliness = findSpMetric(['report timeliness', 'timeliness', 'lha'])
-    const timelinessActual = parseFloat(spTimeliness?.actual || '98')
-
-    const spCsat = findSpMetric(['client satisfaction', 'auditee satisfaction', 'csat'])
-    const csatActual = parseFloat(spCsat?.actual || '4.7')
-
-    timelinessData = [
-      Math.round(timelinessActual * 0.88),
-      Math.round(timelinessActual * 0.90),
-      Math.round(timelinessActual * 0.93),
-      Math.round(timelinessActual * 0.91),
-      Math.round(timelinessActual * 0.96),
-      Math.min(100, Math.round(timelinessActual))
-    ]
-
-    csatData = [
-      parseFloat((csatActual * 0.90).toFixed(1)),
-      parseFloat((csatActual * 0.92).toFixed(1)),
-      parseFloat((csatActual * 0.96).toFixed(1)),
-      parseFloat((csatActual * 0.94).toFixed(1)),
-      parseFloat((csatActual * 0.98).toFixed(1)),
-      Math.min(5.0, parseFloat(csatActual.toFixed(1)))
-    ]
-  }
-
-  return {
-    labels: labels.map(monthLabel),
-    datasets: [
-      {
-        label: t('kpiPerformance.charts.timeliness'),
-        borderColor: '#10B981',
-        backgroundColor: '#10B981',
-        pointBackgroundColor: '#10B981',
-        pointBorderColor: '#10B981',
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        data: timelinessData,
-        yAxisID: 'y'
-      },
-      {
-        label: t('kpiPerformance.charts.csatScore'),
-        borderColor: '#F97316',
-        backgroundColor: '#F97316',
-        pointBackgroundColor: '#F97316',
-        pointBorderColor: '#F97316',
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        data: csatData,
-        yAxisID: 'y1'
-      }
-    ]
-  }
-})
+const lineChartData = computed(() => ({
+  labels: series.value.labels.map(monthLabel),
+  datasets: [
+    {
+      label: t('kpiPerformance.charts.timeliness'),
+      borderColor: '#10B981',
+      backgroundColor: '#10B981',
+      pointBackgroundColor: '#10B981',
+      pointBorderColor: '#10B981',
+      pointBorderWidth: 2,
+      pointRadius: 4,
+      data: series.value.timeliness,
+      yAxisID: 'y'
+    },
+    {
+      label: t('kpiPerformance.charts.csatScore'),
+      borderColor: '#F97316',
+      backgroundColor: '#F97316',
+      pointBackgroundColor: '#F97316',
+      pointBorderColor: '#F97316',
+      pointBorderWidth: 2,
+      pointRadius: 4,
+      data: series.value.csat,
+      yAxisID: 'y1'
+    }
+  ]
+}))
 
 const lineChartOptions = {
   responsive: true,
@@ -239,7 +178,23 @@ const lineChartOptions = {
         <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('kpiPerformance.charts.monthlyCompletionRate') }}</h3>
       </div>
       <div class="h-64">
-        <Bar :data="barChartData" :options="barChartOptions" />
+        <Bar
+          v-if="hasCompletionData"
+          :data="barChartData"
+          :options="barChartOptions"
+        />
+        <div
+          v-else
+          class="h-full flex flex-col items-center justify-center gap-2 text-center"
+        >
+          <UIcon
+            :name="perfStore.loading ? 'i-lucide-loader-2' : 'i-lucide-bar-chart-2'"
+            :class="['w-8 h-8 text-gray-400', perfStore.loading && 'animate-spin']"
+          />
+          <p class="text-sm font-medium text-gray-500">
+            {{ perfStore.loading ? t('kpiPerformance.table.loading') : t('kpiPerformance.charts.noData', { year: props.year }) }}
+          </p>
+        </div>
       </div>
     </UCard>
 
@@ -262,7 +217,23 @@ const lineChartOptions = {
         </div>
       </div>
       <div class="h-56">
-        <Line :data="lineChartData" :options="lineChartOptions" />
+        <Line
+          v-if="hasTrendData"
+          :data="lineChartData"
+          :options="lineChartOptions"
+        />
+        <div
+          v-else
+          class="h-full flex flex-col items-center justify-center gap-2 text-center"
+        >
+          <UIcon
+            :name="perfStore.loading ? 'i-lucide-loader-2' : 'i-lucide-activity'"
+            :class="['w-8 h-8 text-gray-400', perfStore.loading && 'animate-spin']"
+          />
+          <p class="text-sm font-medium text-gray-500">
+            {{ perfStore.loading ? t('kpiPerformance.table.loading') : t('kpiPerformance.charts.noData', { year: props.year }) }}
+          </p>
+        </div>
       </div>
     </UCard>
   </div>

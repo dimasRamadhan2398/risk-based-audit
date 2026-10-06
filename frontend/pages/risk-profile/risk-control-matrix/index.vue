@@ -151,7 +151,7 @@
       >
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-book-open" class="size-5 text-primary-600 dark:text-primary-400" />
-          <span class="font-bold text-slate-900 dark:text-white text-sm md:text-base">Tabel Standar Interpretasi Rating Efektivitas Kontrol Internal</span>
+          <span class="font-bold text-slate-900 dark:text-white text-sm md:text-base">{{ t('rcm.interpretationTable.toggle') }}</span>
         </div>
         <UIcon :name="showRatingTable ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5 text-slate-400 dark:text-slate-500" />
       </button>
@@ -161,46 +161,46 @@
           <table class="w-full text-left text-md border-collapse">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold">
-                <th class="py-2.5 px-4 rounded-l-lg whitespace-nowrap">Total Weighted Score (%)</th>
-                <th class="py-2.5 px-4 whitespace-nowrap">Rating</th>
-                <th class="py-2.5 px-4 rounded-r-lg">Interpretation</th>
+                <th class="py-2.5 px-4 rounded-l-lg whitespace-nowrap">{{ t('rcm.interpretationTable.headers.totalWeightedScore') }}</th>
+                <th class="py-2.5 px-4 whitespace-nowrap">{{ t('rcm.interpretationTable.headers.rating') }}</th>
+                <th class="py-2.5 px-4 rounded-r-lg">{{ t('rcm.interpretationTable.headers.interpretation') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                 <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">90 – 100%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Highly Effective</span>
+                  <span class="bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.highlyEffective') }}</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls reliably mitigate risk and require only routine monitoring.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.highlyEffective') }}</td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                 <td class="py-2.5 px-4 font-bold text-sky-600 dark:text-sky-400 whitespace-nowrap">80 – 89%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Effective</span>
+                  <span class="bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.effective') }}</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls function well; only minor improvements are recommended.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.effective') }}</td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                 <td class="py-2.5 px-4 font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">70 – 79%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Moderately Effective</span>
+                  <span class="bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.moderatelyEffective') }}</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Some weaknesses exist; corrective actions should be planned.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.moderatelyEffective') }}</td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                 <td class="py-2.5 px-4 font-bold text-orange-600 dark:text-orange-400 whitespace-nowrap">60 – 69%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Weak</span>
+                  <span class="bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.weak') }}</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Significant improvements are needed to reduce risk adequately.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.weak') }}</td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                 <td class="py-2.5 px-4 font-bold text-red-600 dark:text-red-400 whitespace-nowrap">&lt; 60%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">Ineffective</span>
+                  <span class="bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.ineffective') }}</span>
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">Controls do not provide sufficient risk mitigation and require immediate attention.</td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.ineffective') }}</td>
               </tr>
             </tbody>
           </table>
@@ -380,8 +380,9 @@
       }"
     >
       <template #content>
-        <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-          <div class="flex items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-2">
+        <div class="flex flex-col max-h-[85vh] overflow-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+          <!-- Header stays fixed; only the form body below scrolls -->
+          <div class="shrink-0 flex items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 px-6 py-4">
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">
               {{ isEditMode ? 'Edit Risk Control Matrix' : 'Tambah Risk Control Matrix Baru' }}
             </h3>
@@ -396,23 +397,9 @@
             />
           </div>
 
-          <!-- Synchronized Branch and Risk Selection from Corporate Risk Profile -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                Branch / Departemen
-              </label>
-              <USelectMenu
-                v-model="selectedBranchInModal"
-                :items="branchModalOptions"
-                value-key="value"
-                size="md"
-                class="w-full"
-                placeholder="Pilih Branch..."
-                @update:model-value="onBranchModalChange"
-              />
-            </div>
-
+          <div class="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
+          <!-- Risk selection from the Corporate Risk Profile -->
+          <div>
             <div>
               <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Pilih Nama Risiko (Corporate Risk Profile)
@@ -439,7 +426,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kode Risiko (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kode Risiko</label>
               <input
                 v-model="formData.risk_code"
                 type="text"
@@ -448,7 +435,7 @@
               />
             </div>
             <div>
-              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Departemen / Branch (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Departemen / Branch</label>
               <input
                 v-model="formData.department"
                 type="text"
@@ -459,7 +446,7 @@
           </div>
 
           <div>
-            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kejadian Risiko / Risk Event (Sinkron)</label>
+            <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">Kejadian Risiko / Risk Event</label>
             <textarea
               v-model="formData.risk_event"
               rows="2"
@@ -495,7 +482,7 @@
               />
             </div>
             <div>
-              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">PIC / Owner Kontrol (Sinkron)</label>
+              <label class="block text-md font-semibold text-slate-700 dark:text-slate-300 mb-1">PIC / Owner Kontrol</label>
               <input
                 v-model="formData.control_owner"
                 type="text"
@@ -666,6 +653,7 @@
               Simpan Kontrol Matrix
             </UButton>
           </div>
+          </div>
         </div>
       </template>
     </UModal>
@@ -713,6 +701,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, type RCMItem } from '~/stores/rcm'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
@@ -725,6 +714,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const { t } = useI18n()
 const rcmStore = useRCMStore()
 const riskProfileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()
@@ -737,23 +727,10 @@ const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
-const selectedBranchInModal = ref('All Branches')
 
-
-const branchModalOptions = [
-  { label: 'Semua Branch / Departemen', value: 'All Branches' },
-  { label: 'Head Office', value: 'Head Office' },
-  { label: 'Jakarta Branch', value: 'Jakarta Branch' },
-  { label: 'Surabaya Branch', value: 'Surabaya Branch' },
-  { label: 'Bandung Branch', value: 'Bandung Branch' },
-  { label: 'Bali Branch', value: 'Bali Branch' }
-]
-
+// Every risk in the Corporate Risk Profile; the department follows from the chosen risk.
 const riskOptionsForModal = computed(() => {
-  let list = riskProfileStore.risks || []
-  if (selectedBranchInModal.value && selectedBranchInModal.value !== 'All Branches') {
-    list = list.filter(r => (r.branch || r.category || 'Head Office') === selectedBranchInModal.value)
-  }
+  const list = riskProfileStore.risks || []
   return list.map(r => ({
     id: String(r.id),
     value: String(r.id),
@@ -971,49 +948,23 @@ const onControlSelected = (newVal?: any) => {
   }
 }
 
-const onBranchModalChange = (newBranch?: any) => {
-  const branch = typeof newBranch === 'object' && newBranch !== null ? (newBranch.value || newBranch.label) : (newBranch || selectedBranchInModal.value)
-  selectedBranchInModal.value = branch || 'All Branches'
-  
-  const available = riskOptionsForModal.value
-  if (available.length > 0) {
-    const stillValid = available.some(r => r.value === selectedRiskId.value)
-    if (!stillValid && available[0]) {
-      selectedRiskId.value = available[0].value
-      onRiskSelected(available[0].value)
-    }
-  } else {
-    selectedRiskId.value = ''
-    formData.value.risk_id = ''
-    formData.value.risk_code = ''
-    formData.value.risk_event = ''
-    formData.value.department = selectedBranchInModal.value !== 'All Branches' ? selectedBranchInModal.value : 'Head Office'
-  }
-}
-
 const openAddModal = () => {
   isEditMode.value = false
-  
-  if (rcmStore.selectedDepartment && rcmStore.selectedDepartment !== 'All Departments') {
-    selectedBranchInModal.value = rcmStore.selectedDepartment
-  } else {
-    selectedBranchInModal.value = 'All Branches'
-  }
 
   const defaultRisks = riskOptionsForModal.value
   const defaultRiskItem = defaultRisks.length > 0 && defaultRisks[0] ? riskProfileStore.getRiskById(defaultRisks[0].value) : (riskProfileStore.risks && riskProfileStore.risks.length > 0 ? riskProfileStore.risks[0] : undefined)
-  const defaultCode = defaultRiskItem ? riskProfileStore.getFormattedId(defaultRiskItem) : 'FIN-001'
-  const defaultEvent = defaultRiskItem ? defaultRiskItem.name : 'Target pendapatan dan laba tidak tercapai'
+  const defaultCode = defaultRiskItem ? riskProfileStore.getFormattedId(defaultRiskItem) : ''
+  const defaultEvent = defaultRiskItem ? defaultRiskItem.name : ''
   const defaultDept = defaultRiskItem ? (defaultRiskItem.branch || defaultRiskItem.category || 'Head Office') : 'Head Office'
 
   formData.value = {
     risk_id: defaultRiskItem ? String(defaultRiskItem.id) : '',
     risk_code: defaultCode,
     risk_event: defaultEvent,
-    control_code: 'CTL-' + defaultCode,
-    control_description: 'Review bulanan pencapaian KPI sales dan monitoring piutang usaha secara ketat.',
+    control_code: defaultCode ? 'CTL-' + defaultCode : '',
+    control_description: '',
     control_type: 'Preventive',
-    control_owner: 'Finance Manager',
+    control_owner: '',
     department: defaultDept,
     year: rcmStore.selectedYear,
     design_effectiveness_weight: 20,
@@ -1043,7 +994,6 @@ const openEditModal = (item: RCMItem) => {
   if (!formData.value.control_type) {
     formData.value.control_type = 'Preventive'
   }
-  selectedBranchInModal.value = item.department || 'All Branches'
   selectedRiskId.value = item.risk_id || ''
   isModalOpen.value = true
 }
@@ -1070,8 +1020,12 @@ const saveForm = async () => {
 
 const confirmDelete = async (id: string) => {
   if (await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus baris Risk Control Matrix ini?' })) {
-    await rcmStore.deleteRCMItem(id)
-    toast.showSuccess('Risk Control Matrix berhasil dihapus')
+    try {
+      await rcmStore.deleteRCMItem(id)
+      toast.showSuccess('Risk Control Matrix berhasil dihapus')
+    } catch (err: any) {
+      toast.showError(rcmStore.errorMsg || err?.message || 'Gagal menghapus data dari server.')
+    }
   }
 }
 </script>

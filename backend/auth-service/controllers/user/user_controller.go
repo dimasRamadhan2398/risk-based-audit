@@ -102,7 +102,8 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if err := ctrl.userService.UpdateUser(c.Request.Context(), id, &req); err != nil {
+	updated, err := ctrl.userService.UpdateUser(c.Request.Context(), id, &req)
+	if err != nil {
 		appErr, ok := err.(*apperrors.AppError)
 		if ok {
 			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
@@ -112,7 +113,7 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "User updated successfully", nil)
+	response.OK(c, "User updated successfully", updated)
 }
 
 // DeleteUser deletes a user

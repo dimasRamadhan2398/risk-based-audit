@@ -139,4 +139,19 @@ describe('Digital Working Paper (KKA) store holds no mock data', () => {
     await flush()
     expect(wp.filteredDataF04.map(c => c.id)).toEqual(['C1'])
   })
+
+  it('filtered F01–F05 stay empty until an assignment letter is selected', async () => {
+    const wp = useWorkingPaperStore()
+    wp.dataF01 = [{ id: 'H1', assignmentLetterId: LETTER }]
+    wp.dataF02 = [{ id: 'R1', workingPaperId: LETTER }]
+    wp.dataF03 = [{ id: 'S1', workingPaperId: LETTER }]
+    wp.dataF04 = [{ id: 'C1', workingPaperId: LETTER }]
+    wp.dataF05 = [{ id: 'P1', workingPaperId: LETTER }]
+    filtered(wp).forEach(list => expect(list).toEqual([]))
+
+    useAuditFieldworkStore().selectedAssignmentLetter = LETTER
+    await nextTick()
+    await flush()
+    filtered(wp).forEach(list => expect(list).toHaveLength(1))
+  })
 })

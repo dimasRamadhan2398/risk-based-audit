@@ -43,78 +43,6 @@ export const cosoDimensions = [
   { key: 'automation_monitoring', label: '5. Automation & Monitoring', shortLabel: 'Automation', ratingKey: 'automation_monitoring_rating' }
 ]
 
-export const initialRCMData: RCMItem[] = [
-  {
-    id: 'rcm-1',
-    risk_id: '1',
-    risk_code: 'FIN-001',
-    risk_event: 'Target pendapatan dan laba tidak tercapai',
-    control_code: 'CTL-FIN-001',
-    control_description: 'Review bulanan pencapaian KPI sales dan monitoring piutang usaha secara ketat.',
-    control_owner: 'Finance Manager',
-    department: 'Head Office',
-    year: 2026,
-    design_effectiveness_weight: 20,
-    design_effectiveness_rating: 4, // 16%
-    operating_effectiveness_weight: 20,
-    operating_effectiveness_rating: 3, // 12%
-    coverage_completeness_weight: 20,
-    coverage_completeness_rating: 4, // 16%
-    timeliness_weight: 20,
-    timeliness_rating: 3, // 12%
-    automation_monitoring_weight: 20,
-    automation_monitoring_rating: 2, // 8%
-    total_weighted_score: 64, // 64% -> Weak
-    notes: 'Internal control cukup efektif namun automasi monitoring perlu ditingkatkan.'
-  },
-  {
-    id: 'rcm-2',
-    risk_id: '3',
-    risk_code: 'TEC-003',
-    risk_event: 'Ancaman terhadap Cyber Security dan perlindungan data pribadi',
-    control_code: 'CTL-TEC-003',
-    control_description: 'Implementasi Multi-Factor Authentication (MFA) & vulnerability scanning mingguan.',
-    control_owner: 'IT Security Lead',
-    department: 'Head Office',
-    year: 2026,
-    design_effectiveness_weight: 20,
-    design_effectiveness_rating: 5, // 20%
-    operating_effectiveness_weight: 20,
-    operating_effectiveness_rating: 4, // 16%
-    coverage_completeness_weight: 20,
-    coverage_completeness_rating: 4, // 16%
-    timeliness_weight: 20,
-    timeliness_rating: 5, // 20%
-    automation_monitoring_weight: 20,
-    automation_monitoring_rating: 4, // 16%
-    total_weighted_score: 88, // 88% -> Effective
-    notes: 'Kontrol keamanan berjalan secara otomatis dan rutin dievaluasi.'
-  },
-  {
-    id: 'rcm-3',
-    risk_id: '4',
-    risk_code: 'FIN-004',
-    risk_event: 'Terjadinya fraud',
-    control_code: 'CTL-FIN-004',
-    control_description: 'Dual approval pada sistem transaksi pembayaran di atas Rp 50 juta & audit mendadak.',
-    control_owner: 'Head of Internal Audit',
-    department: 'Head Office',
-    year: 2026,
-    design_effectiveness_weight: 20,
-    design_effectiveness_rating: 4, // 16%
-    operating_effectiveness_weight: 20,
-    operating_effectiveness_rating: 4, // 16%
-    coverage_completeness_weight: 20,
-    coverage_completeness_rating: 4, // 16%
-    timeliness_weight: 20,
-    timeliness_rating: 4, // 16%
-    automation_monitoring_weight: 20,
-    automation_monitoring_rating: 3, // 12%
-    total_weighted_score: 76, // 76% -> Moderately Effective
-    notes: 'SOP otorisasi berjalan, perlu tindak lanjut log audit elektronik.'
-  }
-]
-
 export interface DepartmentRiskExposure {
   name: string
   inherentRisk: number
@@ -254,35 +182,15 @@ export const useRCMStore = defineStore('rcm', () => {
     { accessorKey: 'actions', id: 'actions', header: 'Aksi', class: 'w-[90px] min-w-[90px] text-center' }
   ]
 
-  const LOCAL_STORAGE_KEY = 'rcm_items_v2'
-
-  // Initialize from LocalStorage or Fallback
-  const initStoreData = () => {
-    if (import.meta.client) {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            rcmList.value = parsed
-            return
-          }
-        } catch (e) {
-          console.error('Failed to parse saved RCM items:', e)
-        }
-      }
-    }
-    rcmList.value = JSON.parse(JSON.stringify(initialRCMData))
-  }
-
-  const saveToLocalStorage = () => {
-    if (import.meta.client) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(rcmList.value))
+  // RCM rows come only from the risk-service API (no dummy data, no local cache).
+  // Clear the cache older builds kept in localStorage so stale rows can't resurface.
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.removeItem('rcm_items_v2')
+    } catch {
+      // storage unavailable (private mode etc.) — nothing to clear
     }
   }
-
-  initStoreData()
-
 
 
   // Calculate rating (1-5) to percentage (4%, 8%, 12%, 16%, 20%)
@@ -415,92 +323,77 @@ export const useRCMStore = defineStore('rcm', () => {
 
   const isValidUUID = (str?: string) => Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str))
 
-  // Fetch RCM list from backend if available
+  const withScore = (item: any): RCMItem => ({
+    ...item,
+    total_weighted_score: calculateItemScorePercent(item)
+  })
+
+  const buildPayload = (item: Partial<RCMItem>) => {
+    const payload: any = {
+      risk_code: item.risk_code,
+      risk_event: item.risk_event,
+      control_code: item.control_code,
+      control_description: item.control_description,
+      control_type: item.control_type || 'Preventive',
+      control_owner: item.control_owner || 'Department Lead',
+      department: item.department || 'Head Office',
+      year: item.year || selectedYear.value,
+      design_effectiveness_weight: item.design_effectiveness_weight || 20,
+      design_effectiveness_rating: item.design_effectiveness_rating || 3,
+      operating_effectiveness_weight: item.operating_effectiveness_weight || 20,
+      operating_effectiveness_rating: item.operating_effectiveness_rating || 3,
+      coverage_completeness_weight: item.coverage_completeness_weight || 20,
+      coverage_completeness_rating: item.coverage_completeness_rating || 3,
+      timeliness_weight: item.timeliness_weight || 20,
+      timeliness_rating: item.timeliness_rating || 3,
+      automation_monitoring_weight: item.automation_monitoring_weight || 20,
+      automation_monitoring_rating: item.automation_monitoring_rating || 3,
+      total_weighted_score: calculateItemScorePercent(item),
+      notes: item.notes || ''
+    }
+    if (isValidUUID(item.risk_id)) {
+      payload.risk_id = item.risk_id
+    }
+    return payload
+  }
+
+  // Fetch RCM list from the backend. Empty response → empty list; error → empty list + errorMsg.
   const fetchRCMList = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/rcm`)
-      if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
-        rcmList.value = response.data.map((item: any) => ({
-          ...item,
-          total_weighted_score: calculateItemScorePercent(item)
-        }))
-        saveToLocalStorage()
-      }
+      const items = Array.isArray(response?.data) ? response.data : []
+      rcmList.value = items.map(withScore)
     } catch (error: any) {
       console.warn('Failed to fetch RCM list from backend:', error)
+      rcmList.value = []
       errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data RCM dari server.')
     } finally {
       loading.value = false
     }
   }
 
-  // CRUD actions
+  // CRUD actions — the list only changes after the server confirms the write.
   const addRCMItem = async (newItem: Omit<RCMItem, 'id' | 'total_weighted_score'> & { id?: string }) => {
     loading.value = true
     errorMsg.value = ''
-    const scorePercent = calculateItemScorePercent(newItem)
-
-    const requestPayload: any = {
-      risk_code: newItem.risk_code,
-      risk_event: newItem.risk_event,
-      control_code: newItem.control_code,
-      control_description: newItem.control_description,
-      control_type: newItem.control_type || 'Preventive',
-      control_owner: newItem.control_owner || 'Department Lead',
-      department: newItem.department || 'Head Office',
-      year: newItem.year || selectedYear.value,
-      design_effectiveness_weight: newItem.design_effectiveness_weight || 20,
-      design_effectiveness_rating: newItem.design_effectiveness_rating || 3,
-      operating_effectiveness_weight: newItem.operating_effectiveness_weight || 20,
-      operating_effectiveness_rating: newItem.operating_effectiveness_rating || 3,
-      coverage_completeness_weight: newItem.coverage_completeness_weight || 20,
-      coverage_completeness_rating: newItem.coverage_completeness_rating || 3,
-      timeliness_weight: newItem.timeliness_weight || 20,
-      timeliness_rating: newItem.timeliness_rating || 3,
-      automation_monitoring_weight: newItem.automation_monitoring_weight || 20,
-      automation_monitoring_rating: newItem.automation_monitoring_rating || 3,
-      total_weighted_score: scorePercent,
-      notes: newItem.notes || ''
-    }
-
-    if (isValidUUID(newItem.risk_id)) {
-      requestPayload.risk_id = newItem.risk_id
-    }
-
-    // Temporary local ID in case offline
-    const tempId = `rcm-${Date.now()}`
-    const localItem: RCMItem = {
-      ...requestPayload,
-      id: tempId,
-      risk_id: newItem.risk_id
-    }
-
-    rcmList.value.unshift(localItem)
-    saveToLocalStorage()
-
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/rcm`, {
         method: 'POST',
-        body: requestPayload
+        body: buildPayload(newItem)
       })
-
-      if (response && (response.success || response.id)) {
-        const serverItem = response.data || response
-        if (serverItem && serverItem.id) {
-          localItem.id = serverItem.id
-          if (serverItem.risk_id) {
-            localItem.risk_id = serverItem.risk_id
-          }
-          saveToLocalStorage()
-        }
+      const serverItem = response?.data
+      if (serverItem?.id) {
+        rcmList.value.unshift(withScore(serverItem))
+      } else {
+        await fetchRCMList()
       }
     } catch (error: any) {
-      console.warn('Backend create error, saved locally.', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal menyimpan ke server backend, data disimpan lokal.')
+      console.warn('Backend create error:', error)
+      errorMsg.value = extractErrorMessage(error, 'Gagal menyimpan data RCM ke server.')
       throw error
     } finally {
       loading.value = false
@@ -510,39 +403,22 @@ export const useRCMStore = defineStore('rcm', () => {
   const updateRCMItem = async (updatedItem: RCMItem) => {
     loading.value = true
     errorMsg.value = ''
-    updatedItem.total_weighted_score = calculateItemScorePercent(updatedItem)
-    const idx = rcmList.value.findIndex(item => item.id === updatedItem.id)
-    if (idx !== -1) {
-      rcmList.value[idx] = { ...updatedItem }
-      saveToLocalStorage()
-    }
-
-    const requestPayload: any = {
-      ...updatedItem,
-      risk_id: isValidUUID(updatedItem.risk_id) ? updatedItem.risk_id : undefined,
-      control_type: updatedItem.control_type || 'Preventive'
-    }
-
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/rcm/${updatedItem.id}`, {
         method: 'PUT',
-        body: requestPayload
+        body: buildPayload(updatedItem)
       })
-      if (response && (response.success || response.id)) {
-        const serverItem = response.data || response
-        if (serverItem && idx !== -1) {
-          rcmList.value[idx] = {
-            ...rcmList.value[idx],
-            ...serverItem,
-            total_weighted_score: calculateItemScorePercent(serverItem)
-          }
-          saveToLocalStorage()
-        }
+      const serverItem = response?.data
+      const idx = rcmList.value.findIndex(item => item.id === updatedItem.id)
+      if (serverItem?.id && idx !== -1) {
+        rcmList.value[idx] = withScore(serverItem)
+      } else {
+        await fetchRCMList()
       }
     } catch (error: any) {
-      console.warn('Backend update error, updated locally.', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengupdate ke server backend, data diupdate lokal.')
+      console.warn('Backend update error:', error)
+      errorMsg.value = extractErrorMessage(error, 'Gagal mengupdate data RCM di server.')
       throw error
     } finally {
       loading.value = false
@@ -552,17 +428,15 @@ export const useRCMStore = defineStore('rcm', () => {
   const deleteRCMItem = async (id: string) => {
     loading.value = true
     errorMsg.value = ''
-    rcmList.value = rcmList.value.filter(item => item.id !== id)
-    saveToLocalStorage()
-
     try {
       const baseUrl = getRiskServiceBaseUrl()
       await $fetch(`${baseUrl}/rcm/${id}`, {
         method: 'DELETE'
       })
+      rcmList.value = rcmList.value.filter(item => item.id !== id)
     } catch (error: any) {
-      console.warn('Backend delete error, deleted locally.', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus dari server backend.')
+      console.warn('Backend delete error:', error)
+      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus data RCM dari server.')
       throw error
     } finally {
       loading.value = false

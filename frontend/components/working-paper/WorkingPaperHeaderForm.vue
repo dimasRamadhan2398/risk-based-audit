@@ -21,25 +21,9 @@
         </div>
 
         <div class="space-y-6 m-6">
-        <UFormField 
-            label="Assignment Letter" 
-            name="assignmentLetterId" 
-            required 
-            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10" 
-            :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 mt-2' }"
-        >
-            <USelectMenu 
-                v-model="store.headerForm.assignmentLetterId" 
-                :items="store.options.assignmentLetter" 
-                placeholder="Choose Assignment Letter" 
-                class="w-full" 
-                @update:model-value="store.syncFromAssignmentLetter"
-            />
-        </UFormField>
-
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
             <UFormField label="Audit Purpose" class="font-semibold text-sm text-gray-700  mt-2" />
-            <UInput class="md:col-span-3" v-model="store.headerForm.auditPurpose" disabled placeholder="(Automatically filled in when filling out the assignment letter)" />
+            <UInput class="md:col-span-3" v-model="store.headerForm.auditPurpose" disabled placeholder="(Automatically filled in from the selected assignment letter)" />
         </div>
 
         <UFormField 

@@ -4,7 +4,14 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div>
         <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.title') }}</h1>
-        <p class="text-xs sm:text-sm text-gray-500">{{ t('workingPaper.index.subtitle') }}</p>
+        <p v-if="fieldworkStore.selectedAssignmentLetter" class="text-xs sm:text-sm text-gray-500">
+          {{ t('workingPaper.index.assignmentLetterLabel') }}:
+          <span class="font-semibold text-gray-700 dark:text-gray-300">{{ fieldworkStore.selectedAssignmentLetter }}</span>
+        </p>
+        <p v-else class="text-xs sm:text-sm text-gray-500">
+          {{ t('workingPaper.index.noAssignmentLetter') }}
+          <NuxtLink to="/audit-fieldwork" class="text-primary-600 hover:underline font-medium">{{ t('workingPaper.index.goToFieldwork') }}</NuxtLink>
+        </p>
       </div>
       <UButton
         :label="t('workingPaper.index.importButton')"
@@ -141,11 +148,13 @@ import WorkingPaperSampleForm from '~/components/working-paper/WorkingPaperSampl
 import WorkingPaperSampleTable from '~/components/working-paper/WorkingPaperSampleTable.vue';
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 
 const { t } = useI18n()
 
 // Panggil Store
 const store = useWorkingPaperStore()
+const fieldworkStore = useAuditFieldworkStore()
 const route = useRoute()
 
 const stepItems = computed<StepperItem[]>(() => [

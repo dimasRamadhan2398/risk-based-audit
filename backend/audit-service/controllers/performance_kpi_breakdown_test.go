@@ -89,6 +89,10 @@ type kbResponse struct {
 			Total      int `json:"total"`
 			TotalPages int `json:"total_pages"`
 		} `json:"pagination"`
+		Filters *struct {
+			Categories []string `json:"categories"`
+			Periods    []string `json:"periods"`
+		} `json:"filters"`
 	} `json:"data"`
 }
 
@@ -145,25 +149,29 @@ func approx(a, b float64) bool { return math.Abs(a-b) < 1e-9 }
 //	Fraud Cases Investigated  achievement A2 (matches no plan)
 //	Quarterly WBS             plan P4  (active only through kpiTargets["Q2-2026"], no target)
 //	Report Timeliness (days)  plan P2  (HIB)
+//
+// Categories: P1 Operational, P2 Efficiency, P3 Quality, P8 Financial, P4 none;
+// the inactive P5 and the soft-deleted P6 are "Issue", which must therefore not
+// show up in the 2026 filter options.
 func seedKb(t *testing.T, db *gorm.DB) {
 	t.Helper()
 	plans := []models.StrategicPlan{
-		{ID: kbID(1), KPI: "Audit Completion Rate", Unit: "%", HibHig: "HIG", SelectedPeriod: "2026",
+		{ID: kbID(1), KPI: "Audit Completion Rate", Unit: "%", HibHig: "HIG", SelectedPeriod: "2026", Category: "Operational",
 			YearStart: 2024, YearEnd: 2028, KPITargets: map[string]string{"2025": "88", "2026": "90"}, Target: "85", Actual: "70"},
-		{ID: kbID(2), KPI: "Report Timeliness (days)", Unit: "Day", HibHig: "HIB", SelectedPeriod: "2026",
+		{ID: kbID(2), KPI: "Report Timeliness (days)", Unit: "Day", HibHig: "HIB", SelectedPeriod: "2026", Category: "Efficiency",
 			YearStart: 2026, YearEnd: 2026, Target: "10", Actual: "12"},
-		{ID: kbID(3), KPI: "Client Satisfaction", Unit: "Score", HibHig: "HIG", SelectedPeriod: "2026",
+		{ID: kbID(3), KPI: "Client Satisfaction", Unit: "Score", HibHig: "HIG", SelectedPeriod: "2026", Category: "Quality",
 			KPITargets: map[string]string{"2026": "4.5"}, Target: "4.0", Actual: "3"},
 		{ID: kbID(4), KPI: "Quarterly WBS", Unit: "%", HibHig: "HIG", SelectedPeriod: "Q2-2026",
 			KPITargets: map[string]string{"Q2-2026": "95"}, Target: "0", Actual: "40"},
 		// inactive in 2026: range ends 2024, kpiTargets only for 2025
-		{ID: kbID(5), KPI: "Old Plan", HibHig: "HIG", YearStart: 2020, YearEnd: 2024,
+		{ID: kbID(5), KPI: "Old Plan", HibHig: "HIG", Category: "Issue", SelectedPeriod: "Semester 1", YearStart: 2020, YearEnd: 2024,
 			KPITargets: map[string]string{"2025": "1"}, Target: "1", Actual: "1"},
 		// active in 2026 but soft-deleted below
-		{ID: kbID(6), KPI: "Deleted Plan", HibHig: "HIG", YearStart: 2026, YearEnd: 2026, Target: "1", Actual: "1"},
+		{ID: kbID(6), KPI: "Deleted Plan", HibHig: "HIG", Category: "Issue", YearStart: 2026, YearEnd: 2026, Target: "1", Actual: "1"},
 		// a blank kpiTargets entry for the year does not make the plan active
 		{ID: kbID(7), KPI: "Empty Target Key", HibHig: "HIG", KPITargets: map[string]string{"2026": " "}, Target: "1", Actual: "1"},
-		{ID: kbID(8), KPI: "Cost Variance", Unit: "%", HibHig: "HIG", SelectedPeriod: "Q1",
+		{ID: kbID(8), KPI: "Cost Variance", Unit: "%", HibHig: "HIG", SelectedPeriod: "Q1", Category: "Financial",
 			YearStart: 2026, YearEnd: 2027, Target: "100", Actual: "85"},
 	}
 	for i := range plans {
@@ -239,7 +247,7 @@ func TestKpiBreakdown_YearFilterMergeAndOrder(t *testing.T) {
 
 	// P1: target from kpiTargets[2026], actual from the newest matching achievement
 	p1 := kbByMetric(t, items, "Audit Completion Rate")
-	if p1.ID != kbID(1).String() || p1.Source != KpiSourceStrategicPlan || p1.Unit != "%" || p1.Period != "2026" || p1.Category != "" {
+	if p1.ID != kbID(1).String() || p1.Source != KpiSourceStrategicPlan || p1.Unit != "%" || p1.Period != "2026" || p1.Category != "Operational" {
 		t.Errorf("P1 identity = %+v", p1)
 	}
 	if !approx(p1.Target, 90) || !approx(p1.Actual, 95) || !approx(p1.Gap, 5) || !p1.GapIsPositive {
@@ -249,12 +257,13 @@ func TestKpiBreakdown_YearFilterMergeAndOrder(t *testing.T) {
 		t.Errorf("P1 status = %+v", p1)
 	}
 
-	// P2: HIB → gap = target - actual; no kpiTargets → plan target; no achievement → plan actual
+	// P2: HIB → gap = target - actual, rate = target/actual (10/12 = 83.3 → On Track);
+	// no kpiTargets → plan target; no achievement → plan actual
 	p2 := kbByMetric(t, items, "Report Timeliness (days)")
-	if !approx(p2.Target, 10) || !approx(p2.Actual, 12) || !approx(p2.Gap, -2) || p2.GapIsPositive {
+	if !approx(p2.Target, 10) || !approx(p2.Actual, 12) || !approx(p2.Gap, -2) || p2.GapIsPositive || p2.Category != "Efficiency" {
 		t.Errorf("P2 numbers = %+v", p2)
 	}
-	if p2.AchievementRate == nil || !approx(*p2.AchievementRate, 120) || p2.Status != KpiStatusExceeded {
+	if p2.AchievementRate == nil || !approx(*p2.AchievementRate, 10.0/12*100) || p2.Status != KpiStatusOnTrack {
 		t.Errorf("P2 status = %+v", p2)
 	}
 
@@ -264,15 +273,15 @@ func TestKpiBreakdown_YearFilterMergeAndOrder(t *testing.T) {
 		t.Errorf("P3 = %+v", p3)
 	}
 
-	// P4: active through a quarterly key; target 0 → No Target, null rate
+	// P4: active through a quarterly key; target 0 → No Target, null rate; no category
 	p4 := kbByMetric(t, items, "Quarterly WBS")
-	if !approx(p4.Target, 0) || p4.AchievementRate != nil || p4.Status != KpiStatusNoTarget || p4.Period != "Q2-2026" {
+	if !approx(p4.Target, 0) || p4.AchievementRate != nil || p4.Status != KpiStatusNoTarget || p4.Period != "Q2-2026" || p4.Category != "" {
 		t.Errorf("P4 = %+v", p4)
 	}
 
 	// P8: the 2025 achievement with the same name does not override the 2026 actual
 	p8 := kbByMetric(t, items, "Cost Variance")
-	if !approx(p8.Actual, 85) || p8.Status != KpiStatusOnTrack || p8.AchievementRate == nil || !approx(*p8.AchievementRate, 85) {
+	if !approx(p8.Actual, 85) || p8.Category != "Financial" || p8.Status != KpiStatusOnTrack || p8.AchievementRate == nil || !approx(*p8.AchievementRate, 85) {
 		t.Errorf("P8 = %+v", p8)
 	}
 
@@ -316,8 +325,8 @@ func TestKpiBreakdown_Filters(t *testing.T) {
 		query string
 		want  []string
 	}{
-		{"&status=Exceeded", []string{"Audit Completion Rate", "Report Timeliness (days)"}},
-		{"&status=On+Track", []string{"Cost Variance", "Fraud Cases Investigated"}},
+		{"&status=Exceeded", []string{"Audit Completion Rate"}},
+		{"&status=On+Track", []string{"Cost Variance", "Fraud Cases Investigated", "Report Timeliness (days)"}},
 		{"&status=Needs+Attention", []string{"Client Satisfaction"}},
 		{"&status=No+Target", []string{"Quarterly WBS"}},
 		{"&status=exceeded", []string{}}, // exact match
@@ -325,13 +334,22 @@ func TestKpiBreakdown_Filters(t *testing.T) {
 		{"&period=Tahunan", []string{"Fraud Cases Investigated"}},
 		{"&period=2026", []string{"Audit Completion Rate", "Client Satisfaction", "Report Timeliness (days)"}},
 		{"&period=Q2", []string{}}, // exact match, not prefix
-		{"&category=Operational", []string{}},
+		{"&category=Operational", []string{"Audit Completion Rate"}},
+		{"&category=Financial", []string{"Cost Variance"}},
+		{"&category=Efficiency", []string{"Report Timeliness (days)"}},
+		{"&category=Quality", []string{"Client Satisfaction"}},
+		{"&category=operational", []string{}}, // exact match
+		{"&category=Issue", []string{}},       // only on inactive / deleted plans
+		{"&category=Opera", []string{}},       // not a prefix match
 		{"&category=", kb2026Order},
+		{"&category=Financial&status=On+Track&period=Q1", []string{"Cost Variance"}},
+		{"&category=Financial&status=Exceeded", []string{}},
 		{"&search=COST", []string{"Cost Variance"}},
 		{"&search=rate", []string{"Audit Completion Rate"}},
 		{"&search=%20wbs%20", []string{"Quarterly WBS"}},
 		{"&search=nothing-matches", []string{}},
-		{"&search=a&status=Exceeded&period=2026", []string{"Audit Completion Rate", "Report Timeliness (days)"}},
+		{"&search=a&status=Exceeded&period=2026", []string{"Audit Completion Rate"}},
+		{"&search=a&status=On+Track&period=2026", []string{"Report Timeliness (days)"}},
 		{"&search=cost&status=Exceeded", []string{}},
 	}
 	for _, tc := range cases {
@@ -445,6 +463,148 @@ func TestKpiBreakdown_DefaultYearIsCurrentYear(t *testing.T) {
 	}
 }
 
+// data.filters lists the options of the whole year: it ignores search, the
+// category/status/period filters and paging, and excludes inactive and
+// soft-deleted plans.
+func TestKpiBreakdown_FilterOptions(t *testing.T) {
+	db := newKbDB(t)
+	seedKb(t, db)
+
+	wantCategories := []string{"Efficiency", "Financial", "Operational", "Quality"}
+	wantPeriods := []string{"2026", "Q1", "Q2-2026", "Tahunan"}
+	for _, q := range []string{
+		"",
+		"&page_size=1",
+		"&page=99&page_size=2",
+		"&category=Financial",
+		"&category=Issue",
+		"&status=No+Target",
+		"&period=Tahunan",
+		"&search=nothing-matches",
+		"&search=cost&category=Financial&status=On+Track&period=Q1&page=1&page_size=1",
+	} {
+		resp, body := getKb(t, db, "?year=2026"+q)
+		f := resp.Data.Filters
+		if f == nil {
+			t.Fatalf("%s: no data.filters in %s", q, body)
+		}
+		if !equalStrings(f.Categories, wantCategories) {
+			t.Errorf("%s: categories = %v, want %v", q, f.Categories, wantCategories)
+		}
+		if !equalStrings(f.Periods, wantPeriods) {
+			t.Errorf("%s: periods = %v, want %v", q, f.Periods, wantPeriods)
+		}
+	}
+
+	// another year: P1 (Operational, "2026") and P5 (Issue, "Semester 1") are active
+	// in 2025, plus two "Tahunan" achievements (no category)
+	resp, _ := getKb(t, db, "?year=2025")
+	if f := resp.Data.Filters; f == nil ||
+		!equalStrings(f.Categories, []string{"Issue", "Operational"}) ||
+		!equalStrings(f.Periods, []string{"2026", "Semester 1", "Tahunan"}) {
+		t.Errorf("2025 filters = %+v", f)
+	}
+
+	// no rows: both lists are [] (not null)
+	_, body := getKb(t, db, "?year=1999")
+	if !strings.Contains(body, `"filters":{"categories":[],"periods":[]}`) {
+		t.Errorf("empty filters: %s", body)
+	}
+}
+
+// The envelope keeps items and pagination and adds filters, nothing else.
+func TestKpiBreakdown_EnvelopeShape(t *testing.T) {
+	db := newKbDB(t)
+	seedKb(t, db)
+	_, body := getKb(t, db, "?year=2026&page_size=2")
+	var raw struct {
+		Success bool                       `json:"success"`
+		Message string                     `json:"message"`
+		Data    map[string]json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal([]byte(body), &raw); err != nil {
+		t.Fatal(err)
+	}
+	if len(raw.Data) != 3 || raw.Data["items"] == nil || raw.Data["pagination"] == nil || raw.Data["filters"] == nil {
+		t.Fatalf("data keys: %s", body)
+	}
+	var item map[string]json.RawMessage
+	var items []map[string]json.RawMessage
+	if err := json.Unmarshal(raw.Data["items"], &items); err != nil || len(items) == 0 {
+		t.Fatalf("items: %v %s", err, body)
+	}
+	item = items[0]
+	for _, k := range []string{"id", "source", "metric", "category", "period", "unit", "target", "actual", "gap", "gapIsPositive", "achievementRate", "status"} {
+		if _, ok := item[k]; !ok {
+			t.Errorf("item missing %q: %s", k, body)
+		}
+	}
+	if len(item) != 12 {
+		t.Errorf("item has %d keys: %s", len(item), body)
+	}
+}
+
+// HIB plans in the handler: the rate is target/actual, a recorded 0 is the best
+// possible result, and a plan with nothing recorded is not reported as Exceeded.
+func TestKpiBreakdown_HibPlansEndToEnd(t *testing.T) {
+	db := newKbDB(t)
+	plans := []models.StrategicPlan{
+		{ID: kbID(1), KPI: "HIB good", HibHig: "HIB", YearStart: 2026, YearEnd: 2026, Target: "10", Actual: "8"},
+		{ID: kbID(2), KPI: "HIB bad", HibHig: "HIB", YearStart: 2026, YearEnd: 2026, Target: "10", Actual: "20"},
+		{ID: kbID(3), KPI: "HIB zero recorded", HibHig: "hib", YearStart: 2026, YearEnd: 2026, Target: "5", Actual: "0"},
+		{ID: kbID(4), KPI: "HIB nothing recorded", HibHig: "HIB", YearStart: 2026, YearEnd: 2026, Target: "5", Actual: ""},
+		{ID: kbID(5), KPI: "HIB dash recorded", HibHig: "HIB", YearStart: 2026, YearEnd: 2026, Target: "5", Actual: "-"},
+		{ID: kbID(6), KPI: "HIB actual from achievement", HibHig: "HIB", YearStart: 2026, YearEnd: 2026, Target: "5", Actual: ""},
+		{ID: kbID(7), KPI: "HIB year target", HibHig: "HIB", YearStart: 2026, YearEnd: 2026, KPITargets: map[string]string{"2026": "4"}, Target: "100", Actual: "5"},
+		{ID: kbID(8), KPI: "HIG good", HibHig: "HIG", YearStart: 2026, YearEnd: 2026, Target: "10", Actual: "12"},
+		{ID: kbID(9), KPI: "HIG nothing recorded", HibHig: "HIG", YearStart: 2026, YearEnd: 2026, Target: "10", Actual: ""},
+	}
+	for i := range plans {
+		kbCreate(t, db, &plans[i])
+	}
+	kbCreate(t, db, &models.KPIAchievement{ID: kbID(100), Year: 2026, KPIName: "HIB actual from achievement", Target: 5, Actual: 0})
+	// achievement-only rows have no direction and keep actual/target: 3/4 = 75
+	kbCreate(t, db, &models.KPIAchievement{ID: kbID(101), Year: 2026, KPIName: "Standalone", Target: 4, Actual: 3})
+
+	resp, body := getKb(t, db, "?year=2026&page_size=100")
+	cases := []struct {
+		metric string
+		status string
+		rate   float64 // -1 = null
+		gap    float64
+	}{
+		{"HIB good", KpiStatusExceeded, 125, 2},
+		{"HIB bad", KpiStatusNeedsAttention, 50, -10},
+		{"HIB zero recorded", KpiStatusExceeded, -1, 5},
+		{"HIB nothing recorded", KpiStatusNeedsAttention, 0, 5},
+		{"HIB dash recorded", KpiStatusNeedsAttention, 0, 5},
+		{"HIB actual from achievement", KpiStatusExceeded, -1, 5},
+		{"HIB year target", KpiStatusOnTrack, 80, -1},
+		{"HIG good", KpiStatusExceeded, 120, 2},
+		{"HIG nothing recorded", KpiStatusNeedsAttention, 0, -10},
+		{"Standalone", KpiStatusNeedsAttention, 75, -1},
+	}
+	if len(resp.Data.Items) != len(cases) {
+		t.Fatalf("rows = %v", kbMetrics(resp.Data.Items))
+	}
+	for _, tc := range cases {
+		it := kbByMetric(t, resp.Data.Items, tc.metric)
+		if it.Status != tc.status || !approx(it.Gap, tc.gap) {
+			t.Errorf("%s: status=%q gap=%v, want %q %v", tc.metric, it.Status, it.Gap, tc.status, tc.gap)
+		}
+		if tc.rate < 0 {
+			if it.AchievementRate != nil {
+				t.Errorf("%s: rate = %v, want null", tc.metric, *it.AchievementRate)
+			}
+		} else if it.AchievementRate == nil || !approx(*it.AchievementRate, tc.rate) {
+			t.Errorf("%s: rate = %v, want %v", tc.metric, it.AchievementRate, tc.rate)
+		}
+	}
+	if !strings.Contains(body, `"status":"Needs Attention"`) {
+		t.Errorf("status label: %s", body)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // unit tests for the rules
 // ---------------------------------------------------------------------------
@@ -478,37 +638,68 @@ func TestParseKpiBreakdownQuery(t *testing.T) {
 }
 
 func TestKpiBreakdown_GapAndStatusRules(t *testing.T) {
+	const null = -1.0
 	cases := []struct {
 		name           string
 		target, actual float64
-		hig            bool
+		known, hig     bool
 		gap            float64
 		positive       bool
 		status         string
-		rate           float64 // -1 = null
+		rate           float64 // null = achievementRate must be null
 	}{
-		{"HIG above target", 90, 99, true, 9, true, KpiStatusExceeded, 110},
-		{"HIG at target", 90, 90, true, 0, true, KpiStatusExceeded, 100},
-		{"HIG 80% boundary", 100, 80, true, -20, false, KpiStatusOnTrack, 80},
-		{"HIG just under 80%", 100, 79.99, true, -20.01, false, KpiStatusNeedsAttention, 79.99},
-		{"HIB below target", 10, 8, false, 2, true, KpiStatusOnTrack, 80},
-		{"HIB above target", 10, 12, false, -2, false, KpiStatusExceeded, 120},
-		{"zero target", 0, 5, true, 5, true, KpiStatusNoTarget, -1},
-		{"negative target", -3, 5, false, -8, false, KpiStatusNoTarget, -1},
-		{"zero actual", 50, 0, true, -50, false, KpiStatusNeedsAttention, 0},
+		// HIG: rate = actual / target
+		{"HIG above target", 90, 99, true, true, 9, true, KpiStatusExceeded, 110},
+		{"HIG at target", 90, 90, true, true, 0, true, KpiStatusExceeded, 100},
+		{"HIG 80% boundary", 100, 80, true, true, -20, false, KpiStatusOnTrack, 80},
+		{"HIG just under 80%", 100, 79.99, true, true, -20.01, false, KpiStatusNeedsAttention, 79.99},
+		{"HIG zero actual", 50, 0, true, true, -50, false, KpiStatusNeedsAttention, 0},
+		{"HIG nothing recorded", 50, 0, false, true, -50, false, KpiStatusNeedsAttention, 0},
+		{"HIG negative actual", 50, -5, true, true, -55, false, KpiStatusNeedsAttention, -10},
+
+		// HIB: rate = target / actual (lower actual is better)
+		{"HIB below target (good)", 10, 8, true, false, 2, true, KpiStatusExceeded, 125},
+		{"HIB at target", 10, 10, true, false, 0, true, KpiStatusExceeded, 100},
+		{"HIB 80% boundary", 8, 10, true, false, -2, false, KpiStatusOnTrack, 80},
+		{"HIB just under 80%", 8, 10.01, true, false, -2.01, false, KpiStatusNeedsAttention, 800 / 10.01},
+		{"HIB above target (bad)", 10, 12, true, false, -2, false, KpiStatusOnTrack, 10.0 / 12 * 100},
+		{"HIB far above target", 10, 20, true, false, -10, false, KpiStatusNeedsAttention, 50},
+		{"HIB zero actual (modal: +Infinity)", 10, 0, true, false, 10, true, KpiStatusExceeded, null},
+		{"HIB negative actual (modal: negative ratio)", 10, -5, true, false, 15, true, KpiStatusNeedsAttention, -200},
+		{"HIB nothing recorded", 10, 0, false, false, 10, true, KpiStatusNeedsAttention, 0},
+
+		// No target, either direction
+		{"HIG zero target", 0, 5, true, true, 5, true, KpiStatusNoTarget, null},
+		{"HIB zero target", 0, 5, true, false, -5, false, KpiStatusNoTarget, null},
+		{"HIB zero target zero actual", 0, 0, true, false, 0, true, KpiStatusNoTarget, null},
+		{"HIB negative target", -3, 5, true, false, -8, false, KpiStatusNoTarget, null},
+		{"HIG negative target", -3, 5, true, true, 8, true, KpiStatusNoTarget, null},
 	}
 	for _, tc := range cases {
-		it := newKpiBreakdownItem("id", KpiSourceStrategicPlan, "m", "", "", tc.target, tc.actual, tc.hig)
+		it := newKpiBreakdownItem(KpiBreakdownItem{ID: "id", Metric: "m", Category: "Quality", Target: tc.target, Actual: tc.actual}, tc.known, tc.hig)
 		if !approx(it.Gap, tc.gap) || it.GapIsPositive != tc.positive || it.Status != tc.status {
 			t.Errorf("%s: gap=%v positive=%v status=%q", tc.name, it.Gap, it.GapIsPositive, it.Status)
 		}
-		if tc.rate < 0 {
+		if tc.rate == null {
 			if it.AchievementRate != nil {
 				t.Errorf("%s: rate = %v, want null", tc.name, *it.AchievementRate)
 			}
 		} else if it.AchievementRate == nil || math.Abs(*it.AchievementRate-tc.rate) > 1e-9 {
 			t.Errorf("%s: rate = %v, want %v", tc.name, it.AchievementRate, tc.rate)
 		}
+		if it.ID != "id" || it.Metric != "m" || it.Category != "Quality" || it.Target != tc.target || it.Actual != tc.actual {
+			t.Errorf("%s: identity fields not preserved: %+v", tc.name, it)
+		}
+		if _, err := json.Marshal(it); err != nil {
+			t.Errorf("%s: marshal: %v", tc.name, err)
+		}
+	}
+
+	// the score fields of the input are always recomputed
+	stale := 1.0
+	it := newKpiBreakdownItem(KpiBreakdownItem{Target: 0, Actual: 1, AchievementRate: &stale, Status: KpiStatusExceeded}, true, true)
+	if it.AchievementRate != nil || it.Status != KpiStatusNoTarget {
+		t.Errorf("stale input fields leaked: %+v", it)
 	}
 
 	// HIB/HIG flag is matched case-insensitively; anything else is treated as HIB
@@ -518,13 +709,51 @@ func TestKpiBreakdown_GapAndStatusRules(t *testing.T) {
 		}
 	}
 
-	// overflow never yields Inf/NaN (encoding/json would fail)
-	it := newKpiBreakdownItem("id", KpiSourceStrategicPlan, "m", "", "", 1e-300, 1e300, true)
-	if math.IsInf(*it.AchievementRate, 0) || math.IsNaN(*it.AchievementRate) || math.IsInf(it.Gap, 0) {
-		t.Errorf("overflow: %+v", it)
+	// overflow never yields Inf/NaN (encoding/json would fail), in either direction
+	for _, tc := range []struct {
+		target, actual float64
+		hig            bool
+	}{{1e-300, 1e300, true}, {1e300, 1e-300, false}, {1e300, -1e-300, false}} {
+		it := newKpiBreakdownItem(KpiBreakdownItem{Target: tc.target, Actual: tc.actual}, true, tc.hig)
+		if it.AchievementRate == nil || math.IsInf(*it.AchievementRate, 0) || math.IsNaN(*it.AchievementRate) || math.IsInf(it.Gap, 0) {
+			t.Errorf("overflow %+v: %+v", tc, it)
+		}
+		if _, err := json.Marshal(it); err != nil {
+			t.Errorf("marshal overflow row %+v: %v", tc, err)
+		}
 	}
-	if _, err := json.Marshal(it); err != nil {
-		t.Errorf("marshal overflow row: %v", err)
+}
+
+func TestKpiBreakdownFilterOptions_Order(t *testing.T) {
+	var rows []KpiBreakdownItem
+	for _, p := range []string{
+		"Tahunan", "Q4-2026", "Q2", "2026", "", "Semester 2", "Q1-2026", "Q1", "2025",
+		"Q4-2025", "q3", "Q4", "Q2-2026", "Q3", "Semester 1", "Q1", "tahunan", "Q5", "2026",
+	} {
+		rows = append(rows, KpiBreakdownItem{Period: p})
+	}
+	for _, c := range []string{"Quality", "", "Financial", "Issue", "Quality", "Efficiency", "Operational"} {
+		rows = append(rows, KpiBreakdownItem{Category: c})
+	}
+	f := KpiBreakdownFilterOptions(rows)
+	wantPeriods := []string{
+		"2025", "2026", // years
+		"Q1", "Q2", "Q3", "q3", "Q4", // bare quarters (case-insensitive), ties by string
+		"Q4-2025", "Q1-2026", "Q2-2026", "Q4-2026", // quarter-year: year, then quarter
+		"Q5", "Semester 1", "Semester 2", // anything else, alphabetical
+		"Tahunan", "tahunan", // last
+	}
+	if !equalStrings(f.Periods, wantPeriods) {
+		t.Errorf("periods = %v\nwant      %v", f.Periods, wantPeriods)
+	}
+	wantCategories := []string{"Efficiency", "Financial", "Issue", "Operational", "Quality"}
+	if !equalStrings(f.Categories, wantCategories) {
+		t.Errorf("categories = %v, want %v", f.Categories, wantCategories)
+	}
+
+	empty := KpiBreakdownFilterOptions(nil)
+	if b, _ := json.Marshal(empty); string(b) != `{"categories":[],"periods":[]}` {
+		t.Errorf("empty = %s", b)
 	}
 }
 

@@ -3,6 +3,8 @@ package email
 import (
 	"context"
 	"fmt"
+	"mime"
+	"net/mail"
 	"net/smtp"
 	"time"
 
@@ -35,12 +37,25 @@ func (e *EmailService) sendEmail(to []string, subject, body string) error {
 	addr := fmt.Sprintf("%s:%d", e.config.Host, e.config.Port)
 	auth := smtp.PlainAuth("", e.config.Username, e.config.Password, e.config.Host)
 
-	msg := []byte(fmt.Sprintf("To: %s\r\n"+
-		"Subject: %s\r\n"+
-		"\r\n"+
-		"%s\r\n", to[0], subject, body))
+	// From may carry a display name ("PT BAI via AuditSphere <no-reply@...>").
+	// The envelope sender (MAIL FROM) must be the bare address, while the From
+	// header keeps the display name. Providers such as Resend reject messages
+	// without a From header.
+	from, err := mail.ParseAddress(e.config.From)
+	if err != nil {
+		return apperrors.Wrap("EMAIL_CONFIG_ERROR", "Invalid sender address", 500, err)
+	}
 
-	err := smtp.SendMail(addr, auth, e.config.From, to, msg)
+	msg := []byte("From: " + from.String() + "\r\n" +
+		"To: " + to[0] + "\r\n" +
+		"Subject: " + mime.QEncoding.Encode("utf-8", subject) + "\r\n" +
+		"Date: " + time.Now().Format(time.RFC1123Z) + "\r\n" +
+		"MIME-Version: 1.0\r\n" +
+		"Content-Type: text/plain; charset=UTF-8\r\n" +
+		"\r\n" +
+		body + "\r\n")
+
+	err = smtp.SendMail(addr, auth, from.Address, to, msg)
 	if err != nil {
 		return apperrors.Wrap("EMAIL_SEND_ERROR", "Error sending email", 500, err)
 	}

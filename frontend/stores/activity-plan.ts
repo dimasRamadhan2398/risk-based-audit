@@ -178,9 +178,6 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
 
-      // Transform planned activities to match backend expectations if needed
-      // but for now we follow existing structure and just ensure fields are there
-
       const fileList = formState.value.file && formState.value.file.length > 0
         ? formState.value.file.map((f: any) => ({
           name: f.name,
@@ -191,6 +188,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
 
       const payload = {
         ...formState.value,
+        plannedActivities: formState.value.plannedActivities,
         attachments: isEditMode.value ? (formState.value.attachments || []).concat(fileList) : fileList
       };
 

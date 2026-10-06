@@ -28,6 +28,12 @@ export interface KpiBreakdownPagination {
   total_pages: number
 }
 
+/** Filter options for the year (`data.filters`): every distinct non-empty value, independent of the active filters and page. */
+export interface KpiBreakdownFilterOptions {
+  categories: string[]
+  periods: string[]
+}
+
 export interface KpiBreakdownQuery {
   year: number
   page: number
@@ -56,6 +62,31 @@ export const buildKpiBreakdownParams = (q: KpiBreakdownQuery): Record<string, st
   if (q.period) params.period = q.period
   return params
 }
+
+export const emptyKpiBreakdownFilterOptions = (): KpiBreakdownFilterOptions => ({ categories: [], periods: [] })
+
+const stringList = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return []
+  const out: string[] = []
+  for (const v of value) {
+    const s = typeof v === 'string' ? v.trim() : ''
+    if (s && !out.includes(s)) out.push(s)
+  }
+  return out
+}
+
+/**
+ * Read `data.filters` from the response, keeping the server's order (it sorts them).
+ * A missing or malformed `filters` (older backend) gives empty lists, so the menus are hidden instead of guessed.
+ */
+export const parseKpiBreakdownFilters = (raw: unknown): KpiBreakdownFilterOptions => {
+  const f = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+  return { categories: stringList(f.categories), periods: stringList(f.periods) }
+}
+
+/** Menu values for a filter: the server's options, plus the active value so it can still be seen and cleared. */
+export const kpiFilterMenuValues = (options: string[], selected?: string): string[] =>
+  mergeDistinct(options, [], selected)
 
 const toInt = (value: unknown, fallback: number) => {
   const n = Number(value)

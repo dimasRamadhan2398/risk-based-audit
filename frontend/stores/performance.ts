@@ -5,11 +5,13 @@ import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 import { useI18n } from '~/composables/useI18n';
 import {
   buildKpiBreakdownParams,
+  emptyKpiBreakdownFilterOptions,
   emptyKpiBreakdownPagination,
-  mergeDistinct,
+  parseKpiBreakdownFilters,
   parseKpiBreakdownPagination,
   KPI_BREAKDOWN_DEFAULT_PAGE_SIZE,
   KPI_BREAKDOWN_MAX_PAGE_SIZE,
+  type KpiBreakdownFilterOptions,
   type KpiBreakdownItem,
   type KpiBreakdownPagination,
   type KpiBreakdownQuery
@@ -92,9 +94,8 @@ export const usePerformanceStore = defineStore('performance', () => {
     status: '',
     period: ''
   });
-  // Category/period values seen for the current year, for the filter menus (the API has no facet list).
-  const kpiBreakdownCategories = ref<string[]>([]);
-  const kpiBreakdownPeriods = ref<string[]>([]);
+  // Category/period menu options for the year, as the API lists them in `data.filters` (empty with an older backend).
+  const kpiBreakdownFilters = ref<KpiBreakdownFilterOptions>(emptyKpiBreakdownFilterOptions());
   let kpiBreakdownRequestId = 0;
   let kpiBreakdownSearchTimer: ReturnType<typeof setTimeout> | null = null;
   const KPI_BREAKDOWN_SEARCH_DEBOUNCE_MS = 300;
@@ -126,8 +127,7 @@ export const usePerformanceStore = defineStore('performance', () => {
       kpiBreakdownPagination.value = pagination;
       kpiBreakdownQuery.value.page = pagination.page;
       kpiBreakdownQuery.value.pageSize = pagination.page_size;
-      kpiBreakdownCategories.value = mergeDistinct(kpiBreakdownCategories.value, items.map(i => i.category));
-      kpiBreakdownPeriods.value = mergeDistinct(kpiBreakdownPeriods.value, items.map(i => i.period));
+      kpiBreakdownFilters.value = parseKpiBreakdownFilters(response?.data?.filters);
     } catch (err: any) {
       if (requestId !== kpiBreakdownRequestId) return;
       console.error('Failed to fetch KPI breakdown:', err);
@@ -158,10 +158,7 @@ export const usePerformanceStore = defineStore('performance', () => {
     const changed = (Object.keys(changes) as Array<keyof KpiBreakdownQuery>).some(k => next[k] !== current[k]);
     if (!changed) return;
     if ('search' in changes) cancelKpiBreakdownSearch();
-    if (next.year !== current.year) {
-      kpiBreakdownCategories.value = [];
-      kpiBreakdownPeriods.value = [];
-    }
+    if (next.year !== current.year) kpiBreakdownFilters.value = emptyKpiBreakdownFilterOptions();
     kpiBreakdownQuery.value = next;
     return fetchKpiBreakdown();
   };
@@ -203,11 +200,11 @@ export const usePerformanceStore = defineStore('performance', () => {
       const response: any = await $fetch(`${baseUrl}/performance/dashboard-summary`, {
         params: { year }
       });
-      if (response && response.data && Array.isArray(response.data)) {
-        dashboardCards.value = response.data;
-      }
+      // Only what the API returned: no cards (or another year's cards) when the response has none.
+      dashboardCards.value = Array.isArray(response?.data) ? response.data : [];
     } catch (err: any) {
       console.error('Failed to fetch dashboard summary:', err);
+      dashboardCards.value = [];
       error.value = extractErrorMessage(err, t('kpiPerformance.store.fetchDashboardSummaryFailed'));
     } finally {
       loading.value = false;
@@ -222,11 +219,10 @@ export const usePerformanceStore = defineStore('performance', () => {
       const response: any = await $fetch(`${baseUrl}/performance/monthly-trends`, {
         params: { year }
       });
-      if (response && response.data) {
-        monthlyTrends.value = response.data;
-      }
+      monthlyTrends.value = response?.data && typeof response.data === 'object' ? response.data : null;
     } catch (err: any) {
       console.error('Failed to fetch monthly trends:', err);
+      monthlyTrends.value = null;
       error.value = extractErrorMessage(err, t('kpiPerformance.store.fetchMonthlyTrendsFailed'));
     } finally {
       loading.value = false;
@@ -304,8 +300,7 @@ export const usePerformanceStore = defineStore('performance', () => {
     kpiBreakdownLoading,
     kpiBreakdownError,
     kpiBreakdownQuery,
-    kpiBreakdownCategories,
-    kpiBreakdownPeriods,
+    kpiBreakdownFilters,
     fetchKpiBreakdown,
     loadKpiBreakdown,
     setKpiBreakdownFilters,

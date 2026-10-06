@@ -12,6 +12,14 @@ interface AuthState {
   isNewDevice: boolean
   needsConfidentialityAgreement: boolean
   _initialized: boolean
+  _profileHydrated: boolean
+}
+
+/** Cookies are limited to ~4 KB; the avatar data URL must stay out of them */
+const serializeUserForCookie = (user: User | null) => {
+  const { avatarUrl: _avatarUrl, ...rest } = (user ?? {}) as User & { avatar_url?: string }
+  delete (rest as { avatar_url?: string }).avatar_url
+  return JSON.stringify(rest)
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -24,6 +32,7 @@ export const useAuthStore = defineStore('auth', {
     isNewDevice: false,
     needsConfidentialityAgreement: false,
     _initialized: false,
+    _profileHydrated: false,
   }),
 
   getters: {
@@ -174,7 +183,12 @@ export const useAuthStore = defineStore('auth', {
             headers: { Authorization: `Bearer ${this.token}` },
           },
         )
-        return response.data ?? response
+        const profile = response.data ?? response
+        // Hydrates the avatar (kept out of the cookie) after a reload
+        if (this.user && profile && profile.avatar_url !== undefined) {
+          this.user.avatarUrl = profile.avatar_url || ''
+        }
+        return profile
       }
       catch (error) {
         console.error('Failed to fetch user profile:', error)
@@ -182,12 +196,21 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    /** Update user profile (PUT /api/v1/users/:id) */
-    async updateProfile(profile: { fullName: string, phone: string, department: string, position?: string }) {
+    /** Load the avatar once per session after the cookie restore (login already returns it) */
+    async hydrateProfile() {
+      if (this._profileHydrated || !this.token || !this.user?.id) return
+      this._profileHydrated = true
+      await this.fetchUserProfile()
+    },
+
+    /**
+     * Update user profile (PUT /api/v1/users/:id).
+     * `avatarUrl`: undefined = unchanged (field omitted), '' = remove, data URL = replace.
+     */
+    async updateProfile(profile: { fullName: string, phone: string, department: string, position?: string, avatarUrl?: string }) {
       if (!this.token || !this.user?.id) return
-      const config = useRuntimeConfig()
       try {
-        await $fetch(
+        const response = await $fetch<any>(
           `${getAuthServiceBaseUrl()}/users/${this.user.id}`,
           {
             method: 'PUT',
@@ -197,23 +220,36 @@ export const useAuthStore = defineStore('auth', {
               phone: profile.phone,
               department: profile.department,
               position: profile.position,
+              ...(profile.avatarUrl !== undefined ? { avatar_url: profile.avatarUrl } : {}),
             },
           },
         )
-        // Update local store state
-        if (this.user) {
-          this.user.fullName = profile.fullName
-          this.user.phone = profile.phone
-          this.user.department = profile.department
-          this.user.position = profile.position
 
-          // Re-cookie updated user
+        // Apply the server's view of the user; fall back to what we sent
+        const saved = response?.data ?? response ?? {}
+        if (this.user) {
+          this.user.fullName = saved.full_name ?? profile.fullName
+          this.user.phone = saved.phone ?? profile.phone
+          this.user.department = saved.department ?? profile.department
+          this.user.position = saved.position ?? profile.position
+          if (saved.avatar_url !== undefined) {
+            this.user.avatarUrl = saved.avatar_url || ''
+          }
+          else if (profile.avatarUrl !== undefined) {
+            this.user.avatarUrl = profile.avatarUrl
+          }
+
+          // Re-cookie updated user (without the avatar)
           const userCookie = useCookie('auth-user')
-          userCookie.value = JSON.stringify(this.user)
+          userCookie.value = serializeUserForCookie(this.user)
         }
       }
       catch (error: any) {
-        throw new Error(extractErrorMessage(error, 'Failed to update profile'))
+        // Keep status/data so callers can map it with getUserErrorMessage
+        const err = new Error(extractErrorMessage(error, 'Failed to update profile')) as any
+        err.status = error?.status ?? error?.statusCode ?? error?.response?.status
+        err.data = error?.data
+        throw err
       }
     },
 
@@ -234,7 +270,7 @@ export const useAuthStore = defineStore('auth', {
       if (this.user?.mustChangePassword) {
         this.user.mustChangePassword = false
         const userCookie = useCookie('auth-user')
-        userCookie.value = JSON.stringify(this.user)
+        userCookie.value = serializeUserForCookie(this.user)
       }
     },
 
@@ -253,9 +289,12 @@ export const useAuthStore = defineStore('auth', {
         ...(data.user?.position !== undefined ? { position: data.user.position } : {}),
         ...(data.user?.roles !== undefined ? { roles: data.user.roles } : {}),
         mustChangePassword: data.user?.must_change_password ?? false,
+        avatarUrl: data.user?.avatar_url ?? data.user?.avatarUrl ?? '',
       }
+      delete (user as { avatar_url?: string }).avatar_url
 
       this.user = user
+      this._profileHydrated = true
       this.token = data.token
       this.isAuthenticated = true
       this.isNewDevice = data.is_new_device ?? false
@@ -264,7 +303,7 @@ export const useAuthStore = defineStore('auth', {
       tokenCookie.value = data.token
 
       const userCookie = useCookie('auth-user', { maxAge })
-      userCookie.value = JSON.stringify(user)
+      userCookie.value = serializeUserForCookie(user)
     },
 
     /** Logout — F-06: triggers audit trail on backend */
@@ -295,6 +334,7 @@ export const useAuthStore = defineStore('auth', {
       this.mfaToken = null
       this.isNewDevice = false
       this.needsConfidentialityAgreement = false
+      this._profileHydrated = false
 
       const tokenCookie = useCookie('auth-token')
       tokenCookie.value = null

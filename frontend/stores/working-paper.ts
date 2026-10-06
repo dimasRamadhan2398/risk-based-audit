@@ -161,7 +161,6 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   ] satisfies StepperItem[]
 
   const columnsF01 = [
-    { key: 'assignmentLetterId', accessorKey: 'assignmentLetterId', header: 'Assignment Letter', class: 'w-48 min-w-[150px]' },
     {
       key: 'businessProcess',
       accessorKey: 'businessProcess',
@@ -393,35 +392,23 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
-  const filteredDataF01 = computed(() => {
-    const list = dataF01.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => wp.assignmentLetterId === fieldworkStore.selectedAssignmentLetter)
-  })
+  // Every table is scoped to the assignment letter selected in Audit Fieldwork,
+  // and stays empty until one is selected. The tables carry no assignment
+  // letter column, so an unscoped list would mix rows from different letters
+  // with no way to tell them apart.
+  const byLetter = <T>(list: T[], letterOf: (row: T) => string | undefined): T[] => {
+    const letter = fieldworkStore.selectedAssignmentLetter
+    if (!letter) return []
+    return list.filter(row => letterOf(row) === letter)
+  }
+  const childLetter = (row: any) => row.workingPaperId || row.assignmentLetterId
+  const hasAssignmentLetter = computed(() => !!fieldworkStore.selectedAssignmentLetter)
 
-  const filteredDataF02 = computed(() => {
-    const list = dataF02.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF03 = computed(() => {
-    const list = dataF03.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF04 = computed(() => {
-    const list = dataF04.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF05 = computed(() => {
-    const list = dataF05.value
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
+  const filteredDataF01 = computed(() => byLetter(dataF01.value, wp => wp.assignmentLetterId))
+  const filteredDataF02 = computed(() => byLetter(dataF02.value, childLetter))
+  const filteredDataF03 = computed(() => byLetter(dataF03.value, childLetter))
+  const filteredDataF04 = computed(() => byLetter(dataF04.value, childLetter))
+  const filteredDataF05 = computed(() => byLetter(dataF05.value, childLetter))
 
   const isEditingF01 = ref(false)
   const isEditingF02 = ref(false)
@@ -502,8 +489,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF01.value = false
     editingIdF01.value = null
 
-    const initialLetter = fieldworkStore.selectedAssignmentLetter || 
-      (options.assignmentLetter.length > 0 ? options.assignmentLetter[0] : '')
+    // The form has no assignment letter field: a new working paper always
+    // belongs to the letter selected in Audit Fieldwork. Without one there is
+    // nothing to attach it to, so refuse rather than guess.
+    const initialLetter = fieldworkStore.selectedAssignmentLetter
+    if (!initialLetter) {
+      toast.showWarning('No assignment letter selected', 'Select an assignment letter in Audit Fieldwork before creating a working paper.')
+      return
+    }
 
     // Reset Form
     Object.assign(headerForm, {
@@ -519,9 +512,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       ]
     })
 
-    if (initialLetter) {
-      syncFromAssignmentLetter(initialLetter)
-    }
+    syncFromAssignmentLetter(initialLetter)
 
     showModalF01.value = true
   }
@@ -686,24 +677,32 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
-  const formatSampleForPayload = (s: any) => ({
-    id: s.id || Date.now(),
-    fieldworkDocument: s.fieldworkDocument || '',
-    document: s.document || '',
-    step1: s.step1 || '',
-    l1: s.l1 === 'Pass' || s.l1 === true ? true : (s.l1 === 'Fail' || s.l1 === false ? false : null),
-    step2: s.step2 || '',
-    l2: s.l2 === 'Pass' || s.l2 === true ? true : (s.l2 === 'Fail' || s.l2 === false ? false : null),
-    step3: s.step3 || '',
-    l3: s.l3 === 'Pass' || s.l3 === true ? true : (s.l3 === 'Fail' || s.l3 === false ? false : null),
-  })
+  // Helper function to convert TestResult strings to booleans for API submission
+  const convertSampleTestResults = (samples: SampleItem[]) => {
+    return samples.map(sample => ({
+      ...sample,
+      l1: sample.l1 === 'Pass' ? true : sample.l1 === 'Fail' ? false : null,
+      l2: sample.l2 === 'Pass' ? true : sample.l2 === 'Fail' ? false : null,
+      l3: sample.l3 === 'Pass' ? true : sample.l3 === 'Fail' ? false : null
+    }))
+  }
+
+  // Helper function to convert boolean values back to TestResult strings for form editing
+  const convertBooleanToTestResult = (samples: any[]): SampleItem[] => {
+    return samples.map(sample => ({
+      ...sample,
+      l1: sample.l1 === true ? 'Pass' : sample.l1 === false ? 'Fail' : undefined,
+      l2: sample.l2 === true ? 'Pass' : sample.l2 === false ? 'Fail' : undefined,
+      l3: sample.l3 === true ? 'Pass' : sample.l3 === false ? 'Fail' : undefined
+    }))
+  }
 
   const addF03 = async (sampleForm: WorkingPaperSampleForm) => {
     const newSample = {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
       population: sampleForm.population != null ? String(sampleForm.population) : '',
       sampleSize: sampleForm.sampleSize,
-      samples: (sampleForm.samples || []).map(formatSampleForPayload),
+      samples: convertSampleTestResults(sampleForm.samples),
       conclusion: sampleForm.conclusion
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -719,7 +718,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
       population: updatedData.population != null ? String(updatedData.population) : '',
       sampleSize: updatedData.sampleSize,
-      samples: (updatedData.samples || []).map(formatSampleForPayload),
+      samples: convertSampleTestResults(updatedData.samples),
       conclusion: updatedData.conclusion
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -802,6 +801,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     sampleForm.population = sample.population != null ? String(sample.population) : ''
     sampleForm.sampleSize = sample.sampleSize
+
+    // Convert boolean values from backend back to string for form editing
     let parsedSamples: any[] = []
     if (Array.isArray(sample.samples)) {
       parsedSamples = sample.samples
@@ -812,24 +813,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
         parsedSamples = []
       }
     }
-    const normalizeResult = (val: any) => {
-      if (val === true || val === 'Pass' || (typeof val === 'string' && val.toLowerCase() === 'pass')) return 'Pass'
-      if (val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')) return 'Fail'
-      return undefined
-    }
 
     sampleForm.samples = parsedSamples.length > 0
-      ? parsedSamples.map((s: any) => ({
-          id: s.id || Date.now(),
-          fieldworkDocument: s.fieldworkDocument || '',
-          document: s.document || '',
-          step1: s.step1 || '',
-          l1: normalizeResult(s.l1),
-          step2: s.step2 || '',
-          l2: normalizeResult(s.l2),
-          step3: s.step3 || '',
-          l3: normalizeResult(s.l3)
-        }))
+      ? convertBooleanToTestResult(parsedSamples)
       : [{
           id: Date.now(),
           fieldworkDocument: '',
@@ -1128,6 +1114,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // --- GETTERS: Cek Efektivitas Sampel ---
   // Return true = Efektif, Return false = Tidak Efektif
+  // Handles both string values (from form) and boolean values (from backend API)
   const checkSampleStatus = (sampel?: Partial<SampleItem>): boolean => {
     if (!sampel) return false
     const isFail = (val: any) => val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')
@@ -1245,7 +1232,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
 
     // 1. Current selected letter in fieldwork or working paper
-    const currentLetter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter || 'ST-001/SKAI/2026'
+    const currentLetter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
     const activeSamples = fieldworkStore.fieldworkData?.[currentLetter]?.samples || fieldworkStore.samples || []
     if (Array.isArray(activeSamples)) {
       activeSamples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
@@ -1297,6 +1284,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF01, isEditingF02, isEditingF03, isEditingF04, isEditingF05,
     dataF01, dataF02, dataF03, dataF04, dataF05,
     filteredDataF01, filteredDataF02, filteredDataF03, filteredDataF04, filteredDataF05,
+    hasAssignmentLetter,
     addF03,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,

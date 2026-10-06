@@ -4,7 +4,7 @@
         <TableEntities
           :data="store.filteredDataF04"
           :columns="store.columnsF04"
-          :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }"
+          :empty-state="store.hasAssignmentLetter ? { icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' } : { icon: 'i-heroicons-document-magnifying-glass', label: t('workingPaper.index.selectLetterFirst') }"
           :ui="{ td: '!whitespace-normal' }"
         >
             <template #condition-cell="{ row }">
@@ -73,7 +73,9 @@
 
 <script setup lang="ts">
 import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useI18n } from '~/composables/useI18n'
 
+const { t } = useI18n()
 const store = useWorkingPaperStore()
 
 </script>
