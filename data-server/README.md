@@ -26,66 +26,89 @@ Diagram arsitektur tingkat tinggi yang dirancang khusus untuk presentasi kepada 
 4. **Ruang Kontrol Direksi & Auditor Suite:** Menampilkan *Enterprise Risk Heatmap* real-time satu layar bagi Direksi, sekaligus memangkas siklus kerja auditor hingga 70% melalui otomasi KKA & LHA 1-klik.
 
 ---
+### 1.2 Topologi Teknis & Infrastruktur Jaringan (Untuk Tim IT & DevOps) — Versi 2.0
 
-### 1.2 Topologi Teknis & Infrastruktur Jaringan (Untuk Tim IT & DevOps)
+Diagram topologi mendalam mengenai pengkabelan jaringan virtual privat (WireGuard VPN), pemetaan port container Docker, segmentasi 7 service backend, serta arsitektur streaming scalable data process skala 1 TB+:
 
-Diagram topologi mendalam mengenai pengkabelan jaringan virtual privat (WireGuard VPN), pemetaan port container Docker, dan segmentasi service backend.
-
-![Topologi Jaringan & Server Data Hub](docs/images/data_server_topology_architecture.png)
+![Topologi Jaringan & Server Data Hub v2](docs/images/data_server_topology_architecture_v2.png)
 
 ```
-┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
-│          Audit Server           │                 │      Data Hub Server (KVM)      │
-│         202.10.34.166           │                 │          187.127.122.82         │
-│          (10.0.0.2)             │                 │           (10.0.0.1)            │
-│                                 │                 │                                 │
-│  • Nuxt.js Frontend             │ WireGuard Tunnel│  • Nginx Gateway (:80)          │
-│  • analytics-service (:8084)   │ ═══════════════ │  • Data Lake PG (:5433)         │
-│  • master-service (:8003)       │  Port 51820 UDP │  • CBS Simulator PG (:5434)     │
-│  • risk-service (:8004)         │   (Encrypted)   │  • Data Hub API (:8100)         │
-│  • audit-service (:8002)        │                 │  • AI Engine (:8000)            │
-│                                 │                 │  • JupyterLab CAATT (:8888)     │
-└─────────────────────────────────┘                 └─────────────────────────────────┘
+┌─────────────────────────────────┐                 ┌─────────────────────────────────────────────────────┐
+│          Audit Server           │                 │           Data Hub Server (AlmaLinux 10 KVM)        │
+│         202.10.34.166           │                 │                   187.127.122.82                    │
+│          (10.0.0.2)             │                 │                    (10.0.0.1)                       │
+│                                 │                 │                                                     │
+│  • Nuxt.js Frontend (:3000)     │ WireGuard Tunnel│  • Nginx Gateway (:80 VPN)                          │
+│  • analytics-service (:8084)   │ ═══════════════ │  • TimescaleDB Data Lake (:5433 host, autotuned)    │
+│  • master-service (:8003)       │  Port 51820 UDP │  • Data Hub API (:8100, job queue dispatcher)       │
+│  • risk-service (:8004)         │   (Encrypted)   │  • Data Hub Worker (python worker.py, streaming COPY│
+│  • audit-service (:8002)        │                 │  • AI Engine (:8006 host, /retrain/auto webhook)    │
+│  • PostgreSQL DB (:5432)        │                 │  • JupyterLab CAATT Engine (:8888 internal)         │
+│                                 │                 │  • CBS Simulator PG (:5434 host, demo profile)      │
+└─────────────────────────────────┘                 └─────────────────────────────────────────────────────┘
 ```
 
 ### 3 Lapis Keamanan
-1. **Network (WireGuard VPN):** Port service (:8000, :8100, :5433, :5434) tidak di-expose ke internet publik. Hanya traffic melalui interface VPN privat `10.0.0.0/24` yang dapat mengakses API.
+1. **Network (WireGuard VPN):** Port service internal tidak di-expose ke internet publik. Hanya traffic melalui interface VPN privat `10.0.0.0/24` yang dapat mengakses API dan database.
 2. **Application (API Key Authentication):** Setiap request HTTP antar-server wajib menyertakan header `X-API-Key: <DATA_HUB_API_KEY>`.
 3. **Gateway (HTTP Basic Auth):** Akses antarmuka JupyterLab CAATT Engine di-reverse proxy oleh Nginx dan dilindungi autentikasi kredensial pengguna auditor (`etl_user`, `auditor_ai`).
 
 ---
 
-## 2. Struktur Komponen (Docker Containers)
+## 2. Struktur Komponen (7 Docker Containers)
 
-| Container Name | Service | Port Internal | Fungsi |
+| Container Name | Service | Port Internal | Fungsi Utama (v2.0) |
 |---|---|---|---|
-| `auditsphere_nginx` | Nginx Proxy | `:80` | Reverse proxy & basic auth gateway untuk JupyterLab |
-| `auditsphere_datalake` | PostgreSQL 16 | `:5432` (host :5433) | Repositori Data Lake multi-zona (Bronze, Silver, Gold) |
-| `auditsphere_cbs_sim` | PostgreSQL 16 | `:5432` (host :5434) | Simulator Core Banking System (10K+ transaksi nasabah) |
-| `auditsphere_datahub_api` | FastAPI | `:8100` | REST API ingest, serving Gold zone, sync master data, CAATT |
-| `auditsphere_ai_engine` | FastAPI + ML | `:8000` | Inferensi AI (XGBoost, Isolation Forest, IndoBERT, LSTM) & Auto-Retrain |
-| `auditsphere_caatt` | JupyterLab | `:8888` | CAATT Engine interaktif dengan 12 notebook audit |
+| `auditsphere_nginx` | Nginx Proxy 1.27 | `:80` (VPN only) | Reverse proxy & basic auth gateway untuk akses privat JupyterLab UI |
+| `auditsphere_datalake` | TimescaleDB 2.17.2-pg16 | `:5432` (host :5433) | Lakehouse multi-skema (Bronze, Silver, Gold, Ops). LZ4 Columnar compression (4.2x–6.8x), dynamic memory tuning via `autotune.sh` |
+| `auditsphere_cbs` | PostgreSQL 16 | `:5432` (host :5434) | Simulator Core Banking System (10K+ transaksi nasabah sintetis) |
+| `auditsphere_datahub_api` | FastAPI | `:8100` | REST API gateway: introspeksi zero-lock, registrasi skema, pendaftaran task ke `ops.job_queue`, endpoint 7 CAATT & rekonsiliasi |
+| `auditsphere_datahub_worker` | Python Worker Daemon | Background (`worker.py`) | **[NEW]** Mengonsumsi `ops.job_queue`, zero-lock streaming binary `COPY FROM STDIN` (<180MB RAM), SHA-256 hash manifest batch, sinkronisasi audit tombstones (`_op='D'`), dan trigger webhook retrain AI |
+| `auditsphere_ai_engine` | FastAPI + ML Engine | `:8000` (host :8006) | Inferensi AI 4 suite model prediktif (XGBoost, Isolation Forest, IndoBERT, LSTM), endpoint `/retrain/auto` webhook, dan zero-downtime hot-reload |
+| `auditsphere_caatt` | JupyterLab | `:8888` | CAATT Engine interaktif dengan 12 notebook audit, dlt pipeline, dan DuckDB/Pandas |
+
+> Panduan kapasitas spesifikasi perangkat keras (Demo 8GB VPS vs Client Enterprise 64GB+ 1 TB Scale) dapat dilihat di [SIZING_GUIDE.md](SIZING_GUIDE.md).
 
 ---
 
-## 3. Data Lake Architecture (3-Zone Medallion)
+## 3. Data Lake Architecture (Medallion Multi-Zona & Ops Engine v2.0)
 
-![Arsitektur Medallion Lakehouse & Alur Fitur](docs/images/data_server_medallion_flow.png)
+![Arsitektur Medallion Lakehouse & Alur Fitur v2](docs/images/data_server_medallion_flow_v2.png)
 
 ```
-CBS / LOS / GL / Master Data
+Multi-RDBMS Client (PostgreSQL, MySQL, Oracle, MSSQL, SAP HANA, S3, Core Banking)
             │
-            ▼
-┌───────────────────────┐
-│      BRONZE ZONE      │  Raw data, append-only, tanpa validasi tipe ketat.
-│   (cbs_*, sync_*)     │  Menyimpan riwayat mentah transaksi perbankan.
-└───────────┬───────────┘
-            │ dlt / Python ETL (Cleaning, Type Casting, Deduplication)
-            ▼
-┌───────────────────────┐
-│      SILVER ZONE      │  Cleaned & standardized relational models.
-│   (cbs_*, ref_*)      │  Validasi referensial nasabah, akun, dan produk.
-└───────────┬───────────┘
+            ▼ [ServerCursor + Zero-Lock Binary COPY FROM STDIN | RAM < 180MB Flat]
+┌───────────────────────────────────────┐
+│        BRONZE ZONE (Append-Only)      │  Raw ingest, Timescale Hypertables.
+│  • ops.prevent_bronze_mutation()      │  Dilindungi trigger permanen anti-mutasi.
+│  • ops.ingest_batches (SHA-256 Hash)  │  Menyimpan audit tombstones (_op='D') jika baris dihapus di sumber.
+└───────────────────┬───────────────────┘
+                    │ Worker Queue Transform (Canonical Mapping, Synonyms, PK Deduplication)
+                    ▼
+┌───────────────────────────────────────┐
+│              SILVER ZONE              │  Cleaned & standardized relational models.
+│  • external_source_data (Canonical)   │  Melacak rekonsiliasi bucket (width_bucket),
+│  • silver.trx_cleaned, acct_cleaned   │  baris yang hilang di klien ditandai is_deleted=TRUE (Audit Tombstone).
+└───────────────────┬───────────────────┘
+                    │ Continuous Aggregates & Star Schema Transformation
+                    ▼
+┌───────────────────────────────────────┐
+│        GOLD ZONE (Columnar LZ4)       │  Star schema (facts & dimensions) + 50+ views.
+│  • gold.fact_transactions (LZ4 4.2x)  │  Kompresi otomatis chunk > 7 hari (1 TB raw -> ~180-240 GB disk).
+│  • gold.ai_training_pool (ML feature) │  Vectorized execution: query analitik membaca langsung tanpa dekompresi RAM.
+└───────────────────────────────────────┘
+```
+
+### Skema Operasional `ops` (Auditor Cryptographic Proof)
+* **`ops.ingest_batches`**: Setiap batch yang masuk dihitung checksum SHA-256 sebagai bukti integritas matematis audit.
+* **`ops.watermarks`**: Menyimpan timestamp incremental ingestion per tabel sumber.
+* **`ops.job_queue`**: Antrian terkelola untuk dispatch tugas ingest asinkron antara Data Hub API dan Worker.
+* **`ops.reconcile_runs`**: Log jejak rekonsiliasi source deletion detection dan ringkasan audit tombstones.
+
+### Hak Akses Database Roles
+* **`etl_user`**: Memiliki hak `CREATE`, `SELECT`, `INSERT`, `UPDATE`, `DELETE` di zona `bronze`, `silver`, `gold`, `ops`.
+* **`auditor_ai`**: Memiliki hak **`SELECT` murni (Read-Only)** pada zona **`gold`**. Tidak dapat mengubah atau menghapus data.��──────┬───────────┘
             │ SQL Aggregations & Analytics Transformations
             ▼
 ┌───────────────────────┐

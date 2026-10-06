@@ -245,21 +245,24 @@ def run_stratification_tests(engine, source_id: str = "cbs_simulator") -> int:
             WITH categorized AS (
                 SELECT
                     CASE
-                        WHEN amount < 10000000 THEN '< 10M'
-                        WHEN amount < 50000000 THEN '10M - 50M'
-                        WHEN amount < 100000000 THEN '50M - 100M'
-                        ELSE '> 100M'
+                        WHEN amount < 10000000 THEN '< Rp 10 Juta'
+                        WHEN amount < 50000000 THEN 'Rp 10 Juta - 50 Juta'
+                        WHEN amount < 100000000 THEN 'Rp 50 Juta - 100 Juta'
+                        WHEN amount < 500000000 THEN 'Rp 100 Juta - 500 Juta'
+                        ELSE '> Rp 500 Juta'
                     END AS stratum_label,
                     CASE
                         WHEN amount < 10000000 THEN 0
                         WHEN amount < 50000000 THEN 10000000
                         WHEN amount < 100000000 THEN 50000000
-                        ELSE 100000000
+                        WHEN amount < 500000000 THEN 100000000
+                        ELSE 500000000
                     END AS min_value,
                     CASE
                         WHEN amount < 10000000 THEN 10000000
                         WHEN amount < 50000000 THEN 50000000
                         WHEN amount < 100000000 THEN 100000000
+                        WHEN amount < 500000000 THEN 500000000
                         ELSE 999999999999
                     END AS max_value,
                     amount,

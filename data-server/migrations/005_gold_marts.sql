@@ -36,10 +36,11 @@ SELECT
     category,
     branch_name,
     CASE
-        WHEN amount < 10000000 THEN '< 10M'
-        WHEN amount < 50000000 THEN '10M - 50M'
-        WHEN amount < 100000000 THEN '50M - 100M'
-        ELSE '> 100M'
+        WHEN amount < 10000000 THEN '< Rp 10 Juta'
+        WHEN amount < 50000000 THEN 'Rp 10 Juta - 50 Juta'
+        WHEN amount < 100000000 THEN 'Rp 50 Juta - 100 Juta'
+        WHEN amount < 500000000 THEN 'Rp 100 Juta - 500 Juta'
+        ELSE '> Rp 500 Juta'
     END AS stratum_label,
     COUNT(*) AS trx_count,
     SUM(amount) AS total_amount

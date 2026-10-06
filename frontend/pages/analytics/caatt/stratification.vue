@@ -27,7 +27,7 @@ const stratChartData = computed(() => ({
   labels: stratState.value.records.map((r: any) => r.stratumLabel),
   datasets: [
     {
-      label: 'Total Nilai (Rp Milyar)',
+      label: 'Total Nilai Akumulasi (Rp Miliar)',
       backgroundColor: 'rgba(139,92,246,0.75)',
       borderColor: 'rgb(139,92,246)',
       borderWidth: 1.5,
@@ -45,12 +45,12 @@ const stratChartOptions = computed(() => ({
     legend: { display: false },
     tooltip: {
       callbacks: {
-        label: (ctx: any) => `Rp ${ctx.parsed.x} Milyar`
+        label: (ctx: any) => `Total Akumulasi: Rp ${ctx.parsed.x} Miliar`
       }
     }
   },
   scales: {
-    x: { beginAtZero: true, title: { display: true, text: 'Milyar Rupiah' } }
+    x: { beginAtZero: true, title: { display: true, text: 'Akumulasi Nilai (Miliar Rupiah)' } }
   }
 }))
 </script>
@@ -107,9 +107,12 @@ const stratChartOptions = computed(() => ({
         <!-- Strat Chart -->
         <UCard class="lg:col-span-1">
           <template #header>
-            <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
-              <h3 class="font-bold">Konsentrasi Nilai Per Strata</h3>
+            <div>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
+                <h3 class="font-bold">Konsentrasi Nilai Per Strata</h3>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">Akumulasi eksposur nilai (Rp Miliar) per rentang strata</p>
             </div>
           </template>
           <div class="h-80">
@@ -120,19 +123,22 @@ const stratChartOptions = computed(() => ({
         <!-- Strat Table -->
         <UCard class="lg:col-span-2">
           <template #header>
-            <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
-              <h3 class="font-bold">Tabel Distribusi Strata Nominal Transaksi</h3>
+            <div>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
+                <h3 class="font-bold">Tabel Distribusi Strata Nominal Transaksi</h3>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">Distribusi jumlah transaksi dan akumulasi nominal per lapisan rentang</p>
             </div>
           </template>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-gray-200 dark:border-gray-700">
-                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Strata</th>
+                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Strata (Rentang Nilai Trx)</th>
                   <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Segmen</th>
                   <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Jumlah Trx</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Total Nominal</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Total Akumulasi Nominal</th>
                   <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">% Trx</th>
                   <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">% Nilai</th>
                 </tr>
@@ -148,6 +154,20 @@ const stratChartOptions = computed(() => ({
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Interpretation Guide Note -->
+          <div class="mt-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/60 text-xs text-gray-500 dark:text-gray-400 space-y-1.5">
+            <div class="flex items-center gap-1.5 font-semibold text-gray-700 dark:text-gray-300">
+              <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-indigo-500" />
+              <span>Panduan Interpretasi Kolom:</span>
+            </div>
+            <p>
+              &bull; <strong class="text-gray-700 dark:text-gray-300">Strata (Rentang Nilai Trx):</strong> Merupakan batasan nominal per 1 lembar transaksi individu (contoh: transaksi ritel bernilai &lt; Rp 10 Juta hingga wholesale &gt; Rp 500 Juta).
+            </p>
+            <p>
+              &bull; <strong class="text-gray-700 dark:text-gray-300">Total Akumulasi Nominal:</strong> Merupakan total kumulatif dari seluruh transaksi dalam strata tersebut (contoh: 8.420 transaksi bernilai &lt; Rp 10 Juta memiliki akumulasi total Rp 32,5 Miliar).
+            </p>
           </div>
         </UCard>
       </div>

@@ -436,9 +436,9 @@ export interface CAATTStratificationSummary {
 export function useCAATTStratificationData() {
   const records: CAATTStratificationRecord[] = [
     { stratumLabel: '< Rp 10 Juta', minValue: 0, maxValue: 10000000, category: 'Retail', trxCount: 8420, totalAmount: 32500000000, pctCount: 67.4, pctAmount: 8.1 },
-    { stratumLabel: 'Rp 10M - 50M', minValue: 10000000, maxValue: 50000000, category: 'Commercial', trxCount: 2840, totalAmount: 71000000000, pctCount: 22.7, pctAmount: 17.7 },
-    { stratumLabel: 'Rp 50M - 100M', minValue: 50000000, maxValue: 100000000, category: 'Corporate', trxCount: 890, totalAmount: 66750000000, pctCount: 7.1, pctAmount: 16.6 },
-    { stratumLabel: 'Rp 100M - 500M', minValue: 100000000, maxValue: 500000000, category: 'High Value', trxCount: 280, totalAmount: 84000000000, pctCount: 2.2, pctAmount: 20.9 },
+    { stratumLabel: 'Rp 10 Juta - 50 Juta', minValue: 10000000, maxValue: 50000000, category: 'Commercial', trxCount: 2840, totalAmount: 71000000000, pctCount: 22.7, pctAmount: 17.7 },
+    { stratumLabel: 'Rp 50 Juta - 100 Juta', minValue: 50000000, maxValue: 100000000, category: 'Corporate', trxCount: 890, totalAmount: 66750000000, pctCount: 7.1, pctAmount: 16.6 },
+    { stratumLabel: 'Rp 100 Juta - 500 Juta', minValue: 100000000, maxValue: 500000000, category: 'High Value', trxCount: 280, totalAmount: 84000000000, pctCount: 2.2, pctAmount: 20.9 },
     { stratumLabel: '> Rp 500 Juta', minValue: 500000000, maxValue: 99999999999, category: 'Wholesale / Inst', trxCount: 65, totalAmount: 147500000000, pctCount: 0.6, pctAmount: 36.7 },
   ]
 

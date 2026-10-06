@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>AuditSphere Data Hub — Medallion Lakehouse & Scalable Data Process (v2)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #070b14;
+    background-image: 
+      radial-gradient(circle at 12% 10%, rgba(14, 165, 233, 0.14) 0%, transparent 40%),
+      radial-gradient(circle at 88% 90%, rgba(16, 185, 129, 0.14) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 70%),
+      radial-gradient(#1e293b 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+    color: #f1f5f9;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    width: 2600px;
+    height: 1540px;
+    overflow: hidden;
+    position: relative;
+    padding: 30px 45px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 16px;
+  }
+  .title-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .logo-box {
+    width: 58px;
+    height: 58px;
+    background: linear-gradient(135deg, #10b981, #0ea5e9);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.45);
+  }
+  .logo-box svg { width: 34px; height: 34px; fill: white; }
+  .title-text h1 {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #ffffff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .v2-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #0ea5e9, #10b981);
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    vertical-align: middle;
+    -webkit-text-fill-color: initial;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  }
+  .title-text p {
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 3px;
+  }
+  .meta-badges {
+    display: flex;
+    gap: 10px;
+  }
+  .badge {
+    padding: 7px 16px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    backdrop-filter: blur(8px);
+  }
+  .badge-emerald {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+  }
+  .badge-blue {
+    background: rgba(14, 165, 233, 0.15);
+    border: 1px solid rgba(14, 165, 233, 0.35);
+    color: #38bdf8;
+  }
+  .badge-purple {
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    color: #c084fc;
+  }
+  .badge-amber {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+  }
+
+  /* Main Flow Container */
+  .main-flow {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 2510px;
+    height: 1410px;
+    position: relative;
+  }
+
+  /* SVG Overlay */
+  .flow-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  /* Tiers */
+  .tier-container {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(15, 23, 42, 0.78) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 18px 24px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    position: relative;
+    z-index: 10;
+  }
+  .tier-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .tier-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .tier-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tier-icon svg { width: 18px; height: 18px; }
+  .tier-title h2 {
+    font-size: 17.5px;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+  .tier-title span {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-left: 8px;
+    font-weight: 500;
+  }
+
+  /* Cards */
+  .card {
+    background: rgba(30, 41, 59, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 13px;
+    padding: 14px 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    position: relative;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .card-name {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-name svg { width: 17px; height: 17px; }
+  .card-sub {
+    font-size: 11.5px;
+    color: #94a3b8;
+    line-height: 1.45;
+  }
+  .card-pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 2.5px 7px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.06);
+    color: #cbd5e1;
+  }
+  .badge-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+
+  /* Grids */
+  .grid-sources {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr 1fr 1.05fr;
+    gap: 16px;
+  }
+
+  /* Medallion Pipeline Grid with explicit Arrow Pillars */
+  .grid-medallion-pipeline {
+    display: grid;
+    grid-template-columns: 1fr 68px 1.05fr 68px 1.35fr;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .medallion-arrow-pillar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+  }
+  .arrow-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+  .arrow-circle svg { width: 20px; height: 20px; }
+  .arrow-tag {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .grid-features {
+    display: grid;
+    grid-template-columns: 1fr 1.05fr 1.25fr;
+    gap: 16px;
+  }
+
+  /* Medallion Zones */
+  .medallion-zone {
+    border-radius: 15px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 380px;
+    position: relative;
+  }
+  .zone-bronze {
+    background: linear-gradient(180deg, rgba(180, 83, 9, 0.2) 0%, rgba(30, 41, 59, 0.8) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+  }
+  .zone-silver {
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.2) 0%, rgba(30, 41, 59, 0.8) 100%);
+    border: 1px solid rgba(148, 163, 184, 0.45);
+  }
+  .zone-gold {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.22) 0%, rgba(30, 41, 59, 0.85) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 35px rgba(16, 185, 129, 0.15);
+  }
+
+  /* Ops Control Strip */
+  .ops-control-strip {
+    margin-top: 10px;
+    background: rgba(11, 17, 32, 0.85);
+    border: 1px dashed rgba(56, 189, 248, 0.4);
+    border-radius: 10px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ops-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ops-items {
+    display: flex;
+    gap: 12px;
+    font-size: 10.5px;
+    color: #cbd5e1;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ops-items span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .ops-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  /* Feature Lists */
+  .feature-item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-top: 8px;
+  }
+  .feature-item {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 8px 12px;
+    border-radius: 7px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .feature-item-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+  .feature-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="header">
+    <div class="title-group">
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16v4H4V6zm0 8h16v4H4v-4zM2 4v16a2 2 0 002 2h16a2 2 0 002-2V4a2 2 0 00-2-2H4a2 2 0 00-2 2z"/></svg>
+      </div>
+      <div class="title-text">
+        <h1>AuditSphere Data Hub — Medallion Lakehouse & Scalable Pipeline <span class="v2-pill">VERSION 2.0</span></h1>
+        <p>Arsitektur Data Skala Besar (1 TB+): Zero-Lock Streaming, TimescaleDB Columnar Compression (4.2x–6.8x), Ops Schema & Tombstones, Background Worker, & Multi-Source CAATT</p>
+      </div>
+    </div>
+    <div class="meta-badges">
+      <div class="badge badge-emerald">
+        <svg style="width:13px;height:13px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 4.02 2 6.5v11C2 19.98 6.48 22 12 22s10-2.02 10-4.5v-11C22 4.02 17.52 2 12 2z"/></svg>
+        TimescaleDB 2.17 Columnar LZ4 (4.2x–6.8x)
+      </div>
+      <div class="badge badge-blue">
+        <svg style="width:13px;height:13px;fill:currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+        Zero-Lock Streaming &lt; 180MB RAM
+      </div>
+      <div class="badge badge-purple">
+        <svg style="width:13px;height:13px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        Ops Schema & Audit Tombstones
+      </div>
+      <div class="badge badge-amber">
+        <svg style="width:13px;height:13px;fill:currentColor" viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+        Hardware-Adaptive (8GB Demo / 64GB+ Prod)
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Flow Structure -->
+  <div class="main-flow">
+
+    <!-- Clean SVG Connectors -->
+    <svg class="flow-svg" viewBox="0 0 2510 1410">
+      <defs>
+        <marker id="m-arr-green" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#10b981"/>
+        </marker>
+        <marker id="m-arr-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#38bdf8"/>
+        </marker>
+        <marker id="m-arr-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#06b6d4"/>
+        </marker>
+      </defs>
+
+      <!-- 1. Converging Ingress into Bronze via Gap 1 & Left Margin (Zero Text Overlap) -->
+      <!-- Multi-RDBMS Zero-Lock (316, 235) -> stays in Gap 1 (y<=270) to x=25, down outer margin to y=470, enters Bronze -->
+      <path d="M 316 235 C 316 265, 120 265, 25 270 L 25 470 L 68 470" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
+      <!-- Schema Introspect & Synonyms (913, 235) -> stays in Gap 1 (y<=265) to x=20, down outer margin to y=510, enters Bronze -->
+      <path d="M 913 235 C 913 260, 200 260, 20 265 L 20 510 L 68 510" stroke="#a855f7" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
+      <!-- Banking Core & Watermark (1510, 235) -> stays in Gap 1 (y<=255) to x=15, down outer margin to y=550, enters Bronze -->
+      <path d="M 1510 235 C 1510 255, 300 255, 15 260 L 15 550 L 68 550" stroke="#10b981" stroke-width="2.5" fill="none" marker-end="url(#m-arr-blue)"/>
+      <!-- Audit DB Sync (2050, 235) -> stays in Gap 1 (y<=250) to x=10, down outer margin to y=590, enters Bronze -->
+      <path d="M 2050 235 C 2050 250, 400 250, 10 255 L 10 590 L 68 590" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="6 3" fill="none" marker-end="url(#m-arr-cyan)"/>
+
+      <!-- 2. Audit DB Direct OLTP Bypass to CRUD Features (Down right margin x=2496, across Gap 2 at y=855, enters Tier 3 at x=390, y=945) -->
+      <path d="M 2350 235 C 2496 235, 2496 350, 2496 550 L 2496 855 L 390 855 L 390 945" stroke="#06b6d4" stroke-width="2.2" stroke-dasharray="6 4" fill="none" marker-end="url(#m-arr-cyan)"/>
+
+      <!-- 3. Gold Zone (bottom left x=1620, y=755) to Enriched Features (enters Tier 3 at x=1162, y=945) -->
+      <path d="M 1620 755 C 1620 850, 1162 850, 1162 945" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#m-arr-green)"/>
+
+      <!-- 4. Gold Zone (bottom center x=2018, y=755) to Pure Analytics (enters Tier 3 at x=2018, y=945) -->
+      <path d="M 2018 755 L 2018 945" stroke="#10b981" stroke-width="3.5" fill="none" marker-end="url(#m-arr-green)"/>
+    </svg>
+
+    <!-- ==================================================================== -->
+    <!-- TIER 1: SUMBER DATA (Zero-Lock Ingestion & Synonyms)                  -->
+    <!-- ==================================================================== -->
+    <div class="tier-container" style="height: 235px;">
+      <div class="tier-header">
+        <div class="tier-title">
+          <div class="tier-icon" style="background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+          </div>
+          <h2>1. Sumber Data (Zero-Lock Ingestion & Canonical Mapping)</h2>
+          <span>Streaming Cursor Ingest &bull; Zero-Lock Introspection &bull; Watermark Tracking &bull; Manifest SHA-256 Checksum</span>
+        </div>
+        <span class="badge-tag" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">ZERO-LOCK STREAMING INTAKE</span>
+      </div>
+
+      <div class="grid-sources">
+        <!-- 1. Zero-Lock Server Cursor Streaming -->
+        <div class="card" style="border-left: 4px solid #38bdf8;">
+          <div class="card-head">
+            <div class="card-name">
+              <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+              Zero-Lock Cursor Streaming
+            </div>
+            <span class="pill" style="color:#38bdf8;">psycopg.ServerCursor</span>
+          </div>
+          <div class="card-sub">Streaming data baris-per-chunk langsung ke <code>COPY FROM STDIN</code> tanpa DataFrame memori. Strict <code>READ ONLY</code> & <code>statement_timeout=60s</code>. Pool dibatasi max 2 koneksi.</div>
+          <div class="card-pill-list">
+            <span class="pill" style="color:#38bdf8; font-weight:700;">Flat RAM &lt;180MB</span>
+            <span class="pill">COPY STDIN</span>
+            <span class="pill">pg_class.reltuples</span>
+            <span class="pill">Zero COUNT(*) Lock</span>
+          </div>
+        </div>
+
+        <!-- 2. Schema Introspect & Canonical Synonyms -->
+        <div class="card" style="border-left: 4px solid #a855f7;">
+          <div class="card-head">
+            <div class="card-name" style="color:#c084fc;">
+              <svg viewBox="0 0 24 24" fill="#a855f7"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              Canonical Mapping & Synonyms
+            </div>
+            <span class="pill" style="color:#c084fc;">mapping/synonyms.py</span>
+          </div>
+          <div class="card-sub">Kamus sinonim kolom otomatis (misal: <code>trx_id, no_rek, debet, kredit</code>) memetakan skema asing ke model kanonikal standar. Deteksi PK dinamis untuk deduplikasi.</div>
+          <div class="card-pill-list">
+            <span class="pill" style="color:#c084fc;">synonyms.py</span>
+            <span class="pill" style="color:#38bdf8;">canonical.py</span>
+            <span class="pill" style="color:#34d399;">PK Detection</span>
+            <span class="pill" style="color:#f59e0b;">4 Target Scopes</span>
+          </div>
+        </div>
+
+        <!-- 3. Banking Systems & Watermark Sync -->
+        <div class="card" style="border-left: 4px solid #10b981;">
+          <div class="card-head">
+            <div class="card-name" style="color:#34d399;">
+              <svg viewBox="0 0 24 24" fill="#34d399"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 22h19v-3H2v3zm15-12h3v7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
+              Core Banking & Watermark Sync
+            </div>
+            <span class="pill" style="color:#34d399;">ops.watermarks</span>
+          </div>
+          <div class="card-sub">Ingestion inkremental berbasis watermarking waktu/ID (CBS mutasi, LOS fasilitas kredit, GL ledger, ATM logs). Mendukung chunk 10K (Demo VPS) hingga 100K (Enterprise Prod).</div>
+          <div class="card-pill-list">
+            <span class="pill">Incremental Watermark</span>
+            <span class="pill">Chunk 10K/100K</span>
+            <span class="pill">CBS Mutasi</span>
+            <span class="pill">LOS Plafon</span>
+          </div>
+        </div>
+
+        <!-- 4. Audit DB & Manifest SHA-256 -->
+        <div class="card" style="border-left: 4px solid #06b6d4; background:rgba(6, 182, 212, 0.08);">
+          <div class="card-head">
+            <div class="card-name" style="color:#22d3ee;">
+              <svg viewBox="0 0 24 24" fill="#22d3ee"><path d="M12 2C6.48 2 2 4.02 2 6.5v11C2 19.98 6.48 22 12 22s10-2.02 10-4.5v-11C22 4.02 17.52 2 12 2z"/></svg>
+              Audit DB & Manifest Hash
+            </div>
+            <span class="pill" style="color:#22d3ee;">ops.ingest_batches</span>
+          </div>
+          <div class="card-sub">Master entitas operasional audit harian & kredensial terenkripsi. Setiap batch yang masuk dihitung checksum SHA-256 untuk bukti integritas forensik matematis.</div>
+          <div class="card-pill-list">
+            <span class="pill" style="color:#22d3ee;">SHA-256 Hash</span>
+            <span class="pill" style="color:#22d3ee;">Ingest Manifest</span>
+            <span class="pill" style="color:#22d3ee;">Master Entities</span>
+            <span class="pill" style="color:#22d3ee;">Zero Mutation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- TIER 2: 3-ZONE MEDALLION LAKEHOUSE (TimescaleDB + Ops Schema)        -->
+    <!-- ==================================================================== -->
+    <div class="tier-container" style="height: 500px;">
+      <div class="tier-header">
+        <div class="tier-title">
+          <div class="tier-icon" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#34d399"><path d="M12 2C6.48 2 2 4.02 2 6.5v11C2 19.98 6.48 22 12 22s10-2.02 10-4.5v-11C22 4.02 17.52 2 12 2z"/></svg>
+          </div>
+          <h2>2. Data Lakehouse Architecture (TimescaleDB 2.17.2-pg16 Multi-Zona + Ops Engine)</h2>
+          <span>Bronze (Hypertables & Mutasi Terkunci) ➔ Silver (Current State & Deteksi Delete) ➔ Gold (Columnar Compressed Marts LZ4 & Multi-Source CAATT)</span>
+        </div>
+        <span class="badge-tag" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">TIMESCALEDB 2.17 &bull; COLUMNAR COMPRESSION</span>
+      </div>
+
+      <div class="grid-medallion-pipeline">
+        <!-- Bronze Zone -->
+        <div class="medallion-zone zone-bronze">
+          <div>
+            <div class="card-head">
+              <div class="card-name" style="color:#f59e0b;">
+                <span style="width:11px;height:11px;border-radius:50%;background:#f59e0b;display:inline-block;box-shadow:0 0 8px #f59e0b;"></span>
+                BRONZE (Timescale Hypertables)
+              </div>
+              <span class="pill" style="color:#fbbf24;">ops.prevent_bronze_mutation()</span>
+            </div>
+            <div class="card-sub" style="margin-top:4px;">
+              Tabel hypertable terpartisi berdasarkan waktu ingest. Dilindungi trigger anti-mutasi permanen. Menyimpan tombstone (<code>_op='D'</code>) bila sumber menghapus data.
+            </div>
+
+            <div style="margin-top: 10px; background:rgba(15,23,42,0.65); padding:10px; border-radius:9px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:10.5px; font-weight:700; color:#fbbf24; text-transform:uppercase; margin-bottom:4px;">Tabel Skema bronze.* & Ops:</div>
+              <div style="font-size:11px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; line-height:1.65;">
+                &bull; <strong>bronze.registered_sources</strong> (Registry)<br/>
+                &bull; <strong>bronze.&lt;src&gt;_&lt;table&gt;</strong> (Partitioned Hypertable)<br/>
+                &bull; <strong>bronze.cb_transactions, cb_accounts</strong><br/>
+                &bull; <strong>ops.ingest_batches</strong> (SHA-256 Manifest)<br/>
+                &bull; <strong>ops.prevent_bronze_mutation()</strong> (Immutable)
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:10.5px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+            Engine Ingest: <strong style="color:#f59e0b;">COPY FROM STDIN &bull; Server-Side Cursor &bull; Batch Checksum</strong>
+          </div>
+        </div>
+
+        <!-- Pillar 1: Bronze -> Silver -->
+        <div class="medallion-arrow-pillar">
+          <div class="arrow-circle" style="background:rgba(245, 158, 11, 0.2); border:1px solid rgba(245, 158, 11, 0.5);">
+            <svg viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+          </div>
+          <div class="arrow-tag" style="color:#fbbf24;">
+            Worker Queue<br/>Transform
+          </div>
+          <div style="font-size:9px; color:#94a3b8;">
+            Canonical Map<br/>PK Deduplication
+          </div>
+        </div>
+
+        <!-- Silver Zone -->
+        <div class="medallion-zone zone-silver">
+          <div>
+            <div class="card-head">
+              <div class="card-name" style="color:#cbd5e1;">
+                <span style="width:11px;height:11px;border-radius:50%;background:#cbd5e1;display:inline-block;box-shadow:0 0 8px #cbd5e1;"></span>
+                SILVER (Current State & Deletions)
+              </div>
+              <span class="pill" style="color:#e2e8f0;">Source Deletion Detection</span>
+            </div>
+            <div class="card-sub" style="margin-top:4px;">
+              Model relasional kanonikal terstandardisasi. Melacak rekonsiliasi bucket (<code>width_bucket</code>); baris yang dihapus di klien ditandai sebagai <strong>Audit Tombstone</strong>.
+            </div>
+
+            <div style="margin-top: 10px; background:rgba(15,23,42,0.65); padding:10px; border-radius:9px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:10.5px; font-weight:700; color:#cbd5e1; text-transform:uppercase; margin-bottom:4px;">Tabel Skema silver.*:</div>
+              <div style="font-size:11px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; line-height:1.65;">
+                &bull; <strong>silver.external_source_data</strong> (Canonical JSONB)<br/>
+                &bull; <strong>silver.trx_cleaned</strong> (is_deleted, deleted_at)<br/>
+                &bull; <strong>silver.loan_cleaned, acct_cleaned</strong><br/>
+                &bull; <strong>ops.reconcile_runs</strong> (Bucket Discrepancy Log)<br/>
+                &bull; <strong>Single Customer View & Audit Key Dedup</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:10.5px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+            Deteksi Fraud: <strong style="color:#cbd5e1;">Bucket Count Reconcile &bull; Tombstone Preservation</strong>
+          </div>
+        </div>
+
+        <!-- Pillar 2: Silver -> Gold -->
+        <div class="medallion-arrow-pillar">
+          <div class="arrow-circle" style="background:rgba(16, 185, 129, 0.2); border:1px solid rgba(16, 185, 129, 0.5);">
+            <svg viewBox="0 0 24 24" fill="#34d399"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+          </div>
+          <div class="arrow-tag" style="color:#34d399;">
+            LZ4 Columnar<br/>Compression
+          </div>
+          <div style="font-size:9px; color:#94a3b8;">
+            4.2x–6.8x Rasio<br/>AI Webhook Trigger
+          </div>
+        </div>
+
+        <!-- Gold Zone -->
+        <div class="medallion-zone zone-gold">
+          <div>
+            <div class="card-head">
+              <div class="card-name" style="color:#34d399;">
+                <span style="width:11px;height:11px;border-radius:50%;background:#34d399;display:inline-block;box-shadow:0 0 10px #34d399;"></span>
+                GOLD (Columnar Compressed Marts & Multi-Source CAATT)
+              </div>
+              <span class="pill" style="color:#34d399; border-color:rgba(16,185,129,0.3);">Vectorized Execution</span>
+            </div>
+            <div class="card-sub" style="margin-top:4px;">
+              Data mart analitik terkompresi columnar LZ4 (data 1 TB menjadi ~180-240 GB di NVMe). Eksekusi query tervektorisasi membaca langsung tanpa dekompresi ke RAM.
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+              <div style="background:rgba(15,23,42,0.7); padding:9px; border-radius:9px; border:1px solid rgba(255,255,255,0.06);">
+                <div style="font-size:10.5px; font-weight:700; color:#34d399; text-transform:uppercase; margin-bottom:4px;">Compressed Marts & AI Pool:</div>
+                <div style="font-size:10.5px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; line-height:1.6;">
+                  &bull; <strong>gold.fact_transactions</strong> (LZ4 Compressed)<br/>
+                  &bull; <strong>gold.ai_training_pool</strong> (Feature Pool)<br/>
+                  &bull; Segmentby: source_id, category<br/>
+                  &bull; Orderby: trx_date DESC<br/>
+                  &bull; 50+ Specialized Continuous Views
+                </div>
+              </div>
+
+              <div style="background:rgba(15,23,42,0.7); padding:9px; border-radius:9px; border:1px solid rgba(255,255,255,0.06);">
+                <div style="font-size:10.5px; font-weight:700; color:#fb923c; text-transform:uppercase; margin-bottom:4px;">Multi-Source CAATT & Retrain:</div>
+                <div style="font-size:10.5px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; line-height:1.6;">
+                  &bull; <strong>caatt_full_population</strong> (Multi-Source)<br/>
+                  &bull; <strong>caatt_benford</strong> & duplicate_gap<br/>
+                  &bull; <strong>Webhook /retrain/auto</strong> Trigger<br/>
+                  &bull; Atomic Hot-Swap ML Artifacts<br/>
+                  &bull; Role <strong>auditor_ai</strong> (Read-Only)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:10.5px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+            Efisiensi: <strong style="color:#34d399;">Kompresi 4.2x–6.8x &bull; Vectorized Query &bull; 7-Day Auto-Compress Policy</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ops Control Strip -->
+      <div class="ops-control-strip">
+        <div class="ops-badge">
+          <svg style="width:14px;height:14px;fill:#38bdf8" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+          OPS & GOVERNANCE CONTROL PLANE
+        </div>
+        <div class="ops-items">
+          <span><span class="ops-dot" style="background:#38bdf8;"></span> <strong>ops.ingest_batches</strong> (SHA-256 Cryptographic Audit Proof)</span>
+          <span><span class="ops-dot" style="background:#c084fc;"></span> <strong>ops.job_queue</strong> (Async Worker Pipeline)</span>
+          <span><span class="ops-dot" style="background:#fbbf24;"></span> <strong>ops.watermarks</strong> (Incremental State)</span>
+          <span><span class="ops-dot" style="background:#34d399;"></span> <strong>ops.reconcile_runs</strong> (Source Deletion Audit)</span>
+          <span><span class="ops-dot" style="background:#f43f5e;"></span> <strong>prevent_bronze_mutation()</strong> (Append-Only Lock)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- TIER 3: AUDITSPHERE APPLICATION FEATURES                            -->
+    <!-- ==================================================================== -->
+    <div class="tier-container" style="height: 520px;">
+      <div class="tier-header">
+        <div class="tier-title">
+          <div class="tier-icon" style="background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#c084fc"><path d="M12 2L2 19.5h20L12 2zm0 4l6.5 11.5h-13L12 6z"/></svg>
+          </div>
+          <h2>3. Lapisan Konsumsi Fitur AuditSphere (Nuxt 3 Frontend & Services)</h2>
+          <span>Pemetaan Aliran Konsumsi Data: Fitur Operasional CRUD, Fitur Terkaya (Enriched), dan Analitik Murni Berkecepatan Tinggi</span>
+        </div>
+        <span class="badge-tag" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3);">APPLICATION TIER</span>
+      </div>
+
+      <div class="grid-features">
+        <!-- Tier 1: Direct CRUD -->
+        <div class="card" style="border-top: 4px solid #38bdf8;">
+          <div class="card-head">
+            <div class="card-name" style="color:#38bdf8;">
+              <span class="feature-dot" style="background:#38bdf8; box-shadow:0 0 8px #38bdf8;"></span>
+              CRUD Features (Direct Audit DB)
+            </div>
+            <span class="pill" style="color:#38bdf8;">Murni Audit DB</span>
+          </div>
+          <div class="card-sub">
+            Workflow dokumen & operasional harian auditor. Baca & tulis langsung ke PostgreSQL Audit Server tanpa membebani Data Lakehouse.
+          </div>
+
+          <div class="feature-item-list">
+            <div class="feature-item">
+              <div class="feature-item-left">
+                <span class="feature-dot" style="background:#38bdf8;"></span>
+                Master Data CRUD
+              </div>
+              <span class="pill">companies, departments</span>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-item-left">
+                <span class="feature-dot" style="background:#38bdf8;"></span>
+                Audit Charter & Mandates
+              </div>
+              <span class="pill">charters, mandates</span>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-item-left">
+                <span class="feature-dot" style="background:#38bdf8;"></span>
+                Assignment Letter
+              </div>
+              <span class="pill">surat tugas workflow</span>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-item-left">
+                <span class="feature-dot" style="background:#38bdf8;"></span>
+                Working Paper CRUD
+              </div>
+              <span class="pill">fieldwork & evidence</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier 2: Enriched Features -->
+        <div class="card" style="border-top: 4px solid #06b6d4;">
+          <div class="card-head">
+            <div class="card-name" style="color:#22d3ee;">
+              <span class="feature-dot" style="background:#06b6d4; box-shadow:0 0 8px #06b6d4;"></span>
+              Enriched Features (CRUD + Gold + Ops)
+            </div>
+            <span class="pill" style="color:#22d3ee;">Dual Source API</span>
+          </div>
+          <div class="card-sub">
+            Fitur workflow yang diperkaya data analitik Gold Zone (volume transaksi, metrik KRI aktual) serta peringatan rekonsiliasi penghapusan data.
+          </div>
+
+          <div class="feature-item-list">
+            <div class="feature-item">
+              <div class="feature-item-left">
+                <span class="feature-dot" style="background:#06b6d4;"></span>
+                Risk Heatmap & Profile
+              </div>
+              <span class="pill" style="color:#22d3ee;">vw_risk_heatmap_data</span>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-item-left">
+                <span class="feature-dot" style="background:#06b6d4;"></span>
+                Data Quality & Deletion Warnings
+              </div>
+              <span class="pill" style="color:#f43f5e; font-weight:700;">ops.reconcile_runs (Tombstone)</span>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-item-left">
+                <span class="feature-dot" style="background:#06b6d4;"></span>
+                KRI Dashboard Monitoring
+              </div>
+              <span class="pill" style="color:#22d3ee;">vw_kri_dashboard</span>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-item-left">
+                <span class="feature-dot" style="background:#06b6d4;"></span>
+                LHA Analytics & Multi-Source Selector
+              </div>
+              <span class="pill" style="color:#22d3ee;">SourceSelectorDropdown.vue</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier 3: Pure Analytics -->
+        <div class="card" style="border-top: 4px solid #a855f7;">
+          <div class="card-head">
+            <div class="card-name" style="color:#c084fc;">
+              <span class="feature-dot" style="background:#a855f7; box-shadow:0 0 8px #a855f7;"></span>
+              Pure Analytics (Gold + Timescale + AI)
+            </div>
+            <span class="pill" style="color:#c084fc;">Data Hub + AI Engine</span>
+          </div>
+          <div class="card-sub">
+            Modul pengujian otomatis populasi transaksi perbankan dan prediksi Machine Learning yang dilayani langsung dari Gold Zone terkompresi.
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <div style="background:rgba(15,23,42,0.65); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:11.5px; font-weight:700; color:#c084fc; margin-bottom:5px;">4x AI Analytics Models:</div>
+              <div style="font-size:11px; color:#cbd5e1; line-height:1.6;">
+                1. <strong>Risk Scoring:</strong> XGBoost<br/>
+                2. <strong>Anomaly Detection:</strong> Isolation Forest<br/>
+                3. <strong>NLP Documents:</strong> IndoBERT / TF-IDF<br/>
+                4. <strong>KPI Forecast:</strong> PyTorch LSTM
+              </div>
+            </div>
+
+            <div style="background:rgba(15,23,42,0.65); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:11.5px; font-weight:700; color:#fb923c; margin-bottom:5px;">Multi-Source CAATT Modules:</div>
+              <div style="font-size:11px; color:#cbd5e1; line-height:1.6;">
+                &bull; Full Population Testing (100%)<br/>
+                &bull; Duplicate & Gap Detection<br/>
+                &bull; Benford's Law Chi-Square<br/>
+                &bull; Stratification & Aging Analysis<br/>
+                &bull; Cross-Source 3-Way Reconcile
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

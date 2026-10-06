@@ -368,9 +368,9 @@ func (s *AnalyticsService) GetCAATTStratification(category string) (*Stratificat
 	return &StratificationResponse{
 		Data: []map[string]interface{}{
 			{"stratum_label": "< Rp 10 Juta", "min_value": 0, "max_value": 10000000, "category": "Retail", "trx_count": 8420, "total_amount": 32500000000.0, "pct_count": 67.4, "pct_amount": 8.1},
-			{"stratum_label": "Rp 10M - 50M", "min_value": 10000000, "max_value": 50000000, "category": "Commercial", "trx_count": 2840, "total_amount": 71000000000.0, "pct_count": 22.7, "pct_amount": 17.7},
-			{"stratum_label": "Rp 50M - 100M", "min_value": 50000000, "max_value": 100000000, "category": "Corporate", "trx_count": 890, "total_amount": 66750000000.0, "pct_count": 7.1, "pct_amount": 16.6},
-			{"stratum_label": "Rp 100M - 500M", "min_value": 100000000, "max_value": 500000000, "category": "High Value", "trx_count": 280, "total_amount": 84000000000.0, "pct_count": 2.2, "pct_amount": 20.9},
+			{"stratum_label": "Rp 10 Juta - 50 Juta", "min_value": 10000000, "max_value": 50000000, "category": "Commercial", "trx_count": 2840, "total_amount": 71000000000.0, "pct_count": 22.7, "pct_amount": 17.7},
+			{"stratum_label": "Rp 50 Juta - 100 Juta", "min_value": 50000000, "max_value": 100000000, "category": "Corporate", "trx_count": 890, "total_amount": 66750000000.0, "pct_count": 7.1, "pct_amount": 16.6},
+			{"stratum_label": "Rp 100 Juta - 500 Juta", "min_value": 100000000, "max_value": 500000000, "category": "High Value", "trx_count": 280, "total_amount": 84000000000.0, "pct_count": 2.2, "pct_amount": 20.9},
 			{"stratum_label": "> Rp 500 Juta", "min_value": 500000000, "max_value": 99999999999, "category": "Wholesale / Institutional", "trx_count": 65, "total_amount": 147500000000.0, "pct_count": 0.6, "pct_amount": 36.7},
 		},
 		Summary: map[string]interface{}{
