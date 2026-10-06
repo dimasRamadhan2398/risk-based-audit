@@ -244,7 +244,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // --- COMPUTED LOGIC (Real-time Validation) ---
   const totalMandays = computed(() => form.auditorCount * form.daysPerAuditor)
-  const selectedSupervisor = computed(() => supervisors.value.find(s => s.id === form.supervisorId))
+  const selectedSupervisor = computed(() => supervisors.value.find(s => s.id === form.supervisorId || (Boolean(form.supervisorId) && s.name.toLowerCase().includes(String(form.supervisorId).toLowerCase()))))
   const utilizationData = computed(() => checkUtilization(totalMandays.value))
   const computedQuarters = computed(() => calculateQuarters(form.selectedMonths))
   const scheduleWarning = computed(() => checkScheduleGaps(form.selectedMonths))
@@ -518,8 +518,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       auditorErrors.push('Duration harus minimal 1 hari.')
     }
 
-    if (!form.supervisorId) {
-      auditorErrors.push('Supervisor wajib dipilih.')
+    if (!form.supervisorId || (typeof form.supervisorId === 'string' && !form.supervisorId.trim())) {
+      auditorErrors.push('Supervisor wajib diisi.')
     }
 
     validationErrors.activityDetail = activityErrors.join(' ')
@@ -568,7 +568,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.selectedMonths = [...plan.selectedMonths]
     form.auditorCount = plan.auditorCount
     form.daysPerAuditor = plan.daysPerAuditor
-    form.supervisorId = plan.supervisorId
+    form.supervisorId = plan.supervisorName || getSupervisorName(plan.supervisorId) || plan.supervisorId || ''
     form.notes = plan.notes || ''
     form.file = []
     form.attachmentCategory = plan.attachmentCategory || ''
@@ -670,7 +670,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const addPlan = async (form: AnnualPlanForm) => {
     const quarters = calculateQuarters(form.selectedMonths)
     const totalMandays = form.auditorCount * form.daysPerAuditor
-    const supervisor = supervisors.value.find(s => s.id === form.supervisorId)
+    const supervisor = supervisors.value.find(s => s.id === form.supervisorId || s.name === form.supervisorId)
+    const supervisorId = supervisor?.id || form.supervisorId
+    const supervisorName = supervisor?.name || form.supervisorId || 'Unknown'
 
     const payload = {
       code: form.code,
@@ -683,8 +685,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       auditorCount: form.auditorCount,
       daysPerAuditor: form.daysPerAuditor,
       totalMandays: totalMandays,
-      supervisorId: form.supervisorId,
-      supervisorName: supervisor?.name || 'Unknown',
+      supervisorId: supervisorId,
+      supervisorName: supervisorName,
       notes: form.notes,
       year: parseInt(form.year) || 2026,
       attachmentCategory: form.attachmentCategory,
@@ -721,7 +723,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const baseUrl = getAuditServiceBaseUrl()
     const quarters = calculateQuarters(updatedData.selectedMonths)
     const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
-    const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
+    const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId || s.name === updatedData.supervisorId)
+    const supervisorId = supervisor?.id || updatedData.supervisorId
+    const supervisorName = supervisor?.name || updatedData.supervisorId || 'Unknown'
 
     const fileList = updatedData.file && updatedData.file.length > 0
       ? updatedData.file.map((f: any) => ({
@@ -735,7 +739,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       ...updatedData,
       quarters: quarters,
       totalMandays: totalMandays,
-      supervisorName: supervisor?.name || 'Unknown',
+      supervisorId: supervisorId,
+      supervisorName: supervisorName,
       year: parseInt(updatedData.year) || 2026,
       attachments: (updatedData.attachments || []).concat(fileList)
     }

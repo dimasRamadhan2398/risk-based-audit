@@ -228,6 +228,7 @@ export interface AnnualPlanForm {
   auditorCount: number;
   daysPerAuditor: number;
   supervisorId?: string;
+  supervisorName?: string;
   notes?: string;
   year: string;
   attachmentCategory: string;

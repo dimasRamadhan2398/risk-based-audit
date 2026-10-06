@@ -485,6 +485,17 @@
                 size="md"
                 class="w-48"
               />
+              <UButton
+                color="warning"
+                variant="subtle"
+                size="md"
+                icon="i-lucide-shield-alert"
+                :loading="isReconcilingDeletes"
+                class="rounded-xl font-semibold text-xs shrink-0"
+                @click="triggerDeleteReconciliation"
+              >
+                Deteksi Deletion (Reconcile)
+              </UButton>
             </div>
           </div>
 
@@ -573,10 +584,22 @@
                 class="mt-3 p-3.5 rounded-xl bg-primary-50/50 dark:bg-primary-950/20 border border-primary-200/60 dark:border-primary-900/40 space-y-3"
               >
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-primary-900 dark:text-primary-300 flex items-center gap-1.5">
-                    <UIcon name="i-lucide-settings-2" class="w-3.5 h-3.5 text-primary-500" />
-                    {{ t('settings.dataSource.editMapping') }}
-                  </span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-primary-900 dark:text-primary-300 flex items-center gap-1.5">
+                      <UIcon name="i-lucide-settings-2" class="w-3.5 h-3.5 text-primary-500" />
+                      {{ t('settings.dataSource.editMapping') }}
+                    </span>
+                    <UButton
+                      color="primary"
+                      variant="subtle"
+                      size="xs"
+                      icon="i-lucide-sparkles"
+                      class="rounded-lg text-[10px] font-bold"
+                      @click="autoSuggestMapping(table)"
+                    >
+                      AI Auto-Suggest Canonical
+                    </UButton>
+                  </div>
                   <span class="text-[11px] font-mono text-primary-700 dark:text-primary-400">Target Schema: {{ selectedConnForSchema.database }}</span>
                 </div>
 
@@ -614,7 +637,27 @@
 
                   <div>
                     <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
-                      {{ t('settings.dataSource.primaryAuditField') }}
+                      Canonical Entity (Lakehouse)
+                    </label>
+                    <USelect
+                      :model-value="getTableMapping(table.tableName)?.canonicalEntity || 'generic'"
+                      :items="[
+                        { label: 'Generic Audit Data (external)', value: 'generic' },
+                        { label: 'Transactions (gold.fact_transactions)', value: 'transactions' },
+                        { label: 'Loans (gold.fact_loans)', value: 'loans' },
+                        { label: 'GL Entries (gold.fact_gl_entries)', value: 'gl_entries' },
+                        { label: 'Accounts (silver.acct_cleaned)', value: 'accounts' },
+                        { label: 'Customers (silver.cust_cleaned)', value: 'customers' }
+                      ]"
+                      size="sm"
+                      class="w-full"
+                      @update:model-value="(val) => updateMappingField(table.tableName, 'canonicalEntity', val)"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
+                      {{ t('settings.dataSource.primaryAuditField') }} (PK)
                     </label>
                     <USelect
                       :model-value="getTableMapping(table.tableName)?.auditField"
@@ -622,6 +665,34 @@
                       size="sm"
                       class="w-full font-mono text-xs"
                       @update:model-value="(val) => updateMappingField(table.tableName, 'auditField', val)"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
+                      Watermark (Incremental Stream)
+                    </label>
+                    <USelect
+                      :model-value="getTableMapping(table.tableName)?.watermarkColumn || ''"
+                      :items="['', ...table.columns.map(c => c.name)]"
+                      placeholder="Pilih kolom tanggal/update"
+                      size="sm"
+                      class="w-full font-mono text-xs"
+                      @update:model-value="(val) => updateMappingField(table.tableName, 'watermarkColumn', val)"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
+                      Soft-Delete Column (Reconcile)
+                    </label>
+                    <USelect
+                      :model-value="getTableMapping(table.tableName)?.softDeleteColumn || ''"
+                      :items="['', ...table.columns.map(c => c.name)]"
+                      placeholder="e.g. is_deleted, deleted_at"
+                      size="sm"
+                      class="w-full font-mono text-xs"
+                      @update:model-value="(val) => updateMappingField(table.tableName, 'softDeleteColumn', val)"
                     />
                   </div>
                 </div>
@@ -729,7 +800,7 @@
 </template>
 
 <script setup lang="ts">
-import { getMasterServiceBaseUrl } from '~/composables/useApiUrl'
+import { getMasterServiceBaseUrl, getDataHubBaseUrl } from '~/composables/useApiUrl'
 
 const toast = useToast()
 const { t } = useI18n()
@@ -755,6 +826,11 @@ export interface TableDataMapping {
   targetScope: string
   targetModule: string
   auditField: string
+  canonicalEntity?: string
+  watermarkColumn?: string
+  softDeleteColumn?: string
+  enableDeleteDetection?: boolean
+  columnMappings?: Record<string, string>
   syncInterval: string
   anomalyRules?: string[]
   isActive: boolean
@@ -1379,6 +1455,87 @@ function toggleAnomalyRule(tableName: string, rule: string) {
     mapping.anomalyRules = currentRules.filter(r => r !== rule)
   } else {
     mapping.anomalyRules = [...currentRules, rule]
+  }
+}
+
+const isReconcilingDeletes = ref(false)
+
+async function autoSuggestMapping(table: SchemaTable) {
+  try {
+    const dataHubBase = getDataHubBaseUrl()
+    const cols = table.columns.map(c => c.name)
+    const res: any = await $fetch(`${dataHubBase}/mapping/suggest`, {
+      method: 'POST',
+      body: { columns: cols, table_name: table.tableName }
+    })
+    if (res && res.status === 'success' && res.suggestion) {
+      const s = res.suggestion
+      if (!activeMappings.value[table.tableName]) {
+        toggleTableMappingActive(table.tableName)
+      }
+      if (s.entity && s.entity !== 'generic') {
+        updateMappingField(table.tableName, 'canonicalEntity', s.entity)
+        if (s.entity === 'transactions') {
+          updateMappingField(table.tableName, 'targetScope', 'audit_features')
+          updateMappingField(table.tableName, 'targetModule', 'CAATT / Fact Transactions')
+        } else if (s.entity === 'loans') {
+          updateMappingField(table.tableName, 'targetScope', 'risk_management')
+          updateMappingField(table.tableName, 'targetModule', 'Credit Risk / Loans')
+        }
+      }
+      if (s.mappings) {
+        const firstMapped = Object.values(s.mappings)[0] as string
+        if (firstMapped) {
+          updateMappingField(table.tableName, 'auditField', firstMapped)
+        }
+      }
+      const wmCandidate = cols.find(c => /date|time|created|updated|posting/i.test(c))
+      if (wmCandidate) {
+        updateMappingField(table.tableName, 'watermarkColumn', wmCandidate)
+      }
+      const delCandidate = cols.find(c => /del|status|aktif|active/i.test(c))
+      if (delCandidate) {
+        updateMappingField(table.tableName, 'softDeleteColumn', delCandidate)
+        updateMappingField(table.tableName, 'enableDeleteDetection', true)
+      }
+
+      toast.add({
+        title: 'Auto-Mapping Berhasil',
+        description: `Tabel ${table.tableName} dipetakan ke Entitas ${s.entity?.toUpperCase()} (Confidence: ${Math.round((s.confidence || 0.8) * 100)}%).`,
+        color: 'success'
+      })
+    }
+  } catch (err) {
+    toast.add({
+      title: 'Auto-Mapping',
+      description: 'Gagal mendeteksi kolom otomatis, silakan tentukan secara manual.',
+      color: 'warning'
+    })
+  }
+}
+
+async function triggerDeleteReconciliation() {
+  if (!selectedConnForSchema.value) return
+  isReconcilingDeletes.value = true
+  try {
+    const dataHubBase = getDataHubBaseUrl()
+    const res: any = await $fetch(`${dataHubBase}/sources/${selectedConnForSchema.value.id}/reconcile`, {
+      method: 'POST'
+    })
+    const delCount = res?.total_deletes_detected ?? 0
+    toast.add({
+      title: 'Rekonsiliasi Deletion Selesai',
+      description: `Ditemukan ${delCount} record yang dihapus di database sumber. Audit trail & tombstone diperbarui.`,
+      color: delCount > 0 ? 'warning' : 'success'
+    })
+  } catch (err: any) {
+    toast.add({
+      title: 'Rekonsiliasi Deletion',
+      description: err?.message || 'Gagal menjalankan rekonsiliasi.',
+      color: 'error'
+    })
+  } finally {
+    isReconcilingDeletes.value = false
   }
 }
 

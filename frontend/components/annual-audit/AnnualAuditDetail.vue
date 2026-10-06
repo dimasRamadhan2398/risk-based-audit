@@ -158,7 +158,7 @@
                 <div class="space-y-4">
                   <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
                     <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Supervisor</span>
-                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.getSupervisorName(store.selectedPlan.supervisorId) }}</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedPlan?.supervisorName || store.getSupervisorName(store.selectedPlan?.supervisorId) }}</span>
                   </div>
                   <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
                     <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">Time Allocation</span>

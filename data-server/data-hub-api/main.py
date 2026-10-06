@@ -8,16 +8,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, Security
 from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, text
+from fastapi.middleware.gzip import GZipMiddleware
+from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
-# ─── Database ────────────────────────────────────────────────────────────────
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/auditsphere_datalake")
-CBS_DATABASE_URL = os.getenv("CBS_DATABASE_URL", "postgresql://postgres:postgres@localhost:5434/cbs_simulator")
+from core.db import engine, cbs_engine
+from core.migrations import run_migrations
+
 API_KEY = os.getenv("API_KEY", "dev-api-key")
 
-engine = create_engine(DATABASE_URL, pool_size=5, max_overflow=10, pool_pre_ping=True)
-cbs_engine = create_engine(CBS_DATABASE_URL, pool_size=3, max_overflow=5, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine)
 CBSSessionLocal = sessionmaker(bind=cbs_engine)
 
@@ -52,11 +51,18 @@ async def verify_api_key(api_key: str = Security(api_key_header)):
 # ─── Lifespan ────────────────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: verify database connections
+    # Startup: verify database connections and run migrations
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         print("[DataHub] ✓ Data Lake DB connected")
+        
+        # Apply pending schema migrations
+        try:
+            run_migrations(engine)
+        except Exception as mig_err:
+            print(f"[DataHub] Warning: Migration runner notice: {mig_err}")
+
     except Exception as e:
         print(f"[DataHub] ✗ Data Lake DB connection failed: {e}")
 
@@ -76,8 +82,8 @@ async def lifespan(app: FastAPI):
 # ─── App ─────────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="AuditSphere Data Hub API",
-    description="REST gateway for Data Lake ingest, serve, sync, and pipeline management",
-    version="1.0.0",
+    description="High-throughput REST gateway for Data Lake ingest, serve, sync, and pipeline management",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
@@ -89,8 +95,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # ─── Import Routers ─────────────────────────────────────────────────────────
-from routers import ingest, serve, sync, pipeline, caatt, sources
+from routers import ingest, serve, sync, pipeline, caatt, sources, mapping
 
 app.include_router(ingest.router, prefix="/api/v1/ingest", tags=["Ingest"], dependencies=[Depends(verify_api_key)])
 app.include_router(serve.router, prefix="/api/v1/gold", tags=["Serve Gold Zone"], dependencies=[Depends(verify_api_key)])
@@ -98,6 +106,7 @@ app.include_router(sync.router, prefix="/api/v1/sync", tags=["Master Data Sync"]
 app.include_router(pipeline.router, prefix="/api/v1/pipeline", tags=["ETL Pipeline"], dependencies=[Depends(verify_api_key)])
 app.include_router(caatt.router, prefix="/api/v1/caatt", tags=["CAATT Analytics"], dependencies=[Depends(verify_api_key)])
 app.include_router(sources.router, prefix="/api/v1/sources", tags=["Data Sources"], dependencies=[Depends(verify_api_key)])
+app.include_router(mapping.router, prefix="/api/v1/mapping", tags=["Canonical Mapping"], dependencies=[Depends(verify_api_key)])
 
 
 # ─── Health (no auth) ───────────────────────────────────────────────────────
@@ -123,7 +132,7 @@ def health():
     if db_ok:
         try:
             with engine.connect() as conn:
-                result = conn.execute(text("SELECT schema_name FROM information_schema.schemata WHERE schema_name IN ('bronze','silver','gold')"))
+                result = conn.execute(text("SELECT schema_name FROM information_schema.schemata WHERE schema_name IN ('bronze','silver','gold','ops')"))
                 schemas = [r[0] for r in result]
         except Exception:
             pass

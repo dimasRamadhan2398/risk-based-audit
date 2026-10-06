@@ -359,15 +359,12 @@
                   size="lg"
                   required
                 >
-                  <USelectMenu
-                    :model-value="(store.form.supervisorId as any)"
-                    :items="store.supervisorOptions"
-                    value-key="id"
-                    option-key="label"
-                    placeholder="-- Choose Supervisor --"
-                    class="w-full rounded-md shadow-sm"
+                  <UInput
+                    v-model="store.form.supervisorId"
+                    type="text"
+                    placeholder="Enter supervisor's name..."
+                    class="w-full"
                     required
-                    @update:model-value="(val: any) => store.form.supervisorId = val"
                   />
 
                   <p
