@@ -89,6 +89,178 @@ plugins:
 
 
 # ============================================================
+# UPSTREAMS (Load Balancing Targets)
+# ============================================================
+
+upstreams:
+
+  # Development uses single instances of each service
+  # In production, add more targets with appropriate weights
+
+  - name: auth-service-upstream
+    algorithm: round_robin
+    slots: 10
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/v1/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: auth-service:8001
+        weight: 100
+
+  - name: audit-service-upstream
+    algorithm: least_connections
+    slots: 20
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/v1/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: audit-service:8001
+        weight: 100
+
+  - name: master-service-upstream
+    algorithm: round_robin
+    slots: 15
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/v1/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: master-service:8002
+        weight: 100
+
+  - name: risk-service-upstream
+    algorithm: round_robin
+    slots: 10
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/v1/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: risk-service:8002
+        weight: 100
+
+  - name: analytics-service-upstream
+    algorithm: least_connections
+    slots: 25
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/analytics/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: analytics-service:8084
+        weight: 100
+
+  - name: python-ai-upstream
+    algorithm: round_robin
+    slots: 10
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: python-ai:8000
+        weight: 100
+
+
+# ============================================================
 # SERVICES
 # ============================================================
 
@@ -99,7 +271,7 @@ services:
   # ==========================================================
 
   - name: auth-service
-    url: http://auth-service:8001
+    upstream: auth-service-upstream
 
     routes:
 
@@ -122,7 +294,7 @@ services:
   # ----------------------------------------------------------
 
   - name: auth-service-legacy-mfa
-    url: http://auth-service:8001/api/v1/mfa
+    upstream: auth-service-upstream
 
     routes:
 
@@ -138,7 +310,7 @@ services:
   # ----------------------------------------------------------
 
   - name: auth-service-legacy-devices
-    url: http://auth-service:8001/api/v1/devices
+    upstream: auth-service-upstream
 
     routes:
 
@@ -154,7 +326,7 @@ services:
   # ==========================================================
 
   - name: audit-service
-    url: http://audit-service:8001
+    upstream: audit-service-upstream
 
     routes:
 
@@ -206,13 +378,33 @@ services:
 
         strip_path: false
 
+        # Rate limiting per route for audit endpoints (more relaxed for dev)
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 300
+              hour: 10000
+              policy: local
+              limit_by: ip
+              hide_client_headers: false
+
+          # Response caching for audit GET endpoints (shorter TTL for dev)
+          - name: proxy-cache
+            config:
+              content_type:
+                - application/json
+              cache_ttl: 60
+              cache_control: true
+              vary_headers:
+                - Accept-Encoding
+
 
   # ==========================================================
   # MASTER SERVICE
   # ==========================================================
 
   - name: master-service
-    url: http://master-service:8002
+    upstream: master-service-upstream
 
     routes:
 
@@ -242,13 +434,24 @@ services:
 
         strip_path: false
 
+        # Caching for master data lookups
+        plugins:
+          - name: proxy-cache
+            config:
+              content_type:
+                - application/json
+              cache_ttl: 120
+              cache_control: true
+              vary_headers:
+                - Accept-Encoding
+
 
   # ==========================================================
   # RISK SERVICE
   # ==========================================================
 
   - name: risk-service
-    url: http://risk-service:8002
+    upstream: risk-service-upstream
 
     routes:
 
@@ -272,22 +475,81 @@ services:
 
         strip_path: false
 
+        # Caching for risk data
+        plugins:
+          - name: proxy-cache
+            config:
+              content_type:
+                - application/json
+              cache_ttl: 120
+              cache_control: true
+              vary_headers:
+                - Accept-Encoding
+
 
   # ==========================================================
-  # ANALYTICS SERVICE
+  # ANALYTICS SERVICE (Dashboard Critical Path)
   # ==========================================================
 
   - name: analytics-service
-    url: http://analytics-service:8084
+    upstream: analytics-service-upstream
 
     routes:
 
-      - name: analytics-routes
+      - name: analytics-routes-cached
 
         paths:
-          - /api/analytics
+          - /api/analytics/report
+          - /api/analytics/predict
+          - /api/analytics/risk-score
+          - /api/analytics/risk-score/batch
+          - /api/analytics/anomaly
+          - /api/analytics/anomaly/batch
+          - /api/analytics/text-analysis
+          - /api/analytics/text-analysis/batch
+          - /api/analytics/performance-trend
+          - /api/analytics/performance-trend/batch
+          - /api/analytics/caatt
 
         strip_path: false
+
+        # Dashboard-specific caching: moderate TTL for dev
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 300
+              hour: 5000
+              policy: local
+              limit_by: ip
+              hide_client_headers: false
+
+          # Caching for dashboard queries (shorter TTL in dev)
+          - name: proxy-cache
+            config:
+              content_type:
+                - application/json
+              cache_ttl: 120
+              cache_control: true
+              vary_headers:
+                - Accept-Encoding
+              response_headers:
+                - X-Cache
+
+      - name: analytics-routes-retrain
+
+        paths:
+          - /api/analytics/retrain/auto
+
+        strip_path: false
+
+        # Retrain endpoint: no caching
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 300
+              policy: local
+              limit_by: ip
 
 
   # ==========================================================
@@ -295,7 +557,7 @@ services:
   # ==========================================================
 
   - name: python-ai-service
-    url: http://python-ai:8000
+    upstream: python-ai-upstream
 
     routes:
 

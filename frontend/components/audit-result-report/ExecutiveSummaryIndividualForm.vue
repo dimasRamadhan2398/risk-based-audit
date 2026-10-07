@@ -163,7 +163,7 @@
         <section id="sec-followup" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-              <span class="text-primary-500">IV.</span> Section III: Status Tindak Lanjut
+              <span class="text-primary-500">III.</span> Section III: Status Tindak Lanjut
             </h2>
             <p class="text-sm text-gray-400">Kalkulasi persentase dan rekap status penyelesaian temuan audit.</p>
           </div>
@@ -224,7 +224,7 @@
             <div class="flex justify-between items-center">
               <div>
                 <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span class="text-primary-500">V.</span> Section IV: Top 5 Temuan Signifikan
+                  <span class="text-primary-500">IV.</span> Section IV: Top 5 Temuan Signifikan
                 </h2>
                 <p class="text-sm text-gray-400">Matriks temuan kritikal terpenting yang butuh eskalasi/tindakan jajaran direksi.</p>
               </div>
@@ -331,12 +331,12 @@
           </div>
         </section>
 
-        <!-- 6. Qualitative Analysis (Section V & VII) -->
+        <!-- 5. Recurring findings analysis & conclusion (report Sections V & VII) -->
         <section id="sec-analysis" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                <span class="text-primary-500">VI.</span> Section V & VII: Analisis Temuan Berulang & Kesimpulan
+                <span class="text-primary-500">V.</span> Analisis Temuan Berulang & Kesimpulan
               </h2>
               <p class="text-sm text-gray-400">Deskripsi tema berulang, akar masalah, dan usulan task force atau arah kebijakan manajemen.</p>
             </div>
@@ -530,7 +530,7 @@ const sections = computed(() => [
   { id: 'sec-narrative', index: '2', title: 'Narrative Summary' },
   { id: 'sec-followup', index: '3', title: 'Status Tindak Lanjut' },
   { id: 'sec-topfindings', index: '4', title: 'Temuan Signifikan' },
-  { id: 'sec-analysis', index: '5', title: 'Akar Masalah' },
+  { id: 'sec-analysis', index: '5', title: 'Temuan Berulang & Kesimpulan' },
   ...(store.isViewing ? [{ id: 'sec-notes', index: '6', title: 'Noted' }] : [])
 ])
 

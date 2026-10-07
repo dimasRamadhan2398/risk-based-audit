@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"risk-service/controllers"
+	"risk-service/middleware"
 	"risk-service/models"
 	"risk-service/pkg/database"
 	"risk-service/repositories"
@@ -102,12 +103,16 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length, Cache-Control, ETag, Last-Modified, Expires")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
 		c.Next()
 	})
+
+	// Add response caching middleware for dashboard endpoints
+	r.Use(middleware.ResponseCache())
 
 	// Seed initial RCM matrix items if empty
 	if seedOnBoot() {

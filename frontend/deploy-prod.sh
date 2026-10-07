@@ -29,7 +29,7 @@ npm run build
 
 # ── Step 2: Package .output and configuration ────────────────────────────────
 echo "📦 [2/4] Packaging pre-built .output and Docker files..."
-tar -czf "$ARCHIVE" .output Dockerfile docker-compose.prod.yml package.json
+tar --no-mac-metadata -czf "$ARCHIVE" .output Dockerfile docker-compose.prod.yml package.json
 
 echo "   Archive size: $(du -sh $ARCHIVE | cut -f1)"
 
@@ -43,6 +43,9 @@ echo "🚀 [4/4] Starting rbia-frontend-prod container on VPS..."
 ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
   set -e
   cd $TARGET_DIR
+
+  echo "  → Cleaning previous .output directory..."
+  rm -rf .output
 
   echo "  → Extracting pre-built bundle..."
   tar -xzf $ARCHIVE

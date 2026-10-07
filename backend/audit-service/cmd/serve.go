@@ -176,6 +176,8 @@ func runServe(cmd *cobra.Command, args []string) error {
 	engine.Use(gin.Recovery())
 	engine.Use(middleware.CORSMiddleware())
 	engine.Use(middleware.LoggerMiddleware())
+	// Add response caching middleware for dashboard endpoints
+	engine.Use(middleware.ResponseCache())
 
 	// Serve static uploads
 	engine.Static("/uploads", "./uploads")
