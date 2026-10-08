@@ -168,6 +168,9 @@
         <TableEntities
           :data="store.historyCharters"
           :columns="columns"
+          :items-per-page="store.historyPageSize"
+          :page="store.historyPage"
+          @update:page="(p: number) => { store.historyPage = p }"
           :empty-state="{
             icon: 'i-lucide-folder-open',
             label: t('auditCharter.card.emptyHistory'),
@@ -252,6 +255,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import fs from 'fs'
 import path from 'path'
@@ -104,11 +104,26 @@ describe('Dynamic Fiscal Year & Multi-Module Synchronization', () => {
     })
 
     it('empties risk profile and RCM data for the 3 future years until inputted by user', async () => {
+      const currentYear = new Date().getFullYear()
+      // The store has no mock risks any more: serve one current-year risk from
+      // the API and accept the POST below.
+      ;(globalThis as any).$fetch = vi.fn(async (url: string, opts: any) => {
+        if (opts?.method === 'POST') return { success: true, data: { id: 'new-risk' } }
+        if (String(url).includes('/locations')) return { success: true, data: [] }
+        return {
+          success: true,
+          data: [{
+            id: 'current-risk', name: 'Current year risk', category: 'Financial', impact: 4, likelihood: 4,
+            assessments: [{ year: currentYear, impact_q1: 4, likelihood_q1: 4 }]
+          }]
+        }
+      })
+
       const riskStore = useRiskProfileStore()
       const rcmStore = useRCMStore()
-      const currentYear = new Date().getFullYear()
+      await riskStore.fetchRisks()
 
-      // Current year (e.g. 2026) has initial risks
+      // Current year (e.g. 2026) has the risks returned by the API
       riskStore.selectedYear = currentYear
       expect(riskStore.risks.length).toBeGreaterThan(0)
 
@@ -135,7 +150,6 @@ describe('Dynamic Fiscal Year & Multi-Module Synchronization', () => {
         impact: 4,
         likelihood: 4,
         severity: 80,
-        branch: 'Head Office',
         assessments: [
           {
             year: currentYear + 1,

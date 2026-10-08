@@ -8,6 +8,7 @@ import (
 
 	"audit-service/controllers"
 	ctrlATR "audit-service/controllers/action_taken_report"
+	ctrlActivityPlan "audit-service/controllers/activity_plan"
 	"audit-service/controllers/crud"
 	ctrlFindings "audit-service/controllers/findings"
 	ctrlStrategicPlan "audit-service/controllers/strategic_plan"
@@ -159,8 +160,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		activityPlans.GET("", crud.List(h.db, "ActivityPlan", func() interface{} { return &[]models.ActivityPlan{} }))
 		activityPlans.GET("/:id", crud.GetByID(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
-		activityPlans.POST("", crud.Create(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
-		activityPlans.PUT("/:id", crud.Update(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
+		// The server assigns each planned activity's Activity ID (activityCode), see controllers/activity_plan.
+		activityPlans.POST("", crud.CreateWithHook(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }, ctrlActivityPlan.AssignCodesOnCreate))
+		activityPlans.PUT("/:id", crud.UpdateWithHook(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }, ctrlActivityPlan.AssignCodesOnUpdate))
 		activityPlans.DELETE("/:id", crud.Delete(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
 	}
 

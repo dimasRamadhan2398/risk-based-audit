@@ -32,14 +32,12 @@
                     {{ s.document || t('workingPaper.sampleTable.noDocumentName') }}
                   </span>
                 </div>
-                <UBadge
-                  :color="store.checkSampleStatus(s) ? 'success' : 'error'"
-                  size="sm"
-                  variant="subtle"
-                  class="shrink-0"
+                <span
+                  class="inline-flex items-center px-1.5 py-1 rounded-md text-[10px]/3 font-medium shrink-0"
+                  :class="getControlEffectivenessColorClass(store.checkSampleStatus(s) ? 'Effective' : 'Ineffective')"
                 >
                   {{ store.checkSampleStatus(s) ? t('workingPaper.sampleTable.effective') : t('workingPaper.sampleTable.ineffective') }}
-                </UBadge>
+                </span>
               </div>
               <USeparator class="my-1.5" />
               <div v-if="s.step1 || s.step2 || s.step3" class="space-y-1 text-xs text-gray-600 dark:text-gray-300">
@@ -107,6 +105,8 @@
 import { computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore } from '~/stores/working-paper'
+import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
+import { formatTestResult } from '~/utils/sampleTestResult'
 
 const { t } = useI18n()
 const store = useWorkingPaperStore()
@@ -125,11 +125,9 @@ const columns = computed(() => [
   { key: 'actions', accessorKey: 'actions', header: t('workingPaper.sampleTable.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
 
-const formatResult = (val: any) => {
-  if (val === true || val === 'Pass' || (typeof val === 'string' && val.toLowerCase() === 'pass')) return 'Pass'
-  if (val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')) return 'Fail'
-  return '-'
-}
+// l1/l2/l3 are booleans from the API (true = Pass, false = Fail, null = not tested); older rows hold
+// 'Pass' / 'Fail' / 'N/A' strings. Both show as Pass / Fail / N/A, and no result as '-'.
+const formatResult = (val: unknown) => formatTestResult(val)
 
 const getSamples = (rowOriginal: any): any[] => {
   if (!rowOriginal?.samples) return []

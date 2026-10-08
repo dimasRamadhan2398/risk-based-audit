@@ -187,7 +187,9 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       dateVal = dateVal.split('T')[0]
     }
 
-    const findingsArr = item.findings || item.Findings || []
+    const rawFindings = item.findings || item.Findings
+    const hasFindingsArray = Array.isArray(rawFindings)
+    const findingsArr = hasFindingsArray ? rawFindings : []
 
     // Map legacy severity to category
     const mappedFindings = findingsArr.map((f: any) => ({
@@ -498,7 +500,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     formErrors.assignmentLetterId = ''
     Object.assign(reportForm, {
       reportNumber: generateReportNumber(defaultDate),
-      assignmentLetterId: selectedAssignmentLetter.value || 'ST-001/SKAI/2026',
+      // No default letter: without a selection the field stays empty and saveReport asks for one.
+      assignmentLetterId: selectedAssignmentLetter.value || '',
       reportTitle: '',
       reportDate: defaultDate,
       status: 'Draft',

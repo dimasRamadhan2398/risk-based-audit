@@ -193,6 +193,25 @@ describe('Dashboard Recent Finding Issues vs Audit Result Report / Fieldwork / K
     expect(store.reportList[0].findingsCount).toBe(2)
   })
 
+  it('falls back to the stored findingsCount only when the report comes without a findings array', async () => {
+    // e.g. a list endpoint that returns the report summary but does not preload findings.
+    const store = await loadStore({
+      reports: [
+        report('r1', 'ST-001', '2026-09-20', [], { findings: undefined, findingsCount: 3 }),
+        report('r2', 'ST-002', '2026-09-21', [], { findings: undefined, findingsCount: undefined, findings_count: 4 }),
+        report('r3', 'ST-003', '2026-09-22', [], { findings: undefined, findingsCount: undefined }),
+        // An empty findings array is a loaded list with no findings, not a missing one.
+        report('r4', 'ST-004', '2026-09-23', [], { findingsCount: 5 })
+      ]
+    })
+    const byId = Object.fromEntries(store.reportList.map(r => [r.id, r]))
+    expect(byId.r1.findingsCount).toBe(3)
+    expect(byId.r1.findings).toEqual([])
+    expect(byId.r2.findingsCount).toBe(4)
+    expect(byId.r3.findingsCount).toBe(0)
+    expect(byId.r4.findingsCount).toBe(0)
+  })
+
   it('shows findings from the newest reports first, whatever order the report list returns', async () => {
     const older = report('r-old', 'ST-001', '2026-01-15', [finding('Temuan lama 1'), finding('Temuan lama 2'), finding('Temuan lama 3')])
     const newer = report('r-new', 'ST-009', '2026-09-25', [finding('Temuan baru 1'), finding('Temuan baru 2')])

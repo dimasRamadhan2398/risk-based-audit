@@ -1,9 +1,32 @@
 import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
+import { computed, reactive, ref, watch } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { AuditCharter, CharterFormState } from '~/types/audit'
-import { extractErrorMessage } from '~/utils/error'
+import { extractErrorMessage, getErrorStatus, getUserErrorMessage, parseBlobErrorBody } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { useI18n } from '~/composables/useI18n'
+
+// GET /audit-charters pages its results: page_size defaults to 10 and is capped
+// at 100, and the response is
+// { data: { charters, pagination: { page, page_size, total_count, total_pages } } }.
+// Without page/page_size only the 10 newest charters came back.
+export const CHARTER_FETCH_PAGE_SIZE = 100
+// Rows per page in the history table (paged client-side).
+export const CHARTER_HISTORY_PAGE_SIZE = 10
+
+/** total_pages from the list response; computed from total_count when it is missing. */
+type CharterPaginationMeta = { total_pages?: unknown, total_count?: unknown, total?: unknown, page_size?: unknown }
+export const extractCharterTotalPages = (response: unknown): number => {
+  const res = response as { data?: { pagination?: CharterPaginationMeta }, pagination?: CharterPaginationMeta } | null | undefined
+  const meta = res?.data?.pagination ?? res?.pagination
+  const totalPages = Number(meta?.total_pages)
+  if (Number.isFinite(totalPages) && totalPages > 0) return totalPages
+  const totalCount = Number(meta?.total_count ?? meta?.total)
+  const pageSize = Number(meta?.page_size) || CHARTER_FETCH_PAGE_SIZE
+  if (Number.isFinite(totalCount) && totalCount > 0) return Math.ceil(totalCount / pageSize)
+  return 1
+}
 
 export const useCharterStore = defineStore('charter', () => {
   // Modal State
@@ -14,6 +37,7 @@ export const useCharterStore = defineStore('charter', () => {
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
   const toast = useToastNotification()
+  const { t } = useI18n()
 
   const columns: (TableColumn<AuditCharter> & { class?: string })[] = [
     { accessorKey: 'version', header: 'Version', class: 'w-16 whitespace-nowrap text-center' },
@@ -184,34 +208,60 @@ export const useCharterStore = defineStore('charter', () => {
   const activeCharter = computed(() => charters.value.find(c => c.isActive))
   const historyCharters = computed(() => charters.value.filter(c => !c.isActive))
 
+  // History table page. Kept here, not in the table, because the card swaps the
+  // table for a skeleton while loading, which would reset it to page 1 on every
+  // refetch (edit, delete, download).
+  const historyPage = ref(1)
+  const historyPageCount = computed(() =>
+    Math.max(1, Math.ceil(historyCharters.value.length / CHARTER_HISTORY_PAGE_SIZE))
+  )
+  // A delete can remove the last row of the last page; move back to a page that exists.
+  watch(historyPageCount, (pages) => {
+    if (historyPage.value > pages) historyPage.value = pages
+  })
+
   /**
    * GET /api/v1/audit-charters
    *
    * Dipanggil saat halaman Audit Charter dibuka,
    * dan setelah create/update/delete berhasil.
+   *
+   * Loads every charter: the first page gives total_pages, the rest are fetched
+   * in parallel. The page needs the full list for the active card, the history
+   * table and nextVersion.
    */
   const fetchCharters = async () => {
     loading.value = true
     errorMsg.value = ''
 
     try {
-      const baseUrl = getAuditServiceBaseUrl()
-
-      const authStore = useAuthStore()
-      const response: any = await $fetch(`${baseUrl}/audit-charters`, {
+      const url = `${getAuditServiceBaseUrl()}/audit-charters`
+      // no-store: the backend sends this list with Cache-Control: public,
+      // max-age=1800, so the refetch after a create/update/delete could
+      // otherwise get the old list back from the browser cache
+      const fetchPage = (page: number) => $fetch<unknown>(url, {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${authStore.token}`
-        }
+        query: { page, page_size: CHARTER_FETCH_PAGE_SIZE },
+        cache: 'no-store'
       })
 
-      const items = extractItemsFromResponse(response)
+      const first = await fetchPage(1)
+      const totalPages = extractCharterTotalPages(first)
+      const rest = totalPages > 1
+        ? await Promise.all(Array.from({ length: totalPages - 1 }, (_, i) => fetchPage(i + 2)))
+        : []
 
-      if (items.length > 0) {
-        charters.value = items.map(mapBackendToFrontend)
-      } else {
-        charters.value = []
-      }
+      // De-duplicate by id in case rows shift between page requests.
+      const seen = new Set<string>()
+      const items = [first, ...rest].flatMap(extractItemsFromResponse).filter((item: { id?: unknown } | null) => {
+        if (item?.id === undefined || item?.id === null) return true
+        const key = String(item.id)
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+
+      charters.value = items.map(mapBackendToFrontend)
     } catch (error: any) {
       console.error('Failed to fetch audit charters:', error)
       errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data Audit Charter.')
@@ -284,6 +334,8 @@ export const useCharterStore = defineStore('charter', () => {
       })
 
       toast.showSuccess('Audit Charter berhasil ditambahkan!')
+      // Newest first: the charter this one replaced is now at the top of page 1.
+      historyPage.value = 1
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to create audit charter:', error)
@@ -404,9 +456,18 @@ export const useCharterStore = defineStore('charter', () => {
       window.URL.revokeObjectURL(url)
     } catch (error: any) {
       console.error('Failed to download audit charter:', error)
-      const detail = extractErrorMessage(error, 'Gagal mengunduh file Audit Charter.')
-      errorMsg.value = detail
-      toast.showError('Gagal mengunduh file Audit Charter.', detail)
+      // The blob request reads the error body as a Blob; parse it so the
+      // status and backend message are visible. Not written to errorMsg: that
+      // shows the "Failed to load Audit Charter" alert, which is wrong here.
+      const parsedError = await parseBlobErrorBody(error)
+      const notFound = getErrorStatus(parsedError) === 404
+      const detail = notFound
+        ? t('auditCharter.errors.fileMissing')
+        : getUserErrorMessage(parsedError, t, { fallbackKey: 'auditCharter.errors.download' })
+      toast.showError(t('auditCharter.errors.downloadTitle'), detail)
+      // 404 can also mean the charter was deleted since the list loaded;
+      // refetch so a stale row disappears
+      if (notFound) await fetchCharters()
       throw error
     } finally {
       loading.value = false
@@ -491,6 +552,9 @@ export const useCharterStore = defineStore('charter', () => {
     charters,
     activeCharter,
     historyCharters,
+    historyPage,
+    historyPageCount,
+    historyPageSize: CHARTER_HISTORY_PAGE_SIZE,
     nextVersion,
     showModal,
     loading,

@@ -168,37 +168,37 @@
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">90 – 100%</td>
+                <td class="py-2.5 px-4 font-bold text-green-700 dark:text-green-400 whitespace-nowrap">90 – 100%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.highlyEffective') }}</span>
+                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Highly Effective')">{{ t('rcm.interpretationTable.ratings.highlyEffective') }}</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.highlyEffective') }}</td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-sky-600 dark:text-sky-400 whitespace-nowrap">80 – 89%</td>
+                <td class="py-2.5 px-4 font-bold text-lime-700 dark:text-lime-400 whitespace-nowrap">80 – 89%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.effective') }}</span>
+                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Effective')">{{ t('rcm.interpretationTable.ratings.effective') }}</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.effective') }}</td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">70 – 79%</td>
+                <td class="py-2.5 px-4 font-bold text-yellow-700 dark:text-yellow-400 whitespace-nowrap">70 – 79%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.moderatelyEffective') }}</span>
+                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Moderately Effective')">{{ t('rcm.interpretationTable.ratings.moderatelyEffective') }}</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.moderatelyEffective') }}</td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-orange-600 dark:text-orange-400 whitespace-nowrap">60 – 69%</td>
+                <td class="py-2.5 px-4 font-bold text-orange-700 dark:text-orange-400 whitespace-nowrap">60 – 69%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.weak') }}</span>
+                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Weak')">{{ t('rcm.interpretationTable.ratings.weak') }}</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.weak') }}</td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-red-600 dark:text-red-400 whitespace-nowrap">&lt; 60%</td>
+                <td class="py-2.5 px-4 font-bold text-red-700 dark:text-red-400 whitespace-nowrap">&lt; 60%</td>
                 <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block">{{ t('rcm.interpretationTable.ratings.ineffective') }}</span>
+                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Ineffective')">{{ t('rcm.interpretationTable.ratings.ineffective') }}</span>
                 </td>
                 <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.ineffective') }}</td>
               </tr>
@@ -703,6 +703,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, type RCMItem } from '~/stores/rcm'
+import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import TableEntities from '~/components/shared/TableEntities.vue'
@@ -882,20 +883,8 @@ const getItemRating = (scorePercent: number) => {
   return getEffectivenessInterpretation(scorePercent)
 }
 
-const getRatingBadgeClass = (ratingLabel: string) => {
-  switch (ratingLabel) {
-    case 'Highly Effective':
-      return 'bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
-    case 'Effective':
-      return 'bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
-    case 'Moderately Effective':
-      return 'bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
-    case 'Weak':
-      return 'bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
-    default:
-      return 'bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block'
-  }
-}
+const getRatingBadgeClass = (ratingLabel: string) =>
+  `font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block ${getControlEffectivenessColorClass(ratingLabel)}`
 
 const getRatingBtnClass = (current: number, star: number) => {
   if (current === star) {

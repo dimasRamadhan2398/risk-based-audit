@@ -652,7 +652,6 @@
       "selectYear": "Select Year",
       "selectQuartal": "Select Quartal",
       "reset": "Reset Filters",
-      "allObjectives": "All Strategic Objectives",
       "allTypes": "All Types",
       "yearly": "Yearly",
       "quartal": "Quartal",
@@ -681,8 +680,6 @@
     },
     "form": {
       "title": "Add Strategic Objective Information",
-      "corporateGoal": "Corporate Goal",
-      "selectCorporateGoal": "Select Corporate Goal",
       "code": "Objective ID",
       "codePlaceholder": "Ex: SO-IA01",
       "objective": "Strategic Objective",
@@ -1168,6 +1165,12 @@
     "likelihoodLevel": "Likelihood Level",
     "impactLevel": "Impact Level",
     "allBranches": "All Branches",
+    "unassignedBranch": "Unassigned",
+    "selectBranch": "Select a branch",
+    "branchesLoadError": "Could not load branches from the Location master data.",
+    "noBranches": "No active branches in the Location master data yet.",
+    "risksLoadError": "Could not load risk data",
+    "retry": "Retry",
     "addModal": {
       "title": "Add New Risk Event",
       "desc": "Define a new risk event and its initial quarterly assessments.",
@@ -1200,6 +1203,7 @@
     },
     "emptyTitle": "No risk data available for year {year}",
     "emptyDesc": "Risk profile data for future years must be inputted by the user.",
+    "emptyDescNoData": "No risks have been registered yet. Add a risk to get started.",
     "detailModal": {
       "title": "Risk Details - {id}",
       "desc": "Comprehensive view of the risk event and its assessments.",
@@ -1245,7 +1249,8 @@
       "riskAdded": "Risk Added",
       "riskAddedDesc": "Successfully added new risk: {name}",
       "riskUpdated": "Risk Updated",
-      "riskUpdatedDesc": "Successfully updated risk details."
+      "riskUpdatedDesc": "Successfully updated risk details.",
+      "saveFailed": "Failed to save the risk. Please try again."
     }
   },
   "analytics": {
@@ -1472,7 +1477,10 @@
     "validation": {
       "basicInfo": "Please fill in all required fields (Plan Title, Year, Period, Department).",
       "plannedActivities": "Please add at least one audit activity with Activity Title and Auditee filled.",
-      "reviewAndApproval": "Please fill in Creator and Approver details (Names, Positions, and Approval Date)."
+      "reviewAndApproval": "Please fill in the Creator and Approver names and positions.",
+      "periodOrder": "The plan period end date must be on or after the start date.",
+      "scheduleOutsidePeriod": "Activity {num}: the estimated schedule must fall within the plan period.",
+      "negativeNumber": "Activity {num}: duration, number of auditors and budget cannot be negative."
     },
     "stepper": {
       "step1": "Basic Info",
@@ -1522,6 +1530,13 @@
       "estimatedSchedule": "Estimated Schedule/Time",
       "budgetEstimation": "Budget Estimation",
       "millionRupiah": "Million Rupiah",
+      "rupiah": "Rupiah",
+      "selectDepartment": "Select department",
+      "autoCalculated": "Calculated from the activity budgets",
+      "allocatedBelowEstimate": "The allocated budget is lower than the total estimated cost.",
+      "autoFilledFromAccount": "Filled in from your account",
+      "attachedFiles": "Attached files",
+      "uploadFailed": "Failed to upload attachment {name}.",
       "noActivitiesAdded": "No audit activities have been added yet.",
       "summaryOfActivities": "Summary of Activities",
       "highRisk": "High Risk",
@@ -1772,6 +1787,11 @@
       "viewSop": "View Technical Instruction / SOP",
       "editSop": "Edit Technical Instruction / SOP",
       "deleteSop": "Delete Technical Instruction / SOP"
+    },
+    "errors": {
+      "downloadTitle": "Could not download the Audit Charter file",
+      "fileMissing": "The file for this charter is no longer on the server. Refresh the page; if the charter is still listed, re-upload the file with Edit (or ask whoever manages the charter to do it).",
+      "download": "The file could not be downloaded. Please try again in a moment."
     }
   },
   "executiveSummaryUpload": {
@@ -2554,6 +2574,8 @@
       "resetFilter": "Reset filters",
       "editTarget": "Edit KPI target",
       "editUnavailable": "Comes from an uploaded performance report; edit it there",
+      "deleteTarget": "Delete KPI target",
+      "deleteUnavailable": "Comes from an uploaded performance report; it cannot be deleted here",
       "showing": "Showing {from}-{to} of {total}",
       "showingNone": "No data to show",
       "rowsPerPage": "Rows per page",

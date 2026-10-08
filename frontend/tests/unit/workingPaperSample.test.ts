@@ -1,7 +1,11 @@
 // @ts-nocheck
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { useWorkingPaperStore, sampleSchema } from '~/stores/working-paper'
+import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { formatTestResult, toTestResult, toTestResultBoolean } from '~/utils/sampleTestResult'
 
 vi.mock('#app', () => ({
   useRuntimeConfig: () => ({
@@ -142,12 +146,18 @@ describe('Working Paper Sample Form & Store - Button & Modal Actions', () => {
     expect(store.showModalF02).toBe(false)
   })
 
-  it('fieldworkSampleOptions should return available options for documents', () => {
+  it('fieldworkSampleOptions lists only real fieldwork sample documents (no placeholders)', () => {
     const store = useWorkingPaperStore()
-    expect(Array.isArray(store.fieldworkSampleOptions)).toBe(true)
-    expect(store.fieldworkSampleOptions.length).toBeGreaterThan(0)
-    expect(store.fieldworkSampleOptions[0]).toHaveProperty('label')
-    expect(store.fieldworkSampleOptions[0]).toHaveProperty('value')
+    expect(store.fieldworkSampleOptions).toEqual([])
+
+    const fieldworkStore = useAuditFieldworkStore()
+    fieldworkStore.fieldworkData['ST-REAL'] = {
+      interviews: [], observations: [], documents: [], testControls: [],
+      samples: [{ documentName: 'Procurement Invoice', documentNumber: 'INV-2026-0001' }]
+    }
+    expect(store.fieldworkSampleOptions).toEqual([
+      { label: 'Procurement Invoice (INV-2026-0001)', value: 'Procurement Invoice (INV-2026-0001)', documentName: 'Procurement Invoice', documentNumber: 'INV-2026-0001' }
+    ])
   })
 
   it('should correctly support fieldworkDocument and step1-3 in sample items', () => {
@@ -273,5 +283,31 @@ describe('Working Paper Sample Form & Store - Button & Modal Actions', () => {
     const matches = content.match(/store\.closeModalF02\(\)/g)
     expect(matches).not.toBeNull()
     expect(matches?.length).toBeGreaterThanOrEqual(2)
+  })
+})
+
+describe('Sample L1/L2/L3 results: API booleans and older string values', () => {
+  it('displays booleans as Pass / Fail and no result as "-"', () => {
+    expect(formatTestResult(true)).toBe('Pass')
+    expect(formatTestResult(false)).toBe('Fail')
+    expect(formatTestResult(null)).toBe('-')
+    expect(formatTestResult(undefined)).toBe('-')
+  })
+
+  it('still displays older string values', () => {
+    expect(formatTestResult('Pass')).toBe('Pass')
+    expect(formatTestResult('fail')).toBe('Fail')
+    expect(formatTestResult('N/A')).toBe('N/A')
+    expect(formatTestResult('')).toBe('-')
+  })
+
+  it('round-trips form strings and API booleans', () => {
+    expect(['Pass', 'Fail', 'N/A', undefined].map(toTestResultBoolean)).toEqual([true, false, null, null])
+    expect([true, false, null].map(toTestResult)).toEqual(['Pass', 'Fail', undefined])
+  })
+
+  it('the sample table uses the shared formatter', () => {
+    const src = readFileSync(resolve(__dirname, '../../components/working-paper/WorkingPaperSampleTable.vue'), 'utf8')
+    expect(src).toMatch(/formatTestResult/)
   })
 })

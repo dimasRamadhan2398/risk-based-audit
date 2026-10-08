@@ -85,7 +85,7 @@
                     <p class="font-semibold border-b pb-1 mb-2">{{ t('auditActivityPlan.view.approver') }}</p>
                     <div class="flex"><strong class="w-24 shrink-0">{{ t('auditActivityPlan.view.name') }}</strong> <span>{{ store.selectedPlan.review.approverName }}</span></div>
                     <div class="flex"><strong class="w-24 shrink-0">{{ t('auditActivityPlan.view.position') }}</strong> <span>{{ store.selectedPlan.review.approverPosition }}</span></div>
-                    <div class="flex"><strong class="w-24 shrink-0">{{ t('auditActivityPlan.view.date') }}</strong> <span>{{ new Date(store.selectedPlan.review.approvalDate).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' }) }}</span></div>
+                    <div class="flex"><strong class="w-24 shrink-0">{{ t('auditActivityPlan.view.date') }}</strong> <span>{{ store.selectedPlan.review.approvalDate ? formatDateLocale(store.selectedPlan.review.approvalDate, locale) : '-' }}</span></div>
                 </div>
                 <div class="col-span-2 mt-2">
                     <strong class="font-semibold">{{ t('auditActivityPlan.view.additionalNotes') }}</strong>
@@ -95,7 +95,7 @@
         </UCard>
 
         <!-- Attachments -->
-        <UCard v-if="store.selectedPlan.attachmentCategory">
+        <UCard v-if="store.selectedPlan.attachmentCategory || store.selectedPlan.attachments?.length">
             <template #header>
                 <h4 class="text-lg font-medium">{{ t('auditActivityPlan.view.attachment') }}</h4>
             </template>

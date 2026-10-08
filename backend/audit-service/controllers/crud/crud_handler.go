@@ -2,12 +2,14 @@ package crud
 
 import (
 	"encoding/json"
+	stderrors "errors"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	apperrors "audit-service/pkg/errors"
 	"audit-service/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -242,13 +244,50 @@ func GetByID(db *gorm.DB, modelName string, newEntity func() interface{}, preloa
 	}
 }
 
+// CreateHook runs inside the create transaction, after binding and before the
+// INSERT. It may change entity. Returning an *errors.AppError sends that status.
+type CreateHook func(tx *gorm.DB, entity interface{}) error
+
+// UpdateHook runs inside the update transaction, before the UPDATE. existing is
+// the stored record; columns are the snake_case column values about to be
+// written (JSON columns as []byte), and may be changed.
+type UpdateHook func(tx *gorm.DB, existing interface{}, columns map[string]interface{}) error
+
+func writeHookError(c *gin.Context, modelName, action string, err error) {
+	var appErr *apperrors.AppError
+	if stderrors.As(err, &appErr) {
+		response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		return
+	}
+	response.InternalServerError(c, "Failed to "+action+" "+modelName+": "+err.Error())
+}
+
 // Create creates a new record
 func Create(db *gorm.DB, modelName string, newEntity func() interface{}) gin.HandlerFunc {
+	return CreateWithHook(db, modelName, newEntity, nil)
+}
+
+// CreateWithHook is Create with a hook run in the same transaction as the INSERT.
+func CreateWithHook(db *gorm.DB, modelName string, newEntity func() interface{}, hook CreateHook) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		entity := newEntity()
 
 		if err := c.ShouldBindJSON(entity); err != nil {
 			response.BadRequest(c, err.Error())
+			return
+		}
+
+		if hook != nil {
+			if err := db.Transaction(func(tx *gorm.DB) error {
+				if err := hook(tx, entity); err != nil {
+					return err
+				}
+				return tx.Create(entity).Error
+			}); err != nil {
+				writeHookError(c, modelName, "create", err)
+				return
+			}
+			response.Created(c, modelName+" created successfully", entity)
 			return
 		}
 
@@ -263,6 +302,11 @@ func Create(db *gorm.DB, modelName string, newEntity func() interface{}) gin.Han
 
 // Update updates an existing record
 func Update(db *gorm.DB, modelName string, newEntity func() interface{}) gin.HandlerFunc {
+	return UpdateWithHook(db, modelName, newEntity, nil)
+}
+
+// UpdateWithHook is Update with a hook run in the same transaction as the UPDATE.
+func UpdateWithHook(db *gorm.DB, modelName string, newEntity func() interface{}, hook UpdateHook) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Param("id")
 		id, err := uuid.Parse(idParam)
@@ -343,7 +387,17 @@ func Update(db *gorm.DB, modelName string, newEntity func() interface{}) gin.Han
 			}
 		}
 
-		if err := db.Model(existing).Updates(snakeData).Error; err != nil {
+		if hook != nil {
+			if err := db.Transaction(func(tx *gorm.DB) error {
+				if err := hook(tx, existing, snakeData); err != nil {
+					return err
+				}
+				return tx.Model(existing).Updates(snakeData).Error
+			}); err != nil {
+				writeHookError(c, modelName, "update", err)
+				return
+			}
+		} else if err := db.Model(existing).Updates(snakeData).Error; err != nil {
 			response.InternalServerError(c, "Failed to update "+modelName+": "+err.Error())
 			return
 		}

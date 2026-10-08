@@ -12,6 +12,17 @@
         </div>
       </template>
 
+      <!-- Period: start and end on separate lines so long dates fit the fixed (frozen) column width -->
+      <template #period-cell="{ row }">
+        <div class="flex flex-col leading-snug">
+          <template v-if="periodParts(getOriginal(row).period).length > 1">
+            <span class="whitespace-nowrap">{{ periodParts(getOriginal(row).period)[0] }} –</span>
+            <span class="whitespace-nowrap">{{ periodParts(getOriginal(row).period)[1] }}</span>
+          </template>
+          <span v-else>{{ getOriginal(row).period || '-' }}</span>
+        </div>
+      </template>
+
       <template #riskName-cell="{ row }">
         <div class="flex flex-col gap-1">
           <div 
@@ -27,15 +38,14 @@
 
       <template #riskLevel-cell="{ row }">
         <div class="flex flex-col gap-1 items-start">
-          <UBadge 
-            v-for="(act, idx) in getOriginal(row).plannedActivities" 
+          <span
+            v-for="(act, idx) in getOriginal(row).plannedActivities"
             :key="idx"
-            :color="store.getRiskLevelColor ? store.getRiskLevelColor(act.riskLevel) : 'neutral'"
-            variant="soft"
-            size="md"
+            class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold"
+            :class="getRiskLevelColorClass(act.riskLevel)"
           >
             {{ act.riskLevel || '-' }}
-          </UBadge>
+          </span>
         </div>
       </template>
 
@@ -98,12 +108,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
+import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import ActivityPlanViewModal from '~/components/audit-activity-plan/ActivityPlanViewModal.vue'
 import { useI18n } from '~/composables/useI18n'
 
 const { t } = useI18n()
 const store = useActivityPlanStore()
 const getOriginal = (row: any) => row.original as any
+
+// formatPeriod joins start/end with " - "; split so each date gets its own line.
+const periodParts = (period?: string): string[] =>
+  (period || '').split(' - ').map(p => p.trim()).filter(Boolean)
 
 const columns = computed(() => [
   // First two columns are frozen (sticky) so the rest scrolls horizontally. Fixed widths keep the
@@ -118,7 +133,7 @@ const columns = computed(() => [
   {
     accessorKey: 'period',
     header: t('auditActivityPlan.table.period'),
-    class: 'w-[150px] min-w-[150px] max-w-[150px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal sm:whitespace-nowrap sticky left-[160px] sm:left-[280px] border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+    class: 'w-[150px] min-w-[150px] max-w-[150px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words sticky left-[160px] sm:left-[280px] border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
     thClass: 'z-20 !bg-[var(--bg-surface)]',
     tdClass: 'z-10 bg-[var(--bg-main)]'
   },

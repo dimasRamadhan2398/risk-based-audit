@@ -2,8 +2,6 @@
 import { ref, computed, watch } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { usePerformanceStore } from '~/stores/performance'
-import { useGlobalModalStore } from '~/stores/global-modal'
-import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
@@ -31,8 +29,6 @@ const props = defineProps({
 const { t, locale } = useI18n()
 const store = useStrategicPlanStore()
 const perfStore = usePerformanceStore()
-const modalStore = useGlobalModalStore()
-const toast = useToastNotification()
 const { canManageStrategicPlan } = useRbac()
 
 // Filtering, search, paging, gap and status all happen on the backend (GET /performance/kpi-breakdown);
@@ -41,12 +37,6 @@ const query = computed(() => perfStore.kpiBreakdownQuery)
 const pagination = computed(() => perfStore.kpiBreakdownPagination)
 const rows = computed(() => perfStore.kpiBreakdown)
 
-const deletedIds = ref<(string | number)[]>([])
-const deletedMetrics = ref<string[]>([])
-
-const categories = ['Operational', 'Financial', 'Quality', 'Issue', 'Efficiency']
-const periods = ['Q1', 'Q2', 'Q3', 'Q4', '2025', '2026']
-const statuses = ['On Track', 'Exceeded', 'Completed', 'Needs Attention']
 watch(() => props.year, year => perfStore.loadKpiBreakdown(year), { immediate: true })
 
 // Live text in the box; the store debounces it before it becomes part of the query.
@@ -122,37 +112,21 @@ const columns = computed(() => [
   ...(canManageStrategicPlan.value ? [{ accessorKey: 'actions', header: t('kpiPerformance.table.columns.actions') }] : [])
 ])
 
-async function deleteKpiTarget(rowOriginal: any) {
-  const existing = store.strategicObjectives.find(
-    o => String(o.id) === String(rowOriginal.id) || o.kpi === rowOriginal.metric
-  )
-
-  if (existing) {
-    const prevCount = store.strategicObjectives.length
-    await store.handleDelete(existing.id)
-    if (store.strategicObjectives.length < prevCount || !store.strategicObjectives.some(o => o.id === existing.id)) {
-      deletedMetrics.value.push(rowOriginal.metric.toLowerCase())
-      deletedIds.value.push(rowOriginal.id)
-    }
-  } else {
-    const confirmed = await modalStore.confirmDelete({
-      itemName: rowOriginal.metric
-    })
-    if (!confirmed) return
-
-    deletedMetrics.value.push(rowOriginal.metric.toLowerCase())
-    deletedIds.value.push(rowOriginal.id)
-
-    // Remove from perfStore if present
-    perfStore.kpiAchievements = perfStore.kpiAchievements.filter(
-      (k: any) => String(k.id) !== String(rowOriginal.id) && k.kpi_name.toLowerCase() !== rowOriginal.metric.toLowerCase()
-    )
-
-    toast.showSuccess('KPI Target Dihapus', 'Data KPI berhasil dihapus.')
+// Strategic-plan rows are deleted on the server (the store confirms, calls DELETE and toasts), then
+// the current page is reloaded so totals and paging stay right. Achievement rows come from uploaded
+// performance reports and cannot be deleted here.
+const deletingPlanId = ref<string | null>(null)
+async function deleteKpiTarget(item: KpiBreakdownItem) {
+  if (item.source !== 'strategic_plan' || deletingPlanId.value) return
+  deletingPlanId.value = item.id
+  try {
+    await store.handleDelete(item.id)
+    await perfStore.fetchKpiBreakdown()
+  } finally {
+    deletingPlanId.value = null
   }
 }
-// Strategic-plan rows open the plan form with a fresh copy of that plan: the form PUTs the whole
-// object, so editing a stale list entry could overwrite newer data. Achievement rows come from
+
 // Strategic-plan rows open the plan form with a fresh copy of that plan: the form PUTs every field
 // it edits, so editing a stale list entry could overwrite newer data. Achievement rows come from
 // uploaded performance reports and are not editable here.
@@ -284,17 +258,21 @@ watch(() => store.isAddModalOpen, (open, wasOpen) => {
                 @click="editKpiTarget(row.original)"
               />
             </UTooltip>
-            <UTooltip text="Delete KPI Target">
+            <UTooltip
+              :text="row.original.source === 'strategic_plan' ? t('kpiPerformance.table.deleteTarget') : t('kpiPerformance.table.deleteUnavailable')"
+            >
               <UButton
                 color="error"
                 variant="ghost"
                 size="md"
                 icon="i-lucide-trash-2"
+                :disabled="row.original.source !== 'strategic_plan'"
+                :loading="deletingPlanId === row.original.id"
+                :aria-label="t('kpiPerformance.table.deleteTarget')"
                 @click="deleteKpiTarget(row.original)"
               />
             </UTooltip>
           </div>
-          
         </template>
 
         <template #loading>

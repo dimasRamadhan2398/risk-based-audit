@@ -62,6 +62,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		gin.Logger(),
 		middleware.RecoveryMiddleware(),
 		middleware.CORSMiddleware(),
+		middleware.ResponseCache(),
 	)
 	routes.RegisterRoutes(router, controllerRegistry, db)
 

@@ -7,11 +7,20 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { nextTick } from 'vue'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 
 vi.mock('#app', () => ({
   useRuntimeConfig: () => ({ public: { auditServiceBaseUrl: 'http://localhost:8002/api/v1' } })
+}))
+
+// Both stores import the base URL from ~/composables/useApiUrl (not the Nuxt auto-import).
+const API_BASE = 'http://localhost:8080/api/v1'
+vi.mock('~/composables/useApiUrl', async importOriginal => ({
+  ...(await importOriginal<typeof import('~/composables/useApiUrl')>()),
+  getAuditServiceBaseUrl: () => API_BASE
 }))
 
 vi.mock('~/composables/useAppToast', () => ({
@@ -57,7 +66,20 @@ describe('Audit Fieldwork store holds no mock data', () => {
     await store.fetchAllFieldworkData(LETTER)
     expect(store.fieldworkData[LETTER]).toEqual(EMPTY)
     expect(store.errorMsg).toBeTruthy()
-    expect(showError).toHaveBeenCalled()
+    expect(showError).toHaveBeenCalledTimes(1)
+  })
+
+  it('a partly failed load keeps the lists that loaded and still sets the error state and one toast', async () => {
+    const tc = { id: 'tc1', assignmentLetterId: LETTER, controlName: 'Real control', testResult: 'Effective' }
+    global.$fetch = vi.fn(async (url: string) => {
+      if (String(url).includes('/interviews')) throw new Error('Interviews down')
+      return listResponse(String(url).includes('/test-controls') ? [tc] : [])
+    })
+    const store = useAuditFieldworkStore()
+    await store.fetchAllFieldworkData(LETTER)
+    expect(store.fieldworkData[LETTER]).toEqual({ ...EMPTY, testControls: [tc] })
+    expect(store.errorMsg).toBeTruthy()
+    expect(showError).toHaveBeenCalledTimes(1)
   })
 
   it('selecting a letter (watch path) with the API down shows no records', async () => {
@@ -118,14 +140,19 @@ describe('Digital Working Paper (KKA) store holds no mock data', () => {
   })
 
   it('filtered F01–F05 are empty after an empty API load', async () => {
-    // working-paper.ts uses the Nuxt auto-imported getAuditServiceBaseUrl.
-    globalThis.getAuditServiceBaseUrl = () => 'http://localhost:8080/api/v1'
     const wp = useWorkingPaperStore()
     await wp.fetchAllData()
     expect(wp.errorMsg).toBe('')
-    expect(vi.mocked($fetch)).toHaveBeenCalledWith('http://localhost:8080/api/v1/working-papers/causes', { method: 'GET' })
+    expect(vi.mocked($fetch)).toHaveBeenCalledWith(`${API_BASE}/working-papers/causes`, { method: 'GET' })
     filtered(wp).forEach(list => expect(list).toEqual([]))
-    delete globalThis.getAuditServiceBaseUrl
+  })
+
+  it('fieldwork document options hold no placeholder documents', () => {
+    const wp = useWorkingPaperStore()
+    expect(wp.fieldworkSampleOptions).toEqual([])
+    const src = readFileSync(resolve(__dirname, '../../stores/working-paper.ts'), 'utf8')
+    expect(src).not.toMatch(/mockFieldwork/)
+    expect(src).not.toMatch(/INV-2025-0988|BR-2025-12|LOG-ERP-2026-001|GI-2026-044/)
   })
 
   it('filtered data shows only real rows for the selected letter', async () => {

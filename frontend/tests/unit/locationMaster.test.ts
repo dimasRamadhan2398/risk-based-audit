@@ -13,7 +13,7 @@ import { resolve } from 'node:path'
 import { setActivePinia, createPinia } from 'pinia'
 
 import { useLocationStore } from '~/stores/location'
-import { useRiskProfileStore, fallbackBranches } from '~/stores/risk-profile'
+import { useRiskProfileStore, ALL_BRANCHES, UNASSIGNED_BRANCH } from '~/stores/risk-profile'
 
 vi.mock('#app', () => ({
   useRuntimeConfig: () => ({
@@ -158,7 +158,13 @@ describe('Corporate Risk Profile branch filter', () => {
     vi.clearAllMocks()
   })
 
-  it('takes its branch options from the Location master data', async () => {
+  const year = new Date().getFullYear()
+  const risk = (id: string, extra: any) => ({
+    id, name: id, category: 'Operations', impact: 3, likelihood: 3,
+    assessments: [{ year }], ...extra
+  })
+
+  it('takes its branch options from active Location master rows only', async () => {
     global.$fetch = vi.fn(async (url: string) =>
       String(url).includes('/locations') ? okResponse(seededLocations) : okResponse([])
     )
@@ -166,38 +172,135 @@ describe('Corporate Risk Profile branch filter', () => {
     const store = useRiskProfileStore()
     await store.fetchBranches()
 
-    // Active master branches first, then any branch already used by a risk.
-    expect(store.branches).toContain('AIFL Headquarters')
-    expect(store.branches).toContain('Surabaya Branch')
-    // Inactive and unused by any risk → not offered.
-    expect(store.branches).not.toContain('Medan Branch (Closed)')
+    expect(store.locations).toEqual([
+      { id: 'loc-1', name: 'AIFL Headquarters' },
+      { id: 'loc-2', name: 'Surabaya Branch' }
+    ])
+    expect(store.branches).toEqual(['AIFL Headquarters', 'Surabaya Branch'])
+    expect(store.branchesError).toBe('')
   })
 
-  it('keeps branches that existing risks already reference', async () => {
+  it('does not add branch names found on risks to the options', async () => {
     global.$fetch = vi.fn(async (url: string) =>
-      String(url).includes('/locations') ? okResponse([seededLocations[1]]) : okResponse([])
+      String(url).includes('/locations')
+        ? okResponse([seededLocations[1]])
+        : okResponse([risk('r1', { branch: 'Legacy Dummy Branch', location_id: null })])
     )
 
     const store = useRiskProfileStore()
     await store.fetchBranches()
-    await vi.waitFor(() => expect(store.rawRisks.length).toBeGreaterThan(0))
+    await store.fetchRisks()
 
-    // Seed risks live in 'Head Office', which is not in the master list above —
-    // it must still be selectable so those records stay editable.
-    expect(store.branches).toContain('Surabaya Branch')
-    expect(store.branches).toContain('Head Office')
+    expect(store.branches).toEqual(['Surabaya Branch'])
+    expect(store.branches).not.toContain('Legacy Dummy Branch')
+    expect(store.branches).not.toContain('Head Office')
   })
 
-  it('falls back to the seed list when no master data and no risks are available', async () => {
+  it('offers no branches (and reports an error) when the master fails to load', async () => {
     global.$fetch = vi.fn(async () => {
       throw new Error('offline')
     })
 
     const store = useRiskProfileStore()
     await store.fetchBranches()
-    store.rawRisks = []
 
-    expect(store.branches.length).toBeGreaterThan(0)
+    expect(store.branches).toEqual([])
+    expect(store.locations).toEqual([])
+    expect(store.branchesError).toBeTruthy()
+  })
+
+  it('filters by location_id, matching the branch name only for unlinked risks', async () => {
+    global.$fetch = vi.fn(async (url: string) =>
+      String(url).includes('/locations')
+        ? okResponse(seededLocations)
+        : okResponse([
+          risk('linked', { location_id: 'loc-2', branch: 'Surabaya Branch' }),
+          // location_id wins over a stale name
+          risk('renamed', { location_id: 'loc-2', branch: 'Old Surabaya Name' }),
+          risk('legacy', { location_id: null, branch: 'Surabaya Branch' }),
+          risk('hq', { location_id: 'loc-1', branch: 'AIFL Headquarters' }),
+          risk('orphan', { location_id: null, branch: null })
+        ])
+    )
+
+    const store = useRiskProfileStore()
+    await store.fetchBranches()
+    await store.fetchRisks()
+
+    const ids = () => store.filteredRisks.map((r: any) => r.id)
+
+    store.selectedBranch = ALL_BRANCHES
+    expect(ids()).toEqual(['linked', 'renamed', 'legacy', 'hq', 'orphan'])
+
+    store.selectedBranch = 'loc-2'
+    expect(ids()).toEqual(['linked', 'renamed', 'legacy'])
+
+    store.selectedBranch = 'loc-1'
+    expect(ids()).toEqual(['hq'])
+
+    expect(store.hasUnassignedRisks).toBe(true)
+    store.selectedBranch = UNASSIGNED_BRANCH
+    expect(ids()).toEqual(['orphan'])
+  })
+
+  it('reports no unassigned risks when every risk has a location', async () => {
+    global.$fetch = vi.fn(async (url: string) =>
+      String(url).includes('/locations')
+        ? okResponse(seededLocations)
+        : okResponse([risk('linked', { location_id: 'loc-2', branch: 'Surabaya Branch' })])
+    )
+
+    const store = useRiskProfileStore()
+    await store.fetchBranches()
+    await store.fetchRisks()
+
+    expect(store.hasUnassignedRisks).toBe(false)
+  })
+})
+
+describe('Corporate Risk Profile has no mock risks', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('shows an empty list, not seed data, when GET /risks returns nothing', async () => {
+    global.$fetch = vi.fn(async (url: string) =>
+      String(url).includes('/locations') ? okResponse(seededLocations) : okResponse([])
+    )
+
+    const store = useRiskProfileStore()
+    await store.fetchRisks()
+
+    expect(store.rawRisks).toEqual([])
+    expect(store.risksLoadError).toBe('')
+  })
+
+  it('shows an empty list and an error when GET /risks fails', async () => {
+    global.$fetch = vi.fn(async () => {
+      throw new Error('503 Service Unavailable')
+    })
+
+    const store = useRiskProfileStore()
+    await store.fetchRisks()
+
+    expect(store.rawRisks).toEqual([])
+    expect(store.risksLoadError).toBeTruthy()
+  })
+
+  it('does not add a local risk when the backend rejects the POST', async () => {
+    global.$fetch = vi.fn(async (url: string, opts: any) => {
+      if (opts?.method === 'POST') throw new Error('400 Bad Request')
+      return String(url).includes('/locations') ? okResponse(seededLocations) : okResponse([])
+    })
+
+    const store = useRiskProfileStore()
+    await store.fetchRisks()
+
+    const ok = await store.addRisk({ name: 'Ditolak', location_id: 'loc-2', assessments: [] })
+    expect(ok).toBe(false)
+    expect(store.rawRisks).toEqual([])
+    expect(store.errorMsg).toBeTruthy()
   })
 })
 
@@ -207,7 +310,7 @@ describe('Risks carry a location reference', () => {
     vi.clearAllMocks()
   })
 
-  it('sends location_id alongside the branch name when saving a risk', async () => {
+  it('sends the chosen location_id with its master name when saving a risk', async () => {
     const fetchMock = vi.fn(async (url: string) =>
       String(url).includes('/locations') ? okResponse(seededLocations) : okResponse([])
     )
@@ -219,7 +322,7 @@ describe('Risks carry a location reference', () => {
     await store.addRisk({
       name: 'Kegagalan rekonsiliasi kas cabang',
       category: 'Operations',
-      branch: 'Surabaya Branch',
+      location_id: 'loc-2',
       impact: 4,
       likelihood: 3,
       assessments: []
@@ -233,7 +336,22 @@ describe('Risks carry a location reference', () => {
     })
   })
 
-  it('omits location_id for a branch that is not master data', async () => {
+  it('resolves location_id from a master branch name', async () => {
+    const fetchMock = vi.fn(async (url: string) =>
+      String(url).includes('/locations') ? okResponse(seededLocations) : okResponse([])
+    )
+    global.$fetch = fetchMock
+
+    const store = useRiskProfileStore()
+    await store.fetchBranches()
+
+    await store.addRisk({ name: 'Risiko lama', branch: 'Surabaya Branch', assessments: [] })
+
+    const post = fetchMock.mock.calls.find(([, opts]: any) => opts?.method === 'POST')
+    expect(post[1].body).toMatchObject({ branch: 'Surabaya Branch', location_id: 'loc-2' })
+  })
+
+  it('never sends a branch name that is not master data', async () => {
     const fetchMock = vi.fn(async (url: string) =>
       String(url).includes('/locations') ? okResponse(seededLocations) : okResponse([])
     )
@@ -249,31 +367,52 @@ describe('Risks carry a location reference', () => {
 
     const post = fetchMock.mock.calls.find(([, opts]: any) => opts?.method === 'POST')
     expect(post[1].body.location_id).toBeUndefined()
-    expect(post[1].body.branch).toBe('Nowhere Branch')
+    expect(post[1].body.branch).toBeUndefined()
+  })
+
+  it('PUTs the location picked in the edit modal and rolls back on failure', async () => {
+    const year = new Date().getFullYear()
+    let failPut = false
+    const fetchMock = vi.fn(async (url: string, opts: any) => {
+      if (opts?.method === 'PUT') {
+        if (failPut) throw new Error('400 Bad Request')
+        return okResponse({ id: 'r1' })
+      }
+      if (String(url).includes('/locations')) return okResponse(seededLocations)
+      return okResponse([{ id: 'r1', name: 'R1', impact: 3, likelihood: 3, location_id: 'loc-1', branch: 'AIFL Headquarters', assessments: [{ year }] }])
+    })
+    global.$fetch = fetchMock
+
+    const store = useRiskProfileStore()
+    await store.fetchBranches()
+    await store.fetchRisks()
+
+    expect(await store.updateRisk({ ...store.rawRisks[0], location_id: 'loc-2' })).toBe(true)
+    const put = fetchMock.mock.calls.find(([, opts]: any) => opts?.method === 'PUT')
+    expect(put[1].body).toMatchObject({ location_id: 'loc-2', branch: 'Surabaya Branch' })
+    expect(store.rawRisks[0].location_id).toBe('loc-2')
+
+    failPut = true
+    expect(await store.updateRisk({ ...store.rawRisks[0], location_id: 'loc-1' })).toBe(false)
+    expect(store.rawRisks[0].location_id).toBe('loc-2')
   })
 })
 
-describe('Branch names match the backend location seeds', () => {
-  const SEEDER = resolve(
-    __dirname,
-    '../../../backend/master-service/pkg/database/seeders/seeder.go'
-  )
+describe('Risk profile does not hardcode branches', () => {
+  const STORE = resolve(__dirname, '../../stores/risk-profile.ts')
+  const HEATMAP = resolve(__dirname, '../../components/risk-profile/RiskHeatMap.vue')
 
-  it('every CRP fallback branch exists in LocationSeeds', () => {
-    const seeder = readFileSync(SEEDER, 'utf-8')
-    const seedBlock = seeder.slice(
-      seeder.indexOf('var LocationSeeds = []models.Location{'),
-      seeder.indexOf('var renamedLocations')
-    )
-    const seededNames = Array.from(seedBlock.matchAll(/Name:\s*"([^"]+)"/g)).map((m) => m[1])
-
-    expect(seededNames.length).toBeGreaterThan(0)
-    for (const branch of fallbackBranches) {
-      expect(
-        seededNames.includes(branch),
-        `branch "${branch}" is offered by the risk profile but not seeded as a location`
-      ).toBe(true)
+  it('has no fallback branch list or mock risk data', () => {
+    const store = readFileSync(STORE, 'utf-8')
+    expect(store).not.toContain('fallbackBranches')
+    expect(store).not.toContain('initialRiskData')
+    for (const name of ['Head Office', 'Bali Branch', 'Surabaya Branch', 'Bandung Branch', 'Jakarta Branch']) {
+      expect(store, `store hardcodes "${name}"`).not.toContain(`'${name}'`)
     }
+  })
+
+  it('the heat map does not default new risks to a hardcoded branch', () => {
+    expect(readFileSync(HEATMAP, 'utf-8')).not.toContain("'Head Office'")
   })
 })
 

@@ -1,0 +1,331 @@
+# Prometheus Alert Rules for Fieldwork API Performance Monitoring
+# Location: monitoring/prometheus-fieldwork-alerts.yml
+#
+# Deploy with:
+# docker cp prometheus-fieldwork-alerts.yml rb_audit_prometheus:/etc/prometheus/rules/fieldwork-alerts.yml
+# docker exec rb_audit_prometheus kill -HUP 1
+
+groups:
+  - name: auditsphere-fieldwork-performance
+    interval: 30s
+    rules:
+
+      # ==================================================================
+      # RATE LIMITING ALERTS
+      # ==================================================================
+
+      - alert: FieldworkRateLimitExceeded
+        expr: rate(kong_rate_limiting_exceeded_total{service="audit-service",path=~".*/fieldwork/.*"}[1m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: kong-api-gateway
+        annotations:
+          summary: "Fieldwork API rate limits are being exceeded"
+          description: |
+            The fieldwork API is receiving requests faster than the rate limit allows.
+
+            Current Status:
+            - Service: {{ $labels.service }}
+            - Path: {{ $labels.path }}
+            - Rate: {{ $value | humanize }} violations/sec
+
+            Actions:
+            1. Check Kong dashboard for traffic spikes
+            2. Review frontend network tab for API call patterns
+            3. Verify no infinite loops in browser console
+            4. Contact backend team if legitimate traffic spike
+
+      - alert: FieldworkRateLimitCritical
+        expr: rate(kong_rate_limiting_exceeded_total{service="audit-service",path=~".*/fieldwork/.*"}[1m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          component: kong-api-gateway
+        annotations:
+          summary: "Critical: Fieldwork API under DDoS/abuse attack"
+          description: |
+            Massive rate limit violations detected!
+
+            Current Status:
+            - Violations: {{ $value | humanize }}/sec
+            - Service: {{ $labels.service }}
+
+            Actions:
+            1. Block suspicious IPs at firewall level
+            2. Check if production is under attack
+            3. Enable Kong DDoS protection
+            4. Page on-call engineer
+
+      # ==================================================================
+      # CACHE PERFORMANCE ALERTS
+      # ==================================================================
+
+      - alert: FieldworkCacheLowHitRatio
+        expr: |
+          (sum(rate(kong_cache_hits_total{service="audit-service",path=~".*/fieldwork/.*"}[5m])) /
+           sum(rate(kong_http_requests_total{service="audit-service",path=~".*/fieldwork/.*"}[5m])))
+          < 0.4
+        for: 10m
+        labels:
+          severity: warning
+          component: kong-cache
+        annotations:
+          summary: "Fieldwork API cache hit ratio is below 40%"
+          description: |
+            The fieldwork API cache effectiveness has degraded.
+
+            Current Metrics:
+            - Cache Hit Ratio: {{ $value | humanizePercentage }}
+            - Service: {{ $labels.service }}
+
+            Possible Causes:
+            1. Kong cache service restarted (temporary)
+            2. Query parameters changing on every request
+            3. User agents varying (different cache keys)
+            4. Too many unique assignment letter IDs
+
+            Actions:
+            1. Check Kong cache metrics: `docker stats rb_audit_kong`
+            2. Monitor for 15 minutes (should recover)
+            3. If persistent, increase cache TTL or size
+
+      - alert: FieldworkNoCaching
+        expr: |
+          (sum(rate(kong_cache_hits_total{service="audit-service",path=~".*/fieldwork/.*"}[1m])) > 0)
+          or
+          (sum(rate(kong_cache_hits_total{service="audit-service",path=~".*/fieldwork/.*"}[5m])) == 0)
+        for: 5m
+        labels:
+          severity: warning
+          component: kong-cache
+        annotations:
+          summary: "Fieldwork API caching appears to be disabled"
+          description: |
+            No cache hits detected for fieldwork endpoints in last 5 minutes.
+
+            Possible Causes:
+            1. Kong proxy-cache plugin is disabled
+            2. Cache config was lost during restart
+            3. All requests are POST/PUT/DELETE (non-cacheable)
+
+            Actions:
+            1. Verify Kong configuration: `docker exec rb_audit_kong kong config`
+            2. Check plugin status: `curl http://localhost:8001/plugins`
+            3. Restart Kong: `docker-compose restart kong-gateway`
+
+      # ==================================================================
+      # RESPONSE TIME ALERTS
+      # ==================================================================
+
+      - alert: FieldworkHighP95ResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(kong_request_upstream_duration_ms_bucket{service="audit-service",path=~".*/fieldwork/.*"}[5m]))
+            by (le)
+          ) > 500
+        for: 5m
+        labels:
+          severity: warning
+          component: audit-service
+        annotations:
+          summary: "Fieldwork API P95 response time > 500ms"
+          description: |
+            The 95th percentile response time for fieldwork API is high.
+
+            Current Status:
+            - P95 Response Time: {{ $value | humanize }}ms
+            - Service: {{ $labels.service }}
+
+            Possible Causes:
+            1. Database slow query (missing index)
+            2. High database load
+            3. Backend service CPU throttled
+            4. Cache miss storm
+
+            Actions:
+            1. Check database slow query log:
+               `docker exec rb_audit_postgres psql -U postgres -c 'SELECT * FROM pg_stat_statements ORDER BY mean_time DESC LIMIT 10;'`
+            2. Monitor backend CPU: `docker stats rb_audit_audit_service`
+            3. Check for full table scans on fieldwork_* tables
+            4. Run database ANALYZE if needed
+
+      - alert: FieldworkP99ResponseTimeExtreme
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(kong_request_upstream_duration_ms_bucket{service="audit-service",path=~".*/fieldwork/.*"}[5m]))
+            by (le)
+          ) > 2000
+        for: 3m
+        labels:
+          severity: critical
+          component: audit-service
+        annotations:
+          summary: "Critical: Fieldwork API P99 response time > 2 seconds"
+          description: |
+            Some requests are taking extremely long!
+
+            Current Status:
+            - P99 Response Time: {{ $value | humanize }}ms (worst 1% of requests)
+            - Service: {{ $labels.service }}
+
+            Actions:
+            1. Check backend logs for errors: `docker logs -f rb_audit_audit_service`
+            2. Check if backend is deadlocked: `ps aux | grep audit`
+            3. Restart backend if necessary: `docker-compose restart audit-service`
+            4. Page on-call engineer
+
+      # ==================================================================
+      # REQUEST VOLUME ALERTS
+      # ==================================================================
+
+      - alert: FieldworkHighRequestRate
+        expr: |
+          sum(rate(kong_http_requests_total{service="audit-service",path=~".*/fieldwork/.*"}[1m])) > 200
+        for: 3m
+        labels:
+          severity: warning
+          component: kong-api-gateway
+        annotations:
+          summary: "Fieldwork API request rate is unusually high"
+          description: |
+            The fieldwork API is receiving significantly more requests than normal.
+
+            Current Status:
+            - Request Rate: {{ $value | humanize }} req/sec
+            - Service: {{ $labels.service }}
+
+            Possible Causes:
+            1. Legitimate traffic spike (user activity)
+            2. Frontend bug causing request loop
+            3. Scheduled job running
+            4. Load test in progress
+
+            Actions:
+            1. Check frontend application health
+            2. Review recent deployments for bugs
+            3. Monitor cache hit ratio (should be high)
+            4. Check logs for API errors
+
+      - alert: FieldworkErrorRateHigh
+        expr: |
+          (sum(rate(kong_http_requests_total{service="audit-service",path=~".*/fieldwork/.*",status=~"5.."}[5m])) /
+           sum(rate(kong_http_requests_total{service="audit-service",path=~".*/fieldwork/.*"}[5m])))
+          > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          component: audit-service
+        annotations:
+          summary: "Critical: Fieldwork API error rate > 5%"
+          description: |
+            More than 5% of requests to fieldwork API are returning errors!
+
+            Current Status:
+            - Error Rate: {{ $value | humanizePercentage }}
+            - Status Codes: 5xx (server errors)
+            - Service: {{ $labels.service }}
+
+            Actions:
+            1. Check backend error logs: `docker logs -f rb_audit_audit_service`
+            2. Check database connectivity: `docker exec rb_audit_postgres pg_isready`
+            3. Check backend service health: `curl http://localhost:8001/health`
+            4. Restart affected service if necessary
+            5. Page on-call engineer
+
+      # ==================================================================
+      # DATABASE ALERTS
+      # ==================================================================
+
+      - alert: FieldworkDatabaseSlowQueries
+        expr: |
+          pg_stat_statements_mean_time{datname="rb_audit",query=~".*fieldwork.*"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: postgresql
+        annotations:
+          summary: "Fieldwork database queries are slow (> 1 second average)"
+          description: |
+            Database queries for fieldwork tables are taking > 1 second on average.
+
+            Slow Query:
+            {{ $labels.query }}
+
+            Actions:
+            1. Check if table needs ANALYZE
+            2. Check if missing index on assignment_letter_id
+            3. Run EXPLAIN ANALYZE on the query
+            4. Consider partitioning large tables
+
+      - alert: FieldworkDatabaseConnectorLeak
+        expr: |
+          pg_stat_activity_count{datname="rb_audit",application_name=~"audit.*"} > 20
+        for: 3m
+        labels:
+          severity: warning
+          component: postgresql
+        annotations:
+          summary: "High number of database connections for audit-service"
+          description: |
+            audit-service has > 20 active database connections.
+
+            Current Connections: {{ $value }}
+            Database: {{ $labels.datname }}
+
+            Possible Causes:
+            1. Connection pool saturation
+            2. Slow queries holding connections open
+            3. Memory leak in backend
+
+            Actions:
+            1. Check backend logs for stuck transactions
+            2. Kill idle connections: `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state='idle' AND state_change < now() - interval '10 minutes';`
+            3. Restart backend: `docker-compose restart audit-service`
+
+      # ==================================================================
+      # INFRASTRUCTURE ALERTS
+      # ==================================================================
+
+      - alert: KongGatewayDown
+        expr: up{job="kong"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: kong-api-gateway
+        annotations:
+          summary: "Kong API Gateway is down"
+          description: "Kong gateway is not responding to health checks"
+          actions: |
+            1. Check Kong status: `docker ps | grep kong`
+            2. Check Kong logs: `docker logs rb_audit_kong`
+            3. Restart Kong: `docker-compose restart kong-gateway`
+
+      - alert: AuditServiceDown
+        expr: up{job="audit-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: audit-service
+        annotations:
+          summary: "Audit Service is down"
+          description: "Audit Service is not responding to health checks"
+          actions: |
+            1. Check service status: `docker ps | grep audit-service`
+            2. Check logs: `docker logs rb_audit_audit_service`
+            3. Restart: `docker-compose restart audit-service`
+
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: postgresql
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "Database is not responding"
+          actions: |
+            1. Check status: `docker ps | grep postgres`
+            2. Check logs: `docker logs rb_audit_postgres`
+            3. Restart: `docker-compose restart postgres`
+

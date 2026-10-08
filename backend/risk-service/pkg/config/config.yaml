@@ -6,3 +6,13 @@ database:
   name: rb_audit_risk_service
   sslmode: disable
 
+
+# Location master lookups (branch filter on the Corporate Risk Profile).
+# Leave url empty to derive it per stack: http://master-service:8002 on the
+# shared stack, http://master-service-<slug>:8002 when KAFKA_SERVICE_NAME is
+# risk-service-<slug>. Override with MASTER_SERVICE_URL (e.g. local `go run`:
+# MASTER_SERVICE_URL=http://localhost:8003).
+master_service:
+  url: ""
+  timeout_seconds: 2
+  cache_ttl_seconds: 60

@@ -1,7 +1,10 @@
 package repositories
 
 import (
+	"strings"
+
 	"audit-service/models"
+	"audit-service/pkg/activitycode"
 	apperrors "audit-service/pkg/errors"
 
 	"github.com/google/uuid"
@@ -11,6 +14,8 @@ import (
 // AuditActivityRepositoryInterface defines the audit activity repository interface
 type AuditActivityRepositoryInterface interface {
 	Create(activity *models.AuditActivity) error
+	CreateWithGeneratedCode(activity *models.AuditActivity, year int) error
+	AnnualPlanYear(annualPlanID uuid.UUID) (int, error)
 	Update(activity *models.AuditActivity) error
 	Delete(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*models.AuditActivity, error)
@@ -37,6 +42,54 @@ func (r *AuditActivityRepository) Create(activity *models.AuditActivity) error {
 		return apperrors.ErrDatabase
 	}
 	return nil
+}
+
+// codeAttempts bounds retries when a generated project code collides with a
+// row written outside the counter at the same moment (e.g. a seeder run).
+const codeAttempts = 3
+
+// CreateWithGeneratedCode sets activity.ProjectCode to the next Activity ID for
+// activity.AuditType and year and inserts the row, in one transaction. The
+// counter row stays locked until commit, so concurrent creates get distinct
+// numbers; on a unique violation the whole transaction is retried.
+func (r *AuditActivityRepository) CreateWithGeneratedCode(activity *models.AuditActivity, year int) error {
+	var err error
+	for attempt := 0; attempt < codeAttempts; attempt++ {
+		err = r.DB.Transaction(func(tx *gorm.DB) error {
+			code, err := activitycode.Next(tx, activity.AuditType, year)
+			if err != nil {
+				return err
+			}
+			activity.ProjectCode = code
+			return tx.Create(activity).Error
+		})
+		if err == nil {
+			return nil
+		}
+		activity.ProjectCode = ""
+		if !isUniqueViolation(err) {
+			break
+		}
+	}
+	return apperrors.Wrap(apperrors.ErrDatabase.Code, apperrors.ErrDatabase.Message, apperrors.ErrDatabase.StatusCode, err)
+}
+
+func isUniqueViolation(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "SQLSTATE 23505") || strings.Contains(msg, "duplicate key") ||
+		strings.Contains(msg, "UNIQUE constraint failed")
+}
+
+// AnnualPlanYear returns the year of an annual audit plan, or ErrNotFound.
+func (r *AuditActivityRepository) AnnualPlanYear(annualPlanID uuid.UUID) (int, error) {
+	var plan models.AuditAnnual
+	if err := r.DB.Select("id", "year").First(&plan, "id = ?", annualPlanID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return 0, apperrors.ErrNotFound
+		}
+		return 0, apperrors.ErrDatabase
+	}
+	return plan.Year, nil
 }
 
 // Update updates an audit activity

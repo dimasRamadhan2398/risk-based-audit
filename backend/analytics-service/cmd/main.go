@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"analytics-service/middleware"
 	"analytics-service/routes"
 
 	"github.com/gin-contrib/cors"
@@ -19,9 +20,12 @@ func main() {
 		AllowOrigins:     []string{"*"}, // Adjust this in production
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
+		ExposeHeaders:    []string{"Content-Length", "Cache-Control", "ETag", "Last-Modified", "Expires"},
 		AllowCredentials: true,
 	}))
+
+	// Add response caching middleware for dashboard endpoints
+	r.Use(middleware.ResponseCache())
 
 	// Initialize routes
 	routes.SetupRoutes(r)

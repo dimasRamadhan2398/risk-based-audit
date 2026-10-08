@@ -6,7 +6,8 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error';
 import { useI18n } from '~/composables/useI18n';
 import { getFiscalYears } from '~/composables/useFiscalYear';
-import { buildStrategicPlanPayload, strategicPlanErrorField, strategicPlanFormFromPlan } from '~/utils/strategicPlanPayload';
+import { buildStrategicPlanPayload, defaultStrategicPlanGoalId, strategicPlanErrorField, strategicPlanFormFromPlan } from '~/utils/strategicPlanPayload';
+import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals';
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
@@ -334,6 +335,12 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
 
         if (!form.value.code) {
             form.value.code = `SO-IA${String(strategicObjectives.value.length + 1).padStart(2, '0')}`;
+        }
+
+        // The form has no goal picker: a new plan is linked to the single corporate goal ("" when no VMG/goal
+        // exists, which the backend accepts). An edit keeps the goalId the row already has.
+        if (!isEditMode.value && !form.value.goalId) {
+            form.value.goalId = defaultStrategicPlanGoalId(useVisionMissionGoalsStore().activeVmg?.goals);
         }
 
         const startY = form.value.yearStart || currentYear;

@@ -163,44 +163,81 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControls: [] as TestControlItem[]
   })
 
-  const fetchAllFieldworkData = async (assignmentLetterId: string) => {
+  // Track pending requests to prevent duplicate API calls
+  const pendingRequests = ref<Record<string, Promise<void>>>({})
+
+  // Debounce timer for fetch calls
+  let fetchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+  const fetchAllFieldworkData = async (assignmentLetterId: string, skipCache = false) => {
     if (!assignmentLetterId) return
+
+    // Return existing pending request if one is already in flight
+    if (pendingRequests.value[assignmentLetterId] && !skipCache) {
+      return pendingRequests.value[assignmentLetterId]
+    }
+
+    // If data already exists and we're not forcing a refresh, skip
+    if (fieldworkData.value[assignmentLetterId] && !skipCache) {
+      return Promise.resolve()
+    }
+
     loading.value = true
     errorMsg.value = ''
     const toast = useToastNotification()
-    try {
-      const baseUrl = getAuditServiceBaseUrl()
-      const [interviewsRes, observationsRes, documentsRes, samplesRes, testControlsRes]: any = await Promise.all([
-        $fetch(`${baseUrl}/fieldwork/interviews?assignmentLetterId=${assignmentLetterId}`),
-        $fetch(`${baseUrl}/fieldwork/observations?assignmentLetterId=${assignmentLetterId}`),
-        $fetch(`${baseUrl}/fieldwork/documents?assignmentLetterId=${assignmentLetterId}`),
-        $fetch(`${baseUrl}/fieldwork/samples?assignmentLetterId=${assignmentLetterId}`),
-        $fetch(`${baseUrl}/fieldwork/test-controls?assignmentLetterId=${assignmentLetterId}`)
-      ])
 
-      const interviewsList = interviewsRes?.data?.items || interviewsRes?.items || (Array.isArray(interviewsRes) ? interviewsRes : [])
-      const observationsList = observationsRes?.data?.items || observationsRes?.items || (Array.isArray(observationsRes) ? observationsRes : [])
-      const documentsList = documentsRes?.data?.items || documentsRes?.items || (Array.isArray(documentsRes) ? documentsRes : [])
-      const samplesList = samplesRes?.data?.items || samplesRes?.items || (Array.isArray(samplesRes) ? samplesRes : [])
-      const testControlsList = testControlsRes?.data?.items || testControlsRes?.items || (Array.isArray(testControlsRes) ? testControlsRes : [])
+    const request = (async () => {
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        const results = await Promise.allSettled([
+          $fetch(`${baseUrl}/fieldwork/interviews?assignmentLetterId=${assignmentLetterId}`),
+          $fetch(`${baseUrl}/fieldwork/observations?assignmentLetterId=${assignmentLetterId}`),
+          $fetch(`${baseUrl}/fieldwork/documents?assignmentLetterId=${assignmentLetterId}`),
+          $fetch(`${baseUrl}/fieldwork/samples?assignmentLetterId=${assignmentLetterId}`),
+          $fetch(`${baseUrl}/fieldwork/test-controls?assignmentLetterId=${assignmentLetterId}`)
+        ])
 
-      // Only what the API returned; an empty response means no records.
-      fieldworkData.value[assignmentLetterId] = {
-        interviews: Array.isArray(interviewsList) ? interviewsList : [],
-        observations: Array.isArray(observationsList) ? observationsList : [],
-        documents: Array.isArray(documentsList) ? documentsList : [],
-        samples: Array.isArray(samplesList) ? samplesList : [],
-        testControls: Array.isArray(testControlsList) ? testControlsList : []
+        const [interviewsRes, observationsRes, documentsRes, samplesRes, testControlsRes] = results.map((r: any) =>
+          r.status === 'fulfilled' ? r.value : null
+        ) as any[]
+
+        const interviewsList = interviewsRes?.data?.items || interviewsRes?.items || (Array.isArray(interviewsRes) ? interviewsRes : [])
+        const observationsList = observationsRes?.data?.items || observationsRes?.items || (Array.isArray(observationsRes) ? observationsRes : [])
+        const documentsList = documentsRes?.data?.items || documentsRes?.items || (Array.isArray(documentsRes) ? documentsRes : [])
+        const samplesList = samplesRes?.data?.items || samplesRes?.items || (Array.isArray(samplesRes) ? samplesRes : [])
+        const testControlsList = testControlsRes?.data?.items || testControlsRes?.items || (Array.isArray(testControlsRes) ? testControlsRes : [])
+
+        // Only what the API returned; an empty response (or a failed request) means no records for that list.
+        fieldworkData.value[assignmentLetterId] = {
+          interviews: Array.isArray(interviewsList) ? interviewsList : [],
+          observations: Array.isArray(observationsList) ? observationsList : [],
+          documents: Array.isArray(documentsList) ? documentsList : [],
+          samples: Array.isArray(samplesList) ? samplesList : [],
+          testControls: Array.isArray(testControlsList) ? testControlsList : []
+        }
+
+        // Keep whatever loaded, but a failed request is still an error: set the error state and toast once.
+        const rejected = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        if (rejected.length > 0) {
+          console.error(`${rejected.length} of ${results.length} fieldwork data requests failed:`, rejected.map(r => r.reason))
+          const detail = extractErrorMessage(rejected[0]!.reason, 'Failed to load fieldwork data.')
+          errorMsg.value = detail
+          toast.showError('Failed to load fieldwork data.', detail)
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch fieldwork data:', error)
+        const detail = extractErrorMessage(error, 'Failed to load fieldwork data.')
+        errorMsg.value = detail
+        toast.showError('Failed to load fieldwork data.', detail)
+        fieldworkData.value[assignmentLetterId] = emptyFieldworkData()
+      } finally {
+        loading.value = false
+        delete pendingRequests.value[assignmentLetterId]
       }
-    } catch (error: any) {
-      console.error('Failed to fetch fieldwork data:', error)
-      const detail = extractErrorMessage(error, 'Failed to load fieldwork data.')
-      errorMsg.value = detail
-      toast.showError('Failed to load fieldwork data.', detail)
-      fieldworkData.value[assignmentLetterId] = emptyFieldworkData()
-    } finally {
-      loading.value = false
-    }
+    })()
+
+    pendingRequests.value[assignmentLetterId] = request
+    return request
   }
 
   const ensureFieldworkDataHolder = (assignmentLetterId: string) => {
@@ -281,6 +318,15 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
     } catch (error) {
       console.error('Failed to fetch test controls:', error)
+    }
+  }
+
+  // Cache invalidation: called when data is modified
+  const invalidateFieldworkDataCache = (assignmentLetterId?: string) => {
+    if (assignmentLetterId) {
+      delete pendingRequests.value[assignmentLetterId]
+    } else {
+      pendingRequests.value = {}
     }
   }
 
@@ -460,7 +506,13 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showInterviewModal.value = false
       resetInterviewForm()
-      await fetchInterviews(selectedAssignmentLetter.value)
+      // Only refetch if creating new (to get the full record with server-assigned ID)
+      // For updates, local state is already correct
+      if (!wasEditing) {
+        await fetchInterviews(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Wawancara berhasil diperbarui' : 'Wawancara berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
@@ -858,7 +910,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showObservationModal.value = false
       resetObservationForm()
-      await fetchObservations(selectedAssignmentLetter.value)
+      if (!wasEditing) {
+        await fetchObservations(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Observasi berhasil diperbarui' : 'Observasi berhasil ditambahkan')
       return true
     } catch (error) {
@@ -1099,7 +1155,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showDocumentModal.value = false
       resetDocumentForm()
-      await fetchDocuments(selectedAssignmentLetter.value)
+      if (!wasEditing) {
+        await fetchDocuments(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Dokumen berhasil diperbarui' : 'Dokumen berhasil ditambahkan')
       return true
     } catch (error) {
@@ -1346,7 +1406,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showSampleModal.value = false
       resetSampleForm()
-      await fetchSamples(selectedAssignmentLetter.value)
+      if (!wasEditing) {
+        await fetchSamples(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Sample berhasil diperbarui' : 'Sample berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
@@ -1610,7 +1674,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showTestControlModal.value = false
       resetTestControlForm()
-      await fetchTestControls(selectedAssignmentLetter.value)
+      if (!wasEditing) {
+        await fetchTestControls(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Test Control berhasil diperbarui' : 'Test Control berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
@@ -1838,6 +1906,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     downloadFile,
     fetchAllFieldworkData,
     ensureFieldworkDataHolder,
+    invalidateFieldworkDataCache,
     loading,
     errorMsg
   }

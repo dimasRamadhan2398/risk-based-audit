@@ -118,7 +118,10 @@ func (ctrl *MediaController) Download(c *gin.Context) {
 	}
 	c.Header("Content-Disposition", fmt.Sprintf("%s; filename=\"%s\"", disposition, filename))
 	c.Header("Accept-Ranges", "bytes")
-	c.Header("Cache-Control", "public, max-age=86400")
+	// Audit evidence is tenant-scoped and access-controlled: it must never land
+	// in a shared cache (Kong proxy-cache, a CDN, a corporate proxy).
+	c.Header("Cache-Control", "private, max-age=300")
+	c.Header("Vary", "Authorization")
 
 	c.File(targetFile)
 }

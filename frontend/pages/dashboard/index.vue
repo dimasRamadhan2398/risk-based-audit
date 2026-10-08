@@ -923,6 +923,7 @@ import {
 } from "~/composables/useAnomalyScatter";
 import { useI18n } from "~/composables/useI18n";
 import { useRiskProfileStore, riskLevelConfig } from "~/stores/risk-profile";
+import { getControlEffectivenessColorClass, getRiskLevelColorClass } from "~/utils/riskLevelBadge";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
 import { useActionTakenReportStore } from "~/stores/action-taken-report";
 import { useAuditExecutionStore } from "~/stores/audit-execution";
@@ -971,20 +972,8 @@ const getDimAverage = (dimKey: string) => {
   return map[dimKey] || 0;
 };
 
-const getRatingBadgeClass = (ratingLabel: string) => {
-  switch (ratingLabel) {
-    case "Highly Effective":
-      return "bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
-    case "Effective":
-      return "bg-sky-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
-    case "Moderately Effective":
-      return "bg-amber-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
-    case "Weak":
-      return "bg-orange-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
-    default:
-      return "bg-red-500 text-white font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block";
-  }
-};
+const getRatingBadgeClass = (ratingLabel: string) =>
+  `font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block ${getControlEffectivenessColorClass(ratingLabel)}`;
 
 // ─── Responsive breakpoints & chart sizing ──────────────────
 // SSR renders the desktop size; the media query re-evaluates on hydration.
@@ -1475,8 +1464,7 @@ const registeredRiskColumns = [
       return h(
         "span",
         {
-          class: "inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight",
-          style: { backgroundColor: riskLevelConfig[level]?.color, color: "#ffffff" },
+          class: `inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight ${getRiskLevelColorClass(level)}`,
         },
         t(`riskProfile.riskLevelLabels.${level}`) || riskLevelConfig[level]?.label || level
       );

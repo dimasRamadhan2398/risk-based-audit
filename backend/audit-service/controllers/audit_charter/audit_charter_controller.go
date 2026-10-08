@@ -314,14 +314,22 @@ func (ctrl *AuditCharterController) GetActiveCharter(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param page query int false "Page number" default(1)
-// @Param page_size query int false "Page size" default(10)
-// @Param search query string false "Search query"
+// @Param page_size query int false "Page size (max 100; limit and per_page are accepted as aliases)" default(10)
+// @Param search query string false "Case-insensitive match on title, version or filename"
 // @Param is_active query bool false "Active status filter"
 // @Success 200 {object} response.Response
 // @Router /api/v1/audit-charters [get]
 func (ctrl *AuditCharterController) ListCharters(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
+	pageSizeParam := c.Query("page_size")
+	if pageSizeParam == "" {
+		pageSizeParam = c.Query("limit")
+	}
+	if pageSizeParam == "" {
+		pageSizeParam = c.Query("per_page")
+	}
+	// Missing or invalid values fall back to the default of 10 in the service
+	pageSize, _ := strconv.Atoi(pageSizeParam)
 
 	req := &models.ListAuditChartersRequest{
 		Page:     page,

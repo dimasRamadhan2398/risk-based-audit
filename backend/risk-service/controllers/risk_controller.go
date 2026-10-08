@@ -1,7 +1,11 @@
 package controllers
 
 import (
+	"context"
+	"errors"
 	"net/http"
+
+	"risk-service/pkg/masterclient"
 	"risk-service/services"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +21,7 @@ func NewRiskController(service services.IRiskService) *RiskController {
 }
 
 func (ctrl *RiskController) ListRisks(c *gin.Context) {
-	data, err := ctrl.service.GetAll()
+	data, err := ctrl.service.GetAll(requestContext(c))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -49,15 +53,9 @@ func (ctrl *RiskController) CreateRisk(c *gin.Context) {
 		return
 	}
 
-	res, err := ctrl.service.Create(&req)
+	res, err := ctrl.service.Create(requestContext(c), &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "DB_ERROR",
-				"message": err.Error(),
-			},
-		})
+		respondWriteError(c, err)
 		return
 	}
 
@@ -94,15 +92,9 @@ func (ctrl *RiskController) UpdateRisk(c *gin.Context) {
 		return
 	}
 
-	res, err := ctrl.service.Update(regID, &req)
+	res, err := ctrl.service.Update(requestContext(c), regID, &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "DB_ERROR",
-				"message": err.Error(),
-			},
-		})
+		respondWriteError(c, err)
 		return
 	}
 
@@ -143,4 +135,43 @@ func (ctrl *RiskController) DeleteRisk(c *gin.Context) {
 		"success": true,
 		"message": "Risk deleted successfully",
 	})
+}
+
+// requestContext forwards the caller's Authorization header to master-service
+// lookups made while serving this request.
+func requestContext(c *gin.Context) context.Context {
+	return masterclient.WithAuthorization(c.Request.Context(), c.GetHeader("Authorization"))
+}
+
+// respondWriteError maps create/update failures: an unregistered location is
+// the client's fault (400), an unreachable Location master is 503, anything
+// else stays a DB error.
+func respondWriteError(c *gin.Context, err error) {
+	var locErr *services.LocationError
+	switch {
+	case errors.As(err, &locErr):
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    locErr.Code,
+				"message": locErr.Message,
+			},
+		})
+	case errors.Is(err, services.ErrLocationsUnavailable):
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    "LOCATION_MASTER_UNAVAILABLE",
+				"message": "Location master data is unavailable; try again shortly",
+			},
+		})
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    "DB_ERROR",
+				"message": err.Error(),
+			},
+		})
+	}
 }

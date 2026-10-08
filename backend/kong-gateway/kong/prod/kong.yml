@@ -108,6 +108,193 @@ plugins:
 
 
 # ============================================================
+# UPSTREAMS (Load Balancing Targets)
+# ============================================================
+
+upstreams:
+
+  # ============================================================
+  # AUTH SERVICE UPSTREAM
+  # ============================================================
+  - name: auth-service-upstream
+    algorithm: round-robin
+    slots: 10
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/v1/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: auth-service:8001
+        weight: 100
+
+  # ============================================================
+  # AUDIT SERVICE UPSTREAM (Dashboard Heavy)
+  # ============================================================
+  - name: audit-service-upstream
+    algorithm: least-connections
+    slots: 20
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/v1/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: audit-service:8001
+        weight: 100
+
+  # ============================================================
+  # MASTER SERVICE UPSTREAM (Dashboard Lookups)
+  # ============================================================
+  - name: master-service-upstream
+    algorithm: round-robin
+    slots: 15
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/v1/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: master-service:8002
+        weight: 100
+
+  # ============================================================
+  # RISK SERVICE UPSTREAM
+  # ============================================================
+  - name: risk-service-upstream
+    algorithm: round-robin
+    slots: 10
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/v1/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: risk-service:8002
+        weight: 100
+
+  # ============================================================
+  # ANALYTICS SERVICE UPSTREAM (Dashboard Critical)
+  # ============================================================
+  - name: analytics-service-upstream
+    algorithm: least-connections
+    slots: 25
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /api/analytics/health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: analytics-service:8084
+        weight: 100
+
+  # ============================================================
+  # PYTHON AI SERVICE UPSTREAM
+  # ============================================================
+  - name: python-ai-upstream
+    algorithm: round-robin
+    slots: 10
+    healthchecks:
+      active:
+        https_verify_certificate: false
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+        type: http
+        http_path: /health
+        timeout: 1
+      passive:
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          tcp_failures: 5
+          timeouts: 5
+    targets:
+      - target: python-ai:8000
+        weight: 100
+
+
+# ============================================================
 # SERVICES
 # ============================================================
 
@@ -118,7 +305,9 @@ services:
   # ==========================================================
 
   - name: auth-service
-    url: http://auth-service:8001
+    host: auth-service-upstream
+    protocol: http
+    port: 8001
 
     routes:
 
@@ -142,7 +331,12 @@ services:
   # ==========================================================
 
   - name: auth-service-legacy-mfa
-    url: http://auth-service:8001/api/v1/mfa
+    host: auth-service-upstream
+    protocol: http
+    port: 8001
+    # strip_path below removes /api/mfa, so the service must re-add the real
+    # prefix or requests arrive at the upstream as bare /<rest>.
+    path: /api/v1/mfa
 
     routes:
 
@@ -159,7 +353,10 @@ services:
   # ==========================================================
 
   - name: auth-service-legacy-devices
-    url: http://auth-service:8001/api/v1/devices
+    host: auth-service-upstream
+    protocol: http
+    port: 8001
+    path: /api/v1/devices
 
     routes:
 
@@ -176,7 +373,9 @@ services:
   # ==========================================================
 
   - name: audit-service
-    url: http://audit-service:8001
+    host: audit-service-upstream
+    protocol: http
+    port: 8001
 
     routes:
 
@@ -249,13 +448,42 @@ services:
 
         strip_path: false
 
+        # Rate limiting per route for fieldwork endpoints
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1000
+              policy: local
+              limit_by: ip
+              hide_client_headers: false
+
+          # Response caching for GET endpoints
+          # Cache on audit-service is optimized for fieldwork with short TTL (5 min)
+          - name: proxy-cache
+            config:
+              strategy: memory
+              content_type:
+                - application/json
+              cache_ttl: 300
+              cache_control: true
+              # Authorization MUST stay in the cache key. Kong has no jwt/key-auth
+              # plugin here, so a cache hit is served without ever reaching the
+              # upstream auth middleware - dropping it leaks authenticated
+              # responses to anonymous callers.
+              vary_headers:
+                - Authorization
+                - Accept-Encoding
+
 
   # ==========================================================
   # MASTER SERVICE
   # ==========================================================
 
   - name: master-service
-    url: http://master-service:8002
+    host: master-service-upstream
+    protocol: http
+    port: 8002
 
     routes:
 
@@ -276,13 +504,32 @@ services:
 
         strip_path: false
 
+        # Caching for master data lookups (used by dashboard)
+        plugins:
+          - name: proxy-cache
+            config:
+              strategy: memory
+              content_type:
+                - application/json
+              cache_ttl: 600
+              cache_control: true
+              # Authorization MUST stay in the cache key. Kong has no jwt/key-auth
+              # plugin here, so a cache hit is served without ever reaching the
+              # upstream auth middleware - dropping it leaks authenticated
+              # responses to anonymous callers.
+              vary_headers:
+                - Authorization
+                - Accept-Encoding
+
 
   # ==========================================================
   # RISK SERVICE
   # ==========================================================
 
   - name: risk-service
-    url: http://risk-service:8002
+    host: risk-service-upstream
+    protocol: http
+    port: 8002
 
     routes:
 
@@ -299,22 +546,96 @@ services:
 
         strip_path: false
 
+        # Caching for risk data (dashboard feeds)
+        plugins:
+          - name: proxy-cache
+            config:
+              strategy: memory
+              content_type:
+                - application/json
+              cache_ttl: 300
+              cache_control: true
+              # Authorization MUST stay in the cache key. Kong has no jwt/key-auth
+              # plugin here, so a cache hit is served without ever reaching the
+              # upstream auth middleware - dropping it leaks authenticated
+              # responses to anonymous callers.
+              vary_headers:
+                - Authorization
+                - Accept-Encoding
+
 
   # ==========================================================
-  # ANALYTICS SERVICE
+  # ANALYTICS SERVICE (Dashboard Critical Path)
   # ==========================================================
 
   - name: analytics-service
-    url: http://analytics-service:8084
+    host: analytics-service-upstream
+    protocol: http
+    port: 8084
 
     routes:
 
-      - name: analytics-routes
+      - name: analytics-routes-cached
 
         paths:
-          - /api/analytics
+          - /api/analytics/report
+          - /api/analytics/predict
+          - /api/analytics/risk-score
+          - /api/analytics/risk-score/batch
+          - /api/analytics/anomaly
+          - /api/analytics/anomaly/batch
+          - /api/analytics/text-analysis
+          - /api/analytics/text-analysis/batch
+          - /api/analytics/performance-trend
+          - /api/analytics/performance-trend/batch
+          - /api/analytics/caatt
 
         strip_path: false
+
+        # Dashboard-specific caching: longer TTL for aggregates
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              hour: 3600
+              policy: local
+              limit_by: ip
+              hide_client_headers: false
+
+          # Aggressive caching for dashboard queries
+          # Most dashboard endpoints are idempotent GET requests
+          - name: proxy-cache
+            config:
+              strategy: memory
+              content_type:
+                - application/json
+              cache_ttl: 600  # 10 minutes for dashboard aggregates
+              cache_control: true
+              # Authorization MUST stay in the cache key. Kong has no jwt/key-auth
+              # plugin here, so a cache hit is served without ever reaching the
+              # upstream auth middleware - dropping it leaks authenticated
+              # responses to anonymous callers.
+              vary_headers:
+                - Authorization
+                - Accept-Encoding
+              response_headers:
+                X-Cache-Status: true
+
+      - name: analytics-routes-retrain
+
+        paths:
+          - /api/analytics/retrain/auto
+
+        strip_path: false
+
+        # Retrain endpoint: no caching (POST, state-changing)
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 10
+              hour: 100
+              policy: local
+              limit_by: ip
 
 
   # ==========================================================
@@ -322,7 +643,9 @@ services:
   # ==========================================================
 
   - name: python-ai-service
-    url: http://python-ai:8000
+    host: python-ai-upstream
+    protocol: http
+    port: 8000
 
     routes:
 
