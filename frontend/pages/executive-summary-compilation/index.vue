@@ -362,7 +362,9 @@ const filteredSummaries = computed(() => {
   const rawSummaries = store.summaryList.filter(s => 
     s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' &&
     s.nomorDokumen !== '020/LHA/01/KS IAD/2023' &&
-    s.nomorDokumen !== '019/LHA/01/KS IAD/2025'
+    s.nomorDokumen !== '019/LHA/01/KS IAD/2025' &&
+    s.nomorDokumen !== 'LHA-020/SKAI/2023' &&
+    s.nomorDokumen !== 'LHA-019/SKAI/2025'
   )
 
   const docMap = new Map<string, ExecutiveSummary>()
@@ -377,7 +379,10 @@ const filteredSummaries = computed(() => {
   const summaries = Array.from(docMap.values()).map(updated => {
     // Synchronize jumlahLaporan with individual LHAs count matching quarter or assignment letter
     const matchingIndividualLhas = auditReportStore.reportList.filter(r => {
-      if (r.reportNumber === '020/LHA/01/KS IAD/2023' || r.reportNumber === '019/LHA/01/KS IAD/2025') return false
+      if (r.reportNumber === '020/LHA/01/KS IAD/2023' ||
+          r.reportNumber === '019/LHA/01/KS IAD/2025' ||
+          r.reportNumber === 'LHA-020/SKAI/2023' ||
+          r.reportNumber === 'LHA-019/SKAI/2025') return false
       if (updated.assignmentLetterId && r.assignmentLetterId === updated.assignmentLetterId) return true
       const dateParts = r.reportDate ? r.reportDate.split('-') : []
       const m = parseInt(dateParts[1] || '0')

@@ -46,43 +46,18 @@
             @submit="store.saveReport"
           >
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <UFormField
-                label="Assignment Letter (Surat Tugas)"
-                name="assignmentLetterId"
-                required
-                :error="store.formErrors.assignmentLetterId ? t(store.formErrors.assignmentLetterId) : undefined"
-                class="md:col-span-2"
-              >
-                <USelectMenu
-                  v-model="store.reportForm.assignmentLetterId"
-                  :items="store.publishedAssignmentLetters"
-                  placeholder="Select Assignment Letter"
-                  class="w-full"
-                  :disabled="store.isEditing"
-                  @update:model-value="onLetterChange"
-                />
-              </UFormField>
-
               <UFormField label="Nomor LHA (Report Number)" name="reportNumber" required class="md:col-span-2">
                 <div class="flex gap-2 items-center">
                   <UInput
                     v-model="store.reportForm.reportNumber"
-                    placeholder="e.g. 026/LHA/10/KS IAD/2026"
+                    placeholder="e.g. LHA-026/SKAI/2026"
                     class="w-full font-mono font-medium"
                     required
-                  />
-                  <UButton
-                    v-if="!store.isEditing"
-                    color="neutral"
-                    variant="soft"
-                    icon="i-heroicons-arrow-path"
-                    label="Auto Gen"
-                    title="Generate Nomor LHA Baru"
-                    @click="() => {store.reportForm.reportNumber = store.generateReportNumber(store.reportForm.reportDate)}"
+                    disabled
                   />
                 </div>
                 <p class="text-xs text-gray-500 mt-1">
-                  Format dinamis otomatis: <code class="text-primary-600 font-mono">[NoUrut]/LHA/[Bulan]/KS IAD/[Tahun]</code>
+                  Format dinamis otomatis: <code class="text-primary-600 font-mono">LHA-[NoUrut]/[Audit Team]/[Tahun]</code>
                 </p>
               </UFormField>
 

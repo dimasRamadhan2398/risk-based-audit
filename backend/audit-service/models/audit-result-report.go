@@ -120,23 +120,77 @@ func (r *AuditResultReport) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func normalizeLHAReportNumber(raw string, team string, defaultYear int) string {
+	raw = strings.TrimSpace(raw)
+	if strings.Contains(raw, "/LHA/") {
+		parts := strings.Split(raw, "/")
+		if len(parts) >= 2 {
+			seq := strings.TrimSpace(parts[0])
+			year := fmt.Sprintf("%d", defaultYear)
+			if len(parts) >= 5 && strings.TrimSpace(parts[4]) != "" {
+				year = strings.TrimSpace(parts[4])
+			}
+			if team == "" {
+				team = "SKAI"
+			}
+			return fmt.Sprintf("LHA-%s/%s/%s", seq, strings.ToUpper(team), year)
+		}
+	}
+	return raw
+}
+
 func (r *AuditResultReport) BeforeCreate(tx *gorm.DB) error {
-	if strings.TrimSpace(r.ReportNumber) == "" {
+	if strings.Contains(r.ReportNumber, "/LHA/") {
 		year := time.Now().Year()
-		month := int(time.Now().Month())
 		if r.ReportDate != nil {
 			year = r.ReportDate.Year()
-			month = int(r.ReportDate.Month())
+		}
+		team := "SKAI"
+		if r.AssignmentLetterID != "" {
+			var al AssignmentLetter
+			if err := tx.Model(&AssignmentLetter{}).Where("letter_number = ? OR id::text = ?", r.AssignmentLetterID, r.AssignmentLetterID).First(&al).Error; err == nil && strings.TrimSpace(al.AuditTeam) != "" {
+				team = strings.TrimSpace(al.AuditTeam)
+			}
+		}
+		r.ReportNumber = normalizeLHAReportNumber(r.ReportNumber, team, year)
+		return nil
+	}
+
+	if strings.TrimSpace(r.ReportNumber) == "" {
+		year := time.Now().Year()
+		if r.ReportDate != nil {
+			year = r.ReportDate.Year()
+		}
+
+		team := "SKAI"
+		if r.AssignmentLetterID != "" {
+			var al AssignmentLetter
+			if err := tx.Model(&AssignmentLetter{}).Where("letter_number = ? OR id::text = ?", r.AssignmentLetterID, r.AssignmentLetterID).First(&al).Error; err == nil && strings.TrimSpace(al.AuditTeam) != "" {
+				team = strings.TrimSpace(al.AuditTeam)
+			} else {
+				parts := strings.Split(r.AssignmentLetterID, "/")
+				if len(parts) >= 2 && strings.TrimSpace(parts[1]) != "" {
+					team = strings.TrimSpace(parts[1])
+				}
+			}
 		}
 
 		var reports []AuditResultReport
 		tx.Model(&AuditResultReport{}).Unscoped().Select("report_number").Find(&reports)
 
 		maxSeq := 20
-		prefix := "/LHA/"
 		for _, rep := range reports {
 			numStr := strings.TrimSpace(rep.ReportNumber)
-			if strings.Contains(numStr, prefix) {
+			if strings.HasPrefix(strings.ToUpper(numStr), "LHA-") {
+				parts := strings.Split(numStr, "/")
+				if len(parts) > 0 {
+					var seq int
+					numPart := strings.TrimPrefix(strings.ToUpper(parts[0]), "LHA-")
+					if _, err := fmt.Sscanf(numPart, "%d", &seq); err == nil && seq > maxSeq {
+						maxSeq = seq
+					}
+				}
+			} else if strings.Contains(numStr, "/LHA/") {
 				parts := strings.Split(numStr, "/")
 				if len(parts) > 0 {
 					var seq int
@@ -146,7 +200,7 @@ func (r *AuditResultReport) BeforeCreate(tx *gorm.DB) error {
 				}
 			}
 		}
-		r.ReportNumber = fmt.Sprintf("%03d/LHA/%02d/KS IAD/%d", maxSeq+1, month, year)
+		r.ReportNumber = fmt.Sprintf("LHA-%03d/%s/%d", maxSeq+1, strings.ToUpper(team), year)
 	}
 	return nil
 }
@@ -162,9 +216,17 @@ func (r *AuditResultReport) BeforeSave(tx *gorm.DB) error {
 		} else if _, present := dest["findings_count"]; present {
 			tx.Statement.SetColumn("findings_count", len(r.Findings))
 		}
+		if repNum, present := dest["report_number"]; present {
+			if strVal, ok := repNum.(string); ok && strings.Contains(strVal, "/LHA/") {
+				tx.Statement.SetColumn("report_number", normalizeLHAReportNumber(strVal, "SKAI", time.Now().Year()))
+			}
+		}
 		return nil
 	}
 	r.FindingsCount = len(r.Findings)
+	if strings.Contains(r.ReportNumber, "/LHA/") {
+		r.ReportNumber = normalizeLHAReportNumber(r.ReportNumber, "SKAI", time.Now().Year())
+	}
 	return nil
 }
 

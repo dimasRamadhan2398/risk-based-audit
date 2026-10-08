@@ -47,6 +47,41 @@ export interface RecentFinding {
   date: string
 }
 
+export const normalizeReportNumber = (raw?: string | null): string => {
+  if (!raw) return ''
+  const trimmed = raw.trim()
+  if (!trimmed) return ''
+
+  // Already in target format: LHA-xxx/TEAM/yyyy
+  if (/^LHA-\d+\/[^\/]+\/\d{4}$/i.test(trimmed)) {
+    return trimmed
+  }
+
+  // Legacy full pattern: 021/LHA/01/KS IAD/2026
+  const fullLegacy = trimmed.match(/^(\d+)\/LHA\/\d+\/(?:KS\s*IAD|[^\/]+)\/(\d{4})$/i)
+  if (fullLegacy && fullLegacy[1] && fullLegacy[2]) {
+    const seq = fullLegacy[1].padStart(3, '0')
+    const year = fullLegacy[2]
+    return `LHA-${seq}/SKAI/${year}`
+  }
+
+  // Generic /LHA/ pattern: (\d+)/LHA/...
+  if (trimmed.includes('/LHA/')) {
+    const parts = trimmed.split('/')
+    if (parts.length >= 2) {
+      const seq = (parts[0] || '').replace(/\D/g, '').padStart(3, '0')
+      let year = new Date().getFullYear().toString()
+      const lastPart = parts[parts.length - 1]
+      if (lastPart && /^\d{4}$/.test(lastPart)) {
+        year = lastPart
+      }
+      return `LHA-${seq}/SKAI/${year}`
+    }
+  }
+
+  return trimmed
+}
+
 export const useAuditResultReportStore = defineStore('audit-result-report', () => {
   const assignmentLetterStore = useAssignmentLetterStore()
   const toast = useToastNotification()
@@ -97,26 +132,39 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     return 'Quite Significant'
   }
 
-  const generateReportNumber = (dateStr?: string, unitCode: string = '01'): string => {
+  const generateReportNumber = (dateStr?: string, auditTeam: string = 'SKAI'): string => {
     let year = new Date().getFullYear().toString()
-    let month = '01'
     if (dateStr) {
       const cleanDate = (dateStr.split('T')[0] || '').trim()
       const parts = cleanDate.split('-')
-      if (parts.length === 3 && parts[0] && parts[1]) {
+      if (parts.length === 3 && parts[0]) {
         year = parts[0]
-        month = parts[1].padStart(2, '0')
       } else {
         const d = new Date(dateStr)
         if (!isNaN(d.getFullYear())) {
           year = d.getFullYear().toString()
-          month = (d.getMonth() + 1).toString().padStart(2, '0')
+        }
+      }
+    }
+
+    let team = auditTeam || 'SKAI'
+    if (team === 'SKAI') {
+      const letter = reportForm.assignmentLetterId || selectedAssignmentLetter.value
+      if (letter) {
+        const st = assignmentLetterStore.assignmentLetterList.find(
+          (s: any) => s.letterNumber === letter || s.id === letter
+        )
+        if (st && (st as any).auditTeam) {
+          team = (st as any).auditTeam
+        } else if (letter.includes('/')) {
+          const parts = letter.split('/')
+          if (parts[1]) team = parts[1]
         }
       }
     }
 
     let maxSeq = 20
-    const lhaRegex = /^(\d+)\/LHA/i
+    const lhaRegex = /(?:LHA-|^)(\d+)/i
     for (const r of reportList.value) {
       const num = r.reportNumber || (r as any).report_number
       if (num) {
@@ -130,7 +178,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       }
     }
     const nextSeq = (maxSeq + 1).toString().padStart(3, '0')
-    return `${nextSeq}/LHA/${month}/KS IAD/${year}`
+    return `LHA-${nextSeq}/${team.toUpperCase()}/${year}`
   }
 
   const mapReportItem = (item: any): AuditResultReport => {
@@ -149,11 +197,13 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     }))
 
     const finalReportDate = dateVal || new Date().toISOString().split('T')[0]
-    const defaultDynamicNum = generateReportNumber(finalReportDate)
+    const rawNum = item.reportNumber || item.report_number || ''
+    const normalizedNum = normalizeReportNumber(rawNum) || generateReportNumber(finalReportDate)
 
     return {
       ...item,
-      reportNumber: item.reportNumber || item.report_number || defaultDynamicNum,
+      reportNumber: normalizedNum,
+      report_number: normalizedNum,
       findingsCount: item.findingsCount || item.findings_count || mappedFindings.length || 0,
       findings: mappedFindings,
       reportDate: finalReportDate,
@@ -425,6 +475,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       const stData = assignmentLetterStore.assignmentLetterList.find(
         (st: any) => st.letterNumber === selectedAssignmentLetter.value
       )
+      reportForm.reportNumber = generateReportNumber(reportForm.reportDate, stData?.auditTeam || 'SKAI')
       if (stData?.auditTitle) {
         reportForm.reportTitle = `Laporan Hasil Audit - ${stData.auditTitle}`
       } else {
@@ -580,7 +631,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const syncExecutiveSummaryField = async (reportNumber: string, narrative: string, findingsCount?: number) => {
-    const found = reportList.value.find(r => (r.reportNumber || (r as any).report_number) === reportNumber)
+    const normTarget = normalizeReportNumber(reportNumber)
+    const found = reportList.value.find(r => {
+      const num = r.reportNumber || (r as any).report_number
+      return num === reportNumber || normalizeReportNumber(num) === normTarget
+    })
     if (found) {
       found.executiveSummary = narrative
       if (typeof findingsCount === 'number' && findingsCount > 0) {
@@ -602,7 +657,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const clearExecutiveSummaryField = async (reportNumber: string) => {
-    const found = reportList.value.find(r => (r.reportNumber || (r as any).report_number) === reportNumber)
+    const normTarget = normalizeReportNumber(reportNumber)
+    const found = reportList.value.find(r => {
+      const num = r.reportNumber || (r as any).report_number
+      return num === reportNumber || normalizeReportNumber(num) === normTarget
+    })
     if (found) {
       found.executiveSummary = ''
       try {
@@ -649,6 +708,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     runAutoDetectFindings,
     autoPopulateFindings,
     generateReportNumber,
+    normalizeReportNumber,
     resetForm
   }
 })

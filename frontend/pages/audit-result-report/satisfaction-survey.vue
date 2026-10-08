@@ -283,7 +283,7 @@
           <!-- Report Number -->
           <template #reportNumber-cell="{ row }">
             <span class="font-mono text-md font-semibold text-primary-600 dark:text-primary-400">
-              {{ row.original.reportNumber || (row.original as any).report_number || '-' }}
+              {{ normalizeReportNumber(row.original.reportNumber || (row.original as any).report_number) || '-' }}
             </span>
           </template>
 
@@ -405,7 +405,7 @@
                 <div>
                   <span class="text-gray-500 block">{{ t('satisfactionSurvey.formModal.reportNumber') }}</span>
                   <span class="font-mono font-semibold text-gray-800 dark:text-gray-200">
-                    {{ selectedReport?.reportNumber || (selectedReport as any)?.report_number }}
+                    {{ normalizeReportNumber(selectedReport?.reportNumber || (selectedReport as any)?.report_number) }}
                   </span>
                 </div>
                 <div>
@@ -703,7 +703,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '~/stores/auth'
-import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useAuditResultReportStore, normalizeReportNumber } from '~/stores/audit-result-report'
 import { useAuditExecutionStore } from '~/stores/audit-execution'
 import { useAuditeeSurveyStore, type AuditeeSurvey } from '~/stores/auditee-survey'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'

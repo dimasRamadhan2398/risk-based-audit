@@ -94,6 +94,8 @@ export const loadPersistedExecutiveSummaryOverrides = (): Record<string, Partial
     delete current['DOC-EXSUM-Q1-2026']
     delete current['020/LHA/01/KS IAD/2023']
     delete current['019/LHA/01/KS IAD/2025']
+    delete current['LHA-020/SKAI/2023']
+    delete current['LHA-019/SKAI/2025']
     return current
   } catch (e) {
     console.warn('Failed to read persisted executive summaries from localStorage:', e)
@@ -192,11 +194,11 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: 1,
       periodeBulan: 'Januari - Maret',
       tahun: 2026,
-      nomorDokumen: '021/LHA/01/KS IAD/2026',
+      nomorDokumen: 'LHA-021/SKAI/2026',
       dokumenPath: 'Executive_Summary_021_LHA_2026.pdf',
       status: 'Approved',
       executiveNote: 'Mohon tindak lanjuti rekonsiliasi kas harian dan koordinasikan perbaikan dengan tim Keuangan.',
-      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (021/LHA/01/KS IAD/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
+      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (LHA-021/SKAI/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
       jumlahLaporan: 1,
       risikoTinggi: 3,
       risikoSedang: 2,
@@ -212,7 +214,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         { unitDivision: 'Finance', judulTemuan: 'Keterlambatan rekonsiliasi kas harian cabang utama', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Otomatisasi Sistem' }
       ],
       matriksKompilasi: [
-        { nomor: '021/LHA/01', division: 'Finance', unitKerja: 'Departemen Keuangan', prosesBisnis: 'ICOFR', judulTemuan: 'Selisih pencatatan inventaris fisik vs buku besar', nilaiRisiko: 'Tinggi', rekomendasi: 'Lakukan rekonsiliasi harian dan alert SMTP', dueDate: '2026-05-15', picUnit: 'Manager Keuangan', progres: 60, status: 'In Progress', buktiTL: 'BA_Rekonsiliasi.pdf' }
+        { nomor: 'LHA-021/01', division: 'Finance', unitKerja: 'Departemen Keuangan', prosesBisnis: 'ICOFR', judulTemuan: 'Selisih pencatatan inventaris fisik vs buku besar', nilaiRisiko: 'Tinggi', rekomendasi: 'Lakukan rekonsiliasi harian dan alert SMTP', dueDate: '2026-05-15', picUnit: 'Manager Keuangan', progres: 60, status: 'In Progress', buktiTL: 'BA_Rekonsiliasi.pdf' }
       ],
       akarMasalah: 'Kurangnya otomatisasi alarm kegagalan backup data dan kelalaian non-aktifkan akses user kasir.',
       kesimpulan: 'Secara umum pengendalian internal departemen keuangan memadai dengan beberapa area peningkatan yang perlu segera ditindaklanjuti.',
@@ -227,10 +229,10 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: 2,
       periodeBulan: 'Mei',
       tahun: 2026,
-      nomorDokumen: '022/LHA/01/KS IAD/2026',
+      nomorDokumen: 'LHA-022/SKAI/2026',
       dokumenPath: 'Executive_Summary_022_LHA_2026.pdf',
       status: 'Approved',
-      narrative: 'Executive Summary Individual untuk Audit Keamanan Sistem Informasi & ERP (022/LHA/01/KS IAD/2026). Audit mengevaluasi tata kelola akses pengguna, patch ERP, dan pengujian DRC.',
+      narrative: 'Executive Summary Individual untuk Audit Keamanan Sistem Informasi & ERP (LHA-022/SKAI/2026). Audit mengevaluasi tata kelola akses pengguna, patch ERP, dan pengujian DRC.',
       jumlahLaporan: 1,
       risikoTinggi: 2,
       risikoSedang: 2,
@@ -258,10 +260,10 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: 3,
       periodeBulan: 'Agustus',
       tahun: 2026,
-      nomorDokumen: '023/LHA/01/KS IAD/2026',
+      nomorDokumen: 'LHA-023/SKAI/2026',
       dokumenPath: 'Executive_Summary_023_LHA_2026.pdf',
       status: 'Draft',
-      narrative: 'Executive Summary Individual untuk Audit Operasional Gudang & Persediaan Logistik 2026 (023/LHA/01/KS IAD/2026).',
+      narrative: 'Executive Summary Individual untuk Audit Operasional Gudang & Persediaan Logistik 2026 (LHA-023/SKAI/2026).',
       jumlahLaporan: 1,
       risikoTinggi: 1,
       risikoSedang: 2,
@@ -283,10 +285,10 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: 3,
       periodeBulan: 'Agustus',
       tahun: 2026,
-      nomorDokumen: '024/LHA/01/KS IAD/2026',
+      nomorDokumen: 'LHA-024/SKAI/2026',
       dokumenPath: 'Executive_Summary_024_LHA_2026.pdf',
       status: 'Approved',
-      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Kepatuhan Procurement & SCM 2026 (024/LHA/01/KS IAD/2026).',
+      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Kepatuhan Procurement & SCM 2026 (LHA-024/SKAI/2026).',
       jumlahLaporan: 1,
       risikoTinggi: 1,
       risikoSedang: 1,
@@ -308,11 +310,11 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: 4,
       periodeBulan: 'September',
       tahun: 2026,
-      nomorDokumen: '025/LHA/01/KS IAD/2026',
+      nomorDokumen: 'LHA-025/SKAI/2026',
       dokumenPath: 'Executive_Summary_025_LHA_2026.pdf',
       status: 'Approved',
       executiveNote: 'Disetujui. Mohon koordinasikan dengan Direksi terkait temuan overhauling.',
-      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (025/LHA/01/KS IAD/2026). Audit mengevaluasi keandalan instalasi K3LH, sertifikasi alat, dan fasilitas pemadam kebakaran.',
+      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (LHA-025/SKAI/2026). Audit mengevaluasi keandalan instalasi K3LH, sertifikasi alat, dan fasilitas pemadam kebakaran.',
       jumlahLaporan: 1,
       risikoTinggi: 2,
       risikoSedang: 1,
@@ -352,9 +354,17 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
 
       if (items.length > 0) {
+        const isExcluded = (doc?: string) =>
+          !doc ||
+          doc === 'DOC-EXSUM-Q1-2026' ||
+          doc === '020/LHA/01/KS IAD/2023' ||
+          doc === '019/LHA/01/KS IAD/2025' ||
+          doc === 'LHA-020/SKAI/2023' ||
+          doc === 'LHA-019/SKAI/2025'
+
         const backendItems = items
           .map(item => parseSummaryFromBackend(item))
-          .filter(b => b.nomorDokumen !== 'DOC-EXSUM-Q1-2026' && b.nomorDokumen !== '020/LHA/01/KS IAD/2023' && b.nomorDokumen !== '019/LHA/01/KS IAD/2025')
+          .filter(b => !isExcluded(b.nomorDokumen))
         const docSet = new Set(backendItems.map(b => b.nomorDokumen))
         const remainingMocks = mockSummaries.filter(m => !docSet.has(m.nomorDokumen))
         summaryList.value = [...backendItems, ...remainingMocks]
@@ -368,12 +378,20 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     } finally {
       // Overlay persisted changes from localStorage (status approvals and notes)
       const overrides = loadPersistedExecutiveSummaryOverrides()
+      const isExcluded = (doc?: string) =>
+        !doc ||
+        doc === 'DOC-EXSUM-Q1-2026' ||
+        doc === '020/LHA/01/KS IAD/2023' ||
+        doc === '019/LHA/01/KS IAD/2025' ||
+        doc === 'LHA-020/SKAI/2023' ||
+        doc === 'LHA-019/SKAI/2025'
+
       summaryList.value = summaryList.value
         .map(item => {
           const override = overrides[item.nomorDokumen] || overrides[item.id]
           return override ? { ...item, ...override } : item
         })
-        .filter(s => s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' && s.nomorDokumen !== '020/LHA/01/KS IAD/2023' && s.nomorDokumen !== '019/LHA/01/KS IAD/2025')
+        .filter(s => !isExcluded(s.nomorDokumen))
       loading.value = false
     }
   }

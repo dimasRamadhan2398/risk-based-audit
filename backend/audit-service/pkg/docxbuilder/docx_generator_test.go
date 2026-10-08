@@ -20,7 +20,7 @@ func TestGenerateAuditReportDocx_WithUpdatedSampleDataAndWorkingPaper(t *testing
 	now := time.Now()
 	report := &models.AuditResultReport{
 		ID:                 uuid.New(),
-		ReportNumber:       "020/LHA/SKAI/2026",
+		ReportNumber:       "LHA-020/SKAI/2026",
 		ReportTitle:        "Laporan Hasil Audit Operasional & Pengendalian",
 		AssignmentLetterID: "ST-001/SKAI/2026",
 		AuditPeriod:        "2026-03-01 s/d 2026-03-31",

@@ -373,7 +373,9 @@ const syncedSummaries = computed(() => {
   const filteredRaw = rawList.filter(s => 
     s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' &&
     s.nomorDokumen !== '020/LHA/01/KS IAD/2023' &&
-    s.nomorDokumen !== '019/LHA/01/KS IAD/2025'
+    s.nomorDokumen !== '019/LHA/01/KS IAD/2025' &&
+    s.nomorDokumen !== 'LHA-020/SKAI/2023' &&
+    s.nomorDokumen !== 'LHA-019/SKAI/2025'
   )
 
   // Map to deduplicate strictly by nomorDokumen
@@ -394,7 +396,12 @@ const syncedSummaries = computed(() => {
   // Synchronize with LHA items from auditReportStore
   auditReportStore.reportList.forEach(lha => {
     const lhaNum = lha.reportNumber || (lha as any).report_number
-    if (!lhaNum || lhaNum === 'DOC-EXSUM-Q1-2026' || lhaNum === '020/LHA/01/KS IAD/2023' || lhaNum === '019/LHA/01/KS IAD/2025') return
+    if (!lhaNum ||
+      lhaNum === 'DOC-EXSUM-Q1-2026' ||
+      lhaNum === '020/LHA/01/KS IAD/2023' ||
+      lhaNum === '019/LHA/01/KS IAD/2025' ||
+      lhaNum === 'LHA-020/SKAI/2023' ||
+      lhaNum === 'LHA-019/SKAI/2025') return
 
     if (docMap.has(lhaNum)) {
       const existing = docMap.get(lhaNum)!

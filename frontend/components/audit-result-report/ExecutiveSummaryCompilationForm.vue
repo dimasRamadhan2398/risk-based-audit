@@ -53,7 +53,7 @@
           </div>
 
           <div class="w-full">
-            <UFormField label="Pilih LHA / ID Laporan Hasil Audit">
+            <UFormField label="Pilih Surat Tugas (Assignment Letter) / LHA">
               <USelectMenu
                 v-model="selectedLhaId"
                 :items="lhaDropdownOptions"
@@ -933,7 +933,14 @@ const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any 
   return auditReportStore.reportList
     .filter(r => {
       const num = r.reportNumber || (r as any).report_number
-      return num && num !== 'DOC-EXSUM-Q1-2026' && num !== '020/LHA/01/KS IAD/2023' && num !== '019/LHA/01/KS IAD/2025'
+      return (
+        num &&
+        num !== 'DOC-EXSUM-Q1-2026' &&
+        num !== '020/LHA/01/KS IAD/2023' &&
+        num !== '019/LHA/01/KS IAD/2025' &&
+        num !== 'LHA-020/SKAI/2023' &&
+        num !== 'LHA-019/SKAI/2025'
+      )
     })
     .map(r => ({
       label: `${r.reportNumber || (r as any).report_number} - ${r.reportTitle}`,
@@ -969,7 +976,14 @@ const syncFromIndividualLha = () => {
   // 1. Gather all individual reports matching assignment letter or quarter
   const validReports = auditReportStore.reportList.filter(r => {
     const num = r.reportNumber || (r as any).report_number
-    return num && num !== 'DOC-EXSUM-Q1-2026' && num !== '020/LHA/01/KS IAD/2023' && num !== '019/LHA/01/KS IAD/2025'
+    return (
+      num &&
+      num !== 'DOC-EXSUM-Q1-2026' &&
+      num !== '020/LHA/01/KS IAD/2023' &&
+      num !== '019/LHA/01/KS IAD/2025' &&
+      num !== 'LHA-020/SKAI/2023' &&
+      num !== 'LHA-019/SKAI/2025'
+    )
   })
 
   let individualReports = validReports.filter(r => {

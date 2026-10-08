@@ -134,7 +134,7 @@ func buildDocumentXML(
 
 	repNumber := xmlEsc(report.ReportNumber)
 	if repNumber == "" {
-		repNumber = "020/LHA/01/KS IAD/2023"
+		repNumber = "LHA-020/SKAI/2023"
 	}
 	repTitle := xmlEsc(report.ReportTitle)
 	if repTitle == "" {

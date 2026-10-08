@@ -142,11 +142,11 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       expect(store.summaryList.find(s => s.id === item!.id)?.status).toBe('Approved')
     })
 
-    it('persists note and approved status for 021/LHA/01/KS IAD/2026 across re-fetch', async () => {
+    it('persists note and approved status for LHA-021/SKAI/2026 across re-fetch', async () => {
       const store = useExecutiveSummaryStore()
       await store.fetchSummaries()
 
-      const item021 = store.summaryList.find(s => s.nomorDokumen === '021/LHA/01/KS IAD/2026')
+      const item021 = store.summaryList.find(s => s.nomorDokumen === 'LHA-021/SKAI/2026')
       expect(item021).toBeDefined()
       expect(item021?.assignmentLetterId).toBe('ST-001/SKAI/2026')
 
@@ -160,7 +160,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Simulate page refresh / re-fetch
       await store.fetchSummaries()
-      const refreshed021 = store.summaryList.find(s => s.nomorDokumen === '021/LHA/01/KS IAD/2026')
+      const refreshed021 = store.summaryList.find(s => s.nomorDokumen === 'LHA-021/SKAI/2026')
       expect(refreshed021?.status).toBe('Approved')
       expect(refreshed021?.executiveNote).toBe('Catatan penting untuk auditor keuangan terkait rekonsiliasi kas.')
     })
@@ -181,18 +181,18 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const store = useExecutiveSummaryStore()
       await store.fetchSummaries()
 
-      const initialCount = store.summaryList.filter(s => s.nomorDokumen === '021/LHA/01/KS IAD/2026').length
+      const initialCount = store.summaryList.filter(s => s.nomorDokumen === 'LHA-021/SKAI/2026').length
       expect(initialCount).toBe(1)
 
-      // Open new form and attempt to save with 021/LHA/01/KS IAD/2026
+      // Open new form and attempt to save with LHA-021/SKAI/2026
       store.openNewForm()
-      store.form.nomorDokumen = '021/LHA/01/KS IAD/2026'
+      store.form.nomorDokumen = 'LHA-021/SKAI/2026'
       store.form.narrative = 'Updated narrative for 021'
       await store.saveForm()
 
-      const afterCount = store.summaryList.filter(s => s.nomorDokumen === '021/LHA/01/KS IAD/2026').length
+      const afterCount = store.summaryList.filter(s => s.nomorDokumen === 'LHA-021/SKAI/2026').length
       expect(afterCount).toBe(1)
-      expect(store.summaryList.find(s => s.nomorDokumen === '021/LHA/01/KS IAD/2026')?.narrative).toBe('Updated narrative for 021')
+      expect(store.summaryList.find(s => s.nomorDokumen === 'LHA-021/SKAI/2026')?.narrative).toBe('Updated narrative for 021')
     })
   })
 

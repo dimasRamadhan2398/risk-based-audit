@@ -161,16 +161,16 @@ describe('Audit Result Report Store - Automated Findings Detection', () => {
     
     // Test with specific date: 2026-10-15
     const dynamicNum = store.generateReportNumber('2026-10-15')
-    expect(dynamicNum).toMatch(/^\d{3}\/LHA\/10\/KS IAD\/2026$/)
+    expect(dynamicNum).toMatch(/^LHA-\d{3}\/SKAI\/2026$/)
 
     // Test with different year and month: 2027-02-01
     const futureNum = store.generateReportNumber('2027-02-01')
-    expect(futureNum).toMatch(/^\d{3}\/LHA\/02\/KS IAD\/2027$/)
+    expect(futureNum).toMatch(/^LHA-\d{3}\/SKAI\/2027$/)
 
     // Check that resetForm initializes reportForm.reportNumber dynamically
     store.resetForm()
     expect(store.reportForm.reportNumber).toBeTruthy()
-    expect(store.reportForm.reportNumber).toMatch(/^\d{3}\/LHA\/\d{2}\/KS IAD\/\d{4}$/)
+    expect(store.reportForm.reportNumber).toMatch(/^LHA-\d{3}\/[^\/]+\/\d{4}$/)
   })
 
   it('should dynamically generate Assignment Letter number with sanitized year and highest sequence', async () => {
@@ -253,5 +253,13 @@ describe('Audit Result Report Store - saveReport requires an assignment letter',
     const put = vi.mocked($fetch).mock.calls.find(c => c[1]?.method === 'PUT')
     expect(String(put[0])).toContain('/audit-result-reports/r1')
     expect(put[1].body.assignmentLetterId).toBe('ST-777/SKAI/2026')
+  })
+
+  it('normalizes legacy report numbers to LHA-[NoUrut]/[Audit Team]/[Tahun]', () => {
+    const store = useAuditResultReportStore()
+    expect(store.normalizeReportNumber('021/LHA/01/KS IAD/2026')).toBe('LHA-021/SKAI/2026')
+    expect(store.normalizeReportNumber('024/LHA/01/KS IAD/2026')).toBe('LHA-024/SKAI/2026')
+    expect(store.normalizeReportNumber('020/LHA/01/KS IAD/2023')).toBe('LHA-020/SKAI/2023')
+    expect(store.normalizeReportNumber('LHA-025/SKAI/2026')).toBe('LHA-025/SKAI/2026')
   })
 })

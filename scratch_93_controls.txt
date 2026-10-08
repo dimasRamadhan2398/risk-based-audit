@@ -1,0 +1,93 @@
+Row  7 | A.5.1  | Organizational | Kebijakan keamanan informasi | Kebijakan disetujui, dikomunikasikan, dan ditinjau berkala
+Row  8 | A.5.2  | Organizational | Peran dan tanggung jawab keamanan informasi | Peran, kewenangan, dan akuntabilitas keamanan ditetapkan
+Row  9 | A.5.3  | Organizational | Pemisahan tugas | Tugas yang berpotensi konflik dipisahkan atau dikompensasi
+Row 10 | A.5.4  | Organizational | Tanggung jawab manajemen | Manajemen memastikan personel mengikuti aturan keamanan
+Row 11 | A.5.5  | Organizational | Kontak dengan pihak berwenang | Kontak otoritas relevan tersedia dan prosedur eskalasi jelas
+Row 12 | A.5.6  | Organizational | Kontak dengan kelompok minat khusus | Organisasi memelihara sumber informasi dan komunitas keamanan relevan
+Row 13 | A.5.7  | Organizational | Intelijen ancaman | Ancaman dikumpulkan, dianalisis, dan digunakan untuk tindakan
+Row 14 | A.5.8  | Organizational | Keamanan informasi dalam manajemen proyek | Risiko keamanan terintegrasi pada seluruh siklus proyek
+Row 15 | A.5.9  | Organizational | Inventaris informasi dan aset terkait | Aset memiliki pemilik, klasifikasi, lokasi, dan status terkini
+Row 16 | A.5.10 | Organizational | Penggunaan yang dapat diterima | Aturan penggunaan aset dan informasi ditetapkan dan dipahami
+Row 17 | A.5.11 | Organizational | Pengembalian aset | Aset dikembalikan saat perubahan atau akhir hubungan kerja
+Row 18 | A.5.12 | Organizational | Klasifikasi informasi | Informasi diklasifikasikan sesuai risiko dan kebutuhan bisnis
+Row 19 | A.5.13 | Organizational | Pelabelan informasi | Label konsisten dengan skema klasifikasi dan media
+Row 20 | A.5.14 | Organizational | Transfer informasi | Transfer internal dan eksternal memiliki aturan dan perlindungan
+Row 21 | A.5.15 | Organizational | Pengendalian akses | Aturan akses berbasis kebutuhan bisnis dan least privilege
+Row 22 | A.5.16 | Organizational | Manajemen identitas | Siklus hidup identitas dikelola dari pembuatan hingga penghapusan
+Row 23 | A.5.17 | Organizational | Informasi autentikasi | Kredensial diterbitkan, disimpan, dan digunakan secara aman
+Row 24 | A.5.18 | Organizational | Hak akses | Pemberian, perubahan, review, dan pencabutan akses dikendalikan
+Row 25 | A.5.19 | Organizational | Keamanan dalam hubungan pemasok | Risiko keamanan pemasok dinilai dan dikelola
+Row 26 | A.5.20 | Organizational | Keamanan dalam perjanjian pemasok | Persyaratan keamanan dimasukkan ke kontrak pemasok
+Row 27 | A.5.21 | Organizational | Keamanan rantai pasok TIK | Risiko sepanjang rantai pasok produk dan layanan TIK dikendalikan
+Row 28 | A.5.22 | Organizational | Pemantauan dan perubahan layanan pemasok | Kinerja, perubahan, dan kepatuhan pemasok direview
+Row 29 | A.5.23 | Organizational | Keamanan penggunaan layanan cloud | Akuisisi, penggunaan, perubahan, dan exit cloud dikelola
+Row 30 | A.5.24 | Organizational | Persiapan manajemen insiden | Peran, proses, kanal, dan alat respons insiden siap digunakan
+Row 31 | A.5.25 | Organizational | Penilaian kejadian keamanan | Event dinilai konsisten untuk menentukan apakah menjadi insiden
+Row 32 | A.5.26 | Organizational | Respons insiden keamanan | Insiden ditangani sesuai prosedur dan kewenangan
+Row 33 | A.5.27 | Organizational | Pembelajaran dari insiden | Akar masalah dan pembelajaran diterapkan untuk mencegah pengulangan
+Row 34 | A.5.28 | Organizational | Pengumpulan bukti | Bukti insiden dikumpulkan dan dijaga integritas serta chain of custody
+Row 35 | A.5.29 | Organizational | Keamanan selama gangguan | Keamanan informasi dipertahankan pada kondisi gangguan
+Row 36 | A.5.30 | Organizational | Kesiapan TIK untuk kelangsungan bisnis | Kemampuan TIK mendukung target pemulihan yang disepakati
+Row 37 | A.5.31 | Organizational | Persyaratan hukum dan kontraktual | Kewajiban keamanan diidentifikasi, diperbarui, dan dipatuhi
+Row 38 | A.5.32 | Organizational | Hak kekayaan intelektual | Penggunaan perangkat lunak dan konten mematuhi hak kekayaan intelektual
+Row 39 | A.5.33 | Organizational | Perlindungan rekaman | Rekaman dilindungi sesuai kebutuhan retensi dan integritas
+Row 40 | A.5.34 | Organizational | Privasi dan perlindungan PII | PII diproses sesuai kewajiban dan kontrol privasi
+Row 41 | A.5.35 | Organizational | Tinjauan independen keamanan informasi | Tinjauan independen dilakukan terencana atau setelah perubahan besar
+Row 42 | A.5.36 | Organizational | Kepatuhan terhadap kebijakan dan standar | Kepatuhan internal dipantau dan penyimpangan ditangani
+Row 43 | A.5.37 | Organizational | Prosedur operasi terdokumentasi | Aktivitas operasional penting memiliki prosedur terkendali
+Row 44 | A.6.1  | People         | Penyaringan personel | Pemeriksaan latar belakang proporsional dilakukan sebelum penempatan
+Row 45 | A.6.2  | People         | Syarat dan ketentuan kerja | Kewajiban keamanan tercantum pada kontrak atau ketentuan kerja
+Row 46 | A.6.3  | People         | Awareness, edukasi, dan pelatihan keamanan | Program pelatihan sesuai peran diberikan dan efektivitasnya diukur
+Row 47 | A.6.4  | People         | Proses disipliner | Pelanggaran keamanan memiliki proses disipliner yang formal
+Row 48 | A.6.5  | People         | Tanggung jawab setelah perubahan atau terminasi | Kewajiban dan akses disesuaikan saat mutasi atau keluar
+Row 49 | A.6.6  | People         | Perjanjian kerahasiaan | NDA relevan, ditandatangani, dan ditinjau sesuai kebutuhan
+Row 50 | A.6.7  | People         | Kerja jarak jauh | Risiko remote working dikendalikan pada perangkat, koneksi, dan lingkungan
+Row 51 | A.6.8  | People         | Pelaporan kejadian keamanan | Personel mengetahui kanal dan kewajiban melaporkan event keamanan
+Row 52 | A.7.1  | Physical       | Perimeter keamanan fisik | Batas area sensitif ditetapkan dan dilindungi
+Row 53 | A.7.2  | Physical       | Akses masuk fisik | Akses fisik diotorisasi, dicatat, dan dicabut tepat waktu
+Row 54 | A.7.3  | Physical       | Pengamanan kantor, ruangan, dan fasilitas | Area kerja dan fasilitas sensitif diamankan sesuai risiko
+Row 55 | A.7.4  | Physical       | Pemantauan keamanan fisik | Area penting dipantau dan rekaman dikelola aman
+Row 56 | A.7.5  | Physical       | Perlindungan dari ancaman fisik dan lingkungan | Ancaman kebakaran, banjir, suhu, dan risiko lingkungan dikendalikan
+Row 57 | A.7.6  | Physical       | Bekerja di area aman | Aturan aktivitas di area aman ditetapkan dan dipantau
+Row 58 | A.7.7  | Physical       | Meja bersih dan layar bersih | Informasi dan perangkat tidak ditinggalkan tanpa perlindungan
+Row 59 | A.7.8  | Physical       | Penempatan dan perlindungan peralatan | Peralatan ditempatkan untuk mengurangi gangguan dan akses tidak sah
+Row 60 | A.7.9  | Physical       | Keamanan aset di luar lokasi | Aset yang dibawa keluar tetap tercatat dan terlindungi
+Row 61 | A.7.10 | Physical       | Media penyimpanan | Media dikelola sepanjang siklus hidup sesuai klasifikasi
+Row 62 | A.7.11 | Physical       | Utilitas pendukung | Listrik, pendingin, dan utilitas pendukung dipantau dan dipelihara
+Row 63 | A.7.12 | Physical       | Keamanan kabel | Kabel daya dan data dilindungi dari gangguan atau penyadapan
+Row 64 | A.7.13 | Physical       | Pemeliharaan peralatan | Maintenance dilakukan oleh pihak berwenang dan tercatat
+Row 65 | A.7.14 | Physical       | Pembuangan atau penggunaan ulang peralatan | Data dihapus aman sebelum aset dibuang atau digunakan ulang
+Row 66 | A.8.1  | Technological  | Perangkat endpoint pengguna | Endpoint dikonfigurasi, dipantau, dan dilindungi sesuai standar
+Row 67 | A.8.2  | Technological  | Hak akses istimewa | Privileged access dibatasi, disetujui, dan ditinjau
+Row 68 | A.8.3  | Technological  | Pembatasan akses informasi | Akses data dan fungsi dibatasi sesuai kebutuhan bisnis
+Row 69 | A.8.4  | Technological  | Akses ke source code | Repositori kode dan alat pengembangan memiliki akses terbatas
+Row 70 | A.8.5  | Technological  | Autentikasi aman | Mekanisme autentikasi sesuai risiko dan terlindungi
+Row 71 | A.8.6  | Technological  | Manajemen kapasitas | Kapasitas sumber daya dipantau dan direncanakan
+Row 72 | A.8.7  | Technological  | Perlindungan terhadap malware | Pencegahan, deteksi, respons, dan awareness malware diterapkan
+Row 73 | A.8.8  | Technological  | Pengelolaan kerentanan teknis | Kerentanan diidentifikasi, diprioritaskan, dan diperbaiki tepat waktu
+Row 74 | A.8.9  | Technological  | Manajemen konfigurasi | Baseline konfigurasi ditetapkan, diterapkan, dan dipantau
+Row 75 | A.8.10 | Technological  | Penghapusan informasi | Data dihapus saat tidak diperlukan dan penghapusan dapat dibuktikan
+Row 76 | A.8.11 | Technological  | Data masking | Masking diterapkan sesuai risiko dan tujuan penggunaan
+Row 77 | A.8.12 | Technological  | Pencegahan kebocoran data | Kanal kebocoran dipantau dan dikendalikan sesuai klasifikasi
+Row 78 | A.8.13 | Technological  | Pencadangan informasi | Backup sesuai kebutuhan, terlindungi, dan diuji pemulihannya
+Row 79 | A.8.14 | Technological  | Redundansi fasilitas pemrosesan informasi | Redundansi mendukung kebutuhan ketersediaan layanan
+Row 80 | A.8.15 | Technological  | Logging | Log aktivitas penting dibuat, dilindungi, dan disimpan
+Row 81 | A.8.16 | Technological  | Aktivitas pemantauan | Aktivitas sistem dipantau dan anomali ditindaklanjuti
+Row 82 | A.8.17 | Technological  | Sinkronisasi waktu | Sistem menggunakan sumber waktu yang disetujui dan konsisten
+Row 83 | A.8.18 | Technological  | Program utilitas istimewa | Utility yang dapat melewati kontrol dibatasi dan dicatat
+Row 84 | A.8.19 | Technological  | Instalasi perangkat lunak pada sistem operasional | Instalasi software pada produksi diotorisasi dan dikendalikan
+Row 85 | A.8.20 | Technological  | Keamanan jaringan | Jaringan dikelola dan dilindungi dari ancaman
+Row 86 | A.8.21 | Technological  | Keamanan layanan jaringan | Persyaratan dan tingkat layanan keamanan jaringan ditetapkan
+Row 87 | A.8.22 | Technological  | Segregasi jaringan | Segmen jaringan dipisahkan sesuai risiko dan kebutuhan
+Row 88 | A.8.23 | Technological  | Penyaringan web | Akses ke situs berbahaya atau tidak sesuai dikendalikan
+Row 89 | A.8.24 | Technological  | Penggunaan kriptografi | Algoritma, kunci, dan penggunaan kriptografi dikelola
+Row 90 | A.8.25 | Technological  | Siklus hidup pengembangan yang aman | Aktivitas keamanan terintegrasi pada seluruh SDLC
+Row 91 | A.8.26 | Technological  | Persyaratan keamanan aplikasi | Security requirements ditentukan dan disetujui sebelum pengembangan
+Row 92 | A.8.27 | Technological  | Arsitektur dan prinsip rekayasa sistem aman | Prinsip desain aman diterapkan dan direview
+Row 93 | A.8.28 | Technological  | Secure coding | Standar coding aman digunakan dan kepatuhan diperiksa
+Row 94 | A.8.29 | Technological  | Pengujian keamanan dalam pengembangan dan penerimaan | Pengujian keamanan direncanakan dan hasilnya ditindaklanjuti
+Row 95 | A.8.30 | Technological  | Pengembangan oleh pihak luar | Pengembangan outsourcing memiliki persyaratan dan pengawasan keamanan
+Row 96 | A.8.31 | Technological  | Pemisahan lingkungan development, test, dan production | Lingkungan dan akses dipisahkan untuk mencegah perubahan tidak sah
+Row 97 | A.8.32 | Technological  | Manajemen perubahan | Perubahan sistem dinilai, disetujui, diuji, dan dapat dilacak
+Row 98 | A.8.33 | Technological  | Informasi pengujian | Data uji dipilih, dilindungi, dan dihapus sesuai kebutuhan
+Row 99 | A.8.34 | Technological  | Perlindungan sistem selama pengujian audit | Audit test direncanakan agar tidak mengganggu sistem atau data

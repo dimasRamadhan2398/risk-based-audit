@@ -1425,6 +1425,23 @@ func seedExecutions(db *gorm.DB) error {
 }
 
 func seedResultReports(db *gorm.DB) error {
+	legacyMigrations := map[string]string{
+		"015/LHA/01/KS IAD/2025": "LHA-015/SKAI/2025",
+		"016/LHA/01/KS IAD/2025": "LHA-016/SKAI/2025",
+		"017/LHA/01/KS IAD/2025": "LHA-017/SKAI/2025",
+		"018/LHA/01/KS IAD/2025": "LHA-018/SKAI/2025",
+		"019/LHA/01/KS IAD/2025": "LHA-019/SKAI/2025",
+		"020/LHA/01/KS IAD/2023": "LHA-020/SKAI/2023",
+		"021/LHA/01/KS IAD/2026": "LHA-021/SKAI/2026",
+		"022/LHA/01/KS IAD/2026": "LHA-022/SKAI/2026",
+		"023/LHA/01/KS IAD/2026": "LHA-023/SKAI/2026",
+		"024/LHA/01/KS IAD/2026": "LHA-024/SKAI/2026",
+		"025/LHA/01/KS IAD/2026": "LHA-025/SKAI/2026",
+	}
+	for oldNum, newNum := range legacyMigrations {
+		db.Model(&models.AuditResultReport{}).Where("report_number = ?", oldNum).Update("report_number", newNum)
+	}
+
 	reportDate1 := time.Date(2023, 9, 22, 0, 0, 0, 0, time.UTC)
 	reportDate2 := time.Date(2026, 4, 15, 0, 0, 0, 0, time.UTC)
 	reportDate3 := time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC)
@@ -1435,7 +1452,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-001/SKAI/2025",
 			ReportTitle:        "Laporan Hasil Audit Operasional Keuangan & Kas 2025",
 			FindingsCount:      4,
-			ReportNumber:       "015/LHA/01/KS IAD/2025",
+			ReportNumber:       "LHA-015/SKAI/2025",
 			Title:              "Laporan Hasil Audit Operasional Keuangan 2025",
 			AuditObject:        "PT AIFL Indonesia - Departemen Keuangan",
 			Department:         "Finance",
@@ -1463,7 +1480,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-002/SKAI/2025",
 			ReportTitle:        "Laporan Hasil Audit Pengadaan SCM & Manajemen Vendor 2025",
 			FindingsCount:      3,
-			ReportNumber:       "016/LHA/01/KS IAD/2025",
+			ReportNumber:       "LHA-016/SKAI/2025",
 			Title:              "Laporan Hasil Audit SCM & Pengadaan 2025",
 			AuditObject:        "PT AIFL Indonesia - Divisi Procurement",
 			Department:         "Procurement",
@@ -1490,7 +1507,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-003/SKAI/2025",
 			ReportTitle:        "Laporan Hasil Audit Keamanan Sistem Informasi & Infrastruktur TI 2025",
 			FindingsCount:      5,
-			ReportNumber:       "017/LHA/01/KS IAD/2025",
+			ReportNumber:       "LHA-017/SKAI/2025",
 			Title:              "Laporan Hasil Audit TI & ERP 2025",
 			AuditObject:        "PT AIFL Indonesia - Divisi TI",
 			Department:         "IT",
@@ -1519,7 +1536,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-004/SKAI/2025",
 			ReportTitle:        "Laporan Hasil Audit Operasional Cabang & Gudang Logistik 2025",
 			FindingsCount:      3,
-			ReportNumber:       "018/LHA/01/KS IAD/2025",
+			ReportNumber:       "LHA-018/SKAI/2025",
 			Title:              "Laporan Hasil Audit Gudang & Logistik 2025",
 			AuditObject:        "PT AIFL Indonesia - Unit Gudang & Logistik Branch",
 			Department:         "Operations",
@@ -1546,7 +1563,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-005/SKAI/2025",
 			ReportTitle:        "Laporan Hasil Audit Kepatuhan SDM & Payroll Penggajian 2025",
 			FindingsCount:      2,
-			ReportNumber:       "019/LHA/01/KS IAD/2025",
+			ReportNumber:       "LHA-019/SKAI/2025",
 			Title:              "Laporan Hasil Audit SDM & Payroll 2025",
 			AuditObject:        "PT AIFL Indonesia - Divisi HR",
 			Department:         "HR",
@@ -1572,7 +1589,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "020/ST/01/KSIAD/2023",
 			ReportTitle:        "Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau",
 			FindingsCount:      8,
-			ReportNumber:       "020/LHA/01/KS IAD/2023",
+			ReportNumber:       "LHA-020/SKAI/2023",
 			Title:              "Laporan Hasil Audit Operasional Tahun 2023",
 			AuditObject:        "Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau",
 			Department:         "Operasi & Pemeliharaan",
@@ -1604,7 +1621,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-001/SKAI/2026",
 			ReportTitle:        "Laporan Hasil Audit Operasional Keuangan",
 			FindingsCount:      5,
-			ReportNumber:       "021/LHA/01/KS IAD/2026",
+			ReportNumber:       "LHA-021/SKAI/2026",
 			Title:              "Laporan Hasil Audit Operasional Keuangan 2025",
 			AuditObject:        "PT AIFL Indonesia - Departemen Keuangan",
 			Department:         "Finance",
@@ -1633,7 +1650,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-002/SKAI/2026",
 			ReportTitle:        "Laporan Hasil Audit Keamanan Sistem Informasi & ERP 2026",
 			FindingsCount:      4,
-			ReportNumber:       "022/LHA/01/KS IAD/2026",
+			ReportNumber:       "LHA-022/SKAI/2026",
 			Title:              "Laporan Hasil Audit Keamanan Sistem Informasi 2026",
 			AuditObject:        "PT AIFL Indonesia - Divisi Teknologi Informasi",
 			Department:         "IT",
@@ -1661,7 +1678,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-003/SKAI/2026",
 			ReportTitle:        "Laporan Hasil Audit Operasional Gudang & Persediaan Logistik 2026",
 			FindingsCount:      3,
-			ReportNumber:       "023/LHA/01/KS IAD/2026",
+			ReportNumber:       "LHA-023/SKAI/2026",
 			Title:              "Laporan Hasil Audit Gudang & Logistik 2026",
 			AuditObject:        "PT AIFL Indonesia - Unit Gudang Logistik",
 			Department:         "Operations",
@@ -1688,7 +1705,7 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-004/SKAI/2026",
 			ReportTitle:        "Laporan Hasil Audit Kepatuhan Procurement & SCM 2026",
 			FindingsCount:      2,
-			ReportNumber:       "024/LHA/01/KS IAD/2026",
+			ReportNumber:       "LHA-024/SKAI/2026",
 			Title:              "Laporan Hasil Audit Kepatuhan Procurement",
 			AuditObject:        "PT AIFL Indonesia - Pengadaan",
 			Department:         "Procurement",
@@ -1714,12 +1731,12 @@ func seedResultReports(db *gorm.DB) error {
 			AssignmentLetterID: "ST-005/SKAI/2026",
 			ReportTitle:        "Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit 2026",
 			FindingsCount:      3,
-			ReportNumber:       "025/LHA/01/KS IAD/2026",
+			ReportNumber:       "LHA-025/SKAI/2026",
 			Title:              "Laporan Hasil Audit K3LH Pembangkit 2026",
 			AuditObject:        "PT AIFL Indonesia - Unit Pemeliharaan",
 			Department:         "Maintenance",
 			AuditPeriod:        "Q3 2026",
-			ExecutiveSummary:   "Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (025/LHA/01/KS IAD/2026).",
+			ExecutiveSummary:   "Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (LHA-025/SKAI/2026).",
 			Scope:              "Inspeksi fasilitas K3LH dan hidran.",
 			Methodology:        "Physical inspection & certification review.",
 			FindingSummary:     "Diperlukan penjadwalan pemeliharaan hidran rutin.",
@@ -1856,11 +1873,22 @@ func seedActionTakenReports(db *gorm.DB) error {
 }
 
 func seedExecutiveSummaries(db *gorm.DB) error {
+	legacyMigrations := map[string]string{
+		"021/LHA/01/KS IAD/2026": "LHA-021/SKAI/2026",
+		"022/LHA/01/KS IAD/2026": "LHA-022/SKAI/2026",
+		"025/LHA/01/KS IAD/2026": "LHA-025/SKAI/2026",
+	}
+	for oldNum, newNum := range legacyMigrations {
+		db.Model(&models.ExecutiveSummary{}).Where("nomor_dokumen = ?", oldNum).Update("nomor_dokumen", newNum)
+	}
+
 	// Clean up legacy and dummy executive summaries
 	_ = db.Where("nomor_dokumen IN ?", []string{
 		"DOC-EXSUM-Q1-2026",
 		"020/LHA/01/KS IAD/2023",
 		"019/LHA/01/KS IAD/2025",
+		"LHA-020/SKAI/2023",
+		"LHA-019/SKAI/2025",
 	}).Delete(&models.ExecutiveSummary{}).Error
 
 	seeds := []models.ExecutiveSummary{
@@ -1868,12 +1896,12 @@ func seedExecutiveSummaries(db *gorm.DB) error {
 			Quarter:             2,
 			PeriodeBulan:        "April 2026",
 			Tahun:               2026,
-			NomorDokumen:        "021/LHA/01/KS IAD/2026",
+			NomorDokumen:        "LHA-021/SKAI/2026",
 			AssignmentLetterID:  "ST-001/SKAI/2026",
 			DokumenPath:         "Executive_Summary_021_LHA_2026.pdf",
 			Status:              "Approved",
 			ExecutiveNote:       "Mohon tindak lanjuti rekonsiliasi kas harian dan koordinasikan perbaikan dengan tim Keuangan.",
-			Narrative:           "Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (021/LHA/01/KS IAD/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.",
+			Narrative:           "Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (LHA-021/SKAI/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.",
 			JumlahLaporan:       1,
 			RisikoTinggi:        3,
 			RisikoSedang:        2,
@@ -1881,7 +1909,7 @@ func seedExecutiveSummaries(db *gorm.DB) error {
 			JumlahRekomendasi:   5,
 			FollowUpTable:       `[{"unit":"Departemen Keuangan","open":2,"closed":3}]`,
 			TopFindings:         `[{"finding":"Selisih pencatatan inventaris fisik vs buku besar","severity":"High"},{"finding":"Keterlambatan rekonsiliasi kas harian cabang utama","severity":"High"}]`,
-			MatriksKompilasi:    `[{"nomor":"021/LHA/01","division":"Finance","unitKerja":"Departemen Keuangan","prosesBisnis":"ICOFR","judulTemuan":"Selisih pencatatan inventaris fisik vs buku besar","nilaiRisiko":"Tinggi","rekomendasi":"Lakukan rekonsiliasi harian dan alert SMTP","dueDate":"2026-05-15","picUnit":"Manager Keuangan","progres":60,"status":"In Progress","buktiTL":"BA_Rekonsiliasi.pdf"}]`,
+			MatriksKompilasi:    `[{"nomor":"LHA-021/01","division":"Finance","unitKerja":"Departemen Keuangan","prosesBisnis":"ICOFR","judulTemuan":"Selisih pencatatan inventaris fisik vs buku besar","nilaiRisiko":"Tinggi","rekomendasi":"Lakukan rekonsiliasi harian dan alert SMTP","dueDate":"2026-05-15","picUnit":"Manager Keuangan","progres":60,"status":"In Progress","buktiTL":"BA_Rekonsiliasi.pdf"}]`,
 			AkarMasalah:         "Kurangnya otomatisasi alarm kegagalan backup data dan kelalaian non-aktifkan akses user kasir.",
 			Kesimpulan:          "Secara umum pengendalian internal departemen keuangan memadai dengan beberapa area peningkatan yang perlu segera ditindaklanjuti.",
 			SignatureTempat:     "Jakarta",
@@ -1893,12 +1921,12 @@ func seedExecutiveSummaries(db *gorm.DB) error {
 			Quarter:             1,
 			PeriodeBulan:        "Februari 2026",
 			Tahun:               2026,
-			NomorDokumen:        "022/LHA/01/KS IAD/2026",
+			NomorDokumen:        "LHA-022/SKAI/2026",
 			AssignmentLetterID:  "ST-002/SKAI/2026",
 			DokumenPath:         "Executive_Summary_022_LHA_2026.pdf",
 			Status:              "Draft",
 			ExecutiveNote:       "",
-			Narrative:           "Executive Summary Individual untuk Audit Keamanan Sistem Informasi & Infrastruktur ERP (022/LHA/01/KS IAD/2026). Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP.",
+			Narrative:           "Executive Summary Individual untuk Audit Keamanan Sistem Informasi & Infrastruktur ERP (LHA-022/SKAI/2026). Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP.",
 			JumlahLaporan:       1,
 			RisikoTinggi:        1,
 			RisikoSedang:        2,
@@ -1918,7 +1946,7 @@ func seedExecutiveSummaries(db *gorm.DB) error {
 			Quarter:             1,
 			PeriodeBulan:        "Januari - Maret 2026",
 			Tahun:               2026,
-			NomorDokumen:        "025/LHA/01/KS IAD/2026",
+			NomorDokumen:        "LHA-025/SKAI/2026",
 			AssignmentLetterID:  "ST-005/SKAI/2026",
 			DokumenPath:         "ExSum_Q1_2026.pdf",
 			Status:              "Approved",

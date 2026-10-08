@@ -99,7 +99,7 @@
             <UFormField label="Nomor Dokumen Internal (ID LHA)" required>
               <UInput
                 v-model="store.form.nomorDokumen"
-                placeholder="Contoh: 021/LHA/01/KS IAD/2026"
+                placeholder="Contoh: LHA-021/SKAI/2026"
                 class="w-full font-mono text-sm"
                 disabled
               />
