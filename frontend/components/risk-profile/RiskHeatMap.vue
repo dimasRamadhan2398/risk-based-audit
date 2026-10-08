@@ -147,7 +147,7 @@
       <span class="text-[10px] font-black uppercase tracking-[0.2em]">{{ t('riskProfile.riskLevels') }}</span>
       <div class="flex flex-wrap gap-6">
         <div v-for="(config, key) in riskLevelConfig" :key="key" class="flex items-center gap-2">
-          <div class="w-3.5 h-3.5 rounded-sm shadow-sm" :style="{ background: config.color }"></div>
+          <div class="w-3.5 h-3.5 rounded-sm shadow-sm" :class="getRiskLevelDotClass(key)"></div>
           <span class="text-md font-bold">{{ getRiskLevelLabel(key) }}</span>
           <UIcon v-if="config.priority" name="i-heroicons-fire" class="w-3.5 h-3.5 text-warning-500" />
         </div>
@@ -297,22 +297,22 @@
 
                       <!-- Level Risiko Q1-Q4 (Cell Tints + Badge) -->
                       <td class="py-2.5 px-2.5 border-r border-gray-200 dark:border-gray-800" :style="getQLevelCellStyle(risk, 'q1')">
-                        <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight" :style="getQLevelBadgeStyle(risk, 'q1')">
+                        <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight" :class="getQLevelBadgeClass(risk, 'q1')">
                           {{ getQLevelLabel(risk, 'q1') }}
                         </span>
                       </td>
                       <td class="py-2.5 px-2.5 border-r border-gray-200 dark:border-gray-800" :style="getQLevelCellStyle(risk, 'q2')">
-                        <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight" :style="getQLevelBadgeStyle(risk, 'q2')">
+                        <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight" :class="getQLevelBadgeClass(risk, 'q2')">
                           {{ getQLevelLabel(risk, 'q2') }}
                         </span>
                       </td>
                       <td class="py-2.5 px-2.5 border-r border-gray-200 dark:border-gray-800" :style="getQLevelCellStyle(risk, 'q3')">
-                        <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight" :style="getQLevelBadgeStyle(risk, 'q3')">
+                        <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight" :class="getQLevelBadgeClass(risk, 'q3')">
                           {{ getQLevelLabel(risk, 'q3') }}
                         </span>
                       </td>
                       <td class="py-2.5 px-2.5" :style="getQLevelCellStyle(risk, 'q4')">
-                        <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight" :style="getQLevelBadgeStyle(risk, 'q4')">
+                        <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight" :class="getQLevelBadgeClass(risk, 'q4')">
                           {{ getQLevelLabel(risk, 'q4') }}
                         </span>
                       </td>
@@ -431,13 +431,12 @@
                               </div>
                               <div class="text-right">
                                 <div class="text-[10px] font-black uppercase tracking-widest mb-1 text-gray-400">{{ t('riskProfile.detailModal.riskLevel') }}</div>
-                                <UBadge 
-                                  :style="{ backgroundColor: riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].color, color: 'white' }"
-                                  size="sm"
-                                  class="font-black"
+                                <span
+                                  class="inline-flex items-center px-2 py-1 rounded-md text-xs font-black"
+                                  :class="getRiskLevelColorClass(getRiskLevel(risk.likelihood, risk.impact))"
                                 >
                                   {{ getRiskLevelLabel(getRiskLevel(risk.likelihood, risk.impact)) }}
-                                </UBadge>
+                                </span>
                               </div>
                             </div>
 
@@ -651,6 +650,7 @@ import {
 } from '~/stores/risk-profile'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import { getRiskLevelColorClass, getRiskLevelDotClass } from '~/utils/riskLevelBadge'
 
 const store = useRiskProfileStore()
 const { getRiskLevel, getRiskScore } = store
@@ -877,14 +877,10 @@ function getQLevelLabel(risk, quarter) {
   return getRiskLevelLabel(level)
 }
 
-function getQLevelBadgeStyle(risk, quarter) {
+function getQLevelBadgeClass(risk, quarter) {
   const impact = getQVal(risk, 'impact', quarter)
   const likelihood = getQVal(risk, 'likelihood', quarter)
-  const level = store.getRiskLevel(likelihood, impact)
-  return {
-    backgroundColor: riskLevelConfig[level]?.color || '#4CAF50',
-    color: '#ffffff'
-  }
+  return getRiskLevelColorClass(store.getRiskLevel(likelihood, impact))
 }
 
 function getQLevelCellStyle(risk, quarter) {

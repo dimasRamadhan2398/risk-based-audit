@@ -178,15 +178,6 @@ import TargetRealizationMatrix from './TargetRealizationMatrix.vue'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
-const vmgStore = useVisionMissionGoalsStore()
-
-const goalOptions = computed(() => {
-  if (!vmgStore.activeVmg?.goals) return []
-  return vmgStore.activeVmg.goals.map(g => ({
-    label: `${g.goal_code} - ${g.goal_name}`,
-    value: g.id || g.goal_code
-  }))
-})
 
 // Raw value is what is saved; the label comes from the KPI table's category labels.
 const categoryOptions = computed(() =>

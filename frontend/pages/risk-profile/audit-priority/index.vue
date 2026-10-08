@@ -207,9 +207,9 @@
                 {{ typeof ent.risk_index === 'number' ? ent.risk_index.toFixed(1) + '%' : '-' }}
               </td>
               <td class="px-6 py-4 text-center">
-                <UBadge :color="getRiskLevelBadgeColor(ent.risk_level)" size="md" class="font-bold">
+                <span :class="getRiskLevelBadgeClass(ent.risk_level)">
                   {{ formatRiskLevel(ent.risk_level) }}
-                </UBadge>
+                </span>
               </td>
               <td class="px-6 py-4 text-center">
                 <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
@@ -293,58 +293,17 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">80 - 100%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-white text-xs w-36 shadow-sm" style="background-color: #F44336;">
-                  {{ t('riskFactors.priority.levels.high') }}
+            <tr v-for="row in riskLevelReferenceRows" :key="row.level">
+              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">{{ row.range }}</td>
+              <td class="px-4 py-2.5 text-center">
+                <span :class="getRiskLevelBadgeClass(row.level)">
+                  {{ formatRiskLevel(row.level) }}
                 </span>
               </td>
-              <td class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              <td v-if="row.prioritized" class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
                 √ {{ t('riskFactors.scoring.priorityYes') }}
               </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">60 - 79%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-white text-xs w-36 shadow-sm" style="background-color: #FF9800;">
-                  {{ t('riskFactors.priority.levels.moderateToHigh') }}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                √ {{ t('riskFactors.scoring.priorityYes') }}
-              </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">40 - 59%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #FFC107;">
-                  {{ t('riskFactors.priority.levels.moderate') }}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 text-center text-xs text-slate-400">
-                {{ t('riskFactors.scoring.priorityNo') }}
-              </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">20 - 39%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #8BC34A;">
-                  {{ t('riskFactors.priority.levels.lowToModerate') }}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 text-center text-xs text-slate-400">
-                {{ t('riskFactors.scoring.priorityNo') }}
-              </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">0 - 19%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-white text-xs w-36 shadow-sm" style="background-color: #4CAF50;">
-                  {{ t('riskFactors.priority.levels.low') }}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 text-center text-xs text-slate-400">
+              <td v-else class="px-4 py-2.5 text-center text-xs text-slate-400">
                 {{ t('riskFactors.scoring.priorityNo') }}
               </td>
             </tr>
@@ -360,6 +319,12 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import {
+  getRiskLevelBadgeClass,
+  isPriorityRiskLevel,
+  RISK_LEVEL_LABEL_KEYS,
+  type PriorityRiskLevel
+} from '~/utils/riskLevelBadge'
 
 const store = useAuditUniverseStore()
 const { t } = useI18n()
@@ -433,27 +398,17 @@ onMounted(async () => {
 
 const formatRiskLevel = (level?: string) => {
   if (!level) return 'N/A'
-  switch (level) {
-    case 'High': return t('riskFactors.priority.levels.high')
-    case 'Medium to High': return t('riskFactors.priority.levels.moderateToHigh')
-    case 'Medium': return t('riskFactors.priority.levels.moderate')
-    case 'Low to Medium': return t('riskFactors.priority.levels.lowToModerate')
-    case 'Low': return t('riskFactors.priority.levels.low')
-    default: return level
-  }
+  return isPriorityRiskLevel(level) ? t(RISK_LEVEL_LABEL_KEYS[level]) : level
 }
 
-const getRiskLevelBadgeColor = (level?: string) => {
-  if (!level) return 'neutral'
-  switch (level) {
-    case 'High': return 'error'
-    case 'Medium to High': return 'warning'
-    case 'Medium': return 'primary'
-    case 'Low to Medium': return 'info'
-    case 'Low': return 'success'
-    default: return 'neutral'
-  }
-}
+// Corporate Risk Index Level Information reference table; badges share getRiskLevelBadgeClass with the main table.
+const riskLevelReferenceRows: { range: string, level: PriorityRiskLevel, prioritized: boolean }[] = [
+  { range: '80 - 100%', level: 'High', prioritized: true },
+  { range: '60 - 79%', level: 'Medium to High', prioritized: true },
+  { range: '40 - 59%', level: 'Medium', prioritized: false },
+  { range: '20 - 39%', level: 'Low to Medium', prioritized: false },
+  { range: '0 - 19%', level: 'Low', prioritized: false }
+]
 
 const showAlert = (msg: string, type: string) => {
   alertMessage.value = msg

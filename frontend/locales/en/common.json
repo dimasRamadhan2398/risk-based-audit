@@ -1472,7 +1472,10 @@
     "validation": {
       "basicInfo": "Please fill in all required fields (Plan Title, Year, Period, Department).",
       "plannedActivities": "Please add at least one audit activity with Activity Title and Auditee filled.",
-      "reviewAndApproval": "Please fill in Creator and Approver details (Names, Positions, and Approval Date)."
+      "reviewAndApproval": "Please fill in the Creator and Approver names and positions.",
+      "periodOrder": "The plan period end date must be on or after the start date.",
+      "scheduleOutsidePeriod": "Activity {num}: the estimated schedule must fall within the plan period.",
+      "negativeNumber": "Activity {num}: duration, number of auditors and budget cannot be negative."
     },
     "stepper": {
       "step1": "Basic Info",
@@ -1522,6 +1525,13 @@
       "estimatedSchedule": "Estimated Schedule/Time",
       "budgetEstimation": "Budget Estimation",
       "millionRupiah": "Million Rupiah",
+      "rupiah": "Rupiah",
+      "selectDepartment": "Select department",
+      "autoCalculated": "Calculated from the activity budgets",
+      "allocatedBelowEstimate": "The allocated budget is lower than the total estimated cost.",
+      "autoFilledFromAccount": "Filled in from your account",
+      "attachedFiles": "Attached files",
+      "uploadFailed": "Failed to upload attachment {name}.",
       "noActivitiesAdded": "No audit activities have been added yet.",
       "summaryOfActivities": "Summary of Activities",
       "highRisk": "High Risk",
@@ -1772,6 +1782,11 @@
       "viewSop": "View Technical Instruction / SOP",
       "editSop": "Edit Technical Instruction / SOP",
       "deleteSop": "Delete Technical Instruction / SOP"
+    },
+    "errors": {
+      "downloadTitle": "Could not download the Audit Charter file",
+      "fileMissing": "The file for this charter is no longer on the server. Refresh the page; if the charter is still listed, re-upload the file with Edit (or ask whoever manages the charter to do it).",
+      "download": "The file could not be downloaded. Please try again in a moment."
     }
   },
   "executiveSummaryUpload": {

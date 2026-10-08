@@ -4,8 +4,10 @@ import {
   getErrorMessageDetails,
   getUserErrorMessage,
   getErrorCode,
+  getErrorStatus,
   isHumanReadableMessage,
   isNetworkError,
+  parseBlobErrorBody,
   type TranslateFn
 } from '../../utils/error'
 import en from '../../locales/en/common.json'
@@ -280,5 +282,59 @@ describe('backend error codes', () => {
       error: { code: 'FOREIGN_KEY_VIOLATION', message: 'This record cannot be deleted because it is still used by other records.' }
     })
     expect(getUserErrorMessage(error, tId)).toBe(id.errors.codes.FOREIGN_KEY_VIOLATION)
+  })
+})
+
+describe('parseBlobErrorBody', () => {
+  // Shape of the ofetch FetchError for `$fetch(url, { responseType: 'blob' })`:
+  // the error body is read as a Blob, and over HTTP/2 statusText is empty
+  const blobFetchError = (status: number, body: string, type = 'application/json') => ({
+    name: 'FetchError',
+    message: `[GET] "https://auditsphere.app/api/v1/audit-charters/d8dda52a-3597-4a43-b52b-b36e06a473ce/download": ${status} `,
+    statusCode: status,
+    statusMessage: '',
+    data: new Blob([body], { type })
+  })
+
+  const charterFileMissing = () => blobFetchError(404, JSON.stringify({
+    success: false,
+    error: { code: 'NOT_FOUND', message: 'Audit charter file was not found on the server disk.' }
+  }))
+
+  it('a Blob body hides the backend message from extractErrorMessage (the bug)', () => {
+    const msg = extractErrorMessage(charterFileMissing(), 'Gagal mengunduh file Audit Charter.')
+    expect(msg).toContain('[GET]')
+    expect(msg).not.toContain('not found on the server disk')
+  })
+
+  it('parses a JSON error body and keeps the status', async () => {
+    const parsed = await parseBlobErrorBody(charterFileMissing())
+    expect(getErrorStatus(parsed)).toBe(404)
+    expect(getErrorCode(parsed)).toBe('NOT_FOUND')
+    expect(extractErrorMessage(parsed)).toBe('Audit charter file was not found on the server disk.')
+  })
+
+  it('keeps a non-JSON body as text', async () => {
+    const parsed = await parseBlobErrorBody(blobFetchError(502, '<html>Bad Gateway</html>', 'text/html'))
+    expect(getErrorStatus(parsed)).toBe(502)
+    expect((parsed as { data: unknown }).data).toBe('<html>Bad Gateway</html>')
+    expect(getUserErrorMessage(parsed, tId)).toBe(id.errors.server)
+  })
+
+  it('returns errors without a Blob body unchanged', async () => {
+    const plain = httpError(404, { error: { code: 'NOT_FOUND', message: 'Resource not found' } })
+    expect(await parseBlobErrorBody(plain)).toBe(plain)
+    expect(await parseBlobErrorBody(null)).toBe(null)
+    const network = new TypeError('Failed to fetch')
+    expect(await parseBlobErrorBody(network)).toBe(network)
+  })
+
+  it('has the audit charter download messages in en and id', () => {
+    for (const key of ['downloadTitle', 'fileMissing', 'download']) {
+      expect(tEn(`auditCharter.errors.${key}`)).not.toBe(`auditCharter.errors.${key}`)
+      expect(tId(`auditCharter.errors.${key}`)).not.toBe(`auditCharter.errors.${key}`)
+    }
+    expect(id.auditCharter.errors.fileMissing).toMatch(/unggah ulang/)
+    expect(en.auditCharter.errors.fileMissing).toMatch(/re-upload/)
   })
 })

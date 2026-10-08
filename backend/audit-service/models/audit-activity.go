@@ -1,24 +1,64 @@
 package models
 
 import (
+	"bytes"
+	"encoding/json"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
+// LenientNumber is a float64 that also accepts a JSON string. Planned
+// activities are stored as a JSON text column, and older rows (seed data and
+// edits made through the generic map-based update) hold values such as
+// "10,000,000" or "". A strict float64 made reading such a row fail, which
+// broke GET /activity-plans for every plan. Strings are read with "," and
+// spaces treated as thousand separators; anything unparseable reads as 0.
+// It always writes a plain JSON number.
+type LenientNumber float64
+
+func (n *LenientNumber) UnmarshalJSON(data []byte) error {
+	data = bytes.TrimSpace(data)
+	if len(data) == 0 || bytes.Equal(data, []byte("null")) {
+		*n = 0
+		return nil
+	}
+	if data[0] != '"' {
+		var f float64
+		if err := json.Unmarshal(data, &f); err != nil {
+			return err
+		}
+		*n = LenientNumber(f)
+		return nil
+	}
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	s = strings.NewReplacer(",", "", " ", "").Replace(s)
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		f = 0
+	}
+	*n = LenientNumber(f)
+	return nil
+}
+
 type PlannedActivity struct {
-	ID                string  `json:"id"`
-	AuditName         string  `json:"auditName"`
-	Auditee           string  `json:"auditee"`
-	Category          string  `json:"category"`
-	RiskName          string  `json:"riskName"`
-	RiskLevel         string  `json:"riskLevel"`
-	Duration          int     `json:"duration"`
-	Priority          string  `json:"priority"`
-	NumberOfAuditors  int     `json:"numberOfAuditors"`
-	EstimatedSchedule string  `json:"estimatedSchedule"`
-	BudgetEstimation  float64 `json:"budgetEstimation"`
+	ID                string        `json:"id"`
+	AuditName         string        `json:"auditName"`
+	Auditee           string        `json:"auditee"`
+	Category          string        `json:"category"`
+	RiskName          string        `json:"riskName"`
+	RiskLevel         string        `json:"riskLevel"`
+	Duration          LenientNumber `json:"duration"`
+	Priority          string        `json:"priority"`
+	NumberOfAuditors  LenientNumber `json:"numberOfAuditors"`
+	EstimatedSchedule string        `json:"estimatedSchedule"`
+	BudgetEstimation  LenientNumber `json:"budgetEstimation"`
 }
 
 type ResourceAuditor struct {
@@ -30,9 +70,9 @@ type ResourceAuditor struct {
 }
 
 type PlanBudget struct {
-	TotalEstimatedCost   float64 `json:"totalEstimatedCost"`
-	TotalAllocatedBudget float64 `json:"totalAllocatedBudget"`
-	BudgetNotes          string  `json:"budgetNotes"`
+	TotalEstimatedCost   LenientNumber `json:"totalEstimatedCost"`
+	TotalAllocatedBudget LenientNumber `json:"totalAllocatedBudget"`
+	BudgetNotes          string        `json:"budgetNotes"`
 }
 
 type PlanReview struct {

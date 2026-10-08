@@ -149,7 +149,7 @@ const doughnutOptions = {
                 <td class="text-center py-3 px-3"><UBadge :color="sentimentColor(doc.sentiment)" variant="subtle" size="md">{{ doc.sentiment }}</UBadge></td>
                 <td class="text-center py-3 px-3">
                   <UBadge
-                    :style="{ backgroundColor: getRiskConfig(doc.riskLevel).color, color: 'white' }"
+                    :class="getRiskConfig(doc.riskLevel).badgeClass"
                     variant="solid"
                     size="md"
                     class="font-bold"

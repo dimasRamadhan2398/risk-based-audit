@@ -159,7 +159,7 @@ const timeSeriesOptions = computed(() => ({
                 <div class="flex items-center justify-between gap-2">
                   <div class="font-bold text-md">{{ dept.department }}</div>
                   <UBadge
-                    :style="{ backgroundColor: getRiskConfig(dept.riskLevel).color, color: 'white' }"
+                    :class="getRiskConfig(dept.riskLevel).badgeClass"
                     variant="solid"
                     size="md"
                     class="font-bold shrink-0"
@@ -219,7 +219,7 @@ const timeSeriesOptions = computed(() => ({
                 </td>
                 <td class="text-center py-3 px-3">
                   <UBadge
-                    :style="{ backgroundColor: getRiskConfig(kpi.riskLevel).color, color: 'white' }"
+                    :class="getRiskConfig(kpi.riskLevel).badgeClass"
                     variant="solid"
                     size="md"
                     class="font-bold"

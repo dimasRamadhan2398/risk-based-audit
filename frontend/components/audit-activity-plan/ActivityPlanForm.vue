@@ -124,15 +124,16 @@
                     </div>
                   </UFormField>
                   <UFormField :label="t('auditActivityPlan.form.department')" required>
-                    <USelectMenu 
-                      v-model="store.formState.department" 
-                      placeholder="Risk Audit IT" 
-                      class="w-full" 
-                      :items="Object.values(AuditDepartment)" 
+                    <USelectMenu
+                      v-model="store.formState.department"
+                      :placeholder="t('auditActivityPlan.form.selectDepartment')"
+                      class="w-full"
+                      :items="store.departmentOptions"
+                      :loading="store.optionsLoading"
                     />
                   </UFormField>
-                  <UFormField :label="t('auditActivityPlan.form.createdBy')">
-                    <UInput v-model="store.formState.createdBy" class="w-full" />
+                  <UFormField :label="t('auditActivityPlan.form.createdBy')" :hint="store.isEditMode ? undefined : t('auditActivityPlan.form.autoFilledFromAccount')">
+                    <UInput v-model="store.formState.createdBy" class="w-full" disabled />
                   </UFormField>
                 </div>
                 <UFormField :label="t('auditActivityPlan.form.creationDate')" class="pt-5">
@@ -215,30 +216,26 @@
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.associatedRisk')" class="col-span-1 md:col-span-2">
                         <USelectMenu
-                          :model-value="getFilteredRisksForDept(store.formState.department).find(r => r.name === activity.riskName) || (activity.riskName ? { name: activity.riskName, label: activity.riskName, riskLevel: activity.riskLevel } : undefined)"
+                          :model-value="store.riskOptions.find(r => r.name === activity.riskName) || (activity.riskName ? { name: activity.riskName, category: '', riskLevel: activity.riskLevel } : undefined)"
                           @update:model-value="(val: any) => {
-                            if (val) {
-                              activity.riskName = typeof val === 'string' ? val : (val.name || val.label || '');
-                              if (typeof val === 'object' && val.riskLevel) {
-                                activity.riskLevel = val.riskLevel;
-                              }
-                            } else {
-                              activity.riskName = '';
-                            }
+                            activity.riskName = val?.name || '';
+                            if (val?.riskLevel) activity.riskLevel = val.riskLevel;
                           }"
-                          :items="getFilteredRisksForDept(store.formState.department)"
+                          :items="store.riskOptions"
                           label-key="name"
+                          :loading="store.optionsLoading"
                           :placeholder="t('auditActivityPlan.form.selectRiskProfile')"
                           class="w-full"
                         >
                           <template #item="{ item }">
                             <div class="flex items-center gap-2 max-w-full w-full">
-                              <span 
-                                class="w-2.5 h-2.5 rounded-full shrink-0" 
-                                :style="{ backgroundColor: getRiskLevelColorHex(item.riskLevel) }"
+                              <span
+                                class="w-2.5 h-2.5 rounded-full shrink-0"
+                                :class="getRiskLevelDotClass(item.riskLevel)"
                               ></span>
-                              <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel || 'N/A' }}]</span>
-                              <span class="truncate text-md">{{ item.name || item.label }}</span>
+                              <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ riskLevelLabel(item.riskLevel) }}]</span>
+                              <span class="truncate text-md">{{ item.name }}</span>
+                              <span v-if="item.category" class="ml-auto text-[10px] text-gray-400 shrink-0">{{ item.category }}</span>
                             </div>
                           </template>
                         </USelectMenu>
@@ -255,7 +252,7 @@
                         />
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.duration')">
-                        <UInput v-model="activity.duration" type="number" class="w-full"/>
+                        <UInput v-model="activity.duration" type="number" min="0" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.priority')">
                         <USelectMenu 
@@ -268,16 +265,16 @@
                         />
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.auditorsNum')">
-                        <UInput v-model="activity.numberOfAuditors" type="number" class="w-full"/>
+                        <UInput v-model="activity.numberOfAuditors" type="number" min="0" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.estimatedSchedule')">
                         <AppDatePicker v-model="activity.estimatedSchedule" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.budgetEstimation')">
-                        <UInput v-model="activity.budgetEstimation" type="number" class="w-full [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden [&[type=number]]:appearance-none">
+                        <UInput v-model="activity.budgetEstimation" type="number" min="0" class="w-full [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden [&[type=number]]:appearance-none">
                           <template #trailing>
                             <span class="text-xs text-gray-400 dark:text-gray-500 font-medium select-none pr-1">
-                              {{ t('auditActivityPlan.form.millionRupiah') }}
+                              {{ t('auditActivityPlan.form.rupiah') }}
                             </span>
                           </template>
                         </UInput>
@@ -368,37 +365,17 @@
                       {{ t('auditActivityPlan.form.budgetPlanning') }}
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <UFormField :label="`${t('auditActivityPlan.form.totalEstimatedCost')} (${t('auditActivityPlan.form.millionRupiah')})`">
-                        <div class="relative flex items-center w-full">
-                          <UInput 
-                            v-model.number="store.formState.budget.totalEstimatedCost" 
-                            type="number" 
-                            min="0"
-                            step="1"
-                            class="w-full"
-                            :ui="{ base: 'pr-14' }"
-                          />
-                          <div class="absolute right-1.5 flex items-center gap-0.5 z-10">
-                            <button
-                              type="button"
-                              title="Kurangi"
-                              class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                              @click="store.formState.budget.totalEstimatedCost = Math.max(0, (Number(store.formState.budget.totalEstimatedCost) || 0) - 1)"
-                            >
-                              <UIcon name="i-heroicons-chevron-down" class="size-4" />
-                            </button>
-                            <button
-                              type="button"
-                              title="Tambah"
-                              class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                              @click="store.formState.budget.totalEstimatedCost = (Number(store.formState.budget.totalEstimatedCost) || 0) + 1"
-                            >
-                              <UIcon name="i-heroicons-chevron-up" class="size-4" />
-                            </button>
-                          </div>
-                        </div>
+                      <UFormField
+                        :label="`${t('auditActivityPlan.form.totalEstimatedCost')} (${t('auditActivityPlan.form.rupiah')})`"
+                        :hint="t('auditActivityPlan.form.autoCalculated')"
+                      >
+                        <UInput :model-value="formatRupiah(store.totalEstimatedCost)" class="w-full" disabled />
                       </UFormField>
-                      <UFormField :label="`${t('auditActivityPlan.form.totalAllocatedBudget')} (${t('auditActivityPlan.form.millionRupiah')})`">
+                      <UFormField
+                        :label="`${t('auditActivityPlan.form.totalAllocatedBudget')} (${t('auditActivityPlan.form.rupiah')})`"
+                        :help="allocatedBelowEstimate ? t('auditActivityPlan.form.allocatedBelowEstimate') : undefined"
+                        :ui="{ help: 'text-amber-600 dark:text-amber-400' }"
+                      >
                         <div class="relative flex items-center w-full">
                           <UInput 
                             v-model.number="store.formState.budget.totalAllocatedBudget" 
@@ -490,7 +467,7 @@
                       </UFormField>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                      <UFormField :label="t('auditActivityPlan.form.approvalDate')" required>
+                      <UFormField :label="t('auditActivityPlan.form.approvalDate')">
                         <AppDatePicker v-model="store.formState.review.approvalDate" class="w-full"/>
                       </UFormField>
                     </div>
@@ -512,16 +489,25 @@
                   </div>
                 </template>
                 <div class="space-y-4">
+                  <!-- Uploaded by / upload date are set from the signed-in user when files are saved. -->
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <UFormField :label="t('auditActivityPlan.form.attachmentCategory')">
                       <USelectMenu v-model="store.formState.attachmentCategory" :items="store.attachmentCategoryOptions" class="w-full"/>
                     </UFormField>
-                    <UFormField :label="t('auditActivityPlan.form.attachmentUploadedBy')">
-                      <UInput v-model="store.formState.attachmentUploadedBy" placeholder="Example: Auditor" class="w-full" />
-                    </UFormField>
-                    <UFormField :label="t('auditActivityPlan.form.attachmentUploadDate')">
-                      <AppDatePicker v-model="store.formState.attachmentUploadDate" class="w-full"/>
-                    </UFormField>
+                  </div>
+                  <div v-if="store.formState.attachments?.length" class="space-y-2">
+                    <p class="text-sm font-semibold text-[var(--text-main)]">{{ t('auditActivityPlan.form.attachedFiles') }}</p>
+                    <ul class="space-y-1">
+                      <li
+                        v-for="(file, index) in store.formState.attachments"
+                        :key="`${file.url}-${index}`"
+                        class="flex items-center gap-2 text-sm text-[var(--text-muted)]"
+                      >
+                        <UIcon name="i-heroicons-document-text" class="w-4 h-4 shrink-0" />
+                        <span class="truncate">{{ file.name }}</span>
+                        <span class="text-xs shrink-0">{{ file.size }}</span>
+                      </li>
+                    </ul>
                   </div>
                   <UFormField :label="t('auditActivityPlan.form.uploadAttachmentHere')" size="lg" class="pt-2">
                     <UFileUpload
@@ -590,15 +576,15 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
-import { useRiskProfileStore } from '~/stores/risk-profile'
-import { AuditCategory, AuditDepartment } from '~/types/audit';
+import { getRiskLevelDotClass } from '~/utils/riskLevelBadge'
+import { AuditCategory } from '~/types/audit';
 import { useI18n } from '~/composables/useI18n'
 import ReusableButton from '~/components/shared/ReusableButton.vue'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
+import { formatNumber } from '~/utils/numberFormatter'
 
 const { t } = useI18n()
 const store = useActivityPlanStore()
-const riskStore = useRiskProfileStore()
 
 const currentStep = ref(0)
 const stepError = ref('')
@@ -617,13 +603,13 @@ watch(() => store.isModalOpen, (isOpen) => {
   if (isOpen) {
     currentStep.value = 0
     stepError.value = ''
-    if (!riskStore.risks || riskStore.risks.length === 0) {
-      riskStore.fetchRisks()
-    }
+    // Departments and risks are reloaded on every open so the dropdowns follow the master data.
+    store.fetchFormOptions()
   }
 })
 
-riskStore.fetchRisks()
+const riskLevelLabel = (level?: string) =>
+  store.riskLevelOptions.find(o => o.value === level)?.label || level || 'N/A'
 
 const isHighRisk = (level?: string) => {
   if (!level) return false
@@ -657,6 +643,14 @@ const lowRiskCount = computed(() => {
   return (store.formState.plannedActivities || []).filter((a: any) => isLowRisk(a.riskLevel)).length
 })
 
+const formatRupiah = (value: number) => formatNumber(value, 0, 'id-ID')
+
+const allocatedBelowEstimate = computed(() =>
+  Number(store.formState.budget.totalAllocatedBudget) < store.totalEstimatedCost
+)
+
+const isNegative = (value: unknown) => Number(value) < 0
+
 const validateStep = (stepIdx: number): boolean => {
   stepError.value = ''
 
@@ -665,6 +659,11 @@ const validateStep = (stepIdx: number): boolean => {
     const s = store.formState
     if (!s.planTitle?.trim() || !s.planYear || !s.planPeriodStart || !s.planPeriodEnd || !s.department) {
       stepError.value = t('auditActivityPlan.validation.basicInfo')
+      return false
+    }
+    // Dates are ISO yyyy-mm-dd strings, so they compare correctly as text.
+    if (s.planPeriodEnd < s.planPeriodStart) {
+      stepError.value = t('auditActivityPlan.validation.periodOrder')
       return false
     }
   }
@@ -676,18 +675,30 @@ const validateStep = (stepIdx: number): boolean => {
       stepError.value = t('auditActivityPlan.validation.plannedActivities')
       return false
     }
-    for (const act of acts) {
+    const { planPeriodStart, planPeriodEnd } = store.formState
+    for (const [index, act] of acts.entries()) {
+      const num = index + 1
       if (!act.auditName?.trim() || !act.auditee?.trim()) {
         stepError.value = t('auditActivityPlan.validation.plannedActivities')
+        return false
+      }
+      if (isNegative(act.duration) || isNegative(act.numberOfAuditors) || isNegative(act.budgetEstimation)) {
+        stepError.value = t('auditActivityPlan.validation.negativeNumber', { num })
+        return false
+      }
+      const schedule = act.estimatedSchedule?.slice(0, 10)
+      if (schedule && (schedule < planPeriodStart || schedule > planPeriodEnd)) {
+        stepError.value = t('auditActivityPlan.validation.scheduleOutsidePeriod', { num })
         return false
       }
     }
   }
 
-  // Step 3: Review & Approval
+  // Step 3: Review & Approval. The approval date stays optional: approval
+  // usually happens after the plan is submitted.
   if (stepIdx === 3) {
     const rev = store.formState.review
-    if (!rev.creatorName?.trim() || !rev.creatorPosition?.trim() || !rev.approverName?.trim() || !rev.approverPosition?.trim() || !rev.approvalDate) {
+    if (!rev.creatorName?.trim() || !rev.creatorPosition?.trim() || !rev.approverName?.trim() || !rev.approverPosition?.trim()) {
       stepError.value = t('auditActivityPlan.validation.reviewAndApproval')
       return false
     }
@@ -716,45 +727,6 @@ const handleNext = () => {
   if (validateStep(currentStep.value)) {
     currentStep.value++
   }
-}
-
-const getFilteredRisksForDept = (dept: string) => {
-  const allRisks = riskStore.risks && riskStore.risks.length > 0 ? riskStore.risks : []
-  if (allRisks.length === 0) return []
-  
-  if (!dept) {
-    return allRisks.map(r => ({
-      ...r,
-      label: r.name,
-      value: r.name
-    }))
-  }
-  
-  const filtered = allRisks.filter(r => {
-    if (dept === 'IT') return r.category === 'Technology'
-    if (dept === 'Finance') return r.category === 'Financial'
-    if (dept === 'HR') return r.category === 'Human Resources'
-    if (dept === 'Ops') return ['Operations', 'Compliance', 'Strategic', 'Governance'].includes(r.category)
-    return true
-  })
-
-  const results = filtered.length > 0 ? filtered : allRisks
-  return results.map(r => ({
-    ...r,
-    label: r.name,
-    value: r.name
-  }))
-}
-
-const getRiskLevelColorHex = (level?: string) => {
-  if (!level) return '#9E9E9E'
-  const lvl = level.toLowerCase()
-  if (lvl.includes('high')) return '#F44336'
-  if (lvl.includes('moderate to high')) return '#FF9800'
-  if (lvl.includes('moderate')) return '#FFC107'
-  if (lvl.includes('low to moderate')) return '#8BC34A'
-  if (lvl.includes('low')) return '#4CAF50'
-  return '#9E9E9E'
 }
 
 const handleFormSubmit = () => {

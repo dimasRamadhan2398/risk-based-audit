@@ -97,9 +97,9 @@
 
                     <div class="flex items-center">
                       <span class="font-bold text-gray-600  w-44 text-sm">Risk Level</span>
-                      <UBadge v-if="activity.riskLevel" size="md" :color="store.getRiskLevelColor ? store.getRiskLevelColor(activity.riskLevel) : 'neutral'" variant="soft">
+                      <span v-if="activity.riskLevel" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold" :class="getRiskLevelColorClass(activity.riskLevel)">
                         {{ activity.riskLevel }}
-                      </UBadge>
+                      </span>
                       <span v-else class="text-gray-400 text-sm">-</span>
                     </div>
                   </UCard>
@@ -332,6 +332,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
+import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
 

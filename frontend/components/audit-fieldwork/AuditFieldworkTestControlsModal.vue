@@ -46,9 +46,9 @@
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <UBadge v-if="store.testControlForm.testResult" :color="getResultColor(store.testControlForm.testResult)" variant="solid" size="md" class="font-semibold">
+                <span v-if="store.testControlForm.testResult" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold" :class="getControlEffectivenessColorClass(store.testControlForm.testResult)">
                   {{ store.testControlForm.testResult }}
-                </UBadge>
+                </span>
                 <UBadge color="warning" variant="subtle" size="md" class="font-semibold">
                   <UIcon name="i-heroicons-calendar" class="w-4 h-4 mr-1.5" />
                   {{ formatDate(store.testControlForm.dueDate) || '-' }}
@@ -101,9 +101,9 @@
               </div>
               <div class="flex items-center gap-2 pt-1">
                 <span class="text-xs font-semibold text-[var(--text-muted)]">{{ t('auditFieldwork.testControls.result') }}:</span>
-                <UBadge :color="getResultColor(store.testControlForm.testResult)" variant="solid" size="sm" class="font-medium">
+                <span class="inline-flex items-center px-1.5 py-1 rounded-md text-[10px]/3 font-medium" :class="getControlEffectivenessColorClass(store.testControlForm.testResult)">
                   {{ store.testControlForm.testResult || '-' }}
-                </UBadge>
+                </span>
               </div>
             </div>
           </UCard>
@@ -249,6 +249,7 @@
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import { formatDate } from '~/utils/dateConverter'
+import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
@@ -267,15 +268,5 @@ const getControlTypeColor = (type: string) => {
     'Automated': 'primary'
   }
   return colors[type] || 'neutral'
-}
-
-const getResultColor = (result: string) => {
-  const colors: Record<string, "success" | "error" | "warning" | "neutral"> = {
-    'Effective': 'success',
-    'Ineffective': 'error',
-    'Partially Effective': 'warning',
-    'Not Tested': 'neutral'
-  }
-  return colors[result] || 'neutral'
 }
 </script>

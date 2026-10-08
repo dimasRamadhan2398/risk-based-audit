@@ -27,15 +27,14 @@
 
       <template #riskLevel-cell="{ row }">
         <div class="flex flex-col gap-1 items-start">
-          <UBadge 
-            v-for="(act, idx) in getOriginal(row).plannedActivities" 
+          <span
+            v-for="(act, idx) in getOriginal(row).plannedActivities"
             :key="idx"
-            :color="store.getRiskLevelColor ? store.getRiskLevelColor(act.riskLevel) : 'neutral'"
-            variant="soft"
-            size="md"
+            class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold"
+            :class="getRiskLevelColorClass(act.riskLevel)"
           >
             {{ act.riskLevel || '-' }}
-          </UBadge>
+          </span>
         </div>
       </template>
 
@@ -98,6 +97,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
+import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import ActivityPlanViewModal from '~/components/audit-activity-plan/ActivityPlanViewModal.vue'
 import { useI18n } from '~/composables/useI18n'
 

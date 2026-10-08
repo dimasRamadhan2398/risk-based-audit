@@ -1471,7 +1471,10 @@
     "validation": {
       "basicInfo": "Harap isi semua kolom wajib pada informasi dasar (Judul Rencana, Tahun, Periode, Departemen).",
       "plannedActivities": "Harap tambahkan setidaknya satu aktivitas audit dengan Judul dan Auditee yang diisi.",
-      "reviewAndApproval": "Harap lengkapi rincian Pembuat dan Penyetuju (Nama, Jabatan, dan Tanggal Persetujuan)."
+      "reviewAndApproval": "Harap lengkapi nama dan jabatan Pembuat serta Penyetuju.",
+      "periodOrder": "Tanggal akhir periode harus sama dengan atau setelah tanggal mulai.",
+      "scheduleOutsidePeriod": "Aktivitas {num}: estimasi jadwal harus berada dalam periode rencana.",
+      "negativeNumber": "Aktivitas {num}: durasi, jumlah auditor, dan budget tidak boleh negatif."
     },
     "stepper": {
       "step1": "Info Dasar",
@@ -1521,6 +1524,13 @@
       "estimatedSchedule": "Estimasi Jadwal/Waktu",
       "budgetEstimation": "Estimasi Budget",
       "millionRupiah": "Juta Rupiah",
+      "rupiah": "Rupiah",
+      "selectDepartment": "Pilih departemen",
+      "autoCalculated": "Dihitung otomatis dari estimasi budget aktivitas",
+      "allocatedBelowEstimate": "Budget yang dialokasikan lebih kecil dari total estimasi biaya.",
+      "autoFilledFromAccount": "Diisi otomatis dari akun Anda",
+      "attachedFiles": "File terlampir",
+      "uploadFailed": "Gagal mengunggah lampiran {name}.",
       "noActivitiesAdded": "Belum ada aktivitas audit yang ditambahkan.",
       "summaryOfActivities": "Ringkasan Aktivitas",
       "highRisk": "Risiko Tinggi",
@@ -1771,6 +1781,11 @@
       "viewSop": "Lihat Petunjuk Teknis / SOP",
       "editSop": "Edit Petunjuk Teknis / SOP",
       "deleteSop": "Hapus Petunjuk Teknis / SOP"
+    },
+    "errors": {
+      "downloadTitle": "Gagal mengunduh file Audit Charter",
+      "fileMissing": "File untuk charter ini sudah tidak ada di server. Muat ulang halaman; jika charter masih tampil, unggah ulang file melalui tombol Edit (atau minta pengelola charter untuk mengunggahnya).",
+      "download": "File tidak dapat diunduh. Silakan coba lagi beberapa saat lagi."
     }
   },
   "executiveSummaryUpload": {

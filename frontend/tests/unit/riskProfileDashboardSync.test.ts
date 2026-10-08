@@ -138,7 +138,7 @@ describe('Dashboard Registered Risks vs Corporate Risk Profile', () => {
     expect(cols).not.toMatch(/header:\s*"ID"/)
     expect(cols).toContain('rawObject.impact * rawObject.likelihood')
     expect(cols).toContain('riskProfileStore.getRiskLevel(risk.likelihood, risk.impact)')
-    expect(cols).toContain('riskLevelConfig[level]?.color')
+    expect(cols).toContain('getRiskLevelColorClass(level)')
     expect(cols).toContain('t("dashboard.registeredRisks.columns.level")')
     expect(cols).toContain('t(`riskProfile.riskLevelLabels.${level}`)')
   })

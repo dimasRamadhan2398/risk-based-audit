@@ -107,11 +107,11 @@
 
                 <div class="space-y-2">
                   <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded bg-[#4CAF50]"></div>
+                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('Low')"></div>
                     <span>{{ t('riskAppetite.guidelines.acceptableZone.low') }}</span>
                   </div>
                   <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded bg-[#8BC34A]"></div>
+                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('Low to Medium')"></div>
                     <span>{{ t('riskAppetite.guidelines.acceptableZone.lowMod') }}</span>
                   </div>
                 </div>
@@ -135,15 +135,15 @@
 
                 <div class="space-y-2">
                   <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded bg-[#FFC107]"></div>
+                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('Medium')"></div>
                     <span>{{ t('riskAppetite.guidelines.actionZone.mod') }}</span>
                   </div>
                   <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded bg-[#FF9800]"></div>
+                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('Medium to High')"></div>
                     <span>{{ t('riskAppetite.guidelines.actionZone.modHigh') }}</span>
                   </div>
                   <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded bg-[#F44336]"></div>
+                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('High')"></div>
                     <span>{{ t('riskAppetite.guidelines.actionZone.high') }}</span>
                   </div>
                 </div>
@@ -188,9 +188,9 @@
               </template>
 
               <template #level-cell="{ row }">
-                <span 
-                  class="inline-block px-2 py-0.5 rounded text-[10px] font-black text-white"
-                  :style="{ backgroundColor: getRiskLevelColor(row.original) }"
+                <span
+                  class="inline-block px-2 py-0.5 rounded text-[10px] font-black"
+                  :class="getRiskLevelBadgeColorClass(row.original)"
                 >
                   {{ getRiskLevelLabel(row.original) }}
                 </span>
@@ -426,6 +426,7 @@ import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import { useRiskAppetiteStore, type RiskAppetite } from '~/stores/risk-appetite'
 import { RiskLevel } from '~/types/risk'
+import { getRiskLevelColorClass, getRiskLevelDotClass } from '~/utils/riskLevelBadge'
 import { useGlobalModalStore } from '~/stores/global-modal'
 
 const { t } = useI18n()
@@ -484,10 +485,8 @@ onMounted(async () => {
 })
 
 // Helpers
-const getRiskLevelColor = (risk: any) => {
-  const level = profileStore.getRiskLevel(risk.likelihood, risk.impact)
-  return riskLevelConfig[level]?.color || '#9E9E9E'
-}
+const getRiskLevelBadgeColorClass = (risk: any) =>
+  getRiskLevelColorClass(profileStore.getRiskLevel(risk.likelihood, risk.impact))
 
 const getRiskLevelLabel = (risk: any) => {
   const level = profileStore.getRiskLevel(risk.likelihood, risk.impact)

@@ -1247,14 +1247,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       })
     }
 
-    // 3. Fallback from mockFieldwork
-    if (fieldworkStore.mockFieldwork) {
-      Object.values(fieldworkStore.mockFieldwork).forEach((data: any) => {
-        if (Array.isArray(data?.samples)) {
-          data.samples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
-        }
-      })
-    }
+    // // 3. Fallback from mockFieldwork
+    // if (fieldworkStore.mockFieldwork) {
+    //   Object.values(fieldworkStore.mockFieldwork).forEach((data: any) => {
+    //     if (Array.isArray(data?.samples)) {
+    //       data.samples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
+    //     }
+    //   })
+    // }
 
     // 4. Existing documents in sampleForm if editing
     if (sampleForm?.samples) {

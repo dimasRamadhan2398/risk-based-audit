@@ -160,7 +160,7 @@
                           <div class="flex items-center gap-2 max-w-full w-full py-0.5">
                             <span
                               class="w-2.5 h-2.5 rounded-full shrink-0"
-                              :style="{ backgroundColor: getRiskLevelColorHex(item.riskLevel) }"
+                              :class="getRiskLevelDotClass(item.riskLevel)"
                             />
                             <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ item.riskLevel }}]</span>
                             <span class="truncate text-sm font-medium">{{ item.label || item.name }}</span>
@@ -187,14 +187,13 @@
                       size="lg"
                     >
                       <div class="mt-2 flex items-center gap-2">
-                        <UBadge
+                        <span
                           v-if="activity.riskLevel"
-                          :color="getRiskLevelColor(activity.riskLevel)"
-                          size="lg"
-                          variant="solid"
+                          class="inline-flex items-center px-2 py-1 rounded-md text-sm font-semibold"
+                          :class="getRiskLevelColorClass(activity.riskLevel)"
                         >
                           {{ activity.riskLevel }}
-                        </UBadge>
+                        </span>
                         <UBadge
                           v-if="auditableUniverseOptions.find(u => u.name === activity.riskName)?.auditPriority"
                           color="error"
@@ -506,6 +505,7 @@ import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useAuthStore } from '~/stores/auth'
 import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment } from '~/types/audit'
+import { getRiskLevelColorClass, getRiskLevelDotClass } from '~/utils/riskLevelBadge'
 
 const store = useAnnualPlanStore()
 const riskStore = useRiskProfileStore()
@@ -675,26 +675,5 @@ const _getFilteredRisksForDept = (dept: string) => {
     if (dept === 'Ops') return ['Operations', 'Compliance', 'Strategic', 'Governance'].includes(r.category)
     return true
   })
-}
-
-const getRiskLevelColorHex = (level?: string) => {
-  if (!level) return '#9E9E9E'
-  const lvl = level.toLowerCase()
-  if (lvl.includes('moderate to high') || lvl.includes('medium to high')) return '#FF9800'
-  if (lvl.includes('low to moderate') || lvl.includes('low to medium')) return '#8BC34A'
-  if (lvl.includes('high')) return '#F44336'
-  if (lvl.includes('moderate') || lvl.includes('medium')) return '#FFC107'
-  if (lvl.includes('low')) return '#4CAF50'
-  return '#9E9E9E'
-}
-
-const getRiskLevelColor = (level?: string) => {
-  if (!level) return 'neutral'
-  const lvl = level.toLowerCase()
-  if (lvl.includes('moderate to high') || lvl.includes('medium to high')) return 'warning'
-  if (lvl.includes('high')) return 'error'
-  if (lvl.includes('mod') || lvl.includes('medium')) return 'warning'
-  if (lvl.includes('low')) return 'success'
-  return 'neutral'
 }
 </script>

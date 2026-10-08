@@ -509,7 +509,8 @@ export interface ActivityPlanFormState {
   planYear: string;
   planPeriodStart: string;
   planPeriodEnd: string;
-  department: AuditDepartment;
+  /** Department name from master-service (GET /departments). */
+  department: string;
   createdBy: string;
   creationDate: string;
   plannedActivities: PlannedAuditActivity[];

@@ -8,8 +8,8 @@
       </div>
       <div class="flex gap-2">
         <div v-if="store.testControls.length > 0" class="flex gap-2 mr-2">
-          <UBadge color="success" variant="solid">{{ t('auditFieldwork.testControls.effectiveCount', { count: store.effectiveControls }) }}</UBadge>
-          <UBadge color="error" variant="solid">{{ t('auditFieldwork.testControls.ineffectiveCount', { count: store.ineffectiveControls }) }}</UBadge>
+          <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" :class="getControlEffectivenessColorClass('Effective')">{{ t('auditFieldwork.testControls.effectiveCount', { count: store.effectiveControls }) }}</span>
+          <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" :class="getControlEffectivenessColorClass('Ineffective')">{{ t('auditFieldwork.testControls.ineffectiveCount', { count: store.ineffectiveControls }) }}</span>
         </div>
         <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.testControls.addBtn')" @click="store.openTestControlModal()" />
       </div>
@@ -33,7 +33,7 @@
         <UBadge :color="getControlTypeColor(row.original.controlType)" variant="subtle">{{ row.original.controlType }}</UBadge>
       </template>
       <template #testResult-cell="{ row }">
-        <UBadge :color="getResultColor(row.original.testResult)" variant="solid">{{ row.original.testResult }}</UBadge>
+        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" :class="getControlEffectivenessColorClass(row.original.testResult)">{{ row.original.testResult }}</span>
       </template>
       <template #finding-cell="{ row }">
         <div
@@ -95,6 +95,7 @@ import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { formatDate } from '~/utils/dateConverter'
+import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 import AuditFieldworkTestControlsModal from '~/components/audit-fieldwork/AuditFieldworkTestControlsModal.vue'
 
 const store = useAuditFieldworkStore()
@@ -131,15 +132,5 @@ const getControlTypeColor = (type: string) => {
     'Automated': 'primary'
   }
   return colors[type] || 'neutral'
-}
-
-const getResultColor = (result: string) => {
-  const colors: Record<string, "success" | "error" | "warning" | "neutral"> = {
-    'Effective': 'success',
-    'Ineffective': 'error',
-    'Partially Effective': 'warning',
-    'Not Tested': 'neutral'
-  }
-  return colors[result] || 'neutral'
 }
 </script>

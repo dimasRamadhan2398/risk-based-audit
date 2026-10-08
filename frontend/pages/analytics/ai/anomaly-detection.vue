@@ -288,7 +288,7 @@ const scatterOptions = computed(() => {
                 <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">{{ a.description }}</td>
                 <td class="text-center py-3 px-3">
                   <UBadge
-                    :style="{ backgroundColor: getRiskConfig(a.riskLevel).color, color: 'white' }"
+                    :class="getRiskConfig(a.riskLevel).badgeClass"
                     variant="solid"
                     size="md"
                     class="font-bold"

@@ -32,14 +32,12 @@
                     {{ s.document || t('workingPaper.sampleTable.noDocumentName') }}
                   </span>
                 </div>
-                <UBadge
-                  :color="store.checkSampleStatus(s) ? 'success' : 'error'"
-                  size="sm"
-                  variant="subtle"
-                  class="shrink-0"
+                <span
+                  class="inline-flex items-center px-1.5 py-1 rounded-md text-[10px]/3 font-medium shrink-0"
+                  :class="getControlEffectivenessColorClass(store.checkSampleStatus(s) ? 'Effective' : 'Ineffective')"
                 >
                   {{ store.checkSampleStatus(s) ? t('workingPaper.sampleTable.effective') : t('workingPaper.sampleTable.ineffective') }}
-                </UBadge>
+                </span>
               </div>
               <USeparator class="my-1.5" />
               <div v-if="s.step1 || s.step2 || s.step3" class="space-y-1 text-xs text-gray-600 dark:text-gray-300">
@@ -107,6 +105,7 @@
 import { computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore } from '~/stores/working-paper'
+import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 
 const { t } = useI18n()
 const store = useWorkingPaperStore()
