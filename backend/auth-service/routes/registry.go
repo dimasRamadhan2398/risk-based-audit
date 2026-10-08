@@ -161,15 +161,20 @@ func (r *Registry) confidentiality() {
 	}
 }
 
-// resend registers Resend email provisioning routes.
+// resend registers Resend email provisioning and webhook routes.
 func (r *Registry) resend() {
-	resend := r.group.Group("/resend")
-	resend.Use(r.authMiddleware.Authenticate())
-	resend.Use(r.authMiddleware.RequireRoles("ADMIN"))
+	// Webhook endpoint: Called by Resend from the internet.
+	// Must NOT use JWT Authenticate() middleware; signature/secret is checked by controller.
+	r.group.POST("/resend/webhook", r.controller.GetResend().HandleWebhook)
+
+	// Admin control-plane provisioning routes (requires JWT ADMIN)
+	resendAdmin := r.group.Group("/resend")
+	resendAdmin.Use(r.authMiddleware.Authenticate())
+	resendAdmin.Use(r.authMiddleware.RequireRoles("ADMIN"))
 	{
 		// POST /api/v1/resend/provision
 		// Registers a sending domain on Resend and returns a scoped API key + DNS records.
 		// ADMIN only: this spends real Resend account quota and mints sending keys.
-		resend.POST("/provision", r.controller.GetResend().ProvisionClientDomain)
+		resendAdmin.POST("/provision", r.controller.GetResend().ProvisionClientDomain)
 	}
 }

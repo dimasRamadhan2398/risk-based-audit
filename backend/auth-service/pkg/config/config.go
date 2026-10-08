@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -90,8 +91,45 @@ type SMTPConfig struct {
 type ResendConfig struct {
 	// MasterAPIKey is the Resend full-access API key used by the site-generator
 	// to register new sending domains and create per-tenant scoped keys.
-	// Load this from RESEND_MASTER_API_KEY env var — never commit the real value.
 	MasterAPIKey string `mapstructure:"master_api_key"`
+	// APIKey is the Resend API key used for sending transactional emails directly.
+	// Can be a tenant-scoped sending key or the master key.
+	APIKey string `mapstructure:"api_key"`
+	// From is the default sender email address (e.g. "AuditSphere <no-reply@mail.auditsphere.app>").
+	From string `mapstructure:"from"`
+	// WebhookSecret is the secret token used to verify inbound Resend webhook events (Svix signing secret).
+	WebhookSecret string `mapstructure:"webhook_secret"`
+}
+
+// GetAPIKey returns the effective API key for sending emails.
+func (r *ResendConfig) GetAPIKey() string {
+	if r.APIKey != "" {
+		return r.APIKey
+	}
+	if env := os.Getenv("RESEND_API_KEY"); env != "" {
+		return env
+	}
+	if r.MasterAPIKey != "" {
+		return r.MasterAPIKey
+	}
+	if env := os.Getenv("RESEND_MASTER_API_KEY"); env != "" {
+		return env
+	}
+	return ""
+}
+
+// GetFrom returns the sender address with fallback to appName and default domain.
+func (r *ResendConfig) GetFrom(defaultAppName string) string {
+	if r.From != "" {
+		return r.From
+	}
+	if env := os.Getenv("RESEND_FROM"); env != "" {
+		return env
+	}
+	if env := os.Getenv("RESEND_FROM_EMAIL"); env != "" {
+		return env
+	}
+	return fmt.Sprintf("%s <no-reply@mail.auditsphere.app>", defaultAppName)
 }
 
 func setDefaults() {
@@ -122,6 +160,9 @@ func setDefaults() {
 	viper.SetDefault("smtp.host", "sandbox.smtp.mailtrap.io")
 	viper.SetDefault("smtp.port", 2525)
 	viper.SetDefault("resend.master_api_key", "") // Override via RESEND_MASTER_API_KEY env var
+	viper.SetDefault("resend.api_key", "")        // Override via RESEND_API_KEY env var
+	viper.SetDefault("resend.from", "AuditSphere <no-reply@mail.auditsphere.app>")
+	viper.SetDefault("resend.webhook_secret", "") // Override via RESEND_WEBHOOK_SECRET env var
 }
 
 func Load(configPath string) (*Config, error) {

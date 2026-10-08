@@ -92,6 +92,16 @@ services:
         condition: service_healthy
     ports:
       - "8001:8001"
+    environment:
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - RESEND_MASTER_API_KEY=${RESEND_MASTER_API_KEY:-}
+      - RESEND_FROM=${RESEND_FROM:-AuditSphere <no-reply@mail.auditsphere.app>}
+      - RESEND_WEBHOOK_SECRET=${RESEND_WEBHOOK_SECRET:-}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM=${SMTP_FROM:-}
     command: sh -c "./auth --config ./pkg/config/config.yaml seed && ./auth --config ./pkg/config/config.yaml serve"
     networks:
       - rb_audit_network

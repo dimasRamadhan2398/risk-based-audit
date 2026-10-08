@@ -33,7 +33,8 @@ func (r *Registry) GetAuthService() authServices.AuthServiceInterface {
 
 // GetEmailService implements IServiceRegistry.
 func (r *Registry) GetEmailService() emailServices.EmailServiceInterface {
-	return emailServices.NewEmailService(&r.repository.GetConfig().SMTP, r.repository.GetConfig().App.AppName)
+	cfg := r.repository.GetConfig()
+	return emailServices.NewEmailService(&cfg.Resend, &cfg.SMTP, cfg.App.AppName, cfg.App.AppEnv)
 }
 
 // GetMfaService implements IServiceRegistry.
@@ -85,5 +86,6 @@ func NewServiceRegistry(repository repositories.IRepositoryRegistry) IServiceReg
 
 // GetResendService implements IServiceRegistry.
 func (r *Registry) GetResendService() resendServices.ResendServiceInterface {
-	return resendServices.NewResendService(r.repository.GetConfig().Resend.MasterAPIKey)
+	cfg := r.repository.GetConfig()
+	return resendServices.NewResendService(cfg.Resend.GetAPIKey(), cfg.Resend.WebhookSecret)
 }
