@@ -136,8 +136,13 @@ services:
         condition: service_healthy
     ports:
       - "8002:8001"
+    environment:
+      - IMAGEKIT_PUBLIC_KEY=${IMAGEKIT_PUBLIC_KEY:-}
+      - IMAGEKIT_PRIVATE_KEY=${IMAGEKIT_PRIVATE_KEY:-}
+      - IMAGEKIT_URL_ENDPOINT=${IMAGEKIT_URL_ENDPOINT:-}
     volumes:
       - ./audit-service/pkg/config:/root/pkg/config
+      - audit_uploads:/root/uploads
     command: sh -c "./audit seed && ./audit serve"
     networks:
       - rb_audit_network
@@ -245,6 +250,7 @@ volumes:
   zookeeper_data:
   kafka_data:
   python_ai_models:
+  audit_uploads:
 
 networks:
   rb_audit_network:

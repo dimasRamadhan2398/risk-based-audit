@@ -66,8 +66,15 @@
                   <UFormField :label="t('riskProfile.addModal.category')">
                     <USelect v-model="newRisk.category" :items="categoryOptions" class="w-full" />
                   </UFormField>
-                  <UFormField :label="t('riskProfile.addModal.branch')">
-                    <USelect v-model="newRisk.branch" :items="store.branches" class="w-full" />
+                  <UFormField :label="t('riskProfile.addModal.branch')" :error="branchFieldError">
+                    <USelect
+                      v-model="newRisk.location_id"
+                      :items="locationOptions"
+                      :placeholder="t('riskProfile.selectBranch')"
+                      :loading="store.branchesLoading"
+                      :disabled="!!store.branchesError"
+                      class="w-full"
+                    />
                   </UFormField>
                 </div>
 
@@ -104,6 +111,18 @@
       </div>
     </UCard>
 
+    <!-- Risk load error (no mock fallback: the list stays empty) -->
+    <UAlert
+      v-if="store.risksLoadError"
+      color="error"
+      variant="soft"
+      icon="i-heroicons-exclamation-circle"
+      :title="t('riskProfile.risksLoadError')"
+      :description="store.risksLoadError"
+      :actions="[{ label: t('riskProfile.retry'), color: 'error', variant: 'outline', onClick: () => store.fetchRisks() }]"
+      class="mb-6"
+    />
+
     <!-- Controls & Hint -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 items-start">
       <div class="sm:col-span-2">
@@ -113,11 +132,19 @@
         />
       </div>
       <div>
-        <UFormField :label="t('riskProfile.filterBranch')" size="sm" class="font-bold">
+        <UFormField
+          :label="t('riskProfile.filterBranch')"
+          size="sm"
+          class="font-bold"
+          :error="branchFieldError"
+          :help="!store.branchesError && !store.branchesLoading && store.locations.length === 0 ? t('riskProfile.noBranches') : undefined"
+        >
           <USelect
             v-model="selectedBranch"
             :items="branchOptions"
             icon="i-heroicons-building-office"
+            :loading="store.branchesLoading"
+            :disabled="!!store.branchesError"
             class="w-full"
           />
         </UFormField>
@@ -269,7 +296,7 @@
                       <td colspan="14" class="py-12 text-center text-gray-500 dark:text-gray-400">
                         <UIcon name="i-heroicons-inbox" class="w-8 h-8 mx-auto text-gray-400 mb-2" />
                         <p class="font-medium text-sm">{{ t('riskProfile.emptyTitle', { year: store.selectedYear }) }}</p>
-                        <p class="text-xs text-gray-400 mt-1">{{ t('riskProfile.emptyDesc') }}</p>
+                        <p class="text-xs text-gray-400 mt-1">{{ emptyDescText }}</p>
                       </td>
                     </tr>
                     <tr 
@@ -336,7 +363,7 @@
                     {{ t('riskProfile.emptyTitle', { year: store.selectedYear }) }}
                   </h4>
                   <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">
-                    {{ t('riskProfile.emptyDesc') }}
+                    {{ emptyDescText }}
                   </p>
                 </div>
                 <UButton
@@ -551,8 +578,15 @@
             <UFormField :label="t('riskProfile.addModal.category')">
               <USelect v-model="store.selectedRisk.category" :items="categoryOptions" class="w-full" />
             </UFormField>
-            <UFormField :label="t('riskProfile.addModal.branch')">
-              <USelect v-model="store.selectedRisk.branch" :items="store.branches" class="w-full" />
+            <UFormField :label="t('riskProfile.addModal.branch')" :error="branchFieldError">
+              <USelect
+                v-model="store.selectedRisk.location_id"
+                :items="locationOptions"
+                :placeholder="t('riskProfile.selectBranch')"
+                :loading="store.branchesLoading"
+                :disabled="!!store.branchesError"
+                class="w-full"
+              />
             </UFormField>
           </div>
 
@@ -646,7 +680,9 @@ import {
   riskLevelConfig, 
   categoryIcons, 
   impactLabels, 
-  likelihoodLabels 
+  likelihoodLabels,
+  ALL_BRANCHES,
+  UNASSIGNED_BRANCH
 } from '~/stores/risk-profile'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useFiscalYear } from '~/composables/useFiscalYear'
@@ -665,15 +701,16 @@ const isAddModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
 const riskToDelete = ref(null)
 
-// Form state for new risk
-const newRisk = ref({
+// Form state for new risk. location_id is a Location master ID (no default
+// branch: the user picks one from the master data).
+const emptyNewRisk = () => ({
   name: '',
   category: 'Strategic',
   impact: 3,
   likelihood: 3,
   severity: 50,
   description: '',
-  branch: 'Head Office',
+  location_id: undefined,
   impact_q1: 3,
   impact_q2: 3,
   impact_q3: 3,
@@ -683,6 +720,16 @@ const newRisk = ref({
   likelihood_q3: 3,
   likelihood_q4: 3
 })
+const newRisk = ref(emptyNewRisk())
+
+// Branch selects in the add/edit modals: Location master only.
+const locationOptions = computed(() =>
+  store.locations.map(l => ({ label: l.name, value: l.id }))
+)
+
+const branchFieldError = computed(() =>
+  store.branchesError ? t('riskProfile.branchesLoadError') : undefined
+)
 
 // Localized helper labels
 function getRiskLevelLabel(levelKey) {
@@ -713,7 +760,7 @@ const likelihoodOptions = Object.entries(likelihoodLabels).map(([val, label]) =>
   value: Number(val) 
 }))
 
-function submitNewRisk() {
+async function submitNewRisk() {
   if (!newRisk.value.name) {
     toast.showError(t('riskProfile.toasts.nameRequired'))
     return
@@ -727,7 +774,8 @@ function submitNewRisk() {
     likelihood: newRisk.value.likelihood_q1 || 3,
     severity: 50,
     description: newRisk.value.description,
-    branch: newRisk.value.branch,
+    location_id: newRisk.value.location_id,
+    branch: store.locationName(newRisk.value.location_id),
     assessments: [
       {
         year: store.selectedYear,
@@ -743,27 +791,16 @@ function submitNewRisk() {
     ]
   }
 
-  store.addRisk(payload)
-  toast.showSuccess(t('riskProfile.toasts.riskAdded', { name: newRisk.value.name }))
+  const ok = await store.addRisk(payload)
+  if (!ok) {
+    // Keep the modal open with the user's input so they can fix and retry.
+    toast.showError(store.errorMsg || t('riskProfile.toasts.saveFailed'))
+    return
+  }
+  toast.showSuccess(t('riskProfile.toasts.riskAdded', { name: payload.name }))
   
   // Reset form
-  newRisk.value = {
-    name: '',
-    category: 'Strategic',
-    impact: 3,
-    likelihood: 3,
-    severity: 50,
-    description: '',
-    branch: 'Head Office',
-    impact_q1: 3,
-    impact_q2: 3,
-    impact_q3: 3,
-    impact_q4: 3,
-    likelihood_q1: 3,
-    likelihood_q2: 3,
-    likelihood_q3: 3,
-    likelihood_q4: 3
-  }
+  newRisk.value = emptyNewRisk()
   isAddModalOpen.value = false
 }
 
@@ -778,10 +815,14 @@ const selectedBranch = computed({
   set: (val) => store.selectedBranch = val
 })
 
-const filteredRisks = computed(() => {
-  if (selectedBranch.value === 'All Branches' || selectedBranch.value === t('riskProfile.allBranches')) return risks.value
-  return risks.value.filter(r => r.branch === selectedBranch.value)
-})
+// Filtering by location_id lives in the store (store.filteredRisks).
+const filteredRisks = computed(() => store.filteredRisks)
+
+const emptyDescText = computed(() =>
+  store.selectedYear > new Date().getFullYear()
+    ? t('riskProfile.emptyDesc')
+    : t('riskProfile.emptyDescNoData')
+)
 
 const totalRisks = computed(() => filteredRisks.value.length)
 
@@ -801,7 +842,22 @@ const priorityRisks = computed(() => {
 
 const priorityCount = computed(() => priorityRisks.value.length)
 
-const branchOptions = computed(() => [t('riskProfile.allBranches'), ...store.branches])
+// Branch filter: "All", the active Location master rows, and "Unassigned" only
+// while some risks have no location. Never a hardcoded branch list.
+const branchOptions = computed(() => [
+  { label: t('riskProfile.allBranches'), value: ALL_BRANCHES },
+  ...locationOptions.value,
+  ...(store.hasUnassignedRisks ? [{ label: t('riskProfile.unassignedBranch'), value: UNASSIGNED_BRANCH }] : [])
+])
+
+// Drop a selection that is no longer offered (location deactivated, master
+// failed to load, last unassigned risk got a branch).
+watch(branchOptions, (options) => {
+  if (store.branchesLoading) return
+  if (!options.some(o => o.value === selectedBranch.value)) {
+    selectedBranch.value = ALL_BRANCHES
+  }
+})
 
 const tabItems = computed(() => [
   {
@@ -892,8 +948,12 @@ function getQLevelCellStyle(risk, quarter) {
   }
 }
 
-function submitEditRisk() {
-  store.updateRisk(store.selectedRisk);
+async function submitEditRisk() {
+  const ok = await store.updateRisk(store.selectedRisk);
+  if (!ok) {
+    toast.showError(store.errorMsg || t('riskProfile.toasts.saveFailed'));
+    return;
+  }
   toast.showSuccess(t('riskProfile.toasts.riskUpdated'));
   store.isFormOpen = false;
 }
@@ -902,6 +962,8 @@ function handleOpenEditModal(risk) {
   const ast = risk.assessments?.find(a => a.year === store.selectedYear)
   const mappedRisk = {
     ...risk,
+    // Pre-select the master location (rows not linked yet match by branch name)
+    location_id: store.riskLocationId(risk) ?? undefined,
     impact_q1: ast ? ast.impact_q1 : risk.impact,
     impact_q2: ast ? ast.impact_q2 : risk.impact,
     impact_q3: ast ? ast.impact_q3 : risk.impact,
@@ -932,7 +994,7 @@ function onDragLeave() {
   dragOverCell.value = null
 }
 
-function onDrop(e, newLikelihood, newImpact) {
+async function onDrop(e, newLikelihood, newImpact) {
   dragOverCell.value = null
   try {
     const riskDataStr = e.dataTransfer?.getData('application/json')
@@ -941,7 +1003,11 @@ function onDrop(e, newLikelihood, newImpact) {
     const droppedRisk = JSON.parse(riskDataStr)
     if (droppedRisk.likelihood === newLikelihood && droppedRisk.impact === newImpact) return
 
-    store.updateRisk({ ...droppedRisk, likelihood: newLikelihood, impact: newImpact })
+    const ok = await store.updateRisk({ ...droppedRisk, likelihood: newLikelihood, impact: newImpact })
+    if (!ok) {
+      toast.showError(store.errorMsg || t('riskProfile.toasts.positionUpdateFailed'))
+      return
+    }
     
     toast.showSuccess(t('riskProfile.toasts.positionUpdated', { name: droppedRisk.name, l: newLikelihood, i: newImpact, period: store.selectedPeriod }))
   } catch (err) {

@@ -106,6 +106,7 @@ import { computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
+import { formatTestResult } from '~/utils/sampleTestResult'
 
 const { t } = useI18n()
 const store = useWorkingPaperStore()
@@ -124,11 +125,9 @@ const columns = computed(() => [
   { key: 'actions', accessorKey: 'actions', header: t('workingPaper.sampleTable.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
 
-const formatResult = (val: any) => {
-  if (val === true || val === 'Pass' || (typeof val === 'string' && val.toLowerCase() === 'pass')) return 'Pass'
-  if (val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')) return 'Fail'
-  return '-'
-}
+// l1/l2/l3 are booleans from the API (true = Pass, false = Fail, null = not tested); older rows hold
+// 'Pass' / 'Fail' / 'N/A' strings. Both show as Pass / Fail / N/A, and no result as '-'.
+const formatResult = (val: unknown) => formatTestResult(val)
 
 const getSamples = (rowOriginal: any): any[] => {
   if (!rowOriginal?.samples) return []

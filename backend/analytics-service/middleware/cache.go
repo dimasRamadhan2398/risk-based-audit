@@ -13,7 +13,11 @@ import (
 // CacheConfig defines cache parameters for analytics endpoints
 type CacheConfig struct {
 	MaxAge   int    // Time-to-live in seconds
-	IsPublic bool   // Whether cache is public or private
+	// IsPublic controls the Cache-Control visibility token. Keep this false for
+	// anything behind authentication: "public" lets Kong proxy-cache, a CDN or
+	// any shared proxy store the response and replay it to a caller who never
+	// presented a token. Every route below is authenticated, so all are private.
+	IsPublic bool
 	VaryBy   string // Vary header value (e.g., "Accept-Encoding")
 }
 
@@ -22,109 +26,109 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 	// Core Analytics Endpoints
 	"GET /api/analytics/report": {
 		MaxAge:   300, // 5 minutes - dashboard summary
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/predict": {
 		MaxAge:   600, // 10 minutes - trend predictions
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/risk-score": {
 		MaxAge:   300, // 5 minutes - risk calculations
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"POST /api/analytics/risk-score": {
 		MaxAge:   300, // 5 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/risk-score/batch": {
 		MaxAge:   300, // 5 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/anomaly": {
 		MaxAge:   600, // 10 minutes - anomaly detection
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"POST /api/analytics/anomaly": {
 		MaxAge:   600,
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/anomaly/batch": {
 		MaxAge:   600,
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/text-analysis": {
 		MaxAge:   300, // 5 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"POST /api/analytics/text-analysis": {
 		MaxAge:   300,
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/text-analysis/batch": {
 		MaxAge:   300,
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/performance-trend": {
 		MaxAge:   300, // 5 minutes - performance metrics
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"POST /api/analytics/performance-trend": {
 		MaxAge:   300,
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/performance-trend/batch": {
 		MaxAge:   300,
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	// CAATT Analytics - lower change frequency
 	"GET /api/analytics/caatt/full-population": {
 		MaxAge:   1800, // 30 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/duplicate-gap": {
 		MaxAge:   1800, // 30 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/benford": {
 		MaxAge:   1800, // 30 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/stratification": {
 		MaxAge:   1800, // 30 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/reconciliation": {
 		MaxAge:   1800, // 30 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/policy-violations": {
 		MaxAge:   1800, // 30 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/data-quality": {
 		MaxAge:   1800, // 30 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 }
 
@@ -201,6 +205,7 @@ func ResponseCache() gin.HandlerFunc {
 }
 
 // SetCacheControl is a helper to set cache headers for a specific response
+// Callers behind authentication must pass isPublic=false; see CacheConfig.IsPublic.
 func SetCacheControl(c *gin.Context, maxAge int, isPublic bool) {
 	visibility := "public"
 	if !isPublic {
@@ -208,7 +213,7 @@ func SetCacheControl(c *gin.Context, maxAge int, isPublic bool) {
 	}
 
 	c.Header("Cache-Control", fmt.Sprintf("%s, max-age=%d", visibility, maxAge))
-	c.Header("Vary", "Accept-Encoding")
+	c.Header("Vary", "Accept-Encoding, Authorization")
 	c.Header("Last-Modified", time.Now().UTC().Format(http.TimeFormat))
 	c.Header("Expires", time.Now().Add(time.Duration(maxAge)*time.Second).UTC().Format(http.TimeFormat))
 }

@@ -139,7 +139,9 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       dateVal = dateVal.split('T')[0]
     }
 
-    const findingsArr = item.findings || item.Findings || []
+    const rawFindings = item.findings || item.Findings
+    const hasFindingsArray = Array.isArray(rawFindings)
+    const findingsArr = hasFindingsArray ? rawFindings : []
 
     // Map legacy severity to category
     const mappedFindings = findingsArr.map((f: any) => ({
@@ -154,7 +156,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     return {
       ...item,
       reportNumber: item.reportNumber || item.report_number || defaultDynamicNum,
-      findingsCount: item.findingsCount || item.findings_count || mappedFindings.length || 0,
+      // When the findings are loaded, count them: a stored findingsCount can be stale
+      // after findings were edited. Only reports returned without a findings array
+      // fall back to the stored count.
+      findingsCount: hasFindingsArray
+        ? mappedFindings.length
+        : Number(item.findingsCount ?? item.findings_count ?? 0) || 0,
       findings: mappedFindings,
       reportDate: finalReportDate,
       companyId: item.companyId || item.company_id || '',
@@ -447,7 +454,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     formErrors.assignmentLetterId = ''
     Object.assign(reportForm, {
       reportNumber: generateReportNumber(defaultDate),
-      assignmentLetterId: selectedAssignmentLetter.value || 'ST-001/SKAI/2026',
+      // No default letter: without a selection the field stays empty and saveReport asks for one.
+      assignmentLetterId: selectedAssignmentLetter.value || '',
       reportTitle: '',
       reportDate: defaultDate,
       status: 'Draft',

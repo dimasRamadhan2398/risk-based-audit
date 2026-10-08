@@ -651,7 +651,6 @@
       "selectYear": "Pilih Tahun",
       "selectQuartal": "Pilih Kuartal",
       "reset": "Reset Filter",
-      "allObjectives": "Semua Strategic Objective",
       "allTypes": "Semua Jenis",
       "yearly": "Tahunan",
       "quartal": "Kuartal",
@@ -680,8 +679,6 @@
     },
     "form": {
       "title": "Tambahkan Informasi Strategic Objective",
-      "corporateGoal": "Goal Korporat",
-      "selectCorporateGoal": "Pilih Goal Korporat",
       "code": "ID Strategic Objective",
       "codePlaceholder": "Contoh: SO-IA01",
       "objective": "Strategic Objective",
@@ -1167,6 +1164,12 @@
     "likelihoodLevel": "Tingkat Kemungkinan",
     "impactLevel": "Tingkat Dampak",
     "allBranches": "Semua Cabang",
+    "unassignedBranch": "Belum Ditentukan",
+    "selectBranch": "Pilih cabang",
+    "branchesLoadError": "Gagal memuat data cabang dari master Lokasi.",
+    "noBranches": "Belum ada cabang aktif di master Lokasi.",
+    "risksLoadError": "Gagal memuat data risiko",
+    "retry": "Coba Lagi",
     "addModal": {
       "title": "Tambah Kejadian Risiko",
       "desc": "Tentukan kejadian risiko baru dan penilaian awal kuartalannya.",
@@ -1199,6 +1202,7 @@
     },
     "emptyTitle": "Belum ada data risiko untuk tahun {year}",
     "emptyDesc": "Data risiko 3 tahun ke depan dikosongkan dan harus diinput oleh user.",
+    "emptyDescNoData": "Belum ada risiko yang terdaftar. Tambahkan risiko untuk memulai.",
     "detailModal": {
       "title": "Detail Risiko - {id}",
       "desc": "Tampilan komprehensif dari kejadian risiko dan penilaiannya.",
@@ -1244,7 +1248,8 @@
       "riskAdded": "Risiko Ditambahkan",
       "riskAddedDesc": "Berhasil menambahkan risiko baru: {name}",
       "riskUpdated": "Risiko Diperbarui",
-      "riskUpdatedDesc": "Berhasil memperbarui detail risiko."
+      "riskUpdatedDesc": "Berhasil memperbarui detail risiko.",
+      "saveFailed": "Gagal menyimpan risiko. Silakan coba lagi."
     }
   },
   "analytics": {
@@ -2568,6 +2573,8 @@
       "resetFilter": "Reset Filter",
       "editTarget": "Ubah Target KPI",
       "editUnavailable": "Berasal dari laporan kinerja yang diunggah; ubah di sana",
+      "deleteTarget": "Hapus Target KPI",
+      "deleteUnavailable": "Berasal dari laporan kinerja yang diunggah; tidak dapat dihapus di sini",
       "showing": "Menampilkan {from}-{to} dari {total}",
       "showingNone": "Tidak ada data untuk ditampilkan",
       "rowsPerPage": "Baris per halaman",

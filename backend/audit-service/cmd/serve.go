@@ -95,6 +95,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 		&models.FieldworkInterview{},
 		&models.FieldworkObservation{},
 		&models.FieldworkDocument{},
+		// Activity ID counter (pkg/activitycode); created here too so a deploy
+		// that skips migrate/seed does not break creating activities.
+		&models.ActivityCodeSequence{},
 	)
 
 	// Ensure population column in working_paper_samples is varchar(255)
@@ -128,8 +131,13 @@ func runServe(cmd *cobra.Command, args []string) error {
 	auditActivityRepo := repositories.NewAuditActivityRepository(baseRepo)
 
 	// Initialize Media Provider
+	// Priority: ImageKit (env) → GDrive (config) → Local
 	var mediaProvider media.MediaProvider
-	if cfg.GDrive.Enabled {
+	if cfg.ImageKit.PrivateKey != "" && cfg.ImageKit.UrlEndpoint != "" {
+		mediaProvider = media.NewImageKitProvider(&cfg.ImageKit)
+		logger.Info("Using ImageKit as media provider",
+			logger.LogField("endpoint", cfg.ImageKit.UrlEndpoint))
+	} else if cfg.GDrive.Enabled {
 		var err error
 		mediaProvider, err = media.NewGDriveProvider(&cfg.GDrive)
 		if err != nil {

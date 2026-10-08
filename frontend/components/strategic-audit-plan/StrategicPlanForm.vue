@@ -25,19 +25,7 @@
               :description="store.formError"
             />
 
-            <!-- Link to Goal -->
-            <UFormField v-if="vmgStore.activeVmg?.goals?.length" :label="t('strategicPlan.form.corporateGoal')" required>  
-              <USelectMenu
-                v-model="store.form.goalId"
-                :items="goalOptions"
-                value-key="value"
-                :placeholder="t('strategicPlan.form.selectCorporateGoal')"
-                class="w-full"
-                required
-              />
-            </UFormField>
-
-            <!-- Strategic Objective -->
+            <!-- Strategic Objective (no goal picker: the store links a new plan to the single corporate goal on save) -->
             <UFormField :label="t('strategicPlan.form.objective')" required>
               <UTextarea
                 v-model="store.form.strategicObjective"
@@ -170,7 +158,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
-import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
 import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
 import { STRATEGIC_PLAN_CATEGORIES } from '~/utils/strategicPlanPayload'

@@ -117,7 +117,7 @@ upstreams:
   # AUTH SERVICE UPSTREAM
   # ============================================================
   - name: auth-service-upstream
-    algorithm: round_robin
+    algorithm: round-robin
     slots: 10
     healthchecks:
       active:
@@ -147,7 +147,7 @@ upstreams:
   # AUDIT SERVICE UPSTREAM (Dashboard Heavy)
   # ============================================================
   - name: audit-service-upstream
-    algorithm: least_connections
+    algorithm: least-connections
     slots: 20
     healthchecks:
       active:
@@ -177,7 +177,7 @@ upstreams:
   # MASTER SERVICE UPSTREAM (Dashboard Lookups)
   # ============================================================
   - name: master-service-upstream
-    algorithm: round_robin
+    algorithm: round-robin
     slots: 15
     healthchecks:
       active:
@@ -207,7 +207,7 @@ upstreams:
   # RISK SERVICE UPSTREAM
   # ============================================================
   - name: risk-service-upstream
-    algorithm: round_robin
+    algorithm: round-robin
     slots: 10
     healthchecks:
       active:
@@ -237,7 +237,7 @@ upstreams:
   # ANALYTICS SERVICE UPSTREAM (Dashboard Critical)
   # ============================================================
   - name: analytics-service-upstream
-    algorithm: least_connections
+    algorithm: least-connections
     slots: 25
     healthchecks:
       active:
@@ -267,7 +267,7 @@ upstreams:
   # PYTHON AI SERVICE UPSTREAM
   # ============================================================
   - name: python-ai-upstream
-    algorithm: round_robin
+    algorithm: round-robin
     slots: 10
     healthchecks:
       active:
@@ -305,7 +305,9 @@ services:
   # ==========================================================
 
   - name: auth-service
-    upstream: auth-service-upstream
+    host: auth-service-upstream
+    protocol: http
+    port: 8001
 
     routes:
 
@@ -329,7 +331,12 @@ services:
   # ==========================================================
 
   - name: auth-service-legacy-mfa
-    upstream: auth-service-upstream
+    host: auth-service-upstream
+    protocol: http
+    port: 8001
+    # strip_path below removes /api/mfa, so the service must re-add the real
+    # prefix or requests arrive at the upstream as bare /<rest>.
+    path: /api/v1/mfa
 
     routes:
 
@@ -346,7 +353,10 @@ services:
   # ==========================================================
 
   - name: auth-service-legacy-devices
-    upstream: auth-service-upstream
+    host: auth-service-upstream
+    protocol: http
+    port: 8001
+    path: /api/v1/devices
 
     routes:
 
@@ -363,7 +373,9 @@ services:
   # ==========================================================
 
   - name: audit-service
-    upstream: audit-service-upstream
+    host: audit-service-upstream
+    protocol: http
+    port: 8001
 
     routes:
 
@@ -450,11 +462,17 @@ services:
           # Cache on audit-service is optimized for fieldwork with short TTL (5 min)
           - name: proxy-cache
             config:
+              strategy: memory
               content_type:
                 - application/json
               cache_ttl: 300
               cache_control: true
+              # Authorization MUST stay in the cache key. Kong has no jwt/key-auth
+              # plugin here, so a cache hit is served without ever reaching the
+              # upstream auth middleware - dropping it leaks authenticated
+              # responses to anonymous callers.
               vary_headers:
+                - Authorization
                 - Accept-Encoding
 
 
@@ -463,7 +481,9 @@ services:
   # ==========================================================
 
   - name: master-service
-    upstream: master-service-upstream
+    host: master-service-upstream
+    protocol: http
+    port: 8002
 
     routes:
 
@@ -488,11 +508,17 @@ services:
         plugins:
           - name: proxy-cache
             config:
+              strategy: memory
               content_type:
                 - application/json
               cache_ttl: 600
               cache_control: true
+              # Authorization MUST stay in the cache key. Kong has no jwt/key-auth
+              # plugin here, so a cache hit is served without ever reaching the
+              # upstream auth middleware - dropping it leaks authenticated
+              # responses to anonymous callers.
               vary_headers:
+                - Authorization
                 - Accept-Encoding
 
 
@@ -501,7 +527,9 @@ services:
   # ==========================================================
 
   - name: risk-service
-    upstream: risk-service-upstream
+    host: risk-service-upstream
+    protocol: http
+    port: 8002
 
     routes:
 
@@ -522,11 +550,17 @@ services:
         plugins:
           - name: proxy-cache
             config:
+              strategy: memory
               content_type:
                 - application/json
               cache_ttl: 300
               cache_control: true
+              # Authorization MUST stay in the cache key. Kong has no jwt/key-auth
+              # plugin here, so a cache hit is served without ever reaching the
+              # upstream auth middleware - dropping it leaks authenticated
+              # responses to anonymous callers.
               vary_headers:
+                - Authorization
                 - Accept-Encoding
 
 
@@ -535,7 +569,9 @@ services:
   # ==========================================================
 
   - name: analytics-service
-    upstream: analytics-service-upstream
+    host: analytics-service-upstream
+    protocol: http
+    port: 8084
 
     routes:
 
@@ -570,14 +606,20 @@ services:
           # Most dashboard endpoints are idempotent GET requests
           - name: proxy-cache
             config:
+              strategy: memory
               content_type:
                 - application/json
               cache_ttl: 600  # 10 minutes for dashboard aggregates
               cache_control: true
+              # Authorization MUST stay in the cache key. Kong has no jwt/key-auth
+              # plugin here, so a cache hit is served without ever reaching the
+              # upstream auth middleware - dropping it leaks authenticated
+              # responses to anonymous callers.
               vary_headers:
+                - Authorization
                 - Accept-Encoding
               response_headers:
-                - X-Cache
+                X-Cache-Status: true
 
       - name: analytics-routes-retrain
 
@@ -601,7 +643,9 @@ services:
   # ==========================================================
 
   - name: python-ai-service
-    upstream: python-ai-upstream
+    host: python-ai-upstream
+    protocol: http
+    port: 8000
 
     routes:
 

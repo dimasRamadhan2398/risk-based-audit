@@ -24,6 +24,15 @@ export const buildStrategicPlanPayload = (form: Partial<StrategicAuditPlan>): Pa
   return body as Partial<StrategicAuditPlan>
 }
 
+/**
+ * goalId for a new plan: there is one corporate goal and no picker, so it is the first goal of the
+ * active VMG, by id or else goal_code (the convention the old goal picker used). "" when there is none.
+ */
+export const defaultStrategicPlanGoalId = (goals?: ReadonlyArray<{ id?: string, goal_code?: string }> | null): string => {
+  const goal = goals?.[0]
+  return goal?.id || goal?.goal_code || ''
+}
+
 /** The form fields of a loaded plan, for editing; a missing category becomes "". */
 export const strategicPlanFormFromPlan = (plan: Partial<StrategicAuditPlan>): Partial<StrategicAuditPlan> => {
   const form: Record<string, unknown> = { id: plan.id }

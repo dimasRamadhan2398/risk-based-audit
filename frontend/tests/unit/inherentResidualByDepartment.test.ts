@@ -135,11 +135,15 @@ describe('RCM store exposes the chart series', () => {
     expect(rows.find((r) => r.name === 'Head Office').residualRisk).toBe(3.5)
   })
 
-  it('produces a bar per department for the seeded CRP data, none of them empty', async () => {
+  it('produces a bar per department for the CRP data from the API, none of them empty', async () => {
+    // The store loads its risks on creation from the API (no seed fallback).
+    ;(global.$fetch as any).mockImplementation(async (url: string) =>
+      String(url).includes('/risks') ? { success: true, data: crpRisks } : { success: true, data: [] }
+    )
     const riskStore = useRiskProfileStore()
     const rcmStore = useRCMStore()
+    rcmStore.selectedYear = 2026
 
-    // The store loads its risks on creation (API, falling back to seed data).
     await vi.waitFor(() => expect(riskStore.rawRisks.length).toBeGreaterThan(0))
 
     const rows = rcmStore.inherentVsResidualByDepartment

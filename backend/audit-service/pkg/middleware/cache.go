@@ -13,7 +13,11 @@ import (
 // CacheConfig defines cache parameters for a route
 type CacheConfig struct {
 	MaxAge   int    // Time-to-live in seconds
-	IsPublic bool   // Whether cache is public or private
+	// IsPublic controls the Cache-Control visibility token. Keep this false for
+	// anything behind authentication: "public" lets Kong proxy-cache, a CDN or
+	// any shared proxy store the response and replay it to a caller who never
+	// presented a token. Every route below is authenticated, so all are private.
+	IsPublic bool
 	VaryBy   string // Vary header value (e.g., "Accept-Encoding")
 }
 
@@ -22,49 +26,49 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 	// Audit Result Reports - dashboard data
 	"GET /api/v1/audit-result-reports/recent-findings": {
 		MaxAge:   60,  // 1 minute - updated frequently
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/v1/audit-result-reports/auto-findings": {
 		MaxAge:   300, // 5 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	// Annual Audit Plans
 	"GET /api/v1/annual-audit-plans": {
 		MaxAge:   600, // 10 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	// Assignments
 	"GET /api/v1/audit-assignments": {
 		MaxAge:   300, // 5 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	// Activities
 	"GET /api/v1/audit-activities": {
 		MaxAge:   300, // 5 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	// Strategic Plans
 	"GET /api/v1/strategic-plans": {
 		MaxAge:   600, // 10 minutes
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	// Audit Charters
 	"GET /api/v1/audit-charters": {
 		MaxAge:   1800, // 30 minutes - stable data
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	// Audit Mandates
 	"GET /api/v1/audit-mandates": {
 		MaxAge:   1800, // 30 minutes - stable data
-		IsPublic: true,
-		VaryBy:   "Accept-Encoding",
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
 	},
 }
 
@@ -129,6 +133,7 @@ func ResponseCache() gin.HandlerFunc {
 }
 
 // SetCacheControl is a helper to set cache headers for a specific response
+// Callers behind authentication must pass isPublic=false; see CacheConfig.IsPublic.
 func SetCacheControl(c *gin.Context, maxAge int, isPublic bool) {
 	visibility := "public"
 	if !isPublic {
@@ -136,7 +141,7 @@ func SetCacheControl(c *gin.Context, maxAge int, isPublic bool) {
 	}
 
 	c.Header("Cache-Control", fmt.Sprintf("%s, max-age=%d", visibility, maxAge))
-	c.Header("Vary", "Accept-Encoding")
+	c.Header("Vary", "Accept-Encoding, Authorization")
 	c.Header("Last-Modified", time.Now().UTC().Format(http.TimeFormat))
 	c.Header("Expires", time.Now().Add(time.Duration(maxAge)*time.Second).UTC().Format(http.TimeFormat))
 }

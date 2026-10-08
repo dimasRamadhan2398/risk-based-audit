@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"risk-service/controllers"
 	"risk-service/middleware"
 	"risk-service/models"
 	"risk-service/pkg/database"
+	"risk-service/pkg/masterclient"
 	"risk-service/repositories"
 	"risk-service/routes"
 	"risk-service/services"
@@ -125,7 +127,16 @@ func runServe(cmd *cobra.Command, args []string) error {
 	riskRepo := repositories.NewRiskRepository(db)
 	mitigationRepo := repositories.NewMitigationRepository(db)
 
-	riskServ := services.NewRiskService(riskRepo)
+	// Branches on the Corporate Risk Profile come from this stack's Location
+	// master (master-service), never from a hardcoded list.
+	locationClient := masterclient.NewClient(
+		cfg.MasterService.BaseURL(),
+		time.Duration(cfg.MasterService.TimeoutSeconds)*time.Second,
+		time.Duration(cfg.MasterService.CacheTTLSeconds)*time.Second,
+	)
+	log.Printf("Location master: %s/api/v1/locations", locationClient.BaseURL())
+
+	riskServ := services.NewRiskService(riskRepo, locationClient)
 	mitigationServ := services.NewMitigationService(mitigationRepo)
 
 	riskCtrl := controllers.NewRiskController(riskServ)

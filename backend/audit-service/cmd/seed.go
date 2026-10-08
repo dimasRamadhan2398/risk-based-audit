@@ -228,6 +228,7 @@ func runMigrations(db *gorm.DB) error {
 		&models.AuditAnnual{},
 		&models.ActivityPlan{},
 		&models.AuditActivity{},
+		&models.ActivityCodeSequence{},
 		&models.StrategicPlan{},
 		&models.AssignmentLetter{},
 		&models.AuditExecution{},
@@ -2053,8 +2054,8 @@ func seedActivityPlans(db *gorm.DB) error {
 				ApprovalDate:     "2025-12-20",
 			},
 			PlannedActivities: []models.PlannedActivity{
-				{ID: "act-1", AuditName: "Audit Pengeluaran Kas", Auditee: "Kasir & Keuangan", Category: "ASSURANCE", RiskName: "Fraud Kas", RiskLevel: "High", Duration: 15, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-01-15", BudgetEstimation: 10000000},
-				{ID: "act-2", AuditName: "Audit Rekonsiliasi Bank", Auditee: "Departemen Akuntansi", Category: "ASSURANCE", RiskName: "Selisih Rekonsiliasi", RiskLevel: "Medium", Duration: 10, Priority: "P2", NumberOfAuditors: 1, EstimatedSchedule: "2026-02-10", BudgetEstimation: 5000000},
+				{ID: "act-1", ActivityCode: "ASR-2026-004", AuditName: "Audit Pengeluaran Kas", Auditee: "Kasir & Keuangan", Category: "ASSURANCE", RiskName: "Fraud Kas", RiskLevel: "High", Duration: 15, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-01-15", BudgetEstimation: 10000000},
+				{ID: "act-2", ActivityCode: "ASR-2026-005", AuditName: "Audit Rekonsiliasi Bank", Auditee: "Departemen Akuntansi", Category: "ASSURANCE", RiskName: "Selisih Rekonsiliasi", RiskLevel: "Medium", Duration: 10, Priority: "P2", NumberOfAuditors: 1, EstimatedSchedule: "2026-02-10", BudgetEstimation: 5000000},
 			},
 			ResourceAuditors: []models.ResourceAuditor{
 				{ID: "aud-1", Name: "Zeta Ramadhani", Position: "Lead Auditor", Competence: "Finance & Accounting", Availability: "100%"},
@@ -2083,8 +2084,8 @@ func seedActivityPlans(db *gorm.DB) error {
 				ApprovalDate:     "2026-01-15",
 			},
 			PlannedActivities: []models.PlannedActivity{
-				{ID: "act-3", AuditName: "Audit Akses ERP & Database", Auditee: "IT Infrastructure", Category: "ASSURANCE", RiskName: "Unqualified Access", RiskLevel: "High", Duration: 20, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-04-10", BudgetEstimation: 15000000},
-				{ID: "act-4", AuditName: "Audit Penetrasi & Vulnerability", Auditee: "IT Security Desk", Category: "CONSULTING", RiskName: "Cyber Vulnerability", RiskLevel: "High", Duration: 15, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-05-15", BudgetEstimation: 10000000},
+				{ID: "act-3", ActivityCode: "ASR-2026-006", AuditName: "Audit Akses ERP & Database", Auditee: "IT Infrastructure", Category: "ASSURANCE", RiskName: "Unqualified Access", RiskLevel: "High", Duration: 20, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-04-10", BudgetEstimation: 15000000},
+				{ID: "act-4", ActivityCode: "CNS-2026-001", AuditName: "Audit Penetrasi & Vulnerability", Auditee: "IT Security Desk", Category: "CONSULTING", RiskName: "Cyber Vulnerability", RiskLevel: "High", Duration: 15, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-05-15", BudgetEstimation: 10000000},
 			},
 			ResourceAuditors: []models.ResourceAuditor{
 				{ID: "aud-3", Name: "Andi Firmansyah", Position: "IT Auditor Specialist", Competence: "CISA / Cybersecurity", Availability: "100%"},
@@ -2112,7 +2113,7 @@ func seedActivityPlans(db *gorm.DB) error {
 				ApprovalDate:     "2026-02-05",
 			},
 			PlannedActivities: []models.PlannedActivity{
-				{ID: "act-5", AuditName: "Audit Inventaris Gudang & Logistik", Auditee: "Gudang Pusat", Category: "ASSURANCE", RiskName: "Loss Stock", RiskLevel: "Medium", Duration: 15, Priority: "P2", NumberOfAuditors: 2, EstimatedSchedule: "2026-07-15", BudgetEstimation: 20000000},
+				{ID: "act-5", ActivityCode: "ASR-2026-007", AuditName: "Audit Inventaris Gudang & Logistik", Auditee: "Gudang Pusat", Category: "ASSURANCE", RiskName: "Loss Stock", RiskLevel: "Medium", Duration: 15, Priority: "P2", NumberOfAuditors: 2, EstimatedSchedule: "2026-07-15", BudgetEstimation: 20000000},
 			},
 			ResourceAuditors: []models.ResourceAuditor{
 				{ID: "aud-4", Name: "Rina Wulandari", Position: "Operational Auditor", Competence: "Supply Chain & Operations", Availability: "100%"},
@@ -2224,7 +2225,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		// 2026 Activities
 		{
 			AnnualPlanID: annual2026.ID,
-			ProjectCode:  "ACT-2026-001",
+			ProjectCode:  "ASR-2026-001",
+			AuditType:    "Assurance",
 			Title:        "Audit Keuangan & Pengeluaran Kas Q1 2026",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2026, 1, 15, 0, 0, 0, 0, time.UTC),
@@ -2232,7 +2234,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2026.ID,
-			ProjectCode:  "ACT-2026-002",
+			ProjectCode:  "ASR-2026-002",
+			AuditType:    "Assurance",
 			Title:        "Audit Keamanan IT & Sistem ERP 2026",
 			Status:       "IN_PROGRESS",
 			PlannedStart: time.Date(2026, 4, 1, 0, 0, 0, 0, time.UTC),
@@ -2240,7 +2243,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2026.ID,
-			ProjectCode:  "ACT-2026-003",
+			ProjectCode:  "ASR-2026-003",
+			AuditType:    "Assurance",
 			Title:        "Audit Unit Gudang & Logistik 2026",
 			Status:       "PLANNED",
 			PlannedStart: time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC),
@@ -2250,7 +2254,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		// 2025 Activities
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-001",
+			ProjectCode:  "ASR-2025-001",
+			AuditType:    "Assurance",
 			Title:        "Audit Keuangan & Pembukuan Kas 2025",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2025, 1, 15, 0, 0, 0, 0, time.UTC),
@@ -2258,7 +2263,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-002",
+			ProjectCode:  "ASR-2025-002",
+			AuditType:    "Assurance",
 			Title:        "Audit Pengadaan SCM & Vendor 2025",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
@@ -2266,7 +2272,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-003",
+			ProjectCode:  "ASR-2025-003",
+			AuditType:    "Assurance",
 			Title:        "Audit IT Governance & General Controls 2025",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2025, 7, 1, 0, 0, 0, 0, time.UTC),
@@ -2274,7 +2281,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-004",
+			ProjectCode:  "ASR-2025-004",
+			AuditType:    "Assurance",
 			Title:        "Audit Operasional Cabang & Kepatuhan 2025",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2025, 10, 1, 0, 0, 0, 0, time.UTC),
@@ -2282,7 +2290,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-005",
+			ProjectCode:  "SPC-2025-001",
+			AuditType:    "Special Audit",
 			Title:        "Audit Khusus SDM & Payroll 2025",
 			Status:       "CANCELLED",
 			PlannedStart: time.Date(2025, 11, 1, 0, 0, 0, 0, time.UTC),
@@ -2290,9 +2299,20 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 	}
 
+	// Codes follow the Activity ID format ({type}-{year}-{n}, pkg/activitycode).
+	// Databases seeded before that hold the same rows as ACT-{year}-{n}; match
+	// those too so a re-seed does not add duplicates. Existing codes are not
+	// rewritten.
+	legacyCodes := map[string]string{
+		"ASR-2026-001": "ACT-2026-001", "ASR-2026-002": "ACT-2026-002", "ASR-2026-003": "ACT-2026-003",
+		"ASR-2025-001": "ACT-2025-001", "ASR-2025-002": "ACT-2025-002", "ASR-2025-003": "ACT-2025-003",
+		"ASR-2025-004": "ACT-2025-004", "SPC-2025-001": "ACT-2025-005",
+	}
 	for i := range activities {
 		var count int64
-		db.Model(&models.AuditActivity{}).Where("project_code = ?", activities[i].ProjectCode).Count(&count)
+		db.Unscoped().Model(&models.AuditActivity{}).
+			Where("project_code IN ?", []string{activities[i].ProjectCode, legacyCodes[activities[i].ProjectCode]}).
+			Count(&count)
 		if count == 0 && activities[i].AnnualPlanID != uuid.Nil {
 			if err := db.Create(&activities[i]).Error; err != nil {
 				return err

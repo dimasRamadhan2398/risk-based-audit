@@ -215,6 +215,21 @@ describe('Audit Result Report Store - saveReport requires an assignment letter',
     expect(store.formErrors.assignmentLetterId).toBe(REQUIRED_KEY)
   })
 
+  it('a new report opened with no letter selected gets no default letter and cannot be saved', async () => {
+    const store = useAuditResultReportStore()
+    await Promise.resolve()
+    store.selectedAssignmentLetter = ''
+    await store.openModal()
+    expect(store.reportForm.assignmentLetterId).toBe('')
+    vi.mocked($fetch).mockClear()
+
+    store.reportForm.reportTitle = 'Laporan tanpa surat tugas'
+    await store.saveReport()
+
+    expect($fetch).not.toHaveBeenCalled()
+    expect(store.formErrors.assignmentLetterId).toBe(REQUIRED_KEY)
+  })
+
   it('has the validation message in both locales', async () => {
     const fs = await import('node:fs')
     for (const lang of ['en', 'id']) {

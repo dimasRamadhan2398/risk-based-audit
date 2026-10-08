@@ -15,6 +15,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { toTestResult, toTestResultBoolean } from '~/utils/sampleTestResult'
 import type { StepperItem } from '@nuxt/ui'
 
 import { z } from 'zod'
@@ -677,23 +678,23 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
-  // Helper function to convert TestResult strings to booleans for API submission
+  // The API stores l1/l2/l3 as booleans (true = Pass, false = Fail, null = not tested).
   const convertSampleTestResults = (samples: SampleItem[]) => {
     return samples.map(sample => ({
       ...sample,
-      l1: sample.l1 === 'Pass' ? true : sample.l1 === 'Fail' ? false : null,
-      l2: sample.l2 === 'Pass' ? true : sample.l2 === 'Fail' ? false : null,
-      l3: sample.l3 === 'Pass' ? true : sample.l3 === 'Fail' ? false : null
+      l1: toTestResultBoolean(sample.l1),
+      l2: toTestResultBoolean(sample.l2),
+      l3: toTestResultBoolean(sample.l3)
     }))
   }
 
-  // Helper function to convert boolean values back to TestResult strings for form editing
+  // Back to the form's 'Pass' / 'Fail' / 'N/A' strings; accepts API booleans and older string values.
   const convertBooleanToTestResult = (samples: any[]): SampleItem[] => {
     return samples.map(sample => ({
       ...sample,
-      l1: sample.l1 === true ? 'Pass' : sample.l1 === false ? 'Fail' : undefined,
-      l2: sample.l2 === true ? 'Pass' : sample.l2 === false ? 'Fail' : undefined,
-      l3: sample.l3 === true ? 'Pass' : sample.l3 === false ? 'Fail' : undefined
+      l1: toTestResult(sample.l1),
+      l2: toTestResult(sample.l2),
+      l3: toTestResult(sample.l3)
     }))
   }
 
@@ -1117,7 +1118,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   // Handles both string values (from form) and boolean values (from backend API)
   const checkSampleStatus = (sampel?: Partial<SampleItem>): boolean => {
     if (!sampel) return false
-    const isFail = (val: any) => val === false || val === 'Fail' || (typeof val === 'string' && val.toLowerCase() === 'fail')
+    const isFail = (val: unknown) => toTestResult(val) === 'Fail'
     if (isFail(sampel.l1) || isFail(sampel.l2) || isFail(sampel.l3)) {
       return false
     }
@@ -1247,16 +1248,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       })
     }
 
-    // // 3. Fallback from mockFieldwork
-    // if (fieldworkStore.mockFieldwork) {
-    //   Object.values(fieldworkStore.mockFieldwork).forEach((data: any) => {
-    //     if (Array.isArray(data?.samples)) {
-    //       data.samples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
-    //     }
-    //   })
-    // }
-
-    // 4. Existing documents in sampleForm if editing
+    // 3. Existing documents in sampleForm if editing
     if (sampleForm?.samples) {
       sampleForm.samples.forEach((s: any) => {
         if (s.fieldworkDocument) {
@@ -1265,14 +1257,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       })
     }
 
-    // 5. Default fallback sample items if nothing loaded yet
-    if (list.length === 0) {
-      addOption('Procurement Invoice', 'INV-2025-0988')
-      addOption('Bank Statement Reconciliation', 'BR-2025-12')
-      addOption('Sample log akses superadmin database ERP', 'LOG-ERP-2026-001')
-      addOption('Sample otorisasi pengeluaran barang persediaan', 'GI-2026-044')
-    }
-
+    // Only real fieldwork samples: with none loaded the list is empty (no placeholder documents).
     return list
   })
 

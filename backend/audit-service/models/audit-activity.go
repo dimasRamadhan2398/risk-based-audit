@@ -48,7 +48,13 @@ func (n *LenientNumber) UnmarshalJSON(data []byte) error {
 }
 
 type PlannedActivity struct {
-	ID                string        `json:"id"`
+	// ID is a client-side row key (the form uses Date.now()). It is not shown.
+	ID string `json:"id"`
+	// ActivityCode is the Activity ID, e.g. "ASR-2026-003": audit type code,
+	// plan year, n-th activity of that type in that year. Assigned by the server
+	// (see pkg/activitycode); a value sent by the client is ignored, and the code
+	// is kept when the plan is updated.
+	ActivityCode      string        `json:"activityCode"`
 	AuditName         string        `json:"auditName"`
 	Auditee           string        `json:"auditee"`
 	Category          string        `json:"category"`
@@ -119,6 +125,8 @@ type AuditActivity struct {
 	// Link to Master Data: Which unit is being audited?
 	TargetUnitID uuid.UUID `gorm:"type:uuid;not null;index" json:"target_unit_id"`
 
+	// ProjectCode is the Activity ID ("ASR-2026-003"), generated on create from
+	// AuditType and the annual plan's year and never changed afterwards.
 	ProjectCode     string    `gorm:"type:varchar(50);uniqueIndex;not null" json:"project_code"`
 	Title           string    `gorm:"type:varchar(255);not null" json:"title"`
 	AuditType       string    `gorm:"type:varchar(100)" json:"audit_type"` // e.g., Assurance, Special, Investigation
@@ -150,7 +158,12 @@ func (AuditActivity) TableName() string {
 type CreateActivityPlanRequest struct {
 	AnnualPlanID uuid.UUID `json:"annual_plan_id" binding:"required"`
 	TargetUnitID uuid.UUID `json:"target_unit_id" binding:"required"`
-	ProjectCode  string    `json:"project_code" binding:"required" validate:"required,max=50"`
+	// ProjectCode is accepted for backward compatibility and ignored: the server
+	// generates it from AuditType and the annual plan's year.
+	ProjectCode string `json:"project_code,omitempty" swaggerignore:"true"`
+	// AuditType is the audit category (Assurance, Consulting Services, ...).
+	// Empty gives the generic "AUD" code.
+	AuditType    string    `json:"audit_type" binding:"omitempty,max=100" validate:"omitempty,max=100"`
 	Title        string    `json:"title" binding:"required" validate:"required,max=255"`
 	Objective    string    `json:"objective"`
 	Scope        string    `json:"scope"`
@@ -184,6 +197,7 @@ type ActivityPlanResponse struct {
 	AnnualPlanID string `json:"annual_plan_id"`
 	TargetUnitID string `json:"target_unit_id"`
 	ProjectCode  string `json:"project_code"`
+	AuditType    string `json:"audit_type"`
 	Title        string `json:"title"`
 	Objective    string `json:"objective"`
 	Scope        string `json:"scope"`

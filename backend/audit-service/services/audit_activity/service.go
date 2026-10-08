@@ -8,6 +8,7 @@ import (
 	"audit-service/repositories"
 	"audit-service/services/base"
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -36,10 +37,20 @@ func NewAuditActivityService(repo repositories.AuditActivityRepositoryInterface)
 	}
 }
 
-// CreateActivity creates a new audit activity
+// CreateActivity creates a new audit activity. The project code (Activity ID)
+// is generated: {audit type code}-{annual plan year}-{n}, e.g. ASR-2026-003.
+// A project_code sent by the client is ignored.
 func (s *AuditActivityService) CreateActivity(ctx context.Context, req *models.CreateActivityPlanRequest) (*models.ActivityPlanResponse, error) {
-	if _, err := s.repo.FindByProjectCode(req.ProjectCode); err == nil {
-		return nil, errors.ErrConflict
+	year, err := s.repo.AnnualPlanYear(req.AnnualPlanID)
+	if err != nil {
+		if errors.Is(err, errors.ErrNotFound) {
+			return nil, errors.New(errors.ErrValidation.Code, "Annual plan not found", errors.ErrValidation.StatusCode)
+		}
+		s.LogError("Failed to read annual plan year", logger.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+	if year <= 0 {
+		year = req.PlannedStart.Year()
 	}
 
 	status := req.Status
@@ -50,7 +61,7 @@ func (s *AuditActivityService) CreateActivity(ctx context.Context, req *models.C
 	activity := &models.AuditActivity{
 		AnnualPlanID: req.AnnualPlanID,
 		TargetUnitID: req.TargetUnitID,
-		ProjectCode:  req.ProjectCode,
+		AuditType:    strings.TrimSpace(req.AuditType),
 		Title:        req.Title,
 		Objective:    req.Objective,
 		Scope:        req.Scope,
@@ -59,7 +70,7 @@ func (s *AuditActivityService) CreateActivity(ctx context.Context, req *models.C
 		Status:       status,
 	}
 
-	if err := s.repo.Create(activity); err != nil {
+	if err := s.repo.CreateWithGeneratedCode(activity, year); err != nil {
 		s.LogError("Failed to create audit activity", logger.LogField("error", err))
 		return nil, errors.ErrInternalServer
 	}
@@ -169,6 +180,7 @@ func (s *AuditActivityService) toResponse(activity *models.AuditActivity) *model
 		AnnualPlanID: activity.AnnualPlanID.String(),
 		TargetUnitID: activity.TargetUnitID.String(),
 		ProjectCode:  activity.ProjectCode,
+		AuditType:    activity.AuditType,
 		Title:        activity.Title,
 		Objective:    activity.Objective,
 		Scope:        activity.Scope,

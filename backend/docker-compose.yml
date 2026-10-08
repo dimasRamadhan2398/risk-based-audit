@@ -161,6 +161,7 @@ services:
       - "8002:8001"
     volumes:
       - ./audit-service/pkg/config:/root/pkg/config
+      - audit_uploads:/root/uploads
     command: sh -c "./audit seed && ./audit serve"
     networks:
       - rb_audit_network
@@ -267,6 +268,7 @@ volumes:
   zookeeper_data:
   kafka_data:
   python_ai_models:
+  audit_uploads:
 
 networks:
   rb_audit_network:

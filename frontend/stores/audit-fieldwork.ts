@@ -207,19 +207,22 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
         const samplesList = samplesRes?.data?.items || samplesRes?.items || (Array.isArray(samplesRes) ? samplesRes : [])
         const testControlsList = testControlsRes?.data?.items || testControlsRes?.items || (Array.isArray(testControlsRes) ? testControlsRes : [])
 
-        // Check if any request failed
-        const failedCount = results.filter(r => r.status === 'rejected').length
-        if (failedCount > 0) {
-          console.warn(`${failedCount} fieldwork data requests failed, but continuing with partial results`)
-        }
-
-        // Only what the API returned; an empty response means no records.
+        // Only what the API returned; an empty response (or a failed request) means no records for that list.
         fieldworkData.value[assignmentLetterId] = {
           interviews: Array.isArray(interviewsList) ? interviewsList : [],
           observations: Array.isArray(observationsList) ? observationsList : [],
           documents: Array.isArray(documentsList) ? documentsList : [],
           samples: Array.isArray(samplesList) ? samplesList : [],
           testControls: Array.isArray(testControlsList) ? testControlsList : []
+        }
+
+        // Keep whatever loaded, but a failed request is still an error: set the error state and toast once.
+        const rejected = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        if (rejected.length > 0) {
+          console.error(`${rejected.length} of ${results.length} fieldwork data requests failed:`, rejected.map(r => r.reason))
+          const detail = extractErrorMessage(rejected[0]!.reason, 'Failed to load fieldwork data.')
+          errorMsg.value = detail
+          toast.showError('Failed to load fieldwork data.', detail)
         }
       } catch (error: any) {
         console.error('Failed to fetch fieldwork data:', error)

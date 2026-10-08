@@ -95,6 +95,7 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.AuditAnnual{},
 		&models.ActivityPlan{},
 		&models.AuditActivity{},
+		&models.ActivityCodeSequence{},
 		&models.StrategicPlan{},
 		&models.AssignmentLetter{},
 		&models.AuditExecution{},

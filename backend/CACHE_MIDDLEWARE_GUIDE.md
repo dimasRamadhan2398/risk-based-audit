@@ -420,7 +420,7 @@ For endpoints with complex caching needs:
 
 ```go
 // In the endpoint handler
-middleware.SetCacheControl(c, 300, true)  // 5 minutes, public
+middleware.SetCacheControl(c, 300, false) // 5 minutes, private
 middleware.SetETag(c, customData)         // Custom ETag generation
 ```
 

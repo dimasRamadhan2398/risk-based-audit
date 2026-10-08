@@ -1,19 +1,6 @@
 <template>
   <div class="space-y-4">
-    <!-- Goal Selection Tabs -->
-    <div v-if="vmgStore.activeVmg?.goals?.length" class="flex gap-2 border-b border-[var(--border-main)] pb-2 overflow-x-auto">
-      <UButton
-        v-for="tab in goalTabs"
-        :key="tab.value"
-        :label="tab.label"
-        :variant="selectedGoalId === tab.value ? 'solid' : 'ghost'"
-        :color="selectedGoalId === tab.value ? 'primary' : 'neutral'"
-        size="sm"
-        @click="() => { selectedGoalId = tab.value }"
-      />
-    </div>
-
-    <!-- Advanced Filter Controls Bar -->
+    <!-- Advanced Filter Controls Bar (no goal tabs: there is a single corporate goal, so all objectives are listed) -->
     <UCard variant="soft" class="p-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <!-- Search & Filter Options -->
@@ -153,16 +140,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
-import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
 import type { StrategicAuditPlan } from '~/types/audit'
 import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
-const vmgStore = useVisionMissionGoalsStore()
 
-const selectedGoalId = ref('ALL')
 const searchQuery = ref('')
 const selectedPeriodType = ref('ALL')
 const selectedYear = ref('ALL')
@@ -233,35 +217,16 @@ const formatStatus = (status: string) => {
   return status
 }
 
-const goalTabs = computed(() => {
-  const tabs = [{ label: t('strategicPlan.filters.allObjectives'), value: 'ALL' }]
-  if (vmgStore.activeVmg?.goals) {
-    vmgStore.activeVmg.goals.forEach(g => {
-      tabs.push({
-        label: `${g.goal_code} - ${g.goal_name}`,
-        value: g.id || g.goal_code
-      })
-    })
-  }
-  return tabs
-})
-
 const filteredObjectives = computed(() => {
+  // All objectives, whatever their goalId (there is a single corporate goal)
   let list = store.strategicObjectives
 
-  // 1. Goal Filter
-  if (selectedGoalId.value !== 'ALL') {
-    const activeGoal = vmgStore.activeVmg?.goals?.find(g => g.id === selectedGoalId.value || g.goal_code === selectedGoalId.value)
-    const activeGoalCode = activeGoal?.goal_code
-    list = list.filter(item => item.goalId === selectedGoalId.value || (activeGoalCode && item.goalId === activeGoalCode))
-  }
-
-  // 2. Period Type Filter (Yearly vs Quartal)
+  // 1. Period Type Filter (Yearly vs Quartal)
   if (selectedPeriodType.value !== 'ALL') {
     list = list.filter(item => item.periodType === selectedPeriodType.value)
   }
 
-  // 3. Year Filter
+  // 2. Year Filter
   if (selectedYear.value !== 'ALL') {
     const yStr = selectedYear.value
     list = list.filter(item => {
@@ -275,12 +240,12 @@ const filteredObjectives = computed(() => {
     })
   }
 
-  // 4. Quartal Filter (Q1, Q2, Q3, Q4)
+  // 3. Quartal Filter (Q1, Q2, Q3, Q4)
   if (selectedQuartal.value !== 'ALL') {
     list = list.filter(item => item.selectedPeriod === selectedQuartal.value)
   }
 
-  // 5. Search Query
+  // 4. Search Query
   if (searchQuery.value.trim() !== '') {
     const q = searchQuery.value.toLowerCase()
     list = list.filter(item => {

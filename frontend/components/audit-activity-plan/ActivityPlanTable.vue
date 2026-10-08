@@ -12,6 +12,17 @@
         </div>
       </template>
 
+      <!-- Period: start and end on separate lines so long dates fit the fixed (frozen) column width -->
+      <template #period-cell="{ row }">
+        <div class="flex flex-col leading-snug">
+          <template v-if="periodParts(getOriginal(row).period).length > 1">
+            <span class="whitespace-nowrap">{{ periodParts(getOriginal(row).period)[0] }} –</span>
+            <span class="whitespace-nowrap">{{ periodParts(getOriginal(row).period)[1] }}</span>
+          </template>
+          <span v-else>{{ getOriginal(row).period || '-' }}</span>
+        </div>
+      </template>
+
       <template #riskName-cell="{ row }">
         <div class="flex flex-col gap-1">
           <div 
@@ -105,6 +116,10 @@ const { t } = useI18n()
 const store = useActivityPlanStore()
 const getOriginal = (row: any) => row.original as any
 
+// formatPeriod joins start/end with " - "; split so each date gets its own line.
+const periodParts = (period?: string): string[] =>
+  (period || '').split(' - ').map(p => p.trim()).filter(Boolean)
+
 const columns = computed(() => [
   // First two columns are frozen (sticky) so the rest scrolls horizontally. Fixed widths keep the
   // second column's left offset exact; same pattern as StrategicPlanTable.
@@ -118,7 +133,7 @@ const columns = computed(() => [
   {
     accessorKey: 'period',
     header: t('auditActivityPlan.table.period'),
-    class: 'w-[150px] min-w-[150px] max-w-[150px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal sm:whitespace-nowrap sticky left-[160px] sm:left-[280px] border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+    class: 'w-[150px] min-w-[150px] max-w-[150px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words sticky left-[160px] sm:left-[280px] border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
     thClass: 'z-20 !bg-[var(--bg-surface)]',
     tdClass: 'z-10 bg-[var(--bg-main)]'
   },
