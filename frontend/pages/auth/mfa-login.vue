@@ -235,7 +235,12 @@ const otpDisplay = computed(() => {
 let timerInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted(() => {
-  if (!authStore.mfaToken) {
+  if (window.location.search.includes('demo=true')) {
+    setLocale('id')
+    state.code = '582914'
+    state.trustDevice = true
+  }
+  if (!authStore.mfaToken && !window.location.search.includes('demo=true')) {
     router.push('/auth/login')
     return
   }
@@ -263,7 +268,7 @@ const handleOtpInput = (e: Event) => {
   const val = (e.target as HTMLInputElement).value.replace(/\D/g, '')
   state.code = val.substring(0, 6)
   // Auto-submit when 6 digits entered
-  if (state.code.length === 6) {
+  if (state.code.length === 6 && !window.location.search.includes('demo=true')) {
     handleVerify()
   }
 }

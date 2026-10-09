@@ -83,9 +83,9 @@
             <div class="flex flex-col items-center gap-2 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/40 shadow-sm shrink-0">
               <img v-if="qrCodeDataURL" :src="qrCodeDataURL" alt="MFA QR Code" class="w-44 h-44 rounded-lg border border-gray-200 dark:border-gray-700" />
               <div v-else class="w-44 h-44 flex items-center justify-center text-gray-400 text-sm animate-pulse">
-                Membuat QR Code...
+                {{ t('settings.mfa.generatingQr') }}
               </div>
-              <span class="text-md text-gray-600 dark:text-gray-300 font-medium">Pindai QR Code</span>
+              <span class="text-md text-gray-600 dark:text-gray-300 font-medium">{{ t('settings.mfa.scanQr') }}</span>
             </div>
 
             <!-- Steps -->
@@ -299,8 +299,8 @@ const handleSetup = async () => {
     }
   } catch (err: any) {
     toast.add({
-      title: 'Setup Gagal',
-      description: extractErrorMessage(err, 'Gagal memulai setup MFA.'),
+      title: t('settings.mfa.setupFailedTitle'),
+      description: extractErrorMessage(err, t('settings.mfa.setupFailedDesc')),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
@@ -342,8 +342,8 @@ const handleVerifySetup = async () => {
     await fetchStatus()
   } catch (err: any) {
     toast.add({
-      title: 'Verifikasi Gagal',
-      description: extractErrorMessage(err, 'Kode verifikasi tidak valid.'),
+      title: t('settings.mfa.verifyFailedTitle'),
+      description: extractErrorMessage(err, t('settings.mfa.verifyFailedDesc')),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
@@ -379,8 +379,8 @@ const handleDisable = async () => {
     await fetchStatus()
   } catch (err: any) {
     toast.add({
-      title: 'Gagal Menonaktifkan',
-      description: extractErrorMessage(err, 'Password yang Anda masukkan salah.'),
+      title: t('settings.mfa.disableFailedTitle'),
+      description: extractErrorMessage(err, t('settings.mfa.disableFailedDesc')),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })

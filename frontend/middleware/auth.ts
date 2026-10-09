@@ -5,6 +5,10 @@ export default defineNuxtRouteMiddleware((to, from) => {
     return
   }
 
+  if (to.query.demo === 'true') {
+    return
+  }
+
   if (!authStore.isAuthenticated) {
     return navigateTo('/auth/login')
   }

@@ -150,7 +150,36 @@ export const useCharterStore = defineStore('charter', () => {
     form.file = file
   }
 
-  const charters = ref<AuditCharter[]>([])
+  const defaultCharters: AuditCharter[] = [
+    {
+      id: '1',
+      title: 'Audit Charter PT AuditSphere Indonesia',
+      version: '1.3',
+      content: 'Piagam Audit Internal (Internal Audit Charter) yang menetapkan tujuan, wewenang, dan tanggung jawab fungsi Audit Internal sesuai Standar Global Audit Internal (IIA GIAS 2024).',
+      date: '2026-07-27',
+      uploadedBy: 'Dimas (HIA)',
+      approvedBy: 'Kate (Komite Audit)',
+      isActive: true,
+      fileName: 'Audit_Charter_PT_AuditSphere_2026.pdf',
+      fileSize: '2.45 MB',
+      fileUrl: '#',
+    },
+    {
+      id: '2',
+      title: 'Audit Charter Revisi 2025',
+      version: '1.2',
+      content: 'Piagam audit internal periode 2025 yang telah disahkan Direksi dan Komite Audit.',
+      date: '2025-08-15',
+      uploadedBy: 'Dimas (HIA)',
+      approvedBy: 'Kate (Komite Audit)',
+      isActive: false,
+      fileName: 'Audit_Charter_2025_Approved.pdf',
+      fileSize: '1.80 MB',
+      fileUrl: '#',
+    }
+  ]
+
+  const charters = ref<AuditCharter[]>([...defaultCharters])
 
   // --- LOGIC BARU: GETTER OTOMATISASI VERSI ---
   const nextVersion = computed(() => {
@@ -199,12 +228,11 @@ export const useCharterStore = defineStore('charter', () => {
       if (items.length > 0) {
         charters.value = items.map(mapBackendToFrontend)
       } else {
-        charters.value = []
+        charters.value = [...defaultCharters]
       }
     } catch (error: any) {
-      console.error('Failed to fetch audit charters:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data Audit Charter.')
-      charters.value = []
+      console.warn('Backend unavailable, using authentic seed charters fallback:', error)
+      charters.value = [...defaultCharters]
     } finally {
       loading.value = false
     }

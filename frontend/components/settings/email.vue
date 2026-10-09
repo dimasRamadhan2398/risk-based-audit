@@ -9,44 +9,44 @@
               <UIcon name="i-lucide-mail" class="w-5 h-5" />
             </div>
             <div>
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white">Email Service Dispatcher (Resend API)</h3>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.email.cardTitle') }}</h3>
               <p class="text-sm text-gray-500 dark:text-gray-400">
-                Manage transactional email delivery, provision sending domains, and inspect DNS verification records.
+                {{ t('settings.email.cardSubtitle') }}
               </p>
             </div>
           </div>
           <UBadge color="success" variant="subtle" class="self-start sm:self-auto font-medium">
             <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
-            Resend API Connected
+            {{ t('settings.email.badgeConnected') }}
           </UBadge>
         </div>
       </template>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
         <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60 space-y-1">
-          <span class="text-gray-400 font-medium">Active Dispatcher</span>
+          <span class="text-gray-400 font-medium">{{ t('settings.email.activeDispatcher') }}</span>
           <p class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
             <UIcon name="i-lucide-cloud" class="w-4 h-4 text-primary" />
-            Resend Cloud Engine
+            {{ t('settings.email.cloudEngine') }}
           </p>
-          <span class="text-[11px] text-gray-500">Replaces legacy Mailtrap SMTP</span>
+          <span class="text-[11px] text-gray-500">{{ t('settings.email.replacesLegacy') }}</span>
         </div>
 
         <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60 space-y-1">
-          <span class="text-gray-400 font-medium">Backend Endpoint</span>
+          <span class="text-gray-400 font-medium">{{ t('settings.email.backendEndpoint') }}</span>
           <p class="text-xs font-mono font-bold text-gray-800 dark:text-gray-200 truncate">
             /api/v1/resend/provision
           </p>
-          <span class="text-[11px] text-emerald-600 dark:text-emerald-400">Kong Gateway Proxy Active</span>
+          <span class="text-[11px] text-emerald-600 dark:text-emerald-400">{{ t('settings.email.kongProxyActive') }}</span>
         </div>
 
         <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60 space-y-1">
-          <span class="text-gray-400 font-medium">Delivery Mode</span>
+          <span class="text-gray-400 font-medium">{{ t('settings.email.deliveryMode') }}</span>
           <p class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
             <UIcon name="i-lucide-shield-check" class="w-4 h-4 text-emerald-500" />
-            DKIM & SPF Enforced
+            {{ t('settings.email.dkimSpfEnforced') }}
           </p>
-          <span class="text-[11px] text-gray-500">High deliverability inbox rate</span>
+          <span class="text-[11px] text-gray-500">{{ t('settings.email.highDeliverability') }}</span>
         </div>
       </div>
     </UCard>
@@ -57,36 +57,36 @@
         <div class="flex items-center justify-between">
           <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <UIcon name="i-lucide-globe" class="w-4 h-4 text-primary" />
-            Provision Client Sending Domain
+            {{ t('settings.email.provisionTitle') }}
           </h3>
-          <span class="text-xs text-gray-500">Automatic DNS generation</span>
+          <span class="text-xs text-gray-500">{{ t('settings.email.autoDnsGen') }}</span>
         </div>
       </template>
 
       <form @submit.prevent="handleProvision" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <UFormField label="Client Name" required hint="e.g. Acme Corp">
+          <UFormField :label="t('settings.email.clientName')" required :hint="t('settings.email.clientNameHint')">
             <UInput
               v-model="form.clientName"
-              placeholder="e.g. Acme Corporation"
+              :placeholder="t('settings.email.clientNamePlaceholder')"
               required
               class="w-full"
             />
           </UFormField>
 
-          <UFormField label="Tenant Slug" required hint="Short alphanumeric">
+          <UFormField :label="t('settings.email.tenantSlug')" required :hint="t('settings.email.tenantSlugHint')">
             <UInput
               v-model="form.slug"
-              placeholder="e.g. acme"
+              :placeholder="t('settings.email.tenantSlugPlaceholder')"
               required
               class="w-full font-mono"
             />
           </UFormField>
 
-          <UFormField label="Sending Domain" required hint="Auditsphere or custom">
+          <UFormField :label="t('settings.email.sendingDomain')" required :hint="t('settings.email.sendingDomainHint')">
             <UInput
               v-model="form.domain"
-              placeholder="e.g. acme.auditsphere.id"
+              :placeholder="t('settings.email.sendingDomainPlaceholder')"
               required
               class="w-full font-mono"
             />
@@ -95,7 +95,7 @@
 
         <div class="flex items-center justify-between pt-2">
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Registers domain on Resend and automatically creates a tenant-scoped API key.
+            {{ t('settings.email.provisionDesc') }}
           </p>
           <UButton
             type="submit"
@@ -104,7 +104,7 @@
             :loading="isProvisioning"
             icon="i-lucide-sparkles"
           >
-            Provision Domain via API
+            {{ t('settings.email.provisionButton') }}
           </UButton>
         </div>
       </form>
@@ -117,11 +117,11 @@
           <div class="flex items-center gap-2">
             <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
             <h3 class="text-base font-bold text-gray-900 dark:text-white">
-              Domain Provisioned: {{ provisionResult.domain }}
+              {{ t('settings.email.domainProvisioned', { domain: provisionResult.domain }) }}
             </h3>
           </div>
           <UBadge color="primary" variant="subtle" class="font-mono text-xs">
-            Domain ID: {{ provisionResult.domain_id }}
+            {{ t('settings.email.domainId', { id: provisionResult.domain_id }) }}
           </UBadge>
         </div>
       </template>
@@ -130,7 +130,7 @@
         <!-- Scoped Client API Key Display -->
         <div class="p-3.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3 text-xs">
           <div class="space-y-0.5 min-w-0 flex-1">
-            <span class="text-gray-400 font-medium block">Scoped Tenant API Key</span>
+            <span class="text-gray-400 font-medium block">{{ t('settings.email.scopedApiKey') }}</span>
             <div class="font-mono font-bold text-primary truncate">
               {{ showApiKey ? provisionResult.client_api_key : maskKey(provisionResult.client_api_key) }}
             </div>
@@ -150,7 +150,7 @@
               icon="i-lucide-copy"
               @click="copyText(provisionResult.client_api_key, 'Client API Key')"
             >
-              Copy
+              {{ t('settings.email.copy') }}
             </UButton>
           </div>
         </div>
@@ -160,20 +160,20 @@
           <div class="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-300">
             <span class="flex items-center gap-1.5">
               <UIcon name="i-lucide-list" class="w-4 h-4 text-primary" />
-              Required DNS Records for Verification (DKIM, SPF, MX)
+              {{ t('settings.email.requiredDns') }}
             </span>
-            <span class="text-gray-400 font-normal">Add these records to your DNS provider</span>
+            <span class="text-gray-400 font-normal">{{ t('settings.email.addDnsHint') }}</span>
           </div>
 
           <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
             <table class="w-full text-left text-xs font-mono">
               <thead class="bg-gray-50 dark:bg-gray-800/60 text-gray-500 border-b border-gray-200 dark:border-gray-800">
                 <tr>
-                  <th class="p-3">Type</th>
-                  <th class="p-3">Host / Name</th>
-                  <th class="p-3">Value / Destination</th>
-                  <th class="p-3">Priority</th>
-                  <th class="p-3 text-right">Action</th>
+                  <th class="p-3">{{ t('settings.email.thType') }}</th>
+                  <th class="p-3">{{ t('settings.email.thHostName') }}</th>
+                  <th class="p-3">{{ t('settings.email.thValue') }}</th>
+                  <th class="p-3">{{ t('settings.email.thPriority') }}</th>
+                  <th class="p-3 text-right">{{ t('settings.email.thAction') }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -216,6 +216,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 
+const { t } = useI18n()
 const toast = useToast()
 
 interface DNSRecord {
@@ -255,13 +256,13 @@ const copyText = async (text: string, label: string) => {
       await navigator.clipboard.writeText(text)
     }
     toast.add({
-      title: 'Copied to Clipboard',
-      description: `${label} copied successfully.`,
+      title: t('settings.email.copiedToast'),
+      description: t('settings.email.copiedDesc', { name: label }),
       color: 'success'
     })
   } catch {
     toast.add({
-      title: 'Copied',
+      title: t('settings.email.copiedToast'),
       description: text,
       color: 'success'
     })
@@ -283,15 +284,15 @@ const handleProvision = async () => {
     if (res?.data) {
       provisionResult.value = res.data
       toast.add({
-        title: 'Domain Provisioned',
-        description: `Successfully provisioned ${res.data.domain} via Resend API.`,
+        title: t('settings.email.provisionSuccessToast'),
+        description: t('settings.email.provisionSuccessDesc', { domain: res.data.domain, count: res.data.dns_records?.length || 0 }),
         color: 'success'
       })
     }
   } catch (error: any) {
     toast.add({
-      title: 'Provisioning Failed',
-      description: error?.data?.message || error?.message || 'Failed to call Resend API',
+      title: t('settings.email.provisionFailedToast'),
+      description: error?.data?.message || error?.message || t('settings.email.provisionFailedDesc'),
       color: 'error'
     })
   } finally {

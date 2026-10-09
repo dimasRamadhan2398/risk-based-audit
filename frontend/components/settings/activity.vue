@@ -238,8 +238,8 @@ const handleReleaseConfirm = async () => {
     await loadDevices()
   } catch (err: any) {
     toast.add({
-      title: "Gagal Menghapus",
-      description: err.message || "Gagal menghapus perangkat terpercaya.",
+      title: t('settings.activity.removeFailedTitle'),
+      description: err.message || t('settings.activity.removeFailedDesc'),
       color: "error",
       icon: "i-lucide-alert-triangle",
     })

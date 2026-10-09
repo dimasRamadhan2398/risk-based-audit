@@ -429,7 +429,7 @@
           
           <div v-if="detailFactor" class="p-6 overflow-y-auto space-y-4 flex-1">
             <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-md text-slate-600 dark:text-slate-300 leading-relaxed">
-              <span class="font-semibold text-slate-800 dark:text-slate-200 block mb-0.5">Deskripsi Faktor:</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200 block mb-0.5">{{ t('riskFactors.guidelines.factorDescription') }}</span>
               {{ detailFactor.description || '-' }}
             </div>
             <div class="space-y-2.5">
@@ -778,7 +778,7 @@ const yearlyUniverse = computed(() => auditStore.yearlyUniverse)
 
 const dropdownEntities = computed(() => {
   return auditStore.yearlyUniverse.map(item => ({
-    label: item.corporate_audit_universe?.name || 'Unknown',
+    label: item.corporate_audit_universe?.name || t('common.unknown'),
     value: item.id,
     original: item
   }))
@@ -822,7 +822,7 @@ const removeFactorFromCorporate = (item: any) => {
   selectedCorporateList.value = selectedCorporateList.value.filter(
     i => i.standard_risk_factor_id !== item.standard_risk_factor_id
   )
-  toast.showSuccess('Factor berhasil dihapus')
+  toast.showSuccess(t('riskFactors.messages.factorRemoved'))
 }
 
 const openGuidelines = (factor: any) => {
@@ -899,16 +899,16 @@ const saveEntityScoring = async () => {
 
   const res = await auditStore.scoreYearlyEntity(selectedYear.value, payload)
   if (res) {
-    toast.showSuccess('Skor berhasil disimpan')
+    toast.showSuccess(t('riskFactors.messages.scoresSaved'))
     await fetchYearlyUniverse()
   } else {
-    toast.showError('Skor gagal disimpan')
+    toast.showError(t('riskFactors.messages.scoresSaveFailed'))
   }
 }
 
 const saveChanges = async () => {
   if (!isValidWeightSum.value) {
-    toast.showError(`Jumlah bobot harus 100%, total saat ini: ${totalWeight.value}`)
+    toast.showError(t('riskFactors.messages.weightSumMustBe100', { total: totalWeight.value }))
     return
   }
 
@@ -919,18 +919,18 @@ const saveChanges = async () => {
 
   const success = await store.saveCorporateFactors(payload)
   if (success) {
-    toast.showSuccess('Bobot berhasil disimpan')
+    toast.showSuccess(t('riskFactors.messages.weightsUpdated'))
   } else {
-    toast.showError('Bobot gagal disimpan')
+    toast.showError(t('riskFactors.messages.weightsUpdateFailed'))
   }
 }
 
 const getDefaultScores = () => [
-  { score: 5, desc: 'High – Major contributor to enterprise risk' },
-  { score: 4, desc: 'Medium to High – Significant risk affecting key operations' },
-  { score: 3, desc: 'Medium – Moderate risk exposure with limited enterprise impact' },
-  { score: 2, desc: 'Low to Medium – Low risk operations with minimal impact' },
-  { score: 1, desc: 'Low – Administrative or routine activity with minimal risk' }
+  { score: 5, desc: t('riskFactors.defaultScores.5') },
+  { score: 4, desc: t('riskFactors.defaultScores.4') },
+  { score: 3, desc: t('riskFactors.defaultScores.3') },
+  { score: 2, desc: t('riskFactors.defaultScores.2') },
+  { score: 1, desc: t('riskFactors.defaultScores.1') }
 ]
 
 const openAddFactorModal = () => {
@@ -975,7 +975,7 @@ const openEditFactorModal = (factor: any) => {
 
 const saveFactorForm = async () => {
   if (!factorForm.value.name.trim()) {
-    toast.showError('Name is required')
+    toast.showError(t('riskFactors.messages.nameRequired'))
     return
   }
 
@@ -1013,7 +1013,7 @@ const saveFactorForm = async () => {
       }
     }
   } catch (err: any) {
-    toast.showError(err.message || 'Operation failed')
+    toast.showError(err.message || t('riskFactors.messages.operationFailed'))
   } finally {
     factorSubmitting.value = false
   }
@@ -1045,7 +1045,7 @@ const confirmDeleteFactor = async () => {
       toast.showError(store.errorMsg || t('riskFactors.messages.factorDeleteFailed'))
     }
   } catch (err: any) {
-    toast.showError(err.message || 'Failed to delete')
+    toast.showError(err.message || t('riskFactors.messages.deleteFailed'))
   } finally {
     deleteSubmitting.value = false
   }

@@ -145,7 +145,8 @@
     "no": "Tidak",
     "back": "Kembali",
     "readMore": "Baca selengkapnya",
-    "readLess": "Sembunyikan"
+    "readLess": "Sembunyikan",
+    "unknown": "Tidak Diketahui"
   },
   "auditExecution": {
     "title": "Status Eksekusi Audit",
@@ -293,6 +294,8 @@
       "cancel": "Batal",
       "submitChangePassword": "Ubah Password",
       "successMessage": "Password berhasil diperbarui!",
+      "passwordUpdatedToast": "Password Diperbarui",
+      "passwordChangeFailed": "Gagal mengubah password. Silakan coba lagi.",
       "languageUpdatedToast": "Bahasa Diperbarui",
       "languageSetToast": "Bahasa sistem diatur ke {lang}."
     },
@@ -308,6 +311,7 @@
       "username": "Nama Pengguna",
       "email": "Email",
       "emailHelp": "Email yang terhubung dengan akun Anda.",
+      "emailPlaceholder": "Masukkan email Anda",
       "phone": "Nomor Telepon",
       "phonePlaceholder": "Masukkan nomor telepon Anda",
       "department": "Departemen / Divisi",
@@ -320,7 +324,10 @@
       "toastSuccessTitle": "Profil Diperbarui",
       "toastSuccessDesc": "Informasi profil Anda telah berhasil disimpan ke server.",
       "toastErrorTitle": "Gagal Menyimpan",
-      "toastErrorDesc": "Terjadi kesalahan saat menyimpan profil."
+      "toastErrorDesc": "Terjadi kesalahan saat menyimpan profil.",
+      "unsupportedFormat": "Format tidak didukung. Diterima: {formats}",
+      "fileTooLarge": "File terlalu besar. Ukuran maksimum adalah {size}MB.",
+      "readFileFailed": "Gagal membaca file. Silakan coba lagi."
     },
     "mfa": {
       "title": "Autentikasi Dua Faktor (2FA / MFA)",
@@ -354,7 +361,15 @@
       "enabledToast": "MFA Diaktifkan",
       "enabledDesc": "Autentikasi Dua Faktor berhasil diaktifkan.",
       "disabledToast": "MFA Dinonaktifkan",
-      "disabledDesc": "Autentikasi dua faktor akun Anda telah dinonaktifkan."
+      "disabledDesc": "Autentikasi dua faktor akun Anda telah dinonaktifkan.",
+      "generatingQr": "Membuat QR Code...",
+      "scanQr": "Pindai QR Code",
+      "setupFailedTitle": "Setup Gagal",
+      "setupFailedDesc": "Gagal memulai setup MFA.",
+      "verifyFailedTitle": "Verifikasi Gagal",
+      "verifyFailedDesc": "Kode verifikasi tidak valid.",
+      "disableFailedTitle": "Gagal Menonaktifkan",
+      "disableFailedDesc": "Password yang Anda masukkan salah."
     },
     "activity": {
       "verificationTitle": "Verifikasi Penyimpanan Database",
@@ -384,11 +399,30 @@
       "confirmRemove": "Hapus Akses",
       "cancelRemove": "Batalkan",
       "deviceRemovedToast": "Perangkat Dihapus",
-      "deviceRemovedDesc": "Akses terpercaya untuk perangkat \"{name}\" telah dihapus."
+      "deviceRemovedDesc": "Akses terpercaya untuk perangkat \"{name}\" telah dihapus.",
+      "removeFailedTitle": "Gagal Menghapus",
+      "removeFailedDesc": "Gagal menghapus perangkat terpercaya."
     },
     "permission": {
       "title": "Pengaturan Hak Akses dan Role",
       "subtitle": "Kelola izin spesifik untuk setiap kelompok pengguna di dalam sistem.",
+      "rbacTitle": "Matriks Role-Based Access Control (RBAC) AuditSphere",
+      "rbacSubtitle": "Matriks izin resmi yang menetapkan hak akses dan wewenang operasional di seluruh modul sistem.",
+      "exportMatrix": "Ekspor Matriks",
+      "legendTitle": "Legenda Tingkat Akses",
+      "legendFull": "Akses Penuh (Buat, Baca, Ubah, Hapus, Persetujuan)",
+      "legendLimited": "Tindakan operasional terbatas (Draft, Edit, Tanggapi, Tinjau, dll.)",
+      "legendRead": "Akses Hanya Baca",
+      "legendNone": "Tidak ada akses / Tersembunyi dari navigasi",
+      "searchPlaceholder": "Cari modul atau fitur...",
+      "showingCount": "Menampilkan {count} dari {total} fitur modul",
+      "thModule": "Modul / Fitur Sidebar",
+      "thAdmin": "Admin / CAE",
+      "thManager": "Audit Manager",
+      "thAuditor": "Auditor",
+      "thAuditee": "Auditee / Kepala Dept.",
+      "thViewer": "Viewer",
+      "noMatch": "Tidak ditemukan fitur yang cocok untuk \"{query}\".",
       "currentRole": "Role Saat Ini :",
       "tableModule": "Modul",
       "tableDescription": "Deskripsi",
@@ -534,6 +568,69 @@
         "question": "Apa saja tingkatan tingkat risiko yang ada?",
         "answer": "Tingkat risiko dihitung berdasarkan skor dampak dan probabilitas: Rendah (1-3), Rendah ke Sedang (4-6), Sedang (7-9), Sedang ke Tinggi (10-12), dan Tinggi (13-15)."
       }
+    },
+    "devices": {
+      "title": "Perangkat Terpercaya",
+      "registeredDevices": "Perangkat Terdaftar",
+      "registerNewDevice": "Daftarkan Perangkat Baru",
+      "table": {
+        "device": "Perangkat",
+        "ipAddress": "Alamat IP",
+        "addedOn": "Ditambahkan Pada"
+      },
+      "modal": {
+        "title": "Daftarkan Perangkat",
+        "scanDesc": "Pindai kode QR ini dengan aplikasi seluler Anda untuk mempercayai perangkat ini.",
+        "qrAlt": "QR Pendaftaran",
+        "expiresAt": "Kedaluwarsa pada: {time}"
+      },
+      "errorEnroll": "Gagal mendaftarkan perangkat",
+      "confirmDelete": "Apakah Anda yakin ingin menghapus perangkat terpercaya ini?",
+      "deviceRemoved": "Perangkat berhasil dihapus",
+      "errorRemove": "Gagal menghapus perangkat"
+    },
+    "email": {
+      "cardTitle": "Layanan Pengirim Email (Resend API)",
+      "cardSubtitle": "Kelola pengiriman email transaksional, sediakan domain pengiriman, dan periksa catatan verifikasi DNS.",
+      "badgeConnected": "Resend API Terhubung",
+      "activeDispatcher": "Dispatcher Aktif",
+      "cloudEngine": "Resend Cloud Engine",
+      "replacesLegacy": "Menggantikan SMTP Mailtrap lama",
+      "backendEndpoint": "Endpoint Backend",
+      "kongProxyActive": "Kong Gateway Proxy Aktif",
+      "deliveryMode": "Mode Pengiriman",
+      "dkimSpfEnforced": "DKIM & SPF Diberlakukan",
+      "highDeliverability": "Tingkat penerimaan kotak masuk tinggi",
+      "provisionTitle": "Sediakan Domain Pengiriman Klien",
+      "autoDnsGen": "Pembuatan DNS otomatis",
+      "clientName": "Nama Klien",
+      "clientNameHint": "cth. Acme Corp",
+      "clientNamePlaceholder": "cth. Acme Corporation",
+      "tenantSlug": "Slug Tenant",
+      "tenantSlugHint": "Alfanumerik pendek",
+      "tenantSlugPlaceholder": "cth. acme",
+      "sendingDomain": "Domain Pengiriman",
+      "sendingDomainHint": "Auditsphere atau kustom",
+      "sendingDomainPlaceholder": "cth. acme.auditsphere.id",
+      "provisionDesc": "Mendaftarkan domain di Resend dan otomatis membuat API key dengan cakupan tenant.",
+      "provisionButton": "Sediakan Domain via API",
+      "domainProvisioned": "Domain Disediakan: {domain}",
+      "domainId": "ID Domain: {id}",
+      "scopedApiKey": "API Key Tenant Berlingkup",
+      "copy": "Salin",
+      "requiredDns": "Catatan DNS yang Diperlukan untuk Verifikasi (DKIM, SPF, MX)",
+      "addDnsHint": "Tambahkan catatan ini ke penyedia DNS Anda",
+      "thType": "Tipe",
+      "thHostName": "Host / Nama",
+      "thValue": "Nilai / Tujuan",
+      "thPriority": "Prioritas",
+      "thAction": "Aksi",
+      "copiedToast": "Tersalin",
+      "copiedDesc": "{name} disalin ke papan klip",
+      "provisionSuccessToast": "Domain Disediakan",
+      "provisionSuccessDesc": "Domain {domain} terdaftar dengan {count} catatan verifikasi DNS.",
+      "provisionFailedToast": "Penyediaan Gagal",
+      "provisionFailedDesc": "Gagal menyediakan domain."
     }
   },
   "strategicPlan": {
@@ -787,7 +884,15 @@
       }
     },
     "guidelines": {
-      "modalTitle": "📖 Panduan Skala Penilaian: {name}"
+      "modalTitle": "📖 Panduan Skala Penilaian: {name}",
+      "factorDescription": "Deskripsi Faktor:"
+    },
+    "defaultScores": {
+      "1": "Rendah – Aktivitas administratif atau rutin dengan risiko minimal",
+      "2": "Rendah ke Sedang – Operasional risiko rendah dengan dampak minimal",
+      "3": "Sedang – Paparan risiko moderat dengan dampak perusahaan terbatas",
+      "4": "Sedang ke Tinggi – Risiko signifikan yang mempengaruhi operasional utama",
+      "5": "Tinggi – Kontributor utama terhadap risiko perusahaan"
     },
     "messages": {
       "scoresSaved": "Skor risiko berhasil disimpan dan prioritas telah dihitung.",
@@ -800,7 +905,11 @@
       "factorDeleted": "Faktor risiko standar berhasil dihapus.",
       "factorCreateFailed": "Gagal membuat faktor risiko standar.",
       "factorUpdateFailed": "Gagal memperbarui faktor risiko standar.",
-      "factorDeleteFailed": "Gagal menghapus faktor risiko standar."
+      "factorDeleteFailed": "Gagal menghapus faktor risiko standar.",
+      "factorRemoved": "Faktor berhasil dihapus dari daftar korporat.",
+      "nameRequired": "Nama faktor risiko wajib diisi.",
+      "operationFailed": "Operasi gagal.",
+      "deleteFailed": "Gagal menghapus faktor."
     },
     "scoreLabels": {
       "1": "Rendah (1)",

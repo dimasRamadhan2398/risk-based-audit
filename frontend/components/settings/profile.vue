@@ -56,7 +56,7 @@
           <UInput
             v-model="form.email"
             type="email"
-            placeholder="Enter your email"
+            :placeholder="t('settings.profile.emailPlaceholder')"
             disabled
             size="lg"
             class="w-full bg-gray-50 dark:bg-gray-900"
@@ -351,10 +351,10 @@ function clearStatus() {
 function validateFile(file: File) {
   if (!props.accept.includes(file.type)) {
     const formats = props.accept.map((t) => t.split('/')[1]!.toUpperCase()).join(', ')
-    return `Unsupported format. Accepted: ${formats}`
+    return t('settings.profile.unsupportedFormat', { formats })
   }
   if (file.size > props.mamdizeMB * 1024 * 1024) {
-    return `File too large. Maximum allowed size is ${props.mamdizeMB}MB.`
+    return t('settings.profile.fileTooLarge', { size: props.mamdizeMB })
   }
   return null
 }
@@ -388,7 +388,7 @@ const triggerUpload = () => {
     const reader = new FileReader()
 
     reader.onerror = () => {
-      const msg = 'Failed to read the file. Please try again.'
+      const msg = t('settings.profile.readFileFailed')
       setStatus(msg, true)
       isLoading.value = false
     }
@@ -396,7 +396,7 @@ const triggerUpload = () => {
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const result = e.target?.result
       if (!result || typeof result !== 'string') {
-        const msg = 'Failed to read the file. Please try again.'
+        const msg = t('settings.profile.readFileFailed')
         setStatus(msg, true)
         isLoading.value = false
         return

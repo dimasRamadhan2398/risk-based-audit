@@ -1,4 +1,11 @@
 {
+  "name": "risk-based-audit",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix frontend test"
+  },
   "dependencies": {
     "hostinger-api-mcp": "^1.8.0"
   }
