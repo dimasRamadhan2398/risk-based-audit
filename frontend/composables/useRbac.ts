@@ -11,7 +11,7 @@ export const useRbac = () => {
   const cleanStr = (r: string | UserRole) => String(r || '').toLowerCase().replace(/[\s_-]+/g, '')
   const normalize = (r: string | UserRole) => String(r || '').toLowerCase().trim()
 
-  const getUserRoles = (): string[] => {
+  const getCurrentUser = (): any => {
     let u: any = authStore.user
     if (!u) {
       try {
@@ -27,6 +27,17 @@ export const useRbac = () => {
         } catch {}
       }
     }
+    return u || null
+  }
+
+  /** Auth user id of the logged-in user ('' when unknown). */
+  const getCurrentUserId = (): string => {
+    const id = getCurrentUser()?.id
+    return id ? String(id) : ''
+  }
+
+  const getUserRoles = (): string[] => {
+    const u = getCurrentUser()
     if (!u) return []
 
     const roles: string[] = []
@@ -176,6 +187,31 @@ export const useRbac = () => {
   const canManageAssignmentLetter = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
   const canImportPlanDocs = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE]))
 
+  /**
+   * Action Taken Report (ATR). The backend enforces the same rules; these only decide what the UI shows.
+   * Permission keys assumed (auth-service seeder): view_action_taken_report (view), update_action_taken_report
+   * (PIC: action plan, evidence, submit), plus assign/review/cancel keys still to be confirmed by the backend.
+   * The user object carries roles only, so the checks below are role-based.
+   *  Admin: all | CAE: view all, review, cancel | Audit Manager: view all, assign, review, cancel
+   *  Auditor: view all, assign, review | Auditee/PIC: own items, action plan, evidence, submit
+   */
+  const canViewAllAtr = computed(() => hasAnyRole([
+    UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER, UserRole.AUDITOR, UserRole.AUDIT_STAFF,
+  ]))
+  const canAssignAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.AUDITOR, UserRole.AUDIT_STAFF]))
+  const canReviewAtr = computed(() => hasAnyRole([
+    UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER, UserRole.AUDITOR, UserRole.AUDIT_STAFF,
+  ]))
+  const canCancelAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER]))
+  /** True when the item is assigned to the logged-in user. */
+  const isAtrPic = (item: { pic_user_id?: string | null } | null | undefined): boolean => {
+    const me = getCurrentUserId()
+    return !!me && !!item?.pic_user_id && String(item.pic_user_id) === me
+  }
+  /** The assigned PIC fills the action plan, uploads evidence and submits; admin may act on any item. */
+  const canWorkOnAtr = (item: { pic_user_id?: string | null } | null | undefined): boolean =>
+    isAtrPic(item) || (isAdmin.value && !!item?.pic_user_id)
+
   return {
     hasRole,
     hasAnyRole,
@@ -195,6 +231,13 @@ export const useRbac = () => {
     canManageAssignmentLetter,
     canImportPlanDocs,
     canReviewExecutiveSummary,
+    canViewAllAtr,
+    canAssignAtr,
+    canReviewAtr,
+    canCancelAtr,
+    isAtrPic,
+    canWorkOnAtr,
+    getCurrentUserId,
     primaryRole,
   }
 }

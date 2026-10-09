@@ -143,6 +143,20 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center">
+              <!-- Approved LHA: its findings have ATRs (created by the backend on approval) -->
+              <UTooltip
+                v-if="isLhaApproved(row.original.status)"
+                :text="t('auditResultReport.followUp.tooltip')"
+              >
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  icon="i-lucide-list-checks"
+                  size="sm"
+                  :to="`/action-taken-report?lha=${encodeURIComponent((row.original as any).id)}`"
+                  :label="followUpLabel((row.original as any).id)"
+                />
+              </UTooltip>
               <UTooltip text="Sync Temuan Otomatis dari KKA & Fieldwork">
                 <UButton
                   color="primary"
@@ -177,17 +191,17 @@
         </UTable>
       </UCard>
 
-      <div v-else class="text-center py-16 bg-gray-50 dark:bg-gray-850/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800">
-        <div class="p-4 bg-primary-50 dark:bg-primary-950/40 rounded-full w-fit mx-auto mb-4 text-primary-600">
+      <div v-else class="text-center py-16 bg-secondary-50/40 dark:bg-secondary-950/30 rounded-xl border-2 border-dashed border-secondary-200 dark:border-secondary-900/50">
+        <div class="p-4 bg-secondary-100 dark:bg-secondary-900/40 rounded-full w-fit mx-auto mb-4 text-secondary-600 dark:text-secondary-400">
           <UIcon name="i-heroicons-sparkles" class="size-12" />
         </div>
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Belum Ada Laporan Hasil Audit (LHA)</h3>
-        <p class="text-gray-500 mt-2 max-w-md mx-auto mb-6 text-sm">
+        <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto mb-6 text-sm">
           Belum ada laporan yang dibuat untuk surat tugas ini. Anda dapat membuat laporan dengan temuan audit yang langsung terisi otomatis dari modul KKA dan Fieldwork.
         </p>
         <div class="flex justify-center gap-3">
           <UButton
-            color="primary"
+            color="secondary"
             icon="i-heroicons-sparkles"
             label="Buat Laporan dengan Temuan Otomatis"
             size="lg"
@@ -226,8 +240,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { useI18n } from '~/composables/useI18n'
+import { isLhaApproved } from '~/utils/actionTakenReport'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ResultReportForm from '~/components/audit-result-report/ResultReportForm.vue'
 import ResultReportDetailModal from '~/components/audit-result-report/ResultReportDetailModal.vue'
@@ -239,6 +256,26 @@ const store = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const { canImportPlanDocs } = useRbac()
 const toast = useToastNotification()
+const atrStore = useActionTakenReportStore()
+const { t } = useI18n()
+
+// ATR count per approved LHA for the "View follow-ups (N)" button (null = could not be loaded).
+const atrCounts = ref<Record<string, number | null>>({})
+watch(
+  () => store.filteredReports.filter(r => isLhaApproved(r.status)).map(r => r.id),
+  async (ids) => {
+    for (const id of ids) {
+      if (!id || id in atrCounts.value) continue
+      atrCounts.value[id] = null
+      atrCounts.value[id] = await atrStore.countForLha(id)
+    }
+  },
+  { immediate: true }
+)
+const followUpLabel = (id: string) => {
+  const count = atrCounts.value[id]
+  return typeof count === 'number' ? t('auditResultReport.followUp.view', { count }) : t('auditResultReport.followUp.viewNoCount')
+}
 
 const showDetailModal = ref(false)
 const selectedDetailReport = ref<any>(null)

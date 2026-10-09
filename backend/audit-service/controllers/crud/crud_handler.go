@@ -262,13 +262,25 @@ func writeHookError(c *gin.Context, modelName, action string, err error) {
 	response.InternalServerError(c, "Failed to "+action+" "+modelName+": "+err.Error())
 }
 
+// AfterHook runs inside the write transaction, right after the INSERT or
+// UPDATE. entity is the written record (for updates: the stored record with
+// the written columns applied). Returning an *errors.AppError sends that
+// status; any error rolls the write back.
+type AfterHook func(tx *gorm.DB, entity interface{}) error
+
 // Create creates a new record
 func Create(db *gorm.DB, modelName string, newEntity func() interface{}) gin.HandlerFunc {
-	return CreateWithHook(db, modelName, newEntity, nil)
+	return CreateWithHooks(db, modelName, newEntity, nil, nil)
 }
 
 // CreateWithHook is Create with a hook run in the same transaction as the INSERT.
 func CreateWithHook(db *gorm.DB, modelName string, newEntity func() interface{}, hook CreateHook) gin.HandlerFunc {
+	return CreateWithHooks(db, modelName, newEntity, hook, nil)
+}
+
+// CreateWithHooks is Create with hooks run in the same transaction as the
+// INSERT: before (may change the entity) and after (sees the created row).
+func CreateWithHooks(db *gorm.DB, modelName string, newEntity func() interface{}, before CreateHook, after AfterHook) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		entity := newEntity()
 
@@ -277,12 +289,20 @@ func CreateWithHook(db *gorm.DB, modelName string, newEntity func() interface{},
 			return
 		}
 
-		if hook != nil {
+		if before != nil || after != nil {
 			if err := db.Transaction(func(tx *gorm.DB) error {
-				if err := hook(tx, entity); err != nil {
+				if before != nil {
+					if err := before(tx, entity); err != nil {
+						return err
+					}
+				}
+				if err := tx.Create(entity).Error; err != nil {
 					return err
 				}
-				return tx.Create(entity).Error
+				if after != nil {
+					return after(tx, entity)
+				}
+				return nil
 			}); err != nil {
 				writeHookError(c, modelName, "create", err)
 				return
@@ -302,11 +322,17 @@ func CreateWithHook(db *gorm.DB, modelName string, newEntity func() interface{},
 
 // Update updates an existing record
 func Update(db *gorm.DB, modelName string, newEntity func() interface{}) gin.HandlerFunc {
-	return UpdateWithHook(db, modelName, newEntity, nil)
+	return UpdateWithHooks(db, modelName, newEntity, nil, nil)
 }
 
 // UpdateWithHook is Update with a hook run in the same transaction as the UPDATE.
 func UpdateWithHook(db *gorm.DB, modelName string, newEntity func() interface{}, hook UpdateHook) gin.HandlerFunc {
+	return UpdateWithHooks(db, modelName, newEntity, hook, nil)
+}
+
+// UpdateWithHooks is Update with hooks run in the same transaction as the
+// UPDATE: before (may change the columns) and after (sees the updated record).
+func UpdateWithHooks(db *gorm.DB, modelName string, newEntity func() interface{}, before UpdateHook, after AfterHook) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Param("id")
 		id, err := uuid.Parse(idParam)
@@ -387,12 +413,20 @@ func UpdateWithHook(db *gorm.DB, modelName string, newEntity func() interface{},
 			}
 		}
 
-		if hook != nil {
+		if before != nil || after != nil {
 			if err := db.Transaction(func(tx *gorm.DB) error {
-				if err := hook(tx, existing, snakeData); err != nil {
+				if before != nil {
+					if err := before(tx, existing, snakeData); err != nil {
+						return err
+					}
+				}
+				if err := tx.Model(existing).Updates(snakeData).Error; err != nil {
 					return err
 				}
-				return tx.Model(existing).Updates(snakeData).Error
+				if after != nil {
+					return after(tx, existing)
+				}
+				return nil
 			}); err != nil {
 				writeHookError(c, modelName, "update", err)
 				return

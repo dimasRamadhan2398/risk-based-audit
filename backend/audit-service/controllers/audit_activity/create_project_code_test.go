@@ -12,16 +12,23 @@ import (
 
 	"audit-service/models"
 	"audit-service/pkg/activitycode/sqlitetest"
+	"audit-service/pkg/logger"
 	"audit-service/repositories"
 	svcActivity "audit-service/services/audit_activity"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 func activityRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
 	gin.SetMode(gin.TestMode)
+	// Services log through the global logger; without this an error path panics
+	// and hides the real failure.
+	if logger.Log == nil {
+		logger.Log = zap.NewNop()
+	}
 	db := sqlitetest.Open(t, &models.ActivityCodeSequence{}, &models.AuditAnnual{}, &models.AuditActivity{}, &models.ActivityPlan{})
 	repo := repositories.NewAuditActivityRepository(repositories.NewBaseRepository(db))
 	ctrl := NewAuditActivityController(svcActivity.NewAuditActivityService(repo))
@@ -77,7 +84,7 @@ func TestCreateActivityGeneratesProjectCode(t *testing.T) {
 		extra string
 		want  string
 	}{
-		{plan2026, `, "audit_type": "Assurance"`, "ASR-2026-001"},                               // no project_code
+		{plan2026, `, "audit_type": "Assurance"`, "ASR-2026-001"},                                // no project_code
 		{plan2026, `, "audit_type": "Assurance", "project_code": "MY-OWN-CODE"`, "ASR-2026-002"}, // client value ignored
 		{plan2026, `, "audit_type": "Assurance", "project_code": "ASR-2026-001"`, "ASR-2026-003"},
 		{plan2026, `, "audit_type": "Consulting Services"`, "CNS-2026-001"},

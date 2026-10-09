@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
+import { nextTick } from 'vue'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
@@ -76,5 +77,135 @@ describe('Working Paper Header - Assignment Letter Team Synchronization', () => 
     wpStore.syncFromAssignmentLetter('')
     expect(wpStore.headerForm.teamMembers).toEqual([])
     expect(wpStore.headerForm.auditPurpose).toBe('')
+  })
+})
+
+describe('Working Paper Header - Audit Purpose from Assignment Letter', () => {
+  // Letters created in the UI only fill purposeList; auditPurpose stays empty.
+  const uiCreatedLetter = (overrides: Record<string, any> = {}) => ({
+    id: 'uuid-ui-6',
+    letterNumber: 'ST-006/SKAI/2026',
+    status: 'Published',
+    auditPurpose: '',
+    purposeList: ['Assess cash controls', '  ', 'Review procurement approvals'],
+    membersList: [{ name: 'Sari Dewi', role: 'Chairperson' }],
+    scopeList: [],
+    ccList: [],
+    ...overrides
+  })
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('falls back to purposeList when the letter has no auditPurpose', () => {
+    const letterStore = useAssignmentLetterStore()
+    letterStore.assignmentLetterList.push(uiCreatedLetter() as any)
+    const wpStore = useWorkingPaperStore()
+
+    wpStore.syncFromAssignmentLetter('ST-006/SKAI/2026')
+
+    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls; Review procurement approvals')
+  })
+
+  it('matches the letter by id as well as by letter number', () => {
+    const letterStore = useAssignmentLetterStore()
+    letterStore.assignmentLetterList.push(uiCreatedLetter() as any)
+    const wpStore = useWorkingPaperStore()
+
+    wpStore.syncFromAssignmentLetter('uuid-ui-6')
+
+    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls; Review procurement approvals')
+  })
+
+  it('populates Audit Purpose when opening the create modal for a UI-created letter', () => {
+    const letterStore = useAssignmentLetterStore()
+    letterStore.assignmentLetterList.push(uiCreatedLetter() as any)
+    const fieldworkStore = useAuditFieldworkStore()
+    fieldworkStore.selectedAssignmentLetter = 'ST-006/SKAI/2026'
+    const wpStore = useWorkingPaperStore()
+
+    wpStore.openModalF01()
+
+    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls; Review procurement approvals')
+    expect(wpStore.headerForm.teamMembers.map(m => m.name)).toEqual(['Sari Dewi'])
+  })
+
+  it('does not keep the previous letter purpose when switching to a letter without one', () => {
+    const letterStore = useAssignmentLetterStore()
+    letterStore.assignmentLetterList.push(uiCreatedLetter({ purposeList: [] }) as any)
+    const wpStore = useWorkingPaperStore()
+
+    wpStore.headerForm.assignmentLetterId = 'ST-001/SKAI/2026'
+    expect(wpStore.headerForm.auditPurpose).toBe('Annual Audit')
+
+    wpStore.headerForm.assignmentLetterId = 'ST-006/SKAI/2026'
+    expect(wpStore.headerForm.auditPurpose).toBe('')
+  })
+
+  it('updates Audit Purpose when the assignment letter changes on an open form', () => {
+    const wpStore = useWorkingPaperStore()
+
+    wpStore.headerForm.assignmentLetterId = 'ST-001/SKAI/2026'
+    wpStore.headerForm.assignmentLetterId = 'ST-002/SKAI/2026'
+
+    expect(wpStore.headerForm.auditPurpose).toBe('IT Security Audit')
+  })
+
+  it('editing a saved working paper with an empty auditPurpose falls back to its letter', async () => {
+    const wpStore = useWorkingPaperStore()
+
+    wpStore.handleEditF01({
+      id: 'wp-1',
+      assignmentLetterId: 'ST-002/SKAI/2026',
+      auditPurpose: '',
+      businessProcess: 'Access review',
+      period: '2026-04-01 s/d 2026-04-30',
+      location: 'Jakarta',
+      teamMembers: [{ id: 1, name: 'Saved Member', role: 'Member' }],
+      activities: []
+    })
+    await nextTick()
+
+    expect(wpStore.headerForm.auditPurpose).toBe('IT Security Audit')
+    // Saved team members are kept, not replaced by the letter's
+    expect(wpStore.headerForm.teamMembers.map(m => m.name)).toEqual(['Saved Member'])
+  })
+
+  it('editing a saved working paper keeps its stored auditPurpose', async () => {
+    const wpStore = useWorkingPaperStore()
+    // Form previously held another letter, so the letter watcher fires on edit
+    wpStore.headerForm.assignmentLetterId = 'ST-001/SKAI/2026'
+
+    wpStore.handleEditF01({
+      id: 'wp-2',
+      assignmentLetterId: 'ST-002/SKAI/2026',
+      auditPurpose: 'Stored purpose',
+      businessProcess: 'Access review',
+      period: '2026-04-01 s/d 2026-04-30',
+      location: 'Jakarta',
+      teamMembers: [],
+      activities: []
+    })
+    await nextTick()
+
+    expect(wpStore.headerForm.auditPurpose).toBe('Stored purpose')
+  })
+
+  it('fills Audit Purpose once the letter list loads after the modal opened', async () => {
+    const fieldworkStore = useAuditFieldworkStore()
+    fieldworkStore.selectedAssignmentLetter = 'ST-006/SKAI/2026'
+    const letterStore = useAssignmentLetterStore()
+    const wpStore = useWorkingPaperStore()
+
+    wpStore.openModalF01()
+    expect(wpStore.headerForm.auditPurpose).toBe('')
+
+    letterStore.assignmentLetterList = [uiCreatedLetter() as any]
+    await nextTick()
+
+    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls; Review procurement approvals')
+    expect(wpStore.headerForm.teamMembers.map(m => m.name)).toEqual(['Sari Dewi'])
   })
 })

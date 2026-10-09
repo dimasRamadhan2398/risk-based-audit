@@ -1,24 +1,17 @@
 import { ref, computed } from 'vue'
 
 /**
- * Returns a dynamic 5-year fiscal year range starting from last year
- * up to 3 years ahead from the current year.
- * Example for 2026: [2025, 2026, 2027, 2028, 2029]
- * Example for 2027: [2026, 2027, 2028, 2029, 2030]
+ * Returns a dynamic 7-year fiscal year range: 3 years back (historical CRP and
+ * audit data) up to 3 years ahead of the current year.
+ * Example for 2026: [2023, 2024, 2025, 2026, 2027, 2028, 2029]
  */
 export function getFiscalYears(baseYear: number = new Date().getFullYear()): number[] {
-  return [
-    baseYear - 1,
-    baseYear,
-    baseYear + 1,
-    baseYear + 2,
-    baseYear + 3
-  ]
+  return Array.from({ length: 7 }, (_, i) => baseYear - 3 + i)
 }
 
 /**
- * Returns the dynamic 5-year fiscal year range as an array of strings.
- * Example for 2026: ['2025', '2026', '2027', '2028', '2029']
+ * Returns the dynamic fiscal year range as an array of strings.
+ * Example for 2026: ['2023', '2024', ..., '2029']
  */
 export function getFiscalYearStrings(baseYear: number = new Date().getFullYear()): string[] {
   return getFiscalYears(baseYear).map(String)

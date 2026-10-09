@@ -6,12 +6,18 @@ import { useAuditFieldworkStore } from './audit-fieldwork'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { useI18n } from '~/composables/useI18n'
+import { useGlobalModalStore } from '~/stores/global-modal'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { isLhaApproved } from '~/utils/actionTakenReport'
 
 export type FindingCategory = 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
 
 export const FINDING_CATEGORIES: FindingCategory[] = ['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']
 
 export interface FindingItem {
+  /** Stable id from the backend; ATRs are bound to it, so it must be sent back unchanged on save. */
+  id?: string
   title: string
   category: FindingCategory
   action?: string
@@ -95,6 +101,7 @@ export const normalizeReportNumber = (raw?: string | null): string => {
 export const useAuditResultReportStore = defineStore('audit-result-report', () => {
   const assignmentLetterStore = useAssignmentLetterStore()
   const toast = useToastNotification()
+  const { t } = useI18n()
 
   // State
   const selectedAssignmentLetter = ref<string>('')
@@ -575,6 +582,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         reportNumber: reportForm.reportNumber,
         findingsCount: Number(reportForm.findings?.length || reportForm.findingsCount || 0),
         findings: (reportForm.findings || []).map(f => ({
+          // Keep the finding id: the ATRs created on approval point at it.
+          ...(f.id ? { id: f.id } : {}),
           title: f.title,
           category: f.category,
           action: f.action || '',
@@ -606,20 +615,28 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
           signedAt: s.signedAt || new Date().toISOString()
         }))
       }
+      // The backend creates one ATR per finding when the LHA becomes approved (Final).
+      const previousStatus = isEditing.value && editingId.value
+        ? reportList.value.find(r => r.id === editingId.value)?.status
+        : undefined
+      const becameApproved = isLhaApproved(reportForm.status) && !isLhaApproved(previousStatus)
+      let savedId = isEditing.value ? editingId.value : null
       if (isEditing.value && editingId.value) {
         await $fetch(`${baseUrl}/audit-result-reports/${editingId.value}`, {
           method: 'PUT',
           body: payload
         })
       } else {
-        await $fetch(`${baseUrl}/audit-result-reports`, {
+        const created: any = await $fetch(`${baseUrl}/audit-result-reports`, {
           method: 'POST',
           body: payload
         })
+        savedId = created?.data?.id ?? created?.id ?? null
       }
       closeModal()
       await fetchReports()
       toast.showSuccess('Report saved successfully')
+      if (becameApproved && savedId) await notifyAtrsCreated(savedId)
     } catch (error: any) {
       console.error('Failed to save report:', error)
       const detail = extractErrorMessage(error, 'Failed to save report.')
@@ -628,6 +645,31 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     } finally {
       loading.value = false
     }
+  }
+
+  /** After approval: tell the user how many ATRs were created, with a link to the ATR list filtered by this LHA. */
+  const notifyAtrsCreated = async (reportId: string) => {
+    const count = await useActionTakenReportStore().countForLha(reportId)
+    if (count === null) {
+      toast.showInfo(t('auditResultReport.followUp.createdUnknownTitle'), t('auditResultReport.followUp.createdUnknown'))
+      return
+    }
+    if (count === 0) {
+      toast.showWarning(t('auditResultReport.followUp.noneTitle'), t('auditResultReport.followUp.none'))
+      return
+    }
+    toast.add({
+      title: t('auditResultReport.followUp.createdTitle', { count }),
+      description: t('auditResultReport.followUp.created'),
+      color: 'success',
+      icon: 'i-lucide-check-circle-2',
+      actions: [{
+        label: t('auditResultReport.followUp.view', { count }),
+        color: 'neutral',
+        variant: 'outline',
+        onClick: () => { navigateTo(`/action-taken-report?lha=${encodeURIComponent(reportId)}`) }
+      }]
+    })
   }
 
   const editReport = (report: AuditResultReport) => {
@@ -757,6 +799,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     downloadDocx,
     syncExecutiveSummaryField,
     clearExecutiveSummaryField,
+    notifyAtrsCreated,
     loading,
     errorMsg,
     fetchReports,

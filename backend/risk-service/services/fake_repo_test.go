@@ -6,6 +6,7 @@ import (
 	"risk-service/models"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // fakeRepo is an in-memory IRiskRepository for service tests.
@@ -99,6 +100,11 @@ func (r *fakeRepo) SaveProfile(p *models.RiskProfile) error {
 
 func (r *fakeRepo) SaveAssessment(a *models.RiskAssessment) error {
 	r.writeCount++
+	for i, existing := range r.assessments[a.RiskRegisterID] {
+		if existing.ID == a.ID {
+			r.assessments[a.RiskRegisterID][i] = *a
+		}
+	}
 	return nil
 }
 
@@ -120,7 +126,7 @@ func (r *fakeRepo) FindAssessmentByYear(regID uuid.UUID, year int) (*models.Risk
 			return &cp, nil
 		}
 	}
-	return nil, errors.New("record not found")
+	return nil, gorm.ErrRecordNotFound
 }
 
 func (r *fakeRepo) FindAssessmentsByRegisterID(regID uuid.UUID) ([]models.RiskAssessment, error) {

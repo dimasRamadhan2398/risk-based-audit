@@ -61,6 +61,14 @@ func runServe(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Built before anything listens: a missing secret must stop the service, not
+	// leave it serving the risk register unauthenticated the way it used to.
+	authMiddleware, err := middleware.NewAuthMiddleware(cfg.JWT.Secret)
+	if err != nil {
+		log.Printf("Refusing to start risk-service: %v", err)
+		return err
+	}
+
 	// Boot-time demo seeding.
 	//
 	// This used to run unconditionally, which made a clean-slate tenant
@@ -146,11 +154,18 @@ func runServe(cmd *cobra.Command, args []string) error {
 	rcmCtrl := controllers.NewRCMController(db)
 
 	// Register Routes
-	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, riskFactorCtrl, auditUniverseCtrl, rcmCtrl, &r.RouterGroup)
+	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, riskFactorCtrl, auditUniverseCtrl, rcmCtrl, &r.RouterGroup, authMiddleware)
 	riskRoute.Run()
 
 	// Risk Appetite Handlers (Migrated to Gin)
-	r.GET("/api/v1/risk-appetite", func(c *gin.Context) {
+	//
+	// These hang off the engine rather than the authenticated group in
+	// routes.Run, so they need the middleware applied explicitly - otherwise
+	// the appetite thresholds stay anonymously writable.
+	riskAppetite := r.Group("/api/v1/risk-appetite")
+	riskAppetite.Use(authMiddleware.Authenticate())
+
+	riskAppetite.GET("", func(c *gin.Context) {
 		var appetites []models.RiskAppetite
 		if err := db.Order("created_at desc").Find(&appetites).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query risk appetites: " + err.Error()})
@@ -159,7 +174,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.JSON(http.StatusOK, appetites)
 	})
 
-	r.POST("/api/v1/risk-appetite", func(c *gin.Context) {
+	riskAppetite.POST("", func(c *gin.Context) {
 		var req models.RiskAppetite
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
@@ -176,7 +191,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.JSON(http.StatusCreated, req)
 	})
 
-	r.PUT("/api/v1/risk-appetite/:id", func(c *gin.Context) {
+	riskAppetite.PUT("/:id", func(c *gin.Context) {
 		idStr := c.Param("id")
 		appID, err := uuid.Parse(idStr)
 		if err != nil {
@@ -208,7 +223,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.JSON(http.StatusOK, appetite)
 	})
 
-	r.DELETE("/api/v1/risk-appetite/:id", func(c *gin.Context) {
+	riskAppetite.DELETE("/:id", func(c *gin.Context) {
 		idStr := c.Param("id")
 		appID, err := uuid.Parse(idStr)
 		if err != nil {

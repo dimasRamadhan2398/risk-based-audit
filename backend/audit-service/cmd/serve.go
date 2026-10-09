@@ -195,8 +195,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// Add response caching middleware for dashboard endpoints
 	engine.Use(middleware.ResponseCache())
 
-	// Serve static uploads
-	engine.Static("/uploads", "./uploads")
+	// Serve static uploads, except private subdirectories such as ATR evidence
+	// (./uploads/action-taken-reports), which only the authenticated API serves
+	routes.RegisterUploads(engine, "./uploads")
 
 	// Health check endpoint
 	engine.GET("/health", func(c *gin.Context) {

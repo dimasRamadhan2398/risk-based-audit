@@ -931,7 +931,7 @@ import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
 import { useRCMStore, cosoDimensions } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
-import { atrStatusI18nKey, type AtrSliceKey } from "~/utils/actionTakenReport";
+import { ATR_SLICE_HEX, atrStatusI18nKey, formatAtrDate, type AtrSliceKey } from "~/utils/actionTakenReport";
 import { UBadge } from "#components";
 import OverflowTooltip from "~/components/shared/OverflowTooltip.vue";
 
@@ -950,7 +950,7 @@ definePageMeta({
   middleware: "auth",
 });
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const riskProfileStore = useRiskProfileStore();
 const annualPlanStore = useAnnualPlanStore();
@@ -1020,6 +1020,8 @@ onMounted(() => {
   auditResultStore.fetchRecentFindings(5);
   // RCM-based figures (control effectiveness etc.) come only from the risk-service API.
   rcmStore.fetchRCMList();
+  // ATR donut, compliance, Open Findings and the ATR table: every ATR the user can see.
+  atrStore.fetchSummary();
 });
 
 // ─── KPI Forecasting Line Chart Config ─────────────────────
@@ -1372,13 +1374,7 @@ const activeYear = ref(2026);
 const xFormatter = (x: number): string => `${mainRiskData.value[x]?.name}`;
 
 // ATR Data — non-overlapping slices from the ATR store (same numbers as the ATR page summary).
-const atrSliceColors: Record<AtrSliceKey, string> = {
-  completed: "#4d00ff",
-  inProgress: "#94a3b8",
-  planned: "#c4b5fd",
-  overdue: "#ff5c02",
-  cancelled: "#e2e8f0",
-};
+const atrSliceColors: Record<AtrSliceKey, string> = ATR_SLICE_HEX;
 
 const atrDonutData = computed(() =>
   atrStore.stats.breakdown.map((slice) => ({
@@ -1398,15 +1394,15 @@ const atrCategories = computed(() =>
 );
 
 const atrTableData = computed(() => {
-  return atrStore.reportList
+  return atrStore.summaryItems
     .map((r) => ({
-      id: r.auditRef,
-      name: r.title,
-      owner: r.pic || "-",
-      date: r.deadline,
+      id: r.report_number || "-",
+      name: r.finding_title,
+      owner: r.pic_name || "-",
+      date: formatAtrDate(r.due_date, locale.value),
       status: [
         atrStatusI18nKey(r.status) ? t(atrStatusI18nKey(r.status)!) : r.status,
-        r.isOverdue ? t("actionTakenReport.status.overdue") : "",
+        r.is_overdue ? t("actionTakenReport.status.overdue") : "",
       ]
         .filter(Boolean)
         .join(" · "),

@@ -86,6 +86,33 @@ type ListUsersRequest struct {
 	IsActive  *bool  `form:"is_active"`
 }
 
+// ListAssignableUsersRequest is the query of GET /users/assignable
+type ListAssignableUsersRequest struct {
+	Page     int
+	PageSize int
+	Search   string
+	// ID, when set, restricts the result to that one user (used by
+	// audit-service to resolve an ATR PIC's name)
+	ID *uuid.UUID
+}
+
+// AssignableUser is a user that can be picked as the PIC of a follow-up
+// item. Deliberately minimal: no email, username, roles or contact data.
+type AssignableUser struct {
+	ID         string `json:"id"`
+	FullName   string `json:"full_name"`
+	Department string `json:"department"`
+	Position   string `json:"position"`
+}
+
+// AssignableUsersPagination is the pagination block of GET /users/assignable
+type AssignableUsersPagination struct {
+	Page       int   `json:"page"`
+	PageSize   int   `json:"page_size"`
+	Total      int64 `json:"total"`
+	TotalPages int64 `json:"total_pages"`
+}
+
 // UserResponse represents a user response
 type UserResponse struct {
 	ID         string  `json:"id"`

@@ -179,6 +179,11 @@ func seedInitialRisks(db *gorm.DB) error {
 			LikelihoodQ3:   s.LikelihoodQ3,
 			LikelihoodQ4:   s.LikelihoodQ4,
 		}
+		seededAt := time.Now()
+		ast.RiskEvent = s.Name
+		ast.Category = s.Category
+		ast.Description = s.Description
+		ast.SnapshotAt = &seededAt
 		if ast.ImpactQ1 == 0 {
 			ast.ImpactQ1 = s.Impact
 			ast.ImpactQ2 = s.Impact

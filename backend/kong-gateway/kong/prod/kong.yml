@@ -129,7 +129,7 @@ upstreams:
           interval: 5
           http_failures: 3
         type: http
-        http_path: /api/v1/health
+        http_path: /health
         timeout: 1
       passive:
         healthy:
@@ -159,7 +159,7 @@ upstreams:
           interval: 5
           http_failures: 3
         type: http
-        http_path: /api/v1/health
+        http_path: /health
         timeout: 1
       passive:
         healthy:
@@ -189,7 +189,7 @@ upstreams:
           interval: 5
           http_failures: 3
         type: http
-        http_path: /api/v1/health
+        http_path: /health
         timeout: 1
       passive:
         healthy:
@@ -219,7 +219,7 @@ upstreams:
           interval: 5
           http_failures: 3
         type: http
-        http_path: /api/v1/health
+        http_path: /health
         timeout: 1
       passive:
         healthy:
@@ -249,7 +249,7 @@ upstreams:
           interval: 5
           http_failures: 3
         type: http
-        http_path: /api/analytics/health
+        http_path: /health
         timeout: 1
       passive:
         healthy:

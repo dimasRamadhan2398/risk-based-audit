@@ -23,7 +23,15 @@
         <div class="space-y-6 m-6">
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
             <UFormField label="Audit Purpose" class="font-semibold text-sm text-gray-700  mt-2" />
-            <UInput class="md:col-span-3" v-model="store.headerForm.auditPurpose" disabled placeholder="(Automatically filled in from the selected assignment letter)" />
+            <UTextarea
+                v-model="store.headerForm.auditPurpose"
+                class="md:col-span-3"
+                disabled
+                autoresize
+                :rows="1"
+                :maxrows="5"
+                placeholder="(Automatically filled in from the selected assignment letter)"
+            />
         </div>
 
         <UFormField 

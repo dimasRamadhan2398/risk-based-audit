@@ -127,11 +127,27 @@ func (r *Registry) trustedDevices() {
 	}
 }
 
+// AssignableUserRoles may call GET /users/assignable (pick the PIC of an
+// action taken report): Admin, Audit Manager, Auditor and CAE. RequireRoles
+// compares case-insensitively but literally, so the spellings admins use for
+// the non-seeded roles are listed too. EXECUTIVE is the seeded role the
+// frontend (useRbac matchesRole) treats as the CAE; audit-service maps it the
+// same way (services/action_taken_report.CanonicalRole).
+var AssignableUserRoles = []string{
+	"ADMIN", "ADMINISTRATOR", "SUPERADMIN", "SUPER_ADMIN",
+	"AUDIT_MANAGER", "AUDIT MANAGER", "MANAGER_AUDIT",
+	"AUDITOR", "AUDIT_STAFF", "LEAD_AUDITOR", "STAFF_AUDIT",
+	"CHIEF_AUDIT_EXECUTIVE", "CHIEF AUDIT EXECUTIVE", "CAE", "EXECUTIVE",
+}
+
 // users registers user management routes
 func (r *Registry) users() {
 	users := r.group.Group("/users")
 	users.Use(r.authMiddleware.Authenticate())
 	{
+		// Must stay before /:id. Minimal fields of active users, for the ATR PIC picker.
+		users.GET("/assignable", r.authMiddleware.RequireRoles(AssignableUserRoles...), r.controller.GetUser().ListAssignableUsers)
+
 		// Users may read and update their own profile; admins may do it for anyone
 		selfOrAdmin := r.authMiddleware.RequireSelfOrRoles("id", "ADMIN")
 		users.GET("/:id", selfOrAdmin, r.controller.GetUser().GetUser)
@@ -161,15 +177,20 @@ func (r *Registry) confidentiality() {
 	}
 }
 
-// resend registers Resend email provisioning routes.
+// resend registers Resend email provisioning and webhook routes.
 func (r *Registry) resend() {
-	resend := r.group.Group("/resend")
-	resend.Use(r.authMiddleware.Authenticate())
-	resend.Use(r.authMiddleware.RequireRoles("ADMIN"))
+	// Webhook endpoint: Called by Resend from the internet.
+	// Must NOT use JWT Authenticate() middleware; signature/secret is checked by controller.
+	r.group.POST("/resend/webhook", r.controller.GetResend().HandleWebhook)
+
+	// Admin control-plane provisioning routes (requires JWT ADMIN)
+	resendAdmin := r.group.Group("/resend")
+	resendAdmin.Use(r.authMiddleware.Authenticate())
+	resendAdmin.Use(r.authMiddleware.RequireRoles("ADMIN"))
 	{
 		// POST /api/v1/resend/provision
 		// Registers a sending domain on Resend and returns a scoped API key + DNS records.
 		// ADMIN only: this spends real Resend account quota and mints sending keys.
-		resend.POST("/provision", r.controller.GetResend().ProvisionClientDomain)
+		resendAdmin.POST("/provision", r.controller.GetResend().ProvisionClientDomain)
 	}
 }

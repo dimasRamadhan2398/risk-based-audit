@@ -13,9 +13,9 @@
     <template #content>
       <div class="flex flex-col h-full max-h-[90vh]">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-200 rounded-t-xl flex justify-between items-center">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 rounded-t-xl flex justify-between items-center">
           <div class="flex items-center gap-3">
-            <div class="p-2 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600">
+            <div class="p-2 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
               <UIcon
                 name="i-heroicons-document-text"
                 class="size-6"
@@ -25,8 +25,8 @@
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                 {{ store.isEditing ? 'Edit Audit Result Report' : 'Create New Audit Result Report' }}
               </h3>
-              <p class="text-xs text-gray-500">
-                Surat Tugas: <span class="font-semibold text-primary-600">{{ store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '-' }}</span>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                Surat Tugas: <span class="font-semibold text-primary-600 dark:text-primary-400">{{ store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '-' }}</span>
               </p>
             </div>
           </div>
@@ -56,8 +56,8 @@
                     disabled
                   />
                 </div>
-                <p class="text-xs text-gray-500 mt-1">
-                  Format dinamis otomatis: <code class="text-primary-600 font-mono">LHA-[NoUrut]/[Audit Team]/[Tahun]</code>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Format dinamis otomatis: <code class="text-primary-600 dark:text-primary-400 font-mono">LHA-[NoUrut]/[Audit Team]/[Tahun]</code>
                 </p>
               </UFormField>
 
@@ -83,7 +83,7 @@
                   @invalid="($event.target as any)?.setCustomValidity('Report Title maksimal 100 karakter dan wajib diisi')"
                   @input="($event.target as any)?.setCustomValidity('')"
                 />
-                <div class="text-xs text-gray-500 mt-1 text-right">
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
                   {{ store.reportForm.reportTitle ? store.reportForm.reportTitle.length : 0 }}/100
                 </div>
               </UFormField>
@@ -120,7 +120,7 @@
                     type="number"
                     class="w-full"
                   />
-                  <span class="text-xs text-gray-500 whitespace-nowrap">
+                  <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                     ({{ store.reportForm.findings?.length || 0 }} list)
                   </span>
                 </div>
@@ -133,12 +133,12 @@
                     <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
                       <UIcon
                         name="i-heroicons-list-bullet"
-                        class="text-primary-600"
+                        class="text-secondary-600 dark:text-secondary-400"
                       />
                       Findings / Temuan Audit
                     </h4>
                     <UBadge
-                      color="primary"
+                      color="secondary"
                       variant="subtle"
                       size="sm"
                     >
@@ -151,7 +151,7 @@
                       <UButton
                         label="Tarik Temuan Otomatis"
                         size="sm"
-                        color="primary"
+                        color="secondary"
                         variant="solid"
                         icon="i-heroicons-sparkles"
                         :loading="store.isAutoDetecting"
@@ -172,12 +172,12 @@
                 <!-- Findings Category Summary Badge Bar -->
                 <div
                   v-if="store.reportForm.findings && store.reportForm.findings.length > 0"
-                  class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 text-xs"
+                  class="flex flex-wrap items-center gap-2 p-3 bg-secondary-50/40 dark:bg-secondary-950/20 rounded-lg border border-secondary-200/60 dark:border-secondary-900/40 text-xs"
                 >
                   <span class="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1 mr-1">
                     <UIcon
                       name="i-heroicons-chart-pie"
-                      class="size-4 text-primary-600"
+                      class="size-4 text-secondary-600 dark:text-secondary-400"
                     />
                     Distribusi Kategori:
                   </span>
@@ -216,12 +216,12 @@
                   <div
                     v-for="(finding, idx) in store.reportForm.findings"
                     :key="idx"
-                    class="flex items-start gap-3 bg-slate-50 dark:bg-slate-850 p-4 rounded-xl border border-slate-200 dark:border-slate-800 transition shadow-sm hover:border-primary-200 dark:hover:border-primary-800"
+                    class="flex items-start gap-3 bg-secondary-50/30 dark:bg-secondary-950/20 p-4 rounded-xl border border-secondary-200/70 dark:border-secondary-900/40 transition shadow-sm hover:border-secondary-300 dark:hover:border-secondary-700"
                   >
                     <div class="flex-1 space-y-3">
                       <!-- Card Header (Index & Source Badge) -->
-                      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <div class="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-900/40 pb-2">
+                        <span class="text-xs font-bold text-secondary-700 dark:text-secondary-300 uppercase tracking-wider">
                           Temuan #{{ idx + 1 }}
                         </span>
                         <UBadge
@@ -263,7 +263,7 @@
                             class="w-full"
                             maxlength="255"
                           />
-                          <div class="text-xs text-gray-500 mt-1 text-right">
+                          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
                             {{ finding.title ? finding.title.length : 0 }}/255
                           </div>
                         </UFormField>
@@ -298,25 +298,25 @@
                   <!-- Empty State in Findings List -->
                   <div
                     v-if="!store.reportForm.findings || store.reportForm.findings.length === 0"
-                    class="text-center py-8 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 space-y-2"
+                    class="text-center py-8 bg-secondary-50/40 dark:bg-secondary-950/30 rounded-xl border border-dashed border-secondary-200 dark:border-secondary-900/50 space-y-2"
                   >
-                    <div class="p-3 bg-primary-50 dark:bg-primary-950/40 rounded-full w-fit mx-auto text-primary-600">
+                    <div class="p-3 bg-secondary-100 dark:bg-secondary-900/40 rounded-full w-fit mx-auto text-secondary-600 dark:text-secondary-400">
                       <UIcon
                         name="i-heroicons-sparkles"
                         class="size-6"
                       />
                     </div>
-                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
                       Belum ada temuan audit di dalam laporan ini
                     </p>
-                    <p class="text-xs text-slate-500 max-w-md mx-auto">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
                       Klik <strong>"Tarik Temuan Otomatis"</strong> untuk mengambil temuan dari Digital Working Paper (KKA) dan Fieldwork Test Controls penugasan ini.
                     </p>
                     <div class="flex justify-center gap-2 pt-2">
                       <UButton
                         label="Tarik Temuan Otomatis"
                         size="sm"
-                        color="primary"
+                        color="secondary"
                         icon="i-heroicons-sparkles"
                         :loading="store.isAutoDetecting"
                         @click="store.runAutoDetectFindings('replace')"

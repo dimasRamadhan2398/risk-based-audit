@@ -52,6 +52,7 @@ type ReportSignature struct {
 }
 
 type AuditReportFinding struct {
+	ID       string `json:"id"`
 	Title    string `json:"title"`
 	Category string `json:"category"`
 	Action   string `json:"action"`
@@ -264,13 +265,34 @@ func (r *AuditResultReport) BeforeCreate(tx *gorm.DB) error {
 }
 
 // BeforeSave keeps FindingsCount equal to len(Findings) on every create/save,
-// whatever the client sent. For map updates (crud.Update) the count follows
-// the "findings" value being written; an update that only sends
-// findings_count is reset to the stored findings' length.
+// whatever the client sent, and gives every finding a stable id (existing ids
+// are preserved, see AssignFindingIDs). For map updates (crud.Update) the
+// count and ids follow the "findings" value being written; an update that
+// only sends findings_count is reset to the stored findings' length.
 func (r *AuditResultReport) BeforeSave(tx *gorm.DB) error {
 	if dest, ok := tx.Statement.Dest.(map[string]interface{}); ok {
 		if v, present := dest["findings"]; present {
-			tx.Statement.SetColumn("findings_count", countFindings(v))
+			if v == nil {
+				tx.Statement.SetColumn("findings_count", 0)
+			} else {
+				incoming, err := decodeFindings(v)
+				if err != nil {
+					return err
+				}
+				stored := r.Findings
+				if r.ID != uuid.Nil {
+					if s, ok := loadStoredFindings(tx, r.ID); ok {
+						stored = s
+					}
+				}
+				merged := AssignFindingIDs(incoming, stored)
+				encoded, err := json.Marshal(merged)
+				if err != nil {
+					return err
+				}
+				tx.Statement.SetColumn("findings", string(encoded))
+				tx.Statement.SetColumn("findings_count", len(merged))
+			}
 		} else if _, present := dest["findings_count"]; present {
 			tx.Statement.SetColumn("findings_count", len(r.Findings))
 		}
@@ -281,11 +303,166 @@ func (r *AuditResultReport) BeforeSave(tx *gorm.DB) error {
 		}
 		return nil
 	}
+	var stored []AuditReportFinding
+	if r.ID != uuid.Nil {
+		stored, _ = loadStoredFindings(tx, r.ID)
+	}
+	if r.Findings != nil {
+		r.Findings = AssignFindingIDs(r.Findings, stored)
+	}
 	r.FindingsCount = len(r.Findings)
 	if strings.Contains(r.ReportNumber, "/LHA/") {
 		r.ReportNumber = normalizeLHAReportNumber(r.ReportNumber, "SKAI", time.Now().Year())
 	}
 	return nil
+}
+
+// LHAApprovedStatuses are the AuditResultReport.Status values (compared
+// case-insensitively) that mean the report is approved. The LHA form sends
+// "Final"; seeded and older reports use "APPROVED" or "Published".
+var LHAApprovedStatuses = []string{"FINAL", "APPROVED", "PUBLISHED"}
+
+// IsLHAApproved reports whether an AuditResultReport status means approved
+func IsLHAApproved(status string) bool {
+	s := strings.ToUpper(strings.TrimSpace(status))
+	for _, a := range LHAApprovedStatuses {
+		if s == a {
+			return true
+		}
+	}
+	return false
+}
+
+// AssignFindingIDs returns incoming with a stable id on every finding:
+//   - a finding that carries a valid uuid keeps it (first occurrence wins when
+//     the same id is sent twice);
+//   - a finding without one takes the id of an unclaimed stored finding with
+//     the same title (case/space-insensitive), so clients that drop the id
+//     on save do not orphan the finding's action taken report;
+//   - anything else gets a new uuid.
+//
+// Running it again on its own output changes nothing.
+func AssignFindingIDs(incoming, stored []AuditReportFinding) []AuditReportFinding {
+	if incoming == nil {
+		return nil
+	}
+	out := make([]AuditReportFinding, len(incoming))
+	copy(out, incoming)
+
+	used := make(map[string]bool, len(out))
+	pending := make([]int, 0)
+	for i := range out {
+		id, ok := canonicalFindingID(out[i].ID)
+		if ok && !used[id] {
+			out[i].ID = id
+			used[id] = true
+			continue
+		}
+		out[i].ID = ""
+		pending = append(pending, i)
+	}
+
+	byTitle := make(map[string][]string)
+	for _, f := range stored {
+		id, ok := canonicalFindingID(f.ID)
+		if !ok {
+			continue
+		}
+		key := findingTitleKey(f.Title)
+		byTitle[key] = append(byTitle[key], id)
+	}
+
+	for _, i := range pending {
+		key := findingTitleKey(out[i].Title)
+		for len(byTitle[key]) > 0 {
+			candidate := byTitle[key][0]
+			byTitle[key] = byTitle[key][1:]
+			if !used[candidate] {
+				out[i].ID = candidate
+				break
+			}
+		}
+		if out[i].ID == "" {
+			out[i].ID = uuid.NewString()
+		}
+		used[out[i].ID] = true
+	}
+	return out
+}
+
+// FindingsNeedIDs reports whether any finding lacks a valid, unique id
+func FindingsNeedIDs(findings []AuditReportFinding) bool {
+	seen := make(map[string]bool, len(findings))
+	for _, f := range findings {
+		id, ok := canonicalFindingID(f.ID)
+		if !ok || seen[id] || id != f.ID {
+			return true
+		}
+		seen[id] = true
+	}
+	return false
+}
+
+func canonicalFindingID(raw string) (string, bool) {
+	id, err := uuid.Parse(strings.TrimSpace(raw))
+	if err != nil || id == uuid.Nil {
+		return "", false
+	}
+	return id.String(), true
+}
+
+func findingTitleKey(title string) string {
+	return strings.ToLower(strings.Join(strings.Fields(title), " "))
+}
+
+// loadStoredFindings reads the findings currently stored for report id, in a
+// fresh session so the statement being saved is not affected
+func loadStoredFindings(tx *gorm.DB, id uuid.UUID) ([]AuditReportFinding, bool) {
+	var stored struct {
+		Findings []AuditReportFinding `gorm:"serializer:json"`
+	}
+	err := tx.Session(&gorm.Session{NewDB: true}).
+		Table("audit_result_reports").
+		Select("findings").
+		Where("id = ?", id).
+		Take(&stored).Error
+	if err != nil {
+		return nil, false
+	}
+	return stored.Findings, true
+}
+
+// decodeFindings reads a map-update "findings" value: a JSON array as
+// []byte/string (what crud.Update produces), a decoded slice, or a typed slice
+func decodeFindings(v interface{}) ([]AuditReportFinding, error) {
+	var raw []byte
+	switch val := v.(type) {
+	case []AuditReportFinding:
+		return val, nil
+	case []byte:
+		raw = val
+	case string:
+		raw = []byte(val)
+	case json.RawMessage:
+		raw = val
+	default:
+		b, err := json.Marshal(val)
+		if err != nil {
+			return nil, err
+		}
+		raw = b
+	}
+	if len(raw) == 0 || string(raw) == "null" {
+		return []AuditReportFinding{}, nil
+	}
+	var out []AuditReportFinding
+	if err := json.Unmarshal(raw, &out); err != nil {
+		return nil, fmt.Errorf("invalid findings: %w", err)
+	}
+	if out == nil {
+		out = []AuditReportFinding{}
+	}
+	return out, nil
 }
 
 // countFindings counts the findings in a map-update value: a JSON array as
