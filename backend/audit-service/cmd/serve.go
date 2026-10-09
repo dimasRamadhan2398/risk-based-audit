@@ -98,7 +98,15 @@ func runServe(cmd *cobra.Command, args []string) error {
 		// Activity ID counter (pkg/activitycode); created here too so a deploy
 		// that skips migrate/seed does not break creating activities.
 		&models.ActivityCodeSequence{},
+		&models.AuditResultReport{},
 	)
+
+	// Ensure columns in audit_result_reports exist
+	db.Exec(`
+		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signature_place varchar(100);
+		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signature_date timestamp with time zone;
+		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signatures text;
+	`)
 
 	// Ensure population column in working_paper_samples is varchar(255)
 	db.Exec("ALTER TABLE working_paper_samples ALTER COLUMN population TYPE varchar(255) USING population::varchar;")

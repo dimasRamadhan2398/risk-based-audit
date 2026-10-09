@@ -36,9 +36,19 @@ type AuditResultReport struct {
 	Status             string               `gorm:"type:varchar(50);default:'DRAFT'" json:"status"`
 	Attachment         string               `gorm:"type:varchar(500)" json:"attachment"`
 	Findings           []AuditReportFinding `gorm:"serializer:json" json:"findings"`
+	SignaturePlace     string               `gorm:"type:varchar(100)" json:"signaturePlace"`
+	SignatureDate      *time.Time           `json:"signatureDate"`
+	Signatures         []ReportSignature    `gorm:"serializer:json" json:"signatures"`
 	CreatedAt          time.Time            `json:"created_at"`
 	UpdatedAt          time.Time            `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt       `gorm:"index" json:"-"`
+}
+
+type ReportSignature struct {
+	Name      string `json:"name"`
+	Role      string `json:"role"`
+	Signature string `json:"signature"`
+	SignedAt  string `json:"signedAt,omitempty"`
 }
 
 type AuditReportFinding struct {
@@ -50,10 +60,14 @@ type AuditReportFinding struct {
 func (r *AuditResultReport) UnmarshalJSON(data []byte) error {
 	type Alias AuditResultReport
 	aux := struct {
-		ReportDate    *string `json:"report_date"`
-		ReportDateAlt *string `json:"reportDate"`
-		CompanyID     *string `json:"company_id"`
-		CompanyIDAlt  *string `json:"companyId"`
+		ReportDate        *string `json:"report_date"`
+		ReportDateAlt     *string `json:"reportDate"`
+		CompanyID         *string `json:"company_id"`
+		CompanyIDAlt      *string `json:"companyId"`
+		SignaturePlace    *string `json:"signaturePlace"`
+		SignaturePlaceAlt *string `json:"signature_place"`
+		SignatureDate     *string `json:"signatureDate"`
+		SignatureDateAlt  *string `json:"signature_date"`
 		*Alias
 	}{
 		Alias: (*Alias)(r),
@@ -115,6 +129,50 @@ func (r *AuditResultReport) UnmarshalJSON(data []byte) error {
 		}
 	} else {
 		r.ReportDate = nil
+	}
+
+	targetSigPlace := aux.SignaturePlace
+	if targetSigPlace == nil {
+		targetSigPlace = aux.SignaturePlaceAlt
+	}
+	if targetSigPlace != nil {
+		r.SignaturePlace = strings.TrimSpace(*targetSigPlace)
+	}
+
+	targetSigDate := aux.SignatureDate
+	if targetSigDate == nil {
+		targetSigDate = aux.SignatureDateAlt
+	}
+	if targetSigDate != nil {
+		dateStr := strings.TrimSpace(*targetSigDate)
+		if dateStr == "" || dateStr == "null" {
+			r.SignatureDate = nil
+		} else {
+			formats := []string{
+				time.RFC3339,
+				"2006-01-02T15:04:05Z07:00",
+				"2006-01-02T15:04:05",
+				"2006-01-02 15:04:05",
+				"2006-01-02",
+			}
+			var parsed bool
+			for _, f := range formats {
+				if t, err := time.Parse(f, dateStr); err == nil {
+					r.SignatureDate = &t
+					parsed = true
+					break
+				}
+			}
+			if !parsed && len(dateStr) >= 10 {
+				if t, err := time.Parse("2006-01-02", dateStr[:10]); err == nil {
+					r.SignatureDate = &t
+					parsed = true
+				}
+			}
+			if !parsed {
+				r.SignatureDate = nil
+			}
+		}
 	}
 
 	return nil

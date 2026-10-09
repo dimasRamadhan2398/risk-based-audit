@@ -277,4 +277,55 @@ describe('Audit Result Report Store - saveReport requires an assignment letter',
     expect(store.normalizeReportNumber('020/LHA/01/KS IAD/2023')).toBe('LHA-020/SKAI/2023')
     expect(store.normalizeReportNumber('LHA-025/SKAI/2026')).toBe('LHA-025/SKAI/2026')
   })
+
+  it('retrieves team members from the selected assignment letter', () => {
+    const store = useAuditResultReportStore()
+    const members = store.getTeamMembersForLetter('ST-001/SKAI/2026')
+    expect(members.length).toBeGreaterThan(0)
+    expect(members[0]).toHaveProperty('name')
+    expect(members[0]).toHaveProperty('role')
+  })
+
+  it('saves report including signatures, signaturePlace, and signatureDate', async () => {
+    const store = useAuditResultReportStore()
+    store.reportForm.assignmentLetterId = 'ST-001/SKAI/2026'
+    store.reportForm.reportTitle = 'Report With Signatures'
+    store.reportForm.signaturePlace = 'Bandung'
+    store.reportForm.signatureDate = '2026-10-09'
+    store.reportForm.signatures = [
+      { name: 'Zeta Ramadhani', role: 'Chairperson', signature: 'data:image/png;base64,mockSig1' },
+      { name: 'Budi Santoso', role: 'Supervisor', signature: 'data:image/png;base64,mockSig2' }
+    ]
+    await store.saveReport()
+
+    const post = vi.mocked($fetch).mock.calls.find(c => c[1]?.method === 'POST')
+    expect(post[1].body.signaturePlace).toBe('Bandung')
+    expect(post[1].body.signatureDate).toBe('2026-10-09')
+    expect(post[1].body.signatures).toHaveLength(2)
+    expect(post[1].body.signatures[0].name).toBe('Zeta Ramadhani')
+  })
+
+  it('editing a report restores signaturePlace, signatureDate, and signatures', () => {
+    const store = useAuditResultReportStore()
+    store.editReport({
+      id: 'r-sig',
+      reportNumber: 'LHA-099/SKAI/2026',
+      assignmentLetterId: 'ST-001/SKAI/2026',
+      reportTitle: 'Report With Saved Signatures',
+      executiveSummary: '',
+      reportDate: '2026-10-09',
+      status: 'Final',
+      findingsCount: 0,
+      findings: [],
+      signaturePlace: 'Surabaya',
+      signatureDate: '2026-10-09',
+      signatures: [
+        { name: 'Rina Wulandari', role: 'Member', signature: 'data:image/png;base64,mock' }
+      ]
+    })
+
+    expect(store.reportForm.signaturePlace).toBe('Surabaya')
+    expect(store.reportForm.signatures).toHaveLength(1)
+    expect(store.reportForm.signatures[0].name).toBe('Rina Wulandari')
+  })
 })

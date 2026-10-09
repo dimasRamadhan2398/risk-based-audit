@@ -3,6 +3,7 @@ package docxbuilder
 import (
 	"archive/zip"
 	"bytes"
+	"encoding/base64"
 	"encoding/xml"
 	"fmt"
 	"strings"
@@ -10,6 +11,14 @@ import (
 
 	"audit-service/models"
 )
+
+type docxSignature struct {
+	Name     string
+	Role     string
+	HasImage bool
+	RelID    string
+	DocPrID  int
+}
 
 // xmlEsc escapes characters for valid XML document content
 func xmlEsc(s string) string {
@@ -36,11 +45,84 @@ func GenerateAuditReportDocx(
 	buf := new(bytes.Buffer)
 	zw := zip.NewWriter(buf)
 
+	// Process Signatures and extract images
+	sigItems := []docxSignature{}
+	type sigImgItem struct {
+		relID    string
+		filename string
+		data     []byte
+	}
+	sigImages := []sigImgItem{}
+
+	if report != nil && len(report.Signatures) > 0 {
+		for i, s := range report.Signatures {
+			item := docxSignature{
+				Name:    s.Name,
+				Role:    s.Role,
+				DocPrID: 1000 + i + 1,
+			}
+			if item.Role == "" {
+				item.Role = "Team Member"
+			}
+			sigStr := strings.TrimSpace(s.Signature)
+			if idx := strings.Index(sigStr, "base64,"); idx != -1 {
+				base64Data := sigStr[idx+7:]
+				imgData, err := base64.StdEncoding.DecodeString(base64Data)
+				if err == nil && len(imgData) > 0 {
+					relID := fmt.Sprintf("rId_sig_%d", i+2)
+					ext := "png"
+					if strings.Contains(sigStr, "image/jpeg") || strings.Contains(sigStr, "image/jpg") {
+						ext = "jpg"
+					}
+					filename := fmt.Sprintf("word/media/sig_%d.%s", i+1, ext)
+					sigImages = append(sigImages, sigImgItem{
+						relID:    relID,
+						filename: filename,
+						data:     imgData,
+					})
+					item.HasImage = true
+					item.RelID = relID
+				}
+			}
+			sigItems = append(sigItems, item)
+		}
+	} else if st != nil && len(st.MembersList) > 0 {
+		for i, m := range st.MembersList {
+			role := m.Role
+			if role == "" {
+				role = "Team Member"
+			}
+			sigItems = append(sigItems, docxSignature{
+				Name:    m.Name,
+				Role:    role,
+				DocPrID: 1000 + i + 1,
+			})
+		}
+	} else {
+		prepBy := "Auditor"
+		revBy := "Ketua Tim"
+		if report != nil {
+			if report.PreparedBy != "" {
+				prepBy = report.PreparedBy
+			}
+			if report.ReviewedBy != "" {
+				revBy = report.ReviewedBy
+			}
+		}
+		sigItems = append(sigItems,
+			docxSignature{Name: revBy, Role: "Ketua Tim / Reviewer", DocPrID: 1001},
+			docxSignature{Name: prepBy, Role: "Auditor / Prepared By", DocPrID: 1002},
+		)
+	}
+
 	// 1. [Content_Types].xml
 	contentTypes := `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="xml" ContentType="application/xml"/>
+  <Default Extension="png" ContentType="image/png"/>
+  <Default Extension="jpg" ContentType="image/jpeg"/>
+  <Default Extension="jpeg" ContentType="image/jpeg"/>
   <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
   <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
 </Types>`
@@ -57,12 +139,26 @@ func GenerateAuditReportDocx(
 		return nil, err
 	}
 
+	// Write media files to zip
+	for _, img := range sigImages {
+		if err := addZipBinary(zw, img.filename, img.data); err != nil {
+			return nil, err
+		}
+	}
+
 	// 3. word/_rels/document.xml.rels
-	docRels := `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	docRelsBuf := new(bytes.Buffer)
+	docRelsBuf.WriteString(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>`
-	if err := addZipFile(zw, "word/_rels/document.xml.rels", docRels); err != nil {
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`)
+	for _, img := range sigImages {
+		target := strings.TrimPrefix(img.filename, "word/")
+		docRelsBuf.WriteString(fmt.Sprintf(`
+  <Relationship Id="%s" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="%s"/>`, img.relID, target))
+	}
+	docRelsBuf.WriteString("\n</Relationships>")
+
+	if err := addZipFile(zw, "word/_rels/document.xml.rels", docRelsBuf.String()); err != nil {
 		return nil, err
 	}
 
@@ -84,7 +180,7 @@ func GenerateAuditReportDocx(
 	}
 
 	// 5. Build word/document.xml
-	docXml, err := buildDocumentXML(report, st, interviews, observations, fieldworkDocs, fieldworkSamples, wpHeader, wpRisks, wpSamples, wpCauses, wpPlans, importedWPs)
+	docXml, err := buildDocumentXML(report, st, interviews, observations, fieldworkDocs, fieldworkSamples, wpHeader, wpRisks, wpSamples, wpCauses, wpPlans, importedWPs, sigItems)
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +205,15 @@ func addZipFile(zw *zip.Writer, filename string, content string) error {
 	return err
 }
 
+func addZipBinary(zw *zip.Writer, filename string, content []byte) error {
+	w, err := zw.Create(filename)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(content)
+	return err
+}
+
 func buildDocumentXML(
 	report *models.AuditResultReport,
 	st *models.AssignmentLetter,
@@ -122,6 +227,7 @@ func buildDocumentXML(
 	wpCauses []models.WorkingPaperCause,
 	wpPlans []models.WorkingPaperPlan,
 	importedWPs []models.ImportedWorkingPaper,
+	sigItems []docxSignature,
 ) (string, error) {
 	var body bytes.Buffer
 
@@ -460,21 +566,54 @@ func buildDocumentXML(
 	}
 	body.WriteString(fmt.Sprintf(`<w:p><w:r><w:t xml:space="preserve">%s</w:t></w:r></w:p>`, conclusionText))
 
-	body.WriteString(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr></w:p>`)
-	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Jakarta, %s</w:t></w:r></w:p>`, escapedDateStr))
-	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">AUDIT INTERNAL %s</w:t></w:r></w:p>`, xmlEsc(strings.ToUpper(companyName))))
-
-	prepBy := xmlEsc(report.PreparedBy)
-	if prepBy == "" {
-		prepBy = "Zeta Ramadhani"
+	sigPlace := report.SignaturePlace
+	if sigPlace == "" {
+		sigPlace = "Jakarta"
 	}
-	revBy := xmlEsc(report.ReviewedBy)
-	if revBy == "" {
-		revBy = "Budi Santoso"
+	sigDateStr := escapedDateStr
+	if report.SignatureDate != nil {
+		sigDateStr = report.SignatureDate.Format("02 January 2006")
 	}
+	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:spacing w:before="360"/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">%s, %s</w:t></w:r></w:p>`, xmlEsc(sigPlace), sigDateStr))
+	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:spacing w:after="240"/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">AUDIT INTERNAL %s</w:t></w:r></w:p>`, xmlEsc(strings.ToUpper(companyName))))
 
-	body.WriteString(fmt.Sprintf(`<w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Ketua Tim / Reviewer : %s</w:t></w:r></w:p>`, revBy))
-	body.WriteString(fmt.Sprintf(`<w:p><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Auditor / Prepared By : %s</w:t></w:r></w:p>`, prepBy))
+	body.WriteString(`<w:p><w:pPr><w:spacing w:before="120" w:after="240"/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="22"/></w:rPr><w:t>LEMBAR PENGESAHAN TIM AUDIT</w:t></w:r></w:p>`)
+
+	if len(sigItems) > 0 {
+		body.WriteString(`<w:tbl><w:tblPr><w:tblW w:w="9600" w:type="dxa"/><w:tblBorders><w:top w:val="none"/><w:left w:val="none"/><w:bottom w:val="none"/><w:right w:val="none"/><w:insideH w:val="none"/><w:insideV w:val="none"/></w:tblBorders><w:tblCellMar><w:top w:w="120" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tblCellMar></w:tblPr>`)
+
+		chunkSize := 3
+		for i := 0; i < len(sigItems); i += chunkSize {
+			end := i + chunkSize
+			if end > len(sigItems) {
+				end = len(sigItems)
+			}
+			chunk := sigItems[i:end]
+			cellWidth := 9600 / len(chunk)
+
+			body.WriteString("<w:tr>")
+			for _, m := range chunk {
+				body.WriteString(fmt.Sprintf(`<w:tc><w:tcPr><w:tcW w:w="%d" w:type="dxa"/></w:tcPr>`, cellWidth))
+
+				// 1. Role
+				body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="80"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="20"/><w:color w:val="444444"/></w:rPr><w:t xml:space="preserve">%s</w:t></w:r></w:p>`, xmlEsc(m.Role)))
+
+				// 2. Signature Drawing / Line
+				if m.HasImage {
+					body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="60" w:after="60"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="1440000" cy="720000"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="%d" name="Sig%d"/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="%d" name="Sig%d"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="%s"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="1440000" cy="720000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`, m.DocPrID, m.DocPrID, m.DocPrID, m.DocPrID, m.RelID))
+				} else {
+					body.WriteString(`<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="300" w:after="300"/></w:pPr><w:r><w:rPr><w:color w:val="888888"/><w:i/><w:sz w:val="18"/></w:rPr><w:t xml:space="preserve">( Tanda Tangan )</w:t></w:r></w:p>`)
+				}
+
+				// 3. Member Name (Underlined, bold)
+				body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="60"/></w:pPr><w:r><w:rPr><w:b/><w:u w:val="single"/><w:sz w:val="20"/></w:rPr><w:t xml:space="preserve">%s</w:t></w:r></w:p>`, xmlEsc(m.Name)))
+
+				body.WriteString("</w:tc>")
+			}
+			body.WriteString("</w:tr>")
+		}
+		body.WriteString("</w:tbl>")
+	}
 
 	// Return document.xml
 	docXml := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -484,7 +623,9 @@ func buildDocumentXML(
             xmlns:v="urn:schemas-microsoft-com:vml"
             xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
             xmlns:w10="urn:schemas-microsoft-com:office:word"
-            xmlns:sl="http://schemas.openxmlformats.org/schemaLibrary/2006/main">
+            xmlns:sl="http://schemas.openxmlformats.org/schemaLibrary/2006/main"
+            xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+            xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
   <w:body>
     %s
   </w:body>

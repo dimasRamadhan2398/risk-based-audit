@@ -43,7 +43,7 @@
           <UForm
             :state="store.reportForm"
             class="space-y-6"
-            @submit="store.saveReport"
+            @submit="onFormSubmit"
           >
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <UFormField label="Nomor LHA (Report Number)" name="reportNumber" required class="md:col-span-2">
@@ -345,9 +345,9 @@
               />
               <UButton
                 type="submit"
-                :label="store.isEditing ? 'Update Report' : 'Save Report'"
+                label="Sign Report"
                 color="primary"
-                icon="i-heroicons-check"
+                icon="i-heroicons-pencil-square"
                 :loading="store.loading"
               />
             </div>
@@ -356,16 +356,76 @@
       </div>
     </template>
   </UModal>
+
+  <!-- Modal Input Tanda Tangan Team Member (Opens upon clicking Save Report) -->
+  <ResultReportSignatureModal
+    v-model:open="showSignatureModal"
+    :assignment-letter-id="store.reportForm.assignmentLetterId || store.selectedAssignmentLetter"
+    :report-number="store.reportForm.reportNumber"
+    :company-name="store.reportForm.companyName"
+    :initial-place="store.reportForm.signaturePlace"
+    :initial-date="store.reportForm.signatureDate || store.reportForm.reportDate"
+    :existing-signatures="store.reportForm.signatures"
+    :team-members="currentTeamMembers"
+    :loading="store.loading"
+    @confirm="onSignatureConfirm"
+  />
 </template>
 
 <script setup lang="ts">
-import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { ref, computed, watch } from 'vue'
+import { useAuditResultReportStore, type MemberSignature } from '~/stores/audit-result-report'
 import { useMasterOptionsStore } from '~/stores/master-options'
 import { useI18n } from '~/composables/useI18n'
+import ResultReportSignatureModal from './ResultReportSignatureModal.vue'
 
 const { t } = useI18n()
 const store = useAuditResultReportStore()
 const masterOptions = useMasterOptionsStore()
+
+const showSignatureModal = ref(false)
+
+const currentTeamMembers = computed(() => {
+  const letter = store.reportForm.assignmentLetterId || store.selectedAssignmentLetter
+  return store.getTeamMembersForLetter(letter)
+})
+
+const openSignatureModal = () => {
+  const letter = String(store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '').trim()
+  if (!letter) {
+    store.formErrors.assignmentLetterId = 'auditResultReport.form.assignmentLetterRequired'
+    return
+  }
+  showSignatureModal.value = true
+}
+
+const onFormSubmit = () => {
+  const letter = String(store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '').trim()
+  if (!letter) {
+    store.formErrors.assignmentLetterId = 'auditResultReport.form.assignmentLetterRequired'
+    return
+  }
+  store.formErrors.assignmentLetterId = ''
+  if (!store.reportForm.reportTitle) {
+    return
+  }
+  // Open the signature modal popup as requested!
+  openSignatureModal()
+}
+
+const onSignatureConfirm = async (payload: {
+  signaturePlace: string
+  signatureDate: string
+  companyName: string
+  signatures: MemberSignature[]
+}) => {
+  store.reportForm.signaturePlace = payload.signaturePlace
+  store.reportForm.signatureDate = payload.signatureDate
+  store.reportForm.companyName = payload.companyName
+  store.reportForm.signatures = payload.signatures
+  showSignatureModal.value = false
+  await store.saveReport()
+}
 
 const noneOption = { label: '— None (Inherited / Default) —', value: '__none__' }
 const companySelectItems = computed(() => [

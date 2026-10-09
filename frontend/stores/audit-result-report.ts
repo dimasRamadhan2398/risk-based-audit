@@ -20,6 +20,13 @@ export interface FindingItem {
   criteria?: string
 }
 
+export interface MemberSignature {
+  name: string
+  role?: string
+  signature: string
+  signedAt?: string
+}
+
 export interface AuditResultReport {
   id: string
   reportNumber: string
@@ -34,6 +41,9 @@ export interface AuditResultReport {
   department?: string
   companyId?: string
   companyName?: string
+  signaturePlace?: string
+  signatureDate?: string
+  signatures?: MemberSignature[]
 }
 
 // GET /audit-result-reports/recent-findings item
@@ -105,7 +115,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     findingsCount: 0,
     findings: [] as FindingItem[],
     companyId: '',
-    companyName: ''
+    companyName: '',
+    signaturePlace: 'Jakarta',
+    signatureDate: new Date().toISOString().split('T')[0] as string,
+    signatures: [] as MemberSignature[]
   })
 
   // Computed
@@ -206,11 +219,14 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       ...item,
       reportNumber: normalizedNum,
       report_number: normalizedNum,
-      findingsCount: item.findingsCount || item.findings_count || mappedFindings.length || 0,
+      findingsCount: hasFindingsArray ? mappedFindings.length : (item.findingsCount ?? item.findings_count ?? 0),
       findings: mappedFindings,
       reportDate: finalReportDate,
       companyId: item.companyId || item.company_id || '',
-      companyName: item.companyName || item.company_name || ''
+      companyName: item.companyName || item.company_name || '',
+      signaturePlace: item.signaturePlace || item.signature_place || 'Jakarta',
+      signatureDate: (item.signatureDate || item.signature_date || '').split('T')[0] || finalReportDate,
+      signatures: Array.isArray(item.signatures) ? item.signatures : (Array.isArray(item.Signatures) ? item.Signatures : [])
     }
   }
 
@@ -508,8 +524,31 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       findingsCount: 0,
       findings: [],
       companyId: '',
-      companyName: ''
+      companyName: '',
+      signaturePlace: 'Jakarta',
+      signatureDate: defaultDate,
+      signatures: []
     })
+  }
+
+  const getTeamMembersForLetter = (targetLetter?: string): { name: string; role: string }[] => {
+    const letter = targetLetter || reportForm.assignmentLetterId || selectedAssignmentLetter.value
+    if (!letter) return []
+    const st = assignmentLetterStore.assignmentLetterList.find(
+      (s: any) => s.letterNumber === letter || s.id === letter
+    )
+    if (!st) return []
+    const rawMembers = st.membersList || (st as any).members_list || []
+    if (Array.isArray(rawMembers) && rawMembers.length > 0) {
+      return rawMembers.map((m: any) => ({
+        name: m.name || '',
+        role: m.role || 'Member'
+      })).filter((m: any) => m.name)
+    }
+    if (st.leader) {
+      return [{ name: st.leader, role: 'Chairperson' }]
+    }
+    return []
   }
 
   const saveReport = async () => {
@@ -551,6 +590,22 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         payload.companyName = reportForm.companyName
         payload.company_name = reportForm.companyName
       }
+      if (reportForm.signaturePlace) {
+        payload.signaturePlace = reportForm.signaturePlace
+        payload.signature_place = reportForm.signaturePlace
+      }
+      if (reportForm.signatureDate) {
+        payload.signatureDate = reportForm.signatureDate
+        payload.signature_date = reportForm.signatureDate
+      }
+      if (reportForm.signatures && reportForm.signatures.length > 0) {
+        payload.signatures = reportForm.signatures.map(s => ({
+          name: s.name,
+          role: s.role || 'Member',
+          signature: s.signature || '',
+          signedAt: s.signedAt || new Date().toISOString()
+        }))
+      }
       if (isEditing.value && editingId.value) {
         await $fetch(`${baseUrl}/audit-result-reports/${editingId.value}`, {
           method: 'PUT',
@@ -582,6 +637,9 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportNumber: report.reportNumber || (report as any).report_number || generateReportNumber(report.reportDate),
       companyId: report.companyId || '',
       companyName: report.companyName || '',
+      signaturePlace: report.signaturePlace || (report as any).signature_place || 'Jakarta',
+      signatureDate: report.signatureDate || (report as any).signature_date || report.reportDate,
+      signatures: report.signatures ? JSON.parse(JSON.stringify(report.signatures)) : [],
       findings: report.findings ? JSON.parse(JSON.stringify(report.findings)) : []
     })
     isEditing.value = true
@@ -712,6 +770,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     autoPopulateFindings,
     generateReportNumber,
     normalizeReportNumber,
+    getTeamMembersForLetter,
     resetForm
   }
 })

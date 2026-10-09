@@ -7,6 +7,14 @@
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         <UButton
+          v-if="store.hasSelectedAssignmentLetter"
+          color="primary"
+          icon="i-heroicons-plus"
+          label="Buat Laporan Hasil Audit"
+          class="w-full sm:w-auto font-bold shadow"
+          @click="store.openModal"
+        />
+        <UButton
           v-if="canImportPlanDocs"
           color="neutral"
           variant="outline"
@@ -155,22 +163,13 @@
                   @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
                 />
               </UTooltip>
-              <UTooltip text="Edit">
+              <UTooltip text="Lihat Detail LHA">
                 <UButton
-                  color="warning"
+                  color="info"
                   variant="ghost"
-                  icon="i-lucide-edit"
+                  icon="i-lucide-eye"
                   size="md"
-                  @click="store.editReport(row.original as any)"
-                />
-              </UTooltip>
-              <UTooltip text="Cetak">
-                <UButton
-                  color="neutral"
-                  variant="ghost"
-                  icon="i-lucide-printer"
-                  size="md"
-                  @click="printReport(row.original as any)"
+                  @click="viewReportDetail(row.original as any)"
                 />
               </UTooltip>
             </div>
@@ -210,14 +209,29 @@
 
     <!-- Report Form Modal -->
     <ResultReportForm />
+
+    <!-- Detail LHA Modal (View only, without signature section) -->
+    <ResultReportDetailModal
+      v-model:open="showDetailModal"
+      :report="selectedDetailReport"
+      @print="handlePrintFromDetail"
+    />
+
+    <!-- Official LHA Document Print & Preview Modal 
+    <ResultReportPrintModal
+      v-model:open="showPrintModal"
+      :report="selectedPrintReport"
+    /> -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ResultReportForm from '~/components/audit-result-report/ResultReportForm.vue'
+import ResultReportDetailModal from '~/components/audit-result-report/ResultReportDetailModal.vue'
+import ResultReportPrintModal from '~/components/audit-result-report/ResultReportPrintModal.vue'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
@@ -225,6 +239,11 @@ const store = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const { canImportPlanDocs } = useRbac()
 const toast = useToastNotification()
+
+const showDetailModal = ref(false)
+const selectedDetailReport = ref<any>(null)
+const showPrintModal = ref(false)
+const selectedPrintReport = ref<any>(null)
 
 onMounted(() => {
   assignmentLetterStore.fetchAssignmentLetters()
@@ -273,8 +292,18 @@ const syncReportFindings = async (report: any) => {
   await store.runAutoDetectFindings('merge')
 }
 
+const viewReportDetail = (report: any) => {
+  selectedDetailReport.value = report
+  showDetailModal.value = true
+}
+
+const handlePrintFromDetail = (report: any) => {
+  showDetailModal.value = false
+  printReport(report)
+}
+
 const printReport = (report: any) => {
-  toast.showSuccess(`Printing report: ${report.reportTitle}`)
+  selectedPrintReport.value = report
+  showPrintModal.value = true
 }
 </script>
-

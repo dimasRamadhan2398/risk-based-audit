@@ -159,3 +159,85 @@ func TestGenerateAuditReportDocx_WithUpdatedSampleDataAndWorkingPaper(t *testing
 	assert.True(t, strings.Contains(docXmlContent, "Pass"))
 	assert.True(t, strings.Contains(docXmlContent, "Fail"))
 }
+
+func TestGenerateAuditReportDocx_SignaturesBlockAndImages(t *testing.T) {
+	now := time.Date(2026, 4, 15, 0, 0, 0, 0, time.UTC)
+	// 1x1 transparent PNG base64
+	tinyPngBase64 := "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+
+	report := &models.AuditResultReport{
+		ID:                 uuid.New(),
+		ReportNumber:       "LHA-001/SKAI/2026",
+		ReportTitle:        "Laporan Hasil Audit Operasional Keuangan",
+		AssignmentLetterID: "ST-001/SKAI/2026",
+		CompanyName:        "PT AIFL Indonesia",
+		SignaturePlace:     "Jakarta",
+		SignatureDate:      &now,
+		Signatures: []models.ReportSignature{
+			{
+				Name:      "Budi Santoso",
+				Role:      "Ketua Tim Audit",
+				Signature: tinyPngBase64,
+			},
+			{
+				Name:      "Zeta Ramadhani",
+				Role:      "Auditor Pelaksana",
+				Signature: "",
+			},
+		},
+	}
+
+	st := &models.AssignmentLetter{
+		LetterNumber: "ST-001/SKAI/2026",
+		CompanyName:  "PT AIFL Indonesia",
+	}
+
+	docxBytes, err := docxbuilder.GenerateAuditReportDocx(
+		report,
+		st,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+	)
+	require.NoError(t, err)
+	require.NotEmpty(t, docxBytes)
+
+	zipReader, err := zip.NewReader(bytes.NewReader(docxBytes), int64(len(docxBytes)))
+	require.NoError(t, err)
+
+	var docXmlContent string
+	var relsContent string
+	var hasMediaFile bool
+
+	for _, file := range zipReader.File {
+		if file.Name == "word/document.xml" {
+			rc, err := file.Open()
+			require.NoError(t, err)
+			content, err := io.ReadAll(rc)
+			require.NoError(t, err)
+			_ = rc.Close()
+			docXmlContent = string(content)
+		} else if file.Name == "word/_rels/document.xml.rels" {
+			rc, err := file.Open()
+			require.NoError(t, err)
+			content, err := io.ReadAll(rc)
+			require.NoError(t, err)
+			_ = rc.Close()
+			relsContent = string(content)
+		} else if strings.HasPrefix(file.Name, "word/media/sig_") {
+			hasMediaFile = true
+		}
+	}
+
+	// Verify image file and relationship
+	assert.True(t, hasMediaFile, "signature image should be embedded in word/media/")
+	assert.True(t, strings.Contains(relsContent, "rId_sig_2"), "relationship for signature image should exist")
+
+	// Verify document content for signatures block
+	assert.True(t, strings.Contains(docXmlContent, "Jakarta, 15 April 2026"), "signature date and place should be rendered")
+	assert.True(t, strings.Contains(docXmlContent, "AUDIT INTERNAL PT AIFL INDONESIA"), "company name should be rendered")
+	assert.True(t, strings.Contains(docXmlContent, "LEMBAR PENGESAHAN TIM AUDIT"), "signature sheet title should be present")
+	assert.True(t, strings.Contains(docXmlContent, "Ketua Tim Audit"), "team leader role should be present")
+	assert.True(t, strings.Contains(docXmlContent, "Budi Santoso"), "team leader name should be present")
+	assert.True(t, strings.Contains(docXmlContent, "Auditor Pelaksana"), "member role should be present")
+	assert.True(t, strings.Contains(docXmlContent, "Zeta Ramadhani"), "member name should be present")
+	assert.True(t, strings.Contains(docXmlContent, "rId_sig_2"), "drawing reference should be in document.xml")
+}
