@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"risk-service/controllers"
+	"risk-service/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +16,7 @@ type RiskRoute struct {
 	auditUniverseCtrl *controllers.AuditUniverseController
 	rcmCtrl           *controllers.RCMController
 	group             *gin.RouterGroup
+	authMiddleware    *middleware.AuthMiddleware
 }
 
 type IRiskRoute interface {
@@ -28,6 +30,7 @@ func NewRiskRoute(
 	auditUniverseCtrl *controllers.AuditUniverseController,
 	rcmCtrl *controllers.RCMController,
 	group *gin.RouterGroup,
+	authMiddleware *middleware.AuthMiddleware,
 ) IRiskRoute {
 	return &RiskRoute{
 		riskCtrl:          riskCtrl,
@@ -36,11 +39,13 @@ func NewRiskRoute(
 		auditUniverseCtrl: auditUniverseCtrl,
 		rcmCtrl:           rcmCtrl,
 		group:             group,
+		authMiddleware:    authMiddleware,
 	}
 }
 
 func (r *RiskRoute) Run() {
-	// Health endpoint registered under the main group (root)
+	// Health endpoint registered under the main group (root), deliberately
+	// before the authenticated group: Kong's active healthcheck sends no token.
 	r.group.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "ok",
@@ -49,6 +54,10 @@ func (r *RiskRoute) Run() {
 	})
 
 	apiV1 := r.group.Group("/api/v1")
+	// Every risk route requires a valid JWT. Kong does not verify tokens for
+	// this service, so without this the risk register and RCM were readable and
+	// writable by anyone who could reach the gateway.
+	apiV1.Use(r.authMiddleware.Authenticate())
 	{
 		log.Printf("[RiskRoute] Registered routes under /api/v1/risks:")
 		log.Printf("  GET    /api/v1/risks")

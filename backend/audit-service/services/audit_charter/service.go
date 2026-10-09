@@ -8,6 +8,7 @@ import (
 	"audit-service/repositories"
 	"audit-service/services/base"
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -45,14 +46,26 @@ func (s *AuditCharterService) CreateCharter(ctx context.Context, req *models.Cre
 		req.Version = req.Version + "-v2"
 	}
 
+	approvedBy := req.ApprovedBy
+	if approvedBy == "" && req.Content != "" {
+		approvedBy = req.Content
+	}
+	uploadedBy := req.UploadedBy
+	if uploadedBy == "" {
+		uploadedBy = "Dimas (HIA)"
+	}
+
 	charter := &models.AuditCharter{
-		Filename: req.Filename,
-		Version:  req.Version,
-		Title:    req.Title,
-		Content:  req.Content,
-		IsActive: req.IsActive != nil && *req.IsActive,
-		FileUrl:  req.FileUrl,
-		FileSize: req.FileSize,
+		Filename:   req.Filename,
+		Version:    req.Version,
+		Title:      req.Title,
+		Content:    req.Content,
+		ApprovedBy: approvedBy,
+		UploadedBy: uploadedBy,
+		Date:       req.Date,
+		IsActive:   req.IsActive != nil && *req.IsActive,
+		FileUrl:    req.FileUrl,
+		FileSize:   req.FileSize,
 	}
 
 	if err := s.repo.Create(charter); err != nil {
@@ -92,6 +105,15 @@ func (s *AuditCharterService) UpdateCharter(ctx context.Context, id uuid.UUID, r
 	}
 	if req.Content != nil {
 		charter.Content = *req.Content
+	}
+	if req.ApprovedBy != nil {
+		charter.ApprovedBy = *req.ApprovedBy
+	}
+	if req.UploadedBy != nil {
+		charter.UploadedBy = *req.UploadedBy
+	}
+	if req.Date != nil {
+		charter.Date = *req.Date
 	}
 	if req.IsActive != nil {
 		charter.IsActive = *req.IsActive
@@ -225,16 +247,35 @@ func (s *AuditCharterService) SetActiveCharter(ctx context.Context, id uuid.UUID
 
 // toResponse converts an audit charter model to a response DTO
 func (s *AuditCharterService) toResponse(charter *models.AuditCharter) *models.AuditCharterResponse {
+	dateStr := charter.Date
+	if dateStr == "" {
+		dateStr = charter.CreatedAt.Format("2006-01-02")
+	}
+	approvedBy := charter.ApprovedBy
+	if approvedBy == "" && charter.Content != "" && !strings.Contains(charter.Content, "establishes the authority") {
+		approvedBy = charter.Content
+	}
+	if approvedBy == "" {
+		approvedBy = "Komite Audit"
+	}
+	uploadedBy := charter.UploadedBy
+	if uploadedBy == "" {
+		uploadedBy = "Dimas (HIA)"
+	}
+
 	return &models.AuditCharterResponse{
-		ID:        charter.ID.String(),
-		Filename:  charter.Filename,
-		Version:   charter.Version,
-		Title:     charter.Title,
-		Content:   charter.Content,
-		IsActive:  charter.IsActive,
-		FileUrl:   charter.FileUrl,
-		FileSize:  charter.FileSize,
-		CreatedAt: charter.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt: charter.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		ID:         charter.ID.String(),
+		Filename:   charter.Filename,
+		Version:    charter.Version,
+		Title:      charter.Title,
+		Content:    charter.Content,
+		ApprovedBy: approvedBy,
+		UploadedBy: uploadedBy,
+		Date:       dateStr,
+		IsActive:   charter.IsActive,
+		FileUrl:    charter.FileUrl,
+		FileSize:   charter.FileSize,
+		CreatedAt:  charter.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		UpdatedAt:  charter.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}
 }

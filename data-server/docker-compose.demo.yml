@@ -1,0 +1,43 @@
+# ============================================================================
+# AuditSphere Data Hub — Demo VPS Overlay (KVM 2 / 8 GB RAM / 2 vCPU)
+# Usage: docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d
+# ============================================================================
+
+services:
+  postgres-datalake:
+    environment:
+      HARDWARE_PROFILE: demo
+    deploy:
+      resources:
+        limits:
+          memory: 3500M
+        reservations:
+          memory: 1024M
+
+  data-hub-api:
+    environment:
+      HARDWARE_PROFILE: demo
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+        reservations:
+          memory: 128M
+
+  datahub-worker:
+    environment:
+      HARDWARE_PROFILE: demo
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 256M
+
+  ai-engine:
+    deploy:
+      resources:
+        limits:
+          memory: 1500M
+        reservations:
+          memory: 512M

@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"audit-service/models"
 	"audit-service/pkg/database"
 	"audit-service/pkg/logger"
+	atrsvc "audit-service/services/action_taken_report"
 
 	"github.com/spf13/cobra"
 	"gorm.io/gorm"
@@ -62,7 +64,25 @@ Examples:
   audit migrate down         # Drop all tables
   audit migrate status       # Show current status`,
 	}
-	migrateCmd.AddCommand(upCmd, downCmd, statusCmd)
+	// migrate backfill-atr - create ATRs for LHAs approved before ATRs were
+	// created automatically
+	backfillCmd := &cobra.Command{
+		Use:   "backfill-atr",
+		Short: "Create the missing action taken reports of approved LHAs",
+		Long: `Creates one action taken report (ATR) per finding of every approved
+(status Final / Approved / Published, any casing), non-deleted audit result
+report that does not have one yet. Also gives LHA findings ids if needed.
+
+"migrate up" (and "serve" on startup) already run this step; the command is
+for checking with --dry-run, which reports the counts and rolls back.
+Idempotent: a second run creates nothing.
+
+Usage: audit migrate backfill-atr [--dry-run]`,
+		RunE: runBackfillATR,
+	}
+	backfillCmd.Flags().BoolVar(&backfillDryRun, "dry-run", false, "Report what would be created and roll back")
+
+	migrateCmd.AddCommand(upCmd, downCmd, statusCmd, backfillCmd)
 
 	rootCmd.AddCommand(migrateCmd)
 }
@@ -95,6 +115,7 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.AuditAnnual{},
 		&models.ActivityPlan{},
 		&models.AuditActivity{},
+		&models.ActivityCodeSequence{},
 		&models.StrategicPlan{},
 		&models.AssignmentLetter{},
 		&models.AuditExecution{},
@@ -112,6 +133,7 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.AuditResultReport{},
 		&models.ExecutiveSummary{},
 		&models.ActionTakenReport{},
+		&models.ActionTakenReportEvidence{},
 		&models.ImportedWorkingPaper{},
 		&models.UploadedPlanDocument{},
 		&models.UploadedAnnualPlan{},
@@ -146,7 +168,106 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if err := runATRDataMigrations(db); err != nil {
+		logger.Fatal("Failed to run action taken report data migrations", logger.LogField("error", err))
+		return err
+	}
+
 	logger.Info("Database migration completed successfully!")
+	return nil
+}
+
+// runATRDataMigrations runs the data steps of the LHA-bound ATR model after
+// AutoMigrate. All are idempotent.
+//  1. Every LHA finding gets a stable id (audit_result_reports.findings[].id).
+//  2. The old assignment-letter based action_taken_reports columns are
+//     converted (title -> finding_title, pic -> pic_name, deadline -> due_date,
+//     progress_description -> action_plan; rows linked to an LHA finding when
+//     their letter's LHA has a finding with the same title) and dropped.
+//  3. Every approved LHA gets its missing ATRs (one per finding), as if it
+//     had been approved now. "audit migrate backfill-atr --dry-run" shows
+//     what this step would create without writing.
+func runATRDataMigrations(db *gorm.DB) error {
+	n, err := atrsvc.BackfillFindingIDs(db)
+	if err != nil {
+		return fmt.Errorf("backfill LHA finding ids: %w", err)
+	}
+	logger.Info("LHA finding ids backfilled", logger.LogField("reports_updated", n))
+
+	res, err := atrsvc.MigrateLegacyColumns(db)
+	if err != nil {
+		return fmt.Errorf("migrate legacy action_taken_reports columns: %w", err)
+	}
+	if len(res.DroppedColumns) > 0 {
+		logger.Info("Legacy action_taken_reports columns migrated",
+			logger.LogField("rows", res.Rows),
+			logger.LogField("linked_to_lha_finding", res.Linked),
+			logger.LogField("unlinked", res.Unlinked),
+			logger.LogField("dropped_columns", res.DroppedColumns))
+	}
+
+	bf, err := atrsvc.BackfillApprovedReports(db, time.Now())
+	if err != nil {
+		return fmt.Errorf("create action taken reports of approved LHAs: %w", err)
+	}
+	logger.Info("Action taken reports of approved LHAs backfilled",
+		logger.LogField("approved_reports", bf.ApprovedReports),
+		logger.LogField("atrs_created", bf.CreatedATRs),
+		logger.LogField("atrs_cancelled_finding_removed", bf.CancelledATRs))
+	return nil
+}
+
+// migrateATR brings the action taken report tables and data up to date:
+// AutoMigrate of the two ATR tables, then runATRDataMigrations. serve runs it
+// on startup because tenant stacks start with "audit serve" only; without it
+// the old table layout would make the ATR list fail and, since approving an
+// LHA creates ATRs in the same transaction, LHA saves too.
+func migrateATR(db *gorm.DB) error {
+	if err := db.AutoMigrate(&models.ActionTakenReport{}, &models.ActionTakenReportEvidence{}); err != nil {
+		return fmt.Errorf("auto-migrate action taken report tables: %w", err)
+	}
+	return runATRDataMigrations(db)
+}
+
+var backfillDryRun bool
+
+// runBackfillATR creates the missing ATRs of every approved LHA
+func runBackfillATR(cmd *cobra.Command, args []string) error {
+	initLogger()
+	defer logger.Sync()
+
+	db, err := database.NewPostgresConnection(&cfg.Database)
+	if err != nil {
+		logger.Fatal("Failed to connect to database", logger.LogField("error", err))
+		return err
+	}
+
+	errDryRun := fmt.Errorf("dry run")
+	var res atrsvc.BackfillResult
+	err = db.Transaction(func(tx *gorm.DB) error {
+		var err error
+		res, err = atrsvc.BackfillApprovedReports(tx, time.Now())
+		if err != nil {
+			return err
+		}
+		if backfillDryRun {
+			return errDryRun
+		}
+		return nil
+	})
+	if err != nil && err != errDryRun {
+		logger.Error("ATR backfill failed", logger.LogField("error", err))
+		return err
+	}
+	msg := "ATR backfill completed"
+	if backfillDryRun {
+		msg = "ATR backfill DRY RUN (rolled back, nothing written)"
+	}
+	logger.Info(msg,
+		logger.LogField("reports_given_finding_ids", res.FindingIDReports),
+		logger.LogField("approved_reports", res.ApprovedReports),
+		logger.LogField("atrs_created", res.CreatedATRs),
+		logger.LogField("atrs_cancelled_finding_removed", res.CancelledATRs))
 	return nil
 }
 
@@ -167,6 +288,7 @@ func runMigrateDown(cmd *cobra.Command, args []string) error {
 	// Drop tables in reverse order of dependencies
 	tablesToDrop := []string{
 		"imported_working_papers",
+		"action_taken_report_evidences",
 		"action_taken_reports",
 		"auditee_surveys",
 		"audit_completion_snapshots",
@@ -253,6 +375,7 @@ func runMigrateStatus(cmd *cobra.Command, args []string) error {
 		"working_paper_plans",
 		"audit_result_reports",
 		"action_taken_reports",
+		"action_taken_report_evidences",
 		"kpi_achievements",
 		"work_plan_realizations",
 		"auditee_surveys",

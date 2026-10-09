@@ -42,15 +42,14 @@
 
         <template #riskLevel-cell="{ row }">
           <div class="flex flex-col gap-1 items-start">
-            <UBadge 
-              v-for="(act, idx) in ((row.original || row)?.activities || [])" 
+            <span
+              v-for="(act, idx) in ((row.original || row)?.activities || [])"
               :key="idx"
-              :color="store.getRiskLevelColor ? store.getRiskLevelColor(act.riskLevel) : 'neutral'"
-              variant="soft"
-              size="md"
+              class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold"
+              :class="getRiskLevelColorClass(act.riskLevel)"
             >
               {{ act.riskLevel || '-' }}
-            </UBadge>
+            </span>
           </div>
         </template>
 
@@ -107,6 +106,7 @@
 
 <script setup lang="ts">
 import { useAnnualPlanStore } from '~/stores/annual-audit'
+import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()

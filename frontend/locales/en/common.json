@@ -1,4 +1,11 @@
 {
+  "actions": {
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "download": "Download",
+    "upload": "Upload"
+  },
   "assignmentLetterPublish": {
     "title": "Publish assignment letter \"{number}\"?",
     "confirmQuestion": "Are you sure you want to save and publish this data?",
@@ -146,10 +153,48 @@
     "back": "Back",
     "readMore": "Read more",
     "readLess": "Show less",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "create": "Create",
+    "quickTip": {
+      "title": "Quick Tip",
+      "desc": "Practical guidance tips"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete",
+      "download": "Download",
+      "upload": "Upload"
+    }
   },
   "dashboard": {
-    "title": "Home"
+    "title": "Home",
+    "planningExecution": {
+      "title": "Audit Planning & Execution",
+      "coverageTitle": "Audit Planning Coverage",
+      "executionTitle": "Audit Execution Status",
+      "configure": "Configure"
+    },
+    "registeredRisks": {
+      "columns": {
+        "level": "Risk Level"
+      }
+    },
+    "recentFindings": {
+      "title": "Recent Finding Issues",
+      "empty": "No audit findings recorded yet.",
+      "error": "Failed to load recent findings.",
+      "columns": {
+        "finding": "Audit Finding",
+        "category": "Findings Category"
+      },
+      "categories": {
+        "verySignificant": "Very Significant",
+        "significant": "Significant",
+        "quiteSignificant": "Quite Significant",
+        "notSignificant": "Not Significant"
+      }
+    }
   },
   "auditExecution": {
     "title": "Audit Execution Status",
@@ -307,7 +352,7 @@
       "subtitle": "Manage your personal account details and preferences.",
       "changePhoto": "Change Photo",
       "remove": "Remove",
-      "fileLimits": "JPG, PNG, WebP or GIF. Max {size}MB.",
+      "fileLimits": "JPG, PNG or WebP. Max {size}MB. The photo is cropped to a square and resized automatically.",
       "fullName": "Full Name",
       "fullNameHelp": "Your display name visible across the application.",
       "fullNamePlaceholder": "Enter your full name",
@@ -330,7 +375,19 @@
       "toastErrorDesc": "An error occurred while saving profile.",
       "unsupportedFormat": "Unsupported format. Accepted: {formats}",
       "fileTooLarge": "File too large. Maximum allowed size is {size}MB.",
-      "readFileFailed": "Failed to read the file. Please try again."
+      "readFileFailed": "Failed to read the file. Please try again.",
+      "avatarInvalidType": "Unsupported format. Please choose a JPG, PNG or WebP image.",
+      "avatarTooLargeInput": "File too large. Maximum allowed size is {size}MB.",
+      "avatarReadFailed": "Failed to read the image. Please try another file.",
+      "avatarTooLargeOutput": "The photo is still too large after resizing. Please choose a simpler image.",
+      "avatarRejected": "The server rejected the photo. Please choose a different JPG, PNG or WebP image.",
+      "avatarReady": "{name} is ready. Click Save Changes to apply it.",
+      "avatarRemovePending": "The photo will be removed when you click Save Changes.",
+      "avatarProcessing": "Processing photo...",
+      "departmentSearchPlaceholder": "Search department...",
+      "departmentsEmpty": "No departments found",
+      "departmentsLoadFailed": "Departments could not be loaded.",
+      "departmentsRetry": "Try again"
     },
     "mfa": {
       "title": "Two-Factor Authentication (2FA / MFA)",
@@ -642,6 +699,21 @@
     "addObjective": "Add Strategic Objective",
     "importDocument": "Import Document",
     "errorTitle": "Error",
+    "toast": {
+      "validationTitle": "Validation failed",
+      "objectiveRequired": "The Strategic Objective field is required.",
+      "updatedTitle": "Strategic plan updated",
+      "createdTitle": "Strategic plan created",
+      "savedDesc": "Strategic plan \"{name}\" saved successfully.",
+      "saveFailedTitle": "Failed to save strategic plan",
+      "saveFailedFallback": "Failed to save strategic plan.",
+      "loadOneFailed": "Failed to load the strategic plan.",
+      "confirmDelete": "Are you sure you want to delete this strategic plan?",
+      "deletedTitle": "Strategic plan deleted",
+      "deletedDesc": "The strategic plan was deleted permanently.",
+      "deleteFailedTitle": "Failed to delete strategic plan",
+      "deleteFailedFallback": "Failed to delete strategic plan."
+    },
     "vmg": {
       "title": "Vision, Mission, Goals and Strategic Objective",
       "emptyTitle": "Vision, Mission, Goals and Strategic Objective have not been added",
@@ -677,7 +749,6 @@
       "selectYear": "Select Year",
       "selectQuartal": "Select Quartal",
       "reset": "Reset Filters",
-      "allObjectives": "All Strategic Objectives",
       "allTypes": "All Types",
       "yearly": "Yearly",
       "quartal": "Quartal",
@@ -694,7 +765,8 @@
       "actual": "Actual",
       "calculation": "Calculation",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "category": "Category"
     },
     "actions": {
       "title": "Actions",
@@ -705,8 +777,6 @@
     },
     "form": {
       "title": "Add Strategic Objective Information",
-      "corporateGoal": "Corporate Goal",
-      "selectCorporateGoal": "Select Corporate Goal",
       "code": "Objective ID",
       "codePlaceholder": "Ex: SO-IA01",
       "objective": "Strategic Objective",
@@ -738,7 +808,9 @@
       "status": "Status",
       "cancel": "Cancel",
       "submit": "Submit",
-      "update": "Update"
+      "update": "Update",
+      "category": "Category",
+      "selectCategory": "Select a category (optional)"
     },
     "viewModal": {
       "title": "Strategic Objective Details",
@@ -922,6 +994,55 @@
       "5": "High (5)"
     }
   },
+  "auditUniverse": {
+    "title": "Audit Universe Configuration",
+    "subtitle": "Manage your Corporate Audit Universe library and establish active entities for yearly planning.",
+    "backToHeatmap": "Back to Heat Map",
+    "tabs": {
+      "library": "1. Corporate Universe Builder",
+      "establish": "2. Yearly Establishment"
+    },
+    "library": {
+      "standardTitle": "Standard Audit Universe Library",
+      "standardSubtitle": "Select standard entities to include them in your Corporate Audit Universe.",
+      "corporateTitle": "Corporate Audit Universe",
+      "addCustomEntity": "Add Custom Entity",
+      "entityCount": "{count} Entity",
+      "addSubEntity": "Add Sub Entity",
+      "renameParentEntity": "Rename Parent Entity",
+      "deleteParentEntity": "Delete Parent Entity",
+      "renameSubEntity": "Rename Sub Entity",
+      "deleteSubEntity": "Delete Sub Entity",
+      "emptyState": "Corporate Audit Universe is empty. Select from standard library or add custom ones."
+    },
+    "establish": {
+      "title": "📅 2. Establish {year} Audit Universe",
+      "subtitle": "Select Auditable Entities from the Corporate Audit Universe active for auditing in year {year}.",
+      "targetYear": "Target Year:",
+      "establishBtn": "Establish Active Universe"
+    },
+    "modals": {
+      "renameTitle": "Rename Entity",
+      "entityNameLabel": "Entity Name",
+      "entityNamePlaceholder": "Enter entity name",
+      "entityNameValidation": "Entity name is required and must be at most 100 characters",
+      "addSubEntityTitle": "Add Sub-Entity",
+      "addCustomEntityTitle": "Add Custom Corporate Entity",
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter name...",
+      "addNode": "Add Node",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "messages": {
+      "entityRenamed": "Corporate entity name updated successfully.",
+      "entityAdded": "Custom corporate entity added successfully.",
+      "deleteConfirmDesc": "Are you sure you want to delete this entity from Corporate Audit Universe? This will delete all sub-entities and yearly entries.",
+      "entityDeleted": "Entity deleted successfully from corporate library.",
+      "establishSuccess": "Successfully established active Audit Universe for year {year}.",
+      "establishFailed": "Failed to establish yearly audit universe."
+    }
+  },
   "auditPriority": {
     "title": "Audit Priority",
     "subtitle": "Annual Audit Plan priorities based on calculated risk levels.",
@@ -1073,7 +1194,8 @@
     "sample": {
       "title": "Sample Data",
       "subtitle": "Manage sample data for audit testing",
-      "addBtn": "Add Sample",
+      "documentListLabel": "List of Sample Documents",
+      "addBtn": "Add Document Sample",
       "empty": "No samples data yet",
       "modalAdd": "Sample Data Form",
       "modalEdit": "Edit Sample Data",
@@ -1085,11 +1207,13 @@
       "date": "Date",
       "description": "Description",
       "descriptionPlaceholder": "Describe the content or details of this sample",
+      "uploadFile": "Upload Document File",
       "columns": {
         "name": "Document Name",
         "number": "Document Number",
         "date": "Date",
         "description": "Description",
+        "file": "Attached Document",
         "actions": "Actions"
       }
     },
@@ -1139,25 +1263,40 @@
   },
   "riskProfile": {
     "title": "Corporate Risk Profile",
-    "subtitle": "Interactive Risk Heat Map — Fiscal Year {year} ({period})",
+    "subtitle": "Enterprise Risk Profile for Fiscal Year {year} - {period}",
     "total": "Total",
     "priority": "Priority",
     "addRisk": "Add Risk",
-    "filterBranch": "Filter Branch/Dept",
-    "allBranches": "All Branches",
+    "filterBranch": "Filter by Branch",
     "fiscalYear": "Fiscal Year",
     "period": "Period",
     "riskLevels": "Risk Levels",
-    "likelihoodLevel": "LIKELIHOOD LEVEL",
-    "impactLevel": "IMPACT LEVEL",
+    "likelihoodLevel": "Likelihood Level",
+    "impactLevel": "Impact Level",
+    "allBranches": "All Branches",
+    "unassignedBranch": "Unassigned",
+    "selectBranch": "Select a branch",
+    "branchesLoadError": "Could not load branches from the Location master data.",
+    "noBranches": "No active branches in the Location master data yet.",
+    "risksLoadError": "Could not load risk data",
+    "retry": "Retry",
+    "addModal": {
+      "title": "Add New Risk Event",
+      "desc": "Define a new risk event and its initial quarterly assessments.",
+      "name": "Risk Name",
+      "namePlaceholder": "Enter risk name",
+      "category": "Category",
+      "branch": "Branch / Division",
+      "quarterlyTitle": "Quarterly Residual Score {year}",
+      "impact": "Impact",
+      "likelihood": "Likelihood",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the risk context, causes, and impacts",
+      "saveBtn": "Save Risk Event"
+    },
     "quickTip": {
       "title": "Quick Tip",
-      "desc": "Drag and drop risks to update their status. Switch quarters to track risk changes over time."
-    },
-    "tabs": {
-      "priority": "Priority Risks ({count})",
-      "all": "All Risks ({count})",
-      "progress": "Risk Progress Table"
+      "desc": "Drag and drop risk badges to adjust their likelihood or impact. The risk score will automatically update."
     },
     "table": {
       "no": "No",
@@ -1166,70 +1305,61 @@
       "likelihoodScale": "Likelihood Scale",
       "riskLevel": "Risk Level"
     },
-    "addModal": {
-      "title": "Add New Corporate Risk",
-      "desc": "Enter the details of the new risk to be added to the heatmap.",
-      "name": "Risk Name",
-      "namePlaceholder": "e.g. Target pendapatan dan laba tidak tercapai",
-      "category": "Category",
-      "branch": "Branch / Dept",
-      "quarterlyTitle": "Quarterly Residual Score Tracking (FY {year})",
-      "impact": "Impact",
-      "likelihood": "Likelihood",
-      "description": "Risk Description",
-      "descriptionPlaceholder": "Describe the risk and its potential consequences...",
-      "saveBtn": "Save Risk"
+    "tabs": {
+      "priority": "Priority ({count})",
+      "all": "All Risks ({count})",
+      "progress": "Quarterly Progress"
     },
-    "editModal": {
-      "title": "Edit Risk: {name}",
-      "titleDefault": "Edit Risk",
-      "desc": "Modify the assessment parameters or quarterly scoring details.",
-      "updateBtn": "Update Risk"
-    },
+    "emptyTitle": "No risk data available for year {year}",
+    "emptyDesc": "Risk profile data for future years must be inputted by the user.",
+    "emptyDescNoData": "No risks have been registered yet. Add a risk to get started.",
     "detailModal": {
-      "title": "Risk Detail: # {id}",
-      "desc": "Complete assessment data and categorization for this risk event.",
+      "title": "Risk Details - {id}",
+      "desc": "Comprehensive view of the risk event and its assessments.",
       "category": "Category",
       "riskLevel": "Risk Level",
       "riskEventName": "Risk Event Name",
-      "impactPeriod": "Impact ({period})",
-      "likelihoodPeriod": "Likelihood ({period})",
+      "impactPeriod": "Impact (Period {period})",
+      "likelihoodPeriod": "Likelihood (Period {period})",
       "severityWeight": "Severity Weight",
       "description": "Description",
-      "mitigationBtn": "Go to Mitigation Plan"
+      "mitigationBtn": "View Mitigation Plan"
     },
-    "toasts": {
-      "validationError": "Validation Error",
-      "nameRequired": "Risk name is required.",
-      "riskAdded": "Risk Added",
-      "riskAddedDesc": "\"{name}\" successfully added to the profile.",
-      "riskUpdated": "Risk Updated",
-      "riskUpdatedDesc": "Changes saved successfully.",
-      "positionUpdated": "Risk Position Updated",
-      "positionUpdatedDesc": "\"{name}\" moved to {l}×{i} for {period}",
-      "riskDeleted": "Risk Deleted",
-      "riskDeletedDesc": "\"{name}\" has been removed."
-    },
-    "impactLabels": {
-      "1": "Very Low",
-      "2": "Low",
-      "3": "Moderate",
-      "4": "High",
-      "5": "Very High"
-    },
-    "likelihoodLabels": {
-      "1": "Very Rare",
-      "2": "Rare",
-      "3": "Possible",
-      "4": "Likely",
-      "5": "Very Likely"
+    "editModal": {
+      "title": "Edit Risk - {name}",
+      "titleDefault": "Edit Risk",
+      "desc": "Modify risk details and adjust quarterly assessments.",
+      "updateBtn": "Update Risk"
     },
     "riskLevelLabels": {
       "low": "Low",
-      "low-moderate": "Low to Moderate",
+      "low-moderate": "Low-Moderate",
       "moderate": "Moderate",
-      "moderate-high": "Moderate to High",
+      "moderate-high": "Moderate-High",
       "high": "High"
+    },
+    "impactLabels": {
+      "1": "Insignificant",
+      "2": "Minor",
+      "3": "Moderate",
+      "4": "Major",
+      "5": "Catastrophic"
+    },
+    "likelihoodLabels": {
+      "1": "Rare",
+      "2": "Unlikely",
+      "3": "Possible",
+      "4": "Likely",
+      "5": "Almost Certain"
+    },
+    "toasts": {
+      "validationError": "Validation Error",
+      "nameRequired": "Risk Name is required",
+      "riskAdded": "Risk Added",
+      "riskAddedDesc": "Successfully added new risk: {name}",
+      "riskUpdated": "Risk Updated",
+      "riskUpdatedDesc": "Successfully updated risk details.",
+      "saveFailed": "Failed to save the risk. Please try again."
     }
   },
   "analytics": {
@@ -1456,7 +1586,10 @@
     "validation": {
       "basicInfo": "Please fill in all required fields (Plan Title, Year, Period, Department).",
       "plannedActivities": "Please add at least one audit activity with Activity Title and Auditee filled.",
-      "reviewAndApproval": "Please fill in Creator and Approver details (Names, Positions, and Approval Date)."
+      "reviewAndApproval": "Please fill in the Creator and Approver names and positions.",
+      "periodOrder": "The plan period end date must be on or after the start date.",
+      "scheduleOutsidePeriod": "Activity {num}: the estimated schedule must fall within the plan period.",
+      "negativeNumber": "Activity {num}: duration, number of auditors and budget cannot be negative."
     },
     "stepper": {
       "step1": "Basic Info",
@@ -1472,6 +1605,7 @@
       "year": "Year",
       "period": "Period",
       "department": "Department/Unit",
+      "activityId": "Activity ID",
       "riskName": "Risk Name",
       "riskLevel": "Risk Level",
       "attachment": "Attachment",
@@ -1490,6 +1624,8 @@
       "plannedActivities": "Planned Audit Activities",
       "addAuditActivity": "Add Audit Activity",
       "activityNum": "Audit Activity {num}",
+      "activityId": "Activity ID",
+      "activityIdPending": "Generated on save",
       "activityTitle": "Title of Audit Activity",
       "createPlanTitle": "Create Audit Activity Plan",
       "auditee": "Auditee",
@@ -1506,6 +1642,13 @@
       "estimatedSchedule": "Estimated Schedule/Time",
       "budgetEstimation": "Budget Estimation",
       "millionRupiah": "Million Rupiah",
+      "rupiah": "Rupiah",
+      "selectDepartment": "Select department",
+      "autoCalculated": "Calculated from the activity budgets",
+      "allocatedBelowEstimate": "The allocated budget is lower than the total estimated cost.",
+      "autoFilledFromAccount": "Filled in from your account",
+      "attachedFiles": "Attached files",
+      "uploadFailed": "Failed to upload attachment {name}.",
       "noActivitiesAdded": "No audit activities have been added yet.",
       "summaryOfActivities": "Summary of Activities",
       "highRisk": "High Risk",
@@ -1573,6 +1716,7 @@
       "close": "Close",
       "download": "Download",
       "columns": {
+        "activityId": "Activity ID",
         "auditName": "Audit Name",
         "auditee": "Auditee",
         "category": "Category",
@@ -1756,6 +1900,11 @@
       "viewSop": "View Technical Instruction / SOP",
       "editSop": "Edit Technical Instruction / SOP",
       "deleteSop": "Delete Technical Instruction / SOP"
+    },
+    "errors": {
+      "downloadTitle": "Could not download the Audit Charter file",
+      "fileMissing": "The file for this charter is no longer on the server. Refresh the page; if the charter is still listed, re-upload the file with Edit (or ask whoever manages the charter to do it).",
+      "download": "The file could not be downloaded. Please try again in a moment."
     }
   },
   "executiveSummaryUpload": {
@@ -1920,7 +2069,10 @@
   "workingPaper": {
     "index": {
       "title": "Create Working Paper",
-      "subtitle": "Create and manage audit working papers step by step",
+      "assignmentLetterLabel": "Assignment Letter",
+      "noAssignmentLetter": "No assignment letter selected.",
+      "goToFieldwork": "Select one in Audit Fieldwork",
+      "selectLetterFirst": "Select an assignment letter in Audit Fieldwork to view the data.",
       "importButton": "Import Working Paper",
       "createButton": "Create Working Paper",
       "sections": {
@@ -2038,6 +2190,22 @@
       "periodAction": "Planning Period",
       "updateData": "Update Data",
       "submit": "Submit"
+    },
+    "sampleTable": {
+      "emptyState": "No data saved yet.",
+      "noDocumentName": "Unnamed Document",
+      "effective": "Effective",
+      "ineffective": "Ineffective",
+      "noSampleData": "No sample data",
+      "editSample": "Edit Sample",
+      "deleteSample": "Delete Sample",
+      "columns": {
+        "population": "Total Population",
+        "sampleSize": "Sample Size",
+        "samples": "Sample List",
+        "conclusion": "Conclusion",
+        "actions": "Action"
+      }
     }
   },
   "consultingService": {
@@ -2151,6 +2319,9 @@
     }
   },
   "auditResultReport": {
+    "form": {
+      "assignmentLetterRequired": "Select an assignment letter before saving the report."
+    },
     "upload": {
       "title": "Import Audit Result Report (LHA)",
       "subtitle": "Import external Laporan Hasil Audit (Audit Result Report) documents",
@@ -2181,6 +2352,17 @@
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
       "fileSizeLimit": "File size exceeds the 10MB limit."
+    },
+    "followUp": {
+      "tooltip": "Follow-ups (ATR) created for this LHA's findings",
+      "view": "View follow-ups ({count})",
+      "viewNoCount": "View follow-ups",
+      "createdTitle": "{count} follow-ups (ATR) created",
+      "created": "One follow-up was created for each finding of this LHA.",
+      "noneTitle": "No follow-ups created",
+      "none": "This LHA was approved, but no follow-ups were created. Check that it has findings.",
+      "createdUnknownTitle": "LHA approved",
+      "createdUnknown": "Follow-ups are created automatically; open Action Taken Report to see them."
     }
   },
   "qualityAssurance": {
@@ -2432,97 +2614,141 @@
       "deleteSuccessDesc": "Performance Report document deleted successfully.",
       "deleteFailed": "Failed to Delete",
       "deleteFailedDesc": "An error occurred while deleting the document."
-    }
-  },
-  "riskProfile": {
-    "title": "Corporate Risk Profile",
-    "subtitle": "Enterprise Risk Profile for Fiscal Year {year} - {period}",
-    "total": "Total",
-    "priority": "Priority",
-    "addRisk": "Add Risk",
-    "filterBranch": "Filter by Branch",
-    "fiscalYear": "Fiscal Year",
-    "period": "Period",
-    "riskLevels": "Risk Levels",
-    "likelihoodLevel": "Likelihood Level",
-    "impactLevel": "Impact Level",
-    "allBranches": "All Branches",
-    "addModal": {
-      "title": "Add New Risk Event",
-      "desc": "Define a new risk event and its initial quarterly assessments.",
-      "name": "Risk Name",
-      "namePlaceholder": "Enter risk name",
-      "category": "Category",
-      "branch": "Branch / Division",
-      "quarterlyTitle": "Quarterly Residual Score {year}",
-      "impact": "Impact",
-      "likelihood": "Likelihood",
-      "description": "Description",
-      "descriptionPlaceholder": "Describe the risk context, causes, and impacts",
-      "saveBtn": "Save Risk Event"
     },
-    "quickTip": {
-      "title": "Quick Tip",
-      "desc": "Drag and drop risk badges to adjust their likelihood or impact. The risk score will automatically update."
+    "page": {
+      "subtitle": "Monitor and track internal audit performance metrics and performance reports (Q1, Q2, Q3, Q4, Annual)",
+      "periodPlaceholder": "Period",
+      "exportPdf": "Export PDF",
+      "importedBanner": "Imported performance report documents ({count} reports)",
+      "activeReport": "Active performance report:",
+      "manageDocuments": "Manage report documents",
+      "pdfGenerating": "Generating executive PDF report...",
+      "pdfGeneratingDesc": "Opening the official KPI performance PDF report for year {year}...",
+      "pdfFailed": "Failed to generate PDF report",
+      "pdfFailedFallback": "Please try again.",
+      "print": {
+        "division": "INTERNAL AUDIT DIVISION",
+        "reportTitle": "KPI Performance Report - Year {year}",
+        "generatedOn": "Generated on: {date}",
+        "systemName": "Risk-Based Audit System",
+        "confidential": "Confidential - Internal Use Only",
+        "preparedBy": "Prepared by:",
+        "reviewedBy": "Reviewed by:",
+        "approvedBy": "Approved by:",
+        "roleSpecialist": "Internal Audit Specialist",
+        "roleQualityManager": "Audit Quality Manager",
+        "roleCae": "Chief Audit Executive (CAE)"
+      }
+    },
+    "summary": {
+      "targetBadge": "Target: {value}",
+      "vsTarget": "{gap} vs target",
+      "cards": {
+        "audit_completion_rate": "Audit completion rate",
+        "report_timeliness": "Report timeliness",
+        "client_satisfaction": "Client satisfaction",
+        "action_plan_closed": "Action plan closed"
+      },
+      "subTitles": {
+        "operationalCompletion": "Operational completion rate (started audits)",
+        "avgDraftingCycle": "Average drafting cycle time",
+        "surveyResponseRate": "Survey response rate",
+        "openPendingActionPlans": "Open / pending action plans"
+      },
+      "text": {
+        "days": "{count} days",
+        "daysVsTarget": "{count} days vs target",
+        "lessThanDays": "< {count} days",
+        "openCount": "{count} open",
+        "overdueCount": "{count} overdue",
+        "completedOfStarted": "{completed} completed / {started} started",
+        "responsesFrom": "{responses} responses from {audits} completed audits",
+        "totalRecommendations": "{count} total recommendations registered"
+      },
+      "noData": "No data yet"
+    },
+    "charts": {
+      "monthlyCompletionRate": "Monthly completion rate",
+      "trendTitle": "CSAT and timeliness trend",
+      "timeliness": "Timeliness (%)",
+      "csatScore": "CSAT score",
+      "months": {
+        "jan": "Jan",
+        "feb": "Feb",
+        "mar": "Mar",
+        "apr": "Apr",
+        "may": "May",
+        "jun": "Jun",
+        "jul": "Jul",
+        "aug": "Aug",
+        "sep": "Sep",
+        "oct": "Oct",
+        "nov": "Nov",
+        "dec": "Dec"
+      },
+      "noData": "No trend data for {year}"
     },
     "table": {
-      "no": "No",
-      "riskEvent": "Risk Event",
-      "impactScale": "Impact Scale",
-      "likelihoodScale": "Likelihood Scale",
-      "riskLevel": "Risk Level"
+      "title": "KPI detailed breakdown",
+      "setTargets": "Set KPI targets",
+      "searchPlaceholder": "Search KPI metric",
+      "selectCategory": "Select category",
+      "selectPeriod": "Select period",
+      "selectStatus": "Select status",
+      "resetFilter": "Reset filters",
+      "editTarget": "Edit KPI target",
+      "editUnavailable": "Comes from an uploaded performance report; edit it there",
+      "deleteTarget": "Delete KPI target",
+      "deleteUnavailable": "Comes from an uploaded performance report; it cannot be deleted here",
+      "showing": "Showing {from}-{to} of {total}",
+      "showingNone": "No data to show",
+      "rowsPerPage": "Rows per page",
+      "loading": "Loading KPI data...",
+      "empty": "No KPI data for {year}",
+      "emptyFiltered": "No KPI matches the current filters",
+      "errorTitle": "Could not load the KPI breakdown",
+      "retry": "Try again",
+      "columns": {
+        "metric": "KPI metric",
+        "category": "Category",
+        "target": "Target",
+        "actual": "Actual",
+        "gap": "Gap",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "categories": {
+        "Operational": "Operational",
+        "Financial": "Financial",
+        "Quality": "Quality",
+        "Issue": "Issue",
+        "Efficiency": "Efficiency",
+        "Corporate": "Corporate"
+      },
+      "statuses": {
+        "On Track": "On track",
+        "Exceeded": "Exceeded",
+        "Completed": "Completed",
+        "Selesai": "Completed",
+        "Needs Attention": "Needs attention",
+        "No Target": "No target"
+      }
     },
-    "tabs": {
-      "priority": "Priority ({count})",
-      "all": "All Risks ({count})",
-      "progress": "Quarterly Progress"
-    },
-    "detailModal": {
-      "title": "Risk Details - {id}",
-      "desc": "Comprehensive view of the risk event and its assessments.",
-      "category": "Category",
-      "riskLevel": "Risk Level",
-      "riskEventName": "Risk Event Name",
-      "impactPeriod": "Impact (Period {period})",
-      "likelihoodPeriod": "Likelihood (Period {period})",
-      "severityWeight": "Severity Weight",
-      "description": "Description",
-      "mitigationBtn": "View Mitigation Plan"
-    },
-    "editModal": {
-      "title": "Edit Risk - {name}",
-      "titleDefault": "Edit Risk",
-      "desc": "Modify risk details and adjust quarterly assessments.",
-      "updateBtn": "Update Risk"
-    },
-    "riskLevelLabels": {
-      "low": "Low",
-      "low-moderate": "Low-Moderate",
-      "moderate": "Moderate",
-      "moderate-high": "Moderate-High",
-      "high": "High"
-    },
-    "impactLabels": {
-      "1": "Insignificant",
-      "2": "Minor",
-      "3": "Moderate",
-      "4": "Major",
-      "5": "Catastrophic"
-    },
-    "likelihoodLabels": {
-      "1": "Rare",
-      "2": "Unlikely",
-      "3": "Possible",
-      "4": "Likely",
-      "5": "Almost Certain"
-    },
-    "toasts": {
-      "validationError": "Validation Error",
-      "nameRequired": "Risk Name is required",
-      "riskAdded": "Risk Added",
-      "riskAddedDesc": "Successfully added new risk: {name}",
-      "riskUpdated": "Risk Updated",
-      "riskUpdatedDesc": "Successfully updated risk details."
+    "store": {
+      "fetchDashboardSummaryFailed": "Failed to fetch dashboard summary",
+      "fetchMonthlyTrendsFailed": "Failed to fetch monthly trends",
+      "fetchKpiFailed": "Failed to fetch KPI achievements",
+      "fetchBreakdownFailed": "Failed to fetch the KPI breakdown",
+      "fetchRealizationFailed": "Failed to fetch work plan realizations",
+      "loadReportsFailed": "Failed to load uploaded performance report documents.",
+      "uploadedDocument": "Performance report document uploaded successfully",
+      "uploadedReport": "Performance report uploaded successfully.",
+      "uploadFailed": "Failed to upload performance report document.",
+      "deletedDocument": "Performance report document deleted successfully",
+      "deletedReport": "Performance report deleted successfully.",
+      "deleteFailed": "Failed to delete performance report document.",
+      "downloadFailed": "Failed to download document.",
+      "viewFailed": "Failed to view document."
     }
   },
   "navigation": {
@@ -2589,6 +2815,7 @@
     "caattPolicy": "Banking Policy Compliance",
     "caattDataQuality": "Data Quality Dashboard",
     "masterData": "Master Data",
+    "company": "Company",
     "employeeManagement": "Employee Management",
     "department": "Department",
     "settings": "Settings",
@@ -2601,7 +2828,8 @@
       "logout": "Logout"
     },
     "securityWarningTitle": "Security Warning",
-    "securityWarningDesc": "Your account was recently accessed from a new device. If this wasn't you, please change your password immediately."
+    "securityWarningDesc": "Your account was recently accessed from a new device. If this wasn't you, please change your password immediately.",
+    "location": "Branch / Location"
   },
   "satisfactionSurvey": {
     "title": "Client Satisfaction Survey",
@@ -2874,6 +3102,355 @@
     },
     "defaults": {
       "mitigationDescPrefix": "Internal control & mitigation activities for "
+    }
+  },
+  "errors": {
+    "network": "Unable to reach the server. Please check your internet connection and try again.",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "forbidden": "You do not have permission to perform this action.",
+    "notFound": "The requested data could not be found. It may have been deleted.",
+    "validation": "Some of the data entered is invalid. Please review the form and try again.",
+    "conflict": "This data conflicts with an existing record. Please review it and try again.",
+    "tooManyRequests": "Too many requests. Please wait a moment and try again.",
+    "server": "The server encountered a problem. Please try again in a few moments.",
+    "unknown": "Something went wrong. Please try again in a few moments.",
+    "codes": {
+      "EMPLOYEE_NOT_FOUND": "The employee could not be found. It may have been deleted.",
+      "EMPLOYEE_CODE_ALREADY_EXISTS": "This employee code is already in use. Please use a different code.",
+      "EMPLOYEE_EMAIL_ALREADY_EXISTS": "This email is already registered to another employee.",
+      "INVALID_EMPLOYEE_ID": "The employee reference is invalid. Please reload the page and try again.",
+      "DEPARTMENT_NOT_FOUND": "The department could not be found. It may have been deleted.",
+      "DEPARTMENT_CODE_ALREADY_EXISTS": "This department code is already in use. Please use a different code.",
+      "DEPARTMENT_NAME_ALREADY_EXISTS": "A department with this name already exists.",
+      "INVALID_DEPARTMENT_ID": "The department reference is invalid. Please reload the page and try again.",
+      "COMPANY_NOT_FOUND": "The selected company could not be found.",
+      "COMPANY_CODE_ALREADY_EXISTS": "This company code is already in use. Please use a different code.",
+      "COMPANY_ID_REQUIRED": "Company is required.",
+      "INVALID_COMPANY_ID": "The company reference is invalid. Please reload the page and try again.",
+      "BUSINESS_UNIT_NOT_FOUND": "The selected business unit could not be found.",
+      "BUSINESS_UNIT_ID_REQUIRED": "Business unit is required.",
+      "BUSINESS_UNIT_COMPANY_MISMATCH": "The selected business unit does not belong to the selected company.",
+      "PIC_NOT_FOUND": "The selected person in charge (PIC) could not be found.",
+      "PIC_ID_REQUIRED": "Person in charge (PIC) is required.",
+      "PIC_COMPANY_MISMATCH": "The selected person in charge (PIC) does not belong to the selected company.",
+      "DUPLICATE_ENTRY": "This data already exists.",
+      "TOKEN_EXPIRED": "Your session has expired. Please sign in again.",
+      "INVALID_TOKEN": "Your session is no longer valid. Please sign in again.",
+      "COMPANY_TAX_ID_ALREADY_EXISTS": "This tax ID (NPWP) is already registered to another company.",
+      "INVALID_AVATAR": "The profile picture could not be used. Please choose a PNG, JPEG or WebP image and try again.",
+      "VALIDATION_FAILED": "Some fields are missing or invalid. Please review the form and try again.",
+      "INVALID_REQUEST_BODY": "The submitted data could not be processed. Please review the form and try again.",
+      "INVALID_ID": "The data reference is invalid. Please reload the page and try again.",
+      "VALUE_TOO_LONG": "One of the values exceeds the maximum allowed length.",
+      "REFERENCE_NOT_FOUND": "A selected related record no longer exists. Please reload the page and choose again.",
+      "FOREIGN_KEY_VIOLATION": "This data cannot be deleted because it is still used by other records."
+    }
+  },
+  "masterData": {
+    "errors": {
+      "fetchEmployees": "Failed to load employee data.",
+      "fetchEmployee": "Failed to load employee details.",
+      "createEmployee": "Failed to create the employee.",
+      "updateEmployee": "Failed to update the employee.",
+      "deleteEmployee": "Failed to delete the employee.",
+      "fetchDepartments": "Failed to load department data.",
+      "fetchDepartment": "Failed to load department details.",
+      "createDepartment": "Failed to create the department.",
+      "updateDepartment": "Failed to update the department.",
+      "deleteDepartment": "Failed to delete the department.",
+      "fetchCompanies": "Failed to load company data.",
+      "fetchCompany": "Failed to load company details.",
+      "createCompany": "Failed to create the company.",
+      "updateCompany": "Failed to update the company.",
+      "deleteCompany": "Failed to delete the company.",
+      "fetchLocations": "Failed to load branch/location data.",
+      "fetchLocation": "Failed to load the branch/location.",
+      "createLocation": "Failed to create the branch/location.",
+      "updateLocation": "Failed to update the branch/location.",
+      "deleteLocation": "Failed to delete the branch/location."
+    },
+    "validation": {
+      "employeeCodeRequired": "Employee code is required.",
+      "fullNameRequired": "Full name is required.",
+      "emailRequired": "Email is required.",
+      "companyRequired": "Company is required.",
+      "departmentRequired": "Department is required.",
+      "jobRoleRequired": "Job role is required.",
+      "departmentCodeRequired": "Department code is required.",
+      "departmentNameRequired": "Department name is required.",
+      "picRequired": "Person in charge (PIC) is required.",
+      "companyCodeRequired": "Company code is required.",
+      "companyNameRequired": "Company name is required.",
+      "companyTypeRequired": "Company type is required.",
+      "locationNameRequired": "Branch/location name is required",
+      "locationAddressRequired": "Address is required",
+      "locationCityRequired": "City is required"
+    },
+    "employee": {
+      "title": "Employee Management",
+      "subtitle": "Manage employee data for the organization",
+      "listTitle": "Employee List",
+      "add": "Add Employee",
+      "searchPlaceholder": "Search employee...",
+      "reset": "Reset",
+      "empty": "No employees found.",
+      "level": "Level {level}",
+      "active": "Active",
+      "inactive": "Inactive",
+      "resetPassword": "Reset Password",
+      "deleteConfirm": "Are you sure you want to delete employee \"{name}\"?",
+      "columns": {
+        "code": "Code",
+        "fullName": "Full Name",
+        "email": "Email",
+        "phone": "Phone",
+        "level": "Level",
+        "status": "Status"
+      }
+    },
+    "location": {
+      "title": "Branch / Location Management",
+      "subtitle": "Manage branch and office location master data",
+      "listTitle": "Branch / Location List",
+      "add": "Add Branch / Location",
+      "searchPlaceholder": "Search branch or city...",
+      "search": "Search",
+      "reset": "Reset",
+      "empty": "No branches or locations found.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "deleteConfirm": "Are you sure you want to delete branch/location \"{name}\"?",
+      "createTitle": "Add New Branch / Location",
+      "editTitle": "Edit Branch / Location",
+      "sectionInfo": "Branch / Location Information",
+      "fieldName": "Branch / Location Name *",
+      "fieldNamePlaceholder": "e.g. Surabaya Branch",
+      "fieldAddress": "Address *",
+      "fieldAddressPlaceholder": "Street address",
+      "fieldCity": "City *",
+      "fieldCityPlaceholder": "e.g. Surabaya",
+      "fieldProvince": "Province",
+      "fieldProvincePlaceholder": "e.g. Jawa Timur",
+      "fieldPostalCode": "Postal Code",
+      "fieldCountry": "Country",
+      "status": "Status",
+      "created": "Branch/location created successfully.",
+      "updated": "Branch/location updated successfully.",
+      "deleted": "Branch/location deleted successfully.",
+      "columns": {
+        "name": "Branch / Location",
+        "city": "City",
+        "province": "Province",
+        "address": "Address",
+        "status": "Status"
+      }
+    }
+  },
+  "actionTakenReport": {
+    "page": {
+      "title": "Action Taken Report",
+      "subtitle": "Follow-up of Audit Result Report (LHA) findings: action plans, evidence and review."
+    },
+    "statusSummary": "Status Summary:",
+    "status": {
+      "planned": "Planned",
+      "inProgress": "In Progress",
+      "pendingReview": "Pending Review",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "overdue": "Overdue"
+    },
+    "summary": {
+      "done": "{percent}% Done",
+      "pendingReview": "{percent}% Pending Review",
+      "inProgress": "{percent}% Work In Progress",
+      "planned": "{percent}% Planned",
+      "overdue": "{percent}% Overdue",
+      "cancelled": "{percent}% Cancelled"
+    },
+    "summaryHint": "Overdue = past the due date and not completed or cancelled (Asia/Jakarta date).",
+    "daysOverdue": "{days} days overdue",
+    "findingCategory": {
+      "verySignificant": "Very Significant",
+      "significant": "Significant",
+      "quiteSignificant": "Quite Significant",
+      "notSignificant": "Not Significant"
+    },
+    "scope": {
+      "all": "All follow-ups",
+      "mine": "My actions",
+      "mineHint": "Follow-ups assigned to you."
+    },
+    "filter": {
+      "searchPlaceholder": "Search finding or LHA",
+      "statusPlaceholder": "Choose Status",
+      "lhaPlaceholder": "Choose LHA",
+      "picPlaceholder": "Choose PIC",
+      "overdueOnly": "Overdue only",
+      "reset": "Reset Filter"
+    },
+    "table": {
+      "columns": {
+        "finding": "Finding",
+        "lha": "LHA",
+        "pic": "PIC",
+        "dueDate": "Due Date",
+        "progress": "Progress",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "loading": "Loading follow-ups...",
+      "errorTitle": "Follow-ups could not be loaded",
+      "retry": "Try again",
+      "empty": "No follow-ups yet",
+      "emptyMine": "No follow-ups are assigned to you",
+      "emptyFiltered": "No follow-ups match the filters",
+      "emptyHint": "A follow-up (ATR) is created automatically for each finding when an Audit Result Report (LHA) is approved.",
+      "showing": "Showing {from}-{to} of {total}",
+      "showingNone": "No follow-ups to show",
+      "unassigned": "Not assigned",
+      "you": "You"
+    },
+    "actions": {
+      "view": "View detail",
+      "fillActionPlan": "Fill action plan",
+      "assign": "Assign PIC",
+      "reassign": "Reassign PIC",
+      "review": "Review",
+      "cancel": "Cancel ATR"
+    },
+    "modal": {
+      "close": "Close"
+    },
+    "form": {
+      "optional": "Optional"
+    },
+    "detail": {
+      "title": "Action Taken Report Detail",
+      "subtitle": "LHA {number}",
+      "findingSection": "Finding",
+      "finding": "Finding",
+      "recommendation": "Recommendation",
+      "lha": "Audit Result Report (LHA)",
+      "showLhaFollowUps": "Show all follow-ups of this LHA",
+      "followUpSection": "Follow-up",
+      "pic": "PIC",
+      "dueDate": "Due date",
+      "progress": "Progress",
+      "actionPlan": "Action plan",
+      "noActionPlan": "The PIC has not filled in an action plan yet.",
+      "reviewSection": "Review note",
+      "reviewedMeta": "By {by} on {date}"
+    },
+    "timeline": {
+      "title": "Status timeline",
+      "created": "Created from the approved LHA",
+      "assigned": "PIC assigned",
+      "assignedDetail": "{pic}, due {date}",
+      "notAssigned": "Waiting for a PIC and due date",
+      "returned": "Returned for revision after review"
+    },
+    "evidence": {
+      "title": "Evidence",
+      "upload": "Upload files",
+      "download": "Download",
+      "downloadNamed": "Download {name}",
+      "empty": "No evidence uploaded yet.",
+      "unnamed": "Unnamed file",
+      "uploadedMeta": "{date} by {by}"
+    },
+    "actionPlanForm": {
+      "title": "Action Plan",
+      "dueMeta": "Due {date}",
+      "returnedTitle": "Returned for revision",
+      "readOnly": "This follow-up can no longer be edited.",
+      "actionPlan": "Action plan",
+      "actionPlanHelp": "Describe the corrective actions taken or planned for this finding.",
+      "actionPlanPlaceholder": "Corrective actions, owners and milestones...",
+      "progress": "Progress",
+      "progressHelp": "Completion of the action plan, 0-100%.",
+      "evidenceHelp": "Supporting documents. Each file is uploaded as soon as you select it.",
+      "saveDraft": "Save draft",
+      "submit": "Submit for review",
+      "confirmSubmitTitle": "Submit this follow-up for review?",
+      "confirmSubmitBody": "Your latest changes are saved first. After submitting you cannot edit the action plan until the auditor reviews it."
+    },
+    "assignment": {
+      "title": "Assign PIC",
+      "titleReassign": "Reassign PIC",
+      "pic": "PIC",
+      "picHelp": "The person responsible for carrying out the action plan.",
+      "picPlaceholder": "Choose a user",
+      "picSearch": "Search by name...",
+      "noUsers": "No users found",
+      "dueDate": "Due date",
+      "dueDatePlaceholder": "dd/mm/yyyy",
+      "save": "Save assignment",
+      "usersForbiddenTitle": "User list unavailable",
+      "usersForbidden": "You do not have access to the user list, so a PIC cannot be chosen here."
+    },
+    "review": {
+      "title": "Review Follow-up",
+      "submission": "Submitted work",
+      "submittedBy": "PIC: {pic}",
+      "decision": "Decision",
+      "approve": "Approve",
+      "approveHelp": "The finding is resolved; the follow-up is completed.",
+      "reject": "Return for revision",
+      "rejectHelp": "Send it back to the PIC with a note.",
+      "note": "Review note",
+      "noteApproveHelp": "Optional comment for the PIC.",
+      "noteRejectHelp": "Required: explain what the PIC must change.",
+      "notePlaceholder": "Write your review note..."
+    },
+    "cancelModal": {
+      "title": "Cancel Follow-up",
+      "warningTitle": "This cannot be undone",
+      "warning": "A cancelled follow-up is closed and no longer tracked or counted as open.",
+      "note": "Reason",
+      "noteHelp": "Explain why this follow-up is cancelled.",
+      "notePlaceholder": "Reason for cancelling...",
+      "confirm": "Cancel ATR"
+    },
+    "validation": {
+      "actionPlanRequired": "Fill in the action plan.",
+      "actionPlanTooLong": "The action plan is too long (max 5000 characters).",
+      "progressRange": "Progress must be a whole number between 0 and 100.",
+      "picRequired": "Choose a PIC.",
+      "dueDateRequired": "Choose a due date.",
+      "decisionRequired": "Choose approve or return for revision.",
+      "rejectNoteRequired": "A note is required when returning for revision.",
+      "cancelNoteRequired": "Give a reason for cancelling.",
+      "noteTooLong": "The note is too long (max 2000 characters)."
+    },
+    "toast": {
+      "assigned": "PIC assigned",
+      "assignFailed": "Failed to assign PIC",
+      "planSaved": "Action plan saved",
+      "planSaveFailed": "Failed to save action plan",
+      "submitted": "Submitted for review",
+      "submitFailed": "Failed to submit for review",
+      "approved": "Follow-up approved and completed",
+      "rejected": "Follow-up returned for revision",
+      "reviewFailed": "Failed to save the review",
+      "cancelled": "Follow-up cancelled",
+      "cancelFailed": "Failed to cancel the follow-up",
+      "uploaded": "{count} file(s) uploaded",
+      "uploadFailed": "Failed to upload {name}"
+    },
+    "errors": {
+      "load": "Failed to load action taken reports.",
+      "loadDetailTitle": "Failed to load the follow-up",
+      "loadDetail": "The latest data could not be loaded; showing the list data.",
+      "loadUsers": "Failed to load users",
+      "generic": "Something went wrong. Please try again.",
+      "downloadTitle": "Download failed",
+      "download": "The evidence file could not be downloaded.",
+      "evidenceMissing": "The evidence file no longer exists."
+    },
+    "dashboard": {
+      "centerLabel": "Completed",
+      "legend": "{label} ({percent}%)"
     }
   }
 }

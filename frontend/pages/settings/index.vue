@@ -26,8 +26,11 @@
         <template #footer>
           <div class="w-full border-t border-gray-200 dark:border-gray-800 px-3 py-3">
             <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs">
-                {{ userInitial }}
+              <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs overflow-hidden">
+                <img v-if="authStore.user?.avatarUrl" :src="authStore.user.avatarUrl" alt="" class="w-full h-full object-cover">
+                <template v-else>
+                  {{ userInitial }}
+                </template>
               </div>
               <div class="flex-1 min-w-0">
                 <p class="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight" :title="authStore.user?.fullName || authStore.user?.username || 'User'">

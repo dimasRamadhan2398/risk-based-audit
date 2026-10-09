@@ -7,13 +7,15 @@ import type {
   UpdateEmployeeRequest,
   PaginationMeta
 } from '~/types/master'
-import { extractErrorMessage } from '~/utils/error'
+import { getUserErrorMessage } from '~/utils/error'
+import { useI18n } from '~/composables/useI18n'
 
 export const useEmployeeStore = defineStore('employee', () => {
   // ============= State =============
   const employees = ref<Employee[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const { t } = useI18n()
 
   // Modal State
   const showModal = ref(false)
@@ -49,16 +51,16 @@ export const useEmployeeStore = defineStore('employee', () => {
     join_date: new Date().toISOString().split('T')[0] || ''
   })
 
-  // Table Columns
-  const columns: TableColumn<Employee>[] = [
-    { accessorKey: 'employee_code', header: 'Code' },
-    { accessorKey: 'full_name', header: 'Full Name' },
-    { accessorKey: 'email', header: 'Email' },
-    { accessorKey: 'phone', header: 'Phone' },
-    { accessorKey: 'level_grade', header: 'Level' },
-    { accessorKey: 'is_active', header: 'Status' },
+  // Table Columns (computed so headers follow the active locale)
+  const columns = computed<TableColumn<Employee>[]>(() => [
+    { accessorKey: 'employee_code', header: t('masterData.employee.columns.code') },
+    { accessorKey: 'full_name', header: t('masterData.employee.columns.fullName') },
+    { accessorKey: 'email', header: t('masterData.employee.columns.email') },
+    { accessorKey: 'phone', header: t('masterData.employee.columns.phone') },
+    { accessorKey: 'level_grade', header: t('masterData.employee.columns.level') },
+    { accessorKey: 'is_active', header: t('masterData.employee.columns.status') },
     { accessorKey: 'actions', header: '' }
-  ]
+  ])
 
   // ============= Getters =============
   const totalPages = computed(() => pagination.value.total_pages)
@@ -88,24 +90,9 @@ export const useEmployeeStore = defineStore('employee', () => {
       employees.value = response.employees || []
       pagination.value = response.pagination || pagination.value
     } catch (error: any) {
-      console.error('Failed to fetch employees, using default seeds:', error)
-      employees.value = [
-        { id: '1', employee_code: 'EMP-001', full_name: 'Dimas Ramadhan', email: 'dimas.ramadhan@auditsphere.internal', phone: '081234567801', level_grade: 'Head of Internal Audit (CAE)', department_id: '1', is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '2', employee_code: 'EMP-002', full_name: 'Kate Anderson', email: 'kate.anderson@auditsphere.internal', phone: '081234567802', level_grade: 'Komite Audit', department_id: '1', is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '3', employee_code: 'EMP-003', full_name: 'Zeta Ramadhani', email: 'zeta.ramadhani@auditsphere.internal', phone: '081234567803', level_grade: 'Lead Auditor', department_id: '1', is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '4', employee_code: 'EMP-004', full_name: 'Budi Santoso', email: 'budi.santoso@auditsphere.internal', phone: '081234567804', level_grade: 'Audit Supervisor', department_id: '1', is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '5', employee_code: 'EMP-005', full_name: 'Rina Wulandari', email: 'rina.wulandari@auditsphere.internal', phone: '081234567805', level_grade: 'Senior Auditor', department_id: '1', is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '6', employee_code: 'EMP-006', full_name: 'Andi Firmansyah', email: 'andi.firmansyah@auditsphere.internal', phone: '081234567806', level_grade: 'IT Auditor', department_id: '3', is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '7', employee_code: 'EMP-007', full_name: 'Wahyu Hidayat', email: 'wahyu.hidayat@auditsphere.internal', phone: '081234567807', level_grade: 'IT Security Specialist', department_id: '3', is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '8', employee_code: 'EMP-008', full_name: 'Budi Hartanto', email: 'budi.hartanto@auditsphere.internal', phone: '081234567808', level_grade: 'Senior Consultant', department_id: '1', is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' }
-      ]
-      pagination.value = {
-        page: 1,
-        page_size: 10,
-        total: 8,
-        total_pages: 1
-      }
-      errorMsg.value = ''
+      console.error('Failed to fetch employees:', error)
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchEmployees' })
+      employees.value = []
     } finally {
       loading.value = false
     }
@@ -123,7 +110,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return await api.getEmployeeById(id)
     } catch (error: any) {
       console.error('Failed to fetch employee:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil detail employee.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchEmployee' })
       return null
     } finally {
       loading.value = false
@@ -148,12 +135,12 @@ export const useEmployeeStore = defineStore('employee', () => {
         department_id: form.department_id,
         job_role_id: form.job_role_id,
         level_grade: form.level_grade,
-        work_location_id: form.work_location_id || undefined,
+        work_location_id: (form.work_location_id && form.work_location_id !== '__none__') ? form.work_location_id : undefined,
         residence_address: form.residence_address || undefined,
         residence_city: form.residence_city || undefined,
         residence_province: form.residence_province || undefined,
         residence_postal_code: form.residence_postal_code || undefined,
-        manager_id: form.manager_id || undefined,
+        manager_id: (form.manager_id && form.manager_id !== '__none__') ? form.manager_id : undefined,
         is_active: form.is_active,
         join_date: form.join_date
       }
@@ -163,7 +150,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to create employee:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal membuat employee baru.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.createEmployee' })
       return false
     } finally {
       loading.value = false
@@ -186,12 +173,12 @@ export const useEmployeeStore = defineStore('employee', () => {
         department_id: form.department_id || undefined,
         job_role_id: form.job_role_id || undefined,
         level_grade: form.level_grade || undefined,
-        work_location_id: form.work_location_id || undefined,
+        work_location_id: (form.work_location_id && form.work_location_id !== '__none__') ? form.work_location_id : undefined,
         residence_address: form.residence_address || undefined,
         residence_city: form.residence_city || undefined,
         residence_province: form.residence_province || undefined,
         residence_postal_code: form.residence_postal_code || undefined,
-        manager_id: form.manager_id || undefined,
+        manager_id: (form.manager_id && form.manager_id !== '__none__') ? form.manager_id : undefined,
         is_active: form.is_active
       }
 
@@ -200,7 +187,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to update employee:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal memperbarui employee.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.updateEmployee' })
       return false
     } finally {
       loading.value = false
@@ -221,7 +208,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       return true
     } catch (error: any) {
       console.error('Failed to delete employee:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus employee.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.deleteEmployee' })
       return false
     } finally {
       loading.value = false
@@ -307,27 +294,27 @@ export const useEmployeeStore = defineStore('employee', () => {
   const handleSubmit = async () => {
     // Validation
     if (!form.employee_code.trim()) {
-      errorMsg.value = 'Employee code is required.'
+      errorMsg.value = t('masterData.validation.employeeCodeRequired')
       return
     }
     if (!form.full_name.trim()) {
-      errorMsg.value = 'Full name is required.'
+      errorMsg.value = t('masterData.validation.fullNameRequired')
       return
     }
     if (!form.email.trim()) {
-      errorMsg.value = 'Email is required.'
+      errorMsg.value = t('masterData.validation.emailRequired')
       return
     }
     if (!form.company_id) {
-      errorMsg.value = 'Company is required.'
+      errorMsg.value = t('masterData.validation.companyRequired')
       return
     }
     if (!form.department_id) {
-      errorMsg.value = 'Department is required.'
+      errorMsg.value = t('masterData.validation.departmentRequired')
       return
     }
     if (!form.job_role_id) {
-      errorMsg.value = 'Job role is required.'
+      errorMsg.value = t('masterData.validation.jobRoleRequired')
       return
     }
 
@@ -354,7 +341,7 @@ export const useEmployeeStore = defineStore('employee', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (employee: Employee) => {
-    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete employee "${employee.full_name}"?` })) {
+    if (!await useGlobalModalStore().confirmDelete({ description: t('masterData.employee.deleteConfirm', { name: employee.full_name }) })) {
       return
     }
 

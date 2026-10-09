@@ -26,7 +26,10 @@ type StrategicPlan struct {
 	Target             string         `gorm:"type:varchar(100)" json:"target"`
 	Calculation        string         `gorm:"type:varchar(100)" json:"calculation"`
 	Status             string         `gorm:"type:varchar(50)" json:"status"`
-	CreatedAt          time.Time      `json:"created_at"`
+	// Category is one of StrategicPlanCategories, or "" for uncategorised
+	// (existing rows). Validated on POST/PUT by controllers/strategic_plan.
+	Category           string         `gorm:"type:varchar(50);default:''" json:"category"`
+	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`
 }

@@ -168,6 +168,9 @@
         <TableEntities
           :data="store.historyCharters"
           :columns="columns"
+          :items-per-page="store.historyPageSize"
+          :page="store.historyPage"
+          @update:page="(p: number) => { store.historyPage = p }"
           :empty-state="{
             icon: 'i-lucide-folder-open',
             label: t('auditCharter.card.emptyHistory'),
@@ -185,15 +188,6 @@
                 :text="row.original.title"
                 :max-length="60"
                 text-class="font-bold text-[var(--text-main)]"
-              />
-            </div>
-          </template>
-          <template #content-cell="{ row }">
-            <div class="font-normal text-[var(--text-muted)] text-sm break-words whitespace-normal leading-relaxed min-w-0">
-              <ReadMoreText
-                :text="row.original.content || '-'"
-                :max-length="75"
-                text-class="text-[var(--text-muted)] text-sm"
               />
             </div>
           </template>
@@ -261,6 +255,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
@@ -275,7 +270,6 @@ const { canManageCharter } = useRbac()
 const columns = computed(() => [
   { accessorKey: 'version', header: t('auditCharter.card.columns.version'), class: 'w-16 whitespace-nowrap text-center' },
   { accessorKey: 'title', header: t('auditCharter.card.columns.title'), class: 'w-48' },
-  { accessorKey: 'content', header: t('auditCharter.card.columns.content'), class: 'w-48' },
   { accessorKey: 'date', header: t('auditCharter.card.columns.date'), class: 'w-28 whitespace-nowrap' },
   { accessorKey: 'approvedBy', header: t('auditCharter.card.columns.approvedBy'), class: 'w-36' },
   { accessorKey: 'uploadedBy', header: t('auditCharter.card.columns.uploadedBy'), class: 'w-36' },

@@ -1,0 +1,45 @@
+# ============================================================================
+# AuditSphere Data Hub — Production Client Overlay (1 TB+ / 64 GB+ RAM / 16 vCPU)
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ============================================================================
+
+services:
+  postgres-datalake:
+    shm_size: 8gb
+    environment:
+      HARDWARE_PROFILE: prod
+    deploy:
+      resources:
+        limits:
+          memory: 40G
+        reservations:
+          memory: 16G
+
+  data-hub-api:
+    environment:
+      HARDWARE_PROFILE: prod
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+  datahub-worker:
+    environment:
+      HARDWARE_PROFILE: prod
+    deploy:
+      replicas: 4
+      resources:
+        limits:
+          memory: 3G
+        reservations:
+          memory: 1G
+
+  ai-engine:
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 2G

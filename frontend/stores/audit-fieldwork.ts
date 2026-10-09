@@ -53,6 +53,10 @@ export interface SampleItem {
   documentNumber: string
   date: string
   description: string
+  file?: File | null
+  fileName?: string
+  filePath?: string
+  fileUrl?: string
 }
 
 export interface TestControlItem {
@@ -75,8 +79,6 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const selectedAssignmentLetter = ref<string>('')
   const loading = ref(false)
   const errorMsg = ref('')
-
-
 
   const publishedAssignmentLetters = computed(() => {
     return assignmentLetterStore.assignmentLetterList
@@ -120,260 +122,6 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     auditTopics: ['Internal Control', 'Compliance', 'Risk Management', 'Process Efficiency', 'Other']
   }
 
-  const mockFieldwork: Record<string, {
-    interviews: InterviewItem[]
-    observations: ObservationItem[]
-    documents: DocumentItem[]
-    samples: SampleItem[]
-    testControls: TestControlItem[]
-  }> = {
-    'ST-001/SKAI/2026': {
-      interviews: [
-        {
-          id: '1',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          interviewee: 'Ahmad Yani',
-          intervieweePosition: 'Head of Finance',
-          interviewer: 'Zeta Ramadhani',
-          interviewerPosition: 'Chairperson',
-          date: '2026-03-05',
-          topic: 'Internal Control over Financial Reporting (ICOFR) implementation, segregation of duties in payment approvals, and monthly bank reconciliation process.',
-          file: null,
-          fileName: 'Meeting_Minutes_ICOFR.pdf'
-        },
-        {
-          id: '2',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          interviewee: 'Rudi Hermawan',
-          intervieweePosition: 'IT Manager',
-          interviewer: 'Andi Firmansyah',
-          interviewerPosition: 'Member',
-          date: '2026-03-08',
-          topic: 'Access controls to the ERP system, user privilege review procedures, and backup recovery tests.',
-          file: null,
-          fileName: 'IT_Access_Controls_Interview.pdf'
-        }
-      ],
-      observations: [
-        {
-          id: '1',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          activity: 'Observe cash count process in main vault and verify safety box lock code authorization.',
-          location: 'Headquarters - Vault Room',
-          date: '2026-03-10',
-          observer: 'Rina Wulandari',
-          file: null,
-          fileName: 'Cash_Count_Observation.pdf'
-        },
-        {
-          id: '2',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          activity: 'Walkthrough observation of transaction recording inside ERP and checking automated system logs.',
-          location: 'IT Server Room & Finance Desk',
-          date: '2026-03-12',
-          observer: 'Andi Firmansyah',
-          file: null
-        }
-      ],
-      documents: [
-        {
-          id: '1',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          documentName: 'General Ledger 2025',
-          description: 'Full year accounting ledger containing all transactions for balance sheet validation.',
-          requiredDate: '2026-03-02',
-          file: null,
-          fileName: 'General_Ledger_2025_Final.xlsx'
-        },
-        {
-          id: '2',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          documentName: 'ERP System Access Logs',
-          description: 'Active user list and permission matrix for segregation of duties audit.',
-          requiredDate: '2026-03-05',
-          file: null,
-          fileName: 'ERP_Access_Logs_Q4_2025.csv'
-        }
-      ],
-      samples: [
-        {
-          id: '1',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          documentName: 'Procurement Invoice',
-          documentNumber: 'INV-2025-0988',
-          date: '2025-11-12',
-          description: 'Sample transaction for validation of purchase order matching and invoice approval.'
-        },
-        {
-          id: '2',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          documentName: 'Bank Statement Reconciliation',
-          documentNumber: 'BR-2025-12',
-          date: '2025-12-31',
-          description: 'Reconciliation report for main bank account verifying outstanding checks and deposits.'
-        }
-      ],
-      testControls: [
-        {
-          id: '1',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          controlName: 'Payment Authorization Limit',
-          controlDescription: 'All payments above Rp 50,000,000 must be approved by the Finance Director.',
-          controlType: 'Preventive',
-          testProcedure: 'Select a sample of payments > Rp 50m and verify presence of Director signature or digital approval.',
-          testResult: 'Effective',
-          finding: 'No deviations found. All sample vouchers had the required dual approval.',
-          recommendation: 'Maintain current process and ensure limits are updated in system configuration.',
-          mitigationPlan: 'Routine system configuration audit.',
-          pic: 'Ahmad Yani (Head of Finance)',
-          dueDate: '2026-06-30'
-        },
-        {
-          id: '2',
-          assignmentLetterId: 'ST-001/SKAI/2026',
-          controlName: 'IT Backup Daily Execution',
-          controlDescription: 'ERP database backups must run automatically every night at 23:00.',
-          controlType: 'Automated',
-          testProcedure: 'Review backup logs for the month of December 2025 and verify successful backup statuses.',
-          testResult: 'Ineffective',
-          finding: 'On 3 days (Dec 12, 13, and 18), backups failed due to disk space issues. No alert was sent.',
-          recommendation: 'Implement automated notification alerting IT team when backup status is failed.',
-          mitigationPlan: 'Setup automated SMTP notification inside backup script.',
-          pic: 'Rudi Hermawan (IT Manager)',
-          dueDate: '2026-04-15'
-        }
-      ]
-    },
-    'ST-002/SKAI/2026': {
-      interviews: [
-        {
-          id: '101',
-          assignmentLetterId: 'ST-002/SKAI/2026',
-          interviewee: 'Bambang Susilo',
-          intervieweePosition: 'Head of IT',
-          interviewer: 'Andi Firmansyah',
-          interviewerPosition: 'Chairperson',
-          date: '2026-04-05',
-          topic: 'Keamanan Database ERP & Multi-Factor Authentication enforcement.',
-          file: null,
-          fileName: 'Interview_IT_Security_ST002.pdf'
-        }
-      ],
-      observations: [
-        {
-          id: '101',
-          assignmentLetterId: 'ST-002/SKAI/2026',
-          activity: 'Pengujian Disaster Recovery & Backup Restore Data ERP.',
-          location: 'Data Center Utama',
-          date: '2026-04-12',
-          observer: 'Andi Firmansyah',
-          file: null
-        }
-      ],
-      documents: [
-        {
-          id: '101',
-          assignmentLetterId: 'ST-002/SKAI/2026',
-          documentName: 'ERP Security Matrix Log',
-          description: 'Log autentikasi dan daftar hak akses pengguna ERP Q1 2026.',
-          requiredDate: '2026-04-02',
-          file: null,
-          fileName: 'ERP_Security_Matrix.xlsx'
-        }
-      ],
-      samples: [
-        {
-          id: '101',
-          assignmentLetterId: 'ST-002/SKAI/2026',
-          documentName: 'Log Akses User Admin',
-          documentNumber: 'LOG-ERP-2026-04',
-          date: '2026-04-10',
-          description: 'Sample log akses superadmin database ERP.'
-        }
-      ],
-      testControls: [
-        {
-          id: '101',
-          assignmentLetterId: 'ST-002/SKAI/2026',
-          controlName: 'MFA Enforcement',
-          controlDescription: 'MFA wajib untuk superadmin ERP.',
-          controlType: 'Automated',
-          testProcedure: 'Verify TOTP configuration for admin accounts.',
-          testResult: 'Ineffective',
-          finding: 'Single factor login active for 2 admin accounts.',
-          recommendation: 'Enforce mandatory MFA.',
-          mitigationPlan: 'Activate TOTP policy.',
-          pic: 'Bambang Susilo (Head of IT)',
-          dueDate: '2026-05-31'
-        }
-      ]
-    },
-    'ST-003/SKAI/2026': {
-      interviews: [
-        {
-          id: '201',
-          assignmentLetterId: 'ST-003/SKAI/2026',
-          interviewee: 'Hendra Wijaya',
-          intervieweePosition: 'Warehouse Manager',
-          interviewer: 'Rina Wulandari',
-          interviewerPosition: 'Chairperson',
-          date: '2026-07-08',
-          topic: 'Manajemen Stok Persediaan Gudang & Prosedur Opname Fisik.',
-          file: null,
-          fileName: 'Interview_Warehouse_ST003.pdf'
-        }
-      ],
-      observations: [
-        {
-          id: '201',
-          assignmentLetterId: 'ST-003/SKAI/2026',
-          activity: 'Inspeksi Fisik dan Pengukuran Suhu Gudang Bahan Kimia.',
-          location: 'Gudang Logistik Branch A',
-          date: '2026-07-15',
-          observer: 'Rina Wulandari',
-          file: null
-        }
-      ],
-      documents: [
-        {
-          id: '201',
-          assignmentLetterId: 'ST-003/SKAI/2026',
-          documentName: 'Kartu Stok & Laporan Opname',
-          description: 'Berita acara stok opname barang semester 1 2026.',
-          requiredDate: '2026-07-03',
-          file: null,
-          fileName: 'Stok_Opname_S1_2026.pdf'
-        }
-      ],
-      samples: [
-        {
-          id: '201',
-          assignmentLetterId: 'ST-003/SKAI/2026',
-          documentName: 'Work Order Pengeluaran Barang',
-          documentNumber: 'WO-LOG-2026-89',
-          date: '2026-07-20',
-          description: 'Sample otorisasi pengeluaran barang persediaan.'
-        }
-      ],
-      testControls: [
-        {
-          id: '201',
-          assignmentLetterId: 'ST-003/SKAI/2026',
-          controlName: 'Warehouse Temperature Monitor',
-          controlDescription: 'Suhu gudang terpantau 24/7.',
-          controlType: 'Preventive',
-          testProcedure: 'Inspect temp sensor logbook.',
-          testResult: 'Ineffective',
-          finding: 'Manual logging delayed by 2 days.',
-          recommendation: 'Install IoT digital sensor.',
-          mitigationPlan: 'Procure IoT sensors.',
-          pic: 'Hendra Wijaya (Warehouse Manager)',
-          dueDate: '2026-08-31'
-        }
-      ]
-    }
-  }
-
   const fieldworkData = ref<Record<string, {
     interviews: InterviewItem[]
     observations: ObservationItem[]
@@ -381,25 +129,6 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     samples: SampleItem[]
     testControls: TestControlItem[]
   }>>({})
-
-  const ensureDataExists = () => {
-    if (!selectedAssignmentLetter.value) return
-    if (!fieldworkData.value[selectedAssignmentLetter.value]) {
-      if (mockFieldwork[selectedAssignmentLetter.value]) {
-        fieldworkData.value[selectedAssignmentLetter.value] = JSON.parse(
-          JSON.stringify(mockFieldwork[selectedAssignmentLetter.value])
-        )
-      } else {
-        fieldworkData.value[selectedAssignmentLetter.value] = {
-          interviews: [],
-          observations: [],
-          documents: [],
-          samples: [],
-          testControls: []
-        }
-      }
-    }
-  }
 
   const interviews = computed(() => {
     if (!selectedAssignmentLetter.value) return []
@@ -426,57 +155,94 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     return fieldworkData.value[selectedAssignmentLetter.value]?.testControls || []
   })
 
-  const fetchAllFieldworkData = async (assignmentLetterId: string) => {
+  const emptyFieldworkData = () => ({
+    interviews: [] as InterviewItem[],
+    observations: [] as ObservationItem[],
+    documents: [] as DocumentItem[],
+    samples: [] as SampleItem[],
+    testControls: [] as TestControlItem[]
+  })
+
+  // Track pending requests to prevent duplicate API calls
+  const pendingRequests = ref<Record<string, Promise<void>>>({})
+
+  // Debounce timer for fetch calls
+  let fetchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+  const fetchAllFieldworkData = async (assignmentLetterId: string, skipCache = false) => {
     if (!assignmentLetterId) return
+
+    // Return existing pending request if one is already in flight
+    if (pendingRequests.value[assignmentLetterId] && !skipCache) {
+      return pendingRequests.value[assignmentLetterId]
+    }
+
+    // If data already exists and we're not forcing a refresh, skip
+    if (fieldworkData.value[assignmentLetterId] && !skipCache) {
+      return Promise.resolve()
+    }
+
     loading.value = true
     errorMsg.value = ''
     const toast = useToastNotification()
-    try {
-      const baseUrl = getAuditServiceBaseUrl()
-      const [interviewsRes, observationsRes, documentsRes, samplesRes, testControlsRes]: any = await Promise.all([
-        $fetch(`${baseUrl}/fieldwork/interviews?assignmentLetterId=${assignmentLetterId}`),
-        $fetch(`${baseUrl}/fieldwork/observations?assignmentLetterId=${assignmentLetterId}`),
-        $fetch(`${baseUrl}/fieldwork/documents?assignmentLetterId=${assignmentLetterId}`),
-        $fetch(`${baseUrl}/fieldwork/samples?assignmentLetterId=${assignmentLetterId}`),
-        $fetch(`${baseUrl}/fieldwork/test-controls?assignmentLetterId=${assignmentLetterId}`)
-      ])
 
-      const interviewsList = interviewsRes?.data?.items || interviewsRes?.items || (Array.isArray(interviewsRes) ? interviewsRes : [])
-      const observationsList = observationsRes?.data?.items || observationsRes?.items || (Array.isArray(observationsRes) ? observationsRes : [])
-      const documentsList = documentsRes?.data?.items || documentsRes?.items || (Array.isArray(documentsRes) ? documentsRes : [])
-      const samplesList = samplesRes?.data?.items || samplesRes?.items || (Array.isArray(samplesRes) ? samplesRes : [])
-      const testControlsList = testControlsRes?.data?.items || testControlsRes?.items || (Array.isArray(testControlsRes) ? testControlsRes : [])
+    const request = (async () => {
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        const results = await Promise.allSettled([
+          $fetch(`${baseUrl}/fieldwork/interviews?assignmentLetterId=${assignmentLetterId}`),
+          $fetch(`${baseUrl}/fieldwork/observations?assignmentLetterId=${assignmentLetterId}`),
+          $fetch(`${baseUrl}/fieldwork/documents?assignmentLetterId=${assignmentLetterId}`),
+          $fetch(`${baseUrl}/fieldwork/samples?assignmentLetterId=${assignmentLetterId}`),
+          $fetch(`${baseUrl}/fieldwork/test-controls?assignmentLetterId=${assignmentLetterId}`)
+        ])
 
-      fieldworkData.value[assignmentLetterId] = {
-        interviews: Array.isArray(interviewsList) && interviewsList.length > 0 ? interviewsList : (mockFieldwork[assignmentLetterId]?.interviews || []),
-        observations: Array.isArray(observationsList) && observationsList.length > 0 ? observationsList : (mockFieldwork[assignmentLetterId]?.observations || []),
-        documents: Array.isArray(documentsList) && documentsList.length > 0 ? documentsList : (mockFieldwork[assignmentLetterId]?.documents || []),
-        samples: Array.isArray(samplesList) && samplesList.length > 0 ? samplesList : (mockFieldwork[assignmentLetterId]?.samples || []),
-        testControls: Array.isArray(testControlsList) && testControlsList.length > 0 ? testControlsList : (mockFieldwork[assignmentLetterId]?.testControls || [])
+        const [interviewsRes, observationsRes, documentsRes, samplesRes, testControlsRes] = results.map((r: any) =>
+          r.status === 'fulfilled' ? r.value : null
+        ) as any[]
+
+        const interviewsList = interviewsRes?.data?.items || interviewsRes?.items || (Array.isArray(interviewsRes) ? interviewsRes : [])
+        const observationsList = observationsRes?.data?.items || observationsRes?.items || (Array.isArray(observationsRes) ? observationsRes : [])
+        const documentsList = documentsRes?.data?.items || documentsRes?.items || (Array.isArray(documentsRes) ? documentsRes : [])
+        const samplesList = samplesRes?.data?.items || samplesRes?.items || (Array.isArray(samplesRes) ? samplesRes : [])
+        const testControlsList = testControlsRes?.data?.items || testControlsRes?.items || (Array.isArray(testControlsRes) ? testControlsRes : [])
+
+        // Only what the API returned; an empty response (or a failed request) means no records for that list.
+        fieldworkData.value[assignmentLetterId] = {
+          interviews: Array.isArray(interviewsList) ? interviewsList : [],
+          observations: Array.isArray(observationsList) ? observationsList : [],
+          documents: Array.isArray(documentsList) ? documentsList : [],
+          samples: Array.isArray(samplesList) ? samplesList : [],
+          testControls: Array.isArray(testControlsList) ? testControlsList : []
+        }
+
+        // Keep whatever loaded, but a failed request is still an error: set the error state and toast once.
+        const rejected = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        if (rejected.length > 0) {
+          console.error(`${rejected.length} of ${results.length} fieldwork data requests failed:`, rejected.map(r => r.reason))
+          const detail = extractErrorMessage(rejected[0]!.reason, 'Failed to load fieldwork data.')
+          errorMsg.value = detail
+          toast.showError('Failed to load fieldwork data.', detail)
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch fieldwork data:', error)
+        const detail = extractErrorMessage(error, 'Failed to load fieldwork data.')
+        errorMsg.value = detail
+        toast.showError('Failed to load fieldwork data.', detail)
+        fieldworkData.value[assignmentLetterId] = emptyFieldworkData()
+      } finally {
+        loading.value = false
+        delete pendingRequests.value[assignmentLetterId]
       }
-    } catch (error: any) {
-      console.error('Failed to fetch fieldwork data:', error)
-      const detail = extractErrorMessage(error, 'Failed to load fieldwork data.')
-      toast.showError('Failed to load fieldwork data.', detail)
-      if (mockFieldwork[assignmentLetterId]) {
-        fieldworkData.value[assignmentLetterId] = JSON.parse(
-          JSON.stringify(mockFieldwork[assignmentLetterId])
-        )
-      }
-    } finally {
-      loading.value = false
-    }
+    })()
+
+    pendingRequests.value[assignmentLetterId] = request
+    return request
   }
 
   const ensureFieldworkDataHolder = (assignmentLetterId: string) => {
     if (!fieldworkData.value[assignmentLetterId]) {
-      fieldworkData.value[assignmentLetterId] = {
-        interviews: mockFieldwork[assignmentLetterId]?.interviews || [],
-        observations: mockFieldwork[assignmentLetterId]?.observations || [],
-        documents: mockFieldwork[assignmentLetterId]?.documents || [],
-        samples: mockFieldwork[assignmentLetterId]?.samples || [],
-        testControls: mockFieldwork[assignmentLetterId]?.testControls || []
-      }
+      fieldworkData.value[assignmentLetterId] = emptyFieldworkData()
     }
   }
 
@@ -487,7 +253,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const res: any = await $fetch(`${baseUrl}/fieldwork/interviews?assignmentLetterId=${assignmentLetterId}`)
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
-      if (Array.isArray(list) && list.length > 0) {
+      if (Array.isArray(list)) {
         fieldworkData.value[assignmentLetterId]!.interviews = list
       }
     } catch (error) {
@@ -502,7 +268,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const res: any = await $fetch(`${baseUrl}/fieldwork/observations?assignmentLetterId=${assignmentLetterId}`)
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
-      if (Array.isArray(list) && list.length > 0) {
+      if (Array.isArray(list)) {
         fieldworkData.value[assignmentLetterId]!.observations = list
       }
     } catch (error) {
@@ -517,7 +283,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const res: any = await $fetch(`${baseUrl}/fieldwork/documents?assignmentLetterId=${assignmentLetterId}`)
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
-      if (Array.isArray(list) && list.length > 0) {
+      if (Array.isArray(list)) {
         fieldworkData.value[assignmentLetterId]!.documents = list
       }
     } catch (error) {
@@ -532,7 +298,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const res: any = await $fetch(`${baseUrl}/fieldwork/samples?assignmentLetterId=${assignmentLetterId}`)
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
-      if (Array.isArray(list) && list.length > 0) {
+      if (Array.isArray(list)) {
         fieldworkData.value[assignmentLetterId]!.samples = list
       }
     } catch (error) {
@@ -547,11 +313,20 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       const res: any = await $fetch(`${baseUrl}/fieldwork/test-controls?assignmentLetterId=${assignmentLetterId}`)
       const list = res?.data?.items || res?.items || (Array.isArray(res) ? res : null)
       ensureFieldworkDataHolder(assignmentLetterId)
-      if (Array.isArray(list) && list.length > 0) {
+      if (Array.isArray(list)) {
         fieldworkData.value[assignmentLetterId]!.testControls = list
       }
     } catch (error) {
       console.error('Failed to fetch test controls:', error)
+    }
+  }
+
+  // Cache invalidation: called when data is modified
+  const invalidateFieldworkDataCache = (assignmentLetterId?: string) => {
+    if (assignmentLetterId) {
+      delete pendingRequests.value[assignmentLetterId]
+    } else {
+      pendingRequests.value = {}
     }
   }
 
@@ -731,7 +506,13 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showInterviewModal.value = false
       resetInterviewForm()
-      await fetchInterviews(selectedAssignmentLetter.value)
+      // Only refetch if creating new (to get the full record with server-assigned ID)
+      // For updates, local state is already correct
+      if (!wasEditing) {
+        await fetchInterviews(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Wawancara berhasil diperbarui' : 'Wawancara berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
@@ -1037,10 +818,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
     // Validation: make sure required fields are not empty
     if (
-      !observationForm.activity?.trim() ||
-      !observationForm.location?.trim() ||
-      !observationForm.date?.trim() ||
-      !observationForm.observer?.trim()
+      !observationForm.activity?.trim()
+      || !observationForm.location?.trim()
+      || !observationForm.date?.trim()
+      || !observationForm.observer?.trim()
     ) {
       toast.info('Mohon lengkapi semua data observasi yang wajib diisi!')
       return false
@@ -1129,7 +910,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showObservationModal.value = false
       resetObservationForm()
-      await fetchObservations(selectedAssignmentLetter.value)
+      if (!wasEditing) {
+        await fetchObservations(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Observasi berhasil diperbarui' : 'Observasi berhasil ditambahkan')
       return true
     } catch (error) {
@@ -1279,9 +1064,9 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
     // Validation: make sure required fields are not empty
     if (
-      !documentForm.documentName?.trim() ||
-      !documentForm.description?.trim() ||
-      !documentForm.requiredDate?.trim()
+      !documentForm.documentName?.trim()
+      || !documentForm.description?.trim()
+      || !documentForm.requiredDate?.trim()
     ) {
       toast.error('Mohon lengkapi semua data dokumen yang wajib diisi!')
       return false
@@ -1370,7 +1155,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showDocumentModal.value = false
       resetDocumentForm()
-      await fetchDocuments(selectedAssignmentLetter.value)
+      if (!wasEditing) {
+        await fetchDocuments(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Dokumen berhasil diperbarui' : 'Dokumen berhasil ditambahkan')
       return true
     } catch (error) {
@@ -1451,11 +1240,24 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   }
 
   // Sample Form
-  const sampleForm = reactive({
+  const sampleForm = reactive<{
+    documentName: string
+    documentNumber: string
+    date: string
+    description: string
+    file: File | null
+    fileName: string
+    filePath: string
+    fileUrl: string
+  }>({
     documentName: '',
     documentNumber: '',
     date: '',
-    description: ''
+    description: '',
+    file: null,
+    fileName: '',
+    filePath: '',
+    fileUrl: ''
   })
   const showSampleModal = ref(false)
   const isEditingSample = ref(false)
@@ -1482,6 +1284,10 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     sampleForm.documentNumber = item.documentNumber
     sampleForm.date = item.date
     sampleForm.description = item.description
+    sampleForm.file = item.file || null
+    sampleForm.fileName = item.fileName || (item.file ? item.file.name : '')
+    sampleForm.filePath = item.filePath || ''
+    sampleForm.fileUrl = item.fileUrl || item.filePath || ''
     showSampleModal.value = true
   }
 
@@ -1496,6 +1302,19 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     sampleForm.documentNumber = ''
     sampleForm.date = ''
     sampleForm.description = ''
+    sampleForm.file = null
+    sampleForm.fileName = ''
+    sampleForm.filePath = ''
+    sampleForm.fileUrl = ''
+  }
+
+  const handleSampleFileChange = (e: Event) => {
+    const target = e.target as HTMLInputElement
+    if (target.files && target.files.length > 0 && target.files[0]) {
+      const selectedFile: File = target.files[0]
+      sampleForm.file = selectedFile
+      sampleForm.fileName = selectedFile.name
+    }
   }
 
   const saveSample = async () => {
@@ -1505,12 +1324,49 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     const wasEditing = isEditingSample.value
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const payload = {
-        ...sampleForm,
-        assignmentLetterId: selectedAssignmentLetter.value
-      }
       ensureFieldworkDataHolder(selectedAssignmentLetter.value)
       const currentList = fieldworkData.value[selectedAssignmentLetter.value]!.samples
+      let uploadedFilePath = sampleForm.filePath || sampleForm.fileUrl || ''
+      let uploadedFileName = sampleForm.fileName || (sampleForm.file ? sampleForm.file.name : '')
+
+      // If a new file object is attached, upload it to /media/upload first
+      if (sampleForm.file) {
+        try {
+          const safeAssignmentId = (selectedAssignmentLetter.value || 'general').replace(/[\/\\]/g, '-')
+          const safeSampleId = (editingSampleId.value ? String(editingSampleId.value) : safeAssignmentId).replace(/[\/\\]/g, '-')
+          const folderPath = `Auditsphere/fieldwork/samples/${safeSampleId}`
+
+          const formData = new FormData()
+          formData.append('file', sampleForm.file)
+          formData.append('folder', folderPath)
+          formData.append('feature_name', 'fieldwork-sample')
+          formData.append('document_id', safeSampleId)
+          formData.append('document_name', sampleForm.file.name)
+
+          const uploadRes: any = await $fetch(`${baseUrl}/media/upload`, {
+            method: 'POST',
+            body: formData
+          })
+          if (uploadRes?.data?.filePath || uploadRes?.filePath) {
+            uploadedFilePath = uploadRes?.data?.filePath || uploadRes?.filePath
+            uploadedFileName = uploadRes?.data?.fileName || uploadRes?.fileName || sampleForm.file.name
+          }
+        } catch (uploadErr) {
+          console.warn('Media upload failed, proceeding with local filename:', uploadErr)
+          uploadedFileName = sampleForm.file.name
+        }
+      }
+
+      const payload = {
+        documentName: sampleForm.documentName,
+        documentNumber: sampleForm.documentNumber,
+        date: sampleForm.date,
+        description: sampleForm.description,
+        assignmentLetterId: selectedAssignmentLetter.value,
+        fileName: uploadedFileName,
+        filePath: uploadedFilePath,
+        fileUrl: uploadedFilePath
+      }
 
       let res: any = null
       if (isEditingSample.value && editingSampleId.value) {
@@ -1524,6 +1380,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           currentList[idx] = {
             ...currentList[idx],
             ...payload,
+            file: sampleForm.file,
             id: updatedItem?.id || editingSampleId.value
           }
         }
@@ -1539,13 +1396,21 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           documentName: sampleForm.documentName,
           documentNumber: sampleForm.documentNumber,
           date: sampleForm.date,
-          description: sampleForm.description
+          description: sampleForm.description,
+          file: sampleForm.file,
+          fileName: uploadedFileName,
+          filePath: uploadedFilePath,
+          fileUrl: uploadedFilePath
         }
         currentList.push(newItem)
       }
       showSampleModal.value = false
       resetSampleForm()
-      await fetchSamples(selectedAssignmentLetter.value)
+      if (!wasEditing) {
+        await fetchSamples(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Sample berhasil diperbarui' : 'Sample berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
@@ -1568,7 +1433,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           documentName: sampleForm.documentName,
           documentNumber: sampleForm.documentNumber,
           date: sampleForm.date,
-          description: sampleForm.description
+          description: sampleForm.description,
+          file: sampleForm.file,
+          fileName: sampleForm.fileName,
+          filePath: sampleForm.filePath,
+          fileUrl: sampleForm.fileUrl
         }
         currentList.push(newItem)
       }
@@ -1577,6 +1446,85 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       toast.showSuccess(wasEditing ? 'Sample berhasil diperbarui' : 'Sample berhasil ditambahkan')
     } finally {
       loading.value = false
+    }
+  }
+
+  const downloadSampleFile = async (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }) => {
+    return downloadInterviewFile(item)
+  }
+
+  const viewSampleFile = async (item: {
+    file?: File | null
+    fileName?: string
+    filePath?: string
+    fileUrl?: string
+  }) => {
+    const toast = useToastNotification()
+    const targetName = item.fileName || item.file?.name
+    const targetUrl = item.fileUrl || item.filePath
+
+    // 1. If an in-memory File instance exists
+    if (item.file instanceof File) {
+      const url = window.URL.createObjectURL(item.file)
+      window.open(url, '_blank')
+      return
+    }
+
+    // 2. If a stored FilePath or FileUrl is external link
+    if (targetUrl && (targetUrl.startsWith('http://') || targetUrl.startsWith('https://'))) {
+      window.open(targetUrl, '_blank')
+      return
+    }
+
+    const baseUrl = getAuditServiceBaseUrl()
+    let viewUrl = ''
+    if (targetName) {
+      viewUrl = `${baseUrl}/media/download/${encodeURIComponent(targetName)}`
+    } else if (targetUrl) {
+      if (targetUrl.startsWith('/uploads')) {
+        viewUrl = targetUrl
+      } else {
+        const origin = baseUrl.replace(/\/api\/v1\/?$/, '')
+        viewUrl = targetUrl.startsWith('/') ? `${origin}${targetUrl}` : `${origin}/${targetUrl}`
+      }
+    }
+
+    if (!viewUrl) {
+      toast.showWarning('Berkas belum tersedia untuk ditampilkan.')
+      return
+    }
+
+    const tab = window.open('', '_blank')
+    try {
+      if (viewUrl.startsWith('/uploads') || !viewUrl.startsWith('http')) {
+        if (tab) {
+          tab.location.href = viewUrl
+        } else {
+          window.open(viewUrl, '_blank')
+        }
+        return
+      }
+
+      const blob = await $fetch<Blob>(viewUrl, { responseType: 'blob' })
+      const blobUrl = window.URL.createObjectURL(blob)
+      if (tab) {
+        tab.location.href = blobUrl
+      } else {
+        window.open(blobUrl, '_blank')
+      }
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 60000)
+    } catch {
+      if (tab && viewUrl) {
+        tab.location.href = viewUrl
+      } else {
+        tab?.close()
+        toast.showError('Gagal membuka dokumen.')
+      }
     }
   }
 
@@ -1726,7 +1674,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       }
       showTestControlModal.value = false
       resetTestControlForm()
-      await fetchTestControls(selectedAssignmentLetter.value)
+      if (!wasEditing) {
+        await fetchTestControls(selectedAssignmentLetter.value)
+      } else {
+        invalidateFieldworkDataCache(selectedAssignmentLetter.value)
+      }
       toast.showSuccess(wasEditing ? 'Test Control berhasil diperbarui' : 'Test Control berhasil ditambahkan')
     } catch (error) {
       console.error('API save error, applying local state update:', error)
@@ -1836,7 +1788,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     if (!fileName) return
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      let headers: Record<string, string> = {}
+      const headers: Record<string, string> = {}
       try {
         const authStore = useAuthStore()
         if (authStore && authStore.token) {
@@ -1928,8 +1880,11 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     openSampleModal,
     editSample,
     viewSample,
+    handleSampleFileChange,
     saveSample,
     deleteSample,
+    downloadSampleFile,
+    viewSampleFile,
     testControlForm,
     showTestControlModal,
     isEditingTestControl,
@@ -1946,11 +1901,12 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlCount,
     effectiveControls,
     ineffectiveControls,
-    mockFieldwork,
     fieldworkData,
     uploadFile,
     downloadFile,
     fetchAllFieldworkData,
+    ensureFieldworkDataHolder,
+    invalidateFieldworkDataCache,
     loading,
     errorMsg
   }

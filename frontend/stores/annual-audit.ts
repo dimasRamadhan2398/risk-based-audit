@@ -7,6 +7,7 @@ import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/use
 import type { TablePagination } from '~/types/common'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
@@ -92,62 +93,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const selectedStatus = ref<AnnualAuditPlanStatus | undefined>(undefined)
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
-  const yearOptions = ['2026', '2027', '2028', '2029', '2030']
+  const yearOptions = getFiscalYearStrings()
   const departmentOptions = Object.values(AuditDepartment)
   const statusOptions = Object.values(AnnualAuditPlanStatus)
-
-  const initialMockPlans: any[] = [
-    {
-      id: 'mock-1',
-      code: 'PKAT-2026-ASR-001',
-      version: 'v1.0',
-      status: AnnualAuditPlanStatus.WORK_IN_PROGRESS,
-      year: '2026',
-      quarters: ['Q1', 'Q2'],
-      selectedMonths: [0, 1, 3, 4],
-      auditorCount: 3,
-      daysPerAuditor: 10,
-      totalMandays: 30,
-      supervisorId: 'S01',
-      supervisorName: 'Budi Santoso (Mgr)',
-      notes: 'Audit operasional TI dan infrastruktur data center',
-      isActive: true,
-      activities: [
-        {
-          name: 'Audit Keamanan Siber & IT Infrastructure',
-          category: AuditCategory.ASSURANCE,
-          department: AuditDepartment.IT,
-          riskName: 'Kelemahan Kontrol Akses & Server Downtime',
-          riskLevel: 'High'
-        }
-      ]
-    },
-    {
-      id: 'mock-2',
-      code: 'PKAT-2026-ASR-002',
-      version: 'v1.0',
-      status: AnnualAuditPlanStatus.DONE,
-      year: '2026',
-      quarters: ['Q2', 'Q3'],
-      selectedMonths: [4, 5, 7],
-      auditorCount: 2,
-      daysPerAuditor: 8,
-      totalMandays: 16,
-      supervisorId: 'S02',
-      supervisorName: 'Siti Aminah (Snr)',
-      notes: 'Audit kepatuhan regulasi OJK & laporan keuangan bulanan',
-      isActive: true,
-      activities: [
-        {
-          name: 'Audit Kepatuhan Keuangan & Pajak',
-          category: AuditCategory.ASSURANCE,
-          department: AuditDepartment.FINANCE,
-          riskName: 'Penyimpangan Rekonsiliasi Bank',
-          riskLevel: 'Medium'
-        }
-      ]
-    }
-  ]
 
   const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
     if (!Array.isArray(rawPlans)) return []
@@ -173,7 +121,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }))
   }
 
-  const plans = ref<AnnualAuditPlan[]>(normalizePlans(initialMockPlans))
+  // Starts empty: the list only ever holds what GET /annual-audit-plans returned.
+  const plans = ref<AnnualAuditPlan[]>([])
 
   // --- COMPUTED: FILTER DATA ---
   const filteredPlans = computed(() => {
@@ -295,19 +244,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // --- COMPUTED LOGIC (Real-time Validation) ---
   const totalMandays = computed(() => form.auditorCount * form.daysPerAuditor)
-  const selectedSupervisor = computed(() => supervisors.value.find(s => s.id === form.supervisorId))
+  const selectedSupervisor = computed(() => supervisors.value.find(s => s.id === form.supervisorId || (Boolean(form.supervisorId) && s.name.toLowerCase().includes(String(form.supervisorId).toLowerCase()))))
   const utilizationData = computed(() => checkUtilization(totalMandays.value))
   const computedQuarters = computed(() => calculateQuarters(form.selectedMonths))
   const scheduleWarning = computed(() => checkScheduleGaps(form.selectedMonths))
-
-  const quarterAlert = computed(() => {
-    const q1Count = form.selectedMonths.filter(m => m <= 2).length
-    const totalCount = form.selectedMonths.length
-    if (totalCount > 0 && (q1Count / totalCount) > 0.4 && totalCount > 3) {
-      return 'Beban kerja Triwulan I terlalu tinggi (>40%). Mohon ratakan jadwal.'
-    }
-    return null
-  })
 
   const supervisorOptions = computed(() => {
     return supervisors.value.map(s => ({
@@ -355,7 +295,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const generateAutoCode = () => {
     if (isEditing.value) return
 
-    const yr = form.year || yearOptions[0] || new Date().getFullYear().toString()
+    const yr = form.year || new Date().getFullYear().toString()
     const catCode = getCategoryCode(form.activities[0]?.category)
 
     const seq = (plans.value.length + 1).toString().padStart(3, '0')
@@ -376,7 +316,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     editingId.value = null
 
     clearValidationErrors()
-    const defaultYear = yearOptions[0] || new Date().getFullYear().toString()
+    const defaultYear = new Date().getFullYear().toString()
 
     Object.assign(form, {
       code: '',
@@ -434,47 +374,73 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     { immediate: true }
   )
 
+  // The crud List handler pages its results (page_size defaults to 20, max 100) and
+  // returns { data: { items, pagination: { page, page_size, total, total_pages } } }.
+  const PLAN_PAGE_SIZE = 100
+
+  const extractPlanItems = (response: unknown): unknown[] => {
+    const res = response as Record<string, unknown> | unknown[] | null | undefined
+    if (Array.isArray(res)) return res
+    const data = res?.data as Record<string, unknown> | unknown[] | undefined
+    if (Array.isArray(data)) return data
+    if (data && Array.isArray(data.items)) return data.items as unknown[]
+    if (res && Array.isArray(res.items)) return res.items as unknown[]
+    return []
+  }
+
+  const extractTotalPages = (response: unknown): number => {
+    const res = response as Record<string, unknown> | null | undefined
+    const data = res?.data as Record<string, unknown> | undefined
+    const meta = (data && !Array.isArray(data) ? data.pagination : undefined) ?? res?.pagination
+    const totalPages = Number((meta as Record<string, unknown> | undefined)?.total_pages)
+    return Number.isFinite(totalPages) && totalPages > 1 ? totalPages : 1
+  }
+
+  // Loads every annual audit plan: the first page tells us total_pages, the rest are
+  // fetched in parallel. Both /annual-audit (client-side table paging and filters) and
+  // the dashboard coverage card need the full list, not just the first API page.
   const fetchPlans = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
-      const baseUrl = getAuditServiceBaseUrl()
-      const response = await $fetch<Record<string, unknown>>(`${baseUrl}/annual-audit-plans`, {
-        method: 'GET'
+      const url = `${getAuditServiceBaseUrl()}/annual-audit-plans`
+      const fetchPage = (page: number) => $fetch<unknown>(url, {
+        method: 'GET',
+        query: { page, page_size: PLAN_PAGE_SIZE }
       })
-      if (response && response.data && typeof response.data === 'object' && Array.isArray((response.data as Record<string, unknown>).items) && ((response.data as Record<string, unknown>).items as unknown[]).length > 0) {
-        plans.value = normalizePlans((response.data as Record<string, unknown>).items as unknown[])
-      } else if (response && response.data && Array.isArray(response.data) && response.data.length > 0) {
-        plans.value = normalizePlans(response.data)
-      } else if (response && Array.isArray(response.items) && response.items.length > 0) {
-        plans.value = normalizePlans(response.items)
-      } else if (Array.isArray(response) && response.length > 0) {
-        plans.value = normalizePlans(response)
-      }
 
-      // Bind and update paginations data after fetching plans
-      const resPagination = response?.pagination as Record<string, unknown> | undefined
-      const totalItems = (resPagination?.total as number | undefined) ?? (response?.total as number | undefined) ?? plans.value.length
-      const pageSize = (resPagination?.pageSize as number | undefined) ?? (resPagination?.page_size as number | undefined) ?? paginations.value.pageSize ?? 10
-      const currentIndex = (resPagination?.currentIndex as number | undefined) ?? (resPagination?.page as number | undefined) ?? paginations.value.currentIndex ?? 1
-      const totalPages = (resPagination?.totalPages as number | undefined) ?? (resPagination?.total_pages as number | undefined) ?? Math.ceil(totalItems / pageSize) ?? 1
+      const first = await fetchPage(1)
+      const totalPages = extractTotalPages(first)
+      const rest = totalPages > 1
+        ? await Promise.all(Array.from({ length: totalPages - 1 }, (_, i) => fetchPage(i + 2)))
+        : []
 
-      paginations.value = {
-        pageSize,
-        currentIndex,
-        totalPages
-      }
+      // De-duplicate by id in case rows shift between page requests.
+      const seen = new Set<string>()
+      const items = [first, ...rest].flatMap(extractPlanItems).filter((item) => {
+        const id = (item as { id?: unknown })?.id
+        if (id === undefined || id === null) return true
+        const key = String(id)
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+
+      // An empty response really means "no plans" - no mock fallback.
+      plans.value = normalizePlans(items)
     } catch (error: unknown) {
-      console.warn('Backend API unavailable, using initial mock annual plans:', error)
+      // Keep whatever was loaded before (empty on first load); never show mock rows.
+      console.warn('Failed to fetch annual audit plans:', error)
       errorMsg.value = extractErrorMessage(error, 'Gagal memuat rencana audit tahunan.')
-      const totalItems = plans.value.length
+    } finally {
+      // The /annual-audit table pages the full list client-side, so keep its own page size.
       const pageSize = paginations.value.pageSize || 10
+      const pages = Math.ceil(filteredPlans.value.length / pageSize) || 1
       paginations.value = {
         pageSize,
-        currentIndex: 1,
-        totalPages: Math.ceil(totalItems / pageSize) || 1
+        currentIndex: Math.min(paginations.value.currentIndex || 1, pages),
+        totalPages: pages
       }
-    } finally {
       loading.value = false
     }
   }
@@ -552,8 +518,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       auditorErrors.push('Duration harus minimal 1 hari.')
     }
 
-    if (!form.supervisorId) {
-      auditorErrors.push('Supervisor wajib dipilih.')
+    if (!form.supervisorId || (typeof form.supervisorId === 'string' && !form.supervisorId.trim())) {
+      auditorErrors.push('Supervisor wajib diisi.')
     }
 
     validationErrors.activityDetail = activityErrors.join(' ')
@@ -602,7 +568,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.selectedMonths = [...plan.selectedMonths]
     form.auditorCount = plan.auditorCount
     form.daysPerAuditor = plan.daysPerAuditor
-    form.supervisorId = plan.supervisorId
+    form.supervisorId = plan.supervisorName || getSupervisorName(plan.supervisorId) || plan.supervisorId || ''
     form.notes = plan.notes || ''
     form.file = []
     form.attachmentCategory = plan.attachmentCategory || ''
@@ -612,7 +578,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.year = plan.year || ''
 
     if (!form.code) {
-      const yr = form.year || yearOptions[0] || new Date().getFullYear().toString()
+      const yr = form.year || new Date().getFullYear().toString()
       const catCode = getCategoryCode(form.activities[0]?.category)
       const seq = (plans.value.length + 1).toString().padStart(3, '0')
       form.code = `PKAT-${yr}-${catCode}-${seq}`
@@ -704,7 +670,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const addPlan = async (form: AnnualPlanForm) => {
     const quarters = calculateQuarters(form.selectedMonths)
     const totalMandays = form.auditorCount * form.daysPerAuditor
-    const supervisor = supervisors.value.find(s => s.id === form.supervisorId)
+    const supervisor = supervisors.value.find(s => s.id === form.supervisorId || s.name === form.supervisorId)
+    const supervisorId = supervisor?.id || form.supervisorId
+    const supervisorName = supervisor?.name || form.supervisorId || 'Unknown'
 
     const payload = {
       code: form.code,
@@ -717,8 +685,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       auditorCount: form.auditorCount,
       daysPerAuditor: form.daysPerAuditor,
       totalMandays: totalMandays,
-      supervisorId: form.supervisorId,
-      supervisorName: supervisor?.name || 'Unknown',
+      supervisorId: supervisorId,
+      supervisorName: supervisorName,
       notes: form.notes,
       year: parseInt(form.year) || 2026,
       attachmentCategory: form.attachmentCategory,
@@ -755,7 +723,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const baseUrl = getAuditServiceBaseUrl()
     const quarters = calculateQuarters(updatedData.selectedMonths)
     const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
-    const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId)
+    const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId || s.name === updatedData.supervisorId)
+    const supervisorId = supervisor?.id || updatedData.supervisorId
+    const supervisorName = supervisor?.name || updatedData.supervisorId || 'Unknown'
 
     const fileList = updatedData.file && updatedData.file.length > 0
       ? updatedData.file.map((f: any) => ({
@@ -769,7 +739,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       ...updatedData,
       quarters: quarters,
       totalMandays: totalMandays,
-      supervisorName: supervisor?.name || 'Unknown',
+      supervisorId: supervisorId,
+      supervisorName: supervisorName,
       year: parseInt(updatedData.year) || 2026,
       attachments: (updatedData.attachments || []).concat(fileList)
     }
@@ -939,7 +910,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     plans, supervisors, monthsList, yearOptions, supervisorOptions, attachmentCategoryOptions,
     showModal, isEditing, editingId, showViewModal, selectedPlan, progressAudit, approvalStepperItems,
     searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading, validationErrors,
-    filteredPlans, totalMandays, selectedSupervisor, quarterAlert, scheduleWarning, utilizationData,
+    filteredPlans, totalMandays, selectedSupervisor, scheduleWarning, utilizationData,
     computedQuarters, paginations, pagination: paginations,
     clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,

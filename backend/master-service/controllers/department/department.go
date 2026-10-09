@@ -3,6 +3,7 @@ package department
 import (
 	"master-service/models"
 	"master-service/pkg/base"
+	apperrors "master-service/pkg/errors"
 	"master-service/pkg/response"
 	"master-service/pkg/validations"
 	departmentSvc "master-service/services/department"
@@ -14,14 +15,14 @@ import (
 
 // Request DTOs
 type CreateDepartmentRequest struct {
-	DepartmentCode        string `json:"department_code" binding:"required"`
-	DepartmentName        string `json:"department_name" binding:"required"`
-	DepartmentDescription string `json:"department_description"`
-	PicID                 string `json:"pic_id" binding:"required"`
-	Level                 int    `json:"level" binding:"required"`
-	CompanyID             string `json:"company_id" binding:"required"`
-	BusinessUnitID        string `json:"business_unit_id" binding:"required"`
-	IsActive              bool   `json:"is_active"`
+	DepartmentCode        string  `json:"department_code" binding:"required"`
+	DepartmentName        string  `json:"department_name" binding:"required"`
+	DepartmentDescription string  `json:"department_description"`
+	PicID                 *string `json:"pic_id"`
+	Level                 int     `json:"level" binding:"required"`
+	CompanyID             string  `json:"company_id" binding:"required"`
+	BusinessUnitID        *string `json:"business_unit_id"`
+	IsActive              bool    `json:"is_active"`
 }
 
 type UpdateDepartmentRequest struct {
@@ -137,24 +138,28 @@ func (d *DepartmentController) Create(ctx *gin.Context) {
 	// Parse UUIDs
 	companyID, err := uuid.Parse(req.CompanyID)
 	if err != nil {
-		response.BadRequest(ctx, "Invalid company_id format")
+		d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"company_id": apperrors.FieldInvalidFormat}))
 		return
 	}
 	department.CompanyID = companyID
 
-	picID, err := uuid.Parse(req.PicID)
-	if err != nil {
-		response.BadRequest(ctx, "Invalid pic_id format")
-		return
+	if req.PicID != nil && *req.PicID != "" {
+		picID, err := uuid.Parse(*req.PicID)
+		if err != nil {
+			response.BadRequest(ctx, "Invalid pic_id format")
+			return
+		}
+		department.PicID = &picID
 	}
-	department.PicID = picID
 
-	businessUnitID, err := uuid.Parse(req.BusinessUnitID)
-	if err != nil {
-		response.BadRequest(ctx, "Invalid business_unit_id format")
-		return
+	if req.BusinessUnitID != nil && *req.BusinessUnitID != "" {
+		businessUnitID, err := uuid.Parse(*req.BusinessUnitID)
+		if err != nil {
+			response.BadRequest(ctx, "Invalid business_unit_id format")
+			return
+		}
+		department.BusinessUnitID = &businessUnitID
 	}
-	department.BusinessUnitID = businessUnitID
 
 	result, err := d.departmentSvc.Create(baseService, department)
 	if err != nil {
@@ -183,30 +188,38 @@ func (d *DepartmentController) Update(ctx *gin.Context) {
 
 	// Update fields if provided
 	if req.PicID != nil {
-		picID, err := uuid.Parse(*req.PicID)
-		if err != nil {
-			response.BadRequest(ctx, "Invalid pic_id format")
-			return
+		if *req.PicID == "" {
+			existingDepartment.PicID = nil
+		} else {
+			picID, err := uuid.Parse(*req.PicID)
+			if err != nil {
+				response.BadRequest(ctx, "Invalid pic_id format")
+				return
+			}
+			existingDepartment.PicID = &picID
 		}
-		existingDepartment.PicID = picID
 	}
 
 	if req.CompanyID != nil {
 		companyID, err := uuid.Parse(*req.CompanyID)
 		if err != nil {
-			response.BadRequest(ctx, "Invalid company_id format")
+			d.RespondError(ctx, apperrors.ValidationFailed("", map[string]string{"company_id": apperrors.FieldInvalidFormat}))
 			return
 		}
 		existingDepartment.CompanyID = companyID
 	}
 
 	if req.BusinessUnitID != nil {
-		businessUnitID, err := uuid.Parse(*req.BusinessUnitID)
-		if err != nil {
-			response.BadRequest(ctx, "Invalid business_unit_id format")
-			return
+		if *req.BusinessUnitID == "" {
+			existingDepartment.BusinessUnitID = nil
+		} else {
+			businessUnitID, err := uuid.Parse(*req.BusinessUnitID)
+			if err != nil {
+				response.BadRequest(ctx, "Invalid business_unit_id format")
+				return
+			}
+			existingDepartment.BusinessUnitID = &businessUnitID
 		}
-		existingDepartment.BusinessUnitID = businessUnitID
 	}
 
 	result, err := d.departmentSvc.Update(baseService, id, existingDepartment)

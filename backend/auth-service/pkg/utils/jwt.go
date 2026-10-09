@@ -33,9 +33,14 @@ func GenerateToken(userID, username string, roles []string, secret string, expir
 
 // ParseToken parses and validates a JWT token
 func ParseToken(tokenString, secret string) (*Claims, error) {
+	// GenerateToken above always signs HS256 and always sets exp; pin both so a
+	// token claiming another algorithm, or none at all, is rejected outright.
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
-	})
+	},
+		jwt.WithValidMethods([]string{"HS256"}),
+		jwt.WithExpirationRequired(),
+	)
 
 	if err != nil {
 		return nil, err

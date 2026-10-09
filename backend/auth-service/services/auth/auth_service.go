@@ -180,6 +180,7 @@ func (s *AuthService) completeLogin(ctx context.Context, user *models.User, fing
 			FullName:   user.FullName,
 			Phone:      user.Phone,
 			Department: user.Department,
+			AvatarURL:  func() string { if user.AvatarURL != nil { return *user.AvatarURL }; return "" }(),
 			Roles:      roles,
 			MustChangePassword: user.MustChangePassword,
 		},

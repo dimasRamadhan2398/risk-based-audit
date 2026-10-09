@@ -5,6 +5,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
+import SourceSelectorDropdown from '~/components/common/SourceSelectorDropdown.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -228,6 +229,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         ]
       },
       {
+        label: t('navigation.auditFieldwork'),
+        icon: 'i-lucide-briefcase',
+        to: '/audit-fieldwork'
+      },
+      {
         label: t('navigation.workingPaper'),
         icon: 'i-lucide-file-text',
         type: 'trigger',
@@ -244,11 +250,6 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
           }
         ]
       },
-      {
-        label: t('navigation.auditFieldwork'),
-        icon: 'i-lucide-briefcase',
-        to: '/audit-fieldwork'
-      }
     ]
   },
 
@@ -452,17 +453,27 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
   {
     label: t('navigation.masterData'),
     icon: 'i-lucide-database',
-    to: '/master/employee',
+    to: '/master/company',
     children: [
       {
-        label: t('navigation.employeeManagement'),
-        icon: 'i-lucide-users-round',
-        to: '/master/employee'
+        label: t('navigation.company'),
+        icon: 'i-lucide-building',
+        to: '/master/company'
       },
       {
         label: t('navigation.department'),
         icon: 'i-lucide-building-2',
         to: '/master/department'
+      },
+      {
+        label: t('navigation.location'),
+        icon: 'i-lucide-map-pin',
+        to: '/master/location'
+      },
+      {
+        label: t('navigation.employeeManagement'),
+        icon: 'i-lucide-users-round',
+        to: '/master/employee'
       }
     ]
   },
@@ -727,6 +738,9 @@ const userDropdownItems = computed(() => [
             <Logo class="shrink-0" text-class="text-base sm:text-xl" />
           </div>
           <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <!-- Data Source Universal Selector -->
+            <SourceSelectorDropdown />
+
             <!-- Language Switcher Toggle -->
             <div class="flex items-center gap-0.5 sm:gap-1 bg-[var(--bg-surface)] p-0.5 sm:p-1 rounded-xl border border-[var(--border-main)] shadow-xs">
               <button
@@ -761,6 +775,7 @@ const userDropdownItems = computed(() => [
               :items="userDropdownItems"
             >
               <UAvatar
+                :src="authStore.getUser?.avatarUrl || undefined"
                 :alt="authStore.getUser?.fullName || 'User'"
                 size="md"
               />

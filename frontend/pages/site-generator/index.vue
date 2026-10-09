@@ -29,7 +29,7 @@
         <!-- Right Header Actions (Without Back to Dashboard) -->
         <div class="flex items-center gap-3">
           <span class="text-xs text-[var(--text-muted)] font-mono hidden md:inline">
-            Domain Root: {{ envMode === 'local' ? '*.localhost / 127.0.0.1' : '*.auditsphere.id' }}
+            Domain Root: {{ envMode === 'local' ? '*.localhost / 127.0.0.1' : '*.auditsphere.app' }}
           </span>
           <UColorModeButton />
         </div>
@@ -469,7 +469,7 @@
                     @input="sanitizeSlug"
                   />
                   <span class="inline-flex items-center px-3 py-2 rounded-r-md border border-l-0 border-gray-300 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 text-sm font-mono font-medium select-none">
-                    {{ envMode === 'local' ? `.localhost:${form.frontendPort}` : '.auditsphere.id' }}
+                    {{ envMode === 'local' ? `.localhost:${form.frontendPort}` : '.auditsphere.app' }}
                   </span>
                 </div>
               </AppFormField>
@@ -915,7 +915,7 @@
                       name="i-lucide-mail"
                       class="w-3.5 h-3.5"
                     />
-                    Resend API ({{ form.slug || 'client' }}.auditsphere.id)
+                    Resend API ({{ form.slug || 'client' }}.auditsphere.app)
                   </span>
                 </div>
                 <div>
@@ -1188,14 +1188,14 @@ const targetDomain = computed(() => {
   if (envMode.value === 'local') {
     return `${form.slug || 'client'}.localhost:${form.frontendPort}`
   }
-  return `${form.slug || 'client'}.auditsphere.id`
+  return `${form.slug || 'client'}.auditsphere.app`
 })
 
 const targetApiDomain = computed(() => {
   if (envMode.value === 'local') {
     return `localhost:${form.kongPort}`
   }
-  return `api-${form.slug || 'client'}.auditsphere.id`
+  return `api-${form.slug || 'client'}.auditsphere.app`
 })
 
 const generatedDatabases = computed(() => {
@@ -1260,7 +1260,7 @@ const handleProvisionSite = async () => {
   if (envMode.value === 'local') {
     provisioningLogs.value = [{ text: 'Configuring RFC 6761 localhost DNS loopback for ' + targetDomain.value, ok: true }]
   } else {
-    provisioningLogs.value = [{ text: 'Resolving DNS *.auditsphere.id for ' + targetDomain.value, ok: true }]
+    provisioningLogs.value = [{ text: 'Resolving DNS *.auditsphere.app for ' + targetDomain.value, ok: true }]
   }
 
   await new Promise(r => setTimeout(r, 600))
@@ -1279,7 +1279,7 @@ const handleProvisionSite = async () => {
   await new Promise(r => setTimeout(r, 500))
   provisioningProgress.value = 88
 
-  const resendDomainName = envMode.value === 'local' ? `${form.slug || 'client'}.auditsphere.id` : targetDomain.value
+  const resendDomainName = envMode.value === 'local' ? `${form.slug || 'client'}.auditsphere.app` : targetDomain.value
   let resendData: ResendProvisionData | null = null
   let resendError: string | null = null
 

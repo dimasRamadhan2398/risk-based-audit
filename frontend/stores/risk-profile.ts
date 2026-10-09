@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { RiskLevel, ImpactLevel, PossibilityLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { useLocationApi } from '~/composables/useLocationApi'
+import { useFiscalYear } from '~/composables/useFiscalYear'
 
 // --- Constants (Exported for components) ---
 
@@ -75,214 +77,155 @@ export const riskLevelConfig = {
   }
 }
 
-const initialRiskData = [
-  {
-    id: 1,
-    name: 'Target pendapatan dan laba tidak tercapai',
-    impact: 5,
-    likelihood: 4,
-    severity: 98,
-    category: 'Financial',
-    branch: 'Head Office',
-    description: 'Terget pendapatan tidak tercapai karena kinerja tim marketing yang kurang maksimal dan strategi marketing yang tidak efektif.',
-    assessments: [
-      { year: 2026, impact_q1: 5, impact_q2: 4, impact_q3: 3, impact_q4: 2, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 2 }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Target efisiensi biaya operasional dan umum tidak tercapai',
-    impact: 5,
-    likelihood: 4,
-    severity: 95,
-    category: 'Financial',
-    branch: 'Head Office',
-    description: 'Target efisiensi biaya operasional dan umum tidak tercapai karena kinerja tim keuangan yang kurang maksimal dan strategi keuangan yang tidak efektif.',
-    assessments: [
-      { year: 2026, impact_q1: 5, impact_q2: 4, impact_q3: 3, impact_q4: 2, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 3, likelihood_q4: 2 }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Ancaman terhadap Cyber Security dan perlindungan data pribadi',
-    impact: 5,
-    likelihood: 4,
-    severity: 88,
-    category: 'Technology',
-    branch: 'Head Office',
-    description: 'Ancaman terhadap cyber security dan kebocoran data pelanggan/karyawan.',
-    assessments: [
-      { year: 2026, impact_q1: 5, impact_q2: 4, impact_q3: 3, impact_q4: 2, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 2 }
-    ]
-  },
-  {
-    id: 4,
-    name: 'Terjadinya fraud',
-    impact: 4,
-    likelihood: 4,
-    severity: 92,
-    category: 'Financial',
-    branch: 'Head Office',
-    description: 'Penyalahgunaan wewenang atau kecurangan keuangan di lingkungan internal.',
-    assessments: [
-      { year: 2026, impact_q1: 4, impact_q2: 3, impact_q3: 2, impact_q4: 1, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 1 }
-    ]
-  },
-  {
-    id: 5,
-    name: 'Implementasi teknologi dan digitalisasi tidak berhasil',
-    impact: 4,
-    likelihood: 3,
-    severity: 72,
-    category: 'Technology',
-    branch: 'Bali Branch',
-    description: 'Kegagalan implementasi sistem baru yang menghambat operasional.',
-    assessments: [
-      { year: 2026, impact_q1: 4, impact_q2: 3, impact_q3: 2, impact_q4: 2, likelihood_q1: 4, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 2 }
-    ]
-  },
-  {
-    id: 6,
-    name: 'Pengembangan kompetensi karyawan tidak terlaksana sesuai rencana',
-    impact: 4,
-    likelihood: 3,
-    severity: 58,
-    category: 'Human Resources',
-    branch: 'Head Office',
-    description: 'Kesenjangan keahlian karyawan akibat program training tidak berjalan.',
-    assessments: [
-      { year: 2026, impact_q1: 4, impact_q2: 3, impact_q3: 2, impact_q4: 2, likelihood_q1: 3, likelihood_q2: 3, likelihood_q3: 2, likelihood_q4: 2 }
-    ]
-  },
-  {
-    id: 7,
-    name: 'Talent Attrition / Brain Drain',
-    impact: 3,
-    likelihood: 3,
-    severity: 50,
-    category: 'Human Resources',
-    branch: 'Head Office',
-    description: 'Loss of key employees and institutional knowledge affecting operational continuity.',
-    assessments: [
-      { year: 2026, impact_q1: 3, impact_q2: 3, impact_q3: 3, impact_q4: 3, likelihood_q1: 3, likelihood_q2: 3, likelihood_q3: 3, likelihood_q4: 3 }
-    ]
-  },
-  {
-    id: 8,
-    name: 'Reputational Damage',
-    impact: 4,
-    likelihood: 2,
-    severity: 75,
-    category: 'Strategic',
-    branch: 'Surabaya Branch',
-    description: 'Significant brand damage due to public scandals, social media crises, or product failures.',
-    assessments: [
-      { year: 2026, impact_q1: 4, impact_q2: 4, impact_q3: 4, impact_q4: 4, likelihood_q1: 2, likelihood_q2: 2, likelihood_q3: 2, likelihood_q4: 2 }
-    ]
-  },
-  {
-    id: 9,
-    name: 'Environmental Compliance Failure',
-    impact: 3,
-    likelihood: 2,
-    severity: 55,
-    category: 'Compliance',
-    branch: 'Bandung Branch',
-    description: 'Violations of environmental regulations leading to fines, shutdowns, or cleanup obligations.',
-    assessments: [
-      { year: 2026, impact_q1: 3, impact_q2: 3, impact_q3: 3, impact_q4: 3, likelihood_q1: 2, likelihood_q2: 2, likelihood_q3: 2, likelihood_q4: 2 }
-    ]
-  },
-  {
-    id: 10,
-    name: 'Operational System Failure',
-    impact: 4,
-    likelihood: 3,
-    severity: 70,
-    category: 'Technology',
-    branch: 'Bali Branch',
-    description: 'Critical failure in core business systems causing operational downtime and revenue loss.',
-    assessments: [
-      { year: 2026, impact_q1: 4, impact_q2: 4, impact_q3: 4, impact_q4: 4, likelihood_q1: 3, likelihood_q2: 3, likelihood_q3: 3, likelihood_q4: 3 }
-    ]
-  }
-]
-
-const branches = [
-  'Head Office',
-  'Jakarta Branch',
-  'Surabaya Branch',
-  'Bandung Branch',
-  'Bali Branch'
-]
+// Branch filter sentinels. Real options use the Location master ID as value.
+export const ALL_BRANCHES = 'All Branches'
+export const UNASSIGNED_BRANCH = '__unassigned__'
 
 // --- Store Definition ---
 
 export const useRiskProfileStore = defineStore('risk-profile', () => {
   const config = useRuntimeConfig()
   const rawRisks = ref<any[]>([])
-  const branchesList = ref(branches)
+  const masterLocations = ref<{ id: string, name: string }[]>([])
+  const branchesLoading = ref(false)
+  // Set when the Location master could not be loaded — the branch filter is
+  // then disabled instead of offering made-up branches.
+  const branchesError = ref('')
   const loading = ref(false)
   const errorMsg = ref('')
+  // Set only when GET /risks fails, so the page can show an error state
+  // (errorMsg is shared with add/update/delete).
+  const risksLoadError = ref('')
 
   // UI State
-  const selectedBranch = ref('All Branches')
+  // ALL_BRANCHES, UNASSIGNED_BRANCH or a Location master ID.
+  const selectedBranch = ref<string>(ALL_BRANCHES)
   const selectedRisk = ref(null)
   const isFormOpen = ref(false)
   const isDetailOpen = ref(false)
   const modalMode = ref('preview')
 
   // Year & Quarter State
-  const selectedYear = ref(2026)
+  const { selectedFiscalYear } = useFiscalYear()
+  const selectedYear = selectedFiscalYear
   const selectedPeriod = ref('Q1')
 
 
 
-  // Dynamic mapped risks based on selectedYear and selectedPeriod
+  /** Branch names, Location master only (active rows). */
+  const branchesList = computed(() => masterLocations.value.map(l => l.name))
+
+  /**
+   * The Location master ID for a branch name, so a saved risk carries a real
+   * reference (risk_profile.location_id) and not just a label.
+   */
+  const locationIdForBranch = (branch?: string | null): string | undefined => {
+    if (!branch) return undefined
+    return masterLocations.value.find(l => l.name === branch)?.id
+  }
+
+  const locationName = (locationId?: string | null): string | undefined => {
+    if (!locationId) return undefined
+    return masterLocations.value.find(l => l.id === locationId)?.name
+  }
+
+  /**
+   * The Location master ID a risk belongs to. Uses location_id; the branch
+   * name is matched only for rows that are not linked yet.
+   */
+  const riskLocationId = (risk: any): string | null => {
+    if (!risk) return null
+    if (risk.location_id) return String(risk.location_id)
+    return locationIdForBranch(risk.branch) ?? null
+  }
+
+  /**
+   * Normalise the location fields of a risk payload: send location_id plus the
+   * master name for it. A branch name that is not master data is dropped (the
+   * backend rejects it), leaving the risk unassigned.
+   */
+  const withLocationId = (payload: any) => {
+    const { location_id: _locationId, branch: _branch, ...rest } = payload || {}
+    const locationId = riskLocationId(payload)
+    if (!locationId) return rest
+    return { ...rest, location_id: locationId, branch: locationName(locationId) ?? payload?.branch }
+  }
+
+  /** Load branches from the Location master (/api/v1/locations). */
+  const fetchBranches = async () => {
+    branchesLoading.value = true
+    branchesError.value = ''
+    try {
+      const locations = await useLocationApi().getLocations()
+      masterLocations.value = locations
+        .filter((l: any) => l.is_active !== false && l.id && l.name)
+        .map((l: any) => ({ id: String(l.id), name: l.name }))
+    } catch (error: any) {
+      console.error('Failed to fetch branch master data:', error)
+      branchesError.value = extractErrorMessage(error, 'Failed to load branch master data.')
+      masterLocations.value = []
+    } finally {
+      branchesLoading.value = false
+    }
+  }
+
+  // The selected year's CRP: only risks assessed in that year, read as they
+  // stood that year (the assessment's snapshot), so a risk added or edited in
+  // one year does not show up in or rewrite another year. Fields missing from
+  // a snapshot fall back to the latest version.
   const risks = computed(() => {
-    return rawRisks.value.map(risk => {
+    const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', etc.
+
+    return rawRisks.value.flatMap(risk => {
       const assessment = risk.assessments?.find((a: any) => a.year === selectedYear.value)
-      const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', etc.
+      if (!assessment) return []
 
-      const impact = (assessment && assessment[`impact_${periodKey}`]) ? assessment[`impact_${periodKey}`] : risk.impact
-      const likelihood = (assessment && assessment[`likelihood_${periodKey}`]) ? assessment[`likelihood_${periodKey}`] : risk.likelihood
-
-      const riskLevel = assessment ? assessment[`risk_level_${periodKey}`] : 'Low'
-
-      return {
+      return [{
         ...risk,
-        impact: impact || 3,
-        likelihood: likelihood || 3,
-        riskLevel: riskLevel || 'Low'
-      }
+        name: assessment.name || risk.name,
+        category: assessment.category || risk.category,
+        description: assessment.description || risk.description,
+        location_id: assessment.location_id || risk.location_id,
+        branch: assessment.location_id
+          ? (locationName(assessment.location_id) ?? assessment.branch)
+          : risk.branch,
+        impact: assessment[`impact_${periodKey}`] || risk.impact || 3,
+        likelihood: assessment[`likelihood_${periodKey}`] || risk.likelihood || 3,
+        riskLevel: assessment[`risk_level_${periodKey}`] || 'Low'
+      }]
     })
   })
 
-  // Load risks from backend
+  /** True when a risk of the selected year has no Location master branch. */
+  const hasUnassignedRisks = computed(() => risks.value.some(r => !riskLocationId(r)))
+
+  /** Risks of the selected year/period narrowed by the branch filter. */
+  const filteredRisks = computed(() => {
+    const selected = selectedBranch.value
+    if (!selected || selected === ALL_BRANCHES) return risks.value
+    if (selected === UNASSIGNED_BRANCH) return risks.value.filter(r => !riskLocationId(r))
+    return risks.value.filter(r => riskLocationId(r) === selected)
+  })
+
+  // Load risks from backend. No mock fallback: an empty or failed response
+  // leaves the list empty so the page shows its empty/error state.
   const fetchRisks = async () => {
     loading.value = true
     errorMsg.value = ''
+    risksLoadError.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/risks`)
-      if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
-        rawRisks.value = response.data.map((r: any, idx: number) => ({
-          ...r,
-          displayId: idx + 1
-        }))
-      } else {
-        rawRisks.value = initialRiskData.map((r: any, idx: number) => ({
-          ...r,
-          displayId: idx + 1
-        }))
-      }
-    } catch (error: any) {
-      console.error('Failed to fetch risks, falling back to mock data:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to fetch risks, falling back to mock data.')
-      rawRisks.value = initialRiskData.map((r: any, idx: number) => ({
+      const data = Array.isArray(response?.data) ? response.data : []
+      rawRisks.value = data.map((r: any, idx: number) => ({
         ...r,
         displayId: idx + 1
       }))
+    } catch (error: any) {
+      console.error('Failed to fetch risks:', error)
+      risksLoadError.value = extractErrorMessage(error, 'Failed to fetch risks.')
+      errorMsg.value = risksLoadError.value
+      rawRisks.value = []
     } finally {
       loading.value = false
     }
@@ -290,6 +233,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
 
   // Fetch immediately
   fetchRisks()
+  fetchBranches()
 
   // Helper to re-map display IDs after changes
   const updateDisplayIds = () => {
@@ -352,14 +296,16 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     isDetailOpen.value = true
   }
 
-  async function addRisk(newRiskData: any) {
+  /** Create a risk. Returns false (and sets errorMsg) when the backend rejects it. */
+  async function addRisk(newRiskData: any): Promise<boolean> {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
+      const body = withLocationId(newRiskData)
       const response: any = await $fetch(`${baseUrl}/risks`, {
         method: 'POST',
-        body: newRiskData
+        body
       })
 
       const isSuccess = response && (response.success || response.id)
@@ -367,22 +313,27 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
 
       if (isSuccess) {
         const createdRisk = {
-          ...newRiskData, // Keep intended local data like assessments
+          ...body, // Keep intended local data like assessments
           ...responseData,
-          assessments: newRiskData.assessments, // Force keep nested assessments if backend drops it
+          assessments: responseData.assessments ?? newRiskData.assessments,
           displayId: rawRisks.value.length + 1
         }
         rawRisks.value.push(createdRisk)
+        return true
       }
+      return false
     } catch (error: any) {
+      // No local fallback row: a risk the backend did not store must not show up.
       console.error('Failed to add risk:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to add risk.')
+      return false
     } finally {
       loading.value = false
     }
   }
 
-  async function updateRisk(updatedRisk: any) {
+  /** Update a risk. Returns false (and rolls back the optimistic change) on failure. */
+  async function updateRisk(updatedRisk: any): Promise<boolean> {
     loading.value = true
     errorMsg.value = ''
     try {
@@ -390,7 +341,10 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
 
       // Find raw risk to copy assessments
       const rawRisk = rawRisks.value.find(r => String(r.id) === String(updatedRisk.id))
-      let payload = { ...updatedRisk }
+      // The backend writes this year's assessment only; the latest version
+      // moves only when this is the most recent year the risk is assessed in.
+      let payload = { ...updatedRisk, year: selectedYear.value }
+      let optimisticAssessments: any[] | undefined
 
       if (rawRisk) {
         // Copy raw assessments
@@ -430,16 +384,32 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
           ast[`likelihood_${periodKey}`] = updatedRisk.likelihood
         }
 
-        // Attach assessments to payload
-        payload.assessments = assessments
-      }
+        // This year's snapshot, so the optimistic row reads the edit back
+        const locationId = riskLocationId(updatedRisk)
+        Object.assign(ast, {
+          name: updatedRisk.name,
+          category: updatedRisk.category,
+          description: updatedRisk.description,
+          ...(locationId ? { location_id: locationId, branch: locationName(locationId) ?? ast.branch } : {})
+        })
 
-      // Optimistic local update
+        payload.assessments = [ast]
+        optimisticAssessments = assessments
+      }
+      payload = withLocationId(payload)
+
+      // Optimistic local update, mirroring the backend: this year's assessment
+      // changes, and the latest version only when this is the latest year.
+      const previousRawRisks = rawRisks.value
       const idx = rawRisks.value.findIndex(r => String(r.id) === String(updatedRisk.id))
-      if (idx !== -1) {
+      if (idx !== -1 && optimisticAssessments) {
+        const isLatestYear = optimisticAssessments.every((a: any) => a.year <= selectedYear.value)
+        const { year: _year, assessments: _assessments, ...latestFields } = payload
         const newRawRisks = [...rawRisks.value]
         newRawRisks[idx] = {
-          ...payload,
+          ...newRawRisks[idx],
+          ...(isLatestYear ? latestFields : {}),
+          assessments: optimisticAssessments,
           displayId: newRawRisks[idx].displayId
         }
         rawRisks.value = newRawRisks
@@ -451,23 +421,27 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
           body: payload
         })
         if (response && response.success) {
-          if (idx !== -1) {
+          if (idx !== -1 && response.data) {
             const newRawRisks = [...rawRisks.value]
             newRawRisks[idx] = {
+              ...newRawRisks[idx],
               ...response.data,
-              ...payload,
               displayId: newRawRisks[idx].displayId
             }
             rawRisks.value = newRawRisks
           }
         }
+        return true
       } catch (error: any) {
-        console.error('Failed to update risk on backend (using local fallback):', error)
+        console.error('Failed to update risk on backend (rolled back):', error)
         errorMsg.value = extractErrorMessage(error, 'Failed to update risk on backend.')
+        rawRisks.value = previousRawRisks
+        return false
       }
     } catch (error: any) {
       console.error('Failed to update risk:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to update risk.')
+      return false
     } finally {
       loading.value = false
     }
@@ -507,6 +481,11 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     rawRisks,
     risks,
     branches: branchesList,
+    locations: masterLocations,
+    branchesLoading,
+    branchesError,
+    hasUnassignedRisks,
+    filteredRisks,
     selectedBranch,
     selectedRisk,
     isFormOpen,
@@ -525,7 +504,12 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     updateRisk,
     deleteRisk,
     fetchRisks,
+    fetchBranches,
+    locationIdForBranch,
+    locationName,
+    riskLocationId,
     loading,
-    errorMsg
+    errorMsg,
+    risksLoadError
   }
 })

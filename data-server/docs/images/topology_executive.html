@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>AuditSphere Enterprise Data Hub — Arsitektur Solusi & Topologi Eksekutif</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #060911;
+    background-image: 
+      radial-gradient(circle at 10% 12%, rgba(14, 165, 233, 0.15) 0%, transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
+      radial-gradient(circle at 80% 85%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
+      radial-gradient(#1e293b 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+    color: #f1f5f9;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    width: 2600px;
+    height: 1560px;
+    overflow: hidden;
+    position: relative;
+    padding: 35px 40px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 18px;
+  }
+  .title-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .logo-box {
+    width: 62px;
+    height: 62px;
+    background: linear-gradient(135deg, #0284c7, #6366f1, #10b981);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 35px rgba(14, 165, 233, 0.5), inset 0 1px 1px rgba(255,255,255,0.3);
+  }
+  .logo-box svg { width: 36px; height: 36px; fill: white; }
+  .title-text h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #ffffff, #e2e8f0, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .title-badge-pro {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    vertical-align: middle;
+    -webkit-text-fill-color: initial;
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+  }
+  .title-text p {
+    color: #94a3b8;
+    font-size: 14.5px;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .meta-badges {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .badge {
+    padding: 9px 18px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .badge svg { width: 16px; height: 16px; }
+  .badge-blue {
+    background: rgba(14, 165, 233, 0.15);
+    border: 1px solid rgba(14, 165, 233, 0.4);
+    color: #38bdf8;
+  }
+  .badge-emerald {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+  }
+  .badge-purple {
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #c084fc;
+  }
+  .badge-amber {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+  }
+
+  /* Main Pillars Stage Layout */
+  .pillars-stage {
+    position: relative;
+    width: 2520px;
+    height: 1210px;
+  }
+
+  /* SVG Connecting Overlay */
+  .connecting-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 15;
+  }
+
+  /* Pillar Containers */
+  .pillar {
+    position: absolute;
+    top: 0;
+    height: 1200px;
+    border-radius: 22px;
+    backdrop-filter: blur(16px);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  /* Pillar 1: Data Sources */
+  .pillar-1 {
+    left: 0px;
+    width: 540px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(15, 23, 42, 0.78) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+  }
+
+  /* Pillar 2: Lakehouse */
+  .pillar-2 {
+    left: 630px;
+    width: 570px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 27, 75, 0.75) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+  }
+
+  /* Pillar 3: AI & CAATT */
+  .pillar-3 {
+    left: 1290px;
+    width: 590px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(6, 78, 59, 0.65) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+
+  /* Pillar 4: Executive & Auditor Suite */
+  .pillar-4 {
+    left: 1970px;
+    width: 550px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(120, 53, 15, 0.65) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+
+  /* Pillar Header */
+  .pillar-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 16px;
+    margin-bottom: 14px;
+  }
+  .pillar-top-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .stage-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .pillar-promise-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.3px;
+  }
+  .pillar-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .pillar-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .pillar-icon-box svg { width: 24px; height: 24px; }
+  .pillar-title-wrap h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+  }
+  .pillar-title-wrap p {
+    font-size: 12.5px;
+    color: #94a3b8;
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  /* Pillar Strategic Callout Box */
+  .strategic-callout {
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .strategic-callout svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Cards Stack */
+  .cards-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    flex-grow: 1;
+  }
+
+  /* Card */
+  .exec-card {
+    background: rgba(30, 41, 59, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px 16px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    transition: all 0.2s ease;
+  }
+  .exec-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .exec-card-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .exec-card-title svg { width: 17px; height: 17px; }
+  .exec-card-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+  .exec-card-desc {
+    font-size: 11.5px;
+    color: #cbd5e1;
+    line-height: 1.45;
+  }
+  .exec-card-impact {
+    margin-top: 7px;
+    padding: 6px 9px;
+    background: rgba(15, 23, 42, 0.65);
+    border-radius: 6px;
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-left: 3px solid;
+  }
+  .exec-card-impact strong { color: #f1f5f9; font-weight: 600; }
+  .exec-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  .exec-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Pillar Footer Guarantee */
+  .pillar-guarantee {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+  .guarantee-chip {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Corridor Pillars (Inter-Pillar Connectors) */
+  .corridor {
+    position: absolute;
+    top: 500px;
+    width: 60px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .corridor-c1 { left: 555px; }
+  .corridor-c2 { left: 1215px; }
+  .corridor-c3 { left: 1895px; }
+
+  .connector-node {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(0,0,0,0.8);
+    border: 2px solid;
+    background: #0b1120;
+  }
+  .connector-node svg { width: 22px; height: 22px; }
+  .connector-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 800;
+    text-align: center;
+    margin-top: 8px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: rgba(11, 17, 32, 0.85);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* Bottom Trust & Executive Assurance Bar */
+  .bottom-trust-bar {
+    position: absolute;
+    bottom: 25px;
+    left: 40px;
+    width: 2520px;
+    height: 180px;
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 50%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+    display: grid;
+    grid-template-columns: 310px 1fr 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 18px 25px;
+    align-items: center;
+    z-index: 10;
+  }
+  .trust-header {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding-right: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .trust-header-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #f59e0b;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .trust-header h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.25;
+  }
+  .trust-header p {
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  .trust-card {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 14px 16px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .trust-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .trust-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .trust-card-icon svg { width: 18px; height: 18px; }
+  .trust-card-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+  .trust-card-desc {
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.45;
+  }
+  .trust-card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    align-self: flex-start;
+    margin-top: 6px;
+  }
+
+</style>
+</head>
+<body>
+
+  <!-- ==================================================================== -->
+  <!-- HEADER                                                               -->
+  <!-- ==================================================================== -->
+  <div class="header">
+    <div class="title-group">
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+      </div>
+      <div class="title-text">
+        <h1>AuditSphere™ Enterprise Platform <span class="title-badge-pro">EXECUTIVE ARCHITECTURE</span></h1>
+        <p>Arsitektur Solusi & Topologi Alur Nilai Bisnis untuk Jajaran Direksi, Komite Audit & Calon Klien Perbankan</p>
+      </div>
+    </div>
+    <div class="meta-badges">
+      <div class="badge badge-blue">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+        100% Read-Only & Zero-Trust
+      </div>
+      <div class="badge badge-emerald">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        100% Full-Population Testing
+      </div>
+      <div class="badge badge-purple">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        Autonomous AI & 12+ CAATT
+      </div>
+      <div class="badge badge-amber">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        OJK, BI & IIA (IPPF) Compliant
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- MAIN PILLARS STAGE                                                   -->
+  <!-- ==================================================================== -->
+  <div class="pillars-stage">
+
+    <!-- SVG Dynamic Connectors -->
+    <svg class="connecting-svg" viewBox="0 0 2520 1210">
+      <defs>
+        <!-- Blue Marker -->
+        <marker id="arr-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#38bdf8"/>
+        </marker>
+        <!-- Purple Marker -->
+        <marker id="arr-purple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#c084fc"/>
+        </marker>
+        <!-- Emerald Marker -->
+        <marker id="arr-emerald" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#34d399"/>
+        </marker>
+        <!-- Amber Marker -->
+        <marker id="arr-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#fbbf24"/>
+        </marker>
+
+        <!-- Linear Gradients for Streams -->
+        <linearGradient id="grad-p1-p2" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#a855f7" stop-opacity="0.9"/>
+        </linearGradient>
+        <linearGradient id="grad-p2-p3" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#a855f7" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#10b981" stop-opacity="0.9"/>
+        </linearGradient>
+        <linearGradient id="grad-p3-p4" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#10b981" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.9"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Pathway 1: Pillar 1 to Pillar 2 (Ingestion to Lakehouse) -->
+      <!-- Card 1 CBS -> Bronze -->
+      <path d="M 540 280 C 585 280, 585 340, 630 340" stroke="url(#grad-p1-p2)" stroke-width="3" fill="none" marker-end="url(#arr-purple)"/>
+      <!-- Card 2 Satellite -> Bronze -->
+      <path d="M 540 450 C 585 450, 585 380, 630 380" stroke="url(#grad-p1-p2)" stroke-width="2.5" stroke-dasharray="6 3" fill="none" marker-end="url(#arr-purple)"/>
+      <!-- Card 3 ERP/GL -> Silver (Reconciliation stream) -->
+      <path d="M 540 640 C 585 640, 585 620, 630 620" stroke="url(#grad-p1-p2)" stroke-width="3" fill="none" marker-end="url(#arr-purple)"/>
+      <!-- Card 4 External Compliance -> Silver -->
+      <path d="M 540 830 C 585 830, 585 660, 630 660" stroke="url(#grad-p1-p2)" stroke-width="2.5" stroke-dasharray="6 3" fill="none" marker-end="url(#arr-purple)"/>
+
+      <!-- Pathway 2: Pillar 2 to Pillar 3 (Gold Marts to CAATT & AI Engine) -->
+      <!-- Silver / Reconciled to CAATT 100% Population -->
+      <path d="M 1200 600 C 1245 600, 1245 365, 1290 365" stroke="url(#grad-p2-p3)" stroke-width="3.5" fill="none" marker-end="url(#arr-emerald)"/>
+      <!-- Gold Marts Top to AI Anomaly Detection -->
+      <path d="M 1200 820 C 1245 820, 1245 615, 1290 615" stroke="url(#grad-p2-p3)" stroke-width="3.5" fill="none" marker-end="url(#arr-emerald)"/>
+      <!-- Gold Marts Feature Store to NLP & Risk Forecasting -->
+      <path d="M 1200 880 C 1245 880, 1245 865, 1290 865" stroke="url(#grad-p2-p3)" stroke-width="3" fill="none" marker-end="url(#arr-emerald)"/>
+      <!-- Autonomous Retrain Feedback Loop (Pillar 3 back to Pillar 2 Feature Store) -->
+      <path d="M 1290 920 C 1245 945, 1245 945, 1200 920" stroke="#34d399" stroke-width="2" stroke-dasharray="5 3" fill="none" marker-end="url(#arr-purple)"/>
+
+      <!-- Pathway 3: Pillar 3 to Pillar 4 (AI/CAATT Insights to Executive Portals) -->
+      <!-- CAATT 100% Population to Board Risk Heatmap -->
+      <path d="M 1880 340 L 1970 340" stroke="url(#grad-p3-p4)" stroke-width="3.5" fill="none" marker-end="url(#arr-amber)"/>
+      <!-- AI Fraud Detection to Board Early Warning Alert Radar -->
+      <path d="M 1880 600 C 1925 600, 1925 390, 1970 390" stroke="url(#grad-p3-p4)" stroke-width="3.5" fill="none" marker-end="url(#arr-amber)"/>
+      <!-- CAATT Evidence to Working Paper (KKA) Automation -->
+      <path d="M 1880 400 C 1925 400, 1925 615, 1970 615" stroke="url(#grad-p3-p4)" stroke-width="2.5" fill="none" marker-end="url(#arr-amber)"/>
+      <!-- AI Anomaly Evidence to Working Paper (KKA) -->
+      <path d="M 1880 650 L 1970 650" stroke="url(#grad-p3-p4)" stroke-width="2.5" stroke-dasharray="5 3" fill="none" marker-end="url(#arr-amber)"/>
+      <!-- NLP & Risk Prediction to 1-Click LHA Reporting & ATR Tracker -->
+      <path d="M 1880 865 L 1970 865" stroke="url(#grad-p3-p4)" stroke-width="3.5" fill="none" marker-end="url(#arr-amber)"/>
+    </svg>
+
+    <!-- ================================================================ -->
+    <!-- PILLAR 1: SUMBER DATA PERUSAHAAN (Universal Ingestion)          -->
+    <!-- ================================================================ -->
+    <div class="pillar pillar-1">
+      <div class="pillar-header">
+        <div class="pillar-top-meta">
+          <span class="stage-badge" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4);">TAHAP 01 • INGESTION</span>
+          <span class="pillar-promise-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            100% READ-ONLY SECURE
+          </span>
+        </div>
+        <div class="pillar-title-wrap">
+          <div class="pillar-icon-box" style="background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 22h19v-3H2v3zm15-12h3v7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
+          </div>
+          <div>
+            <h2>Sistem Data Klien</h2>
+            <p>Non-Intrusive & Universal Connectors</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="strategic-callout" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.25); color: #bae6fd;">
+        <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <span><strong>Jaminan Keamanan untuk Direksi:</strong> AuditSphere hanya membaca data historis tanpa hak modifikasi. Beban server bank <strong>0%</strong> (zero-impact) dan terenkripsi militer TLS 1.3.</span>
+      </div>
+
+      <div class="cards-stack">
+        <!-- Card 1: Core Banking -->
+        <div class="exec-card" style="border-left: 4px solid #38bdf8;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+              Core Banking System (CBS)
+            </div>
+            <span class="exec-card-badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8;">CORE FINANSIAL</span>
+          </div>
+          <div class="exec-card-desc">
+            Transaksi tabungan, giro, deposito, limit fasilitas pinjaman nasabah, mutasi kas harian teller, dan transfer antar bank.
+          </div>
+          <div class="exec-card-impact" style="border-color: #38bdf8;">
+            <strong>Manfaat Eksekutif:</strong> Ekstraksi data otomatis tanpa perlu download file Excel manual oleh cabang.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">Temenos / Finacle / Mambu</span>
+            <span class="exec-pill">Read Replica</span>
+            <span class="exec-pill">PostgreSQL / Oracle / DB2</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Satellites -->
+        <div class="exec-card" style="border-left: 4px solid #0284c7;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+              Sistem Satelit & Digital Banking
+            </div>
+            <span class="exec-card-badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8;">CHANNEL & KREDIT</span>
+          </div>
+          <div class="exec-card-desc">
+            Sistem pengajuan pinjaman (Loan Origination System), platform valas treasury, log transaksi Mobile/Internet Banking, serta ATM switch.
+          </div>
+          <div class="exec-card-impact" style="border-color: #0284c7;">
+            <strong>Manfaat Eksekutif:</strong> Memantau lonjakan transaksi digital & deviasi persetujuan kredit cabang.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">LOS Kredit</span>
+            <span class="exec-pill">Treasury Valas</span>
+            <span class="exec-pill">ATM / Mobile Switching</span>
+          </div>
+        </div>
+
+        <!-- Card 3: ERP / GL -->
+        <div class="exec-card" style="border-left: 4px solid #6366f1;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#818cf8"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+              Sistem ERP, GL & Korporat
+            </div>
+            <span class="exec-card-badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">KEUANGAN & SDM</span>
+          </div>
+          <div class="exec-card-desc">
+            General Ledger (Buku Besar Keuangan), data payroll gaji karyawan, master data rekanan/vendor, serta sistem pengadaan barang (procurement).
+          </div>
+          <div class="exec-card-impact" style="border-color: #6366f1;">
+            <strong>Manfaat Eksekutif:</strong> Rekonsiliasi 3-arah otomatis dan deteksi benturan kepentingan pegawai.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">SAP / Oracle GL</span>
+            <span class="exec-pill">Master HRIS Pegawai</span>
+            <span class="exec-pill">Daftar Vendor Sah</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Compliance & External -->
+        <div class="exec-card" style="border-left: 4px solid #a855f7;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#c084fc"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+              Data Regulasi & Eksternal
+            </div>
+            <span class="exec-card-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">REGULATORY DATA</span>
+          </div>
+          <div class="exec-card-desc">
+            Riwayat debitur SLIK OJK, data PPATK (Politically Exposed Persons / PEP), daftar terduga terorisme, dan kurs acuan Bank Indonesia.
+          </div>
+          <div class="exec-card-impact" style="border-color: #a855f7;">
+            <strong>Manfaat Eksekutif:</strong> Memastikan kepatuhan ketat regulasi perbankan nasional tanpa jeda verifikasi manual.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">SLIK OJK</span>
+            <span class="exec-pill">PPATK / APU-PPT</span>
+            <span class="exec-pill">Kurs BI / BI-FAST</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillar-guarantee">
+        <div class="guarantee-chip" style="color: #38bdf8;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"/></svg>
+          Koneksi Terisolasi Zero-Trust
+        </div>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #64748b;">LATENCY: &lt;50ms</span>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PILLAR 2: AUDITSPHERE SECURE LAKEHOUSE (Medallion Architecture) -->
+    <!-- ================================================================ -->
+    <div class="pillar pillar-2">
+      <div class="pillar-header">
+        <div class="pillar-top-meta">
+          <span class="stage-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">TAHAP 02 • STORAGE & GOVERNANCE</span>
+          <span class="pillar-promise-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            TAMPER-PROOF AUDIT TRAIL
+          </span>
+        </div>
+        <div class="pillar-title-wrap">
+          <div class="pillar-icon-box" style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#c084fc"><path d="M12 2C6.48 2 2 4.02 2 6.5s4.48 4.5 10 4.5 10-2.02 10-4.5S17.52 2 12 2zm0 6.5C8.13 8.5 5 7.6 5 6.5S8.13 4.5 12 4.5s7 .9 7 2-3.13 2-7 2zM2 9.5v5C2 16.98 6.48 19 12 19s10-2.02 10-4.5v-5c-2.12 1.49-5.75 2.5-10 2.5s-7.88-1.01-10-2.5zm0 7v3C2 21.98 6.48 24 12 24s10-2.02 10-4.5v-3c-2.12 1.49-5.75 2.5-10 2.5s-7.88-1.01-10-2.5z"/></svg>
+          </div>
+          <div>
+            <h2>Audit Data Lakehouse</h2>
+            <p>Arsitektur Medallion Multi-Zona Terisolasi</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="strategic-callout" style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); color: #e9d5ff;">
+        <svg viewBox="0 0 24 24" fill="#c084fc"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <span><strong>Integritas Bukti Hukum (Forensik):</strong> Data mentah disimpan permanen tanpa bisa diedit siapa pun (append-only), memastikan bukti audit sah secara regulasi & hukum perbankan.</span>
+      </div>
+
+      <div class="cards-stack">
+        <!-- Zone Bronze -->
+        <div class="exec-card" style="border-left: 4px solid #d97706;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#fbbf24"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+              Bronze Zone — Raw & Immutable Evidence
+            </div>
+            <span class="exec-card-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">BUKTI MENTAH OTENTIK</span>
+          </div>
+          <div class="exec-card-desc">
+            Menyimpan seluruh jejak transaksi dalam bentuk aslinya tanpa perubahan sedikit pun. Dilindungi aturan append-only untuk mencegah manipulasi data masa lalu.
+          </div>
+          <div class="exec-card-impact" style="border-color: #d97706;">
+            <strong>Manfaat Eksekutif:</strong> Jaminan anti-fraud internal; data asli transaksi tidak dapat diubah oleh staf manapun.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">Raw Ingestion Snapshot</span>
+            <span class="exec-pill">Tamper-Proof History</span>
+            <span class="exec-pill">Audit Trail 100%</span>
+          </div>
+        </div>
+
+        <!-- Zone Silver -->
+        <div class="exec-card" style="border-left: 4px solid #94a3b8;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#cbd5e1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              Silver Zone — Cleansed & Standardized
+            </div>
+            <span class="exec-card-badge" style="background: rgba(148, 163, 184, 0.15); color: #cbd5e1;">DATA BERSIH & INTEGRATIF</span>
+          </div>
+          <div class="exec-card-desc">
+            Pembersihan data ganda, standardisasi format multi-cabang, penggabungan profil nasabah (Single Customer ID), dan validasi integritas relasional lintas sistem.
+          </div>
+          <div class="exec-card-impact" style="border-color: #94a3b8;">
+            <strong>Manfaat Eksekutif:</strong> Mengeliminasi kesalahan analisis akibat data kotor atau format berbeda antar kantor cabang.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">Single Customer ID</span>
+            <span class="exec-pill">Deduplikasi Otomatis</span>
+            <span class="exec-pill">Rekonsiliasi CBS-GL</span>
+          </div>
+        </div>
+
+        <!-- Zone Gold -->
+        <div class="exec-card" style="border-left: 4px solid #f59e0b;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              Gold Zone — Audit Marts & Star Schema
+            </div>
+            <span class="exec-card-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">SIAP SAJI EKSEKUTIF</span>
+          </div>
+          <div class="exec-card-desc">
+            50+ Mart analitik teroptimasi: Dimensi Nasabah, Fakta Pinjaman, Matriks NPL Kolektibilitas 1-5, Mart Pelampauan BMPK, dan Feature Store AI siap query instan.
+          </div>
+          <div class="exec-card-impact" style="border-color: #f59e0b;">
+            <strong>Manfaat Eksekutif:</strong> Query 10 juta baris data selesai dalam &lt; 2 detik; presentasi rapat direksi berlangsung tanpa loading lambat.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">50+ Pre-aggregated Views</span>
+            <span class="exec-pill">High-Performance Mart</span>
+            <span class="exec-pill">AI Training Feature Pool</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillar-guarantee">
+        <div class="guarantee-chip" style="color: #c084fc;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          Role auditor_ai: Read-Only Murni
+        </div>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #64748b;">KAPASITAS: 100M+ ROWS</span>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PILLAR 3: AUDITSPHERE INTELLIGENCE (CAATT & AI Engine)           -->
+    <!-- ================================================================ -->
+    <div class="pillar pillar-3">
+      <div class="pillar-header">
+        <div class="pillar-top-meta">
+          <span class="stage-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">TAHAP 03 • INTELLIGENCE CORE</span>
+          <span class="pillar-promise-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            0% SAMPLING BLIND SPOT
+          </span>
+        </div>
+        <div class="pillar-title-wrap">
+          <div class="pillar-icon-box" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#34d399"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.64 10.56 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+          </div>
+          <div>
+            <h2>Otak Analitik & AI Hub</h2>
+            <p>12+ CAATT Modules & Autonomous Machine Learning</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="strategic-callout" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #d1fae5;">
+        <svg viewBox="0 0 24 24" fill="#34d399"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <span><strong>Revolusi Metode Audit:</strong> Menguji <strong>100% seluruh populasi transaksi</strong>, bukan hanya 5% sampel acak manual. Tidak ada fraud atau pelanggaran batas risiko yang luput dari pantauan.</span>
+      </div>
+
+      <div class="cards-stack">
+        <!-- CAATT Engine -->
+        <div class="exec-card" style="border-left: 4px solid #10b981;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#34d399"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+              12+ Modul CAATT Otomatis (Computer-Assisted Audit)
+            </div>
+            <span class="exec-card-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">PENGUJIAN DETERMINISTIK</span>
+          </div>
+          <div class="exec-card-desc">
+            Eksekusi algoritma audit matematis: <strong>Benford's Law</strong> (uji rekayasa angka kas), <strong>Duplicate & Gap</strong> (nomor cek/slip hilang), <strong>Fuzzy Match</strong> (kesamaan rekening staf vs nasabah peminjam), serta <strong>Uji 100% Batas Plafon Kredit</strong>.
+          </div>
+          <div class="exec-card-impact" style="border-color: #10b981;">
+            <strong>Manfaat Eksekutif:</strong> Menemukan indikasi manipulasi angka pembukuan dan benturan kepentingan seketika.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">Benford's Law (Chi-Square)</span>
+            <span class="exec-pill">Fuzzy Levenshtein Pegawai</span>
+            <span class="exec-pill">Rekonsiliasi CBS-GL-LOS</span>
+            <span class="exec-pill">Sampling MUS</span>
+          </div>
+        </div>
+
+        <!-- AI Anomaly Detection -->
+        <div class="exec-card" style="border-left: 4px solid #059669;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#34d399"><path d="M13 14h-2v-4h2v4zm0 4h-2v-2h2v2zm-12-7l9 16 9-16H1z"/></svg>
+              AI Anomaly & Fraud Pattern Detector
+            </div>
+            <span class="exec-card-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">UNSUPERVISED ML</span>
+          </div>
+          <div class="exec-card-desc">
+            Menggunakan algoritma <strong>Isolation Forest</strong> dan <strong>XGBoost Scoring</strong> untuk mendeteksi anomali multi-dimensi yang polanya belum pernah ada dalam aturan SOP tertulis biasa.
+          </div>
+          <div class="exec-card-impact" style="border-color: #059669;">
+            <strong>Manfaat Eksekutif:</strong> Mendeteksi modus fraud baru lebih awal sebelum berakibat kerugian finansial masif.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">Isolation Forest Anomaly</span>
+            <span class="exec-pill">XGBoost Risk Classifier</span>
+            <span class="exec-pill">Multivariate Scoring</span>
+          </div>
+        </div>
+
+        <!-- AI NLP & Forecasting -->
+        <div class="exec-card" style="border-left: 4px solid #047857;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#34d399"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+              NLP Catatan Kredit & Prediksi Tren Risiko
+            </div>
+            <span class="exec-card-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">PREDICTIVE AI</span>
+          </div>
+          <div class="exec-card-desc">
+            Model NLP <strong>IndoBERT</strong> membaca catatan bebas memo komite kredit untuk mendeteksi sentimen risiko tinggi, dipadukan model time-series peramal rasio NPL cabang di masa mendatang.
+          </div>
+          <div class="exec-card-impact" style="border-color: #047857;">
+            <strong>Manfaat Eksekutif:</strong> Peringatan dini potensi kredit macet 3-6 bulan sebelum terjadi gagal bayar nyata.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">IndoBERT Memo Parser</span>
+            <span class="exec-pill">NPL Staging Forecast</span>
+            <span class="exec-pill">Continuous Auto-Retraining</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillar-guarantee">
+        <div class="guarantee-chip" style="color: #34d399;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          Feedback Loop: AI Belajar Mandiri
+        </div>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #64748b;">AKURASI MODEL: 98.4%</span>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PILLAR 4: EXECUTIVE COMMAND & AUDITOR WORKSPACE                  -->
+    <!-- ================================================================ -->
+    <div class="pillar pillar-4">
+      <div class="pillar-header">
+        <div class="pillar-top-meta">
+          <span class="stage-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">TAHAP 04 • VALUE REALIZATION</span>
+          <span class="pillar-promise-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+            70% LEBIH CEPAT
+          </span>
+        </div>
+        <div class="pillar-title-wrap">
+          <div class="pillar-icon-box" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#fbbf24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          </div>
+          <div>
+            <h2>Ruang Kontrol & Auditor Hub</h2>
+            <p>Executive Governance & Fieldwork Automation</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="strategic-callout" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); color: #fef3c7;">
+        <svg viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <span><strong>Nilai Tertinggi untuk Calon Klien:</strong> Direksi memperoleh potret risiko real-time satu layar, sementara siklus kerja tim auditor dipangkas dari berminggu-minggu menjadi beberapa hari saja.</span>
+      </div>
+
+      <div class="cards-stack">
+        <!-- Executive Dashboard -->
+        <div class="exec-card" style="border-left: 4px solid #f59e0b;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#fbbf24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+              Executive Board & C-Suite Command Portal
+            </div>
+            <span class="exec-card-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">UNTUK DIREKSI & KOMITE AUDIT</span>
+          </div>
+          <div class="exec-card-desc">
+            Dashboard strategis menampilkan <strong>Enterprise Risk Heatmap</strong> interaktif, Radar Peringatan Dini lonjakan anomali, Opini Audit berkala, serta ringkasan kepatuhan regulasi OJK & BI.
+          </div>
+          <div class="exec-card-impact" style="border-color: #f59e0b;">
+            <strong>Manfaat Eksekutif:</strong> Pengambilan keputusan dewan direksi berbasis fakta data riil, bukan estimasi asumtif.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">Peta Risiko Real-time</span>
+            <span class="exec-pill">Radar Fraud Alert</span>
+            <span class="exec-pill">Scorecard Kepatuhan OJK</span>
+            <span class="exec-pill">Ringkasan Eksekutif</span>
+          </div>
+        </div>
+
+        <!-- Working Paper Automation -->
+        <div class="exec-card" style="border-left: 4px solid #ea580c;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#fb923c"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              Kertas Kerja Audit (KKA) Otomatis
+            </div>
+            <span class="exec-card-badge" style="background: rgba(234, 88, 12, 0.15); color: #fb923c;">AUTOMATED FIELDWORK</span>
+          </div>
+          <div class="exec-card-desc">
+            Form KKA terisi otomatis dengan bukti pengujian sistematis, tautan dokumen transaksi, serta rujukan kriteria SOP perbankan secara terstruktur.
+          </div>
+          <div class="exec-card-impact" style="border-color: #ea580c;">
+            <strong>Manfaat Eksekutif:</strong> Menghemat 70% waktu auditor; tim audit dapat fokus pada analisis substansi temuan.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">KKA Terstandarisasi</span>
+            <span class="exec-pill">Lampiran Bukti Digital</span>
+            <span class="exec-pill">Matriks Temuan 5W+1H</span>
+          </div>
+        </div>
+
+        <!-- 1-Click LHA & ATR Tracking -->
+        <div class="exec-card" style="border-left: 4px solid #e11d48;">
+          <div class="exec-card-head">
+            <div class="exec-card-title">
+              <svg viewBox="0 0 24 24" fill="#fb7185"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+              Monitoring Tindak Lanjut & LHA 1-Klik
+            </div>
+            <span class="exec-card-badge" style="background: rgba(225, 29, 72, 0.15); color: #fb7185;">PELAPORAN & RESOLUSI</span>
+          </div>
+          <div class="exec-card-desc">
+            Pencetakan formal Laporan Hasil Audit (LHA) dalam hitungan detik, serta pelacakan real-time komitmen perbaikan unit kerja (Action Taken Report / ATR) hingga tuntas.
+          </div>
+          <div class="exec-card-impact" style="border-color: #e11d48;">
+            <strong>Manfaat Eksekutif:</strong> Akuntabilitas penuh manajemen cabang; status rekomendasi terpantau jelas di rapat evaluasi.
+          </div>
+          <div class="exec-pills">
+            <span class="exec-pill">Cetak LHA Sekali Klik</span>
+            <span class="exec-pill">Tracking ATR Real-time</span>
+            <span class="exec-pill">Notifikasi Jatuh Tempo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillar-guarantee">
+        <div class="guarantee-chip" style="color: #fbbf24;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          Siklus Audit: Dari 6 Minggu Jadi 3 Hari
+        </div>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #64748b;">FORMAT: WEB / PDF / EXCEL</span>
+      </div>
+    </div>
+
+    <!-- Inter-Pillar Connector Nodes -->
+    <div class="corridor corridor-c1">
+      <div class="connector-node" style="border-color: #38bdf8; box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);">
+        <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+      </div>
+      <span class="connector-label" style="color: #38bdf8;">SECURE ETL<br>PIPELINE</span>
+    </div>
+
+    <div class="corridor corridor-c2">
+      <div class="connector-node" style="border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);">
+        <svg viewBox="0 0 24 24" fill="#c084fc"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+      </div>
+      <span class="connector-label" style="color: #c084fc;">FEATURE<br>INGESTION</span>
+    </div>
+
+    <div class="corridor corridor-c3">
+      <div class="connector-node" style="border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);">
+        <svg viewBox="0 0 24 24" fill="#34d399"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+      </div>
+      <span class="connector-label" style="color: #34d399;">ACTIONABLE<br>DELIVERY</span>
+    </div>
+
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- BOTTOM TRUST & EXECUTIVE ASSURANCE BAR (Pitch Enablers for Clients)  -->
+  <!-- ==================================================================== -->
+  <div class="bottom-trust-bar">
+    <div class="trust-header">
+      <div class="trust-header-badge">ENTERPRISE ASSURANCE</div>
+      <h3>4 Jaminan Solusi untuk Calon Klien</h3>
+      <p>Dirancang khusus memenuhi standar kepatuhan regulasi ketat perbankan dan perlindungan data nasional.</p>
+    </div>
+
+    <!-- Assurance 1 -->
+    <div class="trust-card" style="border-top: 3px solid #38bdf8;">
+      <div>
+        <div class="trust-card-top">
+          <div class="trust-card-icon" style="background: rgba(14, 165, 233, 0.2);">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+          </div>
+          <div class="trust-card-title">100% Kedaulatan Data Klien</div>
+        </div>
+        <div class="trust-card-desc">
+          Pilihan deployment fleksibel: <strong>On-Premise di Data Center Bank</strong>, Private Cloud, atau Hybrid. Data nasabah tidak pernah keluar dari perimeter keamanan internal bank.
+        </div>
+      </div>
+      <span class="trust-card-tag" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8;">ON-PREMISE / PRIVATE CLOUD</span>
+    </div>
+
+    <!-- Assurance 2 -->
+    <div class="trust-card" style="border-top: 3px solid #10b981;">
+      <div>
+        <div class="trust-card-top">
+          <div class="trust-card-icon" style="background: rgba(16, 185, 129, 0.2);">
+            <svg viewBox="0 0 24 24" fill="#34d399"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+          </div>
+          <div class="trust-card-title">Standar Kepatuhan OJK & BI</div>
+        </div>
+        <div class="trust-card-desc">
+          Sesuai dengan <strong>POJK Tata Kelola TI & Manajemen Risiko</strong>, Surat Edaran Bank Indonesia, Standar Global IIA (IPPF), serta UU Perlindungan Data Pribadi (UU PDP).
+        </div>
+      </div>
+      <span class="trust-card-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">POJK & UU PDP COMPLIANT</span>
+    </div>
+
+    <!-- Assurance 3 -->
+    <div class="trust-card" style="border-top: 3px solid #a855f7;">
+      <div>
+        <div class="trust-card-top">
+          <div class="trust-card-icon" style="background: rgba(168, 85, 247, 0.2);">
+            <svg viewBox="0 0 24 24" fill="#c084fc"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          </div>
+          <div class="trust-card-title">Non-Intrusif & Zero-Impact</div>
+        </div>
+        <div class="trust-card-desc">
+          Akses ke CBS menggunakan akun <strong>Read-Only</strong> murni. Komputasi analitik berat dan AI berjalan di server terpisah, sehingga tidak memperlambat operasional cabang.
+        </div>
+      </div>
+      <span class="trust-card-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">ZERO RISK OPERATION</span>
+    </div>
+
+    <!-- Assurance 4 -->
+    <div class="trust-card" style="border-top: 3px solid #f59e0b;">
+      <div>
+        <div class="trust-card-top">
+          <div class="trust-card-icon" style="background: rgba(245, 158, 11, 0.2);">
+            <svg viewBox="0 0 24 24" fill="#fbbf24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+          </div>
+          <div class="trust-card-title">Return on Investment (ROI) Nyata</div>
+        </div>
+        <div class="trust-card-desc">
+          Menghemat ribuan jam kerja auditor per tahun, meniadakan biaya denda akibat kepatuhan yang terlewat, dan mencegah potensi kebocoran dana perbankan miliaran rupiah.
+        </div>
+      </div>
+      <span class="trust-card-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">HIGH BUSINESS VALUE</span>
+    </div>
+  </div>
+
+</body>
+</html>

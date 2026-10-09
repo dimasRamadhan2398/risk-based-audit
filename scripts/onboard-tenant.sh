@@ -11,7 +11,8 @@
 #   --skip-start       Provision everything but leave the stack stopped
 #
 # Pipeline: generate the tenant stack -> create its databases -> build images
-# -> migrate inside the containers -> allocate storage -> start -> expose.
+# -> migrate inside the containers -> allocate storage -> email key -> start
+# -> expose.
 # =============================================================================
 
 set -euo pipefail
@@ -64,14 +65,14 @@ fi
 TENANT_DIR="$ROOT_DIR/backend/tenants/${SLUG}"
 
 # -----------------------------------------------------------------------------
-# [1/7] Generate the tenant's Compose stack and Kong config
+# [1/8] Generate the tenant's Compose stack and Kong config
 #
 # This allocates the host ports and Redis index, so it runs before anything
 # that needs to know them. --force makes re-onboarding an existing tenant safe:
 # the generator reuses that tenant's ports and signing secrets.
 # -----------------------------------------------------------------------------
 echo ""
-echo "==> [1/7] Generating isolated tenant stack for $CLIENT_NAME..."
+echo "==> [1/8] Generating isolated tenant stack for $CLIENT_NAME..."
 
 GEN_ARGS=("$SLUG" "$CLIENT_NAME" --force)
 [ "$IS_LOCAL" = true ] && GEN_ARGS+=(--local)
@@ -112,18 +113,18 @@ echo "║          GoogleDrv : Blocked / Disabled by Architecture      "
 echo "║          FE Port   : $FE_PORT  |  Kong Port: $KONG_PORT      "
 echo "║          Redis DB  : $REDIS_DB (isolated logical index)      "
 echo "║          Data State: $([ "$EMPTY_DATA" = true ] && echo "Clean / Empty Data" || echo "Demo Pre-seeded")"
-echo "║          Email Svc : Resend API (DKIM/SPF Auto-Provisioned)  "
+echo "║          Email Svc : Resend, shared domain + tenant-scoped key"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
 
 # -----------------------------------------------------------------------------
-# [2/7] Create the isolated databases
+# [2/8] Create the isolated databases
 #
 # analytics-service is intentionally absent: cmd/main.go starts a gin server and
 # opens no database handle, so an rb_audit_analytics_<slug> database would never
 # be connected to.
 # -----------------------------------------------------------------------------
-echo "==> [2/7] Provisioning isolated PostgreSQL databases for $CLIENT_NAME..."
+echo "==> [2/8] Provisioning isolated PostgreSQL databases for $CLIENT_NAME..."
 
 PG_CONTAINER=""
 for candidate in rb_audit_postgres rb_audit_postgres_dev; do
@@ -149,14 +150,14 @@ for svc in auth audit master risk; do
 done
 
 # -----------------------------------------------------------------------------
-# [3/7] Build the tenant images
+# [3/8] Build the tenant images
 # -----------------------------------------------------------------------------
 echo ""
-echo "==> [3/7] Building tenant service images..."
+echo "==> [3/8] Building tenant service images..."
 "${COMPOSE[@]}" build
 
 # -----------------------------------------------------------------------------
-# [4/7] Migrate and seed, inside the containers
+# [4/8] Migrate and seed, inside the containers
 #
 # These run through `compose run` rather than as host binaries. The services
 # resolve Postgres at the hostname `postgres`, which is a Docker network alias —
@@ -171,7 +172,7 @@ echo "==> [3/7] Building tenant service images..."
 #     master -> migrate         risk   -> up
 # -----------------------------------------------------------------------------
 echo ""
-echo "==> [4/7] Running schema migrations & role seeding..."
+echo "==> [4/8] Running schema migrations & role seeding..."
 
 run_svc() {  # run_svc <compose-service> <command...>
     local svc=$1; shift
@@ -194,36 +195,61 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# [5/7] Provision the dedicated storage silo
+# [5/8] Provision the dedicated storage silo
 # -----------------------------------------------------------------------------
 echo ""
-echo "==> [5/7] Provisioning dedicated evidence storage silo at $STORAGE_DIR..."
+echo "==> [5/8] Provisioning dedicated evidence storage silo at $STORAGE_DIR..."
 mkdir -p "$STORAGE_DIR"
 chmod 755 "$STORAGE_DIR" 2>/dev/null || true
 echo "    -> storage volume allocated, bind-mounted into audit-service at /root/uploads"
 echo "    -> Google Drive API provider: BLOCKED / DISABLED by architecture policy"
 
 # -----------------------------------------------------------------------------
-# [6/7] Start the tenant stack
+# [6/8] Outbound email: a sending-only Resend key for this tenant
+#
+# Runs before the stack starts so auth-service boots with the credentials.
+# Skipped, not fatal, when the VPS has no Resend config: the tenant then falls
+# back to the Mailtrap sandbox in config.yaml and sends nothing.
+# -----------------------------------------------------------------------------
+echo ""
+EMAIL_ENV=${AUDITSPHERE_EMAIL_ENV:-/etc/auditsphere/email.env}
+EMAIL_STATUS="not provisioned"
+if [ "$IS_LOCAL" = true ]; then
+    echo "==> [6/8] Local environment: skipping email provisioning."
+elif [ ! -f "$EMAIL_ENV" ]; then
+    echo "==> [6/8] $EMAIL_ENV not found: skipping email provisioning."
+    echo "    -> later: ./scripts/provision-tenant-email.sh tenant $SLUG \"$CLIENT_NAME\""
+else
+    echo "==> [6/8] Provisioning outbound email for $CLIENT_NAME..."
+    if bash "$SCRIPT_DIR/provision-tenant-email.sh" tenant "$SLUG" "$CLIENT_NAME" --no-restart; then
+        EMAIL_STATUS="Resend (shared sending domain, tenant-scoped key)"
+    else
+        echo "    ! email provisioning failed — the tenant is up without email."
+        echo "      Re-run: ./scripts/provision-tenant-email.sh tenant $SLUG \"$CLIENT_NAME\""
+    fi
+fi
+
+# -----------------------------------------------------------------------------
+# [7/8] Start the tenant stack
 # -----------------------------------------------------------------------------
 echo ""
 if [ "$SKIP_START" = true ]; then
-    echo "==> [6/7] --skip-start given: leaving the stack stopped."
+    echo "==> [7/8] --skip-start given: leaving the stack stopped."
 else
-    echo "==> [6/7] Starting tenant stack (5 services + Kong + frontend)..."
+    echo "==> [7/8] Starting tenant stack (5 services + Kong + frontend)..."
     "${COMPOSE[@]}" up -d
     "${COMPOSE[@]}" ps
 fi
 
 # -----------------------------------------------------------------------------
-# [7/7] Expose it: host Nginx vhost + SSL (production only)
+# [8/8] Expose it: host Nginx vhost + SSL (production only)
 # -----------------------------------------------------------------------------
 echo ""
 if [ "$IS_LOCAL" = true ]; then
-    echo "==> [7/7] Local environment: skipping Nginx reverse proxy and SSL."
+    echo "==> [8/8] Local environment: skipping Nginx reverse proxy and SSL."
     echo "    -> reach the tenant directly at http://localhost:${FE_PORT}"
 else
-    echo "==> [7/7] Generating Nginx reverse proxy configuration for $DOMAIN..."
+    echo "==> [8/8] Generating Nginx reverse proxy configuration for $DOMAIN..."
 
     # Nginx layout differs by distribution: Debian/Ubuntu splits vhosts into
     # sites-available + a sites-enabled symlink, while RHEL/CentOS (which this
@@ -282,7 +308,11 @@ NGINXCONF
     # will fail here. That is not fatal: the tenant serves plain HTTP until
     # someone re-runs certbot once the record propagates.
     echo "    -> provisioning SSL certificates via Certbot..."
-    if ! host "$DOMAIN" > /dev/null 2>&1; then
+    # getent rather than `host`: host ships in bind-utils, which a minimal RHEL
+    # install lacks, and a missing binary would read as "does not resolve".
+    # With the wildcard record *.auditsphere.app in place both names resolve
+    # the moment the tenant exists, so this branch only fires without it.
+    if ! getent hosts "$DOMAIN" > /dev/null 2>&1 || ! getent hosts "$API_DOMAIN" > /dev/null 2>&1; then
         echo "    ! $DOMAIN does not resolve yet — skipping Certbot."
         echo "      Add an A record for ${DOMAIN} and ${API_DOMAIN} -> this host, then run:"
         echo "      certbot --nginx -d ${DOMAIN} -d ${API_DOMAIN} --agree-tos -m admin@auditsphere.app --non-interactive"
@@ -309,14 +339,14 @@ echo "   Databases    : rb_audit_{auth,audit,master,risk}_${SLUG}"
 echo "   Redis DB     : ${REDIS_DB} (isolated logical index)"
 echo "   Storage Silo : ${STORAGE_DIR}"
 echo "   Google Drive : Blocked / Disabled (Local VPS Storage Active)"
-echo "   Email Svc    : Resend API (provision separately from the Site Generator)"
+echo "   Email Svc    : ${EMAIL_STATUS}"
 echo "=============================================================="
 echo ""
 echo "⚠️  Before handing this instance to the client:"
 echo "   1. The auth seeder creates the default admin account (admin / password123)."
 echo "      Rotate it — it is identical on every tenant."
-echo "   2. Resend provisioning is a separate step; this script does not create"
-echo "      the sending domain or inject the scoped API key."
+echo "   2. Check email delivery:"
+echo "      ./scripts/provision-tenant-email.sh test ${SLUG} you@example.com"
 echo "   3. Back up backend/tenants/${SLUG}/.env — it holds this tenant's JWT"
-echo "      signing secret and is not in git."
+echo "      signing secret and email key, and is not in git."
 echo ""

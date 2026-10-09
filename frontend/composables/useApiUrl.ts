@@ -22,3 +22,4 @@ export const getRiskServiceBaseUrl = () => getDynamicApiUrl('riskServiceBaseUrl'
 export const getAuthServiceBaseUrl = () => getDynamicApiUrl('authServiceBaseUrl', '/api/v1');
 export const getAnalyticsServiceBaseUrl = () => getDynamicApiUrl('analyticsApiBase', '/api/analytics');
 export const getPythonAiBaseUrl = () => getDynamicApiUrl('pythonAiBaseUrl', '/api/python-ai');
+export const getDataHubBaseUrl = () => getDynamicApiUrl('dataHubBaseUrl', '/api/v1');

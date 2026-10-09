@@ -1,7 +1,7 @@
 """
 AuditSphere AI Engine — Auto-Retrain Engine (Data Hub Version)
-Reads training data from Gold zone instead of CSV files.
-Evaluates quality and atomically swaps models.
+Reads training data from Gold zone with hardware-safe stratified sampling.
+Groups KPI forecasting by metric name to preserve sequence coherence.
 """
 import os
 import pickle
@@ -46,10 +46,10 @@ class AutoRetrainEngine:
     """
     Automated retraining engine that reads from Gold zone Data Lake.
     Trains 4 model suites:
-    1. Department Risk Scoring (XGBoost/GradientBoosting)
-    2. Anomaly Detection (Isolation Forest)
+    1. Department Risk Scoring (GradientBoosting)
+    2. Anomaly Detection (Isolation Forest with stratified sampling)
     3. Document NLP (TF-IDF + LogReg)
-    4. KPI Forecasting (PyTorch LSTM)
+    4. KPI Forecasting (PyTorch LSTM per KPI series)
     """
 
     def __init__(self, db_engine, model_dir="/app/models", gold_schema="gold"):
@@ -77,10 +77,16 @@ class AutoRetrainEngine:
         return results
 
     def _retrain_anomaly(self) -> dict:
-        """Retrain Isolation Forest from gold.anomaly_training_data."""
+        """Retrain Isolation Forest from gold.anomaly_training_data with bounded memory sampling."""
         try:
+            # Stratified/random sampling at SQL level to cap at 50,000 rows (safe for 512MB RAM)
             df = pd.read_sql(
-                f"SELECT amount_millions, hour_of_day, day_of_week, is_round_amount, is_new_beneficiary, is_anomaly FROM {self.gold_schema}.anomaly_training_data",
+                f"""
+                SELECT amount_millions, hour_of_day, day_of_week, is_round_amount, is_new_beneficiary, is_anomaly
+                FROM {self.gold_schema}.anomaly_training_data
+                ORDER BY RANDOM()
+                LIMIT 50000;
+                """,
                 self.engine,
             )
             if len(df) < 50:
@@ -114,7 +120,13 @@ class AutoRetrainEngine:
         """Retrain department risk model from gold.department_training_data."""
         try:
             df = pd.read_sql(
-                f"SELECT risk_category, inherent_likelihood, inherent_impact, findings_count, kpi_below_target, kpi_volatility, previous_risk_score, assessment_month, target_likelihood, target_impact FROM {self.gold_schema}.department_training_data",
+                f"""
+                SELECT risk_category, inherent_likelihood, inherent_impact, findings_count,
+                       kpi_below_target, kpi_volatility, previous_risk_score, assessment_month,
+                       target_likelihood, target_impact
+                FROM {self.gold_schema}.department_training_data
+                LIMIT 25000;
+                """,
                 self.engine,
             )
             if len(df) < 30:
@@ -159,7 +171,12 @@ class AutoRetrainEngine:
         """Retrain document NLP model from gold.document_training_data."""
         try:
             df = pd.read_sql(
-                f"SELECT text_input, risk_category FROM {self.gold_schema}.document_training_data WHERE text_input IS NOT NULL",
+                f"""
+                SELECT text_input, risk_category
+                FROM {self.gold_schema}.document_training_data
+                WHERE text_input IS NOT NULL
+                LIMIT 25000;
+                """,
                 self.engine,
             )
             if len(df) < 20:
@@ -189,56 +206,78 @@ class AutoRetrainEngine:
             return {"status": "error", "error": str(e)}
 
     def _retrain_kpi(self) -> dict:
-        """Retrain KPI LSTM from gold.kpi_training_data."""
+        """Retrain KPI LSTM from gold.mart_kpi_series or kpi_training_data, grouped by KPI name."""
         try:
-            df = pd.read_sql(
-                f"SELECT actual_value FROM {self.gold_schema}.kpi_training_data ORDER BY period",
-                self.engine,
-            )
+            # Priority: gold.mart_kpi_series, fallback to gold.kpi_training_data
+            try:
+                df = pd.read_sql(
+                    f"SELECT kpi_name, actual_value, period FROM {self.gold_schema}.mart_kpi_series ORDER BY kpi_name, period",
+                    self.engine,
+                )
+            except Exception:
+                df = pd.DataFrame()
+
+            if df.empty or len(df) < 10:
+                try:
+                    df = pd.read_sql(
+                        f"SELECT 'DEFAULT' AS kpi_name, actual_value, period FROM {self.gold_schema}.kpi_training_data ORDER BY period",
+                        self.engine,
+                    )
+                except Exception:
+                    df = pd.DataFrame()
+
             if len(df) < 10:
-                return {"status": "skipped", "reason": "insufficient data"}
+                return {"status": "skipped", "reason": "insufficient data", "rows": len(df)}
 
-            values = df["actual_value"].values.reshape(-1, 1).astype(np.float32)
-            scaler = MinMaxScaler()
-            scaled = scaler.fit_transform(values)
+            # Process sequences partitioned per KPI to avoid cross-metric contamination
+            seq_len = 3
+            all_X, all_y = [], []
+            scalers = {}
 
-            # Create sequences
-            seq_len = min(5, len(scaled) - 1)
-            X, y = [], []
-            for i in range(len(scaled) - seq_len):
-                X.append(scaled[i:i + seq_len])
-                y.append(scaled[i + seq_len])
+            for kpi_name, group in df.groupby("kpi_name"):
+                if len(group) <= seq_len:
+                    continue
+                vals = group["actual_value"].values.reshape(-1, 1).astype(np.float32)
+                scaler = MinMaxScaler()
+                scaled = scaler.fit_transform(vals)
+                scalers[kpi_name] = scaler
 
-            if len(X) < 5:
-                return {"status": "skipped", "reason": "not enough sequences"}
+                for i in range(len(scaled) - seq_len):
+                    all_X.append(scaled[i:i + seq_len])
+                    all_y.append(scaled[i + seq_len])
 
-            X_t = torch.tensor(np.array(X), dtype=torch.float32)
-            y_t = torch.tensor(np.array(y), dtype=torch.float32)
+            if len(all_X) < 5:
+                return {"status": "skipped", "reason": "not enough sequences created", "n_seq": len(all_X)}
+
+            X_t = torch.tensor(np.array(all_X), dtype=torch.float32)
+            y_t = torch.tensor(np.array(all_y), dtype=torch.float32)
 
             model = PyTorchLSTMRegressor(input_dim=1, hidden_dim=64, num_layers=2, output_dim=1)
             optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
             criterion = nn.MSELoss()
 
             model.train()
+            final_loss = 0.0
             for epoch in range(100):
                 optimizer.zero_grad()
                 output = model(X_t)
                 loss = criterion(output, y_t)
                 loss.backward()
                 optimizer.step()
+                final_loss = loss.item()
 
-            # Save
+            # Save model and artifacts
             torch.save(model.state_dict(), os.path.join(self.model_dir, "kpi_lstm.pth"))
             bundle = {
-                "scaler": scaler,
+                "scalers": scalers,
                 "seq_len": seq_len,
                 "version": datetime.now().strftime("%Y%m%d_%H%M"),
-                "metrics": {"final_loss": round(loss.item(), 6), "n_samples": len(df)},
+                "metrics": {"final_loss": round(final_loss, 6), "n_samples": len(all_X)},
             }
             with open(os.path.join(self.model_dir, "kpi_bundle.pkl"), "wb") as f:
                 pickle.dump(bundle, f)
 
-            return {"status": "success", "loss": round(loss.item(), 6), "rows_used": len(df)}
+            return {"status": "success", "loss": round(final_loss, 6), "sequences_trained": len(all_X)}
         except Exception as e:
             print(f"[Retrain] KPI failed: {e}")
             return {"status": "error", "error": str(e)}

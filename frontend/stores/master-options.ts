@@ -2,6 +2,14 @@
 // Centralises the reference lists (company, department, job role, location,
 // employee) so forms can bind readable names instead of raw UUIDs.
 import type { Company, Department, Employee, JobRole, Location } from '~/types/master'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+
+export interface BusinessUnit {
+  id: string
+  business_unit_code: string
+  business_unit_name: string
+  company_id: string
+}
 
 export interface SelectOption {
   label: string
@@ -15,6 +23,7 @@ export const useMasterOptionsStore = defineStore('master-options', () => {
   const jobRoles = ref<JobRole[]>([])
   const locations = ref<Location[]>([])
   const employees = ref<Employee[]>([])
+  const businessUnits = ref<BusinessUnit[]>([])
 
   const loading = ref(false)
   const loaded = ref(false)
@@ -60,6 +69,13 @@ export const useMasterOptionsStore = defineStore('master-options', () => {
     }))
   )
 
+  const businessUnitOptions = computed<SelectOption[]>(() =>
+    businessUnits.value.map((b) => ({
+      label: b.business_unit_code ? `${b.business_unit_name} (${b.business_unit_code})` : b.business_unit_name,
+      value: b.id
+    }))
+  )
+
   // ============= Actions =============
 
   /**
@@ -78,13 +94,16 @@ export const useMasterOptionsStore = defineStore('master-options', () => {
       const locationApi = useLocationApi()
       const employeeApi = useEmployeeApi()
 
-      const [companyList, departmentList, jobRoleList, locationList, employeeList] =
+      const [companyList, departmentList, jobRoleList, locationList, employeeList, buList] =
         await Promise.all([
           companyApi.getAllCompanies().catch(() => []),
           departmentApi.getAllDepartments().catch(() => []),
           jobRoleApi.getAllJobRoles().catch(() => []),
           locationApi.getAllLocations().catch(() => []),
-          employeeApi.getAllEmployees().catch(() => [])
+          employeeApi.getAllEmployees().catch(() => []),
+          $fetch<any>(`${getAuditServiceBaseUrl()}/business-units`)
+            .then((r) => (Array.isArray(r.data) ? r.data : (r.data?.business_units || [])))
+            .catch(() => [])
         ])
 
       companies.value = companyList
@@ -92,6 +111,7 @@ export const useMasterOptionsStore = defineStore('master-options', () => {
       jobRoles.value = jobRoleList
       locations.value = locationList
       employees.value = employeeList
+      businessUnits.value = buList
       loaded.value = true
     } finally {
       loading.value = false
@@ -114,6 +134,7 @@ export const useMasterOptionsStore = defineStore('master-options', () => {
     jobRoles,
     locations,
     employees,
+    businessUnits,
     loading,
     loaded,
 
@@ -123,6 +144,7 @@ export const useMasterOptionsStore = defineStore('master-options', () => {
     jobRoleOptions,
     locationOptions,
     employeeOptions,
+    businessUnitOptions,
 
     // Actions
     fetchAll,

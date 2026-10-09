@@ -2,6 +2,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 
 vi.mock('#app', () => ({
   useRuntimeConfig: () => ({
@@ -37,57 +39,94 @@ vi.mock('~/components/shared/ToastNotification.vue', () => ({
 
 global.$fetch = vi.fn()
 
+// Real-shaped KKA / fieldwork records for one assignment letter, seeded into the
+// working-paper and fieldwork stores as if they had been loaded from the API.
+const LETTER = 'ST-001/SKAI/2026'
+
+function seedAuditStores() {
+  const wp = useWorkingPaperStore()
+  wp.dataF02 = [{ id: 'R1', workingPaperId: LETTER, risk: 'Selisih kas', riskLevel: 'HIGH' }]
+  wp.dataF04 = [{ id: 'C1', workingPaperId: LETTER, condition: 'Rekonsiliasi kas harian terlambat', criteria: 'SOP Kas', impact: 'Selisih kas' }]
+  wp.dataF05 = [{ id: 'P1', workingPaperId: LETTER, recommendation: 'Rekonsiliasi harian', actionDescription: 'Otomatisasi rekonsiliasi' }]
+  const fw = useAuditFieldworkStore()
+  fw.fieldworkData = {
+    [LETTER]: {
+      interviews: [],
+      observations: [],
+      documents: [],
+      samples: [],
+      testControls: [
+        { controlName: 'Otorisasi transaksi', testResult: 'Ineffective', finding: '', mitigationPlan: 'Dual approval' },
+        { controlName: 'Backup harian', testResult: 'Effective', finding: '' }
+      ]
+    }
+  }
+}
+
 describe('Audit Result Report Store - Automated Findings Detection', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
-    // Default mock: fail fetch to trigger local fallback for deterministic testing
+    // Default: backend unreachable, so fetchAutoFindings aggregates from the loaded stores.
     vi.mocked($fetch).mockRejectedValue(new Error('Network error / fallback test'))
   })
 
-  it('should auto-detect findings from Digital Working Paper (KKA) and Fieldwork for ST-001/SKAI/2026', async () => {
+  it('should auto-detect findings from loaded Digital Working Paper (KKA) and Fieldwork data', async () => {
+    seedAuditStores()
     const store = useAuditResultReportStore()
-    const findings = await store.fetchAutoFindings('ST-001/SKAI/2026')
+    const findings = await store.fetchAutoFindings(LETTER)
 
-    expect(findings.length).toBeGreaterThan(0)
-    const hasKkaOrFieldwork = findings.some(
-      f => f.source?.includes('KKA') || f.source?.includes('Fieldwork') || f.source?.includes('Audit')
-    )
-    expect(hasKkaOrFieldwork).toBe(true)
+    expect(findings.map(f => f.title)).toEqual([
+      'Rekonsiliasi kas harian terlambat',
+      'Kelemahan Kontrol: Otorisasi transaksi'
+    ])
+    expect(findings[0]).toMatchObject({ source: 'Digital Working Paper (KKA - AOI & RCA)', category: 'Very Significant', action: 'Otomatisasi rekonsiliasi' })
+    expect(findings[1]).toMatchObject({ source: 'Audit Fieldwork (Test Controls)', category: 'Very Significant', action: 'Dual approval' })
 
-    findings.forEach(f => {
+    findings.forEach((f) => {
       expect(['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']).toContain(f.category)
       expect(f.title).toBeTruthy()
     })
   })
 
-  it('should auto-populate findings and count when opening modal with a selected assignment letter', async () => {
+  it('should not fall back to mock KKA / fieldwork data when nothing is loaded', async () => {
     const store = useAuditResultReportStore()
-    store.selectedAssignmentLetter = 'ST-001/SKAI/2026'
+    const findings = await store.fetchAutoFindings(LETTER)
+    expect(findings).toEqual([])
+    // Auto-detection must not seed the fieldwork store with its mock records either.
+    expect(useAuditFieldworkStore().fieldworkData).toEqual({})
+  })
+
+  it('should auto-populate findings and count when opening modal with a selected assignment letter', async () => {
+    seedAuditStores()
+    const store = useAuditResultReportStore()
+    store.selectedAssignmentLetter = LETTER
 
     await store.openModal()
 
     expect(store.showModal).toBe(true)
-    expect(store.reportForm.assignmentLetterId).toBe('ST-001/SKAI/2026')
+    expect(store.reportForm.assignmentLetterId).toBe(LETTER)
     expect(store.reportForm.reportTitle).toContain('Laporan Hasil Audit')
-    expect(store.reportForm.findings.length).toBeGreaterThan(0)
+    expect(store.reportForm.findings.length).toBe(2)
     expect(store.reportForm.findingsCount).toBe(store.reportForm.findings.length)
   })
 
   it('should support runAutoDetectFindings in replace and merge mode', async () => {
+    seedAuditStores()
     const store = useAuditResultReportStore()
-    store.reportForm.assignmentLetterId = 'ST-001/SKAI/2026'
+    store.reportForm.assignmentLetterId = LETTER
     store.reportForm.findings = [
       { title: 'Manual Custom Finding', category: 'Significant', action: 'Custom Action', source: 'Manual' }
     ]
 
     // Test merge mode
     await store.runAutoDetectFindings('merge')
-    expect(store.reportForm.findings.length).toBeGreaterThan(1)
+    expect(store.reportForm.findings.length).toBe(3)
     expect(store.reportForm.findings.some(f => f.title === 'Manual Custom Finding')).toBe(true)
 
     // Test replace mode
     await store.runAutoDetectFindings('replace')
+    expect(store.reportForm.findings.length).toBe(2)
     expect(store.reportForm.findings.every(f => f.title !== 'Manual Custom Finding')).toBe(true)
   })
 
@@ -115,5 +154,178 @@ describe('Audit Result Report Store - Automated Findings Detection', () => {
     expect(findings.length).toBe(1)
     expect(findings[0].title).toBe('API Detected Ineffective Backup Control')
     expect(findings[0].category).toBe('Very Significant')
+  })
+
+  it('should dynamically generate Report Number (LHA ID) with auto-increment and dynamic month/year', async () => {
+    const store = useAuditResultReportStore()
+    
+    // Test with specific date: 2026-10-15
+    const dynamicNum = store.generateReportNumber('2026-10-15')
+    expect(dynamicNum).toMatch(/^LHA-\d{3}\/SKAI\/2026$/)
+
+    // Test with different year and month: 2027-02-01
+    const futureNum = store.generateReportNumber('2027-02-01')
+    expect(futureNum).toMatch(/^LHA-\d{3}\/SKAI\/2027$/)
+
+    // Check that resetForm initializes reportForm.reportNumber dynamically
+    store.resetForm()
+    expect(store.reportForm.reportNumber).toBeTruthy()
+    expect(store.reportForm.reportNumber).toMatch(/^LHA-\d{3}\/[^\/]+\/\d{4}$/)
+  })
+
+  it('should dynamically generate Assignment Letter number with sanitized year and highest sequence', async () => {
+    const { useAssignmentLetterStore } = await import('~/stores/assignment-letter')
+    const alStore = useAssignmentLetterStore()
+
+    // Test clean year
+    const st1 = alStore.generateNomorSurat('SKAI', '2026')
+    expect(st1).toMatch(/^ST-\d{3}\/SKAI\/2026$/)
+
+    // Test full date format like 2026-05-20 from datepicker
+    const st2 = alStore.generateNomorSurat('SKAI', '2026-05-20')
+    expect(st2).toMatch(/^ST-\d{3}\/SKAI\/2026$/)
+
+    // Test fallback to default SKAI and current year when empty
+    const currentYear = new Date().getFullYear().toString()
+    const stDefault = alStore.generateNomorSurat('', '')
+    expect(stDefault).toBe(`ST-006/SKAI/${currentYear}`)
+  })
+})
+
+describe('Audit Result Report Store - saveReport requires an assignment letter', () => {
+  const REQUIRED_KEY = 'auditResultReport.form.assignmentLetterRequired'
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    vi.mocked($fetch).mockResolvedValue({ success: true, data: { items: [] } })
+  })
+
+  it('blocks the save with a validation error and makes no API call when no letter is selected', async () => {
+    const store = useAuditResultReportStore()
+    await Promise.resolve()
+    vi.mocked($fetch).mockClear() // ignore the fetchReports() fired on store creation
+
+    store.selectedAssignmentLetter = ''
+    store.reportForm.assignmentLetterId = ''
+    store.reportForm.reportTitle = 'Laporan tanpa surat tugas'
+    await store.saveReport()
+
+    expect($fetch).not.toHaveBeenCalled()
+    expect(store.formErrors.assignmentLetterId).toBe(REQUIRED_KEY)
+  })
+
+  it('a new report opened with no letter selected gets no default letter and cannot be saved', async () => {
+    const store = useAuditResultReportStore()
+    await Promise.resolve()
+    store.selectedAssignmentLetter = ''
+    await store.openModal()
+    expect(store.reportForm.assignmentLetterId).toBe('')
+    vi.mocked($fetch).mockClear()
+
+    store.reportForm.reportTitle = 'Laporan tanpa surat tugas'
+    await store.saveReport()
+
+    expect($fetch).not.toHaveBeenCalled()
+    expect(store.formErrors.assignmentLetterId).toBe(REQUIRED_KEY)
+  })
+
+  it('has the validation message in both locales', async () => {
+    const fs = await import('node:fs')
+    for (const lang of ['en', 'id']) {
+      const json = JSON.parse(fs.readFileSync(`locales/${lang}/common.json`, 'utf8'))
+      expect(json.auditResultReport.form.assignmentLetterRequired).toBeTruthy()
+    }
+  })
+
+  it('creates the report under the selected letter and clears the error', async () => {
+    const store = useAuditResultReportStore()
+    store.formErrors.assignmentLetterId = REQUIRED_KEY
+    store.reportForm.assignmentLetterId = 'ST-010/SKAI/2026'
+    await store.saveReport()
+
+    const post = vi.mocked($fetch).mock.calls.find(c => c[1]?.method === 'POST')
+    expect(post[1].body.assignmentLetterId).toBe('ST-010/SKAI/2026')
+    expect(store.formErrors.assignmentLetterId).toBe('')
+  })
+
+  it('editing an existing report keeps its own letter, whatever the page filter is', async () => {
+    const store = useAuditResultReportStore()
+    store.selectedAssignmentLetter = 'ST-OTHER/SKAI/2026'
+    store.editReport({
+      id: 'r1',
+      reportNumber: '',
+      assignmentLetterId: 'ST-777/SKAI/2026',
+      reportTitle: 'Existing',
+      executiveSummary: '',
+      reportDate: '2026-09-01',
+      status: 'Draft',
+      findingsCount: 0,
+      findings: []
+    })
+    await store.saveReport()
+
+    const put = vi.mocked($fetch).mock.calls.find(c => c[1]?.method === 'PUT')
+    expect(String(put[0])).toContain('/audit-result-reports/r1')
+    expect(put[1].body.assignmentLetterId).toBe('ST-777/SKAI/2026')
+  })
+
+  it('normalizes legacy report numbers to LHA-[NoUrut]/[Audit Team]/[Tahun]', () => {
+    const store = useAuditResultReportStore()
+    expect(store.normalizeReportNumber('021/LHA/01/KS IAD/2026')).toBe('LHA-021/SKAI/2026')
+    expect(store.normalizeReportNumber('024/LHA/01/KS IAD/2026')).toBe('LHA-024/SKAI/2026')
+    expect(store.normalizeReportNumber('020/LHA/01/KS IAD/2023')).toBe('LHA-020/SKAI/2023')
+    expect(store.normalizeReportNumber('LHA-025/SKAI/2026')).toBe('LHA-025/SKAI/2026')
+  })
+
+  it('retrieves team members from the selected assignment letter', () => {
+    const store = useAuditResultReportStore()
+    const members = store.getTeamMembersForLetter('ST-001/SKAI/2026')
+    expect(members.length).toBeGreaterThan(0)
+    expect(members[0]).toHaveProperty('name')
+    expect(members[0]).toHaveProperty('role')
+  })
+
+  it('saves report including signatures, signaturePlace, and signatureDate', async () => {
+    const store = useAuditResultReportStore()
+    store.reportForm.assignmentLetterId = 'ST-001/SKAI/2026'
+    store.reportForm.reportTitle = 'Report With Signatures'
+    store.reportForm.signaturePlace = 'Bandung'
+    store.reportForm.signatureDate = '2026-10-09'
+    store.reportForm.signatures = [
+      { name: 'Zeta Ramadhani', role: 'Chairperson', signature: 'data:image/png;base64,mockSig1' },
+      { name: 'Budi Santoso', role: 'Supervisor', signature: 'data:image/png;base64,mockSig2' }
+    ]
+    await store.saveReport()
+
+    const post = vi.mocked($fetch).mock.calls.find(c => c[1]?.method === 'POST')
+    expect(post[1].body.signaturePlace).toBe('Bandung')
+    expect(post[1].body.signatureDate).toBe('2026-10-09')
+    expect(post[1].body.signatures).toHaveLength(2)
+    expect(post[1].body.signatures[0].name).toBe('Zeta Ramadhani')
+  })
+
+  it('editing a report restores signaturePlace, signatureDate, and signatures', () => {
+    const store = useAuditResultReportStore()
+    store.editReport({
+      id: 'r-sig',
+      reportNumber: 'LHA-099/SKAI/2026',
+      assignmentLetterId: 'ST-001/SKAI/2026',
+      reportTitle: 'Report With Saved Signatures',
+      executiveSummary: '',
+      reportDate: '2026-10-09',
+      status: 'Final',
+      findingsCount: 0,
+      findings: [],
+      signaturePlace: 'Surabaya',
+      signatureDate: '2026-10-09',
+      signatures: [
+        { name: 'Rina Wulandari', role: 'Member', signature: 'data:image/png;base64,mock' }
+      ]
+    })
+
+    expect(store.reportForm.signaturePlace).toBe('Surabaya')
+    expect(store.reportForm.signatures).toHaveLength(1)
+    expect(store.reportForm.signatures[0].name).toBe('Rina Wulandari')
   })
 })

@@ -15,19 +15,17 @@
         <UForm :state="store.form" @submit.prevent="store.handleSubmit">
           <div class="space-y-5">
 
-            <!-- Link to Goal -->
-            <UFormField v-if="vmgStore.activeVmg?.goals?.length" :label="t('strategicPlan.form.corporateGoal')" required>  
-              <USelectMenu
-                v-model="store.form.goalId"
-                :items="goalOptions"
-                value-key="value"
-                :placeholder="t('strategicPlan.form.selectCorporateGoal')"
-                class="w-full"
-                required
-              />
-            </UFormField>
+            <!-- Error of the last failed save; the form keeps the input so it can be retried -->
+            <UAlert
+              v-if="store.formError"
+              color="error"
+              variant="subtle"
+              icon="i-lucide-alert-triangle"
+              :title="t('strategicPlan.toast.saveFailedTitle')"
+              :description="store.formError"
+            />
 
-            <!-- Strategic Objective -->
+            <!-- Strategic Objective (no goal picker: the store links a new plan to the single corporate goal on save) -->
             <UFormField :label="t('strategicPlan.form.objective')" required>
               <UTextarea
                 v-model="store.form.strategicObjective"
@@ -58,6 +56,22 @@
               />
             </UFormField>
 
+            <!-- Category (optional): the backend accepts only these values or none -->
+            <UFormField
+              :label="t('strategicPlan.form.category')"
+              :error="store.formFieldErrors.category"
+            >
+              <USelectMenu
+                v-model="category"
+                :items="categoryOptions"
+                value-key="value"
+                :placeholder="t('strategicPlan.form.selectCategory')"
+                :search-input="false"
+                clear
+                class="w-full"
+              />
+            </UFormField>
+
             <!-- HIB/HIG Radio -->
             <div class="form-row">
             <UFormField :label="t('strategicPlan.form.hibHig')" required>
@@ -82,33 +96,6 @@
                 color="primary"
               />
             </UFormField>
-            </div>
-
-            <!-- Period Type Radio -->
-            <div class="form-row">
-              <label class="form-label text-gray-700 dark:text-white">
-                {{ t('strategicPlan.form.periodType') }} <span class="text-orange-500">*</span>
-              </label>
-              <div class="flex flex-col gap-2">
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    v-model="store.form.periodType"
-                    value="Quartal"
-                    class="accent-orange-500 w-4 h-4"
-                  />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.quartal') }}</span>
-                </label>
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    v-model="store.form.periodType"
-                    value="Yearly"
-                    class="accent-orange-500 w-4 h-4"
-                  />
-                  <span class="text-sm font-medium text-gray-800 dark:text-white">{{ t('strategicPlan.form.yearly') }}</span>
-                </label>
-              </div>
             </div>
 
             <!-- Periode: Dari Tahun / Sampai Tahun -->
@@ -159,6 +146,8 @@
             variant="solid"
             color="primary"
             class="w-full sm:w-auto font-bold"
+            :loading="store.saving"
+            :disabled="store.saving"
             @click="store.handleSubmit"
           />
         </div>
@@ -169,20 +158,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
-import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
+import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
+import { STRATEGIC_PLAN_CATEGORIES } from '~/utils/strategicPlanPayload'
 import TargetRealizationMatrix from './TargetRealizationMatrix.vue'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
-const vmgStore = useVisionMissionGoalsStore()
 
-const goalOptions = computed(() => {
-  if (!vmgStore.activeVmg?.goals) return []
-  return vmgStore.activeVmg.goals.map(g => ({
-    label: `${g.goal_code} - ${g.goal_name}`,
-    value: g.id || g.goal_code
-  }))
+// Raw value is what is saved; the label comes from the KPI table's category labels.
+const categoryOptions = computed(() =>
+  STRATEGIC_PLAN_CATEGORIES.map((value): { label: string, value: string } => ({ label: kpiValueLabel(t, 'categories', value), value }))
+)
+// "" (no category) shows the placeholder; clearing the menu stores "" again.
+const category = computed<string | undefined>({
+  get: () => store.form.category || undefined,
+  set: (value) => {
+    store.form.category = value ?? ''
+    if (store.formFieldErrors.category) store.formFieldErrors = {}
+  }
 })
 
 const formatStatus = (status: string) => {

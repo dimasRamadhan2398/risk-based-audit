@@ -48,3 +48,8 @@ gdrive:
   client_secret: ""
   refresh_token: ""
   default_folder_id: "1NCUAQx48FtGWPuL49M71GPvUp7afZQHr"
+
+imagekit:
+  public_key: ""
+  private_key: ""
+  url_endpoint: ""

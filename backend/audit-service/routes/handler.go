@@ -4,13 +4,22 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"audit-service/controllers"
+	ctrlATR "audit-service/controllers/action_taken_report"
+	ctrlActivityPlan "audit-service/controllers/activity_plan"
+	ctrlAssignmentLetter "audit-service/controllers/assignment_letter"
 	"audit-service/controllers/crud"
+	ctrlFindings "audit-service/controllers/findings"
+	ctrlStrategicPlan "audit-service/controllers/strategic_plan"
+	ctrlWorkingPaper "audit-service/controllers/working_paper"
 	"audit-service/models"
 	"audit-service/pkg/docxbuilder"
+	"audit-service/pkg/masterclient"
 	"audit-service/pkg/middleware"
 	"audit-service/pkg/redis"
+	atrsvc "audit-service/services/action_taken_report"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -154,8 +163,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		activityPlans.GET("", crud.List(h.db, "ActivityPlan", func() interface{} { return &[]models.ActivityPlan{} }))
 		activityPlans.GET("/:id", crud.GetByID(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
-		activityPlans.POST("", crud.Create(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
-		activityPlans.PUT("/:id", crud.Update(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
+		// The server assigns each planned activity's Activity ID (activityCode), see controllers/activity_plan.
+		activityPlans.POST("", crud.CreateWithHook(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }, ctrlActivityPlan.AssignCodesOnCreate))
+		activityPlans.PUT("/:id", crud.UpdateWithHook(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }, ctrlActivityPlan.AssignCodesOnUpdate))
 		activityPlans.DELETE("/:id", crud.Delete(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
 	}
 
@@ -164,8 +174,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		strategicPlans.GET("", crud.List(h.db, "StrategicPlan", func() interface{} { return &[]models.StrategicPlan{} }))
 		strategicPlans.GET("/:id", crud.GetByID(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
-		strategicPlans.POST("", crud.Create(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
-		strategicPlans.PUT("/:id", crud.Update(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
+		// category must be empty or one of models.StrategicPlanCategories (400 otherwise)
+		strategicPlans.POST("", ctrlStrategicPlan.ValidateCategory(), crud.Create(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
+		strategicPlans.PUT("/:id", ctrlStrategicPlan.ValidateCategory(), crud.Update(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
 		strategicPlans.DELETE("/:id", crud.Delete(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
 	}
 
@@ -179,7 +190,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		letterStatusGuard := middleware.RequireRolesForStatusChange(h.db, "assignment_letters", "Draft",
 			"ADMIN", "AUDIT_MANAGER", "CHIEF_AUDIT_EXECUTIVE")
 		assignmentLetters.POST("", letterStatusGuard, crud.Create(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
-		assignmentLetters.PUT("/:id", letterStatusGuard, crud.Update(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+		// auditPurpose echoed back from purposeList is not frozen into the column, see controllers/assignment_letter
+		assignmentLetters.PUT("/:id", letterStatusGuard, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate))
 		assignmentLetters.DELETE("/:id", crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
 	}
 
@@ -249,7 +261,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		workingPaperHeaders.GET("", crud.List(h.db, "WorkingPaperHeader", func() interface{} { return &[]models.WorkingPaperHeader{} }))
 		workingPaperHeaders.GET("/:id", crud.GetByID(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
 		workingPaperHeaders.POST("", crud.Create(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
-		workingPaperHeaders.PUT("/:id", crud.Update(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
+		// auditPurpose follows the linked assignment letter, see controllers/working_paper
+		workingPaperHeaders.PUT("/:id", crud.UpdateWithHook(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }, ctrlWorkingPaper.SyncHeaderOnUpdate))
 		workingPaperHeaders.DELETE("/:id", crud.Delete(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
 	}
 
@@ -398,10 +411,14 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		auditResultReports.GET("", crud.List(h.db, "AuditResultReport", func() interface{} { return &[]models.AuditResultReport{} }))
 		auditResultReports.GET("/auto-findings", h.getAutoFindings)
+		auditResultReports.GET("/recent-findings", ctrlFindings.Recent(h.db))
 		auditResultReports.GET("/:id/download-docx", h.downloadAuditResultReportDocx)
 		auditResultReports.GET("/:id", crud.GetByID(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
-		auditResultReports.POST("", crud.Create(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
-		auditResultReports.PUT("/:id", crud.Update(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
+		// Saving a report keeps its action taken reports in step in the same
+		// transaction: approving it ("Final"/"Approved"/"Published") creates one
+		// ATR per finding (see services/action_taken_report.SyncFromReport)
+		auditResultReports.POST("", crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, SyncReportATRs))
+		auditResultReports.PUT("/:id", crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, SyncReportATRs))
 		auditResultReports.DELETE("/:id", crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 	}
 
@@ -425,22 +442,17 @@ func (h *RouteHandler) RegisterRoutes() {
 		executiveSummaries.DELETE("/:id", crud.Delete(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 	}
 
-	// 18. Action Taken Reports
-	actionTakenReports := apiV1.Group("/action-taken-reports")
-	{
-		actionTakenReports.GET("", crud.List(h.db, "ActionTakenReport", func() interface{} { return &[]models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
-		actionTakenReports.GET("/:id", crud.GetByID(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
-		actionTakenReports.POST("", crud.Create(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
-		actionTakenReports.PUT("/:id", crud.Update(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
-		actionTakenReports.DELETE("/:id", crud.Delete(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
-	}
+	// 18. Action Taken Reports: one per finding of an approved LHA, created by
+	// the server (no generic create/update). Role checks live in the
+	// controller (services/action_taken_report.RolePermissions).
+	ctrlATR.NewController(h.db).Register(apiV1.Group("/action-taken-reports"))
 
 	// 19. Media routes
 	media := apiV1.Group("/media")
 	{
 		media.POST("/upload", h.registry.Media.Upload)
-		media.GET("/download/:id", h.registry.Media.Download)
 	}
+	h.engine.GET("/api/v1/media/download/:id", h.registry.Media.Download)
 
 	// 20. Performance routes
 	perfStatsCtrl := controllers.NewPerformanceStatsController(h.db, h.redisClient)
@@ -466,6 +478,11 @@ func (h *RouteHandler) RegisterRoutes() {
 		performance.DELETE("/realization/:id", crud.Delete(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
 	}
 }
+
+// SyncReportATRs is the after-write hook of the audit result report create and
+// update routes (see atrsvc.AfterReportWrite): approving a report creates its
+// action taken reports in the same transaction.
+var SyncReportATRs crud.AfterHook = atrsvc.AfterReportWrite
 
 func (h *RouteHandler) deleteAuditGuideline(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
@@ -544,143 +561,24 @@ func (h *RouteHandler) getAutoFindings(c *gin.Context) {
 		return
 	}
 
+	// Live findings: KKA (F04 causes / F05 plans / F02 risks) and fieldwork
+	// test controls of this assignment letter (see controllers/findings). ATRs
+	// are not a source: they are created from the LHA's findings.
+	var src ctrlFindings.LiveSources
+	h.db.Where("working_paper_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.Causes)
+	h.db.Where("working_paper_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.Plans)
+	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&src.Risks)
+	h.db.Where("assignment_letter_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.TestControls)
+
 	var findings []AutoFindingItem
-	existingTitles := make(map[string]bool)
-
-	// 1. Fetch Working Paper Causes (Tab F04 AOI & RCA)
-	var wpCauses []models.WorkingPaperCause
-	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&wpCauses)
-
-	// Fetch Working Paper Plans (Tab F05 Action Plan)
-	var wpPlans []models.WorkingPaperPlan
-	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&wpPlans)
-
-	// Fetch Working Paper Risks (Tab F02 Risk Profile)
-	var wpRisks []models.WorkingPaperRisk
-	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&wpRisks)
-
-	// Determine default category from risk level if available
-	defaultCategory := "Significant"
-	for _, r := range wpRisks {
-		rLevel := strings.ToUpper(strings.TrimSpace(r.RiskLevel))
-		if rLevel == "HIGH" || rLevel == "CRITICAL" || rLevel == "VERY HIGH" {
-			defaultCategory = "Very Significant"
-			break
-		} else if rLevel == "MODERATE" || rLevel == "MEDIUM" {
-			defaultCategory = "Significant"
-		}
-	}
-
-	for idx, cause := range wpCauses {
-		cond := strings.TrimSpace(cause.Condition)
-		if cond == "" {
-			continue
-		}
-		titleKey := strings.ToLower(cond)
-		if existingTitles[titleKey] {
-			continue
-		}
-		existingTitles[titleKey] = true
-
-		action := ""
-		if idx < len(wpPlans) {
-			if wpPlans[idx].ActionDescription != "" {
-				action = wpPlans[idx].ActionDescription
-			} else if wpPlans[idx].Recommendation != "" {
-				action = wpPlans[idx].Recommendation
-			}
-		} else if len(wpPlans) > 0 {
-			if wpPlans[0].ActionDescription != "" {
-				action = wpPlans[0].ActionDescription
-			} else {
-				action = wpPlans[0].Recommendation
-			}
-		}
-
-		cat := defaultCategory
-		condLower := strings.ToLower(cond)
-		if strings.Contains(condLower, "kritis") || strings.Contains(condLower, "critical") || strings.Contains(condLower, "tidak sesuai") || strings.Contains(condLower, "override") || strings.Contains(condLower, "mfa") {
-			cat = "Very Significant"
-		}
-
+	for _, f := range ctrlFindings.Derive(src) {
 		findings = append(findings, AutoFindingItem{
-			Title:    cond,
-			Category: cat,
-			Action:   action,
-			Source:   "Digital Working Paper (KKA - AOI & RCA)",
-			Impact:   cause.Impact,
-			Criteria: cause.Criteria,
-		})
-	}
-
-	// 2. Fetch Fieldwork Test Controls
-	var testControls []models.FieldworkTestControl
-	h.db.Where("assignment_letter_id = ?", assignmentLetterId).Find(&testControls)
-
-	for _, tc := range testControls {
-		findingText := strings.TrimSpace(tc.Finding)
-		resultUpper := strings.ToUpper(strings.TrimSpace(tc.TestResult))
-
-		if findingText != "" || resultUpper == "INEFFECTIVE" || resultUpper == "PARTIALLY EFFECTIVE" {
-			title := findingText
-			if title == "" {
-				title = fmt.Sprintf("Kelemahan Kontrol: %s", tc.ControlName)
-			}
-
-			titleKey := strings.ToLower(title)
-			if existingTitles[titleKey] {
-				continue
-			}
-			existingTitles[titleKey] = true
-
-			action := strings.TrimSpace(tc.MitigationPlan)
-			if action == "" {
-				action = strings.TrimSpace(tc.Recommendation)
-			}
-
-			cat := "Significant"
-			if resultUpper == "INEFFECTIVE" {
-				cat = "Very Significant"
-			} else if resultUpper == "PARTIALLY EFFECTIVE" {
-				cat = "Significant"
-			}
-
-			findings = append(findings, AutoFindingItem{
-				Title:    title,
-				Category: cat,
-				Action:   action,
-				Source:   "Audit Fieldwork (Test Controls)",
-			})
-		}
-	}
-
-	// 3. Check Action Taken Reports for this assignment letter
-	var actionReports []models.ActionTakenReport
-	h.db.Where("audit_ref = ?", assignmentLetterId).Find(&actionReports)
-	for _, atr := range actionReports {
-		cond := strings.TrimSpace(atr.Condition)
-		if cond == "" {
-			cond = strings.TrimSpace(atr.Title)
-		}
-		if cond == "" {
-			continue
-		}
-		titleKey := strings.ToLower(cond)
-		if existingTitles[titleKey] {
-			continue
-		}
-		existingTitles[titleKey] = true
-
-		act := strings.TrimSpace(atr.Recommendation)
-		if act == "" {
-			act = strings.TrimSpace(atr.ProgressDescription)
-		}
-
-		findings = append(findings, AutoFindingItem{
-			Title:    cond,
-			Category: "Significant",
-			Action:   act,
-			Source:   "Action Taken Report (ATR)",
+			Title:    f.Title,
+			Category: f.Category,
+			Action:   f.Action,
+			Source:   f.Source,
+			Impact:   f.Impact,
+			Criteria: f.Criteria,
 		})
 	}
 
@@ -711,60 +609,96 @@ func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
 	// Fetch related entities by AssignmentLetterID
 	var st models.AssignmentLetter
 	if report.AssignmentLetterID != "" {
-		if err := h.db.Where("letter_number = ?", report.AssignmentLetterID).First(&st).Error; err != nil {
-			if _, parseErr := uuid.Parse(report.AssignmentLetterID); parseErr == nil {
-				h.db.Where("id = ?", report.AssignmentLetterID).First(&st)
+		trimmedLetterID := strings.TrimSpace(report.AssignmentLetterID)
+		if err := h.db.Where("letter_number = ?", trimmedLetterID).First(&st).Error; err != nil {
+			if _, parseErr := uuid.Parse(trimmedLetterID); parseErr == nil {
+				h.db.Where("id = ?", trimmedLetterID).First(&st)
 			}
 		}
 	}
 
-	var interviews []models.FieldworkInterview
+	altIDs := []string{}
 	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&interviews)
+		altIDs = append(altIDs, strings.TrimSpace(report.AssignmentLetterID))
+	}
+	if st.LetterNumber != "" && st.LetterNumber != report.AssignmentLetterID {
+		altIDs = append(altIDs, strings.TrimSpace(st.LetterNumber))
+	}
+	if st.ID != uuid.Nil {
+		altIDs = append(altIDs, st.ID.String())
+	}
+
+	var interviews []models.FieldworkInterview
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Find(&interviews)
 	}
 
 	var observations []models.FieldworkObservation
-	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&observations)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Find(&observations)
 	}
 
 	var fieldworkDocs []models.FieldworkDocument
-	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&fieldworkDocs)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Find(&fieldworkDocs)
 	}
 
 	var fieldworkSamples []models.FieldworkSample
-	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).Find(&fieldworkSamples)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Find(&fieldworkSamples)
 	}
 
 	var wpHeader models.WorkingPaperHeader
-	if report.AssignmentLetterID != "" {
-		h.db.Where("assignment_letter_id = ?", report.AssignmentLetterID).First(&wpHeader)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).First(&wpHeader)
+	}
+	// Fallback/sync header fields from Assignment Letter if empty
+	if wpHeader.AuditPurpose == "" && st.AuditPurpose != "" {
+		wpHeader.AuditPurpose = st.AuditPurpose
+	}
+	if len(wpHeader.TeamMembers) == 0 && len(st.MembersList) > 0 {
+		members := make([]models.TeamMember, 0, len(st.MembersList))
+		for idx, m := range st.MembersList {
+			members = append(members, models.TeamMember{
+				ID:   time.Now().UnixMilli() + int64(idx),
+				Name: m.Name,
+				Role: m.Role,
+			})
+		}
+		wpHeader.TeamMembers = members
 	}
 
 	var wpRisks []models.WorkingPaperRisk
-	if report.AssignmentLetterID != "" {
-		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpRisks)
+	if len(altIDs) > 0 {
+		h.db.Where("working_paper_id IN ? OR assignment_letter_id IN ?", altIDs, altIDs).Find(&wpRisks)
 	}
 
 	var wpSamples []models.WorkingPaperSample
-	if report.AssignmentLetterID != "" {
-		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpSamples)
+	if len(altIDs) > 0 {
+		h.db.Where("working_paper_id IN ?", altIDs).Find(&wpSamples)
 	}
 
 	var wpCauses []models.WorkingPaperCause
-	if report.AssignmentLetterID != "" {
-		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpCauses)
+	if len(altIDs) > 0 {
+		h.db.Where("working_paper_id IN ?", altIDs).Find(&wpCauses)
 	}
 
 	var wpPlans []models.WorkingPaperPlan
-	if report.AssignmentLetterID != "" {
-		h.db.Where("working_paper_id = ?", report.AssignmentLetterID).Find(&wpPlans)
+	if len(altIDs) > 0 {
+		h.db.Where("working_paper_id IN ?", altIDs).Find(&wpPlans)
 	}
 
 	var importedWPs []models.ImportedWorkingPaper
 	h.db.Find(&importedWPs)
+
+	// Resolve Company Name dynamically from master-service / st / report
+	resolvedComp := masterclient.ResolveCompanyName(c.Request.Context(), report.CompanyID, report.CompanyName, st.CompanyID, st.CompanyName, st.WorkingUnit, report.Department)
+	if report.CompanyName == "" {
+		report.CompanyName = resolvedComp
+	}
+	if st.CompanyName == "" {
+		st.CompanyName = resolvedComp
+	}
 
 	docxBytes, err := docxbuilder.GenerateAuditReportDocx(&report, &st, interviews, observations, fieldworkDocs, fieldworkSamples, &wpHeader, wpRisks, wpSamples, wpCauses, wpPlans, importedWPs)
 	if err != nil {

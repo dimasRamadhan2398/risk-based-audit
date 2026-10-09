@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>AuditSphere Data Hub — Topology & Infrastructure Architecture (v2)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #070b14;
+    background-image: 
+      radial-gradient(circle at 10% 12%, rgba(14, 165, 233, 0.14) 0%, transparent 40%),
+      radial-gradient(circle at 90% 88%, rgba(168, 85, 247, 0.14) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.3) 0%, transparent 70%),
+      radial-gradient(#1e293b 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+    color: #f1f5f9;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    width: 2600px;
+    height: 1540px;
+    overflow: hidden;
+    position: relative;
+    padding: 30px 45px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 18px;
+  }
+  .title-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .logo-box {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1, #10b981);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 32px rgba(14, 165, 233, 0.45);
+  }
+  .logo-box svg { width: 34px; height: 34px; fill: white; }
+  .title-text h1 {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #ffffff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .v2-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #0ea5e9, #10b981);
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    vertical-align: middle;
+    -webkit-text-fill-color: initial;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  }
+  .title-text p {
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 3px;
+  }
+  .meta-badges {
+    display: flex;
+    gap: 10px;
+  }
+  .badge {
+    padding: 7px 16px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    backdrop-filter: blur(8px);
+  }
+  .badge-primary {
+    background: rgba(14, 165, 233, 0.15);
+    border: 1px solid rgba(14, 165, 233, 0.35);
+    color: #38bdf8;
+  }
+  .badge-timescale {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+  }
+  .badge-emerald {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+  }
+  .badge-danger {
+    background: rgba(244, 63, 94, 0.15);
+    border: 1px solid rgba(244, 63, 94, 0.35);
+    color: #fb7185;
+  }
+
+  /* Main Diagram Canvas */
+  .diagram-container {
+    position: relative;
+    width: 2510px;
+    height: 1360px;
+  }
+
+  /* SVG Connections Overlay */
+  .connection-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  /* Main Zones */
+  .zone {
+    position: absolute;
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    z-index: 10;
+  }
+
+  /* Zone 1: Audit Server */
+  .zone-audit-server {
+    left: 0px;
+    top: 0px;
+    width: 590px;
+    height: 1340px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(15, 23, 42, 0.74) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+    padding: 22px;
+  }
+
+  /* Zone 2: VPN Tunnel Corridor */
+  .zone-vpn {
+    left: 615px;
+    top: 0px;
+    width: 330px;
+    height: 1340px;
+    background: linear-gradient(180deg, rgba(30, 27, 75, 0.35) 0%, rgba(15, 23, 42, 0.45) 100%);
+    border: 1px dashed rgba(244, 63, 94, 0.45);
+    box-shadow: inset 0 0 40px rgba(244, 63, 94, 0.05);
+    padding: 22px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Zone 3: Data Hub Server */
+  .zone-data-hub {
+    left: 970px;
+    top: 0px;
+    width: 1090px;
+    height: 1340px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 23, 42, 0.8) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+    padding: 22px;
+  }
+
+  /* Zone 4: External Data Sources */
+  .zone-external {
+    left: 2085px;
+    top: 0px;
+    width: 425px;
+    height: 1340px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.68) 100%);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    padding: 22px;
+  }
+
+  /* Zone Header */
+  .zone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    margin-bottom: 16px;
+  }
+  .zone-header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .zone-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .zone-icon svg { width: 22px; height: 22px; }
+  .zone-title-text h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+  .zone-title-text span {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .zone-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  .zone-external .zone-title-text h2 {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+  }
+
+  /* Cards */
+  .card {
+    background: rgba(30, 41, 59, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 12px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+  .card-title svg { width: 16px; height: 16px; }
+  .port-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .card-desc {
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.45;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 7px;
+  }
+  .mini-tag {
+    font-size: 9.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .accent-blue { border-left: 4px solid #38bdf8; }
+  .accent-purple { border-left: 4px solid #a855f7; }
+  .accent-amber { border-left: 4px solid #f59e0b; }
+  .accent-emerald { border-left: 4px solid #10b981; }
+  .accent-orange { border-left: 4px solid #f97316; }
+  .accent-cyan { border-left: 4px solid #06b6d4; }
+  .accent-rose { border-left: 4px solid #f43f5e; }
+  .accent-slate { border-left: 4px solid #64748b; }
+
+  .grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .grid-3col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 11px;
+  }
+
+  /* Docker Boundary */
+  .docker-boundary {
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    background: rgba(15, 23, 42, 0.55);
+    border-radius: 16px;
+    padding: 14px;
+    position: relative;
+    margin-top: 6px;
+  }
+  .docker-boundary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 7px;
+    border-bottom: 1px dashed rgba(99, 102, 241, 0.3);
+  }
+  .docker-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #818cf8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .docker-label svg { width: 17px; height: 17px; fill: #818cf8; }
+
+  /* WireGuard Widget */
+  .wireguard-card {
+    background: linear-gradient(135deg, rgba(225, 29, 72, 0.15), rgba(15, 23, 42, 0.7));
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  /* VPN Corridor */
+  .vpn-pillar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 14px 10px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    border-radius: 12px;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  .vpn-shield-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(244, 63, 94, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+  }
+  .vpn-shield-icon svg { width: 22px; height: 22px; fill: #fb7185; }
+
+  .tunnel-routes {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    width: 100%;
+    align-items: center;
+  }
+  .tunnel-pill {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .tunnel-pill-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tunnel-pill-desc {
+    font-size: 9.5px;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .security-layers {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .sec-layer {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sec-num {
+    background: #0ea5e9;
+    color: white;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 9.5px;
+    flex-shrink: 0;
+  }
+
+  /* Microservices List */
+  .service-pill-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .service-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 8px 11px;
+    border-radius: 8px;
+  }
+  .service-item-title {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .service-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .anchor-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* Hardware Sizing Panel */
+  .sizing-panel {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.8));
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    border-radius: 12px;
+    padding: 11px 13px;
+    margin-top: 11px;
+  }
+  .sizing-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #38bdf8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+  }
+  .sizing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 9px;
+  }
+  .sizing-item {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 7px 9px;
+  }
+  .sizing-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+  }
+  .sizing-val {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #f1f5f9;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+  .sizing-sub {
+    font-size: 9px;
+    color: #64748b;
+    margin-top: 1px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title-group">
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+      </div>
+      <div class="title-text">
+        <h1>AuditSphere Data Hub — Topology & Infrastructure Architecture <span class="v2-pill">VERSION 2.0</span></h1>
+        <p>Scalable Data Process (1 TB+ Scale): Multi-Source Streaming Ingestion, TimescaleDB Columnar Lakehouse, Async Pipeline Worker, WireGuard Mesh & AI Retrain Engine</p>
+      </div>
+    </div>
+    <div class="meta-badges">
+      <div class="badge badge-primary">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#38bdf8;box-shadow:0 0 8px #38bdf8;"></span>
+        7 Docker Containers
+      </div>
+      <div class="badge badge-timescale">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fbbf24;box-shadow:0 0 8px #fbbf24;"></span>
+        TimescaleDB 2.17 Columnar LZ4
+      </div>
+      <div class="badge badge-emerald">
+        <svg style="width:13px;height:13px;fill:currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        Zero-Lock Streaming (&lt;180MB RAM)
+      </div>
+      <div class="badge badge-danger">
+        <svg style="width:13px;height:13px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+        WireGuard VPN 10.0.0.0/24
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="diagram-container">
+
+    <!-- SVG Overlay -->
+    <svg class="connection-svg" viewBox="0 0 2510 1360">
+      <defs>
+        <marker id="arr-b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#38bdf8"/>
+        </marker>
+        <marker id="arr-p" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#c084fc"/>
+        </marker>
+        <marker id="arr-o" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#fb923c"/>
+        </marker>
+        <marker id="arr-c" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#22d3ee"/>
+        </marker>
+        <marker id="arr-e" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#34d399"/>
+        </marker>
+        <marker id="arr-a" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#fbbf24"/>
+        </marker>
+
+        <linearGradient id="vpn-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#f43f5e" />
+          <stop offset="50%" stop-color="#a855f7" />
+          <stop offset="100%" stop-color="#0ea5e9" />
+        </linearGradient>
+
+        <linearGradient id="stream-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="100%" stop-color="#34d399" />
+        </linearGradient>
+      </defs>
+
+      <!-- 1. WireGuard Bridge between WG1 and WG2 -->
+      <path d="M 570 105 L 980 105" stroke="url(#vpn-grad)" stroke-width="4" stroke-dasharray="10 5" fill="none" />
+      
+      <!-- 2. Audit Server Microservices to Tunnel (clean parallel flow) -->
+      <!-- analytics-service (y=440) -> Tunnel Pill 1 & 2 -->
+      <path d="M 565 435 C 590 435, 600 210, 620 210" stroke="#c084fc" stroke-width="2.5" fill="none" marker-end="url(#arr-p)"/>
+      <path d="M 565 445 C 590 445, 600 275, 620 275" stroke="#fb923c" stroke-width="2.5" fill="none" marker-end="url(#arr-o)"/>
+
+      <!-- master-service (y=500) -> Tunnel Pill 3, 4, 5 -->
+      <path d="M 565 495 C 590 495, 600 340, 620 340" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
+      <path d="M 565 500 C 590 500, 600 405, 620 405" stroke="#0ea5e9" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
+      <path d="M 565 505 C 590 505, 600 470, 620 470" stroke="#22d3ee" stroke-width="2.5" stroke-dasharray="5 3" fill="none" marker-end="url(#arr-c)"/>
+
+      <!-- risk-service (y=560) -> Tunnel Pill 6 -->
+      <path d="M 565 560 L 620 535" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 3" fill="none" marker-end="url(#arr-a)"/>
+
+      <!-- 3. Tunnel to Data Hub Services -->
+      <!-- Pill 1: AI Predictions -> routes cleanly in the empty corridor between WG and Docker (y=148) into AI Engine (x=1650) -->
+      <path d="M 945 210 C 960 210, 970 148, 1020 148 L 1650 148 C 1650 155, 1650 170, 1650 190" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="6 3" fill="none" marker-end="url(#arr-p)"/>
+
+      <!-- Pill 2: CAATT Reconcile -> Data Hub API (:8100) -->
+      <path d="M 945 275 C 965 275, 980 250, 995 250" stroke="#fb923c" stroke-width="2.5" fill="none" marker-end="url(#arr-o)"/>
+
+      <!-- Pill 3: Data Sources & Schema -> Data Hub API (:8100) -->
+      <path d="M 945 340 C 965 340, 980 280, 995 280" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
+
+      <!-- Pill 4: Ingest Job Queue Dispatch -> Data Hub API (:8100) -->
+      <path d="M 945 405 C 965 405, 980 310, 995 310" stroke="#0ea5e9" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
+
+      <!-- Pill 5: Master Data Sync -> Data Hub API (:8100) -->
+      <path d="M 945 470 C 970 470, 985 340, 995 340" stroke="#22d3ee" stroke-width="2.5" stroke-dasharray="5 3" fill="none" marker-end="url(#arr-c)"/>
+
+      <!-- Pill 6: Risk Matrix & KRI Sync -> Data Hub API (:8100) -->
+      <path d="M 945 535 C 975 535, 985 365, 995 365" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 3" fill="none" marker-end="url(#arr-a)"/>
+
+      <!-- 4. INTERNAL DATA HUB CONNECTIONS (Clean Gutter Routing) -->
+
+      <!-- A. Data Hub API (Row 1 Left) -> Background Worker (Row 2 Right): Job Dispatch via ops.job_queue -->
+      <path d="M 1510 320 C 1522 320, 1522 410, 1533 410" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
+
+      <!-- B. Background Worker (Row 2 Right) -> TimescaleDB Data Lake (Row 2 Left): ZERO-LOCK STREAMING COPY FROM STDIN -->
+      <path d="M 1533 470 L 1515 470" stroke="url(#stream-grad)" stroke-width="4" fill="none" marker-end="url(#arr-e)"/>
+
+      <!-- C. Background Worker (Row 2 Right) -> AI Engine (Row 1 Right): Webhook POST /retrain/auto -->
+      <path d="M 1780 375 L 1780 363" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="5 3" fill="none" marker-end="url(#arr-p)"/>
+
+      <!-- D. AI Engine (Row 1 Right) -> TimescaleDB Data Lake (Row 2 Left): Read gold.ai_training_pool -->
+      <path d="M 1533 300 C 1522 300, 1522 430, 1510 430" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4 2" fill="none" marker-end="url(#arr-a)"/>
+
+      <!-- E. Nginx (Row 3 Col 1) -> CAATT JupyterLab (Row 3 Col 2): Reverse Proxy Basic Auth -->
+      <path d="M 1342 660 L 1354 660" stroke="#34d399" stroke-width="2.5" fill="none" marker-end="url(#arr-e)"/>
+
+      <!-- F. CAATT Engine (Row 3 Col 2) -> TimescaleDB Data Lake (Row 2 Col 1): SQL & Continuous Aggregates -->
+      <path d="M 1430 575 L 1430 563" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 2" fill="none" marker-end="url(#arr-b)"/>
+
+      <!-- G. CBS Simulator (Row 3 Col 3) -> Background Worker (Row 2 Col 2): Synthetic Test Stream -->
+      <path d="M 1870 575 L 1870 563" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="4 2" fill="none" marker-end="url(#arr-b)"/>
+
+      <!-- 5. EXTERNAL DATA SOURCES (Zone 4) directly to Background Worker (Row 2 Right) -->
+      <!-- RDBMS Connector (y=195) -> Worker (Row 2 Right, y=415) -->
+      <path d="M 2085 195 C 2060 195, 2055 415, 2042 415" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arr-b)"/>
+
+      <!-- Schema Introspection (y=335) -> Worker (Row 2 Right, y=450) -->
+      <path d="M 2085 335 C 2060 335, 2055 450, 2042 450" stroke="#c084fc" stroke-width="2.5" fill="none" marker-end="url(#arr-p)"/>
+
+      <!-- Source Deletion Detection (y=475) -> Worker (Row 2 Right, y=485) -->
+      <path d="M 2085 475 C 2060 475, 2055 485, 2042 485" stroke="#fbbf24" stroke-width="2.5" fill="none" marker-end="url(#arr-a)"/>
+
+      <!-- Core Banking / GL (y=615) -> Worker (Row 2 Right, y=520) -->
+      <path d="M 2085 615 C 2060 615, 2055 520, 2042 520" stroke="#34d399" stroke-width="2.5" fill="none" marker-end="url(#arr-e)"/>
+    </svg>
+
+    <!-- ZONE 1: AUDIT SERVER -->
+    <div class="zone zone-audit-server">
+      <div class="zone-header">
+        <div class="zone-header-title">
+          <div class="zone-icon" style="background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M4 6h16v4H4V6zm0 8h16v4H4v-4zM2 4v16a2 2 0 002 2h16a2 2 0 002-2V4a2 2 0 00-2-2H4a2 2 0 00-2 2z"/></svg>
+          </div>
+          <div class="zone-title-text">
+            <h2>Audit Server (Production)</h2>
+            <span>IP: 202.10.34.166 &bull; VPN: 10.0.0.2</span>
+          </div>
+        </div>
+        <span class="zone-tag" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3);">NODE 1</span>
+      </div>
+
+      <div class="wireguard-card">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:32px; height:32px; border-radius:8px; background:rgba(244,63,94,0.2); display:flex; align-items:center; justify-content:center; border:1px solid rgba(244,63,94,0.4);">
+            <svg style="width:16px;height:16px;fill:#fb7185" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#fff;">WireGuard Peer Client</div>
+            <div style="font-size:10.5px; color:#94a3b8; font-family:'JetBrains Mono',monospace;">wg0: 10.0.0.2/24 &bull; Endpoint :51820 UDP</div>
+          </div>
+        </div>
+        <span class="port-badge" style="color:#fb7185; border-color:rgba(244,63,94,0.4);">:51820 UDP</span>
+      </div>
+
+      <div class="card accent-blue">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 2L2 19.5h20L12 2zm0 4l6.5 11.5h-13L12 6z"/></svg>
+            Nuxt 3 Frontend (Web UI)
+          </div>
+          <span class="port-badge">:3000 / :80</span>
+        </div>
+        <div class="card-desc">Vue 3 + PrimeVue enterprise single-page application. Menyediakan antarmuka <strong>Data Source Manager & Schema Explorer</strong>, Ingestion Job Monitor, Audit Universe, Risk Heatmap, 4 Tab AI Analytics, dan 7 Tab CAATT Analytics.</div>
+        <div class="card-tags">
+          <span class="mini-tag">Nuxt 3</span>
+          <span class="mini-tag">Data Source UI</span>
+          <span class="mini-tag">Job Queue Monitor</span>
+          <span class="mini-tag">Schema Explorer</span>
+          <span class="mini-tag">Pinia Store</span>
+        </div>
+      </div>
+
+      <div class="card accent-cyan" style="margin-top: 13px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#06b6d4"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+            AuditSphere Core Microservices
+          </div>
+          <span class="port-badge" style="color:#06b6d4;">Golang Cluster</span>
+        </div>
+        
+        <div class="service-pill-grid">
+          <div class="service-item">
+            <div class="service-item-title">
+              <span class="service-dot" style="background:#c084fc;"></span>
+              analytics-service
+            </div>
+            <div style="display:flex; gap:6px;">
+              <span class="mini-tag" style="color:#c084fc;">AI & CAATT Gateway</span>
+              <span class="port-badge">:8084</span>
+            </div>
+          </div>
+          <div class="service-item">
+            <div class="service-item-title">
+              <span class="service-dot" style="background:#22d3ee;"></span>
+              master-service
+            </div>
+            <div style="display:flex; gap:6px;">
+              <span class="mini-tag" style="color:#22d3ee;">Data Source Mgr</span>
+              <span class="port-badge">:8003</span>
+            </div>
+          </div>
+          <div class="service-item">
+            <div class="service-item-title">
+              <span class="service-dot" style="background:#fbbf24;"></span>
+              risk-service
+            </div>
+            <div style="display:flex; gap:6px;">
+              <span class="mini-tag" style="color:#fbbf24;">Risk Matrix & KRI</span>
+              <span class="port-badge">:8004</span>
+            </div>
+          </div>
+          <div class="service-item">
+            <div class="service-item-title">
+              <span class="service-dot" style="background:#10b981;"></span>
+              audit-service
+            </div>
+            <div style="display:flex; gap:6px;">
+              <span class="mini-tag" style="color:#10b981;">Working Paper & Charter</span>
+              <span class="port-badge">:8002</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card accent-emerald" style="margin-top: 13px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#10b981"><path d="M12 2C6.48 2 2 4.02 2 6.5v11C2 19.98 6.48 22 12 22s10-2.02 10-4.5v-11C22 4.02 17.52 2 12 2zm0 18c-4.41 0-8-1.57-8-3.5v-2.12c1.94 1.34 5.04 2.12 8 2.12s6.06-.78 8-2.12v2.12c0 1.93-3.59 3.5-8 3.5zm0-5.5c-4.41 0-8-1.57-8-3.5V8.88c1.94 1.34 5.04 2.12 8 2.12s6.06-.78 8-2.12v2.12c0 1.93-3.59 3.5-8 3.5zm0-6.5C7.59 8 4 6.43 4 4.5S7.59 1 12 1s8 1.57 8 3.5S16.41 8 12 8z"/></svg>
+            Audit Server DB (PostgreSQL 16)
+          </div>
+          <span class="port-badge">:5432</span>
+        </div>
+        <div class="card-desc"><strong>Source of Truth</strong> operasional workflow audit: Companies, Departments, Risk Registers, KRI, Findings, Audit Charters, Working Papers, dan konfigurasi Registered Sources.</div>
+        <div class="card-tags">
+          <span class="mini-tag">Master Data</span>
+          <span class="mini-tag">ACID Workflow</span>
+          <span class="mini-tag">AES-256 Credentials</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:11px; margin-top:14px;">
+        <div style="font-size:11px; font-weight:700; color:#38bdf8; text-transform:uppercase; margin-bottom:5px;">Prinsip Zero-Direct Lakehouse Access:</div>
+        <div style="font-size:10.5px; color:#cbd5e1; line-height:1.5;">Operasi CRUD audit tidak pernah mengakses Data Lake secara langsung. Microservices berkomunikasi asinkron via Data Hub API (<code style="color:#fb923c;">:8100</code>) dan WireGuard VPN terenkripsi penuh.</div>
+      </div>
+    </div>
+
+    <!-- ZONE 2: WIREGUARD VPN CORRIDOR -->
+    <div class="zone zone-vpn">
+      <div class="vpn-pillar">
+        <div class="vpn-shield-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+        </div>
+        <div style="font-size:15px; font-weight:800; color:#fb7185;">WireGuard Tunnel</div>
+        <div style="font-size:11px; color:#cbd5e1; font-family:'JetBrains Mono',monospace; margin-top:3px;">10.0.0.0/24 Subnet</div>
+        <div style="font-size:10px; color:#94a3b8; margin-top:4px;">Port 51820 UDP &bull; ChaCha20-Poly1305</div>
+      </div>
+
+      <div class="tunnel-routes">
+        <div class="tunnel-pill" style="border-left: 3px solid #c084fc;">
+          <div class="tunnel-pill-title" style="color:#c084fc;">
+            <span class="anchor-dot" style="background:#c084fc;"></span>
+            AI Predictions & Retrain
+          </div>
+          <div class="tunnel-pill-desc">analytics-svc ➔ :8000 (FastAPI)</div>
+        </div>
+
+        <div class="tunnel-pill" style="border-left: 3px solid #fb923c;">
+          <div class="tunnel-pill-title" style="color:#fb923c;">
+            <span class="anchor-dot" style="background:#fb923c;"></span>
+            CAATT 7 Analytics & Reconcile
+          </div>
+          <div class="tunnel-pill-desc">analytics-svc ➔ :8100 (/reconcile/*)</div>
+        </div>
+
+        <div class="tunnel-pill" style="border-left: 3px solid #38bdf8;">
+          <div class="tunnel-pill-title" style="color:#38bdf8;">
+            <span class="anchor-dot" style="background:#38bdf8;"></span>
+            Data Sources & Schema Introspect
+          </div>
+          <div class="tunnel-pill-desc">master-svc ➔ :8100 (/sources/*)</div>
+        </div>
+
+        <div class="tunnel-pill" style="border-left: 3px solid #0ea5e9;">
+          <div class="tunnel-pill-title" style="color:#0ea5e9;">
+            <span class="anchor-dot" style="background:#0ea5e9;"></span>
+            Ingest Job Queue Dispatch
+          </div>
+          <div class="tunnel-pill-desc">master-svc ➔ :8100 ➔ ops.job_queue</div>
+        </div>
+
+        <div class="tunnel-pill" style="border-left: 3px solid #22d3ee;">
+          <div class="tunnel-pill-title" style="color:#22d3ee;">
+            <span class="anchor-dot" style="background:#22d3ee;"></span>
+            Master Data Sync
+          </div>
+          <div class="tunnel-pill-desc">master-svc ➔ :8100 (Data Hub)</div>
+        </div>
+
+        <div class="tunnel-pill" style="border-left: 3px solid #fbbf24;">
+          <div class="tunnel-pill-title" style="color:#fbbf24;">
+            <span class="anchor-dot" style="background:#fbbf24;"></span>
+            Risk Matrix & KRI Sync
+          </div>
+          <div class="tunnel-pill-desc">risk-svc ➔ :8100 (Data Hub)</div>
+        </div>
+      </div>
+
+      <div class="security-layers">
+        <div style="font-size:11px; font-weight:700; color:#f8fafc; text-align:center; margin-bottom:2px;">3 Lapis Keamanan:</div>
+        <div class="sec-layer">
+          <div class="sec-num">1</div>
+          <div>
+            <strong style="color:#fb7185;">Network:</strong> WireGuard VPN privat, zero public exposure.
+          </div>
+        </div>
+        <div class="sec-layer">
+          <div class="sec-num" style="background:#a855f7;">2</div>
+          <div>
+            <strong style="color:#c084fc;">Application:</strong> Header <code style="color:#e2e8f0;">X-API-Key</code> wajib di setiap request.
+          </div>
+        </div>
+        <div class="sec-layer">
+          <div class="sec-num" style="background:#10b981;">3</div>
+          <div>
+            <strong style="color:#34d399;">Gateway:</strong> Nginx HTTP Basic Auth kredensial auditor.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONE 3: DATA HUB SERVER (ALMALINUX 10 KVM) -->
+    <div class="zone zone-data-hub">
+      <div class="zone-header">
+        <div class="zone-header-title">
+          <div class="zone-icon" style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#818cf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+          </div>
+          <div class="zone-title-text">
+            <h2>Data Hub Server (AlmaLinux 10 KVM &bull; Enterprise Node)</h2>
+            <span>Hostname: srv1989481.hstgr.cloud &bull; IP: 187.127.122.82 &bull; VPN: 10.0.0.1</span>
+          </div>
+        </div>
+        <span class="zone-tag" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3);">NODE 2 (ANALYTICS HUB)</span>
+      </div>
+
+      <div class="wireguard-card">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:32px; height:32px; border-radius:8px; background:rgba(244,63,94,0.2); display:flex; align-items:center; justify-content:center; border:1px solid rgba(244,63,94,0.4);">
+            <svg style="width:16px;height:16px;fill:#fb7185" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#fff;">WireGuard Server Gateway</div>
+            <div style="font-size:10.5px; color:#94a3b8; font-family:'JetBrains Mono',monospace;">wg0: 10.0.0.1/24 &bull; ListenPort :51820 UDP (Firewall Restricted)</div>
+          </div>
+        </div>
+        <span class="port-badge" style="color:#fb7185; border-color:rgba(244,63,94,0.4);">:51820 UDP</span>
+      </div>
+
+      <!-- Docker Boundary (7 Containers) -->
+      <div class="docker-boundary">
+        <div class="docker-boundary-header">
+          <div class="docker-label">
+            <svg viewBox="0 0 24 24"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.186.185.186zm0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.186.185.186zm-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.186.185.186zm-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186zm5.894 2.714h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185zm-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186H8.1a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185zm-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.185-.186H5.136a.186.186 0 00-.186.185v1.888c0 .102.084.185.186.185zm-2.928 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.185-.186H2.208a.186.186 0 00-.186.185v1.888c0 .102.083.185.186.185z"/></svg>
+            7 Docker Containers &bull; Isolated Bridge: auditsphere_data_net
+          </div>
+          <span class="mini-tag" style="color:#818cf8; background:rgba(99,102,241,0.15);">Docker Compose v2 &bull; RAM-Adaptive</span>
+        </div>
+
+        <!-- ROW 1: API Gateway (Left) & AI Engine (Right) -->
+        <div class="grid-2col">
+          <div class="card accent-orange" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="#f97316"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                auditsphere_datahub_api
+              </div>
+              <span class="port-badge" style="color:#fb923c;">:8100</span>
+            </div>
+            <div class="card-desc">FastAPI REST Gateway: introspeksi skema zero-lock (`/sources/{id}/schema`), preview data, sinkronisasi rekonsiliasi (`/reconcile/*`), 7 CAATT endpoints, dan pendaftaran tugas asinkron ke <code style="color:#e2e8f0;">ops.job_queue</code>.</div>
+            <div class="card-tags">
+              <span class="mini-tag">FastAPI REST</span>
+              <span class="mini-tag">/sources/schema</span>
+              <span class="mini-tag">ops.job_queue Dispatch</span>
+              <span class="mini-tag">7 CAATT APIs</span>
+              <span class="mini-tag">/reconcile/*</span>
+            </div>
+          </div>
+
+          <div class="card accent-purple" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="#a855f7"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                auditsphere_ai_engine
+              </div>
+              <span class="port-badge" style="color:#c084fc;">Host :8006 (Int: 8000)</span>
+            </div>
+            <div class="card-desc">FastAPI ML Inference & Auto-Retraining Engine: 4 predictive suites (XGBoost anomaly, PyTorch LSTM velocity fraud, Isolation Forest, IndoBERT audit notes). Mendukung <strong>Webhook /retrain/auto</strong> dan Atomic Hot Reload tanpa downtime.</div>
+            <div class="card-tags">
+              <span class="mini-tag">XGBoost</span>
+              <span class="mini-tag">PyTorch LSTM</span>
+              <span class="mini-tag">Isolation Forest</span>
+              <span class="mini-tag">/retrain/auto Webhook</span>
+              <span class="mini-tag">Hot-Swap Reload</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2: TimescaleDB Lakehouse (Left) & Pipeline Worker (Right) -->
+        <div class="grid-2col" style="margin-top: 12px;">
+          <div class="card accent-amber" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-1.57-8-3.5v-2.12c1.94 1.34 5.04 2.12 8 2.12s6.06-.78 8-2.12v2.12c0 1.93-3.59 3.5-8 3.5zm0-5.5c-4.41 0-8-1.57-8-3.5V8.88c1.94 1.34 5.04 2.12 8 2.12s6.06-.78 8-2.12v2.12c0 1.93-3.59 3.5-8 3.5zm0-6.5C7.59 8 4 6.43 4 4.5S7.59 1 12 1s8 1.57 8 3.5S16.41 8 12 8z"/></svg>
+                auditsphere_datalake (TimescaleDB 2.17.2-pg16)
+              </div>
+              <span class="port-badge" style="color:#fbbf24;">Host :5433 (Int: 5432)</span>
+            </div>
+            <div class="card-desc">Lakehouse Engine dengan 4 Skema: <strong>Bronze</strong> (append-only hypertable, prevent_mutation), <strong>Silver</strong> (deduplicated & cleaned), <strong>Gold</strong> (Star schema, LZ4 Columnar Compression 4.2x-6.8x, 50+ Views), dan <strong>Ops</strong> (job_queue, batches SHA-256, watermarks). Dikonfigurasi otomatis via <code style="color:#e2e8f0;">autotune.sh</code> (shm_size: 1GB).</div>
+            <div class="card-tags">
+              <span class="mini-tag">TimescaleDB 2.17</span>
+              <span class="mini-tag">Columnar LZ4</span>
+              <span class="mini-tag">Bronze Immutability</span>
+              <span class="mini-tag">ops Schema</span>
+              <span class="mini-tag">autotune.sh</span>
+            </div>
+          </div>
+
+          <div class="card accent-blue" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                auditsphere_datahub_worker <span style="font-size:10px; background:#0284c7; color:#fff; padding:1px 6px; border-radius:4px; margin-left:4px;">NEW</span>
+              </div>
+              <span class="port-badge" style="color:#38bdf8;">python worker.py</span>
+            </div>
+            <div class="card-desc">Asynchronous Pipeline Worker: Mengonsumsi antrian tugas dari <code style="color:#e2e8f0;">ops.job_queue</code>, mengeksekusi <strong>Zero-Lock Streaming Ingestion</strong> via <code style="color:#e2e8f0;">COPY FROM STDIN</code> (RAM &lt; 180MB flat), hashing manifest batch SHA-256, deteksi penghapusan sumber (Tombstones), dan trigger webhook AI retrain.</div>
+            <div class="card-tags">
+              <span class="mini-tag">worker.py</span>
+              <span class="mini-tag">Zero-Lock Streaming</span>
+              <span class="mini-tag">&lt;180MB RAM Flat</span>
+              <span class="mini-tag">SHA-256 Manifest</span>
+              <span class="mini-tag">Audit Tombstone</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 3: Access, Interactive & Client Sim (3 Columns) -->
+        <div class="grid-3col" style="margin-top: 12px;">
+          <div class="card accent-emerald" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="#10b981"><path d="M12 2L1 21h22L12 2zm0 3.5L19.5 19h-15L12 5.5z"/></svg>
+                auditsphere_nginx
+              </div>
+              <span class="port-badge" style="color:#34d399;">:80 (VPN)</span>
+            </div>
+            <div class="card-desc">Nginx 1.27 Reverse Proxy & Basic Auth Gateway untuk akses privat JupyterLab UI bagi auditor.</div>
+            <div class="card-tags">
+              <span class="mini-tag">Nginx 1.27</span>
+              <span class="mini-tag">Basic Auth</span>
+              <span class="mini-tag">auditor_ai</span>
+            </div>
+          </div>
+
+          <div class="card accent-cyan" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="#06b6d4"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                auditsphere_caatt
+              </div>
+              <span class="port-badge" style="color:#22d3ee;">:8888 (Int)</span>
+            </div>
+            <div class="card-desc">JupyterLab CAATT Engine dengan <strong>12 Notebook Audit Interaktif</strong> (Benford, Population, Reconcile, Fuzzy, MUS).</div>
+            <div class="card-tags">
+              <span class="mini-tag">dlt Ingest</span>
+              <span class="mini-tag">DuckDB/Pandas</span>
+              <span class="mini-tag">12 Notebooks</span>
+            </div>
+          </div>
+
+          <div class="card accent-rose" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="#f43f5e"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 22h19v-3H2v3zm15-12h3v7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
+                auditsphere_cbs
+              </div>
+              <span class="port-badge" style="color:#fb7185;">Host :5434</span>
+            </div>
+            <div class="card-desc">Simulator Core Banking System (PostgreSQL 16) dengan 10.000+ data sintetis rekening, pinjaman, dan transaksi audit.</div>
+            <div class="card-tags">
+              <span class="mini-tag">Postgres 16</span>
+              <span class="mini-tag">10K+ Trx</span>
+              <span class="mini-tag">Synthetic Gen</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Sizing & Adaptive Engine Banner -->
+        <div class="sizing-panel">
+          <div class="sizing-title">
+            <span>Hardware-Adaptive Architecture &bull; 1 TB+ Scalability & Tuning Engine</span>
+            <span style="font-size:10px; color:#94a3b8; font-weight:600;">Ref: data-server/SIZING_GUIDE.md</span>
+          </div>
+          <div class="sizing-grid">
+            <div class="sizing-item">
+              <div class="sizing-label">Dynamic Autotune</div>
+              <div class="sizing-val">25% / 75% RAM</div>
+              <div class="sizing-sub">shared_buffers: 25% | effective_cache: 75% otomatis via cgroups</div>
+            </div>
+            <div class="sizing-item">
+              <div class="sizing-label">Streaming Memory</div>
+              <div class="sizing-val">&lt; 180 MB RAM</div>
+              <div class="sizing-sub">Flat memory cursor & binary COPY stdin (10K s/d 500M rows)</div>
+            </div>
+            <div class="sizing-item">
+              <div class="sizing-label">LZ4 Compression</div>
+              <div class="sizing-val">4.2x &ndash; 6.8x Ratio</div>
+              <div class="sizing-sub">1 TB raw data termampatkan menjadi ~180 GB &ndash; 240 GB di NVMe</div>
+            </div>
+            <div class="sizing-item">
+              <div class="sizing-label">Target Profiling</div>
+              <div class="sizing-val">8GB VPS &rarr; 64GB+ Prod</div>
+              <div class="sizing-sub">Zero-code adaptive switch dari demo VPS ke server baremetal klien</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ZONE 4: EXTERNAL DATA SOURCES -->
+    <div class="zone zone-external">
+      <div class="zone-header">
+        <div class="zone-header-title">
+          <div class="zone-icon" style="background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.4);">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+          </div>
+          <div class="zone-title-text">
+            <h2>Sumber Data Terintegrasi</h2>
+            <span>Multi-Source Ingestion & Satellites</span>
+          </div>
+        </div>
+        <span class="zone-tag" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3);">MULTI-SOURCE</span>
+      </div>
+
+      <div class="card accent-blue" style="margin-top: 13px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+            Multi-RDBMS Enterprise Connectors
+          </div>
+          <span class="port-badge">:5432/:3306/:1521/:1433</span>
+        </div>
+        <div class="card-desc">Konektor database terpusat: PostgreSQL, MySQL, Oracle DB, SQL Server, SAP HANA, AWS S3 / MinIO, REST API. Mendukung connection pooling aman dan enkripsi kredensial AES-256 di Master DB.</div>
+        <div class="card-tags">
+          <span class="mini-tag">PostgreSQL</span>
+          <span class="mini-tag">MySQL</span>
+          <span class="mini-tag">Oracle</span>
+          <span class="mini-tag">MSSQL</span>
+          <span class="mini-tag">SAP HANA</span>
+        </div>
+      </div>
+
+      <div class="card accent-purple" style="margin-top: 13px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#c084fc"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            Zero-Lock Schema Introspection
+          </div>
+          <span class="port-badge">pg_class / reltuples</span>
+        </div>
+        <div class="card-desc">Introspeksi skema database otomatis: inspeksi live metadata tabel, tipe data kolom, constraint Primary Key untuk deduplikasi, serta estimasi baris non-locking (<code style="color:#e2e8f0;">pg_class.reltuples</code> tanpa <code style="color:#e2e8f0;">COUNT(*)</code>).</div>
+        <div class="card-tags">
+          <span class="mini-tag">Catalog API</span>
+          <span class="mini-tag">PK Detection</span>
+          <span class="mini-tag">Live Preview</span>
+          <span class="mini-tag">Zero Locking</span>
+        </div>
+      </div>
+
+      <div class="card accent-amber" style="margin-top: 13px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z"/></svg>
+            Source Deletion Detection & Reconcile
+          </div>
+          <span class="port-badge">Audit Tombstone</span>
+        </div>
+        <div class="card-desc">Mendeteksi baris yang dihapus di database sumber dengan bucket count sync (<code style="color:#e2e8f0;">width_bucket</code>). Data yang hilang tidak dihapus, melainkan ditandai sebagai <strong>Audit Tombstone</strong> (<code style="color:#e2e8f0;">_op='D'</code>, <code style="color:#e2e8f0;">is_deleted=TRUE</code>) untuk forensik audit.</div>
+        <div class="card-tags">
+          <span class="mini-tag">width_bucket Sync</span>
+          <span class="mini-tag">Audit Tombstone</span>
+          <span class="mini-tag">_op='D'</span>
+          <span class="mini-tag">ops.reconcile_runs</span>
+        </div>
+      </div>
+
+      <div class="card accent-emerald" style="margin-top: 13px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="#10b981"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 22h19v-3H2v3zm15-12h3v7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
+            Scope Router & Core Banking (CBS/GL)
+          </div>
+          <span class="port-badge">Audit Scopes</span>
+        </div>
+        <div class="card-desc">Pemetaan tabel ke 4 cakupan modul (risk_management, audit_features, qar_features, data_analytics) serta aktivasi 6 filter anomali (Benford, Z-Score, Round Amt, Velocity, Duplicate).</div>
+        <div class="card-tags">
+          <span class="mini-tag">4 Scopes</span>
+          <span class="mini-tag">CBS Mutasi</span>
+          <span class="mini-tag">GL Balancing</span>
+          <span class="mini-tag">ATM Switch</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:11px; margin-top:14px;">
+        <div style="font-size:11px; font-weight:700; color:#38bdf8; margin-bottom:4px;">Jaminan Zero-Impact Sistem Klien:</div>
+        <div style="font-size:10.5px; color:#cbd5e1; line-height:1.5;">Koneksi ke database klien di-enforce <code style="color:#fb923c;">SET TRANSACTION READ ONLY</code> dengan timeout 60 detik dan dibatasi maksimal 2 koneksi bersamaan sehingga aktivitas audit 100% aman dan tidak mengganggu transaksi perbankan.</div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

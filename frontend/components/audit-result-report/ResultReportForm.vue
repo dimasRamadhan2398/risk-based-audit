@@ -1,7 +1,7 @@
 <template>
-  <UModal 
-    v-model:open="store.showModal" 
-    dismissible 
+  <UModal
+    v-model:open="store.showModal"
+    dismissible
     :ui="{
       content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
       header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
@@ -13,17 +13,20 @@
     <template #content>
       <div class="flex flex-col h-full max-h-[90vh]">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-200 rounded-t-xl flex justify-between items-center">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 rounded-t-xl flex justify-between items-center">
           <div class="flex items-center gap-3">
-            <div class="p-2 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600">
-              <UIcon name="i-heroicons-document-text" class="size-6" />
+            <div class="p-2 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
+              <UIcon
+                name="i-heroicons-document-text"
+                class="size-6"
+              />
             </div>
             <div>
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                 {{ store.isEditing ? 'Edit Audit Result Report' : 'Create New Audit Result Report' }}
               </h3>
-              <p class="text-xs text-gray-500">
-                Surat Tugas: <span class="font-semibold text-primary-600">{{ store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '-' }}</span>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                Surat Tugas: <span class="font-semibold text-primary-600 dark:text-primary-400">{{ store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '-' }}</span>
               </p>
             </div>
           </div>
@@ -37,16 +40,37 @@
 
         <!-- Body -->
         <div class="p-6 overflow-y-auto flex-1">
-          <UForm :state="store.reportForm" class="space-y-6" @submit="store.saveReport">
+          <UForm
+            :state="store.reportForm"
+            class="space-y-6"
+            @submit="onFormSubmit"
+          >
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <UFormField label="Assignment Letter (Surat Tugas)" name="assignmentLetterId" required class="md:col-span-2">
+              <UFormField label="Nomor LHA (Report Number)" name="reportNumber" required class="md:col-span-2">
+                <div class="flex gap-2 items-center">
+                  <UInput
+                    v-model="store.reportForm.reportNumber"
+                    placeholder="e.g. LHA-026/SKAI/2026"
+                    class="w-full font-mono font-medium"
+                    required
+                    disabled
+                  />
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Format dinamis otomatis: <code class="text-primary-600 dark:text-primary-400 font-mono">LHA-[NoUrut]/[Audit Team]/[Tahun]</code>
+                </p>
+              </UFormField>
+
+              <UFormField label="Company / Entity" name="companyId" class="md:col-span-2">
                 <USelectMenu
-                  v-model="store.reportForm.assignmentLetterId"
-                  :items="store.publishedAssignmentLetters"
-                  placeholder="Select Assignment Letter"
+                  v-model="store.reportForm.companyId"
+                  :items="companySelectItems"
+                  value-key="value"
+                  placeholder="Select Company / Entity (Optional / Inherited from Assignment Letter)"
                   class="w-full"
-                  :disabled="store.isEditing"
-                  @update:model-value="onLetterChange"
+                  :clear="true"
+                  :loading="masterOptions.loading"
+                  @update:model-value="onCompanyChange"
                 />
               </UFormField>
 
@@ -59,19 +83,26 @@
                   @invalid="($event.target as any)?.setCustomValidity('Report Title maksimal 100 karakter dan wajib diisi')"
                   @input="($event.target as any)?.setCustomValidity('')"
                 />
-                <div class="text-xs text-gray-500 mt-1 text-right">
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
                   {{ store.reportForm.reportTitle ? store.reportForm.reportTitle.length : 0 }}/100
                 </div>
               </UFormField>
 
-              <UFormField label="Report Date" name="reportDate" required>
+              <UFormField
+                label="Report Date"
+                name="reportDate"
+                required
+              >
                 <AppDatePicker
                   v-model="store.reportForm.reportDate"
                   class="w-full"
                 />
               </UFormField>
 
-              <UFormField label="Status" name="status">
+              <UFormField
+                label="Status"
+                name="status"
+              >
                 <USelectMenu
                   v-model="store.reportForm.status"
                   :items="['Draft', 'Final']"
@@ -79,14 +110,17 @@
                 />
               </UFormField>
 
-              <UFormField label="Findings Count" name="findingsCount">
+              <UFormField
+                label="Findings Count"
+                name="findingsCount"
+              >
                 <div class="flex items-center gap-2">
                   <UInput
                     v-model="store.reportForm.findingsCount"
                     type="number"
                     class="w-full"
                   />
-                  <span class="text-xs text-gray-500 whitespace-nowrap">
+                  <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                     ({{ store.reportForm.findings?.length || 0 }} list)
                   </span>
                 </div>
@@ -97,20 +131,27 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <div class="flex items-center gap-2">
                     <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
-                      <UIcon name="i-heroicons-list-bullet" class="text-primary-600" />
+                      <UIcon
+                        name="i-heroicons-list-bullet"
+                        class="text-secondary-600 dark:text-secondary-400"
+                      />
                       Findings / Temuan Audit
                     </h4>
-                    <UBadge color="primary" variant="subtle" size="sm">
+                    <UBadge
+                      color="secondary"
+                      variant="subtle"
+                      size="sm"
+                    >
                       {{ store.reportForm.findings?.length || 0 }}
                     </UBadge>
                   </div>
-                  
+
                   <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <UTooltip text="Tarik temuan dari modul Digital Working Paper (KKA) dan Fieldwork Test Controls">
                       <UButton
                         label="Tarik Temuan Otomatis"
                         size="sm"
-                        color="primary"
+                        color="secondary"
                         variant="solid"
                         icon="i-heroicons-sparkles"
                         :loading="store.isAutoDetecting"
@@ -129,36 +170,58 @@
                 </div>
 
                 <!-- Findings Category Summary Badge Bar -->
-                <div v-if="store.reportForm.findings && store.reportForm.findings.length > 0" class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 text-xs">
+                <div
+                  v-if="store.reportForm.findings && store.reportForm.findings.length > 0"
+                  class="flex flex-wrap items-center gap-2 p-3 bg-secondary-50/40 dark:bg-secondary-950/20 rounded-lg border border-secondary-200/60 dark:border-secondary-900/40 text-xs"
+                >
                   <span class="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1 mr-1">
-                    <UIcon name="i-heroicons-chart-pie" class="size-4 text-primary-600" />
+                    <UIcon
+                      name="i-heroicons-chart-pie"
+                      class="size-4 text-secondary-600 dark:text-secondary-400"
+                    />
                     Distribusi Kategori:
                   </span>
-                  <UBadge color="error" variant="subtle" size="xs">
+                  <UBadge
+                    color="error"
+                    variant="subtle"
+                    size="xs"
+                  >
                     Very Significant: {{ countCategory('Very Significant') }}
                   </UBadge>
-                  <UBadge color="warning" variant="subtle" size="xs">
+                  <UBadge
+                    color="warning"
+                    variant="subtle"
+                    size="xs"
+                  >
                     Significant: {{ countCategory('Significant') }}
                   </UBadge>
-                  <UBadge color="info" variant="subtle" size="xs">
+                  <UBadge
+                    color="info"
+                    variant="subtle"
+                    size="xs"
+                  >
                     Quite Significant: {{ countCategory('Quite Significant') }}
                   </UBadge>
-                  <UBadge color="success" variant="subtle" size="xs">
+                  <UBadge
+                    color="success"
+                    variant="subtle"
+                    size="xs"
+                  >
                     Not Significant: {{ countCategory('Not Significant') }}
                   </UBadge>
                 </div>
-                
+
                 <!-- Findings Cards -->
                 <div class="space-y-3">
                   <div
                     v-for="(finding, idx) in store.reportForm.findings"
                     :key="idx"
-                    class="flex items-start gap-3 bg-slate-50 dark:bg-slate-850 p-4 rounded-xl border border-slate-200 dark:border-slate-800 transition shadow-sm hover:border-primary-200 dark:hover:border-primary-800"
+                    class="flex items-start gap-3 bg-secondary-50/30 dark:bg-secondary-950/20 p-4 rounded-xl border border-secondary-200/70 dark:border-secondary-900/40 transition shadow-sm hover:border-secondary-300 dark:hover:border-secondary-700"
                   >
                     <div class="flex-1 space-y-3">
                       <!-- Card Header (Index & Source Badge) -->
-                      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <div class="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-900/40 pb-2">
+                        <span class="text-xs font-bold text-secondary-700 dark:text-secondary-300 uppercase tracking-wider">
                           Temuan #{{ idx + 1 }}
                         </span>
                         <UBadge
@@ -167,13 +230,20 @@
                           size="xs"
                           class="flex items-center gap-1 font-medium"
                         >
-                          <UIcon :name="getSourceIcon(finding.source)" class="size-3" />
+                          <UIcon
+                            :name="getSourceIcon(finding.source)"
+                            class="size-3"
+                          />
                           {{ finding.source || 'Manual' }}
                         </UBadge>
                       </div>
 
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <UFormField label="Category / Tingkat Signifikansi" size="sm" class="md:col-span-1">
+                        <UFormField
+                          label="Category / Tingkat Signifikansi"
+                          size="sm"
+                          class="md:col-span-1"
+                        >
                           <USelectMenu
                             v-model="finding.category"
                             :items="['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']"
@@ -181,7 +251,11 @@
                           />
                         </UFormField>
 
-                        <UFormField label="Finding Description / Title" size="sm" class="md:col-span-1">
+                        <UFormField
+                          label="Finding Description / Title"
+                          size="sm"
+                          class="md:col-span-1"
+                        >
                           <UInput
                             v-model="finding.title"
                             placeholder="e.g. Keterlambatan rekonsiliasi kas harian"
@@ -189,12 +263,16 @@
                             class="w-full"
                             maxlength="255"
                           />
-                          <div class="text-xs text-gray-500 mt-1 text-right">
+                          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
                             {{ finding.title ? finding.title.length : 0 }}/255
                           </div>
                         </UFormField>
 
-                        <UFormField label="Action / Tindak Lanjut Rekomendasi" size="sm" class="md:col-span-2">
+                        <UFormField
+                          label="Action / Tindak Lanjut Rekomendasi"
+                          size="sm"
+                          class="md:col-span-2"
+                        >
                           <UTextarea
                             v-model="finding.action"
                             placeholder="e.g. Evaluasi SOP dan pelatihan ulang tim kasir"
@@ -218,21 +296,27 @@
                   </div>
 
                   <!-- Empty State in Findings List -->
-                  <div v-if="!store.reportForm.findings || store.reportForm.findings.length === 0" class="text-center py-8 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 space-y-2">
-                    <div class="p-3 bg-primary-50 dark:bg-primary-950/40 rounded-full w-fit mx-auto text-primary-600">
-                      <UIcon name="i-heroicons-sparkles" class="size-6" />
+                  <div
+                    v-if="!store.reportForm.findings || store.reportForm.findings.length === 0"
+                    class="text-center py-8 bg-secondary-50/40 dark:bg-secondary-950/30 rounded-xl border border-dashed border-secondary-200 dark:border-secondary-900/50 space-y-2"
+                  >
+                    <div class="p-3 bg-secondary-100 dark:bg-secondary-900/40 rounded-full w-fit mx-auto text-secondary-600 dark:text-secondary-400">
+                      <UIcon
+                        name="i-heroicons-sparkles"
+                        class="size-6"
+                      />
                     </div>
-                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
                       Belum ada temuan audit di dalam laporan ini
                     </p>
-                    <p class="text-xs text-slate-500 max-w-md mx-auto">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
                       Klik <strong>"Tarik Temuan Otomatis"</strong> untuk mengambil temuan dari Digital Working Paper (KKA) dan Fieldwork Test Controls penugasan ini.
                     </p>
                     <div class="flex justify-center gap-2 pt-2">
                       <UButton
                         label="Tarik Temuan Otomatis"
                         size="sm"
-                        color="primary"
+                        color="secondary"
                         icon="i-heroicons-sparkles"
                         :loading="store.isAutoDetecting"
                         @click="store.runAutoDetectFindings('replace')"
@@ -261,9 +345,9 @@
               />
               <UButton
                 type="submit"
-                :label="store.isEditing ? 'Update Report' : 'Save Report'"
+                label="Sign Report"
                 color="primary"
-                icon="i-heroicons-check"
+                icon="i-heroicons-pencil-square"
                 :loading="store.loading"
               />
             </div>
@@ -272,12 +356,102 @@
       </div>
     </template>
   </UModal>
+
+  <!-- Modal Input Tanda Tangan Team Member (Opens upon clicking Save Report) -->
+  <ResultReportSignatureModal
+    v-model:open="showSignatureModal"
+    :assignment-letter-id="store.reportForm.assignmentLetterId || store.selectedAssignmentLetter"
+    :report-number="store.reportForm.reportNumber"
+    :company-name="store.reportForm.companyName"
+    :initial-place="store.reportForm.signaturePlace"
+    :initial-date="store.reportForm.signatureDate || store.reportForm.reportDate"
+    :existing-signatures="store.reportForm.signatures"
+    :team-members="currentTeamMembers"
+    :loading="store.loading"
+    @confirm="onSignatureConfirm"
+  />
 </template>
 
 <script setup lang="ts">
-import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { ref, computed, watch } from 'vue'
+import { useAuditResultReportStore, type MemberSignature } from '~/stores/audit-result-report'
+import { useMasterOptionsStore } from '~/stores/master-options'
+import { useI18n } from '~/composables/useI18n'
+import ResultReportSignatureModal from './ResultReportSignatureModal.vue'
 
+const { t } = useI18n()
 const store = useAuditResultReportStore()
+const masterOptions = useMasterOptionsStore()
+
+const showSignatureModal = ref(false)
+
+const currentTeamMembers = computed(() => {
+  const letter = store.reportForm.assignmentLetterId || store.selectedAssignmentLetter
+  return store.getTeamMembersForLetter(letter)
+})
+
+const openSignatureModal = () => {
+  const letter = String(store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '').trim()
+  if (!letter) {
+    store.formErrors.assignmentLetterId = 'auditResultReport.form.assignmentLetterRequired'
+    return
+  }
+  showSignatureModal.value = true
+}
+
+const onFormSubmit = () => {
+  const letter = String(store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '').trim()
+  if (!letter) {
+    store.formErrors.assignmentLetterId = 'auditResultReport.form.assignmentLetterRequired'
+    return
+  }
+  store.formErrors.assignmentLetterId = ''
+  if (!store.reportForm.reportTitle) {
+    return
+  }
+  // Open the signature modal popup as requested!
+  openSignatureModal()
+}
+
+const onSignatureConfirm = async (payload: {
+  signaturePlace: string
+  signatureDate: string
+  companyName: string
+  signatures: MemberSignature[]
+}) => {
+  store.reportForm.signaturePlace = payload.signaturePlace
+  store.reportForm.signatureDate = payload.signatureDate
+  store.reportForm.companyName = payload.companyName
+  store.reportForm.signatures = payload.signatures
+  showSignatureModal.value = false
+  await store.saveReport()
+}
+
+const noneOption = { label: '— None (Inherited / Default) —', value: '__none__' }
+const companySelectItems = computed(() => [
+  noneOption,
+  ...masterOptions.companyOptions
+])
+
+const onCompanyChange = (val: string) => {
+  if (!val || val === '__none__') {
+    store.reportForm.companyId = ''
+    store.reportForm.companyName = ''
+    return
+  }
+  const comp = masterOptions.companyOptions.find(c => c.value === val)
+  store.reportForm.companyName = comp ? comp.label : ''
+}
+
+watch(
+  () => store.showModal,
+  (open) => {
+    if (open) {
+      masterOptions.fetchAll()
+    }
+  },
+  { immediate: true }
+)
 
 const countCategory = (cat: string) => {
   if (!store.reportForm.findings) return 0
@@ -319,9 +493,9 @@ const removeFinding = (idx: number) => {
 }
 
 const onLetterChange = async (newVal: string) => {
+  if (newVal) store.formErrors.assignmentLetterId = ''
   if (!store.isEditing && newVal) {
     await store.autoPopulateFindings(newVal)
   }
 }
 </script>
-

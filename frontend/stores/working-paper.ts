@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed, watch } from 'vue'
 import type {
   WorkingPaperHeaderForm, WorkingPaperRiskForm, WorkingPaperSampleForm,
   WorkingPaperCauseForm, WorkingPaperPlanForm, SampleItem, WorkingPaperHeader,
@@ -7,13 +7,16 @@ import type {
   WorkingPaperSample,
   WorkingPaperCause,
   WorkingPaperPlan,
+  AssignmentLetter
 } from '~/types/audit'
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 import { useAuditFieldworkStore } from './audit-fieldwork'
+import { useAssignmentLetterStore } from './assignment-letter'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
-import { computed } from 'vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { toTestResult, toTestResultBoolean } from '~/utils/sampleTestResult'
 import type { StepperItem } from '@nuxt/ui'
 
 import { z } from 'zod'
@@ -34,8 +37,8 @@ export const riskSchema = z.object({
 })
 
 export const sampleSchema = z.object({
-  population: z.number().min(1, 'Required'),
-  sampleSize: z.number().min(1, 'Required'),
+  population: z.union([z.string().min(1, 'Required'), z.number().min(1, 'Required')]),
+  sampleSize: z.coerce.number().min(1, 'Required'),
   conclusion: z.string().min(1, 'Required')
 })
 
@@ -55,6 +58,7 @@ export const planSchema = z.object({
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
   const fieldworkStore = useAuditFieldworkStore()
+  const assignmentLetterStore = useAssignmentLetterStore()
   const toast = useToastNotification()
 
   const fileInput = ref<HTMLInputElement | null>(null)
@@ -117,7 +121,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // Opsional: Pesan error dinamis
   const dateErrorMessage = computed(() => {
-    return isDateError.value ? "The end date cannot be before the start date." : false
+    return isDateError.value ? 'The end date cannot be before the start date.' : false
   })
 
   // Tabs Configuration
@@ -159,7 +163,6 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   ] satisfies StepperItem[]
 
   const columnsF01 = [
-    { key: 'assignmentLetterId', accessorKey: 'assignmentLetterId', header: 'Assignment Letter', class: 'w-48 min-w-[150px]' },
     {
       key: 'businessProcess',
       accessorKey: 'businessProcess',
@@ -194,7 +197,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   ]
 
   const columnsF03 = [
-    { key: 'population', accessorKey: 'population', header: 'Population', class: 'w-36 min-w-[120px]' },
+    { key: 'population', accessorKey: 'population', header: 'Total Populasi', class: 'w-48 min-w-[140px] whitespace-normal break-words', tdClass: '!whitespace-normal break-words' },
     { key: 'sampleSize', accessorKey: 'sampleSize', header: 'Sample Size', class: 'w-36 min-w-[120px]' },
     { key: 'samples', accessorKey: 'samples', header: 'Sample List', class: 'min-w-[260px]' },
     {
@@ -246,7 +249,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     { key: 'actionDescription', accessorKey: 'actionDescription', header: 'Description', class: 'w-56 min-w-[180px]' },
     { key: 'pic', accessorKey: 'pic', header: 'PIC', class: 'w-40 min-w-[130px]' },
     { key: 'periodAction', accessorKey: 'periodAction', header: 'Target Selesai', class: 'w-40 min-w-[130px] whitespace-nowrap' },
-    { key: 'actions', accessorKey: 'actions', header: 'Actions', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' },
+    { key: 'actions', accessorKey: 'actions', header: 'Actions', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
   ]
   // --- STATE ---
   const headerForm = reactive<WorkingPaperHeaderForm>({
@@ -256,28 +259,105 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     periodStart: '',
     periodEnd: '',
     location: '',
-    teamMembers: [
-      { id: Date.now(), name: '', role: '' } // Inisialisasi 1 baris kosong
-    ],
+    teamMembers: [],
     activities: [
       { id: Date.now(), name: '' }
-    ],
+    ]
   })
+
+  const findAssignmentLetter = (letterNumberOrId: string) => {
+    const trimmed = String(letterNumberOrId || '').trim()
+    if (!trimmed) return undefined
+    return assignmentLetterStore.assignmentLetterList.find(
+      l => l.letterNumber === trimmed || l.id === trimmed
+    )
+  }
+
+  // The Assignment Letter form edits its "Audit Purpose" as `purposeList`;
+  // only seeded letters carry the single `auditPurpose` string, so letters
+  // created in the UI need the list as a fallback.
+  const resolveAuditPurpose = (letter: AssignmentLetter): string => {
+    const single = String(letter.auditPurpose || '').trim()
+    if (single) return single
+    if (!Array.isArray(letter.purposeList)) return ''
+    return letter.purposeList
+      .map(p => String(p || '').trim())
+      .filter(Boolean)
+      .join('; ')
+  }
+
+  const toTeamMembers = (letter: AssignmentLetter) =>
+    Array.isArray(letter.membersList)
+      ? letter.membersList.map((m, idx) => ({
+          id: Date.now() + idx,
+          name: m.name || '',
+          role: m.role || 'Member'
+        }))
+      : []
+
+  const syncFromAssignmentLetter = (letterNumberOrId: string) => {
+    if (!letterNumberOrId) {
+      headerForm.auditPurpose = ''
+      headerForm.teamMembers = []
+      return
+    }
+
+    const letter = findAssignmentLetter(letterNumberOrId)
+    if (letter) {
+      headerForm.auditPurpose = resolveAuditPurpose(letter)
+      headerForm.teamMembers = toTeamMembers(letter)
+    }
+  }
+
+  // Used when editing a saved working paper: its own values win, the letter
+  // only fills what was saved empty.
+  const fillBlanksFromAssignmentLetter = () => {
+    const letter = findAssignmentLetter(headerForm.assignmentLetterId)
+    if (!letter) return
+    if (!headerForm.auditPurpose) {
+      headerForm.auditPurpose = resolveAuditPurpose(letter)
+    }
+    if (!headerForm.teamMembers?.length) {
+      headerForm.teamMembers = toTeamMembers(letter)
+    }
+  }
+
+  // Synchronous so it runs at the moment the letter changes. A deferred run
+  // would fire after handleEditF01 has loaded the saved values and overwrite them.
+  watch(
+    () => headerForm.assignmentLetterId,
+    (newVal) => {
+      if (newVal) {
+        syncFromAssignmentLetter(newVal)
+      }
+    },
+    { flush: 'sync' }
+  )
 
   const riskForm = reactive<WorkingPaperRiskForm>({
     risk: '',
     taxonomy: RiskTaxonomy.Financial,
     riskLevel: RiskLevel.HIGH,
-    controlDescription: '',
+    controlDescription: ''
   })
 
   const sampleForm = reactive<WorkingPaperSampleForm>({
-    population: undefined,
+    population: '',
     sampleSize: undefined,
     samples: [
-      { id: Date.now(), document: '', l1: undefined, l2: undefined, l3: undefined }
+      {
+        id: Date.now(),
+        fieldworkDocument: '',
+        document: '',
+        step1: '',
+        l1: undefined,
+        step2: '',
+        l2: undefined,
+        step3: '',
+        l3: undefined
+      }
     ],
-    conclusion: '',
+    conclusion: ''
   })
 
   const causeForm = reactive<WorkingPaperCauseForm>({
@@ -287,7 +367,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     evidenceFile: null,
     rootCause: [
       { id: Date.now(), method: 'People', w1: '', w2: '', w3: '' }
-    ],
+    ]
   })
 
   const planForm = reactive<WorkingPaperPlanForm>({
@@ -304,8 +384,6 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const dataF04 = ref<WorkingPaperCause[]>([])
   const dataF05 = ref<WorkingPaperPlan[]>([])
 
-
-
   const loading = ref(false)
   const errorMsg = ref('')
 
@@ -321,6 +399,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     loading.value = true
     errorMsg.value = ''
     try {
+      if (assignmentLetterStore.assignmentLetterList.length <= 3) {
+        assignmentLetterStore.fetchAssignmentLetters().catch(() => {})
+      }
       const baseUrl = getAuditServiceBaseUrl()
 
       const resF01: any = await $fetch(`${baseUrl}/working-papers/headers`, { method: 'GET' })
@@ -345,80 +426,23 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
-  const mockF01: WorkingPaperHeader[] = [
-    { id: 'WP-H-001', assignmentLetterId: 'ST-001/SKAI/2026', auditPurpose: 'Annual Audit', businessProcess: 'Finance & Cash', period: '2026-03-01 s/d 2026-03-31', location: 'Head Office', teamMembers: [{ id: 1, name: 'Zeta Ramadhani', role: 'Chairperson' }], activities: [] },
-    { id: 'WP-H-002', assignmentLetterId: 'ST-002/SKAI/2026', auditPurpose: 'IT Security Audit', businessProcess: 'IT Operations & ERP', period: '2026-04-01 s/d 2026-04-30', location: 'Data Center', teamMembers: [{ id: 2, name: 'Andi Firmansyah', role: 'Chairperson' }], activities: [] },
-    { id: 'WP-H-003', assignmentLetterId: 'ST-003/SKAI/2026', auditPurpose: 'Operational Audit', businessProcess: 'Warehouse & Supply Chain', period: '2026-07-01 s/d 2026-07-31', location: 'Gudang Pusat', teamMembers: [{ id: 3, name: 'Rina Wulandari', role: 'Chairperson' }], activities: [] },
-    { id: 'WP-H-004', assignmentLetterId: 'ST-004/SKAI/2026', auditPurpose: 'Compliance Audit', businessProcess: 'Procurement', period: '2026-08-01 s/d 2026-08-31', location: 'Head Office', teamMembers: [{ id: 4, name: 'Budi Santoso', role: 'Chairperson' }], activities: [] },
-    { id: 'WP-H-005', assignmentLetterId: 'ST-005/SKAI/2026', auditPurpose: 'HSE Audit', businessProcess: 'K3LH & Maintenance', period: '2026-09-01 s/d 2026-09-30', location: 'Pembangkit PLTU', teamMembers: [{ id: 5, name: 'Dewi Kusumawati', role: 'Chairperson' }], activities: [] },
-    { id: 'WP-H-020', assignmentLetterId: '020/ST/01/KSIAD/2023', auditPurpose: 'Operational Audit', businessProcess: 'O&M Pembangkit', period: 'Januari 2023 s.d Agustus 2023', location: 'UPDK Kepulauan Riau', teamMembers: [{ id: 6, name: 'Tomy Afrilianto', role: 'Chairperson' }], activities: [] }
-  ]
+  // Every table is scoped to the assignment letter selected in Audit Fieldwork,
+  // and stays empty until one is selected. The tables carry no assignment
+  // letter column, so an unscoped list would mix rows from different letters
+  // with no way to tell them apart.
+  const byLetter = <T>(list: T[], letterOf: (row: T) => string | undefined): T[] => {
+    const letter = fieldworkStore.selectedAssignmentLetter
+    if (!letter) return []
+    return list.filter(row => letterOf(row) === letter)
+  }
+  const childLetter = (row: any) => row.workingPaperId || row.assignmentLetterId
+  const hasAssignmentLetter = computed(() => !!fieldworkStore.selectedAssignmentLetter)
 
-  const mockF02: WorkingPaperRisk[] = [
-    { id: 'WP-R-001', workingPaperId: 'ST-001/SKAI/2026', risk: 'FIN-001: Selisih pencatatan kas', taxonomy: RiskTaxonomy.Financial, riskLevel: RiskLevel.HIGH, controlDescription: 'Otorisasi transaksi kas di atas Rp 500jt' },
-    { id: 'WP-R-002', workingPaperId: 'ST-002/SKAI/2026', risk: 'SEC-001: Serangan siber database ERP', taxonomy: RiskTaxonomy.Operational, riskLevel: RiskLevel.HIGH, controlDescription: 'Penggunaan MFA dan patch keamanan berkala' },
-    { id: 'WP-R-003', workingPaperId: 'ST-003/SKAI/2026', risk: 'OPS-001: Selisih fisik stok gudang', taxonomy: RiskTaxonomy.Operational, riskLevel: RiskLevel.HIGH, controlDescription: 'Stock opname fisik bulanan' },
-    { id: 'WP-R-004', workingPaperId: 'ST-004/SKAI/2026', risk: 'COM-001: Ketidakpatuhan SOP HPS Procurement', taxonomy: RiskTaxonomy.Operational, riskLevel: RiskLevel.MODERATE, controlDescription: 'Reviu kertas kerja survei HPS' },
-    { id: 'WP-R-005', workingPaperId: 'ST-005/SKAI/2026', risk: 'ENV-001: Kerusakan fasilitas K3LH hidran', taxonomy: RiskTaxonomy.Operational, riskLevel: RiskLevel.HIGH, controlDescription: 'Inspeksi rutin hidran & APD' },
-    { id: 'WP-R-020', workingPaperId: '020/ST/01/KSIAD/2023', risk: 'OPS-020: Overhaul PLTU PE 6 hari', taxonomy: RiskTaxonomy.Operational, riskLevel: RiskLevel.HIGH, controlDescription: 'Penyusunan DMR & sertifikasi O&M' }
-  ]
-
-  const mockF03: WorkingPaperSample[] = [
-    { id: 'WP-S-001', workingPaperId: 'ST-001/SKAI/2026', population: 150, sampleSize: 20, samples: [{ id: 1, document: 'Voucher Kas Q1', l1: 'Pass', l2: 'Pass', l3: 'Fail' }], conclusion: 'Pengendalian kas memadai dengan catatan keterlambatan rekonsiliasi' },
-    { id: 'WP-S-002', workingPaperId: 'ST-002/SKAI/2026', population: 80, sampleSize: 15, samples: [{ id: 2, document: 'Log User ERP', l1: 'Pass', l2: 'Fail', l3: 'Fail' }], conclusion: 'Autentikasi superadmin perlu ditingkatkan dengan MFA' },
-    { id: 'WP-S-003', workingPaperId: 'ST-003/SKAI/2026', population: 300, sampleSize: 30, samples: [{ id: 3, document: 'Kartu Stok Gudang', l1: 'Pass', l2: 'Pass', l3: 'Pass' }], conclusion: 'Fisik barang sesuai dengan beberapa catatan selisih kecil' },
-    { id: 'WP-S-004', workingPaperId: 'ST-004/SKAI/2026', population: 45, sampleSize: 10, samples: [{ id: 4, document: 'Dokumen HPS Vendor', l1: 'Pass', l2: 'Pass', l3: 'Fail' }], conclusion: 'Evaluasi HPS memenuhi syarat administrasi' },
-    { id: 'WP-S-005', workingPaperId: 'ST-005/SKAI/2026', population: 50, sampleSize: 12, samples: [{ id: 5, document: 'Checklist Inspeksi K3', l1: 'Pass', l2: 'Pass', l3: 'Pass' }], conclusion: 'Peralatan K3 memadai' },
-    { id: 'WP-S-020', workingPaperId: '020/ST/01/KSIAD/2023', population: 120, sampleSize: 25, samples: [{ id: 6, document: 'Laporan Overhaul ME+ PLTU', l1: 'Pass', l2: 'Fail', l3: 'Fail' }], conclusion: 'Overhaul terlaksana dengan catatan waktu ketersediaan' }
-  ]
-
-  const mockF04: WorkingPaperCause[] = [
-    { id: 'WP-C-001', workingPaperId: 'ST-001/SKAI/2026', condition: 'Rekonsiliasi kas harian terlambat', criteria: 'SOP Kas Bab 4', impact: 'Risiko selisih kas', evidenceFile: null, rootCause: [{ id: 1, method: 'People', w1: 'Kasir belum input harian', w2: 'Beban kerja tinggi', w3: 'Belum ada sistem alert' }] },
-    { id: 'WP-C-002', workingPaperId: 'ST-002/SKAI/2026', condition: 'Superadmin ERP tanpa MFA', criteria: 'Kebijakan Keamanan TI 2025', impact: 'Kerentanan pengambilalihan akun', evidenceFile: null, rootCause: [{ id: 2, method: 'System', w1: 'Modul MFA belum aktif', w2: 'Lisensi belum di-renew', w3: '' }] },
-    { id: 'WP-C-003', workingPaperId: 'ST-003/SKAI/2026', condition: 'Suhu gudang bahan kimia belum terpantau 24/7', criteria: 'SOP K3 Storage', impact: 'Kerusakan bahan kimia', evidenceFile: null, rootCause: [{ id: 3, method: 'Process', w1: 'Sensor manual', w2: 'IoT belum terpasang', w3: '' }] },
-    { id: 'WP-C-004', workingPaperId: 'ST-004/SKAI/2026', condition: 'Kertas kerja survei HPS belum dilampirkan', criteria: 'SOP SCM Bab 2', impact: 'Kurang akuratnya HPS', evidenceFile: null, rootCause: [{ id: 4, method: 'Process', w1: 'Formulir survei tidak wajib diunggah', w2: '', w3: '' }] },
-    { id: 'WP-C-005', workingPaperId: 'ST-005/SKAI/2026', condition: 'Inspeksi hidran belum 100%', criteria: 'Standar K3LH Pembangkit', impact: 'Risiko kegagalan pemadaman', evidenceFile: null, rootCause: [{ id: 5, method: 'Process', w1: 'Jadwal pemeliharaan bentrok', w2: '', w3: '' }] },
-    { id: 'WP-C-020', workingPaperId: '020/ST/01/KSIAD/2023', condition: 'Pelaksanaan Overhaul ME+ PLTU TBK #1 Terjadi PE 6 Hari', criteria: 'SOP Maintenance UPDK', impact: 'Penurunan ketersediaan EAF', evidenceFile: null, rootCause: [{ id: 6, method: 'Process', w1: 'Masa transisi holding sub-holding', w2: 'Keterbatasan lab batubara', w3: 'Fitur Maximo WPC terhenti' }] }
-  ]
-
-  const mockF05: WorkingPaperPlan[] = [
-    { id: 'WP-P-001', workingPaperId: 'ST-001/SKAI/2026', recommendation: 'Lakukan rekonsiliasi harian dan alert otomatis', response: 'Disetujui', actionDescription: 'Pembuatan modul otomatisasi rekonsiliasi', pic: 'Budi - Finance', periodAction: '2026-05-15' },
-    { id: 'WP-P-002', workingPaperId: 'ST-002/SKAI/2026', recommendation: 'Wajibkan MFA untuk seluruh akses Superadmin ERP', response: 'Disetujui', actionDescription: 'Pengadaan dan konfigurasi MFA', pic: 'Dimas - IT', periodAction: '2026-06-01' },
-    { id: 'WP-P-003', workingPaperId: 'ST-003/SKAI/2026', recommendation: 'Pasang IoT sensor pemantau suhu 24/7', response: 'Disetujui', actionDescription: 'Instalasi sensor IoT gudang', pic: 'Siti - HR', periodAction: '2026-08-30' },
-    { id: 'WP-P-004', workingPaperId: 'ST-004/SKAI/2026', recommendation: 'Lampirkan kertas kerja survei harga pada HPS', response: 'Disetujui', actionDescription: 'Update template HPS di ERP SCM', pic: 'Budi - Finance', periodAction: '2026-09-15' },
-    { id: 'WP-P-005', workingPaperId: 'ST-005/SKAI/2026', recommendation: 'Lakukan pengujian dan sertifikasi hidran berkala', response: 'Disetujui', actionDescription: 'Jadwal rutin inspeksi K3', pic: 'Dewi - Maintenance', periodAction: '2026-10-15' },
-    { id: 'WP-P-020', workingPaperId: '020/ST/01/KSIAD/2023', recommendation: 'Penyusunan DMR & Sertifikasi Pemeliharaan PLTU', response: 'Disetujui', actionDescription: 'Sertifikasi O&M dan pembaruan Maximo WPC', pic: 'Tomy - UPDK', periodAction: '2023-11-30' }
-  ]
-
-  const filteredDataF01 = computed(() => {
-    const list = dataF01.value.length > 0 ? dataF01.value : mockF01
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => wp.assignmentLetterId === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF02 = computed(() => {
-    const list = dataF02.value.length > 0 ? dataF02.value : mockF02
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF03 = computed(() => {
-    const list = dataF03.value.length > 0 ? dataF03.value : mockF03
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF04 = computed(() => {
-    const list = dataF04.value.length > 0 ? dataF04.value : mockF04
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
-
-  const filteredDataF05 = computed(() => {
-    const list = dataF05.value.length > 0 ? dataF05.value : mockF05
-    if (!fieldworkStore.selectedAssignmentLetter) return list
-    return list.filter(wp => (wp.workingPaperId || (wp as any).assignmentLetterId) === fieldworkStore.selectedAssignmentLetter)
-  })
+  const filteredDataF01 = computed(() => byLetter(dataF01.value, wp => wp.assignmentLetterId))
+  const filteredDataF02 = computed(() => byLetter(dataF02.value, childLetter))
+  const filteredDataF03 = computed(() => byLetter(dataF03.value, childLetter))
+  const filteredDataF04 = computed(() => byLetter(dataF04.value, childLetter))
+  const filteredDataF05 = computed(() => byLetter(dataF05.value, childLetter))
 
   const isEditingF01 = ref(false)
   const isEditingF02 = ref(false)
@@ -436,6 +460,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const showModalF04 = ref(false)
   const showModalF05 = ref(false)
   const closeModalF01 = () => showModalF01.value = false
+
+  // The page opens the header modal on mount (?action=create / edit) while the
+  // assignment letters may still be loading; fill the blanks once they arrive.
+  watch(
+    () => assignmentLetterStore.assignmentLetterList,
+    () => {
+      if (showModalF01.value) fillBlanksFromAssignmentLetter()
+    }
+  )
   const closeModalF02 = () => showModalF02.value = false
   const closeModalF03 = () => showModalF03.value = false
   const closeModalF04 = () => showModalF04.value = false
@@ -499,21 +532,31 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF01.value = false
     editingIdF01.value = null
 
+    // The form has no assignment letter field: a new working paper always
+    // belongs to the letter selected in Audit Fieldwork. Without one there is
+    // nothing to attach it to, so refuse rather than guess.
+    const initialLetter = fieldworkStore.selectedAssignmentLetter
+    if (!initialLetter) {
+      toast.showWarning('No assignment letter selected', 'Select an assignment letter in Audit Fieldwork before creating a working paper.')
+      return
+    }
+
     // Reset Form
     Object.assign(headerForm, {
-      assignmentLetterId: fieldworkStore.selectedAssignmentLetter || '',
+      assignmentLetterId: initialLetter,
       auditPurpose: '',
       businessProcess: '',
       periodStart: '',
       periodEnd: '',
       location: '',
-      teamMembers: [
-        { id: Date.now(), name: '', role: '' }
-      ],
+      teamMembers: [],
       activities: [
         { id: Date.now(), name: '' }
       ]
     })
+
+    syncFromAssignmentLetter(initialLetter)
+
     showModalF01.value = true
   }
 
@@ -521,15 +564,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF01.value && editingIdF01.value) {
         await updateF01(editingIdF01.value, { ...headerForm })
-        toast.success("Header Data Updated Successfully!")
+        toast.success('Header Data Updated Successfully!')
       } else {
         await addF01({ ...headerForm })
-        toast.showSuccess("Header Data Successfully Saved!")
+        toast.showSuccess('Header Data Successfully Saved!')
       }
       closeModalF01()
     } catch (error: any) {
       const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError("Failed to save data", detail)
+      toast.showError('Failed to save data', detail)
     }
   }
 
@@ -537,22 +580,24 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF01.value = true
     editingIdF01.value = header.id
 
-    let start = ""
-    let end = ""
-    if (header.period && header.period.includes(" s/d ")) {
-      const parts = header.period.split(" s/d ")
-      start = parts[0] || ""
-      end = parts[1] || ""
+    let start = ''
+    let end = ''
+    if (header.period && header.period.includes(' s/d ')) {
+      const parts = header.period.split(' s/d ')
+      start = parts[0] || ''
+      end = parts[1] || ''
     }
 
     headerForm.assignmentLetterId = header.assignmentLetterId
-    headerForm.auditPurpose = header.auditPurpose
+    headerForm.auditPurpose = header.auditPurpose || ''
     headerForm.businessProcess = header.businessProcess
     headerForm.periodStart = start
     headerForm.periodEnd = end
     headerForm.location = header.location
     headerForm.teamMembers = header.teamMembers ? header.teamMembers.map((m: any) => ({ ...m })) : []
     headerForm.activities = header.activities?.length ? header.activities.map((a: any) => ({ ...a })) : [{ id: Date.now(), name: '' }]
+
+    fillBlanksFromAssignmentLetter()
 
     showModalF01.value = true
   }
@@ -640,15 +685,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF02.value && editingIdF02.value) {
         await updateF02(editingIdF02.value, { ...riskForm })
-        toast.success("Risk Data Updated Successfully!")
+        toast.success('Risk Data Updated Successfully!')
       } else {
         await addF02({ ...riskForm })
-        toast.showSuccess("Risk Data Successfully Saved!")
+        toast.showSuccess('Risk Data Successfully Saved!')
       }
       closeModalF02()
     } catch (error: any) {
       const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError("Failed to save data", detail)
+      toast.showError('Failed to save data', detail)
     }
   }
 
@@ -673,12 +718,32 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
   }
 
+  // The API stores l1/l2/l3 as booleans (true = Pass, false = Fail, null = not tested).
+  const convertSampleTestResults = (samples: SampleItem[]) => {
+    return samples.map(sample => ({
+      ...sample,
+      l1: toTestResultBoolean(sample.l1),
+      l2: toTestResultBoolean(sample.l2),
+      l3: toTestResultBoolean(sample.l3)
+    }))
+  }
+
+  // Back to the form's 'Pass' / 'Fail' / 'N/A' strings; accepts API booleans and older string values.
+  const convertBooleanToTestResult = (samples: any[]): SampleItem[] => {
+    return samples.map(sample => ({
+      ...sample,
+      l1: toTestResult(sample.l1),
+      l2: toTestResult(sample.l2),
+      l3: toTestResult(sample.l3)
+    }))
+  }
+
   const addF03 = async (sampleForm: WorkingPaperSampleForm) => {
     const newSample = {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
-      population: sampleForm.population,
+      population: sampleForm.population != null ? String(sampleForm.population) : '',
       sampleSize: sampleForm.sampleSize,
-      samples: sampleForm.samples,
+      samples: convertSampleTestResults(sampleForm.samples),
       conclusion: sampleForm.conclusion
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -692,9 +757,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const updateF03 = async (id: string, updatedData: WorkingPaperSampleForm) => {
     const payload = {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
-      population: updatedData.population,
+      population: updatedData.population != null ? String(updatedData.population) : '',
       sampleSize: updatedData.sampleSize,
-      samples: updatedData.samples,
+      samples: convertSampleTestResults(updatedData.samples),
       conclusion: updatedData.conclusion
     }
     const baseUrl = getAuditServiceBaseUrl()
@@ -727,11 +792,31 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     // Reset Form
     Object.assign(sampleForm, {
-      population: 0,
-      sampleSize: 0,
-      samples: [],
+      population: '',
+      sampleSize: undefined,
+      samples: [
+        {
+          id: Date.now(),
+          fieldworkDocument: '',
+          document: '',
+          step1: '',
+          l1: undefined,
+          step2: '',
+          l2: undefined,
+          step3: '',
+          l3: undefined
+        }
+      ],
       conclusion: ''
     })
+
+    const letter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
+    if (letter && typeof (fieldworkStore as any).fetchSamples === 'function') {
+      (fieldworkStore as any).fetchSamples(letter).catch(() => {})
+    } else if (letter && typeof fieldworkStore.fetchAllFieldworkData === 'function') {
+      fieldworkStore.fetchAllFieldworkData(letter).catch(() => {})
+    }
+
     showModalF03.value = true
   }
 
@@ -739,15 +824,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF03.value && editingIdF03.value) {
         await updateF03(editingIdF03.value, { ...sampleForm })
-        toast.success("Sample Data Successfully Updated!")
+        toast.success('Sample Data Successfully Updated!')
       } else {
         await addF03({ ...sampleForm })
-        toast.showSuccess("Sample Data Successfully Saved!")
+        toast.showSuccess('Sample Data Successfully Saved!')
       }
       closeModalF03()
     } catch (error: any) {
       const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError("Failed to save data", detail)
+      toast.showError('Failed to save data', detail)
     }
   }
 
@@ -755,10 +840,42 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF03.value = true
     editingIdF03.value = sample.id
 
-    sampleForm.population = sample.population
+    sampleForm.population = sample.population != null ? String(sample.population) : ''
     sampleForm.sampleSize = sample.sampleSize
-    sampleForm.samples = sample.samples ? sample.samples.map((s: any) => ({ ...s })) : []
+
+    // Convert boolean values from backend back to string for form editing
+    let parsedSamples: any[] = []
+    if (Array.isArray(sample.samples)) {
+      parsedSamples = sample.samples
+    } else if (typeof sample.samples === 'string') {
+      try {
+        parsedSamples = JSON.parse(sample.samples)
+      } catch {
+        parsedSamples = []
+      }
+    }
+
+    sampleForm.samples = parsedSamples.length > 0
+      ? convertBooleanToTestResult(parsedSamples)
+      : [{
+          id: Date.now(),
+          fieldworkDocument: '',
+          document: '',
+          step1: '',
+          l1: undefined,
+          step2: '',
+          l2: undefined,
+          step3: '',
+          l3: undefined
+        }]
     sampleForm.conclusion = sample.conclusion
+
+    const letter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
+    if (letter && typeof (fieldworkStore as any).fetchSamples === 'function') {
+      (fieldworkStore as any).fetchSamples(letter).catch(() => {})
+    } else if (letter && typeof fieldworkStore.fetchAllFieldworkData === 'function') {
+      fieldworkStore.fetchAllFieldworkData(letter).catch(() => {})
+    }
 
     showModalF03.value = true
   }
@@ -833,13 +950,13 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       const response: any = await $fetch(`${getAuditServiceBaseUrl()}/audit-sops`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${authStore.token}` },
-        query: { page_size: 100, order: 'name ASC' },
+        query: { page_size: 100, order: 'name ASC' }
       })
       const items = response?.data?.items ?? []
       sopOptions.value = items.map((sop: any) => ({
         label: sop.name,
         value: sop.name,
-        description: [sop.guideline?.name, sop.status].filter(Boolean).join(' · '),
+        description: [sop.guideline?.name, sop.status].filter(Boolean).join(' · ')
       }))
     } catch (error) {
       console.error('Failed to fetch SOP options:', error)
@@ -878,15 +995,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF04.value && editingIdF04.value) {
         await updateF04(editingIdF04.value, { ...causeForm })
-        toast.success("Root Cause Data Successfully Updated!")
+        toast.success('Root Cause Data Successfully Updated!')
       } else {
         await addF04({ ...causeForm })
-        toast.showSuccess("Root Cause Data Successfully Saved!")
+        toast.showSuccess('Root Cause Data Successfully Saved!')
       }
       closeModalF04()
     } catch (error: any) {
       const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError("Failed to save data", detail)
+      toast.showError('Failed to save data', detail)
     }
   }
 
@@ -983,15 +1100,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF05.value && editingIdF05.value) {
         await updateF05(editingIdF05.value, { ...planForm })
-        toast.success("Action Plan Data Successfully Updated!")
+        toast.success('Action Plan Data Successfully Updated!')
       } else {
         await addF05({ ...planForm })
-        toast.showSuccess("Action Plan Data Successfully Saved!")
+        toast.showSuccess('Action Plan Data Successfully Saved!')
       }
       closeModalF05()
     } catch (error: any) {
       const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError("Failed to save data", detail)
+      toast.showError('Failed to save data', detail)
     }
   }
 
@@ -1000,7 +1117,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     editingIdF05.value = plan.id
 
     planForm.recommendation = plan.recommendation
-    planForm.response = plan.response || plan.tanggapanresponse || ""
+    planForm.response = plan.response || plan.tanggapanresponse || ''
     planForm.actionDescription = plan.actionDescription
     planForm.pic = plan.pic
     planForm.periodAction = plan.periodAction
@@ -1021,9 +1138,13 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const addSample = () => {
     sampleForm.samples.push({
       id: Date.now(),
+      fieldworkDocument: '',
       document: '',
+      step1: '',
       l1: undefined,
+      step2: '',
       l2: undefined,
+      step3: '',
       l3: undefined
     })
   }
@@ -1034,8 +1155,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // --- GETTERS: Cek Efektivitas Sampel ---
   // Return true = Efektif, Return false = Tidak Efektif
-  const checkSampleStatus = (sampel: SampleItem): boolean => {
-    if (sampel.l1 === 'Fail' || sampel.l2 === 'Fail' || sampel.l3 === 'Fail') {
+  // Handles both string values (from form) and boolean values (from backend API)
+  const checkSampleStatus = (sampel?: Partial<SampleItem>): boolean => {
+    if (!sampel) return false
+    const isFail = (val: unknown) => toTestResult(val) === 'Fail'
+    if (isFail(sampel.l1) || isFail(sampel.l2) || isFail(sampel.l3)) {
       return false
     }
     return true
@@ -1120,12 +1244,62 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       'ENV-005: Kerusakan Reputasi Akibat Polusi',
       'HR-005: Korupsi dan Penipuan Internal',
       'OPS-007: Kegagalan Sistem Keamanan Fisik',
-      'FIN-007: Penipuan Pelanggan',
+      'FIN-007: Penipuan Pelanggan'
     ],
     pic: ['Dimas - IT', 'Budi - Finance', 'Siti - HR'],
     testResult: [...TEST_RESULT_OPTIONS],
-    rootCauseMethod: [...ROOT_CAUSE_METHOD_OPTIONS],
+    rootCauseMethod: [...ROOT_CAUSE_METHOD_OPTIONS]
   }
+
+  const fieldworkSampleOptions = computed(() => {
+    const list: { label: string; value: string; documentName: string; documentNumber: string }[] = []
+    const seen = new Set<string>()
+
+    const addOption = (docName?: string, docNum?: string) => {
+      const name = (docName || '').trim()
+      const num = (docNum || '').trim()
+      if (!name && !num) return
+
+      const label = name && num ? `${name} (${num})` : (name || num)
+      if (!seen.has(label)) {
+        seen.add(label)
+        list.push({
+          label,
+          value: label,
+          documentName: name,
+          documentNumber: num
+        })
+      }
+    }
+
+    // 1. Current selected letter in fieldwork or working paper
+    const currentLetter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
+    const activeSamples = fieldworkStore.fieldworkData?.[currentLetter]?.samples || fieldworkStore.samples || []
+    if (Array.isArray(activeSamples)) {
+      activeSamples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
+    }
+
+    // 2. All samples from loaded fieldworkData
+    if (fieldworkStore.fieldworkData) {
+      Object.values(fieldworkStore.fieldworkData).forEach((data: any) => {
+        if (Array.isArray(data?.samples)) {
+          data.samples.forEach((item: any) => addOption(item.documentName, item.documentNumber))
+        }
+      })
+    }
+
+    // 3. Existing documents in sampleForm if editing
+    if (sampleForm?.samples) {
+      sampleForm.samples.forEach((s: any) => {
+        if (s.fieldworkDocument) {
+          addOption(s.fieldworkDocument)
+        }
+      })
+    }
+
+    // Only real fieldwork samples: with none loaded the list is empty (no placeholder documents).
+    return list
+  })
 
   return {
     headerForm, riskForm, sampleForm, causeForm, planForm,
@@ -1134,8 +1308,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     showModalF01, showModalF02, showModalF03, showModalF04, showModalF05,
     isEditingF01, isEditingF02, isEditingF03, isEditingF04, isEditingF05,
     dataF01, dataF02, dataF03, dataF04, dataF05,
-    mockF01, mockF02, mockF03, mockF04, mockF05,
     filteredDataF01, filteredDataF02, filteredDataF03, filteredDataF04, filteredDataF05,
+    hasAssignmentLetter,
+    addF03,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,
     openModalF01, openModalF02, openModalF03, openModalF04, openModalF05,
@@ -1146,7 +1321,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     addSample, removeSample, addRootCause, removeRootCause, triggerUpload, onFileChange,
     checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile,
     addActivity, removeActivity,
+    syncFromAssignmentLetter,
     criteriaOptions, loadingSopOptions,
+    fieldworkSampleOptions,
     loading, errorMsg, fetchAllData
   }
 })

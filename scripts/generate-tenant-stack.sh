@@ -194,6 +194,12 @@ else
 fi
 [ -n "$SIGNATURE_KEY" ] || SIGNATURE_KEY=$(openssl rand -hex 32)
 
+# SMTP credentials are owned by provision-tenant-email.sh. Carry them over
+# verbatim, otherwise regenerating the stack would silently stop the tenant's
+# email.
+SMTP_LINES=""
+[ -f "$ENV_FILE" ] && SMTP_LINES=$(grep '^TENANT_SMTP_' "$ENV_FILE" || true)
+
 umask 077
 cat > "$ENV_FILE" <<ENVEOF
 # =============================================================================
@@ -206,6 +212,7 @@ cat > "$ENV_FILE" <<ENVEOF
 TENANT_JWT_SECRET=$JWT_SECRET
 TENANT_SIGNATURE_KEY=$SIGNATURE_KEY
 ENVEOF
+[ -n "$SMTP_LINES" ] && printf '%s\n' "$SMTP_LINES" >> "$ENV_FILE"
 chmod 600 "$ENV_FILE"
 umask 022
 

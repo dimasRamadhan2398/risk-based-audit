@@ -24,7 +24,8 @@ export default defineConfig({
     alias: {
       '~': resolve(__dirname, './'),
       '@': resolve(__dirname, './'),
-      '#imports': resolve(__dirname, './tests/mocks/imports.ts')
+      '#imports': resolve(__dirname, './tests/mocks/imports.ts'),
+      '#components': resolve(__dirname, './tests/mocks/components.ts')
     }
   }
 })

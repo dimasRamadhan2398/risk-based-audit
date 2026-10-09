@@ -78,6 +78,12 @@
         <div class="font-medium">{{ row.original.department_name }}</div>
       </template>
 
+      <template #company_id-cell="{ row }">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ options.labelFor(options.companyOptions, row.original.company_id) || '-' }}
+        </span>
+      </template>
+
       <template #department_description-cell="{ row }">
         <span class="text-gray-600 text-sm">
           {{ row.original.department_description || '-' }}
@@ -123,8 +129,10 @@
 
 <script setup lang="ts">
 import { useDepartmentStore } from '~/stores/department'
+import { useMasterOptionsStore } from '~/stores/master-options'
 
 const store = useDepartmentStore()
+const options = useMasterOptionsStore()
 
 // Local search state
 const searchInput = ref(store.search)
@@ -145,6 +153,7 @@ const handlePageSizeChange = (value: any) => {
 
 // Fetch data on mount
 onMounted(() => {
+  options.fetchAll()
   store.fetchDepartments()
 })
 </script>

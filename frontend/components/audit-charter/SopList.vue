@@ -53,6 +53,7 @@
           icon: 'i-lucide-file-text',
           label: t('auditCharter.sopList.emptyTable')
         }"
+        :ui="{ root: 'overflow-visible' }"
         class="w-full"
         @update:page="(p) => store.fetchSops(p)"
         @update:items-per-page="(size) => store.setPageSize(size)"

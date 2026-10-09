@@ -34,7 +34,7 @@ type departmentMigration struct {
 	UpdatedAt             time.Time
 	DeletedAt             gorm.DeletedAt `gorm:"index"`
 	CompanyID             uuid.UUID      `gorm:"type:uuid;not null;index"`
-	BusinessUnitID        uuid.UUID      `gorm:"type:uuid;not null;index"`
+	BusinessUnitID        *uuid.UUID     `gorm:"type:uuid;index"`
 }
 
 func (departmentMigration) TableName() string { return "departments" }

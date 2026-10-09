@@ -5,6 +5,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error';
 import { getAuditServiceBaseUrl as resolveAuditUrl } from '~/composables/useApiUrl';
 import { useI18n } from '~/composables/useI18n';
+import { getFiscalYearStrings } from '~/composables/useFiscalYear';
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
@@ -16,6 +17,7 @@ export interface AssignmentLetterState {
     auditTeam: { value: string, label: string }[];
     workingUnit: string[];
     role: string[];
+    yearOptions: string[];
   };
   loading: boolean;
   errorMsg: string;
@@ -168,31 +170,6 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         purposeList: ['Evaluasi implementasi K3LH dan sertifikasi alat'],
         scopeList: ['Inspeksi K3 dan fasilitas pemadam kebakaran'],
         ccList: ['Chief Safety Officer', 'Head of Internal Audit']
-      },
-      {
-        id: 'mock-uuid-tomy-020',
-        letterNumber: '020/ST/01/KSIAD/2023',
-        status: 'Published' as AssignmentLetterStatus,
-        createdAt: new Date().toISOString(),
-        auditTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau',
-        leader: 'Tomy Afrilianto',
-        category: AuditCategory.ASSURANCE,
-        auditYear: '2023',
-        auditTeam: 'SKAI',
-        startPeriod: '2023-01-01',
-        finishPeriod: '2023-08-31',
-        workingUnit: 'Operasi & Pemeliharaan',
-        auditPurpose: 'Operational Audit',
-        letterDate: '2023-01-05',
-        caeSignature: 'System',
-        executionPeriod: 'Januari 2023 s.d Agustus 2023',
-        membersList: [
-          { name: 'Tomy Afrilianto', role: 'Chairperson' },
-          { name: 'Robert Sunarijanto', role: 'Supervisor' }
-        ],
-        purposeList: ['Evaluasi ketersediaan pembangkit, K3LH, dan manajemen risiko'],
-        scopeList: ['Operasional UPDK Kepulauan Riau'],
-        ccList: ['Head of SKAI', 'Board of Directors']
       }
     ],
     loading: false,
@@ -206,6 +183,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       startPeriod: '',
       finishPeriod: '',
       workingUnit: '',
+      companyId: '',
+      companyName: '',
       auditPurpose: '',
       letterDate: '',
       caeSignature: '',
@@ -234,6 +213,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       ],
       workingUnit: ['Production', 'Marketing', 'Finance', 'IT', 'Operations', 'Procurement', 'Maintenance'],
       role: ['Person in Charge', 'Supervisor', 'Chairperson', 'Member'],
+      yearOptions: getFiscalYearStrings()
     }
   }),
 
@@ -382,28 +362,6 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           purposeList: ['Evaluasi K3LH'],
           scopeList: ['Inspeksi fasilitas K3'],
           ccList: ['Chief Safety Officer']
-        },
-        {
-          id: 'mock-uuid-tomy-020',
-          letterNumber: '020/ST/01/KSIAD/2023',
-          status: 'Published' as AssignmentLetterStatus,
-          createdAt: new Date().toISOString(),
-          auditTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau',
-          leader: 'Tomy Afrilianto',
-          category: AuditCategory.ASSURANCE,
-          auditYear: '2023',
-          auditTeam: 'SKAI',
-          startPeriod: '2023-01-01',
-          finishPeriod: '2023-08-31',
-          workingUnit: 'Operasi & Pemeliharaan',
-          auditPurpose: 'Operational Audit',
-          letterDate: '2023-01-05',
-          caeSignature: 'System',
-          executionPeriod: 'Januari 2023 s.d Agustus 2023',
-          membersList: [{ name: 'Tomy Afrilianto', role: 'Chairperson' }],
-          purposeList: ['Evaluasi ketersediaan pembangkit'],
-          scopeList: ['Operasional UPDK Kepulauan Riau'],
-          ccList: ['Head of SKAI']
         }
       ] as AssignmentLetter[]
 
@@ -443,10 +401,37 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       list.splice(index, 1)
     },
 
-    generateNomorSurat(auditTeam: string, year: string): string {
-      const nextCount = this.assignmentLetterList.length + 1
-      const paddedCount = nextCount.toString().padStart(3, '0')
-      return `ST-${paddedCount}/${auditTeam}/${year}`
+    generateNomorSurat(auditTeam?: string, year?: string): string {
+      const rawYear = (year || this.form?.auditYear || '').trim()
+      let cleanYear = ''
+      const yearMatch = rawYear.match(/\b(20\d{2})\b/)
+      if (yearMatch && yearMatch[1]) {
+        cleanYear = yearMatch[1]
+      } else if (rawYear.length >= 4) {
+        cleanYear = rawYear.slice(0, 4)
+      } else {
+        cleanYear = new Date().getFullYear().toString()
+      }
+
+      const targetTeam = (auditTeam || this.form?.auditTeam || 'SKAI').trim().toUpperCase()
+
+      // Dynamically scan existing assignment letters to find the highest sequence number
+      let maxSeq = 0
+      const stRegex = /^ST-(\d+)/i
+      for (const item of this.assignmentLetterList) {
+        const numStr = (item.letterNumber || '').trim()
+        const match = numStr.match(stRegex)
+        if (match && match[1]) {
+          const parsed = parseInt(match[1], 10)
+          if (!isNaN(parsed) && parsed > maxSeq) {
+            maxSeq = parsed
+          }
+        }
+      }
+
+      const nextSeq = maxSeq > 0 ? maxSeq + 1 : this.assignmentLetterList.length + 1
+      const paddedCount = nextSeq.toString().padStart(3, '0')
+      return `ST-${paddedCount}/${targetTeam}/${cleanYear}`
     },
 
     openModal() {
@@ -461,6 +446,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         startPeriod: '',
         finishPeriod: '',
         workingUnit: '',
+        companyId: '',
+        companyName: '',
         auditPurpose: '',
         letterDate: '',
         caeSignature: '',
@@ -485,6 +472,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         startPeriod: letter.startPeriod,
         finishPeriod: letter.finishPeriod,
         workingUnit: letter.workingUnit,
+        companyId: letter.companyId || '',
+        companyName: letter.companyName || '',
         auditPurpose: letter.auditPurpose,
         letterDate: letter.letterDate
           ? String(letter.letterDate).slice(0, 10)
@@ -581,6 +570,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
             executionPeriod
           }
           if (payload.letterDate === '') payload.letterDate = null
+          if (!payload.companyId) delete payload.companyId
 
           await $fetch(
             `${baseUrl}/assignment-letters/${this.editingId}`,
@@ -603,6 +593,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
             executionPeriod
           }
           if (payload.letterDate === '') payload.letterDate = null
+          if (!payload.companyId) delete payload.companyId
 
           await $fetch(`${baseUrl}/assignment-letters`, {
             method: 'POST',

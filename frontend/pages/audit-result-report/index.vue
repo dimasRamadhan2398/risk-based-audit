@@ -7,6 +7,14 @@
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         <UButton
+          v-if="store.hasSelectedAssignmentLetter"
+          color="primary"
+          icon="i-heroicons-plus"
+          label="Buat Laporan Hasil Audit"
+          class="w-full sm:w-auto font-bold shadow"
+          @click="store.openModal"
+        />
+        <UButton
           v-if="canImportPlanDocs"
           color="neutral"
           variant="outline"
@@ -55,7 +63,7 @@
     <!-- Main Content -->
     <div v-if="store.hasSelectedAssignmentLetter">
       <UCard v-if="store.filteredReports.length > 0" class="overflow-hidden overflow-x-auto">
-        <TableEntities :data="store.filteredReports" :columns="columns">
+        <UTable :data="store.filteredReports" :columns="columns">
           <template #reportNumber-cell="{ row }">
             <span class="font-mono text-md font-semibold text-primary-600 dark:text-primary-400">
               {{ row.original.reportNumber || (row.original as any).report_number || '-' }}
@@ -135,6 +143,20 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center">
+              <!-- Approved LHA: its findings have ATRs (created by the backend on approval) -->
+              <UTooltip
+                v-if="isLhaApproved(row.original.status)"
+                :text="t('auditResultReport.followUp.tooltip')"
+              >
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  icon="i-lucide-list-checks"
+                  size="sm"
+                  :to="`/action-taken-report?lha=${encodeURIComponent((row.original as any).id)}`"
+                  :label="followUpLabel((row.original as any).id)"
+                />
+              </UTooltip>
               <UTooltip text="Sync Temuan Otomatis dari KKA & Fieldwork">
                 <UButton
                   color="primary"
@@ -155,40 +177,31 @@
                   @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
                 />
               </UTooltip>
-              <UTooltip text="Edit">
+              <UTooltip text="Lihat Detail LHA">
                 <UButton
-                  color="warning"
+                  color="info"
                   variant="ghost"
-                  icon="i-lucide-edit"
+                  icon="i-lucide-eye"
                   size="md"
-                  @click="store.editReport(row.original as any)"
-                />
-              </UTooltip>
-              <UTooltip text="Cetak">
-                <UButton
-                  color="neutral"
-                  variant="ghost"
-                  icon="i-lucide-printer"
-                  size="md"
-                  @click="printReport(row.original as any)"
+                  @click="viewReportDetail(row.original as any)"
                 />
               </UTooltip>
             </div>
           </template>
-        </TableEntities>
+        </UTable>
       </UCard>
 
-      <div v-else class="text-center py-16 bg-gray-50 dark:bg-gray-850/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800">
-        <div class="p-4 bg-primary-50 dark:bg-primary-950/40 rounded-full w-fit mx-auto mb-4 text-primary-600">
+      <div v-else class="text-center py-16 bg-secondary-50/40 dark:bg-secondary-950/30 rounded-xl border-2 border-dashed border-secondary-200 dark:border-secondary-900/50">
+        <div class="p-4 bg-secondary-100 dark:bg-secondary-900/40 rounded-full w-fit mx-auto mb-4 text-secondary-600 dark:text-secondary-400">
           <UIcon name="i-heroicons-sparkles" class="size-12" />
         </div>
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Belum Ada Laporan Hasil Audit (LHA)</h3>
-        <p class="text-gray-500 mt-2 max-w-md mx-auto mb-6 text-sm">
+        <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto mb-6 text-sm">
           Belum ada laporan yang dibuat untuk surat tugas ini. Anda dapat membuat laporan dengan temuan audit yang langsung terisi otomatis dari modul KKA dan Fieldwork.
         </p>
         <div class="flex justify-center gap-3">
           <UButton
-            color="primary"
+            color="secondary"
             icon="i-heroicons-sparkles"
             label="Buat Laporan dengan Temuan Otomatis"
             size="lg"
@@ -210,18 +223,69 @@
 
     <!-- Report Form Modal -->
     <ResultReportForm />
+
+    <!-- Detail LHA Modal (View only, without signature section) -->
+    <ResultReportDetailModal
+      v-model:open="showDetailModal"
+      :report="selectedDetailReport"
+      @print="handlePrintFromDetail"
+    />
+
+    <!-- Official LHA Document Print & Preview Modal 
+    <ResultReportPrintModal
+      v-model:open="showPrintModal"
+      :report="selectedPrintReport"
+    /> -->
   </div>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { useI18n } from '~/composables/useI18n'
+import { isLhaApproved } from '~/utils/actionTakenReport'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ResultReportForm from '~/components/audit-result-report/ResultReportForm.vue'
+import ResultReportDetailModal from '~/components/audit-result-report/ResultReportDetailModal.vue'
+import ResultReportPrintModal from '~/components/audit-result-report/ResultReportPrintModal.vue'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const store = useAuditResultReportStore()
+const assignmentLetterStore = useAssignmentLetterStore()
 const { canImportPlanDocs } = useRbac()
 const toast = useToastNotification()
+const atrStore = useActionTakenReportStore()
+const { t } = useI18n()
+
+// ATR count per approved LHA for the "View follow-ups (N)" button (null = could not be loaded).
+const atrCounts = ref<Record<string, number | null>>({})
+watch(
+  () => store.filteredReports.filter(r => isLhaApproved(r.status)).map(r => r.id),
+  async (ids) => {
+    for (const id of ids) {
+      if (!id || id in atrCounts.value) continue
+      atrCounts.value[id] = null
+      atrCounts.value[id] = await atrStore.countForLha(id)
+    }
+  },
+  { immediate: true }
+)
+const followUpLabel = (id: string) => {
+  const count = atrCounts.value[id]
+  return typeof count === 'number' ? t('auditResultReport.followUp.view', { count }) : t('auditResultReport.followUp.viewNoCount')
+}
+
+const showDetailModal = ref(false)
+const selectedDetailReport = ref<any>(null)
+const showPrintModal = ref(false)
+const selectedPrintReport = ref<any>(null)
+
+onMounted(() => {
+  assignmentLetterStore.fetchAssignmentLetters()
+  store.fetchReports()
+})
 
 const columns = [
   { accessorKey: 'reportNumber', header: 'No. LHA / ID' },
@@ -230,7 +294,7 @@ const columns = [
   { accessorKey: 'findingsCount', header: 'Findings' },
   { accessorKey: 'category', header: 'Category' },
   { accessorKey: 'listOfFinding', header: 'List of Finding' },
-  { accessorKey: 'action', header: 'Action' },
+  { accessorKey: 'action', header: 'Action Plan' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'actions', header: '' }
 ]
@@ -265,8 +329,18 @@ const syncReportFindings = async (report: any) => {
   await store.runAutoDetectFindings('merge')
 }
 
+const viewReportDetail = (report: any) => {
+  selectedDetailReport.value = report
+  showDetailModal.value = true
+}
+
+const handlePrintFromDetail = (report: any) => {
+  showDetailModal.value = false
+  printReport(report)
+}
+
 const printReport = (report: any) => {
-  toast.showSuccess(`Printing report: ${report.reportTitle}`)
+  selectedPrintReport.value = report
+  showPrintModal.value = true
 }
 </script>
-

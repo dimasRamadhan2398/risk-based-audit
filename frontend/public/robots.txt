@@ -1,2 +1,4 @@
+# Crawling is allowed on purpose: Googlebot must be able to fetch pages to see the
+# noindex header/meta (nuxt.config.ts). Disallow here would keep URLs in the index.
 User-agent: *
-Disallow: /
+Allow: /

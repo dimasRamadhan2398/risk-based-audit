@@ -30,27 +30,43 @@ func NewAuthMiddleware(secret string) *AuthMiddleware {
 // Authenticate validates the JWT token
 func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		tokenString := ""
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
+		if authHeader != "" {
+			parts := strings.Split(authHeader, " ")
+			if len(parts) == 2 && parts[0] == "Bearer" {
+				tokenString = parts[1]
+			}
+		}
+
+		if tokenString == "" {
+			tokenString = c.Query("token")
+		}
+
+		if tokenString == "" {
+			if cookie, err := c.Cookie("auth_token"); err == nil && cookie != "" {
+				tokenString = cookie
+			} else if cookie, err := c.Cookie("token"); err == nil && cookie != "" {
+				tokenString = cookie
+			}
+		}
+
+		if tokenString == "" {
 			response.Unauthorized(c, "Missing authorization header")
 			c.Abort()
 			return
 		}
 
-		// Extract token from "Bearer <token>"
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			response.Unauthorized(c, "Invalid authorization format")
-			c.Abort()
-			return
-		}
-
-		tokenString := parts[1]
-
 		// Parse and validate token
+		// Pin the signing method: without WithValidMethods a token is only as
+		// trustworthy as the weakest algorithm the library will accept.
+		// ExpirationRequired rejects tokens that simply omit "exp".
 		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(m.secret), nil
-		})
+		},
+			jwt.WithValidMethods([]string{"HS256"}),
+			jwt.WithExpirationRequired(),
+		)
 
 		if err != nil || !token.Valid {
 			response.Unauthorized(c, "Invalid or expired token")

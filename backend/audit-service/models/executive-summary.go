@@ -9,6 +9,7 @@ import (
 
 type ExecutiveSummary struct {
 	ID                  uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	AssignmentLetterID  string         `gorm:"type:varchar(100)" json:"assignmentLetterId"`
 	Quarter             int            `gorm:"type:int" json:"quarter"` // 1, 2, 3, 4
 	PeriodeBulan        string         `gorm:"type:varchar(50)" json:"periodeBulan"`
 	Tahun               int            `gorm:"type:int" json:"tahun"`
@@ -46,3 +47,11 @@ type ExecutiveSummary struct {
 	UpdatedAt           time.Time      `json:"updated_at"`
 	DeletedAt           gorm.DeletedAt `gorm:"index" json:"-"`
 }
+
+func (e *ExecutiveSummary) BeforeCreate(tx *gorm.DB) (err error) {
+	if e.ID == uuid.Nil {
+		e.ID = uuid.New()
+	}
+	return
+}
+

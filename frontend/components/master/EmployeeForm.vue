@@ -1,5 +1,10 @@
 <template>
-  <UModal v-model:open="store.showModal" dismissible :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }">
+  <UModal
+    v-model:open="store.showModal"
+    dismissible
+    @update:open="(val: boolean) => { if (!val) store.closeModal() }"
+    :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }"
+  >
     <template #content>
       <UForm :state="store.form" @submit.prevent="store.handleSubmit">
         <div class="relative bg-[var(--bg-main)] rounded-xl shadow-2xl flex flex-col max-h-[90vh] border border-[var(--border-main)] transition-colors duration-300">
@@ -12,11 +17,14 @@
                 {{ store.isEditing ? 'Edit Employee' : 'Add New Employee' }}
               </h3>
             </div>
-            <UIcon
-              name="i-heroicons-x-mark"
+            <button
+              type="button"
               @click="store.closeModal"
-              class="text-primary-400 hover:text-primary-600 text-2xl cursor-pointer"
-            />
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-lg focus:outline-none"
+              aria-label="Close modal"
+            >
+              <UIcon name="i-heroicons-x-mark" class="text-2xl" />
+            </button>
           </div>
 
           <!-- Body -->
@@ -164,8 +172,10 @@
                     :items="workLocationItems"
                     value-key="value"
                     :loading="options.loading"
+                    :clear="true"
                     placeholder="Select work location (optional)"
                     class="w-full"
+                    @update:model-value="onWorkLocationChange"
                   />
                 </UFormField>
 
@@ -175,8 +185,10 @@
                     :items="managerItems"
                     value-key="value"
                     :loading="options.loading"
+                    :clear="true"
                     placeholder="Select manager (optional)"
                     class="w-full"
+                    @update:model-value="onManagerChange"
                   />
                 </UFormField>
               </div>
@@ -231,6 +243,7 @@
               label="Cancel"
               color="neutral"
               variant="soft"
+              type="button"
               @click="store.closeModal"
             />
             <UButton
@@ -254,7 +267,19 @@ const store = useEmployeeStore()
 const options = useMasterOptionsStore()
 
 // Optional relations get an explicit empty choice so they can be cleared again.
-const noneOption = { label: '— None —', value: '' }
+const noneOption = { label: '— None —', value: '__none__' }
+
+const onWorkLocationChange = (val: any) => {
+  if (!val || val === '__none__') {
+    store.form.work_location_id = ''
+  }
+}
+
+const onManagerChange = (val: any) => {
+  if (!val || val === '__none__') {
+    store.form.manager_id = ''
+  }
+}
 
 const workLocationItems = computed(() => [noneOption, ...options.locationOptions])
 

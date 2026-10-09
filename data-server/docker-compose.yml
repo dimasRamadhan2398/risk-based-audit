@@ -1,6 +1,6 @@
 # ============================================================================
 # AuditSphere Data Hub — Docker Compose
-# 6 Services: Nginx, CBS Sim, Data Lake, Data Hub API, CAATT Engine, AI Engine
+# 7 Services: Nginx, CBS Sim, TimescaleDB Data Lake, Data Hub API, Worker, CAATT, AI
 # ============================================================================
 
 services:
@@ -20,7 +20,7 @@ services:
       - auditsphere_data_net
     restart: unless-stopped
 
-  # ─── 2. PostgreSQL: CBS Simulator ──────────────────────────────────────────
+  # ─── 2. PostgreSQL: CBS Simulator (Demo Profile) ───────────────────────────
   postgres-cbs-sim:
     image: postgres:16-alpine
     container_name: auditsphere_cbs
@@ -46,10 +46,11 @@ services:
         reservations:
           memory: 256M
 
-  # ─── 3. PostgreSQL: Data Lake (Bronze / Silver / Gold) ─────────────────────
+  # ─── 3. TimescaleDB: Data Lakehouse (Bronze / Silver / Gold / Ops) ─────────
   postgres-datalake:
-    image: postgres:16-alpine
+    image: timescale/timescaledb:2.17.2-pg16
     container_name: auditsphere_datalake
+    shm_size: 1gb
     environment:
       POSTGRES_USER: ${DATALAKE_POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${DATALAKE_POSTGRES_PASSWORD}
@@ -57,9 +58,15 @@ services:
       ETL_USER_PASSWORD: ${ETL_USER_PASSWORD}
       AUDITOR_AI_PASSWORD: ${AUDITOR_AI_PASSWORD}
       DATAHUB_API_PASSWORD: ${DATAHUB_API_PASSWORD}
+      HARDWARE_PROFILE: ${HARDWARE_PROFILE:-auto}
     volumes:
       - datalake_data:/var/lib/postgresql/data
       - ./init-datalake.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./postgres/postgresql.base.conf:/etc/postgresql/postgresql.conf:ro
+      - ./postgres/autotune.sh:/docker-custom/autotune.sh:ro
+      - ./postgres/entrypoint.sh:/docker-custom/entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/docker-custom/entrypoint.sh"]
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     networks:
       - auditsphere_data_net
     healthcheck:
@@ -71,9 +78,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 768M
+          memory: 3500M
         reservations:
-          memory: 512M
+          memory: 1024M
 
   # ─── 4. Data Hub API (FastAPI REST Gateway) ────────────────────────────────
   data-hub-api:
@@ -89,13 +96,15 @@ services:
       API_KEY: ${DATA_HUB_API_KEY}
       ETL_USER: etl_user
       ETL_USER_PASSWORD: ${ETL_USER_PASSWORD}
+      HARDWARE_PROFILE: ${HARDWARE_PROFILE:-auto}
+      AI_ENGINE_URL: "http://ai-engine:8000"
+      AI_ENGINE_API_KEY: ${AI_ENGINE_API_KEY}
       PYTHONUNBUFFERED: "1"
     volumes:
       - hub_data:/app/data
+      - ./migrations:/app/migrations:ro
     depends_on:
       postgres-datalake:
-        condition: service_healthy
-      postgres-cbs-sim:
         condition: service_healthy
     networks:
       - auditsphere_data_net
@@ -107,7 +116,37 @@ services:
         reservations:
           memory: 256M
 
-  # ─── 5. CAATT Engine (JupyterLab + dlt + 11 Techniques) ───────────────────
+  # ─── 5. Data Hub Background Pipeline Worker (Streaming + Ingest Queue) ────
+  datahub-worker:
+    build:
+      context: ./data-hub-api
+      dockerfile: Dockerfile
+    container_name: auditsphere_datahub_worker
+    command: ["python", "worker.py"]
+    environment:
+      DATABASE_URL: "postgresql://${DATALAKE_POSTGRES_USER:-postgres}:${DATALAKE_POSTGRES_PASSWORD}@postgres-datalake:5432/${DATALAKE_POSTGRES_DB:-auditsphere_datalake}"
+      CBS_DATABASE_URL: "postgresql://${CBS_POSTGRES_USER:-postgres}:${CBS_POSTGRES_PASSWORD}@postgres-cbs-sim:5432/${CBS_POSTGRES_DB:-cbs_simulator}"
+      HARDWARE_PROFILE: ${HARDWARE_PROFILE:-auto}
+      AI_ENGINE_URL: "http://ai-engine:8000"
+      AI_ENGINE_API_KEY: ${AI_ENGINE_API_KEY}
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - hub_data:/app/data
+      - ./migrations:/app/migrations:ro
+    depends_on:
+      postgres-datalake:
+        condition: service_healthy
+    networks:
+      - auditsphere_data_net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 256M
+
+  # ─── 6. CAATT Engine (JupyterLab + Interactive Notebooks) ──────────────────
   caatt-engine:
     build:
       context: .
@@ -133,8 +172,6 @@ services:
     depends_on:
       postgres-datalake:
         condition: service_healthy
-      postgres-cbs-sim:
-        condition: service_healthy
     networks:
       - auditsphere_data_net
     restart: unless-stopped
@@ -143,9 +180,9 @@ services:
         limits:
           memory: 1G
         reservations:
-          memory: 768M
+          memory: 512M
 
-  # ─── 6. AI Engine (FastAPI + PyTorch + XGBoost) ────────────────────────────
+  # ─── 7. AI Engine (FastAPI + PyTorch + XGBoost Inference) ──────────────────
   ai-engine:
     build:
       context: ./ai-engine
@@ -170,9 +207,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
+          memory: 1500M
         reservations:
-          memory: 1G
+          memory: 512M
 
 # ─── Networks ────────────────────────────────────────────────────────────────
 networks:

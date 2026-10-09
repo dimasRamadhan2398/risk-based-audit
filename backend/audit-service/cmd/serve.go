@@ -95,7 +95,29 @@ func runServe(cmd *cobra.Command, args []string) error {
 		&models.FieldworkInterview{},
 		&models.FieldworkObservation{},
 		&models.FieldworkDocument{},
+		// Activity ID counter (pkg/activitycode); created here too so a deploy
+		// that skips migrate/seed does not break creating activities.
+		&models.ActivityCodeSequence{},
+		&models.AuditResultReport{},
 	)
+
+	// Ensure columns in audit_result_reports exist
+	db.Exec(`
+		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signature_place varchar(100);
+		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signature_date timestamp with time zone;
+		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signatures text;
+	`)
+
+	// Action taken reports: new LHA-bound layout, legacy columns dropped, ATRs
+	// of approved LHAs created. Idempotent; tenant stacks start with "serve"
+	// only, so this cannot be left to "migrate up" (see migrateATR).
+	if err := migrateATR(db); err != nil {
+		logger.Error("Action taken report migration failed; the ATR endpoints and LHA approval may fail until it succeeds",
+			logger.LogField("error", err))
+	}
+
+	// Ensure population column in working_paper_samples is varchar(255)
+	db.Exec("ALTER TABLE working_paper_samples ALTER COLUMN population TYPE varchar(255) USING population::varchar;")
 
 	// Initialize Redis
 	redisClient, err := redis.NewRedisConnection(&cfg.Redis)
@@ -125,8 +147,13 @@ func runServe(cmd *cobra.Command, args []string) error {
 	auditActivityRepo := repositories.NewAuditActivityRepository(baseRepo)
 
 	// Initialize Media Provider
+	// Priority: ImageKit (env) → GDrive (config) → Local
 	var mediaProvider media.MediaProvider
-	if cfg.GDrive.Enabled {
+	if cfg.ImageKit.PrivateKey != "" && cfg.ImageKit.UrlEndpoint != "" {
+		mediaProvider = media.NewImageKitProvider(&cfg.ImageKit)
+		logger.Info("Using ImageKit as media provider",
+			logger.LogField("endpoint", cfg.ImageKit.UrlEndpoint))
+	} else if cfg.GDrive.Enabled {
 		var err error
 		mediaProvider, err = media.NewGDriveProvider(&cfg.GDrive)
 		if err != nil {
@@ -173,9 +200,12 @@ func runServe(cmd *cobra.Command, args []string) error {
 	engine.Use(gin.Recovery())
 	engine.Use(middleware.CORSMiddleware())
 	engine.Use(middleware.LoggerMiddleware())
+	// Add response caching middleware for dashboard endpoints
+	engine.Use(middleware.ResponseCache())
 
-	// Serve static uploads
-	engine.Static("/uploads", "./uploads")
+	// Serve static uploads, except private subdirectories such as ATR evidence
+	// (./uploads/action-taken-reports), which only the authenticated API serves
+	routes.RegisterUploads(engine, "./uploads")
 
 	// Health check endpoint
 	engine.GET("/health", func(c *gin.Context) {

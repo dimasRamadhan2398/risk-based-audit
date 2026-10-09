@@ -1,4 +1,11 @@
 {
+  "actions": {
+    "view": "Lihat",
+    "edit": "Ubah",
+    "delete": "Hapus",
+    "download": "Unduh",
+    "upload": "Unggah"
+  },
   "assignmentLetterPublish": {
     "title": "Publish surat tugas \"{number}\"?",
     "confirmQuestion": "Apakah Anda yakin ingin menyimpan dan mem-publish data ini?",
@@ -128,15 +135,15 @@
     "save": "Simpan",
     "cancel": "Batal",
     "delete": "Hapus",
-    "edit": "Edit",
+    "edit": "Ubah",
     "view": "Lihat",
     "close": "Tutup",
-    "submit": "Kirim",
+    "submit": "Simpan",
     "update": "Perbarui",
     "updateData": "Perbarui Data",
     "search": "Cari",
     "loading": "Memuat...",
-    "error": "Error",
+    "error": "Gagal",
     "success": "Berhasil",
     "warning": "Peringatan",
     "info": "Informasi",
@@ -146,10 +153,50 @@
     "back": "Kembali",
     "readMore": "Baca selengkapnya",
     "readLess": "Sembunyikan",
-    "unknown": "Tidak Diketahui"
+    "unknown": "Tidak Diketahui",
+    "create": "Tambah",
+    "quickTip": {
+      "title": "Tips Cepat",
+      "desc": "Informasi panduan praktis"
+    },
+    "actions": {
+      "view": "Lihat",
+      "edit": "Ubah",
+      "delete": "Hapus",
+      "download": "Unduh",
+      "upload": "Unggah"
+    }
+  },
+  "dashboard": {
+    "planningExecution": {
+      "title": "Perencanaan & Pelaksanaan Audit",
+      "coverageTitle": "Cakupan Perencanaan Audit",
+      "executionTitle": "Status Pelaksanaan Audit",
+      "configure": "Konfigurasi"
+    },
+    "registeredRisks": {
+      "columns": {
+        "level": "Tingkat Risiko"
+      }
+    },
+    "recentFindings": {
+      "title": "Temuan Audit Terbaru",
+      "empty": "Belum ada temuan audit yang tercatat.",
+      "error": "Gagal memuat temuan terbaru.",
+      "columns": {
+        "finding": "Temuan Audit",
+        "category": "Kategori Temuan"
+      },
+      "categories": {
+        "verySignificant": "Sangat Signifikan",
+        "significant": "Signifikan",
+        "quiteSignificant": "Cukup Signifikan",
+        "notSignificant": "Tidak Signifikan"
+      }
+    }
   },
   "auditExecution": {
-    "title": "Status Eksekusi Audit",
+    "title": "Audit Execution Status",
     "subtitle": "Transparansi progres & tahapan siklus audit dari perencanaan hingga penyelesaian LHA.",
     "cycleGuideButton": "Panduan Siklus Audit",
     "summary": {
@@ -251,14 +298,14 @@
       "faq": "FAQ / Bantuan"
     },
     "titles": {
-      "profile": "Profil Saya",
-      "settings": "Pengaturan Umum",
-      "mfa": "Autentikasi Dua Faktor (MFA)",
-      "activity": "Aktivitas Perangkat",
-      "permissions": "Pengaturan Hak Akses & Role",
-      "datasource": "Koneksi Sumber Data Audit",
-      "email": "Layanan Pengirim Email (Resend API)",
-      "faq": "Frequently Asked Questions (FAQ)"
+      "profile": "My Profile",
+      "settings": "Settings",
+      "mfa": "Two-Factor Authentication (MFA)",
+      "activity": "Activity",
+      "permissions": "Permissions",
+      "datasource": "Data Source Connections",
+      "email": "Email Dispatcher (Resend API)",
+      "faq": "FAQ"
     },
     "general": {
       "cardTitle": "Pengaturan Umum",
@@ -304,7 +351,7 @@
       "subtitle": "Kelola detail akun pribadi dan preferensi Anda.",
       "changePhoto": "Ubah Foto",
       "remove": "Hapus Foto",
-      "fileLimits": "JPG, PNG, WebP atau GIF. Maksimal {size}MB.",
+      "fileLimits": "JPG, PNG atau WebP. Maksimal {size}MB. Foto akan dipotong menjadi persegi dan diperkecil secara otomatis.",
       "fullName": "Nama Lengkap",
       "fullNameHelp": "Nama tampilan Anda yang terlihat di seluruh aplikasi.",
       "fullNamePlaceholder": "Masukkan nama lengkap Anda",
@@ -327,7 +374,19 @@
       "toastErrorDesc": "Terjadi kesalahan saat menyimpan profil.",
       "unsupportedFormat": "Format tidak didukung. Diterima: {formats}",
       "fileTooLarge": "File terlalu besar. Ukuran maksimum adalah {size}MB.",
-      "readFileFailed": "Gagal membaca file. Silakan coba lagi."
+      "readFileFailed": "Gagal membaca file. Silakan coba lagi.",
+      "avatarInvalidType": "Format tidak didukung. Silakan pilih gambar JPG, PNG, atau WebP.",
+      "avatarTooLargeInput": "Ukuran file terlalu besar. Ukuran maksimal adalah {size}MB.",
+      "avatarReadFailed": "Gagal membaca gambar. Silakan pilih file lain.",
+      "avatarTooLargeOutput": "Foto masih terlalu besar setelah diperkecil. Silakan pilih gambar yang lebih sederhana.",
+      "avatarRejected": "Server menolak foto tersebut. Silakan pilih gambar JPG, PNG, atau WebP yang lain.",
+      "avatarReady": "{name} siap digunakan. Klik Simpan Perubahan untuk menerapkannya.",
+      "avatarRemovePending": "Foto akan dihapus setelah Anda mengklik Simpan Perubahan.",
+      "avatarProcessing": "Memproses foto...",
+      "departmentSearchPlaceholder": "Cari departemen...",
+      "departmentsEmpty": "Departemen tidak ditemukan",
+      "departmentsLoadFailed": "Daftar departemen tidak dapat dimuat.",
+      "departmentsRetry": "Coba lagi"
     },
     "mfa": {
       "title": "Autentikasi Dua Faktor (2FA / MFA)",
@@ -634,11 +693,26 @@
     }
   },
   "strategicPlan": {
-    "title": "Rencana Strategis Audit Internal",
+    "title": "Strategic Plan Internal Audit",
     "subtitle": "Perencanaan Strategis untuk Audit Berbasis Risiko",
     "addObjective": "Tambah Strategic Objective",
     "importDocument": "Impor Dokumen",
     "errorTitle": "Gagal",
+    "toast": {
+      "validationTitle": "Validasi Gagal",
+      "objectiveRequired": "Kolom Strategic Objective (Tujuan Strategis) harus diisi.",
+      "updatedTitle": "Rencana Strategis Diperbarui",
+      "createdTitle": "Rencana Strategis Dibuat",
+      "savedDesc": "Rencana Strategis \"{name}\" berhasil disimpan.",
+      "saveFailedTitle": "Gagal Menyimpan Rencana Strategis",
+      "saveFailedFallback": "Gagal menyimpan rencana strategis.",
+      "loadOneFailed": "Gagal memuat rencana strategis.",
+      "confirmDelete": "Apakah Anda yakin ingin menghapus rencana strategis ini?",
+      "deletedTitle": "Rencana Strategis Dihapus",
+      "deletedDesc": "Data berhasil dihapus secara permanen.",
+      "deleteFailedTitle": "Gagal Menghapus Rencana Strategis",
+      "deleteFailedFallback": "Gagal menghapus rencana strategis."
+    },
     "vmg": {
       "title": "Visi, Misi, Goals dan Strategic Objective",
       "emptyTitle": "Visi, Misi, Goals dan Strategic Objective belum ditambahkan",
@@ -674,7 +748,6 @@
       "selectYear": "Pilih Tahun",
       "selectQuartal": "Pilih Kuartal",
       "reset": "Reset Filter",
-      "allObjectives": "Semua Strategic Objective",
       "allTypes": "Semua Jenis",
       "yearly": "Tahunan",
       "quartal": "Kuartal",
@@ -691,7 +764,8 @@
       "actual": "Realisasi",
       "calculation": "Hitungan",
       "status": "Keterangan",
-      "actions": "Aksi"
+      "actions": "Aksi",
+      "category": "Kategori"
     },
     "actions": {
       "title": "Aksi",
@@ -702,8 +776,6 @@
     },
     "form": {
       "title": "Tambahkan Informasi Strategic Objective",
-      "corporateGoal": "Goal Korporat",
-      "selectCorporateGoal": "Pilih Goal Korporat",
       "code": "ID Strategic Objective",
       "codePlaceholder": "Contoh: SO-IA01",
       "objective": "Strategic Objective",
@@ -735,7 +807,9 @@
       "status": "Keterangan",
       "cancel": "Batal",
       "submit": "Simpan",
-      "update": "Perbarui"
+      "update": "Perbarui",
+      "category": "Kategori",
+      "selectCategory": "Pilih kategori (opsional)"
     },
     "viewModal": {
       "title": "Detail Strategic Objective",
@@ -765,7 +839,7 @@
       "planned": "Direncanakan"
     },
     "upload": {
-      "title": "Impor Rencana Audit Strategis",
+      "title": "Import Strategic Audit Plan",
       "subtitle": "Impor dokumen Rencana Audit Strategis eksternal",
       "formTitle": "Impor Dokumen Rencana Audit Strategis",
       "documentTitle": "Judul Dokumen",
@@ -797,7 +871,7 @@
     }
   },
   "riskFactors": {
-    "title": "Faktor Risiko & Pengaturan Pembobotan",
+    "title": "Risk Factors & Scoring Settings",
     "subtitle": "Konfigurasi bobot risiko dan lakukan penilaian area kerja.",
     "backToHeatmap": "Kembali ke Heat Map",
     "tabs": {
@@ -919,8 +993,57 @@
       "5": "Tinggi (5)"
     }
   },
+  "auditUniverse": {
+    "title": "Konfigurasi Audit Universe",
+    "subtitle": "Kelola pustaka Audit Universe Korporat Anda dan tetapkan entitas aktif untuk perencanaan tahunan.",
+    "backToHeatmap": "Kembali ke Heat Map",
+    "tabs": {
+      "library": "1. Penyusun Audit Universe Korporat",
+      "establish": "2. Penetapan Tahunan"
+    },
+    "library": {
+      "standardTitle": "Pustaka Audit Universe Standar",
+      "standardSubtitle": "Pilih entitas standar untuk dimasukkan ke dalam Audit Universe Korporat Anda.",
+      "corporateTitle": "Audit Universe Korporat",
+      "addCustomEntity": "Tambah Entitas Kustom",
+      "entityCount": "{count} Entitas",
+      "addSubEntity": "Tambah Sub Entitas",
+      "renameParentEntity": "Ubah Nama Entitas Induk",
+      "deleteParentEntity": "Hapus Entitas Induk",
+      "renameSubEntity": "Ubah Nama Sub Entitas",
+      "deleteSubEntity": "Hapus Sub Entitas",
+      "emptyState": "Audit Universe Korporat masih kosong. Pilih dari pustaka standar atau tambahkan entitas kustom."
+    },
+    "establish": {
+      "title": "📅 2. Tetapkan Audit Universe {year}",
+      "subtitle": "Pilih Entitas Auditee dari Audit Universe Korporat yang aktif untuk diaudit pada tahun {year}.",
+      "targetYear": "Tahun Target:",
+      "establishBtn": "Tetapkan Universe Aktif"
+    },
+    "modals": {
+      "renameTitle": "Ubah Nama Entitas",
+      "entityNameLabel": "Nama Entitas",
+      "entityNamePlaceholder": "Masukkan nama entitas",
+      "entityNameValidation": "Nama entitas maksimal 100 karakter dan wajib diisi",
+      "addSubEntityTitle": "Tambah Sub-Entitas",
+      "addCustomEntityTitle": "Tambah Entitas Korporat Kustom",
+      "nameLabel": "Nama",
+      "namePlaceholder": "Masukkan nama...",
+      "addNode": "Tambah Node",
+      "cancel": "Batal",
+      "save": "Simpan"
+    },
+    "messages": {
+      "entityRenamed": "Nama entitas korporat berhasil diperbarui.",
+      "entityAdded": "Entitas korporat kustom berhasil ditambahkan.",
+      "deleteConfirmDesc": "Apakah Anda yakin ingin menghapus entitas ini dari Audit Universe Korporat? Tindakan ini akan menghapus seluruh sub-entitas dan data penetapan tahunan terkait.",
+      "entityDeleted": "Entitas berhasil dihapus dari pustaka korporat.",
+      "establishSuccess": "Berhasil menetapkan Audit Universe aktif untuk tahun {year}.",
+      "establishFailed": "Gagal menetapkan audit universe tahunan."
+    }
+  },
   "auditPriority": {
-    "title": "Prioritas Audit",
+    "title": "Audit Priority",
     "subtitle": "Prioritas Rencana Audit Tahunan berdasarkan tingkat risiko yang dihitung.",
     "backToHeatmap": "Kembali ke Heat Map",
     "goToUniverse": "Universe Audit",
@@ -1070,7 +1193,8 @@
     "sample": {
       "title": "Data Sampel",
       "subtitle": "Kelola data sampel untuk pengujian audit",
-      "addBtn": "Tambah Sampel",
+      "documentListLabel": "Daftar Sampel Dokumen",
+      "addBtn": "Tambah Sampel Dokumen",
       "empty": "Belum ada data sampel",
       "modalAdd": "Formulir Data Sampel",
       "modalEdit": "Ubah Data Sampel",
@@ -1082,11 +1206,13 @@
       "date": "Tanggal",
       "description": "Deskripsi",
       "descriptionPlaceholder": "Jelaskan isi atau rincian sampel ini",
+      "uploadFile": "Unggah Berkas Dokumen",
       "columns": {
         "name": "Nama Dokumen",
         "number": "Nomor Dokumen",
         "date": "Tanggal",
         "description": "Deskripsi",
+        "file": "Dokumen Lampiran",
         "actions": "Aksi"
       }
     },
@@ -1135,102 +1261,108 @@
     }
   },
   "riskProfile": {
-    "title": "Profil Risiko Perusahaan",
-    "subtitle": "Heat Map Risiko Interaktif — Tahun Buku {year} ({period})",
+    "title": "Corporate Risk Profile",
+    "subtitle": "Profil Risiko Perusahaan Tahun Anggaran {year} - {period}",
     "total": "Total",
     "priority": "Prioritas",
     "addRisk": "Tambah Risiko",
-    "filterBranch": "Filter Cabang/Dept",
-    "allBranches": "Semua Cabang",
-    "fiscalYear": "Tahun Buku",
+    "filterBranch": "Filter Cabang",
+    "fiscalYear": "Tahun Anggaran",
     "period": "Periode",
     "riskLevels": "Tingkat Risiko",
-    "likelihoodLevel": "TINGKAT KEMUNGKINAN",
-    "impactLevel": "TINGKAT DAMPAK",
+    "likelihoodLevel": "Tingkat Kemungkinan",
+    "impactLevel": "Tingkat Dampak",
+    "allBranches": "Semua Cabang",
+    "unassignedBranch": "Belum Ditentukan",
+    "selectBranch": "Pilih cabang",
+    "branchesLoadError": "Gagal memuat data cabang dari master Lokasi.",
+    "noBranches": "Belum ada cabang aktif di master Lokasi.",
+    "risksLoadError": "Gagal memuat data risiko",
+    "retry": "Coba Lagi",
+    "addModal": {
+      "title": "Tambah Kejadian Risiko",
+      "desc": "Tentukan kejadian risiko baru dan penilaian awal kuartalannya.",
+      "name": "Nama Risiko",
+      "namePlaceholder": "Masukkan nama risiko",
+      "category": "Kategori",
+      "branch": "Cabang / Divisi",
+      "quarterlyTitle": "Skor Residu Kuartalan {year}",
+      "impact": "Dampak",
+      "likelihood": "Kemungkinan",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Jelaskan konteks, penyebab, dan dampak risiko",
+      "saveBtn": "Simpan Kejadian Risiko"
+    },
     "quickTip": {
       "title": "Tips Cepat",
-      "desc": "Tarik dan lepas risiko untuk memperbarui statusnya. Ganti kuartal untuk memantau perubahan risiko dari waktu ke waktu."
-    },
-    "tabs": {
-      "priority": "Risiko Prioritas ({count})",
-      "all": "Semua Risiko ({count})",
-      "progress": "Tabel Perkembangan Risiko"
+      "desc": "Geser dan lepas lencana risiko untuk menyesuaikan kemungkinan atau dampaknya. Skor risiko akan diperbarui secara otomatis."
     },
     "table": {
       "no": "No",
-      "riskEvent": "Peristiwa Risiko",
+      "riskEvent": "Kejadian Risiko",
       "impactScale": "Skala Dampak",
       "likelihoodScale": "Skala Kemungkinan",
-      "riskLevel": "Level Risiko"
+      "riskLevel": "Tingkat Risiko"
     },
-    "addModal": {
-      "title": "Tambah Risiko Perusahaan Baru",
-      "desc": "Masukkan rincian risiko baru yang akan ditambahkan ke heat map.",
-      "name": "Nama Risiko",
-      "namePlaceholder": "Contoh: Target pendapatan dan laba tidak tercapai",
-      "category": "Kategori",
-      "branch": "Cabang / Departemen",
-      "quarterlyTitle": "Pelacakan Skor Residual Triwulanan (FY {year})",
-      "impact": "Dampak",
-      "likelihood": "Kemungkinan",
-      "description": "Deskripsi Risiko",
-      "descriptionPlaceholder": "Jelaskan risiko dan potensi dampaknya...",
-      "saveBtn": "Simpan Risiko"
+    "tabs": {
+      "priority": "Prioritas ({count})",
+      "all": "Semua Risiko ({count})",
+      "progress": "Kemajuan Kuartalan"
     },
-    "editModal": {
-      "title": "Ubah Risiko: {name}",
-      "titleDefault": "Ubah Risiko",
-      "desc": "Ubah parameter penilaian atau rincian skor triwulanan.",
-      "updateBtn": "Perbarui Risiko"
-    },
+    "emptyTitle": "Belum ada data risiko untuk tahun {year}",
+    "emptyDesc": "Data risiko 3 tahun ke depan dikosongkan dan harus diinput oleh user.",
+    "emptyDescNoData": "Belum ada risiko yang terdaftar. Tambahkan risiko untuk memulai.",
     "detailModal": {
-      "title": "Detail Risiko: # {id}",
-      "desc": "Data penilaian lengkap dan pengkategorian untuk peristiwa risiko ini.",
+      "title": "Detail Risiko - {id}",
+      "desc": "Tampilan komprehensif dari kejadian risiko dan penilaiannya.",
       "category": "Kategori",
       "riskLevel": "Tingkat Risiko",
-      "riskEventName": "Nama Peristiwa Risiko",
-      "impactPeriod": "Dampak ({period})",
-      "likelihoodPeriod": "Kemungkinan ({period})",
+      "riskEventName": "Nama Kejadian Risiko",
+      "impactPeriod": "Dampak (Periode {period})",
+      "likelihoodPeriod": "Kemungkinan (Periode {period})",
       "severityWeight": "Bobot Keparahan",
       "description": "Deskripsi",
-      "mitigationBtn": "Buka Rencana Mitigasi"
+      "mitigationBtn": "Lihat Rencana Mitigasi"
     },
-    "toasts": {
-      "validationError": "Kesalahan Validasi",
-      "nameRequired": "Nama risiko wajib diisi.",
-      "riskAdded": "Risiko Ditambahkan",
-      "riskAddedDesc": "\"{name}\" berhasil ditambahkan ke profil.",
-      "riskUpdated": "Risiko Diperbarui",
-      "riskUpdatedDesc": "Perubahan berhasil disimpan.",
-      "positionUpdated": "Posisi Risiko Diperbarui",
-      "positionUpdatedDesc": "\"{name}\" dipindahkan ke {l}×{i} untuk {period}",
-      "riskDeleted": "Risiko Dihapus",
-      "riskDeletedDesc": "\"{name}\" telah dihapus."
+    "editModal": {
+      "title": "Edit Risiko - {name}",
+      "titleDefault": "Edit Risiko",
+      "desc": "Ubah detail risiko dan sesuaikan penilaian kuartalan.",
+      "updateBtn": "Perbarui Risiko"
+    },
+    "riskLevelLabels": {
+      "low": "Rendah",
+      "low-moderate": "Rendah-Sedang",
+      "moderate": "Sedang",
+      "moderate-high": "Sedang-Tinggi",
+      "high": "Tinggi"
     },
     "impactLabels": {
-      "1": "Sangat Rendah",
-      "2": "Rendah",
+      "1": "Sangat Kecil",
+      "2": "Kecil",
       "3": "Sedang",
-      "4": "Tinggi",
-      "5": "Sangat Tinggi"
+      "4": "Besar",
+      "5": "Sangat Besar"
     },
     "likelihoodLabels": {
       "1": "Sangat Jarang",
       "2": "Jarang",
       "3": "Mungkin",
       "4": "Sering",
-      "5": "Hampir Pasti"
+      "5": "Sangat Sering"
     },
-    "riskLevelLabels": {
-      "low": "Rendah",
-      "low-moderate": "Rendah ke Sedang",
-      "moderate": "Sedang",
-      "moderate-high": "Sedang ke Tinggi",
-      "high": "Tinggi"
+    "toasts": {
+      "validationError": "Kesalahan Validasi",
+      "nameRequired": "Nama Risiko wajib diisi",
+      "riskAdded": "Risiko Ditambahkan",
+      "riskAddedDesc": "Berhasil menambahkan risiko baru: {name}",
+      "riskUpdated": "Risiko Diperbarui",
+      "riskUpdatedDesc": "Berhasil memperbarui detail risiko.",
+      "saveFailed": "Gagal menyimpan risiko. Silakan coba lagi."
     }
   },
   "analytics": {
-    "title": "Pusat Data Analitik",
+    "title": "Data Analytics Center",
     "subtitle": "Data Analitik Komperehensive menggunakan Engine CAATT & Engine AI",
     "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
     "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
@@ -1370,11 +1502,11 @@
     }
   },
   "annualAudit": {
-    "title": "Rencana Audit Tahunan",
+    "title": "Annual Audit Plan",
     "importPlanDocument": "Impor Dokumen Rencana",
     "newAuditPlan": "Rencana Audit Baru",
     "upload": {
-      "title": "Impor Rencana Audit Tahunan",
+      "title": "Import Annual Audit Plan",
       "subtitle": "Impor dokumen Rencana Audit Tahunan (PKPT) eksternal",
       "formTitle": "Impor Dokumen Rencana Audit Tahunan",
       "documentTitle": "Judul Dokumen",
@@ -1406,11 +1538,11 @@
     }
   },
   "assignmentLetter": {
-    "title": "Daftar Surat Tugas",
+    "title": "Assignment Letter List",
     "importDocument": "Impor Dokumen",
     "createAssignmentLetter": "Buat Surat Tugas",
     "upload": {
-      "title": "Impor Surat Tugas",
+      "title": "Import Assignment Letter",
       "subtitle": "Impor dokumen Surat Tugas / Assignment Letter eksternal",
       "formTitle": "Impor Dokumen Surat Tugas",
       "documentTitle": "Judul Dokumen",
@@ -1442,7 +1574,7 @@
     }
   },
   "auditActivityPlan": {
-    "title": "Rencana Aktivitas Audit",
+    "title": "Audit Activity Plan",
     "subtitle": "Kelola dan tinjau rencana aktivitas audit tahunan.",
     "importDocument": "Impor Dokumen",
     "createPlan": "Buat Rencana",
@@ -1453,7 +1585,10 @@
     "validation": {
       "basicInfo": "Harap isi semua kolom wajib pada informasi dasar (Judul Rencana, Tahun, Periode, Departemen).",
       "plannedActivities": "Harap tambahkan setidaknya satu aktivitas audit dengan Judul dan Auditee yang diisi.",
-      "reviewAndApproval": "Harap lengkapi rincian Pembuat dan Penyetuju (Nama, Jabatan, dan Tanggal Persetujuan)."
+      "reviewAndApproval": "Harap lengkapi nama dan jabatan Pembuat serta Penyetuju.",
+      "periodOrder": "Tanggal akhir periode harus sama dengan atau setelah tanggal mulai.",
+      "scheduleOutsidePeriod": "Aktivitas {num}: estimasi jadwal harus berada dalam periode rencana.",
+      "negativeNumber": "Aktivitas {num}: durasi, jumlah auditor, dan budget tidak boleh negatif."
     },
     "stepper": {
       "step1": "Info Dasar",
@@ -1469,6 +1604,7 @@
       "year": "Tahun",
       "period": "Periode",
       "department": "Departemen/Unit",
+      "activityId": "ID Aktivitas",
       "riskName": "Nama Risiko",
       "riskLevel": "Level Risiko",
       "attachment": "Lampiran",
@@ -1487,6 +1623,8 @@
       "plannedActivities": "Aktivitas Audit Direncanakan",
       "addAuditActivity": "Tambah Aktivitas Audit",
       "activityNum": "Aktivitas Audit {num}",
+      "activityId": "ID Aktivitas",
+      "activityIdPending": "Dibuat otomatis saat disimpan",
       "activityTitle": "Judul Aktivitas Audit",
       "createPlanTitle": "Buat Rencana Aktivitas Audit",
       "auditee": "Auditee",
@@ -1503,6 +1641,13 @@
       "estimatedSchedule": "Estimasi Jadwal/Waktu",
       "budgetEstimation": "Estimasi Budget",
       "millionRupiah": "Juta Rupiah",
+      "rupiah": "Rupiah",
+      "selectDepartment": "Pilih departemen",
+      "autoCalculated": "Dihitung otomatis dari estimasi budget aktivitas",
+      "allocatedBelowEstimate": "Budget yang dialokasikan lebih kecil dari total estimasi biaya.",
+      "autoFilledFromAccount": "Diisi otomatis dari akun Anda",
+      "attachedFiles": "File terlampir",
+      "uploadFailed": "Gagal mengunggah lampiran {name}.",
       "noActivitiesAdded": "Belum ada aktivitas audit yang ditambahkan.",
       "summaryOfActivities": "Ringkasan Aktivitas",
       "highRisk": "Risiko Tinggi",
@@ -1570,6 +1715,7 @@
       "close": "Tutup",
       "download": "Download",
       "columns": {
+        "activityId": "ID Aktivitas",
         "auditName": "Nama Audit",
         "auditee": "Auditee",
         "category": "Kategori",
@@ -1584,7 +1730,7 @@
       }
     },
     "upload": {
-      "title": "Impor Dokumen Rencana",
+      "title": "Import Plan Document",
       "subtitle": "Impor dokumen Rencana Aktivitas Audit eksternal",
       "formTitle": "Impor Dokumen Rencana",
       "documentTitle": "Judul Dokumen",
@@ -1625,7 +1771,7 @@
       "emptyTitle": "Belum Ada Audit Charter",
       "emptyDesc": "Audit Charter adalah dokumen formal yang mendefinisikan tujuan, wewenang, dan tanggung jawab fungsi Audit Internal. Unggah dokumen pertama Anda untuk memulai.",
       "uploadNew": "Unggah Audit Charter Baru",
-      "activeTitle": "Audit Charter Aktif",
+      "activeTitle": "Active Audit Charter",
       "addCharter": "Tambah Charter",
       "currentlyActive": "SAAT INI AKTIF",
       "uploadedBy": "Diupload Oleh",
@@ -1753,10 +1899,15 @@
       "viewSop": "Lihat Petunjuk Teknis / SOP",
       "editSop": "Edit Petunjuk Teknis / SOP",
       "deleteSop": "Hapus Petunjuk Teknis / SOP"
+    },
+    "errors": {
+      "downloadTitle": "Gagal mengunduh file Audit Charter",
+      "fileMissing": "File untuk charter ini sudah tidak ada di server. Muat ulang halaman; jika charter masih tampil, unggah ulang file melalui tombol Edit (atau minta pengelola charter untuk mengunggahnya).",
+      "download": "File tidak dapat diunduh. Silakan coba lagi beberapa saat lagi."
     }
   },
   "executiveSummaryUpload": {
-    "headerTitle": "Impor Ringkasan Eksekutif",
+    "headerTitle": "Import Executive Summary",
     "headerSubtitle": "Impor dokumen Ringkasan Eksekutif eksternal untuk Laporan Hasil Audit",
     "formHeader": "Impor Dokumen Ringkasan Eksekutif",
     "documentTitleLabel": "Judul Dokumen",
@@ -1883,7 +2034,7 @@
   },
   "auditAssignment": {
     "upload": {
-      "title": "Impor Penugasan Audit",
+      "title": "Import Audit Assignment",
       "subtitle": "Impor dokumen Penugasan Audit eksternal",
       "formTitle": "Impor Dokumen Penugasan Audit",
       "documentTitle": "Judul Dokumen",
@@ -1916,16 +2067,19 @@
   },
   "workingPaper": {
     "index": {
-      "title": "Buat Kertas Kerja",
-      "subtitle": "Buat dan kelola kertas kerja audit langkah demi langkah",
+      "title": "Create Working Paper",
+      "assignmentLetterLabel": "Surat Tugas",
+      "noAssignmentLetter": "Belum ada surat tugas yang dipilih.",
+      "goToFieldwork": "Pilih di Audit Fieldwork",
+      "selectLetterFirst": "Pilih surat tugas di Audit Fieldwork untuk menampilkan data.",
       "importButton": "Impor Kertas Kerja",
       "createButton": "Buat Kertas Kerja",
       "sections": {
-        "headerTitle": "Header Kertas Kerja Audit",
-        "riskTitle": "Risiko Kertas Kerja Audit",
-        "sampleTitle": "Sampel Kertas Kerja Audit",
-        "causeTitle": "Analisis Penyebab Kertas Kerja Audit",
-        "planTitle": "Rencana Aksi Kertas Kerja Audit"
+        "headerTitle": "Audit Working Paper Header",
+        "riskTitle": "Audit Working Paper Risk",
+        "sampleTitle": "Audit Working Paper Sample",
+        "causeTitle": "Audit Working Paper Cause Analysis",
+        "planTitle": "Audit Working Paper Action Plan"
       },
       "steps": {
         "header": {
@@ -1951,7 +2105,7 @@
       }
     },
     "upload": {
-      "title": "Impor Referensi Kertas Kerja",
+      "title": "Import Working Paper Reference",
       "subtitle": "Impor dokumen referensi Kertas Kerja (Working Paper) eksternal",
       "formTitle": "Impor Kertas Kerja",
       "documentTitle": "Judul Dokumen",
@@ -2035,11 +2189,27 @@
       "periodAction": "Periode Perencanaan",
       "updateData": "Perbarui Data",
       "submit": "Kirim"
+    },
+    "sampleTable": {
+      "emptyState": "Belum ada data tersimpan.",
+      "noDocumentName": "Tanpa Nama Dokumen",
+      "effective": "Efektif",
+      "ineffective": "Tidak Efektif",
+      "noSampleData": "Tidak ada data sampel",
+      "editSample": "Edit Sampel",
+      "deleteSample": "Hapus Sampel",
+      "columns": {
+        "population": "Total Populasi",
+        "sampleSize": "Sample Size",
+        "samples": "Sample List",
+        "conclusion": "Conclusion",
+        "actions": "Action"
+      }
     }
   },
   "consultingService": {
     "upload": {
-      "title": "Impor Dokumen Konsultasi",
+      "title": "Import Consulting Document",
       "subtitle": "Impor dokumen Layanan Konsultasi eksternal",
       "formTitle": "Impor Dokumen Konsultasi",
       "documentTitle": "Judul Dokumen",
@@ -2071,7 +2241,7 @@
     }
   },
   "executiveSummary": {
-    "title": "Executive Summary (LHA Kompilasi)",
+    "title": "Executive Summary (Compiled Audit Reports)",
     "subtitle": "Kompilasi Laporan Hasil Audit triwulanan untuk BOD & Komite Audit.",
     "importButton": "Impor Dokumen",
     "createNew": "Buat Laporan Kompilasi Baru",
@@ -2116,7 +2286,7 @@
       "createTitle": "Buat Laporan Kompilasi Baru"
     },
     "upload": {
-      "title": "Impor Laporan Ringkasan Eksekutif",
+      "title": "Import Executive Summary Report",
       "subtitle": "Impor dokumen Laporan Ringkasan Eksekutif kompilasi eksternal",
       "formTitle": "Impor Dokumen Laporan Ringkasan Eksekutif",
       "documentTitle": "Judul Dokumen",
@@ -2148,8 +2318,11 @@
     }
   },
   "auditResultReport": {
+    "form": {
+      "assignmentLetterRequired": "Pilih Surat Tugas terlebih dahulu sebelum menyimpan laporan."
+    },
     "upload": {
-      "title": "Impor Laporan Hasil Audit (LHA)",
+      "title": "Import Audit Result Report (LHA)",
       "subtitle": "Impor dokumen Laporan Hasil Audit (LHA) eksternal",
       "formTitle": "Impor Dokumen LHA",
       "documentTitle": "Judul Dokumen",
@@ -2178,11 +2351,22 @@
       },
       "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
       "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    },
+    "followUp": {
+      "tooltip": "Tindak lanjut (ATR) yang dibuat untuk temuan LHA ini",
+      "view": "Lihat Tindak Lanjut ({count})",
+      "viewNoCount": "Lihat Tindak Lanjut",
+      "createdTitle": "{count} tindak lanjut (ATR) dibuat",
+      "created": "Satu tindak lanjut dibuat untuk setiap temuan LHA ini.",
+      "noneTitle": "Tidak ada tindak lanjut yang dibuat",
+      "none": "LHA ini sudah disetujui, tetapi tidak ada tindak lanjut yang dibuat. Pastikan LHA memiliki temuan.",
+      "createdUnknownTitle": "LHA disetujui",
+      "createdUnknown": "Tindak lanjut dibuat otomatis; buka Action Taken Report untuk melihatnya."
     }
   },
   "qualityAssurance": {
     "importQar": {
-      "title": "Impor Laporan QAR",
+      "title": "Import QAR Report",
       "subtitle": "Impor dokumen Quality Assurance Review (QAR) eksternal",
       "formTitle": "Impor Dokumen Laporan QAR",
       "documentTitle": "Judul Dokumen",
@@ -2213,7 +2397,7 @@
       "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
     },
     "importIacm": {
-      "title": "Impor IACM",
+      "title": "Import IACM",
       "subtitle": "Impor dokumen Internal Audit Capability Model (IACM) eksternal",
       "formTitle": "Impor Dokumen IACM",
       "documentTitle": "Judul Dokumen",
@@ -2244,7 +2428,7 @@
       "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
     },
     "importSaiv": {
-      "title": "Impor SAIV",
+      "title": "Import SAIV",
       "subtitle": "Impor dokumen Self Assessment with Independent Validation (SAIV) eksternal",
       "formTitle": "Impor Dokumen SAIV",
       "documentTitle": "Judul Dokumen",
@@ -2275,7 +2459,7 @@
       "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
     },
     "importPeriodic": {
-      "title": "Impor Periodic Self Assessment",
+      "title": "Import Periodic Self Assessment",
       "subtitle": "Impor dokumen Penilaian Mandiri Berkala (Periodic Self Assessment) eksternal",
       "formTitle": "Impor Dokumen Periodic Self Assessment",
       "documentTitle": "Judul Dokumen",
@@ -2384,7 +2568,7 @@
   },
   "kpiPerformance": {
     "upload": {
-      "title": "Impor Dokumen Laporan Kinerja",
+      "title": "Import Performance Report Document",
       "subtitle": "Unggah dan kelola dokumen Laporan Kinerja Q1, Q2, Q3, Q4 dan Laporan Kinerja Tahunan",
       "formTitle": "Formulir Impor Dokumen",
       "periodLabel": "Periode Laporan Kinerja *",
@@ -2429,179 +2613,224 @@
       "deleteSuccessDesc": "Dokumen Laporan Kinerja berhasil dihapus.",
       "deleteFailed": "Gagal Menghapus",
       "deleteFailedDesc": "Terjadi kesalahan saat menghapus dokumen."
-    }
-  },
-  "riskProfile": {
-    "title": "Profil Risiko Korporat",
-    "subtitle": "Profil Risiko Perusahaan Tahun Anggaran {year} - {period}",
-    "total": "Total",
-    "priority": "Prioritas",
-    "addRisk": "Tambah Risiko",
-    "filterBranch": "Filter Cabang",
-    "fiscalYear": "Tahun Anggaran",
-    "period": "Periode",
-    "riskLevels": "Tingkat Risiko",
-    "likelihoodLevel": "Tingkat Kemungkinan",
-    "impactLevel": "Tingkat Dampak",
-    "allBranches": "Semua Cabang",
-    "addModal": {
-      "title": "Tambah Kejadian Risiko",
-      "desc": "Tentukan kejadian risiko baru dan penilaian awal kuartalannya.",
-      "name": "Nama Risiko",
-      "namePlaceholder": "Masukkan nama risiko",
-      "category": "Kategori",
-      "branch": "Cabang / Divisi",
-      "quarterlyTitle": "Skor Residu Kuartalan {year}",
-      "impact": "Dampak",
-      "likelihood": "Kemungkinan",
-      "description": "Deskripsi",
-      "descriptionPlaceholder": "Jelaskan konteks, penyebab, dan dampak risiko",
-      "saveBtn": "Simpan Kejadian Risiko"
     },
-    "quickTip": {
-      "title": "Tips Cepat",
-      "desc": "Geser dan lepas lencana risiko untuk menyesuaikan kemungkinan atau dampaknya. Skor risiko akan diperbarui secara otomatis."
+    "page": {
+      "subtitle": "Pantau dan lacak metrik kinerja audit internal serta Laporan Kinerja (Q1, Q2, Q3, Q4, Tahunan)",
+      "periodPlaceholder": "Periode",
+      "exportPdf": "Ekspor PDF",
+      "importedBanner": "Dokumen Laporan Kinerja Terimpor ({count} Laporan)",
+      "activeReport": "Laporan Kinerja aktif:",
+      "manageDocuments": "Kelola Dokumen Laporan",
+      "pdfGenerating": "Membuat Laporan PDF Eksekutif...",
+      "pdfGeneratingDesc": "Membuka Laporan PDF Kinerja KPI resmi untuk tahun {year}...",
+      "pdfFailed": "Gagal membuat laporan PDF",
+      "pdfFailedFallback": "Silakan coba lagi.",
+      "print": {
+        "division": "DIVISI AUDIT INTERNAL",
+        "reportTitle": "Laporan Kinerja KPI - Tahun {year}",
+        "generatedOn": "Dibuat pada: {date}",
+        "systemName": "Risk-Based Audit System",
+        "confidential": "Rahasia - Hanya untuk Penggunaan Internal",
+        "preparedBy": "Disusun oleh:",
+        "reviewedBy": "Direviu oleh:",
+        "approvedBy": "Disetujui oleh:",
+        "roleSpecialist": "Spesialis Audit Internal",
+        "roleQualityManager": "Manajer Kualitas Audit",
+        "roleCae": "Chief Audit Executive (CAE)"
+      }
+    },
+    "summary": {
+      "targetBadge": "Target: {value}",
+      "vsTarget": "{gap} terhadap target",
+      "cards": {
+        "audit_completion_rate": "Tingkat Penyelesaian Audit",
+        "report_timeliness": "Ketepatan Waktu Laporan",
+        "client_satisfaction": "Kepuasan Klien",
+        "action_plan_closed": "Tindak Lanjut Selesai"
+      },
+      "subTitles": {
+        "operationalCompletion": "Tingkat Penyelesaian Operasional (Audit yang Dimulai)",
+        "avgDraftingCycle": "Rata-rata Waktu Penyusunan Draf",
+        "surveyResponseRate": "Tingkat Respons Survei",
+        "openPendingActionPlans": "Rencana Tindak Lanjut Terbuka / Tertunda"
+      },
+      "text": {
+        "days": "{count} hari",
+        "daysVsTarget": "{count} hari terhadap target",
+        "lessThanDays": "< {count} hari",
+        "openCount": "{count} terbuka",
+        "overdueCount": "{count} terlambat",
+        "completedOfStarted": "{completed} selesai / {started} dimulai",
+        "responsesFrom": "{responses} respons dari {audits} audit selesai",
+        "totalRecommendations": "{count} total rekomendasi terdaftar"
+      },
+      "noData": "Belum ada data"
+    },
+    "charts": {
+      "monthlyCompletionRate": "Tingkat Penyelesaian Bulanan",
+      "trendTitle": "Tren CSAT dan Ketepatan Waktu",
+      "timeliness": "Ketepatan Waktu (%)",
+      "csatScore": "Skor CSAT",
+      "months": {
+        "jan": "Jan",
+        "feb": "Feb",
+        "mar": "Mar",
+        "apr": "Apr",
+        "may": "Mei",
+        "jun": "Jun",
+        "jul": "Jul",
+        "aug": "Agu",
+        "sep": "Sep",
+        "oct": "Okt",
+        "nov": "Nov",
+        "dec": "Des"
+      },
+      "noData": "Belum ada data tren untuk {year}"
     },
     "table": {
-      "no": "No",
-      "riskEvent": "Kejadian Risiko",
-      "impactScale": "Skala Dampak",
-      "likelihoodScale": "Skala Kemungkinan",
-      "riskLevel": "Tingkat Risiko"
+      "title": "Rincian Detail KPI",
+      "setTargets": "Atur Target KPI",
+      "searchPlaceholder": "Cari metrik KPI",
+      "selectCategory": "Pilih Kategori",
+      "selectPeriod": "Pilih Periode",
+      "selectStatus": "Pilih Status",
+      "resetFilter": "Reset Filter",
+      "editTarget": "Ubah Target KPI",
+      "editUnavailable": "Berasal dari laporan kinerja yang diunggah; ubah di sana",
+      "deleteTarget": "Hapus Target KPI",
+      "deleteUnavailable": "Berasal dari laporan kinerja yang diunggah; tidak dapat dihapus di sini",
+      "showing": "Menampilkan {from}-{to} dari {total}",
+      "showingNone": "Tidak ada data untuk ditampilkan",
+      "rowsPerPage": "Baris per halaman",
+      "loading": "Memuat data KPI...",
+      "empty": "Tidak ada data KPI untuk {year}",
+      "emptyFiltered": "Tidak ada KPI yang sesuai dengan filter",
+      "errorTitle": "Rincian KPI gagal dimuat",
+      "retry": "Coba lagi",
+      "columns": {
+        "metric": "Metrik KPI",
+        "category": "Kategori",
+        "target": "Target",
+        "actual": "Realisasi",
+        "gap": "Gap",
+        "status": "Status",
+        "actions": "Aksi"
+      },
+      "categories": {
+        "Operational": "Operasional",
+        "Financial": "Keuangan",
+        "Quality": "Kualitas",
+        "Issue": "Isu",
+        "Efficiency": "Efisiensi",
+        "Corporate": "Korporat"
+      },
+      "statuses": {
+        "On Track": "Sesuai Target",
+        "Exceeded": "Melampaui Target",
+        "Completed": "Selesai",
+        "Selesai": "Selesai",
+        "Needs Attention": "Perlu Perhatian",
+        "No Target": "Tanpa Target"
+      }
     },
-    "tabs": {
-      "priority": "Prioritas ({count})",
-      "all": "Semua Risiko ({count})",
-      "progress": "Kemajuan Kuartalan"
-    },
-    "detailModal": {
-      "title": "Detail Risiko - {id}",
-      "desc": "Tampilan komprehensif dari kejadian risiko dan penilaiannya.",
-      "category": "Kategori",
-      "riskLevel": "Tingkat Risiko",
-      "riskEventName": "Nama Kejadian Risiko",
-      "impactPeriod": "Dampak (Periode {period})",
-      "likelihoodPeriod": "Kemungkinan (Periode {period})",
-      "severityWeight": "Bobot Keparahan",
-      "description": "Deskripsi",
-      "mitigationBtn": "Lihat Rencana Mitigasi"
-    },
-    "editModal": {
-      "title": "Edit Risiko - {name}",
-      "titleDefault": "Edit Risiko",
-      "desc": "Ubah detail risiko dan sesuaikan penilaian kuartalan.",
-      "updateBtn": "Perbarui Risiko"
-    },
-    "riskLevelLabels": {
-      "low": "Rendah",
-      "low-moderate": "Rendah-Sedang",
-      "moderate": "Sedang",
-      "moderate-high": "Sedang-Tinggi",
-      "high": "Tinggi"
-    },
-    "impactLabels": {
-      "1": "Sangat Kecil",
-      "2": "Kecil",
-      "3": "Sedang",
-      "4": "Besar",
-      "5": "Sangat Besar"
-    },
-    "likelihoodLabels": {
-      "1": "Sangat Jarang",
-      "2": "Jarang",
-      "3": "Mungkin",
-      "4": "Sering",
-      "5": "Sangat Sering"
-    },
-    "toasts": {
-      "validationError": "Kesalahan Validasi",
-      "nameRequired": "Nama Risiko wajib diisi",
-      "riskAdded": "Risiko Ditambahkan",
-      "riskAddedDesc": "Berhasil menambahkan risiko baru: {name}",
-      "riskUpdated": "Risiko Diperbarui",
-      "riskUpdatedDesc": "Berhasil memperbarui detail risiko."
+    "store": {
+      "fetchDashboardSummaryFailed": "Gagal memuat ringkasan dasbor",
+      "fetchMonthlyTrendsFailed": "Gagal memuat tren bulanan",
+      "fetchKpiFailed": "Gagal memuat capaian KPI",
+      "fetchBreakdownFailed": "Gagal memuat rincian KPI",
+      "fetchRealizationFailed": "Gagal memuat realisasi program kerja",
+      "loadReportsFailed": "Gagal memuat dokumen laporan kinerja yang diunggah.",
+      "uploadedDocument": "Dokumen laporan kinerja berhasil diunggah",
+      "uploadedReport": "Laporan kinerja berhasil diunggah.",
+      "uploadFailed": "Gagal mengunggah dokumen laporan kinerja.",
+      "deletedDocument": "Dokumen laporan kinerja berhasil dihapus",
+      "deletedReport": "Laporan kinerja berhasil dihapus.",
+      "deleteFailed": "Gagal menghapus dokumen laporan kinerja.",
+      "downloadFailed": "Gagal mengunduh dokumen.",
+      "viewFailed": "Gagal membuka dokumen."
     }
   },
   "navigation": {
     "dashboard": "Dashboard",
     "auditCharter": "Audit Charter",
-    "riskProfileUniverse": "Profil Risiko & Universe Audit",
-    "corporateRiskProfile": "Profil Risiko Korporat",
-    "riskAppetiteStatement": "Pernyataan Selera Risiko",
-    "riskFactors": "Faktor Risiko",
-    "auditUniverse": "Universe Audit",
-    "auditPriority": "Prioritas Audit",
-    "riskControlMatrix": "Matriks Kontrol Risiko",
-    "auditPlanning": "Perencanaan Audit & Fieldwork",
-    "strategicAuditPlan": "Rencana Audit Strategis",
-    "importStrategicAuditPlan": "Impor Rencana Audit Strategis",
-    "internalAuditPerformance": "Kinerja Audit Internal",
-    "importPerformanceReport": "Impor Laporan Kinerja",
-    "annualAuditPlan": "Rencana Audit Tahunan",
-    "createAnnualAuditPlan": "Buat Rencana Audit Tahunan",
-    "importAnnualAuditPlan": "Impor Rencana Audit Tahunan",
-    "auditExecutionStatus": "Status Pelaksanaan Audit",
-    "auditActivityPlan": "Rencana Kegiatan Audit",
-    "createAuditActivityPlan": "Buat Rencana Kegiatan Audit",
-    "importAuditActivityPlan": "Impor Rencana Kegiatan Audit",
-    "assignmentLetter": "Surat Tugas",
-    "createAssignmentLetter": "Buat Surat Tugas",
-    "importAssignmentLetter": "Impor Dokumen Surat Tugas",
-    "workingPaper": "Kertas Kerja",
-    "createWorkingPaper": "Buat Kertas Kerja",
-    "importWorkingPaper": "Impor Dokumen Kertas Kerja",
-    "auditFieldwork": "Pelaksanaan Lapangan",
-    "auditResultReport": "Laporan Hasil Audit",
-    "resultReportsLha": "Daftar Laporan Hasil Audit (LHA)",
-    "importLhaDocument": "Impor Dokumen LHA",
-    "executiveSummaryIndividual": "Ringkasan Eksekutif (Individual)",
-    "executiveSummary": "Ringkasan Eksekutif",
-    "createExecutiveSummary": "Buat Ringkasan Eksekutif",
-    "importExecutiveSummary": "Impor Dokumen Ringkasan Eksekutif",
-    "executiveSummaryCompilation": "Laporan Kompilasi Ringkasan Eksekutif",
-    "createExecutiveSummaryCompilation": "Buat Laporan Kompilasi Ringkasan Eksekutif",
-    "importExecutiveSummaryCompilation": "Impor Laporan Kompilasi Ringkasan Eksekutif",
-    "actionTakenReport": "Laporan Tindak Lanjut",
-    "clientSatisfactionSurvey": "Survei Kepuasan Klien",
-    "consultingService": "Layanan Konsultasi",
-    "consultingServiceDashboard": "Dashboard Layanan Konsultasi",
-    "importConsultingDocument": "Impor Dokumen Konsultasi",
+    "riskProfileUniverse": "Risk Profile & Audit Universe",
+    "corporateRiskProfile": "Corporate Risk Profile",
+    "riskAppetiteStatement": "Risk Appetite Statement",
+    "riskFactors": "Risk Factors",
+    "auditUniverse": "Audit Universe",
+    "auditPriority": "Audit Priority",
+    "riskControlMatrix": "Risk Control Matrix",
+    "auditPlanning": "Audit Planning & Fieldwork",
+    "strategicAuditPlan": "Strategic Audit Plan",
+    "importStrategicAuditPlan": "Import Strategic Audit Plan",
+    "internalAuditPerformance": "Internal Audit Performance",
+    "importPerformanceReport": "Import Performance Report",
+    "annualAuditPlan": "Annual Audit Plan",
+    "createAnnualAuditPlan": "Create Annual Audit Plan",
+    "importAnnualAuditPlan": "Import Annual Audit Plan",
+    "auditExecutionStatus": "Audit Execution Status",
+    "auditActivityPlan": "Audit Activity Plan",
+    "createAuditActivityPlan": "Create Audit Activity Plan",
+    "importAuditActivityPlan": "Import Audit Activity Plan",
+    "assignmentLetter": "Assignment Letter",
+    "createAssignmentLetter": "Create Assignment Letter",
+    "importAssignmentLetter": "Import Assignment Letter Document",
+    "workingPaper": "Working Paper",
+    "createWorkingPaper": "Create Working Paper",
+    "importWorkingPaper": "Import Working Paper Document",
+    "auditFieldwork": "Audit Fieldwork",
+    "auditResultReport": "Audit Result Report",
+    "resultReportsLha": "Result Reports (LHA)",
+    "importLhaDocument": "Import LHA Document",
+    "executiveSummaryIndividual": "Executive Summary (Individual)",
+    "executiveSummary": "Executive Summary",
+    "createExecutiveSummary": "Create Executive Summary",
+    "importExecutiveSummary": "Import Executive Summary Document",
+    "executiveSummaryCompilation": "Executive Summary Compilation Report",
+    "createExecutiveSummaryCompilation": "Create Executive Summary Compilation Report",
+    "importExecutiveSummaryCompilation": "Import Executive Summary Report",
+    "actionTakenReport": "Action Taken Report",
+    "clientSatisfactionSurvey": "Client Satisfaction Survey",
+    "consultingService": "Consulting Service",
+    "consultingServiceDashboard": "Consulting Service Dashboard",
+    "importConsultingDocument": "Import Consulting Document",
     "qualityAssuranceReview": "Quality Assurance Review",
     "qualityAssuranceDashboard": "Quality Assurance Dashboard",
-    "importPeriodicSelfAssessment": "Impor Penilaian Mandiri Periodik",
-    "importSaiv": "Impor SAIV",
-    "importQarReport": "Impor Laporan QAR",
-    "importIacm": "Impor IACM",
-    "analytics": "Analitik",
-    "riskScoringPrediction": "Prediksi Penilaian Risiko",
-    "anomalyDetection": "Deteksi Anomali",
-    "detectedAnomaliesDetail": "Detail Anomali Terdeteksi",
-    "nlpAnalysis": "Analisis NLP",
-    "kpiForecast": "Prakiraan KPI",
-    "caattFullPopulation": "Pengujian 100% Populasi",
-    "caattDuplicateGap": "Integritas Duplikat & Gap",
-    "caattBenford": "Analisis Hukum Benford",
-    "caattStratification": "Stratifikasi & Aging",
-    "caattReconciliation": "Rekonsiliasi Lintas Sistem",
-    "caattPolicy": "Kepatuhan Kebijakan Perbankan",
-    "caattDataQuality": "Dashboard Kualitas Data",
-    "masterData": "Data Master",
-    "employeeManagement": "Manajemen Karyawan",
-    "department": "Departemen",
-    "settings": "Pengaturan",
-    "generalSettings": "Pengaturan Umum",
-    "security2fa": "Keamanan & 2FA",
-    "trustedDevices": "Perangkat Tepercaya",
+    "importPeriodicSelfAssessment": "Import Periodic Self Assessment",
+    "importSaiv": "Import SAIV",
+    "importQarReport": "Import QAR Report",
+    "importIacm": "Import IACM",
+    "analytics": "Analytics",
+    "riskScoringPrediction": "Risk Scoring Prediction",
+    "anomalyDetection": "Anomaly Detection",
+    "detectedAnomaliesDetail": "Detected Anomalies Detail",
+    "nlpAnalysis": "NLP Analysis",
+    "kpiForecast": "KPI Forecast",
+    "caattFullPopulation": "100% Population Testing",
+    "caattDuplicateGap": "Duplicate & Gap Integrity",
+    "caattBenford": "Benford's Law Analysis",
+    "caattStratification": "Stratification & Aging",
+    "caattReconciliation": "Cross-System Reconciliation",
+    "caattPolicy": "Banking Policy Compliance",
+    "caattDataQuality": "Data Quality Dashboard",
+    "masterData": "Master Data",
+    "employeeManagement": "Employee Management",
+    "department": "Department",
+    "settings": "Settings",
+    "generalSettings": "General Settings",
+    "security2fa": "Security & 2FA",
+    "trustedDevices": "Trusted Devices",
     "searchPlaceholder": "Cari...",
     "userMenu": {
-      "settings": "Pengaturan",
-      "logout": "Keluar"
+      "settings": "Settings",
+      "logout": "Logout"
     },
     "securityWarningTitle": "Peringatan Keamanan",
-    "securityWarningDesc": "Akun Anda baru saja diakses dari perangkat baru. Jika ini bukan Anda, segera ubah kata sandi Anda."
+    "securityWarningDesc": "Akun Anda baru saja diakses dari perangkat baru. Jika ini bukan Anda, segera ubah kata sandi Anda.",
+    "location": "Branch / Location"
   },
   "satisfactionSurvey": {
-    "title": "Survei Kepuasan Klien",
+    "title": "Client Satisfaction Survey",
     "subtitle": "Isi kuesioner kepuasan untuk laporan hasil audit yang telah dipublikasikan",
     "hideExplanation": "Sembunyikan Penjelasan",
     "showExplanation": "Penjelasan Kotak Statistik",
@@ -2871,6 +3100,355 @@
     },
     "defaults": {
       "mitigationDescPrefix": "Aktivitas mitigasi & pengawasan internal untuk "
+    }
+  },
+  "errors": {
+    "network": "Tidak dapat terhubung ke server. Periksa koneksi internet Anda, lalu coba lagi.",
+    "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk kembali.",
+    "forbidden": "Anda tidak memiliki izin untuk melakukan tindakan ini.",
+    "notFound": "Data yang diminta tidak ditemukan. Data tersebut mungkin telah dihapus.",
+    "validation": "Sebagian data yang dimasukkan tidak valid. Periksa kembali formulir, lalu coba lagi.",
+    "conflict": "Data ini bertentangan dengan data yang sudah ada. Periksa kembali, lalu coba lagi.",
+    "tooManyRequests": "Terlalu banyak permintaan. Mohon tunggu sebentar, lalu coba lagi.",
+    "server": "Terjadi kendala pada server. Silakan coba lagi dalam beberapa saat.",
+    "unknown": "Terjadi kesalahan. Silakan coba lagi dalam beberapa saat.",
+    "codes": {
+      "EMPLOYEE_NOT_FOUND": "Karyawan tidak ditemukan. Data tersebut mungkin telah dihapus.",
+      "EMPLOYEE_CODE_ALREADY_EXISTS": "Kode karyawan ini sudah digunakan. Gunakan kode lain.",
+      "EMPLOYEE_EMAIL_ALREADY_EXISTS": "Email ini sudah terdaftar pada karyawan lain.",
+      "INVALID_EMPLOYEE_ID": "Referensi karyawan tidak valid. Muat ulang halaman, lalu coba lagi.",
+      "DEPARTMENT_NOT_FOUND": "Departemen tidak ditemukan. Data tersebut mungkin telah dihapus.",
+      "DEPARTMENT_CODE_ALREADY_EXISTS": "Kode departemen ini sudah digunakan. Gunakan kode lain.",
+      "DEPARTMENT_NAME_ALREADY_EXISTS": "Departemen dengan nama ini sudah ada.",
+      "INVALID_DEPARTMENT_ID": "Referensi departemen tidak valid. Muat ulang halaman, lalu coba lagi.",
+      "COMPANY_NOT_FOUND": "Perusahaan yang dipilih tidak ditemukan.",
+      "COMPANY_CODE_ALREADY_EXISTS": "Kode perusahaan ini sudah digunakan. Gunakan kode lain.",
+      "COMPANY_ID_REQUIRED": "Perusahaan wajib diisi.",
+      "INVALID_COMPANY_ID": "Referensi perusahaan tidak valid. Muat ulang halaman, lalu coba lagi.",
+      "BUSINESS_UNIT_NOT_FOUND": "Unit bisnis yang dipilih tidak ditemukan.",
+      "BUSINESS_UNIT_ID_REQUIRED": "Unit bisnis wajib diisi.",
+      "BUSINESS_UNIT_COMPANY_MISMATCH": "Unit bisnis yang dipilih tidak termasuk dalam perusahaan yang dipilih.",
+      "PIC_NOT_FOUND": "Penanggung jawab (PIC) yang dipilih tidak ditemukan.",
+      "PIC_ID_REQUIRED": "Penanggung jawab (PIC) wajib diisi.",
+      "PIC_COMPANY_MISMATCH": "Penanggung jawab (PIC) yang dipilih tidak termasuk dalam perusahaan yang dipilih.",
+      "DUPLICATE_ENTRY": "Data ini sudah ada.",
+      "TOKEN_EXPIRED": "Sesi Anda telah berakhir. Silakan masuk kembali.",
+      "INVALID_TOKEN": "Sesi Anda tidak lagi valid. Silakan masuk kembali.",
+      "COMPANY_TAX_ID_ALREADY_EXISTS": "NPWP ini sudah terdaftar pada perusahaan lain.",
+      "INVALID_AVATAR": "Foto profil tidak dapat digunakan. Pilih gambar PNG, JPEG, atau WebP lalu coba lagi.",
+      "VALIDATION_FAILED": "Beberapa isian belum diisi atau tidak valid. Periksa kembali formulir, lalu coba lagi.",
+      "INVALID_REQUEST_BODY": "Data yang dikirim tidak dapat diproses. Periksa kembali formulir, lalu coba lagi.",
+      "INVALID_ID": "Referensi data tidak valid. Muat ulang halaman, lalu coba lagi.",
+      "VALUE_TOO_LONG": "Salah satu isian melebihi panjang maksimum yang diizinkan.",
+      "REFERENCE_NOT_FOUND": "Data terkait yang dipilih sudah tidak tersedia. Muat ulang halaman, lalu pilih kembali.",
+      "FOREIGN_KEY_VIOLATION": "Data ini tidak dapat dihapus karena masih digunakan oleh data lain."
+    }
+  },
+  "masterData": {
+    "errors": {
+      "fetchEmployees": "Gagal memuat data karyawan.",
+      "fetchEmployee": "Gagal memuat detail karyawan.",
+      "createEmployee": "Gagal menambahkan karyawan.",
+      "updateEmployee": "Gagal memperbarui data karyawan.",
+      "deleteEmployee": "Gagal menghapus karyawan.",
+      "fetchDepartments": "Gagal memuat data departemen.",
+      "fetchDepartment": "Gagal memuat detail departemen.",
+      "createDepartment": "Gagal menambahkan departemen.",
+      "updateDepartment": "Gagal memperbarui data departemen.",
+      "deleteDepartment": "Gagal menghapus departemen.",
+      "fetchCompanies": "Gagal memuat data perusahaan.",
+      "fetchCompany": "Gagal memuat detail perusahaan.",
+      "createCompany": "Gagal menambahkan perusahaan.",
+      "updateCompany": "Gagal memperbarui data perusahaan.",
+      "deleteCompany": "Gagal menghapus perusahaan.",
+      "fetchLocations": "Gagal memuat data cabang/lokasi.",
+      "fetchLocation": "Gagal memuat data cabang/lokasi.",
+      "createLocation": "Gagal membuat cabang/lokasi.",
+      "updateLocation": "Gagal memperbarui cabang/lokasi.",
+      "deleteLocation": "Gagal menghapus cabang/lokasi."
+    },
+    "validation": {
+      "employeeCodeRequired": "Kode karyawan wajib diisi.",
+      "fullNameRequired": "Nama lengkap wajib diisi.",
+      "emailRequired": "Email wajib diisi.",
+      "companyRequired": "Perusahaan wajib diisi.",
+      "departmentRequired": "Departemen wajib diisi.",
+      "jobRoleRequired": "Jabatan wajib diisi.",
+      "departmentCodeRequired": "Kode departemen wajib diisi.",
+      "departmentNameRequired": "Nama departemen wajib diisi.",
+      "picRequired": "Penanggung jawab (PIC) wajib diisi.",
+      "companyCodeRequired": "Kode perusahaan wajib diisi.",
+      "companyNameRequired": "Nama perusahaan wajib diisi.",
+      "companyTypeRequired": "Jenis perusahaan wajib diisi.",
+      "locationNameRequired": "Nama cabang/lokasi wajib diisi",
+      "locationAddressRequired": "Alamat wajib diisi",
+      "locationCityRequired": "Kota wajib diisi"
+    },
+    "employee": {
+      "title": "Employee Management",
+      "subtitle": "Kelola data karyawan organisasi",
+      "listTitle": "Daftar Karyawan",
+      "add": "Tambah Karyawan",
+      "searchPlaceholder": "Cari karyawan...",
+      "reset": "Atur Ulang",
+      "empty": "Tidak ada data karyawan.",
+      "level": "Level {level}",
+      "active": "Aktif",
+      "inactive": "Tidak Aktif",
+      "resetPassword": "Atur Ulang Kata Sandi",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus karyawan \"{name}\"?",
+      "columns": {
+        "code": "Kode",
+        "fullName": "Nama Lengkap",
+        "email": "Email",
+        "phone": "Telepon",
+        "level": "Level",
+        "status": "Status"
+      }
+    },
+    "location": {
+      "title": "Branch / Location Management",
+      "subtitle": "Kelola data induk cabang dan lokasi kantor",
+      "listTitle": "Daftar Cabang / Lokasi",
+      "add": "Tambah Cabang / Lokasi",
+      "searchPlaceholder": "Cari cabang atau kota...",
+      "search": "Cari",
+      "reset": "Reset",
+      "empty": "Data cabang atau lokasi tidak ditemukan.",
+      "active": "Aktif",
+      "inactive": "Tidak Aktif",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus cabang/lokasi \"{name}\"?",
+      "createTitle": "Tambah Cabang / Lokasi Baru",
+      "editTitle": "Ubah Cabang / Lokasi",
+      "sectionInfo": "Informasi Cabang / Lokasi",
+      "fieldName": "Nama Cabang / Lokasi *",
+      "fieldNamePlaceholder": "mis. Cabang Surabaya",
+      "fieldAddress": "Alamat *",
+      "fieldAddressPlaceholder": "Alamat jalan",
+      "fieldCity": "Kota *",
+      "fieldCityPlaceholder": "mis. Surabaya",
+      "fieldProvince": "Provinsi",
+      "fieldProvincePlaceholder": "mis. Jawa Timur",
+      "fieldPostalCode": "Kode Pos",
+      "fieldCountry": "Negara",
+      "status": "Status",
+      "created": "Cabang/lokasi berhasil dibuat.",
+      "updated": "Cabang/lokasi berhasil diperbarui.",
+      "deleted": "Cabang/lokasi berhasil dihapus.",
+      "columns": {
+        "name": "Cabang / Lokasi",
+        "city": "Kota",
+        "province": "Provinsi",
+        "address": "Alamat",
+        "status": "Status"
+      }
+    }
+  },
+  "actionTakenReport": {
+    "page": {
+      "title": "Action Taken Report",
+      "subtitle": "Tindak lanjut temuan Laporan Hasil Audit (LHA): rencana aksi, bukti, dan reviu."
+    },
+    "statusSummary": "Ringkasan Status:",
+    "status": {
+      "planned": "Direncanakan",
+      "inProgress": "Sedang Berjalan",
+      "pendingReview": "Menunggu Reviu",
+      "completed": "Selesai",
+      "cancelled": "Dibatalkan",
+      "overdue": "Terlambat"
+    },
+    "summary": {
+      "done": "{percent}% Selesai",
+      "pendingReview": "{percent}% Menunggu Reviu",
+      "inProgress": "{percent}% Sedang Berjalan",
+      "planned": "{percent}% Direncanakan",
+      "overdue": "{percent}% Terlambat",
+      "cancelled": "{percent}% Dibatalkan"
+    },
+    "summaryHint": "Terlambat = melewati tenggat dan belum selesai atau dibatalkan (tanggal Asia/Jakarta).",
+    "daysOverdue": "Terlambat {days} hari",
+    "findingCategory": {
+      "verySignificant": "Sangat Signifikan",
+      "significant": "Signifikan",
+      "quiteSignificant": "Cukup Signifikan",
+      "notSignificant": "Tidak Signifikan"
+    },
+    "scope": {
+      "all": "Semua tindak lanjut",
+      "mine": "Tindakan saya",
+      "mineHint": "Tindak lanjut yang ditugaskan kepada Anda."
+    },
+    "filter": {
+      "searchPlaceholder": "Cari temuan atau LHA",
+      "statusPlaceholder": "Pilih Status",
+      "lhaPlaceholder": "Pilih LHA",
+      "picPlaceholder": "Pilih PIC",
+      "overdueOnly": "Hanya yang terlambat",
+      "reset": "Reset Filter"
+    },
+    "table": {
+      "columns": {
+        "finding": "Temuan",
+        "lha": "LHA",
+        "pic": "PIC",
+        "dueDate": "Tenggat",
+        "progress": "Progres",
+        "status": "Status",
+        "actions": "Aksi"
+      },
+      "loading": "Memuat tindak lanjut...",
+      "errorTitle": "Tindak lanjut gagal dimuat",
+      "retry": "Coba lagi",
+      "empty": "Belum ada tindak lanjut",
+      "emptyMine": "Belum ada tindak lanjut yang ditugaskan kepada Anda",
+      "emptyFiltered": "Tidak ada tindak lanjut yang sesuai filter",
+      "emptyHint": "Tindak lanjut (ATR) dibuat otomatis untuk setiap temuan saat Laporan Hasil Audit (LHA) disetujui.",
+      "showing": "Menampilkan {from}-{to} dari {total}",
+      "showingNone": "Tidak ada tindak lanjut untuk ditampilkan",
+      "unassigned": "Belum ditugaskan",
+      "you": "Anda"
+    },
+    "actions": {
+      "view": "Lihat detail",
+      "fillActionPlan": "Isi rencana aksi",
+      "assign": "Tugaskan PIC",
+      "reassign": "Ganti PIC",
+      "review": "Reviu",
+      "cancel": "Batalkan ATR"
+    },
+    "modal": {
+      "close": "Tutup"
+    },
+    "form": {
+      "optional": "Opsional"
+    },
+    "detail": {
+      "title": "Detail Action Taken Report",
+      "subtitle": "LHA {number}",
+      "findingSection": "Temuan",
+      "finding": "Temuan",
+      "recommendation": "Rekomendasi",
+      "lha": "Laporan Hasil Audit (LHA)",
+      "showLhaFollowUps": "Tampilkan semua tindak lanjut LHA ini",
+      "followUpSection": "Tindak Lanjut",
+      "pic": "PIC",
+      "dueDate": "Tenggat",
+      "progress": "Progres",
+      "actionPlan": "Rencana aksi",
+      "noActionPlan": "PIC belum mengisi rencana aksi.",
+      "reviewSection": "Catatan reviu",
+      "reviewedMeta": "Oleh {by} pada {date}"
+    },
+    "timeline": {
+      "title": "Riwayat status",
+      "created": "Dibuat dari LHA yang disetujui",
+      "assigned": "PIC ditugaskan",
+      "assignedDetail": "{pic}, tenggat {date}",
+      "notAssigned": "Menunggu PIC dan tenggat",
+      "returned": "Dikembalikan untuk perbaikan setelah reviu"
+    },
+    "evidence": {
+      "title": "Bukti",
+      "upload": "Unggah file",
+      "download": "Unduh",
+      "downloadNamed": "Unduh {name}",
+      "empty": "Belum ada bukti yang diunggah.",
+      "unnamed": "File tanpa nama",
+      "uploadedMeta": "{date} oleh {by}"
+    },
+    "actionPlanForm": {
+      "title": "Rencana Aksi",
+      "dueMeta": "Tenggat {date}",
+      "returnedTitle": "Dikembalikan untuk perbaikan",
+      "readOnly": "Tindak lanjut ini tidak dapat diubah lagi.",
+      "actionPlan": "Rencana aksi",
+      "actionPlanHelp": "Uraikan tindakan perbaikan yang telah atau akan dilakukan untuk temuan ini.",
+      "actionPlanPlaceholder": "Tindakan perbaikan, penanggung jawab, dan target waktu...",
+      "progress": "Progres",
+      "progressHelp": "Tingkat penyelesaian rencana aksi, 0-100%.",
+      "evidenceHelp": "Dokumen pendukung. Setiap file langsung diunggah saat dipilih.",
+      "saveDraft": "Simpan draf",
+      "submit": "Kirim untuk reviu",
+      "confirmSubmitTitle": "Kirim tindak lanjut ini untuk direviu?",
+      "confirmSubmitBody": "Perubahan terakhir Anda disimpan terlebih dahulu. Setelah dikirim, rencana aksi tidak dapat diubah sampai auditor mereviunya."
+    },
+    "assignment": {
+      "title": "Tugaskan PIC",
+      "titleReassign": "Ganti PIC",
+      "pic": "PIC",
+      "picHelp": "Orang yang bertanggung jawab menjalankan rencana aksi.",
+      "picPlaceholder": "Pilih pengguna",
+      "picSearch": "Cari nama...",
+      "noUsers": "Pengguna tidak ditemukan",
+      "dueDate": "Tenggat",
+      "dueDatePlaceholder": "dd/mm/yyyy",
+      "save": "Simpan penugasan",
+      "usersForbiddenTitle": "Daftar pengguna tidak tersedia",
+      "usersForbidden": "Anda tidak memiliki akses ke daftar pengguna, sehingga PIC tidak dapat dipilih di sini."
+    },
+    "review": {
+      "title": "Reviu Tindak Lanjut",
+      "submission": "Hasil yang dikirim",
+      "submittedBy": "PIC: {pic}",
+      "decision": "Keputusan",
+      "approve": "Setujui",
+      "approveHelp": "Temuan telah ditindaklanjuti; tindak lanjut selesai.",
+      "reject": "Kembalikan untuk perbaikan",
+      "rejectHelp": "Kembalikan ke PIC dengan catatan.",
+      "note": "Catatan reviu",
+      "noteApproveHelp": "Komentar opsional untuk PIC.",
+      "noteRejectHelp": "Wajib: jelaskan apa yang harus diperbaiki PIC.",
+      "notePlaceholder": "Tulis catatan reviu..."
+    },
+    "cancelModal": {
+      "title": "Batalkan Tindak Lanjut",
+      "warningTitle": "Tindakan ini tidak dapat dibatalkan",
+      "warning": "Tindak lanjut yang dibatalkan ditutup dan tidak lagi dipantau atau dihitung sebagai terbuka.",
+      "note": "Alasan",
+      "noteHelp": "Jelaskan mengapa tindak lanjut ini dibatalkan.",
+      "notePlaceholder": "Alasan pembatalan...",
+      "confirm": "Batalkan ATR"
+    },
+    "validation": {
+      "actionPlanRequired": "Isi rencana aksi.",
+      "actionPlanTooLong": "Rencana aksi terlalu panjang (maks. 5000 karakter).",
+      "progressRange": "Progres harus bilangan bulat antara 0 dan 100.",
+      "picRequired": "Pilih PIC.",
+      "dueDateRequired": "Pilih tenggat.",
+      "decisionRequired": "Pilih setujui atau kembalikan untuk perbaikan.",
+      "rejectNoteRequired": "Catatan wajib diisi saat mengembalikan untuk perbaikan.",
+      "cancelNoteRequired": "Isi alasan pembatalan.",
+      "noteTooLong": "Catatan terlalu panjang (maks. 2000 karakter)."
+    },
+    "toast": {
+      "assigned": "PIC berhasil ditugaskan",
+      "assignFailed": "Gagal menugaskan PIC",
+      "planSaved": "Rencana aksi tersimpan",
+      "planSaveFailed": "Gagal menyimpan rencana aksi",
+      "submitted": "Berhasil dikirim untuk reviu",
+      "submitFailed": "Gagal mengirim untuk reviu",
+      "approved": "Tindak lanjut disetujui dan selesai",
+      "rejected": "Tindak lanjut dikembalikan untuk perbaikan",
+      "reviewFailed": "Gagal menyimpan reviu",
+      "cancelled": "Tindak lanjut dibatalkan",
+      "cancelFailed": "Gagal membatalkan tindak lanjut",
+      "uploaded": "{count} file berhasil diunggah",
+      "uploadFailed": "Gagal mengunggah {name}"
+    },
+    "errors": {
+      "load": "Gagal memuat action taken report.",
+      "loadDetailTitle": "Gagal memuat tindak lanjut",
+      "loadDetail": "Data terbaru tidak dapat dimuat; menampilkan data dari daftar.",
+      "loadUsers": "Gagal memuat pengguna",
+      "generic": "Terjadi kesalahan. Silakan coba lagi.",
+      "downloadTitle": "Unduhan gagal",
+      "download": "File bukti tidak dapat diunduh.",
+      "evidenceMissing": "File bukti sudah tidak ada."
+    },
+    "dashboard": {
+      "centerLabel": "Selesai",
+      "legend": "{label} ({percent}%)"
     }
   }
 }

@@ -41,6 +41,9 @@ smtp:
 
 resend:
   master_api_key: "" # Set via RESEND_MASTER_API_KEY env var — never hardcode
+  api_key: ""        # Set via RESEND_API_KEY env var (preferred for transactional emails)
+  from: "AuditSphere <no-reply@mail.auditsphere.app>" # Set via RESEND_FROM env var
+  webhook_secret: "" # Set via RESEND_WEBHOOK_SECRET env var
 
 app:
   app_name: risk-based-internal-audit

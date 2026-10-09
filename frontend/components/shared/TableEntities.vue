@@ -23,7 +23,7 @@
         :style="effectiveMinWidth ? { minWidth: effectiveMinWidth } : undefined"
       >
         <template
-          v-for="col in normalizedColumns"
+          v-for="col in slotColumns"
           #[`${col.id}-cell`]="props"
         >
           <slot
@@ -253,6 +253,14 @@ const normalizedColumns = computed(() => {
     return normalized
   })
 })
+
+// Columns that get a generated #<id>-cell slot. A slot overrides UTable's column.cell,
+// so skip columns that bring their own cell renderer unless the parent passes a slot.
+const slotColumns = computed(() =>
+  normalizedColumns.value.filter(
+    (col) => typeof col.cell !== 'function' || !!$slots[`${col.id}-cell`]
+  )
+)
 
 // Dynamic slot resolution helpers
 const getCellSlotName = (col: TableColumnItem) => {

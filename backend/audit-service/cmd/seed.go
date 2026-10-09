@@ -111,47 +111,51 @@ func runSeed(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	logger.Info("Seeding assignment letters...")
-	if err := seedAssignmentLetters(db); err != nil {
-		logger.Fatal("Failed to seed assignment letters", logger.LogField("error", err))
-		return err
-	}
+	// Dummy assignment letters (ST-00x/SKAI/2025-2026, 020/ST/01/KSIAD/2023) are
+	// no longer seeded, together with every seeder that hangs data off those
+	// letter numbers: fieldwork, working papers, audit executions, audit result
+	// reports and executive summaries. They were removed from local, VPS dev and
+	// prod on 2026-10-09; re-enabling these calls brings them back on the next
+	// container start.
+	//
+	// logger.Info("Seeding assignment letters...")
+	// if err := seedAssignmentLetters(db); err != nil {
+	// 	logger.Fatal("Failed to seed assignment letters", logger.LogField("error", err))
+	// 	return err
+	// }
+	//
+	// logger.Info("Seeding fieldwork data...")
+	// if err := seedFieldwork(db); err != nil {
+	// 	logger.Fatal("Failed to seed fieldwork data", logger.LogField("error", err))
+	// 	return err
+	// }
+	//
+	// logger.Info("Seeding working papers...")
+	// if err := seedWorkingPapers(db); err != nil {
+	// 	logger.Fatal("Failed to seed working papers", logger.LogField("error", err))
+	// 	return err
+	// }
+	//
+	// logger.Info("Seeding audit executions...")
+	// if err := seedExecutions(db); err != nil {
+	// 	logger.Fatal("Failed to seed audit executions", logger.LogField("error", err))
+	// 	return err
+	// }
+	//
+	// logger.Info("Seeding audit result reports...")
+	// if err := seedResultReports(db); err != nil {
+	// 	logger.Fatal("Failed to seed audit result reports", logger.LogField("error", err))
+	// 	return err
+	// }
 
-	logger.Info("Seeding fieldwork data...")
-	if err := seedFieldwork(db); err != nil {
-		logger.Fatal("Failed to seed fieldwork data", logger.LogField("error", err))
-		return err
-	}
+	// Action taken reports are not seeded: the server creates them from the
+	// findings of approved LHAs (see services/action_taken_report).
 
-	logger.Info("Seeding working papers...")
-	if err := seedWorkingPapers(db); err != nil {
-		logger.Fatal("Failed to seed working papers", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("Seeding audit executions...")
-	if err := seedExecutions(db); err != nil {
-		logger.Fatal("Failed to seed audit executions", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("Seeding audit result reports...")
-	if err := seedResultReports(db); err != nil {
-		logger.Fatal("Failed to seed audit result reports", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("Seeding action taken reports...")
-	if err := seedActionTakenReports(db); err != nil {
-		logger.Fatal("Failed to seed action taken reports", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("Seeding executive summaries...")
-	if err := seedExecutiveSummaries(db); err != nil {
-		logger.Fatal("Failed to seed executive summaries", logger.LogField("error", err))
-		return err
-	}
+	// logger.Info("Seeding executive summaries...")
+	// if err := seedExecutiveSummaries(db); err != nil {
+	// 	logger.Fatal("Failed to seed executive summaries", logger.LogField("error", err))
+	// 	return err
+	// }
 
 	logger.Info("Seeding annual plans...")
 	if err := seedAnnualPlans(db); err != nil {
@@ -191,6 +195,7 @@ func runSeed(cmd *cobra.Command, args []string) error {
 func dropTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
 		"imported_working_papers",
+		"action_taken_report_evidences",
 		"action_taken_reports",
 		"work_plan_realizations",
 		"kpi_achievements",
@@ -219,7 +224,7 @@ func dropTables(db *gorm.DB) error {
 }
 
 func runMigrations(db *gorm.DB) error {
-	return db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&models.AuditCharter{},
 		&models.AuditGuideline{},
 		&models.AuditSop{},
@@ -228,6 +233,7 @@ func runMigrations(db *gorm.DB) error {
 		&models.AuditAnnual{},
 		&models.ActivityPlan{},
 		&models.AuditActivity{},
+		&models.ActivityCodeSequence{},
 		&models.StrategicPlan{},
 		&models.AssignmentLetter{},
 		&models.AuditExecution{},
@@ -245,12 +251,17 @@ func runMigrations(db *gorm.DB) error {
 		&models.AuditResultReport{},
 		&models.ExecutiveSummary{},
 		&models.ActionTakenReport{},
+		&models.ActionTakenReportEvidence{},
 		&models.ImportedWorkingPaper{},
 		&models.UploadedPlanDocument{},
 		&models.KPIAchievement{},
 		&models.WorkPlanRealization{},
 		&models.AuditeeSurvey{},
-	)
+	); err != nil {
+		return err
+	}
+	// Same data steps as "migrate up": LHA finding ids, old ATR columns
+	return runATRDataMigrations(db)
 }
 
 func seedAuditMandates(db *gorm.DB) error {
@@ -1169,11 +1180,11 @@ func seedWorkingPapers(db *gorm.DB) error {
 	}
 
 	// 3. Samples
-	pop := 150
+	pop := "150"
 	sz := 15
-	pop2 := 40
+	pop2 := "40"
 	sz2 := 10
-	pop3 := 200
+	pop3 := "200"
 	sz3 := 20
 	tVal := true
 	fVal := false
@@ -1425,446 +1436,43 @@ func seedExecutions(db *gorm.DB) error {
 }
 
 func seedResultReports(db *gorm.DB) error {
-	reportDate1 := time.Date(2023, 9, 22, 0, 0, 0, 0, time.UTC)
-	reportDate2 := time.Date(2026, 4, 15, 0, 0, 0, 0, time.UTC)
-	reportDate3 := time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC)
-	reportDate4 := time.Date(2026, 8, 10, 0, 0, 0, 0, time.UTC)
-	reportDate5 := time.Date(2026, 8, 18, 0, 0, 0, 0, time.UTC)
-	seeds := []models.AuditResultReport{
-		{
-			AssignmentLetterID: "ST-001/SKAI/2025",
-			ReportTitle:        "Laporan Hasil Audit Operasional Keuangan & Kas 2025",
-			FindingsCount:      4,
-			ReportNumber:       "015/LHA/01/KS IAD/2025",
-			Title:              "Laporan Hasil Audit Operasional Keuangan 2025",
-			AuditObject:        "PT AIFL Indonesia - Departemen Keuangan",
-			Department:         "Finance",
-			AuditPeriod:        "Tahun Buku 2025",
-			ExecutiveSummary:   "Audit dilakukan untuk mengevaluasi efektivitas kontrol internal atas transaksi pengeluaran kas dan bank tahun 2025.",
-			Scope:              "Pemeriksaan voucher kas, bukti transfer, otorisasi limit pengeluaran, dan rekonsiliasi bank harian.",
-			Methodology:        "Sampling transaksi, konfirmasi saldo bank, dan pengujian otorisasi bertingkat.",
-			FindingSummary:     "Ditemukan 4 Area of Improvement terkait dokumen pendukung transfer yang terlambat diarsip.",
-			Recommendation:     "Manajemen Keuangan perlu memperketat verifikasi kelengkapan dokumen sebelum persetujuan pembayaran.",
-			Conclusion:         "Tata kelola keuangan secara umum baik dengan kelemahan administrasi ringan.",
-			PreparedBy:         "Zeta Ramadhani",
-			ReviewedBy:         "Budi Santoso",
-			ApprovedBy:         "Head of SKAI",
-			ReportDate:         func() *time.Time { t := time.Date(2025, 3, 12, 0, 0, 0, 0, time.UTC); return &t }(),
-			Status:             "APPROVED",
-			Attachment:         "LHA_Keuangan_2025.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Kelengkapan dokumen pendukung voucher kas kecil di bawah Rp 5 juta kurang rapi", Category: "Significant", Action: "Penataan arsip voucher"},
-				{Title: "Rekonsiliasi bank akhir bulan terlambat 2 hari dari jadwal SOP", Category: "Significant", Action: "Monitoring ketat jadwal rekonsiliasi"},
-				{Title: "Limit otorisasi transaksi darurat belum didokumentasikan dalam SOP terupdate", Category: "Quite Significant", Action: "Update SOP Otorisasi"},
-				{Title: "Terdapat selisih kas kecil minor saat surprise cash count Q1", Category: "Significant", Action: "Pemeriksaan berkala kasir"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-002/SKAI/2025",
-			ReportTitle:        "Laporan Hasil Audit Pengadaan SCM & Manajemen Vendor 2025",
-			FindingsCount:      3,
-			ReportNumber:       "016/LHA/01/KS IAD/2025",
-			Title:              "Laporan Hasil Audit SCM & Pengadaan 2025",
-			AuditObject:        "PT AIFL Indonesia - Divisi Procurement",
-			Department:         "Procurement",
-			AuditPeriod:        "Semester 1 2025",
-			ExecutiveSummary:   "Audit mengevaluasi kepatuhan prosedur pengadaan barang/jasa dan evaluasi kinerja vendor semester 1 2025.",
-			Scope:              "Analisis HPS, proses tender/lelang, kontrak vendor, dan pengujian penerimaan barang.",
-			Methodology:        "Document review, wawancara tim SCM, dan uji petik berkas tender.",
-			FindingSummary:     "Ditemukan 3 temuan terkait evaluasi kinerja vendor berkala yang belum konsisten dijalankan.",
-			Recommendation:     "Implementasi scorecard vendor otomatis pada sistem SCM.",
-			Conclusion:         "Proses pengadaan telah memenuhi prinsip efisiensi dengan perbaikan pada manajemen masa berlaku kontrak vendor.",
-			PreparedBy:         "Rina Wulandari",
-			ReviewedBy:         "Budi Santoso",
-			ApprovedBy:         "Head of SKAI",
-			ReportDate:         func() *time.Time { t := time.Date(2025, 6, 12, 0, 0, 0, 0, time.UTC); return &t }(),
-			Status:             "APPROVED",
-			Attachment:         "LHA_Procurement_2025.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Evaluasi kinerja berkala untuk vendor kategori B belum terdokumentasi", Category: "Significant", Action: "Implementasi Vendor Scorecard"},
-				{Title: "Terdapat 2 kontrak supplier yang mendekati habis masa berlaku tanpa alert otomatis", Category: "Quite Significant", Action: "Setup alert kontrak di SCM"},
-				{Title: "Berita Acara Serah Terima (BAST) pekerjaan jasa konsultansi belum dilampirkan lengkap", Category: "Significant", Action: "Lengkapi berkas BAST"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-003/SKAI/2025",
-			ReportTitle:        "Laporan Hasil Audit Keamanan Sistem Informasi & Infrastruktur TI 2025",
-			FindingsCount:      5,
-			ReportNumber:       "017/LHA/01/KS IAD/2025",
-			Title:              "Laporan Hasil Audit TI & ERP 2025",
-			AuditObject:        "PT AIFL Indonesia - Divisi TI",
-			Department:         "IT",
-			AuditPeriod:        "Q3 2025",
-			ExecutiveSummary:   "Audit TI mengevaluasi kontrol keamanan server ERP, manajemen akun pengguna, serta kesiapan Disaster Recovery Plan.",
-			Scope:              "Review matriks hak akses, pengujian backup data, dan peninjauan log keamanan IT.",
-			Methodology:        "Vulnerability assessment, review konfigurasi firewall, dan pengujian restore backup.",
-			FindingSummary:     "Ditemukan 5 temuan mengenai perlunya penguatan kebijakan password dan MFA.",
-			Recommendation:     "Wajibkan MFA untuk akses akun admin dan perbarui jadwal DRC drill.",
-			Conclusion:         "Secara umum infrastruktur TI stabil, membutuhkan penguatan aspek autentikasi.",
-			PreparedBy:         "Andi Firmansyah",
-			ReviewedBy:         "Budi Santoso",
-			ApprovedBy:         "Head of SKAI",
-			ReportDate:         func() *time.Time { t := time.Date(2025, 9, 14, 0, 0, 0, 0, time.UTC); return &t }(),
-			Status:             "APPROVED",
-			Attachment:         "LHA_IT_Security_2025.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Akun Superadmin ERP belum dikonfigurasi menggunakan Multi-Factor Authentication", Category: "Very Significant", Action: "Enforce MFA mandatory"},
-				{Title: "Pengujian simulasi Disaster Recovery (DRC) belum dilakukan pada semester 1", Category: "Very Significant", Action: "Jadwalkan DRC drill"},
-				{Title: "Masa berlaku password user non-aktif belum otomatis expired setelah 90 hari", Category: "Significant", Action: "Update password policy ERP"},
-				{Title: "Dokumentasi lisensi software pihak ketiga belum terdesentralisasi rapi", Category: "Quite Significant", Action: "Inventarisasi lisensi software"},
-				{Title: "Log audit server belum ditinjau secara harian oleh tim SOC", Category: "Significant", Action: "Otomatisasi log review"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-004/SKAI/2025",
-			ReportTitle:        "Laporan Hasil Audit Operasional Cabang & Gudang Logistik 2025",
-			FindingsCount:      3,
-			ReportNumber:       "018/LHA/01/KS IAD/2025",
-			Title:              "Laporan Hasil Audit Gudang & Logistik 2025",
-			AuditObject:        "PT AIFL Indonesia - Unit Gudang & Logistik Branch",
-			Department:         "Operations",
-			AuditPeriod:        "Semester 2 2025",
-			ExecutiveSummary:   "Audit operasional untuk memastikan akurasi stok opname barang dan kepatuhan prosedur pengiriman logistik.",
-			Scope:              "Uji fisik stok barang gudang utama, verifikasi surat jalan, dan kontrol kebersihan area penyimpanan.",
-			Methodology:        "Physical stock count, pengujian sampel transaksi pengeluaran barang, dan observasi lapangan.",
-			FindingSummary:     "Ditemukan 3 temuan minor mengenai selisih stok fisik serta pengaturan suhu gudang.",
-			Recommendation:     "Tingkatkan frekuensi cycle count bulanan dan perbaiki fasilitas pendingin ruangan gudang.",
-			Conclusion:         "Operasional gudang berjalan baik dan tertib persediaan.",
-			PreparedBy:         "Dewi Kusumawati",
-			ReviewedBy:         "Budi Santoso",
-			ApprovedBy:         "Head of SKAI",
-			ReportDate:         func() *time.Time { t := time.Date(2025, 11, 12, 0, 0, 0, 0, time.UTC); return &t }(),
-			Status:             "APPROVED",
-			Attachment:         "LHA_Gudang_Logistik_2025.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Selisih minor stok opname fisik vs catatan sistem akibat keterlambatan input gate pass", Category: "Significant", Action: "Input gate pass real-time"},
-				{Title: "Sensor pengukur suhu udara gudang bahan kimia belum dikalibrasi berkala", Category: "Significant", Action: "Kalibrasi sensor suhu"},
-				{Title: "Penataan palet di blok C belum sesuai standar K3 keselamatan kerja", Category: "Quite Significant", Action: "Penataan ulang blok C"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-005/SKAI/2025",
-			ReportTitle:        "Laporan Hasil Audit Kepatuhan SDM & Payroll Penggajian 2025",
-			FindingsCount:      2,
-			ReportNumber:       "019/LHA/01/KS IAD/2025",
-			Title:              "Laporan Hasil Audit SDM & Payroll 2025",
-			AuditObject:        "PT AIFL Indonesia - Divisi HR",
-			Department:         "HR",
-			AuditPeriod:        "Tahun Buku 2025",
-			ExecutiveSummary:   "Audit kepatuhan mengevaluasi ketepatan perhitungan gaji karyawan, pemotongan pajak PPh 21, dan iuran BPJS.",
-			Scope:              "Rekonsiliasi total payroll harian/bulanan, sampel slip gaji, serta verifikasi klaim asuransi kesehatan.",
-			Methodology:        "Recalculation payroll, rekonsiliasi data pegawai aktif vs bank transfer, dan verifikasi kepatuhan regulasi.",
-			FindingSummary:     "Ditemukan 2 temuan administratif mengenai update data kepesertaan BPJS pegawai baru.",
-			Recommendation:     "Otomatisasikan pendaftaran BPJS karyawan baru saat onboarding.",
-			Conclusion:         "Pengelolaan penggajian dan pemenuhan kewajiban SDM dilaksanakan secara patuh dan tepat waktu.",
-			PreparedBy:         "Budi Santoso",
-			ReviewedBy:         "Zeta Ramadhani",
-			ApprovedBy:         "Head of SKAI",
-			ReportDate:         func() *time.Time { t := time.Date(2025, 12, 28, 0, 0, 0, 0, time.UTC); return &t }(),
-			Status:             "APPROVED",
-			Attachment:         "LHA_Payroll_SDM_2025.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Keterlambatan pemutakhiran data BPJS Kesehatan untuk 3 karyawan baru", Category: "Significant", Action: "Integrasi onboarding SDM & BPJS"},
-				{Title: "Arsip fisik form klaim kesehatan belum terdigitalisasi lengkap dalam HRIS", Category: "Quite Significant", Action: "Digitalisasi arsip klaim HRIS"},
-			},
-		},
-		{
-			AssignmentLetterID: "020/ST/01/KSIAD/2023",
-			ReportTitle:        "Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau",
-			FindingsCount:      8,
-			ReportNumber:       "020/LHA/01/KS IAD/2023",
-			Title:              "Laporan Hasil Audit Operasional Tahun 2023",
-			AuditObject:        "Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau",
-			Department:         "Operasi & Pemeliharaan",
-			AuditPeriod:        "Januari 2023 s.d Agustus 2023",
-			ExecutiveSummary:   "Audit Operasional Tahun 2023 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.",
-			Scope:              "Ketersediaan dan Keandalan Pembangkit (EAF/EFOR), Efisiensi Pembangkit & Energi Primer, Kepatuhan K3LH, Manajemen Risiko, Pengadaan Barang/Jasa.",
-			Methodology:        "Pendekatan Risiko, Pengujian Terbatas Dokumen, dan Uji Petik (Non-statistical sampling).",
-			FindingSummary:     "Ditemukan 8 Area of Improvement meliputi Pengelolaan Manajemen Risiko, Overhaul ME+ PLTU TBK #1, Peralatan Lab Batubara, dan Implementasi Maximo WPC.",
-			Recommendation:     "Manajemen UPDK KEPRI perlu melakukan refreshment manajemen risiko, penyusunan DMR, dan sertifikasi personil pemeliharaan.",
-			Conclusion:         "Tata kelola dan pengendalian internal berjalan baik dengan 1 Risk Management AoI dan 8 Internal Control AoI.",
-			PreparedBy:         "Tomy Afrilianto",
-			ReviewedBy:         "Robert Sunarijanto",
-			ApprovedBy:         "Head of SKAI",
-			ReportDate:         &reportDate1,
-			Status:             "APPROVED",
-			Attachment:         "LHA_UPDK_Kepri_2023.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Pengelolaan Manajemen Risiko Belum Sepenuhnya Sesuai Kebijakan Masa Transisi HSH", Category: "Very Significant", Action: "Perbaikan SOP"},
-				{Title: "Pelaksanaan Overhaul UPDK KEPRI Belum Optimal Terjadi PE 6 Hari pada ME+ PLTU TBK #1", Category: "Very Significant", Action: "Evaluasi jadwal"},
-				{Title: "Peralatan Lab Milik Perusahaan Belum Digunakan Secara Optimal Sebagai Pembanding Surveyor", Category: "Significant", Action: "Kalibrasi ulang"},
-				{Title: "Data Maturity Level Manajemen Aset Belum Lengkap Terbatalnya Fitur Maximo WPC", Category: "Significant", Action: "Update Maximo"},
-				{Title: "Terdapat Penyusunan HPS dan Pemanfaatan ERP Tidak Sesuai Ketentuan SCM", Category: "Significant", Action: "Review HPS"},
-				{Title: "Program Pemeliharaan Aset Tetap Belum Diakui Kepemilikannya Menggunakan Anggaran Operasi", Category: "Quite Significant", Action: "Inventarisasi aset"},
-				{Title: "Terdapat Kontrak Pekerjaan Sejenis Yang Tidak Digabungkan (Strategi Squeezing)", Category: "Quite Significant", Action: "Review kontrak"},
-				{Title: "Pengelolaan K3 dan Keamanan di UPDK KEPRI Belum Optimal (Fire Fighting & Lightning)", Category: "Significant", Action: "Audit K3"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-001/SKAI/2026",
-			ReportTitle:        "Laporan Hasil Audit Operasional Keuangan",
-			FindingsCount:      5,
-			ReportNumber:       "021/LHA/01/KS IAD/2026",
-			Title:              "Laporan Hasil Audit Operasional Keuangan 2025",
-			AuditObject:        "PT AIFL Indonesia - Departemen Keuangan",
-			Department:         "Finance",
-			AuditPeriod:        "Tahun Buku 2025",
-			ExecutiveSummary:   "Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.",
-			Scope:              "Pengujian kas, bank, rekonsiliasi, invoice matching, dan otorisasi limit.",
-			Methodology:        "Walkthrough, wawancara, sample testing, dan verifikasi dokumen pendukung.",
-			FindingSummary:     "Ditemukan kelemahan minor pada backup database ERP yang sempat gagal.",
-			Recommendation:     "Disarankan membuat SMTP alert untuk kegagalan backup data.",
-			Conclusion:         "Secara umum, pengendalian internal memadai dengan beberapa area peningkatan.",
-			PreparedBy:         "Zeta Ramadhani",
-			ReviewedBy:         "Budi Santoso",
-			ApprovedBy:         "System",
-			ReportDate:         &reportDate2,
-			Status:             "Draft",
-			Attachment:         "LHA_Keuangan_2025_Final.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Keterlambatan rekonsiliasi kas harian cabang utama", Category: "Very Significant", Action: "Perbaikan jadwal harian"},
-				{Title: "Kelemahan kontrol otorisasi transaksi di atas Rp 500jt", Category: "Very Significant", Action: "Review limit otorisasi"},
-				{Title: "Selisih pencatatan inventaris fisik vs buku besar", Category: "Very Significant", Action: "Stok opname ulang"},
-				{Title: "Dokumentasi bukti transfer eksternal tidak lengkap", Category: "Significant", Action: "Lengkapi berkas transfer"},
-				{Title: "Akses user kasir tidak di-nonaktifkan setelah mutasi", Category: "Significant", Action: "Nonaktifkan akun user"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-002/SKAI/2026",
-			ReportTitle:        "Laporan Hasil Audit Keamanan Sistem Informasi & ERP 2026",
-			FindingsCount:      4,
-			ReportNumber:       "022/LHA/01/KS IAD/2026",
-			Title:              "Laporan Hasil Audit Keamanan Sistem Informasi 2026",
-			AuditObject:        "PT AIFL Indonesia - Divisi Teknologi Informasi",
-			Department:         "IT",
-			AuditPeriod:        "Q1 2026",
-			ExecutiveSummary:   "Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP serta backup data.",
-			Scope:              "Pengujian keamanan database, MFA, simulasi DR, dan log audit akses.",
-			Methodology:        "Vulnerability scanning, log review, and interview.",
-			FindingSummary:     "Kebutuhan MFA mandatory untuk akun superadmin ERP.",
-			Recommendation:     "Implementasi MFA dan jalankan DRC drill semesteran.",
-			Conclusion:         "Tata kelola IT terstruktur dengan perhatian khusus pada penguatan autentikasi.",
-			PreparedBy:         "Andi Firmansyah",
-			ReviewedBy:         "Budi Santoso",
-			ApprovedBy:         "Head of IT",
-			ReportDate:         &reportDate3,
-			Status:             "Final",
-			Attachment:         "LHA_IT_Security_2026.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Keterlambatan patch keamanan server database ERP", Category: "Very Significant", Action: "Update patch rutin"},
-				{Title: "Akses Superadmin ERP belum menggunakan Multi-Factor Authentication", Category: "Very Significant", Action: "Implementasi MFA mandatory"},
-				{Title: "Prosedur Backup Data belum diuji pemulihannya secara berkala", Category: "Significant", Action: "Jadwalkan DRC drill"},
-				{Title: "Log audit aktivitas sistem informasi belum di-review mingguan", Category: "Quite Significant", Action: "Setup SOC log alert"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-003/SKAI/2026",
-			ReportTitle:        "Laporan Hasil Audit Operasional Gudang & Persediaan Logistik 2026",
-			FindingsCount:      3,
-			ReportNumber:       "023/LHA/01/KS IAD/2026",
-			Title:              "Laporan Hasil Audit Gudang & Logistik 2026",
-			AuditObject:        "PT AIFL Indonesia - Unit Gudang Logistik",
-			Department:         "Operations",
-			AuditPeriod:        "Semester 1 2026",
-			ExecutiveSummary:   "Audit mengevaluasi akurasi pencatatan stok gudang persediaan dan pengelolaan distribusi.",
-			Scope:              "Stock opname, verifikasi gate pass, dan kontrol suhu gudang.",
-			Methodology:        "Physical counting, sample testing, observation.",
-			FindingSummary:     "Terdapat selisih stok minor dan sensor suhu ruangan belum terintegrasi IoT.",
-			Recommendation:     "Pasang sensor IoT suhu digital 24/7 dan revisi SOP pengeluaran barang.",
-			Conclusion:         "Operasional gudang berjalan dengan baik dengan perbaikan sistem pemantauan lingkungan.",
-			PreparedBy:         "Rina Wulandari",
-			ReviewedBy:         "Budi Santoso",
-			ApprovedBy:         "Head of Operations",
-			ReportDate:         &reportDate4,
-			Status:             "Draft",
-			Attachment:         "LHA_Gudang_Logistik_2026.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Selisih fisik barang material persediaan gudang cabang", Category: "Significant", Action: "Investigasi selisih stok"},
-				{Title: "Suhu penyimpanan gudang bahan kimia belum terpantau 24/7", Category: "Quite Significant", Action: "Pasang IoT sensor suhu"},
-				{Title: "Pengeluaran material proyek tanpa Work Order yang disetujui", Category: "Significant", Action: "Kunci sistem release barang"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-004/SKAI/2026",
-			ReportTitle:        "Laporan Hasil Audit Kepatuhan Procurement & SCM 2026",
-			FindingsCount:      2,
-			ReportNumber:       "024/LHA/01/KS IAD/2026",
-			Title:              "Laporan Hasil Audit Kepatuhan Procurement",
-			AuditObject:        "PT AIFL Indonesia - Pengadaan",
-			Department:         "Procurement",
-			AuditPeriod:        "Q2 2026",
-			ExecutiveSummary:   "Audit evaluasi pelaksanaan rekomendasi audit internal dan kepatuhan pengadaan SCM.",
-			Scope:              "Monitoring tindak lanjut LHA SCM.",
-			Methodology:        "Verification & compliance testing.",
-			FindingSummary:     "Sebagian besar rekomendasi telah ditindaklanjuti.",
-			Recommendation:     "Lampirkan kertas kerja survei HPS vendor.",
-			Conclusion:         "Tindak lanjut berjalan efektif.",
-			PreparedBy:         "Budi Santoso",
-			ReviewedBy:         "Zeta Ramadhani",
-			ApprovedBy:         "System",
-			ReportDate:         &reportDate5,
-			Status:             "Final",
-			Attachment:         "LHA_Procurement_2026.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Penyusunan HPS pengadaan komponen turbin belum melampirkan kertas kerja survei harga", Category: "Quite Significant", Action: "Lampirkan bukti survei HPS"},
-				{Title: "Monitoring pencairan jaminan bank vendor belum terintegrasi ERP", Category: "Not Significant", Action: "Fitur reminder otomatis ERP"},
-			},
-		},
-		{
-			AssignmentLetterID: "ST-005/SKAI/2026",
-			ReportTitle:        "Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit 2026",
-			FindingsCount:      3,
-			ReportNumber:       "025/LHA/01/KS IAD/2026",
-			Title:              "Laporan Hasil Audit K3LH Pembangkit 2026",
-			AuditObject:        "PT AIFL Indonesia - Unit Pemeliharaan",
-			Department:         "Maintenance",
-			AuditPeriod:        "Q3 2026",
-			ExecutiveSummary:   "Executive Summary Individual DOC-EXSUM-Q1-2026 untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit.",
-			Scope:              "Inspeksi fasilitas K3LH dan hidran.",
-			Methodology:        "Physical inspection & certification review.",
-			FindingSummary:     "Diperlukan penjadwalan pemeliharaan hidran rutin.",
-			Recommendation:     "Segera jadwalkan pemeliharaan hidran dan pembaruan sertifikat K3.",
-			Conclusion:         "K3LH beroperasi aman.",
-			PreparedBy:         "Dewi Kusumawati",
-			ReviewedBy:         "Rina Wulandari",
-			ApprovedBy:         "Chief Safety Officer",
-			ReportDate:         &reportDate5,
-			Status:             "Final",
-			Attachment:         "LHA_K3LH_2026.pdf",
-			Findings: []models.AuditReportFinding{
-				{Title: "Inspeksi berkala sistem pemadam kebakaran hidran belum 100% terlaksana", Category: "Very Significant", Action: "Jadwalkan pemeliharaan hidran"},
-				{Title: "Sertifikasi K3LH teknisi pemeliharaan pembangkit belum di-renew", Category: "Significant", Action: "Daftarkan pelatihan sertifikasi"},
-				{Title: "APBD K3 belum memadai untuk instalasi area berisiko tinggi", Category: "Quite Significant", Action: "Pengadaan APD tambahan"},
-			},
-		},
-	}
-	for i := range seeds {
-		var existing models.AuditResultReport
-		err := db.Where("report_number = ?", seeds[i].ReportNumber).First(&existing).Error
-		if err == gorm.ErrRecordNotFound {
-			if err := db.Create(&seeds[i]).Error; err != nil {
-				return err
-			}
-		} else {
-			db.Model(&existing).Updates(map[string]interface{}{
-				"report_date":    seeds[i].ReportDate,
-				"findings":       seeds[i].Findings,
-				"findings_count": len(seeds[i].Findings),
-				"report_title":   seeds[i].ReportTitle,
-				"audit_object":   seeds[i].AuditObject,
-				"department":     seeds[i].Department,
-				"audit_period":   seeds[i].AuditPeriod,
-			})
-		}
-	}
-	return nil
-}
-
-func seedActionTakenReports(db *gorm.DB) error {
-	seeds := []models.ActionTakenReport{
-		{
-			AuditRef:            "ST-001/SKAI/2026",
-			Title:               "Rekonsiliasi Kas Harian dan Arus Kas",
-			Department:          "Finance",
-			AuditObject:         "Manajemen Keuangan Utama",
-			FindingCategory:     "Assurance",
-			Condition:           "Selisih saldo kas 5%",
-			Criteria:            "SOP Keuangan No. 01",
-			Recommendation:      "Rekonsiliasi harian",
-			PIC:                 "Departemen Finance",
-			Deadline:            "2026-04-15",
-			Status:              "COMPLETED",
-			Attachment:          "Bukti_Rekonsiliasi.pdf",
-			ProgressDescription: "Selesai tepat waktu.",
-		},
-		{
-			AuditRef:            "ST-002/SKAI/2026",
-			Title:               "Pemasangan SMTP Alert Backup ERP",
-			Department:          "IT",
-			AuditObject:         "IT Infrastructure",
-			FindingCategory:     "Technology & Access",
-			Condition:           "Kegagalan backup database tidak memicu notifikasi otomatis.",
-			Criteria:            "SOP IT Recovery mensyaratkan notifikasi insiden langsung terkirim ke tim sysadmin.",
-			Recommendation:      "Konfigurasi SMTP server untuk mengirim log gagal.",
-			PIC:                 "Rudi Hermawan",
-			Deadline:            "2026-04-20",
-			Status:              "COMPLETED",
-			Attachment:          "Config_Alert_SMTP.pdf",
-			ProgressDescription: "SMTP alert dikonfigurasi dan sukses diuji coba pada backup simulasi.",
-		},
-		{
-			AuditRef:            "ST-003/SKAI/2026",
-			Title:               "Opname Stok Fisik Gudang Utama",
-			Department:          "Ops",
-			AuditObject:         "Manajemen Gudang Utama",
-			FindingCategory:     "Special Audit",
-			Condition:           "Selisih stok fisik 5% (Gudang A)",
-			Criteria:            "SOP Inventori No. 12",
-			Recommendation:      "Opname stok ulang & kunci ganda.",
-			PIC:                 "Departemen Logistik",
-			Deadline:            "2026-05-15",
-			Status:              "IN_PROGRESS",
-			Attachment:          "Draft_Inventarisasi.xlsx",
-			ProgressDescription: "Sedang berjalan 50%.",
-		},
-		{
-			AuditRef:            "ST-004/SKAI/2026",
-			Title:               "Evaluasi Kontrak Vendor SCM",
-			Department:          "Procurement",
-			AuditObject:         "Manajemen Vendor",
-			FindingCategory:     "Consulting Services",
-			Condition:           "Dokumen HPS vendor belum diperbarui",
-			Criteria:            "SOP Pengadaan No. 05",
-			Recommendation:      "Review dan perbarui HPS vendor secara periodik",
-			PIC:                 "Departemen GA",
-			Deadline:            "2026-06-01",
-			Status:              "PLANNED",
-			ProgressDescription: "Dalam tahap perancangan.",
-		},
-		{
-			AuditRef:            "ST-005/SKAI/2026",
-			Title:               "Sertifikasi Peralatan Pemadam Hidran",
-			Department:          "Maintenance",
-			AuditObject:         "Fasilitas K3LH",
-			FindingCategory:     "Investigation",
-			Condition:           "Masa berlaku sertifikasi hidran berakhir",
-			Criteria:            "SOP K3LH No. 08",
-			Recommendation:      "Pengujian dan resertifikasi hidran pabrik",
-			PIC:                 "K3LH Team",
-			Deadline:            "2026-06-15",
-			Status:              "CANCELLED",
-			Attachment:          "Foto_Fisik.jpg",
-			ProgressDescription: "Dibatalkan karena restrukturisasi operasional unit.",
-		},
-	}
-	for i := range seeds {
-		var letter models.AssignmentLetter
-		if err := db.Where("letter_number = ?", seeds[i].AuditRef).First(&letter).Error; err == nil {
-			seeds[i].AssignmentLetterID = &letter.ID
-		}
-		var existing models.ActionTakenReport
-		err := db.Where("audit_ref = ? AND title = ?", seeds[i].AuditRef, seeds[i].Title).First(&existing).Error
-		if err == gorm.ErrRecordNotFound {
-			if err := db.Create(&seeds[i]).Error; err != nil {
-				return err
-			}
-		} else if existing.ID != (models.ActionTakenReport{}).ID && existing.AssignmentLetterID == nil && seeds[i].AssignmentLetterID != nil {
-			db.Model(&existing).Update("assignment_letter_id", seeds[i].AssignmentLetterID)
-		}
+	// User requirement: Remove all dummy Audit Result Reports so LHA must be created first
+	if err := db.Exec("DELETE FROM audit_result_reports").Error; err != nil {
+		logger.Warn("Failed to clean audit_result_reports table", logger.LogField("error", err))
 	}
 	return nil
 }
 
 func seedExecutiveSummaries(db *gorm.DB) error {
+	legacyMigrations := map[string]string{
+		"021/LHA/01/KS IAD/2026": "LHA-021/SKAI/2026",
+		"022/LHA/01/KS IAD/2026": "LHA-022/SKAI/2026",
+		"025/LHA/01/KS IAD/2026": "LHA-025/SKAI/2026",
+	}
+	for oldNum, newNum := range legacyMigrations {
+		db.Model(&models.ExecutiveSummary{}).Where("nomor_dokumen = ?", oldNum).Update("nomor_dokumen", newNum)
+	}
+
+	// Clean up legacy and dummy executive summaries
+	_ = db.Where("nomor_dokumen IN ?", []string{
+		"DOC-EXSUM-Q1-2026",
+		"020/LHA/01/KS IAD/2023",
+		"019/LHA/01/KS IAD/2025",
+		"LHA-020/SKAI/2023",
+		"LHA-019/SKAI/2025",
+	}).Delete(&models.ExecutiveSummary{}).Error
+
 	seeds := []models.ExecutiveSummary{
 		{
 			Quarter:             2,
 			PeriodeBulan:        "April 2026",
 			Tahun:               2026,
-			NomorDokumen:        "021/LHA/01/KS IAD/2026",
+			NomorDokumen:        "LHA-021/SKAI/2026",
+			AssignmentLetterID:  "ST-001/SKAI/2026",
 			DokumenPath:         "Executive_Summary_021_LHA_2026.pdf",
 			Status:              "Approved",
-			Narrative:           "Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (021/LHA/01/KS IAD/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.",
+			ExecutiveNote:       "Mohon tindak lanjuti rekonsiliasi kas harian dan koordinasikan perbaikan dengan tim Keuangan.",
+			Narrative:           "Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (LHA-021/SKAI/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.",
 			JumlahLaporan:       1,
 			RisikoTinggi:        3,
 			RisikoSedang:        2,
@@ -1872,7 +1480,7 @@ func seedExecutiveSummaries(db *gorm.DB) error {
 			JumlahRekomendasi:   5,
 			FollowUpTable:       `[{"unit":"Departemen Keuangan","open":2,"closed":3}]`,
 			TopFindings:         `[{"finding":"Selisih pencatatan inventaris fisik vs buku besar","severity":"High"},{"finding":"Keterlambatan rekonsiliasi kas harian cabang utama","severity":"High"}]`,
-			MatriksKompilasi:    `[{"nomor":"021/LHA/01","division":"Finance","unitKerja":"Departemen Keuangan","prosesBisnis":"ICOFR","judulTemuan":"Selisih pencatatan inventaris fisik vs buku besar","nilaiRisiko":"Tinggi","rekomendasi":"Lakukan rekonsiliasi harian dan alert SMTP","dueDate":"2026-05-15","picUnit":"Manager Keuangan","progres":60,"status":"In Progress","buktiTL":"BA_Rekonsiliasi.pdf"}]`,
+			MatriksKompilasi:    `[{"nomor":"LHA-021/01","division":"Finance","unitKerja":"Departemen Keuangan","prosesBisnis":"ICOFR","judulTemuan":"Selisih pencatatan inventaris fisik vs buku besar","nilaiRisiko":"Tinggi","rekomendasi":"Lakukan rekonsiliasi harian dan alert SMTP","dueDate":"2026-05-15","picUnit":"Manager Keuangan","progres":60,"status":"In Progress","buktiTL":"BA_Rekonsiliasi.pdf"}]`,
 			AkarMasalah:         "Kurangnya otomatisasi alarm kegagalan backup data dan kelalaian non-aktifkan akses user kasir.",
 			Kesimpulan:          "Secara umum pengendalian internal departemen keuangan memadai dengan beberapa area peningkatan yang perlu segera ditindaklanjuti.",
 			SignatureTempat:     "Jakarta",
@@ -1881,36 +1489,40 @@ func seedExecutiveSummaries(db *gorm.DB) error {
 			SignatureNIK:        "NIK-100240",
 		},
 		{
-			Quarter:             3,
-			PeriodeBulan:        "September 2023",
-			Tahun:               2023,
-			NomorDokumen:        "020/LHA/01/KS IAD/2023",
-			DokumenPath:         "Executive_Summary_020_LHA_2023.pdf",
-			Status:              "Approved",
-			Narrative:           "Executive Summary Individual untuk Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau (020/LHA/01/KS IAD/2023). Audit mengevaluasi ketersediaan pembangkit (EAF/EFOR), K3LH, manajemen risiko, dan SCM.",
+			Quarter:             1,
+			PeriodeBulan:        "Februari 2026",
+			Tahun:               2026,
+			NomorDokumen:        "LHA-022/SKAI/2026",
+			AssignmentLetterID:  "ST-002/SKAI/2026",
+			DokumenPath:         "Executive_Summary_022_LHA_2026.pdf",
+			Status:              "Draft",
+			ExecutiveNote:       "",
+			Narrative:           "Executive Summary Individual untuk Audit Keamanan Sistem Informasi & Infrastruktur ERP (LHA-022/SKAI/2026). Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP.",
 			JumlahLaporan:       1,
-			RisikoTinggi:        2,
-			RisikoSedang:        4,
-			RisikoRendah:        2,
-			JumlahRekomendasi:   8,
-			FollowUpTable:       `[{"unit":"UPDK Kepulauan Riau","open":3,"closed":5}]`,
-			TopFindings:         `[{"finding":"Pelaksanaan Overhaul ME+ PLTU TBK #1 Terjadi PE 6 Hari","severity":"High"},{"finding":"Pengelolaan Manajemen Risiko Belum Sepenuhnya Sesuai Masa Transisi HSH","severity":"High"}]`,
-			MatriksKompilasi:    `[{"nomor":"020/LHA/01","division":"Operasi","unitKerja":"UPDK Kepulauan Riau","prosesBisnis":"O&M Pembangkit","judulTemuan":"Pelaksanaan Overhaul ME+ PLTU TBK #1 Terjadi PE 6 Hari","nilaiRisiko":"Tinggi","rekomendasi":"Penyusunan DMR & Sertifikasi Pemeliharaan","dueDate":"2023-11-30","picUnit":"Manager UPDK","progres":80,"status":"In Progress","buktiTL":"Laporan_Overhaul.pdf"}]`,
-			AkarMasalah:         "Masa transisi holding sub-holding, keterbatasan sarana lab batubara, dan belum lengkapnya fitur Maximo WPC.",
-			Kesimpulan:          "Tata kelola dan pengendalian internal berjalan baik dengan 1 Risk Management AoI dan 8 Internal Control AoI.",
-			SignatureTempat:     "Tanjung Pinang",
-			SignatureTanggal:    "2023-09-22",
-			SignatureNamaKepala: "Tomy Afrilianto",
-			SignatureNIK:        "NIK-100188",
+			RisikoTinggi:        1,
+			RisikoSedang:        2,
+			RisikoRendah:        1,
+			JumlahRekomendasi:   4,
+			FollowUpTable:       `[{"unit":"IT Infrastructure","open":2,"closed":2}]`,
+			TopFindings:         `[{"finding":"ERP Backup issue","severity":"Medium"}]`,
+			MatriksKompilasi:    `[]`,
+			AkarMasalah:         "Kurangnya monitoring sistem secara real-time dan otomasi alerting.",
+			Kesimpulan:          "Pengendalian keamanan sistem informasi cukup memadai dengan prioritas perbaikan pada backup recovery ERP.",
+			SignatureTempat:     "Jakarta",
+			SignatureTanggal:    "2026-02-28",
+			SignatureNamaKepala: "Andi Firmansyah",
+			SignatureNIK:        "NIK-100241",
 		},
 		{
 			Quarter:             1,
-			PeriodeBulan:        "Januari - Maret",
+			PeriodeBulan:        "Januari - Maret 2026",
 			Tahun:               2026,
-			NomorDokumen:        "DOC-EXSUM-Q1-2026",
+			NomorDokumen:        "LHA-025/SKAI/2026",
+			AssignmentLetterID:  "ST-005/SKAI/2026",
 			DokumenPath:         "ExSum_Q1_2026.pdf",
 			Status:              "Approved",
-			Narrative:           "Ringkasan eksekutif ini menjelaskan pencapaian program kerja audit Triwulan I 2026.",
+			ExecutiveNote:       "Disetujui. Mohon koordinasikan dengan Direksi terkait temuan overhauling dan konsolidasi LHA Q1 2026.",
+			Narrative:           "Ringkasan eksekutif kompilasi ini menjelaskan pencapaian program kerja audit Triwulan I 2026 dan konsolidasi temuan audit.",
 			JumlahLaporan:       3,
 			RisikoTinggi:        1,
 			RisikoSedang:        2,
@@ -1936,15 +1548,16 @@ func seedExecutiveSummaries(db *gorm.DB) error {
 			}
 		} else {
 			db.Model(&existing).Updates(map[string]interface{}{
-				"narrative":         seeds[i].Narrative,
-				"periode_bulan":     seeds[i].PeriodeBulan,
-				"tahun":             seeds[i].Tahun,
-				"quarter":           seeds[i].Quarter,
-				"jumlah_laporan":    seeds[i].JumlahLaporan,
-				"risiko_tinggi":     seeds[i].RisikoTinggi,
-				"risiko_sedang":     seeds[i].RisikoSedang,
-				"risiko_rendah":     seeds[i].RisikoRendah,
-				"jumlah_rekomendasi": seeds[i].JumlahRekomendasi,
+				"assignment_letter_id": seeds[i].AssignmentLetterID,
+				"narrative":            seeds[i].Narrative,
+				"periode_bulan":        seeds[i].PeriodeBulan,
+				"tahun":                seeds[i].Tahun,
+				"quarter":              seeds[i].Quarter,
+				"jumlah_laporan":       seeds[i].JumlahLaporan,
+				"risiko_tinggi":        seeds[i].RisikoTinggi,
+				"risiko_sedang":        seeds[i].RisikoSedang,
+				"risiko_rendah":        seeds[i].RisikoRendah,
+				"jumlah_rekomendasi":   seeds[i].JumlahRekomendasi,
 			})
 		}
 	}
@@ -2039,8 +1652,8 @@ func seedActivityPlans(db *gorm.DB) error {
 				ApprovalDate:     "2025-12-20",
 			},
 			PlannedActivities: []models.PlannedActivity{
-				{ID: "act-1", AuditName: "Audit Pengeluaran Kas", Auditee: "Kasir & Keuangan", Category: "ASSURANCE", RiskName: "Fraud Kas", RiskLevel: "High", Duration: 15, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-01-15", BudgetEstimation: "10,000,000"},
-				{ID: "act-2", AuditName: "Audit Rekonsiliasi Bank", Auditee: "Departemen Akuntansi", Category: "ASSURANCE", RiskName: "Selisih Rekonsiliasi", RiskLevel: "Medium", Duration: 10, Priority: "P2", NumberOfAuditors: 1, EstimatedSchedule: "2026-02-10", BudgetEstimation: "5,000,000"},
+				{ID: "act-1", ActivityCode: "ASR-2026-004", AuditName: "Audit Pengeluaran Kas", Auditee: "Kasir & Keuangan", Category: "ASSURANCE", RiskName: "Fraud Kas", RiskLevel: "High", Duration: 15, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-01-15", BudgetEstimation: 10000000},
+				{ID: "act-2", ActivityCode: "ASR-2026-005", AuditName: "Audit Rekonsiliasi Bank", Auditee: "Departemen Akuntansi", Category: "ASSURANCE", RiskName: "Selisih Rekonsiliasi", RiskLevel: "Medium", Duration: 10, Priority: "P2", NumberOfAuditors: 1, EstimatedSchedule: "2026-02-10", BudgetEstimation: 5000000},
 			},
 			ResourceAuditors: []models.ResourceAuditor{
 				{ID: "aud-1", Name: "Zeta Ramadhani", Position: "Lead Auditor", Competence: "Finance & Accounting", Availability: "100%"},
@@ -2069,8 +1682,8 @@ func seedActivityPlans(db *gorm.DB) error {
 				ApprovalDate:     "2026-01-15",
 			},
 			PlannedActivities: []models.PlannedActivity{
-				{ID: "act-3", AuditName: "Audit Akses ERP & Database", Auditee: "IT Infrastructure", Category: "ASSURANCE", RiskName: "Unqualified Access", RiskLevel: "High", Duration: 20, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-04-10", BudgetEstimation: "15,000,000"},
-				{ID: "act-4", AuditName: "Audit Penetrasi & Vulnerability", Auditee: "IT Security Desk", Category: "CONSULTING", RiskName: "Cyber Vulnerability", RiskLevel: "High", Duration: 15, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-05-15", BudgetEstimation: "10,000,000"},
+				{ID: "act-3", ActivityCode: "ASR-2026-006", AuditName: "Audit Akses ERP & Database", Auditee: "IT Infrastructure", Category: "ASSURANCE", RiskName: "Unqualified Access", RiskLevel: "High", Duration: 20, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-04-10", BudgetEstimation: 15000000},
+				{ID: "act-4", ActivityCode: "CNS-2026-001", AuditName: "Audit Penetrasi & Vulnerability", Auditee: "IT Security Desk", Category: "CONSULTING", RiskName: "Cyber Vulnerability", RiskLevel: "High", Duration: 15, Priority: "P1", NumberOfAuditors: 2, EstimatedSchedule: "2026-05-15", BudgetEstimation: 10000000},
 			},
 			ResourceAuditors: []models.ResourceAuditor{
 				{ID: "aud-3", Name: "Andi Firmansyah", Position: "IT Auditor Specialist", Competence: "CISA / Cybersecurity", Availability: "100%"},
@@ -2098,7 +1711,7 @@ func seedActivityPlans(db *gorm.DB) error {
 				ApprovalDate:     "2026-02-05",
 			},
 			PlannedActivities: []models.PlannedActivity{
-				{ID: "act-5", AuditName: "Audit Inventaris Gudang & Logistik", Auditee: "Gudang Pusat", Category: "ASSURANCE", RiskName: "Loss Stock", RiskLevel: "Medium", Duration: 15, Priority: "P2", NumberOfAuditors: 2, EstimatedSchedule: "2026-07-15", BudgetEstimation: "20,000,000"},
+				{ID: "act-5", ActivityCode: "ASR-2026-007", AuditName: "Audit Inventaris Gudang & Logistik", Auditee: "Gudang Pusat", Category: "ASSURANCE", RiskName: "Loss Stock", RiskLevel: "Medium", Duration: 15, Priority: "P2", NumberOfAuditors: 2, EstimatedSchedule: "2026-07-15", BudgetEstimation: 20000000},
 			},
 			ResourceAuditors: []models.ResourceAuditor{
 				{ID: "aud-4", Name: "Rina Wulandari", Position: "Operational Auditor", Competence: "Supply Chain & Operations", Availability: "100%"},
@@ -2210,7 +1823,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		// 2026 Activities
 		{
 			AnnualPlanID: annual2026.ID,
-			ProjectCode:  "ACT-2026-001",
+			ProjectCode:  "ASR-2026-001",
+			AuditType:    "Assurance",
 			Title:        "Audit Keuangan & Pengeluaran Kas Q1 2026",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2026, 1, 15, 0, 0, 0, 0, time.UTC),
@@ -2218,7 +1832,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2026.ID,
-			ProjectCode:  "ACT-2026-002",
+			ProjectCode:  "ASR-2026-002",
+			AuditType:    "Assurance",
 			Title:        "Audit Keamanan IT & Sistem ERP 2026",
 			Status:       "IN_PROGRESS",
 			PlannedStart: time.Date(2026, 4, 1, 0, 0, 0, 0, time.UTC),
@@ -2226,7 +1841,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2026.ID,
-			ProjectCode:  "ACT-2026-003",
+			ProjectCode:  "ASR-2026-003",
+			AuditType:    "Assurance",
 			Title:        "Audit Unit Gudang & Logistik 2026",
 			Status:       "PLANNED",
 			PlannedStart: time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC),
@@ -2236,7 +1852,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		// 2025 Activities
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-001",
+			ProjectCode:  "ASR-2025-001",
+			AuditType:    "Assurance",
 			Title:        "Audit Keuangan & Pembukuan Kas 2025",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2025, 1, 15, 0, 0, 0, 0, time.UTC),
@@ -2244,7 +1861,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-002",
+			ProjectCode:  "ASR-2025-002",
+			AuditType:    "Assurance",
 			Title:        "Audit Pengadaan SCM & Vendor 2025",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
@@ -2252,7 +1870,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-003",
+			ProjectCode:  "ASR-2025-003",
+			AuditType:    "Assurance",
 			Title:        "Audit IT Governance & General Controls 2025",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2025, 7, 1, 0, 0, 0, 0, time.UTC),
@@ -2260,7 +1879,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-004",
+			ProjectCode:  "ASR-2025-004",
+			AuditType:    "Assurance",
 			Title:        "Audit Operasional Cabang & Kepatuhan 2025",
 			Status:       "COMPLETED",
 			PlannedStart: time.Date(2025, 10, 1, 0, 0, 0, 0, time.UTC),
@@ -2268,7 +1888,8 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 		{
 			AnnualPlanID: annual2025.ID,
-			ProjectCode:  "ACT-2025-005",
+			ProjectCode:  "SPC-2025-001",
+			AuditType:    "Special Audit",
 			Title:        "Audit Khusus SDM & Payroll 2025",
 			Status:       "CANCELLED",
 			PlannedStart: time.Date(2025, 11, 1, 0, 0, 0, 0, time.UTC),
@@ -2276,9 +1897,20 @@ func seedAuditActivities(db *gorm.DB) error {
 		},
 	}
 
+	// Codes follow the Activity ID format ({type}-{year}-{n}, pkg/activitycode).
+	// Databases seeded before that hold the same rows as ACT-{year}-{n}; match
+	// those too so a re-seed does not add duplicates. Existing codes are not
+	// rewritten.
+	legacyCodes := map[string]string{
+		"ASR-2026-001": "ACT-2026-001", "ASR-2026-002": "ACT-2026-002", "ASR-2026-003": "ACT-2026-003",
+		"ASR-2025-001": "ACT-2025-001", "ASR-2025-002": "ACT-2025-002", "ASR-2025-003": "ACT-2025-003",
+		"ASR-2025-004": "ACT-2025-004", "SPC-2025-001": "ACT-2025-005",
+	}
 	for i := range activities {
 		var count int64
-		db.Model(&models.AuditActivity{}).Where("project_code = ?", activities[i].ProjectCode).Count(&count)
+		db.Unscoped().Model(&models.AuditActivity{}).
+			Where("project_code IN ?", []string{activities[i].ProjectCode, legacyCodes[activities[i].ProjectCode]}).
+			Count(&count)
 		if count == 0 && activities[i].AnnualPlanID != uuid.Nil {
 			if err := db.Create(&activities[i]).Error; err != nil {
 				return err

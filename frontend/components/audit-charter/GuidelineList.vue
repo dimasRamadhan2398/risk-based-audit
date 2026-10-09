@@ -53,6 +53,7 @@
           icon: 'i-lucide-book-open',
           label: t('auditCharter.guideline.emptyTable')
         }"
+        :ui="{ root: 'overflow-visible' }"
         class="w-full"
         @update:page="(p) => store.fetchGuidelines(p)"
         @update:items-per-page="(size) => store.setPageSize(size)"

@@ -2,9 +2,9 @@
   <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h2 class="text-lg font-bold">Employee List</h2>
+        <h2 class="text-lg font-bold">{{ t('masterData.employee.listTitle') }}</h2>
         <UButton
-          label="Add Employee"
+          :label="t('masterData.employee.add')"
           icon="i-heroicons-plus"
           color="primary"
           class="w-full sm:w-auto"
@@ -17,19 +17,19 @@
     <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
       <UInput
         v-model="searchInput"
-        placeholder="Search employee..."
+        :placeholder="t('masterData.employee.searchPlaceholder')"
         icon="i-heroicons-magnifying-glass"
         class="w-full sm:w-64"
         @keyup.enter="handleSearch"
       />
       <UButton
-        label="Search"
+        :label="t('common.search')"
         color="primary"
         variant="soft"
         @click="handleSearch"
       />
       <UButton
-        label="Reset"
+        :label="t('masterData.employee.reset')"
         color="neutral"
         variant="ghost"
         @click="resetSearch"
@@ -54,7 +54,7 @@
     <!-- Empty State -->
     <div v-else-if="store.employees.length === 0" class="py-8 text-center">
       <UIcon name="i-heroicons-user-group" class="text-4xl text-gray-400 mb-2" />
-      <p class="text-gray-500">No employees found.</p>
+      <p class="text-gray-500">{{ t('masterData.employee.empty') }}</p>
     </div>
 
     <!-- Table & Pagination via TableEntities -->
@@ -86,7 +86,7 @@
 
       <template #level_grade-cell="{ row }">
         <UBadge color="neutral" variant="soft">
-          Level {{ row.original.level_grade }}
+          {{ t('masterData.employee.level', { level: row.original.level_grade }) }}
         </UBadge>
       </template>
 
@@ -95,7 +95,7 @@
           :color="row.original.is_active ? 'success' : 'error'"
           variant="subtle"
         >
-          {{ row.original.is_active ? 'Active' : 'Inactive' }}
+          {{ row.original.is_active ? t('masterData.employee.active') : t('masterData.employee.inactive') }}
         </UBadge>
       </template>
 
@@ -114,7 +114,7 @@
             color="warning"
             variant="ghost"
             size="sm"
-            title="Reset Password"
+            :title="t('masterData.employee.resetPassword')"
             @click="openResetPassword(row.original)"
           />
           <UButton
@@ -140,9 +140,11 @@
 import { useEmployeeStore } from '~/stores/employee'
 import EmployeeResetPasswordModal from '~/components/master/EmployeeResetPasswordModal.vue'
 import type { Employee } from '~/types/master'
+import { useI18n } from '~/composables/useI18n'
 
 const store = useEmployeeStore()
 const { isAdmin } = useRbac()
+const { t } = useI18n()
 
 // Admin-only: reset the password of the login account linked to an employee
 const showResetPassword = ref(false)

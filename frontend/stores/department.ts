@@ -7,13 +7,15 @@ import type {
   UpdateDepartmentRequest,
   PaginationMeta
 } from '~/types/master'
-import { extractErrorMessage } from '~/utils/error'
+import { getUserErrorMessage } from '~/utils/error'
+import { useI18n } from '~/composables/useI18n'
 
 export const useDepartmentStore = defineStore('department', () => {
   // ============= State =============
   const departments = ref<Department[]>([])
   const loading = ref(false)
   const errorMsg = ref('')
+  const { t } = useI18n()
 
   // Modal State
   const showModal = ref(false)
@@ -45,6 +47,7 @@ export const useDepartmentStore = defineStore('department', () => {
   const columns: TableColumn<Department>[] = [
     { accessorKey: 'department_code', header: 'Code' },
     { accessorKey: 'department_name', header: 'Department Name' },
+    { accessorKey: 'company_id', header: 'Company' },
     { accessorKey: 'department_description', header: 'Description' },
     { accessorKey: 'level', header: 'Level' },
     { accessorKey: 'is_active', header: 'Status' },
@@ -76,23 +79,9 @@ export const useDepartmentStore = defineStore('department', () => {
       departments.value = response.departments || []
       pagination.value = response.pagination || pagination.value
     } catch (error: any) {
-      console.error('Failed to fetch departments, using default seeds:', error)
-      departments.value = [
-        { id: '1', department_code: 'DEP-IA', department_name: 'Internal Audit', department_description: 'Divisi Audit Internal & Konsultasi Tata Kelola', level: 1, is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '2', department_code: 'DEP-FIN', department_name: 'Finance & Accounting', department_description: 'Departemen Keuangan, Akuntansi & Perpajakan', level: 1, is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '3', department_code: 'DEP-IT', department_name: 'Information Technology', department_description: 'Infrastruktur TI, Keamanan Siber & Pengembangan Sistem', level: 1, is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '4', department_code: 'DEP-RM', department_name: 'Risk Management', department_description: 'Manajemen Risiko Korporasi & Pengendalian Internal', level: 1, is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '5', department_code: 'DEP-CL', department_name: 'Compliance & Legal', department_description: 'Kepatuhan Regulasi & Aspek Hukum Perusahaan', level: 1, is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '6', department_code: 'DEP-OPS', department_name: 'Operations & Supply Chain', department_description: 'Operasional Lapangan, Logistik & Pengadaan Barang/Jasa', level: 1, is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' },
-        { id: '7', department_code: 'DEP-HC', department_name: 'Human Capital', department_description: 'Manajemen SDM, Pelatihan & Hubungan Industrial', level: 1, is_active: true, created_at: '2026-01-01', updated_at: '2026-01-01' }
-      ]
-      pagination.value = {
-        page: 1,
-        page_size: 10,
-        total: 7,
-        total_pages: 1
-      }
-      errorMsg.value = ''
+      console.error('Failed to fetch departments:', error)
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchDepartments' })
+      departments.value = []
     } finally {
       loading.value = false
     }
@@ -110,7 +99,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return await api.getDepartmentById(id)
     } catch (error: any) {
       console.error('Failed to fetch department:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil detail department.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.fetchDepartment' })
       return null
     } finally {
       loading.value = false
@@ -130,10 +119,10 @@ export const useDepartmentStore = defineStore('department', () => {
         department_code: form.department_code,
         department_name: form.department_name,
         department_description: form.department_description || '',
-        pic_id: form.pic_id,
+        pic_id: (form.pic_id && form.pic_id !== '__none__') ? form.pic_id : undefined,
         level: form.level,
         company_id: form.company_id,
-        business_unit_id: form.business_unit_id || undefined,
+        business_unit_id: (form.business_unit_id && form.business_unit_id !== '__none__') ? form.business_unit_id : undefined,
         is_active: form.is_active
       }
 
@@ -142,7 +131,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to create department:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal membuat department baru.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.createDepartment' })
       return false
     } finally {
       loading.value = false
@@ -161,10 +150,10 @@ export const useDepartmentStore = defineStore('department', () => {
       const payload: UpdateDepartmentRequest = {
         department_name: form.department_name || undefined,
         department_description: form.department_description || undefined,
-        pic_id: form.pic_id || undefined,
+        pic_id: (form.pic_id && form.pic_id !== '__none__') ? form.pic_id : '',
         level: form.level || undefined,
         company_id: form.company_id || undefined,
-        business_unit_id: form.business_unit_id || undefined,
+        business_unit_id: (form.business_unit_id && form.business_unit_id !== '__none__') ? form.business_unit_id : '',
         is_active: form.is_active
       }
 
@@ -173,7 +162,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to update department:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal memperbarui department.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.updateDepartment' })
       return false
     } finally {
       loading.value = false
@@ -194,7 +183,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return true
     } catch (error: any) {
       console.error('Failed to delete department:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal menghapus department.')
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.deleteDepartment' })
       return false
     } finally {
       loading.value = false
@@ -224,7 +213,7 @@ export const useDepartmentStore = defineStore('department', () => {
     form.department_code = department.department_code
     form.department_name = department.department_name
     form.department_description = department.department_description || ''
-    form.pic_id = department.pic_id
+    form.pic_id = department.pic_id || ''
     form.level = department.level
     form.company_id = department.company_id
     form.business_unit_id = department.business_unit_id || ''
@@ -264,19 +253,15 @@ export const useDepartmentStore = defineStore('department', () => {
   const handleSubmit = async () => {
     // Validation
     if (!form.department_code.trim()) {
-      errorMsg.value = 'Department code is required.'
+      errorMsg.value = t('masterData.validation.departmentCodeRequired')
       return
     }
     if (!form.department_name.trim()) {
-      errorMsg.value = 'Department name is required.'
+      errorMsg.value = t('masterData.validation.departmentNameRequired')
       return
     }
     if (!form.company_id.trim()) {
       errorMsg.value = 'Company is required.'
-      return
-    }
-    if (!form.pic_id.trim()) {
-      errorMsg.value = 'Person in Charge (PIC) is required.'
       return
     }
 

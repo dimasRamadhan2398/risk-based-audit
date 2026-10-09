@@ -15,6 +15,7 @@ import (
 
 	"master-service/controllers"
 	"master-service/models"
+	"master-service/pkg/middleware"
 	"master-service/services"
 
 	"github.com/gin-gonic/gin"
@@ -23,12 +24,18 @@ import (
 )
 
 // RegisterRoutes wires all HTTP routes for the master-service.
-func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry, db *gorm.DB) {
+func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry, db *gorm.DB, authMiddleware *middleware.AuthMiddleware) {
+	// Unauthenticated on purpose, and before the API group: Kong's active
+	// healthcheck sends no token.
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"service": "master-service", "status": "ok"})
 	})
 
 	api := router.Group("/api/v1")
+	// Every master-data route requires a valid JWT. Kong does not verify tokens
+	// for this service, so without this the employee roster, companies and
+	// departments were reachable anonymously.
+	api.Use(authMiddleware.Authenticate())
 
 	// Organizational structure
 	companies := api.Group("/companies")

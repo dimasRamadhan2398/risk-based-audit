@@ -21,19 +21,17 @@
         </div>
 
         <div class="space-y-6 m-6">
-        <UFormField 
-            label="Assignment Letter" 
-            name="assignmentLetterId" 
-            required 
-            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10" 
-            :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 mt-2' }"
-        >
-            <USelectMenu v-model="store.headerForm.assignmentLetterId" :items="store.options.assignmentLetter" placeholder="Choose Assignment Letter" class="w-full" />
-        </UFormField>
-
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
             <UFormField label="Audit Purpose" class="font-semibold text-sm text-gray-700  mt-2" />
-            <UInput class="md:col-span-3" v-model="store.headerForm.auditPurpose" disabled placeholder="(Automatically filled in when filling out the assignment letter)" />
+            <UTextarea
+                v-model="store.headerForm.auditPurpose"
+                class="md:col-span-3"
+                disabled
+                autoresize
+                :rows="1"
+                :maxrows="5"
+                placeholder="(Automatically filled in from the selected assignment letter)"
+            />
         </div>
 
         <UFormField 
@@ -45,7 +43,8 @@
         >
             <UInput 
                 v-model="store.headerForm.businessProcess" 
-                class="w-full" 
+                class="w-full"
+                placeholder="e.g Name Business Process"
                 :maxlength="100"
                 @invalid="($event.target as any)?.setCustomValidity('Business Process Name maksimal 100 karakter dan wajib diisi')"
                 @input="($event.target as any)?.setCustomValidity('')"
@@ -122,38 +121,41 @@
         </UFormField>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Team" class="font-semibold text-sm text-gray-700  mt-2" />
-            <div class="md:col-span-3 space-y-4">
-
-            <div v-for="(member, index) in store.headerForm.teamMembers" :key="member.id" class="flex gap-2 items-center">
-                <div class="grid grid-cols-2 gap-2 flex-1">
-                <USelectMenu 
-                    v-model="member.name" 
-                    :items="store.getAvailableMembers(index)" 
-                    placeholder="Choose Member"
-                />
-                <UInput 
-                    v-model="member.role" 
-                    placeholder="Position" 
-                />
+            <UFormField label="Team" class="font-semibold text-sm text-gray-700 mt-2" />
+            <div class="md:col-span-3 space-y-2">
+                <div v-if="store.headerForm.teamMembers && store.headerForm.teamMembers.length > 0" class="space-y-2">
+                    <div 
+                        v-for="(member, index) in store.headerForm.teamMembers" 
+                        :key="member.id || index"
+                        class="flex items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700/80 shadow-xs"
+                    >
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="size-8 rounded-full bg-primary-100 dark:bg-primary-950 flex items-center justify-center shrink-0">
+                                <UIcon name="i-heroicons-user" class="size-4 text-primary-600 dark:text-primary-400" />
+                            </div>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                {{ member.name || '-' }}
+                            </span>
+                        </div>
+                        <UBadge 
+                            color="primary" 
+                            variant="subtle" 
+                            size="md"
+                            class="font-medium shrink-0"
+                        >
+                            {{ member.role || 'Member' }}
+                        </UBadge>
+                    </div>
                 </div>
-
-                <UButton 
-                v-if="store.headerForm.teamMembers.length > 1"
-                icon="i-heroicons-trash" 
-                color="error" 
-                variant="ghost" 
-                @click="store.removeTeamMember(index)" 
-                />
-            </div>
-
-            <UButton 
-                color="primary" 
-                variant="soft"
-                icon="i-heroicons-plus" 
-                label="Add Member" 
-                @click="store.addTeamMember()"
-            />
+                <div 
+                    v-else 
+                    class="text-sm text-gray-400 dark:text-gray-500 italic p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-200 dark:border-gray-700"
+                >
+                    (Automatically filled in from Team Members of the selected Assignment Letter)
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500">
+                    * Team Members are synchronized automatically from the Assignment Letter and cannot be edited here.
+                </p>
             </div>
         </div>
         

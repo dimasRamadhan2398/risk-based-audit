@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scp -r -i /Users/a/.ssh/id_rsa -o StrictHostKeyChecking=no /tmp/auditsphere-frontend-output/.output root@202.10.34.166:/tmp/auditsphere-frontend-output.tar)",
+      "Bash(ls -la /Users/a/.ssh/ 2>/dev/null | head -20)",
+      "Read(//Users/a/.ssh/**)",
+      "Bash(/Users/a/Projects/risk-based-audit/backend/deploy-prod.sh --ref staging --yes auth audit master risk analytics)"
+    ]
+  }
+}
