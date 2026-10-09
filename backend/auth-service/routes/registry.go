@@ -135,7 +135,7 @@ func (r *Registry) trustedDevices() {
 // same way (services/action_taken_report.CanonicalRole).
 var AssignableUserRoles = []string{
 	"ADMIN", "ADMINISTRATOR", "SUPERADMIN", "SUPER_ADMIN",
-	"AUDIT_MANAGER", "AUDIT MANAGER", "MANAGER_AUDIT", "MANAGER",
+	"AUDIT_MANAGER", "AUDIT MANAGER", "MANAGER_AUDIT",
 	"AUDITOR", "AUDIT_STAFF", "LEAD_AUDITOR", "STAFF_AUDIT",
 	"CHIEF_AUDIT_EXECUTIVE", "CHIEF AUDIT EXECUTIVE", "CAE", "EXECUTIVE",
 }
