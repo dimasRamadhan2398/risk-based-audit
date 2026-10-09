@@ -26,6 +26,50 @@ type UserServiceInterface interface {
 	ListUsers(ctx context.Context, req *models.ListUsersRequest) ([]*models.UserResponse, *utils.PaginationResponse, error)
 	FindUserByEmployee(ctx context.Context, employeeCode, email string) (*models.UserResponse, error)
 	AdminResetPassword(ctx context.Context, actorID, targetID uuid.UUID, ipAddress string) (*models.AdminResetPasswordResponse, error)
+	ListAssignableUsers(ctx context.Context, req *models.ListAssignableUsersRequest) ([]models.AssignableUser, *models.AssignableUsersPagination, error)
+}
+
+// Paging limits of GET /users/assignable
+const (
+	AssignableDefaultPageSize = 20
+	AssignableMaxPageSize     = 100
+)
+
+// ListAssignableUsers returns one page of active users with only the fields a
+// PIC picker needs. Page < 1 is read as 1; page_size < 1 as 20, > 100 as 100.
+func (s *UserService) ListAssignableUsers(ctx context.Context, req *models.ListAssignableUsersRequest) ([]models.AssignableUser, *models.AssignableUsersPagination, error) {
+	page, pageSize := req.Page, req.PageSize
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = AssignableDefaultPageSize
+	}
+	if pageSize > AssignableMaxPageSize {
+		pageSize = AssignableMaxPageSize
+	}
+
+	users, total, err := s.userRepo.FindAssignable((page-1)*pageSize, pageSize, req.Search, req.ID)
+	if err != nil {
+		s.LogError("Failed to list assignable users", utils.LogField("error", err))
+		return nil, nil, errors.ErrInternalServer
+	}
+
+	out := make([]models.AssignableUser, 0, len(users))
+	for _, u := range users {
+		out = append(out, models.AssignableUser{
+			ID:         u.ID.String(),
+			FullName:   u.FullName,
+			Department: u.Department,
+			Position:   u.Position,
+		})
+	}
+	return out, &models.AssignableUsersPagination{
+		Page:       page,
+		PageSize:   pageSize,
+		Total:      total,
+		TotalPages: (total + int64(pageSize) - 1) / int64(pageSize),
+	}, nil
 }
 
 // UserService handles user business logic

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"risk-service/models"
 	"risk-service/pkg/database"
@@ -73,7 +74,7 @@ func autoMigrate(db *gorm.DB) error {
 		db.Exec(`ALTER TABLE "risk_profile" ADD COLUMN IF NOT EXISTS "severity_weight" numeric(5,4) DEFAULT 0`)
 	}
 
-	return db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&models.RiskLevel{},
 		&models.RiskAppetite{},
 		&models.RiskProfile{},
@@ -94,7 +95,36 @@ func autoMigrate(db *gorm.DB) error {
 		&models.CorporateAuditUniverse{},
 		&models.AuditUniverseYear{},
 		&models.AuditUniverseRiskScore{},
-	)
+	); err != nil {
+		return err
+	}
+
+	return backfillAssessmentSnapshots(db)
+}
+
+// backfillAssessmentSnapshots gives assessment rows written before the
+// per-year snapshot columns existed the risk as it reads now — the only
+// version still on record. Rows that already have a snapshot are left alone,
+// so re-running is a no-op.
+func backfillAssessmentSnapshots(db *gorm.DB) error {
+	res := db.Exec(`
+		UPDATE risk_assessment a
+		SET risk_event    = r.risk_event,
+		    category      = p.category,
+		    description   = p.description,
+		    location_id   = p.location_id,
+		    location_name = p.location_name,
+		    snapshot_at   = NOW()
+		FROM risk_register r
+		JOIN risk_profile p ON p.id = r.profile_id
+		WHERE a.risk_register_id = r.id AND a.snapshot_at IS NULL`)
+	if res.Error != nil {
+		return fmt.Errorf("backfill risk_assessment snapshots: %w", res.Error)
+	}
+	if res.RowsAffected > 0 {
+		log.Printf("backfilled %d risk_assessment snapshots", res.RowsAffected)
+	}
+	return nil
 }
 
 func dropAllTables(db *gorm.DB) error {

@@ -13,42 +13,29 @@ describe('Dynamic Fiscal Year & Multi-Module Synchronization', () => {
     setActivePinia(createPinia())
   })
 
-  describe('1. Dynamic Fiscal Year 5-Year Range Formula', () => {
-    it('generates 5 years from last year to 3 years ahead for 2026', () => {
+  describe('1. Dynamic Fiscal Year 7-Year Range Formula', () => {
+    it('generates 7 years from 3 years back to 3 years ahead for 2026', () => {
       const years = getFiscalYears(2026)
-      expect(years).toEqual([2025, 2026, 2027, 2028, 2029])
-      expect(years).toHaveLength(5)
+      expect(years).toEqual([2023, 2024, 2025, 2026, 2027, 2028, 2029])
     })
 
-    it('generates 5 years from last year to 3 years ahead when rolling over to 2027', () => {
+    it('rolls the range over to 2027', () => {
       const years = getFiscalYears(2027)
-      expect(years).toEqual([2026, 2027, 2028, 2029, 2030])
-      expect(years).toHaveLength(5)
+      expect(years).toEqual([2024, 2025, 2026, 2027, 2028, 2029, 2030])
     })
 
     it('provides string equivalents matching the same range', () => {
       const strings = getFiscalYearStrings(2026)
-      expect(strings).toEqual(['2025', '2026', '2027', '2028', '2029'])
+      expect(strings).toEqual(['2023', '2024', '2025', '2026', '2027', '2028', '2029'])
     })
 
     it('composable returns reactive computed fiscal years for current year', () => {
       const { fiscalYears, fiscalYearStrings, currentYear } = useFiscalYear()
       const thisYear = new Date().getFullYear()
+      const expected = [-3, -2, -1, 0, 1, 2, 3].map(d => thisYear + d)
       expect(currentYear.value).toBe(thisYear)
-      expect(fiscalYears.value).toEqual([
-        thisYear - 1,
-        thisYear,
-        thisYear + 1,
-        thisYear + 2,
-        thisYear + 3
-      ])
-      expect(fiscalYearStrings.value).toEqual([
-        String(thisYear - 1),
-        String(thisYear),
-        String(thisYear + 1),
-        String(thisYear + 2),
-        String(thisYear + 3)
-      ])
+      expect(fiscalYears.value).toEqual(expected)
+      expect(fiscalYearStrings.value).toEqual(expected.map(String))
     })
   })
 
@@ -170,6 +157,45 @@ describe('Dynamic Fiscal Year & Multi-Module Synchronization', () => {
 
       riskStore.selectedYear = currentYear + 3
       expect(riskStore.risks).toEqual([])
+    })
+
+    it('shows a past year only the risks assessed that year, as they read that year', async () => {
+      const latest = {
+        id: 'r1', name: 'Fraud v2', category: 'Compliance', impact: 5, likelihood: 5,
+        assessments: [
+          { year: 2025, name: 'Fraud', category: 'Financial', impact_q1: 2, likelihood_q1: 3 },
+          { year: 2026, name: 'Fraud v2', category: 'Compliance', impact_q1: 5, likelihood_q1: 5 }
+        ]
+      }
+      const added2026 = {
+        id: 'r2', name: 'New in 2026', category: 'Strategic', impact: 3, likelihood: 3,
+        assessments: [{ year: 2026, name: 'New in 2026', impact_q1: 3, likelihood_q1: 3 }]
+      }
+      const fetchMock = vi.fn(async (url: string, opts: any) => {
+        if (opts?.method === 'PUT') return { success: true, data: latest }
+        if (String(url).includes('/locations')) return { success: true, data: [] }
+        return { success: true, data: [latest, added2026] }
+      })
+      ;(globalThis as any).$fetch = fetchMock
+
+      const riskStore = useRiskProfileStore()
+      await riskStore.fetchRisks()
+      riskStore.selectedPeriod = 'Q1'
+
+      riskStore.selectedYear = 2025
+      expect(riskStore.risks.map((r: any) => r.id)).toEqual(['r1'])
+      expect(riskStore.risks[0]).toMatchObject({ name: 'Fraud', category: 'Financial', impact: 2, likelihood: 3 })
+
+      riskStore.selectedYear = 2024
+      expect(riskStore.risks).toEqual([])
+
+      // Editing 2025 sends that year and only that year's assessment
+      riskStore.selectedYear = 2025
+      await riskStore.updateRisk({ ...riskStore.risks[0], name: 'Fraud (edited)' })
+      const put = fetchMock.mock.calls.find(([, o]: any) => o?.method === 'PUT')![1] as any
+      expect(put.body.year).toBe(2025)
+      expect(put.body.assessments).toHaveLength(1)
+      expect(put.body.assessments[0]).toMatchObject({ year: 2025, name: 'Fraud (edited)' })
     })
   })
 

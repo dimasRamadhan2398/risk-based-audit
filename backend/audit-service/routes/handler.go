@@ -9,9 +9,11 @@ import (
 	"audit-service/controllers"
 	ctrlATR "audit-service/controllers/action_taken_report"
 	ctrlActivityPlan "audit-service/controllers/activity_plan"
+	ctrlAssignmentLetter "audit-service/controllers/assignment_letter"
 	"audit-service/controllers/crud"
 	ctrlFindings "audit-service/controllers/findings"
 	ctrlStrategicPlan "audit-service/controllers/strategic_plan"
+	ctrlWorkingPaper "audit-service/controllers/working_paper"
 	"audit-service/models"
 	"audit-service/pkg/docxbuilder"
 	"audit-service/pkg/masterclient"
@@ -188,7 +190,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		letterStatusGuard := middleware.RequireRolesForStatusChange(h.db, "assignment_letters", "Draft",
 			"ADMIN", "AUDIT_MANAGER", "CHIEF_AUDIT_EXECUTIVE")
 		assignmentLetters.POST("", letterStatusGuard, crud.Create(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
-		assignmentLetters.PUT("/:id", letterStatusGuard, crud.Update(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+		// auditPurpose echoed back from purposeList is not frozen into the column, see controllers/assignment_letter
+		assignmentLetters.PUT("/:id", letterStatusGuard, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate))
 		assignmentLetters.DELETE("/:id", crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
 	}
 
@@ -258,7 +261,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		workingPaperHeaders.GET("", crud.List(h.db, "WorkingPaperHeader", func() interface{} { return &[]models.WorkingPaperHeader{} }))
 		workingPaperHeaders.GET("/:id", crud.GetByID(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
 		workingPaperHeaders.POST("", crud.Create(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
-		workingPaperHeaders.PUT("/:id", crud.Update(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
+		// auditPurpose follows the linked assignment letter, see controllers/working_paper
+		workingPaperHeaders.PUT("/:id", crud.UpdateWithHook(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }, ctrlWorkingPaper.SyncHeaderOnUpdate))
 		workingPaperHeaders.DELETE("/:id", crud.Delete(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
 	}
 

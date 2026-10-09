@@ -127,11 +127,27 @@ func (r *Registry) trustedDevices() {
 	}
 }
 
+// AssignableUserRoles may call GET /users/assignable (pick the PIC of an
+// action taken report): Admin, Audit Manager, Auditor and CAE. RequireRoles
+// compares case-insensitively but literally, so the spellings admins use for
+// the non-seeded roles are listed too. EXECUTIVE is the seeded role the
+// frontend (useRbac matchesRole) treats as the CAE; audit-service maps it the
+// same way (services/action_taken_report.CanonicalRole).
+var AssignableUserRoles = []string{
+	"ADMIN", "ADMINISTRATOR", "SUPERADMIN", "SUPER_ADMIN",
+	"AUDIT_MANAGER", "AUDIT MANAGER", "MANAGER_AUDIT", "MANAGER",
+	"AUDITOR", "AUDIT_STAFF", "LEAD_AUDITOR", "STAFF_AUDIT",
+	"CHIEF_AUDIT_EXECUTIVE", "CHIEF AUDIT EXECUTIVE", "CAE", "EXECUTIVE",
+}
+
 // users registers user management routes
 func (r *Registry) users() {
 	users := r.group.Group("/users")
 	users.Use(r.authMiddleware.Authenticate())
 	{
+		// Must stay before /:id. Minimal fields of active users, for the ATR PIC picker.
+		users.GET("/assignable", r.authMiddleware.RequireRoles(AssignableUserRoles...), r.controller.GetUser().ListAssignableUsers)
+
 		// Users may read and update their own profile; admins may do it for anyone
 		selfOrAdmin := r.authMiddleware.RequireSelfOrRoles("id", "ADMIN")
 		users.GET("/:id", selfOrAdmin, r.controller.GetUser().GetUser)

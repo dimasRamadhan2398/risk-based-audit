@@ -111,44 +111,51 @@ func runSeed(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	logger.Info("Seeding assignment letters...")
-	if err := seedAssignmentLetters(db); err != nil {
-		logger.Fatal("Failed to seed assignment letters", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("Seeding fieldwork data...")
-	if err := seedFieldwork(db); err != nil {
-		logger.Fatal("Failed to seed fieldwork data", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("Seeding working papers...")
-	if err := seedWorkingPapers(db); err != nil {
-		logger.Fatal("Failed to seed working papers", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("Seeding audit executions...")
-	if err := seedExecutions(db); err != nil {
-		logger.Fatal("Failed to seed audit executions", logger.LogField("error", err))
-		return err
-	}
-
-	logger.Info("Seeding audit result reports...")
-	if err := seedResultReports(db); err != nil {
-		logger.Fatal("Failed to seed audit result reports", logger.LogField("error", err))
-		return err
-	}
+	// Dummy assignment letters (ST-00x/SKAI/2025-2026, 020/ST/01/KSIAD/2023) are
+	// no longer seeded, together with every seeder that hangs data off those
+	// letter numbers: fieldwork, working papers, audit executions, audit result
+	// reports and executive summaries. They were removed from local, VPS dev and
+	// prod on 2026-10-09; re-enabling these calls brings them back on the next
+	// container start.
+	//
+	// logger.Info("Seeding assignment letters...")
+	// if err := seedAssignmentLetters(db); err != nil {
+	// 	logger.Fatal("Failed to seed assignment letters", logger.LogField("error", err))
+	// 	return err
+	// }
+	//
+	// logger.Info("Seeding fieldwork data...")
+	// if err := seedFieldwork(db); err != nil {
+	// 	logger.Fatal("Failed to seed fieldwork data", logger.LogField("error", err))
+	// 	return err
+	// }
+	//
+	// logger.Info("Seeding working papers...")
+	// if err := seedWorkingPapers(db); err != nil {
+	// 	logger.Fatal("Failed to seed working papers", logger.LogField("error", err))
+	// 	return err
+	// }
+	//
+	// logger.Info("Seeding audit executions...")
+	// if err := seedExecutions(db); err != nil {
+	// 	logger.Fatal("Failed to seed audit executions", logger.LogField("error", err))
+	// 	return err
+	// }
+	//
+	// logger.Info("Seeding audit result reports...")
+	// if err := seedResultReports(db); err != nil {
+	// 	logger.Fatal("Failed to seed audit result reports", logger.LogField("error", err))
+	// 	return err
+	// }
 
 	// Action taken reports are not seeded: the server creates them from the
 	// findings of approved LHAs (see services/action_taken_report).
 
-	logger.Info("Seeding executive summaries...")
-	if err := seedExecutiveSummaries(db); err != nil {
-		logger.Fatal("Failed to seed executive summaries", logger.LogField("error", err))
-		return err
-	}
+	// logger.Info("Seeding executive summaries...")
+	// if err := seedExecutiveSummaries(db); err != nil {
+	// 	logger.Fatal("Failed to seed executive summaries", logger.LogField("error", err))
+	// 	return err
+	// }
 
 	logger.Info("Seeding annual plans...")
 	if err := seedAnnualPlans(db); err != nil {

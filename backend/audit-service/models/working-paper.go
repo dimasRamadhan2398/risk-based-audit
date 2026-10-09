@@ -39,31 +39,34 @@ func (WorkingPaperHeader) TableName() string {
 	return "working_paper_headers"
 }
 
+// BeforeCreate fills an empty audit purpose and team from the linked
+// Assignment Letter. Updates go through the generic crud handler, which
+// writes a column map; a BeforeUpdate hook only sees the stored record there
+// and cannot change what is written, so the update-time sync lives in
+// controllers/working_paper (SyncHeaderOnUpdate).
 func (w *WorkingPaperHeader) BeforeCreate(tx *gorm.DB) error {
 	w.syncFromAssignmentLetter(tx)
 	return nil
 }
 
-func (w *WorkingPaperHeader) BeforeUpdate(tx *gorm.DB) error {
-	w.syncFromAssignmentLetter(tx)
+// AfterFind shows the linked letter's audit purpose for headers stored
+// without one (older records, or saved before the letter had a purpose).
+// Nothing is written back.
+func (w *WorkingPaperHeader) AfterFind(tx *gorm.DB) error {
+	if strings.TrimSpace(w.AuditPurpose) != "" || strings.TrimSpace(w.AssignmentLetterID) == "" {
+		return nil
+	}
+	if st, ok := FindAssignmentLetter(tx, w.AssignmentLetterID); ok {
+		w.AuditPurpose = st.EffectiveAuditPurpose()
+	}
 	return nil
 }
 
 func (w *WorkingPaperHeader) syncFromAssignmentLetter(tx *gorm.DB) {
-	if w.AssignmentLetterID == "" {
-		return
-	}
-	var st AssignmentLetter
-	letterID := strings.TrimSpace(w.AssignmentLetterID)
-	err := tx.Where("letter_number = ?", letterID).First(&st).Error
-	if err != nil {
-		if _, parseErr := uuid.Parse(letterID); parseErr == nil {
-			_ = tx.Where("id = ?", letterID).First(&st).Error
-		}
-	}
-	if st.ID != uuid.Nil {
-		if w.AuditPurpose == "" && st.AuditPurpose != "" {
-			w.AuditPurpose = st.AuditPurpose
+	st, ok := FindAssignmentLetter(tx, w.AssignmentLetterID)
+	if ok {
+		if strings.TrimSpace(w.AuditPurpose) == "" {
+			w.AuditPurpose = st.EffectiveAuditPurpose()
 		}
 		if len(w.TeamMembers) == 0 && len(st.MembersList) > 0 {
 			members := make([]TeamMember, 0, len(st.MembersList))

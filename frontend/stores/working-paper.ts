@@ -6,7 +6,8 @@ import type {
   WorkingPaperRisk,
   WorkingPaperSample,
   WorkingPaperCause,
-  WorkingPaperPlan
+  WorkingPaperPlan,
+  AssignmentLetter
 } from '~/types/audit'
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 import { useAuditFieldworkStore } from './audit-fieldwork'
@@ -264,6 +265,36 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     ]
   })
 
+  const findAssignmentLetter = (letterNumberOrId: string) => {
+    const trimmed = String(letterNumberOrId || '').trim()
+    if (!trimmed) return undefined
+    return assignmentLetterStore.assignmentLetterList.find(
+      l => l.letterNumber === trimmed || l.id === trimmed
+    )
+  }
+
+  // The Assignment Letter form edits its "Audit Purpose" as `purposeList`;
+  // only seeded letters carry the single `auditPurpose` string, so letters
+  // created in the UI need the list as a fallback.
+  const resolveAuditPurpose = (letter: AssignmentLetter): string => {
+    const single = String(letter.auditPurpose || '').trim()
+    if (single) return single
+    if (!Array.isArray(letter.purposeList)) return ''
+    return letter.purposeList
+      .map(p => String(p || '').trim())
+      .filter(Boolean)
+      .join('; ')
+  }
+
+  const toTeamMembers = (letter: AssignmentLetter) =>
+    Array.isArray(letter.membersList)
+      ? letter.membersList.map((m, idx) => ({
+          id: Date.now() + idx,
+          name: m.name || '',
+          role: m.role || 'Member'
+        }))
+      : []
+
   const syncFromAssignmentLetter = (letterNumberOrId: string) => {
     if (!letterNumberOrId) {
       headerForm.auditPurpose = ''
@@ -271,34 +302,36 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       return
     }
 
-    const trimmed = String(letterNumberOrId).trim()
-    const letter = assignmentLetterStore.assignmentLetterList.find(
-      (l: any) => l.letterNumber === trimmed || l.id === trimmed
-    )
-
+    const letter = findAssignmentLetter(letterNumberOrId)
     if (letter) {
-      if (letter.auditPurpose) {
-        headerForm.auditPurpose = letter.auditPurpose
-      }
-      if (Array.isArray(letter.membersList) && letter.membersList.length > 0) {
-        headerForm.teamMembers = letter.membersList.map((m: any, idx: number) => ({
-          id: Date.now() + idx,
-          name: m.name || '',
-          role: m.role || 'Member'
-        }))
-      } else {
-        headerForm.teamMembers = []
-      }
+      headerForm.auditPurpose = resolveAuditPurpose(letter)
+      headerForm.teamMembers = toTeamMembers(letter)
     }
   }
 
+  // Used when editing a saved working paper: its own values win, the letter
+  // only fills what was saved empty.
+  const fillBlanksFromAssignmentLetter = () => {
+    const letter = findAssignmentLetter(headerForm.assignmentLetterId)
+    if (!letter) return
+    if (!headerForm.auditPurpose) {
+      headerForm.auditPurpose = resolveAuditPurpose(letter)
+    }
+    if (!headerForm.teamMembers?.length) {
+      headerForm.teamMembers = toTeamMembers(letter)
+    }
+  }
+
+  // Synchronous so it runs at the moment the letter changes. A deferred run
+  // would fire after handleEditF01 has loaded the saved values and overwrite them.
   watch(
     () => headerForm.assignmentLetterId,
     (newVal) => {
       if (newVal) {
         syncFromAssignmentLetter(newVal)
       }
-    }
+    },
+    { flush: 'sync' }
   )
 
   const riskForm = reactive<WorkingPaperRiskForm>({
@@ -427,6 +460,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const showModalF04 = ref(false)
   const showModalF05 = ref(false)
   const closeModalF01 = () => showModalF01.value = false
+
+  // The page opens the header modal on mount (?action=create / edit) while the
+  // assignment letters may still be loading; fill the blanks once they arrive.
+  watch(
+    () => assignmentLetterStore.assignmentLetterList,
+    () => {
+      if (showModalF01.value) fillBlanksFromAssignmentLetter()
+    }
+  )
   const closeModalF02 = () => showModalF02.value = false
   const closeModalF03 = () => showModalF03.value = false
   const closeModalF04 = () => showModalF04.value = false
@@ -547,7 +589,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
 
     headerForm.assignmentLetterId = header.assignmentLetterId
-    headerForm.auditPurpose = header.auditPurpose
+    headerForm.auditPurpose = header.auditPurpose || ''
     headerForm.businessProcess = header.businessProcess
     headerForm.periodStart = start
     headerForm.periodEnd = end
@@ -555,9 +597,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     headerForm.teamMembers = header.teamMembers ? header.teamMembers.map((m: any) => ({ ...m })) : []
     headerForm.activities = header.activities?.length ? header.activities.map((a: any) => ({ ...a })) : [{ id: Date.now(), name: '' }]
 
-    if ((!headerForm.teamMembers || headerForm.teamMembers.length === 0) && headerForm.assignmentLetterId) {
-      syncFromAssignmentLetter(headerForm.assignmentLetterId)
-    }
+    fillBlanksFromAssignmentLetter()
 
     showModalF01.value = true
   }

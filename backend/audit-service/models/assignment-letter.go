@@ -109,6 +109,58 @@ func (a *AssignmentLetter) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// JoinAuditPurposes joins the non-blank entries of a letter's purposeList
+// into one line, the form used for a single "audit purpose" value.
+func JoinAuditPurposes(purposes []string) string {
+	parts := make([]string, 0, len(purposes))
+	for _, p := range purposes {
+		if p = strings.TrimSpace(p); p != "" {
+			parts = append(parts, p)
+		}
+	}
+	return strings.Join(parts, "; ")
+}
+
+// EffectiveAuditPurpose is the letter's audit purpose: the auditPurpose
+// column when set, otherwise its purposeList. The Assignment Letter form only
+// edits purposeList ("Audit Purpose" in the UI), so letters created there
+// store an empty audit_purpose.
+func (a *AssignmentLetter) EffectiveAuditPurpose() string {
+	if p := strings.TrimSpace(a.AuditPurpose); p != "" {
+		return p
+	}
+	return JoinAuditPurposes(a.PurposeList)
+}
+
+// AfterFind fills an empty AuditPurpose from PurposeList, so every read
+// (list, detail, Working Paper sync, reports) returns the letter's purpose.
+// Nothing is written back.
+func (a *AssignmentLetter) AfterFind(tx *gorm.DB) error {
+	if strings.TrimSpace(a.AuditPurpose) == "" {
+		a.AuditPurpose = JoinAuditPurposes(a.PurposeList)
+	}
+	return nil
+}
+
+// FindAssignmentLetter looks a letter up by letter number, or by id when ref
+// is a UUID. Working papers and fieldwork store either form.
+func FindAssignmentLetter(tx *gorm.DB, ref string) (*AssignmentLetter, bool) {
+	ref = strings.TrimSpace(ref)
+	if ref == "" {
+		return nil, false
+	}
+	var letter AssignmentLetter
+	if err := tx.Where("letter_number = ?", ref).First(&letter).Error; err == nil {
+		return &letter, true
+	}
+	if _, err := uuid.Parse(ref); err == nil {
+		if err := tx.Where("id = ?", ref).First(&letter).Error; err == nil {
+			return &letter, true
+		}
+	}
+	return nil, false
+}
+
 func (a *AssignmentLetter) BeforeCreate(tx *gorm.DB) error {
 	if strings.TrimSpace(a.LetterNumber) == "" {
 		year := strings.TrimSpace(a.AuditYear)

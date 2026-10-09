@@ -169,35 +169,31 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     }
   }
 
-  // Dynamic mapped risks based on selectedYear and selectedPeriod
+  // The selected year's CRP: only risks assessed in that year, read as they
+  // stood that year (the assessment's snapshot), so a risk added or edited in
+  // one year does not show up in or rewrite another year. Fields missing from
+  // a snapshot fall back to the latest version.
   const risks = computed(() => {
-    const currentYear = new Date().getFullYear()
-    const isFutureYear = selectedYear.value > currentYear
+    const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', etc.
 
-    return rawRisks.value
-      .filter(risk => {
-        if (isFutureYear) {
-          // Data 3 tahun kedepan dikosongkan terlebih dahulu karena harus diinput oleh user
-          return risk.assessments?.some((a: any) => a.year === selectedYear.value)
-        }
-        return true
-      })
-      .map(risk => {
-        const assessment = risk.assessments?.find((a: any) => a.year === selectedYear.value)
-        const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', etc.
+    return rawRisks.value.flatMap(risk => {
+      const assessment = risk.assessments?.find((a: any) => a.year === selectedYear.value)
+      if (!assessment) return []
 
-        const impact = (assessment && assessment[`impact_${periodKey}`]) ? assessment[`impact_${periodKey}`] : risk.impact
-        const likelihood = (assessment && assessment[`likelihood_${periodKey}`]) ? assessment[`likelihood_${periodKey}`] : risk.likelihood
-
-        const riskLevel = assessment ? assessment[`risk_level_${periodKey}`] : 'Low'
-
-        return {
-          ...risk,
-          impact: impact || 3,
-          likelihood: likelihood || 3,
-          riskLevel: riskLevel || 'Low'
-        }
-      })
+      return [{
+        ...risk,
+        name: assessment.name || risk.name,
+        category: assessment.category || risk.category,
+        description: assessment.description || risk.description,
+        location_id: assessment.location_id || risk.location_id,
+        branch: assessment.location_id
+          ? (locationName(assessment.location_id) ?? assessment.branch)
+          : risk.branch,
+        impact: assessment[`impact_${periodKey}`] || risk.impact || 3,
+        likelihood: assessment[`likelihood_${periodKey}`] || risk.likelihood || 3,
+        riskLevel: assessment[`risk_level_${periodKey}`] || 'Low'
+      }]
+    })
   })
 
   /** True when a risk of the selected year has no Location master branch. */
@@ -319,7 +315,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
         const createdRisk = {
           ...body, // Keep intended local data like assessments
           ...responseData,
-          assessments: newRiskData.assessments, // Force keep nested assessments if backend drops it
+          assessments: responseData.assessments ?? newRiskData.assessments,
           displayId: rawRisks.value.length + 1
         }
         rawRisks.value.push(createdRisk)
@@ -345,7 +341,10 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
 
       // Find raw risk to copy assessments
       const rawRisk = rawRisks.value.find(r => String(r.id) === String(updatedRisk.id))
-      let payload = { ...updatedRisk }
+      // The backend writes this year's assessment only; the latest version
+      // moves only when this is the most recent year the risk is assessed in.
+      let payload = { ...updatedRisk, year: selectedYear.value }
+      let optimisticAssessments: any[] | undefined
 
       if (rawRisk) {
         // Copy raw assessments
@@ -385,18 +384,32 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
           ast[`likelihood_${periodKey}`] = updatedRisk.likelihood
         }
 
-        // Attach assessments to payload
-        payload.assessments = assessments
+        // This year's snapshot, so the optimistic row reads the edit back
+        const locationId = riskLocationId(updatedRisk)
+        Object.assign(ast, {
+          name: updatedRisk.name,
+          category: updatedRisk.category,
+          description: updatedRisk.description,
+          ...(locationId ? { location_id: locationId, branch: locationName(locationId) ?? ast.branch } : {})
+        })
+
+        payload.assessments = [ast]
+        optimisticAssessments = assessments
       }
       payload = withLocationId(payload)
 
-      // Optimistic local update
+      // Optimistic local update, mirroring the backend: this year's assessment
+      // changes, and the latest version only when this is the latest year.
       const previousRawRisks = rawRisks.value
       const idx = rawRisks.value.findIndex(r => String(r.id) === String(updatedRisk.id))
-      if (idx !== -1) {
+      if (idx !== -1 && optimisticAssessments) {
+        const isLatestYear = optimisticAssessments.every((a: any) => a.year <= selectedYear.value)
+        const { year: _year, assessments: _assessments, ...latestFields } = payload
         const newRawRisks = [...rawRisks.value]
         newRawRisks[idx] = {
-          ...payload,
+          ...newRawRisks[idx],
+          ...(isLatestYear ? latestFields : {}),
+          assessments: optimisticAssessments,
           displayId: newRawRisks[idx].displayId
         }
         rawRisks.value = newRawRisks
@@ -408,11 +421,11 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
           body: payload
         })
         if (response && response.success) {
-          if (idx !== -1) {
+          if (idx !== -1 && response.data) {
             const newRawRisks = [...rawRisks.value]
             newRawRisks[idx] = {
+              ...newRawRisks[idx],
               ...response.data,
-              ...payload,
               displayId: newRawRisks[idx].displayId
             }
             rawRisks.value = newRawRisks

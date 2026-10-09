@@ -1,11 +1,14 @@
 package repositories
 
 import (
+	"strings"
+
 	"auth-service/models"
 	apperrors "auth-service/pkg/errors"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // IUserRepository is an alias for the user repository interface
@@ -23,6 +26,7 @@ type UserRepositoryInterface interface {
 	FindMany(offset, limit int, search, department string, isActive *bool) ([]*models.User, error)
 	Count(search, department string, isActive *bool) (int64, error)
 	AssignRoles(userID uuid.UUID, roleNames []string) error
+	FindAssignable(offset, limit int, search string, id *uuid.UUID) ([]*models.User, int64, error)
 }
 
 // UserRepository handles user data operations
@@ -149,6 +153,44 @@ func (r *UserRepository) Count(search, department string, isActive *bool) (int64
 
 	return count, nil
 }
+
+// FindAssignable returns one page of the active users that can be picked as
+// the PIC of a follow-up item, and the total. search matches full_name,
+// department or position case-insensitively (LIKE wildcards in it are taken
+// literally); id, when set, restricts the result to that user. Only the
+// columns the picker needs are read. Ordered by full_name, then id, so pages
+// are stable.
+func (r *UserRepository) FindAssignable(offset, limit int, search string, id *uuid.UUID) ([]*models.User, int64, error) {
+	query := r.GetDB().Model(&models.User{}).Where("is_active = ?", true)
+	if id != nil {
+		query = query.Where("id = ?", *id)
+	}
+	if s := strings.TrimSpace(search); s != "" {
+		pattern := "%" + likeEscaper.Replace(strings.ToLower(s)) + "%"
+		query = query.Where(`(LOWER(full_name) LIKE ? ESCAPE '\' OR LOWER(department) LIKE ? ESCAPE '\' OR LOWER(position) LIKE ? ESCAPE '\')`,
+			pattern, pattern, pattern)
+	}
+
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var users []*models.User
+	err := query.Select("id", "full_name", "department", "position").
+		Order(clause.OrderBy{Columns: []clause.OrderByColumn{
+			{Column: clause.Column{Name: "full_name"}},
+			{Column: clause.Column{Name: "id"}},
+		}}).
+		Offset(offset).Limit(limit).
+		Find(&users).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	return users, total, nil
+}
+
+var likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
 
 // AssignRoles assigns roles to a user by role names
 func (r *UserRepository) AssignRoles(userID uuid.UUID, roleNames []string) error {
