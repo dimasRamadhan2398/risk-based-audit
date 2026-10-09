@@ -138,6 +138,18 @@ func SyncFromReport(tx *gorm.DB, report *models.AuditResultReport, now time.Time
 	return res, nil
 }
 
+// AfterReportWrite is the after-write hook (crud.AfterHook) of the audit
+// result report create and update routes: it reloads the saved report in the
+// write transaction and syncs its ATRs. An error rolls the report write back.
+func AfterReportWrite(tx *gorm.DB, entity interface{}) error {
+	report, ok := entity.(*models.AuditResultReport)
+	if !ok || report.ID == uuid.Nil {
+		return nil
+	}
+	_, err := SyncReportByID(tx, report.ID, time.Now())
+	return err
+}
+
 // SyncReportByID loads report id inside tx and syncs its ATRs
 func SyncReportByID(tx *gorm.DB, id uuid.UUID, now time.Time) (SyncResult, error) {
 	var report models.AuditResultReport

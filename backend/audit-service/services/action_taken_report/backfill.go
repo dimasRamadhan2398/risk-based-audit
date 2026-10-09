@@ -61,6 +61,10 @@ type BackfillResult struct {
 // idempotent: a second run creates nothing.
 func BackfillApprovedReports(db *gorm.DB, now time.Time) (BackfillResult, error) {
 	var res BackfillResult
+	// SyncFromReport inserts with ON CONFLICT on this index
+	if err := EnsureIndexes(db); err != nil {
+		return res, err
+	}
 	n, err := BackfillFindingIDs(db)
 	res.FindingIDReports = n
 	if err != nil {

@@ -480,16 +480,9 @@ func (h *RouteHandler) RegisterRoutes() {
 }
 
 // SyncReportATRs is the after-write hook of the audit result report create and
-// update routes: it reloads the saved report in the write transaction and
-// syncs its action taken reports. An error rolls the report write back.
-func SyncReportATRs(tx *gorm.DB, entity interface{}) error {
-	report, ok := entity.(*models.AuditResultReport)
-	if !ok || report.ID == uuid.Nil {
-		return nil
-	}
-	_, err := atrsvc.SyncReportByID(tx, report.ID, time.Now())
-	return err
-}
+// update routes (see atrsvc.AfterReportWrite): approving a report creates its
+// action taken reports in the same transaction.
+var SyncReportATRs crud.AfterHook = atrsvc.AfterReportWrite
 
 func (h *RouteHandler) deleteAuditGuideline(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))

@@ -266,24 +266,15 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 	// -------------------------------------------------------------
 	actionPlanTarget, actionPlanUnit := findTarget([]string{"action plan", "tindak lanjut", "recommendation"}, 90.0, "%")
 
-	var totalATR int64
-	c.db.Model(&models.ActionTakenReport{}).Count(&totalATR)
-
-	var closedATR int64
-	c.db.Model(&models.ActionTakenReport{}).Where("status = ? OR status = ?", "Completed", "Closed").Count(&closedATR)
-
-	var actionPlanActual float64
-	if totalATR > 0 {
-		actionPlanActual = math.Round((float64(closedATR)/float64(totalATR))*1000) / 10
-	} else {
-		actionPlanActual = 87.0
+	// Stored ATR statuses: COMPLETED closes an action plan; PLANNED,
+	// IN_PROGRESS and PENDING_REVIEW are open; CANCELLED is left out of both.
+	// With no countable ATR the card shows no value instead of a percentage.
+	atrStats, err := LoadATRClosureStats(c.db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to count action taken reports"})
+		return
 	}
-
-	actionPlanGap := actionPlanActual - actionPlanTarget
-	actionPlanTrendStr := fmt.Sprintf("%+.1f%% vs target", actionPlanGap)
-
-	var openATR int64
-	c.db.Model(&models.ActionTakenReport{}).Where("status NOT IN ?", []string{"Completed", "Closed", "completed", "closed"}).Count(&openATR)
+	actionPlanCard := actionPlanClosedCard(atrStats, actionPlanTarget, actionPlanUnit)
 
 	// -------------------------------------------------------------
 	// Build Unified Cards Response
@@ -349,26 +340,7 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 				},
 			},
 		},
-		{
-			Title:        "Action Plan Closed",
-			Key:          "action_plan_closed",
-			Value:        formatWithUnit("%.0f", actionPlanActual, actionPlanUnit),
-			Target:       formatWithUnit("%.0f", actionPlanTarget, actionPlanUnit),
-			ActualNumber: actionPlanActual,
-			TargetNumber: actionPlanTarget,
-			Gap:          fmt.Sprintf("%+.1f%%", actionPlanGap),
-			Trend:        actionPlanTrendStr,
-			TrendUp:      actionPlanActual >= actionPlanTarget,
-			Unit:         actionPlanUnit,
-			SubMetrics: []SubMetric{
-				{
-					Title:  "Open / Pending Action Plans",
-					Value:  fmt.Sprintf("%d open", openATR),
-					Target: "0 overdue",
-					Trend:  fmt.Sprintf("%d total recommendations registered", totalATR),
-				},
-			},
-		},
+		actionPlanCard,
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
