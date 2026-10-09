@@ -1495,6 +1495,7 @@
       "year": "Tahun",
       "period": "Periode",
       "department": "Departemen/Unit",
+      "activityId": "ID Aktivitas",
       "riskName": "Nama Risiko",
       "riskLevel": "Level Risiko",
       "attachment": "Lampiran",
@@ -1513,6 +1514,8 @@
       "plannedActivities": "Aktivitas Audit Direncanakan",
       "addAuditActivity": "Tambah Aktivitas Audit",
       "activityNum": "Aktivitas Audit {num}",
+      "activityId": "ID Aktivitas",
+      "activityIdPending": "Dibuat otomatis saat disimpan",
       "activityTitle": "Judul Aktivitas Audit",
       "createPlanTitle": "Buat Rencana Aktivitas Audit",
       "auditee": "Auditee",
@@ -1603,6 +1606,7 @@
       "close": "Tutup",
       "download": "Download",
       "columns": {
+        "activityId": "ID Aktivitas",
         "auditName": "Nama Audit",
         "auditee": "Auditee",
         "category": "Kategori",
@@ -2238,6 +2242,17 @@
       },
       "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
       "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+    },
+    "followUp": {
+      "tooltip": "Tindak lanjut (ATR) yang dibuat untuk temuan LHA ini",
+      "view": "Lihat Tindak Lanjut ({count})",
+      "viewNoCount": "Lihat Tindak Lanjut",
+      "createdTitle": "{count} tindak lanjut (ATR) dibuat",
+      "created": "Satu tindak lanjut dibuat untuk setiap temuan LHA ini.",
+      "noneTitle": "Tidak ada tindak lanjut yang dibuat",
+      "none": "LHA ini sudah disetujui, tetapi tidak ada tindak lanjut yang dibuat. Pastikan LHA memiliki temuan.",
+      "createdUnknownTitle": "LHA disetujui",
+      "createdUnknown": "Tindak lanjut dibuat otomatis; buka Action Taken Report untuk melihatnya."
     }
   },
   "qualityAssurance": {
@@ -3121,28 +3136,206 @@
     }
   },
   "actionTakenReport": {
+    "page": {
+      "title": "Action Taken Report",
+      "subtitle": "Tindak lanjut temuan Laporan Hasil Audit (LHA): rencana aksi, bukti, dan reviu."
+    },
     "statusSummary": "Ringkasan Status:",
     "status": {
       "planned": "Direncanakan",
       "inProgress": "Sedang Berjalan",
+      "pendingReview": "Menunggu Reviu",
       "completed": "Selesai",
       "cancelled": "Dibatalkan",
       "overdue": "Terlambat"
     },
     "summary": {
       "done": "{percent}% Selesai",
+      "pendingReview": "{percent}% Menunggu Reviu",
       "inProgress": "{percent}% Sedang Berjalan",
       "planned": "{percent}% Direncanakan",
       "overdue": "{percent}% Terlambat",
       "cancelled": "{percent}% Dibatalkan"
     },
     "summaryHint": "Terlambat = melewati tenggat dan belum selesai atau dibatalkan (tanggal Asia/Jakarta).",
-    "filter": {
-      "statusPlaceholder": "Pilih Status"
-    },
     "daysOverdue": "Terlambat {days} hari",
+    "findingCategory": {
+      "verySignificant": "Sangat Signifikan",
+      "significant": "Signifikan",
+      "quiteSignificant": "Cukup Signifikan",
+      "notSignificant": "Tidak Signifikan"
+    },
+    "scope": {
+      "all": "Semua tindak lanjut",
+      "mine": "Tindakan saya",
+      "mineHint": "Tindak lanjut yang ditugaskan kepada Anda."
+    },
+    "filter": {
+      "searchPlaceholder": "Cari temuan atau LHA",
+      "statusPlaceholder": "Pilih Status",
+      "lhaPlaceholder": "Pilih LHA",
+      "picPlaceholder": "Pilih PIC",
+      "overdueOnly": "Hanya yang terlambat",
+      "reset": "Reset Filter"
+    },
+    "table": {
+      "columns": {
+        "finding": "Temuan",
+        "lha": "LHA",
+        "pic": "PIC",
+        "dueDate": "Tenggat",
+        "progress": "Progres",
+        "status": "Status",
+        "actions": "Aksi"
+      },
+      "loading": "Memuat tindak lanjut...",
+      "errorTitle": "Tindak lanjut gagal dimuat",
+      "retry": "Coba lagi",
+      "empty": "Belum ada tindak lanjut",
+      "emptyMine": "Belum ada tindak lanjut yang ditugaskan kepada Anda",
+      "emptyFiltered": "Tidak ada tindak lanjut yang sesuai filter",
+      "emptyHint": "Tindak lanjut (ATR) dibuat otomatis untuk setiap temuan saat Laporan Hasil Audit (LHA) disetujui.",
+      "showing": "Menampilkan {from}-{to} dari {total}",
+      "showingNone": "Tidak ada tindak lanjut untuk ditampilkan",
+      "unassigned": "Belum ditugaskan",
+      "you": "Anda"
+    },
+    "actions": {
+      "view": "Lihat detail",
+      "fillActionPlan": "Isi rencana aksi",
+      "assign": "Tugaskan PIC",
+      "reassign": "Ganti PIC",
+      "review": "Reviu",
+      "cancel": "Batalkan ATR"
+    },
+    "modal": {
+      "close": "Tutup"
+    },
+    "form": {
+      "optional": "Opsional"
+    },
     "detail": {
-      "status": "Status"
+      "title": "Detail Action Taken Report",
+      "subtitle": "LHA {number}",
+      "findingSection": "Temuan",
+      "finding": "Temuan",
+      "recommendation": "Rekomendasi",
+      "lha": "Laporan Hasil Audit (LHA)",
+      "showLhaFollowUps": "Tampilkan semua tindak lanjut LHA ini",
+      "followUpSection": "Tindak Lanjut",
+      "pic": "PIC",
+      "dueDate": "Tenggat",
+      "progress": "Progres",
+      "actionPlan": "Rencana aksi",
+      "noActionPlan": "PIC belum mengisi rencana aksi.",
+      "reviewSection": "Catatan reviu",
+      "reviewedMeta": "Oleh {by} pada {date}"
+    },
+    "timeline": {
+      "title": "Riwayat status",
+      "created": "Dibuat dari LHA yang disetujui",
+      "assigned": "PIC ditugaskan",
+      "assignedDetail": "{pic}, tenggat {date}",
+      "notAssigned": "Menunggu PIC dan tenggat",
+      "returned": "Dikembalikan untuk perbaikan setelah reviu"
+    },
+    "evidence": {
+      "title": "Bukti",
+      "upload": "Unggah file",
+      "download": "Unduh",
+      "downloadNamed": "Unduh {name}",
+      "empty": "Belum ada bukti yang diunggah.",
+      "unnamed": "File tanpa nama",
+      "uploadedMeta": "{date} oleh {by}"
+    },
+    "actionPlanForm": {
+      "title": "Rencana Aksi",
+      "dueMeta": "Tenggat {date}",
+      "returnedTitle": "Dikembalikan untuk perbaikan",
+      "readOnly": "Tindak lanjut ini tidak dapat diubah lagi.",
+      "actionPlan": "Rencana aksi",
+      "actionPlanHelp": "Uraikan tindakan perbaikan yang telah atau akan dilakukan untuk temuan ini.",
+      "actionPlanPlaceholder": "Tindakan perbaikan, penanggung jawab, dan target waktu...",
+      "progress": "Progres",
+      "progressHelp": "Tingkat penyelesaian rencana aksi, 0-100%.",
+      "evidenceHelp": "Dokumen pendukung. Setiap file langsung diunggah saat dipilih.",
+      "saveDraft": "Simpan draf",
+      "submit": "Kirim untuk reviu",
+      "confirmSubmitTitle": "Kirim tindak lanjut ini untuk direviu?",
+      "confirmSubmitBody": "Perubahan terakhir Anda disimpan terlebih dahulu. Setelah dikirim, rencana aksi tidak dapat diubah sampai auditor mereviunya."
+    },
+    "assignment": {
+      "title": "Tugaskan PIC",
+      "titleReassign": "Ganti PIC",
+      "pic": "PIC",
+      "picHelp": "Orang yang bertanggung jawab menjalankan rencana aksi.",
+      "picPlaceholder": "Pilih pengguna",
+      "picSearch": "Cari nama...",
+      "noUsers": "Pengguna tidak ditemukan",
+      "dueDate": "Tenggat",
+      "dueDatePlaceholder": "dd/mm/yyyy",
+      "save": "Simpan penugasan",
+      "usersForbiddenTitle": "Daftar pengguna tidak tersedia",
+      "usersForbidden": "Anda tidak memiliki akses ke daftar pengguna, sehingga PIC tidak dapat dipilih di sini."
+    },
+    "review": {
+      "title": "Reviu Tindak Lanjut",
+      "submission": "Hasil yang dikirim",
+      "submittedBy": "PIC: {pic}",
+      "decision": "Keputusan",
+      "approve": "Setujui",
+      "approveHelp": "Temuan telah ditindaklanjuti; tindak lanjut selesai.",
+      "reject": "Kembalikan untuk perbaikan",
+      "rejectHelp": "Kembalikan ke PIC dengan catatan.",
+      "note": "Catatan reviu",
+      "noteApproveHelp": "Komentar opsional untuk PIC.",
+      "noteRejectHelp": "Wajib: jelaskan apa yang harus diperbaiki PIC.",
+      "notePlaceholder": "Tulis catatan reviu..."
+    },
+    "cancelModal": {
+      "title": "Batalkan Tindak Lanjut",
+      "warningTitle": "Tindakan ini tidak dapat dibatalkan",
+      "warning": "Tindak lanjut yang dibatalkan ditutup dan tidak lagi dipantau atau dihitung sebagai terbuka.",
+      "note": "Alasan",
+      "noteHelp": "Jelaskan mengapa tindak lanjut ini dibatalkan.",
+      "notePlaceholder": "Alasan pembatalan...",
+      "confirm": "Batalkan ATR"
+    },
+    "validation": {
+      "actionPlanRequired": "Isi rencana aksi.",
+      "actionPlanTooLong": "Rencana aksi terlalu panjang (maks. 5000 karakter).",
+      "progressRange": "Progres harus bilangan bulat antara 0 dan 100.",
+      "picRequired": "Pilih PIC.",
+      "dueDateRequired": "Pilih tenggat.",
+      "decisionRequired": "Pilih setujui atau kembalikan untuk perbaikan.",
+      "rejectNoteRequired": "Catatan wajib diisi saat mengembalikan untuk perbaikan.",
+      "cancelNoteRequired": "Isi alasan pembatalan.",
+      "noteTooLong": "Catatan terlalu panjang (maks. 2000 karakter)."
+    },
+    "toast": {
+      "assigned": "PIC berhasil ditugaskan",
+      "assignFailed": "Gagal menugaskan PIC",
+      "planSaved": "Rencana aksi tersimpan",
+      "planSaveFailed": "Gagal menyimpan rencana aksi",
+      "submitted": "Berhasil dikirim untuk reviu",
+      "submitFailed": "Gagal mengirim untuk reviu",
+      "approved": "Tindak lanjut disetujui dan selesai",
+      "rejected": "Tindak lanjut dikembalikan untuk perbaikan",
+      "reviewFailed": "Gagal menyimpan reviu",
+      "cancelled": "Tindak lanjut dibatalkan",
+      "cancelFailed": "Gagal membatalkan tindak lanjut",
+      "uploaded": "{count} file berhasil diunggah",
+      "uploadFailed": "Gagal mengunggah {name}"
+    },
+    "errors": {
+      "load": "Gagal memuat action taken report.",
+      "loadDetailTitle": "Gagal memuat tindak lanjut",
+      "loadDetail": "Data terbaru tidak dapat dimuat; menampilkan data dari daftar.",
+      "loadUsers": "Gagal memuat pengguna",
+      "generic": "Terjadi kesalahan. Silakan coba lagi.",
+      "downloadTitle": "Unduhan gagal",
+      "download": "File bukti tidak dapat diunduh.",
+      "evidenceMissing": "File bukti sudah tidak ada."
     },
     "dashboard": {
       "centerLabel": "Selesai",

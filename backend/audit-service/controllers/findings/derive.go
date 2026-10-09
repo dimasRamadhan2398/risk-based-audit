@@ -15,7 +15,6 @@ import (
 const (
 	SourceWorkingPaper      = "Digital Working Paper (KKA - AOI & RCA)"
 	SourceFieldwork         = "Audit Fieldwork (Test Controls)"
-	SourceActionTakenReport = "Action Taken Report (ATR)"
 	SourceAuditResultReport = "Audit Result Report (LHA)"
 )
 
@@ -35,11 +34,10 @@ type Finding struct {
 // derived from. Rows should be in creation order: KKA causes are paired with
 // action plans by position.
 type LiveSources struct {
-	Causes        []models.WorkingPaperCause    // KKA F04 AOI & RCA
-	Plans         []models.WorkingPaperPlan     // KKA F05 action plan
-	Risks         []models.WorkingPaperRisk     // KKA F02 risk profile
-	TestControls  []models.FieldworkTestControl // Audit Fieldwork
-	ActionReports []models.ActionTakenReport    // optional, auto-findings only
+	Causes       []models.WorkingPaperCause    // KKA F04 AOI & RCA
+	Plans        []models.WorkingPaperPlan     // KKA F05 action plan
+	Risks        []models.WorkingPaperRisk     // KKA F02 risk profile
+	TestControls []models.FieldworkTestControl // Audit Fieldwork
 }
 
 func rowDate(updated, created time.Time) time.Time {
@@ -57,7 +55,7 @@ func planAction(p models.WorkingPaperPlan) string {
 }
 
 // Derive builds the live findings of one assignment letter, deduplicated by
-// lower-cased title (first occurrence wins: KKA, then fieldwork, then ATR).
+// lower-cased title (first occurrence wins: KKA, then fieldwork).
 // This is the logic behind GET /audit-result-reports/auto-findings.
 func Derive(src LiveSources) []Finding {
 	var out []Finding
@@ -142,35 +140,6 @@ func Derive(src LiveSources) []Finding {
 			Action:   action,
 			Source:   SourceFieldwork,
 			Date:     rowDate(tc.UpdatedAt, tc.CreatedAt),
-		})
-	}
-
-	// 3. Action taken reports
-	for _, atr := range src.ActionReports {
-		cond := strings.TrimSpace(atr.Condition)
-		if cond == "" {
-			cond = strings.TrimSpace(atr.Title)
-		}
-		if cond == "" {
-			continue
-		}
-		key := strings.ToLower(cond)
-		if seen[key] {
-			continue
-		}
-		seen[key] = true
-
-		act := strings.TrimSpace(atr.Recommendation)
-		if act == "" {
-			act = strings.TrimSpace(atr.ProgressDescription)
-		}
-
-		out = append(out, Finding{
-			Title:    cond,
-			Category: "Significant",
-			Action:   act,
-			Source:   SourceActionTakenReport,
-			Date:     rowDate(atr.UpdatedAt, atr.CreatedAt),
 		})
 	}
 

@@ -37,7 +37,6 @@ type AssignmentLetter struct {
 	PurposeList        []string            `gorm:"serializer:json" json:"purposeList"`
 	ScopeList          []string            `gorm:"serializer:json" json:"scopeList"`
 	CcList             []string            `gorm:"serializer:json" json:"ccList"`
-	ActionTakenReports []ActionTakenReport `gorm:"foreignKey:AssignmentLetterID" json:"actionTakenReports,omitempty"`
 	CreatedAt          time.Time           `json:"created_at"`
 	UpdatedAt          time.Time           `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt      `gorm:"index" json:"-"`

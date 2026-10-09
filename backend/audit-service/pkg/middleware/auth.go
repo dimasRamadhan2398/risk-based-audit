@@ -58,9 +58,15 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 		}
 
 		// Parse and validate token
+		// Pin the signing method: without WithValidMethods a token is only as
+		// trustworthy as the weakest algorithm the library will accept.
+		// ExpirationRequired rejects tokens that simply omit "exp".
 		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(m.secret), nil
-		})
+		},
+			jwt.WithValidMethods([]string{"HS256"}),
+			jwt.WithExpirationRequired(),
+		)
 
 		if err != nil || !token.Valid {
 			response.Unauthorized(c, "Invalid or expired token")

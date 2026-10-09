@@ -1496,6 +1496,7 @@
       "year": "Year",
       "period": "Period",
       "department": "Department/Unit",
+      "activityId": "Activity ID",
       "riskName": "Risk Name",
       "riskLevel": "Risk Level",
       "attachment": "Attachment",
@@ -1514,6 +1515,8 @@
       "plannedActivities": "Planned Audit Activities",
       "addAuditActivity": "Add Audit Activity",
       "activityNum": "Audit Activity {num}",
+      "activityId": "Activity ID",
+      "activityIdPending": "Generated on save",
       "activityTitle": "Title of Audit Activity",
       "createPlanTitle": "Create Audit Activity Plan",
       "auditee": "Auditee",
@@ -1604,6 +1607,7 @@
       "close": "Close",
       "download": "Download",
       "columns": {
+        "activityId": "Activity ID",
         "auditName": "Audit Name",
         "auditee": "Auditee",
         "category": "Category",
@@ -2239,6 +2243,17 @@
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
       "fileSizeLimit": "File size exceeds the 10MB limit."
+    },
+    "followUp": {
+      "tooltip": "Follow-ups (ATR) created for this LHA's findings",
+      "view": "View follow-ups ({count})",
+      "viewNoCount": "View follow-ups",
+      "createdTitle": "{count} follow-ups (ATR) created",
+      "created": "One follow-up was created for each finding of this LHA.",
+      "noneTitle": "No follow-ups created",
+      "none": "This LHA was approved, but no follow-ups were created. Check that it has findings.",
+      "createdUnknownTitle": "LHA approved",
+      "createdUnknown": "Follow-ups are created automatically; open Action Taken Report to see them."
     }
   },
   "qualityAssurance": {
@@ -3123,28 +3138,206 @@
     }
   },
   "actionTakenReport": {
+    "page": {
+      "title": "Action Taken Report",
+      "subtitle": "Follow-up of Audit Result Report (LHA) findings: action plans, evidence and review."
+    },
     "statusSummary": "Status Summary:",
     "status": {
       "planned": "Planned",
       "inProgress": "In Progress",
+      "pendingReview": "Pending Review",
       "completed": "Completed",
       "cancelled": "Cancelled",
       "overdue": "Overdue"
     },
     "summary": {
       "done": "{percent}% Done",
+      "pendingReview": "{percent}% Pending Review",
       "inProgress": "{percent}% Work In Progress",
       "planned": "{percent}% Planned",
       "overdue": "{percent}% Overdue",
       "cancelled": "{percent}% Cancelled"
     },
-    "summaryHint": "Overdue = past the deadline and not completed or cancelled (Asia/Jakarta date).",
-    "filter": {
-      "statusPlaceholder": "Choose Status"
-    },
+    "summaryHint": "Overdue = past the due date and not completed or cancelled (Asia/Jakarta date).",
     "daysOverdue": "{days} days overdue",
+    "findingCategory": {
+      "verySignificant": "Very Significant",
+      "significant": "Significant",
+      "quiteSignificant": "Quite Significant",
+      "notSignificant": "Not Significant"
+    },
+    "scope": {
+      "all": "All follow-ups",
+      "mine": "My actions",
+      "mineHint": "Follow-ups assigned to you."
+    },
+    "filter": {
+      "searchPlaceholder": "Search finding or LHA",
+      "statusPlaceholder": "Choose Status",
+      "lhaPlaceholder": "Choose LHA",
+      "picPlaceholder": "Choose PIC",
+      "overdueOnly": "Overdue only",
+      "reset": "Reset Filter"
+    },
+    "table": {
+      "columns": {
+        "finding": "Finding",
+        "lha": "LHA",
+        "pic": "PIC",
+        "dueDate": "Due Date",
+        "progress": "Progress",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "loading": "Loading follow-ups...",
+      "errorTitle": "Follow-ups could not be loaded",
+      "retry": "Try again",
+      "empty": "No follow-ups yet",
+      "emptyMine": "No follow-ups are assigned to you",
+      "emptyFiltered": "No follow-ups match the filters",
+      "emptyHint": "A follow-up (ATR) is created automatically for each finding when an Audit Result Report (LHA) is approved.",
+      "showing": "Showing {from}-{to} of {total}",
+      "showingNone": "No follow-ups to show",
+      "unassigned": "Not assigned",
+      "you": "You"
+    },
+    "actions": {
+      "view": "View detail",
+      "fillActionPlan": "Fill action plan",
+      "assign": "Assign PIC",
+      "reassign": "Reassign PIC",
+      "review": "Review",
+      "cancel": "Cancel ATR"
+    },
+    "modal": {
+      "close": "Close"
+    },
+    "form": {
+      "optional": "Optional"
+    },
     "detail": {
-      "status": "Status"
+      "title": "Action Taken Report Detail",
+      "subtitle": "LHA {number}",
+      "findingSection": "Finding",
+      "finding": "Finding",
+      "recommendation": "Recommendation",
+      "lha": "Audit Result Report (LHA)",
+      "showLhaFollowUps": "Show all follow-ups of this LHA",
+      "followUpSection": "Follow-up",
+      "pic": "PIC",
+      "dueDate": "Due date",
+      "progress": "Progress",
+      "actionPlan": "Action plan",
+      "noActionPlan": "The PIC has not filled in an action plan yet.",
+      "reviewSection": "Review note",
+      "reviewedMeta": "By {by} on {date}"
+    },
+    "timeline": {
+      "title": "Status timeline",
+      "created": "Created from the approved LHA",
+      "assigned": "PIC assigned",
+      "assignedDetail": "{pic}, due {date}",
+      "notAssigned": "Waiting for a PIC and due date",
+      "returned": "Returned for revision after review"
+    },
+    "evidence": {
+      "title": "Evidence",
+      "upload": "Upload files",
+      "download": "Download",
+      "downloadNamed": "Download {name}",
+      "empty": "No evidence uploaded yet.",
+      "unnamed": "Unnamed file",
+      "uploadedMeta": "{date} by {by}"
+    },
+    "actionPlanForm": {
+      "title": "Action Plan",
+      "dueMeta": "Due {date}",
+      "returnedTitle": "Returned for revision",
+      "readOnly": "This follow-up can no longer be edited.",
+      "actionPlan": "Action plan",
+      "actionPlanHelp": "Describe the corrective actions taken or planned for this finding.",
+      "actionPlanPlaceholder": "Corrective actions, owners and milestones...",
+      "progress": "Progress",
+      "progressHelp": "Completion of the action plan, 0-100%.",
+      "evidenceHelp": "Supporting documents. Each file is uploaded as soon as you select it.",
+      "saveDraft": "Save draft",
+      "submit": "Submit for review",
+      "confirmSubmitTitle": "Submit this follow-up for review?",
+      "confirmSubmitBody": "Your latest changes are saved first. After submitting you cannot edit the action plan until the auditor reviews it."
+    },
+    "assignment": {
+      "title": "Assign PIC",
+      "titleReassign": "Reassign PIC",
+      "pic": "PIC",
+      "picHelp": "The person responsible for carrying out the action plan.",
+      "picPlaceholder": "Choose a user",
+      "picSearch": "Search by name...",
+      "noUsers": "No users found",
+      "dueDate": "Due date",
+      "dueDatePlaceholder": "dd/mm/yyyy",
+      "save": "Save assignment",
+      "usersForbiddenTitle": "User list unavailable",
+      "usersForbidden": "You do not have access to the user list, so a PIC cannot be chosen here."
+    },
+    "review": {
+      "title": "Review Follow-up",
+      "submission": "Submitted work",
+      "submittedBy": "PIC: {pic}",
+      "decision": "Decision",
+      "approve": "Approve",
+      "approveHelp": "The finding is resolved; the follow-up is completed.",
+      "reject": "Return for revision",
+      "rejectHelp": "Send it back to the PIC with a note.",
+      "note": "Review note",
+      "noteApproveHelp": "Optional comment for the PIC.",
+      "noteRejectHelp": "Required: explain what the PIC must change.",
+      "notePlaceholder": "Write your review note..."
+    },
+    "cancelModal": {
+      "title": "Cancel Follow-up",
+      "warningTitle": "This cannot be undone",
+      "warning": "A cancelled follow-up is closed and no longer tracked or counted as open.",
+      "note": "Reason",
+      "noteHelp": "Explain why this follow-up is cancelled.",
+      "notePlaceholder": "Reason for cancelling...",
+      "confirm": "Cancel ATR"
+    },
+    "validation": {
+      "actionPlanRequired": "Fill in the action plan.",
+      "actionPlanTooLong": "The action plan is too long (max 5000 characters).",
+      "progressRange": "Progress must be a whole number between 0 and 100.",
+      "picRequired": "Choose a PIC.",
+      "dueDateRequired": "Choose a due date.",
+      "decisionRequired": "Choose approve or return for revision.",
+      "rejectNoteRequired": "A note is required when returning for revision.",
+      "cancelNoteRequired": "Give a reason for cancelling.",
+      "noteTooLong": "The note is too long (max 2000 characters)."
+    },
+    "toast": {
+      "assigned": "PIC assigned",
+      "assignFailed": "Failed to assign PIC",
+      "planSaved": "Action plan saved",
+      "planSaveFailed": "Failed to save action plan",
+      "submitted": "Submitted for review",
+      "submitFailed": "Failed to submit for review",
+      "approved": "Follow-up approved and completed",
+      "rejected": "Follow-up returned for revision",
+      "reviewFailed": "Failed to save the review",
+      "cancelled": "Follow-up cancelled",
+      "cancelFailed": "Failed to cancel the follow-up",
+      "uploaded": "{count} file(s) uploaded",
+      "uploadFailed": "Failed to upload {name}"
+    },
+    "errors": {
+      "load": "Failed to load action taken reports.",
+      "loadDetailTitle": "Failed to load the follow-up",
+      "loadDetail": "The latest data could not be loaded; showing the list data.",
+      "loadUsers": "Failed to load users",
+      "generic": "Something went wrong. Please try again.",
+      "downloadTitle": "Download failed",
+      "download": "The evidence file could not be downloaded.",
+      "evidenceMissing": "The evidence file no longer exists."
     },
     "dashboard": {
       "centerLabel": "Completed",

@@ -45,6 +45,18 @@ func runServe(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
+	// master-service has shipped pkg/middleware/auth.go since the start but
+	// never applied it, so the organisational master data - companies,
+	// departments and the full employee roster - was readable and writable by
+	// anyone who could reach the gateway. Kong verifies no tokens for this
+	// service, so this is the only check there is.
+	//
+	// Refuse to start without a secret rather than come up accepting any token.
+	if strings.TrimSpace(cfg.JWT.Secret) == "" {
+		return errors.New("jwt secret is empty: set JWT_SECRET (or jwt.secret in config.yaml)")
+	}
+	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
+
 	validator := validations.New()
 	serviceRegistry := services.NewServiceRegistry(db)
 	controllerRegistry := controllers.NewControllerRegistry(serviceRegistry, validator)
@@ -64,7 +76,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		middleware.CORSMiddleware(),
 		middleware.ResponseCache(),
 	)
-	routes.RegisterRoutes(router, controllerRegistry, db)
+	routes.RegisterRoutes(router, controllerRegistry, db, authMiddleware)
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	logger.Info("Starting master-service server", zap.String("addr", addr))

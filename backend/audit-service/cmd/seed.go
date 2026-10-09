@@ -141,11 +141,8 @@ func runSeed(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	logger.Info("Seeding action taken reports...")
-	if err := seedActionTakenReports(db); err != nil {
-		logger.Fatal("Failed to seed action taken reports", logger.LogField("error", err))
-		return err
-	}
+	// Action taken reports are not seeded: the server creates them from the
+	// findings of approved LHAs (see services/action_taken_report).
 
 	logger.Info("Seeding executive summaries...")
 	if err := seedExecutiveSummaries(db); err != nil {
@@ -191,6 +188,7 @@ func runSeed(cmd *cobra.Command, args []string) error {
 func dropTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
 		"imported_working_papers",
+		"action_taken_report_evidences",
 		"action_taken_reports",
 		"work_plan_realizations",
 		"kpi_achievements",
@@ -219,7 +217,7 @@ func dropTables(db *gorm.DB) error {
 }
 
 func runMigrations(db *gorm.DB) error {
-	return db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&models.AuditCharter{},
 		&models.AuditGuideline{},
 		&models.AuditSop{},
@@ -246,12 +244,17 @@ func runMigrations(db *gorm.DB) error {
 		&models.AuditResultReport{},
 		&models.ExecutiveSummary{},
 		&models.ActionTakenReport{},
+		&models.ActionTakenReportEvidence{},
 		&models.ImportedWorkingPaper{},
 		&models.UploadedPlanDocument{},
 		&models.KPIAchievement{},
 		&models.WorkPlanRealization{},
 		&models.AuditeeSurvey{},
-	)
+	); err != nil {
+		return err
+	}
+	// Same data steps as "migrate up": LHA finding ids, old ATR columns
+	return runATRDataMigrations(db)
 }
 
 func seedAuditMandates(db *gorm.DB) error {
@@ -1773,101 +1776,6 @@ func seedResultReports(db *gorm.DB) error {
 				"department":     seeds[i].Department,
 				"audit_period":   seeds[i].AuditPeriod,
 			})
-		}
-	}
-	return nil
-}
-
-func seedActionTakenReports(db *gorm.DB) error {
-	seeds := []models.ActionTakenReport{
-		{
-			AuditRef:            "ST-001/SKAI/2026",
-			Title:               "Rekonsiliasi Kas Harian dan Arus Kas",
-			Department:          "Finance",
-			AuditObject:         "Manajemen Keuangan Utama",
-			FindingCategory:     "Assurance",
-			Condition:           "Selisih saldo kas 5%",
-			Criteria:            "SOP Keuangan No. 01",
-			Recommendation:      "Rekonsiliasi harian",
-			PIC:                 "Departemen Finance",
-			Deadline:            "2026-04-15",
-			Status:              "COMPLETED",
-			Attachment:          "Bukti_Rekonsiliasi.pdf",
-			ProgressDescription: "Selesai tepat waktu.",
-		},
-		{
-			AuditRef:            "ST-002/SKAI/2026",
-			Title:               "Pemasangan SMTP Alert Backup ERP",
-			Department:          "IT",
-			AuditObject:         "IT Infrastructure",
-			FindingCategory:     "Technology & Access",
-			Condition:           "Kegagalan backup database tidak memicu notifikasi otomatis.",
-			Criteria:            "SOP IT Recovery mensyaratkan notifikasi insiden langsung terkirim ke tim sysadmin.",
-			Recommendation:      "Konfigurasi SMTP server untuk mengirim log gagal.",
-			PIC:                 "Rudi Hermawan",
-			Deadline:            "2026-04-20",
-			Status:              "COMPLETED",
-			Attachment:          "Config_Alert_SMTP.pdf",
-			ProgressDescription: "SMTP alert dikonfigurasi dan sukses diuji coba pada backup simulasi.",
-		},
-		{
-			AuditRef:            "ST-003/SKAI/2026",
-			Title:               "Opname Stok Fisik Gudang Utama",
-			Department:          "Ops",
-			AuditObject:         "Manajemen Gudang Utama",
-			FindingCategory:     "Special Audit",
-			Condition:           "Selisih stok fisik 5% (Gudang A)",
-			Criteria:            "SOP Inventori No. 12",
-			Recommendation:      "Opname stok ulang & kunci ganda.",
-			PIC:                 "Departemen Logistik",
-			Deadline:            "2026-05-15",
-			Status:              "IN_PROGRESS",
-			Attachment:          "Draft_Inventarisasi.xlsx",
-			ProgressDescription: "Sedang berjalan 50%.",
-		},
-		{
-			AuditRef:            "ST-004/SKAI/2026",
-			Title:               "Evaluasi Kontrak Vendor SCM",
-			Department:          "Procurement",
-			AuditObject:         "Manajemen Vendor",
-			FindingCategory:     "Consulting Services",
-			Condition:           "Dokumen HPS vendor belum diperbarui",
-			Criteria:            "SOP Pengadaan No. 05",
-			Recommendation:      "Review dan perbarui HPS vendor secara periodik",
-			PIC:                 "Departemen GA",
-			Deadline:            "2026-06-01",
-			Status:              "PLANNED",
-			ProgressDescription: "Dalam tahap perancangan.",
-		},
-		{
-			AuditRef:            "ST-005/SKAI/2026",
-			Title:               "Sertifikasi Peralatan Pemadam Hidran",
-			Department:          "Maintenance",
-			AuditObject:         "Fasilitas K3LH",
-			FindingCategory:     "Investigation",
-			Condition:           "Masa berlaku sertifikasi hidran berakhir",
-			Criteria:            "SOP K3LH No. 08",
-			Recommendation:      "Pengujian dan resertifikasi hidran pabrik",
-			PIC:                 "K3LH Team",
-			Deadline:            "2026-06-15",
-			Status:              "CANCELLED",
-			Attachment:          "Foto_Fisik.jpg",
-			ProgressDescription: "Dibatalkan karena restrukturisasi operasional unit.",
-		},
-	}
-	for i := range seeds {
-		var letter models.AssignmentLetter
-		if err := db.Where("letter_number = ?", seeds[i].AuditRef).First(&letter).Error; err == nil {
-			seeds[i].AssignmentLetterID = &letter.ID
-		}
-		var existing models.ActionTakenReport
-		err := db.Where("audit_ref = ? AND title = ?", seeds[i].AuditRef, seeds[i].Title).First(&existing).Error
-		if err == gorm.ErrRecordNotFound {
-			if err := db.Create(&seeds[i]).Error; err != nil {
-				return err
-			}
-		} else if existing.ID != (models.ActionTakenReport{}).ID && existing.AssignmentLetterID == nil && seeds[i].AssignmentLetterID != nil {
-			db.Model(&existing).Update("assignment_letter_id", seeds[i].AssignmentLetterID)
 		}
 	}
 	return nil

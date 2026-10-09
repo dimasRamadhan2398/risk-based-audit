@@ -135,6 +135,20 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center">
+              <!-- Approved LHA: its findings have ATRs (created by the backend on approval) -->
+              <UTooltip
+                v-if="isLhaApproved(row.original.status)"
+                :text="t('auditResultReport.followUp.tooltip')"
+              >
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  icon="i-lucide-list-checks"
+                  size="sm"
+                  :to="`/action-taken-report?lha=${encodeURIComponent((row.original as any).id)}`"
+                  :label="followUpLabel((row.original as any).id)"
+                />
+              </UTooltip>
               <UTooltip text="Sync Temuan Otomatis dari KKA & Fieldwork">
                 <UButton
                   color="primary"
@@ -214,8 +228,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { useI18n } from '~/composables/useI18n'
+import { isLhaApproved } from '~/utils/actionTakenReport'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ResultReportForm from '~/components/audit-result-report/ResultReportForm.vue'
 import { useRbac } from '~/composables/useRbac'
@@ -225,6 +242,26 @@ const store = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const { canImportPlanDocs } = useRbac()
 const toast = useToastNotification()
+const atrStore = useActionTakenReportStore()
+const { t } = useI18n()
+
+// ATR count per approved LHA for the "View follow-ups (N)" button (null = could not be loaded).
+const atrCounts = ref<Record<string, number | null>>({})
+watch(
+  () => store.filteredReports.filter(r => isLhaApproved(r.status)).map(r => r.id),
+  async (ids) => {
+    for (const id of ids) {
+      if (!id || id in atrCounts.value) continue
+      atrCounts.value[id] = null
+      atrCounts.value[id] = await atrStore.countForLha(id)
+    }
+  },
+  { immediate: true }
+)
+const followUpLabel = (id: string) => {
+  const count = atrCounts.value[id]
+  return typeof count === 'number' ? t('auditResultReport.followUp.view', { count }) : t('auditResultReport.followUp.viewNoCount')
+}
 
 onMounted(() => {
   assignmentLetterStore.fetchAssignmentLetters()

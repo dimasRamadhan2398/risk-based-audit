@@ -174,9 +174,20 @@
                       class="absolute top-3 right-3"
                       @click="store.removePlannedActivity(index)"
                     />
-                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800 pb-2">
-                      {{ t('auditActivityPlan.form.activityNum', { num: index + 1 }) }}
-                    </h4>
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-gray-100 dark:border-gray-800 pb-2 pr-10">
+                      <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">
+                        {{ t('auditActivityPlan.form.activityNum', { num: index + 1 }) }}
+                      </h4>
+                      <!-- Activity ID: assigned by the backend on save, read-only here. -->
+                      <div class="flex items-center gap-1.5 text-xs" data-testid="planned-activity-code">
+                        <span class="text-gray-500 dark:text-gray-400">{{ t('auditActivityPlan.form.activityId') }}:</span>
+                        <span
+                          v-if="activity.activityCode"
+                          class="font-mono font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 select-all"
+                        >{{ activity.activityCode }}</span>
+                        <span v-else class="italic text-gray-400 dark:text-gray-500">{{ t('auditActivityPlan.form.activityIdPending') }}</span>
+                      </div>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <UFormField :label="t('auditActivityPlan.form.activityTitle')" required>
                         <UInput 

@@ -135,8 +135,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, h } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
+import type { PlannedAuditActivity } from '~/types/audit'
 import { useI18n } from '~/composables/useI18n'
 import { formatPeriod, formatDateLocale } from '~/utils/dateConverter'
 
@@ -144,6 +145,14 @@ const { t, locale } = useI18n()
 const store = useActivityPlanStore()
 
 const plannedActivitiesColumns = computed(() => [
+  {
+    accessorKey: 'activityCode',
+    header: t('auditActivityPlan.view.columns.activityId'),
+    // Activities saved before Activity IDs existed have none until the plan is saved again.
+    cell: ({ row }: { row: { original: PlannedAuditActivity } }) => row.original.activityCode
+      ? h('span', { class: 'font-mono text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-100' }, row.original.activityCode)
+      : h('span', { class: 'text-gray-400 dark:text-gray-500' }, '-')
+  },
   { accessorKey: 'auditName', header: t('auditActivityPlan.view.columns.auditName') },
   { accessorKey: 'auditee', header: t('auditActivityPlan.view.columns.auditee') },
   { accessorKey: 'category', header: t('auditActivityPlan.view.columns.category') },

@@ -404,8 +404,9 @@
                         {{ risk.name }}
                       </h4>
                       <div class="flex items-center gap-2 mt-1 text-gray-500">
-                        <span class="text-[10px] sm:text-xs font-semibold flex items-center gap-1">
-                          {{ categoryIcons[risk.category] }} {{ risk.category }}
+                        <span class="text-[10px] sm:text-xs font-semibold inline-flex items-center gap-1">
+                          <UIcon :name="getCategoryIcon(risk.category)" class="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 text-gray-400 dark:text-gray-500" />
+                          {{ risk.category }}
                         </span>
                       </div>
                     </div>
@@ -450,7 +451,7 @@
                             <!-- Status Banner -->
                             <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
                               <div class="flex items-center gap-3">
-                                <span class="text-3xl">{{ categoryIcons[risk.category] }}</span>
+                                <UIcon :name="getCategoryIcon(risk.category)" class="w-8 h-8 shrink-0 text-gray-500 dark:text-gray-400" />
                                 <div>
                                   <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.category') }}</div>
                                   <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ risk.category }}</div>
@@ -881,6 +882,18 @@ const tabItems = computed(() => [
 ])
 
 // Helpers
+// Lucide equivalents of the store's categoryIcons emoji.
+const categoryIconNames = {
+  'Financial': 'i-lucide-wallet',
+  'Technology': 'i-lucide-lock',
+  'Compliance': 'i-lucide-clipboard-list',
+  'Governance': 'i-lucide-landmark',
+  'Operations': 'i-lucide-settings',
+  'Human Resources': 'i-lucide-users',
+  'Strategic': 'i-lucide-target'
+}
+const getCategoryIcon = (category) => categoryIconNames[category] || 'i-lucide-tag'
+
 const getPrefix = (risk) => store.getFormattedId(risk).split('-')[0]
 const getNumber = (risk) => store.getFormattedId(risk).split('-')[1]
 

@@ -310,8 +310,13 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
         department: form.department,
         createdBy: form.createdBy,
         creationDate: form.creationDate,
-        plannedActivities: form.plannedActivities.map(activity => ({
+        // `id` is sent as is: on update the backend matches it to keep each
+        // activity's Activity ID. `activityCode` is assigned by the backend, so
+        // only a code loaded with the plan is sent back (edit), never one made
+        // up here; new rows go without it and get a code on save.
+        plannedActivities: form.plannedActivities.map(({ activityCode, ...activity }) => ({
           ...activity,
+          ...(isEditMode.value && activityCode ? { activityCode } : {}),
           duration: toNumber(activity.duration),
           numberOfAuditors: toNumber(activity.numberOfAuditors),
           budgetEstimation: toNumber(activity.budgetEstimation)
@@ -358,6 +363,7 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   }
 
   function addPlannedActivity() {
+    // No activityCode: the backend assigns the Activity ID when the plan is saved.
     formState.value.plannedActivities.push({
       id: Date.now().toString(),
       auditName: '',

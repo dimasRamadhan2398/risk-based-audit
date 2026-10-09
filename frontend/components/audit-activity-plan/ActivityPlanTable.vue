@@ -23,6 +23,20 @@
         </div>
       </template>
 
+      <!-- Activity ID per planned activity, in the same order as Risk Name / Risk Level -->
+      <template #activityCode-cell="{ row }">
+        <div class="flex flex-col gap-1">
+          <span
+            v-for="(act, idx) in getOriginal(row).plannedActivities"
+            :key="idx"
+            class="whitespace-nowrap"
+            :class="act.activityCode ? 'font-mono text-xs font-semibold text-gray-800 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'"
+          >
+            {{ act.activityCode || '-' }}
+          </span>
+        </div>
+      </template>
+
       <template #riskName-cell="{ row }">
         <div class="flex flex-col gap-1">
           <div 
@@ -138,6 +152,7 @@ const columns = computed(() => [
     tdClass: 'z-10 bg-[var(--bg-main)]'
   },
   { accessorKey: 'department', header: t('auditActivityPlan.table.department'), class: 'w-36' },
+  { accessorKey: 'activityCode', header: t('auditActivityPlan.table.activityId'), class: 'w-32 whitespace-nowrap' },
   { accessorKey: 'riskName', header: t('auditActivityPlan.table.riskName'), class: 'w-48' },
   { accessorKey: 'riskLevel', header: t('auditActivityPlan.table.riskLevel'), class: 'w-28 whitespace-nowrap' },
   { accessorKey: 'attachments', header: t('auditActivityPlan.table.attachment'), class: 'w-28 whitespace-nowrap text-center' },

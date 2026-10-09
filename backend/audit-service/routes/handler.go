@@ -17,6 +17,7 @@ import (
 	"audit-service/pkg/masterclient"
 	"audit-service/pkg/middleware"
 	"audit-service/pkg/redis"
+	atrsvc "audit-service/services/action_taken_report"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -409,8 +410,11 @@ func (h *RouteHandler) RegisterRoutes() {
 		auditResultReports.GET("/recent-findings", ctrlFindings.Recent(h.db))
 		auditResultReports.GET("/:id/download-docx", h.downloadAuditResultReportDocx)
 		auditResultReports.GET("/:id", crud.GetByID(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
-		auditResultReports.POST("", crud.Create(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
-		auditResultReports.PUT("/:id", crud.Update(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
+		// Saving a report keeps its action taken reports in step in the same
+		// transaction: approving it ("Final"/"Approved"/"Published") creates one
+		// ATR per finding (see services/action_taken_report.SyncFromReport)
+		auditResultReports.POST("", crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, SyncReportATRs))
+		auditResultReports.PUT("/:id", crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, SyncReportATRs))
 		auditResultReports.DELETE("/:id", crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
 	}
 
@@ -434,17 +438,10 @@ func (h *RouteHandler) RegisterRoutes() {
 		executiveSummaries.DELETE("/:id", crud.Delete(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 	}
 
-	// 18. Action Taken Reports
-	actionTakenReports := apiV1.Group("/action-taken-reports")
-	{
-		actionTakenReports.GET("", crud.List(h.db, "ActionTakenReport", func() interface{} { return &[]models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
-		actionTakenReports.GET("/:id", crud.GetByID(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }, "AssignmentLetter", "AuditFinding"))
-		// isOverdue/daysOverdue are derived in the model's AfterFind/AfterSave hooks;
-		// NormalizeRequest canonicalises status and strips those derived fields
-		actionTakenReports.POST("", ctrlATR.NormalizeRequest(), crud.Create(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
-		actionTakenReports.PUT("/:id", ctrlATR.NormalizeRequest(), crud.Update(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
-		actionTakenReports.DELETE("/:id", crud.Delete(h.db, "ActionTakenReport", func() interface{} { return &models.ActionTakenReport{} }))
-	}
+	// 18. Action Taken Reports: one per finding of an approved LHA, created by
+	// the server (no generic create/update). Role checks live in the
+	// controller (services/action_taken_report.RolePermissions).
+	ctrlATR.NewController(h.db).Register(apiV1.Group("/action-taken-reports"))
 
 	// 19. Media routes
 	media := apiV1.Group("/media")
@@ -476,6 +473,18 @@ func (h *RouteHandler) RegisterRoutes() {
 		performance.PUT("/realization/:id", crud.Update(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
 		performance.DELETE("/realization/:id", crud.Delete(h.db, "WorkPlanRealization", func() interface{} { return &models.WorkPlanRealization{} }))
 	}
+}
+
+// SyncReportATRs is the after-write hook of the audit result report create and
+// update routes: it reloads the saved report in the write transaction and
+// syncs its action taken reports. An error rolls the report write back.
+func SyncReportATRs(tx *gorm.DB, entity interface{}) error {
+	report, ok := entity.(*models.AuditResultReport)
+	if !ok || report.ID == uuid.Nil {
+		return nil
+	}
+	_, err := atrsvc.SyncReportByID(tx, report.ID, time.Now())
+	return err
 }
 
 func (h *RouteHandler) deleteAuditGuideline(c *gin.Context) {
@@ -555,14 +564,14 @@ func (h *RouteHandler) getAutoFindings(c *gin.Context) {
 		return
 	}
 
-	// Live findings: KKA (F04 causes / F05 plans / F02 risks), fieldwork test
-	// controls and ATRs of this assignment letter (see controllers/findings)
+	// Live findings: KKA (F04 causes / F05 plans / F02 risks) and fieldwork
+	// test controls of this assignment letter (see controllers/findings). ATRs
+	// are not a source: they are created from the LHA's findings.
 	var src ctrlFindings.LiveSources
 	h.db.Where("working_paper_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.Causes)
 	h.db.Where("working_paper_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.Plans)
 	h.db.Where("working_paper_id = ?", assignmentLetterId).Find(&src.Risks)
 	h.db.Where("assignment_letter_id = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.TestControls)
-	h.db.Where("audit_ref = ?", assignmentLetterId).Order("created_at ASC").Order("id ASC").Find(&src.ActionReports)
 
 	var findings []AutoFindingItem
 	for _, f := range ctrlFindings.Derive(src) {

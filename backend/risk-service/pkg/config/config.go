@@ -11,6 +11,18 @@ import (
 type Config struct {
 	Database      DatabaseConfig      `mapstructure:"database"`
 	MasterService MasterServiceConfig `mapstructure:"master_service"`
+	JWT           JWTConfig           `mapstructure:"jwt"`
+}
+
+// JWTConfig carries the secret auth-service signs tokens with. Every service in
+// a stack must share it, and each tenant must have its own — see
+// scripts/templates/docker-compose.tenant.yml.tpl, which requires
+// TENANT_JWT_SECRET so a token minted for one tenant cannot be replayed at
+// another.
+//
+// Env override (via the "." -> "_" replacer): JWT_SECRET.
+type JWTConfig struct {
+	Secret string `mapstructure:"secret"`
 }
 
 // MasterServiceConfig points risk-service at the master-service that owns this
@@ -71,6 +83,10 @@ func setDefaults() {
 	viper.SetDefault("master_service.url", "")
 	viper.SetDefault("master_service.timeout_seconds", 2)
 	viper.SetDefault("master_service.cache_ttl_seconds", 60)
+	// Registered so AutomaticEnv binds JWT_SECRET even when config.yaml omits
+	// the key. Left empty on purpose: serve refuses to start without it rather
+	// than coming up with authentication that accepts anything.
+	viper.SetDefault("jwt.secret", "")
 }
 
 func Load(configPath string) (*Config, error) {

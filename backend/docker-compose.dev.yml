@@ -134,6 +134,7 @@ services:
     ports:
       - "8101:8001"
     environment:
+      - JWT_SECRET=${JWT_SECRET:-dev-only-insecure-jwt-secret-do-not-use-in-prod}
       # Resend API key for outbound transactional email and domain provisioning
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - RESEND_MASTER_API_KEY=${RESEND_MASTER_API_KEY:-}
@@ -155,6 +156,7 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_analytics_service_dev
     environment:
+      - JWT_SECRET=${JWT_SECRET:-dev-only-insecure-jwt-secret-do-not-use-in-prod}
       - PYTHON_AI_URL=${PYTHON_AI_URL:-http://10.0.0.1:8000}
       - PYTHON_AI_API_KEY=${PYTHON_AI_API_KEY:-dev-ai-api-key}
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
@@ -179,6 +181,8 @@ services:
       context: ./audit-service
       dockerfile: Dockerfile
     container_name: rb_audit_audit_service_dev
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-dev-only-insecure-jwt-secret-do-not-use-in-prod}
     depends_on:
       postgres:
         condition: service_started
@@ -201,6 +205,7 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_master_service_dev
     environment:
+      - JWT_SECRET=${JWT_SECRET:-dev-only-insecure-jwt-secret-do-not-use-in-prod}
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-dev-api-key}
     depends_on:
@@ -222,6 +227,8 @@ services:
       context: ./risk-service
       dockerfile: Dockerfile
     container_name: rb_audit_risk_service_dev
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-dev-only-insecure-jwt-secret-do-not-use-in-prod}
     depends_on:
       postgres:
         condition: service_started

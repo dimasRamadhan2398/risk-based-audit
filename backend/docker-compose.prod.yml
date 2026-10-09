@@ -93,6 +93,7 @@ services:
     ports:
       - "8001:8001"
     environment:
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - RESEND_MASTER_API_KEY=${RESEND_MASTER_API_KEY:-}
       - RESEND_FROM=${RESEND_FROM:-AuditSphere <no-reply@mail.auditsphere.app>}
@@ -113,6 +114,7 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_analytics_service
     environment:
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
       - PYTHON_AI_URL=${PYTHON_AI_URL:-http://10.0.0.1:8000}
       - PYTHON_AI_API_KEY=${PYTHON_AI_API_KEY:-auditsphere_ai_key_2026_k33f01}
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
@@ -147,6 +149,7 @@ services:
     ports:
       - "8002:8001"
     environment:
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
       - IMAGEKIT_PUBLIC_KEY=${IMAGEKIT_PUBLIC_KEY:-}
       - IMAGEKIT_PRIVATE_KEY=${IMAGEKIT_PRIVATE_KEY:-}
       - IMAGEKIT_URL_ENDPOINT=${IMAGEKIT_URL_ENDPOINT:-}
@@ -164,6 +167,7 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_master_service
     environment:
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-auditsphere_dh_key_2026_x87a9b}
     depends_on:
@@ -185,6 +189,8 @@ services:
       context: ./risk-service
       dockerfile: Dockerfile
     container_name: rb_audit_risk_service
+    environment:
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
     depends_on:
       postgres:
         condition: service_started

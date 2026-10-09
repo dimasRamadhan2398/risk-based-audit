@@ -2,13 +2,20 @@ package routes
 
 import (
 	"analytics-service/controllers"
+	"analytics-service/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine) {
+func SetupRoutes(r *gin.Engine, authMiddleware *middleware.AuthMiddleware) {
 	analyticsController := controllers.NewAnalyticsController()
 
 	api := r.Group("/api/analytics")
+	// Every analytics route requires a valid JWT. Kong does not verify tokens
+	// for this service, so without this the dashboard aggregates, risk scores
+	// and CAATT results were readable by anyone who could reach the gateway -
+	// and /retrain/auto was anonymously triggerable.
+	api.Use(authMiddleware.Authenticate())
 	{
 		api.GET("/report", analyticsController.GetReport)
 		api.GET("/predict", analyticsController.GetPredictiveTrends)
