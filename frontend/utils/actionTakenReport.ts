@@ -186,7 +186,8 @@ export const normalizeAtrItem = (item: RawRow, now: Date = new Date()): ActionTa
     reviewed_by: str(item.reviewed_by),
     reviewed_at: strOrNull(item.reviewed_at),
     created_at: str(item.created_at),
-    updated_at: str(item.updated_at)
+    updated_at: str(item.updated_at),
+    allowed_actions: Array.isArray(item.allowed_actions) ? item.allowed_actions.map(str) : null
   }
 }
 
@@ -292,8 +293,8 @@ const isOpenForWork = (status: unknown) => {
   return s === 'PLANNED' || s === 'IN_PROGRESS'
 }
 
-/** PIC / due date can be (re)assigned while the work has not been submitted or closed. */
-export const atrCanAssignStatus = (status: unknown) => isOpenForWork(status)
+/** PIC / due date can be (re)assigned while the item is open (PLANNED, IN_PROGRESS, PENDING_REVIEW). */
+export const atrCanAssignStatus = (status: unknown) => !!normalizeAtrStatus(status) && !isAtrClosed(status)
 /** The action plan and evidence can be edited while PLANNED or IN_PROGRESS (also after a rejected review). */
 export const atrCanEditPlanStatus = (status: unknown) => isOpenForWork(status)
 /** Submitting needs an open item and an action plan. */
@@ -308,6 +309,22 @@ export const atrCanCancelStatus = (status: unknown) => !!normalizeAtrStatus(stat
 
 export const ATR_ACTION_PLAN_MAX = 5000
 export const ATR_NOTE_MAX = 2000
+
+/** Evidence files the backend accepts (POST /:id/evidence): these extensions, up to 10 MB each. */
+export const ATR_EVIDENCE_EXTENSIONS = [
+  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.csv', '.txt',
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.zip'
+]
+export const ATR_EVIDENCE_MAX_BYTES = 10 * 1024 * 1024
+
+/** Why a file would be refused by the backend ('type' | 'size'), or null when it can be uploaded. */
+export const atrEvidenceProblem = (file: { name: string, size: number }): 'type' | 'size' | null => {
+  const dot = file.name.lastIndexOf('.')
+  const ext = dot >= 0 ? file.name.slice(dot).toLowerCase() : ''
+  if (!ATR_EVIDENCE_EXTENSIONS.includes(ext)) return 'type'
+  if (file.size > ATR_EVIDENCE_MAX_BYTES) return 'size'
+  return null
+}
 
 export const atrActionPlanSchema = z.object({
   action_plan: z.string().trim()

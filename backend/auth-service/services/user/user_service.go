@@ -361,9 +361,14 @@ func (s *UserService) userToResponse(user *models.User) *models.UserResponse {
 		roles[i] = role.Name
 	}
 
+	employeeID := ""
+	if user.EmployeeID != nil {
+		employeeID = *user.EmployeeID
+	}
+
 	return &models.UserResponse{
 		ID:         user.ID.String(),
-		EmployeeID: user.EmployeeID,
+		EmployeeID: employeeID,
 		Username:   user.Username,
 		Email:      user.Email,
 		FullName:   user.FullName,

@@ -189,11 +189,13 @@ export const useRbac = () => {
 
   /**
    * Action Taken Report (ATR). The backend enforces the same rules; these only decide what the UI shows.
-   * Permission keys assumed (auth-service seeder): view_action_taken_report (view), update_action_taken_report
-   * (PIC: action plan, evidence, submit), plus assign/review/cancel keys still to be confirmed by the backend.
-   * The user object carries roles only, so the checks below are role-based.
+   * Permission keys (audit-service ATR role matrix, mirrored in the auth-service seeder):
+   *  view_action_taken_report (own items), view_all_action_taken_report, assign_action_taken_report,
+   *  update_action_taken_report (PIC: action plan, evidence, submit), review_action_taken_report,
+   *  cancel_action_taken_report. The user object carries roles only, so the checks below are role-based.
    *  Admin: all | CAE: view all, review, cancel | Audit Manager: view all, assign, review, cancel
    *  Auditor: view all, assign, review | Auditee/PIC: own items, action plan, evidence, submit
+   * Per item, useAtrActions also requires the action in the server's `allowed_actions` when present.
    */
   const canViewAllAtr = computed(() => hasAnyRole([
     UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER, UserRole.AUDITOR, UserRole.AUDIT_STAFF,

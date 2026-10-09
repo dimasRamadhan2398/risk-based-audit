@@ -608,6 +608,11 @@ export interface ActionTakenReport {
   reviewed_at: string | null
   created_at: string
   updated_at: string
+  /**
+   * What the caller may do with this item now, from the server ('assign', 'update_action_plan',
+   * 'upload_evidence', 'submit', 'review', 'cancel', 'delete'); null when the response has no such list.
+   */
+  allowed_actions: string[] | null
 }
 
 export interface AuditExecution {

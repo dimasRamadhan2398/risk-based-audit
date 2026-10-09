@@ -36,57 +36,80 @@ const (
 // AllPermissions lists every ATR permission key
 var AllPermissions = []string{PermView, PermViewAll, PermAssign, PermUpdate, PermReview, PermCancel, PermDelete}
 
-// Role names as they appear in the JWT "roles" claim (compared
-// case-insensitively). AUDIT_MANAGER and CHIEF_AUDIT_EXECUTIVE are not seeded;
-// they apply once an admin creates roles with these names.
+// Role names as they appear in the JWT "roles" claim. Seeded in auth-service:
+// ADMIN, AUDITOR, EXECUTIVE, AUDITEE, VIEWER, DEPARTMENT_HEAD. AUDIT_MANAGER
+// and CHIEF_AUDIT_EXECUTIVE are not seeded; they apply once an admin creates
+// roles with these names (any casing/spacing, see CanonicalRole).
 const (
 	RoleAdmin        = "ADMIN"
 	RoleCAE          = "CHIEF_AUDIT_EXECUTIVE"
 	RoleAuditManager = "AUDIT_MANAGER"
 	RoleAuditor      = "AUDITOR"
-	RoleExecutive    = "EXECUTIVE"
 	RoleDeptHead     = "DEPARTMENT_HEAD"
 	RoleAuditee      = "AUDITEE"
 	RoleViewer       = "VIEWER"
 )
 
 // RolePermissions is the ATR role matrix. Roles not listed (e.g. VIEWER) have
-// no ATR permission and only see ATRs they are the PIC of.
+// no ATR permission and only see ATRs they are the PIC of. The seeded
+// EXECUTIVE role is treated as the CAE (see roleAliases).
 var RolePermissions = map[string][]string{
 	RoleAdmin:        AllPermissions,
 	RoleCAE:          {PermView, PermViewAll, PermReview, PermCancel},
 	RoleAuditManager: {PermView, PermViewAll, PermAssign, PermReview, PermCancel},
 	RoleAuditor:      {PermView, PermViewAll, PermAssign, PermReview, PermUpdate},
-	RoleExecutive:    {PermView, PermViewAll},
 	RoleDeptHead:     {PermView, PermUpdate},
 	RoleAuditee:      {PermView, PermUpdate},
 }
 
-// roleAliases maps other spellings of the same role, as admins may create
-// them, onto the canonical names above
+// roleAliases maps role spellings, compared with every space, underscore and
+// hyphen removed and upper-cased (see roleKey), onto the canonical names. It
+// follows the frontend's matchesRole (composables/useRbac.ts), except that a
+// bare "MANAGER" is NOT an audit manager here: it could be any line manager,
+// and the server must not hand it assign/review/cancel.
 var roleAliases = map[string]string{
-	"CAE":                    RoleCAE,
-	"HEAD_OF_INTERNAL_AUDIT": RoleCAE,
-	"HEAD_OF_SKAI":           RoleCAE,
-	"KEPALA_SPI":             RoleCAE,
-	"MANAGER_AUDIT":          RoleAuditManager,
-	"AUDIT_STAFF":            RoleAuditor,
-	"ADMINISTRATOR":          RoleAdmin,
-	"SUPERADMIN":             RoleAdmin,
-	"SUPER_ADMIN":            RoleAdmin,
+	"ADMIN":               RoleAdmin,
+	"ADMINISTRATOR":       RoleAdmin,
+	"SUPERADMIN":          RoleAdmin,
+	"CHIEFAUDITEXECUTIVE": RoleCAE,
+	"CAE":                 RoleCAE,
+	"EXECUTIVE":           RoleCAE, // seeded role; the frontend treats it as the CAE
+	"KEPALASPI":           RoleCAE,
+	"HEADOFSKAI":          RoleCAE,
+	"HEADOFINTERNALAUDIT": RoleCAE,
+	"AUDITMANAGER":        RoleAuditManager,
+	"MANAGERAUDIT":        RoleAuditManager,
+	"AUDITOR":             RoleAuditor,
+	"AUDITSTAFF":          RoleAuditor,
+	"STAFFAUDIT":          RoleAuditor,
+	"LEADAUDITOR":         RoleAuditor,
+	"DEPARTMENTHEAD":      RoleDeptHead,
+	"AUDITEE":             RoleAuditee,
+	"VIEWER":              RoleViewer,
 }
 
-// CanonicalRole upper-cases a role name, turns spaces/hyphens into
-// underscores and resolves aliases ("Audit Manager" -> AUDIT_MANAGER)
+func roleKey(role string) string {
+	return strings.Map(func(c rune) rune {
+		switch c {
+		case ' ', '_', '-', '\t':
+			return -1
+		}
+		return c
+	}, strings.ToUpper(strings.TrimSpace(role)))
+}
+
+// CanonicalRole resolves a JWT role name to the canonical name used in
+// RolePermissions ("Audit Manager", "audit-manager", "AuditManager" ->
+// AUDIT_MANAGER; EXECUTIVE -> CHIEF_AUDIT_EXECUTIVE). Unknown roles are
+// returned upper-cased with separators as underscores.
 func CanonicalRole(role string) string {
-	r := strings.ToUpper(strings.TrimSpace(role))
-	r = strings.Join(strings.FieldsFunc(r, func(c rune) bool {
-		return c == ' ' || c == '-' || c == '_' || c == '\t'
-	}), "_")
-	if a, ok := roleAliases[r]; ok {
+	if a, ok := roleAliases[roleKey(role)]; ok {
 		return a
 	}
-	return r
+	r := strings.ToUpper(strings.TrimSpace(role))
+	return strings.Join(strings.FieldsFunc(r, func(c rune) bool {
+		return c == ' ' || c == '-' || c == '_' || c == '\t'
+	}), "_")
 }
 
 // Perms is the set of ATR permissions a caller holds

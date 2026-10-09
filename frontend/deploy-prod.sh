@@ -35,12 +35,14 @@ echo "   Archive size: $(du -sh $ARCHIVE | cut -f1)"
 
 # ── Step 3: Prepare directory & Upload to VPS ───────────────────────────────
 echo "🌐 [3/4] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
-ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
-rsync -avz -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no" "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
+SSH_OPTS="-o IPQoS=none -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no"
+ssh $SSH_OPTS "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
+rsync -avP -e "ssh $SSH_OPTS" "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/" || \
+  scp $SSH_OPTS "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
 
 # ── Step 4: Extract & Run Container on VPS ──────────────────────────────────
 echo "🚀 [4/4] Starting rbia-frontend-prod container on VPS..."
-ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
+ssh $SSH_OPTS "$VPS_USER@$VPS_IP" bash <<EOF
   set -e
   cd $TARGET_DIR
 
