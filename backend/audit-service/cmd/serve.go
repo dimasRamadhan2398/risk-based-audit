@@ -109,6 +109,14 @@ func runServe(cmd *cobra.Command, args []string) error {
 		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signatures text;
 	`)
 
+	// Action taken reports: new LHA-bound layout, legacy columns dropped, ATRs
+	// of approved LHAs created. Idempotent; tenant stacks start with "serve"
+	// only, so this cannot be left to "migrate up" (see migrateATR).
+	if err := migrateATR(db); err != nil {
+		logger.Error("Action taken report migration failed; the ATR endpoints and LHA approval may fail until it succeeds",
+			logger.LogField("error", err))
+	}
+
 	// Ensure population column in working_paper_samples is varchar(255)
 	db.Exec("ALTER TABLE working_paper_samples ALTER COLUMN population TYPE varchar(255) USING population::varchar;")
 

@@ -73,8 +73,9 @@ Examples:
 (status Final / Approved / Published, any casing), non-deleted audit result
 report that does not have one yet. Also gives LHA findings ids if needed.
 
-Idempotent: a second run creates nothing. Run it after "migrate up".
-Use --dry-run to see the counts without writing (the work is rolled back).
+"migrate up" (and "serve" on startup) already run this step; the command is
+for checking with --dry-run, which reports the counts and rolls back.
+Idempotent: a second run creates nothing.
 
 Usage: audit migrate backfill-atr [--dry-run]`,
 		RunE: runBackfillATR,
@@ -178,15 +179,15 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 }
 
 // runATRDataMigrations runs the data steps of the LHA-bound ATR model after
-// AutoMigrate. Both are idempotent.
+// AutoMigrate. All are idempotent.
 //  1. Every LHA finding gets a stable id (audit_result_reports.findings[].id).
 //  2. The old assignment-letter based action_taken_reports columns are
 //     converted (title -> finding_title, pic -> pic_name, deadline -> due_date,
 //     progress_description -> action_plan; rows linked to an LHA finding when
 //     their letter's LHA has a finding with the same title) and dropped.
-//
-// Creating ATRs for already approved LHAs is NOT done here: run
-// "audit migrate backfill-atr" for that.
+//  3. Every approved LHA gets its missing ATRs (one per finding), as if it
+//     had been approved now. "audit migrate backfill-atr --dry-run" shows
+//     what this step would create without writing.
 func runATRDataMigrations(db *gorm.DB) error {
 	n, err := atrsvc.BackfillFindingIDs(db)
 	if err != nil {
@@ -205,7 +206,28 @@ func runATRDataMigrations(db *gorm.DB) error {
 			logger.LogField("unlinked", res.Unlinked),
 			logger.LogField("dropped_columns", res.DroppedColumns))
 	}
+
+	bf, err := atrsvc.BackfillApprovedReports(db, time.Now())
+	if err != nil {
+		return fmt.Errorf("create action taken reports of approved LHAs: %w", err)
+	}
+	logger.Info("Action taken reports of approved LHAs backfilled",
+		logger.LogField("approved_reports", bf.ApprovedReports),
+		logger.LogField("atrs_created", bf.CreatedATRs),
+		logger.LogField("atrs_cancelled_finding_removed", bf.CancelledATRs))
 	return nil
+}
+
+// migrateATR brings the action taken report tables and data up to date:
+// AutoMigrate of the two ATR tables, then runATRDataMigrations. serve runs it
+// on startup because tenant stacks start with "audit serve" only; without it
+// the old table layout would make the ATR list fail and, since approving an
+// LHA creates ATRs in the same transaction, LHA saves too.
+func migrateATR(db *gorm.DB) error {
+	if err := db.AutoMigrate(&models.ActionTakenReport{}, &models.ActionTakenReportEvidence{}); err != nil {
+		return fmt.Errorf("auto-migrate action taken report tables: %w", err)
+	}
+	return runATRDataMigrations(db)
 }
 
 var backfillDryRun bool

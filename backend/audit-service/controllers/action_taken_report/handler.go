@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"audit-service/models"
+	"audit-service/pkg/authclient"
+	"audit-service/pkg/logger"
 	"audit-service/pkg/response"
 	atrsvc "audit-service/services/action_taken_report"
 
@@ -50,11 +52,15 @@ type Controller struct {
 	EvidenceDir      string
 	MaxEvidenceBytes int64
 	Now              func() time.Time
+	// Users resolves the PIC's full name from auth-service on assignment;
+	// nil skips the lookup
+	Users authclient.Lookup
 }
 
 // NewController creates the controller with the default evidence directory
+// and the auth-service client from AUTH_SERVICE_URL
 func NewController(db *gorm.DB) *Controller {
-	return &Controller{DB: db, EvidenceDir: DefaultEvidenceDir, MaxEvidenceBytes: DefaultMaxEvidenceBytes, Now: time.Now}
+	return &Controller{DB: db, EvidenceDir: DefaultEvidenceDir, MaxEvidenceBytes: DefaultMaxEvidenceBytes, Now: time.Now, Users: authclient.New()}
 }
 
 // Register mounts the routes on g, which must already require authentication
@@ -474,10 +480,37 @@ type assignRequest struct {
 	DueDate   json.RawMessage `json:"due_date"`
 }
 
+// resolvePICName looks the PIC up in auth-service (GET /users/assignable,
+// with the caller's token). ok is false when the response was written: 400
+// when auth-service answered that there is no active user with that id.
+// When auth-service cannot be asked (unreachable, misconfigured), name is
+// fallback (the client's pic_name, if any) and the assignment goes ahead.
+func (ctl *Controller) resolvePICName(c *gin.Context, picID string, fallback *string) (name *string, ok bool) {
+	if ctl.Users == nil {
+		return fallback, true
+	}
+	u, err := ctl.Users.AssignableUser(c.Request.Context(), c.GetHeader("Authorization"), picID)
+	switch {
+	case err == nil:
+		full := strings.TrimSpace(u.FullName)
+		return &full, true
+	case errors.Is(err, authclient.ErrNotFound):
+		invalid(c, "pic_user_id is not an active user")
+		return nil, false
+	default:
+		if logger.Log != nil {
+			logger.Warn("ATR assignment: could not resolve the PIC name in auth-service; using the name sent by the client",
+				logger.LogField("pic_user_id", picID), logger.LogField("error", err.Error()))
+		}
+		return fallback, true
+	}
+}
+
 // Assign sets the PIC and due date (assign permission; open ATRs only).
-// pic_user_id is the auth-service user id; pic_name is stored as sent (the
-// UI fills it from GET /users/assignable). due_date: "YYYY-MM-DD" or RFC3339;
-// null or "" clears it; omitted leaves it unchanged.
+// pic_user_id is the auth-service user id. pic_name is taken from the
+// user's full_name in auth-service; a client-sent pic_name is only used when
+// auth-service cannot be reached. due_date: "YYYY-MM-DD" or RFC3339; null or
+// "" clears it; omitted leaves it unchanged.
 func (ctl *Controller) Assign(c *gin.Context) {
 	a := actor(c)
 	r, ok := ctl.load(c)
@@ -501,12 +534,15 @@ func (ctl *Controller) Assign(c *gin.Context) {
 		invalid(c, "pic_user_id must be a user id")
 		return
 	}
+	picName, ok := ctl.resolvePICName(c, picID.String(), req.PICName)
+	if !ok {
+		return
+	}
 	updates := map[string]interface{}{"pic_user_id": picID.String()}
-	if req.PICName != nil {
-		name := strings.TrimSpace(*req.PICName)
-		if len([]rune(name)) > 200 {
-			invalid(c, "pic_name is too long (max 200 characters)")
-			return
+	if picName != nil {
+		name := strings.TrimSpace(*picName)
+		if rn := []rune(name); len(rn) > 200 {
+			name = string(rn[:200])
 		}
 		updates["pic_name"] = name
 	} else if !strings.EqualFold(picID.String(), r.PICUserID) {

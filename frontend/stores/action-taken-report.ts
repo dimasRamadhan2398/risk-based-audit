@@ -376,13 +376,21 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
     }
   }
 
-  /** PUT /:id/assignment { pic_user_id, due_date } (auditor/manager/admin). due_date is 'YYYY-MM-DD' from the date picker. */
-  const assign = (id: string, payload: { pic_user_id: string, due_date: string }) =>
+  /**
+   * PUT /:id/assignment { pic_user_id, due_date[, pic_name] } (auditor/manager/admin). due_date is 'YYYY-MM-DD'
+   * from the date picker. pic_name (the picked user's full_name) is sent when known: the current audit-service
+   * stores the name it is given and clears it for a new PIC without one.
+   */
+  const assign = (id: string, payload: { pic_user_id: string, due_date: string, pic_name?: string }) =>
     runAction(
       id,
       () => $fetch<ApiEnvelope<unknown>>(`${baseUrl()}/${id}/assignment`, {
         method: 'PUT',
-        body: { pic_user_id: payload.pic_user_id, due_date: toAtrDueDatePayload(payload.due_date) }
+        body: {
+          pic_user_id: payload.pic_user_id,
+          due_date: toAtrDueDatePayload(payload.due_date),
+          ...(payload.pic_name?.trim() ? { pic_name: payload.pic_name.trim() } : {})
+        }
       }),
       'actionTakenReport.toast.assigned',
       'actionTakenReport.toast.assignFailed'

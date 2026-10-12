@@ -85,6 +85,14 @@ func (s *Seeder) SeedPermissions() error {
 		{Name: "manage_executive_summary", Resource: "executive_summary", Action: "manage", Description: "Manage executive summary report"},
 		{Name: "view_action_taken_report", Resource: "action_taken_report", Action: "read", Description: "View action taken report (ATR)"},
 		{Name: "update_action_taken_report", Resource: "action_taken_report", Action: "update", Description: "Update action taken report (ATR)"},
+		// ATR workflow. audit-service enforces these from the JWT roles
+		// (services/action_taken_report.RolePermissions); the rows document
+		// the matrix and let the frontend use the same keys.
+		{Name: "view_all_action_taken_report", Resource: "action_taken_report", Action: "read_all", Description: "View every action taken report (ATR), not only own"},
+		{Name: "assign_action_taken_report", Resource: "action_taken_report", Action: "assign", Description: "Assign the PIC and due date of an action taken report (ATR)"},
+		{Name: "review_action_taken_report", Resource: "action_taken_report", Action: "review", Description: "Approve or reject a submitted action taken report (ATR)"},
+		{Name: "cancel_action_taken_report", Resource: "action_taken_report", Action: "cancel", Description: "Cancel an action taken report (ATR)"},
+		{Name: "delete_action_taken_report", Resource: "action_taken_report", Action: "delete", Description: "Delete an action taken report (ATR)"},
 
 		// Executive, Performance & Quality
 		{Name: "view_kpi", Resource: "kpi", Action: "read", Description: "View KPI performance"},
@@ -149,6 +157,7 @@ func (s *Seeder) SeedRoles() error {
 				"view_audit_report", "manage_audit_report",
 				"view_executive_summary", "manage_executive_summary",
 				"view_action_taken_report", "update_action_taken_report",
+				"view_all_action_taken_report", "assign_action_taken_report", "review_action_taken_report",
 				"view_kpi", "manage_kpi",
 				"view_consulting", "manage_consulting",
 				"view_quality_assurance", "manage_quality_assurance",
@@ -164,6 +173,8 @@ func (s *Seeder) SeedRoles() error {
 				"view_strategic_plan", "view_annual_plan",
 				"view_audit_report", "view_executive_summary", "manage_executive_summary",
 				"view_action_taken_report", "view_kpi", "view_quality_assurance",
+				// EXECUTIVE acts as the CAE for ATRs: view all, review, cancel
+				"view_all_action_taken_report", "review_action_taken_report", "cancel_action_taken_report",
 				"view_analytics", "view_system_logs",
 			),
 		},
@@ -215,9 +226,16 @@ func (s *Seeder) SeedUsers() error {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
+	emp001 := "EMP001"
+	emp002 := "EMP002"
+	emp003 := "EMP003"
+	emp004 := "EMP004"
+	emp005 := "EMP005"
+	emp007 := "EMP007"
+
 	users := []models.User{
 		{
-			EmployeeID:   "EMP001",
+			EmployeeID:   &emp001,
 			Username:     "admin",
 			Email:        "admin@company.com",
 			PasswordHash: string(hashedPassword),
@@ -227,7 +245,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
-			EmployeeID:   "EMP002",
+			EmployeeID:   &emp002,
 			Username:     "auditor",
 			Email:        "auditor@company.com",
 			PasswordHash: string(hashedPassword),
@@ -237,7 +255,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
-			EmployeeID:   "EMP003",
+			EmployeeID:   &emp003,
 			Username:     "dept_head",
 			Email:        "depthead@company.com",
 			PasswordHash: string(hashedPassword),
@@ -247,7 +265,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
-			EmployeeID:   "EMP007",
+			EmployeeID:   &emp007,
 			Username:     "new_dept_head",
 			Email:        "new_dept_head@company.com",
 			PasswordHash: string(hashedPassword),
@@ -257,7 +275,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
-			EmployeeID:   "EMP004",
+			EmployeeID:   &emp004,
 			Username:     "auditee",
 			Email:        "auditee@company.com",
 			PasswordHash: string(hashedPassword),
@@ -267,7 +285,7 @@ func (s *Seeder) SeedUsers() error {
 			IsActive:     true,
 		},
 		{
-			EmployeeID:   "EMP005",
+			EmployeeID:   &emp005,
 			Username:     "viewer",
 			Email:        "viewer@company.com",
 			PasswordHash: string(hashedPassword),

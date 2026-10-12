@@ -155,7 +155,9 @@ func MigrateLegacyColumns(db *gorm.DB) (LegacyResult, error) {
 			}
 			res.DroppedColumns = append(res.DroppedColumns, col)
 		}
-		return nil
+		// Dropping columns must not leave the table without the unique
+		// (report, finding) index the ATR inserts depend on
+		return EnsureIndexes(tx)
 	})
 	if err != nil {
 		return LegacyResult{}, err

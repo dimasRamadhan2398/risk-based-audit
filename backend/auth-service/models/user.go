@@ -10,7 +10,7 @@ import (
 // User represents a user in the system
 type User struct {
 	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	EmployeeID string    `gorm:"type:varchar(50);uniqueIndex;not null" json:"employee_id"`
+	EmployeeID *string   `gorm:"type:varchar(50);uniqueIndex" json:"employee_id"` // Optional, assigned by admin via master data
 	Username  string    `gorm:"type:varchar(50);uniqueIndex;not null" json:"username"`
 	Email     string    `gorm:"type:varchar(100);uniqueIndex;not null" json:"email"`
 	PasswordHash  string    `gorm:"type:varchar(255);not null" json:"-"`

@@ -37,9 +37,12 @@ type SyncResult struct {
 // carrying their ids).
 //
 //   - The report number/title copied on its ATRs are refreshed.
-//   - ATRs still PLANNED (nobody worked on them) whose finding is no longer in
-//     the report are cancelled with RemovedFindingNote. ATRs that were worked
-//     on are left alone for a manager to decide.
+//   - ATRs still PLANNED (nobody worked on them) get the current title,
+//     category and action of their finding; later statuses keep their copy.
+//   - ATRs still PLANNED whose finding is no longer in the report are
+//     cancelled with RemovedFindingNote. ATRs that were worked on are left
+//     alone for a manager to decide (cancel endpoint).
+//   - A report that goes back to a non-approved status keeps its ATRs.
 //   - When the report is approved (models.IsLHAApproved), an ATR is created for
 //     every finding that has none yet. The unique index on
 //     (audit_result_report_id, finding_id) makes this idempotent: re-approving
@@ -66,8 +69,21 @@ func SyncFromReport(tx *gorm.DB, report *models.AuditResultReport, now time.Time
 
 	ids := make([]string, 0, len(report.Findings))
 	for _, f := range report.Findings {
-		if f.ID != "" {
-			ids = append(ids, f.ID)
+		if f.ID == "" {
+			continue
+		}
+		ids = append(ids, f.ID)
+		// An edited finding refreshes the copy on its ATR while nobody has
+		// worked on it; once the PIC started, the copy they planned against
+		// is kept
+		if err := tx.Model(&models.ActionTakenReport{}).
+			Where("audit_result_report_id = ? AND finding_id = ? AND status = ?", report.ID, f.ID, models.ATRStatusPlanned).
+			UpdateColumns(map[string]interface{}{
+				"finding_title":    strings.TrimSpace(f.Title),
+				"finding_category": strings.TrimSpace(f.Category),
+				"recommendation":   strings.TrimSpace(f.Action),
+			}).Error; err != nil {
+			return res, err
 		}
 	}
 
@@ -120,6 +136,18 @@ func SyncFromReport(tx *gorm.DB, report *models.AuditResultReport, now time.Time
 		res.Created += insert.RowsAffected
 	}
 	return res, nil
+}
+
+// AfterReportWrite is the after-write hook (crud.AfterHook) of the audit
+// result report create and update routes: it reloads the saved report in the
+// write transaction and syncs its ATRs. An error rolls the report write back.
+func AfterReportWrite(tx *gorm.DB, entity interface{}) error {
+	report, ok := entity.(*models.AuditResultReport)
+	if !ok || report.ID == uuid.Nil {
+		return nil
+	}
+	_, err := SyncReportByID(tx, report.ID, time.Now())
+	return err
 }
 
 // SyncReportByID loads report id inside tx and syncs its ATRs
