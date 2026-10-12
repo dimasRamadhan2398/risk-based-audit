@@ -173,7 +173,7 @@
                   variant="ghost" 
                   size="md" 
                   :title="t('qualityAssurance.importIacm.actions.view')" 
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  @click="store.viewDocument(row.original.id, row.original.attachment ? row.original.attachment.name : (row.original.fileName || 'IACM_Document.pdf'))" 
                 />
                 </UTooltip>
                 <UTooltip :text="t('qualityAssurance.importIacm.actions.download')">

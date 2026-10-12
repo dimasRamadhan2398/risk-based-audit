@@ -7,6 +7,7 @@ import (
 	"net"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -279,6 +280,30 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusCreated, report)
 		})
 
+		getQAContentType := func(fileName string) string {
+			ext := strings.ToLower(filepath.Ext(fileName))
+			switch ext {
+			case ".pdf":
+				return "application/pdf"
+			case ".png":
+				return "image/png"
+			case ".jpg", ".jpeg":
+				return "image/jpeg"
+			case ".txt":
+				return "text/plain"
+			case ".doc":
+				return "application/msword"
+			case ".docx":
+				return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+			case ".xls":
+				return "application/vnd.ms-excel"
+			case ".xlsx":
+				return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+			default:
+				return "application/octet-stream"
+			}
+		}
+
 		qa.GET("/:id/download", func(c *gin.Context) {
 			report, err := findQAReport(c.Param("id"))
 			if err != nil {
@@ -286,17 +311,25 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
-			if report.Attachment == nil || report.Attachment.FilePath == "" {
+			if report.Attachment == nil || (report.Attachment.FilePath == "" && len(report.FileContent) == 0) {
 				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "This report does not have an attached file"})
 				return
 			}
 
+			fileName := report.Attachment.Name
+			if fileName == "" {
+				fileName = "document.pdf"
+			}
+			contentType := getQAContentType(fileName)
+			encodedFileName := url.PathEscape(fileName)
+
+			c.Header("Content-Description", "File Transfer")
+			c.Header("Content-Transfer-Encoding", "binary")
+			c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName))
+			c.Header("Content-Type", contentType)
+
 			if len(report.FileContent) > 0 {
-				c.Header("Content-Description", "File Transfer")
-				c.Header("Content-Transfer-Encoding", "binary")
-				c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", report.Attachment.Name))
-				c.Header("Content-Type", "application/octet-stream")
-				c.Data(http.StatusOK, "application/octet-stream", report.FileContent)
+				c.Data(http.StatusOK, contentType, report.FileContent)
 				return
 			}
 
@@ -305,12 +338,46 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
-			c.Header("Content-Description", "File Transfer")
-			c.Header("Content-Transfer-Encoding", "binary")
-			c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", report.Attachment.Name))
-			c.Header("Content-Type", "application/octet-stream")
 			c.File(report.Attachment.FilePath)
 		})
+
+		viewQAReportFile := func(c *gin.Context) {
+			report, err := findQAReport(c.Param("id"))
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
+				return
+			}
+
+			if report.Attachment == nil || (report.Attachment.FilePath == "" && len(report.FileContent) == 0) {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "This report does not have an attached file"})
+				return
+			}
+
+			fileName := report.Attachment.Name
+			if fileName == "" {
+				fileName = "document.pdf"
+			}
+			contentType := getQAContentType(fileName)
+			encodedFileName := url.PathEscape(fileName)
+
+			c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName))
+			c.Header("Content-Type", contentType)
+
+			if len(report.FileContent) > 0 {
+				c.Data(http.StatusOK, contentType, report.FileContent)
+				return
+			}
+
+			if _, err := os.Stat(report.Attachment.FilePath); os.IsNotExist(err) {
+				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Physical file not found on server"})
+				return
+			}
+
+			c.File(report.Attachment.FilePath)
+		}
+
+		qa.GET("/:id/view", viewQAReportFile)
+		qa.GET("/:id/view/:filename", viewQAReportFile)
 
 		qa.DELETE("/:id", func(c *gin.Context) {
 			report, err := findQAReport(c.Param("id"))

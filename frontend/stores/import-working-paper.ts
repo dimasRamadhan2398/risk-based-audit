@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { viewDocumentInNewTab } from '~/utils/documentViewer'
 
 export interface ImportedWorkingPaper {
   id: string
@@ -104,16 +105,28 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     }
   }
 
-  const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName?: string, title?: string) => {
+    const doc = importedPapers.value.find(d => d.id === id)
+    const resolvedName = fileName || doc?.fileName || 'document.pdf'
+    const resolvedFileName = fileName || doc?.fileName || 'document.pdf'
+
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/working-papers/imports/${id}/download`, {
-        responseType: 'blob'
-      })
-      const blob = new Blob([response], { type: response.type || 'application/pdf' })
-      const url = window.URL.createObjectURL(blob)
-      window.open(url, '_blank')
-      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+      await viewDocumentInNewTab(
+        async () => {
+          try {
+            return await $fetch(`${baseUrl}/working-papers/imports/${id}/view`, {
+              responseType: 'blob'
+            })
+          } catch (_err) {
+            return await $fetch(`${baseUrl}/working-papers/imports/${id}/download`, {
+              responseType: 'blob'
+            })
+          }
+        },
+        resolvedName,
+        resolvedFileName
+      )
     } catch (error) {
       console.error('Failed to view document:', error)
       const detail = extractErrorMessage(error, 'Failed to view document.')

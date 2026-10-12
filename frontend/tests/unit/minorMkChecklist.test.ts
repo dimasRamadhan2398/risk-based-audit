@@ -71,11 +71,12 @@ describe('PROD minor checklist items assigned to Mk', () => {
     expect(layout.slice(assignmentStart, workingPaperStart)).toContain('to: \'/audit-execution-status\'')
   })
 
-  it('generates and disables the Performance Report document title', () => {
+  it('generates the Performance Report document title and allows user input', () => {
     const upload = read('pages/kpi-performance/upload.vue')
 
-    expect(upload).toContain('const updateGeneratedTitle = () =>')
-    expect(upload).toContain('watch([() => form.value.period, () => form.value.year, locale], updateGeneratedTitle)')
-    expect(upload).toMatch(/v-model="form\.title"[\s\S]*?disabled/)
+    expect(upload).toContain('const updateGeneratedTitle =')
+    expect(upload).toContain('watch([() => form.value.period, () => form.value.year, locale]')
+    expect(upload).toContain('v-model="form.title"')
+    expect(upload).not.toMatch(/<UInput[^>]*?v-model="form\.title"[^>]*?disabled/)
   })
 })

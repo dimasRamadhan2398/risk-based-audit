@@ -324,9 +324,11 @@ func (h *RouteHandler) RegisterRoutes() {
 		importedWorkingPapers.POST("", importedWorkingPaperCtrl.Import)
 		importedWorkingPapers.DELETE("/:id", importedWorkingPaperCtrl.Delete)
 		importedWorkingPapers.GET("/:id/download", importedWorkingPaperCtrl.Download)
+		importedWorkingPapers.GET("/:id/view", importedWorkingPaperCtrl.View)
+		importedWorkingPapers.GET("/:id/view/:filename", importedWorkingPaperCtrl.View)
 	}
 
-	// 16c. Uploaded Plan Documents
+	// 16c. Uploaded Plan Documents (Audit Activity Plan)
 	uploadedPlanDocumentCtrl := controllers.NewUploadedPlanDocumentController(h.db)
 	uploadedPlanDocuments := apiV1.Group("/uploaded-plan-documents")
 	{
@@ -334,6 +336,20 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedPlanDocuments.POST("", uploadedPlanDocumentCtrl.Upload)
 		uploadedPlanDocuments.DELETE("/:id", uploadedPlanDocumentCtrl.Delete)
 		uploadedPlanDocuments.GET("/:id/download", uploadedPlanDocumentCtrl.Download)
+		uploadedPlanDocuments.GET("/:id/view", uploadedPlanDocumentCtrl.View)
+		uploadedPlanDocuments.GET("/:id/view/:filename", uploadedPlanDocumentCtrl.View)
+	}
+
+	// 16c-bis. Uploaded Strategic Plan Documents (Strategic Audit Plan)
+	uploadedStrategicPlanDocumentCtrl := controllers.NewUploadedStrategicPlanDocumentController(h.db)
+	uploadedStrategicPlanDocuments := apiV1.Group("/uploaded-strategic-plan-documents")
+	{
+		uploadedStrategicPlanDocuments.GET("", uploadedStrategicPlanDocumentCtrl.List)
+		uploadedStrategicPlanDocuments.POST("", uploadedStrategicPlanDocumentCtrl.Upload)
+		uploadedStrategicPlanDocuments.DELETE("/:id", uploadedStrategicPlanDocumentCtrl.Delete)
+		uploadedStrategicPlanDocuments.GET("/:id/download", uploadedStrategicPlanDocumentCtrl.Download)
+		uploadedStrategicPlanDocuments.GET("/:id/view", uploadedStrategicPlanDocumentCtrl.View)
+		uploadedStrategicPlanDocuments.GET("/:id/view/:filename", uploadedStrategicPlanDocumentCtrl.View)
 	}
 
 	// 16d. Uploaded Annual Plans
@@ -344,6 +360,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedAnnualPlans.POST("", uploadedAnnualPlanCtrl.Upload)
 		uploadedAnnualPlans.DELETE("/:id", uploadedAnnualPlanCtrl.Delete)
 		uploadedAnnualPlans.GET("/:id/download", uploadedAnnualPlanCtrl.Download)
+		uploadedAnnualPlans.GET("/:id/view", uploadedAnnualPlanCtrl.View)
+		uploadedAnnualPlans.GET("/:id/view/:filename", uploadedAnnualPlanCtrl.View)
 	}
 
 	// 16e. Uploaded Assignment Letters
@@ -354,6 +372,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedAssignmentLetters.POST("", uploadedAssignmentLetterCtrl.Upload)
 		uploadedAssignmentLetters.DELETE("/:id", uploadedAssignmentLetterCtrl.Delete)
 		uploadedAssignmentLetters.GET("/:id/download", uploadedAssignmentLetterCtrl.Download)
+		uploadedAssignmentLetters.GET("/:id/view", uploadedAssignmentLetterCtrl.View)
+		uploadedAssignmentLetters.GET("/:id/view/:filename", uploadedAssignmentLetterCtrl.View)
 	}
 
 	// 16f. Uploaded Audit Result Reports
@@ -364,6 +384,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedAuditResultReports.POST("", uploadedAuditResultReportCtrl.Upload)
 		uploadedAuditResultReports.DELETE("/:id", uploadedAuditResultReportCtrl.Delete)
 		uploadedAuditResultReports.GET("/:id/download", uploadedAuditResultReportCtrl.Download)
+		uploadedAuditResultReports.GET("/:id/view", uploadedAuditResultReportCtrl.View)
+		uploadedAuditResultReports.GET("/:id/view/:filename", uploadedAuditResultReportCtrl.View)
 	}
 
 	// 16g. Uploaded Executive Summaries
@@ -374,6 +396,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedExecutiveSummaries.POST("", uploadedExecutiveSummaryCtrl.Upload)
 		uploadedExecutiveSummaries.DELETE("/:id", uploadedExecutiveSummaryCtrl.Delete)
 		uploadedExecutiveSummaries.GET("/:id/download", uploadedExecutiveSummaryCtrl.Download)
+		uploadedExecutiveSummaries.GET("/:id/view", uploadedExecutiveSummaryCtrl.View)
+		uploadedExecutiveSummaries.GET("/:id/view/:filename", uploadedExecutiveSummaryCtrl.View)
 	}
 
 	// 16h. Uploaded Executive Summary Reports
@@ -384,6 +408,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedExecutiveSummaryReports.POST("", uploadedExecutiveSummaryReportCtrl.Upload)
 		uploadedExecutiveSummaryReports.DELETE("/:id", uploadedExecutiveSummaryReportCtrl.Delete)
 		uploadedExecutiveSummaryReports.GET("/:id/download", uploadedExecutiveSummaryReportCtrl.Download)
+		uploadedExecutiveSummaryReports.GET("/:id/view", uploadedExecutiveSummaryReportCtrl.View)
+		uploadedExecutiveSummaryReports.GET("/:id/view/:filename", uploadedExecutiveSummaryReportCtrl.View)
 	}
 
 	// 16i. Uploaded Consulting Documents
@@ -394,6 +420,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedConsultingDocuments.POST("", uploadedConsultingDocumentCtrl.Upload)
 		uploadedConsultingDocuments.DELETE("/:id", uploadedConsultingDocumentCtrl.Delete)
 		uploadedConsultingDocuments.GET("/:id/download", uploadedConsultingDocumentCtrl.Download)
+		uploadedConsultingDocuments.GET("/:id/view", uploadedConsultingDocumentCtrl.View)
+		uploadedConsultingDocuments.GET("/:id/view/:filename", uploadedConsultingDocumentCtrl.View)
 	}
 
 	// 16j. Uploaded Performance Reports (Q1, Q2, Q3, Q4, Tahunan)
@@ -404,6 +432,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		uploadedPerformanceReports.POST("", uploadedPerformanceReportCtrl.Upload)
 		uploadedPerformanceReports.DELETE("/:id", uploadedPerformanceReportCtrl.Delete)
 		uploadedPerformanceReports.GET("/:id/download", uploadedPerformanceReportCtrl.Download)
+		uploadedPerformanceReports.GET("/:id/view", uploadedPerformanceReportCtrl.View)
+		uploadedPerformanceReports.GET("/:id/view/:filename", uploadedPerformanceReportCtrl.View)
 	}
 
 	// 17. Audit Result Reports

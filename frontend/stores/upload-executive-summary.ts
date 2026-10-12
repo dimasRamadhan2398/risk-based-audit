@@ -4,6 +4,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 import { extractErrorMessage } from '~/utils/error';
+import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
 export interface UploadedExecutiveSummary {
   id: string;
@@ -91,24 +92,28 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
     }
   };
 
-  const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName?: string, title?: string) => {
+    const doc = uploadedDocuments.value.find(d => d.id === id);
+    const resolvedName = fileName || doc?.fileName || 'document.pdf';
+    const resolvedFileName = fileName || doc?.fileName || 'document.pdf';
+
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const response: any = await $fetch(`${baseUrl}/uploaded-executive-summaries/${id}/download`, {
-        responseType: 'blob'
-      });
-      let mimeType = 'application/pdf';
-      if (fileName) {
-        const lowerName = fileName.toLowerCase();
-        if (lowerName.endsWith('.png')) mimeType = 'image/png';
-        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg';
-        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain';
-      }
-
-      const blob = new Blob([response], { type: mimeType });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+      await viewDocumentInNewTab(
+        async () => {
+          try {
+            return await $fetch(`${baseUrl}/uploaded-executive-summaries/${id}/view`, {
+              responseType: 'blob'
+            });
+          } catch (_err) {
+            return await $fetch(`${baseUrl}/uploaded-executive-summaries/${id}/download`, {
+              responseType: 'blob'
+            });
+          }
+        },
+        resolvedName,
+        resolvedFileName
+      );
     } catch (error: any) {
       console.error('Failed to view document:', error);
       const detail = extractErrorMessage(error, 'Failed to view document.');

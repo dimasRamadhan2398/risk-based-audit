@@ -76,6 +76,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 
 	// Auto-migrate uploaded document tables and analyzer snapshot on startup
 	_ = db.AutoMigrate(
+		&models.UploadedStrategicPlanDocument{},
 		&models.UploadedPlanDocument{},
 		&models.UploadedAnnualPlan{},
 		&models.UploadedAssignmentLetter{},

@@ -173,7 +173,7 @@
                   variant="ghost" 
                   size="md" 
                   :title="t('qualityAssurance.importSaiv.actions.view')"
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  @click="store.viewDocument(row.original.id, row.original.attachment ? row.original.attachment.name : (row.original.fileName || 'SAIV_Document.pdf'))" 
                 />
                 </UTooltip>
                 <UTooltip text="Download Document">

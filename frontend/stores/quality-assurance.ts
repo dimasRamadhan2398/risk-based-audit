@@ -4,6 +4,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
 import { extractErrorMessage } from '~/utils/error'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
+import { viewDocumentInNewTab, openDocumentTab, renderDocumentInTab } from '~/utils/documentViewer'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
@@ -424,30 +425,41 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     }
   }
 
-  const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName?: string, title?: string) => {
     const report = reports.value.find(r => r.id === id)
+    const resolvedName = fileName || report?.attachment?.name || 'document.pdf'
+    const resolvedFileName = fileName || report?.attachment?.name || 'document.pdf'
+
     if (report?.attachment?.filePath && report.attachment.filePath.startsWith('blob:')) {
-      window.open(report.attachment.filePath, '_blank')
+      const tab = openDocumentTab(resolvedName)
+      try {
+        const response = await fetch(report.attachment.filePath)
+        const blob = await response.blob()
+        renderDocumentInTab(tab, blob, resolvedName, resolvedFileName)
+      } catch (err) {
+        if (tab) tab.close()
+        console.error('Failed to view blob document:', err)
+      }
       return
     }
 
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
-        responseType: 'blob'
-      })
-      let mimeType = 'application/pdf'
-      if (fileName) {
-        const lowerName = fileName.toLowerCase()
-        if (lowerName.endsWith('.png')) mimeType = 'image/png'
-        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg'
-        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain'
-      }
-
-      const blob = new Blob([response], { type: mimeType })
-      const url = window.URL.createObjectURL(blob)
-      window.open(url, '_blank')
-      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+      await viewDocumentInNewTab(
+        async () => {
+          try {
+            return await $fetch(`${baseUrl}/quality-assurance/${id}/view`, {
+              responseType: 'blob'
+            })
+          } catch (_err) {
+            return await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
+              responseType: 'blob'
+            })
+          }
+        },
+        resolvedName,
+        resolvedFileName
+      )
     } catch (error: any) {
       console.error('Failed to view QAR attachment:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to view QAR attachment.')
