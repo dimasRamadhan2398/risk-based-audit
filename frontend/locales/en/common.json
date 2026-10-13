@@ -898,6 +898,8 @@
       "standardSubtitle": "Select standard entities to include them in your Corporate Audit Universe.",
       "corporateTitle": "Corporate Audit Universe",
       "addCustomEntity": "Add Custom Entity",
+      "syncMasterData": "Sync Master Data",
+      "syncMasterDataTooltip": "Sync Subsidiaries/Business Unit with Companies and Branches/Regional Offices with Branches/Locations from Master Data",
       "entityCount": "{count} Entity",
       "addSubEntity": "Add Sub Entity",
       "renameParentEntity": "Rename Parent Entity",
@@ -921,6 +923,7 @@
       "addCustomEntityTitle": "Add Custom Corporate Entity",
       "nameLabel": "Name",
       "namePlaceholder": "Enter name...",
+      "masterSuggestions": "Suggestions from Master Data:",
       "addNode": "Add Node",
       "cancel": "Cancel",
       "save": "Save"
@@ -930,6 +933,8 @@
       "entityAdded": "Custom corporate entity added successfully.",
       "deleteConfirmDesc": "Are you sure you want to delete this entity from Corporate Audit Universe? This will delete all sub-entities and yearly entries.",
       "entityDeleted": "Entity deleted successfully from corporate library.",
+      "syncSuccess": "Companies and Branches/Locations successfully synchronized to Corporate Audit Universe.",
+      "syncFailed": "Failed to synchronize master data.",
       "establishSuccess": "Successfully established active Audit Universe for year {year}.",
       "establishFailed": "Failed to establish yearly audit universe."
     }

@@ -897,6 +897,8 @@
       "standardSubtitle": "Pilih entitas standar untuk dimasukkan ke dalam Audit Universe Korporat Anda.",
       "corporateTitle": "Audit Universe Korporat",
       "addCustomEntity": "Tambah Entitas Kustom",
+      "syncMasterData": "Sinkronkan Master Data",
+      "syncMasterDataTooltip": "Sinkronkan Subsidiaries/Business Unit dengan Company dan Branches/Regional Offices dengan Branch/Location dari Master Data",
       "entityCount": "{count} Entitas",
       "addSubEntity": "Tambah Sub Entitas",
       "renameParentEntity": "Ubah Nama Entitas Induk",
@@ -920,6 +922,7 @@
       "addCustomEntityTitle": "Tambah Entitas Korporat Kustom",
       "nameLabel": "Nama",
       "namePlaceholder": "Masukkan nama...",
+      "masterSuggestions": "Pilihan dari Master Data:",
       "addNode": "Tambah Node",
       "cancel": "Batal",
       "save": "Simpan"
@@ -929,6 +932,8 @@
       "entityAdded": "Entitas korporat kustom berhasil ditambahkan.",
       "deleteConfirmDesc": "Apakah Anda yakin ingin menghapus entitas ini dari Audit Universe Korporat? Tindakan ini akan menghapus seluruh sub-entitas dan data penetapan tahunan terkait.",
       "entityDeleted": "Entitas berhasil dihapus dari pustaka korporat.",
+      "syncSuccess": "Data Company dan Branch/Location berhasil disinkronkan ke Corporate Audit Universe.",
+      "syncFailed": "Gagal menyinkronkan data dari Master Data.",
       "establishSuccess": "Berhasil menetapkan Audit Universe aktif untuk tahun {year}.",
       "establishFailed": "Gagal menetapkan audit universe tahunan."
     }

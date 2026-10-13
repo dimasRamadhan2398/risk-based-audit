@@ -136,6 +136,32 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
     }
   }
 
+  const syncMasterData = async (companies?: string[], locations?: string[]) => {
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getRiskServiceBaseUrl()
+      const response: any = await $fetch(`${baseUrl}/audit-universe/corporate/sync-master`, {
+        method: 'POST',
+        body: {
+          companies: companies || [],
+          locations: locations || []
+        }
+      })
+      if (response && response.success) {
+        corporateUniverse.value = response.data
+        return true
+      }
+      return false
+    } catch (error: any) {
+      console.error('Failed to sync master data to corporate audit universe:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to sync master data.')
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   const fetchYearlyUniverse = async (year: number) => {
     loading.value = true
     errorMsg.value = ''
@@ -210,6 +236,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
     fetchCorporateUniverse,
     saveCorporateNode,
     deleteCorporateNode,
+    syncMasterData,
     fetchYearlyUniverse,
     establishYearlyUniverse,
     scoreYearlyEntity

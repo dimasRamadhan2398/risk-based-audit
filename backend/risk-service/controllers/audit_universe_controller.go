@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"risk-service/models"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -50,6 +51,123 @@ func (ctrl *AuditUniverseController) ListCorporateAuditUniverse(c *gin.Context) 
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
+		"data":    corporate,
+	})
+}
+
+type SyncMasterReq struct {
+	Companies []string `json:"companies,omitempty"`
+	Locations []string `json:"locations,omitempty"`
+}
+
+// SyncMasterData synchronizes master data companies and locations into Corporate Audit Universe
+func (ctrl *AuditUniverseController) SyncMasterData(c *gin.Context) {
+	var req SyncMasterReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		// Proceed even if body is empty
+	}
+
+	now := time.Now()
+
+	err := ctrl.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Find or create root node Subsidiaries/Business Unit
+		var subParent models.CorporateAuditUniverse
+		err := tx.Where("LOWER(name) = ? AND parent_id IS NULL", "subsidiaries/business unit").First(&subParent).Error
+		if err != nil {
+			err = tx.Where("name LIKE ? AND parent_id IS NULL", "%Subsidiaries%").First(&subParent).Error
+		}
+		if err == gorm.ErrRecordNotFound {
+			subParent = models.CorporateAuditUniverse{
+				ID:        uuid.New(),
+				Name:      "Subsidiaries/Business Unit",
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			if err := tx.Create(&subParent).Error; err != nil {
+				return err
+			}
+		}
+
+		// 2. Find or create root node Branches/Regional Offices
+		var branchParent models.CorporateAuditUniverse
+		err = tx.Where("LOWER(name) = ? AND parent_id IS NULL", "branches/regional offices").First(&branchParent).Error
+		if err != nil {
+			err = tx.Where("name LIKE ? AND parent_id IS NULL", "%Branches%").First(&branchParent).Error
+		}
+		if err == gorm.ErrRecordNotFound {
+			branchParent = models.CorporateAuditUniverse{
+				ID:        uuid.New(),
+				Name:      "Branches/Regional Offices",
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			if err := tx.Create(&branchParent).Error; err != nil {
+				return err
+			}
+		}
+
+		// 3. Sync Companies under Subsidiaries/Business Unit
+		for _, compName := range req.Companies {
+			trimmed := strings.TrimSpace(compName)
+			if trimmed == "" {
+				continue
+			}
+			var existing models.CorporateAuditUniverse
+			err := tx.Where("parent_id = ? AND LOWER(TRIM(name)) = ?", subParent.ID, strings.ToLower(trimmed)).First(&existing).Error
+			if err == gorm.ErrRecordNotFound {
+				newChild := models.CorporateAuditUniverse{
+					ID:        uuid.New(),
+					Name:      trimmed,
+					ParentID:  &subParent.ID,
+					CreatedAt: now,
+					UpdatedAt: now,
+				}
+				if err := tx.Create(&newChild).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		// 4. Sync Locations under Branches/Regional Offices
+		for _, locName := range req.Locations {
+			trimmed := strings.TrimSpace(locName)
+			if trimmed == "" {
+				continue
+			}
+			var existing models.CorporateAuditUniverse
+			err := tx.Where("parent_id = ? AND LOWER(TRIM(name)) = ?", branchParent.ID, strings.ToLower(trimmed)).First(&existing).Error
+			if err == gorm.ErrRecordNotFound {
+				newChild := models.CorporateAuditUniverse{
+					ID:        uuid.New(),
+					Name:      trimmed,
+					ParentID:  &branchParent.ID,
+					CreatedAt: now,
+					UpdatedAt: now,
+				}
+				if err := tx.Create(&newChild).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to synchronize master data: " + err.Error(),
+		})
+		return
+	}
+
+	// Fetch updated corporate audit universe
+	var corporate []models.CorporateAuditUniverse
+	ctrl.db.Preload("Children.Children").Where("parent_id IS NULL").Find(&corporate)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Master data synchronized successfully with Corporate Audit Universe",
 		"data":    corporate,
 	})
 }

@@ -110,7 +110,20 @@
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
                     {{ t('auditUniverse.library.corporateTitle') }}
                   </h2>
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <UTooltip :text="t('auditUniverse.library.syncMasterDataTooltip')">
+                      <UButton
+                        v-if="canEditAuditUniverse"
+                        size="md"
+                        color="neutral"
+                        variant="outline"
+                        icon="i-lucide-refresh-cw"
+                        :loading="syncingMaster"
+                        :label="t('auditUniverse.library.syncMasterData')"
+                        class="w-full sm:w-auto"
+                        @click="handleSyncMasterData"
+                      />
+                    </UTooltip>
                     <UButton
                       v-if="canEditAuditUniverse"
                       size="md"
@@ -277,14 +290,37 @@
                     color="neutral"
                     class="w-full"
                     type="text"
+                    list="master-suggestions-list"
                     maxlength="100"
                     @invalid="($event.target as any)?.setCustomValidity(t('auditUniverse.modals.entityNameValidation'))"
                     @input="($event.target as any)?.setCustomValidity('')"
                   />
+                  <datalist id="master-suggestions-list">
+                    <option v-for="item in activeSuggestions" :key="item" :value="item" />
+                  </datalist>
                   <div class="text-xs text-gray-500 mt-1 text-right">
                     {{ addCustomNodeName ? addCustomNodeName.length : 0 }}/100
                   </div>
                 </UFormField>
+
+                <!-- Clickable suggestions chips from Master Data if available -->
+                <div v-if="activeSuggestions.length > 0" class="space-y-1.5 pt-1">
+                  <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    {{ t('auditUniverse.modals.masterSuggestions') }}
+                  </span>
+                  <div class="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
+                    <UBadge
+                      v-for="s in activeSuggestions"
+                      :key="s"
+                      color="neutral"
+                      variant="subtle"
+                      class="cursor-pointer hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-950/40 transition-colors py-1 px-2.5 text-xs font-medium border border-slate-200 dark:border-slate-700"
+                      @click="addCustomNodeName = s"
+                    >
+                      + {{ s }}
+                    </UBadge>
+                  </div>
+                </div>
               </div>
               <template #footer>
                 <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
@@ -391,6 +427,8 @@ import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import { useCompanyApi } from '~/composables/useCompanyApi'
+import { useLocationApi } from '~/composables/useLocationApi'
 
 const store = useAuditUniverseStore()
 const riskFactorsStore = useRiskFactorsStore()
@@ -398,6 +436,10 @@ const route = useRoute()
 const toast = useToastNotification()
 const { t } = useI18n()
 const { canEditAuditUniverse } = useRbac()
+
+const syncingMaster = ref(false)
+const masterCompanies = ref<string[]>([])
+const masterLocations = ref<string[]>([])
 
 const tabItems = computed(() => [
   { value: 'library', slot: 'library', label: t('auditUniverse.tabs.library') },
@@ -448,7 +490,77 @@ onMounted(async () => {
   await store.fetchCorporateUniverse()
   await riskFactorsStore.fetchCorporateFactors()
   await fetchYearlyUniverse()
+  await loadMasterData()
 })
+
+const loadMasterData = async () => {
+  try {
+    const compRes = await useCompanyApi().getCompanies({ page_size: 1000 })
+    masterCompanies.value = (compRes?.companies || [])
+      .filter((c: any) => c.is_active !== false)
+      .map((c: any) => c.company_name || c.name)
+      .filter(Boolean)
+  } catch (err) {
+    console.warn('Could not load master companies:', err)
+  }
+
+  try {
+    const locRes = await useLocationApi().getLocations()
+    masterLocations.value = (locRes || [])
+      .filter((l: any) => l.is_active !== false)
+      .map((l: any) => l.name)
+      .filter(Boolean)
+  } catch (err) {
+    console.warn('Could not load master locations:', err)
+  }
+}
+
+const activeSuggestions = computed(() => {
+  if (!addCustomParentID.value) return []
+
+  const findNode = (nodes: any[]): any => {
+    for (const n of nodes) {
+      if (n.id === addCustomParentID.value || n.standard_audit_universe_id === addCustomParentID.value) return n
+      if (n.children) {
+        const found = findNode(n.children)
+        if (found) return found
+      }
+    }
+    return null
+  }
+  const parent = findNode(store.corporateUniverse)
+  if (!parent) return []
+
+  const existingChildNames = (parent.children || []).map((c: any) => c.name.toLowerCase().trim())
+  const parentName = (parent.name || '').toLowerCase()
+
+  if (parentName.includes('subsidiaries') || parentName.includes('business unit')) {
+    return masterCompanies.value.filter(c => !existingChildNames.includes(c.toLowerCase().trim()))
+  }
+  if (parentName.includes('branch') || parentName.includes('regional')) {
+    return masterLocations.value.filter(l => !existingChildNames.includes(l.toLowerCase().trim()))
+  }
+  return []
+})
+
+const handleSyncMasterData = async () => {
+  if (syncingMaster.value) return
+  syncingMaster.value = true
+  try {
+    await loadMasterData()
+    const success = await store.syncMasterData(masterCompanies.value, masterLocations.value)
+    if (success) {
+      toast.showSuccess(t('auditUniverse.messages.syncSuccess'))
+    } else {
+      toast.showError(store.errorMsg || t('auditUniverse.messages.syncFailed'))
+    }
+  } catch (err: any) {
+    console.error('Failed to sync master data:', err)
+    toast.showError(t('auditUniverse.messages.syncFailed'))
+  } finally {
+    syncingMaster.value = false
+  }
+}
 
 const standardUniverse = computed(() => store.standardUniverse)
 const corporateUniverse = computed(() => store.corporateUniverse)
@@ -562,9 +674,7 @@ const saveAddCustomNode = async () => {
       return null
     }
     const match = findCorpParent(store.corporateUniverse)
-    if (match) {
-      corpParentID = match.id
-    }
+    corpParentID = match ? match.id : addCustomParentID.value
   }
 
   await store.saveCorporateNode({

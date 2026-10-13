@@ -99,7 +99,11 @@ func autoMigrate(db *gorm.DB) error {
 		return err
 	}
 
-	return backfillAssessmentSnapshots(db)
+	if err := backfillAssessmentSnapshots(db); err != nil {
+		return err
+	}
+
+	return CleanupDummyAuditUniverseSubEntities(db)
 }
 
 // backfillAssessmentSnapshots gives assessment rows written before the

@@ -93,6 +93,7 @@ func (r *RiskRoute) Run() {
 		apiV1.GET("/audit-universe/standard", r.auditUniverseCtrl.ListStandardAuditUniverse)
 		apiV1.GET("/audit-universe/corporate", r.auditUniverseCtrl.ListCorporateAuditUniverse)
 		apiV1.POST("/audit-universe/corporate", r.auditUniverseCtrl.CreateOrUpdateCorporateNode)
+		apiV1.POST("/audit-universe/corporate/sync-master", r.auditUniverseCtrl.SyncMasterData)
 		apiV1.DELETE("/audit-universe/corporate/:id", r.auditUniverseCtrl.DeleteCorporateNode)
 
 		apiV1.GET("/audit-universe/year/:year", r.auditUniverseCtrl.ListYearlyAuditUniverse)

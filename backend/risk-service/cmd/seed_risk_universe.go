@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"risk-service/models"
@@ -63,6 +64,14 @@ func seedRiskFactorsAndUniverse(db *gorm.DB) error {
 		if err := seedCorporateAuditUniverseAndScores(db); err != nil {
 			return err
 		}
+	}
+
+	if err := CleanupDummyAuditUniverseSubEntities(db); err != nil {
+		log.Printf("Warning: Failed to cleanup dummy audit universe sub-entities: %v", err)
+	}
+
+	if err := seedMasterDataSubEntities(db); err != nil {
+		log.Printf("Warning: Failed to seed master data sub-entities: %v", err)
 	}
 
 	return nil
@@ -539,54 +548,6 @@ func seedStandardAuditUniverse(db *gorm.DB) error {
 		return err
 	}
 
-	// PT A has children
-	ptaID := uuid.New()
-	pta := models.StandardAuditUniverse{
-		ID:        ptaID,
-		Name:      "PT A",
-		ParentID:  &subID,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-	if err := db.Create(&pta).Error; err != nil {
-		return err
-	}
-	ptaChildren := []string{"Finance", "Operations", "Procurement", "HR", "IT", "Sales & Marketing"}
-	for _, childName := range ptaChildren {
-		c := models.StandardAuditUniverse{
-			ID:        uuid.New(),
-			Name:      childName,
-			ParentID:  &ptaID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		if err := db.Create(&c).Error; err != nil {
-			return err
-		}
-	}
-
-	// PT B, PT C
-	ptb := models.StandardAuditUniverse{
-		ID:        uuid.New(),
-		Name:      "PT B",
-		ParentID:  &subID,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-	if err := db.Create(&ptb).Error; err != nil {
-		return err
-	}
-	ptc := models.StandardAuditUniverse{
-		ID:        uuid.New(),
-		Name:      "PT C",
-		ParentID:  &subID,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-	if err := db.Create(&ptc).Error; err != nil {
-		return err
-	}
-
 	// 4. Branches/Regional Offices
 	brID := uuid.New()
 	branchesCat := models.StandardAuditUniverse{
@@ -597,19 +558,6 @@ func seedStandardAuditUniverse(db *gorm.DB) error {
 	}
 	if err := db.Create(&branchesCat).Error; err != nil {
 		return err
-	}
-	branches := []string{"Jakarta", "Bandung", "Surabaya", "Medan", "Makassar"}
-	for _, br := range branches {
-		c := models.StandardAuditUniverse{
-			ID:        uuid.New(),
-			Name:      br,
-			ParentID:  &brID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		if err := db.Create(&c).Error; err != nil {
-			return err
-		}
 	}
 
 	// 5. Products/Services
@@ -622,19 +570,6 @@ func seedStandardAuditUniverse(db *gorm.DB) error {
 	}
 	if err := db.Create(&prodsCat).Error; err != nil {
 		return err
-	}
-	prods := []string{"Product/Service A", "Product/Service B", "Product/Service C"}
-	for _, p := range prods {
-		c := models.StandardAuditUniverse{
-			ID:        uuid.New(),
-			Name:      p,
-			ParentID:  &prodID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		if err := db.Create(&c).Error; err != nil {
-			return err
-		}
 	}
 
 	// 6. Major Business Process
@@ -764,42 +699,7 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 		}
 	}
 
-	// Hand-craft a couple of specific ones (e.g. Branches/Regional Offices: Jakarta, Subsidiaries: PT A etc.)
-	// PT A Subsidiary under Subsidiaries/Business Unit
-	var subParent models.CorporateAuditUniverse
-	if err := db.Where("name = ? AND parent_id IS NULL", "Subsidiaries/Business Unit").First(&subParent).Error; err == nil {
-		pta := models.CorporateAuditUniverse{
-			ID:        uuid.New(),
-			Name:      "PT A",
-			ParentID:  &subParent.ID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		db.Create(&pta)
-		// PT A child Finance
-		ptaFinance := models.CorporateAuditUniverse{
-			ID:        uuid.New(),
-			Name:      "Finance",
-			ParentID:  &pta.ID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		db.Create(&ptaFinance)
-	}
 
-	// Jakarta branch under Branches/Regional Offices
-	var brParent models.CorporateAuditUniverse
-	if err := db.Where("name = ? AND parent_id IS NULL", "Branches/Regional Offices").First(&brParent).Error; err == nil {
-		jkt := models.CorporateAuditUniverse{
-			ID:        uuid.New(),
-			Name:      "Jakarta",
-			ParentID:  &brParent.ID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		db.Create(&jkt)
-		corporateMap["Branches/Regional Offices: Jakarta"] = jkt.ID
-	}
 
 	// Fetch all corporate risk factors to perform scoring
 	var corporateRiskFactors []models.CorporateRiskFactor
@@ -964,3 +864,141 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 
 	return nil
 }
+
+// CleanupDummyAuditUniverseSubEntities removes any legacy dummy sub-entities
+// (e.g. PT A, PT B, Jakarta, Surabaya, Product/Service A-C) but preserves
+// synced Master Data (companies & branches) and user-added entities.
+func CleanupDummyAuditUniverseSubEntities(db *gorm.DB) error {
+	legacyDummyNames := []string{
+		"PT A", "PT B", "PT C", "Jakarta", "Surabaya",
+		"Product/Service A", "Product/Service B", "Product/Service C",
+	}
+
+	return db.Transaction(func(tx *gorm.DB) error {
+		// Delete any scores, years, and nodes that match old dummy names
+		if err := tx.Exec(`
+			DELETE FROM audit_universe_risk_scores 
+			WHERE audit_universe_year_id IN (
+				SELECT id FROM audit_universe_years 
+				WHERE corporate_audit_universe_id IN (
+					SELECT id FROM corporate_audit_universe WHERE name IN ?
+				)
+			)
+		`, legacyDummyNames).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Exec(`
+			DELETE FROM audit_universe_years 
+			WHERE corporate_audit_universe_id IN (
+				SELECT id FROM corporate_audit_universe WHERE name IN ?
+			)
+		`, legacyDummyNames).Error; err != nil {
+			return err
+		}
+
+		// Delete children of dummy nodes first (if any)
+		if err := tx.Exec(`
+			DELETE FROM corporate_audit_universe 
+			WHERE parent_id IN (
+				SELECT id FROM corporate_audit_universe WHERE name IN ?
+			)
+		`, legacyDummyNames).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Exec(`
+			DELETE FROM corporate_audit_universe WHERE name IN ?
+		`, legacyDummyNames).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Exec(`
+			DELETE FROM standard_audit_universe 
+			WHERE parent_id IN (
+				SELECT id FROM standard_audit_universe WHERE name IN ?
+			)
+		`, legacyDummyNames).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Exec(`
+			DELETE FROM standard_audit_universe WHERE name IN ?
+		`, legacyDummyNames).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+// seedMasterDataSubEntities ensures that active Master Data Companies and Locations
+// exist under Subsidiaries/Business Unit and Branches/Regional Offices in Corporate Audit Universe.
+func seedMasterDataSubEntities(db *gorm.DB) error {
+	now := time.Now()
+
+	// Default master companies
+	defaultCompanies := []string{
+		"PT AIFL Indonesia",
+		"AIFL Financial Services",
+		"AIFL Surabaya",
+	}
+
+	// Default master locations/branches
+	defaultLocations := []string{
+		"Head Office",
+		"Surabaya Branch",
+		"Bandung Branch",
+		"Jakarta Branch",
+		"Bali Branch",
+	}
+
+	return db.Transaction(func(tx *gorm.DB) error {
+		var subParent models.CorporateAuditUniverse
+		if err := tx.Where("LOWER(name) = ? AND parent_id IS NULL", "subsidiaries/business unit").First(&subParent).Error; err == nil {
+			for _, cName := range defaultCompanies {
+				var count int64
+				tx.Model(&models.CorporateAuditUniverse{}).
+					Where("parent_id = ? AND LOWER(TRIM(name)) = ?", subParent.ID, strings.ToLower(cName)).
+					Count(&count)
+				if count == 0 {
+					child := models.CorporateAuditUniverse{
+						ID:        uuid.New(),
+						Name:      cName,
+						ParentID:  &subParent.ID,
+						CreatedAt: now,
+						UpdatedAt: now,
+					}
+					if err := tx.Create(&child).Error; err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		var branchParent models.CorporateAuditUniverse
+		if err := tx.Where("LOWER(name) = ? AND parent_id IS NULL", "branches/regional offices").First(&branchParent).Error; err == nil {
+			for _, lName := range defaultLocations {
+				var count int64
+				tx.Model(&models.CorporateAuditUniverse{}).
+					Where("parent_id = ? AND LOWER(TRIM(name)) = ?", branchParent.ID, strings.ToLower(lName)).
+					Count(&count)
+				if count == 0 {
+					child := models.CorporateAuditUniverse{
+						ID:        uuid.New(),
+						Name:      lName,
+						ParentID:  &branchParent.ID,
+						CreatedAt: now,
+						UpdatedAt: now,
+					}
+					if err := tx.Create(&child).Error; err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		return nil
+	})
+}
+
