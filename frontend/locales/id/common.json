@@ -1127,6 +1127,8 @@
       "namePlaceholder": "Contoh: Persetujuan Pesanan Pembelian",
       "type": "Jenis Pengendalian",
       "typePlaceholder": "Pilih Jenis Pengendalian",
+      "unitDivision": "Unit Divisi",
+      "unitDivisionPlaceholder": "Pilih Unit Divisi",
       "description": "Deskripsi Pengendalian",
       "descriptionPlaceholder": "Jelaskan cara kerja pengendalian ini",
       "sectionProcedure": "Prosedur Pengujian",
@@ -1802,6 +1804,220 @@
       "download": "File tidak dapat diunduh. Silakan coba lagi beberapa saat lagi."
     }
   },
+    "executiveSummaryForm": {
+      "navTitle": "Daftar Bagian Laporan",
+      "lock": {
+        "title": "Status Penguncian",
+        "approved": "Terkunci (Approved)",
+        "draft": "Terbuka (Draft)",
+        "approvedDescription": "Laporan ini telah disetujui oleh Kepala SPI dan tidak dapat diedit.",
+        "draftDescription": "Silakan isi semua data sebelum mengajukan persetujuan."
+      },
+      "upload": {
+        "title": "Navigasi & Unggah Dokumen",
+        "description": "Detail identitas laporan kompilasi dan unggahan dokumen resmi.",
+        "lhaLabel": "Pilih Surat Tugas (Assignment Letter) / LHA",
+        "lhaPlaceholder": "Pilih ID LHA...",
+        "assignmentLetter": "Surat Tugas: {number}",
+        "leader": "Ketua Tim:",
+        "period": "Periode:",
+        "documentLabel": "Upload Dokumen Executive Summary Resmi",
+        "chooseFile": "Pilih File (.pdf, .docx)",
+        "noFile": "Belum ada file yang dipilih (Maks. 10MB)",
+        "formats": "Mendukung file PDF & Word"
+      },
+      "narrative": {
+        "title": "Narasi Ringkasan Eksekutif",
+        "description": "Narasi bebas untuk ringkasan eksekutif hasil audit triwulanan.",
+        "label": "Teks Narasi Ringkasan",
+        "reset": "Reset Ke Template Default",
+        "placeholder": "Isi teks ringkasan naratif..."
+      },
+      "followUp": {
+        "title": "Status Tindak Lanjut",
+        "description": "Kalkulasi persentase dan rekap status penyelesaian temuan audit.",
+        "notePlaceholder": "Keterangan tindak lanjut..."
+      },
+      "table": {
+        "status": "Status",
+        "count": "Jumlah",
+        "percent": "% (Persentase)",
+        "notes": "Keterangan",
+        "total": "Total",
+        "autoCalculated": "Dihitung otomatis",
+        "unitDivision": "Unit Divisi",
+        "findingTitle": "Judul Temuan",
+        "riskValue": "Nilai Risiko",
+        "followUpStatus": "Status TL",
+        "proposedAction": "Usulan Tindakan",
+        "actions": "Aksi"
+      },
+      "topFindings": {
+        "title": "Top 5 Temuan Signifikan",
+        "description": "Matriks temuan kritikal terpenting yang butuh eskalasi/tindakan jajaran direksi.",
+        "add": "Tambah Temuan",
+        "empty": "Belum ada temuan signifikan teratas yang ditambahkan.",
+        "emptyAction": "Klik di sini untuk menambahkan."
+      },
+      "sync": {
+        "findings": "Sinkronkan Temuan dari LHA",
+        "analysis": "Sinkronkan Analisis dari LHA"
+      },
+      "analysis": {
+        "title": "Analisis Temuan Berulang & Kesimpulan",
+        "description": "Deskripsi tema berulang, akar masalah, dan usulan task force atau arah kebijakan manajemen.",
+        "theme": "Tema Berulang (Akar masalah & Usulan revisi kebijakan)",
+        "conclusion": "Kesimpulan & Rekomendasi Manajemen",
+        "rootCausePlaceholder": "Tuliskan analisis akar masalah dan usulan kebijakan...",
+        "conclusionPlaceholder": "Tuliskan kesimpulan umum dan arahan Direksi yang diperlukan..."
+      },
+      "signature": {
+        "title": "Tanda Tangan Elektronik SPI",
+        "place": "Tempat TTD",
+        "date": "Tanggal TTD",
+        "headName": "Nama Kepala SPI",
+        "headNik": "NIK Kepala SPI",
+        "placePlaceholder": "Contoh: Jakarta",
+        "headNamePlaceholder": "Contoh: Budi Santoso, CIA",
+        "headNikPlaceholder": "Contoh: SPI-77621"
+      },
+      "validation": {
+        "findingTitle": "Judul maksimal 100 karakter dan wajib diisi",
+        "signaturePlace": "Tempat TTD maksimal 20 karakter dan wajib diisi",
+        "signatureName": "Nama Kepala SPI maksimal 100 karakter dan wajib diisi",
+        "signatureNik": "NIK Kepala SPI maksimal 20 karakter dan wajib diisi"
+      },
+      "placeholders": {
+        "division": "Divisi",
+        "findingTitle": "Judul temuan utama...",
+        "risk": "Risiko",
+        "proposedAction": "Contoh: Eskalasi Direksi"
+      },
+      "notes": {
+        "title": "Noted dari Executive untuk Auditor",
+        "description": "Catatan tindak lanjut atau arahan Executive kepada Auditor.",
+        "label": "Catatan",
+        "placeholder": "Tuliskan catatan untuk Auditor...",
+        "empty": "Belum ada catatan dari Executive.",
+        "save": "Simpan Catatan"
+      },
+      "actions": {
+        "saveDraft": "Simpan Draft",
+        "saveReport": "Simpan Laporan",
+        "approve": "Setujui (Approve)",
+        "close": "Tutup"
+      },
+      "defaults": {
+        "auditAssignment": "Penugasan Audit",
+        "leader": "Head of SKAI"
+      },
+      "messages": {
+        "fileTooLarge": "Ukuran file melebihi batas 10MB.",
+        "unsupportedFormat": "Format file tidak didukung. Harap unggah PDF/Word.",
+        "corruptedFile": "Gagal mengunggah file. Pastikan format file adalah PDF/Word yang valid dan tidak terkunci password.",
+        "docNumberRequired": "Nomor dokumen wajib diisi.",
+        "documentRequired": "Unggah dokumen resmi wajib diisi.",
+        "selectLhaFirst": "Field LHA masih kosong. Harap pilih LHA terlebih dahulu."
+      }
+    },
+    "executiveSummaryIndividual": {
+      "page": {
+        "description": "Rangkuman eksekutif resmi untuk setiap Laporan Hasil Audit (LHA) secara individual.",
+        "importButton": "Impor Executive Summary",
+        "createButton": "Buat Executive Summary Baru"
+      },
+      "stats": {
+        "total": "Total Rangkuman Individual",
+        "approved": "Disetujui (Approved)",
+        "draft": "Draft",
+        "handling": "Jumlah Penanganan / Handling"
+      },
+      "filters": {
+        "assignmentLetter": "Filter berdasarkan Surat Tugas...",
+        "search": "Cari nomor ID LHA...",
+        "showingPrefix": "Menampilkan",
+        "showingSuffix": "dokumen executive summary"
+      },
+      "card": {
+        "draftLha": "LHA Draf",
+        "status": "Status: {status}",
+        "viewDetail": "Lihat Detail",
+        "edit": "Edit Laporan",
+        "delete": "Hapus",
+        "narrativeSummary": "Ringkasan Utama Executive Summary",
+        "noNarrative": "Belum ada ringkasan narasi.",
+        "metrics": "Statistik Temuan & Rekomendasi",
+        "highRisk": "Risiko Tinggi",
+        "totalRecommendations": "Total Rekomendasi"
+      },
+      "empty": {
+        "title": "Belum Ada Executive Summary",
+        "description": "Tidak ditemukan dokumen executive summary individual untuk pencarian/filter ini. Silakan buat baru."
+      },
+      "modal": {
+        "view": "Detail Executive Summary Individual",
+        "edit": "Edit Executive Summary Individual",
+        "create": "Buat Executive Summary Individual",
+        "lhaId": "ID LHA: {id}",
+        "draft": "Draft"
+      },
+      "nav": {
+        "upload": "Navigasi & Unggah",
+        "narrative": "Ringkasan Narasi",
+        "followUp": "Status Tindak Lanjut",
+        "topFindings": "Temuan Signifikan",
+        "analysis": "Temuan Berulang & Kesimpulan",
+        "notes": "Catatan"
+      },
+      "defaults": {
+        "auditTitle": "Penugasan Audit SPI"
+      }
+    },
+    "executiveSummaryCompilation": {
+      "nav": {
+        "upload": "Navigasi & Unggah",
+        "narrative": "Ringkasan Narasi",
+        "stats": "Statistik Kompilasi",
+        "followUp": "Status Tindak Lanjut",
+        "topFindings": "Top 5 Signifikan",
+        "analysis": "Akar Masalah & Kesimpulan",
+        "matrix": "Matriks Kompilasi LHA",
+        "notes": "Catatan"
+      },
+      "reportYear": "Tahun Laporan",
+      "quarter": "Periode Kuartal",
+      "reportCount": "Jumlah Laporan (LHA)",
+      "reportCountPlaceholder": "Contoh: 12",
+      "recommendationCount": "Jumlah Rekomendasi",
+      "recommendationCountPlaceholder": "Contoh: 48",
+      "totalFindings": "Total Temuan (Auto-Sum)",
+      "totalFindingsHint": "Jumlah otomatis dari breakdown tingkat risiko",
+      "findingsUnit": "Temuan",
+      "riskBreakdown": "Breakdown Temuan Berdasarkan Risiko",
+      "riskHigh": "Risiko Tinggi (High)",
+      "riskMedium": "Risiko Sedang (Medium)",
+      "riskLow": "Risiko Rendah (Low)",
+      "syncFromIndividual": "Sinkronkan dari LHA Individual",
+      "matrix": {
+        "title": "Matriks Kompilasi Temuan LHA Individual",
+        "description": "Daftar LHA Individual yang dikompilasi ke dalam laporan eksekutif ini.",
+        "total": "Total: {count} LHA",
+        "empty": "Belum ada matriks kompilasi yang disinkronkan.",
+        "emptyAction": "Klik untuk menyinkronkan data dari LHA Individual.",
+        "columns": {
+          "docNumber": "No. Dokumen LHA",
+          "unit": "Unit / Divisi",
+          "title": "Judul / Objek Audit",
+          "risk": "Tingkat Risiko",
+          "recommendation": "Rekomendasi Utama",
+          "followUpStatus": "Status TL"
+        }
+      },
+      "defaults": {
+        "auditTitle": "Penugasan Audit Kompilasi SPI"
+      }
+    }
+  ,
   "executiveSummaryUpload": {
     "headerTitle": "Import Executive Summary",
     "headerSubtitle": "Impor dokumen Ringkasan Eksekutif eksternal untuk Laporan Hasil Audit",
@@ -3088,6 +3304,10 @@
       "searchPlaceholder": "Cari karyawan...",
       "reset": "Atur Ulang",
       "empty": "Tidak ada data karyawan.",
+      "autoGenerated": "Dibuat otomatis",
+      "codeLoading": "Memuat...",
+      "codeUnavailable": "Tidak tersedia",
+      "createdWithCode": "Employee berhasil dibuat! Kode employee: {code}",
       "level": "Level {level}",
       "active": "Aktif",
       "inactive": "Tidak Aktif",
@@ -3211,7 +3431,9 @@
       "assign": "Tugaskan PIC",
       "reassign": "Ganti PIC",
       "review": "Reviu",
-      "cancel": "Batalkan ATR"
+      "cancel": "Batalkan ATR",
+      "edit": "Ubah",
+      "sendReminder": "Kirim Pengingat"
     },
     "modal": {
       "close": "Tutup"
@@ -3234,7 +3456,22 @@
       "actionPlan": "Rencana aksi",
       "noActionPlan": "PIC belum mengisi rencana aksi.",
       "reviewSection": "Catatan reviu",
-      "reviewedMeta": "Oleh {by} pada {date}"
+      "reviewedMeta": "Oleh {by} pada {date}",
+      "lhaSection": "Laporan Hasil Audit (LHA)",
+      "lhaStatus": "Status LHA",
+      "reportDate": "Tanggal laporan",
+      "auditObject": "Objek audit",
+      "department": "Departemen",
+      "companyName": "Perusahaan",
+      "auditPeriod": "Periode audit",
+      "executiveSummary": "Ringkasan eksekutif",
+      "scope": "Lingkup",
+      "methodology": "Metodologi",
+      "findingSummary": "Ringkasan temuan",
+      "conclusion": "Kesimpulan",
+      "preparedBy": "Disiapkan oleh",
+      "lhaReviewedBy": "Direviu oleh (LHA)",
+      "approvedBy": "Disetujui oleh"
     },
     "timeline": {
       "title": "Riwayat status",
@@ -3330,7 +3567,27 @@
       "cancelled": "Tindak lanjut dibatalkan",
       "cancelFailed": "Gagal membatalkan tindak lanjut",
       "uploaded": "{count} file berhasil diunggah",
-      "uploadFailed": "Gagal mengunggah {name}"
+      "uploadFailed": "Gagal mengunggah {name}",
+      "updated": "Tindak lanjut diperbarui",
+      "updateFailed": "Gagal memperbarui tindak lanjut",
+      "reminderSent": "Pengingat dikirim ke {recipients}",
+      "reminderNotSent": "Pengingat tidak terkirim ke {roles}",
+      "reminderFailed": "Gagal mengirim pengingat"
+    },
+    "editForm": {
+      "title": "Ubah tindak lanjut",
+      "save": "Simpan perubahan",
+      "partialHint": "Hanya bagian yang Anda ubah yang disimpan.",
+      "readOnlyDueDate": "Hanya auditor, manajer, atau admin yang dapat mengubah tenggat.",
+      "readOnlyPlan": "Hanya PIC yang dapat mengubah rencana aksi dan progres."
+    },
+    "reminder": {
+      "confirmTitle": "Kirim pengingat untuk tindak lanjut ini?",
+      "confirmBody": "Pengingat dikirim lewat email ke auditee (PIC) dan kepala departemen PIC.",
+      "role": {
+        "auditee": "auditee (PIC)",
+        "department_head": "kepala departemen"
+      }
     },
     "errors": {
       "load": "Gagal memuat action taken report.",

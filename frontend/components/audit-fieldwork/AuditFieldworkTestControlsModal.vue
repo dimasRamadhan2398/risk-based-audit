@@ -76,6 +76,10 @@
                 <p class="text-base font-bold text-[var(--text-main)]">{{ store.testControlForm.controlName || '-' }}</p>
               </div>
               <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">{{ t('auditFieldwork.testControls.unitDivision') }}</p>
+                <p class="text-sm font-bold text-[var(--text-main)]">{{ store.testControlForm.unitDivision || '-' }}</p>
+              </div>
+              <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">{{ t('auditFieldwork.testControls.description') }}</p>
                 <p class="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-main)] p-3 rounded-lg border border-[var(--border-main)] whitespace-pre-line">
                   {{ store.testControlForm.controlDescription || '-' }}
@@ -169,12 +173,15 @@
             <!-- Control Information -->
             <div class="bg-[var(--bg-surface)] p-4 rounded-xl border border-[var(--border-main)] space-y-4">
               <h4 class="font-bold text-sm text-[var(--text-main)] uppercase tracking-wider">{{ t('auditFieldwork.testControls.sectionControl') }}</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <UFormField :label="t('auditFieldwork.testControls.name')" required>
                   <UInput v-model="store.testControlForm.controlName" :placeholder="t('auditFieldwork.testControls.namePlaceholder')" class="w-full" required />
                 </UFormField>
                 <UFormField :label="t('auditFieldwork.testControls.type')" required>
                   <ReusableSelectMenu v-model="store.testControlForm.controlType" :items="store.options.controlTypes" :placeholder="t('auditFieldwork.testControls.typePlaceholder')" class="w-full" required />
+                </UFormField>
+                <UFormField :label="t('auditFieldwork.testControls.unitDivision')">
+                  <ReusableSelectMenu v-model="store.testControlForm.unitDivision" :items="store.options.divisionOptions" :placeholder="t('auditFieldwork.testControls.unitDivisionPlaceholder')" class="w-full" />
                 </UFormField>
               </div>
               <UFormField :label="t('auditFieldwork.testControls.description')" required>

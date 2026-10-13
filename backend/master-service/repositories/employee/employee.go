@@ -16,6 +16,7 @@ type IEmployeeRepository interface {
 	FindByID(id uuid.UUID) (*models.Employee, error)
 	FindByEmail(email string) (*models.Employee, error)
 	FindByCode(code string) (*models.Employee, error)
+	FindCodesWithPrefix(prefix string) ([]string, error)
 	FindAll() ([]*models.Employee, error)
 }
 type EmployeeRepository struct{ *repositories.BaseRepository }
@@ -61,6 +62,19 @@ func (r *EmployeeRepository) FindByCode(code string) (*models.Employee, error) {
 		return nil, err
 	}
 	return &employee, nil
+}
+
+// FindCodesWithPrefix returns every employee_code starting with prefix,
+// including soft-deleted rows: the unique index on employee_code still counts
+// them, so a generated code must not reuse one.
+func (r *EmployeeRepository) FindCodesWithPrefix(prefix string) ([]string, error) {
+	var codes []string
+	if err := r.GetDB().Unscoped().Model(&models.Employee{}).
+		Where("employee_code LIKE ?", prefix+"%").
+		Pluck("employee_code", &codes).Error; err != nil {
+		return nil, err
+	}
+	return codes, nil
 }
 func (r *EmployeeRepository) FindAll() ([]*models.Employee, error) {
 	var employees []*models.Employee

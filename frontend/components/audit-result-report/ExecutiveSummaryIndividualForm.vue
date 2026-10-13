@@ -120,7 +120,7 @@
                   <span v-else class="text-sm text-gray-400">Belum ada file yang dipilih (Maks. 10MB)</span>
                 </div>
                 <p class="text-md text-gray-400">
-                  Dukungan format file PDF dan Word yang valid, tidak terkunci password.
+                  Supports PDF & Word File
                 </p>
               </div>
             </UFormField>

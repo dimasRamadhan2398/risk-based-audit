@@ -27,6 +27,7 @@ type UserRepositoryInterface interface {
 	Count(search, department string, isActive *bool) (int64, error)
 	AssignRoles(userID uuid.UUID, roleNames []string) error
 	FindAssignable(offset, limit int, search string, id *uuid.UUID) ([]*models.User, int64, error)
+	FindContacts(ids []uuid.UUID, departmentHeadOf string) ([]*models.User, error)
 }
 
 // UserRepository handles user data operations
@@ -188,6 +189,35 @@ func (r *UserRepository) FindAssignable(offset, limit int, search string, id *uu
 		return nil, 0, err
 	}
 	return users, total, nil
+}
+
+// FindContacts returns the active users matching the filters, with only the
+// contact columns. ids restricts to those users; departmentHeadOf restricts to
+// users holding the DEPARTMENT_HEAD role in that department (case-insensitive,
+// trimmed). Both filters apply when both are set; the caller must set one.
+// Ordered by full_name, then id.
+func (r *UserRepository) FindContacts(ids []uuid.UUID, departmentHeadOf string) ([]*models.User, error) {
+	query := r.GetDB().Model(&models.User{}).Where("is_active = ?", true)
+	if len(ids) > 0 {
+		query = query.Where("id IN ?", ids)
+	}
+	if dept := strings.TrimSpace(departmentHeadOf); dept != "" {
+		query = query.
+			Where("LOWER(TRIM(department)) = ?", strings.ToLower(dept)).
+			Where("id IN (SELECT ur.user_id FROM user_roles ur JOIN roles ro ON ro.id = ur.role_id WHERE UPPER(ro.name) = ?)", "DEPARTMENT_HEAD")
+	}
+
+	var users []*models.User
+	err := query.Select("id", "full_name", "email", "department").
+		Order(clause.OrderBy{Columns: []clause.OrderByColumn{
+			{Column: clause.Column{Name: "full_name"}},
+			{Column: clause.Column{Name: "id"}},
+		}}).
+		Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 var likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)

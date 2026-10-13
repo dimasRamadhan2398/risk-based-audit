@@ -142,7 +142,7 @@
                   <span v-else class="text-sm text-gray-400">Belum ada file yang dipilih (Maks. 10MB)</span>
                 </div>
                 <p class="text-md text-gray-400">
-                  Dukungan format file PDF dan Word yang valid, tidak terkunci password.
+                  PDF & Word is supported
                 </p>
               </div>
             </UFormField>
@@ -155,7 +155,7 @@
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               <span class="text-primary-500">II.</span> Section I: Executive Summary Narrative
             </h2>
-            <p class="text-sm text-gray-400">Narasi bebas untuk ringkasan eksekutif hasil audit triwulanan.</p>
+            <p class="text-sm text-gray-400">Narasi bebas untuk ringkasan eksekutif hasil audit triwulanan</p>
           </div>
 
           <div class="space-y-3">

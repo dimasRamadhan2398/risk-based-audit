@@ -324,11 +324,12 @@ watch(() => store.isAddModalOpen, (open, wasOpen) => {
         </template>
       </UTable>
 
-      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <span class="text-md text-gray-500 font-semibold">{{ rangeText }}</span>
+      <!-- Footer layout mirrors the shared TableEntities footer (Create Annual Audit Plan table) -->
+      <div class="px-2 sm:px-3 py-2.5 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-4 overflow-x-auto max-w-full">
+        <span class="text-sm text-gray-500 font-semibold">{{ rangeText }}</span>
         <div
           v-if="pagination.total > 0"
-          class="flex flex-wrap items-center justify-center gap-3"
+          class="flex flex-wrap items-center justify-center gap-4"
         >
           <div class="flex items-center gap-2">
             <span class="text-sm text-gray-500">{{ t('kpiPerformance.table.rowsPerPage') }}</span>
@@ -344,10 +345,13 @@ watch(() => store.isAddModalOpen, (open, wasOpen) => {
             v-model:page="page"
             :items-per-page="pagination.page_size"
             :total="pagination.total"
+            :show-controls="true"
+            :show-edges="true"
             size="sm"
             active-color="primary"
             color="neutral"
             variant="outline"
+            class="max-w-full overflow-x-auto"
           />
         </div>
       </div>

@@ -610,9 +610,29 @@ export interface ActionTakenReport {
   updated_at: string
   /**
    * What the caller may do with this item now, from the server ('assign', 'update_action_plan',
-   * 'upload_evidence', 'submit', 'review', 'cancel', 'delete'); null when the response has no such list.
+   * 'upload_evidence', 'submit', 'review', 'cancel', 'delete', 'remind'); null when the response has no such list.
    */
   allowed_actions: string[] | null
+  /** The LHA the ATR follows up (`lha` in the detail response); null when the server sent none. */
+  lha: AtrLhaInfo | null
+}
+
+/** Header fields of the audit result report (LHA) an ATR belongs to. Strings are '' when the LHA has none. */
+export interface AtrLhaInfo {
+  status: string
+  report_date: string | null
+  audit_object: string
+  department: string
+  company_name: string
+  audit_period: string
+  executive_summary: string
+  scope: string
+  methodology: string
+  finding_summary: string
+  conclusion: string
+  prepared_by: string
+  reviewed_by: string
+  approved_by: string
 }
 
 export interface AuditExecution {

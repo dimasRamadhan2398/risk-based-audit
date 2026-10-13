@@ -2,15 +2,18 @@ package employee
 
 import (
 	"encoding/json"
+	"master-service/models"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	apperrors "master-service/pkg/errors"
 	employeeRepo "master-service/repositories/employee"
 	employeeSvc "master-service/services/employee"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -186,7 +189,8 @@ func TestCreateEmployee_Validation(t *testing.T) {
 		if status != http.StatusBadRequest || body.Error.Code != "VALIDATION_FAILED" {
 			t.Fatalf("got %d %s", status, raw)
 		}
-		if body.Error.Fields["employee_code"] != "REQUIRED" || body.Error.Fields["email"] != "REQUIRED" {
+		// employee_code is generated on create, so only email is required.
+		if _, ok := body.Error.Fields["employee_code"]; ok || body.Error.Fields["email"] != "REQUIRED" {
 			t.Fatalf("fields = %v", body.Error.Fields)
 		}
 	})
@@ -214,4 +218,88 @@ func TestCreateEmployee_Validation(t *testing.T) {
 		}
 		assertNoLeak(t, raw)
 	})
+}
+
+// memRepo is a minimal in-memory IEmployeeRepository for HTTP-level create tests
+// that need the generator to see rows and the insert to succeed.
+type memRepo struct {
+	codes []string
+}
+
+func (m *memRepo) Create(e *models.Employee) error {
+	e.ID = uuid.New()
+	m.codes = append(m.codes, e.EmployeeCode)
+	return nil
+}
+func (m *memRepo) Update(*models.Employee) error { return nil }
+func (m *memRepo) Delete(uuid.UUID) error        { return nil }
+func (m *memRepo) FindByID(uuid.UUID) (*models.Employee, error) {
+	return nil, apperrors.ErrNotFound
+}
+func (m *memRepo) FindByEmail(string) (*models.Employee, error) { return nil, apperrors.ErrNotFound }
+func (m *memRepo) FindByCode(string) (*models.Employee, error)  { return nil, apperrors.ErrNotFound }
+func (m *memRepo) FindCodesWithPrefix(string) ([]string, error) {
+	return m.codes, nil
+}
+func (m *memRepo) FindAll() ([]*models.Employee, error) { return nil, nil }
+
+func TestCreateEmployee_OmittedCodeAndLevelGrade(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	repo := &memRepo{codes: []string{"EMP-0041", "EMP-0042"}}
+	ctrl := NewEmployeeController(employeeSvc.NewEmployeeService(repo), nil)
+	r := gin.New()
+	r.POST("/employees", ctrl.Create)
+
+	body := `{"full_name":"Budi","email":"budi@example.com",
+		"company_id":"11111111-1111-1111-1111-111111111111","department_id":"22222222-2222-2222-2222-222222222222",
+		"job_role_id":"33333333-3333-3333-3333-333333333333","join_date":"2024-01-01T00:00:00Z"}`
+	status, _, raw := do(t, r, http.MethodPost, "/employees", body)
+	if status != http.StatusCreated {
+		t.Fatalf("status = %d, body %s", status, raw)
+	}
+	var out struct {
+		Data struct {
+			EmployeeCode string `json:"employee_code"`
+			LevelGrade   int    `json:"level_grade"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal([]byte(raw), &out); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if out.Data.EmployeeCode != "EMP-0043" {
+		t.Fatalf("employee_code = %q, want EMP-0043; body %s", out.Data.EmployeeCode, raw)
+	}
+	if out.Data.LevelGrade != 1 {
+		t.Fatalf("level_grade = %d, want 1", out.Data.LevelGrade)
+	}
+}
+
+func TestNextEmployeeCode_ReturnsPreviewEnvelope(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	repo := &memRepo{codes: []string{"EMP-0041", "EMP-0042"}}
+	ctrl := NewEmployeeController(employeeSvc.NewEmployeeService(repo), nil)
+	r := gin.New()
+	r.GET("/employees", ctrl.FindAll)
+	r.GET("/employees/next-code", ctrl.NextCode)
+	r.GET("/employees/:id", ctrl.FindById)
+
+	status, _, raw := do(t, r, http.MethodGet, "/employees/next-code", "")
+	if status != http.StatusOK {
+		t.Fatalf("status = %d, body %s", status, raw)
+	}
+	var out struct {
+		Success bool `json:"success"`
+		Data    struct {
+			EmployeeCode string `json:"employee_code"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal([]byte(raw), &out); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if !out.Success || out.Data.EmployeeCode != "EMP-0043" {
+		t.Fatalf("body = %s", raw)
+	}
+	if len(repo.codes) != 2 {
+		t.Fatalf("preview must not insert; codes = %v", repo.codes)
+	}
 }

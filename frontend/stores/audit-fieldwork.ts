@@ -65,6 +65,7 @@ export interface TestControlItem {
   controlName: string
   controlDescription: string
   controlType: string
+  unitDivision: string
   testProcedure: string
   testResult: string
   finding: string
@@ -118,6 +119,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
   const options = {
     positions: ['Manager', 'Supervisor', 'Staff', 'Director', 'Head of Department', 'Other'],
     controlTypes: ['Preventive', 'Detective', 'Corrective', 'Manual', 'Automated'],
+    divisionOptions: ['OP', 'KK/KSD', 'IT', 'FIN', 'HR', 'LEG'],
     testResults: ['Effective', 'Ineffective', 'Partially Effective', 'Not Tested'],
     auditTopics: ['Internal Control', 'Compliance', 'Risk Management', 'Process Efficiency', 'Other']
   }
@@ -1560,6 +1562,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     controlName: '',
     controlDescription: '',
     controlType: '',
+    unitDivision: '',
     testProcedure: '',
     testResult: '',
     finding: '',
@@ -1592,6 +1595,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlForm.controlName = item.controlName
     testControlForm.controlDescription = item.controlDescription
     testControlForm.controlType = item.controlType
+    testControlForm.unitDivision = item.unitDivision || ''
     testControlForm.testProcedure = item.testProcedure
     testControlForm.testResult = item.testResult
     testControlForm.finding = item.finding
@@ -1612,6 +1616,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlForm.controlName = ''
     testControlForm.controlDescription = ''
     testControlForm.controlType = ''
+    testControlForm.unitDivision = ''
     testControlForm.testProcedure = ''
     testControlForm.testResult = ''
     testControlForm.finding = ''
@@ -1662,6 +1667,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           controlName: testControlForm.controlName,
           controlDescription: testControlForm.controlDescription,
           controlType: testControlForm.controlType,
+          unitDivision: testControlForm.unitDivision,
           testProcedure: testControlForm.testProcedure,
           testResult: testControlForm.testResult,
           finding: testControlForm.finding,
@@ -1701,6 +1707,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
           controlName: testControlForm.controlName,
           controlDescription: testControlForm.controlDescription,
           controlType: testControlForm.controlType,
+          unitDivision: testControlForm.unitDivision,
           testProcedure: testControlForm.testProcedure,
           testResult: testControlForm.testResult,
           finding: testControlForm.finding,

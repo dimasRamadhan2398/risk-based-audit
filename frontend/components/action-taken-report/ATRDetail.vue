@@ -50,6 +50,31 @@
         </template>
       </AtrFindingSummary>
 
+      <!-- LHA header fields (the audit result report this follow-up belongs to) -->
+      <section
+        v-if="item.lha"
+        class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4"
+      >
+        <h4 class="text-base font-bold">
+          {{ t('actionTakenReport.detail.lhaSection') }}
+        </h4>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div
+            v-for="field in lhaFields"
+            :key="field.key"
+            class="space-y-1"
+            :class="field.wide ? 'sm:col-span-2' : ''"
+          >
+            <dt class="font-semibold text-gray-600 dark:text-gray-300">
+              {{ field.label }}
+            </dt>
+            <dd class="whitespace-pre-line break-words">
+              {{ field.value || '-' }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
       <!-- Assignment and progress -->
       <section class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4">
         <h4 class="text-base font-bold">
@@ -195,6 +220,25 @@
             @click="store.openCancel(item)"
           />
           <UButton
+            v-if="remind"
+            :label="t('actionTakenReport.actions.sendReminder')"
+            icon="i-lucide-bell-ring"
+            color="neutral"
+            variant="outline"
+            class="justify-center"
+            :loading="store.saving"
+            @click="sendReminder"
+          />
+          <UButton
+            v-if="canEdit"
+            :label="t('actionTakenReport.actions.edit')"
+            icon="i-lucide-pencil"
+            color="neutral"
+            variant="outline"
+            class="justify-center"
+            @click="store.openEdit(item)"
+          />
+          <UButton
             v-if="actions.assign"
             :label="item.pic_user_id ? t('actionTakenReport.actions.reassign') : t('actionTakenReport.actions.assign')"
             icon="i-lucide-user-plus"
@@ -230,6 +274,7 @@ import { computed } from 'vue'
 import { useActionTakenReportStore } from '~/stores/action-taken-report'
 import { useI18n } from '~/composables/useI18n'
 import { useAtrActions } from '~/composables/useAtrActions'
+import { useGlobalModalStore } from '~/stores/global-modal'
 import { formatAtrDate, formatAtrDateTime, normalizeAtrStatus } from '~/utils/actionTakenReport'
 import AtrModalShell from '~/components/action-taken-report/AtrModalShell.vue'
 import AtrStatusBadge from '~/components/action-taken-report/AtrStatusBadge.vue'
@@ -240,10 +285,45 @@ const emit = defineEmits<{ (e: 'filter-lha', lhaId: string): void }>()
 
 const store = useActionTakenReportStore()
 const { t, locale } = useI18n()
-const { availableActions } = useAtrActions()
+const { availableActions, canEdit: canEditItem, canRemind: canRemindItem } = useAtrActions()
 
 const item = computed(() => store.current)
 const actions = computed(() => availableActions(item.value))
+const canEdit = computed(() => canEditItem(item.value))
+const remind = computed(() => canRemindItem(item.value))
+
+const lhaFields = computed(() => {
+  const lha = item.value?.lha
+  if (!lha) return []
+  const f = (key: string, label: string, value: string, wide = false) => ({ key, label, value, wide })
+  return [
+    f('status', t('actionTakenReport.detail.lhaStatus'), lha.status),
+    f('report_date', t('actionTakenReport.detail.reportDate'), formatAtrDate(lha.report_date, locale.value)),
+    f('audit_object', t('actionTakenReport.detail.auditObject'), lha.audit_object),
+    f('department', t('actionTakenReport.detail.department'), lha.department),
+    f('company_name', t('actionTakenReport.detail.companyName'), lha.company_name),
+    f('audit_period', t('actionTakenReport.detail.auditPeriod'), lha.audit_period),
+    f('executive_summary', t('actionTakenReport.detail.executiveSummary'), lha.executive_summary, true),
+    f('scope', t('actionTakenReport.detail.scope'), lha.scope, true),
+    f('methodology', t('actionTakenReport.detail.methodology'), lha.methodology, true),
+    f('finding_summary', t('actionTakenReport.detail.findingSummary'), lha.finding_summary, true),
+    f('conclusion', t('actionTakenReport.detail.conclusion'), lha.conclusion, true),
+    f('prepared_by', t('actionTakenReport.detail.preparedBy'), lha.prepared_by),
+    f('reviewed_by', t('actionTakenReport.detail.lhaReviewedBy'), lha.reviewed_by),
+    f('approved_by', t('actionTakenReport.detail.approvedBy'), lha.approved_by)
+  ]
+})
+
+const sendReminder = async () => {
+  if (!item.value) return
+  const confirmed = await useGlobalModalStore().confirmSubmit({
+    description: t('actionTakenReport.reminder.confirmTitle'),
+    body: [t('actionTakenReport.reminder.confirmBody')],
+    confirmLabel: t('actionTakenReport.actions.sendReminder')
+  })
+  if (!confirmed || !item.value) return
+  await store.sendReminder(item.value.id)
+}
 
 const reviewTone = computed(() => normalizeAtrStatus(item.value?.status) === 'COMPLETED'
   ? 'border-success-200 dark:border-success-900/50 bg-success-50/60 dark:bg-success-950/20'

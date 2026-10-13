@@ -147,6 +147,8 @@ func (r *Registry) users() {
 	{
 		// Must stay before /:id. Minimal fields of active users, for the ATR PIC picker.
 		users.GET("/assignable", r.authMiddleware.RequireRoles(AssignableUserRoles...), r.controller.GetUser().ListAssignableUsers)
+		// Email contacts for audit-service reminders (same roles as /assignable)
+		users.GET("/contacts", r.authMiddleware.RequireRoles(AssignableUserRoles...), r.controller.GetUser().ListUserContacts)
 
 		// Users may read and update their own profile; admins may do it for anyone
 		selfOrAdmin := r.authMiddleware.RequireSelfOrRoles("id", "ADMIN")

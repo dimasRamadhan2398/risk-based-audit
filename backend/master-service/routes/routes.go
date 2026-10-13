@@ -69,6 +69,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	employees := api.Group("/employees")
 	{
 		employees.GET("", controller.GetEmployee().FindAll)
+		employees.GET("/next-code", controller.GetEmployee().NextCode)
 		employees.GET("/:id", controller.GetEmployee().FindById)
 		employees.POST("", controller.GetEmployee().Create)
 		employees.PUT("/:id", controller.GetEmployee().Update)

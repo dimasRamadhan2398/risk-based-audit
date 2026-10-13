@@ -14,6 +14,7 @@ type EmployeeControllerInterface interface {
 	FindAll(ctx *gin.Context)
 	FindById(ctx *gin.Context)
 	Create(ctx *gin.Context)
+	NextCode(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 }
@@ -59,6 +60,15 @@ func (d *EmployeeController) Create(ctx *gin.Context) {
 		return
 	}
 	response.Created(ctx, "Employee created successfully", employee)
+}
+func (d *EmployeeController) NextCode(ctx *gin.Context) {
+	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
+	code, err := d.employeeSvc.NextEmployeeCode(baseService)
+	if err != nil {
+		d.RespondError(ctx, err)
+		return
+	}
+	response.OK(ctx, "Next employee code fetched successfully", gin.H{"employee_code": code})
 }
 func (d *EmployeeController) Update(ctx *gin.Context) {
 	var req models.Employee

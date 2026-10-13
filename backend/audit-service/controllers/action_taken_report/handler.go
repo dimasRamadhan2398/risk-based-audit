@@ -24,6 +24,7 @@ import (
 	"audit-service/models"
 	"audit-service/pkg/authclient"
 	"audit-service/pkg/logger"
+	"audit-service/pkg/mailer"
 	"audit-service/pkg/response"
 	atrsvc "audit-service/services/action_taken_report"
 
@@ -55,12 +56,25 @@ type Controller struct {
 	// Users resolves the PIC's full name from auth-service on assignment;
 	// nil skips the lookup
 	Users authclient.Lookup
+	// Contacts resolves the e-mail addresses of reminder recipients from
+	// auth-service; nil makes reminders fail with 503
+	Contacts authclient.ContactLookup
+	// Mailer sends reminders; nil (RESEND_API_KEY unset) makes reminders fail
+	// with 503 EMAIL_NOT_CONFIGURED
+	Mailer mailer.Sender
 }
 
 // NewController creates the controller with the default evidence directory
 // and the auth-service client from AUTH_SERVICE_URL
 func NewController(db *gorm.DB) *Controller {
-	return &Controller{DB: db, EvidenceDir: DefaultEvidenceDir, MaxEvidenceBytes: DefaultMaxEvidenceBytes, Now: time.Now, Users: authclient.New()}
+	client := authclient.New()
+	ctl := &Controller{DB: db, EvidenceDir: DefaultEvidenceDir, MaxEvidenceBytes: DefaultMaxEvidenceBytes, Now: time.Now, Users: client, Contacts: client}
+	if m, err := mailer.NewFromEnv(); err == nil {
+		ctl.Mailer = m
+	} else if logger.Log != nil {
+		logger.Warn("ATR reminders disabled: " + err.Error())
+	}
+	return ctl
 }
 
 // Register mounts the routes on g, which must already require authentication
@@ -68,6 +82,7 @@ func (ctl *Controller) Register(g *gin.RouterGroup) {
 	g.GET("", ctl.List)
 	g.GET("/permissions", ctl.MyPermissions)
 	g.GET("/:id", ctl.Get)
+	g.PUT("/:id", ctl.Update)
 	g.PUT("/:id/assignment", ctl.Assign)
 	g.PUT("/:id/action-plan", ctl.UpdateActionPlan)
 	g.POST("/:id/evidence", ctl.UploadEvidence)
@@ -75,6 +90,7 @@ func (ctl *Controller) Register(g *gin.RouterGroup) {
 	g.POST("/:id/submit", ctl.Submit)
 	g.POST("/:id/review", ctl.Review)
 	g.POST("/:id/cancel", ctl.Cancel)
+	g.POST("/:id/reminder", ctl.SendReminder)
 	g.DELETE("/:id", ctl.Delete)
 }
 
@@ -136,6 +152,9 @@ type ATRResponse struct {
 	UpdatedAt           time.Time          `json:"updated_at"`
 	// What the caller may do with this ATR now (see atrsvc.Actor.AllowedActions)
 	AllowedActions []string `json:"allowed_actions"`
+	// The LHA this ATR follows, read live (null when the LHA is gone or the
+	// ATR was migrated without a link). See LHAResponse.
+	LHA *LHAResponse `json:"lha"`
 }
 
 func strPtr(s string) *string {
@@ -145,7 +164,7 @@ func strPtr(s string) *string {
 	return &s
 }
 
-func toResponse(r *models.ActionTakenReport, a atrsvc.Actor, now time.Time) ATRResponse {
+func toResponse(r *models.ActionTakenReport, a atrsvc.Actor, now time.Time, lha *models.AuditResultReport) ATRResponse {
 	out := ATRResponse{
 		ID:              r.ID.String(),
 		ReportNumber:    r.ReportNumber,
@@ -176,6 +195,7 @@ func toResponse(r *models.ActionTakenReport, a atrsvc.Actor, now time.Time) ATRR
 		out.DueDate = &s
 	}
 	out.IsOverdue, out.OverdueDays = models.ComputeATROverdue(r.DueDate, r.Status, now)
+	out.LHA = newLHAResponse(lha, r.FindingID)
 	for _, e := range r.Evidence {
 		out.Evidence = append(out.Evidence, EvidenceResponse{
 			ID: e.ID.String(), FileName: e.FileName, FileSize: e.FileSize,
@@ -242,7 +262,12 @@ func (ctl *Controller) respondOne(c *gin.Context, a atrsvc.Actor, id uuid.UUID, 
 		response.InternalServerError(c, "Failed to fetch action taken report")
 		return
 	}
-	response.OK(c, msg, toResponse(&r, a, ctl.now()))
+	lhas, err := ctl.lhasFor([]models.ActionTakenReport{r})
+	if err != nil {
+		response.InternalServerError(c, "Failed to fetch action taken report")
+		return
+	}
+	response.OK(c, msg, toResponse(&r, a, ctl.now(), lhaOf(lhas, &r)))
 }
 
 // transition applies updates only if the ATR is still in one of from, so two
@@ -434,10 +459,15 @@ func (ctl *Controller) List(c *gin.Context) {
 		return
 	}
 
+	lhas, err := ctl.lhasFor(rows)
+	if err != nil {
+		response.InternalServerError(c, "Failed to fetch action taken reports")
+		return
+	}
 	now := ctl.now()
 	items := make([]ATRResponse, 0, len(rows))
 	for i := range rows {
-		items = append(items, toResponse(&rows[i], a, now))
+		items = append(items, toResponse(&rows[i], a, now, lhaOf(lhas, &rows[i])))
 	}
 	response.OK(c, "Action taken reports fetched successfully", gin.H{
 		"items": items,
@@ -467,7 +497,12 @@ func (ctl *Controller) Get(c *gin.Context) {
 	if !ok {
 		return
 	}
-	response.OK(c, "Action taken report fetched successfully", toResponse(r, a, ctl.now()))
+	lhas, err := ctl.lhasFor([]models.ActionTakenReport{*r})
+	if err != nil {
+		response.InternalServerError(c, "Failed to fetch action taken report")
+		return
+	}
+	response.OK(c, "Action taken report fetched successfully", toResponse(r, a, ctl.now(), lhaOf(lhas, r)))
 }
 
 // ---------------------------------------------------------------------------

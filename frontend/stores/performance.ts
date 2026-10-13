@@ -108,7 +108,9 @@ export const usePerformanceStore = defineStore('performance', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
       const response: any = await $fetch(`${baseUrl}/performance/kpi-breakdown`, {
-        params: buildKpiBreakdownParams(query)
+        // `_ts` is ignored by the backend. It stops Kong's proxy-cache (300 s on /api/v1/performance, prod) from
+        // replaying an earlier empty response after a target is added; every fetch must reach the audit service.
+        params: { ...buildKpiBreakdownParams(query), _ts: Date.now() }
       });
       // A newer request (filter/page change) was started meanwhile; its result wins.
       if (requestId !== kpiBreakdownRequestId) return;

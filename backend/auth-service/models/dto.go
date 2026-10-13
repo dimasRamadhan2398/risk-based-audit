@@ -262,3 +262,18 @@ type ConfidentialityStatusResponse struct {
 	HasAccepted bool   `json:"has_accepted"`
 	AcceptedAt  string `json:"accepted_at,omitempty"`
 }
+// ListUserContactsRequest is the query of GET /users/contacts. IDs and
+// DepartmentHeadOf are both optional filters (ANDed); at least one is needed.
+type ListUserContactsRequest struct {
+	IDs              []uuid.UUID
+	DepartmentHeadOf string
+}
+
+// UserContact is an active user's contact details, for notifications sent by
+// audit-service (reminders to the PIC and the department head)
+type UserContact struct {
+	ID         string `json:"id"`
+	FullName   string `json:"full_name"`
+	Email      string `json:"email"`
+	Department string `json:"department"`
+}

@@ -805,7 +805,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
           method: 'DELETE'
         })
       }
-      toast.showSuccess('Rencana audit tahunan berhasil diproses.')
       await fetchPlans()
     } catch (error: any) {
       console.error('Failed to delete annual plan:', error)
